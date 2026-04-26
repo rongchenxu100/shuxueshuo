@@ -1,0 +1,15 @@
+[
+  {
+    "id": "tj-2025-bufenqu-ermo-24",
+    "city": "tianjin",
+    "cityLabel": "天津",
+    "year": 2025,
+    "exam": "bufenqu-ermo",
+    "examLabel": "部分区二模",
+    "slot": "24",
+    "title": "2025 年天津市部分区二模第 24 题（矩形折叠）",
+    "tags": ["geometry", "folding"],
+    "path": "../problems/tj/24/tj-2025-bufenqu-ermo-24.html",
+    "status": "published"
+  }
+]

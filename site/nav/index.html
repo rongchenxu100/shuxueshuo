@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="数学说题库：先选城市，再选题号，快速进入对应的中考真题与一模二模模拟真题。"
+    />
+    <title>题库 | 数学说</title>
+    <link rel="stylesheet" href="../assets/css/site.css" />
+  </head>
+  <body class="site-shell library-page">
+    <a class="skip-link" href="#library">跳到题库</a>
+    <div class="site-backdrop"></div>
+
+    <header class="library-header">
+      <nav class="home-v2-nav library-nav" aria-label="站内导航">
+        <a class="home-v2-brand" href="../index.html" aria-label="数学说首页">
+          <span class="home-v2-brand-mark" aria-hidden="true"></span>
+          <span>数学说</span>
+        </a>
+        <div class="home-v2-nav-links">
+          <a href="../index.html">首页</a>
+          <a href="./index.html" aria-current="page">题库</a>
+          <a href="../index.html#about">关于我们</a>
+        </div>
+      </nav>
+    </header>
+
+    <main class="library-shell" id="library">
+      <section class="library-control-panel" aria-label="题库筛选">
+        <div class="library-control-block">
+          <div class="library-control-head">
+            <h2>选择城市</h2>
+            <span id="city-count">加载中</span>
+          </div>
+          <div id="city-selector" class="library-city-grid"></div>
+        </div>
+
+        <div class="library-control-block">
+          <div class="library-control-head">
+            <h2>选择题号</h2>
+            <span>18-25 题</span>
+          </div>
+          <div id="slot-selector" class="library-slot-grid"></div>
+        </div>
+
+        <div class="library-control-block library-filter-row">
+          <div>
+            <h2>考试类型</h2>
+            <p>可按真题、模考或专题训练继续筛选。</p>
+          </div>
+          <div id="exam-selector" class="library-exam-tabs"></div>
+        </div>
+      </section>
+
+      <section class="library-results-panel" aria-live="polite">
+        <div class="library-results-head">
+          <div>
+            <p class="section-kicker section-kicker--zh">题目列表</p>
+            <h2 id="results-title">题目</h2>
+          </div>
+          <span id="results-count" class="library-count-pill">0 道</span>
+        </div>
+        <div id="results-list" class="library-results-list"></div>
+      </section>
+    </main>
+
+    <script src="../assets/js/problems-data.js"></script>
+    <script src="../assets/js/nav.js"></script>
+  </body>
+</html>

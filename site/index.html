@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="数学说：中考真题与一模二模典型题的可视化题库。用交互图形、函数图像和同步步骤，帮助学生真正理解每一道数学题。"
+    />
+    <title>数学说 | 中考数学可视化题库</title>
+    <link rel="stylesheet" href="./assets/css/site.css" />
+  </head>
+  <body class="site-shell home-v2">
+    <a class="skip-link" href="#main">跳到正文</a>
+    <div class="site-backdrop"></div>
+
+    <header class="home-v2-hero">
+      <nav class="home-v2-nav" aria-label="站内导航">
+        <a class="home-v2-brand" href="./index.html" aria-label="数学说首页">
+          <span class="home-v2-brand-mark" aria-hidden="true"></span>
+          <span>数学说</span>
+        </a>
+        <div class="home-v2-nav-links">
+          <a href="./index.html" aria-current="page">首页</a>
+          <a href="./nav/index.html">题库</a>
+          <a href="#about">关于我们</a>
+        </div>
+      </nav>
+
+      <section class="home-v2-hero-grid">
+        <div class="home-v2-copy">
+          <h1><span class="home-v2-title-accent">理解</span>每一道题，而不只是记住答案</h1>
+          <p class="home-v2-lead">
+            通过动态交互、图形与数值联动、步骤同步，在几何与函数题中真正看懂思路，建立自己的解题方法。
+          </p>
+
+          <div class="home-v2-points" aria-label="核心能力">
+            <div class="home-v2-point">
+              <span class="home-v2-point-icon">⌁</span>
+              <div>
+                <strong>动态交互</strong>
+                <p>拖拽、旋转、折叠、改变参数，观察变化如何发生。</p>
+              </div>
+            </div>
+            <div class="home-v2-point">
+              <span class="home-v2-point-icon">≋</span>
+              <div>
+                <strong>步骤同步</strong>
+                <p>图形变化与解题步骤对应，知道每一步为什么这样做。</p>
+              </div>
+            </div>
+            <div class="home-v2-point">
+              <span class="home-v2-point-icon">◌</span>
+              <div>
+                <strong>可视化理解</strong>
+                <p>把抽象关系变直观，把复杂题拆成可以观察的过程。</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="home-v2-actions">
+            <a class="home-v2-button home-v2-button-primary" href="./nav/index.html">
+              进入题库
+              <span aria-hidden="true">→</span>
+            </a>
+            <a class="home-v2-button home-v2-button-secondary" href="./problems/tj/24/tj-2025-bufenqu-ermo-24.html" target="_blank" rel="noopener noreferrer">
+              了解更多
+            </a>
+          </div>
+        </div>
+
+        <a class="home-v2-product" href="./problems/tj/24/tj-2025-bufenqu-ermo-24.html" target="_blank" rel="noopener noreferrer" aria-label="查看交互题页示例">
+          <div class="product-topbar">
+            <span>‹ 返回</span>
+            <strong>二次函数与几何综合</strong>
+            <span class="product-chip">中考真题</span>
+          </div>
+
+          <div class="product-question">
+            在平面直角坐标系中，抛物线与坐标轴交于 A、B 两点，点 P 是抛物线在第一象限上的动点。
+            过点 P 作辅助线，求面积与位置关系。
+          </div>
+
+          <div class="product-body">
+            <div class="product-canvas">
+              <svg viewBox="0 0 520 420" role="img" aria-label="函数与几何联动示意图">
+                <defs>
+                  <pattern id="homeGrid" width="32" height="32" patternUnits="userSpaceOnUse">
+                    <path d="M 32 0 L 0 0 0 32" fill="none" stroke="rgba(31,41,55,.08)" stroke-width="1" />
+                  </pattern>
+                  <linearGradient id="homeTriangle" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="rgba(15,118,110,.24)" />
+                    <stop offset="100%" stop-color="rgba(15,118,110,.06)" />
+                  </linearGradient>
+                </defs>
+                <rect width="520" height="420" fill="url(#homeGrid)" />
+                <line x1="56" y1="320" x2="486" y2="320" stroke="#8aa0ba" stroke-width="1.5" />
+                <line x1="190" y1="48" x2="190" y2="382" stroke="#8aa0ba" stroke-width="1.5" />
+                <path d="M66 365 C104 226 150 137 207 105 C252 79 301 104 346 166 C388 224 425 295 486 358" fill="none" stroke="#0f6472" stroke-width="3" stroke-linecap="round" />
+                <path d="M190 320 L318 158 L394 320 Z" fill="url(#homeTriangle)" stroke="#0f766e" stroke-width="2.2" stroke-linejoin="round" />
+                <path d="M318 158 L394 320" fill="none" stroke="#0f766e" stroke-width="2.2" />
+                <path d="M318 158 L318 320" fill="none" stroke="#0f766e" stroke-width="1.6" stroke-dasharray="7 7" />
+                <path d="M190 320 L394 320" fill="none" stroke="#c97828" stroke-width="2.4" />
+                <path d="M318 158 C336 192 354 229 372 270" fill="none" stroke="#0f766e" stroke-width="2.4" />
+                <circle cx="102" cy="320" r="5.8" fill="#0f766e" />
+                <circle cx="190" cy="320" r="6" fill="#0f766e" />
+                <circle cx="318" cy="158" r="7.2" fill="#0f766e" />
+                <circle cx="372" cy="270" r="5.8" fill="#0f766e" />
+                <circle cx="394" cy="320" r="4.6" fill="#0f766e" fill-opacity=".18" stroke="#0f766e" stroke-width="1.5" />
+                <text x="88" y="306" fill="#213b56" font-size="18">A</text>
+                <text x="178" y="343" fill="#213b56" font-size="18">O</text>
+                <text x="328" y="154" fill="#213b56" font-size="18">P</text>
+                <text x="402" y="337" fill="#213b56" font-size="18">B</text>
+                <text x="314" y="340" fill="#213b56" font-size="14">D</text>
+                <text x="379" y="268" fill="#213b56" font-size="16">E</text>
+                <text x="462" y="306" fill="#213b56" font-size="16">x</text>
+                <text x="200" y="62" fill="#213b56" font-size="16">y</text>
+              </svg>
+
+              <div class="product-controls">
+                <label>
+                  <span>P 点横坐标 x<sub>p</sub></span>
+                  <span class="fake-input">1.20</span>
+                </label>
+                <div class="control-line">
+                  <span></span>
+                </div>
+                <label>
+                  <span>PD 的长度</span>
+                  <span class="fake-input">2.00</span>
+                </label>
+                <div class="control-line control-line-strong">
+                  <span></span>
+                </div>
+              </div>
+            </div>
+
+            <aside class="product-steps">
+              <div class="product-tabs">
+                <strong>解题步骤</strong>
+                <span>知识提示</span>
+              </div>
+              <ol>
+                <li><span>1</span><p>设抛物线解析式，明确点 P 的坐标。</p></li>
+                <li><span>2</span><p>利用交点求参数，建立函数与图形关系。</p></li>
+                <li><span>3</span><p>将面积表达成 x<sub>p</sub> 的函数。</p></li>
+                <li><span>4</span><p>观察图像变化，判断最大值与取值范围。</p></li>
+                <li><span>5</span><p>回到题目条件，写出完整结论。</p></li>
+              </ol>
+            </aside>
+          </div>
+
+          <div class="product-footer">
+            <span>← 上一题</span>
+            <span>题目设置</span>
+            <span>展开图形</span>
+            <span>下一题 →</span>
+          </div>
+        </a>
+      </section>
+    </header>
+
+    <main id="main" class="home-v2-main">
+      <section class="home-v2-band">
+        <div class="home-v2-section-head">
+          <h2>三步学会用数学说</h2>
+          <p>从动手探索，到步骤同步，再到真正理解，一道题会经历清楚的学习路径。</p>
+        </div>
+        <div class="home-v2-step-grid">
+          <article class="home-v2-step">
+            <span>01</span>
+            <h3>动手探索</h3>
+            <p>拖动点、改变参数、旋转或折叠，先观察图形与数值的变化。</p>
+            <div class="mini-figure mini-figure-drag">
+              <svg viewBox="0 0 220 120" role="img" aria-label="动手探索示意图">
+                <path d="M28 92 H190" stroke="#b5c5cf" stroke-width="1.6" />
+                <path d="M62 92 L120 26 L174 92 Z" fill="none" stroke="#a9bbc7" stroke-width="1.8" />
+                <path d="M120 26 V92" stroke="#a9bbc7" stroke-width="1.4" stroke-dasharray="5 5" />
+                <circle cx="62" cy="92" r="5" fill="#2f80ed" />
+                <circle cx="120" cy="26" r="5" fill="#2f80ed" />
+                <circle cx="174" cy="92" r="5" fill="#2f80ed" />
+                <path d="M142 48 l18 18 l-10 1 l6 14 l-7 3 l-6-14 l-7 7 Z" fill="#fffdf8" stroke="#73808a" stroke-width="1.5" />
+              </svg>
+            </div>
+          </article>
+          <article class="home-v2-step">
+            <span>02</span>
+            <h3>步骤同步</h3>
+            <p>解题步骤与图形状态对应，理解每一步和图形之间的关系。</p>
+            <div class="mini-figure mini-figure-steps">
+              <svg viewBox="0 0 220 120" role="img" aria-label="步骤同步示意图">
+                <rect x="24" y="22" width="76" height="66" rx="4" fill="#fffaf0" stroke="#eadcc9" />
+                <path d="M38 40 h48 M38 56 h34 M38 72 h42" stroke="#c97828" stroke-width="2" stroke-linecap="round" />
+                <rect x="120" y="24" width="70" height="64" rx="4" fill="none" stroke="#0f766e" stroke-width="1.6" />
+                <path d="M128 80 L184 32 M128 32 L184 80" stroke="#0f766e" stroke-width="1.4" />
+                <circle cx="128" cy="32" r="3.5" fill="#0f766e" />
+                <circle cx="184" cy="32" r="3.5" fill="#0f766e" />
+                <circle cx="128" cy="80" r="3.5" fill="#0f766e" />
+                <circle cx="184" cy="80" r="3.5" fill="#0f766e" />
+                <path d="M104 56 H116" stroke="#b8c3c8" stroke-width="1.6" />
+              </svg>
+            </div>
+          </article>
+          <article class="home-v2-step">
+            <span>03</span>
+            <h3>真正理解</h3>
+            <p>从“看懂一遍”到“会做一类题”，形成可以迁移的数学思维。</p>
+            <div class="mini-figure mini-figure-proof">
+              <svg viewBox="0 0 220 120" role="img" aria-label="真正理解示意图">
+                <path d="M48 88 L128 30 L176 88 Z" fill="none" stroke="#c5ced4" stroke-width="1.7" />
+                <path d="M128 30 L118 88 M128 30 L176 88 M48 88 L118 88" stroke="#c5ced4" stroke-width="1.2" />
+                <circle cx="128" cy="30" r="4" fill="#c97828" />
+                <circle cx="48" cy="88" r="4" fill="#c97828" />
+                <circle cx="176" cy="88" r="4" fill="#c97828" />
+                <circle cx="112" cy="76" r="26" fill="rgba(201,120,40,.12)" stroke="#e3c49f" />
+                <path d="M112 63 l4 9 h10 l-8 6 l3 10 l-9-6 l-9 6 l3-10 l-8-6 h10 Z" fill="#c97828" />
+              </svg>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="home-v2-band">
+        <div class="home-v2-section-head">
+          <h2>覆盖中考核心题型与知识模块</h2>
+          <p>几何、函数、坐标与图形问题，都会转化为可探索、可观察、可复盘的题目页面。</p>
+        </div>
+        <div class="home-v2-topic-grid">
+          <a href="./nav/index.html" class="home-v2-topic">
+            <div class="topic-visual">
+              <svg viewBox="0 0 220 116" role="img" aria-label="动态几何示意图">
+                <rect x="1" y="1" width="218" height="114" rx="7" class="topic-bg" />
+                <path d="M38 86 C54 26 130 18 166 60 C178 74 184 88 186 100" class="topic-line topic-line-soft" />
+                <circle cx="72" cy="76" r="32" class="topic-line topic-fill-none" />
+                <path d="M52 88 L116 32 L166 86 Z" class="topic-line topic-fill-soft" />
+                <path d="M72 76 L116 32 L138 86" class="topic-line topic-line-thin" />
+                <circle cx="52" cy="88" r="4" class="topic-dot" />
+                <circle cx="116" cy="32" r="4" class="topic-dot" />
+                <circle cx="166" cy="86" r="4" class="topic-dot" />
+              </svg>
+            </div>
+            <h3>动态几何</h3>
+            <p>三角形、圆、相似、全等、角度、面积等。</p>
+          </a>
+          <a href="./nav/index.html" class="home-v2-topic">
+            <div class="topic-visual">
+              <svg viewBox="0 0 220 116" role="img" aria-label="函数与方程示意图">
+                <rect x="1" y="1" width="218" height="114" rx="7" class="topic-bg" />
+                <path d="M28 84 H196 M62 20 V98" class="topic-axis" />
+                <path d="M30 96 C58 30 94 18 124 44 C150 67 168 88 196 96" class="topic-line" />
+                <path d="M62 84 L126 44 L170 84" class="topic-line topic-fill-soft" />
+                <path d="M126 44 V84" class="topic-line topic-line-thin" stroke-dasharray="5 5" />
+                <circle cx="126" cy="44" r="4.5" class="topic-dot" />
+                <circle cx="170" cy="84" r="4" class="topic-dot-amber" />
+              </svg>
+            </div>
+            <h3>函数与方程</h3>
+            <p>一次函数、二次函数、反比例函数、综合问题。</p>
+          </a>
+          <a href="./nav/index.html" class="home-v2-topic">
+            <div class="topic-visual">
+              <svg viewBox="0 0 220 116" role="img" aria-label="坐标与图形示意图">
+                <rect x="1" y="1" width="218" height="114" rx="7" class="topic-bg" />
+                <path d="M26 78 H194 M80 18 V100" class="topic-axis" />
+                <path d="M80 78 L138 34 L174 78 Z" class="topic-line topic-fill-soft" />
+                <path d="M138 34 V78 M80 78 H174" class="topic-line topic-line-thin" stroke-dasharray="5 5" />
+                <circle cx="80" cy="78" r="4" class="topic-dot" />
+                <circle cx="138" cy="34" r="4.5" class="topic-dot" />
+                <circle cx="174" cy="78" r="4" class="topic-dot-amber" />
+                <text x="142" y="29" class="topic-text">A</text>
+                <text x="178" y="92" class="topic-text">B</text>
+              </svg>
+            </div>
+            <h3>坐标与图形</h3>
+            <p>平面直角坐标系、点的坐标、图形变换。</p>
+          </a>
+          <a href="./nav/index.html" class="home-v2-topic">
+            <div class="topic-visual">
+              <svg viewBox="0 0 220 116" role="img" aria-label="动态变化问题示意图">
+                <rect x="1" y="1" width="218" height="114" rx="7" class="topic-bg" />
+                <path d="M30 58 H190" class="topic-axis" />
+                <path d="M42 58 C72 34 112 34 142 58 C158 70 174 70 190 58" class="topic-line topic-line-soft" />
+                <circle cx="54" cy="58" r="4" class="topic-dot-quiet" />
+                <circle cx="94" cy="58" r="4" class="topic-dot-quiet" />
+                <circle cx="134" cy="58" r="8" class="topic-dot-ring" />
+                <circle cx="174" cy="58" r="4" class="topic-dot-quiet" />
+                <path d="M42 86 H184 M42 86 H128" class="topic-line topic-line-thick" />
+                <circle cx="128" cy="86" r="4.5" class="topic-dot" />
+              </svg>
+            </div>
+            <h3>动态变化问题</h3>
+            <p>动点、动线、最值、取值范围、分类讨论。</p>
+          </a>
+          <a href="./nav/index.html" class="home-v2-topic">
+            <div class="topic-visual">
+              <svg viewBox="0 0 220 116" role="img" aria-label="综合与应用示意图">
+                <rect x="1" y="1" width="218" height="114" rx="7" class="topic-bg" />
+                <path d="M30 88 C62 26 108 24 132 88" class="topic-line topic-line-soft" />
+                <path d="M58 88 C88 42 128 42 162 88" class="topic-line" />
+                <path d="M88 88 C118 56 154 56 190 88" class="topic-line topic-line-amber" />
+                <path d="M38 88 H196" class="topic-axis" />
+                <circle cx="112" cy="58" r="4.5" class="topic-dot" />
+                <path d="M112 58 L176 88" class="topic-line topic-line-thin" />
+              </svg>
+            </div>
+            <h3>综合与应用</h3>
+            <p>跨知识点综合、实际应用题、压轴题训练。</p>
+          </a>
+        </div>
+      </section>
+
+      <section class="home-v2-band home-v2-final" id="about">
+        <div>
+          <h2>我们是孩子的爸爸妈妈</h2>
+          <p>我们希望用 AI 帮孩子真正理解每一道题，而不是只背答案和套路。</p>
+          <p>我们将持续整理中考真题与一模、二模等模拟真题，把几何与函数题做成交互式页面，让图形变化、函数关系和解题步骤同步出现，帮助更多同学把学习过程变得更清楚。</p>
+        </div>
+        <a class="home-v2-button home-v2-button-primary" href="./nav/index.html">
+          进入题库探索
+          <span aria-hidden="true">→</span>
+        </a>
+      </section>
+    </main>
+    <button class="back-to-top" type="button" aria-label="回到顶部" title="回到顶部">
+      ↑
+    </button>
+    <script src="./assets/js/home.js"></script>
+  </body>
+</html>
