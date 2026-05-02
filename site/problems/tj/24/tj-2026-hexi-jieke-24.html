@@ -106,58 +106,60 @@
         ["∴","AB＝√[576/25＋324/25]"],
         ["∴","AB＝√36＝6"]
       ],box:["OA＝5","C＝（－24/5，18/5）","AB＝6"]},
-      {id:"q1s1",section:"第（II）①问",title:"第1步：由 CP＝t 表示 P、Q、D",t:2.4,derive:[
-        ["∵","BC＝OA＝5，CP＝t"],
-        ["∴","P 在 C 到 B 的方向上走了 t/5"],
-        ["∵","从 C 到 B，横向增加 24/5，纵向增加 7/5"],
-        ["∴","P＝（－24/5＋24t/25，18/5＋7t/25）"],
-        ["∵","PQ∥y 轴，Q 在 CO 上"],
-        ["∴","Q＝（－24/5＋24t/25，18/5－18t/25）"],
-        ["∵","折痕 PQ 是竖直线"],
-        ["∴","D＝（－24/5＋48t/25，18/5）"]
-      ],box:["P＝（－24/5＋24t/25，18/5＋7t/25）","Q＝（－24/5＋24t/25，18/5－18t/25）","D＝（－24/5＋48t/25，18/5）"]},
-      {id:"q1s2",section:"第（II）①问",title:"第2步：由边界位置判断 D 的范围状态",t:2.4,derive:[
+      {id:"q1s1",section:"第（II）①问",title:"第1步：由相似三角形求 S",t:2.4,derive:[
+        ["∵","PQ∥OB，P 在 CB 上，Q 在 CO 上"],
+        ["∴","△CPQ∽△CBO"],
+        ["∵","CP＝t，CB＝OA＝5"],
+        ["∴","S△CPQ / S△CBO＝（CP/CB）²＝t²/25"],
+        ["∵","OB＝5，C到OB的距离为 24/5"],
+        ["∵","S△CBO＝1/2×OB×24/5＝12"],
+        ["∴","S△CPQ＝12t²/25"],
+        ["∵","沿 PQ 折叠，△DPQ≌△CPQ"],
+        ["∴","S＝S△DPQ＝S△CPQ＝12t²/25"]
+      ],box:["△CPQ∽△CBO","S△CBO＝12","△DPQ≌△CPQ","S＝12t²/25"]},
+      {id:"q1s2",section:"第（II）①问",title:"第2步：由边界位置判断 t 的范围",t:2.4,derive:[
         ["∵","t＝0 时，P、Q、D 都与 C 重合"],
         ["∴","左边界是折叠区域刚开始出现的位置"],
         ["∵","随着 t 增大，D 沿水平线 y＝18/5 向右移动"],
         ["∵","当 D 到达边 AB 时，D 仍在纸片上"],
         ["∵","D 再继续向右移动，就离开平行四边形纸片"],
         ["∴","只需求出 D 在 AB 上时的右边界"]
-      ],box:["左边界：t＝0","右边界：D 在 AB 上"],minis:[
+      ],box:["S＝12t²/25","左边界：t＝0","右边界：D 在 AB 上"],minis:[
         {title:"t＝0",caption:"D 与 C 重合，折叠区域刚开始。",t:0.001},
         {title:"D 在内部",caption:"折后 △DPQ 整个落在纸片内。",t:2.4},
         {title:"D 在 AB 上",caption:"这是 D 仍在纸片上的右边界。",t:125/36},
         {title:"t＝5",caption:"PQ 与 y 轴重合，D 已越过 AB。",t:5}
       ]},
-      {id:"q1s3",section:"第（II）①问",title:"第3步：由 D 在 AB 上求右边界",t:125/36,derive:[
-        ["∵","D 在 AB 上，且 D 的纵坐标为 18/5"],
-        ["∵","从 B 到 A，竖直下降 18/5，水平向右 24/5"],
-        ["∵","从 B 到 D，竖直下降 5－18/5＝7/5"],
-        ["∴","D 到 y 轴的水平距离为 (24/5)×(7/5)/(18/5)＝28/15"],
-        ["∴","D 的横坐标为 28/15"],
-        ["∵","D＝（－24/5＋48t/25，18/5）"],
-        ["∴","－24/5＋48t/25＝28/15"],
+      {id:"q1s3",section:"第（II）①问",title:"第3步：由交点与相似三角形求 t 的最大值",t:125/36,derive:[
+        ["∵","A＝（24/5，7/5），B＝（0，5）"],
+        ["∴","直线 AB 的表达式为 y＝5－3x/4"],
+        ["∵","D 在水平直线 y＝18/5 上"],
+        ["∴","联立 y＝5－3x/4 与 y＝18/5，得 D＝（28/15，18/5）"],
+        ["作","连接 CD，交 PQ 于 E，交 OB 于 F"],
+        ["∵","沿 PQ 折叠，C 与 D 对应"],
+        ["∴","E 是 CD 的中点"],
+        ["∴","E＝（－22/15，18/5）"],
+        ["∴","CE＝10/3"],
+        ["∵","△CPE∽△CBF，CF＝24/5"],
+        ["∴","CP/CB＝CE/CF"],
+        ["∴","t/5＝(10/3)/(24/5)"],
         ["∴","t＝125/36"],
         ["∵","形成重叠区域时 t＞0"],
         ["∴","0＜t≤125/36"]
-      ],box:["D 在 AB 上：xD＝28/15","t＝125/36","0＜t≤125/36"]},
-      {id:"q1s4",section:"第（II）①问",title:"第4步：由折叠三角形面积求 S",t:2.5,derive:[
-        ["∵","点 D 落在平行四边形 OABC 纸片上"],
-        ["∴","折后的 △DPQ 整个落在纸片内"],
-        ["∴","重叠部分就是 △DPQ"],
-        ["∵","PQ＝t，D 到直线 PQ 的距离为 24t/25"],
-        ["∴","S＝S△DPQ＝1/2×t×24t/25"],
-        ["∴","S＝12t²/25"]
-      ],box:["0＜t≤125/36","PQ＝t","D 到 PQ 的距离＝24t/25","S＝12t²/25"]},
-      {id:"q2s1",section:"第（II）②问",title:"第1步：由折痕重合 y 轴确定特殊位置",t:5,derive:[
+      ],box:["D＝（28/15，18/5）","E＝（－22/15，18/5）","CE＝10/3，CF＝24/5","t＝125/36"]},
+      {id:"q1s4",section:"第（II）①问",title:"第4步：合并答案",t:2.5,derive:[
+        ["∴","当点 D 落在平行四边形 OABC 纸片上时"],
+        ["∴","S＝12t²/25，0＜t≤125/36"]
+      ],box:["S＝12t²/25","0＜t≤125/36"]},
+      {id:"q2s1",section:"第（II）②问",title:"第1步：由折痕重合 y 轴确定D点坐标",t:5,derive:[
         ["∵","直线 PQ 与 y 轴重合"],
-        ["∴","P＝B，Q＝O"],
-        ["∴","CP＝CB＝5"],
-        ["∵","C＝（－24/5，18/5）关于 y 轴对称"],
+        ["∴","C点和D点关于 y 轴对称"],
+        ["∵","C＝（－24/5，18/5）"],
         ["∴","D＝（24/5，18/5）"]
       ],box:["P＝B，Q＝O","D＝（24/5，18/5）"]},
       {id:"q2s2",section:"第（II）②问",title:"第2步：由交点分割求重叠面积",t:5,derive:[
-        ["∵","折后部分是 △OBD"],
+        ["∵","D＝（24/5，18/5）"],
+        ["∴","直线 OD：y＝3x/4"],
         ["∵","R 为 OD 与 AB 的交点"],
         ["∵","直线 OD：y＝3x/4，直线 AB：y＝5－3x/4"],
         ["∴","R＝（10/3，5/2）"],
@@ -166,12 +168,12 @@
         ["∴","S＝1/2×5×10/3＝25/3"]
       ],box:["R＝（10/3，5/2）","S＝25/3"]}
     ];
-    const STEP_LABELS={i1s1:"1 求OA",i1s2:"2 求C",i1s3:"3 求AB",q1s1:"1 表示P、Q、D",q1s2:"2 判断边界",q1s3:"3 求右界",q1s4:"4 求S",q2s1:"1 特殊位置",q2s2:"2 求面积"};
+    const STEP_LABELS={i1s1:"1 求OA",i1s2:"2 求C",i1s3:"3 求AB",q1s1:"1 求S",q1s2:"2 判断边界",q1s3:"3 求t最大值",q1s4:"4 合并答案",q2s1:"1 特殊位置",q2s2:"2 求面积"};
     const POLICIES={
       i1s1:{movable:false,range:[0,0],reason:"本步只看固定点 O、A。"},
       i1s2:{movable:false,range:[0,0],reason:"本步只看固定平行四边形。"},
       i1s3:{movable:false,range:[0,0],reason:"本步只看固定点 A、B。"},
-      q1s1:{movable:true,range:[0.001,5],reason:"本步观察 P、Q、D 随 CP＝t 变化。"},
+      q1s1:{movable:true,range:[0.001,125/36],reason:"本步在 D 落在纸片内时观察相似三角形和面积公式。"},
       q1s2:{movable:true,range:[0.001,5],reason:"本步观察 D 在纸片内、在边界上和越界的状态。"},
       q1s3:{movable:false,range:[125/36,125/36],reason:"本步固定在 D 落到 AB 的右边界。"},
       q1s4:{movable:true,range:[0.001,125/36],reason:"本步只在 D 落在纸片内时验证面积公式。"},
@@ -247,6 +249,22 @@
     function rightAngle(v,a,b,size=12,color="#334155"){
       return window.GeometryLabelLayout?.rightAngleSvg(currentLabelLayout,toScreen,v,a,b,{size,color})??"";
     }
+    function guideLineLabel(a,b,text,color="#b45309",options={}){
+      if(window.GeometryLabelLayout?.guideLineWithLabelSvg&&currentLabelLayout){
+        return window.GeometryLabelLayout.guideLineWithLabelSvg(currentLabelLayout,toScreen,a,b,text,{
+          color,
+          width:options.width??1.8,
+          dash:options.dash??"7 5",
+          anchor:options.anchor,
+          preferredDx:options.preferredDx,
+          preferredDy:options.preferredDy,
+          candidates:options.candidates,
+          fontSize:options.fontSize??14,
+          fontWeight:options.fontWeight??900
+        });
+      }
+      return line(a,b,color,options.width??1.8,options.dash??"7 5")+textAt(options.anchor??a,text,color,0,-10,options.fontSize??14);
+    }
     function mergeLabel(primaryLabel,primaryPoint,peers,tolerance=.03){
       if(!window.GeometryLabelLayout)return{label:primaryLabel,hidden:[]};
       return window.GeometryLabelLayout.mergeCoincidentLabel({label:primaryLabel,point:primaryPoint},peers,{tolerance});
@@ -299,13 +317,16 @@
       const q2=step.section==="第（II）②问";
       const oMerge=q2?mergeLabel("O",O,[{label:"Q",point:st.Q}]):{label:"O",hidden:[]};
       const bMerge=q2?mergeLabel("B",B,[{label:"P",point:st.P}]):{label:"B",hidden:[]};
+      const showBCoord=step.id==="i1s2"||step.id==="i1s3"||step.id==="q1s1";
+      const showCCoord=step.id==="q1s1"||step.id==="q1s2"||step.id==="q2s1";
       const aLabel=step.id==="i1s1"||step.id==="i1s3"?"A(24/5，7/5)":"A";
-      const bLabel=step.id==="i1s3"?"B(0，5)":bMerge.label;
+      const bLabel=showBCoord?"B(0，5)":bMerge.label;
+      const cLabel=showCCoord?"C(-24/5，18/5)":"C";
       return `<path d="${path(PARA)}" fill="var(--paper)" stroke="var(--paper-stroke)" stroke-width="2.5" />
         ${point(O,oMerge.label,"#1f2937",8,18)}
         ${point(A,aLabel,"#1f2937",8,18)}
         ${point(B,bLabel,"#1f2937",8,-10)}
-        ${point(C,"C","#1f2937",-28,-8)}`;
+        ${point(C,cLabel,"#1f2937",-106,-8)}`;
     }
     function drawMini(tt){
       const st=state(tt),w=250,h=132,pad={left:14,right:14,top:12,bottom:16};
@@ -325,6 +346,7 @@
       const step=STEPS[index],policy=POLICIES[step.id],localT=clamp(overrideT??step.t,policy.range[0],policy.range[1]);
       const st=state(localT);
       currentLabelLayout=window.GeometryLabelLayout?window.GeometryLabelLayout.createLabelLayout({toScreen,padding:4,pointRadius:8}):null;
+      const base=baseMarkup(step,st);
       let overlays="";
       if(step.id==="i1s1"){
         overlays+=segmentLabel(O,A,"OA","#0f766e",{style:"dimension",rotateWithLine:false,offsetPx:24});
@@ -349,28 +371,51 @@
         const q2=step.section==="第（II）②问";
         overlays+=point(st.P,q2?"":"P","#0f766e",8,-10);
         overlays+=point(st.Q,q2?"":"Q","#0f766e",8,18);
-        overlays+=point(st.D,"D","#0f766e",8,-10);
+        overlays+=point(st.D,step.id==="q2s2"?"D(24/5，18/5)":"D","#0f766e",8,-10);
         overlays+=segmentLabel(C,st.P,"CP=t","#b45309",{style:"parallel",extraNormal:-16});
       }
-      if(["q1s1","q1s4"].includes(step.id)){
-        overlays+=segmentLabel(st.P,st.Q,"PQ=t","#b45309",{style:"dimension",rotateWithLine:false,offsetPx:-24});
-        overlays+=line(st.D,{x:st.x0,y:st.D.y},"#b45309",2,"5 4");
-        overlays+=segmentLabel({x:st.x0,y:st.D.y},st.D,"24t/25","#b45309",{style:"dimension",rotateWithLine:false,offsetPx:-18});
-        overlays+=rightAngle({x:st.x0,y:st.D.y},st.P,st.D,11,"#b45309");
+      if(step.id==="q1s1"){
+        overlays+=`<path d="${path([C,st.P,st.Q])}" fill="rgba(14,116,144,.12)" stroke="#0f766e" stroke-width="2.6" stroke-dasharray="7 5" />`;
+        overlays+=textAt(centroid([C,st.P,st.Q]),"△CPQ","#0f766e",-22,4,15);
+        overlays+=textAt(centroid(st.overlap),"△DPQ","#dc2626",-24,5,15);
+      }
+      if(step.id==="q1s4"){
+        overlays+=textAt(centroid(st.overlap),"S","#dc2626",-5,5,16);
       }
       if(step.id==="q1s2"){
         overlays+=line(A,B,"#b45309",3);
+        overlays+=guideLineLabel({x:DOMAIN.minX,y:C.y},{x:DOMAIN.maxX,y:C.y},"y=18/5","#b45309",{
+          anchor:{x:C.x+1.2,y:C.y},
+          preferredDx:54,
+          preferredDy:-24,
+          candidates:[
+            {dx:54,dy:-24},
+            {dx:80,dy:20},
+            {dx:132,dy:-22},
+            {dx:132,dy:22},
+            {dx:-56,dy:22},
+            {dx:-88,dy:-26}
+          ]
+        });
         if(Math.abs(localT-125/36)<.04)overlays+=textAt(st.D,"D 在 AB 上","#dc2626",10,-18,14);
         if(localT>4.6)overlays+=textAt(st.D,"D 已越过 AB","#dc2626",10,-18,14);
       }
       if(step.id==="q1s3"){
+        const E={x:(C.x+st.D.x)/2,y:C.y};
+        const F={x:0,y:C.y};
         overlays+=line(A,B,"#b45309",3);
-        overlays+=line(st.D,{x:st.x0,y:st.D.y},"#b45309",2,"5 4");
-        overlays+=point(st.D,"D","#dc2626",10,-16);
+        overlays+=guideLineLabel({x:DOMAIN.minX,y:C.y},{x:DOMAIN.maxX,y:C.y},"y=18/5","#b45309",{
+          anchor:{x:F.x+.8,y:C.y},
+          preferredDx:54,
+          preferredDy:-24
+        });
+        overlays+=line(C,st.D,"#b45309",2.4,"7 5");
+        overlays+=line(st.P,st.Q,"#334155",2.4,"7 5");
+        overlays+=point(E,"E","#dc2626",10,-12);
+        overlays+=point(F,"F","#dc2626",10,-12);
         overlays+=textAt(st.D,"D 在 AB 上","#dc2626",12,-24,14);
-      }
-      if(step.id==="q1s4"){
-        overlays+=textAt(centroid(st.overlap),"S","#dc2626",-5,5,16);
+        overlays+=segmentLabel(C,E,"CE=10/3","#b45309",{style:"dimension",rotateWithLine:false,offsetPx:-22});
+        overlays+=segmentLabel(C,F,"CF=24/5","#b45309",{style:"dimension",rotateWithLine:false,offsetPx:24});
       }
       if(step.id==="q2s2"){
         overlays+=`<path d="${path([O,B,R_SPECIAL])}" fill="var(--overlap)" stroke="var(--overlap-stroke)" stroke-width="3" />`;
@@ -381,7 +426,7 @@
         overlays+=textAt(centroid([O,B,R_SPECIAL]),"S","#dc2626",-5,5,16);
       }
       const live=step.id==="q1s4"?`示例 t=${fmt(localT)}，S≈${fmt(areaInside(localT))}`:(policy.movable?`示例 t=${fmt(localT)}`:"");
-      const markup=grid()+baseMarkup(step,st)+overlays+box(live?[...step.box,live]:step.box);
+      const markup=grid()+base+overlays+box(live?[...step.box,live]:step.box);
       currentLabelLayout=null;
       return markup;
     }

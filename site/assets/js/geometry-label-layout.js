@@ -423,6 +423,39 @@
     return guide + label;
   }
 
+  function guideLineWithLabelSvg(layout, toScreen, a, b, text, options){
+    const color = options?.color ?? "#64748b";
+    const width = options?.width ?? 1.8;
+    const dash = options?.dash ?? "6 5";
+    const p = toScreen(a);
+    const q = toScreen(b);
+    addSegmentObstacle(layout, toScreen, a, b, {
+      step: options?.obstacleStep ?? 22,
+      radius: options?.obstacleRadius ?? 4,
+      kind: "guide-line"
+    });
+    const anchor = options?.anchor ? toScreen(options.anchor) : {x:(p.x + q.x) / 2, y:(p.y + q.y) / 2};
+    const fontSize = options?.fontSize ?? 14;
+    const fontWeight = options?.fontWeight ?? 900;
+    const placed = placeScreenLabel(layout, anchor, text, {
+      fontSize,
+      preferredDx: options?.preferredDx ?? 0,
+      preferredDy: options?.preferredDy ?? -18,
+      candidates: options?.candidates ?? [
+        {dx:0, dy:-18},
+        {dx:0, dy:18},
+        {dx:46, dy:-18},
+        {dx:46, dy:18},
+        {dx:-46, dy:-18},
+        {dx:-46, dy:18},
+        {dx:84, dy:-22},
+        {dx:-84, dy:-22}
+      ]
+    });
+    return `<line x1="${p.x}" y1="${p.y}" x2="${q.x}" y2="${q.y}" stroke="${color}" stroke-width="${width}" stroke-dasharray="${dash}" />` +
+      `<text x="${placed.x}" y="${placed.y}" font-size="${fontSize}" font-weight="${fontWeight}" text-anchor="middle" dominant-baseline="middle" fill="${color}">${escapeHtml(text)}</text>`;
+  }
+
   global.GeometryLabelLayout = {
     createLabelLayout,
     addPointObstacle,
@@ -439,6 +472,7 @@
     rightAngleSvg,
     chooseSegmentMeasureStrategy,
     segmentMeasureSvg,
+    guideLineWithLabelSvg,
     escapeHtml
   };
 })(window);

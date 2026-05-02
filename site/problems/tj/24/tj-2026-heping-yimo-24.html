@@ -392,8 +392,8 @@
     function angleAtF() {
       const f = toScreen(point(-R, 0));
       return `
-        <path d="M ${f.x + 58} ${f.y} A 58 58 0 0 0 ${f.x + 29} ${f.y - 50}" fill="none" stroke="#dc2626" stroke-width="3"/>
-        <text x="${f.x + 66}" y="${f.y - 34}" fill="#dc2626" font-size="20" font-weight="900">60°</text>
+        <path class="geom-angle-guide" d="M ${f.x + 58} ${f.y} A 58 58 0 0 0 ${f.x + 29} ${f.y - 50}"/>
+        <text class="geom-angle-label" x="${f.x + 66}" y="${f.y - 34}">60°</text>
       `;
     }
 
@@ -403,12 +403,12 @@
         rows.push(`t＝${fmtT(localT)}`);
         if (showArea) rows.push(`S≈${fmt(areaValue(localT))}`);
       }
-      const height = 34 + rows.length * 28;
+      const lineHeight = 24;
+      const height = 16 + rows.length * lineHeight;
       return `
-        <g transform="translate(742 56)">
-          <rect width="286" height="${height}" rx="18" fill="rgba(255,255,255,.92)" stroke="rgba(15,118,110,.25)" stroke-width="2"/>
-          <text x="18" y="31" fill="#0f766e" font-size="18" font-weight="900">本步结论</text>
-          ${rows.map((item, i) => `<text x="18" y="${62 + i * 28}" fill="#115e59" font-size="17" font-weight="800">${esc(item)}</text>`).join("")}
+        <g class="geom-result geom-result-top-right">
+          <rect class="geom-result-box" width="286" height="${height}" rx="10"/>
+          ${rows.map((item, i) => `<text class="geom-result-text" x="14" y="${23 + i * lineHeight}">${esc(item)}</text>`).join("")}
         </g>
       `;
     }
@@ -417,15 +417,15 @@
       return `
         <defs>
           <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(100,116,139,.12)" stroke-width="1"/>
+            <path class="geom-grid-line" d="M 40 0 L 0 0 0 40" fill="none"/>
           </pattern>
           <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto">
-            <path d="M0,0 L7,3.5 L0,7 Z" fill="#64748b"/>
+            <path class="geom-axis-marker" d="M0,0 L7,3.5 L0,7 Z"/>
           </marker>
         </defs>
         <rect width="1080" height="760" fill="url(#grid)"/>
-        ${line(point(bounds.minX + 0.2, 0), point(bounds.maxX - 0.2, 0), 'stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"')}
-        ${line(point(0, bounds.minY + 0.12), point(0, bounds.maxY - 0.18), 'stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"')}
+        ${line(point(bounds.minX + 0.2, 0), point(bounds.maxX - 0.2, 0), 'class="geom-axis" marker-end="url(#arrow)"')}
+        ${line(point(0, bounds.minY + 0.12), point(0, bounds.maxY - 0.18), 'class="geom-axis" marker-end="url(#arrow)"')}
       `;
     }
 
@@ -437,10 +437,10 @@
       const E = point(0, 3);
       const F = point(-R, 0);
       let markup = `
-        <polygon points="${polyPath(fixedTri())}" fill="rgba(15,118,110,.08)" stroke="#0f766e" stroke-width="3" stroke-linejoin="round"/>
+        <polygon points="${polyPath(fixedTri())}" class="geom-fixed" stroke-linejoin="round"/>
       `;
       if (showOriginal) {
-        markup += `<polygon points="${polyPath(originalTri())}" fill="rgba(217,119,6,.09)" stroke="#d97706" stroke-width="2.4" stroke-dasharray="8 7" stroke-linejoin="round"/>`;
+        markup += `<polygon points="${polyPath(originalTri())}" class="geom-original" stroke-linejoin="round"/>`;
       }
       const basePoints = [
         [O, "O", 10, 22],
@@ -454,13 +454,13 @@
         basePoints.forEach(([p]) => GeometryLabelLayout.addPointObstacle(currentLabelLayout, p, 7));
       }
       basePoints.forEach(([p, label, dx, dy]) => {
-        markup += circle(p, 'fill="#0f766e" stroke="#fff" stroke-width="2.4"', 5);
+        markup += circle(p, 'class="geom-fixed-point"', 5);
         markup += textAt(p, label, "#1f2937", dx, dy);
       });
       const sx = toScreen(point(bounds.maxX - 0.55, 0));
       const sy = toScreen(point(0, bounds.maxY - 0.55));
-      markup += `<text x="${sx.x}" y="${sx.y - 14}" fill="#64748b" font-size="19" font-weight="900">x</text>`;
-      markup += `<text x="${sy.x + 13}" y="${sy.y}" fill="#64748b" font-size="19" font-weight="900">y</text>`;
+      markup += `<text class="geom-axis-label" x="${sx.x}" y="${sx.y - 14}">x</text>`;
+      markup += `<text class="geom-axis-label" x="${sy.x + 13}" y="${sy.y}">y</text>`;
       return markup;
     }
 
@@ -470,22 +470,23 @@
       const G = point(0, R * t - 3);
       const overlap = overlapPoly(t);
       let markup = `
-        <polygon points="${polyPath(overlap)}" fill="rgba(220,38,38,.2)" stroke="#b91c1c" stroke-width="3" stroke-linejoin="round"/>
-        <polygon points="${polyPath([Dp, Ep, Fp])}" fill="rgba(14,116,144,.16)" stroke="#0e7490" stroke-width="3" stroke-linejoin="round"/>
-        ${line(E, Ep, 'stroke="#0f766e" stroke-width="2.6" stroke-dasharray="8 6"')}
+        <polygon points="${polyPath([Dp, Ep, Fp])}" class="geom-moving" stroke-linejoin="round"/>
+        <polygon points="${polyPath(overlap)}" class="geom-overlap" stroke-linejoin="round"/>
+        ${line(E, Ep, 'class="geom-translation-guide"')}
       `;
       if (["q2a2", "q2a3", "q2a4"].includes(step.id)) {
-        markup += line(Dp, Fp, 'stroke="#b91c1c" stroke-width="4"');
+        markup += line(Dp, Fp, 'class="geom-overlap-guide" stroke-width="4"');
       }
       if (step.id === "q2a4") {
-        markup += line(E, G, 'stroke="#b91c1c" stroke-width="3" stroke-dasharray="6 5"');
+        markup += line(E, G, 'class="geom-overlap-guide" stroke-dasharray="6 5"');
         markup += segmentLabel(E, Ep, "EE'=t", -22);
         markup += segmentLabel(G, Fp, "GF'=t－√3", 24);
         markup += segmentLabel(E, G, "EG=6－√3t", -24);
       }
       if (overlap.length >= 3) {
         const c = overlap.reduce((acc, p) => point(acc.x + p.x / overlap.length, acc.y + p.y / overlap.length), point(0, 0));
-        markup += textAt(c, "S", "#b91c1c", 0, 6);
+        const s = toScreen(c);
+        markup += `<text class="geom-overlap-label" x="${s.x}" y="${s.y + 6}">S</text>`;
       }
 
       const dynamicPoints = [
@@ -517,7 +518,7 @@
           if (hiddenLabels.has(candidate.label)) emitted.add(candidateIndex);
         });
         if (currentLabelLayout) GeometryLabelLayout.addPointObstacle(currentLabelLayout, item.point, 7);
-        markup += circle(item.point, 'fill="#0e7490" stroke="#fff" stroke-width="2.4"', 5.8);
+        markup += circle(item.point, 'class="geom-moving-point"', 5.8);
         markup += textAt(item.point, label, "#0f172a", item.dx, item.dy);
         emitted.add(index);
       });
@@ -551,12 +552,12 @@
       const moving = movingTri(t);
       const overlap = overlapPoly(t);
       return `<svg viewBox="0 0 280 160" aria-hidden="true">
-        <rect width="280" height="160" fill="rgba(255,255,255,.72)"/>
-        ${line(point(miniBounds.minX + 0.2, 0), point(miniBounds.maxX - 0.2, 0), 'stroke="#94a3b8" stroke-width="1.5"', toMiniScreen)}
-        ${line(point(0, miniBounds.minY + 0.1), point(0, miniBounds.maxY - 0.15), 'stroke="#94a3b8" stroke-width="1.5"', toMiniScreen)}
-        <polygon points="${polyPath(fixed, toMiniScreen)}" fill="rgba(15,118,110,.08)" stroke="#0f766e" stroke-width="1.8"/>
-        <polygon points="${polyPath(overlap, toMiniScreen)}" fill="rgba(220,38,38,.22)" stroke="#b91c1c" stroke-width="1.8"/>
-        <polygon points="${polyPath(moving, toMiniScreen)}" fill="rgba(14,116,144,.14)" stroke="#0e7490" stroke-width="1.8"/>
+        <rect class="geom-mini-bg" width="280" height="160"/>
+        ${line(point(miniBounds.minX + 0.2, 0), point(miniBounds.maxX - 0.2, 0), 'class="geom-mini-axis"', toMiniScreen)}
+        ${line(point(0, miniBounds.minY + 0.1), point(0, miniBounds.maxY - 0.15), 'class="geom-mini-axis"', toMiniScreen)}
+        <polygon points="${polyPath(fixed, toMiniScreen)}" class="geom-mini-fixed"/>
+        <polygon points="${polyPath(moving, toMiniScreen)}" class="geom-mini-moving"/>
+        <polygon points="${polyPath(overlap, toMiniScreen)}" class="geom-mini-overlap"/>
       </svg>`;
     }
 
@@ -632,7 +633,7 @@
             <span class="step-t-value" data-step-t-label="${index}">t=${fmtT(activeT)}</span>
           </div>
           <div class="step-local-note">${esc(policy.reason)}</div>
-        </div>` : `<div class="step-local-tools"><div class="step-local-note">${esc(policy.reason)}</div></div>`;
+        </div>` : (step.id.startsWith("q2") ? `<div class="step-local-tools"><div class="step-local-note">${esc(policy.reason)}</div></div>` : "");
         return `<article class="card lesson-step-card" id="step-${step.id}" data-step-index="${index}">
           <div class="step-card-head">
             <div class="step-card-title">
@@ -647,10 +648,9 @@
                 <svg viewBox="0 0 1080 760" aria-label="${esc(step.title)}">${diagramMarkupFor(index)}</svg>
               </div>
               <div class="legend">
-                <span><i class="sw" style="background:rgba(15,118,110,.12);border-color:#0f766e"></i>固定 △AOB</span>
-                <span><i class="sw" style="background:rgba(217,119,6,.12);border-color:#d97706"></i>原等边 △DEF</span>
-                <span><i class="sw" style="background:rgba(14,116,144,.18);border-color:#0e7490"></i>平移后等边三角形</span>
-                <span><i class="sw" style="background:var(--overlap)"></i>当前重叠区域 S</span>
+                <span><i class="sw sw-paper"></i>固定 △AOB / 原等边 △DEF</span>
+                <span><i class="sw sw-fold"></i>平移后等边三角形</span>
+                <span><i class="sw sw-overlap"></i>当前重叠区域 S</span>
               </div>
               ${tools}
               ${minis}

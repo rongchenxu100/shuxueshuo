@@ -211,6 +211,154 @@ svg {
   border: 1px solid rgba(15, 23, 42, 0.18);
 }
 
+.sw-paper {
+  background: var(--paper);
+  border-color: var(--paper-stroke);
+}
+
+.sw-fold {
+  background: var(--fold);
+  border-color: var(--fold-stroke);
+}
+
+.sw-overlap {
+  background: var(--overlap);
+  border-color: var(--overlap-stroke);
+}
+
+.geom-grid-line {
+  stroke: rgba(15, 23, 42, 0.06);
+  stroke-width: 1;
+}
+
+.geom-axis {
+  stroke: #93a0ad;
+  stroke-width: 2;
+}
+
+.geom-axis-label {
+  fill: #64748b;
+  font-size: 19px;
+  font-weight: 900;
+}
+
+.geom-axis-marker {
+  fill: #64748b;
+}
+
+.geom-fixed {
+  fill: var(--paper);
+  stroke: var(--paper-stroke);
+  stroke-width: 3;
+}
+
+.geom-original {
+  fill: rgba(245, 158, 11, 0.1);
+  stroke: var(--paper-stroke);
+  stroke-width: 2.4;
+  stroke-dasharray: 8 7;
+}
+
+.geom-moving {
+  fill: var(--fold);
+  stroke: var(--fold-stroke);
+  stroke-width: 3;
+}
+
+.geom-overlap {
+  fill: var(--overlap);
+  stroke: var(--overlap-stroke);
+  stroke-width: 3;
+}
+
+.geom-overlap-guide {
+  stroke: var(--overlap-stroke);
+  stroke-width: 3;
+}
+
+.geom-translation-guide {
+  stroke: var(--accent);
+  stroke-width: 2.6;
+  stroke-dasharray: 8 6;
+}
+
+.geom-angle-guide {
+  fill: none;
+  stroke: #dc2626;
+  stroke-width: 3;
+}
+
+.geom-angle-label,
+.geom-overlap-label {
+  fill: #dc2626;
+  font-weight: 900;
+}
+
+.geom-angle-label {
+  font-size: 20px;
+}
+
+.geom-overlap-label {
+  font-size: 18px;
+}
+
+.geom-fixed-point,
+.geom-moving-point {
+  stroke: #fff;
+  stroke-width: 2.4;
+}
+
+.geom-fixed-point {
+  fill: #1f2937;
+}
+
+.geom-moving-point {
+  fill: var(--fold-stroke);
+}
+
+.geom-result-box {
+  fill: rgba(255, 255, 255, 0.95);
+  stroke: #475569;
+  stroke-width: 1.4;
+}
+
+.geom-result-top-right {
+  transform: translate(742px, 56px);
+}
+
+.geom-result-text {
+  fill: #111827;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.geom-mini-bg {
+  fill: rgba(255, 255, 255, 0.72);
+}
+
+.geom-mini-axis {
+  stroke: #94a3b8;
+  stroke-width: 1.5;
+}
+
+.geom-mini-fixed {
+  fill: var(--paper);
+  stroke: var(--paper-stroke);
+  stroke-width: 1.8;
+}
+
+.geom-mini-moving {
+  fill: var(--fold);
+  stroke: var(--fold-stroke);
+  stroke-width: 1.8;
+}
+
+.geom-mini-overlap {
+  fill: var(--overlap);
+  stroke: var(--overlap-stroke);
+  stroke-width: 1.8;
+}
+
 .step-nav {
   display: grid;
   gap: 8px;
