@@ -41,6 +41,17 @@
             <div class="problem-line"><span>（II）将四边形 OCDE 沿 x 轴向右平移得到四边形 O'C'D'E'，点 O，C，D，E 的对应点分别为 O'，C'，D'，E'，设 OO'＝t。</span></div>
             <div class="problem-line"><span>（i）如图②，当四边形 O'C'D'E' 与 △AOB 重叠部分为五边形时，O'C'，C'D'，E'O' 分别与 AB，BO 相交于点 G，H，M，N。试用含有 t 的式子表示线段 MH，并直接写出 t 的取值范围；</span><span class="answer-chip" id="answerQ1">答案：MH＝2√2－(√2/2)t，2&lt;t&lt;4</span></div>
             <div class="problem-line"><span>（ii）设平移后四边形 O'C'D'E' 与 △AOB 重叠部分的面积为 S，当 3≤S≤5 时，求 t 的取值范围（直接写出结果即可）。</span><span class="answer-chip" id="answerQ2">答案：3/2≤t≤6－√3</span></div>
+            <div class="problem-line"><strong>原题图形</strong></div>
+            <div class="problem-original-figures" aria-label="原题图 ① 和图 ②">
+              <figure class="problem-figure">
+                <h3>图①</h3>
+                <svg id="originalFigure1" viewBox="0 0 1080 720" role="img" aria-label="图①：等腰直角三角形 AOB 与正方形 OCDE"></svg>
+              </figure>
+              <figure class="problem-figure">
+                <h3>图②</h3>
+                <svg id="originalFigure2" viewBox="0 0 1080 720" role="img" aria-label="图②：平移后的正方形与三角形 AOB 的五边形重叠"></svg>
+              </figure>
+            </div>
           </div>
         </section>
 
@@ -216,6 +227,8 @@
     const mobileStepCount=document.getElementById("mobileStepCount");
     const mobileStepName=document.getElementById("mobileStepName");
     const answerI=document.getElementById("answerI"), answerQ1=document.getElementById("answerQ1"), answerQ2=document.getElementById("answerQ2");
+    const originalFigure1=document.getElementById("originalFigure1");
+    const originalFigure2=document.getElementById("originalFigure2");
     function esc(s){return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");}
     function clamp(v,min,max){return Math.max(min,Math.min(max,v));}
     function fmt(v){return Number(v).toFixed(3).replace(/\.?0+$/,"");}
@@ -227,9 +240,11 @@
     }
     function path(points,w=W,h=SVG_H,pad=PAD){if(!points.length)return"";const first=toScreen(points[0],w,h,pad);return points.slice(1).reduce((d,p)=>{const s=toScreen(p,w,h,pad);return d+` L ${s.x} ${s.y}`},`M ${first.x} ${first.y}`)+" Z";}
     function line(a,b,color="#334155",width=2,dash=""){const p=toScreen(a),q=toScreen(b);return `<line x1="${p.x}" y1="${p.y}" x2="${q.x}" y2="${q.y}" stroke="${color}" stroke-width="${width}" ${dash?`stroke-dasharray="${dash}"`:""} />`;}
-    function point(p,label,color="#1f2937",dx=8,dy=-8){
+    function point(p,label,color="#1f2937",dx=8,dy=-8,options={}){
       const s=toScreen(p);
-      const circle=`<circle cx="${s.x}" cy="${s.y}" r="5" fill="${color}" />`;
+      const circle=`<circle cx="${s.x}" cy="${s.y}" r="${options.r??5}" fill="${color}" />`;
+      const fontSize=options.fontSize??15;
+      const fontWeight=options.fontWeight??900;
       if(window.GeometryLabelLayout && currentLabelLayout){
         currentLabelLayout.occupied.push({
           left:s.x-8,
@@ -241,15 +256,15 @@
         if(!label) return circle;
         return circle+window.GeometryLabelLayout.labelSvg(currentLabelLayout,p,label,{
           color,
-          fontSize:15,
-          fontWeight:900,
+          fontSize,
+          fontWeight,
           preferredDx:dx,
           preferredDy:dy,
           candidates:window.GeometryLabelLayout.candidateOffsets?.(dx,dy),
           allowNearPoint:true
         });
       }
-      return circle+(label?`<text x="${s.x+dx}" y="${s.y+dy}" font-size="15" font-weight="900" fill="${color}">${esc(label)}</text>`:"");
+      return circle+(label?`<text x="${s.x+dx}" y="${s.y+dy}" font-size="${fontSize}" font-weight="${fontWeight}" fill="${color}">${esc(label)}</text>`:"");
     }
     function textAt(p,text,color="#334155",dx=8,dy=-10,size=14){const s=toScreen(p);return `<text x="${s.x+dx}" y="${s.y+dy}" font-size="${size}" font-weight="900" fill="${color}">${esc(text)}</text>`;}
     function box(lines){const x=760,y=52,w=280,lineH=24,h=16+lines.length*lineH;return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="10" fill="rgba(255,255,255,.95)" stroke="#475569" stroke-width="1.4" />`+lines.map((line,i)=>`<text x="${x+14}" y="${y+22+i*lineH}" font-size="14" font-weight="900" fill="#111827">${esc(line)}</text>`).join("");}
@@ -329,13 +344,37 @@
         {tolerance}
       );
     }
-    function baseMarkup(step,s){
+    function baseMarkup(step,s,options={}){
+      const pointOptions={r:options.pointRadius??5,fontSize:options.labelFontSize??15};
       const cMerge=step.id==="q1s2" ? mergeLabel("C",BASE.C,[{label:"O'",point:s.Op}]) : {label:"C",hidden:[]};
       const bMerge=step.id==="q1s2" ? mergeLabel("B",BASE.B,[{label:"C'",point:s.Cp}]) : {label:"B",hidden:[]};
       return `<path d="${path(TRI)}" fill="var(--tri)" stroke="var(--tri-stroke)" stroke-width="2.3" />
       <path d="${path(SQUARE)}" fill="rgba(15,118,110,.06)" stroke="#0f766e" stroke-width="2" />
       ${line({x:DOMAIN.minX,y:0},{x:DOMAIN.maxX,y:0},"#64748b",1.8)}${line({x:0,y:DOMAIN.minY},{x:0,y:DOMAIN.maxY},"#64748b",1.8)}
-      ${point(BASE.O,"O","#1f2937",8,18)}${point(BASE.A,"A","#1f2937",8,18)}${point(BASE.B,bMerge.label,"#1f2937",10,-10)}${point(BASE.C,cMerge.label,"#1f2937",10,-10)}${point(BASE.D,"D","#1f2937",8,-8)}${point(BASE.E,"E","#1f2937",-28,-8)}`;
+      ${point(BASE.O,"O","#1f2937",8,18,pointOptions)}${point(BASE.A,"A","#1f2937",8,18,pointOptions)}${point(BASE.B,bMerge.label,"#1f2937",10,-10,pointOptions)}${point(BASE.C,cMerge.label,"#1f2937",10,-10,pointOptions)}${point(BASE.D,"D","#1f2937",8,-8,pointOptions)}${point(BASE.E,"E","#1f2937",-28,-8,pointOptions)}`;
+    }
+    function originalFigureMarkup(tt,{showMoving=false}={}){
+      const s=state(tt);
+      currentLabelLayout=window.GeometryLabelLayout ? window.GeometryLabelLayout.createLabelLayout({toScreen,padding:4,pointRadius:9}) : null;
+      let out=baseMarkup({id:"original",section:"原题"},s,{labelFontSize:20,pointRadius:6.6});
+      if(showMoving){
+        out+=`<path d="${path(s.square)}" fill="var(--square)" stroke="var(--square-stroke)" stroke-width="2.4" />`;
+        out+=`<path d="${path(s.overlap)}" fill="var(--overlap)" stroke="var(--overlap-stroke)" stroke-width="2.8" />`;
+        out+=point(s.Op,"O'","#0f766e",8,22,{r:7,fontSize:20});
+        out+=point(s.Cp,"C'","#0f766e",10,-12,{r:7,fontSize:20});
+        out+=point(s.Dp,"D'","#0f766e",10,-12,{r:7,fontSize:20});
+        out+=point(s.Ep,"E'","#0f766e",-34,-10,{r:7,fontSize:20});
+        out+=point(s.G,"G","#dc2626",12,24,{r:6,fontSize:19});
+        out+=point(s.H,"H","#dc2626",12,-12,{r:6,fontSize:19});
+        out+=point(s.M,"M","#dc2626",12,-12,{r:6,fontSize:19});
+        out+=point(s.N,"N","#dc2626",12,24,{r:6,fontSize:19});
+      }
+      currentLabelLayout=null;
+      return out;
+    }
+    function renderOriginalFigures(){
+      if(originalFigure1)originalFigure1.innerHTML=originalFigureMarkup(0);
+      if(originalFigure2)originalFigure2.innerHTML=originalFigureMarkup(3,{showMoving:true});
     }
     function drawMini(tt){
       const s=state(tt),w=250,h=130,pad={left:18,right:18,top:12,bottom:18};
@@ -347,9 +386,10 @@
     function updateAnswers(){answerI.classList.add("show");answerQ1.classList.add("show");answerQ2.classList.add("show");}
     function groupTitle(section){if(section==="第（I）问")return"第（I）问 坐标";if(section==="第（II）（i）问")return"第（II）（i）MH";return"第（II）（ii）面积";}
     function renderStepNavMarkup(){
+      const problemEntry=`<div class="step-group step-group-problem"><div class="step-group-title">题目</div><div class="step-dots"><button class="step-dot" type="button" data-problem-nav="true" title="回到完整原题">原题</button></div></div>`;
       const groups=[];
       STEPS.forEach(step=>{let group=groups.find(item=>item.section===step.section);if(!group){group={section:step.section,steps:[]};groups.push(group);}group.steps.push(step);});
-      return groups.map(group=>{
+      return problemEntry+groups.map(group=>{
         const dots=group.steps.map((step,idx)=>{
           const index=STEPS.indexOf(step),label=STEP_LABELS[step.id]||String(idx+1);
           const dot=`<button class="step-dot ${index<stepIndex?"done":""} ${index===stepIndex?"active":""}" type="button" data-step="${index}" title="${esc(step.title)}">${esc(label)}</button>`;
@@ -510,6 +550,11 @@
       syncProblemCardForInteraction();
       setActiveStep(next,{scroll:true});
     }
+    function goToProblem(){
+      setProblemVisibility(false,true);
+      problemCard.scrollIntoView({behavior:"auto",block:"start"});
+      requestAnimationFrame(()=>problemCard.scrollIntoView({behavior:"smooth",block:"start"}));
+    }
     function closeMobileStepSheet(){mobileStepSheet.classList.remove("open");mobileStepSheet.setAttribute("aria-hidden","true");}
     function openMobileStepSheet(){mobileStepSheet.classList.add("open");mobileStepSheet.setAttribute("aria-hidden","false");}
     function updateStepDiagram(index,value){
@@ -537,8 +582,18 @@
       document.querySelectorAll(".lesson-step-card").forEach(card=>stepObserver.observe(card));
       setActiveStep(stepIndex);
     }
-    stepNav.addEventListener("click",event=>{const target=event.target.closest("button[data-step]");if(target)setStep(Number(target.dataset.step));});
-    mobileStepNav.addEventListener("click",event=>{const target=event.target.closest("button[data-step]");if(target){setStep(Number(target.dataset.step));closeMobileStepSheet();}});
+    stepNav.addEventListener("click",event=>{
+      const problemTarget=event.target.closest("button[data-problem-nav]");
+      if(problemTarget){goToProblem();return;}
+      const target=event.target.closest("button[data-step]");
+      if(target)setStep(Number(target.dataset.step));
+    });
+    mobileStepNav.addEventListener("click",event=>{
+      const problemTarget=event.target.closest("button[data-problem-nav]");
+      if(problemTarget){closeMobileStepSheet();goToProblem();return;}
+      const target=event.target.closest("button[data-step]");
+      if(target){setStep(Number(target.dataset.step));closeMobileStepSheet();}
+    });
     mobileStepToggle.addEventListener("click",openMobileStepSheet);
     mobileStepClose.addEventListener("click",closeMobileStepSheet);
     mobileStepSheet.addEventListener("click",event=>{if(event.target===mobileStepSheet)closeMobileStepSheet();});
@@ -563,6 +618,7 @@
     problemToggle.addEventListener("click",()=>setProblemVisibility(!problemCard.classList.contains("collapsed"),true));
     updateProblemToggle();
     renderAllSteps();
+    renderOriginalFigures();
   </script>
 </body>
 </html>

@@ -39,6 +39,32 @@
     "status": "published"
   },
   {
+    "id": "tj-2026-hebei-yimo-24",
+    "city": "tianjin",
+    "cityLabel": "天津",
+    "year": 2026,
+    "exam": "hebei-yimo",
+    "examLabel": "河北区一模",
+    "slot": "24",
+    "title": "2026 年天津市河北区一模第 24 题（直角三角形翻折与重叠面积）",
+    "tags": ["geometry", "folding", "dynamic-point"],
+    "path": "../problems/tj/24/tj-2026-hebei-yimo-24.html",
+    "status": "published"
+  },
+  {
+    "id": "tj-2026-hongqiao-yimo-24",
+    "city": "tianjin",
+    "cityLabel": "天津",
+    "year": 2026,
+    "exam": "hongqiao-yimo",
+    "examLabel": "红桥区一模",
+    "slot": "24",
+    "title": "2026 年天津市红桥区一模第 24 题（平行四边形折叠与面积）",
+    "tags": ["geometry", "folding", "dynamic-point"],
+    "path": "../problems/tj/24/tj-2026-hongqiao-yimo-24.html",
+    "status": "published"
+  },
+  {
     "id": "tj-2026-heping-yimo-24",
     "city": "tianjin",
     "cityLabel": "天津",
@@ -75,6 +101,19 @@
     "title": "2026 年天津市南开区一模第 24 题（旋转三角形与重叠面积）",
     "tags": ["geometry", "rotation", "dynamic-point"],
     "path": "../problems/tj/24/tj-2026-nankai-yimo-24.html",
+    "status": "published"
+  },
+  {
+    "id": "tj-2026-xiqing-yimo-24",
+    "city": "tianjin",
+    "cityLabel": "天津",
+    "year": 2026,
+    "exam": "xiqing-yimo",
+    "examLabel": "西青区一模",
+    "slot": "24",
+    "title": "2026 年天津市西青区一模第 24 题（等边三角形平移与面积）",
+    "tags": ["geometry", "translation", "dynamic-point"],
+    "path": "../problems/tj/24/tj-2026-xiqing-yimo-24.html",
     "status": "published"
   }
 ]

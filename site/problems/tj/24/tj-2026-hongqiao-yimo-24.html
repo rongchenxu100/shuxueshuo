@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2026 年天津市红桥区一模 第 24 题（平行四边形折叠）| 数学说</title>
+  <meta
+    name="description"
+    content="2026 红桥区一模第 24 题：平行四边形折叠、BF 表达式与重叠面积范围。分步讲解，支持拖动 t 观察折叠重叠区域。"
+  />
+  <link rel="stylesheet" href="../../../assets/css/interactive-geometry-page.css" />
+  <style>
+    :root {
+      --paper: rgba(245, 158, 11, 0.14);
+      --paper-stroke: #d97706;
+      --fold: rgba(14, 116, 144, 0.13);
+      --fold-stroke: #0f766e;
+    }
+  </style>
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../nav/index.html">题库导航</a>
+    <span class="lesson-title">2026 天津市红桥区一模 第 24 题</span>
+  </header>
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <div class="problem-summary">
+            <div class="problem-summary-text">第24题（2026红桥区一模）平行四边形折叠：求 C、B，求 BF 与 t 范围，求重叠面积 S 范围</div>
+            <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          </div>
+          <div class="problem-full">
+            <div class="problem-line"><span>（24）（本小题10分）将一个平行四边形纸片 OABC 放置在平面直角坐标系中，点 O（0，0），点 A（2，0），点 B，C 在第一象限，且 OC＝4，∠AOC＝60°。</span></div>
+            <div class="problem-line"><span>（I）填空：如图①，点 C 的坐标为________，点 B 的坐标为________；</span><span class="answer-chip" id="answerI">答案：C＝（2，2√3），B＝（4，2√3）</span></div>
+            <div class="problem-line"><span>（II）若 P 为 x 轴的正半轴上一动点，过点 P 作直线 l⊥x 轴，沿直线 l 折叠该纸片，折叠后点 O 的对应点 O' 落在 x 轴的正半轴上，设 OP＝t。</span></div>
+            <div class="problem-line"><span>① 如图②，若直线 l 与边 AB 相交于点 D，与边 CB 相交于点 E，点 A 的对应点为 A'，点 C 的对应点为 C'，当折叠后五边形 A'O'C'ED 与 □OABC 重叠部分为四边形时，O'C' 与 AB 相交于点 F。试用含有 t 的式子表示线段 BF 的长，并直接写出 t 的取值范围；</span><span class="answer-chip" id="answerQ1">答案：BF＝2（3－t），2＜t＜3</span></div>
+            <div class="problem-line"><span>② 设折叠后重叠部分的面积为 S，当 4/3≤t≤10/3 时，求 S 的取值范围（直接写出结果即可）。</span><span class="answer-chip" id="answerQ2">答案：2√3/9≤S≤√3</span></div>
+            <div class="problem-line"><strong>原题图形</strong></div>
+            <div class="problem-original-figures" aria-label="原题图形">
+              <figure class="problem-figure">
+                <h3>原题图形 图①</h3>
+                <div id="originalFigureOne"></div>
+              </figure>
+              <figure class="problem-figure">
+                <h3>原题图形 图②</h3>
+                <div id="originalFigureTwo"></div>
+              </figure>
+            </div>
+          </div>
+        </section>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../assets/js/interactive-lesson-ui.js"></script>
+  <script>
+    const SQRT3=Math.sqrt(3);
+    const W=1080, SVG_H=720;
+    const PAD={left:74,right:64,top:46,bottom:58};
+    const DOMAIN={minX:-.7,maxX:7.1,minY:-.55,maxY:4.35};
+    const BASE={O:{x:0,y:0},A:{x:2,y:0},C:{x:2,y:2*SQRT3},B:{x:4,y:2*SQRT3}};
+    const PARA=[BASE.O,BASE.A,BASE.B,BASE.C];
+    const STEPS=[
+      {id:"i1s1",section:"第（I）问",title:"第1步：由 60° 方向分解求 C 点坐标",t:2,derive:[
+        ["∵","OC＝4，∠AOC＝60°"],
+        ["∵","OA 在 x 轴正方向上"],
+        ["∴","C 的横坐标为 4cos60°＝2"],
+        ["∴","C 的纵坐标为 4sin60°＝2√3"],
+        ["∴","C＝（2，2√3）"]
+      ],box:["C＝（2，2√3）"]},
+      {id:"i1s2",section:"第（I）问",title:"第2步：利用平行四边形性质求 B 点坐标",t:2,derive:[
+        ["∵","OABC 是平行四边形"],
+        ["∴","AB∥OC，BC∥OA"],
+        ["∴","从 C 到 B 的水平位移等于 OA＝2"],
+        ["∴","B＝（2＋2，2√3）＝（4，2√3）"]
+      ],box:["C＝（2，2√3）","B＝（4，2√3）"]},
+      {id:"q1s1",section:"第（II）①问",title:"第1步：由 C'、B 坐标求 C'B",t:2.5,derive:[
+        ["∵","折痕为 x＝t"],
+        ["∴","点 (x，y) 关于折痕的对应点为 (2t－x，y)"],
+        ["∴","C'＝（2t－2，2√3）"],
+        ["∵","B＝（4，2√3）"],
+        ["∴","C'B＝4－(2t－2)＝6－2t"],
+        ["∴","C'B＝2（3－t）"]
+      ],box:["C'B＝2（3－t）"]},
+      {id:"q1s2",section:"第（II）①问",title:"第2步：△C'BF 为等边三角形求 BF",t:2.5,derive:[
+        ["∵","折叠等角"],
+        ["∴","∠A'O'C'＝∠AOC＝60°"],
+        ["∵","BC∥OO'"],
+        ["∴","∠BC'F＝∠A'O'C'＝60°"],
+        ["∵","∠C'BF＝60°"],
+        ["∴","△C'BF 为等边三角形"],
+        ["∴","BF＝C'B＝2（3－t）"]
+      ],box:["BF＝2（3－t）"]},
+      {id:"q1s3",section:"第（II）①问",title:"第3步：由边界位置判断重叠为四边形时 t 的范围",t:2.5,derive:[
+        ["∵","t＝2 时，D 与 A 重合，重叠部分为三角形"],
+        ["∵","2＜t＜3 时，重叠部分为题目所指四边形"],
+        ["∵","t＝3 时，C'、F 与 B 重合，重叠部分为三角形"],
+        ["∴","重叠部分为题目所指四边形时，2＜t＜3"]
+      ],box:["四边形阶段：2＜t＜3"],minis:[
+        {title:"t＝2",caption:"折痕过 A（D 与 A 重合），尚未进入开区间 2＜t＜3。",t:2},
+        {title:"2＜t＜3",caption:"红色重叠区域为题目所指四边形（F 在线段 AB 内）。",t:2.5,rangeOpen:[2,3]},
+        {title:"t＝3",caption:"C'、F 与 B 重合，四边形阶段结束。",t:3}
+      ]},
+      {id:"q1s4",section:"第（II）①问",title:"第4步：合并第（II）①答案",t:2.5,derive:[
+        ["∵","BF＝2（3－t）"],
+        ["∵","2＜t＜3"],
+        ["∴","BF＝2（3－t），2＜t＜3"]
+      ],box:["BF＝2（3－t）","2＜t＜3"]},
+      {id:"q2s1",section:"第（II）②问",title:"第1步：由重叠图形分段判断面积趋势",t:2,derive:[
+        ["∵","4/3≤t≤10/3"],
+        ["∵","4/3≤t<2 时，重叠部分是左侧四边形，面积随 t 增大而增大"],
+        ["∵","t＝2 时，重叠部分为两侧四边形公式的公共边界，对称轴为 t＝2，S 取最大值"],
+        ["∵","2<t<3 时，重叠部分是中间四边形，面积随 t 增大而减小"],
+        ["∵","t＝3 时，F 与 B 重合，为四边形阶段与右侧三角形阶段的边界"],
+        ["∵","3<t≤10/3 时，重叠部分是靠近 B 的小三角形，面积随 t 增大而减小"],
+        ["∴","最大值在 t＝2 代入计算；最小值比较 t＝4/3 与 t＝10/3 取最小值"]
+      ],box:["最大值：代 t＝2","最小：比较 S(4/3) 与 S(10/3)"],minis:[
+        {title:"4/3≤t<2",caption:"左侧四边形随 t 增大而变大。",t:1.7,rangeLCROpen:[4/3,2]},
+        {title:"t＝2",caption:"两侧四边形公式分界；S 取讨论范围内最大值。",t:2},
+        {title:"2<t<3",caption:"中间四边形随 t 增大而变小。",t:2.5,rangeOpen:[2,3]},
+        {title:"t＝3",caption:"F 与 B 重合；四边形阶段与右侧三角形分界。",t:3},
+        {title:"3<t≤10/3",caption:"靠近 B 的小三角形继续变小。",t:10/3,rangeLORC:[3,10/3]}
+      ]},
+      {id:"q2s2",section:"第（II）②问",title:"第2步：代入 t＝2 求面积最大值",t:2,derive:[
+        ["∵","t＝2 时 O'（4，0），A（2，0），AO'＝2"],
+        ["∵","AC＝2√3"],
+        ["∴","S＝S△ACO'－S△AFO'"],
+        ["∵","S△ACO'＝1/2·AO'·AC＝2√3"],
+        ["∵","AF＝O'F＝AO'＝2，△AFO' 等边，S△AFO'＝√3"],
+        ["∴","S＝2√3－√3＝√3"],
+        ["∴","S 的最大值为 √3"]
+      ],box:["S＝S△ACO'－S△AFO'","S_max＝√3"]},
+      {id:"q2s3",section:"第（II）②问",title:"第3步：代入 t＝4/3 求最小值候选（之一）",t:4/3,derive:[
+        ["∵","t＝4/3 时 O'（8/3，0），P（4/3，0），PO'＝4/3"],
+        ["∵","G 为 PE 与 OC 的交点"],
+        ["∴","S＝S△PGO'－S△AFO'"],
+        ["∵","直角△PGO'，∠PO'G＝60°， S△PGO'＝1/2·4/3·4√3/3＝8√3/9"],
+        ["∵","AF＝O'F＝AO'＝2/3，△AFO' 等边，S△AFO'＝√3/9"],
+        ["∴","S＝8√3/9－√3/9＝7√3/9"]
+      ],box:["S＝S△PGO'－S△AFO'","S(4/3)＝7√3/9"]},
+      {id:"q2s4",section:"第（II）②问",title:"第4步：代入 t＝10/3 求最小值候选（之二）",t:10/3,derive:[
+        ["∵","t＝10/3 时，B（4，2√3），E（10/3，2√3），BE＝4－10/3＝2/3"],
+        ["∵","Rt△EBD，∠EBD＝60°"],
+        ["∵","ED＝√3·BE＝2√3/3"],
+        ["∴","S＝S△EBD＝1/2·BE·ED＝2√3/9"]
+      ],box:["S(10/3)＝2√3/9"]},
+      {id:"q2s5",section:"第（II）②问",title:"第5步：合并最终答案",t:2,derive:[
+        ["∵","7√3/9＞2√3/9"],
+        ["∴","S_min＝2√3/9（t＝10/3）"],
+        ["∵","S_max＝√3"],
+        ["∴","2√3/9≤S≤√3"]
+      ],box:["最大值：S＝√3","最小值：S＝2√3/9","最终：2√3/9≤S≤√3"]}
+    ];
+    const STEP_LABELS={i1s1:"1 求C坐标",i1s2:"2 求B坐标",q1s1:"1 求C'B",q1s2:"2 求BF",q1s3:"3 判断边界",q1s4:"4 合并答案",q2s1:"1 判断趋势",q2s2:"2 求最大",q2s3:"3 求最小①",q2s4:"4 求最小②",q2s5:"5 合并答案"};
+    const POLICIES={
+      i1s1:{movable:false,range:[0,0],reason:"本步只看固定平行四边形。"},
+      i1s2:{movable:false,range:[0,0],reason:"本步只看固定平行四边形。"},
+      q1s1:{movable:true,range:[2,3],reason:"本步对照 C'、B 与线段 C'B。"},
+      q1s2:{movable:true,range:[2,3],reason:"本步对照折叠等角、BC∥OO'、F 与 △C'BF；图上用角弧标注，不显式标 AB、O'C'。"},
+      q1s3:{movable:true,range:[2,3],reason:"本步对照 t＝2、3 边界及中间状态；图上不标边名与 BF、3－t 尺寸。"},
+      q1s4:{movable:true,range:[2,3],reason:"本步核对合并结论；图上不标边名与 BF、3－t 尺寸。"},
+      q2s1:{movable:true,range:[4/3,10/3],reason:"本步观察重叠区域分段与最值代入思路。"},
+      q2s2:{movable:false,range:[2,2],reason:"本步 t＝2：S＝S△ACO'－S△AFO'，虚线琥珀标△AFO'。"},
+      q2s3:{movable:false,range:[4/3,4/3],reason:"本步 t＝4/3：与上步同构图（G 在 OC 上），S＝S△PGO'－S△AFO'。"},
+      q2s4:{movable:false,range:[10/3,10/3],reason:"本步 t＝10/3：求 BE，用 Rt△EBD 面积；图上标 ∠EBD＝60°。"},
+      q2s5:{movable:true,range:[4/3,10/3],reason:"本步在完整范围内核对最终范围。"}
+    };
+    let stepIndex=0,problemUserPreference=null,currentLabelLayout=null,stepObserver=null;
+    const stepCards=document.getElementById("stepCards");
+    const stepNav=document.getElementById("stepNav");
+    const mobileStepNav=document.getElementById("mobileStepNav");
+    const problemCard=document.getElementById("problemCard");
+    const problemToggle=document.getElementById("problemToggle");
+    const railProgressText=document.getElementById("railProgressText");
+    const railProgressFill=document.getElementById("railProgressFill");
+    const mobileStepSheet=document.getElementById("mobileStepSheet");
+    const mobileStepToggle=document.getElementById("mobileStepToggle");
+    const mobileStepClose=document.getElementById("mobileStepClose");
+    const mobileStepCount=document.getElementById("mobileStepCount");
+    const mobileStepName=document.getElementById("mobileStepName");
+    const answerI=document.getElementById("answerI"),answerQ1=document.getElementById("answerQ1"),answerQ2=document.getElementById("answerQ2");
+    function esc(s){return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");}
+    function clamp(v,min,max){return Math.max(min,Math.min(max,v));}
+    function fmt(v){return Number(v).toFixed(3).replace(/\.?0+$/,"");}
+    function toScreen(p,w=W,h=SVG_H,pad=PAD){
+      const innerW=w-pad.left-pad.right, innerH=h-pad.top-pad.bottom;
+      const scale=Math.min(innerW/(DOMAIN.maxX-DOMAIN.minX),innerH/(DOMAIN.maxY-DOMAIN.minY));
+      const ox=pad.left+(innerW-(DOMAIN.maxX-DOMAIN.minX)*scale)/2, oy=pad.top+(innerH-(DOMAIN.maxY-DOMAIN.minY)*scale)/2;
+      return {x:ox+(p.x-DOMAIN.minX)*scale,y:h-oy-(p.y-DOMAIN.minY)*scale};
+    }
+    function path(points,w=W,h=SVG_H,pad=PAD){if(!points.length)return"";const first=toScreen(points[0],w,h,pad);return points.slice(1).reduce((d,p)=>{const s=toScreen(p,w,h,pad);return d+` L ${s.x} ${s.y}`},`M ${first.x} ${first.y}`)+" Z";}
+    function centroid(poly){return poly.reduce((acc,p)=>({x:acc.x+p.x/poly.length,y:acc.y+p.y/poly.length}),{x:0,y:0});}
+    function areaFormulaCard(p,terms){
+      const s=toScreen(p);
+      const unitWidth=value=>Array.from(value).reduce((sum,ch)=>sum+(/[\u0000-\u00ff]/.test(ch)?8.5:17),0);
+      const width=Math.max(360,terms.reduce((sum,term)=>sum+unitWidth(term.text)+8,0)+28);
+      const height=38;
+      let cursor=s.x+14;
+      const spans=terms.map(term=>{
+        const className=term.kind?`area-formula-${term.kind}`:"area-formula-op";
+        const out=`<tspan class="${className}" x="${cursor}" dy="0">${esc(term.text)}</tspan>`;
+        cursor+=unitWidth(term.text)+8;
+        return out;
+      }).join("");
+      return `<g class="area-formula"><rect class="area-formula-bg" x="${s.x}" y="${s.y-height+8}" width="${width}" height="${height}" rx="9" /><text class="area-formula-text" x="${s.x+14}" y="${s.y}" dominant-baseline="middle">${spans}</text></g>`;
+    }
+    function q2AcAfoOverlay(s,mode){
+      const cutAFO=[BASE.A,s.F,s.Op];
+      let h="";
+      h+=line(BASE.A,BASE.C,"#0f766e",2.4)+line(BASE.A,s.Op,"#0f766e",2.4)+line(BASE.C,s.Op,"#0f766e",2.4);
+      h+=rightAngle(BASE.C,BASE.A,s.Op,13,"#0f766e");
+      h+=dimension(BASE.A,s.Op,mode.aoDim,"#0f766e",28,{crowded:true,rotateWithLine:false});
+      h+=dimension(BASE.A,BASE.C,"AC=2√3","#0f766e",-36,{crowded:true});
+      h+=`<path d="${path(cutAFO)}" fill="rgba(245,158,11,.28)" stroke="#b45309" stroke-width="2.2" stroke-dasharray="6 5" />`;
+      h+=textAt(centroid(cutAFO),mode.plus?"+":"−","#b45309",-4,4,18);
+      const terms=mode.plus
+        ?[{text:"S",kind:"target"},{text:"=",kind:"op"},{text:"△ACO'",kind:"base"},{text:"+",kind:"op"},{text:"△AFO'",kind:"base"}]
+        :[{text:"S",kind:"target"},{text:"=",kind:"op"},{text:"△ACO'",kind:"base"},{text:"−",kind:"op"},{text:"△AFO'",kind:"cut"}];
+      h+=areaFormulaCard({x:.22,y:3.86},terms);
+      h+=point(s.F,"F","#dc2626",10,22);
+      h+=line(BASE.A,s.F,"#b45309",2.6)+line(s.Op,s.F,"#b45309",2.6);
+      const rL=mode.plus?11:18,rS=mode.plus?7:12,lr=mode.plus?10:14,fs=mode.plus?12:13;
+      const candFA=mode.plus?undefined:[{dx:8,dy:-14},{dx:12,dy:-8},{dx:4,dy:-18}];
+      h+=angleArc(s.Op,BASE.A,s.F,rL,"#b45309","60°");
+      h+=angleArc(BASE.A,s.F,s.Op,rS,"#b45309","60°",{labelRadius:lr,fontSize:fs,candidates:candFA});
+      h+=angleArc(s.F,s.Op,BASE.A,rL,"#b45309","60°");
+      return h;
+    }
+    function q2PgoMinusAfoOverlay(s,t){
+      const G={x:t,y:SQRT3*t},cutAFO=[BASE.A,s.F,s.Op],is2=Math.abs(t-2)<1e-9;
+      let h="";
+      h+=line(BASE.O,BASE.C,"#0f766e",2.35);
+      h+=point(G,"G","#0f766e",is2?18:-8,is2?-6:-12);
+      h+=line(s.P,G,"#dc2626",2.8)+line(s.P,s.Op,"#0f766e",2.5)+line(G,s.Op,"#0f766e",2.5);
+      h+=dimension(s.P,s.Op,is2?"PO'=2":"PO'=4/3","#0f766e",-28,{crowded:true});
+      h+=dimension(BASE.A,s.Op,is2?"AO'=2":"AO'=2/3","#0f766e",32,{crowded:true,rotateWithLine:false});
+      h+=`<path d="${path(cutAFO)}" fill="rgba(245,158,11,.28)" stroke="#b45309" stroke-width="2.2" stroke-dasharray="6 5" />`;
+      h+=textAt(centroid(cutAFO),"−","#b45309",-4,4,18);
+      h+=areaFormulaCard({x:.22,y:3.86},[
+        {text:"S",kind:"target"},{text:"=",kind:"op"},{text:"△PGO'",kind:"base"},{text:"−",kind:"op"},{text:"△AFO'",kind:"cut"}
+      ]);
+      h+=point(s.F,"F","#dc2626",10,22);
+      h+=line(BASE.A,s.F,"#b45309",2.6)+line(s.Op,s.F,"#b45309",2.6);
+      const rL=is2?18:11,rS=is2?12:7,lr=is2?14:10,fs=is2?13:12;
+      const candFA=is2
+        ?[{dx:8,dy:-14},{dx:12,dy:-8},{dx:4,dy:-18}]
+        :[{dx:10,dy:-12},{dx:14,dy:-8},{dx:6,dy:-16}];
+      h+=angleArc(s.Op,BASE.A,s.F,rL,"#b45309","60°");
+      h+=angleArc(BASE.A,s.F,s.Op,rS,"#b45309","60°",{labelRadius:lr,fontSize:fs,candidates:candFA});
+      h+=angleArc(s.F,s.Op,BASE.A,rL,"#b45309","60°");
+      return h;
+    }
+    function line(a,b,color="#334155",width=2,dash=""){const p=toScreen(a),q=toScreen(b);return `<line x1="${p.x}" y1="${p.y}" x2="${q.x}" y2="${q.y}" stroke="${color}" stroke-width="${width}" ${dash?`stroke-dasharray="${dash}"`:""} />`;}
+    function point(p,label,color="#1f2937",dx=8,dy=-8){
+      const s=toScreen(p);
+      const circle=`<circle cx="${s.x}" cy="${s.y}" r="5" fill="${color}" />`;
+      if(window.GeometryLabelLayout&&currentLabelLayout){
+        currentLabelLayout.occupied.push({left:s.x-8,top:s.y-8,right:s.x+8,bottom:s.y+8,kind:"self-point"});
+        if(!label)return circle;
+        return circle+window.GeometryLabelLayout.labelSvg(currentLabelLayout,p,label,{color,fontSize:15,fontWeight:900,preferredDx:dx,preferredDy:dy,candidates:window.GeometryLabelLayout.candidateOffsets?.(dx,dy),allowNearPoint:true});
+      }
+      return circle+(label?`<text x="${s.x+dx}" y="${s.y+dy}" font-size="15" font-weight="900" fill="${color}">${esc(label)}</text>`:"");
+    }
+    function textAt(p,text,color="#334155",dx=8,dy=-10,size=14){const s=toScreen(p);return `<text x="${s.x+dx}" y="${s.y+dy}" font-size="${size}" font-weight="900" fill="${color}">${esc(text)}</text>`;}
+    function box(lines){const x=748,y=52,w=292,lineH=24,h=16+lines.length*lineH;return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="10" fill="rgba(255,255,255,.95)" stroke="#475569" stroke-width="1.4" />`+lines.map((line,i)=>`<text x="${x+14}" y="${y+22+i*lineH}" font-size="14" font-weight="900" fill="#111827">${esc(line)}</text>`).join("");}
+    function dimension(a,b,text,color="#0f766e",offsetPx=18,options={}){
+      if(window.GeometryLabelLayout&&currentLabelLayout){
+        return window.GeometryLabelLayout.segmentMeasureSvg(currentLabelLayout,toScreen,a,b,text,{color,style:"dimension",showGuide:true,rotateWithLine:options.rotateWithLine??false,fontSize:14,fontWeight:900,offsetPx,extraNormal:options.extraNormal,extraAlong:options.extraAlong,segmentRole:"derived",crowded:options.crowded??false,collinearGroup:true,reusedInFormula:true,visuallyUnique:false});
+      }
+      return "";
+    }
+    function segmentLabel(a,b,text,color="#b45309",options={}){
+      if(window.GeometryLabelLayout&&currentLabelLayout){
+        return window.GeometryLabelLayout.segmentMeasureSvg(currentLabelLayout,toScreen,a,b,text,{color,style:options.style??"parallel",showGuide:options.showGuide??true,rotateWithLine:options.rotateWithLine??true,fontSize:14,fontWeight:900,extraNormal:options.extraNormal??-12,extraAlong:options.extraAlong??0,offsetPx:options.offsetPx,segmentRole:"helper",crowded:options.crowded??false,collinearGroup:options.collinearGroup??false,reusedInFormula:true,visuallyUnique:false});
+      }
+      return "";
+    }
+    function rightAngle(v,a,b,size=11,color="#334155"){return window.GeometryLabelLayout?.rightAngleSvg(currentLabelLayout,toScreen,v,a,b,{size,color})??"";}
+    function angleArc(c,a,b,r=25,color="#b45309",label="",opts){
+      const opt=opts&&typeof opts==="object"?opts:{};
+      const C=toScreen(c),A=toScreen(a),B=toScreen(b),a1=Math.atan2(A.y-C.y,A.x-C.x),a2=Math.atan2(B.y-C.y,B.x-C.x);
+      let d=a2-a1;while(d<=-Math.PI)d+=2*Math.PI;while(d>Math.PI)d-=2*Math.PI;
+      const sweep=d>0?1:0,end=a1+d,p1={x:C.x+r*Math.cos(a1),y:C.y+r*Math.sin(a1)},p2={x:C.x+r*Math.cos(end),y:C.y+r*Math.sin(end)},mid=a1+d/2;
+      const lr=opt.labelRadius!=null?opt.labelRadius:r+18,fs=opt.fontSize??15;
+      const textSvg=label?(window.GeometryLabelLayout&&currentLabelLayout?window.GeometryLabelLayout.polarLabelSvg(currentLabelLayout,C,label,{radius:lr,angle:mid,color,fontSize:fs,fontWeight:900,candidates:opt.candidates}):`<text x="${C.x+lr*Math.cos(mid)}" y="${C.y+lr*Math.sin(mid)}" text-anchor="middle" dominant-baseline="middle" font-size="${fs}" font-weight="900" fill="${color}">${esc(label)}</text>`):"";
+      return `<path d="M ${p1.x} ${p1.y} A ${r} ${r} 0 0 ${sweep} ${p2.x} ${p2.y}" fill="none" stroke="${color}" stroke-width="2" />`+textSvg;
+    }
+    function originalHelpers(domain,w=1080,h=430,pad={left:70,right:54,top:34,bottom:46}){
+      function ts(p){
+        const innerW=w-pad.left-pad.right, innerH=h-pad.top-pad.bottom;
+        const scale=Math.min(innerW/(domain.maxX-domain.minX),innerH/(domain.maxY-domain.minY));
+        const ox=pad.left+(innerW-(domain.maxX-domain.minX)*scale)/2;
+        const oy=pad.top+(innerH-(domain.maxY-domain.minY)*scale)/2;
+        return {x:ox+(p.x-domain.minX)*scale,y:h-oy-(p.y-domain.minY)*scale};
+      }
+      function pth(points){if(!points.length)return"";const first=ts(points[0]);return points.slice(1).reduce((d,p)=>{const q=ts(p);return d+` L ${q.x} ${q.y}`},`M ${first.x} ${first.y}`)+" Z";}
+      function ln(a,b,color="#475569",width=2,dash=""){const p=ts(a),q=ts(b);return `<line x1="${p.x}" y1="${p.y}" x2="${q.x}" y2="${q.y}" stroke="${color}" stroke-width="${width}" ${dash?`stroke-dasharray="${dash}"`:""} />`;}
+      function pt(p,label,color="#1f2937",dx=8,dy=-8){const s=ts(p);return `<circle cx="${s.x}" cy="${s.y}" r="4.8" fill="${color}" /><text x="${s.x+dx}" y="${s.y+dy}" font-size="16" font-weight="900" fill="${color}">${esc(label)}</text>`;}
+      function txt(p,text,color="#334155",dx=8,dy=-8,size=15){const s=ts(p);return `<text x="${s.x+dx}" y="${s.y+dy}" font-size="${size}" font-weight="900" fill="${color}">${esc(text)}</text>`;}
+      function arc(c,a,b,r=30,label=""){const C=ts(c),A=ts(a),B=ts(b),a1=Math.atan2(A.y-C.y,A.x-C.x),a2=Math.atan2(B.y-C.y,B.x-C.x);let d=a2-a1;while(d<=-Math.PI)d+=2*Math.PI;while(d>Math.PI)d-=2*Math.PI;const sweep=d>0?1:0,end=a1+d,p1={x:C.x+r*Math.cos(a1),y:C.y+r*Math.sin(a1)},p2={x:C.x+r*Math.cos(end),y:C.y+r*Math.sin(end)},mid=a1+d/2;return `<path d="M ${p1.x} ${p1.y} A ${r} ${r} 0 0 ${sweep} ${p2.x} ${p2.y}" fill="none" stroke="#b45309" stroke-width="2" />`+(label?`<text x="${C.x+(r+20)*Math.cos(mid)}" y="${C.y+(r+20)*Math.sin(mid)}" text-anchor="middle" dominant-baseline="middle" font-size="15" font-weight="900" fill="#b45309">${esc(label)}</text>`:"");}
+      return {ts,pth,ln,pt,txt,arc,w,h};
+    }
+    function originalFigureOne(){
+      const h=originalHelpers({minX:-.45,maxX:4.55,minY:-.45,maxY:4.05});
+      return `<svg viewBox="0 0 ${h.w} ${h.h}" role="img" aria-label="图① 原始平行四边形">
+        ${h.ln({x:-.35,y:0},{x:4.45,y:0},"#64748b",1.8)}${h.ln({x:0,y:-.35},{x:0,y:3.95},"#64748b",1.8)}
+        <path d="${h.pth(PARA)}" fill="rgba(245,158,11,.12)" stroke="#d97706" stroke-width="2.5" />
+        ${h.ln(BASE.O,BASE.C,"#0f766e",2.6)}${h.arc(BASE.O,BASE.A,BASE.C,34,"60°")}
+        ${h.txt({x:1.12,y:1.9},"OC=4","#0f766e",10,-6)}
+        ${h.pt(BASE.O,"O","#1f2937",8,18)}${h.pt(BASE.A,"A","#1f2937",8,18)}${h.pt(BASE.C,"C","#1f2937",-28,-10)}${h.pt(BASE.B,"B","#1f2937",10,-10)}
+        ${h.txt({x:4.35,y:0},"x","#64748b",8,4)}${h.txt({x:0,y:3.86},"y","#64748b",8,-8)}
+      </svg>`;
+    }
+    function originalFigureTwo(){
+      const t=2.5,s=state(t);
+      const h=originalHelpers({minX:-.45,maxX:5.35,minY:-.45,maxY:4.05});
+      const folded=[s.Ap,s.Op,s.Cp,s.E,s.D];
+      return `<svg viewBox="0 0 ${h.w} ${h.h}" role="img" aria-label="图② 折叠后的原题图">
+        ${h.ln({x:-.35,y:0},{x:5.2,y:0},"#64748b",1.8)}${h.ln({x:0,y:-.35},{x:0,y:3.95},"#64748b",1.8)}
+        <path d="${h.pth(PARA)}" fill="rgba(245,158,11,.10)" stroke="#d97706" stroke-width="2.4" />
+        <path d="${h.pth(folded)}" fill="rgba(14,116,144,.12)" stroke="#0f766e" stroke-width="2.4" />
+        ${h.ln(s.P,{x:s.P.x,y:3.95},"#334155",2,"7 6")}${h.txt({x:s.P.x,y:3.9},"l","#334155",8,0)}
+        ${h.ln(s.Op,s.Cp,"#b45309",2.4)}${h.ln(BASE.A,BASE.B,"#b45309",2.2)}
+        ${h.pt(BASE.O,"O","#1f2937",8,18)}${h.pt(BASE.A,"A","#1f2937",8,18)}${h.pt(BASE.C,"C","#1f2937",-28,-10)}${h.pt(BASE.B,"B","#1f2937",10,-10)}
+        ${h.pt(s.P,"P","#334155",8,18)}${h.pt(s.D,"D","#dc2626",-24,5)}${h.pt(s.E,"E","#dc2626",-24,-8)}${h.pt(s.Ap,"A'","#0f766e",8,18)}${h.pt(s.Op,"O'","#0f766e",8,18)}${h.pt(s.Cp,"C'","#0f766e",10,-10)}${h.pt(s.F,"F","#dc2626",10,20)}
+        ${h.txt({x:5.12,y:0},"x","#64748b",8,4)}${h.txt({x:0,y:3.86},"y","#64748b",8,-8)}
+      </svg>`;
+    }
+    function renderOriginalFigures(){
+      const one=document.getElementById("originalFigureOne"),two=document.getElementById("originalFigureTwo");
+      if(one)one.innerHTML=originalFigureOne();
+      if(two)two.innerHTML=originalFigureTwo();
+    }
+    function clipHalfPlane(poly,inside,intersect){
+      const out=[];
+      poly.forEach((p,i)=>{
+        const q=poly[(i+1)%poly.length],ip=inside(p),iq=inside(q);
+        if(ip&&iq)out.push(q);
+        else if(ip&&!iq)out.push(intersect(p,q));
+        else if(!ip&&iq){out.push(intersect(p,q));out.push(q);}
+      });
+      return out;
+    }
+    function clipXLe(poly,t){return clipHalfPlane(poly,p=>p.x<=t+1e-9,(p,q)=>{const u=(t-p.x)/(q.x-p.x);return {x:t,y:p.y+u*(q.y-p.y)};});}
+    function clipPolygon(subject,clipper){
+      let out=subject.slice();
+      clipper.forEach((a,i)=>{
+        const b=clipper[(i+1)%clipper.length];
+        out=clipHalfPlane(out,p=>(b.x-a.x)*(p.y-a.y)-(b.y-a.y)*(p.x-a.x)>=-1e-9,(p,q)=>{
+          const den=(p.x-q.x)*(a.y-b.y)-(p.y-q.y)*(a.x-b.x);
+          if(Math.abs(den)<1e-9)return q;
+          const c1=p.x*q.y-p.y*q.x,c2=a.x*b.y-a.y*b.x;
+          return {x:(c1*(a.x-b.x)-(p.x-q.x)*c2)/den,y:(c1*(a.y-b.y)-(p.y-q.y)*c2)/den};
+        });
+      });
+      return out;
+    }
+    function foldedPoly(t){
+      const left=clipXLe(PARA,t);
+      return left.map(p=>({x:2*t-p.x,y:p.y})).reverse();
+    }
+    function state(t){
+      const P={x:t,y:0},D={x:t,y:SQRT3*(t-2)},E={x:t,y:2*SQRT3};
+      const Op={x:2*t,y:0},Ap={x:2*t-2,y:0},Cp={x:2*t-2,y:2*SQRT3};
+      const F={x:t+1,y:SQRT3*(t-1)};
+      const folded=foldedPoly(t);
+      const overlap=clipPolygon(folded,PARA);
+      return {P,D,E,Op,Ap,Cp,F,folded,overlap};
+    }
+    function area(t){return t<=3 ? SQRT3/2*(-t*t+4*t-2) : SQRT3/2*(4-t)*(4-t);}
+    function liveText(step,t){
+      if(["q2s2","q2s3","q2s4","q2s5"].includes(step.id))return `S≈${area(t).toFixed(3)}`;
+      return "";
+    }
+    function grid(){
+      let out="";
+      for(let x=Math.ceil(DOMAIN.minX);x<=Math.floor(DOMAIN.maxX);x++){
+        out+=line({x,y:DOMAIN.minY},{x,y:DOMAIN.maxY},"rgba(148,163,184,.18)",1);
+      }
+      for(let y=Math.ceil(DOMAIN.minY);y<=Math.floor(DOMAIN.maxY);y++){
+        out+=line({x:DOMAIN.minX,y},{x:DOMAIN.maxX,y},"rgba(148,163,184,.18)",1);
+      }
+      return out;
+    }
+    function baseMarkup(){
+      return `<path d="${path(PARA)}" fill="var(--paper)" stroke="var(--paper-stroke)" stroke-width="2.4" />
+      ${line({x:DOMAIN.minX,y:0},{x:DOMAIN.maxX,y:0},"#64748b",1.8)}${line({x:0,y:DOMAIN.minY},{x:0,y:DOMAIN.maxY},"#64748b",1.8)}
+      ${point(BASE.O,"O","#1f2937",8,18)}${point(BASE.A,"A","#1f2937",8,18)}${point(BASE.B,"B","#1f2937",10,-10)}${point(BASE.C,"C","#1f2937",-28,-10)}`;
+    }
+    function drawMini(t){
+      const s=state(t),w=250,h=130,pad={left:16,right:16,top:12,bottom:18};
+      function ts(p){const d={minX:-.2,maxX:6.9,minY:-.3,maxY:4.1},scale=Math.min((w-pad.left-pad.right)/(d.maxX-d.minX),(h-pad.top-pad.bottom)/(d.maxY-d.minY));return {x:pad.left+(p.x-d.minX)*scale,y:h-pad.top-(p.y-d.minY)*scale};}
+      function mp(points){if(!points.length)return"";const first=ts(points[0]);return points.slice(1).reduce((d,p)=>{const q=ts(p);return d+` L ${q.x} ${q.y}`},`M ${first.x} ${first.y}`)+" Z";}
+      const ax=ts({x:0,y:0}),x2=ts({x:6.8,y:0});
+      return `<svg viewBox="0 0 ${w} ${h}" aria-hidden="true"><line x1="${ax.x-8}" y1="${ax.y}" x2="${x2.x}" y2="${x2.y}" stroke="#64748b" /><path d="${mp(PARA)}" fill="rgba(245,158,11,.12)" stroke="#d97706" stroke-width="2" /><path d="${mp(s.folded)}" fill="rgba(14,116,144,.12)" stroke="#0f766e" stroke-width="2" /><path d="${mp(s.overlap)}" fill="rgba(220,38,38,.22)" stroke="#dc2626" stroke-width="2" /></svg>`;
+    }
+    function updateAnswers(){answerI.classList.add("show");answerQ1.classList.add("show");answerQ2.classList.add("show");}
+    function groupTitle(section){if(section==="第（I）问")return"第（I）问 坐标";if(section==="第（II）①问")return"第（II）① BF";return"第（II）② 面积";}
+    function renderStepNavMarkup(){
+      const problemEntry=`<div class="step-group step-group-problem"><div class="step-group-title">题目</div><div class="step-dots"><button class="step-dot" type="button" data-problem-nav="true" title="回到完整原题">原题</button></div></div>`;
+      const groups=[];
+      STEPS.forEach(step=>{let group=groups.find(item=>item.section===step.section);if(!group){group={section:step.section,steps:[]};groups.push(group);}group.steps.push(step);});
+      return problemEntry+groups.map(group=>{
+        const dots=group.steps.map((step,idx)=>{
+          const index=STEPS.indexOf(step),label=STEP_LABELS[step.id]||String(idx+1);
+          const dot=`<button class="step-dot ${index<stepIndex?"done":""} ${index===stepIndex?"active":""}" type="button" data-step="${index}" title="${esc(step.title)}">${esc(label)}</button>`;
+          return idx===0?dot:`<span class="step-connector"></span>${dot}`;
+        }).join("");
+        return `<div class="step-group"><div class="step-group-title">${esc(groupTitle(group.section))}</div><div class="step-dots">${dots}</div></div>`;
+      }).join("");
+    }
+    function renderStepNav(){
+      stepNav.innerHTML=renderStepNavMarkup();
+      mobileStepNav.innerHTML=renderStepNavMarkup();
+      railProgressText.textContent=`${stepIndex+1} / ${STEPS.length}`;
+      railProgressFill.style.width=`${((stepIndex+1)/STEPS.length)*100}%`;
+      mobileStepCount.textContent=`${STEPS[stepIndex].section} · 步骤 ${stepIndex+1} / ${STEPS.length}`;
+      mobileStepName.textContent=STEP_LABELS[STEPS[stepIndex].id]||STEPS[stepIndex].title;
+    }
+    function miniActive(item,activeT){
+      const e=1e-6;
+      if(item.rangeOpen){
+        const a=item.rangeOpen[0],b=item.rangeOpen[1];
+        return activeT>a+e&&activeT<b-e;
+      }
+      if(item.rangeLCROpen){
+        const a=item.rangeLCROpen[0],b=item.rangeLCROpen[1];
+        return activeT>=a-e&&activeT<b-e;
+      }
+      if(item.rangeLORC){
+        const a=item.rangeLORC[0],b=item.rangeLORC[1];
+        return activeT>a+e&&activeT<=b+e;
+      }
+      return Math.abs(activeT-item.t)<.03;
+    }
+    function renderMinisMarkup(step,activeT){
+      if(!step.minis)return"";
+      const chips=step.minis.map(item=>`<button class="mini-jump ${miniActive(item,activeT)?"active":""}" type="button" data-mini-t="${item.t}">${esc(item.title)}</button>`).join("");
+      const cards=step.minis.map(item=>`<div class="mini-card ${miniActive(item,activeT)?"active":""}" role="button" tabindex="0" data-mini-t="${item.t}" data-mini-card-t="${item.t}"><h3>${esc(item.title)}</h3>${drawMini(item.t)}<p>${esc(item.caption)}</p></div>`).join("");
+      return `<div class="mini-boundaries"><div class="mini-jump-row">${chips}</div><div class="mini-preview-strip">${cards}</div></div>`;
+    }
+    function diagramMarkupFor(index,overrideT){
+      const step=STEPS[index],policy=POLICIES[step.id]||{movable:false,range:[step.t,step.t]};
+      const localT=clamp(overrideT??step.t,policy.range[0],policy.range[1]);
+      const s=state(localT);
+      currentLabelLayout=window.GeometryLabelLayout ? window.GeometryLabelLayout.createLabelLayout({toScreen,padding:4,pointRadius:8}) : null;
+      let overlays="";
+      if(step.id==="i1s1"){
+        const H={x:BASE.C.x,y:0};
+        overlays+=line(BASE.O,BASE.C,"#0f766e",3)+line(BASE.C,H,"#b45309",2.2,"5 4")+rightAngle(H,BASE.O,BASE.C,12,"#b45309")+angleArc(BASE.O,BASE.A,BASE.C,34,"#b45309","60°")+dimension(BASE.O,H,"2","#0f766e",-22)+dimension(H,BASE.C,"2√3","#0f766e",20)+dimension(BASE.O,BASE.C,"OC=4","#0f766e",24);
+      }
+      if(step.id==="i1s2"){
+        overlays+=line(BASE.C,BASE.B,"#0f766e",3)+line(BASE.O,BASE.A,"#0f766e",3)+dimension(BASE.C,BASE.B,"2","#0f766e",-22)+textAt(BASE.B,"B=(4,2√3)","#0f766e",10,-28);
+      }
+      if(step.section!=="第（I）问"){
+        overlays+=line(s.P,{x:s.P.x,y:4.1},"#334155",2,"6 6")+textAt({x:s.P.x,y:4.1},"l: x=t","#334155",8,4,14);
+        overlays+=`<path d="${path(s.folded)}" fill="var(--fold)" stroke="var(--fold-stroke)" stroke-width="2.4" />`;
+        overlays+=`<path d="${path(s.overlap)}" fill="var(--overlap)" stroke="var(--overlap-stroke)" stroke-width="2.8" />`;
+        overlays+=point(s.P,"P","#334155",8,18)+point(s.Op,"O'","#0f766e",8,18)+point(s.Ap,"A'","#0f766e",8,18)+point(s.Cp,"C'","#0f766e",10,-12);
+        overlays+=dimension(BASE.O,s.P,"OP=t","#0f766e",-24);
+        if(s.overlap.length){
+          const mid=s.overlap.reduce((acc,p)=>({x:acc.x+p.x/s.overlap.length,y:acc.y+p.y/s.overlap.length}),{x:0,y:0});
+          overlays+=textAt(mid,"S","#dc2626",-3,5,18);
+        }
+      }
+      if(["q1s1","q1s2","q1s3","q1s4"].includes(step.id)){
+        overlays+=point(s.D,"D","#dc2626",-22,5)+point(s.E,"E","#dc2626",-22,-9);
+        overlays+=line(BASE.A,BASE.B,"#b45309",2.4)+line(s.Op,s.Cp,"#b45309",2.4);
+      }
+      if(step.id==="q1s1"){
+        overlays+=dimension(s.Cp,BASE.B,"C'B","#0f766e",26,{crowded:true});
+      }
+      if(["q1s2","q1s3","q1s4"].includes(step.id)){
+        overlays+=point(s.F,"F","#dc2626",10,22);
+        overlays+=line(BASE.B,s.Cp,"#d97706",2.2,"6 4");
+      }
+      if(step.id==="q1s2"){
+        overlays+=angleArc(BASE.O,BASE.A,BASE.C,26,"#64748b","60°");
+        overlays+=angleArc(s.Op,s.Ap,s.Cp,20,"#0f766e","60°");
+        overlays+=angleArc(s.Cp,BASE.B,s.F,14,"#dc2626","60°");
+        overlays+=angleArc(BASE.B,s.F,s.Cp,19,"#b45309","60°");
+      }
+      if(["q1s3","q1s4"].includes(step.id)){
+        overlays+=line(s.F,BASE.B,"#dc2626",4);
+      }
+      if(step.id==="q2s2")overlays+=q2AcAfoOverlay(s,{plus:false,aoDim:"AO'=2"});
+      else if(step.id==="q2s3")overlays+=q2PgoMinusAfoOverlay(s,localT);
+      else if(["q2s4","q2s5"].includes(step.id)){
+        overlays+=point(s.D,"D","#dc2626",-22,5)+point(s.E,"E","#dc2626",-22,-9);
+        const showEbd=step.id==="q2s4"||localT>3+1e-6;
+        if(showEbd){
+          overlays+=line(s.E,BASE.B,"#0f766e",2.2)+line(BASE.B,s.D,"#0f766e",2.2)+line(s.E,s.D,"#0f766e",2);
+          overlays+=angleArc(BASE.B,s.E,s.D,24,"#b45309","60°");
+        }
+      }
+      if(step.id==="q1s3"){
+        if(Math.abs(localT-2)<.04)overlays+=textAt({x:2.15,y:-0.22},"t＝2：D 与 A 重合","#dc2626",0,0,14);
+        if(Math.abs(localT-3)<.04)overlays+=textAt({x:4.05,y:2*SQRT3+.24},"t＝3：C'、F 与 B 重合","#dc2626",0,0,14);
+      }
+      let liveBox=step.box;
+      if(step.id==="q1s3")liveBox=[...step.box,`示例 t=${fmt(localT)}`];
+      else{
+        const live=liveText(step,localT);
+        liveBox=live?[...step.box,`当前 ${live}`]:step.box;
+      }
+      const markup=grid()+baseMarkup()+overlays+box(liveBox);
+      currentLabelLayout=null;
+      return markup;
+    }
+    function renderAllSteps(){
+      updateAnswers();
+      stepCards.innerHTML=STEPS.map((step,index)=>{
+        const policy=POLICIES[step.id]||{movable:false,range:[step.t,step.t],reason:""};
+        const activeT=clamp(step.t,policy.range[0],policy.range[1]);
+        const derive=step.derive.map(([mark,text])=>`<div class="derive-line"><strong>${mark}</strong>${esc(text)}</div>`).join("");
+        const minis=renderMinisMarkup(step,activeT);
+        const tools=policy.movable?`<div class="step-local-tools" data-step-tools="${index}">
+          <div class="step-slider-row">
+            <label for="stepRange-${step.id}">折叠参数 · t＝OP</label>
+            <input id="stepRange-${step.id}" type="range" min="${policy.range[0]}" max="${policy.range[1]}" step="${policy.step||0.001}" value="${activeT}" data-step-range="${index}">
+            <span class="step-t-value" data-step-t-label="${index}">t=${fmt(activeT)}</span>
+          </div>
+        </div>`:"";
+        return `<article class="card lesson-step-card" id="step-${step.id}" data-step-index="${index}">
+          <div class="step-card-head"><div class="step-card-title"><div class="step-section">${esc(step.section)}</div><h2>${esc(step.title)}</h2></div><div class="step-card-index">${index+1}/${STEPS.length}</div></div>
+          <div class="step-card-body">
+            <div class="step-card-diagram">
+              <div class="svg-wrap"><svg viewBox="0 0 1080 720" aria-label="${esc(step.title)}">${diagramMarkupFor(index)}</svg></div>
+              <div class="legend">
+                <span><i class="sw" style="background:var(--paper)"></i>固定平行四边形 OABC</span>
+                <span><i class="sw" style="background:var(--fold)"></i>折叠后的纸片</span>
+                <span><i class="sw" style="background:var(--overlap)"></i>当前重叠区域 S</span>
+              </div>
+              ${tools}
+              ${minis}
+            </div>
+            <div class="step-card-panel"><div class="derive-list">${derive}</div></div>
+          </div>
+        </article>`;
+      }).join("");
+      renderStepNav();
+      observeSteps();
+    }
+    function updateProblemToggle(){problemToggle.textContent=problemCard.classList.contains("collapsed")?"展开完整题目":"收起完整题目";}
+    function syncProblemCardForInteraction(){if(problemUserPreference!==null)return;problemCard.classList.add("collapsed");updateProblemToggle();}
+    function setProblemVisibility(collapsed,user=false){problemCard.classList.toggle("collapsed",collapsed);if(user)problemUserPreference=collapsed?"collapsed":"expanded";updateProblemToggle();}
+    function setActiveStep(next,options={}){
+      stepIndex=clamp(next,0,STEPS.length-1);
+      document.querySelectorAll(".lesson-step-card").forEach((card,index)=>card.classList.toggle("active-step",index===stepIndex));
+      renderStepNav();
+      if(options.scroll)document.getElementById(`step-${STEPS[stepIndex].id}`)?.scrollIntoView({behavior:"smooth",block:"start"});
+    }
+    function setStep(next){syncProblemCardForInteraction();setActiveStep(next,{scroll:true});}
+    function goToProblem(){
+      setProblemVisibility(false,true);
+      problemCard.scrollIntoView({behavior:"auto",block:"start"});
+      requestAnimationFrame(()=>problemCard.scrollIntoView({behavior:"smooth",block:"start"}));
+    }
+    function closeMobileStepSheet(){mobileStepSheet.classList.remove("open");mobileStepSheet.setAttribute("aria-hidden","true");}
+    function openMobileStepSheet(){mobileStepSheet.classList.add("open");mobileStepSheet.setAttribute("aria-hidden","false");}
+    function updateStepDiagram(index,value){
+      const step=STEPS[index],policy=POLICIES[step.id];
+      if(!policy?.movable)return;
+      const nextT=clamp(Number(value),policy.range[0],policy.range[1]);
+      const card=document.querySelector(`.lesson-step-card[data-step-index="${index}"]`);
+      const svgEl=card?.querySelector("svg"),labelEl=card?.querySelector(`[data-step-t-label="${index}"]`),rangeEl=card?.querySelector(`[data-step-range="${index}"]`);
+      if(svgEl)svgEl.innerHTML=diagramMarkupFor(index,nextT);
+      if(labelEl)labelEl.textContent=`t=${fmt(nextT)}`;
+      if(rangeEl&&Number(rangeEl.value)!==nextT)rangeEl.value=String(nextT);
+      const miniList=step.minis;
+      if(miniList){
+        card?.querySelectorAll(".mini-jump-row .mini-jump").forEach((el,i)=>{
+          const item=miniList[i];
+          el.classList.toggle("active",item&&miniActive(item,nextT));
+        });
+        card?.querySelectorAll(".mini-preview-strip .mini-card").forEach((el,i)=>{
+          const item=miniList[i];
+          el.classList.toggle("active",item&&miniActive(item,nextT));
+        });
+      }
+    }
+    function observeSteps(){
+      if(stepObserver)stepObserver.disconnect();
+      stepObserver=new IntersectionObserver(entries=>{
+        const visible=entries.filter(entry=>entry.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];
+        if(!visible)return;
+        const next=Number(visible.target.dataset.stepIndex);
+        if(Number.isInteger(next)&&next!==stepIndex)setActiveStep(next);
+      },{rootMargin:"-20% 0px -55% 0px",threshold:[.15,.3,.55]});
+      document.querySelectorAll(".lesson-step-card").forEach(card=>stepObserver.observe(card));
+      setActiveStep(stepIndex);
+    }
+    stepNav.addEventListener("click",event=>{
+      const problemTarget=event.target.closest("button[data-problem-nav]");
+      if(problemTarget){goToProblem();return;}
+      const target=event.target.closest("button[data-step]");
+      if(target)setStep(Number(target.dataset.step));
+    });
+    mobileStepNav.addEventListener("click",event=>{
+      const problemTarget=event.target.closest("button[data-problem-nav]");
+      if(problemTarget){closeMobileStepSheet();goToProblem();return;}
+      const target=event.target.closest("button[data-step]");
+      if(target){setStep(Number(target.dataset.step));closeMobileStepSheet();}
+    });
+    mobileStepToggle.addEventListener("click",openMobileStepSheet);
+    mobileStepClose.addEventListener("click",closeMobileStepSheet);
+    mobileStepSheet.addEventListener("click",event=>{if(event.target===mobileStepSheet)closeMobileStepSheet();});
+    stepCards.addEventListener("input",event=>{const target=event.target.closest("input[data-step-range]");if(target)updateStepDiagram(Number(target.dataset.stepRange),target.value);});
+    stepCards.addEventListener("click",event=>{const target=event.target.closest("[data-mini-t]");if(!target)return;const card=target.closest(".lesson-step-card");updateStepDiagram(Number(card?.dataset.stepIndex),target.dataset.miniT);});
+    stepCards.addEventListener("keydown",event=>{if(event.key!=="Enter"&&event.key!==" ")return;const target=event.target.closest("[data-mini-t]");if(!target)return;event.preventDefault();const card=target.closest(".lesson-step-card");updateStepDiagram(Number(card?.dataset.stepIndex),target.dataset.miniT);});
+    problemToggle.addEventListener("click",()=>setProblemVisibility(!problemCard.classList.contains("collapsed"),true));
+    updateProblemToggle();
+    renderOriginalFigures();
+    renderAllSteps();
+  </script>
+</body>
+</html>

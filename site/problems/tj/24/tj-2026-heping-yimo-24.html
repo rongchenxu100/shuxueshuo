@@ -20,15 +20,25 @@
       <div class="lesson-flow">
         <section class="card problem" id="problemCard">
           <div class="problem-summary">
-            <div class="problem-summary-text">直角 △AOB 与等边 △DEF，平移后研究重叠面积 S。</div>
+            <div class="problem-summary-text">第 24 题（2026 天津市和平区一模）直角 △AOB 与等边 △DEF，平移后研究重叠面积 S</div>
             <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
           </div>
           <div class="problem-full">
-            <div class="problem-line"><span>在平面直角坐标系中，O 为原点，直角 △AOB 的顶点 A（0，5），B（5√3，0），等边 △DEF 的顶点 E（0，3），F（－√3，0），顶点 D 在第二象限。</span></div>
+            <div class="problem-line"><span>（24）（本题共 10 分）在平面直角坐标系中，O 为原点，直角 △AOB 的顶点 A（0，5），B（5√3，0），等边 △DEF 的顶点 E（0，3），F（－√3，0），顶点 D 在第二象限。</span></div>
             <div class="problem-line"><span>（I）填空：如图①，∠EFO 的度数为______，点 D 的坐标为______。</span><span class="answer-chip" id="chipI">60°；D＝（－2√3，3）</span></div>
             <div class="problem-line"><span>（II）将等边 △DEF 沿水平方向向右平移，得到等边 △D'E'F'，点 D，E，F 的对应点分别为 D'，E'，F'。设 EE'＝t，等边 △D'E'F' 与直角三角形 AOB 的重叠部分的面积为 S。</span></div>
             <div class="problem-line"><span>① 如图②，若边 D'F' 与边 OA 相交于点 G，当 △D'E'F' 与 △AOB 重叠部分为四边形 EE'F'G 时，试用含有 t 的式子表示 S，并直接写出 t 的取值范围。</span><span class="answer-chip" id="chipII1">S＝6t－(√3/2)t²－3√3，√3＜t＜2√3</span></div>
-            <div class="problem-line"><span>② 当 √3/2＜t＜11√3/2 时，求 S 的取值范围。</span><span class="answer-chip" id="chipII2">3√3/32＜S≤3√3</span></div>
+            <div class="problem-line"><span>② 当 √3/2≤t≤11√3/2 时，求 S 的取值范围。</span><span class="answer-chip" id="chipII2">3√3/32≤S≤3√3</span></div>
+            <div class="problem-original-figures" aria-label="原题图形">
+              <figure class="problem-figure">
+                <h3>图① 原始位置</h3>
+                <div id="problemFigureOne"></div>
+              </figure>
+              <figure class="problem-figure">
+                <h3>图② 平移后重叠</h3>
+                <div id="problemFigureTwo"></div>
+              </figure>
+            </div>
           </div>
         </section>
 
@@ -73,57 +83,67 @@
     const STEPS = [
       {
         id: "q1s1",
-        section: "第（I）问",
-        title: "第1步：由 30°-60°-90° 关系求 ∠EFO",
+        section: "第（I）问 角度和坐标",
+        title: "第1步：由 OE、OF 求 ∠EFO",
         t: 0,
         derive: [
-          ["∵", "E＝（0，3），F＝（－√3，0），从 F 到 E 的水平距离为 √3，竖直距离为 3。"],
-          ["∴", "tan∠EFO＝3/√3＝√3。"],
-          ["∴", "∠EFO＝60°。"]
+          ["∵", "E＝（0，3），O＝（0，0）"],
+          ["∴", "OE＝3"],
+          ["∵", "F＝（－√3，0），O＝（0，0）"],
+          ["∴", "OF＝√3"],
+          ["∵", "△EFO 是直角三角形"],
+          ["∴", "tan∠EFO＝OE/OF＝3/√3＝√3"],
+          ["∴", "∠EFO＝60°"]
         ],
         box: ["∠EFO＝60°"]
       },
       {
         id: "q1s2",
-        section: "第（I）问",
+        section: "第（I）问 角度和坐标",
         title: "第2步：由等边三角形性质求 D 点坐标",
         t: 0,
         derive: [
-          ["∵", "EF＝2√3，△DEF 是等边三角形。"],
-          ["∵", "D 在第二象限。"],
-          ["∴", "ED 是从 E 向左的水平边，且 ED＝2√3。"],
-          ["∴", "D＝（－2√3，3）。"]
+          ["∵", "在 Rt△EFO 中，OE＝3，OF＝√3"],
+          ["∴", "EF＝√(OE²＋OF²)＝√(9＋3)＝2√3"],
+          ["∵", "△DEF 是等边三角形"],
+          ["∴", "DE＝EF＝2√3"],
+          ["∵", "D 在第二象限，且 DE 与 x 轴平行"],
+          ["∴", "D 在 E 的左侧 2√3 个单位"],
+          ["∴", "D＝（－2√3，3）"]
         ],
         box: ["∠EFO＝60°", "D＝（－2√3，3）"]
       },
       {
         id: "q2a1",
-        section: "第（II）①问",
-        title: "第1步：由平移写出 D'、E'、F' 坐标",
+        section: "第（II）①问 四边形面积",
+        title: "第1步：由 D'E 和 60° 求 △D'EG 面积",
         t: 3,
         derive: [
-          ["∵", "△DEF 沿水平方向向右平移，EE'＝t。"],
-          ["∴", "E'＝（t，3），F'＝（t－√3，0）。"],
-          ["∴", "D'＝（t－2√3，3）。"]
+          ["∵", "△DEF 向右平移 t 个单位，D'＝（t－2√3，3）"],
+          ["∵", "E＝（0，3），D'、E、E' 在同一水平线上"],
+          ["∴", "D'E＝0－（t－2√3）＝2√3－t"],
+          ["∵", "△D'E'F' 是等边三角形，∠ED'G＝60°"],
+          ["∴", "S△D'EG＝1/2·D'E·D'E·tan60°＝(√3/2)(2√3－t)²"]
         ],
-        box: ["D'＝（t－2√3，3）", "E'＝（t，3）", "F'＝（t－√3，0）"]
+        box: ["D'E＝2√3－t", "S△D'EG＝(√3/2)(2√3－t)²"]
       },
       {
         id: "q2a2",
-        section: "第（II）①问",
-        title: "第2步：由 60° 方向关系求 G 点坐标",
+        section: "第（II）①问 四边形面积",
+        title: "第2步：由 △D'E'F' 减 △D'EG 求 S",
         t: 3,
         derive: [
-          ["∵", "D'F' 与水平方向成 120°，向右下方每走 1，下降 √3。"],
-          ["∵", "F'＝（t－√3，0），G 在 y 轴上。"],
-          ["∴", "从 F' 向左走 t－√3 到 y 轴，纵坐标增加 √3(t－√3)。"],
-          ["∴", "G＝（0，√3t－3）。"]
+          ["∵", "重叠四边形 EE'F'G＝△D'E'F'－△D'EG"],
+          ["∵", "△D'E'F' 的边长为 2√3"],
+          ["∴", "S△D'E'F'＝(√3/4)(2√3)²＝3√3"],
+          ["∴", "S＝3√3－(√3/2)(2√3－t)²"],
+          ["∴", "S＝6t－(√3/2)t²－3√3"]
         ],
-        box: ["D'＝（t－2√3，3）", "F'＝（t－√3，0）", "G＝（0，√3t－3）"]
+        box: ["S＝3√3－(√3/2)(2√3－t)²", "S＝6t－(√3/2)t²－3√3"]
       },
       {
         id: "q2a3",
-        section: "第（II）①问",
+        section: "第（II）①问 四边形面积",
         title: "第3步：由边界位置判断四边形范围",
         t: 3,
         minis: [
@@ -132,119 +152,135 @@
           { title: "右边界", caption: "t＝2√3，G 与 E 重合。", t: 2 * R }
         ],
         derive: [
-          ["∵", "左边界：F' 与 O 重合，此时 t＝√3，四边形刚开始形成。"],
-          ["∵", "右边界：E' 落在 AB 上，且 AB 的方程为 y＝5－x/√3。"],
-          ["∴", "3＝5－t/√3，解得 t＝2√3。"],
-          ["∴", "重叠部分为四边形 EE'F'G 时，√3＜t＜2√3。"]
+          ["∵", "左边界：F' 与 O 重合，此时 t＝√3，四边形刚开始形成"],
+          ["∵", "右边界：D' 与 E 重合，也就是 D'E＝0"],
+          ["∴", "2√3－t＝0，解得 t＝2√3"],
+          ["∴", "重叠部分为四边形 EE'F'G 时，√3＜t＜2√3"]
         ],
-        box: ["G＝（0，√3t－3）", "√3＜t＜2√3"]
+        box: ["左边界 t＝√3", "右边界 t＝2√3", "√3＜t＜2√3"]
       },
       {
         id: "q2a4",
-        section: "第（II）①问",
-        title: "第4步：由梯形分解求 S",
+        section: "第（II）①问 四边形面积",
+        title: "第4步：合并四边形情形答案",
         t: 3,
         derive: [
-          ["∵", "四边形 EE'F'G 可以看作上底为 EE'、下底为 GF' 的梯形。"],
-          ["∵", "EE'＝t，GF'＝t－√3，EG＝3－（√3t－3）＝6－√3t。"],
-          ["∴", "S＝1/2·[t＋(t－√3)]·(6－√3t)。"],
-          ["∴", "S＝6t－(√3/2)t²－3√3。"]
+          ["∵", "由前面得到 S＝6t－(√3/2)t²－3√3"],
+          ["∵", "四边形 EE'F'G 对应 √3＜t＜2√3"],
+          ["∴", "S＝6t－(√3/2)t²－3√3，√3＜t＜2√3"]
         ],
         box: ["S＝6t－(√3/2)t²－3√3", "√3＜t＜2√3"]
       },
       {
         id: "q2b1",
-        section: "第（II）②问",
-        title: "第1步：由边界状态判断面积趋势",
-        t: 3.8,
+        section: "第（II）②问 S范围",
+        title: "第1步：由重叠图形分段判断面积趋势",
+        t: 2 * R,
         minis: [
-          { title: "左端", caption: "t 趋近 √3/2，只有左侧小三角形。", t: R / 2 },
-          { title: "F' 到 O", caption: "t＝√3，重叠区域开始变成四边形。", t: R },
-          { title: "最大", caption: "t＝2√3，整个等边三角形在 △AOB 内。", t: 2 * R },
-          { title: "右端", caption: "t 趋近 11√3/2，只剩右侧小三角形。", t: 11 * R / 2 }
+          { title: "左端进入", caption: "t＝√3/2，重叠部分刚进入观察范围", t: R / 2 },
+          { title: "左侧三角形", caption: "√3/2≤t≤√3，靠 y 轴的小三角形逐渐变大", t: 0.75 * R },
+          { title: "四边形增大", caption: "√3＜t＜2√3，四边形 EE'F'G 继续增大", t: 1.5 * R },
+          { title: "最大三角形", caption: "t＝2√3，△D'E'F' 完整落入 △AOB", t: 2 * R },
+          { title: "截去四边形", caption: "2√3＜t＜4√3，右上角被 AB 截去，面积减小", t: 3 * R },
+          { title: "右端小三角", caption: "4√3≤t≤11√3/2，靠近 B 的小三角形继续变小", t: 11 * R / 2 }
         ],
         derive: [
-          ["∵", "√3/2＜t＜11√3/2，平移三角形先进入 △AOB，再逐渐离开。"],
-          ["∵", "t＝2√3 时，△D'E'F' 完整落在 △AOB 内。"],
-          ["∴", "最大值在 t＝2√3 处取得。"],
-          ["∵", "右端点 t＝11√3/2 不能取到，且右端小三角形继续变小。"],
-          ["∴", "最小下界看 t→11√3/2。"]
+          ["∵", "√3/2≤t≤11√3/2，平移三角形先进入 △AOB，再逐渐离开"],
+          ["∵", "√3/2≤t≤√3 时，重叠部分是靠 y 轴的小三角形，面积随 t 增大而增大"],
+          ["∵", "√3＜t＜2√3 时，重叠部分是四边形 EE'F'G，面积继续增大"],
+          ["∵", "2√3＝t 时，重叠部分是三角形 DE'F' ，面积达到最大值"],
+          ["∵", "2√3＜t＜4√3 时，△D'E'F' 的右上角被 AB 截去，重叠部分是四边形，面积随 t 增大而减小"],
+          ["∵", "4√3≤t≤11√3/2 时，重叠部分是靠近 B 的小三角形，面积继续减小"],
+          ["∴", "整体面积最大值在 t＝2√3 处取得"],
+          ["∴", "整体面积最小值出现在最后一段，t＝11√3/2"]
         ],
-        box: ["最大值看 t＝2√3", "下界看 t→11√3/2"]
+        box: ["最大值：t＝2√3", "最小值：t＝11√3/2"]
       },
       {
         id: "q2b2",
-        section: "第（II）②问",
+        section: "第（II）②问 S范围",
         title: "第2步：由完整重合状态求最大面积",
         t: 2 * R,
         derive: [
-          ["∵", "t＝2√3 时，D' 与 E 重合，E' 在 AB 上，F' 在 OB 上。"],
-          ["∴", "△D'E'F' 完整落在 △AOB 内。"],
-          ["∵", "等边三角形边长为 2√3。"],
-          ["∴", "Smax＝(√3/4)×(2√3)²＝3√3。"]
+          ["∵", "t＝2√3 时，D' 与 E 重合，E' 在 AB 上，F' 在 OB 上"],
+          ["∴", "△D'E'F' 完整落在 △AOB 内"],
+          ["∵", "等边三角形边长为 2√3"],
+          ["∴", "Smax＝(√3/4)×(2√3)²＝3√3"]
         ],
         box: ["Smax＝3√3"]
       },
       {
         id: "q2b3",
-        section: "第（II）②问",
-        title: "第3步：由右端相似小三角形求下界",
+        section: "第（II）②问 S范围",
+        title: "第3步：由 Rt△BF'K 求最小值",
         t: 11 * R / 2,
         derive: [
-          ["∵", "当 4√3≤t＜11√3/2 时，重叠部分是靠近 B 的小三角形。"],
-          ["∵", "设 u＝t/√3，这段面积可写成 S＝(3√3/8)(6－u)²。"],
-          ["∵", "t＜11√3/2，所以 u＜11/2。"],
-          ["∴", "6－u＞1/2。"],
-          ["∴", "S＞(3√3/8)×(1/2)²＝3√3/32。"]
+          ["∵", "设 AB 与 D'F'、E'F' 分别交于 H、K"],
+          ["∵", "当 4√3≤t≤11√3/2 时，重叠部分是右端小三角形 HF'K"],
+          ["∵", "F＝（－√3，0），△DEF 向右平移 t 个单位"],
+          ["∴", "FF'＝t，F'＝（t－√3，0）"],
+          ["∵", "B＝（5√3，0）"],
+          ["∴", "BF'＝5√3－（t－√3）＝6√3－t"],
+          ["∵", "Rt△BF'K 中，∠B＝30°，∠BF'K＝60°"],
+          ["∴", "S△BF'K＝(√3/8)·BF'²＝(√3/8)(6√3－t)²"],
+          ["∵", "∠HF'K＝60°"],
+          ["∵", "△HF'B是等腰三角形"],
+          ["∴", "S＝S△HF'K＝S△BF'K＝(√3/8)(6√3－t)²"],
+          ["∵", "t≤11√3/2"],
+          ["∴", "6√3－t≥√3/2"],
+          ["∴", "S≥(√3/8)×(√3/2)²＝3√3/32"],
+          ["∴", "最小值在 t＝11√3/2 时取到"]
         ],
-        box: ["S＞3√3/32"]
+        box: ["S＝(√3/8)(6√3－t)²", "Smin＝3√3/32"]
       },
       {
         id: "q2b4",
-        section: "第（II）②问",
+        section: "第（II）②问 S范围",
         title: "第4步：合并面积取值范围",
         t: 2 * R,
         minis: [
           { title: "最大值", caption: "t＝2√3，S＝3√3。", t: 2 * R },
-          { title: "下界", caption: "t 趋近 11√3/2，S 趋近 3√3/32。", t: 11 * R / 2 }
+          { title: "最小值", caption: "t＝11√3/2，S＝3√3/32。", t: 11 * R / 2 }
         ],
         derive: [
-          ["∵", "最大值 3√3 可以在 t＝2√3 时取到。"],
-          ["∵", "下界 3√3/32 来自 t→11√3/2，但右端点不能取到。"],
-          ["∴", "3√3/32＜S≤3√3。"]
+          ["∵", "最大值 3√3 可以在 t＝2√3 时取到"],
+          ["∵", "最小值 3√3/32 可以在 t＝11√3/2 时取到"],
+          ["∴", "3√3/32≤S≤3√3"]
         ],
-        box: ["3√3/32＜S≤3√3"]
+        box: ["3√3/32≤S≤3√3"]
       }
     ];
 
     const STEP_LABELS = {
-      q1s1: "1 求角",
-      q1s2: "2 求D",
-      q2a1: "1 坐标",
-      q2a2: "2 求G",
-      q2a3: "3 判范围",
-      q2a4: "4 求S",
-      q2b1: "1 判趋势",
-      q2b2: "2 最大值",
-      q2b3: "3 求下界",
-      q2b4: "4 答案"
+      q1s1: "1 求∠EFO",
+      q1s2: "2 求D坐标",
+      q2a1: "1 求△D'EG面积",
+      q2a2: "2 求S表达式",
+      q2a3: "3 求t范围",
+      q2a4: "4 合并答案",
+      q2b1: "1 判断面积趋势",
+      q2b2: "2 求S最大值",
+      q2b3: "3 求S最小值",
+      q2b4: "4 写S范围"
     };
 
     const POLICIES = {
       q1s1: { movable: false, range: [0, 0], reason: "本步只研究原图，平移参数 t 暂不参与。" },
       q1s2: { movable: false, range: [0, 0], reason: "本步只研究原图，平移参数 t 暂不参与。" },
-      q2a1: { movable: true, range: [R / 2, 11 * R / 2], step: 0.001, reason: "拖动 t，观察三个对应点随水平平移同步移动。" },
-      q2a2: { movable: true, range: [R, 2 * R], step: 0.001, reason: "本步只观察 D'F' 与 y 轴相交且 G 在 OA 上的阶段。" },
+      q2a1: { movable: true, range: [R, 2 * R], step: 0.001, reason: "本步限制在四边形阶段，观察被减去的 △D'EG。" },
+      q2a2: { movable: true, range: [R, 2 * R], step: 0.001, reason: "本步用整个等边三角形减去 △D'EG，得到 S。" },
       q2a3: { movable: true, range: [R, 2 * R], step: 0.001, reason: "在左右边界之间观察四边形 EE'F'G 的形成。" },
       q2a4: { movable: true, range: [R, 2 * R], step: 0.001, reason: "本步公式只适用于 √3＜t＜2√3 的四边形阶段。" },
       q2b1: { movable: true, range: [R / 2, 11 * R / 2], step: 0.001, reason: "拖动 t，观察重叠区域从进入到离开的全过程。" },
       q2b2: { movable: false, range: [2 * R, 2 * R], reason: "本步固定在 t＝2√3，计算最大面积。" },
-      q2b3: { movable: false, range: [11 * R / 2, 11 * R / 2], reason: "本步显示 t 趋近 11√3/2 的临界图形；题设中这个端点不能取到。" },
+      q2b3: { movable: false, range: [11 * R / 2, 11 * R / 2], reason: "本步固定在 t＝11√3/2，计算最小面积。" },
       q2b4: { movable: true, range: [R / 2, 11 * R / 2], step: 0.001, reason: "最终步开放移动，用当前 S 验证取值范围。" }
     };
 
     const bounds = { minX: -4.25, maxX: 10.35, minY: -0.95, maxY: 6.2 };
     const miniBounds = { minX: -3.75, maxX: 10.1, minY: -0.55, maxY: 5.5 };
+    const originalFigSize = { w: 760, h: 520 };
+    const originalFigBounds = { minX: -3.1, maxX: 9.25, minY: -0.65, maxY: 5.65 };
     let currentLabelLayout = null;
 
     function groupTitle(section) {
@@ -317,6 +353,7 @@
 
     const toScreen = makeScreen(1080, 760, bounds);
     const toMiniScreen = makeScreen(280, 160, miniBounds);
+    const toOriginalScreen = makeScreen(originalFigSize.w, originalFigSize.h, originalFigBounds);
 
     function clip(poly, inside, intersect) {
       const out = [];
@@ -345,6 +382,14 @@
       poly = clip(poly, p => p.y >= -1e-9, (a, b) => lineIntersect(a, b, 0, 1, 0));
       poly = clip(poly, p => p.y <= 5 - p.x / R + 1e-9, (a, b) => lineIntersect(a, b, 1 / R, 1, -5));
       return poly;
+    }
+
+    function rightEndIntersections(t) {
+      const [Dp, Ep, Fp] = movingTri(t);
+      return {
+        H: lineIntersect(Dp, Fp, 1 / R, 1, -5),
+        K: lineIntersect(Ep, Fp, 1 / R, 1, -5)
+      };
     }
 
     function polyPath(points, screenFn = toScreen) {
@@ -376,6 +421,93 @@
       });
     }
 
+    function originalText(p, label, dx = 8, dy = -8) {
+      const s = toOriginalScreen(p);
+      return `<text x="${s.x + dx}" y="${s.y + dy}" fill="#111827" font-size="18" font-weight="900">${esc(label)}</text>`;
+    }
+
+    function originalPoint(p) {
+      return circle(p, 'fill="#1f2937"', 4.5, toOriginalScreen);
+    }
+
+    function originalAxis() {
+      const xEnd = toOriginalScreen(point(originalFigBounds.maxX - 0.35, 0));
+      const yEnd = toOriginalScreen(point(0, originalFigBounds.maxY - 0.35));
+      return `
+        ${line(point(originalFigBounds.minX + 0.2, 0), point(originalFigBounds.maxX - 0.25, 0), 'class="geom-axis" marker-end="url(#arrow)"', toOriginalScreen)}
+        ${line(point(0, originalFigBounds.minY + 0.1), point(0, originalFigBounds.maxY - 0.2), 'class="geom-axis" marker-end="url(#arrow)"', toOriginalScreen)}
+        <text class="geom-axis-label" x="${xEnd.x - 10}" y="${xEnd.y - 14}">x</text>
+        <text class="geom-axis-label" x="${yEnd.x + 12}" y="${yEnd.y + 6}">y</text>
+      `;
+    }
+
+    function originalSvgDefs() {
+      return `
+        <defs>
+          <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto">
+            <path class="geom-axis-marker" d="M0,0 L7,3.5 L0,7 Z"/>
+          </marker>
+        </defs>
+      `;
+    }
+
+    function drawOriginalFigureOne() {
+      const O = point(0, 0);
+      const A = point(0, 5);
+      const B = point(5 * R, 0);
+      const D = point(-2 * R, 3);
+      const E = point(0, 3);
+      const F = point(-R, 0);
+      return `<svg viewBox="0 0 ${originalFigSize.w} ${originalFigSize.h}" role="img" aria-label="图① 原始位置">
+        ${originalSvgDefs()}
+        ${originalAxis()}
+        <polygon points="${polyPath([O, A, B], toOriginalScreen)}" class="geom-fixed" stroke-linejoin="round"/>
+        <polygon points="${polyPath([D, E, F], toOriginalScreen)}" class="geom-original" stroke-linejoin="round"/>
+        ${[O, A, B, D, E, F].map(originalPoint).join("")}
+        ${originalText(O, "O", 10, 20)}
+        ${originalText(A, "A", -28, -8)}
+        ${originalText(B, "B", 10, 20)}
+        ${originalText(D, "D", -28, -8)}
+        ${originalText(E, "E", -28, -8)}
+        ${originalText(F, "F", -24, 22)}
+      </svg>`;
+    }
+
+    function drawOriginalFigureTwo() {
+      const t = 2.35;
+      const O = point(0, 0);
+      const A = point(0, 5);
+      const B = point(5 * R, 0);
+      const [Dp, Ep, Fp] = movingTri(t);
+      const E = point(0, 3);
+      const G = point(0, R * t - 3);
+      const overlap = [E, Ep, Fp, G];
+      return `<svg viewBox="0 0 ${originalFigSize.w} ${originalFigSize.h}" role="img" aria-label="图② 平移后重叠">
+        ${originalSvgDefs()}
+        ${originalAxis()}
+        <polygon points="${polyPath([O, A, B], toOriginalScreen)}" class="geom-fixed" stroke-linejoin="round"/>
+        <polygon points="${polyPath([Dp, Ep, Fp], toOriginalScreen)}" class="geom-moving" stroke-linejoin="round"/>
+        <polygon points="${polyPath(overlap, toOriginalScreen)}" class="geom-overlap" stroke-linejoin="round"/>
+        ${line(Dp, Fp, 'class="geom-overlap-guide" stroke-width="3"', toOriginalScreen)}
+        ${[O, A, B, Dp, E, Ep, Fp, G].map(originalPoint).join("")}
+        ${originalText(O, "O", 10, 20)}
+        ${originalText(A, "A", -28, -8)}
+        ${originalText(B, "B", 10, 20)}
+        ${originalText(Dp, "D'", -30, -8)}
+        ${originalText(E, "E", -28, -8)}
+        ${originalText(Ep, "E'", 10, -8)}
+        ${originalText(Fp, "F'", -6, 24)}
+        ${originalText(G, "G", -28, 6)}
+      </svg>`;
+    }
+
+    function renderOriginalFigures() {
+      const one = document.getElementById("problemFigureOne");
+      const two = document.getElementById("problemFigureTwo");
+      if (one) one.innerHTML = drawOriginalFigureOne();
+      if (two) two.innerHTML = drawOriginalFigureTwo();
+    }
+
     function segmentLabel(a, b, text, offset = -18) {
       if (!currentLabelLayout || !GeometryLabelLayout.segmentMeasureSvg) return "";
       return GeometryLabelLayout.segmentMeasureSvg(currentLabelLayout, toScreen, a, b, text, {
@@ -394,6 +526,14 @@
       return `
         <path class="geom-angle-guide" d="M ${f.x + 58} ${f.y} A 58 58 0 0 0 ${f.x + 29} ${f.y - 50}"/>
         <text class="geom-angle-label" x="${f.x + 66}" y="${f.y - 34}">60°</text>
+      `;
+    }
+
+    function angleAtDPrime(t) {
+      const d = toScreen(point(t - 2 * R, 3));
+      return `
+        <path class="geom-angle-guide" d="M ${d.x + 24} ${d.y} A 24 24 0 0 1 ${d.x + 12} ${d.y + 21}"/>
+        <text class="geom-angle-label geom-angle-label-small" x="${d.x + 28}" y="${d.y + 21}">60°</text>
       `;
     }
 
@@ -474,16 +614,31 @@
         <polygon points="${polyPath(overlap)}" class="geom-overlap" stroke-linejoin="round"/>
         ${line(E, Ep, 'class="geom-translation-guide"')}
       `;
+      if (["q2a1", "q2a2", "q2a3", "q2a4"].includes(step.id)) {
+        markup += segmentLabel(E, Ep, "EE'=t", -30);
+      }
+      if (["q2a1", "q2a2"].includes(step.id)) {
+        markup += `<polygon points="${polyPath([Dp, E, G])}" class="geom-area-cut" stroke-linejoin="round"/>`;
+        markup += segmentLabel(Dp, E, "D'E=2√3－t", -24);
+        markup += angleAtDPrime(t);
+      }
       if (["q2a2", "q2a3", "q2a4"].includes(step.id)) {
         markup += line(Dp, Fp, 'class="geom-overlap-guide" stroke-width="4"');
       }
       if (step.id === "q2a4") {
         markup += line(E, G, 'class="geom-overlap-guide" stroke-dasharray="6 5"');
-        markup += segmentLabel(E, Ep, "EE'=t", -22);
-        markup += segmentLabel(G, Fp, "GF'=t－√3", 24);
-        markup += segmentLabel(E, G, "EG=6－√3t", -24);
       }
-      if (overlap.length >= 3) {
+      if (step.id === "q2b3") {
+        const { H, K } = rightEndIntersections(t);
+        markup += line(H, K, 'class="geom-overlap-guide" stroke-width="4"');
+        markup += line(K, point(5 * R, 0), 'class="geom-overlap-guide" stroke-dasharray="6 5"');
+        markup += segmentLabel(point(-R, 0), Fp, "FF'=t", -36);
+        markup += segmentLabel(Fp, point(5 * R, 0), "BF'=6√3－t", 24);
+        if (currentLabelLayout && GeometryLabelLayout.rightAngleSvg) {
+          markup += GeometryLabelLayout.rightAngleSvg(currentLabelLayout, toScreen, K, point(5 * R, 0), Fp, { size: 11, color: "#dc2626" });
+        }
+      }
+      if (overlap.length >= 3 && step.id !== "q2a1") {
         const c = overlap.reduce((acc, p) => point(acc.x + p.x / overlap.length, acc.y + p.y / overlap.length), point(0, 0));
         const s = toScreen(c);
         markup += `<text class="geom-overlap-label" x="${s.x}" y="${s.y + 6}">S</text>`;
@@ -496,6 +651,11 @@
       ];
       if (t >= R - 1e-6 && t <= 2 * R + 1e-6) {
         dynamicPoints.push({ point: G, label: "G", dx: 10, dy: -10 });
+      }
+      if (step.id === "q2b3") {
+        const { H, K } = rightEndIntersections(t);
+        dynamicPoints.push({ point: H, label: "H", dx: -26, dy: -12 });
+        dynamicPoints.push({ point: K, label: "K", dx: 12, dy: -12 });
       }
       const emitted = new Set();
       dynamicPoints.forEach((item, index) => {
@@ -533,15 +693,18 @@
       let markup = grid() + baseMarkup(true);
       if (step.id === "q1s1") {
         markup += angleAtF();
-        markup += segmentLabel(point(-R, 0), point(0, 3), "EF=2√3", -22);
+        markup += segmentLabel(point(0, 0), point(0, 3), "OE=3", -24);
+        markup += segmentLabel(point(-R, 0), point(0, 0), "OF=√3", 24);
+        markup += GeometryLabelLayout.rightAngleSvg(currentLabelLayout, toScreen, point(0, 0), point(0, 3), point(-R, 0), { size: 12, color: "#0f766e" });
       }
       if (step.id === "q1s2") {
+        markup += segmentLabel(point(-R, 0), point(0, 3), "EF=2√3", -22);
         markup += segmentLabel(point(-2 * R, 3), point(0, 3), "ED=2√3", -22);
       }
       if (step.id.startsWith("q2")) {
         markup += dynamicMarkup(step, localT);
       }
-      const showArea = ["q2a4", "q2b1", "q2b2", "q2b3", "q2b4"].includes(step.id);
+      const showArea = ["q2a2", "q2a4", "q2b1", "q2b2", "q2b3", "q2b4"].includes(step.id);
       markup += box(step.box, step.id.startsWith("q2") ? localT : undefined, showArea);
       currentLabelLayout = null;
       return markup;
@@ -578,6 +741,7 @@
     const mobileStepName = document.getElementById("mobileStepName");
 
     function renderStepNavMarkup() {
+      const problemEntry = `<div class="step-group step-group-problem"><div class="step-group-title">题目</div><div class="step-dots"><button class="step-dot" type="button" data-problem-nav="true" title="回到完整原题">原题</button></div></div>`;
       const groups = [];
       STEPS.forEach((step) => {
         let group = groups.find((item) => item.section === step.section);
@@ -587,7 +751,7 @@
         }
         group.steps.push(step);
       });
-      return groups.map((group) => {
+      return problemEntry + groups.map((group) => {
         const dots = group.steps.map((step, localIndex) => {
           const index = STEPS.indexOf(step);
           const dot = `<button class="step-dot ${index < stepIndex ? "done" : ""} ${index === stepIndex ? "active" : ""}" type="button" data-step="${index}" title="${esc(step.title)}">${esc(STEP_LABELS[step.id])}</button>`;
@@ -697,6 +861,14 @@
       setActiveStep(next, { scroll: true });
     }
 
+    function goToProblem() {
+      setProblemVisibility(false, true);
+      problemCard.scrollIntoView({ behavior: "auto", block: "start" });
+      requestAnimationFrame(() => {
+        problemCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
+
     function closeMobileStepSheet() {
       mobileStepSheet.classList.remove("open");
       mobileStepSheet.setAttribute("aria-hidden", "true");
@@ -737,11 +909,22 @@
     }
 
     stepNav.addEventListener("click", (event) => {
+      const problemTarget = event.target.closest("button[data-problem-nav]");
+      if (problemTarget) {
+        goToProblem();
+        return;
+      }
       const target = event.target.closest("button[data-step]");
       if (target) setStep(Number(target.dataset.step));
     });
 
     mobileStepNav.addEventListener("click", (event) => {
+      const problemTarget = event.target.closest("button[data-problem-nav]");
+      if (problemTarget) {
+        closeMobileStepSheet();
+        goToProblem();
+        return;
+      }
       const target = event.target.closest("button[data-step]");
       if (target) {
         setStep(Number(target.dataset.step));
@@ -783,6 +966,7 @@
 
     problemToggle.addEventListener("click", () => setProblemVisibility(!problemCard.classList.contains("collapsed"), true));
     updateProblemToggle();
+    renderOriginalFigures();
     renderAllSteps();
   </script>
 </body>

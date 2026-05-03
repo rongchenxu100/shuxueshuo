@@ -108,6 +108,7 @@
     }
 
     function renderStepNavMarkup() {
+      const problemEntry = `<div class="step-group step-group-problem"><div class="step-group-title">题目</div><div class="step-dots"><button class="step-dot" type="button" data-problem-nav="true" title="回到完整原题">原题</button></div></div>`;
       const groups = [];
       STEPS.forEach((step) => {
         let group = groups.find((item) => item.section === step.section);
@@ -117,7 +118,7 @@
         }
         group.steps.push(step);
       });
-      return groups.map((group) => {
+      return problemEntry + groups.map((group) => {
         const dots = group.steps.map((step, localIndex) => {
           const index = STEPS.indexOf(step);
           const dot = `<button class="step-dot ${index < stepIndex ? "done" : ""} ${index === stepIndex ? "active" : ""}" type="button" data-step="${index}" title="${esc(step.title)}">${esc(STEP_LABELS[step.id])}</button>`;
@@ -217,6 +218,14 @@
       setActiveStep(next, { scroll: true });
     }
 
+    function goToProblem() {
+      setProblemVisibility(false, true);
+      problemCard.scrollIntoView({ behavior: "auto", block: "start" });
+      requestAnimationFrame(() => {
+        problemCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
+
     function closeMobileStepSheet() {
       mobileStepSheet.classList.remove("open");
       mobileStepSheet.setAttribute("aria-hidden", "true");
@@ -257,10 +266,21 @@
     }
 
     stepNav.addEventListener("click", (event) => {
+      const problemTarget = event.target.closest("button[data-problem-nav]");
+      if (problemTarget) {
+        goToProblem();
+        return;
+      }
       const target = event.target.closest("button[data-step]");
       if (target) setStep(Number(target.dataset.step));
     });
     mobileStepNav.addEventListener("click", (event) => {
+      const problemTarget = event.target.closest("button[data-problem-nav]");
+      if (problemTarget) {
+        closeMobileStepSheet();
+        goToProblem();
+        return;
+      }
       const target = event.target.closest("button[data-step]");
       if (target) {
         setStep(Number(target.dataset.step));

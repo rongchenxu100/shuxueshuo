@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2026 年天津市西青区一模 第 24 题（等边三角形平移）| 数学说</title>
+  <meta name="description" content="2026 天津市西青区一模第 24 题：等边三角形与直角三角形平移，AN 表达式和重叠面积范围。" />
+  <link rel="stylesheet" href="../../../assets/css/interactive-geometry-page.css" />
+  <style>
+    :root {
+      --fixed-tri: rgba(245, 158, 11, .14);
+      --fixed-stroke: #b45309;
+      --move-tri: rgba(20, 184, 166, .13);
+      --move-stroke: #0f766e;
+      --overlap: rgba(239, 68, 68, .22);
+      --overlap-stroke: #dc2626;
+    }
+    .formula-chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: rgba(15, 118, 110, .1);
+      color: #0f766e;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../nav/index.html">题库导航</a>
+    <span class="lesson-title">2026 天津市西青区一模 第 24 题</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <div class="problem-summary">
+            <div class="problem-summary-text">第24题（2026西青区一模）：等边 △OAB 与 Rt△COD 平移，求 A、C，求 AN 与 S 的范围</div>
+            <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          </div>
+          <div class="problem-full">
+            <div class="problem-line"><span>24. 在平面直角坐标系中，O 为原点，等边 △OAB 的顶点 B（6√3，0），点 A 在第一象限，Rt△COD 的顶点 D（－6√3，0），点 C 在第二象限，∠CDO＝90°，∠COD＝30°。</span></div>
+            <div class="problem-line"><span>（1）填空：如图①，点 A 的坐标为______，点 C 的坐标为______；</span><span class="answer-chip show">答案：A＝（3√3，9），C＝（－6√3，6）</span></div>
+            <div class="problem-line"><span>（2）将 Rt△COD 沿水平方向向右平移，得到 Rt△C'O'D'，点 C，O，D 的对应点分别为 C'，O'，D'，设 OO'＝t。</span></div>
+            <div class="problem-line"><span>① 若边 C'O' 与边 OA，AB 分别相交于点 M，N，边 C'D' 与边 OA 相交于点 P，当 Rt△C'O'D' 与等边 △OAB 重叠部分为五边形 D'PMNB 时，试用含有 t 的式子表示线段 AN 的长，并直接写出 t 的取值范围；</span><span class="answer-chip show">答案：AN＝12√3－t，6√3＜t＜8√3</span></div>
+            <div class="problem-line"><span>② 设平移后两三角形重叠部分的面积为 S，当 6√3≤t≤10√3 时，求 S 的取值范围（直接写出结果即可）。</span><span class="answer-chip show">答案：6√3≤S≤81√3/5</span></div>
+            <div class="problem-original-figures" aria-label="原题图形">
+              <figure class="problem-figure">
+                <h3>图① 原始位置</h3>
+                <div id="problemFigureOne"></div>
+              </figure>
+              <figure class="problem-figure">
+                <h3>图② 平移后重叠</h3>
+                <div id="problemFigureTwo"></div>
+              </figure>
+            </div>
+          </div>
+        </section>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../assets/js/interactive-lesson-ui.js"></script>
+  <script>
+    const R3 = Math.sqrt(3);
+    const W = 1080, H = 760;
+    const PAD = { left: 74, right: 54, top: 50, bottom: 60 };
+    const DOMAIN = { minX: -11.5, maxX: 18.2, minY: -1.3, maxY: 10.8 };
+    const FIG_W = 1080, FIG_H = 430;
+    const FIG_PAD = { left: 46, right: 42, top: 28, bottom: 44 };
+    const FIG_DOMAIN = { minX: -12.4, maxX: 18.2, minY: -1.2, maxY: 10.3 };
+    const BASE = {
+      O: { x: 0, y: 0 }, B: { x: 6 * R3, y: 0 }, A: { x: 3 * R3, y: 9 },
+      D: { x: -6 * R3, y: 0 }, C: { x: -6 * R3, y: 6 }
+    };
+    const FIXED_TRI = [BASE.O, BASE.B, BASE.A];
+    const ORIGIN_TRI = [BASE.C, BASE.O, BASE.D];
+
+    const STEPS = [
+      { id: "i1s1", section: "第（1）问 坐标", title: "第1步：利用等边三角形求 A 点坐标", t: 0, derive: [
+        ["∵", "O＝（0，0），B＝（6√3，0）"], ["∴", "OB＝6√3"],
+        ["∵", "△OAB 是等边三角形，A 在第一象限"], ["∴", "A 的横坐标为 3√3，纵坐标为 6√3×√3/2＝9"], ["∴", "A＝（3√3，9）"]
+      ], box: ["A＝（3√3，9）"] },
+      { id: "i1s2", section: "第（1）问 坐标", title: "第2步：由 30° 直角三角形求 C 点坐标", t: 0, derive: [
+        ["∵", "D＝（－6√3，0），O＝（0，0）"], ["∴", "OD＝6√3"],
+        ["∵", "∠CDO＝90°，∠COD＝30°"], ["∴", "CD＝OD·tan30°＝6"],
+        ["∵", "C 在第二象限，CD⊥x 轴"], ["∴", "C＝（－6√3，6）"]
+      ], box: ["C＝（－6√3，6）"] },
+      { id: "q1s1", section: "第（2）①问 AN长度", title: "第1步：在 Rt△OMO'、Rt△AMN 中求 AN", t: 7 * R3, derive: [
+        ["∵", "∠AOB＝60°，∠C'O'D'＝30°"],
+        ["∴", "∠OMO'＝90°，△OMO' 是直角三角形"],
+        ["∵", "OO'＝t"],
+        ["∴", "OM＝t／2"],
+        ["∵", "OA＝6√3（等边 △OAB 边长）"],
+        ["∴", "AM＝OA－OM＝6√3－t／2"],
+        ["∵", "Rt△AMN 中，∠MAN＝∠OAB＝60°"],
+        ["∴", "AN＝AM／cos60°＝2·AM＝12√3－t"]
+      ], box: ["OM＝t／2", "AM＝6√3－t／2", "AN＝2·AM＝12√3－t"] },
+      { id: "q1s2", section: "第（2）①问 AN长度", title: "第2步：判断五边形情形下 t 的范围", t: 7 * R3, derive: [
+        ["∵", "t＝6√3 时，D' 与 O 重合，重叠部分是三角形"],
+        ["∵", "6√3＜t＜8√3 时，重叠部分是五边形"],
+        ["∵", "t＝8√3 时，点 C' 落在 OA 上，重叠部分是四边形"],
+        ["∴", "重叠部分为五边形时，6√3＜t＜8√3"]
+      ], box: ["6√3＜t＜8√3"], minis: [
+        { title: "t=6√3", caption: "D' 与 O 重合，重叠部分为三角形。", t: 6 * R3 },
+        { title: "6√3<t<8√3", caption: "重叠部分为五边形。", t: 7 * R3 },
+        { title: "t=8√3", caption: "C' 落在 OA 上，重叠部分为四边形。", t: 8 * R3 }
+      ] },
+      { id: "q1s3", section: "第（2）①问 AN长度", title: "第3步：合并本问答案", t: 7 * R3, derive: [
+        ["∴", "AN＝12√3－t"],
+        ["∴", "6√3＜t＜8√3"]
+      ], box: ["AN＝12√3－t", "6√3＜t＜8√3"] },
+      { id: "q2s1", section: "第（2）②问 S范围", title: "第1步：由图形变化判断面积分段与极值位置", t: 36 * R3 / 5, derive: [
+        ["∵", "t＝6√3 时，D' 与 O 重合，重叠部分为三角形"],
+        ["∵", "6√3＜t＜8√3 时，重叠部分为五边形 D'PMNB，面积先变大再变小"],
+        ["∵", "8√3≤t＜10√3 时，重叠部分为四边形 D'C'NB，面积随 t 增大而变小"],
+        ["∵", "t＝10√3 时，重叠部分为三角形，此时面积为全范围最小值"],
+        ["∴", "S 的最大值在 6√3＜t＜8√3 内取得；最小值在 t＝10√3 取得"]
+      ], box: ["最大值：6√3＜t＜8√3 内", "最小值：t＝10√3"], minis: [
+        { title: "t=6√3", caption: "左端点，重叠退化为三角形。", t: 6 * R3 },
+        { title: "6√3<t<8√3", caption: "五边形阶段，S 在区间内有最大值。", t: 36 * R3 / 5 },
+        { title: "8√3≤t<10√3", caption: "四边形阶段，S 单调递减。", t: 9 * R3 },
+        { title: "t=10√3", caption: "右端点，全范围最小值。", t: 10 * R3 }
+      ] },
+      { id: "q2s2", section: "第（2）②问 S范围", title: "第2步：在五边形阶段直接求 S 的最大值", t: 36 * R3 / 5, derive: [
+        ["∵", "S＝S△OMO'－S△D'PO－S△NBO'"],
+        ["∵", "Rt△OMO'：∠M＝90°，∠O'＝30°，∠MOO'＝60°，OO'＝t"],
+        ["∴", "S△OMO'＝√3 t²/8"],
+        ["∵", "Rt△D'PO：∠D'＝90°，∠POD'＝60°，OD'＝t－6√3"],
+        ["∴", "S△D'PO＝½·(t－6√3)·(√3 t－18)"],
+        ["∵", "等腰△NBO'：BO'＝t－6√3，∠BNO'＝∠BO'N＝30°，BN＝BO'"],
+        ["∴", "S△NBO'＝√3(t－6√3)²/4"],
+        ["∴", "S＝－5√3 t²/8＋27t－81√3"],
+        ["∵", "对称轴 t＝36√3/5∈(6√3,8√3)"],
+        ["∴", "S_max＝81√3/5"]
+      ], box: ["S＝－5√3 t²/8＋27t－81√3", "最大值：81√3/5"] },
+      { id: "q2s3", section: "第（2）②问 S范围", title: "第3步：t＝10√3 时用重叠三角形求最小值", t: 10 * R3, derive: [
+        ["∵", "BO'＝OO'－OB＝t－6√3＝4√3"],
+        ["∵", "∠BO'N＝30°，∠NBD'＝60°"],
+        ["∴", "∠BNO'＝∠BO'N＝30°"],
+        ["∴", "BN＝BO'＝4√3"],
+        ["∵", "Rt△NBD' 中 ∠ND'B＝90°，∠NBD'＝60°"],
+        ["∴", "S＝6√3"]
+      ], box: ["S＝6√3"] },
+      { id: "q2s4", section: "第（2）②问 S范围", title: "第4步：合并最终答案", t: 36 * R3 / 5, derive: [
+        ["∴", "当 6√3≤t≤10√3 时，6√3≤S≤81√3/5"]
+      ], box: ["6√3≤S≤81√3/5"] }
+    ];
+
+    const STEP_LABELS = {
+      i1s1: "1 求A坐标", i1s2: "2 求C坐标",
+      q1s1: "1 求AN", q1s2: "2 判断边界", q1s3: "3 合并答案",
+      q2s1: "1 判断分段", q2s2: "2 五边形求最大值", q2s3: "3 三角形求最小值", q2s4: "4 合并答案"
+    };
+    const POLICIES = {
+      i1s1: { movable: false, range: [0, 0], reason: "本步只看固定等边三角形。" },
+      i1s2: { movable: false, range: [0, 0], reason: "本步只看固定直角三角形。" },
+      q1s1: { movable: true, range: [6 * R3, 8 * R3], step: .001, reason: "在五边形阶段拖动 t，对照 Rt△OMO'、Rt△AMN。" },
+      q1s2: { movable: true, range: [6 * R3, 8 * R3], step: .001, reason: "对照左端（三角形）、中间（五边形）与右端（四边形）。" },
+      q1s3: { movable: true, range: [6.001 * R3, 7.999 * R3], step: .001, reason: "本步用于核对第①问表达式与范围。" },
+      q2s1: { movable: true, range: [6 * R3, 10 * R3], step: .001, reason: "对照四种情形：左端、五边形开区间、四边形半开区间、右端。" },
+      q2s2: { movable: true, range: [6.001 * R3, 7.999 * R3], step: .001, reason: "在五边形开区间内代入公式求 S 的最大值。" },
+      q2s3: { movable: false, range: [10 * R3, 10 * R3], reason: "本步固定 t＝10√3，用三角形面积，无需拖动滑块。" },
+      q2s4: { movable: true, range: [6 * R3, 10 * R3], step: .001, reason: "本步在完整题设范围内验证最终面积范围。" }
+    };
+
+    let stepIndex = 0, problemUserPreference = null, stepObserver = null;
+    const stepCards = document.getElementById("stepCards");
+    const stepNav = document.getElementById("stepNav");
+    const mobileStepNav = document.getElementById("mobileStepNav");
+    const problemCard = document.getElementById("problemCard");
+    const problemToggle = document.getElementById("problemToggle");
+    const railProgressText = document.getElementById("railProgressText");
+    const railProgressFill = document.getElementById("railProgressFill");
+    const mobileStepSheet = document.getElementById("mobileStepSheet");
+    const mobileStepToggle = document.getElementById("mobileStepToggle");
+    const mobileStepClose = document.getElementById("mobileStepClose");
+    const mobileStepCount = document.getElementById("mobileStepCount");
+    const mobileStepName = document.getElementById("mobileStepName");
+
+    function esc(s) { return String(s).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;"); }
+    function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+    function projectPoint(p, width, height, pad, domain) {
+      const innerW = width - pad.left - pad.right;
+      const innerH = height - pad.top - pad.bottom;
+      const scale = Math.min(innerW / (domain.maxX - domain.minX), innerH / (domain.maxY - domain.minY));
+      const usedW = (domain.maxX - domain.minX) * scale;
+      const usedH = (domain.maxY - domain.minY) * scale;
+      const offsetX = pad.left + (innerW - usedW) / 2;
+      const offsetY = pad.top + (innerH - usedH) / 2;
+      const x = offsetX + (p.x - domain.minX) * scale;
+      const y = offsetY + (domain.maxY - p.y) * scale;
+      return { x, y };
+    }
+    function toScreen(p) {
+      return projectPoint(p, W, H, PAD, DOMAIN);
+    }
+    function toFigureScreen(p) {
+      return projectPoint(p, FIG_W, FIG_H, FIG_PAD, FIG_DOMAIN);
+    }
+    function fmt(n) {
+      return Number(n).toFixed(3).replace(/\.?0+$/, "");
+    }
+    function formatT(v) {
+      const u = v / R3;
+      const rounded = Math.round(u * 1000) / 1000;
+      if (Math.abs(rounded) < 1e-6) return "0";
+      return `${fmt(rounded)}√3`;
+    }
+    function pt(x, y) { return { x, y }; }
+    function moved(t) {
+      return { Cp: pt(t - 6 * R3, 6), Op: pt(t, 0), Dp: pt(t - 6 * R3, 0) };
+    }
+    function keyPoints(t) {
+      const m = moved(t);
+      return {
+        ...m,
+        P: pt(t - 6 * R3, R3 * t - 18),
+        M: pt(t / 4, R3 * t / 4),
+        N: pt(9 * R3 - t / 2, R3 * t / 2 - 9)
+      };
+    }
+    function angleArcVertex(vertex, towardA, towardB, rPx, label, color, opts = {}) {
+      const v = toScreen(vertex);
+      const a = toScreen(towardA);
+      const b = toScreen(towardB);
+      const la = Math.hypot(a.x - v.x, a.y - v.y) || 1;
+      const lb = Math.hypot(b.x - v.x, b.y - v.y) || 1;
+      const angA = Math.atan2(a.y - v.y, a.x - v.x);
+      const angB = Math.atan2(b.y - v.y, b.x - v.x);
+      const sx = v.x + ((a.x - v.x) / la) * rPx;
+      const sy = v.y + ((a.y - v.y) / la) * rPx;
+      const ex = v.x + ((b.x - v.x) / lb) * rPx;
+      const ey = v.y + ((b.y - v.y) / lb) * rPx;
+      let delta = angB - angA;
+      while (delta <= -Math.PI) delta += 2 * Math.PI;
+      while (delta > Math.PI) delta -= 2 * Math.PI;
+      const largeArc = Math.abs(delta) > Math.PI ? 1 : 0;
+      const sweep = delta > 0 ? 1 : 0;
+      const sw = opts.strokeW ?? 1.65;
+      const path = `<path d="M ${sx} ${sy} A ${rPx} ${rPx} 0 ${largeArc} ${sweep} ${ex} ${ey}" fill="none" stroke="${color}" stroke-width="${sw}"/>`;
+      const midAng = angA + delta / 2;
+      // 参考教材图：小弧 + 数字在角的开口内、约在「顶点—弧」的中间偏内（~0.48–0.52），易读且不贴边
+      const lf = opts.labelFrac ?? 0.5;
+      const lr = rPx * lf;
+      const tcx = v.x + Math.cos(midAng) * lr;
+      const tcy = v.y + Math.sin(midAng) * lr;
+      const fs = opts.fontSize ?? 15;
+      const fw = opts.fontWeight ?? 900;
+      const hw = opts.haloWidth ?? (opts.halo === false ? 0 : 4);
+      const haloStroke = hw > 0
+        ? ` stroke="rgba(255,255,255,.97)" stroke-width="${hw}" stroke-linejoin="round" paint-order="stroke fill" style="paint-order:stroke fill"`
+        : "";
+      const text = `<text x="${tcx}" y="${tcy}" font-size="${fs}" font-weight="${fw}" fill="${color}"${haloStroke} text-anchor="middle" dominant-baseline="middle">${esc(label)}</text>`;
+      return path + text;
+    }
+    function polyPts(points) {
+      return points.map((p) => {
+        const s = toScreen(p);
+        return `${s.x},${s.y}`;
+      }).join(" ");
+    }
+    function centroidPt(points) {
+      if (!points.length) return pt(0, 0);
+      let sx = 0, sy = 0;
+      for (const p of points) {
+        sx += p.x;
+        sy += p.y;
+      }
+      const n = points.length;
+      return pt(sx / n, sy / n);
+    }
+    function figPolyPts(points) {
+      return points.map((p) => {
+        const s = toFigureScreen(p);
+        return `${s.x},${s.y}`;
+      }).join(" ");
+    }
+    function line(a, b, cls, extra = "") {
+      const p = toScreen(a), q = toScreen(b);
+      return `<line x1="${p.x}" y1="${p.y}" x2="${q.x}" y2="${q.y}" class="${cls}" ${extra}/>`;
+    }
+    function dot(layout, p, label, opt = {}) {
+      const s = toScreen(p);
+      GeometryLabelLayout.addPointObstacle(layout, p, opt.r || 5);
+      return `<circle cx="${s.x}" cy="${s.y}" r="${opt.r || 4.8}" fill="${opt.fill || "#111827"}" />` +
+        GeometryLabelLayout.labelSvg(layout, p, label, { fontSize: opt.fs || 16, preferredDx: opt.dx ?? 8, preferredDy: opt.dy ?? -9, color: opt.color || "#111827" });
+    }
+    function figDot(layout, p, label, opt = {}) {
+      const s = toFigureScreen(p);
+      GeometryLabelLayout.addPointObstacle(layout, p, opt.r || 4);
+      return `<circle cx="${s.x}" cy="${s.y}" r="${opt.r || 4}" fill="${opt.fill || "#111827"}" />` +
+        GeometryLabelLayout.labelSvg(layout, p, label, { fontSize: opt.fs || 15, preferredDx: opt.dx ?? 7, preferredDy: opt.dy ?? -8, color: opt.color || "#111827" });
+    }
+    function areaValue(t) {
+      const u = t / R3;
+      if (u <= 8) return R3 * (-15 * u * u / 8 + 27 * u - 81);
+      return R3 * (-3 * u * u / 4 + 9 * u - 9);
+    }
+    function clip(poly, inside, intersect) {
+      const out = [];
+      for (let i = 0; i < poly.length; i += 1) {
+        const a = poly[i], b = poly[(i + 1) % poly.length];
+        const ina = inside(a), inb = inside(b);
+        if (ina && inb) out.push(b);
+        else if (ina && !inb) out.push(intersect(a, b));
+        else if (!ina && inb) { out.push(intersect(a, b)); out.push(b); }
+      }
+      return out;
+    }
+    function overlapPolygon(t) {
+      let poly = [moved(t).Cp, moved(t).Op, moved(t).Dp];
+      poly = clip(poly, (p) => p.y >= -1e-9, (a, b) => {
+        const k = (0 - a.y) / (b.y - a.y); return pt(a.x + k * (b.x - a.x), 0);
+      });
+      poly = clip(poly, (p) => p.y <= R3 * p.x + 1e-9, (a, b) => {
+        const dx = b.x - a.x, dy = b.y - a.y, k = (R3 * a.x - a.y) / (dy - R3 * dx);
+        return pt(a.x + k * dx, a.y + k * dy);
+      });
+      poly = clip(poly, (p) => p.y <= -R3 * p.x + 18 + 1e-9, (a, b) => {
+        const dx = b.x - a.x, dy = b.y - a.y, k = (-R3 * a.x + 18 - a.y) / (dy + R3 * dx);
+        return pt(a.x + k * dx, a.y + k * dy);
+      });
+      return poly;
+    }
+    function miniMarkup(t) {
+      const x1 = toScreen(pt(DOMAIN.minX, 0)), x2 = toScreen(pt(DOMAIN.maxX, 0));
+      const y1 = toScreen(pt(0, DOMAIN.minY)), y2 = toScreen(pt(0, DOMAIN.maxY));
+      const mv = moved(t);
+      const overlap = overlapPolygon(t);
+      let g = `<line x1="${x1.x}" y1="${x1.y}" x2="${x2.x}" y2="${x2.y}" stroke="#94a3b8" stroke-width="2"/>`;
+      g += `<line x1="${y1.x}" y1="${y1.y}" x2="${y2.x}" y2="${y2.y}" stroke="#94a3b8" stroke-width="2"/>`;
+      g += `<polygon points="${polyPts(FIXED_TRI)}" fill="var(--fixed-tri)" stroke="var(--fixed-stroke)" stroke-width="3"/>`;
+      g += `<polygon points="${polyPts([mv.Cp, mv.Op, mv.Dp])}" fill="var(--move-tri)" stroke="var(--move-stroke)" stroke-width="3"/>`;
+      if (overlap.length > 2) g += `<polygon points="${polyPts(overlap)}" fill="var(--overlap)" stroke="var(--overlap-stroke)" stroke-width="3"/>`;
+      return g;
+    }
+    function boxMarkup(step, t) {
+      const items = step.box || [];
+      const lines = [...items];
+      if (step.id.startsWith("q2") && t >= 6 * R3 && t <= 10 * R3) lines.push(`S≈${fmt(areaValue(t))}`);
+      return `<g transform="translate(752 72)">
+        <rect width="276" height="${28 + lines.length * 25}" rx="12" fill="rgba(255,255,255,.92)" stroke="#cbd5e1"/>
+        ${lines.map((s, i) => `<text x="18" y="${28 + i * 25}" font-size="15" font-weight="800" fill="#0f766e">${esc(s)}</text>`).join("")}
+      </g>`;
+    }
+    function baseDiagram(layout) {
+      const x1 = toScreen(pt(DOMAIN.minX, 0)), x2 = toScreen(pt(DOMAIN.maxX, 0));
+      const y1 = toScreen(pt(0, DOMAIN.minY)), y2 = toScreen(pt(0, DOMAIN.maxY));
+      let g = `<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#334155"/></marker></defs>`;
+      g += `<line x1="${x1.x}" y1="${x1.y}" x2="${x2.x}" y2="${x2.y}" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>`;
+      g += `<line x1="${y1.x}" y1="${y1.y}" x2="${y2.x}" y2="${y2.y}" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>`;
+      g += `<text x="${x2.x - 18}" y="${x2.y - 12}" font-size="18" font-weight="900" fill="#334155">x</text><text x="${y2.x + 10}" y="${y2.y + 18}" font-size="18" font-weight="900" fill="#334155">y</text>`;
+      g += `<polygon points="${polyPts(FIXED_TRI)}" fill="var(--fixed-tri)" stroke="var(--fixed-stroke)" stroke-width="3"/>`;
+      g += `<polygon points="${polyPts(ORIGIN_TRI)}" fill="rgba(148,163,184,.1)" stroke="#64748b" stroke-width="2" stroke-dasharray="7 6"/>`;
+      return g;
+    }
+    function originalBaseFigure(layout) {
+      const x1 = toFigureScreen(pt(FIG_DOMAIN.minX, 0)), x2 = toFigureScreen(pt(FIG_DOMAIN.maxX, 0));
+      const y1 = toFigureScreen(pt(0, FIG_DOMAIN.minY)), y2 = toFigureScreen(pt(0, FIG_DOMAIN.maxY));
+      let g = `<defs><marker id="figArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#334155"/></marker></defs>`;
+      g += `<line x1="${x1.x}" y1="${x1.y}" x2="${x2.x}" y2="${x2.y}" stroke="#334155" stroke-width="2" marker-end="url(#figArrow)"/>`;
+      g += `<line x1="${y1.x}" y1="${y1.y}" x2="${y2.x}" y2="${y2.y}" stroke="#334155" stroke-width="2" marker-end="url(#figArrow)"/>`;
+      g += `<text x="${x2.x - 16}" y="${x2.y - 10}" font-size="17" font-style="italic" fill="#334155">x</text><text x="${y2.x + 8}" y="${y2.y + 16}" font-size="17" font-style="italic" fill="#334155">y</text>`;
+      g += `<polygon points="${figPolyPts(FIXED_TRI)}" fill="var(--fixed-tri)" stroke="var(--fixed-stroke)" stroke-width="2.4"/>`;
+      g += figDot(layout, BASE.O, "O", { dx: -20, dy: 20 });
+      g += figDot(layout, BASE.A, "A", { dx: -2, dy: -12 });
+      g += figDot(layout, BASE.B, "B", { dx: 8, dy: 20 });
+      return g;
+    }
+    function drawOriginalFigureOne() {
+      const layout = GeometryLabelLayout.createLabelLayout({ toScreen: toFigureScreen, pointRadius: 5, padding: 4 });
+      let g = originalBaseFigure(layout);
+      g += `<polygon points="${figPolyPts(ORIGIN_TRI)}" fill="rgba(148,163,184,.08)" stroke="#64748b" stroke-width="2.2" stroke-dasharray="6 5"/>`;
+      g += figDot(layout, BASE.C, "C", { dx: -20, dy: -10 });
+      g += figDot(layout, BASE.D, "D", { dx: -20, dy: 22 });
+      g += GeometryLabelLayout.rightAngleSvg(layout, toFigureScreen, BASE.D, BASE.C, BASE.O, { size: 11, color: "#111827" });
+      const os = toFigureScreen(BASE.O);
+      g += `<path d="M ${os.x - 38} ${os.y} A 38 38 0 0 0 ${os.x - 32} ${os.y - 20}" fill="none" stroke="#111827" stroke-width="1.8"/><text x="${os.x - 70}" y="${os.y - 16}" font-size="14" fill="#111827">30°</text>`;
+      return `<svg viewBox="0 0 ${FIG_W} ${FIG_H}" aria-label="图① 原始位置">${g}</svg>`;
+    }
+    function drawOriginalFigureTwo() {
+      const layout = GeometryLabelLayout.createLabelLayout({ toScreen: toFigureScreen, pointRadius: 5, padding: 4 });
+      const t = 7 * R3;
+      const k = keyPoints(t);
+      let g = originalBaseFigure(layout);
+      g += `<polygon points="${figPolyPts([k.Cp, k.Op, k.Dp])}" fill="var(--move-tri)" stroke="var(--move-stroke)" stroke-width="2.2"/>`;
+      const ovFig = overlapPolygon(t);
+      if (ovFig.length > 2) g += `<polygon points="${figPolyPts(ovFig)}" fill="rgba(120,120,120,.34)" stroke="#64748b" stroke-width="1.8"/>`;
+      g += figDot(layout, k.Cp, "C'", { dx: -20, dy: -10 });
+      g += figDot(layout, k.Op, "O'", { dx: 8, dy: 20 });
+      g += figDot(layout, k.Dp, "D'", { dx: -20, dy: 20 });
+      g += figDot(layout, k.M, "M", { dx: 8, dy: -10 });
+      g += figDot(layout, k.N, "N", { dx: 8, dy: -10 });
+      return `<svg viewBox="0 0 ${FIG_W} ${FIG_H}" aria-label="图② 平移后重叠">${g}</svg>`;
+    }
+    function renderOriginalFigures() {
+      const one = document.getElementById("problemFigureOne");
+      const two = document.getElementById("problemFigureTwo");
+      if (one) one.innerHTML = drawOriginalFigureOne();
+      if (two) two.innerHTML = drawOriginalFigureTwo();
+    }
+    function diagramMarkupFor(index, overrideT) {
+      const step = STEPS[index], t = overrideT ?? step.t;
+      const layout = GeometryLabelLayout.createLabelLayout({ toScreen, pointRadius: 6, padding: 4 });
+      let g = baseDiagram(layout);
+      // 第（1）问 section 为「第（1）问 坐标」，不能用字符串等于「第（1）问」判断；平移图形仅在第（2）问步骤展示。
+      const showMove = step.id.startsWith("q");
+      if (showMove) {
+        const mv = moved(t);
+        g += `<polygon points="${polyPts([mv.Cp, mv.Op, mv.Dp])}" fill="var(--move-tri)" stroke="var(--move-stroke)" stroke-width="3"/>`;
+        const overlap = overlapPolygon(t);
+        if (overlap.length > 2) g += `<polygon points="${polyPts(overlap)}" fill="var(--overlap)" stroke="var(--overlap-stroke)" stroke-width="3"/>`;
+        if (step.id === "q2s2" && t > 6 * R3 + 0.02 && t < 8 * R3 - 0.02) {
+          const kk = keyPoints(t);
+          const cutFill = "rgba(245,158,11,.28)";
+          g += `<polygon points="${polyPts([kk.Dp, kk.P, BASE.O])}" fill="${cutFill}" stroke="#b45309" stroke-width="2.2" stroke-dasharray="6 5"/>`;
+          g += `<polygon points="${polyPts([kk.N, BASE.B, kk.Op])}" fill="${cutFill}" stroke="#b45309" stroke-width="2.2" stroke-dasharray="6 5"/>`;
+          g += `<polygon points="${polyPts([BASE.O, kk.M, kk.Op])}" fill="none" stroke="#b45309" stroke-width="2.2" stroke-dasharray="7 6"/>`;
+        }
+      }
+      g += dot(layout, BASE.O, "O", { dx: -18, dy: 24 });
+      g += dot(layout, BASE.A, "A", { dx: 8, dy: -12 });
+      g += dot(layout, BASE.B, "B", { dx: 8, dy: 18 });
+      if (index <= 1) {
+        g += dot(layout, BASE.C, "C", { dx: -24, dy: -10, fill: "#64748b" });
+        g += dot(layout, BASE.D, "D", { dx: -22, dy: 24, fill: "#64748b" });
+      }
+      if (showMove) {
+        const k = keyPoints(t);
+        const hideP = /^q1s[123]$/.test(step.id);
+        g += dot(layout, k.Cp, "C'", { fill: "#0f766e", dx: -24, dy: -10 });
+        g += dot(layout, k.Op, "O'", { fill: "#0f766e", dx: 8, dy: 24 });
+        g += dot(layout, k.Dp, "D'", { fill: "#0f766e", dx: -20, dy: 24 });
+        if (step.id === "q1s1" && t >= 6 * R3 - .02 && t <= 8 * R3 + .02) {
+          g += GeometryLabelLayout.rightAngleSvg(layout, toScreen, k.M, BASE.O, k.Op, { size: 11, color: "#0f766e" });
+          g += GeometryLabelLayout.rightAngleSvg(layout, toScreen, k.M, BASE.A, k.N, { size: 11, color: "#b45309" });
+        }
+        if (t >= 6 * R3 - .02 && t <= 10 * R3 + .02) {
+          if (!hideP && k.P.y >= -0.02 && k.P.y <= 6.02) g += dot(layout, k.P, "P", { fill: "#dc2626", dx: -22, dy: -10 });
+          if (k.M.y >= -0.02 && k.M.y <= 9.02) g += dot(layout, k.M, "M", { fill: "#dc2626", dx: 10, dy: -12 });
+          if (k.N.y >= -0.02 && k.N.y <= 9.02) g += dot(layout, k.N, "N", { fill: "#dc2626", dx: 10, dy: -12 });
+        }
+        if (["q1s1", "q1s3"].includes(step.id)) {
+          g += GeometryLabelLayout.segmentMeasureSvg(layout, toScreen, BASE.A, k.N, "12√3－t", { segmentName: "AN", named: true, color: "#dc2626", offsetPx: 22, showGuide: true, collinearGroup: true });
+        }
+        if (step.id === "q1s1" && t >= 6 * R3 - .02 && t <= 8 * R3 + .02) {
+          g += angleArcVertex(BASE.O, BASE.B, BASE.A, 24, "60°", "#b45309", { labelFrac: 0.5, fontSize: 15, strokeW: 2 });
+          g += angleArcVertex(k.Op, k.Dp, k.Cp, 20, "30°", "#0f766e", { labelFrac: 0.48, fontSize: 14, strokeW: 2 });
+          g += angleArcVertex(BASE.A, k.M, k.N, 22, "60°", "#dc2626", { labelFrac: 0.5, fontSize: 15, strokeW: 2 });
+          if (t > 0.05) {
+            g += GeometryLabelLayout.segmentMeasureSvg(layout, toScreen, BASE.O, k.Op, "t", {
+              style: "dimension",
+              showGuide: false,
+              segmentName: "OO'",
+              named: true,
+              color: "#0f766e",
+              offsetPx: 26,
+              fontSize: 13,
+              rotateWithLine: true
+            });
+          }
+        }
+        if (step.id === "q2s2" && t > 6 * R3 + 0.02 && t < 8 * R3 - 0.02) {
+          g += GeometryLabelLayout.rightAngleSvg(layout, toScreen, k.M, BASE.O, k.Op, { size: 11, color: "#0f766e" });
+          g += angleArcVertex(k.Op, k.M, BASE.O, 21, "30°", "#0f766e", { labelFrac: 0.48, fontSize: 13 });
+          g += angleArcVertex(BASE.O, k.M, k.Op, 27, "60°", "#0f766e", { labelFrac: 0.44, fontSize: 14 });
+          g += GeometryLabelLayout.segmentMeasureSvg(layout, toScreen, BASE.O, k.Op, "t", {
+            style: "dimension",
+            segmentName: "OO'",
+            named: true,
+            color: "#0f766e",
+            offsetPx: 26,
+            fontSize: 13,
+            rotateWithLine: true
+          });
+          g += GeometryLabelLayout.rightAngleSvg(layout, toScreen, k.Dp, BASE.O, k.P, { size: 11, color: "#dc2626" });
+          g += angleArcVertex(BASE.O, k.P, k.Dp, 25, "60°", "#dc2626", { labelFrac: 0.4, fontSize: 14 });
+          g += GeometryLabelLayout.segmentMeasureSvg(layout, toScreen, BASE.O, k.Dp, "t－6√3", {
+            style: "dimension",
+            color: "#dc2626",
+            offsetPx: 36,
+            fontSize: 12,
+            showGuide: true
+          });
+          g += GeometryLabelLayout.segmentMeasureSvg(layout, toScreen, BASE.B, k.Op, "t－6√3", {
+            style: "dimension",
+            segmentName: "BO'",
+            named: true,
+            color: "#b45309",
+            offsetPx: 32,
+            fontSize: 12,
+            showGuide: true
+          });
+          g += angleArcVertex(k.N, k.Op, BASE.B, 19, "30°", "#b45309", { labelFrac: 0.46, fontSize: 12 });
+          g += angleArcVertex(k.Op, BASE.B, k.N, 23, "30°", "#0f766e", { labelFrac: 0.48, fontSize: 12 });
+        }
+        if (step.id === "q2s3") {
+          g += GeometryLabelLayout.segmentMeasureSvg(layout, toScreen, BASE.B, k.Op, "4√3", {
+            style: "dimension",
+            segmentName: "BO'",
+            named: true,
+            color: "#0f766e",
+            offsetPx: 30,
+            showGuide: true,
+            fontSize: 13
+          });
+          g += angleArcVertex(k.Op, BASE.B, k.N, 26, "30°", "#0f766e", { labelFrac: 0.48, fontSize: 14 });
+          g += angleArcVertex(k.N, k.Op, BASE.B, 22, "30°", "#dc2626", { labelFrac: 0.44, fontSize: 14 });
+          g += angleArcVertex(BASE.B, k.Dp, k.N, 28, "60°", "#dc2626", { labelFrac: 0.4, fontSize: 15 });
+          g += GeometryLabelLayout.rightAngleSvg(layout, toScreen, k.Dp, k.N, BASE.B, { size: 12, color: "#111827" });
+        }
+      }
+      if (step.id === "i1s1") {
+        const foot = pt(BASE.A.x, 0);
+        g += line(BASE.A, foot, "", `stroke="#dc2626" stroke-width="2.2" stroke-dasharray="6 5"`);
+        g += GeometryLabelLayout.segmentMeasureSvg(layout, toScreen, BASE.O, BASE.B, "6√3", { color: "#b45309", offsetPx: 22, showGuide: true, segmentName: "OB", named: true });
+        g += GeometryLabelLayout.segmentMeasureSvg(layout, toScreen, BASE.A, foot, "9", { color: "#dc2626", segmentName: "高", named: true });
+      }
+      if (step.id === "i1s2") {
+        g += GeometryLabelLayout.rightAngleSvg(layout, toScreen, BASE.D, BASE.C, BASE.O, { size: 13, color: "#475569" });
+        g += GeometryLabelLayout.segmentMeasureSvg(layout, toScreen, BASE.D, BASE.O, "6√3", { color: "#64748b", offsetPx: 22, showGuide: true, segmentName: "OD", named: true });
+        g += GeometryLabelLayout.segmentMeasureSvg(layout, toScreen, BASE.D, BASE.C, "6", { color: "#dc2626", segmentName: "CD", named: true });
+        const os = toScreen(BASE.O);
+        g += `<path d="M ${os.x - 44} ${os.y} A 44 44 0 0 0 ${os.x - 38} ${os.y - 22}" fill="none" stroke="#dc2626" stroke-width="2"/><text x="${os.x - 78}" y="${os.y - 17}" font-size="15" font-weight="900" fill="#dc2626">30°</text>`;
+      }
+      if (step.id === "q2s2" && showMove && t > 6 * R3 + 0.02 && t < 8 * R3 - 0.02) {
+        const kk = keyPoints(t);
+        const ovQ2 = overlapPolygon(t);
+        if (ovQ2.length > 2) {
+          const cs = toScreen(centroidPt(ovQ2));
+          g += `<text x="${cs.x}" y="${cs.y}" font-size="16" font-weight="900" fill="#dc2626" text-anchor="middle" dominant-baseline="middle">S</text>`;
+        }
+        const sDpo = toScreen(centroidPt([kk.Dp, kk.P, BASE.O]));
+        const sNbo = toScreen(centroidPt([kk.N, BASE.B, kk.Op]));
+        g += `<text x="${sDpo.x}" y="${sDpo.y}" font-size="18" font-weight="900" fill="#b45309" text-anchor="middle" dominant-baseline="middle">−</text>`;
+        g += `<text x="${sNbo.x}" y="${sNbo.y}" font-size="18" font-weight="900" fill="#b45309" text-anchor="middle" dominant-baseline="middle">−</text>`;
+      }
+      g += boxMarkup(step, t);
+      return g;
+    }
+    function drawMini(t) {
+      return `<svg viewBox="0 0 1080 760" aria-hidden="true">${miniMarkup(t)}</svg>`;
+    }
+    function groupTitle(section) { return section; }
+
+    function renderStepNavMarkup() {
+      const groups = [];
+      STEPS.forEach((step) => {
+        let group = groups.find((item) => item.section === step.section);
+        if (!group) { group = { section: step.section, steps: [] }; groups.push(group); }
+        group.steps.push(step);
+      });
+      const problemGroup = `<div class="step-group"><div class="step-group-title">题目</div><div class="step-dots"><button class="step-dot" type="button" data-problem="true" title="回到完整原题">原题</button></div></div>`;
+      return problemGroup + groups.map((group) => {
+        const dots = group.steps.map((step, localIndex) => {
+          const index = STEPS.indexOf(step);
+          const dot = `<button class="step-dot ${index < stepIndex ? "done" : ""} ${index === stepIndex ? "active" : ""}" type="button" data-step="${index}" title="${esc(step.title)}">${esc(STEP_LABELS[step.id])}</button>`;
+          return localIndex === 0 ? dot : `<span class="step-connector"></span>${dot}`;
+        }).join("");
+        return `<div class="step-group"><div class="step-group-title">${esc(groupTitle(group.section))}</div><div class="step-dots">${dots}</div></div>`;
+      }).join("");
+    }
+    function renderStepNav() {
+      stepNav.innerHTML = renderStepNavMarkup();
+      mobileStepNav.innerHTML = renderStepNavMarkup();
+      railProgressText.textContent = `${stepIndex + 1} / ${STEPS.length}`;
+      railProgressFill.style.width = `${((stepIndex + 1) / STEPS.length) * 100}%`;
+      mobileStepCount.textContent = `${STEPS[stepIndex].section} · 步骤 ${stepIndex + 1} / ${STEPS.length}`;
+      mobileStepName.textContent = STEP_LABELS[STEPS[stepIndex].id];
+    }
+    function renderMinisMarkup(step, activeT) {
+      if (!step.minis) return "";
+      const chips = step.minis.map((item) => `<button class="mini-jump ${Math.abs(activeT - item.t) < .03 ? "active" : ""}" type="button" data-mini-t="${item.t}">${esc(item.title)}</button>`).join("");
+      const cards = step.minis.map((item) => `<div class="mini-card ${Math.abs(activeT - item.t) < .03 ? "active" : ""}" role="button" tabindex="0" data-mini-t="${item.t}"><h3>${esc(item.title)}</h3>${drawMini(item.t)}<p>${esc(item.caption)}</p></div>`).join("");
+      return `<div class="mini-boundaries"><div class="mini-jump-row">${chips}</div><div class="mini-preview-strip">${cards}</div></div>`;
+    }
+    function renderAllSteps() {
+      stepCards.innerHTML = STEPS.map((step, index) => {
+        const policy = POLICIES[step.id] || { movable: false, range: [step.t, step.t], reason: "" };
+        const activeT = clamp(step.t, policy.range[0], policy.range[1]);
+        const derive = step.derive.map(([mark, text]) => `<div class="derive-line"><strong>${mark}</strong>${esc(text)}</div>`).join("");
+        const minis = renderMinisMarkup(step, activeT);
+        const legendRt = step.id.startsWith("i1")
+          ? `<span><i style="background:rgba(148,163,184,.12);border-color:#64748b;border-style:dashed;border-width:2px"></i>Rt△COD</span>`
+          : `<span><i style="background:var(--move-tri);border-color:var(--move-stroke)"></i>平移Rt△C'O'D'</span>`;
+        const legendOverlap = step.id.startsWith("i1")
+          ? ""
+          : step.id === "q2s2"
+            ? `<span><i style="background:var(--overlap);border-color:var(--overlap-stroke)"></i>重叠区域 S</span><span><i style="background:rgba(245,158,11,.28);border:2px dashed #b45309"></i>减去 △D'PO、△NBO'</span><span><i style="display:inline-block;width:14px;height:14px;border:2px dashed #b45309;background:none;vertical-align:middle"></i>Rt△OMO' 边界</span>`
+            : `<span><i style="background:var(--overlap);border-color:var(--overlap-stroke)"></i>重叠区域S</span>`;
+        const tools = policy.movable ? `<div class="step-local-tools" data-step-tools="${index}">
+          <div class="step-slider-row">
+            <label for="stepRange-${step.id}">平移量 t＝OO'</label>
+            <input id="stepRange-${step.id}" type="range" min="${policy.range[0]}" max="${policy.range[1]}" step="${policy.step || .001}" value="${activeT}" data-step-range="${index}">
+            <span class="step-t-value" data-step-t-label="${index}">t=${formatT(activeT)}</span>
+          </div>
+          <div class="step-local-note">${esc(policy.reason)}</div>
+        </div>` : "";
+        return `<article class="card lesson-step-card" id="step-${step.id}" data-step-index="${index}">
+          <div class="step-card-head"><div class="step-card-title"><div class="step-section">${esc(step.section)}</div><h2>${esc(step.title)}</h2></div><div class="step-card-index">${index + 1}/${STEPS.length}</div></div>
+          <div class="step-card-body">
+            <div class="step-card-diagram">
+              <div class="svg-wrap"><svg viewBox="0 0 1080 760" aria-label="${esc(step.title)}">${diagramMarkupFor(index)}</svg></div>
+              <div class="legend"><span><i style="background:var(--fixed-tri);border-color:var(--fixed-stroke)"></i>等边△OAB</span>${legendRt}${legendOverlap}</div>
+              ${tools}${minis}
+            </div>
+            <div class="step-card-panel"><div class="derive-list">${derive}</div></div>
+          </div>
+        </article>`;
+      }).join("");
+      renderStepNav();
+      observeSteps();
+    }
+    function updateProblemToggle() {
+      problemToggle.textContent = problemCard.classList.contains("collapsed") ? "展开完整题目" : "收起完整题目";
+    }
+    function syncProblemCardForInteraction() {
+      if (problemUserPreference !== null) return;
+      problemCard.classList.add("collapsed");
+      updateProblemToggle();
+    }
+    function setProblemVisibility(collapsed, user = false) {
+      problemCard.classList.toggle("collapsed", collapsed);
+      if (user) problemUserPreference = collapsed ? "collapsed" : "expanded";
+      updateProblemToggle();
+    }
+    function setActiveStep(next, options = {}) {
+      stepIndex = clamp(next, 0, STEPS.length - 1);
+      document.querySelectorAll(".lesson-step-card").forEach((card, index) => card.classList.toggle("active-step", index === stepIndex));
+      renderStepNav();
+      if (options.scroll) document.getElementById(`step-${STEPS[stepIndex].id}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    function setStep(next) {
+      syncProblemCardForInteraction();
+      setActiveStep(next, { scroll: true });
+    }
+    function showProblem() {
+      setProblemVisibility(false, true);
+      problemCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    function updateStepDiagram(index, value) {
+      const step = STEPS[index], policy = POLICIES[step.id];
+      if (!policy?.movable) return;
+      const nextT = clamp(Number(value), policy.range[0], policy.range[1]);
+      const card = document.querySelector(`.lesson-step-card[data-step-index="${index}"]`);
+      const svgEl = card?.querySelector("svg");
+      const labelEl = card?.querySelector(`[data-step-t-label="${index}"]`);
+      const rangeEl = card?.querySelector(`[data-step-range="${index}"]`);
+      if (svgEl) svgEl.innerHTML = diagramMarkupFor(index, nextT);
+      if (labelEl) labelEl.textContent = `t=${formatT(nextT)}`;
+      if (rangeEl && Number(rangeEl.value) !== nextT) rangeEl.value = String(nextT);
+      card?.querySelectorAll("[data-mini-t]").forEach((el) => el.classList.toggle("active", Math.abs(Number(el.dataset.miniT) - nextT) < .03));
+    }
+    function observeSteps() {
+      if (stepObserver) stepObserver.disconnect();
+      stepObserver = new IntersectionObserver((entries) => {
+        const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (!visible) return;
+        const next = Number(visible.target.dataset.stepIndex);
+        if (Number.isInteger(next) && next !== stepIndex) setActiveStep(next);
+      }, { rootMargin: "-20% 0px -55% 0px", threshold: [.15, .3, .55] });
+      document.querySelectorAll(".lesson-step-card").forEach((card) => stepObserver.observe(card));
+      setActiveStep(stepIndex);
+    }
+    function closeMobileStepSheet() { mobileStepSheet.classList.remove("open"); mobileStepSheet.setAttribute("aria-hidden", "true"); }
+    function openMobileStepSheet() { mobileStepSheet.classList.add("open"); mobileStepSheet.setAttribute("aria-hidden", "false"); }
+    stepNav.addEventListener("click", (event) => {
+      const problemTarget = event.target.closest("button[data-problem]");
+      if (problemTarget) { showProblem(); return; }
+      const target = event.target.closest("button[data-step]");
+      if (target) setStep(Number(target.dataset.step));
+    });
+    mobileStepNav.addEventListener("click", (event) => {
+      const problemTarget = event.target.closest("button[data-problem]");
+      if (problemTarget) { showProblem(); closeMobileStepSheet(); return; }
+      const target = event.target.closest("button[data-step]");
+      if (target) { setStep(Number(target.dataset.step)); closeMobileStepSheet(); }
+    });
+    mobileStepToggle.addEventListener("click", openMobileStepSheet);
+    mobileStepClose.addEventListener("click", closeMobileStepSheet);
+    mobileStepSheet.addEventListener("click", (event) => { if (event.target === mobileStepSheet) closeMobileStepSheet(); });
+    stepCards.addEventListener("input", (event) => { const target = event.target.closest("input[data-step-range]"); if (target) updateStepDiagram(Number(target.dataset.stepRange), target.value); });
+    stepCards.addEventListener("click", (event) => { const target = event.target.closest("[data-mini-t]"); if (!target) return; const card = target.closest(".lesson-step-card"); updateStepDiagram(Number(card?.dataset.stepIndex), target.dataset.miniT); });
+    stepCards.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      const target = event.target.closest("[data-mini-t]");
+      if (!target) return;
+      event.preventDefault();
+      const card = target.closest(".lesson-step-card");
+      updateStepDiagram(Number(card?.dataset.stepIndex), target.dataset.miniT);
+    });
+    problemToggle.addEventListener("click", () => setProblemVisibility(!problemCard.classList.contains("collapsed"), true));
+    updateProblemToggle();
+    renderOriginalFigures();
+    renderAllSteps();
+  </script>
+</body>
+</html>

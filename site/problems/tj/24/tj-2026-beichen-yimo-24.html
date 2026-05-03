@@ -31,6 +31,17 @@
             <div class="problem-line"><span>（II）将 △COD 沿 x 轴向右平移，得到 △C'O'D'，点 C，O，D 的对应点分别为 C'，O'，D'。设 OO'＝t，△C'O'D' 与四边形 BCDE 重叠部分的面积为 S。</span></div>
             <div class="problem-line"><span>① 如图②，若边 O'C' 与边 CD 相交于点 M，边 C'D' 与 DE 相交于点 N，且 △C'O'D' 与四边形 BCDE 重叠部分为四边形 C'MDN 时，试用含有 t 的式子表示 S，并直接写出 t 的取值范围；</span><span class="answer-chip" id="answerQ1">答案：S＝2√3t－5√3t²/8，0&lt;t&lt;2</span></div>
             <div class="problem-line"><span>② 当 1≤t≤3 时，求 S 的取值范围（直接写出结果即可）。</span><span class="answer-chip" id="answerQ2">答案：25√3/24≤S≤8√3/5</span></div>
+            <div class="problem-line"><strong>原题图形</strong></div>
+            <div class="problem-original-figures" aria-label="原题图 ① 和图 ②">
+              <figure class="problem-figure">
+                <h3>图①</h3>
+                <svg id="originalFigure1" viewBox="0 0 1080 720" role="img" aria-label="图①：矩形 OABC 与四边形 BCDE"></svg>
+              </figure>
+              <figure class="problem-figure">
+                <h3>图②</h3>
+                <svg id="originalFigure2" viewBox="0 0 1080 720" role="img" aria-label="图②：平移后的三角形与四边形 BCDE 的重叠"></svg>
+              </figure>
+            </div>
           </div>
         </section>
 
@@ -160,6 +171,8 @@
     const answerI=document.getElementById("answerI");
     const answerQ1=document.getElementById("answerQ1");
     const answerQ2=document.getElementById("answerQ2");
+    const originalFigure1=document.getElementById("originalFigure1");
+    const originalFigure2=document.getElementById("originalFigure2");
 
     function esc(s){return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");}
     function clamp(v,min,max){return Math.max(min,Math.min(max,v));}
@@ -180,9 +193,11 @@
       const p=toScreen(a),q=toScreen(b);
       return `<line x1="${p.x}" y1="${p.y}" x2="${q.x}" y2="${q.y}" stroke="${color}" stroke-width="${width}" ${dash?`stroke-dasharray="${dash}"`:""} />`;
     }
-    function point(p,label,color="#1f2937",dx=8,dy=-8){
+    function point(p,label,color="#1f2937",dx=8,dy=-8,options={}){
       const s=toScreen(p);
-      const circle=`<circle cx="${s.x}" cy="${s.y}" r="5" fill="${color}" />`;
+      const circle=`<circle cx="${s.x}" cy="${s.y}" r="${options.r??5}" fill="${color}" />`;
+      const fontSize=options.fontSize??15;
+      const fontWeight=options.fontWeight??800;
       if(window.GeometryLabelLayout && currentLabelLayout){
         currentLabelLayout.occupied.push({
           left:s.x-8,
@@ -194,15 +209,15 @@
         if(!label) return circle;
         return circle + window.GeometryLabelLayout.labelSvg(currentLabelLayout,p,label,{
           color,
-          fontSize:15,
-          fontWeight:800,
+          fontSize,
+          fontWeight,
           preferredDx:dx,
           preferredDy:dy,
           candidates:window.GeometryLabelLayout.candidateOffsets?.(dx,dy),
           allowNearPoint:true
         });
       }
-      return circle + (label ? `<text x="${s.x+dx}" y="${s.y+dy}" font-size="15" font-weight="800" fill="${color}">${esc(label)}</text>` : "");
+      return circle + (label ? `<text x="${s.x+dx}" y="${s.y+dy}" font-size="${fontSize}" font-weight="${fontWeight}" fill="${color}">${esc(label)}</text>` : "");
     }
     function textAt(p,text,color="#334155",dx=8,dy=-10,size=14){
       const s=toScreen(p);
@@ -304,9 +319,10 @@
       return "第（II）② 面积范围";
     }
     function renderStepNavMarkup(){
+      const problemEntry=`<div class="step-group step-group-problem"><div class="step-group-title">题目</div><div class="step-dots"><button class="step-dot" type="button" data-problem-nav="true" title="回到完整原题">原题</button></div></div>`;
       const groups=[];
       STEPS.forEach(step=>{let g=groups.find(item=>item.section===step.section); if(!g){g={section:step.section,steps:[]};groups.push(g);} g.steps.push(step);});
-      return groups.map(group=>{
+      return problemEntry+groups.map(group=>{
         const dots=group.steps.map((step,idx)=>{
           const index=STEPS.indexOf(step), label=STEP_LABELS[step.id] || String(idx+1);
           const dot=`<button class="step-dot ${index<stepIndex?"done":""} ${index===stepIndex?"active":""}" type="button" data-step="${index}" title="${esc(step.title)}">${esc(label)}</button>`;
@@ -329,12 +345,33 @@
       const cards=step.minis.map(item=>`<div class="mini-card ${Math.abs(activeT-item.t)<.03?"active":""}" role="button" tabindex="0" data-mini-t="${item.t}" data-mini-card-t="${item.t}"><h3>${esc(item.title)}</h3>${drawMini(item.t)}<p>${esc(item.caption)}</p></div>`).join("");
       return `<div class="mini-boundaries"><div class="mini-jump-row">${chips}</div><div class="mini-preview-strip">${cards}</div></div>`;
     }
-    function fixedMarkup(){
+    function fixedMarkup(options={}){
+      const pointOptions={r:options.pointRadius??5,fontSize:options.labelFontSize??15};
       return `<path d="${path(FIXED_QUAD)}" fill="var(--paper)" stroke="var(--paper-stroke)" stroke-width="2.3" />
         <path d="${path(BASE_TRI)}" fill="rgba(15,118,110,.08)" stroke="#0f766e" stroke-width="2" />
         ${line(BASE.O,BASE.A,"#d97706",2)}${line(BASE.A,BASE.B,"#d97706",2)}${line(BASE.B,BASE.C,"#d97706",2)}${line(BASE.C,BASE.O,"#d97706",2)}
-        ${point(BASE.O,"O","#1f2937",8,18)}${point(BASE.A,"A","#1f2937",8,18)}${point(BASE.B,"B","#1f2937",8,-8)}
-        ${point(BASE.C,"C","#1f2937",-24,-8)}${point(BASE.D,"D","#1f2937",8,18)}${point(BASE.E,"E","#1f2937",8,-8)}`;
+        ${point(BASE.O,"O","#1f2937",8,18,pointOptions)}${point(BASE.A,"A","#1f2937",8,18,pointOptions)}${point(BASE.B,"B","#1f2937",8,-8,pointOptions)}
+        ${point(BASE.C,"C","#1f2937",-24,-8,pointOptions)}${point(BASE.D,"D","#1f2937",8,18,pointOptions)}${point(BASE.E,"E","#1f2937",8,-8,pointOptions)}`;
+    }
+    function originalFigureMarkup(tt,{showMoving=false}={}){
+      const s=state(tt);
+      currentLabelLayout = window.GeometryLabelLayout ? window.GeometryLabelLayout.createLabelLayout({toScreen,padding:4,pointRadius:9}) : null;
+      let out=line({x:DOMAIN.minX,y:0},{x:DOMAIN.maxX,y:0},"#64748b",1.8)+line({x:0,y:DOMAIN.minY},{x:0,y:DOMAIN.maxY},"#64748b",1.8)+fixedMarkup({labelFontSize:20,pointRadius:6.6});
+      if(showMoving){
+        out+=`<path d="${path(s.moving)}" fill="var(--moving)" stroke="var(--moving-stroke)" stroke-width="2.3" />`;
+        out+=`<path d="${path(s.overlap)}" fill="var(--overlap)" stroke="var(--overlap-stroke)" stroke-width="2.8" />`;
+        out+=point(s.Cp,"C'","#0f766e",8,-12,{r:7,fontSize:20});
+        out+=point(s.Op,"O'","#0f766e",8,22,{r:7,fontSize:20});
+        out+=point(s.Dp,"D'","#0f766e",8,22,{r:7,fontSize:20});
+        out+=point(s.M,"M","#dc2626",8,-10,{r:6,fontSize:19});
+        out+=point(s.N,"N","#dc2626",8,-10,{r:6,fontSize:19});
+      }
+      currentLabelLayout = null;
+      return out;
+    }
+    function renderOriginalFigures(){
+      if(originalFigure1)originalFigure1.innerHTML=originalFigureMarkup(0);
+      if(originalFigure2)originalFigure2.innerHTML=originalFigureMarkup(1,{showMoving:true});
     }
     function diagramMarkupFor(index,overrideT){
       const step=STEPS[index], policy=POLICIES[step.id] || {movable:false,range:[step.t,step.t]};
@@ -469,6 +506,11 @@
       syncProblemCardForInteraction();
       setActiveStep(next,{scroll:true});
     }
+    function goToProblem(){
+      setProblemVisibility(false,true);
+      problemCard.scrollIntoView({behavior:"auto",block:"start"});
+      requestAnimationFrame(()=>problemCard.scrollIntoView({behavior:"smooth",block:"start"}));
+    }
     function closeMobileStepSheet(){
       mobileStepSheet.classList.remove("open");
       mobileStepSheet.setAttribute("aria-hidden","true");
@@ -502,8 +544,18 @@
       document.querySelectorAll(".lesson-step-card").forEach(card=>stepObserver.observe(card));
       setActiveStep(stepIndex);
     }
-    stepNav.addEventListener("click",event=>{const target=event.target.closest("button[data-step]"); if(target) setStep(Number(target.dataset.step));});
-    mobileStepNav.addEventListener("click",event=>{const target=event.target.closest("button[data-step]"); if(target){setStep(Number(target.dataset.step));closeMobileStepSheet();}});
+    stepNav.addEventListener("click",event=>{
+      const problemTarget=event.target.closest("button[data-problem-nav]");
+      if(problemTarget){goToProblem();return;}
+      const target=event.target.closest("button[data-step]");
+      if(target) setStep(Number(target.dataset.step));
+    });
+    mobileStepNav.addEventListener("click",event=>{
+      const problemTarget=event.target.closest("button[data-problem-nav]");
+      if(problemTarget){closeMobileStepSheet();goToProblem();return;}
+      const target=event.target.closest("button[data-step]");
+      if(target){setStep(Number(target.dataset.step));closeMobileStepSheet();}
+    });
     mobileStepToggle.addEventListener("click",openMobileStepSheet);
     mobileStepClose.addEventListener("click",closeMobileStepSheet);
     mobileStepSheet.addEventListener("click",event=>{if(event.target===mobileStepSheet)closeMobileStepSheet();});
@@ -528,6 +580,7 @@
     problemToggle.addEventListener("click",()=>setProblemVisibility(!problemCard.classList.contains("collapsed"),true));
     updateProblemToggle();
     renderAllSteps();
+    renderOriginalFigures();
   </script>
 </body>
 </html>
