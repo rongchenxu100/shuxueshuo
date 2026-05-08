@@ -1,0 +1,116 @@
+{
+  "$schema": "../../schemas/step-decorations.schema.json",
+  "layers": {
+    "global": {
+      "elements": [
+        { "type": "grid" },
+        { "type": "basePoly" },
+        { "type": "point", "at": "A", "color": "#1f2937", "dx": 8, "dy": 22 },
+        { "type": "point", "at": "B", "color": "#1f2937", "dx": 8, "dy": -10 },
+        { "type": "point", "at": "C", "color": "#1f2937", "dx": -24, "dy": -8 }
+      ]
+    },
+    "foldContext": {
+      "elements": [
+        { "type": "movingPoly" },
+        { "type": "segment", "from": "D", "to": "E", "label": "折痕 DE", "color": "#111827", "width": 2 },
+        { "type": "point", "at": "D", "color": "#dc2626", "dx": -24, "dy": 14 },
+        { "type": "point", "at": "E", "color": "#dc2626", "dx": 10, "dy": -2 },
+        { "type": "point", "at": "Ap", "label": "A′", "color": "#0f766e", "dx": 8, "dy": -14 }
+      ]
+    },
+    "overlapContext": {
+      "sectionNot": "第（Ⅰ）问",
+      "elements": [
+        { "type": "overlap" },
+        { "type": "point", "at": "Op", "label": "O′", "color": "#0f766e", "dx": -30, "dy": 10 }
+      ]
+    },
+    "pentagonContext": {
+      "section": "第（Ⅱ）问",
+      "elements": [
+        { "type": "derivedPoint", "at": "F", "color": "#6b7280", "dx": -24, "dy": 0 },
+        { "type": "derivedPoint", "at": "G", "color": "#dc2626", "dx": -12, "dy": -16 },
+        { "type": "derivedPoint", "at": "H", "color": "#dc2626", "dx": 8, "dy": -16 },
+        { "type": "segment", "from": "C", "to": "B", "label": "CB", "color": "#1f2937" }
+      ]
+    }
+  },
+  "steps": {
+    "q1s1": {
+      "add": [
+        { "type": "segment", "from": "A", "to": "B", "label": "AB", "color": "#2563eb", "width": 3 },
+        { "type": "coordinateLabel", "at": "B", "label": "B(4,4)", "dx": 12, "dy": -28 }
+      ]
+    },
+    "q1s2": {
+      "add": [
+        { "type": "segment", "from": "A", "to": "E", "label": "AE", "color": "#2563eb", "width": 3 },
+        { "type": "angleArc", "vertex": "D", "rayA": "C", "rayB": "E", "label": "60°" }
+      ]
+    },
+    "q1s3": {
+      "add": [
+        { "type": "segment", "from": "A", "to": "Ap", "label": "AA′", "color": "#7c3aed", "dash": "5 4" },
+        { "type": "coordinateLabel", "at": "Ap", "label": "A′(2,2√3)", "dx": -86, "dy": -20 }
+      ]
+    },
+    "q2s1": {
+      "add": [
+        { "type": "segment", "from": "Op", "to": "Ap", "label": "O′A′", "color": "#0f766e", "width": 3 },
+        { "type": "segment", "from": "Ap", "to": "E", "label": "A′E", "color": "#0f766e", "width": 3 },
+        { "type": "angleArc", "vertex": "D", "rayA": "C", "rayB": "E", "label": "60°" }
+      ]
+    },
+    "q2s2": {
+      "add": [
+        { "type": "coordinateLabel", "at": "Ap", "label": "A′在 CB 上", "dx": -76, "dy": -22, "when": 1.0718 },
+        { "type": "coordinateLabel", "at": "E", "label": "E 与 B 重合", "dx": 10, "dy": -28, "when": 1.6906 }
+      ]
+    },
+    "q2s3": {
+      "add": [
+        { "type": "segment", "from": "Op", "to": "Ap", "label": "O′A′", "color": "#2563eb", "width": 3 },
+        { "type": "derivedPoint", "at": "G", "color": "#dc2626", "dx": -12, "dy": -16 },
+        { "type": "coordinateLabel", "at": "G", "label": "G(x_G,4)", "dx": -44, "dy": -32 }
+      ]
+    },
+    "q2s4": {
+      "add": [
+        { "type": "segment", "from": "Ap", "to": "E", "label": "A′E", "color": "#2563eb", "width": 3 },
+        { "type": "derivedPoint", "at": "H", "color": "#dc2626", "dx": 8, "dy": -16 },
+        { "type": "coordinateLabel", "at": "H", "label": "H(x_H,4)", "dx": 8, "dy": -32 }
+      ]
+    },
+    "q2s5": {
+      "add": [
+        { "type": "segment", "from": "G", "to": "H", "label": "GH", "color": "#dc2626", "width": 4 },
+        { "type": "areaFormulaCard", "pos": [0.25, 6.1], "terms": [
+          { "text": "GH", "kind": "target" },
+          { "text": "=", "kind": "op" },
+          { "text": "x_H", "kind": "base" },
+          { "text": "-", "kind": "op" },
+          { "text": "x_G", "kind": "cut" }
+        ] }
+      ]
+    },
+    "q3s1": {
+      "add": [
+        { "type": "overlap" },
+        { "type": "segment", "from": "D", "to": "G", "label": "三角形重合区", "color": "#2563eb", "width": 3 }
+      ]
+    },
+    "q3s2": {
+      "add": [
+        { "type": "segment", "from": "D", "to": "C", "label": "4-t", "color": "#2563eb", "width": 3 },
+        { "type": "segment", "from": "C", "to": "G", "label": "√3(4-t)", "color": "#2563eb", "width": 3 },
+        { "type": "rightAngle", "vertex": "C", "rayA": "D", "rayB": "G" },
+        { "type": "areaFormulaCard", "pos": [0.25, 6.1], "terms": [
+          { "text": "S", "kind": "target" },
+          { "text": "=", "kind": "op" },
+          { "text": "√3(4-t)^2/2", "kind": "base" }
+        ] }
+      ]
+    }
+  }
+}

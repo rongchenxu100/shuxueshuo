@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "id": "tj-2026-hexi-yimo-24",
+  "domain": { "minX": -0.7, "maxX": 5.1, "minY": -0.6, "maxY": 4.0 },
+  "fixedPoints": {
+    "O": ["0", "0"],
+    "A": ["4", "0"],
+    "B": ["2", "2*S3"],
+    "C": ["0", "S3"],
+    "D": ["3", "S3"],
+    "H": ["3", "0"],
+    "M": ["1", "S3"]
+  },
+  "movingParam": "t",
+  "movingPoints": {
+    "Op": ["t", "0"],
+    "Cp": ["t", "S3"],
+    "Dp": ["t+3", "S3"]
+  },
+  "basePolygon": ["O", "A", "B"],
+  "movingPolygon": ["Op", "Dp", "Cp"],
+  "derivedIntersections": [
+    { "name": "E", "a": ["Cp", "Dp"], "b": ["A", "B"], "fallback": ["3", "S3"] },
+    { "name": "F", "a": ["Op", "Dp"], "b": ["A", "B"], "fallback": ["3+t/4", "S3*(1-t/4)"] },
+    { "name": "G", "a": ["Op", "Cp"], "b": ["O", "B"], "fallback": ["t", "S3*t"] },
+    { "name": "R", "a": ["Op", "Cp"], "b": ["A", "B"], "fallback": ["t", "S3*(4-t)"] }
+  ],
+  "originalFigures": [
+    {
+      "id": "originalFigure1",
+      "t": 1.6,
+      "showMoving": false,
+      "showOverlap": false,
+      "showIntersections": false,
+      "segments": [
+        { "from": "O", "to": "C", "color": "#1f2937", "width": 3 },
+        { "from": "C", "to": "D", "color": "#1f2937", "width": 3 },
+        { "from": "O", "to": "D", "color": "#1f2937", "width": 3 }
+      ],
+      "fixedLabels": [
+        { "at": "A", "label": "A", "dx": 10, "dy": 24 },
+        { "at": "B", "label": "B", "dx": 8, "dy": -12 },
+        { "at": "C", "label": "C", "dx": -28, "dy": -8 },
+        { "at": "D", "label": "D", "dx": 12, "dy": -6 }
+      ]
+    },
+    {
+      "id": "originalFigure2",
+      "t": 1.6,
+      "showMoving": true,
+      "showOverlap": true,
+      "showIntersections": true,
+      "fixedLabels": [
+        { "at": "A", "label": "A", "dx": 10, "dy": 24 },
+        { "at": "B", "label": "B", "dx": 8, "dy": -12 }
+      ],
+      "movingLabels": [
+        { "at": "Cp", "label": "C′", "color": "#0f766e", "dx": -20, "dy": -12 },
+        { "at": "Op", "label": "O′", "color": "#0f766e", "dx": -8, "dy": 24 },
+        { "at": "Dp", "label": "D′", "color": "#0f766e", "dx": 12, "dy": -10 }
+      ],
+      "intersectionLabels": [
+        { "at": "E", "label": "E", "color": "#dc2626", "dx": 10, "dy": -14 },
+        { "at": "F", "label": "F", "color": "#dc2626", "dx": 10, "dy": 12 }
+      ]
+    }
+  ]
+}

@@ -26,6 +26,32 @@ window.__PROBLEMS_DATA__ = [
     "status": "published"
   },
   {
+    "id": "tj-2026-binhai-yimo-24",
+    "city": "tianjin",
+    "cityLabel": "天津",
+    "year": 2026,
+    "exam": "binhai-yimo",
+    "examLabel": "滨海新区一模",
+    "slot": "24",
+    "title": "2026 年天津市滨海新区一模第 24 题（平移菱形与重叠面积）",
+    "tags": ["geometry", "translation", "dynamic-point"],
+    "path": "../problems/tj/24/tj-2026-binhai-yimo-24.html",
+    "status": "published"
+  },
+  {
+    "id": "tj-2026-dongli-yimo-24",
+    "city": "tianjin",
+    "cityLabel": "天津",
+    "year": 2026,
+    "exam": "dongli-yimo",
+    "examLabel": "东丽区一模",
+    "slot": "24",
+    "title": "2026 年天津市东丽区一模第 24 题（平行四边形与平移直角三角形）",
+    "tags": ["geometry", "translation", "dynamic-point"],
+    "path": "../problems/tj/24/tj-2026-dongli-yimo-24.html",
+    "status": "published"
+  },
+  {
     "id": "tj-2026-hedong-yimo-24",
     "city": "tianjin",
     "cityLabel": "天津",
@@ -36,6 +62,19 @@ window.__PROBLEMS_DATA__ = [
     "title": "2026 年天津市河东区一模第 24 题（正方形平移与面积）",
     "tags": ["geometry", "dynamic-point"],
     "path": "../problems/tj/24/tj-2026-hedong-yimo-24.html",
+    "status": "published"
+  },
+  {
+    "id": "tj-2026-hedong-ermo-24",
+    "city": "tianjin",
+    "cityLabel": "天津",
+    "year": 2026,
+    "exam": "hedong-ermo",
+    "examLabel": "河东区二模",
+    "slot": "24",
+    "title": "2026 年天津市河东区二模第 24 题（正方形折叠与重合面积）",
+    "tags": ["geometry", "folding", "dynamic-point"],
+    "path": "../problems/tj/24/tj-2026-hedong-ermo-24.html",
     "status": "published"
   },
   {
@@ -88,6 +127,19 @@ window.__PROBLEMS_DATA__ = [
     "title": "2026 年天津市河西区结课考试第 24 题（平行四边形折叠与重叠面积）",
     "tags": ["geometry", "folding", "dynamic-point"],
     "path": "../problems/tj/24/tj-2026-hexi-jieke-24.html",
+    "status": "published"
+  },
+  {
+    "id": "tj-2026-hexi-yimo-24",
+    "city": "tianjin",
+    "cityLabel": "天津",
+    "year": 2026,
+    "exam": "hexi-yimo",
+    "examLabel": "河西区一模",
+    "slot": "24",
+    "title": "2026 年天津市河西区一模第 24 题（三角形平移与重叠面积）",
+    "tags": ["geometry", "translation", "dynamic-point"],
+    "path": "../problems/tj/24/tj-2026-hexi-yimo-24.html",
     "status": "published"
   },
   {

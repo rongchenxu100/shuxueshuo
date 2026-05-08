@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "id": "tj-2026-nankai-ermo-17",
+  "domain": { "minX": -1.2, "maxX": 6.4, "minY": -1.2, "maxY": 15.4 },
+  "movingParam": "t",
+  "expressionEnv": [
+    { "name": "a", "expr": "5.291502622129181" },
+    { "name": "eY", "expr": "a*(t*t-1)/(2*t)" },
+    { "name": "fRatio", "expr": "2/(t*t+1)" }
+  ],
+  "fixedPoints": {
+    "C": ["0", "0"],
+    "A": ["a", "0"]
+  },
+  "movingPoints": {
+    "B": ["0", "a*t"],
+    "D": ["a/2", "a*t/2"],
+    "E": ["0", "eY"],
+    "F": ["a*fRatio", "eY*(1-fRatio)"],
+    "P": ["a*fRatio/2", "eY*(2-fRatio)/2"],
+    "M": ["a/2", "0"]
+  },
+  "basePolygon": ["A", "B", "C"],
+  "movingPolygon": [],
+  "derivedIntersections": [],
+  "originalFigures": [
+    {
+      "id": "originalFigure1",
+      "t": 2.625,
+      "showMoving": false,
+      "showOverlap": false,
+      "showIntersections": false,
+      "segments": [
+        { "from": "A", "to": "B", "width": 2.4 },
+        { "from": "B", "to": "C", "width": 2.4 },
+        { "from": "C", "to": "A", "width": 2.4 },
+        { "from": "E", "to": "D", "width": 2.2 },
+        { "from": "A", "to": "E", "width": 2.2 },
+        { "from": "F", "to": "D", "width": 2.2 }
+      ],
+      "fixedLabels": [
+        { "at": "A", "label": "A", "dx": 12, "dy": 20 },
+        { "at": "C", "label": "C", "dx": -24, "dy": 18 }
+      ],
+      "movingLabels": [
+        { "at": "B", "label": "B", "dx": -24, "dy": -10 },
+        { "at": "D", "label": "D", "dx": 12, "dy": -8 },
+        { "at": "E", "label": "E", "dx": -26, "dy": 6 },
+        { "at": "F", "label": "F", "dx": -18, "dy": 24 }
+      ]
+    }
+  ]
+}

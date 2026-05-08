@@ -1,0 +1,78 @@
+{
+  "$schema": "../../schemas/geometry-spec.schema.json",
+  "version": 1,
+  "id": "tj-2026-hedong-ermo-24",
+  "domain": { "minX": -4.2, "maxX": 4.8, "minY": -0.6, "maxY": 6.6 },
+  "fixedPoints": {
+    "O": ["0", "0"],
+    "A": ["4", "0"],
+    "B": ["4", "4"],
+    "C": ["0", "4"]
+  },
+  "movingParam": "t",
+  "movingPoints": {
+    "D": ["0", "t"],
+    "E": ["4", "t+4/S3"],
+    "Op": ["-S3*t/2", "3*t/2"],
+    "Ap": ["2-S3*t/2", "2*S3+t/2"]
+  },
+  "basePolygon": ["O", "A", "B", "C"],
+  "movingPolygon": ["D", "Op", "Ap", "E"],
+  "derivedIntersections": [
+    { "name": "F", "a": ["O", "C"], "b": ["Op", "Ap"], "fallback": ["0", "3"] },
+    { "name": "G", "a": ["C", "B"], "b": ["Op", "Ap"], "fallback": ["0.7", "4"] },
+    { "name": "H", "a": ["C", "B"], "b": ["Ap", "E"], "fallback": ["2.0", "4"] }
+  ],
+  "originalFigures": [
+    {
+      "id": "originalFigure1",
+      "t": 0,
+      "showMoving": true,
+      "showOverlap": false,
+      "showIntersections": false,
+      "segments": [
+        { "from": "D", "to": "E", "color": "#111827", "width": 2 },
+        { "from": "D", "to": "Ap", "color": "#0f766e", "width": 2 },
+        { "from": "Ap", "to": "E", "color": "#0f766e", "width": 2 }
+      ],
+      "fixedLabels": [
+        { "at": "A", "label": "A", "dx": 8, "dy": 20 },
+        { "at": "B", "label": "B", "dx": 8, "dy": -10 },
+        { "at": "C", "label": "C", "dx": -24, "dy": -8 }
+      ],
+      "movingLabels": [
+        { "at": "D", "label": "O(D)", "dx": -34, "dy": 18 },
+        { "at": "E", "label": "E", "dx": 10, "dy": -2 },
+        { "at": "Ap", "label": "A′", "dx": -26, "dy": -8 }
+      ]
+    },
+    {
+      "id": "originalFigure2",
+      "t": 1.35,
+      "showMoving": true,
+      "showOverlap": true,
+      "showIntersections": true,
+      "segments": [
+        { "from": "D", "to": "E", "color": "#111827", "width": 2 },
+        { "from": "Op", "to": "Ap", "color": "#0f766e", "width": 2 },
+        { "from": "Ap", "to": "E", "color": "#0f766e", "width": 2 }
+      ],
+      "fixedLabels": [
+        { "at": "A", "label": "A", "dx": 8, "dy": 20 },
+        { "at": "B", "label": "B", "dx": 8, "dy": -8 },
+        { "at": "C", "label": "C", "dx": -24, "dy": -8 }
+      ],
+      "movingLabels": [
+        { "at": "D", "label": "D", "dx": -24, "dy": 18 },
+        { "at": "E", "label": "E", "dx": 10, "dy": -2 },
+        { "at": "Op", "label": "O′", "dx": -30, "dy": 10 },
+        { "at": "Ap", "label": "A′", "dx": 8, "dy": -14 }
+      ],
+      "intersectionLabels": [
+        { "at": "F", "label": "F", "dx": -24, "dy": 0 },
+        { "at": "G", "label": "G", "dx": -12, "dy": -16 },
+        { "at": "H", "label": "H", "dx": 8, "dy": -16 }
+      ]
+    }
+  ]
+}

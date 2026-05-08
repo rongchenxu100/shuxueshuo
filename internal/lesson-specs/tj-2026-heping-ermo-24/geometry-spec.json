@@ -1,0 +1,66 @@
+{
+  "$schema": "../../schemas/geometry-spec.schema.json",
+  "version": 1,
+  "id": "tj-2026-heping-ermo-24",
+  "domain": { "minX": -0.8, "maxX": 7.7, "minY": -0.6, "maxY": 4.4 },
+  "fixedPoints": {
+    "O": ["0", "0"],
+    "A": ["1", "S3"],
+    "B": ["4", "S3"],
+    "C": ["5", "0"]
+  },
+  "movingParam": "t",
+  "movingPoints": {
+    "P": ["t", "0"],
+    "Q": ["t-1", "S3"],
+    "Op": ["3*t/2", "S3*t/2"],
+    "Ap": ["(3*t-4)/2", "S3*t/2"]
+  },
+  "basePolygon": ["O", "C", "B", "A"],
+  "movingPolygon": ["P", "Op", "Ap", "Q"],
+  "derivedIntersections": [
+    { "name": "E", "a": ["Op", "P"], "b": ["B", "C"], "fallback": ["(t+5)/2", "S3*(5-t)/2"] },
+    { "name": "R", "a": ["O", "A"], "b": ["P", "Q"], "fallback": ["t/2", "S3*t/2"] }
+  ],
+  "originalFigures": [
+    {
+      "id": "originalFigure1",
+      "t": 3,
+      "showMoving": false,
+      "showOverlap": false,
+      "showIntersections": false,
+      "fixedLabels": [
+        { "at": "A", "label": "A", "dx": -10, "dy": -18 },
+        { "at": "B", "label": "B", "dx": 10, "dy": -18 },
+        { "at": "C", "label": "C", "dx": 10, "dy": 18 }
+      ]
+    },
+    {
+      "id": "originalFigure2",
+      "t": 3.6,
+      "showMoving": true,
+      "showOverlap": true,
+      "showIntersections": true,
+      "segments": [
+        { "from": "P", "to": "Q", "color": "#111827", "width": 2 },
+        { "from": "P", "to": "Op", "color": "#0f766e", "width": 2 },
+        { "from": "Op", "to": "Ap", "color": "#0f766e", "width": 2 },
+        { "from": "Ap", "to": "Q", "color": "#0f766e", "width": 2 }
+      ],
+      "fixedLabels": [
+        { "at": "A", "label": "A", "dx": -20, "dy": -12 },
+        { "at": "B", "label": "B", "dx": 8, "dy": -14 },
+        { "at": "C", "label": "C", "dx": 10, "dy": 18 }
+      ],
+      "movingLabels": [
+        { "at": "P", "label": "P", "dx": -4, "dy": 20 },
+        { "at": "Q", "label": "Q", "dx": -20, "dy": -16 },
+        { "at": "Op", "label": "O′", "dx": 10, "dy": -14 },
+        { "at": "Ap", "label": "A′", "dx": 8, "dy": -14 }
+      ],
+      "intersectionLabels": [
+        { "at": "E", "label": "E", "dx": 8, "dy": 2 }
+      ]
+    }
+  ]
+}

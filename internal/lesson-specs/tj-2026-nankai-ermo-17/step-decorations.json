@@ -1,0 +1,86 @@
+{
+  "_comment": "南开 2026 二模第 17 题 — 直角三角形斜边中点与垂线",
+  "layers": {
+    "global": {
+      "elements": [
+        { "type": "basePoly" },
+        { "type": "point", "at": "A", "color": "#1f2937", "dx": 12, "dy": 20 },
+        { "type": "point", "at": "B", "color": "#1f2937", "dx": -24, "dy": -10 },
+        { "type": "point", "at": "C", "color": "#1f2937", "dx": -24, "dy": 18 },
+        { "type": "point", "at": "D", "color": "#dc2626", "dx": 12, "dy": -8 },
+        { "type": "point", "at": "E", "color": "#0f766e", "dx": -26, "dy": 6 },
+        { "type": "point", "at": "F", "color": "#7c3aed", "dx": -18, "dy": 24 },
+        { "type": "coloredLine", "from": "E", "to": "D", "color": "#0f766e", "width": 2.4 },
+        { "type": "coloredLine", "from": "A", "to": "E", "color": "#64748b", "width": 2 },
+        { "type": "coloredLine", "from": "F", "to": "D", "color": "#7c3aed", "width": 2.2 },
+        { "type": "rightAngle", "vertex": "C", "rayA": "A", "rayB": "B", "size": 14, "color": "#1f2937" },
+        { "type": "rightAngle", "vertex": "D", "rayA": "E", "rayB": "A", "size": 12, "color": "#0f766e" }
+      ]
+    },
+    "partI": {
+      "section": "第（I）问",
+      "elements": [
+        { "type": "angleArc", "vertex": "A", "rayA": "C", "rayB": "B", "label": "∠CAB", "color": "#2563eb", "radius": 38, "labelRadius": 58 },
+        { "type": "angleArc", "vertex": "E", "rayA": "D", "rayB": "A", "label": "∠DEF", "color": "#dc2626", "radius": 30, "labelRadius": 48 },
+        { "type": "angleArc", "vertex": "F", "rayA": "E", "rayB": "D", "label": "∠EFD", "color": "#7c3aed", "radius": 26, "labelRadius": 46 }
+      ]
+    },
+    "partII": {
+      "section": "第（II）问",
+      "elements": [
+        { "type": "coloredLine", "from": "C", "to": "E", "label": "CE", "color": "#dc2626", "width": 3, "rotateWithLine": true },
+        { "type": "coloredLine", "from": "E", "to": "F", "label": "EF", "color": "#7c3aed", "width": 3, "rotateWithLine": true },
+        { "type": "coloredLine", "from": "B", "to": "D", "label": "BD", "color": "#2563eb", "width": 2.6, "rotateWithLine": true }
+      ]
+    }
+  },
+  "steps": {
+    "q1s1": {
+      "add": [
+        { "type": "coloredLine", "from": "A", "to": "D", "label": "AD", "color": "#dc2626", "width": 3, "rotateWithLine": true },
+        { "type": "coloredLine", "from": "B", "to": "D", "label": "BD", "color": "#dc2626", "width": 3, "rotateWithLine": true },
+        { "type": "coloredLine", "from": "C", "to": "D", "label": "CD", "color": "#dc2626", "width": 2.6, "dash": "6 5", "rotateWithLine": true },
+        { "type": "coincidentLabel", "at": "D", "text": "D 为 AB 中点", "dx": 32, "dy": -26 }
+      ]
+    },
+    "q1s2": {
+      "add": [
+        { "type": "angleArc", "vertex": "A", "rayA": "C", "rayB": "B", "label": "69°", "color": "#2563eb", "radius": 44, "labelRadius": 66 },
+        { "type": "angleArc", "vertex": "E", "rayA": "D", "rayB": "A", "label": "69°", "color": "#dc2626", "radius": 36, "labelRadius": 54 },
+        { "type": "angleArc", "vertex": "F", "rayA": "E", "rayB": "D", "label": "69°", "color": "#7c3aed", "radius": 31, "labelRadius": 52 }
+      ]
+    },
+    "q2s1": {
+      "add": [
+        { "type": "coloredLine", "from": "E", "to": "D", "label": "DE", "color": "#0f766e", "width": 3, "rotateWithLine": true },
+        { "type": "coloredLine", "from": "B", "to": "E", "label": "BE", "color": "#0f766e", "width": 3, "rotateWithLine": true },
+        { "type": "coloredLine", "from": "B", "to": "D", "label": "BD", "color": "#2563eb", "width": 3, "rotateWithLine": true },
+        { "type": "coincidentLabel", "at": "E", "text": "CE＝BC－BE", "dx": 28, "dy": 10 }
+      ]
+    },
+    "q2s2": {
+      "add": [
+        { "type": "coloredLine", "from": "E", "to": "D", "label": "DE", "color": "#0f766e", "width": 3, "rotateWithLine": true },
+        { "type": "coloredLine", "from": "D", "to": "F", "label": "DF", "color": "#0f766e", "width": 3, "rotateWithLine": true },
+        { "type": "dashedLine", "from": "D", "to": "P", "color": "#64748b", "width": 1.8, "dash": "5 5" },
+        { "type": "rightAngle", "vertex": "P", "rayA": "D", "rayB": "E", "size": 9, "color": "#64748b" },
+        { "type": "point", "at": "P", "labelText": "P", "color": "#64748b", "dx": 10, "dy": 16 },
+        { "type": "angleArc", "vertex": "E", "rayA": "D", "rayB": "A", "label": "∠CAB", "color": "#dc2626", "radius": 36, "labelRadius": 54 }
+      ]
+    },
+    "q2s3": {
+      "add": [
+        { "type": "coloredLine", "from": "C", "to": "E", "label": "CE＝3EF", "color": "#dc2626", "width": 3.2, "rotateWithLine": true },
+        { "type": "coloredLine", "from": "E", "to": "F", "label": "EF", "color": "#7c3aed", "width": 3.2, "rotateWithLine": true }
+      ]
+    },
+    "q2s4": {
+      "add": [
+        { "type": "coloredLine", "from": "C", "to": "A", "label": "AC＝2√7", "color": "#0f766e", "width": 3, "rotateWithLine": true },
+        { "type": "coloredLine", "from": "B", "to": "C", "label": "BC＝14", "color": "#0f766e", "width": 3, "rotateWithLine": true },
+        { "type": "coloredLine", "from": "A", "to": "B", "label": "AB＝4√14", "color": "#2563eb", "width": 3, "rotateWithLine": true },
+        { "type": "coloredLine", "from": "B", "to": "D", "label": "BD", "color": "#dc2626", "width": 3.2, "rotateWithLine": true }
+      ]
+    }
+  }
+}

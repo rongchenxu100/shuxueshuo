@@ -1,0 +1,153 @@
+{
+  "meta": {
+    "id": "tj-2026-nankai-ermo-17",
+    "outputPath": "site/problems/tj/17/tj-2026-nankai-ermo-17.html",
+    "pageTitle": "2026 年天津市南开区二模 第 17 题（直角三角形与斜边中点）",
+    "pageDescription": "2026 天津市南开区二模第 17 题：利用直角三角形斜边中点、垂线和角相等关系，求角度与线段 BD。",
+    "breadcrumbTitle": "2026 天津市南开区二模 第 17 题"
+  },
+  "problem": {
+    "summary": "第 17 题（2026 天津市南开区二模）直角三角形中，D 为斜边 AB 中点，ED⊥AB，求角度与 BD。",
+    "lines": [
+      { "text": "（17）如图，已知 Rt△ABC，∠C＝90°，E 为 BC 边上一点，ED⊥AB，垂足为点 D，D 恰为 AB 中点，点 F 为线段 AE 上一点，且 ∠CAB＝∠EFD。" },
+      { "text": "（I）若 ∠DEF＝69°，则 ∠EFD 的大小为 __________（度）；", "answerId": "answerI", "answer": "答案：69" },
+      { "text": "（II）若 CE＝3EF，AC＝2√7，则线段 BD 的长为 __________。", "answerId": "answerII", "answer": "答案：2√14" },
+      { "heading": "原题图形" },
+      { "ariaLabel": "原题图", "figures": [
+        { "id": "originalFigure1", "title": "图", "ariaLabel": "Rt△ABC 中，E 在 BC 上，D 为 AB 中点且 ED 垂直 AB，F 在线段 AE 上" }
+      ] }
+    ]
+  },
+  "ui": {
+    "legend": [
+      { "colorVar": "paper", "label": "Rt△ABC" },
+      { "colorVar": "fold", "label": "辅助线 ED、AE、FD" },
+      { "colorVar": "overlap", "label": "当前高亮关系" }
+    ],
+    "sliderLabel": "形状参数 · t＝BC/AC",
+    "paramLabelPrefix": "t=",
+    "goToProblemMode": "doubleScroll",
+    "groupTitles": {
+      "第（I）问": "第（I）问 求角度",
+      "第（II）问": "第（II）问 求 BD"
+    }
+  },
+  "steps": [
+    {
+      "id": "q1s1",
+      "section": "第（I）问",
+      "title": "第1步：由相似三角形联系两个锐角",
+      "t": 2.6050890646938015,
+      "derive": [
+        ["∵", "Rt△ABC 中，∠C＝90°，D 是斜边 AB 的中点"],
+        ["∴", "DA＝DB＝DC"],
+        ["∵", "E 在 BC 上，D 在 AB 上，ED⊥AB"],
+        ["∴", "△BDE∽△BAC"],
+        ["∴", "DE/AC＝BD/BC"],
+        ["∵", "D 是 AB 中点"],
+        ["∴", "BD＝AD"],
+        ["∴", "AD/DE＝BC/AC"],
+        ["∵", "Rt△ADE 与 Rt△ABC 的两条直角边成比例"],
+        ["∴", "∠DEA＝∠CAB"]
+      ],
+      "box": ["△BDE∽△BAC", "AD/DE＝BC/AC", "∠DEA＝∠CAB"]
+    },
+    {
+      "id": "q1s2",
+      "section": "第（I）问",
+      "title": "第2步：由等角传递求 ∠EFD",
+      "t": 2.6050890646938015,
+      "derive": [
+        ["∵", "F 在线段 AE 上"],
+        ["∴", "∠DEF＝∠DEA"],
+        ["∵", "∠DEF＝69°"],
+        ["∴", "∠CAB＝69°"],
+        ["∵", "∠CAB＝∠EFD"],
+        ["∴", "∠EFD＝69°"]
+      ],
+      "box": ["∠DEA＝∠CAB", "∠DEF＝69°", "∠EFD＝69°"]
+    },
+    {
+      "id": "q2s1",
+      "section": "第（II）问",
+      "title": "第1步：由相似三角形表示 CE",
+      "t": 2.64575131,
+      "derive": [
+        ["设", "AC＝a，BC＝xa（x＞1）"],
+        ["∵", "D 是 AB 中点"],
+        ["∴", "AB＝a√(1＋x²)，AD＝BD＝a√(1＋x²)/2"],
+        ["∵", "E 在 BC 上，D 在 AB 上，ED⊥AB"],
+        ["∴", "△BDE∽△BAC"],
+        ["∴", "BE/AB＝BD/BC，DE/AC＝BD/BC"],
+        ["∴", "BE＝a(1＋x²)/(2x)，DE＝a√(1＋x²)/(2x)"],
+        ["∴", "CE＝BC－BE＝a(x²－1)/(2x)"]
+      ],
+      "box": ["△BDE∽△BAC", "CE＝a(x²－1)/(2x)"]
+    },
+    {
+      "id": "q2s2",
+      "section": "第（II）问",
+      "title": "第2步：由等腰三角形表示 EF",
+      "t": 2.64575131,
+      "derive": [
+        ["∵", "∠DEF＝∠EFD"],
+        ["∴", "DE＝DF"],
+        ["作", "DP⊥EF，垂足为 P"],
+        ["∴", "P 是 EF 的中点，EF＝2EP"],
+        ["∵", "∠DEP＝∠DEF＝∠CAB，∠DPE＝∠C＝90°"],
+        ["∴", "△DEP∽△ACB"],
+        ["∴", "EP/DE＝AC/AB"],
+        ["∵", "DE＝a√(1＋x²)/(2x)，AB＝a√(1＋x²)"],
+        ["∴", "EP＝a/(2x)"],
+        ["∴", "EF＝a/x"]
+      ],
+      "box": ["DE＝DF", "△DEP∽△ACB", "EF＝a/x"]
+    },
+    {
+      "id": "q2s3",
+      "section": "第（II）问",
+      "title": "第3步：由 CE＝3EF 求形状比",
+      "t": 2.64575131,
+      "derive": [
+        ["∵", "CE＝3EF"],
+        ["∴", "a(x²－1)/(2x)＝3a/x"],
+        ["∴", "x²－1＝6"],
+        ["∴", "x²＝7"],
+        ["∵", "x＞1"],
+        ["∴", "x＝√7"]
+      ],
+      "box": ["x²＝7", "x＝√7"]
+    },
+    {
+      "id": "q2s4",
+      "section": "第（II）问",
+      "title": "第4步：由勾股定理求 BD",
+      "t": 2.64575131,
+      "derive": [
+        ["∵", "AC＝2√7，BC＝√7·AC"],
+        ["∴", "BC＝14"],
+        ["∴", "AB＝√(AC²＋BC²)＝√(28＋196)"],
+        ["∴", "AB＝4√14"],
+        ["∵", "D 是 AB 中点"],
+        ["∴", "BD＝AB/2＝2√14"]
+      ],
+      "box": ["AC＝2√7", "BC＝14", "AB＝4√14", "BD＝2√14"]
+    }
+  ],
+  "policies": {
+    "q1s1": { "movable": false, "range": [2.6050890646938015, 2.6050890646938015] },
+    "q1s2": { "movable": false, "range": [2.6050890646938015, 2.6050890646938015] },
+    "q2s1": { "movable": false, "range": [2.64575131, 2.64575131] },
+    "q2s2": { "movable": false, "range": [2.64575131, 2.64575131] },
+    "q2s3": { "movable": false, "range": [2.64575131, 2.64575131] },
+    "q2s4": { "movable": false, "range": [2.64575131, 2.64575131] }
+  },
+  "stepLabels": {
+    "q1s1": "1 联两锐角",
+    "q1s2": "2 求角度",
+    "q2s1": "1 表示CE",
+    "q2s2": "2 表示EF",
+    "q2s3": "3 求形状比",
+    "q2s4": "4 求BD"
+  }
+}

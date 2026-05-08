@@ -1,0 +1,152 @@
+{
+  "_comment": "2026 天津市河西区一模 24 题 — 等边三角形、平移三角形与重叠面积。",
+  "layers": {
+    "global": {
+      "elements": [
+        { "type": "grid" },
+        { "type": "basePoly" },
+        { "type": "point", "at": "O", "color": "#1f2937", "showLabel": false, "r": 5.2 },
+        { "type": "point", "at": "A", "color": "#1f2937", "dx": 10, "dy": 24, "r": 5.2 },
+        { "type": "point", "at": "B", "color": "#1f2937", "dx": 8, "dy": -10, "r": 5.2 },
+        { "type": "coloredLine", "from": "O", "to": "C", "color": "#94a3b8", "width": 2 },
+        { "type": "coloredLine", "from": "C", "to": "D", "color": "#94a3b8", "width": 2 },
+        { "type": "coloredLine", "from": "O", "to": "D", "color": "#94a3b8", "width": 2 },
+        { "type": "point", "at": "C", "color": "#64748b", "dx": -28, "dy": -8, "r": 4.8 },
+        { "type": "point", "at": "D", "color": "#64748b", "dx": 10, "dy": -8, "r": 4.8 }
+      ]
+    },
+    "moving": {
+      "sectionNot": "第（I）问",
+      "elements": [
+        { "type": "movingPoly" },
+        { "type": "overlap" },
+        { "type": "point", "at": "Op", "labelText": "O′", "color": "#0f766e", "dx": -8, "dy": 24, "r": 5.6 },
+        { "type": "point", "at": "Cp", "labelText": "C′", "color": "#0f766e", "dx": -22, "dy": -12, "r": 5.6 },
+        { "type": "point", "at": "Dp", "labelText": "D′", "color": "#0f766e", "dx": 12, "dy": -10, "r": 5.6 },
+        { "type": "areaLabel", "region": "overlap", "text": "S", "color": "#dc2626", "dx": -4, "dy": 4, "size": 16 }
+      ]
+    },
+    "quadrilateral": {
+      "stepStartsWith": ["q2a"],
+      "elements": [
+        { "type": "derivedPoint", "at": "E", "color": "#dc2626", "dx": 10, "dy": -14, "r": 5.2 },
+        { "type": "derivedPoint", "at": "F", "color": "#dc2626", "dx": 10, "dy": 12, "r": 5.2 }
+      ]
+    }
+  },
+  "steps": {
+    "i1s1": {
+      "add": [
+        { "type": "segment", "from": "O", "to": "A", "label": "4", "color": "#0f766e", "offsetPx": 22, "collinearGroup": false },
+        { "type": "segment", "from": "O", "to": "B", "label": "4", "color": "#0f766e", "offsetPx": -28, "collinearGroup": false },
+        { "type": "angleArc", "vertex": "O", "rayA": "A", "rayB": "B", "radius": 26, "color": "#b45309", "label": "60°", "labelRadius": 38 }
+      ]
+    },
+    "i1s2": {
+      "add": [
+        { "type": "coloredLine", "from": "C", "to": "D", "color": "#dc2626", "width": 3 },
+        { "type": "coloredLine", "from": "A", "to": "B", "color": "#dc2626", "width": 3 },
+        { "type": "dashedLine", "from": "D", "to": "H", "color": "#0f766e", "width": 2.2 },
+        { "type": "point", "at": "H", "color": "#0f766e", "dx": -6, "dy": 24, "r": 4.8 },
+        { "type": "rightAngle", "vertex": "H", "rayA": "D", "rayB": "A", "size": 10, "color": "#0f766e" },
+        { "type": "segment", "from": "D", "to": "H", "label": "√3", "color": "#0f766e", "offsetPx": -28, "collinearGroup": false },
+        { "type": "segment", "from": "A", "to": "D", "label": "AD=2", "color": "#dc2626", "offsetPx": 24, "collinearGroup": false, "rotateWithLine": true },
+        { "type": "angleArc", "vertex": "A", "rayA": "O", "rayB": "B", "radius": 24, "color": "#b45309", "label": "60°", "labelRadius": 36 },
+        { "type": "coordinateLabel", "at": "D", "text": "D(3,√3)", "dx": 12, "dy": -32 }
+      ]
+    },
+    "q2a1": {
+      "add": [
+        { "type": "dashedLine", "from": "O", "to": "Op", "color": "#0f766e", "width": 2.2 },
+        { "type": "dashedLine", "from": "C", "to": "Cp", "color": "#0f766e", "width": 2.2 },
+        { "type": "dashedLine", "from": "D", "to": "Dp", "color": "#0f766e", "width": 2.2 },
+        { "type": "segment", "from": "O", "to": "Op", "label": "t", "color": "#0f766e", "offsetPx": -24, "collinearGroup": false },
+        { "type": "coordinateLabel", "at": "Cp", "text": "C′(t,√3)", "dx": -62, "dy": -34 },
+        { "type": "coordinateLabel", "at": "Op", "text": "O′(t,0)", "dx": -40, "dy": 34 },
+        { "type": "coordinateLabel", "at": "Dp", "text": "D′(t+3,√3)", "dx": -74, "dy": -34 }
+      ]
+    },
+    "q2a2": {
+      "add": [
+        { "type": "dashedLine", "from": "M", "to": "C", "color": "#0f766e", "width": 2, "maxT": 1 },
+        { "type": "point", "at": "M", "labelText": "t=1", "color": "#0f766e", "dx": -18, "dy": -28, "r": 4.5 },
+        { "type": "derivedPoint", "at": "E", "color": "#dc2626", "dx": 10, "dy": -14, "r": 5.2 },
+        { "type": "coloredLine", "from": "Cp", "to": "E", "color": "#dc2626", "width": 3 },
+        { "type": "coloredLine", "from": "E", "to": "F", "color": "#dc2626", "width": 3 },
+        { "type": "coloredLine", "from": "F", "to": "Op", "color": "#dc2626", "width": 3 },
+        { "type": "coloredLine", "from": "Op", "to": "Cp", "color": "#dc2626", "width": 3 },
+        { "type": "coincidentLabel", "anchor": "Cp", "when": 3, "eps": 0.04, "text": "t=3 时 C′=E", "color": "#dc2626", "dx": -72, "dy": -34 }
+      ]
+    },
+    "q2a3": {
+      "add": [
+        { "type": "cutRegion", "vertices": ["E", "Dp", "F"], "style": "subtracted", "centroidLabel": "−" },
+        { "type": "segment", "from": "E", "to": "Dp", "label": "t", "color": "#dc2626", "offsetPx": -24, "collinearGroup": false },
+        { "type": "rightAngle", "vertex": "F", "rayA": "E", "rayB": "Dp", "size": 10, "color": "#b45309" },
+        { "type": "angleArc", "vertex": "Dp", "rayA": "E", "rayB": "F", "radius": 18, "color": "#b45309", "label": "30°", "labelRadius": 28, "fontSize": 11, "lockLabel": true },
+        { "type": "areaFormulaCard", "pos": [0.25, 3.62], "terms": [
+          { "text": "S", "kind": "target" },
+          { "text": "=", "kind": "op" },
+          { "text": "△C′O′D′", "kind": "base" },
+          { "text": "−", "kind": "op" },
+          { "text": "△ED′F", "kind": "cut" }
+        ]}
+      ]
+    },
+    "q2b1": {
+      "add": [
+        { "type": "areaFormulaCard", "pos": [0.25, 3.62], "terms": [
+          { "text": "0≤t<1：五边形，先增后减", "kind": "base" },
+          { "text": "1≤t<3：四边形，递减", "kind": "target" },
+          { "text": "3≤t≤13/4：三角形，递减", "kind": "cut" }
+        ]}
+      ]
+    },
+    "q2b2": {
+      "add": [
+        { "type": "derivedPoint", "at": "G", "color": "#dc2626", "dx": -34, "dy": 4, "r": 5.2 },
+        { "type": "point", "at": "M", "color": "#dc2626", "dx": 0, "dy": -30, "r": 5.2 },
+        { "type": "derivedPoint", "at": "E", "color": "#dc2626", "dx": 10, "dy": -14, "r": 5.2 },
+        { "type": "derivedPoint", "at": "F", "color": "#dc2626", "dx": 10, "dy": 12, "r": 5.2 },
+        { "type": "cutRegion", "vertices": ["Cp", "G", "M"], "style": "subtracted", "centroidLabel": "−" },
+        { "type": "cutRegion", "vertices": ["E", "Dp", "F"], "style": "subtracted", "centroidLabel": "−" },
+        { "type": "segment", "from": "Cp", "to": "M", "label": "1-t", "color": "#dc2626", "offsetPx": -22, "collinearGroup": false },
+        { "type": "rightAngle", "vertex": "Cp", "rayA": "M", "rayB": "G", "size": 9, "color": "#b45309" },
+        { "type": "angleArc", "vertex": "M", "rayA": "Cp", "rayB": "G", "radius": 16, "color": "#b45309", "label": "60°", "labelRadius": 24, "fontSize": 10, "lockLabel": true },
+        { "type": "rightAngle", "vertex": "F", "rayA": "E", "rayB": "Dp", "size": 9, "color": "#b45309" },
+        { "type": "angleArc", "vertex": "Dp", "rayA": "E", "rayB": "F", "radius": 16, "color": "#b45309", "label": "30°", "labelRadius": 24, "fontSize": 10, "lockLabel": true },
+        { "type": "areaFormulaCard", "pos": [0.25, 3.62], "terms": [
+          { "text": "S", "kind": "target" },
+          { "text": "=", "kind": "op" },
+          { "text": "△C′O′D′", "kind": "base" },
+          { "text": "−△C′GM", "kind": "cut" },
+          { "text": "−△ED′F", "kind": "cut" }
+        ]}
+      ]
+    },
+    "q2b3": {
+      "add": [
+        { "type": "derivedPoint", "at": "R", "color": "#dc2626", "dx": -30, "dy": -8, "r": 5.2 },
+        { "type": "derivedPoint", "at": "F", "color": "#dc2626", "dx": 10, "dy": 12, "r": 5.2 },
+        { "type": "coloredLine", "from": "Op", "to": "R", "color": "#dc2626", "width": 3 },
+        { "type": "coloredLine", "from": "R", "to": "F", "color": "#dc2626", "width": 3 },
+        { "type": "coloredLine", "from": "F", "to": "Op", "color": "#dc2626", "width": 3 },
+        { "type": "segment", "from": "Op", "to": "A", "label": "4-t", "color": "#0f766e", "offsetPx": 24, "collinearGroup": false },
+        { "type": "segment", "from": "Op", "to": "R", "label": "√3(4-t)", "color": "#dc2626", "offsetPx": -34, "collinearGroup": false },
+        { "type": "rightAngle", "vertex": "Op", "rayA": "R", "rayB": "A", "size": 10, "color": "#0f766e" },
+        { "type": "angleArc", "vertex": "R", "rayA": "Op", "rayB": "A", "radius": 18, "color": "#b45309", "label": "30°", "labelRadius": 28, "fontSize": 11, "lockLabel": true },
+        { "type": "rightAngle", "vertex": "F", "rayA": "Op", "rayB": "R", "size": 10, "color": "#b45309" },
+        { "type": "areaFormulaCard", "pos": [0.25, 3.62], "terms": [
+          { "text": "S", "kind": "target" },
+          { "text": "=", "kind": "op" },
+          { "text": "△O′RF", "kind": "base" }
+        ]}
+      ]
+    },
+    "q2b4": {
+      "add": [
+        { "type": "areaLabel", "region": "overlap", "text": "S", "color": "#dc2626", "dx": -4, "dy": 4, "size": 16 }
+      ]
+    }
+  }
+}

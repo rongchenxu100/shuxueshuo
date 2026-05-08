@@ -65,6 +65,19 @@
     "status": "published"
   },
   {
+    "id": "tj-2026-hedong-ermo-24",
+    "city": "tianjin",
+    "cityLabel": "天津",
+    "year": 2026,
+    "exam": "hedong-ermo",
+    "examLabel": "河东区二模",
+    "slot": "24",
+    "title": "2026 年天津市河东区二模第 24 题（正方形折叠与重合面积）",
+    "tags": ["geometry", "folding", "dynamic-point"],
+    "path": "../problems/tj/24/tj-2026-hedong-ermo-24.html",
+    "status": "published"
+  },
+  {
     "id": "tj-2026-hebei-yimo-24",
     "city": "tianjin",
     "cityLabel": "天津",
@@ -114,6 +127,19 @@
     "title": "2026 年天津市河西区结课考试第 24 题（平行四边形折叠与重叠面积）",
     "tags": ["geometry", "folding", "dynamic-point"],
     "path": "../problems/tj/24/tj-2026-hexi-jieke-24.html",
+    "status": "published"
+  },
+  {
+    "id": "tj-2026-hexi-yimo-24",
+    "city": "tianjin",
+    "cityLabel": "天津",
+    "year": 2026,
+    "exam": "hexi-yimo",
+    "examLabel": "河西区一模",
+    "slot": "24",
+    "title": "2026 年天津市河西区一模第 24 题（三角形平移与重叠面积）",
+    "tags": ["geometry", "translation", "dynamic-point"],
+    "path": "../problems/tj/24/tj-2026-hexi-yimo-24.html",
     "status": "published"
   },
   {

@@ -10,6 +10,13 @@ Use these rules for moving-figure overlap problems that ask for an area range, m
 4. Use the trend step to decide which formulas or candidate values are worth calculating.
 5. End with one compact final answer step.
 
+The trend step is not just a shape list. For every interval, it must say both:
+
+- what the overlap region shape is, such as `五边形`、`四边形`、`三角形`;
+- how the area changes on that interval, such as `面积先变大再变小`、`面积逐渐变小`、`面积逐渐变大`.
+
+Then the trend step must explicitly decide the later calculation agenda. For example: `后续只需讨论 0≤t＜1 时的最大值和最小值，以及 t＝13/4 时的最小值`. Do not automatically create a formula step for every interval; monotone intervals often only need their endpoint candidate, and a middle interval may need no separate calculation if the trend already shows it cannot create the global maximum or minimum.
+
 Do not assign one boundary value to two different shape intervals unless the same geometric shape truly continues across that boundary. If the shape changes at `t=c`, either make `t=c` a separate state or include it on only one side.
 
 Boundary values where the overlap shape changes must not be casually absorbed into a neighboring interval. For example, write `t=2` as a triangle boundary state, `2<t≤4` as the trapezoid phase, `4<t<6` as the pentagon phase, and `6≤t<12` as the next triangle phase when those are the actual shapes. Keep this exact boundary ownership in solution text, visual steps, `policies.range`, minis, and final unions.
@@ -32,7 +39,7 @@ Use this compact structure when there are two or three major shape phases:
     ["∵", "3＜t＜9/2 时，重叠部分为五边形"],
     ["∴", "此时重叠部分为五边形，面积先变大再变小"],
     ["∵", "9/2≤t＜5 时，重叠部分为四边形并继续缩小"],
-    ["∴", "先按这三种形状分段，再分别求面积范围"]
+    ["∴", "后续只需计算五边形段极值和右端边界最小值，再合并范围"]
   ],
   "box": [
     "1＜t≤3：三角形，面积变大",

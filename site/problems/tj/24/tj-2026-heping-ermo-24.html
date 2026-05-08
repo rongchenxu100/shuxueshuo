@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2026 年天津市和平区二模 第 24 题（梯形折叠与重叠面积） | 数学说</title>
+  <meta name="description" content="2026 天津市和平区二模第 24 题：梯形 OABC 折叠，求 A、B 坐标、O′E 表达式和重叠面积 S 的范围。" />
+  <link rel="stylesheet" href="../../../assets/css/interactive-geometry-page.css" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../nav/index.html">题库导航</a>
+    <span class="lesson-title">2026 天津市和平区二模 第 24 题</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <div class="problem-summary">
+            <div class="problem-summary-text">第 24 题（2026 天津市和平区二模）梯形折叠与重叠面积</div>
+            <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          </div>
+          <div class="problem-full">
+            <div class="problem-line"><span>（24）（本小题 10 分）将一个梯形纸片 OABC 放置在平面直角坐标系中，点 O(0,0)，点 C(5,0)，顶点 A，B 都在第一象限，AB∥OC，OA=BC=2，∠BCO=60°。</span></div>
+<div class="problem-line"><span>（Ⅰ）填空：如图①，点 A 的坐标为________，点 B 的坐标为________；</span><span class="answer-chip" id="answerI">答案：A(1，√3)，B(4，√3)</span></div>
+<div class="problem-line"><span>（Ⅱ）若点 P 在边 OC 上（点 P 不与点 O，C 重合），过点 P 作直线 l∥BC，沿直线 l 折叠该纸片，折叠后点 O 的对应点为 O′。设 OP=t。</span></div>
+<div class="problem-line"><span>① 如图②，若直线 l 与边 AB 相交于点 Q，点 A 的对应点为 A′，当折叠后四边形 PO′A′Q 与梯形 OABC 重叠部分为四边形时，O′P 与 BC 相交于点 E。试用含有 t 的式子表示线段 O′E，并直接写出 t 的取值范围；</span><span class="answer-chip" id="answerII1">答案：O′E=2t-5，3＜t＜5</span></div>
+<div class="problem-line"><span>② 设折叠后重叠部分的面积为 S，当 3/2≤t≤9/2 时，求 S 的取值范围（直接写出结果即可）。</span><span class="answer-chip" id="answerII2">答案：7√3/16≤S≤√3</span></div>
+<div class="problem-line"><strong>原题图形</strong></div>
+<div class="problem-original-figures" aria-label="原题图 1 和图 2">
+  <figure class="problem-figure">
+    <h3>图 1</h3>
+    <svg id="originalFigure1" viewBox="0 0 1080 760" role="img" aria-label="图 1：固定梯形 OABC"></svg>
+  </figure>
+  <figure class="problem-figure">
+    <h3>图 2</h3>
+    <svg id="originalFigure2" viewBox="0 0 1080 760" role="img" aria-label="图 2：折叠后重叠部分为四边形"></svg>
+  </figure>
+</div>
+          </div>
+        </section>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../assets/js/lesson-page-runtime.js"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"q1s1","section":"第（Ⅰ）问","title":"第1步：由 30°-60°-90° 三角形求 A 坐标","t":3,"derive":[["∵","AB∥OC，OC 在 x 轴上"],["∴","AB 为水平线段，A 与 B 的纵坐标相同"],["∵","BC=2，∠BCO=60°"],["∴","B 到 x 轴的高度为 2sin60°=√3"],["∴","A 的纵坐标也是 √3"],["∵","OA=2，O(0,0)，A 在第一象限"],["∴","x_A²+(√3)²=2²，x_A=1"]],"box":["A(1，√3)"]},{"id":"q1s2","section":"第（Ⅰ）问","title":"第2步：由 BC 的方向求 B 坐标","t":3,"derive":[["∵","C(5,0)，BC=2，∠BCO=60°"],["∵","从 C 指向 B 时，水平方向向左 2cos60°=1，竖直方向向上 2sin60°=√3"],["∴","B(5-1，√3)=(4，√3)"]],"box":["A(1，√3)","B(4，√3)"]},{"id":"q2a1s1","section":"第（Ⅱ）①问","title":"第1步：由折痕平行关系表示 O′","t":3.6,"derive":[["∵","OP=t，P 在 OC 上"],["∴","P(t,0)"],["∵","l∥BC，BC 与 x 轴正方向夹角为 120°"],["∴","O 关于 l 对称后，PO′ 与 x 轴正方向夹角为 60°"],["∵","折叠保持长度不变"],["∴","PO′=PO=t"],["∴","O′(3t/2，√3t/2)"]],"box":["P(t,0)","O′(3t/2，√3t/2)"]},{"id":"q2a1s2","section":"第（Ⅱ）①问","title":"第2步：由边界位置判断四边形范围","t":4,"derive":[["∵","当 E 与 B 重合时，四边形重叠刚开始形成"],["∴","左边界为 t=3"],["∵","当 P 与 C 重合、Q 与 B 重合时，重叠四边形退化"],["∴","右边界为 t=5"],["∴","重叠部分为四边形时，3＜t＜5"]],"box":["左边界：t=3","右边界：t=5","3＜t＜5"],"minis":[{"title":"t=3","caption":"E 与 B 重合，四边形尚未形成。","t":3},{"title":"3＜t＜5","caption":"重叠部分为四边形 PEBQ。","t":4},{"title":"t=5","caption":"P 与 C 重合，四边形退化。","t":5}]},{"id":"q2a1s3","section":"第（Ⅱ）①问","title":"第3步：由两条 60° 斜线求 O′E","t":3.6,"derive":[["∵","直线 O′P 可写成 y=√3(x-t)"],["∵","直线 BC 可写成 y=-√3(x-5)"],["∵","E 是 O′P 与 BC 的交点"],["∴","√3(x_E-t)=-√3(x_E-5)"],["∴","x_E=(t+5)/2"],["∴","O′E=2t-5"]],"box":["O′E=2t-5","3＜t＜5"]},{"id":"q2a2s1","section":"第（Ⅱ）②问","title":"第1步：由折叠位置判断面积分段","t":2.5,"derive":[["∵","3/2≤t≤2 时，折痕 l 交 OA 于点 R，重叠部分是三角形"],["∴","此时 S 随 t 增大而增大"],["∵","2≤t≤3 时，重叠部分被梯形上边截成等高三角形"],["∴","此时 S 保持为 √3"],["∵","3≤t≤9/2 时，重叠部分为四边形并逐渐缩小"],["∴","最大值为 √3，最小值看 t=9/2"]],"box":["3/2≤t≤2：三角形，面积增大","2≤t≤3：面积保持 √3","3≤t≤9/2：四边形，面积减小"],"minis":[{"title":"3/2≤t≤2","caption":"重叠部分是三角形，面积增大。","t":1.7},{"title":"2≤t≤3","caption":"重叠面积保持为 √3。","t":2.5},{"title":"3≤t≤9/2","caption":"重叠四边形逐渐缩小。","t":4.2}]},{"id":"q2a2s2","section":"第（Ⅱ）②问","title":"第2步：由三角形面积求左段端点","t":1.5,"derive":[["∵","3/2≤t≤2 时，折痕与 OA 交于 R"],["∵","折叠前 △OPR 与折叠后重叠三角形全等"],["∴","S=S△OPR"],["∵","OP=t，R 到 x 轴的高为 √3t/2"],["∴","S=1/2·t·√3t/2=√3t²/4"],["∴","t=3/2 时，S=9√3/16"]],"box":["S=√3t²/4","t=3/2 时 S=9√3/16"]},{"id":"q2a2s3","section":"第（Ⅱ）②问","title":"第3步：由等底等高判断最大值","t":2.5,"derive":[["∵","2≤t≤3 时，折后重叠部分的底边在 AB 上，高为 √3"],["∵","折叠后的斜边被 AB 截出的水平长度为 2"],["∴","S=1/2·2·√3=√3"],["∴","S 的最大值为 √3"]],"box":["2≤t≤3 时 S=√3","S_max=√3"]},{"id":"q2a2s4","section":"第（Ⅱ）②问","title":"第4步：由右端四边形求最小值","t":4.5,"derive":[["∵","3≤t≤9/2 时，重叠四边形随 t 增大而缩小"],["∴","最小值在 t=9/2 处取得"],["∵","t=9/2 时，P(9/2,0)，E(19/4,√3/4)，Q(7/2,√3)，B(4,√3)"],["∴","重叠四边形为 PEBQ"],["∵","BQ=1/2，点 P 到 AB 的距离为 √3"],["∴","S△PBQ=√3/4"],["∵","PE=1/2，BE=3/2，∠PEB=60°"],["∴","S△PEB=3√3/16"],["∴","S=S△PBQ+S△PEB=7√3/16"]],"box":["t=9/2 时 S=7√3/16","S_min=7√3/16"]},{"id":"q2a2s5","section":"第（Ⅱ）②问","title":"第5步：由最大最小值合并范围","t":4.5,"derive":[["∵","在 3/2≤t≤2 时，S 从 9√3/16 增大到 √3"],["∵","在 2≤t≤3 时，S=√3"],["∵","在 3≤t≤9/2 时，S 从 √3 减小到 7√3/16"],["∴","S 的最小值为 7√3/16，最大值为 √3"]],"box":["7√3/16≤S≤√3"]}];
+    var STEP_LABELS = {"q1s1":"1 求A坐标","q1s2":"2 求B坐标","q2a1s1":"1 表示O′","q2a1s2":"2 判范围","q2a1s3":"3 求O′E","q2a2s1":"1 判面积分段","q2a2s2":"2 求左端面积","q2a2s3":"3 判最大值","q2a2s4":"4 求最小值","q2a2s5":"5 合并范围"};
+    var POLICIES   = {"q1s1":{"movable":false,"range":[3,3]},"q1s2":{"movable":false,"range":[3,3]},"q2a1s1":{"movable":true,"range":[3.001,4.999],"step":0.001},"q2a1s2":{"movable":true,"range":[3,5],"step":0.001},"q2a1s3":{"movable":true,"range":[3.001,4.999],"step":0.001},"q2a2s1":{"movable":true,"range":[1.5,4.5],"step":0.001},"q2a2s2":{"movable":false,"range":[1.5,1.5]},"q2a2s3":{"movable":true,"range":[2,3],"step":0.001},"q2a2s4":{"movable":false,"range":[4.5,4.5]},"q2a2s5":{"movable":true,"range":[1.5,4.5],"step":0.001}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script type="application/json" id="geometrySpec">{"$schema":"../../schemas/geometry-spec.schema.json","version":1,"id":"tj-2026-heping-ermo-24","domain":{"minX":-0.8,"maxX":7.7,"minY":-0.6,"maxY":4.4},"fixedPoints":{"O":["0","0"],"A":["1","S3"],"B":["4","S3"],"C":["5","0"]},"movingParam":"t","movingPoints":{"P":["t","0"],"Q":["t-1","S3"],"Op":["3*t/2","S3*t/2"],"Ap":["(3*t-4)/2","S3*t/2"]},"basePolygon":["O","C","B","A"],"movingPolygon":["P","Op","Ap","Q"],"derivedIntersections":[{"name":"E","a":["Op","P"],"b":["B","C"],"fallback":["(t+5)/2","S3*(5-t)/2"]},{"name":"R","a":["O","A"],"b":["P","Q"],"fallback":["t/2","S3*t/2"]}],"originalFigures":[{"id":"originalFigure1","t":3,"showMoving":false,"showOverlap":false,"showIntersections":false,"fixedLabels":[{"at":"A","label":"A","dx":-10,"dy":-18},{"at":"B","label":"B","dx":10,"dy":-18},{"at":"C","label":"C","dx":10,"dy":18}]},{"id":"originalFigure2","t":3.6,"showMoving":true,"showOverlap":true,"showIntersections":true,"segments":[{"from":"P","to":"Q","color":"#111827","width":2},{"from":"P","to":"Op","color":"#0f766e","width":2},{"from":"Op","to":"Ap","color":"#0f766e","width":2},{"from":"Ap","to":"Q","color":"#0f766e","width":2}],"fixedLabels":[{"at":"A","label":"A","dx":-20,"dy":-12},{"at":"B","label":"B","dx":8,"dy":-14},{"at":"C","label":"C","dx":10,"dy":18}],"movingLabels":[{"at":"P","label":"P","dx":-4,"dy":20},{"at":"Q","label":"Q","dx":-20,"dy":-16},{"at":"Op","label":"O′","dx":10,"dy":-14},{"at":"Ap","label":"A′","dx":8,"dy":-14}],"intersectionLabels":[{"at":"E","label":"E","dx":8,"dy":2}]}]}</script>
+<script src="../../../assets/js/geometry-engine.js"></script>
+<script src="../../../assets/js/geometry-lesson-from-spec.js"></script>
+
+<script>
+  const __GEOMETRY_SPEC__ = JSON.parse(document.getElementById('geometrySpec').textContent);
+  const __STEP_DECORATIONS__ = {"$schema":"../../schemas/step-decorations.schema.json","_comment":"2026 天津市和平区二模 24 题 — 梯形折叠、线段表达式与重叠面积范围。","layers":{"global":{"elements":[{"type":"grid"},{"type":"basePoly"},{"type":"point","at":"A","color":"#1f2937","dx":-10,"dy":-18},{"type":"point","at":"B","color":"#1f2937","dx":8,"dy":-16},{"type":"point","at":"C","color":"#1f2937","dx":10,"dy":18}]},"foldContext":{"sectionNot":"第（Ⅰ）问","elements":[{"type":"movingPoly"},{"type":"segment","from":"P","to":"Q","label":"l","color":"#111827","width":2},{"type":"point","at":"P","color":"#dc2626","dx":-4,"dy":20},{"type":"point","at":"Q","color":"#dc2626","dx":-20,"dy":-16,"minT":2},{"type":"point","at":"Op","label":"O′","color":"#0f766e","dx":10,"dy":-14},{"type":"point","at":"Ap","label":"A′","color":"#0f766e","dx":8,"dy":-14,"minT":2}]},"overlapContext":{"sectionNot":"第（Ⅰ）问","elements":[{"type":"overlap"}]},"quadContext":{"section":"第（Ⅱ）①问","elements":[{"type":"derivedPoint","at":"E","color":"#dc2626","dx":8,"dy":2},{"type":"segment","from":"B","to":"C","label":"BC","color":"#1f2937"}]}},"steps":{"q1s1":{"add":[{"type":"segment","from":"O","to":"A","label":"OA=2","color":"#2563eb","width":3},{"type":"segment","from":"B","to":"C","label":"BC=2","color":"#2563eb","width":3},{"type":"angleArc","vertex":"C","rayA":"O","rayB":"B","label":"60°"},{"type":"coordinateLabel","at":"A","label":"A(1,√3)","dx":-76,"dy":-28}]},"q1s2":{"add":[{"type":"segment","from":"B","to":"C","label":"BC=2","color":"#2563eb","width":3},{"type":"coordinateLabel","at":"B","label":"B(4,√3)","dx":8,"dy":-32}]},"q2a1s1":{"add":[{"type":"segment","from":"O","to":"P","label":"OP=t","color":"#2563eb","width":3},{"type":"segment","from":"P","to":"Op","label":"PO′=t","color":"#0f766e","width":3},{"type":"angleArc","vertex":"P","rayA":"C","rayB":"Op","label":"60°"}]},"q2a1s2":{"add":[{"type":"coordinateLabel","at":"B","label":"t=3 时 E 与 B 重合","dx":-92,"dy":-34,"when":3},{"type":"coordinateLabel","at":"C","label":"t=5 时 P 与 C 重合","dx":-110,"dy":28,"when":5}]},"q2a1s3":{"add":[{"type":"segment","from":"Op","to":"E","label":"O′E","color":"#dc2626","width":4},{"type":"segment","from":"P","to":"E","label":"PE","color":"#2563eb","width":3},{"type":"areaFormulaCard","pos":[0.35,4.05],"terms":[{"text":"O′E","kind":"target"},{"text":"=","kind":"op"},{"text":"2t-5","kind":"base"}]}]},"q2a2s1":{"add":[{"type":"derivedPoint","at":"R","color":"#6b7280","dx":-18,"dy":-12,"maxT":2},{"type":"segment","from":"O","to":"R","label":"左段","color":"#2563eb","width":3,"maxT":2},{"type":"segment","from":"Q","to":"B","label":"恒定最大段","color":"#2563eb","width":3,"minT":2,"maxT":3},{"type":"segment","from":"Q","to":"B","label":"右段缩小","color":"#dc2626","width":3,"minT":3}]},"q2a2s2":{"add":[{"type":"derivedPoint","at":"R","color":"#dc2626","dx":-18,"dy":-12},{"type":"segment","from":"O","to":"P","label":"t","color":"#2563eb","width":3},{"type":"segment","from":"R","to":"P","label":"l","color":"#111827","width":2},{"type":"areaFormulaCard","pos":[0.3,4.05],"terms":[{"text":"S","kind":"target"},{"text":"=","kind":"op"},{"text":"√3t²/4","kind":"base"}]}]},"q2a2s3":{"add":[{"type":"segment","from":"Q","to":"B","label":"2","color":"#2563eb","width":3},{"type":"areaFormulaCard","pos":[0.3,4.05],"terms":[{"text":"S","kind":"target"},{"text":"=","kind":"op"},{"text":"√3","kind":"base"}]}]},"q2a2s4":{"add":[{"type":"derivedPoint","at":"E","color":"#dc2626","dx":8,"dy":2},{"type":"cutRegion","vertices":["P","E","B","Q"],"style":"base","centroidLabel":"S"},{"type":"areaFormulaCard","pos":[0.3,4.05],"terms":[{"text":"S_min","kind":"target"},{"text":"=","kind":"op"},{"text":"7√3/16","kind":"base"}]}]},"q2a2s5":{"add":[{"type":"areaFormulaCard","pos":[0.3,4.05],"terms":[{"text":"7√3/16","kind":"cut"},{"text":"≤","kind":"op"},{"text":"S","kind":"target"},{"text":"≤","kind":"op"},{"text":"√3","kind":"base"}]}]}}};
+  const renderer = GeometryLessonFromSpec.createSpecRenderer(__GEOMETRY_SPEC__, __STEP_DECORATIONS__, STEPS, POLICIES);
+  function groupTitle(section) {
+    const map = {"第（Ⅰ）问":"第（Ⅰ）问 坐标填空","第（Ⅱ）①问":"第（Ⅱ）①问 O′E 与 t 范围","第（Ⅱ）②问":"第（Ⅱ）②问 面积 S 的取值范围"};
+    return map[section] || section;
+  }
+  var diagramMarkupFor = renderer.diagramMarkupFor;
+  var drawMini = renderer.drawMini;
+  var __LESSON_LEGEND_HTML__ = "<span><i class=\"sw\" style=\"background:var(--paper)\"></i>固定梯形 OABC</span><span><i class=\"sw\" style=\"background:var(--fold)\"></i>折叠后图形</span><span><i class=\"sw\" style=\"background:var(--overlap)\"></i>重叠区域 S</span>";
+  // 原题图形渲染：由 renderer 负责（可选）
+  var __AFTER_RENDER_ALL_STEPS__ = renderer.renderOriginalFigures;
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "P 点位置 · t＝OP",
+      paramLabelPrefix: "t=",
+      goToProblemMode: "doubleScroll"
+    });
+  </script>
+</body>
+</html>
