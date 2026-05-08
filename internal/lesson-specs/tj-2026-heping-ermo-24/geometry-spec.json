@@ -5,6 +5,7 @@
   "domain": { "minX": -0.8, "maxX": 7.7, "minY": -0.6, "maxY": 4.4 },
   "fixedPoints": {
     "O": ["0", "0"],
+    "H": ["1", "0"],
     "A": ["1", "S3"],
     "B": ["4", "S3"],
     "C": ["5", "0"]
@@ -18,9 +19,14 @@
   },
   "basePolygon": ["O", "C", "B", "A"],
   "movingPolygon": ["P", "Op", "Ap", "Q"],
+  "movingPolygons": [
+    { "maxT": 2, "vertices": ["P", "Op", "R"] },
+    { "minT": 2, "vertices": ["P", "Op", "Ap", "Q"] }
+  ],
   "derivedIntersections": [
     { "name": "E", "a": ["Op", "P"], "b": ["B", "C"], "fallback": ["(t+5)/2", "S3*(5-t)/2"] },
-    { "name": "R", "a": ["O", "A"], "b": ["P", "Q"], "fallback": ["t/2", "S3*t/2"] }
+    { "name": "R", "a": ["O", "A"], "b": ["P", "Q"], "fallback": ["t/2", "S3*t/2"] },
+    { "name": "T", "a": ["Op", "P"], "b": ["A", "B"], "fallback": ["t+1", "S3"] }
   ],
   "originalFigures": [
     {

@@ -19,6 +19,7 @@ const EXAMS = [
 const TAG_LABELS = {
   geometry: "几何",
   folding: "折叠",
+  translation: "平移",
   rotation: "旋转",
   "dynamic-point": "动点",
   function: "函数"

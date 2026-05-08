@@ -17,11 +17,15 @@ The trend step is not just a shape list. For every interval, it must say both:
 
 Then the trend step must explicitly decide the later calculation agenda. For example: `后续只需讨论 0≤t＜1 时的最大值和最小值，以及 t＝13/4 时的最小值`. Do not automatically create a formula step for every interval; monotone intervals often only need their endpoint candidate, and a middle interval may need no separate calculation if the trend already shows it cannot create the global maximum or minimum.
 
+If the range has two included endpoint candidates for a minimum or maximum, the trend step must name both candidates and the later steps must calculate and compare both. Do not silently discard one endpoint because another interval is monotone.
+
 Do not assign one boundary value to two different shape intervals unless the same geometric shape truly continues across that boundary. If the shape changes at `t=c`, either make `t=c` a separate state or include it on only one side.
 
 Boundary values where the overlap shape changes must not be casually absorbed into a neighboring interval. For example, write `t=2` as a triangle boundary state, `2<t≤4` as the trapezoid phase, `4<t<6` as the pentagon phase, and `6≤t<12` as the next triangle phase when those are the actual shapes. Keep this exact boundary ownership in solution text, visual steps, `policies.range`, minis, and final unions.
 
-For folding pages, distinguish the folded figure shape from the overlap region shape. A vertical fold can produce a triangular folded piece before the fold reaches one side, a quadrilateral/trapezoid in the middle, and a pentagonal folded figure after the fold passes another vertex, even when the overlap region is triangular. Use dynamic folded-polygon rendering and phase-scoped labels rather than forcing one static moving polygon through every interval.
+For folding pages, distinguish the folded figure shape from the overlap region shape. A fold can produce a triangular folded piece before the fold reaches one side, a quadrilateral/trapezoid in the middle, and a pentagonal folded figure after the fold passes another vertex, even when the overlap region is triangular. Use dynamic folded-polygon rendering and phase-scoped labels rather than forcing one static moving polygon through every interval.
+
+When a trend diagram shows an unexpected small triangle or sliver, treat it as a modeling bug until proven otherwise. First verify which original boundary the fold line actually intersects in that interval, then rebuild the folded polygon from the real reflected subregion. Do not solve this by hiding the folded figure or hiding the thumbnail moving layer.
 
 ## Trend Step Pattern
 
@@ -62,6 +66,7 @@ Use this compact structure when there are two or three major shape phases:
 - Thumbnails should show only the fixed figure, moving figure, and overlap region.
 - Do not put point labels, length labels, guide-line labels, or formula cards in thumbnails unless they are essential.
 - Keep target overlap area `S` visually consistent across all phases.
+- The main diagram for the trend step follows the same rule: no formula-only helper triangles, perpendiculars, cut regions, or candidate-specific construction. Put those in the later calculation step for that candidate. This prevents visual leftovers such as a small triangle from appearing while the step is only classifying phases.
 
 ## Calculation Steps
 
@@ -69,6 +74,7 @@ Use this compact structure when there are two or three major shape phases:
 - Derive the needed lengths, heights, or decomposition immediately before writing the area formula.
 - Reuse prior results such as `CG`, `DH`, or `CD` instead of restarting from coordinates.
 - If an extremum occurs at a boundary, make sure the policy range or mini can show that boundary.
+- Choose the decomposition that students can see in the current snapshot, such as `平行四边形 BQPC - 等边三角形 PEC`; avoid replacing a visible subtraction with several less-visible triangle sums.
 
 ## Endpoint Checklist
 

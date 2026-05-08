@@ -117,6 +117,19 @@ window.__PROBLEMS_DATA__ = [
     "status": "published"
   },
   {
+    "id": "tj-2026-heping-ermo-24",
+    "city": "tianjin",
+    "cityLabel": "天津",
+    "year": 2026,
+    "exam": "heping-ermo",
+    "examLabel": "和平区二模",
+    "slot": "24",
+    "title": "2026 年天津市和平区二模第 24 题（梯形折叠与重叠面积）",
+    "tags": ["geometry", "folding", "dynamic-point"],
+    "path": "../problems/tj/24/tj-2026-heping-ermo-24.html",
+    "status": "published"
+  },
+  {
     "id": "tj-2026-hexi-jieke-24",
     "city": "tianjin",
     "cityLabel": "天津",

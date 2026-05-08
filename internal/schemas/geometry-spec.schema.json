@@ -52,6 +52,20 @@
     },
     "basePolygon": { "type": "array", "items": { "type": "string" } },
     "movingPolygon": { "type": "array", "items": { "type": "string" } },
+    "movingPolygons": {
+      "type": "array",
+      "description": "按 t 区间选择的折叠后多边形；用于折痕先后切到不同边时的真实折叠区域。",
+      "items": {
+        "type": "object",
+        "required": ["vertices"],
+        "properties": {
+          "vertices": { "type": "array", "items": { "type": "string" } },
+          "minT": { "type": "number" },
+          "maxT": { "type": "number" }
+        },
+        "additionalProperties": false
+      }
+    },
     "foldedPolygon": {
       "type": "object",
       "required": ["x"],

@@ -168,6 +168,7 @@ Use this for geometric data only:
 - `fixedPoints` and `movingPoints` as expression strings, such as `"3*S3"` or `"t/2"`
 - `movingParam`
 - `basePolygon`, `movingPolygon`
+- `movingPolygons` when the folded piece changes shape by interval, such as a fold line first cutting a side and later cutting the top edge. Each entry must use the actual clipped folded piece for that interval, not a reflected extension of a later-stage polygon.
 - `derivedIntersections` as two-line declarations, such as `{ "name": "E", "a": ["A", "C"], "b": ["M", "N"] }`
 - `originalFigures` for problem-card source figures
 
@@ -233,5 +234,9 @@ If validation or rendering fails, fix the JSON spec or the shared compiler/runti
 - Original figure ids align between `lesson-data.problem.lines` and `geometry-spec.originalFigures`.
 - Original figure point labels use object entries such as `{ "at": "A", "label": "A", "dx": 10, "dy": 26 }`; never use string arrays such as `["A", "B"]`.
 - Same-point coordinate labels and point-name labels are not both shown in one snapshot; avoid duplicate labels such as two `B` or two `C` near the same vertex.
+- Section layers and `when` labels are scoped tightly: no section layer leaks objects into unrelated steps, and no boundary-only label appears at a non-boundary parameter value.
+- Trend/classification steps for area ranges contain no formula-specific helpers such as small triangles, heights, cut regions, or candidate-only points; those appear only in the later calculation step that uses them.
+- Folding trend/classification steps use the true folded polygon for the current interval. If the fold line cuts different original sides in different intervals, use interval-specific moving polygons and verify thumbnails share that model.
+- Extremum reasoning compares every included endpoint candidate that the trend step identifies; do not discard a candidate endpoint without a comparison.
 - Boundary inclusiveness matches everywhere.
 - Validation and compilation both pass.

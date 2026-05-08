@@ -54,6 +54,17 @@ This file is the compact teaching-quality reference. It should preserve the high
 - If a local coordinate calculation makes one helper length clearer, compute only the needed nearby point or segment, then return to geometric reasoning.
 - Avoid setting up a full coordinate system for the whole moving figure when only one local segment such as `ME` is needed.
 
+## Folding And Reflected Regions
+
+- In folding problems, compute the real folded paper piece before deciding what to draw. Do not use visibility switches to hide a geometrically wrong folded figure.
+- The folded figure may change shape when the fold line starts or stops cutting a different side. Treat those transition values as phase boundaries.
+- Do not extend a later-stage folded polygon backward into an earlier phase. For example, if the fold line first cuts a slanted side at `R`, the folded piece may be a triangle such as `P-O′-R`; only after the fold line reaches the top edge should a quadrilateral such as `P-O′-A′-Q` appear.
+- The trend step, thumbnails, main diagram, and overlap-area calculation must all use the same real folded polygon for the same parameter value.
+- When the folded piece changes shape by interval, define the moving region with interval-specific polygons, such as `movingPolygons`, instead of one static `movingPolygon`.
+- If an apparent extra small triangle appears in a trend diagram, first check whether the folded polygon is being over-extended past the actual fold intersection. Fix the model, not just the layer visibility.
+- Distinguish the folded paper piece from the overlap region. Hiding the folded piece because it is awkward is acceptable only for a deliberately simplified snapshot; it is not a substitute for correct overlap computation.
+- For each folding phase, name the fold-line intersection point with the original boundary, state which original subregion is being reflected, and then state its reflected image.
+
 ## Auxiliary Lines And Points
 
 - Name every auxiliary point or foot explicitly, such as `过 A' 向 x 轴作垂线，垂足为 H`.
@@ -84,8 +95,10 @@ This file is the compact teaching-quality reference. It should preserve the high
 - For piecewise overlap-area problems, create one trend/classification step before formula steps. Use `references/piecewise-area-trends.md` for detailed phase and thumbnail rules.
 - After the trend/classification step, use monotonicity to identify the only candidate values that can produce the maximum or minimum before doing detailed area calculations. Then calculate only those candidate values whenever possible, instead of deriving and evaluating every full interval formula.
 - The trend step should explicitly state which endpoint or transition point gives the maximum candidate and which endpoint candidates need comparison for the minimum, such as `最大值看 t=2；最小值只需比较 t=5/4 与 t=9/4`.
+- When both interval endpoints can be candidates, say that explicitly in the trend step and calculate both later. Do not write `最小值只需看右端点` unless the left endpoint has already been compared or ruled out.
 - Candidate-value calculations still need a visible area derivation. Do not jump from a candidate `t` value to a coordinate shoelace formula or final number; show the decomposition that produces the area, such as `S=△OGO′-△MNO′` or `S=大三角形-两个小三角形`, then substitute the candidate value.
 - Prefer triangle-add/subtract decompositions over polygon coordinate area formulas whenever the target overlap can be seen as a large triangle minus one or two standard triangles.
+- Prefer decompositions that match the visible container and removed region. For example, if a right-end overlap is naturally `平行四边形 - 等边三角形`, use that instead of splitting the overlap into unrelated triangles.
 - For a fixed candidate value such as `t=2`, make the diagram a fixed snapshot unless dragging the parameter is itself part of the reasoning. Do not show a slider on a step whose purpose is only to calculate one locked endpoint or transition value.
 - If an area decomposition names vertices in its formula card, label those vertices on the diagram unless the point is already clearly labeled by a parent layer. Missing labels on formula vertices make the decomposition hard to inspect.
 - When a cut length is obtained by an auxiliary perpendicular or projection, draw that auxiliary line in the step diagram and name the foot/intersection. For example, if `F′R` is found by `CK⊥E′F′`, show `CK`, `K`, and the small right triangle that gives `RK=CK`.
@@ -109,6 +122,8 @@ This file is the compact teaching-quality reference. It should preserve the high
 - Keep useful elements stable across consecutive steps by placing them in a phase or section layer.
 - Hide helper elements after they no longer support the current inference.
 - If a named point from the problem is reused across a sub-question, keep it in the sub-question layer unless a boundary case changes how it should display.
+- Do not put calculation helpers into a trend/classification step. A trend step may show only the base figure, moving figure, overlap region, and representative minis; auxiliary points, small triangles, height lines, and formula-specific segments belong in the later calculation step that uses them.
+- Make conditional layers tight. A layer with `section` must be intended only for that exact section, and any boundary-only label must use `when`/`eps` or a boundary-specific step. Avoid broad section layers for objects such as an intersection point if earlier steps in the same section do not need it.
 
 ## Diagram Content
 
@@ -124,7 +139,9 @@ This file is the compact teaching-quality reference. It should preserve the high
 - Choose box contents by dependency, not recency: show prior conclusions the current derivation actually uses plus the new conclusion.
 - If a reused conclusion has strong spatial meaning, such as a segment length actively used in the step, it may also appear on the diagram.
 - Avoid showing both a point-name label and a coordinate label for the same point in the same snapshot. If the coordinate is needed, put the coordinate in the conclusion box or let the coordinate label suppress the ordinary point label; do not create duplicate `B`/`C` text near the same vertex.
+- If a fixed point label is hidden by moving/overlap layers, redraw only that point label in the current step after the covering layer, or move the relevant point into a later layer. Do not add a duplicate coordinate label unless the coordinate itself is needed for the inference.
 - Do not redraw a named line when it is already exactly an edge of the moving/fixed polygon, such as drawing `l` again on top of `PQ`. Label the existing edge only when the label is essential and does not obscure the construction.
+- Distinguish a segment-name label from a length label. Use `BC=2` when the length is the input; avoid showing just `BC` if the step needs the length relation rather than the segment name.
 - Do not show live values for quantities outside the current sub-question.
 - Keep diagram text minimal; use the derivation panel for explanations.
 - When a local diagram area is crowded, keep only the label that directly supports the current calculation; move secondary facts such as parallel relations into the derivation panel or conclusion box.

@@ -89,11 +89,25 @@
     }
 
     var base = (spec.basePolygon || []).map(function (n) { return pts[n]; }).filter(Boolean);
+    function tInRange(def) {
+      if (!def) return false;
+      if (def.minT != null && tv < def.minT - 1e-9) return false;
+      if (def.maxT != null && tv > def.maxT + 1e-9) return false;
+      return true;
+    }
+
+    function polygonFromPointNames(names) {
+      return (names || []).map(function (n) { return pts[n]; }).filter(Boolean);
+    }
+
     var moving = [];
     if (spec.foldedPolygon && base.length >= 3) {
       moving = verticalFoldPolygon(base, GE.evalExpr(String(spec.foldedPolygon.x || paramName), env), spec.foldedPolygon.side || "left");
+    } else if (Array.isArray(spec.movingPolygons) && spec.movingPolygons.length) {
+      var activePoly = spec.movingPolygons.find(tInRange) || spec.movingPolygons[0];
+      moving = polygonFromPointNames(activePoly.vertices || activePoly.points || []);
     } else {
-      moving = (spec.movingPolygon || []).map(function (n) { return pts[n]; }).filter(Boolean);
+      moving = polygonFromPointNames(spec.movingPolygon || []);
     }
     var overlap = [];
     if (base.length >= 3 && moving.length >= 3) {
@@ -148,6 +162,7 @@
 
     var _layout = null; // 当前 label layout（每次 render 开始时创建，结束时清空）
     var _coordinateLabelPoints = null; // 当前步骤中已显示坐标标签的点，避免重复点名
+    var _pointLabelKeys = null; // 当前步骤中已显示的点名，避免层叠时重复点名
 
     // ── 内部 SVG 工具 ────────────────────────────────────────────────────
 
@@ -302,6 +317,7 @@
       if (!elem || !elem.type) return "";
       if (elem.minT != null && state.t < elem.minT) return "";
       if (elem.maxT != null && state.t > elem.maxT) return "";
+      if (elem.when != null && Math.abs(state.t - elem.when) >= (elem.eps || 0.04)) return "";
       var a, b, v;
       switch (elem.type) {
         case "grid":
@@ -323,14 +339,26 @@
           if (!at) return "";
           var lbl = elem.showLabel === false || (_coordinateLabelPoints && _coordinateLabelPoints[elem.at])
             ? null
-            : (elem.labelText || elem.at);
+            : (elem.labelText != null ? elem.labelText : (elem.label != null ? elem.label : elem.at));
+          if (lbl && _pointLabelKeys) {
+            var pointKey = elem.at + "\u0000" + lbl;
+            if (_pointLabelKeys[pointKey]) lbl = null;
+            else _pointLabelKeys[pointKey] = true;
+          }
           return pointSvg(at, lbl, elem.color || "#1f2937", elem.dx || 8, elem.dy || -8,
             { r: elem.r, fontSize: elem.fontSize, altDx: elem.altDx, altDy: elem.altDy });
         }
         case "derivedPoint": {
           var dp = pts[elem.at];
           if (!inBounds(dp)) return "";
-          var dLabel = (_coordinateLabelPoints && _coordinateLabelPoints[elem.at]) ? null : elem.at;
+          var dLabel = (_coordinateLabelPoints && _coordinateLabelPoints[elem.at])
+            ? null
+            : (elem.labelText != null ? elem.labelText : (elem.label != null ? elem.label : elem.at));
+          if (dLabel && _pointLabelKeys) {
+            var derivedKey = elem.at + "\u0000" + dLabel;
+            if (_pointLabelKeys[derivedKey]) dLabel = null;
+            else _pointLabelKeys[derivedKey] = true;
+          }
           return pointSvg(dp, dLabel, elem.color || "#dc2626", elem.dx || 8, elem.dy || -8, { r: elem.r || 4.6 });
         }
         case "segment": {
@@ -362,7 +390,7 @@
         case "coordinateLabel": {
           var cp = pts[elem.at];
           if (!cp) return "";
-          return textAtSvg(cp, elem.text || "", "#334155", elem.dx || 8, elem.dy || -10, 14);
+          return textAtSvg(cp, elem.text != null ? elem.text : (elem.label || ""), elem.color || "#334155", elem.dx || 8, elem.dy || -10, elem.fontSize || 14);
         }
         case "areaLabel": {
           var region = (elem.region === "moving") ? state.moving : state.overlap;
@@ -466,6 +494,7 @@
     // ── 图层可见性判断 ────────────────────────────────────────────────────
 
     function isLayerActive(layerDef, stepId, section) {
+      if (layerDef.section && section !== layerDef.section) return false;
       if (layerDef.sectionNot) return section !== layerDef.sectionNot;
       if (layerDef.stepStartsWith) {
         return layerDef.stepStartsWith.some(function (prefix) { return stepId.indexOf(prefix) === 0; });
@@ -542,6 +571,7 @@
         addObstacles(state);
       }
       _coordinateLabelPoints = coordinateLabelPointsForStep(step.id, step.section);
+      _pointLabelKeys = {};
 
       var out = renderLayers(step.id, step.section, pts, state);
 
@@ -555,6 +585,7 @@
 
       _layout = null;
       _coordinateLabelPoints = null;
+      _pointLabelKeys = null;
       return out;
     }
 

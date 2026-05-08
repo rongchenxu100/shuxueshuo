@@ -174,6 +174,13 @@ function validatePointRefs(spec, deco) {
   const check = (name, label) => {
     if (name && !known.has(name)) errors.push(label + " 引用了未声明点: " + name);
   };
+  (spec.basePolygon ?? []).forEach((name, i) => check(name, "geometry-spec.basePolygon[" + i + "]"));
+  (spec.movingPolygon ?? []).forEach((name, i) => check(name, "geometry-spec.movingPolygon[" + i + "]"));
+  (spec.movingPolygons ?? []).forEach((poly, pi) => {
+    (poly.vertices ?? poly.points ?? []).forEach((name, i) => {
+      check(name, "geometry-spec.movingPolygons[" + pi + "].vertices[" + i + "]");
+    });
+  });
   const checkDecoration = (item, label) => {
     for (const key of ["at", "from", "to", "vertex", "rayA", "rayB", "anchor"]) {
       check(item[key], label + "." + key);
