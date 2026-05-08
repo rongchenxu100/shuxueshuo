@@ -7,26 +7,30 @@
     "O": ["0", "0"],
     "A": ["4", "0"],
     "B": ["4", "4"],
-    "C": ["0", "4"]
+    "C": ["0", "4"],
+    "K0": ["2", "0"]
   },
   "movingParam": "t",
   "movingPoints": {
     "D": ["0", "t"],
     "E": ["4", "t+4/S3"],
+    "K": ["4", "t"],
     "Op": ["-S3*t/2", "3*t/2"],
-    "Ap": ["2-S3*t/2", "2*S3+t/2"]
+    "Ap": ["2-S3*t/2", "2*S3+3*t/2"]
   },
   "basePolygon": ["O", "A", "B", "C"],
   "movingPolygon": ["D", "Op", "Ap", "E"],
   "derivedIntersections": [
     { "name": "F", "a": ["O", "C"], "b": ["Op", "Ap"], "fallback": ["0", "3"] },
     { "name": "G", "a": ["C", "B"], "b": ["Op", "Ap"], "fallback": ["0.7", "4"] },
-    { "name": "H", "a": ["C", "B"], "b": ["Ap", "E"], "fallback": ["2.0", "4"] }
+    { "name": "H", "a": ["C", "B"], "b": ["Ap", "E"], "fallback": ["2.0", "4"] },
+    { "name": "J", "a": ["C", "B"], "b": ["D", "E"], "fallback": ["2.6", "4"] }
   ],
   "originalFigures": [
     {
       "id": "originalFigure1",
       "t": 0,
+      "grid": { "originLabel": "O(D)", "originDx": -42, "originDy": 18 },
       "showMoving": true,
       "showOverlap": false,
       "showIntersections": false,
@@ -41,14 +45,13 @@
         { "at": "C", "label": "C", "dx": -24, "dy": -8 }
       ],
       "movingLabels": [
-        { "at": "D", "label": "O(D)", "dx": -34, "dy": 18 },
         { "at": "E", "label": "E", "dx": 10, "dy": -2 },
         { "at": "Ap", "label": "A′", "dx": -26, "dy": -8 }
       ]
     },
     {
       "id": "originalFigure2",
-      "t": 1.35,
+      "t": 1,
       "showMoving": true,
       "showOverlap": true,
       "showIntersections": true,

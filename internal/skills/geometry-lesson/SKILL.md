@@ -113,6 +113,7 @@ Quality requirements:
 - Step titles should use `方法 + 目标量`, such as `由直角三角形求 DG`.
 - Reuse named points and earlier conclusions instead of re-deriving them.
 - Keep endpoint inclusiveness identical across solution text, visual steps, JSON policies, answer chips, and final answers.
+- When a fold/rotation gives 30°、45°、60° right triangles, prefer special-right-triangle lengths and visible line-segment differences before coordinate-intersection algebra. For example, derive `CG` and `HB` from local `30°` right triangles, then use `GH=BC-CG-HB`, instead of solving coordinates for `G` and `H` directly.
 
 For detailed reasoning rules, use `references/geometry-solving-principles.md`.
 
@@ -159,6 +160,15 @@ Layering rules:
 ## Step 4: JSON Specs
 
 Write the three JSON files in `internal/lesson-specs/<problem-id>/`.
+
+Before inventing a visual workaround, check the shared renderer/schema and a nearby few-shot:
+
+- Use existing public decoration fields first, such as `originLabel` / `showOriginLabel` on `grid`, `labelRadius` / `lockLabel` on `angleArc`, `offsetPx` / `rotateWithLine` on `segment`, and `showLabel:false` on `point`.
+- If two named points coincide, prefer one merged label such as `O(D)` through grid/origin-label configuration or a single point label. Do not show both the coordinate grid's `O` and a separate nearby `D` label.
+- Use `coloredLine`, `dashedLine`, or `dottedLine` for actual auxiliary segments that must be visibly connected, especially perpendiculars and construction lines. Use `segment` for measured/labelled line segments; do not rely on an unlabeled `segment` as a visible helper line.
+- Do not redraw or label a boundary such as `CB` when it is already an edge of `basePoly`, unless that exact boundary length is the current object being calculated.
+- If the required behavior is generally useful but not available declaratively, update the shared renderer/schema in `site/assets/js/geometry-lesson-from-spec.js` and `internal/schemas/step-decorations.schema.json`, then use the new JSON field. Do not fake it with duplicated labels, extra text, or generated-HTML edits.
+- Use `references/nankai-24-fewshot.md` for id alignment and layer shape, but do not rely on few-shots alone for renderer behavior; the real public runtime and schema are authoritative.
 
 ### `geometry-spec.json`
 

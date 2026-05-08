@@ -256,7 +256,8 @@
       return GLL.rightAngleSvg(_layout, toScreen, vertex, rayA, rayB, { size: ropts.size || 12, color: ropts.color || "#0f766e" });
     }
 
-    function gridSvg() {
+    function gridSvg(gopts) {
+      gopts = gopts || {};
       var lines = [];
       for (var x = Math.ceil(domain.minX); x <= domain.maxX; x++) {
         var p1 = toScreen({ x: x, y: domain.minY }), p2 = toScreen({ x: x, y: domain.maxY });
@@ -272,7 +273,16 @@
       lines.push('<line x1="' + ay1.x + '" y1="' + ay1.y + '" x2="' + ay2.x + '" y2="' + ay2.y + '" stroke="#93a0ad" stroke-width="2" />');
       lines.push(textAtSvg({ x: domain.maxX - 0.25, y: 0 }, "x", "#334155", 0, -10, 18));
       lines.push(textAtSvg({ x: 0, y: domain.maxY - 0.18 }, "y", "#334155", 10, 0, 18));
-      lines.push(textAtSvg({ x: 0, y: 0 }, "O", "#334155", -26, 24, 18));
+      if (gopts.showOriginLabel !== false) {
+        lines.push(textAtSvg(
+          { x: 0, y: 0 },
+          gopts.originLabel || "O",
+          gopts.originColor || "#334155",
+          gopts.originDx != null ? gopts.originDx : -26,
+          gopts.originDy != null ? gopts.originDy : 24,
+          gopts.originFontSize || 18
+        ));
+      }
       return lines.join("");
     }
 
@@ -321,7 +331,7 @@
       var a, b, v;
       switch (elem.type) {
         case "grid":
-          return gridSvg();
+          return gridSvg(elem);
         case "basePoly":
           return state.base.length
             ? '<path d="' + pathD(state.base) + '" fill="var(--paper)" stroke="var(--paper-stroke)" stroke-width="3" />'
@@ -668,7 +678,7 @@
         _layout = GLL.createLabelLayout({ toScreen: toScreen, padding: 4, pointRadius: 8 });
       }
 
-      var out = gridSvg();
+      var out = gridSvg(figConfig.grid);
       (spec.curves || []).forEach(function (cr) {
         if (!cr || cr.type !== "parabola" || !cr.id) return;
         var cvFig = state.curves && state.curves[cr.id];
