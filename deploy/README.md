@@ -40,7 +40,13 @@
 
 5. DNS：**`shuxueshuo.com` / `www`** 的 **A 记录** 指向该 ECS 公网 IP（不再指向 CLB）。
 
-模板文件：[nginx/shuxueshuo.conf](nginx/shuxueshuo.conf)。默认 **HTTP 自动 301 跳转到 HTTPS**；若调试期需要纯 HTTP，见该文件底部注释说明。
+模板文件：[nginx/shuxueshuo.conf](nginx/shuxueshuo.conf)。**80 端口**：直连 HTTP 会 301 到 HTTPS；若使用 **仅 HTTP 回源** 的 CDN（如 Cloudflare「灵活」模式）且已带 `X-Forwarded-Proto: https`，则 **不再跳转** 并在 80 上直出站点，避免「重定向过多」。若源站可对外提供 443，更建议把 CDN 改为 **完全/完全(严格)**，让回源也走 HTTPS。
+
+## 若出现「重定向次数过多」
+
+- 已改模板为上述 `X-Forwarded-Proto` 判断；请更新服务器上的 `shuxueshuo.conf` 后 `nginx -t` 并重载。
+- 若使用 Cloudflare：将 SSL 模式从「灵活」改为 **完全** 或 **完全(严格)**，或临时关闭「始终使用 HTTPS」做对比测试。
+- 仅直连 ECS、无 CDN 时：仍循环则检查是否另有全局规则把 `https` 再指回 `http`（其它 `conf.d`、WAF 等）。
 
 ## 更新站点文件
 
