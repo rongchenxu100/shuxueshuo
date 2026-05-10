@@ -1,3 +1,6 @@
 LOCAL_GIT_WORKFLOW.md
 demo/
 .DS_Store
+server/.env
+server/.venv/
+server/shuxueshuo_server.egg-info/
