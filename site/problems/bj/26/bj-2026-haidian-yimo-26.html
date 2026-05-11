@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2026 年北京市海淀区一模 第 26 题（代数综合） | 数学说</title>
+  <meta name="description" content="2026 北京市海淀区一模第 26 题：抛物线过 O、(2，0) 求系数关系；竖直线与抛物线、定直线 y＝－ax＋2a 的铅直距离 m，求 m＝0 的 t 及恒有 m＜9 时 a 的范围。" />
+  <meta property="og:title" content="2026 年北京市海淀区一模 第 26 题（代数综合） | 数学说" />
+  <meta property="og:description" content="2026 北京市海淀区一模第 26 题：抛物线过 O、(2，0) 求系数关系；竖直线与抛物线、定直线 y＝－ax＋2a 的铅直距离 m，求 m＝0 的 t 及恒有 m＜9 时 a 的范围。" />
+  <meta property="og:image" content="../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../assets/css/interactive-geometry-page.css" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../nav/index.html">题库导航</a>
+    <span class="lesson-title">2026 北京海淀区一模 第 26 题</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <div class="problem-summary">
+            <div class="problem-summary-text">第 26 题（2026 北京市海淀区一模）代数综合：铅直距离 m＝a|t²－t－2| 与参数范围。</div>
+            <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          </div>
+          <div class="problem-full">
+            <div class="problem-line"><span>（26）在平面直角坐标系 xOy 中，抛物线 y＝ax²＋bx＋c（a＞0）经过原点 O 与点（2，0）。过点（t，0）作 x 轴的垂线，分别交抛物线、直线 y＝－ax＋2a 于点 M、N，两点距离为 m（重合时 m＝0）。</span></div>
+<div class="problem-line"><span>（1）求 c 的值，并用含 a 的式子表示 b；</span><span class="answer-chip" id="answerI">c＝0；b＝－2a</span></div>
+<div class="problem-line"><span>（2）① 若 m＝0，求 t 的值；</span><span class="answer-chip" id="answerII1">t＝－1 或 t＝2</span></div>
+<div class="problem-line"><span>（2）② 若当－2＜t＜2 时，总有 m＜9，求 a 的取值范围。</span><span class="answer-chip" id="answerII2">0＜a≤9/4</span></div>
+          </div>
+        </section>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../assets/js/lesson-page-runtime.js"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"i1s1","section":"第（1）问","title":"第1步：由过原点求 c","t":0.5,"derive":[["∵","抛物线 y＝ax²＋bx＋c 过 O(0，0)"],["∴","0＝c"],["∴","c＝0"]],"box":["c＝0"]},{"id":"i1s2","section":"第（1）问","title":"第2步：由过 (2，0) 求 b","t":0.5,"derive":[["∵","c＝0 且抛物线过 (2，0)"],["∴","0＝4a＋2b"],["∴","b＝－2a"],["∴","y＝ax²－2ax"]],"box":["b＝－2a","y＝ax²－2ax"]},{"id":"q2s1","section":"第（2）①问","title":"第1步：用 t 表示 M、N 与 m","t":0.5,"derive":[["∵","M 是 x＝t 与抛物线的交点"],["∴","M(t，at²－2at)"],["∵","N 是 x＝t 与直线 y＝－ax＋2a 的交点"],["∴","N(t，－at＋2a)"],["∴","m＝|(at²－2at)－(－at＋2a)|"],["∴","m＝a|t²－t－2|（a＞0）"]],"box":["M(t，at²－2at)","N(t，－at＋2a)","m＝a|t²－t－2|"]},{"id":"q2s2","section":"第（2）①问","title":"第2步：m＝0 求 t","t":-1,"derive":[["∵","m＝0"],["∴","a(t²－t－2)＝0"],["∵","a＞0"],["∴","t²－t－2＝0"],["∴","(t＋1)(t－2)＝0"],["∴","t＝－1 或 t＝2"]],"box":["t＝－1 或 t＝2"]},{"id":"q2s3","section":"第（2）②问","title":"第1步：把 m＜9 写成 a 与 |t²－t－2|","t":0.5,"derive":[["∵","当－2＜t＜2 时总有 m＜9"],["∴","a|t²－t－2|＜9 对任意 t∈(－2，2) 成立"],["∵","t→－2⁺ 时 t²－t－2→4"],["∴","|t²－t－2| 可无限接近 4"],["∴","须有 4a≤9"],["∵","a＞0"],["∴","0＜a≤9/4"]],"box":["恒成立 ⇒ a·sup|t²－t－2| 不超过 9","0＜a≤9/4"]},{"id":"q2s4","section":"第（2）②问","title":"第2步：比较区间内“中部”最大值","t":0.5,"derive":[["∵","在(－1，2) 上 t²－t－2≤0"],["∴","|t²－t－2| 在 t＝1/2 处取最大 9/4"],["∵","9/4＜4"],["∴","紧约束来自 t 靠近－2 而非 t＝1/2"],["∴","0＜a≤9/4"]],"box":["sup(－2，2) |t²－t－2|＝4（开区间上不取到）","0＜a≤9/4"]}];
+    var STEP_LABELS = {"i1s1":"1 求c","i1s2":"2 求b","q2s1":"1 写m","q2s2":"2 m＝0","q2s3":"1 不等式","q2s4":"2 比较"};
+    var POLICIES   = {"i1s1":{"movable":false,"range":[0.5,0.5]},"i1s2":{"movable":false,"range":[0.5,0.5]},"q2s1":{"movable":true,"range":[-1.85,1.85]},"q2s2":{"movable":false,"range":[-1,-1]},"q2s3":{"movable":false,"range":[0.5,0.5]},"q2s4":{"movable":false,"range":[0.5,0.5]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script type="application/json" id="geometrySpec">{"version":1,"id":"bj-2026-haidian-yimo-26","domain":{"minX":-3,"maxX":5,"minY":-12,"maxY":10},"movingParam":"t","expressionEnv":[{"name":"a","expr":"1.5"},{"name":"b","expr":"-2*a"},{"name":"c","expr":"0"}],"fixedPoints":{"O":["0","0"],"B":["2","0"],"LineP":["0","2*a"],"LineQ":["4","-2*a"]},"movingPoints":{"T":["t","0"],"M":["t","a*t*t - 2*a*t"],"N":["t","-a*t + 2*a"]},"curves":[{"id":"parabolaMain","type":"parabola","a":"a","b":"b","c":"c"}],"derivedIntersections":[]}</script>
+<script src="../../../assets/js/geometry-engine.js"></script>
+<script src="../../../assets/js/geometry-lesson-from-spec.js"></script>
+
+<script>
+  const __GEOMETRY_SPEC__ = JSON.parse(document.getElementById('geometrySpec').textContent);
+  const __STEP_DECORATIONS__ = {"_comment":"北京海淀 2026 一模第 26 题 — 抛物线与定直线铅直距离","layers":{"global":{"elements":[{"type":"grid"},{"type":"point","at":"O","color":"#1f2937","showLabel":false},{"type":"parabola","curveId":"parabolaMain","color":"#2563eb","width":2.9},{"type":"axisOfSymmetry","curveId":"parabolaMain","color":"#94a3b8","width":1.4,"dash":"8 6"},{"type":"coloredLine","from":"LineP","to":"LineQ","color":"#b45309","width":2},{"type":"point","at":"B","color":"#1f2937","dx":12,"dy":20}]},"partII":{"stepStartsWith":["q2"],"elements":[{"type":"point","at":"T","color":"#64748b","showLabel":false},{"type":"point","at":"M","color":"#0f766e","showLabel":false},{"type":"point","at":"N","color":"#dc2626","showLabel":false},{"type":"dashedLine","from":"T","to":"M","color":"#94a3b8","width":1.3,"dash":"4 4"},{"type":"dashedLine","from":"T","to":"N","color":"#94a3b8","width":1.3,"dash":"4 4"},{"type":"segment","from":"M","to":"N","label":"m","color":"#7c3aed","width":2.2,"offsetPx":14}]}},"steps":{"i1s1":{"add":[{"type":"coordinateLabel","at":"O","text":"O(0, 0)","dx":-72,"dy":20}]},"i1s2":{"add":[{"type":"coordinateLabel","at":"B","text":"B(2, 0)","dx":12,"dy":-28},{"type":"coordinateLabel","at":"LineP","text":"直线 y＝－ax＋2a","dx":-40,"dy":-28}]},"q2s1":{"add":[{"type":"coordinateLabel","at":"M","text":"M","dx":14,"dy":-18},{"type":"coordinateLabel","at":"N","text":"N","dx":14,"dy":14},{"type":"coordinateLabel","at":"T","text":"T(t, 0)","dx":14,"dy":22}]},"q2s2":{"add":[{"type":"coincidentLabel","at":"M","text":"M、N 重合","dx":-40,"dy":-36}]},"q2s3":{"add":[{"type":"areaFormulaCard","pos":[-2.6,8.5],"terms":[{"text":"－2＜t＜2：m＝a|t²－t－2|＜9","kind":"main"},{"text":"t→－2⁺ 时 |t²－t－2|→4","kind":"result"}]}]},"q2s4":{"add":[{"type":"areaFormulaCard","pos":[-2.55,8.5],"terms":[{"text":"区间内 sup|t²－t－2|＝4（取不到）","kind":"main"},{"text":"0＜a≤9/4","kind":"result"}]}]}}};
+  const renderer = GeometryLessonFromSpec.createSpecRenderer(__GEOMETRY_SPEC__, __STEP_DECORATIONS__, STEPS, POLICIES);
+  function groupTitle(section) {
+    const map = {"第（1）问":"第（1）问  求 c 与 b","第（2）①问":"第（2）①  m＝0","第（2）②问":"第（2）②  恒有 m＜9"};
+    return map[section] || section;
+  }
+  var diagramMarkupFor = renderer.diagramMarkupFor;
+  var drawMini = renderer.drawMini;
+  var __LESSON_LEGEND_HTML__ = "<span><i class=\"sw\" style=\"background:var(--paper)\"></i>抛物线 y＝ax²－2ax（图示 a＝1.5）</span><span><i class=\"sw\" style=\"background:var(--fold)\"></i>直线 y＝－ax＋2a 与铅直距离 m</span>";
+  // 原题图形渲染：由 renderer 负责（可选）
+  var __AFTER_RENDER_ALL_STEPS__ = renderer.renderOriginalFigures;
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "参数 t（竖直线 x＝t）",
+      paramLabelPrefix: "t=",
+      goToProblemMode: "doubleScroll"
+    });
+  </script>
+</body>
+</html>

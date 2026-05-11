@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "id": "bj-2026-haidian-yimo-26",
+  "domain": { "minX": -3, "maxX": 5, "minY": -12, "maxY": 10 },
+  "movingParam": "t",
+  "expressionEnv": [
+    { "name": "a", "expr": "1.5" },
+    { "name": "b", "expr": "-2*a" },
+    { "name": "c", "expr": "0" }
+  ],
+  "fixedPoints": {
+    "O": ["0", "0"],
+    "B": ["2", "0"],
+    "LineP": ["0", "2*a"],
+    "LineQ": ["4", "-2*a"]
+  },
+  "movingPoints": {
+    "T": ["t", "0"],
+    "M": ["t", "a*t*t - 2*a*t"],
+    "N": ["t", "-a*t + 2*a"]
+  },
+  "curves": [
+    { "id": "parabolaMain", "type": "parabola", "a": "a", "b": "b", "c": "c" }
+  ],
+  "derivedIntersections": []
+}

@@ -219,5 +219,31 @@ window.__PROBLEMS_DATA__ = [
     "tags": ["geometry", "translation", "dynamic-point"],
     "path": "../problems/tj/24/tj-2026-xiqing-yimo-24.html",
     "status": "published"
+  },
+  {
+    "id": "bj-2026-chaoyang-yimo-26",
+    "city": "beijing",
+    "cityLabel": "北京",
+    "year": 2026,
+    "exam": "chaoyang-yimo",
+    "examLabel": "朝阳区一模",
+    "slot": "26",
+    "title": "2026 年北京市朝阳区一模第 26 题（代数综合）",
+    "tags": ["algebra", "quadratic-function", "coordinate-plane"],
+    "path": "../problems/bj/26/bj-2026-chaoyang-yimo-26.html",
+    "status": "published"
+  },
+  {
+    "id": "bj-2026-haidian-yimo-26",
+    "city": "beijing",
+    "cityLabel": "北京",
+    "year": 2026,
+    "exam": "haidian-yimo",
+    "examLabel": "海淀区一模",
+    "slot": "26",
+    "title": "2026 年北京市海淀区一模第 26 题（代数综合）",
+    "tags": ["algebra", "quadratic-function", "coordinate-plane"],
+    "path": "../problems/bj/26/bj-2026-haidian-yimo-26.html",
+    "status": "published"
   }
 ];

@@ -6,7 +6,7 @@ const CITIES = [
   { key: "guangzhou", label: "广州" }
 ];
 
-const SLOTS = ["17", "18", "21", "24", "25"];
+const SLOTS = ["17", "18", "21", "24", "25", "26"];
 
 const EXAMS = [
   { key: "all", label: "全部" },

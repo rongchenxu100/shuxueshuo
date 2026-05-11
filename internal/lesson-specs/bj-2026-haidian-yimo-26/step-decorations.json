@@ -1,0 +1,67 @@
+{
+  "_comment": "北京海淀 2026 一模第 26 题 — 抛物线与定直线铅直距离",
+  "layers": {
+    "global": {
+      "elements": [
+        { "type": "grid" },
+        { "type": "point", "at": "O", "color": "#1f2937", "showLabel": false },
+        { "type": "parabola", "curveId": "parabolaMain", "color": "#2563eb", "width": 2.9 },
+        { "type": "axisOfSymmetry", "curveId": "parabolaMain", "color": "#94a3b8", "width": 1.4, "dash": "8 6" },
+        { "type": "coloredLine", "from": "LineP", "to": "LineQ", "color": "#b45309", "width": 2 },
+        { "type": "point", "at": "B", "color": "#1f2937", "dx": 12, "dy": 20 }
+      ]
+    },
+    "partII": {
+      "stepStartsWith": ["q2"],
+      "elements": [
+        { "type": "point", "at": "T", "color": "#64748b", "showLabel": false },
+        { "type": "point", "at": "M", "color": "#0f766e", "showLabel": false },
+        { "type": "point", "at": "N", "color": "#dc2626", "showLabel": false },
+        { "type": "dashedLine", "from": "T", "to": "M", "color": "#94a3b8", "width": 1.3, "dash": "4 4" },
+        { "type": "dashedLine", "from": "T", "to": "N", "color": "#94a3b8", "width": 1.3, "dash": "4 4" },
+        { "type": "segment", "from": "M", "to": "N", "label": "m", "color": "#7c3aed", "width": 2.2, "offsetPx": 14 }
+      ]
+    }
+  },
+  "steps": {
+    "i1s1": {
+      "add": [
+        { "type": "coordinateLabel", "at": "O", "text": "O(0, 0)", "dx": -72, "dy": 20 }
+      ]
+    },
+    "i1s2": {
+      "add": [
+        { "type": "coordinateLabel", "at": "B", "text": "B(2, 0)", "dx": 12, "dy": -28 },
+        { "type": "coordinateLabel", "at": "LineP", "text": "直线 y＝－ax＋2a", "dx": -40, "dy": -28 }
+      ]
+    },
+    "q2s1": {
+      "add": [
+        { "type": "coordinateLabel", "at": "M", "text": "M", "dx": 14, "dy": -18 },
+        { "type": "coordinateLabel", "at": "N", "text": "N", "dx": 14, "dy": 14 },
+        { "type": "coordinateLabel", "at": "T", "text": "T(t, 0)", "dx": 14, "dy": 22 }
+      ]
+    },
+    "q2s2": {
+      "add": [
+        { "type": "coincidentLabel", "at": "M", "text": "M、N 重合", "dx": -40, "dy": -36 }
+      ]
+    },
+    "q2s3": {
+      "add": [
+        { "type": "areaFormulaCard", "pos": [-2.6, 8.5], "terms": [
+          { "text": "－2＜t＜2：m＝a|t²－t－2|＜9", "kind": "main" },
+          { "text": "t→－2⁺ 时 |t²－t－2|→4", "kind": "result" }
+        ] }
+      ]
+    },
+    "q2s4": {
+      "add": [
+        { "type": "areaFormulaCard", "pos": [-2.55, 8.5], "terms": [
+          { "text": "区间内 sup|t²－t－2|＝4（取不到）", "kind": "main" },
+          { "text": "0＜a≤9/4", "kind": "result" }
+        ] }
+      ]
+    }
+  }
+}

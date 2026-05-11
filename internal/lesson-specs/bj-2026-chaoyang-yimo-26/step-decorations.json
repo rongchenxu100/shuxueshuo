@@ -1,0 +1,73 @@
+{
+  "_comment": "北京朝阳 2026 一模第 26 题 — 代数综合（二次函数参数范围）",
+  "layers": {
+    "global": {
+      "elements": [
+        { "type": "grid" },
+        { "type": "point", "at": "O", "color": "#1f2937", "showLabel": false },
+        { "type": "parabola", "curveId": "parabolaMain", "color": "#2563eb", "width": 2.9 },
+        { "type": "axisOfSymmetry", "curveId": "parabolaMain", "color": "#94a3b8", "width": 1.5, "dash": "8 6" }
+      ]
+    },
+    "axisPoint": {
+      "stepStartsWith": ["i1"],
+      "elements": [
+        { "type": "point", "at": "AxisPoint", "labelText": "A", "color": "#1f2937", "dx": 12, "dy": 18 }
+      ]
+    },
+    "q2Points": {
+      "stepStartsWith": ["q2"],
+      "elements": [
+        { "type": "point", "at": "M", "color": "#0f766e", "showLabel": false },
+        { "type": "point", "at": "N", "color": "#dc2626", "showLabel": false },
+        { "type": "dashedLine", "from": "M", "to": "Mfoot", "color": "#64748b", "width": 1.3, "dash": "5 5" },
+        { "type": "dashedLine", "from": "N", "to": "Nfoot", "color": "#64748b", "width": 1.3, "dash": "5 5" },
+        { "type": "point", "at": "Mfoot", "labelText": "−t", "color": "#64748b", "dx": -22, "dy": 20 },
+        { "type": "point", "at": "Nfoot", "labelText": "t",  "color": "#64748b", "dx": 12, "dy": 20 }
+      ]
+    }
+  },
+  "steps": {
+    "i1s1": {
+      "add": [
+        { "type": "coordinateLabel", "at": "AxisPoint", "text": "x＝a/2", "dx": 14, "dy": -24 }
+      ]
+    },
+    "q2s1": {
+      "add": [
+        { "type": "coordinateLabel", "at": "M", "text": "M(−t, y₁)", "dx": -96, "dy": -16 },
+        { "type": "coordinateLabel", "at": "N", "text": "N(t, y₂)",  "dx": 14,  "dy": 16 }
+      ]
+    },
+    "q2s2": {
+      "add": [
+        { "type": "coordinateLabel", "at": "M", "text": "y₁", "dx": -34, "dy": -16 },
+        { "type": "coordinateLabel", "at": "N", "text": "y₂", "dx": 14,  "dy": 16 },
+        { "type": "areaFormulaCard", "pos": [0.3, 15.5], "terms": [
+          { "text": "y₁−y₂＝2a²t＞0", "kind": "main" }
+        ] }
+      ]
+    },
+    "q2s3": {
+      "add": [
+        { "type": "coordinateLabel", "at": "M", "text": "y₁＝at(t＋a)", "dx": -122, "dy": -16 },
+        { "type": "coordinateLabel", "at": "N", "text": "y₂＝at(t−a)", "dx": 14, "dy": 16 },
+        { "type": "areaFormulaCard", "pos": [0.15, 15.5], "terms": [
+          { "text": "y₁y₂＞0 ⇔ (t＋a)(t−a)＞0", "kind": "main" },
+          { "text": "即 |a|＜t", "kind": "result" }
+        ] }
+      ]
+    },
+    "q2s4": {
+      "add": [
+        { "type": "coordinateLabel", "at": "M", "text": "代表点 M", "dx": -86, "dy": -16 },
+        { "type": "coordinateLabel", "at": "N", "text": "代表点 N", "dx": 14, "dy": 16 },
+        { "type": "areaFormulaCard", "pos": [-2.65, 15.5], "terms": [
+          { "text": "对所有 2＜t＜3：|a|＜t", "kind": "main" },
+          { "text": "|a|≤2，且 a≠0", "kind": "result" },
+          { "text": "a∈[−2,0)∪(0,2]", "kind": "result" }
+        ] }
+      ]
+    }
+  }
+}
