@@ -1,0 +1,121 @@
+{
+  "meta": {
+    "id": "bj-2026-chaoyang-yimo-26",
+    "outputPath": "site/problems/bj/26/bj-2026-chaoyang-yimo-26.html",
+    "pageTitle": "2026 年北京市朝阳区一模 第 26 题（代数综合）",
+    "pageDescription": "2026 北京市朝阳区一模第 26 题：由抛物线 y＝ax²－a²x 求对称轴，再利用 x₁＋x₂＝0、2＜x₂＜3 和 y₁、y₂ 同号且 y₁＞y₂ 求参数 a 的范围。",
+    "breadcrumbTitle": "2026 北京朝阳区一模 第 26 题"
+  },
+  "problem": {
+    "summary": "第 26 题（2026 北京市朝阳区一模）代数综合：求 y＝ax²－a²x 的对称轴，并由两点函数值的同号与大小关系求 a 的范围。",
+    "lines": [
+      { "text": "（26）在平面直角坐标系 xOy 中，点 M(x₁,y₁)，N(x₂,y₂) 在抛物线 y＝ax²－a²x（a≠0）上。" },
+      { "text": "（1）求该抛物线的对称轴（用含 a 的式子表示）；", "answerId": "answerI", "answer": "x＝a/2" },
+      { "text": "（2）若对于 x₁＋x₂＝0，2＜x₂＜3，总有 y₁，y₂ 同号，且 y₁＞y₂，求 a 的取值范围。", "answerId": "answerII", "answer": "−2≤a＜0 或 0＜a≤2" }
+    ]
+  },
+  "ui": {
+    "legend": [
+      { "colorVar": "paper", "label": "抛物线 y＝ax²－a²x" },
+      { "colorVar": "fold",  "label": "代表点 M、N（x₂＝2.5）" }
+    ],
+    "sliderLabel": "参数 a（图示）",
+    "paramLabelPrefix": "a=",
+    "goToProblemMode": "doubleScroll",
+    "groupTitles": {
+      "第（1）问": "第（1）问  求对称轴",
+      "第（2）问": "第（2）问  求参数 a 的范围"
+    }
+  },
+  "steps": [
+    {
+      "id": "i1s1",
+      "section": "第（1）问",
+      "title": "第1步：由系数求抛物线对称轴",
+      "t": 1.5,
+      "derive": [
+        ["∵", "y＝ax²－a²x，且 a≠0"],
+        ["∴", "二次项系数为 a，一次项系数为 −a²"],
+        ["∴", "对称轴 x＝−(−a²)/(2a)"],
+        ["∴", "x＝a/2"]
+      ],
+      "box": ["对称轴：x＝a/2"]
+    },
+    {
+      "id": "q2s1",
+      "section": "第（2）问",
+      "title": "第1步：用 t 表示 x₁、x₂ 与 y₁、y₂",
+      "t": 1.5,
+      "derive": [
+        ["设", "x₂＝t"],
+        ["∵", "2＜x₂＜3"],
+        ["∴", "2＜t＜3"],
+        ["∵", "x₁＋x₂＝0"],
+        ["∴", "x₁＝−t"],
+        ["∵", "M、N 在 y＝ax²－a²x 上"],
+        ["∴", "y₁＝a(−t)²－a²(−t)＝at²＋a²t＝at(t＋a)"],
+        ["∴", "y₂＝at²－a²t＝at(t−a)"]
+      ],
+      "box": ["2＜t＜3", "y₁＝at(t＋a)", "y₂＝at(t−a)"]
+    },
+    {
+      "id": "q2s2",
+      "section": "第（2）问",
+      "title": "第2步：先判断 y₁＞y₂",
+      "t": 1.5,
+      "derive": [
+        ["∵", "y₁−y₂＝at(t＋a)−at(t−a)"],
+        ["∴", "y₁−y₂＝2a²t"],
+        ["∵", "a≠0，t＞2"],
+        ["∴", "2a²t＞0"],
+        ["∴", "y₁＞y₂ 恒成立"]
+      ],
+      "box": ["y₁−y₂＝2a²t＞0", "y₁＞y₂ 自动成立"]
+    },
+    {
+      "id": "q2s3",
+      "section": "第（2）问",
+      "title": "第3步：由 y₁、y₂ 同号得到 |a|＜t",
+      "t": 1.5,
+      "derive": [
+        ["∵", "y₁、y₂ 同号"],
+        ["∴", "y₁y₂＞0"],
+        ["∴", "at(t＋a)·at(t−a)＞0"],
+        ["∴", "a²t²(t＋a)(t−a)＞0"],
+        ["∵", "a²t²＞0"],
+        ["∴", "(t＋a)(t−a)＞0"],
+        ["∴", "t²−a²＞0"],
+        ["∴", "|a|＜t"]
+      ],
+      "box": ["同号 ⇔ y₁y₂＞0", "|a|＜t"]
+    },
+    {
+      "id": "q2s4",
+      "section": "第（2）问",
+      "title": "第4步：处理“对于所有 2＜t＜3”",
+      "t": 1.5,
+      "derive": [
+        ["∵", "对所有 2＜t＜3，都要有 |a|＜t"],
+        ["∴", "|a|≤2"],
+        ["∵", "a≠0"],
+        ["∴", "0＜|a|≤2"],
+        ["∴", "−2≤a＜0 或 0＜a≤2"]
+      ],
+      "box": ["a∈[−2,0)∪(0,2]"]
+    }
+  ],
+  "policies": {
+    "i1s1": { "movable": false, "range": [1.5, 1.5] },
+    "q2s1": { "movable": false, "range": [1.5, 1.5] },
+    "q2s2": { "movable": false, "range": [1.5, 1.5] },
+    "q2s3": { "movable": false, "range": [1.5, 1.5] },
+    "q2s4": { "movable": false, "range": [1.5, 1.5] }
+  },
+  "stepLabels": {
+    "i1s1": "1 求对称轴",
+    "q2s1": "1 设t代入",
+    "q2s2": "2 判断大小",
+    "q2s3": "3 转化同号",
+    "q2s4": "4 求a范围"
+  }
+}

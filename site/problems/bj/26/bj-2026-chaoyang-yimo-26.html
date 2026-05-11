@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2026 年北京市朝阳区一模 第 26 题（代数综合） | 数学说</title>
+  <meta name="description" content="2026 北京市朝阳区一模第 26 题：由抛物线 y＝ax²－a²x 求对称轴，再利用 x₁＋x₂＝0、2＜x₂＜3 和 y₁、y₂ 同号且 y₁＞y₂ 求参数 a 的范围。" />
+  <meta property="og:title" content="2026 年北京市朝阳区一模 第 26 题（代数综合） | 数学说" />
+  <meta property="og:description" content="2026 北京市朝阳区一模第 26 题：由抛物线 y＝ax²－a²x 求对称轴，再利用 x₁＋x₂＝0、2＜x₂＜3 和 y₁、y₂ 同号且 y₁＞y₂ 求参数 a 的范围。" />
+  <meta property="og:image" content="../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../assets/css/interactive-geometry-page.css" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../nav/index.html">题库导航</a>
+    <span class="lesson-title">2026 北京朝阳区一模 第 26 题</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <div class="problem-summary">
+            <div class="problem-summary-text">第 26 题（2026 北京市朝阳区一模）代数综合：求 y＝ax²－a²x 的对称轴，并由两点函数值的同号与大小关系求 a 的范围。</div>
+            <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          </div>
+          <div class="problem-full">
+            <div class="problem-line"><span>（26）在平面直角坐标系 xOy 中，点 M(x₁,y₁)，N(x₂,y₂) 在抛物线 y＝ax²－a²x（a≠0）上。</span></div>
+<div class="problem-line"><span>（1）求该抛物线的对称轴（用含 a 的式子表示）；</span><span class="answer-chip" id="answerI">x＝a/2</span></div>
+<div class="problem-line"><span>（2）若对于 x₁＋x₂＝0，2＜x₂＜3，总有 y₁，y₂ 同号，且 y₁＞y₂，求 a 的取值范围。</span><span class="answer-chip" id="answerII">−2≤a＜0 或 0＜a≤2</span></div>
+          </div>
+        </section>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../assets/js/lesson-page-runtime.js"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"i1s1","section":"第（1）问","title":"第1步：由系数求抛物线对称轴","t":1.5,"derive":[["∵","y＝ax²－a²x，且 a≠0"],["∴","二次项系数为 a，一次项系数为 −a²"],["∴","对称轴 x＝−(−a²)/(2a)"],["∴","x＝a/2"]],"box":["对称轴：x＝a/2"]},{"id":"q2s1","section":"第（2）问","title":"第1步：用 t 表示 x₁、x₂ 与 y₁、y₂","t":1.5,"derive":[["设","x₂＝t"],["∵","2＜x₂＜3"],["∴","2＜t＜3"],["∵","x₁＋x₂＝0"],["∴","x₁＝−t"],["∵","M、N 在 y＝ax²－a²x 上"],["∴","y₁＝a(−t)²－a²(−t)＝at²＋a²t＝at(t＋a)"],["∴","y₂＝at²－a²t＝at(t−a)"]],"box":["2＜t＜3","y₁＝at(t＋a)","y₂＝at(t−a)"]},{"id":"q2s2","section":"第（2）问","title":"第2步：先判断 y₁＞y₂","t":1.5,"derive":[["∵","y₁−y₂＝at(t＋a)−at(t−a)"],["∴","y₁−y₂＝2a²t"],["∵","a≠0，t＞2"],["∴","2a²t＞0"],["∴","y₁＞y₂ 恒成立"]],"box":["y₁−y₂＝2a²t＞0","y₁＞y₂ 自动成立"]},{"id":"q2s3","section":"第（2）问","title":"第3步：由 y₁、y₂ 同号得到 |a|＜t","t":1.5,"derive":[["∵","y₁、y₂ 同号"],["∴","y₁y₂＞0"],["∴","at(t＋a)·at(t−a)＞0"],["∴","a²t²(t＋a)(t−a)＞0"],["∵","a²t²＞0"],["∴","(t＋a)(t−a)＞0"],["∴","t²−a²＞0"],["∴","|a|＜t"]],"box":["同号 ⇔ y₁y₂＞0","|a|＜t"]},{"id":"q2s4","section":"第（2）问","title":"第4步：处理“对于所有 2＜t＜3”","t":1.5,"derive":[["∵","对所有 2＜t＜3，都要有 |a|＜t"],["∴","|a|≤2"],["∵","a≠0"],["∴","0＜|a|≤2"],["∴","−2≤a＜0 或 0＜a≤2"]],"box":["a∈[−2,0)∪(0,2]"]}];
+    var STEP_LABELS = {"i1s1":"1 求对称轴","q2s1":"1 设t代入","q2s2":"2 判断大小","q2s3":"3 转化同号","q2s4":"4 求a范围"};
+    var POLICIES   = {"i1s1":{"movable":false,"range":[1.5,1.5]},"q2s1":{"movable":false,"range":[1.5,1.5]},"q2s2":{"movable":false,"range":[1.5,1.5]},"q2s3":{"movable":false,"range":[1.5,1.5]},"q2s4":{"movable":false,"range":[1.5,1.5]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script type="application/json" id="geometrySpec">{"version":1,"id":"bj-2026-chaoyang-yimo-26","domain":{"minX":-4,"maxX":4,"minY":-18,"maxY":18},"movingParam":"a","expressionEnv":[{"name":"x2","expr":"2.5"},{"name":"bCoef","expr":"-a*a"},{"name":"axisX","expr":"a/2"}],"fixedPoints":{"O":["0","0"]},"movingPoints":{"M":["0-x2","a*x2*x2+a*a*x2"],"N":["x2","a*x2*x2-a*a*x2"],"Mfoot":["0-x2","0"],"Nfoot":["x2","0"],"AxisPoint":["axisX","0"]},"curves":[{"id":"parabolaMain","type":"parabola","a":"a","b":"bCoef","c":"0"}],"derivedIntersections":[]}</script>
+<script src="../../../assets/js/geometry-engine.js"></script>
+<script src="../../../assets/js/geometry-lesson-from-spec.js"></script>
+
+<script>
+  const __GEOMETRY_SPEC__ = JSON.parse(document.getElementById('geometrySpec').textContent);
+  const __STEP_DECORATIONS__ = {"_comment":"北京朝阳 2026 一模第 26 题 — 代数综合（二次函数参数范围）","layers":{"global":{"elements":[{"type":"grid"},{"type":"point","at":"O","color":"#1f2937","showLabel":false},{"type":"parabola","curveId":"parabolaMain","color":"#2563eb","width":2.9},{"type":"axisOfSymmetry","curveId":"parabolaMain","color":"#94a3b8","width":1.5,"dash":"8 6"}]},"axisPoint":{"stepStartsWith":["i1"],"elements":[{"type":"point","at":"AxisPoint","labelText":"A","color":"#1f2937","dx":12,"dy":18}]},"q2Points":{"stepStartsWith":["q2"],"elements":[{"type":"point","at":"M","color":"#0f766e","showLabel":false},{"type":"point","at":"N","color":"#dc2626","showLabel":false},{"type":"dashedLine","from":"M","to":"Mfoot","color":"#64748b","width":1.3,"dash":"5 5"},{"type":"dashedLine","from":"N","to":"Nfoot","color":"#64748b","width":1.3,"dash":"5 5"},{"type":"point","at":"Mfoot","labelText":"−t","color":"#64748b","dx":-22,"dy":20},{"type":"point","at":"Nfoot","labelText":"t","color":"#64748b","dx":12,"dy":20}]}},"steps":{"i1s1":{"add":[{"type":"coordinateLabel","at":"AxisPoint","text":"x＝a/2","dx":14,"dy":-24}]},"q2s1":{"add":[{"type":"coordinateLabel","at":"M","text":"M(−t, y₁)","dx":-96,"dy":-16},{"type":"coordinateLabel","at":"N","text":"N(t, y₂)","dx":14,"dy":16}]},"q2s2":{"add":[{"type":"coordinateLabel","at":"M","text":"y₁","dx":-34,"dy":-16},{"type":"coordinateLabel","at":"N","text":"y₂","dx":14,"dy":16},{"type":"areaFormulaCard","pos":[0.3,15.5],"terms":[{"text":"y₁−y₂＝2a²t＞0","kind":"main"}]}]},"q2s3":{"add":[{"type":"coordinateLabel","at":"M","text":"y₁＝at(t＋a)","dx":-122,"dy":-16},{"type":"coordinateLabel","at":"N","text":"y₂＝at(t−a)","dx":14,"dy":16},{"type":"areaFormulaCard","pos":[0.15,15.5],"terms":[{"text":"y₁y₂＞0 ⇔ (t＋a)(t−a)＞0","kind":"main"},{"text":"即 |a|＜t","kind":"result"}]}]},"q2s4":{"add":[{"type":"coordinateLabel","at":"M","text":"代表点 M","dx":-86,"dy":-16},{"type":"coordinateLabel","at":"N","text":"代表点 N","dx":14,"dy":16},{"type":"areaFormulaCard","pos":[-2.65,15.5],"terms":[{"text":"对所有 2＜t＜3：|a|＜t","kind":"main"},{"text":"|a|≤2，且 a≠0","kind":"result"},{"text":"a∈[−2,0)∪(0,2]","kind":"result"}]}]}}};
+  const renderer = GeometryLessonFromSpec.createSpecRenderer(__GEOMETRY_SPEC__, __STEP_DECORATIONS__, STEPS, POLICIES);
+  function groupTitle(section) {
+    const map = {"第（1）问":"第（1）问  求对称轴","第（2）问":"第（2）问  求参数 a 的范围"};
+    return map[section] || section;
+  }
+  var diagramMarkupFor = renderer.diagramMarkupFor;
+  var drawMini = renderer.drawMini;
+  var __LESSON_LEGEND_HTML__ = "<span><i class=\"sw\" style=\"background:var(--paper)\"></i>抛物线 y＝ax²－a²x</span><span><i class=\"sw\" style=\"background:var(--fold)\"></i>代表点 M、N（x₂＝2.5）</span>";
+  // 原题图形渲染：由 renderer 负责（可选）
+  var __AFTER_RENDER_ALL_STEPS__ = renderer.renderOriginalFigures;
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "参数 a（图示）",
+      paramLabelPrefix: "a=",
+      goToProblemMode: "doubleScroll"
+    });
+  </script>
+</body>
+</html>

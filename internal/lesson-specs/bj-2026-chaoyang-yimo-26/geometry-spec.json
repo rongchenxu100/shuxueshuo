@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "id": "bj-2026-chaoyang-yimo-26",
+  "domain": { "minX": -4, "maxX": 4, "minY": -18, "maxY": 18 },
+  "movingParam": "a",
+  "expressionEnv": [
+    { "name": "x2",    "expr": "2.5"    },
+    { "name": "bCoef", "expr": "-a*a"   },
+    { "name": "axisX", "expr": "a/2"    }
+  ],
+  "fixedPoints": {
+    "O": ["0", "0"]
+  },
+  "movingPoints": {
+    "M": ["0-x2", "a*x2*x2+a*a*x2"],
+    "N": ["x2",   "a*x2*x2-a*a*x2"],
+    "Mfoot": ["0-x2", "0"],
+    "Nfoot": ["x2",   "0"],
+    "AxisPoint": ["axisX", "0"]
+  },
+  "curves": [
+    { "id": "parabolaMain", "type": "parabola", "a": "a", "b": "bCoef", "c": "0" }
+  ],
+  "derivedIntersections": []
+}
