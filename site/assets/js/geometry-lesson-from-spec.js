@@ -707,7 +707,8 @@
         _layout = GLL.createLabelLayout({ toScreen: toScreen, padding: 4, pointRadius: 8 });
       }
 
-      var out = gridSvg(figConfig.grid);
+      var showGrid = figConfig.showGrid !== false && figConfig.grid !== false;
+      var out = showGrid ? gridSvg(figConfig.grid) : "";
       (spec.curves || []).forEach(function (cr) {
         if (!cr || cr.type !== "parabola" || !cr.id) return;
         var cvFig = state.curves && state.curves[cr.id];
@@ -762,6 +763,8 @@
           { at: "M", dx: -40, dy: -12, color: "#0f766e" },
           { at: "N", dx: 12, dy: -12, color: "#0f766e" }
         ]);
+      } else if (Array.isArray(figConfig.movingLabels)) {
+        renderLabelList(figConfig.movingLabels, []);
       }
       if (figConfig.showIntersections) {
         renderLabelList(figConfig.intersectionLabels, [
@@ -771,6 +774,14 @@
           { at: "G", dx: 10, dy: 20, color: "#dc2626", r: 6, fontSize: 19 }
         ]);
       }
+      (figConfig.rightAngles || []).forEach(function (ra) {
+        var v = pts[ra.vertex], a = pts[ra.rayA], b = pts[ra.rayB];
+        if (!v || !a || !b) return;
+        out += rightAngleSvg(v, a, b, {
+          size: ra.size || 12,
+          color: ra.color || "#1f2937"
+        });
+      });
 
       _layout = null;
       return out;

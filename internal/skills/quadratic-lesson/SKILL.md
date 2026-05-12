@@ -35,6 +35,8 @@ Load only the references needed for the current task:
 
 - **Always read** `references/quadratic-solving-principles.md` — quadratic-specific modeling rules (coefficient constraints, N-derivation via rotation, expressionEnv ordering, EG+FG optimization pattern, two-curve pattern for Part I vs Part II).
 - **Always read** `references/json-schema-guide.md` before writing any of the three JSON specs — covers field types, required vs optional, and how to align ids across files.
+- **Always read** `references/diagram-drawing-principles.md` before writing or revising `03_visual_steps.md` or `step-decorations.json` — covers what to draw, how to mark used values/equalities, constructed segments, moving segments, and geometric transformations.
+- **Always read** `references/original-figure-principles.md` before adding or changing `geometry-spec.originalFigures` or any `lesson-data.problem.lines[].figures` entry. If the source problem has no printed figure, do not invent one.
 - **Read** `../../docs/interactive-lesson-components.md` (repo path: `internal/docs/interactive-lesson-components.md`) before adding or changing sliders, local point controls, or draggable-point interactions. It defines the relationship between the main parameter slider and step-local point controls.
 - **Read** `references/nankai-25-fewshot.md` to match the exact JSON shape, layer naming convention, and `stepStartsWith` pattern for a parabola problem with Part I (fixed coefficients) and Part II (m-dependent coefficients).
 - Read the real schema files before writing JSON (they override anything in the reference docs if there is a conflict):
@@ -51,6 +53,8 @@ Default to middle-school students. Compared with pure folding/rotation geometry 
 
 - Balance **代数推导**（解析式、配方、判别式、根与系数）with **坐标图示**（抛物线、对称轴、与坐标轴交点）。
 - Many steps justify coefficients before drawing conclusions about symmetric axis / vertices / intersections with axes.
+- For middle-school trigonometry, use only the definition of `tan` in a right triangle. Do not use tangent subtraction/addition formulas, slope-angle tangent formulas, or other high-school trigonometric identities. If an angle condition involves \(45^\circ\), prefer constructing an auxiliary point/line that creates a right triangle where the target tangent can be read as opposite leg divided by adjacent leg.
+- Follow `references/diagram-drawing-principles.md` for step diagrams, including how to mark used quantities, equalities, constructed segments, moving segments, and geometric transformations.
 - If part II introduces constructions (`直角`、`等腰`、`中点`、`线段比例`), treat those steps like geometry: draw only what the derivation truly uses.
 - Dynamic controls usually correspond to a **parameter letter shown on the exam** (`m`, `t`, etc.). Align `geometry-spec.movingParam`, expressions that reference this letter, `lesson-data.ui.sliderLabel`, and `lesson-data.policies[].range`.
 - Keep numeric endpoints consistent everywhere (`≤`, `<`) across markdown, JSON chips, and slider ranges.
@@ -80,7 +84,7 @@ Same layering mindset as geometry-lesson (whole-problem / section / phase / step
 
 - which subset of the curve domain should remain visible for readability (`geometry-spec.domain`).
 - when `expressionEnv` should expose coefficients (`a`, `b`, `c`) separately so fixed-point formulas (`["0","c"]`) stay declarative.
-- when to use decorations `parabola`, `axisOfSymmetry`, `vertex`, `curvePoint` versus ordinary `point`.
+- when to use decorations `parabola`, `axisOfSymmetry`, `vertex`, `curvePoint` versus ordinary `point`, following `references/diagram-drawing-principles.md`.
 
 ## Step 4: JSON Specs
 

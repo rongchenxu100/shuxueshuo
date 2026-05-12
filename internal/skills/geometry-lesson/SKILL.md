@@ -35,6 +35,7 @@ Load only the references needed for the current task:
 
 - Read `references/geometry-solving-principles.md` before writing `02_solution.md` or revising reasoning quality.
 - Read `references/json-schema-guide.md` before writing any of the three JSON specs.
+- Read `references/original-figure-principles.md` before writing or revising `geometry-spec.originalFigures`.
 - Read `../../docs/interactive-lesson-components.md` (repo path: `internal/docs/interactive-lesson-components.md`) before adding or changing sliders, local point controls, or draggable-point interactions. It defines the relationship between the main parameter slider and step-local point controls.
 - Read `references/nankai-24-fewshot.md` when you need a compact example of the JSON shape and id alignment.
 - Read `references/piecewise-area-trends.md` for area ranges, overlap-area extrema, moving-figure phase analysis, boundary thumbnails, or representative interval minis.
@@ -259,6 +260,7 @@ If validation or rendering fails, fix the JSON spec or the shared compiler/runti
 - Intersections are declared through `derivedIntersections`.
 - Step ids are aligned across `steps`, `policies`, `stepLabels`, and `step-decorations`.
 - Original figure ids align between `lesson-data.problem.lines` and `geometry-spec.originalFigures`.
+- Pure geometry original figures set `showGrid:false`, include all printed point labels, and reproduce printed right-angle marks without adding solution-only highlights.
 - Original figure point labels use object entries such as `{ "at": "A", "label": "A", "dx": 10, "dy": 26 }`; never use string arrays such as `["A", "B"]`.
 - The unified reasoning and visual principles above are satisfied: no duplicate same-point labels, no unlabeled measured segments, no unnecessary boundary redraws, no phase helpers in trend-only snapshots, and no false folded polygon for the interval.
 - Extremum reasoning compares every included endpoint candidate that the trend step identifies; do not discard a candidate endpoint without a comparison.

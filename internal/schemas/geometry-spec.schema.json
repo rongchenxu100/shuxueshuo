@@ -129,9 +129,20 @@
           "showMoving": { "type": "boolean" },
           "showOverlap": { "type": "boolean" },
           "showIntersections": { "type": "boolean" },
+          "showGrid": { "type": "boolean" },
+          "grid": {
+            "oneOf": [
+              { "type": "boolean" },
+              { "type": "object" }
+            ]
+          },
           "segments": {
             "type": "array",
             "items": { "$ref": "#/$defs/originalFigureSegment" }
+          },
+          "rightAngles": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/originalFigureRightAngle" }
           },
           "fixedLabels": {
             "type": "array",
@@ -176,6 +187,18 @@
         "color": { "type": "string" },
         "width": { "type": "number" },
         "dash": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "originalFigureRightAngle": {
+      "type": "object",
+      "required": ["vertex", "rayA", "rayB"],
+      "properties": {
+        "vertex": { "type": "string" },
+        "rayA": { "type": "string" },
+        "rayB": { "type": "string" },
+        "color": { "type": "string" },
+        "size": { "type": "number" }
       },
       "additionalProperties": false
     }

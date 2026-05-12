@@ -41,6 +41,8 @@ Rules:
 - `movingParam` names the slider-driven unknown (`t`、`m` 等)，表达式里用同名变量；`expressionEnv` 可再加入任意常量名（如系数）。
 - Do not hand-write dynamic intersection formulas; use `derivedIntersections`.
 - `fallback` may be used for original/static figure rendering.
+- For pure geometry source figures, set `"showGrid": false` inside the `originalFigures[]` item. Coordinate grids/axes are not implicit source context.
+- Use `rightAngles` inside an `originalFigures[]` item for printed right-angle marks, for example `{ "vertex": "C", "rayA": "A", "rayB": "B" }`.
 - Do not force one `movingPolygon` through every phase when the real folded piece changes shape. If an unexpected sliver or small triangle appears in a folding trend diagram, first check whether the model is using a later-stage polygon outside its valid interval.
 - Use `movingPolygons` for explicit phase models:
 

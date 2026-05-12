@@ -39,13 +39,18 @@
       "add": [
         { "type": "coloredLine", "from": "A", "to": "D", "label": "AD", "color": "#dc2626", "width": 3, "rotateWithLine": true },
         { "type": "coloredLine", "from": "B", "to": "D", "label": "BD", "color": "#dc2626", "width": 3, "rotateWithLine": true },
-        { "type": "coloredLine", "from": "C", "to": "D", "label": "CD", "color": "#dc2626", "width": 2.6, "dash": "6 5", "rotateWithLine": true },
-        { "type": "coincidentLabel", "at": "D", "text": "D 为 AB 中点", "dx": 32, "dy": -26 }
+        { "type": "coloredLine", "from": "A", "to": "E", "label": "EA", "color": "#2563eb", "width": 3, "rotateWithLine": true },
+        { "type": "coloredLine", "from": "B", "to": "E", "label": "EB", "color": "#2563eb", "width": 3, "rotateWithLine": true },
+        { "type": "angleArc", "vertex": "A", "rayA": "E", "rayB": "B", "label": "∠EAB", "color": "#2563eb", "radius": 34, "labelRadius": 55 },
+        { "type": "angleArc", "vertex": "B", "rayA": "E", "rayB": "A", "label": "∠EBA", "color": "#2563eb", "radius": 34, "labelRadius": 54 },
+        { "type": "coincidentLabel", "at": "D", "text": "ED 是 AB 的中垂线", "dx": 32, "dy": -26 }
       ]
     },
     "q1s2": {
       "add": [
-        { "type": "angleArc", "vertex": "A", "rayA": "C", "rayB": "B", "label": "69°", "color": "#2563eb", "radius": 44, "labelRadius": 66 },
+        { "type": "angleArc", "vertex": "A", "rayA": "C", "rayB": "B", "label": "∠CAB", "color": "#2563eb", "radius": 44, "labelRadius": 66 },
+        { "type": "angleArc", "vertex": "B", "rayA": "C", "rayB": "A", "label": "∠CBA", "color": "#2563eb", "radius": 36, "labelRadius": 56 },
+        { "type": "angleArc", "vertex": "A", "rayA": "E", "rayB": "B", "label": "∠EAB", "color": "#dc2626", "radius": 34, "labelRadius": 54 },
         { "type": "angleArc", "vertex": "E", "rayA": "D", "rayB": "A", "label": "69°", "color": "#dc2626", "radius": 36, "labelRadius": 54 },
         { "type": "angleArc", "vertex": "F", "rayA": "E", "rayB": "D", "label": "69°", "color": "#7c3aed", "radius": 31, "labelRadius": 52 }
       ]

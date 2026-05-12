@@ -27,6 +27,7 @@
     {
       "id": "originalFigure1",
       "t": 2.625,
+      "showGrid": false,
       "showMoving": false,
       "showOverlap": false,
       "showIntersections": false,
@@ -37,6 +38,10 @@
         { "from": "E", "to": "D", "width": 2.2 },
         { "from": "A", "to": "E", "width": 2.2 },
         { "from": "F", "to": "D", "width": 2.2 }
+      ],
+      "rightAngles": [
+        { "vertex": "C", "rayA": "A", "rayB": "B", "size": 12 },
+        { "vertex": "D", "rayA": "E", "rayB": "A", "size": 11 }
       ],
       "fixedLabels": [
         { "at": "A", "label": "A", "dx": 12, "dy": 20 },

@@ -28,10 +28,7 @@ Write `lesson-data.steps[].derive` as board-style mathematical reasoning:
 - Once a value is solved, later steps must use the solved state. If a step already has `m = 3`, use `N(2,−2)` rather than the earlier general form `N(2,1−m)`.
 - Keep `02_solution.md`, `lesson-data.json`, and `step-decorations.json` in the same mathematical state. Do not let JSON fall back to a generic template after the markdown has specialized the problem.
 - Do not answer what the problem did not ask. If Part I asks only for `D` and the equation, do not add `C` or vertex conclusions to the solution, box, or diagram.
-- Diagrams should label only quantities that the current derivation uses or has just obtained. Do not label unrelated coordinates, and do not reveal coordinates or values before the step's reasoning has established them.
-- For local transformation or optimization steps, narrow both the `domain` and the active layers. Do not let broad context layers such as the full parabola, construction quadrilateral, or earlier helper segments remain visible when the step only needs a local triangle or a few comparison segments.
-- Keep a prior construction visible if the current derivation still depends on it. For example, if a distance-optimization step first uses parallelogram `MFDB` to get `M`, retain the four vertices and the parallelogram edges while still removing unrelated objects such as the full parabola or rotation auxiliaries.
-- Do not label a segment with just its endpoint name, such as `PB`, `PM`, or `PA`, when the segment is already visibly drawn between labeled endpoints. Such labels add no mathematical information. Reserve segment labels for new facts like `EF=6`, ratios, equality markers, or a length value that is being computed in the current step.
+- Keep diagram choices aligned with `diagram-drawing-principles.md`: show current-step constructions and used quantities, avoid premature reveals, and reserve segment labels for real mathematical information.
 - When a step cites a prior derivation, add a declarative step reference in the derive row instead of repeating the whole proof or embedding HTML. Use the third derive item: `{ "refStep": "previousStepId", "refLabel": "回看..." }`.
 
 ---
@@ -54,6 +51,20 @@ Many problems give a specific `a` and `c` for Part I, then make `a`, `b`, `c` de
 ---
 
 ## Geometric Constructions on the Parabola
+
+### Prefer Geometric Segment Transformations
+
+For quadratic comprehensive problems with moving-point distance sums, prefer a geometric segment transformation before coordinate or algebraic minimization. See `diagram-drawing-principles.md` for the diagram requirements and examples.
+
+### Trigonometry In Middle-School Coordinate Problems
+
+When a quadratic problem uses `tan` or an angle sum involving `45°`, keep the method inside right triangles.
+
+- Use only the definition `tan A = opposite leg / adjacent leg` in a right triangle.
+- Do not use tangent subtraction/addition formulas such as `tan(45°−A)`.
+- Do not use the tangent formula for the angle between two slopes.
+- If the condition is like `∠CBE + ∠ACO = 45°`, look for a known `45°` angle in the diagram, then construct an auxiliary point so the target angle equals a right-triangle angle. For example, if `BE` meets `OC` at `F` and `∠OBC=45°`, then `∠OBF=∠ACO`; compute `OF` from `tan∠OBF=OF/OB`.
+- After the auxiliary point is found, use line equations and parabola intersections to locate the required point.
 
 ### ∠MDN = 90°, DM = DN Pattern
 

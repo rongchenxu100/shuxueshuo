@@ -21,6 +21,9 @@ This file is the compact teaching-quality reference. It should preserve the high
 ## Reasoning Style
 
 - Use given conditions directly before introducing derived quantities.
+- Before using similarity, trigonometric ratios, coordinates, or algebraic parameters, scan for a one-step geometric theorem triggered by the givens: perpendicular bisector, angle bisector, median to hypotenuse, isosceles triangle, parallel lines, or complementary angles.
+- If a target is an angle, prefer angle chasing through equal angles and complementary/supplementary angles before setting up side ratios or formulas.
+- When a point is the midpoint of a segment and another given line is perpendicular to that segment at the midpoint, immediately consider the perpendicular-bisector conclusion and the resulting isosceles triangle.
 - Reuse named points from the problem statement instead of redefining them.
 - Reuse conclusions from earlier sub-questions instead of re-deriving them.
 - Prefer familiar middle-school geometry before analytic coordinates: right triangles, perpendiculars, equal segments, angle equality, rotations, folds, and similar triangles.

@@ -3,30 +3,30 @@
 ## 第（I）问
 
 ### Step 1
-- 标题：由相似三角形联系两个锐角
-- 目标：先看出 △BDE 和 △BAC 相似，再把 ∠CAB 转移到 △ADE 中。
+- 标题：由中垂线得到等腰三角形
+- 目标：利用 ED 是 AB 的中垂线，得到 △AEB 的两个底角相等。
 - 推导：
-  - ∵ Rt△ABC 中，∠C＝90°，D 是斜边 AB 的中点
-  - ∴ DA＝DB＝DC
-  - ∵ E 在 BC 上，D 在 AB 上，ED⊥AB
-  - ∴ △BDE∽△BAC
-  - ∴ DE/AC＝BD/BC
-  - ∵ D 是 AB 中点
-  - ∴ BD＝AD
-  - ∴ AD/DE＝BC/AC
-  - ∵ Rt△ADE 与 Rt△ABC 的两条直角边成比例
-  - ∴ ∠DEA＝∠CAB
-- 当前结论：∠DEA＝∠CAB。
+  - ∵ D 是 AB 的中点，ED⊥AB
+  - ∴ ED 是 AB 的垂直平分线
+  - ∴ EA＝EB
+  - ∴ ∠EAB＝∠EBA
+  - ∵ E 在 BC 上
+  - ∴ ∠EBA＝∠CBA
+- 当前结论：∠EAB＝∠CBA。
 
 ### Step 2
-- 标题：由等角传递求 ∠EFD
-- 目标：用 F 在线段 AE 上，把 69° 传给 ∠EFD。
+- 标题：由互余角求 ∠EFD
+- 目标：用两个互余关系证明 ∠DEF＝∠CAB，再结合已知角相等。
 - 推导：
-  - ∵ F 在线段 AE 上
-  - ∴ ∠DEF＝∠DEA
-  - ∵ ∠DEF＝69°
-  - ∴ ∠CAB＝69°
+  - ∵ ED⊥AB，F 在线段 AE 上
+  - ∴ ∠DEF＋∠EAB＝90°
+  - ∵ ∠C＝90°
+  - ∴ ∠CAB＋∠CBA＝90°
+  - ∵ ∠EAB＝∠CBA
+  - ∴ ∠DEF＝∠CAB
   - ∵ ∠CAB＝∠EFD
+  - ∴ ∠DEF＝∠EFD
+  - ∵ ∠DEF＝69°
   - ∴ ∠EFD＝69°
 - 当前结论：∠EFD＝69°。
 

@@ -138,6 +138,13 @@ function validateOriginalFigureRefs(spec) {
         need(knownPoints.has(segment.to), figLabel + ".segments[" + index + "].to 未声明点: " + segment.to);
       }
     }
+    for (const [index, rightAngle] of (fig.rightAngles ?? []).entries()) {
+      if (rightAngle && typeof rightAngle === "object" && !Array.isArray(rightAngle)) {
+        need(knownPoints.has(rightAngle.vertex), figLabel + ".rightAngles[" + index + "].vertex 未声明点: " + rightAngle.vertex);
+        need(knownPoints.has(rightAngle.rayA), figLabel + ".rightAngles[" + index + "].rayA 未声明点: " + rightAngle.rayA);
+        need(knownPoints.has(rightAngle.rayB), figLabel + ".rightAngles[" + index + "].rayB 未声明点: " + rightAngle.rayB);
+      }
+    }
   }
 }
 
