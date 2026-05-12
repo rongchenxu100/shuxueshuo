@@ -300,7 +300,8 @@
     }
 
     function renderDeriveLine(pair) {
-      const ref = pair && pair[2];
+      if (!Array.isArray(pair) || pair.length < 2) return "";
+      const ref = pair[2];
       const refMarkup =
         ref && ref.refStep
           ? '<button class="derive-ref" type="button" data-step-ref="' +
@@ -311,7 +312,14 @@
             esc(ref.refLabel || "回看") +
             "</button>"
           : "";
-      return '<div class="derive-line"><strong>' + esc(pair[0]) + "</strong>" + esc(pair[1]) + refMarkup + "</div>";
+      return (
+        '<div class="derive-line"><strong>' +
+        esc(String(pair[0] != null ? pair[0] : "")) +
+        "</strong>" +
+        esc(String(pair[1] != null ? pair[1] : "")) +
+        refMarkup +
+        "</div>"
+      );
     }
 
     function renderAllSteps() {

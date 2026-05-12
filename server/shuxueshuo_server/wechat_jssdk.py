@@ -40,9 +40,31 @@ class WeChatJsSdkSigner:
         self._ticket_cache: _CachedItem | None = None
 
     def validate_page_url(self, url: str) -> None:
-        if not url or not url.startswith(("http://", "https://")):
+        """校验当前页 URL 与允许的站点同源，避免仅靠 startswith 被 example.com.evil 绕过。"""
+        page = urlparse(url)
+        if page.scheme not in ("http", "https") or not page.hostname:
             raise ValueError("invalid url")
-        if not url.startswith(self._allowed_origin):
+        base = urlparse(self._allowed_origin)
+        if base.scheme not in ("http", "https") or not base.hostname:
+            raise ValueError("allowed origin misconfigured")
+
+        def effective_port(scheme: str, port: int | None) -> int:
+            if port is not None:
+                return port
+            return 443 if scheme == "https" else 80
+
+        if page.scheme != base.scheme:
+            raise ValueError("url not allowed")
+        if page.hostname.lower() != base.hostname.lower():
+            raise ValueError("url not allowed")
+        if effective_port(page.scheme, page.port) != effective_port(base.scheme, base.port):
+            raise ValueError("url not allowed")
+
+        base_path = (base.path or "").rstrip("/")
+        if not base_path:
+            return
+        page_path = page.path or "/"
+        if page_path != base_path and not page_path.startswith(base_path + "/"):
             raise ValueError("url not allowed")
 
     async def build_config(self, page_url: str) -> dict[str, Any]:
@@ -65,9 +87,7 @@ class WeChatJsSdkSigner:
 
     @staticmethod
     def _normalize_url(url: str) -> str:
-        """与微信一致：去掉 hash；可选统一端口等。"""
-        parsed = urlparse(url)
-        # 微信文档：参与签名的 url 需与当前页面 URL 完全一致（不含 # 及其后面部分）
+        """与微信一致：参与签名的 url 不含 # 及其后面部分。"""
         return url.split("#", 1)[0]
 
     async def _get_jsapi_ticket(self) -> str:

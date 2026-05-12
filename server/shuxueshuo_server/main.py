@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import os
 from pathlib import Path
 
@@ -13,6 +14,8 @@ from shuxueshuo_server.wechat_jssdk import WeChatJsSdkSigner
 # 本地开发：加载 server/.env
 _env_path = Path(__file__).resolve().parent.parent / ".env"
 load_dotenv(_env_path)
+
+logger = logging.getLogger(__name__)
 
 
 def _require_env(name: str) -> str:
@@ -55,4 +58,8 @@ async def wechat_jssdk_config(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
     except RuntimeError as e:
-        raise HTTPException(status_code=502, detail=str(e)) from e
+        logger.warning("wechat jssdk-config failed: %s", e, exc_info=True)
+        raise HTTPException(
+            status_code=502,
+            detail="微信侧服务暂时不可用，请稍后重试",
+        ) from e
