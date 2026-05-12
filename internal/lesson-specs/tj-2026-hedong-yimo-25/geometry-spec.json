@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "id": "tj-2026-hedong-yimo-25",
+  "domain": { "minX": -2.2, "maxX": 7.2, "minY": -7.2, "maxY": 3.0 },
+  "movingParam": "c",
+  "expressionEnv": [
+    { "name": "aI", "expr": "1" },
+    { "name": "bI", "expr": "-2" },
+    { "name": "cI", "expr": "-3" },
+    { "name": "aQ1", "expr": "2" },
+    { "name": "bQ1", "expr": "c+2" },
+    { "name": "a", "expr": "1" },
+    { "name": "b", "expr": "c+1" },
+    { "name": "axisX", "expr": "-(c+1)/2" },
+    { "name": "yF", "expr": "(c-1)/(2*S3)" },
+    { "name": "yAref", "expr": "S3*(c-1)/2" },
+    { "name": "yFref", "expr": "-(c-1)/(2*S3)" }
+  ],
+  "fixedPoints": {
+    "O": ["0", "0"],
+    "A": ["-1", "0"],
+    "P": ["1", "-4"],
+    "B1": ["5/4", "0"],
+    "C1": ["0", "-5/2"],
+    "D1": ["-5/4", "5/4"],
+    "Q1": ["-5/4", "0"]
+  },
+  "movingPoints": {
+    "Bq1": ["-c/2", "0"],
+    "Cq1": ["0", "c"],
+    "Dq1": ["c/2", "-c/2"],
+    "Qq1": ["c/2", "0"],
+    "B": ["-c", "0"],
+    "C": ["0", "c"],
+    "E": ["0", "c/S3"],
+    "F": ["axisX", "yF"],
+    "G": ["axisX", "yF"],
+    "H": ["axisX", "0"],
+    "Aref": ["axisX", "yAref"],
+    "ArefMid": ["(axisX-1)/2", "yAref/2"],
+    "Fref": ["axisX", "yFref"]
+  },
+  "curves": [
+    { "id": "parabolaPartI", "type": "parabola", "a": "aI", "b": "bI", "c": "cI" },
+    { "id": "parabolaQ1", "type": "parabola", "a": "aQ1", "b": "bQ1", "c": "c" },
+    { "id": "parabolaMain", "type": "parabola", "a": "a", "b": "b", "c": "c" }
+  ],
+  "derivedIntersections": []
+}

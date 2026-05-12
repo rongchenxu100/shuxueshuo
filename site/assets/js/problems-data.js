@@ -234,6 +234,19 @@ window.__PROBLEMS_DATA__ = [
     "status": "published"
   },
   {
+    "id": "tj-2026-hedong-yimo-25",
+    "city": "tianjin",
+    "cityLabel": "天津",
+    "year": 2026,
+    "exam": "hedong-yimo",
+    "examLabel": "河东区一模",
+    "slot": "25",
+    "title": "2026 年天津市河东区一模第 25 题（二次函数综合）",
+    "tags": ["algebra", "quadratic-function", "coordinate-plane"],
+    "path": "../problems/tj/25/tj-2026-hedong-yimo-25.html",
+    "status": "published"
+  },
+  {
     "id": "tj-2026-xiqing-yimo-24",
     "city": "tianjin",
     "cityLabel": "天津",

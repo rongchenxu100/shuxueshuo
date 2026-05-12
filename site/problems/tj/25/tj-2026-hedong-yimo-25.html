@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2026 年天津市河东区一模 第 25 题（二次函数综合） | 数学说</title>
+  <meta name="description" content="2026 天津市河东区一模第 25 题：求抛物线顶点、直角等腰条件下的点 D，以及角度条件与最短路条件下的点 E。" />
+  <meta property="og:title" content="2026 年天津市河东区一模 第 25 题（二次函数综合） | 数学说" />
+  <meta property="og:description" content="2026 天津市河东区一模第 25 题：求抛物线顶点、直角等腰条件下的点 D，以及角度条件与最短路条件下的点 E。" />
+  <meta property="og:image" content="../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../assets/css/interactive-geometry-page.css" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../nav/index.html">题库导航</a>
+    <span class="lesson-title">2026 天津市河东区一模 第 25 题</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <div class="problem-summary">
+            <div class="problem-summary-text">第 25 题（2026 天津市河东区一模）二次函数综合：顶点、直角等腰构造与 AG+GH+FH 最短路。</div>
+            <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          </div>
+          <div class="problem-full">
+            <div class="problem-line"><span>（25）（本小题 10 分）已知抛物线 y＝ax²＋bx＋c（a，b，c 为常数，a＞0，b＜0）。</span></div>
+<div class="problem-line"><span>（Ⅰ）当 a＝1，b＝−2，c＝−3 时，求该抛物线顶点 P 的坐标；</span><span class="answer-chip" id="answerI">P(1, −4)</span></div>
+<div class="problem-line"><span>（Ⅱ）点 A(−1,0) 和点 B 为抛物线与 x 轴的两个交点，点 C 为抛物线与 y 轴的交点。</span></div>
+<div class="problem-line"><span>① 当 a＝2 时，若点 D 在抛物线上，∠CBD＝90°，BC＝BD，求点 D 的坐标；</span><span class="answer-chip" id="answerQ1">D(−5/4, 5/4)</span></div>
+<div class="problem-line"><span>② 若点 B(−c,0)，点 E 在线段 OC 上，且 ∠ABE＝2∠CBE，线段 BE 与抛物线的对称轴 l 的交点为 F，点 G，H 分别为线段 BE，BA 上的动点，当 AG＋GH＋FH 取得最小值为 5√3 时，求点 E 的坐标。</span><span class="answer-chip" id="answerQ2">E(0, −13√3/6)</span></div>
+          </div>
+        </section>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../assets/js/lesson-page-runtime.js"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"i1s1","section":"第（Ⅰ）问","title":"第1步：配方求顶点 P","t":-6.5,"derive":[["∵","a＝1，b＝−2，c＝−3"],["∴","y＝x²−2x−3"],["∴","y＝(x−1)²−4"],["∴","顶点 P(1,−4)"]],"box":["P(1, −4)"]},{"id":"q1s1","section":"第（Ⅱ）①问","title":"第1步：由 A 坐标化简抛物线，读出 B、C","t":-4,"derive":[["∵","A(−1,0) 在抛物线上"],["∴","a−b＋c＝0"],["∵","a＝2"],["∴","b＝c＋2"],["∴","y＝2x²＋(c＋2)x＋c"],["∴","y＝(x＋1)(2x＋c)"],["∴","另一个交点 B(−c/2,0)，C(0,c)"]],"box":["y＝(x＋1)(2x＋c)","B(−c/2,0)","C(0,c)"]},{"id":"q1s2","section":"第（Ⅱ）①问","title":"第2步：由全等三角形求D点坐标表达式","t":-4,"derive":[["作","DQ⊥x轴，垂足为 Q"],["∵","∠CBD＝90°，BC＝BD"],["∵","B(−c/2,0)，C(0,c)"],["∴","BO＝−c/2，CO＝−c"],["∵","∠COB＝∠DQB＝90°"],["∵","∠CBO＝∠BDQ"],["∴","Rt△CBO≌Rt△BDQ"],["∴","BQ＝CO＝−c，DQ＝BO＝−c/2"],["∴","Q(c/2,0)，D(c/2,−c/2)"]],"box":["D(c/2, −c/2)"]},{"id":"q1s3","section":"第（Ⅱ）①问","title":"第3步：代入抛物线求出 D","t":-2.5,"derive":[["∵","D(c/2,−c/2) 在抛物线上"],["∵","抛物线可写成 y＝(x＋1)(2x＋c)"],["∴","−c/2＝(c/2＋1)(2·c/2＋c)"],["∴","−c/2＝c(c＋2)"],["∵","c≠0"],["∴","c＝−5/2"],["∴","D(−5/4,5/4)"]],"box":["c＝−5/2","D(−5/4, 5/4)"]},{"id":"q2s1","section":"第（Ⅱ）②问","title":"第1步：由A和B坐标化简函数表达式","t":-6.5,"derive":[["∵","A(−1,0)，B(−c,0) 是抛物线与 x 轴交点"],["∴","y＝a(x＋1)(x＋c)"],["∵","常数项为 c"],["∴","ac＝c"],["∵","c≠0"],["∴","a＝1"],["∴","b＝c＋1"],["∵","b＜0"],["∴","c＜−1"],["∴","抛物线为 y＝x²＋(c＋1)x＋c"]],"box":["a＝1","b＝c＋1","c＜−1","y＝x²＋(c＋1)x＋c"]},{"id":"q2s2","section":"第（Ⅱ）②问","title":"第2步：由角度条件确定 E","t":-6.5,"derive":[["设","E(0,y)，其中 c≤y≤0"],["∵","B(−c,0)，C(0,c)，且 c＜−1"],["∴","OB＝OC＝−c"],["∴","直线 BC 与 BA 的夹角为 45°"],["∵","∠ABE＝2∠CBE"],["∴","∠ABE＝30°"],["∵","tan∠ABE＝(−y)/(−c)"],["∴","(−y)/(−c)＝1/√3"],["∴","y＝c/√3"],["∴","E(0,c/√3)"]],"box":["∠ABE＝30°","E(0, c/√3)"]},{"id":"q2s3","section":"第（Ⅱ）②问","title":"第3步：求 BE 与对称轴的交点 F","t":-6.5,"derive":[["∵","抛物线为 y＝x²＋(c＋1)x＋c"],["∴","对称轴 l：x＝−(c＋1)/2"],["∵","B(−c,0)，E(0,c/√3)"],["∴","直线 BE：y＝(x＋c)/√3"],["∴","F(−(c＋1)/2, (c−1)/(2√3))"]],"box":["F(−(c＋1)/2, (c−1)/(2√3))"]},{"id":"q2s4","section":"第（Ⅱ）②问","title":"第4步：用两次对称把折线路径拉直","t":-6.5,"derive":[["作","点 A 关于 BE 的对称点 A′，点 F 关于 BA 的对称点 F′"],["∵","G 在 BE 上"],["∴","AG＝A′G"],["∵","H 在 BA 上"],["∴","FH＝F′H"],["∴","AG＋GH＋FH＝A′G＋GH＋F′H"],["∵","两点之间线段最短"],["∴","A′G＋GH＋F′H≥A′F′"],["∴","当 A′、G、H、F′ 共线时取得最小值"]],"box":["最小值＝A′F′"],"localControls":{"values":{"u":0.576923,"v":0.5},"note":"拖动 G、H，观察折线路径被两次对称拉成 A′F′。","controls":[{"var":"u","label":"动点 G：BG/BE","min":0,"max":1,"step":0.01,"scale":1,"precision":2},{"var":"v","label":"动点 H：AH/AB","min":0,"max":1,"step":0.01,"scale":1,"precision":2}]}},{"id":"q2s5","section":"第（Ⅱ）②问","title":"第5步：由最小值求 c，得到 E","t":-6.5,"derive":[["∵","A′ 是 A 关于 BE 的对称点"],["∴","BE 垂直平分 AA′，且 BA＝BA′"],["∵","∠ABE＝30°"],["∴","∠ABA′＝60°"],["∴","△ABA′ 是等边三角形"],["∴","A′ 在 AB 的垂直平分线上，即 x＝−(c＋1)/2"],["∵","AB＝−c＋1＝1−c"],["∴","等边三角形高为 √3(1−c)/2"],["∵","A′ 在 x 轴下方"],["∴","A′ 的纵坐标为 −√3(1−c)/2＝√3(c−1)/2"],["∴","A′(−(c＋1)/2, √3(c−1)/2)"],["∵","F(−(c＋1)/2, (c−1)/(2√3))，F′ 是 F 关于 x 轴的对称点"],["∴","F′(−(c＋1)/2, −(c−1)/(2√3))"],["∴","A′F′＝−2(c−1)/√3"],["∵","最小值为 5√3"],["∴","−2(c−1)/√3＝5√3"],["∴","c＝−13/2"],["∴","E(0,c/√3)＝(0,−13√3/6)"]],"box":["c＝−13/2","E(0, −13√3/6)"]}];
+    var STEP_LABELS = {"i1s1":"1 求顶点","q1s1":"1 化简函数表达式求B、C","q1s2":"2 表示D","q1s3":"3 代入函数求D","q2s1":"1 消参化简函数表达式","q2s2":"2 求E表达式","q2s3":"3 求F表达式","q2s4":"4 通过对称点把折线拉直求最短路径","q2s5":"5 求E坐标"};
+    var POLICIES   = {"i1s1":{"movable":false,"range":[-6.5,-6.5]},"q1s1":{"movable":false,"range":[-4,-4]},"q1s2":{"movable":false,"range":[-4,-4]},"q1s3":{"movable":false,"range":[-2.5,-2.5]},"q2s1":{"movable":false,"range":[-6.5,-6.5]},"q2s2":{"movable":false,"range":[-6.5,-6.5]},"q2s3":{"movable":false,"range":[-6.5,-6.5]},"q2s4":{"movable":false,"range":[-6.5,-6.5]},"q2s5":{"movable":false,"range":[-6.5,-6.5]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script type="application/json" id="geometrySpec">{"version":1,"id":"tj-2026-hedong-yimo-25","domain":{"minX":-2.2,"maxX":7.2,"minY":-7.2,"maxY":3},"movingParam":"c","expressionEnv":[{"name":"aI","expr":"1"},{"name":"bI","expr":"-2"},{"name":"cI","expr":"-3"},{"name":"aQ1","expr":"2"},{"name":"bQ1","expr":"c+2"},{"name":"a","expr":"1"},{"name":"b","expr":"c+1"},{"name":"axisX","expr":"-(c+1)/2"},{"name":"yF","expr":"(c-1)/(2*S3)"},{"name":"yAref","expr":"S3*(c-1)/2"},{"name":"yFref","expr":"-(c-1)/(2*S3)"}],"fixedPoints":{"O":["0","0"],"A":["-1","0"],"P":["1","-4"],"B1":["5/4","0"],"C1":["0","-5/2"],"D1":["-5/4","5/4"],"Q1":["-5/4","0"]},"movingPoints":{"Bq1":["-c/2","0"],"Cq1":["0","c"],"Dq1":["c/2","-c/2"],"Qq1":["c/2","0"],"B":["-c","0"],"C":["0","c"],"E":["0","c/S3"],"F":["axisX","yF"],"G":["axisX","yF"],"H":["axisX","0"],"Aref":["axisX","yAref"],"ArefMid":["(axisX-1)/2","yAref/2"],"Fref":["axisX","yFref"]},"curves":[{"id":"parabolaPartI","type":"parabola","a":"aI","b":"bI","c":"cI"},{"id":"parabolaQ1","type":"parabola","a":"aQ1","b":"bQ1","c":"c"},{"id":"parabolaMain","type":"parabola","a":"a","b":"b","c":"c"}],"derivedIntersections":[]}</script>
+<script src="../../../assets/js/geometry-engine.js"></script>
+<script src="../../../assets/js/geometry-lesson-from-spec.js"></script>
+
+<script>
+  const __GEOMETRY_SPEC__ = JSON.parse(document.getElementById('geometrySpec').textContent);
+  const __STEP_DECORATIONS__ = {"_comment":"河东 2026 一模第 25 题 — 二次函数综合","layers":{"global":{"elements":[{"type":"grid"},{"type":"point","at":"O","color":"#1f2937","showLabel":false}]},"partI":{"stepStartsWith":["i1"],"elements":[{"type":"parabola","curveId":"parabolaPartI","color":"#2563eb","width":2.8},{"type":"axisOfSymmetry","curveId":"parabolaPartI","color":"#94a3b8","width":1.4,"dash":"8 6"},{"type":"vertex","curveId":"parabolaPartI","color":"#dc2626","labelText":"P","dx":14,"dy":18}]},"q1":{"stepStartsWith":["q1"],"elements":[{"type":"parabola","curveId":"parabolaQ1","color":"#2563eb","width":2.8},{"type":"point","at":"A","color":"#1f2937","dx":-18,"dy":20}]},"q1Generic":{"stepStartsWith":["q1s1","q1s2"],"elements":[{"type":"point","at":"Bq1","labelText":"B","color":"#0f766e","dx":12,"dy":18},{"type":"point","at":"Cq1","labelText":"C","color":"#0f766e","dx":12,"dy":12}]},"q1Solved":{"stepStartsWith":["q1s3"],"elements":[{"type":"point","at":"B1","labelText":"B","color":"#0f766e","dx":12,"dy":18},{"type":"point","at":"C1","labelText":"C","color":"#0f766e","dx":12,"dy":12},{"type":"coloredLine","from":"B1","to":"C1","color":"#0f766e","width":2.1}]},"q2":{"stepStartsWith":["q2"],"elements":[{"type":"parabola","curveId":"parabolaMain","color":"#2563eb","width":2.6},{"type":"axisOfSymmetry","curveId":"parabolaMain","color":"#94a3b8","width":1.4,"dash":"8 6"},{"type":"point","at":"A","color":"#1f2937","dx":-18,"dy":20},{"type":"point","at":"B","color":"#0f766e","dx":12,"dy":18},{"type":"point","at":"C","color":"#0f766e","dx":12,"dy":16}]}},"steps":{"i1s1":{"add":[{"type":"coordinateLabel","at":"P","text":"P(1, −4)","dx":16,"dy":24}]},"q1s1":{"add":[{"type":"coordinateLabel","at":"Bq1","text":"B(−c/2, 0)","dx":16,"dy":-24},{"type":"coordinateLabel","at":"Cq1","text":"C(0, c)","dx":14,"dy":18}]},"q1s2":{"add":[{"type":"point","at":"Dq1","labelText":"D","color":"#dc2626","dx":-28,"dy":-14},{"type":"point","at":"Qq1","labelText":"Q","color":"#64748b","dx":-18,"dy":20},{"type":"coloredLine","from":"Bq1","to":"Cq1","color":"#0f766e","width":2.1},{"type":"coloredLine","from":"Bq1","to":"Dq1","color":"#dc2626","width":2.2},{"type":"coloredLine","from":"Cq1","to":"O","color":"#0f766e","width":1.8},{"type":"coloredLine","from":"O","to":"Bq1","color":"#0f766e","width":1.8},{"type":"coloredLine","from":"Bq1","to":"Qq1","color":"#dc2626","width":1.8},{"type":"dashedLine","from":"Dq1","to":"Qq1","color":"#dc2626","width":1.7,"dash":"5 5"},{"type":"rightAngle","vertex":"Bq1","rayA":"Cq1","rayB":"Dq1","size":12,"color":"#b45309"},{"type":"rightAngle","vertex":"O","rayA":"Cq1","rayB":"Bq1","size":10,"color":"#64748b"},{"type":"rightAngle","vertex":"Qq1","rayA":"Dq1","rayB":"Bq1","size":10,"color":"#64748b"},{"type":"segment","from":"Bq1","to":"Dq1","label":"BD=BC","color":"#dc2626","width":2.2,"offsetPx":18},{"type":"segment","from":"Bq1","to":"Qq1","label":"BQ=CO","color":"#dc2626","width":1.8,"offsetPx":-16},{"type":"segment","from":"Dq1","to":"Qq1","label":"DQ=BO","color":"#dc2626","width":1.7,"offsetPx":14},{"type":"coordinateLabel","at":"Bq1","text":"B(−c/2, 0)","dx":16,"dy":-24},{"type":"coordinateLabel","at":"Cq1","text":"C(0, c)","dx":14,"dy":18},{"type":"coordinateLabel","at":"Qq1","text":"Q(c/2, 0)","dx":-80,"dy":24},{"type":"coordinateLabel","at":"Dq1","text":"D(c/2, −c/2)","dx":-106,"dy":-18}]},"q1s3":{"add":[{"type":"point","at":"D1","labelText":"D","color":"#dc2626","dx":-28,"dy":-14},{"type":"point","at":"Q1","labelText":"Q","color":"#64748b","dx":-18,"dy":20},{"type":"coloredLine","from":"B1","to":"D1","color":"#dc2626","width":2.2},{"type":"dashedLine","from":"D1","to":"Q1","color":"#dc2626","width":1.7,"dash":"5 5"},{"type":"rightAngle","vertex":"B1","rayA":"C1","rayB":"D1","size":12,"color":"#b45309"},{"type":"rightAngle","vertex":"Q1","rayA":"D1","rayB":"B1","size":10,"color":"#64748b"},{"type":"segment","from":"B1","to":"D1","label":"BD=BC","color":"#dc2626","width":2.2,"offsetPx":18},{"type":"coordinateLabel","at":"B1","text":"B(5/4, 0)","dx":16,"dy":-24},{"type":"coordinateLabel","at":"C1","text":"C(0, −5/2)","dx":14,"dy":18},{"type":"coordinateLabel","at":"D1","text":"D(−5/4, 5/4)","dx":-96,"dy":-18}]},"q2s1":{"add":[{"type":"coordinateLabel","at":"B","text":"B(−c, 0)","dx":12,"dy":-24},{"type":"coordinateLabel","at":"C","text":"C(0, c)","dx":14,"dy":18}]},"q2s2":{"add":[{"type":"point","at":"E","color":"#dc2626","dx":14,"dy":12},{"type":"coloredLine","from":"B","to":"A","color":"#475569","width":1.8},{"type":"coloredLine","from":"B","to":"C","color":"#0f766e","width":1.8},{"type":"coloredLine","from":"B","to":"E","color":"#dc2626","width":2.2},{"type":"angleArc","vertex":"B","rayA":"A","rayB":"E","label":"30°","color":"#dc2626","radius":42},{"type":"angleArc","vertex":"B","rayA":"E","rayB":"C","label":"15°","color":"#b45309","radius":28},{"type":"coordinateLabel","at":"B","text":"B(−c, 0)","dx":12,"dy":-24},{"type":"coordinateLabel","at":"E","text":"E(0, c/√3)","dx":14,"dy":18}]},"q2s3":{"add":[{"type":"point","at":"E","color":"#dc2626","dx":14,"dy":12},{"type":"point","at":"F","color":"#7c3aed","dx":14,"dy":-12},{"type":"coloredLine","from":"B","to":"E","color":"#dc2626","width":2.2},{"type":"coordinateLabel","at":"F","text":"F(−(c+1)/2, (c−1)/(2√3))","dx":-156,"dy":-18}]},"q2s4":{"domain":{"minX":-1.6,"maxX":7,"minY":-7,"maxY":2.8},"pointOverrides":{"G":["-c*(1-u)","c*u/S3"],"H":["-1+v*(1-c)","0"]},"add":[{"type":"point","at":"E","color":"#dc2626","dx":14,"dy":12},{"type":"point","at":"F","color":"#7c3aed","dx":14,"dy":-12},{"type":"point","at":"G","color":"#dc2626","dx":12,"dy":14},{"type":"point","at":"H","color":"#7c3aed","dx":10,"dy":-18},{"type":"point","at":"Aref","labelText":"A′","color":"#b45309","dx":14,"dy":14},{"type":"point","at":"Fref","labelText":"F′","color":"#b45309","dx":14,"dy":-12},{"type":"coloredLine","from":"B","to":"E","color":"#dc2626","width":1.8},{"type":"coloredLine","from":"A","to":"B","color":"#475569","width":1.8},{"type":"dashedLine","from":"A","to":"Aref","color":"#b45309","width":1.5,"dash":"6 5"},{"type":"dashedLine","from":"F","to":"Fref","color":"#b45309","width":1.5,"dash":"6 5"},{"type":"coloredLine","from":"Aref","to":"G","color":"#b45309","width":2},{"type":"coloredLine","from":"G","to":"H","color":"#7c3aed","width":2},{"type":"coloredLine","from":"H","to":"Fref","color":"#7c3aed","width":2},{"type":"segment","from":"Aref","to":"Fref","label":"最短 A′F′","color":"#b45309","width":2.5,"offsetPx":18}]},"q2s5":{"add":[{"type":"point","at":"E","color":"#dc2626","dx":14,"dy":12},{"type":"point","at":"F","color":"#7c3aed","dx":14,"dy":-12},{"type":"point","at":"Aref","labelText":"A′","color":"#b45309","dx":14,"dy":14},{"type":"point","at":"ArefMid","showLabel":false,"color":"#b45309","r":2},{"type":"point","at":"Fref","labelText":"F′","color":"#b45309","dx":14,"dy":-12},{"type":"coloredLine","from":"B","to":"E","color":"#dc2626","width":1.8},{"type":"coloredLine","from":"A","to":"Aref","color":"#b45309","width":1.8},{"type":"coloredLine","from":"B","to":"Aref","color":"#b45309","width":1.8},{"type":"rightAngle","vertex":"ArefMid","rayA":"A","rayB":"B","size":10,"color":"#b45309"},{"type":"angleArc","vertex":"B","rayA":"A","rayB":"E","label":"30°","color":"#dc2626","radius":38},{"type":"dashedLine","from":"F","to":"Fref","color":"#b45309","width":1.5,"dash":"6 5"},{"type":"segment","from":"Aref","to":"Fref","label":"A′F′=5√3","color":"#b45309","width":2.5,"offsetPx":18},{"type":"coordinateLabel","at":"E","text":"E(0, −13√3/6)","dx":14,"dy":18}]}}};
+  const renderer = GeometryLessonFromSpec.createSpecRenderer(__GEOMETRY_SPEC__, __STEP_DECORATIONS__, STEPS, POLICIES);
+  function groupTitle(section) {
+    const map = {"第（Ⅰ）问":"第（Ⅰ）问  求顶点 P","第（Ⅱ）①问":"第（Ⅱ）①  直角等腰求 D","第（Ⅱ）②问":"第（Ⅱ）②  角度与最短路求 E"};
+    return map[section] || section;
+  }
+  var diagramMarkupFor = renderer.diagramMarkupFor;
+  var drawMini = renderer.drawMini;
+  var __LESSON_LEGEND_HTML__ = "<span><i class=\"sw\" style=\"background:var(--paper)\"></i>第（Ⅰ）问抛物线  y＝x²－2x－3</span><span><i class=\"sw\" style=\"background:var(--fold)\"></i>第（Ⅱ）问构造与最短路</span>";
+  // 原题图形渲染：由 renderer 负责（可选）
+  var __AFTER_RENDER_ALL_STEPS__ = renderer.renderOriginalFigures;
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "系数 c",
+      paramLabelPrefix: "c=",
+      goToProblemMode: "doubleScroll"
+    });
+  </script>
+</body>
+</html>
