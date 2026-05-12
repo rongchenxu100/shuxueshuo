@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "id": "tj-2026-heping-yimo-25",
+  "domain": { "minX": -1.6, "maxX": 6.0, "minY": -4.2, "maxY": 2.2 },
+  "movingParam": "a",
+  "expressionEnv": [
+    { "name": "a1", "expr": "1" },
+    { "name": "b1", "expr": "-2" },
+    { "name": "c1", "expr": "-3" },
+    { "name": "b", "expr": "a-3" },
+    { "name": "c", "expr": "-3" }
+  ],
+  "fixedPoints": {
+    "O": ["0", "0"],
+    "A": ["-1", "0"],
+    "C": ["0", "-3"],
+    "D": ["2", "-3"],
+    "B1": ["3", "0"],
+    "F1": ["0", "-1"],
+    "E1": ["-2/3", "-11/9"]
+  },
+  "movingPoints": {
+    "B": ["3/a", "0"],
+    "M": ["20/9", "-4/3"],
+    "N": ["25/9", "-3"],
+    "G": ["5", "-3"]
+  },
+  "curves": [
+    { "id": "parabolaPart1", "type": "parabola", "a": "a1", "b": "b1", "c": "c1" },
+    { "id": "parabolaMain", "type": "parabola", "a": "a", "b": "b", "c": "c" }
+  ],
+  "derivedIntersections": []
+}
