@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "id": "tj-2026-hexi-yimo-25",
+  "domain": { "minX": -1.8, "maxX": 4.2, "minY": -3.2, "maxY": 3.2 },
+  "movingParam": "b",
+  "expressionEnv": [
+    { "name": "a1", "expr": "1" },
+    { "name": "b1", "expr": "-2" },
+    { "name": "c1", "expr": "3" },
+    { "name": "a2", "expr": "2" },
+    { "name": "b2", "expr": "1-1.4142135623730951" },
+    { "name": "c2", "expr": "-1.4142135623730951-1" },
+    { "name": "a3", "expr": "1" },
+    { "name": "b3", "expr": "-b" },
+    { "name": "c3", "expr": "-b-1" },
+    { "name": "h", "expr": "(2*b+3)/4" },
+    { "name": "xM", "expr": "b+1/2" }
+  ],
+  "fixedPoints": {
+    "O": ["0", "0"],
+    "A": ["-1", "0"],
+    "P": ["1", "2"],
+    "C2": ["0", "-1.4142135623730951-1"],
+    "D2": ["1.4142135623730951", "1"],
+    "H2": ["1.4142135623730951", "0"]
+  },
+  "movingPoints": {
+    "M": ["xM", "-h"],
+    "K": ["xM", "0"],
+    "N": ["(2*b-1)/4", "0"],
+    "Q": ["(2*b-5)/8", "(2*b+3)/8"]
+  },
+  "curves": [
+    { "id": "parabolaPart1", "type": "parabola", "a": "a1", "b": "b1", "c": "c1" },
+    { "id": "parabolaPart2", "type": "parabola", "a": "a2", "b": "b2", "c": "c2" },
+    { "id": "parabolaPart3", "type": "parabola", "a": "a3", "b": "b3", "c": "c3" }
+  ],
+  "derivedIntersections": []
+}

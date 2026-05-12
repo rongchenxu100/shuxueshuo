@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "id": "tj-2026-hexi-jieke-25",
+  "domain": { "minX": -2.2, "maxX": 4.2, "minY": -5.2, "maxY": 1.2 },
+  "movingParam": "a",
+  "expressionEnv": [
+    { "name": "a1", "expr": "1" },
+    { "name": "b1", "expr": "-2" },
+    { "name": "c1", "expr": "-3" },
+    { "name": "b",  "expr": "-2*a" },
+    { "name": "c",  "expr": "-3*a" }
+  ],
+  "fixedPoints": {
+    "O":  ["0",  "0"],
+    "A":  ["-1", "0"],
+    "B":  ["3",  "0"],
+    "C1": ["0",  "-3"],
+    "P1": ["1",  "-4"],
+    "N":  ["0",  "-4/3"],
+    "E":  ["-8/3", "0"],
+    "Q":  ["2",  "-4"],
+    "R":  ["2",  "0"],
+    "S":  ["2",  "-3/2"]
+  },
+  "movingPoints": {
+    "C": ["0", "-3*a"],
+    "P": ["1", "-4*a"],
+    "M": ["a", "a-1"]
+  },
+  "curves": [
+    { "id": "parabolaPart1", "type": "parabola", "a": "a1", "b": "b1", "c": "c1" },
+    { "id": "parabolaMain",  "type": "parabola", "a": "a",  "b": "b",  "c": "c"  }
+  ],
+  "derivedIntersections": []
+}
