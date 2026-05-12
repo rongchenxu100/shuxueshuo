@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "id": "tj-2026-xiqing-yimo-25",
+  "domain": { "minX": -2.2, "maxX": 7.0, "minY": -6.5, "maxY": 10.2 },
+  "movingParam": "m",
+  "expressionEnv": [
+    { "name": "b1", "expr": "4" },
+    { "name": "c1", "expr": "b1+1" },
+    { "name": "bA", "expr": "1" },
+    { "name": "cA", "expr": "bA+1" },
+    { "name": "bB", "expr": "2" },
+    { "name": "cB", "expr": "bB+1" },
+    { "name": "h", "expr": "bB+3" },
+    { "name": "m0", "expr": "bB+2-h/S3" },
+    { "name": "n0x", "expr": "(h*(3-S3)-4)/4" },
+    { "name": "n0y", "expr": "h*(S3-1)/4" }
+  ],
+  "fixedPoints": {
+    "O": ["0", "0"],
+    "A": ["-1", "0"],
+    "C1": ["0", "c1"],
+    "V1": ["2", "9"],
+    "Bq1": ["bA+1", "0"],
+    "Cq1": ["0", "cA"],
+    "Dq1": ["bA+2", "-bA-3"],
+    "Dq2": ["bB+2", "-bB-3"],
+    "P": ["bB+2", "0"],
+    "M0": ["m0", "0"]
+  },
+  "movingPoints": {
+    "M": ["m", "0"],
+    "N": ["(3*m-1)/4", "S3*(m+1)/4"]
+  },
+  "curves": [
+    { "id": "parabolaPart1", "type": "parabola", "a": "-1", "b": "b1", "c": "c1" },
+    { "id": "parabolaAdBc", "type": "parabola", "a": "-1", "b": "bA", "c": "cA" },
+    { "id": "parabolaMin", "type": "parabola", "a": "-1", "b": "bB", "c": "cB" }
+  ],
+  "derivedIntersections": []
+}

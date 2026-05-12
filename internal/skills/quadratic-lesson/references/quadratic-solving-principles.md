@@ -56,6 +56,35 @@ Many problems give a specific `a` and `c` for Part I, then make `a`, `b`, `c` de
 
 For quadratic comprehensive problems with moving-point distance sums, prefer a geometric segment transformation before coordinate or algebraic minimization. See `diagram-drawing-principles.md` for the diagram requirements and examples.
 
+For middle-school student-facing solutions, do **not** use vector projection, scalar projection, or "the projection of a segment onto a direction" to prove a distance lower bound. If a weighted expression such as `2DM + AM` appears, first factor the common coefficient and convert the fractional segment into a visible auxiliary segment, for example
+
+`2DM + AM = 2(DM + 1/2 AM)`.
+
+Then construct a right triangle (often a `30°-60°-90°` triangle) so the new segment is an actual side of the diagram. After that, use broken-line shortest path, reflection, rotation, or perpendicular-distance-to-a-line arguments that can be seen on the figure.
+
+When constructing a special right triangle, state the intended geometric constraints first, then derive the length relation. For example, if the goal is to make `1/2 AM` into a segment, construct `N` on the fixed ray from `A` that makes a `30°` angle with the axis, with `∠ANM=90°`; then conclude `MN=1/2 AM`. Do not present the derived side relation as if it were the construction condition unless the problem explicitly defines it that way.
+
+Avoid redundant "definition-only" derive rows when the symbol is not yet needed. For example, do not introduce `h=b+3` in the triangle-construction step if that step only transforms `2DM+AM` into `2(DM+MN)`. Introduce `h`, `P`, or other calculation aids only in the later computation step where they are used.
+
+Do not leak solved or later-stage values into earlier steps. If a later step will prove `b=2` and hence `D(4,-5)`, earlier construction and path-transformation steps should label the point only as `D`, or use the still-symbolic form only when it is actually part of the current derivation. Avoid graph labels such as `D(4,-5)`, `b=2`, or final numeric distances before the calculation step establishes them.
+
+For a weighted path such as `2DM + AM`:
+
+1. Factor the target: `2DM + AM = 2(DM + 1/2 AM)`.
+2. Construct a `30°-60°-90°` right triangle with `AM` as the hypotenuse so the side ending at `M` equals `1/2 AM`.
+3. Convert the target to a broken-line path such as `2(DM + MN)`.
+4. Find the shortest state by straightening the broken line: the key visual condition is often `D, M, N` collinear, not an abstract inequality.
+5. If the straightened endpoint is constrained to a fixed line or ray, add the required shortest-to-line condition, such as `DN⊥AN`, before computing. The shortest state may require both collinearity and perpendicularity.
+6. Only after the shortest state is identified, compute the length from the resulting triangles. Prefer right-triangle similarity, `30°-60°-90°` ratios, and segment equations (for example `DP = DM + MP` or `DP = AM + MP` when the collinearity/order supports it) over coordinate line equations.
+
+Keep the geometry and calculation phases separate. A step whose purpose is to discover the shortest path should show the straightened path and collinearity condition. A later step may compute the final length; do not overload the discovery step with coordinate equations or extra helper points if the straight-line condition already explains why the path is shortest.
+
+Keep moving-point names continuous through the optimization. If `N` is the constructed moving point, the shortest state should still be described as `D, M, N` collinear. Do not rename the limiting/optimal position as a new point such as `H` unless a genuinely new object is needed for a separate construction. Extra names make students track a point switch instead of the path idea.
+
+For exploratory "将军饮马" steps, add a local control for the moving point whenever the construction is dynamic. Let students drag the point and see the path become straight. Keep formulas in the derivation panel; the diagram should mostly use points, segments, angles, and possibly short point labels.
+
+When introducing a computation foot point, describe the geometric construction before any coordinate form. Prefer `作 DP⊥x轴，垂足为 P` over `P(b+2,0)` when the perpendicular relationship is what the calculation uses.
+
 ### Trigonometry In Middle-School Coordinate Problems
 
 When a quadratic problem uses `tan` or an angle sum involving `45°`, keep the method inside right triangles.

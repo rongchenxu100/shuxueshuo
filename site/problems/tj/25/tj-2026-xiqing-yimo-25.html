@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2026 年天津市西青区一模 第 25 题（二次函数综合） | 数学说</title>
+  <meta name="description" content="2026 天津市西青区一模第 25 题：由定点 A 求 c=b+1，配方求顶点；再由 D 的坐标通式比较 AD 与 BC，最后作 30° 辅助线转化 2DM+AM 的最小值并确定 b。" />
+  <meta property="og:title" content="2026 年天津市西青区一模 第 25 题（二次函数综合） | 数学说" />
+  <meta property="og:description" content="2026 天津市西青区一模第 25 题：由定点 A 求 c=b+1，配方求顶点；再由 D 的坐标通式比较 AD 与 BC，最后作 30° 辅助线转化 2DM+AM 的最小值并确定 b。" />
+  <meta property="og:image" content="../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../assets/css/interactive-geometry-page.css" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../nav/index.html">题库导航</a>
+    <span class="lesson-title">2026 天津市西青区一模 第 25 题</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <div class="problem-summary">
+            <div class="problem-summary-text">第 25 题（2026 天津市西青区一模）二次函数综合：顶点、线段关系与 2DM+AM 最值。</div>
+            <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          </div>
+          <div class="problem-full">
+            <div class="problem-line"><span>25．已知抛物线 y＝−x²＋bx＋c（b，c 为常数，b＞0）经过点 A(−1,0)，与 x 轴交于点 B，与 y 轴交于点 C。</span></div>
+<div class="problem-line"><span>（1）当 b＝4 时，求抛物线的顶点坐标；</span><span class="answer-chip" id="answerI">顶点坐标为 (2,9)</span></div>
+<div class="problem-line"><span>（2）点 D(b＋2,yD) 是抛物线上任意一点。</span></div>
+<div class="problem-line"><span>① 当 AD＝2BC 时，求 b 的值；</span><span class="answer-chip" id="answerII1">b＝1</span></div>
+<div class="problem-line"><span>② 若点 M(m,0) 是 x 轴正半轴上的动点，当 2DM＋AM 的最小值为 5＋5√3 时，求 b 的值。</span><span class="answer-chip" id="answerII2">b＝2</span></div>
+          </div>
+        </section>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../assets/js/lesson-page-runtime.js"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"i1s1","section":"第（1）问","title":"第1步：由 A 求出 c，再代入 b=4","t":2.5,"derive":[["∵","A(−1,0) 在 y＝−x²＋bx＋c 上"],["∴","0＝−1−b＋c"],["∴","c＝b＋1"],["∵","b＝4"],["∴","c＝5"],["∴","抛物线为 y＝−x²＋4x＋5"]],"box":["c＝b＋1","y＝−x²＋4x＋5"]},{"id":"i1s2","section":"第（1）问","title":"第2步：配方读出顶点","t":2.5,"derive":[["∵","y＝−x²＋4x＋5"],["∴","y＝−(x−2)²＋9"],["∴","顶点坐标为 (2,9)"]],"box":["顶点坐标：(2,9)"]},{"id":"q1s1","section":"第（2）①问","title":"第1步：写出 B、C、D 的坐标","t":2.5,"derive":[["∵","A(−1,0) 在抛物线上"],["∴","c＝b＋1"],["∴","抛物线为 y＝−x²＋bx＋b＋1"],["∵","与 x 轴交于 A(−1,0)、B"],["∴","B(b＋1,0)"],["∵","与 y 轴交于 C"],["∴","C(0,b＋1)"],["∵","D 的横坐标为 b＋2"],["∴","yD＝−(b＋2)²＋b(b＋2)＋b＋1＝−b−3"],["∴","D(b＋2,−b−3)"]],"box":["B(b＋1,0)","C(0,b＋1)","D(b＋2,−b−3)"]},{"id":"q1s2","section":"第（2）①问","title":"第2步：比较 AD 与 BC","t":2.5,"derive":[["∵","A(−1,0)，D(b＋2,−b−3)"],["∴","AD＝√[(b＋3)²＋(b＋3)²]＝(b＋3)√2"],["∵","B(b＋1,0)，C(0,b＋1)"],["∴","BC＝√[(b＋1)²＋(b＋1)²]＝(b＋1)√2"],["∵","AD＝2BC"],["∴","(b＋3)√2＝2(b＋1)√2"],["∴","b＝1"]],"box":["b＝1"]},{"id":"q2s1","section":"第（2）②问","title":"第1步：构造 30° 直角三角形，转换线段","t":2.6,"derive":[["∴","2DM＋AM＝2(DM＋1/2 AM)"],["作","在过 A 且与 x 轴夹角为 30° 的固定射线上取 N，使 ∠ANM＝90°"],["∵","Rt△AMN 中，30°角所对直角边等于斜边的一半"],["∴","MN＝1/2 AM"],["∴","2DM＋AM＝2(DM＋MN)"]],"box":["MN＝1/2 AM","2DM＋AM＝2(DM＋MN)"]},{"id":"q2s2","section":"第（2）②问","title":"第2步：将军饮马，折线 D-M-N 三点共线时最短","t":2.6,"derive":[["∵","两点之间线段最短"],["∴","DM＋MN≥DN"],["∴","折线 D-M-N 拉直时最短"],["∴","最短时 D、M、N 三点共线"],["∵","N 在固定射线 AN 上"],["∴","最小值还需 DN⊥AN"],["∴","最小值对应 DM＋MN＝DN"],["∴","2DM＋AM 的最小值为 2DN"]],"box":[],"localControls":{"values":{"u":2.2},"note":"拖动 M，观察折线 D-M-N 在三点共线时最短。","controls":[{"var":"u","label":"动点 M：横坐标","min":0.2,"max":3.95,"step":0.01,"precision":2}]}},{"id":"q2s3","section":"第（2）②问","title":"第3步：计算 DN，再代入给定最小值求 b","t":2.6,"derive":[["作","DP⊥x轴，垂足为 P"],["∵","D(b＋2,−b−3)",{"refStep":"q1s1","refLabel":"回看坐标通式"}],["∴","DP＝AP＝b＋3"],["∵","最短时 D、M、N 三点共线，且 ∠MAN＝30°，∠ANM＝90°"],["∴","∠DMP＝60°"],["∴","Rt△DPM 中，MP＝DP/√3＝(b＋3)/√3"],["∵","AP＝DP＝AM＋MP"],["∴","AM＝(b＋3)−(b＋3)/√3"],["∴","DM＝2(b＋3)/√3，MN＝AM/2"],["∴","DN＝DM＋MN＝(b＋3)(1＋√3)/2"],["∴","2DM＋AM 的最小值为 2DN＝(b＋3)(1＋√3)"],["∵","题中最小值为 5＋5√3＝5(1＋√3)"],["∴","(b＋3)(1＋√3)＝5(1＋√3)"],["∴","b＋3＝5"],["∴","b＝2"]],"box":[]}];
+    var STEP_LABELS = {"i1s1":"1 求 c","i1s2":"2 求顶点","q1s1":"1 求B、C、D坐标","q1s2":"2 求 b","q2s1":"1 构造直角三角形做线段转化","q2s2":"2 将军饮马求最小值","q2s3":"3 求 b"};
+    var POLICIES   = {"i1s1":{"movable":false,"range":[2.5,2.5]},"i1s2":{"movable":false,"range":[2.5,2.5]},"q1s1":{"movable":false,"range":[2.5,2.5]},"q1s2":{"movable":false,"range":[2.5,2.5]},"q2s1":{"movable":true,"range":[0.2,3.95],"step":0.01},"q2s2":{"movable":false,"range":[2.6,2.6]},"q2s3":{"movable":false,"range":[2.6,2.6]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script type="application/json" id="geometrySpec">{"version":1,"id":"tj-2026-xiqing-yimo-25","domain":{"minX":-2.2,"maxX":7,"minY":-6.5,"maxY":10.2},"movingParam":"m","expressionEnv":[{"name":"b1","expr":"4"},{"name":"c1","expr":"b1+1"},{"name":"bA","expr":"1"},{"name":"cA","expr":"bA+1"},{"name":"bB","expr":"2"},{"name":"cB","expr":"bB+1"},{"name":"h","expr":"bB+3"},{"name":"m0","expr":"bB+2-h/S3"},{"name":"n0x","expr":"(h*(3-S3)-4)/4"},{"name":"n0y","expr":"h*(S3-1)/4"}],"fixedPoints":{"O":["0","0"],"A":["-1","0"],"C1":["0","c1"],"V1":["2","9"],"Bq1":["bA+1","0"],"Cq1":["0","cA"],"Dq1":["bA+2","-bA-3"],"Dq2":["bB+2","-bB-3"],"P":["bB+2","0"],"M0":["m0","0"]},"movingPoints":{"M":["m","0"],"N":["(3*m-1)/4","S3*(m+1)/4"]},"curves":[{"id":"parabolaPart1","type":"parabola","a":"-1","b":"b1","c":"c1"},{"id":"parabolaAdBc","type":"parabola","a":"-1","b":"bA","c":"cA"},{"id":"parabolaMin","type":"parabola","a":"-1","b":"bB","c":"cB"}],"derivedIntersections":[]}</script>
+<script src="../../../assets/js/geometry-engine.js"></script>
+<script src="../../../assets/js/geometry-lesson-from-spec.js"></script>
+
+<script>
+  const __GEOMETRY_SPEC__ = JSON.parse(document.getElementById('geometrySpec').textContent);
+  const __STEP_DECORATIONS__ = {"_comment":"西青区 2026 一模第 25 题 — 二次函数综合","layers":{"global":{"elements":[{"type":"grid"},{"type":"point","at":"O","color":"#1f2937","showLabel":false},{"type":"point","at":"A","color":"#1f2937","dx":-30,"dy":18}]},"partI":{"stepStartsWith":["i1"],"elements":[{"type":"parabola","curveId":"parabolaPart1","color":"#2563eb","width":2.9},{"type":"point","at":"C1","labelText":"C","color":"#1f2937","dx":12,"dy":-18}]},"adBc":{"stepStartsWith":["q1"],"elements":[{"type":"parabola","curveId":"parabolaAdBc","color":"#bfdbfe","width":1.8},{"type":"point","at":"Bq1","labelText":"B","color":"#1f2937","dx":12,"dy":-18},{"type":"point","at":"Cq1","labelText":"C","color":"#1f2937","dx":12,"dy":-18},{"type":"point","at":"Dq1","labelText":"D","color":"#b45309","dx":12,"dy":20}]},"minPath":{"stepStartsWith":["q2"],"elements":[{"type":"parabola","curveId":"parabolaMin","color":"#bfdbfe","width":1.8},{"type":"point","at":"Dq2","labelText":"D","color":"#b45309","dx":12,"dy":20}]}},"steps":{"i1s1":{"add":[{"type":"coordinateLabel","at":"A","text":"A(−1,0)","dx":-64,"dy":-18},{"type":"coordinateLabel","at":"C1","text":"C(0,5)","dx":14,"dy":-26}]},"i1s2":{"add":[{"type":"axisOfSymmetry","curveId":"parabolaPart1","color":"#94a3b8","width":1.4,"dash":"8 6"},{"type":"vertex","curveId":"parabolaPart1","color":"#dc2626","labelText":"顶点","dx":14,"dy":-18},{"type":"coordinateLabel","at":"V1","text":"(2,9)","dx":18,"dy":-28}]},"q1s1":{"add":[{"type":"coordinateLabel","at":"A","text":"A(−1,0)","dx":-64,"dy":-18},{"type":"coordinateLabel","at":"Bq1","text":"B(b+1,0)","dx":14,"dy":-26},{"type":"coordinateLabel","at":"Cq1","text":"C(0,b+1)","dx":14,"dy":-26},{"type":"coordinateLabel","at":"Dq1","text":"D(b+2,−b−3)","dx":14,"dy":20}]},"q1s2":{"add":[{"type":"coloredLine","from":"A","to":"Dq1","color":"#dc2626","width":2.5},{"type":"coloredLine","from":"Bq1","to":"Cq1","color":"#0f766e","width":2.5},{"type":"segment","from":"A","to":"Dq1","label":"AD=(b+3)√2","color":"#dc2626","width":2.5,"offsetPx":-22},{"type":"segment","from":"Bq1","to":"Cq1","label":"BC=(b+1)√2","color":"#0f766e","width":2.5,"offsetPx":22},{"type":"coordinateLabel","at":"Dq1","text":"b=1 时 D(3,−4)","dx":14,"dy":22}]},"q2s1":{"add":[{"type":"point","at":"M","color":"#0f766e","dx":12,"dy":-18},{"type":"point","at":"N","color":"#b45309","dx":12,"dy":-16},{"type":"coloredLine","from":"Dq2","to":"M","color":"#dc2626","width":2.4},{"type":"coloredLine","from":"M","to":"N","color":"#b45309","width":2.4},{"type":"coloredLine","from":"A","to":"N","color":"#b45309","width":1.8},{"type":"coloredLine","from":"A","to":"M","color":"#7c3aed","width":2.4},{"type":"rightAngle","vertex":"N","rayA":"A","rayB":"M","size":10,"color":"#b45309"},{"type":"angleArc","vertex":"A","rayA":"M","rayB":"N","color":"#b45309","radius":34,"label":"30°","labelRadius":50},{"type":"segment","from":"Dq2","to":"M","label":"DM","color":"#dc2626","width":2.4,"offsetPx":20},{"type":"segment","from":"M","to":"N","label":"MN=1/2 AM","color":"#b45309","width":2.4,"offsetPx":18},{"type":"segment","from":"A","to":"M","label":"AM","color":"#7c3aed","width":2.4,"offsetPx":-22}]},"q2s2":{"pointOverrides":{"M":["u","0"],"N":["(3*u-1)/4","S3*(u+1)/4"]},"add":[{"type":"point","at":"M","labelText":"M","color":"#0f766e","dx":12,"dy":-18},{"type":"point","at":"N","labelText":"N","color":"#b45309","dx":12,"dy":-16},{"type":"coloredLine","from":"Dq2","to":"M","color":"#dc2626","width":2.4},{"type":"coloredLine","from":"M","to":"N","color":"#b45309","width":2.4},{"type":"coloredLine","from":"A","to":"N","color":"#b45309","width":2.2},{"type":"coloredLine","from":"Dq2","to":"N","color":"#0f766e","width":2.6},{"type":"coloredLine","from":"A","to":"M","color":"#7c3aed","width":2.4},{"type":"rightAngle","vertex":"N","rayA":"A","rayB":"M","size":9,"color":"#b45309"},{"type":"angleArc","vertex":"A","rayA":"M","rayB":"N","color":"#b45309","radius":34,"label":"30°","labelRadius":50}]},"q2s3":{"domain":{"minX":-1.4,"maxX":4.7,"minY":-5.6,"maxY":2.2},"pointOverrides":{"M":["m0","0"],"N":["n0x","n0y"]},"add":[{"type":"point","at":"P","color":"#64748b","dx":12,"dy":-18},{"type":"point","at":"M","labelText":"M","color":"#0f766e","dx":12,"dy":-18},{"type":"point","at":"N","labelText":"N","color":"#b45309","dx":12,"dy":-16},{"type":"coloredLine","from":"Dq2","to":"M","color":"#dc2626","width":2.4},{"type":"coloredLine","from":"M","to":"N","color":"#b45309","width":2.4},{"type":"coloredLine","from":"A","to":"N","color":"#b45309","width":2.2},{"type":"coloredLine","from":"Dq2","to":"N","color":"#0f766e","width":2.6},{"type":"coloredLine","from":"A","to":"M","color":"#7c3aed","width":2.4},{"type":"dashedLine","from":"Dq2","to":"P","color":"#64748b","width":1.6,"dash":"5 5"},{"type":"rightAngle","vertex":"P","rayA":"Dq2","rayB":"M","size":10,"color":"#64748b"},{"type":"rightAngle","vertex":"N","rayA":"A","rayB":"M","size":10,"color":"#b45309"},{"type":"angleArc","vertex":"M","rayA":"Dq2","rayB":"P","color":"#64748b","radius":26,"label":"60°","labelRadius":38},{"type":"angleArc","vertex":"A","rayA":"M","rayB":"N","color":"#b45309","radius":30,"label":"30°","labelRadius":44},{"type":"segment","from":"P","to":"M","label":"MP=(b+3)/√3","color":"#64748b","width":1.8,"offsetPx":18},{"type":"segment","from":"A","to":"M","label":"AM=(b+3)−(b+3)/√3","color":"#7c3aed","width":2.4,"offsetPx":-22},{"type":"segment","from":"Dq2","to":"P","label":"DP=b+3","color":"#b45309","width":2.2,"offsetPx":20},{"type":"coordinateLabel","at":"Dq2","text":"D(b+2,−b−3)","dx":14,"dy":22}]}}};
+  const renderer = GeometryLessonFromSpec.createSpecRenderer(__GEOMETRY_SPEC__, __STEP_DECORATIONS__, STEPS, POLICIES);
+  function groupTitle(section) {
+    const map = {"第（1）问":"第（1）问  求顶点坐标","第（2）①问":"第（2）①  由 AD=2BC 求 b","第（2）②问":"第（2）②  由最小值求 b"};
+    return map[section] || section;
+  }
+  var diagramMarkupFor = renderer.diagramMarkupFor;
+  var drawMini = renderer.drawMini;
+  var __LESSON_LEGEND_HTML__ = "<span><i class=\"sw\" style=\"background:var(--paper)\"></i>第（1）问抛物线  y＝−x²＋4x＋5</span><span><i class=\"sw\" style=\"background:var(--fold)\"></i>第（2）问线段关系与最值</span>";
+  // 原题图形渲染：由 renderer 负责（可选）
+  var __AFTER_RENDER_ALL_STEPS__ = renderer.renderOriginalFigures;
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "动点 M 的横坐标 m",
+      paramLabelPrefix: "m=",
+      goToProblemMode: "doubleScroll"
+    });
+  </script>
+</body>
+</html>
