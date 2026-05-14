@@ -69,7 +69,8 @@
                       "properties": {
                         "id":        { "type": "string", "description": "SVG 元素 id，与 geometry-spec.originalFigures 对应" },
                         "title":     { "type": "string", "description": "图名，如 图 1" },
-                        "ariaLabel": { "type": "string" }
+                        "ariaLabel": { "type": "string" },
+                        "caption":   { "type": "string", "description": "图下方的说明文字，如 正方形 ABCD" }
                       }
                     }
                   }

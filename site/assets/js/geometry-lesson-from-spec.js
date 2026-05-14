@@ -337,10 +337,12 @@
       switch (elem.type) {
         case "grid":
           return gridSvg(elem);
-        case "basePoly":
-          return state.base.length
-            ? '<path d="' + pathD(state.base) + '" fill="var(--paper)" stroke="var(--paper-stroke)" stroke-width="3" />'
-            : "";
+        case "basePoly": {
+          if (!state.base.length) return "";
+          // 支持 elem.style === "outline" 时去掉填充（只保留描边）；用于"重点是折痕、不是面积"的题
+          var bpFill = elem.style === "outline" ? "none" : "var(--paper)";
+          return '<path d="' + pathD(state.base) + '" fill="' + bpFill + '" stroke="var(--paper-stroke)" stroke-width="3" />';
+        }
         case "movingPoly":
           return state.moving.length
             ? '<path d="' + pathD(state.moving) + '" fill="var(--fold)" stroke="var(--fold-stroke)" stroke-width="3" />'
@@ -741,8 +743,12 @@
         });
       }
 
-      // base poly
-      out += state.base.length ? '<path d="' + pathD(state.base) + '" fill="var(--paper)" stroke="var(--paper-stroke)" stroke-width="3" />' : "";
+      // base poly（支持 figConfig.basePolyDash 自定义虚线样式，例如 "10 6"；未指定时为实线）
+      if (state.base.length) {
+        var basePolyDash = figConfig.basePolyDash ? ' stroke-dasharray="' + figConfig.basePolyDash + '"' : '';
+        var basePolyFill = figConfig.basePolyFill === false ? 'none' : 'var(--paper)';
+        out += '<path d="' + pathD(state.base) + '" fill="' + basePolyFill + '" stroke="var(--paper-stroke)" stroke-width="3"' + basePolyDash + ' />';
+      }
       (figConfig.segments || []).forEach(function (seg) {
         var a = pts[seg.from], b = pts[seg.to];
         if (!a || !b) return;
