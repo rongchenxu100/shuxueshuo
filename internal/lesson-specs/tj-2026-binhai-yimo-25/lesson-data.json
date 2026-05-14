@@ -4,7 +4,11 @@
     "outputPath": "site/problems/tj/25/tj-2026-binhai-yimo-25.html",
     "pageTitle": "2026 年天津市滨海新区一模 第 25 题（二次函数综合）",
     "pageDescription": "2026 天津市滨海新区一模第 25 题：由固定系数配方求顶点；由 A 点消参写出 B、C 坐标，并用两点间距离公式求 b；再通过平移与将军饮马模型转化 BE+DF 的最小值，求出 b=26/5。",
-    "breadcrumbTitle": "2026 天津市滨海新区一模 第 25 题"
+    "breadcrumbTitle": "2026 天津市滨海新区一模 第 25 题",
+    "classification": {
+      "pattern": "path-minimum",
+      "methods": ["coefficient-from-point-on-parabola", "translation-path-transform"]
+    }
   },
   "problem": {
     "summary": "第 25 题（2026 天津市滨海新区一模）二次函数综合：顶点、弦长关系与 BE+DF 最值。",

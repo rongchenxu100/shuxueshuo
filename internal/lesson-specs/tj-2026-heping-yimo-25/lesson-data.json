@@ -4,7 +4,11 @@
     "outputPath": "site/problems/tj/25/tj-2026-heping-yimo-25.html",
     "pageTitle": "2026 年天津市和平区一模 第 25 题（二次函数综合）",
     "pageDescription": "2026 天津市和平区一模第 25 题：由定点 A 与 D 在抛物线上求解析式，再作 BE 交 OC 于 F，用直角三角形中的 tan 定义求 E，最后通过旋转与轴对称转化求 OM+BN 的最小值并确定 a。",
-    "breadcrumbTitle": "2026 天津市和平区一模 第 25 题"
+    "breadcrumbTitle": "2026 天津市和平区一模 第 25 题",
+    "classification": {
+      "pattern": "path-minimum",
+      "methods": ["coefficient-from-point-on-parabola", "tangent-definition-in-right-triangle", "horse-drinking"]
+    }
   },
   "problem": {
     "summary": "第 25 题（2026 天津市和平区一模）二次函数综合：解析式、角度条件与 OM+BN 路径最值。",

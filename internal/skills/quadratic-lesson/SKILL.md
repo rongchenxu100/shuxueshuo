@@ -57,6 +57,7 @@ Default to middle-school students. Compared with pure folding/rotation geometry 
 - Follow `references/diagram-drawing-principles.md` for step diagrams, including how to mark used quantities, equalities, constructed segments, moving segments, and geometric transformations.
 - If part II introduces constructions (`直角`、`等腰`、`中点`、`线段比例`), treat those steps like geometry: draw only what the derivation truly uses.
 - Dynamic controls usually correspond to a **parameter letter shown on the exam** (`m`, `t`, etc.). Align `geometry-spec.movingParam`, expressions that reference this letter, `lesson-data.ui.sliderLabel`, and `lesson-data.policies[].range`.
+- Do **not** add a main slider for a coefficient or unknown that the problem asks students to solve (`a`、`b`、`c`). Keep those steps non-movable and use a representative symbolic/solved drawing state only for the diagram. Use local controls only for genuine moving points inside a construction or shortest-path observation.
 - Keep numeric endpoints consistent everywhere (`≤`, `<`) across markdown, JSON chips, and slider ranges.
 
 ## Step 1: `01_problem.md`
@@ -74,9 +75,18 @@ Use short derivation lines with `∵` / `∴`. Prefer titles such as:
 - `由已知系数关系消参`
 - `由对称轴求交点坐标`
 - `配方或代入定点写解析式`
+- `化简函数表达式并求点坐标`
 - `构造直角三角形求线段`
+- `构造等腰直角三角形转化线段`
+- `将军饮马，折线三点共线时最短`
 
 Avoid dumping lengthy algebraic manipulation without naming intermediate meanings each step.
+
+When a coordinate-geometry condition contains `90°` or equal lengths, prefer a middle-school geometry route before coefficient solving: draw the needed perpendicular foot, prove right-triangle congruence or an isosceles-right relation, obtain the target point coordinate, then substitute into the parabola.
+
+When an angle condition determines a line through an axis point, first look for a middle-school construction before using slope language. Useful patterns include reflecting a point across an axis, building an isosceles triangle, or letting the target line meet an axis at an auxiliary point \(C'\) so equal angles become equal vertical segments such as \(C'O=CO\). Use slope only after the construction has produced two points on the line, and phrase it as "由两点确定直线" when possible.
+
+When computing a coordinate triangle area, first check whether a vertical or horizontal auxiliary segment can split the triangle into two readable pieces. Prefer an "铅垂面积" expression such as `1/2·vertical base·left horizontal distance + 1/2·vertical base·right horizontal distance` over determinant-style coordinate area in student-facing text.
 
 ## Step 3: `03_visual_steps.md`
 
@@ -85,6 +95,10 @@ Same layering mindset as geometry-lesson (whole-problem / section / phase / step
 - which subset of the curve domain should remain visible for readability (`geometry-spec.domain`).
 - when `expressionEnv` should expose coefficients (`a`, `b`, `c`) separately so fixed-point formulas (`["0","c"]`) stay declarative.
 - when to use decorations `parabola`, `axisOfSymmetry`, `vertex`, `curvePoint` versus ordinary `point`, following `references/diagram-drawing-principles.md`.
+- which labels are allowed at each stage: use symbolic coordinates before a parameter is solved; reserve final numeric coordinates and final answer labels for the step that derives them.
+- where local zoom domains are needed. Geometry-heavy congruence or shortest-path computation steps should often use `steps[stepId].domain` so the construction, angle marks, and used lengths are readable.
+- which diagram labels are new visual information. Do not add formula cards or labels that merely repeat the derivation panel or the step `box`.
+- how `stepLabels` name each step. Prefer compact "method + target" labels such as `等角作C′定BM`, `铅垂面积求b`, or `构造等腰求a` instead of vague result labels such as `确定 BM` or `求 b`.
 
 ## Step 4: JSON Specs
 
@@ -136,7 +150,15 @@ Then spot-check the HTML locally.
 - Problem metadata matches the exam reference (`problem-id`, title).
 - `expressionEnv` order reflects algebraic dependency (`b` after `a`, etc.).
 - Slider labels explain what moves (`sliderLabel`, `paramLabelPrefix`).
+- No main slider is used for coefficients that are being solved.
 - Every lesson step has diagram intent documented in `03_visual_steps.md`.
+- Earlier diagrams do not contain later conclusions: no solved coordinates, final coefficient values, helper points, or final curve state before the matching derivation step.
+- Known roots/intercepts are used to simplify/factor the parabola directly before introducing any new unknown point parameter.
+- Geometry conditions are solved geometrically when possible: perpendicular feet, right-triangle congruence, isosceles-right triangles, and 将军饮马 before coordinate/vector formulas.
+- Angle conditions are converted with visible auxiliary geometry when possible: symmetry points, isosceles triangles, or axis-intersection points before slope/tangent formulas.
+- Coordinate-area steps use vertical/horizontal split areas when the diagram provides a natural base, before determinant formulas.
+- Diagram labels are not duplicating the derivation panel: no repeated formula cards when the same result is already in `derive` or `box`.
+- Step navigation labels are short but meaningful, usually "method + target".
 - JSON contains zero HTML fragments.
 - Step ids stay synchronized across all artifacts.
 - Validation + compilation succeed without patching generated HTML.

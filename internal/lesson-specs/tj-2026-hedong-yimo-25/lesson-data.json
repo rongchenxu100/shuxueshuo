@@ -4,7 +4,11 @@
     "outputPath": "site/problems/tj/25/tj-2026-hedong-yimo-25.html",
     "pageTitle": "2026 年天津市河东区一模 第 25 题（二次函数综合）",
     "pageDescription": "2026 天津市河东区一模第 25 题：求抛物线顶点、直角等腰条件下的点 D，以及角度条件与最短路条件下的点 E。",
-    "breadcrumbTitle": "2026 天津市河东区一模 第 25 题"
+    "breadcrumbTitle": "2026 天津市河东区一模 第 25 题",
+    "classification": {
+      "pattern": "path-minimum",
+      "methods": ["known-root-factorization", "right-triangle-congruence-coordinate", "isosceles-right-triangle-transform", "horse-drinking"]
+    }
   },
   "problem": {
     "summary": "第 25 题（2026 天津市河东区一模）二次函数综合：顶点、直角等腰构造与 AG+GH+FH 最短路。",

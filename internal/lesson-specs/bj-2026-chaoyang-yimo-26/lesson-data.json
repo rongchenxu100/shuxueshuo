@@ -4,7 +4,11 @@
     "outputPath": "site/problems/bj/26/bj-2026-chaoyang-yimo-26.html",
     "pageTitle": "2026 年北京市朝阳区一模 第 26 题（代数综合）",
     "pageDescription": "2026 北京市朝阳区一模第 26 题：由抛物线 y＝ax²－a²x 求对称轴，再利用 x₁＋x₂＝0、2＜x₂＜3 和 y₁、y₂ 同号且 y₁＞y₂ 求参数 a 的范围。",
-    "breadcrumbTitle": "2026 北京朝阳区一模 第 26 题"
+    "breadcrumbTitle": "2026 北京朝阳区一模 第 26 题",
+    "classification": {
+      "pattern": "parameter-range-inequality",
+      "methods": ["parameter-range-by-sign-and-order"]
+    }
   },
   "problem": {
     "summary": "第 26 题（2026 北京市朝阳区一模）代数综合：求 y＝ax²－a²x 的对称轴，并由两点函数值的同号与大小关系求 a 的范围。",

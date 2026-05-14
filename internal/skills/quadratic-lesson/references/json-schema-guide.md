@@ -106,6 +106,8 @@ Rules:
 - When point `O` is also the coordinate origin, avoid duplicate `O` labels. Prefer `{ "type": "point", "at": "O", "showLabel": false }` if the grid already labels the origin.
 - Avoid duplicate point labeling. If a context layer already draws a point, use `showLabel: false` there and add either a point-name label or a coordinate label in the current step, not both.
 - Use `coordinateLabel` only in coordinate-computation steps. In transformation or shortest-path steps, prefer plain point names and key segments.
+- In coefficient-solving steps, coordinate labels should match the current algebraic state. Use symbolic labels such as `N((2b−1)/4,0)` while solving; avoid final numeric labels such as `N(3/4,0)` until after `b=2` is derived and only if the coordinate itself is needed.
+- Use `areaFormulaCard` sparingly. Do not add formula cards that duplicate `lesson-data.steps[].derive` or `box` text; prefer putting algebra in the derivation panel and using the diagram for points, segments, angle marks, and essential length labels.
 - Use `steps[stepId].domain` to locally zoom a single diagram when the derivation only depends on a small construction. This is especially useful for line-sum transformation and reflection/将军饮马 steps; avoid a large mostly-empty coordinate plane when students only need the local auxiliary figure.
 - Use `steps[stepId].pointOverrides` with `lesson-data.steps[].localControls` when a step needs local draggable points. The override expressions can reference the local control variables and replace only the named points for that step; the underlying `geometry-spec.movingPoints` remains the default/static state.
 - Keep step diagrams aligned with the derivation focus:
@@ -128,6 +130,12 @@ Local point controls in `lesson-data.json`:
 ```
 
 For constrained two-point motion, use multiple controls backed by the same source variable and different `scale` values. This gives students two point components while preserving the mathematical constraint.
+
+Main slider hygiene:
+
+- Do not set `policies[stepId].movable: true` for an unknown coefficient that the problem asks students to solve.
+- If a diagram needs a concrete drawing state for a coefficient-solving step, keep the policy non-movable and use the step's `t` value as a representative render state.
+- Use `localControls` only for step-local moving points such as `N` in a 将军饮马 construction; local controls should not change the problem's coefficient state.
 
 ## `lesson-data.json`
 
@@ -161,6 +169,7 @@ Step alignment:
 - Each `steps[].id` must exist in `policies`.
 - Each `steps[].id` must exist in `stepLabels`.
 - Each `steps[].id` must exist in `step-decorations.steps`.
+- `stepLabels` should be compact but meaningful, usually "method + target". Prefer labels such as `等角作C′定BM`, `铅垂面积求b`, or `构造等腰求a`; avoid vague labels such as `确定 BM`, `求 b`, or labels that omit the key method.
 
 Derivation text rules:
 

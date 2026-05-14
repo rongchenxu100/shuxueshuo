@@ -4,7 +4,11 @@
     "outputPath": "site/problems/tj/25/tj-2026-nankai-ermo-25.html",
     "pageTitle": "2026 年天津市南开区二模 第 25 题（二次函数综合）",
     "pageDescription": "2026 天津市南开区二模第 25 题：由抛物线与坐标轴交点、绕点 C 旋转、线段中点和平行四边形条件，求 a、EF 以及距离差最大时的解析式和点 P。",
-    "breadcrumbTitle": "2026 天津市南开区二模 第 25 题"
+    "breadcrumbTitle": "2026 天津市南开区二模 第 25 题",
+    "classification": {
+      "pattern": "distance-difference-maximum",
+      "methods": ["known-root-factorization", "rotation-by-congruence", "axis-symmetry-distance-difference"]
+    }
   },
   "problem": {
     "summary": "第 25 题（2026 天津市南开区二模）二次函数综合：旋转得到 D，中点确定 E，平行四边形推出参数关系，再用距离差最大值求解析式。",

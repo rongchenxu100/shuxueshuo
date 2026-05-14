@@ -4,7 +4,11 @@
     "outputPath": "site/problems/tj/24/tj-2026-nankai-ermo-24.html",
     "pageTitle": "2026 年天津市南开区二模 第 24 题（四边形折叠与重叠面积）",
     "pageDescription": "2026 天津市南开区二模第 24 题：四边形 OABC 沿竖直折痕折叠，求 BD、五边形范围和重叠面积 S 的 t 范围。",
-    "breadcrumbTitle": "2026 天津市南开区二模 第 24 题"
+    "breadcrumbTitle": "2026 天津市南开区二模 第 24 题",
+    "classification": {
+      "pattern": "moving-point-folding-area",
+      "methods": ["folding-overlap-area", "area-piecewise-by-overlap"]
+    }
   },
   "problem": {
     "summary": "第 24 题（2026 天津市南开区二模）四边形折叠与重叠面积",

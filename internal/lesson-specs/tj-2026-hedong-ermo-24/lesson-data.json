@@ -4,7 +4,11 @@
     "outputPath": "site/problems/tj/24/tj-2026-hedong-ermo-24.html",
     "pageTitle": "2026 年天津市河东区二模 第 24 题（正方形折叠与重合面积）",
     "pageDescription": "2026 天津市河东区二模第 24 题：正方形 OABC 折叠，求 A′坐标、五边形阶段 GH 和重合面积对应的 t。",
-    "breadcrumbTitle": "2026 天津市河东区二模 第 24 题"
+    "breadcrumbTitle": "2026 天津市河东区二模 第 24 题",
+    "classification": {
+      "pattern": "moving-point-folding-area",
+      "methods": ["folding-overlap-area", "area-piecewise-by-overlap"]
+    }
   },
   "problem": {
     "summary": "第 24 题（2026 天津市河东区二模）正方形折叠与重合面积",

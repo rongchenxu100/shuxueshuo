@@ -4,7 +4,11 @@
     "outputPath": "site/problems/tj/25/tj-2026-xiqing-yimo-25.html",
     "pageTitle": "2026 年天津市西青区一模 第 25 题（二次函数综合）",
     "pageDescription": "2026 天津市西青区一模第 25 题：由定点 A 求 c=b+1，配方求顶点；再由 D 的坐标通式比较 AD 与 BC，最后作 30° 辅助线转化 2DM+AM 的最小值并确定 b。",
-    "breadcrumbTitle": "2026 天津市西青区一模 第 25 题"
+    "breadcrumbTitle": "2026 天津市西青区一模 第 25 题",
+    "classification": {
+      "pattern": "path-minimum",
+      "methods": ["known-root-factorization", "coefficient-from-point-on-parabola", "weighted-path-segment-transform", "horse-drinking"]
+    }
   },
   "problem": {
     "summary": "第 25 题（2026 天津市西青区一模）二次函数综合：顶点、线段关系与 2DM+AM 最值。",

@@ -4,7 +4,11 @@
     "outputPath": "site/problems/tj/25/tj-2026-nankai-yimo-25.html",
     "pageTitle": "2026 年天津市南开区一模 第 25 题（二次函数综合）",
     "pageDescription": "2026 天津市南开区一模第 25 题：由 2a+b=0 确定对称轴与 D，再利用旋转等条件（∠MDN=90°，DM=DN）建立 N 坐标和抛物线参数，最终求 EG+FG 的最小值。",
-    "breadcrumbTitle": "2026 天津市南开区一模 第 25 题"
+    "breadcrumbTitle": "2026 天津市南开区一模 第 25 题",
+    "classification": {
+      "pattern": "path-minimum",
+      "methods": ["right-triangle-congruence-coordinate", "isosceles-right-triangle-transform", "horse-drinking"]
+    }
   },
   "problem": {
     "summary": "第 25 题（2026 天津市南开区一模）二次函数综合：由 2a+b=0 推导 D 坐标，建立动点关系，求 EG+FG 的最小值。",

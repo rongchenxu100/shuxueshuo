@@ -14,6 +14,10 @@ These rules complement, not replace, the general step-design and diagram-content
 - If the axis is fixed (does not depend on the moving parameter), put D in `fixedPoints`.
 - If coefficients depend on the moving parameter `m`, derive them sequentially in `expressionEnv`: constants first, then expressions that reference `m`, then derived values.
 - Never write `a = ...` in `expressionEnv` before all expressions it depends on are already defined.
+- When a step only substitutes given coefficient relations or point coordinates to eliminate unknown coefficients and rewrite the parabola, name that step `化简函数表达式`. Use the same wording in `lesson-data.stepLabels` / directory labels, for example `1 化简函数表达式`.
+- Do not add a main slider for an unknown coefficient that the problem asks students to solve, such as `a` in `y=ax²+bx+c`. The main slider is for genuine moving/exploration parameters from the problem statement (`m`, `t`, etc.). For coefficient-unknown pages, keep policies non-movable and use a representative solved or default value only to draw the diagram.
+- When a fixed x-intercept is given (for example `A(-1,0)`) and another intercept is requested, first simplify/factor the parabola using the known root and coefficient constraints. Prefer `y=(x+1)(2x+c)` or `y=a(x+1)(x+c)` style expressions when they follow directly from the data. Do **not** introduce a fresh unknown such as `B(r,0)` unless the problem genuinely requires an independent parameter that cannot be eliminated from the given coefficients.
+- If a later condition determines the coefficient value, keep earlier algebra in the symbolic state. For example, show `B(-c/2,0), C(0,c)` before solving `c=-5/2`; do not rename this as `B(r,0)` or draw the final `B(5/4,0), C(0,-5/2)` in the earlier step.
 
 ---
 
@@ -30,6 +34,8 @@ Write `lesson-data.steps[].derive` as board-style mathematical reasoning:
 - Do not answer what the problem did not ask. If Part I asks only for `D` and the equation, do not add `C` or vertex conclusions to the solution, box, or diagram.
 - Keep diagram choices aligned with `diagram-drawing-principles.md`: show current-step constructions and used quantities, avoid premature reveals, and reserve segment labels for real mathematical information.
 - When a step cites a prior derivation, add a declarative step reference in the derive row instead of repeating the whole proof or embedding HTML. Use the third derive item: `{ "refStep": "previousStepId", "refLabel": "回看..." }`.
+- Remove definition-only or repeated derive rows once the fact is already active in the immediately preceding step. For example, do not start an angle-construction step with `BO=4CO` if the previous step has already converted that condition into `B` and `C` coordinates.
+- Keep simple sub-questions compact. If a computation only substitutes given coefficients and takes a vertex formula, one well-named step is enough; do not split it merely to mirror every algebra line.
 
 ---
 
@@ -85,6 +91,8 @@ For exploratory "将军饮马" steps, add a local control for the moving point w
 
 When introducing a computation foot point, describe the geometric construction before any coordinate form. Prefer `作 DP⊥x轴，垂足为 P` over `P(b+2,0)` when the perpendicular relationship is what the calculation uses.
 
+When a shortest-path transformation creates a 45° fixed ray, compute the final minimum with visible isosceles-right triangles when possible instead of using the point-to-line distance formula. For example, after turning `√2 MN + AN` into `√2(MN + QN)` by constructing an isosceles right triangle `AQN`, and after the shortest state gives `Q、N、M` collinear with `MQ ⟂ AQ`, draw only the foot actually needed, such as `MH ⟂ x轴`. Use the 45° isosceles right triangle to read `MN`, then use the already-established relation `AN=√2·QN` to compute `QN` directly. Avoid extra feet such as `QR` when `QN` can be found from `AN`.
+
 ### Trigonometry In Middle-School Coordinate Problems
 
 When a quadratic problem uses `tan` or an angle sum involving `45°`, keep the method inside right triangles.
@@ -94,6 +102,27 @@ When a quadratic problem uses `tan` or an angle sum involving `45°`, keep the m
 - Do not use the tangent formula for the angle between two slopes.
 - If the condition is like `∠CBE + ∠ACO = 45°`, look for a known `45°` angle in the diagram, then construct an auxiliary point so the target angle equals a right-triangle angle. For example, if `BE` meets `OC` at `F` and `∠OBC=45°`, then `∠OBF=∠ACO`; compute `OF` from `tan∠OBF=OF/OB`.
 - After the auxiliary point is found, use line equations and parabola intersections to locate the required point.
+
+### Equal-Angle Line Through An Axis Intercept
+
+When a condition such as `∠ABM=∠ABC` determines a line through an x-axis point `B`, avoid presenting the first move as "the slope is ...". Prefer this middle-school construction:
+
+1. Let the unknown line meet the y-axis at an auxiliary point, often `C'`.
+2. Use the equal angle and quadrant/side condition to decide whether `C'` lies above or below the x-axis.
+3. Read a vertical equality from the reflected/equal-angle right triangles, such as `C'O=CO`.
+4. Write the coordinate of `C'`, then use the two known points `B` and `C'` to get the line expression.
+
+This keeps the derivation visible on the diagram and avoids making slope the conceptual reason for the line. It is fine to compute the line from two points after the construction has located `C'`.
+
+### Coordinate Triangle Area
+
+Before using a determinant-style area formula, check whether the triangle can be split by a vertical or horizontal auxiliary segment.
+
+- If a vertex or constructed point lies on the y-axis, try using a vertical base such as `CC'`.
+- If the opposite vertices are on different sides of that vertical line, write the area as the sum of two triangles:
+  `1/2·vertical base·left horizontal distance + 1/2·vertical base·right horizontal distance`.
+- Mark the vertical base and the two horizontal distances in the diagram. The equation in the derivation should mirror those labels.
+- Use determinant area only when no simple vertical/horizontal split is readable or when the problem source explicitly expects it.
 
 ### ∠MDN = 90°, DM = DN Pattern
 
@@ -114,6 +143,8 @@ This is preferred over vector rotation in student-facing solution text because i
 
 When a segment such as `AC` is rotated 90° around a point on an axis, do not use vectors in the student-facing solution. Middle-school pages should construct a right triangle and prove congruence.
 
+For a condition like `∠CBD=90°` and `BC=BD` with `B` on the x-axis and `C` on the y-axis, prefer drawing the foot `DQ ⟂ x轴` and proving `Rt△CBO≌Rt△BDQ` to read the coordinates of `D`. Do not present vector rotation as the main derivation.
+
 Preferred pattern:
 
 1. If the sub-question gives `m` or another parameter value, substitute it immediately.
@@ -123,6 +154,8 @@ Preferred pattern:
 5. Transfer leg lengths to obtain the coordinate of `D`.
 
 For example, with `A(-3,0)` and `C(0,9)`, draw `DG ⟂ OC`. From `△AOC≌△CDG`, get `CG=3` and `DG=9`, so `G(0,6)` and `D(9,6)`.
+
+For a coefficient-dependent coordinate example, if `a=2`, `A(-1,0)` lies on `y=2x²-bx+c`, `C` is the y-axis intercept, and `∠CAD=90°`, `AC=AD`, first use `A` to get `c=-b-2` and `C(0,-b-2)`. Then draw `DH ⟂ x轴`, prove `Rt△AOC≌Rt△DHA`, transfer `AH=OC=b+2` and `DH=AO=1`, so `D(b+1,1)`. Only after this geometric coordinate step, substitute `D` into the parabola to solve the coefficient and final coordinate. This is preferred over listing coordinate-rotation candidates such as `D(b+1,1)` and `D(-b-3,-1)` without the triangle argument.
 
 **Optional agent-side check (not the main student explanation):**
 

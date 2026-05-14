@@ -4,7 +4,11 @@
     "outputPath": "site/problems/tj/24/tj-2026-heping-ermo-24.html",
     "pageTitle": "2026 年天津市和平区二模 第 24 题（梯形折叠与重叠面积）",
     "pageDescription": "2026 天津市和平区二模第 24 题：梯形 OABC 折叠，求 A、B 坐标、O′E 表达式和重叠面积 S 的范围。",
-    "breadcrumbTitle": "2026 天津市和平区二模 第 24 题"
+    "breadcrumbTitle": "2026 天津市和平区二模 第 24 题",
+    "classification": {
+      "pattern": "moving-point-folding-area",
+      "methods": ["folding-overlap-area", "area-piecewise-by-overlap"]
+    }
   },
   "problem": {
     "summary": "第 24 题（2026 天津市和平区二模）梯形折叠与重叠面积",

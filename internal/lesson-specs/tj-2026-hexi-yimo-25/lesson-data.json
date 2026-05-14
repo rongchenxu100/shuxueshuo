@@ -4,7 +4,11 @@
     "outputPath": "site/problems/tj/25/tj-2026-hexi-yimo-25.html",
     "pageTitle": "2026 年天津市河西区一模 第 25 题（二次函数综合）",
     "pageDescription": "2026 天津市河西区一模第 25 题：由配方求顶点，用直角等腰关系确定抛物线上的点 D，再用直角三角形不等式求 √2MN+AN 的最小值并确定 b。",
-    "breadcrumbTitle": "2026 天津市河西区一模 第 25 题"
+    "breadcrumbTitle": "2026 天津市河西区一模 第 25 题",
+    "classification": {
+      "pattern": "path-minimum",
+      "methods": ["coefficient-from-point-on-parabola", "right-triangle-congruence-coordinate", "isosceles-right-triangle-transform", "horse-drinking"]
+    }
   },
   "problem": {
     "summary": "第 25 题（2026 天津市河西区一模）二次函数综合：顶点、直角等腰构造与 √2MN+AN 最值。",

@@ -4,7 +4,11 @@
     "outputPath": "site/problems/tj/24/tj-2026-nankai-yimo-24.compiled.html",
     "pageTitle": "2026 年天津市南开区一模 第 24 题（旋转三角形与重叠面积）",
     "pageDescription": "2026 天津市南开区一模第 24 题：等边三角形、旋转构造 △MPN、五边形重叠状态、CG 与面积 S 的动态变化。",
-    "breadcrumbTitle": "2026 天津市南开区一模 第 24 题"
+    "breadcrumbTitle": "2026 天津市南开区一模 第 24 题",
+    "classification": {
+      "pattern": "moving-point-rotation-area",
+      "methods": ["rotation-overlap-area", "area-piecewise-by-overlap"]
+    }
   },
   "problem": {
     "summary": "第 24 题（2026 天津市南开区一模）旋转三角形：求 C、CD，求 CG 与 t 范围，求 S 范围",

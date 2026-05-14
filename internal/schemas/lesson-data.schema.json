@@ -13,7 +13,20 @@
         "outputPath":      { "type": "string", "description": "相对仓库根目录的 HTML 输出路径" },
         "pageTitle":       { "type": "string" },
         "pageDescription": { "type": "string" },
-        "breadcrumbTitle": { "type": "string" }
+        "breadcrumbTitle": { "type": "string" },
+        "classification": {
+          "type": "object",
+          "description": "知识库分类：pattern 是主题型标签，methods 是本题使用的解题方法 ID 列表",
+          "required": ["pattern", "methods"],
+          "properties": {
+            "pattern": { "type": "string" },
+            "methods": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          },
+          "additionalProperties": false
+        }
       }
     },
     "problem": {

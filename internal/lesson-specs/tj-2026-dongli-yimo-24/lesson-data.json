@@ -4,7 +4,11 @@
     "outputPath": "site/problems/tj/24/tj-2026-dongli-yimo-24.html",
     "pageTitle": "2026 年天津市东丽区一模 第 24 题（平行四边形与平移直角三角形）",
     "pageDescription": "2026 天津市东丽区一模第 24 题：平行四边形 ABCD、等腰直角三角形 OEF 水平平移、线段 O′N 与重叠面积 S 的范围。",
-    "breadcrumbTitle": "2026 天津市东丽区一模 第 24 题"
+    "breadcrumbTitle": "2026 天津市东丽区一模 第 24 题",
+    "classification": {
+      "pattern": "moving-point-translation-area",
+      "methods": ["translation-overlap-area", "area-piecewise-by-overlap", "isosceles-right-triangle-transform"]
+    }
   },
   "problem": {
     "summary": "第 24 题（2026 天津市东丽区一模）平行四边形与平移等腰直角三角形",

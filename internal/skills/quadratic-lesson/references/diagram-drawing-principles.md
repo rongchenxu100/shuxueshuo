@@ -12,15 +12,22 @@ Diagrams are not decoration. Each step diagram should show the mathematical obje
 - Keep prior constructions visible only when the current derivation still depends on them.
 - For local transformation or optimization steps, narrow the active objects and, when helpful, the local `domain`; do not let the full parabola or unrelated context shrink the important construction.
 - Do not reveal solved coordinates or values before the step's reasoning has established them.
+- Step diagrams must match the current algebraic state, not the final answer. If a step has only established `B(-c/2,0), C(0,c)`, the diagram and coordinate labels must use those symbolic/current points. Locking the diagram to a later value such as `c=-5/2` before that value is derived is a premature reveal, even if the final curve is visually clearer.
+- Split layers when a later solved construction would otherwise leak into an earlier step. Use separate `stepStartsWith` layers such as `q1Generic` and `q1Solved`, or move final-value points into only the step that derives them. Do not put final points in a broad section layer shared by earlier steps.
 - Do not put final answers or solved special coordinates into a diagram that is meant to support derivation. Labels like `b=2`, `D(4,-5)`, `h=b+3=5`, or final numeric path lengths belong after the proof has reached them, and often do not belong in the diagram at all.
 - For calculation diagrams after a path transformation, zoom into the local triangle/segment configuration and label only the quantities used in that calculation. If the derivation uses `DP`, `MP`, `AP`, `∠DMP`, `∠MAN`, and two right angles, omit other labels such as `DN`, coordinates, or repeated final values.
+- In final computation diagrams, keep coordinate labels symbolic unless the step's purpose is explicitly to display the final coordinate. For example, prefer `M(b+1/2,−(2b+3)/4)` while solving for `b`; do not label `M(5/2,−7/4)` before or during the equation solving.
+- Do not use diagram formula cards for conclusions already visible in the derivation/box area. A formula card is for a spatial relation that would be hard to read from the picture; repeated algebra such as `(6b+9)/4=21/4` or `b=2` usually belongs only in the derivation panel.
+- If a diagram label repeats the exact formula already shown in `lesson-data.steps[].derive` or `box`, remove it unless it adds spatial meaning that cannot be read from the derivation text. Prefer point labels, segment lengths, equal marks, angle arcs, and distances over duplicated algebra cards.
 
 ## Mark Used Quantities
 
 - If the derivation uses specific coordinates, side lengths, ratios, or angle equalities, mark the important ones in the step diagram when space allows.
 - When there are too many values, prioritize in this order: values that unlock the current step, values needed for substitution, then supporting context.
 - For equal angles, prefer matching angle-arc labels such as the same Greek letter over a detached text equation.
+- Place angle labels visually near the middle of the angle arc. If the shared geometry-label layout pushes labels away from the arc in a crowded local figure, tune the step's `angleArc` fields such as `labelRadius`, `fontSize`, and `lockLabel` before changing shared renderer code.
 - For equal segments, use matched visual marks when possible. If the renderer has no tick-mark primitive, use repeated segment labels such as `|` / `||` or concise equality labels, and keep colors consistent across matching segments.
+- Mark angle types accurately. If the construction gives a right angle, use a right-angle marker instead of an angle arc labeled `45°`; reserve `45°` arcs for actual acute angles used to identify an isosceles-right triangle.
 
 ## Constructed Segments Must Be Visible
 
@@ -28,6 +35,7 @@ Diagrams are not decoration. Each step diagram should show the mathematical obje
 - If a later computation uses a triangle, draw all sides needed to see that triangle. For example, a step using right triangle `OCG` must show `OC`, `CG`, and `OG`.
 - Do not rely on a point label or a text card to imply a constructed line segment.
 - Draw construction causes before derived facts. For a `30°-60°-90°` auxiliary triangle, show the fixed `30°` ray and right angle as the construction; then label the derived side relation such as `MN=1/2 AM`.
+- If an equal-angle condition is converted by an auxiliary point on an axis, draw the auxiliary point, the constructed line, the equal angle arcs, and the equality it creates. For example, if `BM` meets the y-axis at `C'`, show `B-C'`, `B-M`, the matching angles at `B`, and the vertical equality `C'O=CO`.
 
 ## Moving Segments And Controls
 
@@ -48,6 +56,7 @@ Diagrams are not decoration. Each step diagram should show the mathematical obje
 - Avoid prose-like formula labels inside the diagram during path-discovery steps. A shortest-path diagram should communicate with geometry: point names, segments, angle marks, and motion. Put statements like `DM+MN≥DN` or `最小值=2DN` in the derivation/box area, or omit the box when it visually crowds the diagram.
 - When the endpoint is constrained to a fixed ray/line, the shortest-state diagram or derivation must include the perpendicular condition, for example `DN⊥AN`, in addition to collinearity.
 - When the final length can be computed from the straightened configuration, prefer visible triangle relations and segment sums over line equations. The diagram should support equations students can read from the figure.
+- Draw only the auxiliary foot points needed for the final computation. If `AN=√2·QN` already determines `QN`, do not add a second perpendicular foot just to recompute `QN`; extra feet make the figure look more advanced and less direct.
 - Example: if `M` lies on `BC`, `N` lies on ray `CD`, and `CN=CM`, take `G` on ray `CD` with `CG=CB`. Then `△CBN≌△GCM`, so `BN=MG`, and `OM+BN` becomes `OM+MG`.
 
 ## Quadratic-Specific Drawing
@@ -55,3 +64,5 @@ Diagrams are not decoration. Each step diagram should show the mathematical obje
 - Use `parabola`, `axisOfSymmetry`, `vertex`, and `curvePoint` only when those objects are part of the current visual reasoning.
 - For fixed Part I and dynamic Part II parabolas, keep curve visibility separated by step prefixes or sections.
 - A parabola can be a quiet background in geometry-heavy steps; constructions, equalities, and moving segments should carry the visual focus.
+- For coefficient or angle-solving steps with a small auxiliary construction, use a local `steps[stepId].domain` that frames the construction. Avoid leaving a mostly empty coordinate plane around a tiny triangle or angle marker.
+- For coordinate-area steps, draw the actual base and distances used in the formula. In an "铅垂面积" step, show the vertical base such as `CC'` and the horizontal distances from the other vertices to that vertical line; the visual labels should match the area expression in the derivation.

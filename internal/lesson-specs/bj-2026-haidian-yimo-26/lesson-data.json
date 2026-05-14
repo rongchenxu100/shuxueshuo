@@ -4,7 +4,11 @@
     "outputPath": "site/problems/bj/26/bj-2026-haidian-yimo-26.html",
     "pageTitle": "2026 年北京市海淀区一模 第 26 题（代数综合）",
     "pageDescription": "2026 北京市海淀区一模第 26 题：抛物线过 O、(2，0) 求系数关系；竖直线与抛物线、定直线 y＝－ax＋2a 的铅直距离 m，求 m＝0 的 t 及恒有 m＜9 时 a 的范围。",
-    "breadcrumbTitle": "2026 北京海淀区一模 第 26 题"
+    "breadcrumbTitle": "2026 北京海淀区一模 第 26 题",
+    "classification": {
+      "pattern": "parameter-range-inequality",
+      "methods": ["coefficient-from-point-on-parabola", "vertical-distance-absolute-value"]
+    }
   },
   "problem": {
     "summary": "第 26 题（2026 北京市海淀区一模）代数综合：铅直距离 m＝a|t²－t－2| 与参数范围。",

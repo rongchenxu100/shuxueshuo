@@ -4,7 +4,11 @@
     "outputPath": "site/problems/tj/24/tj-2026-binhai-yimo-24.html",
     "pageTitle": "2026 年天津市滨海新区一模 第 24 题（平移菱形与重叠面积）",
     "pageDescription": "2026 天津市滨海新区一模第 24 题：矩形 OABC、菱形 EFGH 水平平移、五边形重叠面积 S 与范围。",
-    "breadcrumbTitle": "2026 天津市滨海新区一模 第 24 题"
+    "breadcrumbTitle": "2026 天津市滨海新区一模 第 24 题",
+    "classification": {
+      "pattern": "moving-point-translation-area",
+      "methods": ["translation-overlap-area", "area-piecewise-by-overlap"]
+    }
   },
   "problem": {
     "summary": "第 24 题（2026 天津市滨海新区一模）平移菱形与矩形重叠面积",

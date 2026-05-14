@@ -4,7 +4,11 @@
     "outputPath": "site/problems/tj/25/tj-2026-hexi-jieke-25.html",
     "pageTitle": "2026 年天津市河西区结课 第 25 题（二次函数综合）",
     "pageDescription": "由二次函数系数关系、顶点坐标、距离相等与角度倍分条件求参数 a。",
-    "breadcrumbTitle": "2026 天津市河西区结课 第 25 题"
+    "breadcrumbTitle": "2026 天津市河西区结课 第 25 题",
+    "classification": {
+      "pattern": "coefficient-constraint",
+      "methods": ["coefficient-from-point-on-parabola", "known-root-factorization"]
+    }
   },
   "problem": {
     "summary": "已知抛物线过 A(−1,0)，第（Ⅰ）问求顶点，第（Ⅱ）问在 2a+b=0 下求参数 a。",
