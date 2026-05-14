@@ -299,6 +299,19 @@ window.__PROBLEMS_DATA__ = [
     "status": "published"
   },
   {
+    "id": "sh-2026-yangpu-ermo-25",
+    "city": "shanghai",
+    "cityLabel": "上海",
+    "year": 2026,
+    "exam": "yangpu-ermo",
+    "examLabel": "杨浦区二模",
+    "slot": "25",
+    "title": "2026 年上海市杨浦区二模第 25 题（折纸定值与代数表达）",
+    "tags": ["geometry", "folding", "dynamic-point"],
+    "path": "../problems/sh/25/sh-2026-yangpu-ermo-25.compiled.html",
+    "status": "published"
+  },
+  {
     "id": "bj-2026-chaoyang-yimo-26",
     "city": "beijing",
     "cityLabel": "北京",
