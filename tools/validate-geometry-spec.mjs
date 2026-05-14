@@ -407,6 +407,8 @@ if (spec) {
         need(lessonData.policies?.[s.id], "policies 缺少: " + s.id);
         need(lessonData.stepLabels?.[s.id], "stepLabels 缺少: " + s.id);
         need(deco.steps?.[s.id], "step-decorations.steps 缺少: " + s.id);
+        const range = lessonData.policies?.[s.id]?.range;
+        need(Array.isArray(range) && range.length >= 2, "policies." + s.id + " 缺少 range；不可拖动步骤也需要写成 [t,t]");
       }
     }
 

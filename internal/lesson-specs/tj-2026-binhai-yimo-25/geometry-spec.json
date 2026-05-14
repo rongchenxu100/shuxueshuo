@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "id": "tj-2026-binhai-yimo-25",
+  "domain": { "minX": -7.2, "maxX": 7.2, "minY": -1.2, "maxY": 14.2 },
+  "movingParam": "e",
+  "expressionEnv": [
+    { "name": "b1", "expr": "2" },
+    { "name": "c1", "expr": "3" },
+    { "name": "bCompare", "expr": "1.2" },
+    { "name": "cCompare", "expr": "bCompare+1" },
+    { "name": "bGeneric", "expr": "5" },
+    { "name": "cGeneric", "expr": "bGeneric+1" },
+    { "name": "axisGeneric", "expr": "bGeneric/2" },
+    { "name": "dYGeneric", "expr": "3*bGeneric-3" },
+    { "name": "bFinal", "expr": "5.2" },
+    { "name": "cFinal", "expr": "bFinal+1" },
+    { "name": "axisFinal", "expr": "bFinal/2" },
+    { "name": "dYFinal", "expr": "3*bFinal-3" },
+    { "name": "eOpt", "expr": "1953/170" }
+  ],
+  "fixedPoints": {
+    "O": ["0", "0"],
+    "A": ["-1", "0"],
+    "P1": ["1", "4"],
+    "C1": ["0", "3"],
+    "Bcompare": ["bCompare+1", "0"],
+    "Ccompare": ["0", "cCompare"],
+    "Bgen": ["bGeneric+1", "0"],
+    "Cgen": ["0", "cGeneric"],
+    "Dgen": ["bGeneric-2", "dYGeneric"],
+    "Dpgen": ["axisGeneric-2", "dYGeneric"],
+    "Brefgen": ["-bGeneric-1", "0"],
+    "Bfinal": ["bFinal+1", "0"],
+    "Cfinal": ["0", "cFinal"],
+    "Dfinal": ["bFinal-2", "dYFinal"],
+    "Dpfinal": ["axisFinal-2", "dYFinal"],
+    "Breffinal": ["-bFinal-1", "0"],
+    "Eopt": ["0", "eOpt"],
+    "Fopt": ["axisFinal", "eOpt"],
+    "Xgap": ["axisFinal-2", "0"],
+    "Ygap": ["axisFinal-2", "dYFinal"]
+  },
+  "movingPoints": {
+    "E": ["0", "e"],
+    "F": ["axisGeneric", "e"]
+  },
+  "curves": [
+    { "id": "parabolaPart1", "type": "parabola", "a": "-1", "b": "b1", "c": "c1" },
+    { "id": "parabolaCompare", "type": "parabola", "a": "-1", "b": "bCompare", "c": "cCompare" },
+    { "id": "parabolaGeneric", "type": "parabola", "a": "-1", "b": "bGeneric", "c": "cGeneric" },
+    { "id": "parabolaFinal", "type": "parabola", "a": "-1", "b": "bFinal", "c": "cFinal" }
+  ],
+  "derivedIntersections": []
+}

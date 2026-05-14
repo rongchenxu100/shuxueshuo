@@ -1,0 +1,109 @@
+{
+  "_comment": "滨海新区 2026 一模第 25 题 — 二次函数综合",
+  "layers": {
+    "global": {
+      "elements": [
+        { "type": "grid" },
+        { "type": "point", "at": "O", "color": "#1f2937", "showLabel": false },
+        { "type": "point", "at": "A", "color": "#1f2937", "dx": -30, "dy": 18 }
+      ]
+    },
+    "partI": {
+      "stepStartsWith": ["i1"],
+      "elements": [
+        { "type": "parabola", "curveId": "parabolaPart1", "color": "#2563eb", "width": 2.9 },
+        { "type": "point", "at": "C1", "labelText": "C", "color": "#1f2937", "dx": 12, "dy": -18 }
+      ]
+    },
+    "partII1": {
+      "stepStartsWith": ["q1"],
+      "elements": [
+        { "type": "parabola", "curveId": "parabolaCompare", "color": "#bfdbfe", "width": 2 },
+        { "type": "point", "at": "Bcompare", "labelText": "B", "color": "#1f2937", "dx": 12, "dy": -18 },
+        { "type": "point", "at": "Ccompare", "labelText": "C", "color": "#1f2937", "dx": 12, "dy": -18 }
+      ]
+    },
+    "partII2Generic": {
+      "stepStartsWith": ["q2s1"],
+      "elements": [
+        { "type": "parabola", "curveId": "parabolaGeneric", "color": "#bfdbfe", "width": 1.8 },
+        { "type": "axisOfSymmetry", "curveId": "parabolaGeneric", "color": "#94a3b8", "width": 1.4, "dash": "8 6" },
+        { "type": "point", "at": "Bgen", "labelText": "B", "color": "#1f2937", "dx": 12, "dy": -18 },
+        { "type": "point", "at": "Dgen", "labelText": "D", "color": "#b45309", "dx": 12, "dy": -18 }
+      ]
+    }
+  },
+  "steps": {
+    "i1s1": {
+      "domain": { "minX": -2, "maxX": 4, "minY": -1, "maxY": 5 },
+      "add": [
+        { "type": "coordinateLabel", "at": "A", "text": "A(−1,0)", "dx": -64, "dy": -18 },
+        { "type": "coordinateLabel", "at": "C1", "text": "C(0,3)", "dx": 14, "dy": -24 },
+        { "type": "axisOfSymmetry", "curveId": "parabolaPart1", "color": "#94a3b8", "width": 1.4, "dash": "8 6" },
+        { "type": "vertex", "curveId": "parabolaPart1", "color": "#dc2626", "labelText": "P", "dx": 14, "dy": -18 },
+        { "type": "coordinateLabel", "at": "P1", "text": "P(1,4)", "dx": 18, "dy": -28 }
+      ]
+    },
+    "q1s1": {
+      "domain": { "minX": -2, "maxX": 4.2, "minY": -1, "maxY": 3.8 },
+      "add": [
+        { "type": "coordinateLabel", "at": "A", "text": "A(−1,0)", "dx": -64, "dy": -18 },
+        { "type": "coordinateLabel", "at": "Bcompare", "text": "B(b+1,0)", "dx": 14, "dy": -24 },
+        { "type": "coordinateLabel", "at": "Ccompare", "text": "C(0,b+1)", "dx": 14, "dy": -24 }
+      ]
+    },
+    "q1s2": {
+      "domain": { "minX": -2, "maxX": 4.2, "minY": -1, "maxY": 3.8 },
+      "add": [
+        { "type": "coloredLine", "from": "A", "to": "Bcompare", "color": "#dc2626", "width": 2.5 },
+        { "type": "coloredLine", "from": "Bcompare", "to": "Ccompare", "color": "#0f766e", "width": 2.5 },
+        { "type": "segment", "from": "A", "to": "Bcompare", "label": "AB=b+2", "color": "#dc2626", "width": 2.5, "offsetPx": -22 },
+        { "type": "segment", "from": "Bcompare", "to": "Ccompare", "label": "BC=√2(b+1)", "color": "#0f766e", "width": 2.5, "offsetPx": 22 }
+      ]
+    },
+    "q2s1": {
+      "domain": { "minX": -0.8, "maxX": 7.0, "minY": -0.8, "maxY": 13.6 },
+      "add": [
+        { "type": "point", "at": "E", "labelText": "E", "color": "#dc2626", "dx": -24, "dy": -10 },
+        { "type": "point", "at": "F", "labelText": "F", "color": "#7c3aed", "dx": 12, "dy": -10 },
+        { "type": "point", "at": "Dpgen", "labelText": "D′", "color": "#0f766e", "dx": -30, "dy": -18 },
+        { "type": "dashedLine", "from": "E", "to": "F", "color": "#64748b", "width": 1.6, "dash": "5 5" },
+        { "type": "coloredLine", "from": "Dgen", "to": "F", "label": "DF", "color": "#7c3aed", "width": 2.5, "offsetPx": 20 },
+        { "type": "coloredLine", "from": "E", "to": "Dpgen", "label": "ED′", "color": "#0f766e", "width": 2.5, "offsetPx": -20 },
+        { "type": "coordinateLabel", "at": "Dgen", "text": "D(b−2,3b−3)", "dx": 14, "dy": -28 },
+        { "type": "coordinateLabel", "at": "Dpgen", "text": "D′(b/2−2,3b−3)", "dx": -132, "dy": -28 }
+      ]
+    },
+    "q2s2": {
+      "domain": { "minX": -6.8, "maxX": 6.8, "minY": -0.8, "maxY": 13.6 },
+      "add": [
+        { "type": "point", "at": "E", "labelText": "E", "color": "#dc2626", "dx": 12, "dy": -10 },
+        { "type": "point", "at": "Dpgen", "labelText": "D′", "color": "#0f766e", "dx": 12, "dy": -18 },
+        { "type": "point", "at": "Bgen", "labelText": "B", "color": "#1f2937", "dx": 12, "dy": -18 },
+        { "type": "point", "at": "Brefgen", "labelText": "B′", "color": "#b45309", "dx": -24, "dy": -18 },
+        { "type": "outlineRegion", "vertices": ["Brefgen", "Dpgen", "E"], "style": "horseTriangle", "color": "#f59e0b", "width": 1.8, "dash": "" },
+        { "type": "coloredLine", "from": "Bgen", "to": "E", "color": "#7c3aed", "width": 2 },
+        { "type": "coloredLine", "from": "Brefgen", "to": "E", "color": "#dc2626", "width": 2.4 },
+        { "type": "coloredLine", "from": "E", "to": "Dpgen", "color": "#0f766e", "width": 2.4 },
+        { "type": "coloredLine", "from": "Brefgen", "to": "Dpgen", "label": "B′D′", "color": "#b45309", "width": 2.4, "offsetPx": -22 },
+        { "type": "dashedLine", "from": "Bgen", "to": "Brefgen", "color": "#94a3b8", "width": 1.4, "dash": "5 5" },
+        { "type": "coordinateLabel", "at": "Bgen", "text": "B(b+1,0)", "dx": 14, "dy": -24 },
+        { "type": "coordinateLabel", "at": "Brefgen", "text": "B′(−b−1,0)", "dx": -96, "dy": -24 }
+      ]
+    },
+    "q2s3": {
+      "domain": { "minX": -6.8, "maxX": 1.2, "minY": -0.8, "maxY": 13.6 },
+      "add": [
+        { "type": "point", "at": "Eopt", "labelText": "E", "color": "#dc2626", "dx": 12, "dy": -10 },
+        { "type": "point", "at": "Dpfinal", "labelText": "D′", "color": "#0f766e", "dx": 12, "dy": -18 },
+        { "type": "point", "at": "Breffinal", "labelText": "B′", "color": "#b45309", "dx": -24, "dy": -18 },
+        { "type": "coloredLine", "from": "Breffinal", "to": "Dpfinal", "color": "#b45309", "width": 2.6 },
+        { "type": "dashedLine", "from": "Dpfinal", "to": "Xgap", "color": "#64748b", "width": 1.6, "dash": "5 5" },
+        { "type": "dashedLine", "from": "Breffinal", "to": "Xgap", "color": "#64748b", "width": 1.6, "dash": "5 5" },
+        { "type": "rightAngle", "vertex": "Xgap", "rayA": "Dpfinal", "rayB": "Breffinal", "size": 10, "color": "#64748b" },
+        { "type": "segment", "from": "Breffinal", "to": "Xgap", "label": "3b/2−1", "color": "#64748b", "width": 1.6, "offsetPx": 22 },
+        { "type": "segment", "from": "Dpfinal", "to": "Xgap", "label": "3b−3", "color": "#64748b", "width": 1.6, "offsetPx": -24 }
+      ]
+    }
+  }
+}

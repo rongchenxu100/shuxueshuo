@@ -84,6 +84,29 @@
     }
   }
 
+  function addScreenSegmentObstacle(layout, p, q, options){
+    if(!layout) return;
+    const dx = q.x - p.x;
+    const dy = q.y - p.y;
+    const len = Math.hypot(dx, dy);
+    if(len < 1e-6) return;
+    const step = options?.step ?? 22;
+    const radius = options?.radius ?? 5;
+    const count = Math.max(2, Math.ceil(len / step));
+    for(let i = 0; i <= count; i += 1){
+      const ratio = i / count;
+      const x = p.x + dx * ratio;
+      const y = p.y + dy * ratio;
+      layout.occupied.push({
+        left: x - radius,
+        top: y - radius,
+        right: x + radius,
+        bottom: y + radius,
+        kind: options?.kind ?? "screen-segment"
+      });
+    }
+  }
+
   function pointsCoincident(a, b, tolerance){
     const tol = tolerance ?? 1e-6;
     return Math.hypot(a.x - b.x, a.y - b.y) <= tol;
@@ -407,6 +430,11 @@
         extraY: strategy.extraY ?? 0,
         candidates: strategy.candidates
       });
+      addScreenSegmentObstacle(layout, p1, p2, {
+        step: strategy.obstacleStep ?? 22,
+        radius: strategy.obstacleRadius ?? 5,
+        kind: "dimension-guide"
+      });
       return `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="${color}" stroke-width="${width}" stroke-dasharray="${dash}" />` +
         `<line x1="${p1.x-nx*tick}" y1="${p1.y-ny*tick}" x2="${p1.x+nx*tick}" y2="${p1.y+ny*tick}" stroke="${color}" stroke-width="${width}" />` +
         `<line x1="${p2.x-nx*tick}" y1="${p2.y-ny*tick}" x2="${p2.x+nx*tick}" y2="${p2.y+ny*tick}" stroke="${color}" stroke-width="${width}" />` +
@@ -469,6 +497,7 @@
     addPointObstacle,
     addRectObstacle,
     addSegmentObstacle,
+    addScreenSegmentObstacle,
     pointsCoincident,
     mergeCoincidentLabel,
     candidateOffsets,
