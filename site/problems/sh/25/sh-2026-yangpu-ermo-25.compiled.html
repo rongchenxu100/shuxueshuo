@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2026 年上海市杨浦区二模 第 25 题（折纸定值与代数表达） | 数学说</title>
+  <meta name="description" content="2026 上海市杨浦区二模第 25 题：正方形折纸操作，证 ∠ABG=30°、HQ/EG=√2/2 为定值、用 m 表达 HQ/QC。" />
+  <meta property="og:title" content="2026 年上海市杨浦区二模 第 25 题（折纸定值与代数表达） | 数学说" />
+  <meta property="og:description" content="2026 上海市杨浦区二模第 25 题：正方形折纸操作，证 ∠ABG=30°、HQ/EG=√2/2 为定值、用 m 表达 HQ/QC。" />
+  <meta property="og:image" content="../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../assets/css/interactive-geometry-page.css" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../nav/index.html">题库导航</a>
+    <span class="lesson-title">2026 上海市杨浦区二模 第 25 题</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <div class="problem-summary">
+            <div class="problem-summary-text">第 25 题（2026 上海杨浦二模）正方形折纸：求 ∠ABG（30°）、HQ/EG 定值（√2/2）、HQ/QC 关于 m 的代数式（(1+m²)/(1−m²)）。</div>
+            <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          </div>
+          <div class="problem-full">
+            <div class="problem-line"><span>（25）（本题共 14 分）</span></div>
+<div class="problem-line"><strong>【问题背景】</strong></div>
+<div class="problem-line"><span>折纸是一门将数学、艺术与工程完美结合的学科。下面我们利用一张正方形纸片来开展&quot;折纸与数学&quot;探究活动。</span></div>
+<div class="problem-line"><strong>【操作探究】</strong></div>
+<div class="problem-line"><span>（1）小创小组将正方形纸片（如图 1）按照图 2 至图 3 的方式操作，那么图 3 中 ∠ABG = ___°，并写出求解过程。</span><span class="answer-chip" id="answer1">答案：∠ABG = 30°</span></div>
+<div class="problem-line"><span>图 1：正方形 ABCD（A 左上、D 右上、B 左下、C 右下）。图 2：对折正方形 ABCD（折痕为 EF，E 是 AB 中点，F 是 DC 中点）。图 3：将点 A 折至 EF 上点 H（折痕为 BG，G 在 AD 上）。</span></div>
+<div class="problem-line"><span>（2）小智小组将正方形纸片（如图 4）按照图 5 至图 7 的方式操作，折痕 BE、BG 与折痕 AC 的交点分别是 H、Q，经过多次操作和测量，发现线段 HQ 与 EG 的比值是一个定值，请你帮小智小组求出 HQ/GE 的值。</span><span class="answer-chip" id="answer2">答案：HQ/GE = √2/2</span></div>
+<div class="problem-line"><span>图 4：正方形 ABCD。图 5：对折正方形 ABCD（折痕为对角线 AC）。图 6：将 AB 折至 BF，折痕为 BE（F 在对角线 BD 上、BF = BA）。图 7：将 BC 折至 BF，折痕为 BG（C 折叠后的像与 F 重合）。</span></div>
+<div class="problem-line"><strong>【尝试应用】</strong></div>
+<div class="problem-line"><span>（3）如图 7，设正方形 ABCD 的边长为 1，AE = m，求 HQ/QC 的值（用含 m 的代数式表示）。</span><span class="answer-chip" id="answer3">答案：HQ/QC = (1+m²)/(1−m²)</span></div>
+<div class="problem-line"><strong>原题图形 · 第（1）问折叠过程</strong></div>
+<div class="problem-original-figures" aria-label="原题图 1 至图 3">
+  <figure class="problem-figure">
+    <svg id="originalFigure1" viewBox="0 0 1080 760" role="img" aria-label="图 1：正方形 ABCD"></svg>
+    <h3>图 1</h3>
+    <figcaption class="problem-figure-caption">正方形 ABCD</figcaption>
+  </figure>
+  <figure class="problem-figure">
+    <svg id="originalFigure2" viewBox="0 0 1080 760" role="img" aria-label="图 2：对折产生中线 EF"></svg>
+    <h3>图 2</h3>
+    <figcaption class="problem-figure-caption">对折正方形 ABCD</figcaption>
+  </figure>
+  <figure class="problem-figure">
+    <svg id="originalFigure3" viewBox="0 0 1080 760" role="img" aria-label="图 3：将 A 折至 EF 上点 H，折痕 BG"></svg>
+    <h3>图 3</h3>
+    <figcaption class="problem-figure-caption">将点 A 折至 EF 上点 H</figcaption>
+  </figure>
+</div>
+<div class="problem-line"><strong>原题图形 · 第（2）问折叠过程</strong></div>
+<div class="problem-original-figures" aria-label="原题图 4 至图 7">
+  <figure class="problem-figure">
+    <svg id="originalFigure4" viewBox="0 0 1080 760" role="img" aria-label="图 4：正方形 ABCD（第（2）问起点）"></svg>
+    <h3>图 4</h3>
+    <figcaption class="problem-figure-caption">正方形 ABCD</figcaption>
+  </figure>
+  <figure class="problem-figure">
+    <svg id="originalFigure5" viewBox="0 0 1080 760" role="img" aria-label="图 5：对折产生对角线 AC 折痕"></svg>
+    <h3>图 5</h3>
+    <figcaption class="problem-figure-caption">对折正方形 ABCD</figcaption>
+  </figure>
+  <figure class="problem-figure">
+    <svg id="originalFigure6" viewBox="0 0 1080 760" role="img" aria-label="图 6：将 AB 折至 BF，折痕 BE（F 在 BD 上）"></svg>
+    <h3>图 6</h3>
+    <figcaption class="problem-figure-caption">将 AB 折至 BF</figcaption>
+  </figure>
+  <figure class="problem-figure">
+    <svg id="originalFigure7" viewBox="0 0 1080 760" role="img" aria-label="图 7：将 BC 折至 BF，折痕 BG，H=BE∩AC，Q=BG∩AC"></svg>
+    <h3>图 7</h3>
+    <figcaption class="problem-figure-caption">将 BC 折至 BF</figcaption>
+  </figure>
+</div>
+          </div>
+        </section>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../assets/js/lesson-page-runtime.js"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"q1s1","section":"第（1）问","title":"第1步：由对折的中垂线性质得 AH = BH","t":0.5,"derive":[["∵","对折正方形 ABCD（图 2），EF 是中线"],["∴","AE = BE，EF ⊥ AB（EF 是 AB 的中垂线）"],["∵","H 在 EF 上"],["∴","AH = BH"]],"box":["EF 是 AB 的中垂线","AH = BH"]},{"id":"q1s2","section":"第（1）问","title":"第2步：由折叠 △ABG ≅ △HBG 得 BA = BH","t":0.5,"derive":[["∵","沿 BG 折叠把 △ABG 翻到 △HBG（A → H）"],["∴","△ABG ≅ △HBG"],["∴","BA = BH，∠ABG = ∠HBG = ½∠ABH"]],"box":["△ABG ≅ △HBG","BA = BH","∠ABG = ½∠ABH"]},{"id":"q1s3","section":"第（1）问","title":"第3步：由三段相等证 △ABH 等边，求 ∠ABG","t":0.5,"derive":[["∵","AH = BH（Step 1），BA = BH（Step 2）"],["∴","AH = BH = BA"],["∴","△ABH 是等边三角形"],["∴","∠ABH = 60°"],["∵","∠ABG = ½∠ABH"],["∴","∠ABG = 30°"]],"box":["△ABH 是等边三角形","∠ABH = 60°","∠ABG = 30°（最终答案）"]},{"id":"q2s1","section":"第（2）问","title":"第1步：由对折得 ∠ACB = ∠ACD = 45°","t":0.41421356,"derive":[["∵","沿 AC 对折正方形 ABCD（图 5）"],["∴","△ABC ≅ △ADC"],["∴","∠ACB = ∠ACD = ½∠BCD = 45°"]],"box":["∠ACB = ∠ACD = 45°"]},{"id":"q2s2","section":"第（2）问","title":"第2步：列出两次折叠产生的全等与等角关系","t":0.41421356,"derive":[["∵","把 AB 折至 BF（图 6，折痕 BE）"],["∴","△ABE ≅ △FBE"],["∴","∠ABE = ∠FBE，∠BAE = ∠BFE = 90°，BA = BF"],["∵","把 BC 折至 BF（图 7，折痕 BG）"],["∴","△CBG ≅ △FBG"],["∴","∠CBG = ∠FBG，∠BCG = ∠BFG = 90°，BC = BF"]],"box":["△ABE ≅ △FBE","△CBG ≅ △FBG","F 处：∠BFE = ∠BFG = 90°","BF = BA = BC"]},{"id":"q2s3","section":"第（2）问","title":"第3步：由 F 处两个直角证 E、F、G 三点共线","t":0.41421356,"derive":[["∵","∠BFE = 90°"],["∴","FE ⊥ BF"],["∵","∠BFG = 90°"],["∴","FG ⊥ BF"],["∵","过定点 F、垂直于定直线 BF 的直线只有一条"],["∴","直线 FE 与直线 FG 是同一条"],["∴","E、F、G 三点共线"]],"box":["∠BFE + ∠BFG = 180°","E、F、G 三点共线","F 在线段 EG 上"]},{"id":"q2s4","section":"第（2）问","title":"第4步：由 ∠ABC = 90° 拆分证 ∠EBG = 45°","t":0.41421356,"derive":[["∵","设 ∠ABE = ∠FBE = α，∠CBG = ∠FBG = β"],["∵","∠ABC = ∠ABE + ∠EBF + ∠FBG + ∠GBC = 2(α + β)"],["∵","∠ABC = 90°"],["∴","α + β = 45°"],["∵","∠EBG = α + β"],["∴","∠EBG = 45°"]],"box":["α + β = 45°","∠EBG = 45°"]},{"id":"q2s5","section":"第（2）问","title":"第5步：由 AA 相似得 △BQH ∽ △CQG","t":0.41421356,"derive":[["∵","H 在射线 BE 上 ⇒ 射线 BH = 射线 BE"],["∵","Q 在射线 BG 上 ⇒ 射线 BQ = 射线 BG"],["∴","∠QBH = ∠EBG = 45°"],["∵","Q 在 AC 上 ⇒ 射线 CQ = 射线 CA；G 在 CD 上 ⇒ 射线 CG = 射线 CD"],["∴","∠QCG = ∠ACD = 45°"],["∴","∠QBH = 45° = ∠QCG"],["∵","∠BQH = ∠CQG（对顶角）"],["∴","△BQH ∽ △CQG（AA）"],["∴","BQ/CQ = HQ/GQ"]],"box":["△BQH ∽ △CQG","BQ/CQ = HQ/GQ"]},{"id":"q2s6","section":"第（2）问","title":"第6步：由比例换边得 △BQC ∽ △HQG，证 ∠BHG = 90°","t":0.41421356,"derive":[["∵","BQ/CQ = HQ/GQ ⇒ BQ/HQ = CQ/GQ"],["∵","∠BQC = ∠HQG（对顶角）"],["∴","△BQC ∽ △HQG（SAS）"],["∴","∠BCQ = ∠HGQ"],["∵","∠BCQ = ∠ACB = 45°"],["∴","∠HGQ = 45°"],["∵","B、Q、G 共线 ⇒ 射线 GQ = 射线 GB"],["∴","∠HGB = ∠HGQ = 45°"],["∵","在 △BHG 中 ∠HBG + ∠HGB + ∠BHG = 180°"],["∴","∠BHG = 180° − 45° − 45° = 90°"]],"box":["△BQC ∽ △HQG","∠HGB = 45°","∠BHG = 90°"]},{"id":"q2s7","section":"第（2）问","title":"第7步：由 Rt△BHG 与对称的 Rt△BQE 得 BH/BG = BQ/BE = √2/2","t":0.41421356,"derive":[["∵","在 Rt△BHG 中 ∠BHG = 90°、∠HBG = 45°"],["∴","BH/BG = cos 45° = √2/2"],["∵","△BQE 与 △BHG 的对称配置（A↔C、E↔G、H↔Q）"],["∴","用平行推理可得 ∠BQE = 90°"],["∴","Rt△BQE 中 BQ/BE = cos 45° = √2/2"]],"box":["BH/BG = √2/2","BQ/BE = √2/2"]},{"id":"q2s8","section":"第（2）问","title":"第8步：由 SAS 得 △BQH ∽ △BEG，求 HQ/GE","t":0.41421356,"derive":[["∵","BH/BG = BQ/BE = √2/2"],["∵","∠QBH = ∠EBG（公共角）"],["∴","△BQH ∽ △BEG（SAS）"],["∴","HQ/GE = BH/BG = √2/2"]],"box":["△BQH ∽ △BEG","HQ/GE = √2/2（最终答案）"]},{"id":"q3s1","section":"第（3）问","title":"第1步：设 CG = n，由折叠得 EG = m + n","t":0.41421356,"derive":[["∵","设 CG = n，正方形 ABCD 边长为 1"],["∴","DG = 1 − n"],["∵","折叠后 E、F、G 共线，EF = AE = m，FG = CG = n（折叠保距）"],["∴","EG = EF + FG = m + n"]],"box":["DG = 1 − n","EG = m + n（= AE + CG）"]},{"id":"q3s2","section":"第（3）问","title":"第2步：在 Rt△DEG 中由勾股定理求 n","t":0.41421356,"derive":[["∵","E 在 AD 上、AE = m"],["∴","DE = 1 − m"],["∵","∠EDG = 90°（正方形角）"],["∴","Rt△DEG 中 DE² + DG² = EG²"],["∴","(1 − m)² + (1 − n)² = (m + n)²"],["∴","2 − 2m − 2n = 2mn"],["∴","n(1 + m) = 1 − m"],["∴","n = (1 − m) / (1 + m)"]],"box":["n = (1 − m) / (1 + m)"]},{"id":"q3s3","section":"第（3）问","title":"第3步：由（2）问结论求 HQ","t":0.41421356,"derive":[["∵","HQ/GE = √2/2（第（2）问 Step 8）"],["∴","HQ = (√2/2) · GE = (√2/2) · (m + n)"],["∵","m + n = (1 + m²) / (1 + m)"],["∴","HQ = (√2/2) · (1 + m²) / (1 + m)"]],"box":["HQ = (√2/2) · (1 + m²) / (1 + m)"]},{"id":"q3s4","section":"第（3）问","title":"第4步：由 AB ∥ CD 平行截比求 QC","t":0.41421356,"derive":[["∵","AB ∥ CD（正方形对边）"],["∴","CG/AB = QC/QA（平行线分线段成比例）"],["∴","由合比定理 CG/(CG + AB) = QC/(QC + QA) = QC/AC"],["∵","AC = √2，AB = 1，CG = n"],["∴","n/(1 + n) = QC/√2"],["∵","1 + n = 2/(1 + m)，所以 n/(1 + n) = (1 − m)/2"],["∴","QC = √2 · (1 − m)/2 = (√2/2) · (1 − m)"]],"box":["QC = (√2/2) · (1 − m)"]},{"id":"q3s5","section":"第（3）问","title":"第5步：合并得 HQ/QC","t":0.41421356,"derive":[["∵","HQ = (√2/2) · (1 + m²) / (1 + m)"],["∵","QC = (√2/2) · (1 − m)"],["∴","HQ/QC = [(1 + m²)/(1 + m)] / (1 − m)"],["∴","HQ/QC = (1 + m²) / [(1 + m)(1 − m)]"],["∴","HQ/QC = (1 + m²) / (1 − m²)"]],"box":["HQ = (√2/2)(1 + m²)/(1 + m)","QC = (√2/2)(1 − m)","HQ/QC = (1 + m²) / (1 − m²)（最终答案）"]}];
+    var STEP_LABELS = {"q1s1":"1 中垂得 AH=BH","q1s2":"2 折叠得 BA=BH","q1s3":"3 等边求 ∠ABG=30°","q2s1":"1 ∠ACB=∠ACD=45°","q2s2":"2 列折叠全等","q2s3":"3 证 EFG 共线","q2s4":"4 证 ∠EBG=45°","q2s5":"5 △BQH∽△CQG","q2s6":"6 △BQC∽△HQG，∠BHG=90°","q2s7":"7 Rt△BHG 得 √2/2","q2s8":"8 △BQH∽△BEG，求 HQ/GE","q3s1":"1 设 CG=n，EG=m+n","q3s2":"2 勾股求 n","q3s3":"3 求 HQ","q3s4":"4 平行截比求 QC","q3s5":"5 合并 HQ/QC"};
+    var POLICIES   = {"q1s1":{"movable":false,"range":[0.5,0.5]},"q1s2":{"movable":false,"range":[0.5,0.5]},"q1s3":{"movable":false,"range":[0.5,0.5]},"q2s1":{"movable":false,"range":[0.41421356,0.41421356]},"q2s2":{"movable":false,"range":[0.41421356,0.41421356]},"q2s3":{"movable":false,"range":[0.41421356,0.41421356]},"q2s4":{"movable":false,"range":[0.41421356,0.41421356]},"q2s5":{"movable":false,"range":[0.41421356,0.41421356]},"q2s6":{"movable":false,"range":[0.41421356,0.41421356]},"q2s7":{"movable":false,"range":[0.41421356,0.41421356]},"q2s8":{"movable":false,"range":[0.41421356,0.41421356]},"q3s1":{"movable":false,"range":[0.41421356,0.41421356]},"q3s2":{"movable":false,"range":[0.41421356,0.41421356]},"q3s3":{"movable":false,"range":[0.41421356,0.41421356]},"q3s4":{"movable":false,"range":[0.41421356,0.41421356]},"q3s5":{"movable":false,"range":[0.41421356,0.41421356]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script type="application/json" id="geometrySpec">{"$schema":"../../schemas/geometry-spec.schema.json","version":1,"id":"sh-2026-yangpu-ermo-25","domain":{"minX":-0.2,"maxX":1.3,"minY":-0.2,"maxY":1.2},"fixedPoints":{"A":["0","1"],"B":["0","0"],"C":["1","0"],"D":["1","1"],"E1":["0","1/2"],"F1":["1","1/2"],"G1":["S3/3","1"],"H1":["S3/2","1/2"]},"movingParam":"t","movingPoints":{"E":["t","1"],"F":["2*t/(t*t+1)","(1-t*t)/(t*t+1)"],"G":["1","(1-t)/(1+t)"]},"basePolygon":["A","B","C","D"],"movingPolygon":["B","E","F","G"],"derivedIntersections":[{"name":"H","a":["B","E"],"b":["A","C"],"fallback":["t/(t+1)","1/(t+1)"]},{"name":"Q","a":["B","G"],"b":["A","C"],"fallback":["(1+t)/2","(1-t)/2"]}],"originalFigures":[{"id":"originalFigure1","t":0.5,"basePolyFill":false,"showMoving":false,"showOverlap":false,"showIntersections":false,"fixedLabels":[{"at":"A","label":"A","dx":-28,"dy":-10,"fontSize":56},{"at":"B","label":"B","dx":-28,"dy":22,"fontSize":56},{"at":"C","label":"C","dx":10,"dy":22,"fontSize":56},{"at":"D","label":"D","dx":10,"dy":-10,"fontSize":56}],"movingLabels":[],"intersectionLabels":[],"segments":[]},{"id":"originalFigure2","t":0.5,"basePolyFill":false,"showMoving":false,"showOverlap":false,"showIntersections":false,"fixedLabels":[{"at":"A","label":"A","dx":-28,"dy":-10,"fontSize":56},{"at":"B","label":"B","dx":-28,"dy":22,"fontSize":56},{"at":"C","label":"C","dx":10,"dy":22,"fontSize":56},{"at":"D","label":"D","dx":10,"dy":-10,"fontSize":56},{"at":"E1","label":"E","dx":-28,"dy":6,"fontSize":56},{"at":"F1","label":"F","dx":10,"dy":6,"fontSize":56}],"movingLabels":[],"intersectionLabels":[],"segments":[{"from":"E1","to":"F1","color":"#6b7280","dash":"10 6","width":4}]},{"id":"originalFigure3","t":0.5,"basePolyDash":"10 6","basePolyFill":false,"showMoving":false,"showOverlap":false,"showIntersections":false,"fixedLabels":[{"at":"A","label":"A","dx":-28,"dy":-10,"fontSize":56},{"at":"B","label":"B","dx":-28,"dy":22,"fontSize":56},{"at":"C","label":"C","dx":10,"dy":22,"fontSize":56},{"at":"D","label":"D","dx":10,"dy":-10,"fontSize":56},{"at":"E1","label":"E","dx":-28,"dy":6,"fontSize":56},{"at":"F1","label":"F","dx":10,"dy":6,"fontSize":56},{"at":"G1","label":"G","dx":-8,"dy":-12,"fontSize":56},{"at":"H1","label":"H","dx":8,"dy":-12,"fontSize":56}],"movingLabels":[],"intersectionLabels":[],"segments":[{"from":"E1","to":"F1","color":"#6b7280","dash":"10 6","width":4},{"from":"B","to":"G1","color":"#0f766e"},{"from":"B","to":"H1","color":"#0f766e"},{"from":"G1","to":"H1","color":"#0f766e"}]},{"id":"originalFigure4","t":0.41421356,"basePolyFill":false,"showMoving":false,"showOverlap":false,"showIntersections":false,"fixedLabels":[{"at":"A","label":"A","dx":-28,"dy":-10,"fontSize":56},{"at":"B","label":"B","dx":-28,"dy":22,"fontSize":56},{"at":"C","label":"C","dx":10,"dy":22,"fontSize":56},{"at":"D","label":"D","dx":10,"dy":-10,"fontSize":56}],"movingLabels":[],"intersectionLabels":[],"segments":[]},{"id":"originalFigure5","t":0.41421356,"basePolyFill":false,"showMoving":false,"showOverlap":false,"showIntersections":false,"fixedLabels":[{"at":"A","label":"A","dx":-28,"dy":-10,"fontSize":56},{"at":"B","label":"B","dx":-28,"dy":22,"fontSize":56},{"at":"C","label":"C","dx":10,"dy":22,"fontSize":56},{"at":"D","label":"D","dx":10,"dy":-10,"fontSize":56}],"movingLabels":[],"intersectionLabels":[],"segments":[{"from":"A","to":"C","color":"#6b7280","dash":"10 6","width":4}]},{"id":"originalFigure6","t":0.41421356,"basePolyDash":"10 6","basePolyFill":false,"showMoving":false,"showOverlap":false,"showIntersections":false,"fixedLabels":[{"at":"A","label":"A","dx":-28,"dy":-10,"fontSize":56},{"at":"B","label":"B","dx":-28,"dy":22,"fontSize":56},{"at":"C","label":"C","dx":10,"dy":22,"fontSize":56},{"at":"D","label":"D","dx":10,"dy":-10,"fontSize":56},{"at":"E","label":"E","color":"#0f766e","dx":-8,"dy":-12,"fontSize":56},{"at":"F","label":"F","color":"#0f766e","dx":12,"dy":-8,"fontSize":56}],"movingLabels":[],"intersectionLabels":[],"segments":[{"from":"A","to":"C","color":"#6b7280","dash":"10 6","width":4},{"from":"B","to":"E","color":"#0f766e"},{"from":"B","to":"F","color":"#0f766e"},{"from":"E","to":"F","color":"#0f766e"}]},{"id":"originalFigure7","t":0.41421356,"basePolyDash":"10 6","basePolyFill":false,"showMoving":true,"showOverlap":false,"showIntersections":true,"fixedLabels":[{"at":"A","label":"A","dx":-28,"dy":-10,"fontSize":56},{"at":"B","label":"B","dx":-28,"dy":22,"fontSize":56},{"at":"C","label":"C","dx":10,"dy":22,"fontSize":56},{"at":"D","label":"D","dx":10,"dy":-10,"fontSize":56}],"movingLabels":[{"at":"E","label":"E","color":"#0f766e","dx":-8,"dy":-12,"fontSize":56},{"at":"F","label":"F","color":"#0f766e","dx":12,"dy":-8,"fontSize":56},{"at":"G","label":"G","color":"#0f766e","dx":12,"dy":6,"fontSize":56}],"intersectionLabels":[{"at":"H","label":"H","color":"#dc2626","dx":-22,"dy":-8,"fontSize":56},{"at":"Q","label":"Q","color":"#dc2626","dx":10,"dy":-8,"fontSize":56}],"segments":[{"from":"A","to":"C","color":"#6b7280","dash":"10 6","width":4},{"from":"E","to":"G","color":"#6b7280","dash":"10 6","width":4}]}]}</script>
+<script src="../../../assets/js/geometry-engine.js"></script>
+<script src="../../../assets/js/geometry-lesson-from-spec.js"></script>
+
+<script>
+  const __GEOMETRY_SPEC__ = JSON.parse(document.getElementById('geometrySpec').textContent);
+  const __STEP_DECORATIONS__ = {"$schema":"../../schemas/step-decorations.schema.json","_comment":"杨浦25：第（1）问用图3配置，第（2）/（3）问用图7配置。颜色全部使用项目 CSS 变量（--paper / --fold / --focus / --ink / --muted），保持暖米色调。","layers":{"global":{"elements":[{"type":"basePoly","style":"outline"},{"type":"point","at":"A","color":"var(--ink)","dx":-10,"dy":-8},{"type":"point","at":"B","color":"var(--ink)","dx":-10,"dy":18},{"type":"point","at":"C","color":"var(--ink)","dx":10,"dy":18},{"type":"point","at":"D","color":"var(--ink)","dx":10,"dy":-8}]},"Q1":{"stepStartsWith":["q1"],"elements":[{"type":"dashedLine","from":"E1","to":"F1","color":"var(--muted)"},{"type":"coloredLine","from":"B","to":"G1","color":"var(--fold-stroke)"},{"type":"point","at":"E1","color":"var(--ink)","label":"E","dx":-10,"dy":5},{"type":"point","at":"F1","color":"var(--ink)","label":"F","dx":10,"dy":5},{"type":"point","at":"G1","color":"var(--ink)","label":"G","dx":0,"dy":-10},{"type":"point","at":"H1","color":"var(--ink)","label":"H","dx":5,"dy":-10}]},"Q2_Q3":{"stepStartsWith":["q2","q3"],"elements":[{"type":"dashedLine","from":"A","to":"C","color":"var(--muted)"},{"type":"dashedLine","from":"B","to":"D","color":"var(--line)"},{"type":"coloredLine","from":"B","to":"E","color":"var(--fold-stroke)"},{"type":"coloredLine","from":"B","to":"G","color":"var(--accent-2)"},{"type":"dashedLine","from":"E","to":"G","color":"var(--muted)"},{"type":"point","at":"E","color":"var(--ink)","dx":0,"dy":-10},{"type":"point","at":"F","color":"var(--ink)","dx":10,"dy":-5},{"type":"point","at":"G","color":"var(--ink)","dx":12,"dy":5},{"type":"derivedPoint","at":"H","color":"var(--ink)","dx":-12,"dy":-5},{"type":"derivedPoint","at":"Q","color":"var(--ink)","dx":8,"dy":-5}]}},"steps":{"q1s1":{"add":[{"type":"rightAngle","vertex":"E1","rayA":"A","rayB":"F1","color":"var(--focus)"},{"type":"coloredLine","from":"A","to":"H1","color":"var(--focus)"},{"type":"coloredLine","from":"B","to":"H1","color":"var(--focus)"}]},"q1s2":{"add":[{"type":"outlineRegion","vertices":["A","B","G1"],"color":"var(--paper-stroke)","dash":""},{"type":"outlineRegion","vertices":["H1","B","G1"],"color":"var(--fold-stroke)","dash":""}]},"q1s3":{"add":[{"type":"outlineRegion","vertices":["A","B","H1"],"color":"var(--paper-stroke)","dash":""},{"type":"angleArc","vertex":"B","rayA":"A","rayB":"H1","label":"60°","color":"var(--ink)"},{"type":"angleArc","vertex":"B","rayA":"A","rayB":"G1","label":"30°","color":"var(--focus)"}]},"q2s1":{"add":[{"type":"angleArc","vertex":"C","rayA":"B","rayB":"A","label":"45°","color":"var(--focus)"},{"type":"angleArc","vertex":"C","rayA":"A","rayB":"D","label":"45°","color":"var(--focus)"}]},"q2s2":{"add":[{"type":"rightAngle","vertex":"A","rayA":"B","rayB":"E","color":"var(--paper-stroke)"},{"type":"rightAngle","vertex":"F","rayA":"B","rayB":"E","color":"var(--paper-stroke)"},{"type":"rightAngle","vertex":"F","rayA":"B","rayB":"G","color":"var(--accent-2)"},{"type":"rightAngle","vertex":"C","rayA":"B","rayB":"G","color":"var(--accent-2)"},{"type":"outlineRegion","vertices":["A","B","E"],"color":"var(--paper-stroke)","dash":""},{"type":"outlineRegion","vertices":["F","B","E"],"color":"var(--paper-stroke)","dash":""},{"type":"outlineRegion","vertices":["C","B","G"],"color":"var(--fold-stroke)","dash":""},{"type":"outlineRegion","vertices":["F","B","G"],"color":"var(--fold-stroke)","dash":""}]},"q2s3":{"add":[{"type":"rightAngle","vertex":"F","rayA":"B","rayB":"E","color":"var(--focus)"},{"type":"rightAngle","vertex":"F","rayA":"B","rayB":"G","color":"var(--focus)"},{"type":"coloredLine","from":"E","to":"G","color":"var(--focus)"}]},"q2s4":{"add":[{"type":"angleArc","vertex":"B","rayA":"A","rayB":"E","label":"α","color":"var(--paper-stroke)"},{"type":"angleArc","vertex":"B","rayA":"E","rayB":"F","label":"α","color":"var(--paper-stroke)"},{"type":"angleArc","vertex":"B","rayA":"F","rayB":"G","label":"β","color":"var(--accent-2)"},{"type":"angleArc","vertex":"B","rayA":"G","rayB":"C","label":"β","color":"var(--accent-2)"}]},"q2s5":{"add":[{"type":"outlineRegion","vertices":["B","Q","H"],"color":"var(--paper-stroke)","dash":""},{"type":"outlineRegion","vertices":["C","Q","G"],"color":"var(--fold-stroke)","dash":""},{"type":"angleArc","vertex":"B","rayA":"Q","rayB":"H","label":"45°","color":"var(--focus)"},{"type":"angleArc","vertex":"C","rayA":"Q","rayB":"G","label":"45°","color":"var(--focus)"}]},"q2s6":{"add":[{"type":"outlineRegion","vertices":["B","Q","C"],"color":"var(--paper-stroke)","dash":""},{"type":"outlineRegion","vertices":["H","Q","G"],"color":"var(--fold-stroke)","dash":""},{"type":"rightAngle","vertex":"H","rayA":"B","rayB":"G","color":"var(--focus)"}]},"q2s7":{"add":[{"type":"outlineRegion","vertices":["B","H","G"],"color":"var(--paper-stroke)","dash":""},{"type":"outlineRegion","vertices":["B","Q","E"],"color":"var(--fold-stroke)","dash":""},{"type":"rightAngle","vertex":"H","rayA":"B","rayB":"G","color":"var(--focus)"},{"type":"rightAngle","vertex":"Q","rayA":"B","rayB":"E","color":"var(--focus)"},{"type":"angleArc","vertex":"B","rayA":"H","rayB":"G","label":"45°","color":"var(--ink)"}]},"q2s8":{"add":[{"type":"outlineRegion","vertices":["B","Q","H"],"color":"var(--paper-stroke)","dash":""},{"type":"outlineRegion","vertices":["B","E","G"],"color":"var(--fold-stroke)","dash":""},{"type":"coloredLine","from":"H","to":"Q","color":"var(--focus)"},{"type":"coloredLine","from":"G","to":"E","color":"var(--focus)"},{"type":"angleArc","vertex":"B","rayA":"E","rayB":"G","label":"45°","color":"var(--ink)"}]},"q3s1":{"add":[{"type":"segment","from":"A","to":"E","color":"var(--focus)","label":"m"},{"type":"segment","from":"C","to":"G","color":"var(--focus)","label":"n"},{"type":"segment","from":"D","to":"G","color":"var(--ink)","label":"1−n"},{"type":"coloredLine","from":"E","to":"G","color":"var(--focus)"}]},"q3s2":{"add":[{"type":"outlineRegion","vertices":["D","E","G"],"color":"var(--paper-stroke)","dash":""},{"type":"rightAngle","vertex":"D","rayA":"E","rayB":"G","color":"var(--focus)"},{"type":"segment","from":"D","to":"E","color":"var(--ink)","label":"1−m"},{"type":"segment","from":"D","to":"G","color":"var(--ink)","label":"1−n"},{"type":"segment","from":"E","to":"G","color":"var(--ink)","label":"m+n"}]},"q3s3":{"add":[{"type":"coloredLine","from":"H","to":"Q","color":"var(--focus)"}]},"q3s4":{"add":[{"type":"coloredLine","from":"Q","to":"C","color":"var(--accent)"},{"type":"segment","from":"C","to":"G","color":"var(--ink)","label":"n"}]},"q3s5":{"add":[{"type":"coloredLine","from":"H","to":"Q","color":"var(--focus)"},{"type":"coloredLine","from":"Q","to":"C","color":"var(--accent)"}]}}};
+  const renderer = GeometryLessonFromSpec.createSpecRenderer(__GEOMETRY_SPEC__, __STEP_DECORATIONS__, STEPS, POLICIES);
+  function groupTitle(section) {
+    const map = {"第（1）问":"操作探究 (1)","第（2）问":"操作探究 (2)","第（3）问":"尝试应用"};
+    return map[section] || section;
+  }
+  var diagramMarkupFor = renderer.diagramMarkupFor;
+  var drawMini = renderer.drawMini;
+  var __LESSON_LEGEND_HTML__ = "<span><i class=\"sw\" style=\"background:var(--paper)\"></i>正方形纸片 ABCD</span><span><i class=\"sw\" style=\"background:var(--fold)\"></i>折叠后区域 / 折痕</span>";
+  // 原题图形渲染：由 renderer 负责（可选）
+  var __AFTER_RENDER_ALL_STEPS__ = renderer.renderOriginalFigures;
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "P 点 · t＝OP",
+      paramLabelPrefix: "m=",
+      goToProblemMode: "smooth"
+    });
+  </script>
+</body>
+</html>

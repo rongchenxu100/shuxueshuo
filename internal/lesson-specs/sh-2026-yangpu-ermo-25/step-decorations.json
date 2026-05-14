@@ -1,0 +1,163 @@
+{
+  "$schema": "../../schemas/step-decorations.schema.json",
+  "_comment": "杨浦25：第（1）问用图3配置，第（2）/（3）问用图7配置。颜色全部使用项目 CSS 变量（--paper / --fold / --focus / --ink / --muted），保持暖米色调。",
+  "layers": {
+    "global": {
+      "elements": [
+        { "type": "basePoly", "style": "outline" },
+        { "type": "point", "at": "A", "color": "var(--ink)", "dx": -10, "dy": -8 },
+        { "type": "point", "at": "B", "color": "var(--ink)", "dx": -10, "dy": 18 },
+        { "type": "point", "at": "C", "color": "var(--ink)", "dx": 10,  "dy": 18 },
+        { "type": "point", "at": "D", "color": "var(--ink)", "dx": 10,  "dy": -8 }
+      ]
+    },
+    "Q1": {
+      "stepStartsWith": ["q1"],
+      "elements": [
+        { "type": "dashedLine", "from": "E1", "to": "F1", "color": "var(--muted)" },
+        { "type": "coloredLine", "from": "B",  "to": "G1", "color": "var(--fold-stroke)" },
+        { "type": "point", "at": "E1", "color": "var(--ink)", "label": "E", "dx": -10, "dy": 5 },
+        { "type": "point", "at": "F1", "color": "var(--ink)", "label": "F", "dx": 10,  "dy": 5 },
+        { "type": "point", "at": "G1", "color": "var(--ink)", "label": "G", "dx": 0,   "dy": -10 },
+        { "type": "point", "at": "H1", "color": "var(--ink)", "label": "H", "dx": 5,   "dy": -10 }
+      ]
+    },
+    "Q2_Q3": {
+      "stepStartsWith": ["q2", "q3"],
+      "elements": [
+        { "type": "dashedLine", "from": "A", "to": "C", "color": "var(--muted)" },
+        { "type": "dashedLine", "from": "B", "to": "D", "color": "var(--line)" },
+        { "type": "coloredLine", "from": "B", "to": "E", "color": "var(--fold-stroke)" },
+        { "type": "coloredLine", "from": "B", "to": "G", "color": "var(--accent-2)" },
+        { "type": "dashedLine", "from": "E", "to": "G", "color": "var(--muted)" },
+        { "type": "point",        "at": "E", "color": "var(--ink)", "dx": 0,   "dy": -10 },
+        { "type": "point",        "at": "F", "color": "var(--ink)", "dx": 10,  "dy": -5 },
+        { "type": "point",        "at": "G", "color": "var(--ink)", "dx": 12,  "dy": 5 },
+        { "type": "derivedPoint", "at": "H", "color": "var(--ink)", "dx": -12, "dy": -5 },
+        { "type": "derivedPoint", "at": "Q", "color": "var(--ink)", "dx": 8,   "dy": -5 }
+      ]
+    }
+  },
+  "steps": {
+    "q1s1": {
+      "add": [
+        { "type": "rightAngle",  "vertex": "E1", "rayA": "A", "rayB": "F1", "color": "var(--focus)" },
+        { "type": "coloredLine", "from": "A",  "to": "H1", "color": "var(--focus)" },
+        { "type": "coloredLine", "from": "B",  "to": "H1", "color": "var(--focus)" }
+      ]
+    },
+    "q1s2": {
+      "add": [
+        { "type": "outlineRegion", "vertices": ["A", "B", "G1"],  "color": "var(--paper-stroke)", "dash": "" },
+        { "type": "outlineRegion", "vertices": ["H1", "B", "G1"],  "color": "var(--fold-stroke)",  "dash": "" }
+      ]
+    },
+    "q1s3": {
+      "add": [
+        { "type": "outlineRegion", "vertices": ["A", "B", "H1"], "color": "var(--paper-stroke)", "dash": "" },
+        { "type": "angleArc", "vertex": "B", "rayA": "A",  "rayB": "H1", "label": "60°", "color": "var(--ink)" },
+        { "type": "angleArc", "vertex": "B", "rayA": "A",  "rayB": "G1", "label": "30°", "color": "var(--focus)" }
+      ]
+    },
+    "q2s1": {
+      "add": [
+        { "type": "angleArc", "vertex": "C", "rayA": "B", "rayB": "A", "label": "45°", "color": "var(--focus)" },
+        { "type": "angleArc", "vertex": "C", "rayA": "A", "rayB": "D", "label": "45°", "color": "var(--focus)" }
+      ]
+    },
+    "q2s2": {
+      "add": [
+        { "type": "rightAngle", "vertex": "A", "rayA": "B", "rayB": "E", "color": "var(--paper-stroke)" },
+        { "type": "rightAngle", "vertex": "F", "rayA": "B", "rayB": "E", "color": "var(--paper-stroke)" },
+        { "type": "rightAngle", "vertex": "F", "rayA": "B", "rayB": "G", "color": "var(--accent-2)" },
+        { "type": "rightAngle", "vertex": "C", "rayA": "B", "rayB": "G", "color": "var(--accent-2)" },
+        { "type": "outlineRegion", "vertices": ["A", "B", "E"], "color": "var(--paper-stroke)", "dash": "" },
+        { "type": "outlineRegion", "vertices": ["F", "B", "E"], "color": "var(--paper-stroke)", "dash": "" },
+        { "type": "outlineRegion", "vertices": ["C", "B", "G"],  "color": "var(--fold-stroke)",  "dash": "" },
+        { "type": "outlineRegion", "vertices": ["F", "B", "G"],  "color": "var(--fold-stroke)",  "dash": "" }
+      ]
+    },
+    "q2s3": {
+      "add": [
+        { "type": "rightAngle",  "vertex": "F", "rayA": "B", "rayB": "E", "color": "var(--focus)" },
+        { "type": "rightAngle",  "vertex": "F", "rayA": "B", "rayB": "G", "color": "var(--focus)" },
+        { "type": "coloredLine", "from": "E", "to": "G", "color": "var(--focus)" }
+      ]
+    },
+    "q2s4": {
+      "add": [
+        { "type": "angleArc", "vertex": "B", "rayA": "A", "rayB": "E", "label": "α", "color": "var(--paper-stroke)" },
+        { "type": "angleArc", "vertex": "B", "rayA": "E", "rayB": "F", "label": "α", "color": "var(--paper-stroke)" },
+        { "type": "angleArc", "vertex": "B", "rayA": "F", "rayB": "G", "label": "β", "color": "var(--accent-2)" },
+        { "type": "angleArc", "vertex": "B", "rayA": "G", "rayB": "C", "label": "β", "color": "var(--accent-2)" }
+      ]
+    },
+    "q2s5": {
+      "add": [
+        { "type": "outlineRegion", "vertices": ["B", "Q", "H"], "color": "var(--paper-stroke)", "dash": "" },
+        { "type": "outlineRegion", "vertices": ["C", "Q", "G"],  "color": "var(--fold-stroke)",  "dash": "" },
+        { "type": "angleArc", "vertex": "B", "rayA": "Q", "rayB": "H", "label": "45°", "color": "var(--focus)" },
+        { "type": "angleArc", "vertex": "C", "rayA": "Q", "rayB": "G", "label": "45°", "color": "var(--focus)" }
+      ]
+    },
+    "q2s6": {
+      "add": [
+        { "type": "outlineRegion", "vertices": ["B", "Q", "C"], "color": "var(--paper-stroke)", "dash": "" },
+        { "type": "outlineRegion", "vertices": ["H", "Q", "G"],  "color": "var(--fold-stroke)",  "dash": "" },
+        { "type": "rightAngle",   "vertex": "H", "rayA": "B", "rayB": "G", "color": "var(--focus)" }
+      ]
+    },
+    "q2s7": {
+      "add": [
+        { "type": "outlineRegion", "vertices": ["B", "H", "G"], "color": "var(--paper-stroke)", "dash": "" },
+        { "type": "outlineRegion", "vertices": ["B", "Q", "E"],  "color": "var(--fold-stroke)",  "dash": "" },
+        { "type": "rightAngle",  "vertex": "H", "rayA": "B", "rayB": "G", "color": "var(--focus)" },
+        { "type": "rightAngle",  "vertex": "Q", "rayA": "B", "rayB": "E", "color": "var(--focus)" },
+        { "type": "angleArc",    "vertex": "B", "rayA": "H", "rayB": "G", "label": "45°", "color": "var(--ink)" }
+      ]
+    },
+    "q2s8": {
+      "add": [
+        { "type": "outlineRegion", "vertices": ["B", "Q", "H"], "color": "var(--paper-stroke)", "dash": "" },
+        { "type": "outlineRegion", "vertices": ["B", "E", "G"],  "color": "var(--fold-stroke)",  "dash": "" },
+        { "type": "coloredLine",  "from": "H", "to": "Q", "color": "var(--focus)" },
+        { "type": "coloredLine",  "from": "G", "to": "E", "color": "var(--focus)" },
+        { "type": "angleArc",     "vertex": "B", "rayA": "E", "rayB": "G", "label": "45°", "color": "var(--ink)" }
+      ]
+    },
+    "q3s1": {
+      "add": [
+        { "type": "segment",     "from": "A", "to": "E", "color": "var(--focus)", "label": "m" },
+        { "type": "segment",     "from": "C", "to": "G", "color": "var(--focus)", "label": "n" },
+        { "type": "segment",     "from": "D", "to": "G", "color": "var(--ink)",   "label": "1−n" },
+        { "type": "coloredLine", "from": "E", "to": "G", "color": "var(--focus)" }
+      ]
+    },
+    "q3s2": {
+      "add": [
+        { "type": "outlineRegion", "vertices": ["D", "E", "G"], "color": "var(--paper-stroke)", "dash": "" },
+        { "type": "rightAngle",   "vertex": "D", "rayA": "E", "rayB": "G", "color": "var(--focus)" },
+        { "type": "segment", "from": "D", "to": "E", "color": "var(--ink)", "label": "1−m" },
+        { "type": "segment", "from": "D", "to": "G", "color": "var(--ink)", "label": "1−n" },
+        { "type": "segment", "from": "E", "to": "G", "color": "var(--ink)", "label": "m+n" }
+      ]
+    },
+    "q3s3": {
+      "add": [
+        { "type": "coloredLine", "from": "H", "to": "Q", "color": "var(--focus)" }
+      ]
+    },
+    "q3s4": {
+      "add": [
+        { "type": "coloredLine", "from": "Q", "to": "C", "color": "var(--accent)" },
+        { "type": "segment",     "from": "C", "to": "G", "color": "var(--ink)", "label": "n" }
+      ]
+    },
+    "q3s5": {
+      "add": [
+        { "type": "coloredLine", "from": "H", "to": "Q", "color": "var(--focus)" },
+        { "type": "coloredLine", "from": "Q", "to": "C", "color": "var(--accent)" }
+      ]
+    }
+  }
+}

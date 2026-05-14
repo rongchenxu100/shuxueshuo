@@ -1,0 +1,375 @@
+{
+  "$schema": "../../schemas/lesson-data.schema.json",
+  "meta": {
+    "id": "sh-2026-yangpu-ermo-25",
+    "outputPath": "site/problems/sh/25/sh-2026-yangpu-ermo-25.compiled.html",
+    "pageTitle": "2026 年上海市杨浦区二模 第 25 题（折纸定值与代数表达）",
+    "pageDescription": "2026 上海市杨浦区二模第 25 题：正方形折纸操作，证 ∠ABG=30°、HQ/EG=√2/2 为定值、用 m 表达 HQ/QC。",
+    "breadcrumbTitle": "2026 上海市杨浦区二模 第 25 题"
+  },
+  "problem": {
+    "summary": "第 25 题（2026 上海杨浦二模）正方形折纸：求 ∠ABG（30°）、HQ/EG 定值（√2/2）、HQ/QC 关于 m 的代数式（(1+m²)/(1−m²)）。",
+    "lines": [
+      { "text": "（25）（本题共 14 分）" },
+      { "heading": "【问题背景】" },
+      { "text": "折纸是一门将数学、艺术与工程完美结合的学科。下面我们利用一张正方形纸片来开展\"折纸与数学\"探究活动。" },
+      { "heading": "【操作探究】" },
+      { "text": "（1）小创小组将正方形纸片（如图 1）按照图 2 至图 3 的方式操作，那么图 3 中 ∠ABG = ___°，并写出求解过程。", "answerId": "answer1", "answer": "答案：∠ABG = 30°" },
+      { "text": "图 1：正方形 ABCD（A 左上、D 右上、B 左下、C 右下）。图 2：对折正方形 ABCD（折痕为 EF，E 是 AB 中点，F 是 DC 中点）。图 3：将点 A 折至 EF 上点 H（折痕为 BG，G 在 AD 上）。" },
+      { "text": "（2）小智小组将正方形纸片（如图 4）按照图 5 至图 7 的方式操作，折痕 BE、BG 与折痕 AC 的交点分别是 H、Q，经过多次操作和测量，发现线段 HQ 与 EG 的比值是一个定值，请你帮小智小组求出 HQ/GE 的值。", "answerId": "answer2", "answer": "答案：HQ/GE = √2/2" },
+      { "text": "图 4：正方形 ABCD。图 5：对折正方形 ABCD（折痕为对角线 AC）。图 6：将 AB 折至 BF，折痕为 BE（F 在对角线 BD 上、BF = BA）。图 7：将 BC 折至 BF，折痕为 BG（C 折叠后的像与 F 重合）。" },
+      { "heading": "【尝试应用】" },
+      { "text": "（3）如图 7，设正方形 ABCD 的边长为 1，AE = m，求 HQ/QC 的值（用含 m 的代数式表示）。", "answerId": "answer3", "answer": "答案：HQ/QC = (1+m²)/(1−m²)" },
+      { "heading": "原题图形 · 第（1）问折叠过程" },
+      { "ariaLabel": "原题图 1 至图 3", "figures": [
+        { "id": "originalFigure1", "title": "图 1", "caption": "正方形 ABCD", "ariaLabel": "图 1：正方形 ABCD" },
+        { "id": "originalFigure2", "title": "图 2", "caption": "对折正方形 ABCD", "ariaLabel": "图 2：对折产生中线 EF" },
+        { "id": "originalFigure3", "title": "图 3", "caption": "将点 A 折至 EF 上点 H", "ariaLabel": "图 3：将 A 折至 EF 上点 H，折痕 BG" }
+      ] },
+      { "heading": "原题图形 · 第（2）问折叠过程" },
+      { "ariaLabel": "原题图 4 至图 7", "figures": [
+        { "id": "originalFigure4", "title": "图 4", "caption": "正方形 ABCD", "ariaLabel": "图 4：正方形 ABCD（第（2）问起点）" },
+        { "id": "originalFigure5", "title": "图 5", "caption": "对折正方形 ABCD", "ariaLabel": "图 5：对折产生对角线 AC 折痕" },
+        { "id": "originalFigure6", "title": "图 6", "caption": "将 AB 折至 BF", "ariaLabel": "图 6：将 AB 折至 BF，折痕 BE（F 在 BD 上）" },
+        { "id": "originalFigure7", "title": "图 7", "caption": "将 BC 折至 BF", "ariaLabel": "图 7：将 BC 折至 BF，折痕 BG，H=BE∩AC，Q=BG∩AC" }
+      ] }
+    ]
+  },
+  "ui": {
+    "legend": [
+      { "colorVar": "paper", "label": "正方形纸片 ABCD" },
+      { "colorVar": "fold",  "label": "折叠后区域 / 折痕" }
+    ],
+    "paramLabelPrefix": "m=",
+    "goToProblemMode": "smooth",
+    "groupTitles": {
+      "第（1）问": "操作探究 (1)",
+      "第（2）问": "操作探究 (2)",
+      "第（3）问": "尝试应用"
+    }
+  },
+  "steps": [
+    {
+      "id": "q1s1",
+      "section": "第（1）问",
+      "title": "第1步：由对折的中垂线性质得 AH = BH",
+      "t": 0.5,
+      "derive": [
+        ["∵", "对折正方形 ABCD（图 2），EF 是中线"],
+        ["∴", "AE = BE，EF ⊥ AB（EF 是 AB 的中垂线）"],
+        ["∵", "H 在 EF 上"],
+        ["∴", "AH = BH"]
+      ],
+      "box": [
+        "EF 是 AB 的中垂线",
+        "AH = BH"
+      ]
+    },
+    {
+      "id": "q1s2",
+      "section": "第（1）问",
+      "title": "第2步：由折叠 △ABG ≅ △HBG 得 BA = BH",
+      "t": 0.5,
+      "derive": [
+        ["∵", "沿 BG 折叠把 △ABG 翻到 △HBG（A → H）"],
+        ["∴", "△ABG ≅ △HBG"],
+        ["∴", "BA = BH，∠ABG = ∠HBG = ½∠ABH"]
+      ],
+      "box": [
+        "△ABG ≅ △HBG",
+        "BA = BH",
+        "∠ABG = ½∠ABH"
+      ]
+    },
+    {
+      "id": "q1s3",
+      "section": "第（1）问",
+      "title": "第3步：由三段相等证 △ABH 等边，求 ∠ABG",
+      "t": 0.5,
+      "derive": [
+        ["∵", "AH = BH（Step 1），BA = BH（Step 2）"],
+        ["∴", "AH = BH = BA"],
+        ["∴", "△ABH 是等边三角形"],
+        ["∴", "∠ABH = 60°"],
+        ["∵", "∠ABG = ½∠ABH"],
+        ["∴", "∠ABG = 30°"]
+      ],
+      "box": [
+        "△ABH 是等边三角形",
+        "∠ABH = 60°",
+        "∠ABG = 30°（最终答案）"
+      ]
+    },
+    {
+      "id": "q2s1",
+      "section": "第（2）问",
+      "title": "第1步：由对折得 ∠ACB = ∠ACD = 45°",
+      "t": 0.41421356,
+      "derive": [
+        ["∵", "沿 AC 对折正方形 ABCD（图 5）"],
+        ["∴", "△ABC ≅ △ADC"],
+        ["∴", "∠ACB = ∠ACD = ½∠BCD = 45°"]
+      ],
+      "box": [
+        "∠ACB = ∠ACD = 45°"
+      ]
+    },
+    {
+      "id": "q2s2",
+      "section": "第（2）问",
+      "title": "第2步：列出两次折叠产生的全等与等角关系",
+      "t": 0.41421356,
+      "derive": [
+        ["∵", "把 AB 折至 BF（图 6，折痕 BE）"],
+        ["∴", "△ABE ≅ △FBE"],
+        ["∴", "∠ABE = ∠FBE，∠BAE = ∠BFE = 90°，BA = BF"],
+        ["∵", "把 BC 折至 BF（图 7，折痕 BG）"],
+        ["∴", "△CBG ≅ △FBG"],
+        ["∴", "∠CBG = ∠FBG，∠BCG = ∠BFG = 90°，BC = BF"]
+      ],
+      "box": [
+        "△ABE ≅ △FBE",
+        "△CBG ≅ △FBG",
+        "F 处：∠BFE = ∠BFG = 90°",
+        "BF = BA = BC"
+      ]
+    },
+    {
+      "id": "q2s3",
+      "section": "第（2）问",
+      "title": "第3步：由 F 处两个直角证 E、F、G 三点共线",
+      "t": 0.41421356,
+      "derive": [
+        ["∵", "∠BFE = 90°"],
+        ["∴", "FE ⊥ BF"],
+        ["∵", "∠BFG = 90°"],
+        ["∴", "FG ⊥ BF"],
+        ["∵", "过定点 F、垂直于定直线 BF 的直线只有一条"],
+        ["∴", "直线 FE 与直线 FG 是同一条"],
+        ["∴", "E、F、G 三点共线"]
+      ],
+      "box": [
+        "∠BFE + ∠BFG = 180°",
+        "E、F、G 三点共线",
+        "F 在线段 EG 上"
+      ]
+    },
+    {
+      "id": "q2s4",
+      "section": "第（2）问",
+      "title": "第4步：由 ∠ABC = 90° 拆分证 ∠EBG = 45°",
+      "t": 0.41421356,
+      "derive": [
+        ["∵", "设 ∠ABE = ∠FBE = α，∠CBG = ∠FBG = β"],
+        ["∵", "∠ABC = ∠ABE + ∠EBF + ∠FBG + ∠GBC = 2(α + β)"],
+        ["∵", "∠ABC = 90°"],
+        ["∴", "α + β = 45°"],
+        ["∵", "∠EBG = α + β"],
+        ["∴", "∠EBG = 45°"]
+      ],
+      "box": [
+        "α + β = 45°",
+        "∠EBG = 45°"
+      ]
+    },
+    {
+      "id": "q2s5",
+      "section": "第（2）问",
+      "title": "第5步：由 AA 相似得 △BQH ∽ △CQG",
+      "t": 0.41421356,
+      "derive": [
+        ["∵", "H 在射线 BE 上 ⇒ 射线 BH = 射线 BE"],
+        ["∵", "Q 在射线 BG 上 ⇒ 射线 BQ = 射线 BG"],
+        ["∴", "∠QBH = ∠EBG = 45°"],
+        ["∵", "Q 在 AC 上 ⇒ 射线 CQ = 射线 CA；G 在 CD 上 ⇒ 射线 CG = 射线 CD"],
+        ["∴", "∠QCG = ∠ACD = 45°"],
+        ["∴", "∠QBH = 45° = ∠QCG"],
+        ["∵", "∠BQH = ∠CQG（对顶角）"],
+        ["∴", "△BQH ∽ △CQG（AA）"],
+        ["∴", "BQ/CQ = HQ/GQ"]
+      ],
+      "box": [
+        "△BQH ∽ △CQG",
+        "BQ/CQ = HQ/GQ"
+      ]
+    },
+    {
+      "id": "q2s6",
+      "section": "第（2）问",
+      "title": "第6步：由比例换边得 △BQC ∽ △HQG，证 ∠BHG = 90°",
+      "t": 0.41421356,
+      "derive": [
+        ["∵", "BQ/CQ = HQ/GQ ⇒ BQ/HQ = CQ/GQ"],
+        ["∵", "∠BQC = ∠HQG（对顶角）"],
+        ["∴", "△BQC ∽ △HQG（SAS）"],
+        ["∴", "∠BCQ = ∠HGQ"],
+        ["∵", "∠BCQ = ∠ACB = 45°"],
+        ["∴", "∠HGQ = 45°"],
+        ["∵", "B、Q、G 共线 ⇒ 射线 GQ = 射线 GB"],
+        ["∴", "∠HGB = ∠HGQ = 45°"],
+        ["∵", "在 △BHG 中 ∠HBG + ∠HGB + ∠BHG = 180°"],
+        ["∴", "∠BHG = 180° − 45° − 45° = 90°"]
+      ],
+      "box": [
+        "△BQC ∽ △HQG",
+        "∠HGB = 45°",
+        "∠BHG = 90°"
+      ]
+    },
+    {
+      "id": "q2s7",
+      "section": "第（2）问",
+      "title": "第7步：由 Rt△BHG 与对称的 Rt△BQE 得 BH/BG = BQ/BE = √2/2",
+      "t": 0.41421356,
+      "derive": [
+        ["∵", "在 Rt△BHG 中 ∠BHG = 90°、∠HBG = 45°"],
+        ["∴", "BH/BG = cos 45° = √2/2"],
+        ["∵", "△BQE 与 △BHG 的对称配置（A↔C、E↔G、H↔Q）"],
+        ["∴", "用平行推理可得 ∠BQE = 90°"],
+        ["∴", "Rt△BQE 中 BQ/BE = cos 45° = √2/2"]
+      ],
+      "box": [
+        "BH/BG = √2/2",
+        "BQ/BE = √2/2"
+      ]
+    },
+    {
+      "id": "q2s8",
+      "section": "第（2）问",
+      "title": "第8步：由 SAS 得 △BQH ∽ △BEG，求 HQ/GE",
+      "t": 0.41421356,
+      "derive": [
+        ["∵", "BH/BG = BQ/BE = √2/2"],
+        ["∵", "∠QBH = ∠EBG（公共角）"],
+        ["∴", "△BQH ∽ △BEG（SAS）"],
+        ["∴", "HQ/GE = BH/BG = √2/2"]
+      ],
+      "box": [
+        "△BQH ∽ △BEG",
+        "HQ/GE = √2/2（最终答案）"
+      ]
+    },
+    {
+      "id": "q3s1",
+      "section": "第（3）问",
+      "title": "第1步：设 CG = n，由折叠得 EG = m + n",
+      "t": 0.41421356,
+      "derive": [
+        ["∵", "设 CG = n，正方形 ABCD 边长为 1"],
+        ["∴", "DG = 1 − n"],
+        ["∵", "折叠后 E、F、G 共线，EF = AE = m，FG = CG = n（折叠保距）"],
+        ["∴", "EG = EF + FG = m + n"]
+      ],
+      "box": [
+        "DG = 1 − n",
+        "EG = m + n（= AE + CG）"
+      ]
+    },
+    {
+      "id": "q3s2",
+      "section": "第（3）问",
+      "title": "第2步：在 Rt△DEG 中由勾股定理求 n",
+      "t": 0.41421356,
+      "derive": [
+        ["∵", "E 在 AD 上、AE = m"],
+        ["∴", "DE = 1 − m"],
+        ["∵", "∠EDG = 90°（正方形角）"],
+        ["∴", "Rt△DEG 中 DE² + DG² = EG²"],
+        ["∴", "(1 − m)² + (1 − n)² = (m + n)²"],
+        ["∴", "2 − 2m − 2n = 2mn"],
+        ["∴", "n(1 + m) = 1 − m"],
+        ["∴", "n = (1 − m) / (1 + m)"]
+      ],
+      "box": [
+        "n = (1 − m) / (1 + m)"
+      ]
+    },
+    {
+      "id": "q3s3",
+      "section": "第（3）问",
+      "title": "第3步：由（2）问结论求 HQ",
+      "t": 0.41421356,
+      "derive": [
+        ["∵", "HQ/GE = √2/2（第（2）问 Step 8）"],
+        ["∴", "HQ = (√2/2) · GE = (√2/2) · (m + n)"],
+        ["∵", "m + n = (1 + m²) / (1 + m)"],
+        ["∴", "HQ = (√2/2) · (1 + m²) / (1 + m)"]
+      ],
+      "box": [
+        "HQ = (√2/2) · (1 + m²) / (1 + m)"
+      ]
+    },
+    {
+      "id": "q3s4",
+      "section": "第（3）问",
+      "title": "第4步：由 AB ∥ CD 平行截比求 QC",
+      "t": 0.41421356,
+      "derive": [
+        ["∵", "AB ∥ CD（正方形对边）"],
+        ["∴", "CG/AB = QC/QA（平行线分线段成比例）"],
+        ["∴", "由合比定理 CG/(CG + AB) = QC/(QC + QA) = QC/AC"],
+        ["∵", "AC = √2，AB = 1，CG = n"],
+        ["∴", "n/(1 + n) = QC/√2"],
+        ["∵", "1 + n = 2/(1 + m)，所以 n/(1 + n) = (1 − m)/2"],
+        ["∴", "QC = √2 · (1 − m)/2 = (√2/2) · (1 − m)"]
+      ],
+      "box": [
+        "QC = (√2/2) · (1 − m)"
+      ]
+    },
+    {
+      "id": "q3s5",
+      "section": "第（3）问",
+      "title": "第5步：合并得 HQ/QC",
+      "t": 0.41421356,
+      "derive": [
+        ["∵", "HQ = (√2/2) · (1 + m²) / (1 + m)"],
+        ["∵", "QC = (√2/2) · (1 − m)"],
+        ["∴", "HQ/QC = [(1 + m²)/(1 + m)] / (1 − m)"],
+        ["∴", "HQ/QC = (1 + m²) / [(1 + m)(1 − m)]"],
+        ["∴", "HQ/QC = (1 + m²) / (1 − m²)"]
+      ],
+      "box": [
+        "HQ = (√2/2)(1 + m²)/(1 + m)",
+        "QC = (√2/2)(1 − m)",
+        "HQ/QC = (1 + m²) / (1 − m²)（最终答案）"
+      ]
+    }
+  ],
+  "policies": {
+    "q1s1": { "movable": false, "range": [0.5, 0.5] },
+    "q1s2": { "movable": false, "range": [0.5, 0.5] },
+    "q1s3": { "movable": false, "range": [0.5, 0.5] },
+    "q2s1": { "movable": false, "range": [0.41421356, 0.41421356] },
+    "q2s2": { "movable": false, "range": [0.41421356, 0.41421356] },
+    "q2s3": { "movable": false, "range": [0.41421356, 0.41421356] },
+    "q2s4": { "movable": false, "range": [0.41421356, 0.41421356] },
+    "q2s5": { "movable": false, "range": [0.41421356, 0.41421356] },
+    "q2s6": { "movable": false, "range": [0.41421356, 0.41421356] },
+    "q2s7": { "movable": false, "range": [0.41421356, 0.41421356] },
+    "q2s8": { "movable": false, "range": [0.41421356, 0.41421356] },
+    "q3s1": { "movable": false, "range": [0.41421356, 0.41421356] },
+    "q3s2": { "movable": false, "range": [0.41421356, 0.41421356] },
+    "q3s3": { "movable": false, "range": [0.41421356, 0.41421356] },
+    "q3s4": { "movable": false, "range": [0.41421356, 0.41421356] },
+    "q3s5": { "movable": false, "range": [0.41421356, 0.41421356] }
+  },
+  "stepLabels": {
+    "q1s1": "1 中垂得 AH=BH",
+    "q1s2": "2 折叠得 BA=BH",
+    "q1s3": "3 等边求 ∠ABG=30°",
+    "q2s1": "1 ∠ACB=∠ACD=45°",
+    "q2s2": "2 列折叠全等",
+    "q2s3": "3 证 EFG 共线",
+    "q2s4": "4 证 ∠EBG=45°",
+    "q2s5": "5 △BQH∽△CQG",
+    "q2s6": "6 △BQC∽△HQG，∠BHG=90°",
+    "q2s7": "7 Rt△BHG 得 √2/2",
+    "q2s8": "8 △BQH∽△BEG，求 HQ/GE",
+    "q3s1": "1 设 CG=n，EG=m+n",
+    "q3s2": "2 勾股求 n",
+    "q3s3": "3 求 HQ",
+    "q3s4": "4 平行截比求 QC",
+    "q3s5": "5 合并 HQ/QC"
+  }
+}
