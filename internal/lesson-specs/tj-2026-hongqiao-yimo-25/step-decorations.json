@@ -1,0 +1,123 @@
+{
+  "_comment": "红桥区 2026 一模第 25 题 — 二次函数综合",
+  "layers": {
+    "global": {
+      "elements": [
+        { "type": "grid" },
+        { "type": "point", "at": "O", "color": "#1f2937", "showLabel": false },
+        { "type": "point", "at": "A", "color": "#1f2937", "dx": -28, "dy": 18 }
+      ]
+    },
+    "partI": {
+      "stepStartsWith": ["i1"],
+      "elements": [
+        { "type": "parabola", "curveId": "parabolaPart1", "color": "#2563eb", "width": 2.9 },
+        { "type": "point", "at": "C1", "labelText": "C", "color": "#1f2937", "dx": 12, "dy": -18 }
+      ]
+    },
+    "partII": {
+      "stepStartsWith": ["q2"],
+      "elements": [
+        { "type": "parabola", "curveId": "parabolaMain", "color": "#2563eb", "width": 2.4 },
+        { "type": "point", "at": "B", "labelText": "B", "color": "#1f2937", "dx": 12, "dy": -18 },
+        { "type": "point", "at": "C", "labelText": "C", "color": "#1f2937", "dx": 12, "dy": -18 },
+        { "type": "coloredLine", "from": "A", "to": "B", "color": "#64748b", "width": 1.6 },
+        { "type": "coloredLine", "from": "B", "to": "C", "color": "#0f766e", "width": 2 }
+      ]
+    }
+  },
+  "steps": {
+    "i1s1": {
+      "domain": { "minX": -1.8, "maxX": 2.0, "minY": -0.8, "maxY": 5.0 },
+      "add": [
+        { "type": "coordinateLabel", "at": "A", "text": "A(−1,0)", "dx": -64, "dy": -18 },
+        { "type": "coordinateLabel", "at": "C1", "text": "C(0,4)", "dx": -78, "dy": -22 },
+        { "type": "axisOfSymmetry", "curveId": "parabolaPart1", "color": "#94a3b8", "width": 1.4, "dash": "8 6" },
+        { "type": "vertex", "curveId": "parabolaPart1", "color": "#dc2626", "labelText": "P", "dx": 14, "dy": -18 },
+        { "type": "coordinateLabel", "at": "P1", "text": "P(1/2, 9/2)", "dx": 18, "dy": -28 }
+      ]
+    },
+    "q1s1": {
+      "domain": { "minX": -1.6, "maxX": 1.0, "minY": -0.45, "maxY": 1.75 },
+      "add": [
+        { "type": "point", "at": "Cangle", "labelText": "C", "color": "#1f2937", "dx": 12, "dy": -18 },
+        { "type": "coloredLine", "from": "A", "to": "Cangle", "color": "#0f766e", "width": 2 },
+        { "type": "coordinateLabel", "at": "A", "text": "A(−1,0)", "dx": -64, "dy": -18 },
+        { "type": "coordinateLabel", "at": "Cangle", "text": "C(0,4/3)", "dx": 14, "dy": -26 }
+      ]
+    },
+    "q1s2": {
+      "domain": { "minX": -1.25, "maxX": 3.05, "minY": -0.35, "maxY": 1.65 },
+      "add": [
+        { "type": "point", "at": "Cangle", "labelText": "C", "color": "#1f2937", "dx": 12, "dy": -18 },
+        { "type": "point", "at": "Bangle", "labelText": "B", "color": "#1f2937", "dx": 12, "dy": -18 },
+        { "type": "point", "at": "Aprime", "labelText": "A′", "color": "#b45309", "dx": 10, "dy": 20 },
+        { "type": "coloredLine", "from": "A", "to": "Cangle", "color": "#0f766e", "width": 2 },
+        { "type": "coloredLine", "from": "Cangle", "to": "Aprime", "color": "#b45309", "width": 2.2 },
+        { "type": "coloredLine", "from": "Aprime", "to": "Bangle", "color": "#b45309", "width": 2.2 },
+        { "type": "coloredLine", "from": "Bangle", "to": "Cangle", "color": "#0f766e", "width": 2 },
+        { "type": "coloredLine", "from": "A", "to": "Bangle", "color": "#64748b", "width": 1.8 },
+        { "type": "segment", "from": "A", "to": "O", "label": "AO=1", "color": "#64748b", "width": 1.8, "offsetPx": -20 },
+        { "type": "segment", "from": "O", "to": "Aprime", "label": "OA′=1", "color": "#64748b", "width": 1.8, "offsetPx": 18 },
+        { "type": "segment", "from": "A", "to": "Cangle", "label": "|", "color": "#0f766e", "width": 2, "offsetPx": -20 },
+        { "type": "segment", "from": "Cangle", "to": "Aprime", "label": "|", "color": "#b45309", "width": 2.2, "offsetPx": 18 },
+        { "type": "segment", "from": "Aprime", "to": "Bangle", "label": "A′B=A′C=5/3", "color": "#b45309", "width": 2.2, "offsetPx": -22 },
+        { "type": "coloredLine", "from": "O", "to": "Bangle", "color": "#b45309", "width": 2.2 },
+        { "type": "angleArc", "vertex": "A", "rayA": "Cangle", "rayB": "Bangle", "label": "2θ", "color": "#dc2626", "radius": 26, "labelRadius": 30, "fontSize": 12, "lockLabel": true },
+        { "type": "angleArc", "vertex": "Aprime", "rayA": "Cangle", "rayB": "A", "label": "2θ", "color": "#dc2626", "radius": 22, "labelRadius": 27, "fontSize": 12, "lockLabel": true },
+        { "type": "angleArc", "vertex": "Cangle", "rayA": "Aprime", "rayB": "Bangle", "label": "θ", "color": "#b45309", "radius": 24, "labelRadius": 29, "fontSize": 12, "lockLabel": true },
+        { "type": "angleArc", "vertex": "Bangle", "rayA": "A", "rayB": "Cangle", "label": "θ", "color": "#b45309", "radius": 30, "labelRadius": 35, "fontSize": 12, "lockLabel": true }
+      ]
+    },
+    "q2s1": {
+      "domain": { "minX": -1.4, "maxX": 6.2, "minY": -0.55, "maxY": 2.1 },
+      "add": [
+        { "type": "coordinateLabel", "at": "B", "text": "B(4b+1,0)", "dx": 14, "dy": -26 },
+        { "type": "coordinateLabel", "at": "C", "text": "C(0,b+1/4)", "dx": 14, "dy": -26 },
+        { "type": "segment", "from": "O", "to": "B", "label": "BO=4CO", "color": "#b45309", "width": 2.2, "offsetPx": -24 },
+        { "type": "segment", "from": "O", "to": "C", "label": "CO=c", "color": "#64748b", "width": 1.8, "offsetPx": 22 }
+      ]
+    },
+    "q2s2": {
+      "domain": { "minX": -2.8, "maxX": 6.2, "minY": -2.4, "maxY": 2.1 },
+      "add": [
+        { "type": "point", "at": "Cprime", "labelText": "C′", "color": "#b45309", "dx": -34, "dy": 20 },
+        { "type": "point", "at": "M", "color": "#dc2626", "dx": -12, "dy": 24 },
+        { "type": "coloredLine", "from": "B", "to": "Cprime", "color": "#dc2626", "width": 2.4 },
+        { "type": "coloredLine", "from": "B", "to": "M", "color": "#dc2626", "width": 2.4 },
+        { "type": "segment", "from": "O", "to": "C", "label": "CO=b+1/4", "color": "#64748b", "width": 1.8, "offsetPx": 20 },
+        { "type": "segment", "from": "Cprime", "to": "O", "label": "C′O=CO", "color": "#b45309", "width": 1.8, "offsetPx": 22 },
+        { "type": "coordinateLabel", "at": "Cprime", "text": "C′(0,−b−1/4)", "dx": -120, "dy": 34 },
+        { "type": "coordinateLabel", "at": "M", "text": "M(−2,−b−3/4)", "dx": -124, "dy": 26 },
+        { "type": "angleArc", "vertex": "B", "rayA": "A", "rayB": "C", "label": "θ", "color": "#b45309", "radius": 32, "labelRadius": 48 },
+        { "type": "angleArc", "vertex": "B", "rayA": "M", "rayB": "A", "label": "θ", "color": "#dc2626", "radius": 44, "labelRadius": 62 }
+      ]
+    },
+    "q2s3": {
+      "domain": { "minX": -2.8, "maxX": 6.2, "minY": -2.4, "maxY": 2.1 },
+      "add": [
+        { "type": "point", "at": "Cprime", "labelText": "C′", "color": "#b45309", "dx": -34, "dy": 20 },
+        { "type": "point", "at": "M", "color": "#dc2626", "dx": -12, "dy": 24 },
+        { "type": "coloredLine", "from": "B", "to": "M", "color": "#dc2626", "width": 2.4 },
+        { "type": "segment", "from": "C", "to": "Cprime", "label": "CC′=2b+1/2", "color": "#b45309", "width": 2.2, "offsetPx": 22 },
+        { "type": "segment", "from": "O", "to": "B", "label": "4b+1", "color": "#64748b", "width": 1.6, "offsetPx": 18 },
+        { "type": "segment", "from": "M", "to": "Mfoot", "label": "2", "color": "#64748b", "width": 1.6, "offsetPx": -18 },
+        { "type": "outlineRegion", "vertices": ["M", "B", "C"], "style": "target" },
+        { "type": "coordinateLabel", "at": "B", "text": "B(4b+1,0)", "dx": 14, "dy": -26 },
+        { "type": "coordinateLabel", "at": "C", "text": "C(0,b+1/4)", "dx": 14, "dy": -26 },
+        { "type": "coordinateLabel", "at": "M", "text": "M(−2,−b−3/4)", "dx": -124, "dy": 26 }
+      ]
+    },
+    "q2s4": {
+      "domain": { "minX": -2.8, "maxX": 8.6, "minY": -3.0, "maxY": 2.5 },
+      "add": [
+        { "type": "point", "at": "M", "color": "#dc2626", "dx": -12, "dy": 24 },
+        { "type": "coloredLine", "from": "B", "to": "M", "color": "#dc2626", "width": 2.4 },
+        { "type": "outlineRegion", "vertices": ["M", "B", "C"], "style": "target" },
+        { "type": "coordinateLabel", "at": "M", "text": "M(−2,−5/2)", "dx": -104, "dy": 26 },
+        { "type": "coordinateLabel", "at": "B", "text": "B(8,0)", "dx": 14, "dy": -26 },
+        { "type": "coordinateLabel", "at": "C", "text": "C(0,2)", "dx": 14, "dy": -26 }
+      ]
+    }
+  }
+}

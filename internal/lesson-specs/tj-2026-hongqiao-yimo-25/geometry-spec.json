@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "id": "tj-2026-hongqiao-yimo-25",
+  "domain": { "minX": -3.2, "maxX": 9.2, "minY": -5.4, "maxY": 5.4 },
+  "movingParam": "b",
+  "expressionEnv": [
+    { "name": "a1", "expr": "-2" },
+    { "name": "b1", "expr": "2" },
+    { "name": "c1", "expr": "4" },
+    { "name": "aAngle", "expr": "-1/2" },
+    { "name": "bAngle", "expr": "5/6" },
+    { "name": "cAngle", "expr": "4/3" },
+    { "name": "a", "expr": "-1/4" },
+    { "name": "c", "expr": "b+1/4" },
+    { "name": "bx", "expr": "4*b+1" },
+    { "name": "mY", "expr": "-b-3/4" }
+  ],
+  "fixedPoints": {
+    "O": ["0", "0"],
+    "A": ["-1", "0"],
+    "C1": ["0", "c1"],
+    "P1": ["1/2", "9/2"],
+    "Bangle": ["8/3", "0"],
+    "Cangle": ["0", "4/3"],
+    "Aprime": ["1", "0"]
+  },
+  "movingPoints": {
+    "B": ["bx", "0"],
+    "C": ["0", "c"],
+    "Cprime": ["0", "-c"],
+    "M": ["-2", "mY"],
+    "Mfoot": ["0", "mY"],
+    "Mfinal": ["-2", "-5/2"],
+    "Bfinal": ["8", "0"],
+    "Cfinal": ["0", "2"]
+  },
+  "curves": [
+    { "id": "parabolaPart1", "type": "parabola", "a": "a1", "b": "b1", "c": "c1" },
+    { "id": "parabolaAngle", "type": "parabola", "a": "aAngle", "b": "bAngle", "c": "cAngle" },
+    { "id": "parabolaMain", "type": "parabola", "a": "a", "b": "b", "c": "c" }
+  ],
+  "derivedIntersections": []
+}
