@@ -1,0 +1,212 @@
+{
+  "meta": {
+    "id": "tj-2026-beichen-yimo-25",
+    "outputPath": "site/problems/tj/25/tj-2026-beichen-yimo-25.html",
+    "pageTitle": "2026 年天津市北辰区一模 第 25 题（二次函数综合）",
+    "pageDescription": "2026 天津市北辰区一模第 25 题：由定点 A 求抛物线解析式和顶点，利用 90° 旋转确定对称轴上的点 P，再构造等腰直角三角形把 2AH+√2BH 转化为折线最短。",
+    "breadcrumbTitle": "2026 天津市北辰区一模 第 25 题",
+    "classification": {
+      "pattern": "path-minimum",
+      "methods": ["coefficient-from-point-on-parabola", "known-root-factorization", "rotation-by-congruence", "isosceles-right-triangle-transform", "weighted-path-segment-transform", "horse-drinking"]
+    }
+  },
+  "problem": {
+    "summary": "第 25 题（2026 天津市北辰区一模）二次函数综合：解析式、90° 旋转与几何转化求加权距离最小值。",
+    "lines": [
+      { "text": "（25）（本小题 10 分）已知抛物线 y＝1/4x²＋bx−4（b 为常数）的顶点为 D，与 x 轴相交于点 A(−2,0) 和点 B，与 y 轴相交于点 C。" },
+      { "text": "（Ⅰ）求该抛物线的解析式和顶点 D 的坐标；", "answerId": "answerI", "answer": "y＝1/4x²−3/2x−4，D(3,−25/4)" },
+      { "text": "（Ⅱ）点 P 为对称轴上一点，连接 BP，将线段 BP 绕点 P 逆时针旋转 90°，使点 B 的对应点 Q 恰好落在抛物线上，求此时点 P 的坐标；", "answerId": "answerII", "answer": "P(3,−5) 或 P(3,9)" },
+      { "text": "（Ⅲ）在线段 BC 上，是否存在一点 H，使 2AH＋√2BH 的值最小？若存在，求出点 H 的坐标，并求出最小值；若不存在，请说明理由。", "answerId": "answerIII", "answer": "存在，H(4,−2)，最小值为 6√10" }
+    ]
+  },
+  "ui": {
+    "legend": [
+      { "colorVar": "paper", "label": "抛物线与坐标点" },
+      { "colorVar": "fold", "label": "旋转线段与距离最值" }
+    ],
+    "sliderLabel": "点 H 的横坐标 x",
+    "paramLabelPrefix": "x=",
+    "goToProblemMode": "doubleScroll",
+    "groupTitles": {
+      "第（Ⅰ）问": "第（Ⅰ）问  求解析式和顶点",
+      "第（Ⅱ）问": "第（Ⅱ）问  旋转 90° 求 P",
+      "第（Ⅲ）问": "第（Ⅲ）问  加权距离最小值"
+    }
+  },
+  "steps": [
+    {
+      "id": "i1s1",
+      "section": "第（Ⅰ）问",
+      "title": "第1步：代入 A 求出 b",
+      "t": 4,
+      "derive": [
+        ["∵", "A(−2,0) 在 y＝1/4x²＋bx−4 上"],
+        ["∴", "0＝1/4·(−2)²−2b−4"],
+        ["∴", "0＝1−2b−4"],
+        ["∴", "b＝−3/2"],
+        ["∴", "抛物线为 y＝1/4x²−3/2x−4"]
+      ],
+      "box": ["y＝1/4x²−3/2x−4"]
+    },
+    {
+      "id": "i1s2",
+      "section": "第（Ⅰ）问",
+      "title": "第2步：配方读出顶点 D",
+      "t": 4,
+      "derive": [
+        ["∵", "y＝1/4x²−3/2x−4"],
+        ["∴", "y＝1/4(x−3)²−25/4"],
+        ["∴", "顶点 D(3,−25/4)"]
+      ],
+      "box": ["D(3,−25/4)"]
+    },
+    {
+      "id": "q1s1",
+      "section": "第（Ⅱ）问",
+      "title": "第1步：设 P，写出旋转后的 Q",
+      "t": 4,
+      "derive": [
+        ["∵", "抛物线对称轴为 x＝3"],
+        ["∴", "设 P(3,p)"],
+        ["∵", "B(8,0)"],
+        ["∴", "从 P 到 B：向右 5，向下 p"],
+        ["∵", "BP 绕 P 逆时针旋转 90°"],
+        ["∴", "原来向右 5，旋转后变成向上 5"],
+        ["∴", "原来向下 p，旋转后变成向右 p"],
+        ["∴", "所以 Q 相对 P 的横向、纵向距离为 p，5"],
+        ["∴", "Q(3＋p,p＋5)"]
+      ],
+      "box": ["P(3,p)", "Q(3＋p,p＋5)"]
+    },
+    {
+      "id": "q1s2",
+      "section": "第（Ⅱ）问",
+      "title": "第2步：代入抛物线求 P",
+      "t": 4,
+      "derive": [
+        ["∵", "Q(3＋p,p＋5) 在 y＝1/4x²−3/2x−4 上"],
+        ["∴", "p＋5＝1/4(3＋p)²−3/2(3＋p)−4"],
+        ["∴", "p＋5＝1/4p²−25/4"],
+        ["∴", "p²−4p−45＝0"],
+        ["∴", "(p−9)(p＋5)＝0"],
+        ["∴", "p＝9 或 p＝−5"],
+        ["∴", "P(3,9) 或 P(3,−5)"]
+      ],
+      "box": ["P(3,9) 或 P(3,−5)"]
+    },
+    {
+      "id": "q2s1",
+      "section": "第（Ⅲ）问",
+      "title": "第1步：设 H 在线段 BC 上",
+      "t": 4,
+      "derive": [
+        ["∵", "B(8,0)，C(0,−4)"],
+        ["设", "H 在线段 BC 上运动，横坐标为 x"],
+        ["∵", "H 在线段 BC 上"],
+        ["∴", "0≤x≤8"]
+      ],
+      "box": ["H 在线段 BC 上", "0≤x≤8"],
+      "localControls": {
+        "values": { "h": 4 },
+        "note": "拖动 H，观察它始终在线段 BC 上。",
+        "controls": [
+          { "var": "h", "label": "动点 H：横坐标", "min": 0, "max": 8, "step": 0.01, "precision": 2 }
+        ]
+      }
+    },
+    {
+      "id": "q2s2",
+      "section": "第（Ⅲ）问",
+      "title": "第2步：构造等腰直角三角形，转化 √2BH",
+      "t": 4,
+      "derive": [
+        ["作", "过 B 作直线 ℓ，使 ℓ 与 BC 成 45°；过 H 作 HR⊥ℓ，垂足为 R"],
+        ["∵", "H 在 BC 上，R 在 ℓ 上"],
+        ["∴", "∠HBR＝45°"],
+        ["∵", "HR⊥ℓ"],
+        ["∴", "∠BRH＝90°"],
+        ["∴", "△BHR 是等腰直角三角形，BR＝HR"],
+        ["∵", "BH 是 Rt△BHR 的斜边"],
+        ["∴", "BH＝√2HR"],
+        ["∴", "√2BH＝2HR"],
+        ["∴", "2AH＋√2BH＝2(AH＋HR)"]
+      ],
+      "box": ["√2BH＝2HR", "2AH＋√2BH＝2(AH＋HR)"],
+      "localControls": {
+        "values": { "h": 4 },
+        "note": "拖动 H，R 会保持 △BHR 为等腰直角三角形。",
+        "controls": [
+          { "var": "h", "label": "动点 H：横坐标", "min": 0, "max": 8, "step": 0.01, "precision": 2 }
+        ]
+      }
+    },
+    {
+      "id": "q2s3",
+      "section": "第（Ⅲ）问",
+      "title": "第3步：A、H、R三点共线时线段最短",
+      "t": 4,
+      "derive": [
+        ["∵", "直线 ℓ 过定点 B，且与 BC 成 45°"],
+        ["∴", "点 R 在固定直线 ℓ 上运动"],
+        ["∵", "两点之间线段最短"],
+        ["∴", "AH＋HR≥AR"],
+        ["∵", "R 在定直线 ℓ 上"],
+        ["∴", "AR 的最小值是 A 到 ℓ 的垂线段"],
+        ["∴", "最短时 A、H、R 三点共线，且 AR⊥ℓ"]
+      ],
+      "box": ["AH＋HR≥AR", "最短时：A、H、R 共线，且 AR⊥ℓ"],
+      "localControls": {
+        "values": { "h": 4 },
+        "note": "拖动 H，观察折线 A-H-R 被拉直时的状态。",
+        "controls": [
+          { "var": "h", "label": "动点 H：横坐标", "min": 0, "max": 8, "step": 0.01, "precision": 2 }
+        ]
+      }
+    },
+    {
+      "id": "q2s4",
+      "section": "第（Ⅲ）问",
+      "title": "第4步：用等腰直角三角形求最小值",
+      "t": 4,
+      "derive": [
+        ["作", "连接 AC"],
+        ["∵", "AC²＋BC²＝20＋80＝100＝AB²"],
+        ["∴", "AC⊥BC"],
+        ["∵", "ℓ 与 BC 成 45°，且最短时 AR⊥ℓ"],
+        ["∴", "∠CAH＝45°"],
+        ["∴", "△ACH 是等腰直角三角形"],
+        ["∴", "CH＝AC＝2√5，AH＝2√10"],
+        ["∵", "BC＝4√5"],
+        ["∴", "BH＝BC−CH＝2√5"],
+        ["∵", "△BHR 是等腰直角三角形"],
+        ["∴", "HR＝BH/√2＝√10"],
+        ["∴", "AR＝AH＋HR＝3√10"],
+        ["∵", "CH＝1/2BC"],
+        ["∴", "H(4,−2)"],
+        ["∴", "H 在线段 BC 上"],
+        ["∴", "2AH＋√2BH 的最小值为 2AR＝6√10"]
+      ],
+      "box": ["H(4,−2)", "最小值：6√10"]
+    }
+  ],
+  "policies": {
+    "i1s1": { "movable": false, "range": [4, 4] },
+    "i1s2": { "movable": false, "range": [4, 4] },
+    "q1s1": { "movable": false, "range": [4, 4] },
+    "q1s2": { "movable": false, "range": [4, 4] },
+    "q2s1": { "movable": false, "range": [4, 4] },
+    "q2s2": { "movable": false, "range": [4, 4] },
+    "q2s3": { "movable": false, "range": [4, 4] },
+    "q2s4": { "movable": false, "range": [4, 4] }
+  },
+  "stepLabels": {
+    "i1s1": "代入A求解析式",
+    "i1s2": "配方求顶点",
+    "q1s1": "旋转读Q坐标",
+    "q1s2": "代入求P",
+    "q2s1": "设H参数",
+    "q2s2": "等腰直角转化",
+    "q2s3": "三点共线最短",
+    "q2s4": "等腰直角求最小"
+  }
+}

@@ -299,6 +299,19 @@ window.__PROBLEMS_DATA__ = [
     "status": "published"
   },
   {
+    "id": "tj-2026-beichen-yimo-25",
+    "city": "tianjin",
+    "cityLabel": "天津",
+    "year": 2026,
+    "exam": "beichen-yimo",
+    "examLabel": "北辰区一模",
+    "slot": "25",
+    "title": "2026 年天津市北辰区一模第 25 题（二次函数综合）",
+    "tags": ["algebra", "quadratic-function", "coordinate-plane"],
+    "path": "../problems/tj/25/tj-2026-beichen-yimo-25.html",
+    "status": "published"
+  },
+  {
     "id": "tj-2026-xiqing-yimo-24",
     "city": "tianjin",
     "cityLabel": "天津",

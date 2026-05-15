@@ -14,6 +14,7 @@
 | `tj-2026-heping-yimo-25` | 25 | `OM+BN`，由等长构造把 `BN` 转化后求最小 | `coefficient-from-point-on-parabola`, `tangent-definition-in-right-triangle`, `horse-drinking` |
 | `tj-2026-xiqing-yimo-25` | 25 | `2DM+AM` 含权重路径，30° 构造吸收权重后拉直 | `known-root-factorization`, `coefficient-from-point-on-parabola`, `weighted-path-segment-transform`, `horse-drinking` |
 | `tj-2026-hedong-yimo-25` | 25 | `AG+GH+FH`，等腰直角与对称构造得到最短路 | `known-root-factorization`, `right-triangle-congruence-coordinate`, `isosceles-right-triangle-transform`, `horse-drinking` |
+| `tj-2026-beichen-yimo-25` | 25 | `2AH+√2BH`，构造等腰直角三角形把权重转为折线，再用垂线段最短 | `coefficient-from-point-on-parabola`, `known-root-factorization`, `rotation-by-congruence`, `isosceles-right-triangle-transform`, `weighted-path-segment-transform`, `horse-drinking` |
 
 ### distance-difference-maximum
 
@@ -66,6 +67,7 @@
 | `tj-2026-nankai-ermo-25` | 25 | 第（I）问、第（II）① | 由 `x` 轴交点写分解式，再配合旋转条件求参数 |
 | `tj-2026-xiqing-yimo-25` | 25 | 第（2）① | 由已知根 `A(-1,0)` 读出另一个交点和截距 |
 | `tj-2026-hedong-yimo-25` | 25 | 第（Ⅱ）① | 由 `A(-1,0)` 与 `B(-c,0)` 写出交点关系和坐标 |
+| `tj-2026-beichen-yimo-25` | 25 | 第（Ⅰ）问、第（Ⅱ）问 | 由已知根 `A(-2,0)` 确定 `b`，再读出另一个交点 `B(8,0)` |
 
 ### coefficient-from-point-on-parabola
 
@@ -77,6 +79,7 @@
 | `tj-2026-heping-yimo-25` | 25 | 第（Ⅰ）①、第（Ⅱ）问 | 由 `A`、`D` 在抛物线上求解析式，再由最值反求 `a` |
 | `tj-2026-xiqing-yimo-25` | 25 | 第（2）①② | 由 `A(-1,0)` 在抛物线上化简，再由线段关系和最值反求 `b` |
 | `bj-2026-haidian-yimo-26` | 26 | 第（1）问 | 由抛物线过 `O` 与 `(2,0)` 求 `c` 和 `b` |
+| `tj-2026-beichen-yimo-25` | 25 | 第（Ⅰ）问、第（Ⅱ）问 | 代入 `A(-2,0)` 求解析式，再把旋转后的 `Q` 代入抛物线求 `P` |
 
 ### right-triangle-congruence-coordinate
 
@@ -91,6 +94,7 @@
 | problem-id | 题位 | 涉及步骤 | 摘要 |
 |---|---|---|---|
 | `tj-2026-nankai-ermo-25` | 25 | 第（II）① | `AC` 绕 `C` 旋转 90° 得 `DC`，作垂线证全等求 `D` |
+| `tj-2026-beichen-yimo-25` | 25 | 第（Ⅱ）问 | `BP` 绕 `P` 逆时针旋转 90°，由横纵距离交换读出 `Q(3+p,p+5)` |
 
 ### isosceles-right-triangle-transform
 
@@ -100,12 +104,14 @@
 | `tj-2026-hexi-yimo-25` | 25 | 第（Ⅲ）问 | 构造等腰直角三角形 `AQN`，把 `AN` 转化为 `√2·QN` |
 | `tj-2026-nankai-yimo-25` | 25 | 第（Ⅱ）① | `△DMN` 是等腰直角三角形，辅助证明路径转化 |
 | `tj-2026-hedong-yimo-25` | 25 | 第（Ⅱ）①② | 直角等腰条件确定点，再参与最短路径构造 |
+| `tj-2026-beichen-yimo-25` | 25 | 第（Ⅲ）问 | 构造等腰直角三角形 `BHR`，把 `√2BH` 转化为 `2HR` |
 
 ### weighted-path-segment-transform
 
 | problem-id | 题位 | 涉及步骤 | 摘要 |
 |---|---|---|---|
 | `tj-2026-xiqing-yimo-25` | 25 | 第（2）② | 将 `2DM+AM` 改写为 `2(DM+1/2 AM)`，构造 30° 直角三角形吸收权重 |
+| `tj-2026-beichen-yimo-25` | 25 | 第（Ⅲ）问 | 将 `2AH+√2BH` 转化为 `2(AH+HR)`，再研究折线 `A-H-R` |
 
 ### horse-drinking
 
@@ -116,6 +122,7 @@
 | `tj-2026-heping-yimo-25` | 25 | 第（Ⅱ）问 | 把 `BN` 转化为等长线段，`O,M,G` 共线时取最小 |
 | `tj-2026-xiqing-yimo-25` | 25 | 第（2）② | 权重转化后看折线 `D-M-N`，三点共线取最小 |
 | `tj-2026-hedong-yimo-25` | 25 | 第（Ⅱ）② | 通过对称/构造把多段路径转成直线最短 |
+| `tj-2026-beichen-yimo-25` | 25 | 第（Ⅲ）问 | 折线 `A-H-R` 拉直后，转为点 `A` 到定直线 `ℓ` 的垂线段最短 |
 
 ### translation-path-transform
 

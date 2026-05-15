@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "id": "tj-2026-beichen-yimo-25",
+  "domain": { "minX": -3.5, "maxX": 13.5, "minY": -7.5, "maxY": 15.5 },
+  "movingParam": "h",
+  "expressionEnv": [
+    { "name": "a", "expr": "1/4" },
+    { "name": "b", "expr": "-3/2" },
+    { "name": "c", "expr": "-4" },
+    { "name": "axisX", "expr": "3" },
+    { "name": "vertexY", "expr": "-25/4" },
+    { "name": "hStar", "expr": "4" }
+  ],
+  "fixedPoints": {
+    "O": ["0", "0"],
+    "A": ["-2", "0"],
+    "B": ["8", "0"],
+    "C": ["0", "-4"],
+    "D": ["axisX", "vertexY"],
+    "Pdemo": ["3", "5"],
+    "Qdemo": ["8", "10"],
+    "P1": ["3", "-5"],
+    "Q1": ["-2", "0"],
+    "P2": ["3", "9"],
+    "Q2": ["12", "14"],
+    "PBh": ["8", "9"],
+    "Qv": ["3", "14"],
+    "HStar": ["hStar", "hStar/2-4"],
+    "RLine": ["6", "-6"]
+  },
+  "movingPoints": {
+    "H": ["h", "h/2-4"],
+    "R": ["6+h/4", "3*h/4-6"]
+  },
+  "curves": [
+    { "id": "parabolaMain", "type": "parabola", "a": "a", "b": "b", "c": "c" }
+  ],
+  "derivedIntersections": []
+}
