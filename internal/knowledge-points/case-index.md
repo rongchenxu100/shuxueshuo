@@ -27,6 +27,7 @@
 | problem-id | 题位 | pattern 补充 | 使用的 methods |
 |---|---|---|---|
 | `tj-2026-hexi-jieke-25` | 25 | 抛物线过 `A(-1,0)`，结合 `2a+b=0`、线段/角度条件求参数 | `coefficient-from-point-on-parabola`, `known-root-factorization` |
+| `tj-2026-hebei-yimo-25` | 25 | `2a-b=0` 固定对称轴，`P(3,3)` 化简解析式；由 `NI=7a` 和 `15NI−7MH=7` 得 `H(15a+2,5)`，代入抛物线提取公因式求 `a` | `coefficient-from-point-on-parabola`, `axis-parallel-segment-coordinate` |
 
 ### moving-point-translation-area
 
@@ -80,6 +81,13 @@
 | `tj-2026-xiqing-yimo-25` | 25 | 第（2）①② | 由 `A(-1,0)` 在抛物线上化简，再由线段关系和最值反求 `b` |
 | `bj-2026-haidian-yimo-26` | 26 | 第（1）问 | 由抛物线过 `O` 与 `(2,0)` 求 `c` 和 `b` |
 | `tj-2026-beichen-yimo-25` | 25 | 第（Ⅰ）问、第（Ⅱ）问 | 代入 `A(-2,0)` 求解析式，再把旋转后的 `Q` 代入抛物线求 `P` |
+| `tj-2026-hebei-yimo-25` | 25 | 第（Ⅱ）公共结论、第（Ⅱ）①② | 由 `P(3,3)` 在抛物线上得到 `c=3-15a`，再配合轴平行线段条件求参数 |
+
+### axis-parallel-segment-coordinate
+
+| problem-id | 题位 | 涉及步骤 | 摘要 |
+|---|---|---|---|
+| `tj-2026-hebei-yimo-25` | 25 | 第（Ⅱ）公共结论、第（Ⅱ）② | 先由 `x=2` 得 `NI=7a`，再由 `15NI−7MH=7` 得 `MH=15a−1`，直接写 `H(15a+2,5)` 并代入抛物线提取 `15a+2` |
 
 ### right-triangle-congruence-coordinate
 
