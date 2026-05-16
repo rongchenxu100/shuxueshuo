@@ -9,6 +9,7 @@
 import fs from "fs";
 import path from "path";
 import vm from "vm";
+import { normalizeLessonSpec } from "./lib/lesson-normalizer.mjs";
 
 const input = process.argv[2];
 if (!input) {
@@ -22,6 +23,7 @@ if (!input) {
 
 const repoRoot = path.resolve(process.cwd());
 const errors = [];
+const presetPath = path.join(repoRoot, "internal/config/style-presets.json");
 
 function need(cond, msg) {
   if (!cond) errors.push(msg);
@@ -298,7 +300,7 @@ if (!fs.existsSync(geometryPath)) {
   process.exit(1);
 }
 
-const spec = readJson(geometryPath, "geometry-spec.json");
+let spec = readJson(geometryPath, "geometry-spec.json");
 validateSchemaFile(spec, "geometry-spec.schema.json", "geometry-spec.json");
 
 let deco = null;
@@ -311,6 +313,17 @@ if (fs.existsSync(lessonDataPath)) {
   lessonData = readJson(lessonDataPath, "lesson-data.json");
   validateSchemaFile(lessonData, "lesson-data.schema.json", "lesson-data.json");
 }
+
+const stylePresets = readJson(presetPath, "style-presets.json") ?? {};
+const normalized = normalizeLessonSpec({
+  geometrySpec: spec,
+  stepDecorations: deco,
+  lessonData,
+  stylePresets
+});
+spec = normalized.geometrySpec;
+deco = normalized.stepDecorations;
+lessonData = normalized.lessonData;
 
 if (spec) {
   const { engine, lesson } = readEngine();
@@ -407,8 +420,12 @@ if (spec) {
         need(lessonData.policies?.[s.id], "policies 缺少: " + s.id);
         need(lessonData.stepLabels?.[s.id], "stepLabels 缺少: " + s.id);
         need(deco.steps?.[s.id], "step-decorations.steps 缺少: " + s.id);
-        const range = lessonData.policies?.[s.id]?.range;
-        need(Array.isArray(range) && range.length >= 2, "policies." + s.id + " 缺少 range；不可拖动步骤也需要写成 [t,t]");
+        const policy = lessonData.policies?.[s.id];
+        const range = policy?.range;
+        const rangeMessage = policy?.movable === true
+          ? "policies." + s.id + " 是可拖动步骤，必须显式提供 range"
+          : "policies." + s.id + " 缺少 range；不可拖动步骤应由 normalizer 补齐";
+        need(Array.isArray(range) && range.length >= 2, rangeMessage);
       }
     }
 

@@ -59,6 +59,19 @@ Load only the references needed for the current task:
 Do not use skill references as JS/CSS sources.  
 Do not read `geometry-solving-principles.md` or `nankai-24-fewshot.md` for quadratic problems — those are geometry-specific (polygon clipping, rotation angles, area decompositions).
 
+### Style Preset and Normalizer
+
+The build pipeline runs a normalizer (`tools/lib/lesson-normalizer.mjs`) before compilation and validation. It reads `internal/config/style-presets.json` and fills in any missing style fields on decoration elements by type. It also auto-generates `range: [t, t]` for non-movable steps that lack a range.
+
+What this means for writing JSON specs:
+
+- **Omit default style fields** such as `color`, `width`, `dash`, `r`, `size`, `fontSize` when the preset value is acceptable. The normalizer will fill them in.
+- **Only declare a style field** when you need a value different from the preset — for example, a lighter parabola for background context, or a custom point radius.
+- **Always declare semantic fields** that the normalizer does not handle: `at`, `from`, `to`, `label`, `labelText`, `text`, `curveId`, `xExpr`, `vertex`, `rayA`, `rayB`, `dx`, `dy`, `showLabel`, `offsetPx`, `labelRadius`, `lockLabel`, `domain`, `pointOverrides`.
+- **Always declare `range`** for movable steps (`movable: true`). Non-movable steps may omit `range`.
+
+See `internal/config/style-presets.json` for the full list of types and their defaults.
+
 ## Audience — quadratic-specific guidance
 
 Default to middle-school students. Compared with pure folding/rotation geometry pages:

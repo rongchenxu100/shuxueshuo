@@ -12,6 +12,7 @@
  */
 import fs from "fs";
 import path from "path";
+import { normalizeLessonSpec } from "./lib/lesson-normalizer.mjs";
 
 function die(msg) {
   console.error(msg);
@@ -91,14 +92,22 @@ const inputDir = path.resolve(inputDirArg);
 const geoPath = path.join(inputDir, "geometry-spec.json");
 const decoPath = path.join(inputDir, "step-decorations.json");
 const dataPath = path.join(inputDir, "lesson-data.json");
+const presetPath = path.join(repoRoot, "internal/config/style-presets.json");
 
 if (!fs.existsSync(geoPath)) die("缺少: " + geoPath);
 if (!fs.existsSync(decoPath)) die("缺少: " + decoPath);
 if (!fs.existsSync(dataPath)) die("缺少: " + dataPath);
 
-const geometrySpec = readJson(geoPath);
-const stepDecorations = readJson(decoPath);
-const lessonData = readJson(dataPath);
+const rawGeometrySpec = readJson(geoPath);
+const rawStepDecorations = readJson(decoPath);
+const rawLessonData = readJson(dataPath);
+const stylePresets = readJson(presetPath);
+const { geometrySpec, stepDecorations, lessonData } = normalizeLessonSpec({
+  geometrySpec: rawGeometrySpec,
+  stepDecorations: rawStepDecorations,
+  lessonData: rawLessonData,
+  stylePresets
+});
 
 const tmplPath = path.join(repoRoot, "internal/templates/interactive-problem-page.template.html");
 if (!fs.existsSync(tmplPath)) die("缺少模板: " + tmplPath);
@@ -168,4 +177,3 @@ const outPath = path.resolve(repoRoot, meta.outputPath);
 ensureDirForFile(outPath);
 fs.writeFileSync(outPath, html, "utf8");
 console.log("Wrote:", outPath);
-

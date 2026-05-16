@@ -504,11 +504,12 @@ normalizer 逻辑：对每个 decoration，查 `preset[decoration.type]`，对 p
 做什么：
 
 - 新增 `internal/config/style-presets.json`：所有元素类型的默认颜色、线宽、虚线、半径等。
-- `build-lesson-page.mjs` 或新增 `normalize-lesson-spec.mjs`，读取 `style-presets.json`：
-  - 模型未声明的样式字段按 preset 补齐。
+- 新增 `tools/lib/lesson-normalizer.mjs`，读取 `style-presets.json`：
+  - 模型未声明的样式字段按 preset 补齐（只填缺失字段，不覆盖已声明值）。
   - 不可拖动步骤自动补齐 `range: [t, t]`。
+- `build-lesson-page.mjs` 和 `validate-geometry-spec.mjs` 均在处理前调用 normalizer：编译使用补齐后的数据，校验在 normalize 之后运行。
 - 不自动修正 slider 策略（待求系数可拖动等），这由 Phase 3 的 lint 以 warning 形式报告。
-- 逐步减少模型必须声明的样式字段。
+- 逐步减少模型必须声明的样式字段：SKILL.md 和 json-schema-guide.md 告知模型哪些字段可以省略。
 
 验收：用简化后的 JSON（省略默认样式字段）编译出的页面与原页面视觉一致；修改 `style-presets.json` 的颜色后重编译页面立即生效。
 

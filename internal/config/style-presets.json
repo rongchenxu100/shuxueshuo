@@ -1,0 +1,78 @@
+{
+  "parabola": {
+    "color": "#2563eb",
+    "width": 2.8
+  },
+  "axisOfSymmetry": {
+    "color": "#64748b",
+    "width": 1.6,
+    "dash": "10 7"
+  },
+  "point": {
+    "color": "#1f2937",
+    "r": 5.2
+  },
+  "derivedPoint": {
+    "color": "#dc2626",
+    "r": 4.6
+  },
+  "curvePoint": {
+    "color": "#0f766e",
+    "r": 5.2
+  },
+  "vertex": {
+    "color": "#7c3aed",
+    "r": 5.5
+  },
+  "rightAngle": {
+    "size": 12,
+    "color": "#0f766e"
+  },
+  "segment": {
+    "color": "#0f766e",
+    "width": 1.5,
+    "offsetPx": 20
+  },
+  "coloredLine": {
+    "color": "#dc2626",
+    "width": 2
+  },
+  "dashedLine": {
+    "color": "#0f766e",
+    "width": 2,
+    "dash": "6 5"
+  },
+  "dottedLine": {
+    "color": "#0f766e",
+    "width": 2,
+    "dash": "2 4"
+  },
+  "angleArc": {
+    "color": "#b45309",
+    "radius": 24,
+    "fontSize": 14
+  },
+  "circle": {
+    "color": "#94a3b8",
+    "width": 2,
+    "fill": "none"
+  },
+  "circleArc": {
+    "color": "#94a3b8",
+    "width": 2
+  },
+  "coordinateLabel": {
+    "color": "#334155",
+    "fontSize": 14
+  },
+  "areaLabel": {
+    "color": "#dc2626",
+    "size": 16
+  },
+  "outlineRegion": {
+    "color": "#b45309",
+    "width": 2.2,
+    "dash": "6 5",
+    "fill": "none"
+  }
+}

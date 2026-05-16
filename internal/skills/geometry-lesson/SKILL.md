@@ -196,6 +196,19 @@ Keep these principles together when revising a lesson. Do not solve one local vi
 - If the required behavior is generally useful but not available declaratively, update the shared renderer/schema in `site/assets/js/geometry-lesson-from-spec.js` and `internal/schemas/step-decorations.schema.json`, then use the new JSON field. Do not fake it with duplicated labels, extra text, or generated-HTML edits.
 - If no closer indexed case exists and you use `references/nankai-24-fewshot.md` as a fallback for id alignment and layer shape, do not rely on few-shots alone for renderer behavior; the real public runtime and schema are authoritative.
 
+### Style Preset and Normalizer
+
+The build pipeline runs a normalizer (`tools/lib/lesson-normalizer.mjs`) before compilation and validation. It reads `internal/config/style-presets.json` and fills in any missing style fields on decoration elements by type. It also auto-generates `range: [t, t]` for non-movable steps that lack a range.
+
+What this means for writing JSON specs:
+
+- **Omit default style fields** such as `color`, `width`, `dash`, `r`, `size`, `fontSize` when the preset value is acceptable. The normalizer will fill them in.
+- **Only declare a style field** when you need a value different from the preset — for example, a lighter parabola for background context, or a custom point radius.
+- **Always declare semantic fields** that the normalizer does not handle: `at`, `from`, `to`, `label`, `labelText`, `text`, `curveId`, `xExpr`, `vertex`, `rayA`, `rayB`, `dx`, `dy`, `showLabel`, `offsetPx`, `labelRadius`, `lockLabel`, `domain`, `pointOverrides`.
+- **Always declare `range`** for movable steps (`movable: true`). Non-movable steps may omit `range`.
+
+See `internal/config/style-presets.json` for the full list of types and their defaults.
+
 ## Step 4: JSON Specs
 
 Write the three JSON files in `internal/lesson-specs/<problem-id>/`.

@@ -125,6 +125,39 @@ Supported decoration types include:
 - `areaLabel`, `areaFormulaCard`
 - **抛物线 / 坐标示意：** `parabola`, `axisOfSymmetry`, `vertex`, `curvePoint`（需对应 `geometry-spec.curves[].id`，常用字段 `curveId`、`xExpr`）
 
+### Style fields: omit vs declare
+
+The normalizer fills default style values from `internal/config/style-presets.json` by decoration `type`. You should **omit** style fields when the preset default is acceptable, and **only declare** them when overriding.
+
+Fields that can be omitted (normalizer fills from preset):
+
+| field | applies to |
+|-------|-----------|
+| `color` | all types with a color |
+| `width` | line types (`coloredLine`, `dashedLine`, `dottedLine`, `segment`, `parabola`, `axisOfSymmetry`, `circle`, `circleArc`, `outlineRegion`) |
+| `dash` | `dashedLine`, `dottedLine`, `axisOfSymmetry`, `outlineRegion` |
+| `r` | `point`, `derivedPoint`, `curvePoint`, `vertex` |
+| `size` | `rightAngle`, `areaLabel` |
+| `fontSize` | `angleArc`, `coordinateLabel` |
+| `radius` | `angleArc` |
+| `fill` | `circle`, `outlineRegion` |
+
+Fields that must always be declared (semantic, not defaulted):
+
+`type`, `at`, `from`, `to`, `label`, `labelText`, `text`, `curveId`, `xExpr`, `vertex`, `rayA`, `rayB`, `dx`, `dy`, `showLabel`, `offsetPx`, `labelRadius`, `lockLabel`.
+
+Example — a point that uses all defaults:
+
+```json
+{ "type": "point", "at": "A", "dx": 12, "dy": -18 }
+```
+
+Example — a point that overrides the default color:
+
+```json
+{ "type": "point", "at": "A", "color": "#dc2626", "dx": 12, "dy": -18 }
+```
+
 Rules:
 
 - Put stable context in `layers`, not repeated step additions.
