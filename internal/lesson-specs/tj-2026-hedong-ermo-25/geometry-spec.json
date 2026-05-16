@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "id": "tj-2026-hedong-ermo-25",
+  "domain": { "minX": -5.2, "maxX": 5.2, "minY": -5.2, "maxY": 5.2 },
+  "movingParam": "m",
+  "expressionEnv": [
+    { "name": "a1", "expr": "-1" },
+    { "name": "b1", "expr": "4" },
+    { "name": "c1", "expr": "-3" },
+    { "name": "a2", "expr": "-1" },
+    { "name": "b2", "expr": "-1" },
+    { "name": "c2", "expr": "2" },
+    { "name": "aMain", "expr": "8/(5*m)" },
+    { "name": "bMain", "expr": "1-aMain*m" },
+    { "name": "cMain", "expr": "-m" },
+    { "name": "aUpper", "expr": "8/m" },
+    { "name": "bUpper", "expr": "-(aUpper*m+1)" },
+    { "name": "cUpper", "expr": "m" },
+    { "name": "hCircle", "expr": "m/2" },
+    { "name": "hOptX", "expr": "m/2-0.3535533905932738*m" },
+    { "name": "hOptY", "expr": "-0.3535533905932738*m" }
+  ],
+  "fixedPoints": {
+    "O": ["0", "0"],
+    "P": ["2", "1"],
+    "AI": ["-2", "0"],
+    "BI": ["1", "0"],
+    "CI": ["0", "2"],
+    "D": ["2", "-4"],
+    "Cref": ["-4", "-2"],
+    "G": ["-8/7", "-6/7"]
+  },
+  "movingPoints": {
+    "AII": ["-1/aMain", "0"],
+    "BII": ["m", "0"],
+    "CII": ["0", "-m"],
+    "E": ["3*m/4", "-m/4"],
+    "F": ["-m/4", "-3*m/4"],
+    "EFoot": ["3*m/4", "0"],
+    "FFoot": ["0", "-3*m/4"],
+    "CUp": ["0", "m"],
+    "EUp": ["3*m/4", "m/4"],
+    "FUp": ["m/4", "-3*m/4"],
+    "K": ["m/2", "0"],
+    "H": ["hOptX", "hOptY"]
+  },
+  "curves": [
+    { "id": "parabolaPart1", "type": "parabola", "a": "a1", "b": "b1", "c": "c1" },
+    { "id": "parabolaPart2", "type": "parabola", "a": "a2", "b": "b2", "c": "c2" },
+    { "id": "parabolaMain", "type": "parabola", "a": "aMain", "b": "bMain", "c": "cMain" },
+    { "id": "parabolaUpper", "type": "parabola", "a": "aUpper", "b": "bUpper", "c": "cUpper" }
+  ],
+  "derivedIntersections": []
+}

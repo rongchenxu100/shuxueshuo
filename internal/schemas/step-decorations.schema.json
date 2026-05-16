@@ -48,6 +48,16 @@
             "items": { "$ref": "#/$defs/stringOrNumber" }
           }
         },
+        "conclusionBox": {
+          "type": "object",
+          "properties": {
+            "x": { "$ref": "#/$defs/number" },
+            "y": { "$ref": "#/$defs/number" },
+            "w": { "$ref": "#/$defs/number" },
+            "lineH": { "$ref": "#/$defs/number" }
+          },
+          "additionalProperties": false
+        },
         "add": {
           "type": "array",
           "items": { "$ref": "#/$defs/decoration" }
@@ -92,6 +102,8 @@
             "dottedLine",
             "coloredLine",
             "rightAngle",
+            "circle",
+            "circleArc",
             "angleArc",
             "coordinateLabel",
             "coincidentLabel",
@@ -107,6 +119,11 @@
         },
         "curveId": { "type": "string" },
         "curve": { "type": "string" },
+        "center": { "$ref": "#/$defs/pointName" },
+        "radius": { "type": "string" },
+        "radiusExpr": { "type": "string" },
+        "startAngleExpr": { "type": "string" },
+        "endAngleExpr": { "type": "string" },
         "xExpr": { "type": "string" },
         "samples": { "$ref": "#/$defs/number" },
         "yBand": { "$ref": "#/$defs/number" },

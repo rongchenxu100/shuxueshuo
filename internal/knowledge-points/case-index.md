@@ -15,6 +15,7 @@
 | `tj-2026-xiqing-yimo-25` | 25 | `2DM+AM` 含权重路径，30° 构造吸收权重后拉直 | `known-root-factorization`, `coefficient-from-point-on-parabola`, `weighted-path-segment-transform`, `horse-drinking` |
 | `tj-2026-hedong-yimo-25` | 25 | `AG+GH+FH`，等腰直角与对称构造得到最短路 | `known-root-factorization`, `right-triangle-congruence-coordinate`, `isosceles-right-triangle-transform`, `horse-drinking` |
 | `tj-2026-beichen-yimo-25` | 25 | `2AH+√2BH`，构造等腰直角三角形把权重转为折线，再用垂线段最短 | `coefficient-from-point-on-parabola`, `known-root-factorization`, `rotation-by-congruence`, `isosceles-right-triangle-transform`, `weighted-path-segment-transform`, `horse-drinking` |
+| `tj-2026-hedong-ermo-25` | 25 | `BG+CG` 反射拉直，`∠OHB=90°` 识别隐圆并由 `HF` 最小值反求 `a` | `coefficient-from-point-on-parabola`, `horse-drinking`, `rotation-by-congruence`, `hidden-circle-minimum` |
 
 ### distance-difference-maximum
 
@@ -82,6 +83,7 @@
 | `bj-2026-haidian-yimo-26` | 26 | 第（1）问 | 由抛物线过 `O` 与 `(2,0)` 求 `c` 和 `b` |
 | `tj-2026-beichen-yimo-25` | 25 | 第（Ⅰ）问、第（Ⅱ）问 | 代入 `A(-2,0)` 求解析式，再把旋转后的 `Q` 代入抛物线求 `P` |
 | `tj-2026-hebei-yimo-25` | 25 | 第（Ⅱ）公共结论、第（Ⅱ）①② | 由 `P(3,3)` 在抛物线上得到 `c=3-15a`，再配合轴平行线段条件求参数 |
+| `tj-2026-hedong-ermo-25` | 25 | 第（Ⅰ）②、第（Ⅱ）问 | 由 `A`、`C` 在抛物线上化简求 `B`；第（Ⅱ）由 `F` 在抛物线上得到 `am` 关系 |
 
 ### axis-parallel-segment-coordinate
 
@@ -103,6 +105,7 @@
 |---|---|---|---|
 | `tj-2026-nankai-ermo-25` | 25 | 第（II）① | `AC` 绕 `C` 旋转 90° 得 `DC`，作垂线证全等求 `D` |
 | `tj-2026-beichen-yimo-25` | 25 | 第（Ⅱ）问 | `BP` 绕 `P` 逆时针旋转 90°，由横纵距离交换读出 `Q(3+p,p+5)` |
+| `tj-2026-hedong-ermo-25` | 25 | 第（Ⅱ）问 | 由 `OE⊥OF` 且 `OE=OF`，作坐标轴垂线，用全等直角三角形读出 `F` 坐标 |
 
 ### isosceles-right-triangle-transform
 
@@ -131,6 +134,13 @@
 | `tj-2026-xiqing-yimo-25` | 25 | 第（2）② | 权重转化后看折线 `D-M-N`，三点共线取最小 |
 | `tj-2026-hedong-yimo-25` | 25 | 第（Ⅱ）② | 通过对称/构造把多段路径转成直线最短 |
 | `tj-2026-beichen-yimo-25` | 25 | 第（Ⅲ）问 | 折线 `A-H-R` 拉直后，转为点 `A` 到定直线 `ℓ` 的垂线段最短 |
+| `tj-2026-hedong-ermo-25` | 25 | 第（Ⅰ）② | 将 `C` 关于 `AD` 对称为 `C′`，把 `BG+CG` 拉直为 `BG+C′G` |
+
+### hidden-circle-minimum
+
+| problem-id | 题位 | 涉及步骤 | 摘要 |
+|---|---|---|---|
+| `tj-2026-hedong-ermo-25` | 25 | 第（Ⅱ）问 | 由 `∠OHB=90°` 识别 `H` 在以 `OB` 为直径的圆上，画完整隐圆并拖动 `H`，用 `FK−半径` 求 `HF` 最小值；同时讨论 `C` 在 `y` 轴上下半轴两种情况 |
 
 ### translation-path-transform
 

@@ -182,6 +182,12 @@
       return d + " Z";
     }
 
+    function screenRadiusFromMath(center, radius) {
+      var c = toScreen(center);
+      var e = toScreen({ x: center.x + radius, y: center.y });
+      return Math.abs(e.x - c.x);
+    }
+
     function lineSvg(a, b, color, width, dash) {
       var p = toScreen(a), q = toScreen(b);
       var da = dash ? ' stroke-dasharray="' + dash + '"' : "";
@@ -398,6 +404,36 @@
           v = pts[elem.vertex]; a = pts[elem.rayA]; b = pts[elem.rayB];
           if (!v || !a || !b) return "";
           return rightAngleSvg(v, a, b, { size: elem.size, color: elem.color });
+        }
+        case "circle": {
+          var circleCenter = pts[elem.center];
+          if (!circleCenter) return "";
+          var envCircle = state.env || {};
+          var circleRadius = GE.evalExpr(elem.radiusExpr || elem.radius || "0", envCircle);
+          if (!Number.isFinite(circleRadius) || circleRadius <= 0) return "";
+          var circleScreen = toScreen(circleCenter);
+          var circleR = screenRadiusFromMath(circleCenter, circleRadius);
+          return '<circle cx="' + circleScreen.x + '" cy="' + circleScreen.y + '" r="' + circleR +
+            '" fill="' + (elem.fill || "none") + '" stroke="' + (elem.color || "#94a3b8") +
+            '" stroke-width="' + (elem.width || 2) + '"' + (elem.dash ? ' stroke-dasharray="' + elem.dash + '"' : "") + ' />';
+        }
+        case "circleArc": {
+          var center = pts[elem.center];
+          if (!center) return "";
+          var envArc = state.env || {};
+          var radius = GE.evalExpr(elem.radiusExpr || elem.radius || "0", envArc);
+          var startAngle = GE.evalExpr(elem.startAngleExpr || "0", envArc);
+          var endAngle = GE.evalExpr(elem.endAngleExpr || "2*pi", envArc);
+          var arcSamples = Math.max(8, Math.floor(elem.samples || 64));
+          if (!Number.isFinite(radius) || radius <= 0) return "";
+          var arcPts = [];
+          for (var ai = 0; ai <= arcSamples; ai++) {
+            var theta = startAngle + (endAngle - startAngle) * (ai / arcSamples);
+            arcPts.push({ x: center.x + radius * Math.cos(theta), y: center.y + radius * Math.sin(theta) });
+          }
+          var dArcPath = GE.svgOpenPathFromMathPoints(arcPts, toScreen);
+          return '<path d="' + dArcPath + '" fill="none" stroke="' + (elem.color || "#94a3b8") +
+            '" stroke-width="' + (elem.width || 2) + '"' + (elem.dash ? ' stroke-dasharray="' + elem.dash + '"' : "") + ' />';
         }
         case "angleArc": {
           v = pts[elem.vertex]; a = pts[elem.rayA]; b = pts[elem.rayB];
@@ -621,7 +657,7 @@
       var liveBox = policy.movable
         ? (step.box || []).concat(["示例 t=" + Number(localT).toFixed(3).replace(/\.?0+$/, "")])
         : (step.box || []);
-      out += GE.svgConclusionBox(liveBox);
+      if (liveBox.length) out += GE.svgConclusionBox(liveBox, deco.conclusionBox);
 
       _layout = null;
       _coordinateLabelPoints = null;

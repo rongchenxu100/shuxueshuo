@@ -163,6 +163,16 @@
       if (eat("+")) return primary();
       if (/[0-9]/.test(peek())) return parseNumber();
       var id = parseIdent();
+      if (eat("(")) {
+        var arg = addSub();
+        eat(")");
+        if (id === "sin") return Math.sin(arg);
+        if (id === "cos") return Math.cos(arg);
+        if (id === "tan") return Math.tan(arg);
+        if (id === "sqrt") return Math.sqrt(arg);
+        if (id === "abs") return Math.abs(arg);
+        throw new Error("unknown function: " + id);
+      }
       if (id === "t") return T;
       if (id === "S3" || id === "sqrt3") return S3;
       if (id === "pi") return Math.PI;
