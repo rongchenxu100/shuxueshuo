@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "id": "tj-2026-hongqiao-ermo-25",
+  "domain": { "minX": -3.5, "maxX": 8.2, "minY": -7.2, "maxY": 1.5 },
+  "movingParam": "p",
+  "expressionEnv": [
+    { "name": "a", "expr": "0.25" },
+    { "name": "bPart1", "expr": "-1" },
+    { "name": "cPart1", "expr": "2*bPart1-1" },
+    { "name": "bAngle", "expr": "-1.5" },
+    { "name": "cAngle", "expr": "2*bAngle-1" },
+    { "name": "bFinal", "expr": "-1.2360679774997898" },
+    { "name": "cFinal", "expr": "2*bFinal-1" },
+    { "name": "pOpt", "expr": "0.11000894440786704" },
+    { "name": "xDPart1", "expr": "-2*bPart1" },
+    { "name": "yDPart1", "expr": "-(bPart1-1)*(bPart1-1)" },
+    { "name": "xDAngle", "expr": "-2*bAngle" },
+    { "name": "yDAngle", "expr": "-(bAngle-1)*(bAngle-1)" },
+    { "name": "xDFinal", "expr": "-2*bFinal" },
+    { "name": "yDFinal", "expr": "-(bFinal-1)*(bFinal-1)" },
+    { "name": "xEFinal", "expr": "2-2*bFinal" },
+    { "name": "yEFinal", "expr": "-bFinal*bFinal+2*bFinal" },
+    { "name": "xBFinal", "expr": "2-4*bFinal" }
+  ],
+  "fixedPoints": {
+    "O": ["0", "0"],
+    "A": ["-2", "0"],
+    "D1": ["xDPart1", "yDPart1"],
+    "Bangle": ["2-4*bAngle", "0"],
+    "Cangle": ["0", "cAngle"],
+    "Dangle": ["xDAngle", "yDAngle"],
+    "Bfinal": ["xBFinal", "0"],
+    "Cfinal": ["0", "cFinal"],
+    "Dfinal": ["xDFinal", "yDFinal"],
+    "Efinal": ["xEFinal", "yEFinal"],
+    "Hfinal": ["xDFinal", "0"]
+  },
+  "movingPoints": {
+    "G": ["pOpt*xBFinal", "cFinal+pOpt*(1-2*bFinal)"],
+    "F": ["xEFinal+pOpt*xBFinal-xDFinal", "yEFinal+cFinal+pOpt*(1-2*bFinal)-yDFinal"]
+  },
+  "curves": [
+    { "id": "parabolaPart1", "type": "parabola", "a": "a", "b": "bPart1", "c": "cPart1" },
+    { "id": "parabolaAngle", "type": "parabola", "a": "a", "b": "bAngle", "c": "cAngle" },
+    { "id": "parabolaFinal", "type": "parabola", "a": "a", "b": "bFinal", "c": "cFinal" }
+  ],
+  "derivedIntersections": []
+}

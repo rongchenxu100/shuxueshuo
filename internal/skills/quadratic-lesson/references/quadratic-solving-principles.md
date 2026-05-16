@@ -160,6 +160,32 @@ Before using a determinant-style area formula, check whether the triangle can be
 - Mark the vertical base and the two horizontal distances in the diagram. The equation in the derivation should mirror those labels.
 - Use determinant area only when no simple vertical/horizontal split is readable or when the problem source explicitly expects it.
 
+### Coordinate Right Triangle Parameter Solving
+
+When a condition such as `∠ACB=90°` gives a right triangle whose vertices already have coordinates, prefer a middle-school distance-and-Pythagorean route over vector or slope shortcuts.
+
+Preferred route:
+
+1. Write the three point coordinates first.
+2. State the right triangle and the hypotenuse, such as `△ACB 是直角三角形，AB 为斜边`.
+3. Use the two-point distance formula to express `AC²`, `BC²`, and `AB²`.
+4. Apply the Pythagorean theorem, for example `AC² + BC² = AB²`.
+5. Simplify and use constraints such as `b<0` to select the answer.
+
+Avoid these in student-facing derivations:
+
+- Dot products or vector perpendicular equations such as `CA·CB=0`.
+- Slope-product perpendicular rules as the main reason.
+- Redundant definition rows that do not advance the calculation, such as `A、B 都在 x轴上` before an immediately readable `AB²` expression.
+
+Diagram and naming requirements:
+
+- Fill the coordinate right triangle with a quiet translucent region.
+- Mark the right angle and label the coordinates used in the distance formulas, especially source-given points.
+- Match the step title and navigation to the method, e.g. `勾股定理求 b`; do not leave vague labels such as `直角条件求 b`.
+
+When simplifying equations such as `4(1−b)² + (1−b)^4 = 45`, choose the lowest-degree substitution. Prefer `u=(1−b)^2`, giving `u²+4u−45=0`, over `u=1−b`, which creates a fourth-degree expression before factoring.
+
 ### Axis-Parallel Segment Conditions To Coordinates
 
 When a problem gives horizontal or vertical segment relations in a coordinate-parabola setting, prefer converting the segment relation into a point coordinate before substituting into the parabola.

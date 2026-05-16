@@ -1,0 +1,168 @@
+{
+  "meta": {
+    "id": "tj-2026-hongqiao-ermo-25",
+    "outputPath": "site/problems/tj/25/tj-2026-hongqiao-ermo-25.html",
+    "pageTitle": "2026 年天津市红桥区二模 第 25 题（二次函数综合）",
+    "pageDescription": "2026 天津市红桥区二模第 25 题：由 A(-2,0) 消参，求顶点、勾股定理求 b，并用平行四边形转化与三点共线求 AG+GF+FE 最小值对应的 b。",
+    "breadcrumbTitle": "2026 天津市红桥区二模 第 25 题",
+    "classification": {
+      "pattern": "path-minimum",
+      "methods": ["coefficient-from-point-on-parabola", "known-root-factorization", "coordinate-distance-pythagorean", "translation-path-transform", "horse-drinking"]
+    }
+  },
+  "problem": {
+    "summary": "第 25 题（2026 天津市红桥区二模）二次函数综合：顶点、直角条件求参、平行四边形与折线最短。",
+    "lines": [
+      { "text": "（25）（本小题 10 分）已知抛物线 y＝1/4x²＋bx＋c（b，c 为常数，b＜0）经过点 A(−2,0)，其顶点为 D。" },
+      { "text": "（Ⅰ）当 b＝−1 时，求该抛物线顶点 D 的坐标；", "answerId": "answerI", "answer": "D(2,−4)" },
+      { "text": "（Ⅱ）点 B 是抛物线与 x 轴的另一个交点，点 C 是抛物线与 y 轴的交点。" },
+      { "text": "① 若 ∠ACB＝90°，求 b 的值；", "answerId": "answerII1", "answer": "b＝−3/2" },
+      { "text": "② 过点 D 作 DE∥CB，与抛物线相交于点 E，以 DE 为边的 ▱DEFG 的顶点 F 在直线 BC 上，当 AG＋GF＋FE 取得最小值 4√5 时，求 b 的值。", "answerId": "answerII2", "answer": "b＝1−√5" }
+    ]
+  },
+  "ui": {
+    "legend": [
+      { "colorVar": "paper", "label": "抛物线与坐标轴" },
+      { "colorVar": "fold", "label": "平行四边形与折线最短" }
+    ],
+    "sliderLabel": "点 G 在直线 BC 上的位置",
+    "paramLabelPrefix": "位置=",
+    "goToProblemMode": "doubleScroll",
+    "groupTitles": {
+      "第（Ⅰ）问": "第（Ⅰ）问  求顶点",
+      "第（Ⅱ）①问": "第（Ⅱ）①  勾股定理求 b",
+      "第（Ⅱ）②问": "第（Ⅱ）②  三点共线求最小值"
+    }
+  },
+  "steps": [
+    {
+      "id": "i1s1",
+      "section": "第（Ⅰ）问",
+      "title": "第1步：由点 A 消去 c 并求顶点",
+      "t": 0,
+      "derive": [
+        ["∵", "A(−2,0) 在 y＝1/4x²＋bx＋c 上"],
+        ["∴", "0＝1−2b＋c"],
+        ["∴", "c＝2b−1"],
+        ["∵", "b＝−1"],
+        ["∴", "c＝−3，y＝1/4x²−x−3"],
+        ["∴", "对称轴 x＝−b/(2·1/4)＝2"],
+        ["∴", "D(2,−4)"]
+      ],
+      "box": ["D(2,−4)"]
+    },
+    {
+      "id": "q1s1",
+      "section": "第（Ⅱ）①问",
+      "title": "第1步：由已知根写出 B、C",
+      "t": 0,
+      "derive": [
+        ["∵", "A(−2,0) 在抛物线上"],
+        ["∴", "c＝2b−1"],
+        ["∴", "4y=x²＋4bx＋8b−4"],
+        ["∴", "4y=(x＋2)(x＋4b−2)"],
+        ["∵", "B 是另一个 x 轴交点"],
+        ["∴", "B(2−4b,0)"],
+        ["∵", "C 是 y 轴交点"],
+        ["∴", "C(0,2b−1)"]
+      ],
+      "box": ["B(2−4b,0)", "C(0,2b−1)"]
+    },
+    {
+      "id": "q1s2",
+      "section": "第（Ⅱ）①问",
+      "title": "第2步：勾股定理求 b",
+      "t": 0,
+      "derive": [
+        ["∵", "CA⊥CB"],
+        ["∴", "△ACB 是直角三角形，AB 为斜边"],
+        ["∵", "A(−2,0)，C(0,2b−1)"],
+        ["∴", "AC²＝2²＋(2b−1)²"],
+        ["∵", "B(2−4b,0)，C(0,2b−1)"],
+        ["∴", "BC²＝(2−4b)²＋(1−2b)²"],
+        ["∴", "AB²＝(4−4b)²"],
+        ["∴", "AC²＋BC²＝AB²"],
+        ["∴", "4＋(2b−1)²＋(2−4b)²＋(1−2b)²＝(4−4b)²"],
+        ["∴", "4b²＋4b−3＝0"],
+        ["∴", "b＝1/2 或 b＝−3/2"],
+        ["∵", "b＜0"],
+        ["∴", "b＝−3/2"]
+      ],
+      "box": ["b＝−3/2"]
+    },
+    {
+      "id": "q2s1",
+      "section": "第（Ⅱ）②问",
+      "title": "第1步：求出 E 并转化平行四边形",
+      "t": 0,
+      "derive": [
+        ["∵", "B(2−4b,0)，C(0,2b−1)"],
+        ["∴", "直线 BC 的斜率为 1/2"],
+        ["∵", "D(−2b,−(b−1)²)"],
+        ["∴", "过 D 且平行 BC 的直线与抛物线另交于 E(2−2b,−b²＋2b)"],
+        ["∴", "DE＝√(2²＋1²)＝√5"],
+        ["∵", "▱DEFG 中 GF＝DE，FE＝DG"],
+        ["∵", "F 在 BC 上，GF∥DE∥BC"],
+        ["∴", "G 也在 BC 上"],
+        ["∴", "AG＋GF＋FE＝AG＋DG＋√5"]
+      ],
+      "box": ["DE＝√5", "AG＋GF＋FE＝AG＋DG＋√5"]
+    },
+    {
+      "id": "q2s2",
+      "section": "第（Ⅱ）②问",
+      "title": "第2步：三点共线时得到最小值",
+      "t": 0,
+      "derive": [
+        ["∴", "当 A、G、D 三点共线时，AG＋DG 最小，最小值为 AD"],
+        ["∵", "AG＋GF＋FE 的最小值为 4√5"],
+        ["∴", "AD＋√5＝4√5"],
+        ["∴", "AD＝3√5"]
+      ],
+      "box": ["最短时 A、G、D 三点共线", "AD＝3√5"],
+      "localControls": {
+        "values": { "u": 0.11000894440786704 },
+        "note": "拖动 G 观察折线 A-G-D；共线时折线最短。",
+        "controls": [
+          { "var": "u", "label": "动点 G：CG/CB", "min": 0, "max": 1, "step": 0.01, "scale": 1, "precision": 2 }
+        ]
+      }
+    },
+    {
+      "id": "q2s3",
+      "section": "第（Ⅱ）②问",
+      "title": "第3步：由 AD 长度求 b",
+      "t": 0,
+      "derive": [
+        ["∵", "A(−2,0)，D(−2b,−(b−1)²)"],
+        ["∴", "AD²＝[2(1−b)]²＋(b−1)^4"],
+        ["∵", "AD＝3√5"],
+        ["∴", "4(1−b)²＋(1−b)^4＝45"],
+        ["设", "u＝(1−b)²，则 u＞0"],
+        ["∴", "u²＋4u−45＝0"],
+        ["∴", "(u−5)(u＋9)＝0"],
+        ["∴", "u＝5，即 (1−b)²＝5"],
+        ["∵", "b＜0"],
+        ["∴", "1−b＝√5"],
+        ["∴", "b＝1−√5"]
+      ],
+      "box": ["b＝1−√5"]
+    }
+  ],
+  "policies": {
+    "i1s1": { "movable": false, "range": [0, 0] },
+    "q1s1": { "movable": false, "range": [0, 0] },
+    "q1s2": { "movable": false, "range": [0, 0] },
+    "q2s1": { "movable": false, "range": [0, 0] },
+    "q2s2": { "movable": false, "range": [0, 0] },
+    "q2s3": { "movable": false, "range": [0, 0] }
+  },
+  "stepLabels": {
+    "i1s1": "1 消参求顶点",
+    "q1s1": "1 已知根定B,C",
+    "q1s2": "2 勾股求b",
+    "q2s1": "1 平行四边形转化",
+    "q2s2": "2 三点共线最小",
+    "q2s3": "3 AD求b"
+  }
+}

@@ -1,0 +1,121 @@
+{
+  "_comment": "红桥区 2026 二模第 25 题 — 二次函数综合",
+  "layers": {
+    "global": {
+      "elements": [
+        { "type": "grid" },
+        { "type": "point", "at": "O", "showLabel": false },
+        { "type": "point", "at": "A", "dx": -30, "dy": 18 }
+      ]
+    },
+    "partI": {
+      "stepStartsWith": ["i1"],
+      "elements": [
+        { "type": "parabola", "curveId": "parabolaPart1" },
+        { "type": "axisOfSymmetry", "curveId": "parabolaPart1" },
+        { "type": "point", "at": "D1", "labelText": "D", "dx": 14, "dy": 18 }
+      ]
+    },
+    "angle": {
+      "stepStartsWith": ["q1"],
+      "elements": [
+        { "type": "parabola", "curveId": "parabolaAngle" },
+        { "type": "point", "at": "Bangle", "labelText": "B", "dx": 12, "dy": -18 },
+        { "type": "point", "at": "Cangle", "labelText": "C", "dx": 12, "dy": 18 },
+        { "type": "coloredLine", "from": "Cangle", "to": "A" },
+        { "type": "coloredLine", "from": "Cangle", "to": "Bangle" }
+      ]
+    },
+    "path": {
+      "stepStartsWith": ["q2"],
+      "elements": [
+        { "type": "parabola", "curveId": "parabolaFinal" },
+        { "type": "point", "at": "Bfinal", "labelText": "B", "dx": 12, "dy": -18 },
+        { "type": "point", "at": "Cfinal", "labelText": "C", "dx": 12, "dy": 18 },
+        { "type": "point", "at": "Dfinal", "labelText": "D", "dx": 12, "dy": -18 },
+        { "type": "coloredLine", "from": "Bfinal", "to": "Cfinal" }
+      ]
+    }
+  },
+  "steps": {
+    "i1s1": {
+      "domain": { "minX": -3.2, "maxX": 4.0, "minY": -5.2, "maxY": 1.0 },
+      "add": [
+        { "type": "coordinateLabel", "at": "A", "text": "A(−2,0)", "dx": -70, "dy": -18 },
+        { "type": "coordinateLabel", "at": "D1", "text": "D(2,−4)", "dx": 18, "dy": 18 }
+      ]
+    },
+    "q1s1": {
+      "domain": { "minX": -3.2, "maxX": 8.6, "minY": -6.5, "maxY": 1.2 },
+      "add": [
+        { "type": "coordinateLabel", "at": "A", "text": "A(−2,0)", "dx": -70, "dy": -18 },
+        { "type": "coordinateLabel", "at": "Bangle", "text": "B(2−4b,0)", "dx": 14, "dy": -24 },
+        { "type": "coordinateLabel", "at": "Cangle", "text": "C(0,2b−1)", "dx": 14, "dy": 20 }
+      ]
+    },
+    "q1s2": {
+      "domain": { "minX": -3.2, "maxX": 8.6, "minY": -6.5, "maxY": 1.2 },
+      "add": [
+        { "type": "outlineRegion", "vertices": ["A", "Bangle", "Cangle"], "style": "horseTriangle", "fill": "rgba(245, 158, 11, 0.14)" },
+        { "type": "rightAngle", "vertex": "Cangle", "rayA": "A", "rayB": "Bangle", "size": 12 },
+        { "type": "coordinateLabel", "at": "A", "text": "A(−2,0)", "dx": -70, "dy": -18 },
+        { "type": "coordinateLabel", "at": "Bangle", "text": "B(8,0)", "dx": 14, "dy": -24 },
+        { "type": "coordinateLabel", "at": "Cangle", "text": "C(0,−4)", "dx": 14, "dy": 20 },
+        { "type": "segment", "from": "Cangle", "to": "A", "label": "CA" },
+        { "type": "segment", "from": "Cangle", "to": "Bangle", "label": "CB" }
+      ]
+    },
+    "q2s1": {
+      "domain": { "minX": -2.8, "maxX": 7.4, "minY": -6.2, "maxY": 1.0 },
+      "add": [
+        { "type": "point", "at": "Efinal", "labelText": "E", "dx": 14, "dy": -18 },
+        { "type": "point", "at": "G", "labelText": "G", "dx": -24, "dy": 16 },
+        { "type": "point", "at": "F", "labelText": "F", "dx": 14, "dy": 16 },
+        { "type": "coloredLine", "from": "Dfinal", "to": "Efinal" },
+        { "type": "coloredLine", "from": "Efinal", "to": "F" },
+        { "type": "coloredLine", "from": "F", "to": "G" },
+        { "type": "coloredLine", "from": "G", "to": "Dfinal" },
+        { "type": "segment", "from": "Dfinal", "to": "Efinal", "label": "DE=√5", "offsetPx": -24 },
+        { "type": "segment", "from": "G", "to": "F", "label": "GF=DE", "offsetPx": 22 },
+        { "type": "segment", "from": "F", "to": "Efinal", "label": "FE=DG", "offsetPx": 22 },
+        { "type": "coordinateLabel", "at": "Dfinal", "text": "D(−2b,−(b−1)²)", "dx": 14, "dy": -30 },
+        { "type": "coordinateLabel", "at": "Efinal", "text": "E(2−2b,−b²+2b)", "dx": 14, "dy": -30 }
+      ]
+    },
+    "q2s2": {
+      "domain": { "minX": -2.8, "maxX": 7.4, "minY": -6.2, "maxY": 1.0 },
+      "pointOverrides": {
+        "G": ["u*xBFinal", "cFinal+u*(1-2*bFinal)"],
+        "F": ["xEFinal+u*xBFinal-xDFinal", "yEFinal+cFinal+u*(1-2*bFinal)-yDFinal"]
+      },
+      "add": [
+        { "type": "point", "at": "Efinal", "labelText": "E", "dx": 14, "dy": -18 },
+        { "type": "point", "at": "G", "labelText": "G", "dx": -24, "dy": 16 },
+        { "type": "point", "at": "F", "labelText": "F", "dx": 14, "dy": 16 },
+        { "type": "outlineRegion", "vertices": ["A", "G", "Dfinal"], "style": "horseTriangle", "fill": "rgba(245, 158, 11, 0.14)" },
+        { "type": "coloredLine", "from": "A", "to": "G" },
+        { "type": "coloredLine", "from": "G", "to": "Dfinal" },
+        { "type": "coloredLine", "from": "A", "to": "Dfinal" },
+        { "type": "dashedLine", "from": "Dfinal", "to": "Efinal" },
+        { "type": "dashedLine", "from": "Efinal", "to": "F" },
+        { "type": "dashedLine", "from": "F", "to": "G" },
+        { "type": "dashedLine", "from": "G", "to": "Dfinal" },
+        { "type": "segment", "from": "A", "to": "Dfinal", "label": "AD", "offsetPx": -24 }
+      ]
+    },
+    "q2s3": {
+      "domain": { "minX": -2.8, "maxX": 4.2, "minY": -5.8, "maxY": 0.8 },
+      "add": [
+        { "type": "coloredLine", "from": "A", "to": "Dfinal" },
+        { "type": "dashedLine", "from": "Dfinal", "to": "Hfinal" },
+        { "type": "dashedLine", "from": "A", "to": "Hfinal" },
+        { "type": "rightAngle", "vertex": "Hfinal", "rayA": "Dfinal", "rayB": "A", "size": 11 },
+        { "type": "coordinateLabel", "at": "A", "text": "A(−2,0)", "dx": -70, "dy": -18 },
+        { "type": "coordinateLabel", "at": "Dfinal", "text": "D(2√5−2,−5)", "dx": 14, "dy": -28 },
+        { "type": "segment", "from": "A", "to": "Hfinal", "label": "2(1−b)", "offsetPx": 22 },
+        { "type": "segment", "from": "Dfinal", "to": "Hfinal", "label": "(1−b)²", "offsetPx": -24 },
+        { "type": "segment", "from": "A", "to": "Dfinal", "label": "AD=3√5", "offsetPx": -26 }
+      ]
+    }
+  }
+}

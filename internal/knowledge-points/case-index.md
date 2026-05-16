@@ -16,6 +16,7 @@
 | `tj-2026-hedong-yimo-25` | 25 | `AG+GH+FH`，等腰直角与对称构造得到最短路 | `known-root-factorization`, `right-triangle-congruence-coordinate`, `isosceles-right-triangle-transform`, `horse-drinking` |
 | `tj-2026-beichen-yimo-25` | 25 | `2AH+√2BH`，构造等腰直角三角形把权重转为折线，再用垂线段最短 | `coefficient-from-point-on-parabola`, `known-root-factorization`, `rotation-by-congruence`, `isosceles-right-triangle-transform`, `weighted-path-segment-transform`, `horse-drinking` |
 | `tj-2026-hedong-ermo-25` | 25 | `BG+CG` 反射拉直，`∠OHB=90°` 识别隐圆并由 `HF` 最小值反求 `a` | `coefficient-from-point-on-parabola`, `horse-drinking`, `rotation-by-congruence`, `hidden-circle-minimum` |
+| `tj-2026-hongqiao-ermo-25` | 25 | `AG+GF+FE`，由平行四边形转为 `AG+DG+√5`，再用 `A,G,D` 共线求最短；直角条件用距离公式与勾股定理求参 | `coefficient-from-point-on-parabola`, `known-root-factorization`, `coordinate-distance-pythagorean`, `translation-path-transform`, `horse-drinking` |
 
 ### distance-difference-maximum
 
@@ -77,6 +78,7 @@
 | `tj-2026-xiqing-yimo-25` | 25 | 第（2）① | 由已知根 `A(-1,0)` 读出另一个交点和截距 |
 | `tj-2026-hedong-yimo-25` | 25 | 第（Ⅱ）① | 由 `A(-1,0)` 与 `B(-c,0)` 写出交点关系和坐标 |
 | `tj-2026-beichen-yimo-25` | 25 | 第（Ⅰ）问、第（Ⅱ）问 | 由已知根 `A(-2,0)` 确定 `b`，再读出另一个交点 `B(8,0)` |
+| `tj-2026-hongqiao-ermo-25` | 25 | 第（Ⅱ）①② | 由已知根 `A(-2,0)` 写出 `B(2−4b,0)` 与 `C(0,2b−1)` |
 | `tj-2026-hongqiao-yimo-25` | 25 | 第（Ⅱ）①② | 由 `A(-1,0)` 是根写 `y=(x+1)(ax+c)`，读另一个交点 |
 
 ### coefficient-from-point-on-parabola
@@ -93,6 +95,13 @@
 | `tj-2026-hebei-yimo-25` | 25 | 第（Ⅱ）公共结论、第（Ⅱ）①② | 由 `P(3,3)` 在抛物线上得到 `c=3-15a`，再配合轴平行线段条件求参数 |
 | `tj-2026-hedong-ermo-25` | 25 | 第（Ⅰ）②、第（Ⅱ）问 | 由 `A`、`C` 在抛物线上化简求 `B`；第（Ⅱ）由 `F` 在抛物线上得到 `am` 关系 |
 | `tj-2026-hongqiao-yimo-25` | 25 | 第（Ⅰ）问、第（Ⅱ）② | 由点在抛物线上化简系数关系，并配合面积条件求参数 |
+| `tj-2026-hongqiao-ermo-25` | 25 | 第（Ⅰ）问、第（Ⅱ）①② | 由 `A(-2,0)` 代入得到 `c=2b−1`，再配合直角条件或最短值求 `b` |
+
+### coordinate-distance-pythagorean
+
+| problem-id | 题位 | 涉及步骤 | 摘要 |
+|---|---|---|---|
+| `tj-2026-hongqiao-ermo-25` | 25 | 第（Ⅱ）① | 由 `A(-2,0)`、`B(2−4b,0)`、`C(0,2b−1)` 写三边平方，用 `AC²+BC²=AB²` 求 `b` |
 
 ### axis-parallel-segment-coordinate
 
@@ -144,6 +153,7 @@
 | `tj-2026-hedong-yimo-25` | 25 | 第（Ⅱ）② | 通过对称/构造把多段路径转成直线最短 |
 | `tj-2026-beichen-yimo-25` | 25 | 第（Ⅲ）问 | 折线 `A-H-R` 拉直后，转为点 `A` 到定直线 `ℓ` 的垂线段最短 |
 | `tj-2026-hedong-ermo-25` | 25 | 第（Ⅰ）② | 将 `C` 关于 `AD` 对称为 `C′`，把 `BG+CG` 拉直为 `BG+C′G` |
+| `tj-2026-hongqiao-ermo-25` | 25 | 第（Ⅱ）② | `A`、`D` 在直线 `BC` 两侧，折线 `AG+DG` 在 `A,G,D` 共线时最短 |
 
 ### hidden-circle-minimum
 
@@ -156,6 +166,7 @@
 | problem-id | 题位 | 涉及步骤 | 摘要 |
 |---|---|---|---|
 | `tj-2026-binhai-yimo-25` | 25 | 第（2）② | 将 `DF` 平移成等长线段，转化 `BE+DF` 的最小值 |
+| `tj-2026-hongqiao-ermo-25` | 25 | 第（Ⅱ）② | 用平行四边形得到 `GF=DE`、`FE=DG`，把 `AG+GF+FE` 转为 `AG+DG+√5` |
 
 ### axis-symmetry-distance-difference
 
