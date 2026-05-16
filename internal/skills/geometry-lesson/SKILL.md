@@ -13,14 +13,25 @@ The core rule: HTML is a compiled artifact. Do not hand-write page HTML, SVG pat
 
 Work in this order:
 
+0. Select knowledge-base references before solving:
+   - Read `internal/knowledge-points/junior-math-methods.md`.
+   - Read `internal/knowledge-points/case-index.md`.
+   - Choose one primary `pattern`, the `methods` actually needed by the solution, and 1-3 similar published cases.
+   - Read the selected cases' `02_solution.md`; read their `03_visual_steps.md` and `lesson-data.json` only when the visual flow or JSON structure is directly relevant.
+   - If a selected case already demonstrates the JSON shape and id alignment you need, skip the skill's built-in few-shot entirely.
 1. Create or update `internal/lesson-specs/<problem-id>/01_problem.md`.
 2. Create or update `internal/lesson-specs/<problem-id>/02_solution.md`.
 3. Create or update `internal/lesson-specs/<problem-id>/03_visual_steps.md`.
 4. Create or update the compiled-page input JSON files:
   - `geometry-spec.json`
   - `step-decorations.json`
-  - `lesson-data.json`
-5. Run validation and compilation:
+  - `lesson-data.json` (including `meta.classification`)
+5. Before compiling a publish page, update the knowledge-base metadata:
+   - Check whether `lesson-data.json.meta.classification` is missing, stale, or inconsistent with the final solution; update it before building.
+   - If this is a complete JSON-spec page being compiled for publication, add or update the case in `internal/knowledge-points/case-index.md`.
+   - Add one Part 1 row under the chosen `pattern`, and one Part 2 row under each listed `method`.
+   - Draft pages may include `meta.classification`, but do not enter `case-index.md` until the publish compile.
+6. Run validation and compilation:
 
 ```bash
 node tools/validate-geometry-spec.mjs internal/lesson-specs/<problem-id>/
@@ -33,11 +44,12 @@ The final HTML path is controlled by `lesson-data.json.meta.outputPath`.
 
 Load only the references needed for the current task:
 
+- Always begin with the knowledge base: `../../knowledge-points/junior-math-methods.md` and `../../knowledge-points/case-index.md`. Use them to select the primary `pattern`, allowed middle-school `methods`, and similar published cases before writing the solution route.
 - Read `references/geometry-solving-principles.md` before writing `02_solution.md` or revising reasoning quality.
 - Read `references/json-schema-guide.md` before writing any of the three JSON specs.
 - Read `references/original-figure-principles.md` before writing or revising `geometry-spec.originalFigures`.
 - Read `../../docs/interactive-lesson-components.md` (repo path: `internal/docs/interactive-lesson-components.md`) before adding or changing sliders, local point controls, or draggable-point interactions. It defines the relationship between the main parameter slider and step-local point controls.
-- Read `references/nankai-24-fewshot.md` when you need a compact example of the JSON shape and id alignment.
+- Read `references/nankai-24-fewshot.md` only as a fallback when `case-index.md` has no sufficiently similar published case, or when the selected cases do not demonstrate the JSON shape you need. Do not prefer this fixed few-shot over a closer indexed case.
 - Read `references/piecewise-area-trends.md` for area ranges, overlap-area extrema, moving-figure phase analysis, boundary thumbnails, or representative interval minis.
 - Read the real schema files before finalizing JSON:
   - `internal/schemas/geometry-spec.schema.json`
@@ -182,7 +194,7 @@ Keep these principles together when revising a lesson. Do not solve one local vi
 - Use `coloredLine`, `dashedLine`, or `dottedLine` for actual auxiliary segments that must be visibly connected, especially perpendiculars and construction lines. Use `segment` for measured/labelled line segments; do not rely on an unlabeled `segment` as a visible helper line.
 - Do not redraw or label a boundary such as `CB` when it is already an edge of `basePoly`, unless that exact boundary length is the current object being calculated.
 - If the required behavior is generally useful but not available declaratively, update the shared renderer/schema in `site/assets/js/geometry-lesson-from-spec.js` and `internal/schemas/step-decorations.schema.json`, then use the new JSON field. Do not fake it with duplicated labels, extra text, or generated-HTML edits.
-- Use `references/nankai-24-fewshot.md` for id alignment and layer shape, but do not rely on few-shots alone for renderer behavior; the real public runtime and schema are authoritative.
+- If no closer indexed case exists and you use `references/nankai-24-fewshot.md` as a fallback for id alignment and layer shape, do not rely on few-shots alone for renderer behavior; the real public runtime and schema are authoritative.
 
 ## Step 4: JSON Specs
 
@@ -217,6 +229,7 @@ Do not repeat parent-layer elements in child layers unless the child changes the
 Use this for page data only:
 
 - `meta`: `id`, `outputPath`, `pageTitle`, `pageDescription`, `breadcrumbTitle`
+- `meta.classification`: `pattern` plus ordered `methods` from `internal/knowledge-points/junior-math-methods.md`
 - `problem.summary`
 - `problem.lines`
 - `ui.legend`, `sliderLabel`, `paramLabelPrefix`, `goToProblemMode`, `groupTitles`
@@ -226,6 +239,9 @@ Use this for page data only:
 
 Hard constraints:
 
+- `meta.classification.pattern` must be one primary pattern ID defined in `junior-math-methods.md`.
+- `meta.classification.methods` must list only method IDs from `junior-math-methods.md`, ordered by first use in the solution.
+- Classification must match both the final `02_solution.md` and any `case-index.md` rows added during publish compilation.
 - `problem.lines` must be plain data: text lines, answer chip lines, heading lines, or original-figure groups.
 - `ui.legend` must be `{ "colorVar": "...", "label": "..." }` items.
 - Do not put HTML tags or style strings in any JSON text field.
@@ -236,6 +252,12 @@ Hard constraints:
 For field details and common validation errors, use `references/json-schema-guide.md`. For exact allowed fields and types, use the real schema files in `internal/schemas/`.
 
 ## Validation And Compilation
+
+Before compiling a page for publication:
+
+- Re-read `lesson-data.json.meta.classification` and confirm the `pattern` / `methods` still match the final solution.
+- Re-read `internal/knowledge-points/case-index.md`; if the current complete JSON-spec page is being published and is missing from the index, add or update its Part 1 and Part 2 rows before building.
+- Do not add draft or unreviewed pages to `case-index.md`.
 
 Always run:
 
@@ -254,12 +276,15 @@ If validation or rendering fails, fix the JSON spec or the shared compiler/runti
 ## Final Review Checklist
 
 - Original problem text is complete and source metadata is correct.
+- The knowledge base was used first: `junior-math-methods.md` for allowed methods and `case-index.md` for similar cases.
 - Every solution step has a matching visual step.
 - The three JSON files contain pure data and no HTML strings.
 - Coordinates use one mathematical scale through the shared renderer.
 - Intersections are declared through `derivedIntersections`.
 - Step ids are aligned across `steps`, `policies`, `stepLabels`, and `step-decorations`.
 - Original figure ids align between `lesson-data.problem.lines` and `geometry-spec.originalFigures`.
+- `lesson-data.meta.classification.pattern` and every listed method ID exist in `junior-math-methods.md`.
+- For publish compilation, `case-index.md` contains the current page under its pattern and every listed method.
 - Pure geometry original figures set `showGrid:false`, include all printed point labels, and reproduce printed right-angle marks without adding solution-only highlights.
 - Original figure point labels use object entries such as `{ "at": "A", "label": "A", "dx": 10, "dy": 26 }`; never use string arrays such as `["A", "B"]`.
 - The unified reasoning and visual principles above are satisfied: no duplicate same-point labels, no unlabeled measured segments, no unnecessary boundary redraws, no phase helpers in trend-only snapshots, and no false folded polygon for the interval.

@@ -5,7 +5,11 @@
     "outputPath": "site/problems/sh/25/sh-2026-yangpu-ermo-25.compiled.html",
     "pageTitle": "2026 年上海市杨浦区二模 第 25 题（折纸定值与代数表达）",
     "pageDescription": "2026 上海市杨浦区二模第 25 题：正方形折纸操作，证 ∠ABG=30°、HQ/EG=√2/2 为定值、用 m 表达 HQ/QC。",
-    "breadcrumbTitle": "2026 上海市杨浦区二模 第 25 题"
+    "breadcrumbTitle": "2026 上海市杨浦区二模 第 25 题",
+    "classification": {
+      "pattern": "folding-ratio-expression",
+      "methods": ["folding-congruence-relations", "perpendicular-bisector-from-fold", "similar-triangle-ratio-transfer", "pythagorean-algebraic-expression", "parallel-line-segment-ratio"]
+    }
   },
   "problem": {
     "summary": "第 25 题（2026 上海杨浦二模）正方形折纸：求 ∠ABG（30°）、HQ/EG 定值（√2/2）、HQ/QC 关于 m 的代数式（(1+m²)/(1−m²)）。",

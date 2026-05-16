@@ -11,6 +11,7 @@ Diagrams are not decoration. Each step diagram should show the mathematical obje
 - Do not introduce symbols, fixed points, or helper labels in a diagram before they do work in that step. A definition-only item such as `h=b+3` or a later calculation point `P` belongs in the calculation step, not in the geometric construction step.
 - Keep prior constructions visible only when the current derivation still depends on them.
 - For local transformation or optimization steps, narrow the active objects and, when helpful, the local `domain`; do not let the full parabola or unrelated context shrink the important construction.
+- Do not use an illustrative point position that violates the problem conditions. If the text says a rotated point `Q` lies on the parabola, every displayed `Q` in that step must lie on the parabola. Use a real valid representative state, or draw only direction/auxiliary arrows without naming a false point.
 - Do not reveal solved coordinates or values before the step's reasoning has established them.
 - Step diagrams must match the current algebraic state, not the final answer. If a step has only established `B(-c/2,0), C(0,c)`, the diagram and coordinate labels must use those symbolic/current points. Locking the diagram to a later value such as `c=-5/2` before that value is derived is a premature reveal, even if the final curve is visually clearer.
 - Split layers when a later solved construction would otherwise leak into an earlier step. Use separate `stepStartsWith` layers such as `q1Generic` and `q1Solved`, or move final-value points into only the step that derives them. Do not put final points in a broad section layer shared by earlier steps.
@@ -34,6 +35,7 @@ Diagrams are not decoration. Each step diagram should show the mathematical obje
 - If the solution says a point is chosen so that a segment exists, draw that segment. For example, after taking `G` on ray `CD` with `CG=CB`, the diagram must visibly connect `C` and `G`.
 - If a later computation uses a triangle, draw all sides needed to see that triangle. For example, a step using right triangle `OCG` must show `OC`, `CG`, and `OG`.
 - Do not rely on a point label or a text card to imply a constructed line segment.
+- In `step-decorations.json`, `segment` is a measurement/label decorator, not the source of the visible mathematical segment. Whenever a side or path must be seen as an actual line, add a matching `coloredLine`, `dashedLine`, or `dottedLine` first, then add `segment` only for the length/name label. For example, draw `{ "type": "coloredLine", "from": "A", "to": "H" }` before `{ "type": "segment", "from": "A", "to": "H", "label": "AH" }`.
 - Draw construction causes before derived facts. For a `30°-60°-90°` auxiliary triangle, show the fixed `30°` ray and right angle as the construction; then label the derived side relation such as `MN=1/2 AM`.
 - If an equal-angle condition is converted by an auxiliary point on an axis, draw the auxiliary point, the constructed line, the equal angle arcs, and the equality it creates. For example, if `BM` meets the y-axis at `C'`, show `B-C'`, `B-M`, the matching angles at `B`, and the vertical equality `C'O=CO`.
 
@@ -44,6 +46,7 @@ Diagrams are not decoration. Each step diagram should show the mathematical obje
 - Reserve segment labels for new facts: length values, equalities, ratios, or transformed identities such as `BN=MG`.
 - For constrained moving points, use linked local controls so the constraint remains true while students drag or slide. The diagram should make the constrained relation visible.
 - In exploratory shortest-path steps, prefer local point controls over a locked "answer" picture. The student should be able to move the point and see why the straightened/collinear state is special.
+- Separate exploration from computation: use a movable/local-control step to let students observe the path becoming straight, then use a later locked optimal-state step to compute lengths, coordinates, or final values. Do not overload the exploration step with final-coordinate calculations.
 
 ## Geometric Segment Transformation
 
@@ -51,7 +54,10 @@ Diagrams are not decoration. Each step diagram should show the mathematical obje
 - If the target contains two moving points, look for a construction that converts one moving segment into a segment from the other moving point to a fixed auxiliary point.
 - Do not draw or explain vector/scalar projections for middle-school pages. When a proof idea starts from a projection inequality, replace it with a visible auxiliary right triangle, a broken-line path, and a "two points determine the shortest segment" or "垂线段最短" argument.
 - For weighted sums, factor first and build the weight into the diagram. Example: turn `2DM+AM` into `2(DM+1/2 AM)`, then construct a `30°-60°-90°` right triangle so `1/2 AM` becomes a real side with endpoint `M`; this gives a path expression that can be straightened geometrically.
+- Fill the triangle or quadrilateral that performs a weighted conversion with a light translucent color. The fill should identify the exact construction that changes the weighted term into an ordinary segment, such as `△BHR` for `√2BH=2HR`.
 - In the straightening step, emphasize the shortest-state condition directly, such as `D, M, N` collinear. Avoid adding perpendicular-foot constructions in that same step unless the proof of shortest path truly depends on the foot. Length-computation helpers belong in the later calculation step.
+- For horse-drinking / broken-line-shortest diagrams, fill the path-comparison region, such as `△AHR`, `△DMN`, or the corresponding quadrilateral when the path is straightened through a reflected point. The fill should support the inequality visually and replace unnecessary repeated side-name labels.
+- For hidden-circle minimum diagrams, draw the complete circle with a light fill, emphasize the permitted arc, and add a local control for the moving point on the circle. Keep the conclusion box away from the circle if it would hide the arc or shortest segment.
 - Preserve the constructed moving point's name in the shortest state. If the path is `D-M-N`, label the straightened endpoint as `N`, not a new point such as `H`, unless the new point is mathematically distinct and necessary.
 - Avoid prose-like formula labels inside the diagram during path-discovery steps. A shortest-path diagram should communicate with geometry: point names, segments, angle marks, and motion. Put statements like `DM+MN≥DN` or `最小值=2DN` in the derivation/box area, or omit the box when it visually crowds the diagram.
 - When the endpoint is constrained to a fixed ray/line, the shortest-state diagram or derivation must include the perpendicular condition, for example `DN⊥AN`, in addition to collinearity.

@@ -62,11 +62,25 @@ Many problems give a specific `a` and `c` for Part I, then make `a`, `b`, `c` de
 
 For quadratic comprehensive problems with moving-point distance sums, prefer a geometric segment transformation before coordinate or algebraic minimization. See `diagram-drawing-principles.md` for the diagram requirements and examples.
 
+Before writing a coordinate parameterization or algebraic inequality solution for any weighted distance sum, add a route gate:
+
+1. Identify every weight in the target expression, such as `2`, `1/2`, `√2`, or `√3`.
+2. Try to absorb each weight with a visible middle-school construction first:
+   - `√2·BH` suggests an isosceles right triangle using `BH` as a leg or converting another segment into `√2` times a leg.
+   - `2AH` suggests factoring the whole expression, using a doubled segment, or constructing a proportional segment before optimizing.
+   - A point constrained to a line segment, line, or ray suggests broken-line shortest path, reflection, rotation, or perpendicular-distance-to-a-line.
+3. Sketch the intended auxiliary point(s), transformed segment(s), and shortest-state condition before committing to the solution route.
+4. Only if the weights cannot be made into one coherent visible path may you switch to coordinate distances, square-root inequalities, or single-variable minimization.
+
+If the final solution does not use a geometric segment transformation, say why in `02_solution.md` or `03_visual_steps.md` before the algebraic minimization step. Do not list `weighted-path-segment-transform`, `isosceles-right-triangle-transform`, or `horse-drinking` in `lesson-data.meta.classification.methods` unless the page actually contains that geometric transformation in the derivation and diagram.
+
 For middle-school student-facing solutions, do **not** use vector projection, scalar projection, or "the projection of a segment onto a direction" to prove a distance lower bound. If a weighted expression such as `2DM + AM` appears, first factor the common coefficient and convert the fractional segment into a visible auxiliary segment, for example
 
 `2DM + AM = 2(DM + 1/2 AM)`.
 
 Then construct a right triangle (often a `30°-60°-90°` triangle) so the new segment is an actual side of the diagram. After that, use broken-line shortest path, reflection, rotation, or perpendicular-distance-to-a-line arguments that can be seen on the figure.
+
+In the weight-conversion step, fill the triangle or quadrilateral that performs the conversion with a light translucent color. For example, fill `△BHR` when converting `√2BH` to `2HR`, or fill the special right triangle that turns `1/2 AM` into a real segment. Keep the fill quiet, but make the conversion object visually unmistakable.
 
 When constructing a special right triangle, state the intended geometric constraints first, then derive the length relation. For example, if the goal is to make `1/2 AM` into a segment, construct `N` on the fixed ray from `A` that makes a `30°` angle with the axis, with `∠ANM=90°`; then conclude `MN=1/2 AM`. Do not present the derived side relation as if it were the construction condition unless the problem explicitly defines it that way.
 
@@ -84,6 +98,28 @@ For a weighted path such as `2DM + AM`:
 6. Only after the shortest state is identified, compute the length from the resulting triangles. Prefer right-triangle similarity, `30°-60°-90°` ratios, and segment equations (for example `DP = DM + MP` or `DP = AM + MP` when the collinearity/order supports it) over coordinate line equations.
 
 Keep the geometry and calculation phases separate. A step whose purpose is to discover the shortest path should show the straightened path and collinearity condition. A later step may compute the final length; do not overload the discovery step with coordinate equations or extra helper points if the straight-line condition already explains why the path is shortest.
+
+In horse-drinking or broken-line-shortest steps, fill the path-comparison triangle or quadrilateral with a light translucent color. For example, fill `△AHR` when comparing `AH+HR` with `AR`. Remove routine side-name labels if the fill and endpoints already communicate the path; keep only labels that add new mathematical information.
+
+For interactive pages, split the optimization into two states when possible: an observation state with local controls for the moving point, and a calculation state locked to the optimal configuration. The observation state should support the inequality or collinearity idea; the calculation state may mark final lengths, special triangles, and final coordinates.
+
+### Hidden Circle Minimum
+
+When a moving point satisfies a right-angle condition such as `∠OHB=90°`, first test for a hidden circle: the moving point may lie on the circle with the fixed segment as diameter.
+
+Preferred middle-school route:
+
+1. Identify the fixed diameter and write the circle center and radius.
+2. State the actual arc or quadrant where the moving point lives.
+3. Convert the minimum distance from a fixed point to the circle into `center distance − radius`.
+4. Check side/axis cases before solving the coefficient; for example, if `OB=OC` and `C` is only said to be on the `y` axis, consider both `C(0,m)` and `C(0,−m)`.
+
+Diagram requirements:
+
+- Draw the full hidden circle with a light fill, then emphasize the permitted arc.
+- Add a local control for the point moving on the circle, defaulting to the shortest position.
+- Show the center, radius, fixed point, center-to-fixed-point segment, and shortest segment.
+- Do not list this as `horse-drinking`; use `hidden-circle-minimum` because the model is circle distance, not broken-line straightening.
 
 Keep moving-point names continuous through the optimization. If `N` is the constructed moving point, the shortest state should still be described as `D, M, N` collinear. Do not rename the limiting/optimal position as a new point such as `H` unless a genuinely new object is needed for a separate construction. Extra names make students track a point switch instead of the path idea.
 
@@ -123,6 +159,23 @@ Before using a determinant-style area formula, check whether the triangle can be
   `1/2·vertical base·left horizontal distance + 1/2·vertical base·right horizontal distance`.
 - Mark the vertical base and the two horizontal distances in the diagram. The equation in the derivation should mirror those labels.
 - Use determinant area only when no simple vertical/horizontal split is readable or when the problem source explicitly expects it.
+
+### Axis-Parallel Segment Conditions To Coordinates
+
+When a problem gives horizontal or vertical segment relations in a coordinate-parabola setting, prefer converting the segment relation into a point coordinate before substituting into the parabola.
+
+- Keep public/common-conclusion steps minimal. Record only values later reused, such as `NI=7a`; do not compute a complete intersection expression such as `MH=√(16+2/a)-4` if the later solution never uses it.
+- If a later condition determines an axis-parallel segment, read the coordinate directly. For example, from `15NI−7MH=7` and `NI=7a`, get `MH=15a−1`; with `M(3,5)` and `H` to the right on the horizontal line, write `H(15a+2,5)`.
+- Substitute that point directly into the parabola. Prefer a line such as `5=a(15a+2)^2+2a(15a+2)+3−15a` and then factor by observing `−15a−2=−(15a+2)`.
+- Avoid introducing an unnecessary variable such as `x_H` when the coordinate can be written immediately.
+- Avoid solving square-root equations or high-degree equations created only by expanding an unused intersection formula.
+
+Diagram and step-label discipline:
+
+- In the common step, show only the reused point/segment, such as `I(2,3−7a)` and `NI=7a`.
+- In the solving step, introduce and label the newly determined coordinate, such as `MH=15a−1` and `H(15a+2,5)`.
+- Update `stepLabels`, step titles, and reference buttons to the same knowledge grain: `表示NI` should not remain `表示NI与MH` after the `MH` expression is removed.
+- Do not draw or label unused root expressions in the diagram.
 
 ### ∠MDN = 90°, DM = DN Pattern
 

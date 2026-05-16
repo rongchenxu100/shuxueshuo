@@ -4,7 +4,11 @@
     "outputPath": "site/problems/tj/25/tj-2026-hongqiao-yimo-25.html",
     "pageTitle": "2026 年天津市红桥区一模 第 25 题（二次函数综合）",
     "pageDescription": "红桥区一模第 25 题：由已知根因式分解二次函数，再结合对称点、交点和面积求点 M。",
-    "breadcrumbTitle": "2026 天津市红桥区一模 第 25 题"
+    "breadcrumbTitle": "2026 天津市红桥区一模 第 25 题",
+    "classification": {
+      "pattern": "coefficient-constraint",
+      "methods": ["known-root-factorization", "coefficient-from-point-on-parabola", "angle-doubling-isosceles-construction", "equal-angle-reflection-line", "vertical-area-decomposition"]
+    }
   },
   "problem": {
     "summary": "抛物线 y=ax²+bx+c 过 A(−1,0)，求顶点、系数 a 和第三象限点 M。",

@@ -13,14 +13,25 @@ The core rule is the same as `geometry-lesson`: **HTML is a compiled artifact.**
 
 Work in this order:
 
+0. Select knowledge-base references before solving:
+   - Read `internal/knowledge-points/junior-math-methods.md`.
+   - Read `internal/knowledge-points/case-index.md`.
+   - Choose one primary `pattern`, the `methods` actually needed by the solution, and 1-3 similar published cases.
+   - Read the selected cases' `02_solution.md`; read their `03_visual_steps.md` and `lesson-data.json` only when the visual flow or JSON structure is directly relevant.
+   - If a selected case already demonstrates the JSON shape and id alignment you need, skip the skill's built-in few-shot entirely.
 1. Create or update `internal/lesson-specs/<problem-id>/01_problem.md`.
 2. Create or update `internal/lesson-specs/<problem-id>/02_solution.md`.
 3. Create or update `internal/lesson-specs/<problem-id>/03_visual_steps.md`.
 4. Create or update the compiled-page input JSON files:
    - `geometry-spec.json` (may include `curves` for `y = ax²+bx+c` and optional `expressionEnv`)
    - `step-decorations.json`
-   - `lesson-data.json`
-5. Run validation and compilation:
+   - `lesson-data.json` (including `meta.classification`)
+5. Before compiling a publish page, update the knowledge-base metadata:
+   - Check whether `lesson-data.json.meta.classification` is missing, stale, or inconsistent with the final solution; update it before building.
+   - If this is a complete JSON-spec page being compiled for publication, add or update the case in `internal/knowledge-points/case-index.md`.
+   - Add one Part 1 row under the chosen `pattern`, and one Part 2 row under each listed `method`.
+   - Draft pages may include `meta.classification`, but do not enter `case-index.md` until the publish compile.
+6. Run validation and compilation:
 
 ```bash
 node tools/validate-geometry-spec.mjs internal/lesson-specs/<problem-id>/
@@ -33,12 +44,13 @@ The final HTML path is controlled by `lesson-data.json.meta.outputPath`.
 
 Load only the references needed for the current task:
 
+- **Always begin** with the knowledge base: `../../knowledge-points/junior-math-methods.md` and `../../knowledge-points/case-index.md`. Use them to select the primary `pattern`, allowed middle-school `methods`, and similar published cases before writing the solution route.
 - **Always read** `references/quadratic-solving-principles.md` — quadratic-specific modeling rules (coefficient constraints, N-derivation via rotation, expressionEnv ordering, EG+FG optimization pattern, two-curve pattern for Part I vs Part II).
 - **Always read** `references/json-schema-guide.md` before writing any of the three JSON specs — covers field types, required vs optional, and how to align ids across files.
 - **Always read** `references/diagram-drawing-principles.md` before writing or revising `03_visual_steps.md` or `step-decorations.json` — covers what to draw, how to mark used values/equalities, constructed segments, moving segments, and geometric transformations.
 - **Always read** `references/original-figure-principles.md` before adding or changing `geometry-spec.originalFigures` or any `lesson-data.problem.lines[].figures` entry. If the source problem has no printed figure, do not invent one.
 - **Read** `../../docs/interactive-lesson-components.md` (repo path: `internal/docs/interactive-lesson-components.md`) before adding or changing sliders, local point controls, or draggable-point interactions. It defines the relationship between the main parameter slider and step-local point controls.
-- **Read** `references/nankai-25-fewshot.md` to match the exact JSON shape, layer naming convention, and `stepStartsWith` pattern for a parabola problem with Part I (fixed coefficients) and Part II (m-dependent coefficients).
+- **Read** `references/nankai-25-fewshot.md` only as a fallback when `case-index.md` has no sufficiently similar published case, or when the selected cases do not demonstrate the JSON shape you need. Do not prefer this fixed few-shot over a closer indexed case.
 - Read the real schema files before writing JSON (they override anything in the reference docs if there is a conflict):
   - `internal/schemas/geometry-spec.schema.json` (`expressionEnv`, `curves`, optional `basePolygon`/`movingPolygon`)
   - `internal/schemas/step-decorations.schema.json` (`parabola`, `axisOfSymmetry`, `vertex`, `curvePoint`, `dashedLine`)
@@ -134,7 +146,19 @@ Besides geometry decorators, you may use:
 
 Same constraints as `geometry-lesson`: no HTML strings; legend rows remain declarative; step ids must align across `steps`, `policies`, `stepLabels`, and `step-decorations`.
 
+Hard constraints:
+
+- `meta.classification.pattern` must be one primary pattern ID defined in `junior-math-methods.md`.
+- `meta.classification.methods` must list only method IDs from `junior-math-methods.md`, ordered by first use in the solution.
+- Classification must match both the final `02_solution.md` and any `case-index.md` rows added during publish compilation.
+
 ## Validation And Compilation
+
+Before compiling a page for publication:
+
+- Re-read `lesson-data.json.meta.classification` and confirm the `pattern` / `methods` still match the final solution.
+- Re-read `internal/knowledge-points/case-index.md`; if the current complete JSON-spec page is being published and is missing from the index, add or update its Part 1 and Part 2 rows before building.
+- Do not add draft or unreviewed pages to `case-index.md`.
 
 Always run:
 
@@ -161,4 +185,7 @@ Then spot-check the HTML locally.
 - Step navigation labels are short but meaningful, usually "method + target".
 - JSON contains zero HTML fragments.
 - Step ids stay synchronized across all artifacts.
+- `lesson-data.meta.classification.pattern` and every listed method ID exist in `junior-math-methods.md`.
+- Similar cases from `case-index.md` were considered before using a fixed few-shot.
+- For publish compilation, `case-index.md` contains the current page under its pattern and every listed method.
 - Validation + compilation succeed without patching generated HTML.

@@ -29,6 +29,13 @@
 |---|---|---|---|
 | `tj-2026-hexi-jieke-25` | 25 | 抛物线过 `A(-1,0)`，结合 `2a+b=0`、线段/角度条件求参数 | `coefficient-from-point-on-parabola`, `known-root-factorization` |
 | `tj-2026-hebei-yimo-25` | 25 | `2a-b=0` 固定对称轴，`P(3,3)` 化简解析式；由 `NI=7a` 和 `15NI−7MH=7` 得 `H(15a+2,5)`，代入抛物线提取公因式求 `a` | `coefficient-from-point-on-parabola`, `axis-parallel-segment-coordinate` |
+| `tj-2026-hongqiao-yimo-25` | 25 | 已知根因式分解，倍角构造求 `a`，等角直线和铅垂面积求 `M` | `known-root-factorization`, `coefficient-from-point-on-parabola`, `angle-doubling-isosceles-construction`, `equal-angle-reflection-line`, `vertical-area-decomposition` |
+
+### folding-ratio-expression
+
+| problem-id | 题位 | pattern 补充 | 使用的 methods |
+|---|---|---|---|
+| `sh-2026-yangpu-ermo-25` | 25 | 正方形折纸，证明角度、定比 `HQ/GE`，再用 `m` 表示 `HQ/QC` | `folding-congruence-relations`, `perpendicular-bisector-from-fold`, `similar-triangle-ratio-transfer`, `pythagorean-algebraic-expression`, `parallel-line-segment-ratio` |
 
 ### moving-point-translation-area
 
@@ -70,6 +77,7 @@
 | `tj-2026-xiqing-yimo-25` | 25 | 第（2）① | 由已知根 `A(-1,0)` 读出另一个交点和截距 |
 | `tj-2026-hedong-yimo-25` | 25 | 第（Ⅱ）① | 由 `A(-1,0)` 与 `B(-c,0)` 写出交点关系和坐标 |
 | `tj-2026-beichen-yimo-25` | 25 | 第（Ⅰ）问、第（Ⅱ）问 | 由已知根 `A(-2,0)` 确定 `b`，再读出另一个交点 `B(8,0)` |
+| `tj-2026-hongqiao-yimo-25` | 25 | 第（Ⅱ）①② | 由 `A(-1,0)` 是根写 `y=(x+1)(ax+c)`，读另一个交点 |
 
 ### coefficient-from-point-on-parabola
 
@@ -84,6 +92,7 @@
 | `tj-2026-beichen-yimo-25` | 25 | 第（Ⅰ）问、第（Ⅱ）问 | 代入 `A(-2,0)` 求解析式，再把旋转后的 `Q` 代入抛物线求 `P` |
 | `tj-2026-hebei-yimo-25` | 25 | 第（Ⅱ）公共结论、第（Ⅱ）①② | 由 `P(3,3)` 在抛物线上得到 `c=3-15a`，再配合轴平行线段条件求参数 |
 | `tj-2026-hedong-ermo-25` | 25 | 第（Ⅰ）②、第（Ⅱ）问 | 由 `A`、`C` 在抛物线上化简求 `B`；第（Ⅱ）由 `F` 在抛物线上得到 `am` 关系 |
+| `tj-2026-hongqiao-yimo-25` | 25 | 第（Ⅰ）问、第（Ⅱ）② | 由点在抛物线上化简系数关系，并配合面积条件求参数 |
 
 ### axis-parallel-segment-coordinate
 
@@ -205,3 +214,51 @@
 | problem-id | 题位 | 涉及步骤 | 摘要 |
 |---|---|---|---|
 | `bj-2026-haidian-yimo-26` | 26 | 第（2）①② | 同一竖直线上的两交点距离写成绝对值，求零点和恒成立范围 |
+
+### folding-congruence-relations
+
+| problem-id | 题位 | 涉及步骤 | 摘要 |
+|---|---|---|---|
+| `sh-2026-yangpu-ermo-25` | 25 | 第（1）问、第（2）问 | 由折叠得到三角形全等、对应边相等和对应角相等 |
+
+### perpendicular-bisector-from-fold
+
+| problem-id | 题位 | 涉及步骤 | 摘要 |
+|---|---|---|---|
+| `sh-2026-yangpu-ermo-25` | 25 | 第（1）问 | 对折得到 `EF` 是 `AB` 的中垂线，从而 `AH=BH` |
+
+### similar-triangle-ratio-transfer
+
+| problem-id | 题位 | 涉及步骤 | 摘要 |
+|---|---|---|---|
+| `sh-2026-yangpu-ermo-25` | 25 | 第（2）问 | 先证 `△BQH∽△CQG`，再重组比例证 `△BQC∽△HQG`，最终求 `HQ/GE` |
+
+### pythagorean-algebraic-expression
+
+| problem-id | 题位 | 涉及步骤 | 摘要 |
+|---|---|---|---|
+| `sh-2026-yangpu-ermo-25` | 25 | 第（3）问 | 在 `Rt△DEG` 中列勾股方程，得到 `CG=(1-m)/(1+m)` |
+
+### parallel-line-segment-ratio
+
+| problem-id | 题位 | 涉及步骤 | 摘要 |
+|---|---|---|---|
+| `sh-2026-yangpu-ermo-25` | 25 | 第（3）问 | 由 `AB∥CD` 的平行截比求 `QC`，再合并求 `HQ/QC` |
+
+### angle-doubling-isosceles-construction
+
+| problem-id | 题位 | 涉及步骤 | 摘要 |
+|---|---|---|---|
+| `tj-2026-hongqiao-yimo-25` | 25 | 第（Ⅱ）① | 作 `A` 关于 `y` 轴的对称点 `A'`，用等腰三角形处理 `∠CAB=2∠ABC` |
+
+### equal-angle-reflection-line
+
+| problem-id | 题位 | 涉及步骤 | 摘要 |
+|---|---|---|---|
+| `tj-2026-hongqiao-yimo-25` | 25 | 第（Ⅱ）② | 由 `∠ABM=∠ABC` 构造镜像点 `C'`，确定 `BM` 所在直线 |
+
+### vertical-area-decomposition
+
+| problem-id | 题位 | 涉及步骤 | 摘要 |
+|---|---|---|---|
+| `tj-2026-hongqiao-yimo-25` | 25 | 第（Ⅱ）② | 用竖直线 `CC'` 把 `△MBC` 分成左右两个三角形，列面积方程求 `b` |

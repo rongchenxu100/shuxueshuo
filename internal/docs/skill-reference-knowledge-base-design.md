@@ -212,11 +212,13 @@ HTML 是编译产物、真实 schema 是权威来源。不再在 SKILL.md 里堆
 
 三个数据源包含不同层次的信息，不是重复：
 
-| 数据源 | 包含什么 | 读者 |
-|---|---|---|
-| `classification`（lesson-data.json） | pattern ID + methods ID 列表 | schema 验证、lint 批量检查 |
-| case-index Part 1（by pattern） | problem-id、题位、**一句话 pattern 描述**、methods 列表 | 模型粗判导航 |
-| case-index Part 2（by method） | problem-id、题位、**涉及步骤**、**解法摘要** | 模型精判导航 |
+
+| 数据源                                | 包含什么                                        | 读者                  |
+| ---------------------------------- | ------------------------------------------- | ------------------- |
+| `classification`（lesson-data.json） | pattern ID + methods ID 列表                  | schema 验证、lint 批量检查 |
+| case-index Part 1（by pattern）      | problem-id、题位、**一句话 pattern 描述**、methods 列表 | 模型粗判导航              |
+| case-index Part 2（by method）       | problem-id、题位、**涉及步骤**、**解法摘要**             | 模型精判导航              |
+
 
 **classification 是 pattern/methods ID 的 source of truth**。case-index 的 ID 必须与 classification 一致，但 case-index 额外提供人类可读的导航描述（"2DM+AM 含权重路径"、"第（2）②"、"30° 等腰构造吸收权重后拉直"），这些信息 classification 里没有，也不该有——它们是给模型浏览用的上下文。
 
@@ -398,17 +400,18 @@ normalizer 逻辑：对每个 decoration，查 `preset[decoration.type]`，对 p
   - 直角被标为 `45°`（报错）。
   - classification 字段缺失或 case-index.md 条目缺失（批量模式下报错）。
   - classification 中的 pattern/methods 与 case-index.md 条目不一致（批量模式下报错）。
-
 - **降级为人工 review 注意事项，不做自动化**：
   - 早期步骤出现 final-answer 坐标。原因：没有可计算的 final-answer 来源，lint 无法知道最终答案是什么。
   - 无必要辅助垂足过多。原因："必要"是语义判断。
 
 两个脚本的职责边界：
 
-| 脚本 | 职责 | 报告级别 |
-|---|---|---|
-| `validate-geometry-spec.mjs` | JSON 结构、几何正确性、数学运行时 | error（不通过则阻塞编译） |
-| `lint-lesson-quality.mjs` | 教学风格、禁用方法、slider 策略、完整性 | error + warning（warning 不阻塞） |
+
+| 脚本                           | 职责                      | 报告级别                         |
+| ---------------------------- | ----------------------- | ---------------------------- |
+| `validate-geometry-spec.mjs` | JSON 结构、几何正确性、数学运行时     | error（不通过则阻塞编译）              |
+| `lint-lesson-quality.mjs`    | 教学风格、禁用方法、slider 策略、完整性 | error + warning（warning 不阻塞） |
+
 
 ### 构造宏（延后，人工触发）
 
@@ -424,6 +427,7 @@ normalizer 逻辑：对每个 decoration，查 `preset[decoration.type]`，对 p
 **判断时机与触发方式**：
 
 不为构造宏新建 per-publish skill。原因：
+
 - "是否该固化一个构造宏"是低频的设计决策，不是每道题都该触发的例行检查。
 - 构造宏一旦建立会改变 schema 和编译工具，影响面大，不适合自动触发。
 - case-index.md 本身就是最好的信号源——当一个 method 分组下有 ≥3 道题、且它们的视觉步骤结构高度相似时，就是考虑构造宏的时候。

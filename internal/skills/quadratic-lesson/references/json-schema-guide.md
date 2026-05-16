@@ -103,6 +103,7 @@ Rules:
 - Put stable context in `layers`, not repeated step additions.
 - Put only current-step helper/highlight elements in `steps[stepId].add`.
 - Every `lesson-data.steps[].id` must have a matching `step-decorations.steps[id]`.
+- `segment` renders a dimension/measurement label; it is not a substitute for the visible mathematical line. For any segment that must appear as a side, path, or constructed line, add `coloredLine`/`dashedLine`/`dottedLine` for the actual geometry and then add `segment` for the label if needed.
 - When point `O` is also the coordinate origin, avoid duplicate `O` labels. Prefer `{ "type": "point", "at": "O", "showLabel": false }` if the grid already labels the origin.
 - Avoid duplicate point labeling. If a context layer already draws a point, use `showLabel: false` there and add either a point-name label or a coordinate label in the current step, not both.
 - Use `coordinateLabel` only in coordinate-computation steps. In transformation or shortest-path steps, prefer plain point names and key segments.
