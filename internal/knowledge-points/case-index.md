@@ -17,6 +17,7 @@
 | `tj-2026-beichen-yimo-25` | 25 | `2AH+√2BH`，构造等腰直角三角形把权重转为折线，再用垂线段最短 | `coefficient-from-point-on-parabola`, `known-root-factorization`, `rotation-by-congruence`, `isosceles-right-triangle-transform`, `weighted-path-segment-transform`, `horse-drinking` |
 | `tj-2026-hedong-ermo-25` | 25 | `BG+CG` 反射拉直，`∠OHB=90°` 识别隐圆并由 `HF` 最小值反求 `a` | `coefficient-from-point-on-parabola`, `horse-drinking`, `rotation-by-congruence`, `hidden-circle-minimum` |
 | `tj-2026-hongqiao-ermo-25` | 25 | `AG+GF+FE`，由平行四边形转为 `AG+DG+√5`，再用 `A,G,D` 共线求最短；直角条件用距离公式与勾股定理求参 | `coefficient-from-point-on-parabola`, `known-root-factorization`, `coordinate-distance-pythagorean`, `translation-path-transform`, `horse-drinking` |
+| `tj-2026-heping-ermo-25` | 25 | `HF+FM+MG`，由正方形中心与全等直角三角形关系化为 `AG+MG`，再反射拉直求最短 | `known-root-factorization`, `right-triangle-congruence-coordinate`, `horse-drinking` |
 
 ### distance-difference-maximum
 
@@ -80,6 +81,7 @@
 | `tj-2026-beichen-yimo-25` | 25 | 第（Ⅰ）问、第（Ⅱ）问 | 由已知根 `A(-2,0)` 确定 `b`，再读出另一个交点 `B(8,0)` |
 | `tj-2026-hongqiao-ermo-25` | 25 | 第（Ⅱ）①② | 由已知根 `A(-2,0)` 写出 `B(2−4b,0)` 与 `C(0,2b−1)` |
 | `tj-2026-hongqiao-yimo-25` | 25 | 第（Ⅱ）①② | 由 `A(-1,0)` 是根写 `y=(x+1)(ax+c)`，读另一个交点 |
+| `tj-2026-heping-ermo-25` | 25 | 第（Ⅱ）公共结论 | 由 `A(-c,0)` 是根得到 `b=1-c`，读出另一个交点 `B(1,0)` 与对称轴交点 `M((1-c)/2,0)` |
 
 ### coefficient-from-point-on-parabola
 
@@ -116,6 +118,7 @@
 | `tj-2026-hexi-yimo-25` | 25 | 第（Ⅱ）问 | 作垂线，证 `Rt△AOC≌Rt△DHA`，读出 `D(b+1,1)` |
 | `tj-2026-nankai-yimo-25` | 25 | 第（Ⅱ）① | 作垂线，证直角三角形全等，确定 `N(2,1-m)` |
 | `tj-2026-hedong-yimo-25` | 25 | 第（Ⅱ）① | 由直角等腰条件作辅助线，用全等读出点坐标 |
+| `tj-2026-heping-ermo-25` | 25 | 第（Ⅰ）② | 过 `G` 作 `GQ⊥x轴`，填充并证明 `Rt△AEM≌Rt△GAQ`，读出 `G(t-3,-2)` |
 
 ### rotation-by-congruence
 
@@ -154,6 +157,7 @@
 | `tj-2026-beichen-yimo-25` | 25 | 第（Ⅲ）问 | 折线 `A-H-R` 拉直后，转为点 `A` 到定直线 `ℓ` 的垂线段最短 |
 | `tj-2026-hedong-ermo-25` | 25 | 第（Ⅰ）② | 将 `C` 关于 `AD` 对称为 `C′`，把 `BG+CG` 拉直为 `BG+C′G` |
 | `tj-2026-hongqiao-ermo-25` | 25 | 第（Ⅱ）② | `A`、`D` 在直线 `BC` 两侧，折线 `AG+DG` 在 `A,G,D` 共线时最短 |
+| `tj-2026-heping-ermo-25` | 25 | 第（Ⅱ）问 | 将 `A` 关于 `G` 所在水平线反射为 `A′`，折线 `A′G+GM` 在 `A′,G,M` 共线时最短 |
 
 ### hidden-circle-minimum
 
