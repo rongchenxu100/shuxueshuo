@@ -1,0 +1,33 @@
+{
+  "_doc": {
+    "negationWindowChars": "禁用关键词前多少个字符内查找否定短语（默认 8）",
+    "forbiddenDeriveKeywords": "derive/box 文本中禁止出现的关键词列表；allowIfPrecededBy 排除否定语境",
+    "suspiciousDraggableCoefficients": "这些参数名作为滑块时，若 step policy 为 movable 则报 WARN",
+    "formulaCardMinMatchLength": "归一化后文本长度 >= 此值才报公式卡片重复 WARN（默认 6）"
+  },
+  "negationWindowChars": 8,
+  "formulaCardMinMatchLength": 6,
+  "forbiddenDeriveKeywords": [
+    {
+      "keyword": "向量",
+      "allowIfPrecededBy": ["不用", "不要", "禁用", "避免", "不使用"]
+    },
+    {
+      "keyword": "投影",
+      "allowIfPrecededBy": ["不用", "不要", "禁用", "避免", "不使用"]
+    },
+    {
+      "keyword": "点到直线距离",
+      "allowIfPrecededBy": ["不用", "不要", "禁用", "避免", "不使用"]
+    },
+    {
+      "keyword": "斜率夹角公式",
+      "allowIfPrecededBy": ["不用", "不要", "禁用", "避免", "不使用"]
+    },
+    {
+      "keyword": "tan(A-B)",
+      "allowIfPrecededBy": ["不用", "不要", "禁用", "避免", "不使用"]
+    }
+  ],
+  "suspiciousDraggableCoefficients": ["a", "b", "c"]
+}
