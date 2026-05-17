@@ -1,0 +1,197 @@
+{
+  "_comment": "上海徐汇区 2026 二模第 24 题 — 二次函数 + 梯形条件求系数",
+  "layers": {
+    "global": {
+      "elements": [
+        { "type": "grid" },
+        { "type": "point", "at": "O", "showLabel": false },
+        { "type": "point", "at": "A", "dx": -16, "dy": 16 },
+        { "type": "point", "at": "B", "dx": 14, "dy": 16 }
+      ]
+    },
+    "partI": {
+      "stepStartsWith": ["q1"],
+      "elements": [
+        { "type": "parabola", "curveId": "parabolaC1" },
+        { "type": "axisOfSymmetry", "curveId": "parabolaC1" },
+        { "type": "point", "at": "M", "dx": -22, "dy": -8 }
+      ]
+    },
+    "q2sym": {
+      "stepStartsWith": ["q2s1", "q2s2", "q2s3"],
+      "elements": [
+        { "type": "parabola", "curveId": "parabolaC1", "color": "rgba(125, 125, 125, 0.35)", "width": 1 },
+        { "type": "parabola", "curveId": "parabolaC2Sym" },
+        { "type": "axisOfSymmetry", "curveId": "parabolaC2Sym" },
+        { "type": "point", "at": "M", "dx": -22, "dy": -8 }
+      ]
+    },
+    "q2case1": {
+      "stepStartsWith": ["q2s4"],
+      "elements": [
+        { "type": "parabola", "curveId": "parabolaC1", "color": "rgba(125, 125, 125, 0.35)", "width": 1 },
+        { "type": "parabola", "curveId": "parabolaC2Case1" },
+        { "type": "axisOfSymmetry", "curveId": "parabolaC2Case1" },
+        { "type": "point", "at": "M", "dx": -22, "dy": -8 }
+      ]
+    },
+    "q2case2": {
+      "stepStartsWith": ["q2s5"],
+      "elements": [
+        { "type": "parabola", "curveId": "parabolaC1", "color": "rgba(125, 125, 125, 0.35)", "width": 1 },
+        { "type": "parabola", "curveId": "parabolaC2Case2" },
+        { "type": "axisOfSymmetry", "curveId": "parabolaC2Case2" },
+        { "type": "point", "at": "M", "dx": -22, "dy": -8 }
+      ]
+    },
+    "q2both": {
+      "stepStartsWith": ["q2s6"],
+      "elements": [
+        { "type": "parabola", "curveId": "parabolaC1", "color": "rgba(125, 125, 125, 0.35)", "width": 1 },
+        { "type": "parabola", "curveId": "parabolaC2Case1" },
+        { "type": "parabola", "curveId": "parabolaC2Case2", "dash": "6 4" },
+        { "type": "point", "at": "M", "dx": -22, "dy": -8 }
+      ]
+    }
+  },
+  "steps": {
+    "q1s1": {
+      "domain": { "minX": -2.2, "maxX": 4.2, "minY": -5.2, "maxY": 1.4 },
+      "add": [
+        { "type": "coordinateLabel", "at": "A", "text": "A(−1,0)", "dx": -56, "dy": 16 },
+        { "type": "coordinateLabel", "at": "B", "text": "B(3,0)", "dx": 14, "dy": 16 },
+        { "type": "coordinateLabel", "at": "M", "text": "M(1,−4)", "dx": -56, "dy": 4 }
+      ]
+    },
+    "q1s2": {
+      "domain": { "minX": -2.2, "maxX": 4.2, "minY": -5.2, "maxY": 1.4 },
+      "add": [
+        { "type": "point", "at": "C", "labelText": "C", "dx": 12, "dy": -18 },
+        { "type": "outlineRegion", "vertices": ["A", "M", "C"], "fill": "rgba(245, 158, 11, 0.14)" },
+        { "type": "dashedLine", "from": "M", "to": "C" },
+        { "type": "coloredLine", "from": "A", "to": "M" },
+        { "type": "rightAngle", "vertex": "C", "rayA": "M", "rayB": "A", "size": 11 },
+        { "type": "coordinateLabel", "at": "A", "text": "A(−1,0)", "dx": -56, "dy": 16 },
+        { "type": "coordinateLabel", "at": "M", "text": "M(1,−4)", "dx": -56, "dy": 4 },
+        { "type": "coordinateLabel", "at": "C", "text": "C(1,0)", "dx": 14, "dy": -18 },
+        { "type": "segment", "from": "A", "to": "C", "label": "AC=2", "offsetPx": 16 },
+        { "type": "segment", "from": "M", "to": "C", "label": "MC=4", "offsetPx": -22 }
+      ]
+    },
+    "q1s3": {
+      "domain": { "minX": -2.2, "maxX": 4.2, "minY": -5.2, "maxY": 2.0 },
+      "add": [
+        { "type": "point", "at": "C", "labelText": "C", "dx": 12, "dy": -18 },
+        { "type": "point", "at": "NPart1", "labelText": "N", "dx": 12, "dy": -14 },
+        { "type": "outlineRegion", "vertices": ["NPart1", "A", "C"], "fill": "rgba(59, 130, 246, 0.18)" },
+        { "type": "outlineRegion", "vertices": ["A", "M", "C"], "fill": "rgba(245, 158, 11, 0.16)" },
+        { "type": "dashedLine", "from": "M", "to": "NPart1" },
+        { "type": "coloredLine", "from": "A", "to": "M" },
+        { "type": "coloredLine", "from": "A", "to": "NPart1" },
+        { "type": "rightAngle", "vertex": "C", "rayA": "M", "rayB": "A", "size": 11 },
+        { "type": "rightAngle", "vertex": "A", "rayA": "NPart1", "rayB": "M", "size": 11 },
+        { "type": "coordinateLabel", "at": "A", "text": "A(−1,0)", "dx": -56, "dy": 16 },
+        { "type": "coordinateLabel", "at": "M", "text": "M(1,−4)", "dx": -56, "dy": 4 },
+        { "type": "coordinateLabel", "at": "C", "text": "C(1,0)", "dx": 14, "dy": -18 },
+        { "type": "coordinateLabel", "at": "NPart1", "text": "N(1,1)", "dx": 14, "dy": -14 },
+        { "type": "segment", "from": "A", "to": "C", "label": "AC=2", "offsetPx": 16 },
+        { "type": "segment", "from": "M", "to": "C", "label": "MC=4", "offsetPx": -22 },
+        { "type": "segment", "from": "NPart1", "to": "C", "label": "NC=1", "offsetPx": 16 }
+      ]
+    },
+    "q1s4": {
+      "domain": { "minX": -2.2, "maxX": 4.2, "minY": -5.2, "maxY": 2.0 },
+      "add": [
+        { "type": "point", "at": "C", "labelText": "C", "dx": 12, "dy": -18 },
+        { "type": "point", "at": "NPart1", "labelText": "N", "dx": 14, "dy": -14 },
+        { "type": "coloredLine", "from": "A", "to": "M" },
+        { "type": "coloredLine", "from": "LineLeft", "to": "LineRight", "label": "l: y=½x+½", "offsetPx": -22 },
+        { "type": "coordinateLabel", "at": "A", "text": "A(−1,0)", "dx": -56, "dy": 16 },
+        { "type": "coordinateLabel", "at": "NPart1", "text": "N(1,1)", "dx": 14, "dy": -14 },
+        { "type": "coordinateLabel", "at": "M", "text": "M(1,−4)", "dx": -56, "dy": 4 }
+      ]
+    },
+    "q2s1": {
+      "domain": { "minX": -2.6, "maxX": 4.2, "minY": -5.2, "maxY": 5.0 },
+      "add": [
+        { "type": "coloredLine", "from": "LineLeft", "to": "LineRight", "label": "l", "offsetPx": -18 },
+        { "type": "point", "at": "NSym", "labelText": "N", "dx": -22, "dy": -10 },
+        { "type": "coordinateLabel", "at": "NSym", "text": "N(1,−4a)", "dx": -86, "dy": 0 },
+        { "type": "coordinateLabel", "at": "A", "text": "A(−1,0)", "dx": -56, "dy": 16 },
+        { "type": "coordinateLabel", "at": "B", "text": "B(3,0)", "dx": 14, "dy": 16 }
+      ]
+    },
+    "q2s2": {
+      "domain": { "minX": -2.6, "maxX": 4.2, "minY": -5.2, "maxY": 5.0 },
+      "add": [
+        { "type": "coloredLine", "from": "LineLeft", "to": "LineRight", "label": "l", "offsetPx": -18 },
+        { "type": "point", "at": "NSym", "labelText": "N", "dx": -22, "dy": -10 },
+        { "type": "point", "at": "DSym", "labelText": "D", "dx": 14, "dy": -10 },
+        { "type": "coordinateLabel", "at": "NSym", "text": "N(1,−4a)", "dx": -86, "dy": 0 },
+        { "type": "coordinateLabel", "at": "DSym", "text": "D(3+1/(2a), 2+1/(4a))", "dx": 14, "dy": -28 }
+      ]
+    },
+    "q2s3": {
+      "domain": { "minX": -2.6, "maxX": 4.2, "minY": -5.2, "maxY": 5.0 },
+      "add": [
+        { "type": "point", "at": "NSym", "labelText": "N", "dx": -22, "dy": -10 },
+        { "type": "point", "at": "DSym", "labelText": "D", "dx": 14, "dy": -10 },
+        { "type": "outlineRegion", "vertices": ["A", "NSym", "DSym", "M"], "fill": "rgba(99, 102, 241, 0.14)" },
+        { "type": "segment", "from": "A", "to": "NSym", "label": "AN" },
+        { "type": "segment", "from": "NSym", "to": "DSym", "label": "ND" },
+        { "type": "segment", "from": "DSym", "to": "M", "label": "DM" },
+        { "type": "segment", "from": "M", "to": "A", "label": "MA" }
+      ]
+    },
+    "q2s4": {
+      "domain": { "minX": -2.6, "maxX": 4.2, "minY": -5.2, "maxY": 7.6 },
+      "add": [
+        { "type": "coloredLine", "from": "LineLeft", "to": "LineRight", "label": "l", "offsetPx": -18 },
+        { "type": "point", "at": "NCase1", "labelText": "N", "dx": 14, "dy": -10 },
+        { "type": "point", "at": "DCase1", "labelText": "D", "dx": 14, "dy": -10 },
+        { "type": "point", "at": "C", "labelText": "C", "dx": -16, "dy": -22 },
+        { "type": "point", "at": "ECase1", "labelText": "E", "dx": 14, "dy": 18 },
+        { "type": "outlineRegion", "vertices": ["NCase1", "A", "C"], "fill": "rgba(59, 130, 246, 0.18)" },
+        { "type": "outlineRegion", "vertices": ["DCase1", "M", "ECase1"], "fill": "rgba(245, 158, 11, 0.18)" },
+        { "type": "dashedLine", "from": "NCase1", "to": "C" },
+        { "type": "dashedLine", "from": "M", "to": "ECase1" },
+        { "type": "dashedLine", "from": "DCase1", "to": "ECase1" },
+        { "type": "segment", "from": "A", "to": "NCase1", "label": "AN" },
+        { "type": "segment", "from": "DCase1", "to": "M", "label": "DM" },
+        { "type": "rightAngle", "vertex": "C", "rayA": "NCase1", "rayB": "A", "size": 11 },
+        { "type": "rightAngle", "vertex": "ECase1", "rayA": "DCase1", "rayB": "M", "size": 11 }
+      ]
+    },
+    "q2s5": {
+      "domain": { "minX": -2.6, "maxX": 4.2, "minY": -5.2, "maxY": 6.2 },
+      "add": [
+        { "type": "coloredLine", "from": "LineLeft", "to": "LineRight", "label": "l", "offsetPx": -18 },
+        { "type": "point", "at": "NCase2", "labelText": "N", "dx": 14, "dy": -10 },
+        { "type": "point", "at": "DCase2", "labelText": "D", "dx": 14, "dy": -10 },
+        { "type": "point", "at": "GCase2", "labelText": "G", "dx": -18, "dy": -22 },
+        { "type": "point", "at": "HCase2", "labelText": "H", "dx": -22, "dy": -4 },
+        { "type": "outlineRegion", "vertices": ["NCase2", "HCase2", "DCase2"], "fill": "rgba(59, 130, 246, 0.18)" },
+        { "type": "outlineRegion", "vertices": ["M", "GCase2", "A"], "fill": "rgba(245, 158, 11, 0.18)" },
+        { "type": "dashedLine", "from": "M", "to": "GCase2" },
+        { "type": "dashedLine", "from": "DCase2", "to": "HCase2" },
+        { "type": "dashedLine", "from": "NCase2", "to": "HCase2" },
+        { "type": "segment", "from": "NCase2", "to": "DCase2", "label": "ND" },
+        { "type": "segment", "from": "A", "to": "M", "label": "AM" },
+        { "type": "rightAngle", "vertex": "GCase2", "rayA": "M", "rayB": "A", "size": 11 },
+        { "type": "rightAngle", "vertex": "HCase2", "rayA": "NCase2", "rayB": "DCase2", "size": 11 },
+        { "type": "coordinateLabel", "at": "NCase2", "text": "N(1,5)", "dx": 14, "dy": -12 },
+        { "type": "coordinateLabel", "at": "DCase2", "text": "D(13/5, 9/5)", "dx": 14, "dy": -12 }
+      ]
+    },
+    "q2s6": {
+      "domain": { "minX": -2.6, "maxX": 4.2, "minY": -5.2, "maxY": 7.6 },
+      "add": [
+        { "type": "coloredLine", "from": "LineLeft", "to": "LineRight", "label": "l", "offsetPx": -18 },
+        { "type": "point", "at": "NCase1", "labelText": "N₁", "dx": 14, "dy": -10 },
+        { "type": "point", "at": "NCase2", "labelText": "N₂", "dx": -22, "dy": 16 },
+        { "type": "coordinateLabel", "at": "A", "text": "A(−1,0)", "dx": -56, "dy": 16 },
+        { "type": "coordinateLabel", "at": "B", "text": "B(3,0)", "dx": 14, "dy": 16 }
+      ]
+    }
+  }
+}

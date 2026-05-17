@@ -175,6 +175,26 @@ body {
   border-radius: 10px;
 }
 
+/* 只有一张图时：去掉外层卡片间距，让单图直接显示自己的白底和边框 */
+.problem-original-figures:has(.problem-figure:only-child) {
+  display: block;
+  padding: 0;
+  background: transparent;
+  border: none;
+}
+
+.problem-original-figures:has(.problem-figure:only-child) .problem-figure {
+  align-items: flex-start;
+}
+
+.problem-original-figures:has(.problem-figure:only-child) .problem-figure svg {
+  background: #fff;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 10px;
+  max-width: 360px;
+  margin: 0;
+}
+
 /* 单张图：去掉自己的边框/背景，只是布局单元 */
 .problem-figure {
   margin: 0;
