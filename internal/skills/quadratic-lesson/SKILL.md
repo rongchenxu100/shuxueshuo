@@ -13,6 +13,8 @@ The core rule is the same as `geometry-lesson`: **HTML is a compiled artifact.**
 
 Work in this order:
 
+If the task is only to **iterate this skill**, update `SKILL.md` itself and do **not** update the knowledge base or `case-index.md`. The knowledge-base update rules below apply when creating or publishing a lesson page, not when refining the skill instructions.
+
 0. Select knowledge-base references before solving:
    - Read `internal/knowledge-points/junior-math-methods.md`.
    - Read `internal/knowledge-points/case-index.md`.
@@ -113,6 +115,14 @@ When an angle condition determines a line through an axis point, first look for 
 
 When computing a coordinate triangle area, first check whether a vertical or horizontal auxiliary segment can split the triangle into two readable pieces. Prefer an "铅垂面积" expression such as `1/2·vertical base·left horizontal distance + 1/2·vertical base·right horizontal distance` over determinant-style coordinate area in student-facing text.
 
+For geometry-heavy quadratic综合题, prefer a visible geometric derivation before coordinate formulas:
+
+- When a square or rotated side determines a point such as `G`, avoid saying only "rotate 90° to get coordinates". First draw the needed perpendicular foot, prove the right-triangle congruence, and then read the horizontal and vertical distances.
+- Every coordinate expression like `G(x(t), y0)` must explain the source of each coordinate separately: the horizontal part from an equal segment or distance, and the vertical part from a fixed line, foot, or trajectory.
+- Avoid introducing a new auxiliary variable merely to shorten arithmetic when the original expressions are readable. Keep the problem's own parameters visible unless the substitution reveals a real structure.
+- If a conclusion uses a midpoint or a shortest-position collinearity, state why the chosen point is the midpoint or intersection before using its coordinate.
+- Reuse prior conclusions through reference components in `lesson-data.json` instead of repeating a full derivation block.
+
 ## Step 3: `03_visual_steps.md`
 
 Same layering mindset as geometry-lesson (whole-problem / section / phase / step). For quadratic pages additionally specify:
@@ -124,6 +134,15 @@ Same layering mindset as geometry-lesson (whole-problem / section / phase / step
 - where local zoom domains are needed. Geometry-heavy congruence or shortest-path computation steps should often use `steps[stepId].domain` so the construction, angle marks, and used lengths are readable.
 - which diagram labels are new visual information. Do not add formula cards or labels that merely repeat the derivation panel or the step `box`.
 - how `stepLabels` name each step. Prefer compact "method + target" labels such as `等角作C′定BM`, `铅垂面积求b`, or `构造等腰求a` instead of vague result labels such as `确定 BM` or `求 b`.
+
+Use review-friendly visual discipline:
+
+- Fill congruent triangles or corresponding construction triangles with the same light color so students can see the matched shapes before reading the text.
+- Keep labels limited to the quantities used in the current derivation. For a line-segment conversion step, prefer the two decisive labels such as `FM=1/2AE` and `FH=1/2AG`; omit midpoint labels if the derivation panel already states them.
+- Local zoom should focus on the active construction while preserving necessary context such as the moving point trajectory. Do not leave large empty regions when a tighter domain would make the construction clearer.
+- Split steps when two different ideas are being taught, such as "derive G's trajectory" and "apply reflection shortest path". Each idea may have its own local control if dragging helps the student see it.
+- When a coordinate formula is derived from a distance, show the corresponding auxiliary segment or projection in the diagram, for example a horizontal distance from `A` to the projection of `G`.
+- Keep navigation labels synchronized with step titles and make them method-based, e.g. `中线中位线转线段`, `推导G轨迹`, `将军饮马求最小值`.
 
 ## Step 4: JSON Specs
 
@@ -192,10 +211,13 @@ Then spot-check the HTML locally.
 - Earlier diagrams do not contain later conclusions: no solved coordinates, final coefficient values, helper points, or final curve state before the matching derivation step.
 - Known roots/intercepts are used to simplify/factor the parabola directly before introducing any new unknown point parameter.
 - Geometry conditions are solved geometrically when possible: perpendicular feet, right-triangle congruence, isosceles-right triangles, and 将军饮马 before coordinate/vector formulas.
+- Coordinate claims for constructed points explain both horizontal and vertical origins, and the diagram marks the line or distance used to read them.
 - Angle conditions are converted with visible auxiliary geometry when possible: symmetry points, isosceles triangles, or axis-intersection points before slope/tangent formulas.
 - Coordinate-area steps use vertical/horizontal split areas when the diagram provides a natural base, before determinant formulas.
 - Diagram labels are not duplicating the derivation panel: no repeated formula cards when the same result is already in `derive` or `box`.
 - Step navigation labels are short but meaningful, usually "method + target".
+- Congruent or corresponding triangles that drive a step use matching light fills, and nonessential labels are removed from dense diagrams.
+- Long derivations are split when a trajectory result, a segment conversion, and an optimization argument are separate ideas.
 - JSON contains zero HTML fragments.
 - Step ids stay synchronized across all artifacts.
 - `lesson-data.meta.classification.pattern` and every listed method ID exist in `junior-math-methods.md`.
