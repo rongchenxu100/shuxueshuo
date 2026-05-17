@@ -269,7 +269,17 @@
 
     function gridSvg(gopts) {
       gopts = gopts || {};
+      var axesColor = gopts.axesColor || "#93a0ad";
+      var axesWidth = gopts.axesWidth || 2;
+      var axesLabelColor = gopts.axesLabelColor || "#334155";
+      var axesLabelFontSize = gopts.axesLabelFontSize || 18;
+      var axesArrow = gopts.axesArrow === true;
       var lines = [];
+      var defs = "";
+      if (axesArrow) {
+        var arrowId = "axisArrow" + Math.floor(Math.random() * 1e9).toString(36);
+        defs = '<defs><marker id="' + arrowId + '" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 Z" fill="' + axesColor + '" /></marker></defs>';
+      }
       for (var x = Math.ceil(domain.minX); x <= domain.maxX; x++) {
         var p1 = toScreen({ x: x, y: domain.minY }), p2 = toScreen({ x: x, y: domain.maxY });
         lines.push('<line x1="' + p1.x + '" y1="' + p1.y + '" x2="' + p2.x + '" y2="' + p2.y + '" stroke="rgba(15,23,42,.06)" stroke-width="1" />');
@@ -280,21 +290,22 @@
       }
       var ax1 = toScreen({ x: domain.minX, y: 0 }), ax2 = toScreen({ x: domain.maxX, y: 0 });
       var ay1 = toScreen({ x: 0, y: domain.minY }), ay2 = toScreen({ x: 0, y: domain.maxY });
-      lines.push('<line x1="' + ax1.x + '" y1="' + ax1.y + '" x2="' + ax2.x + '" y2="' + ax2.y + '" stroke="#93a0ad" stroke-width="2" />');
-      lines.push('<line x1="' + ay1.x + '" y1="' + ay1.y + '" x2="' + ay2.x + '" y2="' + ay2.y + '" stroke="#93a0ad" stroke-width="2" />');
-      lines.push(textAtSvg({ x: domain.maxX - 0.25, y: 0 }, "x", "#334155", 0, -10, 18));
-      lines.push(textAtSvg({ x: 0, y: domain.maxY - 0.18 }, "y", "#334155", 10, 0, 18));
+      var arrowAttr = axesArrow ? ' marker-end="url(#' + arrowId + ')"' : '';
+      lines.push('<line x1="' + ax1.x + '" y1="' + ax1.y + '" x2="' + ax2.x + '" y2="' + ax2.y + '" stroke="' + axesColor + '" stroke-width="' + axesWidth + '"' + arrowAttr + ' />');
+      lines.push('<line x1="' + ay1.x + '" y1="' + ay1.y + '" x2="' + ay2.x + '" y2="' + ay2.y + '" stroke="' + axesColor + '" stroke-width="' + axesWidth + '"' + arrowAttr + ' />');
+      lines.push(textAtSvg({ x: domain.maxX - 0.25, y: 0 }, "x", axesLabelColor, 0, -10, axesLabelFontSize));
+      lines.push(textAtSvg({ x: 0, y: domain.maxY - 0.18 }, "y", axesLabelColor, 10, 0, axesLabelFontSize));
       if (gopts.showOriginLabel !== false) {
         lines.push(textAtSvg(
           { x: 0, y: 0 },
           gopts.originLabel || "O",
-          gopts.originColor || "#334155",
+          gopts.originColor || axesLabelColor,
           gopts.originDx != null ? gopts.originDx : -26,
           gopts.originDy != null ? gopts.originDy : 24,
           gopts.originFontSize || 18
         ));
       }
-      return lines.join("");
+      return defs + lines.join("");
     }
 
     /** 添加多边形段落到 label layout 的障碍物列表 */
@@ -747,8 +758,10 @@
 
       var showGrid = figConfig.showGrid !== false && figConfig.grid !== false;
       var out = showGrid ? gridSvg(figConfig.grid) : "";
+      var curveAllow = Array.isArray(figConfig.curveIds) ? figConfig.curveIds : null;
       (spec.curves || []).forEach(function (cr) {
         if (!cr || cr.type !== "parabola" || !cr.id) return;
+        if (curveAllow && curveAllow.indexOf(cr.id) < 0) return;
         var cvFig = state.curves && state.curves[cr.id];
         if (!cvFig) return;
         var samp = GE.sampleParabola(cvFig.a, cvFig.b, cvFig.c, domain.minX, domain.maxX, 72);

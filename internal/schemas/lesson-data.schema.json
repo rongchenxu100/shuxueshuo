@@ -78,12 +78,12 @@
                     "type": "array",
                     "items": {
                       "type": "object",
-                      "required": ["id", "title"],
+                      "required": ["id"],
                       "properties": {
                         "id":        { "type": "string", "description": "SVG 元素 id，与 geometry-spec.originalFigures 对应" },
-                        "title":     { "type": "string", "description": "图名，如 图 1" },
+                        "title":     { "type": "string", "description": "图名（可选）；省略或为空字符串时不显示标题行" },
                         "ariaLabel": { "type": "string" },
-                        "caption":   { "type": "string", "description": "图下方的说明文字，如 正方形 ABCD" }
+                        "caption":   { "type": "string", "description": "图下方的说明文字（可选）；省略或为空时不显示" }
                       }
                     }
                   }
