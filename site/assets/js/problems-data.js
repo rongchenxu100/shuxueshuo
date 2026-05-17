@@ -390,6 +390,19 @@ window.__PROBLEMS_DATA__ = [
     "status": "published"
   },
   {
+    "id": "sh-2026-xuhui-ermo-24",
+    "city": "shanghai",
+    "cityLabel": "上海",
+    "year": 2026,
+    "exam": "xuhui-ermo",
+    "examLabel": "徐汇区二模",
+    "slot": "24",
+    "title": "2026 年上海市徐汇区二模第 24 题（二次函数 + 梯形条件求系数）",
+    "tags": ["quadratic", "trapezoid", "similar-triangle"],
+    "path": "../problems/sh/24/sh-2026-xuhui-ermo-24.html",
+    "status": "published"
+  },
+  {
     "id": "bj-2026-chaoyang-yimo-26",
     "city": "beijing",
     "cityLabel": "北京",
