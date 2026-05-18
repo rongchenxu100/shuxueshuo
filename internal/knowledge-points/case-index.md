@@ -32,6 +32,7 @@
 | `tj-2026-hexi-jieke-25` | 25 | 抛物线过 `A(-1,0)`，结合 `2a+b=0`、线段/角度条件求参数 | `coefficient-from-point-on-parabola`, `known-root-factorization` |
 | `tj-2026-hebei-yimo-25` | 25 | `2a-b=0` 固定对称轴，`P(3,3)` 化简解析式；由 `NI=7a` 和 `15NI−7MH=7` 得 `H(15a+2,5)`，代入抛物线提取公因式求 `a` | `coefficient-from-point-on-parabola`, `axis-parallel-segment-coordinate` |
 | `tj-2026-hongqiao-yimo-25` | 25 | 已知根因式分解，倍角构造求 `a`，等角直线和铅垂面积求 `M` | `known-root-factorization`, `coefficient-from-point-on-parabola`, `angle-doubling-isosceles-construction`, `equal-angle-reflection-line`, `vertical-area-decomposition` |
+| `sh-2026-xuhui-ermo-24` | 24 | 抛物线过 `A(-1,0)`、`B(3,0)`，由 `l⊥AM` 用 K 字模型相似定 `N(1,1)` 得 `l`；由四边形 `ANDM` 是梯形分情形（`AN∥DM` 或 `ND∥AM`）求 `a`（韦达定理求交点 + K 字模型在梯形辅助下复用） | `known-root-factorization`, `k-character-similar-right-triangles`, `coefficient-from-point-on-parabola` |
 
 ### folding-ratio-expression
 
@@ -82,6 +83,7 @@
 | `tj-2026-hongqiao-ermo-25` | 25 | 第（Ⅱ）①② | 由已知根 `A(-2,0)` 写出 `B(2−4b,0)` 与 `C(0,2b−1)` |
 | `tj-2026-hongqiao-yimo-25` | 25 | 第（Ⅱ）①② | 由 `A(-1,0)` 是根写 `y=(x+1)(ax+c)`，读另一个交点 |
 | `tj-2026-heping-ermo-25` | 25 | 第（Ⅱ）公共结论 | 由 `A(-c,0)` 是根得到 `b=1-c`，读出另一个交点 `B(1,0)` 与对称轴交点 `M((1-c)/2,0)` |
+| `sh-2026-xuhui-ermo-24` | 24 | 第（1）问、第（2）问 | 由 `A(-1,0)`、`B(3,0)` 直接写 `C₁: y=(x-1)²-4` 与 `C₂: y=a(x-1)²-4a`，顶点分别为 `M(1,-4)` 与 `N(1,-4a)` |
 
 ### coefficient-from-point-on-parabola
 
@@ -98,6 +100,7 @@
 | `tj-2026-hedong-ermo-25` | 25 | 第（Ⅰ）②、第（Ⅱ）问 | 由 `A`、`C` 在抛物线上化简求 `B`；第（Ⅱ）由 `F` 在抛物线上得到 `am` 关系 |
 | `tj-2026-hongqiao-yimo-25` | 25 | 第（Ⅰ）问、第（Ⅱ）② | 由点在抛物线上化简系数关系，并配合面积条件求参数 |
 | `tj-2026-hongqiao-ermo-25` | 25 | 第（Ⅰ）问、第（Ⅱ）①② | 由 `A(-2,0)` 代入得到 `c=2b−1`，再配合直角条件或最短值求 `b` |
+| `sh-2026-xuhui-ermo-24` | 24 | 第（2）问 | 联立 `l: y=½x+½` 与 `C₂: y=ax²-2ax-3a`，由公共根 `x=-1` 得 `D(3+1/(2a), 2+1/(4a))`，再代入梯形相似关系求 `a` |
 
 ### coordinate-distance-pythagorean
 
@@ -119,6 +122,12 @@
 | `tj-2026-nankai-yimo-25` | 25 | 第（Ⅱ）① | 作垂线，证直角三角形全等，确定 `N(2,1-m)` |
 | `tj-2026-hedong-yimo-25` | 25 | 第（Ⅱ）① | 由直角等腰条件作辅助线，用全等读出点坐标 |
 | `tj-2026-heping-ermo-25` | 25 | 第（Ⅰ）② | 过 `G` 作 `GQ⊥x轴`，填充并证明 `Rt△AEM≌Rt△GAQ`，读出 `G(t-3,-2)` |
+
+### k-character-similar-right-triangles
+
+| problem-id | 题位 | 涉及步骤 | 摘要 |
+|---|---|---|---|
+| `sh-2026-xuhui-ermo-24` | 24 | 第（1）问、第（2）情形①② | 第（1）作 `MC⊥x` 轴，由 `l⊥AM` + 互余角相等得 `△NAC∽△AMC`，比例式 `NC/AC=AC/MC` → `N(1,1)`；第（2）两情形复用 K 字模型：`△NAC∽△DME`（`AN∥DM`）与 `△NHD∽△MGA`（`ND∥AM`），把对边平行翻译成参数方程 |
 
 ### rotation-by-congruence
 

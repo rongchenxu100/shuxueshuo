@@ -157,7 +157,11 @@
             "items": { "$ref": "#/$defs/originalFigureLabel" }
           },
           "parabolaStroke": { "type": "string" },
-          "parabolaStrokeWidth": { "type": "number" }
+          "parabolaStrokeWidth": { "type": "number" },
+          "curveIds": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
         },
         "additionalProperties": true
       }

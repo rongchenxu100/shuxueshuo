@@ -54,10 +54,13 @@ function buildProblemHtml(lines) {
       const ariaAttr = line.ariaLabel ? ` aria-label="${esc(line.ariaLabel)}"` : "";
       const figs = (line.figures ?? []).map(fig => {
         const figAria = fig.ariaLabel ? ` aria-label="${esc(fig.ariaLabel)}"` : "";
+        const titleHtml = fig.title
+          ? `\n    <h3>${esc(fig.title)}</h3>`
+          : "";
         const captionHtml = fig.caption
           ? `\n    <figcaption class="problem-figure-caption">${esc(fig.caption)}</figcaption>`
           : "";
-        return `  <figure class="problem-figure">\n    <svg id="${fig.id}" viewBox="0 0 1080 760" role="img"${figAria}></svg>\n    <h3>${esc(fig.title)}</h3>${captionHtml}\n  </figure>`;
+        return `  <figure class="problem-figure">\n    <svg id="${fig.id}" viewBox="0 0 1080 760" role="img"${figAria}></svg>${titleHtml}${captionHtml}\n  </figure>`;
       }).join("\n");
       return `<div class="problem-original-figures"${ariaAttr}>\n${figs}\n</div>`;
     }

@@ -1,0 +1,84 @@
+{
+  "version": 1,
+  "id": "sh-2026-xuhui-ermo-24",
+  "domain": { "minX": -3.2, "maxX": 4.4, "minY": -5.4, "maxY": 7.6 },
+  "movingParam": "a",
+  "expressionEnv": [
+    { "name": "aC1",   "expr": "1" },
+    { "name": "bC1",   "expr": "-2" },
+    { "name": "cC1",   "expr": "-3" },
+    { "name": "aSym",  "expr": "-1" },
+    { "name": "bSym",  "expr": "-2*aSym" },
+    { "name": "cSym",  "expr": "-3*aSym" },
+    { "name": "xNSym", "expr": "1" },
+    { "name": "yNSym", "expr": "-4*aSym" },
+    { "name": "xDSym", "expr": "3+1/(2*aSym)" },
+    { "name": "yDSym", "expr": "2+1/(4*aSym)" },
+    { "name": "aCase1", "expr": "(-7-3*sqrt(5))/8" },
+    { "name": "bCase1", "expr": "-2*aCase1" },
+    { "name": "cCase1", "expr": "-3*aCase1" },
+    { "name": "yNCase1", "expr": "-4*aCase1" },
+    { "name": "xDCase1", "expr": "3+1/(2*aCase1)" },
+    { "name": "yDCase1", "expr": "2+1/(4*aCase1)" },
+    { "name": "aCase2",  "expr": "-5/4" },
+    { "name": "bCase2",  "expr": "-2*aCase2" },
+    { "name": "cCase2",  "expr": "-3*aCase2" },
+    { "name": "yNCase2", "expr": "-4*aCase2" },
+    { "name": "xDCase2", "expr": "3+1/(2*aCase2)" },
+    { "name": "yDCase2", "expr": "2+1/(4*aCase2)" }
+  ],
+  "fixedPoints": {
+    "O":        ["0",  "0"],
+    "A":        ["-1", "0"],
+    "B":        ["3",  "0"],
+    "M":        ["1",  "-4"],
+    "C":        ["1",  "0"],
+    "NPart1":   ["1",  "1"],
+    "NSym":     ["xNSym", "yNSym"],
+    "DSym":     ["xDSym", "yDSym"],
+    "NCase1":   ["1", "yNCase1"],
+    "DCase1":   ["xDCase1", "yDCase1"],
+    "ECase1":   ["xDCase1", "-4"],
+    "NCase2":   ["1", "yNCase2"],
+    "DCase2":   ["xDCase2", "yDCase2"],
+    "HCase2":   ["1", "yDCase2"],
+    "GCase2":   ["1", "0"],
+    "LineLeft": ["-3", "-1"],
+    "LineRight": ["5", "3"]
+  },
+  "movingPoints": {},
+  "curves": [
+    { "id": "parabolaC1",       "type": "parabola", "a": "aC1",    "b": "bC1",    "c": "cC1"    },
+    { "id": "parabolaC2Sym",    "type": "parabola", "a": "aSym",   "b": "bSym",   "c": "cSym"   },
+    { "id": "parabolaC2Case1",  "type": "parabola", "a": "aCase1", "b": "bCase1", "c": "cCase1" },
+    { "id": "parabolaC2Case2",  "type": "parabola", "a": "aCase2", "b": "bCase2", "c": "cCase2" }
+  ],
+  "derivedIntersections": [],
+  "originalFigures": [
+    {
+      "id": "originalFigure1",
+      "t": 0,
+      "showMoving": false,
+      "showOverlap": false,
+      "showIntersections": false,
+      "curveIds": ["parabolaC1"],
+      "grid": {
+        "axesArrow": true,
+        "axesWidth": 2.6,
+        "axesColor": "#1f2937",
+        "axesLabelColor": "#1f2937",
+        "axesLabelFontSize": 30,
+        "originFontSize": 26
+      },
+      "segments": [
+        { "from": "LineLeft", "to": "LineRight", "color": "#1f2937", "width": 2.4 },
+        { "from": "A", "to": "M", "color": "#1f2937", "width": 2.4 }
+      ],
+      "fixedLabels": [
+        { "at": "A", "label": "A", "dx": -22, "dy": 22, "fontSize": 36 },
+        { "at": "B", "label": "B", "dx": 14,  "dy": 22, "fontSize": 36 },
+        { "at": "M", "label": "M", "dx": 10,  "dy": 16, "fontSize": 36 }
+      ]
+    }
+  ]
+}
