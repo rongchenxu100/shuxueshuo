@@ -1,0 +1,68 @@
+{
+  "method_id": "select_curve_point_candidate_and_solve_coefficients",
+  "title": "候选点筛选并求系数",
+  "description": "从几何候选点中选择能落在抛物线上的点，并同步求系数。",
+  "solves": [
+    "select_curve_point_candidate_and_solve_coefficients"
+  ],
+  "inputs": {
+    "candidates": {
+      "type": "PointList",
+      "required": true
+    },
+    "target": {
+      "type": "PointRef",
+      "required": true
+    },
+    "quadratic": {
+      "type": "Parabola",
+      "required": true
+    },
+    "x": {
+      "type": "Symbol",
+      "required": true
+    },
+    "curve_point": {
+      "type": "Point",
+      "required": false
+    },
+    "known_coefficients": {
+      "type": "Coefficients",
+      "required": false
+    },
+    "coefficient_dependencies": {
+      "type": "Coefficients",
+      "required": false
+    },
+    "unknowns": {
+      "type": "SymbolList",
+      "required": false
+    },
+    "primary_symbol": {
+      "type": "Symbol",
+      "required": true
+    },
+    "secondary_symbol": {
+      "type": "Symbol",
+      "required": true
+    },
+    "primary_constraint": {
+      "type": "Constraint",
+      "required": true
+    }
+  },
+  "outputs": {
+    "point": "Point",
+    "coefficients": "Coefficients",
+    "primary_value": "ParameterValue",
+    "secondary_value": "ParameterValue",
+    "parabola": "Parabola"
+  },
+  "preconditions": [
+    "candidates 来自已验证的几何构造",
+    "primary_constraint 是单参数约束"
+  ],
+  "postconditions": [
+    "唯一候选点满足抛物线与参数约束"
+  ]
+}

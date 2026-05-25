@@ -3,6 +3,7 @@ from dataclasses import fields
 from shuxueshuo_server.solver.family import (
     FamilyRegistry,
     QUADRATIC_PATH_MINIMUM_FAMILY,
+    QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
 )
 from shuxueshuo_server.solver.fixtures import load_problem_ir
 
@@ -43,6 +44,13 @@ def test_quadratic_path_family_rejects_other_real_25_fixture() -> None:
     assert not QUADRATIC_PATH_MINIMUM_FAMILY.supports(problem)
 
 
+def test_quadratic_weighted_path_family_supports_hexi_fixture() -> None:
+    problem = load_problem_ir(HEXI_FIXTURE)
+
+    assert QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY.supports(problem)
+    assert QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY.family_id == "QuadraticWeightedPathMinimumSolver"
+
+
 def test_family_spec_keeps_planner_and_answer_shape_out_of_spec() -> None:
     field_names = {field.name for field in fields(QUADRATIC_PATH_MINIMUM_FAMILY)}
 
@@ -64,10 +72,15 @@ def test_family_spec_contains_only_family_level_context() -> None:
 
 
 def test_family_registry_matches_supported_problem_only() -> None:
-    registry = FamilyRegistry((QUADRATIC_PATH_MINIMUM_FAMILY,))
+    registry = FamilyRegistry((
+        QUADRATIC_PATH_MINIMUM_FAMILY,
+        QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
+    ))
 
     supported = load_problem_ir(NANKAI_FIXTURE)
+    hexi = load_problem_ir(HEXI_FIXTURE)
     unsupported = load_problem_ir(ALT_LABEL_FIXTURE)
 
     assert registry.match(supported) is QUADRATIC_PATH_MINIMUM_FAMILY
+    assert registry.match(hexi) is QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY
     assert registry.match(unsupported) is None

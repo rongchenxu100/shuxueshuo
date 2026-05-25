@@ -1,0 +1,45 @@
+{
+  "method_id": "filter_point_candidates_by_quadratic_curve",
+  "title": "用二次函数条件筛选点候选",
+  "description": "用当前二次函数表达式和参数约束筛选点候选。",
+  "solves": [
+    "filter_point_candidates_by_quadratic_curve"
+  ],
+  "inputs": {
+    "candidates": {
+      "type": "PointList",
+      "required": true
+    },
+    "target": {
+      "type": "PointRef",
+      "required": true
+    },
+    "parabola": {
+      "type": "Parabola",
+      "required": true
+    },
+    "x": {
+      "type": "Symbol",
+      "required": true
+    },
+    "parameter": {
+      "type": "Symbol",
+      "required": true
+    },
+    "parameter_constraint": {
+      "type": "Constraint",
+      "required": false
+    }
+  },
+  "outputs": {
+    "filtered_candidates": "PointList",
+    "rejected_candidates": "PointList"
+  },
+  "preconditions": [
+    "parabola 已代入当前问能确定的已知条件",
+    "candidates 来自几何构造"
+  ],
+  "postconditions": [
+    "filtered_candidates 中每个候选在参数约束下可满足曲线条件"
+  ]
+}

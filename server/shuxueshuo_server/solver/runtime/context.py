@@ -16,6 +16,7 @@ RuntimeContext 是 Method Solver V1.5 的“黑板”。它把一份 ``ProblemIR
 from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
+import re
 from typing import Any
 
 import sympy as sp
@@ -471,6 +472,19 @@ class ContextBuilder:
                     locked=True,
                     source=f"question:{scope.scope_id}",
                 )
+            all_coefficients = context.problem_scope.container("symbol_lists").get("quadratic_coefficients")
+            if all_coefficients is not None:
+                # 每一问的“未定二次项系数”由题设已知系数确定。例如河西第（Ⅱ）问
+                # 已知 a=2，则后续先代入 a，只把 b、c 作为自由系数保留下来。
+                # 当前 deterministic planner 还没有直接读取这个字段；它是给后续
+                # 通用 planner/参数映射阶段准备的上下文索引，避免 planner 反复从
+                # known_coefficients 手工推断“这一问还剩哪些系数未定”。
+                scope.container("symbol_lists")["unknown_quadratic_coefficients"] = TypedValue(
+                    "SymbolList",
+                    [symbol for symbol in all_coefficients.value if symbol not in known],
+                    locked=True,
+                    source=f"question:{scope.scope_id}",
+                )
 
     def _build_question_scopes(
         self,
@@ -549,8 +563,24 @@ class ContextBuilder:
         definition = raw.get("definition")
         if definition == "axis_x_intercept":
             return "problem"
+        if definition == "midpoint":
+            dependency_scope = _definition_dependency_scope(
+                context,
+                raw,
+                allow_problem_dependency=True,
+            )
+            if dependency_scope is not None:
+                return dependency_scope
         if definition in {"square_opposite_point", "reflected_point"}:
-            return "ii" if "ii" in context.scopes else "problem"
+            # 构造点不应该假设固定属于第（Ⅱ）问。先看题面 relation 是否已经给出
+            # 作用域；若没有 relation，再尝试根据定义里依赖的点所在 scope 推断。
+            relation_scopes = _relation_scopes_for_point(context, name)
+            if len(relation_scopes) == 1:
+                return next(iter(relation_scopes))
+            dependency_scope = _definition_dependency_scope(context, raw)
+            if dependency_scope is not None:
+                return dependency_scope
+            return "problem"
         relation_scopes = _relation_scopes_for_point(context, name)
         if "coordinate" in raw and (
             _point_name_used_in_many_top_questions(context, name)
@@ -692,7 +722,13 @@ def _question_mentions(scope: RuntimeScope, name: str) -> bool:
     raw = scope.container("questions").get(scope.scope_id)
     if raw is None:
         return False
-    return any(name in text for text in _question_strings(raw.value))
+    # 单字母点名不能用简单 substring，否则会把 ``Parabola``、``ParameterValue`` 里
+    # 的大写字母误判成点名。这里要求点名前后不是英文字符，中文标点、下划线、
+    # ContextPath 分隔符仍可正常匹配。多字符点名会按 fixture 中的字面名称匹配：
+    # ``D_prime`` 能匹配 ``D_prime``，但不会自动等同于 ``D'``；别名归一化留给
+    # ProblemIR 生成阶段处理。
+    pattern = re.compile(rf"(?<![A-Za-z]){re.escape(name)}(?![A-Za-z])")
+    return any(pattern.search(text) is not None for text in _question_strings(raw.value))
 
 
 def _point_name_used_in_many_top_questions(context: RuntimeContext, name: str) -> bool:
@@ -715,16 +751,96 @@ def _relation_scopes_for_point(context: RuntimeContext, name: str) -> set[str]:
     return {scope for scope in scopes if scope in context.scopes}
 
 
+def _definition_dependency_scope(
+    context: RuntimeContext,
+    raw: Mapping[str, Any],
+    *,
+    allow_problem_dependency: bool = False,
+) -> str | None:
+    """从构造点定义依赖中推断 point scope。
+
+    ``square_opposite_point``、``reflected_point`` 这类点经常是 planner 或 fixture
+    声明的辅助点。它们的自然归属通常与依赖点一致，例如都依赖第（Ⅲ）问中的点，
+    就应该放在第（Ⅲ）问 scope。若依赖横跨多个 scope，说明该辅助点不是某个局部
+    问题的私有对象，调用方会回退到 problem scope。
+    """
+    dependency_names: set[str] = set()
+    for field in ("vertex", "adjacent", "of", "source", "target", "line", "mirror_line"):
+        dependency_names.update(_dependency_point_names(raw.get(field)))
+    if not dependency_names:
+        return None
+
+    dependency_scopes: set[str] = set()
+    for name in dependency_names:
+        scope_id = _existing_point_scope(context, name)
+        if scope_id is not None:
+            dependency_scopes.add(scope_id)
+            continue
+        relation_scopes = _relation_scopes_for_point(context, name)
+        if len(relation_scopes) == 1:
+            dependency_scopes.add(next(iter(relation_scopes)))
+
+    # 只有所有依赖都明确落在同一个非 step scope 时，才把构造点放到该 scope。
+    # 依赖跨 scope 或无法判断时返回 None，让上层保守放 problem。
+    if allow_problem_dependency and "problem" in dependency_scopes:
+        local_scopes = dependency_scopes - {"problem"}
+        if len(local_scopes) == 1:
+            dependency_scopes = local_scopes
+    if len(dependency_scopes) != 1:
+        return None
+    scope_id = next(iter(dependency_scopes))
+    scope = context.get_scope(scope_id)
+    if scope.scope_type == "step":
+        return None
+    return scope_id
+
+
+def _existing_point_scope(context: RuntimeContext, name: str) -> str | None:
+    """查找已经写入 RuntimeContext 的点所在 scope。"""
+    for scope in context.scopes.values():
+        if name in scope.container("points"):
+            return scope.scope_id
+    return None
+
+
+def _dependency_point_names(value: Any) -> set[str]:
+    """从点定义字段里提取依赖点名。
+
+    relation 解析更偏向结构化字段；这里额外兼容 ``"MN"`` 这类线名写法，把它拆成
+    ``M``、``N`` 两个单字母点名。首版 solver fixture 的点名均为单个大写字母。
+    """
+    if isinstance(value, str):
+        if value.isalpha() and value.isupper() and len(value) > 1:
+            return set(value)
+        if value.isalpha() and value[:1].isupper():
+            return {value}
+        return set()
+    if isinstance(value, Mapping):
+        names: set[str] = set()
+        for child in value.values():
+            names.update(_dependency_point_names(child))
+        return names
+    if isinstance(value, list):
+        names: set[str] = set()
+        for child in value:
+            names.update(_dependency_point_names(child))
+        return names
+    return set()
+
+
 def _relation_point_names(value: Any) -> set[str]:
     """递归提取 relation 结构里的大写点名。
 
     这是 V1.5 的轻量解析器，用于 scope 归属判断；真正的数学语义仍由
-    ContextInventory/Planner 处理。
+    ContextInventory/Planner 处理。当前只从 ``ProblemIR.data.relations`` 的
+    relation 值中调用，不会遇到 Python 类型名或内部类型名字符串。
     """
     if isinstance(value, str):
         if value.isalpha() and value[:1].isupper():
             return {value}
-        return set()
+        # 路径/线段表达式常写成 ``sqrt(2)*MN+AN``。这里提取大写字母作为轻量点名
+        # 索引，让动点 N 的 scope 来自题面 relation，而不是依赖 QuestionGoal。
+        return set(re.findall(r"[A-Z]", value))
     if isinstance(value, Mapping):
         names: set[str] = set()
         for child in value.values():

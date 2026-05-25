@@ -1,0 +1,35 @@
+{
+  "method_id": "coefficient_at_parameter",
+  "title": "代入参数求系数",
+  "description": "在参数取值确定后，求某个依赖系数的具体值。",
+  "solves": [
+    "derive_coefficient_at_parameter"
+  ],
+  "inputs": {
+    "coefficients": {
+      "type": "Coefficients",
+      "required": true
+    },
+    "coefficient": {
+      "type": "Symbol",
+      "required": true
+    },
+    "parameter": {
+      "type": "Symbol",
+      "required": true
+    },
+    "parameter_value": {
+      "type": "ParameterValue",
+      "required": true
+    }
+  },
+  "outputs": {
+    "coefficient_value": "ParameterValue"
+  },
+  "preconditions": [
+    "coefficients 中包含目标 coefficient 或 coefficient 本身就是 parameter"
+  ],
+  "postconditions": [
+    "输出系数值不再含 parameter"
+  ]
+}

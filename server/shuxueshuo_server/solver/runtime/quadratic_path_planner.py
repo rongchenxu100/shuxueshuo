@@ -10,6 +10,9 @@ from __future__ import annotations
 from typing import Any
 
 from shuxueshuo_server.solver.runtime.context import RuntimeContext
+from shuxueshuo_server.solver.runtime._planner_helpers import (
+    single_invocation_step as _single_invocation_step,
+)
 from shuxueshuo_server.solver.runtime.models import (
     MethodInvocation,
     PointRef,
@@ -65,9 +68,10 @@ class QuadraticPathMinimumPlannerV15:
         return _single_invocation_step(
             step_id="derive_part_i_parabola",
             parent_scope="i",
-            method_id="quadratic_from_known_coefficients",
+            method_id="quadratic_from_constraints",
             inputs={
                 "quadratic": "$problem.expressions.quadratic",
+                "x": "$problem.symbols.x",
                 "coefficient_relation": "$problem.equations.coefficient_relation",
                 "known_coefficients": "$question.i.coefficients.known",
                 "all_coefficients": "$problem.symbol_lists.quadratic_coefficients",
@@ -161,14 +165,14 @@ class QuadraticPathMinimumPlannerV15:
         return _single_invocation_step(
             step_id="derive_q1_parabola",
             parent_scope="ii_1",
-            method_id="quadratic_coefficients_from_curve_points",
+            method_id="quadratic_from_constraints",
             inputs={
                 "quadratic": "$problem.expressions.quadratic",
                 "x": "$problem.symbols.x",
                 "p1": "$question.ii.points.M",
                 "p2": "$question.ii.points.N",
                 "coefficient_relation": "$problem.equations.coefficient_relation",
-                "unknowns": "$problem.symbol_lists.quadratic_coefficients",
+                "all_coefficients": "$problem.symbol_lists.quadratic_coefficients",
                 "parameter": "$problem.symbols.m",
                 "parameter_value": "$subquestion.ii_1.outputs.m",
             },
@@ -292,14 +296,14 @@ class QuadraticPathMinimumPlannerV15:
         return _single_invocation_step(
             step_id="derive_q2_parabola",
             parent_scope="ii_2",
-            method_id="quadratic_coefficients_from_curve_points",
+            method_id="quadratic_from_constraints",
             inputs={
                 "quadratic": "$problem.expressions.quadratic",
                 "x": "$problem.symbols.x",
                 "p1": "$question.ii.points.M",
                 "p2": "$question.ii.points.N",
                 "coefficient_relation": "$problem.equations.coefficient_relation",
-                "unknowns": "$problem.symbol_lists.quadratic_coefficients",
+                "all_coefficients": "$problem.symbol_lists.quadratic_coefficients",
                 "parameter": "$problem.symbols.m",
                 "parameter_value": "$subquestion.ii_2.outputs.m",
             },
@@ -375,38 +379,3 @@ class QuadraticPathMinimumPlannerV15:
             locked=False,
             source="planner",
         )
-
-
-def _single_invocation_step(
-    *,
-    step_id: str,
-    parent_scope: str,
-    method_id: str,
-    inputs: dict[str, str],
-    outputs: dict[str, str],
-    promote: dict[str, str],
-    goal_type: str,
-    target_path: str,
-) -> StepPlan:
-    goal = StepGoal(
-        goal_id=f"{goal_type}:{step_id}",
-        type=goal_type,
-        target_path=target_path,
-        scope_id=parent_scope,
-        metadata={},
-    )
-    invocation = MethodInvocation(
-        invocation_id=f"{step_id}.{method_id}",
-        method_id=method_id,
-        scope=step_id,
-        inputs=inputs,
-        outputs=outputs,
-    )
-    return StepPlan(
-        step_id=step_id,
-        goal=goal,
-        scope=parent_scope,
-        invocations=[invocation],
-        expected_outputs=list(promote.values()),
-        promote_outputs=promote,
-    )

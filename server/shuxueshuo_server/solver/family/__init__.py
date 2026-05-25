@@ -12,13 +12,20 @@ from shuxueshuo_server.solver.family.models import (
 from shuxueshuo_server.solver.family.quadratic_path_minimum import (
     QUADRATIC_PATH_MINIMUM_FAMILY,
 )
+from shuxueshuo_server.solver.family.quadratic_weighted_path_minimum import (
+    QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
+)
 
-DEFAULT_FAMILY_REGISTRY = FamilyRegistry((QUADRATIC_PATH_MINIMUM_FAMILY,))
+DEFAULT_FAMILY_REGISTRY = FamilyRegistry((
+    QUADRATIC_PATH_MINIMUM_FAMILY,
+    QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
+))
 
 __all__ = [
     "DEFAULT_FAMILY_REGISTRY",
     "FamilyMatchRule",
     "FamilyRegistry",
     "QUADRATIC_PATH_MINIMUM_FAMILY",
+    "QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY",
     "SolverFamilySpec",
 ]

@@ -10,20 +10,27 @@ import pytest
 from shuxueshuo_server.solver.math_kernel import SympyKernel
 from shuxueshuo_server.solver.runtime.methods import (
     BrokenPathStraighteningCandidatesMethod,
+    CoefficientAtParameterMethod,
     DistanceBetweenPointsMethod,
+    FilterPointCandidatesByQuadraticCurveMethod,
     LineIntersectionPointMethod,
+    LinkedBrokenPathGeometricMinimumMethod,
     MidpointPointMethod,
     ParameterFromMinimumValueMethod,
     ParameterFromSegmentLengthMethod,
     ParabolaAtParameterMethod,
+    PointOnParabolaAtXMethod,
     QuadraticAxisFromRelationMethod,
-    QuadraticCoefficientsFromCurvePointsMethod,
-    QuadraticFromKnownCoefficientsMethod,
+    QuadraticFromConstraintsMethod,
+    QuadraticVertexPointMethod,
+    QuadraticYAxisInterceptPointMethod,
     RightAngleEqualLengthCandidatesMethod,
+    SelectCurvePointCandidateAndSolveCoefficientsMethod,
     SelectPointByQuadrantConstraintMethod,
     SelectStraighteningCandidateMethod,
     SquareOppositePointMethod,
     TwoMovingPointsPathReductionMethod,
+    WeightedAxisPathTriangleTransformMethod,
 )
 from shuxueshuo_server.solver.runtime.models import PointRef
 
@@ -81,14 +88,15 @@ def test_quadratic_axis_from_relation_rejects_undetermined_ratio() -> None:
         )
 
 
-def test_quadratic_from_known_coefficients_method() -> None:
+def test_quadratic_from_constraints_with_known_coefficients_and_relation() -> None:
     kernel = SympyKernel()
     symbols = kernel.symbols(["x", "a", "b", "c"])
     x, a, b, c = symbols["x"], symbols["a"], symbols["b"], symbols["c"]
 
-    result = QuadraticFromKnownCoefficientsMethod().run(
+    result = QuadraticFromConstraintsMethod().run(
         {
             "quadratic": a * x**2 + b * x + c,
+            "x": x,
             "coefficient_relation": sp.Eq(2 * a + b, 0),
             "known_coefficients": {a: 2, c: -5},
             "all_coefficients": [a, b, c],
@@ -99,15 +107,16 @@ def test_quadratic_from_known_coefficients_method() -> None:
     assert sp.simplify(result.outputs["parabola"].value - (2 * x**2 - 4 * x - 5)) == 0
 
 
-def test_quadratic_from_known_coefficients_rejects_incomplete_solution() -> None:
+def test_quadratic_from_constraints_rejects_incomplete_solution() -> None:
     kernel = SympyKernel()
     symbols = kernel.symbols(["x", "a", "b", "c"])
     x, a, b, c = symbols["x"], symbols["a"], symbols["b"], symbols["c"]
 
-    with pytest.raises(ValueError, match="不足以确定所有缺失系数"):
-        QuadraticFromKnownCoefficientsMethod().run(
+    with pytest.raises(ValueError, match="约束不足以确定系数"):
+        QuadraticFromConstraintsMethod().run(
             {
                 "quadratic": a * x**2 + b * x + c,
+                "x": x,
                 "coefficient_relation": sp.Eq(2 * a + b, 0),
                 "known_coefficients": {a: 2},
                 "all_coefficients": [a, b, c],
@@ -116,21 +125,135 @@ def test_quadratic_from_known_coefficients_rejects_incomplete_solution() -> None
         )
 
 
-def test_quadratic_from_known_coefficients_rejects_multiple_solutions() -> None:
+def test_quadratic_from_constraints_rejects_multiple_solutions() -> None:
     kernel = SympyKernel()
     symbols = kernel.symbols(["x", "a", "b", "c"])
     x, a, b, c = symbols["x"], symbols["a"], symbols["b"], symbols["c"]
 
     with pytest.raises(ValueError, match="不能唯一确定缺失系数"):
-        QuadraticFromKnownCoefficientsMethod().run(
+        QuadraticFromConstraintsMethod().run(
             {
                 "quadratic": a * x**2 + b * x + c,
+                "x": x,
                 "coefficient_relation": sp.Eq(b**2 - 4, 0),
                 "known_coefficients": {a: 2, c: -5},
                 "all_coefficients": [a, b, c],
             },
             kernel,
         )
+
+
+def test_quadratic_from_constraints_with_all_known_coefficients() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["x", "a", "b", "c"])
+    x, a, b, c = (symbols[name] for name in ("x", "a", "b", "c"))
+
+    result = QuadraticFromConstraintsMethod().run(
+        {
+            "quadratic": a * x**2 - b * x + c,
+            "x": x,
+            "known_coefficients": {a: 1, b: 2, c: 3},
+            "all_coefficients": [a, b, c],
+        },
+        kernel,
+    )
+
+    assert sp.simplify(result.outputs["parabola"].value - (x**2 - 2 * x + 3)) == 0
+
+
+def test_quadratic_from_constraints_keeps_free_parameter() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["x", "a", "b", "c"])
+    x, a, b, c = (symbols[name] for name in ("x", "a", "b", "c"))
+
+    result = QuadraticFromConstraintsMethod().run(
+        {
+            "quadratic": a * x**2 - b * x + c,
+            "x": x,
+            "known_coefficients": {a: 1},
+            "all_coefficients": [a, b, c],
+            "curve_point": (-1, 0),
+            "free_parameter": b,
+        },
+        kernel,
+    )
+
+    assert sp.simplify(result.outputs["coefficients"].value[c] - (-b - 1)) == 0
+    assert sp.simplify(result.outputs["parabola"].value - (x**2 - b * x - b - 1)) == 0
+
+
+def test_quadratic_from_constraints_substitutes_a_and_curve_point() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["x", "a", "b", "c"])
+    x, a, b, c = (symbols[name] for name in ("x", "a", "b", "c"))
+
+    result = QuadraticFromConstraintsMethod().run(
+        {
+            "quadratic": a * x**2 - b * x + c,
+            "x": x,
+            "known_coefficients": {a: 2},
+            "all_coefficients": [a, b, c],
+            "curve_point": (-1, 0),
+            "free_parameter": b,
+        },
+        kernel,
+    )
+
+    assert sp.simplify(result.outputs["coefficients"].value[c] - (-b - 2)) == 0
+    assert sp.simplify(result.outputs["parabola"].value - (2 * x**2 - b * x - b - 2)) == 0
+
+
+def test_quadratic_from_constraints_allows_multiple_free_coefficients() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["x", "a", "b", "c"])
+    x, a, b, c = (symbols[name] for name in ("x", "a", "b", "c"))
+
+    result = QuadraticFromConstraintsMethod().run(
+        {
+            "quadratic": a * x**2 - b * x + c,
+            "x": x,
+            "known_coefficients": {a: 2},
+            "all_coefficients": [a, b, c],
+            "free_parameters": [b, c],
+        },
+        kernel,
+    )
+
+    assert result.outputs["coefficients"].value == {a: 2}
+    assert sp.simplify(result.outputs["parabola"].value - (2 * x**2 - b * x + c)) == 0
+
+
+def test_quadratic_vertex_point_method() -> None:
+    kernel = SympyKernel()
+    x = kernel.symbols(["x"])["x"]
+
+    result = QuadraticVertexPointMethod().run(
+        {
+            "parabola": x**2 - 2 * x + 3,
+            "x": x,
+            "target": PointRef("P", "$question.i.points.P"),
+        },
+        kernel,
+    )
+
+    assert result.outputs["point"].value == (1, 2)
+
+
+def test_quadratic_y_axis_intercept_point_method() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["x", "a", "b", "c"])
+    x, a, b, c = (symbols[name] for name in ("x", "a", "b", "c"))
+
+    result = QuadraticYAxisInterceptPointMethod().run(
+        {
+            "quadratic": a * x**2 - b * x + c,
+            "x": x,
+            "target": PointRef("C", "$question.ii.points.C"),
+        },
+        kernel,
+    )
+
+    assert result.outputs["point"].value == (0, c)
 
 
 def test_right_angle_equal_length_candidates_method() -> None:
@@ -146,6 +269,117 @@ def test_right_angle_equal_length_candidates_method() -> None:
     )
 
     assert result.outputs["candidates"].value == [(2, -2), (0, 2)]
+    assert all(check.ok for check in result.checks)
+
+
+def test_select_curve_point_candidate_and_solve_coefficients_method() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["x", "a", "b", "c"])
+    x, a, b, c = (symbols[name] for name in ("x", "a", "b", "c"))
+    candidates = RightAngleEqualLengthCandidatesMethod().run(
+        {
+            "anchor": (-1, 0),
+            "reference": (0, c),
+            "target": PointRef("D", "$question.ii.points.D"),
+        },
+        kernel,
+    ).outputs["candidates"].value
+
+    result = SelectCurvePointCandidateAndSolveCoefficientsMethod().run(
+        {
+            "candidates": candidates,
+            "target": PointRef("D", "$question.ii.points.D"),
+            "quadratic": a * x**2 - b * x + c,
+            "x": x,
+            "curve_point": (-1, 0),
+            "known_coefficients": {a: 2},
+            "unknowns": [a, b, c],
+            "primary_symbol": b,
+            "secondary_symbol": c,
+            "primary_constraint": {"operator": ">", "value": sp.Integer(0)},
+        },
+        kernel,
+    )
+
+    assert sp.simplify(result.outputs["primary_value"].value - (-1 + sp.sqrt(2))) == 0
+    assert sp.simplify(result.outputs["secondary_value"].value - (-1 - sp.sqrt(2))) == 0
+    assert result.outputs["point"].value == (sp.sqrt(2), 1)
+
+
+def test_select_curve_point_candidate_uses_pre_substituted_parabola() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["x", "a", "b", "c"])
+    x, a, b, c = (symbols[name] for name in ("x", "a", "b", "c"))
+    parametric_parabola = 2 * x**2 - b * x - b - 2
+    candidates = RightAngleEqualLengthCandidatesMethod().run(
+        {
+            "anchor": (-1, 0),
+            "reference": (0, -b - 2),
+            "target": PointRef("D", "$question.ii.points.D"),
+        },
+        kernel,
+    ).outputs["candidates"].value
+
+    result = SelectCurvePointCandidateAndSolveCoefficientsMethod().run(
+        {
+            "candidates": candidates,
+            "target": PointRef("D", "$question.ii.points.D"),
+            "quadratic": parametric_parabola,
+            "x": x,
+            "coefficient_dependencies": {a: 2, c: -b - 2},
+            "primary_symbol": b,
+            "secondary_symbol": c,
+            "primary_constraint": {"operator": ">", "value": sp.Integer(0)},
+        },
+        kernel,
+    )
+
+    assert sp.simplify(result.outputs["primary_value"].value - (-1 + sp.sqrt(2))) == 0
+    assert sp.simplify(result.outputs["secondary_value"].value - (-1 - sp.sqrt(2))) == 0
+    assert result.outputs["point"].value == (sp.sqrt(2), 1)
+
+
+def test_filter_point_candidates_by_quadratic_curve_method() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["x", "b"])
+    x, b = symbols["x"], symbols["b"]
+
+    result = FilterPointCandidatesByQuadraticCurveMethod().run(
+        {
+            "candidates": [(-b - 3, -1), (b + 1, 1)],
+            "target": PointRef("D", "$question.ii.points.D"),
+            "parabola": 2 * x**2 - b * x - b - 2,
+            "x": x,
+            "parameter": b,
+            "parameter_constraint": {"operator": ">", "value": sp.Integer(0)},
+        },
+        kernel,
+    )
+
+    assert result.outputs["filtered_candidates"].value == [(b + 1, 1)]
+    assert result.outputs["rejected_candidates"].value == [(-b - 3, -1)]
+    assert all(check.ok for check in result.checks)
+
+
+def test_filter_point_candidates_by_quadratic_curve_keeps_all_valid_candidates() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["x", "b"])
+    x, b = symbols["x"], symbols["b"]
+
+    result = FilterPointCandidatesByQuadraticCurveMethod().run(
+        {
+            "candidates": [(sp.Integer(0), sp.Integer(1)), (sp.Integer(1), sp.Integer(2))],
+            "target": PointRef("T", "$question.ii.points.T"),
+            "parabola": x**2 + b,
+            "x": x,
+            "parameter": b,
+            "parameter_constraint": {"operator": ">", "value": sp.Integer(0)},
+        },
+        kernel,
+    )
+
+    assert result.outputs["filtered_candidates"].value == [(sp.Integer(0), sp.Integer(1)), (sp.Integer(1), sp.Integer(2))]
+    assert result.outputs["rejected_candidates"].value == []
     assert all(check.ok for check in result.checks)
 
 
@@ -200,19 +434,19 @@ def test_midpoint_point_method() -> None:
     assert result.outputs["midpoint"].value == (2, 4)
 
 
-def test_quadratic_coefficients_from_curve_points_method() -> None:
+def test_quadratic_from_constraints_with_curve_points_and_relation() -> None:
     kernel = SympyKernel()
     symbols = kernel.symbols(["x", "a", "b", "c", "m"])
     x, a, b, c, m = (symbols[name] for name in ("x", "a", "b", "c", "m"))
 
-    result = QuadraticCoefficientsFromCurvePointsMethod().run(
+    result = QuadraticFromConstraintsMethod().run(
         {
             "quadratic": a * x**2 + b * x + c,
             "x": x,
             "p1": (m, 1),
             "p2": (2, 1 - m),
             "coefficient_relation": sp.Eq(2 * a + b, 0),
-            "unknowns": [a, b, c],
+            "all_coefficients": [a, b, c],
         },
         kernel,
     )
@@ -250,6 +484,27 @@ def test_parabola_at_parameter_method() -> None:
     )
 
     assert result.outputs["parabola"].value == 3 * x**2
+
+
+def test_point_on_parabola_at_x_method() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["x", "b"])
+    x, b = symbols["x"], symbols["b"]
+
+    result = PointOnParabolaAtXMethod().run(
+        {
+            "parabola": x**2 - b * x - b - 1,
+            "x": x,
+            "target": PointRef(
+                "M",
+                "$question.iii.points.M",
+                definition={"definition": "point_on_parabola_at_x", "x": "b + 1/2"},
+            ),
+        },
+        kernel,
+    )
+
+    assert result.outputs["point"].value == (b + sp.Rational(1, 2), -b / 2 - sp.Rational(3, 4))
 
 
 def test_two_moving_points_path_reduction_method() -> None:
@@ -412,3 +667,90 @@ def test_line_intersection_point_method() -> None:
     )
 
     assert result.outputs["intersection"].value == (1, 0)
+
+
+def test_weighted_axis_path_triangle_transform_method() -> None:
+    """加权路径先由辅助等腰直角三角形转成普通折线路径。"""
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["n"])
+    n = symbols["n"]
+
+    result = WeightedAxisPathTriangleTransformMethod().run(
+        {
+            "condition": {"path": "sqrt(2)*MN+AN", "value": "21/4"},
+            "fixed_point": (-1, 0),
+            "moving_point": (n, 0),
+            "dynamic_parameter": n,
+            "auxiliary_point_ref": PointRef("R", "$question.iii.points.R"),
+        },
+        kernel,
+    )
+
+    assert result.outputs["auxiliary_point"].value == (
+        (n - 1) / 2,
+        (n + 1) / 2,
+    )
+    assert result.outputs["path_transformation"].value["inner_path"] == "MN+RN"
+    assert result.outputs["path_transformation"].value["auxiliary_point_name"] == "R"
+    assert result.outputs["auxiliary_locus"].type == "Line"
+    assert result.outputs["auxiliary_locus"].value["kind"] == "ray"
+    assert result.outputs["auxiliary_locus"].value["direction"] == (1, 1)
+    assert all(check.ok for check in result.checks)
+
+
+def test_linked_broken_path_geometric_minimum_method() -> None:
+    """河西加权路径应走几何折线拉直，而不是依赖求导。"""
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["b", "n"])
+    b, n = symbols["b"], symbols["n"]
+    transform = WeightedAxisPathTriangleTransformMethod().run(
+        {
+            "condition": {"path": "sqrt(2)*MN+AN", "value": "21/4"},
+            "fixed_point": (-1, 0),
+            "moving_point": (n, 0),
+            "dynamic_parameter": n,
+            "auxiliary_point_ref": PointRef("Q", "$question.iii.points.Q"),
+        },
+        kernel,
+    )
+
+    result = LinkedBrokenPathGeometricMinimumMethod().run(
+        {
+            "condition": {"path": "sqrt(2)*MN+AN", "value": "21/4"},
+            "path_transformation": transform.outputs["path_transformation"].value,
+            "auxiliary_locus": transform.outputs["auxiliary_locus"].value,
+            "fixed_point": (-1, 0),
+            "curve_point": (b + sp.Rational(1, 2), -b / 2 - sp.Rational(3, 4)),
+            "moving_point": (n, 0),
+            "auxiliary_point": transform.outputs["auxiliary_point"].value,
+            "parameter": b,
+            "dynamic_parameter": n,
+            "parameter_constraint": {"operator": ">", "value": sp.Integer(0)},
+            "dynamic_constraint": {"operator": ">", "value": sp.Integer(0)},
+        },
+        kernel,
+    )
+
+    assert result.outputs["parameter_value"].value == 2
+    assert result.outputs["dynamic_parameter_value"].value == sp.Rational(3, 4)
+    assert result.outputs["minimum_value"].value == sp.Rational(21, 4)
+    assert result.outputs["dynamic_point"].value == (sp.Rational(3, 4), 0)
+    assert all(check.ok for check in result.checks)
+
+
+def test_coefficient_at_parameter_method() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["b", "c"])
+    b, c = symbols["b"], symbols["c"]
+
+    result = CoefficientAtParameterMethod().run(
+        {
+            "coefficients": {c: -b - 1},
+            "coefficient": c,
+            "parameter": b,
+            "parameter_value": sp.Integer(2),
+        },
+        kernel,
+    )
+
+    assert result.outputs["coefficient_value"].value == -3

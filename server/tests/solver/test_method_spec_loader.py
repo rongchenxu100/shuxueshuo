@@ -39,6 +39,52 @@ def test_loads_broken_path_straightening_specs() -> None:
     assert selector_spec.outputs["auxiliary_point"] == "Point"
 
 
+def test_loads_quadratic_from_constraints_spec() -> None:
+    """统一二次函数约束 method 应暴露足够的可选约束输入槽位。"""
+    registry = MethodSpecRegistry.load_from_code()
+    spec = registry.require("quadratic_from_constraints")
+
+    assert spec.inputs["quadratic"].type == "Expression"
+    assert spec.inputs["x"].type == "Symbol"
+    assert spec.inputs["all_coefficients"].type == "SymbolList"
+    assert spec.inputs["known_coefficients"].required is False
+    assert spec.inputs["coefficient_relation"].type == "Equation"
+    assert spec.inputs["curve_point"].type == "Point"
+    assert spec.inputs["curve_points"].type == "PointList"
+    assert spec.inputs["free_parameter"].type == "Symbol"
+    assert spec.inputs["free_parameters"].type == "SymbolList"
+    assert spec.outputs["coefficients"] == "Coefficients"
+    assert spec.outputs["parabola"] == "Parabola"
+
+
+def test_loads_quadratic_candidate_filter_spec() -> None:
+    registry = MethodSpecRegistry.load_from_code()
+    spec = registry.require("filter_point_candidates_by_quadratic_curve")
+
+    assert spec.inputs["candidates"].type == "PointList"
+    assert spec.inputs["parabola"].type == "Parabola"
+    assert spec.inputs["parameter_constraint"].type == "Constraint"
+    assert spec.outputs["filtered_candidates"] == "PointList"
+    assert spec.outputs["rejected_candidates"] == "PointList"
+
+
+def test_loads_weighted_geometric_path_specs() -> None:
+    """加权路径的几何转化与折线最短应作为独立 method 暴露给 planner。"""
+    registry = MethodSpecRegistry.load_from_code()
+    transform = registry.require("weighted_axis_path_triangle_transform")
+    minimum = registry.require("linked_broken_path_geometric_minimum")
+
+    assert transform.inputs["condition"].type == "Condition"
+    assert transform.inputs["auxiliary_point_ref"].type == "PointRef"
+    assert transform.outputs["auxiliary_point"] == "Point"
+    assert transform.outputs["path_transformation"] == "PathTransformation"
+    assert transform.outputs["auxiliary_locus"] == "Line"
+    assert minimum.inputs["path_transformation"].type == "PathTransformation"
+    assert minimum.inputs["auxiliary_locus"].type == "Line"
+    assert minimum.inputs["auxiliary_point"].type == "Point"
+    assert minimum.outputs["parameter_value"] == "ParameterValue"
+
+
 def test_searches_spec_by_goal_type() -> None:
     registry = MethodSpecRegistry.load_from_code()
 

@@ -1,0 +1,31 @@
+{
+  "method_id": "quadratic_y_axis_intercept_point",
+  "title": "求二次函数与 y 轴交点",
+  "description": "由二次函数解析式求与 y 轴的交点。",
+  "solves": [
+    "derive_quadratic_y_axis_intercept_point"
+  ],
+  "inputs": {
+    "quadratic": {
+      "type": "Parabola",
+      "required": true
+    },
+    "x": {
+      "type": "Symbol",
+      "required": true
+    },
+    "target": {
+      "type": "PointRef",
+      "required": true
+    }
+  },
+  "outputs": {
+    "point": "Point"
+  },
+  "preconditions": [
+    "quadratic 是关于 x 的函数表达式"
+  ],
+  "postconditions": [
+    "输出点横坐标为 0 且在曲线上"
+  ]
+}

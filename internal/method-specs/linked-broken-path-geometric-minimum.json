@@ -1,0 +1,67 @@
+{
+  "method_id": "linked_broken_path_geometric_minimum",
+  "title": "联动点折线拉直最值",
+  "description": "用“将军饮马”的折线最短思想处理带联动辅助点的路径最值。",
+  "solves": [
+    "derive_linked_broken_path_geometric_minimum"
+  ],
+  "inputs": {
+    "condition": {
+      "type": "Condition",
+      "required": true
+    },
+    "path_transformation": {
+      "type": "PathTransformation",
+      "required": true
+    },
+    "auxiliary_locus": {
+      "type": "Line",
+      "required": true
+    },
+    "fixed_point": {
+      "type": "Point",
+      "required": true
+    },
+    "curve_point": {
+      "type": "Point",
+      "required": true
+    },
+    "moving_point": {
+      "type": "Point",
+      "required": true
+    },
+    "auxiliary_point": {
+      "type": "Point",
+      "required": true
+    },
+    "parameter": {
+      "type": "Symbol",
+      "required": true
+    },
+    "dynamic_parameter": {
+      "type": "Symbol",
+      "required": true
+    },
+    "parameter_constraint": {
+      "type": "Constraint",
+      "required": true
+    },
+    "dynamic_constraint": {
+      "type": "Constraint",
+      "required": true
+    }
+  },
+  "outputs": {
+    "parameter_value": "ParameterValue",
+    "dynamic_parameter_value": "ParameterValue",
+    "minimum_value": "MinimumExpression",
+    "dynamic_point": "Point"
+  },
+  "preconditions": [
+    "已经完成加权路径到 MN+QN 的辅助点转化",
+    "Q 随 N 在固定射线上运动"
+  ],
+  "postconditions": [
+    "输出参数值满足题设最小值和动点范围"
+  ]
+}

@@ -1,0 +1,235 @@
+"""quadratic_from_constraints 无状态 method。
+
+本文件同时保存该 method 的实现与 SPEC；生成的 MethodSpec JSON 只是
+从这里派生出的资产，不作为事实源。
+"""
+
+from __future__ import annotations
+
+from ._common import *
+from ._spec import MethodSpecSource
+
+
+class QuadraticFromConstraintsMethod:
+    """由系数事实、曲线点事实和额外方程统一求二次函数。
+
+    这个 method 合并了此前三类近似方法：
+
+    - 只由已知系数和系数关系补齐抛物线；
+    - 由点在抛物线上和系数关系求通式；
+    - 由已知系数和一个曲线点求含参抛物线；
+    - 只代入部分已知系数，得到仍含自由系数的当前问抛物线。
+
+    V1.5 的 MethodInvocation 只能传 ContextPath，暂时不能直接构造“任意长度 facts
+    列表”，所以输入仍保留 ``curve_point/p1/p2`` 这几个固定槽位；method 内部会把
+    它们统一组装成约束方程。``free_parameter/free_parameters`` 表示本步骤允许保留
+    的自由系数，例如河西第（Ⅱ）问先把 ``a=2`` 代入，保留 ``b,c``，用于后续求
+    C、D 和联立方程。后续有 ContextValue 构造器后，可以收敛成真正的
+    ``curve_points`` / ``extra_equations`` / ``free_symbols`` 列表输入。
+    """
+
+    method_id = "quadratic_from_constraints"
+
+    def run(self, inputs: dict[str, Any], kernel: SympyKernel) -> StatelessMethodResult:
+        quadratic = inputs["quadratic"]
+        x = inputs["x"]
+        coefficients = list(inputs["all_coefficients"])
+        known = dict(inputs.get("known_coefficients", {}))
+        free_symbols = _collect_free_symbols(inputs)
+        substitution = _parameter_substitution(inputs)
+
+        points = _collect_curve_points(inputs, substitution)
+        equations = _collect_extra_equations(inputs, known, substitution)
+        equations.extend(
+            sp.Eq(quadratic.subs(known).subs(x, point[0]), point[1])
+            for point in points
+        )
+
+        unknowns = [
+            symbol
+            for symbol in coefficients
+            if symbol not in known and symbol not in free_symbols
+        ]
+        values = dict(known)
+        if unknowns:
+            if not equations:
+                names = ", ".join(symbol.name for symbol in unknowns)
+                raise ValueError(f"约束不足以确定系数: {names}")
+            solutions = kernel.solve_equations(equations, unknowns)
+            if len(solutions) != 1:
+                raise ValueError("二次函数约束不能唯一确定缺失系数")
+            values.update(solutions[0])
+            missing = [symbol for symbol in unknowns if symbol not in values]
+            if missing:
+                names = ", ".join(symbol.name for symbol in missing)
+                raise ValueError(f"约束不足以确定系数: {names}")
+        else:
+            for equation in equations:
+                if sp.simplify(equation.lhs - equation.rhs) != 0:
+                    raise ValueError("已知系数与约束条件矛盾")
+
+        parabola = sp.expand(quadratic.subs(values))
+        checks = _build_checks(kernel, parabola, x, points, equations, values, known)
+        calculation = ", ".join(
+            f"{symbol.name}={kernel.sstr(value)}"
+            for symbol, value in values.items()
+        )
+        return StatelessMethodResult(
+            method_id=self.method_id,
+            outputs={
+                "coefficients": TypedValue("Coefficients", values, source=self.method_id),
+                "parabola": TypedValue("Parabola", parabola, source=self.method_id),
+            },
+            checks=checks,
+            trace_fragments=[
+                _step(
+                    self.method_id,
+                    "由约束求抛物线",
+                    "确定当前问的二次函数系数",
+                    _reason_text(points, equations, known),
+                    calculation,
+                    f"y={kernel.sstr(parabola)}",
+                )
+            ],
+        )
+
+
+def _parameter_substitution(inputs: dict[str, Any]) -> dict[sp.Symbol, sp.Expr]:
+    """把可选参数值整理成统一 substitutions。"""
+    parameter = inputs.get("parameter")
+    parameter_value = inputs.get("parameter_value")
+    if parameter is None or parameter_value is None:
+        return {}
+    return {parameter: parameter_value}
+
+
+def _collect_free_symbols(inputs: dict[str, Any]) -> set[sp.Symbol]:
+    """收集本步骤允许保留的自由系数。
+
+    单个 ``free_parameter`` 用于“求出关于 b 的含参抛物线”这类旧场景；
+    ``free_parameters`` 则用于“先代入 a=2，保留 b、c”这类多自由系数场景。
+    """
+    free_symbols: set[sp.Symbol] = set()
+    free_parameter = inputs.get("free_parameter")
+    if free_parameter is not None:
+        free_symbols.add(free_parameter)
+    free_parameters = inputs.get("free_parameters")
+    if free_parameters is not None:
+        free_symbols.update(free_parameters)
+    return free_symbols
+
+
+def _collect_curve_points(
+    inputs: dict[str, Any],
+    substitution: dict[sp.Symbol, sp.Expr],
+) -> list[Point]:
+    """收集可选曲线点，并统一代入已知参数。"""
+    points: list[Point] = []
+    if "curve_points" in inputs:
+        points.extend(inputs["curve_points"])
+    for name in ("curve_point", "p1", "p2"):
+        if name in inputs:
+            points.append(inputs[name])
+    if substitution:
+        return [_subs_point(point, substitution) for point in points]
+    return points
+
+
+def _collect_extra_equations(
+    inputs: dict[str, Any],
+    known: dict[sp.Symbol, sp.Expr],
+    substitution: dict[sp.Symbol, sp.Expr],
+) -> list[sp.Equality]:
+    """收集可选额外方程，例如系数关系。"""
+    equations: list[sp.Equality] = []
+    relation = inputs.get("coefficient_relation")
+    if relation is not None:
+        equations.append(relation)
+    extra_equation = inputs.get("extra_equation")
+    if extra_equation is not None:
+        equations.append(extra_equation)
+    return [
+        sp.Eq(
+            sp.simplify(equation.lhs.subs(known).subs(substitution)),
+            sp.simplify(equation.rhs.subs(known).subs(substitution)),
+        )
+        for equation in equations
+    ]
+
+
+def _build_checks(
+    kernel: SympyKernel,
+    parabola: sp.Expr,
+    x: sp.Symbol,
+    points: list[Point],
+    equations: list[sp.Equality],
+    values: dict[sp.Symbol, sp.Expr],
+    known: dict[sp.Symbol, sp.Expr],
+) -> list[CheckResult]:
+    """为统一约束求解结果生成验算 checks。"""
+    checks = [
+        _check(
+            "known_coefficients_preserved",
+            all(symbol in values and values[symbol] == value for symbol, value in known.items()),
+            "已知系数被保留",
+        )
+    ]
+    for index, equation in enumerate(equations):
+        checks.append(
+            _check(
+                f"extra_equation_{index}_satisfied",
+                sp.simplify(equation.lhs.subs(values) - equation.rhs.subs(values)) == 0,
+                "额外方程约束成立",
+            )
+        )
+    for index, point in enumerate(points):
+        checks.append(
+            _check(
+                f"curve_point_{index}_on_parabola",
+                kernel.point_on_curve(point, parabola, x),
+                "曲线点满足求得的抛物线",
+            )
+        )
+    return checks
+
+
+def _reason_text(
+    points: list[Point],
+    equations: list[sp.Equality],
+    known: dict[sp.Symbol, sp.Expr],
+) -> str:
+    """根据输入约束生成 trace 的理由文本。"""
+    pieces = []
+    if known:
+        pieces.append("代入已知系数")
+    if points:
+        pieces.append("把曲线点代入抛物线")
+    if equations:
+        pieces.append("联立额外系数方程")
+    return "；".join(pieces) + "。" if pieces else "直接整理二次函数约束。"
+
+
+SPEC = MethodSpecSource(
+    method_cls=QuadraticFromConstraintsMethod,
+    title="由二次函数约束求抛物线",
+    solves=("derive_quadratic_from_constraints",),
+    inputs={
+        "quadratic": {"type": "Expression", "required": True},
+        "x": {"type": "Symbol", "required": True},
+        "all_coefficients": {"type": "SymbolList", "required": True},
+        "known_coefficients": {"type": "Coefficients", "required": False},
+        "coefficient_relation": {"type": "Equation", "required": False},
+        "extra_equation": {"type": "Equation", "required": False},
+        "curve_point": {"type": "Point", "required": False},
+        "curve_points": {"type": "PointList", "required": False},
+        "p1": {"type": "Point", "required": False},
+        "p2": {"type": "Point", "required": False},
+        "free_parameter": {"type": "Symbol", "required": False},
+        "free_parameters": {"type": "SymbolList", "required": False},
+        "parameter": {"type": "Symbol", "required": False},
+        "parameter_value": {"type": "ParameterValue", "required": False},
+    },
+    outputs={"coefficients": "Coefficients", "parabola": "Parabola"},
+    preconditions=("输入约束必须能唯一确定除 free_parameter 外的缺失系数",),
+    postconditions=("输出抛物线满足已知系数、曲线点和额外方程约束",),
+)

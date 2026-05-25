@@ -15,6 +15,7 @@ import pytest
 
 from shuxueshuo_server.solver.fixtures import load_problem_ir
 from shuxueshuo_server.solver.math_kernel import SympyKernel
+from shuxueshuo_server.solver.problem_models import ProblemIR
 from shuxueshuo_server.solver.runtime.context import ContextBuilder
 from shuxueshuo_server.solver.runtime.models import PointRef
 from shuxueshuo_server.solver.runtime.quadratic_path_planner import (
@@ -103,6 +104,10 @@ class TestContextBuilderNankaiQuestions:
         assert known[context.symbols["a"]] == 2
         assert known[context.symbols["c"]] == -5
         assert context.symbols["b"] not in known
+
+    def test_question_unknown_quadratic_coefficients(self, context) -> None:
+        unknowns = context.get_scope("i").container("symbol_lists")["unknown_quadratic_coefficients"].value
+        assert unknowns == [context.symbols["b"]]
 
     def test_subquestion_conditions(self, context) -> None:
         length_sq = context.read_path(
@@ -202,6 +207,95 @@ class TestContextBuilderNankaiPoints:
         assert isinstance(d_prime, PointRef)
         assert d_prime.definition["definition"] == "straightening_auxiliary_point"
         assert d_prime.scope_id == "ii"
+
+    def test_constructed_point_scope_uses_definition_dependencies_without_ii_hardcode(
+        self,
+        kernel: SympyKernel,
+    ) -> None:
+        """构造点依赖都在 iii 时，应归属 iii，而不是历史硬编码的 ii。"""
+        problem = ProblemIR(
+            problem_id="synthetic-scope-iii",
+            pattern="path-minimum",
+            problem_type="quadratic_path_minimum",
+            symbols=["x", "a", "b", "c"],
+            data={
+                "function": {
+                    "id": "parabola",
+                    "type": "quadratic",
+                    "expression": "a*x**2 + b*x + c",
+                },
+                "entities": {
+                    "points": {
+                        "A": {"coordinate": ["0", "0"]},
+                        "B": {"coordinate": ["1", "0"]},
+                        "C": {"coordinate": ["0", "1"]},
+                        "X": {
+                            "definition": "square_opposite_point",
+                            "vertex": "A",
+                            "adjacent": ["B", "C"],
+                        },
+                    }
+                },
+                "relations": [],
+                "questions": [
+                    {"id": "iii", "label": "第（Ⅲ）问", "asks": ["A、B、C、X"]}
+                ],
+            },
+        )
+
+        context = ContextBuilder(kernel).build(problem)
+        ref = context.read_path(
+            "$question.iii.points.X",
+            from_scope_id="iii",
+            expected_type="PointRef",
+        ).value
+
+        assert ref.scope_id == "iii"
+
+    def test_constructed_point_cross_scope_dependencies_fall_back_to_problem(
+        self,
+        kernel: SympyKernel,
+    ) -> None:
+        """依赖跨 question scope 时，构造点保守放 problem，避免误塞到 ii。"""
+        problem = ProblemIR(
+            problem_id="synthetic-cross-scope",
+            pattern="path-minimum",
+            problem_type="quadratic_path_minimum",
+            symbols=["x", "a", "b", "c"],
+            data={
+                "function": {
+                    "id": "parabola",
+                    "type": "quadratic",
+                    "expression": "a*x**2 + b*x + c",
+                },
+                "entities": {
+                    "points": {
+                        "A": {"coordinate": ["0", "0"]},
+                        "B": {"coordinate": ["1", "0"]},
+                        "Y": {
+                            "definition": "reflected_point",
+                            "source": "A",
+                            "mirror_line": ["B", "C"],
+                        },
+                        "C": {"coordinate": ["0", "1"]},
+                    }
+                },
+                "relations": [],
+                "questions": [
+                    {"id": "ii", "label": "第（Ⅱ）问", "asks": ["A"]},
+                    {"id": "iii", "label": "第（Ⅲ）问", "asks": ["B、C"]},
+                ],
+            },
+        )
+
+        context = ContextBuilder(kernel).build(problem)
+        ref = context.read_path(
+            "$problem.points.Y",
+            from_scope_id="iii",
+            expected_type="PointRef",
+        ).value
+
+        assert ref.scope_id == "problem"
 
 
 class TestContextBuilderUsesInjectedKernel:

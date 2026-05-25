@@ -64,7 +64,8 @@
             "description": "D 在抛物线上，且 ∠CAD=90°、AC=AD"
           },
           "M": {
-            "coordinate": ["b + 1/2", "y_M"],
+            "definition": "point_on_parabola_at_x",
+            "x": "b + 1/2",
             "description": "M(b+1/2,y_M) 在抛物线上"
           },
           "N": {
@@ -114,6 +115,15 @@
             "b": "2",
             "c": "3"
           },
+          "goals": [
+            {
+              "id": "i_P",
+              "answer_key": "P",
+              "target_path": "$question.i.points.P",
+              "value_type": "Point",
+              "required": true
+            }
+          ],
           "asks": ["P 的坐标"]
         },
         {
@@ -122,6 +132,15 @@
           "known_coefficients": {
             "a": "2"
           },
+          "goals": [
+            {
+              "id": "ii_D",
+              "answer_key": "D",
+              "target_path": "$question.ii.points.D",
+              "value_type": "Point",
+              "required": true
+            }
+          ],
           "asks": ["D 的坐标"]
         },
         {
@@ -135,6 +154,15 @@
               "type": "minimum_value",
               "path": "sqrt(2)*MN+AN",
               "value": "21/4"
+            }
+          ],
+          "goals": [
+            {
+              "id": "iii_b",
+              "answer_key": "b",
+              "target_path": "$question.iii.outputs.b",
+              "value_type": "ParameterValue",
+              "required": true
             }
           ],
           "asks": ["b 的值"]

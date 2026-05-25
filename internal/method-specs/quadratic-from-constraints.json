@@ -1,0 +1,76 @@
+{
+  "method_id": "quadratic_from_constraints",
+  "title": "由二次函数约束求抛物线",
+  "description": "由系数事实、曲线点事实和额外方程统一求二次函数。",
+  "solves": [
+    "derive_quadratic_from_constraints"
+  ],
+  "inputs": {
+    "quadratic": {
+      "type": "Expression",
+      "required": true
+    },
+    "x": {
+      "type": "Symbol",
+      "required": true
+    },
+    "all_coefficients": {
+      "type": "SymbolList",
+      "required": true
+    },
+    "known_coefficients": {
+      "type": "Coefficients",
+      "required": false
+    },
+    "coefficient_relation": {
+      "type": "Equation",
+      "required": false
+    },
+    "extra_equation": {
+      "type": "Equation",
+      "required": false
+    },
+    "curve_point": {
+      "type": "Point",
+      "required": false
+    },
+    "curve_points": {
+      "type": "PointList",
+      "required": false
+    },
+    "p1": {
+      "type": "Point",
+      "required": false
+    },
+    "p2": {
+      "type": "Point",
+      "required": false
+    },
+    "free_parameter": {
+      "type": "Symbol",
+      "required": false
+    },
+    "free_parameters": {
+      "type": "SymbolList",
+      "required": false
+    },
+    "parameter": {
+      "type": "Symbol",
+      "required": false
+    },
+    "parameter_value": {
+      "type": "ParameterValue",
+      "required": false
+    }
+  },
+  "outputs": {
+    "coefficients": "Coefficients",
+    "parabola": "Parabola"
+  },
+  "preconditions": [
+    "输入约束必须能唯一确定除 free_parameter 外的缺失系数"
+  ],
+  "postconditions": [
+    "输出抛物线满足已知系数、曲线点和额外方程约束"
+  ]
+}

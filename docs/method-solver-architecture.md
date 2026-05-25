@@ -47,9 +47,10 @@ flowchart TD
 - 在线：优先使用高置信 SolverFamily；失败时进入 Method-Guided LLM 或 Free LLM + Verifier。
 - 离线：批量跑题库，统计 miss case，聚类出新 method / 新 family，回灌测试。
 
-### 2.1 当前南开 25 代码调用过程
+### 2.1 当前黄金题代码调用过程
 
-当前 canonical 南开 25 是第一阶段完整跑通的黄金用例。默认 CLI 和 `solve_problem()` 都走 deterministic planner，不调用真实 LLM。
+当前 canonical 南开 25 与河西 25 是第一阶段完整跑通的黄金用例。默认 CLI 和
+`solve_problem()` 都走 deterministic planner，不调用真实 LLM。
 
 ```text
 python -m shuxueshuo_server.solver.solve_problem --fixture ../internal/solver-fixtures/tj-2026-nankai-yimo-25.json
@@ -63,8 +64,8 @@ python -m shuxueshuo_server.solver.solve_problem --fixture ../internal/solver-fi
 
 ```text
 1. FamilyRegistry.match(problem)
-   -> 命中 QUADRATIC_PATH_MINIMUM_FAMILY
-   -> family_id = QuadraticPathMinimumSolver
+   -> 南开命中 QUADRATIC_PATH_MINIMUM_FAMILY
+   -> 河西命中 QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY
 
 2. ContextBuilder.build(problem)
    -> 建立 problem / question / subquestion scope
@@ -85,9 +86,10 @@ python -m shuxueshuo_server.solver.solve_problem --fixture ../internal/solver-fi
 6. PlannerInputs(...)
    -> problem_id + family_spec + question_goals + context_inventory + method_specs
 
-7. Nankai25DeterministicPlannerAdapter.plan(inputs)
-   -> 委托 QuadraticPathMinimumPlannerV15.plan(context)
-   -> planner 创建 G 与 D_prime 过程占位
+7. PlannerProvider 创建 deterministic planner
+   -> 南开委托 QuadraticPathMinimumPlannerV15.plan(context)
+   -> 河西使用 Hexi25WeightedPathPlannerV15.plan(inputs)
+   -> 南开 planner 创建 G 与 D_prime 过程占位
    -> 当前直接写入可写 PointRef；后续应迁移为显式 ContextDeclaration
    -> 返回 StepPlan[]
 
@@ -111,20 +113,63 @@ python -m shuxueshuo_server.solver.solve_problem --fixture ../internal/solver-fi
 
 ```text
 quadratic_axis_from_relation
-quadratic_from_known_coefficients
+quadratic_from_constraints
 right_angle_equal_length_candidates
 select_point_by_quadrant_constraint
 parameter_from_segment_length
-quadratic_coefficients_from_curve_points
+quadratic_from_constraints
 midpoint_point
 two_moving_points_path_reduction
 broken_path_straightening_candidates
 select_straightening_candidate
 distance_between_points
 parameter_from_minimum_value
-quadratic_coefficients_from_curve_points
+quadratic_from_constraints
 line_intersection_point
 ```
+
+河西 25 当前 method invocation 顺序：
+
+```text
+quadratic_from_constraints
+quadratic_vertex_point
+quadratic_from_constraints
+quadratic_y_axis_intercept_point
+right_angle_equal_length_candidates
+filter_point_candidates_by_quadratic_curve
+select_curve_point_candidate_and_solve_coefficients
+quadratic_from_constraints
+point_on_parabola_at_x
+weighted_axis_path_triangle_transform
+linked_broken_path_geometric_minimum
+```
+
+其中 `quadratic_from_constraints` 是当前二次函数系数求解的统一 method。它接收
+已知系数、系数关系、曲线点约束、额外方程和可选自由参数，然后统一生成
+`coefficients` 与 `parabola`。此前南开的
+“已知系数 + 关系求抛物线”“两点在曲线上 + 关系求系数”，以及河西的
+“已知系数 + 曲线点求含参抛物线”都收敛到这一入口，避免同一类代数约束按题目拆成
+多个近似 method。河西第（Ⅱ）问也使用它先代入 `a=2` 和 `A(-1,0)` 得到
+`y=2*x**2-b*x-b-2`，再求 C、列 D 候选，最后把 D 候选代回当前问抛物线求出 `b`，
+并由 `c=-b-2` 得到 `c`。
+
+河西第（Ⅲ）问的加权路径不再默认走代数求导。当前链路先调用
+`weighted_axis_path_triangle_transform` 构造辅助等腰直角三角形 `AQN`，把
+`sqrt(2)*MN+AN` 转成 `sqrt(2)*(MN+QN)`；再调用
+`linked_broken_path_geometric_minimum` 使用“将军饮马/折线拉直”的几何最短状态，
+由 `M,N,Q` 共线且拉直线垂直于 `Q` 的运动射线推出最小值表达式并反求 `b`。
+辅助点名由 planner 声明为 `PointRef` 后传给
+`weighted_axis_path_triangle_transform`，method 不写死 `Q`；它只根据题面路径端点和
+传入的辅助点名生成 `MN+QN` 这类转化文本。这个 method 还会显式输出
+`auxiliary_locus`，表示辅助点所在运动射线，例如 `kind=ray`、起点 A、方向 `(1,1)`。
+后续 `linked_broken_path_geometric_minimum` 必须读取这条射线，才能验证“拉直后的最短
+路径垂直于辅助点轨迹”。该 method 现在用点到辅助点轨迹的垂线距离计算最小值：
+先求曲线点到 `auxiliary_locus` 的垂足，再由 `Q(n)=垂足` 反推出动点参数，最后用
+`scale * distance(M, auxiliary_locus)` 得到原路径最小值表达式。后续遇到 30°/60° 直角三角形构造时，应扩展
+`weighted_axis_path_triangle_transform` 的权重-三角形构造表，而不是让 planner 写死
+辅助点坐标。
+`filter_point_candidates_by_quadratic_curve` 专门承担“把几何候选点代入当前问二次函数，
+按参数约束快速筛掉不可行候选”的步骤，避免把候选筛选和最终求系数混在同一个 method。
 
 ### 2.2 数学计算分层
 
@@ -732,26 +777,78 @@ Deterministic V1.5 slice
 - Stateless Method + MethodSpec from code。
 - `QuestionGoal` 解析与 `ResultBuilder` 答案收集。
 - `RuntimeOrchestrator` 通用运行编排。
-- 南开 25 的端到端求解。
+- 南开 25 与河西 25 的端到端求解。
 
 当前仍需重构：
 
 - `QuadraticPathMinimumPlannerV15` 仍是南开固定 step 模板。
-- `enabled_problem_ids` 仍是 canonical 南开 25 的临时支持门控。
+- `Hexi25WeightedPathPlannerV15` 仍是河西固定 step 模板。
+- `enabled_problem_ids` 仍是 deterministic slice 的临时支持门控。
 - Planner 占位点目前由 deterministic planner 直接写 RuntimeContext；长期应抽成可校验的 `ContextDeclaration` 阶段。
+- `SolverResult.trace` 当前是 runtime 计算轨迹，不是学生可直接阅读的解题稿。像河西第（Ⅲ）问里的
+  `垂足=(...), n=..., 最小值=...` 对机器验算友好，但不适合直接展示给初中生；并且某些
+  runtime 步骤只是为了后续验算或上下文完整性，例如求 `c`、代入得到完整抛物线，题面若只问
+  `b`，学生版讲解可以隐藏或合并这些步骤。
+- `_choose_point_scope()` 已移除 `ii` 硬编码；构造点优先按 relation scope，
+  其次按定义依赖点 scope 推断，跨 scope 时保守放到 problem。
+
+### 8.1 已知问题：Runtime Trace 不等于学生推导
+
+当前无状态 method 返回的 `trace_fragments` 主要服务三件事：
+
+1. 便于开发者 review solver 是否按预期调用 method。
+2. 便于 CLI/JSON 对每个 runtime step 做回归测试。
+3. 便于定位 check 失败时是哪一步的输入、输出或验算出了问题。
+
+这类 trace 是“机器计算轨迹”，不是“课堂推导稿”。例如河西第（Ⅲ）问，
+`linked_broken_path_geometric_minimum` 可以用点到辅助点运动射线的垂足公式快速算出
+最小值表达式；但学生更容易理解的推导是：
+
+```text
+构造等腰直角三角形 AQN
+=> AN = sqrt(2)*QN
+=> sqrt(2)*MN + AN = sqrt(2)*(MN + QN)
+=> MN + QN >= MQ
+=> 最短时 M,N,Q 共线，且 MQ 垂直 Q 的运动射线
+=> 因为射线与 x 轴成 45°，作 MH 垂直 x 轴，得到 △MHN 是等腰直角三角形
+=> 由 MH、HN、MN、AN、QN 的长度链得到最小值表达式
+```
+
+因此后续需要新增 `ExplanationBuilder` / `DerivationInterpreter` 层：
+
+```text
+PlanExecutionResult + RuntimeContext + QuestionGoal
+  -> collect explanation facts from method outputs/checks/trace metadata
+  -> apply audience policy (middle-school / teacher-review / debug)
+  -> hide or merge non-answer runtime steps
+  -> produce student-facing derivation steps
+```
+
+`ExplanationBuilder` 的输入不应是自由文本拼接，而应优先使用 method 输出的结构化解释事实，
+例如：
+
+- `path_transformation`：原路径、转化后路径、比例系数。
+- `auxiliary_locus`：辅助点在哪条射线/直线上运动。
+- equality condition：什么时候取等号，例如 `M,N,Q` 共线。
+- minimum condition：为什么要垂直于轨迹。
+- length chain：适合初中生理解的长度关系，如 `MH=HN`、`MN=sqrt(2)*MH`、`AN=AH-HN`。
+- visibility policy：哪些 runtime 产物只是验算或后续上下文，不进入学生版最终步骤。
+
+这层完成后，`SolverResult.trace` 可以继续保留 debug/runtime trace；学生端页面、讲义和
+`02_solution.md` 风格输出则读取 `ExplanationBuilder` 的结果。
 
 这里的 `enabled_problem_ids` 是硬门控，不是弱提示。`FamilyRegistry.match(problem)`
 会调用 `SolverFamilySpec.supports(problem)`：先判断 `pattern/problem_type` 是否命中，
 再检查 `problem.problem_id` 是否在 `enabled_problem_ids` 中。因此在当前阶段，即使
-一道题的题型信号完全命中 `quadratic_path_minimum`，只要不在白名单里，也会返回
+一道题的题型信号完全命中对应 family，只要不在白名单里，也会返回
 `unsupported`。
 
 退出 `enabled_problem_ids` 的条件：
 
-1. 至少两道同一 `quadratic_path_minimum` family 的完整端到端题目通过。
+1. 至少两道同一 family 的完整端到端题目通过。
 2. Planner 或 invocation resolver 不再依赖 canonical 南开 25 的点名和分问 id，例如
   `D/M/N/F/G`、`i/ii/ii_1/ii_2`。
-3. 去掉门控后，alt-label 同构题可以通过，河西 weighted path 或未知题型仍不会误路由。
+3. 去掉门控后，alt-label 同构题可以通过，其他 family 或未知题型仍不会误路由。
 4. 测试覆盖“pattern/type 命中但 problem_id 不在门控内”的拒绝行为，以及去门控后的正负样例。
 5. 满足以上条件后，从 FamilySpec 删除该字段，或让空 tuple 表示不再按题号限制。
 
@@ -768,6 +865,7 @@ server/shuxueshuo_server/solver/
     models.py                 # SolverFamilySpec / MatchSignals / StrategyPrinciples
     registry.py               # FamilyRegistry
     quadratic_path_minimum.py  # QuadraticPathMinimumFamilySpec
+    quadratic_weighted_path_minimum.py
   runtime/
     context.py
     models.py
@@ -776,6 +874,7 @@ server/shuxueshuo_server/solver/
     orchestrator.py           # FamilySpec -> Planner -> Executor -> ResultBuilder
     llm_step_planner.py       # Fake LLM + step decomposition 受控切片
     result_builder.py         # QuestionGoal -> SolverResult.answers
+    explanation_builder.py    # 未来：runtime trace -> 学生可读推导
     deterministic_planners/   # 接入 LLM 前的测试切片
     executor.py
     methods/
@@ -797,9 +896,12 @@ server/shuxueshuo_server/solver/
 | `runtime/method_specs.py`           | MethodSpecRegistry                                        |
 | `runtime/executor.py`               | PlanValidator + InvocationExecutor                        |
 | `runtime/quadratic_path_planner.py` | 当前南开固定 planner，后续迁移到 deterministic planners               |
+| `runtime/hexi_weighted_path_planner.py` | 当前河西固定 planner，验证第二道完整题链路                         |
 | `runtime/llm_step_planner.py`       | Fake LLM + AbstractStepPlan step decomposition 切片         |
 | `runtime/orchestrator.py`           | 通用运行编排：FamilySpec -> Planner -> Executor -> ResultBuilder |
+| `runtime/explanation_builder.py`    | 未来新增：将 runtime 计算轨迹转为面向学生的推导稿                         |
 | `family/quadratic_path_minimum.py`  | 二次函数路径最值 FamilySpec                                       |
+| `family/quadratic_weighted_path_minimum.py` | 二次函数加权路径最值 FamilySpec                              |
 
 
 ## 9. 第一阶段完成状态
@@ -808,7 +910,8 @@ server/shuxueshuo_server/solver/
 
 - 已新增 `SolverFamilySpec` 数据模型和 `FamilyRegistry`。
 - 已把 concrete solver 的题型匹配信息抽到 `QuadraticPathMinimumFamilySpec`。
-- `enabled_problem_ids` 仍作为 deterministic slice 的临时硬门控，只允许 canonical 南开 25；题型命中但不在门控内的题目仍会返回 `unsupported`。
+- 已新增 `QuadraticWeightedPathMinimumFamilySpec`，用于河西 25 加权路径最值黄金题。
+- `enabled_problem_ids` 仍作为 deterministic slice 的临时硬门控；题型命中但不在门控内的题目仍会返回 `unsupported`。
 - FamilySpec 不指定 planner，不保存答案结构，不承担执行职责。
 
 ### Phase 2：定义 Planner 接口与上下文索引
@@ -863,8 +966,12 @@ result = ResultBuilder.build(context, execution, question_goals)
 
 ### Phase 7：接第二道完整题
 
-- 用第二道 25 题验证同一个 FamilySpec 是否能覆盖。
-- 如果必须新增 SolverFamily，说明抽象还不够；优先补 method、补 relation schema、补 planner resolver。
+- 已接入河西 25 作为第二道完整端到端黄金题。
+- 河西属于 `weighted-path-minimum / quadratic_weighted_path_minimum`，因此新增
+  `QuadraticWeightedPathMinimumSolver` family，而不是误路由到南开 path family。
+- 已新增 `Hexi25WeightedPathPlannerV15` fixed template 和 weighted path 所需无状态 methods。
+- 这一步证明 Orchestrator、QuestionGoal、ResultBuilder、PlanValidator 和 MethodSpec
+  可以承接第二个 family；但 weighted planner 仍是 deterministic slice，不是通用 planner。
 
 ## 10. 测试策略
 
@@ -903,11 +1010,25 @@ result = ResultBuilder.build(context, execution, question_goals)
 - `engine` 不硬编码 concrete solver。
 - Planner 显式接收 FamilySpec。
 
+河西 25 当前验收基线是：
+
+```text
+第（Ⅰ）问最终答案：P(1,2)
+第（Ⅱ）问最终答案：D(sqrt(2),1)
+第（Ⅲ）问最终答案：b=2
+```
+
+其中最小值验证和点 N 是推导过程产物，会保留在 trace/checks 和 RuntimeContext 中，
+但不写入 `QuestionGoal`，也不作为 `SolverResult.answers` 的最终答案字段。第（Ⅲ）问
+不再额外计算 `c` 或最终抛物线，因为题面只要求 `b`；这类非答案产物应由后续
+`ExplanationBuilder` 或调试视图按需补充，而不进入默认 E2E trace。
+
 ## 12. 成功标准
 
 短期：
 
 - 南开 25 继续端到端通过。
+- 河西 25 继续端到端通过。
 - SolverFamilySpec 能作为 planner 输入。
 - `engine` 不再依赖单个 concrete solver。
 
@@ -921,4 +1042,3 @@ result = ResultBuilder.build(context, execution, question_goals)
 
 - 题库越大，FamilySpec / MethodSpec / Planner 越稳定。
 - LLM 的角色从“现场解题”转为“抽取题意、消歧义、修复 plan、改写讲解”。
-

@@ -10,21 +10,36 @@ from shuxueshuo_server.solver.runtime.quadratic_path_planner import (
 
 FIXTURE = "../internal/solver-fixtures/tj-2026-nankai-yimo-25.json"
 EXPECTED = "tests/solver/expected/tj-2026-nankai-yimo-25.expected.json"
+HEXI_FIXTURE = "../internal/solver-fixtures/tj-2026-hexi-yimo-25.json"
+HEXI_EXPECTED = "tests/solver/expected/tj-2026-hexi-yimo-25.expected.json"
 METHODS_USED = [
     "quadratic_axis_from_relation",
-    "quadratic_from_known_coefficients",
+    "quadratic_from_constraints",
     "right_angle_equal_length_candidates",
     "select_point_by_quadrant_constraint",
     "parameter_from_segment_length",
-    "quadratic_coefficients_from_curve_points",
+    "quadratic_from_constraints",
     "midpoint_point",
     "two_moving_points_path_reduction",
     "broken_path_straightening_candidates",
     "select_straightening_candidate",
     "distance_between_points",
     "parameter_from_minimum_value",
-    "quadratic_coefficients_from_curve_points",
+    "quadratic_from_constraints",
     "line_intersection_point",
+]
+HEXI_METHODS_USED = [
+    "quadratic_from_constraints",
+    "quadratic_vertex_point",
+    "quadratic_from_constraints",
+    "quadratic_y_axis_intercept_point",
+    "right_angle_equal_length_candidates",
+    "filter_point_candidates_by_quadratic_curve",
+    "select_curve_point_candidate_and_solve_coefficients",
+    "quadratic_from_constraints",
+    "point_on_parabola_at_x",
+    "weighted_axis_path_triangle_transform",
+    "linked_broken_path_geometric_minimum",
 ]
 
 
@@ -41,9 +56,12 @@ def test_runtime_orchestrator_solves_nankai_25_with_v15_runtime() -> None:
     assert result.trace is not None
     assert len(result.trace.steps) == len(METHODS_USED)
     q1_parameter_index = result.methods_used.index("parameter_from_segment_length")
-    q1_parabola_index = result.methods_used.index(
-        "quadratic_coefficients_from_curve_points"
-    )
+    quadratic_indexes = [
+        index
+        for index, method_id in enumerate(result.methods_used)
+        if method_id == "quadratic_from_constraints"
+    ]
+    q1_parabola_index = quadratic_indexes[1]
     assert q1_parameter_index < q1_parabola_index
     assert result.methods_used.index("midpoint_point") > q1_parabola_index
     assert "two_moving_points_path_reduction" in result.methods_used
@@ -60,6 +78,30 @@ def test_runtime_orchestrator_solves_nankai_25_with_v15_runtime() -> None:
 
     assert sp.simplify(sp.sympify(result.answers["ii_2"]["parabola"]) - sp.sympify(expected["ii_2"]["parabola"])) == 0
     assert result.answers["ii_2"][result_point] == expected["ii_2"][result_point]
+
+
+def test_runtime_orchestrator_solves_hexi_25_with_weighted_runtime() -> None:
+    problem = load_problem_ir(HEXI_FIXTURE)
+    expected = load_expected_answers(HEXI_EXPECTED)
+    result = solve_problem(problem)
+
+    assert problem.expected_answers == {}
+    assert result.status == "ok"
+    assert result.solver_family == "QuadraticWeightedPathMinimumSolver"
+    assert result.methods_used == HEXI_METHODS_USED
+    assert all(check.ok for check in result.checks)
+    assert result.trace is not None
+    assert len(result.trace.steps) == len(HEXI_METHODS_USED)
+
+    assert result.answers == expected
+    assert result.answers["i"]["P"] == expected["i"]["P"]
+    assert result.answers["ii"]["D"] == expected["ii"]["D"]
+    assert result.answers["iii"]["b"] == expected["iii"]["b"]
+    assert "parabola" not in result.answers["i"]
+    assert "b" not in result.answers["ii"]
+    assert "N" not in result.answers["iii"]
+    assert "weighted_axis_path_triangle_transform" in result.methods_used
+    assert "linked_broken_path_geometric_minimum" in result.methods_used
 
 
 def test_unsupported_problem_returns_unsupported() -> None:

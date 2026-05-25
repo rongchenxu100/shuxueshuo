@@ -1,0 +1,47 @@
+{
+  "method_id": "weighted_axis_path_triangle_transform",
+  "title": "加权路径的直角三角形转化",
+  "description": "用直角三角形把加权 x 轴动点路径转化为普通折线路径。",
+  "solves": [
+    "transform_weighted_axis_path_by_triangle"
+  ],
+  "inputs": {
+    "condition": {
+      "type": "Condition",
+      "required": true,
+      "description": "加权路径条件，例如 {\"path\": \"sqrt(2)*MN+AN\"}。"
+    },
+    "fixed_point": {
+      "type": "Point",
+      "required": true,
+      "description": "x 轴上的固定端点，例如 A。"
+    },
+    "moving_point": {
+      "type": "Point",
+      "required": true,
+      "description": "x 轴上的动点，例如 N(n,0)。"
+    },
+    "dynamic_parameter": {
+      "type": "Symbol",
+      "required": true,
+      "description": "动点横坐标参数，例如 n。"
+    },
+    "auxiliary_point_ref": {
+      "type": "PointRef",
+      "required": true,
+      "description": "planner 声明的辅助点引用；method 使用它的点名生成路径转化。"
+    }
+  },
+  "outputs": {
+    "auxiliary_point": "Point",
+    "path_transformation": "PathTransformation",
+    "auxiliary_locus": "Line"
+  },
+  "preconditions": [
+    "fixed_point 与 moving_point 在 x 轴上",
+    "当前切片支持 sqrt(2) 权重"
+  ],
+  "postconditions": [
+    "输出 planner 指定的辅助点、路径转化说明与辅助点运动射线"
+  ]
+}

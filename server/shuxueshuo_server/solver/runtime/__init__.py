@@ -58,6 +58,9 @@ from shuxueshuo_server.solver.runtime.planner import (
 from shuxueshuo_server.solver.runtime.quadratic_path_planner import (
     QuadraticPathMinimumPlannerV15,
 )
+from shuxueshuo_server.solver.runtime.hexi_weighted_path_planner import (
+    Hexi25WeightedPathPlannerV15,
+)
 from shuxueshuo_server.solver.runtime.result_builder import (
     ResultBuilder,
     ResultBuilderError,
@@ -78,6 +81,7 @@ __all__ = [
     "AbstractStepPlanCompiler",
     "FakeLLMPlannerClient",
     "GenericPlanner",
+    "Hexi25WeightedPathPlannerV15",
     "LLMPlannerClient",
     "LLMPlannerError",
     "LLMStepDecompositionPlanner",

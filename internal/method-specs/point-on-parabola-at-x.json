@@ -1,0 +1,31 @@
+{
+  "method_id": "point_on_parabola_at_x",
+  "title": "由横坐标求抛物线上点",
+  "description": "由目标点定义中的横坐标，在抛物线上求点坐标。",
+  "solves": [
+    "derive_point_on_parabola_at_x"
+  ],
+  "inputs": {
+    "parabola": {
+      "type": "Parabola",
+      "required": true
+    },
+    "x": {
+      "type": "Symbol",
+      "required": true
+    },
+    "target": {
+      "type": "PointRef",
+      "required": true
+    }
+  },
+  "outputs": {
+    "point": "Point"
+  },
+  "preconditions": [
+    "target.definition.x 或 target.definition.x_coordinate 必须存在"
+  ],
+  "postconditions": [
+    "输出点在给定抛物线上"
+  ]
+}

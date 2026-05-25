@@ -70,7 +70,7 @@ def test_solve_problem_cli_returns_unsupported_for_non_default_labels() -> None:
     assert payload["status"] == "unsupported"
 
 
-def test_solve_problem_cli_returns_unsupported_for_other_real_25() -> None:
+def test_solve_problem_cli_solves_hexi_weighted_25() -> None:
     completed = subprocess.run(
         [
             sys.executable,
@@ -84,7 +84,16 @@ def test_solve_problem_cli_returns_unsupported_for_other_real_25() -> None:
         text=True,
     )
 
-    assert completed.returncode != 0
+    assert completed.returncode == 0, completed.stderr
     payload = json.loads(completed.stdout)
     assert payload["problem_id"] == "tj-2026-hexi-yimo-25"
-    assert payload["status"] == "unsupported"
+    assert payload["status"] == "ok"
+    assert payload["solver_family"] == "QuadraticWeightedPathMinimumSolver"
+    assert payload["answers"]["iii"]["b"] == "2"
+    assert payload["answers"] == {
+        "i": {"P": ["1", "2"]},
+        "ii": {"D": ["sqrt(2)", "1"]},
+        "iii": {"b": "2"},
+    }
+    assert "weighted_axis_path_triangle_transform" in payload["methods_used"]
+    assert "linked_broken_path_geometric_minimum" in payload["methods_used"]

@@ -18,6 +18,7 @@ from collections.abc import Callable, Mapping
 from shuxueshuo_server.solver.family import (
     DEFAULT_FAMILY_REGISTRY,
     QUADRATIC_PATH_MINIMUM_FAMILY,
+    QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
     FamilyRegistry,
 )
 from shuxueshuo_server.solver.math_kernel import SympyKernel
@@ -45,8 +46,18 @@ def _nankai25_planner_provider(context: RuntimeContext) -> GenericPlanner:
     return Nankai25DeterministicPlannerAdapter(context)
 
 
+def _hexi25_planner_provider(context: RuntimeContext) -> GenericPlanner:
+    """河西 25 provider：第二道 E2E 的 weighted deterministic planner。"""
+    from shuxueshuo_server.solver.runtime.hexi_weighted_path_planner import (
+        Hexi25WeightedPathPlannerV15,
+    )
+
+    return Hexi25WeightedPathPlannerV15(context)
+
+
 DEFAULT_PLANNER_PROVIDERS: dict[str, PlannerProvider] = {
     QUADRATIC_PATH_MINIMUM_FAMILY.family_id: _nankai25_planner_provider,
+    QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY.family_id: _hexi25_planner_provider,
 }
 
 

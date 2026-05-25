@@ -76,6 +76,21 @@ def test_weighted_path_fixture_uses_path_problem_instead_of_solver_config() -> N
     }
 
 
+def test_hexi_fixture_goals_only_include_problem_asks() -> None:
+    """QuestionGoal 只表达题面最终作答目标，不收集中间推导量。"""
+    fixture = json.loads(WEIGHTED_PATH_FIXTURE.read_text(encoding="utf-8"))
+    questions = fixture["input"]["data"]["questions"]
+
+    assert [
+        (question["id"], [goal["answer_key"] for goal in question.get("goals", [])])
+        for question in questions
+    ] == [
+        ("i", ["P"]),
+        ("ii", ["D"]),
+        ("iii", ["b"]),
+    ]
+
+
 def test_nankai_fixture_preserves_original_question_structure() -> None:
     fixture = json.loads(FIXTURES[0].read_text(encoding="utf-8"))
     data = fixture["input"]["data"]

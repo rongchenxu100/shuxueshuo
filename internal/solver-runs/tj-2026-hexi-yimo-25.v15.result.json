@@ -1,0 +1,296 @@
+{
+  "problem_id": "tj-2026-hexi-yimo-25",
+  "status": "ok",
+  "solver_family": "QuadraticWeightedPathMinimumSolver",
+  "methods_used": [
+    "quadratic_from_constraints",
+    "quadratic_vertex_point",
+    "quadratic_from_constraints",
+    "quadratic_y_axis_intercept_point",
+    "right_angle_equal_length_candidates",
+    "filter_point_candidates_by_quadratic_curve",
+    "select_curve_point_candidate_and_solve_coefficients",
+    "quadratic_from_constraints",
+    "point_on_parabola_at_x",
+    "weighted_axis_path_triangle_transform",
+    "linked_broken_path_geometric_minimum"
+  ],
+  "facts": [],
+  "trace": {
+    "problem_id": "tj-2026-hexi-yimo-25",
+    "pattern": "weighted-path-minimum",
+    "methods": [
+      "quadratic_from_constraints",
+      "quadratic_vertex_point",
+      "quadratic_from_constraints",
+      "quadratic_y_axis_intercept_point",
+      "right_angle_equal_length_candidates",
+      "filter_point_candidates_by_quadratic_curve",
+      "select_curve_point_candidate_and_solve_coefficients",
+      "quadratic_from_constraints",
+      "point_on_parabola_at_x",
+      "weighted_axis_path_triangle_transform",
+      "linked_broken_path_geometric_minimum"
+    ],
+    "steps": [
+      {
+        "title": "由约束求抛物线",
+        "goal": "确定当前问的二次函数系数",
+        "reason": "代入已知系数。",
+        "calculation": "a=1, b=2, c=3",
+        "conclusion": "y=x**2 - 2*x + 3",
+        "method_id": "quadratic_from_constraints"
+      },
+      {
+        "title": "求二次函数顶点",
+        "goal": "确定 P 的坐标",
+        "reason": "二次函数顶点横坐标为 -B/(2A)，纵坐标代回解析式。",
+        "calculation": "P=(1, 2)",
+        "conclusion": "P(1, 2)",
+        "method_id": "quadratic_vertex_point"
+      },
+      {
+        "title": "由约束求抛物线",
+        "goal": "确定当前问的二次函数系数",
+        "reason": "代入已知系数；把曲线点代入抛物线；联立额外系数方程。",
+        "calculation": "a=2, c=-b - 2",
+        "conclusion": "y=-b*x - b + 2*x**2 - 2",
+        "method_id": "quadratic_from_constraints"
+      },
+      {
+        "title": "求 y 轴交点",
+        "goal": "确定 C 的坐标",
+        "reason": "抛物线与 y 轴交点满足 x=0，代入解析式即可。",
+        "calculation": "C=(0, -b - 2)",
+        "conclusion": "C(0, -b - 2)",
+        "method_id": "quadratic_y_axis_intercept_point"
+      },
+      {
+        "title": "由直角等腰条件列出 D 候选点",
+        "goal": "列出 D 的候选坐标",
+        "reason": "直角等腰三角形的另一条直角边可由已知直角边顺、逆时针旋转 90° 得到。",
+        "calculation": "D1=(-b - 3, -1), D2=(b + 1, 1)",
+        "conclusion": "D 有 2 个候选点",
+        "method_id": "right_angle_equal_length_candidates"
+      },
+      {
+        "title": "用抛物线条件筛选候选点",
+        "goal": "筛选 D 的可行候选",
+        "reason": "把每个候选点代入当前问的二次函数，并结合参数约束判断是否可能在曲线上。",
+        "calculation": "D1: 无满足 b>0 的解；D2: b=-1 + sqrt(2)",
+        "conclusion": "保留 1 个候选点",
+        "method_id": "filter_point_candidates_by_quadratic_curve"
+      },
+      {
+        "title": "代入 D 候选并求系数",
+        "goal": "确定 D 及抛物线系数",
+        "reason": "直角等长给出两个候选点；已知曲线点条件已在上一步代入，所以这里只需逐个把候选 D 代入当前问抛物线，再用参数约束筛选。",
+        "calculation": "b=-1 + sqrt(2), c=-sqrt(2) - 1",
+        "conclusion": "D(sqrt(2), 1)，y=2*x**2 - sqrt(2)*x + x - sqrt(2) - 1",
+        "method_id": "select_curve_point_candidate_and_solve_coefficients"
+      },
+      {
+        "title": "由约束求抛物线",
+        "goal": "确定当前问的二次函数系数",
+        "reason": "代入已知系数；把曲线点代入抛物线；联立额外系数方程。",
+        "calculation": "a=1, c=-b - 1",
+        "conclusion": "y=-b*x - b + x**2 - 1",
+        "method_id": "quadratic_from_constraints"
+      },
+      {
+        "title": "由横坐标求曲线上点",
+        "goal": "确定 M 的坐标",
+        "reason": "点在抛物线上，已知横坐标时把横坐标代入解析式。",
+        "calculation": "x_M=b + 1/2",
+        "conclusion": "M(b + 1/2, -b/2 - 3/4)",
+        "method_id": "point_on_parabola_at_x"
+      },
+      {
+        "title": "构造辅助三角形转化加权路径",
+        "goal": "将 sqrt(2)*MN+AN 转化为 sqrt(2)*(MN+QN)",
+        "reason": "构造等腰直角三角形 AQN，把加权项 AN 改写成同倍率下的 QN，从而把加权路径转成普通折线路径。",
+        "calculation": "Q=(n/2 - 1/2, n/2 + 1/2)，AN=sqrt(2)*QN",
+        "conclusion": "sqrt(2)*MN+AN=sqrt(2)*(MN+QN)",
+        "method_id": "weighted_axis_path_triangle_transform"
+      },
+      {
+        "title": "用折线拉直求加权路径最值",
+        "goal": "由 sqrt(2)*(MN+QN) 的最短状态反求 b",
+        "reason": "构造 Q 后，原目标等价于同倍率下的 MN+QN；折线拉直后，最短值就是 M 到 Q 运动射线的垂线段长度。",
+        "calculation": "垂足=(b/4 - 5/8, b/4 + 3/8)，n=b/2 - 1/4，最小值=3*b/2 + 9/4",
+        "conclusion": "b=2，n=3/4",
+        "method_id": "linked_broken_path_geometric_minimum"
+      }
+    ]
+  },
+  "answers": {
+    "i": {
+      "P": [
+        "1",
+        "2"
+      ]
+    },
+    "ii": {
+      "D": [
+        "sqrt(2)",
+        "1"
+      ]
+    },
+    "iii": {
+      "b": "2"
+    }
+  },
+  "checks": [
+    {
+      "name": "known_coefficients_preserved",
+      "status": "passed",
+      "detail": "已知系数被保留"
+    },
+    {
+      "name": "vertex_x_derivative_zero",
+      "status": "passed",
+      "detail": "顶点横坐标使一阶导数为 0"
+    },
+    {
+      "name": "known_coefficients_preserved",
+      "status": "passed",
+      "detail": "已知系数被保留"
+    },
+    {
+      "name": "extra_equation_0_satisfied",
+      "status": "passed",
+      "detail": "额外方程约束成立"
+    },
+    {
+      "name": "curve_point_0_on_parabola",
+      "status": "passed",
+      "detail": "曲线点满足求得的抛物线"
+    },
+    {
+      "name": "y_axis_x_is_zero",
+      "status": "passed",
+      "detail": "y 轴交点的横坐标为 0"
+    },
+    {
+      "name": "candidate_1_right_equal_length",
+      "status": "passed",
+      "detail": "D 候选 1 与已知直角边等长"
+    },
+    {
+      "name": "candidate_1_right_angle",
+      "status": "passed",
+      "detail": "D 候选 1 与已知直角边垂直"
+    },
+    {
+      "name": "candidate_2_right_equal_length",
+      "status": "passed",
+      "detail": "D 候选 2 与已知直角边等长"
+    },
+    {
+      "name": "candidate_2_right_angle",
+      "status": "passed",
+      "detail": "D 候选 2 与已知直角边垂直"
+    },
+    {
+      "name": "at_least_one_candidate_kept",
+      "status": "passed",
+      "detail": "至少有一个候选点能满足曲线条件"
+    },
+    {
+      "name": "candidate_filter_completed",
+      "status": "passed",
+      "detail": "所有候选点都已完成曲线条件验证"
+    },
+    {
+      "name": "unique_curve_candidate",
+      "status": "passed",
+      "detail": "只有一个候选点满足曲线与系数约束"
+    },
+    {
+      "name": "primary_constraint_satisfied",
+      "status": "passed",
+      "detail": "b 满足题设约束"
+    },
+    {
+      "name": "selected_point_on_parabola",
+      "status": "passed",
+      "detail": "D 在求得的抛物线上"
+    },
+    {
+      "name": "known_coefficients_preserved",
+      "status": "passed",
+      "detail": "已知系数被保留"
+    },
+    {
+      "name": "extra_equation_0_satisfied",
+      "status": "passed",
+      "detail": "额外方程约束成立"
+    },
+    {
+      "name": "curve_point_0_on_parabola",
+      "status": "passed",
+      "detail": "曲线点满足求得的抛物线"
+    },
+    {
+      "name": "point_on_parabola",
+      "status": "passed",
+      "detail": "点坐标满足抛物线解析式"
+    },
+    {
+      "name": "triangle_is_right_angle",
+      "status": "passed",
+      "detail": "AQ 与 QN 垂直"
+    },
+    {
+      "name": "triangle_equal_legs",
+      "status": "passed",
+      "detail": "AQ 与 QN 等长"
+    },
+    {
+      "name": "weighted_segment_replaced",
+      "status": "passed",
+      "detail": "AN 可以替换为 sqrt(2)*QN"
+    },
+    {
+      "name": "auxiliary_point_on_fixed_ray",
+      "status": "passed",
+      "detail": "Q 在由 A 引出的 45 度射线上"
+    },
+    {
+      "name": "straightened_points_collinear",
+      "status": "passed",
+      "detail": "最短状态下 M、N、Q 共线"
+    },
+    {
+      "name": "auxiliary_point_on_locus",
+      "status": "passed",
+      "detail": "最短状态下辅助点仍在声明的运动射线上"
+    },
+    {
+      "name": "auxiliary_point_is_locus_foot",
+      "status": "passed",
+      "detail": "最短状态下辅助点是曲线点到运动射线的垂足"
+    },
+    {
+      "name": "straightened_line_perpendicular_to_locus",
+      "status": "passed",
+      "detail": "拉直后的 MQ 垂直于 Q 的运动射线"
+    },
+    {
+      "name": "parameter_constraint_satisfied",
+      "status": "passed",
+      "detail": "b 满足题设约束"
+    },
+    {
+      "name": "dynamic_constraint_satisfied",
+      "status": "passed",
+      "detail": "n 满足动点范围"
+    },
+    {
+      "name": "minimum_value_matches",
+      "status": "passed",
+      "detail": "几何最小值等于题设给定值"
+    }
+  ],
+  "errors": []
+}
