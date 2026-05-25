@@ -1,0 +1,43 @@
+{
+  "method_id": "right_angle_equal_length_candidates",
+  "title": "直角等腰旋转列候选点",
+  "description": "由直角等腰条件列出未知直角边端点的两个候选。",
+  "solves": [
+    "derive_right_angle_equal_length_candidates"
+  ],
+  "inputs": {
+    "anchor": {
+      "type": "Point",
+      "role": "right_angle_vertex",
+      "required": true,
+      "description": "直角顶点，例如南开题中的 D。"
+    },
+    "reference": {
+      "type": "Point",
+      "role": "known_leg_endpoint",
+      "required": true,
+      "description": "已知直角边的另一个端点，例如南开题中的 M。"
+    },
+    "target": {
+      "type": "PointRef",
+      "role": "unknown_leg_endpoint",
+      "required": true,
+      "description": "待求坐标的点引用，例如南开题中的 N。"
+    }
+  },
+  "outputs": {
+    "candidates": "PointList"
+  },
+  "preconditions": [
+    "anchor.coordinate is known",
+    "reference.coordinate is known",
+    "target is an unresolved point reference"
+  ],
+  "postconditions": [
+    "每个候选点都满足 distance(anchor, candidate) == distance(anchor, reference)",
+    "每个候选点都满足 dot(anchor->reference, anchor->candidate) == 0"
+  ],
+  "trace_template": [
+    "由直角等腰条件，将 {reference} 绕 {anchor} 顺/逆时针旋转 90°，得到 {target} 的两个候选点。"
+  ]
+}

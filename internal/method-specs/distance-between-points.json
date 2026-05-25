@@ -1,0 +1,30 @@
+{
+  "method_id": "distance_between_points",
+  "title": "计算两点距离",
+  "description": "计算两点距离，并可选代入参数值得到具体距离。",
+  "solves": [
+    "derive_distance_between_points"
+  ],
+  "inputs": {
+    "p1": {
+      "type": "Point",
+      "required": true
+    },
+    "p2": {
+      "type": "Point",
+      "required": true
+    },
+    "parameter": {
+      "type": "Symbol",
+      "required": false
+    },
+    "parameter_value": {
+      "type": "ParameterValue",
+      "required": false
+    }
+  },
+  "outputs": {
+    "distance": "MinimumExpression",
+    "evaluated_distance": "MinimumExpression"
+  }
+}

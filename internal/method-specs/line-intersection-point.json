@@ -1,0 +1,41 @@
+{
+  "method_id": "line_intersection_point",
+  "title": "求两直线交点",
+  "description": "求两条直线交点，可先代入参数值。",
+  "solves": [
+    "derive_line_intersection_point"
+  ],
+  "inputs": {
+    "line1_p1": {
+      "type": "Point",
+      "required": true
+    },
+    "line1_p2": {
+      "type": "Point",
+      "required": true
+    },
+    "line2_p1": {
+      "type": "Point",
+      "required": true
+    },
+    "line2_p2": {
+      "type": "Point",
+      "required": true
+    },
+    "target": {
+      "type": "PointRef",
+      "required": true
+    },
+    "parameter": {
+      "type": "Symbol",
+      "required": false
+    },
+    "parameter_value": {
+      "type": "ParameterValue",
+      "required": false
+    }
+  },
+  "outputs": {
+    "intersection": "Point"
+  }
+}

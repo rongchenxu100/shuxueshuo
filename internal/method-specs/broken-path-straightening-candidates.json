@@ -1,0 +1,51 @@
+{
+  "method_id": "broken_path_straightening_candidates",
+  "title": "折线拉直候选生成",
+  "description": "为单动点折线路径生成“将军饮马”拉直候选。",
+  "solves": [
+    "derive_broken_path_straightening_candidates"
+  ],
+  "inputs": {
+    "path_transformation": {
+      "type": "PathTransformation",
+      "required": true,
+      "description": "上一步得到的路径转化，例如 EG+FG=DG+FG。"
+    },
+    "moving_point_membership": {
+      "type": "Condition",
+      "required": true,
+      "description": "动点所在直线/线段，例如 G 在线段 MN 上。"
+    },
+    "fixed_point_1": {
+      "type": "Point",
+      "required": true,
+      "description": "折线路径的第一个固定端点。"
+    },
+    "fixed_point_2": {
+      "type": "Point",
+      "required": true,
+      "description": "折线路径的第二个固定端点。"
+    },
+    "line_point_1": {
+      "type": "Point",
+      "required": true,
+      "description": "动点所在直线上的第一个点。"
+    },
+    "line_point_2": {
+      "type": "Point",
+      "required": true,
+      "description": "动点所在直线上的第二个点。"
+    }
+  },
+  "outputs": {
+    "candidates": "StraighteningCandidateList"
+  },
+  "preconditions": [
+    "path_transformation.transformed_path 是由两条线段组成的单动点折线",
+    "moving_point_membership.point 是两条线段的公共端点",
+    "line_point_1 与 line_point_2 确定动点所在直线"
+  ],
+  "postconditions": [
+    "每个候选都包含一个反射点和对应的最短线段"
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "method_id": "select_point_by_quadrant_constraint",
+  "title": "由象限与参数约束筛选点",
+  "description": "根据象限条件和参数约束，从候选点中选出唯一点。",
+  "solves": [
+    "select_point_by_region"
+  ],
+  "inputs": {
+    "candidates": {
+      "type": "PointList",
+      "role": "candidate_points",
+      "required": true,
+      "description": "上一步得到的候选点列表。"
+    },
+    "target": {
+      "type": "PointRef",
+      "role": "target_point",
+      "required": true,
+      "description": "待筛选的目标点引用。"
+    },
+    "quadrant": {
+      "type": "OrientationHint",
+      "role": "region_condition",
+      "required": true,
+      "description": "目标点所在象限，例如第四象限。"
+    },
+    "parameter": {
+      "type": "Symbol",
+      "role": "dynamic_parameter",
+      "required": true,
+      "description": "候选点中出现的动态参数，例如 m。"
+    },
+    "parameter_constraint": {
+      "type": "Constraint",
+      "role": "parameter_domain",
+      "required": true,
+      "description": "参数范围约束，例如 m > 2。"
+    }
+  },
+  "outputs": {
+    "selected_point": "Point"
+  },
+  "preconditions": [
+    "candidates 至少包含一个点",
+    "quadrant 必须给出明确象限",
+    "parameter_constraint 必须显式给出参数下界"
+  ],
+  "postconditions": [
+    "selected_point 是 candidates 中唯一满足象限和参数约束的点"
+  ],
+  "trace_template": [
+    "根据 {target} 的象限条件和参数约束，从候选点中筛选唯一坐标。"
+  ]
+}

@@ -1,0 +1,324 @@
+{
+  "problem_id": "tj-2026-nankai-yimo-25",
+  "status": "ok",
+  "solver_family": "QuadraticPathMinimumSolver",
+  "methods_used": [
+    "quadratic_axis_from_relation",
+    "quadratic_from_known_coefficients",
+    "right_angle_equal_length_candidates",
+    "select_point_by_quadrant_constraint",
+    "parameter_from_segment_length",
+    "quadratic_coefficients_from_curve_points",
+    "midpoint_point",
+    "two_moving_points_path_reduction",
+    "broken_path_straightening_candidates",
+    "select_straightening_candidate",
+    "distance_between_points",
+    "parameter_from_minimum_value",
+    "quadratic_coefficients_from_curve_points",
+    "line_intersection_point"
+  ],
+  "facts": [],
+  "trace": {
+    "problem_id": "tj-2026-nankai-yimo-25",
+    "pattern": "path-minimum",
+    "methods": [
+      "quadratic_axis_from_relation",
+      "quadratic_from_known_coefficients",
+      "right_angle_equal_length_candidates",
+      "select_point_by_quadrant_constraint",
+      "parameter_from_segment_length",
+      "quadratic_coefficients_from_curve_points",
+      "midpoint_point",
+      "two_moving_points_path_reduction",
+      "broken_path_straightening_candidates",
+      "select_straightening_candidate",
+      "distance_between_points",
+      "parameter_from_minimum_value",
+      "quadratic_coefficients_from_curve_points",
+      "line_intersection_point"
+    ],
+    "steps": [
+      {
+        "title": "由系数关系确定 D",
+        "goal": "确定对称轴与 x 轴交点",
+        "reason": "二次函数对称轴为 x=-b/(2a)，再代入题设系数关系。",
+        "calculation": "x=1",
+        "conclusion": "D(1, 0)",
+        "method_id": "quadratic_axis_from_relation"
+      },
+      {
+        "title": "代入已知系数求抛物线",
+        "goal": "写出当前问的抛物线解析式",
+        "reason": "已知系数直接代入，缺失系数由题设关系确定。",
+        "calculation": "a=2, c=-5, b=-4",
+        "conclusion": "y=2*x**2 - 4*x - 5",
+        "method_id": "quadratic_from_known_coefficients"
+      },
+      {
+        "title": "由直角等腰条件列出 N 候选点",
+        "goal": "列出 N 的候选坐标",
+        "reason": "直角等腰三角形的另一条直角边可由已知直角边顺、逆时针旋转 90° 得到。",
+        "calculation": "N1=(2, 1 - m), N2=(0, m - 1)",
+        "conclusion": "N 有 2 个候选点",
+        "method_id": "right_angle_equal_length_candidates"
+      },
+      {
+        "title": "由象限与参数约束筛选 N",
+        "goal": "确定唯一的 N 坐标",
+        "reason": "把候选点分别放到题设象限和参数范围下判断。",
+        "calculation": "N1=(2, 1 - m), N2=(0, m - 1); N 在第四象限，且 m>2",
+        "conclusion": "N(2, 1 - m)",
+        "method_id": "select_point_by_quadrant_constraint"
+      },
+      {
+        "title": "由长度条件求参数",
+        "goal": "求 m 的值",
+        "reason": "两点距离平方等于题设值，解一元方程并按定义域筛选。",
+        "calculation": "m=3",
+        "conclusion": "m=3",
+        "method_id": "parameter_from_segment_length"
+      },
+      {
+        "title": "由点在抛物线上求抛物线",
+        "goal": "确定当前小问的二次函数系数",
+        "reason": "先代入 m=3，再把点坐标代入抛物线，并联立系数关系。",
+        "calculation": "a=1, b=-2, c=-2",
+        "conclusion": "y=x**2 - 2*x - 2",
+        "method_id": "quadratic_coefficients_from_curve_points"
+      },
+      {
+        "title": "求中点 F",
+        "goal": "由两端点坐标确定中点",
+        "reason": "中点坐标等于两端点横纵坐标的平均值。",
+        "calculation": "F=(3/2, 1/2 - m/2)",
+        "conclusion": "F(3/2, 1/2 - m/2)",
+        "method_id": "midpoint_point"
+      },
+      {
+        "title": "把两动点路径转化为单动点路径",
+        "goal": "将 EG+FG 转化为 DG+FG",
+        "reason": "利用两个动点的线段绑定关系，把原路径中的两动点线段替换成等长的固定点到动点线段。",
+        "calculation": "DE=√2·NG，可得 EG=DG",
+        "conclusion": "EG+FG=DG+FG",
+        "method_id": "two_moving_points_path_reduction"
+      },
+      {
+        "title": "列出折线拉直候选",
+        "goal": "为 DG+FG 生成可选的将军饮马转化",
+        "reason": "动点在同一直线上时，可以把折线一端关于动点所在直线作对称，把折线最短问题转成两定点距离问题。",
+        "calculation": "反射 D 得 D_prime(m + 1, 2 - m)，候选最短线段 D_primeF；反射 F 得 F_prime(m/2 + 3/2, 3/2 - m)，候选最短线段 F_primeD",
+        "conclusion": "得到 2 个拉直候选",
+        "method_id": "broken_path_straightening_candidates"
+      },
+      {
+        "title": "选择折线拉直候选",
+        "goal": "确定使用哪个对称点构造 D_prime",
+        "reason": "比较候选反射点坐标复杂度，优先选择后续距离和交点计算更简单的候选。",
+        "calculation": "D_prime 坐标复杂度=210；F_prime 坐标复杂度=516",
+        "conclusion": "选择 D_prime(m + 1, 2 - m)，最小路径转化为 D_primeF",
+        "method_id": "select_straightening_candidate"
+      },
+      {
+        "title": "计算路径最小值表达式",
+        "goal": "把折线路径转为最短线段距离",
+        "reason": "路径转化后，折线最短值等于两个固定端点之间的距离。",
+        "calculation": "d=sqrt(5*m**2 - 10*m + 10)/2",
+        "conclusion": "最小值表达式为 sqrt(5*m**2 - 10*m + 10)/2，代入后为 5/2",
+        "method_id": "distance_between_points"
+      },
+      {
+        "title": "由最小值反求参数",
+        "goal": "求 m 的值",
+        "reason": "题目给出最小值，代入最小值表达式解方程。",
+        "calculation": "m=8",
+        "conclusion": "m=8",
+        "method_id": "parameter_from_minimum_value"
+      },
+      {
+        "title": "由点在抛物线上求抛物线",
+        "goal": "确定当前小问的二次函数系数",
+        "reason": "先代入 m=8，再把点坐标代入抛物线，并联立系数关系。",
+        "calculation": "a=1/6, b=-1/3, c=-7",
+        "conclusion": "y=x**2/6 - x/3 - 7",
+        "method_id": "quadratic_coefficients_from_curve_points"
+      },
+      {
+        "title": "求交点 G",
+        "goal": "确定最短位置对应点",
+        "reason": "最短时目标点同时位于两条约束直线上。",
+        "calculation": "G=(4, -13/3)",
+        "conclusion": "G(4, -13/3)",
+        "method_id": "line_intersection_point"
+      }
+    ]
+  },
+  "answers": {
+    "i": {
+      "D": [
+        "1",
+        "0"
+      ],
+      "parabola": "2*x**2 - 4*x - 5"
+    },
+    "ii_1": {
+      "parabola": "x**2 - 2*x - 2",
+      "min_value": "5/2"
+    },
+    "ii_2": {
+      "parabola": "x**2/6 - x/3 - 7",
+      "G": [
+        "4",
+        "-13/3"
+      ]
+    }
+  },
+  "checks": [
+    {
+      "name": "axis_point_on_x_axis",
+      "status": "passed",
+      "detail": "D 在 x 轴上"
+    },
+    {
+      "name": "known_coefficients_match_relation",
+      "status": "passed",
+      "detail": "补齐后的系数满足题设关系"
+    },
+    {
+      "name": "candidate_1_right_equal_length",
+      "status": "passed",
+      "detail": "N 候选 1 与已知直角边等长"
+    },
+    {
+      "name": "candidate_1_right_angle",
+      "status": "passed",
+      "detail": "N 候选 1 与已知直角边垂直"
+    },
+    {
+      "name": "candidate_2_right_equal_length",
+      "status": "passed",
+      "detail": "N 候选 2 与已知直角边等长"
+    },
+    {
+      "name": "candidate_2_right_angle",
+      "status": "passed",
+      "detail": "N 候选 2 与已知直角边垂直"
+    },
+    {
+      "name": "quadrant_filter_unique",
+      "status": "passed",
+      "detail": "象限与参数约束选出唯一候选点"
+    },
+    {
+      "name": "parameter_constraint_used",
+      "status": "passed",
+      "detail": "N 在第四象限，且 m>2"
+    },
+    {
+      "name": "parameter_domain",
+      "status": "passed",
+      "detail": "参数满足定义域"
+    },
+    {
+      "name": "length_condition_matches",
+      "status": "passed",
+      "detail": "距离条件成立"
+    },
+    {
+      "name": "coefficients_match_relation",
+      "status": "passed",
+      "detail": "通式系数满足题设关系"
+    },
+    {
+      "name": "curve_point_0_on_parabola",
+      "status": "passed",
+      "detail": "代入点满足通式抛物线"
+    },
+    {
+      "name": "curve_point_1_on_parabola",
+      "status": "passed",
+      "detail": "代入点满足通式抛物线"
+    },
+    {
+      "name": "midpoint_average",
+      "status": "passed",
+      "detail": "F 的坐标为端点坐标平均值"
+    },
+    {
+      "name": "moving_points_binding_relation",
+      "status": "passed",
+      "detail": "两个动点的绑定线段关系成立"
+    },
+    {
+      "name": "moving_segment_equal_fixed_segment",
+      "status": "passed",
+      "detail": "EG 与 DG 等长"
+    },
+    {
+      "name": "reflect_D_reflection_preserves_distance",
+      "status": "passed",
+      "detail": "D_prime 关于 MN 对称后保持到动点的距离"
+    },
+    {
+      "name": "reflect_F_reflection_preserves_distance",
+      "status": "passed",
+      "detail": "F_prime 关于 MN 对称后保持到动点的距离"
+    },
+    {
+      "name": "straightening_candidate_unique_minimum_score",
+      "status": "passed",
+      "detail": "存在唯一最低复杂度候选"
+    },
+    {
+      "name": "selected_candidate_matches_target_name",
+      "status": "passed",
+      "detail": "选择结果对应目标辅助点 D_prime"
+    },
+    {
+      "name": "distance_is_nonzero",
+      "status": "passed",
+      "detail": "距离表达式非零"
+    },
+    {
+      "name": "evaluated_distance_positive",
+      "status": "passed",
+      "detail": "代入后的最小值为正"
+    },
+    {
+      "name": "minimum_parameter_domain",
+      "status": "passed",
+      "detail": "参数满足定义域"
+    },
+    {
+      "name": "minimum_value_matches",
+      "status": "passed",
+      "detail": "最小值匹配题设"
+    },
+    {
+      "name": "coefficients_match_relation",
+      "status": "passed",
+      "detail": "通式系数满足题设关系"
+    },
+    {
+      "name": "curve_point_0_on_parabola",
+      "status": "passed",
+      "detail": "代入点满足通式抛物线"
+    },
+    {
+      "name": "curve_point_1_on_parabola",
+      "status": "passed",
+      "detail": "代入点满足通式抛物线"
+    },
+    {
+      "name": "intersection_on_line1",
+      "status": "passed",
+      "detail": "G 在第一条直线上"
+    },
+    {
+      "name": "intersection_on_line2",
+      "status": "passed",
+      "detail": "G 在第二条直线上"
+    }
+  ],
+  "errors": []
+}

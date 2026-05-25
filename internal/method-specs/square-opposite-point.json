@@ -1,0 +1,29 @@
+{
+  "method_id": "square_opposite_point",
+  "title": "构造对顶辅助点",
+  "description": "由平行四边形/正方形对顶点关系构造辅助点。",
+  "solves": [
+    "derive_square_opposite_point"
+  ],
+  "inputs": {
+    "vertex": {
+      "type": "Point",
+      "required": true
+    },
+    "adjacent1": {
+      "type": "Point",
+      "required": true
+    },
+    "adjacent2": {
+      "type": "Point",
+      "required": true
+    },
+    "target": {
+      "type": "PointRef",
+      "required": true
+    }
+  },
+  "outputs": {
+    "point": "Point"
+  }
+}

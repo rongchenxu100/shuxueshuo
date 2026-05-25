@@ -1,0 +1,33 @@
+{
+  "method_id": "parameter_from_segment_length",
+  "title": "由线段长度求参数",
+  "description": "由两点距离平方条件求参数。",
+  "solves": [
+    "derive_parameter_from_segment_length"
+  ],
+  "inputs": {
+    "p1": {
+      "type": "Point",
+      "required": true
+    },
+    "p2": {
+      "type": "Point",
+      "required": true
+    },
+    "parameter": {
+      "type": "Symbol",
+      "required": true
+    },
+    "condition": {
+      "type": "Condition",
+      "required": true
+    },
+    "constraint": {
+      "type": "Constraint",
+      "required": false
+    }
+  },
+  "outputs": {
+    "parameter_value": "ParameterValue"
+  }
+}

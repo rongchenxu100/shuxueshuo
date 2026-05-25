@@ -1,0 +1,46 @@
+{
+  "method_id": "quadratic_coefficients_from_curve_points",
+  "title": "由点在抛物线上求通式",
+  "description": "由点在抛物线上和额外方程求二次函数通式。",
+  "solves": [
+    "derive_quadratic_coefficients"
+  ],
+  "inputs": {
+    "quadratic": {
+      "type": "Expression",
+      "required": true
+    },
+    "x": {
+      "type": "Symbol",
+      "required": true
+    },
+    "p1": {
+      "type": "Point",
+      "required": true
+    },
+    "p2": {
+      "type": "Point",
+      "required": true
+    },
+    "coefficient_relation": {
+      "type": "Equation",
+      "required": true
+    },
+    "unknowns": {
+      "type": "SymbolList",
+      "required": true
+    },
+    "parameter": {
+      "type": "Symbol",
+      "required": false
+    },
+    "parameter_value": {
+      "type": "ParameterValue",
+      "required": false
+    }
+  },
+  "outputs": {
+    "coefficients": "Coefficients",
+    "parabola": "Parabola"
+  }
+}

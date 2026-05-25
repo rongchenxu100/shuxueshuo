@@ -1,0 +1,25 @@
+{
+  "method_id": "midpoint_point",
+  "title": "求中点坐标",
+  "description": "求两点中点。",
+  "solves": [
+    "derive_midpoint_coordinate"
+  ],
+  "inputs": {
+    "p1": {
+      "type": "Point",
+      "required": true
+    },
+    "p2": {
+      "type": "Point",
+      "required": true
+    },
+    "target": {
+      "type": "PointRef",
+      "required": true
+    }
+  },
+  "outputs": {
+    "midpoint": "Point"
+  }
+}

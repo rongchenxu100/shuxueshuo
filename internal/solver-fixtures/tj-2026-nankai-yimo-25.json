@@ -1,0 +1,204 @@
+{
+  "$schema": "../schemas/solver-problem-ir.schema.json",
+  "meta": {
+    "problem_id": "tj-2026-nankai-yimo-25",
+    "title": "2026 年天津市南开区一模第 25 题",
+    "note": "本文件只保存 solver 可见的结构化题意。标准答案在 server/tests/solver/expected/ 中；解法构造由 Method 自己产生。"
+  },
+  "input": {
+    "problem_id": "tj-2026-nankai-yimo-25",
+    "pattern": "path-minimum",
+    "problem_type": "quadratic_path_minimum",
+    "original_text": {
+      "source": "2026 年天津市南开区一模",
+      "number": "25",
+      "lines": [
+        "已知抛物线 y＝ax²＋bx＋c（a＞0）与 y 轴交于点 C，且满足 2a＋b＝0，对称轴与 x 轴的交点为 D。",
+        "（Ⅰ）当 a＝2，c＝−5 时，求点 D 的坐标及抛物线的解析式；",
+        "（Ⅱ）设 M(m,1)（m＞2）在抛物线上，N 在抛物线上且在第四象限，∠MDN＝90°，DM＝DN。E 在线段 DM 上，G 在线段 MN 上，F 为 DN 的中点，且 DE＝√2·NG。",
+        "① 当 MN＝√10 时，直接写出抛物线的解析式及 EG＋FG 的最小值；",
+        "② 当 EG＋FG 的最小值为 5√10/2 时，求抛物线解析式及此时 G 的坐标。"
+      ]
+    },
+    "symbols": ["x", "a", "b", "c", "m"],
+    "symbol_roles": {
+      "x": "function_variable",
+      "a": "quadratic_coefficient",
+      "b": "quadratic_coefficient",
+      "c": "quadratic_coefficient",
+      "m": "dynamic_parameter"
+    },
+    "constraints": {
+      "a": ">0",
+      "m": ">2"
+    },
+    "data": {
+      "function": {
+        "id": "parabola",
+        "type": "quadratic",
+        "expression": "a*x**2 + b*x + c",
+        "coefficient_relation": "2*a + b = 0"
+      },
+      "parameter": "m",
+      "path_problem": {
+        "type": "two_moving_points_path_minimum",
+        "scope": "ii",
+        "path": "EG+FG"
+      },
+      "entities": {
+        "points": {
+          "D": {
+            "definition": "axis_x_intercept",
+            "of": "parabola",
+            "description": "D 是抛物线对称轴与 x 轴的交点"
+          },
+          "M": {
+            "coordinate": ["m", "1"],
+            "description": "M(m,1)"
+          },
+          "N": {
+            "definition": "unknown",
+            "quadrant": "第四象限",
+            "description": "N 在第四象限，且 ∠MDN=90°、DM=DN"
+          },
+          "F": {
+            "definition": "midpoint",
+            "of": ["D", "N"],
+            "description": "F 为 DN 的中点"
+          }
+        }
+      },
+      "relations": [
+        {
+          "type": "point_on_curve",
+          "point": "M",
+          "curve": "parabola",
+          "description": "M 在抛物线上"
+        },
+        {
+          "type": "point_on_curve",
+          "point": "N",
+          "curve": "parabola",
+          "description": "N 在抛物线上"
+        },
+        {
+          "type": "right_angle_equal_length",
+          "scope": "ii",
+          "angle": ["M", "D", "N"],
+          "equal_segments": [["D", "M"], ["D", "N"]],
+          "description": "∠MDN=90°，DM=DN"
+        },
+        {
+          "type": "segment_membership",
+          "point": "E",
+          "segment": ["D", "M"],
+          "description": "E 在线段 DM 上"
+        },
+        {
+          "type": "segment_membership",
+          "point": "G",
+          "segment": ["M", "N"],
+          "description": "G 在线段 MN 上"
+        },
+        {
+          "type": "segment_relation",
+          "left": "DE",
+          "right": "sqrt(2)*NG",
+          "description": "DE=√2·NG"
+        }
+      ],
+      "questions": [
+        {
+          "id": "i",
+          "label": "第（Ⅰ）问",
+          "known_coefficients": {
+            "a": "2",
+            "c": "-5"
+          },
+          "asks": ["D 的坐标", "抛物线解析式"],
+          "goals": [
+            {
+              "id": "i.axis_point",
+              "answer_key": "D",
+              "target_path": "$problem.points.D",
+              "value_type": "Point",
+              "required": true
+            },
+            {
+              "id": "i.parabola",
+              "answer_key": "parabola",
+              "target_path": "$question.i.outputs.parabola",
+              "value_type": "Parabola",
+              "required": true
+            }
+          ]
+        },
+        {
+          "id": "ii",
+          "label": "第（Ⅱ）问",
+          "givens": ["M(m,1) 在抛物线上", "N 在抛物线上且在第四象限", "∠MDN=90°", "DM=DN"],
+          "subquestions": [
+            {
+              "id": "ii_1",
+              "label": "第（Ⅱ）①问",
+              "given": "MN=√10",
+              "conditions": [
+                {
+                  "type": "length_squared",
+                  "segment": ["M", "N"],
+                  "value": "10"
+                }
+              ],
+              "asks": ["抛物线解析式", "EG+FG 的最小值"],
+              "goals": [
+                {
+                  "id": "ii_1.parabola",
+                  "answer_key": "parabola",
+                  "target_path": "$subquestion.ii_1.outputs.parabola",
+                  "value_type": "Parabola",
+                  "required": true
+                },
+                {
+                  "id": "ii_1.minimum_value",
+                  "answer_key": "min_value",
+                  "target_path": "$subquestion.ii_1.outputs.min_value",
+                  "value_type": "MinimumExpression",
+                  "required": true
+                }
+              ]
+            },
+            {
+              "id": "ii_2",
+              "label": "第（Ⅱ）②问",
+              "given": "EG+FG 的最小值为 5√10/2",
+              "conditions": [
+                {
+                  "type": "minimum_value",
+                  "path": "EG+FG",
+                  "value": "5*sqrt(10)/2"
+                }
+              ],
+              "asks": ["抛物线解析式", "此时 G 的坐标"],
+              "goals": [
+                {
+                  "id": "ii_2.parabola",
+                  "answer_key": "parabola",
+                  "target_path": "$subquestion.ii_2.outputs.parabola",
+                  "value_type": "Parabola",
+                  "required": true
+                },
+                {
+                  "id": "ii_2.intersection",
+                  "answer_key": "G",
+                  "target_path": "$question.ii.points.G",
+                  "value_type": "Point",
+                  "required": true
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

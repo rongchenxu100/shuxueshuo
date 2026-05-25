@@ -1,0 +1,32 @@
+{
+  "method_id": "select_straightening_candidate",
+  "title": "折线拉直候选选择",
+  "description": "从折线拉直候选中选择更适合后续计算的一种。",
+  "solves": [
+    "select_broken_path_straightening_candidate"
+  ],
+  "inputs": {
+    "candidates": {
+      "type": "StraighteningCandidateList",
+      "required": true,
+      "description": "broken_path_straightening_candidates 生成的候选列表。"
+    },
+    "target": {
+      "type": "PointRef",
+      "required": true,
+      "description": "计划希望写回的辅助点引用，仅用于命名和验算选择结果。"
+    }
+  },
+  "outputs": {
+    "selected_candidate": "StraighteningCandidate",
+    "auxiliary_point": "Point"
+  },
+  "preconditions": [
+    "candidates 至少包含一个候选",
+    "候选包含 complexity_score"
+  ],
+  "postconditions": [
+    "唯一最低复杂度候选被选中",
+    "选中候选的反射点坐标作为辅助点输出"
+  ]
+}

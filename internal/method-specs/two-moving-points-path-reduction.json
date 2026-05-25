@@ -1,0 +1,56 @@
+{
+  "method_id": "two_moving_points_path_reduction",
+  "title": "两动点路径降维",
+  "description": "把两个受约束动点的路径转成单动点路径。",
+  "solves": [
+    "reduce_two_moving_point_path"
+  ],
+  "inputs": {
+    "original_path": {
+      "type": "Condition",
+      "required": true,
+      "description": "原路径条件，例如 {\"path\": \"EG+FG\"}。"
+    },
+    "first_moving_membership": {
+      "type": "Condition",
+      "required": true,
+      "description": "第一个动点所在边，例如 E 在线段 DM 上。"
+    },
+    "second_moving_membership": {
+      "type": "Condition",
+      "required": true,
+      "description": "第二个动点所在边，例如 G 在线段 MN 上。"
+    },
+    "binding_relation": {
+      "type": "Condition",
+      "required": true,
+      "description": "两个动点的线段绑定关系，例如 DE=sqrt(2)*NG。"
+    },
+    "first_segment_start": {
+      "type": "Point",
+      "required": true,
+      "description": "第一条动点边上绑定线段的固定端点，例如 D。"
+    },
+    "joint_point": {
+      "type": "Point",
+      "required": true,
+      "description": "两条动点边的公共端点，例如 M。"
+    },
+    "second_segment_end": {
+      "type": "Point",
+      "required": true,
+      "description": "第二条动点边上绑定线段的固定端点，例如 N。"
+    }
+  },
+  "outputs": {
+    "path_transformation": "PathTransformation"
+  },
+  "preconditions": [
+    "两个动点分别位于两条有公共端点的线段上",
+    "binding_relation 将第一个动点到固定端点的距离与第二个动点到固定端点的距离绑定",
+    "original_path 包含需要替换的两动点线段"
+  ],
+  "postconditions": [
+    "原路径中的两动点线段被替换为固定点到第二动点的等长线段"
+  ]
+}
