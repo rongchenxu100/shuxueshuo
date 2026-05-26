@@ -29,7 +29,7 @@ flowchart TD
   B --> C["FamilyRouter<br/>匹配 SolverFamily"]
   C --> D["SolverFamilySpec<br/>题型策略参考"]
   B --> E["ContextBuilder<br/>构建 RuntimeContext"]
-  D --> F["Planner<br/>PlanningSignal -> StepGoal -> StepPlan -> MethodInvocation"]
+  D --> F["LLMPlanner<br/>PlanningSignal -> ContextDeclaration -> StepGoal -> MethodInvocation"]
   E --> F
   F --> G["PlanValidator<br/>schema / type / scope / no-answer-leak"]
   G --> H["InvocationExecutor<br/>执行无状态 Method"]
@@ -47,10 +47,11 @@ flowchart TD
 - 在线：优先使用高置信 SolverFamily；失败时进入 Method-Guided LLM 或 Free LLM + Verifier。
 - 离线：批量跑题库，统计 miss case，聚类出新 method / 新 family，回灌测试。
 
-### 2.1 当前黄金题代码调用过程
+### 2.1 当前黄金题运行链路
 
-当前 canonical 南开 25 与河西 25 是第一阶段完整跑通的黄金用例。默认 CLI 和
-`solve_problem()` 都走 deterministic planner，不调用真实 LLM。
+当前 canonical 南开 25 与河西 25 已经完整端到端通过。现有代码里的默认 CLI 和
+`solve_problem()` 仍走 deterministic planner；本文后续章节定义的是把这一步替换为
+LLM Planner 的目标设计。
 
 ```text
 python -m shuxueshuo_server.solver.solve_problem --fixture ../internal/solver-fixtures/tj-2026-nankai-yimo-25.json
@@ -489,7 +490,7 @@ PlannerInputs
 LLM planner 后续可以参与判断是否需要声明辅助点，但声明必须经过 validator，并且真正
 计算仍只能通过 MethodInvocation 完成。
 
-## 5. Planner
+## 5. LLM Planner 目标架构
 
 Planner 的职责是把：
 
@@ -500,236 +501,313 @@ FamilySpec + QuestionGoal + PlanningSignal + ContextInventory + MethodSpecRegist
 变成：
 
 ```text
-StepPlan[] + MethodInvocation[]
+ContextDeclaration[] + StepPlan[] + MethodInvocation[]
 ```
 
-长期目标是一个通用 Planner，而不是每个 SolverFamily 一个固定 planner。FamilySpec 只是给通用 Planner 的上下文和约束，不能指定 planner，也不能替代 planner。
+现在南开 25 与河西 25 已经证明执行层可行：只要给出正确的 StepPlan，
+`PlanValidator -> InvocationExecutor -> ResultBuilder` 可以稳定完成计算、验算和答案收集。
+下一步的核心不是继续增加 deterministic template，而是让 Planner 由 LLM 参与生成计划，
+同时保留 ContextPath、MethodSpec 和 Validator 这些安全边界。
 
-Planner 建议拆成以下组件：
+LLM Planner 的原则是：
 
+- LLM 负责“看懂当前题该怎么拆步骤”和“在候选中消歧义”。
+- 代码负责枚举可见上下文、候选 method、候选参数绑定和所有强校验。
+- LLM 不直接给答案，不直接写裸坐标，不编造 ContextPath，不覆盖 locked fact。
+- 所有 LLM 输出都先编译成受控结构，再由 PlanValidator 校验，通过后才能执行。
 
-| 组件                        | 职责                                             | 是否需要 LLM        |
-| ------------------------- | ---------------------------------------------- | --------------- |
-| `ContextInventoryBuilder` | 用代码规则生成 visible paths、relations、PlanningSignal | 否               |
-| `StrategyPlanner`         | 将 QuestionGoal/PlanningSignal 组织成可执行解题步骤       | LLM 参与，规则做约束    |
-| `MethodRetriever`         | 根据 step goal 检索可用 MethodSpec                   | 规则 + 向量         |
-| `InvocationResolver`      | 把 ContextPath 映射到 method 输入槽位                  | LLM 参与，候选枚举降低幻觉 |
-| `PlanValidator`           | 校验 scope、类型、写入权限、无裸答案                          | 纯代码             |
-| `RepairPlanner`           | 根据 validator / verifier 错误修复计划                 | LLM 适合参与        |
+### 5.1 Orchestrator 与 Planner 边界
 
+`RuntimeOrchestrator` 管外层求解生命周期，`LLMPlanner` 管规划与修复循环。
 
-这里最难的不是计算，而是“确定解题步骤”和“确定每一步 method 与变量的调用关系”。这两件事很难完全靠结构化规则覆盖各种题面变化，因此需要 LLM 参与；规则、FamilySpec、MethodSpec、ContextPath 枚举和 Validator 的价值，是把 LLM 限制在规划空间内，减少幻觉，而不是完全替代 LLM。
+Orchestrator 的职责：
 
-接入真实 LLM 之前，可以保留南开 25 的特定 planner 作为 deterministic slice。它的作用是让端到端流程、runtime、method、checks 和 trace 先跑通；它不是最终规划抽象。
+- 匹配 `SolverFamilySpec`。
+- 构建 `RuntimeContext`、`ContextInventory`、`QuestionGoal`、`MethodSpecRegistry`。
+- 组装 `PlannerInputs`。
+- 调用 `planner.plan(inputs)`。
+- 执行 `PlanValidator` / `InvocationExecutor`。
+- 在全局预算内把 validation / execution / result errors 交回 planner 修复。
+- 管理最终 `SolverResult`、run log、耗时、token 和失败状态。
 
-### 5.1 Orchestrator 与 LLM Planner Loop 边界
+Planner 的职责：
 
-`RuntimeOrchestrator` 管外层求解生命周期，`Planner` 管 LLM 规划与修复循环。
-
-Orchestrator 的职责是：
-
-- 匹配 FamilySpec。
-- 构建 `RuntimeContext`、`ContextInventory`、`PlannerInputs`。
-- 调用 `planner.plan()` 或 `planner.repair()`。
-- 运行 `PlanValidator` / `InvocationExecutor`。
-- 管理全局预算、最大尝试次数、失败状态和最终 `SolverResult`。
-
-Planner 的职责是：
-
-- 结合 QuestionGoal 与 PlanningSignal，拆解出可执行 StepGoal。
-- 检索 / 排序 MethodSpec。
-- 选择 ContextPath 并生成 MethodInvocation。
-- 根据 validator、executor、verifier 的结构化错误修复 plan。
+- 读取 `QuestionGoal`、`PlanningSignal`、relation graph、visible paths 和 FamilySpec。
+- 生成中间 `StepGoal`，决定步骤顺序。
+- 声明必要的运行期占位，例如辅助点、目标交点、路径转化产物。
+- 检索并选择 `MethodSpec`。
+- 为每个 method 选择 ContextPath 输入输出绑定。
+- 根据结构化错误修复 plan。
 - 维护 LLM 规划过程中的候选、失败历史和 scratchpad。
 
-也就是说，LLM 多轮调用循环应主要放在 Planner 内部；Orchestrator 只负责决定“是否需要再请求 Planner 修复一次”和“什么时候终止”。如果 Orchestrator 开始理解 step decomposition、method 选择或参数映射，它就会变成第二个 Planner。
+如果 Orchestrator 开始理解“该先求哪个点”“应该选哪个 method”“这个 slot 应该绑哪个
+ContextPath”，它就会变成第二个 Planner。因此 LLM 多轮循环主要放在 Planner 内部；
+Orchestrator 只负责预算、执行和终止条件。
 
-记忆也应分层：
-
-
-| 记忆层                                   | 归属                      | 内容                                                                  | 是否参与确定性执行                     |
-| ------------------------------------- | ----------------------- | ------------------------------------------------------------------- | ----------------------------- |
-| `RuntimeContext`                      | Orchestrator / Executor | typed facts、constraints、outputs、temp、checks                         | 是                             |
-| `PlannerMemory` / `PlannerScratchpad` | Planner                 | LLM 候选步骤、method 候选、失败的 ContextPath 映射、repair history                | 否，必须经 plan 输出和 validator 才能生效 |
-| `SolveSession` / `RunMemory`          | Orchestrator            | attempt 记录、planner 输入输出摘要、validation/execution errors、耗时、token、最终状态 | 否，用于调试、回放和离线学习                |
+记忆分层：
 
 
-推荐的未来控制流：
+| 记忆层              | 归属                      | 内容                                               | 是否参与确定性执行                     |
+| ---------------- | ----------------------- | ------------------------------------------------ | ----------------------------- |
+| `RuntimeContext` | Orchestrator / Executor | typed facts、constraints、outputs、step temp、checks | 是                             |
+| `PlannerMemory`  | Planner                 | LLM 候选步骤、候选 method、候选绑定、失败历史、repair scratchpad   | 否，必须经 plan 输出和 validator 才能生效 |
+| `SolveSession`   | Orchestrator            | 每次 attempt 的输入摘要、LLM 输出摘要、错误、耗时、token、最终状态       | 否，用于调试、回放和离线学习                |
 
-```text
-orchestrator.solve(problem)
-  -> build context / inventory / planner_inputs
-  -> planner.plan(inputs)
-  -> validator + executor
-  -> if validation / execution failed:
-       planner.repair(inputs, previous_plan, structured_errors, planner_memory)
-       retry under orchestrator budget
-  -> ResultBuilder
-```
 
-这能保持边界稳定：Planner 可以逐步变聪明，Orchestrator 仍然保持简单、可测试、可替换。
+### 5.2 LLM Planner 内部流水线
 
-### 5.2 当前 Planner 判断
-
-当前 `QuadraticPathMinimumPlannerV15` 的合理性在于：它已经用正确的 runtime 骨架跑通了南开 25。
-
-```text
-StepPlan
-  -> MethodInvocation
-  -> ContextPath
-  -> PlanValidator
-  -> Stateless Method
-  -> Trace / Checks
-```
-
-这说明 V1.5 的执行模型是可行的。
-
-但它不是真正的 planner，更准确地说是：
-
-```text
-Nankai25DeterministicPlanTemplate
-```
-
-它目前仍然写死：
-
-- step 顺序。
-- 点名和 scope，如 `D/M/N/F/G`、`i/ii/ii_1/ii_2`。
-- ContextPath 参数绑定。
-- 最终答案收集已移到 `QuestionGoal` 与 `ResultBuilder`。
-
-因此它只能作为接入 LLM 前的测试切片。后续不能沿着“继续堆规则模板”的方向扩展，否则每道 25 题都会长出自己的 planner。
-
-### 5.3 PlannerInputs 与 ContextInventory
-
-接入通用 Planner 前，应先把 planner 的输入收束成一个明确对象。
-
-建议：
+LLM Planner 不应是“一次 prompt 直接吐 StepPlan”。推荐拆成五层，每层都有明确输入、输出和校验：
 
 ```text
 PlannerInputs
-  problem_id
-  family_spec
-  question_goals
-  context_inventory
-  method_specs
-  previous_errors?
+  -> PlanningPayloadBuilder
+  -> StrategyDecomposer        # LLM 生成抽象步骤
+  -> ContextDeclarationPlanner # LLM 可声明占位，但不能给坐标
+  -> MethodAndBindingPlanner   # 代码枚举候选，LLM 从候选中选择
+  -> PlanCompiler              # 编译成 StepPlan / MethodInvocation
+  -> AbstractPlanValidator + PlanValidator
 ```
 
-其中 `ContextInventory` 是从 `RuntimeContext` 生成的可规划上下文摘要，提供给规则和 LLM 使用：
+#### 5.2.1 PlanningPayloadBuilder
+
+由代码生成给 LLM 的受控 payload。它不是完整 RuntimeContext dump，而是可规划摘要：
+
+- `problem_id`、`family_id`、题型策略原则。
+- 原题文本摘要和分问结构。
+- `QuestionGoal[]`：题面最终作答目标。
+- `PlanningSignal[]`：代码确定性提取的上下文信号。
+- `RelationGraphEntry[]`：题面关系图。
+- `VisibleContextPath[]`：可读路径、类型、scope、locked、来源。
+- `ConstraintInventoryEntry[]`：参数约束、象限、动点范围等。
+- `MethodCandidateEntry[]`：method 能力卡片，包括 solves、required inputs、outputs、pre/postconditions。
+- `previous_errors[]`：上一轮 validator/executor/result builder 的结构化错误。
+
+payload 中不能包含 expected answers，也不包含 fixture 外部的标准答案。
+
+#### 5.2.2 StrategyDecomposer
+
+LLM 第一次只做步骤拆解，输出抽象计划，不输出具体 method 参数绑定。
+
+抽象步骤结构：
+
+```json
+{
+  "step_id": "derive_ii_D_candidates",
+  "scope_id": "ii",
+  "step_goal": {
+    "type": "derive_point_candidates",
+    "target_path": "$question.ii.points.D",
+    "value_type": "PointList"
+  },
+  "intent": "use right-angle equal-length relation to list candidates",
+  "uses_signals": ["signal:right_angle_equal_length:D"],
+  "expected_method_capability": "right_angle_or_rotation_point_construction",
+  "depends_on": ["derive_ii_C"]
+}
+```
+
+StrategyDecomposer 可以决定：
+
+- 是否需要先化简抛物线。
+- 是否先求参数再代入。
+- 是否需要候选点筛选。
+- 路径最值应该走反射拉直、辅助三角形转化，还是其他 method capability。
+- 哪些中间点或表达式需要成为后续步骤的输入。
+
+StrategyDecomposer 不允许：
+
+- 给出最终答案。
+- 给出候选点坐标。
+- 直接输出 MethodInvocation。
+- 写裸值或不存在的 ContextPath。
+
+#### 5.2.3 ContextDeclarationPlanner
+
+有些解法需要 planner 先声明运行期占位，例如：
+
+- 南开路径拉直中的 `D_prime`。
+- 南开最终交点 `G`。
+- 河西辅助三角形中的 `Q`。
+- 后续题型中的 30°/60° 辅助点。
+
+这些点不是题设 fact，不应该写入 fixture；但 method 调用需要一个 target path。
+因此 LLM Planner 可以输出 `ContextDeclaration[]`：
+
+```json
+{
+  "declaration_id": "declare_aux_Q",
+  "scope_id": "iii",
+  "container": "points",
+  "name": "Q",
+  "type": "PointRef",
+  "definition_intent": "weighted_path_auxiliary_point",
+  "reason": "将 sqrt(2)*MN+AN 转化为 sqrt(2)*(MN+QN)"
+}
+```
+
+DeclarationValidator 必须保证：
+
+- declaration 不携带坐标、参数值或最终答案。
+- 目标 scope 可写。
+- 不覆盖 locked fact。
+- 名称不与题设点冲突，除非目标是未锁定占位。
+- definition intent 必须能被后续 method 消费或解释。
+
+通过校验后，Orchestrator 才把 declaration 应用到 RuntimeContext。
+
+#### 5.2.4 MethodAndBindingPlanner
+
+这一步把抽象步骤变成 method 调用。为了避免 LLM 编造输入，参数映射必须走“代码枚举候选，LLM 选择候选 id”的模式。
+
+流程：
 
 ```text
-ContextInventory
-  visible_paths:
-    - path
-    - type
-    - scope
-    - locked
-    - short_description
-  relation_graph:
-    - relation_type
-    - participants
-    - roles
-    - source_path
-  constraints:
-    - path
-    - expression / semantic constraint
-  planning_signals:
-    - signal_type
-    - path
-    - scope_id
-    - participants
-    - roles
-    - reason
-  candidate_methods:
-    - method_id
-    - solves
-    - required_inputs
-    - outputs
+for each abstract step:
+  1. MethodRetriever 根据 step_goal / capability / FamilySpec 召回 MethodSpec
+  2. SlotBinder 根据 MethodSpec.required_inputs、visible paths、relation roles 枚举绑定候选
+  3. LLM 从候选 method 和候选 binding 中选择，或请求缺失 declaration / 前置步骤
+  4. PlanCompiler 把候选 id 编译成真实 ContextPath
 ```
 
-`relation_graph` 只搬运 `ProblemIR.data.relations` 中的题面关系，例如点在线段上、
-线段关系、路径最值条件和 `right_angle_equal_length`。点的 `definition="unknown"`
-只说明坐标未定，不承载几何关系。
+LLM 输出示例：
 
-`planning_signals` 则由代码规则从 `RuntimeContext`、`relation_graph` 和 constraints
-中生成，例如 unresolved point、orientation constraint、未知点参与直角等长关系等。
-它不是 goal，也不是解法步骤。
+```json
+{
+  "step_id": "derive_ii_D_candidates",
+  "selected_method_id": "right_angle_equal_length_candidates",
+  "binding_selection": {
+    "anchor": "candidate_path:$question.ii.points.A",
+    "reference": "candidate_path:$question.ii.points.C",
+    "target": "candidate_path:$question.ii.points.D"
+  },
+  "outputs": {
+    "candidates": "$step.derive_ii_D_candidates.temp.candidates"
+  },
+  "promote_outputs": {
+    "$step.derive_ii_D_candidates.temp.candidates": "$question.ii.outputs.D_candidates"
+  },
+  "reason": "D 由 AC 绕 A 旋转 90°产生两个候选"
+}
+```
 
-`ContextInventory` 的价值是把 LLM 的工作限制为“在已有 ContextPath 和 MethodSpec 中选择、组合、修复”，而不是让 LLM 从自然语言里自由编造变量和答案。
+这里的 `candidate_path:*` 必须来自 SlotBinder 给出的候选列表；LLM 不能自由写路径。
+如果 LLM 认为候选不够，只能返回结构化错误，例如 `missing_candidate_path`、
+`need_context_declaration`、`need_previous_step_output`。
 
-### 5.4 StrategyPlanner
+#### 5.2.5 PlanCompiler 与双层校验
 
-StrategyPlanner 根据 QuestionGoal、PlanningSignal 和 FamilySpec 的策略原则生成抽象步骤。
-这里允许并且预期 LLM 参与，因为同一类题的步骤顺序会被题目条件、已知量、目标问法、
-辅助构造方式影响。
-
-例如 `quadratic_path_minimum` 的 FamilySpec 只声明策略原则：
+PlanCompiler 把 LLM 选择结果编译成：
 
 ```text
-先解析函数和参数约束
-构造点未知时先生成候选再筛选
-能先求参数时优先先求参数
-路径最值先做路径转化再做折线拉直
+ContextDeclaration[]
+StepPlan[]
+MethodInvocation[]
 ```
 
-具体题目中是否需要某一步、步骤先后顺序是什么，由 Planner 结合 context、
-QuestionGoal 和 PlanningSignal 决定。规则可以提供候选依赖，但复杂情形下的
-step decomposition 应由 LLM 受控生成。
+然后经过两层校验：
 
-### 5.5 MethodRetriever
+1. `AbstractPlanValidator`：校验 LLM 输出 schema、候选 id、step_id 唯一性、依赖 DAG、无裸答案。
+2. `PlanValidator`：校验编译后的 ContextPath、scope 可见性、类型匹配、写入权限、locked fact。
 
-MethodRetriever 根据 step goal 和可见事实检索 MethodSpec。
+只有两层都通过，Executor 才能执行。
 
-排序信号：
+### 5.3 Repair Loop
 
-- `solves` 是否匹配 step goal。
-- required inputs 是否能从当前 scope 找到。
-- outputs 是否能推进 expected output。
-- method capability 是否符合 FamilySpec 的 hints。
-- 历史回归中该 method 是否稳定。
+LLM Planner 必须支持修复，而不是一次失败就降级到自由解题。
 
-### 5.6 InvocationResolver
+错误来源分四类：
 
-InvocationResolver 负责参数映射。
+- `abstract_validation_error`：LLM 输出 schema 错、引用未知 candidate id、步骤依赖成环。
+- `plan_validation_error`：ContextPath 不可见、类型不匹配、输出覆盖 locked fact。
+- `execution_error`：method 抛错、方程无解、多解未筛选、check failed。
+- `result_error`：QuestionGoal 的 target path 缺失或类型不匹配。
 
-以直角等腰求点为例：
+修复 payload 应包含：
 
-1. 从 goal target 得到 unknown endpoint：`$question.ii.points.N`。
-2. 在 relation graph 中找到包含 N 的 right-angle-equal-length relation。
-3. 根据 relation roles 找到 anchor 和 reference。
-4. 枚举可见 ContextPath。
-5. 检查类型和 scope。
-6. 生成候选 invocation。
-7. 将候选 ContextPath、MethodSpec、局部题意和 FamilySpec 提供给 LLM 做受控选择或组合。
+- 上一轮 abstract plan 摘要。
+- 编译后的失败 step / invocation。
+- 结构化错误码和错误位置。
+- 当前 RuntimeContext 已新增的 outputs 摘要。
+- 可选的失败 method trace/check。
 
-LLM 只允许选择或组合 ContextPath 与 method invocation，不允许直接写坐标、参数值或最终答案。
+PlannerMemory 保存这些尝试，但不会直接写 RuntimeContext。Orchestrator 只设置最大轮数、
+最大 token、最大 wall time 和是否允许 fallback。
 
-### 5.7 LLM Planner 边界
+推荐默认预算：
+
+```text
+max_planner_attempts = 3
+max_repair_attempts_per_plan = 2
+```
+
+超过预算后返回 `status="failed"`，并把失败原因写入 `SolverResult.errors`。
+
+### 5.4 Deterministic Planner 的新角色
+
+南开 `QuadraticPathMinimumPlannerV15` 和河西 `Hexi25WeightedPathPlannerV15` 不再作为长期扩展方向。
+LLM Planner 接入后，它们的角色应调整为：
+
+- golden oracle：用于对比 LLM 生成的 method 顺序和关键 ContextPath 是否合理。
+- fallback fixture：真实 LLM 不稳定时可在本地测试中提供固定计划，保护执行层测试。
+- regression source：把两道题的成功 StepPlan 作为 few-shot / plan example，但不能让 LLM 复制题号或点名。
+
+生产默认路径最终应是：
+
+```text
+FamilyRegistry.match(problem)
+  -> RuntimeOrchestrator
+  -> LLMPlanner.plan(inputs)
+  -> Validator / Executor / ResultBuilder
+```
+
+而不是按 `family_id -> deterministic planner class` 静态映射。
+
+### 5.5 LLM 输出边界
 
 允许 LLM：
 
-- 在多个 strategy candidate 中选择。
-- 在多个 method candidate 中选择。
-- 在多个 ContextPath candidate 中消歧义。
-- 根据 validator/verifier 错误修复 plan。
-- 解释选择原因，作为 debug trace。
+- 生成抽象步骤。
+- 决定步骤顺序和依赖。
+- 请求声明辅助点占位。
+- 从候选 method 中选择 method。
+- 从候选 ContextPath 绑定中选择参数映射。
+- 根据 validator / executor 错误修复 plan。
+- 给出选择理由，供 debug 和后续 ExplanationBuilder 使用。
 
 不允许 LLM：
 
 - 直接给最终答案。
+- 直接给中间坐标、参数值或化简结果。
 - 编造不存在的 ContextPath。
-- 绕过 MethodSpec。
-- 向 invocation 写裸数值。
+- 直接修改 RuntimeContext。
+- 绕过 MethodSpec 或调用不存在的 method。
 - 修改 locked fact。
+- 把 expected answer 或测试 oracle 当作输入。
 
-所有 LLM 输出必须通过 PlanValidator 后才能执行。
+### 5.6 与 ProblemIR 生成阶段的关系
+
+LLM 会出现在两个地方，但职责不同：
+
+```text
+ProblemIR 生成 LLM：从题面/图片抽取题意结构
+Planner LLM：从已结构化的题意和 method 能力生成可执行 plan
+```
+
+ProblemIR 生成阶段只负责题意事实：点、函数、关系、条件、分问、最终 QuestionGoal。
+它不负责生成 method chain，也不负责猜测中间变量。
+
+PlanningSignal 仍由代码从 RuntimeContext / ContextInventory 确定性生成，不调用 LLM。
+例如“未知点参与 right_angle_equal_length 关系”是一个 signal，不是 ProblemIR 里的 method hint。
 
 ## 6. 执行与验算
 
 执行器只做确定性动作：
 
 ```text
-StepPlan
+ContextDeclaration[]
+  -> validate declarations
+  -> apply declarations
+StepPlan[]
   -> validate_step
   -> resolve ContextPath inputs
   -> method.run(inputs, kernel)
@@ -745,25 +823,28 @@ StepPlan
 - 覆盖题设 locked fact 必须失败。
 - 输入类型必须匹配 MethodSpec。
 - Invocation 不能携带裸数值作为答案捷径。
+- QuestionGoal 缺失或类型错误由 ResultBuilder 报错，不由 Planner 伪造答案。
 
 ## 7. Search / Rank / Fallback
 
-Search & Rank 分三层：
+Search & Rank 分四层：
 
-1. Family ranking：根据 ProblemIR 的 pattern、对象结构、目标类型和历史案例匹配 SolverFamily。
-2. Method ranking：根据 step goal、required inputs、produces、历史成功率检索 MethodSpec。
-3. Invocation ranking：在多个 ContextPath 候选中选择最合理的输入映射。
+1. Family ranking：根据 ProblemIR 的 pattern、problem_type、对象结构、目标类型和历史案例匹配 SolverFamily。
+2. Step strategy ranking：根据 FamilySpec、QuestionGoal、PlanningSignal 和 relation graph 选择解题策略。
+3. Method ranking：根据 step goal、required inputs、produces、历史成功率检索 MethodSpec。
+4. Invocation ranking：在多个 ContextPath 候选绑定中选择最合理的输入映射。
 
 Fallback 不是完全自由解题，而是分层降级：
 
 ```text
-Deterministic V1.5 slice
-  -> Method-Guided LLM Planner
-  -> Free LLM + Verifier
-  -> Low Confidence Review
+LLMPlanner with MethodSpec / ContextPath constraints
+  -> LLMPlanner repair loop
+  -> deterministic golden fallback for known fixtures only
+  -> Free LLM draft + Verifier, marked low confidence
+  -> Human review queue
 ```
 
-所有 miss case 都应进入离线队列，用于新增 method、补 FamilySpec 或添加测试。
+所有 miss case 都应进入离线队列，用于新增 method、补 FamilySpec、补 PlanningSignal 或添加测试。
 
 ## 8. 当前代码与目标架构的差距
 
@@ -778,21 +859,34 @@ Deterministic V1.5 slice
 - `QuestionGoal` 解析与 `ResultBuilder` 答案收集。
 - `RuntimeOrchestrator` 通用运行编排。
 - 南开 25 与河西 25 的端到端求解。
+- 二次函数约束求解已统一到 `quadratic_from_constraints`。
+- 加权路径最值已拆成几何转化 `weighted_axis_path_triangle_transform` 和几何最短 `linked_broken_path_geometric_minimum`。
 
-当前仍需重构：
+仍需重构：
 
-- `QuadraticPathMinimumPlannerV15` 仍是南开固定 step 模板。
-- `Hexi25WeightedPathPlannerV15` 仍是河西固定 step 模板。
-- `enabled_problem_ids` 仍是 deterministic slice 的临时支持门控。
-- Planner 占位点目前由 deterministic planner 直接写 RuntimeContext；长期应抽成可校验的 `ContextDeclaration` 阶段。
-- `SolverResult.trace` 当前是 runtime 计算轨迹，不是学生可直接阅读的解题稿。像河西第（Ⅲ）问里的
-  `垂足=(...), n=..., 最小值=...` 对机器验算友好，但不适合直接展示给初中生；并且某些
-  runtime 步骤只是为了后续验算或上下文完整性，例如求 `c`、代入得到完整抛物线，题面若只问
-  `b`，学生版讲解可以隐藏或合并这些步骤。
-- `_choose_point_scope()` 已移除 `ii` 硬编码；构造点优先按 relation scope，
-  其次按定义依赖点 scope 推断，跨 scope 时保守放到 problem。
+- `QuadraticPathMinimumPlannerV15` 仍是南开固定 step template。
+- `Hexi25WeightedPathPlannerV15` 仍是河西固定 step template。
+- `enabled_problem_ids` 仍是 deterministic template 的临时硬门控。
+- Planner provider 仍是 `family_id -> planner factory` 静态映射。
+- Planner 占位点目前由 deterministic planner 直接写 RuntimeContext；目标是改成可校验的 `ContextDeclaration[]`。
+- Fake LLM planner 目前只覆盖 step decomposition，不覆盖真实 method 选择、ContextPath 绑定和 repair loop。
+- `SolverResult.trace` 当前是 runtime 计算轨迹，不是学生可直接阅读的解题稿。
 
-### 8.1 已知问题：Runtime Trace 不等于学生推导
+### 8.1 enabled_problem_ids 退出条件
+
+`enabled_problem_ids` 是硬门控，不是弱提示。`FamilyRegistry.match(problem)` 会先判断
+`pattern/problem_type` 是否命中，再检查 `problem.problem_id` 是否在白名单中。因此即使题型信号
+完全命中，只要不在白名单里，也会返回 `unsupported`。
+
+退出条件：
+
+1. LLM Planner 不再依赖 canonical 点名和分问 id，例如 `D/M/N/F/G`、`i/ii/ii_1/ii_2`。
+2. 南开、河西两道黄金题都能通过 LLM Planner 生成计划并端到端通过。
+3. alt-label 同构题能通过同一 planner，未知题型或其他 family 不会误路由。
+4. 去掉门控后，测试仍覆盖正负样例和 unsupported 行为。
+5. 满足以上条件后，从 FamilySpec 删除该字段，或让空 tuple 表示不再按题号限制。
+
+### 8.2 Runtime Trace 不等于学生推导
 
 当前无状态 method 返回的 `trace_fragments` 主要服务三件事：
 
@@ -825,34 +919,9 @@ PlanExecutionResult + RuntimeContext + QuestionGoal
 ```
 
 `ExplanationBuilder` 的输入不应是自由文本拼接，而应优先使用 method 输出的结构化解释事实，
-例如：
+例如路径转化、辅助点轨迹、等号条件、最小值条件、长度链和 visibility policy。
 
-- `path_transformation`：原路径、转化后路径、比例系数。
-- `auxiliary_locus`：辅助点在哪条射线/直线上运动。
-- equality condition：什么时候取等号，例如 `M,N,Q` 共线。
-- minimum condition：为什么要垂直于轨迹。
-- length chain：适合初中生理解的长度关系，如 `MH=HN`、`MN=sqrt(2)*MH`、`AN=AH-HN`。
-- visibility policy：哪些 runtime 产物只是验算或后续上下文，不进入学生版最终步骤。
-
-这层完成后，`SolverResult.trace` 可以继续保留 debug/runtime trace；学生端页面、讲义和
-`02_solution.md` 风格输出则读取 `ExplanationBuilder` 的结果。
-
-这里的 `enabled_problem_ids` 是硬门控，不是弱提示。`FamilyRegistry.match(problem)`
-会调用 `SolverFamilySpec.supports(problem)`：先判断 `pattern/problem_type` 是否命中，
-再检查 `problem.problem_id` 是否在 `enabled_problem_ids` 中。因此在当前阶段，即使
-一道题的题型信号完全命中对应 family，只要不在白名单里，也会返回
-`unsupported`。
-
-退出 `enabled_problem_ids` 的条件：
-
-1. 至少两道同一 family 的完整端到端题目通过。
-2. Planner 或 invocation resolver 不再依赖 canonical 南开 25 的点名和分问 id，例如
-  `D/M/N/F/G`、`i/ii/ii_1/ii_2`。
-3. 去掉门控后，alt-label 同构题可以通过，其他 family 或未知题型仍不会误路由。
-4. 测试覆盖“pattern/type 命中但 problem_id 不在门控内”的拒绝行为，以及去门控后的正负样例。
-5. 满足以上条件后，从 FamilySpec 删除该字段，或让空 tuple 表示不再按题号限制。
-
-目标代码结构建议：
+## 9. 目标代码结构
 
 ```text
 server/shuxueshuo_server/solver/
@@ -862,20 +931,23 @@ server/shuxueshuo_server/solver/
   result_models.py
   contracts.py
   family/
-    models.py                 # SolverFamilySpec / MatchSignals / StrategyPrinciples
-    registry.py               # FamilyRegistry
-    quadratic_path_minimum.py  # QuadraticPathMinimumFamilySpec
+    models.py
+    registry.py
+    quadratic_path_minimum.py
     quadratic_weighted_path_minimum.py
   runtime/
     context.py
     models.py
-    planner.py                # GenericPlanner / PlannerInputs 接口
-    context_inventory.py      # RuntimeContext -> 可规划上下文摘要
-    orchestrator.py           # FamilySpec -> Planner -> Executor -> ResultBuilder
-    llm_step_planner.py       # Fake LLM + step decomposition 受控切片
-    result_builder.py         # QuestionGoal -> SolverResult.answers
-    explanation_builder.py    # 未来：runtime trace -> 学生可读推导
-    deterministic_planners/   # 接入 LLM 前的测试切片
+    planner.py
+    context_inventory.py
+    planner_payload.py        # PlannerInputs -> LLM payload
+    llm_planner.py            # LLMPlanner / repair loop / memory
+    plan_compiler.py          # LLM draft -> ContextDeclaration + StepPlan
+    slot_binder.py            # MethodSpec slot -> ContextPath candidate bindings
+    orchestrator.py
+    result_builder.py
+    explanation_builder.py
+    deterministic_planners/   # golden fallback / regression oracle
     executor.py
     methods/
   math_kernel/
@@ -885,116 +957,53 @@ server/shuxueshuo_server/solver/
 当前代码映射：
 
 
-| 当前代码                                | 目标职责                                                      |
-| ----------------------------------- | --------------------------------------------------------- |
-| `problem_models.py`                 | ProblemIR 输入模型                                            |
-| `result_models.py`                  | SolverResult / Trace 输出模型                                 |
-| `contracts.py`                      | MethodSpec / TypedValue / Check / Trace 契约                |
-| `runtime/context.py`                | RuntimeContext + ContextBuilder                           |
-| `runtime/models.py`                 | ContextPath / StepGoal / StepPlan / MethodInvocation      |
-| `runtime/methods/*.py`              | Stateless Method + SPEC                                   |
-| `runtime/method_specs.py`           | MethodSpecRegistry                                        |
-| `runtime/executor.py`               | PlanValidator + InvocationExecutor                        |
-| `runtime/quadratic_path_planner.py` | 当前南开固定 planner，后续迁移到 deterministic planners               |
-| `runtime/hexi_weighted_path_planner.py` | 当前河西固定 planner，验证第二道完整题链路                         |
-| `runtime/llm_step_planner.py`       | Fake LLM + AbstractStepPlan step decomposition 切片         |
-| `runtime/orchestrator.py`           | 通用运行编排：FamilySpec -> Planner -> Executor -> ResultBuilder |
-| `runtime/explanation_builder.py`    | 未来新增：将 runtime 计算轨迹转为面向学生的推导稿                         |
-| `family/quadratic_path_minimum.py`  | 二次函数路径最值 FamilySpec                                       |
-| `family/quadratic_weighted_path_minimum.py` | 二次函数加权路径最值 FamilySpec                              |
+| 当前代码                                    | 目标职责                                                    |
+| --------------------------------------- | ------------------------------------------------------- |
+| `problem_models.py`                     | ProblemIR 输入模型                                          |
+| `result_models.py`                      | SolverResult / Trace 输出模型                               |
+| `contracts.py`                          | MethodSpec / TypedValue / Check / Trace 契约              |
+| `runtime/context.py`                    | RuntimeContext + ContextBuilder                         |
+| `runtime/models.py`                     | ContextPath / StepGoal / StepPlan / MethodInvocation    |
+| `runtime/methods/*.py`                  | Stateless Method + SPEC                                 |
+| `runtime/method_specs.py`               | MethodSpecRegistry                                      |
+| `runtime/executor.py`                   | PlanValidator + InvocationExecutor                      |
+| `runtime/context_inventory.py`          | RuntimeContext -> 可规划上下文摘要                              |
+| `runtime/llm_step_planner.py`           | 现有 Fake LLM step decomposition 切片，后续并入 `llm_planner.py` |
+| `runtime/quadratic_path_planner.py`     | 当前南开固定 planner，迁移到 deterministic golden fallback        |
+| `runtime/hexi_weighted_path_planner.py` | 当前河西固定 planner，迁移到 deterministic golden fallback        |
+| `runtime/orchestrator.py`               | FamilySpec -> Planner -> Executor -> ResultBuilder      |
+| `family/*.py`                           | SolverFamilySpec                                        |
 
-
-## 9. 第一阶段完成状态
-
-### Phase 1：抽出 FamilySpec，不改变行为
-
-- 已新增 `SolverFamilySpec` 数据模型和 `FamilyRegistry`。
-- 已把 concrete solver 的题型匹配信息抽到 `QuadraticPathMinimumFamilySpec`。
-- 已新增 `QuadraticWeightedPathMinimumFamilySpec`，用于河西 25 加权路径最值黄金题。
-- `enabled_problem_ids` 仍作为 deterministic slice 的临时硬门控；题型命中但不在门控内的题目仍会返回 `unsupported`。
-- FamilySpec 不指定 planner，不保存答案结构，不承担执行职责。
-
-### Phase 2：定义 Planner 接口与上下文索引
-
-- 已新增 `PlannerInputs` 和 `GenericPlanner` 接口。
-- 已新增 `ContextInventoryBuilder`，从 RuntimeContext 枚举可见 ContextPath、类型、scope、locked 状态、relation graph 和 planning signals。
-- 已新增 `Nankai25DeterministicPlannerAdapter`，把当前南开 deterministic planner 接到通用接口。
-
-### Phase 3：补 QuestionGoal 与 ResultBuilder
-
-- 已在 ProblemIR 中补充 question goals 的目标表达。
-- QuestionGoal 只表示题目最终作答目标，不表示推导中间量。
-- 目标先允许带显式 target path，避免一次性做复杂 goal resolution。
-- 已新增 `ResultBuilder`，从 question goals 对应的 resolved target paths 收集答案。
-- 已从南开 deterministic planner 删除 `answer_paths()` 职责，planner 只负责 StepPlan。
-
-### Phase 4：把 SolverFamily 改成通用 Orchestrator
-
-- 已让 `engine.solve_problem()` 委托 `RuntimeOrchestrator`。
-- 已删除 concrete `QuadraticPathMinimumSolver` 执行类，SolverFamily 只保留 spec/registry。
-- 当前 planner provider 使用临时静态映射，不写入 FamilySpec。
-- 当前流程：
-
-```text
-family = FamilyRegistry.match(problem)
-context = ContextBuilder.build(problem)
-context_inventory = ContextInventoryBuilder.build(context)
-question_goals = extract_question_goals(problem)
-planner_inputs = PlannerInputs(family.spec, question_goals, context_inventory, method_specs)
-plans = Planner.plan(planner_inputs)
-execution = Executor.execute_plan(context, plans)
-result = ResultBuilder.build(context, execution, question_goals)
-```
-
-### Phase 5：接入 LLM Planner 的受控切片
-
-- 已新增 Fake LLM planner 协议层，不接真实 API、不引入网络或密钥。
-- 已让 LLM 只做 step decomposition：输出 `AbstractStepPlan[]`，不允许直接给 method 参数。
-- 已新增 `AbstractStepPlanCompiler`，首版只把 canonical 南开抽象步骤编译回 deterministic StepPlan。
-- 默认 `solve_problem()` 仍走 deterministic planner；LLM slice 只通过 Orchestrator planner provider 注入启用。
-- 当前未实现真实 OpenAI provider、invocation mapping 和 repair loop。
-- `PlanValidator` 仍是执行前强边界；LLM 输出先过 abstract-step validation，再由 compiler 产出可执行计划。
-- 记忆分为 `RuntimeContext`、`PlannerMemory`、`SolveSession` 三层，不能混成一个全局黑板。
-
-### Phase 6：减少 fixture 中的 planner hints
-
-- 已从 solver fixture 中清理 `input.solver_config`；fixture 不再保存 method 顺序、辅助点、最小线段或交点线。
-- `ProblemIR.data.path_problem` 只表达题面给出的路径最值目标，例如路径类型、所属 scope 和原始路径表达式。
-- `D_prime`、候选最短线段、交点线等都属于 planner/runtime 推导产物，由 deterministic planner 或后续通用 Planner 创建。
-- 当前 `G`、`D_prime` 通过 planner 预创建 `PointRef` 占位；通用 Planner 阶段应改为 `ContextDeclaration[]`，由 Validator 统一校验后再写入 RuntimeContext。
-- 每次新增题目时继续检查字段是否属于“题意事实”；凡是解法策略、候选选择或中间构造，都不能写进 fixture。
-
-### Phase 7：接第二道完整题
-
-- 已接入河西 25 作为第二道完整端到端黄金题。
-- 河西属于 `weighted-path-minimum / quadratic_weighted_path_minimum`，因此新增
-  `QuadraticWeightedPathMinimumSolver` family，而不是误路由到南开 path family。
-- 已新增 `Hexi25WeightedPathPlannerV15` fixed template 和 weighted path 所需无状态 methods。
-- 这一步证明 Orchestrator、QuestionGoal、ResultBuilder、PlanValidator 和 MethodSpec
-  可以承接第二个 family；但 weighted planner 仍是 deterministic slice，不是通用 planner。
 
 ## 10. 测试策略
 
-测试是 Method Solver 的核心回归保护。当前 `server/tests/solver` 下有 19 个
-`test_*.py` 文件，覆盖从数学原语到端到端求解的完整链路。
+测试是 Method Solver 的核心回归保护。策略是每一层都有独立单测，端到端题目使用
+expected answer JSON 做验收。
 
 分层策略：
 
 - 数学层：`test_math_kernel.py`、`test_math_ops.py` 验证 SymPy 原子能力和 Layer 2 组合操作。
 - Runtime 层：`test_context_path.py`、`test_runtime_context_scopes.py`、`test_context_inventory.py`、`test_context_builder.py` 验证 scope、path、PointRef、relation graph 和可见性。
 - Method 层：`test_runtime_stateless_methods.py`、`test_method_spec_loader.py` 验证 MethodSpec 与无状态 method 的输入输出契约。
-- Planner/Executor 层：`test_step_planner_v15.py`、`test_plan_validator.py`、`test_invocation_executor.py`、`test_llm_step_decomposition_planner.py` 验证 plan 生成、校验、执行和 fake LLM 受控切片。
-- Result/CLI/E2E 层：`test_result_builder.py`、`test_quadratic_path_minimum_solver.py`、`test_cli.py` 验证最终答案、trace、checks 和命令行输出。
+- Planner/Executor 层：验证 LLM abstract plan、ContextDeclaration、slot binding、PlanValidator、InvocationExecutor 和 repair loop。
+- Result/CLI/E2E 层：验证最终答案、trace、checks 和命令行输出。
 
-端到端测试以 `server/tests/solver/expected/*.expected.json` 作为 expected answer JSON。
-这让 CLI 输出、`SolverResult.answers`、`methods_used`、`trace` 和 `checks` 都能被稳定回归。
+LLM Planner 新增测试要求：
+
+- Fake LLM 输出南开、河西抽象步骤，编译后端到端答案与 expected JSON 一致。
+- Fake LLM 输出非法 JSON、未知 candidate id、裸值、不可见 ContextPath 时必须失败且不执行 method。
+- SlotBinder 给出多个候选时，LLM 只能选择候选 id，不能手写新路径。
+- Repair loop 能根据一次 validator error 修复 plan。
+- PlannerMemory 不写 RuntimeContext。
+- 去掉 deterministic provider 后，南开、河西仍能通过 LLM planner。
+- deterministic planner 只作为 golden fallback，不再是默认 provider。
 
 新增 method 或 planner 行为时，原则是先补该层单测，再补端到端 fixture 或 expected JSON。
-这样我们能区分“数学操作错了”“参数映射错了”“规划顺序错了”和“答案收集错了”。
+这样可以区分“数学操作错了”“参数映射错了”“规划顺序错了”和“答案收集错了”。
 
 ## 11. 当前验收状态
 
-第一阶段重构完成后，南开 25 当前验收基线是：
+南开 25 当前验收基线：
 
 ```text
 第（Ⅰ）问：D(1,0)，y=2*x**2 - 4*x - 5
@@ -1002,15 +1011,7 @@ result = ResultBuilder.build(context, execution, question_goals)
 第（Ⅱ）②：m=8，y=x**2/6 - x/3 - 7，G(4,-13/3)
 ```
 
-并且：
-
-- 所有 checks 通过。
-- trace steps 非空。
-- method 不读取 fixture。
-- `engine` 不硬编码 concrete solver。
-- Planner 显式接收 FamilySpec。
-
-河西 25 当前验收基线是：
+河西 25 当前验收基线：
 
 ```text
 第（Ⅰ）问最终答案：P(1,2)
@@ -1018,27 +1019,34 @@ result = ResultBuilder.build(context, execution, question_goals)
 第（Ⅲ）问最终答案：b=2
 ```
 
-其中最小值验证和点 N 是推导过程产物，会保留在 trace/checks 和 RuntimeContext 中，
-但不写入 `QuestionGoal`，也不作为 `SolverResult.answers` 的最终答案字段。第（Ⅲ）问
-不再额外计算 `c` 或最终抛物线，因为题面只要求 `b`；这类非答案产物应由后续
-`ExplanationBuilder` 或调试视图按需补充，而不进入默认 E2E trace。
+并且：
 
-## 12. 成功标准
+- 两道题所有 checks 通过。
+- trace steps 非空。
+- method 不读取 fixture。
+- `engine` 不硬编码 concrete solver。
+- `QuestionGoal` 只收集题面最终答案。
+- 河西第（Ⅲ）问的最小值验证和点 N 是推导过程产物，不进入 `SolverResult.answers`。
 
-短期：
+## 12. LLM Planner 成功标准
 
-- 南开 25 继续端到端通过。
-- 河西 25 继续端到端通过。
-- SolverFamilySpec 能作为 planner 输入。
-- `engine` 不再依赖单个 concrete solver。
+短期成功标准：
 
-中期：
+- 默认 planner provider 可以切到 LLM Planner。
+- 南开 25、河西 25 都由 LLM Planner 生成计划并端到端通过。
+- LLM 输出不包含裸答案，所有 method invocation 都来自 MethodSpec 与 ContextPath 候选。
+- deterministic planner 只作为测试 oracle / fallback，不再是主链路。
+- 失败时能返回结构化 planner error，而不是静默 fallback 到自由解题。
 
-- 至少两道 25 题复用同一个 `quadratic_path_minimum` family。
-- 新增题目优先新增 fixture 和测试，而不是新增 SolverFamily。
-- Method 的复用率持续提升。
+中期成功标准：
 
-长期：
+- alt-label 同构题无需新增 deterministic planner 即可通过。
+- 至少两道同 family 题目复用同一个 FamilySpec、MethodSpec 和 LLM Planner。
+- `enabled_problem_ids` 可以移除或变成空门控。
+- 新题接入优先补 fixture、expected JSON、method 单测，而不是新增 SolverFamily。
 
-- 题库越大，FamilySpec / MethodSpec / Planner 越稳定。
-- LLM 的角色从“现场解题”转为“抽取题意、消歧义、修复 plan、改写讲解”。
+长期成功标准：
+
+- 题库越大，FamilySpec / MethodSpec / PlanningSignal / SlotBinder 越稳定。
+- LLM 的角色从“现场解题”收敛为“受控规划、消歧义、修复 plan、改写讲解”。
+- runtime trace 与学生版 ExplanationBuilder 分层，既能验算，也能讲给中学生听。
