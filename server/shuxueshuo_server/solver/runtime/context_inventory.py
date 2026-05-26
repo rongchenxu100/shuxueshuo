@@ -37,6 +37,7 @@ class VisibleContextPath:
     source: str
     readable_from: tuple[str, ...]
     description: str = ""
+    definition: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -182,6 +183,7 @@ class ContextInventoryBuilder:
                             source=typed_value.source,
                             readable_from=_readable_from(context, scope.scope_id),
                             description=_describe_value(typed_value),
+                            definition=_definition_payload(typed_value),
                         )
                     )
         return paths
@@ -329,8 +331,37 @@ def _readable_from(context: RuntimeContext, target_scope_id: str) -> tuple[str, 
 def _describe_value(value: TypedValue) -> str:
     """生成给 Planner/调试使用的短描述，不承诺可逆解析。"""
     if value.type == "PointRef":
-        return f"PointRef({getattr(value.value, 'name', '')})"
+        # PointRef 是 Planner 理解“未解点/派生点”的重要信号。这里暴露的只是
+        # 题面定义意图和依赖点名，不包含坐标、参数值或答案。
+        point_ref = value.value
+        definition = getattr(point_ref, "definition", {})
+        if isinstance(definition, dict):
+            intent = str(definition.get("definition", "") or "unknown")
+            dependencies = [
+                f"{key}={definition[key]}"
+                for key in ("of", "source", "target", "line", "mirror_line")
+                if key in definition
+            ]
+            suffix = f"({', '.join(dependencies)})" if dependencies else ""
+            return f"PointRef({getattr(point_ref, 'name', '')}: {intent}{suffix})"
+        return f"PointRef({getattr(point_ref, 'name', '')})"
     return f"{value.type} from {value.source}"
+
+
+def _definition_payload(value: TypedValue) -> dict[str, Any]:
+    """返回 PointRef 的结构化定义摘要，供 Planner 避免解析 description 文案。"""
+    if value.type != "PointRef":
+        return {}
+    point_ref = value.value
+    definition = getattr(point_ref, "definition", {})
+    if not isinstance(definition, dict):
+        return {}
+    # 只复制题面定义中的轻量结构字段，不包含坐标、答案或计算结果。
+    return {
+        str(key): definition[key]
+        for key in ("definition", "of", "source", "target", "line", "mirror_line")
+        if key in definition
+    }
 
 
 def _method_candidate(spec: MethodSpec) -> MethodCandidateEntry:

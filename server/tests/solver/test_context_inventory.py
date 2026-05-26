@@ -40,6 +40,7 @@ def test_context_inventory_contains_core_context_paths() -> None:
     assert d.container == "points"
     assert d.key == "D"
     assert d.source == "point:D"
+    assert d.definition == {"definition": "axis_x_intercept", "of": "parabola"}
     assert {"ii_1", "ii_2"}.issubset(set(d.readable_from))
 
     assert m is not None
@@ -56,6 +57,16 @@ def test_context_inventory_contains_core_context_paths() -> None:
     assert m_constraint.type == "Constraint"
     assert m_constraint.scope_id == "problem"
     assert m_constraint.locked
+
+
+def test_context_inventory_exposes_structured_pointref_definition() -> None:
+    """PointRef 定义应有结构化摘要，避免 planner 解析 description 文案。"""
+    inventory = _build_inventory()
+
+    midpoint = inventory.find_path("$question.ii.points.F")
+
+    assert midpoint is not None
+    assert midpoint.definition == {"definition": "midpoint", "of": ["D", "N"]}
 
 
 def test_context_inventory_preserves_scope_visibility() -> None:

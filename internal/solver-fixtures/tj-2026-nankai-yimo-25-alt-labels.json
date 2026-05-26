@@ -115,7 +115,23 @@
             "a": "2",
             "c": "-5"
           },
-          "asks": ["T 的坐标", "抛物线解析式"]
+          "asks": ["T 的坐标", "抛物线解析式"],
+          "goals": [
+            {
+              "id": "a.axis_point",
+              "answer_key": "T",
+              "target_path": "$problem.points.T",
+              "value_type": "Point",
+              "required": true
+            },
+            {
+              "id": "a.parabola",
+              "answer_key": "parabola",
+              "target_path": "$question.a.outputs.parabola",
+              "value_type": "Parabola",
+              "required": true
+            }
+          ]
         },
         {
           "id": "b",
@@ -133,7 +149,23 @@
                   "value": "10"
                 }
               ],
-              "asks": ["抛物线解析式", "PR+WR 的最小值"]
+              "asks": ["抛物线解析式", "PR+WR 的最小值"],
+              "goals": [
+                {
+                  "id": "b_1.parabola",
+                  "answer_key": "parabola",
+                  "target_path": "$subquestion.b_1.outputs.parabola",
+                  "value_type": "Parabola",
+                  "required": true
+                },
+                {
+                  "id": "b_1.minimum_value",
+                  "answer_key": "min_value",
+                  "target_path": "$subquestion.b_1.outputs.min_value",
+                  "value_type": "MinimumExpression",
+                  "required": true
+                }
+              ]
             },
             {
               "id": "b_2",
@@ -146,7 +178,23 @@
                   "value": "5*sqrt(10)/2"
                 }
               ],
-              "asks": ["抛物线解析式", "此时 R 的坐标"]
+              "asks": ["抛物线解析式", "此时 R 的坐标"],
+              "goals": [
+                {
+                  "id": "b_2.parabola",
+                  "answer_key": "parabola",
+                  "target_path": "$subquestion.b_2.outputs.parabola",
+                  "value_type": "Parabola",
+                  "required": true
+                },
+                {
+                  "id": "b_2.intersection",
+                  "answer_key": "R",
+                  "target_path": "$question.b.points.R",
+                  "value_type": "Point",
+                  "required": true
+                }
+              ]
             }
           ]
         }

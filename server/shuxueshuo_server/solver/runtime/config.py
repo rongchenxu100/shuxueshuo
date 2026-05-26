@@ -8,13 +8,15 @@ provider map 交给 RuntimeOrchestrator。Orchestrator 本身不需要知道 Dee
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import TYPE_CHECKING, Literal
 
 from dotenv import dotenv_values
 
 from shuxueshuo_server.solver.family import (
+    DEFAULT_FAMILY_REGISTRY,
+    FamilyRegistry,
     QUADRATIC_PATH_MINIMUM_FAMILY,
     QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
 )
@@ -111,7 +113,6 @@ class SolverRuntimeConfig:
             controlled_llm_planner_provider,
         )
         from shuxueshuo_server.solver.runtime.llm_step_planner import (
-            FakeLLMPlannerClient,
             llm_step_decomposition_planner_provider,
         )
         from shuxueshuo_server.solver.runtime.orchestrator import (
@@ -121,13 +122,15 @@ class SolverRuntimeConfig:
         if self.planner_mode == "deterministic":
             return dict(DEFAULT_PLANNER_PROVIDERS)
         if self.llm_provider == "fake":
-            # D1：南开 family 走完整 controlled draft；河西 family 暂保留 legacy
-            # fake step decomposition，等 D2 再迁移 weighted controlled draft。
+            # D2：fake LLM 用完整 controlled draft 覆盖当前两个 supported family。
+            # 真实 DeepSeek/Doubao 仍暂走 legacy step decomposition，等后续 prompt 和
+            # repair loop 稳定后再切到 controlled draft。
+            controlled_provider = controlled_llm_planner_provider(
+                FakeControlledLLMPlannerClient()
+            )
             return {
-                QUADRATIC_PATH_MINIMUM_FAMILY.family_id:
-                    controlled_llm_planner_provider(FakeControlledLLMPlannerClient()),
-                QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY.family_id:
-                    llm_step_decomposition_planner_provider(FakeLLMPlannerClient()),
+                QUADRATIC_PATH_MINIMUM_FAMILY.family_id: controlled_provider,
+                QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY.family_id: controlled_provider,
             }
         client = self.build_llm_client()
         provider = llm_step_decomposition_planner_provider(client)
@@ -137,6 +140,27 @@ class SolverRuntimeConfig:
             QUADRATIC_PATH_MINIMUM_FAMILY.family_id: provider,
             QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY.family_id: provider,
         }
+
+    def build_family_registry(self) -> FamilyRegistry:
+        """按运行模式构造 family registry。
+
+        默认 deterministic 仍使用严格白名单，确保 alt-label 不会误走旧模板。只有
+        fake LLM controlled draft 模式下，才临时放开南开 alt-label 作为非 canonical
+        点名回归样例。
+        """
+        if self.planner_mode == "llm" and self.llm_provider == "fake":
+            path_family = replace(
+                QUADRATIC_PATH_MINIMUM_FAMILY,
+                enabled_problem_ids=(
+                    "tj-2026-nankai-yimo-25",
+                    "tj-2026-nankai-yimo-25-alt-labels",
+                ),
+            )
+            return FamilyRegistry((
+                path_family,
+                QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
+            ))
+        return DEFAULT_FAMILY_REGISTRY
 
     def build_llm_client(self) -> LLMPlannerClient:
         """根据 provider 配置创建 LLM client。"""

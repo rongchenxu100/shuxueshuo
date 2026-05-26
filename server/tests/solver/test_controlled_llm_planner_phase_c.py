@@ -27,6 +27,7 @@ from shuxueshuo_server.solver.runtime.controlled_llm_fakes import (
     FakeControlledLLMPlannerClient,
     controlled_llm_planner_provider,
 )
+from shuxueshuo_server.solver.runtime.config import SolverRuntimeConfig
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.models import PlannerOutput
 from shuxueshuo_server.solver.runtime.orchestrator import RuntimeOrchestrator
@@ -37,13 +38,17 @@ from shuxueshuo_server.solver.runtime.quadratic_path_planner import (
 from shuxueshuo_server.solver.family import (
     DEFAULT_FAMILY_REGISTRY,
     QUADRATIC_PATH_MINIMUM_FAMILY,
+    QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
 )
 from shuxueshuo_server.solver.fixtures import load_expected_answers
 
 
 NANKAI_FIXTURE = "../internal/solver-fixtures/tj-2026-nankai-yimo-25.json"
+ALT_LABEL_FIXTURE = "../internal/solver-fixtures/tj-2026-nankai-yimo-25-alt-labels.json"
 HEXI_FIXTURE = "../internal/solver-fixtures/tj-2026-hexi-yimo-25.json"
 EXPECTED = "tests/solver/expected/tj-2026-nankai-yimo-25.expected.json"
+ALT_LABEL_EXPECTED = "tests/solver/expected/tj-2026-nankai-yimo-25-alt-labels.expected.json"
+HEXI_EXPECTED = "tests/solver/expected/tj-2026-hexi-yimo-25.expected.json"
 
 
 class _DraftClient:
@@ -83,12 +88,21 @@ class _CountingValidator(AbstractPlanValidator):
         super().validate(draft, inputs, slot_options)
 
 
-def _planner_inputs(fixture: str = NANKAI_FIXTURE) -> PlannerInputs:
+def _planner_inputs(
+    fixture: str = NANKAI_FIXTURE,
+    *,
+    fake_registry: bool = False,
+) -> PlannerInputs:
     """构造 Phase C 测试使用的 PlannerInputs。"""
     problem = load_problem_ir(fixture)
     context = ContextBuilder().build(problem)
     specs = MethodSpecRegistry.load_from_code()
-    family = DEFAULT_FAMILY_REGISTRY.match(problem)
+    registry = (
+        SolverRuntimeConfig(planner_mode="llm", llm_provider="fake").build_family_registry()
+        if fake_registry
+        else DEFAULT_FAMILY_REGISTRY
+    )
+    family = registry.match(problem)
     assert family is not None
     return PlannerInputs(
         problem_id=problem.problem_id,
@@ -941,6 +955,138 @@ def test_fake_controlled_llm_client_returns_full_draft_schema() -> None:
     )
 
 
+def test_fake_controlled_llm_client_supports_alt_label_without_canonical_paths() -> None:
+    """alt-label controlled draft 不应包含 canonical 南开点名路径。"""
+    inputs = _planner_inputs(ALT_LABEL_FIXTURE, fake_registry=True)
+    payload = PlanningPayloadBuilder().build(inputs)
+    client = FakeControlledLLMPlannerClient()
+
+    raw_response = client.complete(
+        {
+            "family_id": QUADRATIC_PATH_MINIMUM_FAMILY.family_id,
+            "problem_id": inputs.problem_id,
+            "planner_payload": payload,
+        }
+    )
+    raw = json.loads(raw_response)
+    raw_text = json.dumps(raw, ensure_ascii=False)
+
+    assert set(raw) == {"context_declarations", "steps"}
+    assert raw["context_declarations"]
+    assert raw["steps"]
+    assert "$problem.points.T" in raw_text
+    assert "$question.b.points.V" in raw_text
+    assert "$question.b.points.W" in raw_text
+    assert "$question.b.points.R" in raw_text
+    for forbidden in (
+        "$problem.points.D",
+        "$question.ii.points.M",
+        "$question.ii.points.N",
+        "$question.ii.points.F",
+        "$question.ii.points.G",
+    ):
+        assert forbidden not in raw_text
+
+
+def test_fake_controlled_llm_resolver_uses_structured_midpoint_definition() -> None:
+    """midpoint 解析应依赖 visible path definition，而不是 description 文案。"""
+    inputs = _planner_inputs(ALT_LABEL_FIXTURE, fake_registry=True)
+    payload = PlanningPayloadBuilder().build(inputs)
+    for path in payload["visible_paths"]:
+        # 模拟 _describe_value 输出格式整体变化：resolver 仍应通过 definition 字段
+        # 找到 midpoint，而不是解析这段展示文案。
+        path["description"] = "renamed display text"
+
+    raw_response = FakeControlledLLMPlannerClient().complete(
+        {
+            "family_id": QUADRATIC_PATH_MINIMUM_FAMILY.family_id,
+            "problem_id": inputs.problem_id,
+            "planner_payload": payload,
+        }
+    )
+    raw_text = json.dumps(json.loads(raw_response), ensure_ascii=False)
+
+    assert "$question.b.points.W" in raw_text
+
+
+def test_fake_controlled_llm_resolver_rejects_missing_constructible_signal() -> None:
+    """缺少可构造直角等长点信号时，应在 resolver 层清晰失败。"""
+    inputs = _planner_inputs(ALT_LABEL_FIXTURE, fake_registry=True)
+    payload = PlanningPayloadBuilder().build(inputs)
+    payload["planning_signals"] = [
+        signal for signal in payload["planning_signals"]
+        if signal["signal_type"] != "constructible_right_angle_equal_length_point"
+    ]
+
+    with pytest.raises(
+        AbstractPlanValidationError,
+        match="constructible_right_angle_equal_length_point",
+    ):
+        FakeControlledLLMPlannerClient().complete(
+            {
+                "family_id": QUADRATIC_PATH_MINIMUM_FAMILY.family_id,
+                "problem_id": inputs.problem_id,
+                "planner_payload": payload,
+            }
+        )
+
+
+def test_fake_controlled_llm_client_supports_hexi_weighted_draft() -> None:
+    """河西 weighted fake draft 应使用完整 controlled schema 串联几何转化步骤。"""
+    inputs = _planner_inputs(HEXI_FIXTURE)
+    payload = PlanningPayloadBuilder().build(inputs)
+    client = FakeControlledLLMPlannerClient()
+
+    raw_response = client.complete(
+        {
+            "family_id": QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY.family_id,
+            "problem_id": inputs.problem_id,
+            "planner_payload": payload,
+        }
+    )
+    raw = json.loads(raw_response)
+    raw_text = json.dumps(raw, ensure_ascii=False)
+
+    assert set(raw) == {"context_declarations", "steps"}
+    assert raw["context_declarations"] == [
+        {
+            "path": "$question.iii.points.Q",
+            "type": "PointRef",
+            "name": "Q",
+            "definition_intent": "weighted_path_auxiliary_point",
+            "scope_id": "iii",
+        }
+    ]
+    assert "draft_steps" not in raw
+    assert "weighted_axis_path_triangle_transform" in raw_text
+    assert "linked_broken_path_geometric_minimum" in raw_text
+    assert "@step.hexi_iii_triangle_transform.path_transformation" in raw_text
+    assert "@declaration.iii.Q" in raw_text
+
+
+def test_fake_controlled_llm_client_rejects_unsupported_family() -> None:
+    """fake controlled client 对未知 family/problem 应给出可读错误。"""
+    client = FakeControlledLLMPlannerClient()
+
+    with pytest.raises(AbstractPlanValidationError, match="no draft"):
+        client.complete(
+            {
+                "family_id": "UnknownFamily",
+                "problem_id": "unknown",
+                "planner_payload": {"slot_options": []},
+            }
+        )
+
+    with pytest.raises(AbstractPlanValidationError, match="problem_id=unsupported"):
+        client.complete(
+            {
+                "family_id": QUADRATIC_PATH_MINIMUM_FAMILY.family_id,
+                "problem_id": "unsupported",
+                "planner_payload": {"slot_options": []},
+            }
+        )
+
+
 def test_controlled_fake_llm_nankai_e2e_matches_deterministic_answers_and_methods() -> None:
     """注入 controlled fake provider 后，南开 E2E 应完整通过。"""
     problem = load_problem_ir(NANKAI_FIXTURE)
@@ -961,3 +1107,67 @@ def test_controlled_fake_llm_nankai_e2e_matches_deterministic_answers_and_method
     assert all(check.ok for check in result.checks)
     assert result.methods_used == _method_ids(deterministic.step_plans)
     assert client.payloads
+
+
+def test_controlled_fake_llm_hexi_e2e_matches_expected_answers() -> None:
+    """河西 fake LLM 应走 controlled draft，而不是 legacy decomposition。"""
+    problem = load_problem_ir(HEXI_FIXTURE)
+    expected = load_expected_answers(HEXI_EXPECTED)
+    client = FakeControlledLLMPlannerClient()
+
+    result = RuntimeOrchestrator(
+        planner_providers={
+            QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY.family_id:
+                controlled_llm_planner_provider(client)
+        },
+    ).solve(problem)
+
+    assert result.status == "ok"
+    assert result.answers == expected
+    assert all(check.ok for check in result.checks)
+    assert result.methods_used == [
+        "quadratic_from_constraints",
+        "quadratic_vertex_point",
+        "quadratic_from_constraints",
+        "quadratic_y_axis_intercept_point",
+        "right_angle_equal_length_candidates",
+        "filter_point_candidates_by_quadratic_curve",
+        "select_curve_point_candidate_and_solve_coefficients",
+        "quadratic_from_constraints",
+        "point_on_parabola_at_x",
+        "weighted_axis_path_triangle_transform",
+        "linked_broken_path_geometric_minimum",
+    ]
+    assert client.payloads
+
+
+def test_controlled_fake_llm_alt_label_e2e_matches_expected_answers() -> None:
+    """fake LLM registry 放开 alt-label 后，应完整跑通非 canonical 点名。"""
+    problem = load_problem_ir(ALT_LABEL_FIXTURE)
+    expected = load_expected_answers(ALT_LABEL_EXPECTED)
+    runtime_config = SolverRuntimeConfig(planner_mode="llm", llm_provider="fake")
+
+    result = RuntimeOrchestrator(
+        family_registry=runtime_config.build_family_registry(),
+        planner_providers=runtime_config.build_planner_providers(),
+    ).solve(problem)
+
+    assert result.status == "ok"
+    assert result.answers == expected
+    assert all(check.ok for check in result.checks)
+    assert result.methods_used == [
+        "quadratic_axis_from_relation",
+        "quadratic_from_constraints",
+        "right_angle_equal_length_candidates",
+        "select_point_by_quadrant_constraint",
+        "parameter_from_segment_length",
+        "quadratic_from_constraints",
+        "midpoint_point",
+        "two_moving_points_path_reduction",
+        "broken_path_straightening_candidates",
+        "select_straightening_candidate",
+        "distance_between_points",
+        "parameter_from_minimum_value",
+        "quadratic_from_constraints",
+        "line_intersection_point",
+    ]

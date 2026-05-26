@@ -16,7 +16,6 @@ from shuxueshuo_server.solver.runtime.llm_clients import LLMClientConfigurationE
 from shuxueshuo_server.solver.runtime.context import ContextBuilder
 from shuxueshuo_server.solver.fixtures import load_problem_ir
 from shuxueshuo_server.solver.runtime.controlled_llm_planner import ControlledLLMPlanner
-from shuxueshuo_server.solver.runtime.llm_step_planner import LLMStepDecompositionPlanner
 
 
 ENV_KEYS = [
@@ -106,8 +105,8 @@ def test_fake_llm_provider_covers_supported_families() -> None:
     }
 
 
-def test_fake_llm_provider_uses_controlled_planner_for_nankai_only() -> None:
-    """D1 中南开 fake 走 controlled draft，河西 fake 暂留 legacy slice。"""
+def test_fake_llm_provider_uses_controlled_planner_for_supported_families() -> None:
+    """D2 中 fake LLM 两个 supported family 都走 controlled draft。"""
     providers = SolverRuntimeConfig(planner_mode="llm", llm_provider="fake").build_planner_providers()
     nankai_context = ContextBuilder().build(
         load_problem_ir("../internal/solver-fixtures/tj-2026-nankai-yimo-25.json")
@@ -120,7 +119,20 @@ def test_fake_llm_provider_uses_controlled_planner_for_nankai_only() -> None:
     hexi_planner = providers[QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY.family_id](hexi_context)
 
     assert isinstance(nankai_planner, ControlledLLMPlanner)
-    assert isinstance(hexi_planner, LLMStepDecompositionPlanner)
+    assert isinstance(hexi_planner, ControlledLLMPlanner)
+
+
+def test_fake_llm_family_registry_allows_alt_label_without_changing_default() -> None:
+    """alt-label 只在 fake LLM registry 中放开，默认 deterministic 仍拒绝。"""
+    alt = load_problem_ir("../internal/solver-fixtures/tj-2026-nankai-yimo-25-alt-labels.json")
+
+    deterministic = SolverRuntimeConfig().build_family_registry()
+    fake = SolverRuntimeConfig(planner_mode="llm", llm_provider="fake").build_family_registry()
+
+    assert deterministic.match(alt) is None
+    matched = fake.match(alt)
+    assert matched is not None
+    assert matched.family_id == QUADRATIC_PATH_MINIMUM_FAMILY.family_id
 
 
 def test_environment_blank_key_overrides_env_file(tmp_path, monkeypatch) -> None:

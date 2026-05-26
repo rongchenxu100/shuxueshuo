@@ -177,6 +177,33 @@ def test_solve_problem_cli_llm_fake_solves_hexi() -> None:
     assert payload["answers"]["iii"]["b"] == "2"
 
 
+def test_solve_problem_cli_llm_fake_solves_alt_label() -> None:
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "shuxueshuo_server.solver.solve_problem",
+            "--fixture",
+            ALT_FIXTURE,
+            "--planner",
+            "llm",
+            "--llm-provider",
+            "fake",
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+        env=_cli_env(),
+    )
+
+    assert completed.returncode == 0, completed.stderr
+    payload = json.loads(completed.stdout)
+    assert payload["status"] == "ok"
+    assert payload["solver_family"] == "QuadraticPathMinimumSolver"
+    assert payload["answers"]["a"]["T"] == ["1", "0"]
+    assert payload["answers"]["b_2"]["R"] == ["4", "-13/3"]
+
+
 def test_solve_problem_cli_llm_deepseek_requires_api_key() -> None:
     completed = subprocess.run(
         [

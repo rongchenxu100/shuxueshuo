@@ -210,7 +210,7 @@ attempts[]
 - Phase B：实现 `PlannerOutput`、`ContextDeclaration`、declaration validation/apply，并把 deterministic planner 占位逻辑迁移到 declaration 模式。
 - Phase C：实现 `PlanningPayloadBuilder`、Jinja prompt 模板、完整 JSON schema 注入、同 family few-shot 注入、`SlotBinder`、`PlanCompiler`、`AbstractPlanValidator`。
 - Phase D1：升级 Fake LLM 完整 draft，先跑通南开 E2E，不依赖真实 API。
-- Phase D2：继续跑通河西和 alt-label E2E，验证 weighted path 与非 canonical 点名。
+- Phase D2：已跑通河西 controlled fake 与南开 alt-label fake E2E，验证 weighted path 与非 canonical 点名；alt-label 只在 fake LLM registry 中放开。
 - Phase E：接 DeepSeek 真实联调、repair loop、structured error payload 和 token usage 记录。
 - Phase F：接豆包 Ark 文本模式 provider 和 smoke test；多模态仍不进入 Planner。
 
@@ -237,8 +237,8 @@ attempts[]
 ### E2E
 
 - Fake LLM 完整 draft 跑通南开，答案与 expected JSON 一致，不调用 deterministic compiler。
-- Fake LLM 完整 draft 跑通河西，答案与 expected JSON 一致，使用 weighted path 几何 methods。
-- Fake LLM 完整 draft 跑通 `tj-2026-nankai-yimo-25-alt-labels.json`，验证不依赖 canonical 点名。
+- Fake LLM 完整 draft 跑通河西，答案与 expected JSON 一致，使用 weighted path 几何 methods，不再经 legacy step decomposition。
+- Fake LLM 完整 draft 跑通 `tj-2026-nankai-yimo-25-alt-labels.json`，验证不依赖 canonical 点名；默认 deterministic 仍保持 unsupported。
 - repair 测试：第一轮错误 binding，第二轮根据 structured error 修复后通过。
 - `cd server && uv run pytest tests/solver -q` 全通过。
 - 人工联调：`--planner llm --llm-provider deepseek` 跑南开、河西并输出 result JSON；豆包文本 provider 做 smoke test。

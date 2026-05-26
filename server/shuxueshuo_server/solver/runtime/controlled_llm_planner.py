@@ -1153,6 +1153,7 @@ def _visible_path_payload(path: VisibleContextPath) -> dict[str, Any]:
         "source": path.source,
         "readable_from": list(path.readable_from),
         "description": path.description,
+        "definition": dict(path.definition),
     }
 
 

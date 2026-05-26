@@ -862,6 +862,8 @@ LLMPlanner with MethodSpec / ContextPath constraints
 - 南开 25 与河西 25 的端到端求解。
 - 二次函数约束求解已统一到 `quadratic_from_constraints`。
 - 加权路径最值已拆成几何转化 `weighted_axis_path_triangle_transform` 和几何最短 `linked_broken_path_geometric_minimum`。
+- `PlannerOutput` / `ContextDeclaration` / controlled fake draft 链路已建立。
+- Fake LLM controlled draft 已覆盖南开 canonical、南开 alt-label 和河西 weighted E2E。
 
 仍需重构：
 
@@ -869,8 +871,8 @@ LLMPlanner with MethodSpec / ContextPath constraints
 - `Hexi25WeightedPathPlannerV15` 仍是河西固定 step template。
 - `enabled_problem_ids` 仍是 deterministic template 的临时硬门控。
 - Planner provider 仍是 `family_id -> planner factory` 静态映射。
-- Planner 占位点目前由 deterministic planner 直接写 RuntimeContext；目标是改成可校验的 `ContextDeclaration[]`。
-- Fake LLM planner 目前只覆盖 step decomposition，不覆盖真实 method 选择、ContextPath 绑定和 repair loop。
+- 真实 DeepSeek/Doubao provider 仍走 legacy step decomposition；controlled draft 目前只在 fake LLM E2E 中验证。
+- Controlled LLM planner 还没有 repair loop 和真实模型 prompt 稳定性验证。
 - `SolverResult.trace` 当前是 runtime 计算轨迹，不是学生可直接阅读的解题稿。
 
 ### 8.1 enabled_problem_ids 退出条件
@@ -882,8 +884,8 @@ LLMPlanner with MethodSpec / ContextPath constraints
 退出条件：
 
 1. LLM Planner 不再依赖 canonical 点名和分问 id，例如 `D/M/N/F/G`、`i/ii/ii_1/ii_2`。
-2. 南开、河西两道黄金题都能通过 LLM Planner 生成计划并端到端通过。
-3. alt-label 同构题能通过同一 planner，未知题型或其他 family 不会误路由。
+2. 南开、河西两道黄金题都能通过真实 LLM Planner 生成计划并端到端通过。
+3. alt-label 同构题能通过真实 LLM Planner，未知题型或其他 family 不会误路由。
 4. 去掉门控后，测试仍覆盖正负样例和 unsupported 行为。
 5. 满足以上条件后，从 FamilySpec 删除该字段，或让空 tuple 表示不再按题号限制。
 

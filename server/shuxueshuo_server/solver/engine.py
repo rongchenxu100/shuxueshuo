@@ -16,5 +16,6 @@ def solve_problem(
     if runtime_config is None:
         return RuntimeOrchestrator().solve(problem_ir)
     return RuntimeOrchestrator(
+        family_registry=runtime_config.build_family_registry(),
         planner_providers=runtime_config.build_planner_providers(),
     ).solve(problem_ir)
