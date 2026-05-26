@@ -83,3 +83,42 @@ def test_doubao_client_uses_single_model_configuration() -> None:
 
     assert fake_client.create_kwargs is not None
     assert fake_client.create_kwargs["model"] == "doubao-model"
+
+
+def test_openai_compatible_client_uses_rendered_messages_when_present() -> None:
+    """Phase C 受控 planner 可把 Jinja 渲染后的 messages 交给 provider。"""
+    fake_client = _FakeOpenAIClient()
+    messages = [
+        {"role": "system", "content": "system prompt from jinja"},
+        {"role": "user", "content": "user prompt from jinja"},
+    ]
+    client = DeepSeekPlannerClient(
+        api_key="test-key",
+        base_url="https://api.deepseek.com",
+        model="deepseek-v4-flash",
+        client_factory=lambda **_: fake_client,
+    )
+
+    client.complete({"messages": messages, "family_id": "QuadraticPathMinimumSolver"})
+
+    assert fake_client.create_kwargs is not None
+    assert fake_client.create_kwargs["messages"] == messages
+
+
+def test_openai_compatible_client_wraps_legacy_payload_without_messages() -> None:
+    """legacy planner 未传 messages 时，provider 仍会包装成 system/user prompt。"""
+    fake_client = _FakeOpenAIClient()
+    client = DeepSeekPlannerClient(
+        api_key="test-key",
+        base_url="https://api.deepseek.com",
+        model="deepseek-v4-flash",
+        client_factory=lambda **_: fake_client,
+    )
+
+    client.complete({"family_id": "QuadraticPathMinimumSolver", "steps": []})
+
+    assert fake_client.create_kwargs is not None
+    messages = fake_client.create_kwargs["messages"]
+    assert messages[0]["role"] == "system"
+    assert messages[1]["role"] == "user"
+    assert "QuadraticPathMinimumSolver" in messages[1]["content"]

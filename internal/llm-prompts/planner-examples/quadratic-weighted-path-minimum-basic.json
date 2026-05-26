@@ -1,0 +1,99 @@
+{
+  "family_id": "QuadraticWeightedPathMinimumSolver",
+  "title": "二次函数加权路径最值类题的规划示例",
+  "question_goal_types": ["Point", "Parabola", "MinimumExpression", "ParameterValue"],
+  "method_sequence": [
+    "quadratic_from_constraints",
+    "quadratic_vertex_point",
+    "quadratic_y_axis_intercept_point",
+    "right_angle_equal_length_candidates",
+    "filter_point_candidates_by_quadratic_curve",
+    "select_curve_point_candidate_and_solve_coefficients",
+    "point_on_parabola_at_x",
+    "weighted_axis_path_triangle_transform",
+    "linked_broken_path_geometric_minimum",
+    "coefficient_at_parameter",
+    "parabola_at_parameter"
+  ],
+  "binding_rule": "辅助点只通过 context_declarations 声明 PointRef，占位不写坐标。下面的 bindings 说明输入槽位应绑定的语义来源，实际输出必须替换为当前题 payload.slot_options 里的 c_0/c_1/...。",
+  "draft_steps": [
+    {
+      "step_id": "declare_weighted_auxiliary_point",
+      "context_declaration": {
+        "type": "PointRef",
+        "definition_intent": "weighted_path_auxiliary_point",
+        "path_role": "question scope auxiliary point"
+      }
+    },
+    {
+      "step_id": "derive_parametric_parabola",
+      "scope_role": "question_with_known_coefficients",
+      "method_id": "quadratic_from_constraints",
+      "step_goal": {
+        "type": "derive_parametric_parabola",
+        "target_path_role": "parametric parabola output"
+      },
+      "bindings": {
+        "quadratic": "candidate for original quadratic Expression",
+        "x": "candidate for independent variable Symbol",
+        "all_coefficients": "candidate for coefficient SymbolList",
+        "known_coefficients": "candidate for known Coefficients",
+        "curve_point": "candidate for known curve point when available"
+      },
+      "promote_to": {
+        "parabola": "parametric parabola output path",
+        "coefficients": "coefficient output path"
+      }
+    },
+    {
+      "step_id": "derive_weighted_triangle_transform",
+      "scope_role": "weighted_path_question",
+      "method_id": "weighted_axis_path_triangle_transform",
+      "step_goal": {
+        "type": "derive_weighted_path_transform",
+        "target_path_role": "path transformation output"
+      },
+      "bindings": {
+        "condition": "candidate for weighted path condition",
+        "fixed_point": "candidate for fixed endpoint point",
+        "moving_point": "candidate for curve point tied to axis point",
+        "dynamic_parameter": "candidate for axis moving parameter Symbol",
+        "auxiliary_point_ref": "candidate for planner-declared auxiliary PointRef"
+      },
+      "promote_to": {
+        "auxiliary_point": "auxiliary point target path",
+        "path_transformation": "path transformation output path",
+        "auxiliary_locus": "auxiliary locus output path"
+      }
+    },
+    {
+      "step_id": "derive_weighted_geometric_minimum",
+      "scope_role": "weighted_path_question",
+      "method_id": "linked_broken_path_geometric_minimum",
+      "step_goal": {
+        "type": "derive_weighted_minimum",
+        "target_path_role": "parameter/minimum outputs"
+      },
+      "bindings": {
+        "condition": "candidate for weighted path condition",
+        "path_transformation": "candidate for previous transform output",
+        "auxiliary_locus": "candidate for previous auxiliary locus output",
+        "fixed_point": "candidate for fixed endpoint point",
+        "curve_point": "candidate for curve point",
+        "moving_point": "candidate for axis moving point",
+        "auxiliary_point": "candidate for previous auxiliary point output",
+        "parameter": "candidate for curve parameter Symbol",
+        "dynamic_parameter": "candidate for axis moving parameter Symbol",
+        "parameter_constraint": "candidate for curve parameter Constraint",
+        "dynamic_constraint": "candidate for axis moving parameter Constraint"
+      },
+      "promote_to": {
+        "parameter_value": "curve parameter output path",
+        "dynamic_parameter_value": "axis moving parameter output path",
+        "minimum_value": "minimum value output path",
+        "dynamic_point": "axis moving point output path"
+      }
+    }
+  ],
+  "notes": "示例只描述规划结构，不包含答案值。"
+}

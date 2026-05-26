@@ -77,20 +77,16 @@ class OpenAICompatiblePlannerClient:
         self._client = self.client_factory(api_key=self.api_key, base_url=self.base_url)
 
     def complete(self, payload: dict[str, Any]) -> str:
-        """发送一次 Chat Completions 请求，并返回 assistant message 文本。"""
+        """发送一次 Chat Completions 请求，并返回 assistant message 文本。
+
+        Phase C 的受控 planner 会把 Jinja 渲染后的 messages 放进 payload；legacy
+        planner 仍只传结构化 dict。这里兼容两种形态，避免 provider 层理解具体
+        planner 类型。
+        """
+        messages = _messages_from_payload(payload, self.system_prompt)
         response = self._client.chat.completions.create(
             model=self.model,
-            messages=[
-                {
-                    "role": "system",
-                    # TODO(Phase C): 用 Jinja prompt 模板替换这个临时 system prompt。
-                    "content": self.system_prompt,
-                },
-                {
-                    "role": "user",
-                    "content": json.dumps(payload, ensure_ascii=False),
-                },
-            ],
+            messages=messages,
             temperature=self.temperature,
         )
         self.last_usage = _usage_to_dict(getattr(response, "usage", None))
@@ -160,3 +156,28 @@ def _usage_to_dict(usage: Any) -> dict[str, Any] | None:
         if hasattr(usage, key):
             result[key] = getattr(usage, key)
     return result or None
+
+
+def _messages_from_payload(
+    payload: dict[str, Any],
+    system_prompt: str,
+) -> list[dict[str, str]]:
+    """从 provider payload 中取出 Chat messages。
+
+    受控 planner 会显式传入 Jinja 渲染后的 ``messages``；legacy planner 还只传
+    结构化 payload，因此这里保留一次兼容包装。Provider 层只识别通用 Chat
+    messages envelope，不理解具体 planner 的字段语义。
+    """
+    messages = payload.get("messages")
+    if isinstance(messages, list):
+        return messages
+    return [
+        {
+            "role": "system",
+            "content": system_prompt,
+        },
+        {
+            "role": "user",
+            "content": json.dumps(payload, ensure_ascii=False),
+        },
+    ]
