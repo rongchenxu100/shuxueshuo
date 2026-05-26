@@ -5,19 +5,28 @@ Phase 5 只让 LLM 做“步骤拆解”，不让它直接生成 MethodInvocatio
 
 1. PlannerInputs 被压成受控 payload；
 2. LLM client 返回 JSON steps；
-3. AbstractStepPlanValidator 校验 JSON 结构和南开已知步骤序列；
+3. AbstractStepPlanValidator 校验 JSON 结构和当前 family 的已知步骤序列；
 4. AbstractStepPlanCompiler 复用当前 deterministic planner 生成真正 StepPlan。
 
-真实 LLM API、invocation mapping 和 repair loop 都不在本阶段实现。
+Phase A 已接入真实 provider 协议，但 invocation mapping、SlotBinder 和 repair loop
+都不在本阶段实现。
 """
 
 from __future__ import annotations
 
-import json
 from dataclasses import dataclass, field
-from typing import Any, Protocol
+import json
+from typing import Any
 
+from shuxueshuo_server.solver.family import (
+    QUADRATIC_PATH_MINIMUM_FAMILY,
+    QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
+)
 from shuxueshuo_server.solver.runtime.context import RuntimeContext
+from shuxueshuo_server.solver.runtime.hexi_weighted_path_planner import (
+    Hexi25WeightedPathPlannerV15,
+)
+from shuxueshuo_server.solver.runtime.llm_clients import LLMPlannerClient
 from shuxueshuo_server.solver.runtime.models import StepPlan
 from shuxueshuo_server.solver.runtime.planner import PlannerInputs
 from shuxueshuo_server.solver.runtime.quadratic_path_planner import (
@@ -27,18 +36,6 @@ from shuxueshuo_server.solver.runtime.quadratic_path_planner import (
 
 class LLMPlannerError(ValueError):
     """LLM step decomposition 失败时抛出的结构化错误。"""
-
-
-class LLMPlannerClient(Protocol):
-    """LLM Planner client 协议。
-
-    首版只要求同步返回 JSON 字符串。真实 provider 后续可以在此协议外层处理模型名、
-    token、重试和 tracing，但输出仍必须是可校验 JSON。
-    """
-
-    def complete(self, payload: dict[str, Any]) -> str:
-        """根据受控 payload 返回 JSON 字符串。"""
-        ...
 
 
 @dataclass(frozen=True)
@@ -85,31 +82,45 @@ class PlannerMemory:
 class FakeLLMPlannerClient:
     """测试用假 LLM client。
 
-    默认返回 canonical 南开 25 的抽象步骤；测试也可以传入自定义 response，用来
-    覆盖非法 JSON、重复 step、未知 intent 等失败路径。
+    默认按 ``payload.family_id`` 返回当前 supported family 的抽象步骤；测试也可以
+    传入自定义 response，用来覆盖非法 JSON、重复 step、未知 intent 等失败路径。
     """
 
-    def __init__(self, response: str | None = None) -> None:
+    def __init__(self, response: str | dict[str, str] | None = None) -> None:
         self.response = response
         self.payloads: list[dict[str, Any]] = []
 
     def complete(self, payload: dict[str, Any]) -> str:
         """保存 payload 并返回预设 JSON。"""
         self.payloads.append(payload)
-        if self.response is not None:
+        if isinstance(self.response, str):
             return self.response
-        return json.dumps(
-            {"steps": [step.__dict__ for step in nankai25_abstract_steps()]},
-            ensure_ascii=False,
+        family_id = str(payload.get("family_id", ""))
+        if isinstance(self.response, dict) and family_id in self.response:
+            return self.response[family_id]
+        if family_id == QUADRATIC_PATH_MINIMUM_FAMILY.family_id:
+            return _response_with_steps(nankai25_abstract_steps())
+        if family_id == QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY.family_id:
+            return _response_with_steps(hexi25_abstract_steps())
+        raise LLMPlannerError(
+            f"fake LLM planner has no response for family_id={family_id}"
         )
+
+
+def _response_with_steps(steps: list[AbstractStepPlan]) -> str:
+    """把抽象步骤列表转成 fake LLM JSON response。"""
+    return json.dumps(
+        {"steps": [step.__dict__ for step in steps]},
+        ensure_ascii=False,
+    )
 
 
 class AbstractStepPlanCompiler:
     """把抽象步骤编译成当前可执行的 StepPlan。
 
-    首版只支持 canonical 南开 25：LLM 输出必须与当前 deterministic planner 的
-    step_id / goal_type / target_path / scope / method_intent 序列一致。编译时复用
-    ``QuadraticPathMinimumPlannerV15`` 生成 MethodInvocation，确保 LLM 不接触参数映射。
+    Phase A 支持当前两个 family：南开 path 与河西 weighted。LLM 输出必须与对应
+    deterministic planner 的 step skeleton 一致；编译时复用 deterministic planner
+    生成 MethodInvocation，确保 LLM 仍不接触参数映射。
     """
 
     def __init__(
@@ -118,18 +129,43 @@ class AbstractStepPlanCompiler:
         delegate: QuadraticPathMinimumPlannerV15 | None = None,
     ) -> None:
         self.context = context
+        # ``delegate`` 只保留给旧测试/旧调用路径；新路径会按 family_id 选择模板。
         self.delegate = delegate or QuadraticPathMinimumPlannerV15()
 
-    def compile(self, abstract_steps: list[AbstractStepPlan]) -> list[StepPlan]:
+    def compile(
+        self,
+        abstract_steps: list[AbstractStepPlan],
+        inputs: PlannerInputs | None = None,
+    ) -> list[StepPlan]:
         """校验抽象步骤并返回 deterministic StepPlan。"""
-        plans = self.delegate.plan(self.context)
+        plans = self.plans_for(inputs)
         expected = _abstract_steps_from_plans(plans)
         if abstract_steps != expected:
             raise LLMPlannerError(
                 "step decomposition validation failed: abstract steps do not match "
-                "canonical nankai25 decomposition"
+                "the deterministic family decomposition"
             )
         return plans
+
+    def expected_abstract_steps(
+        self,
+        inputs: PlannerInputs | None = None,
+    ) -> list[AbstractStepPlan]:
+        """返回当前 family 允许的抽象步骤序列。"""
+        return _abstract_steps_from_plans(self.plans_for(inputs))
+
+    def plans_for(self, inputs: PlannerInputs | None = None) -> list[StepPlan]:
+        """按 family_id 选择 deterministic 模板并生成 StepPlan。"""
+        if inputs is None:
+            return self.delegate.plan(self.context)
+        family_id = inputs.family_spec.family_id
+        if family_id == QUADRATIC_PATH_MINIMUM_FAMILY.family_id:
+            return QuadraticPathMinimumPlannerV15().plan(self.context)
+        if family_id == QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY.family_id:
+            return Hexi25WeightedPathPlannerV15(self.context).plan(inputs)
+        raise LLMPlannerError(
+            f"step decomposition validation failed: no compiler for family_id={family_id}"
+        )
 
 
 class LLMStepDecompositionPlanner:
@@ -160,7 +196,7 @@ class LLMStepDecompositionPlanner:
             parsed_steps = parse_abstract_steps(raw_response)
             validate_abstract_steps(parsed_steps, inputs, self.compiler)
             attempt.parsed_steps = parsed_steps
-            plans = self.compiler.compile(parsed_steps)
+            plans = self.compiler.compile(parsed_steps, inputs)
         except Exception as exc:
             attempt.error = str(exc)
             self.memory.add_attempt(attempt)
@@ -241,8 +277,7 @@ def validate_abstract_steps(
     known_targets = {path.path for path in inputs.context_inventory.visible_paths}
     known_targets.update(goal.target_path for goal in inputs.question_goals)
     known_targets.update(signal.path for signal in inputs.context_inventory.planning_signals)
-    expected_steps = compiler.delegate.plan(compiler.context)
-    expected_abstract = _abstract_steps_from_plans(expected_steps)
+    expected_abstract = compiler.expected_abstract_steps(inputs)
     allowed_targets = known_targets | {step.target_path for step in expected_abstract}
     allowed_intents = {step.method_intent for step in expected_abstract}
     for step in steps:
@@ -283,6 +318,20 @@ def nankai25_abstract_steps() -> list[AbstractStepPlan]:
         AbstractStepPlan("derive_q2_m", "derive_q2_parameter", "$subquestion.ii_2.outputs.m", "ii_2", "derive_q2_parameter"),
         AbstractStepPlan("derive_q2_parabola", "derive_q2_parabola", "$subquestion.ii_2.outputs.parabola", "ii_2", "derive_q2_parabola"),
         AbstractStepPlan("derive_G", "derive_q2_intersection", "$question.ii.points.G", "ii_2", "derive_q2_intersection"),
+    ]
+
+
+def hexi25_abstract_steps() -> list[AbstractStepPlan]:
+    """返回河西 25 的抽象步骤，用于 Fake client 和测试。"""
+    return [
+        AbstractStepPlan("hexi_i_parabola", "derive_i_parabola", "$question.i.outputs.parabola", "i", "derive_i_parabola"),
+        AbstractStepPlan("hexi_i_vertex", "derive_i_vertex", "$question.i.points.P", "i", "derive_i_vertex"),
+        AbstractStepPlan("hexi_ii_parametric_parabola", "derive_ii_parametric_parabola", "$question.ii.outputs.parametric_parabola", "ii", "derive_ii_parametric_parabola"),
+        AbstractStepPlan("hexi_ii_C", "derive_ii_y_axis_intercept", "$question.ii.points.C", "ii", "derive_ii_y_axis_intercept"),
+        AbstractStepPlan("hexi_ii_D", "select_curve_point_candidate_and_solve_coefficients", "$question.ii.points.D", "ii", "select_curve_point_candidate_and_solve_coefficients"),
+        AbstractStepPlan("hexi_iii_parametric_parabola", "derive_iii_parametric_parabola", "$question.iii.outputs.parametric_parabola", "iii", "derive_iii_parametric_parabola"),
+        AbstractStepPlan("hexi_iii_M", "derive_iii_M", "$question.iii.points.M", "iii", "derive_iii_M"),
+        AbstractStepPlan("hexi_iii_weighted_minimum", "derive_iii_weighted_minimum", "$question.iii.outputs.b", "iii", "derive_iii_weighted_minimum"),
     ]
 
 

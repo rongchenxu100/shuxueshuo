@@ -8,15 +8,43 @@ import sys
 
 from shuxueshuo_server.solver.engine import solve_problem
 from shuxueshuo_server.solver.fixtures import load_problem_ir
+from shuxueshuo_server.solver.runtime.config import (
+    SolverRuntimeConfig,
+    SolverRuntimeConfigError,
+)
+from shuxueshuo_server.solver.runtime.llm_clients import LLMClientConfigurationError
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Solve a hand-written ProblemIR fixture.")
     parser.add_argument("--fixture", required=True, help="Path to a ProblemIR fixture JSON file.")
+    parser.add_argument(
+        "--planner",
+        choices=("deterministic", "llm"),
+        help="Planner mode. Defaults to deterministic.",
+    )
+    parser.add_argument(
+        "--llm-provider",
+        choices=("fake", "deepseek", "doubao"),
+        help="LLM provider used when --planner llm is selected.",
+    )
+    parser.add_argument(
+        "--llm-model",
+        help="Override the provider model when --planner llm is selected.",
+    )
     args = parser.parse_args(argv)
 
-    problem = load_problem_ir(args.fixture)
-    result = solve_problem(problem)
+    try:
+        runtime_config = SolverRuntimeConfig.from_sources(
+            planner_mode=args.planner,
+            llm_provider=args.llm_provider,
+            llm_model=args.llm_model,
+        )
+        problem = load_problem_ir(args.fixture)
+        result = solve_problem(problem, runtime_config=runtime_config)
+    except (SolverRuntimeConfigError, LLMClientConfigurationError) as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 2
     payload = result.to_dict()
     print(json.dumps(payload, ensure_ascii=False, indent=2))
     if not result.ok:

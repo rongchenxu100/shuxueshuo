@@ -11,6 +11,10 @@
 """
 
 from shuxueshuo_server.solver.runtime.context import ContextBuilder, RuntimeContext
+from shuxueshuo_server.solver.runtime.config import (
+    SolverRuntimeConfig,
+    SolverRuntimeConfigError,
+)
 from shuxueshuo_server.solver.runtime.context_inventory import (
     ContextInventory,
     ContextInventoryBuilder,
@@ -26,12 +30,19 @@ from shuxueshuo_server.solver.runtime.llm_step_planner import (
     AbstractStepPlan,
     AbstractStepPlanCompiler,
     FakeLLMPlannerClient,
-    LLMPlannerClient,
     LLMPlannerError,
     LLMStepDecompositionPlanner,
     PlannerAttempt,
     PlannerMemory,
+    hexi25_abstract_steps,
     llm_step_decomposition_planner_provider,
+)
+from shuxueshuo_server.solver.runtime.llm_clients import (
+    DeepSeekPlannerClient,
+    DoubaoPlannerClient,
+    LLMClientConfigurationError,
+    LLMPlannerClient,
+    OpenAICompatiblePlannerClient,
 )
 from shuxueshuo_server.solver.runtime.methods import (
     RightAngleEqualLengthCandidatesMethod,
@@ -82,9 +93,13 @@ __all__ = [
     "FakeLLMPlannerClient",
     "GenericPlanner",
     "Hexi25WeightedPathPlannerV15",
+    "DeepSeekPlannerClient",
+    "DoubaoPlannerClient",
+    "LLMClientConfigurationError",
     "LLMPlannerClient",
     "LLMPlannerError",
     "LLMStepDecompositionPlanner",
+    "OpenAICompatiblePlannerClient",
     "InvocationExecutor",
     "MethodCandidateEntry",
     "MethodInvocation",
@@ -110,8 +125,11 @@ __all__ = [
     "StepGoal",
     "StepPlan",
     "StatelessMethodRegistry",
+    "SolverRuntimeConfig",
+    "SolverRuntimeConfigError",
     "TypedValue",
     "VisibleContextPath",
     "default_stateless_registry",
+    "hexi25_abstract_steps",
     "llm_step_decomposition_planner_provider",
 ]
