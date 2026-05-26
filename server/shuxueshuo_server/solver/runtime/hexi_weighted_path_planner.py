@@ -9,14 +9,14 @@ from __future__ import annotations
 
 from shuxueshuo_server.solver.runtime.context import RuntimeContext
 from shuxueshuo_server.solver.runtime._planner_helpers import (
+    question_point_declaration as _point_declaration,
     single_invocation_step as _single_invocation_step,
 )
 from shuxueshuo_server.solver.runtime.models import (
     MethodInvocation,
-    PointRef,
+    PlannerOutput,
     StepGoal,
     StepPlan,
-    TypedValue,
 )
 
 
@@ -24,29 +24,32 @@ class Hexi25WeightedPathPlannerV15:
     """为河西 25 生成完整 V1.5 StepPlan。"""
 
     def __init__(self, context: RuntimeContext | None = None) -> None:
-        # 当前河西 planner 仍是 deterministic template；context 只用于声明运行期辅助点
-        # Q 的 PointRef，占位中不包含坐标和答案。
+        # 当前河西 planner 仍是 deterministic template；context 只保留为旧 provider
+        # 构造参数，不再在 plan() 中直接写入占位点。
         self.context = context
 
-    def plan(self, inputs) -> list[StepPlan]:
+    def plan(self, inputs) -> PlannerOutput:
         """生成河西 25 三问的固定执行计划。
 
         ``inputs`` 由 RuntimeOrchestrator 传入，当前模板只用它满足 GenericPlanner
         接口；所有数学信息仍通过 ContextPath 绑定，让 executor 负责读取和校验。
         """
         _ = inputs
-        if self.context is not None:
-            self._ensure_auxiliary_point(self.context, "iii", "Q")
-        return [
-            self._derive_part_i_parabola(),
-            self._derive_part_i_vertex(),
-            self._derive_part_ii_parametric_parabola(),
-            self._derive_part_ii_y_axis_intercept(),
-            self._derive_part_ii_d_and_coefficients(),
-            self._derive_part_iii_parametric_parabola(),
-            self._derive_part_iii_m(),
-            self._derive_part_iii_weighted_minimum(),
-        ]
+        return PlannerOutput(
+            context_declarations=[
+                _point_declaration("iii", "Q", "weighted_path_auxiliary_point")
+            ],
+            step_plans=[
+                self._derive_part_i_parabola(),
+                self._derive_part_i_vertex(),
+                self._derive_part_ii_parametric_parabola(),
+                self._derive_part_ii_y_axis_intercept(),
+                self._derive_part_ii_d_and_coefficients(),
+                self._derive_part_iii_parametric_parabola(),
+                self._derive_part_iii_m(),
+                self._derive_part_iii_weighted_minimum(),
+            ],
+        )
 
     def _derive_part_i_parabola(self) -> StepPlan:
         return _single_invocation_step(
@@ -322,31 +325,4 @@ class Hexi25WeightedPathPlannerV15:
                 f"$step.{step_id}.temp.min_value": "$question.iii.outputs.min_value",
                 f"$step.{step_id}.temp.N": "$question.iii.outputs.N",
             },
-        )
-
-    def _ensure_auxiliary_point(
-        self,
-        context: RuntimeContext,
-        scope_id: str,
-        name: str,
-    ) -> None:
-        """声明加权路径几何转化需要的辅助点。
-
-        点名由 planner 负责，因为它属于解法中的构造选择；method 只读取这个
-        PointRef 的名称并计算坐标，不应该私自写死 ``Q``。
-        """
-        scope = context.get_scope(scope_id)
-        if name in scope.container("points"):
-            return
-        path = f"$question.{scope_id}.points.{name}"
-        scope.container("points")[name] = TypedValue(
-            "PointRef",
-            PointRef(
-                name=name,
-                path=path,
-                definition={"definition": "weighted_path_auxiliary_point"},
-                scope_id=scope_id,
-            ),
-            locked=False,
-            source="planner",
         )

@@ -17,6 +17,7 @@ from shuxueshuo_server.solver.fixtures import load_problem_ir
 from shuxueshuo_server.solver.math_kernel import SympyKernel
 from shuxueshuo_server.solver.problem_models import ProblemIR
 from shuxueshuo_server.solver.runtime.context import ContextBuilder
+from shuxueshuo_server.solver.runtime.executor import DeclarationValidator
 from shuxueshuo_server.solver.runtime.models import PointRef
 from shuxueshuo_server.solver.runtime.quadratic_path_planner import (
     QuadraticPathMinimumPlannerV15,
@@ -196,8 +197,12 @@ class TestContextBuilderNankaiPoints:
     def test_context_builder_does_not_inject_straightening_auxiliary_point(self, context) -> None:
         assert "D_prime" not in context.get_scope("ii").container("points")
 
-    def test_planner_creates_straightening_auxiliary_point_placeholder(self, context) -> None:
-        QuadraticPathMinimumPlannerV15().plan(context)
+    def test_planner_declares_straightening_auxiliary_point_placeholder(self, context) -> None:
+        output = QuadraticPathMinimumPlannerV15().plan(context)
+
+        assert "D_prime" not in context.get_scope("ii").container("points")
+        DeclarationValidator().validate_declarations(context, output.context_declarations)
+        context.apply_declarations(output.context_declarations)
 
         d_prime = context.read_path(
             "$question.ii.points.D_prime",

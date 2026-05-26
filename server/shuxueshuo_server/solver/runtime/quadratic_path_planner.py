@@ -11,41 +11,49 @@ from typing import Any
 
 from shuxueshuo_server.solver.runtime.context import RuntimeContext
 from shuxueshuo_server.solver.runtime._planner_helpers import (
+    question_point_declaration as _point_declaration,
     single_invocation_step as _single_invocation_step,
 )
 from shuxueshuo_server.solver.runtime.models import (
     MethodInvocation,
-    PointRef,
+    PlannerOutput,
     StepGoal,
     StepPlan,
-    TypedValue,
 )
 
 
 class QuadraticPathMinimumPlannerV15:
     """为 canonical 南开 25 生成完整 V1.5 计划。"""
 
-    def plan(self, context: RuntimeContext) -> list[StepPlan]:
-        # G 和 D_prime 都不是题设已知点：G 是最终交点答案，D_prime 是“将军饮马”
-        # 拉直过程中选择出来的辅助点。Phase 6 起 fixture 不再注入这类 planner
-        # hints，所以 deterministic slice 在规划阶段显式创建可写 PointRef 占位。
-        self._ensure_result_point(context, "ii", "G")
-        self._ensure_straightening_auxiliary_point(context, "ii", "D_prime")
-        return [
-            self._derive_axis_point(),
-            self._derive_part_i_parabola(),
-            self._derive_right_angle_point(),
-            self._derive_q1_parameter(),
-            self._derive_q1_parabola(),
-            self._derive_midpoint(),
-            self._derive_path_reduction(),
-            self._derive_straightening_candidates(),
-            self._select_straightening_candidate(),
-            self._derive_minimum_expression(),
-            self._derive_q2_parameter(),
-            self._derive_q2_parabola(),
-            self._derive_q2_intersection(),
-        ]
+    def plan(self, context: RuntimeContext) -> PlannerOutput:
+        """生成南开 25 的声明式 planner 输出。
+
+        G 和 D_prime 都不是题设已知点：G 是最终交点答案，D_prime 是“将军饮马”
+        拉直过程中选择出来的辅助点。Phase B 起 planner 只返回声明，不再直接写
+        RuntimeContext；Orchestrator 会统一校验并 apply。
+        """
+        _ = context
+        return PlannerOutput(
+            context_declarations=[
+                _point_declaration("ii", "G", "line_intersection"),
+                _point_declaration("ii", "D_prime", "straightening_auxiliary_point"),
+            ],
+            step_plans=[
+                self._derive_axis_point(),
+                self._derive_part_i_parabola(),
+                self._derive_right_angle_point(),
+                self._derive_q1_parameter(),
+                self._derive_q1_parabola(),
+                self._derive_midpoint(),
+                self._derive_path_reduction(),
+                self._derive_straightening_candidates(),
+                self._select_straightening_candidate(),
+                self._derive_minimum_expression(),
+                self._derive_q2_parameter(),
+                self._derive_q2_parabola(),
+                self._derive_q2_intersection(),
+            ],
+        )
 
     def _derive_axis_point(self) -> StepPlan:
         return _single_invocation_step(
@@ -337,45 +345,4 @@ class QuadraticPathMinimumPlannerV15:
             promote={"$step.derive_G.temp.intersection": "$question.ii.points.G"},
             goal_type="derive_q2_intersection",
             target_path="$question.ii.points.G",
-        )
-
-    def _ensure_result_point(self, context: RuntimeContext, scope_id: str, name: str) -> None:
-        scope = context.get_scope(scope_id)
-        if name in scope.container("points"):
-            return
-        path = f"$question.{scope_id}.points.{name}"
-        scope.container("points")[name] = TypedValue(
-            "PointRef",
-            PointRef(name=name, path=path, definition={"definition": "line_intersection"}, scope_id=scope_id),
-            locked=False,
-            source="planner",
-        )
-
-    def _ensure_straightening_auxiliary_point(
-        self,
-        context: RuntimeContext,
-        scope_id: str,
-        name: str,
-    ) -> None:
-        """创建折线拉直辅助点占位。
-
-        这里只声明“planner 预计会产生一个辅助点”，不把反射来源、镜像线或坐标写进
-        fixture。真正的候选生成与选择仍由
-        ``broken_path_straightening_candidates`` 和
-        ``select_straightening_candidate`` 计算、验算并写回。
-        """
-        scope = context.get_scope(scope_id)
-        if name in scope.container("points"):
-            return
-        path = f"$question.{scope_id}.points.{name}"
-        scope.container("points")[name] = TypedValue(
-            "PointRef",
-            PointRef(
-                name=name,
-                path=path,
-                definition={"definition": "straightening_auxiliary_point"},
-                scope_id=scope_id,
-            ),
-            locked=False,
-            source="planner",
         )

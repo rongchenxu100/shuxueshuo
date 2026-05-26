@@ -27,9 +27,13 @@ from shuxueshuo_server.solver.question_goals import extract_question_goals
 from shuxueshuo_server.solver.result_models import DerivationTrace, SolverResult
 from shuxueshuo_server.solver.runtime.context import RuntimeContext, ContextBuilder
 from shuxueshuo_server.solver.runtime.context_inventory import ContextInventoryBuilder
-from shuxueshuo_server.solver.runtime.executor import InvocationExecutor
+from shuxueshuo_server.solver.runtime.executor import (
+    DeclarationValidator,
+    InvocationExecutor,
+)
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.methods import default_stateless_registry
+from shuxueshuo_server.solver.runtime.models import PlannerOutput
 from shuxueshuo_server.solver.runtime.planner import (
     GenericPlanner,
     Nankai25DeterministicPlannerAdapter,
@@ -128,13 +132,18 @@ class RuntimeOrchestrator:
                 context_inventory=context_inventory,
                 method_specs=specs,
             )
-            plans = planner.plan(planner_inputs)
+            planner_output = PlannerOutput.from_legacy(planner.plan(planner_inputs))
+            DeclarationValidator().validate_declarations(
+                context,
+                planner_output.context_declarations,
+            )
+            context.apply_declarations(planner_output.context_declarations)
             executor = InvocationExecutor(
                 specs,
                 methods=default_stateless_registry(),
                 kernel=kernel,
             )
-            execution = executor.execute_plan(context, plans)
+            execution = executor.execute_plan(context, planner_output.step_plans)
             answers = ResultBuilder().build(context, execution, question_goals)
         except Exception as exc:  # pragma: no cover - 集成测试会覆盖错误内容
             return SolverResult(

@@ -81,10 +81,11 @@ def test_fake_llm_decomposition_compiles_to_deterministic_method_order() -> None
         memory=memory,
     )
 
-    plans = planner.plan(_planner_inputs(context))
-    direct_plans = QuadraticPathMinimumPlannerV15().plan(direct_context)
+    output = planner.plan(_planner_inputs(context))
+    direct_output = QuadraticPathMinimumPlannerV15().plan(direct_context)
 
-    assert _method_ids(plans) == _method_ids(direct_plans)
+    assert _method_ids(output.step_plans) == _method_ids(direct_output.step_plans)
+    assert output.context_declarations == direct_output.context_declarations
     assert len(memory.attempts) == 1
     assert memory.attempts[0].parsed_steps == nankai25_abstract_steps()
     assert memory.attempts[0].error is None
@@ -100,11 +101,12 @@ def test_fake_llm_decomposition_supports_hexi_weighted_family() -> None:
         memory=memory,
     )
 
-    plans = planner.plan(_planner_inputs(context))
+    output = planner.plan(_planner_inputs(context))
 
-    assert [plan.step_id for plan in plans] == [
+    assert [plan.step_id for plan in output.step_plans] == [
         step.step_id for step in hexi25_abstract_steps()
     ]
+    assert output.context_declarations[0].path == "$question.iii.points.Q"
     assert memory.attempts[0].parsed_steps == hexi25_abstract_steps()
     assert memory.attempts[0].payload["family_id"] == (
         QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY.family_id

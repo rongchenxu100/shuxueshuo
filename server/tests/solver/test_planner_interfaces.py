@@ -6,7 +6,10 @@ PlannerInputs / GenericPlanner 形状可以承接现有 planner 输出。
 
 from __future__ import annotations
 
-from shuxueshuo_server.solver.family import QUADRATIC_PATH_MINIMUM_FAMILY
+from shuxueshuo_server.solver.family import (
+    QUADRATIC_PATH_MINIMUM_FAMILY,
+    QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
+)
 from shuxueshuo_server.solver.fixtures import load_problem_ir
 from shuxueshuo_server.solver.question_goals import extract_question_goals
 from shuxueshuo_server.solver.runtime.context import ContextBuilder
@@ -20,10 +23,14 @@ from shuxueshuo_server.solver.runtime.planner import (
 from shuxueshuo_server.solver.runtime.quadratic_path_planner import (
     QuadraticPathMinimumPlannerV15,
 )
-from shuxueshuo_server.solver.runtime.models import StepPlan
+from shuxueshuo_server.solver.runtime.hexi_weighted_path_planner import (
+    Hexi25WeightedPathPlannerV15,
+)
+from shuxueshuo_server.solver.runtime.models import PlannerOutput, StepPlan
 
 
 NANKAI_FIXTURE = "../internal/solver-fixtures/tj-2026-nankai-yimo-25.json"
+HEXI_FIXTURE = "../internal/solver-fixtures/tj-2026-hexi-yimo-25.json"
 
 
 def _planner_inputs(context) -> PlannerInputs:
@@ -74,11 +81,13 @@ def test_nankai_adapter_satisfies_generic_planner_interface_and_preserves_steps(
     inputs = _planner_inputs(adapter_context)
 
     adapter = Nankai25DeterministicPlannerAdapter(adapter_context)
-    adapter_plans = adapter.plan(inputs)
-    direct_plans = QuadraticPathMinimumPlannerV15().plan(direct_context)
+    adapter_output = adapter.plan(inputs)
+    direct_output = QuadraticPathMinimumPlannerV15().plan(direct_context)
 
     assert isinstance(adapter, GenericPlanner)
-    assert _method_ids(adapter_plans) == _method_ids(direct_plans)
+    assert isinstance(adapter_output, PlannerOutput)
+    assert _method_ids(adapter_output.step_plans) == _method_ids(direct_output.step_plans)
+    assert adapter_output.context_declarations == direct_output.context_declarations
 
 
 def test_nankai_adapter_does_not_call_answer_paths() -> None:
@@ -97,6 +106,37 @@ def test_nankai_adapter_does_not_call_answer_paths() -> None:
         delegate=RaisingAnswerPathsPlanner(),
     )
 
-    plans = adapter.plan(inputs)
+    output = adapter.plan(inputs)
 
-    assert plans
+    assert output.step_plans
+
+
+def test_deterministic_planners_return_declarations_without_mutating_context() -> None:
+    """内置 deterministic planner 只能声明占位，不能直接写 RuntimeContext。"""
+    nankai_context = ContextBuilder().build(load_problem_ir(NANKAI_FIXTURE))
+    nankai_output = QuadraticPathMinimumPlannerV15().plan(nankai_context)
+
+    assert "G" not in nankai_context.get_scope("ii").container("points")
+    assert "D_prime" not in nankai_context.get_scope("ii").container("points")
+    assert {item.path for item in nankai_output.context_declarations} == {
+        "$question.ii.points.G",
+        "$question.ii.points.D_prime",
+    }
+
+    hexi_context = ContextBuilder().build(load_problem_ir(HEXI_FIXTURE))
+    hexi_inputs = PlannerInputs(
+        problem_id=hexi_context.problem.problem_id,
+        family_spec=QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
+        question_goals=extract_question_goals(hexi_context.problem),
+        context_inventory=ContextInventoryBuilder().build(
+            hexi_context,
+            MethodSpecRegistry.load_from_code(),
+        ),
+        method_specs=MethodSpecRegistry.load_from_code(),
+    )
+    hexi_output = Hexi25WeightedPathPlannerV15(hexi_context).plan(hexi_inputs)
+
+    assert "Q" not in hexi_context.get_scope("iii").container("points")
+    assert [item.path for item in hexi_output.context_declarations] == [
+        "$question.iii.points.Q"
+    ]

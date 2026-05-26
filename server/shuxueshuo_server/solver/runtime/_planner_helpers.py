@@ -7,7 +7,12 @@ MethodInvocation 的样板代码。
 
 from __future__ import annotations
 
-from shuxueshuo_server.solver.runtime.models import MethodInvocation, StepGoal, StepPlan
+from shuxueshuo_server.solver.runtime.models import (
+    ContextDeclaration,
+    MethodInvocation,
+    StepGoal,
+    StepPlan,
+)
 
 
 def single_invocation_step(
@@ -48,4 +53,23 @@ def single_invocation_step(
         invocations=[invocation],
         expected_outputs=list(promote.values()),
         promote_outputs=promote,
+    )
+
+
+def question_point_declaration(
+    scope_id: str,
+    name: str,
+    definition: str,
+) -> ContextDeclaration:
+    """创建 question scope 下的 PointRef 声明。
+
+    这个 helper 只负责生成 declaration 契约，不写 RuntimeContext。真正写入必须由
+    Orchestrator 统一校验并 apply。
+    """
+    return ContextDeclaration(
+        path=f"$question.{scope_id}.points.{name}",
+        type="PointRef",
+        name=name,
+        definition={"definition": definition},
+        scope_id=scope_id,
     )

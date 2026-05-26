@@ -26,6 +26,7 @@ from shuxueshuo_server.solver.runtime.context_inventory import (
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.models import (
     MethodInvocation,
+    PlannerOutput,
     PointRef,
     StepGoal,
     StepPlan,
@@ -52,12 +53,12 @@ class PlannerInputs:
 class GenericPlanner(Protocol):
     """通用 Planner 接口。
 
-    实现者只能返回 StepPlan，不应该直接执行 method、写 RuntimeContext 或生成最终
-    answers。真实 LLM Planner 接入后也必须遵守这个接口。
+    实现者只能返回 PlannerOutput，不应该直接执行 method、写 RuntimeContext 或
+    生成最终 answers。真实 LLM Planner 接入后也必须遵守这个接口。
     """
 
-    def plan(self, inputs: PlannerInputs) -> list[StepPlan]:
-        """把 PlannerInputs 转成可执行 StepPlan 列表。"""
+    def plan(self, inputs: PlannerInputs) -> PlannerOutput:
+        """把 PlannerInputs 转成 declarations + 可执行 StepPlan。"""
         ...
 
 
@@ -76,9 +77,13 @@ class Nankai25DeterministicPlannerAdapter:
         self.context = context
         self.delegate = delegate or QuadraticPathMinimumPlannerV15()
 
-    def plan(self, inputs: PlannerInputs) -> list[StepPlan]:
-        """委托当前南开 deterministic planner 生成 StepPlan。"""
-        return self.delegate.plan(self.context)
+    def plan(self, inputs: PlannerInputs) -> PlannerOutput:
+        """委托当前南开 deterministic planner 生成 PlannerOutput。"""
+        output = self.delegate.plan(self.context)
+        if isinstance(output, PlannerOutput):
+            return output
+        # 兼容测试中注入的旧形态 delegate；仓库内置 planner 会全部迁移到 PlannerOutput。
+        return PlannerOutput(step_plans=list(output))
 
 
 class RuleBasedStepPlannerV15:

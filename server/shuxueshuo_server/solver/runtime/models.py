@@ -74,6 +74,22 @@ class ContextPath:
         return True
 
 
+@dataclass(frozen=True)
+class ContextDeclaration:
+    """Planner 需要运行时提前声明的上下文占位。
+
+    Phase B 首版只允许声明未解出的 ``PointRef``。它表达“后续某个 step 会求出
+    这个点”，不携带坐标、参数值或最终答案。
+    """
+
+    path: str
+    type: str
+    name: str
+    definition: dict[str, Any]
+    scope_id: str
+    source: str = "planner"
+
+
 @dataclass
 class StepGoal:
     """Planner 为某个 StepPlan 生成的结构化中间目标。
@@ -154,6 +170,32 @@ class StepPlan:
     invocations: list[MethodInvocation] = field(default_factory=list)
     expected_outputs: list[str] = field(default_factory=list)
     promote_outputs: dict[str, str] = field(default_factory=dict)
+
+
+@dataclass
+class PlannerOutput:
+    """Planner 的统一输出。
+
+    ``context_declarations`` 先由 Orchestrator 校验并应用到 RuntimeContext；
+    ``step_plans`` 再交给 InvocationExecutor 顺序执行。这样 planner 不再直接修改
+    context，所有写入都经过统一边界。
+    """
+
+    context_declarations: list[ContextDeclaration] = field(default_factory=list)
+    step_plans: list[StepPlan] = field(default_factory=list)
+
+    @classmethod
+    def from_legacy(cls, output: "PlannerOutput | list[StepPlan]") -> "PlannerOutput":
+        """兼容迁移期旧 planner 返回的 ``list[StepPlan]``。
+
+        Phase B 后内置 planner 都应返回 PlannerOutput；这个 helper 只用于测试或
+        外部调用方短期兼容，避免各处重复写 normalize 逻辑。
+        """
+        if isinstance(output, cls):
+            return output
+        if isinstance(output, list):
+            return cls(step_plans=output)
+        raise TypeError(f"planner returned unsupported output: {type(output).__name__}")
 
 
 @dataclass

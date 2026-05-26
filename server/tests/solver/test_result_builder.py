@@ -9,7 +9,10 @@ from shuxueshuo_server.solver.math_kernel import SympyKernel
 from shuxueshuo_server.solver.problem_models import QuestionGoal
 from shuxueshuo_server.solver.question_goals import extract_question_goals
 from shuxueshuo_server.solver.runtime.context import ContextBuilder
-from shuxueshuo_server.solver.runtime.executor import InvocationExecutor
+from shuxueshuo_server.solver.runtime.executor import (
+    DeclarationValidator,
+    InvocationExecutor,
+)
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.methods import default_stateless_registry
 from shuxueshuo_server.solver.runtime.quadratic_path_planner import (
@@ -36,10 +39,10 @@ def _executed_nankai_context():
         methods=default_stateless_registry(),
         kernel=kernel,
     )
-    execution = executor.execute_plan(
-        context,
-        QuadraticPathMinimumPlannerV15().plan(context),
-    )
+    output = QuadraticPathMinimumPlannerV15().plan(context)
+    DeclarationValidator().validate_declarations(context, output.context_declarations)
+    context.apply_declarations(output.context_declarations)
+    execution = executor.execute_plan(context, output.step_plans)
     return problem, context, execution
 
 

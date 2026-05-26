@@ -29,6 +29,7 @@ from shuxueshuo_server.solver.math_ops import (
 from shuxueshuo_server.solver.math_kernel import SympyKernel
 from shuxueshuo_server.solver.problem_models import ProblemIR
 from shuxueshuo_server.solver.runtime.models import (
+    ContextDeclaration,
     ContextPath,
     Point,
     PointRef,
@@ -213,6 +214,36 @@ class RuntimeContext:
             return existing is None or not existing.locked
         except Exception:
             return False
+
+    def apply_declaration(self, declaration: ContextDeclaration) -> None:
+        """应用已经通过校验的 planner 声明。
+
+        这里只负责把声明转成未锁定 ``PointRef`` 写入目标 scope。声明是否合法由
+        DeclarationValidator 负责；这里仍做最基本的 path/scope 一致性检查，避免
+        其他调用方绕过 validator 时写错位置。
+        """
+        path = ContextPath.parse(declaration.path)
+        if path.scope_id != declaration.scope_id:
+            raise ValueError(
+                f"declaration scope mismatch: {declaration.path} vs {declaration.scope_id}"
+            )
+        point_ref = PointRef(
+            name=declaration.name,
+            path=declaration.path,
+            definition=dict(declaration.definition),
+            scope_id=declaration.scope_id,
+        )
+        self.write_path(
+            declaration.path,
+            TypedValue("PointRef", point_ref, locked=False, source="planner"),
+            from_scope_id=declaration.scope_id,
+            allow_overwrite=True,
+        )
+
+    def apply_declarations(self, declarations: Iterable[ContextDeclaration]) -> None:
+        """按顺序应用一组 planner 声明。"""
+        for declaration in declarations:
+            self.apply_declaration(declaration)
 
     def find_visible_path(
         self,

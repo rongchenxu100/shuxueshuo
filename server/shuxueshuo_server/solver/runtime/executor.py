@@ -23,12 +23,95 @@ from shuxueshuo_server.solver.runtime.methods import (
     default_stateless_registry,
 )
 from shuxueshuo_server.solver.runtime.models import (
+    ContextDeclaration,
     ContextPath,
     MethodInvocation,
     PlanExecutionResult,
+    PointRef,
     StepExecutionResult,
     StepPlan,
 )
+
+
+class DeclarationValidator:
+    """校验 planner 声明是否可以安全写入 RuntimeContext。
+
+    declaration 是 Planner 与 RuntimeContext 之间的新边界：Planner 可以声明“后续
+    会求出某个点”，但不能借此写入题设答案、坐标或覆盖已锁定事实。
+    """
+
+    forbidden_definition_keys = {"coordinate", "coordinates", "value", "answer"}
+
+    def validate_declarations(
+        self,
+        context: RuntimeContext,
+        declarations: list[ContextDeclaration],
+    ) -> None:
+        """逐条校验一组 ContextDeclaration。"""
+        for declaration in declarations:
+            self.validate_declaration(context, declaration)
+
+    def validate_declaration(
+        self,
+        context: RuntimeContext,
+        declaration: ContextDeclaration,
+    ) -> None:
+        """校验单个 declaration。"""
+        path = ContextPath.parse(declaration.path)
+        if path.scope_id != declaration.scope_id:
+            raise ValueError(
+                f"declaration scope mismatch for {declaration.path}: {declaration.scope_id}"
+            )
+        if path.container != "points":
+            raise PermissionError(
+                f"declaration must write points container: {declaration.path}"
+            )
+        if path.key != declaration.name:
+            raise ValueError(
+                f"declaration name mismatch for {declaration.path}: {declaration.name}"
+            )
+        context.get_scope(path.scope_id)
+        if declaration.type != "PointRef":
+            raise TypeError(
+                f"declaration {declaration.path} type must be PointRef, got {declaration.type}"
+            )
+        if declaration.source != "planner":
+            raise PermissionError(
+                f"declaration {declaration.path} source must be planner"
+            )
+        if self._contains_forbidden_value(declaration.definition):
+            raise ValueError(
+                f"declaration {declaration.path} must not include coordinates or answer values"
+            )
+        existing = context.get_scope(path.scope_id).container(path.container).get(path.key)
+        if existing is None:
+            return
+        if existing.locked:
+            raise PermissionError(f"declaration cannot overwrite locked path: {declaration.path}")
+        if existing.type != "PointRef":
+            raise PermissionError(
+                f"declaration cannot overwrite existing non-PointRef path: {declaration.path}"
+            )
+        existing_ref: PointRef = existing.value
+        if (
+            existing_ref.name == declaration.name
+            and existing_ref.scope_id == declaration.scope_id
+            and dict(existing_ref.definition) == dict(declaration.definition)
+        ):
+            return
+        raise PermissionError(
+            f"declaration conflicts with existing PointRef: {declaration.path}"
+        )
+
+    def _contains_forbidden_value(self, value) -> bool:
+        """检查 definition 中是否夹带坐标、答案或裸值。"""
+        if isinstance(value, dict):
+            if set(value) & self.forbidden_definition_keys:
+                return True
+            return any(self._contains_forbidden_value(child) for child in value.values())
+        if isinstance(value, list | tuple):
+            return any(self._contains_forbidden_value(child) for child in value)
+        return False
 
 
 class PlanValidator:

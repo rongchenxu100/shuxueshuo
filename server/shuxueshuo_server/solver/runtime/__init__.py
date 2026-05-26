@@ -24,7 +24,11 @@ from shuxueshuo_server.solver.runtime.context_inventory import (
     RelationGraphEntry,
     VisibleContextPath,
 )
-from shuxueshuo_server.solver.runtime.executor import InvocationExecutor, PlanValidator
+from shuxueshuo_server.solver.runtime.executor import (
+    DeclarationValidator,
+    InvocationExecutor,
+    PlanValidator,
+)
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.llm_step_planner import (
     AbstractStepPlan,
@@ -51,9 +55,11 @@ from shuxueshuo_server.solver.runtime.methods import (
     default_stateless_registry,
 )
 from shuxueshuo_server.solver.runtime.models import (
+    ContextDeclaration,
     ContextPath,
     MethodInvocation,
     MethodSpec,
+    PlannerOutput,
     PointRef,
     RuntimeScope,
     StepGoal,
@@ -83,6 +89,7 @@ from shuxueshuo_server.solver.runtime.orchestrator import (
 
 __all__ = [
     "ContextBuilder",
+    "ContextDeclaration",
     "ContextInventory",
     "ContextInventoryBuilder",
     "ContextPath",
@@ -94,6 +101,7 @@ __all__ = [
     "GenericPlanner",
     "Hexi25WeightedPathPlannerV15",
     "DeepSeekPlannerClient",
+    "DeclarationValidator",
     "DoubaoPlannerClient",
     "LLMClientConfigurationError",
     "LLMPlannerClient",
@@ -107,6 +115,7 @@ __all__ = [
     "MethodSpecRegistry",
     "Nankai25DeterministicPlannerAdapter",
     "PlanValidator",
+    "PlannerOutput",
     "PlannerInputs",
     "PlannerAttempt",
     "PlannerMemory",

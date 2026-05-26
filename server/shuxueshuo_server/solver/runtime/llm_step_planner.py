@@ -27,7 +27,7 @@ from shuxueshuo_server.solver.runtime.hexi_weighted_path_planner import (
     Hexi25WeightedPathPlannerV15,
 )
 from shuxueshuo_server.solver.runtime.llm_clients import LLMPlannerClient
-from shuxueshuo_server.solver.runtime.models import StepPlan
+from shuxueshuo_server.solver.runtime.models import PlannerOutput, StepPlan
 from shuxueshuo_server.solver.runtime.planner import PlannerInputs
 from shuxueshuo_server.solver.runtime.quadratic_path_planner import (
     QuadraticPathMinimumPlannerV15,
@@ -136,28 +136,28 @@ class AbstractStepPlanCompiler:
         self,
         abstract_steps: list[AbstractStepPlan],
         inputs: PlannerInputs | None = None,
-    ) -> list[StepPlan]:
-        """校验抽象步骤并返回 deterministic StepPlan。"""
-        plans = self.plans_for(inputs)
-        expected = _abstract_steps_from_plans(plans)
+    ) -> PlannerOutput:
+        """校验抽象步骤并返回 deterministic PlannerOutput。"""
+        output = self.output_for(inputs)
+        expected = _abstract_steps_from_plans(output.step_plans)
         if abstract_steps != expected:
             raise LLMPlannerError(
                 "step decomposition validation failed: abstract steps do not match "
                 "the deterministic family decomposition"
             )
-        return plans
+        return output
 
     def expected_abstract_steps(
         self,
         inputs: PlannerInputs | None = None,
     ) -> list[AbstractStepPlan]:
         """返回当前 family 允许的抽象步骤序列。"""
-        return _abstract_steps_from_plans(self.plans_for(inputs))
+        return _abstract_steps_from_plans(self.output_for(inputs).step_plans)
 
-    def plans_for(self, inputs: PlannerInputs | None = None) -> list[StepPlan]:
-        """按 family_id 选择 deterministic 模板并生成 StepPlan。"""
+    def output_for(self, inputs: PlannerInputs | None = None) -> PlannerOutput:
+        """按 family_id 选择 deterministic 模板并生成 PlannerOutput。"""
         if inputs is None:
-            return self.delegate.plan(self.context)
+            return PlannerOutput.from_legacy(self.delegate.plan(self.context))
         family_id = inputs.family_spec.family_id
         if family_id == QUADRATIC_PATH_MINIMUM_FAMILY.family_id:
             return QuadraticPathMinimumPlannerV15().plan(self.context)
@@ -187,8 +187,8 @@ class LLMStepDecompositionPlanner:
         self.memory = memory or PlannerMemory()
         self.compiler = compiler or AbstractStepPlanCompiler(context)
 
-    def plan(self, inputs: PlannerInputs) -> list[StepPlan]:
-        """调用 fake/LLM client 做抽象步骤拆解，再编译成 StepPlan。"""
+    def plan(self, inputs: PlannerInputs) -> PlannerOutput:
+        """调用 fake/LLM client 做抽象步骤拆解，再编译成 PlannerOutput。"""
         payload = _planner_payload(inputs)
         raw_response = self.client.complete(payload)
         attempt = PlannerAttempt(payload=payload, raw_response=raw_response)
@@ -196,13 +196,13 @@ class LLMStepDecompositionPlanner:
             parsed_steps = parse_abstract_steps(raw_response)
             validate_abstract_steps(parsed_steps, inputs, self.compiler)
             attempt.parsed_steps = parsed_steps
-            plans = self.compiler.compile(parsed_steps, inputs)
+            output = self.compiler.compile(parsed_steps, inputs)
         except Exception as exc:
             attempt.error = str(exc)
             self.memory.add_attempt(attempt)
             raise
         self.memory.add_attempt(attempt)
-        return plans
+        return output
 
 
 def llm_step_decomposition_planner_provider(
