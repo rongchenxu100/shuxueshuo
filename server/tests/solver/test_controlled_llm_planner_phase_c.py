@@ -23,14 +23,27 @@ from shuxueshuo_server.solver.runtime.controlled_llm_planner import (
     parse_planner_draft,
     summarize_slot_options,
 )
+from shuxueshuo_server.solver.runtime.controlled_llm_fakes import (
+    FakeControlledLLMPlannerClient,
+    controlled_llm_planner_provider,
+)
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.models import PlannerOutput
+from shuxueshuo_server.solver.runtime.orchestrator import RuntimeOrchestrator
 from shuxueshuo_server.solver.runtime.planner import PlannerInputs
-from shuxueshuo_server.solver.family import DEFAULT_FAMILY_REGISTRY
+from shuxueshuo_server.solver.runtime.quadratic_path_planner import (
+    QuadraticPathMinimumPlannerV15,
+)
+from shuxueshuo_server.solver.family import (
+    DEFAULT_FAMILY_REGISTRY,
+    QUADRATIC_PATH_MINIMUM_FAMILY,
+)
+from shuxueshuo_server.solver.fixtures import load_expected_answers
 
 
 NANKAI_FIXTURE = "../internal/solver-fixtures/tj-2026-nankai-yimo-25.json"
 HEXI_FIXTURE = "../internal/solver-fixtures/tj-2026-hexi-yimo-25.json"
+EXPECTED = "tests/solver/expected/tj-2026-nankai-yimo-25.expected.json"
 
 
 class _DraftClient:
@@ -101,6 +114,15 @@ def _candidate_id(
             if candidate.path == path:
                 return candidate.candidate_id
     raise AssertionError(f"candidate not found for {method_id}.{input_name}: {path}")
+
+
+def _method_ids(plans) -> list[str]:
+    """抽取 StepPlan 的 method 顺序。"""
+    return [
+        invocation.method_id
+        for plan in plans
+        for invocation in plan.invocations
+    ]
 
 
 def _axis_draft(inputs: PlannerInputs) -> dict[str, Any]:
@@ -186,6 +208,8 @@ def test_prompt_renderer_injects_schema_binding_rules_and_few_shots() -> None:
     assert '"context_declarations"' in prompt.system
     assert '"definition_intent"' in prompt.system
     assert "candidate_id" in prompt.system
+    assert "@step.<step_id>.<output_key>" in prompt.system
+    assert "@declaration.<scope_id>.<name>" in prompt.system
     assert "禁止写 ContextPath" in prompt.system
     assert "few-shot" in prompt.user
     assert "few-shot 是语义模板" in prompt.user
@@ -510,6 +534,334 @@ def test_plan_compiler_generates_temp_outputs_promote_outputs_and_declarations()
     assert plan.goal.metadata["reason"]
 
 
+def test_step_binding_reference_resolves_to_previous_promoted_target() -> None:
+    """@step 引用前序已 promote 输出时，compiler 应解析成 promote target。"""
+    inputs = _planner_inputs()
+    slot_options = SlotBinder().build(
+        method_specs=inputs.method_specs,
+        context_inventory=inputs.context_inventory,
+    )
+    raw = _axis_draft(inputs)
+    raw["steps"].append(
+        {
+            "step_id": "derive_F",
+            "scope_id": "ii",
+            "step_goal": {
+                "type": "derive_midpoint_coordinate",
+                "target_path": "$question.ii.points.F",
+            },
+            "method_id": "midpoint_point",
+            "bindings": {
+                "p1": "@step.derive_D.axis_point",
+                "p2": _candidate_id(
+                    slot_options,
+                    method_id="midpoint_point",
+                    input_name="p2",
+                    path="$question.ii.points.M",
+                ),
+                "target": _candidate_id(
+                    slot_options,
+                    method_id="midpoint_point",
+                    input_name="target",
+                    path="$question.ii.points.F",
+                ),
+            },
+            "promote_to": {"midpoint": "$question.ii.points.F"},
+            "depends_on": ["derive_D"],
+            "reason": "用前一步 promote 出来的 D 求中点。",
+        }
+    )
+    draft = parse_planner_draft(json.dumps(raw, ensure_ascii=False))
+
+    output = PlanCompiler().compile(draft, inputs, slot_options)
+
+    midpoint_inputs = output.step_plans[1].invocations[0].inputs
+    assert midpoint_inputs["p1"] == "$problem.points.D"
+
+
+def test_step_can_mix_candidate_step_and_declaration_bindings() -> None:
+    """同一个 step 可以混合使用 candidate、@step 和 @declaration 三类受控绑定。"""
+    inputs = _planner_inputs()
+    slot_options = SlotBinder().build(
+        method_specs=inputs.method_specs,
+        context_inventory=inputs.context_inventory,
+    )
+    raw = _axis_draft(inputs)
+    raw["context_declarations"] = [
+        {
+            "path": "$question.ii.points.G",
+            "type": "PointRef",
+            "name": "G",
+            "definition_intent": "line_intersection",
+            "scope_id": "ii",
+        }
+    ]
+    raw["steps"].append(
+        {
+            "step_id": "derive_G_from_midpoint_shape",
+            "scope_id": "ii",
+            "step_goal": {
+                "type": "derive_point_coordinate",
+                "target_path": "$question.ii.points.G",
+            },
+            "method_id": "midpoint_point",
+            "bindings": {
+                "p1": "@step.derive_D.axis_point",
+                "p2": _candidate_id(
+                    slot_options,
+                    method_id="midpoint_point",
+                    input_name="p2",
+                    path="$question.ii.points.M",
+                ),
+                "target": "@declaration.ii.G",
+            },
+            "promote_to": {"midpoint": "$question.ii.points.G"},
+            "depends_on": ["derive_D"],
+            "reason": "专门验证一个 step 内混合三种 binding 引用。",
+        }
+    )
+    draft = parse_planner_draft(json.dumps(raw, ensure_ascii=False))
+
+    output = PlanCompiler().compile(draft, inputs, slot_options)
+
+    mixed_inputs = output.step_plans[1].invocations[0].inputs
+    assert mixed_inputs["p1"] == "$problem.points.D"
+    assert mixed_inputs["p2"] == "$question.ii.points.M"
+    assert mixed_inputs["target"] == "$question.ii.points.G"
+
+
+def test_declaration_binding_reference_resolves_to_declared_pointref() -> None:
+    """@declaration 引用 draft 声明的占位点时，应解析成 declaration path。"""
+    inputs = _planner_inputs()
+    slot_options = SlotBinder().build(
+        method_specs=inputs.method_specs,
+        context_inventory=inputs.context_inventory,
+    )
+    raw = _axis_draft(inputs)
+    raw["context_declarations"] = [
+        {
+            "path": "$question.ii.points.G",
+            "type": "PointRef",
+            "name": "G",
+            "definition_intent": "line_intersection",
+            "scope_id": "ii",
+        }
+    ]
+    raw["steps"][0]["scope_id"] = "ii"
+    raw["steps"][0]["step_goal"]["target_path"] = "$question.ii.points.G"
+    raw["steps"][0]["bindings"]["target"] = "@declaration.ii.G"
+    raw["steps"][0]["promote_to"] = {"axis_point": "$question.ii.points.G"}
+    draft = parse_planner_draft(json.dumps(raw, ensure_ascii=False))
+
+    output = PlanCompiler().compile(draft, inputs, slot_options)
+
+    assert output.step_plans[0].invocations[0].inputs["target"] == "$question.ii.points.G"
+
+
+def test_step_binding_reference_rejects_existing_future_step() -> None:
+    """@step 不能引用 draft 中存在但排在当前 step 后面的未来步骤。"""
+    inputs = _planner_inputs()
+    slot_options = SlotBinder().build(
+        method_specs=inputs.method_specs,
+        context_inventory=inputs.context_inventory,
+    )
+    raw = _axis_draft(inputs)
+    raw["steps"][0]["bindings"]["target"] = "@step.derive_F.midpoint"
+    raw["steps"].append(
+        {
+            "step_id": "derive_F",
+            "scope_id": "ii",
+            "step_goal": {
+                "type": "derive_midpoint_coordinate",
+                "target_path": "$question.ii.points.F",
+            },
+            "method_id": "midpoint_point",
+            "bindings": {
+                "p1": _candidate_id(
+                    slot_options,
+                    method_id="midpoint_point",
+                    input_name="p1",
+                    path="$problem.points.D",
+                ),
+                "p2": _candidate_id(
+                    slot_options,
+                    method_id="midpoint_point",
+                    input_name="p2",
+                    path="$question.ii.points.M",
+                ),
+                "target": _candidate_id(
+                    slot_options,
+                    method_id="midpoint_point",
+                    input_name="target",
+                    path="$question.ii.points.F",
+                ),
+            },
+            "promote_to": {"midpoint": "$question.ii.points.F"},
+            "depends_on": [],
+            "reason": "这个 step 存在，但排在当前 step 后面。",
+        }
+    )
+
+    with pytest.raises(AbstractPlanValidationError, match="unknown or future step"):
+        AbstractPlanValidator().validate_json(
+            json.dumps(raw, ensure_ascii=False),
+            inputs,
+            slot_options,
+        )
+
+
+@pytest.mark.parametrize(
+    ("binding", "message"),
+    [
+        ("@step.unknown.axis_point", "unknown or future step"),
+        ("@step.derive_D.axis_point", "cannot reference itself"),
+    ],
+)
+def test_step_binding_reference_rejects_invalid_step_or_output(
+    binding: str,
+    message: str,
+) -> None:
+    """@step 引用未知/未来/自身/未知输出时应失败。"""
+    inputs = _planner_inputs()
+    slot_options = SlotBinder().build(
+        method_specs=inputs.method_specs,
+        context_inventory=inputs.context_inventory,
+    )
+    raw = _axis_draft(inputs)
+    raw["steps"][0]["bindings"]["target"] = binding
+
+    with pytest.raises(AbstractPlanValidationError, match=message):
+        AbstractPlanValidator().validate_json(
+            json.dumps(raw, ensure_ascii=False),
+            inputs,
+            slot_options,
+        )
+
+
+@pytest.mark.parametrize("binding", ["@step.only_two_parts", "@step."])
+def test_step_binding_reference_rejects_malformed_reference(binding: str) -> None:
+    """@step 引用必须严格符合 @step.<step_id>.<output_key>。"""
+    inputs = _planner_inputs()
+    slot_options = SlotBinder().build(
+        method_specs=inputs.method_specs,
+        context_inventory=inputs.context_inventory,
+    )
+    raw = _axis_draft(inputs)
+    raw["steps"][0]["bindings"]["target"] = binding
+
+    with pytest.raises(AbstractPlanValidationError, match="invalid step binding reference"):
+        AbstractPlanValidator().validate_json(
+            json.dumps(raw, ensure_ascii=False),
+            inputs,
+            slot_options,
+        )
+
+
+def test_step_binding_reference_rejects_unknown_output_from_previous_step() -> None:
+    """@step 引用前序 step 中不存在的 output key 时应失败。"""
+    inputs = _planner_inputs()
+    slot_options = SlotBinder().build(
+        method_specs=inputs.method_specs,
+        context_inventory=inputs.context_inventory,
+    )
+    raw = _axis_draft(inputs)
+    raw["steps"].append(json.loads(json.dumps(raw["steps"][0])))
+    raw["steps"][1]["step_id"] = "derive_D_again"
+    raw["steps"][1]["bindings"]["a"] = "@step.derive_D.no_such_output"
+
+    with pytest.raises(AbstractPlanValidationError, match="unknown output"):
+        AbstractPlanValidator().validate_json(
+            json.dumps(raw, ensure_ascii=False),
+            inputs,
+            slot_options,
+        )
+
+
+def test_step_binding_reference_rejects_unpromoted_output() -> None:
+    """跨 step 只能引用已 promote 的 output。"""
+    inputs = _planner_inputs()
+    slot_options = SlotBinder().build(
+        method_specs=inputs.method_specs,
+        context_inventory=inputs.context_inventory,
+    )
+    raw = _axis_draft(inputs)
+    raw["steps"][0]["promote_to"] = {}
+    raw["steps"].append(
+        {
+            "step_id": "derive_F",
+            "scope_id": "ii",
+            "step_goal": {
+                "type": "derive_midpoint_coordinate",
+                "target_path": "$question.ii.points.F",
+            },
+            "method_id": "midpoint_point",
+            "bindings": {
+                "p1": "@step.derive_D.axis_point",
+                "p2": _candidate_id(
+                    slot_options,
+                    method_id="midpoint_point",
+                    input_name="p2",
+                    path="$question.ii.points.M",
+                ),
+                "target": _candidate_id(
+                    slot_options,
+                    method_id="midpoint_point",
+                    input_name="target",
+                    path="$question.ii.points.F",
+                ),
+            },
+            "promote_to": {"midpoint": "$question.ii.points.F"},
+            "depends_on": ["derive_D"],
+            "reason": "故意引用未 promote 的输出。",
+        }
+    )
+
+    with pytest.raises(AbstractPlanValidationError, match="unpromoted output"):
+        AbstractPlanValidator().validate_json(
+            json.dumps(raw, ensure_ascii=False),
+            inputs,
+            slot_options,
+        )
+
+
+def test_step_binding_reference_rejects_type_mismatch() -> None:
+    """@step 输出类型必须能匹配 method input 类型。"""
+    inputs = _planner_inputs()
+    slot_options = SlotBinder().build(
+        method_specs=inputs.method_specs,
+        context_inventory=inputs.context_inventory,
+    )
+    raw = _axis_draft(inputs)
+    raw["steps"].append(json.loads(json.dumps(raw["steps"][0])))
+    raw["steps"][1]["step_id"] = "derive_D_again"
+    raw["steps"][1]["bindings"]["a"] = "@step.derive_D.axis_point"
+
+    with pytest.raises(AbstractPlanValidationError, match="type mismatch"):
+        AbstractPlanValidator().validate_json(
+            json.dumps(raw, ensure_ascii=False),
+            inputs,
+            slot_options,
+        )
+
+
+def test_declaration_binding_reference_rejects_unknown_declaration() -> None:
+    """@declaration 必须引用本 draft 中已经声明的 PointRef。"""
+    inputs = _planner_inputs()
+    slot_options = SlotBinder().build(
+        method_specs=inputs.method_specs,
+        context_inventory=inputs.context_inventory,
+    )
+    raw = _axis_draft(inputs)
+    raw["steps"][0]["bindings"]["target"] = "@declaration.ii.G"
+
+    with pytest.raises(AbstractPlanValidationError, match="unknown declaration"):
+        AbstractPlanValidator().validate_json(
+            json.dumps(raw, ensure_ascii=False),
+            inputs,
+            slot_options,
+        )
+
+
 def test_controlled_llm_planner_builds_prompt_and_compiles_fake_draft() -> None:
     """ControlledLLMPlanner 可完成 payload -> prompt -> fake LLM -> PlannerOutput 闭环。"""
     inputs = _planner_inputs()
@@ -553,3 +905,59 @@ def test_controlled_llm_planner_validates_only_inside_compiler() -> None:
     planner.plan(inputs)
 
     assert validator.validate_calls == 1
+
+
+def test_fake_controlled_llm_client_returns_full_draft_schema() -> None:
+    """Fake controlled client 应返回真实 schema，而不是 few-shot 语义模板字段。"""
+    inputs = _planner_inputs()
+    payload = PlanningPayloadBuilder().build(inputs)
+    client = FakeControlledLLMPlannerClient()
+
+    raw_response = client.complete(
+        {
+            "family_id": QUADRATIC_PATH_MINIMUM_FAMILY.family_id,
+            "problem_id": inputs.problem_id,
+            "planner_payload": payload,
+        }
+    )
+    raw = json.loads(raw_response)
+
+    assert set(raw) == {"context_declarations", "steps"}
+    assert raw["context_declarations"]
+    assert raw["steps"]
+    assert "draft_steps" not in raw
+    assert "scope_role" not in json.dumps(raw, ensure_ascii=False)
+    assert "target_path_role" not in json.dumps(raw, ensure_ascii=False)
+    assert raw["steps"][0]["bindings"]["a"].startswith("c_")
+    assert any(
+        value.startswith("@step.")
+        for step in raw["steps"]
+        for value in step["bindings"].values()
+    )
+    assert any(
+        value.startswith("@declaration.")
+        for step in raw["steps"]
+        for value in step["bindings"].values()
+    )
+
+
+def test_controlled_fake_llm_nankai_e2e_matches_deterministic_answers_and_methods() -> None:
+    """注入 controlled fake provider 后，南开 E2E 应完整通过。"""
+    problem = load_problem_ir(NANKAI_FIXTURE)
+    expected = load_expected_answers(EXPECTED)
+    client = FakeControlledLLMPlannerClient()
+    direct_context = ContextBuilder().build(load_problem_ir(NANKAI_FIXTURE))
+    deterministic = QuadraticPathMinimumPlannerV15().plan(direct_context)
+
+    result = RuntimeOrchestrator(
+        planner_providers={
+            QUADRATIC_PATH_MINIMUM_FAMILY.family_id:
+                controlled_llm_planner_provider(client)
+        },
+    ).solve(problem)
+
+    assert result.status == "ok"
+    assert result.answers == expected
+    assert all(check.ok for check in result.checks)
+    assert result.methods_used == _method_ids(deterministic.step_plans)
+    assert client.payloads

@@ -820,6 +820,7 @@ StepPlan[]
 
 - Method 输出先写入 step scope。
 - 上层写回必须通过 `promote_outputs`。
+- LLM draft 的跨步骤绑定只能通过 `@step.<step_id>.<output_key>` 引用前序已 promote 的输出；未 promote 的 step temp 不能被 sibling/后续 step 读取。这是当前安全边界，后续若要放开，需要先补充新的可见性校验协议。
 - 覆盖题设 locked fact 必须失败。
 - 输入类型必须匹配 MethodSpec。
 - Invocation 不能携带裸数值作为答案捷径。

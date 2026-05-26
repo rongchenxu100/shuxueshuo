@@ -106,7 +106,12 @@ class SolverRuntimeConfig:
 
     def build_planner_providers(self) -> dict[str, "PlannerProvider"]:
         """构造 RuntimeOrchestrator 可直接使用的 planner provider map。"""
+        from shuxueshuo_server.solver.runtime.controlled_llm_fakes import (
+            FakeControlledLLMPlannerClient,
+            controlled_llm_planner_provider,
+        )
         from shuxueshuo_server.solver.runtime.llm_step_planner import (
+            FakeLLMPlannerClient,
             llm_step_decomposition_planner_provider,
         )
         from shuxueshuo_server.solver.runtime.orchestrator import (
@@ -115,6 +120,15 @@ class SolverRuntimeConfig:
 
         if self.planner_mode == "deterministic":
             return dict(DEFAULT_PLANNER_PROVIDERS)
+        if self.llm_provider == "fake":
+            # D1：南开 family 走完整 controlled draft；河西 family 暂保留 legacy
+            # fake step decomposition，等 D2 再迁移 weighted controlled draft。
+            return {
+                QUADRATIC_PATH_MINIMUM_FAMILY.family_id:
+                    controlled_llm_planner_provider(FakeControlledLLMPlannerClient()),
+                QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY.family_id:
+                    llm_step_decomposition_planner_provider(FakeLLMPlannerClient()),
+            }
         client = self.build_llm_client()
         provider = llm_step_decomposition_planner_provider(client)
         # Phase A 要求当前 supported family 在 --planner llm 下全部走 LLM-backed

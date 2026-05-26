@@ -6,6 +6,8 @@ Planner draft JSON。
 - question_goals 是题面最终作答目标，不等于中间步骤。
 - planning_signals 只是上下文信号，不是解题目标。
 - 每个 method 的每个输入槽位只能从 slot_options 中选择 candidate_id。
+- 跨步骤输入只能引用前序已 promote 的输出，格式为 @step.<step_id>.<output_key>。
+- planner 声明的占位点只能用 @declaration.<scope_id>.<name> 绑定到 method 输入。
 - 不要输出答案值；只输出 declarations 和 ordered steps。
 
 同 family few-shot 示例：

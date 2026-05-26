@@ -13,6 +13,10 @@ from shuxueshuo_server.solver.runtime.config import (
     SolverRuntimeConfigError,
 )
 from shuxueshuo_server.solver.runtime.llm_clients import LLMClientConfigurationError
+from shuxueshuo_server.solver.runtime.context import ContextBuilder
+from shuxueshuo_server.solver.fixtures import load_problem_ir
+from shuxueshuo_server.solver.runtime.controlled_llm_planner import ControlledLLMPlanner
+from shuxueshuo_server.solver.runtime.llm_step_planner import LLMStepDecompositionPlanner
 
 
 ENV_KEYS = [
@@ -102,6 +106,23 @@ def test_fake_llm_provider_covers_supported_families() -> None:
     }
 
 
+def test_fake_llm_provider_uses_controlled_planner_for_nankai_only() -> None:
+    """D1 中南开 fake 走 controlled draft，河西 fake 暂留 legacy slice。"""
+    providers = SolverRuntimeConfig(planner_mode="llm", llm_provider="fake").build_planner_providers()
+    nankai_context = ContextBuilder().build(
+        load_problem_ir("../internal/solver-fixtures/tj-2026-nankai-yimo-25.json")
+    )
+    hexi_context = ContextBuilder().build(
+        load_problem_ir("../internal/solver-fixtures/tj-2026-hexi-yimo-25.json")
+    )
+
+    nankai_planner = providers[QUADRATIC_PATH_MINIMUM_FAMILY.family_id](nankai_context)
+    hexi_planner = providers[QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY.family_id](hexi_context)
+
+    assert isinstance(nankai_planner, ControlledLLMPlanner)
+    assert isinstance(hexi_planner, LLMStepDecompositionPlanner)
+
+
 def test_environment_blank_key_overrides_env_file(tmp_path, monkeypatch) -> None:
     """空环境变量应覆盖 .env，便于 CLI 测试模拟缺 key。"""
     env_file = tmp_path / ".env"
@@ -115,4 +136,3 @@ def test_environment_blank_key_overrides_env_file(tmp_path, monkeypatch) -> None
     )
 
     assert config.deepseek_api_key is None
-

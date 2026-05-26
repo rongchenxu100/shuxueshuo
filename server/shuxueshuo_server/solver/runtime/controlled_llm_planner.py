@@ -454,7 +454,10 @@ class AbstractPlanValidator:
         )
         slot_lookup = SlotBinder.index(slot_options)
         option_lookup = SlotBinder.option_index(slot_options)
+        declaration_paths = _declaration_paths(draft.context_declarations)
         step_ids: set[str] = set()
+        previous_outputs: dict[str, dict[str, str]] = {}
+        previous_promotes: dict[str, dict[str, str]] = {}
 
         for declaration in draft.context_declarations:
             self._validate_declaration(declaration, known_scopes)
@@ -470,6 +473,9 @@ class AbstractPlanValidator:
                 inputs.method_specs,
                 slot_lookup,
                 option_lookup,
+                previous_outputs,
+                previous_promotes,
+                declaration_paths,
             )
             self._validate_promote_to(
                 step,
@@ -479,6 +485,9 @@ class AbstractPlanValidator:
             )
             self._validate_depends_on(step, step_ids)
             step_ids.add(step.step_id)
+            spec = inputs.method_specs.require(step.method_id)
+            previous_outputs[step.step_id] = dict(spec.outputs)
+            previous_promotes[step.step_id] = dict(step.promote_to)
 
     def _validate_declaration(
         self,
@@ -510,8 +519,11 @@ class AbstractPlanValidator:
         specs: MethodSpecRegistry,
         slot_lookup: dict[tuple[str, str, str], SlotCandidate],
         option_lookup: dict[tuple[str, str], MethodSlotOptions],
+        previous_outputs: dict[str, dict[str, str]],
+        previous_promotes: dict[str, dict[str, str]],
+        declaration_paths: dict[tuple[str, str], str],
     ) -> None:
-        """校验 method 存在，bindings 覆盖必填输入且只使用候选 id。"""
+        """校验 method 存在，bindings 覆盖必填输入且只使用受控引用。"""
         try:
             spec = specs.require(step.method_id)
         except KeyError as exc:
@@ -529,6 +541,7 @@ class AbstractPlanValidator:
                     f"missing required input {input_name} for {step.method_id}"
                 )
         for input_name, candidate_id in step.bindings.items():
+            input_spec = spec.inputs[input_name]
             if not isinstance(candidate_id, str) or not candidate_id:
                 raise AbstractPlanValidationError(
                     f"binding {input_name} must be candidate id"
@@ -537,6 +550,22 @@ class AbstractPlanValidator:
                 raise AbstractPlanValidationError(
                     f"binding {input_name} must use candidate id, not raw ContextPath"
                 )
+            if candidate_id.startswith("@step."):
+                _validate_step_binding_ref(
+                    candidate_id,
+                    expected_type=input_spec.type,
+                    current_step_id=step.step_id,
+                    previous_outputs=previous_outputs,
+                    previous_promotes=previous_promotes,
+                )
+                continue
+            if candidate_id.startswith("@declaration."):
+                _validate_declaration_binding_ref(
+                    candidate_id,
+                    expected_type=input_spec.type,
+                    declaration_paths=declaration_paths,
+                )
+                continue
             option = option_lookup.get((step.method_id, input_name))
             if option is None:
                 raise AbstractPlanValidationError(
@@ -614,6 +643,7 @@ class PlanCompiler:
         """先做抽象校验，再生成 declarations 和 StepPlan。"""
         self.validator.validate(draft, inputs, slot_options)
         slot_lookup = SlotBinder.index(slot_options)
+        declaration_paths = _declaration_paths(draft.context_declarations)
         declarations = [
             ContextDeclaration(
                 path=declaration.path,
@@ -625,10 +655,20 @@ class PlanCompiler:
             )
             for declaration in draft.context_declarations
         ]
-        step_plans = [
-            self._compile_step(step, inputs.method_specs.require(step.method_id), slot_lookup)
-            for step in draft.steps
-        ]
+        step_plans: list[StepPlan] = []
+        previous_promotes: dict[str, dict[str, str]] = {}
+        for step in draft.steps:
+            spec = inputs.method_specs.require(step.method_id)
+            step_plans.append(
+                self._compile_step(
+                    step,
+                    spec,
+                    slot_lookup,
+                    declaration_paths,
+                    previous_promotes,
+                )
+            )
+            previous_promotes[step.step_id] = dict(step.promote_to)
         return PlannerOutput(
             context_declarations=declarations,
             step_plans=step_plans,
@@ -639,10 +679,19 @@ class PlanCompiler:
         step: LLMStepDraft,
         spec: MethodSpec,
         slot_lookup: dict[tuple[str, str, str], SlotCandidate],
+        declaration_paths: dict[tuple[str, str], str],
+        previous_promotes: dict[str, dict[str, str]],
     ) -> StepPlan:
         """把一个 LLMStepDraft 转为单 invocation 的 StepPlan。"""
         inputs = {
-            input_name: slot_lookup[(step.method_id, input_name, candidate_id)].path
+            input_name: _resolve_binding_path(
+                step.method_id,
+                input_name,
+                candidate_id,
+                slot_lookup,
+                declaration_paths,
+                previous_promotes,
+            )
             for input_name, candidate_id in step.bindings.items()
         }
         outputs = {
@@ -891,6 +940,108 @@ def _parse_string_list(raw: Any, label: str) -> list[str]:
     if not all(isinstance(value, str) for value in raw):
         raise AbstractPlanValidationError(f"{label} must contain strings")
     return [str(value) for value in raw]
+
+
+def _validate_step_binding_ref(
+    reference: str,
+    *,
+    expected_type: str,
+    current_step_id: str,
+    previous_outputs: dict[str, dict[str, str]],
+    previous_promotes: dict[str, dict[str, str]],
+) -> str:
+    """校验 ``@step.<step_id>.<output_key>``，并返回被引用输出的类型。"""
+    step_id, output_key = _parse_step_binding_ref(reference)
+    if step_id == current_step_id:
+        raise AbstractPlanValidationError(
+            f"step binding cannot reference itself: {reference}"
+        )
+    if step_id not in previous_outputs:
+        raise AbstractPlanValidationError(
+            f"step binding references unknown or future step: {reference}"
+        )
+    output_types = previous_outputs[step_id]
+    if output_key not in output_types:
+        raise AbstractPlanValidationError(
+            f"step binding references unknown output: {reference}"
+        )
+    if output_key not in previous_promotes.get(step_id, {}):
+        raise AbstractPlanValidationError(
+            f"step binding references unpromoted output: {reference}"
+        )
+    actual_type = output_types[output_key]
+    if not _type_compatible(expected_type, actual_type):
+        raise AbstractPlanValidationError(
+            f"step binding {reference} type mismatch: expected {expected_type}, got {actual_type}"
+        )
+    return actual_type
+
+
+def _validate_declaration_binding_ref(
+    reference: str,
+    *,
+    expected_type: str,
+    declaration_paths: dict[tuple[str, str], str],
+) -> str:
+    """校验 ``@declaration.<scope_id>.<name>``，并返回 PointRef 类型。"""
+    scope_id, name = _parse_declaration_binding_ref(reference)
+    if (scope_id, name) not in declaration_paths:
+        raise AbstractPlanValidationError(
+            f"declaration binding references unknown declaration: {reference}"
+        )
+    if not _type_compatible(expected_type, "PointRef"):
+        raise AbstractPlanValidationError(
+            f"declaration binding {reference} type mismatch: expected {expected_type}, got PointRef"
+        )
+    return "PointRef"
+
+
+def _parse_step_binding_ref(reference: str) -> tuple[str, str]:
+    """解析 ``@step.<step_id>.<output_key>``。"""
+    parts = reference.split(".")
+    if len(parts) != 3 or parts[0] != "@step" or not parts[1] or not parts[2]:
+        raise AbstractPlanValidationError(
+            f"invalid step binding reference: {reference}"
+        )
+    return parts[1], parts[2]
+
+
+def _parse_declaration_binding_ref(reference: str) -> tuple[str, str]:
+    """解析 ``@declaration.<scope_id>.<name>``。"""
+    parts = reference.split(".")
+    if len(parts) != 3 or parts[0] != "@declaration" or not parts[1] or not parts[2]:
+        raise AbstractPlanValidationError(
+            f"invalid declaration binding reference: {reference}"
+        )
+    return parts[1], parts[2]
+
+
+def _resolve_binding_path(
+    method_id: str,
+    input_name: str,
+    binding: str,
+    slot_lookup: dict[tuple[str, str, str], SlotCandidate],
+    declaration_paths: dict[tuple[str, str], str],
+    previous_promotes: dict[str, dict[str, str]],
+) -> str:
+    """把 candidate id / @step / @declaration 解析成真正 ContextPath。"""
+    if binding.startswith("@step."):
+        step_id, output_key = _parse_step_binding_ref(binding)
+        return previous_promotes[step_id][output_key]
+    if binding.startswith("@declaration."):
+        scope_id, name = _parse_declaration_binding_ref(binding)
+        return declaration_paths[(scope_id, name)]
+    return slot_lookup[(method_id, input_name, binding)].path
+
+
+def _declaration_paths(
+    declarations: tuple[ContextDeclarationDraft, ...],
+) -> dict[tuple[str, str], str]:
+    """按 ``(scope_id, name)`` 索引 draft declaration path。"""
+    return {
+        (declaration.scope_id, declaration.name): declaration.path
+        for declaration in declarations
+    }
 
 
 def _type_compatible(expected: str, actual: str) -> bool:

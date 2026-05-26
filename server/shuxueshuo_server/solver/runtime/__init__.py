@@ -44,6 +44,10 @@ from shuxueshuo_server.solver.runtime.controlled_llm_planner import (
     parse_planner_draft,
     summarize_slot_options,
 )
+from shuxueshuo_server.solver.runtime.controlled_llm_fakes import (
+    FakeControlledLLMPlannerClient,
+    controlled_llm_planner_provider,
+)
 from shuxueshuo_server.solver.runtime.executor import (
     DeclarationValidator,
     InvocationExecutor,
@@ -121,6 +125,7 @@ __all__ = [
     "AbstractStepPlan",
     "AbstractStepPlanCompiler",
     "ControlledLLMPlanner",
+    "FakeControlledLLMPlannerClient",
     "FakeLLMPlannerClient",
     "FewShotExampleLoader",
     "GenericPlanner",
@@ -172,6 +177,7 @@ __all__ = [
     "TypedValue",
     "VisibleContextPath",
     "default_stateless_registry",
+    "controlled_llm_planner_provider",
     "hexi25_abstract_steps",
     "llm_step_decomposition_planner_provider",
     "parse_planner_draft",
