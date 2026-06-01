@@ -13,6 +13,74 @@ from shuxueshuo_server.solver.problem_models import ProblemIR
 
 
 @dataclass(frozen=True)
+class RecipeExecutionSpec:
+    """Recipe 的可执行编排规格。
+
+    ``StepRecipeSpec`` 面向 LLM 展示“标准解题动作”，而这里描述 runtime 如何把这个
+    标准动作拆成 method 序列。它仍然是 family 级配置，不包含某道题的点名、分问 id
+    或答案值。
+    """
+
+    recipe_id: str
+    method_sequence: tuple[str, ...]
+    # 执行策略名只选择通用编译器分支，例如“单 method”“构造候选后筛选”。
+    # 它不是题号模板名，也不应该包含 D/M/N/F/G 这类具体点名。
+    execution_strategy: str = "single_method"
+    creates: tuple[str, ...] = ()
+    input_aliases: tuple[tuple[str, str], ...] = ()
+    intermediate_wiring: tuple[tuple[str, str], ...] = ()
+    output_aliases: tuple[tuple[str, str], ...] = ()
+
+
+@dataclass(frozen=True)
+class MethodInputBindingSpec:
+    """单个 method input slot 的语义选择规则。
+
+    ``selector`` 指向 runtime 中的一类通用选择器，例如“读取系数关系 fact”或“读取
+    当前 step 输出点的 PointRef”。method 专属的输入名留在 spec 中，避免在 runtime
+    主流程里写一串 method_id 分支。
+    """
+
+    input_name: str
+    selector: str
+    required: bool = True
+
+
+@dataclass(frozen=True)
+class MethodBindingRuleSpec:
+    """一个 method 的 declarative binding 规则。
+
+    ``input_bindings`` 负责固定 slot；``expansion_selectors`` 用于一次性补充一组
+    可选输入，例如 quadratic_from_constraints 的已知系数、参数值和曲线点。
+    """
+
+    method_id: str
+    input_bindings: tuple[MethodInputBindingSpec, ...] = ()
+    expansion_selectors: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class StepRecipeSpec:
+    """题型级“标准解题动作”规格。
+
+    Recipe 位于 method 之上，用来表达一个教学步骤常常需要的一组 method 能力，
+    例如“直角等腰构造候选点后再按约束筛选”。它只给 Strategy Planner 提供
+    菜单和正向引导，不直接决定执行结果；后续 resolver/trial 仍需要用可验算的
+    method 输出裁决。
+    """
+
+    recipe_id: str
+    goal_type: str
+    title: str
+    description: str
+    method_ids: tuple[str, ...] = ()
+    execution: RecipeExecutionSpec | None = None
+    # 首版只支持 preferred / None。preferred 用来告诉 LLM：这类题优先选择这个
+    # 标准路径，尤其用于路径最值，避免模型默认走参数化求导。
+    priority: str | None = None
+
+
+@dataclass(frozen=True)
 class FamilyMatchRule:
     """Family 的粗粒度匹配条件。
 
@@ -35,17 +103,23 @@ class SolverFamilySpec:
     """SolverFamily 的题型策略参考。
 
     ``SolverFamilySpec`` 给 Planner 提供“这类题通常怎么想”的上下文，例如常见
-    goal、关系模式和 method 能力提示。它不指定 planner，不写死分问答案结构，也
-    不包含任何具体题目的最终答案。
+    goal、策略原则、可用 method 菜单和标准 recipe 菜单。它不指定 planner，不写死
+    分问答案结构，也不包含任何具体题目的最终答案。
     """
 
     family_id: str
     match: FamilyMatchRule
     common_goal_types: tuple[str, ...] = ()
     strategy_principles: tuple[str, ...] = ()
-    relation_patterns: tuple[str, ...] = ()
-    method_capability_hints: tuple[str, ...] = ()
-    result_collection_policy: str = ""
+    # Intent Planner 用这个 allowlist 控制 prompt 中可见的 method 集合。它只是
+    # family 给 planner 的能力边界，不表示 family 指定某个 planner 或固定步骤。
+    method_ids: tuple[str, ...] = ()
+    # Recipe 是 family 级标准动作菜单。单 method 步骤可以直接用 method_id 作为
+    # recipe_hint，只有多个 method 组合或非常关键的标准用法才需要抽成 recipe。
+    step_recipes: tuple[StepRecipeSpec, ...] = ()
+    # Method binding 规则也是 family 级能力边界的一部分：LLM 只输出 canonical
+    # handles，runtime 通过这些规则把 handles 映射成 method input slots。
+    method_binding_rules: tuple[MethodBindingRuleSpec, ...] = ()
     enabled_problem_ids: tuple[str, ...] = field(default_factory=tuple)
 
     def supports(self, problem: ProblemIR) -> bool:

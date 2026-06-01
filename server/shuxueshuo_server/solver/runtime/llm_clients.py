@@ -1,8 +1,8 @@
 """LLM Planner client 协议与 OpenAI-compatible provider。
 
-Phase A 只实现 provider 接入层：把受控 payload 发送给兼容 OpenAI Chat
-Completions API 的模型，并取回 JSON 字符串。真正的 prompt 模板、SlotBinder、
-repair loop 会在后续阶段继续补齐。
+本模块只保留 provider 接入层：把调用方准备好的 Chat payload 发送给兼容
+OpenAI Chat Completions API 的模型，并取回 JSON 字符串。旧 LLM planner 已删除，
+新的 Strategy Planner 落地后会复用这一层 client。
 """
 
 from __future__ import annotations

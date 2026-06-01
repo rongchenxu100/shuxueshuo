@@ -43,6 +43,7 @@ def _planner_inputs(context) -> PlannerInputs:
         question_goals=extract_question_goals(context.problem),
         context_inventory=inventory,
         method_specs=specs,
+        original_text=dict(context.problem.original_text),
     )
 
 
@@ -63,6 +64,7 @@ def test_planner_inputs_carries_family_question_goals_inventory_and_specs() -> N
 
     assert inputs.problem_id == "tj-2026-nankai-yimo-25"
     assert inputs.family_spec is QUADRATIC_PATH_MINIMUM_FAMILY
+    assert "EG＋FG" in "\n".join(inputs.original_text["lines"])
     assert inputs.question_goals
     assert not hasattr(inputs, "planner_goals")
     assert inputs.context_inventory.planning_signals
@@ -133,6 +135,7 @@ def test_deterministic_planners_return_declarations_without_mutating_context() -
             MethodSpecRegistry.load_from_code(),
         ),
         method_specs=MethodSpecRegistry.load_from_code(),
+        original_text=dict(hexi_context.problem.original_text),
     )
     hexi_output = Hexi25WeightedPathPlannerV15(hexi_context).plan(hexi_inputs)
 

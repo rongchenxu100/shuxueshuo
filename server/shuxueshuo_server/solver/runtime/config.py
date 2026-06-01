@@ -8,7 +8,7 @@ provider map 交给 RuntimeOrchestrator。Orchestrator 本身不需要知道 Dee
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass, replace
+from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Literal
 
@@ -17,8 +17,6 @@ from dotenv import dotenv_values
 from shuxueshuo_server.solver.family import (
     DEFAULT_FAMILY_REGISTRY,
     FamilyRegistry,
-    QUADRATIC_PATH_MINIMUM_FAMILY,
-    QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
 )
 from shuxueshuo_server.solver.runtime.llm_clients import (
     DeepSeekPlannerClient,
@@ -61,6 +59,15 @@ class SolverRuntimeConfig:
     doubao_api_key: str | None = None
     doubao_base_url: str = DEFAULT_DOUBAO_BASE_URL
     doubao_model: str = DEFAULT_DOUBAO_MODEL
+    max_llm_attempts: int = 3
+    llm_debug_dir: str | None = None
+
+    def __post_init__(self) -> None:
+        """校验直接构造配置时的基础约束。"""
+        if self.max_llm_attempts < 1:
+            raise SolverRuntimeConfigError(
+                "max_llm_attempts must be a positive integer"
+            )
 
     @classmethod
     def from_sources(
@@ -69,6 +76,8 @@ class SolverRuntimeConfig:
         planner_mode: str | None = None,
         llm_provider: str | None = None,
         llm_model: str | None = None,
+        max_llm_attempts: str | int | None = None,
+        llm_debug_dir: str | None = None,
         env_file: Path | str | None = None,
     ) -> "SolverRuntimeConfig":
         """从 ``server/.env``、环境变量和 CLI 覆盖值构造配置。
@@ -104,72 +113,46 @@ class SolverRuntimeConfig:
             doubao_base_url=_clean(values.get("DOUBAO_BASE_URL"))
             or DEFAULT_DOUBAO_BASE_URL,
             doubao_model=_clean(values.get("DOUBAO_MODEL")) or DEFAULT_DOUBAO_MODEL,
+            max_llm_attempts=_resolve_positive_int(
+                cli_value=max_llm_attempts,
+                env_value=values.get("SOLVER_LLM_MAX_ATTEMPTS"),
+                default=3,
+                name="llm-max-attempts",
+            ),
+            llm_debug_dir=_clean(
+                cli_value_or_env(llm_debug_dir, values.get("SOLVER_LLM_DEBUG_DIR"))
+            ),
         )
 
     def build_planner_providers(self) -> dict[str, "PlannerProvider"]:
         """构造 RuntimeOrchestrator 可直接使用的 planner provider map。"""
-        from shuxueshuo_server.solver.runtime.controlled_llm_fakes import (
-            FakeControlledLLMPlannerClient,
-            controlled_llm_planner_provider,
-        )
-        from shuxueshuo_server.solver.runtime.llm_step_planner import (
-            llm_step_decomposition_planner_provider,
-        )
         from shuxueshuo_server.solver.runtime.orchestrator import (
             DEFAULT_PLANNER_PROVIDERS,
         )
 
         if self.planner_mode == "deterministic":
             return dict(DEFAULT_PLANNER_PROVIDERS)
-        if self.llm_provider == "fake":
-            # D2：fake LLM 用完整 controlled draft 覆盖当前两个 supported family。
-            # 真实 DeepSeek/Doubao 仍暂走 legacy step decomposition，等后续 prompt 和
-            # repair loop 稳定后再切到 controlled draft。
-            controlled_provider = controlled_llm_planner_provider(
-                FakeControlledLLMPlannerClient()
-            )
-            return {
-                QUADRATIC_PATH_MINIMUM_FAMILY.family_id: controlled_provider,
-                QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY.family_id: controlled_provider,
-            }
-        client = self.build_llm_client()
-        provider = llm_step_decomposition_planner_provider(client)
-        # Phase A 要求当前 supported family 在 --planner llm 下全部走 LLM-backed
-        # provider；没有 compiler 的 family 不能静默回退 deterministic。
-        return {
-            QUADRATIC_PATH_MINIMUM_FAMILY.family_id: provider,
-            QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY.family_id: provider,
-        }
+        # 旧的 LLM planner（step decomposition / controlled draft / intent draft）
+        # 已删除。这里保留 CLI/config 外壳，但在新 Strategy Planner 设计落地前，
+        # 明确拒绝 --planner llm，避免静默回退到 deterministic 造成误判。
+        raise SolverRuntimeConfigError(
+            "LLM planner has been removed; implement the new Strategy Planner before using --planner llm"
+        )
 
     def build_family_registry(self) -> FamilyRegistry:
         """按运行模式构造 family registry。
 
-        默认 deterministic 仍使用严格白名单，确保 alt-label 不会误走旧模板。只有
-        fake LLM controlled draft 模式下，才临时放开南开 alt-label 作为非 canonical
-        点名回归样例。
+        旧 fake/controlled LLM planner 删除后，不再为 LLM 模式临时放开 alt-label。
+        新 Strategy Planner 接入时，再由新的 registry 策略决定是否扩大支持范围。
         """
-        if self.planner_mode == "llm" and self.llm_provider == "fake":
-            path_family = replace(
-                QUADRATIC_PATH_MINIMUM_FAMILY,
-                enabled_problem_ids=(
-                    "tj-2026-nankai-yimo-25",
-                    "tj-2026-nankai-yimo-25-alt-labels",
-                ),
-            )
-            return FamilyRegistry((
-                path_family,
-                QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
-            ))
         return DEFAULT_FAMILY_REGISTRY
 
     def build_llm_client(self) -> LLMPlannerClient:
         """根据 provider 配置创建 LLM client。"""
         if self.llm_provider == "fake":
-            from shuxueshuo_server.solver.runtime.llm_step_planner import (
-                FakeLLMPlannerClient,
+            raise SolverRuntimeConfigError(
+                "fake LLM client is unavailable until the new Strategy Planner is implemented"
             )
-
-            return FakeLLMPlannerClient()
         if self.llm_provider == "deepseek":
             if not self.deepseek_api_key:
                 raise LLMClientConfigurationError(
@@ -223,6 +206,26 @@ def _resolve_choice(
         raise SolverRuntimeConfigError(
             f"invalid --{name}: {value!r}; expected one of {sorted(allowed)}"
         )
+    return value
+
+
+def _resolve_positive_int(
+    *,
+    cli_value: str | int | None,
+    env_value: str | None,
+    default: int,
+    name: str,
+) -> int:
+    """解析正整数配置，例如 LLM 总 attempt 预算。"""
+    raw = cli_value if cli_value is not None else env_value
+    if raw is None or str(raw).strip() == "":
+        return default
+    try:
+        value = int(str(raw).strip())
+    except ValueError as exc:
+        raise SolverRuntimeConfigError(f"invalid --{name}: {raw!r}; expected positive integer") from exc
+    if value < 1:
+        raise SolverRuntimeConfigError(f"invalid --{name}: {raw!r}; expected positive integer")
     return value
 
 

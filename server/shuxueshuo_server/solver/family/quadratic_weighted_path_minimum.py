@@ -27,21 +27,18 @@ QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         "几何构造点先列候选，再用点在抛物线上和参数约束筛选。",
         "加权路径最值优先寻找几何转化：用辅助直角三角形把加权段转成同倍率折线，再用折线拉直或等价最短路径处理。",
     ),
-    relation_patterns=(
-        "point_on_parabola",
-        "right_angle_equal_length",
-        "weighted_path_minimum_on_axis",
+    method_ids=(
+        "quadratic_from_constraints",
+        "quadratic_vertex_point",
+        "quadratic_y_axis_intercept_point",
+        "right_angle_equal_length_candidates",
+        "filter_point_candidates_by_quadratic_curve",
+        "select_curve_point_candidate_and_solve_coefficients",
+        "point_on_parabola_at_x",
+        "weighted_axis_path_triangle_transform",
+        "linked_broken_path_geometric_minimum",
     ),
-    method_capability_hints=(
-        "quadratic_coefficient_solving",
-        "right_angle_or_rotation_point_construction",
-        "weighted_path_triangle_transform",
-        "linked_broken_path_straightening",
-        "parameter_solving",
-    ),
-    result_collection_policy=(
-        "最终答案从 ProblemIR 的 question goals 及其 resolved target paths 收集。"
-    ),
+    step_recipes=(),
     # 河西 25 是 weighted family 的第一道完整 golden case。后续至少再通过一道
     # 同 family 题后，再考虑移除这个 deterministic slice 门控。
     enabled_problem_ids=("tj-2026-hexi-yimo-25",),

@@ -651,7 +651,16 @@ class ContextBuilder:
             )
         return TypedValue(
             "PointRef",
-            PointRef(name=name, path=path, definition=dict(raw), scope_id=scope_id),
+            PointRef(
+                name=name,
+                path=path,
+                # ``data.entities.points`` 现在也带 canonical Entity 元数据
+                # （handle/entity_type/scope_id/source）。这些字段是 ProblemIR
+                # 索引用的，不属于点的几何定义；写入 PointRef 前要过滤掉，
+                # 否则 ContextInventory 会把元数据误暴露成 definition 依赖。
+                definition=_point_definition_payload(raw),
+                scope_id=scope_id,
+            ),
             locked=False,
             source=f"point:{name}",
         )
@@ -662,6 +671,24 @@ def _format_path(scope: RuntimeScope, container: str, key: str) -> str:
     if scope.scope_type == "problem":
         return f"$problem.{container}.{key}"
     return f"${scope.scope_type}.{scope.scope_id}.{container}.{key}"
+
+
+def _point_definition_payload(raw: Mapping[str, Any]) -> dict[str, Any]:
+    """返回真正参与几何推导的点定义字段。
+
+    ``data.entities.points`` 既是当前 ContextBuilder 的兼容索引，也是
+    ProblemIR canonical Entity 的一部分。canonical 元数据不应进入
+    ``PointRef.definition``，因为后续 planner 只关心 ``definition/of/...``
+    这类几何含义字段。
+    """
+    payload = {
+        key: value
+        for key, value in raw.items()
+        if key not in {"handle", "entity_type", "scope_id"}
+    }
+    if str(payload.get("source", "")).startswith("ProblemIR."):
+        payload.pop("source", None)
+    return payload
 
 
 def parse_equation(

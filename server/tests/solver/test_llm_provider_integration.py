@@ -90,6 +90,7 @@ def test_real_llm_provider_complete_smoke(provider: str) -> None:
         f"provider={provider}\n"
         f"configured_model={model}\n"
         f"response_model={getattr(client, 'last_response_model', None)}\n"
+        f"usage={json.dumps(getattr(client, 'last_usage', None), ensure_ascii=False, sort_keys=True)}\n"
         f"llm_output={json.dumps(parsed, ensure_ascii=False, sort_keys=True)}"
     )
     assert parsed["ok"] is True

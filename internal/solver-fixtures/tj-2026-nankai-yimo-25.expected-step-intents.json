@@ -1,0 +1,345 @@
+{
+  "scopes": [
+    {
+      "scope_id": "i",
+      "label": "第（Ⅰ）问",
+      "steps": [
+        {
+          "step_id": "derive_D_coordinate",
+          "recipe_hint": "quadratic_axis_from_relation",
+          "goal_type": "derive_axis_point",
+          "target": "answer:i.axis_point",
+          "strategy": "由 2a+b=0 确定对称轴 x=1，再得到对称轴与 x 轴交点 D 的坐标。该坐标是全题公共结论，后续直接 reads 复用。",
+          "reads": [
+            "fact:problem:coefficient_relation",
+            "point:problem:D"
+          ],
+          "creates": [],
+          "produces": [
+            {
+              "handle": "fact:problem:D_coordinate_value",
+              "valid_scope": "problem",
+              "description": "D 的坐标结论，后续全题可用"
+            },
+            {
+              "handle": "answer:i.axis_point",
+              "valid_scope": "i",
+              "description": "第（Ⅰ）问 D 的坐标答案"
+            }
+          ],
+          "reason": "网页解法先用系数关系求出对称轴和 D 点，且 D 后续第（Ⅱ）问也要使用。"
+        },
+        {
+          "step_id": "derive_parabola_i",
+          "recipe_hint": "quadratic_from_constraints",
+          "goal_type": "derive_parabola",
+          "target": "answer:i.parabola",
+          "strategy": "代入第（Ⅰ）问给定的 a、c，并结合 2a+b=0 求 b，得到第（Ⅰ）问抛物线解析式。",
+          "reads": [
+            "function:problem:parabola",
+            "fact:problem:coefficient_relation",
+            "fact:i:a_value",
+            "fact:i:c_value"
+          ],
+          "creates": [],
+          "produces": [
+            {
+              "handle": "answer:i.parabola",
+              "valid_scope": "i",
+              "description": "第（Ⅰ）问抛物线解析式"
+            }
+          ],
+          "reason": "一个 step 只求抛物线解析式，不与 D 坐标混合。"
+        }
+      ]
+    },
+    {
+      "scope_id": "ii_1",
+      "label": "第（Ⅱ）①问",
+      "steps": [
+        {
+          "step_id": "construct_and_select_N",
+          "recipe_hint": "right_angle_equal_length_construct_and_select",
+          "goal_type": "derive_constructed_point",
+          "target": "fact:ii:N_coordinate_expr",
+          "strategy": "由 D、M 和直角等腰条件列出 N 的候选点，再用 N 在第四象限及 m>2 筛选唯一的 N 坐标表达式。",
+          "reads": [
+            "point:problem:D",
+            "point:ii:M",
+            "point:ii:N",
+            "fact:problem:D_coordinate_value",
+            "fact:problem:m_gt_2",
+            "fact:ii:M_coordinate_expr",
+            "fact:ii:N_fourth_quadrant",
+            "fact:ii:right_angle_equal_length_MDN"
+          ],
+          "creates": [
+            {
+              "handle": "point:ii:N_candidate1",
+              "entity_type": "point",
+              "valid_scope": "ii",
+              "description": "由直角等腰旋转得到的一个 N 候选点"
+            },
+            {
+              "handle": "point:ii:N_candidate2",
+              "entity_type": "point",
+              "valid_scope": "ii",
+              "description": "由直角等腰旋转得到的另一个 N 候选点"
+            }
+          ],
+          "produces": [
+            {
+              "handle": "fact:ii:N_coordinate_expr",
+              "valid_scope": "ii",
+              "description": "N 的坐标表达式，后续第（Ⅱ）①②均可用"
+            }
+          ],
+          "reason": "对应网页第（Ⅱ）① Step 1：用全等/旋转确定 N 的坐标。虽然展示在①中，但该结论只依赖第（Ⅱ）公共条件，所以 valid_scope 为 ii。"
+        },
+        {
+          "step_id": "solve_m_from_MN_length",
+          "recipe_hint": "parameter_from_segment_length",
+          "goal_type": "derive_parameter",
+          "target": "fact:ii_1:m_value",
+          "strategy": "由 MN^2=10 和 M、N 的坐标表达式列距离方程，并结合 m>2 筛选 m。",
+          "reads": [
+            "fact:problem:m_gt_2",
+            "fact:ii:M_coordinate_expr",
+            "fact:ii:N_coordinate_expr",
+            "fact:ii_1:MN_length_squared_eq_10"
+          ],
+          "creates": [],
+          "produces": [
+            {
+              "handle": "fact:ii_1:m_value",
+              "valid_scope": "ii_1",
+              "description": "第（Ⅱ）①问由 MN 长度条件求出的 m 值"
+            }
+          ],
+          "reason": "对应网页 Step q1s2：先由 MN=sqrt(10) 求 m。"
+        },
+        {
+          "step_id": "derive_parabola_ii_1",
+          "recipe_hint": "quadratic_from_constraints",
+          "goal_type": "derive_parabola",
+          "target": "answer:ii_1.parabola",
+          "strategy": "把第（Ⅱ）①问的 m 值代入 M、N 在抛物线上的条件，并结合 b=-2a，得到第（Ⅱ）①问抛物线解析式。",
+          "reads": [
+            "function:problem:parabola",
+            "fact:problem:coefficient_relation",
+            "fact:ii:M_on_parabola",
+            "fact:ii:N_on_parabola",
+            "fact:ii:M_coordinate_expr",
+            "fact:ii:N_coordinate_expr",
+            "fact:ii_1:m_value"
+          ],
+          "creates": [],
+          "produces": [
+            {
+              "handle": "answer:ii_1.parabola",
+              "valid_scope": "ii_1",
+              "description": "第（Ⅱ）①问抛物线解析式"
+            }
+          ],
+          "reason": "网页 Step q1s2 在求出 m 后确定解析式。"
+        },
+        {
+          "step_id": "reduce_two_moving_points_path",
+          "recipe_hint": "two_moving_points_path_reduction",
+          "goal_type": "reduce_path_expression",
+          "target": "fact:ii:path_reduction_EGFG_to_DGFG",
+          "strategy": "利用 E 在线段 DM、G 在线段 MN、DE=sqrt(2)*NG 以及辅助垂线证明 EG=DG，把 EG+FG 转化为 DG+FG。",
+          "reads": [
+            "fact:problem:D_coordinate_value",
+            "fact:ii:M_coordinate_expr",
+            "fact:ii:N_coordinate_expr",
+            "fact:ii:F_midpoint_of_DN",
+            "fact:ii:segment_E_on_DM",
+            "fact:ii:segment_G_on_MN",
+            "fact:ii:segment_DE_eq_sqrt2_NG",
+            "fact:ii:path_minimum_target"
+          ],
+          "creates": [
+            {
+              "handle": "point:ii:H",
+              "entity_type": "point",
+              "valid_scope": "ii",
+              "description": "G 到 DN 的垂足，用于证明 EG=DG"
+            },
+            {
+              "handle": "point:ii:K",
+              "entity_type": "point",
+              "valid_scope": "ii",
+              "description": "G 到 DM 的垂足，用于证明 GK 垂直平分 DE"
+            }
+          ],
+          "produces": [
+            {
+              "handle": "fact:ii:EG_eq_DG",
+              "valid_scope": "ii",
+              "description": "由辅助垂线证明 EG=DG"
+            },
+            {
+              "handle": "fact:ii:path_reduction_EGFG_to_DGFG",
+              "valid_scope": "ii",
+              "description": "路径 EG+FG 等价转化为 DG+FG"
+            }
+          ],
+          "reason": "对应网页 Step q1s3：先把两动点路径问题转化成单动点折线路径；虽然展示在①中，但该转化对第（Ⅱ）②同样可复用。"
+        },
+        {
+          "step_id": "straighten_broken_path",
+          "recipe_hint": "broken_path_straightening_and_select",
+          "goal_type": "straighten_broken_path",
+          "target": "fact:ii:straightened_path_choice",
+          "strategy": "以 DM、DN 为邻边作正方形 DMD_primeN，使 D 与 D_prime 关于 MN 对称；G 在 MN 上，因此 DG=D_primeG，把 DG+FG 拉直为 D_primeG+FG。",
+          "reads": [
+            "fact:problem:D_coordinate_value",
+            "fact:ii:N_coordinate_expr",
+            "fact:ii:F_midpoint_of_DN",
+            "fact:ii:segment_G_on_MN",
+            "fact:ii:path_reduction_EGFG_to_DGFG"
+          ],
+          "creates": [
+            {
+              "handle": "point:ii:D_prime",
+              "entity_type": "point",
+              "valid_scope": "ii",
+              "description": "以 DM、DN 为邻边作正方形后的第四个顶点，也是 D 关于 MN 的对称点"
+            }
+          ],
+          "produces": [
+            {
+              "handle": "fact:ii:straightened_path_choice",
+              "valid_scope": "ii",
+              "description": "选择 D_prime 作为拉直辅助点，最短路径转化为线段 D_primeF"
+            }
+          ],
+          "reason": "对应网页 Step q1s4：用将军饮马思想选择 D 的对称点；该拉直方案可被第（Ⅱ）②复用。"
+        },
+        {
+          "step_id": "derive_path_minimum_expression",
+          "recipe_hint": "path_minimum_by_straightened_distance",
+          "goal_type": "derive_minimum_value",
+          "target": "fact:ii:path_minimum_expr_in_m",
+          "strategy": "在 D_prime、G、F 共线时，D_primeG+FG 最小，最小值为 D_primeF，求出关于 m 的最小值表达式。",
+          "reads": [
+            "point:ii:D_prime",
+            "fact:ii:straightened_path_choice",
+            "fact:ii:F_midpoint_of_DN",
+            "fact:ii:N_coordinate_expr",
+            "fact:problem:D_coordinate_value",
+            "symbol:problem:m"
+          ],
+          "creates": [],
+          "produces": [
+            {
+              "handle": "fact:ii:path_minimum_expr_in_m",
+              "valid_scope": "ii",
+              "description": "EG+FG 的最小值表达式，关于 m"
+            }
+          ],
+          "reason": "折线拉直后，最小值表达式必须单独由 D_primeF 的距离得到；该表达式可被第（Ⅱ）①②复用。"
+        },
+        {
+          "step_id": "compute_minimum_value_ii_1",
+          "recipe_hint": "distance_between_points",
+          "goal_type": "derive_minimum_value",
+          "target": "answer:ii_1.minimum_value",
+          "strategy": "把第（Ⅱ）①问的 m 值代入公共最小值表达式，得到 EG+FG 的最小值。",
+          "reads": [
+            "fact:ii:path_minimum_expr_in_m",
+            "fact:ii_1:m_value"
+          ],
+          "creates": [],
+          "produces": [
+            {
+              "handle": "answer:ii_1.minimum_value",
+              "valid_scope": "ii_1",
+              "description": "第（Ⅱ）①问 EG+FG 的最小值"
+            }
+          ],
+          "reason": "网页 Step q1s4 的最小值结论在 m=3 时给出第（Ⅱ）①问答案。"
+        }
+      ]
+    },
+    {
+      "scope_id": "ii_2",
+      "label": "第（Ⅱ）②问",
+      "steps": [
+        {
+          "step_id": "solve_m_from_given_minimum",
+          "recipe_hint": "parameter_from_minimum_value",
+          "goal_type": "derive_parameter",
+          "target": "fact:ii_2:m_value",
+          "strategy": "直接 reads 第（Ⅱ）①中已产生且 valid_scope 为 ii 的公共最小值表达式，把题目给出的 EG+FG 最小值代入，结合 m>2 反求 m。",
+          "reads": [
+            "fact:problem:m_gt_2",
+            "fact:ii:path_minimum_expr_in_m",
+            "fact:ii_2:path_minimum_value_given"
+          ],
+          "creates": [],
+          "produces": [
+            {
+              "handle": "fact:ii_2:m_value",
+              "valid_scope": "ii_2",
+              "description": "第（Ⅱ）②问由最小值条件反求出的 m 值"
+            }
+          ],
+          "reason": "对应网页第（Ⅱ）② Step 1：用一般最小值公式反推 m。"
+        },
+        {
+          "step_id": "derive_parabola_ii_2",
+          "recipe_hint": "quadratic_from_constraints",
+          "goal_type": "derive_parabola",
+          "target": "answer:ii_2.parabola",
+          "strategy": "把第（Ⅱ）②问的 m 值代入 M、N 在抛物线上的条件，并结合 b=-2a，得到本问抛物线解析式。",
+          "reads": [
+            "function:problem:parabola",
+            "fact:problem:coefficient_relation",
+            "fact:ii:M_on_parabola",
+            "fact:ii:N_on_parabola",
+            "fact:ii:M_coordinate_expr",
+            "fact:ii:N_coordinate_expr",
+            "fact:ii_2:m_value"
+          ],
+          "creates": [],
+          "produces": [
+            {
+              "handle": "answer:ii_2.parabola",
+              "valid_scope": "ii_2",
+              "description": "第（Ⅱ）②问抛物线解析式"
+            }
+          ],
+          "reason": "网页第（Ⅱ）② Step 1 在求出 m 后得到解析式。"
+        },
+        {
+          "step_id": "derive_G_coordinate_ii_2",
+          "recipe_hint": "line_intersection_point",
+          "goal_type": "derive_extremal_point",
+          "target": "answer:ii_2.intersection",
+          "strategy": "最短时 D_prime、G、F 三点共线，G 又在线段 MN 上；求直线 MN 与直线 D_primeF 的交点得到 G 坐标。",
+          "reads": [
+            "point:ii:G",
+            "point:ii:D_prime",
+            "segment:ii:MN",
+            "fact:ii:straightened_path_choice",
+            "fact:ii:M_coordinate_expr",
+            "fact:ii:N_coordinate_expr",
+            "fact:ii:F_midpoint_of_DN",
+            "fact:ii_2:m_value"
+          ],
+          "creates": [],
+          "produces": [
+            {
+              "handle": "answer:ii_2.intersection",
+              "valid_scope": "ii_2",
+              "description": "第（Ⅱ）②问最短路径对应的 G 坐标"
+            }
+          ],
+          "reason": "对应网页第（Ⅱ）② Step 2：最短时 G 是 MN 与 D_primeF 的交点。"
+        }
+      ]
+    }
+  ]
+}

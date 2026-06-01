@@ -7,7 +7,11 @@ family 包只承载题型级 spec 和 registry，不执行求解。通用 Runtim
 from shuxueshuo_server.solver.family.models import (
     FamilyMatchRule,
     FamilyRegistry,
+    MethodBindingRuleSpec,
+    MethodInputBindingSpec,
+    RecipeExecutionSpec,
     SolverFamilySpec,
+    StepRecipeSpec,
 )
 from shuxueshuo_server.solver.family.quadratic_path_minimum import (
     QUADRATIC_PATH_MINIMUM_FAMILY,
@@ -25,7 +29,11 @@ __all__ = [
     "DEFAULT_FAMILY_REGISTRY",
     "FamilyMatchRule",
     "FamilyRegistry",
+    "MethodBindingRuleSpec",
+    "MethodInputBindingSpec",
     "QUADRATIC_PATH_MINIMUM_FAMILY",
     "QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY",
+    "RecipeExecutionSpec",
     "SolverFamilySpec",
+    "StepRecipeSpec",
 ]

@@ -203,10 +203,12 @@ class PlanValidator:
                     from_scope_id=invocation.scope,
                     expected_type=input_spec.type,
                 )
-        for output_name, output_type in spec.outputs.items():
-            raw_path = invocation.outputs.get(output_name)
-            if raw_path is None:
-                raise ValueError(f"missing required output: {output_name}")
+        unknown_outputs = sorted(set(invocation.outputs) - set(spec.outputs))
+        if unknown_outputs:
+            raise ValueError(f"unknown invocation outputs: {unknown_outputs}")
+        if not invocation.outputs:
+            raise ValueError("invocation must declare at least one output")
+        for output_name, raw_path in invocation.outputs.items():
             if not isinstance(raw_path, str) or not raw_path.startswith("$"):
                 raise ValueError(f"output {output_name} must be a ContextPath")
             path = ContextPath.parse(raw_path)

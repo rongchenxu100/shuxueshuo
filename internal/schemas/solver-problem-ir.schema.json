@@ -59,7 +59,7 @@
         },
         "data": {
           "type": "object",
-          "required": ["function", "entities", "relations", "questions"],
+          "required": ["function", "entities", "facts", "relations", "questions"],
           "additionalProperties": true,
           "properties": {
             "function": {
@@ -92,9 +92,14 @@
             },
             "entities": {
               "type": "object",
-              "required": ["points"],
+              "required": ["items", "points"],
               "additionalProperties": true,
               "properties": {
+                "items": {
+                  "type": "array",
+                  "items": { "$ref": "#/$defs/entity" },
+                  "minItems": 1
+                },
                 "points": {
                   "type": "object",
                   "additionalProperties": {
@@ -103,6 +108,11 @@
                   }
                 }
               }
+            },
+            "facts": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/fact" },
+              "minItems": 1
             },
             "relations": {
               "type": "array",
@@ -157,6 +167,50 @@
         "target_path": { "type": "string", "pattern": "^\\$" },
         "value_type": { "type": "string", "minLength": 1 },
         "required": { "type": "boolean" }
+      }
+    },
+    "entity": {
+      "type": "object",
+      "required": ["handle", "entity_type", "name", "scope_id", "source", "description"],
+      "additionalProperties": true,
+      "properties": {
+        "handle": {
+          "type": "string",
+          "pattern": "^(point|line|segment|ray|function|symbol|angle|circle|polygon):[A-Za-z0-9_]+:[A-Za-z0-9_]+$"
+        },
+        "entity_type": {
+          "enum": [
+            "point",
+            "line",
+            "segment",
+            "ray",
+            "function",
+            "symbol",
+            "angle",
+            "circle",
+            "polygon"
+          ]
+        },
+        "name": { "type": "string", "minLength": 1 },
+        "scope_id": { "type": "string", "minLength": 1 },
+        "source": { "type": "string", "minLength": 1 },
+        "description": { "type": "string", "minLength": 1 }
+      }
+    },
+    "fact": {
+      "type": "object",
+      "required": ["handle", "type", "scope_id", "valid_scope", "source", "description"],
+      "additionalProperties": true,
+      "properties": {
+        "handle": {
+          "type": "string",
+          "pattern": "^fact:[A-Za-z0-9_]+:[A-Za-z0-9_]+$"
+        },
+        "type": { "type": "string", "minLength": 1 },
+        "scope_id": { "type": "string", "minLength": 1 },
+        "valid_scope": { "type": "string", "minLength": 1 },
+        "source": { "type": "string", "minLength": 1 },
+        "description": { "type": "string", "minLength": 1 }
       }
     }
   }

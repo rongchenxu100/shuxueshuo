@@ -42,7 +42,18 @@ class SelectStraighteningCandidateMethod:
             )
             for _, _, candidate in scores
         )
-        target_matches = selected["reflected_point_name"] == target.name
+        # LLM Planner 可能只声明“一个拉直辅助点”，例如 Aux，而不是提前知道它
+        # 最终会是哪个点的对称点。此时只要 target 的定义说明它是折线拉直辅助点，
+        # 就允许由候选选择结果来决定具体几何身份；固定命名的 deterministic planner
+        # 仍然会走严格名称匹配。
+        target_is_generic_auxiliary = (
+            target.definition.get("definition") == "straightening_auxiliary_point"
+            or target.name.lower() in {"aux", "auxiliary"}
+        )
+        target_matches = (
+            selected["reflected_point_name"] == target.name
+            or target_is_generic_auxiliary
+        )
         return StatelessMethodResult(
             method_id=self.method_id,
             outputs={

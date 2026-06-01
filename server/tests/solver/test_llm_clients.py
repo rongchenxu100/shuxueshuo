@@ -31,6 +31,7 @@ class _FakeOpenAIClient:
                 completion_tokens=2,
                 total_tokens=12,
             ),
+            model="provider-model-version",
         )
 
 
@@ -66,6 +67,7 @@ def test_deepseek_client_uses_openai_compatible_arguments() -> None:
         "completion_tokens": 2,
         "total_tokens": 12,
     }
+    assert client.last_response_model == "provider-model-version"
 
 
 def test_doubao_client_uses_single_model_configuration() -> None:

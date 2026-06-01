@@ -91,6 +91,51 @@ def test_hexi_fixture_goals_only_include_problem_asks() -> None:
     ]
 
 
+@pytest.mark.parametrize("fixture_path", FIXTURES)
+def test_solver_fixtures_store_first_class_entities_and_facts(fixture_path: Path) -> None:
+    """ProblemIR 必须显式保存 canonical Entity / Fact，而不是运行时临时推导。"""
+    fixture = json.loads(fixture_path.read_text(encoding="utf-8"))
+    data = fixture["input"]["data"]
+    entities = data["entities"]["items"]
+    facts = data["facts"]
+
+    entity_handles = [entity["handle"] for entity in entities]
+    fact_handles = [fact["handle"] for fact in facts]
+
+    assert entity_handles
+    assert fact_handles
+    assert len(entity_handles) == len(set(entity_handles))
+    assert len(fact_handles) == len(set(fact_handles))
+    assert all(re.match(r"^(point|line|segment|ray|function|symbol|angle|circle|polygon):", handle) for handle in entity_handles)
+    assert all(handle.startswith("fact:") for handle in fact_handles)
+    assert not any(handle.startswith(("value:", "relation:", "condition:", "constraint:")) for handle in entity_handles + fact_handles)
+
+    for entity in entities:
+        expected = f"{entity['entity_type']}:{entity['scope_id']}:{entity['name']}"
+        assert entity["handle"] == expected
+        assert entity["source"]
+        assert entity["description"]
+
+    for fact in facts:
+        assert fact["handle"].startswith(f"fact:{fact['scope_id']}:")
+        assert fact["valid_scope"]
+        assert fact["source"]
+        assert fact["description"]
+
+
+@pytest.mark.parametrize("fixture_path", FIXTURES)
+def test_legacy_point_index_also_carries_canonical_entity_metadata(fixture_path: Path) -> None:
+    """保留给 ContextBuilder 的 points 索引也必须带 canonical 元数据。"""
+    fixture = json.loads(fixture_path.read_text(encoding="utf-8"))
+    points = fixture["input"]["data"]["entities"]["points"]
+
+    for point_name, point in points.items():
+        assert point["handle"].endswith(f":{point_name}")
+        assert point["entity_type"] == "point"
+        assert point["scope_id"]
+        assert point["source"] == "ProblemIR.data.entities.points"
+
+
 def test_nankai_fixture_preserves_original_question_structure() -> None:
     fixture = json.loads(FIXTURES[0].read_text(encoding="utf-8"))
     data = fixture["input"]["data"]
@@ -119,6 +164,14 @@ def test_nankai_fixture_uses_neutral_right_angle_relation() -> None:
     )
     assert relation["angle"] == ["M", "D", "N"]
     assert relation["equal_segments"] == [["D", "M"], ["D", "N"]]
+
+    fact_handles = {fact["handle"] for fact in data["facts"]}
+    entity_handles = {entity["handle"] for entity in data["entities"]["items"]}
+    assert "point:ii:E" in entity_handles
+    assert "point:ii:G" in entity_handles
+    assert "fact:ii:right_angle_equal_length_MDN" in fact_handles
+    assert "fact:ii:segment_E_on_DM" in fact_handles
+    assert "fact:ii:segment_G_on_MN" in fact_handles
 
 
 def assert_no_chinese_keys(value: object) -> None:

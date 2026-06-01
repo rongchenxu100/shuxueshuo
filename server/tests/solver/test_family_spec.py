@@ -56,6 +56,8 @@ def test_family_spec_keeps_planner_and_answer_shape_out_of_spec() -> None:
 
     assert "answer_schema" not in field_names
     assert "planner_id" not in field_names
+    assert "method_capability_hints" not in field_names
+    assert "result_collection_policy" not in field_names
     assert not hasattr(QUADRATIC_PATH_MINIMUM_FAMILY, "answer_schema")
     assert not hasattr(QUADRATIC_PATH_MINIMUM_FAMILY, "planner_id")
 
@@ -66,9 +68,49 @@ def test_family_spec_contains_only_family_level_context() -> None:
     assert "derive_parabola" in spec.common_goal_types
     assert "derive_parameter" in spec.common_goal_types
     assert spec.strategy_principles
-    assert "right_angle_equal_length" in spec.relation_patterns
-    assert "path_reduction" in spec.method_capability_hints
-    assert "question goals" in spec.result_collection_policy
+    assert "quadratic_from_constraints" in spec.method_ids
+    recipe_ids = {recipe.recipe_id for recipe in spec.step_recipes}
+    assert "right_angle_equal_length_construct_and_select" in recipe_ids
+    assert "two_moving_points_path_reduction" in recipe_ids
+    assert any(recipe.priority == "preferred" for recipe in spec.step_recipes)
+    assert spec.method_binding_rules
+
+
+def test_path_family_recipes_include_execution_specs() -> None:
+    """Recipe 执行序列应跟随 FamilySpec，而不是只存在 runtime default 表里。"""
+    recipes = {
+        recipe.recipe_id: recipe
+        for recipe in QUADRATIC_PATH_MINIMUM_FAMILY.step_recipes
+    }
+
+    right_angle = recipes["right_angle_equal_length_construct_and_select"]
+    assert right_angle.execution is not None
+    assert right_angle.execution.method_sequence == (
+        "right_angle_equal_length_candidates",
+        "select_point_by_quadrant_constraint",
+    )
+    assert right_angle.execution.execution_strategy == "right_angle_construct_select"
+
+    straightening = recipes["broken_path_straightening_and_select"]
+    assert straightening.execution is not None
+    assert straightening.execution.execution_strategy == "straightening_candidates_select"
+
+
+def test_path_family_binding_rules_are_declared_in_spec() -> None:
+    """南开相关 method 的 slot 绑定规则应由 FamilySpec 提供。"""
+    rules = {
+        rule.method_id: rule
+        for rule in QUADRATIC_PATH_MINIMUM_FAMILY.method_binding_rules
+    }
+
+    assert "quadratic_axis_from_relation" in rules
+    assert "two_moving_points_path_reduction" in rules
+    axis_selectors = {
+        binding.input_name: binding.selector
+        for binding in rules["quadratic_axis_from_relation"].input_bindings
+    }
+    assert axis_selectors["target"] == "point_output_ref"
+    assert axis_selectors["coefficient_relation"] == "fact:coefficient_relation:Equation"
 
 
 def test_family_registry_matches_supported_problem_only() -> None:

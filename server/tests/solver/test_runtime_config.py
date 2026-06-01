@@ -2,10 +2,6 @@ from __future__ import annotations
 
 import pytest
 
-from shuxueshuo_server.solver.family import (
-    QUADRATIC_PATH_MINIMUM_FAMILY,
-    QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
-)
 from shuxueshuo_server.solver.runtime.config import (
     DEFAULT_DEEPSEEK_BASE_URL,
     DEFAULT_DEEPSEEK_MODEL,
@@ -13,15 +9,15 @@ from shuxueshuo_server.solver.runtime.config import (
     SolverRuntimeConfigError,
 )
 from shuxueshuo_server.solver.runtime.llm_clients import LLMClientConfigurationError
-from shuxueshuo_server.solver.runtime.context import ContextBuilder
 from shuxueshuo_server.solver.fixtures import load_problem_ir
-from shuxueshuo_server.solver.runtime.controlled_llm_planner import ControlledLLMPlanner
 
 
 ENV_KEYS = [
     "SOLVER_PLANNER_MODE",
     "SOLVER_LLM_PROVIDER",
     "SOLVER_LLM_MODEL",
+    "SOLVER_LLM_MAX_ATTEMPTS",
+    "SOLVER_LLM_DEBUG_DIR",
     "DEEPSEEK_API_KEY",
     "DEEPSEEK_BASE_URL",
     "DEEPSEEK_MODEL",
@@ -46,6 +42,8 @@ def test_runtime_config_defaults_to_deterministic(tmp_path) -> None:
     assert config.llm_provider == "deepseek"
     assert config.deepseek_base_url == DEFAULT_DEEPSEEK_BASE_URL
     assert config.deepseek_model == DEFAULT_DEEPSEEK_MODEL
+    assert config.max_llm_attempts == 3
+    assert config.llm_debug_dir is None
 
 
 def test_runtime_config_cli_overrides_env_file(tmp_path) -> None:
@@ -67,6 +65,8 @@ def test_runtime_config_cli_overrides_env_file(tmp_path) -> None:
         planner_mode="llm",
         llm_provider="deepseek",
         llm_model="cli-model",
+        max_llm_attempts=2,
+        llm_debug_dir="../debug",
         env_file=env_file,
     )
 
@@ -74,6 +74,8 @@ def test_runtime_config_cli_overrides_env_file(tmp_path) -> None:
     assert config.llm_provider == "deepseek"
     assert config.llm_model == "cli-model"
     assert config.deepseek_api_key == "env-key"
+    assert config.max_llm_attempts == 2
+    assert config.llm_debug_dir == "../debug"
 
 
 def test_runtime_config_rejects_invalid_choice(tmp_path) -> None:
@@ -93,46 +95,23 @@ def test_llm_config_requires_provider_api_key() -> None:
         config.build_llm_client()
 
 
-def test_fake_llm_provider_covers_supported_families() -> None:
-    """--planner llm 的 fake provider 必须覆盖当前两个 supported family。"""
+def test_llm_planner_provider_is_temporarily_disabled() -> None:
+    """旧 LLM planner 删除后，--planner llm 不能静默回退 deterministic。"""
     config = SolverRuntimeConfig(planner_mode="llm", llm_provider="fake")
 
-    providers = config.build_planner_providers()
-
-    assert set(providers) == {
-        QUADRATIC_PATH_MINIMUM_FAMILY.family_id,
-        QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY.family_id,
-    }
+    with pytest.raises(SolverRuntimeConfigError, match="new Strategy Planner"):
+        config.build_planner_providers()
 
 
-def test_fake_llm_provider_uses_controlled_planner_for_supported_families() -> None:
-    """D2 中 fake LLM 两个 supported family 都走 controlled draft。"""
-    providers = SolverRuntimeConfig(planner_mode="llm", llm_provider="fake").build_planner_providers()
-    nankai_context = ContextBuilder().build(
-        load_problem_ir("../internal/solver-fixtures/tj-2026-nankai-yimo-25.json")
-    )
-    hexi_context = ContextBuilder().build(
-        load_problem_ir("../internal/solver-fixtures/tj-2026-hexi-yimo-25.json")
-    )
-
-    nankai_planner = providers[QUADRATIC_PATH_MINIMUM_FAMILY.family_id](nankai_context)
-    hexi_planner = providers[QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY.family_id](hexi_context)
-
-    assert isinstance(nankai_planner, ControlledLLMPlanner)
-    assert isinstance(hexi_planner, ControlledLLMPlanner)
-
-
-def test_fake_llm_family_registry_allows_alt_label_without_changing_default() -> None:
-    """alt-label 只在 fake LLM registry 中放开，默认 deterministic 仍拒绝。"""
+def test_llm_family_registry_no_longer_relaxes_alt_label_gate() -> None:
+    """旧 fake LLM 删除后，alt-label 不再被临时放开。"""
     alt = load_problem_ir("../internal/solver-fixtures/tj-2026-nankai-yimo-25-alt-labels.json")
 
     deterministic = SolverRuntimeConfig().build_family_registry()
-    fake = SolverRuntimeConfig(planner_mode="llm", llm_provider="fake").build_family_registry()
+    llm = SolverRuntimeConfig(planner_mode="llm", llm_provider="fake").build_family_registry()
 
     assert deterministic.match(alt) is None
-    matched = fake.match(alt)
-    assert matched is not None
-    assert matched.family_id == QUADRATIC_PATH_MINIMUM_FAMILY.family_id
+    assert llm.match(alt) is None
 
 
 def test_environment_blank_key_overrides_env_file(tmp_path, monkeypatch) -> None:
@@ -148,3 +127,14 @@ def test_environment_blank_key_overrides_env_file(tmp_path, monkeypatch) -> None
     )
 
     assert config.deepseek_api_key is None
+
+
+def test_runtime_config_rejects_invalid_max_llm_attempts(tmp_path) -> None:
+    """LLM attempt 预算必须是正整数。"""
+    with pytest.raises(SolverRuntimeConfigError, match="llm-max-attempts"):
+        SolverRuntimeConfig.from_sources(
+            planner_mode="llm",
+            llm_provider="fake",
+            max_llm_attempts=0,
+            env_file=tmp_path / ".env",
+        )

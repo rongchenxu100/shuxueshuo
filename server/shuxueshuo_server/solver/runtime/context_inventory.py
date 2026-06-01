@@ -99,9 +99,20 @@ class PlanningSignalEntry:
 
 
 @dataclass(frozen=True)
+class ScopeInventoryEntry:
+    """Planner 可见的 scope 层级与读取关系摘要。"""
+
+    scope_id: str
+    scope_type: str
+    parent_id: str
+    can_read_scope_ids: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
 class ContextInventory:
     """RuntimeContext 的只读规划索引。"""
 
+    scope_hierarchy: tuple[ScopeInventoryEntry, ...] = ()
     visible_paths: tuple[VisibleContextPath, ...] = ()
     relation_graph: tuple[RelationGraphEntry, ...] = ()
     constraints: tuple[ConstraintInventoryEntry, ...] = ()
@@ -158,12 +169,35 @@ class ContextInventoryBuilder:
         relation_graph = tuple(self._relation_graph(context))
         constraints = tuple(self._constraints(context))
         return ContextInventory(
+            scope_hierarchy=tuple(self._scope_hierarchy(context)),
             visible_paths=visible_paths,
             relation_graph=relation_graph,
             constraints=constraints,
             planning_signals=tuple(self._planning_signals(context, relation_graph)),
             method_candidates=tuple(self._method_candidates(method_specs)),
         )
+
+    def _scope_hierarchy(self, context: RuntimeContext) -> list[ScopeInventoryEntry]:
+        """把 RuntimeContext 的 scope 树和可读 scope 摘出来给 Planner。
+
+        LLM 不需要知道 RuntimeScope 的完整对象，但需要直观看到：``ii_1`` 能读
+        ``ii/problem``，不能读 sibling ``ii_2``。这个摘要只用于 prompt 和调试。
+        """
+        entries: list[ScopeInventoryEntry] = []
+        for scope_id, scope in context.scopes.items():
+            entries.append(
+                ScopeInventoryEntry(
+                    scope_id=scope_id,
+                    scope_type=scope.scope_type,
+                    parent_id=scope.parent_id,
+                    can_read_scope_ids=tuple(
+                        target_id
+                        for target_id in context.scopes
+                        if context.is_visible(scope_id, target_id)
+                    ),
+                )
+            )
+        return entries
 
     def _visible_paths(self, context: RuntimeContext) -> list[VisibleContextPath]:
         """枚举所有 scope 容器中的 typed value。"""
@@ -330,6 +364,28 @@ def _readable_from(context: RuntimeContext, target_scope_id: str) -> tuple[str, 
 
 def _describe_value(value: TypedValue) -> str:
     """生成给 Planner/调试使用的短描述，不承诺可逆解析。"""
+    if value.type == "Condition":
+        return _describe_condition(value.value, value.source)
+    if value.type == "OrientationHint":
+        quadrant = ""
+        if isinstance(value.value, dict):
+            quadrant = str(value.value.get("quadrant", ""))
+        suffix = f": {quadrant}" if quadrant else ""
+        return f"方位约束{suffix} (orientation_constraint)"
+    if value.type == "Constraint":
+        if isinstance(value.value, dict):
+            operator = str(value.value.get("operator", ""))
+            raw_value = value.value.get("value", "")
+            return f"参数约束 {operator}{raw_value} (constraint)"
+        return f"Constraint from {value.source}"
+    if value.type == "Coefficients":
+        if isinstance(value.value, dict):
+            known = ", ".join(
+                f"{symbol}={expr}"
+                for symbol, expr in sorted(value.value.items(), key=lambda item: str(item[0]))
+            )
+            return f"已知系数 {known} (known_coefficients)"
+        return f"Coefficients from {value.source}"
     if value.type == "PointRef":
         # PointRef 是 Planner 理解“未解点/派生点”的重要信号。这里暴露的只是
         # 题面定义意图和依赖点名，不包含坐标、参数值或答案。
@@ -346,6 +402,48 @@ def _describe_value(value: TypedValue) -> str:
             return f"PointRef({getattr(point_ref, 'name', '')}: {intent}{suffix})"
         return f"PointRef({getattr(point_ref, 'name', '')})"
     return f"{value.type} from {value.source}"
+
+
+def _describe_condition(raw: Any, source: str) -> str:
+    """把题面条件压成学生/LLM 都容易读懂的一句话。"""
+    if not isinstance(raw, dict):
+        return f"Condition from {source}"
+    condition_type = str(raw.get("type", "condition"))
+    description = str(raw.get("description", ""))
+    if description:
+        return f"{description} ({condition_type})"
+    if source == "data.path_problem":
+        path = str(raw.get("path", ""))
+        if path:
+            return f"path={path} ({condition_type})"
+    if condition_type == "segment_membership":
+        point = str(raw.get("point", ""))
+        segment = _compact_segment(raw.get("segment"))
+        if point and segment:
+            return f"{point} 在线段 {segment} 上 (segment_membership)"
+    if condition_type == "segment_relation":
+        left = str(raw.get("left", ""))
+        right = str(raw.get("right", ""))
+        if left and right:
+            return f"{left} = {right} (segment_relation)"
+    if condition_type == "length_squared":
+        segment = _compact_segment(raw.get("segment"))
+        raw_value = str(raw.get("value", ""))
+        if segment and raw_value:
+            return f"{segment}^2 = {raw_value} (length_squared)"
+    if condition_type == "minimum_value":
+        path = str(raw.get("path", ""))
+        raw_value = str(raw.get("value", ""))
+        if path and raw_value:
+            return f"{path} 最小值 = {raw_value} (minimum_value)"
+    return f"{condition_type}: {_stringify_role(raw)}"
+
+
+def _compact_segment(raw: Any) -> str:
+    """把 ``['M', 'N']`` 这类线段端点压成 ``MN``。"""
+    if isinstance(raw, list):
+        return "".join(str(item) for item in raw)
+    return str(raw or "")
 
 
 def _definition_payload(value: TypedValue) -> dict[str, Any]:

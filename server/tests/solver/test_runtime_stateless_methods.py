@@ -538,6 +538,10 @@ def test_two_moving_points_path_reduction_method() -> None:
     assert transformation["original_path"] == "EG+FG"
     assert transformation["transformed_path"] == "DG+FG"
     assert transformation["segment_equality"] == "EG=DG"
+    assert transformation["type"] == "existing_fixed_endpoint_replacement"
+    assert transformation["replacement_fixed_endpoint"] == "D"
+    assert transformation["replacement_moving_point"] == "G"
+    assert transformation["creates_auxiliary_point"] is False
     assert all(check.ok for check in result.checks)
 
 

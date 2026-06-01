@@ -4,7 +4,9 @@
 
 用户会用系统自助生成题目网页，因此 family/method 不足时不能直接让服务不可用。在线链路应优先使用 Method Solver 生成 verified solution；如果 family 未命中、method 缺失、binding 不足或执行失败，则降级到 LLM fallback，先产出可用于网页生成的未验证解题步骤，同时记录结构化 gap 日志，供离线补 FamilySpec、MethodSpec、PlanningSignal 或 ProblemIR 抽取。
 
-Fallback Solver 与受控 LLM Planner 是两条独立链路：Planner 走 `SlotBinder -> PlanCompiler -> Executor`；Fallback 绕过 method executor，由 LLM 直接生成结构化答案和步骤。两者共享 provider/config/CLI 基础设施，但后续实现和验收应独立推进。
+Fallback Solver 与 Method Solver Planner 是两条独立链路：Planner 未来会走
+`StepIntent -> method/binding trial -> Executor`；Fallback 绕过 method executor，
+由 LLM 直接生成结构化答案和步骤。两者共享 provider/config/CLI 基础设施，但后续实现和验收应独立推进。
 
 ## Key Changes
 
@@ -225,12 +227,12 @@ server/logs/solver-gaps/YYYY-MM-DD.gaps.jsonl
 ## Implementation Phases
 
 - Phase FB1：扩展 `SolverResult`，添加 `status="fallback"`、`verification_level`、`solution_source`、`fallback_solution`、`gap_reports`、`warnings`，默认值保持向后兼容；同时实现 `FamilyGapReport`、`MethodGapReport`、`VerifiedOutputsSummary`、`FallbackSolution` 数据模型。
-- Phase FB2：实现 fallback prompt Jinja 模板、`FakeFallbackClient` 和 fallback JSON schema validation。`FakeFallbackClient` 独立于 `FakeLLMPlannerClient`，输出预设的 `FallbackSolution` JSON。
+- Phase FB2：实现 fallback prompt Jinja 模板、`FakeFallbackClient` 和 fallback JSON schema validation。`FakeFallbackClient` 独立于未来 Planner fake，输出预设的 `FallbackSolution` JSON。
 - Phase FB3：Orchestrator 在 family miss / method gap / execution gap 时调用 fallback；返回 `status="fallback"`。
 - Phase FB4：实现 JSONL/stdout gap logging，本地日志写 `server/logs/solver-gaps/`。
 - Phase FB5：接 DeepSeek 真实 fallback 联调；豆包复用同一 provider 配置。
 
-这些阶段依赖 LLM provider/config 基础设施，但不依赖 `SlotBinder`、`PlanCompiler` 或受控 LLM Planner E2E，可以与受控 Planner 的 Phase C/D 并行推进。
+这些阶段依赖 LLM provider/config 基础设施，但不依赖 Strategy Planner 或 method trial engine，可以与新 Planner 设计并行推进。
 
 ## Test Plan
 

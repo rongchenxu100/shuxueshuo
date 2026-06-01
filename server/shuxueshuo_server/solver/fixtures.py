@@ -17,6 +17,7 @@ def load_problem_ir(path: str | Path) -> ProblemIR:
         pattern=data["pattern"],
         problem_type=data["problem_type"],
         symbols=list(data.get("symbols", [])),
+        original_text=dict(data.get("original_text", {})),
         constraints=dict(data.get("constraints", {})),
         data=dict(data.get("data", {})),
         solver_config=dict(data.get("solver_config", {})),

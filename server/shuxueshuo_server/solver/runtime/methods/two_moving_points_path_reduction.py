@@ -11,7 +11,7 @@ from ._spec import MethodSpecSource
 
 
 class TwoMovingPointsPathReductionMethod:
-    """把两个受约束动点的路径转成单动点路径。
+    """把两个受约束动点的路径转成“已有固定点到动点”的单动点路径。
 
     这个 method 不绑定南开题的 E/G/D/M/N 点名。它只要求输入描述清楚：
 
@@ -21,7 +21,14 @@ class TwoMovingPointsPathReductionMethod:
     - 两条边的三个基准点坐标。
 
     method 会用一个统一参数表示两个动点，验证线段关系，并证明原路径中的两动点
-    线段可以替换为“固定点-第二动点”线段。
+    线段可以替换为“题面已有固定点-第二动点”线段。
+
+    语义边界：
+
+    - 它不创建辅助点，也不构造新轨迹；
+    - 替换后的固定点必须来自题面已有点，例如南开题中 ``EG`` 替换为 ``DG``；
+    - 河西 ``sqrt(2)*MN+AN`` 那类需要新辅助点/新射线的加权路径，应使用
+      ``weighted_axis_path_triangle_transform``，不是本 method。
     """
 
     method_id = "two_moving_points_path_reduction"
@@ -73,9 +80,15 @@ class TwoMovingPointsPathReductionMethod:
         moving_distance_squared = kernel.distance_squared(first_moving_point, second_moving_point)
         replacement_distance_squared = kernel.distance_squared(first_segment_start, second_moving_point)
         transformation = {
+            "type": "existing_fixed_endpoint_replacement",
             "original_path": path_text,
             "transformed_path": transformed_path,
             "segment_equality": f"{replaced_segment}={replacement_segment}",
+            "replaced_segment": replaced_segment,
+            "replacement_segment": replacement_segment,
+            "replacement_fixed_endpoint": fixed_name,
+            "replacement_moving_point": second_moving_name,
+            "creates_auxiliary_point": False,
             "reason": str(binding_relation.get("description", "")),
         }
         return StatelessMethodResult(
@@ -107,7 +120,7 @@ class TwoMovingPointsPathReductionMethod:
                     self.method_id,
                     "把两动点路径转化为单动点路径",
                     f"将 {path_text} 转化为 {transformed_path}",
-                    "利用两个动点的线段绑定关系，把原路径中的两动点线段替换成等长的固定点到动点线段。",
+                    "利用两个动点的线段绑定关系，把原路径中的两动点线段替换成等长的题面已有固定点到动点线段。",
                     f"{binding_relation.get('description', '')}，可得 {replaced_segment}={replacement_segment}",
                     f"{path_text}={transformed_path}",
                 )
@@ -117,7 +130,7 @@ class TwoMovingPointsPathReductionMethod:
 
 SPEC = MethodSpecSource(
     method_cls=TwoMovingPointsPathReductionMethod,
-    title='两动点路径降维',
+    title='两动点路径降维：已有固定点替换',
     solves=('reduce_two_moving_point_path',),
     inputs={
     "original_path": {
@@ -159,7 +172,12 @@ SPEC = MethodSpecSource(
     outputs={
     "path_transformation": "PathTransformation"
 },
-    preconditions=('两个动点分别位于两条有公共端点的线段上', 'binding_relation 将第一个动点到固定端点的距离与第二个动点到固定端点的距离绑定', 'original_path 包含需要替换的两动点线段'),
-    postconditions=('原路径中的两动点线段被替换为固定点到第二动点的等长线段',),
+    preconditions=(
+        '两个动点分别位于两条有公共端点的线段上',
+        'binding_relation 将第一个动点到已有固定端点的距离与第二个动点到固定端点的距离绑定',
+        'original_path 包含需要替换的两动点线段',
+        '本 method 不创建辅助点；若需要新辅助点或新轨迹，应使用加权路径/辅助构造类 method',
+    ),
+    postconditions=('原路径中的两动点线段被替换为题面已有固定点到第二动点的等长线段',),
     trace_template=(),
 )

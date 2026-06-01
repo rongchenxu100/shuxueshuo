@@ -92,13 +92,18 @@ class SolverResult:
     answers: dict[str, Any] = field(default_factory=dict)
     checks: list[CheckResult] = field(default_factory=list)
     errors: list[str] = field(default_factory=list)
+    run_log: dict[str, Any] | None = None
 
     @property
     def ok(self) -> bool:
         return self.status == "ok" and all(check.ok for check in self.checks)
 
     def to_dict(self) -> dict[str, Any]:
-        return _clean_for_json(asdict(self))
+        payload = _clean_for_json(asdict(self))
+        # deterministic 路径没有 LLM 审计信息；不输出空 run_log，避免改变既有 JSON。
+        if payload.get("run_log") is None:
+            payload.pop("run_log", None)
+        return payload
 
 
 @dataclass

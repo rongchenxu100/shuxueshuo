@@ -11,6 +11,8 @@ ENV_KEYS = [
     "SOLVER_PLANNER_MODE",
     "SOLVER_LLM_PROVIDER",
     "SOLVER_LLM_MODEL",
+    "SOLVER_LLM_MAX_ATTEMPTS",
+    "SOLVER_LLM_DEBUG_DIR",
     "DEEPSEEK_API_KEY",
     "DEEPSEEK_BASE_URL",
     "DEEPSEEK_MODEL",
@@ -125,7 +127,7 @@ def test_solve_problem_cli_solves_hexi_weighted_25() -> None:
     assert "linked_broken_path_geometric_minimum" in payload["methods_used"]
 
 
-def test_solve_problem_cli_llm_fake_solves_nankai() -> None:
+def test_solve_problem_cli_llm_planner_temporarily_disabled() -> None:
     completed = subprocess.run(
         [
             sys.executable,
@@ -142,88 +144,8 @@ def test_solve_problem_cli_llm_fake_solves_nankai() -> None:
         capture_output=True,
         text=True,
         env=_cli_env(),
-    )
-
-    assert completed.returncode == 0, completed.stderr
-    payload = json.loads(completed.stdout)
-    assert payload["status"] == "ok"
-    assert payload["solver_family"] == "QuadraticPathMinimumSolver"
-    assert payload["answers"]["ii_2"]["G"] == ["4", "-13/3"]
-
-
-def test_solve_problem_cli_llm_fake_solves_hexi() -> None:
-    completed = subprocess.run(
-        [
-            sys.executable,
-            "-m",
-            "shuxueshuo_server.solver.solve_problem",
-            "--fixture",
-            OTHER_REAL_25_FIXTURE,
-            "--planner",
-            "llm",
-            "--llm-provider",
-            "fake",
-        ],
-        check=False,
-        capture_output=True,
-        text=True,
-        env=_cli_env(),
-    )
-
-    assert completed.returncode == 0, completed.stderr
-    payload = json.loads(completed.stdout)
-    assert payload["status"] == "ok"
-    assert payload["solver_family"] == "QuadraticWeightedPathMinimumSolver"
-    assert payload["answers"]["iii"]["b"] == "2"
-
-
-def test_solve_problem_cli_llm_fake_solves_alt_label() -> None:
-    completed = subprocess.run(
-        [
-            sys.executable,
-            "-m",
-            "shuxueshuo_server.solver.solve_problem",
-            "--fixture",
-            ALT_FIXTURE,
-            "--planner",
-            "llm",
-            "--llm-provider",
-            "fake",
-        ],
-        check=False,
-        capture_output=True,
-        text=True,
-        env=_cli_env(),
-    )
-
-    assert completed.returncode == 0, completed.stderr
-    payload = json.loads(completed.stdout)
-    assert payload["status"] == "ok"
-    assert payload["solver_family"] == "QuadraticPathMinimumSolver"
-    assert payload["answers"]["a"]["T"] == ["1", "0"]
-    assert payload["answers"]["b_2"]["R"] == ["4", "-13/3"]
-
-
-def test_solve_problem_cli_llm_deepseek_requires_api_key() -> None:
-    completed = subprocess.run(
-        [
-            sys.executable,
-            "-m",
-            "shuxueshuo_server.solver.solve_problem",
-            "--fixture",
-            FIXTURE,
-            "--planner",
-            "llm",
-            "--llm-provider",
-            "deepseek",
-        ],
-        check=False,
-        capture_output=True,
-        text=True,
-        # 空字符串显式覆盖 server/.env 中可能存在的私有 key。
-        env=_cli_env(DEEPSEEK_API_KEY=""),
     )
 
     assert completed.returncode == 2
-    assert "DEEPSEEK_API_KEY" in completed.stderr
+    assert "LLM planner has been removed" in completed.stderr
     assert completed.stdout == ""

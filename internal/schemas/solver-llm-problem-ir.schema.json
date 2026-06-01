@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://shuxueshuo.local/schemas/solver-llm-problem-ir.schema.json",
+  "title": "Solver LLM ProblemIR",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["original_text", "scopes", "entities", "facts", "question_goals"],
+  "not": {
+    "anyOf": [
+      { "required": ["relations"] },
+      { "required": ["points"] },
+      { "required": ["target_path"] },
+      { "required": ["expected"] },
+      { "required": ["expected_answers"] }
+    ]
+  },
+  "properties": {
+    "original_text": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "scopes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["scope_id", "label", "parent"],
+        "properties": {
+          "scope_id": { "type": "string" },
+          "label": { "type": "string" },
+          "parent": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "entities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["handle", "entity_type", "scope_id", "description"],
+        "properties": {
+          "handle": {
+            "type": "string",
+            "pattern": "^(point|line|segment|ray|function|symbol|angle|circle|polygon):[A-Za-z0-9_]+:[A-Za-z0-9_]+$"
+          },
+          "entity_type": {
+            "type": "string",
+            "enum": ["point", "line", "segment", "ray", "function", "symbol", "angle", "circle", "polygon"]
+          },
+          "scope_id": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      }
+    },
+    "facts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["handle", "type", "scope_id", "valid_scope", "description"],
+        "properties": {
+          "handle": {
+            "type": "string",
+            "pattern": "^fact:[A-Za-z0-9_]+:[A-Za-z0-9_]+$"
+          },
+          "type": { "type": "string" },
+          "scope_id": { "type": "string" },
+          "valid_scope": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      }
+    },
+    "question_goals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["handle", "scope_id", "answer_key", "value_type", "description"],
+        "properties": {
+          "handle": {
+            "type": "string",
+            "pattern": "^answer:[A-Za-z0-9_.]+$"
+          },
+          "scope_id": { "type": "string" },
+          "answer_key": { "type": "string" },
+          "value_type": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      }
+    }
+  }
+}

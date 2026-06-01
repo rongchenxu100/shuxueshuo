@@ -1,7 +1,7 @@
 {
   "method_id": "two_moving_points_path_reduction",
-  "title": "两动点路径降维",
-  "description": "把两个受约束动点的路径转成单动点路径。",
+  "title": "两动点路径降维：已有固定点替换",
+  "description": "把两个受约束动点的路径转成“已有固定点到动点”的单动点路径。",
   "solves": [
     "reduce_two_moving_point_path"
   ],
@@ -47,10 +47,11 @@
   },
   "preconditions": [
     "两个动点分别位于两条有公共端点的线段上",
-    "binding_relation 将第一个动点到固定端点的距离与第二个动点到固定端点的距离绑定",
-    "original_path 包含需要替换的两动点线段"
+    "binding_relation 将第一个动点到已有固定端点的距离与第二个动点到固定端点的距离绑定",
+    "original_path 包含需要替换的两动点线段",
+    "本 method 不创建辅助点；若需要新辅助点或新轨迹，应使用加权路径/辅助构造类 method"
   ],
   "postconditions": [
-    "原路径中的两动点线段被替换为固定点到第二动点的等长线段"
+    "原路径中的两动点线段被替换为题面已有固定点到第二动点的等长线段"
   ]
 }

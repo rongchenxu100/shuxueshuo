@@ -32,6 +32,15 @@ def main(argv: list[str] | None = None) -> int:
         "--llm-model",
         help="Override the provider model when --planner llm is selected.",
     )
+    parser.add_argument(
+        "--llm-max-attempts",
+        type=int,
+        help="Maximum LLM planning attempts when --planner llm is selected.",
+    )
+    parser.add_argument(
+        "--llm-debug-dir",
+        help="Directory for per-attempt LLM planner debug artifacts.",
+    )
     args = parser.parse_args(argv)
 
     try:
@@ -39,6 +48,8 @@ def main(argv: list[str] | None = None) -> int:
             planner_mode=args.planner,
             llm_provider=args.llm_provider,
             llm_model=args.llm_model,
+            max_llm_attempts=args.llm_max_attempts,
+            llm_debug_dir=args.llm_debug_dir,
         )
         problem = load_problem_ir(args.fixture)
         result = solve_problem(problem, runtime_config=runtime_config)
