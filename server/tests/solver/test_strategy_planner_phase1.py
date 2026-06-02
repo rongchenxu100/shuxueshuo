@@ -434,6 +434,8 @@ def test_strategy_prompt_renderer_contains_core_sections() -> None:
     assert "先定值，再代入" in prompt.user
     assert "不能定值但能降复杂度时先化简" in prompt.user
     assert "parabola_coefficients_expr" in prompt.user
+    assert "coefficients_in_m" in prompt.user
+    assert "不是独立 executable step" in prompt.user
     assert "父级 scope 只是组织子问" in prompt.user
     assert "输出公共推导段会被校验器拒绝" in prompt.user
     assert "Previous Attempts" in prompt.user
@@ -449,6 +451,8 @@ def test_strategy_prompt_renderer_contains_core_sections() -> None:
     assert "不要改成当前子问 scope" in prompt.user
     assert "point:problem:Anchor" in prompt.user
     assert "公共结论只 produces 一次" in prompt.user
+    assert "同时输出 `answer:<goal.id>` 和公共 `fact:<scope>:<semantic_name>`" in prompt.user
+    assert "同一个父级 Entity 点的坐标不能在兄弟小问分别 produces" in prompt.user
     assert "fact:problem:shared_coordinate_value" in prompt.user
     assert "derive_anchor_coordinate" in prompt.user
     assert "description 应说明结论可见范围" in prompt.system
@@ -462,6 +466,9 @@ def test_strategy_prompt_renderer_contains_core_sections() -> None:
     assert "record_relation" in prompt.user
     assert "utility step" in prompt.user
     assert "辅助点、中点、临时表达式" in prompt.user
+    assert "Method Solver 可执行的最小解题颗粒度" in prompt.user
+    assert "ExplanationBuilder" in prompt.system + prompt.user
+    assert "只有 Recipe Catalog" in prompt.user
     assert "method_capability_hints" not in prompt.user
     assert "result_collection_policy" not in prompt.user
     assert "knowns" not in prompt.system
@@ -948,8 +955,8 @@ def test_step_intent_validator_rejects_common_fact_after_narrow_fact() -> None:
         )
 
 
-def test_step_intent_validator_rejects_valid_scope_broader_than_child_reads() -> None:
-    """读取子问独有 fact 的结论，不能声明为父级公共 valid_scope。"""
+def test_step_intent_validator_rejects_sibling_point_coordinate_facts() -> None:
+    """同一父级点实体不能在兄弟小问分别求坐标。"""
     payload = {
         "scopes": [
             {
@@ -957,32 +964,155 @@ def test_step_intent_validator_rejects_valid_scope_broader_than_child_reads() ->
                 "label": "第（Ⅱ）①问",
                 "steps": [
                     {
-                        "step_id": "derive_f_coordinate_with_m_value",
-                        "goal_type": "derive_point_coordinate",
-                        "target": "fact:ii:F_coordinate_expr",
-                        "strategy": "错误地用 ① 的 m 值推出父级公共 F 坐标。",
+                        "step_id": "derive_f_coordinate_ii1",
+                        "goal_type": "derive_midpoint_coordinate",
+                        "target": "fact:ii_1:F_coordinate",
+                        "strategy": "先在 ① 中求 F 的数值坐标。",
                         "reads": [
                             "point:problem:D",
                             "point:ii:N",
                             "fact:ii:F_midpoint_of_DN",
-                            "fact:ii_1:MN_length_squared_eq_10",
                         ],
                         "creates": [],
                         "produces": [
-                            _produce("fact:ii:F_coordinate_expr", "ii", "错误的父级有效范围")
+                            _produce("fact:ii_1:F_coordinate", "ii_1", "F 坐标数值")
                         ],
-                        "reason": "valid_scope 应被校验器拒绝。",
+                        "reason": "这会锁定父级点 F 的 runtime 坐标。",
+                    }
+                ],
+            },
+            {
+                "scope_id": "ii_2",
+                "label": "第（Ⅱ）②问",
+                "steps": [
+                    {
+                        "step_id": "derive_f_coordinate_ii2",
+                        "goal_type": "derive_midpoint_coordinate",
+                        "target": "fact:ii_2:F_coordinate_expr",
+                        "strategy": "又在 ② 中求 F 的含参坐标。",
+                        "reads": [
+                            "point:problem:D",
+                            "point:ii:N",
+                            "fact:ii:F_midpoint_of_DN",
+                        ],
+                        "creates": [],
+                        "produces": [
+                            _produce("fact:ii_2:F_coordinate_expr", "ii_2", "F 坐标表达式")
+                        ],
+                        "reason": "应先产生父级 F 坐标表达式，然后兄弟小问复用。",
+                    }
+                ],
+            },
+        ]
+    }
+
+    with pytest.raises(StrategyDraftValidationError, match="duplicate_point_coordinate_fact"):
+        StepIntentValidator().validate_json(
+            json.dumps(payload, ensure_ascii=False),
+            handle_registry=_registry(),
+        )
+
+
+def test_candidate_resolver_ignores_unused_child_read_for_valid_scope() -> None:
+    """无害多读不应让公共结论在 validator 阶段失败。"""
+    inputs = _nankai_inputs()
+    payload = {
+        "scopes": [
+            {
+                "scope_id": "i",
+                "label": "第（Ⅰ）问",
+                "steps": [
+                    {
+                        "step_id": "derive_axis_point_with_extra_a",
+                        "recipe_hint": None,
+                        "goal_type": "derive_axis_point",
+                        "target": "answer:i.axis_point",
+                        "strategy": "多读了 a=2，但求 D 只需要系数关系。",
+                        "reads": [
+                            "fact:i:a_value",
+                            "fact:problem:coefficient_relation",
+                        ],
+                        "creates": [],
+                        "produces": [
+                            _produce("fact:problem:D_coordinate", "problem"),
+                            _produce("answer:i.axis_point", "i"),
+                        ],
+                        "reason": "a_value 是无害多读。",
                     }
                 ],
             }
         ]
     }
+    draft = StepIntentValidator().validate_json(
+        json.dumps(payload, ensure_ascii=False),
+        handle_registry=_registry(),
+    )
 
-    with pytest.raises(StrategyDraftValidationError, match="invalid_valid_scope"):
-        StepIntentValidator().validate_json(
-            json.dumps(payload, ensure_ascii=False),
-            handle_registry=_registry(),
-        )
+    report = StepIntentCandidateResolver().resolve(
+        draft,
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=_registry(),
+    )
+
+    assert report.ok is True
+    step_report = report.step_reports[0]
+    assert step_report.selected_capability_id == "quadratic_axis_from_relation"
+    assert any(
+        warning.startswith("unused_child_read_ignored_for_valid_scope")
+        for warning in step_report.warnings
+    )
+
+
+def test_candidate_resolver_rejects_used_child_read_for_parent_valid_scope() -> None:
+    """实际会被参数 method 使用的子问 fact，不能产出父级公共 fact。"""
+    inputs = _nankai_inputs()
+    payload = {
+        "scopes": [
+            {
+                "scope_id": "ii_1",
+                "label": "第（Ⅱ）①问",
+                "steps": [
+                    {
+                        "step_id": "derive_parent_m_from_child_length",
+                        "recipe_hint": None,
+                        "goal_type": "derive_parameter",
+                        "target": "fact:ii:m_value",
+                        "strategy": "错误地把 ① 的长度条件推出父级 m 值。",
+                        "reads": [
+                            "point:ii:M",
+                            "point:ii:N",
+                            "fact:ii:M_coordinate_expr",
+                            "fact:ii_1:MN_length_squared_eq_10",
+                        ],
+                        "creates": [],
+                        "produces": [
+                            _produce("fact:ii:m_value", "ii", "错误的父级有效范围")
+                        ],
+                        "reason": "MN 长度条件只属于 ①。",
+                    }
+                ],
+            }
+        ]
+    }
+    draft = StepIntentValidator().validate_json(
+        json.dumps(payload, ensure_ascii=False),
+        handle_registry=_registry(),
+    )
+
+    report = StepIntentCandidateResolver().resolve(
+        draft,
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=_registry(),
+    )
+
+    assert report.ok is False
+    step_report = report.step_reports[0]
+    assert step_report.selected_capability_id is None
+    hinted = step_report.candidates[0]
+    assert hinted.capability_id == "parameter_from_segment_length"
+    assert any("invalid_valid_scope" in error for error in hinted.errors)
 
 
 def test_runtime_binding_index_reports_computed_point_when_pointref_target_is_expected() -> None:
@@ -1132,8 +1262,8 @@ def test_recipe_alignment_report_warns_on_parameterized_path_route() -> None:
     assert hits[0]["step_id"] == "parameterize_moving_points"
 
 
-def test_recipe_alignment_warns_on_symbolic_quadratic_before_parameter_value() -> None:
-    """若同 scope 后续能求参数，先抽公共含参系数表达式应提示调整顺序。"""
+def test_recipe_alignment_blocks_symbolic_quadratic_before_parameter_value() -> None:
+    """若同 scope 后续能求参数，公共含参系数缓存应作为 capability error。"""
     inputs = _nankai_inputs()
     payload = _valid_step_intent_payload()
     payload["scopes"][1]["steps"][1]["step_id"] = "derive_parabola_coefficients_expr"
@@ -1178,6 +1308,10 @@ def test_recipe_alignment_warns_on_symbolic_quadratic_before_parameter_value() -
     assert hits
     assert hits[0]["pattern"] == "symbolic_quadratic_before_available_parameter_value"
     assert hits[0]["related_step_id"] == "derive_m_from_length"
+    errors = report.recipe_alignment.capability_errors
+    assert errors
+    assert errors[0]["code"] == "utility_symbolic_coefficients_step_not_allowed"
+    assert errors[0]["step_id"] == "derive_parabola_coefficients_expr"
 
 
 def test_recipe_alignment_allows_symbolic_quadratic_simplification_without_parameter_step() -> None:
@@ -1570,6 +1704,125 @@ def test_candidate_resolver_treats_m_value_from_minimum_as_parameter_value() -> 
     assert step_report.selected_capability_id == "parameter_from_minimum_value"
 
 
+def test_candidate_resolver_uses_length_reads_for_null_hint_parameter_value() -> None:
+    """recipe_hint=null 时，长度条件 reads 能确定参数求解 method。"""
+    inputs = _nankai_inputs()
+    payload = {
+        "scopes": [
+            {
+                "scope_id": "ii_1",
+                "label": "第（Ⅱ）①问",
+                "steps": [
+                    {
+                        "step_id": "solve_m_from_mn_length",
+                        "recipe_hint": None,
+                        "goal_type": "derive_parameter",
+                        "target": "fact:ii_1:m_value",
+                        "strategy": "由 MN 长度条件求参数 m。",
+                        "reads": [
+                            "point:ii:M",
+                            "point:ii:N",
+                            "fact:ii:M_coordinate_expr",
+                            "fact:ii_1:MN_length_squared_eq_10",
+                        ],
+                        "creates": [],
+                        "produces": [
+                            _produce("fact:ii_1:m_value", "ii_1", "由 MN 长度求 m")
+                        ],
+                        "reason": "长度条件决定 m。",
+                    }
+                ],
+            }
+        ]
+    }
+    draft = StepIntentValidator().validate_json(
+        json.dumps(payload, ensure_ascii=False),
+        handle_registry=_registry(),
+    )
+
+    report = StepIntentCandidateResolver().resolve(
+        draft,
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=_registry(),
+    )
+
+    assert report.ok is True
+    step_report = report.step_reports[0]
+    assert step_report.produced_types == ("ParameterValue",)
+    assert step_report.selected_capability_id == "parameter_from_segment_length"
+
+
+def test_candidate_resolver_uses_minimum_reads_for_null_hint_parameter_value() -> None:
+    """recipe_hint=null 时，公共最小值表达式 + 给定最小值能确定反求参数 method。"""
+    inputs = _nankai_inputs()
+    payload = {
+        "scopes": [
+            {
+                "scope_id": "ii_1",
+                "label": "第（Ⅱ）①问",
+                "steps": [
+                    {
+                        "step_id": "derive_common_minimum_expression",
+                        "recipe_hint": "path_minimum_by_straightened_distance",
+                        "goal_type": "derive_minimum_value",
+                        "target": "fact:ii:path_minimum_expression",
+                        "strategy": "由拉直后距离得到含 m 的最小值表达式。",
+                        "reads": ["fact:ii:path_minimum_target"],
+                        "creates": [],
+                        "produces": [
+                            _produce(
+                                "fact:ii:path_minimum_expression",
+                                "ii",
+                                "公共最小值表达式",
+                            )
+                        ],
+                        "reason": "后续 ①② 都可以读这个表达式。",
+                    }
+                ],
+            },
+            {
+                "scope_id": "ii_2",
+                "label": "第（Ⅱ）②问",
+                "steps": [
+                    {
+                        "step_id": "solve_m_from_given_minimum",
+                        "recipe_hint": None,
+                        "goal_type": "derive_parameter",
+                        "target": "fact:ii_2:m_value",
+                        "strategy": "由公共最小值表达式和题设给定最小值求 m。",
+                        "reads": [
+                            "fact:ii:path_minimum_expression",
+                            "fact:ii_2:path_minimum_value_given",
+                        ],
+                        "creates": [],
+                        "produces": [
+                            _produce("fact:ii_2:m_value", "ii_2", "由给定最小值求 m")
+                        ],
+                        "reason": "最小值条件决定 m。",
+                    }
+                ],
+            },
+        ]
+    }
+    draft = StepIntentValidator().validate_json(
+        json.dumps(payload, ensure_ascii=False),
+        handle_registry=_registry(),
+    )
+
+    report = StepIntentCandidateResolver().resolve(
+        draft,
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=_registry(),
+    )
+
+    assert report.ok is True
+    step_report = report.step_reports[1]
+    assert step_report.produced_types == ("ParameterValue",)
+    assert step_report.selected_capability_id == "parameter_from_minimum_value"
+
+
 def test_candidate_resolver_treats_parameter_prefixed_value_as_parameter_value() -> None:
     """parameter_m_value / parameter_a_value 也应按参数 fact 识别。"""
     inputs = _nankai_inputs()
@@ -1619,6 +1872,58 @@ def test_candidate_resolver_treats_parameter_prefixed_value_as_parameter_value()
     step_report = report.step_reports[0]
     assert step_report.produced_types == ("ParameterValue",)
     assert step_report.selected_capability_id == "parameter_from_minimum_value"
+
+
+def test_candidate_resolver_treats_parameter_symbol_handle_as_parameter_value() -> None:
+    """parameter_m 这种 DeepSeek 常见短写也应识别为参数值。"""
+    inputs = _nankai_inputs()
+    payload = {
+        "scopes": [
+            {
+                "scope_id": "ii_1",
+                "label": "第（Ⅱ）①问",
+                "steps": [
+                    {
+                        "step_id": "solve_m_from_mn_length_ii1",
+                        "recipe_hint": None,
+                        "goal_type": "derive_parameter",
+                        "target": "fact:ii_1:parameter_m",
+                        "strategy": "由 MN=√10 求出参数 m。",
+                        "reads": [
+                            "fact:ii_1:MN_length_squared_eq_10",
+                            "fact:ii:M_coordinate_expr",
+                            "fact:problem:m_gt_2",
+                        ],
+                        "creates": [],
+                        "produces": [
+                            _produce(
+                                "fact:ii_1:parameter_m",
+                                "ii_1",
+                                "m=3，满足 MN=√10 的参数值",
+                            )
+                        ],
+                        "reason": "parameter_m 是参数值，不是普通自由 fact。",
+                    }
+                ],
+            }
+        ]
+    }
+    draft = StepIntentValidator().validate_json(
+        json.dumps(payload, ensure_ascii=False),
+        handle_registry=_registry(),
+    )
+
+    report = StepIntentCandidateResolver().resolve(
+        draft,
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=_registry(),
+    )
+
+    assert report.ok is True
+    step_report = report.step_reports[0]
+    assert step_report.produced_types == ("ParameterValue",)
+    assert step_report.selected_capability_id == "parameter_from_segment_length"
 
 
 def test_candidate_resolver_keeps_minimum_expression_as_minimum_expression() -> None:

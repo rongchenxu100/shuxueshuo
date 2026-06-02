@@ -765,46 +765,16 @@ def _validate_produced_fact(
         raise StrategyDraftValidationError(
             f"produce_overwrites_available_handle: step={step_id}, handle={item.handle}"
         )
-    _validate_produced_valid_scope_dependencies(
-        item,
-        step=step,
-        registry=registry,
-        handle_valid_scopes=handle_valid_scopes,
-    )
+    # valid_scope 是否被 child-only reads 夸大，需要结合最终承接该 step 的
+    # recipe/method 判断。LLM 有时会多写一个未被实际 method 使用的 reads；
+    # 这种“无害多读”不应在纯结构校验层阻断，后续 CandidateResolver 会按
+    # selected capability 对实际会使用的 reads 做更精确检查。
     _validate_produced_semantic_signature(
         item,
         step=step,
         registry=registry,
         produced_signatures=produced_signatures,
     )
-
-
-def _validate_produced_valid_scope_dependencies(
-    item: ProducedFact,
-    *,
-    step: StepIntent,
-    registry: CanonicalHandleRegistry,
-    handle_valid_scopes: dict[str, str],
-) -> None:
-    """校验产出 fact 的 valid_scope 没有夸大其依赖范围。
-
-    如果某个结论声明对 ``ii`` 有效，它不能读取只在 ``ii_1`` 有效的 fact。
-    这条规则让 ``valid_scope`` 表达“结论本身成立的范围”，而不是“当前 step
-    展示在哪里”。
-    """
-    visible_from_output_scope = set(registry.ancestor_scopes(item.valid_scope))
-    for read_handle in step.reads:
-        read_scope = handle_valid_scopes.get(read_handle)
-        if read_scope is None:
-            continue
-        if read_scope in visible_from_output_scope:
-            continue
-        raise StrategyDraftValidationError(
-            "invalid_valid_scope: "
-            f"step={step.step_id}, produced={item.handle}, valid_scope={item.valid_scope}, "
-            f"read_handle={read_handle}, read_valid_scope={read_scope}; "
-            "a produced fact cannot claim a broader scope than its child-only reads support"
-        )
 
 
 def _validate_produced_semantic_signature(
@@ -848,8 +818,37 @@ def _validate_produced_semantic_signature(
                 f"current_valid_scope={item.valid_scope}; read the existing fact instead of "
                 "creating another derivation step"
             )
-    # sibling scope 的同名参数/坐标可能代表不同取值，不能在这里猜测合并。
+        if signature.startswith("point_coordinate:") and _are_sibling_scopes(
+            previous_scope,
+            item.valid_scope,
+            registry,
+        ):
+            raise StrategyDraftValidationError(
+                "duplicate_point_coordinate_fact: "
+                f"signature={signature}, previous_step={previous_step_id}, "
+                f"previous_handle={previous_handle}, previous_valid_scope={previous_scope}, "
+                f"current_step={step.step_id}, current_handle={item.handle}, "
+                f"current_valid_scope={item.valid_scope}; the same parent-scope entity "
+                "coordinate cannot be derived separately in sibling subquestions. Produce "
+                "the parent-scope coordinate expression first, then let sibling subquestions "
+                "read it together with their parameter facts"
+            )
+    # sibling scope 的同名参数值可能代表不同取值，不能在这里猜测合并。
     previous_items.append((item.valid_scope, step.step_id, item.handle))
+
+
+def _are_sibling_scopes(
+    left: str,
+    right: str,
+    registry: CanonicalHandleRegistry,
+) -> bool:
+    """判断两个 scope 是否是同一父级下的兄弟 scope。"""
+    if left == right:
+        return False
+    return (
+        registry.scope_parents.get(left) is not None
+        and registry.scope_parents.get(left) == registry.scope_parents.get(right)
+    )
 
 
 def _produced_fact_signature(
@@ -925,28 +924,35 @@ def _recipe_alignment_report(
     capability_errors: list[dict[str, str]] = []
     avoid_pattern_hits.extend(_symbolic_quadratic_order_hits(draft))
 
-    for step in draft.steps:
-        if step.goal_type not in goal_types:
-            unknown_goal_type_steps.append(f"{step.step_id}:{step.goal_type}")
-        hint = step.recipe_hint
-        if hint is None:
-            null_hint_steps.append(step.step_id)
-        elif hint in recipe_ids:
-            matched_recipes.append(hint)
-        elif hint in method_ids:
-            matched_methods.append(hint)
-        else:
-            unknown_hint_steps.append(f"{step.step_id}:{hint}")
-        hit = _avoid_pattern_hit(step)
-        if hit is not None:
-            avoid_pattern_hits.append(hit)
-        capability_errors.extend(
-            _capability_alignment_errors(
-                step,
-                recipe_ids=recipe_ids,
-                method_ids=method_ids,
+    for scope in draft.scopes:
+        for step in scope.steps:
+            if step.goal_type not in goal_types:
+                unknown_goal_type_steps.append(f"{step.step_id}:{step.goal_type}")
+            hint = step.recipe_hint
+            if hint is None:
+                null_hint_steps.append(step.step_id)
+            elif hint in recipe_ids:
+                matched_recipes.append(hint)
+            elif hint in method_ids:
+                matched_methods.append(hint)
+            else:
+                unknown_hint_steps.append(f"{step.step_id}:{hint}")
+            hit = _avoid_pattern_hit(step)
+            if hit is not None:
+                avoid_pattern_hits.append(hit)
+            capability_errors.extend(
+                _capability_alignment_errors(
+                    step,
+                    recipe_ids=recipe_ids,
+                    method_ids=method_ids,
+                )
             )
-        )
+            symbolic_hit = _symbolic_quadratic_utility_error_for_scope(
+                step,
+                steps=scope.steps,
+            )
+            if symbolic_hit is not None:
+                capability_errors.append(symbolic_hit)
 
     covered_preferred = tuple(
         recipe_id for recipe_id in preferred_recipe_ids
@@ -1051,6 +1057,29 @@ def _symbolic_quadratic_order_hits(draft: StepIntentDraft) -> list[dict[str, str
     return hits
 
 
+def _symbolic_quadratic_utility_error_for_scope(
+    step: StepIntent,
+    *,
+    steps: tuple[StepIntent, ...],
+) -> dict[str, str] | None:
+    """把公共含参系数缓存 step 升级为阻断性 capability error。"""
+    if not _is_symbolic_quadratic_simplification_step(step):
+        return None
+    if not _scope_has_parameter_value_step(steps):
+        return None
+    return _capability_error(
+        step,
+        step.recipe_hint or "quadratic_from_constraints",
+        "utility_symbolic_coefficients_step_not_allowed",
+        (
+            "Do not produce shared parameterized coefficient cache facts such as "
+            "parabola_coefficients_expr. First solve the parameter in the current "
+            "subquestion when possible, then use quadratic_from_constraints to "
+            "produce the subquestion parabola answer directly."
+        ),
+    )
+
+
 def _is_symbolic_quadratic_simplification_step(step: StepIntent) -> bool:
     """判断 step 是否是在产出非答案的含参抛物线/系数化简结果。
 
@@ -1087,6 +1116,11 @@ def _is_parameter_value_step(step: StepIntent) -> bool:
         _output_type_from_text(item.handle, item.description) == "ParameterValue"
         for item in step.produces
     )
+
+
+def _scope_has_parameter_value_step(steps: tuple[StepIntent, ...]) -> bool:
+    """判断当前 scope 中是否存在参数定值 step。"""
+    return any(_is_parameter_value_step(step) for step in steps)
 
 
 def _capability_alignment_errors(

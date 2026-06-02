@@ -96,6 +96,40 @@ def test_recorded_strategy_step_intents_gate_code_solved_nankai_result(
     _assert_nankai_result_matches_expected(result, expected)
     assert captured["resolution_report"].ok is True
     assert len(captured["draft"].steps) >= 10
+    assert _method_ids_by_step(captured["planner_output"])["compute_ii_1_minimum"] == [
+        "distance_between_points"
+    ]
+
+
+def test_recorded_executable_step_intents_are_method_or_recipe_grained() -> None:
+    """执行黄金 fixture 必须是 method/recipe 最小颗粒度。
+
+    网页讲解 step 可以合并多个数学动作，但 Method Solver 的 executable
+    StepIntent 需要能直接映射到一个 recipe 或 method，因此不能出现空 hint。
+    """
+    step_intent_payload = json.loads(
+        RECORDED_NANKAI_EXECUTABLE_STEP_INTENTS.read_text(encoding="utf-8")
+    )
+    recipe_ids = {recipe.recipe_id for recipe in QUADRATIC_PATH_MINIMUM_FAMILY.step_recipes}
+    method_ids = set(QUADRATIC_PATH_MINIMUM_FAMILY.method_ids)
+    allowed_hints = recipe_ids | method_ids
+    hints_by_step: dict[str, str | None] = {}
+
+    for scope in step_intent_payload["scopes"]:
+        for step in scope["steps"]:
+            hint = step.get("recipe_hint")
+            hints_by_step[step["step_id"]] = hint
+            assert hint, f"{step['step_id']} must have recipe_hint"
+            assert hint in allowed_hints, f"{step['step_id']} has unknown hint {hint}"
+            produced_types = {
+                _produced_handle_kind(item["handle"])
+                for item in step.get("produces", [])
+            }
+            assert (
+                len(produced_types) <= 1
+            ), f"{step['step_id']} produces unrelated output kinds: {produced_types}"
+
+    assert hints_by_step["compute_ii_1_minimum"] == "distance_between_points"
 
 
 def test_execution_feedback_reports_missing_midpoint_step() -> None:
@@ -169,6 +203,21 @@ def test_execution_feedback_summarizes_duplicate_fact_scope_errors() -> None:
     assert any("invalid_valid_scope" in hint for hint in hints)
 
 
+def test_execution_feedback_summarizes_missing_shared_point_fact() -> None:
+    """最终 answer 可复用但未产出公共 fact 时，应给出具体 repair 提示。"""
+    error = (
+        "recipe_trial_step_failed: step=derive_D_coordinate_ii, errors=["
+        "'quadratic_axis_from_relation: duplicate_point_coordinate_fact: "
+        "handle=point:problem:D is already a computed Point at $question.i.points.D']"
+    )
+
+    hints = _execution_error_hints(error)
+
+    assert any("shared_point_coordinate_fact_missing" in hint for hint in hints)
+    assert any("answer:i.axis_point" in hint for hint in hints)
+    assert any("fact:problem:D_coordinate" in hint for hint in hints)
+
+
 def test_execution_feedback_summarizes_missing_minimum_expression() -> None:
     """缺少公共最小值表达式时，应提示不要读取 sibling 的最终答案。"""
     error = (
@@ -184,6 +233,23 @@ def test_execution_feedback_summarizes_missing_minimum_expression() -> None:
     assert any("missing_required_runtime_fact: minimum_expression" in hint for hint in hints)
     assert any("sibling_scope_output_not_visible" in hint for hint in hints)
     assert any("fact:ii:path_minimum_expression" in hint for hint in hints)
+
+
+def test_execution_feedback_summarizes_utility_symbolic_coefficients_step() -> None:
+    """公共含参系数缓存 step 漏到 runtime 时，也应反馈可修复提示。"""
+    error = (
+        "recipe_trial_step_failed: step=derive_coefficients_from_points, errors=["
+        "'quadratic_from_constraints: 约束不足以确定系数: b, c']"
+    )
+
+    hints = _execution_error_hints(error)
+
+    assert any(
+        "utility_symbolic_coefficients_step_not_allowed" in hint
+        for hint in hints
+    )
+    assert any("parameter_from_segment_length" in hint for hint in hints)
+    assert any("fact:ii:parabola_coefficients_expr" in hint for hint in hints)
 
 
 def _replace_string_values(value, old: str, new: str):
@@ -238,7 +304,7 @@ def _solve_nankai_from_step_intent_payload(step_intent_payload: dict):
                 captured["draft"] = draft
                 captured["resolution_report"] = resolution_report
                 _assert_strategy_attempt_can_gate_runtime(resolution_report)
-                return RecipeTrialExecutor().compile(
+                planner_output = RecipeTrialExecutor().compile(
                     draft,
                     family_spec=inputs.family_spec,
                     method_specs=inputs.method_specs,
@@ -246,6 +312,8 @@ def _solve_nankai_from_step_intent_payload(step_intent_payload: dict):
                     context=context,
                     question_goals=inputs.question_goals,
                 )
+                captured["planner_output"] = planner_output
+                return planner_output
 
         return StepIntentGatedNankaiPlanner()
 
@@ -254,6 +322,37 @@ def _solve_nankai_from_step_intent_payload(step_intent_payload: dict):
     ).solve(problem)
 
     return result, captured
+
+
+def _method_ids_by_step(planner_output) -> dict[str, list[str]]:
+    """按 step_id 汇总 PlannerOutput 中实际调用的 method。"""
+    return {
+        step.step_id: [invocation.method_id for invocation in step.invocations]
+        for step in planner_output.step_plans
+    }
+
+
+def _produced_handle_kind(handle: str) -> str:
+    """用 handle 的结构化语义粗分 produces 类型，避免同一步跨无关产物。"""
+    if handle.startswith("answer:"):
+        name = handle.split(".", 1)[1] if "." in handle else handle
+    else:
+        name = handle.rsplit(":", 1)[-1]
+    if "parabola" in name:
+        return "parabola"
+    if "minimum" in name or "min_value" in name:
+        return "minimum"
+    if (
+        name.endswith("_coordinate")
+        or "coordinate" in name
+        or name in {"axis_point", "intersection"}
+    ):
+        return "point"
+    if name.endswith("_value") or "parameter" in name:
+        return "parameter"
+    if "path" in name:
+        return "path"
+    return name
 
 
 def _assert_nankai_result_matches_expected(result, expected: dict) -> None:
@@ -367,6 +466,13 @@ def _execution_error_hints(error: str) -> list[str]:
             "or equivalent fact more than once. Remove the later duplicate step and let later "
             "steps read the existing fact."
         )
+        if "point:problem:D" in error or "derive_D_coordinate" in error or "D_coordinate" in error:
+            hints.append(
+                "shared_point_coordinate_fact_missing: if the first axis-point step already "
+                "produces answer:i.axis_point, it should also produces the reusable public "
+                "fact fact:problem:D_coordinate in the same step. Later ii steps should read "
+                "fact:problem:D_coordinate and must not derive D again."
+            )
     if "common_fact_after_narrow_fact" in error:
         hints.append(
             "common_fact_after_narrow_fact: a narrow subquestion fact was produced before a "
@@ -384,6 +490,15 @@ def _execution_error_hints(error: str) -> list[str]:
             "capability_output_type_mismatch: recipe_hint and produces do not match. "
             "Keep one step aligned to one recipe/method, or change produces to the "
             "fact/answer type supported by that capability."
+        )
+    if "quadratic_from_constraints" in error and "约束不足以确定系数" in error:
+        hints.append(
+            "utility_symbolic_coefficients_step_not_allowed: remove the shared "
+            "parameterized coefficients step. First solve the current subquestion "
+            "parameter with parameter_from_segment_length or parameter_from_minimum_value, "
+            "then use quadratic_from_constraints to produce answer:ii_1.parabola or "
+            "answer:ii_2.parabola directly. Do not produces fact:ii:parabola_coefficients_expr "
+            "or fact:ii:coefficients_in_m as an executable step."
         )
     if "distance_points_not_found" in error:
         hints.append(
@@ -792,20 +907,21 @@ def _strategy_acceptance_failures(
     if alignment is None:
         failures.append("recipe_alignment_missing")
         return failures
-    if alignment.non_empty_hint_count < max(1, len(draft.steps) // 2):
-        failures.append(
-            "too_few_recipe_hints:"
-            f"{alignment.non_empty_hint_count}/{len(draft.steps)}"
-        )
-    if alignment.matched_hint_count < 3:
-        failures.append(f"too_few_matched_hints:{alignment.matched_hint_count}")
-    missing_recipes = sorted(EXPECTED_RECIPE_IDS - set(alignment.matched_recipes))
+    selected_capabilities = _selected_capability_ids(resolution_report)
+    missing_recipes = sorted(
+        EXPECTED_RECIPE_IDS
+        - (set(alignment.matched_recipes) | selected_capabilities)
+    )
     if missing_recipes:
         failures.append("missing_expected_recipes:" + ",".join(missing_recipes))
-    if alignment.avoid_pattern_hits:
+    avoid_hits = _blocking_avoid_pattern_hits(
+        alignment.avoid_pattern_hits,
+        resolution_report,
+    )
+    if avoid_hits:
         failures.append(
             "avoid_pattern_hits:"
-            + json.dumps(alignment.avoid_pattern_hits, ensure_ascii=False, sort_keys=True)
+            + json.dumps(avoid_hits, ensure_ascii=False, sort_keys=True)
         )
     if alignment.capability_errors:
         failures.append(
@@ -821,3 +937,32 @@ def _strategy_acceptance_failures(
             + json.dumps(resolution_report.errors, ensure_ascii=False, sort_keys=True)
         )
     return failures
+
+
+def _selected_capability_ids(resolution_report) -> set[str]:
+    """返回 resolver 已确定可尝试执行的 capability id。"""
+    if resolution_report is None:
+        return set()
+    return {
+        report.selected_capability_id
+        for report in resolution_report.step_reports
+        if report.selected_capability_id
+    }
+
+
+def _blocking_avoid_pattern_hits(
+    hits,
+    resolution_report,
+) -> list[dict[str, str]]:
+    """过滤掉已由 path recipe 承接的命名类 avoid warning。"""
+    if resolution_report is None:
+        return list(hits)
+    selected_by_step = {
+        report.step_id: report.selected_capability_id
+        for report in resolution_report.step_reports
+    }
+    return [
+        hit
+        for hit in hits
+        if selected_by_step.get(hit.get("step_id")) not in EXPECTED_RECIPE_IDS
+    ]

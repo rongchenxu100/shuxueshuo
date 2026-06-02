@@ -257,12 +257,16 @@
           ],
           "reads": [
             "fact:ii:minimum_value_expr",
+            "fact:ii:straightened_scheme",
+            "point:ii:Aux",
+            "point:ii:F",
+            "fact:ii:F_coordinate_expr",
             "fact:ii_1:m_value"
           ],
-          "reason": "代入m具体数值到最小值表达式。",
-          "recipe_hint": null,
+          "reason": "拉直后的最短路径已经转化为Aux与F之间的距离，再代入m具体数值即可得到第（Ⅱ）①问答案。",
+          "recipe_hint": "distance_between_points",
           "step_id": "compute_ii_1_minimum",
-          "strategy": "将m的数值代入含参最小值表达式，计算得到EG+FG的具体最小值。",
+          "strategy": "把已求得的m值代入拉直端点距离，显式计算EG+FG的具体最小值。",
           "target": "answer:ii_1.minimum_value"
         }
       ]

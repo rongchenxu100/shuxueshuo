@@ -147,12 +147,14 @@ def _resolve_step_intent_candidates(
         produced_types=produced_types,
         capabilities=capabilities,
         capabilities_by_id=capabilities_by_id,
+        handle_registry=handle_registry,
     )
     candidates = tuple(
         _evaluate_step_candidate(
             step,
             capability,
             produced_types=produced_types,
+            handle_registry=handle_registry,
         )
         for capability in candidate_caps
     )
@@ -179,6 +181,14 @@ def _resolve_step_intent_candidates(
                 "no_typed_outputs_for_step:"
                 "produces must map to known method/recipe output types"
             )
+    if selected is not None:
+        warnings.extend(
+            _unused_child_read_scope_warnings(
+                step,
+                capabilities_by_id[selected.capability_id],
+                handle_registry,
+            )
+        )
     return StepIntentResolutionStepReport(
         step_id=step.step_id,
         scope_id=step.scope_id,
@@ -209,6 +219,7 @@ def _candidate_capabilities_for_step(
     produced_types: tuple[str, ...],
     capabilities: tuple[ExecutableCapabilitySpec, ...],
     capabilities_by_id: dict[str, ExecutableCapabilitySpec],
+    handle_registry: CanonicalHandleRegistry,
 ) -> tuple[ExecutableCapabilitySpec, ...]:
     """按 hint、goal_type 和 output type 找候选。"""
     result: list[ExecutableCapabilitySpec] = []
@@ -230,6 +241,15 @@ def _candidate_capabilities_for_step(
     for capability in capabilities:
         if capability.goal_type == step.goal_type:
             add(capability)
+
+    if set(produced_types) == {"ParameterValue"} and not step.recipe_hint:
+        signature_capability = _parameter_capability_from_reads(
+            step,
+            capabilities_by_id,
+            handle_registry,
+        )
+        if signature_capability is not None:
+            add(signature_capability)
 
     for capability in capabilities:
         if (
@@ -262,6 +282,7 @@ def _evaluate_step_candidate(
     capability: ExecutableCapabilitySpec,
     *,
     produced_types: tuple[str, ...],
+    handle_registry: CanonicalHandleRegistry,
 ) -> StepIntentResolutionCandidate:
     """判断某个候选是否覆盖该 step 的产物边界。"""
     errors: list[str] = []
@@ -283,6 +304,13 @@ def _evaluate_step_candidate(
             "capability_does_not_create_entities:"
             f"creates={[item.handle for item in step.creates]}"
         )
+    errors.extend(
+        _valid_scope_errors_for_candidate(
+            step,
+            capability,
+            handle_registry,
+        )
+    )
     score = 0
     if "recipe_hint" in matched_by:
         score += 100
@@ -302,6 +330,178 @@ def _evaluate_step_candidate(
         output_types=capability.output_types,
         errors=tuple(errors),
     )
+
+
+def _parameter_capability_from_reads(
+    step: StepIntent,
+    capabilities_by_id: dict[str, ExecutableCapabilitySpec],
+    handle_registry: CanonicalHandleRegistry,
+) -> ExecutableCapabilitySpec | None:
+    """用 reads 语义为无 hint 的参数求解 step 选择专用 method。
+
+    ``ParameterValue`` 本身太宽，不能直接按 output type 搜索。但长度条件和
+    最小值条件在 canonical fact 中很清楚，可以确定性地选出对应参数 method。
+    """
+    if _reads_length_condition(step, handle_registry):
+        return capabilities_by_id.get("parameter_from_segment_length")
+    if (
+        _reads_minimum_expression(step, handle_registry)
+        and _reads_given_minimum_value(step, handle_registry)
+    ):
+        return capabilities_by_id.get("parameter_from_minimum_value")
+    return None
+
+
+def _valid_scope_errors_for_candidate(
+    step: StepIntent,
+    capability: ExecutableCapabilitySpec,
+    handle_registry: CanonicalHandleRegistry,
+) -> tuple[str, ...]:
+    """只对 selected capability 实际会使用的 child-only reads 做 valid_scope 检查。"""
+    errors: list[str] = []
+    for produced in step.produces:
+        visible_from_output_scope = set(handle_registry.ancestor_scopes(produced.valid_scope))
+        for read_handle in step.reads:
+            read_scope = handle_registry.handle_valid_scopes.get(read_handle)
+            if read_scope is None or read_scope in visible_from_output_scope:
+                continue
+            if not _capability_uses_read(capability, read_handle, handle_registry):
+                continue
+            errors.append(
+                "invalid_valid_scope:"
+                f"produced={produced.handle}, valid_scope={produced.valid_scope}, "
+                f"read_handle={read_handle}, read_valid_scope={read_scope}"
+            )
+    return tuple(errors)
+
+
+def _unused_child_read_scope_warnings(
+    step: StepIntent,
+    capability: ExecutableCapabilitySpec,
+    handle_registry: CanonicalHandleRegistry,
+) -> tuple[str, ...]:
+    """返回 child-only 但 selected capability 不会用到的 reads warning。"""
+    warnings: list[str] = []
+    for produced in step.produces:
+        visible_from_output_scope = set(handle_registry.ancestor_scopes(produced.valid_scope))
+        for read_handle in step.reads:
+            read_scope = handle_registry.handle_valid_scopes.get(read_handle)
+            if read_scope is None or read_scope in visible_from_output_scope:
+                continue
+            if _capability_uses_read(capability, read_handle, handle_registry):
+                continue
+            warnings.append(
+                "unused_child_read_ignored_for_valid_scope:"
+                f"produced={produced.handle}, valid_scope={produced.valid_scope}, "
+                f"read_handle={read_handle}, read_valid_scope={read_scope}, "
+                f"capability={capability.capability_id}"
+            )
+    return tuple(_unique_ordered(warnings))
+
+
+def _capability_uses_read(
+    capability: ExecutableCapabilitySpec,
+    handle: str,
+    handle_registry: CanonicalHandleRegistry,
+) -> bool:
+    """粗略判断某 capability 是否会使用某个 read handle。
+
+    这个判断只服务 valid_scope 安全边界：宁可把“会用”判宽，也不能把真实依赖
+    判成无害多读。少数 method（如求对称轴）可以安全地窄化到必要事实。
+    """
+    capability_id = capability.capability_id
+    text = _read_semantic_text(handle, handle_registry)
+    if capability_id == "quadratic_axis_from_relation":
+        return "coefficient_relation" in text or handle.startswith("point:")
+    if capability_id == "parameter_from_segment_length":
+        return (
+            "length" in text
+            or "coordinate" in text
+            or handle.startswith("point:")
+            or "m_gt" in text
+        )
+    if capability_id == "parameter_from_minimum_value":
+        return (
+            _read_is_minimum_expression(handle, handle_registry)
+            or _read_is_given_minimum_value(handle, handle_registry)
+            or "m_gt" in text
+            or "parameter" in text
+        )
+    return True
+
+
+def _reads_length_condition(
+    step: StepIntent,
+    handle_registry: CanonicalHandleRegistry,
+) -> bool:
+    """判断 step 是否读取了长度/长度平方条件。"""
+    return any(_read_is_length_condition(handle, handle_registry) for handle in step.reads)
+
+
+def _reads_minimum_expression(
+    step: StepIntent,
+    handle_registry: CanonicalHandleRegistry,
+) -> bool:
+    """判断 step 是否读取了已推导出的最小值表达式。"""
+    return any(_read_is_minimum_expression(handle, handle_registry) for handle in step.reads)
+
+
+def _reads_given_minimum_value(
+    step: StepIntent,
+    handle_registry: CanonicalHandleRegistry,
+) -> bool:
+    """判断 step 是否读取了题设给定最小值。"""
+    return any(_read_is_given_minimum_value(handle, handle_registry) for handle in step.reads)
+
+
+def _read_is_length_condition(
+    handle: str,
+    handle_registry: CanonicalHandleRegistry,
+) -> bool:
+    """按 fact type 和 handle 语义识别长度条件。"""
+    fact_type = handle_registry.fact_types.get(handle, "")
+    text = _read_semantic_text(handle, handle_registry)
+    return fact_type in {"length", "length_squared"} or "length" in text
+
+
+def _read_is_minimum_expression(
+    handle: str,
+    handle_registry: CanonicalHandleRegistry,
+) -> bool:
+    """识别可作为参数方程输入的公共最小值表达式。"""
+    fact_type = handle_registry.fact_types.get(handle, "")
+    if fact_type in {"minimum_expression", "minimum_value_expression"}:
+        return True
+    name = _semantic_name(handle).lower()
+    if "given" in name:
+        return False
+    return _output_type_from_text(handle, "") == "MinimumExpression" or (
+        "minimum" in name and ("expr" in name or "expression" in name)
+    )
+
+
+def _read_is_given_minimum_value(
+    handle: str,
+    handle_registry: CanonicalHandleRegistry,
+) -> bool:
+    """识别题设给定的最小值事实。"""
+    fact_type = handle_registry.fact_types.get(handle, "")
+    name = _semantic_name(handle).lower()
+    return fact_type == "minimum_value" or (
+        "minimum" in name and ("given" in name or "value_given" in name)
+    )
+
+
+def _read_semantic_text(
+    handle: str,
+    handle_registry: CanonicalHandleRegistry,
+) -> str:
+    """把 handle、semantic name 和 fact type 合成小写匹配文本。"""
+    return "\n".join((
+        handle,
+        _semantic_name(handle),
+        handle_registry.fact_types.get(handle, ""),
+    )).lower()
 
 
 def _capability_covers_output_types(
@@ -441,6 +641,8 @@ def _is_parameter_value_semantic_name(name: str) -> bool:
     不能用 ``"m_value" in name``，因为 ``minimum_value`` 中也会出现相似片段。
     """
     if name in {"m_value", "a_value", "b_value", "c_value", "parameter_value"}:
+        return True
+    if re.fullmatch(r"parameter_[a-z][a-z0-9]*", name):
         return True
     return bool(
         re.fullmatch(r"(?:parameter_)?[a-z][a-z0-9]*_(?:parameter_)?value", name)
