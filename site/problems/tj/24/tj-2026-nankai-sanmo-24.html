@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2026 年天津市南开区三模 第 24 题（平行四边形折叠与重叠面积） | 数学说</title>
+  <meta name="description" content="2026 天津市南开区三模第 24 题：平行四边形 OABC 沿 60° 折痕折叠，求坐标、A′B 表达式、五边形范围与重叠面积 S 的范围。" />
+  <meta property="og:title" content="2026 年天津市南开区三模 第 24 题（平行四边形折叠与重叠面积） | 数学说" />
+  <meta property="og:description" content="2026 天津市南开区三模第 24 题：平行四边形 OABC 沿 60° 折痕折叠，求坐标、A′B 表达式、五边形范围与重叠面积 S 的范围。" />
+  <meta property="og:image" content="../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../assets/css/interactive-geometry-page.css" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../nav/index.html">题库导航</a>
+    <span class="lesson-title">2026 天津市南开区三模 第 24 题</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <div class="problem-summary">
+            <div class="problem-summary-text">第 24 题（2026 天津市南开区三模）平行四边形折叠与重叠面积</div>
+            <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          </div>
+          <div class="problem-full">
+            <div class="problem-line"><span>（24）（本小题 10 分）将平行四边形纸片 OABC 放置在平面直角坐标系中，点 O（0，0），点 A（6，0），点 B，C 在第一象限，且 OC＝4√3，∠AOC＝30°。</span></div>
+<div class="problem-line"><span>（I）填空：如图 1，点 C 的坐标为 __________，点 B 的坐标为 __________；</span><span class="answer-chip" id="answerI">答案：C（6，2√3），B（12，2√3）</span></div>
+<div class="problem-line"><span>（II）若 M 为 x 轴的正半轴上一动点，点 N 在第一象限，且 ∠OMN＝60°，沿直线 MN 折叠该纸片，折叠后点 O 的对应点为 O′，点 A 的对应点为 A′。设 OM＝t。</span></div>
+<div class="problem-line"><span>① 如图 2，若折叠后点 O′ 落在直线 OC 上，点 A′ 落在线段 AB 上，直线 MN 与 AB，OC 分别相交于点 D 和点 F，当折叠后四边形 A′DFO′ 与四边形 OABC 的重叠部分为五边形时，A′O′ 与 BC 相交于点 E。试用含有 t 的式子表示线段 A′B 的长，并直接写出 t 的取值范围；</span><span class="answer-chip" id="answerII1">答案：A′B＝√3（10－t），6＜t＜8</span></div>
+<div class="problem-line"><span>② 若设折叠后图形与四边形 OABC 重叠部分的面积为 S，当 4＜t＜10 时，求 S 的取值范围（直接写出结果即可）。</span><span class="answer-chip" id="answerII2">答案：2√3＜S≤15√3/4</span></div>
+<div class="problem-line"><strong>原题图形</strong></div>
+<div class="problem-original-figures" aria-label="原题图 1 和图 2">
+  <figure class="problem-figure">
+    <svg id="originalFigure1" viewBox="0 0 1080 760" role="img" aria-label="图 1：平行四边形 OABC 放在坐标系中"></svg>
+    <h3>图 1</h3>
+  </figure>
+  <figure class="problem-figure">
+    <svg id="originalFigure2" viewBox="0 0 1080 760" role="img" aria-label="图 2：折叠后重叠部分为五边形"></svg>
+    <h3>图 2</h3>
+  </figure>
+</div>
+          </div>
+        </section>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../assets/js/lesson-page-runtime.js"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"i1s1","section":"第（I）问","title":"第1步：由 30°-60° 关系求 C、B 坐标","t":7,"derive":[["∵","OC＝4√3，∠AOC＝30°"],["∴","C 的横坐标为 4√3cos30°＝6，纵坐标为 4√3sin30°＝2√3"],["∴","C（6，2√3）"],["∵","OABC 是平行四边形，OA∥CB，AB∥OC"],["∴","从 C 到 B 的位移等于从 O 到 A 的位移"],["∴","B（12，2√3）"]],"box":["C（6，2√3）","B（12，2√3）"]},{"id":"q2a1","section":"第（II）①问","title":"第1步：由直角三角形求 AA′","t":7,"derive":[["∵","A（6，0），M（t，0），且 t＞6"],["∴","AM＝t－6"],["∵","D 在 AB 上，AB∥OC，∠AOC＝30°"],["∴","∠DAM＝30°"],["∵","M、A、O 在同一直线上，∠OMN＝60°"],["∴","∠AMN＝60°"],["∴","△AMD 是直角三角形，且 ∠ADM＝90°"],["∴","AD＝AM·sin60°＝√3(t－6)/2"],["∵","折痕 MN 是 AA′ 的垂直平分线，D 是 MN 与 AB 的交点"],["∴","D 是 AA′ 的中点，AA′＝2AD＝√3(t－6)"]],"box":["AD＝√3(t－6)/2","AA′＝√3(t－6)"]},{"id":"q2a2","section":"第（II）①问","title":"第2步：由线段差求 A′B","t":7,"derive":[["∵","AB∥OC，且 AB＝OC＝4√3"],["∵","A′ 在线段 AB 上，且由上一步 AA′＝√3(t－6)"],["∴","A′B＝AB－AA′＝4√3－√3(t－6)"],["∴","A′B＝√3(10－t)"]],"box":["AB＝4√3","AA′＝√3(t－6)","A′B＝√3(10－t)"]},{"id":"q2a3","section":"第（II）①问","title":"第3步：由边界位置判断五边形范围","t":7,"derive":[["∵","A′ 在线段 AB 上，左边界是 A′ 与 A 重合"],["∴","t＞6 时五边形才可能真正形成"],["∵","F 点为 MN 与 OC 的交点，OF＝√3t/2"],["∵","OC＝4√3"],["∴","OF＜OC，即 √3t/2＜4√3"],["∴","t＜8"],["∵","t＝6 时 A′ 与 D 都和 A 重合，t＝8 时 F 与 C 重合"],["∴","五边形阶段为 6＜t＜8"]],"box":["A′B＝√3(10－t)","6＜t＜8"],"minis":[{"title":"t＝6","caption":"A′ 与 D 都和 A 重合，五边形未形成。","t":6},{"title":"6＜t＜8","caption":"重叠部分是五边形 FCEA′D。","t":7},{"title":"t＝8","caption":"F 与 C 重合，五边形退化。","t":8}]},{"id":"q2b1","section":"第（II）②问","title":"第1步：由折痕位置判断面积分段","t":7,"derive":[["∵","4＜t≤6 时，折痕 MN 切 OA、OC，重叠部分是四边形 MFCE，面积逐渐变大"],["∵","6＜t＜8 时，折痕 MN 切 AB、OC，重叠部分是五边形 FCEA′D，面积先变大再变小"],["∵","8≤t＜10 时，折痕 MN 切 AB、BC，重叠部分是四边形，面积逐渐变小"],["∴","最大值只需看五边形阶段；最小值只会在 t→4+ 或 t→10− 的端点趋势中出现"]],"box":["4＜t≤6：四边形，面积变大","6＜t＜8：五边形，先变大再变小","8≤t＜10：四边形，面积变小"],"minis":[{"title":"4＜t≤6","caption":"折后三角形 O′MF 与原图重叠成四边形。","t":5},{"title":"6＜t＜8","caption":"重叠部分为五边形，面积先变大再变小。","t":7},{"title":"8≤t＜10","caption":"折后五边形右移，重叠四边形逐渐缩小。","t":9}]},{"id":"q2b2","section":"第（II）②问","title":"第2步：由左侧边界求最小值","t":4,"derive":[["取","左端边界 t＝4 作候选"],["∵","M（4，0），O′ 与 C 重合，F 是 OC 的中点"],["∴","FC＝2√3，M 到直线 OC 的距离为 2"],["∴","S＝S△MFC＝1/2×2√3×2＝2√3"],["∵","题设为 4＜t＜10"],["∴","左端下界 2√3 取不到"]],"box":["左端下界：2√3（取不到）"]},{"id":"q2b3","section":"第（II）②问","title":"第3步：由三角形面积差求五边形面积最大值","t":7,"derive":[["∵","6＜t＜8 中，重叠五边形为 FCEA′D"],["∵","可看作大三角形 △MFO′ 减去 △MDA′ 和 △CEO′"],["∵","FO′＝√3t/2，M 到直线 OC 的距离为 t/2"],["∴","S△MFO′＝√3t²/8"],["∵","DA′＝AD＝√3(t－6)/2，MD＝(t－6)/2"],["∴","S△MDA′＝√3(t－6)²/8"],["∵","O′（3t/2，√3t/2），BC 的纵坐标为 2√3"],["∴","O′ 到直线 BC 的距离为 √3(t－4)/2"],["作","过 O′ 作 O′H⊥BC，垂足为 H"],["∵","E 在 BC 上，A′O′ 与 BC 成 60°"],["∴","∠O′EH＝60°，△O′EH 是直角三角形"],["∴","EH＝O′H/tan60°＝[√3(t－4)/2]/√3＝(t－4)/2"],["∵","H 的横坐标与 O′ 相同，为 3t/2，且 E 在 H 左侧"],["∴","E 的横坐标为 3t/2－EH＝3t/2－(t－4)/2＝t＋2"],["∴","CE＝(t＋2)－6＝t－4"],["∴","S△CEO′＝√3(t－4)²/4"],["∴","S＝S△MFO′－S△MDA′－S△CEO′＝√3[15－(t－7)²]/4"],["∴","当 t＝7 时，S 最大，为 15√3/4"]],"box":["S＝√3[15－(t－7)²]/4","S_max＝15√3/4"]},{"id":"q2b4","section":"第（II）②问","title":"第4步：由右侧边界求最小值","t":10,"derive":[["∵","t＝8 时右侧四边形刚开始，S＝7√3/2"],["∴","右侧继续向右移动时，面积继续减小"],["取","右端边界 t＝10 作候选"],["∵","此时 A′ 与 B 重合，AA′＝AB＝4√3"],["∵","折痕 MN 是 AA′ 的垂直平分线，D 在 AA′ 上"],["∴","A′D＝AA′/2＝2√3"],["∵","A′ 与 B 重合，∠CA′A＝30°，且 MN⊥AA′"],["∴","右端小三角形是直角三角形，且 A′ 处锐角为 30°"],["∴","另一条直角边＝A′D·tan30°＝2"],["∴","S＝1/2×A′D×2＝1/2×2√3×2＝2√3"],["∵","t＝10 不在 4＜t＜10 内"],["∴","右端下界为 2√3，取不到"]],"box":["右端下界：2√3（取不到）"]},{"id":"q2b5","section":"第（II）②问","title":"第5步：合并答案","t":7,"derive":[["∵","左端下界为 2√3，右端下界也为 2√3，且都取不到"],["∴","S＞2√3"],["∵","五边形阶段最大值为 15√3/4，且 t＝7 时可以取到"],["∴","S≤15√3/4"],["∴","2√3＜S≤15√3/4"]],"box":["2√3＜S≤15√3/4"],"minis":[{"title":"t＝4","caption":"左端边界情况，S＝2√3，但取不到。","t":4},{"title":"t＝7","caption":"五边形阶段面积最大，S＝15√3/4。","t":7},{"title":"t＝10","caption":"右端边界情况，S＝2√3，但取不到。","t":10}]}];
+    var STEP_LABELS = {"i1s1":"1 求C、B坐标","q2a1":"1 求AA′","q2a2":"2 求A′B","q2a3":"3 判五边形范围","q2b1":"1 判面积分段","q2b2":"2 求左端最小值","q2b3":"3 求五边形最大值","q2b4":"4 求右端最小值","q2b5":"5 合并答案"};
+    var POLICIES   = {"i1s1":{"movable":false,"range":[7,7]},"q2a1":{"movable":true,"range":[6.001,7.999],"step":0.001},"q2a2":{"movable":true,"range":[6.001,7.999],"step":0.001},"q2a3":{"movable":true,"range":[6,8],"step":0.001},"q2b1":{"movable":true,"range":[4.001,9.999],"step":0.001},"q2b2":{"movable":false,"range":[4,4]},"q2b3":{"movable":true,"range":[6.001,7.999],"step":0.001},"q2b4":{"movable":false,"range":[10,10]},"q2b5":{"movable":true,"range":[4,10],"step":0.001}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script type="application/json" id="geometrySpec">{"$schema":"../../schemas/geometry-spec.schema.json","version":1,"id":"tj-2026-nankai-sanmo-24","domain":{"minX":-0.8,"maxX":15.8,"minY":-1.2,"maxY":9.4},"fixedPoints":{"O":["0","0"],"A":["6","0"],"C":["6","2*S3"],"B":["12","2*S3"]},"movingParam":"t","movingPoints":{"M":["t","0"],"N":["t-2","2*S3"],"Op":["3*t/2","S3*t/2"],"Ap":["3*t/2-3","S3*(t-6)/2"],"Cp":["3*t/2-6","S3*(t-4)/2"],"H":["3*t/2","2*S3"]},"basePolygon":["O","A","B","C"],"movingPolygon":["Op","M","F"],"movingPolygons":[{"maxT":6,"vertices":["Op","M","F"]},{"minT":8,"vertices":["Op","Ap","D","G","Cp"]},{"minT":6,"maxT":8,"vertices":["Op","Ap","D","F"]}],"derivedIntersections":[{"name":"D","a":["M","N"],"b":["A","B"],"fallback":["(3*t+6)/4","S3*(t-6)/4"]},{"name":"F","a":["M","N"],"b":["O","C"],"fallback":["3*t/4","S3*t/4"]},{"name":"G","a":["M","N"],"b":["C","B"],"fallback":["t-2","2*S3"]},{"name":"E","a":["Ap","Op"],"b":["C","B"],"fallback":["t+2","2*S3"]}],"originalFigures":[{"id":"originalFigure1","t":7,"showMoving":false,"showOverlap":false,"showIntersections":false,"grid":{"axesArrow":true},"fixedLabels":[{"at":"A","label":"A","dx":-2,"dy":24},{"at":"C","label":"C","dx":-22,"dy":-12},{"at":"B","label":"B","dx":10,"dy":-10}]},{"id":"originalFigure2","t":7,"showMoving":true,"showOverlap":true,"showIntersections":true,"grid":{"axesArrow":true},"segments":[{"from":"M","to":"N","color":"#111827","width":2},{"from":"Op","to":"Ap","color":"#0f766e","width":2}],"fixedLabels":[{"at":"A","label":"A","dx":-20,"dy":24},{"at":"C","label":"C","dx":-24,"dy":-12},{"at":"B","label":"B","dx":10,"dy":-10}],"movingLabels":[{"at":"M","label":"M","dx":-8,"dy":24},{"at":"N","label":"N","dx":-22,"dy":-14},{"at":"Op","label":"O′","dx":10,"dy":-12},{"at":"Ap","label":"A′","dx":8,"dy":22}],"intersectionLabels":[{"at":"D","label":"D","dx":-22,"dy":24},{"at":"F","label":"F","dx":-24,"dy":8},{"at":"E","label":"E","dx":8,"dy":16}]}]}</script>
+<script src="../../../assets/js/geometry-engine.js"></script>
+<script src="../../../assets/js/geometry-lesson-from-spec.js"></script>
+
+<script>
+  const __GEOMETRY_SPEC__ = JSON.parse(document.getElementById('geometrySpec').textContent);
+  const __STEP_DECORATIONS__ = {"$schema":"../../schemas/step-decorations.schema.json","_comment":"2026 天津市南开区三模 24 题 — 平行四边形折叠与重叠面积。","layers":{"global":{"elements":[{"type":"grid"},{"type":"basePoly"},{"type":"point","at":"O","showLabel":false,"color":"#1f2937","r":5.2},{"type":"point","at":"A","dx":-4,"dy":24,"color":"#1f2937","r":5.2},{"type":"point","at":"C","dx":-24,"dy":-12,"color":"#1f2937","r":5.2},{"type":"point","at":"B","dx":10,"dy":-10,"color":"#1f2937","r":5.2}]},"foldContext":{"sectionNot":"第（I）问","elements":[{"type":"movingPoly"},{"type":"overlap"},{"type":"coloredLine","from":"M","to":"N","color":"#111827","width":2},{"type":"point","at":"M","dx":-8,"dy":24,"color":"#1f2937","r":5.2},{"type":"point","at":"N","dx":-22,"dy":-14,"color":"#1f2937","r":5.2},{"type":"point","at":"Op","labelText":"O′","color":"#0f766e","dx":10,"dy":-12,"r":5.2},{"type":"point","at":"Ap","labelText":"A′","color":"#0f766e","dx":8,"dy":22,"minT":6,"r":5.2},{"type":"areaLabel","region":"overlap","text":"S","dx":-4,"dy":4,"color":"#dc2626","size":16}]}},"steps":{"i1s1":{"domain":{"minX":-0.8,"maxX":13.4,"minY":-0.8,"maxY":4.8},"add":[{"type":"segment","from":"O","to":"C","label":"OC=4√3","offsetPx":24,"collinearGroup":false,"color":"#0f766e","width":1.5},{"type":"angleArc","vertex":"O","rayA":"A","rayB":"C","label":"30°","labelRadius":38,"color":"#b45309","radius":24,"fontSize":14},{"type":"coordinateLabel","at":"C","text":"C(6,2√3)","dx":-86,"dy":-34,"color":"#334155","fontSize":14},{"type":"coordinateLabel","at":"B","text":"B(12,2√3)","dx":10,"dy":-32,"color":"#334155","fontSize":14},{"type":"coloredLine","from":"C","to":"B","color":"#2563eb","width":3},{"type":"coloredLine","from":"O","to":"A","color":"#2563eb","width":3}]},"q2a1":{"domain":{"minX":-0.8,"maxX":13.2,"minY":-0.8,"maxY":7.2},"add":[{"type":"derivedPoint","at":"D","dx":-22,"dy":24,"color":"#dc2626","r":4.6},{"type":"coloredLine","from":"A","to":"D","color":"#dc2626","width":3},{"type":"coloredLine","from":"D","to":"M","color":"#dc2626","width":3},{"type":"segment","from":"A","to":"M","label":"AM=t-6","offsetPx":-24,"collinearGroup":false,"color":"#0f766e","width":1.5},{"type":"rightAngle","vertex":"D","rayA":"A","rayB":"M","size":11,"color":"#0f766e"},{"type":"dottedLine","from":"A","to":"Ap","color":"#0f766e","width":2,"dash":"2 4"}]},"q2a2":{"domain":{"minX":-0.8,"maxX":13.2,"minY":-0.8,"maxY":7.2},"add":[{"type":"coloredLine","from":"A","to":"B","color":"#dc2626","width":3},{"type":"segment","from":"A","to":"B","label":"AB=4√3","offsetPx":-28,"collinearGroup":false,"rotateWithLine":true,"color":"#0f766e","width":1.5},{"type":"segment","from":"A","to":"Ap","label":"√3(t-6)","offsetPx":24,"collinearGroup":false,"rotateWithLine":true,"color":"#0f766e","width":1.5},{"type":"point","at":"Ap","labelText":"A′","color":"#dc2626","dx":8,"dy":22,"r":5.2}]},"q2a3":{"domain":{"minX":-0.8,"maxX":13.2,"minY":-0.8,"maxY":7.2},"add":[{"type":"derivedPoint","at":"D","dx":-22,"dy":24,"color":"#dc2626","r":4.6},{"type":"derivedPoint","at":"F","dx":-24,"dy":8,"color":"#dc2626","r":4.6},{"type":"derivedPoint","at":"E","dx":8,"dy":16,"color":"#dc2626","r":4.6},{"type":"coloredLine","from":"Ap","to":"D","color":"#dc2626","width":3},{"type":"coloredLine","from":"D","to":"F","color":"#dc2626","width":3},{"type":"coloredLine","from":"F","to":"C","color":"#dc2626","width":3},{"type":"coincidentLabel","anchor":"A","when":6,"eps":0.04,"text":"t=6 时 A′=D=A","dx":-118,"dy":-28},{"type":"coincidentLabel","anchor":"C","when":8,"eps":0.04,"text":"t=8 时 F=C","dx":-104,"dy":-32}]},"q2b1":{"add":[]},"q2b2":{"domain":{"minX":-0.8,"maxX":10.2,"minY":-0.8,"maxY":5.8},"add":[{"type":"derivedPoint","at":"F","dx":-24,"dy":8,"color":"#dc2626","r":4.6},{"type":"outlineRegion","vertices":["M","F","C"],"color":"#b45309","width":2.2,"dash":"6 5","fill":"none"},{"type":"segment","from":"F","to":"C","label":"2√3","offsetPx":22,"collinearGroup":false,"color":"#0f766e","width":1.5},{"type":"areaFormulaCard","pos":[0.2,5.35],"terms":[{"text":"S","kind":"target"},{"text":"=","kind":"op"},{"text":"△MFC","kind":"base"},{"text":"=","kind":"op"},{"text":"2√3","kind":"target"}]}]},"q2b3":{"domain":{"minX":-0.8,"maxX":13.2,"minY":-0.8,"maxY":7.2},"add":[{"type":"derivedPoint","at":"D","dx":-22,"dy":24,"color":"#dc2626","r":4.6},{"type":"derivedPoint","at":"F","dx":-24,"dy":8,"color":"#dc2626","r":4.6},{"type":"derivedPoint","at":"E","dx":8,"dy":16,"color":"#dc2626","r":4.6},{"type":"derivedPoint","at":"H","dx":8,"dy":-14,"color":"#dc2626","r":4.6},{"type":"outlineRegion","vertices":["M","F","Op"],"color":"#b45309","width":2.2,"dash":"6 5","fill":"none"},{"type":"cutRegion","vertices":["M","D","Ap"],"style":"subtracted","centroidLabel":"−"},{"type":"cutRegion","vertices":["C","E","Op"],"style":"subtracted","centroidLabel":"−"},{"type":"dottedLine","from":"Op","to":"H","color":"#0f766e","width":2,"dash":"2 4"},{"type":"rightAngle","vertex":"H","rayA":"Op","rayB":"E","size":10,"color":"#0f766e"},{"type":"segment","from":"Op","to":"H","label":"O′H=√3(t-4)/2","offsetPx":18,"collinearGroup":false,"color":"#0f766e","width":1.5},{"type":"segment","from":"E","to":"H","label":"EH=(t-4)/2","offsetPx":18,"collinearGroup":false,"color":"#0f766e","width":1.5},{"type":"segment","from":"C","to":"E","label":"CE=t-4","offsetPx":-24,"collinearGroup":false,"color":"#0f766e","width":1.5},{"type":"areaFormulaCard","pos":[0.2,6.75],"terms":[{"text":"S","kind":"target"},{"text":"=","kind":"op"},{"text":"△MFO′","kind":"base"},{"text":"−","kind":"op"},{"text":"△MDA′","kind":"cut"},{"text":"−","kind":"op"},{"text":"△CEO′","kind":"cut"}]}]},"q2b4":{"domain":{"minX":5.2,"maxX":15.8,"minY":-0.8,"maxY":9.4},"add":[{"type":"derivedPoint","at":"D","dx":-20,"dy":24,"color":"#dc2626","r":4.6},{"type":"outlineRegion","vertices":["G","B","D"],"color":"#b45309","width":2.2,"dash":"6 5","fill":"none"},{"type":"segment","from":"Ap","to":"D","label":"A′D=2√3","offsetPx":22,"collinearGroup":false,"color":"#0f766e","width":1.5},{"type":"segment","from":"D","to":"G","label":"2","offsetPx":-22,"collinearGroup":false,"color":"#0f766e","width":1.5},{"type":"angleArc","vertex":"Ap","rayA":"C","rayB":"A","label":"30°","labelRadius":30,"color":"#b45309","radius":24,"fontSize":14},{"type":"rightAngle","vertex":"D","rayA":"Ap","rayB":"M","size":10,"color":"#0f766e"},{"type":"areaFormulaCard","pos":[5.55,8.75],"terms":[{"text":"S→","kind":"op"},{"text":"1/2·A′D·2","kind":"base"},{"text":"=","kind":"op"},{"text":"2√3","kind":"target"}]}]},"q2b5":{"domain":{"minX":-0.8,"maxX":15.8,"minY":-0.8,"maxY":9.4},"add":[{"type":"areaFormulaCard","pos":[0.2,6.75],"terms":[{"text":"2√3","kind":"cut"},{"text":"<","kind":"op"},{"text":"S","kind":"target"},{"text":"≤","kind":"op"},{"text":"15√3/4","kind":"base"}]}]}}};
+  const renderer = GeometryLessonFromSpec.createSpecRenderer(__GEOMETRY_SPEC__, __STEP_DECORATIONS__, STEPS, POLICIES);
+  function groupTitle(section) {
+    const map = {"第（I）问":"第（I）问 坐标填空","第（II）①问":"第（II）①问 A′B 与五边形范围","第（II）②问":"第（II）②问 面积 S 的取值范围"};
+    return map[section] || section;
+  }
+  var diagramMarkupFor = renderer.diagramMarkupFor;
+  var drawMini = renderer.drawMini;
+  var __LESSON_LEGEND_HTML__ = "<span><i class=\"sw\" style=\"background:var(--paper)\"></i>固定平行四边形 OABC</span><span><i class=\"sw\" style=\"background:var(--fold)\"></i>折叠后图形</span><span><i class=\"sw\" style=\"background:var(--overlap)\"></i>重叠区域 S</span>";
+  // 原题图形渲染：由 renderer 负责（可选）
+  var __AFTER_RENDER_ALL_STEPS__ = renderer.renderOriginalFigures;
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "折痕位置 · t＝OM",
+      paramLabelPrefix: "t=",
+      goToProblemMode: "doubleScroll"
+    });
+  </script>
+</body>
+</html>

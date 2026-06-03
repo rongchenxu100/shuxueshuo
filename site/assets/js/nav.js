@@ -13,6 +13,7 @@ const EXAMS = [
   { key: "zhongkao", label: "中考真题" },
   { key: "yimo", label: "一模" },
   { key: "ermo", label: "二模" },
+  { key: "sanmo", label: "三模" },
   { key: "topic", label: "专题训练" }
 ];
 
@@ -21,6 +22,7 @@ const TAG_LABELS = {
   folding: "折叠",
   translation: "平移",
   rotation: "旋转",
+  sanmo: "三模",
   "dynamic-point": "动点",
   function: "函数",
   algebra: "代数",
@@ -65,6 +67,10 @@ function getExamGroup(problem) {
 
   if (exam.includes("ermo")) {
     return "ermo";
+  }
+
+  if (exam.includes("sanmo")) {
+    return "sanmo";
   }
 
   return "topic";

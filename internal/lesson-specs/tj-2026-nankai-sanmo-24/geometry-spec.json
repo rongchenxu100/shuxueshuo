@@ -1,0 +1,77 @@
+{
+  "$schema": "../../schemas/geometry-spec.schema.json",
+  "version": 1,
+  "id": "tj-2026-nankai-sanmo-24",
+  "domain": { "minX": -0.8, "maxX": 15.8, "minY": -1.2, "maxY": 9.4 },
+  "fixedPoints": {
+    "O": ["0", "0"],
+    "A": ["6", "0"],
+    "C": ["6", "2*S3"],
+    "B": ["12", "2*S3"]
+  },
+  "movingParam": "t",
+  "movingPoints": {
+    "M": ["t", "0"],
+    "N": ["t-2", "2*S3"],
+    "Op": ["3*t/2", "S3*t/2"],
+    "Ap": ["3*t/2-3", "S3*(t-6)/2"],
+    "Cp": ["3*t/2-6", "S3*(t-4)/2"],
+    "H": ["3*t/2", "2*S3"]
+  },
+  "basePolygon": ["O", "A", "B", "C"],
+  "movingPolygon": ["Op", "M", "F"],
+  "movingPolygons": [
+    { "maxT": 6, "vertices": ["Op", "M", "F"] },
+    { "minT": 8, "vertices": ["Op", "Ap", "D", "G", "Cp"] },
+    { "minT": 6, "maxT": 8, "vertices": ["Op", "Ap", "D", "F"] }
+  ],
+  "derivedIntersections": [
+    { "name": "D", "a": ["M", "N"], "b": ["A", "B"], "fallback": ["(3*t+6)/4", "S3*(t-6)/4"] },
+    { "name": "F", "a": ["M", "N"], "b": ["O", "C"], "fallback": ["3*t/4", "S3*t/4"] },
+    { "name": "G", "a": ["M", "N"], "b": ["C", "B"], "fallback": ["t-2", "2*S3"] },
+    { "name": "E", "a": ["Ap", "Op"], "b": ["C", "B"], "fallback": ["t+2", "2*S3"] }
+  ],
+  "originalFigures": [
+    {
+      "id": "originalFigure1",
+      "t": 7,
+      "showMoving": false,
+      "showOverlap": false,
+      "showIntersections": false,
+      "grid": { "axesArrow": true },
+      "fixedLabels": [
+        { "at": "A", "label": "A", "dx": -2, "dy": 24 },
+        { "at": "C", "label": "C", "dx": -22, "dy": -12 },
+        { "at": "B", "label": "B", "dx": 10, "dy": -10 }
+      ]
+    },
+    {
+      "id": "originalFigure2",
+      "t": 7,
+      "showMoving": true,
+      "showOverlap": true,
+      "showIntersections": true,
+      "grid": { "axesArrow": true },
+      "segments": [
+        { "from": "M", "to": "N", "color": "#111827", "width": 2 },
+        { "from": "Op", "to": "Ap", "color": "#0f766e", "width": 2 }
+      ],
+      "fixedLabels": [
+        { "at": "A", "label": "A", "dx": -20, "dy": 24 },
+        { "at": "C", "label": "C", "dx": -24, "dy": -12 },
+        { "at": "B", "label": "B", "dx": 10, "dy": -10 }
+      ],
+      "movingLabels": [
+        { "at": "M", "label": "M", "dx": -8, "dy": 24 },
+        { "at": "N", "label": "N", "dx": -22, "dy": -14 },
+        { "at": "Op", "label": "O′", "dx": 10, "dy": -12 },
+        { "at": "Ap", "label": "A′", "dx": 8, "dy": 22 }
+      ],
+      "intersectionLabels": [
+        { "at": "D", "label": "D", "dx": -22, "dy": 24 },
+        { "at": "F", "label": "F", "dx": -24, "dy": 8 },
+        { "at": "E", "label": "E", "dx": 8, "dy": 16 }
+      ]
+    }
+  ]
+}

@@ -55,6 +55,7 @@
 | `tj-2026-hedong-ermo-24` | 24 | 正方形折叠后求重合面积和参数 | `folding-overlap-area`, `area-piecewise-by-overlap` |
 | `tj-2026-heping-ermo-24` | 24 | 梯形折叠后求重叠面积范围 | `folding-overlap-area`, `area-piecewise-by-overlap` |
 | `tj-2026-nankai-ermo-24` | 24 | 四边形折叠与重叠面积范围 | `folding-overlap-area`, `area-piecewise-by-overlap` |
+| `tj-2026-nankai-sanmo-24` | 24 | 平行四边形沿 60° 折痕折叠，求 `A′B`、五边形阶段和 `4<t<10` 的重叠面积范围 | `folding-overlap-area`, `area-piecewise-by-overlap` |
 
 ### moving-point-rotation-area
 
@@ -208,6 +209,7 @@
 | `tj-2026-hedong-ermo-24` | 24 | 第（Ⅱ）问、第（Ⅲ）问 | 正方形折叠后重合区域分段求面积 |
 | `tj-2026-heping-ermo-24` | 24 | 第（Ⅱ）①② | 梯形折叠后重叠区域和面积范围 |
 | `tj-2026-nankai-ermo-24` | 24 | 第（II）①② | 四边形折叠，确定五边形阶段和面积范围 |
+| `tj-2026-nankai-sanmo-24` | 24 | 第（II）①② | 斜折痕分三段裁剪真实折后纸片，先由折叠对应点求 `A′B` 与五边形范围，再求重叠面积范围 |
 
 ### rotation-overlap-area
 
@@ -225,6 +227,7 @@
 | `tj-2026-heping-ermo-24` | 24 | 第（Ⅱ）② | 折叠重叠面积范围 |
 | `tj-2026-hexi-yimo-24` | 24 | 第（II）② | 平移三角形重叠面积范围 |
 | `tj-2026-nankai-ermo-24` | 24 | 第（II）② | 折叠四边形重叠面积范围 |
+| `tj-2026-nankai-sanmo-24` | 24 | 第（II）② | 按 `4<t≤6`、`6<t<8`、`8≤t<10` 分段，四边形给严格下界，五边形公式给最大值 |
 | `tj-2026-nankai-yimo-24` | 24 | 第（II）② | 旋转三角形重叠面积范围 |
 
 ### parameter-range-by-sign-and-order

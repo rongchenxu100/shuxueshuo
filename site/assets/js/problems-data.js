@@ -234,6 +234,19 @@ window.__PROBLEMS_DATA__ = [
     "status": "published"
   },
   {
+    "id": "tj-2026-nankai-sanmo-24",
+    "city": "tianjin",
+    "cityLabel": "天津",
+    "year": 2026,
+    "exam": "nankai-sanmo",
+    "examLabel": "南开区三模",
+    "slot": "24",
+    "title": "2026 年天津市南开区三模第 24 题（平行四边形折叠与重叠面积）",
+    "tags": ["sanmo", "geometry", "folding", "dynamic-point"],
+    "path": "../problems/tj/24/tj-2026-nankai-sanmo-24.html",
+    "status": "published"
+  },
+  {
     "id": "tj-2026-nankai-yimo-24",
     "city": "tianjin",
     "cityLabel": "天津",
