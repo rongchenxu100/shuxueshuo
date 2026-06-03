@@ -103,6 +103,29 @@ In horse-drinking or broken-line-shortest steps, fill the path-comparison triang
 
 For interactive pages, split the optimization into two states when possible: an observation state with local controls for the moving point, and a calculation state locked to the optimal configuration. The observation state should support the inequality or collinearity idea; the calculation state may mark final lengths, special triangles, and final coordinates.
 
+### Nested Reflection Minimum On Triangle Sides
+
+When a shortest-perimeter problem has moving points on several sides of a triangle, avoid jumping directly to "the orthic/foot triangle is shortest" as a standalone theorem. Build the result inside the solution in the order students can see it.
+
+Preferred route:
+
+1. Fix one moving point first. Reflect it across the two sides that contain the other moving points. The perimeter becomes a broken line between two reflected points.
+2. State the fixed-point shortest condition: the reflected point, the intermediate moving points, and the other reflected point are collinear. Use this as a conclusion of the step, not as an unexplained common fact.
+3. Then move the originally fixed point. If the reflected endpoints and the fixed vertex form a special triangle, prove that special angle or triangle in its own step when it is not immediate.
+4. Convert the fixed-point minimum to one decisive length, for example `周长最小值 = G₁G₂ = √2·DG`.
+5. Minimize that decisive length using a visible middle-school fact such as "垂线段最短". Only after the shortest state is known, compute the final value.
+
+For a `45°` angle needed in this route, prefer an auxiliary isosceles-right triangle built from existing points and distances. For example, if `M` lies on `DN` and `DM=QM`, `DM²+QM²=DQ²`, then `△DMQ` proves `∠QDM=45°` and hence `∠QDN=45°`. Do not use slope-angle tangent formulas, tangent addition/subtraction, dot products, or a false equality such as `DQ=DN` to justify the angle.
+
+Avoid unnecessary coordinate work after the geometric minimum is found. If the final value follows from `DG=3m`, do not compute the coordinates of the other optimal moving points or the three sides of the final triangle unless the problem explicitly asks for them.
+
+Diagram and interaction requirements for this route:
+
+- The fixed-point reflection step should use local controls for the points that truly move in that fixed state, such as `E` and `F`, while the fixed point `G` remains fixed.
+- The later moving-point step should switch the local control to the remaining point, such as `G`, and hide or de-emphasize dependent points when they no longer drive the proof.
+- Fill the triangle that drives the current conclusion: the reflected right-isosceles triangle for `G₁G₂=√2·DG`, or the auxiliary right triangle for the `45°` proof. Do not keep filling the final perimeter triangle if it is no longer the focus.
+- Draw only the active proof lines. Remove perpendicular helper lines, side segments, and final-triangle edges that are not used in the current derivation.
+
 ### Hidden Circle Minimum
 
 When a moving point satisfies a right-angle condition such as `∠OHB=90°`, first test for a hidden circle: the moving point may lie on the circle with the fixed segment as diameter.

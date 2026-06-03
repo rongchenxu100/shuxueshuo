@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "id": "tj-2026-nankai-sanmo-25",
+  "domain": { "minX": -2.6, "maxX": 13.4, "minY": -14.2, "maxY": 2.2 },
+  "movingParam": "m",
+  "expressionEnv": [
+    { "name": "a", "expr": "1/m" },
+    { "name": "b", "expr": "-2" },
+    { "name": "c", "expr": "-3*m" }
+  ],
+  "fixedPoints": {
+    "O": ["0", "0"]
+  },
+  "movingPoints": {
+    "A": ["3*m", "0"],
+    "B": ["-m", "0"],
+    "P": ["m", "-4*m"],
+    "C": ["0", "c"],
+    "D": ["m", "0"],
+    "Q": ["2*m", "-3*m"],
+    "M": ["0", "-2*m"],
+    "N": ["-m/2", "-3*m"],
+    "E": ["7*m/4", "-9*m/4"],
+    "F": ["0", "-2*m"],
+    "G": ["m", "-3*m"],
+    "G1": ["14*m/5", "-12*m/5"],
+    "G2": ["-7*m/5", "-9*m/5"]
+  },
+  "curves": [
+    { "id": "parabolaMain", "type": "parabola", "a": "a", "b": "b", "c": "c" }
+  ],
+  "derivedIntersections": []
+}

@@ -11,6 +11,7 @@
 | `tj-2026-hexi-yimo-25` | 25 | `√2MN+AN`，构造等腰直角三角形转化 `AN` 后折线最短 | `coefficient-from-point-on-parabola`, `right-triangle-congruence-coordinate`, `isosceles-right-triangle-transform`, `horse-drinking` |
 | `tj-2026-binhai-yimo-25` | 25 | `BE+DF`，平移一段线段后求折线最短 | `coefficient-from-point-on-parabola`, `translation-path-transform` |
 | `tj-2026-nankai-yimo-25` | 25 | `EG+FG`，先证 `EG=DG`，再对称拉直 | `right-triangle-congruence-coordinate`, `isosceles-right-triangle-transform`, `horse-drinking` |
+| `tj-2026-nankai-sanmo-25` | 25 | `△EFG` 周长，固定 `G` 反射拉直后转为 `√2·DG`，再由 `DG⊥NQ` 求最小并反求 `m` | `known-root-factorization`, `coefficient-from-point-on-parabola`, `coordinate-distance-pythagorean`, `horse-drinking` |
 | `tj-2026-heping-yimo-25` | 25 | `OM+BN`，由等长构造把 `BN` 转化后求最小 | `coefficient-from-point-on-parabola`, `tangent-definition-in-right-triangle`, `horse-drinking` |
 | `tj-2026-xiqing-yimo-25` | 25 | `2DM+AM` 含权重路径，30° 构造吸收权重后拉直 | `known-root-factorization`, `coefficient-from-point-on-parabola`, `weighted-path-segment-transform`, `horse-drinking` |
 | `tj-2026-hedong-yimo-25` | 25 | `AG+GH+FH`，等腰直角与对称构造得到最短路 | `known-root-factorization`, `right-triangle-congruence-coordinate`, `isosceles-right-triangle-transform`, `horse-drinking` |
@@ -78,6 +79,7 @@
 |---|---|---|---|
 | `tj-2026-hexi-jieke-25` | 25 | 第（Ⅰ）问、第（Ⅱ）公共结论 | 由 `A(-1,0)` 在抛物线上化简解析式，并配合系数关系继续求参 |
 | `tj-2026-nankai-ermo-25` | 25 | 第（I）问、第（II）① | 由 `x` 轴交点写分解式，再配合旋转条件求参数 |
+| `tj-2026-nankai-sanmo-25` | 25 | 第（Ⅰ）①、第（Ⅱ）① | 先在 `m=1` 中由已知根和对称轴写因式结构，再在第（Ⅱ）问推广到一般 `m` |
 | `tj-2026-xiqing-yimo-25` | 25 | 第（2）① | 由已知根 `A(-1,0)` 读出另一个交点和截距 |
 | `tj-2026-hedong-yimo-25` | 25 | 第（Ⅱ）① | 由 `A(-1,0)` 与 `B(-c,0)` 写出交点关系和坐标 |
 | `tj-2026-beichen-yimo-25` | 25 | 第（Ⅰ）问、第（Ⅱ）问 | 由已知根 `A(-2,0)` 确定 `b`，再读出另一个交点 `B(8,0)` |
@@ -99,6 +101,7 @@
 | `tj-2026-beichen-yimo-25` | 25 | 第（Ⅰ）问、第（Ⅱ）问 | 代入 `A(-2,0)` 求解析式，再把旋转后的 `Q` 代入抛物线求 `P` |
 | `tj-2026-hebei-yimo-25` | 25 | 第（Ⅱ）公共结论、第（Ⅱ）①② | 由 `P(3,3)` 在抛物线上得到 `c=3-15a`，再配合轴平行线段条件求参数 |
 | `tj-2026-hedong-ermo-25` | 25 | 第（Ⅰ）②、第（Ⅱ）问 | 由 `A`、`C` 在抛物线上化简求 `B`；第（Ⅱ）由 `F` 在抛物线上得到 `am` 关系 |
+| `tj-2026-nankai-sanmo-25` | 25 | 第（Ⅰ）①、第（Ⅱ）① | 将顶点代入因式结构求系数：`m=1` 时得 `k=1`，一般 `m` 时得 `k=1/m` |
 | `tj-2026-hongqiao-yimo-25` | 25 | 第（Ⅰ）问、第（Ⅱ）② | 由点在抛物线上化简系数关系，并配合面积条件求参数 |
 | `tj-2026-hongqiao-ermo-25` | 25 | 第（Ⅰ）问、第（Ⅱ）①② | 由 `A(-2,0)` 代入得到 `c=2b−1`，再配合直角条件或最短值求 `b` |
 | `sh-2026-xuhui-ermo-24` | 24 | 第（2）问 | 联立 `l: y=½x+½` 与 `C₂: y=ax²-2ax-3a`，由公共根 `x=-1` 得 `D(3+1/(2a), 2+1/(4a))`，再代入梯形相似关系求 `a` |
@@ -108,6 +111,7 @@
 | problem-id | 题位 | 涉及步骤 | 摘要 |
 |---|---|---|---|
 | `tj-2026-hongqiao-ermo-25` | 25 | 第（Ⅱ）① | 由 `A(-2,0)`、`B(2−4b,0)`、`C(0,2b−1)` 写三边平方，用 `AC²+BC²=AB²` 求 `b` |
+| `tj-2026-nankai-sanmo-25` | 25 | 第（Ⅰ）②、第（Ⅱ）问 | 用坐标距离求 `PQ=m√2`，并用 `DM`、`QM`、`DQ` 的距离关系证明 `△DMQ` 为等腰直角三角形 |
 
 ### axis-parallel-segment-coordinate
 
@@ -161,6 +165,7 @@
 |---|---|---|---|
 | `tj-2026-hexi-yimo-25` | 25 | 第（Ⅲ）问 | `√2MN+AN` 转为 `√2(MN+QN)`，`Q,N,M` 共线且垂直时最短 |
 | `tj-2026-nankai-yimo-25` | 25 | 第（Ⅱ）①④、第（Ⅱ）② | 先转化 `EG=DG`，再用对称点 `D′` 拉直求 `EG+FG` 最小 |
+| `tj-2026-nankai-sanmo-25` | 25 | 第（Ⅱ）问 | 固定 `G` 时反射拉直得周长最小值 `G₁G₂`，再移动 `G`，由 `G₁G₂=√2·DG` 与 `DG⊥NQ` 求最小周长 |
 | `tj-2026-heping-yimo-25` | 25 | 第（Ⅱ）问 | 把 `BN` 转化为等长线段，`O,M,G` 共线时取最小 |
 | `tj-2026-xiqing-yimo-25` | 25 | 第（2）② | 权重转化后看折线 `D-M-N`，三点共线取最小 |
 | `tj-2026-hedong-yimo-25` | 25 | 第（Ⅱ）② | 通过对称/构造把多段路径转成直线最短 |

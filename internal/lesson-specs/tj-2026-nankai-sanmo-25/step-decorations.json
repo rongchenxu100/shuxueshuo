@@ -1,0 +1,174 @@
+{
+  "_comment": "南开 2026 三模第 25 题 — 二次函数综合",
+  "layers": {
+    "global": {
+      "elements": [
+        { "type": "grid" },
+        { "type": "point", "at": "O", "showLabel": false }
+      ]
+    },
+    "parabolaContext": {
+      "stepStartsWith": ["i1", "ii1"],
+      "elements": [
+        { "type": "parabola", "curveId": "parabolaMain" },
+        { "type": "axisOfSymmetry", "curveId": "parabolaMain" },
+        { "type": "vertex", "curveId": "parabolaMain", "labelText": "P", "dx": 14, "dy": 18 }
+      ]
+    }
+  },
+  "steps": {
+    "i1s1": {
+      "domain": { "minX": -1.4, "maxX": 4.1, "minY": -5.4, "maxY": 1.0 },
+      "add": [
+        { "type": "point", "at": "A", "dx": 10, "dy": 20 },
+        { "type": "point", "at": "B", "labelText": "B", "dx": -22, "dy": 20 },
+        { "type": "point", "at": "C", "dx": -30, "dy": 8 },
+        { "type": "point", "at": "D", "dx": 12, "dy": 20 },
+        { "type": "coordinateLabel", "at": "P", "text": "P(1, −4)", "dx": 14, "dy": 14 },
+        { "type": "coordinateLabel", "at": "A", "text": "A(3, 0)", "dx": 12, "dy": -26 },
+        { "type": "coordinateLabel", "at": "B", "text": "B(−1, 0)", "dx": -78, "dy": -26 },
+        { "type": "coordinateLabel", "at": "C", "text": "C(0, −3)", "dx": -82, "dy": 12 },
+        { "type": "coordinateLabel", "at": "D", "text": "D(1, 0)", "dx": 12, "dy": 22 }
+      ]
+    },
+    "i1s2": {
+      "domain": { "minX": -0.8, "maxX": 3.8, "minY": -5.2, "maxY": 1.0 },
+      "add": [
+        { "type": "point", "at": "A", "dx": 10, "dy": 20 },
+        { "type": "point", "at": "C", "dx": -30, "dy": 8 },
+        { "type": "point", "at": "Q", "dx": 12, "dy": 14 },
+        { "type": "coloredLine", "from": "A", "to": "C" },
+        { "type": "coloredLine", "from": "P", "to": "Q" },
+        { "type": "coordinateLabel", "at": "Q", "text": "Q(2, −3)", "dx": 14, "dy": 18 },
+        { "type": "segment", "from": "P", "to": "Q", "label": "PQ=√2", "offsetPx": 18 }
+      ]
+    },
+    "ii1s1": {
+      "domain": { "minX": -2.2, "maxX": 7.2, "minY": -10.0, "maxY": 1.0 },
+      "add": [
+        { "type": "point", "at": "A", "dx": 10, "dy": 20 },
+        { "type": "point", "at": "B", "labelText": "B", "dx": -22, "dy": 20 },
+        { "type": "point", "at": "C", "dx": -30, "dy": 8 },
+        { "type": "point", "at": "D", "dx": 12, "dy": 20 },
+        { "type": "point", "at": "M", "dx": -34, "dy": 4 },
+        { "type": "point", "at": "N", "dx": -30, "dy": 20 },
+        { "type": "point", "at": "Q", "dx": 12, "dy": 14 },
+        { "type": "coloredLine", "from": "D", "to": "M" },
+        { "type": "coloredLine", "from": "C", "to": "Q" },
+        { "type": "coloredLine", "from": "D", "to": "Q" },
+        { "type": "coloredLine", "from": "D", "to": "N" },
+        { "type": "coloredLine", "from": "N", "to": "Q" },
+        { "type": "coordinateLabel", "at": "A", "text": "A(3m, 0)", "dx": 12, "dy": -26 },
+        { "type": "coordinateLabel", "at": "B", "text": "B(−m, 0)", "dx": -78, "dy": -26 },
+        { "type": "coordinateLabel", "at": "N", "text": "N(−m/2, −3m)", "dx": -128, "dy": 18 },
+        { "type": "coordinateLabel", "at": "M", "text": "M(0, −2m)", "dx": -104, "dy": 6 },
+        { "type": "coordinateLabel", "at": "Q", "text": "Q(2m, −3m)", "dx": 14, "dy": 18 }
+      ]
+    },
+    "ii1s2": {
+      "domain": { "minX": -3.4, "maxX": 7.0, "minY": -10.2, "maxY": 1.0 },
+      "pointOverrides": {
+        "E": ["m*(1+u)", "-3*m*u"],
+        "F": ["m*(1-3*v/2)", "-3*m*v"],
+        "G": ["3*m/4", "-3*m"],
+        "G1": ["3*m", "-9*m/4"],
+        "G2": ["-5*m/4", "-2*m"]
+      },
+      "add": [
+        { "type": "outlineRegion", "vertices": ["D", "Q", "N"], "fill": "rgba(37,99,235,.08)", "dash": "" },
+        { "type": "coloredLine", "from": "D", "to": "Q" },
+        { "type": "coloredLine", "from": "D", "to": "N" },
+        { "type": "coloredLine", "from": "N", "to": "Q" },
+        { "type": "point", "at": "D", "dx": 12, "dy": 20 },
+        { "type": "point", "at": "N", "dx": -30, "dy": 20 },
+        { "type": "point", "at": "Q", "dx": 12, "dy": 14 },
+        { "type": "point", "at": "G1", "labelText": "G₁", "dx": 12, "dy": -12 },
+        { "type": "point", "at": "G2", "labelText": "G₂", "dx": -26, "dy": 14 },
+        { "type": "dashedLine", "from": "G", "to": "G1" },
+        { "type": "dashedLine", "from": "G", "to": "G2" },
+        { "type": "coloredLine", "from": "G1", "to": "E", "color": "#b45309", "width": 2.2 },
+        { "type": "coloredLine", "from": "G2", "to": "F", "color": "#b45309", "width": 2.2 },
+        { "type": "coloredLine", "from": "G1", "to": "G2" },
+        { "type": "point", "at": "E", "dx": 12, "dy": -14 },
+        { "type": "point", "at": "F", "dx": -22, "dy": -12 },
+        { "type": "point", "at": "G", "dx": 12, "dy": 18 },
+        { "type": "outlineRegion", "vertices": ["E", "F", "G"], "fill": "rgba(220,38,38,.12)", "dash": "" },
+        { "type": "coloredLine", "from": "E", "to": "F" },
+        { "type": "coloredLine", "from": "F", "to": "G" },
+        { "type": "coloredLine", "from": "G", "to": "E" }
+      ]
+    },
+    "ii1s3": {
+      "domain": { "minX": -2.0, "maxX": 5.4, "minY": -7.4, "maxY": 1.0 },
+      "add": [
+        { "type": "outlineRegion", "vertices": ["D", "Q", "N"], "fill": "rgba(37,99,235,.08)", "dash": "" },
+        { "type": "coloredLine", "from": "D", "to": "Q" },
+        { "type": "coloredLine", "from": "D", "to": "N" },
+        { "type": "coloredLine", "from": "N", "to": "Q" },
+        { "type": "outlineRegion", "vertices": ["D", "M", "Q"], "fill": "rgba(15,118,110,.12)", "color": "#0f766e", "dash": "" },
+        { "type": "coloredLine", "from": "D", "to": "M", "color": "#64748b", "width": 1.6 },
+        { "type": "coloredLine", "from": "Q", "to": "M", "color": "#64748b", "width": 1.6 },
+        { "type": "rightAngle", "vertex": "M", "rayA": "D", "rayB": "Q", "color": "#0f766e" },
+        { "type": "angleArc", "vertex": "D", "rayA": "Q", "rayB": "M", "label": "45°", "color": "#0f766e", "labelRadius": 34, "fontSize": 11 },
+        { "type": "segment", "from": "D", "to": "M", "label": "DM=m√5", "offsetPx": 16 },
+        { "type": "segment", "from": "Q", "to": "M", "label": "QM=m√5", "offsetPx": 16 },
+        { "type": "segment", "from": "D", "to": "Q", "label": "DQ=m√10", "offsetPx": 20 },
+        { "type": "point", "at": "D", "dx": 12, "dy": 20 },
+        { "type": "point", "at": "N", "dx": -30, "dy": 20 },
+        { "type": "point", "at": "Q", "dx": 12, "dy": 14 },
+        { "type": "point", "at": "M", "dx": -34, "dy": 4 }
+      ]
+    },
+    "ii1s4": {
+      "domain": { "minX": -3.4, "maxX": 7.0, "minY": -10.2, "maxY": 1.0 },
+      "pointOverrides": {
+        "G": ["m*(-1/2+5*w/2)", "-3*m"],
+        "G1": ["m*(4-2*w)", "-3*m*(1+w)/2"],
+        "G2": ["-m*(1+3*w)/2", "m*(2*w-3)"]
+      },
+      "add": [
+        { "type": "outlineRegion", "vertices": ["D", "Q", "N"], "fill": "rgba(37,99,235,.08)", "dash": "" },
+        { "type": "coloredLine", "from": "D", "to": "Q" },
+        { "type": "coloredLine", "from": "D", "to": "N" },
+        { "type": "coloredLine", "from": "N", "to": "Q" },
+        { "type": "point", "at": "D", "dx": 12, "dy": 20 },
+        { "type": "point", "at": "N", "dx": -30, "dy": 20 },
+        { "type": "point", "at": "Q", "dx": 12, "dy": 14 },
+        { "type": "outlineRegion", "vertices": ["G1", "D", "G2"], "fill": "rgba(180,83,9,.16)", "color": "#b45309", "dash": "" },
+        { "type": "coloredLine", "from": "D", "to": "G1", "color": "#b45309", "width": 2.2 },
+        { "type": "coloredLine", "from": "D", "to": "G2", "color": "#b45309", "width": 2.2 },
+        { "type": "coloredLine", "from": "D", "to": "G", "color": "#0f766e", "width": 2 },
+        { "type": "rightAngle", "vertex": "D", "rayA": "G1", "rayB": "G2", "color": "#b45309" },
+        { "type": "point", "at": "G1", "labelText": "G₁", "dx": 12, "dy": -12 },
+        { "type": "point", "at": "G2", "labelText": "G₂", "dx": -26, "dy": 14 },
+        { "type": "dashedLine", "from": "G", "to": "G1" },
+        { "type": "dashedLine", "from": "G", "to": "G2" },
+        { "type": "coloredLine", "from": "G1", "to": "G2", "color": "#b45309", "width": 2.2 },
+        { "type": "point", "at": "G", "dx": 12, "dy": 18 }
+      ]
+    },
+    "ii1s5": {
+      "domain": { "minX": -2.2, "maxX": 6.8, "minY": -10.2, "maxY": 1.0 },
+      "add": [
+        { "type": "coloredLine", "from": "D", "to": "Q" },
+        { "type": "coloredLine", "from": "D", "to": "N" },
+        { "type": "coloredLine", "from": "N", "to": "Q" },
+        { "type": "outlineRegion", "vertices": ["G1", "D", "G2"], "fill": "rgba(180,83,9,.16)", "color": "#b45309", "dash": "" },
+        { "type": "coloredLine", "from": "D", "to": "G1", "color": "#b45309", "width": 2.2 },
+        { "type": "coloredLine", "from": "D", "to": "G2", "color": "#b45309", "width": 2.2 },
+        { "type": "coloredLine", "from": "G1", "to": "G2", "color": "#b45309", "width": 2.2 },
+        { "type": "coloredLine", "from": "D", "to": "G", "color": "#0f766e", "width": 2 },
+        { "type": "rightAngle", "vertex": "G", "rayA": "D", "rayB": "Q" },
+        { "type": "rightAngle", "vertex": "D", "rayA": "G1", "rayB": "G2", "color": "#b45309" },
+        { "type": "point", "at": "D", "dx": 12, "dy": 20 },
+        { "type": "point", "at": "N", "dx": -30, "dy": 20 },
+        { "type": "point", "at": "Q", "dx": 12, "dy": 14 },
+        { "type": "point", "at": "G1", "labelText": "G₁", "dx": 12, "dy": -12 },
+        { "type": "point", "at": "G2", "labelText": "G₂", "dx": -26, "dy": 14 },
+        { "type": "point", "at": "G", "dx": 12, "dy": 18 },
+        { "type": "segment", "from": "D", "to": "G", "label": "DG=3m", "offsetPx": 18 },
+        { "type": "segment", "from": "G1", "to": "G2", "label": "最小周长=√2·DG", "offsetPx": 18 }
+      ]
+    }
+  }
+}

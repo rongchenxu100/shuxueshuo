@@ -80,6 +80,7 @@ Default to middle-school students. Compared with pure folding/rotation geometry 
 
 - Balance **代数推导**（解析式、配方、判别式、根与系数）with **坐标图示**（抛物线、对称轴、与坐标轴交点）。
 - Many steps justify coefficients before drawing conclusions about symmetric axis / vertices / intersections with axes.
+- Do not create a separate "公共结论" section when the reusable fact naturally arises inside a sub-question. Extract the fact at the exact solving step where it is first needed, then cite or reuse it in the next step.
 - For middle-school trigonometry, use only the definition of `tan` in a right triangle. Do not use tangent subtraction/addition formulas, slope-angle tangent formulas, or other high-school trigonometric identities. If an angle condition involves \(45^\circ\), prefer constructing an auxiliary point/line that creates a right triangle where the target tangent can be read as opposite leg divided by adjacent leg.
 - Follow `references/diagram-drawing-principles.md` for step diagrams, including how to mark used quantities, equalities, constructed segments, moving segments, and geometric transformations.
 - If part II introduces constructions (`直角`、`等腰`、`中点`、`线段比例`), treat those steps like geometry: draw only what the derivation truly uses.
@@ -122,6 +123,8 @@ For geometry-heavy quadratic综合题, prefer a visible geometric derivation bef
 - Avoid introducing a new auxiliary variable merely to shorten arithmetic when the original expressions are readable. Keep the problem's own parameters visible unless the substitution reveals a real structure.
 - If a conclusion uses a midpoint or a shortest-position collinearity, state why the chosen point is the midpoint or intersection before using its coordinate.
 - Reuse prior conclusions through reference components in `lesson-data.json` instead of repeating a full derivation block.
+- For nested shortest-path arguments, split by idea rather than by algebra length. A typical sequence is: fixed moving-point state and reflection straightening; auxiliary angle proof; moving the remaining point and applying perpendicular-distance shortest; final computation.
+- If a path-minimum conclusion can be reduced to one decisive segment such as `√2·DG`, compute from that segment directly. Do not derive unused optimal-point coordinates or side lengths merely because they are available.
 
 ## Step 3: `03_visual_steps.md`
 
@@ -141,6 +144,7 @@ Use review-friendly visual discipline:
 - Keep labels limited to the quantities used in the current derivation. For a line-segment conversion step, prefer the two decisive labels such as `FM=1/2AE` and `FH=1/2AG`; omit midpoint labels if the derivation panel already states them.
 - Local zoom should focus on the active construction while preserving necessary context such as the moving point trajectory. Do not leave large empty regions when a tighter domain would make the construction clearer.
 - Split steps when two different ideas are being taught, such as "derive G's trajectory" and "apply reflection shortest path". Each idea may have its own local control if dragging helps the student see it.
+- For a fixed-point reflection step, use local controls for the points that are genuinely moving in that fixed state. For a later step where the fixed point itself moves, switch the local control to that point and keep dependent points linked or hidden if they are no longer the focus.
 - When a coordinate formula is derived from a distance, show the corresponding auxiliary segment or projection in the diagram, for example a horizontal distance from `A` to the projection of `G`.
 - Keep navigation labels synchronized with step titles and make them method-based, e.g. `中线中位线转线段`, `推导G轨迹`, `将军饮马求最小值`.
 
@@ -218,6 +222,8 @@ Then spot-check the HTML locally.
 - Step navigation labels are short but meaningful, usually "method + target".
 - Congruent or corresponding triangles that drive a step use matching light fills, and nonessential labels are removed from dense diagrams.
 - Long derivations are split when a trajectory result, a segment conversion, and an optimization argument are separate ideas.
+- For reflection/path-minimum steps, the filled region should be the triangle or quadrilateral that drives the current conclusion, not the final answer triangle by habit. If the step proves `△G₁DG₂` is right-isosceles, fill `△G₁DG₂`; if it proves `∠QDM=45°`, fill `△DMQ`.
+- Final length computation should use the shortest established expression directly. If the previous step gives `最小周长=√2·DG` and `DG=3m`, solve from `3√2m=9√2` instead of recomputing `EF+FG+GE`.
 - JSON contains zero HTML fragments.
 - Step ids stay synchronized across all artifacts.
 - `lesson-data.meta.classification.pattern` and every listed method ID exist in `junior-math-methods.md`.

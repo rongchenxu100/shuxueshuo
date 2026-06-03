@@ -1,0 +1,202 @@
+{
+  "meta": {
+    "id": "tj-2026-nankai-sanmo-25",
+    "outputPath": "site/problems/tj/25/tj-2026-nankai-sanmo-25.html",
+    "pageTitle": "2026 年天津市南开区三模 第 25 题（二次函数综合）",
+    "pageDescription": "2026 天津市南开区三模第 25 题：在第（Ⅰ）问中由顶点和已知根求解析式与 Q，在第（Ⅱ）问中推广到一般 m，再用反射拉直和垂线段最短反求 m。",
+    "breadcrumbTitle": "2026 天津市南开区三模 第 25 题",
+    "classification": {
+      "pattern": "path-minimum",
+      "methods": ["known-root-factorization", "coefficient-from-point-on-parabola", "coordinate-distance-pythagorean", "horse-drinking"]
+    }
+  },
+  "problem": {
+    "summary": "第 25 题（2026 天津市南开区三模）二次函数综合：顶点与交点确定解析式，平行线求 Q，反射拉直求最短周长并反求 m。",
+    "lines": [
+      { "text": "（25）（本题共 10 分）抛物线 y＝ax²＋bx＋c（a，b，c 为常数，且 a＞0）顶点 P(m,−4m)，其中 m＞0，抛物线与 x 轴交于点 A(3m,0)，与 y 轴相交于点 C，抛物线的对称轴与 x 轴相交于点 D，过点 P 作 PQ∥AC，交抛物线于点 Q（点 P 与点 Q 不重合）。" },
+      { "text": "（Ⅰ）当 m＝1 时：" },
+      { "text": "① 求抛物线的解析式和顶点 P 的坐标；", "answerId": "answerI1", "answer": "y＝x²−2x−3；P(1,−4)" },
+      { "text": "② 求点 Q 的坐标和线段 PQ 的长；", "answerId": "answerI2", "answer": "Q(2,−3)；PQ＝√2" },
+      { "text": "（Ⅱ）若 y 轴上一点 M(0,−2m)，直线 DM 与直线 CQ 相交于点 N，在 △DQN 的边 DQ、DN 和 NQ 上分别有动点 E、F、G。当 △EFG 的周长取得最小值 9√2 时，求 m 的值。", "answerId": "answerII", "answer": "m＝3" }
+    ]
+  },
+  "ui": {
+    "legend": [
+      { "colorVar": "paper", "label": "抛物线与坐标点" },
+      { "colorVar": "fold", "label": "反射拉直后的最短路径" }
+    ],
+    "sliderLabel": "参数 m",
+    "paramLabelPrefix": "m=",
+    "goToProblemMode": "doubleScroll",
+    "groupTitles": {
+      "第（Ⅰ）问": "第（Ⅰ）问  m＝1",
+      "第（Ⅱ）问": "第（Ⅱ）问  推广结论并求 m"
+    }
+  },
+  "steps": [
+    {
+      "id": "i1s1",
+      "section": "第（Ⅰ）问",
+      "title": "第1步：在 m＝1 中由根与顶点求解析式",
+      "t": 1,
+      "derive": [
+        ["∵", "m＝1"],
+        ["∴", "顶点 P(1,−4)，对称轴为 x＝1"],
+        ["∵", "A(3,0) 是一个 x 轴交点"],
+        ["∴", "另一个 x 轴交点为 (−1,0)"],
+        ["∴", "设 y＝k(x−3)(x＋1)"],
+        ["∵", "P(1,−4) 在抛物线上"],
+        ["∴", "−4k＝−4"],
+        ["∴", "k＝1"],
+        ["∴", "y＝(x−3)(x＋1)＝x²−2x−3"],
+        ["∴", "C(0,−3)，D(1,0)"]
+      ],
+      "box": ["y＝x²−2x−3", "P(1,−4)"]
+    },
+    {
+      "id": "i1s2",
+      "section": "第（Ⅰ）问",
+      "title": "第2步：在 m＝1 中由平行线求 Q 与 PQ",
+      "t": 1,
+      "derive": [
+        ["∵", "A(3,0)，C(0,−3)"],
+        ["∴", "直线 AC：y＝x−3"],
+        ["∵", "PQ∥AC，P(1,−4)"],
+        ["∴", "直线 PQ 的斜率也为 1"],
+        ["∴", "直线 PQ：y＝x−5"],
+        ["∴", "将 y＝x−5 与抛物线 y＝x²−2x−3 联立，得 x²−3x＋2＝0"],
+        ["∴", "(x−1)(x−2)＝0"],
+        ["∵", "x＝1 对应点 P"],
+        ["∴", "Q(2,−3)"],
+        ["∴", "PQ＝√2"]
+      ],
+      "box": ["Q(2,−3)", "PQ＝√2"]
+    },
+    {
+      "id": "ii1s1",
+      "section": "第（Ⅱ）问",
+      "title": "第1步：推广第（Ⅰ）问思路并求 N",
+      "t": 2,
+      "derive": [
+        ["∵", "顶点横坐标为 m"],
+        ["∴", "对称轴为 x＝m，D(m,0)"],
+        ["∵", "A(3m,0) 是一个 x 轴交点"],
+        ["∴", "另一个 x 轴交点为 (−m,0)"],
+        ["∴", "设 y＝k(x−3m)(x＋m)"],
+        ["∵", "P(m,−4m) 在抛物线上"],
+        ["∴", "−4km²＝−4m"],
+        ["∵", "m＞0"],
+        ["∴", "k＝1/m"],
+        ["∴", "y＝x²/m−2x−3m，C(0,−3m)"],
+        ["∵", "A(3m,0)，C(0,−3m)"],
+        ["∴", "直线 AC 的斜率为 1"],
+        ["∵", "PQ∥AC，P(m,−4m)"],
+        ["∴", "直线 PQ：y＝x−5m"],
+        ["∴", "与抛物线联立，得 Q(2m,−3m)"],
+        ["∵", "D(m,0)，M(0,−2m)"],
+        ["∴", "直线 DM：y＝2x−2m"],
+        ["∵", "C、Q 的纵坐标都为 −3m"],
+        ["∴", "直线 CQ：y＝−3m"],
+        ["∵", "N＝DM∩CQ"],
+        ["∴", "2x−2m＝−3m"],
+        ["∴", "N(−m/2,−3m)"]
+      ],
+      "box": ["y＝x²/m−2x−3m", "C(0,−3m)，D(m,0)，Q(2m,−3m)", "N(−m/2,−3m)"]
+    },
+    {
+      "id": "ii1s2",
+      "section": "第（Ⅱ）问",
+      "title": "第2步：固定 G，E、F 和 G 的对称点四点共线时周长最短",
+      "t": 2,
+      "derive": [
+        ["作", "先固定 G 在 NQ 上，把 G 关于 DQ、DN 分别对称为 G₁、G₂"],
+        ["∵", "对称后 GE＝G₁E，GF＝G₂F"],
+        ["∴", "GE＋EF＋FG＝G₁E＋EF＋FG₂≥G₁G₂"],
+        ["∴", "当 G₁、E、F、G₂ 四点共线时，固定 G 下的周长最短"]
+      ],
+      "box": ["固定 G 后，E、F 的最短位置由 G₁G₂ 与 DQ、DN 的交点确定", "此时最短周长＝G₁G₂"],
+      "localControls": {
+        "values": { "u": 0.725, "v": 0.690476 },
+        "note": "G 固定；拖动 E、F，观察四点拉直时周长最短。",
+        "controls": [
+          { "var": "u", "label": "动点 E：DE/DQ", "min": 0, "max": 1, "step": 0.01, "precision": 2 },
+          { "var": "v", "label": "动点 F：DF/DN", "min": 0, "max": 1, "step": 0.01, "precision": 2 }
+        ]
+      }
+    },
+    {
+      "id": "ii1s3",
+      "section": "第（Ⅱ）问",
+      "title": "第3步：证明 ∠QDM＝45°",
+      "t": 2,
+      "derive": [
+        ["∵", "M(0,−2m) 在直线 DN：y＝2x−2m 上"],
+        ["∵", "DM＝m√5，QM＝m√5，DQ＝m√10"],
+        ["∴", "DM²＋QM²＝DQ²"],
+        ["∴", "△DMQ 是以 M 为直角的等腰直角三角形"],
+        ["∴", "∠QDM＝45°"],
+        ["∵", "M 在 DN 上"],
+        ["∴", "∠QDN＝∠QDM＝45°"]
+      ],
+      "box": ["△DMQ 是等腰直角三角形", "∠QDN＝45°"]
+    },
+    {
+      "id": "ii1s4",
+      "section": "第（Ⅱ）问",
+      "title": "第4步：移动 G，当 DG⊥NQ 时取得最小值",
+      "t": 2,
+      "derive": [
+        ["∵", "固定 G 时，周长最小值＝G₁G₂"],
+        ["∵", "D 在两条对称轴 DQ、DN 上"],
+        ["∴", "DG₁＝DG₂＝DG，且 ∠G₁DG₂＝2∠QDN"],
+        ["∵", "∠QDN＝45°"],
+        ["∴", "∠G₁DG₂＝90°，△G₁DG₂ 是等腰直角三角形"],
+        ["∴", "G₁G₂＝√2·DG"],
+        ["∵", "G 在直线 NQ 上运动"],
+        ["∴", "DG 最短时 DG⊥NQ，即 G 是 D 到 NQ 的垂足"],
+        ["∵", "D(m,0)，NQ：y＝−3m"],
+        ["∴", "此时 DG＝3m"],
+        ["∴", "△EFG 的最小周长＝G₁G₂＝√2·DG＝3√2m"]
+      ],
+      "box": ["G 取 D 到 NQ 的垂足时最短", "最小周长＝√2·DG＝3√2m"],
+      "localControls": {
+        "values": { "w": 0.6 },
+        "note": "拖动 G；周长先转化为 G₁G₂，再随 DG 变短而变短。",
+        "controls": [
+          { "var": "w", "label": "动点 G：NG/NQ", "min": 0, "max": 1, "step": 0.01, "precision": 2 }
+        ]
+      }
+    },
+    {
+      "id": "ii1s5",
+      "section": "第（Ⅱ）问",
+      "title": "第5步：由最小周长反求 m",
+      "t": 3,
+      "derive": [
+        ["∵", "△EFG 周长最小值＝3√2m"],
+        ["∵", "题给最小值为 9√2"],
+        ["∴", "3√2m＝9√2"],
+        ["∴", "m＝3"]
+      ],
+      "box": ["最小周长＝3√2m", "m＝3"]
+    }
+  ],
+  "policies": {
+    "i1s1": { "movable": false, "range": [1, 1] },
+    "i1s2": { "movable": false, "range": [1, 1] },
+    "ii1s1": { "movable": false, "range": [2, 2] },
+    "ii1s2": { "movable": false, "range": [2, 2] },
+    "ii1s3": { "movable": false, "range": [2, 2] },
+    "ii1s4": { "movable": false, "range": [2, 2] },
+    "ii1s5": { "movable": false, "range": [3, 3] }
+  },
+  "stepLabels": {
+    "i1s1": "1 根与顶点求式",
+    "i1s2": "2 平行线求Q",
+    "ii1s1": "1 推广通式求N",
+    "ii1s2": "2 固定G拉直EF",
+    "ii1s3": "3 证明45°",
+    "ii1s4": "4 DG⊥NQ最小",
+    "ii1s5": "5 反求m"
+  }
+}
