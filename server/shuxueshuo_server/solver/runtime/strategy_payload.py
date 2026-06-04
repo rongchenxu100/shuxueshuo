@@ -297,6 +297,7 @@ def _default_few_shot_examples(family_id: str) -> list[dict[str, Any]]:
                                     "handle": "fact:problem:anchor_coordinate",
                                     "valid_scope": "problem",
                                     "description": "公共点 Anchor 的坐标结论，后续 scope 只 reads 复用",
+                                    "output_type": "Point",
                                 }
                             ],
                             "reason": (
@@ -330,6 +331,7 @@ def _default_few_shot_examples(family_id: str) -> list[dict[str, Any]]:
                                     "handle": "fact:demo:single_moving_path_equivalence",
                                     "valid_scope": "demo",
                                     "description": "双动点路径已经转化成只含一个动点的等价折线路径",
+                                    "output_type": "PathTransformation",
                                 }
                             ],
                             "reason": (
@@ -361,6 +363,7 @@ def _default_few_shot_examples(family_id: str) -> list[dict[str, Any]]:
                                     "handle": "fact:demo:straightened_path_choice",
                                     "valid_scope": "demo",
                                     "description": "已经选定可计算的折线拉直方案",
+                                    "output_type": "StraighteningCandidate",
                                 }
                             ],
                             "reason": "单动点折线最短路径通常通过拉直处理。",
@@ -381,6 +384,7 @@ def _default_few_shot_examples(family_id: str) -> list[dict[str, Any]]:
                                     "handle": "fact:demo:path_minimum_value_expr",
                                     "valid_scope": "demo",
                                     "description": "路径最小值表达式",
+                                    "output_type": "MinimumExpression",
                                 }
                             ],
                             "reason": "拉直后的最短路径转化为端点间距离。",

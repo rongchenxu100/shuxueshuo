@@ -29,6 +29,7 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     CreatedEntity,
     ProducedFact,
     RecipeAlignmentReport,
+    STEP_INTENT_OUTPUT_TYPES,
     StepIntent,
     StepIntentDraft,
     StepIntentScope,
@@ -515,8 +516,9 @@ def _produces_list(
                 f"scopes[{scope_index}].steps[{step_index}].produces[{item_index}] must be an object"
             )
         required = {"handle", "valid_scope", "description"}
+        optional = {"output_type"}
         missing = sorted(required - set(item))
-        extra = sorted(set(item) - required)
+        extra = sorted(set(item) - required - optional)
         if missing:
             raise StrategyDraftValidationError(
                 f"scopes[{scope_index}].steps[{step_index}].produces[{item_index}] missing required fields: {', '.join(missing)}"
@@ -551,6 +553,12 @@ def _produces_list(
                     step_index=step_index,
                     item_index=item_index,
                 ),
+                output_type=_optional_output_type(
+                    item,
+                    scope_index=scope_index,
+                    step_index=step_index,
+                    item_index=item_index,
+                ),
             )
         )
     return result
@@ -572,6 +580,29 @@ def _required_output_string(
             f"scopes[{scope_index}].steps[{step_index}].{field}[{item_index}].{key} must be a string"
         )
     return value.strip()
+
+
+def _optional_output_type(
+    raw_output: dict[str, Any],
+    *,
+    scope_index: int,
+    step_index: int,
+    item_index: int,
+) -> str | None:
+    """读取 produces.output_type；未提供时保持兼容。"""
+    if "output_type" not in raw_output or raw_output.get("output_type") is None:
+        return None
+    value = raw_output.get("output_type")
+    if not isinstance(value, str) or not value.strip():
+        raise StrategyDraftValidationError(
+            f"scopes[{scope_index}].steps[{step_index}].produces[{item_index}].output_type must be a string"
+        )
+    output_type = value.strip()
+    if output_type not in STEP_INTENT_OUTPUT_TYPES:
+        raise StrategyDraftValidationError(
+            f"scopes[{scope_index}].steps[{step_index}].produces[{item_index}].output_type unsupported: {output_type}"
+        )
+    return output_type
 
 
 def _reject_forbidden_payload(value: Any, *, path: str = "$") -> None:
@@ -738,6 +769,17 @@ def _validate_produced_fact(
         if item.handle not in registry.answer_handles:
             raise StrategyDraftValidationError(
                 f"unknown_answer_handle: step={step_id}, handle={item.handle}, available_answers={sorted(registry.answer_handles)}"
+            )
+        expected_type = registry.answer_value_types.get(item.handle)
+        if (
+            item.output_type is not None
+            and expected_type is not None
+            and item.output_type != expected_type
+        ):
+            raise StrategyDraftValidationError(
+                "produced_output_type_mismatch: "
+                f"step={step_id}, handle={item.handle}, "
+                f"output_type={item.output_type}, expected={expected_type}"
             )
     elif item.handle.startswith("fact:"):
         match = _FACT_HANDLE_RE.fullmatch(item.handle)

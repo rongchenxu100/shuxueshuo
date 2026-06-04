@@ -7,8 +7,9 @@ Normalizer 位于 validator 之后、candidate resolver 之前。它只处理代
 
 from __future__ import annotations
 
-from dataclasses import replace
+from dataclasses import dataclass, field, replace
 import re
+from typing import Protocol
 
 from shuxueshuo_server.solver.family.models import SolverFamilySpec
 from shuxueshuo_server.solver.question_goals import QuestionGoal
@@ -26,8 +27,47 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
 from shuxueshuo_server.solver.runtime.strategy_resolver import _produced_output_type
 
 
+@dataclass
+class NormalizationRuleContext:
+    """单个 normalizer rule 执行时可读取/更新的上下文。"""
+
+    handle_registry: CanonicalHandleRegistry
+    question_goal_map: dict[str, QuestionGoal]
+    recipe_output_types: dict[str, tuple[str, ...]]
+    handle_rewrites: dict[str, str] = field(default_factory=dict)
+    previous_steps: list[StepIntent] = field(default_factory=list)
+
+
+@dataclass(frozen=True)
+class NormalizationRuleResult:
+    """Normalizer rule 的统一返回值。"""
+
+    step: StepIntent
+    rewrites: dict[str, str] = field(default_factory=dict)
+    actions: tuple[StepIntentNormalizationAction, ...] = ()
+    append_step: bool = True
+
+
+class NormalizationRule(Protocol):
+    """StepIntent normalizer rule 接口。"""
+
+    def apply(
+        self,
+        step: StepIntent,
+        context: NormalizationRuleContext,
+    ) -> NormalizationRuleResult:
+        """返回 rule 处理后的 step、handle rewrite 与 action。"""
+        ...
+
+
 class StepIntentNormalizer:
     """对 StepIntentDraft 做安全、可解释的结构整理。"""
+
+    def __init__(
+        self,
+        rules: tuple[NormalizationRule, ...] | None = None,
+    ) -> None:
+        self.rules = rules or DEFAULT_NORMALIZATION_RULES
 
     def normalize(
         self,
@@ -48,64 +88,27 @@ class StepIntentNormalizer:
         actions: list[StepIntentNormalizationAction] = []
         warnings: list[str] = []
         normalized_scopes: list[StepIntentScope] = []
-        handle_rewrites: dict[str, str] = {}
+        context = NormalizationRuleContext(
+            handle_registry=handle_registry,
+            question_goal_map=question_goal_map,
+            recipe_output_types=recipe_output_types,
+        )
 
         for scope in draft.scopes:
-            steps: list[StepIntent] = []
+            context.previous_steps = []
             for step in scope.steps:
-                step = _rewrite_step_reads(step, handle_rewrites)
-                step, new_rewrites, rewrite_actions = _normalize_quadratic_from_constraints_step(
-                    step,
-                    handle_registry=handle_registry,
-                )
-                handle_rewrites.update(new_rewrites)
-                actions.extend(rewrite_actions)
-                step, new_rewrites, rewrite_actions = _normalize_candidate_point_facts_step(
-                    step,
-                    handle_registry=handle_registry,
-                )
-                handle_rewrites.update(new_rewrites)
-                actions.extend(rewrite_actions)
-                step, new_rewrites, rewrite_actions = _normalize_point_answer_coordinate_step(
-                    step,
-                    question_goal_map=question_goal_map,
-                    handle_registry=handle_registry,
-                )
-                handle_rewrites.update(new_rewrites)
-                actions.extend(rewrite_actions)
-                merge_target_index = _merge_target_index(
-                    step,
-                    previous_steps=steps,
-                    recipe_output_types=recipe_output_types,
-                    question_goal_map=question_goal_map,
-                    handle_registry=handle_registry,
-                )
-                if merge_target_index is None:
-                    steps.append(step)
-                    continue
-                target_step = steps[merge_target_index]
-                merged_produces = _append_unique_produces(
-                    target_step.produces,
-                    step.produces,
-                )
-                steps[merge_target_index] = replace(
-                    target_step,
-                    produces=merged_produces,
-                )
-                for produced in step.produces:
-                    actions.append(
-                        StepIntentNormalizationAction(
-                            action="merge_redundant_parameter_answer_step",
-                            step_id=step.step_id,
-                            target_step_id=target_step.step_id,
-                            handle=produced.handle,
-                            reason=(
-                                "前序 recipe 已能输出 ParameterValue；该 step 只是在收集同一个参数答案，"
-                                "合并到前序 recipe，避免无 method 的 utility step。"
-                            ),
-                        )
-                    )
-            normalized_scopes.append(replace(scope, steps=tuple(steps)))
+                append_step = True
+                for rule in self.rules:
+                    result = rule.apply(step, context)
+                    step = result.step
+                    context.handle_rewrites.update(result.rewrites)
+                    actions.extend(result.actions)
+                    if not result.append_step:
+                        append_step = False
+                        break
+                if append_step:
+                    context.previous_steps.append(step)
+            normalized_scopes.append(replace(scope, steps=tuple(context.previous_steps)))
 
         # 目前没有需要保留但不改写的场景；预留 warnings 便于后续扩展。
         _ = warnings
@@ -113,6 +116,133 @@ class StepIntentNormalizer:
             StepIntentDraft(scopes=tuple(normalized_scopes)),
             StepIntentNormalizationReport(actions=tuple(actions), warnings=tuple(warnings)),
         )
+
+
+class _RewriteStepReadsRule:
+    """把前序 rule 产生的 handle 改名同步到当前 step。"""
+
+    def apply(
+        self,
+        step: StepIntent,
+        context: NormalizationRuleContext,
+    ) -> NormalizationRuleResult:
+        return NormalizationRuleResult(
+            step=_rewrite_step_reads(step, context.handle_rewrites),
+        )
+
+
+class _QuadraticFromConstraintsRule:
+    """归一化 quadratic_from_constraints 的 utility fact。"""
+
+    def apply(
+        self,
+        step: StepIntent,
+        context: NormalizationRuleContext,
+    ) -> NormalizationRuleResult:
+        step, rewrites, actions = _normalize_quadratic_from_constraints_step(
+            step,
+            handle_registry=context.handle_registry,
+        )
+        return NormalizationRuleResult(
+            step=step,
+            rewrites=rewrites,
+            actions=tuple(actions),
+        )
+
+
+class _CandidatePointFactsRule:
+    """归一化候选点散列 fact 为候选列表 fact。"""
+
+    def apply(
+        self,
+        step: StepIntent,
+        context: NormalizationRuleContext,
+    ) -> NormalizationRuleResult:
+        step, rewrites, actions = _normalize_candidate_point_facts_step(
+            step,
+            handle_registry=context.handle_registry,
+        )
+        return NormalizationRuleResult(
+            step=step,
+            rewrites=rewrites,
+            actions=tuple(actions),
+        )
+
+
+class _PointAnswerCoordinateRule:
+    """用唯一 Point answer 目标点名归一化泛化坐标 fact。"""
+
+    def apply(
+        self,
+        step: StepIntent,
+        context: NormalizationRuleContext,
+    ) -> NormalizationRuleResult:
+        step, rewrites, actions = _normalize_point_answer_coordinate_step(
+            step,
+            question_goal_map=context.question_goal_map,
+            handle_registry=context.handle_registry,
+        )
+        return NormalizationRuleResult(
+            step=step,
+            rewrites=rewrites,
+            actions=tuple(actions),
+        )
+
+
+class _MergeRedundantParameterAnswerRule:
+    """把冗余参数 answer step 合并到前序 recipe step。"""
+
+    def apply(
+        self,
+        step: StepIntent,
+        context: NormalizationRuleContext,
+    ) -> NormalizationRuleResult:
+        merge_target_index = _merge_target_index(
+            step,
+            previous_steps=context.previous_steps,
+            recipe_output_types=context.recipe_output_types,
+            question_goal_map=context.question_goal_map,
+            handle_registry=context.handle_registry,
+        )
+        if merge_target_index is None:
+            return NormalizationRuleResult(step=step)
+
+        target_step = context.previous_steps[merge_target_index]
+        merged_produces = _append_unique_produces(
+            target_step.produces,
+            step.produces,
+        )
+        context.previous_steps[merge_target_index] = replace(
+            target_step,
+            produces=merged_produces,
+        )
+        actions = tuple(
+            StepIntentNormalizationAction(
+                action="merge_redundant_parameter_answer_step",
+                step_id=step.step_id,
+                target_step_id=target_step.step_id,
+                handle=produced.handle,
+                reason=(
+                    "前序 recipe 已能输出 ParameterValue；该 step 只是在收集同一个参数答案，"
+                    "合并到前序 recipe，避免无 method 的 utility step。"
+                ),
+            )
+            for produced in step.produces
+        )
+        return NormalizationRuleResult(
+            step=step,
+            actions=actions,
+            append_step=False,
+        )
+
+
+DEFAULT_NORMALIZATION_RULES: tuple[NormalizationRule, ...] = (
+    _RewriteStepReadsRule(),
+    _QuadraticFromConstraintsRule(),
+    _CandidatePointFactsRule(),
+    _PointAnswerCoordinateRule(),
+    _MergeRedundantParameterAnswerRule(),
+)
 
 
 def _rewrite_step_reads(step: StepIntent, rewrites: dict[str, str]) -> StepIntent:

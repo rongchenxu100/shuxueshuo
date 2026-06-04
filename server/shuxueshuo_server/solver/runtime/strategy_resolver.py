@@ -74,13 +74,14 @@ def build_executable_capabilities(
 ) -> tuple[ExecutableCapabilitySpec, ...]:
     """从 FamilySpec recipe 与 MethodSpec 构建统一能力菜单。
 
-    recipe 优先使用显式 output override，因为 recipe 的产物往往是多个 method 串联后
-    的教学结论，不等于内部 method outputs 的简单并集。
+    recipe 优先使用 FamilySpec.execution.output_aliases 中声明的输出类型。recipe
+    的产物往往是多个 method 串联后的标准解题结论，不等于内部 method outputs 的
+    简单并集；因此这个类型边界必须和 recipe 执行规格放在同一事实源里。
     """
     capabilities: list[ExecutableCapabilitySpec] = []
     for recipe in family_spec.step_recipes:
-        output_types = _RECIPE_OUTPUT_TYPE_OVERRIDES.get(recipe.recipe_id)
-        if output_types is None:
+        output_types = _recipe_output_types(recipe)
+        if not output_types:
             output_types = _method_output_union(recipe.method_ids, method_specs)
         capabilities.append(
             ExecutableCapabilitySpec(
@@ -112,6 +113,18 @@ def build_executable_capabilities(
             )
         )
     return tuple(capabilities)
+
+
+def _recipe_output_types(recipe: Any) -> tuple[str, ...]:
+    """从 recipe execution output_aliases 读取对外输出类型。"""
+    execution = getattr(recipe, "execution", None)
+    if execution is None:
+        return ()
+    return tuple(
+        _unique_ordered(
+            output_type for _output_key, output_type in execution.output_aliases
+        )
+    )
 
 def _resolve_step_intent_candidates(
     step: StepIntent,
@@ -582,6 +595,8 @@ def _produced_output_type_inference(
                 registry.answer_value_types[produced.handle],
                 "answer_value_type",
             )
+        if produced.output_type is not None:
+            return _OutputTypeInference(produced.output_type, "explicit_output_type")
         return _output_type_inference_from_text(produced.handle, produced.description)
     if produced.handle in registry.fact_types:
         fact_type = registry.fact_types[produced.handle]
@@ -590,6 +605,8 @@ def _produced_output_type_inference(
                 _FACT_TYPE_TO_OUTPUT_TYPE[fact_type],
                 "fact_type",
             )
+    if produced.output_type is not None:
+        return _OutputTypeInference(produced.output_type, "explicit_output_type")
     return _output_type_inference_from_text(produced.handle, produced.description)
 
 
@@ -694,14 +711,6 @@ def _maybe_correct_output_types_from_hint(
         )
     return output_types, []
 
-
-_RECIPE_OUTPUT_TYPE_OVERRIDES: dict[str, tuple[str, ...]] = {
-    "right_angle_equal_length_construct_and_select": ("Point",),
-    "curve_candidate_parameter_solve": ("Point", "ParameterValue", "Parabola"),
-    "two_moving_points_path_reduction": ("PathTransformation",),
-    "broken_path_straightening_and_select": ("StraighteningCandidate", "Point"),
-    "path_minimum_by_straightened_distance": ("MinimumExpression",),
-}
 
 _FACT_TYPE_TO_OUTPUT_TYPE: dict[str, str] = {
     "coefficients": "Coefficients",

@@ -47,6 +47,36 @@ class MethodInputBindingSpec:
 
 
 @dataclass(frozen=True)
+class MethodCompanionOutputSpec:
+    """method 固有伴随输出的 promote/register 规则。
+
+    伴随输出不是 LLM 独立规划出来的结论，而是某个 method 调用稳定返回、后续
+    runtime 常需要读取的输出。例如 ``quadratic_from_constraints`` 总会返回
+    ``coefficients``，weighted path 三角形转化总会返回辅助点和辅助点轨迹。
+    """
+
+    output_name: str
+    target_selector: str
+    registration_selector: str | None = None
+
+
+@dataclass(frozen=True)
+class MethodPrepInvocationSpec:
+    """method 前置补位 invocation 的声明式规则。
+
+    有些 method 的教学 step 会把“先生成可读前置对象”和“使用前置对象求目标”
+    合并表达。prep 规则只处理这类可确定补位：满足 ``trigger_selector`` 时，
+    先执行 ``method_id``，把 ``output_aliases`` promote 到当前 scope 的临时输出，
+    再通过 ``local_output_aliases`` 暴露给主 method 的 binding selector 使用。
+    """
+
+    trigger_selector: str
+    method_id: str
+    output_aliases: tuple[tuple[str, str], ...] = ()
+    local_output_aliases: tuple[tuple[str, str], ...] = ()
+
+
+@dataclass(frozen=True)
 class MethodBindingRuleSpec:
     """一个 method 的 declarative binding 规则。
 
@@ -57,6 +87,9 @@ class MethodBindingRuleSpec:
     method_id: str
     input_bindings: tuple[MethodInputBindingSpec, ...] = ()
     expansion_selectors: tuple[str, ...] = ()
+    prep_invocations: tuple[MethodPrepInvocationSpec, ...] = ()
+    always_emit_outputs: tuple[str, ...] = ()
+    companion_outputs: tuple[MethodCompanionOutputSpec, ...] = ()
 
 
 @dataclass(frozen=True)

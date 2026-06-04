@@ -7,8 +7,11 @@ import pytest
 
 from shuxueshuo_server.solver.family import QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY
 from shuxueshuo_server.solver.family.models import (
+    MethodCompanionOutputSpec,
     MethodBindingRuleSpec,
     MethodInputBindingSpec,
+    MethodPrepInvocationSpec,
+    RecipeExecutionSpec,
 )
 from shuxueshuo_server.solver.fixtures import load_problem_ir
 from shuxueshuo_server.solver.problem_models import ProblemIR, QuestionGoal
@@ -27,6 +30,7 @@ from shuxueshuo_server.solver.runtime.strategy_planner import (
     STEP_INTENT_JSON_SCHEMA,
     StepIntent,
     StepIntentDraft,
+    StepIntentNormalizationAction,
     StepIntentValidator,
     StepIntentNormalizer,
     StrategyDraftValidationError,
@@ -36,9 +40,18 @@ from shuxueshuo_server.solver.runtime.strategy_planner import (
     write_strategy_debug_artifacts,
 )
 from shuxueshuo_server.solver.runtime.strategy_compiler import (
+    DEFAULT_BINDING_SELECTORS,
+    DEFAULT_RECIPE_COMPILERS,
     _output_key_from_promote_source,
     _parameter_output_key_from_symbol_path,
 )
+from shuxueshuo_server.solver.runtime.recipe_compiler import (
+    PrepInvocationBuilder,
+    _RecipePlanCompiler,
+    _method_outputs_for_step,
+)
+from shuxueshuo_server.solver.runtime.strategy_resolver import build_executable_capabilities
+from shuxueshuo_server.solver.runtime.strategy_normalizer import NormalizationRuleResult
 from shuxueshuo_server.solver.runtime.strategy_models import StepIntentScope
 
 
@@ -124,13 +137,21 @@ def _create(
     }
 
 
-def _produce(handle: str, valid_scope: str, description: str | None = None) -> dict[str, str]:
+def _produce(
+    handle: str,
+    valid_scope: str,
+    description: str | None = None,
+    output_type: str | None = None,
+) -> dict[str, str]:
     """测试用 produces 对象。"""
-    return {
+    payload = {
         "handle": handle,
         "valid_scope": valid_scope,
         "description": description or f"{handle} 在 {valid_scope} 内有效",
     }
+    if output_type is not None:
+        payload["output_type"] = output_type
+    return payload
 
 
 def _step(
@@ -340,6 +361,55 @@ def _unsafe_step_from_payload(raw_step: dict[str, object], *, scope_id: str):
         },
     )
     return draft.steps[0]
+
+
+def test_step_intent_normalizer_accepts_injected_rule() -> None:
+    """Normalizer 应通过 rule list 调度，新增 rule 不需要改主循环。"""
+
+    class SyntheticRule:
+        def apply(self, step, _context):  # noqa: ANN001
+            return NormalizationRuleResult(
+                step=StepIntent(
+                    scope_id=step.scope_id,
+                    step_id=step.step_id,
+                    recipe_hint=step.recipe_hint,
+                    goal_type=step.goal_type,
+                    target="fact:i:synthetic_target",
+                    strategy=step.strategy,
+                    reads=step.reads,
+                    creates=step.creates,
+                    produces=step.produces,
+                ),
+                actions=(
+                    StepIntentNormalizationAction(
+                        action="synthetic_normalization_rule",
+                        step_id=step.step_id,
+                        handle=step.target,
+                        target_step_id=None,
+                        reason="测试注入 rule 被 normalizer 调用。",
+                    ),
+                ),
+            )
+
+    step = _step(
+        scope_id="i",
+        step_id="synthetic_rule_step",
+        recipe_hint="quadratic_from_constraints",
+        goal_type="derive_test",
+        target="fact:i:old_target",
+    )
+
+    normalized, report = StepIntentNormalizer(rules=(SyntheticRule(),)).normalize(
+        _single_scope_draft(step, scope_id="i"),
+        family_spec=_nankai_inputs().family_spec,
+        question_goals=[],
+        handle_registry=_registry(),
+    )
+
+    assert normalized.scopes[0].steps[0].target == "fact:i:synthetic_target"
+    assert [action.action for action in report.actions] == [
+        "synthetic_normalization_rule"
+    ]
 
 
 def test_step_intent_normalizer_merges_redundant_parameter_answer_step() -> None:
@@ -708,6 +778,94 @@ def test_parameter_symbol_uses_symbol_roles_not_fixed_coefficient_names() -> Non
     assert index.parameter_constraint_path() == "$problem.constraints.t"
 
 
+def test_structural_symbol_value_detection_uses_symbol_roles() -> None:
+    """结构符号 value fact 的判断应支持非 a/b/c 的二次函数系数名。"""
+    problem = ProblemIR(
+        problem_id="synthetic-structural-symbol-value",
+        pattern="path-minimum",
+        problem_type="quadratic_path_minimum",
+        symbols=["x", "p", "q", "r", "t"],
+        symbol_roles={
+            "x": "function_variable",
+            "p": "quadratic_coefficient",
+            "q": "quadratic_coefficient",
+            "r": "quadratic_coefficient",
+            "t": "dynamic_parameter",
+        },
+        constraints={},
+        data={
+            "function": {
+                "expression": "p*x**2 + q*x + r",
+            },
+            "questions": [],
+        },
+    )
+    problem_payload = {
+        "original_text": ["synthetic"],
+        "scopes": [{"scope_id": "problem", "parent": None}],
+        "entities": [
+            {"handle": f"symbol:problem:{name}", "entity_type": "symbol", "scope_id": "problem"}
+            for name in ("x", "p", "q", "r", "t")
+        ],
+        "facts": [
+            {
+                "handle": "fact:problem:p_value",
+                "type": "symbol_value",
+                "scope_id": "problem",
+                "valid_scope": "problem",
+            },
+            {
+                "handle": "fact:problem:t_value",
+                "type": "symbol_value",
+                "scope_id": "problem",
+                "valid_scope": "problem",
+            },
+        ],
+        "question_goals": [],
+    }
+    index = CanonicalRuntimeBindingIndex.from_context(
+        ContextBuilder().build(problem),
+        handle_registry=CanonicalHandleRegistry.from_problem_payload(problem_payload),
+        question_goals=(),
+    )
+
+    assert index.is_structural_symbol_value_fact("fact:problem:p_value") is True
+    assert index.is_structural_symbol_value_fact("fact:problem:t_value") is False
+
+
+def test_parameter_value_binding_skips_structural_symbol_value_fact() -> None:
+    """parameter_value_if_read 不应靠 a/b/c 硬编码排除已知系数值。"""
+    index = CanonicalRuntimeBindingIndex.from_context(
+        _runtime_context(),
+        handle_registry=_registry(),
+        question_goals=_question_goals(),
+    )
+    index.fact_types["fact:i:a_value"] = "symbol_value"
+    index.register("fact:i:a_value", "$question.i.outputs.a_value", "ParameterValue", source="test")
+    index.register("fact:ii:m_value", "$question.ii.outputs.m", "ParameterValue", source="test")
+    step = _step(
+        scope_id="ii",
+        step_id="use_parameter_value",
+        recipe_hint="synthetic_method",
+        goal_type="derive_expression",
+        target="fact:ii:expression_value",
+        reads=("fact:i:a_value", "fact:ii:m_value"),
+    )
+    rules = MethodBindingRuleRegistry(
+        (
+            MethodBindingRuleSpec(
+                method_id="synthetic_method",
+                expansion_selectors=("parameter_value_if_read",),
+            ),
+        )
+    )
+
+    inputs = rules.bind("synthetic_method", step, index)
+
+    assert inputs["parameter"] == "$problem.symbols.m"
+    assert inputs["parameter_value"] == "$question.ii.outputs.m"
+
+
 def test_llm_problem_ir_schema_file_exists_and_fixture_is_canonical() -> None:
     """LLM ProblemIR 以 Entity/Fact/answer 为一等结构，不夹带旧 solver 字段。"""
     schema_path = _repo_root() / "internal" / "schemas" / "solver-llm-problem-ir.schema.json"
@@ -887,6 +1045,8 @@ def test_strategy_prompt_renderer_contains_core_sections() -> None:
     assert "fact:problem:shared_coordinate_value" in prompt.user
     assert "derive_anchor_coordinate" in prompt.user
     assert "description 应说明结论可见范围" in prompt.system
+    assert "`output_type` 是可选字段" in prompt.system
+    assert "`output_type`：可选" in prompt.user
     assert "后续第（Ⅱ）①②可用" in prompt.user
     assert "一个 step 只解决一个清晰 goal_type" in prompt.system
     assert "answer:i.parabola" in prompt.user
@@ -935,6 +1095,58 @@ def test_step_intent_validator_accepts_valid_fake_draft() -> None:
         "fact:problem:coefficient_relation",
     )
     assert draft.steps[0].produces[0].handle == "fact:problem:D_coordinate_value"
+
+
+def test_step_intent_validator_accepts_optional_produced_output_type() -> None:
+    """produces.output_type 是可选结构化类型提示。"""
+    payload = _valid_step_intent_payload()
+    payload["scopes"][0]["steps"][0]["produces"][0]["output_type"] = "Point"
+
+    draft = StepIntentValidator().validate_json(
+        json.dumps(payload, ensure_ascii=False),
+        question_goals=_nankai_inputs().question_goals,
+        handle_registry=_registry(),
+    )
+
+    assert draft.steps[0].produces[0].output_type == "Point"
+    assert draft.steps[0].to_payload()["produces"][0]["output_type"] == "Point"
+
+
+def test_step_intent_validator_rejects_unknown_produced_output_type() -> None:
+    """produces.output_type 必须来自 schema enum。"""
+    payload = _valid_step_intent_payload()
+    payload["scopes"][0]["steps"][0]["produces"][0]["output_type"] = "Coordinate"
+
+    with pytest.raises(
+        StrategyDraftValidationError,
+        match="output_type unsupported: Coordinate",
+    ):
+        StepIntentValidator().validate_json(
+            json.dumps(payload, ensure_ascii=False),
+            question_goals=_nankai_inputs().question_goals,
+            handle_registry=_registry(),
+        )
+
+
+def test_step_intent_validator_rejects_answer_output_type_mismatch() -> None:
+    """answer handle 的 output_type 不能覆盖 QuestionGoal.value_type。"""
+    payload = _valid_step_intent_payload()
+    payload["scopes"][0]["steps"][0]["produces"][0] = _produce(
+        "answer:i.axis_point",
+        "i",
+        "点 D 的坐标答案",
+        output_type="Parabola",
+    )
+
+    with pytest.raises(
+        StrategyDraftValidationError,
+        match="produced_output_type_mismatch",
+    ):
+        StepIntentValidator().validate_json(
+            json.dumps(payload, ensure_ascii=False),
+            question_goals=_nankai_inputs().question_goals,
+            handle_registry=_registry(),
+        )
 
 
 def test_step_intent_validator_rejects_public_derivation_scope() -> None:
@@ -2456,6 +2668,56 @@ def test_candidate_resolver_uses_hint_for_description_only_output_type() -> None
     )
 
 
+def test_candidate_resolver_prefers_explicit_produced_output_type() -> None:
+    """produces.output_type 应优先于 handle/description 的自然语言猜测。"""
+    inputs = _nankai_inputs()
+    payload = {
+        "scopes": [
+            {
+                "scope_id": "ii_2",
+                "label": "第（Ⅱ）②问",
+                "steps": [
+                    {
+                        "step_id": "derive_parameter_from_point_named_fact",
+                        "recipe_hint": "parameter_from_minimum_value",
+                        "goal_type": "derive_parameter",
+                        "target": "fact:ii_2:point_like_parameter",
+                        "strategy": "由最小值条件反求参数。",
+                        "reads": ["fact:ii_2:path_minimum_value_given"],
+                        "creates": [],
+                        "produces": [
+                            _produce(
+                                "fact:ii_2:point_like_parameter",
+                                "ii_2",
+                                "这个 description 提到了点坐标，但结构类型是参数值",
+                                output_type="ParameterValue",
+                            )
+                        ],
+                        "reason": "显式 output_type 应避免 point/coordinate 文本误判。",
+                    }
+                ],
+            }
+        ]
+    }
+    draft = StepIntentValidator().validate_json(
+        json.dumps(payload, ensure_ascii=False),
+        handle_registry=_registry(),
+    )
+
+    report = StepIntentCandidateResolver().resolve(
+        draft,
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=_registry(),
+    )
+
+    assert report.ok is True
+    step_report = report.step_reports[0]
+    assert step_report.produced_types == ("ParameterValue",)
+    assert step_report.selected_capability_id == "parameter_from_minimum_value"
+    assert not any("capability_hint_corrected_output_type" in warning for warning in step_report.warnings)
+
+
 def test_canonical_runtime_binding_index_maps_handles_to_runtime_paths() -> None:
     """BindingIndex 应把 canonical handle 解析到真实 RuntimeContext path。"""
     index = CanonicalRuntimeBindingIndex.from_context(
@@ -2623,6 +2885,100 @@ def test_recipe_execution_registry_is_built_from_family_spec() -> None:
     assert not hasattr(RecipeExecutionSpecRegistry, "default")
 
 
+def test_recipe_capability_output_types_come_from_execution_output_aliases() -> None:
+    """Recipe capability 的输出类型应由 FamilySpec.output_aliases 派生。"""
+    method_specs = MethodSpecRegistry.load_from_code()
+    families = (_nankai_inputs().family_spec, QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY)
+
+    for family in families:
+        capabilities = {
+            capability.capability_id: capability
+            for capability in build_executable_capabilities(family, method_specs)
+            if capability.kind == "recipe"
+        }
+        for recipe in family.step_recipes:
+            if recipe.execution is None or not recipe.execution.output_aliases:
+                continue
+            expected: list[str] = []
+            for _output_key, output_type in recipe.execution.output_aliases:
+                if output_type not in expected:
+                    expected.append(output_type)
+
+            assert capabilities[recipe.recipe_id].output_types == tuple(expected)
+
+
+def test_recipe_compiler_registry_covers_family_execution_strategies() -> None:
+    """FamilySpec 中的 recipe execution strategy 都应存在于默认编译策略注册表。"""
+    families = (_nankai_inputs().family_spec, QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY)
+    missing: list[str] = []
+    for family in families:
+        for recipe in family.step_recipes:
+            if recipe.execution is None:
+                continue
+            if recipe.execution.execution_strategy not in DEFAULT_RECIPE_COMPILERS:
+                missing.append(
+                    f"{family.family_id}:{recipe.recipe_id}:{recipe.execution.execution_strategy}"
+                )
+
+    assert missing == []
+
+
+def test_recipe_compiler_reports_unknown_execution_strategy() -> None:
+    """未知 recipe execution strategy 应给出稳定错误，方便补注册。"""
+    compiler = _RecipePlanCompiler.__new__(_RecipePlanCompiler)
+    compiler.recipe_compilers = {}
+    step = StepIntent(
+        scope_id="i",
+        step_id="unknown_recipe_step",
+        goal_type="derive_test",
+        target="fact:i:test",
+        recipe_hint="unknown_recipe",
+        strategy="测试未知 recipe 编译策略",
+    )
+    recipe = RecipeExecutionSpec(
+        recipe_id="unknown_recipe",
+        method_sequence=("synthetic_method",),
+        execution_strategy="unknown_strategy",
+    )
+
+    with pytest.raises(
+        StrategyDraftValidationError,
+        match="recipe_execution_strategy_missing: unknown_recipe:unknown_strategy",
+    ):
+        compiler._compile_recipe(step, recipe)
+
+
+def test_recipe_compiler_accepts_injected_strategy() -> None:
+    """新增 recipe 编译策略应通过 registry 注入，不需要修改 _compile_recipe 主流程。"""
+    compiler = _RecipePlanCompiler.__new__(_RecipePlanCompiler)
+    compiler.recipe_compilers = {
+        "synthetic_strategy": (
+            lambda _compiler, _step, _recipe: (_ for _ in ()).throw(
+                StrategyDraftValidationError("synthetic_recipe_compiler_called")
+            )
+        )
+    }
+    step = StepIntent(
+        scope_id="i",
+        step_id="synthetic_recipe_step",
+        goal_type="derive_test",
+        target="fact:i:test",
+        recipe_hint="synthetic_recipe",
+        strategy="测试注入 recipe 编译策略",
+    )
+    recipe = RecipeExecutionSpec(
+        recipe_id="synthetic_recipe",
+        method_sequence=("synthetic_method",),
+        execution_strategy="synthetic_strategy",
+    )
+
+    with pytest.raises(
+        StrategyDraftValidationError,
+        match="synthetic_recipe_compiler_called",
+    ):
+        compiler._compile_recipe(step, recipe)
+
+
 def test_method_binding_registry_loads_rules_from_family_spec() -> None:
     """Method input 绑定应由 FamilySpec 的 declarative rule 驱动。"""
     payload = _valid_step_intent_payload()
@@ -2650,36 +3006,148 @@ def test_method_binding_registry_loads_rules_from_family_spec() -> None:
     }
 
 
-def test_method_binding_registry_covers_family_selectors() -> None:
-    """FamilySpec 中声明的 selector 都应存在于默认 selector registry。"""
-    rules = MethodBindingRuleRegistry.from_family_spec(_nankai_inputs().family_spec)
+def test_method_binding_registry_loads_companion_outputs_from_family_spec() -> None:
+    """method 固有伴随输出应由 FamilySpec 声明，不在 compiler 里按 method_id 特判。"""
+    nankai_rules = MethodBindingRuleRegistry.from_family_spec(_nankai_inputs().family_spec)
+    quadratic_rule = nankai_rules.rule_for("quadratic_from_constraints")
 
-    missing_input_selectors = []
-    missing_expansion_selectors = []
-    for rule in _nankai_inputs().family_spec.method_binding_rules:
-        missing_input_selectors.extend(
-            binding.selector
-            for binding in rule.input_bindings
-            if binding.selector not in rules.selectors
-        )
-        missing_expansion_selectors.extend(
-            selector
-            for selector in rule.expansion_selectors
-            if selector not in rules.expansion_selectors
-        )
+    assert quadratic_rule is not None
+    assert quadratic_rule.always_emit_outputs == ("coefficients",)
+    assert quadratic_rule.companion_outputs == (
+        MethodCompanionOutputSpec(
+            "coefficients",
+            "answer_scope_output:coefficients",
+            "runtime_step_output:coefficients",
+        ),
+    )
 
-    assert missing_input_selectors == []
-    assert missing_expansion_selectors == []
+    hexi_rules = MethodBindingRuleRegistry.from_family_spec(
+        QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY
+    )
+    weighted_rule = hexi_rules.rule_for("weighted_axis_path_triangle_transform")
+
+    assert weighted_rule is not None
+    assert weighted_rule.always_emit_outputs == ("auxiliary_point", "auxiliary_locus")
+    assert weighted_rule.companion_outputs == (
+        MethodCompanionOutputSpec(
+            "auxiliary_point",
+            "weighted_path_auxiliary_point",
+            "weighted_path_auxiliary_point",
+        ),
+        MethodCompanionOutputSpec(
+            "auxiliary_locus",
+            "scope_output:auxiliary_locus",
+            "runtime_step_output:auxiliary_locus",
+        ),
+    )
 
 
-def test_method_binding_registry_reports_unknown_selectors() -> None:
-    """未知 selector 的错误信息应保持稳定，方便 LLM repair/debug。"""
-    step = StepIntentValidator().validate_json(
-        json.dumps(_valid_step_intent_payload(), ensure_ascii=False),
-        question_goals=_nankai_inputs().question_goals,
+def test_method_binding_registry_loads_prep_invocations_from_family_spec() -> None:
+    """method 前置补位规则应由 FamilySpec 声明。"""
+    rules = MethodBindingRuleRegistry.from_family_spec(
+        QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY
+    )
+    rule = rules.rule_for("quadratic_vertex_point")
+
+    assert rule is not None
+    assert rule.prep_invocations == (
+        MethodPrepInvocationSpec(
+            trigger_selector="missing_readable_type:Parabola",
+            method_id="quadratic_from_constraints",
+            output_aliases=(
+                ("coefficients", "prepared_coefficients"),
+                ("parabola", "prepared_parabola"),
+            ),
+            local_output_aliases=(
+                ("type:Coefficients", "coefficients"),
+                ("type:Parabola", "parabola"),
+            ),
+        ),
+    )
+
+
+def test_prep_invocation_builder_generates_declared_local_outputs() -> None:
+    """PrepInvocationBuilder 应按声明生成 prep invocation/promote/local outputs。"""
+    problem = load_problem_ir(HEXI_FIXTURE)
+    index = CanonicalRuntimeBindingIndex.from_context(
+        ContextBuilder().build(problem),
+        handle_registry=CanonicalHandleRegistry.from_problem_payload(_hexi_llm_problem()),
+        question_goals=extract_question_goals(problem),
+    )
+    rules = MethodBindingRuleRegistry.from_family_spec(
+        QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY
+    )
+    step = _step(
+        scope_id="i",
+        step_id="derive_vertex_i",
+        recipe_hint="quadratic_vertex_point",
+        goal_type="derive_vertex_point",
+        target="answer:i.P",
+    )
+
+    result = PrepInvocationBuilder(binding_rules=rules, index=index).build(
+        "quadratic_vertex_point",
+        step,
+    )
+
+    assert len(result.invocations) == 1
+    invocation = result.invocations[0]
+    assert invocation.method_id == "quadratic_from_constraints"
+    assert invocation.invocation_id == "derive_vertex_i.prepare_quadratic_from_constraints"
+    assert invocation.outputs == {
+        "coefficients": "$step.derive_vertex_i.temp.prepared_coefficients",
+        "parabola": "$step.derive_vertex_i.temp.prepared_parabola",
+    }
+    assert result.promote == {
+        "$step.derive_vertex_i.temp.prepared_coefficients": "$question.i.outputs.prepared_coefficients",
+        "$step.derive_vertex_i.temp.prepared_parabola": "$question.i.outputs.prepared_parabola",
+    }
+    assert result.local_outputs == {
+        "type:Coefficients": "$step.derive_vertex_i.temp.prepared_coefficients",
+        "type:Parabola": "$step.derive_vertex_i.temp.prepared_parabola",
+    }
+
+
+def test_method_outputs_for_step_uses_declared_companion_outputs() -> None:
+    """输出路径生成应读取 binding rule 的 always/companion outputs。"""
+    index = CanonicalRuntimeBindingIndex.from_context(
+        _runtime_context(),
         handle_registry=_registry(),
-        family_spec=_nankai_inputs().family_spec,
-    ).steps[0]
+        question_goals=_question_goals(),
+    )
+    rules = MethodBindingRuleRegistry.from_family_spec(_nankai_inputs().family_spec)
+    step = _step(
+        scope_id="i",
+        step_id="derive_i_parabola",
+        recipe_hint="quadratic_from_constraints",
+        goal_type="derive_parabola",
+        target="answer:i.parabola",
+        produces=(
+            ProducedFact(
+                "answer:i.parabola",
+                "i",
+                "第一问抛物线",
+                output_type="Parabola",
+            ),
+        ),
+    )
+
+    outputs = _method_outputs_for_step(
+        "quadratic_from_constraints",
+        step,
+        {"coefficients": "Coefficients", "parabola": "Parabola"},
+        index,
+        rules,
+    )
+
+    assert outputs == {
+        "parabola": "$step.derive_i_parabola.temp.parabola",
+        "coefficients": "$step.derive_i_parabola.temp.coefficients",
+    }
+
+
+def test_method_outputs_for_step_rejects_unknown_declared_output() -> None:
+    """FamilySpec 声明 method 不存在的 companion output 时应尽早失败。"""
     index = CanonicalRuntimeBindingIndex.from_context(
         _runtime_context(),
         handle_registry=_registry(),
@@ -2689,44 +3157,80 @@ def test_method_binding_registry_reports_unknown_selectors() -> None:
         (
             MethodBindingRuleSpec(
                 method_id="synthetic_method",
-                input_bindings=(
-                    MethodInputBindingSpec("value", "unknown_selector"),
+                companion_outputs=(
+                    MethodCompanionOutputSpec(
+                        "missing_output",
+                        "scope_output:missing_output",
+                    ),
                 ),
             ),
         )
     )
-
-    with pytest.raises(StrategyDraftValidationError, match="binding_selector_missing: unknown_selector"):
-        rules.bind("synthetic_method", step, index)
-
-
-def test_method_binding_registry_reports_unknown_expansion_selectors() -> None:
-    """未知 expansion selector 的错误信息应保持稳定。"""
-    step = StepIntentValidator().validate_json(
-        json.dumps(_valid_step_intent_payload(), ensure_ascii=False),
-        question_goals=_nankai_inputs().question_goals,
-        handle_registry=_registry(),
-        family_spec=_nankai_inputs().family_spec,
-    ).steps[0]
-    index = CanonicalRuntimeBindingIndex.from_context(
-        _runtime_context(),
-        handle_registry=_registry(),
-        question_goals=_question_goals(),
-    )
-    rules = MethodBindingRuleRegistry(
-        (
-            MethodBindingRuleSpec(
-                method_id="synthetic_method",
-                expansion_selectors=("unknown_expansion",),
+    step = _step(
+        scope_id="i",
+        step_id="synthetic_step",
+        recipe_hint="synthetic_method",
+        goal_type="derive_expression",
+        target="fact:i:value",
+        produces=(
+            ProducedFact(
+                "fact:i:value",
+                "i",
+                "测试表达式",
+                output_type="Expression",
             ),
-        )
+        ),
     )
 
     with pytest.raises(
         StrategyDraftValidationError,
+        match="method_output_missing: synthetic_method.missing_output",
+    ):
+        _method_outputs_for_step(
+            "synthetic_method",
+            step,
+            {"value": "Expression"},
+            index,
+            rules,
+        )
+
+
+def test_method_binding_registry_covers_family_selectors() -> None:
+    """FamilySpec 中声明的 selector 应在构造 registry 时完成校验。"""
+    rules = MethodBindingRuleRegistry.from_family_spec(_nankai_inputs().family_spec)
+
+    assert rules.rules
+
+
+def test_method_binding_registry_reports_unknown_selectors() -> None:
+    """未知 selector 应在 registry 构造阶段失败。"""
+    with pytest.raises(StrategyDraftValidationError, match="binding_selector_missing: unknown_selector"):
+        MethodBindingRuleRegistry(
+            (
+                MethodBindingRuleSpec(
+                    method_id="synthetic_method",
+                    input_bindings=(
+                        MethodInputBindingSpec("value", "unknown_selector"),
+                    ),
+                ),
+            )
+        )
+
+
+def test_method_binding_registry_reports_unknown_expansion_selectors() -> None:
+    """未知 expansion selector 应在 registry 构造阶段失败。"""
+    with pytest.raises(
+        StrategyDraftValidationError,
         match="binding_expansion_selector_missing: unknown_expansion",
     ):
-        rules.bind("synthetic_method", step, index)
+        MethodBindingRuleRegistry(
+            (
+                MethodBindingRuleSpec(
+                    method_id="synthetic_method",
+                    expansion_selectors=("unknown_expansion",),
+                ),
+            )
+        )
 
 
 def test_method_binding_registry_accepts_injected_selector() -> None:
@@ -2752,6 +3256,7 @@ def test_method_binding_registry_accepts_injected_selector() -> None:
             ),
         ),
         selectors={
+            **DEFAULT_BINDING_SELECTORS,
             "synthetic_selector": lambda _step, _index, _local_outputs: "$problem.symbols.a",
         },
     )

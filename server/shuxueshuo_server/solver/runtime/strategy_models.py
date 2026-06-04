@@ -9,6 +9,20 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+STEP_INTENT_OUTPUT_TYPES: tuple[str, ...] = (
+    "Coefficients",
+    "Equation",
+    "Expression",
+    "Line",
+    "MinimumExpression",
+    "Parabola",
+    "ParameterValue",
+    "PathTransformation",
+    "Point",
+    "PointList",
+    "StraighteningCandidate",
+)
+
 
 @dataclass(frozen=True)
 class CreatedEntity:
@@ -45,14 +59,18 @@ class ProducedFact:
     handle: str
     valid_scope: str
     description: str = ""
+    output_type: str | None = None
 
     def to_payload(self) -> dict[str, str]:
         """转成 JSON 友好的 dict。"""
-        return {
+        payload = {
             "handle": self.handle,
             "valid_scope": self.valid_scope,
             "description": self.description,
         }
+        if self.output_type is not None:
+            payload["output_type"] = self.output_type
+        return payload
 
 
 @dataclass(frozen=True)
@@ -547,6 +565,11 @@ STEP_INTENT_JSON_SCHEMA: dict[str, Any] = {
                                             "description": {
                                                 "type": "string",
                                                 "description": "这条事实或答案的自然语言说明",
+                                            },
+                                            "output_type": {
+                                                "type": ["string", "null"],
+                                                "enum": [*STEP_INTENT_OUTPUT_TYPES, None],
+                                                "description": "可选：本 produces 对应的 runtime 输出类型；能确定时请显式填写，减少系统从自然语言猜测",
                                             },
                                         },
                                     },

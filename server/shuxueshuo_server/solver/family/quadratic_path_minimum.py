@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from shuxueshuo_server.solver.family.models import (
     FamilyMatchRule,
+    MethodCompanionOutputSpec,
     MethodBindingRuleSpec,
     MethodInputBindingSpec,
     RecipeExecutionSpec,
@@ -178,6 +179,14 @@ QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 "known_coefficients_if_read",
                 "parameter_value_if_read",
                 "curve_points_if_parameterized",
+            ),
+            always_emit_outputs=("coefficients",),
+            companion_outputs=(
+                MethodCompanionOutputSpec(
+                    "coefficients",
+                    "answer_scope_output:coefficients",
+                    "runtime_step_output:coefficients",
+                ),
             ),
         ),
         MethodBindingRuleSpec(

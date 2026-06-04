@@ -8,8 +8,10 @@ from __future__ import annotations
 
 from shuxueshuo_server.solver.family.models import (
     FamilyMatchRule,
+    MethodCompanionOutputSpec,
     MethodBindingRuleSpec,
     MethodInputBindingSpec,
+    MethodPrepInvocationSpec,
     RecipeExecutionSpec,
     SolverFamilySpec,
     StepRecipeSpec,
@@ -93,6 +95,14 @@ QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 "known_coefficients_if_read",
                 "curve_point_if_read",
             ),
+            always_emit_outputs=("coefficients",),
+            companion_outputs=(
+                MethodCompanionOutputSpec(
+                    "coefficients",
+                    "answer_scope_output:coefficients",
+                    "runtime_step_output:coefficients",
+                ),
+            ),
         ),
         MethodBindingRuleSpec(
             method_id="quadratic_vertex_point",
@@ -100,6 +110,20 @@ QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 MethodInputBindingSpec("parabola", "read_type:Parabola"),
                 MethodInputBindingSpec("x", "symbol:x"),
                 MethodInputBindingSpec("target", "point_output_ref"),
+            ),
+            prep_invocations=(
+                MethodPrepInvocationSpec(
+                    trigger_selector="missing_readable_type:Parabola",
+                    method_id="quadratic_from_constraints",
+                    output_aliases=(
+                        ("coefficients", "prepared_coefficients"),
+                        ("parabola", "prepared_parabola"),
+                    ),
+                    local_output_aliases=(
+                        ("type:Coefficients", "coefficients"),
+                        ("type:Parabola", "parabola"),
+                    ),
+                ),
             ),
         ),
         MethodBindingRuleSpec(
@@ -152,6 +176,19 @@ QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 MethodInputBindingSpec("moving_point", "weighted_path:moving_point"),
                 MethodInputBindingSpec("dynamic_parameter", "dynamic_symbol"),
                 MethodInputBindingSpec("auxiliary_point_ref", "weighted_path:auxiliary_point_ref"),
+            ),
+            always_emit_outputs=("auxiliary_point", "auxiliary_locus"),
+            companion_outputs=(
+                MethodCompanionOutputSpec(
+                    "auxiliary_point",
+                    "weighted_path_auxiliary_point",
+                    "weighted_path_auxiliary_point",
+                ),
+                MethodCompanionOutputSpec(
+                    "auxiliary_locus",
+                    "scope_output:auxiliary_locus",
+                    "runtime_step_output:auxiliary_locus",
+                ),
             ),
         ),
         MethodBindingRuleSpec(
