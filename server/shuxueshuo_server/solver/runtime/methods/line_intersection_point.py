@@ -51,6 +51,7 @@ class LineIntersectionPointMethod:
 SPEC = MethodSpecSource(
     method_cls=LineIntersectionPointMethod,
     title='求两直线交点',
+    summary='输入: 两条直线；输出: 交点坐标。',
     solves=('derive_line_intersection_point',),
     inputs={
     "line1_p1": {

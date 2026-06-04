@@ -49,12 +49,16 @@ class FilterPointCandidatesByQuadraticCurveMethod:
                 rejected.append(candidate)
                 details.append(f"{target.name}{index}: 无满足 {_constraint_text(parameter, constraint, kernel)} 的解")
 
+        outputs = {
+            "filtered_candidates": TypedValue("PointList", kept, source=self.method_id),
+            "rejected_candidates": TypedValue("PointList", rejected, source=self.method_id),
+        }
+        if len(kept) == 1:
+            outputs["selected_candidate"] = TypedValue("Point", kept[0], source=self.method_id)
+
         return StatelessMethodResult(
             method_id=self.method_id,
-            outputs={
-                "filtered_candidates": TypedValue("PointList", kept, source=self.method_id),
-                "rejected_candidates": TypedValue("PointList", rejected, source=self.method_id),
-            },
+            outputs=outputs,
             checks=[
                 _check("at_least_one_candidate_kept", bool(kept), "至少有一个候选点能满足曲线条件"),
                 _check(
@@ -110,6 +114,7 @@ def _constraint_text(
 SPEC = MethodSpecSource(
     method_cls=FilterPointCandidatesByQuadraticCurveMethod,
     title="用二次函数条件筛选点候选",
+    summary="输入: 候选点与抛物线；输出: 在抛物线上的候选点列表。",
     solves=("filter_point_candidates_by_quadratic_curve",),
     inputs={
         "candidates": {"type": "PointList", "required": True},
@@ -122,7 +127,8 @@ SPEC = MethodSpecSource(
     outputs={
         "filtered_candidates": "PointList",
         "rejected_candidates": "PointList",
+        "selected_candidate": "Point",
     },
     preconditions=("parabola 已代入当前问能确定的已知条件", "candidates 来自几何构造"),
-    postconditions=("filtered_candidates 中每个候选在参数约束下可满足曲线条件",),
+    postconditions=("filtered_candidates 中每个候选在参数约束下可满足曲线条件", "若唯一保留候选，则 selected_candidate 为该候选点"),
 )

@@ -2,6 +2,7 @@
   "method_id": "select_curve_point_candidate_and_solve_coefficients",
   "title": "候选点筛选并求系数",
   "description": "从几何候选点中选择能落在抛物线上的点，并同步求系数。",
+  "summary": "输入: 候选点、抛物线约束和参数约束；输出: 被选中的曲线点、系数和抛物线。",
   "solves": [
     "select_curve_point_candidate_and_solve_coefficients"
   ],

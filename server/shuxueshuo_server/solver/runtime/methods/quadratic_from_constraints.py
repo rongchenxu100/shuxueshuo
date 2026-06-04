@@ -11,7 +11,7 @@ from ._spec import MethodSpecSource
 
 
 class QuadraticFromConstraintsMethod:
-    """由系数事实、曲线点事实和额外方程统一求二次函数。
+    """由二次函数约束求当前问需要的最简抛物线。
 
     这个 method 合并了此前三类近似方法：
 
@@ -19,6 +19,13 @@ class QuadraticFromConstraintsMethod:
     - 由点在抛物线上和系数关系求通式；
     - 由已知系数和一个曲线点求含参抛物线；
     - 只代入部分已知系数，得到仍含自由系数的当前问抛物线。
+
+    作为“化简函数表达式”的 method，它的使用原则是：只有当代入约束后能明显降低
+    当前问表达式复杂度时才值得单独调用。理想化简结果是二次函数系数 ``a,b,c``
+    只剩一个未知参数，或已经完全确定；如果化简后仍有多个等价自由参数，Planner
+    应结合后续题面条件选择最有用的参数方向，而不是随意缓存一组含参系数。
+    例如 ``b``、``c`` 都能作为自由参数时，优先保留后续长度、最值、曲线点或答案
+    目标会直接求解/引用的那个参数；无法从上下文唯一判断时，应推迟到更多约束出现。
 
     V1.5 的 MethodInvocation 只能传 ContextPath，暂时不能直接构造“任意长度 facts
     列表”，所以输入仍保留 ``curve_point/p1/p2`` 这几个固定槽位；method 内部会把
@@ -212,6 +219,17 @@ def _reason_text(
 SPEC = MethodSpecSource(
     method_cls=QuadraticFromConstraintsMethod,
     title="由二次函数约束求抛物线",
+    summary=(
+        "输入: 二次函数表达式、已知系数、系数关系、曲线点或参数条件；"
+        "输出: 当前问最简系数与抛物线解析式；"
+        "使用原则: 只在能完全确定系数，或能化简到一个后续条件/目标会用到的未知量时单独成步。"
+    ),
+    description=(
+        "由已知系数、曲线点、系数关系和额外方程求当前问需要的最简抛物线。"
+        "它适合在代入后能把 a,b,c 完全确定，或至少化简到只剩一个上下文有用的"
+        "未知参数时使用；若 b、c 等多个参数都可作为自由参数，应结合后续长度、"
+        "最值、曲线点或答案目标选择保留哪个参数，无法判断时应等待更多约束。"
+    ),
     solves=("derive_quadratic_from_constraints",),
     inputs={
         "quadratic": {"type": "Expression", "required": True},
@@ -230,6 +248,13 @@ SPEC = MethodSpecSource(
         "parameter_value": {"type": "ParameterValue", "required": False},
     },
     outputs={"coefficients": "Coefficients", "parabola": "Parabola"},
-    preconditions=("输入约束必须能唯一确定除 free_parameter 外的缺失系数",),
-    postconditions=("输出抛物线满足已知系数、曲线点和额外方程约束",),
+    preconditions=(
+        "输入约束必须能唯一确定除 free_parameter/free_parameters 外的缺失系数",
+        "若作为独立化简步骤，化简后应完全确定系数，或只保留一个由后续条件/目标明确需要的自由参数",
+        "当多个自由参数都可表达同一函数时，应由 Planner 结合后续条件选择参数；不能唯一判断时不要提前缓存含参系数",
+    ),
+    postconditions=(
+        "输出抛物线满足已知系数、曲线点和额外方程约束",
+        "输出 coefficients/parabola 表示当前问已知约束下的最简函数表达式",
+    ),
 )

@@ -163,6 +163,129 @@ class LinkedBrokenPathGeometricMinimumMethod:
         )
 
 
+class LinkedBrokenPathMinimumExpressionMethod:
+    """只求联动折线最短的表达式，不在本 method 内反求参数。
+
+    该 method 是 ``linked_broken_path_geometric_minimum`` 的薄版本：它完成学生
+    解法中的“点到辅助点轨迹的垂线距离”这一步，输出关于主参数的最小值表达式。
+    题设给定最小值后，再交给 ``parameter_from_expression_value`` 解参数。这样
+    Strategy Planner 看到的是更可复用的细粒度能力，而不是河西题专属大 recipe。
+    """
+
+    method_id = "linked_broken_path_minimum_expression"
+
+    def run(self, inputs: dict[str, Any], kernel: SympyKernel) -> StatelessMethodResult:
+        transformation = inputs["path_transformation"]
+        auxiliary_locus = inputs["auxiliary_locus"]
+        fixed_point: Point = inputs["fixed_point"]
+        curve_point: Point = inputs["curve_point"]
+        moving_point: Point = inputs["moving_point"]
+        auxiliary_point: Point = inputs["auxiliary_point"]
+        parameter = inputs["parameter"]
+        dynamic_parameter = inputs["dynamic_parameter"]
+        parameter_constraint = inputs["parameter_constraint"]
+        _dynamic_constraint = inputs["dynamic_constraint"]
+
+        if sp.simplify(fixed_point[1]) != 0 or sp.simplify(moving_point[1]) != 0:
+            raise ValueError("linked_broken_path_minimum_expression requires fixed/moving points on x-axis")
+        if sp.simplify(moving_point[0] - dynamic_parameter) != 0:
+            raise ValueError("moving point x-coordinate must be the dynamic parameter")
+
+        scale = sp.simplify(transformation.get("scale", sp.sqrt(2)))
+        if sp.simplify(scale - sp.sqrt(2)) != 0:
+            raise ValueError("current linked broken path minimum only supports sqrt(2) scale")
+
+        direction = _locus_direction(auxiliary_locus)
+        locus_start = _locus_start(auxiliary_locus)
+        foot_point = _projection_point(curve_point, locus_start, direction)
+        dynamic_expression = _solve_dynamic_parameter_from_auxiliary_foot(
+            kernel,
+            auxiliary_point,
+            foot_point,
+            dynamic_parameter,
+            fixed_point[0],
+            parameter,
+            parameter_constraint,
+        )
+        dynamic_point_expr = (
+            sp.simplify(sp.sympify(moving_point[0]).subs(dynamic_parameter, dynamic_expression)),
+            sp.simplify(sp.sympify(moving_point[1]).subs(dynamic_parameter, dynamic_expression)),
+        )
+        auxiliary_point_expr = _subs_point(auxiliary_point, {dynamic_parameter: dynamic_expression})
+        perpendicular_dot = _dot_with_direction(curve_point, auxiliary_point_expr, direction)
+        point_on_locus = _point_on_locus(auxiliary_point_expr, locus_start, direction)
+
+        inner_minimum_expression = _point_to_locus_distance(
+            curve_point,
+            locus_start,
+            direction,
+            parameter,
+            parameter_constraint,
+        )
+        minimum_expression = sp.simplify(scale * inner_minimum_expression)
+
+        return StatelessMethodResult(
+            method_id=self.method_id,
+            outputs={
+                "minimum_expression": TypedValue(
+                    "MinimumExpression",
+                    minimum_expression,
+                    source=self.method_id,
+                ),
+                "dynamic_parameter_expression": TypedValue(
+                    "Expression",
+                    dynamic_expression,
+                    source=self.method_id,
+                ),
+                "dynamic_point_expression": TypedValue(
+                    "Point",
+                    dynamic_point_expr,
+                    source=self.method_id,
+                ),
+            },
+            checks=[
+                _check(
+                    "straightened_points_collinear",
+                    point_collinear(curve_point, dynamic_point_expr, auxiliary_point_expr),
+                    "最短状态下曲线点、动点、辅助点共线",
+                ),
+                _check(
+                    "auxiliary_point_on_locus",
+                    point_on_locus,
+                    "最短状态下辅助点仍在声明的运动射线上",
+                ),
+                _check(
+                    "auxiliary_point_is_locus_foot",
+                    _same_point(auxiliary_point_expr, foot_point),
+                    "最短状态下辅助点是曲线点到运动射线的垂足",
+                ),
+                _check(
+                    "straightened_line_perpendicular_to_locus",
+                    sp.simplify(perpendicular_dot) == 0,
+                    "拉直后的连线垂直于辅助点运动射线",
+                ),
+                _check(
+                    "dynamic_constraint_declared",
+                    _dynamic_constraint is not None,
+                    "动点约束已传入 method",
+                ),
+            ],
+            trace_fragments=[
+                _step(
+                    self.method_id,
+                    "求联动折线最小值表达式",
+                    f"得到关于 {parameter.name} 的最小值表达式",
+                    "辅助点沿固定射线运动，折线拉直后最短距离等于曲线点到该射线所在直线的垂线段长度。",
+                    (
+                        f"垂足=({_fmt_point(foot_point, kernel)})，"
+                        f"{dynamic_parameter.name}={kernel.sstr(dynamic_expression)}"
+                    ),
+                    f"最小值表达式={kernel.sstr(minimum_expression)}",
+                )
+            ],
+        )
+
+
 def _dot_with_direction(point: Point, origin: Point, direction: tuple[sp.Expr, sp.Expr]) -> sp.Expr:
     """计算向量 origin->point 与给定方向向量的点积。"""
     return sp.simplify((point[0] - origin[0]) * direction[0] + (point[1] - origin[1]) * direction[1])
@@ -360,6 +483,10 @@ def _simplify_abs_by_lower_bound(
 SPEC = MethodSpecSource(
     method_cls=LinkedBrokenPathGeometricMinimumMethod,
     title="联动点折线拉直最值",
+    summary=(
+        "输入: sqrt(2) 加权路径已转化出的辅助点轨迹；输出: 几何最小值与极值点。"
+        "使用边界: 只支持 transformation.scale=sqrt(2) 的等腰直角三角形转化结果。"
+    ),
     solves=("derive_linked_broken_path_geometric_minimum",),
     inputs={
         "condition": {"type": "Condition", "required": True},
@@ -380,6 +507,45 @@ SPEC = MethodSpecSource(
         "minimum_value": "MinimumExpression",
         "dynamic_point": "Point",
     },
-    preconditions=("已经完成加权路径到 MN+QN 的辅助点转化", "Q 随 N 在固定射线上运动"),
+    preconditions=(
+        "已经完成 sqrt(2) 加权路径到 MN+QN 的辅助点转化",
+        "path_transformation.scale 必须为 sqrt(2)",
+        "Q 随 N 在固定射线上运动",
+    ),
     postconditions=("输出参数值满足题设最小值和动点范围",),
+)
+
+
+MINIMUM_EXPRESSION_SPEC = MethodSpecSource(
+    method_cls=LinkedBrokenPathMinimumExpressionMethod,
+    title="联动点折线最短表达式",
+    summary=(
+        "输入: sqrt(2) 加权路径已转化出的辅助点轨迹、曲线点和动点表达式；输出: 关于参数的几何最小值表达式。"
+        "使用边界: 只支持 transformation.scale=sqrt(2) 的等腰直角三角形转化结果。"
+        "使用原则: 本 method 只求表达式，不反求参数；给定最小值反求参数应交给 parameter_from_expression_value。"
+    ),
+    solves=("derive_linked_broken_path_minimum_expression",),
+    inputs={
+        "path_transformation": {"type": "PathTransformation", "required": True},
+        "auxiliary_locus": {"type": "Line", "required": True},
+        "fixed_point": {"type": "Point", "required": True},
+        "curve_point": {"type": "Point", "required": True},
+        "moving_point": {"type": "Point", "required": True},
+        "auxiliary_point": {"type": "Point", "required": True},
+        "parameter": {"type": "Symbol", "required": True},
+        "dynamic_parameter": {"type": "Symbol", "required": True},
+        "parameter_constraint": {"type": "Constraint", "required": True},
+        "dynamic_constraint": {"type": "Constraint", "required": True},
+    },
+    outputs={
+        "minimum_expression": "MinimumExpression",
+        "dynamic_parameter_expression": "Expression",
+        "dynamic_point_expression": "Point",
+    },
+    preconditions=(
+        "已经完成 sqrt(2) 加权路径到普通折线的辅助点转化",
+        "path_transformation.scale 必须为 sqrt(2)",
+        "辅助点沿固定射线运动",
+    ),
+    postconditions=("输出最小值表达式供后续反求参数",),
 )

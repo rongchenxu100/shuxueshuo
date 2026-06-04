@@ -1,0 +1,32 @@
+{
+  "method_id": "evaluate_expression_at_parameter",
+  "title": "代入参数化简表达式",
+  "description": "把表达式中的参数替换为已求出的参数值。",
+  "summary": "输入: 表达式、参数符号和参数值；输出: 代入参数后的表达式。",
+  "solves": [
+    "evaluate_expression_at_parameter"
+  ],
+  "inputs": {
+    "expression": {
+      "type": "Expression",
+      "required": true
+    },
+    "parameter": {
+      "type": "Symbol",
+      "required": true
+    },
+    "parameter_value": {
+      "type": "ParameterValue",
+      "required": true
+    }
+  },
+  "outputs": {
+    "evaluated_expression": "Expression"
+  },
+  "preconditions": [
+    "expression 可以包含 parameter"
+  ],
+  "postconditions": [
+    "输出表达式不再含 parameter"
+  ]
+}

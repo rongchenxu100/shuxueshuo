@@ -96,6 +96,7 @@ class MethodSpec:
     solves: tuple[str, ...]
     inputs: dict[str, MethodInputSpec]
     outputs: dict[str, str]
+    summary: str = ""
     preconditions: tuple[str, ...] = ()
     postconditions: tuple[str, ...] = ()
     trace_template: tuple[str, ...] = ()

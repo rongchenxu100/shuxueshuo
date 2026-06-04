@@ -9,6 +9,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+
 @dataclass(frozen=True)
 class CreatedEntity:
     """StepIntent 在推导过程中声明的新实体。
@@ -240,6 +241,52 @@ class HandleResolutionReport:
                 correction.to_payload()
                 for correction in self.corrections
             ],
+        }
+
+
+@dataclass(frozen=True)
+class StepIntentNormalizationAction:
+    """StepIntentNormalizer 对草稿做的一次确定性整理。
+
+    normalizer 只做代码可以确定的、保守的结构修正，例如把冗余 answer step 合并到
+    前序已能产生同一答案的 recipe。它不会补数学推导，也不会创造普通中间 fact。
+    """
+
+    action: str
+    step_id: str
+    target_step_id: str | None = None
+    handle: str | None = None
+    reason: str = ""
+
+    def to_payload(self) -> dict[str, str | None]:
+        """转成 debug JSON。"""
+        return {
+            "action": self.action,
+            "step_id": self.step_id,
+            "target_step_id": self.target_step_id,
+            "handle": self.handle,
+            "reason": self.reason,
+        }
+
+
+@dataclass(frozen=True)
+class StepIntentNormalizationReport:
+    """StepIntentNormalizer 的整理报告。"""
+
+    actions: tuple[StepIntentNormalizationAction, ...] = ()
+    warnings: tuple[str, ...] = ()
+
+    @property
+    def changed(self) -> bool:
+        """是否实际改写过 StepIntentDraft。"""
+        return bool(self.actions)
+
+    def to_payload(self) -> dict[str, Any]:
+        """转成 JSON 友好结构。"""
+        return {
+            "changed": self.changed,
+            "actions": [action.to_payload() for action in self.actions],
+            "warnings": list(self.warnings),
         }
 
 

@@ -21,6 +21,10 @@ class RightAngleEqualLengthCandidatesMethod:
 
     该 method 只做旋转候选生成，不根据象限、曲线或参数范围筛选。筛选逻辑必须
     由后续 method 显式接收题设条件后完成。
+
+    ``anchor`` 和 ``reference`` 可以包含符号参数。method 会按旋转公式直接得到
+    含参候选点，例如已知端点是 ``(0, -b-2)`` 时，候选点坐标也会保留 ``b``。
+    后续再由象限、曲线或参数约束筛选。
     """
 
     method_id = "right_angle_equal_length_candidates"
@@ -82,6 +86,7 @@ class RightAngleEqualLengthCandidatesMethod:
 SPEC = MethodSpecSource(
     method_cls=RightAngleEqualLengthCandidatesMethod,
     title='直角等腰旋转列候选点',
+    summary='输入: 直角顶点、已知端点和未知端点定义，点坐标可含参数；输出: 直角等腰旋转得到的两个候选点，候选坐标可保留参数。',
     solves=('derive_right_angle_equal_length_candidates',),
     inputs={
     "anchor": {
@@ -106,7 +111,7 @@ SPEC = MethodSpecSource(
     outputs={
     "candidates": "PointList"
 },
-    preconditions=('anchor.coordinate is known', 'reference.coordinate is known', 'target is an unresolved point reference'),
+    preconditions=('anchor.coordinate is known, can be symbolic', 'reference.coordinate is known, can be symbolic', 'target is an unresolved point reference'),
     postconditions=('每个候选点都满足 distance(anchor, candidate) == distance(anchor, reference)', '每个候选点都满足 dot(anchor->reference, anchor->candidate) == 0'),
     trace_template=('由直角等腰条件，将 {reference} 绕 {anchor} 顺/逆时针旋转 90°，得到 {target} 的两个候选点。',),
 )

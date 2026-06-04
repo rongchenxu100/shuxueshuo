@@ -2,6 +2,7 @@
   "method_id": "line_intersection_point",
   "title": "求两直线交点",
   "description": "求两条直线交点，可先代入参数值。",
+  "summary": "输入: 两条直线；输出: 交点坐标。",
   "solves": [
     "derive_line_intersection_point"
   ],

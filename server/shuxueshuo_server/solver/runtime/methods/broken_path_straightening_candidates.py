@@ -120,6 +120,7 @@ class BrokenPathStraighteningCandidatesMethod:
 SPEC = MethodSpecSource(
     method_cls=BrokenPathStraighteningCandidatesMethod,
     title='折线拉直候选生成',
+    summary='输入: 折线路径两端点、运动线段和辅助点定义；输出: 可用于将军饮马/折线拉直的候选方案。',
     solves=('derive_broken_path_straightening_candidates',),
     inputs={
     "path_transformation": {

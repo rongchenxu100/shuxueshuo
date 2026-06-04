@@ -96,6 +96,7 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
         solves=tuple(str(item) for item in raw["solves"]),
         inputs=inputs,
         outputs=outputs,
+        summary=str(raw.get("summary", "")),
         preconditions=tuple(str(item) for item in raw.get("preconditions", [])),
         postconditions=tuple(str(item) for item in raw.get("postconditions", [])),
         trace_template=tuple(str(item) for item in raw.get("trace_template", [])),

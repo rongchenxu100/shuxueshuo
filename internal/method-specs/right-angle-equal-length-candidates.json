@@ -2,6 +2,7 @@
   "method_id": "right_angle_equal_length_candidates",
   "title": "直角等腰旋转列候选点",
   "description": "由直角等腰条件列出未知直角边端点的两个候选。",
+  "summary": "输入: 直角顶点、已知端点和未知端点定义，点坐标可含参数；输出: 直角等腰旋转得到的两个候选点，候选坐标可保留参数。",
   "solves": [
     "derive_right_angle_equal_length_candidates"
   ],
@@ -29,8 +30,8 @@
     "candidates": "PointList"
   },
   "preconditions": [
-    "anchor.coordinate is known",
-    "reference.coordinate is known",
+    "anchor.coordinate is known, can be symbolic",
+    "reference.coordinate is known, can be symbolic",
     "target is an unresolved point reference"
   ],
   "postconditions": [

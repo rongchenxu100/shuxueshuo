@@ -6,7 +6,14 @@ RuntimeOrchestrator 匹配 family，并给 Planner 提供题型级参考，不�
 
 from __future__ import annotations
 
-from shuxueshuo_server.solver.family.models import FamilyMatchRule, SolverFamilySpec
+from shuxueshuo_server.solver.family.models import (
+    FamilyMatchRule,
+    MethodBindingRuleSpec,
+    MethodInputBindingSpec,
+    RecipeExecutionSpec,
+    SolverFamilySpec,
+    StepRecipeSpec,
+)
 
 
 QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
@@ -24,8 +31,10 @@ QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
     ),
     strategy_principles=(
         "先将每一问的已知系数与已知曲线点尽量代入，得到当前问最简抛物线表达式。",
-        "几何构造点先列候选，再用点在抛物线上和参数约束筛选。",
+        "函数化简只有在能显著减少未知量时才单独成步：理想状态是 a、b、c 完全确定，或只剩一个后续条件会直接求解/引用的未知量；若 b、c 等多个参数都能表达同一函数，应结合后续曲线点、几何筛选、最值或答案目标选择保留哪个参数。",
+        "几何构造点先列候选；若候选点还需落在含参曲线上，再用候选曲线点求参 recipe 筛选并反求参数。",
         "加权路径最值优先寻找几何转化：用辅助直角三角形把加权段转成同倍率折线，再用折线拉直或等价最短路径处理。",
+        "加权路径最值按可执行颗粒拆成：weighted_axis_path_triangle_transform 做几何转化，linked_broken_path_minimum_expression 求最小值表达式，parameter_from_expression_value 由给定值反求参数；不要把三步合成一个 utility step。",
     ),
     method_ids=(
         "quadratic_from_constraints",
@@ -33,12 +42,143 @@ QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         "quadratic_y_axis_intercept_point",
         "right_angle_equal_length_candidates",
         "filter_point_candidates_by_quadratic_curve",
-        "select_curve_point_candidate_and_solve_coefficients",
+        "parameter_from_curve_point_on_quadratic",
         "point_on_parabola_at_x",
+        "evaluate_expression_at_parameter",
         "weighted_axis_path_triangle_transform",
-        "linked_broken_path_geometric_minimum",
+        "linked_broken_path_minimum_expression",
+        "parameter_from_expression_value",
     ),
-    step_recipes=(),
+    step_recipes=(
+        StepRecipeSpec(
+            recipe_id="curve_candidate_parameter_solve",
+            goal_type="derive_constructed_point",
+            title="曲线候选点筛选并反求参数",
+            description=(
+                "候选点已经由前序几何构造得到后，用当前问含参抛物线和参数约束"
+                "筛出唯一候选点，再把该含参点代入抛物线反求参数并代回抛物线。"
+            ),
+            method_ids=(
+                "filter_point_candidates_by_quadratic_curve",
+                "parameter_from_curve_point_on_quadratic",
+            ),
+            execution=RecipeExecutionSpec(
+                recipe_id="curve_candidate_parameter_solve",
+                method_sequence=(
+                    "filter_point_candidates_by_quadratic_curve",
+                    "parameter_from_curve_point_on_quadratic",
+                ),
+                execution_strategy="curve_candidate_parameter_solve",
+                intermediate_wiring=(
+                    ("filter_point_candidates_by_quadratic_curve.selected_candidate", "parameter_from_curve_point_on_quadratic.point"),
+                ),
+                output_aliases=(
+                    ("parameter_from_curve_point_on_quadratic.point", "Point"),
+                    ("parameter_from_curve_point_on_quadratic.parameter_value", "ParameterValue"),
+                    ("parameter_from_curve_point_on_quadratic.parabola", "Parabola"),
+                ),
+            ),
+        ),
+    ),
+    method_binding_rules=(
+        MethodBindingRuleSpec(
+            method_id="quadratic_from_constraints",
+            input_bindings=(
+                MethodInputBindingSpec("quadratic", "function:parabola"),
+                MethodInputBindingSpec("x", "symbol:x"),
+                MethodInputBindingSpec("all_coefficients", "quadratic_coefficients"),
+                MethodInputBindingSpec("free_parameter", "symbol:b", required=False),
+            ),
+            expansion_selectors=(
+                "known_coefficients_if_read",
+                "curve_point_if_read",
+            ),
+        ),
+        MethodBindingRuleSpec(
+            method_id="quadratic_vertex_point",
+            input_bindings=(
+                MethodInputBindingSpec("parabola", "read_type:Parabola"),
+                MethodInputBindingSpec("x", "symbol:x"),
+                MethodInputBindingSpec("target", "point_output_ref"),
+            ),
+        ),
+        MethodBindingRuleSpec(
+            method_id="quadratic_y_axis_intercept_point",
+            input_bindings=(
+                MethodInputBindingSpec("quadratic", "read_type:Parabola"),
+                MethodInputBindingSpec("x", "symbol:x"),
+                MethodInputBindingSpec("target", "point_output_ref"),
+            ),
+        ),
+        MethodBindingRuleSpec(
+            method_id="point_on_parabola_at_x",
+            input_bindings=(
+                MethodInputBindingSpec("parabola", "read_type:Parabola"),
+                MethodInputBindingSpec("x", "symbol:x"),
+                MethodInputBindingSpec("target", "point_output_ref"),
+            ),
+        ),
+        MethodBindingRuleSpec(
+            method_id="right_angle_equal_length_candidates",
+            input_bindings=(
+                MethodInputBindingSpec("anchor", "right_angle:anchor"),
+                MethodInputBindingSpec("reference", "right_angle:reference"),
+                MethodInputBindingSpec("target", "right_angle:target"),
+            ),
+        ),
+        MethodBindingRuleSpec(
+            method_id="parameter_from_curve_point_on_quadratic",
+            input_bindings=(
+                MethodInputBindingSpec("quadratic", "read_type:Parabola"),
+                MethodInputBindingSpec("x", "symbol:x"),
+                MethodInputBindingSpec("point", "read_type:Point"),
+                MethodInputBindingSpec("parameter", "parameter_symbol"),
+                MethodInputBindingSpec("parameter_constraint", "parameter_constraint", required=False),
+            ),
+        ),
+        MethodBindingRuleSpec(
+            method_id="evaluate_expression_at_parameter",
+            input_bindings=(
+                MethodInputBindingSpec("expression", "read_type:Expression"),
+                MethodInputBindingSpec("parameter", "parameter_symbol"),
+            ),
+            expansion_selectors=("parameter_value_if_read",),
+        ),
+        MethodBindingRuleSpec(
+            method_id="weighted_axis_path_triangle_transform",
+            input_bindings=(
+                MethodInputBindingSpec("condition", "weighted_path:condition"),
+                MethodInputBindingSpec("fixed_point", "weighted_path:fixed_point"),
+                MethodInputBindingSpec("moving_point", "weighted_path:moving_point"),
+                MethodInputBindingSpec("dynamic_parameter", "dynamic_symbol"),
+                MethodInputBindingSpec("auxiliary_point_ref", "weighted_path:auxiliary_point_ref"),
+            ),
+        ),
+        MethodBindingRuleSpec(
+            method_id="linked_broken_path_minimum_expression",
+            input_bindings=(
+                MethodInputBindingSpec("path_transformation", "read_type:PathTransformation"),
+                MethodInputBindingSpec("auxiliary_locus", "read_type:Line"),
+                MethodInputBindingSpec("fixed_point", "weighted_path:fixed_point"),
+                MethodInputBindingSpec("curve_point", "weighted_path:curve_point"),
+                MethodInputBindingSpec("moving_point", "weighted_path:moving_point"),
+                MethodInputBindingSpec("auxiliary_point", "weighted_path:auxiliary_point"),
+                MethodInputBindingSpec("parameter", "parameter_symbol"),
+                MethodInputBindingSpec("dynamic_parameter", "dynamic_symbol"),
+                MethodInputBindingSpec("parameter_constraint", "parameter_constraint"),
+                MethodInputBindingSpec("dynamic_constraint", "dynamic_constraint"),
+            ),
+        ),
+        MethodBindingRuleSpec(
+            method_id="parameter_from_expression_value",
+            input_bindings=(
+                MethodInputBindingSpec("expression", "read_type:MinimumExpression"),
+                MethodInputBindingSpec("condition", "fact:minimum_value:Condition"),
+                MethodInputBindingSpec("parameter", "parameter_symbol"),
+                MethodInputBindingSpec("constraint", "parameter_constraint", required=False),
+            ),
+        ),
+    ),
     # 河西 25 是 weighted family 的第一道完整 golden case。后续至少再通过一道
     # 同 family 题后，再考虑移除这个 deterministic slice 门控。
     enabled_problem_ids=("tj-2026-hexi-yimo-25",),

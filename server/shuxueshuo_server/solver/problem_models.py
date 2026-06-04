@@ -56,6 +56,7 @@ class ProblemIR:
     pattern: str
     problem_type: str
     symbols: list[str]
+    symbol_roles: dict[str, str] = field(default_factory=dict)
     original_text: dict[str, Any] = field(default_factory=dict)
     constraints: dict[str, str] = field(default_factory=dict)
     data: dict[str, Any] = field(default_factory=dict)

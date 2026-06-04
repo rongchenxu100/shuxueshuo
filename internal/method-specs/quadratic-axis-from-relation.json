@@ -2,6 +2,7 @@
   "method_id": "quadratic_axis_from_relation",
   "title": "由系数关系求对称轴交点",
   "description": "由二次函数系数关系求对称轴与 x 轴交点。",
+  "summary": "输入: 二次函数系数关系与目标点定义；输出: 对称轴与 x 轴交点。",
   "solves": [
     "derive_axis_point"
   ],

@@ -19,6 +19,8 @@ Then the trend step must explicitly decide the later calculation agenda. For exa
 
 If the range has two included endpoint candidates for a minimum or maximum, the trend step must name both candidates and the later steps must calculate and compare both. Do not silently discard one endpoint because another interval is monotone.
 
+If the range has excluded endpoint candidates, still calculate them as boundary snapshots when they determine the strict bound. Use exact boundary values such as `t=4` or `t=10` for the snapshot, then state that the value is not attained because the domain is open.
+
 Do not assign one boundary value to two different shape intervals unless the same geometric shape truly continues across that boundary. If the shape changes at `t=c`, either make `t=c` a separate state or include it on only one side.
 
 Boundary values where the overlap shape changes must not be casually absorbed into a neighboring interval. For example, write `t=2` as a triangle boundary state, `2<t≤4` as the trapezoid phase, `4<t<6` as the pentagon phase, and `6≤t<12` as the next triangle phase when those are the actual shapes. Keep this exact boundary ownership in solution text, visual steps, `policies.range`, minis, and final unions.
@@ -63,6 +65,8 @@ Use this compact structure when there are two or three major shape phases:
 - Use `minis` as representative phase cards, not as a dump of every boundary/candidate value.
 - Thumbnail titles should usually be interval labels, such as `1＜t≤3`.
 - Thumbnail captions should be one sentence naming the shape and trend.
+- In the final merge step, it is appropriate to use `minis` for the few extremal situations that determine the answer, such as left boundary value, interior maximum, and right boundary value. These are not phase cards; they are answer-summary cards.
+- If a final-step mini represents an excluded boundary, use the exact boundary value in `minis[].t` and say in the caption that the value is not attained.
 - Thumbnails should show only the fixed figure, moving figure, and overlap region.
 - Do not put point labels, length labels, guide-line labels, or formula cards in thumbnails unless they are essential.
 - Keep target overlap area `S` visually consistent across all phases.
@@ -74,6 +78,7 @@ Use this compact structure when there are two or three major shape phases:
 - Derive the needed lengths, heights, or decomposition immediately before writing the area formula.
 - Reuse prior results such as `CG`, `DH`, or `CD` instead of restarting from coordinates.
 - If an extremum occurs at a boundary, make sure the policy range or mini can show that boundary.
+- If boundary or extremum minis are meant to be clickable and update the main diagram, the owning step's `policies[stepId]` must be `movable: true`, and its `range` must include every mini `t` value, including exact excluded-boundary snapshots used for teaching.
 - Choose the decomposition that students can see in the current snapshot, such as `平行四边形 BQPC - 等边三角形 PEC`; avoid replacing a visible subtraction with several less-visible triangle sums.
 
 ## Endpoint Checklist
@@ -81,3 +86,4 @@ Use this compact structure when there are two or three major shape phases:
 - Problem text, answer chips, solution, visual steps, `policies.range`, minis, formula boxes, and final answer must use the same endpoint inclusiveness.
 - If an endpoint is included, use `≤`, compute the attained value, and say it is attained.
 - If an endpoint is excluded, use `<`, use a strict bound, and do not claim the extremum is attained.
+- Exact endpoint diagrams and minis may still use the excluded endpoint value to show the limiting geometry. Keep the language precise: `边界情况` or `趋近` is acceptable; `取得最小值` is not.

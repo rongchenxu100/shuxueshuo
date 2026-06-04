@@ -179,6 +179,8 @@ Keep these principles together when revising a lesson. Do not solve one local vi
 
 - When a fold/rotation gives 30°、45°、60° right triangles, prefer special-right-triangle lengths and visible line-segment differences before coordinate-intersection algebra. For example, derive `CG` and `HB` from local `30°` right triangles, then use `GH=BC-CG-HB`, instead of solving coordinates for `G` and `H` directly.
 - For piecewise overlap or area problems, first name every phase and boundary value, then choose the simplest phase that can produce the requested value. Use interval thumbnails only for phase comparison; put formula-specific helper lines in the later calculation step that actually uses them.
+- For open-domain area ranges, calculate excluded endpoints as exact boundary snapshots when they determine a strict bound, but state clearly that the value is not attained. Keep left boundary calculation, interior extremum calculation, right boundary calculation, and final merge as separate steps when each has its own geometry.
+- At folding boundary states, prefer fold facts and local standard triangles over coordinates. For example, use the perpendicular-bisector relation to get `A′D=AA′/2`, then use a visible `30°` right triangle for the other area leg, instead of computing the intersection point coordinates.
 - For folds, the displayed folded polygon must be the actual image of the current paper piece for that interval. If the fold line cuts different original sides in different intervals, use interval-specific `movingPolygons` instead of extending a later-stage polygon backward.
 
 ### Layer And When Scoping
@@ -194,6 +196,7 @@ Keep these principles together when revising a lesson. Do not solve one local vi
 - Use `coloredLine`, `dashedLine`, or `dottedLine` for actual auxiliary segments that must be visibly connected, especially perpendiculars and construction lines. Use `segment` for measured/labelled line segments; do not rely on an unlabeled `segment` as a visible helper line.
 - Do not redraw or label a boundary such as `CB` when it is already an edge of `basePoly`, unless that exact boundary length is the current object being calculated.
 - If the required behavior is generally useful but not available declaratively, update the shared renderer/schema in `site/assets/js/geometry-lesson-from-spec.js` and `internal/schemas/step-decorations.schema.json`, then use the new JSON field. Do not fake it with duplicated labels, extra text, or generated-HTML edits.
+- If `minis` are meant to be clickable boundary/extremum cards, the owning step must have `policies[stepId].movable: true`, and the policy range must include every mini `t` value, including exact excluded-boundary snapshots used for teaching.
 - If no closer indexed case exists and you use `references/nankai-24-fewshot.md` as a fallback for id alignment and layer shape, do not rely on few-shots alone for renderer behavior; the real public runtime and schema are authoritative.
 
 ### Style Preset and Normalizer

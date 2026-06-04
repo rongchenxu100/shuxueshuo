@@ -2,6 +2,7 @@
   "method_id": "midpoint_point",
   "title": "求中点坐标",
   "description": "求两点中点。",
+  "summary": "输入: 两端点和中点定义；输出: 中点坐标。",
   "solves": [
     "derive_midpoint_coordinate"
   ],

@@ -131,6 +131,7 @@ class TwoMovingPointsPathReductionMethod:
 SPEC = MethodSpecSource(
     method_cls=TwoMovingPointsPathReductionMethod,
     title='两动点路径降维：已有固定点替换',
+    summary='输入: 两动点所在关系与线段比例关系；输出: 把两动点线段替换为题面已有固定点到动点的等长线段；不创建辅助点或新轨迹。',
     solves=('reduce_two_moving_point_path',),
     inputs={
     "original_path": {

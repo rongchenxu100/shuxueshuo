@@ -1,0 +1,36 @@
+{
+  "method_id": "parameter_from_expression_value",
+  "title": "由表达式取值反求参数",
+  "description": "由表达式等于题设给定值反求参数。",
+  "summary": "输入: 已推导表达式与给定值条件；输出: 参数值。使用原则: 当几何或代数步骤已经给出含参数表达式，而题设给出该表达式的取值时使用。",
+  "solves": [
+    "derive_parameter_from_expression_value"
+  ],
+  "inputs": {
+    "expression": {
+      "type": "MinimumExpression",
+      "required": true
+    },
+    "condition": {
+      "type": "Condition",
+      "required": true
+    },
+    "parameter": {
+      "type": "Symbol",
+      "required": true
+    },
+    "constraint": {
+      "type": "Constraint",
+      "required": false
+    }
+  },
+  "outputs": {
+    "parameter_value": "ParameterValue"
+  },
+  "preconditions": [
+    "expression 已由前序 method 推导得到"
+  ],
+  "postconditions": [
+    "输出参数值满足表达式取值条件"
+  ]
+}

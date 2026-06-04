@@ -25,6 +25,7 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     ExecutablePlanResolutionReport,
     STEP_INTENT_JSON_SCHEMA,
     StepIntentDraft,
+    StepIntentNormalizationReport,
     StepIntentValidationReport,
     StrategyPrompt,
 )
@@ -135,6 +136,7 @@ def write_strategy_debug_artifacts(
     raw_response: str,
     draft: StepIntentDraft | None,
     report: StepIntentValidationReport,
+    normalization_report: StepIntentNormalizationReport | None = None,
     resolution_report: ExecutablePlanResolutionReport | None = None,
     llm_metadata: dict[str, Any] | None = None,
 ) -> None:
@@ -161,6 +163,12 @@ def write_strategy_debug_artifacts(
         draft.to_payload() if draft else None,
     )
     _write_json(target / "validation-report.json", report.to_payload())
+    if normalization_report is not None:
+        _write_json(target / "normalization-report.json", normalization_report)
+        _write_json(
+            target / "normalized-step-intents.json",
+            draft.to_payload() if draft else None,
+        )
     if report.handle_resolution is not None:
         _write_json(target / "handle-resolution-report.json", report.handle_resolution)
     if report.recipe_alignment is not None:
@@ -186,6 +194,8 @@ def _clear_previous_debug_artifacts(target: Path) -> None:
         "raw-response.txt",
         "parsed-step-intents.json",
         "validation-report.json",
+        "normalization-report.json",
+        "normalized-step-intents.json",
         "handle-resolution-report.json",
         "recipe-alignment.json",
         "candidate-resolution-report.json",

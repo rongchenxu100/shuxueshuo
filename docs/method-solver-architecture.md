@@ -145,7 +145,7 @@ quadratic_from_constraints
 quadratic_y_axis_intercept_point
 right_angle_equal_length_candidates
 filter_point_candidates_by_quadratic_curve
-select_curve_point_candidate_and_solve_coefficients
+parameter_from_curve_point_on_quadratic
 quadratic_from_constraints
 point_on_parabola_at_x
 weighted_axis_path_triangle_transform
@@ -157,9 +157,23 @@ linked_broken_path_geometric_minimum
 `coefficients` 与 `parabola`。此前南开的
 “已知系数 + 关系求抛物线”“两点在曲线上 + 关系求系数”，以及河西的
 “已知系数 + 曲线点求含参抛物线”都收敛到这一入口，避免同一类代数约束按题目拆成
-多个近似 method。河西第（Ⅱ）问也使用它先代入 `a=2` 和 `A(-1,0)` 得到
-`y=2*x**2-b*x-b-2`，再求 C、列 D 候选，最后把 D 候选代回当前问抛物线求出 `b`，
-并由 `c=-b-2` 得到 `c`。
+多个近似 method。
+
+`quadratic_from_constraints` 同时承担“简化当前问函数表达式”的职责，但它不是
+“越早化简越好”的缓存工具。一个理想的化简步骤应该让 `a,b,c` 完全确定，或至少
+只剩一个后续条件会直接求解/引用的未知量。若同一个二次函数既能用 `b` 表达，也能
+用 `c` 表达，Planner 需要结合上下文裁决：优先保留后续长度条件、最值条件、曲线点
+筛选或最终答案目标会用到的那个参数；如果当前上下文还不能判断哪个参数更有用，
+就应该推迟化简，等待更多约束，而不是产出公共含参系数缓存。
+
+河西第（Ⅱ）问也使用它先代入 `a=2` 和 `A(-1,0)` 得到
+`y=2*x**2-b*x-b-2`。随后 `quadratic_y_axis_intercept_point` 在这个含参抛物线上
+求出 `C(0,-b-2)`；`right_angle_equal_length_candidates` 根据 `A,C` 列出含参
+候选 `D`；`filter_point_candidates_by_quadratic_curve` 先用曲线与参数约束筛出
+唯一候选；最后 `parameter_from_curve_point_on_quadratic` 把含参点
+`D(b+1,1)` 代回 `y=2*x**2-b*x-b-2`，求出 `b`，并代回得到 D 坐标和当前问抛物线。
+如果后续题目还需要 `c` 这类派生系数，应由 `coefficient_at_parameter` 或后续
+约束 method 处理，而不是把系数依赖藏进点候选选择 method。
 
 河西第（Ⅲ）问的加权路径不再默认走代数求导。当前链路先调用
 `weighted_axis_path_triangle_transform` 构造辅助等腰直角三角形 `AQN`，把
@@ -235,6 +249,8 @@ Layer 3: Stateless Method
 - `.llm.json` canonical ProblemIR：服务 Strategy prompt，显式保存 `original_text / scopes / entities / facts / question_goals`，只给 LLM 暴露 canonical Entity/Fact/answer handle。
 
 Strategy Planner 只把 `.llm.json` 当作题目事实源；runtime 仍可读取旧 fixture 字段。两者若表达冲突，应视为 ProblemIR 抽取或同步错误，而不是让 Resolver 通过模糊匹配自行猜测。
+
+符号角色也应来自 ProblemIR，而不是来自 family 或 compiler 的字母名启发式。FamilySpec 可以声明“本 family 会用到函数自变量、二次函数系数、主参数、动点参数”等角色语义；具体 `b` 是主参数、`n` 是动点参数，必须由题目 IR 的 symbol metadata 表达。这样当某道题的主参数叫 `a`、`t` 或其他符号时，RecipeTrialExecutor 仍能按角色绑定 method input，而不是靠排除 `x/a/b/c` 猜测。
 
 ### 3.2 RuntimeContext
 

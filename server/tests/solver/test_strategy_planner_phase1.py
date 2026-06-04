@@ -5,13 +5,16 @@ from pathlib import Path
 
 import pytest
 
+from shuxueshuo_server.solver.family import QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY
 from shuxueshuo_server.solver.family.models import (
     MethodBindingRuleSpec,
     MethodInputBindingSpec,
 )
 from shuxueshuo_server.solver.fixtures import load_problem_ir
+from shuxueshuo_server.solver.problem_models import ProblemIR, QuestionGoal
 from shuxueshuo_server.solver.question_goals import extract_question_goals
 from shuxueshuo_server.solver.runtime.context import ContextBuilder
+from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.strategy_planner import (
     CanonicalHandleRegistry,
     CanonicalRuntimeBindingIndex,
@@ -22,7 +25,10 @@ from shuxueshuo_server.solver.runtime.strategy_planner import (
     RecipeTrialExecutor,
     StepIntentCandidateResolver,
     STEP_INTENT_JSON_SCHEMA,
+    StepIntent,
+    StepIntentDraft,
     StepIntentValidator,
+    StepIntentNormalizer,
     StrategyDraftValidationError,
     StrategyPayloadBuilder,
     StrategyPromptRenderer,
@@ -31,7 +37,9 @@ from shuxueshuo_server.solver.runtime.strategy_planner import (
 )
 from shuxueshuo_server.solver.runtime.strategy_compiler import (
     _output_key_from_promote_source,
+    _parameter_output_key_from_symbol_path,
 )
+from shuxueshuo_server.solver.runtime.strategy_models import StepIntentScope
 
 
 NANKAI_FIXTURE = "../internal/solver-fixtures/tj-2026-nankai-yimo-25.json"
@@ -42,6 +50,13 @@ NANKAI_EXECUTABLE_STEP_INTENTS = (
     / "internal"
     / "solver-fixtures"
     / "tj-2026-nankai-yimo-25.executable-step-intents.json"
+)
+HEXI_FIXTURE = "../internal/solver-fixtures/tj-2026-hexi-yimo-25.json"
+HEXI_LLM_FIXTURE = (
+    Path(__file__).resolve().parents[3]
+    / "internal"
+    / "solver-fixtures"
+    / "tj-2026-hexi-yimo-25.llm.json"
 )
 
 
@@ -89,6 +104,11 @@ def _nankai_payload() -> dict:
     )
 
 
+def _hexi_llm_problem() -> dict:
+    """加载给 LLM prompt 使用的精简河西题目 IR。"""
+    return json.loads(HEXI_LLM_FIXTURE.read_text(encoding="utf-8"))
+
+
 def _create(
     handle: str,
     entity_type: str,
@@ -111,6 +131,49 @@ def _produce(handle: str, valid_scope: str, description: str | None = None) -> d
         "valid_scope": valid_scope,
         "description": description or f"{handle} 在 {valid_scope} 内有效",
     }
+
+
+def _step(
+    *,
+    scope_id: str,
+    step_id: str,
+    recipe_hint: str | None,
+    goal_type: str,
+    target: str,
+    reads: tuple[str, ...] = (),
+    produces: tuple[ProducedFact, ...] = (),
+    strategy: str = "测试 step",
+) -> StepIntent:
+    """构造 normalizer 单测使用的最小 StepIntent。"""
+    return StepIntent(
+        scope_id=scope_id,
+        step_id=step_id,
+        recipe_hint=recipe_hint,
+        goal_type=goal_type,
+        target=target,
+        strategy=strategy,
+        reads=reads,
+        produces=produces,
+    )
+
+
+def _single_scope_draft(*steps: StepIntent, scope_id: str = "iii") -> StepIntentDraft:
+    """构造单 scope StepIntentDraft。"""
+    return StepIntentDraft(
+        scopes=(StepIntentScope(scope_id=scope_id, label=f"scope {scope_id}", steps=steps),)
+    )
+
+
+def _parameter_answer_goal() -> QuestionGoal:
+    """构造 normalizer 合并参数答案 step 所需的 QuestionGoal。"""
+    return QuestionGoal(
+        question_id="iii",
+        id="iii_b",
+        answer_key="b",
+        target_path="$question.iii.outputs.b",
+        value_type="ParameterValue",
+        required=True,
+    )
 
 
 def _valid_step_intent_payload() -> dict[str, object]:
@@ -279,6 +342,372 @@ def _unsafe_step_from_payload(raw_step: dict[str, object], *, scope_id: str):
     return draft.steps[0]
 
 
+def test_step_intent_normalizer_merges_redundant_parameter_answer_step() -> None:
+    """冗余参数答案 step 应合并到前序可输出 ParameterValue 的 recipe。"""
+    recipe_step = _step(
+        scope_id="iii",
+        step_id="solve_candidate_and_parameter",
+        recipe_hint="curve_candidate_parameter_solve",
+        goal_type="derive_constructed_point",
+        target="answer:ii_D",
+        produces=(ProducedFact("fact:iii:b_value", "iii", "b 的参数值"),),
+    )
+    redundant_answer_step = _step(
+        scope_id="iii",
+        step_id="collect_b_answer",
+        recipe_hint=None,
+        goal_type="derive_parameter",
+        target="answer:iii_b",
+        produces=(ProducedFact("answer:iii_b", "iii", "第（Ⅲ）问 b 的答案"),),
+    )
+
+    normalized, report = StepIntentNormalizer().normalize(
+        _single_scope_draft(recipe_step, redundant_answer_step),
+        family_spec=QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
+        question_goals=[_parameter_answer_goal()],
+        handle_registry=_registry(),
+    )
+
+    steps = normalized.scopes[0].steps
+    assert [step.step_id for step in steps] == ["solve_candidate_and_parameter"]
+    assert [item.handle for item in steps[0].produces] == [
+        "fact:iii:b_value",
+        "answer:iii_b",
+    ]
+    assert [action.action for action in report.actions] == [
+        "merge_redundant_parameter_answer_step"
+    ]
+
+
+def test_step_intent_normalizer_rewrites_quadratic_utility_fact_to_parabola() -> None:
+    """quadratic_from_constraints 的 c_expr utility fact 应归一化成抛物线 fact。"""
+    utility_step = _step(
+        scope_id="ii",
+        step_id="derive_c_expr",
+        recipe_hint="quadratic_from_constraints",
+        goal_type="derive_parabola",
+        target="fact:ii:c_expr_in_b",
+        produces=(
+            ProducedFact(
+                "fact:ii:c_expr_in_b",
+                "ii",
+                "由 a=2 和曲线点得到 c 用 b 表示的常数项",
+            ),
+        ),
+    )
+
+    normalized, report = StepIntentNormalizer().normalize(
+        _single_scope_draft(utility_step, scope_id="ii"),
+        family_spec=QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
+        question_goals=[],
+        handle_registry=_registry(),
+    )
+
+    produces = normalized.scopes[0].steps[0].produces
+    assert [item.handle for item in produces] == ["fact:ii:parametric_parabola"]
+    assert [action.action for action in report.actions] == [
+        "normalize_quadratic_utility_fact_to_parabola"
+    ]
+
+
+def test_step_intent_normalizer_rewrites_quadratic_relation_fact_to_parabola() -> None:
+    """quadratic_from_constraints 的系数关系 utility fact 也应归一化成抛物线 fact。"""
+    relation_step = _step(
+        scope_id="ii",
+        step_id="derive_b_c_relation",
+        recipe_hint="quadratic_from_constraints",
+        goal_type="derive_parabola",
+        target="fact:ii:b_c_relation",
+        produces=(ProducedFact("fact:ii:b_c_relation", "ii", "b 和 c 的关系"),),
+    )
+    use_step = _step(
+        scope_id="ii",
+        step_id="derive_C_coordinate",
+        recipe_hint="quadratic_y_axis_intercept_point",
+        goal_type="derive_point",
+        target="fact:ii:C_coordinate_expr",
+        reads=("fact:ii:b_c_relation",),
+        produces=(ProducedFact("fact:ii:C_coordinate_expr", "ii", "C 坐标"),),
+    )
+
+    normalized, report = StepIntentNormalizer().normalize(
+        _single_scope_draft(relation_step, use_step, scope_id="ii"),
+        family_spec=QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
+        question_goals=[],
+        handle_registry=_registry(),
+    )
+
+    assert normalized.scopes[0].steps[0].produces[0].handle == "fact:ii:parametric_parabola"
+    assert normalized.scopes[0].steps[1].reads == ("fact:ii:parametric_parabola",)
+    assert [action.action for action in report.actions] == [
+        "normalize_quadratic_utility_fact_to_parabola"
+    ]
+
+
+def test_step_intent_normalizer_does_not_absorb_shared_coefficients_cache() -> None:
+    """公共含参系数缓存 step 仍应交给 LLM repair，不被 normalizer 吞掉。"""
+    coefficients_step = _step(
+        scope_id="ii",
+        step_id="derive_parameter_expr_from_points",
+        recipe_hint="quadratic_from_constraints",
+        goal_type="derive_parameter",
+        target="fact:ii:coefficients_in_m",
+        produces=(
+            ProducedFact(
+                "fact:ii:coefficients_in_m",
+                "ii",
+                "a,b,c 用 m 表示的表达式，公共可用",
+            ),
+        ),
+    )
+
+    normalized, report = StepIntentNormalizer().normalize(
+        _single_scope_draft(coefficients_step, scope_id="ii"),
+        family_spec=QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
+        question_goals=[],
+        handle_registry=_registry(),
+    )
+
+    assert normalized.scopes[0].steps[0].produces[0].handle == "fact:ii:coefficients_in_m"
+    assert report.actions == ()
+
+
+def test_step_intent_normalizer_propagates_rewritten_handle_to_later_reads() -> None:
+    """前序 utility fact 改名后，后续 reads 必须同步改写。"""
+    utility_step = _step(
+        scope_id="ii",
+        step_id="derive_c_expr",
+        recipe_hint="quadratic_from_constraints",
+        goal_type="derive_parabola",
+        target="fact:ii:c_expr_in_b",
+        produces=(ProducedFact("fact:ii:c_expr_in_b", "ii", "c_expr"),),
+    )
+    use_step = _step(
+        scope_id="ii",
+        step_id="derive_C_coordinate",
+        recipe_hint="quadratic_y_axis_intercept_point",
+        goal_type="derive_point",
+        target="fact:ii:C_coordinate_expr",
+        reads=("fact:ii:c_expr_in_b",),
+        produces=(ProducedFact("fact:ii:C_coordinate_expr", "ii", "C 坐标"),),
+    )
+
+    normalized, _report = StepIntentNormalizer().normalize(
+        _single_scope_draft(utility_step, use_step, scope_id="ii"),
+        family_spec=QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
+        question_goals=[],
+        handle_registry=_registry(),
+    )
+
+    assert normalized.scopes[0].steps[1].reads == ("fact:ii:parametric_parabola",)
+    assert normalized.scopes[0].steps[1].target == "fact:ii:C_coordinate_expr"
+
+
+def test_step_intent_normalizer_merges_candidate_point_facts_to_point_list() -> None:
+    """候选生成 method 拆出的多个点坐标 fact 应合并为 PointList fact。"""
+    candidate_step = _step(
+        scope_id="ii",
+        step_id="construct_D_candidates",
+        recipe_hint="right_angle_equal_length_candidates",
+        goal_type="derive_constructed_point",
+        target="fact:ii:D_candidates",
+        produces=(
+            ProducedFact("fact:ii:D1_coordinate_expr", "ii", "候选点 D1 坐标"),
+            ProducedFact("fact:ii:D2_coordinate_expr", "ii", "候选点 D2 坐标"),
+        ),
+    )
+    use_step = _step(
+        scope_id="ii",
+        step_id="solve_D",
+        recipe_hint="curve_candidate_parameter_solve",
+        goal_type="derive_constructed_point",
+        target="answer:ii_D",
+        reads=("fact:ii:D1_coordinate_expr", "fact:ii:D2_coordinate_expr"),
+        produces=(ProducedFact("answer:ii_D", "ii", "D 坐标"),),
+    )
+
+    normalized, report = StepIntentNormalizer().normalize(
+        _single_scope_draft(candidate_step, use_step, scope_id="ii"),
+        family_spec=QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
+        question_goals=[],
+        handle_registry=_registry(),
+    )
+
+    assert normalized.scopes[0].steps[0].produces[0].handle == "fact:ii:D_candidates"
+    assert normalized.scopes[0].steps[1].reads == (
+        "fact:ii:D_candidates",
+        "fact:ii:D_candidates",
+    )
+    assert {action.action for action in report.actions} == {
+        "normalize_candidate_point_facts_to_point_list"
+    }
+
+    resolution = StepIntentCandidateResolver().resolve(
+        normalized,
+        family_spec=QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
+        method_specs=MethodSpecRegistry.load_from_code(),
+        handle_registry=_registry(),
+    )
+    construct_report = next(
+        report for report in resolution.step_reports
+        if report.step_id == "construct_D_candidates"
+    )
+    assert construct_report.selected_capability_id == "right_angle_equal_length_candidates"
+
+
+def test_step_intent_normalizer_rewrites_generic_point_coordinate_from_answer_target() -> None:
+    """泛化点坐标 fact 应按同 step Point answer 的 target_path 归一化真实点名。"""
+    axis_step = _step(
+        scope_id="i",
+        step_id="derive_axis_point",
+        recipe_hint="quadratic_axis_from_relation",
+        goal_type="derive_axis_point",
+        target="answer:i.axis_point",
+        produces=(
+            ProducedFact("answer:i.axis_point", "i", "点坐标答案"),
+            ProducedFact("fact:problem:axis_point_coordinate", "problem", "对称轴交点坐标"),
+        ),
+    )
+
+    normalized, report = StepIntentNormalizer().normalize(
+        _single_scope_draft(axis_step, scope_id="i"),
+        family_spec=_nankai_inputs().family_spec,
+        question_goals=_question_goals(),
+        handle_registry=_registry(),
+    )
+
+    assert [item.handle for item in normalized.scopes[0].steps[0].produces] == [
+        "answer:i.axis_point",
+        "fact:problem:D_coordinate_value",
+    ]
+    assert [action.action for action in report.actions] == [
+        "normalize_point_coordinate_answer_fact"
+    ]
+
+
+def test_step_intent_normalizer_keeps_generic_point_coordinate_when_answer_ambiguous() -> None:
+    """多个 Point answer 同步出现时不猜测泛化坐标 fact 的真实点名。"""
+    ambiguous_goals = [
+        QuestionGoal("i", "i.axis_point", "D", "$problem.points.D", "Point", True),
+        QuestionGoal("i", "i.other_point", "G", "$question.i.points.G", "Point", True),
+    ]
+    step = _step(
+        scope_id="i",
+        step_id="derive_two_points",
+        recipe_hint="line_intersection_point",
+        goal_type="derive_point",
+        target="answer:i.axis_point",
+        produces=(
+            ProducedFact("answer:i.axis_point", "i", "点 D"),
+            ProducedFact("answer:i.other_point", "i", "点 G"),
+            ProducedFact("fact:problem:axis_point_coordinate", "problem", "泛化坐标"),
+        ),
+    )
+
+    normalized, report = StepIntentNormalizer().normalize(
+        _single_scope_draft(step, scope_id="i"),
+        family_spec=_nankai_inputs().family_spec,
+        question_goals=ambiguous_goals,
+        handle_registry=_registry(),
+    )
+
+    assert normalized.scopes[0].steps[0].produces[-1].handle == "fact:problem:axis_point_coordinate"
+    assert report.actions == ()
+
+
+def test_curve_candidate_parameter_output_key_uses_dynamic_symbol_name() -> None:
+    """候选点反求参数 recipe 的参数输出 key 不应固定为 b。"""
+    assert _parameter_output_key_from_symbol_path("$problem.symbols.m") == "m"
+    assert _parameter_output_key_from_symbol_path("$question.ii.symbols.t") == "t"
+
+
+def test_dynamic_parameter_constraint_uses_step_reads_not_hardcoded_n() -> None:
+    """weighted 动点参数约束应从 StepIntent reads 消歧，不应固定为 n。"""
+    problem = load_problem_ir(HEXI_FIXTURE)
+    index = CanonicalRuntimeBindingIndex.from_context(
+        ContextBuilder().build(problem),
+        handle_registry=CanonicalHandleRegistry.from_problem_payload(_hexi_llm_problem()),
+        question_goals=extract_question_goals(problem),
+    )
+    # 模拟同 family 的另一道题：主参数仍为 b，但动点参数叫 t。
+    index.register("symbol:problem:t", "$problem.symbols.t", "Symbol", source="test")
+    index.register("fact:problem:t_gt_0", "$problem.constraints.t", "Constraint", source="test")
+    index.fact_types["fact:problem:t_gt_0"] = "symbol_constraint"
+    step = _step(
+        scope_id="iii",
+        step_id="derive_minimum_expression",
+        recipe_hint="linked_broken_path_minimum_expression",
+        goal_type="derive_minimum_expression",
+        target="fact:iii:minimum_expression",
+        reads=(
+            "symbol:problem:b",
+            "fact:problem:b_gt_0",
+            "symbol:problem:t",
+            "fact:problem:t_gt_0",
+        ),
+    )
+
+    assert index.parameter_symbol_path() == "$problem.symbols.b"
+    assert index.parameter_constraint_path() == "$problem.constraints.b"
+    assert index.dynamic_parameter_symbol_path(step=step) == "$problem.symbols.t"
+    assert index.dynamic_constraint_path(step=step) == "$problem.constraints.t"
+
+
+def test_parameter_symbol_uses_symbol_roles_not_fixed_coefficient_names() -> None:
+    """主参数推断应读取 symbol_roles，不依赖固定的 a/b/c 排除表。"""
+    problem = ProblemIR(
+        problem_id="synthetic-symbol-role-parameter",
+        pattern="path-minimum",
+        problem_type="quadratic_path_minimum",
+        symbols=["x", "p", "q", "r", "t"],
+        symbol_roles={
+            "x": "function_variable",
+            "p": "quadratic_coefficient",
+            "q": "quadratic_coefficient",
+            "r": "quadratic_coefficient",
+            "t": "dynamic_parameter",
+        },
+        constraints={"p": ">0", "t": ">1"},
+        data={
+            "function": {
+                "expression": "p*x**2 + q*x + r",
+            },
+            "questions": [],
+        },
+    )
+    problem_payload = {
+        "original_text": ["synthetic"],
+        "scopes": [{"scope_id": "problem", "parent": None}],
+        "entities": [
+            {"handle": f"symbol:problem:{name}", "entity_type": "symbol", "scope_id": "problem"}
+            for name in ("x", "p", "q", "r", "t")
+        ],
+        "facts": [
+            {
+                "handle": "fact:problem:p_gt_0",
+                "type": "symbol_constraint",
+                "scope_id": "problem",
+                "valid_scope": "problem",
+            },
+            {
+                "handle": "fact:problem:t_gt_1",
+                "type": "symbol_constraint",
+                "scope_id": "problem",
+                "valid_scope": "problem",
+            },
+        ],
+        "question_goals": [],
+    }
+    index = CanonicalRuntimeBindingIndex.from_context(
+        ContextBuilder().build(problem),
+        handle_registry=CanonicalHandleRegistry.from_problem_payload(problem_payload),
+        question_goals=(),
+    )
+
+    assert index.parameter_symbol_path() == "$problem.symbols.t"
+    assert index.parameter_constraint_path() == "$problem.constraints.t"
+
+
 def test_llm_problem_ir_schema_file_exists_and_fixture_is_canonical() -> None:
     """LLM ProblemIR 以 Entity/Fact/answer 为一等结构，不夹带旧 solver 字段。"""
     schema_path = _repo_root() / "internal" / "schemas" / "solver-llm-problem-ir.schema.json"
@@ -356,6 +785,8 @@ def test_method_catalog_is_family_allowlist_summary_not_method_schema() -> None:
         method for method in methods
         if method["method_id"] == "quadratic_from_constraints"
     )
+    spec = MethodSpecRegistry.load_from_code().require("quadratic_from_constraints")
+    assert quadratic["summary"] == spec.summary
     assert "已知系数" in quadratic["summary"]
     assert "curve_point" not in json.dumps(catalog, ensure_ascii=False)
     assert "required" not in json.dumps(catalog, ensure_ascii=False)

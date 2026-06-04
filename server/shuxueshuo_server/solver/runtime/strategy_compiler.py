@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import json
 import re
 from typing import Any, Callable, Mapping
 
@@ -46,6 +47,7 @@ from shuxueshuo_server.solver.runtime.strategy_resolver import (
     _produced_output_type,
     _unique_ordered,
 )
+from shuxueshuo_server.solver.runtime.strategy_normalizer import StepIntentNormalizer
 
 @dataclass(frozen=True)
 class RuntimeHandleBinding:
@@ -238,26 +240,144 @@ class CanonicalRuntimeBindingIndex:
         raise StrategyDraftValidationError(f"fact_handle_not_found: {fact_type}")
 
     def parameter_symbol_path(self) -> str:
-        """返回动态参数符号路径。"""
-        for handle in self.handles_by_fact_type("symbol_constraint"):
-            name = _semantic_name(handle)
-            symbol = name.split("_", 1)[0]
-            symbol_handle = f"symbol:problem:{symbol}"
-            if symbol_handle in self.bindings and symbol not in {"a"}:
-                return self.bindings[symbol_handle].path
-        for handle in self.bindings:
-            if handle.startswith("symbol:problem:") and _handle_name(handle) not in {"x", "a", "b", "c"}:
-                return self.bindings[handle].path
-        raise StrategyDraftValidationError("dynamic_parameter_symbol_not_found")
+        """返回当前 step family 要求解的主参数符号路径。
+
+        主参数不是“除去 x/a/b/c 后剩下的字母”。例如河西第（Ⅲ）问要求解
+        的是系数 ``b``，而动点参数是 ``n``。这里优先读 QuestionGoal 和
+        ProblemIR 的 ``symbol_roles``，只有旧数据缺少角色声明时才使用 runtime
+        中的系数列表作保守兜底。
+        """
+        symbol_handle, _constraint_handle = self._primary_parameter_handles()
+        return self.path_for(symbol_handle, expected_type="Symbol")
 
     def parameter_constraint_path(self) -> str:
-        """返回动态参数范围约束路径。"""
+        """返回当前主参数的范围约束路径。"""
+        _symbol_handle, constraint_handle = self._primary_parameter_handles()
+        return self.path_for(constraint_handle, expected_type="Constraint")
+
+    def _primary_parameter_handles(self) -> tuple[str, str]:
+        """返回 ``(symbol_handle, constraint_handle)`` 主参数候选。"""
+        candidates = self._symbol_constraint_candidates()
+        if not candidates:
+            raise StrategyDraftValidationError("dynamic_parameter_symbol_not_found")
+
+        # 若题面最终答案就是某个参数值，优先把这个符号作为主参数。河西第（Ⅲ）
+        # 问的 ``answer_key=b`` 就属于这种情况，不能因为 b 是二次函数系数而排除。
+        answer_parameter_names = {
+            goal.answer_key
+            for goal in self.question_goals.values()
+            if goal.value_type == "ParameterValue"
+        }
+        for candidate in candidates:
+            symbol = _handle_name(candidate[0])
+            if symbol in answer_parameter_names:
+                return candidate
+
+        for candidate in candidates:
+            symbol = _handle_name(candidate[0])
+            if self._symbol_has_role(symbol, "primary_parameter"):
+                return candidate
+
+        for candidate in candidates:
+            symbol = _handle_name(candidate[0])
+            if self._symbol_has_role(symbol, "dynamic_parameter"):
+                return candidate
+
+        structural_symbols = self._structural_symbol_names()
+        non_structural = [
+            candidate for candidate in candidates
+            if _handle_name(candidate[0]) not in structural_symbols
+        ]
+        if len(non_structural) == 1:
+            return non_structural[0]
+        if len(candidates) == 1:
+            return candidates[0]
+        raise StrategyDraftValidationError("dynamic_parameter_symbol_not_found")
+
+    def _symbol_constraint_candidates(self) -> list[tuple[str, str]]:
+        """返回所有带范围约束且存在 runtime symbol 的符号候选。"""
+        candidates: list[tuple[str, str]] = []
         for handle in self.handles_by_fact_type("symbol_constraint"):
-            name = _semantic_name(handle)
-            symbol = name.split("_", 1)[0]
-            if symbol not in {"a"}:
-                return self.path_for(handle, expected_type="Constraint")
-        raise StrategyDraftValidationError("dynamic_parameter_constraint_not_found")
+            symbol = _symbol_from_constraint_handle(handle)
+            symbol_handle = f"symbol:problem:{symbol}"
+            if symbol_handle in self.bindings:
+                candidates.append((symbol_handle, handle))
+        return candidates
+
+    def _symbol_has_role(self, symbol: str, role: str) -> bool:
+        """判断 ProblemIR 是否给某个符号声明了指定角色。"""
+        return self.context.problem.symbol_roles.get(symbol) == role
+
+    def _structural_symbol_names(self) -> set[str]:
+        """返回函数变量、二次函数系数等结构性符号名。
+
+        这些符号通常不是“本问要求解的主参数”。首选 ProblemIR.symbol_roles；
+        若旧 fixture 没有角色声明，则读取 ContextBuilder 已生成的
+        ``quadratic_coefficients`` 列表，避免在 compiler 中写死 a/b/c。
+        """
+        names = {
+            name
+            for name, role in self.context.problem.symbol_roles.items()
+            if role in {"function_variable", "quadratic_coefficient"}
+        }
+        if names:
+            return names
+        coefficients = self.context.problem_scope.container("symbol_lists").get(
+            "quadratic_coefficients"
+        )
+        if coefficients is None:
+            return set()
+        return {str(symbol) for symbol in coefficients.value}
+
+    def dynamic_parameter_symbol_path(self, *, step: StepIntent | None = None) -> str:
+        """返回动点参数符号路径。
+
+        ``parameter_symbol_path`` 表示当前要求解的主参数，例如河西第（Ⅲ）问的
+        ``b``。weighted path method 还需要动点自身的参数，例如 ``N(n,0)`` 中
+        的 ``n``。这里从 ``symbol_constraint`` fact 中排除主参数，再按当前
+        StepIntent.reads 消歧，避免把动点参数名写死为 ``n``。
+        """
+        symbol_handle, _constraint_handle = self._dynamic_parameter_handles(step=step)
+        return self.path_for(symbol_handle, expected_type="Symbol")
+
+    def dynamic_constraint_path(self, *, step: StepIntent | None = None) -> str:
+        """返回动点参数范围约束路径。"""
+        _symbol_handle, constraint_handle = self._dynamic_parameter_handles(step=step)
+        return self.path_for(constraint_handle, expected_type="Constraint")
+
+    def _dynamic_parameter_handles(
+        self,
+        *,
+        step: StepIntent | None = None,
+    ) -> tuple[str, str]:
+        """返回 ``(symbol_handle, constraint_handle)`` 动点参数候选。"""
+        primary_symbol = ContextPath.parse(self.parameter_symbol_path()).key
+        candidates: list[tuple[str, str]] = []
+        for symbol_handle, constraint_handle in self._symbol_constraint_candidates():
+            symbol = _handle_name(symbol_handle)
+            if symbol == primary_symbol:
+                continue
+            candidates.append((symbol_handle, constraint_handle))
+        if step is not None:
+            for read_handle in step.reads:
+                for candidate in candidates:
+                    if read_handle in candidate:
+                        return candidate
+        role_candidates = [
+            candidate for candidate in candidates
+            if self._symbol_has_role(_handle_name(candidate[0]), "dynamic_parameter")
+            or self._symbol_has_role(_handle_name(candidate[0]), "moving_point_parameter")
+        ]
+        if len(role_candidates) == 1:
+            return role_candidates[0]
+        if len(candidates) == 1:
+            return candidates[0]
+        if not candidates:
+            raise StrategyDraftValidationError("dynamic_parameter_symbol_not_found")
+        raise StrategyDraftValidationError(
+            "dynamic_parameter_symbol_ambiguous: "
+            + ",".join(symbol for symbol, _constraint in candidates)
+        )
 
     def _register_initial_handles(self) -> None:
         """注册题设已有 Entity/Fact/answer。"""
@@ -319,6 +439,7 @@ class CanonicalRuntimeBindingIndex:
             point_handle = self.point_handle_by_name(point_name)
             point_binding = self.binding_for(point_handle)
             self.register(handle, point_binding.path, "Point", source="fact")
+            self.register(point_handle, point_binding.path, "Point", source="fact")
         elif fact_type == "symbol_value":
             # 题设直接给出的 a=2、c=-5 会在 RuntimeContext 中合并存为
             # coefficients.known。具体单个系数值由 method 从该结构化容器读取。
@@ -461,6 +582,22 @@ def _symbol_selector(name: str) -> BindingSelectorFn:
     return select
 
 
+def _read_type_selector(value_type: str) -> BindingSelectorFn:
+    """创建从当前 step reads 或可见父级中读取指定 runtime 类型的 selector。"""
+
+    def select(
+        step: StepIntent,
+        index: CanonicalRuntimeBindingIndex,
+        local_outputs: Mapping[str, str],
+    ) -> str:
+        local_path = local_outputs.get(f"type:{value_type}")
+        if local_path is not None:
+            return local_path
+        return _path_for_readable_type(index, step, value_type)
+
+    return select
+
+
 def _constant_selector(value: str) -> BindingSelectorFn:
     """创建返回固定 runtime path 的 selector。"""
 
@@ -512,6 +649,26 @@ def _midpoint_selector(role: str) -> BindingSelectorFn:
     return select
 
 
+def _right_angle_selector(role: str) -> BindingSelectorFn:
+    """创建直角等腰候选 method 的角色 selector。"""
+
+    def select(
+        step: StepIntent,
+        index: CanonicalRuntimeBindingIndex,
+        local_outputs: Mapping[str, str],
+    ) -> str:
+        anchor, reference, target = _right_angle_roles(step, index)
+        values = {
+            "anchor": (anchor, "Point"),
+            "reference": (reference, "Point"),
+            "target": (target, "PointRef"),
+        }
+        handle, expected_type = values[role]
+        return index.path_for(handle, expected_type=expected_type)
+
+    return select
+
+
 def _length_segment_selector(role: str) -> BindingSelectorFn:
     """创建线段长度条件的端点 selector。"""
 
@@ -545,6 +702,24 @@ def _parameter_constraint_selector(
     return index.parameter_constraint_path()
 
 
+def _dynamic_constraint_selector(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+    local_outputs: Mapping[str, str],
+) -> str:
+    """读取动点参数范围约束。"""
+    return index.dynamic_constraint_path(step=step)
+
+
+def _dynamic_symbol_selector(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+    local_outputs: Mapping[str, str],
+) -> str:
+    """读取动点参数符号。"""
+    return index.dynamic_parameter_symbol_path(step=step)
+
+
 def _read_minimum_expression_selector(
     step: StepIntent,
     index: CanonicalRuntimeBindingIndex,
@@ -552,6 +727,65 @@ def _read_minimum_expression_selector(
 ) -> str:
     """读取当前 scope 可见的 MinimumExpression。"""
     return _path_for_readable_type(index, step, "MinimumExpression")
+
+
+def _weighted_path_condition_selector(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+    local_outputs: Mapping[str, str],
+) -> str:
+    """读取加权路径题设条件。"""
+    return index.path_for(
+        index.fact_handle_by_type("minimum_value", step=step),
+        expected_type="Condition",
+    )
+
+
+def _weighted_path_selector(role: str) -> BindingSelectorFn:
+    """创建 weighted path method 的几何角色 selector。"""
+
+    def select(
+        step: StepIntent,
+        index: CanonicalRuntimeBindingIndex,
+        local_outputs: Mapping[str, str],
+    ) -> str:
+        fixed, moving, curve = _weighted_path_roles(step, index)
+        values = {
+            "fixed_point": fixed,
+            "moving_point": moving,
+            "curve_point": curve,
+        }
+        return index.path_for(values[role], expected_type="Point")
+
+    return select
+
+
+def _weighted_auxiliary_point_ref_selector(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+    local_outputs: Mapping[str, str],
+) -> str:
+    """读取或声明加权路径辅助点 PointRef。"""
+    item = _created_point_handle(step)
+    if item is None:
+        item = CreatedEntity(
+            handle=_fresh_auxiliary_point_handle(step, index),
+            entity_type="point",
+            valid_scope=step.scope_id,
+            description="weighted_axis_path_triangle_transform 自动声明的加权路径辅助点",
+        )
+    index.register_created_entity(item)
+    return index.path_for(item.handle, expected_type="PointRef")
+
+
+def _weighted_auxiliary_point_selector(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+    local_outputs: Mapping[str, str],
+) -> str:
+    """读取加权路径辅助点坐标。"""
+    auxiliary = _auxiliary_point_handle_from_reads(step, index)
+    return index.path_for(auxiliary, expected_type="Point")
 
 
 def _path_reduction_selector(role: str) -> BindingSelectorFn:
@@ -652,9 +886,30 @@ def _curve_points_if_parameterized(
     """参数已确定时，若存在曲线点则补充曲线点输入。"""
     if _parameter_value_handle(step, index) is None:
         return {}
-    curve_points = _curve_point_handles(step, index)
+    curve_points = _visible_curve_point_handles(step, index)
     if len(curve_points) < 2:
         return {}
+    return {
+        "p1": index.path_for(curve_points[0], expected_type="Point"),
+        "p2": index.path_for(curve_points[1], expected_type="Point"),
+    }
+
+
+def _curve_point_if_read(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+    local_outputs: Mapping[str, str],
+) -> dict[str, str]:
+    """若 step 读取了曲线点 fact，则补充 curve_point/p1/p2 输入。
+
+    河西这类题常先代入 ``A(-1,0)`` 得到含参抛物线，此时参数尚未定值，
+    但曲线点约束仍应传给 ``quadratic_from_constraints``。
+    """
+    curve_points = _curve_point_handles_from_reads(step, index)
+    if not curve_points:
+        return {}
+    if len(curve_points) == 1:
+        return {"curve_point": index.path_for(curve_points[0], expected_type="Point")}
     return {
         "p1": index.path_for(curve_points[0], expected_type="Point"),
         "p2": index.path_for(curve_points[1], expected_type="Point"),
@@ -668,10 +923,21 @@ DEFAULT_BINDING_SELECTORS: dict[str, BindingSelectorFn] = {
     "fact:minimum_value:Condition": _fact_selector("minimum_value", "Condition"),
     "symbol:a": _symbol_selector("a"),
     "symbol:b": _symbol_selector("b"),
+    "symbol:c": _symbol_selector("c"),
     "symbol:x": _symbol_selector("x"),
     "function:parabola": _function_parabola_selector,
     "quadratic_coefficients": _constant_selector("$problem.symbol_lists.quadratic_coefficients"),
     "point_output_ref": _point_output_ref_selector,
+    "read_type:Coefficients": _read_type_selector("Coefficients"),
+    "read_type:Expression": _read_type_selector("Expression"),
+    "read_type:Parabola": _read_type_selector("Parabola"),
+    "read_type:Point": _read_type_selector("Point"),
+    "read_type:PointList": _read_type_selector("PointList"),
+    "read_type:PathTransformation": _read_type_selector("PathTransformation"),
+    "read_type:Line": _read_type_selector("Line"),
+    "right_angle:anchor": _right_angle_selector("anchor"),
+    "right_angle:reference": _right_angle_selector("reference"),
+    "right_angle:target": _right_angle_selector("target"),
     "midpoint:target": _midpoint_selector("target"),
     "midpoint:p1": _midpoint_selector("p1"),
     "midpoint:p2": _midpoint_selector("p2"),
@@ -679,7 +945,15 @@ DEFAULT_BINDING_SELECTORS: dict[str, BindingSelectorFn] = {
     "length_segment:p2": _length_segment_selector("p2"),
     "parameter_symbol": _parameter_symbol_selector,
     "parameter_constraint": _parameter_constraint_selector,
+    "dynamic_symbol": _dynamic_symbol_selector,
+    "dynamic_constraint": _dynamic_constraint_selector,
     "read_type:MinimumExpression": _read_minimum_expression_selector,
+    "weighted_path:condition": _weighted_path_condition_selector,
+    "weighted_path:fixed_point": _weighted_path_selector("fixed_point"),
+    "weighted_path:moving_point": _weighted_path_selector("moving_point"),
+    "weighted_path:curve_point": _weighted_path_selector("curve_point"),
+    "weighted_path:auxiliary_point_ref": _weighted_auxiliary_point_ref_selector,
+    "weighted_path:auxiliary_point": _weighted_auxiliary_point_selector,
     "path_reduction:first_membership": _path_reduction_selector("first_membership"),
     "path_reduction:second_membership": _path_reduction_selector("second_membership"),
     "path_reduction:relation": _path_reduction_selector("relation"),
@@ -699,6 +973,7 @@ DEFAULT_BINDING_SELECTORS: dict[str, BindingSelectorFn] = {
 DEFAULT_EXPANSION_SELECTORS: dict[str, ExpansionSelectorFn] = {
     "known_coefficients_if_read": _known_coefficients_if_read,
     "parameter_value_if_read": _parameter_value_if_read,
+    "curve_point_if_read": _curve_point_if_read,
     "curve_points_if_parameterized": _curve_points_if_parameterized,
     "distance_parameter_value_if_read": _parameter_value_if_read,
     "intersection_parameter_value_if_read": _parameter_value_if_read,
@@ -771,6 +1046,12 @@ class RecipeTrialExecutor:
         question_goals: list[QuestionGoal] | tuple[QuestionGoal, ...],
     ) -> PlannerOutput:
         """根据 StepIntent 生成 PlannerOutput。"""
+        draft, _normalization_report = StepIntentNormalizer().normalize(
+            draft,
+            family_spec=family_spec,
+            question_goals=question_goals,
+            handle_registry=handle_registry,
+        )
         resolution_report = StepIntentCandidateResolver().resolve(
             draft,
             family_spec=family_spec,
@@ -856,7 +1137,7 @@ class _RecipePlanCompiler:
         report = self.step_reports.get(step.step_id)
         candidates: list[str] = []
         if step.recipe_hint:
-            candidates.append(step.recipe_hint)
+            return [step.recipe_hint]
         if report is not None and report.selected_capability_id:
             candidates.append(report.selected_capability_id)
         if report is not None:
@@ -874,6 +1155,8 @@ class _RecipePlanCompiler:
         """编译 recipe。"""
         if recipe.execution_strategy == "right_angle_construct_select":
             return self._compile_right_angle_recipe(step)
+        if recipe.execution_strategy == "curve_candidate_parameter_solve":
+            return self._compile_curve_candidate_parameter_recipe(step)
         if recipe.execution_strategy == "straightening_candidates_select":
             return self._compile_straightening_recipe(step)
         if recipe.execution_strategy == "single_method" and len(recipe.method_sequence) == 1:
@@ -886,9 +1169,51 @@ class _RecipePlanCompiler:
         """编译单 method step。"""
         spec = self.method_specs.require(method_id)
         declaration_keys_before = set(self.index.declarations)
-        inputs = self.binding_rules.bind(method_id, step, self.index)
+        prep_invocations: list[MethodInvocation] = []
+        prep_promote: dict[str, str] = {}
+        local_outputs: dict[str, str] = {}
+        if method_id == "quadratic_vertex_point" and _path_for_readable_type_or_none(self.index, step, "Parabola") is None:
+            # 顶点公式需要当前问的具体抛物线。若 LLM 直接把“代入已知系数并求顶点”
+            # 合成一个细粒度 step，代码层固定补上临时 quadratic_from_constraints。
+            prepared_coefficients = _temp(step.step_id, "prepared_coefficients")
+            prepared_parabola = _temp(step.step_id, "prepared_parabola")
+            prep_invocations.append(
+                MethodInvocation(
+                    invocation_id=f"{step.step_id}.prepare_quadratic_from_constraints",
+                    method_id="quadratic_from_constraints",
+                    scope=step.step_id,
+                    inputs=self.binding_rules.bind(
+                        "quadratic_from_constraints",
+                        step,
+                        self.index,
+                    ),
+                    outputs={
+                        "coefficients": prepared_coefficients,
+                        "parabola": prepared_parabola,
+                    },
+                )
+            )
+            prep_promote[prepared_coefficients] = _scoped_output_path(
+                self.index.context,
+                step.scope_id,
+                "prepared_coefficients",
+            )
+            prep_promote[prepared_parabola] = _scoped_output_path(
+                self.index.context,
+                step.scope_id,
+                "prepared_parabola",
+            )
+            local_outputs["type:Parabola"] = prepared_parabola
+            local_outputs["type:Coefficients"] = prepared_coefficients
+        inputs = self.binding_rules.bind(
+            method_id,
+            step,
+            self.index,
+            local_outputs=local_outputs,
+        )
         outputs = _method_outputs_for_step(method_id, step, spec.outputs, self.index)
-        promote = _promote_outputs_for_step(step, method_id, outputs, spec.outputs, self.index)
+        main_promote = _promote_outputs_for_step(step, method_id, outputs, spec.outputs, self.index)
+        promote = {**prep_promote, **main_promote}
         plan = single_invocation_step(
             step_id=step.step_id,
             parent_scope=_step_parent_scope(step, promote),
@@ -897,9 +1222,18 @@ class _RecipePlanCompiler:
             outputs=outputs,
             promote=promote,
             goal_type=step.goal_type,
-            target_path=next(iter(promote.values())),
+            target_path=next(iter(main_promote.values())),
         )
-        registrations = tuple(
+        if prep_invocations:
+            plan = StepPlan(
+                step_id=plan.step_id,
+                goal=plan.goal,
+                scope=plan.scope,
+                invocations=[*prep_invocations, *plan.invocations],
+                expected_outputs=plan.expected_outputs,
+                promote_outputs=plan.promote_outputs,
+            )
+        registrations = [
             RuntimeHandleBinding(handle, path, spec.outputs[output_name], f"step:{step.step_id}")
             for handle, output_name, path in _produced_registrations(
                 step,
@@ -907,13 +1241,36 @@ class _RecipePlanCompiler:
                 promote,
                 self.index,
             )
+        ]
+        registrations.extend(
+            _companion_registrations_for_step(
+                step,
+                method_id,
+                outputs,
+                promote,
+                self.index,
+            )
         )
+        if method_id == "quadratic_from_constraints" and "coefficients" in outputs:
+            coefficients_target = promote.get(outputs["coefficients"])
+            if coefficients_target is not None:
+                # ``quadratic_from_constraints`` 总会返回 coefficients；即使 LLM 只把
+                # parabola 作为 produced fact，后续 recipe 仍常需要这些系数依赖。
+                # 这里注册内部 binding，不暴露给 LLM，也不新增 canonical fact。
+                registrations.append(
+                    RuntimeHandleBinding(
+                        f"runtime:{step.step_id}:coefficients",
+                        coefficients_target,
+                        "Coefficients",
+                        f"step:{step.step_id}",
+                    )
+                )
         declarations = tuple(
             declaration
             for key, declaration in self.index.declarations.items()
             if key not in declaration_keys_before
         )
-        return _CompiledStep(plan=plan, declarations=declarations, registrations=registrations)
+        return _CompiledStep(plan=plan, declarations=declarations, registrations=tuple(registrations))
 
     def _compile_right_angle_recipe(self, step: StepIntent) -> _CompiledStep:
         """编译“直角等腰候选 + 约束筛选” recipe。"""
@@ -1039,6 +1396,100 @@ class _RecipePlanCompiler:
             registrations=tuple(registrations),
         )
 
+    def _compile_curve_candidate_parameter_recipe(self, step: StepIntent) -> _CompiledStep:
+        """编译“候选点曲线筛选 + 曲线点反求参数” recipe。
+
+        这个 recipe 只处理候选点已经存在之后的通用动作：用含参抛物线筛选候选，
+        再把唯一候选点代入抛物线反求参数。它不负责化简函数、求参考点或生成候选；
+        这些上下文准备应由独立 method step 完成。
+        """
+        target = _curve_candidate_target_handle(step, self.index)
+        target_path = self.index.path_for(target, expected_type="PointRef")
+        candidates_path = _path_for_readable_type(self.index, step, "PointList")
+        parabola_path = _path_for_readable_type(self.index, step, "Parabola")
+        filtered = _temp(step.step_id, "filtered_candidates")
+        rejected = _temp(step.step_id, "rejected_candidates")
+        selected_candidate = _temp(step.step_id, "selected_candidate")
+        point = _temp(step.step_id, "point")
+        parameter_value = _temp(step.step_id, "parameter_value")
+        parabola = _temp(step.step_id, "parabola")
+        primary_symbol = self.index.parameter_symbol_path()
+        primary_constraint = self.index.parameter_constraint_path()
+        parameter_output_key = _parameter_output_key_from_symbol_path(primary_symbol)
+        invocations = [
+            MethodInvocation(
+                invocation_id=f"{step.step_id}.filter_point_candidates_by_quadratic_curve",
+                method_id="filter_point_candidates_by_quadratic_curve",
+                scope=step.step_id,
+                inputs={
+                    "candidates": candidates_path,
+                    "target": target_path,
+                    "parabola": parabola_path,
+                    "x": self.index.path_for("symbol:problem:x", expected_type="Symbol"),
+                    "parameter": primary_symbol,
+                    "parameter_constraint": primary_constraint,
+                },
+                outputs={
+                    "filtered_candidates": filtered,
+                    "rejected_candidates": rejected,
+                    "selected_candidate": selected_candidate,
+                },
+            ),
+            MethodInvocation(
+                invocation_id=f"{step.step_id}.parameter_from_curve_point_on_quadratic",
+                method_id="parameter_from_curve_point_on_quadratic",
+                scope=step.step_id,
+                inputs={
+                    "quadratic": parabola_path,
+                    "x": self.index.path_for("symbol:problem:x", expected_type="Symbol"),
+                    "point": selected_candidate,
+                    "parameter": primary_symbol,
+                    "parameter_constraint": primary_constraint,
+                },
+                outputs={
+                    "point": point,
+                    "parameter_value": parameter_value,
+                    "parabola": parabola,
+                },
+            ),
+        ]
+        parabola_target = _scoped_output_path(self.index.context, step.scope_id, "parabola")
+        if parabola_path == parabola_target:
+            parabola_target = _scoped_output_path(self.index.context, step.scope_id, "solved_parabola")
+        promote = {
+            point: target_path,
+            parameter_value: _scoped_output_path(
+                self.index.context,
+                step.scope_id,
+                parameter_output_key,
+            ),
+            parabola: parabola_target,
+        }
+        for produced in step.produces:
+            if produced.handle.startswith("answer:"):
+                goal = self.index.question_goals.get(produced.handle)
+                if goal is not None and goal.value_type == "Point":
+                    promote[point] = goal.target_path
+        plan = StepPlan(
+            step_id=step.step_id,
+            goal=StepGoal(
+                goal_id=f"{step.goal_type}:{step.step_id}",
+                type=step.goal_type,
+                target_path=target_path,
+                scope_id=step.scope_id,
+            ),
+            scope=step.scope_id,
+            invocations=invocations,
+            expected_outputs=list(promote.values()),
+            promote_outputs=promote,
+        )
+        registrations = [
+            RuntimeHandleBinding(item.handle, promote[point], "Point", f"step:{step.step_id}")
+            for item in step.produces
+            if _produced_output_type(item, self.index.handle_registry) == "Point"
+        ]
+        return _CompiledStep(plan=plan, registrations=tuple(registrations))
+
     def _apply_registrations(self, compiled: _CompiledStep) -> None:
         """把已通过 dry-run 的输出 alias 写回 index。"""
         for declaration in compiled.declarations:
@@ -1095,6 +1546,26 @@ def _runtime_path_for_scope(
 def _scoped_output_path(context: RuntimeContext, scope_id: str, key: str) -> str:
     """生成某个 scope 下的 outputs path。"""
     return _runtime_path_for_scope(context, scope_id, "outputs", key)
+
+
+def _parameter_output_key_from_symbol_path(symbol_path: str) -> str:
+    """从参数符号 ContextPath 读取输出 key。
+
+    curve-candidate 类 recipe 会把反求出的参数值 promote 到当前 scope 的
+    ``outputs.<symbol>``。这里必须从实际绑定到的参数符号推导，不能假设参数名
+    一定是 ``b``。
+    """
+    path = ContextPath.parse(symbol_path)
+    if path.container != "symbols":
+        raise StrategyDraftValidationError(
+            f"parameter_symbol_path_must_point_to_symbols: {symbol_path}"
+        )
+    return path.key
+
+
+def _symbol_from_constraint_handle(handle: str) -> str:
+    """从 ``fact:<scope>:m_gt_2`` 这类约束 handle 中读取符号名。"""
+    return _semantic_name(handle).split("_", 1)[0]
 
 
 def _context_path_exists(context: RuntimeContext, raw_path: str) -> bool:
@@ -1160,6 +1631,11 @@ def _method_outputs_for_step(
     # quadratic_from_constraints 的 coefficients 对后续排查有用，并且 method 总会返回。
     if method_id == "quadratic_from_constraints":
         output_names.append("coefficients")
+    if method_id == "weighted_axis_path_triangle_transform":
+        # 加权路径转化 method 会稳定返回辅助点坐标与辅助点轨迹。LLM 只需要表达
+        # “做路径转化”这个解题动作；这些伴随输出由 compiler 根据 method spec
+        # 保留下来，供后续最短路径 method 读取。
+        output_names.extend(("auxiliary_point", "auxiliary_locus"))
     if not output_names:
         output_names = list(spec_outputs)
     return {name: _temp(step.step_id, name) for name in _unique_ordered(output_names)}
@@ -1179,10 +1655,12 @@ def _output_key_for_produced(
             return "evaluated_distance" if _parameter_value_handle(step, index) else "distance"
     preferred_by_type = {
         "Point": ("axis_point", "midpoint", "intersection", "selected_point", "auxiliary_point"),
+        "PointList": ("candidates", "filtered_candidates"),
+        "Line": ("auxiliary_locus", "line"),
         "Parabola": ("parabola",),
         "Coefficients": ("coefficients",),
         "ParameterValue": ("parameter_value",),
-        "MinimumExpression": ("distance", "evaluated_distance", "minimum_value"),
+        "MinimumExpression": ("minimum_expression", "distance", "evaluated_distance", "minimum_value"),
         "PathTransformation": ("path_transformation",),
         "StraighteningCandidate": ("selected_candidate",),
     }
@@ -1211,6 +1689,7 @@ def _promote_outputs_for_step(
         target = _target_path_for_produced(produced, output_types[output_name], index)
         _ensure_declaration_for_promote_target(target, output_types[output_name], index)
         promote[outputs[output_name]] = target
+    _add_companion_promotes(step, method_id, outputs, promote, index)
     # 如果 coefficients 被声明成 invocation output 但 LLM 没显式 produces，也可以调试性写出。
     if method_id == "quadratic_from_constraints" and "coefficients" in outputs:
         target_scope = _answer_scope_from_step(step)
@@ -1220,6 +1699,69 @@ def _promote_outputs_for_step(
         first_key, first_path = next(iter(outputs.items()))
         promote[first_path] = _scoped_output_path(index.context, step.scope_id, first_key)
     return promote
+
+
+def _add_companion_promotes(
+    step: StepIntent,
+    method_id: str,
+    outputs: dict[str, str],
+    promote: dict[str, str],
+    index: CanonicalRuntimeBindingIndex,
+) -> None:
+    """为 method 固有伴随输出补 promote target。
+
+    这些输出不是 LLM 的独立结论，而是同一个 method 调用天然产生的中间几何对象。
+    将它们注册为 runtime alias 可以减少 prompt 负担，同时仍由 method checks 验证。
+    """
+    if method_id != "weighted_axis_path_triangle_transform":
+        return
+    auxiliary_point_source = outputs.get("auxiliary_point")
+    if auxiliary_point_source is not None:
+        auxiliary_handle = _weighted_auxiliary_point_handle_for_step(step, index)
+        target = index.path_for(auxiliary_handle, expected_type="PointRef")
+        _ensure_declaration_for_promote_target(target, "Point", index)
+        promote.setdefault(auxiliary_point_source, target)
+    auxiliary_locus_source = outputs.get("auxiliary_locus")
+    if auxiliary_locus_source is not None:
+        promote.setdefault(
+            auxiliary_locus_source,
+            _scoped_output_path(index.context, step.scope_id, "auxiliary_locus"),
+        )
+
+
+def _companion_registrations_for_step(
+    step: StepIntent,
+    method_id: str,
+    outputs: dict[str, str],
+    promote: dict[str, str],
+    index: CanonicalRuntimeBindingIndex,
+) -> list[RuntimeHandleBinding]:
+    """注册 method 伴随输出的可读 alias。"""
+    if method_id != "weighted_axis_path_triangle_transform":
+        return []
+    result: list[RuntimeHandleBinding] = []
+    auxiliary_point_source = outputs.get("auxiliary_point")
+    if auxiliary_point_source in promote:
+        auxiliary_handle = _weighted_auxiliary_point_handle_for_step(step, index)
+        result.append(
+            RuntimeHandleBinding(
+                auxiliary_handle,
+                promote[auxiliary_point_source],
+                "Point",
+                f"step:{step.step_id}",
+            )
+        )
+    auxiliary_locus_source = outputs.get("auxiliary_locus")
+    if auxiliary_locus_source in promote:
+        result.append(
+            RuntimeHandleBinding(
+                f"runtime:{step.step_id}:auxiliary_locus",
+                promote[auxiliary_locus_source],
+                "Line",
+                f"step:{step.step_id}",
+            )
+        )
+    return result
 
 
 def _produced_registrations(
@@ -1309,6 +1851,7 @@ def _structured_output_key_from_produced(
                 "intersection",
                 "selected_point",
                 "auxiliary_point",
+                "point",
             )
     fact_type = index.fact_types.get(produced.handle)
     semantic_name = _semantic_name(produced.handle) if produced.handle.startswith("fact:") else ""
@@ -1317,6 +1860,8 @@ def _structured_output_key_from_produced(
         return _first_candidate(candidates, "parameter_value")
     if semantic_name in {"parabola", "parabola_expr", "parabola_expression"} or output_type == "Parabola":
         return _first_candidate(candidates, "parabola")
+    if output_type == "Coefficients":
+        return _first_candidate(candidates, "coefficients")
     if (
         fact_type in {"minimum_expression", "minimum_value_expression"}
         or output_type == "MinimumExpression"
@@ -1331,7 +1876,12 @@ def _structured_output_key_from_produced(
             "intersection",
             "selected_point",
             "auxiliary_point",
+            "point",
         )
+    if output_type == "PointList":
+        return _first_candidate(candidates, "candidates", "filtered_candidates")
+    if output_type == "Line":
+        return _first_candidate(candidates, semantic_name, "auxiliary_locus", "line")
     return None
 
 
@@ -1363,7 +1913,7 @@ def _minimum_expression_output_key(
         key = _first_candidate(candidates, "evaluated_distance")
         if key is not None:
             return key
-    return _first_candidate(candidates, "distance", "evaluated_distance", "minimum_value")
+    return _first_candidate(candidates, "minimum_expression", "distance", "evaluated_distance", "minimum_value")
 
 
 def _first_candidate(candidates: list[str], *keys: str) -> str | None:
@@ -1389,6 +1939,10 @@ def _target_path_for_produced(
     if output_type == "Point":
         point_name = _semantic_name(produced.handle).split("_", 1)[0]
         return index.path_for(index.point_handle_by_name(point_name), expected_type="PointRef")
+    if output_type == "PointList":
+        return _scoped_output_path(index.context, produced.valid_scope, _semantic_name(produced.handle))
+    if output_type == "Line":
+        return _scoped_output_path(index.context, produced.valid_scope, _semantic_name(produced.handle))
     if output_type == "ParameterValue":
         symbol = _semantic_name(produced.handle).split("_", 1)[0]
         return _scoped_output_path(index.context, produced.valid_scope, symbol)
@@ -1402,8 +1956,12 @@ def _target_path_for_produced(
             return index.path_for(produced.handle)
         return _scoped_output_path(index.context, produced.valid_scope, key)
     if output_type == "Parabola":
+        if produced.handle.startswith("fact:"):
+            return _scoped_output_path(index.context, produced.valid_scope, _semantic_name(produced.handle))
         return _scoped_output_path(index.context, produced.valid_scope, "parabola")
     if output_type == "Coefficients":
+        if produced.handle.startswith("fact:"):
+            return _scoped_output_path(index.context, produced.valid_scope, _semantic_name(produced.handle))
         return _scoped_output_path(index.context, produced.valid_scope, "coefficients")
     return _scoped_output_path(index.context, produced.valid_scope, _semantic_name(produced.handle))
 
@@ -1520,12 +2078,19 @@ def _path_for_readable_type(
         binding = index.bindings.get(handle)
         if binding is not None and binding.value_type == value_type:
             return binding.path
-    for handle, binding in sorted(index.bindings.items()):
-        if binding.value_type != value_type:
-            continue
-        scope = _binding_scope(binding.path)
-        if index.context.is_visible(step.scope_id, scope):
-            return binding.path
+    visible_bindings = [
+        binding
+        for _handle, binding in sorted(index.bindings.items())
+        if binding.value_type == value_type
+        and index.context.is_visible(step.scope_id, _binding_scope(binding.path))
+    ]
+    if value_type == "Coefficients":
+        # ``fact:*:a_value`` 这类题设已知系数也会注册为 Coefficients。后续 recipe
+        # 需要的是前序 ``quadratic_from_constraints`` 产生的系数依赖时，应优先读
+        # step 输出；只有没有推导结果时才退回题设 known coefficients。
+        visible_bindings.sort(key=lambda binding: (binding.source == "fact", binding.path))
+    if visible_bindings:
+        return visible_bindings[0].path
     if value_type == "MinimumExpression":
         raise StrategyDraftValidationError(
             "missing_required_runtime_fact: minimum_expression; "
@@ -1536,6 +2101,32 @@ def _path_for_readable_type(
     raise StrategyDraftValidationError(
         f"binding_type_not_found: step={step.step_id}, type={value_type}"
     )
+
+
+def _path_for_readable_type_or_none(
+    index: CanonicalRuntimeBindingIndex,
+    step: StepIntent,
+    value_type: str,
+) -> str | None:
+    """尝试读取当前 step 可见类型；失败时返回 None 供 recipe 内部补前置步骤。"""
+    try:
+        return _path_for_readable_type(index, step, value_type)
+    except StrategyDraftValidationError:
+        return None
+
+
+def _path_for_point_or_none(
+    index: CanonicalRuntimeBindingIndex,
+    handle: str,
+) -> str | None:
+    """尝试把 point handle 当作已知 Point 读取。"""
+    binding = index.bindings.get(handle)
+    if binding is None or binding.value_type != "Point":
+        return None
+    try:
+        return index.path_for(handle, expected_type="Point")
+    except StrategyDraftValidationError:
+        return None
 
 
 def _binding_scope(raw_path: str) -> str:
@@ -1564,6 +2155,12 @@ def _right_angle_roles(
     if step.target.startswith("point:"):
         target_handle = step.target
     for produced in step.produces:
+        if produced.handle.startswith("answer:"):
+            goal = index.question_goals.get(produced.handle)
+            if goal is not None and goal.value_type == "Point":
+                parsed = ContextPath.parse(goal.target_path)
+                target_handle = f"point:{parsed.scope_id}:{parsed.key}"
+                break
         if _produced_output_type(produced, index.handle_registry) == "Point":
             point_name = _semantic_name(produced.handle).split("_", 1)[0]
             target_handle = index.point_handle_by_name(point_name, step=step)
@@ -1577,6 +2174,19 @@ def _right_angle_roles(
         target_handle = last_handle
     reference = first_handle if target_handle == last_handle else last_handle
     return anchor, reference, target_handle
+
+
+def _curve_candidate_target_handle(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> str:
+    """读取候选点筛选 recipe 最终要写入的点实体。
+
+    recipe 只知道“候选点落在曲线上并反求参数”，不知道候选点来自直角等腰、
+    旋转还是其它几何构造；因此 target 统一从 step 的 answer/Point produced
+    或 target 字段解析。
+    """
+    return _point_output_handle(step, index)
 
 
 def _midpoint_roles(
@@ -1612,19 +2222,55 @@ def _length_condition_points(
     )
 
 
-def _curve_point_handles(
+def _curve_point_handles_from_reads(
     step: StepIntent,
     index: CanonicalRuntimeBindingIndex,
 ) -> list[str]:
-    """返回已知在抛物线上的点，优先当前 step reads。"""
+    """返回当前 step 显式读取的曲线点。
+
+    这里不能全局扫描所有 ``point_on_curve`` fact，否则第（Ⅰ）问会误读第（Ⅱ）
+    问的 D 或第（Ⅲ）问的 M，造成 sibling/child scope 可见性错误。
+    """
     point_names: list[str] = []
-    for handle in index.handles_by_fact_type("point_on_curve"):
+    for handle in step.reads:
+        if index.fact_types.get(handle) != "point_on_curve":
+            continue
         point_names.append(_semantic_name(handle).split("_on_", 1)[0])
     handles: list[str] = []
     for name in point_names:
         try:
             point_handle = index.point_handle_by_name(name, step=step)
-            # 只有当前已经能解析成 Point 的点才适合作为曲线约束输入。
+            # 只有当前已经计算成 Point 的点才适合作为曲线约束输入；PointRef
+            # 不能在这里提前解析，否则会把“待由当前抛物线求坐标”的点反过来当作
+            # 已知曲线点，造成循环依赖。
+            if index.binding_for(point_handle).value_type != "Point":
+                continue
+            index.path_for(point_handle, expected_type="Point")
+            handles.append(point_handle)
+        except Exception:
+            continue
+    return _unique_ordered(handles)
+
+
+def _visible_curve_point_handles(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> list[str]:
+    """返回当前 step scope 可见的曲线点。
+
+    参数已经定值时，像南开 ii_1 这类子问可以复用父级 ii 中已经构造出的 M/N
+    曲线点；但不能读取 sibling 或 child-only scope 的曲线点。
+    """
+    point_names: list[str] = []
+    for handle in index.handles_by_fact_type("point_on_curve"):
+        fact_scope = index.handle_registry.handle_valid_scopes.get(handle)
+        if fact_scope is None or not index.context.is_visible(step.scope_id, fact_scope):
+            continue
+        point_names.append(_semantic_name(handle).split("_on_", 1)[0])
+    handles: list[str] = []
+    for name in point_names:
+        try:
+            point_handle = index.point_handle_by_name(name, step=step)
             index.path_for(point_handle, expected_type="Point")
             handles.append(point_handle)
         except Exception:
@@ -1718,12 +2364,138 @@ def _straightening_point_roles(
     return fixed_1, fixed_2, line_1, line_2
 
 
+def _weighted_path_roles(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> tuple[str, str, str]:
+    """从 ``sqrt(2)*MN+AN`` 这类路径条件中推断 fixed/moving/curve 点。
+
+    返回顺序为 ``fixed_point, moving_point, curve_point``。解析只使用题面
+    Condition 的 ``path`` 字段；点名可以变化，但首版路径文本仍要求是两个线段项。
+    """
+    condition_handle = index.fact_handle_by_type("minimum_value", step=step)
+    condition_path = index.path_for(condition_handle, expected_type="Condition")
+    condition = index.context.read_path(
+        condition_path,
+        from_scope_id=step.scope_id,
+        expected_type="Condition",
+    ).value
+    raw_path = str(condition.get("path", ""))
+    segments = _segments_from_path_text(raw_path)
+    if len(segments) != 2:
+        raise StrategyDraftValidationError(f"weighted_path_segments_not_found: {raw_path}")
+    first, second = segments
+    moving = _common_endpoint(first, second)
+    if moving is None:
+        raise StrategyDraftValidationError(f"weighted_path_common_endpoint_not_found: {raw_path}")
+    fixed = _other_endpoint(second, moving)
+    curve = _other_endpoint(first, moving)
+    return (
+        index.point_handle_by_name(fixed, step=step),
+        index.point_handle_by_name(moving, step=step),
+        index.point_handle_by_name(curve, step=step),
+    )
+
+
+def _auxiliary_point_handle_from_reads(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> str:
+    """从 reads 中找加权路径辅助点。
+
+    weighted path 的 fixed/moving/curve 三个点可由题设路径解析得到；剩下在 reads
+    中可见的 Point 通常就是前一步三角形转化产生的辅助点。这里只做确定性排除，
+    不按自然语言猜测点名。
+    """
+    path_roles = set(_weighted_path_roles(step, index))
+    point_candidates: list[str] = []
+    fact_candidates: list[str] = []
+    for handle in step.reads:
+        binding = index.bindings.get(handle)
+        if binding is None or binding.value_type != "Point":
+            continue
+        if handle in path_roles:
+            continue
+        if handle.startswith("point:"):
+            point_candidates.append(handle)
+        elif "aux" in _semantic_name(handle).lower():
+            fact_candidates.append(handle)
+    unique = _unique_ordered(point_candidates or fact_candidates)
+    if len(unique) != 1:
+        raise StrategyDraftValidationError(
+            f"weighted_auxiliary_point_not_unique: step={step.step_id}, candidates={unique}"
+        )
+    return unique[0]
+
+
+def _weighted_auxiliary_point_handle_for_step(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> str:
+    """返回加权路径转化 step 使用的辅助点 handle。"""
+    item = _created_point_handle(step)
+    if item is not None:
+        return item.handle
+    for handle, binding in sorted(index.bindings.items()):
+        if (
+            handle.startswith(f"point:{step.scope_id}:")
+            and binding.source == "created_entity"
+        ):
+            return handle
+    handle = _fresh_auxiliary_point_handle(step, index)
+    if handle in index.bindings:
+        return handle
+    raise StrategyDraftValidationError(
+        f"weighted_auxiliary_point_handle_not_registered: {step.step_id}"
+    )
+
+
+def _segments_from_path_text(raw_path: str) -> list[str]:
+    """从路径文本中提取线段名。
+
+    当前 LLM/ProblemIR 的几何对象点名仍以大写字母为主；如果后续出现 P1 或
+    D_prime，多字符点名应先在 Entity/Fact 命名规范中升级后再扩展这里。
+    """
+    return re.findall(r"[A-Z]{2}", raw_path)
+
+
+def _common_endpoint(first: str, second: str) -> str | None:
+    """返回两个线段名的公共端点。"""
+    for name in first:
+        if name in second:
+            return name
+    return None
+
+
+def _other_endpoint(segment: str, endpoint: str) -> str:
+    """返回线段中非公共端点的另一个点名。"""
+    for name in segment:
+        if name != endpoint:
+            return name
+    raise StrategyDraftValidationError(f"segment_other_endpoint_not_found: {segment}")
+
+
 def _created_point_handle(step: StepIntent) -> CreatedEntity | None:
     """返回 creates[] 中的第一个 point entity。"""
     for item in step.creates:
         if item.entity_type == "point":
             return item
     return None
+
+
+def _fresh_auxiliary_point_handle(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> str:
+    """为 recipe 自动创建当前 scope 下未占用的辅助点 handle。"""
+    for suffix in ("", *[str(number) for number in range(1, 20)]):
+        name = f"Aux{suffix}"
+        handle = f"point:{step.scope_id}:{name}"
+        if handle not in index.bindings and handle not in index.handle_registry.entity_handles:
+            return handle
+    raise StrategyDraftValidationError(
+        f"auxiliary_point_handle_exhausted: {step.step_id}"
+    )
 
 
 def _first_pointref_handle(

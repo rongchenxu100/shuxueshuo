@@ -2,6 +2,7 @@
   "method_id": "coefficient_at_parameter",
   "title": "代入参数求系数",
   "description": "在参数取值确定后，求某个依赖系数的具体值。",
+  "summary": "输入: 系数表达式、参数符号和参数值；输出: 代入参数后的系数值。",
   "solves": [
     "derive_coefficient_at_parameter"
   ],

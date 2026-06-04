@@ -27,11 +27,16 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     STEP_INTENT_JSON_SCHEMA,
     StepIntent,
     StepIntentDraft,
+    StepIntentNormalizationAction,
+    StepIntentNormalizationReport,
     StepIntentResolutionCandidate,
     StepIntentResolutionStepReport,
     StepIntentValidationReport,
     StrategyDraftValidationError,
     StrategyPrompt,
+)
+from shuxueshuo_server.solver.runtime.strategy_normalizer import (
+    StepIntentNormalizer,
 )
 from shuxueshuo_server.solver.runtime.strategy_payload import (
     StrategyPayloadBuilder,
@@ -64,6 +69,9 @@ __all__ = [
     "StepIntentCandidateResolver",
     "StepIntent",
     "StepIntentDraft",
+    "StepIntentNormalizationAction",
+    "StepIntentNormalizationReport",
+    "StepIntentNormalizer",
     "StepIntentResolutionCandidate",
     "StepIntentResolutionStepReport",
     "StepIntentValidationReport",

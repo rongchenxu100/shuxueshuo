@@ -71,6 +71,7 @@ class SelectPointByQuadrantConstraintMethod:
 SPEC = MethodSpecSource(
     method_cls=SelectPointByQuadrantConstraintMethod,
     title='由象限与参数约束筛选点',
+    summary='输入: 候选点、象限条件和参数范围；输出: 符合题设方位的点。',
     solves=('select_point_by_region',),
     inputs={
     "candidates": {

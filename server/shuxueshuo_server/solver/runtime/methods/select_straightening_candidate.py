@@ -96,6 +96,7 @@ class SelectStraighteningCandidateMethod:
 SPEC = MethodSpecSource(
     method_cls=SelectStraighteningCandidateMethod,
     title='折线拉直候选选择',
+    summary='输入: 折线拉直候选方案；输出: 最适合计算的方案和辅助点。',
     solves=('select_broken_path_straightening_candidate',),
     inputs={
     "candidates": {

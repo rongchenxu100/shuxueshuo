@@ -14,6 +14,7 @@ This file is the compact teaching-quality reference. It should preserve the high
 - When two adjacent steps use the same method on different objects, the title must distinguish the objects, such as `判断 △G′F′H′` versus `判断 △G′MN`.
 - Navigation labels may be shorter than full step titles, but they still need an action and object, such as `判等边△G′MN` or `求△G′MN面积`; avoid labels like `判G′MN` or `左侧范围` that require guessing.
 - Use a title like `参数状态 + 方法 + 目标` only when the step is explicitly about a special parameter value, boundary state, or case split.
+- For area-range boundary calculations, name the side and target directly, such as `由左侧边界求最小值` or `由右侧边界求最小值`. Prefer this over a title that only names the substituted parameter value, unless the substitution itself is the learning goal.
 - Avoid weak titles such as `先求...`, `观察...`, or vague titles such as `由图形关系求...`.
 - Step titles must match the visual step. Do not write `构建...` unless that step really introduces a new auxiliary construction.
 - If a step mixes boundary-state judgment, boundary-value solving, and final interval writing, split it.
@@ -40,6 +41,8 @@ This file is the compact teaching-quality reference. It should preserve the high
 - Use mathematical notation for calculations and formulas, but use classroom language for boundary states and positional descriptions.
 - Do not restate visually obvious collinearity or on-line facts unless they are a real logical bridge.
 - Delete premise lines that merely repeat the problem statement or what the current diagram already labels, unless the line is needed as the immediate reason for the next conclusion.
+- If a length or point position is used in an area formula, derive it immediately before the formula. Do not jump from an angle statement such as `A′O′ 与 BC 成 60°` directly to a coordinate or length; introduce the needed perpendicular foot, projection, or standard triangle.
+- At boundary states of a folding problem, prefer fold facts and visible local triangles over coordinates. For example, if a reflected endpoint coincides with a fixed vertex, use `折痕是 AA′ 的垂直平分线` to get `A′D=AA′/2`, then use the visible `30°` right triangle for the other leg, instead of computing coordinates for `D`.
 
 ## Angles And Triangles
 
@@ -49,6 +52,7 @@ This file is the compact teaching-quality reference. It should preserve the high
 - Avoid coordinate projection when a standard right triangle gives the needed length cleanly.
 - For right-triangle area steps, state the exact base and height used.
 - If a labeled segment is the hypotenuse of an isosceles right triangle, either derive the legs first or use a student-friendly formula such as `斜边为 c 的等腰直角三角形面积为 c²/4`.
+- When a boundary-area calculation depends on a 30°/60° right triangle, both the derivation and the diagram should identify the decisive acute angle and the right angle.
 
 ## Rotation And Local Coordinates
 
@@ -84,6 +88,7 @@ This file is the compact teaching-quality reference. It should preserve the high
 - Keep endpoint inclusiveness exactly aligned across problem text, solution, visual steps, `policies.range`, minis, answer chips, and final answer.
 - If a boundary is excluded, do not say the value is attained.
 - If a boundary is included, show the attained value when it matters for the final range or extremum.
+- Excluded endpoints may still be used as exact boundary snapshots for calculation or thumbnails. In that case, compute the boundary value on the exact snapshot, then immediately state that the endpoint is outside the domain and the value is not attained.
 - If the diagram already reveals monotonic change or candidate extrema, use that trend to reduce unnecessary formulas.
 - Once candidate values are known, end with one compact `合并最终答案` step.
 
@@ -110,6 +115,7 @@ This file is the compact teaching-quality reference. It should preserve the high
 - Do not introduce helper area formulas such as `S△PHG=...` or a whole-stage expression such as `S=...` without deriving the needed base, height, included angle, or decomposition immediately before it. If a cut length such as `F′R` is used, show the short chain that obtains it before using it in an area formula.
 - If the target area is `S`, keep `S` as the target throughout the problem. Helper shapes are calculation aids, not new target regions.
 - Use candidate values and visual trends when they are enough; do not default to deriving every piecewise formula.
+- For open-domain area ranges with two endpoint lower-bound candidates and one interior upper-bound candidate, separate the work into left boundary value, interior extremum, right boundary value, and final merge. Do not combine a nontrivial boundary calculation with the final answer step.
 
 ## Visual Layering
 
@@ -138,6 +144,7 @@ This file is the compact teaching-quality reference. It should preserve the high
 - Distinguish input quantities from the current step's output: mark the quantities that drive the inference on the diagram, but keep the quantity being concluded in `lesson-data.steps[].box` unless it is needed as an input for a later step. For example, while proving `OM=1/2`, mark `OD=1/2` and the `45°` angle, not `OM=1/2`; while proving `O′M=t-1/2`, mark `OO′=t` and prior `OM=1/2`, not `O′M=t-1/2`.
 - Prefer moving secondary conclusions to `lesson-data.steps[].box` or the derivation panel before making the diagram dense. Do not rely on conclusion boxes to carry the one visual quantity students must inspect.
 - If a geometry vertex `O` is also the coordinate origin and the grid already shows origin label `O`, do not label the same point twice. Use `showLabel:false` for the point decoration or omit `O` from original-figure `fixedLabels`.
+- Avoid coordinate labels on diagrams unless coordinates are the current object being calculated. If a coordinate is only a shortcut for a length that can be found geometrically, remove the coordinate label and show the relevant segment, angle, or right-triangle marker instead.
 - Put current-step conclusions in `lesson-data.steps[].box`.
 - Choose box contents by dependency, not recency: show prior conclusions the current derivation actually uses plus the new conclusion.
 - If a reused conclusion has strong spatial meaning, such as a segment length actively used in the step, it may also appear on the diagram.
@@ -158,6 +165,7 @@ This file is the compact teaching-quality reference. It should preserve the high
 - Draw subtracted/cut regions with a distinct secondary style.
 - Make the visual hierarchy match formulas such as `S = large area - small triangle - small triangle`.
 - When an area formula uses a triangle, expose the exact base/height or included-angle data used by that formula.
+- If a right-triangle area uses `1/2 × base × height`, mark the base segment, the perpendicular leg or height, and the right-angle marker. If a `30°` or `60°` relation supplies the height, mark that angle too.
 - Avoid putting low-value helper-shape names inside crowded diagram regions; prefer formula cards or the derivation panel.
 
 ## Original Problem Figures

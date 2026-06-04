@@ -24,12 +24,20 @@ from .select_straightening_candidate import SelectStraighteningCandidateMethod, 
 from .square_opposite_point import SquareOppositePointMethod, SPEC as SQUARE_OPPOSITE_POINT_SPEC
 from .distance_between_points import DistanceBetweenPointsMethod, SPEC as DISTANCE_BETWEEN_POINTS_SPEC
 from .parameter_from_minimum_value import ParameterFromMinimumValueMethod, SPEC as PARAMETER_FROM_MINIMUM_VALUE_SPEC
+from .parameter_from_expression_value import ParameterFromExpressionValueMethod, SPEC as PARAMETER_FROM_EXPRESSION_VALUE_SPEC
 from .line_intersection_point import LineIntersectionPointMethod, SPEC as LINE_INTERSECTION_POINT_SPEC
 from .select_curve_point_candidate_and_solve_coefficients import SelectCurvePointCandidateAndSolveCoefficientsMethod, SPEC as SELECT_CURVE_POINT_CANDIDATE_AND_SOLVE_COEFFICIENTS_SPEC
 from .filter_point_candidates_by_quadratic_curve import FilterPointCandidatesByQuadraticCurveMethod, SPEC as FILTER_POINT_CANDIDATES_BY_QUADRATIC_CURVE_SPEC
 from .weighted_axis_path_triangle_transform import WeightedAxisPathTriangleTransformMethod, SPEC as WEIGHTED_AXIS_PATH_TRIANGLE_TRANSFORM_SPEC
-from .linked_broken_path_geometric_minimum import LinkedBrokenPathGeometricMinimumMethod, SPEC as LINKED_BROKEN_PATH_GEOMETRIC_MINIMUM_SPEC
+from .linked_broken_path_geometric_minimum import (
+    LinkedBrokenPathGeometricMinimumMethod,
+    LinkedBrokenPathMinimumExpressionMethod,
+    MINIMUM_EXPRESSION_SPEC as LINKED_BROKEN_PATH_MINIMUM_EXPRESSION_SPEC,
+    SPEC as LINKED_BROKEN_PATH_GEOMETRIC_MINIMUM_SPEC,
+)
 from .coefficient_at_parameter import CoefficientAtParameterMethod, SPEC as COEFFICIENT_AT_PARAMETER_SPEC
+from .evaluate_expression_at_parameter import EvaluateExpressionAtParameterMethod, SPEC as EVALUATE_EXPRESSION_AT_PARAMETER_SPEC
+from .parameter_from_curve_point_on_quadratic import ParameterFromCurvePointOnQuadraticMethod, SPEC as PARAMETER_FROM_CURVE_POINT_ON_QUADRATIC_SPEC
 
 ALL_METHOD_SPEC_SOURCES = (
     RIGHT_ANGLE_EQUAL_LENGTH_CANDIDATES_SPEC,
@@ -48,12 +56,16 @@ ALL_METHOD_SPEC_SOURCES = (
     SQUARE_OPPOSITE_POINT_SPEC,
     DISTANCE_BETWEEN_POINTS_SPEC,
     PARAMETER_FROM_MINIMUM_VALUE_SPEC,
+    PARAMETER_FROM_EXPRESSION_VALUE_SPEC,
     LINE_INTERSECTION_POINT_SPEC,
     SELECT_CURVE_POINT_CANDIDATE_AND_SOLVE_COEFFICIENTS_SPEC,
     FILTER_POINT_CANDIDATES_BY_QUADRATIC_CURVE_SPEC,
     WEIGHTED_AXIS_PATH_TRIANGLE_TRANSFORM_SPEC,
+    LINKED_BROKEN_PATH_MINIMUM_EXPRESSION_SPEC,
     LINKED_BROKEN_PATH_GEOMETRIC_MINIMUM_SPEC,
     COEFFICIENT_AT_PARAMETER_SPEC,
+    EVALUATE_EXPRESSION_AT_PARAMETER_SPEC,
+    PARAMETER_FROM_CURVE_POINT_ON_QUADRATIC_SPEC,
 )
 
 
@@ -81,12 +93,16 @@ def default_stateless_registry() -> StatelessMethodRegistry:
         SquareOppositePointMethod(),
         DistanceBetweenPointsMethod(),
         ParameterFromMinimumValueMethod(),
+        ParameterFromExpressionValueMethod(),
         LineIntersectionPointMethod(),
         SelectCurvePointCandidateAndSolveCoefficientsMethod(),
         FilterPointCandidatesByQuadraticCurveMethod(),
         WeightedAxisPathTriangleTransformMethod(),
+        LinkedBrokenPathMinimumExpressionMethod(),
         LinkedBrokenPathGeometricMinimumMethod(),
         CoefficientAtParameterMethod(),
+        EvaluateExpressionAtParameterMethod(),
+        ParameterFromCurvePointOnQuadraticMethod(),
     ]
     return StatelessMethodRegistry({method.method_id: method for method in methods})
 
@@ -112,11 +128,15 @@ __all__ = [
     "SelectStraighteningCandidateMethod",
     "SquareOppositePointMethod",
     "DistanceBetweenPointsMethod",
+    "ParameterFromExpressionValueMethod",
     "ParameterFromMinimumValueMethod",
     "LineIntersectionPointMethod",
     "SelectCurvePointCandidateAndSolveCoefficientsMethod",
     "FilterPointCandidatesByQuadraticCurveMethod",
     "WeightedAxisPathTriangleTransformMethod",
+    "LinkedBrokenPathMinimumExpressionMethod",
     "LinkedBrokenPathGeometricMinimumMethod",
     "CoefficientAtParameterMethod",
+    "EvaluateExpressionAtParameterMethod",
+    "ParameterFromCurvePointOnQuadraticMethod",
 ]

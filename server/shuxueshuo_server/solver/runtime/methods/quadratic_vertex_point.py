@@ -48,6 +48,7 @@ class QuadraticVertexPointMethod:
 SPEC = MethodSpecSource(
     method_cls=QuadraticVertexPointMethod,
     title="求二次函数顶点",
+    summary="输入: 抛物线表达式；输出: 顶点坐标。",
     solves=("derive_quadratic_vertex_point",),
     inputs={
         "parabola": {"type": "Parabola", "required": True},

@@ -53,6 +53,7 @@ class CoefficientAtParameterMethod:
 SPEC = MethodSpecSource(
     method_cls=CoefficientAtParameterMethod,
     title="代入参数求系数",
+    summary="输入: 系数表达式、参数符号和参数值；输出: 代入参数后的系数值。",
     solves=("derive_coefficient_at_parameter",),
     inputs={
         "coefficients": {"type": "Coefficients", "required": True},

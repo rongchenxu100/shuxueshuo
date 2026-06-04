@@ -137,11 +137,12 @@ class Hexi25WeightedPathPlannerV15:
         step_id = "hexi_ii_D"
         candidates_path = f"$step.{step_id}.temp.candidates"
         filtered_candidates_path = f"$step.{step_id}.temp.filtered_candidates"
+        selected_candidate_path = f"$step.{step_id}.temp.selected_candidate"
         return StepPlan(
             step_id=step_id,
             goal=StepGoal(
                 goal_id="derive_ii_D_and_coefficients",
-                type="select_curve_point_candidate_and_solve_coefficients",
+                type="parameter_from_curve_point_on_quadratic",
                 target_path="$question.ii.points.D",
                 scope_id="ii",
                 metadata={},
@@ -174,27 +175,23 @@ class Hexi25WeightedPathPlannerV15:
                     outputs={
                         "filtered_candidates": filtered_candidates_path,
                         "rejected_candidates": f"$step.{step_id}.temp.rejected_candidates",
+                        "selected_candidate": selected_candidate_path,
                     },
                 ),
                 MethodInvocation(
-                    invocation_id=f"{step_id}.select_curve_point_candidate_and_solve_coefficients",
-                    method_id="select_curve_point_candidate_and_solve_coefficients",
+                    invocation_id=f"{step_id}.parameter_from_curve_point_on_quadratic",
+                    method_id="parameter_from_curve_point_on_quadratic",
                     scope=step_id,
                     inputs={
-                        "candidates": filtered_candidates_path,
-                        "target": "$question.ii.points.D",
                         "quadratic": "$question.ii.outputs.parametric_parabola",
                         "x": "$problem.symbols.x",
-                        "coefficient_dependencies": "$question.ii.outputs.parametric_coefficients",
-                        "primary_symbol": "$problem.symbols.b",
-                        "secondary_symbol": "$problem.symbols.c",
-                        "primary_constraint": "$problem.constraints.b",
+                        "point": selected_candidate_path,
+                        "parameter": "$problem.symbols.b",
+                        "parameter_constraint": "$problem.constraints.b",
                     },
                     outputs={
                         "point": f"$step.{step_id}.temp.point",
-                        "coefficients": f"$step.{step_id}.temp.coefficients",
-                        "primary_value": f"$step.{step_id}.temp.b",
-                        "secondary_value": f"$step.{step_id}.temp.c",
+                        "parameter_value": f"$step.{step_id}.temp.b",
                         "parabola": f"$step.{step_id}.temp.parabola",
                     },
                 ),
@@ -202,14 +199,11 @@ class Hexi25WeightedPathPlannerV15:
             expected_outputs=[
                 "$question.ii.points.D",
                 "$question.ii.outputs.b",
-                "$question.ii.outputs.c",
                 "$question.ii.outputs.parabola",
             ],
             promote_outputs={
                 f"$step.{step_id}.temp.point": "$question.ii.points.D",
-                f"$step.{step_id}.temp.coefficients": "$question.ii.outputs.coefficients",
                 f"$step.{step_id}.temp.b": "$question.ii.outputs.b",
-                f"$step.{step_id}.temp.c": "$question.ii.outputs.c",
                 f"$step.{step_id}.temp.parabola": "$question.ii.outputs.parabola",
             },
         )

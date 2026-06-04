@@ -29,6 +29,7 @@ class MethodSpecSource:
     postconditions: tuple[str, ...] = ()
     trace_template: tuple[str, ...] = ()
     description: str = ""
+    summary: str = ""
 
     @property
     def method_id(self) -> str:
@@ -40,6 +41,7 @@ class MethodSpecSource:
             "method_id": self.method_id,
             "title": self.title,
             "description": description,
+            "summary": self.summary,
             "solves": list(self.solves),
             "inputs": self.inputs,
             "outputs": self.outputs,

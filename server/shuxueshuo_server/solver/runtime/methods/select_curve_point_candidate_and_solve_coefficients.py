@@ -138,6 +138,7 @@ def _reason_text(target_name: str, has_curve_point: bool) -> str:
 SPEC = MethodSpecSource(
     method_cls=SelectCurvePointCandidateAndSolveCoefficientsMethod,
     title="候选点筛选并求系数",
+    summary="输入: 候选点、抛物线约束和参数约束；输出: 被选中的曲线点、系数和抛物线。",
     solves=("select_curve_point_candidate_and_solve_coefficients",),
     inputs={
         "candidates": {"type": "PointList", "required": True},

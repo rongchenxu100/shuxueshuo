@@ -62,6 +62,7 @@ class QuadraticAxisFromRelationMethod:
 SPEC = MethodSpecSource(
     method_cls=QuadraticAxisFromRelationMethod,
     title='由系数关系求对称轴交点',
+    summary='输入: 二次函数系数关系与目标点定义；输出: 对称轴与 x 轴交点。',
     solves=('derive_axis_point',),
     inputs={
     "coefficient_relation": {

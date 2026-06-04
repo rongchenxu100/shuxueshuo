@@ -47,6 +47,7 @@ class DistanceBetweenPointsMethod:
 SPEC = MethodSpecSource(
     method_cls=DistanceBetweenPointsMethod,
     title='计算两点距离',
+    summary='输入: 两点及可选参数值；输出: 两点距离或代入参数后的距离。',
     solves=('derive_distance_between_points',),
     inputs={
     "p1": {

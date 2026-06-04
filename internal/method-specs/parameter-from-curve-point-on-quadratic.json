@@ -1,0 +1,44 @@
+{
+  "method_id": "parameter_from_curve_point_on_quadratic",
+  "title": "由曲线点反求参数并代回抛物线",
+  "description": "由含参抛物线和含参曲线点反求参数。",
+  "summary": "输入: 含一个参数的抛物线、由同一参数表示的曲线点和参数约束；输出: 参数值、代回后的点坐标和抛物线。",
+  "solves": [
+    "derive_parameter_from_curve_point_on_quadratic"
+  ],
+  "inputs": {
+    "quadratic": {
+      "type": "Parabola",
+      "required": true
+    },
+    "x": {
+      "type": "Symbol",
+      "required": true
+    },
+    "point": {
+      "type": "Point",
+      "required": true
+    },
+    "parameter": {
+      "type": "Symbol",
+      "required": true
+    },
+    "parameter_constraint": {
+      "type": "Constraint",
+      "required": false
+    }
+  },
+  "outputs": {
+    "parameter_value": "ParameterValue",
+    "point": "Point",
+    "parabola": "Parabola"
+  },
+  "preconditions": [
+    "quadratic 与 point 必须只共享同一个待求参数",
+    "点代入抛物线后，在参数约束下必须唯一确定参数值"
+  ],
+  "postconditions": [
+    "输出 point 是代入参数后的坐标",
+    "输出 parabola 是代入参数后的当前问抛物线"
+  ]
+}

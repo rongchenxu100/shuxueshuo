@@ -13,7 +13,13 @@ from ._spec import MethodSpecSource
 
 
 class QuadraticYAxisInterceptPointMethod:
-    """由二次函数解析式求与 y 轴的交点。"""
+    """由二次函数解析式求与 y 轴的交点。
+
+    该 method 只把 ``x=0`` 代入当前抛物线表达式，因此允许抛物线仍含一个或多个
+    未定系数；输出点坐标会保留这些符号参数，例如
+    ``y=2*x**2-b*x-b-2`` 会得到 ``(0, -b-2)``。这类含参交点常用于后续把
+    几何构造点代回曲线，再筛选或求参数。
+    """
 
     method_id = "quadratic_y_axis_intercept_point"
 
@@ -48,6 +54,7 @@ class QuadraticYAxisInterceptPointMethod:
 SPEC = MethodSpecSource(
     method_cls=QuadraticYAxisInterceptPointMethod,
     title="求二次函数与 y 轴交点",
+    summary="输入: 抛物线表达式，可含未定系数；输出: x=0 时的 y 轴交点，坐标可保留参数。",
     solves=("derive_quadratic_y_axis_intercept_point",),
     inputs={
         "quadratic": {"type": "Parabola", "required": True},
@@ -55,6 +62,6 @@ SPEC = MethodSpecSource(
         "target": {"type": "PointRef", "required": True},
     },
     outputs={"point": "Point"},
-    preconditions=("quadratic 是关于 x 的函数表达式",),
-    postconditions=("输出点横坐标为 0 且在曲线上",),
+    preconditions=("quadratic 是关于 x 的函数表达式，可以含未定系数",),
+    postconditions=("输出点横坐标为 0 且在曲线上；若输入含参数，输出坐标保留参数表达式",),
 )

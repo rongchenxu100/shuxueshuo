@@ -1,16 +1,12 @@
 {
-  "method_id": "linked_broken_path_geometric_minimum",
-  "title": "联动点折线拉直最值",
-  "description": "用“将军饮马”的折线最短思想处理带联动辅助点的路径最值。",
-  "summary": "输入: sqrt(2) 加权路径已转化出的辅助点轨迹；输出: 几何最小值与极值点。使用边界: 只支持 transformation.scale=sqrt(2) 的等腰直角三角形转化结果。",
+  "method_id": "linked_broken_path_minimum_expression",
+  "title": "联动点折线最短表达式",
+  "description": "只求联动折线最短的表达式，不在本 method 内反求参数。",
+  "summary": "输入: sqrt(2) 加权路径已转化出的辅助点轨迹、曲线点和动点表达式；输出: 关于参数的几何最小值表达式。使用边界: 只支持 transformation.scale=sqrt(2) 的等腰直角三角形转化结果。使用原则: 本 method 只求表达式，不反求参数；给定最小值反求参数应交给 parameter_from_expression_value。",
   "solves": [
-    "derive_linked_broken_path_geometric_minimum"
+    "derive_linked_broken_path_minimum_expression"
   ],
   "inputs": {
-    "condition": {
-      "type": "Condition",
-      "required": true
-    },
     "path_transformation": {
       "type": "PathTransformation",
       "required": true
@@ -53,17 +49,16 @@
     }
   },
   "outputs": {
-    "parameter_value": "ParameterValue",
-    "dynamic_parameter_value": "ParameterValue",
-    "minimum_value": "MinimumExpression",
-    "dynamic_point": "Point"
+    "minimum_expression": "MinimumExpression",
+    "dynamic_parameter_expression": "Expression",
+    "dynamic_point_expression": "Point"
   },
   "preconditions": [
-    "已经完成 sqrt(2) 加权路径到 MN+QN 的辅助点转化",
+    "已经完成 sqrt(2) 加权路径到普通折线的辅助点转化",
     "path_transformation.scale 必须为 sqrt(2)",
-    "Q 随 N 在固定射线上运动"
+    "辅助点沿固定射线运动"
   ],
   "postconditions": [
-    "输出参数值满足题设最小值和动点范围"
+    "输出最小值表达式供后续反求参数"
   ]
 }

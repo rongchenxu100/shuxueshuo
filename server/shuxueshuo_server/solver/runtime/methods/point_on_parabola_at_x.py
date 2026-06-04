@@ -51,6 +51,7 @@ class PointOnParabolaAtXMethod:
 SPEC = MethodSpecSource(
     method_cls=PointOnParabolaAtXMethod,
     title="由横坐标求抛物线上点",
+    summary="输入: 抛物线和横坐标；输出: 曲线上的点。",
     solves=("derive_point_on_parabola_at_x",),
     inputs={
         "parabola": {"type": "Parabola", "required": True},

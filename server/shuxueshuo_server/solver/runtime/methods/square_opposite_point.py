@@ -59,6 +59,7 @@ class SquareOppositePointMethod:
 SPEC = MethodSpecSource(
     method_cls=SquareOppositePointMethod,
     title='构造对顶辅助点',
+    summary='输入: 正方形或直角等长结构中的相邻点与目标定义；输出: 对顶辅助点坐标。',
     solves=('derive_square_opposite_point',),
     inputs={
     "vertex": {

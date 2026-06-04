@@ -35,7 +35,7 @@ HEXI_METHODS_USED = [
     "quadratic_y_axis_intercept_point",
     "right_angle_equal_length_candidates",
     "filter_point_candidates_by_quadratic_curve",
-    "select_curve_point_candidate_and_solve_coefficients",
+    "parameter_from_curve_point_on_quadratic",
     "quadratic_from_constraints",
     "point_on_parabola_at_x",
     "weighted_axis_path_triangle_transform",

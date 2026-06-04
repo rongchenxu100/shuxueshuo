@@ -2,6 +2,7 @@
   "method_id": "distance_between_points",
   "title": "计算两点距离",
   "description": "计算两点距离，并可选代入参数值得到具体距离。",
+  "summary": "输入: 两点及可选参数值；输出: 两点距离或代入参数后的距离。",
   "solves": [
     "derive_distance_between_points"
   ],

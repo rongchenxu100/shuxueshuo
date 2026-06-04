@@ -181,7 +181,7 @@ StrategyPayload
 
 ```text
 quadratic_axis_from_relation: 由二次函数系数关系求对称轴与 x 轴交点
-quadratic_from_constraints: 由已知系数、曲线点、参数值和额外方程求抛物线
+quadratic_from_constraints: 由已知系数、曲线点、参数值和额外方程求当前问最简抛物线；适合把 a,b,c 完全确定或化简到只剩一个上下文有用参数
 midpoint_point: 由两端点求中点
 ```
 

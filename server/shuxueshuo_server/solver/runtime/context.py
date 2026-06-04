@@ -419,9 +419,17 @@ class ContextBuilder:
         root = context.problem_scope
         for name, symbol in context.symbols.items():
             root.container("symbols")[name] = TypedValue("Symbol", symbol, locked=True, source="symbols")
+        coefficient_names = [
+            name
+            for name, role in context.problem.symbol_roles.items()
+            if role == "quadratic_coefficient"
+        ]
+        if not coefficient_names:
+            # 旧 fixture 没有显式 symbol_roles 时，才退回二次函数 V1.5 的默认系数名。
+            coefficient_names = ["a", "b", "c"]
         coefficient_symbols = [
             context.symbols[name]
-            for name in ("a", "b", "c")
+            for name in coefficient_names
             if name in context.symbols
         ]
         if coefficient_symbols:
@@ -753,7 +761,7 @@ def _parameter_symbol(context: RuntimeContext) -> sp.Symbol | None:
     parameter = context.problem.data.get("parameter")
     if isinstance(parameter, str) and parameter in context.symbols:
         return context.symbols[parameter]
-    for name, role in context.problem.data.get("symbol_roles", {}).items():
+    for name, role in context.problem.symbol_roles.items():
         if role == "dynamic_parameter" and name in context.symbols:
             return context.symbols[name]
     dynamic = [

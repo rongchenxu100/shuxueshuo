@@ -22,6 +22,7 @@ def test_loads_right_angle_candidate_and_selector_specs() -> None:
     selector_spec = registry.require("select_point_by_quadrant_constraint")
 
     assert candidate_spec.method_id == "right_angle_equal_length_candidates"
+    assert "参数" in candidate_spec.summary
     assert candidate_spec.inputs["anchor"].type == "Point"
     assert candidate_spec.outputs["candidates"] == "PointList"
     assert selector_spec.inputs["parameter_constraint"].type == "Constraint"
@@ -44,6 +45,8 @@ def test_loads_quadratic_from_constraints_spec() -> None:
     registry = MethodSpecRegistry.load_from_code()
     spec = registry.require("quadratic_from_constraints")
 
+    assert "最简" in spec.summary
+    assert "使用原则" in spec.summary
     assert spec.inputs["quadratic"].type == "Expression"
     assert spec.inputs["x"].type == "Symbol"
     assert spec.inputs["all_coefficients"].type == "SymbolList"
@@ -66,13 +69,28 @@ def test_loads_quadratic_candidate_filter_spec() -> None:
     assert spec.inputs["parameter_constraint"].type == "Constraint"
     assert spec.outputs["filtered_candidates"] == "PointList"
     assert spec.outputs["rejected_candidates"] == "PointList"
+    assert spec.outputs["selected_candidate"] == "Point"
+
+
+def test_loads_parameter_from_curve_point_on_quadratic_spec() -> None:
+    registry = MethodSpecRegistry.load_from_code()
+    spec = registry.require("parameter_from_curve_point_on_quadratic")
+
+    assert spec.inputs["quadratic"].type == "Parabola"
+    assert spec.inputs["point"].type == "Point"
+    assert spec.inputs["parameter"].type == "Symbol"
+    assert spec.inputs["parameter_constraint"].type == "Constraint"
+    assert spec.outputs["parameter_value"] == "ParameterValue"
+    assert spec.outputs["point"] == "Point"
+    assert spec.outputs["parabola"] == "Parabola"
 
 
 def test_loads_weighted_geometric_path_specs() -> None:
     """加权路径的几何转化与折线最短应作为独立 method 暴露给 planner。"""
     registry = MethodSpecRegistry.load_from_code()
     transform = registry.require("weighted_axis_path_triangle_transform")
-    minimum = registry.require("linked_broken_path_geometric_minimum")
+    minimum = registry.require("linked_broken_path_minimum_expression")
+    parameter = registry.require("parameter_from_expression_value")
 
     assert transform.inputs["condition"].type == "Condition"
     assert transform.inputs["auxiliary_point_ref"].type == "PointRef"
@@ -82,7 +100,18 @@ def test_loads_weighted_geometric_path_specs() -> None:
     assert minimum.inputs["path_transformation"].type == "PathTransformation"
     assert minimum.inputs["auxiliary_locus"].type == "Line"
     assert minimum.inputs["auxiliary_point"].type == "Point"
-    assert minimum.outputs["parameter_value"] == "ParameterValue"
+    assert minimum.outputs["minimum_expression"] == "MinimumExpression"
+    assert "parameter_value" not in minimum.outputs
+    assert parameter.inputs["expression"].type == "MinimumExpression"
+    assert parameter.outputs["parameter_value"] == "ParameterValue"
+
+
+def test_y_axis_intercept_summary_allows_symbolic_coefficients() -> None:
+    """y 轴交点 method 的能力摘要应说明可保留未定系数。"""
+    registry = MethodSpecRegistry.load_from_code()
+    spec = registry.require("quadratic_y_axis_intercept_point")
+
+    assert "未定系数" in spec.summary
 
 
 def test_searches_spec_by_goal_type() -> None:

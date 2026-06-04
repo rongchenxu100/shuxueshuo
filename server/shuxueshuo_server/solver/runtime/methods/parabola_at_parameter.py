@@ -42,6 +42,7 @@ class ParabolaAtParameterMethod:
 SPEC = MethodSpecSource(
     method_cls=ParabolaAtParameterMethod,
     title='代入参数得到抛物线',
+    summary='输入: 含参抛物线、参数符号和参数值；输出: 代入参数后的抛物线。',
     solves=('derive_parabola_at_parameter',),
     inputs={
     "parabola": {

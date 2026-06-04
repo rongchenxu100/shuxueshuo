@@ -46,6 +46,7 @@ class MidpointPointMethod:
 SPEC = MethodSpecSource(
     method_cls=MidpointPointMethod,
     title='求中点坐标',
+    summary='输入: 两端点和中点定义；输出: 中点坐标。',
     solves=('derive_midpoint_coordinate',),
     inputs={
     "p1": {

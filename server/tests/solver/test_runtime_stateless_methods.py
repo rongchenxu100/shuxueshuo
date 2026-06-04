@@ -12,12 +12,16 @@ from shuxueshuo_server.solver.runtime.methods import (
     BrokenPathStraighteningCandidatesMethod,
     CoefficientAtParameterMethod,
     DistanceBetweenPointsMethod,
+    EvaluateExpressionAtParameterMethod,
     FilterPointCandidatesByQuadraticCurveMethod,
     LineIntersectionPointMethod,
     LinkedBrokenPathGeometricMinimumMethod,
+    LinkedBrokenPathMinimumExpressionMethod,
     MidpointPointMethod,
+    ParameterFromExpressionValueMethod,
     ParameterFromMinimumValueMethod,
     ParameterFromSegmentLengthMethod,
+    ParameterFromCurvePointOnQuadraticMethod,
     ParabolaAtParameterMethod,
     PointOnParabolaAtXMethod,
     QuadraticAxisFromRelationMethod,
@@ -272,6 +276,24 @@ def test_right_angle_equal_length_candidates_method() -> None:
     assert all(check.ok for check in result.checks)
 
 
+def test_right_angle_equal_length_candidates_keep_symbolic_endpoint() -> None:
+    """已知直角边端点含参数时，旋转候选应保留符号表达式。"""
+    kernel = SympyKernel()
+    b = kernel.symbols(["b"])["b"]
+
+    result = RightAngleEqualLengthCandidatesMethod().run(
+        {
+            "anchor": (sp.Integer(-1), sp.Integer(0)),
+            "reference": (sp.Integer(0), -b - 2),
+            "target": PointRef("D", "$question.ii.points.D"),
+        },
+        kernel,
+    )
+
+    assert result.outputs["candidates"].value == [(-b - 3, -1), (b + 1, 1)]
+    assert all(check.ok for check in result.checks)
+
+
 def test_select_curve_point_candidate_and_solve_coefficients_method() -> None:
     kernel = SympyKernel()
     symbols = kernel.symbols(["x", "a", "b", "c"])
@@ -358,6 +380,7 @@ def test_filter_point_candidates_by_quadratic_curve_method() -> None:
 
     assert result.outputs["filtered_candidates"].value == [(b + 1, 1)]
     assert result.outputs["rejected_candidates"].value == [(-b - 3, -1)]
+    assert result.outputs["selected_candidate"].value == (b + 1, 1)
     assert all(check.ok for check in result.checks)
 
 
@@ -380,6 +403,33 @@ def test_filter_point_candidates_by_quadratic_curve_keeps_all_valid_candidates()
 
     assert result.outputs["filtered_candidates"].value == [(sp.Integer(0), sp.Integer(1)), (sp.Integer(1), sp.Integer(2))]
     assert result.outputs["rejected_candidates"].value == []
+
+
+def test_parameter_from_curve_point_on_quadratic_method() -> None:
+    """含参点代入含参抛物线后，应反求参数并代回点和抛物线。"""
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["x", "b"])
+    x, b = symbols["x"], symbols["b"]
+
+    result = ParameterFromCurvePointOnQuadraticMethod().run(
+        {
+            "quadratic": 2 * x**2 - b * x - b - 2,
+            "x": x,
+            "point": (b + 1, sp.Integer(1)),
+            "parameter": b,
+            "parameter_constraint": {"operator": ">", "value": 0},
+        },
+        kernel,
+    )
+
+    parameter_value = -1 + sp.sqrt(2)
+    assert sp.simplify(result.outputs["parameter_value"].value - parameter_value) == 0
+    assert result.outputs["point"].value == (sp.sqrt(2), sp.Integer(1))
+    assert sp.simplify(
+        result.outputs["parabola"].value
+        - (2 * x**2 + (1 - sp.sqrt(2)) * x - 1 - sp.sqrt(2))
+    ) == 0
+    assert all(check.ok for check in result.checks)
     assert all(check.ok for check in result.checks)
 
 
@@ -656,6 +706,25 @@ def test_parameter_from_minimum_value_method() -> None:
     assert result.outputs["parameter_value"].value == 4
 
 
+def test_parameter_from_expression_value_method() -> None:
+    """通用表达式取值反求参数不关心表达式来源是否叫“最小值”。"""
+    kernel = SympyKernel()
+    b = kernel.symbols(["b"])["b"]
+
+    result = ParameterFromExpressionValueMethod().run(
+        {
+            "expression": sp.Rational(21, 8) * b,
+            "condition": {"value": "21/4"},
+            "parameter": b,
+            "constraint": {"operator": ">", "value": sp.Integer(0)},
+        },
+        kernel,
+    )
+
+    assert result.outputs["parameter_value"].value == 2
+    assert all(check.ok for check in result.checks)
+
+
 def test_line_intersection_point_method() -> None:
     kernel = SympyKernel()
 
@@ -742,6 +811,43 @@ def test_linked_broken_path_geometric_minimum_method() -> None:
     assert all(check.ok for check in result.checks)
 
 
+def test_linked_broken_path_minimum_expression_method() -> None:
+    """薄 method 只求加权路径最小值表达式，不直接反求 b。"""
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["b", "n"])
+    b, n = symbols["b"], symbols["n"]
+    transform = WeightedAxisPathTriangleTransformMethod().run(
+        {
+            "condition": {"path": "sqrt(2)*MN+AN", "value": "21/4"},
+            "fixed_point": (-1, 0),
+            "moving_point": (n, 0),
+            "dynamic_parameter": n,
+            "auxiliary_point_ref": PointRef("Q", "$question.iii.points.Q"),
+        },
+        kernel,
+    )
+
+    result = LinkedBrokenPathMinimumExpressionMethod().run(
+        {
+            "path_transformation": transform.outputs["path_transformation"].value,
+            "auxiliary_locus": transform.outputs["auxiliary_locus"].value,
+            "fixed_point": (-1, 0),
+            "curve_point": (b + sp.Rational(1, 2), -b / 2 - sp.Rational(3, 4)),
+            "moving_point": (n, 0),
+            "auxiliary_point": transform.outputs["auxiliary_point"].value,
+            "parameter": b,
+            "dynamic_parameter": n,
+            "parameter_constraint": {"operator": ">", "value": sp.Integer(0)},
+            "dynamic_constraint": {"operator": ">", "value": sp.Integer(0)},
+        },
+        kernel,
+    )
+
+    assert sp.simplify(result.outputs["minimum_expression"].value - (sp.Rational(3, 2) * b + sp.Rational(9, 4))) == 0
+    assert "parameter_value" not in result.outputs
+    assert all(check.ok for check in result.checks)
+
+
 def test_coefficient_at_parameter_method() -> None:
     kernel = SympyKernel()
     symbols = kernel.symbols(["b", "c"])
@@ -758,3 +864,22 @@ def test_coefficient_at_parameter_method() -> None:
     )
 
     assert result.outputs["coefficient_value"].value == -3
+
+
+def test_evaluate_expression_at_parameter_method() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["b", "x"])
+    b, x = symbols["b"], symbols["x"]
+
+    result = EvaluateExpressionAtParameterMethod().run(
+        {
+            "expression": b * x + b**2,
+            "parameter": b,
+            "parameter_value": sp.Integer(2),
+        },
+        kernel,
+    )
+
+    assert result.outputs["evaluated_expression"].type == "Expression"
+    assert result.outputs["evaluated_expression"].value == 2 * x + 4
+    assert all(check.ok for check in result.checks)

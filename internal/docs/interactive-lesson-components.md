@@ -41,6 +41,51 @@ Avoid it when:
 - the exam parameter should remain fixed for the step;
 - students only need to drag a local auxiliary point inside a proof or shortest-path construction.
 
+## Clickable Mini Boundary Cards
+
+`lesson-data.steps[].minis` renders both small boundary cards and jump buttons. The cards are clickable only when the owning step is movable through the main parameter.
+
+Declaration pattern:
+
+```json
+{
+  "id": "q2s5",
+  "title": "第5步：合并答案",
+  "t": 7,
+  "minis": [
+    { "title": "t＝4", "caption": "左端边界情况，S＝2√3，但取不到。", "t": 4 },
+    { "title": "t＝7", "caption": "最大值，S＝15√3/4。", "t": 7 },
+    { "title": "t＝10", "caption": "右端边界情况，S＝2√3，但取不到。", "t": 10 }
+  ]
+}
+```
+
+```json
+"policies": {
+  "q2s5": { "movable": true, "range": [4, 10], "step": 0.001 }
+}
+```
+
+Runtime behavior:
+
+- Rendered by `site/assets/js/lesson-page-runtime.js`.
+- Uses elements with `data-mini-t`.
+- Calls the same main-parameter update path as the slider.
+- If `policies[stepId].movable` is false, mini clicks do not update the main diagram.
+- If a mini `t` falls outside `policies[stepId].range`, the diagram is clamped to the nearest range endpoint.
+
+Use it for:
+
+- final answer steps that summarize a small number of extremal states;
+- exact boundary snapshots, even when the original problem uses an open interval and the value is not attained;
+- representative phase cards where clicking should update the main diagram.
+
+Rules:
+
+- Use exact boundary values in `minis[].t` when the point of the card is the boundary geometry; say in the caption whether the value is attained.
+- If every mini should be clickable, set `movable: true` and make the policy range include all mini `t` values.
+- If a step is purely a fixed calculation and mini clicks are not needed, keep `movable: false` and omit minis or treat them as non-interactive illustration only.
+
 ## Local Point Controls
 
 Use local point controls when a step needs students to drag one or more points while the main exam parameter stays fixed.
@@ -93,6 +138,7 @@ Use it for:
 - local proof diagrams where students drag an auxiliary point;
 - shortest-path/reflection diagrams where one point moves on a line;
 - constrained point pairs where two visual points move together by one mathematical degree of freedom.
+- staged optimization diagrams where the active moving point changes between steps. If a proof first fixes `G` and varies `E,F`, then later varies `G`, use local controls for `E,F` in the fixed-`G` step and a separate local control for `G` in the moving-`G` step.
 
 ## Linked Controls For Constrained Points
 
@@ -172,6 +218,7 @@ Avoid it when:
 - Use local point controls with a local step `domain` when the proof depends on a small auxiliary figure.
 - Keep local controls out of algebra-only steps.
 - If a local control changes a helper foot or dependent point, override those dependent points too.
+- If dependent points are no longer the focus of the current observation, hide or de-emphasize them instead of adding controls for them. The control should match the mathematical degree of freedom students are meant to notice.
 - Do not use visible instructional paragraphs to explain the UI. A short `note` is acceptable when it names the invariant or observation.
 - Use derivation step references instead of embedding HTML links in JSON.
 

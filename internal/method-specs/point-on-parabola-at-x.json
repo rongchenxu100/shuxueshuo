@@ -2,6 +2,7 @@
   "method_id": "point_on_parabola_at_x",
   "title": "由横坐标求抛物线上点",
   "description": "由目标点定义中的横坐标，在抛物线上求点坐标。",
+  "summary": "输入: 抛物线和横坐标；输出: 曲线上的点。",
   "solves": [
     "derive_point_on_parabola_at_x"
   ],

@@ -175,6 +175,10 @@ def _parse_weighted_axis_path(path: str, kernel: SympyKernel) -> dict[str, Any]:
 SPEC = MethodSpecSource(
     method_cls=WeightedAxisPathTriangleTransformMethod,
     title="加权路径的直角三角形转化",
+    summary=(
+        "输入: sqrt(2) 加权路径、轴上动点和辅助点定义；输出: 几何转化后的等价路径与辅助点轨迹。"
+        "使用边界: 当前实现只支持 sqrt(2) 权重，对应等腰直角三角形转化；30°/60° 等其他权重需新增扩展后再使用。"
+    ),
     solves=("transform_weighted_axis_path_by_triangle",),
     inputs={
         "condition": {
@@ -208,6 +212,9 @@ SPEC = MethodSpecSource(
         "path_transformation": "PathTransformation",
         "auxiliary_locus": "Line",
     },
-    preconditions=("fixed_point 与 moving_point 在 x 轴上", "当前切片支持 sqrt(2) 权重"),
+    preconditions=(
+        "fixed_point 与 moving_point 在 x 轴上",
+        "加权路径的权重必须为 sqrt(2)，当前切片只支持等腰直角三角形转化",
+    ),
     postconditions=("输出 planner 指定的辅助点、路径转化说明与辅助点运动射线",),
 )

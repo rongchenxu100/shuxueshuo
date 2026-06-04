@@ -1,0 +1,298 @@
+{
+  "scopes": [
+    {
+      "label": "第（Ⅰ）问",
+      "scope_id": "i",
+      "steps": [
+        {
+          "creates": [],
+          "goal_type": "derive_parabola",
+          "produces": [
+            {
+              "description": "第（Ⅰ）问具体的抛物线解析式 y=x²-2x+3",
+              "handle": "fact:i:parabola_expr",
+              "valid_scope": "i"
+            }
+          ],
+          "reads": [
+            "function:problem:parabola",
+            "fact:i:a_value",
+            "fact:i:b_value",
+            "fact:i:c_value"
+          ],
+          "reason": "（Ⅰ）已知三个系数，直接代入得到具体抛物线，为求顶点做准备。",
+          "recipe_hint": "quadratic_from_constraints",
+          "step_id": "derive_parabola_i",
+          "strategy": "将已知系数 a=1, b=2, c=3 代入抛物线一般式得到具体解析式。",
+          "target": "fact:i:parabola_expr"
+        },
+        {
+          "creates": [],
+          "goal_type": "derive_vertex_point",
+          "produces": [
+            {
+              "description": "第（Ⅰ）问抛物线顶点 P 的坐标",
+              "handle": "answer:i_P",
+              "valid_scope": "i"
+            }
+          ],
+          "reads": [
+            "fact:i:parabola_expr"
+          ],
+          "reason": "（Ⅰ）最终答案是顶点坐标，用顶点公式计算。",
+          "recipe_hint": "quadratic_vertex_point",
+          "step_id": "compute_vertex_i",
+          "strategy": "利用顶点公式求得顶点 P 坐标。",
+          "target": "answer:i_P"
+        }
+      ]
+    },
+    {
+      "label": "第（Ⅱ）问",
+      "scope_id": "ii",
+      "steps": [
+        {
+          "creates": [],
+          "goal_type": "derive_parametric_parabola",
+          "produces": [
+            {
+              "description": "第（Ⅱ）问代入 a=2 和 A(-1,0) 后得到只含 b 的抛物线。",
+              "handle": "fact:ii:parametric_parabola",
+              "valid_scope": "ii"
+            },
+            {
+              "description": "第（Ⅱ）问由 A 在抛物线上得到的系数依赖关系。",
+              "handle": "fact:ii:parametric_coefficients",
+              "valid_scope": "ii"
+            }
+          ],
+          "reads": [
+            "function:problem:parabola",
+            "fact:ii:a_value",
+            "point:problem:A",
+            "fact:problem:A_coordinate_value",
+            "fact:ii:A_on_parabola",
+            "symbol:problem:b"
+          ],
+          "reason": "先代入 a=2 和 A(-1,0)，把抛物线化简到只含参数 b。",
+          "recipe_hint": "quadratic_from_constraints",
+          "step_id": "derive_ii_parametric_parabola",
+          "strategy": "当前问先化简函数，后续几何候选点才有可代入的含参抛物线。",
+          "target": "fact:ii:parametric_parabola"
+        },
+        {
+          "creates": [],
+          "goal_type": "derive_y_axis_intercept",
+          "produces": [
+            {
+              "description": "第（Ⅱ）问抛物线与 y 轴交点 C 的坐标。",
+              "handle": "fact:ii:C_coordinate",
+              "valid_scope": "ii"
+            }
+          ],
+          "reads": [
+            "fact:ii:parametric_parabola",
+            "point:ii:C"
+          ],
+          "reason": "直角等腰条件需要已知端点 C，先由当前问抛物线求 y 轴交点。",
+          "recipe_hint": "quadratic_y_axis_intercept_point",
+          "step_id": "derive_ii_C",
+          "strategy": "令 x=0 得到 C 的含参坐标。",
+          "target": "fact:ii:C_coordinate"
+        },
+        {
+          "creates": [],
+          "goal_type": "derive_point_candidates",
+          "produces": [
+            {
+              "description": "由 ∠CAD=90° 且 AC=AD 得到 D 的两个候选点。",
+              "handle": "fact:ii:D_candidates",
+              "valid_scope": "ii"
+            }
+          ],
+          "reads": [
+            "point:problem:A",
+            "fact:problem:A_coordinate_value",
+            "point:ii:C",
+            "fact:ii:C_coordinate",
+            "point:ii:D",
+            "fact:ii:right_angle_equal_length_CAD"
+          ],
+          "reason": "由直角等腰关系只列候选，不在这一步做曲线筛选。",
+          "recipe_hint": "right_angle_equal_length_candidates",
+          "step_id": "derive_ii_D_candidates",
+          "strategy": "把 C 绕 A 顺/逆时针旋转 90°，得到 D 的候选点。",
+          "target": "fact:ii:D_candidates"
+        },
+        {
+          "creates": [],
+          "goal_type": "derive_constructed_point",
+          "produces": [
+            {
+              "description": "第（Ⅱ）问点 D 的坐标",
+              "handle": "answer:ii_D",
+              "valid_scope": "ii"
+            }
+          ],
+          "reads": [
+            "fact:ii:D_candidates",
+            "fact:ii:parametric_parabola",
+            "point:ii:D",
+            "fact:ii:D_on_parabola",
+            "fact:problem:b_gt_0"
+          ],
+          "reason": "用 D 在当前含参抛物线上和 b>0 筛选候选，并反求参数。",
+          "recipe_hint": "curve_candidate_parameter_solve",
+          "step_id": "solve_ii_D_from_curve_candidate",
+          "strategy": "候选点已经由几何构造得到；本步只负责曲线筛选、反求 b，并得到 D 坐标。",
+          "target": "answer:ii_D"
+        }
+      ]
+    },
+    {
+      "label": "第（Ⅲ）问",
+      "scope_id": "iii",
+      "steps": [
+        {
+          "creates": [],
+          "goal_type": "derive_parabola",
+          "produces": [
+            {
+              "description": "第（Ⅲ）问含参数 b 的抛物线解析式 y=x² - b x -1 - b",
+              "handle": "fact:iii:parabola_expr",
+              "valid_scope": "iii"
+            }
+          ],
+          "reads": [
+            "function:problem:parabola",
+            "fact:iii:a_value",
+            "fact:iii:A_on_parabola",
+            "point:problem:A",
+            "symbol:problem:b"
+          ],
+          "reason": "（Ⅲ）先利用 A 点条件消去 c，得到只含 b 的抛物线，为后续步骤准备。",
+          "recipe_hint": "quadratic_from_constraints",
+          "step_id": "derive_parabola_iii",
+          "strategy": "已知 a=1，且 A(-1,0) 在抛物线上，得到 c 与 b 的关系，写出含参数 b 的抛物线解析式。",
+          "target": "fact:iii:parabola_expr"
+        },
+        {
+          "creates": [],
+          "goal_type": "derive_point_on_parabola_at_x",
+          "produces": [
+            {
+              "description": "第（Ⅲ）问 M 点坐标的表达式 (b+1/2, y_M)，其中 y_M 由抛物线给出",
+              "handle": "fact:iii:M_coordinate_expr",
+              "valid_scope": "iii"
+            }
+          ],
+          "reads": [
+            "fact:iii:parabola_expr",
+            "point:iii:M",
+            "symbol:problem:b"
+          ],
+          "reason": "（Ⅲ）M 点是后续加权路径的重要端点，先独立求出它的坐标表达式。",
+          "recipe_hint": "point_on_parabola_at_x",
+          "step_id": "derive_M_coordinate_iii",
+          "strategy": "M 点横坐标已知为 b+1/2，代入抛物线求出纵坐标，得到 M 点坐标的表达式。",
+          "target": "fact:iii:M_coordinate_expr"
+        },
+        {
+          "creates": [
+            {
+              "description": "辅助点，用于将 √2·MN 转化为一段线段",
+              "entity_type": "point",
+              "handle": "point:iii:Aux",
+              "valid_scope": "iii"
+            }
+          ],
+          "goal_type": "derive_weighted_path_minimum",
+          "produces": [
+            {
+              "description": "加权路径到普通折线路径的转化",
+              "handle": "fact:iii:weighted_path_transformation",
+              "valid_scope": "iii"
+            },
+            {
+              "description": "辅助点运动轨迹",
+              "handle": "fact:iii:auxiliary_locus",
+              "valid_scope": "iii"
+            },
+            {
+              "description": "辅助点坐标表达式",
+              "handle": "fact:iii:Aux_coordinate_expr",
+              "valid_scope": "iii"
+            }
+          ],
+          "reads": [
+            "point:problem:A",
+            "fact:problem:A_coordinate_value",
+            "point:iii:N",
+            "fact:iii:N_coordinate_expr",
+            "fact:iii:path_minimum_value_given",
+            "symbol:problem:n",
+            "fact:problem:n_gt_0"
+          ],
+          "reason": "（Ⅲ）先构造辅助直角三角形，把加权段转化为同倍率下的普通折线。",
+          "recipe_hint": "weighted_axis_path_triangle_transform",
+          "step_id": "transform_weighted_path_iii",
+          "strategy": "构造辅助点 Aux，使 AN 可替换为 sqrt(2)*AuxN，并输出 Aux 的运动轨迹。",
+          "target": "fact:iii:weighted_path_transformation"
+        },
+        {
+          "creates": [],
+          "goal_type": "derive_minimum_expression",
+          "produces": [
+            {
+              "description": "路径 √2·MN+AN 的最小值关于 b 的表达式",
+              "handle": "fact:iii:minimum_expression",
+              "valid_scope": "iii"
+            }
+          ],
+          "reads": [
+            "point:problem:A",
+            "point:iii:M",
+            "point:iii:N",
+            "point:iii:Aux",
+            "fact:iii:M_coordinate_expr",
+            "fact:iii:N_coordinate_expr",
+            "fact:iii:Aux_coordinate_expr",
+            "fact:iii:weighted_path_transformation",
+            "fact:iii:auxiliary_locus",
+            "fact:iii:path_minimum_value_given",
+            "fact:problem:b_gt_0",
+            "fact:problem:n_gt_0",
+            "symbol:problem:b",
+            "symbol:problem:n"
+          ],
+          "reason": "（Ⅲ）再用辅助点轨迹上的垂线距离求出最小值表达式。",
+          "recipe_hint": "linked_broken_path_minimum_expression",
+          "step_id": "derive_weighted_path_minimum_expression",
+          "strategy": "通过折线拉直，将最小值转化为 M 到 Aux 运动射线的垂线距离。",
+          "target": "fact:iii:minimum_expression"
+        },
+        {
+          "creates": [],
+          "goal_type": "derive_parameter",
+          "produces": [
+            {
+              "description": "第（Ⅲ）问 b 的值",
+              "handle": "answer:iii_b",
+              "valid_scope": "iii"
+            }
+          ],
+          "reads": [
+            "fact:iii:minimum_expression",
+            "fact:iii:path_minimum_value_given",
+            "fact:problem:b_gt_0"
+          ],
+          "reason": "（Ⅲ）利用给定的最值条件反求参数 b，得到最终答案。",
+          "recipe_hint": "parameter_from_expression_value",
+          "step_id": "solve_b_from_expression_value",
+          "strategy": "令已求得的最小值表达式等于已知最小值 21/4，解方程并在 b>0 范围内取解。",
+          "target": "answer:iii_b"
+        }
+      ]
+    }
+  ]
+}

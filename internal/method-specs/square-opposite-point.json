@@ -2,6 +2,7 @@
   "method_id": "square_opposite_point",
   "title": "构造对顶辅助点",
   "description": "由平行四边形/正方形对顶点关系构造辅助点。",
+  "summary": "输入: 正方形或直角等长结构中的相邻点与目标定义；输出: 对顶辅助点坐标。",
   "solves": [
     "derive_square_opposite_point"
   ],

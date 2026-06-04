@@ -47,6 +47,7 @@ class ParameterFromMinimumValueMethod:
 SPEC = MethodSpecSource(
     method_cls=ParameterFromMinimumValueMethod,
     title='由最小值反求参数',
+    summary='输入: 最小值表达式与给定最小值条件；输出: 参数值。',
     solves=('derive_parameter_from_minimum_value',),
     inputs={
     "minimum_expression": {

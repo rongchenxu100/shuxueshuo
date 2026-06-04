@@ -348,7 +348,10 @@ def _parameter_capability_from_reads(
         _reads_minimum_expression(step, handle_registry)
         and _reads_given_minimum_value(step, handle_registry)
     ):
-        return capabilities_by_id.get("parameter_from_minimum_value")
+        return (
+            capabilities_by_id.get("parameter_from_expression_value")
+            or capabilities_by_id.get("parameter_from_minimum_value")
+        )
     return None
 
 
@@ -420,7 +423,7 @@ def _capability_uses_read(
             or handle.startswith("point:")
             or "m_gt" in text
         )
-    if capability_id == "parameter_from_minimum_value":
+    if capability_id in {"parameter_from_minimum_value", "parameter_from_expression_value"}:
         return (
             _read_is_minimum_expression(handle, handle_registry)
             or _read_is_given_minimum_value(handle, handle_registry)
@@ -608,6 +611,10 @@ def _output_type_inference_from_text(handle: str, description: str) -> _OutputTy
         return _OutputTypeInference("Equation", "semantic_name")
     if _is_parameter_value_semantic_name(name):
         return _OutputTypeInference("ParameterValue", "semantic_name")
+    if any(value in name for value in ("candidate", "candidates", "候选")):
+        return _OutputTypeInference("PointList", "semantic_name")
+    if any(value in name for value in ("locus", "ray", "line")):
+        return _OutputTypeInference("Line", "semantic_name")
     if any(value in name for value in ("coord", "coordinate", "intersection", "axis_point", "point")):
         return _OutputTypeInference("Point", "semantic_name")
     if any(value in name for value in ("coefficient", "coefficients")):
@@ -624,6 +631,8 @@ def _output_type_inference_from_text(handle: str, description: str) -> _OutputTy
         return _OutputTypeInference("StraighteningCandidate", "description")
     if any(value in text for value in ("path", "equivalence", "reduction", "路径", "等价", "降维")):
         return _OutputTypeInference("PathTransformation", "description")
+    if any(value in text for value in ("locus", "ray", "line", "轨迹", "射线", "直线")):
+        return _OutputTypeInference("Line", "description")
     if any(value in name for value in ("coord", "coordinate", "intersection", "axis_point", "point")):
         return _OutputTypeInference("Point", "semantic_name")
     if any(value in text for value in ("坐标", "交点")):
@@ -688,17 +697,24 @@ def _maybe_correct_output_types_from_hint(
 
 _RECIPE_OUTPUT_TYPE_OVERRIDES: dict[str, tuple[str, ...]] = {
     "right_angle_equal_length_construct_and_select": ("Point",),
+    "curve_candidate_parameter_solve": ("Point", "ParameterValue", "Parabola"),
     "two_moving_points_path_reduction": ("PathTransformation",),
     "broken_path_straightening_and_select": ("StraighteningCandidate", "Point"),
     "path_minimum_by_straightened_distance": ("MinimumExpression",),
 }
 
 _FACT_TYPE_TO_OUTPUT_TYPE: dict[str, str] = {
+    "coefficients": "Coefficients",
+    "expression": "Expression",
+    "minimum_expression": "MinimumExpression",
+    "minimum_value_expression": "MinimumExpression",
+    "parabola": "Parabola",
     "point_coordinate": "Point",
     "symbol_value": "ParameterValue",
     "coefficient_relation": "Equation",
     "length_squared": "Condition",
     "minimum_value": "MinimumExpression",
+    "point_candidates": "PointList",
     "path_minimum_target": "Condition",
     "right_angle_equal_length": "Condition",
     "segment_membership": "Condition",
@@ -710,11 +726,12 @@ _FACT_TYPE_TO_OUTPUT_TYPE: dict[str, str] = {
 def _method_capability_summary(spec: Any) -> str:
     """生成给 LLM 看的 method 能力短句。
 
-    优先使用人工摘要，避免 ``quadratic_from_constraints`` 这类通用 method 把十几个
-    input slot 全塞进 prompt。没有人工摘要时再按类型集合生成短句。
+    优先使用 method Python ``SPEC.summary`` 中的人工摘要。这样 method 能力说明
+    和 method 实现待在同一个事实源里；没有人工摘要时再按类型集合生成短句。
     """
-    if spec.method_id in _METHOD_SUMMARY_OVERRIDES:
-        return _METHOD_SUMMARY_OVERRIDES[spec.method_id]
+    summary = str(getattr(spec, "summary", "") or "")
+    if summary:
+        return summary
     required_types = _unique_ordered(
         input_spec.type for input_spec in spec.inputs.values() if input_spec.required
     )
@@ -740,25 +757,3 @@ def _unique_ordered(values: Any) -> list[str]:
         seen.add(text)
         result.append(text)
     return result
-
-_METHOD_SUMMARY_OVERRIDES = {
-    "quadratic_axis_from_relation": "输入: 二次函数系数关系与目标点定义；输出: 对称轴与 x 轴交点。",
-    "quadratic_from_constraints": "输入: 二次函数表达式、已知系数、系数关系、曲线点或参数条件；输出: 系数与抛物线解析式。",
-    "right_angle_equal_length_candidates": "输入: 直角顶点、已知端点和未知端点定义；输出: 直角等腰旋转得到的候选点。",
-    "select_point_by_quadrant_constraint": "输入: 候选点、象限条件和参数范围；输出: 符合题设方位的点。",
-    "parameter_from_segment_length": "输入: 两点和线段长度条件；输出: 满足条件的参数值。",
-    "midpoint_point": "输入: 两端点和中点定义；输出: 中点坐标。",
-    "two_moving_points_path_reduction": "输入: 两动点所在关系与线段比例关系；输出: 把两动点线段替换为题面已有固定点到动点的等长线段；不创建辅助点或新轨迹。",
-    "broken_path_straightening_candidates": "输入: 折线路径两端点、运动线段和辅助点定义；输出: 可用于将军饮马/折线拉直的候选方案。",
-    "select_straightening_candidate": "输入: 折线拉直候选方案；输出: 最适合计算的方案和辅助点。",
-    "distance_between_points": "输入: 两点及可选参数值；输出: 两点距离或代入参数后的距离。",
-    "parameter_from_minimum_value": "输入: 最小值表达式与给定最小值条件；输出: 参数值。",
-    "line_intersection_point": "输入: 两条直线；输出: 交点坐标。",
-    "quadratic_vertex_point": "输入: 抛物线表达式；输出: 顶点坐标。",
-    "quadratic_y_axis_intercept_point": "输入: 抛物线表达式；输出: y 轴交点。",
-    "filter_point_candidates_by_quadratic_curve": "输入: 候选点与抛物线；输出: 在抛物线上的候选点列表。",
-    "select_curve_point_candidate_and_solve_coefficients": "输入: 候选点、抛物线约束和参数约束；输出: 被选中的曲线点、系数和抛物线。",
-    "point_on_parabola_at_x": "输入: 抛物线和横坐标；输出: 曲线上的点。",
-    "weighted_axis_path_triangle_transform": "输入: 加权路径、轴上动点和辅助点定义；输出: 几何转化后的等价路径与辅助点轨迹。",
-    "linked_broken_path_geometric_minimum": "输入: 已转化路径和辅助点轨迹；输出: 几何最小值与极值点。",
-}

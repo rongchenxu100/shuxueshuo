@@ -31,6 +31,7 @@ from shuxueshuo_server.solver.runtime.strategy_planner import (
     StepIntentDraft,
     StepIntentValidationReport,
     StepIntentCandidateResolver,
+    StepIntentNormalizer,
     StrategyPayloadBuilder,
     StrategyPromptRenderer,
     build_strategy_probe_inputs,
@@ -295,6 +296,12 @@ def _solve_nankai_from_step_intent_payload(step_intent_payload: dict):
                     handle_registry=handle_registry,
                     family_spec=inputs.family_spec,
                 )
+                draft, normalization_report = StepIntentNormalizer().normalize(
+                    draft,
+                    family_spec=inputs.family_spec,
+                    question_goals=inputs.question_goals,
+                    handle_registry=handle_registry,
+                )
                 resolution_report = StepIntentCandidateResolver().resolve(
                     draft,
                     family_spec=inputs.family_spec,
@@ -302,6 +309,7 @@ def _solve_nankai_from_step_intent_payload(step_intent_payload: dict):
                     handle_registry=handle_registry,
                 )
                 captured["draft"] = draft
+                captured["normalization_report"] = normalization_report
                 captured["resolution_report"] = resolution_report
                 _assert_strategy_attempt_can_gate_runtime(resolution_report)
                 planner_output = RecipeTrialExecutor().compile(
@@ -571,6 +579,17 @@ def _dedupe(items: list[str]) -> list[str]:
     return result
 
 
+def _reset_debug_dir(path: Path) -> None:
+    """真实 LLM 测试开始前清空 debug 目录，确保 artifacts 只属于本次运行。"""
+    if path.exists():
+        for child in path.iterdir():
+            if child.is_dir():
+                shutil.rmtree(child)
+            else:
+                child.unlink()
+    path.mkdir(parents=True, exist_ok=True)
+
+
 @pytest.mark.skipif(
     not RUN_DEEPSEEK_STRATEGY_PLANNER,
     reason="set RUN_LLM_INTEGRATION=1 RUN_DEEPSEEK_STRATEGY_PLANNER=1 to call DeepSeek",
@@ -595,9 +614,7 @@ def test_deepseek_strategy_planner_outputs_valid_step_intents_and_solves_nankai(
         or config.llm_debug_dir
         or DEFAULT_DEBUG_DIR
     )
-    for old_attempt_dir in debug_dir.glob("attempt-*"):
-        if old_attempt_dir.is_dir():
-            shutil.rmtree(old_attempt_dir)
+    _reset_debug_dir(debug_dir)
 
     previous_attempts: list[dict[str, object]] = []
     attempt_summaries: list[dict[str, object]] = []
@@ -606,6 +623,7 @@ def test_deepseek_strategy_planner_outputs_valid_step_intents_and_solves_nankai(
     final_raw = ""
     final_draft: StepIntentDraft | None = None
     final_report: StepIntentValidationReport | None = None
+    final_normalization_report = None
     final_resolution_report = None
     final_metadata: dict[str, object] | None = None
     final_failures: list[str] = []
@@ -634,6 +652,14 @@ def test_deepseek_strategy_planner_outputs_valid_step_intents_and_solves_nankai(
             handle_registry=handle_registry,
             family_spec=inputs.family_spec,
         )
+        normalization_report = None
+        if draft is not None:
+            draft, normalization_report = StepIntentNormalizer().normalize(
+                draft,
+                family_spec=inputs.family_spec,
+                question_goals=inputs.question_goals,
+                handle_registry=handle_registry,
+            )
         resolution_report = (
             StepIntentCandidateResolver().resolve(
                 draft,
@@ -671,6 +697,7 @@ def test_deepseek_strategy_planner_outputs_valid_step_intents_and_solves_nankai(
             raw_response=raw,
             draft=draft,
             report=report,
+            normalization_report=normalization_report,
             resolution_report=resolution_report,
             llm_metadata=metadata,
         )
@@ -702,6 +729,7 @@ def test_deepseek_strategy_planner_outputs_valid_step_intents_and_solves_nankai(
         final_raw = raw
         final_draft = draft
         final_report = report
+        final_normalization_report = normalization_report
         final_resolution_report = resolution_report
         final_metadata = metadata
         final_failures = failures
@@ -740,6 +768,7 @@ def test_deepseek_strategy_planner_outputs_valid_step_intents_and_solves_nankai(
         raw_response=final_raw,
         draft=final_draft,
         report=final_report,
+        normalization_report=final_normalization_report,
         resolution_report=final_resolution_report,
         llm_metadata={
             **final_metadata,

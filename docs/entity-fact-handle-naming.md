@@ -119,6 +119,33 @@ symbol:problem:a
 
 `introduced_scope` 表示对象第一次出现或被构造的 scope，不表示它只能在该 scope 使用。可见性由 RuntimeContext 的 scope 规则和 Fact 的 `valid_scope` 决定。
 
+### Symbol Role
+
+符号类 Entity 需要显式声明角色，避免 compiler 通过字母名猜测。二次函数题里 `a/b/c` 常常是系数、`x` 常常是自变量，但这只是当前题型约定，不应成为通用代码里的硬编码规则。
+
+推荐在 ProblemIR 的 symbol metadata 中保存：
+
+```json
+{
+  "handle": "symbol:problem:b",
+  "entity_type": "symbol",
+  "scope_id": "problem",
+  "roles": ["quadratic_coefficient", "primary_parameter"],
+  "description": "第（Ⅲ）问要求解的二次函数系数 b"
+}
+```
+
+常见 role：
+
+| Role | 含义 |
+| --- | --- |
+| `function_variable` | 函数自变量，例如 `x` |
+| `quadratic_coefficient` | 二次函数系数，例如 `a/b/c` 或其他命名的系数 |
+| `primary_parameter` | 当前题问需要反求或输出的主参数 |
+| `dynamic_parameter` / `moving_point_parameter` | 动点轨迹参数，例如 `N(n,0)` 中的 `n` |
+
+同一个符号可以有多个 role。例如河西第（Ⅲ）问中 `b` 既是二次函数系数，也是题目最终要求解的主参数；`n` 是动点参数。Method binding 层应读取这些 role，而不是用“排除 `x/a/b/c` 后剩下的字母”来推断。
+
 ### Fact Handle
 
 Fact handle 使用：

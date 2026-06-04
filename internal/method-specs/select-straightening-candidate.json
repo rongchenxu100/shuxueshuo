@@ -2,6 +2,7 @@
   "method_id": "select_straightening_candidate",
   "title": "折线拉直候选选择",
   "description": "从折线拉直候选中选择更适合后续计算的一种。",
+  "summary": "输入: 折线拉直候选方案；输出: 最适合计算的方案和辅助点。",
   "solves": [
     "select_broken_path_straightening_candidate"
   ],

@@ -49,6 +49,7 @@ class ParameterFromSegmentLengthMethod:
 SPEC = MethodSpecSource(
     method_cls=ParameterFromSegmentLengthMethod,
     title='由线段长度求参数',
+    summary='输入: 两点和线段长度条件；输出: 满足条件的参数值。',
     solves=('derive_parameter_from_segment_length',),
     inputs={
     "p1": {
