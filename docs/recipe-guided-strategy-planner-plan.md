@@ -52,7 +52,7 @@
   - Prompt 明确：LLM 输出的 `StepIntent.recipe_hint` 选择优先级为 `recipe_catalog[].recipe_id -> method_catalog[].method_id -> null`。
   - Prompt 明确：如果某个 method 出现在 recipe 的 `method_ids` 中，且当前 step 想完成的是完整解题动作，优先选择对应 `recipe_id`，不要只选择 recipe 内部的某个 method_id。
   - 如果 `recipe_hint` 命中 recipe，后续 resolver 优先按 recipe 展开；如果命中 method，按 single method 尝试；如果为空或未知，记录为能力缺口候选并按 `goal_type / reads / produces / strategy` 搜索。
-  - 保留当前 `.llm.json` 作为题目事实源；不恢复 `visible_paths / planning_signals / ContextPath`。
+  - 使用 canonical ProblemIR projection 作为题目事实源；不恢复 `visible_paths / planning_signals / ContextPath`。
   - 不增加“答案泄露强校验”；只在 debug report 中可选记录 `strategy/description` 是否包含 value-like 文本。
 
 - Few-shot 改成 recipe 级示例：

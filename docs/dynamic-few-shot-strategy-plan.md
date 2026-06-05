@@ -50,7 +50,7 @@ V1 的 retrieval 只包含 `goal_types`，该字段由同步工具从 `example.s
   - Strategy prompt 只读取 `internal/few-shots/` 中已生成、已验证的条目；不要直接扫描 `internal/solver-fixtures/` 作为长期方案。
 
 - **Few-shot 来源**
-  - 首版生成来源只使用已验证的 `.llm.json + .executable-step-intents.json`。
+  - 首版生成来源只使用 canonical ProblemIR projection + 已验证的 `.executable-step-intents.json`。
   - 不使用网页讲解步骤、`expected-step-intents.json` 或未验证 DeepSeek 日志。
   - `example.scopes` 原样复制 executable StepIntent 中的 scope 分组；每个 scope 内的 `steps` 原样复制。
   - `retrieval.goal_types` 由同步工具从 `example.scopes[].steps[].goal_type` 去重生成，不手写维护。

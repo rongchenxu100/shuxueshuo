@@ -570,6 +570,19 @@
           "right": "sqrt(2)*NG"
         },
         {
+          "handle": "fact:ii:F_midpoint_of_DN",
+          "type": "midpoint_definition",
+          "scope_id": "ii",
+          "valid_scope": "ii",
+          "source": "ProblemIR.data.entities.points",
+          "description": "F 是 DN 的中点",
+          "point": "point:ii:F",
+          "of": [
+            "point:problem:D",
+            "point:ii:N"
+          ]
+        },
+        {
           "handle": "fact:ii:path_minimum_target",
           "type": "path_minimum_target",
           "scope_id": "ii",

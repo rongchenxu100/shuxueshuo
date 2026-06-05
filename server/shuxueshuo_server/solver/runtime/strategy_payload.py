@@ -21,6 +21,7 @@ from shuxueshuo_server.solver.runtime.context import ContextBuilder
 from shuxueshuo_server.solver.runtime.context_inventory import ContextInventory
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.planner import PlannerInputs
+from shuxueshuo_server.solver.runtime.projection import problem_to_llm_payload
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
 from shuxueshuo_server.solver.runtime.strategy_few_shots import (
     query_goal_types_from_problem,
@@ -52,18 +53,29 @@ class StrategyPayloadBuilder:
         few_shot_examples: list[dict[str, Any]] | None = None,
         few_shot_dir: Path | str | None = None,
         allow_same_problem_few_shot: bool = True,
+        problem_payload: dict[str, Any] | None = None,
     ) -> None:
         self.few_shot_examples = few_shot_examples
         self.few_shot_dir = Path(few_shot_dir) if few_shot_dir is not None else None
         self.allow_same_problem_few_shot = allow_same_problem_few_shot
+        self.problem_payload = problem_payload
 
     def build(
         self,
         inputs: PlannerInputs,
         *,
-        problem_payload: dict[str, Any],
+        problem_payload: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """生成 prompt payload；每个顶层字段都对应一个可独立 fake 的来源。"""
+        problem_payload = problem_payload or self.problem_payload
+        if problem_payload is None:
+            if inputs.problem is not None:
+                problem_payload = problem_to_llm_payload(inputs.problem)
+            else:
+                raise ValueError(
+                    "StrategyPayloadBuilder requires canonical problem payload; "
+                    "StrategyPlanner should provide it via RuntimeProjection"
+                )
         method_ids = inputs.family_spec.method_ids or tuple(
             sorted(inputs.method_specs.specs)
         )
@@ -139,9 +151,9 @@ def build_strategy_probe_inputs(
 ) -> PlannerInputs:
     """构建 Phase 1 DeepSeek probe 所需的 PlannerInputs。
 
-    Strategy prompt 已经只消费 ``*.llm.json`` 作为题目事实源，因此这里不再构建
-    ``ContextInventory`` 的 visible paths / planning signals；保留空 inventory 只是
-    为了复用 ``PlannerInputs`` 这个输入包。
+    Strategy prompt 消费 canonical ProblemIR 投影后的 LLM payload，因此这里不再
+    构建 ``ContextInventory`` 的 visible paths / planning signals；保留空 inventory
+    只是为了复用 ``PlannerInputs`` 这个输入包。
     """
     family = family_registry.match(problem)
     if family is None:
@@ -156,6 +168,7 @@ def build_strategy_probe_inputs(
         question_goals=question_goals,
         context_inventory=ContextInventory(),
         method_specs=specs,
+        problem=problem,
         original_text=dict(problem.original_text),
         previous_errors=[],
     )

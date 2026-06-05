@@ -551,6 +551,16 @@
           "description": "sqrt(2)*MN+AN 的最小值目标",
           "path": "sqrt(2)*MN+AN",
           "value": "21/4"
+        },
+        {
+          "handle": "fact:iii:path_minimum_value_given",
+          "type": "minimum_value",
+          "scope_id": "iii",
+          "valid_scope": "iii",
+          "source": "ProblemIR.data.questions.iii.conditions",
+          "description": "sqrt(2)*MN+AN 的最小值为 21/4",
+          "path": "sqrt(2)*MN+AN",
+          "value": "21/4"
         }
       ]
     }

@@ -17,7 +17,7 @@ from dataclasses import dataclass, field
 from typing import Protocol, runtime_checkable
 
 from shuxueshuo_server.solver.family.models import SolverFamilySpec
-from shuxueshuo_server.solver.problem_models import QuestionGoal
+from shuxueshuo_server.solver.problem_models import ProblemIR, QuestionGoal
 from shuxueshuo_server.solver.runtime.context import RuntimeContext
 from shuxueshuo_server.solver.runtime.context_inventory import (
     ContextInventory,
@@ -39,7 +39,8 @@ class PlannerInputs:
 
     ``question_goals`` 是题面最终作答目标；``context_inventory.planning_signals``
     是确定性上下文索引。``original_text`` 是题面原文，LLM Planner 用它理解小问
-    语义；结构化索引只负责绑定和校验。Planner 根据它们生成 StepGoal/StepPlan。
+    语义；``problem`` 是可选 canonical ProblemIR，供 Strategy Planner 投影 LLM
+    payload 使用。Planner 根据它们生成 StepGoal/StepPlan。
     """
 
     problem_id: str
@@ -47,6 +48,7 @@ class PlannerInputs:
     question_goals: list[QuestionGoal]
     context_inventory: ContextInventory
     method_specs: MethodSpecRegistry
+    problem: ProblemIR | None = None
     original_text: dict[str, object] = field(default_factory=dict)
     previous_errors: list[object] = field(default_factory=list)
 

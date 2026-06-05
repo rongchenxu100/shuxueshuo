@@ -64,15 +64,15 @@ class OpenAICompatiblePlannerClient:
         """在构造阶段做配置校验，CLI 可以尽早给出可读错误。"""
         if not self.api_key:
             raise LLMClientConfigurationError(
-                f"--planner llm requires {self.provider_name.upper()}_API_KEY"
+                f"LLM provider requires {self.provider_name.upper()}_API_KEY"
             )
         if not self.base_url:
             raise LLMClientConfigurationError(
-                f"--planner llm requires {self.provider_name.upper()}_BASE_URL"
+                f"LLM provider requires {self.provider_name.upper()}_BASE_URL"
             )
         if not self.model:
             raise LLMClientConfigurationError(
-                f"--planner llm requires {self.provider_name.upper()}_MODEL"
+                f"LLM provider requires {self.provider_name.upper()}_MODEL"
             )
         self._client = self.client_factory(api_key=self.api_key, base_url=self.base_url)
 

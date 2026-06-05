@@ -22,7 +22,7 @@ RUN_LLM_INTEGRATION = os.getenv("RUN_LLM_INTEGRATION") == "1"
 def _provider_config(provider: str) -> SolverRuntimeConfig:
     """读取 server/.env 中对应 provider 的真实配置。"""
     config = SolverRuntimeConfig.from_sources(
-        planner_mode="llm",
+        planner_mode="strategy",
         llm_provider=provider,
     )
     if provider == "deepseek" and not config.deepseek_api_key:

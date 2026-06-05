@@ -62,6 +62,10 @@ from shuxueshuo_server.solver.runtime.planner import (
     PlannerInputs,
     RuleBasedStepPlannerV15,
 )
+from shuxueshuo_server.solver.runtime.projection import (
+    RuntimeProjection,
+    problem_to_llm_payload,
+)
 from shuxueshuo_server.solver.runtime.quadratic_path_planner import (
     QuadraticPathMinimumPlannerV15,
 )
@@ -94,10 +98,13 @@ from shuxueshuo_server.solver.runtime.strategy_planner import (
     StepIntentValidationReport,
     StepIntentValidator,
     StrategyDraftValidationError,
+    StrategyPlanner,
+    StrategyPlannerArtifacts,
     StrategyPayloadBuilder,
     StrategyPrompt,
     StrategyPromptRenderer,
     build_strategy_probe_inputs,
+    strategy_planner_provider,
     write_strategy_debug_artifacts,
 )
 from shuxueshuo_server.solver.runtime.orchestrator import (
@@ -144,6 +151,7 @@ __all__ = [
     "ResultBuilder",
     "ResultBuilderError",
     "RuntimeOrchestrator",
+    "RuntimeProjection",
     "RuleBasedStepPlannerV15",
     "RuntimeContext",
     "RuntimeScope",
@@ -166,6 +174,8 @@ __all__ = [
     "SolveAttemptRecord",
     "SolveSession",
     "StrategyDraftValidationError",
+    "StrategyPlanner",
+    "StrategyPlannerArtifacts",
     "StrategyPayloadBuilder",
     "StrategyPrompt",
     "StrategyPromptRenderer",
@@ -174,5 +184,7 @@ __all__ = [
     "VisibleContextPath",
     "build_strategy_probe_inputs",
     "default_stateless_registry",
+    "problem_to_llm_payload",
+    "strategy_planner_provider",
     "write_strategy_debug_artifacts",
 ]

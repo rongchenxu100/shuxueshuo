@@ -5,6 +5,7 @@ from pathlib import Path
 from copy import deepcopy
 
 from shuxueshuo_server.solver.fixtures import load_problem_ir
+from shuxueshuo_server.solver.runtime.projection import problem_to_llm_payload
 from shuxueshuo_server.solver.runtime.strategy_few_shots import (
     build_few_shot_entry,
     goal_types_from_scopes,
@@ -24,7 +25,7 @@ from shuxueshuo_server.solver.runtime.strategy_payload import (
 
 def test_build_few_shot_entry_preserves_executable_scopes() -> None:
     """few-shot 应原样投射 executable StepIntent 的 scope 分组和 step 字段。"""
-    problem_payload = _json_fixture("tj-2026-nankai-yimo-25.llm.json")
+    problem_payload = _problem_payload("tj-2026-nankai-yimo-25")
     executable_payload = _json_fixture("tj-2026-nankai-yimo-25.executable-step-intents.json")
 
     entry = build_few_shot_entry(
@@ -59,7 +60,7 @@ def test_build_few_shot_entry_preserves_executable_scopes() -> None:
 def test_few_shot_selector_uses_family_goal_overlap_and_top_one(tmp_path: Path) -> None:
     """selector 首版只返回同 family 中 goal_type 重叠最高的一个条目。"""
     nankai = build_few_shot_entry(
-        problem_payload=_json_fixture("tj-2026-nankai-yimo-25.llm.json"),
+        problem_payload=_problem_payload("tj-2026-nankai-yimo-25"),
         executable_step_intents=_json_fixture("tj-2026-nankai-yimo-25.executable-step-intents.json"),
         family_id="QuadraticPathMinimumSolver",
     )
@@ -94,7 +95,7 @@ def test_few_shot_selector_uses_family_goal_overlap_and_top_one(tmp_path: Path) 
 def test_few_shot_selector_can_exclude_same_problem(tmp_path: Path) -> None:
     """测试链路可排除当前题，生产链路默认不排除。"""
     nankai = build_few_shot_entry(
-        problem_payload=_json_fixture("tj-2026-nankai-yimo-25.llm.json"),
+        problem_payload=_problem_payload("tj-2026-nankai-yimo-25"),
         executable_step_intents=_json_fixture("tj-2026-nankai-yimo-25.executable-step-intents.json"),
         family_id="QuadraticPathMinimumSolver",
     )
@@ -122,7 +123,7 @@ def test_few_shot_selector_can_exclude_same_problem(tmp_path: Path) -> None:
 def test_strategy_payload_builder_uses_dynamic_few_shot_selector(tmp_path: Path) -> None:
     """未显式注入 few-shot 时，payload builder 应读取 selector 结果。"""
     entry = build_few_shot_entry(
-        problem_payload=_json_fixture("tj-2026-nankai-yimo-25.llm.json"),
+        problem_payload=_problem_payload("tj-2026-nankai-yimo-25"),
         executable_step_intents=_json_fixture("tj-2026-nankai-yimo-25.executable-step-intents.json"),
         family_id="QuadraticPathMinimumSolver",
     )
@@ -130,14 +131,14 @@ def test_strategy_payload_builder_uses_dynamic_few_shot_selector(tmp_path: Path)
 
     payload = StrategyPayloadBuilder(few_shot_dir=tmp_path).build(
         _nankai_inputs(),
-        problem_payload=_json_fixture("tj-2026-nankai-yimo-25.llm.json"),
+        problem_payload=_problem_payload("tj-2026-nankai-yimo-25"),
     )
     explicit = StrategyPayloadBuilder(
         few_shot_examples=[{"family_id": "fake", "scopes": []}],
         few_shot_dir=tmp_path,
     ).build(
         _nankai_inputs(),
-        problem_payload=_json_fixture("tj-2026-nankai-yimo-25.llm.json"),
+        problem_payload=_problem_payload("tj-2026-nankai-yimo-25"),
     )
 
     assert payload["few_shot_examples"][0]["problem_id"] == "tj-2026-nankai-yimo-25"
@@ -148,10 +149,10 @@ def test_strategy_payload_builder_uses_dynamic_few_shot_selector(tmp_path: Path)
 def test_query_goal_types_are_derived_from_current_problem_goals() -> None:
     """few-shot 检索应使用当前题目标，而不是 family common_goal_types。"""
     nankai_goals = query_goal_types_from_problem(
-        problem_payload=_json_fixture("tj-2026-nankai-yimo-25.llm.json")
+        problem_payload=_problem_payload("tj-2026-nankai-yimo-25")
     )
     hexi_goals = query_goal_types_from_problem(
-        problem_payload=_json_fixture("tj-2026-hexi-yimo-25.llm.json")
+        problem_payload=_problem_payload("tj-2026-hexi-yimo-25")
     )
 
     assert nankai_goals == [
@@ -172,7 +173,7 @@ def test_query_goal_types_are_derived_from_current_problem_goals() -> None:
 def test_payload_selector_ranks_by_current_problem_goal_types(tmp_path: Path) -> None:
     """payload selector 不应退回 family common_goal_types 做检索。"""
     base = build_few_shot_entry(
-        problem_payload=_json_fixture("tj-2026-nankai-yimo-25.llm.json"),
+        problem_payload=_problem_payload("tj-2026-nankai-yimo-25"),
         executable_step_intents=_json_fixture("tj-2026-nankai-yimo-25.executable-step-intents.json"),
         family_id="QuadraticPathMinimumSolver",
     )
@@ -218,7 +219,7 @@ def test_payload_selector_ranks_by_current_problem_goal_types(tmp_path: Path) ->
         allow_same_problem_few_shot=False,
     ).build(
         _nankai_inputs(),
-        problem_payload=_json_fixture("tj-2026-nankai-yimo-25.llm.json"),
+        problem_payload=_problem_payload("tj-2026-nankai-yimo-25"),
     )
 
     assert payload["few_shot_examples"][0]["problem_id"] == "current-goal-match"
@@ -228,7 +229,7 @@ def test_strategy_payload_builder_falls_back_to_virtual_few_shot(tmp_path: Path)
     """没有同 family 条目时，保留现有虚构 few-shot 兜底。"""
     payload = StrategyPayloadBuilder(few_shot_dir=tmp_path).build(
         _nankai_inputs(),
-        problem_payload=_json_fixture("tj-2026-nankai-yimo-25.llm.json"),
+        problem_payload=_problem_payload("tj-2026-nankai-yimo-25"),
     )
 
     assert payload["few_shot_examples"][0]["note"].startswith("这是虚构简化场景")
@@ -237,14 +238,14 @@ def test_strategy_payload_builder_falls_back_to_virtual_few_shot(tmp_path: Path)
 def test_prompt_distinguishes_current_problem_and_few_shot_example(tmp_path: Path) -> None:
     """prompt 必须明确区分当前题和示例题，避免示例原文被当成当前条件。"""
     entry = build_few_shot_entry(
-        problem_payload=_json_fixture("tj-2026-nankai-yimo-25.llm.json"),
+        problem_payload=_problem_payload("tj-2026-nankai-yimo-25"),
         executable_step_intents=_json_fixture("tj-2026-nankai-yimo-25.executable-step-intents.json"),
         family_id="QuadraticPathMinimumSolver",
     )
     write_few_shot_entry(entry, tmp_path / "tj-2026-nankai-yimo-25.few-shot.json")
     payload = StrategyPayloadBuilder(few_shot_dir=tmp_path).build(
         _nankai_inputs(),
-        problem_payload=_json_fixture("tj-2026-nankai-yimo-25.llm.json"),
+        problem_payload=_problem_payload("tj-2026-nankai-yimo-25"),
     )
 
     prompt = StrategyPromptRenderer().render(payload)
@@ -281,3 +282,15 @@ def _nankai_inputs():
 def _json_fixture(name: str) -> dict:
     """读取 solver fixture JSON object。"""
     return json.loads((repo_root(Path(__file__)) / "internal" / "solver-fixtures" / name).read_text(encoding="utf-8"))
+
+
+def _problem_payload(problem_id: str) -> dict:
+    """从 canonical ProblemIR 投影 few-shot 使用的 LLM payload。"""
+    return problem_to_llm_payload(
+        load_problem_ir(
+            repo_root(Path(__file__))
+            / "internal"
+            / "solver-fixtures"
+            / f"{problem_id}.json"
+        )
+    )

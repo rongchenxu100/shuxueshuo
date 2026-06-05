@@ -2,6 +2,7 @@ import sympy as sp
 
 from shuxueshuo_server.solver import load_expected_answers, load_problem_ir, solve_problem
 from shuxueshuo_server.solver.family import QUADRATIC_PATH_MINIMUM_FAMILY
+from shuxueshuo_server.solver.runtime.config import SolverRuntimeConfig
 from shuxueshuo_server.solver.runtime.orchestrator import RuntimeOrchestrator
 from shuxueshuo_server.solver.runtime.quadratic_path_planner import (
     QuadraticPathMinimumPlannerV15,
@@ -46,7 +47,10 @@ HEXI_METHODS_USED = [
 def test_runtime_orchestrator_solves_nankai_25_with_v15_runtime() -> None:
     problem = load_problem_ir(FIXTURE)
     expected = load_expected_answers(EXPECTED)
-    result = solve_problem(problem)
+    result = solve_problem(
+        problem,
+        runtime_config=SolverRuntimeConfig(planner_mode="deterministic"),
+    )
 
     assert problem.expected_answers == {}
     assert result.status == "ok"
@@ -83,7 +87,10 @@ def test_runtime_orchestrator_solves_nankai_25_with_v15_runtime() -> None:
 def test_runtime_orchestrator_solves_hexi_25_with_weighted_runtime() -> None:
     problem = load_problem_ir(HEXI_FIXTURE)
     expected = load_expected_answers(HEXI_EXPECTED)
-    result = solve_problem(problem)
+    result = solve_problem(
+        problem,
+        runtime_config=SolverRuntimeConfig(planner_mode="deterministic"),
+    )
 
     assert problem.expected_answers == {}
     assert result.status == "ok"
@@ -123,7 +130,10 @@ def test_runtime_orchestrator_fails_when_planner_provider_is_missing() -> None:
     """family 命中但没有 planner provider 时，应返回可读失败原因。"""
     problem = load_problem_ir(FIXTURE)
 
-    result = RuntimeOrchestrator(planner_providers={}).solve(problem)
+    result = RuntimeOrchestrator(
+        planner_providers={},
+        default_planner_provider=None,
+    ).solve(problem)
 
     assert result.status == "failed"
     assert result.solver_family == "QuadraticPathMinimumSolver"

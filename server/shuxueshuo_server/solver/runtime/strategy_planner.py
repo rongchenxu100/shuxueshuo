@@ -48,6 +48,11 @@ from shuxueshuo_server.solver.runtime.strategy_resolver import (
     StepIntentCandidateResolver,
     build_executable_capabilities,
 )
+from shuxueshuo_server.solver.runtime.strategy_runtime_planner import (
+    StrategyPlanner,
+    StrategyPlannerArtifacts,
+    strategy_planner_provider,
+)
 from shuxueshuo_server.solver.runtime.strategy_validator import (
     StepIntentValidator,
 )
@@ -77,10 +82,13 @@ __all__ = [
     "StepIntentValidationReport",
     "StepIntentValidator",
     "StrategyDraftValidationError",
+    "StrategyPlanner",
+    "StrategyPlannerArtifacts",
     "StrategyPayloadBuilder",
     "StrategyPrompt",
     "StrategyPromptRenderer",
     "MethodBindingRuleRegistry",
     "build_strategy_probe_inputs",
+    "strategy_planner_provider",
     "write_strategy_debug_artifacts",
 ]

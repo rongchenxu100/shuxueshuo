@@ -4,7 +4,7 @@
 用法：
     python tools/sync_strategy_few_shots.py tj-2026-nankai-yimo-25
 
-工具从 ``internal/solver-fixtures`` 读取同名 runtime fixture、``.llm.json`` 和
+工具从 ``internal/solver-fixtures`` 读取同名 canonical ProblemIR fixture 和
 ``.executable-step-intents.json``，生成 ``internal/few-shots/<problem_id>.few-shot.json``。
 """
 
@@ -28,6 +28,9 @@ from shuxueshuo_server.solver.runtime.strategy_few_shots import (  # noqa: E402
     build_few_shot_entry,
     few_shot_path_for_problem,
     write_few_shot_entry,
+)
+from shuxueshuo_server.solver.runtime.projection import (  # noqa: E402
+    problem_to_llm_payload,
 )
 
 
@@ -62,9 +65,8 @@ def main(argv: list[str] | None = None) -> int:
 def sync_one(problem_id: str, *, fixtures_dir: Path, output_dir: Path) -> Path:
     """同步单个 problem_id，并返回输出路径。"""
     runtime_fixture = fixtures_dir / f"{problem_id}.json"
-    llm_fixture = fixtures_dir / f"{problem_id}.llm.json"
     executable_fixture = fixtures_dir / f"{problem_id}.executable-step-intents.json"
-    for path in (runtime_fixture, llm_fixture, executable_fixture):
+    for path in (runtime_fixture, executable_fixture):
         if not path.exists():
             raise FileNotFoundError(path)
 
@@ -75,9 +77,7 @@ def sync_one(problem_id: str, *, fixtures_dir: Path, output_dir: Path) -> Path:
     if family is None:
         raise ValueError(f"no family matched for {problem_id}")
 
-    problem_payload = _read_json(llm_fixture)
-    if problem_payload.get("problem_id") != problem_id:
-        raise ValueError(f"llm fixture problem_id mismatch: {problem_payload.get('problem_id')}")
+    problem_payload = problem_to_llm_payload(problem)
     executable_payload = _read_json(executable_fixture)
     entry = build_few_shot_entry(
         problem_payload=problem_payload,

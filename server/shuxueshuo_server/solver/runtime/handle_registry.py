@@ -65,7 +65,7 @@ class CanonicalHandleRegistry:
 
     @classmethod
     def from_problem_payload(cls, payload: dict[str, Any]) -> "CanonicalHandleRegistry":
-        """从 ``*.llm.json`` 构建 registry，并同步校验输入边界。"""
+        """从 projection 生成的 LLM Problem payload 构建 registry。"""
         _validate_llm_problem_payload_shape(payload)
         scope_ids, scope_parents = _scope_ids_from_payload(payload)
         entity_handles, entity_valid_scopes = _entity_handles_from_payload(payload, scope_ids)

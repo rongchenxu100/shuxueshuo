@@ -18,6 +18,7 @@ from shuxueshuo_server.solver.problem_models import ProblemIR, QuestionGoal
 from shuxueshuo_server.solver.question_goals import extract_question_goals
 from shuxueshuo_server.solver.runtime.context import ContextBuilder
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
+from shuxueshuo_server.solver.runtime.projection import problem_to_llm_payload
 from shuxueshuo_server.solver.runtime.strategy_planner import (
     CanonicalHandleRegistry,
     CanonicalRuntimeBindingIndex,
@@ -56,7 +57,6 @@ from shuxueshuo_server.solver.runtime.strategy_models import StepIntentScope
 
 
 NANKAI_FIXTURE = "../internal/solver-fixtures/tj-2026-nankai-yimo-25.json"
-NANKAI_LLM_FIXTURE = "../internal/solver-fixtures/tj-2026-nankai-yimo-25.llm.json"
 LLM_SCHEMA = "../internal/schemas/solver-llm-problem-ir.schema.json"
 NANKAI_EXECUTABLE_STEP_INTENTS = (
     Path(__file__).resolve().parents[3]
@@ -65,13 +65,6 @@ NANKAI_EXECUTABLE_STEP_INTENTS = (
     / "tj-2026-nankai-yimo-25.executable-step-intents.json"
 )
 HEXI_FIXTURE = "../internal/solver-fixtures/tj-2026-hexi-yimo-25.json"
-HEXI_LLM_FIXTURE = (
-    Path(__file__).resolve().parents[3]
-    / "internal"
-    / "solver-fixtures"
-    / "tj-2026-hexi-yimo-25.llm.json"
-)
-
 
 def _nankai_problem():
     """加载南开 25 runtime ProblemIR。"""
@@ -84,9 +77,8 @@ def _repo_root() -> Path:
 
 
 def _nankai_llm_problem() -> dict:
-    """加载给 LLM prompt 使用的精简南开题目 IR。"""
-    path = _repo_root() / "internal" / "solver-fixtures" / "tj-2026-nankai-yimo-25.llm.json"
-    return json.loads(path.read_text(encoding="utf-8"))
+    """从 canonical ProblemIR 投影给 LLM prompt 使用的南开题目 IR。"""
+    return problem_to_llm_payload(_nankai_problem())
 
 
 def _registry() -> CanonicalHandleRegistry:
@@ -118,8 +110,8 @@ def _nankai_payload() -> dict:
 
 
 def _hexi_llm_problem() -> dict:
-    """加载给 LLM prompt 使用的精简河西题目 IR。"""
-    return json.loads(HEXI_LLM_FIXTURE.read_text(encoding="utf-8"))
+    """从 canonical ProblemIR 投影给 LLM prompt 使用的河西题目 IR。"""
+    return problem_to_llm_payload(load_problem_ir(HEXI_FIXTURE))
 
 
 def _create(
@@ -917,16 +909,23 @@ def test_strategy_payload_builder_uses_problem_ir_without_expected_answers() -> 
     assert '"points"' not in serialized
 
 
-def test_strategy_payload_builder_requires_llm_problem_ir() -> None:
-    """.llm.json 是 Strategy prompt 的唯一题目事实源，不再回退旧 solver fixture。"""
-    with pytest.raises(TypeError):
-        StrategyPayloadBuilder().build(_nankai_inputs())  # type: ignore[call-arg]
+def test_strategy_payload_builder_projects_canonical_problem_ir() -> None:
+    """不传外部 LLM payload 时，builder 可从 canonical ProblemIR 投影。"""
+    payload = StrategyPayloadBuilder(
+        few_shot_examples=[{"family_id": "fake", "steps": []}]
+    ).build(_nankai_inputs())
+
+    assert payload["problem_ir"] == _nankai_llm_problem()
+    assert payload["problem_ir"]["problem_id"] == "tj-2026-nankai-yimo-25"
 
 
 def test_strategy_probe_inputs_uses_empty_context_inventory() -> None:
     """Strategy probe 不再构建 visible paths / planning signals。"""
     inputs = _nankai_inputs()
 
+    assert inputs.problem is not None
+    assert inputs.problem.problem_id == "tj-2026-nankai-yimo-25"
+    assert "_problem_ir" not in inputs.original_text
     assert inputs.context_inventory.visible_paths == ()
     assert inputs.context_inventory.planning_signals == ()
 

@@ -18,8 +18,10 @@ def solve_problem(
     return RuntimeOrchestrator(
         family_registry=runtime_config.build_family_registry(),
         planner_providers=runtime_config.build_planner_providers(),
+        default_planner_provider=runtime_config.build_default_planner_provider(),
         max_attempts=runtime_config.max_llm_attempts
-        if runtime_config.planner_mode == "llm"
+        if runtime_config.planner_mode == "strategy"
+        and runtime_config.llm_provider == "deepseek"
         else 1,
         debug_dir=runtime_config.llm_debug_dir,
     ).solve(problem_ir)

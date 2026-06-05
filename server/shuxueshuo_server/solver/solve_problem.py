@@ -20,22 +20,22 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--fixture", required=True, help="Path to a ProblemIR fixture JSON file.")
     parser.add_argument(
         "--planner",
-        choices=("deterministic", "llm"),
-        help="Planner mode. Defaults to deterministic.",
+        choices=("deterministic", "strategy"),
+        help="Planner mode. Defaults to strategy.",
     )
     parser.add_argument(
         "--llm-provider",
-        choices=("fake", "deepseek", "doubao"),
-        help="LLM provider used when --planner llm is selected.",
+        choices=("recorded", "deepseek"),
+        help="Strategy provider. recorded skips real LLM and uses executable StepIntent fixtures.",
     )
     parser.add_argument(
         "--llm-model",
-        help="Override the provider model when --planner llm is selected.",
+        help="Override the provider model when --planner strategy --llm-provider deepseek is selected.",
     )
     parser.add_argument(
         "--llm-max-attempts",
         type=int,
-        help="Maximum LLM planning attempts when --planner llm is selected.",
+        help="Maximum DeepSeek planning attempts when --planner strategy is selected.",
     )
     parser.add_argument(
         "--llm-debug-dir",

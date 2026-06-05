@@ -27,7 +27,8 @@ def _cli_env(**overrides: str) -> dict[str, str]:
     env = os.environ.copy()
     for key in ENV_KEYS:
         env.pop(key, None)
-    env["SOLVER_PLANNER_MODE"] = "deterministic"
+    env["SOLVER_PLANNER_MODE"] = "strategy"
+    env["SOLVER_LLM_PROVIDER"] = "recorded"
     env.update(overrides)
     return env
 
@@ -124,10 +125,11 @@ def test_solve_problem_cli_solves_hexi_weighted_25() -> None:
         "iii": {"b": "2"},
     }
     assert "weighted_axis_path_triangle_transform" in payload["methods_used"]
-    assert "linked_broken_path_geometric_minimum" in payload["methods_used"]
+    assert "linked_broken_path_minimum_expression" in payload["methods_used"]
+    assert "parameter_from_expression_value" in payload["methods_used"]
 
 
-def test_solve_problem_cli_llm_planner_temporarily_disabled() -> None:
+def test_solve_problem_cli_strategy_recorded_explicit() -> None:
     completed = subprocess.run(
         [
             sys.executable,
@@ -136,9 +138,9 @@ def test_solve_problem_cli_llm_planner_temporarily_disabled() -> None:
             "--fixture",
             FIXTURE,
             "--planner",
-            "llm",
+            "strategy",
             "--llm-provider",
-            "fake",
+            "recorded",
         ],
         check=False,
         capture_output=True,
@@ -146,6 +148,31 @@ def test_solve_problem_cli_llm_planner_temporarily_disabled() -> None:
         env=_cli_env(),
     )
 
+    assert completed.returncode == 0, completed.stderr
+    payload = json.loads(completed.stdout)
+    assert payload["status"] == "ok"
+    assert payload["answers"]["ii_2"]["G"] == ["4", "-13/3"]
+
+
+def test_solve_problem_cli_strategy_deepseek_requires_key() -> None:
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "shuxueshuo_server.solver.solve_problem",
+            "--fixture",
+            FIXTURE,
+            "--planner",
+            "strategy",
+            "--llm-provider",
+            "deepseek",
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+        env=_cli_env(DEEPSEEK_API_KEY=""),
+    )
+
     assert completed.returncode == 2
-    assert "LLM planner has been removed" in completed.stderr
+    assert "DEEPSEEK_API_KEY" in completed.stderr
     assert completed.stdout == ""

@@ -29,8 +29,8 @@ if TYPE_CHECKING:
     from shuxueshuo_server.solver.runtime.orchestrator import PlannerProvider
 
 
-PlannerMode = Literal["deterministic", "llm"]
-LLMProviderName = Literal["fake", "deepseek", "doubao"]
+PlannerMode = Literal["deterministic", "strategy"]
+LLMProviderName = Literal["recorded", "deepseek", "doubao"]
 
 DEFAULT_DEEPSEEK_BASE_URL = "https://api.deepseek.com"
 DEFAULT_DEEPSEEK_MODEL = "deepseek-v4-flash"
@@ -46,12 +46,12 @@ class SolverRuntimeConfigError(ValueError):
 class SolverRuntimeConfig:
     """Method Solver 的运行时配置。
 
-    ``planner_mode`` 决定使用 deterministic provider 还是 LLM-backed provider；
-    provider map 由 ``build_planner_providers`` 统一构造，调用方不需要手动拼接。
+    ``planner_mode`` 决定使用显式 debug deterministic provider 还是生产 Strategy
+    provider；provider map 与 default provider 由本配置统一构造。
     """
 
-    planner_mode: PlannerMode = "deterministic"
-    llm_provider: LLMProviderName = "deepseek"
+    planner_mode: PlannerMode = "strategy"
+    llm_provider: LLMProviderName = "recorded"
     llm_model: str | None = None
     deepseek_api_key: str | None = None
     deepseek_base_url: str = DEFAULT_DEEPSEEK_BASE_URL
@@ -86,18 +86,26 @@ class SolverRuntimeConfig:
         是空字符串也会覆盖 ``.env``，方便测试明确模拟“没有 key”。
         """
         values = _load_env_values(env_file)
+        env_planner_mode = _legacy_env_alias(
+            values.get("SOLVER_PLANNER_MODE"),
+            aliases={"llm": "strategy"},
+        )
+        env_llm_provider = _legacy_env_alias(
+            values.get("SOLVER_LLM_PROVIDER"),
+            aliases={"fake": "recorded"},
+        )
         resolved_mode = _resolve_choice(
             cli_value=planner_mode,
-            env_value=values.get("SOLVER_PLANNER_MODE"),
-            default="deterministic",
-            allowed={"deterministic", "llm"},
+            env_value=env_planner_mode,
+            default="strategy",
+            allowed={"deterministic", "strategy"},
             name="planner",
         )
         resolved_provider = _resolve_choice(
             cli_value=llm_provider,
-            env_value=values.get("SOLVER_LLM_PROVIDER"),
-            default="deepseek",
-            allowed={"fake", "deepseek", "doubao"},
+            env_value=env_llm_provider,
+            default="recorded",
+            allowed={"recorded", "deepseek", "doubao"},
             name="llm-provider",
         )
         return cls(
@@ -127,36 +135,52 @@ class SolverRuntimeConfig:
     def build_planner_providers(self) -> dict[str, "PlannerProvider"]:
         """构造 RuntimeOrchestrator 可直接使用的 planner provider map。"""
         from shuxueshuo_server.solver.runtime.orchestrator import (
-            DEFAULT_PLANNER_PROVIDERS,
+            DEBUG_DETERMINISTIC_PLANNER_PROVIDERS,
         )
 
         if self.planner_mode == "deterministic":
-            return dict(DEFAULT_PLANNER_PROVIDERS)
-        # 旧的 LLM planner（step decomposition / controlled draft / intent draft）
-        # 已删除。这里保留 CLI/config 外壳，但在新 Strategy Planner 设计落地前，
-        # 明确拒绝 --planner llm，避免静默回退到 deterministic 造成误判。
+            return dict(DEBUG_DETERMINISTIC_PLANNER_PROVIDERS)
+        return {}
+
+    def build_default_planner_provider(self) -> "PlannerProvider | None":
+        """构造 Orchestrator 的 default planner provider fallback。"""
+        if self.planner_mode == "deterministic":
+            return None
+        if self.llm_provider == "recorded":
+            from shuxueshuo_server.solver.runtime.strategy_runtime_planner import (
+                strategy_planner_provider,
+            )
+
+            return strategy_planner_provider(mode="recorded")
+        if self.llm_provider == "deepseek":
+            from shuxueshuo_server.solver.runtime.strategy_runtime_planner import (
+                strategy_planner_provider,
+            )
+
+            return strategy_planner_provider(
+                mode="deepseek",
+                client=self.build_llm_client(),
+            )
         raise SolverRuntimeConfigError(
-            "LLM planner has been removed; implement the new Strategy Planner before using --planner llm"
+            f"--planner strategy does not support --llm-provider {self.llm_provider!r}"
         )
 
     def build_family_registry(self) -> FamilyRegistry:
         """按运行模式构造 family registry。
 
-        旧 fake/controlled LLM planner 删除后，不再为 LLM 模式临时放开 alt-label。
-        新 Strategy Planner 接入时，再由新的 registry 策略决定是否扩大支持范围。
+        Strategy Planner 仍由 ProblemIR metadata 和 FamilyRegistry 选 family；不引入
+        LLM family selector。
         """
         return DEFAULT_FAMILY_REGISTRY
 
     def build_llm_client(self) -> LLMPlannerClient:
         """根据 provider 配置创建 LLM client。"""
-        if self.llm_provider == "fake":
-            raise SolverRuntimeConfigError(
-                "fake LLM client is unavailable until the new Strategy Planner is implemented"
-            )
+        if self.llm_provider == "recorded":
+            raise SolverRuntimeConfigError("recorded provider does not use an LLM client")
         if self.llm_provider == "deepseek":
             if not self.deepseek_api_key:
                 raise LLMClientConfigurationError(
-                    "--planner llm --llm-provider deepseek requires DEEPSEEK_API_KEY"
+                    "--planner strategy --llm-provider deepseek requires DEEPSEEK_API_KEY"
                 )
             return DeepSeekPlannerClient(
                 api_key=self.deepseek_api_key,
@@ -166,7 +190,7 @@ class SolverRuntimeConfig:
         if self.llm_provider == "doubao":
             if not self.doubao_api_key:
                 raise LLMClientConfigurationError(
-                    "--planner llm --llm-provider doubao requires DOUBAO_API_KEY"
+                    "--llm-provider doubao requires DOUBAO_API_KEY"
                 )
             return DoubaoPlannerClient(
                 api_key=self.doubao_api_key,
@@ -240,6 +264,14 @@ def _clean(value: str | None) -> str | None:
         return None
     stripped = str(value).strip()
     return stripped or None
+
+
+def _legacy_env_alias(value: str | None, *, aliases: dict[str, str]) -> str | None:
+    """兼容旧 .env 值；CLI 显式旧值仍由 argparse/校验拒绝。"""
+    cleaned = _clean(value)
+    if cleaned is None:
+        return None
+    return aliases.get(cleaned, cleaned)
 
 
 __all__ = [

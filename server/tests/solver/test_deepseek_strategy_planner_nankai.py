@@ -24,6 +24,7 @@ from shuxueshuo_server.solver.family import QUADRATIC_PATH_MINIMUM_FAMILY
 from shuxueshuo_server.solver.fixtures import load_problem_ir
 from shuxueshuo_server.solver.runtime.config import SolverRuntimeConfig
 from shuxueshuo_server.solver.runtime.orchestrator import RuntimeOrchestrator
+from shuxueshuo_server.solver.runtime.projection import problem_to_llm_payload
 from shuxueshuo_server.solver.runtime.strategy_planner import (
     CanonicalHandleRegistry,
     RecipeTrialExecutor,
@@ -45,12 +46,6 @@ RUN_DEEPSEEK_STRATEGY_PLANNER = (
 )
 NANKAI_FIXTURE = "../internal/solver-fixtures/tj-2026-nankai-yimo-25.json"
 NANKAI_EXPECTED = "tests/solver/expected/tj-2026-nankai-yimo-25.expected.json"
-NANKAI_LLM_FIXTURE = (
-    Path(__file__).resolve().parents[3]
-    / "internal"
-    / "solver-fixtures"
-    / "tj-2026-nankai-yimo-25.llm.json"
-)
 RECORDED_NANKAI_EXECUTABLE_STEP_INTENTS = (
     Path(__file__).resolve().parents[3]
     / "internal"
@@ -281,9 +276,9 @@ def _without_recipe_hint(payload: dict, recipe_hint: str) -> dict:
 
 def _solve_nankai_from_step_intent_payload(step_intent_payload: dict):
     """把 StepIntent payload 接入 RuntimeOrchestrator 并返回 SolverResult。"""
-    llm_problem = json.loads(NANKAI_LLM_FIXTURE.read_text(encoding="utf-8"))
-    handle_registry = CanonicalHandleRegistry.from_problem_payload(llm_problem)
     problem = load_problem_ir(NANKAI_FIXTURE)
+    llm_problem = problem_to_llm_payload(problem)
+    handle_registry = CanonicalHandleRegistry.from_problem_payload(llm_problem)
 
     captured = {}
 
@@ -597,7 +592,7 @@ def _reset_debug_dir(path: Path) -> None:
 def test_deepseek_strategy_planner_outputs_valid_step_intents_and_solves_nankai() -> None:
     """DeepSeek 应输出合法 StepIntent[]，并经代码执行得到南开答案。"""
     config = SolverRuntimeConfig.from_sources(
-        planner_mode="llm",
+        planner_mode="strategy",
         llm_provider="deepseek",
     )
     if not config.deepseek_api_key:
@@ -607,7 +602,7 @@ def test_deepseek_strategy_planner_outputs_valid_step_intents_and_solves_nankai(
 
     problem = load_problem_ir(NANKAI_FIXTURE)
     inputs = build_strategy_probe_inputs(problem)
-    llm_problem = json.loads(NANKAI_LLM_FIXTURE.read_text(encoding="utf-8"))
+    llm_problem = problem_to_llm_payload(problem)
     handle_registry = CanonicalHandleRegistry.from_problem_payload(llm_problem)
     debug_dir = Path(
         os.getenv("STRATEGY_PLANNER_DEBUG_DIR")

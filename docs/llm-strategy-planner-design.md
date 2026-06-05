@@ -5,7 +5,8 @@
 新的 LLM Planner 不再让模型输出可执行程序。LLM 只负责像解题老师一样读题、理解题型策略、拆出解题步骤意图；代码层负责把这些意图转成可执行 `PlannerOutput / StepPlan`：
 
 ```text
-.llm ProblemIR + FamilySpec + method_catalog + recipe_catalog + few-shot + previous_attempts
+Canonical ProblemIR -> RuntimeProjection LLM payload
+  + FamilySpec + method_catalog + recipe_catalog + few-shot + previous_attempts
   -> DeepSeek / Fake StrategyPlanner
   -> scoped StepIntent[]
   -> StepIntentValidator + HandleResolver
@@ -26,13 +27,17 @@
 
 ## 当前实现状态
 
-截至 2026-06-01，Strategy Planner 已完成南开 25 的真实 DeepSeek 竖切验证：
+截至 2026-06-05，Strategy Planner 已完成南开 25、河西 25 的 recorded
+生产链路接入，并保留真实 DeepSeek opt-in 竖切验证：
 
-- Prompt 输入已经收敛为 `.llm.json ProblemIR + FamilySpec + method_catalog + recipe_catalog + few-shot + previous_attempts + StepIntent schema`。
+- Prompt 输入已经收敛为 canonical ProblemIR 经 `RuntimeProjection` 生成的
+  LLM payload + FamilySpec + method_catalog + recipe_catalog + few-shot +
+  previous_attempts + StepIntent schema。
 - Prompt 不再输入 `visible_paths / context_refs / slot_options / planning_signals / ContextPath`。
 - LLM 输出使用按 question/subquestion scope 分组的 `StepIntent`，字段为 `recipe_hint / reads / creates / produces / valid_scope`。
-- `RecipeTrialExecutor` 已能把固定 StepIntent fixture 和真实 DeepSeek loop 的最终输出编译为 `PlannerOutput`，再通过现有 runtime 算出南开答案。
-- 真实 DeepSeek opt-in 测试当前是 probe，不是默认 `solve_problem()` 路径；默认 CLI 仍走 deterministic planner。
+- `RecipeTrialExecutor` 已能把固定 StepIntent fixture 和真实 DeepSeek loop 的最终输出编译为 `PlannerOutput`，再通过现有 runtime 算出南开、河西答案。
+- `StrategyPlanner` 已接入 `RuntimeOrchestrator` / CLI；默认生产模式为
+  `--planner strategy --llm-provider recorded`，deterministic 仅作为显式 debug/oracle。
 
 最近一次真实联调结果：
 
@@ -65,7 +70,9 @@ solved_result=internal/solver-runs/strategy-planner-deepseek-nankai/solved-resul
 
 LLM StrategyPlanner 的 prompt 应包含：
 
-- `.llm.json` canonical ProblemIR：包含 `original_text / scopes / entities / facts / question_goals`，这是 LLM 读题和引用 handle 的唯一题目事实源。
+- canonical ProblemIR 经 `RuntimeProjection.to_llm_problem_payload()` 生成的
+  LLM payload：包含 `original_text / scopes / entities / facts / question_goals`，
+  这是 LLM 读题和引用 handle 的唯一题目事实源。
 - 题型策略：`SolverFamilySpec` 的 `common_goal_types / strategy_principles / method_ids / step_recipes`。
 - Method Catalog：由当前 family 的 `method_ids` 全量生成的能力摘要，不给完整 slot 绑定表。
 - Recipe Catalog：由当前 family 的 `step_recipes` 全量生成的标准解题动作菜单。
@@ -122,7 +129,7 @@ LLM 只输出按 scope 分组的 `StepIntent[]`：
 字段说明：
 
 - `step_id`：语义化 snake_case，禁止 `step_1` 这类编号式 ID。
-- `scopes[].scope_id`：步骤所属题面 scope，必须来自 `.llm.json` 的 scope tree。
+- `scopes[].scope_id`：步骤所属题面 scope，必须来自 RuntimeProjection 生成的 LLM payload scope tree。
 - `goal_type`：如 `derive_point / derive_parabola / derive_parameter / path_reduction / minimum_value / intersection`。
 - `recipe_hint`：可选。优先从 `recipe_catalog[].recipe_id` 选择，其次从 `method_catalog[].method_id` 选择，不确定时为 `null`。
 - `target`：自然语言目标，不是 ContextPath。
@@ -165,7 +172,7 @@ PlannerInputs(
 
 ```text
 StrategyPayload
-  problem_ir           # 来自 *.llm.json canonical ProblemIR
+  problem_ir           # 来自 canonical ProblemIR projection
   family_spec          # 来自 SolverFamilySpec
   method_catalog       # 来自 FamilySpec.method_ids + MethodSpecRegistry 摘要
   recipe_catalog       # 来自 FamilySpec.step_recipes 摘要
@@ -176,7 +183,7 @@ StrategyPayload
 
 设计要点：
 
-- `problem_ir` 必须是 `.llm.json`，不再从旧 solver fixture fallback 生成。
+- `problem_ir` 必须由 canonical ProblemIR projection 生成，不再从旁路 LLM fixture 读取。
 - `method_catalog` 是能力摘要，不是完整 method schema。示例：
 
 ```text
@@ -673,14 +680,14 @@ Nankai .llm ProblemIR
   -> ResultBuilder + expected answer gate
 ```
 
-输入只使用真实南开 `.llm.json`、真实 family spec、method/recipe catalog 和 previous attempts。
+输入只使用真实南开 canonical ProblemIR projection、真实 family spec、method/recipe catalog 和 previous attempts。
 expected answer 只作为测试 gate，不进入 prompt，不进入普通 payload。
 
 #### 当前已实现组件
 
 - `StepIntent` / `StepIntentDraft` 数据模型，输出按 `scopes[].steps[]` 分组。
 - `STEP_INTENT_JSON_SCHEMA`，作为完整 schema 注入 prompt。
-- `StrategyPayloadBuilder`，只读取 `.llm.json` canonical ProblemIR，不再从旧 solver fixture fallback。
+- `StrategyPayloadBuilder`，只读取 RuntimeProjection 生成的 LLM payload，不再从旁路 fixture fallback。
 - `StrategyPromptRenderer`，使用 Jinja 模板。
 - `DeepSeekStrategyPlannerClient`，复用 OpenAI-compatible provider。
 - `FakeStrategyPlannerClient`，用于非网络单测和固定 fixture。
@@ -695,7 +702,7 @@ expected answer 只作为测试 gate，不进入 prompt，不进入普通 payloa
 
 ```text
 payload/
-  problem_ir            # 来自 *.llm.json canonical ProblemIR
+  problem_ir            # 来自 canonical ProblemIR projection
   family_spec           # 来自 SolverFamilySpec
   method_catalog        # 来自 FamilySpec.method_ids + MethodSpecRegistry
   recipe_catalog        # 来自 FamilySpec.step_recipes
@@ -727,7 +734,7 @@ System prompt 只放硬规则：
 
 User prompt 放分源 payload：
 
-- `.llm.json` canonical ProblemIR。
+- canonical ProblemIR projection。
 - FamilySpec 题型思路。
 - Method Catalog。
 - Recipe Catalog。
@@ -819,8 +826,8 @@ cd server && RUN_LLM_INTEGRATION=1 RUN_DEEPSEEK_STRATEGY_PLANNER=1 \
 - `TrialExecutor`，clone context 试执行。
 - `TrialRanker`，选择最佳 trial。
 - `CommitExecutor`，在主 context 重新执行 best trial。
-- `StrategyPlannerProvider` 接入 `SolverRuntimeConfig(planner_mode="llm", llm_provider="fake")`。
-- 南开、河西 fake E2E 通过。
+- `StrategyPlannerProvider` 接入 `SolverRuntimeConfig(planner_mode="strategy", llm_provider="recorded")`。
+- 南开、河西 recorded E2E 通过。
 
 其中南开 canonical 的“StepIntent -> PlannerOutput -> runtime 答案”竖切已经跑通；剩余接入重点是把这条链路从测试 helper 接入正式 Orchestrator/provider，并扩展到河西、alt-label 和更多 family。
 
@@ -860,7 +867,7 @@ server/shuxueshuo_server/solver/runtime/
 ### 单元测试
 
 - `test_strategy_payload.py`
-  - payload 包含 `.llm.json` 原题、FamilySpec、QuestionGoal、method catalog、recipe catalog。
+  - payload 包含 canonical ProblemIR projection 原题、FamilySpec、QuestionGoal、method catalog、recipe catalog。
   - payload 不包含 expected answers、裸 ContextPath、ctx_N。
 
 - `test_step_intent_validator.py`
@@ -893,7 +900,7 @@ server/shuxueshuo_server/solver/runtime/
 - fake Strategy Planner 跑南开 canonical，答案与 expected 一致。
 - fake Strategy Planner 跑河西，答案与 expected 一致。
 - default deterministic 南开、河西保持通过。
-- `--planner llm --llm-provider fake` 在新 provider 接入后返回 ok。
+- `--planner strategy --llm-provider recorded` 返回 ok。
 - 找不到 executable candidate 时生成结构化 gap，不直接伪造 success。
 
 ## Open Questions

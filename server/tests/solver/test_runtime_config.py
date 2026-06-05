@@ -34,12 +34,12 @@ def _clear_solver_env(monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.delenv(key, raising=False)
 
 
-def test_runtime_config_defaults_to_deterministic(tmp_path) -> None:
-    """默认配置不触发 LLM，也不要求 API key。"""
+def test_runtime_config_defaults_to_strategy_recorded(tmp_path) -> None:
+    """默认配置走 Strategy recorded，不要求 API key。"""
     config = SolverRuntimeConfig.from_sources(env_file=tmp_path / ".env")
 
-    assert config.planner_mode == "deterministic"
-    assert config.llm_provider == "deepseek"
+    assert config.planner_mode == "strategy"
+    assert config.llm_provider == "recorded"
     assert config.deepseek_base_url == DEFAULT_DEEPSEEK_BASE_URL
     assert config.deepseek_model == DEFAULT_DEEPSEEK_MODEL
     assert config.max_llm_attempts == 3
@@ -53,7 +53,7 @@ def test_runtime_config_cli_overrides_env_file(tmp_path) -> None:
         "\n".join(
             [
                 "SOLVER_PLANNER_MODE=deterministic",
-                "SOLVER_LLM_PROVIDER=doubao",
+                "SOLVER_LLM_PROVIDER=recorded",
                 "SOLVER_LLM_MODEL=env-model",
                 "DEEPSEEK_API_KEY=env-key",
             ]
@@ -62,7 +62,7 @@ def test_runtime_config_cli_overrides_env_file(tmp_path) -> None:
     )
 
     config = SolverRuntimeConfig.from_sources(
-        planner_mode="llm",
+        planner_mode="strategy",
         llm_provider="deepseek",
         llm_model="cli-model",
         max_llm_attempts=2,
@@ -70,12 +70,31 @@ def test_runtime_config_cli_overrides_env_file(tmp_path) -> None:
         env_file=env_file,
     )
 
-    assert config.planner_mode == "llm"
+    assert config.planner_mode == "strategy"
     assert config.llm_provider == "deepseek"
     assert config.llm_model == "cli-model"
     assert config.deepseek_api_key == "env-key"
     assert config.max_llm_attempts == 2
     assert config.llm_debug_dir == "../debug"
+
+
+def test_runtime_config_maps_legacy_env_llm_fake_to_strategy_recorded(tmp_path) -> None:
+    """旧 .env 的 llm/fake 值应兼容到新 Strategy recorded。"""
+    env_file = tmp_path / ".env"
+    env_file.write_text(
+        "\n".join(
+            [
+                "SOLVER_PLANNER_MODE=llm",
+                "SOLVER_LLM_PROVIDER=fake",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    config = SolverRuntimeConfig.from_sources(env_file=env_file)
+
+    assert config.planner_mode == "strategy"
+    assert config.llm_provider == "recorded"
 
 
 def test_runtime_config_rejects_invalid_choice(tmp_path) -> None:
@@ -89,29 +108,29 @@ def test_runtime_config_rejects_invalid_choice(tmp_path) -> None:
 
 def test_llm_config_requires_provider_api_key() -> None:
     """真实 provider 缺 key 时不能静默构造。"""
-    config = SolverRuntimeConfig(planner_mode="llm", llm_provider="deepseek")
+    config = SolverRuntimeConfig(planner_mode="strategy", llm_provider="deepseek")
 
     with pytest.raises(LLMClientConfigurationError, match="DEEPSEEK_API_KEY"):
         config.build_llm_client()
 
 
-def test_llm_planner_provider_is_temporarily_disabled() -> None:
-    """旧 LLM planner 删除后，--planner llm 不能静默回退 deterministic。"""
-    config = SolverRuntimeConfig(planner_mode="llm", llm_provider="fake")
+def test_strategy_recorded_default_provider_is_constructed() -> None:
+    """Strategy recorded 构造 default provider，provider map 本身不注册 deterministic。"""
+    config = SolverRuntimeConfig(planner_mode="strategy", llm_provider="recorded")
 
-    with pytest.raises(SolverRuntimeConfigError, match="new Strategy Planner"):
-        config.build_planner_providers()
+    assert config.build_planner_providers() == {}
+    assert config.build_default_planner_provider() is not None
 
 
 def test_llm_family_registry_no_longer_relaxes_alt_label_gate() -> None:
     """旧 fake LLM 删除后，alt-label 不再被临时放开。"""
     alt = load_problem_ir("../internal/solver-fixtures/tj-2026-nankai-yimo-25-alt-labels.json")
 
-    deterministic = SolverRuntimeConfig().build_family_registry()
-    llm = SolverRuntimeConfig(planner_mode="llm", llm_provider="fake").build_family_registry()
+    deterministic = SolverRuntimeConfig(planner_mode="deterministic").build_family_registry()
+    strategy = SolverRuntimeConfig(planner_mode="strategy", llm_provider="recorded").build_family_registry()
 
     assert deterministic.match(alt) is None
-    assert llm.match(alt) is None
+    assert strategy.match(alt) is None
 
 
 def test_environment_blank_key_overrides_env_file(tmp_path, monkeypatch) -> None:
@@ -121,7 +140,7 @@ def test_environment_blank_key_overrides_env_file(tmp_path, monkeypatch) -> None
     monkeypatch.setenv("DEEPSEEK_API_KEY", "")
 
     config = SolverRuntimeConfig.from_sources(
-        planner_mode="llm",
+        planner_mode="strategy",
         llm_provider="deepseek",
         env_file=env_file,
     )
@@ -133,8 +152,8 @@ def test_runtime_config_rejects_invalid_max_llm_attempts(tmp_path) -> None:
     """LLM attempt 预算必须是正整数。"""
     with pytest.raises(SolverRuntimeConfigError, match="llm-max-attempts"):
         SolverRuntimeConfig.from_sources(
-            planner_mode="llm",
-            llm_provider="fake",
+            planner_mode="strategy",
+            llm_provider="recorded",
             max_llm_attempts=0,
             env_file=tmp_path / ".env",
         )

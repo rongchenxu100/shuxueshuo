@@ -23,6 +23,7 @@ from shuxueshuo_server.solver.fixtures import load_problem_ir
 from shuxueshuo_server.solver.runtime.config import SolverRuntimeConfig
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
 from shuxueshuo_server.solver.runtime.orchestrator import RuntimeOrchestrator
+from shuxueshuo_server.solver.runtime.projection import problem_to_llm_payload
 from shuxueshuo_server.solver.runtime.strategy_planner import (
     RecipeTrialExecutor,
     StepIntentCandidateResolver,
@@ -42,7 +43,6 @@ RUN_DEEPSEEK_HEXI_STRATEGY_PLANNER = (
 )
 ROOT = Path(__file__).resolve().parents[3]
 HEXI_FIXTURE = "../internal/solver-fixtures/tj-2026-hexi-yimo-25.json"
-HEXI_LLM_FIXTURE = ROOT / "internal/solver-fixtures/tj-2026-hexi-yimo-25.llm.json"
 RECORDED_HEXI_EXECUTABLE_STEP_INTENTS = (
     ROOT / "internal/solver-fixtures/tj-2026-hexi-yimo-25.executable-step-intents.json"
 )
@@ -72,7 +72,7 @@ def test_hexi_strategy_payload_contains_weighted_capability_catalog() -> None:
     """河西 prompt payload 应只展示 weighted family 的 method/recipe 摘要。"""
     problem = load_problem_ir(HEXI_FIXTURE)
     inputs = build_strategy_probe_inputs(problem)
-    llm_problem = _hexi_llm_problem()
+    llm_problem = problem_to_llm_payload(problem)
     payload = StrategyPayloadBuilder().build(inputs, problem_payload=llm_problem)
     prompt = StrategyPromptRenderer().render(payload)
 
@@ -295,10 +295,10 @@ def test_deepseek_strategy_planner_hexi_full_loop() -> None:
     """真实 DeepSeek 输出 StepIntent 后，必须完整执行出河西答案。"""
     problem = load_problem_ir(HEXI_FIXTURE)
     inputs = build_strategy_probe_inputs(problem)
-    llm_problem = _hexi_llm_problem()
+    llm_problem = problem_to_llm_payload(problem)
     handle_registry = CanonicalHandleRegistry.from_problem_payload(llm_problem)
     config = SolverRuntimeConfig.from_sources(
-        planner_mode="llm",
+        planner_mode="strategy",
         llm_provider="deepseek",
     )
     client = config.build_llm_client()
@@ -388,9 +388,9 @@ def test_deepseek_strategy_planner_hexi_full_loop() -> None:
 
 def _solve_hexi_from_step_intent_payload(step_intent_payload: dict):
     """把河西 StepIntent payload 接入 RuntimeOrchestrator。"""
-    llm_problem = _hexi_llm_problem()
-    handle_registry = CanonicalHandleRegistry.from_problem_payload(llm_problem)
     problem = load_problem_ir(HEXI_FIXTURE)
+    llm_problem = problem_to_llm_payload(problem)
+    handle_registry = CanonicalHandleRegistry.from_problem_payload(llm_problem)
     captured = {}
 
     def provider(context):
@@ -434,11 +434,6 @@ def _solve_hexi_from_step_intent_payload(step_intent_payload: dict):
         planner_providers={QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY.family_id: provider},
     ).solve(problem)
     return result, captured
-
-
-def _hexi_llm_problem() -> dict:
-    """读取河西 LLM ProblemIR。"""
-    return json.loads(HEXI_LLM_FIXTURE.read_text(encoding="utf-8"))
 
 
 def _reset_debug_dir(path: Path) -> None:

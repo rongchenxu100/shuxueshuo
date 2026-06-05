@@ -52,6 +52,9 @@ from shuxueshuo_server.solver.runtime.session import (
     StructuredSolveError,
     structured_error_from_exception,
 )
+from shuxueshuo_server.solver.runtime.strategy_runtime_planner import (
+    strategy_planner_provider,
+)
 
 
 PlannerProvider = Callable[[RuntimeContext], GenericPlanner]
@@ -71,10 +74,15 @@ def _hexi25_planner_provider(context: RuntimeContext) -> GenericPlanner:
     return Hexi25WeightedPathPlannerV15(context)
 
 
-DEFAULT_PLANNER_PROVIDERS: dict[str, PlannerProvider] = {
+DEBUG_DETERMINISTIC_PLANNER_PROVIDERS: dict[str, PlannerProvider] = {
     QUADRATIC_PATH_MINIMUM_FAMILY.family_id: _nankai25_planner_provider,
     QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY.family_id: _hexi25_planner_provider,
 }
+
+DEFAULT_PLANNER_PROVIDERS: dict[str, PlannerProvider] = {}
+DEFAULT_STRATEGY_PLANNER_PROVIDER: PlannerProvider = strategy_planner_provider(
+    mode="recorded"
+)
 
 
 class RuntimeOrchestrator:
@@ -93,17 +101,22 @@ class RuntimeOrchestrator:
         *,
         family_registry: FamilyRegistry = DEFAULT_FAMILY_REGISTRY,
         planner_providers: Mapping[str, PlannerProvider] | None = None,
+        default_planner_provider: PlannerProvider | None = DEFAULT_STRATEGY_PLANNER_PROVIDER,
         kernel: SympyKernel | None = None,
         max_attempts: int = 1,
         debug_dir: str | Path | None = None,
     ) -> None:
         self.family_registry = family_registry
-        # ``None`` 表示使用默认 provider；显式传入空 dict 表示测试“provider 缺失”。
+        # ``None`` 表示使用生产默认 provider map。Strategy 生产化后，默认 map 不再
+        # 注册 per-family deterministic provider，而是通过 default provider fallback
+        # 使用 recorded StrategyPlanner。显式传入空 dict 且关闭 default provider 可
+        # 测试“provider 缺失”。
         self.planner_providers = (
             dict(DEFAULT_PLANNER_PROVIDERS)
             if planner_providers is None
             else dict(planner_providers)
         )
+        self.default_planner_provider = default_planner_provider
         self.kernel = kernel
         self.max_attempts = max(1, int(max_attempts))
         self.debug_dir = Path(debug_dir) if debug_dir else None
@@ -121,7 +134,10 @@ class RuntimeOrchestrator:
                     f"no solver for pattern={problem.pattern}, type={problem.problem_type}"
                 ],
             )
-        provider = self.planner_providers.get(family.family_id)
+        provider = (
+            self.planner_providers.get(family.family_id)
+            or self.default_planner_provider
+        )
         if provider is None:
             return SolverResult(
                 problem_id=problem.problem_id,
@@ -162,6 +178,7 @@ class RuntimeOrchestrator:
                     question_goals=question_goals,
                     context_inventory=context_inventory,
                     method_specs=specs,
+                    problem=problem,
                     original_text=dict(problem.original_text),
                     previous_errors=[
                         error.to_payload() for error in previous_errors
@@ -414,10 +431,15 @@ def _write_debug_attempt(
     prompt = getattr(planner, "last_prompt", None)
     payload = getattr(planner, "last_payload", None)
     if prompt is not None:
+        messages = (
+            prompt.as_messages()
+            if hasattr(prompt, "as_messages")
+            else getattr(prompt, "messages", None)
+        )
         _write_json(
             debug_dir / f"{prefix}.prompt.json",
             {
-                "messages": prompt.as_messages(),
+                "messages": messages,
                 "planner_payload": payload,
             },
         )
