@@ -1,0 +1,36 @@
+{
+  "method_id": "quadratic_x_axis_intercept_point",
+  "title": "求二次函数与 x 轴交点",
+  "description": "由二次函数解析式求与 x 轴的交点。",
+  "summary": "输入: 抛物线表达式、变量和目标 PointRef，可带已知交点；输出: x 轴上的另一个交点，坐标可保留参数。",
+  "solves": [
+    "derive_quadratic_x_axis_intercept_point"
+  ],
+  "inputs": {
+    "quadratic": {
+      "type": "Parabola",
+      "required": true
+    },
+    "x": {
+      "type": "Symbol",
+      "required": true
+    },
+    "target": {
+      "type": "PointRef",
+      "required": true
+    },
+    "known_point": {
+      "type": "Point",
+      "required": false
+    }
+  },
+  "outputs": {
+    "point": "Point"
+  },
+  "preconditions": [
+    "quadratic 是关于 x 的函数表达式，可以含未定系数"
+  ],
+  "postconditions": [
+    "输出点纵坐标为 0 且在曲线上；若给定 known_point，则输出另一个 x 轴交点"
+  ]
+}

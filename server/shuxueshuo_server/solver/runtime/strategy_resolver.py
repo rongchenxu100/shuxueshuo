@@ -477,7 +477,7 @@ def _read_is_length_condition(
     """按 fact type 和 handle 语义识别长度条件。"""
     fact_type = handle_registry.fact_types.get(handle, "")
     text = _read_semantic_text(handle, handle_registry)
-    return fact_type in {"length", "length_squared"} or "length" in text
+    return fact_type in {"length", "length_squared", "segment_length_relation"} or "length" in text
 
 
 def _read_is_minimum_expression(
@@ -722,6 +722,7 @@ _FACT_TYPE_TO_OUTPUT_TYPE: dict[str, str] = {
     "symbol_value": "ParameterValue",
     "coefficient_relation": "Equation",
     "length_squared": "Condition",
+    "segment_length_relation": "Condition",
     "minimum_value": "MinimumExpression",
     "point_candidates": "PointList",
     "path_minimum_target": "Condition",

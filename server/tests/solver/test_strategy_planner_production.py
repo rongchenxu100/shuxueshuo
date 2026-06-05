@@ -10,6 +10,8 @@ NANKAI_FIXTURE = "../internal/solver-fixtures/tj-2026-nankai-yimo-25.json"
 NANKAI_EXPECTED = "tests/solver/expected/tj-2026-nankai-yimo-25.expected.json"
 HEXI_FIXTURE = "../internal/solver-fixtures/tj-2026-hexi-yimo-25.json"
 HEXI_EXPECTED = "tests/solver/expected/tj-2026-hexi-yimo-25.expected.json"
+XIQING_FIXTURE = "../internal/solver-fixtures/tj-2026-xiqing-yimo-25.json"
+XIQING_EXPECTED = "tests/solver/expected/tj-2026-xiqing-yimo-25.expected.json"
 
 
 def test_strategy_recorded_solves_nankai_without_deterministic_planner(monkeypatch) -> None:
@@ -68,3 +70,32 @@ def test_strategy_recorded_solves_hexi_without_deterministic_planner(monkeypatch
     assert result.answers == load_expected_answers(HEXI_EXPECTED)
     assert "weighted_axis_path_triangle_transform" in result.methods_used
     assert "linked_broken_path_minimum_expression" in result.methods_used
+
+
+def test_strategy_recorded_solves_xiqing_without_deterministic_planner(monkeypatch) -> None:
+    """西青只通过 Strategy recorded 链路求解，不新增 deterministic slice。"""
+    from shuxueshuo_server.solver.runtime.hexi_weighted_path_planner import (
+        Hexi25WeightedPathPlannerV15,
+    )
+
+    monkeypatch.setattr(
+        Hexi25WeightedPathPlannerV15,
+        "plan",
+        lambda self, inputs: (_ for _ in ()).throw(
+            AssertionError("deterministic Hexi planner must not run")
+        ),
+    )
+    result = solve_problem(
+        load_problem_ir(XIQING_FIXTURE),
+        runtime_config=SolverRuntimeConfig(
+            planner_mode="strategy",
+            llm_provider="recorded",
+        ),
+    )
+
+    assert result.status == "ok", result.errors
+    assert result.answers == load_expected_answers(XIQING_EXPECTED)
+    assert "parameter_from_segment_length" in result.methods_used
+    assert "weighted_axis_path_triangle_transform" in result.methods_used
+    assert "linked_broken_path_minimum_expression" in result.methods_used
+    assert "parameter_from_expression_value" in result.methods_used

@@ -2,7 +2,7 @@
   "method_id": "weighted_axis_path_triangle_transform",
   "title": "加权路径的直角三角形转化",
   "description": "用直角三角形把加权 x 轴动点路径转化为普通折线路径。",
-  "summary": "输入: sqrt(2) 加权路径、轴上动点和辅助点定义；输出: 几何转化后的等价路径与辅助点轨迹。使用边界: 当前实现只支持 sqrt(2) 权重，对应等腰直角三角形转化；30°/60° 等其他权重需新增扩展后再使用。",
+  "summary": "输入: 已登记权重的加权路径、轴上动点和辅助点定义；输出: 几何转化后的等价路径与辅助点轨迹。坐标构造公式可复用于 w>1，但运动方向与三角形几何必须通过白名单登记；当前支持 sqrt(2) 的等腰直角转化和 2 的 30°/60° 直角三角形转化，其他权重暂不支持。",
   "solves": [
     "transform_weighted_axis_path_by_triangle"
   ],
@@ -40,7 +40,8 @@
   },
   "preconditions": [
     "fixed_point 与 moving_point 在 x 轴上",
-    "加权路径的权重必须为 sqrt(2)，当前切片只支持等腰直角三角形转化"
+    "加权路径的权重必须在 method 的辅助三角形几何白名单中，当前为 sqrt(2) 或 2",
+    "新增权重时必须同时登记 geometry/direction 并补充 transform 与 linked minimum 验算"
   ],
   "postconditions": [
     "输出 planner 指定的辅助点、路径转化说明与辅助点运动射线"

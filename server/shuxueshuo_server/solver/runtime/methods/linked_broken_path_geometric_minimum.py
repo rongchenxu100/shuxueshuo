@@ -44,9 +44,7 @@ class LinkedBrokenPathGeometricMinimumMethod:
         if sp.simplify(moving_point[0] - dynamic_parameter) != 0:
             raise ValueError("moving point x-coordinate must be the dynamic parameter")
 
-        scale = sp.simplify(transformation.get("scale", sp.sqrt(2)))
-        if sp.simplify(scale - sp.sqrt(2)) != 0:
-            raise ValueError("current linked broken path minimum only supports sqrt(2) scale")
+        scale = _supported_transformation_scale(transformation)
 
         # 辅助点的运动射线是上一步显式输出的几何约束。折线拉直后，
         # MN+QN 的最小值就是曲线点 M 到这条射线所在直线的垂线段长度。
@@ -191,9 +189,7 @@ class LinkedBrokenPathMinimumExpressionMethod:
         if sp.simplify(moving_point[0] - dynamic_parameter) != 0:
             raise ValueError("moving point x-coordinate must be the dynamic parameter")
 
-        scale = sp.simplify(transformation.get("scale", sp.sqrt(2)))
-        if sp.simplify(scale - sp.sqrt(2)) != 0:
-            raise ValueError("current linked broken path minimum only supports sqrt(2) scale")
+        scale = _supported_transformation_scale(transformation)
 
         direction = _locus_direction(auxiliary_locus)
         locus_start = _locus_start(auxiliary_locus)
@@ -289,6 +285,22 @@ class LinkedBrokenPathMinimumExpressionMethod:
 def _dot_with_direction(point: Point, origin: Point, direction: tuple[sp.Expr, sp.Expr]) -> sp.Expr:
     """计算向量 origin->point 与给定方向向量的点积。"""
     return sp.simplify((point[0] - origin[0]) * direction[0] + (point[1] - origin[1]) * direction[1])
+
+
+def _supported_transformation_scale(transformation: dict[str, Any]) -> sp.Expr:
+    """读取并校验 weighted triangle transform 的倍率。
+
+    ``weighted_axis_path_triangle_transform`` 负责判断具体权重是否可构造；本 method
+    只接受已经带有受支持 geometry 标记的转化结果，再按通用点到直线距离公式求
+    最短表达式。
+    """
+    scale = sp.simplify(transformation.get("scale", sp.sqrt(2)))
+    geometry = str(transformation.get("geometry", "45_45_90"))
+    if sp.simplify(scale - sp.sqrt(2)) == 0 and geometry == "45_45_90":
+        return scale
+    if sp.simplify(scale - 2) == 0 and geometry == "30_60_90":
+        return scale
+    raise ValueError("linked broken path minimum supports only sqrt(2)/45° or 2/30° weighted transforms")
 
 
 def _same_point(p1: Point, p2: Point) -> bool:
@@ -484,8 +496,8 @@ SPEC = MethodSpecSource(
     method_cls=LinkedBrokenPathGeometricMinimumMethod,
     title="联动点折线拉直最值",
     summary=(
-        "输入: sqrt(2) 加权路径已转化出的辅助点轨迹；输出: 几何最小值与极值点。"
-        "使用边界: 只支持 transformation.scale=sqrt(2) 的等腰直角三角形转化结果。"
+        "输入: 已完成的加权辅助三角形转化与辅助点轨迹；输出: 几何最小值与极值点。"
+        "使用边界: 支持 sqrt(2)/45° 与 2/30° 两类 weighted transform。"
     ),
     solves=("derive_linked_broken_path_geometric_minimum",),
     inputs={
@@ -508,8 +520,8 @@ SPEC = MethodSpecSource(
         "dynamic_point": "Point",
     },
     preconditions=(
-        "已经完成 sqrt(2) 加权路径到 MN+QN 的辅助点转化",
-        "path_transformation.scale 必须为 sqrt(2)",
+        "已经完成加权路径到普通折线的辅助点转化",
+        "path_transformation.scale/geometry 必须来自受支持的 weighted_axis_path_triangle_transform",
         "Q 随 N 在固定射线上运动",
     ),
     postconditions=("输出参数值满足题设最小值和动点范围",),
@@ -520,8 +532,8 @@ MINIMUM_EXPRESSION_SPEC = MethodSpecSource(
     method_cls=LinkedBrokenPathMinimumExpressionMethod,
     title="联动点折线最短表达式",
     summary=(
-        "输入: sqrt(2) 加权路径已转化出的辅助点轨迹、曲线点和动点表达式；输出: 关于参数的几何最小值表达式。"
-        "使用边界: 只支持 transformation.scale=sqrt(2) 的等腰直角三角形转化结果。"
+        "输入: 已完成的加权辅助三角形转化、曲线点和动点表达式；输出: 关于参数的几何最小值表达式。"
+        "使用边界: 支持 sqrt(2)/45° 与 2/30° 两类 weighted transform。"
         "使用原则: 本 method 只求表达式，不反求参数；给定最小值反求参数应交给 parameter_from_expression_value。"
     ),
     solves=("derive_linked_broken_path_minimum_expression",),
@@ -543,8 +555,8 @@ MINIMUM_EXPRESSION_SPEC = MethodSpecSource(
         "dynamic_point_expression": "Point",
     },
     preconditions=(
-        "已经完成 sqrt(2) 加权路径到普通折线的辅助点转化",
-        "path_transformation.scale 必须为 sqrt(2)",
+        "已经完成加权路径到普通折线的辅助点转化",
+        "path_transformation.scale/geometry 必须来自受支持的 weighted_axis_path_triangle_transform",
         "辅助点沿固定射线运动",
     ),
     postconditions=("输出最小值表达式供后续反求参数",),

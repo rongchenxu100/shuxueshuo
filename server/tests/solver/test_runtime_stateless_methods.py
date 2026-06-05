@@ -26,6 +26,7 @@ from shuxueshuo_server.solver.runtime.methods import (
     PointOnParabolaAtXMethod,
     QuadraticAxisFromRelationMethod,
     QuadraticFromConstraintsMethod,
+    QuadraticXAxisInterceptPointMethod,
     QuadraticVertexPointMethod,
     QuadraticYAxisInterceptPointMethod,
     RightAngleEqualLengthCandidatesMethod,
@@ -523,6 +524,32 @@ def test_parameter_from_segment_length_method() -> None:
     assert result.outputs["parameter_value"].value == 3
 
 
+def test_parameter_from_segment_length_method_supports_segment_relation() -> None:
+    kernel = SympyKernel()
+    b = kernel.symbols(["b"])["b"]
+
+    result = ParameterFromSegmentLengthMethod().run(
+        {
+            "p1": (-1, 0),
+            "p2": (b + 2, -2 * b - 2),
+            "reference_p1": (b + 1, 0),
+            "reference_p2": (0, b + 1),
+            "parameter": b,
+            "condition": {
+                "type": "segment_length_relation",
+                "left_segment": "AD",
+                "right_segment": "BC",
+                "scale": "2",
+            },
+            "constraint": {"operator": ">", "value": sp.Integer(0)},
+        },
+        kernel,
+    )
+
+    assert result.outputs["parameter_value"].value == 1
+    assert all(check.ok for check in result.checks)
+
+
 def test_parabola_at_parameter_method() -> None:
     kernel = SympyKernel()
     symbols = kernel.symbols(["x", "m"])
@@ -555,6 +582,29 @@ def test_point_on_parabola_at_x_method() -> None:
     )
 
     assert result.outputs["point"].value == (b + sp.Rational(1, 2), -b / 2 - sp.Rational(3, 4))
+
+
+def test_quadratic_x_axis_intercept_point_method_returns_other_root() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["x", "b"])
+    x, b = symbols["x"], symbols["b"]
+
+    result = QuadraticXAxisInterceptPointMethod().run(
+        {
+            "quadratic": -x**2 + b * x + b + 1,
+            "x": x,
+            "target": PointRef(
+                "B",
+                "$question.ii.points.B",
+                definition={"definition": "x_axis_intercept", "exclude_point": "A"},
+            ),
+            "known_point": (-1, 0),
+        },
+        kernel,
+    )
+
+    assert result.outputs["point"].value == (b + 1, 0)
+    assert all(check.ok for check in result.checks)
 
 
 def test_two_moving_points_path_reduction_method() -> None:
@@ -771,6 +821,34 @@ def test_weighted_axis_path_triangle_transform_method() -> None:
     assert all(check.ok for check in result.checks)
 
 
+def test_weighted_axis_path_triangle_transform_method_supports_weight_2() -> None:
+    """weight=2 时应使用 30°/60° 直角三角形转化。"""
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["m"])
+    m = symbols["m"]
+
+    result = WeightedAxisPathTriangleTransformMethod().run(
+        {
+            "condition": {"path": "2DM+AM", "value": "5+5*sqrt(3)"},
+            "fixed_point": (-1, 0),
+            "moving_point": (m, 0),
+            "dynamic_parameter": m,
+            "auxiliary_point_ref": PointRef("Q", "$question.ii_2.points.Q"),
+        },
+        kernel,
+    )
+
+    assert result.outputs["auxiliary_point"].value == (
+        sp.Rational(3, 4) * m - sp.Rational(1, 4),
+        sp.sqrt(3) * (m + 1) / 4,
+    )
+    assert result.outputs["path_transformation"].value["inner_path"] == "DM+QM"
+    assert result.outputs["path_transformation"].value["scale"] == 2
+    assert result.outputs["path_transformation"].value["geometry"] == "30_60_90"
+    assert result.outputs["auxiliary_locus"].value["direction"] == (3, sp.sqrt(3))
+    assert all(check.ok for check in result.checks)
+
+
 def test_linked_broken_path_geometric_minimum_method() -> None:
     """河西加权路径应走几何折线拉直，而不是依赖求导。"""
     kernel = SympyKernel()
@@ -845,6 +923,43 @@ def test_linked_broken_path_minimum_expression_method() -> None:
 
     assert sp.simplify(result.outputs["minimum_expression"].value - (sp.Rational(3, 2) * b + sp.Rational(9, 4))) == 0
     assert "parameter_value" not in result.outputs
+    assert all(check.ok for check in result.checks)
+
+
+def test_linked_broken_path_minimum_expression_method_supports_weight_2() -> None:
+    """西青 2DM+AM 的 30°/60° 转化应得到关于 b 的最小值表达式。"""
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["b", "m"])
+    b, m = symbols["b"], symbols["m"]
+    transform = WeightedAxisPathTriangleTransformMethod().run(
+        {
+            "condition": {"path": "2DM+AM", "value": "5+5*sqrt(3)"},
+            "fixed_point": (-1, 0),
+            "moving_point": (m, 0),
+            "dynamic_parameter": m,
+            "auxiliary_point_ref": PointRef("Q", "$question.ii_2.points.Q"),
+        },
+        kernel,
+    )
+
+    result = LinkedBrokenPathMinimumExpressionMethod().run(
+        {
+            "path_transformation": transform.outputs["path_transformation"].value,
+            "auxiliary_locus": transform.outputs["auxiliary_locus"].value,
+            "fixed_point": (-1, 0),
+            "curve_point": (b + 2, -b - 3),
+            "moving_point": (m, 0),
+            "auxiliary_point": transform.outputs["auxiliary_point"].value,
+            "parameter": b,
+            "dynamic_parameter": m,
+            "parameter_constraint": {"operator": ">", "value": sp.Integer(0)},
+            "dynamic_constraint": {"operator": ">", "value": sp.Integer(0)},
+        },
+        kernel,
+    )
+
+    expected = sp.simplify((b + 3) * (1 + sp.sqrt(3)))
+    assert sp.simplify(result.outputs["minimum_expression"].value - expected) == 0
     assert all(check.ok for check in result.checks)
 
 

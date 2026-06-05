@@ -265,6 +265,30 @@ def _length_segment_selector(role: str) -> BindingSelectorFn:
 
     return select
 
+def _length_reference_segment_selector(role: str) -> BindingSelectorFn:
+    """创建线段比例条件右侧参考线段的端点 selector。"""
+
+    def select(
+        step: StepIntent,
+        index: CanonicalRuntimeBindingIndex,
+        local_outputs: Mapping[str, str],
+    ) -> str | None:
+        points = _length_reference_condition_points(step, index)
+        if points is None:
+            return None
+        values = {"p1": points[0], "p2": points[1]}
+        return index.path_for(values[role], expected_type="Point")
+
+    return select
+
+def _length_condition_selector(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+    local_outputs: Mapping[str, str],
+) -> str:
+    """读取长度条件，兼容长度平方与两线段比例关系。"""
+    return index.path_for(_length_condition_handle(step, index), expected_type="Condition")
+
 def _parameter_symbol_selector(
     step: StepIntent,
     index: CanonicalRuntimeBindingIndex,
@@ -296,6 +320,32 @@ def _dynamic_symbol_selector(
 ) -> str:
     """读取动点参数符号。"""
     return index.dynamic_parameter_symbol_path(step=step)
+
+def _x_axis_known_point_selector(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+    local_outputs: Mapping[str, str],
+) -> str | None:
+    """读取 x 轴另一交点 method 用来排除的已知交点。"""
+    target_path = index.path_for(_point_output_handle(step, index), expected_type="PointRef")
+    target_ref = index.context.read_path(
+        target_path,
+        from_scope_id=step.scope_id,
+        expected_type="PointRef",
+    ).value
+    exclude_name = target_ref.definition.get("exclude_point") or target_ref.definition.get("known_point")
+    if exclude_name:
+        return index.path_for(
+            index.point_handle_by_name(str(exclude_name), step=step),
+            expected_type="Point",
+        )
+    for handle in step.reads:
+        if handle.startswith("point:"):
+            try:
+                return index.path_for(handle, expected_type="Point")
+            except StrategyDraftValidationError:
+                continue
+    return None
 
 def _read_minimum_expression_selector(
     step: StepIntent,
@@ -485,6 +535,7 @@ DEFAULT_BINDING_SELECTORS: dict[str, BindingSelectorFn] = {
     "fact:coefficient_relation:Equation": _fact_selector("coefficient_relation", "Equation"),
     "fact:path_minimum_target:Condition": _fact_selector("path_minimum_target", "Condition"),
     "fact:length_squared:Condition": _fact_selector("length_squared", "Condition"),
+    "fact:length_condition:Condition": _length_condition_selector,
     "fact:minimum_value:Condition": _fact_selector("minimum_value", "Condition"),
     "symbol:a": _symbol_selector("a"),
     "symbol:b": _symbol_selector("b"),
@@ -508,10 +559,13 @@ DEFAULT_BINDING_SELECTORS: dict[str, BindingSelectorFn] = {
     "midpoint:p2": _midpoint_selector("p2"),
     "length_segment:p1": _length_segment_selector("p1"),
     "length_segment:p2": _length_segment_selector("p2"),
+    "length_reference_segment:p1": _length_reference_segment_selector("p1"),
+    "length_reference_segment:p2": _length_reference_segment_selector("p2"),
     "parameter_symbol": _parameter_symbol_selector,
     "parameter_constraint": _parameter_constraint_selector,
     "dynamic_symbol": _dynamic_symbol_selector,
     "dynamic_constraint": _dynamic_constraint_selector,
+    "x_axis_known_point": _x_axis_known_point_selector,
     "read_type:MinimumExpression": _read_minimum_expression_selector,
     "weighted_path:condition": _weighted_path_condition_selector,
     "weighted_path:fixed_point": _weighted_path_selector("fixed_point"),
@@ -747,10 +801,60 @@ def _length_condition_points(
     step: StepIntent,
     index: CanonicalRuntimeBindingIndex,
 ) -> tuple[str, str]:
-    """从 ``MN_length_squared_eq_10`` fact 推断线段两端点。"""
-    fact = index.fact_handle_by_type("length_squared", step=step)
+    """从长度条件 fact 推断左侧线段两端点。"""
+    fact = _length_condition_handle(step, index)
+    if index.fact_types.get(fact) == "segment_length_relation":
+        segment = _segment_name_from_length_relation(fact, side="left")
+        return _segment_point_handles(segment, step, index, fact)
     name = _semantic_name(fact)
     segment = name.split("_", 1)[0]
+    return _segment_point_handles(segment, step, index, fact)
+
+def _length_reference_condition_points(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> tuple[str, str] | None:
+    """从线段比例 fact 推断右侧参考线段两端点。"""
+    fact = _length_condition_handle(step, index)
+    if index.fact_types.get(fact) != "segment_length_relation":
+        return None
+    segment = _segment_name_from_length_relation(fact, side="right")
+    return _segment_point_handles(segment, step, index, fact)
+
+def _length_condition_handle(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> str:
+    """返回当前 step 读取的长度条件 handle。"""
+    for handle in step.reads:
+        if index.fact_types.get(handle) in {"length_squared", "segment_length_relation"}:
+            return handle
+    for fact_type in ("length_squared", "segment_length_relation"):
+        try:
+            return index.fact_handle_by_type(fact_type, step=step)
+        except StrategyDraftValidationError:
+            continue
+    raise StrategyDraftValidationError("fact_handle_not_found: length_condition")
+
+def _segment_name_from_length_relation(fact: str, *, side: str) -> str:
+    """从 ``AD_eq_2BC`` 或 ``AD_eq_2_BC`` 中解析左/右线段。"""
+    name = _semantic_name(fact)
+    if "_eq_" not in name:
+        raise StrategyDraftValidationError(f"invalid_length_relation_name: {fact}")
+    left_raw, right_raw = name.split("_eq_", 1)
+    raw = left_raw if side == "left" else right_raw
+    letters = "".join(re.findall(r"[A-Z]", raw))
+    if len(letters) < 2:
+        raise StrategyDraftValidationError(f"invalid_length_relation_segment: {fact}")
+    return letters[-2:]
+
+def _segment_point_handles(
+    segment: str,
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+    fact: str,
+) -> tuple[str, str]:
+    """把两字母线段名转成 point handles。"""
     if len(segment) < 2:
         raise StrategyDraftValidationError(f"invalid_length_fact_name: {fact}")
     return (

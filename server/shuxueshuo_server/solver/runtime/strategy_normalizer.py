@@ -274,12 +274,39 @@ def _normalize_quadratic_from_constraints_step(
         item for item in step.produces
         if _produced_name_suggests_parabola(item)
     ]
+    corrected_items: list[ProducedFact] = []
+    type_actions: list[StepIntentNormalizationAction] = []
+    for item in parabola_items:
+        if item.output_type != "Equation":
+            corrected_items.append(item)
+            continue
+        corrected_items.append(replace(item, output_type="Parabola"))
+        type_actions.append(
+            StepIntentNormalizationAction(
+                action="normalize_parabola_equation_output_type",
+                step_id=step.step_id,
+                handle=item.handle,
+                target_step_id=None,
+                reason=(
+                    "quadratic_from_constraints 产出的抛物线解析式被标成 Equation；"
+                    "根据 handle/goal/recipe 语义修正为 Parabola。"
+                ),
+            )
+        )
+    if type_actions:
+        by_handle = {item.handle: item for item in corrected_items}
+        new_produces = tuple(by_handle.get(item.handle, item) for item in step.produces)
+        step = replace(step, produces=new_produces)
+        parabola_items = [
+            item for item in step.produces
+            if _produced_name_suggests_parabola(item)
+        ]
     utility_items = [
         item for item in step.produces
         if item not in parabola_items and _produced_name_suggests_quadratic_utility(item)
     ]
     if not utility_items:
-        return step, {}, []
+        return step, {}, type_actions
 
     target_handle = (
         parabola_items[0].handle
@@ -302,7 +329,7 @@ def _normalize_quadratic_from_constraints_step(
     )
     if target_item not in new_produces:
         new_produces = (*new_produces, target_item)
-    actions = [
+    actions = type_actions + [
         StepIntentNormalizationAction(
             action="normalize_quadratic_utility_fact_to_parabola",
             step_id=step.step_id,

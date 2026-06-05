@@ -418,6 +418,8 @@ class CanonicalRuntimeBindingIndex:
             self.register(handle, _runtime_path_for_scope(self.context, point_scope, "constraints", f"{point}_quadrant"), "OrientationHint", source="fact")
         elif fact_type == "length_squared":
             self.register(handle, _runtime_path_for_scope(self.context, scope_id, "conditions", "length_squared"), "Condition", source="fact")
+        elif fact_type == "segment_length_relation":
+            self.register(handle, _runtime_path_for_scope(self.context, scope_id, "conditions", "segment_length_relation"), "Condition", source="fact")
         elif fact_type == "minimum_value":
             self.register(handle, _runtime_path_for_scope(self.context, scope_id, "conditions", "minimum_value"), "Condition", source="fact")
         elif fact_type == "point_coordinate":

@@ -51,6 +51,14 @@ def test_quadratic_weighted_path_family_supports_hexi_fixture() -> None:
     assert QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY.family_id == "QuadraticWeightedPathMinimumSolver"
 
 
+def test_quadratic_weighted_path_family_uses_structural_match_without_problem_gate() -> None:
+    problem = load_problem_ir(HEXI_FIXTURE)
+
+    assert QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY.match.matches(problem)
+    assert not QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY.enabled_problem_ids
+    assert QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY.supports(problem)
+
+
 def test_family_spec_keeps_planner_and_answer_shape_out_of_spec() -> None:
     field_names = {field.name for field in fields(QUADRATIC_PATH_MINIMUM_FAMILY)}
 

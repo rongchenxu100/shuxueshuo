@@ -1,8 +1,8 @@
 {
   "method_id": "parameter_from_segment_length",
   "title": "由线段长度求参数",
-  "description": "由两点距离平方条件求参数。",
-  "summary": "输入: 两点和线段长度条件；输出: 满足条件的参数值。",
+  "description": "由线段长度条件求参数。",
+  "summary": "输入: 线段端点和长度/线段比例条件；输出: 满足条件的参数值。支持 MN²=10 与 AD=2BC 这类原始线段关系。",
   "solves": [
     "derive_parameter_from_segment_length"
   ],
@@ -14,6 +14,14 @@
     "p2": {
       "type": "Point",
       "required": true
+    },
+    "reference_p1": {
+      "type": "Point",
+      "required": false
+    },
+    "reference_p2": {
+      "type": "Point",
+      "required": false
     },
     "parameter": {
       "type": "Symbol",
@@ -30,5 +38,11 @@
   },
   "outputs": {
     "parameter_value": "ParameterValue"
-  }
+  },
+  "preconditions": [
+    "condition.value 表示绝对长度平方，或 condition.type=segment_length_relation 且提供 reference_p1/reference_p2"
+  ],
+  "postconditions": [
+    "求得参数满足长度方程；若有参数范围约束，按范围筛选唯一解"
+  ]
 }

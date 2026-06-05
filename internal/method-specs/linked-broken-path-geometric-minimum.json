@@ -2,7 +2,7 @@
   "method_id": "linked_broken_path_geometric_minimum",
   "title": "联动点折线拉直最值",
   "description": "用“将军饮马”的折线最短思想处理带联动辅助点的路径最值。",
-  "summary": "输入: sqrt(2) 加权路径已转化出的辅助点轨迹；输出: 几何最小值与极值点。使用边界: 只支持 transformation.scale=sqrt(2) 的等腰直角三角形转化结果。",
+  "summary": "输入: 已完成的加权辅助三角形转化与辅助点轨迹；输出: 几何最小值与极值点。使用边界: 支持 sqrt(2)/45° 与 2/30° 两类 weighted transform。",
   "solves": [
     "derive_linked_broken_path_geometric_minimum"
   ],
@@ -59,8 +59,8 @@
     "dynamic_point": "Point"
   },
   "preconditions": [
-    "已经完成 sqrt(2) 加权路径到 MN+QN 的辅助点转化",
-    "path_transformation.scale 必须为 sqrt(2)",
+    "已经完成加权路径到普通折线的辅助点转化",
+    "path_transformation.scale/geometry 必须来自受支持的 weighted_axis_path_triangle_transform",
     "Q 随 N 在固定射线上运动"
   ],
   "postconditions": [

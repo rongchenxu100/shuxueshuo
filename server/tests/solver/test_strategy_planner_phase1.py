@@ -472,6 +472,39 @@ def test_step_intent_normalizer_rewrites_quadratic_utility_fact_to_parabola() ->
     ]
 
 
+def test_step_intent_normalizer_corrects_parabola_expr_marked_as_equation() -> None:
+    """抛物线解析式被 LLM 标成 Equation 时应安全修正为 Parabola。"""
+    parabola_step = _step(
+        scope_id="i",
+        step_id="derive_i_parabola",
+        recipe_hint="quadratic_from_constraints",
+        goal_type="derive_parabola",
+        target="fact:i:parabola_expr",
+        produces=(
+            ProducedFact(
+                "fact:i:parabola_expr",
+                "i",
+                "第（Ⅰ）问抛物线解析式 y=-x^2+4x+3",
+                output_type="Equation",
+            ),
+        ),
+    )
+
+    normalized, report = StepIntentNormalizer().normalize(
+        _single_scope_draft(parabola_step, scope_id="i"),
+        family_spec=QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
+        question_goals=[],
+        handle_registry=_registry(),
+    )
+
+    produces = normalized.scopes[0].steps[0].produces
+    assert produces[0].handle == "fact:i:parabola_expr"
+    assert produces[0].output_type == "Parabola"
+    assert [action.action for action in report.actions] == [
+        "normalize_parabola_equation_output_type"
+    ]
+
+
 def test_step_intent_normalizer_rewrites_quadratic_relation_fact_to_parabola() -> None:
     """quadratic_from_constraints 的系数关系 utility fact 也应归一化成抛物线 fact。"""
     relation_step = _step(

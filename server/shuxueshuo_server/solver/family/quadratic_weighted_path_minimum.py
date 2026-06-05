@@ -42,11 +42,13 @@ QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         "quadratic_from_constraints",
         "quadratic_vertex_point",
         "quadratic_y_axis_intercept_point",
+        "quadratic_x_axis_intercept_point",
         "right_angle_equal_length_candidates",
         "filter_point_candidates_by_quadratic_curve",
         "parameter_from_curve_point_on_quadratic",
         "point_on_parabola_at_x",
         "evaluate_expression_at_parameter",
+        "parameter_from_segment_length",
         "weighted_axis_path_triangle_transform",
         "linked_broken_path_minimum_expression",
         "parameter_from_expression_value",
@@ -135,6 +137,15 @@ QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             ),
         ),
         MethodBindingRuleSpec(
+            method_id="quadratic_x_axis_intercept_point",
+            input_bindings=(
+                MethodInputBindingSpec("quadratic", "read_type:Parabola"),
+                MethodInputBindingSpec("x", "symbol:x"),
+                MethodInputBindingSpec("target", "point_output_ref"),
+                MethodInputBindingSpec("known_point", "x_axis_known_point", required=False),
+            ),
+        ),
+        MethodBindingRuleSpec(
             method_id="point_on_parabola_at_x",
             input_bindings=(
                 MethodInputBindingSpec("parabola", "read_type:Parabola"),
@@ -167,6 +178,18 @@ QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 MethodInputBindingSpec("parameter", "parameter_symbol"),
             ),
             expansion_selectors=("parameter_value_if_read",),
+        ),
+        MethodBindingRuleSpec(
+            method_id="parameter_from_segment_length",
+            input_bindings=(
+                MethodInputBindingSpec("p1", "length_segment:p1"),
+                MethodInputBindingSpec("p2", "length_segment:p2"),
+                MethodInputBindingSpec("reference_p1", "length_reference_segment:p1", required=False),
+                MethodInputBindingSpec("reference_p2", "length_reference_segment:p2", required=False),
+                MethodInputBindingSpec("parameter", "parameter_symbol"),
+                MethodInputBindingSpec("condition", "fact:length_condition:Condition"),
+                MethodInputBindingSpec("constraint", "parameter_constraint", required=False),
+            ),
         ),
         MethodBindingRuleSpec(
             method_id="weighted_axis_path_triangle_transform",
@@ -216,7 +239,4 @@ QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             ),
         ),
     ),
-    # 河西 25 是 weighted family 的第一道完整 golden case。后续至少再通过一道
-    # 同 family 题后，再考虑移除这个 deterministic slice 门控。
-    enabled_problem_ids=("tj-2026-hexi-yimo-25",),
 )

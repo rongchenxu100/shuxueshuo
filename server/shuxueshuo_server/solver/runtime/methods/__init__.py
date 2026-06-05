@@ -14,6 +14,7 @@ from .quadratic_axis_from_relation import QuadraticAxisFromRelationMethod, SPEC 
 from .quadratic_from_constraints import QuadraticFromConstraintsMethod, SPEC as QUADRATIC_FROM_CONSTRAINTS_SPEC
 from .quadratic_vertex_point import QuadraticVertexPointMethod, SPEC as QUADRATIC_VERTEX_POINT_SPEC
 from .quadratic_y_axis_intercept_point import QuadraticYAxisInterceptPointMethod, SPEC as QUADRATIC_Y_AXIS_INTERCEPT_POINT_SPEC
+from .quadratic_x_axis_intercept_point import QuadraticXAxisInterceptPointMethod, SPEC as QUADRATIC_X_AXIS_INTERCEPT_POINT_SPEC
 from .point_on_parabola_at_x import PointOnParabolaAtXMethod, SPEC as POINT_ON_PARABOLA_AT_X_SPEC
 from .midpoint_point import MidpointPointMethod, SPEC as MIDPOINT_POINT_SPEC
 from .parameter_from_segment_length import ParameterFromSegmentLengthMethod, SPEC as PARAMETER_FROM_SEGMENT_LENGTH_SPEC
@@ -46,6 +47,7 @@ ALL_METHOD_SPEC_SOURCES = (
     QUADRATIC_FROM_CONSTRAINTS_SPEC,
     QUADRATIC_VERTEX_POINT_SPEC,
     QUADRATIC_Y_AXIS_INTERCEPT_POINT_SPEC,
+    QUADRATIC_X_AXIS_INTERCEPT_POINT_SPEC,
     POINT_ON_PARABOLA_AT_X_SPEC,
     MIDPOINT_POINT_SPEC,
     PARAMETER_FROM_SEGMENT_LENGTH_SPEC,
@@ -83,6 +85,7 @@ def default_stateless_registry() -> StatelessMethodRegistry:
         QuadraticFromConstraintsMethod(),
         QuadraticVertexPointMethod(),
         QuadraticYAxisInterceptPointMethod(),
+        QuadraticXAxisInterceptPointMethod(),
         PointOnParabolaAtXMethod(),
         MidpointPointMethod(),
         ParameterFromSegmentLengthMethod(),
@@ -119,6 +122,7 @@ __all__ = [
     "QuadraticFromConstraintsMethod",
     "QuadraticVertexPointMethod",
     "QuadraticYAxisInterceptPointMethod",
+    "QuadraticXAxisInterceptPointMethod",
     "PointOnParabolaAtXMethod",
     "MidpointPointMethod",
     "ParameterFromSegmentLengthMethod",
