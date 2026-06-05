@@ -1039,11 +1039,14 @@ def test_strategy_prompt_renderer_contains_core_sections() -> None:
     assert "point:problem:Anchor" in prompt.system
     assert "不要改成当前子问 scope" in prompt.user
     assert "point:problem:Anchor" in prompt.user
-    assert "公共结论只 produces 一次" in prompt.user
+    assert "## 当前题目 ProblemIR JSON" in prompt.user
+    assert "## 示例题目 Few-shot" in prompt.user
+    assert "不是当前题条件" in prompt.user
+    assert "example.scopes[].steps[]" in prompt.user
     assert "同时输出 `answer:<goal.id>` 和公共 `fact:<scope>:<semantic_name>`" in prompt.user
     assert "同一个父级 Entity 点的坐标不能在兄弟小问分别 produces" in prompt.user
     assert "fact:problem:shared_coordinate_value" in prompt.user
-    assert "derive_anchor_coordinate" in prompt.user
+    assert "derive_axis_point" in prompt.user
     assert "description 应说明结论可见范围" in prompt.system
     assert "`output_type` 是可选字段" in prompt.system
     assert "`output_type`：可选" in prompt.user

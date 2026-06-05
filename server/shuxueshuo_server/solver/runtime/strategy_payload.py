@@ -16,11 +16,13 @@ from jinja2 import Environment, FileSystemLoader, StrictUndefined
 from shuxueshuo_server.solver.family import DEFAULT_FAMILY_REGISTRY, FamilyRegistry
 from shuxueshuo_server.solver.problem_models import ProblemIR
 from shuxueshuo_server.solver.question_goals import extract_question_goals
+from shuxueshuo_server.solver.runtime._paths import repo_root
 from shuxueshuo_server.solver.runtime.context import ContextBuilder
 from shuxueshuo_server.solver.runtime.context_inventory import ContextInventory
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.planner import PlannerInputs
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
+from shuxueshuo_server.solver.runtime.strategy_few_shots import select_few_shot_examples
 from shuxueshuo_server.solver.runtime.strategy_models import (
     ExecutablePlanResolutionReport,
     STEP_INTENT_JSON_SCHEMA,
@@ -31,7 +33,6 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
 )
 from shuxueshuo_server.solver.runtime.strategy_resolver import (
     _method_capability_summary,
-    _unique_ordered,
 )
 
 class StrategyPayloadBuilder:
@@ -42,8 +43,16 @@ class StrategyPayloadBuilder:
     在做 ContextPath 查表。
     """
 
-    def __init__(self, *, few_shot_examples: list[dict[str, Any]] | None = None) -> None:
+    def __init__(
+        self,
+        *,
+        few_shot_examples: list[dict[str, Any]] | None = None,
+        few_shot_dir: Path | str | None = None,
+        allow_same_problem_few_shot: bool = True,
+    ) -> None:
         self.few_shot_examples = few_shot_examples
+        self.few_shot_dir = Path(few_shot_dir) if few_shot_dir is not None else None
+        self.allow_same_problem_few_shot = allow_same_problem_few_shot
 
     def build(
         self,
@@ -68,14 +77,26 @@ class StrategyPayloadBuilder:
                 method_ids,
             ),
             "recipe_catalog": _recipe_catalog_payload(inputs.family_spec),
-            "few_shot_examples": (
-                self.few_shot_examples
-                if self.few_shot_examples is not None
-                else _default_few_shot_examples(inputs.family_spec.family_id)
-            ),
+            "few_shot_examples": self._few_shot_examples(inputs),
             "previous_attempts": list(inputs.previous_errors),
             "output_json_schema": STEP_INTENT_JSON_SCHEMA,
         }
+
+    def _few_shot_examples(self, inputs: PlannerInputs) -> list[dict[str, Any]]:
+        """选择 few-shot；显式注入优先，目录无命中则回退虚构示例。"""
+        if self.few_shot_examples is not None:
+            return self.few_shot_examples
+        selected = select_few_shot_examples(
+            family_id=inputs.family_spec.family_id,
+            goal_types=inputs.family_spec.common_goal_types,
+            problem_id=inputs.problem_id,
+            allow_same_problem=self.allow_same_problem_few_shot,
+            top_k=1,
+            few_shot_dir=self.few_shot_dir,
+        )
+        if selected:
+            return selected
+        return _default_few_shot_examples(inputs.family_spec.family_id)
 
 
 class StrategyPromptRenderer:
@@ -422,14 +443,4 @@ def _to_jsonable(value: Any) -> Any:
 
 def _default_template_dir() -> Path:
     """定位 internal/llm-prompts，避免硬编码固定 parents 层级。"""
-    return _repo_root() / "internal" / "llm-prompts"
-
-
-def _repo_root() -> Path:
-    """从当前文件向上寻找仓库根目录。"""
-    current = Path(__file__).resolve()
-    for parent in current.parents:
-        if (parent / ".git").exists():
-            return parent
-    # 单独打包测试时可能没有 .git，退回到当前 server 包结构推导。
-    return current.parents[4]
+    return repo_root(Path(__file__)) / "internal" / "llm-prompts"

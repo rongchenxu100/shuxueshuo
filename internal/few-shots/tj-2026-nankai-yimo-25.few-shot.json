@@ -1,0 +1,381 @@
+{
+  "problem_id": "tj-2026-nankai-yimo-25",
+  "family_id": "QuadraticPathMinimumSolver",
+  "title": "2026 年天津市南开区一模第 25 题",
+  "original_text": [
+    "已知抛物线 y＝ax²＋bx＋c（a＞0）与 y 轴交于点 C，且满足 2a＋b＝0，对称轴与 x 轴的交点为 D。",
+    "（Ⅰ）当 a＝2，c＝−5 时，求点 D 的坐标及抛物线的解析式；",
+    "（Ⅱ）设 M(m,1)（m＞2）在抛物线上，N 在抛物线上且在第四象限，∠MDN＝90°，DM＝DN。E 在线段 DM 上，G 在线段 MN 上，F 为 DN 的中点，且 DE＝√2·NG。",
+    "① 当 MN＝√10 时，直接写出抛物线的解析式及 EG＋FG 的最小值；",
+    "② 当 EG＋FG 的最小值为 5√10/2 时，求抛物线解析式及此时 G 的坐标。"
+  ],
+  "retrieval": {
+    "goal_types": [
+      "derive_axis_point",
+      "derive_parabola",
+      "derive_constructed_point",
+      "reduce_path_expression",
+      "straighten_broken_path",
+      "derive_minimum_value",
+      "derive_parameter",
+      "derive_extremal_point"
+    ]
+  },
+  "example": {
+    "scopes": [
+      {
+        "label": "第（Ⅰ）问",
+        "scope_id": "i",
+        "steps": [
+          {
+            "creates": [],
+            "goal_type": "derive_axis_point",
+            "produces": [
+              {
+                "description": "对称轴与x轴交点D的坐标(1,0)，全题通用。",
+                "handle": "fact:problem:D_coordinate",
+                "valid_scope": "problem"
+              },
+              {
+                "description": "第（Ⅰ）问答案：D(1,0)。",
+                "handle": "answer:i.axis_point",
+                "valid_scope": "i"
+              }
+            ],
+            "reads": [
+              "point:problem:D",
+              "fact:problem:coefficient_relation"
+            ],
+            "reason": "由2a+b=0得对称轴x=1，故D(1,0)。",
+            "recipe_hint": "quadratic_axis_from_relation",
+            "step_id": "derive_axis_point",
+            "strategy": "利用系数关系2a+b=0求出对称轴x=1，得到对称轴与x轴交点D(1,0)。该结论对全题通用。",
+            "target": "answer:i.axis_point"
+          },
+          {
+            "creates": [],
+            "goal_type": "derive_parabola",
+            "produces": [
+              {
+                "description": "第（Ⅰ）问抛物线解析式：y=2x^2-4x-5。",
+                "handle": "answer:i.parabola",
+                "valid_scope": "i"
+              }
+            ],
+            "reads": [
+              "symbol:problem:a",
+              "symbol:problem:b",
+              "symbol:problem:c",
+              "fact:problem:coefficient_relation",
+              "fact:i:a_value",
+              "fact:i:c_value"
+            ],
+            "reason": "代入a=2,c=-5，由2a+b=0得b=-4，故抛物线y=2x^2-4x-5。",
+            "recipe_hint": "quadratic_from_constraints",
+            "step_id": "derive_i_parabola",
+            "strategy": "代入a=2,c=-5，由2a+b=0得b=-4，得到抛物线解析式y=2x^2-4x-5。",
+            "target": "answer:i.parabola"
+          }
+        ]
+      },
+      {
+        "label": "第（Ⅱ）①问",
+        "scope_id": "ii_1",
+        "steps": [
+          {
+            "creates": [],
+            "goal_type": "derive_constructed_point",
+            "produces": [
+              {
+                "description": "N坐标（含参数m），后续全ii可用。",
+                "handle": "fact:ii:N_coordinate_expr",
+                "valid_scope": "ii"
+              }
+            ],
+            "reads": [
+              "point:problem:D",
+              "fact:problem:D_coordinate",
+              "point:ii:M",
+              "fact:ii:M_coordinate_expr",
+              "fact:ii:M_on_parabola",
+              "fact:ii:right_angle_equal_length_MDN",
+              "fact:ii:N_on_parabola",
+              "fact:ii:N_fourth_quadrant",
+              "symbol:problem:m"
+            ],
+            "reason": "通过直角等腰旋转得候选点，结合第四象限和曲线条件筛选出N坐标。",
+            "recipe_hint": "right_angle_equal_length_construct_and_select",
+            "step_id": "derive_N_coordinate_expr",
+            "strategy": "由D(1,0)、M(m,1)和∠MDN=90°且DM=DN，利用旋转关系得到N的两个候选点，再根据N在第四象限筛选出满足条件的N坐标（用m表示）。",
+            "target": "fact:ii:N_coordinate_expr"
+          },
+          {
+            "creates": [],
+            "goal_type": "derive_constructed_point",
+            "produces": [
+              {
+                "description": "F坐标（含参数m），后续全ii可用。",
+                "handle": "fact:ii:F_coordinate_expr",
+                "valid_scope": "ii"
+              }
+            ],
+            "reads": [
+              "point:problem:D",
+              "fact:problem:D_coordinate",
+              "point:ii:N",
+              "fact:ii:N_coordinate_expr",
+              "fact:ii:F_midpoint_of_DN"
+            ],
+            "reason": "F是DN中点，由中点公式得F坐标。",
+            "recipe_hint": "midpoint_point",
+            "step_id": "derive_F_coordinate_expr",
+            "strategy": "由D(1,0)和N坐标表达式，利用中点坐标公式求出F坐标（用m表示）。",
+            "target": "fact:ii:F_coordinate_expr"
+          },
+          {
+            "creates": [],
+            "goal_type": "reduce_path_expression",
+            "produces": [
+              {
+                "description": "两动点路径降维后的等价路径变换关系，后续全ii可用。",
+                "handle": "fact:ii:path_transformation",
+                "valid_scope": "ii"
+              }
+            ],
+            "reads": [
+              "point:ii:E",
+              "point:ii:G",
+              "point:ii:F",
+              "fact:ii:F_coordinate_expr",
+              "fact:ii:segment_DE_eq_sqrt2_NG",
+              "fact:ii:segment_E_on_DM",
+              "fact:ii:segment_G_on_MN",
+              "segment:ii:DM",
+              "segment:ii:MN",
+              "segment:ii:DN",
+              "fact:ii:path_minimum_target"
+            ],
+            "reason": "根据DE=√2·NG，将EG替换为某固定点到G的等长线段，使路径只依赖一个动点。",
+            "recipe_hint": "two_moving_points_path_reduction",
+            "step_id": "reduce_two_moving_points_path",
+            "strategy": "利用DE=√2·NG以及E在DM上、G在MN上，将EG+FG路径中的两动点线段转化为只含一个动点的等价路径，输出路径变换关系。",
+            "target": "fact:ii:path_transformation"
+          },
+          {
+            "creates": [
+              {
+                "description": "折线拉直所需辅助点，如对称点。具体类型由方案决定。",
+                "entity_type": "point",
+                "handle": "point:ii:Aux",
+                "valid_scope": "ii"
+              }
+            ],
+            "goal_type": "straighten_broken_path",
+            "produces": [
+              {
+                "description": "选定的折线拉直方案，包括辅助点位置和路径等价关系。后续全ii可用。",
+                "handle": "fact:ii:straightened_scheme",
+                "valid_scope": "ii"
+              }
+            ],
+            "reads": [
+              "fact:ii:path_transformation",
+              "segment:ii:DM",
+              "segment:ii:MN",
+              "point:ii:E",
+              "point:ii:G",
+              "point:ii:F",
+              "fact:ii:F_coordinate_expr"
+            ],
+            "reason": "将折线通过对称变换拉直成线段，使最小值转化为直线距离。",
+            "recipe_hint": "broken_path_straightening_and_select",
+            "step_id": "straighten_broken_path",
+            "strategy": "对降维后的单动点折线路径构造拉直候选方案（如将军饮马），选择最方便计算的方案，并创建辅助点（如对称点）用于后续计算。",
+            "target": "fact:ii:straightened_scheme"
+          },
+          {
+            "creates": [],
+            "goal_type": "derive_minimum_value",
+            "produces": [
+              {
+                "description": "EG+FG的最小值（含参数m），后续全ii可用。",
+                "handle": "fact:ii:minimum_value_expr",
+                "valid_scope": "ii"
+              }
+            ],
+            "reads": [
+              "fact:ii:straightened_scheme",
+              "point:ii:Aux",
+              "point:ii:F",
+              "fact:ii:F_coordinate_expr",
+              "point:problem:D",
+              "fact:problem:D_coordinate"
+            ],
+            "reason": "拉直后路径长度为两端点距离，代入坐标得到含m的表达式。",
+            "recipe_hint": "path_minimum_by_straightened_distance",
+            "step_id": "compute_minimum_expr",
+            "strategy": "在拉直方案确定后，利用端点间距离公式求出EG+FG的最小值表达式（含参数m）。",
+            "target": "fact:ii:minimum_value_expr"
+          },
+          {
+            "creates": [],
+            "goal_type": "derive_parameter",
+            "produces": [
+              {
+                "description": "第（Ⅱ）①问中参数m的具体数值。",
+                "handle": "fact:ii_1:m_value",
+                "valid_scope": "ii_1"
+              }
+            ],
+            "reads": [
+              "point:ii:M",
+              "fact:ii:M_coordinate_expr",
+              "point:ii:N",
+              "fact:ii:N_coordinate_expr",
+              "fact:ii_1:MN_length_squared_eq_10",
+              "symbol:problem:m",
+              "fact:problem:m_gt_2"
+            ],
+            "reason": "由|MN|^2=10和N坐标表达式解出m。",
+            "recipe_hint": "parameter_from_segment_length",
+            "step_id": "derive_m_from_MN",
+            "strategy": "利用MN=√10，由M(m,1)和N坐标表达式列出距离方程，求解m（m>2）。",
+            "target": "fact:ii_1:m_value"
+          },
+          {
+            "creates": [],
+            "goal_type": "derive_parabola",
+            "produces": [
+              {
+                "description": "第（Ⅱ）①问抛物线解析式。",
+                "handle": "answer:ii_1.parabola",
+                "valid_scope": "ii_1"
+              }
+            ],
+            "reads": [
+              "symbol:problem:a",
+              "symbol:problem:b",
+              "symbol:problem:c",
+              "fact:problem:coefficient_relation",
+              "point:ii:M",
+              "fact:ii:M_coordinate_expr",
+              "fact:ii:M_on_parabola",
+              "fact:ii_1:m_value"
+            ],
+            "reason": "代入m值，由M在抛物线上和系数关系求出解析式。",
+            "recipe_hint": "quadratic_from_constraints",
+            "step_id": "compute_ii_1_parabola",
+            "strategy": "将m的数值代入抛物线方程，结合2a+b=0和M在抛物线上，求出a,b,c，得到具体解析式。",
+            "target": "answer:ii_1.parabola"
+          },
+          {
+            "creates": [],
+            "goal_type": "derive_minimum_value",
+            "produces": [
+              {
+                "description": "第（Ⅱ）①问EG+FG的最小值。",
+                "handle": "answer:ii_1.minimum_value",
+                "valid_scope": "ii_1"
+              }
+            ],
+            "reads": [
+              "fact:ii:minimum_value_expr",
+              "fact:ii:straightened_scheme",
+              "point:ii:Aux",
+              "point:ii:F",
+              "fact:ii:F_coordinate_expr",
+              "fact:ii_1:m_value"
+            ],
+            "reason": "拉直后的最短路径已经转化为Aux与F之间的距离，再代入m具体数值即可得到第（Ⅱ）①问答案。",
+            "recipe_hint": "distance_between_points",
+            "step_id": "compute_ii_1_minimum",
+            "strategy": "把已求得的m值代入拉直端点距离，显式计算EG+FG的具体最小值。",
+            "target": "answer:ii_1.minimum_value"
+          }
+        ]
+      },
+      {
+        "label": "第（Ⅱ）②问",
+        "scope_id": "ii_2",
+        "steps": [
+          {
+            "creates": [],
+            "goal_type": "derive_parameter",
+            "produces": [
+              {
+                "description": "第（Ⅱ）②问中参数m的具体数值。",
+                "handle": "fact:ii_2:m_value",
+                "valid_scope": "ii_2"
+              }
+            ],
+            "reads": [
+              "fact:ii:minimum_value_expr",
+              "fact:ii_2:path_minimum_value_given",
+              "symbol:problem:m",
+              "fact:problem:m_gt_2"
+            ],
+            "reason": "由给定最小值等于表达式解出m。",
+            "recipe_hint": "parameter_from_minimum_value",
+            "step_id": "derive_m_from_minimum",
+            "strategy": "已知EG+FG的最小值为5√10/2，且最小值表达式为含m的式子，列方程求解m（m>2）。",
+            "target": "fact:ii_2:m_value"
+          },
+          {
+            "creates": [],
+            "goal_type": "derive_parabola",
+            "produces": [
+              {
+                "description": "第（Ⅱ）②问抛物线解析式。",
+                "handle": "answer:ii_2.parabola",
+                "valid_scope": "ii_2"
+              }
+            ],
+            "reads": [
+              "symbol:problem:a",
+              "symbol:problem:b",
+              "symbol:problem:c",
+              "fact:problem:coefficient_relation",
+              "point:ii:M",
+              "fact:ii:M_coordinate_expr",
+              "fact:ii:M_on_parabola",
+              "fact:ii_2:m_value"
+            ],
+            "reason": "代入m值，由M在抛物线上和系数关系求出解析式。",
+            "recipe_hint": "quadratic_from_constraints",
+            "step_id": "compute_ii_2_parabola",
+            "strategy": "将m的数值代入抛物线方程，结合2a+b=0和M在抛物线上，求出a,b,c，得到具体解析式。",
+            "target": "answer:ii_2.parabola"
+          },
+          {
+            "creates": [],
+            "goal_type": "derive_extremal_point",
+            "produces": [
+              {
+                "description": "第（Ⅱ）②问G的坐标。",
+                "handle": "answer:ii_2.intersection",
+                "valid_scope": "ii_2"
+              }
+            ],
+            "reads": [
+              "fact:ii:straightened_scheme",
+              "point:ii:Aux",
+              "point:ii:G",
+              "fact:ii:segment_G_on_MN",
+              "segment:ii:MN",
+              "point:ii:M",
+              "fact:ii:M_coordinate_expr",
+              "point:ii:N",
+              "fact:ii:N_coordinate_expr",
+              "fact:ii_2:m_value"
+            ],
+            "reason": "当G为拉直线与MN交点时，EG+FG取最小值。联立直线方程求解。",
+            "recipe_hint": "line_intersection_point",
+            "step_id": "compute_G_coordinate",
+            "strategy": "在拉直方案中，当EG+FG取最小值时，G的位置是拉直后线段与MN的交点。利用直线方程联立求出G坐标。",
+            "target": "answer:ii_2.intersection"
+          }
+        ]
+      }
+    ]
+  }
+}
