@@ -11,6 +11,7 @@ import json
 from pathlib import Path
 from typing import Any, Iterable
 
+from shuxueshuo_server.solver.problem_models import QuestionGoal
 from shuxueshuo_server.solver.runtime._paths import repo_root
 
 
@@ -117,6 +118,40 @@ def select_few_shot_examples(
     return [entry for *_prefix, entry in candidates[:top_k]]
 
 
+def query_goal_types_from_problem(
+    *,
+    problem_payload: dict[str, Any] | None = None,
+    question_goals: Iterable[QuestionGoal] = (),
+) -> list[str]:
+    """从当前题目标生成 few-shot 检索用 goal_types。
+
+    这里故意不使用 ``FamilySpec.common_goal_types``，因为它描述的是题型全集，
+    不是当前题实际要回答的目标。V1 用 QuestionGoal 的 value_type、answer_key
+    与描述做轻量映射，后续可替换为更正式的题目目标分类。
+    """
+    raw_goals: list[dict[str, Any]] = []
+    if problem_payload is not None:
+        for item in problem_payload.get("question_goals", ()):
+            if isinstance(item, dict):
+                raw_goals.append(item)
+    if not raw_goals:
+        for goal in question_goals:
+            raw_goals.append(
+                {
+                    "handle": f"answer:{goal.id}",
+                    "answer_key": goal.answer_key,
+                    "value_type": goal.value_type,
+                    "description": "",
+                }
+            )
+    goal_types: list[str] = []
+    for goal in raw_goals:
+        for goal_type in _goal_types_for_answer_goal(goal):
+            if goal_type not in goal_types:
+                goal_types.append(goal_type)
+    return goal_types
+
+
 def goal_types_from_scopes(scopes: Iterable[dict[str, Any]]) -> list[str]:
     """从 ``scopes[].steps[].goal_type`` 按首次出现顺序去重。"""
     goal_types: list[str] = []
@@ -131,6 +166,30 @@ def goal_types_from_scopes(scopes: Iterable[dict[str, Any]]) -> list[str]:
             seen.add(goal_type)
             goal_types.append(goal_type)
     return goal_types
+
+
+def _goal_types_for_answer_goal(goal: dict[str, Any]) -> tuple[str, ...]:
+    """把 answer goal 映射成当前题检索目标类型。"""
+    value_type = str(goal.get("value_type", ""))
+    answer_key = str(goal.get("answer_key", "")).lower()
+    handle = str(goal.get("handle", "")).lower()
+    description = str(goal.get("description", "")).lower()
+    text = "\n".join((answer_key, handle, description))
+    if value_type == "Parabola":
+        return ("derive_parabola",)
+    if value_type == "MinimumExpression":
+        return ("derive_minimum_value",)
+    if value_type == "ParameterValue":
+        return ("derive_parameter",)
+    if value_type == "Point":
+        if "vertex" in text or "顶点" in description or answer_key == "p":
+            return ("derive_vertex_point",)
+        if "axis" in text or "对称轴" in description:
+            return ("derive_axis_point",)
+        if "intersection" in text or "交点" in description:
+            return ("derive_extremal_point",)
+        return ("derive_constructed_point",)
+    return ()
 
 
 def validate_few_shot_entry(entry: dict[str, Any]) -> None:

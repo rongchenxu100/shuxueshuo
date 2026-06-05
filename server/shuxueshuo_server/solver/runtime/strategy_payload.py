@@ -22,7 +22,10 @@ from shuxueshuo_server.solver.runtime.context_inventory import ContextInventory
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.planner import PlannerInputs
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
-from shuxueshuo_server.solver.runtime.strategy_few_shots import select_few_shot_examples
+from shuxueshuo_server.solver.runtime.strategy_few_shots import (
+    query_goal_types_from_problem,
+    select_few_shot_examples,
+)
 from shuxueshuo_server.solver.runtime.strategy_models import (
     ExecutablePlanResolutionReport,
     STEP_INTENT_JSON_SCHEMA,
@@ -77,18 +80,26 @@ class StrategyPayloadBuilder:
                 method_ids,
             ),
             "recipe_catalog": _recipe_catalog_payload(inputs.family_spec),
-            "few_shot_examples": self._few_shot_examples(inputs),
+            "few_shot_examples": self._few_shot_examples(inputs, problem_payload),
             "previous_attempts": list(inputs.previous_errors),
             "output_json_schema": STEP_INTENT_JSON_SCHEMA,
         }
 
-    def _few_shot_examples(self, inputs: PlannerInputs) -> list[dict[str, Any]]:
+    def _few_shot_examples(
+        self,
+        inputs: PlannerInputs,
+        problem_payload: dict[str, Any],
+    ) -> list[dict[str, Any]]:
         """选择 few-shot；显式注入优先，目录无命中则回退虚构示例。"""
         if self.few_shot_examples is not None:
             return self.few_shot_examples
+        query_goal_types = query_goal_types_from_problem(
+            problem_payload=problem_payload,
+            question_goals=inputs.question_goals,
+        )
         selected = select_few_shot_examples(
             family_id=inputs.family_spec.family_id,
-            goal_types=inputs.family_spec.common_goal_types,
+            goal_types=query_goal_types,
             problem_id=inputs.problem_id,
             allow_same_problem=self.allow_same_problem_few_shot,
             top_k=1,

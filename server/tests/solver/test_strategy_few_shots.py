@@ -9,6 +9,7 @@ from shuxueshuo_server.solver.runtime.strategy_few_shots import (
     build_few_shot_entry,
     goal_types_from_scopes,
     load_few_shot_entries,
+    query_goal_types_from_problem,
     select_few_shot_examples,
     validate_few_shot_entry,
     write_few_shot_entry,
@@ -142,6 +143,85 @@ def test_strategy_payload_builder_uses_dynamic_few_shot_selector(tmp_path: Path)
     assert payload["few_shot_examples"][0]["problem_id"] == "tj-2026-nankai-yimo-25"
     assert "example" in payload["few_shot_examples"][0]
     assert explicit["few_shot_examples"] == [{"family_id": "fake", "scopes": []}]
+
+
+def test_query_goal_types_are_derived_from_current_problem_goals() -> None:
+    """few-shot 检索应使用当前题目标，而不是 family common_goal_types。"""
+    nankai_goals = query_goal_types_from_problem(
+        problem_payload=_json_fixture("tj-2026-nankai-yimo-25.llm.json")
+    )
+    hexi_goals = query_goal_types_from_problem(
+        problem_payload=_json_fixture("tj-2026-hexi-yimo-25.llm.json")
+    )
+
+    assert nankai_goals == [
+        "derive_axis_point",
+        "derive_parabola",
+        "derive_minimum_value",
+        "derive_extremal_point",
+    ]
+    assert hexi_goals == [
+        "derive_vertex_point",
+        "derive_constructed_point",
+        "derive_parameter",
+    ]
+    assert "reduce_path_expression" not in nankai_goals
+    assert "derive_weighted_path_minimum" not in hexi_goals
+
+
+def test_payload_selector_ranks_by_current_problem_goal_types(tmp_path: Path) -> None:
+    """payload selector 不应退回 family common_goal_types 做检索。"""
+    base = build_few_shot_entry(
+        problem_payload=_json_fixture("tj-2026-nankai-yimo-25.llm.json"),
+        executable_step_intents=_json_fixture("tj-2026-nankai-yimo-25.executable-step-intents.json"),
+        family_id="QuadraticPathMinimumSolver",
+    )
+    current_goal_match = deepcopy(base)
+    current_goal_match["problem_id"] = "current-goal-match"
+    current_goal_match["example"]["scopes"] = [
+        {
+            **base["example"]["scopes"][0],
+            "steps": [base["example"]["scopes"][0]["steps"][1]],
+        }
+    ]
+    current_goal_match["retrieval"] = {
+        "goal_types": goal_types_from_scopes(current_goal_match["example"]["scopes"])
+    }
+    family_only_match = deepcopy(base)
+    family_only_match["problem_id"] = "family-only-match"
+    family_only_match["example"]["scopes"] = [
+        {
+            "scope_id": "fake",
+            "steps": [
+                {
+                    "step_id": "reduce_path",
+                    "recipe_hint": "two_moving_points_path_reduction",
+                    "goal_type": "reduce_path_expression",
+                    "target": "fact:fake:path",
+                    "reads": [],
+                    "creates": [],
+                    "produces": [],
+                    "strategy": "",
+                    "reason": "",
+                }
+            ],
+        }
+    ]
+    family_only_match["retrieval"] = {
+        "goal_types": goal_types_from_scopes(family_only_match["example"]["scopes"])
+    }
+    write_few_shot_entry(family_only_match, tmp_path / "family-only-match.few-shot.json")
+    write_few_shot_entry(current_goal_match, tmp_path / "current-goal-match.few-shot.json")
+
+    payload = StrategyPayloadBuilder(
+        few_shot_dir=tmp_path,
+        allow_same_problem_few_shot=False,
+    ).build(
+        _nankai_inputs(),
+        problem_payload=_json_fixture("tj-2026-nankai-yimo-25.llm.json"),
+    )
+
+    assert payload["few_shot_examples"][0]["problem_id"] == "current-goal-match"
 
 
 def test_strategy_payload_builder_falls_back_to_virtual_few_shot(tmp_path: Path) -> None:
