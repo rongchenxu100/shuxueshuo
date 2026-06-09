@@ -1,0 +1,143 @@
+{
+  "_comment": "天津数学 24 题专题训练 — 菱形与平移等边三角形重叠面积。",
+  "layers": {
+    "global": {
+      "elements": [
+        { "type": "grid" },
+        { "type": "basePoly" },
+        { "type": "point", "at": "O", "showLabel": false },
+        { "type": "point", "at": "A", "dx": -8, "dy": 24 },
+        { "type": "point", "at": "B", "dx": -28, "dy": 4 },
+        { "type": "point", "at": "C", "dx": 10, "dy": -12 },
+        { "type": "point", "at": "D", "dx": 12, "dy": 4 }
+      ]
+    },
+    "moving": {
+      "stepStartsWith": ["q2"],
+      "elements": [
+        { "type": "movingPoly" },
+        { "type": "overlap" },
+        { "type": "point", "at": "Op", "labelText": "O′", "color": "#0f766e", "dx": 10, "dy": 20 },
+        { "type": "point", "at": "Ep", "labelText": "E′", "color": "#0f766e", "dx": -18, "dy": 4 },
+        { "type": "point", "at": "Fp", "labelText": "F′", "color": "#0f766e", "dx": 10, "dy": -12 },
+        { "type": "areaLabel", "region": "overlap", "text": "S", "dx": -2, "dy": 5 }
+      ]
+    }
+  },
+  "steps": {
+    "q1s1": {
+      "add": [
+        { "type": "movingPoly" },
+        { "type": "point", "at": "Ep", "labelText": "E", "color": "#0f766e", "dx": -18, "dy": 4 },
+        { "type": "point", "at": "Fp", "labelText": "F", "color": "#0f766e", "dx": -28, "dy": -12 },
+        { "type": "coloredLine", "from": "B", "to": "C", "color": "#dc2626" },
+        { "type": "coloredLine", "from": "A", "to": "D", "color": "#dc2626" },
+        { "type": "coordinateLabel", "at": "D", "text": "D(2√3,1)", "dx": 16, "dy": -22 }
+      ]
+    },
+    "q1s2": {
+      "add": [
+        { "type": "movingPoly" },
+        { "type": "point", "at": "Ep", "labelText": "E", "color": "#0f766e", "dx": -18, "dy": 4 },
+        { "type": "point", "at": "Fp", "labelText": "F", "color": "#0f766e", "dx": -28, "dy": -12 },
+        { "type": "coloredLine", "from": "Op", "to": "Fp", "color": "#0f766e" },
+        { "type": "coloredLine", "from": "Ep", "to": "Op", "color": "#0f766e" },
+        { "type": "coloredLine", "from": "Ep", "to": "Fp", "color": "#0f766e" },
+        { "type": "dashedLine", "from": "Ep", "to": "B", "color": "#dc2626" },
+        { "type": "rightAngle", "vertex": "B", "rayA": "Ep", "rayB": "Op" },
+        { "type": "segment", "from": "Op", "to": "Fp", "label": "OF=2", "offsetPx": 28, "collinearGroup": false },
+        { "type": "segment", "from": "Ep", "to": "B", "label": "EB=√3", "offsetPx": -22, "collinearGroup": false },
+        { "type": "coordinateLabel", "at": "Ep", "text": "E(-√3,1)", "dx": -86, "dy": -18 }
+      ]
+    },
+    "q2a1": {
+      "add": [
+        { "type": "outlineRegion", "vertices": ["A", "G", "Op"], "style": "target" },
+        { "type": "coloredLine", "from": "A", "to": "D", "color": "#dc2626" },
+        { "type": "coloredLine", "from": "Op", "to": "Ep", "color": "#0f766e" },
+        { "type": "point", "at": "G", "color": "#dc2626", "dx": -12, "dy": 20 },
+        { "type": "segment", "from": "A", "to": "Op", "label": "AO′=t-√3", "color": "#dc2626", "offsetPx": 26, "collinearGroup": false },
+        { "type": "segment", "from": "A", "to": "G", "label": "AG=GO′", "color": "#dc2626", "offsetPx": -24, "collinearGroup": false },
+        { "type": "angleArc", "vertex": "A", "rayA": "Op", "rayB": "G", "label": "30°", "color": "#dc2626", "labelRadius": 30 },
+        { "type": "angleArc", "vertex": "Op", "rayA": "A", "rayB": "G", "label": "30°", "color": "#dc2626", "labelRadius": 30 }
+      ]
+    },
+    "q2a2": {
+      "add": [
+        { "type": "outlineRegion", "vertices": ["A", "N", "Op"], "style": "target" },
+        { "type": "coloredLine", "from": "A", "to": "D", "color": "#dc2626" },
+        { "type": "coloredLine", "from": "Op", "to": "Fp", "color": "#0f766e" },
+        { "type": "point", "at": "G", "color": "#dc2626", "dx": -12, "dy": 20 },
+        { "type": "point", "at": "N", "color": "#dc2626", "dx": 12, "dy": 20 },
+        { "type": "rightAngle", "vertex": "Op", "rayA": "A", "rayB": "N" },
+        { "type": "angleArc", "vertex": "A", "rayA": "Op", "rayB": "N", "label": "30°", "color": "#dc2626", "labelRadius": 30 },
+        { "type": "segment", "from": "A", "to": "N", "label": "AN=2(t-√3)/√3", "color": "#dc2626", "offsetPx": -24, "collinearGroup": false }
+      ]
+    },
+    "q2a3": {
+      "add": [
+        { "type": "outlineRegion", "vertices": ["N", "G", "Ep", "H", "M"], "style": "target" },
+        { "type": "coloredLine", "from": "A", "to": "D", "color": "#dc2626" },
+        { "type": "coloredLine", "from": "C", "to": "D", "color": "#dc2626" },
+        { "type": "coloredLine", "from": "Op", "to": "Fp", "color": "#0f766e" },
+        { "type": "point", "at": "G", "color": "#dc2626", "dx": -12, "dy": 20 },
+        { "type": "point", "at": "H", "color": "#dc2626", "dx": -10, "dy": -16 },
+        { "type": "point", "at": "M", "color": "#dc2626", "dx": 12, "dy": -10 },
+        { "type": "point", "at": "N", "color": "#dc2626", "dx": 12, "dy": 20 }
+      ]
+    },
+    "q2b1": {
+      "add": [
+        { "type": "areaLabel", "region": "overlap", "text": "S", "dx": -2, "dy": 5 }
+      ]
+    },
+    "q2b2": {
+      "add": [
+        { "type": "outlineRegion", "vertices": ["B", "Q", "P"], "style": "target" },
+        { "type": "point", "at": "P", "color": "#dc2626", "dx": 10, "dy": 18 },
+        { "type": "point", "at": "Q", "color": "#dc2626", "dx": 10, "dy": -14 },
+        { "type": "point", "at": "W", "color": "#dc2626", "showLabel": false },
+        { "type": "dashedLine", "from": "B", "to": "W", "color": "#dc2626" },
+        { "type": "segment", "from": "B", "to": "W", "label": "√3/2", "color": "#dc2626", "offsetPx": -22, "collinearGroup": false },
+        { "type": "rightAngle", "vertex": "W", "rayA": "B", "rayB": "Q" },
+        { "type": "areaFormulaCard", "pos": [-2.1, 2.35], "terms": [
+          { "text": "S", "kind": "target" },
+          { "text": "=", "kind": "op" },
+          { "text": "S△BPQ", "kind": "base" },
+          { "text": "=", "kind": "op" },
+          { "text": "√3/4", "kind": "target" }
+        ]}
+      ]
+    },
+    "q2b3": {
+      "add": [
+        { "type": "outlineRegion", "vertices": ["Op", "Fp", "Ep"], "style": "target" },
+        { "type": "segment", "from": "Op", "to": "Fp", "label": "2", "color": "#dc2626", "offsetPx": 24, "collinearGroup": false },
+        { "type": "areaLabel", "region": "overlap", "text": "S=√3", "dx": -22, "dy": 5 }
+      ]
+    },
+    "q2b4": {
+      "add": [
+        { "type": "outlineRegion", "vertices": ["G", "Ep", "H", "D"], "style": "target" },
+        { "type": "point", "at": "G", "color": "#dc2626", "dx": -12, "dy": 20 },
+        { "type": "point", "at": "H", "color": "#dc2626", "dx": -10, "dy": -16 },
+        { "type": "point", "at": "K", "color": "#dc2626", "dx": 10, "dy": 18 },
+        { "type": "dashedLine", "from": "Ep", "to": "K", "color": "#dc2626" },
+        { "type": "segment", "from": "D", "to": "K", "label": "DK=√3/2", "color": "#dc2626", "offsetPx": -24, "collinearGroup": false },
+        { "type": "segment", "from": "Ep", "to": "D", "label": "E′D=√3/2", "color": "#dc2626", "offsetPx": 22, "collinearGroup": false },
+        { "type": "rightAngle", "vertex": "K", "rayA": "Ep", "rayB": "Fp" },
+        { "type": "angleArc", "vertex": "Ep", "rayA": "G", "rayB": "H", "label": "60°", "color": "#dc2626", "labelRadius": 28 },
+        { "type": "areaFormulaCard", "pos": [-2.1, 2.35], "terms": [
+          { "text": "S", "kind": "target" },
+          { "text": "=", "kind": "op" },
+          { "text": "60°菱形", "kind": "base" }
+        ]}
+      ]
+    },
+    "q2b5": {
+      "add": [
+        { "type": "areaLabel", "region": "overlap", "text": "S", "dx": -2, "dy": 5 }
+      ]
+    }
+  }
+}

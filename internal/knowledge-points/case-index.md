@@ -48,6 +48,7 @@
 | `tj-2026-binhai-yimo-24` | 24 | 菱形水平平移，与矩形重叠面积分段 | `translation-overlap-area`, `area-piecewise-by-overlap` |
 | `tj-2026-dongli-yimo-24` | 24 | 等腰直角三角形平移，与平行四边形重叠面积分段 | `translation-overlap-area`, `area-piecewise-by-overlap`, `isosceles-right-triangle-transform` |
 | `tj-2026-hexi-yimo-24` | 24 | 三角形平移，与固定图形重叠面积和范围 | `translation-overlap-area`, `area-piecewise-by-overlap` |
+| `tj-topic-training-24-rhombus-triangle-translation` | 24 | 菱形与等边三角形水平平移，求 `GN` 和 `√3/2≤t≤5√3/2` 的重叠面积范围 | `translation-overlap-area`, `area-piecewise-by-overlap` |
 
 ### moving-point-folding-area
 
@@ -207,6 +208,7 @@
 | `tj-2026-binhai-yimo-24` | 24 | 第（2）①② | 菱形水平平移，与矩形重叠面积分段 |
 | `tj-2026-dongli-yimo-24` | 24 | 第（2）①② | 平移等腰直角三角形，与平行四边形重叠面积分段 |
 | `tj-2026-hexi-yimo-24` | 24 | 第（II）①② | 三角形平移，计算四边形面积和面积范围 |
+| `tj-topic-training-24-rhombus-triangle-translation` | 24 | 第（2）①② | 等边三角形水平平移，与菱形重叠；先用等腰三角形和直角三角形求 `GN`，再比较面积候选值 |
 
 ### folding-overlap-area
 
@@ -234,6 +236,7 @@
 | `tj-2026-hexi-ermo-24` | 24 | 第（III）问 | 先由趋势比较 `t=1`、`t=4` 两个边界最小候选，再在 `3<t<4` 四边形段用二次函数求最大值 |
 | `tj-2026-heping-ermo-24` | 24 | 第（Ⅱ）② | 折叠重叠面积范围 |
 | `tj-2026-hexi-yimo-24` | 24 | 第（II）② | 平移三角形重叠面积范围 |
+| `tj-topic-training-24-rhombus-triangle-translation` | 24 | 第（2）② | 按三角形进入、五边形离开、右端四边形三段判断趋势，比较左右端点和完整三角形最大值 |
 | `tj-2026-nankai-ermo-24` | 24 | 第（II）② | 折叠四边形重叠面积范围 |
 | `tj-2026-nankai-sanmo-24` | 24 | 第（II）② | 按 `4<t≤6`、`6<t<8`、`8≤t<10` 分段，四边形给严格下界，五边形公式给最大值 |
 | `tj-2026-nankai-yimo-24` | 24 | 第（II）② | 旋转三角形重叠面积范围 |

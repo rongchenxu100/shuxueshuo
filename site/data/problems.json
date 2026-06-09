@@ -182,6 +182,19 @@
     "status": "published"
   },
   {
+    "id": "tj-topic-training-24-rhombus-triangle-translation",
+    "city": "tianjin",
+    "cityLabel": "天津",
+    "year": 2026,
+    "exam": "topic-training",
+    "examLabel": "24 题专题训练",
+    "slot": "24",
+    "title": "天津数学 24 题专题训练（菱形与平移等边三角形）",
+    "tags": ["geometry", "translation", "dynamic-point"],
+    "path": "../problems/tj/24/tj-topic-training-24-rhombus-triangle-translation.html",
+    "status": "published"
+  },
+  {
     "id": "tj-2026-hexi-ermo-24",
     "city": "tianjin",
     "cityLabel": "天津",

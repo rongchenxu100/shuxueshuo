@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "id": "tj-topic-training-24-rhombus-triangle-translation",
+  "domain": { "minX": -2.25, "maxX": 4.9, "minY": -0.55, "maxY": 2.55 },
+  "fixedPoints": {
+    "O": ["0", "0"],
+    "A": ["S3", "0"],
+    "B": ["0", "1"],
+    "C": ["S3", "2"],
+    "D": ["2*S3", "1"]
+  },
+  "movingParam": "t",
+  "movingPoints": {
+    "Op": ["t", "0"],
+    "Ep": ["t-S3", "1"],
+    "Fp": ["t", "2"],
+    "W": ["t", "1"],
+    "K": ["t", "1"]
+  },
+  "basePolygon": ["A", "D", "C", "B"],
+  "movingPolygon": ["Op", "Fp", "Ep"],
+  "derivedIntersections": [
+    { "name": "G", "a": ["Op", "Ep"], "b": ["A", "D"], "fallback": ["(t+S3)/2", "t/(2*S3)-1/2"] },
+    { "name": "H", "a": ["Ep", "Fp"], "b": ["C", "D"], "fallback": ["(t+S3)/2", "5/2-t/(2*S3)"] },
+    { "name": "M", "a": ["Op", "Fp"], "b": ["C", "D"], "fallback": ["t", "3-t/S3"] },
+    { "name": "N", "a": ["Op", "Fp"], "b": ["A", "D"], "fallback": ["t", "t/S3-1"] },
+    { "name": "P", "a": ["Op", "Fp"], "b": ["A", "B"], "fallback": ["t", "1-t/S3"] },
+    { "name": "Q", "a": ["Op", "Fp"], "b": ["B", "C"], "fallback": ["t", "1+t/S3"] }
+  ],
+  "originalFigures": [
+    {
+      "id": "originalFigure1",
+      "t": 0,
+      "showMoving": true,
+      "showOverlap": false,
+      "showIntersections": false,
+      "fixedLabels": [
+        { "at": "A", "label": "A", "dx": -8, "dy": 24 },
+        { "at": "B", "label": "B", "dx": -28, "dy": 4 },
+        { "at": "C", "label": "C", "dx": 10, "dy": -12 },
+        { "at": "D", "label": "D", "dx": 12, "dy": 4 }
+      ],
+      "movingLabels": [
+        { "at": "Ep", "label": "E", "color": "#0f766e", "dx": -18, "dy": 4 },
+        { "at": "Fp", "label": "F", "color": "#0f766e", "dx": -28, "dy": -12 }
+      ]
+    },
+    {
+      "id": "originalFigure2",
+      "t": 2.598076211353316,
+      "showMoving": true,
+      "showOverlap": true,
+      "showIntersections": true,
+      "fixedLabels": [
+        { "at": "A", "label": "A", "dx": -8, "dy": 24 },
+        { "at": "B", "label": "B", "dx": -28, "dy": 4 },
+        { "at": "C", "label": "C", "dx": 10, "dy": -12 },
+        { "at": "D", "label": "D", "dx": 12, "dy": 4 }
+      ],
+      "movingLabels": [
+        { "at": "Op", "label": "O′", "color": "#0f766e", "dx": 10, "dy": 20 },
+        { "at": "Ep", "label": "E′", "color": "#0f766e", "dx": -18, "dy": 4 },
+        { "at": "Fp", "label": "F′", "color": "#0f766e", "dx": 10, "dy": -12 }
+      ],
+      "intersectionLabels": [
+        { "at": "G", "label": "G", "color": "#dc2626", "dx": -12, "dy": 20 },
+        { "at": "H", "label": "H", "color": "#dc2626", "dx": -10, "dy": -16 },
+        { "at": "M", "label": "M", "color": "#dc2626", "dx": 12, "dy": -10 },
+        { "at": "N", "label": "N", "color": "#dc2626", "dx": 12, "dy": 20 }
+      ]
+    }
+  ]
+}
