@@ -95,6 +95,7 @@ class StepIntentValidator:
             draft,
             question_goals=question_goals,
             family_spec=family_spec,
+            handle_registry=handle_registry,
             handle_resolution=self.last_handle_resolution_report,
         )
 
@@ -144,6 +145,7 @@ class StepIntentValidator:
             draft,
             question_goals=question_goals,
             family_spec=family_spec,
+            handle_registry=handle_registry,
             handle_resolution=self.last_handle_resolution_report,
         )
         if report.missing_goals:
@@ -159,6 +161,7 @@ class StepIntentValidator:
         *,
         question_goals: list[QuestionGoal] | tuple[QuestionGoal, ...] = (),
         family_spec: SolverFamilySpec | None = None,
+        handle_registry: CanonicalHandleRegistry | None = None,
         handle_resolution: HandleResolutionReport | None = None,
     ) -> StepIntentValidationReport:
         """生成覆盖情况报告。"""
@@ -177,8 +180,8 @@ class StepIntentValidator:
         )
         missing = tuple(handle for handle in required_handles if handle not in covered)
         alignment = (
-            _recipe_alignment_report(draft, family_spec)
-            if family_spec is not None
+            _recipe_alignment_report(draft, family_spec, handle_registry)
+            if family_spec is not None and handle_registry is not None
             else None
         )
         return StepIntentValidationReport(
@@ -832,7 +835,7 @@ def _validate_produced_semantic_signature(
     ``F_coordinate_expr``。两者 handle 不同，但语义上都是 F 的坐标，应在
     Strategy 层给出可修复错误，而不是等 runtime 报 PointRef/Point 类型冲突。
     """
-    signature = _produced_fact_signature(item, registry)
+    signature = _produced_fact_signature(item, step=step, registry=registry)
     if signature is None:
         return
     previous_items = produced_signatures.setdefault(signature, [])
@@ -860,10 +863,15 @@ def _validate_produced_semantic_signature(
                 f"current_valid_scope={item.valid_scope}; read the existing fact instead of "
                 "creating another derivation step"
             )
-        if signature.startswith("point_coordinate:") and _are_sibling_scopes(
-            previous_scope,
-            item.valid_scope,
-            registry,
+        if (
+            signature.startswith("point_coordinate:")
+            and _are_sibling_scopes(
+                previous_scope,
+                item.valid_scope,
+                registry,
+            )
+            and registry.scope_parents.get(previous_scope) != "problem"
+            and _has_parent_scope_point_entity(signature, previous_scope, registry)
         ):
             raise StrategyDraftValidationError(
                 "duplicate_point_coordinate_fact: "
@@ -893,8 +901,25 @@ def _are_sibling_scopes(
     )
 
 
+def _has_parent_scope_point_entity(
+    signature: str,
+    scope_id: str,
+    registry: CanonicalHandleRegistry,
+) -> bool:
+    """同名点在 sibling 中重复时，只有父级确有该点实体才视为同一结论。"""
+    point_name = _point_name_from_point_coordinate_signature(signature)
+    if point_name is None:
+        return False
+    parent = registry.scope_parents.get(scope_id)
+    if parent is None:
+        return False
+    return f"point:{parent}:{point_name}" in registry.entity_handles
+
+
 def _produced_fact_signature(
     item: ProducedFact,
+    *,
+    step: StepIntent,
     registry: CanonicalHandleRegistry,
 ) -> str | None:
     """为 produced fact 生成“同一数学结论”的粗粒度签名。"""
@@ -905,6 +930,9 @@ def _produced_fact_signature(
     if output_type == "Point":
         point_name = _point_name_from_coordinate_semantic_name(name)
         if point_name is not None:
+            context = _point_coordinate_dependency_context(step, registry)
+            if context is not None:
+                return f"point_coordinate:{point_name}@{context}"
             return f"point_coordinate:{point_name}"
     if output_type == "ParameterValue":
         symbol = name.split("_", 1)[0]
@@ -912,9 +940,43 @@ def _produced_fact_signature(
     if output_type == "Parabola":
         return f"parabola:{item.valid_scope}"
     if output_type == "MinimumExpression":
+        if not _is_common_minimum_expression_name(name):
+            return f"minimum_expr:{item.valid_scope}:{name}"
         return f"minimum_expr:{item.valid_scope}"
     if output_type == "PathTransformation":
         return f"path_transformation:{item.valid_scope}"
+    return None
+
+
+def _point_name_from_point_coordinate_signature(signature: str) -> str | None:
+    """从 point_coordinate 签名中读取点名，兼容依赖上下文后缀。"""
+    if not signature.startswith("point_coordinate:"):
+        return None
+    value = signature.removeprefix("point_coordinate:")
+    return value.split("@", 1)[0]
+
+
+def _point_coordinate_dependency_context(
+    step: StepIntent,
+    registry: CanonicalHandleRegistry,
+) -> str | None:
+    """点坐标若依赖特定曲线/函数，应把该依赖纳入重复签名。
+
+    同一个题面点在不同小问中可能对应不同的曲线状态，例如和平题里第（Ⅰ）问
+    的 B 是已定抛物线的 x 轴交点，而第（Ⅱ）问的 B 是含参抛物线的 x 轴交点。
+    这不是重复事实，不能只按点名合并。
+    """
+    for handle in step.reads:
+        if handle.startswith("answer:") and registry.answer_value_types.get(handle) == "Parabola":
+            return f"parabola={handle}"
+        if registry.fact_types.get(handle) == "parabola":
+            return f"parabola={handle}"
+        if handle.startswith("fact:"):
+            semantic = _semantic_name(handle).lower()
+            if "parabola" in semantic and "coefficient" not in semantic:
+                return f"parabola={handle}"
+        if handle.startswith("function:"):
+            return f"function={handle}"
     return None
 
 
@@ -924,6 +986,15 @@ def _point_name_from_coordinate_semantic_name(name: str) -> str | None:
     if match is None:
         return None
     return match.group("point")
+
+
+def _is_common_minimum_expression_name(name: str) -> bool:
+    """判断语义名是否表示可复用的路径最小值表达式，而非单段距离。"""
+    lowered = name.lower()
+    return any(
+        token in lowered
+        for token in ("path_minimum", "minimum_expr", "minimum_expression", "min_value")
+    )
 
 
 def _reject_noncanonical_handle(handle: str, *, field: str) -> None:
@@ -946,6 +1017,7 @@ def _reject_noncanonical_handle(handle: str, *, field: str) -> None:
 def _recipe_alignment_report(
     draft: StepIntentDraft,
     family: SolverFamilySpec,
+    registry: CanonicalHandleRegistry,
 ) -> RecipeAlignmentReport:
     """统计 StepIntent 中 recipe_hint 与 family 菜单的匹配情况。"""
     recipe_ids = {recipe.recipe_id for recipe in family.step_recipes}
@@ -987,6 +1059,7 @@ def _recipe_alignment_report(
                     step,
                     recipe_ids=recipe_ids,
                     method_ids=method_ids,
+                    registry=registry,
                 )
             )
             symbolic_hit = _symbolic_quadratic_utility_error_for_scope(
@@ -1170,6 +1243,7 @@ def _capability_alignment_errors(
     *,
     recipe_ids: set[str],
     method_ids: set[str],
+    registry: CanonicalHandleRegistry,
 ) -> list[dict[str, str]]:
     """检查 step 的 produces 是否越过 recipe/method 能力边界。
 
@@ -1207,7 +1281,7 @@ def _capability_alignment_errors(
                 "recipe_missing_path_reduction_output",
                 "recipe should produce path reduction/equivalence fact",
             ))
-        if _contains_any(produced, ("minimum", "min_value", "最小值", "distance", "距离")):
+        if _produces_minimum_expression(step, registry=registry):
             errors.append(_capability_error(
                 step,
                 hint,
@@ -1333,22 +1407,21 @@ def _capability_alignment_errors(
             step,
             hint,
             produced,
-            forbidden=("parabola", "抛物线", "coordinate", "coord", "坐标", "m_value", "a_value"),
+            forbidden=("parabola", "抛物线", "coordinate", "coord", "坐标"),
             code="method_mixes_non_distance_outputs",
             message="distance_between_points should produce distance/minimum fact only",
         )
+        if _produces_exact_fact_name(step, {"m_value", "a_value", "b_value", "c_value"}):
+            errors.append(_capability_error(
+                step,
+                hint,
+                "method_mixes_non_distance_outputs",
+                "distance_between_points should produce distance/minimum fact only",
+            ))
         return errors
 
     if hint == "quadratic_axis_from_relation":
-        _add_forbidden_output_errors(
-            errors,
-            step,
-            hint,
-            produced,
-            forbidden=("parabola", "抛物线", "minimum", "最小值", "m_value"),
-            code="method_mixes_non_axis_outputs",
-            message="quadratic_axis_from_relation should produce axis point coordinate only",
-        )
+        errors.extend(_axis_point_capability_errors(step, registry=registry))
     return errors
 
 
@@ -1374,6 +1447,86 @@ def _produces_exact_fact_name(step: StepIntent, names: set[str]) -> bool:
         if len(parts) == 3 and parts[2] in names:
             return True
     return False
+
+
+def _produces_minimum_expression(
+    step: StepIntent,
+    *,
+    registry: CanonicalHandleRegistry,
+) -> bool:
+    """结构化判断 step 是否产出了最小值表达式。
+
+    路径降维 step 的 description 中自然会出现“距离”，不能仅靠自然语言关键词判定
+    它混入了最小值计算。这里只信任 output_type 与 handle 语义。
+    """
+    for item in step.produces:
+        if _produced_output_type(item, registry) == "MinimumExpression":
+            return True
+        handle = item.handle
+        if handle.startswith("answer:"):
+            answer_name = handle.rsplit(":", 1)[-1].split(".", 1)[-1]
+            if answer_name in {"minimum_value", "min_value"}:
+                return True
+            continue
+        if not handle.startswith("fact:"):
+            continue
+        name = _semantic_name(handle)
+        if name in {
+            "minimum_value",
+            "min_value",
+            "path_minimum_expression",
+            "path_minimum_expr",
+            "minimum_expression",
+            "minimum_expr",
+        }:
+            return True
+    return False
+
+
+def _axis_point_capability_errors(
+    step: StepIntent,
+    *,
+    registry: CanonicalHandleRegistry,
+) -> list[dict[str, str]]:
+    """校验 axis method 只产出同一轴点 Point alias。"""
+    hint = step.recipe_hint or "quadratic_axis_from_relation"
+    errors: list[dict[str, str]] = []
+    fact_point_names: set[str] = set()
+    for item in step.produces:
+        output_type = _produced_output_type(item, registry)
+        if output_type != "Point":
+            errors.append(_capability_error(
+                step,
+                hint,
+                "method_mixes_non_axis_outputs",
+                "quadratic_axis_from_relation should produce Point axis coordinate aliases only",
+            ))
+            continue
+        fact_point_name = _axis_coordinate_fact_point_name(item)
+        if fact_point_name is not None:
+            fact_point_names.add(fact_point_name)
+    if len(fact_point_names) > 1:
+        errors.append(_capability_error(
+            step,
+            hint,
+            "method_mixes_multiple_axis_points",
+            "quadratic_axis_from_relation should not produce coordinates for multiple different points",
+        ))
+    return errors
+
+
+def _axis_coordinate_fact_point_name(item: ProducedFact) -> str | None:
+    """从 ``fact:<scope>:D_coordinate`` 这类 axis fact alias 读取点名。"""
+    if not item.handle.startswith("fact:"):
+        return None
+    match = re.fullmatch(
+        r"(?P<point>[A-Za-z][A-Za-z0-9]*)_coordinate(?:_[A-Za-z0-9_]+)?",
+        _semantic_name(item.handle),
+        flags=re.IGNORECASE,
+    )
+    if match is None:
+        return None
+    return match.group("point")
 
 
 def _contains_any(text: str, values: tuple[str, ...]) -> bool:

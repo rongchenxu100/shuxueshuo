@@ -1,0 +1,291 @@
+{
+  "scopes": [
+    {
+      "label": "第（Ⅰ）①问",
+      "scope_id": "i_1",
+      "steps": [
+        {
+          "creates": [],
+          "goal_type": "derive_y_axis_intercept_point",
+          "produces": [
+            {
+              "description": "抛物线与 y 轴交点 C 的坐标，整题可复用",
+              "handle": "fact:problem:C_coordinate_value",
+              "valid_scope": "problem"
+            }
+          ],
+          "reads": [
+            "function:problem:parabola",
+            "point:problem:C"
+          ],
+          "reason": "C 是抛物线与 y 轴交点，令 x=0 得到 C 坐标。",
+          "recipe_hint": "quadratic_y_axis_intercept_point",
+          "step_id": "derive_C_coordinate",
+          "strategy": "由二次函数表达式求 y 轴截点 C。",
+          "target": "fact:problem:C_coordinate_value"
+        },
+        {
+          "creates": [],
+          "goal_type": "derive_translated_point",
+          "produces": [
+            {
+              "description": "D 是 C 向右平移 2 个单位得到的点，整题可复用",
+              "handle": "fact:problem:D_coordinate_value",
+              "valid_scope": "problem"
+            }
+          ],
+          "reads": [
+            "point:problem:C",
+            "fact:problem:C_coordinate_value",
+            "point:problem:D"
+          ],
+          "reason": "题面定义 D 由 C 平移得到，先求出 D 坐标再代入抛物线。",
+          "recipe_hint": "translated_point",
+          "step_id": "derive_D_coordinate",
+          "strategy": "按平移向量把 C 坐标转为 D 坐标。",
+          "target": "fact:problem:D_coordinate_value"
+        },
+        {
+          "creates": [],
+          "goal_type": "derive_parabola",
+          "produces": [
+            {
+              "description": "第（Ⅰ）问抛物线解析式，供第（Ⅰ）②问继续使用",
+              "handle": "answer:i_1_parabola",
+              "valid_scope": "i"
+            }
+          ],
+          "reads": [
+            "function:problem:parabola",
+            "point:problem:A",
+            "fact:problem:A_coordinate_value",
+            "fact:problem:A_on_parabola",
+            "point:problem:D",
+            "fact:problem:D_coordinate_value",
+            "fact:i:D_on_parabola"
+          ],
+          "reason": "A、D 两点坐标已知且都在抛物线上，代入 y=ax²+bx-3 可确定 a、b。",
+          "recipe_hint": "quadratic_from_constraints",
+          "step_id": "derive_i_1_parabola",
+          "strategy": "由 A、D 两个曲线点约束直接求出完整抛物线解析式。",
+          "target": "answer:i_1_parabola"
+        }
+      ]
+    },
+    {
+      "label": "第（Ⅰ）②问",
+      "scope_id": "i_2",
+      "steps": [
+        {
+          "creates": [],
+          "goal_type": "derive_axis_intercept_point",
+          "produces": [
+            {
+              "description": "第（Ⅰ）问抛物线与 x 轴的另一个交点 B 坐标",
+              "handle": "fact:i:B_coordinate_value",
+              "valid_scope": "i"
+            }
+          ],
+          "reads": [
+            "answer:i_1_parabola",
+            "point:problem:B",
+            "point:problem:A",
+            "fact:problem:A_coordinate_value"
+          ],
+          "reason": "第（Ⅰ）问抛物线已确定，令 y=0 并排除 A 得到 B。",
+          "recipe_hint": "quadratic_x_axis_intercept_point",
+          "step_id": "derive_i_B_coordinate",
+          "strategy": "求抛物线的另一个 x 轴交点。",
+          "target": "fact:i:B_coordinate_value"
+        },
+        {
+          "creates": [
+            {
+              "description": "BE 与 y 轴的交点 F",
+              "entity_type": "point",
+              "handle": "point:i_2:F",
+              "valid_scope": "i_2"
+            }
+          ],
+          "goal_type": "derive_equal_angle",
+          "produces": [
+            {
+              "description": "由角和条件和坐标轴 45° 角推出 ∠OBF=∠ACO",
+              "handle": "fact:i_2:angle_OBF_eq_ACO",
+              "output_type": "AngleEquality",
+              "valid_scope": "i_2"
+            }
+          ],
+          "reads": [
+            "fact:i_2:angle_sum_CBE_ACO_45",
+            "point:problem:B",
+            "fact:i:B_coordinate_value",
+            "point:problem:C",
+            "point:problem:A",
+            "fact:problem:A_coordinate_value",
+            "point:problem:O"
+          ],
+          "reason": "由 ∠CBE+∠ACO=45°，且 C、B、O 构成另一个 45° 角，消去公共角得到 ∠OBF=∠ACO。",
+          "recipe_hint": "angle_sum_equal_angle_candidates",
+          "step_id": "derive_i_2_equal_angle",
+          "strategy": "先寻找由角和条件推出的等角关系，不直接计算坐标。",
+          "target": "point:i_2:F"
+        },
+        {
+          "creates": [],
+          "goal_type": "derive_angle_constructed_point",
+          "produces": [
+            {
+              "description": "由 ∠OBF=∠ACO 得到 BE 与 y 轴交点 F 的坐标",
+              "handle": "fact:i_2:F_coordinate_value",
+              "output_type": "Point",
+              "valid_scope": "i_2"
+            }
+          ],
+          "reads": [
+            "fact:i_2:angle_OBF_eq_ACO",
+            "point:problem:B",
+            "fact:i:B_coordinate_value",
+            "point:problem:C",
+            "point:problem:A",
+            "fact:problem:A_coordinate_value",
+            "point:i_2:F",
+            "point:problem:O"
+          ],
+          "reason": "由等锐角得到两个直角三角形正切相等，OF/OB=AO/CO，从而求出 F。",
+          "recipe_hint": "axis_intercept_from_equal_acute_angles",
+          "step_id": "derive_i_2_F_coordinate",
+          "strategy": "把等角关系转成正切比，求出直线 BE 与 y 轴的交点。",
+          "target": "fact:i_2:F_coordinate_value"
+        },
+        {
+          "creates": [],
+          "goal_type": "derive_curve_intersection_point",
+          "produces": [
+            {
+              "description": "第（Ⅰ）②问点 E 的坐标",
+              "handle": "answer:i_2_E",
+              "valid_scope": "i_2"
+            }
+          ],
+          "reads": [
+            "answer:i_1_parabola",
+            "point:problem:B",
+            "fact:i:B_coordinate_value",
+            "fact:i_2:B_on_parabola",
+            "point:i_2:F",
+            "fact:i_2:F_coordinate_value",
+            "point:i_2:E"
+          ],
+          "reason": "直线 BE 由 B、F 确定，联立第（Ⅰ）问抛物线并排除 B 得到 E。",
+          "recipe_hint": "line_parabola_second_intersection_point",
+          "step_id": "derive_i_2_E_coordinate",
+          "strategy": "联立直线与抛物线求另一个交点，并用 -1<x_E<0 选择目标点。",
+          "target": "answer:i_2_E"
+        }
+      ]
+    },
+    {
+      "label": "第（Ⅱ）问",
+      "scope_id": "ii",
+      "steps": [
+        {
+          "creates": [],
+          "goal_type": "derive_parametric_parabola",
+          "produces": [
+            {
+              "description": "由 A 在抛物线上得到只含 a 的第（Ⅱ）问抛物线表达式",
+              "handle": "fact:ii:parametric_parabola",
+              "output_type": "Parabola",
+              "valid_scope": "ii"
+            }
+          ],
+          "reads": [
+            "function:problem:parabola",
+            "point:problem:A",
+            "fact:problem:A_coordinate_value",
+            "fact:ii:A_on_parabola",
+            "symbol:problem:a"
+          ],
+          "reason": "A(-1,0) 在抛物线上，得到 b=a-3，所以抛物线只含参数 a。",
+          "recipe_hint": "quadratic_from_constraints",
+          "step_id": "derive_ii_parametric_parabola",
+          "strategy": "先把第（Ⅱ）问函数化简到一个主参数 a，后续几何条件再求 a。",
+          "target": "fact:ii:parametric_parabola"
+        },
+        {
+          "creates": [],
+          "goal_type": "derive_axis_intercept_point",
+          "produces": [
+            {
+              "description": "第（Ⅱ）问中 B 坐标关于 a 的表达式",
+              "handle": "fact:ii:B_coordinate_expr",
+              "valid_scope": "ii"
+            }
+          ],
+          "reads": [
+            "fact:ii:parametric_parabola",
+            "point:problem:B",
+            "point:problem:A",
+            "fact:problem:A_coordinate_value",
+            "symbol:problem:a"
+          ],
+          "reason": "由含参抛物线求另一个 x 轴交点 B。",
+          "recipe_hint": "quadratic_x_axis_intercept_point",
+          "step_id": "derive_ii_B_coordinate_expr",
+          "strategy": "令 y=0 求另一个交点，得到 B(3/a,0)。",
+          "target": "fact:ii:B_coordinate_expr"
+        },
+        {
+          "goal_type": "derive_path_minimum_expression",
+          "produces": [
+            {
+              "description": "OM+BN 经等长射线路径降维后得到的单距离最小值表达式",
+              "handle": "fact:ii:path_minimum_expression",
+              "output_type": "MinimumExpression",
+              "valid_scope": "ii"
+            }
+          ],
+          "reads": [
+            "fact:ii:M_on_segment_BC",
+            "fact:ii:N_on_ray_CD",
+            "fact:ii:CN_eq_CM",
+            "fact:ii:path_minimum_target",
+            "point:problem:O",
+            "point:problem:C",
+            "point:problem:D",
+            "point:problem:B",
+            "fact:ii:B_coordinate_expr"
+          ],
+          "creates": [],
+          "reason": "由 M 在线段 BC、N 在射线 CD 且 CN=CM，可把两动点距离和转化为固定点到内部辅助点的单距离最值。",
+          "recipe_hint": "equal_length_ray_path_reduction",
+          "step_id": "reduce_ii_equal_length_ray_path",
+          "strategy": "使用等长射线路径降维 recipe，内部完成辅助点构造与单距离最值表达式计算。",
+          "target": "fact:ii:path_minimum_expression"
+        },
+        {
+          "creates": [],
+          "goal_type": "derive_parameter",
+          "produces": [
+            {
+              "description": "第（Ⅱ）问 a 的值",
+              "handle": "answer:ii_a",
+              "valid_scope": "ii"
+            }
+          ],
+          "reads": [
+            "fact:ii:path_minimum_expression",
+            "fact:ii:path_minimum_value_given",
+            "fact:problem:a_gt_0"
+          ],
+          "reason": "题设给出最小值为 √34，令表达式等于 √34 并按 a>0 筛选。",
+          "recipe_hint": "parameter_from_expression_value",
+          "step_id": "solve_ii_a_from_minimum_value",
+          "strategy": "由表达式取值反求主参数 a。",
+          "target": "answer:ii_a"
+        }
+      ]
+    }
+  ]
+}

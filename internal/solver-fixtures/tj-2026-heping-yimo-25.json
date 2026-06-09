@@ -1,0 +1,375 @@
+{
+  "$schema": "../schemas/solver-problem-ir.schema.json",
+  "meta": {
+    "problem_id": "tj-2026-heping-yimo-25",
+    "title": "2026 年天津市和平区一模第 25 题",
+    "note": "Canonical ProblemIR v2。题面事实是唯一来源；runtime 兼容结构由 RuntimeProjection 派生。"
+  },
+  "input": {
+    "problem_id": "tj-2026-heping-yimo-25",
+    "pattern": "path-minimum",
+    "problem_type": "quadratic_equal_length_ray_path_minimum",
+    "original_text": {
+      "source": "2026 年天津市和平区一模",
+      "number": "25",
+      "lines": [
+        "已知抛物线 y=ax²+bx-3（a，b 为常数，a＞0）与 x 轴交于点 A(-1,0) 和点 B，与 y 轴交于点 C，点 D 是点 C 向右平移 2 个单位得到的点。",
+        "（Ⅰ）若点 D 在抛物线上。",
+        "① 求该抛物线的解析式；",
+        "② 抛物线上的点 E 的横坐标为 m，且 -1＜m＜0，若 ∠CBE+∠ACO=45°，求点 E 的坐标；",
+        "（Ⅱ）点 M 是线段 BC 上的一动点，连接 OM。点 N 是射线 CD 上的一动点，且满足 CN=CM，连接 BN。当 OM+BN 的最小值为 √34 时，求 a 的值。"
+      ]
+    },
+    "scopes": [
+      {
+        "scope_id": "problem",
+        "label": "整题",
+        "parent": null
+      },
+      {
+        "scope_id": "i",
+        "label": "第（Ⅰ）问",
+        "parent": "problem"
+      },
+      {
+        "scope_id": "i_1",
+        "label": "第（Ⅰ）①问",
+        "parent": "i",
+        "asks": [
+          "抛物线解析式"
+        ]
+      },
+      {
+        "scope_id": "i_2",
+        "label": "第（Ⅰ）②问",
+        "parent": "i",
+        "asks": [
+          "E 的坐标"
+        ]
+      },
+      {
+        "scope_id": "ii",
+        "label": "第（Ⅱ）问",
+        "parent": "problem",
+        "asks": [
+          "a 的值"
+        ]
+      }
+    ],
+    "entities": [
+      {
+        "handle": "function:problem:parabola",
+        "entity_type": "function",
+        "name": "parabola",
+        "scope_id": "problem",
+        "function_type": "quadratic",
+        "expression": "a*x**2 + b*x - 3",
+        "description": "题设抛物线 y=ax²+bx-3"
+      },
+      {
+        "handle": "symbol:problem:x",
+        "entity_type": "symbol",
+        "name": "x",
+        "scope_id": "problem",
+        "role": "function_variable",
+        "description": "函数自变量"
+      },
+      {
+        "handle": "symbol:problem:a",
+        "entity_type": "symbol",
+        "name": "a",
+        "scope_id": "problem",
+        "role": "quadratic_coefficient",
+        "description": "二次项系数 a"
+      },
+      {
+        "handle": "symbol:problem:b",
+        "entity_type": "symbol",
+        "name": "b",
+        "scope_id": "problem",
+        "role": "quadratic_coefficient",
+        "description": "一次项系数 b"
+      },
+      {
+        "handle": "symbol:problem:m",
+        "entity_type": "symbol",
+        "name": "m",
+        "scope_id": "problem",
+        "role": "dynamic_parameter",
+        "description": "点 E 的横坐标参数"
+      },
+      {
+        "handle": "point:problem:O",
+        "entity_type": "point",
+        "name": "O",
+        "scope_id": "problem",
+        "definition": "coordinate_origin",
+        "description": "坐标原点 O"
+      },
+      {
+        "handle": "point:problem:A",
+        "entity_type": "point",
+        "name": "A",
+        "scope_id": "problem",
+        "coordinate": [
+          "-1",
+          "0"
+        ],
+        "description": "A(-1,0)"
+      },
+      {
+        "handle": "point:problem:B",
+        "entity_type": "point",
+        "name": "B",
+        "scope_id": "problem",
+        "definition": "x_axis_intercept",
+        "of": "function:problem:parabola",
+        "exclude_point": "A",
+        "description": "B 是抛物线与 x 轴的另一个交点"
+      },
+      {
+        "handle": "point:problem:C",
+        "entity_type": "point",
+        "name": "C",
+        "scope_id": "problem",
+        "definition": "y_axis_intercept",
+        "of": "function:problem:parabola",
+        "description": "C 是抛物线与 y 轴交点"
+      },
+      {
+        "handle": "point:problem:D",
+        "entity_type": "point",
+        "name": "D",
+        "scope_id": "problem",
+        "definition": "translated_point",
+        "of": "C",
+        "vector": [
+          "2",
+          "0"
+        ],
+        "description": "D 是点 C 向右平移 2 个单位得到的点"
+      },
+      {
+        "handle": "point:i_2:E",
+        "entity_type": "point",
+        "name": "E",
+        "scope_id": "i_2",
+        "definition": "point_on_curve_with_x_coordinate",
+        "of": "function:problem:parabola",
+        "x_symbol": "symbol:problem:m",
+        "x_range": [
+          "-1",
+          "0"
+        ],
+        "description": "E 是抛物线上的点，横坐标为 m，且 -1<m<0"
+      },
+      {
+        "handle": "point:ii:M",
+        "entity_type": "point",
+        "name": "M",
+        "scope_id": "ii",
+        "definition": "point_on_segment",
+        "description": "M 是线段 BC 上的一动点"
+      },
+      {
+        "handle": "point:ii:N",
+        "entity_type": "point",
+        "name": "N",
+        "scope_id": "ii",
+        "definition": "point_on_ray",
+        "description": "N 是射线 CD 上的一动点"
+      },
+      {
+        "handle": "segment:ii:BC",
+        "entity_type": "segment",
+        "name": "BC",
+        "scope_id": "ii",
+        "endpoints": [
+          "point:problem:B",
+          "point:problem:C"
+        ],
+        "description": "线段 BC"
+      },
+      {
+        "handle": "ray:ii:CD",
+        "entity_type": "ray",
+        "name": "CD",
+        "scope_id": "ii",
+        "origin": "point:problem:C",
+        "through": "point:problem:D",
+        "description": "射线 CD"
+      },
+      {
+        "handle": "segment:ii:OM",
+        "entity_type": "segment",
+        "name": "OM",
+        "scope_id": "ii",
+        "endpoints": [
+          "point:problem:O",
+          "point:ii:M"
+        ],
+        "description": "线段 OM"
+      },
+      {
+        "handle": "segment:ii:BN",
+        "entity_type": "segment",
+        "name": "BN",
+        "scope_id": "ii",
+        "endpoints": [
+          "point:problem:B",
+          "point:ii:N"
+        ],
+        "description": "线段 BN"
+      }
+    ],
+    "facts": [
+      {
+        "handle": "fact:problem:a_gt_0",
+        "type": "symbol_constraint",
+        "scope_id": "problem",
+        "valid_scope": "problem",
+        "description": "a > 0",
+        "subject": "symbol:problem:a",
+        "operator": ">",
+        "value": "0"
+      },
+      {
+        "handle": "fact:problem:A_coordinate_value",
+        "type": "point_coordinate",
+        "scope_id": "problem",
+        "valid_scope": "problem",
+        "description": "A(-1,0)",
+        "subject": "point:problem:A",
+        "value": [
+          "-1",
+          "0"
+        ]
+      },
+      {
+        "handle": "fact:problem:A_on_parabola",
+        "type": "point_on_curve",
+        "scope_id": "problem",
+        "valid_scope": "problem",
+        "description": "A 在抛物线上",
+        "point": "point:problem:A",
+        "curve": "function:problem:parabola"
+      },
+      {
+        "handle": "fact:problem:B_on_parabola",
+        "type": "point_on_curve",
+        "scope_id": "problem",
+        "valid_scope": "problem",
+        "description": "B 在抛物线上",
+        "point": "point:problem:B",
+        "curve": "function:problem:parabola"
+      },
+      {
+        "handle": "fact:i:D_on_parabola",
+        "type": "point_on_curve",
+        "scope_id": "i",
+        "valid_scope": "i",
+        "description": "第（Ⅰ）问条件：D 在抛物线上",
+        "point": "point:problem:D",
+        "curve": "function:problem:parabola"
+      },
+      {
+        "handle": "fact:i_2:E_on_parabola_with_x_m",
+        "type": "point_on_curve_with_x_coordinate",
+        "scope_id": "i_2",
+        "valid_scope": "i_2",
+        "description": "E 在抛物线上，横坐标为 m，且 -1<m<0",
+        "point": "point:i_2:E",
+        "curve": "function:problem:parabola",
+        "x_symbol": "symbol:problem:m",
+        "x_range": [
+          "-1",
+          "0"
+        ]
+      },
+      {
+        "handle": "fact:i_2:angle_sum_CBE_ACO_45",
+        "type": "angle_sum",
+        "scope_id": "i_2",
+        "valid_scope": "i_2",
+        "description": "∠CBE+∠ACO=45°",
+        "angle_terms": [
+          "CBE",
+          "ACO"
+        ],
+        "value": "45"
+      },
+      {
+        "handle": "fact:ii:M_on_segment_BC",
+        "type": "point_on_segment",
+        "scope_id": "ii",
+        "valid_scope": "ii",
+        "description": "M 是线段 BC 上的一动点",
+        "point": "point:ii:M",
+        "segment": "segment:ii:BC"
+      },
+      {
+        "handle": "fact:ii:N_on_ray_CD",
+        "type": "point_on_ray",
+        "scope_id": "ii",
+        "valid_scope": "ii",
+        "description": "N 是射线 CD 上的一动点",
+        "point": "point:ii:N",
+        "ray": "ray:ii:CD"
+      },
+      {
+        "handle": "fact:ii:CN_eq_CM",
+        "type": "equal_length_condition",
+        "scope_id": "ii",
+        "valid_scope": "ii",
+        "description": "CN=CM",
+        "left": "CN",
+        "right": "CM"
+      },
+      {
+        "handle": "fact:ii:path_minimum_target",
+        "type": "path_minimum_target",
+        "scope_id": "ii",
+        "valid_scope": "ii",
+        "description": "OM+BN 的最小值目标",
+        "path": "OM+BN"
+      },
+      {
+        "handle": "fact:ii:path_minimum_value_given",
+        "type": "minimum_value",
+        "scope_id": "ii",
+        "valid_scope": "ii",
+        "description": "OM+BN 的最小值为 √34",
+        "path": "OM+BN",
+        "value": "sqrt(34)"
+      }
+    ],
+    "question_goals": [
+      {
+        "handle": "answer:i_1_parabola",
+        "scope_id": "i_1",
+        "answer_key": "parabola",
+        "value_type": "Parabola",
+        "valid_scope": "i",
+        "required": true,
+        "description": "第（Ⅰ）①问输出抛物线解析式"
+      },
+      {
+        "handle": "answer:i_2_E",
+        "scope_id": "i_2",
+        "answer_key": "E",
+        "value_type": "Point",
+        "target_handle": "point:i_2:E",
+        "required": true,
+        "description": "第（Ⅰ）②问输出 E 的坐标"
+      },
+      {
+        "handle": "answer:ii_a",
+        "scope_id": "ii",
+        "answer_key": "a",
+        "value_type": "ParameterValue",
+        "required": true,
+        "description": "第（Ⅱ）问输出 a 的值"
+      }
+    ]
+  }
+}

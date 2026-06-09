@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from typing import Any
 
 STEP_INTENT_OUTPUT_TYPES: tuple[str, ...] = (
+    "AngleEquality",
     "Coefficients",
     "Equation",
     "Expression",
@@ -337,6 +338,157 @@ class StepIntentValidationReport:
 
 
 @dataclass(frozen=True)
+class StepIntentAppliedFill:
+    """执行前代码自动补齐的一条语义输入。
+
+    这类补位只记录 canonical handle 层面的事实，不暴露 RuntimeContext path。
+    例如 LLM 只读取 ``point:problem:B``，而 method 需要 ``Point`` 时，代码可
+    唯一补到前序已产生的 ``fact:i:B_coordinate``。
+    """
+
+    step_id: str
+    scope_id: str
+    input_handle: str
+    required_type: str
+    resolved_handle: str
+    reason: str
+
+    def to_payload(self) -> dict[str, str]:
+        """转成可放入 previous_attempts 的安全 JSON。"""
+        return {
+            "step_id": self.step_id,
+            "scope_id": self.scope_id,
+            "input_handle": self.input_handle,
+            "required_type": self.required_type,
+            "resolved_handle": self.resolved_handle,
+            "reason": self.reason,
+        }
+
+
+@dataclass(frozen=True)
+class StepIntentAcceptedStep:
+    """已通过 compile + prefix dry-run 的 StepIntent。"""
+
+    step_id: str
+    scope_id: str
+    capability_id: str
+    method_ids: tuple[str, ...] = ()
+    produced_handles: tuple[str, ...] = ()
+
+    def to_payload(self) -> dict[str, Any]:
+        """转成 debug JSON。"""
+        return {
+            "step_id": self.step_id,
+            "scope_id": self.scope_id,
+            "capability_id": self.capability_id,
+            "method_ids": list(self.method_ids),
+            "produced_handles": list(self.produced_handles),
+        }
+
+
+@dataclass(frozen=True)
+class StepIntentExecutionBlocker:
+    """StepIntent 执行诊断中的首个 runtime 阻塞点。"""
+
+    step_id: str
+    scope_id: str
+    stage: str
+    code: str
+    message: str
+    capability_errors: tuple[str, ...] = ()
+    retryable: bool = True
+
+    def to_payload(self) -> dict[str, Any]:
+        """转成可放入 previous_attempts 的安全 JSON。"""
+        return {
+            "step_id": self.step_id,
+            "scope_id": self.scope_id,
+            "stage": self.stage,
+            "code": self.code,
+            "message": self.message,
+            "capability_errors": list(self.capability_errors),
+            "retryable": self.retryable,
+        }
+
+
+@dataclass(frozen=True)
+class StepIntentSkippedStep:
+    """由于前缀执行失败而未进入 runtime trial 的后续 step。"""
+
+    step_id: str
+    scope_id: str
+    reason: str
+
+    def to_payload(self) -> dict[str, str]:
+        """转成 debug JSON。"""
+        return {
+            "step_id": self.step_id,
+            "scope_id": self.scope_id,
+            "reason": self.reason,
+        }
+
+
+@dataclass(frozen=True)
+class StepIntentExecutionDiagnostic:
+    """StepIntent effective draft 的执行诊断。
+
+    它描述“代码已经接受了哪些步骤、自动补了哪些输入、在哪个 step 阻塞”。
+    这份报告服务于 DeepSeek repair loop 和 debug，不是 PlannerOutput，也不包含
+    RuntimePath、MethodInvocation、expected answer 或 traceback。
+    """
+
+    ok: bool
+    accepted_prefix: tuple[StepIntentAcceptedStep, ...] = ()
+    applied_fills: tuple[StepIntentAppliedFill, ...] = ()
+    blockers: tuple[StepIntentExecutionBlocker, ...] = ()
+    skipped_steps: tuple[StepIntentSkippedStep, ...] = ()
+    candidate_errors: tuple[str, ...] = ()
+
+    @property
+    def first_blocker(self) -> StepIntentExecutionBlocker | None:
+        """返回第一个 runtime blocker。"""
+        return self.blockers[0] if self.blockers else None
+
+    def to_payload(self) -> dict[str, Any]:
+        """转成 debug/repair JSON。"""
+        return {
+            "ok": self.ok,
+            "accepted_prefix": [
+                item.to_payload() for item in self.accepted_prefix
+            ],
+            "applied_fills": [
+                item.to_payload() for item in self.applied_fills
+            ],
+            "blockers": [item.to_payload() for item in self.blockers],
+            "skipped_steps": [item.to_payload() for item in self.skipped_steps],
+            "candidate_errors": list(self.candidate_errors),
+        }
+
+
+@dataclass(frozen=True)
+class StepIntentRepairAttempt:
+    """传回下一轮 LLM 的结构化 repair context。"""
+
+    attempt: int
+    effective_draft: dict[str, Any] | None
+    diagnostic: StepIntentExecutionDiagnostic | None
+    repair_instruction: str
+    errors: tuple[str, ...] = ()
+
+    def to_payload(self) -> dict[str, Any]:
+        """转成 ``PlannerInputs.previous_errors`` 可携带的安全 JSON。"""
+        payload: dict[str, Any] = {
+            "attempt": self.attempt,
+            "effective_draft": self.effective_draft,
+            "repair_instruction": self.repair_instruction,
+            "errors": list(self.errors),
+        }
+        if self.diagnostic is not None:
+            payload["diagnostic"] = self.diagnostic.to_payload()
+        return payload
+
+
+@dataclass(frozen=True)
 class ExecutableCapabilitySpec:
     """StepIntent 可尝试匹配的执行能力。
 
@@ -350,6 +502,8 @@ class ExecutableCapabilitySpec:
     goal_type: str
     method_ids: tuple[str, ...]
     output_types: tuple[str, ...]
+    goal_aliases: tuple[str, ...] = ()
+    allows_creates: bool = False
     preferred: bool = False
     title: str = ""
     description: str = ""
@@ -360,8 +514,10 @@ class ExecutableCapabilitySpec:
             "capability_id": self.capability_id,
             "kind": self.kind,
             "goal_type": self.goal_type,
+            "goal_aliases": list(self.goal_aliases),
             "method_ids": list(self.method_ids),
             "output_types": list(self.output_types),
+            "allows_creates": self.allows_creates,
             "preferred": self.preferred,
             "title": self.title,
             "description": self.description,

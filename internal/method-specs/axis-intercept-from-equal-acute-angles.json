@@ -1,0 +1,46 @@
+{
+  "method_id": "axis_intercept_from_equal_acute_angles",
+  "title": "由等锐角求轴上截点",
+  "description": "由两个锐角相等推出正切比相等，并求竖直轴截点。",
+  "summary": "输入: 等锐角事实、目标线经过的水平轴点、参考直角三角形两点、原点和目标 PointRef；输出: 目标线与竖直轴的交点。method 只使用 tan 相等建立 OF/OB=AO/CO。",
+  "solves": [
+    "derive_axis_intercept_from_equal_acute_angles"
+  ],
+  "inputs": {
+    "angle_equality": {
+      "type": "AngleEquality",
+      "required": true
+    },
+    "x_axis_point": {
+      "type": "Point",
+      "required": true
+    },
+    "y_axis_point": {
+      "type": "Point",
+      "required": true
+    },
+    "reference_x_axis_point": {
+      "type": "Point",
+      "required": true
+    },
+    "origin": {
+      "type": "Point",
+      "required": true
+    },
+    "target": {
+      "type": "PointRef",
+      "required": true
+    }
+  },
+  "outputs": {
+    "point": "Point"
+  },
+  "preconditions": [
+    "angle_equality 表示目标直角三角形锐角等于参考直角三角形锐角",
+    "x_axis_point 与 reference_x_axis_point 在以 origin 为原点的水平轴上",
+    "y_axis_point 在以 origin 为原点的竖直轴上"
+  ],
+  "postconditions": [
+    "输出点在 y 轴上，且满足 OF/OB=AO/CO"
+  ]
+}

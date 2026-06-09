@@ -1,0 +1,46 @@
+{
+  "method_id": "line_parabola_second_intersection_point",
+  "title": "求直线与抛物线的另一交点",
+  "description": "由直线两点和已知交点，求直线与抛物线的另一个交点。",
+  "summary": "输入: 抛物线、确定直线的两点、已知交点和目标 PointRef；输出: 直线与抛物线的另一个交点。可用 target.x_range 选择符合题设范围的点。",
+  "solves": [
+    "derive_line_parabola_second_intersection",
+    "derive_curve_intersection_point"
+  ],
+  "inputs": {
+    "parabola": {
+      "type": "Parabola",
+      "required": true
+    },
+    "x": {
+      "type": "Symbol",
+      "required": true
+    },
+    "line_p1": {
+      "type": "Point",
+      "required": true
+    },
+    "line_p2": {
+      "type": "Point",
+      "required": true
+    },
+    "known_point": {
+      "type": "Point",
+      "required": true
+    },
+    "target": {
+      "type": "PointRef",
+      "required": true
+    }
+  },
+  "outputs": {
+    "point": "Point"
+  },
+  "preconditions": [
+    "line_p1 与 line_p2 不能形成竖直线",
+    "已知交点必须在直线和抛物线上"
+  ],
+  "postconditions": [
+    "输出点在直线和抛物线上，且不同于 known_point"
+  ]
+}

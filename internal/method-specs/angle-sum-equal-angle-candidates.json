@@ -1,0 +1,47 @@
+{
+  "method_id": "angle_sum_equal_angle_candidates",
+  "title": "由角和条件寻找等角",
+  "description": "由角和条件寻找唯一可用的等角关系。",
+  "summary": "输入: 45° 角和条件、坐标轴上的参考点和目标 PointRef；输出: 唯一等角事实。首版支持通过另一个 45° 坐标轴角比较，消去公共角得到目标线角与参考角相等。",
+  "solves": [
+    "derive_equal_angle_from_angle_sum"
+  ],
+  "inputs": {
+    "condition": {
+      "type": "Condition",
+      "required": true
+    },
+    "x_axis_point": {
+      "type": "Point",
+      "required": true
+    },
+    "y_axis_point": {
+      "type": "Point",
+      "required": true
+    },
+    "reference_x_axis_point": {
+      "type": "Point",
+      "required": true
+    },
+    "origin": {
+      "type": "Point",
+      "required": true
+    },
+    "target": {
+      "type": "PointRef",
+      "required": true
+    }
+  },
+  "outputs": {
+    "angle_equality": "AngleEquality"
+  },
+  "preconditions": [
+    "condition 是两个角之和等于 45° 的角和事实",
+    "x_axis_point 与 reference_x_axis_point 在以 origin 为原点的水平轴上",
+    "y_axis_point 在以 origin 为原点的竖直轴上",
+    "x_axis_point、y_axis_point、origin 形成另一个 45° 坐标轴角"
+  ],
+  "postconditions": [
+    "输出唯一等角事实：目标线角等于参考角"
+  ]
+}

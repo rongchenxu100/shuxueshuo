@@ -56,6 +56,7 @@ class OpenAICompatiblePlannerClient:
     provider_name: str
     client_factory: OpenAIClientFactory = _default_openai_client_factory
     temperature: float = 0.0
+    request_timeout: float = 120.0
     last_usage: dict[str, Any] | None = field(default=None, init=False)
     last_response_model: str | None = field(default=None, init=False)
     system_prompt: str = DEFAULT_SYSTEM_PROMPT
@@ -74,7 +75,11 @@ class OpenAICompatiblePlannerClient:
             raise LLMClientConfigurationError(
                 f"LLM provider requires {self.provider_name.upper()}_MODEL"
             )
-        self._client = self.client_factory(api_key=self.api_key, base_url=self.base_url)
+        self._client = self.client_factory(
+            api_key=self.api_key,
+            base_url=self.base_url,
+            timeout=self.request_timeout,
+        )
 
     def complete(self, payload: dict[str, Any]) -> str:
         """发送一次 Chat Completions 请求，并返回 assistant message 文本。
@@ -88,6 +93,7 @@ class OpenAICompatiblePlannerClient:
             model=self.model,
             messages=messages,
             temperature=self.temperature,
+            timeout=self.request_timeout,
         )
         self.last_usage = _usage_to_dict(getattr(response, "usage", None))
         # 真实 provider 返回的 model 字段能帮助集成测试确认服务端实际命中的模型版本。
@@ -109,6 +115,7 @@ class DeepSeekPlannerClient(OpenAICompatiblePlannerClient):
         base_url: str,
         model: str,
         client_factory: OpenAIClientFactory = _default_openai_client_factory,
+        request_timeout: float = 120.0,
     ) -> None:
         super().__init__(
             api_key=api_key,
@@ -116,6 +123,7 @@ class DeepSeekPlannerClient(OpenAICompatiblePlannerClient):
             model=model,
             provider_name="deepseek",
             client_factory=client_factory,
+            request_timeout=request_timeout,
         )
 
 
@@ -133,6 +141,7 @@ class DoubaoPlannerClient(OpenAICompatiblePlannerClient):
         base_url: str,
         model: str,
         client_factory: OpenAIClientFactory = _default_openai_client_factory,
+        request_timeout: float = 120.0,
     ) -> None:
         super().__init__(
             api_key=api_key,
@@ -140,6 +149,7 @@ class DoubaoPlannerClient(OpenAICompatiblePlannerClient):
             model=model,
             provider_name="doubao",
             client_factory=client_factory,
+            request_timeout=request_timeout,
         )
 
 

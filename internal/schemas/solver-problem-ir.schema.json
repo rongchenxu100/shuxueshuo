@@ -18,8 +18,15 @@
     },
     "input": {
       "type": "object",
-      "required": ["problem_id", "pattern", "problem_type", "original_text", "symbols", "constraints", "data"],
+      "required": ["problem_id", "pattern", "problem_type", "original_text"],
       "additionalProperties": false,
+      "oneOf": [
+        { "required": ["symbols", "constraints", "data"] },
+        {
+          "required": ["scopes", "entities", "facts", "question_goals"],
+          "not": { "required": ["data"] }
+        }
+      ],
       "properties": {
         "problem_id": { "type": "string" },
         "pattern": { "type": "string" },
@@ -56,6 +63,26 @@
         "constraints": {
           "type": "object",
           "additionalProperties": { "type": "string" }
+        },
+        "scopes": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/canonical_scope" },
+          "minItems": 1
+        },
+        "entities": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/entity" },
+          "minItems": 1
+        },
+        "facts": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/fact" },
+          "minItems": 1
+        },
+        "question_goals": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/canonical_question_goal" },
+          "minItems": 1
         },
         "data": {
           "type": "object",
@@ -169,9 +196,43 @@
         "required": { "type": "boolean" }
       }
     },
+    "canonical_scope": {
+      "type": "object",
+      "required": ["scope_id", "label", "parent"],
+      "additionalProperties": true,
+      "properties": {
+        "scope_id": { "type": "string", "minLength": 1 },
+        "label": { "type": "string", "minLength": 1 },
+        "parent": {
+          "anyOf": [
+            { "type": "string", "minLength": 1 },
+            { "type": "null" }
+          ]
+        },
+        "asks": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "canonical_question_goal": {
+      "type": "object",
+      "required": ["handle", "scope_id", "answer_key", "value_type", "required", "description"],
+      "additionalProperties": true,
+      "properties": {
+        "handle": { "type": "string", "pattern": "^answer:[A-Za-z0-9_.]+$" },
+        "scope_id": { "type": "string", "minLength": 1 },
+        "answer_key": { "type": "string", "minLength": 1 },
+        "value_type": { "type": "string", "minLength": 1 },
+        "target_handle": { "type": "string", "minLength": 1 },
+        "valid_scope": { "type": "string", "minLength": 1 },
+        "required": { "type": "boolean" },
+        "description": { "type": "string", "minLength": 1 }
+      }
+    },
     "entity": {
       "type": "object",
-      "required": ["handle", "entity_type", "name", "scope_id", "source", "description"],
+      "required": ["handle", "entity_type", "name", "scope_id", "description"],
       "additionalProperties": true,
       "properties": {
         "handle": {
@@ -199,7 +260,7 @@
     },
     "fact": {
       "type": "object",
-      "required": ["handle", "type", "scope_id", "valid_scope", "source", "description"],
+      "required": ["handle", "type", "scope_id", "valid_scope", "description"],
       "additionalProperties": true,
       "properties": {
         "handle": {

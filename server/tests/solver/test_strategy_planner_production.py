@@ -12,6 +12,8 @@ HEXI_FIXTURE = "../internal/solver-fixtures/tj-2026-hexi-yimo-25.json"
 HEXI_EXPECTED = "tests/solver/expected/tj-2026-hexi-yimo-25.expected.json"
 XIQING_FIXTURE = "../internal/solver-fixtures/tj-2026-xiqing-yimo-25.json"
 XIQING_EXPECTED = "tests/solver/expected/tj-2026-xiqing-yimo-25.expected.json"
+HEPING_FIXTURE = "../internal/solver-fixtures/tj-2026-heping-yimo-25.json"
+HEPING_EXPECTED = "tests/solver/expected/tj-2026-heping-yimo-25.expected.json"
 
 
 def test_strategy_recorded_solves_nankai_without_deterministic_planner(monkeypatch) -> None:
@@ -99,3 +101,21 @@ def test_strategy_recorded_solves_xiqing_without_deterministic_planner(monkeypat
     assert "weighted_axis_path_triangle_transform" in result.methods_used
     assert "linked_broken_path_minimum_expression" in result.methods_used
     assert "parameter_from_expression_value" in result.methods_used
+
+
+def test_strategy_recorded_solves_heping_without_deterministic_planner() -> None:
+    """和平只通过 Strategy recorded 链路求解，不新增 deterministic slice。"""
+    result = solve_problem(
+        load_problem_ir(HEPING_FIXTURE),
+        runtime_config=SolverRuntimeConfig(
+            planner_mode="strategy",
+            llm_provider="recorded",
+        ),
+    )
+
+    assert result.status == "ok", result.errors
+    assert result.answers == load_expected_answers(HEPING_EXPECTED)
+    assert "angle_sum_equal_angle_candidates" in result.methods_used
+    assert "axis_intercept_from_equal_acute_angles" in result.methods_used
+    assert "line_parabola_second_intersection_point" in result.methods_used
+    assert "equal_length_ray_point" in result.methods_used

@@ -1,0 +1,28 @@
+{
+  "method_id": "translated_point",
+  "title": "由平移求点坐标",
+  "description": "由已知点和平移向量求目标点坐标。",
+  "summary": "输入: 源点坐标和目标 PointRef 中的平移向量；输出: 目标点坐标。",
+  "solves": [
+    "derive_translated_point"
+  ],
+  "inputs": {
+    "source": {
+      "type": "Point",
+      "required": true
+    },
+    "target": {
+      "type": "PointRef",
+      "required": true
+    }
+  },
+  "outputs": {
+    "point": "Point"
+  },
+  "preconditions": [
+    "target.definition 包含 vector 或 dx/dy 平移信息"
+  ],
+  "postconditions": [
+    "输出点等于 source 加平移向量"
+  ]
+}

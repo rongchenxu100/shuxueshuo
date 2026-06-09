@@ -14,6 +14,8 @@
 4. 每个 step 必须严格符合下面的 JSON Schema。
 5. `step_id` 只表示语义唯一名称，例如 `derive_axis_point`，不要把 recipe_id 或 method_id 当成 step_id。
 6. `recipe_hint` 应尽量填写：优先从 `recipe_catalog[].recipe_id` 选择，其次从 `method_catalog[].method_id` 选择；只有 catalog 中没有任何匹配能力时，才填 `null` 或省略。
+   - `recipe_hint: null` 是最后兜底，表示你认为当前 catalog 缺少可执行能力；它很可能触发 repair/gap，不是常规解题步骤。
+   - 如果 recipe/method catalog 中已有接近的能力，必须改用已有能力拆 step，不要自造新的辅助点构造、路径转化或最值 recipe。
 7. 不要输出任何内部运行时路径。
 8. 不要输出候选编号、method invocation、bindings、promote_to、depends_on。
 9. 不要把坐标、解析式、参数值写成结构化字段；`strategy` / `reason` 可以出现自然语言推导结论，但执行层不会从这些文字读取数值。
@@ -41,7 +43,8 @@
 19. 如果一个父 scope 只是用于组织子问、自己没有 required answer goal，不要为了公共结论单独创建父级步骤段；把该结论放在最先展示它的子问步骤中，并用 `valid_scope` 标明可在父级或更大范围复用。输出公共推导段会校验失败。
     - `valid_scope` 表示结论本身在哪个 scope 及其子 scope 成立，不是当前 step 写在哪个 scope。
     - 若某个结论读取了子问独有条件，它的 `valid_scope` 不能写成父级公共 scope。
-20. 如果有 previous_attempts，仍然重新输出完整 `scopes`，不要只输出 patch。
+20. 如果有 previous_attempts，仍然重新输出完整 `scopes`，不要只输出 patch；但要遵守
+    previous_attempts 中 accepted_prefix 的语义，不要重写已通过步骤。
 
 JSON Schema:
 

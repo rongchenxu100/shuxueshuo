@@ -4,11 +4,18 @@ from pathlib import Path
 
 import pytest
 
+from shuxueshuo_server.solver.fixtures import load_problem_ir
+from shuxueshuo_server.solver.runtime.context import ContextBuilder
+from shuxueshuo_server.solver.runtime.projection import problem_to_llm_payload
+
 FIXTURES = [
     Path("../internal/solver-fixtures/tj-2026-nankai-yimo-25.json"),
     Path("../internal/solver-fixtures/tj-2026-nankai-yimo-25-alt-labels.json"),
     Path("../internal/solver-fixtures/tj-2026-hexi-yimo-25.json"),
+    Path("../internal/solver-fixtures/tj-2026-heping-yimo-25.json"),
 ]
+LEGACY_FIXTURES = FIXTURES[:-1]
+CANONICAL_FIXTURE = Path("../internal/solver-fixtures/tj-2026-heping-yimo-25.json")
 
 QUADRATIC_PATH_FIXTURES = [
     Path("../internal/solver-fixtures/tj-2026-nankai-yimo-25.json"),
@@ -27,16 +34,16 @@ def test_solver_fixture_keeps_problem_input_separate_from_expected_answers(fixtu
     assert "expected_answers" not in fixture
     assert_no_chinese_keys(fixture)
 
-    data = fixture["input"]["data"]
     original_text = fixture["input"]["original_text"]
 
     assert original_text["number"] == "25"
     assert len(original_text["lines"]) >= 4
-    assert fixture["input"]["symbol_roles"]["x"] == "function_variable"
+    if "symbol_roles" in fixture["input"]:
+        assert fixture["input"]["symbol_roles"]["x"] == "function_variable"
 
-    assert "solver_config" not in data
+    assert "solver_config" not in fixture["input"]
 
-    serialized_data = json.dumps(data, ensure_ascii=False)
+    serialized_data = json.dumps(fixture["input"], ensure_ascii=False)
     assert "right_angle_equal_length_point" not in serialized_data
     assert "D_prime" not in serialized_data
     assert "T_prime" not in serialized_data
@@ -91,7 +98,7 @@ def test_hexi_fixture_goals_only_include_problem_asks() -> None:
     ]
 
 
-@pytest.mark.parametrize("fixture_path", FIXTURES)
+@pytest.mark.parametrize("fixture_path", LEGACY_FIXTURES)
 def test_solver_fixtures_store_first_class_entities_and_facts(fixture_path: Path) -> None:
     """ProblemIR 必须显式保存 canonical Entity / Fact，而不是运行时临时推导。"""
     fixture = json.loads(fixture_path.read_text(encoding="utf-8"))
@@ -123,7 +130,7 @@ def test_solver_fixtures_store_first_class_entities_and_facts(fixture_path: Path
         assert fact["description"]
 
 
-@pytest.mark.parametrize("fixture_path", FIXTURES)
+@pytest.mark.parametrize("fixture_path", LEGACY_FIXTURES)
 def test_legacy_point_index_also_carries_canonical_entity_metadata(fixture_path: Path) -> None:
     """保留给 ContextBuilder 的 points 索引也必须带 canonical 元数据。"""
     fixture = json.loads(fixture_path.read_text(encoding="utf-8"))
@@ -134,6 +141,49 @@ def test_legacy_point_index_also_carries_canonical_entity_metadata(fixture_path:
         assert point["entity_type"] == "point"
         assert point["scope_id"]
         assert point["source"] == "ProblemIR.data.entities.points"
+
+
+def test_canonical_heping_fixture_has_single_problem_fact_source() -> None:
+    """Canonical authored fixture 不再手写 runtime 兼容索引。"""
+    fixture = json.loads(CANONICAL_FIXTURE.read_text(encoding="utf-8"))
+    data = fixture["input"]
+
+    assert set(data) == {
+        "problem_id",
+        "pattern",
+        "problem_type",
+        "original_text",
+        "scopes",
+        "entities",
+        "facts",
+        "question_goals",
+    }
+    serialized = json.dumps(data, ensure_ascii=False)
+    assert '"data"' not in serialized
+    assert '"target_path"' not in serialized
+    assert '"relations"' not in serialized
+    assert '"points"' not in serialized
+    assert "$question" not in serialized
+    assert "$subquestion" not in serialized
+
+
+def test_canonical_heping_fixture_projects_to_runtime_and_llm_views() -> None:
+    """同一 canonical fixture 能派生 runtime context 和 LLM payload。"""
+    problem = load_problem_ir(CANONICAL_FIXTURE)
+    context = ContextBuilder().build(problem)
+    payload = problem_to_llm_payload(problem)
+
+    assert "i_2" in context.scopes
+    assert "B" in context.problem_scope.container("points")
+    assert "D" in context.problem_scope.container("points")
+    assert {goal["handle"] for goal in payload["question_goals"]} == {
+        "answer:i_1_parabola",
+        "answer:i_2_E",
+        "answer:ii_a",
+    }
+    serialized = json.dumps(payload, ensure_ascii=False)
+    assert "target_path" not in serialized
+    assert "$question" not in serialized
 
 
 def test_nankai_fixture_preserves_original_question_structure() -> None:

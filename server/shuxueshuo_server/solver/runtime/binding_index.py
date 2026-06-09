@@ -12,7 +12,11 @@ from typing import Any
 
 from shuxueshuo_server.solver.problem_models import QuestionGoal
 from shuxueshuo_server.solver.runtime.context import RuntimeContext
-from shuxueshuo_server.solver.runtime.models import ContextDeclaration, ContextPath
+from shuxueshuo_server.solver.runtime.models import (
+    ContextDeclaration,
+    ContextPath,
+    runtime_type_matches,
+)
 from shuxueshuo_server.solver.runtime.handle_registry import (
     CanonicalHandleRegistry,
     _handle_name,
@@ -23,6 +27,7 @@ from shuxueshuo_server.solver.runtime.handle_registry import (
 from shuxueshuo_server.solver.runtime.strategy_models import (
     CreatedEntity,
     ProducedFact,
+    StepIntentAppliedFill,
     StepIntent,
     StrategyDraftValidationError,
 )
@@ -57,6 +62,7 @@ class CanonicalRuntimeBindingIndex:
         self.answer_value_types = dict(handle_registry.answer_value_types)
         self.question_goals = {f"answer:{goal.id}": goal for goal in question_goals}
         self.declarations: dict[str, Any] = {}
+        self.applied_fills: list[StepIntentAppliedFill] = []
         self._register_initial_handles()
 
     @classmethod
@@ -74,13 +80,34 @@ class CanonicalRuntimeBindingIndex:
         """注册或覆盖一个 handle -> ContextPath 绑定。"""
         self.bindings[handle] = RuntimeHandleBinding(handle, path, value_type, source)
 
+    def record_applied_fill(
+        self,
+        *,
+        step: StepIntent,
+        input_handle: str,
+        required_type: str,
+        resolved_handle: str,
+        reason: str,
+    ) -> None:
+        """记录一次 Entity/Facts 补位，供 execution diagnostic 使用。"""
+        fill = StepIntentAppliedFill(
+            step_id=step.step_id,
+            scope_id=step.scope_id,
+            input_handle=input_handle,
+            required_type=required_type,
+            resolved_handle=resolved_handle,
+            reason=reason,
+        )
+        if fill not in self.applied_fills:
+            self.applied_fills.append(fill)
+
     def path_for(self, handle: str, *, expected_type: str | None = None) -> str:
         """读取 handle 对应 ContextPath，并可选校验类型。"""
         try:
             binding = self.bindings[handle]
         except KeyError as exc:
             raise StrategyDraftValidationError(f"binding_not_found: {handle}") from exc
-        if expected_type is not None and binding.value_type != expected_type:
+        if expected_type is not None and not runtime_type_matches(expected_type, binding.value_type):
             if not (expected_type == "Point" and binding.value_type == "PointRef"):
                 if expected_type == "PointRef" and binding.value_type == "Point":
                     raise StrategyDraftValidationError(
@@ -94,6 +121,30 @@ class CanonicalRuntimeBindingIndex:
                     f"binding_type_mismatch: {handle} expected {expected_type}, got {binding.value_type}"
                 )
         return binding.path
+
+    def point_ref_path_for(self, handle: str) -> str:
+        """读取点实体的 PointRef path，兼容可解析 PointRef 的 Point 绑定。
+
+        problem scope 中一些定义点（如 y 轴交点、平移点）在注册时会被标成
+        ``Point``，方便普通 method 读取坐标。但当另一个 method 正在显式计算这个
+        定义点时，仍需要把底层 ``PointRef`` 作为 target 传入。
+        """
+        binding = self.binding_for(handle)
+        if binding.value_type == "PointRef":
+            return binding.path
+        try:
+            path = ContextPath.parse(binding.path)
+            value = self.context.get_scope(path.scope_id).container(path.container)[path.key]
+        except Exception as exc:
+            raise StrategyDraftValidationError(f"point_ref_path_not_found: {handle}") from exc
+        if value.type == "PointRef":
+            return binding.path
+        raise StrategyDraftValidationError(
+            "duplicate_point_coordinate_fact: "
+            f"handle={handle} is already a computed Point at {binding.path}; "
+            "do not call a construction/midpoint method with this point as an unresolved target. "
+            "Read the existing coordinate fact instead."
+        )
 
     def binding_for(self, handle: str) -> RuntimeHandleBinding:
         """返回绑定对象。"""
@@ -131,7 +182,7 @@ class CanonicalRuntimeBindingIndex:
         写入的目标点会在这里声明。
         """
         binding = self.binding_for(handle)
-        if binding.value_type == "Point" and _context_path_exists(self.context, binding.path):
+        if binding.value_type in {"Point", "PointRef"} and _context_path_exists(self.context, binding.path):
             return None
         kind, scope_id, name = _require_scoped_handle(handle)
         if kind != "point":
@@ -141,7 +192,7 @@ class CanonicalRuntimeBindingIndex:
             binding.path,
             definition=definition,
         )
-        self.declarations[handle] = declaration
+        self.declarations[declaration.path] = declaration
         self.bindings[handle] = RuntimeHandleBinding(handle, declaration.path, "PointRef", "declaration")
         return declaration
 
@@ -162,6 +213,20 @@ class CanonicalRuntimeBindingIndex:
             handle for handle, current_type in self.fact_types.items()
             if current_type == fact_type
         )
+
+    def entity_payload(self, handle: str) -> dict[str, Any]:
+        """读取 canonical Entity 的结构化 payload。"""
+        try:
+            return self.handle_registry.entity_payloads[handle]
+        except KeyError as exc:
+            raise StrategyDraftValidationError(f"entity_payload_not_found: {handle}") from exc
+
+    def fact_payload(self, handle: str) -> dict[str, Any]:
+        """读取 canonical Fact 的结构化 payload。"""
+        try:
+            return self.handle_registry.fact_payloads[handle]
+        except KeyError as exc:
+            raise StrategyDraftValidationError(f"fact_payload_not_found: {handle}") from exc
 
     def entity_handles(self, kind: str, *, step: StepIntent | None = None) -> list[str]:
         """按实体类型返回 handle；若提供 step，优先保留 step.reads 中出现的实体。"""
@@ -386,6 +451,12 @@ class CanonicalRuntimeBindingIndex:
             else:
                 parsed = ContextPath.parse(path)
                 value_type = self.context.get_scope(parsed.scope_id).container(parsed.container)[parsed.key].type
+                if value_type == "PointRef" and parsed.scope_id == "problem":
+                    try:
+                        self.context.read_path(path, from_scope_id=scope_id, expected_type="Point")
+                        value_type = "Point"
+                    except Exception:
+                        pass
             self.register(handle, path, value_type, source="entity")
         elif kind == "symbol":
             path = self.context.find_visible_path("symbols", name, from_scope_id=scope_id)
@@ -422,6 +493,14 @@ class CanonicalRuntimeBindingIndex:
             self.register(handle, _runtime_path_for_scope(self.context, scope_id, "conditions", "segment_length_relation"), "Condition", source="fact")
         elif fact_type == "minimum_value":
             self.register(handle, _runtime_path_for_scope(self.context, scope_id, "conditions", "minimum_value"), "Condition", source="fact")
+        elif fact_type in {
+            "angle_sum",
+            "equal_length_ray_point",
+            "point_on_segment",
+            "point_on_ray",
+            "equal_length_condition",
+        }:
+            self.register(handle, _runtime_path_for_scope(self.context, scope_id, "conditions", fact_type), "Condition", source="fact")
         elif fact_type == "point_coordinate":
             point_name = name.split("_", 1)[0]
             point_handle = self.point_handle_by_name(point_name)

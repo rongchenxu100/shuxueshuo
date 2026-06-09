@@ -503,6 +503,14 @@ def _execution_error_hints(error: str) -> list[str]:
             "answer:ii_2.parabola directly. Do not produces fact:ii:parabola_coefficients_expr "
             "or fact:ii:coefficients_in_m as an executable step."
         )
+    if "x_axis_intercept cannot uniquely determine" in error:
+        hints.append(
+            "missing_resolved_parabola_read_before_x_axis_intercept: before calling "
+            "quadratic_x_axis_intercept_point, read the already solved Parabola handle "
+            "from a previous quadratic_from_constraints step, such as answer:*.parabola "
+            "or fact:*:parabola_expression. Do not read only parabola_coefficients or "
+            "coefficients cache facts."
+        )
     if "distance_points_not_found" in error:
         hints.append(
             "missing_required_runtime_fact: distance_points; distance/minimum step needs "
@@ -628,7 +636,9 @@ def test_deepseek_strategy_planner_outputs_valid_step_intents_and_solves_nankai(
 
     for attempt in range(1, MAX_DEEPSEEK_ATTEMPTS + 1):
         attempt_inputs = replace(inputs, previous_errors=list(previous_attempts))
-        payload = StrategyPayloadBuilder().build(
+        payload = StrategyPayloadBuilder(
+            allow_same_problem_few_shot=False
+        ).build(
             attempt_inputs,
             problem_payload=llm_problem,
         )

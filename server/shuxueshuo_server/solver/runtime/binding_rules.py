@@ -7,7 +7,7 @@ selector 解析成具体 RuntimeContext path。
 from __future__ import annotations
 
 import re
-from typing import Callable, Mapping
+from typing import Any, Callable, Mapping
 
 from shuxueshuo_server.solver.family.models import MethodBindingRuleSpec, SolverFamilySpec
 from shuxueshuo_server.solver.runtime.models import ContextPath
@@ -31,6 +31,7 @@ from shuxueshuo_server.solver.runtime.binding_index import (
     _segment_membership_point,
     _segment_relation_names,
 )
+from shuxueshuo_server.solver.runtime.entity_state_resolver import EntityStateResolver
 
 BindingSelectorFn = Callable[
     [StepIntent, CanonicalRuntimeBindingIndex, Mapping[str, str]],
@@ -170,6 +171,24 @@ def _symbol_selector(name: str) -> BindingSelectorFn:
 
     return select
 
+def _free_parameter_if_single_curve_point_selector(name: str) -> BindingSelectorFn:
+    """仅当 step 只读到一个曲线点约束时，保留指定自由参数。
+
+    这类 selector 用于“先把函数化简成单参数表达式”的场景。若同一步读到了
+    两个或更多曲线点，通常已经足以完全确定系数，此时不应再强行保留自由参数。
+    """
+
+    def select(
+        step: StepIntent,
+        index: CanonicalRuntimeBindingIndex,
+        local_outputs: Mapping[str, str],
+    ) -> str | None:
+        if len(_curve_point_handles_from_reads(step, index)) != 1:
+            return None
+        return index.path_for(f"symbol:problem:{name}", expected_type="Symbol")
+
+    return select
+
 def _read_type_selector(value_type: str) -> BindingSelectorFn:
     """创建从当前 step reads 或可见父级中读取指定 runtime 类型的 selector。"""
 
@@ -211,7 +230,45 @@ def _point_output_ref_selector(
     local_outputs: Mapping[str, str],
 ) -> str:
     """读取当前 step 目标点的 PointRef。"""
-    return index.path_for(_point_output_handle(step, index), expected_type="PointRef")
+    handle = _point_output_handle(step, index)
+    index.ensure_point_declaration(handle, definition="method_output_point")
+    return index.point_ref_path_for(handle)
+
+def _translated_point_selector(role: str) -> BindingSelectorFn:
+    """创建平移点 method 的 source/target selector。"""
+
+    def select(
+        step: StepIntent,
+        index: CanonicalRuntimeBindingIndex,
+        local_outputs: Mapping[str, str],
+    ) -> str:
+        target_handle = _point_output_handle(step, index)
+        target_path = index.point_ref_path_for(target_handle)
+        if role == "target":
+            return target_path
+        try:
+            target_ref = index.context.read_path(
+                target_path,
+                from_scope_id=step.scope_id,
+                expected_type="PointRef",
+            ).value
+        except (KeyError, PermissionError, TypeError, ValueError) as exc:
+            raise StrategyDraftValidationError(
+                f"translated_point_target_ref_not_found: {target_handle}"
+            ) from exc
+        source_name = (
+            target_ref.definition.get("of")
+            or target_ref.definition.get("source")
+            or target_ref.definition.get("base")
+        )
+        if not source_name:
+            raise StrategyDraftValidationError(
+                f"translated_point_source_not_found: {target_handle}"
+            )
+        source_handle = index.point_handle_by_name(str(source_name), step=step)
+        return _point_path_from_step_reads(source_handle, step, index)
+
+    return select
 
 def _midpoint_selector(role: str) -> BindingSelectorFn:
     """创建中点 method 的角色 selector。"""
@@ -327,21 +384,29 @@ def _x_axis_known_point_selector(
     local_outputs: Mapping[str, str],
 ) -> str | None:
     """读取 x 轴另一交点 method 用来排除的已知交点。"""
-    target_path = index.path_for(_point_output_handle(step, index), expected_type="PointRef")
-    target_ref = index.context.read_path(
-        target_path,
-        from_scope_id=step.scope_id,
-        expected_type="PointRef",
-    ).value
-    exclude_name = target_ref.definition.get("exclude_point") or target_ref.definition.get("known_point")
-    if exclude_name:
-        return index.path_for(
-            index.point_handle_by_name(str(exclude_name), step=step),
-            expected_type="Point",
-        )
+    target_handle = _point_output_handle(step, index)
+    index.ensure_point_declaration(target_handle, definition="method_output_point")
+    target_path = index.point_ref_path_for(target_handle)
+    try:
+        target_ref = index.context.read_path(
+            target_path,
+            from_scope_id=step.scope_id,
+            expected_type="PointRef",
+        ).value
+        exclude_name = target_ref.definition.get("exclude_point") or target_ref.definition.get("known_point")
+        if exclude_name:
+            return index.path_for(
+                index.point_handle_by_name(str(exclude_name), step=step),
+                expected_type="Point",
+            )
+    except (KeyError, PermissionError, TypeError, ValueError):
+        pass
     for handle in step.reads:
         if handle.startswith("point:"):
             try:
+                binding = index.binding_for(handle)
+                if binding.value_type != "Point":
+                    continue
                 return index.path_for(handle, expected_type="Point")
             except StrategyDraftValidationError:
                 continue
@@ -463,6 +528,82 @@ def _intersection_selector(role: str) -> BindingSelectorFn:
 
     return select
 
+def _angle_sum_selector(role: str) -> BindingSelectorFn:
+    """创建角和转 y 轴截点 method 的角色 selector。"""
+
+    def select(
+        step: StepIntent,
+        index: CanonicalRuntimeBindingIndex,
+        local_outputs: Mapping[str, str],
+    ) -> str:
+        roles = _angle_sum_y_axis_roles(step, index)
+        expected_type = "Condition" if role == "condition" else "Point"
+        if role == "target":
+            expected_type = "PointRef"
+            index.ensure_point_declaration(roles[role], definition="method_output_point")
+        if expected_type == "Point":
+            return _point_path_from_step_reads(roles[role], step, index)
+        return index.path_for(roles[role], expected_type=expected_type)
+
+    return select
+
+
+def _angle_equality_selector(role: str) -> BindingSelectorFn:
+    """创建等角转轴截点 method 的角色 selector。"""
+
+    def select(
+        step: StepIntent,
+        index: CanonicalRuntimeBindingIndex,
+        local_outputs: Mapping[str, str],
+    ) -> str:
+        roles = _angle_equality_axis_roles(step, index)
+        if role == "angle_equality":
+            return index.path_for(roles[role], expected_type="AngleEquality")
+        expected_type = "PointRef" if role == "target" else "Point"
+        if role == "target":
+            index.ensure_point_declaration(roles[role], definition="method_output_point")
+            return index.point_ref_path_for(roles[role])
+        return _point_path_from_step_reads(roles[role], step, index)
+
+    return select
+
+
+def _line_parabola_selector(role: str) -> BindingSelectorFn:
+    """创建直线与抛物线第二交点 method 的角色 selector。"""
+
+    def select(
+        step: StepIntent,
+        index: CanonicalRuntimeBindingIndex,
+        local_outputs: Mapping[str, str],
+    ) -> str:
+        roles = _line_parabola_roles(step, index)
+        expected_type = "PointRef" if role == "target" else "Point"
+        if role == "target":
+            index.ensure_point_declaration(roles[role], definition="method_output_point")
+        if expected_type == "Point":
+            return _point_path_from_step_reads(roles[role], step, index)
+        return index.path_for(roles[role], expected_type=expected_type)
+
+    return select
+
+def _equal_length_ray_selector(role: str) -> BindingSelectorFn:
+    """创建射线上等长构造点 method 的角色 selector。"""
+
+    def select(
+        step: StepIntent,
+        index: CanonicalRuntimeBindingIndex,
+        local_outputs: Mapping[str, str],
+    ) -> str:
+        roles = _equal_length_ray_roles(step, index)
+        expected_type = "PointRef" if role == "target" else "Point"
+        if role == "target":
+            index.ensure_point_declaration(roles[role], definition="method_output_point")
+        if expected_type == "Point":
+            return _point_path_from_step_reads(roles[role], step, index)
+        return index.path_for(roles[role], expected_type=expected_type)
+
+    return select
+
 def _known_coefficients_if_read(
     step: StepIntent,
     index: CanonicalRuntimeBindingIndex,
@@ -541,9 +682,14 @@ DEFAULT_BINDING_SELECTORS: dict[str, BindingSelectorFn] = {
     "symbol:b": _symbol_selector("b"),
     "symbol:c": _symbol_selector("c"),
     "symbol:x": _symbol_selector("x"),
+    "free_parameter:a_if_single_curve_point": _free_parameter_if_single_curve_point_selector("a"),
+    "free_parameter:b_if_single_curve_point": _free_parameter_if_single_curve_point_selector("b"),
+    "free_parameter:c_if_single_curve_point": _free_parameter_if_single_curve_point_selector("c"),
     "function:parabola": _function_parabola_selector,
     "quadratic_coefficients": _constant_selector("$problem.symbol_lists.quadratic_coefficients"),
     "point_output_ref": _point_output_ref_selector,
+    "translated_point:source": _translated_point_selector("source"),
+    "translated_point:target": _translated_point_selector("target"),
     "read_type:Coefficients": _read_type_selector("Coefficients"),
     "read_type:Expression": _read_type_selector("Expression"),
     "read_type:Parabola": _read_type_selector("Parabola"),
@@ -551,6 +697,8 @@ DEFAULT_BINDING_SELECTORS: dict[str, BindingSelectorFn] = {
     "read_type:PointList": _read_type_selector("PointList"),
     "read_type:PathTransformation": _read_type_selector("PathTransformation"),
     "read_type:Line": _read_type_selector("Line"),
+    "read_type:AngleEquality": _read_type_selector("AngleEquality"),
+    "read_type:ParameterValue": _read_type_selector("ParameterValue"),
     "right_angle:anchor": _right_angle_selector("anchor"),
     "right_angle:reference": _right_angle_selector("reference"),
     "right_angle:target": _right_angle_selector("target"),
@@ -586,6 +734,26 @@ DEFAULT_BINDING_SELECTORS: dict[str, BindingSelectorFn] = {
     "intersection:line2_p1": _intersection_selector("line2_p1"),
     "intersection:line2_p2": _intersection_selector("line2_p2"),
     "intersection:target": _intersection_selector("target"),
+    "angle_sum:condition": _angle_sum_selector("condition"),
+    "angle_sum:x_axis_point": _angle_sum_selector("x_axis_point"),
+    "angle_sum:y_axis_point": _angle_sum_selector("y_axis_point"),
+    "angle_sum:reference_x_axis_point": _angle_sum_selector("reference_x_axis_point"),
+    "angle_sum:origin": _angle_sum_selector("origin"),
+    "angle_sum:target": _angle_sum_selector("target"),
+    "angle_equality:fact": _angle_equality_selector("angle_equality"),
+    "angle_equality:x_axis_point": _angle_equality_selector("x_axis_point"),
+    "angle_equality:y_axis_point": _angle_equality_selector("y_axis_point"),
+    "angle_equality:reference_x_axis_point": _angle_equality_selector("reference_x_axis_point"),
+    "angle_equality:origin": _angle_equality_selector("origin"),
+    "angle_equality:target": _angle_equality_selector("target"),
+    "line_parabola:line_p1": _line_parabola_selector("line_p1"),
+    "line_parabola:line_p2": _line_parabola_selector("line_p2"),
+    "line_parabola:known_point": _line_parabola_selector("known_point"),
+    "line_parabola:target": _line_parabola_selector("target"),
+    "equal_length_ray:anchor": _equal_length_ray_selector("anchor"),
+    "equal_length_ray:reference_point": _equal_length_ray_selector("reference_point"),
+    "equal_length_ray:ray_point": _equal_length_ray_selector("ray_point"),
+    "equal_length_ray:target": _equal_length_ray_selector("target"),
 }
 
 DEFAULT_EXPANSION_SELECTORS: dict[str, ExpansionSelectorFn] = {
@@ -599,15 +767,9 @@ DEFAULT_EXPANSION_SELECTORS: dict[str, ExpansionSelectorFn] = {
 
 def _point_output_handle(step: StepIntent, index: CanonicalRuntimeBindingIndex) -> str:
     """找出当前 step 要写回的点实体 handle。"""
-    for produced in step.produces:
-        if produced.handle.startswith("answer:"):
-            goal = index.question_goals.get(produced.handle)
-            if goal is not None and goal.value_type == "Point":
-                parsed = ContextPath.parse(goal.target_path)
-                return f"point:{parsed.scope_id}:{parsed.key}"
-        if _produced_output_type(produced, index.handle_registry) == "Point":
-            name = _semantic_name(produced.handle).split("_", 1)[0]
-            return index.point_handle_by_name(name, step=step)
+    target_handle = _point_handle_from_text(step.target, index)
+    if target_handle is not None:
+        return target_handle
     if step.target.startswith("point:"):
         return step.target
     if step.target.startswith("answer:"):
@@ -615,7 +777,115 @@ def _point_output_handle(step: StepIntent, index: CanonicalRuntimeBindingIndex) 
         if goal is not None and goal.value_type == "Point":
             parsed = ContextPath.parse(goal.target_path)
             return f"point:{parsed.scope_id}:{parsed.key}"
+
+    created_points = [
+        item.handle for item in step.creates
+        if item.entity_type == "point"
+    ]
+    has_point_output = any(
+        (
+            produced.handle.startswith("answer:")
+            and (goal := index.question_goals.get(produced.handle)) is not None
+            and goal.value_type == "Point"
+        )
+        or _produced_output_type(produced, index.handle_registry) == "Point"
+        for produced in step.produces
+    )
+    if len(created_points) == 1 and has_point_output:
+        return created_points[0]
+
+    for produced in step.produces:
+        if produced.handle.startswith("answer:"):
+            goal = index.question_goals.get(produced.handle)
+            if goal is not None and goal.value_type == "Point":
+                parsed = ContextPath.parse(goal.target_path)
+                return f"point:{parsed.scope_id}:{parsed.key}"
+        if _produced_output_type(produced, index.handle_registry) == "Point":
+            if step.recipe_hint == "quadratic_y_axis_intercept_point":
+                target = _unique_point_handle_by_definition(
+                    "y_axis_intercept",
+                    step,
+                    index,
+                )
+                if target is not None:
+                    return target
+            name = _semantic_name(produced.handle).split("_", 1)[0]
+            return index.point_handle_by_name(name, step=step)
     raise StrategyDraftValidationError(f"point_output_handle_not_found: {step.step_id}")
+
+
+def _point_handle_from_text(
+    text: str,
+    index: CanonicalRuntimeBindingIndex,
+) -> str | None:
+    """从自然语言 target 中提取完整 canonical point handle。
+
+    只接受 ``point:<scope>:<name>`` 这种完整 handle，不根据单字母点名猜测。
+    """
+    for match in re.finditer(r"point:[A-Za-z0-9_]+:[A-Za-z0-9_]+", text):
+        handle = match.group(0)
+        if handle in index.bindings and handle.startswith("point:"):
+            return handle
+    return None
+
+
+def _unique_point_handle_by_definition(
+    definition: str,
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> str | None:
+    """按 Entity definition 找唯一可见点。"""
+    candidates = [
+        handle
+        for handle in index.entity_handles("point", step=step)
+        if index.handle_registry.entity_payloads.get(handle, {}).get("definition") == definition
+    ]
+    unique = _unique_ordered(candidates)
+    return unique[0] if len(unique) == 1 else None
+
+
+def _point_path_from_step_reads(
+    handle: str,
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> str:
+    """读取点坐标路径，优先使用当前 step 显式读入的同名坐标 fact。"""
+    resolved = EntityStateResolver().resolve(handle, "Point", step, index)
+    if resolved is not None:
+        return resolved
+    return index.path_for(handle, expected_type="Point")
+
+
+def _point_read_is_usable_as_point(
+    handle: str,
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> bool:
+    """判断 step 中的 point handle 是否能作为 Point 输入。"""
+    binding = index.bindings.get(handle)
+    if binding is None:
+        return False
+    if binding.value_type == "Point":
+        return True
+    if binding.value_type != "PointRef":
+        return False
+    return EntityStateResolver().can_resolve(handle, "Point", step, index)
+
+
+def _is_point_coordinate_fact_handle(
+    handle: str,
+    index: CanonicalRuntimeBindingIndex,
+) -> bool:
+    """判断 handle 是否表示点坐标 fact，兼容题设 fact 与运行中 produces。"""
+    if index.fact_types.get(handle) == "point_coordinate":
+        return True
+    if not handle.startswith("fact:"):
+        return False
+    return bool(re.fullmatch(
+        r"[A-Za-z][A-Za-z0-9_]*_coordinate(?:_[A-Za-z0-9_]+)?",
+        _semantic_name(handle),
+    ))
+
 
 def _known_coefficients_scope(
     step: StepIntent,
@@ -637,6 +907,13 @@ def _parameter_value_handle(
     for handle in step.reads:
         if not (handle.startswith("fact:") and _semantic_name(handle).endswith("_value")):
             continue
+        if index is not None:
+            fact_type = index.fact_types.get(handle)
+            binding = index.bindings.get(handle)
+            if fact_type != "symbol_value" and (
+                binding is None or binding.value_type != "ParameterValue"
+            ):
+                continue
         if index is not None and index.is_structural_symbol_value_fact(handle):
             continue
         if index is not None and handle not in index.bindings:
@@ -654,6 +931,9 @@ def _path_for_first_type(
         binding = index.bindings.get(handle)
         if binding is not None and binding.value_type == value_type:
             return binding.path
+        resolved = EntityStateResolver().resolve(handle, value_type, step, index)
+        if resolved is not None:
+            return resolved
     for binding in index.bindings.values():
         if binding.value_type == value_type:
             return binding.path
@@ -876,6 +1156,18 @@ def _curve_point_handles_from_reads(
         if index.fact_types.get(handle) != "point_on_curve":
             continue
         point_names.append(_semantic_name(handle).split("_on_", 1)[0])
+    for handle in step.reads:
+        if not handle.startswith("point:"):
+            continue
+        point_name = _handle_name(handle)
+        if _visible_point_on_curve_fact_for_name(point_name, step, index) is not None:
+            point_names.append(point_name)
+    for handle in step.reads:
+        if not _is_point_coordinate_fact_handle(handle, index):
+            continue
+        point_name = _semantic_name(handle).split("_coordinate", 1)[0]
+        if _visible_point_on_curve_fact_for_name(point_name, step, index) is not None:
+            point_names.append(point_name)
     handles: list[str] = []
     for name in point_names:
         try:
@@ -884,12 +1176,57 @@ def _curve_point_handles_from_reads(
             # 不能在这里提前解析，否则会把“待由当前抛物线求坐标”的点反过来当作
             # 已知曲线点，造成循环依赖。
             if index.binding_for(point_handle).value_type != "Point":
+                coordinate_handle = _point_coordinate_fact_for_name(name, step, index)
+                if coordinate_handle is None:
+                    continue
+                index.path_for(coordinate_handle, expected_type="Point")
+                handles.append(coordinate_handle)
                 continue
             index.path_for(point_handle, expected_type="Point")
             handles.append(point_handle)
         except Exception:
             continue
     return _unique_ordered(handles)
+
+
+def _visible_point_on_curve_fact_for_name(
+    point_name: str,
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> str | None:
+    """查找当前 scope 可见的 ``point_on_curve`` 题设 fact。"""
+    prefix = f"{point_name}_on_"
+    for handle in index.handles_by_fact_type("point_on_curve"):
+        if not _semantic_name(handle).startswith(prefix):
+            continue
+        fact_scope = index.handle_registry.handle_valid_scopes.get(handle)
+        if fact_scope is None or not index.context.is_visible(step.scope_id, fact_scope):
+            continue
+        return handle
+    return None
+
+
+def _handle_name(handle: str) -> str:
+    """读取 canonical handle 的名字段。"""
+    return handle.rsplit(":", 1)[-1]
+
+
+def _point_coordinate_fact_for_name(
+    point_name: str,
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> str | None:
+    """从当前 step reads 中寻找同名点坐标 fact。
+
+    LLM 常写 ``reads=[D_on_parabola, D_coordinate]``。这时 ``point:D``
+    仍可能是 PointRef，但 ``D_coordinate`` 已经是可直接作为曲线点约束的 Point。
+    """
+    for handle in step.reads:
+        if not _is_point_coordinate_fact_handle(handle, index):
+            continue
+        if _semantic_name(handle).split("_", 1)[0] == point_name:
+            return handle
+    return None
 
 def _visible_curve_point_handles(
     step: StepIntent,
@@ -1158,6 +1495,453 @@ def _distance_point_handles(
         "need an auxiliary/straightening point and a computed endpoint point "
         "(usually midpoint F with its coordinate fact)"
     )
+
+def _angle_sum_y_axis_roles(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> dict[str, str]:
+    """从 angle_sum fact 推断角和转截点角色。
+
+    优先读取 canonical fact payload 的 ``angle_terms`` 和 ``value``，不再从
+    ``angle_sum_CBE_ACO_45`` 这类 handle 名里提取题面角。
+    """
+    fact = index.fact_handle_by_type("angle_sum", step=step)
+    left, right = _angle_sum_terms(fact, index)
+    return {
+        "condition": fact,
+        "x_axis_point": index.point_handle_by_name(left[1], step=step),
+        "y_axis_point": index.point_handle_by_name(left[0], step=step),
+        "reference_x_axis_point": index.point_handle_by_name(right[0], step=step),
+        "origin": index.point_handle_by_name(right[2], step=step),
+        "target": _point_output_handle(step, index),
+    }
+
+
+def _angle_equality_axis_roles(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> dict[str, str]:
+    """从等角 fact 推断正切比角色。
+
+    若 fact payload 携带 ``left_angle/right_angle``，优先读取结构化字段；旧的
+    produced fact 目前只保留 handle，因此仍兼容 ``angle_OBF_eq_ACO`` fallback。
+    """
+    fact = _angle_equality_handle(step, index)
+    left, right = _angle_equality_terms(fact, index)
+    return {
+        "angle_equality": fact,
+        "x_axis_point": index.point_handle_by_name(left[1], step=step),
+        "target": index.point_handle_by_name(left[2], step=step),
+        "reference_x_axis_point": index.point_handle_by_name(right[0], step=step),
+        "y_axis_point": index.point_handle_by_name(right[1], step=step),
+        "origin": index.point_handle_by_name(right[2], step=step),
+    }
+
+
+def _angle_equality_handle(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> str:
+    """读取当前 step 明确引用的 AngleEquality fact。"""
+    for handle in step.reads:
+        binding = index.bindings.get(handle)
+        if binding is not None and binding.value_type == "AngleEquality":
+            return handle
+        if handle.startswith("fact:") and re.fullmatch(
+            r"angle_[A-Za-z]{3}_eq_[A-Za-z]{3}",
+            _semantic_name(handle),
+        ):
+            return handle
+    raise StrategyDraftValidationError(f"angle_equality_handle_not_found: {step.step_id}")
+
+
+def _angle_sum_terms(
+    fact: str,
+    index: CanonicalRuntimeBindingIndex,
+) -> tuple[str, str]:
+    """读取 angle_sum fact 的两个三字母角。"""
+    payload = index.handle_registry.fact_payloads.get(fact)
+    if payload is not None:
+        terms = payload.get("angle_terms")
+        if (
+            isinstance(terms, list)
+            and len(terms) == 2
+            and all(isinstance(item, str) and re.fullmatch(r"[A-Za-z]{3}", item) for item in terms)
+        ):
+            return terms[0], terms[1]
+    name = _semantic_name(fact)
+    match = re.fullmatch(
+        r"angle_sum_(?P<left>[A-Za-z]{3})_(?P<right>[A-Za-z]{3})_45",
+        name,
+    )
+    if match is None:
+        raise StrategyDraftValidationError(f"invalid_angle_sum_fact_payload: {fact}")
+    return match.group("left"), match.group("right")
+
+
+def _angle_equality_terms(
+    fact: str,
+    index: CanonicalRuntimeBindingIndex,
+) -> tuple[str, str]:
+    """读取 AngleEquality fact 的左右两个三字母角。"""
+    payload = index.handle_registry.fact_payloads.get(fact)
+    if payload is not None:
+        left = payload.get("left_angle")
+        right = payload.get("right_angle")
+        if (
+            isinstance(left, str)
+            and isinstance(right, str)
+            and re.fullmatch(r"[A-Za-z]{3}", left)
+            and re.fullmatch(r"[A-Za-z]{3}", right)
+        ):
+            return left, right
+    name = _semantic_name(fact)
+    match = re.fullmatch(
+        r"angle_(?P<left>[A-Za-z]{3})_eq_(?P<right>[A-Za-z]{3})",
+        name,
+    )
+    if match is None:
+        raise StrategyDraftValidationError(f"invalid_angle_equality_fact_payload: {fact}")
+    return match.group("left"), match.group("right")
+
+
+def _line_parabola_roles(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> dict[str, str]:
+    """从 step reads 推断“直线两点 + 已知曲线交点 + 目标点”。"""
+    target = _point_output_handle(step, index)
+    line_points = [
+        handle for handle in step.reads
+        if handle.startswith("point:")
+        and handle != target
+        and _point_read_is_usable_as_point(handle, step, index)
+    ]
+    line_points.extend(
+        handle for handle in _point_handles_from_coordinate_fact_reads(step, index)
+        if handle != target
+    )
+    line_points = _unique_ordered(line_points)
+    if len(line_points) < 2:
+        raise StrategyDraftValidationError(f"line_parabola_line_points_not_found: {step.step_id}")
+    known_candidates = _curve_point_names_from_reads(step, index)
+    known = None
+    for handle in line_points:
+        if _handle_name(handle) in known_candidates:
+            known = handle
+            break
+    if known is None:
+        known = line_points[0]
+    other_points = [handle for handle in line_points if handle != known]
+    if not other_points:
+        raise StrategyDraftValidationError(f"line_parabola_second_point_not_found: {step.step_id}")
+    return {
+        "line_p1": known,
+        "line_p2": other_points[0],
+        "known_point": known,
+        "target": target,
+    }
+
+def _point_handles_from_coordinate_fact_reads(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> list[str]:
+    """从 step reads 中的点坐标 fact 反推出对应 point handle。"""
+    result: list[str] = []
+    for handle in step.reads:
+        if not _is_point_coordinate_fact_handle(handle, index):
+            continue
+        point_name = _semantic_name(handle).split("_coordinate", 1)[0]
+        try:
+            result.append(index.point_handle_by_name(point_name, step=step))
+        except StrategyDraftValidationError:
+            continue
+    return result
+
+def _curve_point_names_from_reads(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> set[str]:
+    """读取 step 显式读入的 point_on_curve fact 对应点名。"""
+    names: set[str] = set()
+    for handle in step.reads:
+        if index.fact_types.get(handle) != "point_on_curve":
+            continue
+        names.add(_semantic_name(handle).split("_on_", 1)[0])
+    return names
+
+def _equal_length_ray_roles(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> dict[str, str]:
+    """推断等长射线构造角色。
+
+    兼容旧的解法产物式 ``G_on_ray_CD_with_CG_eq_CB`` fact；新的 canonical
+    ProblemIR 不预置辅助点 G，而是从题面真实条件（点在射线、点在线段、等长关系）
+    和当前 step 的 ``creates/produces`` 推断要构造的目标点。
+    """
+    if index.handles_by_fact_type("equal_length_ray_point"):
+        return _equal_length_ray_roles_from_constructed_fact(step, index)
+    return _equal_length_ray_roles_from_problem_facts(step, index)
+
+
+def _equal_length_ray_roles_from_constructed_fact(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> dict[str, str]:
+    """从 ``G_on_ray_CD_with_CG_eq_CB`` 这类旧 fact 推断角色。"""
+    fact = index.fact_handle_by_type("equal_length_ray_point", step=step)
+    name = _semantic_name(fact)
+    match = re.fullmatch(
+        r"(?P<target>[A-Za-z0-9_]+)_on_ray_(?P<ray>[A-Za-z]{2})_with_"
+        r"(?P<left>[A-Za-z]{2})_eq_(?P<right>[A-Za-z]{2})",
+        name,
+    )
+    if match is None:
+        raise StrategyDraftValidationError(f"invalid_equal_length_ray_fact_name: {fact}")
+    ray = match.group("ray")
+    left = match.group("left")
+    right = match.group("right")
+    if left[0] != ray[0] or right[0] != ray[0]:
+        raise StrategyDraftValidationError(f"equal_length_ray_anchor_mismatch: {fact}")
+    return {
+        "anchor": index.point_handle_by_name(ray[0], step=step),
+        "ray_point": index.point_handle_by_name(ray[1], step=step),
+        "reference_point": index.point_handle_by_name(right[1], step=step),
+        "target": index.point_handle_by_name(match.group("target"), step=step),
+    }
+
+
+def _equal_length_ray_roles_from_problem_facts(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> dict[str, str]:
+    """从题面原始条件推断射线等长构造角色。
+
+    优先读取 canonical ProblemIR 的结构化字段：``point_on_ray.point/ray``、
+    ``point_on_segment.point/segment``、``equal_length_condition.left/right``。
+    只有旧数据缺少这些字段时，才退回到语义名正则解析。
+    """
+    ray_fact = index.fact_handle_by_type("point_on_ray", step=step)
+    segment_fact = index.fact_handle_by_type("point_on_segment", step=step)
+    equal_fact = index.fact_handle_by_type("equal_length_condition", step=step)
+    if _equal_length_ray_facts_have_structured_payload(
+        index,
+        ray_fact=ray_fact,
+        segment_fact=segment_fact,
+        equal_fact=equal_fact,
+    ):
+        return _equal_length_ray_roles_from_structured_problem_facts(
+            step,
+            index,
+            ray_fact=ray_fact,
+            segment_fact=segment_fact,
+            equal_fact=equal_fact,
+        )
+    return _equal_length_ray_roles_from_legacy_problem_fact_names(
+        step,
+        index,
+        ray_fact=ray_fact,
+        segment_fact=segment_fact,
+        equal_fact=equal_fact,
+    )
+
+
+def _equal_length_ray_facts_have_structured_payload(
+    index: CanonicalRuntimeBindingIndex,
+    *,
+    ray_fact: str,
+    segment_fact: str,
+    equal_fact: str,
+) -> bool:
+    """判断射线等长构造所需 facts 是否携带结构化字段。"""
+    ray_payload = index.fact_payload(ray_fact)
+    segment_payload = index.fact_payload(segment_fact)
+    equal_payload = index.fact_payload(equal_fact)
+    return (
+        isinstance(ray_payload.get("point"), str)
+        and isinstance(ray_payload.get("ray"), str)
+        and isinstance(segment_payload.get("point"), str)
+        and isinstance(segment_payload.get("segment"), str)
+        and "left" in equal_payload
+        and "right" in equal_payload
+    )
+
+
+def _equal_length_ray_roles_from_structured_problem_facts(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+    *,
+    ray_fact: str,
+    segment_fact: str,
+    equal_fact: str,
+) -> dict[str, str]:
+    """从结构化 point_on_ray / point_on_segment / equal_length fact 推断角色。"""
+    ray_payload = index.fact_payload(ray_fact)
+    segment_payload = index.fact_payload(segment_fact)
+    equal_payload = index.fact_payload(equal_fact)
+
+    ray_dynamic_point = _payload_handle(ray_payload, "point", context=ray_fact)
+    ray_handle = _payload_handle(ray_payload, "ray", context=ray_fact)
+    ray_entity = index.entity_payload(ray_handle)
+    ray_origin = _payload_handle(ray_entity, "origin", context=ray_handle)
+    ray_through = _payload_handle(ray_entity, "through", context=ray_handle)
+
+    segment_dynamic_point = _payload_handle(segment_payload, "point", context=segment_fact)
+    segment_handle = _payload_handle(segment_payload, "segment", context=segment_fact)
+    segment_endpoints = _segment_endpoints_from_entity_payload(index, segment_handle)
+
+    left = _length_endpoint_handles(equal_payload.get("left"), step, index, context=f"{equal_fact}.left")
+    right = _length_endpoint_handles(equal_payload.get("right"), step, index, context=f"{equal_fact}.right")
+    common = set(left) & set(right)
+    if len(common) != 1:
+        raise StrategyDraftValidationError(f"equal_length_common_anchor_not_found: {equal_fact}")
+    anchor = next(iter(common))
+    if anchor != ray_origin:
+        raise StrategyDraftValidationError(
+            f"equal_length_ray_anchor_mismatch: {ray_fact}:{equal_fact}"
+        )
+    if anchor not in segment_endpoints:
+        raise StrategyDraftValidationError(
+            f"equal_length_segment_anchor_mismatch: {segment_fact}:{equal_fact}"
+        )
+
+    ray_equal_endpoint = _other_endpoint_handle(left, anchor) if ray_dynamic_point in left else (
+        _other_endpoint_handle(right, anchor) if ray_dynamic_point in right else None
+    )
+    segment_equal_endpoint = _other_endpoint_handle(left, anchor) if segment_dynamic_point in left else (
+        _other_endpoint_handle(right, anchor) if segment_dynamic_point in right else None
+    )
+    if ray_equal_endpoint != ray_dynamic_point:
+        raise StrategyDraftValidationError(
+            f"equal_length_ray_dynamic_point_mismatch: {ray_fact}:{equal_fact}"
+        )
+    if segment_equal_endpoint != segment_dynamic_point:
+        raise StrategyDraftValidationError(
+            f"equal_length_segment_dynamic_point_mismatch: {segment_fact}:{equal_fact}"
+        )
+    reference_candidates = [handle for handle in segment_endpoints if handle != anchor]
+    if len(reference_candidates) != 1:
+        raise StrategyDraftValidationError(f"equal_length_reference_point_not_found: {segment_fact}")
+    return {
+        "anchor": anchor,
+        "ray_point": ray_through,
+        "reference_point": reference_candidates[0],
+        "target": _point_output_handle(step, index),
+    }
+
+
+def _equal_length_ray_roles_from_legacy_problem_fact_names(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+    *,
+    ray_fact: str,
+    segment_fact: str,
+    equal_fact: str,
+) -> dict[str, str]:
+    """从旧语义名 ``N_on_ray_CD``、``M_on_segment_BC``、``CN_eq_CM`` 推断角色。"""
+    ray_match = re.fullmatch(
+        r"(?P<point>[A-Za-z])_on_ray_(?P<ray>[A-Za-z]{2})",
+        _semantic_name(ray_fact),
+    )
+    segment_match = re.fullmatch(
+        r"(?P<point>[A-Za-z])_on_segment_(?P<segment>[A-Za-z]{2})",
+        _semantic_name(segment_fact),
+    )
+    equal_match = re.fullmatch(
+        r"(?P<left>[A-Za-z]{2})_eq_(?P<right>[A-Za-z]{2})",
+        _semantic_name(equal_fact),
+    )
+    if ray_match is None:
+        raise StrategyDraftValidationError(f"invalid_point_on_ray_fact_name: {ray_fact}")
+    if segment_match is None:
+        raise StrategyDraftValidationError(f"invalid_point_on_segment_fact_name: {segment_fact}")
+    if equal_match is None:
+        raise StrategyDraftValidationError(f"invalid_equal_length_condition_name: {equal_fact}")
+
+    ray = ray_match.group("ray")
+    segment = segment_match.group("segment")
+    left = equal_match.group("left")
+    right = equal_match.group("right")
+    common = set(left) & set(right)
+    if len(common) != 1:
+        raise StrategyDraftValidationError(f"equal_length_common_anchor_not_found: {equal_fact}")
+    anchor = next(iter(common))
+    if ray[0] != anchor:
+        raise StrategyDraftValidationError(
+            f"equal_length_ray_anchor_mismatch: {ray_fact}:{equal_fact}"
+        )
+    if anchor not in segment:
+        raise StrategyDraftValidationError(
+            f"equal_length_segment_anchor_mismatch: {segment_fact}:{equal_fact}"
+        )
+    reference_name = _other_endpoint(segment, anchor)
+    return {
+        "anchor": index.point_handle_by_name(anchor, step=step),
+        "ray_point": index.point_handle_by_name(ray[1], step=step),
+        "reference_point": index.point_handle_by_name(reference_name, step=step),
+        "target": _point_output_handle(step, index),
+    }
+
+
+def _payload_handle(payload: Mapping[str, Any], key: str, *, context: str) -> str:
+    """读取 payload 中的 canonical handle 字符串字段。"""
+    value = payload.get(key)
+    if not isinstance(value, str) or not value.strip():
+        raise StrategyDraftValidationError(f"structured_payload_field_missing: {context}.{key}")
+    return value
+
+
+def _segment_endpoints_from_entity_payload(
+    index: CanonicalRuntimeBindingIndex,
+    segment_handle: str,
+) -> tuple[str, str]:
+    """读取 segment entity 的两个端点 handle。"""
+    payload = index.entity_payload(segment_handle)
+    endpoints = payload.get("endpoints")
+    if (
+        not isinstance(endpoints, list)
+        or len(endpoints) != 2
+        or not all(isinstance(item, str) for item in endpoints)
+    ):
+        raise StrategyDraftValidationError(f"segment_endpoints_missing: {segment_handle}")
+    return endpoints[0], endpoints[1]
+
+
+def _length_endpoint_handles(
+    value: Any,
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+    *,
+    context: str,
+) -> tuple[str, str]:
+    """把 equal_length 的一侧解析成两个 point handle。
+
+    支持未来的结构化端点列表，也兼容当前 ``"CN"`` 这种短字符串。
+    """
+    if (
+        isinstance(value, list)
+        and len(value) == 2
+        and all(isinstance(item, str) for item in value)
+    ):
+        return value[0], value[1]
+    if isinstance(value, str) and ":" in value:
+        raise StrategyDraftValidationError(f"invalid_length_endpoint_pair: {context}")
+    if isinstance(value, str) and re.fullmatch(r"[A-Za-z]{2}", value):
+        return (
+            index.point_handle_by_name(value[0], step=step),
+            index.point_handle_by_name(value[1], step=step),
+        )
+    raise StrategyDraftValidationError(f"invalid_length_endpoint_pair: {context}")
+
+
+def _other_endpoint_handle(pair: tuple[str, str], anchor: str) -> str:
+    """返回二元端点中非 anchor 的另一个端点。"""
+    if pair[0] == anchor:
+        return pair[1]
+    if pair[1] == anchor:
+        return pair[0]
+    raise StrategyDraftValidationError(f"endpoint_pair_missing_anchor: {pair}:{anchor}")
 
 def _is_auxiliary_point_handle(
     handle: str,

@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 import re
 from typing import Any
 
@@ -61,21 +61,30 @@ class CanonicalHandleRegistry:
     scope_parents: dict[str, str | None] = field(default_factory=dict)
     fact_types: dict[str, str] = field(default_factory=dict)
     answer_value_types: dict[str, str] = field(default_factory=dict)
+    answer_aliases: dict[str, str] = field(default_factory=dict)
+    handle_aliases: dict[str, str] = field(default_factory=dict)
     handle_valid_scopes: dict[str, str] = field(default_factory=dict)
+    entity_payloads: dict[str, dict[str, Any]] = field(default_factory=dict)
+    fact_payloads: dict[str, dict[str, Any]] = field(default_factory=dict)
 
     @classmethod
     def from_problem_payload(cls, payload: dict[str, Any]) -> "CanonicalHandleRegistry":
         """从 projection 生成的 LLM Problem payload 构建 registry。"""
         _validate_llm_problem_payload_shape(payload)
         scope_ids, scope_parents = _scope_ids_from_payload(payload)
-        entity_handles, entity_valid_scopes = _entity_handles_from_payload(payload, scope_ids)
-        fact_handles, fact_types, fact_valid_scopes = _fact_handles_from_payload(payload, scope_ids)
-        answer_handles, answer_value_types, answer_valid_scopes = _answer_handles_from_payload(payload, scope_ids)
+        entity_handles, entity_valid_scopes, entity_payloads = _entity_handles_from_payload(payload, scope_ids)
+        fact_handles, fact_types, fact_valid_scopes, fact_payloads = _fact_handles_from_payload(payload, scope_ids)
+        answer_handles, answer_value_types, answer_aliases, answer_valid_scopes = _answer_handles_from_payload(
+            payload,
+            scope_ids,
+        )
+        initial_handles = entity_handles | fact_handles | answer_handles
         handle_valid_scopes = {
             **entity_valid_scopes,
             **fact_valid_scopes,
             **answer_valid_scopes,
         }
+        handle_aliases = _handle_aliases_from_payload(payload, initial_handles)
         return cls(
             scope_ids=frozenset(scope_ids),
             entity_handles=frozenset(entity_handles),
@@ -84,7 +93,11 @@ class CanonicalHandleRegistry:
             scope_parents=scope_parents,
             fact_types=fact_types,
             answer_value_types=answer_value_types,
+            answer_aliases=answer_aliases,
+            handle_aliases=handle_aliases,
             handle_valid_scopes=handle_valid_scopes,
+            entity_payloads=entity_payloads,
+            fact_payloads=fact_payloads,
         )
 
     @property
@@ -120,17 +133,255 @@ class CanonicalHandleRegistry:
             current = self.scope_parents.get(current)
         return tuple(result)
 
+
+@dataclass(frozen=True)
+class ResolvedHandle:
+    """CanonicalHandleAliasResolver 的解析结果。"""
+
+    handle: str
+    correction: HandleCorrection | None = None
+
+
+class CanonicalHandleAliasResolver:
+    """统一处理 LLM handle 的确定性 alias/canonicalization。
+
+    本类只做 handle 层面的修正，不做 EntityState 补位，也不按编辑距离猜测。
+    """
+
+    def resolve(
+        self,
+        handle: str,
+        *,
+        field: str,
+        step: StepIntent,
+        registry: CanonicalHandleRegistry,
+        available: set[str],
+    ) -> ResolvedHandle:
+        """解析一个 handle；无法确定修正时原样返回。"""
+        if handle in available:
+            return ResolvedHandle(handle=handle)
+
+        answer_alias = self._resolve_answer_alias(
+            handle,
+            field=field,
+            step=step,
+            registry=registry,
+        )
+        if answer_alias is not None:
+            return answer_alias
+        if field != "reads":
+            return ResolvedHandle(handle=handle)
+
+        registered_alias = self._resolve_registered_alias(
+            handle,
+            field=field,
+            step=step,
+            registry=registry,
+            available=available,
+        )
+        if registered_alias is not None:
+            return registered_alias
+
+        namespace_alias = self._resolve_namespace_alias(
+            handle,
+            field=field,
+            step=step,
+            registry=registry,
+            available=available,
+        )
+        if namespace_alias is not None:
+            return namespace_alias
+
+        return self._resolve_visible_ancestor_or_point_entity(
+            handle,
+            field=field,
+            step=step,
+            registry=registry,
+            available=available,
+        )
+
+    def _resolve_answer_alias(
+        self,
+        handle: str,
+        *,
+        field: str,
+        step: StepIntent,
+        registry: CanonicalHandleRegistry,
+    ) -> ResolvedHandle | None:
+        """解析 question_goals 生成的 answer alias。"""
+        if not handle.startswith("answer:"):
+            return None
+        corrected = registry.answer_aliases.get(handle)
+        if corrected is None:
+            return None
+        return ResolvedHandle(
+            handle=corrected,
+            correction=HandleCorrection(
+                step_id=step.step_id,
+                scope_id=step.scope_id,
+                from_handle=handle,
+                to_handle=corrected,
+                reason=f"answer_alias:{field}",
+            ),
+        )
+
+    def _resolve_registered_alias(
+        self,
+        handle: str,
+        *,
+        field: str,
+        step: StepIntent,
+        registry: CanonicalHandleRegistry,
+        available: set[str],
+    ) -> ResolvedHandle | None:
+        """解析 projection/FamilySpec/code-generated 显式 alias。"""
+        corrected = registry.handle_aliases.get(handle)
+        if corrected is None or corrected not in available:
+            return None
+        return ResolvedHandle(
+            handle=corrected,
+            correction=HandleCorrection(
+                step_id=step.step_id,
+                scope_id=step.scope_id,
+                from_handle=handle,
+                to_handle=corrected,
+                reason=f"registered_alias:{field}",
+            ),
+        )
+
+    def _resolve_namespace_alias(
+        self,
+        handle: str,
+        *,
+        field: str,
+        step: StepIntent,
+        registry: CanonicalHandleRegistry,
+        available: set[str],
+    ) -> ResolvedHandle | None:
+        """解析 facts:/seg: 这类 namespace 缩写。"""
+        corrected = _namespace_alias_handle(handle)
+        if corrected == handle:
+            return None
+        if corrected in available:
+            return ResolvedHandle(
+                handle=corrected,
+                correction=HandleCorrection(
+                    step_id=step.step_id,
+                    scope_id=step.scope_id,
+                    from_handle=handle,
+                    to_handle=corrected,
+                    reason=f"namespace_alias:{field}",
+                ),
+            )
+        return self._resolve_visible_ancestor_or_point_entity(
+            corrected,
+            field=field,
+            step=step,
+            registry=registry,
+            available=available,
+            original_handle=handle,
+            reason_prefix="namespace_alias",
+        )
+
+    def _resolve_visible_ancestor_or_point_entity(
+        self,
+        handle: str,
+        *,
+        field: str,
+        step: StepIntent,
+        registry: CanonicalHandleRegistry,
+        available: set[str],
+        original_handle: str | None = None,
+        reason_prefix: str | None = None,
+    ) -> ResolvedHandle:
+        """修正唯一可见父级 handle，或 fact namespace 误写的点实体。"""
+        from_handle = original_handle or handle
+        parsed = _parse_scoped_non_answer_handle(handle)
+        if parsed is None:
+            return ResolvedHandle(handle=from_handle)
+        kind, written_scope, name = parsed
+        visible_scopes = registry.ancestor_scopes(step.scope_id)
+        if written_scope not in visible_scopes:
+            return ResolvedHandle(handle=from_handle)
+        written_index = visible_scopes.index(written_scope)
+
+        if kind == "fact":
+            entity_correction = self._resolve_fact_as_point_entity(
+                written_index=written_index,
+                name=name,
+                visible_scopes=visible_scopes,
+                available=available,
+                step=step,
+                from_handle=from_handle,
+                reason_prefix=reason_prefix,
+            )
+            if entity_correction is not None:
+                return entity_correction
+
+        candidates = [
+            f"{kind}:{scope_id}:{name}"
+            for scope_id in visible_scopes[written_index + 1:]
+            if f"{kind}:{scope_id}:{name}" in available
+        ]
+        if len(candidates) != 1:
+            return ResolvedHandle(handle=from_handle)
+
+        corrected = candidates[0]
+        reason = "visible_ancestor_scope"
+        if reason_prefix is not None:
+            reason = f"{reason_prefix}:{reason}"
+        return ResolvedHandle(
+            handle=corrected,
+            correction=HandleCorrection(
+                step_id=step.step_id,
+                scope_id=step.scope_id,
+                from_handle=from_handle,
+                to_handle=corrected,
+                reason=f"{reason}:{field}",
+            ),
+        )
+
+    def _resolve_fact_as_point_entity(
+        self,
+        *,
+        written_index: int,
+        name: str,
+        visible_scopes: tuple[str, ...],
+        available: set[str],
+        step: StepIntent,
+        from_handle: str,
+        reason_prefix: str | None,
+    ) -> ResolvedHandle | None:
+        """把 fact:<scope>:O 这类 exact-name 点实体误写修正为 point:<scope>:O。"""
+        candidates = [
+            f"point:{scope_id}:{name}"
+            for scope_id in visible_scopes[written_index:]
+            if f"point:{scope_id}:{name}" in available
+        ]
+        if len(candidates) != 1:
+            return None
+        corrected = candidates[0]
+        reason = "fact_namespace_for_point_entity"
+        if reason_prefix is not None:
+            reason = f"{reason_prefix}:{reason}"
+        return ResolvedHandle(
+            handle=corrected,
+            correction=HandleCorrection(
+                step_id=step.step_id,
+                scope_id=step.scope_id,
+                from_handle=from_handle,
+                to_handle=corrected,
+                reason=reason,
+            ),
+        )
+
+
 class HandleResolver:
-    """对 LLM reads handle 做最小安全修正。
+    """对整个 StepIntentDraft 做 handle 修正与数据流维护。
 
-    它不是 fuzzy matcher，也不做语义猜测。唯一支持的自动修正是：LLM 把一个已经
-    存在于父级可见 scope 的 Entity/Fact handle 误写成当前 step scope。典型例子：
-
-    ``fact:ii_1:path_minimum_target`` -> ``fact:ii:path_minimum_target``
-    ``point:ii:D`` -> ``point:problem:D``
-
-    这能减少无意义 repair 轮次，同时仍保留严格边界：answer 不修正、sibling 不修正、
-    多候选不修正、语义名不一致不修正。
+    单个 handle 的 alias/canonicalization 委托给
+    ``CanonicalHandleAliasResolver``；这里负责遍历 draft、维护前序
+    creates/produces 可读集合，以及收窄过宽 produced fact。
     """
 
     def resolve_draft(
@@ -140,40 +391,49 @@ class HandleResolver:
     ) -> tuple[StepIntentDraft, HandleResolutionReport]:
         """返回修正后的 draft 与修正报告。"""
         available = set(registry.initial_handles)
+        handle_valid_scopes = dict(registry.handle_valid_scopes)
+        handle_rewrites: dict[str, str] = {}
         corrections: list[HandleCorrection] = []
         scopes: list[StepIntentScope] = []
+        alias_resolver = CanonicalHandleAliasResolver()
 
         for scope in draft.scopes:
             steps: list[StepIntent] = []
             for step in scope.steps:
-                corrected_reads: list[str] = []
-                for handle in step.reads:
-                    corrected = self._resolve_read_handle(
-                        handle,
-                        step=step,
-                        registry=registry,
-                        available=available,
-                    )
-                    corrected_reads.append(corrected.handle)
-                    if corrected.correction is not None:
-                        corrections.append(corrected.correction)
-                corrected_step = StepIntent(
-                    scope_id=step.scope_id,
-                    step_id=step.step_id,
-                    recipe_hint=step.recipe_hint,
-                    goal_type=step.goal_type,
-                    target=step.target,
-                    strategy=step.strategy,
-                    reads=tuple(corrected_reads),
-                    creates=step.creates,
-                    produces=step.produces,
-                    reason=step.reason,
+                step = _rewrite_step_handles(step, handle_rewrites)
+                step, alias_corrections = self._resolve_handle_aliases(
+                    step,
+                    registry=registry,
+                    available=available,
+                    alias_resolver=alias_resolver,
                 )
+                corrections.extend(alias_corrections)
+                step, create_corrections = self._move_existing_entities_to_reads(
+                    step,
+                    registry=registry,
+                    available=available,
+                )
+                corrections.extend(create_corrections)
+                corrected_step = step
+                corrected_step, scope_corrections, produce_rewrites = self._narrow_overbroad_produced_facts(
+                    corrected_step,
+                    registry=registry,
+                    handle_valid_scopes=handle_valid_scopes,
+                )
+                corrections.extend(scope_corrections)
+                handle_rewrites.update(produce_rewrites)
                 steps.append(corrected_step)
 
                 # 修正后续 step 时，需要知道前序 creates/produces 已经可读。
                 available.update(item.handle for item in step.creates)
-                available.update(item.handle for item in step.produces)
+                available.update(item.handle for item in corrected_step.creates)
+                available.update(item.handle for item in corrected_step.produces)
+                handle_valid_scopes.update(
+                    {item.handle: item.valid_scope for item in corrected_step.creates}
+                )
+                handle_valid_scopes.update(
+                    {item.handle: item.valid_scope for item in corrected_step.produces}
+                )
 
             scopes.append(
                 StepIntentScope(
@@ -188,57 +448,226 @@ class HandleResolver:
             HandleResolutionReport(corrections=tuple(corrections)),
         )
 
-    def _resolve_read_handle(
+    def _narrow_overbroad_produced_facts(
         self,
-        handle: str,
-        *,
         step: StepIntent,
+        *,
         registry: CanonicalHandleRegistry,
-        available: set[str],
-    ) -> "_ResolvedReadHandle":
-        """尝试把当前 scope 误写修正到可见父 scope。"""
-        if handle in available:
-            return _ResolvedReadHandle(handle=handle)
+        handle_valid_scopes: dict[str, str],
+    ) -> tuple[StepIntent, list[HandleCorrection], dict[str, str]]:
+        """收窄被 LLM 误写成父级公共结论的 produced fact。
 
-        parsed = _parse_scoped_non_answer_handle(handle)
-        if parsed is None:
-            return _ResolvedReadHandle(handle=handle)
-        kind, written_scope, name = parsed
-        visible_scopes = registry.ancestor_scopes(step.scope_id)
-        if written_scope not in visible_scopes:
-            return _ResolvedReadHandle(handle=handle)
-        written_index = visible_scopes.index(written_scope)
+        若某个 step 在 ``i`` / ``ii_1`` 等局部 scope 中读取了局部条件，却把产物
+        写成过宽的公共 fact，这个 fact 不应被后续其它分问当作公共结论。这里选择
+        “所有 reads 都可见的最大安全 scope”，并同步改写 fact handle 的 scope 前缀。
+        """
+        if not step.produces:
+            return step, [], {}
 
-        candidates: list[str] = []
-        # 当前/中间 scope 已确认不存在同名可读 handle，只继续向更高父级查找；
-        # 不反向修正到子 scope，也不跨 sibling。
-        for scope_id in visible_scopes[written_index + 1:]:
-            candidate = f"{kind}:{scope_id}:{name}"
-            if candidate in available:
-                candidates.append(candidate)
+        new_produces: list[ProducedFact] = []
+        corrections: list[HandleCorrection] = []
+        rewrites: dict[str, str] = {}
+        for item in step.produces:
+            if not item.handle.startswith("fact:"):
+                new_produces.append(item)
+                continue
+            if step.scope_id == "problem":
+                new_produces.append(item)
+                continue
+            safe_scope = self._max_safe_valid_scope(
+                step,
+                requested_scope=item.valid_scope,
+                registry=registry,
+                handle_valid_scopes=handle_valid_scopes,
+            )
+            if safe_scope == item.valid_scope:
+                new_produces.append(item)
+                continue
+            _kind, _scope, name = _require_scoped_handle(item.handle)
+            new_handle = f"fact:{safe_scope}:{name}"
+            new_item = replace(item, handle=new_handle, valid_scope=safe_scope)
+            new_produces.append(new_item)
+            rewrites[item.handle] = new_handle
+            corrections.append(
+                HandleCorrection(
+                    step_id=step.step_id,
+                    scope_id=step.scope_id,
+                    from_handle=item.handle,
+                    to_handle=new_handle,
+                    reason=(
+                        "produced fact depended on narrower-scope reads; narrowed handle "
+                        f"and valid_scope from {item.valid_scope} to {safe_scope}"
+                    ),
+                )
+            )
 
-        if len(candidates) != 1:
-            return _ResolvedReadHandle(handle=handle)
+        if not corrections:
+            return step, [], {}
 
-        corrected = candidates[0]
-        return _ResolvedReadHandle(
-            handle=corrected,
-            correction=HandleCorrection(
-                step_id=step.step_id,
-                scope_id=step.scope_id,
-                from_handle=handle,
-                to_handle=corrected,
-                reason="same semantic handle exists in a visible ancestor scope",
+        return (
+            replace(
+                step,
+                target=rewrites.get(step.target, step.target),
+                produces=tuple(new_produces),
             ),
+            corrections,
+            rewrites,
         )
 
+    def _max_safe_valid_scope(
+        self,
+        step: StepIntent,
+        *,
+        requested_scope: str,
+        registry: CanonicalHandleRegistry,
+        handle_valid_scopes: dict[str, str],
+    ) -> str:
+        """返回不超过 requested_scope 且能读取本 step 依赖的最大安全 scope。"""
+        try:
+            step_chain = registry.ancestor_scopes(step.scope_id)
+            requested_index = step_chain.index(requested_scope)
+        except StrategyDraftValidationError:
+            return requested_scope
+        except ValueError:
+            return requested_scope
+        candidates = step_chain[: requested_index + 1]
+        read_scopes = [
+            handle_valid_scopes[handle]
+            for handle in step.reads
+            if handle in handle_valid_scopes
+        ]
+        for scope_id in reversed(candidates):
+            if all(read_scope in registry.ancestor_scopes(scope_id) for read_scope in read_scopes):
+                return scope_id
+        return step.scope_id
 
-@dataclass(frozen=True)
-class _ResolvedReadHandle:
-    """HandleResolver 内部使用的读取结果。"""
+    def _resolve_handle_aliases(
+        self,
+        step: StepIntent,
+        *,
+        registry: CanonicalHandleRegistry,
+        available: set[str],
+        alias_resolver: CanonicalHandleAliasResolver,
+    ) -> tuple[StepIntent, list[HandleCorrection]]:
+        """统一修正 target/reads/produces 中可确定的 handle alias。"""
+        corrections: list[HandleCorrection] = []
 
-    handle: str
-    correction: HandleCorrection | None = None
+        def resolve(handle: str, *, field: str) -> str:
+            resolved = alias_resolver.resolve(
+                handle,
+                field=field,
+                step=step,
+                registry=registry,
+                available=available,
+            )
+            if resolved.correction is not None:
+                corrections.append(resolved.correction)
+            return resolved.handle
+
+        target = resolve(step.target, field="target")
+        reads = tuple(resolve(handle, field="reads") for handle in step.reads)
+        produces = tuple(
+            replace(item, handle=resolve(item.handle, field="produces"))
+            for item in step.produces
+        )
+        if not corrections:
+            return step, []
+        return (
+            StepIntent(
+                scope_id=step.scope_id,
+                step_id=step.step_id,
+                recipe_hint=step.recipe_hint,
+                goal_type=step.goal_type,
+                target=target,
+                strategy=step.strategy,
+                reads=reads,
+                creates=step.creates,
+                produces=produces,
+                reason=step.reason,
+            ),
+            corrections,
+        )
+
+    def _move_existing_entities_to_reads(
+        self,
+        step: StepIntent,
+        *,
+        registry: CanonicalHandleRegistry,
+        available: set[str],
+    ) -> tuple[StepIntent, list[HandleCorrection]]:
+        """把误放到 creates[] 的已有实体改成 reads[]。
+
+        ``creates`` 只应声明推导中新建的辅助实体。若 LLM 把题面已有的点/线放进
+        ``creates``，这不是数学步骤，而是字段放错；可以安全移动到 reads，避免
+        后续 validator 报 ``create_overwrites_given_entity``。若前序 step 已创建同一
+        auxiliary entity，后续重复 creates 也可安全移动到 reads。这里不修正
+        produces，也不把未知 entity 伪造成题设 entity。
+        """
+        if not step.creates:
+            return step, []
+
+        reads = list(step.reads)
+        creates: list[CreatedEntity] = []
+        corrections: list[HandleCorrection] = []
+        for item in step.creates:
+            if item.handle not in registry.entity_handles and item.handle not in available:
+                creates.append(item)
+                continue
+            if item.handle not in reads:
+                reads.append(item.handle)
+            reason = (
+                "duplicate_created_entity_already_available; moved to reads"
+                if item.handle in available and item.handle not in registry.entity_handles
+                else "created entity already exists in canonical ProblemIR; moved to reads"
+            )
+            corrections.append(
+                HandleCorrection(
+                    step_id=step.step_id,
+                    scope_id=step.scope_id,
+                    from_handle=f"creates:{item.handle}",
+                    to_handle=item.handle,
+                    reason=reason,
+                )
+            )
+
+        if not corrections:
+            return step, []
+
+        return (
+            StepIntent(
+                scope_id=step.scope_id,
+                step_id=step.step_id,
+                recipe_hint=step.recipe_hint,
+                goal_type=step.goal_type,
+                target=step.target,
+                strategy=step.strategy,
+                reads=tuple(reads),
+                creates=tuple(creates),
+                produces=step.produces,
+                reason=step.reason,
+            ),
+            corrections,
+        )
+
+def _rewrite_step_handles(step: StepIntent, rewrites: dict[str, str]) -> StepIntent:
+    """把前序 produced fact 改名同步到后续 step。"""
+    if not rewrites:
+        return step
+    return StepIntent(
+        scope_id=step.scope_id,
+        step_id=step.step_id,
+        recipe_hint=step.recipe_hint,
+        goal_type=step.goal_type,
+        target=rewrites.get(step.target, step.target),
+        strategy=step.strategy,
+        reads=tuple(rewrites.get(handle, handle) for handle in step.reads),
+        creates=step.creates,
+        produces=tuple(
+            replace(item, handle=rewrites.get(item.handle, item.handle))
+            for item in step.produces
+        ),
+        reason=step.reason,
+    )
 
 def _require_scoped_handle(handle: str) -> tuple[str, str, str]:
     """解析 canonical Entity/Fact handle。
@@ -332,10 +761,11 @@ def _scope_ids_from_payload(payload: dict[str, Any]) -> tuple[set[str], dict[str
 def _entity_handles_from_payload(
     payload: dict[str, Any],
     scope_ids: set[str],
-) -> tuple[set[str], dict[str, str]]:
+) -> tuple[set[str], dict[str, str], dict[str, dict[str, Any]]]:
     """读取并校验 entities[].handle。"""
     handles: set[str] = set()
     valid_scopes: dict[str, str] = {}
+    payloads: dict[str, dict[str, Any]] = {}
     for index, item in enumerate(payload["entities"]):
         if not isinstance(item, dict):
             raise StrategyDraftValidationError(f"LLM ProblemIR entities[{index}] must be an object")
@@ -367,17 +797,19 @@ def _entity_handles_from_payload(
             raise StrategyDraftValidationError(f"duplicate entity handle in LLM ProblemIR: {handle}")
         handles.add(handle)
         valid_scopes[handle] = scope_id
-    return handles, valid_scopes
+        payloads[handle] = dict(item)
+    return handles, valid_scopes, payloads
 
 
 def _fact_handles_from_payload(
     payload: dict[str, Any],
     scope_ids: set[str],
-) -> tuple[set[str], dict[str, str], dict[str, str]]:
+) -> tuple[set[str], dict[str, str], dict[str, str], dict[str, dict[str, Any]]]:
     """读取并校验 facts[].handle，同时保存题设 fact 类型。"""
     handles: set[str] = set()
     types: dict[str, str] = {}
     valid_scopes: dict[str, str] = {}
+    payloads: dict[str, dict[str, Any]] = {}
     for index, item in enumerate(payload["facts"]):
         if not isinstance(item, dict):
             raise StrategyDraftValidationError(f"LLM ProblemIR facts[{index}] must be an object")
@@ -408,16 +840,18 @@ def _fact_handles_from_payload(
         if isinstance(fact_type, str) and fact_type.strip():
             types[handle] = fact_type.strip()
         valid_scopes[handle] = valid_scope
-    return handles, types, valid_scopes
+        payloads[handle] = dict(item)
+    return handles, types, valid_scopes, payloads
 
 
 def _answer_handles_from_payload(
     payload: dict[str, Any],
     scope_ids: set[str],
-) -> tuple[set[str], dict[str, str], dict[str, str]]:
+) -> tuple[set[str], dict[str, str], dict[str, str], dict[str, str]]:
     """读取并校验 question_goals[].handle，同时保存答案值类型。"""
     handles: set[str] = set()
     value_types: dict[str, str] = {}
+    aliases: dict[str, str] = {}
     valid_scopes: dict[str, str] = {}
     for index, item in enumerate(payload["question_goals"]):
         if not isinstance(item, dict):
@@ -430,9 +864,19 @@ def _answer_handles_from_payload(
             raise StrategyDraftValidationError(
                 f"LLM ProblemIR question_goals[{index}].handle is not canonical: {handle}"
             )
+        valid_scope = item.get("valid_scope", scope_id)
+        if not isinstance(valid_scope, str) or not valid_scope.strip():
+            raise StrategyDraftValidationError(
+                f"LLM ProblemIR question_goals[{index}].valid_scope must be a string when provided"
+            )
+        valid_scope = valid_scope.strip()
         if scope_id not in scope_ids:
             raise StrategyDraftValidationError(
                 f"LLM ProblemIR question_goals[{index}] unknown scope_id: {scope_id}"
+            )
+        if valid_scope not in scope_ids:
+            raise StrategyDraftValidationError(
+                f"LLM ProblemIR question_goals[{index}] unknown valid_scope: {valid_scope}"
             )
         if handle in handles:
             raise StrategyDraftValidationError(f"duplicate answer handle in LLM ProblemIR: {handle}")
@@ -440,8 +884,69 @@ def _answer_handles_from_payload(
         value_type = item.get("value_type")
         if isinstance(value_type, str) and value_type.strip():
             value_types[handle] = value_type.strip()
-        valid_scopes[handle] = scope_id
-    return handles, value_types, valid_scopes
+        answer_key = item.get("answer_key")
+        if isinstance(answer_key, str) and answer_key.strip():
+            _add_answer_alias(aliases, handles, f"answer:{scope_id}.{answer_key.strip()}", handle)
+            _add_answer_alias(aliases, handles, f"answer:{scope_id}_{answer_key.strip()}", handle)
+        valid_scopes[handle] = valid_scope
+    return handles, value_types, aliases, valid_scopes
+
+
+def _handle_aliases_from_payload(
+    payload: dict[str, Any],
+    handles: set[str],
+) -> dict[str, str]:
+    """读取 entities/facts/question_goals 上可选的 aliases[]。"""
+    aliases: dict[str, str] = {}
+    for collection in ("entities", "facts", "question_goals"):
+        raw_items = payload.get(collection, [])
+        if not isinstance(raw_items, list):
+            continue
+        for index, item in enumerate(raw_items):
+            if not isinstance(item, dict):
+                continue
+            canonical = item.get("handle")
+            if not isinstance(canonical, str) or canonical not in handles:
+                continue
+            raw_aliases = item.get("aliases", ())
+            if raw_aliases in (None, ()):
+                continue
+            if not isinstance(raw_aliases, list):
+                raise StrategyDraftValidationError(
+                    f"LLM ProblemIR {collection}[{index}].aliases must be a list when provided"
+                )
+            for raw_alias in raw_aliases:
+                if not isinstance(raw_alias, str) or not raw_alias.strip():
+                    raise StrategyDraftValidationError(
+                        f"LLM ProblemIR {collection}[{index}].aliases must contain strings"
+                    )
+                _add_handle_alias(aliases, handles, raw_alias.strip(), canonical)
+    return aliases
+
+
+def _add_answer_alias(
+    aliases: dict[str, str],
+    handles: set[str],
+    alias: str,
+    canonical: str,
+) -> None:
+    """注册唯一 answer alias；已有 canonical handle 不需要 alias。"""
+    _add_handle_alias(aliases, handles, alias, canonical)
+
+
+def _add_handle_alias(
+    aliases: dict[str, str],
+    handles: set[str],
+    alias: str,
+    canonical: str,
+) -> None:
+    """注册唯一 handle alias；冲突 alias 会被删除，避免猜测。"""
+    if alias == canonical or alias in handles:
+        return
+    if alias in aliases and aliases[alias] != canonical:
+        aliases.pop(alias, None)
+        return
+    aliases[alias] = canonical
 
 
 def _required_payload_string(item: dict[str, Any], key: str, label: str) -> str:
@@ -450,6 +955,20 @@ def _required_payload_string(item: dict[str, Any], key: str, label: str) -> str:
     if not isinstance(value, str) or not value.strip():
         raise StrategyDraftValidationError(f"LLM ProblemIR {label}.{key} must be a string")
     return value.strip()
+
+
+def _namespace_alias_handle(handle: str) -> str:
+    """把常见 namespace 缩写临时转为 canonical 形态。
+
+    这只发生在 reads 修正阶段；只有修正后能命中已存在 handle 或唯一可见父级
+    handle 时，CanonicalHandleAliasResolver 才会真正接受。
+    """
+    if handle.startswith("facts:"):
+        return "fact:" + handle[len("facts:"):]
+    if handle.startswith("seg:"):
+        return "segment:" + handle[len("seg:"):]
+    return handle
+
 
 def _parse_scoped_non_answer_handle(handle: str) -> tuple[str, str, str] | None:
     """解析 Entity/Fact handle 为 ``(kind, scope, name)``。

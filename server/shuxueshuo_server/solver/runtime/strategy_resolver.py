@@ -88,8 +88,10 @@ def build_executable_capabilities(
                 capability_id=recipe.recipe_id,
                 kind="recipe",
                 goal_type=recipe.goal_type,
+                goal_aliases=(),
                 method_ids=recipe.method_ids,
                 output_types=tuple(output_types),
+                allows_creates=_recipe_allows_creates(recipe.recipe_id, tuple(output_types)),
                 preferred=recipe.priority == "preferred",
                 title=recipe.title,
                 description=recipe.description,
@@ -100,13 +102,16 @@ def build_executable_capabilities(
             spec = method_specs.require(method_id)
         except KeyError:
             continue
+        method_output_types = tuple(_unique_ordered(spec.outputs.values()))
         capabilities.append(
             ExecutableCapabilitySpec(
                 capability_id=spec.method_id,
                 kind="method",
                 goal_type=spec.solves[0],
+                goal_aliases=tuple(spec.solves[1:]),
                 method_ids=(spec.method_id,),
-                output_types=tuple(_unique_ordered(spec.outputs.values())),
+                output_types=method_output_types,
+                allows_creates=_method_allows_creates(spec.method_id, method_output_types),
                 preferred=False,
                 title=spec.title,
                 description=_method_capability_summary(spec),
@@ -125,6 +130,35 @@ def _recipe_output_types(recipe: Any) -> tuple[str, ...]:
             output_type for _output_key, output_type in execution.output_aliases
         )
     )
+
+
+def _recipe_allows_creates(recipe_id: str, output_types: tuple[str, ...]) -> bool:
+    """从 recipe 能力边界推导 creates[] 是否允许声明辅助实体。"""
+    if "Point" in output_types:
+        return True
+    return recipe_id in {
+        "broken_path_straightening_and_select",
+        "weighted_axis_path_triangle_transform",
+        "select_straightening_candidate",
+    }
+
+
+def _method_allows_creates(method_id: str, output_types: tuple[str, ...]) -> bool:
+    """从 method 能力边界推导 creates[] 是否允许声明辅助实体。"""
+    if "Point" in output_types:
+        return True
+    return method_id in {
+        "angle_sum_equal_angle_candidates",
+    }
+
+
+def _capability_supports_goal(
+    capability: ExecutableCapabilitySpec,
+    goal_type: str,
+) -> bool:
+    """判断 capability 是否声明支持某个 StepIntent goal_type。"""
+    return goal_type == capability.goal_type or goal_type in capability.goal_aliases
+
 
 def _resolve_step_intent_candidates(
     step: StepIntent,
@@ -183,6 +217,15 @@ def _resolve_step_intent_candidates(
     if not selected:
         if produced_types:
             candidate_error_text = _candidate_error_summary(sorted_candidates)
+            shape_error_text = _unsupported_step_shape_hint(
+                step,
+                produced_types=produced_types,
+                capabilities_by_id=capabilities_by_id,
+            )
+            if shape_error_text:
+                candidate_error_text = "; ".join(
+                    item for item in (candidate_error_text, shape_error_text) if item
+                )
             errors.append(
                 "no_executable_candidate:"
                 f"produced_types={sorted(set(produced_types))}, "
@@ -214,6 +257,36 @@ def _resolve_step_intent_candidates(
     )
 
 
+def _unsupported_step_shape_hint(
+    step: StepIntent,
+    *,
+    produced_types: tuple[str, ...],
+    capabilities_by_id: dict[str, ExecutableCapabilitySpec],
+) -> str | None:
+    """根据 step 形状给出 capability menu 层面的可修复提示。"""
+    if (
+        "PathTransformation" in produced_types
+        and step.recipe_hint is None
+        and not any(
+            "PathTransformation" in capability.output_types
+            for capability in capabilities_by_id.values()
+        )
+    ):
+        if "equal_length_ray_path_reduction" in capabilities_by_id:
+            return (
+                "unsupported_path_transformation_without_recipe: this family has no executable "
+                "PathTransformation recipe. For equal-length-ray path minimum, do not create "
+                "symmetry/reflection path transformation facts or auxiliary reflection points. "
+                "Use equal_length_ray_path_reduction to directly produce the "
+                "MinimumExpression; the auxiliary point is constructed internally."
+            )
+        return (
+            "unsupported_path_transformation_without_recipe: no catalog capability can produce "
+            "PathTransformation; choose a listed recipe/method or leave this as a gap."
+        )
+    return None
+
+
 def _candidate_error_summary(
     candidates: tuple[StepIntentResolutionCandidate, ...],
 ) -> str:
@@ -222,8 +295,41 @@ def _candidate_error_summary(
     for candidate in candidates[:3]:
         if not candidate.errors:
             continue
+        friendly = _friendly_candidate_error(candidate.capability_id, candidate.errors)
+        if friendly is not None:
+            pieces.append(friendly)
+            continue
         pieces.append(f"{candidate.capability_id}:{'|'.join(candidate.errors)}")
     return "; ".join(pieces)
+
+
+def _friendly_candidate_error(
+    capability_id: str,
+    errors: tuple[str, ...],
+) -> str | None:
+    """把常见候选失败转成 LLM 更容易修复的策略提示。"""
+    if (
+        capability_id == "distance_between_points"
+        and any("output_type_not_supported:Expression" in error for error in errors)
+    ):
+        return (
+            "unsupported_utility_distance_expression: distance_between_points should "
+            "produce a final distance/minimum expression fact, not separate utility "
+            "distance Expression facts. For equal-length-ray path problems, use "
+            "equal_length_ray_path_reduction to produce the transformed single-distance "
+            "MinimumExpression."
+        )
+    if (
+        capability_id == "distance_between_points"
+        and any("capability_does_not_create_entities" in error for error in errors)
+    ):
+        return (
+            "unsupported_auxiliary_minimum_distance_step: distance_between_points cannot "
+            "create auxiliary points. For equal-length-ray path minimum, use "
+            "equal_length_ray_path_reduction; it creates the auxiliary point internally "
+            "and produces the MinimumExpression."
+        )
+    return None
 
 
 def _candidate_capabilities_for_step(
@@ -252,7 +358,7 @@ def _candidate_capabilities_for_step(
             return tuple(result)
 
     for capability in capabilities:
-        if capability.goal_type == step.goal_type:
+        if _capability_supports_goal(capability, step.goal_type):
             add(capability)
 
     if set(produced_types) == {"ParameterValue"} and not step.recipe_hint:
@@ -287,6 +393,8 @@ def _output_type_search_allowed(
     """
     if set(produced_types) == {"ParameterValue"} and not step.recipe_hint:
         return False
+    if set(produced_types) == {"Point"} and not step.recipe_hint:
+        return False
     return True
 
 
@@ -302,7 +410,7 @@ def _evaluate_step_candidate(
     matched_by: list[str] = []
     if step.recipe_hint == capability.capability_id:
         matched_by.append("recipe_hint")
-    if step.goal_type == capability.goal_type:
+    if _capability_supports_goal(capability, step.goal_type):
         matched_by.append("goal_type")
     if produced_types and _capability_covers_output_types(capability, produced_types):
         matched_by.append("output_types")
@@ -319,6 +427,13 @@ def _evaluate_step_candidate(
         )
     errors.extend(
         _valid_scope_errors_for_candidate(
+            step,
+            capability,
+            handle_registry,
+        )
+    )
+    errors.extend(
+        _applicability_errors_for_candidate(
             step,
             capability,
             handle_registry,
@@ -343,6 +458,164 @@ def _evaluate_step_candidate(
         output_types=capability.output_types,
         errors=tuple(errors),
     )
+
+
+def _applicability_errors_for_candidate(
+    step: StepIntent,
+    capability: ExecutableCapabilitySpec,
+    handle_registry: CanonicalHandleRegistry,
+) -> tuple[str, ...]:
+    """校验能力是否真的适用于当前 step 的语义 reads。"""
+    capability_id = capability.capability_id
+    if capability_id == "equal_length_ray_point":
+        required = (
+            ("equal_length_condition", _reads_equal_length_condition(step, handle_registry)),
+            ("point_on_ray", _reads_fact_type_or_name(step, handle_registry, "point_on_ray")),
+            ("point_on_segment", _reads_fact_type_or_name(step, handle_registry, "point_on_segment")),
+        )
+        missing = [name for name, ok in required if not ok]
+        if missing:
+            return (
+                "capability_read_signature_mismatch:"
+                f"equal_length_ray_point missing {','.join(missing)}",
+            )
+    if capability_id == "axis_intercept_from_equal_acute_angles" and not _reads_angle_equality(
+        step,
+        handle_registry,
+    ):
+        return ("capability_read_signature_mismatch:axis_intercept_from_equal_acute_angles requires AngleEquality",)
+    if capability_id == "line_parabola_second_intersection_point":
+        errors: list[str] = []
+        if not _reads_parabola(step, handle_registry):
+            errors.append("missing_line_parabola_inputs: missing solved Parabola read")
+        if not _reads_constructed_line_point(step, handle_registry):
+            errors.append(
+                "missing_line_parabola_inputs: missing constructed line point; "
+                "produce/read an equal-angle y-axis intercept point such as F before "
+                "line_parabola_second_intersection_point"
+            )
+        if not _reads_curve_target_point(step, handle_registry):
+            errors.append(
+                "missing_line_parabola_inputs: missing_curve_intersection_target_pointref; "
+                "read the current problem's target point entity (for example point:<scope>:<name>) "
+                "or explicitly create the target point before line_parabola_second_intersection_point"
+            )
+        return tuple(errors)
+    return ()
+
+
+def _reads_fact_type_or_name(
+    step: StepIntent,
+    handle_registry: CanonicalHandleRegistry,
+    value: str,
+) -> bool:
+    """判断 reads 是否包含指定 fact type 或 semantic name。"""
+    target = value.lower()
+    return any(
+        handle_registry.fact_types.get(handle, "").lower() == target
+        or target in _read_semantic_text(handle, handle_registry)
+        for handle in step.reads
+    )
+
+
+def _reads_equal_length_condition(
+    step: StepIntent,
+    handle_registry: CanonicalHandleRegistry,
+) -> bool:
+    """判断 reads 是否包含等长条件。"""
+    return any(
+        handle_registry.fact_types.get(handle, "") in {"equal_length", "equal_length_condition"}
+        or "equal_length" in _read_semantic_text(handle, handle_registry)
+        or (not handle.startswith("answer:") and "_eq_" in _semantic_name(handle).lower())
+        for handle in step.reads
+    )
+
+
+def _reads_angle_equality(
+    step: StepIntent,
+    handle_registry: CanonicalHandleRegistry,
+) -> bool:
+    """判断 reads 是否包含 AngleEquality 结论。"""
+    return any(
+        handle_registry.fact_types.get(handle, "") == "angle_equality"
+        or _output_type_from_text(handle, "") == "AngleEquality"
+        for handle in step.reads
+    )
+
+
+def _reads_parabola(
+    step: StepIntent,
+    handle_registry: CanonicalHandleRegistry,
+) -> bool:
+    """判断 reads 是否包含已解抛物线，而不是裸 coefficients 缓存。"""
+    for handle in step.reads:
+        if handle.startswith("answer:") and handle_registry.answer_value_types.get(handle) == "Parabola":
+            return True
+        if handle_registry.fact_types.get(handle, "") == "parabola":
+            return True
+        semantic = _semantic_name(handle).lower()
+        if "parabola" in semantic and "coefficient" not in semantic:
+            return True
+    return False
+
+
+def _reads_constructed_line_point(
+    step: StepIntent,
+    handle_registry: CanonicalHandleRegistry,
+) -> bool:
+    """判断 line-parabola step 是否读取了前序构造/推导出的定线点。"""
+    for handle in step.reads:
+        if handle.startswith("point:") and handle not in handle_registry.entity_handles:
+            return True
+        if handle.startswith("fact:") and handle not in handle_registry.fact_handles:
+            semantic = _semantic_name(handle).lower()
+            if "coordinate" in semantic or semantic.endswith("_coord"):
+                return True
+    return False
+
+
+def _reads_curve_target_point(
+    step: StepIntent,
+    handle_registry: CanonicalHandleRegistry,
+) -> bool:
+    """判断 step 是否读取了要写入的曲线交点 PointRef。"""
+    target_names = {
+        _answer_point_name(handle, handle_registry)
+        for handle in [step.target, *(item.handle for item in step.produces)]
+    }
+    target_names.discard(None)
+    for handle in step.reads:
+        if not handle.startswith("point:"):
+            continue
+        if _handle_name(handle) in target_names:
+            return True
+        if handle not in handle_registry.entity_handles and not target_names:
+            return True
+    return False
+
+
+def _answer_point_name(
+    handle: str,
+    handle_registry: CanonicalHandleRegistry,
+) -> str | None:
+    """从 answer alias 或 answer id 中读取目标点名。"""
+    if not handle.startswith("answer:"):
+        return None
+    alias = handle_registry.answer_aliases.get(handle)
+    if alias is not None:
+        parts = alias.split(":")
+        return parts[-1] if len(parts) == 3 and parts[0] == "point" else None
+    value = handle.removeprefix("answer:")
+    if "." in value:
+        return value.rsplit(".", 1)[-1]
+    if "_" in value:
+        return value.rsplit("_", 1)[-1]
+    return None
+
+
+def _handle_name(handle: str) -> str:
+    """读取 canonical handle 的最后一段名字。"""
+    return handle.rsplit(":", 1)[-1].rsplit(".", 1)[-1]
 
 
 def _parameter_capability_from_reads(
@@ -486,6 +759,8 @@ def _read_is_minimum_expression(
 ) -> bool:
     """识别可作为参数方程输入的公共最小值表达式。"""
     fact_type = handle_registry.fact_types.get(handle, "")
+    if handle.startswith("answer:"):
+        return handle_registry.answer_value_types.get(handle) == "MinimumExpression"
     if fact_type in {"minimum_expression", "minimum_value_expression"}:
         return True
     name = _semantic_name(handle).lower()
@@ -502,6 +777,8 @@ def _read_is_given_minimum_value(
 ) -> bool:
     """识别题设给定的最小值事实。"""
     fact_type = handle_registry.fact_types.get(handle, "")
+    if handle.startswith("answer:"):
+        return False
     name = _semantic_name(handle).lower()
     return fact_type == "minimum_value" or (
         "minimum" in name and ("given" in name or "value_given" in name)
@@ -513,6 +790,12 @@ def _read_semantic_text(
     handle_registry: CanonicalHandleRegistry,
 ) -> str:
     """把 handle、semantic name 和 fact type 合成小写匹配文本。"""
+    if handle.startswith("answer:"):
+        return "\n".join((
+            handle,
+            handle.removeprefix("answer:"),
+            handle_registry.answer_value_types.get(handle, ""),
+        )).lower()
     return "\n".join((
         handle,
         _semantic_name(handle),
@@ -544,12 +827,14 @@ def _type_covered_by_capability(
 
 
 def _capability_allows_creates(capability: ExecutableCapabilitySpec) -> bool:
-    """首版只允许路径拉直类能力声明辅助实体。"""
-    return capability.capability_id in {
-        "broken_path_straightening_and_select",
-        "weighted_axis_path_triangle_transform",
-        "select_straightening_candidate",
-    }
+    """判断 capability 是否允许创建 point entity。
+
+    creates[] 只声明“当前 method/recipe 要写回的点引用”，不携带坐标。只要能力
+    本身会产出 Point，或 method 会读取 ``target: PointRef`` 来表达“关于新辅助点
+    的事实”，就可以创建目标点；其它类型的实体仍由 validator/compiler 拦截，
+    避免 LLM 把解法辅助结构塞进题面事实。
+    """
+    return capability.allows_creates
 
 
 def _candidate_by_id(
@@ -624,20 +909,30 @@ def _output_type_inference_from_text(handle: str, description: str) -> _OutputTy
     """
     text = f"{handle}\n{description}".lower()
     name = handle.split(":", 2)[-1].lower()
+    if (
+        ("angle_" in name and "_eq_" in name)
+        or "equal_angle" in name
+        or "angle_equality" in name
+    ):
+        return _OutputTypeInference("AngleEquality", "semantic_name")
     if "relation" in name or "equation" in name:
         return _OutputTypeInference("Equation", "semantic_name")
     if _is_parameter_value_semantic_name(name):
         return _OutputTypeInference("ParameterValue", "semantic_name")
     if any(value in name for value in ("candidate", "candidates", "候选")):
         return _OutputTypeInference("PointList", "semantic_name")
-    if any(value in name for value in ("locus", "ray", "line")):
-        return _OutputTypeInference("Line", "semantic_name")
     if any(value in name for value in ("coord", "coordinate", "intersection", "axis_point", "point")):
         return _OutputTypeInference("Point", "semantic_name")
+    if "intercept" in name:
+        return _OutputTypeInference("Point", "semantic_name")
+    if any(value in name for value in ("locus", "ray", "line")):
+        return _OutputTypeInference("Line", "semantic_name")
     if any(value in name for value in ("coefficient", "coefficients")):
         return _OutputTypeInference("Coefficients", "semantic_name")
-    if any(value in name for value in ("minimum", "min_value", "distance")):
+    if any(value in name for value in ("minimum", "min_value", "path_minimum")):
         return _OutputTypeInference("MinimumExpression", "semantic_name")
+    if any(value in name for value in ("distance", "expr", "expression")):
+        return _OutputTypeInference("Expression", "semantic_name")
     if any(value in name for value in ("straightened", "straightening", "choice")):
         return _OutputTypeInference("StraighteningCandidate", "semantic_name")
     if any(value in name for value in ("path", "equivalence", "reduction")):
@@ -654,8 +949,10 @@ def _output_type_inference_from_text(handle: str, description: str) -> _OutputTy
         return _OutputTypeInference("Point", "semantic_name")
     if any(value in text for value in ("坐标", "交点")):
         return _OutputTypeInference("Point", "description")
-    if any(value in text for value in ("minimum", "min_value", "最小值", "distance", "距离")):
+    if any(value in text for value in ("minimum", "min_value", "最小值")):
         return _OutputTypeInference("MinimumExpression", "description")
+    if any(value in text for value in ("distance", "距离", "表达式", "expression")):
+        return _OutputTypeInference("Expression", "description")
     if "关系" in text:
         return _OutputTypeInference("Equation", "description")
     return _OutputTypeInference(None, "unknown")

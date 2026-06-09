@@ -18,6 +18,9 @@ from shuxueshuo_server.solver.family.models import (
 from shuxueshuo_server.solver.family.quadratic_path_minimum import (
     QUADRATIC_PATH_MINIMUM_FAMILY,
 )
+from shuxueshuo_server.solver.family.quadratic_equal_length_ray_path_minimum import (
+    QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY,
+)
 from shuxueshuo_server.solver.family.quadratic_weighted_path_minimum import (
     QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
 )
@@ -25,6 +28,7 @@ from shuxueshuo_server.solver.family.quadratic_weighted_path_minimum import (
 DEFAULT_FAMILY_REGISTRY = FamilyRegistry((
     QUADRATIC_PATH_MINIMUM_FAMILY,
     QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
+    QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY,
 ))
 
 __all__ = [
@@ -35,6 +39,7 @@ __all__ = [
     "MethodCompanionOutputSpec",
     "MethodInputBindingSpec",
     "MethodPrepInvocationSpec",
+    "QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY",
     "QUADRATIC_PATH_MINIMUM_FAMILY",
     "QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY",
     "RecipeExecutionSpec",

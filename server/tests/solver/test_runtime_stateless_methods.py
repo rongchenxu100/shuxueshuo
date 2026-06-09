@@ -9,11 +9,15 @@ import pytest
 
 from shuxueshuo_server.solver.math_kernel import SympyKernel
 from shuxueshuo_server.solver.runtime.methods import (
+    AngleSumEqualAngleCandidatesMethod,
+    AxisInterceptFromEqualAcuteAnglesMethod,
     BrokenPathStraighteningCandidatesMethod,
     CoefficientAtParameterMethod,
     DistanceBetweenPointsMethod,
+    EqualLengthRayPointMethod,
     EvaluateExpressionAtParameterMethod,
     FilterPointCandidatesByQuadraticCurveMethod,
+    LineParabolaSecondIntersectionPointMethod,
     LineIntersectionPointMethod,
     LinkedBrokenPathGeometricMinimumMethod,
     LinkedBrokenPathMinimumExpressionMethod,
@@ -35,6 +39,7 @@ from shuxueshuo_server.solver.runtime.methods import (
     SelectStraighteningCandidateMethod,
     SquareOppositePointMethod,
     TwoMovingPointsPathReductionMethod,
+    TranslatedPointMethod,
     WeightedAxisPathTriangleTransformMethod,
 )
 from shuxueshuo_server.solver.runtime.models import PointRef
@@ -110,6 +115,114 @@ def test_quadratic_from_constraints_with_known_coefficients_and_relation() -> No
     )
 
     assert sp.simplify(result.outputs["parabola"].value - (2 * x**2 - 4 * x - 5)) == 0
+
+
+def test_angle_sum_equal_angle_candidates_method_heping_geometry() -> None:
+    kernel = SympyKernel()
+
+    result = AngleSumEqualAngleCandidatesMethod().run(
+        {
+            "condition": {
+                "type": "angle_sum",
+                "description": "∠CBE+∠ACO=45°",
+                "angle_terms": ["CBE", "ACO"],
+                "value": "45",
+            },
+            "x_axis_point": (sp.Integer(3), sp.Integer(0)),
+            "y_axis_point": (sp.Integer(0), sp.Integer(-3)),
+            "reference_x_axis_point": (sp.Integer(-1), sp.Integer(0)),
+            "origin": (sp.Integer(0), sp.Integer(0)),
+            "target": PointRef("F", "$subquestion.i_2.points.F"),
+        },
+        kernel,
+    )
+
+    assert result.outputs["angle_equality"].type == "AngleEquality"
+    assert result.outputs["angle_equality"].value["left_angle"] == "OBF"
+    assert result.outputs["angle_equality"].value["right_angle"] == "ACO"
+    assert all(check.ok for check in result.checks)
+
+
+def test_axis_intercept_from_equal_acute_angles_method_heping_geometry() -> None:
+    kernel = SympyKernel()
+
+    result = AxisInterceptFromEqualAcuteAnglesMethod().run(
+        {
+            "angle_equality": {"left_angle": "OBF", "right_angle": "ACO"},
+            "x_axis_point": (sp.Integer(3), sp.Integer(0)),
+            "y_axis_point": (sp.Integer(0), sp.Integer(-3)),
+            "reference_x_axis_point": (sp.Integer(-1), sp.Integer(0)),
+            "origin": (sp.Integer(0), sp.Integer(0)),
+            "target": PointRef("F", "$subquestion.i_2.points.F"),
+        },
+        kernel,
+    )
+
+    assert result.outputs["point"].value == (0, -1)
+    assert all(check.ok for check in result.checks)
+
+
+def test_translated_point_method_uses_target_definition_vector() -> None:
+    kernel = SympyKernel()
+
+    result = TranslatedPointMethod().run(
+        {
+            "source": (sp.Integer(0), sp.Integer(-3)),
+            "target": PointRef(
+                "D",
+                "$problem.points.D",
+                definition={"definition": "translated_point", "of": "C", "vector": ["2", "0"]},
+            ),
+        },
+        kernel,
+    )
+
+    assert result.outputs["point"].value == (2, -3)
+    assert all(check.ok for check in result.checks)
+
+
+def test_line_parabola_second_intersection_point_method_heping_geometry() -> None:
+    kernel = SympyKernel()
+    x = kernel.symbols(["x"])["x"]
+
+    result = LineParabolaSecondIntersectionPointMethod().run(
+        {
+            "parabola": x**2 - 2 * x - 3,
+            "x": x,
+            "line_p1": (sp.Integer(3), sp.Integer(0)),
+            "line_p2": (sp.Integer(0), sp.Integer(-1)),
+            "known_point": (sp.Integer(3), sp.Integer(0)),
+            "target": PointRef(
+                "E",
+                "$subquestion.i_2.points.E",
+                definition={"x_range": ["-1", "0"]},
+            ),
+        },
+        kernel,
+    )
+
+    assert result.outputs["point"].value == (sp.Rational(-2, 3), sp.Rational(-11, 9))
+    assert all(check.ok for check in result.checks)
+
+
+def test_equal_length_ray_point_method_heping_geometry() -> None:
+    kernel = SympyKernel()
+    a = kernel.symbols(["a"])["a"]
+
+    result = EqualLengthRayPointMethod().run(
+        {
+            "anchor": (sp.Integer(0), sp.Integer(-3)),
+            "reference_point": (sp.Integer(3) / a, sp.Integer(0)),
+            "ray_point": (sp.Integer(2), sp.Integer(-3)),
+            "target": PointRef("G", "$question.ii.points.G"),
+        },
+        kernel,
+    )
+
+    point = result.outputs["point"].value
+    assert sp.simplify(point[1] + 3) == 0
+    assert sp.simplify(kernel.distance_squared((0, -3), point) - (9 / a**2 + 9)) == 0
+    assert all(check.ok for check in result.checks)
 
 
 def test_quadratic_from_constraints_rejects_incomplete_solution() -> None:

@@ -39,6 +39,11 @@ from .linked_broken_path_geometric_minimum import (
 from .coefficient_at_parameter import CoefficientAtParameterMethod, SPEC as COEFFICIENT_AT_PARAMETER_SPEC
 from .evaluate_expression_at_parameter import EvaluateExpressionAtParameterMethod, SPEC as EVALUATE_EXPRESSION_AT_PARAMETER_SPEC
 from .parameter_from_curve_point_on_quadratic import ParameterFromCurvePointOnQuadraticMethod, SPEC as PARAMETER_FROM_CURVE_POINT_ON_QUADRATIC_SPEC
+from .translated_point import TranslatedPointMethod, SPEC as TRANSLATED_POINT_SPEC
+from .angle_sum_equal_angle_candidates import AngleSumEqualAngleCandidatesMethod, SPEC as ANGLE_SUM_EQUAL_ANGLE_CANDIDATES_SPEC
+from .axis_intercept_from_equal_acute_angles import AxisInterceptFromEqualAcuteAnglesMethod, SPEC as AXIS_INTERCEPT_FROM_EQUAL_ACUTE_ANGLES_SPEC
+from .line_parabola_second_intersection_point import LineParabolaSecondIntersectionPointMethod, SPEC as LINE_PARABOLA_SECOND_INTERSECTION_POINT_SPEC
+from .equal_length_ray_point import EqualLengthRayPointMethod, SPEC as EQUAL_LENGTH_RAY_POINT_SPEC
 
 ALL_METHOD_SPEC_SOURCES = (
     RIGHT_ANGLE_EQUAL_LENGTH_CANDIDATES_SPEC,
@@ -68,6 +73,11 @@ ALL_METHOD_SPEC_SOURCES = (
     COEFFICIENT_AT_PARAMETER_SPEC,
     EVALUATE_EXPRESSION_AT_PARAMETER_SPEC,
     PARAMETER_FROM_CURVE_POINT_ON_QUADRATIC_SPEC,
+    TRANSLATED_POINT_SPEC,
+    ANGLE_SUM_EQUAL_ANGLE_CANDIDATES_SPEC,
+    AXIS_INTERCEPT_FROM_EQUAL_ACUTE_ANGLES_SPEC,
+    LINE_PARABOLA_SECOND_INTERSECTION_POINT_SPEC,
+    EQUAL_LENGTH_RAY_POINT_SPEC,
 )
 
 
@@ -106,6 +116,11 @@ def default_stateless_registry() -> StatelessMethodRegistry:
         CoefficientAtParameterMethod(),
         EvaluateExpressionAtParameterMethod(),
         ParameterFromCurvePointOnQuadraticMethod(),
+        TranslatedPointMethod(),
+        AngleSumEqualAngleCandidatesMethod(),
+        AxisInterceptFromEqualAcuteAnglesMethod(),
+        LineParabolaSecondIntersectionPointMethod(),
+        EqualLengthRayPointMethod(),
     ]
     return StatelessMethodRegistry({method.method_id: method for method in methods})
 
@@ -143,4 +158,9 @@ __all__ = [
     "CoefficientAtParameterMethod",
     "EvaluateExpressionAtParameterMethod",
     "ParameterFromCurvePointOnQuadraticMethod",
+    "TranslatedPointMethod",
+    "AngleSumEqualAngleCandidatesMethod",
+    "AxisInterceptFromEqualAcuteAnglesMethod",
+    "LineParabolaSecondIntersectionPointMethod",
+    "EqualLengthRayPointMethod",
 ]

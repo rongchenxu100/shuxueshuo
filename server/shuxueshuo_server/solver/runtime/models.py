@@ -28,6 +28,20 @@ from shuxueshuo_server.solver.contracts import (
 ScopeType = Literal["problem", "question", "subquestion", "step"]
 
 
+def runtime_type_matches(expected_type: str, actual_type: str) -> bool:
+    """判断 RuntimeContext 中的值类型是否能作为 method 输入类型使用。
+
+    首版只开放很窄的类型兼容：已求出的 ``Parabola`` 本质上仍是二次表达式，
+    可以传给只需要代入/求截距的 ``Expression`` 输入。其他类型继续保持严格匹配，
+    避免 planner 通过宽松类型绕过 method 边界。
+    """
+    if expected_type == actual_type:
+        return True
+    if expected_type == "Expression" and actual_type == "Parabola":
+        return True
+    return False
+
+
 @dataclass(frozen=True)
 class ContextPath:
     """解析后的上下文引用。

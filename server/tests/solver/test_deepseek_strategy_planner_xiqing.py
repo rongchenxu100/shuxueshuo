@@ -90,6 +90,7 @@ def test_deepseek_strategy_planner_xiqing_full_loop() -> None:
         planner_mode="strategy",
         llm_provider="deepseek",
         llm_debug_dir=str(DEBUG_DIR),
+        allow_same_problem_few_shot=False,
     )
 
     result = solve_problem(problem, runtime_config=config)

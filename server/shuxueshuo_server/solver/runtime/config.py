@@ -61,6 +61,7 @@ class SolverRuntimeConfig:
     doubao_model: str = DEFAULT_DOUBAO_MODEL
     max_llm_attempts: int = 3
     llm_debug_dir: str | None = None
+    allow_same_problem_few_shot: bool = True
 
     def __post_init__(self) -> None:
         """校验直接构造配置时的基础约束。"""
@@ -78,6 +79,7 @@ class SolverRuntimeConfig:
         llm_model: str | None = None,
         max_llm_attempts: str | int | None = None,
         llm_debug_dir: str | None = None,
+        allow_same_problem_few_shot: bool | str | None = None,
         env_file: Path | str | None = None,
     ) -> "SolverRuntimeConfig":
         """从 ``server/.env``、环境变量和 CLI 覆盖值构造配置。
@@ -130,6 +132,12 @@ class SolverRuntimeConfig:
             llm_debug_dir=_clean(
                 cli_value_or_env(llm_debug_dir, values.get("SOLVER_LLM_DEBUG_DIR"))
             ),
+            allow_same_problem_few_shot=_resolve_bool(
+                cli_value=allow_same_problem_few_shot,
+                env_value=values.get("SOLVER_ALLOW_SAME_PROBLEM_FEW_SHOT"),
+                default=True,
+                name="allow-same-problem-few-shot",
+            ),
         )
 
     def build_planner_providers(self) -> dict[str, "PlannerProvider"]:
@@ -151,7 +159,10 @@ class SolverRuntimeConfig:
                 strategy_planner_provider,
             )
 
-            return strategy_planner_provider(mode="recorded")
+            return strategy_planner_provider(
+                mode="recorded",
+                allow_same_problem_few_shot=self.allow_same_problem_few_shot,
+            )
         if self.llm_provider == "deepseek":
             from shuxueshuo_server.solver.runtime.strategy_runtime_planner import (
                 strategy_planner_provider,
@@ -160,6 +171,7 @@ class SolverRuntimeConfig:
             return strategy_planner_provider(
                 mode="deepseek",
                 client=self.build_llm_client(),
+                allow_same_problem_few_shot=self.allow_same_problem_few_shot,
             )
         raise SolverRuntimeConfigError(
             f"--planner strategy does not support --llm-provider {self.llm_provider!r}"
@@ -251,6 +263,29 @@ def _resolve_positive_int(
     if value < 1:
         raise SolverRuntimeConfigError(f"invalid --{name}: {raw!r}; expected positive integer")
     return value
+
+
+def _resolve_bool(
+    *,
+    cli_value: bool | str | None,
+    env_value: str | None,
+    default: bool,
+    name: str,
+) -> bool:
+    """解析布尔配置。"""
+    raw = cli_value if cli_value is not None else env_value
+    if raw is None or str(raw).strip() == "":
+        return default
+    if isinstance(raw, bool):
+        return raw
+    value = str(raw).strip().lower()
+    if value in {"1", "true", "yes", "on"}:
+        return True
+    if value in {"0", "false", "no", "off"}:
+        return False
+    raise SolverRuntimeConfigError(
+        f"invalid --{name}: {raw!r}; expected boolean"
+    )
 
 
 def cli_value_or_env(cli_value: str | None, env_value: str | None) -> str | None:

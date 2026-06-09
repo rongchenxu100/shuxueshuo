@@ -5,7 +5,10 @@ from pathlib import Path
 
 import pytest
 
-from shuxueshuo_server.solver.family import QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY
+from shuxueshuo_server.solver.family import (
+    QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY,
+    QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
+)
 from shuxueshuo_server.solver.family.models import (
     MethodCompanionOutputSpec,
     MethodBindingRuleSpec,
@@ -17,8 +20,10 @@ from shuxueshuo_server.solver.fixtures import load_problem_ir
 from shuxueshuo_server.solver.problem_models import ProblemIR, QuestionGoal
 from shuxueshuo_server.solver.question_goals import extract_question_goals
 from shuxueshuo_server.solver.runtime.context import ContextBuilder
+from shuxueshuo_server.solver.runtime.entity_state_resolver import EntityStateResolver
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.projection import problem_to_llm_payload
+from shuxueshuo_server.solver.runtime.orchestrator import _next_previous_errors
 from shuxueshuo_server.solver.runtime.strategy_planner import (
     CanonicalHandleRegistry,
     CanonicalRuntimeBindingIndex,
@@ -29,9 +34,15 @@ from shuxueshuo_server.solver.runtime.strategy_planner import (
     RecipeTrialExecutor,
     StepIntentCandidateResolver,
     STEP_INTENT_JSON_SCHEMA,
+    StrategyPlanner,
     StepIntent,
+    StepIntentAcceptedStep,
+    StepIntentAppliedFill,
     StepIntentDraft,
+    StepIntentExecutionBlocker,
+    StepIntentExecutionDiagnostic,
     StepIntentNormalizationAction,
+    StepIntentRepairAttempt,
     StepIntentValidator,
     StepIntentNormalizer,
     StrategyDraftValidationError,
@@ -40,6 +51,8 @@ from shuxueshuo_server.solver.runtime.strategy_planner import (
     build_strategy_probe_inputs,
     write_strategy_debug_artifacts,
 )
+from shuxueshuo_server.solver.runtime.session import StructuredSolveError
+from shuxueshuo_server.solver.runtime.strategy_runtime_planner import _last_previous_attempt
 from shuxueshuo_server.solver.runtime.strategy_compiler import (
     DEFAULT_BINDING_SELECTORS,
     DEFAULT_RECIPE_COMPILERS,
@@ -50,6 +63,8 @@ from shuxueshuo_server.solver.runtime.recipe_compiler import (
     PrepInvocationBuilder,
     _RecipePlanCompiler,
     _method_outputs_for_step,
+    _promote_outputs_for_step,
+    _target_path_for_produced,
 )
 from shuxueshuo_server.solver.runtime.strategy_resolver import build_executable_capabilities
 from shuxueshuo_server.solver.runtime.strategy_normalizer import NormalizationRuleResult
@@ -65,6 +80,8 @@ NANKAI_EXECUTABLE_STEP_INTENTS = (
     / "tj-2026-nankai-yimo-25.executable-step-intents.json"
 )
 HEXI_FIXTURE = "../internal/solver-fixtures/tj-2026-hexi-yimo-25.json"
+XIQING_FIXTURE = "../internal/solver-fixtures/tj-2026-xiqing-yimo-25.json"
+HEPING_FIXTURE = "../internal/solver-fixtures/tj-2026-heping-yimo-25.json"
 
 def _nankai_problem():
     """加载南开 25 runtime ProblemIR。"""
@@ -112,6 +129,26 @@ def _nankai_payload() -> dict:
 def _hexi_llm_problem() -> dict:
     """从 canonical ProblemIR 投影给 LLM prompt 使用的河西题目 IR。"""
     return problem_to_llm_payload(load_problem_ir(HEXI_FIXTURE))
+
+
+def _heping_llm_problem() -> dict:
+    """从 canonical ProblemIR 投影给 LLM prompt 使用的和平题目 IR。"""
+    return problem_to_llm_payload(load_problem_ir(HEPING_FIXTURE))
+
+
+def _heping_inputs():
+    """构建和平 25 的真实 Strategy probe 输入。"""
+    return build_strategy_probe_inputs(load_problem_ir(HEPING_FIXTURE))
+
+
+def _heping_binding_index() -> CanonicalRuntimeBindingIndex:
+    """构建和平 25 的 canonical handle 到 runtime path 索引。"""
+    problem = load_problem_ir(HEPING_FIXTURE)
+    return CanonicalRuntimeBindingIndex.from_context(
+        ContextBuilder().build(problem),
+        handle_registry=CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem()),
+        question_goals=extract_question_goals(problem),
+    )
 
 
 def _create(
@@ -472,8 +509,11 @@ def test_step_intent_normalizer_rewrites_quadratic_utility_fact_to_parabola() ->
     ]
 
 
-def test_step_intent_normalizer_corrects_parabola_expr_marked_as_equation() -> None:
-    """抛物线解析式被 LLM 标成 Equation 时应安全修正为 Parabola。"""
+@pytest.mark.parametrize("output_type", [None, "Equation", "Expression"])
+def test_step_intent_normalizer_corrects_parabola_expr_marked_as_equation_or_expression(
+    output_type: str | None,
+) -> None:
+    """抛物线解析式缺少类型或被标成 Equation/Expression 时应安全修正。"""
     parabola_step = _step(
         scope_id="i",
         step_id="derive_i_parabola",
@@ -485,7 +525,7 @@ def test_step_intent_normalizer_corrects_parabola_expr_marked_as_equation() -> N
                 "fact:i:parabola_expr",
                 "i",
                 "第（Ⅰ）问抛物线解析式 y=-x^2+4x+3",
-                output_type="Equation",
+                output_type=output_type,
             ),
         ),
     )
@@ -539,6 +579,163 @@ def test_step_intent_normalizer_rewrites_quadratic_relation_fact_to_parabola() -
     ]
 
 
+def test_step_intent_normalizer_rewrites_coefficients_alias_to_existing_parabola_answer() -> None:
+    """同一步已有 Parabola answer 时，coefficients 缓存应作为 Parabola alias。"""
+    parabola_step = _step(
+        scope_id="i_1",
+        step_id="derive_parabola_i",
+        recipe_hint="quadratic_from_constraints",
+        goal_type="derive_parabola",
+        target="answer:i_1_parabola",
+        produces=(
+            ProducedFact(
+                "answer:i_1_parabola",
+                "i_1",
+                "第（Ⅰ）问抛物线解析式",
+                output_type="Parabola",
+            ),
+            ProducedFact(
+                "fact:i:parabola_coefficients",
+                "i",
+                "第（Ⅰ）问抛物线系数缓存",
+            ),
+        ),
+    )
+    use_step = _step(
+        scope_id="i_2",
+        step_id="derive_B_coordinate_i",
+        recipe_hint="quadratic_x_axis_intercept_point",
+        goal_type="derive_axis_intercept_point",
+        target="fact:i:B_coordinate",
+        reads=("fact:i:parabola_coefficients", "point:problem:B"),
+        produces=(
+            ProducedFact(
+                "fact:i:B_coordinate",
+                "i",
+                "第（Ⅰ）问 B 坐标",
+                output_type="Point",
+            ),
+        ),
+    )
+
+    normalized, report = StepIntentNormalizer().normalize(
+        StepIntentDraft(
+            scopes=(
+                StepIntentScope(scope_id="i_1", label="第（Ⅰ）①问", steps=(parabola_step,)),
+                StepIntentScope(scope_id="i_2", label="第（Ⅰ）②问", steps=(use_step,)),
+            )
+        ),
+        family_spec=_heping_inputs().family_spec,
+        question_goals=_heping_inputs().question_goals,
+        handle_registry=CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem()),
+    )
+
+    assert [item.handle for item in normalized.scopes[0].steps[0].produces] == [
+        "answer:i_1_parabola"
+    ]
+    assert normalized.scopes[1].steps[0].reads == ("answer:i_1_parabola", "point:problem:B")
+    assert [action.action for action in report.actions] == [
+        "normalize_quadratic_utility_fact_to_parabola"
+    ]
+
+
+def test_step_intent_normalizer_drops_known_origin_coordinate_utility_step() -> None:
+    """坐标原点这类已知点不需要单独 utility step 产生坐标 fact。"""
+    origin_step = _step(
+        scope_id="i_1",
+        step_id="derive_origin_coordinate",
+        recipe_hint=None,
+        goal_type="derive_origin_coordinate",
+        target="求原点 O 坐标",
+        reads=("point:problem:O",),
+        produces=(
+            ProducedFact(
+                "fact:problem:O_coordinate",
+                "problem",
+                "原点 O 坐标",
+                output_type="Point",
+            ),
+        ),
+    )
+    use_step = _step(
+        scope_id="i_2",
+        step_id="derive_equal_angle",
+        recipe_hint="angle_sum_equal_angle_candidates",
+        goal_type="derive_equal_angle",
+        target="fact:i_2:angle_OBF_eq_ACO",
+        reads=("fact:problem:O_coordinate", "fact:i_2:angle_sum_CBE_ACO_45"),
+        produces=(
+            ProducedFact(
+                "fact:i_2:angle_OBF_eq_ACO",
+                "i_2",
+                "等角关系",
+                output_type="AngleEquality",
+            ),
+        ),
+    )
+
+    normalized, report = StepIntentNormalizer().normalize(
+        StepIntentDraft(
+            scopes=(
+                StepIntentScope(scope_id="i_1", label="第（Ⅰ）①问", steps=(origin_step,)),
+                StepIntentScope(scope_id="i_2", label="第（Ⅰ）②问", steps=(use_step,)),
+            )
+        ),
+        family_spec=_heping_inputs().family_spec,
+        question_goals=_heping_inputs().question_goals,
+        handle_registry=CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem()),
+    )
+
+    assert normalized.scopes[0].steps == ()
+    assert normalized.scopes[1].steps[0].reads == (
+        "point:problem:O",
+        "fact:i_2:angle_sum_CBE_ACO_45",
+    )
+    assert [action.action for action in report.actions] == [
+        "drop_known_point_coordinate_utility_step"
+    ]
+
+
+def test_step_intent_normalizer_corrects_wrong_hint_for_quadratic_utility_fact() -> None:
+    """二次函数 utility relation 即使 hint 错填为参数 method，也应归一化。"""
+    relation_step = _step(
+        scope_id="ii",
+        step_id="derive_coefficient_relation_from_A",
+        recipe_hint="parameter_from_expression_value",
+        goal_type="derive_coefficient_relation",
+        target="fact:ii:b_expr_in_a",
+        reads=(
+            "function:problem:parabola",
+            "fact:problem:A_on_parabola",
+            "fact:problem:A_coordinate_value",
+        ),
+        produces=(
+            ProducedFact(
+                "fact:ii:b_expr_in_a",
+                "ii",
+                "由 A 在抛物线上得到 b 用 a 表示的系数关系",
+                output_type="Equation",
+            ),
+        ),
+    )
+
+    normalized, report = StepIntentNormalizer().normalize(
+        _single_scope_draft(relation_step, scope_id="ii"),
+        family_spec=QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
+        question_goals=[],
+        handle_registry=_registry(),
+    )
+
+    step = normalized.scopes[0].steps[0]
+    assert step.recipe_hint == "quadratic_from_constraints"
+    assert step.target == "fact:ii:parametric_parabola"
+    assert step.produces[0].handle == "fact:ii:parametric_parabola"
+    assert step.produces[0].output_type == "Parabola"
+    assert [action.action for action in report.actions] == [
+        "normalize_quadratic_utility_fact_to_parabola"
+    ]
+
+
 def test_step_intent_normalizer_does_not_absorb_shared_coefficients_cache() -> None:
     """公共含参系数缓存 step 仍应交给 LLM repair，不被 normalizer 吞掉。"""
     coefficients_step = _step(
@@ -565,6 +762,66 @@ def test_step_intent_normalizer_does_not_absorb_shared_coefficients_cache() -> N
 
     assert normalized.scopes[0].steps[0].produces[0].handle == "fact:ii:coefficients_in_m"
     assert report.actions == ()
+
+
+def test_step_intent_normalizer_rewrites_parabola_coefficients_alias_to_parametric_parabola() -> None:
+    """明确的 parabola coefficients alias 应归一化成可读 Parabola。"""
+    coefficients_step = _step(
+        scope_id="ii",
+        step_id="derive_b_expr_a",
+        recipe_hint="quadratic_from_constraints",
+        goal_type="derive_parabola",
+        target="fact:ii:parabola_coefficients_with_a",
+        reads=(
+            "function:problem:parabola",
+            "fact:problem:A_coordinate_value",
+            "fact:problem:A_on_parabola",
+        ),
+        produces=(
+            ProducedFact(
+                "fact:ii:parabola_coefficients_with_a",
+                "ii",
+                "抛物线系数 b = a - 3，保留参数 a",
+                output_type="Coefficients",
+            ),
+        ),
+    )
+    use_step = _step(
+        scope_id="ii",
+        step_id="derive_B_coordinate_ii",
+        recipe_hint="quadratic_x_axis_intercept_point",
+        goal_type="derive_axis_intercept_point",
+        target="fact:ii:B_coordinate_expr",
+        reads=(
+            "function:problem:parabola",
+            "fact:ii:parabola_coefficients_with_a",
+            "point:problem:B",
+        ),
+        produces=(
+            ProducedFact(
+                "fact:ii:B_coordinate_expr",
+                "ii",
+                "B 坐标含参数 a",
+                output_type="Point",
+            ),
+        ),
+    )
+
+    normalized, report = StepIntentNormalizer().normalize(
+        _single_scope_draft(coefficients_step, use_step, scope_id="ii"),
+        family_spec=QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY,
+        question_goals=_heping_inputs().question_goals,
+        handle_registry=CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem()),
+    )
+
+    first, second = normalized.scopes[0].steps
+    assert first.produces[0].handle == "fact:ii:parametric_parabola"
+    assert first.produces[0].output_type == "Parabola"
+    assert "fact:ii:parametric_parabola" in second.reads
+    assert "fact:ii:parabola_coefficients_with_a" not in second.reads
+    assert [action.action for action in report.actions] == [
+        "normalize_quadratic_utility_fact_to_parabola"
+    ]
 
 
 def test_step_intent_normalizer_propagates_rewritten_handle_to_later_reads() -> None:
@@ -673,11 +930,295 @@ def test_step_intent_normalizer_rewrites_generic_point_coordinate_from_answer_ta
 
     assert [item.handle for item in normalized.scopes[0].steps[0].produces] == [
         "answer:i.axis_point",
-        "fact:problem:D_coordinate_value",
+        "fact:problem:D_coordinate",
     ]
     assert [action.action for action in report.actions] == [
-        "normalize_point_coordinate_answer_fact"
+        "normalize_point_coordinate_answer_fact",
+        "normalize_axis_point_alias_fact",
     ]
+
+
+def test_axis_point_answer_and_reusable_fact_alias_pass_capability_alignment() -> None:
+    """axis Point answer 和同点可复用 fact alias 不应被能力 gate 误杀。"""
+    payload = {
+        "scopes": [
+            {
+                "scope_id": "i",
+                "label": "第（Ⅰ）问",
+                "steps": [
+                    {
+                        "step_id": "derive_axis_point_i",
+                        "recipe_hint": "quadratic_axis_from_relation",
+                        "goal_type": "derive_axis_point",
+                        "target": "answer:i.axis_point",
+                        "strategy": "由抛物线对称轴公式和系数关系得到 D 点坐标。",
+                        "reads": ["fact:problem:coefficient_relation", "point:problem:D"],
+                        "creates": [],
+                        "produces": [
+                            _produce("answer:i.axis_point", "i", "第（Ⅰ）问 D 点坐标", output_type="Point"),
+                            _produce("fact:problem:D_coordinate", "problem", "全题公共 D 坐标", output_type="Point"),
+                        ],
+                        "reason": "两个 produced 是同一个 Point 输出的 answer/fact alias。",
+                    }
+                ],
+            }
+        ]
+    }
+
+    draft, report = StepIntentValidator().validate_json_with_report(
+        json.dumps(payload, ensure_ascii=False),
+        question_goals=[],
+        handle_registry=_registry(),
+        family_spec=_nankai_inputs().family_spec,
+    )
+
+    assert draft is not None
+    assert report.recipe_alignment is not None
+    assert report.recipe_alignment.capability_errors == ()
+
+
+def test_path_reduction_allows_distance_text_when_output_is_transformation() -> None:
+    """路径降维 description 里出现“距离”时，不应被误判为最小值混产。"""
+    payload = {
+        "scopes": [
+            {
+                "scope_id": "ii",
+                "label": "第（Ⅱ）问",
+                "steps": [
+                    {
+                        "step_id": "reduce_two_moving_points_path",
+                        "recipe_hint": "two_moving_points_path_reduction",
+                        "goal_type": "reduce_path_expression",
+                        "target": "fact:ii:single_moving_path_equivalence",
+                        "strategy": "把两动点路径转化为到固定点的距离与另一段距离之和。",
+                        "reads": [
+                            "fact:ii:segment_DE_eq_sqrt2_NG",
+                            "fact:ii:segment_E_on_DM",
+                            "fact:ii:segment_G_on_MN",
+                        ],
+                        "creates": [],
+                        "produces": [
+                            _produce(
+                                "fact:ii:single_moving_path_equivalence",
+                                "ii",
+                                "双动点路径 EG+FG 已转化为等价单动点折线路径，例如变为 E 到某固定点的距离与另一段的和",
+                                output_type="PathTransformation",
+                            )
+                        ],
+                        "reason": "这里只做路径等价转化，不计算最小值。",
+                    }
+                ],
+            }
+        ]
+    }
+
+    draft, report = StepIntentValidator().validate_json_with_report(
+        json.dumps(payload, ensure_ascii=False),
+        question_goals=[],
+        handle_registry=_registry(),
+        family_spec=_nankai_inputs().family_spec,
+    )
+
+    assert draft is not None
+    assert report.recipe_alignment is not None
+    assert report.recipe_alignment.capability_errors == ()
+
+
+def test_path_reduction_rejects_structured_minimum_expression_output() -> None:
+    """路径降维 recipe 真正 produced MinimumExpression 时仍应被能力 gate 拦截。"""
+    payload = {
+        "scopes": [
+            {
+                "scope_id": "ii",
+                "label": "第（Ⅱ）问",
+                "steps": [
+                    {
+                        "step_id": "reduce_two_moving_points_path",
+                        "recipe_hint": "two_moving_points_path_reduction",
+                        "goal_type": "reduce_path_expression",
+                        "target": "fact:ii:path_minimum_expression",
+                        "strategy": "把路径降维并顺手算出最小值表达式。",
+                        "reads": [
+                            "fact:ii:segment_DE_eq_sqrt2_NG",
+                            "fact:ii:segment_E_on_DM",
+                            "fact:ii:segment_G_on_MN",
+                        ],
+                        "creates": [],
+                        "produces": [
+                            _produce(
+                                "fact:ii:path_minimum_expression",
+                                "ii",
+                                "路径最小值表达式",
+                                output_type="MinimumExpression",
+                            )
+                        ],
+                        "reason": "混入了后续最小值计算。",
+                    }
+                ],
+            }
+        ]
+    }
+
+    draft, report = StepIntentValidator().validate_json_with_report(
+        json.dumps(payload, ensure_ascii=False),
+        question_goals=[],
+        handle_registry=_registry(),
+        family_spec=_nankai_inputs().family_spec,
+    )
+
+    assert draft is not None
+    assert report.recipe_alignment is not None
+    assert report.recipe_alignment.capability_errors == (
+        {
+            "code": "recipe_mixes_minimum_value",
+            "goal_type": "reduce_path_expression",
+            "message": "path reduction must not produce minimum value",
+            "recipe_hint": "two_moving_points_path_reduction",
+            "step_id": "reduce_two_moving_points_path",
+        },
+    )
+
+
+def test_axis_point_normalizer_merges_repeated_public_coordinate_step() -> None:
+    """重复 public D coordinate utility step 应合并到前序 axis answer step。"""
+    answer_step = _step(
+        scope_id="i",
+        step_id="derive_axis_point_i",
+        recipe_hint="quadratic_axis_from_relation",
+        goal_type="derive_axis_point",
+        target="answer:i.axis_point",
+        reads=("fact:problem:coefficient_relation", "point:problem:D"),
+        produces=(ProducedFact("answer:i.axis_point", "i", "第（Ⅰ）问 D 点坐标", output_type="Point"),),
+    )
+    repeated_fact_step = _step(
+        scope_id="i",
+        step_id="derive_public_D_coordinate",
+        recipe_hint="quadratic_axis_from_relation",
+        goal_type="derive_axis_point",
+        target="fact:problem:D_coordinate",
+        reads=("fact:problem:coefficient_relation", "point:problem:D"),
+        produces=(
+            ProducedFact(
+                "fact:problem:D_coordinate",
+                "problem",
+                "全题公共结论：D 点坐标",
+                output_type="Point",
+            ),
+        ),
+    )
+    use_step = _step(
+        scope_id="ii",
+        step_id="construct_N_coordinate",
+        recipe_hint="right_angle_equal_length_construct_and_select",
+        goal_type="derive_constructed_point",
+        target="fact:ii:N_coordinate_expr",
+        reads=("fact:problem:D_coordinate",),
+        produces=(ProducedFact("fact:ii:N_coordinate_expr", "ii", "N 坐标", output_type="Point"),),
+    )
+
+    normalized, report = StepIntentNormalizer().normalize(
+        StepIntentDraft(
+            scopes=(
+                StepIntentScope(scope_id="i", label="第（Ⅰ）问", steps=(answer_step, repeated_fact_step)),
+                StepIntentScope(scope_id="ii", label="第（Ⅱ）问", steps=(use_step,)),
+            )
+        ),
+        family_spec=_nankai_inputs().family_spec,
+        question_goals=_question_goals(),
+        handle_registry=_registry(),
+    )
+
+    assert [step.step_id for step in normalized.scopes[0].steps] == ["derive_axis_point_i"]
+    assert [item.handle for item in normalized.scopes[0].steps[0].produces] == [
+        "answer:i.axis_point",
+        "fact:problem:D_coordinate",
+    ]
+    assert normalized.scopes[1].steps[0].reads == ("fact:problem:D_coordinate",)
+    assert [action.action for action in report.actions] == ["normalize_axis_point_alias_fact"]
+
+
+def test_axis_point_capability_rejects_multiple_coordinate_fact_points() -> None:
+    """axis method 不能在同一步产出多个不同点名的坐标 fact。"""
+    payload = {
+        "scopes": [
+            {
+                "scope_id": "i",
+                "label": "第（Ⅰ）问",
+                "steps": [
+                    {
+                        "step_id": "derive_two_axis_points",
+                        "recipe_hint": "quadratic_axis_from_relation",
+                        "goal_type": "derive_axis_point",
+                        "target": "answer:i.axis_point",
+                        "strategy": "错误地同时产出两个不同点。",
+                        "reads": ["fact:problem:coefficient_relation"],
+                        "creates": [],
+                        "produces": [
+                            _produce("fact:problem:D_coordinate", "problem", output_type="Point"),
+                            _produce("fact:problem:G_coordinate", "problem", output_type="Point"),
+                        ],
+                        "reason": "负例。",
+                    }
+                ],
+            }
+        ]
+    }
+
+    draft, report = StepIntentValidator().validate_json_with_report(
+        json.dumps(payload, ensure_ascii=False),
+        question_goals=[],
+        handle_registry=_registry(),
+        family_spec=_nankai_inputs().family_spec,
+    )
+
+    assert draft is not None
+    assert report.recipe_alignment is not None
+    assert report.recipe_alignment.capability_errors[0]["code"] == (
+        "method_mixes_multiple_axis_points"
+    )
+
+
+def test_distance_capability_allows_minimum_value_answer_handle() -> None:
+    """distance method 不应把 minimum_value answer 误判为 m_value 参数输出。"""
+    payload = {
+        "scopes": [
+            {
+                "scope_id": "ii_1",
+                "label": "第（Ⅱ）①问",
+                "steps": [
+                    {
+                        "step_id": "compute_minimum_value_ii1",
+                        "recipe_hint": "distance_between_points",
+                        "goal_type": "derive_minimum_value",
+                        "target": "answer:ii_1.minimum_value",
+                        "strategy": "代入 m 值计算具体最小值。",
+                        "reads": [],
+                        "creates": [],
+                        "produces": [
+                            _produce(
+                                "answer:ii_1.minimum_value",
+                                "ii_1",
+                                "EG+FG 的最小值",
+                                output_type="MinimumExpression",
+                            )
+                        ],
+                        "reason": "minimum_value 是最小值答案，不是 m_value 参数 fact。",
+                    }
+                ],
+            }
+        ]
+    }
+
+    draft, report = StepIntentValidator().validate_json_with_report(
+        json.dumps(payload, ensure_ascii=False),
+        question_goals=[],
+        handle_registry=_registry(),
+        family_spec=_nankai_inputs().family_spec,
+    )
+
+    assert draft is not None
+    assert report.recipe_alignment is not None
+    assert report.recipe_alignment.capability_errors == ()
 
 
 def test_step_intent_normalizer_keeps_generic_point_coordinate_when_answer_ambiguous() -> None:
@@ -942,6 +1483,53 @@ def test_strategy_payload_builder_uses_problem_ir_without_expected_answers() -> 
     assert '"points"' not in serialized
 
 
+@pytest.mark.parametrize(
+    ("fixture", "answer_handle", "expected_description", "forbidden_text"),
+    [
+        (
+            NANKAI_FIXTURE,
+            "answer:ii_1.minimum_value",
+            "第（Ⅱ）①问输出 EG+FG 的最小值",
+            None,
+        ),
+        (
+            HEXI_FIXTURE,
+            "answer:iii_b",
+            "第（Ⅲ）问输出 由 sqrt(2)*MN+AN 的最小值求 b 的值",
+            "EG+FG",
+        ),
+        (
+            XIQING_FIXTURE,
+            "answer:ii_2_b",
+            "第（Ⅱ）②问输出 由 2DM+AM 的最小值求 b 的值",
+            "EG+FG",
+        ),
+        (
+            HEPING_FIXTURE,
+            "answer:ii_a",
+            "第（Ⅱ）问输出 由 OM+BN 的最小值求 a 的值",
+            "EG+FG",
+        ),
+    ],
+)
+def test_projection_goal_description_uses_problem_path_minimum_fact(
+    fixture: str,
+    answer_handle: str,
+    expected_description: str,
+    forbidden_text: str | None,
+) -> None:
+    """最小值相关 answer 描述应从题目 path fact 派生，不能写死南开 EG+FG。"""
+    payload = problem_to_llm_payload(load_problem_ir(fixture))
+    descriptions = {
+        goal["handle"]: goal["description"]
+        for goal in payload["question_goals"]
+    }
+
+    assert descriptions[answer_handle] == expected_description
+    if forbidden_text is not None:
+        assert forbidden_text not in descriptions[answer_handle]
+
+
 def test_strategy_payload_builder_projects_canonical_problem_ir() -> None:
     """不传外部 LLM payload 时，builder 可从 canonical ProblemIR 投影。"""
     payload = StrategyPayloadBuilder(
@@ -1044,6 +1632,10 @@ def test_strategy_prompt_renderer_contains_core_sections() -> None:
     assert "Method Catalog" in prompt.user
     assert "recipe_hint" in prompt.system
     assert "recipe_hint" in prompt.user
+    assert "`recipe_hint: null` 是最后兜底" in prompt.system
+    assert "不要把 `recipe_hint: null` 当成可执行兜底" in prompt.user
+    assert "不要自造新的辅助点构造、路径转化或最值 recipe" in prompt.system
+    assert "不要自造这类中间能力" in prompt.user
     assert "two_moving_points_path_reduction" in prompt.user
     assert "broken_path_straightening_and_select" in prompt.user
     assert "path_minimum_by_straightened_distance" in prompt.user
@@ -1106,6 +1698,93 @@ def test_strategy_prompt_renderer_contains_core_sections() -> None:
     assert "ctx_N" not in combined
     assert "$problem" not in combined
     assert "target_path" not in combined
+
+
+def test_equal_length_family_uses_dedicated_mock_fallback_few_shot(tmp_path: Path) -> None:
+    """等长射线路径 family 无真实样例时，应使用抽象辅助线 mock few-shot。"""
+    payload = StrategyPayloadBuilder(
+        few_shot_dir=tmp_path,
+        allow_same_problem_few_shot=False,
+    ).build(_heping_inputs(), problem_payload=_heping_llm_problem())
+
+    examples = payload["few_shot_examples"]
+    assert len(examples) == 1
+    example = examples[0]
+    assert example["problem_id"] == "fallback-equal-length-ray-path-minimum"
+    assert example["family_id"] == QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY.family_id
+
+    steps = [
+        step
+        for scope in example["example"]["scopes"]
+        for step in scope["steps"]
+    ]
+    assert [step["recipe_hint"] for step in steps] == [
+        "equal_length_ray_path_reduction",
+        "parameter_from_expression_value",
+    ]
+    assert [step["step_id"] for step in steps] == [
+        "reduce_equal_length_ray_path",
+        "solve_parameter_from_minimum",
+    ]
+
+
+def test_equal_length_fallback_does_not_reuse_heping_names(tmp_path: Path) -> None:
+    """family mock few-shot 不能包含和平题 problem_id、路径名、点名或 fact 名。"""
+    payload = StrategyPayloadBuilder(
+        few_shot_dir=tmp_path,
+        allow_same_problem_few_shot=False,
+    ).build(_heping_inputs(), problem_payload=_heping_llm_problem())
+    serialized = json.dumps(payload["few_shot_examples"][0], ensure_ascii=False)
+
+    forbidden_fragments = [
+        "tj-2026-heping-yimo-25",
+        "point:problem:B",
+        "point:problem:C",
+        "point:problem:D",
+        "point:ii:M",
+        "point:ii:N",
+        "BC",
+        "CD",
+        "OM",
+        "BN",
+        "CN_eq_CM",
+    ]
+    for fragment in forbidden_fragments:
+        assert fragment not in serialized
+    assert "equal_length_ray_path_reduction" in serialized
+    assert "fact:demo:equal_length_condition" in serialized
+
+
+def test_equal_length_fallback_is_rendered_as_example_not_current_problem(
+    tmp_path: Path,
+) -> None:
+    """prompt 应把 family fallback 放在示例题目区，避免误当当前题条件。"""
+    payload = StrategyPayloadBuilder(
+        few_shot_dir=tmp_path,
+        allow_same_problem_few_shot=False,
+    ).build(_heping_inputs(), problem_payload=_heping_llm_problem())
+    prompt = StrategyPromptRenderer().render(payload)
+
+    assert "## 当前题目 ProblemIR JSON" in prompt.user
+    assert "## 示例题目 Few-shot" in prompt.user
+    assert "fallback-equal-length-ray-path-minimum" in prompt.user
+    assert "点 Moving 在一条线段上" in prompt.user
+    assert "不是当前题条件" in prompt.user
+    assert "抛物线" in prompt.user
+
+
+def test_other_families_keep_generic_fallback_few_shot(tmp_path: Path) -> None:
+    """非等长射线路径 family 仍使用通用路径最值 fallback。"""
+    payload = StrategyPayloadBuilder(
+        few_shot_dir=tmp_path,
+        allow_same_problem_few_shot=False,
+    ).build(_nankai_inputs(), problem_payload=_nankai_llm_problem())
+    serialized = json.dumps(payload["few_shot_examples"][0], ensure_ascii=False)
+
+    assert payload["few_shot_examples"][0]["problem_id"] == "fallback-QuadraticPathMinimumSolver"
+    assert "two_moving_points_path_reduction" in serialized
+    assert "broken_path_straightening_and_select" in serialized
+    assert "equal_length_ray_point" not in serialized
 
 
 def test_step_intent_validator_accepts_valid_fake_draft() -> None:
@@ -1461,6 +2140,773 @@ def test_handle_resolver_corrects_intermediate_scope_read_to_visible_parent_enti
     assert corrections[0].to_handle == "point:problem:D"
 
 
+def test_handle_resolver_corrects_fact_namespace_to_visible_point_entity() -> None:
+    """LLM 把点 O 误写成 fact handle 时，应修正为已有 point entity。"""
+    payload = {
+        "scopes": [
+            {
+                "scope_id": "i_2",
+                "label": "第（Ⅰ）②问",
+                "steps": [
+                    {
+                        "step_id": "read_origin_point",
+                        "recipe_hint": "angle_sum_equal_angle_candidates",
+                        "goal_type": "derive_equal_angle",
+                        "target": "fact:i_2:angle_equality",
+                        "strategy": "读取坐标原点 O。",
+                        "reads": ["fact:problem:O"],
+                        "creates": [],
+                        "produces": [_produce("fact:i_2:angle_equality", "i_2", output_type="AngleEquality")],
+                        "reason": "O 是题设已有点。",
+                    }
+                ],
+            }
+        ]
+    }
+
+    draft, report = StepIntentValidator().validate_json_with_report(
+        json.dumps(payload, ensure_ascii=False),
+        handle_registry=CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem()),
+    )
+
+    assert draft is not None
+    step = draft.scopes[0].steps[0]
+    assert "point:problem:O" in step.reads
+    assert "fact:problem:O" not in step.reads
+    assert report.handle_resolution is not None
+    corrections = report.handle_resolution.corrections
+    assert len(corrections) == 1
+    assert corrections[0].from_handle == "fact:problem:O"
+    assert corrections[0].to_handle == "point:problem:O"
+
+
+def test_handle_resolver_corrects_plural_facts_namespace() -> None:
+    """LLM 偶发写出 facts:scope:name 时，只在 fact handle 已存在时修正。"""
+    payload = {
+        "scopes": [
+            {
+                "scope_id": "ii",
+                "label": "第（Ⅱ）问",
+                "steps": [
+                    {
+                        "step_id": "construct_N_via_equal_length",
+                        "recipe_hint": "equal_length_ray_point",
+                        "goal_type": "derive_equal_length_constructed_point",
+                        "target": "fact:ii:N_coordinate_expr",
+                        "strategy": "由 CN=CM 和 M 在线段 BC 上构造 N。",
+                        "reads": [
+                            "facts:ii:M_on_segment_BC",
+                            "fact:ii:CN_eq_CM",
+                        ],
+                        "creates": [],
+                        "produces": [
+                            _produce(
+                                "fact:ii:N_coordinate_expr",
+                                "ii",
+                                "N 坐标表达式",
+                                output_type="Point",
+                            )
+                        ],
+                        "reason": "facts: 是 LLM 的拼写错误。",
+                    }
+                ],
+            }
+        ]
+    }
+
+    draft, report = StepIntentValidator().validate_json_with_report(
+        json.dumps(payload, ensure_ascii=False),
+        handle_registry=CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem()),
+    )
+
+    assert draft is not None
+    step = draft.scopes[0].steps[0]
+    assert "fact:ii:M_on_segment_BC" in step.reads
+    assert "facts:ii:M_on_segment_BC" not in step.reads
+    assert report.handle_resolution is not None
+    corrections = report.handle_resolution.corrections
+    assert len(corrections) == 1
+    assert corrections[0].from_handle == "facts:ii:M_on_segment_BC"
+    assert corrections[0].to_handle == "fact:ii:M_on_segment_BC"
+
+
+def test_handle_resolver_corrects_segment_namespace_alias() -> None:
+    """LLM 把 segment 缩写成 seg 时，应修正为 canonical entity handle。"""
+    payload = {
+        "scopes": [
+            {
+                "scope_id": "ii",
+                "label": "第（Ⅱ）问",
+                "steps": [
+                    {
+                        "step_id": "construct_equal_length_ray_point",
+                        "recipe_hint": "equal_length_ray_point",
+                        "goal_type": "derive_equal_length_constructed_point",
+                        "target": "fact:ii:path_minimum_expression",
+                        "strategy": "由等长射线构造辅助点，再转化为单距离最值。",
+                        "reads": [
+                            "seg:ii:BC",
+                            "fact:ii:M_on_segment_BC",
+                            "fact:ii:N_on_ray_CD",
+                            "fact:ii:CN_eq_CM",
+                        ],
+                        "creates": [],
+                        "produces": [
+                            _produce(
+                                "fact:ii:path_minimum_expression",
+                                "ii",
+                                "路径最小值表达式",
+                                output_type="MinimumExpression",
+                            )
+                        ],
+                        "reason": "seg 是 LLM 对 segment namespace 的缩写。",
+                    }
+                ],
+            }
+        ]
+    }
+
+    draft, report = StepIntentValidator().validate_json_with_report(
+        json.dumps(payload, ensure_ascii=False),
+        handle_registry=CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem()),
+    )
+
+    assert draft is not None
+    step = draft.scopes[0].steps[0]
+    assert "segment:ii:BC" in step.reads
+    assert "seg:ii:BC" not in step.reads
+    assert report.handle_resolution is not None
+    corrections = report.handle_resolution.corrections
+    assert len(corrections) == 1
+    assert corrections[0].from_handle == "seg:ii:BC"
+    assert corrections[0].to_handle == "segment:ii:BC"
+
+
+def test_handle_resolver_corrects_registered_handle_alias() -> None:
+    """显式注册的 handle alias 可以被修正为 canonical fact。"""
+    payload = {
+        "scopes": [
+            {
+                "scope_id": "ii",
+                "label": "第（Ⅱ）问",
+                "steps": [
+                    {
+                        "step_id": "use_minimum_expression_alias",
+                        "recipe_hint": "parameter_from_expression_value",
+                        "goal_type": "derive_parameter_value",
+                        "target": "answer:ii_a",
+                        "strategy": "读取路径最小值表达式的缩写 alias。",
+                        "reads": ["fact:ii:min_expr"],
+                        "creates": [],
+                        "produces": [_produce("answer:ii_a", "ii", output_type="ParameterValue")],
+                        "reason": "min_expr 是系统登记的缩写。",
+                    }
+                ],
+            }
+        ]
+    }
+    problem_payload = _heping_llm_problem()
+    for fact in problem_payload["facts"]:
+        if fact["handle"] == "fact:ii:path_minimum_target":
+            fact["aliases"] = ["fact:ii:min_expr"]
+    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+
+    draft, report = StepIntentValidator().validate_json_with_report(
+        json.dumps(payload, ensure_ascii=False),
+        handle_registry=registry,
+    )
+
+    assert draft is not None
+    step = draft.scopes[0].steps[0]
+    assert "fact:ii:path_minimum_target" in step.reads
+    assert "fact:ii:min_expr" not in step.reads
+    assert report.handle_resolution is not None
+    corrections = report.handle_resolution.corrections
+    assert len(corrections) == 1
+    assert corrections[0].reason.startswith("registered_alias")
+
+
+def test_handle_resolver_does_not_guess_conflicting_registered_alias() -> None:
+    """冲突 alias 等价于未注册，不能猜测。"""
+    payload = {
+        "scopes": [
+            {
+                "scope_id": "ii",
+                "label": "第（Ⅱ）问",
+                "steps": [
+                    {
+                        "step_id": "use_conflicting_alias",
+                        "recipe_hint": "parameter_from_expression_value",
+                        "goal_type": "derive_parameter_value",
+                        "target": "answer:ii_a",
+                        "strategy": "读取存在冲突的 alias。",
+                        "reads": ["fact:ii:min_expr"],
+                        "creates": [],
+                        "produces": [_produce("answer:ii_a", "ii", output_type="ParameterValue")],
+                        "reason": "冲突 alias 不能自动修。",
+                    }
+                ],
+            }
+        ]
+    }
+    problem_payload = _heping_llm_problem()
+    for fact in problem_payload["facts"]:
+        if fact["handle"] in {"fact:ii:path_minimum_target", "fact:ii:M_on_segment_BC"}:
+            fact["aliases"] = ["fact:ii:min_expr"]
+    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    assert "fact:ii:min_expr" not in registry.handle_aliases
+
+    with pytest.raises(StrategyDraftValidationError, match="unknown_read_handle"):
+        StepIntentValidator().validate_json(
+            json.dumps(payload, ensure_ascii=False),
+            handle_registry=registry,
+        )
+
+
+def test_handle_resolver_does_not_fuzzy_correct_typos() -> None:
+    """开放式拼写错误不做 fuzzy correction，只进入 repair。"""
+    payload = {
+        "scopes": [
+            {
+                "scope_id": "ii",
+                "label": "第（Ⅱ）问",
+                "steps": [
+                    {
+                        "step_id": "use_typo_handle",
+                        "recipe_hint": "parameter_from_expression_value",
+                        "goal_type": "derive_parameter_value",
+                        "target": "answer:ii_a",
+                        "strategy": "读取拼错的最小值表达式 fact。",
+                        "reads": ["fact:ii:minmum_expr"],
+                        "creates": [],
+                        "produces": [_produce("answer:ii_a", "ii", output_type="ParameterValue")],
+                        "reason": "minmum 是拼写错误，不是系统 alias。",
+                    }
+                ],
+            }
+        ]
+    }
+
+    with pytest.raises(StrategyDraftValidationError, match="unknown_read_handle"):
+        StepIntentValidator().validate_json(
+            json.dumps(payload, ensure_ascii=False),
+            handle_registry=CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem()),
+        )
+
+
+def test_handle_resolver_moves_existing_created_entity_to_reads() -> None:
+    """题设已有实体误放进 creates 时，应移动到 reads 而不是覆盖题设。"""
+    payload = {
+        "scopes": [
+            {
+                "scope_id": "ii",
+                "label": "第（Ⅱ）问",
+                "steps": [
+                    {
+                        "step_id": "construct_N_via_equal_length",
+                        "recipe_hint": "equal_length_ray_point",
+                        "goal_type": "derive_equal_length_constructed_point",
+                        "target": "point:ii:N",
+                        "strategy": "误把题设动点 N 当作新建点。",
+                        "reads": ["fact:ii:CN_eq_CM"],
+                        "creates": [_create("point:ii:N", "point", "ii")],
+                        "produces": [_produce("fact:ii:N_coordinate_expr", "ii", output_type="Point")],
+                        "reason": "N 是题设已有动点，不能覆盖。",
+                    }
+                ],
+            }
+        ]
+    }
+
+    draft, report = StepIntentValidator().validate_json_with_report(
+        json.dumps(payload, ensure_ascii=False),
+        handle_registry=CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem()),
+    )
+
+    assert draft is not None
+    step = draft.scopes[0].steps[0]
+    assert step.creates == ()
+    assert "point:ii:N" in step.reads
+    assert report.handle_resolution is not None
+    corrections = report.handle_resolution.corrections
+    assert len(corrections) == 1
+    assert corrections[0].from_handle == "creates:point:ii:N"
+    assert corrections[0].to_handle == "point:ii:N"
+
+
+def test_handle_resolver_moves_duplicate_auxiliary_creates_to_reads() -> None:
+    """前序 step 已 creates 的辅助点，后续重复 creates 应转成 reads。"""
+    payload = {
+        "scopes": [
+            {
+                "scope_id": "i_2",
+                "label": "第（Ⅰ）②问",
+                "steps": [
+                    {
+                        "step_id": "derive_axis_intercept_point_F",
+                        "recipe_hint": "axis_intercept_from_equal_acute_angles",
+                        "goal_type": "derive_angle_constructed_point",
+                        "target": "point:i_2:F",
+                        "strategy": "先构造辅助点 F。",
+                        "reads": [],
+                        "creates": [_create("point:i_2:F", "point", "i_2")],
+                        "produces": [_produce("fact:i_2:F_coordinate", "i_2", output_type="Point")],
+                        "reason": "F 是本问推导产生的辅助点。",
+                    },
+                    {
+                        "step_id": "derive_E_coordinate",
+                        "recipe_hint": "line_parabola_second_intersection_point",
+                        "goal_type": "derive_curve_intersection_point",
+                        "target": "fact:i_2:E_coordinate",
+                        "strategy": "后续误把同一个 F 再次放进 creates。",
+                        "reads": [
+                            "function:problem:parabola",
+                            "point:problem:B",
+                            "point:i_2:E",
+                        ],
+                            "creates": [_create("point:i_2:F", "point", "i_2")],
+                        "produces": [_produce("fact:i_2:E_coordinate", "i_2", output_type="Point")],
+                        "reason": "重复声明应视为读取前序辅助点。",
+                    },
+                ],
+            }
+        ]
+    }
+
+    draft, report = StepIntentValidator().validate_json_with_report(
+        json.dumps(payload, ensure_ascii=False),
+        question_goals=[],
+        handle_registry=CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem()),
+        family_spec=QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY,
+    )
+
+    assert draft is not None
+    second = draft.scopes[0].steps[1]
+    assert second.creates == ()
+    assert "point:i_2:F" in second.reads
+    assert report.handle_resolution is not None
+    correction = report.handle_resolution.corrections[-1]
+    assert correction.from_handle == "creates:point:i_2:F"
+    assert correction.to_handle == "point:i_2:F"
+    assert "duplicate_created_entity_already_available" in correction.reason
+
+
+def test_handle_resolver_corrects_answer_scope_dot_alias() -> None:
+    """answer:scope.key 别名应从 question_goals 修正为 canonical handle。"""
+    payload = {
+        "scopes": [
+            {
+                "scope_id": "i_1",
+                "label": "第（Ⅰ）①问",
+                "steps": [
+                    {
+                        "step_id": "derive_parabola_i_1",
+                        "recipe_hint": "quadratic_from_constraints",
+                        "goal_type": "derive_parabola",
+                        "target": "answer:i_1.parabola",
+                        "strategy": "求第（Ⅰ）①问抛物线。",
+                        "reads": ["fact:i:D_on_parabola"],
+                        "creates": [],
+                        "produces": [
+                            {
+                                "handle": "answer:i_1.parabola",
+                                "valid_scope": "i",
+                                "description": "第（Ⅰ）①问抛物线",
+                                "output_type": "Parabola",
+                            }
+                        ],
+                        "reason": "answer handle 使用了 scope.key 别名。",
+                    }
+                ],
+            }
+        ]
+    }
+
+    draft, report = StepIntentValidator().validate_json_with_report(
+        json.dumps(payload, ensure_ascii=False),
+        handle_registry=CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem()),
+    )
+
+    assert draft is not None
+    step = draft.scopes[0].steps[0]
+    assert step.target == "answer:i_1_parabola"
+    assert step.produces[0].handle == "answer:i_1_parabola"
+    assert report.handle_resolution is not None
+    corrections = report.handle_resolution.corrections
+    assert len(corrections) == 2
+    assert {item.to_handle for item in corrections} == {"answer:i_1_parabola"}
+
+
+def test_handle_resolver_narrows_overbroad_produced_fact_scope() -> None:
+    """局部条件推导的 fact 不应因为点在 problem scope 就声明成 problem 公共结论。"""
+    payload = {
+        "scopes": [
+            {
+                "scope_id": "i",
+                "label": "第（Ⅰ）问",
+                "steps": [
+                    {
+                        "step_id": "derive_B_coordinate",
+                        "recipe_hint": "quadratic_x_axis_intercept_point",
+                        "goal_type": "derive_axis_intercept_point",
+                        "target": "fact:problem:B_coordinate",
+                        "strategy": "由第（Ⅰ）问抛物线求 B。",
+                        "reads": ["fact:i:D_on_parabola", "point:problem:B"],
+                        "creates": [],
+                        "produces": [
+                            _produce(
+                                "fact:problem:B_coordinate",
+                                "problem",
+                                "第（Ⅰ）问得到的 B 坐标",
+                                output_type="Point",
+                            )
+                        ],
+                        "reason": "这个坐标依赖第（Ⅰ）问条件，不能全题公共。",
+                    },
+                    {
+                        "step_id": "derive_B_with_parameter_a",
+                        "recipe_hint": "quadratic_x_axis_intercept_point",
+                        "goal_type": "derive_axis_intercept_point",
+                        "target": "fact:ii:B_coordinate_expr",
+                        "strategy": "第（Ⅱ）问中 B 坐标含参数 a。",
+                        "reads": ["point:problem:B"],
+                        "creates": [],
+                        "produces": [
+                            _produce(
+                                "fact:ii:B_coordinate_expr",
+                                "ii",
+                                "第（Ⅱ）问 B 坐标含 a 表达式",
+                                output_type="Point",
+                            )
+                        ],
+                        "reason": "第（Ⅱ）问的 B 与第（Ⅰ）问具体 B 坐标不同。",
+                    },
+                ],
+            }
+        ]
+    }
+
+    draft, report = StepIntentValidator().validate_json_with_report(
+        json.dumps(payload, ensure_ascii=False),
+        handle_registry=CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem()),
+    )
+
+    assert draft is not None
+    first_step = draft.scopes[0].steps[0]
+    assert first_step.target == "fact:i:B_coordinate"
+    assert first_step.produces[0].handle == "fact:i:B_coordinate"
+    assert first_step.produces[0].valid_scope == "i"
+    assert report.handle_resolution is not None
+    assert any(
+        correction.from_handle == "fact:problem:B_coordinate"
+        and correction.to_handle == "fact:i:B_coordinate"
+        for correction in report.handle_resolution.corrections
+    )
+
+
+def test_handle_resolver_narrows_reusable_fact_even_when_step_produces_answer() -> None:
+    """同一步产生 answer 和复用 fact 时，复用 fact 仍需按 reads 收窄。"""
+    payload = {
+        "scopes": [
+            {
+                "scope_id": "i_1",
+                "label": "第（Ⅰ）①问",
+                "steps": [
+                    {
+                        "step_id": "derive_parabola_expression",
+                        "recipe_hint": "quadratic_from_constraints",
+                        "goal_type": "derive_parabola",
+                        "target": "answer:i_1_parabola",
+                        "strategy": "由第（Ⅰ）问 D 在抛物线上求解析式。",
+                        "reads": [
+                            "fact:problem:A_coordinate_value",
+                            "fact:problem:A_on_parabola",
+                            "fact:i:D_on_parabola",
+                        ],
+                        "creates": [],
+                        "produces": [
+                            _produce(
+                                "answer:i_1_parabola",
+                                "i_1",
+                                "第（Ⅰ）①问抛物线答案",
+                                output_type="Parabola",
+                            ),
+                            _produce(
+                                "fact:problem:parabola_expr",
+                                "problem",
+                                "第（Ⅰ）问抛物线解析式，供第（Ⅰ）②问复用",
+                                output_type="Parabola",
+                            ),
+                        ],
+                        "reason": "fact 依赖第（Ⅰ）问条件，不能全题公共。",
+                    },
+                    {
+                        "step_id": "derive_B_coordinate_i",
+                        "recipe_hint": "quadratic_x_axis_intercept_point",
+                        "goal_type": "derive_axis_intercept_point",
+                        "target": "fact:i:B_coordinate",
+                        "strategy": "复用第（Ⅰ）问解析式求 B。",
+                        "reads": ["fact:problem:parabola_expr", "point:problem:A"],
+                        "creates": [],
+                        "produces": [
+                            _produce("fact:i:B_coordinate", "i", output_type="Point")
+                        ],
+                        "reason": "reads 应被同步改写。",
+                    },
+                ],
+            }
+        ]
+    }
+
+    draft, report = StepIntentValidator().validate_json_with_report(
+        json.dumps(payload, ensure_ascii=False),
+        handle_registry=CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem()),
+    )
+
+    assert draft is not None
+    first_step, second_step = draft.scopes[0].steps
+    assert first_step.produces[1].handle == "fact:i:parabola_expr"
+    assert first_step.produces[1].valid_scope == "i"
+    assert "fact:i:parabola_expr" in second_step.reads
+    assert "fact:problem:parabola_expr" not in second_step.reads
+    assert report.handle_resolution is not None
+    assert any(
+        correction.from_handle == "fact:problem:parabola_expr"
+        and correction.to_handle == "fact:i:parabola_expr"
+        for correction in report.handle_resolution.corrections
+    )
+
+
+def test_handle_resolver_narrows_parent_fact_when_reads_child_scope_fact() -> None:
+    """读取子问 fact 后产生父级 fact 时，应收窄到子问 scope。"""
+    payload = {
+        "scopes": [
+            {
+                "scope_id": "i_2",
+                "label": "第（Ⅰ）②问",
+                "steps": [
+                    {
+                        "step_id": "use_angle_sum_to_get_equality",
+                        "recipe_hint": "angle_sum_equal_angle_candidates",
+                        "goal_type": "derive_equal_angle_from_angle_sum",
+                        "target": "fact:i:EBO_eq_ACO",
+                        "strategy": "由第（Ⅰ）②问角和条件推出等角。",
+                        "reads": [
+                            "fact:i_2:angle_sum_CBE_ACO_45",
+                            "point:problem:B",
+                            "point:problem:A",
+                            "point:problem:C",
+                            "point:problem:O",
+                        ],
+                        "creates": [],
+                        "produces": [
+                            _produce(
+                                "fact:i:EBO_eq_ACO",
+                                "i",
+                                "等角关系只在第（Ⅰ）②问成立",
+                                output_type="AngleEquality",
+                            )
+                        ],
+                        "reason": "valid_scope 写成 i 过大。",
+                    }
+                ],
+            }
+        ]
+    }
+
+    draft, report = StepIntentValidator().validate_json_with_report(
+        json.dumps(payload, ensure_ascii=False),
+        handle_registry=CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem()),
+    )
+
+    assert draft is not None
+    step = draft.scopes[0].steps[0]
+    assert step.target == "fact:i_2:EBO_eq_ACO"
+    assert step.produces[0].handle == "fact:i_2:EBO_eq_ACO"
+    assert step.produces[0].valid_scope == "i_2"
+    assert report.handle_resolution is not None
+    assert any(
+        correction.from_handle == "fact:i:EBO_eq_ACO"
+        and correction.to_handle == "fact:i_2:EBO_eq_ACO"
+        for correction in report.handle_resolution.corrections
+    )
+
+
+def test_handle_resolver_does_not_guess_unknown_fact_as_point() -> None:
+    """不存在同名 point entity 时，fact handle 仍应按未知 reads 失败。"""
+    payload = {
+        "scopes": [
+            {
+                "scope_id": "i_2",
+                "label": "第（Ⅰ）②问",
+                "steps": [
+                    {
+                        "step_id": "read_unknown_point",
+                        "recipe_hint": "angle_sum_equal_angle_candidates",
+                        "goal_type": "derive_equal_angle",
+                        "target": "fact:i_2:angle_equality",
+                        "strategy": "读取不存在的点。",
+                        "reads": ["fact:problem:Z"],
+                        "creates": [],
+                        "produces": [_produce("fact:i_2:angle_equality", "i_2", output_type="AngleEquality")],
+                        "reason": "不能猜测不存在的点。",
+                    }
+                ],
+            }
+        ]
+    }
+
+    with pytest.raises(StrategyDraftValidationError, match="unknown_read_handle"):
+        StepIntentValidator().validate_json(
+            json.dumps(payload, ensure_ascii=False),
+            handle_registry=CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem()),
+        )
+
+
+def test_normalizer_infers_angle_sum_target_from_axis_intercept_step() -> None:
+    """角和 step 产出等角 fact 时，可从后续轴截点 step 反推目标 PointRef。"""
+    registry = CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem())
+    angle_step = StepIntent(
+        scope_id="i_2",
+        step_id="compute_angle_equality",
+        recipe_hint="angle_sum_equal_angle_candidates",
+        goal_type="derive_equal_angle_from_angle_sum",
+        target="fact:i_2:angle_equality_CBE_eq_angle",
+        strategy="由角和推出等角。",
+        reads=("fact:i_2:angle_sum_CBE_ACO_45",),
+        creates=(),
+        produces=(
+            ProducedFact(
+                "fact:i_2:angle_equality_CBE_eq_angle",
+                "i_2",
+                "由角和推出等角",
+                output_type="AngleEquality",
+            ),
+        ),
+        reason="先找等角。",
+    )
+    axis_step = StepIntent(
+        scope_id="i_2",
+        step_id="derive_axis_intercept_G",
+        recipe_hint="axis_intercept_from_equal_acute_angles",
+        goal_type="derive_axis_intercept_from_equal_acute_angles",
+        target="fact:i_2:G_coordinate",
+        strategy="由等角求轴截点。",
+        reads=("fact:i_2:angle_equality_CBE_eq_angle",),
+        creates=(),
+        produces=(
+            ProducedFact(
+                "fact:i_2:G_coordinate",
+                "i_2",
+                "轴截点 G 坐标",
+                output_type="Point",
+            ),
+        ),
+        reason="再求截点。",
+    )
+    draft = StepIntentDraft(
+        scopes=(
+            StepIntentScope(
+                scope_id="i_2",
+                label="第（Ⅰ）②问",
+                steps=(angle_step, axis_step),
+            ),
+        )
+    )
+
+    normalized, report = StepIntentNormalizer().normalize(
+        draft,
+        family_spec=build_strategy_probe_inputs(load_problem_ir(HEPING_FIXTURE)).family_spec,
+        question_goals=extract_question_goals(load_problem_ir(HEPING_FIXTURE)),
+        handle_registry=registry,
+    )
+
+    normalized_angle = normalized.scopes[0].steps[0]
+    normalized_axis = normalized.scopes[0].steps[1]
+    assert normalized_angle.target == "point:i_2:G"
+    assert normalized_angle.creates == (
+        CreatedEntity(
+            "point:i_2:G",
+            "point",
+            "i_2",
+            "由角和等角链路确定的轴截点目标",
+        ),
+    )
+    assert normalized_angle.produces[0].handle == "fact:i_2:angle_OBG_eq_ACO"
+    assert "fact:i_2:angle_OBG_eq_ACO" in normalized_axis.reads
+    assert "fact:i_2:angle_equality_CBE_eq_angle" not in normalized_axis.reads
+    assert "point:i_2:G" in normalized_axis.reads
+    assert report.actions
+    assert report.actions[0].action == "infer_angle_sum_target_from_axis_intercept_step"
+    assert report.actions[1].action == "normalize_angle_equality_fact_handle"
+
+
+def test_normalizer_drops_unreferenced_path_transformation_explanation_step() -> None:
+    """未被后续读取的 PathTransformation 解释 step 不应阻断 executable plan。"""
+    inputs = _heping_inputs()
+    registry = CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem())
+    transform_step = StepIntent(
+        scope_id="ii",
+        step_id="transform_path_to_PB",
+        recipe_hint=None,
+        goal_type="reduce_path_expression",
+        target="OM+BN 转化为 PB",
+        strategy="由全等得 OM=PN，因此 OM+BN=PN+BN，最小值转成 PB。",
+        reads=("fact:ii:CN_eq_CM", "point:ii:P", "point:problem:B"),
+        creates=(),
+        produces=(
+            ProducedFact(
+                handle="fact:ii:path_equivalence",
+                valid_scope="ii",
+                description="OM+BN 的最小值等于 PB",
+                output_type="PathTransformation",
+            ),
+        ),
+        reason="这是讲解性路径转化说明。",
+    )
+    distance_step = StepIntent(
+        scope_id="ii",
+        step_id="compute_PB_distance",
+        recipe_hint="distance_between_points",
+        goal_type="derive_minimum_value",
+        target="fact:ii:path_minimum_expression",
+        strategy="计算 P、B 两点距离。",
+        reads=("point:ii:P", "point:problem:B", "fact:ii:P_coordinate_expr", "fact:ii:B_coordinate_expr"),
+        creates=(),
+        produces=(
+            ProducedFact(
+                handle="fact:ii:path_minimum_expression",
+                valid_scope="ii",
+                description="OM+BN 的最小值表达式",
+                output_type="MinimumExpression",
+            ),
+        ),
+        reason="真正执行的是两点距离。",
+    )
+    draft = StepIntentDraft(
+        scopes=(
+            StepIntentScope(
+                scope_id="ii",
+                label="第（Ⅱ）问",
+                steps=(transform_step, distance_step),
+            ),
+        )
+    )
+
+    normalized, report = StepIntentNormalizer().normalize(
+        draft,
+        family_spec=inputs.family_spec,
+        question_goals=inputs.question_goals,
+        handle_registry=registry,
+    )
+
+    assert [step.step_id for step in normalized.scopes[0].steps] == ["compute_PB_distance"]
+    assert any(
+        action.action == "drop_unreferenced_path_transformation_step"
+        for action in report.actions
+    )
+
+
 def test_handle_resolver_does_not_correct_sibling_scope_reads() -> None:
     """sibling scope 的 handle 不是可见父级结论，不能自动猜测修正。"""
     payload = _valid_step_intent_payload()
@@ -1633,6 +3079,67 @@ def test_step_intent_validator_rejects_common_fact_after_narrow_fact() -> None:
         )
 
 
+def test_step_intent_validator_allows_same_point_coordinate_with_different_curve_context() -> None:
+    """同一点坐标若依赖不同曲线状态，不应被当成同一结论重复推导。"""
+    payload = {
+        "scopes": [
+            {
+                "scope_id": "i_1",
+                "label": "第（Ⅰ）①问",
+                "steps": [
+                    {
+                        "step_id": "derive_B_coordinate_i",
+                        "recipe_hint": "quadratic_x_axis_intercept_point",
+                        "goal_type": "derive_axis_intercept_point",
+                        "target": "fact:i:B_coordinate",
+                        "strategy": "由第（Ⅰ）问已解抛物线求 B。",
+                        "reads": ["answer:i_1_parabola", "point:problem:B"],
+                        "creates": [],
+                        "produces": [
+                            _produce(
+                                "fact:i:B_coordinate",
+                                "i",
+                                "第（Ⅰ）问 B 坐标",
+                                output_type="Point",
+                            )
+                        ],
+                        "reason": "B 依赖第（Ⅰ）问完整抛物线。",
+                    },
+                    {
+                        "step_id": "derive_B_coordinate_expr_ii",
+                        "recipe_hint": "quadratic_x_axis_intercept_point",
+                        "goal_type": "derive_axis_intercept_point",
+                        "target": "fact:ii:B_coordinate_expr",
+                        "strategy": "由第（Ⅱ）问含参抛物线求 B 坐标表达式。",
+                        "reads": ["function:problem:parabola", "point:problem:B"],
+                        "creates": [],
+                        "produces": [
+                            _produce(
+                                "fact:ii:B_coordinate_expr",
+                                "ii",
+                                "第（Ⅱ）问 B 坐标表达式",
+                                output_type="Point",
+                            )
+                        ],
+                        "reason": "B 依赖第（Ⅱ）问含参抛物线，不是第（Ⅰ）问 B 坐标重复。",
+                    },
+                ],
+            }
+        ]
+    }
+    registry = CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem())
+
+    draft = StepIntentValidator().validate_json(
+        json.dumps(payload, ensure_ascii=False),
+        handle_registry=registry,
+    )
+
+    assert [step.step_id for step in draft.steps] == [
+        "derive_B_coordinate_i",
+        "derive_B_coordinate_expr_ii",
+    ]
+
+
 def test_step_intent_validator_rejects_sibling_point_coordinate_facts() -> None:
     """同一父级点实体不能在兄弟小问分别求坐标。"""
     payload = {
@@ -1692,7 +3199,7 @@ def test_step_intent_validator_rejects_sibling_point_coordinate_facts() -> None:
 
 
 def test_candidate_resolver_ignores_unused_child_read_for_valid_scope() -> None:
-    """无害多读不应让公共结论在 validator 阶段失败。"""
+    """无害多读会先把过宽 fact 收窄，再进入候选解析。"""
     inputs = _nankai_inputs()
     payload = {
         "scopes": [
@@ -1721,9 +3228,18 @@ def test_candidate_resolver_ignores_unused_child_read_for_valid_scope() -> None:
             }
         ]
     }
-    draft = StepIntentValidator().validate_json(
+    draft, validation_report = StepIntentValidator().validate_json_with_report(
         json.dumps(payload, ensure_ascii=False),
         handle_registry=_registry(),
+    )
+    assert draft is not None
+    assert draft.scopes[0].steps[0].produces[0].handle == "fact:i:D_coordinate"
+    assert draft.scopes[0].steps[0].produces[0].valid_scope == "i"
+    assert validation_report.handle_resolution is not None
+    assert any(
+        correction.from_handle == "fact:problem:D_coordinate"
+        and correction.to_handle == "fact:i:D_coordinate"
+        for correction in validation_report.handle_resolution.corrections
     )
 
     report = StepIntentCandidateResolver().resolve(
@@ -1736,14 +3252,10 @@ def test_candidate_resolver_ignores_unused_child_read_for_valid_scope() -> None:
     assert report.ok is True
     step_report = report.step_reports[0]
     assert step_report.selected_capability_id == "quadratic_axis_from_relation"
-    assert any(
-        warning.startswith("unused_child_read_ignored_for_valid_scope")
-        for warning in step_report.warnings
-    )
 
 
-def test_candidate_resolver_rejects_used_child_read_for_parent_valid_scope() -> None:
-    """实际会被参数 method 使用的子问 fact，不能产出父级公共 fact。"""
+def test_handle_resolver_narrows_used_child_read_for_parent_valid_scope() -> None:
+    """实际读取子问 fact 时，父级参数 fact 会被收窄到子问 scope。"""
     inputs = _nankai_inputs()
     payload = {
         "scopes": [
@@ -1773,9 +3285,20 @@ def test_candidate_resolver_rejects_used_child_read_for_parent_valid_scope() -> 
             }
         ]
     }
-    draft = StepIntentValidator().validate_json(
+    draft, validation_report = StepIntentValidator().validate_json_with_report(
         json.dumps(payload, ensure_ascii=False),
         handle_registry=_registry(),
+    )
+    assert draft is not None
+    step = draft.scopes[0].steps[0]
+    assert step.target == "fact:ii_1:m_value"
+    assert step.produces[0].handle == "fact:ii_1:m_value"
+    assert step.produces[0].valid_scope == "ii_1"
+    assert validation_report.handle_resolution is not None
+    assert any(
+        correction.from_handle == "fact:ii:m_value"
+        and correction.to_handle == "fact:ii_1:m_value"
+        for correction in validation_report.handle_resolution.corrections
     )
 
     report = StepIntentCandidateResolver().resolve(
@@ -1785,12 +3308,9 @@ def test_candidate_resolver_rejects_used_child_read_for_parent_valid_scope() -> 
         handle_registry=_registry(),
     )
 
-    assert report.ok is False
+    assert report.ok is True
     step_report = report.step_reports[0]
-    assert step_report.selected_capability_id is None
-    hinted = step_report.candidates[0]
-    assert hinted.capability_id == "parameter_from_segment_length"
-    assert any("invalid_valid_scope" in error for error in hinted.errors)
+    assert step_report.selected_capability_id == "parameter_from_segment_length"
 
 
 def test_runtime_binding_index_reports_computed_point_when_pointref_target_is_expected() -> None:
@@ -2331,6 +3851,122 @@ def test_step_intent_candidate_resolver_rejects_method_output_boundary() -> None
     assert "solve_m_and_parabola:no_executable_candidate" in report.errors[0]
 
 
+def test_weighted_auxiliary_locus_straightening_candidate_is_normalized_to_line() -> None:
+    """weighted transform 中辅助轨迹被误标为 StraighteningCandidate 时应修成 Line。"""
+    step = _step(
+        scope_id="ii_2",
+        step_id="transform_weighted_path",
+        recipe_hint="weighted_axis_path_triangle_transform",
+        goal_type="derive_weighted_path_minimum",
+        target="fact:ii_2:path_transformation",
+        produces=(
+            ProducedFact(
+                "fact:ii_2:path_transformation",
+                "ii_2",
+                "加权路径转化方案",
+                output_type="PathTransformation",
+            ),
+            ProducedFact(
+                "fact:ii_2:aux_locus",
+                "ii_2",
+                "辅助点 Aux 的运动轨迹（射线）",
+                output_type="StraighteningCandidate",
+            ),
+        ),
+    )
+
+    normalized, normalization_report = StepIntentNormalizer().normalize(
+        _single_scope_draft(step, scope_id="ii_2"),
+        family_spec=QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
+        question_goals=[],
+        handle_registry=CanonicalHandleRegistry.from_problem_payload(_hexi_llm_problem()),
+    )
+
+    produces = normalized.scopes[0].steps[0].produces
+    assert [(item.handle, item.output_type) for item in produces] == [
+        ("fact:ii_2:path_transformation", "PathTransformation"),
+        ("fact:ii_2:aux_locus", "Line"),
+    ]
+    assert [action.action for action in normalization_report.actions] == [
+        "normalize_weighted_auxiliary_locus_type"
+    ]
+
+
+def test_non_weighted_straightening_candidate_is_not_normalized_to_line() -> None:
+    """普通折线拉直候选仍应保持 StraighteningCandidate 类型。"""
+    step = _step(
+        scope_id="ii",
+        step_id="select_straightening",
+        recipe_hint="broken_path_straightening_and_select",
+        goal_type="straighten_broken_path",
+        target="fact:ii:selected_straightening_candidate",
+        produces=(
+            ProducedFact(
+                "fact:ii:selected_straightening_candidate",
+                "ii",
+                "折线拉直后的候选方案",
+                output_type="StraighteningCandidate",
+            ),
+        ),
+    )
+
+    normalized, normalization_report = StepIntentNormalizer().normalize(
+        _single_scope_draft(step, scope_id="ii"),
+        family_spec=_nankai_inputs().family_spec,
+        question_goals=[],
+        handle_registry=_registry(),
+    )
+
+    assert normalized.scopes[0].steps[0].produces[0].output_type == "StraighteningCandidate"
+    assert not any(
+        action.action == "normalize_weighted_auxiliary_locus_type"
+        for action in normalization_report.actions
+    )
+
+
+def test_weighted_auxiliary_locus_normalization_unblocks_candidate_resolution() -> None:
+    """修正后的 weighted transform step 应能通过 candidate resolver 输出类型检查。"""
+    inputs = build_strategy_probe_inputs(load_problem_ir(HEXI_FIXTURE))
+    registry = CanonicalHandleRegistry.from_problem_payload(_hexi_llm_problem())
+    step = _step(
+        scope_id="iii",
+        step_id="transform_weighted_path",
+        recipe_hint="weighted_axis_path_triangle_transform",
+        goal_type="derive_weighted_path_minimum",
+        target="fact:iii:path_transformation",
+        produces=(
+            ProducedFact(
+                "fact:iii:path_transformation",
+                "iii",
+                "加权路径转化方案",
+                output_type="PathTransformation",
+            ),
+            ProducedFact(
+                "fact:iii:aux_locus",
+                "iii",
+                "辅助点运动轨迹（射线）",
+                output_type="StraighteningCandidate",
+            ),
+        ),
+    )
+    normalized, _normalization_report = StepIntentNormalizer().normalize(
+        _single_scope_draft(step, scope_id="iii"),
+        family_spec=inputs.family_spec,
+        question_goals=inputs.question_goals,
+        handle_registry=registry,
+    )
+
+    resolution = StepIntentCandidateResolver().resolve(
+        normalized,
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=registry,
+    )
+
+    assert resolution.ok is True
+    assert resolution.step_reports[0].selected_capability_id == "weighted_axis_path_triangle_transform"
+
+
 def test_candidate_resolver_treats_m_value_from_minimum_as_parameter_value() -> None:
     """m_value handle 比 description 更可信，不能被“最小值”误判成最值表达式。"""
     inputs = _nankai_inputs()
@@ -2652,6 +4288,236 @@ def test_candidate_resolver_keeps_minimum_expression_as_minimum_expression() -> 
     assert step_report.selected_capability_id == "distance_between_points"
 
 
+def test_candidate_resolver_keeps_segment_distance_expr_as_expression() -> None:
+    """OM/BN 这类分段距离表达式不是可复用路径最小值表达式。"""
+    inputs = _nankai_inputs()
+    payload = {
+        "scopes": [
+            {
+                "scope_id": "ii",
+                "label": "第（Ⅱ）问",
+                "steps": [
+                    {
+                        "step_id": "compute_om_distance_expr",
+                        "recipe_hint": "distance_between_points",
+                        "goal_type": "derive_distance_between_points",
+                        "target": "fact:ii:OM_distance_expr",
+                        "strategy": "参数化 M 后计算 OM 的距离表达式。",
+                        "reads": [],
+                        "creates": [],
+                        "produces": [
+                            _produce(
+                                "fact:ii:OM_distance_expr",
+                                "ii",
+                                "OM 距离表达式",
+                            )
+                        ],
+                        "reason": "这是分段距离 utility expression，不是路径最小值表达式。",
+                    }
+                ],
+            }
+        ]
+    }
+    draft = StepIntentValidator().validate_json(
+        json.dumps(payload, ensure_ascii=False),
+        handle_registry=_registry(),
+    )
+
+    report = StepIntentCandidateResolver().resolve(
+        draft,
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=_registry(),
+    )
+
+    step_report = report.step_reports[0]
+    assert step_report.produced_types == ("Expression",)
+    assert any(
+        "unsupported_utility_distance_expression" in error
+        for error in step_report.errors
+    )
+
+
+def test_candidate_resolver_explains_auxiliary_point_inside_distance_step() -> None:
+    """distance_between_points 不能同时承担辅助点构造，应给出可修复反馈。"""
+    inputs = _heping_inputs()
+    registry = CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem())
+    payload = {
+        "scopes": [
+            {
+                "scope_id": "ii",
+                "label": "第（Ⅱ）问",
+                "steps": [
+                    {
+                        "step_id": "compute_path_minimum_expression",
+                        "recipe_hint": None,
+                        "goal_type": "derive_path_minimum_expression",
+                        "target": "fact:ii:path_minimum_expression",
+                        "strategy": "先构造辅助点，再把 OM+BN 转成距离最小值。",
+                        "reads": [
+                            "point:problem:O",
+                            "point:problem:B",
+                            "fact:ii:path_minimum_target",
+                            "fact:ii:CN_eq_CM",
+                        ],
+                        "creates": [
+                            _create(
+                                "point:ii:B_prime",
+                                "point",
+                                "ii",
+                                "射线上等长构造出的辅助点",
+                            )
+                        ],
+                        "produces": [
+                            _produce(
+                                "fact:ii:path_minimum_expression",
+                                "ii",
+                                "OM+BN 的最小值表达式",
+                                output_type="MinimumExpression",
+                            )
+                        ],
+                        "reason": "这一步混合了构造辅助点和求距离。",
+                    }
+                ],
+            }
+        ]
+    }
+    draft = StepIntentValidator().validate_json(
+        json.dumps(payload, ensure_ascii=False),
+        handle_registry=registry,
+    )
+
+    report = StepIntentCandidateResolver().resolve(
+        draft,
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=registry,
+    )
+
+    assert report.ok is False
+    step_report = report.step_reports[0]
+    assert step_report.selected_capability_id is None
+    assert any(
+        "unsupported_auxiliary_minimum_distance_step" in error
+        for error in step_report.errors
+    )
+
+
+def test_candidate_resolver_explains_unsupported_path_transformation_shape() -> None:
+    """自造 PathTransformation 应提示改用等长射线路径降维 recipe。"""
+    inputs = _heping_inputs()
+    registry = CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem())
+    payload = {
+        "scopes": [
+            {
+                "scope_id": "ii",
+                "label": "第（Ⅱ）问",
+                "steps": [
+                    {
+                        "step_id": "construct_path_transformation",
+                        "recipe_hint": None,
+                        "goal_type": "transform_path",
+                        "target": "fact:ii:path_transformation",
+                        "strategy": "自造反射辅助点，把路径转化成另一个距离。",
+                        "reads": [
+                            "fact:ii:path_minimum_target",
+                            "fact:ii:CN_eq_CM",
+                        ],
+                        "creates": [
+                            _create("point:ii:B_sym", "point", "ii", "反射辅助点"),
+                            _create("point:ii:O_sym", "point", "ii", "反射辅助点"),
+                        ],
+                        "produces": [
+                            _produce(
+                                "fact:ii:path_transformation",
+                                "ii",
+                                "OM+BN 转化为两个自造辅助点的距离",
+                                output_type="PathTransformation",
+                            )
+                        ],
+                        "reason": "这条路线不在当前 family 的 executable capability 中。",
+                    }
+                ],
+            }
+        ]
+    }
+    draft = StepIntentValidator().validate_json(
+        json.dumps(payload, ensure_ascii=False),
+        handle_registry=registry,
+    )
+
+    report = StepIntentCandidateResolver().resolve(
+        draft,
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=registry,
+    )
+
+    assert report.ok is False
+    step_report = report.step_reports[0]
+    assert step_report.selected_capability_id is None
+    assert any(
+        "unsupported_path_transformation_without_recipe" in error
+        and "equal_length_ray_path_reduction" in error
+        for error in step_report.errors
+    )
+
+
+def test_validator_does_not_merge_distinct_segment_distance_signatures() -> None:
+    """分段距离表达式不应因同 scope 被误判成同一个 minimum_expr。"""
+    payload = {
+        "scopes": [
+            {
+                "scope_id": "ii",
+                "label": "第（Ⅱ）问",
+                "steps": [
+                    {
+                        "step_id": "compute_om_distance_expr",
+                        "recipe_hint": "distance_between_points",
+                        "goal_type": "derive_distance_between_points",
+                        "target": "fact:ii:OM_distance_expr",
+                        "strategy": "计算 OM 距离表达式。",
+                        "reads": [],
+                        "creates": [],
+                        "produces": [
+                            _produce(
+                                "fact:ii:OM_distance_expr",
+                                "ii",
+                                "OM 距离表达式",
+                                output_type="MinimumExpression",
+                            )
+                        ],
+                        "reason": "DeepSeek 可能把普通距离表达式错标成 MinimumExpression。",
+                    },
+                    {
+                        "step_id": "compute_bn_distance_expr",
+                        "recipe_hint": "distance_between_points",
+                        "goal_type": "derive_distance_between_points",
+                        "target": "fact:ii:BN_distance_expr",
+                        "strategy": "计算 BN 距离表达式。",
+                        "reads": [],
+                        "creates": [],
+                        "produces": [
+                            _produce(
+                                "fact:ii:BN_distance_expr",
+                                "ii",
+                                "BN 距离表达式",
+                                output_type="MinimumExpression",
+                            )
+                        ],
+                        "reason": "不同分段距离不应被合并成同一个公共最小值结论。",
+                    },
+                ],
+            }
+        ]
+    }
+
+    StepIntentValidator().validate_json(
+        json.dumps(payload, ensure_ascii=False),
+        handle_registry=_registry(),
+    )
+
+
 def test_candidate_resolver_uses_hint_for_description_only_output_type() -> None:
     """只有 description 能判断类型时，明确 recipe_hint 可窄化低置信度误判。"""
     inputs = _nankai_inputs()
@@ -2703,6 +4569,62 @@ def test_candidate_resolver_uses_hint_for_description_only_output_type() -> None
     )
 
 
+def test_candidate_resolver_infers_equal_angle_pair_as_angle_equality() -> None:
+    """equal_angle_pair 这类泛化 handle 应识别为 AngleEquality。"""
+    inputs = _heping_inputs()
+    payload = {
+        "scopes": [
+            {
+                "scope_id": "i_2",
+                "label": "第（Ⅰ）②问",
+                "steps": [
+                    {
+                        "step_id": "derive_equal_angle_from_angle_sum",
+                        "recipe_hint": "angle_sum_equal_angle_candidates",
+                        "goal_type": "derive_equal_angle",
+                        "target": "fact:i_2:equal_angle_pair",
+                        "strategy": "由角和等于 45° 导出等锐角事实。",
+                        "reads": [
+                            "fact:i_2:angle_sum_CBE_ACO_45",
+                            "point:problem:A",
+                            "point:problem:C",
+                            "point:problem:B",
+                            "point:problem:O",
+                            "point:i_2:E",
+                        ],
+                        "creates": [],
+                        "produces": [
+                            _produce(
+                                "fact:i_2:equal_angle_pair",
+                                "i_2",
+                                "由角和等于 45° 导出的等锐角事实",
+                            )
+                        ],
+                        "reason": "LLM 未显式填写 output_type。",
+                    }
+                ],
+            }
+        ]
+    }
+    registry = CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem())
+    draft = StepIntentValidator().validate_json(
+        json.dumps(payload, ensure_ascii=False),
+        handle_registry=registry,
+    )
+
+    report = StepIntentCandidateResolver().resolve(
+        draft,
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=registry,
+    )
+
+    assert report.ok is True
+    step_report = report.step_reports[0]
+    assert step_report.produced_types == ("AngleEquality",)
+    assert step_report.selected_capability_id == "angle_sum_equal_angle_candidates"
+
+
 def test_candidate_resolver_prefers_explicit_produced_output_type() -> None:
     """produces.output_type 应优先于 handle/description 的自然语言猜测。"""
     inputs = _nankai_inputs()
@@ -2751,6 +4673,149 @@ def test_candidate_resolver_prefers_explicit_produced_output_type() -> None:
     assert step_report.produced_types == ("ParameterValue",)
     assert step_report.selected_capability_id == "parameter_from_minimum_value"
     assert not any("capability_hint_corrected_output_type" in warning for warning in step_report.warnings)
+
+
+def test_candidate_resolver_treats_line_intercept_output_as_point() -> None:
+    """target_line_intercept 这类截点产物应按 Point，而不是按 Line 推断。"""
+    inputs = _heping_inputs()
+    registry = CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem())
+    payload = {
+        "scopes": [
+            {
+                "scope_id": "i_2",
+                "label": "第（Ⅰ）②问",
+                "steps": [
+                    {
+                        "step_id": "derive_equal_angle",
+                        "recipe_hint": "angle_sum_equal_angle_candidates",
+                        "goal_type": "derive_equal_angle",
+                        "target": "fact:i_2:angle_OBF_eq_ACO",
+                        "strategy": "由角和条件得到等角关系。",
+                        "reads": ["fact:i_2:angle_sum_CBE_ACO_45"],
+                        "creates": [],
+                        "produces": [
+                            _produce(
+                                "fact:i_2:angle_OBF_eq_ACO",
+                                "i_2",
+                                "等角关系",
+                                output_type="AngleEquality",
+                            )
+                        ],
+                        "reason": "前置等角 fact。",
+                    },
+                    {
+                        "step_id": "derive_axis_intercept_from_angle",
+                        "recipe_hint": "axis_intercept_from_equal_acute_angles",
+                        "goal_type": "derive_axis_intercept_from_equal_acute_angles",
+                        "target": "fact:i_2:target_line_intercept",
+                        "strategy": "由等角关系求目标直线与坐标轴的截点。",
+                        "reads": ["fact:i_2:angle_OBF_eq_ACO", "point:problem:B"],
+                        "creates": [],
+                        "produces": [
+                            _produce(
+                                "fact:i_2:target_line_intercept",
+                                "i_2",
+                                "目标直线与坐标轴的交点坐标",
+                            )
+                        ],
+                        "reason": "intercept 是点，不是直线方程。",
+                    }
+                ],
+            }
+        ]
+    }
+    draft = StepIntentValidator().validate_json(
+        json.dumps(payload, ensure_ascii=False),
+        handle_registry=registry,
+    )
+
+    report = StepIntentCandidateResolver().resolve(
+        draft,
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=registry,
+    )
+
+    step_report = report.step_reports[1]
+    assert step_report.produced_types == ("Point",)
+    assert step_report.selected_capability_id == "axis_intercept_from_equal_acute_angles"
+
+
+def test_candidate_resolver_does_not_match_null_curve_point_step_to_equal_length_ray() -> None:
+    """无 hint 的曲线交点 Point step 不能只因 Point 输出误接到等长射线 method。"""
+    inputs = _heping_inputs()
+    registry = CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem())
+    step = _step(
+        scope_id="i_2",
+        step_id="derive_E_coordinate",
+        recipe_hint=None,
+        goal_type="derive_curve_intersection_point",
+        target="answer:i_2_E",
+        reads=(
+            "fact:i:parabola_expression",
+            "point:problem:B",
+            "point:i_2:E",
+        ),
+        produces=(
+            ProducedFact(
+                "answer:i_2_E",
+                "i_2",
+                "E 的坐标",
+                output_type="Point",
+            ),
+        ),
+    )
+
+    report = StepIntentCandidateResolver().resolve(
+        _single_scope_draft(step, scope_id="i_2"),
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=registry,
+    )
+
+    step_report = report.step_reports[0]
+    assert step_report.selected_capability_id is None
+    assert not any(candidate.capability_id == "equal_length_ray_point" for candidate in step_report.candidates)
+    assert "missing_line_parabola_inputs" in report.errors[0]
+
+
+def test_candidate_resolver_selects_line_parabola_when_curve_intersection_has_line_point() -> None:
+    """曲线交点 step 有已解抛物线和第二个定线点时，应选择 line-parabola method。"""
+    inputs = _heping_inputs()
+    registry = CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem())
+    step = _step(
+        scope_id="i_2",
+        step_id="derive_E_coordinate",
+        recipe_hint=None,
+        goal_type="derive_curve_intersection_point",
+        target="answer:i_2_E",
+        reads=(
+            "fact:i:parabola_expression",
+            "point:problem:B",
+            "point:i_2:F",
+            "fact:i_2:F_coordinate",
+            "point:i_2:E",
+        ),
+        produces=(
+            ProducedFact(
+                "answer:i_2_E",
+                "i_2",
+                "E 的坐标",
+                output_type="Point",
+            ),
+        ),
+    )
+
+    report = StepIntentCandidateResolver().resolve(
+        _single_scope_draft(step, scope_id="i_2"),
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=registry,
+    )
+
+    step_report = report.step_reports[0]
+    assert report.ok is True
+    assert step_report.selected_capability_id == "line_parabola_second_intersection_point"
 
 
 def test_canonical_runtime_binding_index_maps_handles_to_runtime_paths() -> None:
@@ -2923,7 +4988,11 @@ def test_recipe_execution_registry_is_built_from_family_spec() -> None:
 def test_recipe_capability_output_types_come_from_execution_output_aliases() -> None:
     """Recipe capability 的输出类型应由 FamilySpec.output_aliases 派生。"""
     method_specs = MethodSpecRegistry.load_from_code()
-    families = (_nankai_inputs().family_spec, QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY)
+    families = (
+        _nankai_inputs().family_spec,
+        QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
+        QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY,
+    )
 
     for family in families:
         capabilities = {
@@ -2942,9 +5011,49 @@ def test_recipe_capability_output_types_come_from_execution_output_aliases() -> 
             assert capabilities[recipe.recipe_id].output_types == tuple(expected)
 
 
+def test_method_capability_allows_creates_is_data_driven() -> None:
+    """非 Point 输出但可引出辅助点的 method 应通过 capability 字段声明 creates 许可。"""
+    method_specs = MethodSpecRegistry.load_from_code()
+    capabilities = {
+        capability.capability_id: capability
+        for capability in build_executable_capabilities(
+            QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY,
+            method_specs,
+        )
+    }
+
+    angle_sum = capabilities["angle_sum_equal_angle_candidates"]
+    assert angle_sum.output_types == ("AngleEquality",)
+    assert angle_sum.allows_creates is True
+
+    parameter_method = capabilities["parameter_from_expression_value"]
+    assert parameter_method.output_types == ("ParameterValue",)
+    assert parameter_method.allows_creates is False
+
+
+def test_method_capability_goal_aliases_come_from_method_solves() -> None:
+    """通用 goal alias 应来自 MethodSpec.solves，而不是 resolver 硬编码表。"""
+    method_specs = MethodSpecRegistry.load_from_code()
+    capabilities = {
+        capability.capability_id: capability
+        for capability in build_executable_capabilities(
+            QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY,
+            method_specs,
+        )
+    }
+
+    line_parabola = capabilities["line_parabola_second_intersection_point"]
+    assert line_parabola.goal_type == "derive_line_parabola_second_intersection"
+    assert "derive_curve_intersection_point" in line_parabola.goal_aliases
+
+
 def test_recipe_compiler_registry_covers_family_execution_strategies() -> None:
     """FamilySpec 中的 recipe execution strategy 都应存在于默认编译策略注册表。"""
-    families = (_nankai_inputs().family_spec, QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY)
+    families = (
+        _nankai_inputs().family_spec,
+        QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
+        QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY,
+    )
     missing: list[str] = []
     for family in families:
         for recipe in family.step_recipes:
@@ -3101,6 +5210,30 @@ def test_method_binding_registry_loads_prep_invocations_from_family_spec() -> No
     )
 
 
+def test_equal_length_family_x_axis_intercept_has_parabola_prep_rule() -> None:
+    """等长射线路径 family 中，x 轴交点 method 缺 Parabola 时也应可自动准备。"""
+    rules = MethodBindingRuleRegistry.from_family_spec(
+        QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY
+    )
+    rule = rules.rule_for("quadratic_x_axis_intercept_point")
+
+    assert rule is not None
+    assert rule.prep_invocations == (
+        MethodPrepInvocationSpec(
+            trigger_selector="missing_readable_type:Parabola",
+            method_id="quadratic_from_constraints",
+            output_aliases=(
+                ("coefficients", "prepared_coefficients"),
+                ("parabola", "prepared_parabola"),
+            ),
+            local_output_aliases=(
+                ("type:Coefficients", "coefficients"),
+                ("type:Parabola", "parabola"),
+            ),
+        ),
+    )
+
+
 def test_prep_invocation_builder_generates_declared_local_outputs() -> None:
     """PrepInvocationBuilder 应按声明生成 prep invocation/promote/local outputs。"""
     problem = load_problem_ir(HEXI_FIXTURE)
@@ -3141,6 +5274,810 @@ def test_prep_invocation_builder_generates_declared_local_outputs() -> None:
         "type:Coefficients": "$step.derive_vertex_i.temp.prepared_coefficients",
         "type:Parabola": "$step.derive_vertex_i.temp.prepared_parabola",
     }
+
+
+def test_x_axis_intercept_prep_generates_parabola_when_missing() -> None:
+    """求另一个 x 轴交点时，若当前无 Parabola，可先用约束准备临时抛物线。"""
+    problem = load_problem_ir(HEPING_FIXTURE)
+    index = CanonicalRuntimeBindingIndex.from_context(
+        ContextBuilder().build(problem),
+        handle_registry=CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem()),
+        question_goals=extract_question_goals(problem),
+    )
+    rules = MethodBindingRuleRegistry.from_family_spec(
+        QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY
+    )
+    step = _step(
+        scope_id="ii",
+        step_id="derive_B_coordinate_expr_for_ii",
+        recipe_hint="quadratic_x_axis_intercept_point",
+        goal_type="derive_axis_intercept_point",
+        target="fact:ii:B_coordinate_expr",
+        reads=(
+            "function:problem:parabola",
+            "fact:problem:A_coordinate_value",
+            "fact:problem:A_on_parabola",
+            "point:problem:B",
+            "symbol:problem:a",
+        ),
+        produces=(
+            ProducedFact(
+                "fact:ii:B_coordinate_expr",
+                "ii",
+                "B 点坐标表达式，含参数 a",
+                output_type="Point",
+            ),
+        ),
+    )
+
+    result = PrepInvocationBuilder(binding_rules=rules, index=index).build(
+        "quadratic_x_axis_intercept_point",
+        step,
+    )
+
+    assert len(result.invocations) == 1
+    invocation = result.invocations[0]
+    assert invocation.method_id == "quadratic_from_constraints"
+    assert invocation.outputs == {
+        "coefficients": "$step.derive_B_coordinate_expr_for_ii.temp.prepared_coefficients",
+        "parabola": "$step.derive_B_coordinate_expr_for_ii.temp.prepared_parabola",
+    }
+    assert result.local_outputs["type:Parabola"] == (
+        "$step.derive_B_coordinate_expr_for_ii.temp.prepared_parabola"
+    )
+
+
+def test_quadratic_constraints_uses_coordinate_fact_for_curve_point_ref() -> None:
+    """曲线点实体仍是 PointRef 时，应读取同名坐标 fact 作为曲线点约束。"""
+    problem = load_problem_ir(HEPING_FIXTURE)
+    index = CanonicalRuntimeBindingIndex.from_context(
+        ContextBuilder().build(problem),
+        handle_registry=CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem()),
+        question_goals=extract_question_goals(problem),
+    )
+    index.register("fact:problem:D_coordinate", "$problem.points.D", "Point", source="test")
+    rules = MethodBindingRuleRegistry.from_family_spec(
+        QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY
+    )
+    step = _step(
+        scope_id="i_1",
+        step_id="derive_parabola_from_d",
+        recipe_hint="quadratic_from_constraints",
+        goal_type="derive_parabola",
+        target="answer:i_1_parabola",
+        reads=(
+            "function:problem:parabola",
+            "fact:problem:D_coordinate",
+            "fact:i:D_on_parabola",
+        ),
+        produces=(
+            ProducedFact("answer:i_1_parabola", "i_1", "抛物线答案", output_type="Parabola"),
+        ),
+    )
+
+    inputs = rules.bind("quadratic_from_constraints", step, index)
+
+    assert inputs["curve_point"] == "$problem.points.D"
+
+
+def test_y_axis_intercept_target_accepts_point_handle_in_target_text() -> None:
+    """target 中带完整 point handle 时，应提取为 y 轴交点 method 的 target。"""
+    problem = load_problem_ir(HEPING_FIXTURE)
+    index = CanonicalRuntimeBindingIndex.from_context(
+        ContextBuilder().build(problem),
+        handle_registry=CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem()),
+        question_goals=extract_question_goals(problem),
+    )
+    rules = MethodBindingRuleRegistry.from_family_spec(
+        QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY
+    )
+    step = _step(
+        scope_id="i_1",
+        step_id="derive_C_coordinate",
+        recipe_hint="quadratic_y_axis_intercept_point",
+        goal_type="derive_y_axis_intercept_point",
+        target="point:problem:C coordinate",
+        reads=("function:problem:parabola",),
+        produces=(
+            ProducedFact(
+                "fact:problem:C_coordinate_value",
+                "problem",
+                "C 点坐标",
+                output_type="Point",
+            ),
+        ),
+    )
+
+    inputs = rules.bind("quadratic_y_axis_intercept_point", step, index)
+
+    assert inputs["target"] == "$problem.points.C"
+
+
+def test_y_axis_intercept_generic_output_uses_unique_y_axis_entity() -> None:
+    """y_intercept_coordinate 这类泛化产物应绑定到唯一 y_axis_intercept 点。"""
+    problem = load_problem_ir(HEPING_FIXTURE)
+    index = CanonicalRuntimeBindingIndex.from_context(
+        ContextBuilder().build(problem),
+        handle_registry=CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem()),
+        question_goals=extract_question_goals(problem),
+    )
+    rules = MethodBindingRuleRegistry.from_family_spec(
+        QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY
+    )
+    step = _step(
+        scope_id="i_1",
+        step_id="derive_C_coordinate",
+        recipe_hint="quadratic_y_axis_intercept_point",
+        goal_type="derive_y_axis_intercept_point",
+        target="抛物线与 y 轴交点坐标",
+        reads=("function:problem:parabola",),
+        produces=(
+            ProducedFact(
+                "fact:i:y_intercept_coordinate",
+                "i",
+                "C 点坐标",
+                output_type="Point",
+            ),
+        ),
+    )
+
+    inputs = rules.bind("quadratic_y_axis_intercept_point", step, index)
+    target = _target_path_for_produced(step.produces[0], "Point", index, step)
+
+    assert inputs["target"] == "$problem.points.C"
+    assert target == "$question.i.outputs.y_intercept_coordinate"
+
+
+def test_x_axis_known_point_infers_excluded_intercept_when_not_read() -> None:
+    """LLM 少写 A reads 时，可由 B 的 PointRef 定义推断 known_point。"""
+    problem = load_problem_ir(HEPING_FIXTURE)
+    index = CanonicalRuntimeBindingIndex.from_context(
+        ContextBuilder().build(problem),
+        handle_registry=CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem()),
+        question_goals=extract_question_goals(problem),
+    )
+    rules = MethodBindingRuleRegistry.from_family_spec(
+        QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY
+    )
+    step = _step(
+        scope_id="i_1",
+        step_id="derive_B_coordinate_without_reading_a",
+        recipe_hint="quadratic_x_axis_intercept_point",
+        goal_type="derive_axis_intercept_point",
+        target="fact:i:B_coordinate",
+        reads=("fact:i:parabola_expression", "point:problem:B"),
+        produces=(
+            ProducedFact("fact:i:B_coordinate", "i", "B 点坐标", output_type="Point"),
+        ),
+    )
+
+    inputs = rules.bind(
+        "quadratic_x_axis_intercept_point",
+        step,
+        index,
+        local_outputs={"type:Parabola": "$question.i.outputs.parabola_expression"},
+    )
+
+    assert inputs["known_point"] == "$problem.points.A"
+
+
+def test_quadratic_binding_infers_visible_curve_fact_from_read_point() -> None:
+    """读入点和坐标时，可复用可见 point_on_curve 题设 fact 补曲线点约束。"""
+    problem = load_problem_ir(HEPING_FIXTURE)
+    index = CanonicalRuntimeBindingIndex.from_context(
+        ContextBuilder().build(problem),
+        handle_registry=CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem()),
+        question_goals=extract_question_goals(problem),
+    )
+    rules = MethodBindingRuleRegistry.from_family_spec(
+        QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY
+    )
+    step = _step(
+        scope_id="i_1",
+        step_id="derive_parabola_i",
+        recipe_hint="quadratic_from_constraints",
+        goal_type="derive_parabola",
+        target="answer:i_1_parabola",
+        reads=("point:problem:A", "fact:problem:A_coordinate_value"),
+        produces=(
+            ProducedFact(
+                "answer:i_1_parabola",
+                "i",
+                "第（Ⅰ）问抛物线",
+                output_type="Parabola",
+            ),
+        ),
+    )
+
+    inputs = rules.bind("quadratic_from_constraints", step, index)
+
+    assert inputs["curve_point"] == "$problem.points.A"
+
+
+def test_quadratic_binding_infers_visible_curve_fact_from_coordinate_read() -> None:
+    """只读点坐标 fact 时，也可由可见 point_on_curve 题设 fact 补曲线点约束。"""
+    problem = load_problem_ir(HEPING_FIXTURE)
+    index = CanonicalRuntimeBindingIndex.from_context(
+        ContextBuilder().build(problem),
+        handle_registry=CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem()),
+        question_goals=extract_question_goals(problem),
+    )
+    rules = MethodBindingRuleRegistry.from_family_spec(
+        QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY
+    )
+    step = _step(
+        scope_id="i_1",
+        step_id="derive_parabola_i",
+        recipe_hint="quadratic_from_constraints",
+        goal_type="derive_parabola",
+        target="answer:i_1_parabola",
+        reads=("fact:problem:A_coordinate_value",),
+        produces=(
+            ProducedFact(
+                "answer:i_1_parabola",
+                "i",
+                "第（Ⅰ）问抛物线",
+                output_type="Parabola",
+            ),
+        ),
+    )
+
+    inputs = rules.bind("quadratic_from_constraints", step, index)
+
+    assert inputs["curve_point"] == "$problem.points.A"
+
+
+def test_promote_outputs_prefers_answer_target_over_reusable_fact_alias() -> None:
+    """同一 Parabola output 同时服务答案和 fact alias 时，应优先写入答案目标。"""
+    problem = load_problem_ir(HEPING_FIXTURE)
+    inputs = _heping_inputs()
+    index = CanonicalRuntimeBindingIndex.from_context(
+        ContextBuilder().build(problem),
+        handle_registry=CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem()),
+        question_goals=inputs.question_goals,
+    )
+    rules = MethodBindingRuleRegistry.from_family_spec(inputs.family_spec)
+    step = _step(
+        scope_id="i_1",
+        step_id="derive_parabola_i",
+        recipe_hint="quadratic_from_constraints",
+        goal_type="derive_parabola",
+        target="answer:i_1_parabola",
+        produces=(
+            ProducedFact(
+                "answer:i_1_parabola",
+                "i",
+                "第（Ⅰ）问抛物线答案",
+                output_type="Parabola",
+            ),
+            ProducedFact(
+                "fact:i:parabola_expression",
+                "i",
+                "后续可复用的抛物线表达式",
+                output_type="Parabola",
+            ),
+        ),
+    )
+
+    promote = _promote_outputs_for_step(
+        step,
+        "quadratic_from_constraints",
+        {
+            "parabola": "$step.derive_parabola_i.temp.parabola",
+            "coefficients": "$step.derive_parabola_i.temp.coefficients",
+        },
+        {"parabola": "Parabola", "coefficients": "Coefficients"},
+        index,
+        rules,
+    )
+
+    assert promote["$step.derive_parabola_i.temp.parabola"] == "$question.i.outputs.parabola"
+
+
+def test_equal_angle_axis_intercept_reads_computed_x_axis_point_fact() -> None:
+    """等角截点 method 应从 reads 中的 B 坐标 fact 读取 B，而不是未解析 PointRef。"""
+    problem = load_problem_ir(HEPING_FIXTURE)
+    inputs = _heping_inputs()
+    index = CanonicalRuntimeBindingIndex.from_context(
+        ContextBuilder().build(problem),
+        handle_registry=CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem()),
+        question_goals=inputs.question_goals,
+    )
+    index.register(
+        "fact:i:B_coordinate",
+        "$question.i.outputs.B_coordinate",
+        "Point",
+        source="test",
+    )
+    index.register(
+        "fact:i_2:angle_OBF_eq_ACO",
+        "$subquestion.i_2.outputs.angle_OBF_eq_ACO",
+        "AngleEquality",
+        source="test",
+    )
+    index.register_created_entity(
+        CreatedEntity(
+            "point:i_2:F",
+            "point",
+            "i_2",
+            "直线 BE 与 y 轴交点",
+        )
+    )
+    rules = MethodBindingRuleRegistry.from_family_spec(inputs.family_spec)
+    step = _step(
+        scope_id="i_2",
+        step_id="derive_BE_y_intercept",
+        recipe_hint="axis_intercept_from_equal_acute_angles",
+        goal_type="derive_axis_intercept_from_equal_acute_angles",
+        target="point:i_2:F",
+        reads=(
+            "fact:i_2:angle_OBF_eq_ACO",
+            "point:problem:B",
+            "fact:i:B_coordinate",
+            "point:problem:O",
+            "point:problem:C",
+            "point:problem:A",
+        ),
+        produces=(
+            ProducedFact(
+                "fact:i_2:F_coordinate",
+                "i_2",
+                "F 点坐标",
+                output_type="Point",
+            ),
+        ),
+    )
+
+    bound = rules.bind("axis_intercept_from_equal_acute_angles", step, index)
+
+    assert bound["x_axis_point"] == "$question.i.outputs.B_coordinate"
+
+
+def test_equal_angle_axis_intercept_falls_back_to_visible_computed_point_fact() -> None:
+    """若 LLM 漏写 B_coordinate reads，可使用唯一可见的前序 B 坐标 fact。"""
+    problem = load_problem_ir(HEPING_FIXTURE)
+    inputs = _heping_inputs()
+    index = CanonicalRuntimeBindingIndex.from_context(
+        ContextBuilder().build(problem),
+        handle_registry=CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem()),
+        question_goals=inputs.question_goals,
+    )
+    index.register(
+        "fact:i:B_coordinate",
+        "$question.i.outputs.B_coordinate",
+        "Point",
+        source="test",
+    )
+    index.register(
+        "fact:i_2:angle_OBF_eq_ACO",
+        "$subquestion.i_2.outputs.angle_OBF_eq_ACO",
+        "AngleEquality",
+        source="test",
+    )
+    index.register_created_entity(
+        CreatedEntity(
+            "point:i_2:F",
+            "point",
+            "i_2",
+            "直线 BE 与 y 轴交点",
+        )
+    )
+    rules = MethodBindingRuleRegistry.from_family_spec(inputs.family_spec)
+    step = _step(
+        scope_id="i_2",
+        step_id="derive_F_from_equal_angle",
+        recipe_hint="axis_intercept_from_equal_acute_angles",
+        goal_type="derive_axis_intercept_from_equal_acute_angles",
+        target="point:i_2:F",
+        reads=(
+            "fact:i_2:angle_OBF_eq_ACO",
+            "point:problem:B",
+            "point:problem:O",
+            "point:problem:C",
+            "point:problem:A",
+        ),
+        produces=(
+            ProducedFact(
+                "fact:i_2:F_coordinate",
+                "i_2",
+                "F 点坐标",
+                output_type="Point",
+            ),
+        ),
+    )
+
+    bound = rules.bind("axis_intercept_from_equal_acute_angles", step, index)
+
+    assert bound["x_axis_point"] == "$question.i.outputs.B_coordinate"
+
+
+def test_equal_angle_axis_intercept_visible_point_fact_fill_is_not_point_name_specific() -> None:
+    """坐标 fact 补位按 canonical 点名匹配，不依赖和平题的 B 点。"""
+    problem = load_problem_ir(HEPING_FIXTURE)
+    inputs = _heping_inputs()
+    index = CanonicalRuntimeBindingIndex.from_context(
+        ContextBuilder().build(problem),
+        handle_registry=CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem()),
+        question_goals=inputs.question_goals,
+    )
+    index.register(
+        "point:problem:Z",
+        "$problem.points.Z",
+        "PointRef",
+        source="test",
+    )
+    index.register(
+        "fact:i:Z_coordinate",
+        "$question.i.outputs.Z_coordinate",
+        "Point",
+        source="test",
+    )
+    index.register(
+        "fact:i_2:angle_OZF_eq_AZO",
+        "$subquestion.i_2.outputs.angle_OZF_eq_AZO",
+        "AngleEquality",
+        source="test",
+    )
+    index.register_created_entity(
+        CreatedEntity("point:i_2:F", "point", "i_2", "直线 CF 与 y 轴交点")
+    )
+    rules = MethodBindingRuleRegistry.from_family_spec(inputs.family_spec)
+    step = _step(
+        scope_id="i_2",
+        step_id="derive_CF_y_intercept",
+        recipe_hint="axis_intercept_from_equal_acute_angles",
+        goal_type="derive_axis_intercept_from_equal_acute_angles",
+        target="point:i_2:F",
+        reads=(
+            "fact:i_2:angle_OZF_eq_AZO",
+            "point:problem:Z",
+            "point:problem:A",
+            "point:problem:O",
+        ),
+        produces=(
+            ProducedFact("fact:i_2:F_coordinate", "i_2", "F 点坐标", output_type="Point"),
+        ),
+    )
+
+    bound = rules.bind("axis_intercept_from_equal_acute_angles", step, index)
+
+    assert bound["x_axis_point"] == "$question.i.outputs.Z_coordinate"
+    assert bound["y_axis_point"] == "$question.i.outputs.Z_coordinate"
+
+
+def test_line_parabola_uses_visible_computed_point_fact_when_point_read_is_unresolved() -> None:
+    """直线交抛物线 step 漏写 B_coordinate reads 时，也可复用唯一可见 B 坐标。"""
+    problem = load_problem_ir(HEPING_FIXTURE)
+    inputs = _heping_inputs()
+    index = CanonicalRuntimeBindingIndex.from_context(
+        ContextBuilder().build(problem),
+        handle_registry=CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem()),
+        question_goals=inputs.question_goals,
+    )
+    index.register(
+        "fact:i:parabola_expression",
+        "$question.i.outputs.parabola",
+        "Parabola",
+        source="test",
+    )
+    index.register(
+        "fact:i:B_coordinate",
+        "$question.i.outputs.B_coordinate",
+        "Point",
+        source="test",
+    )
+    index.register_created_entity(
+        CreatedEntity("point:i_2:F", "point", "i_2", "直线 BE 与 y 轴交点")
+    )
+    index.register(
+        "fact:i_2:F_coordinate",
+        "$subquestion.i_2.points.F",
+        "Point",
+        source="test",
+    )
+    index.register_created_entity(
+        CreatedEntity("point:i_2:E", "point", "i_2", "抛物线与 BE 的交点")
+    )
+    rules = MethodBindingRuleRegistry.from_family_spec(inputs.family_spec)
+    step = _step(
+        scope_id="i_2",
+        step_id="derive_E_point",
+        recipe_hint="line_parabola_second_intersection_point",
+        goal_type="derive_curve_intersection_point",
+        target="answer:i_2_E",
+        reads=(
+            "fact:i:parabola_expression",
+            "point:problem:B",
+            "point:i_2:F",
+            "fact:i_2:F_coordinate",
+            "point:i_2:E",
+        ),
+        produces=(
+            ProducedFact("answer:i_2_E", "i_2", "E 点坐标", output_type="Point"),
+        ),
+    )
+
+    bound = rules.bind("line_parabola_second_intersection_point", step, index)
+
+    assert "$question.i.outputs.B_coordinate" in {
+        bound["line_p1"],
+        bound["line_p2"],
+    }
+
+
+def test_entity_state_resolver_fills_point_from_unique_visible_coordinate_fact() -> None:
+    """实体点读法可补到唯一可见坐标 fact，不依赖固定点名。"""
+    index = _heping_binding_index()
+    index.register(
+        "fact:i:Z_coordinate",
+        "$question.i.outputs.Z_coordinate",
+        "Point",
+        source="test",
+    )
+    step = _step(
+        scope_id="i_2",
+        step_id="use_Z_coordinate",
+        recipe_hint="distance_between_points",
+        goal_type="derive_distance",
+        target="fact:i_2:distance",
+        reads=("point:problem:Z",),
+    )
+
+    resolved = EntityStateResolver().resolve("point:problem:Z", "Point", step, index)
+
+    assert resolved == "$question.i.outputs.Z_coordinate"
+
+
+def test_entity_state_resolver_records_applied_fill_without_runtime_path() -> None:
+    """EntityState 补位应记录 canonical handle 摘要，不把 RuntimePath 反馈给 LLM。"""
+    index = _heping_binding_index()
+    index.register(
+        "fact:i:Z_coordinate",
+        "$question.i.outputs.Z_coordinate",
+        "Point",
+        source="test",
+    )
+    step = _step(
+        scope_id="i_2",
+        step_id="use_Z_coordinate",
+        recipe_hint="distance_between_points",
+        goal_type="derive_distance",
+        target="fact:i_2:distance",
+        reads=("point:problem:Z",),
+    )
+
+    EntityStateResolver().resolve("point:problem:Z", "Point", step, index)
+
+    assert len(index.applied_fills) == 1
+    payload = index.applied_fills[0].to_payload()
+    assert payload["input_handle"] == "point:problem:Z"
+    assert payload["resolved_handle"] == "fact:i:Z_coordinate"
+    assert "$question" not in json.dumps(payload, ensure_ascii=False)
+
+
+def test_entity_state_resolver_fills_function_from_visible_parabola_state() -> None:
+    """函数实体读法可补到已求出的 Parabola answer/fact。"""
+    index = _heping_binding_index()
+    step = _step(
+        scope_id="i_2",
+        step_id="use_resolved_parabola",
+        recipe_hint="line_parabola_second_intersection_point",
+        goal_type="derive_curve_intersection_point",
+        target="answer:i_2_E",
+        reads=("function:problem:parabola",),
+    )
+
+    resolved = EntityStateResolver().resolve(
+        "function:problem:parabola",
+        "Parabola",
+        step,
+        index,
+    )
+
+    assert resolved == "$question.i.outputs.parabola"
+
+
+def test_entity_state_resolver_fills_symbol_from_unique_parameter_value_fact() -> None:
+    """符号实体读法可补到唯一可见参数值 fact。"""
+    index = _heping_binding_index()
+    index.register(
+        "fact:ii:z_value",
+        "$question.ii.outputs.z",
+        "ParameterValue",
+        source="test",
+    )
+    step = _step(
+        scope_id="ii",
+        step_id="use_z_value",
+        recipe_hint="evaluate_expression_at_parameter",
+        goal_type="evaluate_expression",
+        target="fact:ii:evaluated_expression",
+        reads=("symbol:problem:z",),
+    )
+
+    resolved = EntityStateResolver().resolve(
+        "symbol:problem:z",
+        "ParameterValue",
+        step,
+        index,
+    )
+
+    assert resolved == "$question.ii.outputs.z"
+
+
+def test_entity_state_resolver_fills_segment_from_structured_condition_fact() -> None:
+    """线段实体读法可补到结构化指向该线段的题设条件 fact。"""
+    index = _heping_binding_index()
+    step = _step(
+        scope_id="ii",
+        step_id="use_segment_condition",
+        recipe_hint="equal_length_ray_path_reduction",
+        goal_type="derive_path_minimum_expression",
+        target="fact:ii:path_minimum_expression",
+        reads=("segment:ii:BC",),
+    )
+
+    resolved = EntityStateResolver().resolve("segment:ii:BC", "Condition", step, index)
+
+    assert resolved == index.path_for("fact:ii:M_on_segment_BC", expected_type="Condition")
+
+
+def test_entity_state_resolver_does_not_fill_from_sibling_scope() -> None:
+    """补位只能读取当前 scope 可见的父级/本级状态，不能跨 sibling。"""
+    index = _heping_binding_index()
+    index.register(
+        "fact:i_1:Z_coordinate",
+        "$subquestion.i_1.outputs.Z_coordinate",
+        "Point",
+        source="test",
+    )
+    step = _step(
+        scope_id="i_2",
+        step_id="use_Z_from_sibling",
+        recipe_hint="distance_between_points",
+        goal_type="derive_distance",
+        target="fact:i_2:distance",
+        reads=("point:problem:Z",),
+    )
+
+    resolved = EntityStateResolver().resolve("point:problem:Z", "Point", step, index)
+
+    assert resolved is None
+
+
+def test_entity_state_resolver_rejects_ambiguous_visible_state_facts() -> None:
+    """多个可见状态 fact 都匹配同一实体时，不猜测。"""
+    index = _heping_binding_index()
+    index.register(
+        "fact:i:Z_coordinate",
+        "$question.i.outputs.Z_coordinate",
+        "Point",
+        source="test",
+    )
+    index.register(
+        "fact:i_2:Z_coordinate_alternate",
+        "$subquestion.i_2.outputs.Z_coordinate_alternate",
+        "Point",
+        source="test",
+    )
+    step = _step(
+        scope_id="i_2",
+        step_id="use_ambiguous_Z",
+        recipe_hint="distance_between_points",
+        goal_type="derive_distance",
+        target="fact:i_2:distance",
+        reads=("point:problem:Z",),
+    )
+
+    with pytest.raises(StrategyDraftValidationError, match="ambiguous_runtime_fact"):
+        EntityStateResolver().resolve("point:problem:Z", "Point", step, index)
+
+
+def test_x_axis_intercept_target_uses_pointref_even_when_point_binding_exists() -> None:
+    """目标点已有 Point 绑定时，x 轴交点 method 仍应读取底层 PointRef target。"""
+    problem = load_problem_ir(HEPING_FIXTURE)
+    index = CanonicalRuntimeBindingIndex.from_context(
+        ContextBuilder().build(problem),
+        handle_registry=CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem()),
+        question_goals=extract_question_goals(problem),
+    )
+    index.register("point:problem:B", "$problem.points.B", "Point", source="test")
+    index.register("point:problem:A", "$problem.points.A", "Point", source="test")
+    rules = MethodBindingRuleRegistry.from_family_spec(
+        QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY
+    )
+    step = _step(
+        scope_id="ii",
+        step_id="derive_B_coordinate_expr_for_ii",
+        recipe_hint="quadratic_x_axis_intercept_point",
+        goal_type="derive_axis_intercept_point",
+        target="fact:ii:B_coordinate_expr",
+        reads=("point:problem:B", "point:problem:A"),
+        produces=(
+            ProducedFact(
+                "fact:ii:B_coordinate_expr",
+                "ii",
+                "B 点坐标表达式，含参数 a",
+                output_type="Point",
+            ),
+        ),
+    )
+
+    inputs = rules.bind(
+        "quadratic_x_axis_intercept_point",
+        step,
+        index,
+        local_outputs={"type:Parabola": "$step.derive_B.temp.prepared_parabola"},
+    )
+
+    assert inputs["target"] == "$problem.points.B"
+    assert inputs["known_point"] == "$problem.points.A"
+
+
+def test_bare_point_coordinate_fact_promotes_to_scoped_output() -> None:
+    """``B_coordinate`` 这类 bare 坐标 fact 不应写回题设 point path。"""
+    problem = load_problem_ir(HEPING_FIXTURE)
+    index = CanonicalRuntimeBindingIndex.from_context(
+        ContextBuilder().build(problem),
+        handle_registry=CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem()),
+        question_goals=extract_question_goals(problem),
+    )
+    step = _step(
+        scope_id="ii",
+        step_id="derive_B_coordinate_expr_for_ii",
+        recipe_hint="quadratic_x_axis_intercept_point",
+        goal_type="derive_axis_intercept_point",
+        target="fact:ii:B_coordinate",
+        reads=("point:problem:B", "point:problem:A"),
+        produces=(
+            ProducedFact(
+                "fact:ii:B_coordinate",
+                "ii",
+                "B 点坐标表达式，含参数 a",
+                output_type="Point",
+            ),
+        ),
+    )
+
+    target = _target_path_for_produced(
+        step.produces[0],
+        "Point",
+        index,
+        step,
+    )
+
+    assert target == "$question.ii.outputs.B_coordinate"
+
+
+def test_equal_length_ray_recipe_accepts_coordinate_fact_with_parameter_suffix() -> None:
+    """B_coordinate_in_a 这类含参坐标 fact 应被 recipe 内部识别为点值。"""
+    problem = load_problem_ir(HEPING_FIXTURE)
+    index = CanonicalRuntimeBindingIndex.from_context(
+        ContextBuilder().build(problem),
+        handle_registry=CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem()),
+        question_goals=extract_question_goals(problem),
+    )
+    index.register("fact:ii:B_coordinate_in_a", "$question.ii.outputs.B_coordinate_in_a", "Point", source="test")
+    step = _step(
+        scope_id="ii",
+        step_id="reduce_equal_length_ray_path",
+        recipe_hint="equal_length_ray_path_reduction",
+        goal_type="derive_path_minimum_expression",
+        target="fact:ii:path_minimum_expression",
+        reads=("fact:ii:B_coordinate_in_a",),
+        produces=(
+            ProducedFact(
+                "fact:ii:path_minimum_expression",
+                "ii",
+                "路径最小值表达式",
+                output_type="MinimumExpression",
+            ),
+        ),
+    )
+
+    from shuxueshuo_server.solver.runtime.recipe_compiler import _point_value_path_for_step
+
+    assert _point_value_path_for_step("point:problem:B", step, index) == "$question.ii.outputs.B_coordinate_in_a"
 
 
 def test_method_outputs_for_step_uses_declared_companion_outputs() -> None:
@@ -3299,6 +6236,471 @@ def test_method_binding_registry_accepts_injected_selector() -> None:
     assert rules.bind("synthetic_method", step, index) == {
         "value": "$problem.symbols.a",
     }
+
+
+def test_equal_length_ray_binding_uses_structured_canonical_facts() -> None:
+    """射线上截等长点的 binding 应从 canonical fact payload 推断角色。"""
+    problem = load_problem_ir(HEPING_FIXTURE)
+    index = CanonicalRuntimeBindingIndex.from_context(
+        ContextBuilder().build(problem),
+        handle_registry=CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem()),
+        question_goals=extract_question_goals(problem),
+    )
+    # 本单测只验证角色推断；B/C/D 的实际坐标由前序 steps/runtime 提供。
+    index.register("point:problem:B", "$problem.points.B", "Point", source="test")
+    index.register("point:problem:C", "$problem.points.C", "Point", source="test")
+    index.register("point:problem:D", "$problem.points.D", "Point", source="test")
+    index.register("point:ii:G", "$question.ii.points.G", "PointRef", source="test")
+    step = _step(
+        scope_id="ii",
+        step_id="construct_equal_length_ray_point",
+        recipe_hint="equal_length_ray_point",
+        goal_type="derive_equal_length_constructed_point",
+        target="point:ii:G",
+        reads=(
+            "fact:ii:M_on_segment_BC",
+            "fact:ii:N_on_ray_CD",
+            "fact:ii:CN_eq_CM",
+        ),
+    )
+    rules = MethodBindingRuleRegistry(
+        (
+            MethodBindingRuleSpec(
+                method_id="equal_length_ray_point",
+                input_bindings=(
+                    MethodInputBindingSpec("anchor", "equal_length_ray:anchor"),
+                    MethodInputBindingSpec("reference_point", "equal_length_ray:reference_point"),
+                    MethodInputBindingSpec("ray_point", "equal_length_ray:ray_point"),
+                    MethodInputBindingSpec("target", "equal_length_ray:target"),
+                ),
+            ),
+        )
+    )
+
+    inputs = rules.bind("equal_length_ray_point", step, index)
+
+    assert inputs["anchor"] == "$problem.points.C"
+    assert inputs["reference_point"] == "$problem.points.B"
+    assert inputs["ray_point"] == "$problem.points.D"
+    assert inputs["target"] == "$question.ii.points.G"
+
+
+def test_angle_sum_binding_uses_structured_canonical_fact_payload() -> None:
+    """角和 binding 应读取 canonical fact 的 angle_terms，而不是解析 fact handle。"""
+    problem = load_problem_ir(HEPING_FIXTURE)
+    index = CanonicalRuntimeBindingIndex.from_context(
+        ContextBuilder().build(problem),
+        handle_registry=CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem()),
+        question_goals=extract_question_goals(problem),
+    )
+    index.register("point:problem:A", "$problem.points.A", "Point", source="test")
+    index.register("point:problem:B", "$problem.points.B", "Point", source="test")
+    index.register("point:problem:C", "$problem.points.C", "Point", source="test")
+    index.register("point:problem:O", "$problem.points.O", "Point", source="test")
+    index.register("point:i_2:F", "$subquestion.i_2.points.F", "PointRef", source="test")
+    step = _step(
+        scope_id="i_2",
+        step_id="derive_equal_angle",
+        recipe_hint="angle_sum_equal_angle_candidates",
+        goal_type="derive_equal_angle",
+        target="point:i_2:F",
+        reads=("fact:i_2:angle_sum_CBE_ACO_45",),
+    )
+    rules = MethodBindingRuleRegistry(
+        (
+            MethodBindingRuleSpec(
+                method_id="angle_sum_equal_angle_candidates",
+                input_bindings=(
+                    MethodInputBindingSpec("condition", "angle_sum:condition"),
+                    MethodInputBindingSpec("x_axis_point", "angle_sum:x_axis_point"),
+                    MethodInputBindingSpec("y_axis_point", "angle_sum:y_axis_point"),
+                    MethodInputBindingSpec("reference_x_axis_point", "angle_sum:reference_x_axis_point"),
+                    MethodInputBindingSpec("origin", "angle_sum:origin"),
+                    MethodInputBindingSpec("target", "angle_sum:target"),
+                ),
+            ),
+        )
+    )
+
+    inputs = rules.bind("angle_sum_equal_angle_candidates", step, index)
+
+    assert inputs["condition"] == "$subquestion.i_2.conditions.angle_sum"
+    assert inputs["x_axis_point"] == "$problem.points.B"
+    assert inputs["y_axis_point"] == "$problem.points.C"
+    assert inputs["reference_x_axis_point"] == "$problem.points.A"
+    assert inputs["origin"] == "$problem.points.O"
+    assert inputs["target"] == "$subquestion.i_2.points.F"
+
+
+def test_angle_equality_binding_accepts_structured_payload() -> None:
+    """等角 binding 支持 left_angle/right_angle 结构化 payload。"""
+    problem = load_problem_ir(HEPING_FIXTURE)
+    registry = CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem())
+    fact_handle = "fact:i_2:target_reference_angles_equal"
+    registry.fact_payloads[fact_handle] = {
+        "handle": fact_handle,
+        "type": "angle_equality",
+        "left_angle": "OBF",
+        "right_angle": "ACO",
+    }
+    index = CanonicalRuntimeBindingIndex.from_context(
+        ContextBuilder().build(problem),
+        handle_registry=registry,
+        question_goals=extract_question_goals(problem),
+    )
+    index.register("point:problem:A", "$problem.points.A", "Point", source="test")
+    index.register("point:problem:B", "$problem.points.B", "Point", source="test")
+    index.register("point:problem:C", "$problem.points.C", "Point", source="test")
+    index.register("point:problem:O", "$problem.points.O", "Point", source="test")
+    index.register("point:i_2:F", "$subquestion.i_2.points.F", "PointRef", source="test")
+    index.register(fact_handle, "$subquestion.i_2.outputs.angle_equality", "AngleEquality", source="test")
+    step = _step(
+        scope_id="i_2",
+        step_id="derive_axis_intercept",
+        recipe_hint="axis_intercept_from_equal_acute_angles",
+        goal_type="derive_angle_constructed_point",
+        target="point:i_2:F",
+        reads=(fact_handle,),
+    )
+    rules = MethodBindingRuleRegistry(
+        (
+            MethodBindingRuleSpec(
+                method_id="axis_intercept_from_equal_acute_angles",
+                input_bindings=(
+                    MethodInputBindingSpec("angle_equality", "angle_equality:fact"),
+                    MethodInputBindingSpec("x_axis_point", "angle_equality:x_axis_point"),
+                    MethodInputBindingSpec("y_axis_point", "angle_equality:y_axis_point"),
+                    MethodInputBindingSpec("reference_x_axis_point", "angle_equality:reference_x_axis_point"),
+                    MethodInputBindingSpec("origin", "angle_equality:origin"),
+                    MethodInputBindingSpec("target", "angle_equality:target"),
+                ),
+            ),
+        )
+    )
+
+    inputs = rules.bind("axis_intercept_from_equal_acute_angles", step, index)
+
+    assert inputs["angle_equality"] == "$subquestion.i_2.outputs.angle_equality"
+    assert inputs["x_axis_point"] == "$problem.points.B"
+    assert inputs["y_axis_point"] == "$problem.points.C"
+    assert inputs["reference_x_axis_point"] == "$problem.points.A"
+    assert inputs["origin"] == "$problem.points.O"
+    assert inputs["target"] == "$subquestion.i_2.points.F"
+
+
+def test_axis_intercept_binding_uses_created_point_for_y_intercept_output() -> None:
+    """y_intercept_F_coordinate 这类产物应优先绑定 creates 中的 F 点。"""
+    problem = load_problem_ir(HEPING_FIXTURE)
+    registry = CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem())
+    fact_handle = "fact:i_2:angle_OBF_eq_ACO"
+    index = CanonicalRuntimeBindingIndex.from_context(
+        ContextBuilder().build(problem),
+        handle_registry=registry,
+        question_goals=extract_question_goals(problem),
+    )
+    index.register("point:problem:A", "$problem.points.A", "Point", source="test")
+    index.register("point:problem:B", "$problem.points.B", "Point", source="test")
+    index.register("point:problem:C", "$problem.points.C", "Point", source="test")
+    index.register("point:problem:O", "$problem.points.O", "Point", source="test")
+    index.register("point:i_2:F", "$subquestion.i_2.points.F", "PointRef", source="test")
+    index.register(fact_handle, "$subquestion.i_2.outputs.angle_equality", "AngleEquality", source="test")
+    step = StepIntent(
+        scope_id="i_2",
+        step_id="derive_line_BE_y_intercept_F",
+        recipe_hint="axis_intercept_from_equal_acute_angles",
+        goal_type="derive_axis_intercept",
+        target="line BE y-intercept F",
+        strategy="由等锐角求直线 BE 与 y 轴交点 F。",
+        reads=(fact_handle, "point:problem:B", "point:problem:A", "point:problem:C", "point:problem:O"),
+        creates=(
+            CreatedEntity(
+                handle="point:i_2:F",
+                entity_type="point",
+                valid_scope="i_2",
+                description="直线 BE 与 y 轴的交点",
+            ),
+        ),
+        produces=(
+            ProducedFact(
+                handle="fact:i_2:y_intercept_F_coordinate",
+                valid_scope="i_2",
+                description="F 点坐标",
+                output_type="Point",
+            ),
+        ),
+        reason="旧逻辑会把 semantic name 的第一个 token y 当成点名。",
+    )
+    rules = MethodBindingRuleRegistry(
+        (
+            MethodBindingRuleSpec(
+                method_id="axis_intercept_from_equal_acute_angles",
+                input_bindings=(
+                    MethodInputBindingSpec("angle_equality", "angle_equality:fact"),
+                    MethodInputBindingSpec("x_axis_point", "angle_equality:x_axis_point"),
+                    MethodInputBindingSpec("y_axis_point", "angle_equality:y_axis_point"),
+                    MethodInputBindingSpec("reference_x_axis_point", "angle_equality:reference_x_axis_point"),
+                    MethodInputBindingSpec("origin", "angle_equality:origin"),
+                    MethodInputBindingSpec("target", "angle_equality:target"),
+                ),
+            ),
+        )
+    )
+
+    inputs = rules.bind("axis_intercept_from_equal_acute_angles", step, index)
+
+    assert inputs["target"] == "$subquestion.i_2.points.F"
+
+
+def test_line_parabola_binding_uses_coordinate_fact_as_line_point() -> None:
+    """直线第二点可由 reads 中的点坐标 fact 反推，不要求 LLM 额外 reads point handle。"""
+    problem = load_problem_ir(HEPING_FIXTURE)
+    registry = CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem())
+    index = CanonicalRuntimeBindingIndex.from_context(
+        ContextBuilder().build(problem),
+        handle_registry=registry,
+        question_goals=extract_question_goals(problem),
+    )
+    index.register("point:problem:B", "$problem.points.B", "Point", source="test")
+    index.register("point:i_2:F", "$subquestion.i_2.points.F", "PointRef", source="test")
+    index.register("fact:i_2:F_coordinate", "$subquestion.i_2.outputs.F_coordinate", "Point", source="test")
+    index.register("point:i_2:E", "$subquestion.i_2.points.E", "PointRef", source="test")
+    step = _step(
+        scope_id="i_2",
+        step_id="derive_E_coordinate",
+        recipe_hint="line_parabola_second_intersection_point",
+        goal_type="derive_curve_intersection_point",
+        target="answer:i_2_E",
+        reads=(
+            "point:problem:B",
+            "fact:i_2:F_coordinate",
+            "point:i_2:E",
+            "fact:i_2:E_on_parabola_with_x_m",
+        ),
+        produces=(
+            ProducedFact(
+                "answer:i_2_E",
+                "i_2",
+                "E 的坐标",
+                output_type="Point",
+            ),
+        ),
+    )
+    rules = MethodBindingRuleRegistry(
+        (
+            MethodBindingRuleSpec(
+                method_id="line_parabola_second_intersection_point",
+                input_bindings=(
+                    MethodInputBindingSpec("line_p1", "line_parabola:line_p1"),
+                    MethodInputBindingSpec("line_p2", "line_parabola:line_p2"),
+                    MethodInputBindingSpec("known_point", "line_parabola:known_point"),
+                    MethodInputBindingSpec("target", "line_parabola:target"),
+                ),
+            ),
+        )
+    )
+
+    inputs = rules.bind("line_parabola_second_intersection_point", step, index)
+
+    assert inputs["line_p1"] == "$problem.points.B"
+    assert inputs["line_p2"] == "$subquestion.i_2.outputs.F_coordinate"
+    assert inputs["known_point"] == "$problem.points.B"
+    assert inputs["target"] == "$subquestion.i_2.points.E"
+
+
+def test_recipe_trial_executor_diagnostic_reports_blocker_and_skipped_steps() -> None:
+    """执行诊断应保留首个 blocker 与后续 skipped step，而不是只抛异常文本。"""
+    problem = load_problem_ir(HEPING_FIXTURE)
+    inputs = _heping_inputs()
+    registry = CanonicalHandleRegistry.from_problem_payload(_heping_llm_problem())
+    failing_step = _step(
+        scope_id="i_2",
+        step_id="derive_E_point",
+        recipe_hint="line_parabola_second_intersection_point",
+        goal_type="derive_curve_intersection_point",
+        target="answer:i_2_E",
+        reads=(
+            "point:problem:B",
+            "function:problem:parabola",
+            "point:i_2:E",
+            "fact:i_2:E_on_parabola_with_x_m",
+        ),
+        produces=(
+            ProducedFact("answer:i_2_E", "i_2", "E 点坐标", output_type="Point"),
+        ),
+    )
+    later_step = _step(
+        scope_id="ii",
+        step_id="derive_path_minimum",
+        recipe_hint="equal_length_ray_path_reduction",
+        goal_type="derive_path_minimum_expression",
+        target="fact:ii:path_minimum_expression",
+        reads=("fact:ii:path_minimum_target",),
+        produces=(
+            ProducedFact(
+                "fact:ii:path_minimum_expression",
+                "ii",
+                "路径最小值表达式",
+                output_type="MinimumExpression",
+            ),
+        ),
+    )
+
+    output, diagnostic, effective = RecipeTrialExecutor().diagnose(
+        StepIntentDraft(
+            scopes=(
+                StepIntentScope(scope_id="i_2", label="第（Ⅰ）②问", steps=(failing_step,)),
+                StepIntentScope(scope_id="ii", label="第（Ⅱ）问", steps=(later_step,)),
+            )
+        ),
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=registry,
+        context=ContextBuilder().build(problem),
+        question_goals=inputs.question_goals,
+    )
+
+    assert output is None
+    assert effective.steps[0].step_id == "derive_E_point"
+    assert diagnostic.ok is False
+    assert diagnostic.first_blocker is not None
+    assert diagnostic.first_blocker.step_id == "derive_E_point"
+    assert diagnostic.skipped_steps[0].step_id == "derive_path_minimum"
+
+
+def test_step_intent_repair_attempt_payload_is_safe() -> None:
+    """previous_attempts 不应包含 RuntimePath、traceback 或 expected answer。"""
+    diagnostic = StepIntentExecutionDiagnostic(
+        ok=False,
+        accepted_prefix=(
+            StepIntentAcceptedStep(
+                step_id="derive_B_coordinate",
+                scope_id="i",
+                capability_id="quadratic_x_axis_intercept_point",
+                method_ids=("quadratic_x_axis_intercept_point",),
+                produced_handles=("fact:i:B_coordinate",),
+            ),
+        ),
+        applied_fills=(
+            StepIntentAppliedFill(
+                step_id="derive_E_point",
+                scope_id="i_2",
+                input_handle="point:problem:B",
+                required_type="Point",
+                resolved_handle="fact:i:B_coordinate",
+                reason="unique_visible_entity_state",
+            ),
+        ),
+        blockers=(
+            StepIntentExecutionBlocker(
+                step_id="derive_E_point",
+                scope_id="i_2",
+                stage="recipe_trial",
+                code="missing_line_parabola_inputs",
+                message="缺少可确定直线的另一个点",
+            ),
+        ),
+    )
+    repair = StepIntentRepairAttempt(
+        attempt=1,
+        effective_draft=_single_scope_draft(
+            _step(
+                scope_id="i_2",
+                step_id="derive_E_point",
+                recipe_hint="line_parabola_second_intersection_point",
+                goal_type="derive_curve_intersection_point",
+                target="answer:i_2_E",
+            ),
+            scope_id="i_2",
+        ).to_payload(),
+        diagnostic=diagnostic,
+        repair_instruction="从 derive_E_point 开始修复。",
+        errors=("recipe_trial_step_failed:derive_E_point",),
+    )
+
+    serialized = json.dumps(repair.to_payload(), ensure_ascii=False)
+
+    assert "effective_draft" in serialized
+    assert "point:problem:B" in serialized
+    assert "fact:i:B_coordinate" in serialized
+    assert "$problem" not in serialized
+    assert "$question" not in serialized
+    assert "traceback" not in serialized.lower()
+    assert "expected" not in serialized.lower()
+
+
+def test_previous_attempts_keep_rich_context_when_latest_error_is_thin() -> None:
+    """validation 早失败不能覆盖上一轮 rich effective draft。"""
+    rich_attempt = {
+        "attempt": 1,
+        "effective_draft": _single_scope_draft(
+            _step(
+                scope_id="i_2",
+                step_id="derive_E_coordinate",
+                recipe_hint="line_parabola_second_intersection_point",
+                goal_type="derive_curve_intersection_point",
+                target="answer:i_2_E",
+            ),
+            scope_id="i_2",
+        ).to_payload(),
+        "diagnostic": {
+            "ok": False,
+            "accepted_prefix": [
+                {
+                    "step_id": "derive_E_coordinate",
+                    "scope_id": "i_2",
+                    "capability_id": "line_parabola_second_intersection_point",
+                }
+            ],
+            "blockers": [],
+        },
+        "repair_instruction": "保留 accepted prefix。",
+        "errors": ["recipe_trial_step_failed: derive_B_coordinate_ii"],
+    }
+
+    class ThinPlanner:
+        def repair_attempt_payload(self, *, attempt: int, errors: list[str]) -> dict[str, object]:
+            return {
+                "attempt": attempt,
+                "effective_draft": None,
+                "diagnostic": None,
+                "errors": tuple(errors),
+                "repair_instruction": "修复 validation error。",
+            }
+
+    latest_error = StructuredSolveError(
+        stage="planning",
+        code="planner_error",
+        message="duplicate_created_entity: point:i_2:F",
+    )
+
+    merged = _next_previous_errors([rich_attempt], ThinPlanner(), 2, latest_error)
+
+    assert merged[0] == rich_attempt
+    assert merged[1]["attempt"] == 2
+    assert merged[1]["effective_draft"] is None
+    assert _last_previous_attempt(merged) == rich_attempt
+
+
+def test_strategy_planner_keeps_raw_response_and_validation_report_on_validation_failure() -> None:
+    """DeepSeek raw 输出 validation 失败时仍应保留 debug artifact 数据。"""
+    class InvalidJsonClient:
+        def complete(self, _payload: object) -> str:
+            return "{not valid strategy json"
+
+    problem = load_problem_ir(HEPING_FIXTURE)
+    planner = StrategyPlanner(
+        ContextBuilder().build(problem),
+        mode="deepseek",
+        client=InvalidJsonClient(),
+    )
+
+    with pytest.raises(StrategyDraftValidationError, match="strategy_validation_failed"):
+        planner.plan(_heping_inputs())
+
+    assert planner.last_raw_response == "{not valid strategy json"
+    assert planner.last_validation_report is not None
+    assert getattr(planner.last_validation_report, "ok") is False
+    assert planner.last_draft is None
 
 
 def test_strategy_runtime_has_no_nankai_answer_or_point_name_shortcuts() -> None:

@@ -164,7 +164,10 @@ def test_deepseek_attempt_3_step_intents_are_normalized_and_solve(monkeypatch: p
         "iii": {"b": "2"},
     }
     normalization = captured["normalization_report"]
-    assert normalization.changed is False
+    assert all(
+        action.action == "normalize_parabola_equation_output_type"
+        for action in normalization.actions
+    )
     methods_by_step = _method_ids_by_step(captured["planner_output"])
     assert methods_by_step["derive_ii_D_candidates"] == [
         "right_angle_equal_length_candidates",
@@ -308,7 +311,9 @@ def test_deepseek_strategy_planner_hexi_full_loop() -> None:
 
     for attempt_index in range(1, MAX_DEEPSEEK_ATTEMPTS + 1):
         current_inputs = replace(inputs, previous_errors=list(previous_attempts))
-        payload = StrategyPayloadBuilder().build(
+        payload = StrategyPayloadBuilder(
+            allow_same_problem_few_shot=False
+        ).build(
             current_inputs,
             problem_payload=llm_problem,
         )

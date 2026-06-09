@@ -30,6 +30,7 @@ from shuxueshuo_server.solver.runtime.models import (
     PointRef,
     StepExecutionResult,
     StepPlan,
+    runtime_type_matches,
 )
 
 
@@ -188,7 +189,7 @@ class PlanValidator:
                 # 这条规则防止 Planner 把坐标答案直接塞进 invocation。
                 raise ValueError(f"input {input_name} must be a ContextPath")
             if raw_path in produced_types:
-                if produced_types[raw_path] != input_spec.type:
+                if not runtime_type_matches(input_spec.type, produced_types[raw_path]):
                     raise TypeError(
                         f"path {raw_path} expected {input_spec.type}, got {produced_types[raw_path]}"
                     )

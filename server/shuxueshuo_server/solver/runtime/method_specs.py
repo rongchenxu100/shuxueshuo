@@ -160,6 +160,7 @@ def _resolve_spec_dir(path: str | Path | None) -> Path:
 
 
 _KNOWN_TYPES = {
+    "AngleEquality",
     "Condition",
     "Constraint",
     "Coefficients",

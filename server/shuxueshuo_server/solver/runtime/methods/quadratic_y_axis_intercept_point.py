@@ -57,7 +57,7 @@ SPEC = MethodSpecSource(
     summary="输入: 抛物线表达式，可含未定系数；输出: x=0 时的 y 轴交点，坐标可保留参数。",
     solves=("derive_quadratic_y_axis_intercept_point",),
     inputs={
-        "quadratic": {"type": "Parabola", "required": True},
+        "quadratic": {"type": "Expression", "required": True},
         "x": {"type": "Symbol", "required": True},
         "target": {"type": "PointRef", "required": True},
     },

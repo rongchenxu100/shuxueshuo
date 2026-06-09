@@ -55,11 +55,16 @@ def test_deepseek_client_uses_openai_compatible_arguments() -> None:
 
     assert output == '{"steps": []}'
     assert factory_calls == [
-        {"api_key": "test-key", "base_url": "https://api.deepseek.com"}
+        {
+            "api_key": "test-key",
+            "base_url": "https://api.deepseek.com",
+            "timeout": 120.0,
+        }
     ]
     assert fake_client.create_kwargs is not None
     assert fake_client.create_kwargs["model"] == "deepseek-v4-flash"
     assert fake_client.create_kwargs["temperature"] == 0.0
+    assert fake_client.create_kwargs["timeout"] == 120.0
     assert fake_client.create_kwargs["messages"][0]["role"] == "system"
     assert "QuadraticPathMinimumSolver" in fake_client.create_kwargs["messages"][1]["content"]
     assert client.last_usage == {

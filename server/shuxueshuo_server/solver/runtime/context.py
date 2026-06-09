@@ -35,6 +35,7 @@ from shuxueshuo_server.solver.runtime.models import (
     PointRef,
     RuntimeScope,
     TypedValue,
+    runtime_type_matches,
 )
 
 
@@ -155,7 +156,7 @@ class RuntimeContext:
                 locked=value.locked,
                 source=value.source,
             )
-        if expected_type is not None and value.type != expected_type:
+        if expected_type is not None and not runtime_type_matches(expected_type, value.type):
             raise TypeError(
                 f"path {raw_path} expected {expected_type}, got {value.type}"
             )
@@ -273,9 +274,9 @@ class RuntimeContext:
     ) -> Point:
         """把 ``Point`` 或可推导的 ``PointRef`` 解析成 SymPy 坐标。
 
-        首版只支持安全、局部、确定的点定义：显式坐标、对称轴交点、y 轴交点、
-        顶点和中点。像“直角等腰派生点”这种真正需要 method 的定义会保持 unresolved，
-        交给 planner/executor 处理。
+        首版只支持安全、局部、确定的点定义：显式坐标、坐标原点、对称轴交点、
+        y 轴交点、顶点、平移点和中点。像“直角等腰派生点”这种真正需要 method
+        的定义会保持 unresolved，交给 planner/executor 处理。
         """
         if value.type == "Point":
             return value.value
@@ -284,12 +285,25 @@ class RuntimeContext:
         point_ref: PointRef = value.value
         definition = point_ref.definition
         kind = definition.get("definition")
+        if kind == "coordinate_origin":
+            return (sp.Integer(0), sp.Integer(0))
         if kind == "axis_x_intercept":
             return self._axis_x_intercept()
         if kind == "y_axis_intercept":
             return self._y_axis_intercept()
         if kind == "vertex":
             return self._vertex()
+        if kind == "translated_point":
+            source = str(definition.get("of") or definition.get("source") or "")
+            if not source:
+                raise ValueError(f"translated point {point_ref.name} requires source point")
+            base = self.resolve_named_point(source, from_scope_id=from_scope_id)
+            raw_vector = definition.get("vector", [definition.get("dx", "0"), definition.get("dy", "0")])
+            if not isinstance(raw_vector, list) or len(raw_vector) != 2:
+                raise ValueError(f"translated point {point_ref.name} requires 2D vector")
+            dx = self.kernel.expr(raw_vector[0], self.symbols)
+            dy = self.kernel.expr(raw_vector[1], self.symbols)
+            return (sp.simplify(base[0] + dx), sp.simplify(base[1] + dy))
         if kind == "midpoint":
             p1, p2 = definition["of"]
             pt1 = self.resolve_named_point(str(p1), from_scope_id=from_scope_id)
@@ -600,6 +614,14 @@ class ContextBuilder:
         - 无法判断时退回 problem，保证可见但不做解法假设。
         """
         definition = raw.get("definition")
+        if raw.get("scope_id") == "problem" and "coordinate" in raw:
+            return "problem"
+        if raw.get("scope_id") == "problem" and definition in {
+            "coordinate_origin",
+            "y_axis_intercept",
+            "translated_point",
+        }:
+            return "problem"
         if definition == "axis_x_intercept":
             return "problem"
         if definition == "midpoint":

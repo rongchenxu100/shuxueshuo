@@ -251,4 +251,3 @@ server/logs/solver-gaps/YYYY-MM-DD.gaps.jsonl
 - Fallback 与受控 LLM Planner 共用 provider/config，但 prompt、schema、日志和验收独立。
 - 多模态图片输入仍先进入 ProblemIR/DiagramIR 抽取，不直接进入 Fallback Solver。
 - 实现 `status="fallback"` 与 fallback 元字段时，需要同步更新 `docs/method-solver-architecture.md` 的执行/结果语义。
-

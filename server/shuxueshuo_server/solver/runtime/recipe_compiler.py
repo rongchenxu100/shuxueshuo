@@ -30,13 +30,18 @@ from shuxueshuo_server.solver.runtime.models import (
 )
 from shuxueshuo_server.solver.runtime.handle_registry import (
     CanonicalHandleRegistry,
+    _handle_name,
     _handle_scope,
     _semantic_name,
 )
 from shuxueshuo_server.solver.runtime.strategy_models import (
     ProducedFact,
     StepIntent,
+    StepIntentAcceptedStep,
     StepIntentDraft,
+    StepIntentExecutionBlocker,
+    StepIntentExecutionDiagnostic,
+    StepIntentSkippedStep,
     StrategyDraftValidationError,
 )
 from shuxueshuo_server.solver.runtime.strategy_normalizer import StepIntentNormalizer
@@ -64,7 +69,11 @@ from shuxueshuo_server.solver.runtime.binding_rules import (
     _path_for_readable_type,
     _path_for_readable_type_or_none,
     _point_output_handle,
+    _length_endpoint_handles,
+    _other_endpoint_handle,
+    _payload_handle,
     _right_angle_roles,
+    _segment_endpoints_from_entity_payload,
     _straightening_point_roles,
     _weighted_auxiliary_point_handle_for_step,
 )
@@ -219,6 +228,38 @@ class RecipeTrialExecutor:
         question_goals: list[QuestionGoal] | tuple[QuestionGoal, ...],
     ) -> PlannerOutput:
         """根据 StepIntent 生成 PlannerOutput。"""
+        output, diagnostic, _effective_draft = self.diagnose(
+            draft,
+            family_spec=family_spec,
+            method_specs=method_specs,
+            handle_registry=handle_registry,
+            context=context,
+            question_goals=question_goals,
+        )
+        if output is not None:
+            return output
+        blocker = diagnostic.first_blocker
+        if blocker is not None:
+            raise StrategyDraftValidationError(
+                f"recipe_trial_step_failed: step={blocker.step_id}, "
+                f"errors={list(blocker.capability_errors)}"
+            )
+        raise StrategyDraftValidationError(
+            "recipe_trial_candidate_resolution_failed: "
+            + json.dumps(diagnostic.candidate_errors, ensure_ascii=False)
+        )
+
+    def diagnose(
+        self,
+        draft: StepIntentDraft,
+        *,
+        family_spec: SolverFamilySpec,
+        method_specs: MethodSpecRegistry,
+        handle_registry: CanonicalHandleRegistry,
+        context: RuntimeContext,
+        question_goals: list[QuestionGoal] | tuple[QuestionGoal, ...],
+    ) -> tuple[PlannerOutput | None, StepIntentExecutionDiagnostic, StepIntentDraft]:
+        """编译 StepIntent，并返回 effective draft 的执行诊断。"""
         draft, _normalization_report = StepIntentNormalizer().normalize(
             draft,
             family_spec=family_spec,
@@ -232,10 +273,19 @@ class RecipeTrialExecutor:
             handle_registry=handle_registry,
         )
         if not resolution_report.ok:
-            raise StrategyDraftValidationError(
-                "recipe_trial_candidate_resolution_failed: "
-                + json.dumps(resolution_report.errors, ensure_ascii=False)
+            diagnostic = StepIntentExecutionDiagnostic(
+                ok=False,
+                candidate_errors=tuple(resolution_report.errors),
+                skipped_steps=tuple(
+                    StepIntentSkippedStep(
+                        step_id=step.step_id,
+                        scope_id=step.scope_id,
+                        reason="candidate_resolution_failed",
+                    )
+                    for step in draft.steps
+                ),
             )
+            return None, diagnostic, draft
         index = CanonicalRuntimeBindingIndex.from_context(
             context,
             handle_registry=handle_registry,
@@ -252,7 +302,8 @@ class RecipeTrialExecutor:
             binding_rules=binding_rules,
             recipe_compilers=self.recipe_compilers,
         )
-        return compiler.compile(draft)
+        output, diagnostic = compiler.diagnose(draft)
+        return output, diagnostic, draft
 
 class _RecipePlanCompiler:
     """StepIntent -> StepPlan 的通用编译器。"""
@@ -281,10 +332,31 @@ class _RecipePlanCompiler:
 
     def compile(self, draft: StepIntentDraft) -> PlannerOutput:
         """按 LLM 输出顺序编译并 dry-run prefix。"""
+        output, diagnostic = self.diagnose(draft)
+        if output is not None:
+            return output
+        blocker = diagnostic.first_blocker
+        if blocker is not None:
+            raise StrategyDraftValidationError(
+                f"recipe_trial_step_failed: step={blocker.step_id}, "
+                f"errors={list(blocker.capability_errors)}"
+            )
+        raise StrategyDraftValidationError(
+            "recipe_trial_candidate_resolution_failed: "
+            + json.dumps(diagnostic.candidate_errors, ensure_ascii=False)
+        )
+
+    def diagnose(
+        self,
+        draft: StepIntentDraft,
+    ) -> tuple[PlannerOutput | None, StepIntentExecutionDiagnostic]:
+        """按顺序编译并记录 accepted prefix 与首个 runtime blocker。"""
         plans: list[StepPlan] = []
         declarations: list[Any] = []
         seen_plan_keys: set[str] = set()
-        for step in draft.steps:
+        accepted: list[StepIntentAcceptedStep] = []
+        steps = list(draft.steps)
+        for index, step in enumerate(steps):
             candidate_errors: list[str] = []
             for capability_id in self._capability_ids_for_step(step):
                 try:
@@ -298,14 +370,55 @@ class _RecipePlanCompiler:
                     plans.append(compiled.plan)
                     seen_plan_keys.add(key)
                     self._apply_registrations(compiled)
+                    accepted.append(
+                        StepIntentAcceptedStep(
+                            step_id=step.step_id,
+                            scope_id=step.scope_id,
+                            capability_id=capability_id,
+                            method_ids=tuple(
+                                invocation.method_id
+                                for invocation in compiled.plan.invocations
+                            ),
+                            produced_handles=tuple(
+                                produced.handle for produced in step.produces
+                            ),
+                        )
+                    )
                     break
                 except Exception as exc:
                     candidate_errors.append(f"{capability_id}: {exc}")
             else:
-                raise StrategyDraftValidationError(
-                    f"recipe_trial_step_failed: step={step.step_id}, errors={candidate_errors}"
+                blocker = StepIntentExecutionBlocker(
+                    step_id=step.step_id,
+                    scope_id=step.scope_id,
+                    stage="recipe_trial",
+                    code=_execution_blocker_code(candidate_errors),
+                    message=_execution_blocker_message(step.step_id, candidate_errors),
+                    capability_errors=tuple(candidate_errors),
                 )
-        return PlannerOutput(context_declarations=declarations, step_plans=plans)
+                skipped = tuple(
+                    StepIntentSkippedStep(
+                        step_id=later.step_id,
+                        scope_id=later.scope_id,
+                        reason=f"skipped_due_to_prefix_blocker:{step.step_id}",
+                    )
+                    for later in steps[index + 1:]
+                )
+                return None, StepIntentExecutionDiagnostic(
+                    ok=False,
+                    accepted_prefix=tuple(accepted),
+                    applied_fills=tuple(self.index.applied_fills),
+                    blockers=(blocker,),
+                    skipped_steps=skipped,
+                )
+        return PlannerOutput(
+            context_declarations=declarations,
+            step_plans=plans,
+        ), StepIntentExecutionDiagnostic(
+            ok=True,
+            accepted_prefix=tuple(accepted),
+            applied_fills=tuple(self.index.applied_fills),
+        )
 
     def _capability_ids_for_step(self, step: StepIntent) -> list[str]:
         """返回某个 step 的候选 capability 顺序。"""
@@ -339,6 +452,9 @@ class _RecipePlanCompiler:
         """编译单 method step。"""
         spec = self.method_specs.require(method_id)
         declaration_keys_before = set(self.index.declarations)
+        for created in step.creates:
+            if created.entity_type == "point" and created.handle not in self.index.bindings:
+                self.index.register_created_entity(created)
         prep = PrepInvocationBuilder(
             binding_rules=self.binding_rules,
             index=self.index,
@@ -404,6 +520,17 @@ class _RecipePlanCompiler:
                 self.binding_rules,
             )
         )
+        for created in step.creates:
+            binding = self.index.bindings.get(created.handle)
+            if created.entity_type == "point" and binding is not None and binding.path in promote.values():
+                registrations.append(
+                    RuntimeHandleBinding(
+                        created.handle,
+                        binding.path,
+                        "Point",
+                        f"step:{step.step_id}",
+                    )
+                )
         declarations = tuple(
             declaration
             for key, declaration in self.index.declarations.items()
@@ -629,6 +756,81 @@ class _RecipePlanCompiler:
         ]
         return _CompiledStep(plan=plan, registrations=tuple(registrations))
 
+    def _compile_equal_length_ray_path_reduction_recipe(self, step: StepIntent) -> _CompiledStep:
+        """编译“等长射线路径降维为单距离最值” recipe。
+
+        这个 recipe 面向 LLM 是一个高层标准动作：把“两动点距离和”转化为一个
+        固定点到内部辅助点的距离最值。runtime 内部仍复用低层
+        ``equal_length_ray_point`` 与 ``distance_between_points`` method，并由
+        compiler 自动声明辅助点，避免让 LLM 自己命名/创建辅助点。
+        """
+        roles = _equal_length_ray_path_reduction_roles(step, self.index)
+        auxiliary_path = _generated_equal_length_auxiliary_point_path(step, self.index)
+        declaration = _point_declaration_for_path(
+            self.index.context,
+            auxiliary_path,
+            definition="equal_length_ray_path_auxiliary_point",
+        )
+        self.index.declarations[auxiliary_path] = declaration
+        auxiliary_point = _temp(step.step_id, "equal_length_auxiliary_point")
+        distance = _temp(step.step_id, "distance")
+        minimum_target = _minimum_expression_target_path(step, self.index)
+        invocations = [
+            MethodInvocation(
+                invocation_id=f"{step.step_id}.equal_length_ray_point",
+                method_id="equal_length_ray_point",
+                scope=step.step_id,
+                inputs={
+                    "anchor": _point_value_path_for_step(roles["anchor"], step, self.index),
+                    "reference_point": _point_value_path_for_step(
+                        roles["reference_point"],
+                        step,
+                        self.index,
+                    ),
+                    "ray_point": _point_value_path_for_step(roles["ray_point"], step, self.index),
+                    "target": auxiliary_path,
+                },
+                outputs={"point": auxiliary_point},
+            ),
+            MethodInvocation(
+                invocation_id=f"{step.step_id}.distance_between_points",
+                method_id="distance_between_points",
+                scope=step.step_id,
+                inputs={
+                    "p1": _point_value_path_for_step(roles["fixed_point"], step, self.index),
+                    "p2": auxiliary_point,
+                },
+                outputs={"distance": distance},
+            ),
+        ]
+        promote = {
+            auxiliary_point: auxiliary_path,
+            distance: minimum_target,
+        }
+        plan = StepPlan(
+            step_id=step.step_id,
+            goal=StepGoal(
+                goal_id=f"{step.goal_type}:{step.step_id}",
+                type=step.goal_type,
+                target_path=minimum_target,
+                scope_id=step.scope_id,
+            ),
+            scope=step.scope_id,
+            invocations=invocations,
+            expected_outputs=list(promote.values()),
+            promote_outputs=promote,
+        )
+        registrations = tuple(
+            RuntimeHandleBinding(item.handle, minimum_target, "MinimumExpression", f"step:{step.step_id}")
+            for item in step.produces
+            if _produced_output_type(item, self.index.handle_registry) == "MinimumExpression"
+        )
+        return _CompiledStep(
+            plan=plan,
+            declarations=(declaration,),
+            registrations=registrations,
+        )
+
     def _apply_registrations(self, compiled: _CompiledStep) -> None:
         """把已通过 dry-run 的输出 alias 写回 index。"""
         for declaration in compiled.declarations:
@@ -703,12 +905,236 @@ def _compile_straightening_candidates_select_recipe(
     return compiler._compile_straightening_recipe(step)
 
 
+def _compile_equal_length_ray_path_reduction_recipe(
+    compiler: _RecipePlanCompiler,
+    step: StepIntent,
+    recipe: FamilyRecipeExecutionSpec,
+) -> _CompiledStep:
+    """编译等长射线路径降维 recipe。"""
+    return compiler._compile_equal_length_ray_path_reduction_recipe(step)
+
+
 DEFAULT_RECIPE_COMPILERS: dict[str, RecipeCompileStrategyFn] = {
     "single_method": _compile_single_method_recipe,
     "right_angle_construct_select": _compile_right_angle_construct_select_recipe,
     "curve_candidate_parameter_solve": _compile_curve_candidate_parameter_solve_recipe,
     "straightening_candidates_select": _compile_straightening_candidates_select_recipe,
+    "equal_length_ray_path_reduction": _compile_equal_length_ray_path_reduction_recipe,
 }
+
+
+def _equal_length_ray_path_reduction_roles(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> dict[str, str]:
+    """从 canonical facts 推断等长射线路径降维角色。
+
+    返回:
+    - ``anchor``: 等长关系的公共端点，也是射线端点；
+    - ``ray_point``: 射线方向点；
+    - ``reference_point``: 线段另一端，低层等长构造使用；
+    - ``fixed_point``: 原路径中连接线段动点的固定端点，最终与辅助点求距离。
+
+    该推断只依赖结构化 ``point_on_segment``、``point_on_ray``、
+    ``equal_length_condition`` 与 ``path_minimum_target``，不使用和平题点名。
+    """
+    ray_fact = index.fact_handle_by_type("point_on_ray", step=step)
+    segment_fact = index.fact_handle_by_type("point_on_segment", step=step)
+    equal_fact = index.fact_handle_by_type("equal_length_condition", step=step)
+    target_fact = index.fact_handle_by_type("path_minimum_target", step=step)
+
+    ray_payload = index.fact_payload(ray_fact)
+    segment_payload = index.fact_payload(segment_fact)
+    equal_payload = index.fact_payload(equal_fact)
+    target_payload = index.fact_payload(target_fact)
+
+    ray_dynamic_point = _payload_handle(ray_payload, "point", context=ray_fact)
+    ray_handle = _payload_handle(ray_payload, "ray", context=ray_fact)
+    ray_entity = index.entity_payload(ray_handle)
+    ray_origin = _payload_handle(ray_entity, "origin", context=ray_handle)
+    ray_through = _payload_handle(ray_entity, "through", context=ray_handle)
+
+    segment_dynamic_point = _payload_handle(segment_payload, "point", context=segment_fact)
+    segment_handle = _payload_handle(segment_payload, "segment", context=segment_fact)
+    segment_endpoints = _segment_endpoints_from_entity_payload(index, segment_handle)
+
+    left = _length_endpoint_handles(equal_payload.get("left"), step, index, context=f"{equal_fact}.left")
+    right = _length_endpoint_handles(equal_payload.get("right"), step, index, context=f"{equal_fact}.right")
+    common = set(left) & set(right)
+    if len(common) != 1:
+        raise StrategyDraftValidationError(f"equal_length_common_anchor_not_found: {equal_fact}")
+    anchor = next(iter(common))
+    if anchor != ray_origin:
+        raise StrategyDraftValidationError(
+            f"equal_length_ray_anchor_mismatch: {ray_fact}:{equal_fact}"
+        )
+    if anchor not in segment_endpoints:
+        raise StrategyDraftValidationError(
+            f"equal_length_segment_anchor_mismatch: {segment_fact}:{equal_fact}"
+        )
+    if ray_dynamic_point not in left and ray_dynamic_point not in right:
+        raise StrategyDraftValidationError(
+            f"equal_length_ray_dynamic_point_mismatch: {ray_fact}:{equal_fact}"
+        )
+    if segment_dynamic_point not in left and segment_dynamic_point not in right:
+        raise StrategyDraftValidationError(
+            f"equal_length_segment_dynamic_point_mismatch: {segment_fact}:{equal_fact}"
+        )
+    reference_point = _segment_reference_point(segment_endpoints, anchor, context=segment_fact)
+    fixed_point, path_reference_point = _fixed_and_reference_from_path_target(
+        target_payload,
+        segment_dynamic_point=segment_dynamic_point,
+        ray_dynamic_point=ray_dynamic_point,
+        step=step,
+        index=index,
+        context=target_fact,
+    )
+    if path_reference_point != reference_point:
+        raise StrategyDraftValidationError(
+            "equal_length_path_reference_mismatch: "
+            f"path={path_reference_point}, segment_reference={reference_point}"
+        )
+    return {
+        "anchor": anchor,
+        "ray_point": ray_through,
+        "reference_point": reference_point,
+        "fixed_point": fixed_point,
+    }
+
+
+def _point_value_path_for_step(
+    point_handle: str,
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> str:
+    """读取点值 path，优先使用 step 显式 reads 的同名坐标 fact。
+
+    对某些题，ProblemIR 中的点是全题实体，但它在当前问才被求成含参坐标。
+    例如 ``point:problem:B`` 的第（Ⅱ）问坐标会以
+    ``fact:ii:B_coordinate_expr`` 出现。recipe 内部低层 method 需要的是点值，
+    所以这里优先使用当前 step 已读入的坐标 fact。
+    """
+    point_name = _handle_name(point_handle)
+    for handle in step.reads:
+        if not handle.startswith("fact:"):
+            continue
+        if not _is_point_coordinate_semantic_name(_semantic_name(handle)):
+            continue
+        if _semantic_name(handle).split("_coordinate", 1)[0] != point_name:
+            continue
+        binding = index.bindings.get(handle)
+        if binding is not None and binding.value_type == "Point":
+            return binding.path
+    return index.path_for(point_handle, expected_type="Point")
+
+
+def _segment_reference_point(
+    endpoints: tuple[str, str],
+    anchor: str,
+    *,
+    context: str,
+) -> str:
+    """返回线段中非等长公共端点的参考端点。"""
+    try:
+        return _other_endpoint_handle(endpoints, anchor)
+    except StrategyDraftValidationError as exc:
+        raise StrategyDraftValidationError(
+            f"equal_length_reference_point_not_found: {context}"
+        ) from exc
+
+
+def _fixed_and_reference_from_path_target(
+    payload: Mapping[str, Any],
+    *,
+    segment_dynamic_point: str,
+    ray_dynamic_point: str,
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+    context: str,
+) -> tuple[str, str]:
+    """从路径最值目标中找最终距离固定点和射线项参考点。"""
+    terms = _path_target_terms(payload, step=step, index=index, context=context)
+    fixed_point: str | None = None
+    reference_point: str | None = None
+    for p1, p2 in terms:
+        pair = (p1, p2)
+        if segment_dynamic_point in pair:
+            fixed_point = _other_endpoint_handle(pair, segment_dynamic_point)
+        if ray_dynamic_point in pair:
+            reference_point = _other_endpoint_handle(pair, ray_dynamic_point)
+    if fixed_point is None:
+        raise StrategyDraftValidationError(
+            f"equal_length_path_fixed_point_not_found: {context}"
+        )
+    if reference_point is None:
+        raise StrategyDraftValidationError(
+            f"equal_length_path_reference_point_not_found: {context}"
+        )
+    return fixed_point, reference_point
+
+
+def _path_target_terms(
+    payload: Mapping[str, Any],
+    *,
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+    context: str,
+) -> list[tuple[str, str]]:
+    """把 ``OM+BN`` 或结构化 path terms 转成 point handle 对。"""
+    value = payload.get("path")
+    if isinstance(value, list):
+        terms: list[tuple[str, str]] = []
+        for idx, item in enumerate(value):
+            if (
+                isinstance(item, list)
+                and len(item) == 2
+                and all(isinstance(handle, str) for handle in item)
+            ):
+                terms.append((item[0], item[1]))
+                continue
+            raise StrategyDraftValidationError(
+                f"path_minimum_target_term_invalid: {context}[{idx}]"
+            )
+        return terms
+    if isinstance(value, str):
+        terms = []
+        for token in re.findall(r"[A-Za-z]{2}", value):
+            terms.append(
+                (
+                    index.point_handle_by_name(token[0], step=step),
+                    index.point_handle_by_name(token[1], step=step),
+                )
+            )
+        if terms:
+            return terms
+    raise StrategyDraftValidationError(f"path_minimum_target_path_missing: {context}")
+
+
+def _generated_equal_length_auxiliary_point_path(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> str:
+    """生成 recipe 内部辅助点的稳定 points path。"""
+    base = "equal_length_auxiliary_point"
+    for suffix in ("", "_2", "_3"):
+        name = f"{base}{suffix}"
+        path = _runtime_path_for_scope(index.context, step.scope_id, "points", name)
+        if not _context_path_exists(index.context, path):
+            return path
+    return _runtime_path_for_scope(index.context, step.scope_id, "points", f"{base}_{step.step_id}")
+
+
+def _minimum_expression_target_path(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> str:
+    """读取 recipe 产出的 MinimumExpression target path。"""
+    for produced in step.produces:
+        if _produced_output_type(produced, index.handle_registry) == "MinimumExpression":
+            return _target_path_for_produced(produced, "MinimumExpression", index, step)
+    raise StrategyDraftValidationError(
+        f"equal_length_ray_path_reduction_requires_minimum_expression: {step.step_id}"
+    )
 
 
 def _scoped_output_path(context: RuntimeContext, scope_id: str, key: str) -> str:
@@ -865,9 +1291,14 @@ def _promote_outputs_for_step(
         output_name = _output_key_for_produced(method_id, produced, output_types, step, index)
         if output_name is None or output_name not in outputs:
             continue
-        target = _target_path_for_produced(produced, output_types[output_name], index)
+        target = _target_path_for_produced(produced, output_types[output_name], index, step)
         _ensure_declaration_for_promote_target(target, output_types[output_name], index)
-        promote[outputs[output_name]] = target
+        source = outputs[output_name]
+        # 同一个 method output 可能同时服务最终答案和可复用 fact alias。
+        # promote 只能写一个目标，因此优先落到 answer target；普通 fact 后续注册到
+        # 同一条 runtime path，避免 answer 被 alias 覆盖后 ResultBuilder 找不到答案。
+        if source not in promote or produced.handle.startswith("answer:"):
+            promote[source] = target
     _add_companion_promotes(step, method_id, outputs, promote, output_types, index, binding_rules)
     if not promote and outputs:
         first_key, first_path = next(iter(outputs.items()))
@@ -940,7 +1371,7 @@ def _companion_target_path(
     selector = companion.target_selector
     if selector.startswith("answer_scope_output:"):
         key = selector.split(":", 1)[1]
-        return _scoped_output_path(index.context, _answer_scope_from_step(step), key)
+        return _scoped_output_path(index.context, _answer_target_scope_from_step(step, index), key)
     if selector.startswith("scope_output:"):
         key = selector.split(":", 1)[1]
         return _scoped_output_path(index.context, step.scope_id, key)
@@ -948,6 +1379,21 @@ def _companion_target_path(
         auxiliary_handle = _weighted_auxiliary_point_handle_for_step(step, index)
         return index.path_for(auxiliary_handle, expected_type="PointRef")
     raise StrategyDraftValidationError(f"companion_target_selector_missing: {selector}")
+
+
+def _answer_target_scope_from_step(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> str:
+    """从 QuestionGoal target_path 读取 answer 实际写入 scope。"""
+    handles = [step.target, *(item.handle for item in step.produces)]
+    for handle in handles:
+        if not handle.startswith("answer:"):
+            continue
+        goal = index.question_goals.get(handle)
+        if goal is not None:
+            return ContextPath.parse(goal.target_path).scope_id
+    return _answer_scope_from_step(step)
 
 
 def _companion_registration_handle(
@@ -1139,23 +1585,33 @@ def _target_path_for_produced(
     produced: ProducedFact,
     output_type: str,
     index: CanonicalRuntimeBindingIndex,
+    step: StepIntent,
 ) -> str:
     """把 produces handle 映射到 runtime promote target path。"""
     if produced.handle.startswith("answer:"):
         return index.path_for(produced.handle)
     fact_type = index.fact_types.get(produced.handle)
-    if fact_type == "point_coordinate":
-        point_name = _semantic_name(produced.handle).split("_", 1)[0]
-        return index.path_for(index.point_handle_by_name(point_name), expected_type="PointRef")
+    semantic_name = _semantic_name(produced.handle)
+    if fact_type == "point_coordinate" or _is_point_coordinate_semantic_name(semantic_name):
+        point_handle = _point_handle_for_produced_point(produced, index, step)
+        if point_handle is None:
+            return _scoped_output_path(index.context, produced.valid_scope, semantic_name)
+        if _handle_scope(point_handle) != produced.valid_scope:
+            return _scoped_output_path(index.context, produced.valid_scope, semantic_name)
+        return index.point_ref_path_for(point_handle)
     if output_type == "Point":
-        point_name = _semantic_name(produced.handle).split("_", 1)[0]
-        return index.path_for(index.point_handle_by_name(point_name), expected_type="PointRef")
+        point_handle = _point_handle_for_produced_point(produced, index, step)
+        if point_handle is None:
+            return _scoped_output_path(index.context, produced.valid_scope, semantic_name)
+        if _handle_scope(point_handle) != produced.valid_scope:
+            return _scoped_output_path(index.context, produced.valid_scope, semantic_name)
+        return index.point_ref_path_for(point_handle)
     if output_type == "PointList":
-        return _scoped_output_path(index.context, produced.valid_scope, _semantic_name(produced.handle))
+        return _scoped_output_path(index.context, produced.valid_scope, semantic_name)
     if output_type == "Line":
-        return _scoped_output_path(index.context, produced.valid_scope, _semantic_name(produced.handle))
+        return _scoped_output_path(index.context, produced.valid_scope, semantic_name)
     if output_type == "ParameterValue":
-        symbol = _semantic_name(produced.handle).split("_", 1)[0]
+        symbol = semantic_name.split("_", 1)[0]
         return _scoped_output_path(index.context, produced.valid_scope, symbol)
     if output_type == "PathTransformation":
         return _scoped_output_path(index.context, produced.valid_scope, "path_transformation")
@@ -1172,9 +1628,72 @@ def _target_path_for_produced(
         return _scoped_output_path(index.context, produced.valid_scope, "parabola")
     if output_type == "Coefficients":
         if produced.handle.startswith("fact:"):
-            return _scoped_output_path(index.context, produced.valid_scope, _semantic_name(produced.handle))
+            return _scoped_output_path(index.context, produced.valid_scope, semantic_name)
         return _scoped_output_path(index.context, produced.valid_scope, "coefficients")
-    return _scoped_output_path(index.context, produced.valid_scope, _semantic_name(produced.handle))
+    return _scoped_output_path(index.context, produced.valid_scope, semantic_name)
+
+
+def _is_point_coordinate_semantic_name(name: str) -> bool:
+    """判断 produced semantic name 是否表示某点坐标 fact。"""
+    return bool(
+        re.fullmatch(
+            r"[A-Za-z][A-Za-z0-9_]*_coordinate(?:_[A-Za-z0-9_]+)?",
+            name,
+        )
+    )
+
+
+def _point_handle_for_produced_point(
+    produced: ProducedFact,
+    index: CanonicalRuntimeBindingIndex,
+    step: StepIntent,
+) -> str | None:
+    """为 Point 产物寻找对应 canonical point handle。
+
+    优先接受 step.target 中完整的 ``point:<scope>:<name>``；其次对
+    ``quadratic_y_axis_intercept_point`` 这类定义点 method，按 Entity
+    ``definition`` 找唯一目标点；最后才按 ``<Point>_coordinate`` 的语义名解析。
+    """
+    target_handle = _point_handle_from_text(step.target, index)
+    if target_handle is not None:
+        return target_handle
+    if step.recipe_hint == "quadratic_y_axis_intercept_point":
+        target = _unique_point_handle_by_definition("y_axis_intercept", step, index)
+        if target is not None:
+            return target
+    semantic_name = _semantic_name(produced.handle)
+    if _is_point_coordinate_semantic_name(semantic_name):
+        point_name = semantic_name.split("_", 1)[0]
+        return index.point_handle_by_name(point_name, step=step)
+    return None
+
+
+def _point_handle_from_text(
+    text: str,
+    index: CanonicalRuntimeBindingIndex,
+) -> str | None:
+    """从文本中读取完整 canonical point handle。"""
+    for match in re.finditer(r"point:[A-Za-z0-9_]+:[A-Za-z0-9_]+", text):
+        handle = match.group(0)
+        if handle in index.bindings and handle.startswith("point:"):
+            return handle
+    return None
+
+
+def _unique_point_handle_by_definition(
+    definition: str,
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> str | None:
+    """按 Entity definition 找唯一可见点。"""
+    candidates = [
+        handle
+        for handle in index.entity_handles("point", step=step)
+        if index.handle_registry.entity_payloads.get(handle, {}).get("definition") == definition
+    ]
+    unique = _unique_ordered(candidates)
+    return unique[0] if len(unique) == 1 else None
+
 
 def _ensure_declaration_for_promote_target(
     target_path: str,
@@ -1214,3 +1733,32 @@ def _method_output_union(
             continue
         output_types.extend(spec.outputs.values())
     return tuple(_unique_ordered(output_types))
+
+
+def _execution_blocker_code(candidate_errors: list[str]) -> str:
+    """把候选执行错误压成稳定短错误码。"""
+    text = "\n".join(candidate_errors)
+    if "missing_required_runtime_fact" in text:
+        return "missing_required_runtime_fact"
+    if "line_parabola_line_points_not_found" in text:
+        return "missing_line_parabola_inputs"
+    if "binding_not_found" in text:
+        return "binding_not_found"
+    if "binding_type_mismatch" in text:
+        return "binding_type_mismatch"
+    if "duplicate_point_coordinate_fact" in text:
+        return "duplicate_point_coordinate_fact"
+    if "distance_points_not_found" in text:
+        return "distance_points_not_found"
+    if "method_binding_rule_missing" in text:
+        return "missing_binding_rule"
+    if not candidate_errors:
+        return "no_trial_candidate"
+    return "recipe_trial_step_failed"
+
+
+def _execution_blocker_message(step_id: str, candidate_errors: list[str]) -> str:
+    """生成 previous_attempts 可读的 blocker 说明。"""
+    if not candidate_errors:
+        return f"step {step_id} has no executable trial candidate"
+    return f"step {step_id} failed executable trial: " + "; ".join(candidate_errors[:3])

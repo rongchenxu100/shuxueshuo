@@ -13,7 +13,11 @@ from typing import Any
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
-from shuxueshuo_server.solver.family import DEFAULT_FAMILY_REGISTRY, FamilyRegistry
+from shuxueshuo_server.solver.family import (
+    DEFAULT_FAMILY_REGISTRY,
+    FamilyRegistry,
+    QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY,
+)
 from shuxueshuo_server.solver.problem_models import ProblemIR
 from shuxueshuo_server.solver.question_goals import extract_question_goals
 from shuxueshuo_server.solver.runtime._paths import repo_root
@@ -24,12 +28,14 @@ from shuxueshuo_server.solver.runtime.planner import PlannerInputs
 from shuxueshuo_server.solver.runtime.projection import problem_to_llm_payload
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
 from shuxueshuo_server.solver.runtime.strategy_few_shots import (
+    goal_types_from_scopes,
     query_goal_types_from_problem,
     select_few_shot_examples,
 )
 from shuxueshuo_server.solver.runtime.strategy_models import (
     ExecutablePlanResolutionReport,
     STEP_INTENT_JSON_SCHEMA,
+    StepIntentExecutionDiagnostic,
     StepIntentDraft,
     StepIntentNormalizationReport,
     StepIntentValidationReport,
@@ -183,6 +189,8 @@ def write_strategy_debug_artifacts(
     report: StepIntentValidationReport,
     normalization_report: StepIntentNormalizationReport | None = None,
     resolution_report: ExecutablePlanResolutionReport | None = None,
+    execution_diagnostic: StepIntentExecutionDiagnostic | None = None,
+    effective_draft: StepIntentDraft | None = None,
     llm_metadata: dict[str, Any] | None = None,
 ) -> None:
     """把 DeepSeek probe 的输入输出按来源落盘，方便人工 review prompt。"""
@@ -214,6 +222,11 @@ def write_strategy_debug_artifacts(
             target / "normalized-step-intents.json",
             draft.to_payload() if draft else None,
         )
+    if effective_draft is not None:
+        _write_json(
+            target / "effective-step-intents.json",
+            effective_draft.to_payload(),
+        )
     if report.handle_resolution is not None:
         _write_json(target / "handle-resolution-report.json", report.handle_resolution)
     if report.recipe_alignment is not None:
@@ -222,6 +235,11 @@ def write_strategy_debug_artifacts(
         _write_json(
             target / "candidate-resolution-report.json",
             resolution_report,
+        )
+    if execution_diagnostic is not None:
+        _write_json(
+            target / "execution-diagnostic.json",
+            execution_diagnostic,
         )
     if llm_metadata is not None:
         _write_json(target / "llm-call.json", llm_metadata)
@@ -244,6 +262,8 @@ def _clear_previous_debug_artifacts(target: Path) -> None:
         "handle-resolution-report.json",
         "recipe-alignment.json",
         "candidate-resolution-report.json",
+        "effective-step-intents.json",
+        "execution-diagnostic.json",
         "llm-call.json",
     ):
         path = target / name
@@ -314,131 +334,230 @@ def _recipe_catalog_payload(family: SolverFamilySpec) -> dict[str, Any]:
 
 def _default_few_shot_examples(family_id: str) -> list[dict[str, Any]]:
     """提供虚构 few-shot，只展示 recipe 范式，不给当前题完整答案。"""
-    return [
+    if family_id == QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY.family_id:
+        return [_equal_length_ray_path_fallback_few_shot(family_id)]
+    return [_generic_fallback_few_shot(family_id)]
+
+
+def _generic_fallback_few_shot(family_id: str) -> dict[str, Any]:
+    """提供通用虚构 few-shot，只展示路径 recipe 范式。"""
+    scopes = [
         {
-            "family_id": family_id,
-            "note": (
-                "这是虚构简化场景，只展示路径最值 recipe 的意图格式；不要照抄"
-                "题号、点名、handle 或答案。"
-            ),
-            "scopes": [
+            "scope_id": "demo_i",
+            "label": "虚构示例：先产生全题公共结论",
+            "steps": [
                 {
-                    "scope_id": "demo_i",
-                    "label": "虚构示例：先产生全题公共结论",
-                    "steps": [
+                    "step_id": "derive_anchor_coordinate",
+                    "recipe_hint": "quadratic_axis_from_relation",
+                    "goal_type": "derive_constructed_point",
+                    "target": "fact:problem:anchor_coordinate",
+                    "strategy": "先求出后续全题都会用到的公共点坐标。",
+                    "reads": [
+                        "point:problem:Anchor",
+                        "fact:problem:coefficient_relation",
+                    ],
+                    "creates": [],
+                    "produces": [
                         {
-                            "step_id": "derive_anchor_coordinate",
-                            "recipe_hint": "quadratic_axis_from_relation",
-                            "goal_type": "derive_constructed_point",
-                            "target": "fact:problem:anchor_coordinate",
-                            "strategy": "先求出后续全题都会用到的公共点坐标。",
-                            "reads": [
-                                "point:problem:Anchor",
-                                "fact:problem:coefficient_relation",
-                            ],
-                            "creates": [],
-                            "produces": [
-                                {
-                                    "handle": "fact:problem:anchor_coordinate",
-                                    "valid_scope": "problem",
-                                    "description": "公共点 Anchor 的坐标结论，后续 scope 只 reads 复用",
-                                    "output_type": "Point",
-                                }
-                            ],
-                            "reason": (
-                                "公共结论只 produces 一次；后续步骤需要时直接 reads "
-                                "fact:problem:anchor_coordinate。"
-                            ),
+                            "handle": "fact:problem:anchor_coordinate",
+                            "valid_scope": "problem",
+                            "description": "公共点 Anchor 的坐标结论，后续 scope 只 reads 复用",
+                            "output_type": "Point",
                         }
                     ],
+                    "reason": (
+                        "公共结论只 produces 一次；后续步骤需要时直接 reads "
+                        "fact:problem:anchor_coordinate。"
+                    ),
+                }
+            ],
+        },
+        {
+            "scope_id": "demo",
+            "label": "虚构示例：路径最值公共步骤",
+            "steps": [
+                {
+                    "step_id": "reduce_two_moving_points_path",
+                    "recipe_hint": "two_moving_points_path_reduction",
+                    "goal_type": "reduce_path_expression",
+                    "target": "fact:demo:single_moving_path_equivalence",
+                    "strategy": "利用两个动点之间的线段比例和所在轨迹，把双动点路径转化为等价单动点折线路径。",
+                    "reads": [
+                        "point:problem:Anchor",
+                        "fact:problem:anchor_coordinate",
+                        "fact:demo:path_target",
+                        "fact:demo:first_moving_point_on_segment",
+                        "fact:demo:second_moving_point_on_segment",
+                        "fact:demo:segment_ratio_relation",
+                    ],
+                    "creates": [],
+                    "produces": [
+                        {
+                            "handle": "fact:demo:single_moving_path_equivalence",
+                            "valid_scope": "demo",
+                            "description": "双动点路径已经转化成只含一个动点的等价折线路径",
+                            "output_type": "PathTransformation",
+                        }
+                    ],
+                    "reason": (
+                        "路径最值先降维，避免直接把两个动点都参数化。示例中"
+                        " point:problem:Anchor 虽在 demo scope 使用，也必须原样引用"
+                        " problem scope 的 canonical handle。"
+                    ),
                 },
                 {
-                    "scope_id": "demo",
-                    "label": "虚构示例：路径最值公共步骤",
-                    "steps": [
-                        {
-                            "step_id": "reduce_two_moving_points_path",
-                            "recipe_hint": "two_moving_points_path_reduction",
-                            "goal_type": "reduce_path_expression",
-                            "target": "fact:demo:single_moving_path_equivalence",
-                            "strategy": "利用两个动点之间的线段比例和所在轨迹，把双动点路径转化为等价单动点折线路径。",
-                            "reads": [
-                                "point:problem:Anchor",
-                                "fact:problem:anchor_coordinate",
-                                "fact:demo:path_target",
-                                "fact:demo:first_moving_point_on_segment",
-                                "fact:demo:second_moving_point_on_segment",
-                                "fact:demo:segment_ratio_relation",
-                            ],
-                            "creates": [],
-                            "produces": [
-                                {
-                                    "handle": "fact:demo:single_moving_path_equivalence",
-                                    "valid_scope": "demo",
-                                    "description": "双动点路径已经转化成只含一个动点的等价折线路径",
-                                    "output_type": "PathTransformation",
-                                }
-                            ],
-                            "reason": (
-                                "路径最值先降维，避免直接把两个动点都参数化。示例中"
-                                " point:problem:Anchor 虽在 demo scope 使用，也必须原样引用"
-                                " problem scope 的 canonical handle。"
-                            ),
-                        },
-                        {
-                            "step_id": "straighten_reduced_path",
-                            "recipe_hint": "broken_path_straightening_and_select",
-                            "goal_type": "straighten_broken_path",
-                            "target": "fact:demo:straightened_path_choice",
-                            "strategy": "对等价折线路径构造拉直候选，并选择最方便计算的拉直方案。",
-                            "reads": [
-                                "fact:demo:single_moving_path_equivalence",
-                                "segment:demo:motion_segment",
-                            ],
-                            "creates": [
-                                {
-                                    "handle": "point:demo:Aux",
-                                    "entity_type": "point",
-                                    "valid_scope": "demo",
-                                    "description": "用于折线拉直的辅助点",
-                                }
-                            ],
-                            "produces": [
-                                {
-                                    "handle": "fact:demo:straightened_path_choice",
-                                    "valid_scope": "demo",
-                                    "description": "已经选定可计算的折线拉直方案",
-                                    "output_type": "StraighteningCandidate",
-                                }
-                            ],
-                            "reason": "单动点折线最短路径通常通过拉直处理。",
-                        },
-                        {
-                            "step_id": "compute_straightened_minimum",
-                            "recipe_hint": "path_minimum_by_straightened_distance",
-                            "goal_type": "derive_minimum_value",
-                            "target": "fact:demo:path_minimum_value_expr",
-                            "strategy": "在拉直方案确定后，用对应端点间距离得到路径最小值表达式。",
-                            "reads": [
-                                "fact:demo:straightened_path_choice",
-                                "point:demo:Aux",
-                            ],
-                            "creates": [],
-                            "produces": [
-                                {
-                                    "handle": "fact:demo:path_minimum_value_expr",
-                                    "valid_scope": "demo",
-                                    "description": "路径最小值表达式",
-                                    "output_type": "MinimumExpression",
-                                }
-                            ],
-                            "reason": "拉直后的最短路径转化为端点间距离。",
-                        },
+                    "step_id": "straighten_reduced_path",
+                    "recipe_hint": "broken_path_straightening_and_select",
+                    "goal_type": "straighten_broken_path",
+                    "target": "fact:demo:straightened_path_choice",
+                    "strategy": "对等价折线路径构造拉直候选，并选择最方便计算的拉直方案。",
+                    "reads": [
+                        "fact:demo:single_moving_path_equivalence",
+                        "segment:demo:motion_segment",
                     ],
+                    "creates": [
+                        {
+                            "handle": "point:demo:Aux",
+                            "entity_type": "point",
+                            "valid_scope": "demo",
+                            "description": "用于折线拉直的辅助点",
+                        }
+                    ],
+                    "produces": [
+                        {
+                            "handle": "fact:demo:straightened_path_choice",
+                            "valid_scope": "demo",
+                            "description": "已经选定可计算的折线拉直方案",
+                            "output_type": "StraighteningCandidate",
+                        }
+                    ],
+                    "reason": "单动点折线最短路径通常通过拉直处理。",
+                },
+                {
+                    "step_id": "compute_straightened_minimum",
+                    "recipe_hint": "path_minimum_by_straightened_distance",
+                    "goal_type": "derive_minimum_value",
+                    "target": "fact:demo:path_minimum_value_expr",
+                    "strategy": "在拉直方案确定后，用对应端点间距离得到路径最小值表达式。",
+                    "reads": [
+                        "fact:demo:straightened_path_choice",
+                        "point:demo:Aux",
+                    ],
+                    "creates": [],
+                    "produces": [
+                        {
+                            "handle": "fact:demo:path_minimum_value_expr",
+                            "valid_scope": "demo",
+                            "description": "路径最小值表达式",
+                            "output_type": "MinimumExpression",
+                        }
+                    ],
+                    "reason": "拉直后的最短路径转化为端点间距离。",
+                },
+            ],
+        },
+    ]
+    return {
+        "problem_id": f"fallback-{family_id}",
+        "family_id": family_id,
+        "title": "fallback strategy demo",
+        "original_text": [
+            "这是通用兜底示例，不是当前题，也不包含当前题答案。"
+        ],
+        "retrieval": {
+            "goal_types": goal_types_from_scopes(scopes),
+        },
+        "note": (
+            "这是虚构简化场景，只展示路径最值 recipe 的意图格式；不要照抄"
+            "题号、点名、handle 或答案。"
+        ),
+        "example": {"scopes": scopes},
+    }
+
+
+def _equal_length_ray_path_fallback_few_shot(family_id: str) -> dict[str, Any]:
+    """为等长射线路径 family 提供抽象辅助线 few-shot。
+
+    这个示例只表达“等长射线路径降维为单距离最值 -> 由最小值反求参数”
+    的 recipe/method 粒度，不使用和平题的点名、路径名或题面事实。
+    """
+    scopes = [
+        {
+            "scope_id": "demo",
+            "label": "虚构示例：等长射线转化为单距离最值",
+            "steps": [
+                {
+                    "step_id": "reduce_equal_length_ray_path",
+                    "recipe_hint": "equal_length_ray_path_reduction",
+                    "goal_type": "derive_path_minimum_expression",
+                    "target": "fact:demo:path_minimum_expression",
+                    "strategy": (
+                        "利用同端点等长条件，把 Moving 与 RayMover 的两动点路径"
+                        "转化为一个固定点到内部辅助点的单距离最值。辅助点由 recipe"
+                        "内部构造，StepIntent 不需要 creates 辅助点。"
+                    ),
+                    "reads": [
+                        "point:demo:Anchor",
+                        "point:demo:Reference",
+                        "point:demo:Moving",
+                        "point:demo:RayMover",
+                        "point:demo:RayGuide",
+                        "fact:demo:moving_on_segment",
+                        "fact:demo:ray_mover_on_ray",
+                        "fact:demo:equal_length_condition",
+                        "fact:demo:path_minimum_target",
+                    ],
+                    "creates": [],
+                    "produces": [
+                        {
+                            "handle": "fact:demo:path_minimum_expression",
+                            "valid_scope": "demo",
+                            "description": "等长射线路径降维后的单距离最小值表达式",
+                            "output_type": "MinimumExpression",
+                        }
+                    ],
+                    "reason": "先用高层 recipe 完成几何转化和单距离最值，不把辅助点创建拆成 LLM step。",
+                },
+                {
+                    "step_id": "solve_parameter_from_minimum",
+                    "recipe_hint": "parameter_from_expression_value",
+                    "goal_type": "derive_parameter",
+                    "target": "answer:demo.parameter",
+                    "strategy": "用题设给定的路径最小值等于上一步的最小值表达式，反求参数。",
+                    "reads": [
+                        "fact:demo:path_minimum_expression",
+                        "fact:demo:path_minimum_value_given",
+                    ],
+                    "creates": [],
+                    "produces": [
+                        {
+                            "handle": "answer:demo.parameter",
+                            "valid_scope": "demo",
+                            "description": "由路径最小值条件反求出的参数答案",
+                            "output_type": "ParameterValue",
+                        }
+                    ],
+                    "reason": "先完成几何转化和距离最值，再用给定最小值反求参数。",
                 },
             ],
         }
     ]
+    return {
+        "problem_id": "fallback-equal-length-ray-path-minimum",
+        "family_id": family_id,
+        "title": "equal-length ray path minimum fallback demo",
+        "original_text": [
+            "点 Moving 在一条线段上，点 RayMover 在一条射线上，满足同端点等长，求 Fixed 到 Moving 与 Anchor 到 RayMover 的路径最小值。"
+        ],
+        "retrieval": {
+            "goal_types": goal_types_from_scopes(scopes),
+        },
+        "note": (
+            "这是虚构简化场景，只展示等长射线路径降维为单距离最值的"
+            "可执行步骤粒度；不要照抄示例题 handle、点名、题号或答案。"
+        ),
+        "example": {"scopes": scopes},
+    }
 
 def _pretty_json(value: Any) -> str:
     """Jinja 过滤器：输出可读中文 JSON。"""

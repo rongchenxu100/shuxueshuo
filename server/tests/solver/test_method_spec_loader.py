@@ -111,6 +111,7 @@ def test_y_axis_intercept_summary_allows_symbolic_coefficients() -> None:
     registry = MethodSpecRegistry.load_from_code()
     spec = registry.require("quadratic_y_axis_intercept_point")
 
+    assert spec.inputs["quadratic"].type == "Expression"
     assert "未定系数" in spec.summary
 
 

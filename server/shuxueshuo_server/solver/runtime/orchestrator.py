@@ -154,7 +154,7 @@ class RuntimeOrchestrator:
             max_attempts=self.max_attempts,
         )
         self.last_session = session
-        previous_errors: list[StructuredSolveError] = []
+        previous_errors: list[object] = []
 
         for attempt_index in range(1, self.max_attempts + 1):
             attempt_started = time.perf_counter()
@@ -180,9 +180,7 @@ class RuntimeOrchestrator:
                     method_specs=specs,
                     problem=problem,
                     original_text=dict(problem.original_text),
-                    previous_errors=[
-                        error.to_payload() for error in previous_errors
-                    ],
+                    previous_errors=list(previous_errors),
                 )
                 stage = "planner"
                 planner_output = PlannerOutput.from_legacy(planner.plan(planner_inputs))
@@ -231,7 +229,12 @@ class RuntimeOrchestrator:
                         )
                     )
                     if attempt_index < self.max_attempts and error.retryable:
-                        previous_errors = [error]
+                        previous_errors = _next_previous_errors(
+                            previous_errors,
+                            planner,
+                            attempt_index,
+                            error,
+                        )
                         continue
                     session.final_status = "failed"
                     return _failed_result_from_execution(
@@ -266,7 +269,12 @@ class RuntimeOrchestrator:
                     )
                 )
                 if attempt_index < self.max_attempts and error.retryable:
-                    previous_errors = [error]
+                    previous_errors = _next_previous_errors(
+                        previous_errors,
+                        planner,
+                        attempt_index,
+                        error,
+                    )
                     continue
                 session.final_status = "failed"
                 return SolverResult(
@@ -323,7 +331,7 @@ def _attempt_record(
     status: str,
     stage: str,
     started: float,
-    previous_errors: list[StructuredSolveError],
+    previous_errors: list[object],
     error: StructuredSolveError | None,
     llm_call: LLMCallRecord | None,
 ) -> SolveAttemptRecord:
@@ -357,6 +365,51 @@ def _llm_call_from_planner(planner: GenericPlanner | None) -> LLMCallRecord | No
         response_model=str(response_model) if response_model else None,
         usage=dict(usage) if isinstance(usage, dict) else usage,
     )
+
+
+def _planner_repair_attempt_payload(
+    planner: GenericPlanner | None,
+    attempt_index: int,
+    errors: list[str],
+) -> dict[str, object] | None:
+    """从 StrategyPlanner 等 planner 上读取下一轮 LLM repair context。"""
+    if planner is None:
+        return None
+    method = getattr(planner, "repair_attempt_payload", None)
+    if not callable(method):
+        return None
+    payload = method(attempt=attempt_index, errors=errors)
+    return payload if isinstance(payload, dict) else None
+
+
+def _next_previous_errors(
+    previous_errors: list[object],
+    planner: GenericPlanner | None,
+    attempt_index: int,
+    error: StructuredSolveError,
+) -> list[object]:
+    """合并下一轮 repair context，避免 validation 早失败覆盖 rich context。"""
+    fallback = error.to_payload()
+    payload = _planner_repair_attempt_payload(planner, attempt_index, [error.message])
+    if payload is None:
+        return [*previous_errors, fallback] if _has_rich_repair_context(previous_errors) else [fallback]
+    if _is_rich_repair_context(payload):
+        return [payload]
+    if _has_rich_repair_context(previous_errors):
+        return [*previous_errors, payload]
+    return [payload]
+
+
+def _is_rich_repair_context(payload: object) -> bool:
+    """判断 previous_attempt 是否包含 effective draft + diagnostic。"""
+    if not isinstance(payload, dict):
+        return False
+    return isinstance(payload.get("effective_draft"), dict) and isinstance(payload.get("diagnostic"), dict)
+
+
+def _has_rich_repair_context(items: list[object]) -> bool:
+    """previous_errors 中是否已有 rich repair context。"""
+    return any(_is_rich_repair_context(item) for item in items)
 
 
 def _structured_error_from_failed_checks(checks: list[object]) -> StructuredSolveError:
@@ -449,9 +502,40 @@ def _write_debug_attempt(
             str(raw_response),
             encoding="utf-8",
         )
+    raw_draft = getattr(planner, "last_raw_draft", None)
+    if raw_draft is not None:
+        _write_json(debug_dir / f"{prefix}.raw-draft.json", _safe_json(raw_draft))
+    validation_report = getattr(planner, "last_validation_report", None)
+    if validation_report is not None:
+        _write_json(
+            debug_dir / f"{prefix}.validation-report.json",
+            _safe_json(validation_report),
+        )
     draft = getattr(planner, "last_draft", None)
     if draft is not None:
         _write_json(debug_dir / f"{prefix}.parsed-draft.json", _safe_json(draft))
+    effective_draft = getattr(planner, "last_effective_draft", None)
+    if effective_draft is not None:
+        _write_json(
+            debug_dir / f"{prefix}.effective-draft.json",
+            _safe_json(effective_draft),
+        )
+    diagnostic = getattr(planner, "last_execution_diagnostic", None)
+    if diagnostic is not None:
+        _write_json(
+            debug_dir / f"{prefix}.execution-diagnostic.json",
+            _safe_json(diagnostic),
+        )
+    repair_payload = _planner_repair_attempt_payload(
+        planner,
+        attempt_index,
+        [error.message] if error is not None else [],
+    )
+    if repair_payload is not None:
+        _write_json(
+            debug_dir / f"{prefix}.previous-attempt-payload.json",
+            repair_payload,
+        )
     output = planner_output or getattr(planner, "last_output", None)
     if output is not None:
         _write_json(

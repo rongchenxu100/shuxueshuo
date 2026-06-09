@@ -6,6 +6,8 @@ from copy import deepcopy
 
 from shuxueshuo_server.solver.fixtures import load_problem_ir
 from shuxueshuo_server.solver.runtime.projection import problem_to_llm_payload
+from shuxueshuo_server.solver.runtime.config import SolverRuntimeConfig
+from shuxueshuo_server.solver.runtime.context import ContextBuilder
 from shuxueshuo_server.solver.runtime.strategy_few_shots import (
     build_few_shot_entry,
     goal_types_from_scopes,
@@ -146,6 +148,22 @@ def test_strategy_payload_builder_uses_dynamic_few_shot_selector(tmp_path: Path)
     assert explicit["few_shot_examples"] == [{"family_id": "fake", "scopes": []}]
 
 
+def test_runtime_config_passes_same_problem_few_shot_policy_to_strategy_provider() -> None:
+    """真实集成测试可通过 runtime config 排除当前题 few-shot。"""
+    problem = load_problem_ir("../internal/solver-fixtures/tj-2026-nankai-yimo-25.json")
+    context = ContextBuilder().build(problem)
+    config = SolverRuntimeConfig(
+        planner_mode="strategy",
+        llm_provider="recorded",
+        allow_same_problem_few_shot=False,
+    )
+    provider = config.build_default_planner_provider()
+
+    assert provider is not None
+    planner = provider(context)
+    assert planner.payload_builder.allow_same_problem_few_shot is False
+
+
 def test_query_goal_types_are_derived_from_current_problem_goals() -> None:
     """few-shot 检索应使用当前题目标，而不是 family common_goal_types。"""
     nankai_goals = query_goal_types_from_problem(
@@ -232,7 +250,9 @@ def test_strategy_payload_builder_falls_back_to_virtual_few_shot(tmp_path: Path)
         problem_payload=_problem_payload("tj-2026-nankai-yimo-25"),
     )
 
+    assert payload["few_shot_examples"][0]["problem_id"].startswith("fallback-")
     assert payload["few_shot_examples"][0]["note"].startswith("这是虚构简化场景")
+    assert "example" in payload["few_shot_examples"][0]
 
 
 def test_prompt_distinguishes_current_problem_and_few_shot_example(tmp_path: Path) -> None:
