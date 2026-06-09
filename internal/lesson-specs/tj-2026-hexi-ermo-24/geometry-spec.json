@@ -1,0 +1,79 @@
+{
+  "$schema": "../../schemas/geometry-spec.schema.json",
+  "version": 1,
+  "id": "tj-2026-hexi-ermo-24",
+  "domain": { "minX": -1.4, "maxX": 3.4, "minY": -0.45, "maxY": 3.85 },
+  "fixedPoints": {
+    "O": ["0", "0"],
+    "A": ["3", "0"],
+    "B": ["0", "S3"]
+  },
+  "movingParam": "t",
+  "movingPoints": {
+    "E": ["3-t", "0"],
+    "F": ["3-t/2", "S3*t/6"],
+    "K": ["3-t/2", "0"],
+    "Ap": ["3-t/2", "S3*t/2"],
+    "Op": ["(3-t)/2", "S3*(t-3)/2"],
+    "R": ["0", "S3*t/6"]
+  },
+  "basePolygon": ["O", "A", "B"],
+  "movingPolygon": ["Ap", "F", "E"],
+  "movingPolygons": [
+    { "maxT": 3, "vertices": ["Ap", "F", "E"] },
+    { "minT": 3, "vertices": ["Op", "Ap", "F", "D"] }
+  ],
+  "derivedIntersections": [
+    { "name": "D", "a": ["E", "F"], "b": ["O", "B"], "fallback": ["0", "S3*(t-3)/3"] },
+    { "name": "G", "a": ["Op", "Ap"], "b": ["O", "B"], "fallback": ["0", "S3*(t-3)"] },
+    { "name": "H", "a": ["Op", "Ap"], "b": ["A", "B"], "fallback": ["3-3*t/4", "S3*t/4"] }
+  ],
+  "originalFigures": [
+    {
+      "id": "originalFigure1",
+      "t": 1,
+      "showMoving": true,
+      "showOverlap": false,
+      "showIntersections": false,
+      "grid": { "axesArrow": true },
+      "segments": [
+        { "from": "E", "to": "F", "color": "#111827", "width": 2, "dash": "7 5" }
+      ],
+      "fixedLabels": [
+        { "at": "A", "label": "A", "dx": 10, "dy": 24 },
+        { "at": "B", "label": "B", "dx": 10, "dy": -10 }
+      ],
+      "movingLabels": [
+        { "at": "E", "label": "E", "dx": -8, "dy": 24 },
+        { "at": "F", "label": "F", "dx": 10, "dy": 8 },
+        { "at": "Ap", "label": "A′", "color": "#0f766e", "dx": 10, "dy": -12 }
+      ]
+    },
+    {
+      "id": "originalFigure2",
+      "t": 3.5,
+      "showMoving": true,
+      "showOverlap": true,
+      "showIntersections": true,
+      "grid": { "axesArrow": true },
+      "segments": [
+        { "from": "E", "to": "F", "color": "#111827", "width": 2, "dash": "7 5" }
+      ],
+      "fixedLabels": [
+        { "at": "A", "label": "A", "dx": 10, "dy": 24 },
+        { "at": "B", "label": "B", "dx": 10, "dy": -10 }
+      ],
+      "movingLabels": [
+        { "at": "E", "label": "E", "dx": -20, "dy": 18 },
+        { "at": "F", "label": "F", "dx": 10, "dy": 8 },
+        { "at": "Op", "label": "O′", "color": "#0f766e", "dx": -26, "dy": 4 },
+        { "at": "Ap", "label": "A′", "color": "#0f766e", "dx": 10, "dy": -12 }
+      ],
+      "intersectionLabels": [
+        { "at": "D", "label": "D", "dx": -26, "dy": 10 },
+        { "at": "G", "label": "G", "dx": -26, "dy": -10 },
+        { "at": "H", "label": "H", "dx": 8, "dy": -14 }
+      ]
+    }
+  ]
+}

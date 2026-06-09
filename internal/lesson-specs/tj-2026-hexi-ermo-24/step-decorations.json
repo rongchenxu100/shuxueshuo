@@ -1,0 +1,140 @@
+{
+  "$schema": "../../schemas/step-decorations.schema.json",
+  "_comment": "2026 天津市河西区二模 24 题 — 直角三角形折叠与重合面积。",
+  "layers": {
+    "global": {
+      "elements": [
+        { "type": "grid" },
+        { "type": "basePoly" },
+        { "type": "point", "at": "O", "showLabel": false },
+        { "type": "point", "at": "A", "dx": 10, "dy": 24 },
+        { "type": "point", "at": "B", "dx": 10, "dy": -10 }
+      ]
+    },
+    "foldContext": {
+      "sectionNot": "第（I）问",
+      "elements": [
+        { "type": "movingPoly" },
+        { "type": "overlap" },
+        { "type": "dashedLine", "from": "E", "to": "F" },
+        { "type": "point", "at": "E", "dx": -10, "dy": 24 },
+        { "type": "point", "at": "F", "dx": 10, "dy": 8 },
+        { "type": "point", "at": "Ap", "labelText": "A′", "color": "#0f766e", "dx": 10, "dy": -12 },
+        { "type": "point", "at": "Op", "labelText": "O′", "color": "#0f766e", "dx": -26, "dy": 4, "minT": 3 },
+        { "type": "areaLabel", "region": "overlap", "text": "S", "dx": -4, "dy": 4 }
+      ]
+    }
+  },
+  "steps": {
+    "i1s1": {
+      "domain": { "minX": -0.35, "maxX": 3.35, "minY": -0.35, "maxY": 2.2 },
+      "add": [
+        { "type": "point", "at": "E", "dx": -8, "dy": 24 },
+        { "type": "segment", "from": "A", "to": "E", "label": "AE=1", "offsetPx": -22, "collinearGroup": false },
+        { "type": "coordinateLabel", "at": "E", "text": "E(2,0)", "dx": -46, "dy": 34 }
+      ]
+    },
+    "i1s2": {
+      "domain": { "minX": -0.35, "maxX": 3.35, "minY": -0.35, "maxY": 2.2 },
+      "add": [
+        { "type": "dashedLine", "from": "E", "to": "F" },
+        { "type": "point", "at": "E", "dx": -8, "dy": 24 },
+        { "type": "point", "at": "F", "dx": 10, "dy": 8 },
+        { "type": "point", "at": "K", "dx": -6, "dy": 24 },
+        { "type": "point", "at": "Ap", "labelText": "A′", "color": "#0f766e", "dx": 10, "dy": -12 },
+        { "type": "outlineRegion", "vertices": ["E", "F", "A"] },
+        { "type": "dottedLine", "from": "F", "to": "K" },
+        { "type": "rightAngle", "vertex": "K", "rayA": "F", "rayB": "A", "size": 10 },
+        { "type": "angleArc", "vertex": "E", "rayA": "A", "rayB": "F", "label": "30°", "labelRadius": 34, "lockLabel": true },
+        { "type": "angleArc", "vertex": "A", "rayA": "E", "rayB": "F", "label": "30°", "labelRadius": 34, "lockLabel": true },
+        { "type": "segment", "from": "A", "to": "K", "label": "AK=t/2", "offsetPx": -22, "collinearGroup": false }
+      ]
+    },
+    "q2s1": {
+      "domain": { "minX": -1.25, "maxX": 3.25, "minY": -0.35, "maxY": 3.55 },
+      "add": [
+        { "type": "derivedPoint", "at": "H", "dx": 8, "dy": -14 },
+        { "type": "point", "at": "K", "dx": -6, "dy": 24 },
+        { "type": "dottedLine", "from": "F", "to": "K" },
+        { "type": "coloredLine", "from": "Ap", "to": "F" },
+        { "type": "coloredLine", "from": "A", "to": "F" },
+        { "type": "rightAngle", "vertex": "H", "rayA": "Ap", "rayB": "F", "size": 10 },
+        { "type": "angleArc", "vertex": "A", "rayA": "E", "rayB": "F", "label": "30°", "labelRadius": 34, "lockLabel": true },
+        { "type": "angleArc", "vertex": "Ap", "rayA": "F", "rayB": "H", "label": "30°", "labelRadius": 34, "lockLabel": true },
+        { "type": "segment", "from": "A", "to": "F", "label": "AF=t/√3", "offsetPx": -24, "collinearGroup": false, "rotateWithLine": true },
+        { "type": "segment", "from": "Ap", "to": "F", "label": "A′F=t/√3", "offsetPx": 22, "collinearGroup": false },
+        { "type": "segment", "from": "A", "to": "K", "label": "AK=t/2", "offsetPx": -22, "collinearGroup": false }
+      ]
+    },
+    "q2s2": {
+      "domain": { "minX": -1.25, "maxX": 3.25, "minY": -0.35, "maxY": 3.55 },
+      "add": [
+        { "type": "derivedPoint", "at": "D", "dx": -26, "dy": 10 },
+        { "type": "derivedPoint", "at": "G", "dx": -26, "dy": -10 },
+        { "type": "derivedPoint", "at": "H", "dx": 8, "dy": -14 },
+        { "type": "outlineRegion", "vertices": ["D", "F", "H", "G"] },
+        { "type": "coloredLine", "from": "D", "to": "F" },
+        { "type": "coloredLine", "from": "F", "to": "H" },
+        { "type": "coloredLine", "from": "H", "to": "G" },
+        { "type": "coloredLine", "from": "G", "to": "D" },
+        { "type": "coincidentLabel", "anchor": "O", "when": 3, "eps": 0.04, "text": "t=3 时 D、G 与 O 重合", "dx": 8, "dy": -30 },
+        { "type": "coincidentLabel", "anchor": "B", "when": 4, "eps": 0.04, "text": "t=4 时 G、H 与 B 重合", "dx": 8, "dy": -34 }
+      ]
+    },
+    "q3s1": {
+      "domain": { "minX": -1.25, "maxX": 3.25, "minY": -0.35, "maxY": 3.65 },
+      "add": []
+    },
+    "q3s2": {
+      "domain": { "minX": -1.25, "maxX": 3.25, "minY": -0.35, "maxY": 3.65 },
+      "add": [
+        { "type": "derivedPoint", "at": "D", "dx": -26, "dy": 10, "minT": 3 },
+        { "type": "derivedPoint", "at": "H", "dx": 8, "dy": -14 },
+        { "type": "areaFormulaCard", "pos": [-0.22, 2.55], "terms": [
+          { "text": "t=1", "kind": "base" },
+          { "text": "S=√3/24", "kind": "target" },
+          { "text": "；", "kind": "op" },
+          { "text": "t=4", "kind": "base" },
+          { "text": "S=√3/3", "kind": "cut" }
+        ] }
+      ]
+    },
+    "q3s3": {
+      "domain": { "minX": -1.25, "maxX": 3.25, "minY": -0.35, "maxY": 3.65 },
+      "add": [
+        { "type": "derivedPoint", "at": "D", "dx": -26, "dy": 10 },
+        { "type": "derivedPoint", "at": "G", "dx": -26, "dy": -10 },
+        { "type": "derivedPoint", "at": "H", "dx": 8, "dy": -14 },
+        { "type": "outlineRegion", "vertices": ["D", "F", "H", "G"] },
+        { "type": "outlineRegion", "vertices": ["E", "F", "H"], "color": "#0f766e", "dash": "5 4" },
+        { "type": "outlineRegion", "vertices": ["H", "F", "Ap"], "color": "#0f766e", "dash": "3 4" },
+        { "type": "cutRegion", "vertices": ["E", "D", "G"], "style": "subtracted", "centroidLabel": "-" },
+        { "type": "coloredLine", "from": "E", "to": "H" },
+        { "type": "coloredLine", "from": "D", "to": "G" },
+        { "type": "angleArc", "vertex": "E", "rayA": "D", "rayB": "O", "label": "30°", "labelRadius": 30, "lockLabel": true },
+        { "type": "angleArc", "vertex": "G", "rayA": "O", "rayB": "E", "label": "30°", "labelRadius": 30, "lockLabel": true },
+        { "type": "segment", "from": "F", "to": "H", "label": "HF=√3t/6", "offsetPx": 22, "collinearGroup": false, "rotateWithLine": true },
+        { "type": "segment", "from": "Ap", "to": "H", "label": "A′H=t/2", "offsetPx": 22, "collinearGroup": false },
+        { "type": "areaFormulaCard", "pos": [-1.08, 3.35], "terms": [
+          { "text": "S", "kind": "target" },
+          { "text": "=", "kind": "op" },
+          { "text": "△EHF", "kind": "base" },
+          { "text": "-", "kind": "op" },
+          { "text": "△EDG", "kind": "cut" }
+        ] }
+      ]
+    },
+    "q3s4": {
+      "domain": { "minX": -1.25, "maxX": 3.25, "minY": -0.35, "maxY": 3.65 },
+      "add": [
+        { "type": "areaFormulaCard", "pos": [-1.08, 3.35], "terms": [
+          { "text": "√3/24", "kind": "cut" },
+          { "text": "≤", "kind": "op" },
+          { "text": "S", "kind": "target" },
+          { "text": "≤", "kind": "op" },
+          { "text": "3√3/7", "kind": "base" }
+        ] }
+      ]
+    }
+  }
+}

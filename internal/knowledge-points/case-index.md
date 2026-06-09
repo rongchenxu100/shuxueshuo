@@ -54,6 +54,7 @@
 | problem-id | 题位 | pattern 补充 | 使用的 methods |
 |---|---|---|---|
 | `tj-2026-hedong-ermo-24` | 24 | 正方形折叠后求重合面积和参数 | `folding-overlap-area`, `area-piecewise-by-overlap` |
+| `tj-2026-hexi-ermo-24` | 24 | 直角三角形沿 30° 折痕折叠，求 `HF`、四边形阶段和 `1≤t≤4` 的重合面积范围 | `folding-overlap-area`, `area-piecewise-by-overlap` |
 | `tj-2026-heping-ermo-24` | 24 | 梯形折叠后求重叠面积范围 | `folding-overlap-area`, `area-piecewise-by-overlap` |
 | `tj-2026-nankai-ermo-24` | 24 | 四边形折叠与重叠面积范围 | `folding-overlap-area`, `area-piecewise-by-overlap` |
 | `tj-2026-nankai-sanmo-24` | 24 | 平行四边形沿 60° 折痕折叠，求 `A′B`、五边形阶段和 `4<t<10` 的重叠面积范围 | `folding-overlap-area`, `area-piecewise-by-overlap` |
@@ -212,6 +213,7 @@
 | problem-id | 题位 | 涉及步骤 | 摘要 |
 |---|---|---|---|
 | `tj-2026-hedong-ermo-24` | 24 | 第（Ⅱ）问、第（Ⅲ）问 | 正方形折叠后重合区域分段求面积 |
+| `tj-2026-hexi-ermo-24` | 24 | 第（II）问、第（III）问 | 直角三角形沿 30° 折痕折叠，先用折叠对应边求 `HF` 和四边形范围，再按真实重合区域求面积范围 |
 | `tj-2026-heping-ermo-24` | 24 | 第（Ⅱ）①② | 梯形折叠后重叠区域和面积范围 |
 | `tj-2026-nankai-ermo-24` | 24 | 第（II）①② | 四边形折叠，确定五边形阶段和面积范围 |
 | `tj-2026-nankai-sanmo-24` | 24 | 第（II）①② | 斜折痕分三段裁剪真实折后纸片，先由折叠对应点求 `A′B` 与五边形范围，再求重叠面积范围 |
@@ -229,6 +231,7 @@
 | `tj-2026-binhai-yimo-24` | 24 | 第（2）①② | 由重叠五边形和阶段端点求面积范围 |
 | `tj-2026-dongli-yimo-24` | 24 | 第（2）①② | 按平移阶段分析重叠区域面积 |
 | `tj-2026-hedong-ermo-24` | 24 | 第（Ⅲ）问 | 折叠重合面积按阶段计算 |
+| `tj-2026-hexi-ermo-24` | 24 | 第（III）问 | 先由趋势比较 `t=1`、`t=4` 两个边界最小候选，再在 `3<t<4` 四边形段用二次函数求最大值 |
 | `tj-2026-heping-ermo-24` | 24 | 第（Ⅱ）② | 折叠重叠面积范围 |
 | `tj-2026-hexi-yimo-24` | 24 | 第（II）② | 平移三角形重叠面积范围 |
 | `tj-2026-nankai-ermo-24` | 24 | 第（II）② | 折叠四边形重叠面积范围 |
