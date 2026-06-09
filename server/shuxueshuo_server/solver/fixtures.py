@@ -18,17 +18,8 @@ def load_problem_ir(path: str | Path) -> ProblemIR:
     data = fixture.get("input", fixture)
     if is_canonical_problem_input(data):
         return problem_from_canonical_input(data)
-    return ProblemIR(
-        problem_id=data["problem_id"],
-        pattern=data["pattern"],
-        problem_type=data["problem_type"],
-        symbols=list(data.get("symbols", [])),
-        symbol_roles=dict(data.get("symbol_roles", {})),
-        original_text=dict(data.get("original_text", {})),
-        constraints=dict(data.get("constraints", {})),
-        data=dict(data.get("data", {})),
-        solver_config=dict(data.get("solver_config", {})),
-        expected_answers={},
+    raise ValueError(
+        f"solver fixture must use canonical ProblemIR input: {fixture_path}"
     )
 
 

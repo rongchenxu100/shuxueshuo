@@ -3,7 +3,7 @@
   "meta": {
     "problem_id": "tj-2026-nankai-yimo-25-alt-labels",
     "title": "25 题同构回归用例：替换点名与问题 id",
-    "note": "本文件用于验证 SolverFamily 不依赖 D/M/N/F/G 或固定 question id。题意结构与南开 25 题同构，标准答案在 server/tests/solver/expected/ 中。"
+    "note": "Canonical ProblemIR v2。题面事实是唯一来源；runtime 兼容结构由 RuntimeProjection 派生。"
   },
   "input": {
     "problem_id": "tj-2026-nankai-yimo-25-alt-labels",
@@ -20,585 +20,407 @@
         "② 当 PR＋WR 的最小值为 5√10/2 时，求抛物线解析式及此时 R 的坐标。"
       ]
     },
-    "symbols": [
-      "x",
-      "a",
-      "b",
-      "c",
-      "m"
-    ],
-    "symbol_roles": {
-      "x": "function_variable",
-      "a": "quadratic_coefficient",
-      "b": "quadratic_coefficient",
-      "c": "quadratic_coefficient",
-      "m": "dynamic_parameter"
-    },
-    "constraints": {
-      "a": ">0",
-      "m": ">2"
-    },
-    "data": {
-      "function": {
-        "id": "parabola",
-        "type": "quadratic",
-        "expression": "a*x**2 + b*x + c",
-        "coefficient_relation": "2*a + b = 0"
+    "scopes": [
+      {
+        "scope_id": "problem",
+        "label": "整题",
+        "parent": null
       },
-      "parameter": "m",
-      "path_problem": {
-        "type": "two_moving_points_path_minimum",
-        "scope": "b",
-        "path": "PR+WR"
-      },
-      "entities": {
-        "points": {
-          "T": {
-            "definition": "axis_x_intercept",
-            "of": "parabola",
-            "description": "T 是抛物线对称轴与 x 轴的交点",
-            "handle": "point:problem:T",
-            "entity_type": "point",
-            "scope_id": "problem",
-            "source": "ProblemIR.data.entities.points"
-          },
-          "U": {
-            "coordinate": [
-              "m",
-              "1"
-            ],
-            "description": "U(m,1)",
-            "handle": "point:b:U",
-            "entity_type": "point",
-            "scope_id": "b",
-            "source": "ProblemIR.data.entities.points"
-          },
-          "V": {
-            "definition": "unknown",
-            "quadrant": "第四象限",
-            "description": "V 在第四象限，且 ∠UTV=90°、TU=TV",
-            "handle": "point:b:V",
-            "entity_type": "point",
-            "scope_id": "b",
-            "source": "ProblemIR.data.entities.points"
-          },
-          "W": {
-            "definition": "midpoint",
-            "of": [
-              "T",
-              "V"
-            ],
-            "description": "W 为 TV 的中点",
-            "handle": "point:b:W",
-            "entity_type": "point",
-            "scope_id": "b",
-            "source": "ProblemIR.data.entities.points"
-          }
-        },
-        "items": [
-          {
-            "handle": "function:problem:parabola",
-            "entity_type": "function",
-            "name": "parabola",
-            "scope_id": "problem",
-            "source": "ProblemIR.data.function",
-            "function_type": "quadratic",
-            "expression": "a*x**2 + b*x + c",
-            "description": "题设二次函数/抛物线"
-          },
-          {
-            "handle": "symbol:problem:x",
-            "entity_type": "symbol",
-            "name": "x",
-            "scope_id": "problem",
-            "source": "problem_ir.symbols",
-            "description": "符号 x"
-          },
-          {
-            "handle": "symbol:problem:a",
-            "entity_type": "symbol",
-            "name": "a",
-            "scope_id": "problem",
-            "source": "problem_ir.symbols",
-            "description": "符号 a"
-          },
-          {
-            "handle": "symbol:problem:b",
-            "entity_type": "symbol",
-            "name": "b",
-            "scope_id": "problem",
-            "source": "problem_ir.symbols",
-            "description": "符号 b"
-          },
-          {
-            "handle": "symbol:problem:c",
-            "entity_type": "symbol",
-            "name": "c",
-            "scope_id": "problem",
-            "source": "problem_ir.symbols",
-            "description": "符号 c"
-          },
-          {
-            "handle": "symbol:problem:m",
-            "entity_type": "symbol",
-            "name": "m",
-            "scope_id": "problem",
-            "source": "problem_ir.symbols",
-            "description": "符号 m"
-          },
-          {
-            "handle": "point:problem:C",
-            "entity_type": "point",
-            "name": "C",
-            "scope_id": "problem",
-            "source": "original_text",
-            "description": "C 是抛物线与 y 轴交点",
-            "definition": "y_axis_intercept",
-            "of": "function:problem:parabola"
-          },
-          {
-            "handle": "point:problem:T",
-            "entity_type": "point",
-            "name": "T",
-            "scope_id": "problem",
-            "source": "ProblemIR.data.entities.points",
-            "description": "T 是抛物线对称轴与 x 轴交点",
-            "definition": "axis_x_intercept",
-            "of": "function:problem:parabola"
-          },
-          {
-            "handle": "point:b:U",
-            "entity_type": "point",
-            "name": "U",
-            "scope_id": "b",
-            "source": "ProblemIR.data.entities.points",
-            "description": "U(m,1)",
-            "coordinate": [
-              "symbol:problem:m",
-              "1"
-            ]
-          },
-          {
-            "handle": "point:b:V",
-            "entity_type": "point",
-            "name": "V",
-            "scope_id": "b",
-            "source": "ProblemIR.data.entities.points",
-            "description": "V 是待求点",
-            "definition": "unknown"
-          },
-          {
-            "handle": "point:b:W",
-            "entity_type": "point",
-            "name": "W",
-            "scope_id": "b",
-            "source": "ProblemIR.data.entities.points",
-            "description": "W 是 TV 的中点",
-            "definition": "midpoint",
-            "of": [
-              "point:problem:T",
-              "point:b:V"
-            ]
-          },
-          {
-            "handle": "point:b:P",
-            "entity_type": "point",
-            "name": "P",
-            "scope_id": "b",
-            "source": "ProblemIR.data.relations",
-            "description": "P 在线段 TU 上",
-            "definition": "point_on_segment"
-          },
-          {
-            "handle": "point:b:R",
-            "entity_type": "point",
-            "name": "R",
-            "scope_id": "b",
-            "source": "ProblemIR.data.relations",
-            "description": "R 在线段 UV 上",
-            "definition": "point_on_segment"
-          },
-          {
-            "handle": "segment:b:TU",
-            "entity_type": "segment",
-            "name": "TU",
-            "scope_id": "b",
-            "source": "ProblemIR.data.relations",
-            "endpoints": [
-              "point:problem:T",
-              "point:b:U"
-            ],
-            "description": "线段 TU"
-          },
-          {
-            "handle": "segment:b:UV",
-            "entity_type": "segment",
-            "name": "UV",
-            "scope_id": "b",
-            "source": "ProblemIR.data.relations",
-            "endpoints": [
-              "point:b:U",
-              "point:b:V"
-            ],
-            "description": "线段 UV"
-          },
-          {
-            "handle": "segment:b:TV",
-            "entity_type": "segment",
-            "name": "TV",
-            "scope_id": "b",
-            "source": "ProblemIR.data.relations",
-            "endpoints": [
-              "point:problem:T",
-              "point:b:V"
-            ],
-            "description": "线段 TV"
-          }
+      {
+        "scope_id": "a",
+        "label": "第（A）问",
+        "parent": "problem",
+        "asks": [
+          "T 的坐标",
+          "抛物线解析式"
         ]
       },
-      "relations": [
-        {
-          "type": "point_on_curve",
-          "point": "U",
-          "curve": "parabola",
-          "description": "U 在抛物线上"
-        },
-        {
-          "type": "point_on_curve",
-          "point": "V",
-          "curve": "parabola",
-          "description": "V 在抛物线上"
-        },
-        {
-          "type": "right_angle_equal_length",
-          "scope": "b",
-          "angle": [
-            "U",
-            "T",
-            "V"
-          ],
-          "equal_segments": [
-            [
-              "T",
-              "U"
-            ],
-            [
-              "T",
-              "V"
-            ]
-          ],
-          "description": "∠UTV=90°，TU=TV"
-        },
-        {
-          "type": "segment_membership",
-          "point": "P",
-          "segment": [
-            "T",
-            "U"
-          ],
-          "description": "P 在线段 TU 上"
-        },
-        {
-          "type": "segment_membership",
-          "point": "R",
-          "segment": [
-            "U",
-            "V"
-          ],
-          "description": "R 在线段 UV 上"
-        },
-        {
-          "type": "segment_relation",
-          "left": "TP",
-          "right": "sqrt(2)*RV",
-          "description": "TP=√2·RV"
-        }
-      ],
-      "questions": [
-        {
-          "id": "a",
-          "label": "第（A）问",
-          "known_coefficients": {
-            "a": "2",
-            "c": "-5"
-          },
-          "asks": [
-            "T 的坐标",
-            "抛物线解析式"
-          ],
-          "goals": [
-            {
-              "id": "a.axis_point",
-              "answer_key": "T",
-              "target_path": "$problem.points.T",
-              "value_type": "Point",
-              "required": true
-            },
-            {
-              "id": "a.parabola",
-              "answer_key": "parabola",
-              "target_path": "$question.a.outputs.parabola",
-              "value_type": "Parabola",
-              "required": true
-            }
-          ]
-        },
-        {
-          "id": "b",
-          "label": "第（B）问",
-          "givens": [
-            "U(m,1) 在抛物线上",
-            "V 在抛物线上且在第四象限",
-            "∠UTV=90°",
-            "TU=TV"
-          ],
-          "subquestions": [
-            {
-              "id": "b_1",
-              "label": "第（B）①问",
-              "given": "UV=√10",
-              "conditions": [
-                {
-                  "type": "length_squared",
-                  "segment": [
-                    "U",
-                    "V"
-                  ],
-                  "value": "10"
-                }
-              ],
-              "asks": [
-                "抛物线解析式",
-                "PR+WR 的最小值"
-              ],
-              "goals": [
-                {
-                  "id": "b_1.parabola",
-                  "answer_key": "parabola",
-                  "target_path": "$subquestion.b_1.outputs.parabola",
-                  "value_type": "Parabola",
-                  "required": true
-                },
-                {
-                  "id": "b_1.minimum_value",
-                  "answer_key": "min_value",
-                  "target_path": "$subquestion.b_1.outputs.min_value",
-                  "value_type": "MinimumExpression",
-                  "required": true
-                }
-              ]
-            },
-            {
-              "id": "b_2",
-              "label": "第（B）②问",
-              "given": "PR+WR 的最小值为 5√10/2",
-              "conditions": [
-                {
-                  "type": "minimum_value",
-                  "path": "PR+WR",
-                  "value": "5*sqrt(10)/2"
-                }
-              ],
-              "asks": [
-                "抛物线解析式",
-                "此时 R 的坐标"
-              ],
-              "goals": [
-                {
-                  "id": "b_2.parabola",
-                  "answer_key": "parabola",
-                  "target_path": "$subquestion.b_2.outputs.parabola",
-                  "value_type": "Parabola",
-                  "required": true
-                },
-                {
-                  "id": "b_2.intersection",
-                  "answer_key": "R",
-                  "target_path": "$question.b.points.R",
-                  "value_type": "Point",
-                  "required": true
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      "facts": [
-        {
-          "handle": "fact:problem:a_gt_0",
-          "type": "symbol_constraint",
-          "scope_id": "problem",
-          "valid_scope": "problem",
-          "source": "ProblemIR.constraints.a",
-          "description": "a > 0",
-          "subject": "symbol:problem:a",
-          "operator": ">",
-          "value": "0"
-        },
-        {
-          "handle": "fact:problem:m_gt_2",
-          "type": "symbol_constraint",
-          "scope_id": "problem",
-          "valid_scope": "problem",
-          "source": "ProblemIR.constraints.m",
-          "description": "m > 2",
-          "subject": "symbol:problem:m",
-          "operator": ">",
-          "value": "2"
-        },
-        {
-          "handle": "fact:problem:coefficient_relation",
-          "type": "coefficient_relation",
-          "scope_id": "problem",
-          "valid_scope": "problem",
-          "source": "ProblemIR.data.function.coefficient_relation",
-          "description": "2a+b=0",
-          "equation": "2*a + b = 0",
-          "subjects": [
-            "symbol:problem:a",
-            "symbol:problem:b"
-          ]
-        },
-        {
-          "handle": "fact:a:a_value",
-          "type": "symbol_value",
-          "scope_id": "a",
-          "valid_scope": "a",
-          "source": "ProblemIR.data.questions.a.known_coefficients",
-          "description": "第（Ⅰ）问 a=2",
-          "subject": "symbol:problem:a",
-          "value": "2"
-        },
-        {
-          "handle": "fact:a:c_value",
-          "type": "symbol_value",
-          "scope_id": "a",
-          "valid_scope": "a",
-          "source": "ProblemIR.data.questions.a.known_coefficients",
-          "description": "第（Ⅰ）问 c=-5",
-          "subject": "symbol:problem:c",
-          "value": "-5"
-        },
-        {
-          "handle": "fact:b:U_coordinate_expr",
-          "type": "point_coordinate",
-          "scope_id": "b",
-          "valid_scope": "b",
-          "source": "ProblemIR.data.entities.points",
-          "description": "U(m,1)",
-          "subject": "point:b:U",
-          "value": [
-            "m",
-            "1"
-          ]
-        },
-        {
-          "handle": "fact:b:U_on_parabola",
-          "type": "point_on_curve",
-          "scope_id": "b",
-          "valid_scope": "b",
-          "source": "ProblemIR.data.relations",
-          "description": "U 在抛物线上",
-          "point": "point:b:U",
-          "curve": "function:problem:parabola"
-        },
-        {
-          "handle": "fact:b:V_on_parabola",
-          "type": "point_on_curve",
-          "scope_id": "b",
-          "valid_scope": "b",
-          "source": "ProblemIR.data.relations",
-          "description": "V 在抛物线上",
-          "point": "point:b:V",
-          "curve": "function:problem:parabola"
-        },
-        {
-          "handle": "fact:b:V_fourth_quadrant",
-          "type": "orientation_constraint",
-          "scope_id": "b",
-          "valid_scope": "b",
-          "source": "ProblemIR.data.entities.points",
-          "description": "V 在第四象限",
-          "subject": "point:b:V",
-          "quadrant": "第四象限"
-        },
-        {
-          "handle": "fact:b:right_angle_equal_length_UTV",
-          "type": "right_angle_equal_length",
-          "scope_id": "b",
-          "valid_scope": "b",
-          "source": "ProblemIR.data.relations",
-          "description": "∠UTV=90°，TU=TV",
-          "angle": [
-            "point:b:U",
-            "point:problem:T",
-            "point:b:V"
-          ],
-          "equal_segments": [
-            "segment:b:TU",
-            "segment:b:TV"
-          ]
-        },
-        {
-          "handle": "fact:b:segment_P_on_TU",
-          "type": "segment_membership",
-          "scope_id": "b",
-          "valid_scope": "b",
-          "source": "ProblemIR.data.relations",
-          "description": "P 在线段 TU 上",
-          "point": "point:b:P",
-          "segment": "segment:b:TU"
-        },
-        {
-          "handle": "fact:b:segment_R_on_UV",
-          "type": "segment_membership",
-          "scope_id": "b",
-          "valid_scope": "b",
-          "source": "ProblemIR.data.relations",
-          "description": "R 在线段 UV 上",
-          "point": "point:b:R",
-          "segment": "segment:b:UV"
-        },
-        {
-          "handle": "fact:b:segment_TP_eq_sqrt2_VR",
-          "type": "segment_relation",
-          "scope_id": "b",
-          "valid_scope": "b",
-          "source": "ProblemIR.data.relations",
-          "description": "TP=sqrt(2)*VR",
-          "left": "TP",
-          "right": "sqrt(2)*VR"
-        },
-        {
-          "handle": "fact:b:path_minimum_target",
-          "type": "path_minimum_target",
-          "scope_id": "b",
-          "valid_scope": "b",
-          "source": "ProblemIR.data.path_problem",
-          "description": "PR+WR 路径最值目标",
-          "path": "PR+WR"
-        },
-        {
-          "handle": "fact:b_1:UV_length_squared_eq_10",
-          "type": "length_squared",
-          "scope_id": "b_1",
-          "valid_scope": "b_1",
-          "source": "ProblemIR.data.questions.b_1.conditions",
-          "description": "UV^2=10",
-          "segment": "segment:b:UV",
-          "value": "10"
-        },
-        {
-          "handle": "fact:b_2:path_minimum_value_given",
-          "type": "minimum_value",
-          "scope_id": "b_2",
-          "valid_scope": "b_2",
-          "source": "ProblemIR.data.questions.b_2.conditions",
-          "description": "PR+WR 的最小值为 5*sqrt(10)/2",
-          "path": "PR+WR",
-          "value": "5*sqrt(10)/2"
-        }
-      ]
-    }
+      {
+        "scope_id": "b",
+        "label": "第（B）问",
+        "parent": "problem"
+      },
+      {
+        "scope_id": "b_1",
+        "label": "第（B）①问",
+        "parent": "b",
+        "asks": [
+          "抛物线解析式",
+          "PR+WR 的最小值"
+        ]
+      },
+      {
+        "scope_id": "b_2",
+        "label": "第（B）②问",
+        "parent": "b",
+        "asks": [
+          "抛物线解析式",
+          "此时 R 的坐标"
+        ]
+      }
+    ],
+    "entities": [
+      {
+        "handle": "function:problem:parabola",
+        "entity_type": "function",
+        "name": "parabola",
+        "scope_id": "problem",
+        "function_type": "quadratic",
+        "expression": "a*x**2 + b*x + c",
+        "description": "题设二次函数/抛物线",
+        "coefficient_relation": "2*a + b = 0"
+      },
+      {
+        "handle": "symbol:problem:x",
+        "entity_type": "symbol",
+        "name": "x",
+        "scope_id": "problem",
+        "description": "符号 x",
+        "role": "function_variable"
+      },
+      {
+        "handle": "symbol:problem:a",
+        "entity_type": "symbol",
+        "name": "a",
+        "scope_id": "problem",
+        "description": "符号 a",
+        "role": "quadratic_coefficient"
+      },
+      {
+        "handle": "symbol:problem:b",
+        "entity_type": "symbol",
+        "name": "b",
+        "scope_id": "problem",
+        "description": "符号 b",
+        "role": "quadratic_coefficient"
+      },
+      {
+        "handle": "symbol:problem:c",
+        "entity_type": "symbol",
+        "name": "c",
+        "scope_id": "problem",
+        "description": "符号 c",
+        "role": "quadratic_coefficient"
+      },
+      {
+        "handle": "symbol:problem:m",
+        "entity_type": "symbol",
+        "name": "m",
+        "scope_id": "problem",
+        "description": "符号 m",
+        "role": "dynamic_parameter"
+      },
+      {
+        "handle": "point:problem:C",
+        "entity_type": "point",
+        "name": "C",
+        "scope_id": "problem",
+        "description": "C 是抛物线与 y 轴交点",
+        "definition": "y_axis_intercept",
+        "of": "function:problem:parabola"
+      },
+      {
+        "handle": "point:problem:T",
+        "entity_type": "point",
+        "name": "T",
+        "scope_id": "problem",
+        "description": "T 是抛物线对称轴与 x 轴交点",
+        "definition": "axis_x_intercept",
+        "of": "function:problem:parabola"
+      },
+      {
+        "handle": "point:b:U",
+        "entity_type": "point",
+        "name": "U",
+        "scope_id": "b",
+        "description": "U(m,1)",
+        "coordinate": [
+          "symbol:problem:m",
+          "1"
+        ]
+      },
+      {
+        "handle": "point:b:V",
+        "entity_type": "point",
+        "name": "V",
+        "scope_id": "b",
+        "description": "V 是待求点",
+        "definition": "unknown"
+      },
+      {
+        "handle": "point:b:W",
+        "entity_type": "point",
+        "name": "W",
+        "scope_id": "b",
+        "description": "W 是 TV 的中点",
+        "definition": "midpoint",
+        "of": [
+          "point:problem:T",
+          "point:b:V"
+        ]
+      },
+      {
+        "handle": "point:b:P",
+        "entity_type": "point",
+        "name": "P",
+        "scope_id": "b",
+        "description": "P 在线段 TU 上",
+        "definition": "point_on_segment"
+      },
+      {
+        "handle": "point:b:R",
+        "entity_type": "point",
+        "name": "R",
+        "scope_id": "b",
+        "description": "R 在线段 UV 上",
+        "definition": "point_on_segment"
+      },
+      {
+        "handle": "segment:b:TU",
+        "entity_type": "segment",
+        "name": "TU",
+        "scope_id": "b",
+        "endpoints": [
+          "point:problem:T",
+          "point:b:U"
+        ],
+        "description": "线段 TU"
+      },
+      {
+        "handle": "segment:b:UV",
+        "entity_type": "segment",
+        "name": "UV",
+        "scope_id": "b",
+        "endpoints": [
+          "point:b:U",
+          "point:b:V"
+        ],
+        "description": "线段 UV"
+      },
+      {
+        "handle": "segment:b:TV",
+        "entity_type": "segment",
+        "name": "TV",
+        "scope_id": "b",
+        "endpoints": [
+          "point:problem:T",
+          "point:b:V"
+        ],
+        "description": "线段 TV"
+      }
+    ],
+    "facts": [
+      {
+        "handle": "fact:problem:a_gt_0",
+        "type": "symbol_constraint",
+        "scope_id": "problem",
+        "valid_scope": "problem",
+        "description": "a > 0",
+        "subject": "symbol:problem:a",
+        "operator": ">",
+        "value": "0"
+      },
+      {
+        "handle": "fact:problem:m_gt_2",
+        "type": "symbol_constraint",
+        "scope_id": "problem",
+        "valid_scope": "problem",
+        "description": "m > 2",
+        "subject": "symbol:problem:m",
+        "operator": ">",
+        "value": "2"
+      },
+      {
+        "handle": "fact:problem:coefficient_relation",
+        "type": "coefficient_relation",
+        "scope_id": "problem",
+        "valid_scope": "problem",
+        "description": "2a+b=0",
+        "equation": "2*a + b = 0",
+        "subjects": [
+          "symbol:problem:a",
+          "symbol:problem:b"
+        ]
+      },
+      {
+        "handle": "fact:a:a_value",
+        "type": "symbol_value",
+        "scope_id": "a",
+        "valid_scope": "a",
+        "description": "第（Ⅰ）问 a=2",
+        "subject": "symbol:problem:a",
+        "value": "2"
+      },
+      {
+        "handle": "fact:a:c_value",
+        "type": "symbol_value",
+        "scope_id": "a",
+        "valid_scope": "a",
+        "description": "第（Ⅰ）问 c=-5",
+        "subject": "symbol:problem:c",
+        "value": "-5"
+      },
+      {
+        "handle": "fact:b:U_coordinate_expr",
+        "type": "point_coordinate",
+        "scope_id": "b",
+        "valid_scope": "b",
+        "description": "U(m,1)",
+        "subject": "point:b:U",
+        "value": [
+          "m",
+          "1"
+        ]
+      },
+      {
+        "handle": "fact:b:U_on_parabola",
+        "type": "point_on_curve",
+        "scope_id": "b",
+        "valid_scope": "b",
+        "description": "U 在抛物线上",
+        "point": "point:b:U",
+        "curve": "function:problem:parabola"
+      },
+      {
+        "handle": "fact:b:V_on_parabola",
+        "type": "point_on_curve",
+        "scope_id": "b",
+        "valid_scope": "b",
+        "description": "V 在抛物线上",
+        "point": "point:b:V",
+        "curve": "function:problem:parabola"
+      },
+      {
+        "handle": "fact:b:V_fourth_quadrant",
+        "type": "orientation_constraint",
+        "scope_id": "b",
+        "valid_scope": "b",
+        "description": "V 在第四象限",
+        "subject": "point:b:V",
+        "quadrant": "第四象限"
+      },
+      {
+        "handle": "fact:b:right_angle_equal_length_UTV",
+        "type": "right_angle_equal_length",
+        "scope_id": "b",
+        "valid_scope": "b",
+        "description": "∠UTV=90°，TU=TV",
+        "angle": [
+          "point:b:U",
+          "point:problem:T",
+          "point:b:V"
+        ],
+        "equal_segments": [
+          "segment:b:TU",
+          "segment:b:TV"
+        ]
+      },
+      {
+        "handle": "fact:b:segment_P_on_TU",
+        "type": "segment_membership",
+        "scope_id": "b",
+        "valid_scope": "b",
+        "description": "P 在线段 TU 上",
+        "point": "point:b:P",
+        "segment": "segment:b:TU"
+      },
+      {
+        "handle": "fact:b:segment_R_on_UV",
+        "type": "segment_membership",
+        "scope_id": "b",
+        "valid_scope": "b",
+        "description": "R 在线段 UV 上",
+        "point": "point:b:R",
+        "segment": "segment:b:UV"
+      },
+      {
+        "handle": "fact:b:segment_TP_eq_sqrt2_VR",
+        "type": "segment_relation",
+        "scope_id": "b",
+        "valid_scope": "b",
+        "description": "TP=sqrt(2)*VR",
+        "left": "TP",
+        "right": "sqrt(2)*VR"
+      },
+      {
+        "handle": "fact:b:path_minimum_target",
+        "type": "path_minimum_target",
+        "scope_id": "b",
+        "valid_scope": "b",
+        "description": "PR+WR 路径最值目标",
+        "path": "PR+WR"
+      },
+      {
+        "handle": "fact:b_1:UV_length_squared_eq_10",
+        "type": "length_squared",
+        "scope_id": "b_1",
+        "valid_scope": "b_1",
+        "description": "UV^2=10",
+        "segment": "segment:b:UV",
+        "value": "10"
+      },
+      {
+        "handle": "fact:b_2:path_minimum_value_given",
+        "type": "minimum_value",
+        "scope_id": "b_2",
+        "valid_scope": "b_2",
+        "description": "PR+WR 的最小值为 5*sqrt(10)/2",
+        "path": "PR+WR",
+        "value": "5*sqrt(10)/2"
+      }
+    ],
+    "question_goals": [
+      {
+        "handle": "answer:a.axis_point",
+        "scope_id": "a",
+        "answer_key": "T",
+        "value_type": "Point",
+        "required": true,
+        "description": "第（A）问输出 T 的坐标",
+        "target_handle": "point:problem:T",
+        "valid_scope": "problem"
+      },
+      {
+        "handle": "answer:a.parabola",
+        "scope_id": "a",
+        "answer_key": "parabola",
+        "value_type": "Parabola",
+        "required": true,
+        "description": "第（A）问输出抛物线解析式"
+      },
+      {
+        "handle": "answer:b_1.parabola",
+        "scope_id": "b_1",
+        "answer_key": "parabola",
+        "value_type": "Parabola",
+        "required": true,
+        "description": "第（B）①问输出抛物线解析式"
+      },
+      {
+        "handle": "answer:b_1.minimum_value",
+        "scope_id": "b_1",
+        "answer_key": "min_value",
+        "value_type": "MinimumExpression",
+        "required": true,
+        "description": "第（B）①问输出路径最小值"
+      },
+      {
+        "handle": "answer:b_2.parabola",
+        "scope_id": "b_2",
+        "answer_key": "parabola",
+        "value_type": "Parabola",
+        "required": true,
+        "description": "第（B）②问输出抛物线解析式"
+      },
+      {
+        "handle": "answer:b_2.intersection",
+        "scope_id": "b_2",
+        "answer_key": "R",
+        "value_type": "Point",
+        "required": true,
+        "description": "第（B）②问输出 R 的坐标",
+        "target_handle": "point:b:R"
+      }
+    ]
   }
 }

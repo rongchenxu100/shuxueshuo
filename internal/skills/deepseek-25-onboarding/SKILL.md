@@ -55,6 +55,43 @@ Do not hand-author runtime compatibility fields such as `symbols`, `symbol_roles
 
 It must not include expected answers, raw DeepSeek output, method chains, runtime `ContextPath` values, derived solution facts, or auxiliary solution-only entities.
 
+## Capability Abstraction Principles
+
+The solver grows by adding reusable mathematical capabilities, not by patching one problem at a time.
+
+### Method Level
+
+A method describes **what mathematical problem it can solve**, not the procedural steps of one concrete solution. Write method summaries in this shape:
+
+```text
+Given <semantic inputs>, derive <semantic output> under <applicability/preconditions>.
+```
+
+Good method specs say:
+
+- what class of conclusion the method derives;
+- which semantic inputs are required;
+- which output types it produces;
+- which preconditions make the method applicable;
+- whether symbolic or parameterized expressions are supported;
+- what the method intentionally does not solve.
+
+Avoid current-case wording such as fixed problem ids, district names, subquestion ids, answer values, or point names that are not abstract roles. Prefer role language such as `fixed point`, `moving point`, `reference angle`, `target point`, `known intercept`, `dynamic parameter`, and `path expression`.
+
+The method Python `SPEC` is the source of truth. Generated `internal/method-specs/*.json` files must be synchronized from code, not edited by hand.
+
+### Recipe Level
+
+A recipe describes a standard executable solving action that may contain one or more methods. Use a recipe when the LLM needs a high-level menu item such as “turn an equal-length two-moving-point path into a single-moving-point distance”, while the code owns the internal method sequence and wiring.
+
+Do not create recipes that merely restate one current problem’s helper point construction. If the recipe cannot be described without the current letters, it is not abstract enough.
+
+### Family Level
+
+`strategy_principles` should describe the student-friendly mathematical strategy for the family. `step_recipes` should describe standard executable actions in that strategy. The family name should reflect the core structure, such as weighted path transformation or equal-length ray path reduction, not a single exam problem.
+
+The LLM should prefer `recipe_hint` from the recipe catalog first, then method ids from the method catalog. It may leave the hint empty only when no catalog entry fits; the code may still resolve such steps if the capability match is unique.
+
 ## Workflow
 
 ### 1. Establish The Problem Contract
@@ -83,7 +120,9 @@ Create a test like the Xiqing pattern:
 
 Use the debug artifacts to classify each failure before changing code.
 
-Prefer this order:
+Inspect the whole attempt, not only the first blocking exception. When available, read the raw draft, effective draft, normalization report, candidate report, execution diagnostic, accepted prefix, and previous-attempt payload.
+
+Prefer this classification order:
 
 1. **ProblemIR gap**: missing entity, fact, scope, constraint, relation, or answer goal.
 2. **FamilySpec gap**: wrong family, missing `strategy_principles`, missing `method_ids`, missing recipe, or missing binding rule.
@@ -95,12 +134,25 @@ Prefer this order:
 
 Do not patch runtime logic by matching a specific `problem_id`, exam title, fixed point name, or subquestion id.
 
+Use these decision rules:
+
+- Add or extend a **method** when a reusable, checkable mathematical transformation/calculation is missing.
+- Add or extend a **recipe** when several methods form a reusable solving action and the LLM needs a high-level hint.
+- Add a **binding selector** when the method already exists but canonical handles cannot map reliably to method input slots.
+- Add a **normalizer** only for deterministic structural drift, such as safe alias correction, scope widening to a visible parent, output-type alias, duplicate exact `creates`, or harmless utility fact rewrite.
+- Tune **prompt/few-shot** when capabilities already exist but the LLM repeatedly chooses the wrong family strategy or wrong executable granularity.
+
+The repair loop is stateless chat-wise. If a round fails, preserve rich repair context: previous raw/effective StepIntent draft, accepted prefix, applied fills, blockers, skipped steps, and repair instructions. A validation-only failure must not erase a previous rich execution diagnostic.
+
 ### 4. Add Reusable Capability
 
 When adding or extending a method:
 
 - Put implementation and `SPEC` in the method Python file.
 - Treat Python `SPEC` as the source of truth; generated `internal/method-specs/*.json` is derived.
+- Write the method summary as a capability statement, not an operation trace for one题.
+- Include applicability, preconditions, input/output semantics, unsupported cases, and symbolic/parameterized support.
+- If the method is useful for student explanation, describe the reusable mathematical idea, not a current-case derivation. Detailed derivation belongs to the explanation layer.
 - Run the method spec generator:
 
 ```bash
@@ -112,7 +164,9 @@ cd server && uv run python -m shuxueshuo_server.solver.runtime.methods.generate_
 When adding recipe or binding capability:
 
 - Add recipe and method binding rules to the relevant `SolverFamilySpec`.
-- Keep recipe generic: no problem id, no fixed point names, no answer values.
+- Keep recipe generic: no problem id, no fixed point names, no answer values, and no hard-coded current-question path.
+- Describe what the recipe solves at the executable step level, for example “reduce a two-moving-point path by an equal-length ray construction,” not “construct point F in 和平”.
+- Let recipe execution own internal helper entities and method wiring when they are part of the standard action.
 - Add unit tests for recipe selection, selector existence, binding behavior, and any normalizer rewrite.
 
 When changing prompt/few-shot:
@@ -120,6 +174,8 @@ When changing prompt/few-shot:
 - Keep StepIntent at method/recipe executable granularity, not student-facing explanation granularity.
 - Do not put expected answers into prompt or payload.
 - Prefer family strategy principles and verified few-shot examples over single-case prompt hacks.
+- In tests, do not use the current problem as few-shot. Use a verified different example or a family mock fallback.
+- A few-shot example teaches executable structure; webpage explanation steps may be coarser and are produced later by `ExplanationBuilder`.
 
 ### 5. Solidify The Passing Case
 

@@ -12,10 +12,16 @@ FIXTURES = [
     Path("../internal/solver-fixtures/tj-2026-nankai-yimo-25.json"),
     Path("../internal/solver-fixtures/tj-2026-nankai-yimo-25-alt-labels.json"),
     Path("../internal/solver-fixtures/tj-2026-hexi-yimo-25.json"),
+    Path("../internal/solver-fixtures/tj-2026-xiqing-yimo-25.json"),
     Path("../internal/solver-fixtures/tj-2026-heping-yimo-25.json"),
 ]
-LEGACY_FIXTURES = FIXTURES[:-1]
-CANONICAL_FIXTURE = Path("../internal/solver-fixtures/tj-2026-heping-yimo-25.json")
+CANONICAL_FIXTURES = [
+    Path("../internal/solver-fixtures/tj-2026-nankai-yimo-25.json"),
+    Path("../internal/solver-fixtures/tj-2026-nankai-yimo-25-alt-labels.json"),
+    Path("../internal/solver-fixtures/tj-2026-hexi-yimo-25.json"),
+    Path("../internal/solver-fixtures/tj-2026-xiqing-yimo-25.json"),
+    Path("../internal/solver-fixtures/tj-2026-heping-yimo-25.json"),
+]
 
 QUADRATIC_PATH_FIXTURES = [
     Path("../internal/solver-fixtures/tj-2026-nankai-yimo-25.json"),
@@ -54,12 +60,11 @@ def test_solver_fixture_keeps_problem_input_separate_from_expected_answers(fixtu
 
 @pytest.mark.parametrize("fixture_path", QUADRATIC_PATH_FIXTURES)
 def test_quadratic_path_fixtures_use_path_problem_instead_of_solver_config(fixture_path: Path) -> None:
-    fixture = json.loads(fixture_path.read_text(encoding="utf-8"))
-    data = fixture["input"]["data"]
-    path_problem = data["path_problem"]
+    problem = load_problem_ir(fixture_path)
+    path_problem = problem.data["path_problem"]
 
-    assert fixture["input"]["symbol_roles"]["m"] == "dynamic_parameter"
-    assert "solver_config" not in fixture["input"]
+    assert problem.symbol_roles["m"] == "dynamic_parameter"
+    assert not problem.solver_config
     assert path_problem["type"] == "two_moving_points_path_minimum"
     assert path_problem["scope"] in {"ii", "b"}
     assert path_problem["path"] in {"EG+FG", "PR+WR"}
@@ -69,12 +74,12 @@ def test_quadratic_path_fixtures_use_path_problem_instead_of_solver_config(fixtu
 
 
 def test_weighted_path_fixture_uses_path_problem_instead_of_solver_config() -> None:
-    fixture = json.loads(WEIGHTED_PATH_FIXTURE.read_text(encoding="utf-8"))
-    path_problem = fixture["input"]["data"]["path_problem"]
+    problem = load_problem_ir(WEIGHTED_PATH_FIXTURE)
+    path_problem = problem.data["path_problem"]
 
-    assert fixture["input"]["pattern"] == "weighted-path-minimum"
-    assert fixture["input"]["problem_type"] == "quadratic_weighted_path_minimum"
-    assert "solver_config" not in fixture["input"]
+    assert problem.pattern == "weighted-path-minimum"
+    assert problem.problem_type == "quadratic_weighted_path_minimum"
+    assert not problem.solver_config
     assert path_problem == {
         "type": "weighted_path_minimum",
         "scope": "iii",
@@ -85,8 +90,7 @@ def test_weighted_path_fixture_uses_path_problem_instead_of_solver_config() -> N
 
 def test_hexi_fixture_goals_only_include_problem_asks() -> None:
     """QuestionGoal 只表达题面最终作答目标，不收集中间推导量。"""
-    fixture = json.loads(WEIGHTED_PATH_FIXTURE.read_text(encoding="utf-8"))
-    questions = fixture["input"]["data"]["questions"]
+    questions = load_problem_ir(WEIGHTED_PATH_FIXTURE).data["questions"]
 
     assert [
         (question["id"], [goal["answer_key"] for goal in question.get("goals", [])])
@@ -98,12 +102,12 @@ def test_hexi_fixture_goals_only_include_problem_asks() -> None:
     ]
 
 
-@pytest.mark.parametrize("fixture_path", LEGACY_FIXTURES)
+@pytest.mark.parametrize("fixture_path", CANONICAL_FIXTURES)
 def test_solver_fixtures_store_first_class_entities_and_facts(fixture_path: Path) -> None:
     """ProblemIR 必须显式保存 canonical Entity / Fact，而不是运行时临时推导。"""
     fixture = json.loads(fixture_path.read_text(encoding="utf-8"))
-    data = fixture["input"]["data"]
-    entities = data["entities"]["items"]
+    data = fixture["input"]
+    entities = data["entities"]
     facts = data["facts"]
 
     entity_handles = [entity["handle"] for entity in entities]
@@ -120,32 +124,30 @@ def test_solver_fixtures_store_first_class_entities_and_facts(fixture_path: Path
     for entity in entities:
         expected = f"{entity['entity_type']}:{entity['scope_id']}:{entity['name']}"
         assert entity["handle"] == expected
-        assert entity["source"]
         assert entity["description"]
 
     for fact in facts:
         assert fact["handle"].startswith(f"fact:{fact['scope_id']}:")
         assert fact["valid_scope"]
-        assert fact["source"]
         assert fact["description"]
 
 
-@pytest.mark.parametrize("fixture_path", LEGACY_FIXTURES)
-def test_legacy_point_index_also_carries_canonical_entity_metadata(fixture_path: Path) -> None:
-    """保留给 ContextBuilder 的 points 索引也必须带 canonical 元数据。"""
-    fixture = json.loads(fixture_path.read_text(encoding="utf-8"))
-    points = fixture["input"]["data"]["entities"]["points"]
+@pytest.mark.parametrize("fixture_path", CANONICAL_FIXTURES)
+def test_canonical_projection_point_index_carries_entity_metadata(fixture_path: Path) -> None:
+    """RuntimeProjection 派生给 ContextBuilder 的 points 索引应带 canonical 元数据。"""
+    points = load_problem_ir(fixture_path).data["entities"]["points"]
 
     for point_name, point in points.items():
         assert point["handle"].endswith(f":{point_name}")
         assert point["entity_type"] == "point"
         assert point["scope_id"]
-        assert point["source"] == "ProblemIR.data.entities.points"
+        assert point["source"] == "ProblemIR.entities"
 
 
-def test_canonical_heping_fixture_has_single_problem_fact_source() -> None:
+@pytest.mark.parametrize("fixture_path", CANONICAL_FIXTURES)
+def test_canonical_fixture_has_single_problem_fact_source(fixture_path: Path) -> None:
     """Canonical authored fixture 不再手写 runtime 兼容索引。"""
-    fixture = json.loads(CANONICAL_FIXTURE.read_text(encoding="utf-8"))
+    fixture = json.loads(fixture_path.read_text(encoding="utf-8"))
     data = fixture["input"]
 
     assert set(data) == {
@@ -169,7 +171,7 @@ def test_canonical_heping_fixture_has_single_problem_fact_source() -> None:
 
 def test_canonical_heping_fixture_projects_to_runtime_and_llm_views() -> None:
     """同一 canonical fixture 能派生 runtime context 和 LLM payload。"""
-    problem = load_problem_ir(CANONICAL_FIXTURE)
+    problem = load_problem_ir(Path("../internal/solver-fixtures/tj-2026-heping-yimo-25.json"))
     context = ContextBuilder().build(problem)
     payload = problem_to_llm_payload(problem)
 
@@ -188,16 +190,17 @@ def test_canonical_heping_fixture_projects_to_runtime_and_llm_views() -> None:
 
 def test_nankai_fixture_preserves_original_question_structure() -> None:
     fixture = json.loads(FIXTURES[0].read_text(encoding="utf-8"))
-    data = fixture["input"]["data"]
+    data = fixture["input"]
     original_text = fixture["input"]["original_text"]
-    question_i = next(question for question in data["questions"] if question["id"] == "i")
-    question_ii = next(question for question in data["questions"] if question["id"] == "ii")
+    scope_i = next(scope for scope in data["scopes"] if scope["scope_id"] == "i")
+    scope_ii = next(scope for scope in data["scopes"] if scope["scope_id"] == "ii")
 
     assert "2a＋b＝0" in original_text["lines"][0]
-    assert question_i["label"] == "第（Ⅰ）问"
-    assert [child["id"] for child in question_ii["subquestions"]] == ["ii_1", "ii_2"]
-    assert [goal["answer_key"] for goal in question_i["goals"]] == ["D", "parabola"]
-    assert [goal["answer_key"] for goal in question_ii["subquestions"][0]["goals"]] == [
+    assert scope_i["label"] == "第（Ⅰ）问"
+    assert [scope["scope_id"] for scope in data["scopes"] if scope["parent"] == "ii"] == ["ii_1", "ii_2"]
+    assert scope_ii["label"] == "第（Ⅱ）问"
+    assert [goal["answer_key"] for goal in data["question_goals"] if goal["scope_id"] == "i"] == ["D", "parabola"]
+    assert [goal["answer_key"] for goal in data["question_goals"] if goal["scope_id"] == "ii_1"] == [
         "parabola",
         "min_value",
     ]
@@ -205,18 +208,22 @@ def test_nankai_fixture_preserves_original_question_structure() -> None:
 
 def test_nankai_fixture_uses_neutral_right_angle_relation() -> None:
     fixture = json.loads(FIXTURES[0].read_text(encoding="utf-8"))
-    data = fixture["input"]["data"]
+    data = fixture["input"]
 
-    assert data["entities"]["points"]["N"]["definition"] == "unknown"
+    n_entity = next(
+        item for item in data["entities"]
+        if item["handle"] == "point:ii:N"
+    )
+    assert n_entity["definition"] == "unknown"
     relation = next(
-        item for item in data["relations"]
+        item for item in data["facts"]
         if item["type"] == "right_angle_equal_length"
     )
-    assert relation["angle"] == ["M", "D", "N"]
-    assert relation["equal_segments"] == [["D", "M"], ["D", "N"]]
+    assert relation["angle"] == ["point:ii:M", "point:problem:D", "point:ii:N"]
+    assert relation["equal_segments"] == ["segment:ii:DM", "segment:ii:DN"]
 
     fact_handles = {fact["handle"] for fact in data["facts"]}
-    entity_handles = {entity["handle"] for entity in data["entities"]["items"]}
+    entity_handles = {entity["handle"] for entity in data["entities"]}
     assert "point:ii:E" in entity_handles
     assert "point:ii:G" in entity_handles
     assert "fact:ii:right_angle_equal_length_MDN" in fact_handles

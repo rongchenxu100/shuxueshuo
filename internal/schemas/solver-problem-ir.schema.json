@@ -18,15 +18,17 @@
     },
     "input": {
       "type": "object",
-      "required": ["problem_id", "pattern", "problem_type", "original_text"],
-      "additionalProperties": false,
-      "oneOf": [
-        { "required": ["symbols", "constraints", "data"] },
-        {
-          "required": ["scopes", "entities", "facts", "question_goals"],
-          "not": { "required": ["data"] }
-        }
+      "required": [
+        "problem_id",
+        "pattern",
+        "problem_type",
+        "original_text",
+        "scopes",
+        "entities",
+        "facts",
+        "question_goals"
       ],
+      "additionalProperties": false,
       "properties": {
         "problem_id": { "type": "string" },
         "pattern": { "type": "string" },
@@ -44,25 +46,6 @@
               "minItems": 1
             }
           }
-        },
-        "symbols": {
-          "type": "array",
-          "items": { "type": "string" },
-          "minItems": 1
-        },
-        "symbol_roles": {
-          "type": "object",
-          "additionalProperties": {
-            "enum": [
-              "function_variable",
-              "quadratic_coefficient",
-              "dynamic_parameter"
-            ]
-          }
-        },
-        "constraints": {
-          "type": "object",
-          "additionalProperties": { "type": "string" }
         },
         "scopes": {
           "type": "array",
@@ -83,119 +66,11 @@
           "type": "array",
           "items": { "$ref": "#/$defs/canonical_question_goal" },
           "minItems": 1
-        },
-        "data": {
-          "type": "object",
-          "required": ["function", "entities", "facts", "relations", "questions"],
-          "additionalProperties": true,
-          "properties": {
-            "function": {
-              "type": "object",
-              "required": ["id", "type", "expression"],
-              "additionalProperties": true,
-              "properties": {
-                "id": { "type": "string" },
-                "type": { "type": "string" },
-                "expression": { "type": "string" },
-                "coefficient_relation": { "type": "string" }
-              }
-            },
-            "parameter": { "type": "string" },
-            "path_problem": {
-              "type": "object",
-              "required": ["type", "scope", "path"],
-              "additionalProperties": false,
-              "properties": {
-                "type": {
-                  "enum": [
-                    "two_moving_points_path_minimum",
-                    "weighted_path_minimum"
-                  ]
-                },
-                "scope": { "type": "string", "minLength": 1 },
-                "path": { "type": "string", "minLength": 1 },
-                "value": { "type": "string", "minLength": 1 }
-              }
-            },
-            "entities": {
-              "type": "object",
-              "required": ["items", "points"],
-              "additionalProperties": true,
-              "properties": {
-                "items": {
-                  "type": "array",
-                  "items": { "$ref": "#/$defs/entity" },
-                  "minItems": 1
-                },
-                "points": {
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "object",
-                    "additionalProperties": true
-                  }
-                }
-              }
-            },
-            "facts": {
-              "type": "array",
-              "items": { "$ref": "#/$defs/fact" },
-              "minItems": 1
-            },
-            "relations": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "required": ["type"],
-                "additionalProperties": true,
-                "properties": {
-                  "type": { "type": "string" }
-                }
-              }
-            },
-            "questions": {
-              "type": "array",
-              "items": { "$ref": "#/$defs/question" },
-              "minItems": 1
-            }
-          }
         }
       }
     }
   },
   "$defs": {
-    "question": {
-      "type": "object",
-      "required": ["id", "label"],
-      "additionalProperties": true,
-      "properties": {
-        "id": { "type": "string" },
-        "label": { "type": "string" },
-        "asks": {
-          "type": "array",
-          "items": { "type": "string" }
-        },
-        "goals": {
-          "type": "array",
-          "items": { "$ref": "#/$defs/question_goal" }
-        },
-        "subquestions": {
-          "type": "array",
-          "items": { "$ref": "#/$defs/question" }
-        }
-      }
-    },
-    "question_goal": {
-      "type": "object",
-      "required": ["id", "answer_key", "target_path", "value_type", "required"],
-      "additionalProperties": false,
-      "properties": {
-        "id": { "type": "string", "minLength": 1 },
-        "answer_key": { "type": "string", "minLength": 1 },
-        "target_path": { "type": "string", "pattern": "^\\$" },
-        "value_type": { "type": "string", "minLength": 1 },
-        "required": { "type": "boolean" }
-      }
-    },
     "canonical_scope": {
       "type": "object",
       "required": ["scope_id", "label", "parent"],

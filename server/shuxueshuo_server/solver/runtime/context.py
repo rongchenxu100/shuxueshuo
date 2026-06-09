@@ -616,6 +616,8 @@ class ContextBuilder:
         definition = raw.get("definition")
         if raw.get("scope_id") == "problem" and "coordinate" in raw:
             return "problem"
+        if raw.get("scope_id") not in {None, "", "problem"} and "coordinate" in raw:
+            return str(raw.get("scope_id"))
         if raw.get("scope_id") == "problem" and definition in {
             "coordinate_origin",
             "y_axis_intercept",

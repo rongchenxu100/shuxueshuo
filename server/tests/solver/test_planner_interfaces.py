@@ -118,7 +118,10 @@ def test_deterministic_planners_return_declarations_without_mutating_context() -
     nankai_context = ContextBuilder().build(load_problem_ir(NANKAI_FIXTURE))
     nankai_output = QuadraticPathMinimumPlannerV15().plan(nankai_context)
 
-    assert "G" not in nankai_context.get_scope("ii").container("points")
+    existing_g = nankai_context.get_scope("ii").container("points").get("G")
+    if existing_g is not None:
+        assert existing_g.type == "PointRef"
+        assert not existing_g.locked
     assert "D_prime" not in nankai_context.get_scope("ii").container("points")
     assert {item.path for item in nankai_output.context_declarations} == {
         "$question.ii.points.G",

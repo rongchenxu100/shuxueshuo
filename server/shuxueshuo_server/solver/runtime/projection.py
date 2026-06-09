@@ -219,7 +219,7 @@ def _runtime_data_from_canonical(
         "function": _runtime_function(entities),
         "entities": {
             "items": entity_items,
-            "points": _runtime_points(entities),
+            "points": _runtime_points(entities, facts),
         },
         "facts": [_runtime_fact(item) for item in facts],
         "relations": _runtime_relations(entities, facts),
@@ -280,6 +280,8 @@ def _runtime_fact(item: Mapping[str, Any]) -> dict[str, Any]:
     """给 canonical fact 补 runtime/debug source。"""
 
     result = dict(item)
+    if result.get("type") == "point_coordinate" and isinstance(result.get("value"), list):
+        result["value"] = [_runtime_expression_value(value) for value in result["value"]]
     result.setdefault("source", "ProblemIR.facts")
     return result
 
@@ -303,9 +305,13 @@ def _runtime_function(entities: list[dict[str, Any]]) -> dict[str, Any]:
     return {"id": "parabola", "type": "quadratic", "expression": "a*x**2 + b*x + c"}
 
 
-def _runtime_points(entities: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+def _runtime_points(
+    entities: list[dict[str, Any]],
+    facts: list[dict[str, Any]],
+) -> dict[str, dict[str, Any]]:
     """从 point entity 派生 ContextBuilder 的 legacy point index。"""
 
+    quadrants = _quadrants_by_point_handle(facts)
     points: dict[str, dict[str, Any]] = {}
     for item in entities:
         if not isinstance(item, Mapping) or item.get("entity_type") != "point":
@@ -318,12 +324,50 @@ def _runtime_points(entities: list[dict[str, Any]]) -> dict[str, dict[str, Any]]
             for key, value in item.items()
             if key not in {"name"}
         }
+        if isinstance(payload.get("coordinate"), list):
+            payload["coordinate"] = [
+                _runtime_expression_value(value)
+                for value in payload["coordinate"]
+            ]
+        if isinstance(payload.get("x"), str):
+            payload["x"] = _runtime_expression_value(payload["x"])
+        for key in (
+            "of",
+            "source",
+            "base",
+            "exclude_point",
+            "known_point",
+            "vertex",
+            "adjacent",
+            "target",
+            "line",
+            "mirror_line",
+        ):
+            if key in payload:
+                payload[key] = _runtime_definition_value(payload[key])
+        quadrant = quadrants.get(str(item.get("handle", "")))
+        if quadrant:
+            payload["quadrant"] = quadrant
         payload.setdefault("handle", item.get("handle"))
         payload.setdefault("entity_type", "point")
         payload.setdefault("scope_id", item.get("scope_id", "problem"))
         payload.setdefault("source", "ProblemIR.entities")
         points[name] = payload
     return points
+
+
+def _quadrants_by_point_handle(facts: list[dict[str, Any]]) -> dict[str, str]:
+    """从 orientation_constraint facts 派生 point entity 的 legacy quadrant 字段。"""
+
+    result: dict[str, str] = {}
+    for fact in facts:
+        if not isinstance(fact, Mapping) or fact.get("type") != "orientation_constraint":
+            continue
+        subject = str(fact.get("subject", "")).strip()
+        quadrant = str(fact.get("quadrant", "")).strip()
+        if subject and quadrant:
+            result[subject] = quadrant
+    return result
 
 
 def _runtime_relations(
@@ -381,7 +425,35 @@ def _relation_from_fact(fact: Mapping[str, Any]) -> dict[str, Any] | None:
             "ray": _handle_name(str(fact.get("ray", ""))),
             "scope": scope,
         }
-    if fact_type in {"angle_sum", "equal_length_condition", "right_angle_equal_length"}:
+    if fact_type == "segment_membership":
+        return {
+            "type": "segment_membership",
+            "point": _handle_name(str(fact.get("point", ""))),
+            "segment": _handle_name(str(fact.get("segment", ""))),
+            "scope": scope,
+        }
+    if fact_type == "segment_relation":
+        return {
+            "type": "segment_relation",
+            "left": str(fact.get("left", "")),
+            "right": str(fact.get("right", "")),
+            "scope": scope,
+        }
+    if fact_type == "right_angle_equal_length":
+        relation = {key: deepcopy(value) for key, value in fact.items() if key not in {"handle", "valid_scope", "description", "source"}}
+        relation["scope"] = scope
+        if isinstance(relation.get("angle"), list):
+            relation["angle"] = [
+                _runtime_definition_value(value)
+                for value in relation["angle"]
+            ]
+        if isinstance(relation.get("equal_segments"), list):
+            relation["equal_segments"] = [
+                _runtime_definition_value(value)
+                for value in relation["equal_segments"]
+            ]
+        return relation
+    if fact_type in {"angle_sum", "equal_length_condition"}:
         relation = {key: deepcopy(value) for key, value in fact.items() if key not in {"handle", "valid_scope", "description", "source"}}
         relation["scope"] = scope
         return relation
@@ -405,7 +477,7 @@ def _runtime_path_problem(
         value = fact.get("value")
         problem_type = str(payload.get("problem_type", ""))
         pattern = str(payload.get("pattern", ""))
-        path_type = "weighted_path_minimum" if "weighted" in (problem_type + pattern) else "path_minimum"
+        path_type = "weighted_path_minimum" if "weighted" in (problem_type + pattern) else "two_moving_points_path_minimum"
         return {
             "type": path_type,
             "scope": str(fact.get("scope_id", "problem")),
@@ -434,6 +506,7 @@ def _runtime_questions(
             "id": scope_id,
             "label": str(item.get("label") or scope_id),
             "asks": list(item.get("asks", [])) if isinstance(item.get("asks"), list) else [],
+            "known_coefficients": _known_coefficients_for_scope(scope_id, facts),
             "conditions": _conditions_for_scope(scope_id, facts),
             "goals": [
                 _runtime_goal(goal, parents)
@@ -452,6 +525,23 @@ def _runtime_questions(
     return roots
 
 
+def _known_coefficients_for_scope(scope_id: str, facts: list[dict[str, Any]]) -> dict[str, str]:
+    """把当前 scope 的 symbol_value facts 派生成旧 known_coefficients。"""
+
+    known: dict[str, str] = {}
+    for fact in facts:
+        if not isinstance(fact, Mapping) or str(fact.get("scope_id")) != scope_id:
+            continue
+        if str(fact.get("type", "")) != "symbol_value":
+            continue
+        subject = str(fact.get("subject", "")).strip()
+        name = _handle_name(subject)
+        value = fact.get("value")
+        if name and value is not None:
+            known[name] = str(value)
+    return known
+
+
 def _conditions_for_scope(scope_id: str, facts: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """把当前 scope 的题设 fact 暴露给旧 ContextBuilder question.conditions。"""
 
@@ -460,7 +550,7 @@ def _conditions_for_scope(scope_id: str, facts: list[dict[str, Any]]) -> list[di
         if not isinstance(fact, Mapping) or str(fact.get("scope_id")) != scope_id:
             continue
         fact_type = str(fact.get("type", "condition"))
-        if fact_type in {"symbol_constraint", "point_coordinate"}:
+        if fact_type in {"symbol_constraint", "symbol_value", "point_coordinate"}:
             continue
         condition = {
             key: deepcopy(value)
@@ -468,6 +558,8 @@ def _conditions_for_scope(scope_id: str, facts: list[dict[str, Any]]) -> list[di
             if key not in {"handle", "valid_scope", "source"}
         }
         condition.setdefault("type", fact_type)
+        if fact_type == "length_squared" and isinstance(condition.get("segment"), str):
+            condition["segment"] = _segment_endpoint_names_from_handle(condition["segment"])
         condition.setdefault("source", str(fact.get("description", "")))
         result.append(condition)
     return result
@@ -923,6 +1015,40 @@ def _strip_name_prefix(description: str, name: str) -> str:
 def _handle_name(handle: str) -> str:
     """读取 canonical handle 的 name 部分。"""
     return handle.rsplit(":", 1)[-1] if ":" in handle else handle
+
+
+def _runtime_expression_value(value: Any) -> Any:
+    """把 runtime 表达式位置中的 canonical symbol handle 压成符号名。"""
+
+    if isinstance(value, str) and value.startswith("symbol:"):
+        return _handle_name(value)
+    return value
+
+
+def _runtime_definition_value(value: Any) -> Any:
+    """把 runtime PointRef definition 中的 canonical handles 压成旧短名。"""
+
+    if isinstance(value, str):
+        if re.match(r"^(point|line|segment|ray|function|symbol|angle|circle|polygon):", value):
+            return _handle_name(value)
+        return value
+    if isinstance(value, list):
+        return [_runtime_definition_value(item) for item in value]
+    if isinstance(value, dict):
+        return {
+            key: _runtime_definition_value(item)
+            for key, item in value.items()
+        }
+    return value
+
+
+def _segment_endpoint_names_from_handle(value: str) -> Any:
+    """把 canonical segment handle 转成旧 length_squared 条件的端点数组。"""
+
+    name = _handle_name(value)
+    if len(name) == 2 and name.isalpha():
+        return [name[0], name[1]]
+    return value
 
 
 __all__ = [

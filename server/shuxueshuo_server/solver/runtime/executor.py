@@ -100,6 +100,12 @@ class DeclarationValidator:
             and dict(existing_ref.definition) == dict(declaration.definition)
         ):
             return
+        if (
+            existing_ref.name == declaration.name
+            and existing_ref.scope_id == declaration.scope_id
+            and self._is_refinable_point_definition(existing_ref.definition)
+        ):
+            return
         raise PermissionError(
             f"declaration conflicts with existing PointRef: {declaration.path}"
         )
@@ -113,6 +119,16 @@ class DeclarationValidator:
         if isinstance(value, list | tuple):
             return any(self._contains_forbidden_value(child) for child in value)
         return False
+
+    def _is_refinable_point_definition(self, definition: dict) -> bool:
+        """允许 planner 将题面粗占位点精化为可执行几何定义。"""
+
+        return str(definition.get("definition", "")) in {
+            "unknown",
+            "point_on_segment",
+            "point_on_ray",
+            "point_on_curve",
+        }
 
 
 class PlanValidator:

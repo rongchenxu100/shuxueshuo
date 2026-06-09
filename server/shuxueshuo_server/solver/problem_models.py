@@ -43,11 +43,9 @@ class ProblemIR:
     - ``problem_id``：题目唯一标识；
     - ``pattern`` / ``problem_type``：粗粒度题型路由信息；
     - ``original_text``：题面原文，给 LLM Planner 判断小问语义和目标；
-    - ``symbols`` / ``constraints``：全题共享符号与约束；
-    - ``data``：题面事实、问题树、几何/代数对象。schema 要求
-      ``data.entities.items[]`` 和 ``data.facts[]`` 显式保存 canonical
-      Entity/Fact；旧的 ``data.entities.points``、``data.relations`` 仍保留给
-      当前 runtime 读取；
+    - ``symbols`` / ``constraints`` / ``data``：由 RuntimeProjection 从
+      canonical authored fixture 派生的 runtime-compatible view；新 fixture
+      不再手写这些字段；
     - ``solver_config``：历史兼容字段。新 fixture 不再写 planner hints，运行时默认空字典；
     - ``expected_answers``：测试期望值，运行时求解不读取。
     """
