@@ -76,6 +76,7 @@ Step shape:
   "steps": {
     "q1s1": {
       "domain": { "minX": 0, "maxX": 5, "minY": -3, "maxY": 2 },
+      "hideLayers": ["global"],
       "pointOverrides": {
         "G": ["2+u", "-2+3*u"]
       },
@@ -98,6 +99,71 @@ Supported decoration types include:
 - `areaLabel`, `areaFormulaCard`
 - **抛物线 / 坐标示意：** `parabola`, `axisOfSymmetry`, `vertex`, `curvePoint`（需对应 `geometry-spec.curves[].id`，常用字段 `curveId`、`xExpr`）
 
+### Grid panels and hidden layers
+
+Use `steps[stepId].hideLayers` to suppress named shared layers for a single step. This is most commonly used to hide the `global` grid when the step draws custom local coordinate panels.
+
+Use `grid.panels` when one step needs two or more isolated coordinate planes in the same SVG. Each panel has its own math bounds and local origin:
+
+```json
+{
+  "layers": {
+    "casePanels": {
+      "stepStartsWith": ["q2s2"],
+      "elements": [
+        {
+          "type": "grid",
+          "panels": [
+            {
+              "minX": -1.5,
+              "maxX": 1.2,
+              "minY": -1.4,
+              "maxY": 1.7,
+              "originX": 0,
+              "originY": 0,
+              "xLabel": "x_L",
+              "yLabel": "y_L",
+              "originLabel": "O_L"
+            },
+            {
+              "minX": 3.8,
+              "maxX": 9.8,
+              "minY": -1.4,
+              "maxY": 1.7,
+              "originX": 4.2,
+              "originY": 0,
+              "xLabel": "x_R",
+              "yLabel": "y_R",
+              "originLabel": "O_R"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "steps": {
+    "q2s2": {
+      "domain": { "minX": -1.8, "maxX": 10, "minY": -1.6, "maxY": 2 },
+      "hideLayers": ["global"],
+      "add": []
+    }
+  }
+}
+```
+
+Panel fields:
+
+- required: `minX`, `maxX`, `minY`, `maxY`
+- optional: `originX`, `originY`, `xLabel`, `yLabel`, `originLabel`
+- optional style: `axesColor`, `axesWidth`, `axesLabelColor`, `axesLabelFontSize`, `originColor`, `originDx`, `originDy`, `originFontSize`, `showOriginLabel`
+
+Rules:
+
+- Prefer `steps[stepId].domain` for ordinary zooming; use `grid.panels` only when separate coordinate systems must be visually isolated.
+- Use `hideLayers: ["global"]` if the default global grid/axes would draw through the blank gap between panels.
+- Keep panel labels ASCII inside SVG, such as `x_L`, `y_R`, `O_L`, to satisfy "diagram has no Chinese labels" review rules.
+- Ensure points/curves for a shifted panel are also shifted in `geometry-spec` or via step-specific point definitions; panels change the displayed grid, not the underlying geometry coordinates.
+
 ### Style fields: omit vs declare
 
 The normalizer fills default style values from `internal/config/style-presets.json` by decoration `type`. You should **omit** style fields when the preset default is acceptable, and **only declare** them when overriding.
@@ -115,9 +181,9 @@ Fields that can be omitted (normalizer fills from preset):
 | `radius` | `angleArc` |
 | `fill` | `circle`, `outlineRegion` |
 
-Fields that must always be declared (semantic, not defaulted):
+Semantic fields that must be declared when used (the normalizer does not invent these):
 
-`type`, `at`, `from`, `to`, `label`, `labelText`, `text`, `curveId`, `xExpr`, `vertex`, `rayA`, `rayB`, `dx`, `dy`, `showLabel`, `offsetPx`, `labelRadius`, `lockLabel`.
+`type`, `at`, `from`, `to`, `label`, `labelText`, `text`, `curveId`, `xExpr`, `vertex`, `rayA`, `rayB`, `dx`, `dy`, `showLabel`, `offsetPx`, `labelRadius`, `lockLabel`, `hideLayers`, `panels`.
 
 Example — a point that uses all defaults:
 
@@ -143,6 +209,7 @@ Rules:
 - In coefficient-solving steps, coordinate labels should match the current algebraic state. Use symbolic labels such as `N((2b−1)/4,0)` while solving; avoid final numeric labels such as `N(3/4,0)` until after `b=2` is derived and only if the coordinate itself is needed.
 - Use `areaFormulaCard` sparingly. Do not add formula cards that duplicate `lesson-data.steps[].derive` or `box` text; prefer putting algebra in the derivation panel and using the diagram for points, segments, angle marks, and essential length labels.
 - Use `steps[stepId].domain` to locally zoom a single diagram when the derivation only depends on a small construction. This is especially useful for line-sum transformation and reflection/将军饮马 steps; avoid a large mostly-empty coordinate plane when students only need the local auxiliary figure.
+- Use `steps[stepId].hideLayers` to hide named context layers for one step, usually to replace a global grid with custom `grid.panels`.
 - Use `steps[stepId].pointOverrides` with `lesson-data.steps[].localControls` when a step needs local draggable points. The override expressions can reference the local control variables and replace only the named points for that step; the underlying `geometry-spec.movingPoints` remains the default/static state.
 - Keep step diagrams aligned with the derivation focus:
   - proving `EG = DG`: draw `DG`, helper perpendiculars, and label helper feet such as `H`/`K`;

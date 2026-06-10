@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2026 年天津市河西区二模 第 25 题（二次函数综合） | 数学说</title>
+  <meta name="description" content="2026 天津市河西区二模第 25 题：求顶点、由正方形对角线关系求 b，并用平行四边形平移、对称拉直求 NE+NF 最小值，从而确定 F 和 a。" />
+  <meta property="og:title" content="2026 年天津市河西区二模 第 25 题（二次函数综合） | 数学说" />
+  <meta property="og:description" content="2026 天津市河西区二模第 25 题：求顶点、由正方形对角线关系求 b，并用平行四边形平移、对称拉直求 NE+NF 最小值，从而确定 F 和 a。" />
+  <meta property="og:image" content="../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../assets/css/interactive-geometry-page.css" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../nav/index.html">题库导航</a>
+    <span class="lesson-title">2026 天津市河西区二模 第 25 题</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <div class="problem-summary">
+            <div class="problem-summary-text">第 25 题（2026 天津市河西区二模）二次函数综合：顶点、正方形条件求参、菱形与平行四边形中的折线最短。</div>
+            <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          </div>
+          <div class="problem-full">
+            <div class="problem-line"><span>（25）（本小题 10 分）已知抛物线 y＝ax²＋bx＋c（a，b，c 为常数，a＜0）与 x 轴相交于 A，B 两点（点 A 在点 B 的左侧），抛物线顶点为 P，对称轴与 x 轴交点为 D，对称轴上有 M，N 两点，点 M 在 x 轴上方。</span></div>
+<div class="problem-line"><span>（Ⅰ）若 a＝−1，b＝2，c＝3，求该抛物线顶点 P 的坐标；</span><span class="answer-chip" id="answerI">P(1,4)</span></div>
+<div class="problem-line"><span>（Ⅱ）若 a＝−1，c＋2b＝0，当点 M 与点 P 重合时，且四边形 AMBN 为正方形时，求 b 的值；</span><span class="answer-chip" id="answerII">b＝4−2√5 或 b＝4＋2√5</span></div>
+<div class="problem-line"><span>（Ⅲ）若 A(−1,0)，四边形 AMBN 为菱形，在线段 AD 上有动点 E，抛物线上有点 F，使得四边形 AEFM 为平行四边形，当 MN＝2 时，NE＋NF 的最小值取得 √13，求此时点 F 的坐标和 a 的值。</span><span class="answer-chip" id="answerIII">F(7/3,1)，a＝−9/20</span></div>
+          </div>
+        </section>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../assets/js/lesson-page-runtime.js"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"i1s1","section":"第（Ⅰ）问","title":"第1步：配方求顶点","t":0,"derive":[["∵","a＝−1，b＝2，c＝3"],["∴","y＝−x²＋2x＋3"],["∴","y＝−(x−1)²＋4"],["∴","顶点 P(1,4)"]],"box":["P(1,4)"]},{"id":"q2s1","section":"第（Ⅱ）问","title":"第1步：写出 DM 与 AB","t":0,"derive":[["∵","a＝−1，c＋2b＝0"],["∴","c＝−2b，y＝−x²＋bx−2b"],["∵","令 y＝0，得 x²−bx＋2b＝0"],["设","Δ＝b²−8b"],["∴","AB＝√Δ"],["∵","M=P，且 M 在 x 轴上方"],["∴","DM＝y_P＝b²/4−2b＝Δ/4"]],"box":["AB＝√Δ","DM＝Δ/4"]},{"id":"q2s2","section":"第（Ⅱ）问","title":"第2步：对角线相等求 b","t":0,"derive":[["∵","正方形 AMBN 的对角线为 AB 与 MN"],["∴","MN＝AB"],["∵","D 是正方形中心，M=P"],["∴","MN＝2DM＝Δ/2"],["∴","Δ/2＝√Δ"],["∵","Δ＞0"],["∴","√Δ＝2，即 Δ＝4"],["∴","b²−8b＝4"],["∴","b＝4−2√5 或 b＝4＋2√5"]],"box":["b＝4−2√5","b＝4＋2√5"]},{"id":"q3s1","section":"第（Ⅲ）问","title":"第1步：构造平行四边形转化双动点为单动点","t":0,"derive":[["设","E 在 AD 上运动"],["∵","▱AEFM 中 EF∥AM 且 EF＝AM"],["∵","菱形 AMBN 中 BN∥AM"],["作","延长 BN 到 N′，使 NN′＝MA"],["∴","NN′∥AM，且 NN′＝EF"],["∴","四边形 N′EFN 为平行四边形"],["∴","EN′＝NF"],["∴","NE＋NF＝NE＋EN′"]],"box":["EN′＝NF","NE＋NF＝NE＋EN′"]},{"id":"q3s2","section":"第（Ⅲ）问","title":"第2步：将军饮马求最短","t":0,"derive":[["由上步","NE＋NF＝NE＋EN′"],["∵","M，N 关于 AD 所在直线对称，且 E 在 AD 上"],["∴","ME＝NE"],["∴","NE＋EN′＝ME＋EN′"],["∴","NE＋NF＝ME＋EN′"],["∴","当 M，E，N′ 三点共线时，路径最短"],["∴","最小值为 MN′"]],"box":["NE＋NF＝ME＋EN′","min＝MN′"],"localControls":{"values":{"u":0.55},"note":"拖动 E 观察：F 按平行四边形联动，M、E、N′ 共线时折线最短。","controls":[{"var":"u","label":"动点 E：AE/AD","min":0,"max":1,"step":0.01,"scale":1,"precision":2}]}},{"id":"q3s3","section":"第（Ⅲ）问","title":"第3步：代入路径最小值求E和F","t":0,"derive":[["设","M 的横坐标为 m"],["∵","MN＝2，M 在 x 轴上方"],["∴","M(m,1)，N(m,−1)"],["∵","AN′∥MN，且 AN′＝MN＝2"],["∵","A(−1,0)，N′ 在 A 下方"],["∴","N′(−1,−2)"],["∵","最小值为 √13，即 MN′＝√13"],["∴","√((m＋1)²＋3²)＝√13"],["∴","m＋1＝2，m＝1"],["∴","M(1,1)，N′(−1,−2)"],["∵","最短时 M，E，N′ 共线"],["∴","直线 MN′：y＝3/2x−1/2"],["令","y＝0，得 x＝1/3"],["∴","E(1/3,0)"],["∵","F 由 E 按 AM=(2,1) 平移得到"],["∴","F(7/3,1)"]],"box":["MN′=√13","E(1/3,0)","F(7/3,1)"],"conclusionBox":{"x":710,"y":430,"w":260,"lineH":24}},{"id":"q3s4","section":"第（Ⅲ）问","title":"第4步：点在抛物线上求 a","t":0,"derive":[["∵","A(−1,0)，B(3,0) 是抛物线与 x 轴交点"],["∴","y＝a(x＋1)(x−3)"],["∵","F(7/3,1) 在抛物线上"],["∴","1＝a·(10/3)·(−2/3)"],["∴","1＝−20a/9"],["∴","a＝−9/20"]],"box":["F(7/3,1)","a＝−9/20"]}];
+    var STEP_LABELS = {"i1s1":"1 配方求P","q2s1":"1 写出DM与AB","q2s2":"2 对角线求b","q3s1":"1 双动点转单动点","q3s2":"2 将军饮马最短","q3s3":"3 代入最小值求F","q3s4":"4 代入求a"};
+    var POLICIES   = {"i1s1":{"movable":false,"range":[0,0]},"q2s1":{"movable":false,"range":[0,0]},"q2s2":{"movable":false,"range":[0,0]},"q3s1":{"movable":false,"range":[0,0]},"q3s2":{"movable":false,"range":[0,0]},"q3s3":{"movable":false,"range":[0,0]},"q3s4":{"movable":false,"range":[0,0]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script type="application/json" id="geometrySpec">{"version":1,"id":"tj-2026-hexi-ermo-25","domain":{"minX":-2.2,"maxX":5.8,"minY":-2.8,"maxY":4.8},"movingParam":"t","expressionEnv":[{"name":"aI","expr":"-1"},{"name":"bI","expr":"2"},{"name":"cI","expr":"3"},{"name":"b2Rep","expr":"-1"},{"name":"c2Rep","expr":"-2*b2Rep"},{"name":"d2Rep","expr":"b2Rep/2"},{"name":"delta2Rep","expr":"b2Rep*b2Rep-8*b2Rep"},{"name":"yP2Rep","expr":"delta2Rep/4"},{"name":"b2Left","expr":"4-2*sqrt(5)"},{"name":"c2Left","expr":"-2*b2Left"},{"name":"d2Left","expr":"b2Left/2"},{"name":"b2Right","expr":"4+2*sqrt(5)"},{"name":"c2Right","expr":"-2*b2Right"},{"name":"d2Right","expr":"b2Right/2"},{"name":"rightPanelShift","expr":"4.2"},{"name":"b2RightPanel","expr":"2*rightPanelShift+b2Right"},{"name":"c2RightPanel","expr":"-rightPanelShift*rightPanelShift-b2Right*rightPanelShift-2*b2Right"},{"name":"LRep","expr":"2.4"},{"name":"uRep","expr":"0.55"},{"name":"LFinal","expr":"2"},{"name":"sFinal","expr":"4/3"},{"name":"aFinal","expr":"-9/20"},{"name":"bFinal","expr":"-2*aFinal"},{"name":"cFinal","expr":"-3*aFinal"}],"fixedPoints":{"O":["0","0"],"A1":["-1","0"],"B1":["3","0"],"P1":["1","4"],"A2Rep":["(b2Rep-sqrt(delta2Rep))/2","0"],"B2Rep":["(b2Rep+sqrt(delta2Rep))/2","0"],"D2Rep":["d2Rep","0"],"P2Rep":["d2Rep","yP2Rep"],"A2Left":["d2Left-1","0"],"B2Left":["d2Left+1","0"],"D2Left":["d2Left","0"],"M2Left":["d2Left","1"],"N2Left":["d2Left","-1"],"A2Right":["d2Right-1","0"],"B2Right":["d2Right+1","0"],"D2Right":["d2Right","0"],"M2Right":["d2Right","1"],"N2Right":["d2Right","-1"],"O2LeftTop":["0","2.05"],"O2LeftBot":["0","-1.35"],"O2Right":["rightPanelShift","0"],"O2RightTop":["rightPanelShift","2.05"],"O2RightBot":["rightPanelShift","-1.35"],"A2RightPanel":["rightPanelShift+d2Right-1","0"],"B2RightPanel":["rightPanelShift+d2Right+1","0"],"D2RightPanel":["rightPanelShift+d2Right","0"],"M2RightPanel":["rightPanelShift+d2Right","1"],"N2RightPanel":["rightPanelShift+d2Right","-1"],"M2LeftCaseLabel":["d2Left-0.72","1.42"],"M2RightCaseLabel":["rightPanelShift+d2Right-0.72","1.42"],"A":["-1","0"],"D":["-1+LRep","0"],"B":["-1+2*LRep","0"],"M":["-1+LRep","1"],"N":["-1+LRep","-1"],"Np":["-1","-2"],"D3":["1","0"],"B3":["3","0"],"M3":["1","1"],"N3":["1","-1"],"Np3":["-1","-2"],"E3":["1/3","0"],"F3":["7/3","1"],"P3":["1","9/5"]},"movingPoints":{"E":["-1+uRep*LRep","0"],"F":["-1+(1+uRep)*LRep","1"]},"curves":[{"id":"parabolaPart1","type":"parabola","a":"aI","b":"bI","c":"cI"},{"id":"parabolaSquareRep","type":"parabola","a":"-1","b":"b2Rep","c":"c2Rep"},{"id":"parabolaSquareLeft","type":"parabola","a":"-1","b":"b2Left","c":"c2Left"},{"id":"parabolaSquareRight","type":"parabola","a":"-1","b":"b2Right","c":"c2Right"},{"id":"parabolaSquareRightPanel","type":"parabola","a":"-1","b":"b2RightPanel","c":"c2RightPanel"},{"id":"parabolaFinal","type":"parabola","a":"aFinal","b":"bFinal","c":"cFinal"}],"derivedIntersections":[]}</script>
+<script src="../../../assets/js/geometry-engine.js"></script>
+<script src="../../../assets/js/geometry-lesson-from-spec.js"></script>
+
+<script>
+  const __GEOMETRY_SPEC__ = JSON.parse(document.getElementById('geometrySpec').textContent);
+  const __STEP_DECORATIONS__ = {"_comment":"河西区 2026 二模第 25 题 — 二次函数综合","layers":{"global":{"elements":[{"type":"grid"},{"type":"point","at":"O","showLabel":false,"color":"#1f2937","r":5.2}]},"partI":{"stepStartsWith":["i1"],"elements":[{"type":"parabola","curveId":"parabolaPart1","color":"#2563eb","width":2.8},{"type":"axisOfSymmetry","curveId":"parabolaPart1","color":"#64748b","width":1.6,"dash":"10 7"},{"type":"point","at":"A1","labelText":"A","dx":-18,"dy":18,"color":"#1f2937","r":5.2},{"type":"point","at":"B1","labelText":"B","dx":12,"dy":18,"color":"#1f2937","r":5.2}]},"partIIRep":{"stepStartsWith":["q2s1"],"elements":[{"type":"parabola","curveId":"parabolaSquareRep","color":"#2563eb","width":2.8},{"type":"axisOfSymmetry","curveId":"parabolaSquareRep","color":"#64748b","width":1.6,"dash":"10 7"},{"type":"point","at":"A2Rep","labelText":"A","dx":-18,"dy":18,"color":"#1f2937","r":5.2},{"type":"point","at":"B2Rep","labelText":"B","dx":12,"dy":18,"color":"#1f2937","r":5.2},{"type":"point","at":"D2Rep","labelText":"D","dx":10,"dy":18,"color":"#1f2937","r":5.2},{"type":"point","at":"P2Rep","labelText":"M=P","dx":14,"dy":-18,"color":"#1f2937","r":5.2}]},"partIISolutionsGrid":{"stepStartsWith":["q2s2"],"elements":[{"type":"grid","panels":[{"minX":-1.55,"maxX":1.12,"minY":-1.35,"maxY":1.65,"originX":0,"originY":0,"xLabel":"x_L","yLabel":"y_L","originLabel":"O_L","axesColor":"#64748b","axesLabelColor":"#1e3a8a","originDx":-34,"originDy":24},{"minX":3.9,"maxX":9.75,"minY":-1.35,"maxY":1.65,"originX":4.2,"originY":0,"xLabel":"x_R","yLabel":"y_R","originLabel":"O_R","axesColor":"#64748b","axesLabelColor":"#7c3aed","originDx":-34,"originDy":24}]}]},"partIISolutions":{"stepStartsWith":["q2s2"],"elements":[{"type":"parabola","curveId":"parabolaSquareLeft","color":"#2563eb","width":2.8},{"type":"parabola","curveId":"parabolaSquareRightPanel","color":"#7c3aed","width":2.8},{"type":"axisOfSymmetry","curveId":"parabolaSquareLeft","color":"#64748b","width":1.6,"dash":"10 7"},{"type":"axisOfSymmetry","curveId":"parabolaSquareRightPanel","color":"#7c3aed","width":1.6,"dash":"10 7"},{"type":"outlineRegion","vertices":["A2Left","M2Left","B2Left","N2Left"],"fill":"rgba(14, 165, 233, 0.12)","color":"#0284c7","width":1.8,"dash":""},{"type":"outlineRegion","vertices":["A2RightPanel","M2RightPanel","B2RightPanel","N2RightPanel"],"fill":"rgba(124, 58, 237, 0.10)","color":"#7c3aed","width":1.8,"dash":""},{"type":"point","at":"A2Left","labelText":"A","dx":-18,"dy":18,"color":"#1f2937","r":5.2},{"type":"point","at":"B2Left","labelText":"B","dx":12,"dy":18,"color":"#1f2937","r":5.2},{"type":"point","at":"M2Left","labelText":"M=P","dx":-34,"dy":-18,"color":"#1f2937","r":5.2},{"type":"point","at":"N2Left","labelText":"N","dx":10,"dy":18,"color":"#1f2937","r":5.2},{"type":"point","at":"A2RightPanel","labelText":"A","color":"#7c3aed","dx":-18,"dy":18,"r":5.2},{"type":"point","at":"B2RightPanel","labelText":"B","color":"#7c3aed","dx":12,"dy":18,"r":5.2},{"type":"point","at":"M2RightPanel","labelText":"M=P","color":"#7c3aed","dx":-34,"dy":-18,"r":5.2},{"type":"point","at":"N2RightPanel","labelText":"N","color":"#7c3aed","dx":10,"dy":18,"r":5.2}]},"partIIIGeneric":{"stepStartsWith":["q3s1","q3s2"],"elements":[{"type":"outlineRegion","vertices":["A","M","B","N"],"fill":"rgba(14, 165, 233, 0.12)","color":"#0284c7","width":1.8,"dash":""},{"type":"dashedLine","from":"A","to":"B","color":"#0f766e","width":2,"dash":"6 5"},{"type":"dashedLine","from":"M","to":"N","color":"#0f766e","width":2,"dash":"6 5"},{"type":"point","at":"A","dx":-18,"dy":18,"color":"#1f2937","r":5.2},{"type":"point","at":"B","dx":12,"dy":18,"color":"#1f2937","r":5.2},{"type":"point","at":"D","dx":10,"dy":18,"color":"#1f2937","r":5.2},{"type":"point","at":"M","dx":12,"dy":-18,"color":"#1f2937","r":5.2},{"type":"point","at":"N","dx":12,"dy":18,"color":"#1f2937","r":5.2}]},"partIIIFinalBase":{"stepStartsWith":["q3s3","q3s4"],"elements":[{"type":"outlineRegion","vertices":["A","M3","B3","N3"],"fill":"rgba(14, 165, 233, 0.10)","color":"#0284c7","width":1.8,"dash":""},{"type":"dashedLine","from":"A","to":"B3","color":"#0f766e","width":2,"dash":"6 5"},{"type":"dashedLine","from":"M3","to":"N3","color":"#0f766e","width":2,"dash":"6 5"},{"type":"point","at":"A","dx":-18,"dy":18,"color":"#1f2937","r":5.2},{"type":"point","at":"B3","labelText":"B","dx":12,"dy":18,"color":"#1f2937","r":5.2},{"type":"point","at":"D3","labelText":"D","dx":10,"dy":18,"color":"#1f2937","r":5.2},{"type":"point","at":"M3","labelText":"M","dx":12,"dy":-18,"color":"#1f2937","r":5.2},{"type":"point","at":"N3","labelText":"N","dx":12,"dy":18,"color":"#1f2937","r":5.2}]},"partIIIFinalCurve":{"stepStartsWith":["q3s4"],"elements":[{"type":"parabola","curveId":"parabolaFinal","color":"#2563eb","width":2.8},{"type":"axisOfSymmetry","curveId":"parabolaFinal","color":"#64748b","width":1.6,"dash":"10 7"},{"type":"point","at":"P3","labelText":"P","dx":12,"dy":-18,"color":"#1f2937","r":5.2}]}},"steps":{"i1s1":{"domain":{"minX":-2,"maxX":4,"minY":-0.8,"maxY":4.8},"add":[{"type":"vertex","curveId":"parabolaPart1","vertex":"P1","showLabel":false,"color":"#7c3aed","r":5.5},{"type":"coordinateLabel","at":"P1","text":"P(1,4)","dx":14,"dy":-18,"color":"#334155","fontSize":14},{"type":"coordinateLabel","at":"A1","text":"A(−1,0)","dx":-64,"dy":-18,"color":"#334155","fontSize":14},{"type":"coordinateLabel","at":"B1","text":"B(3,0)","dx":12,"dy":18,"color":"#334155","fontSize":14}]},"q2s1":{"domain":{"minX":-2.8,"maxX":1.8,"minY":-0.8,"maxY":3.2},"add":[{"type":"coloredLine","from":"A2Rep","to":"B2Rep","color":"#dc2626","width":2},{"type":"coloredLine","from":"D2Rep","to":"P2Rep","color":"#dc2626","width":2},{"type":"segment","from":"A2Rep","to":"B2Rep","label":"AB=√Δ","offsetPx":-24,"color":"#0f766e","width":1.5},{"type":"segment","from":"D2Rep","to":"P2Rep","label":"DM=Δ/4","offsetPx":22,"color":"#0f766e","width":1.5},{"type":"coordinateLabel","at":"D2Rep","text":"D(b/2,0)","dx":12,"dy":18,"color":"#334155","fontSize":14},{"type":"coordinateLabel","at":"P2Rep","text":"M=P","dx":14,"dy":-22,"color":"#334155","fontSize":14}]},"q2s2":{"domain":{"minX":-1.75,"maxX":9.9,"minY":-1.55,"maxY":1.95},"hideLayers":["global"],"add":[{"type":"dashedLine","from":"A2Left","to":"B2Left","color":"#0284c7","width":2,"dash":"6 5"},{"type":"dashedLine","from":"M2Left","to":"N2Left","color":"#0284c7","width":2,"dash":"6 5"},{"type":"dashedLine","from":"A2RightPanel","to":"B2RightPanel","color":"#7c3aed","width":2,"dash":"6 5"},{"type":"dashedLine","from":"M2RightPanel","to":"N2RightPanel","color":"#7c3aed","width":2,"dash":"6 5"},{"type":"segment","from":"A2Left","to":"B2Left","label":"AB=2","offsetPx":-22,"color":"#0f766e","width":1.5},{"type":"segment","from":"M2Left","to":"N2Left","label":"MN=2","offsetPx":22,"color":"#0f766e","width":1.5},{"type":"segment","from":"A2RightPanel","to":"B2RightPanel","label":"AB=2","color":"#7c3aed","offsetPx":-22,"width":1.5},{"type":"segment","from":"M2RightPanel","to":"N2RightPanel","label":"MN=2","color":"#7c3aed","offsetPx":22,"width":1.5},{"type":"coordinateLabel","at":"M2LeftCaseLabel","text":"b=4−2√5","dx":0,"dy":0,"color":"#334155","fontSize":14},{"type":"coordinateLabel","at":"M2RightCaseLabel","text":"b=4+2√5","dx":0,"dy":0,"color":"#334155","fontSize":14}]},"q3s1":{"domain":{"minX":-1.8,"maxX":4.2,"minY":-2.5,"maxY":1.6},"add":[{"type":"point","at":"Np","labelText":"N′","color":"#b45309","dx":-24,"dy":20,"r":5.2},{"type":"point","at":"E","dx":12,"dy":-18,"color":"#1f2937","r":5.2},{"type":"point","at":"F","dx":12,"dy":-18,"color":"#1f2937","r":5.2},{"type":"dashedLine","from":"B","to":"N","color":"#b45309","width":2,"dash":"6 5"},{"type":"dashedLine","from":"N","to":"Np","color":"#b45309","width":2,"dash":"6 5"},{"type":"coloredLine","from":"A","to":"E","color":"#dc2626","width":2},{"type":"coloredLine","from":"E","to":"F","color":"#dc2626","width":2},{"type":"coloredLine","from":"F","to":"M","color":"#dc2626","width":2},{"type":"coloredLine","from":"M","to":"A","color":"#dc2626","width":2},{"type":"dottedLine","from":"N","to":"F","color":"#64748b","width":2,"dash":"2 4"},{"type":"coloredLine","from":"E","to":"Np","color":"#b45309","width":2},{"type":"segment","from":"E","to":"Np","label":"EN′=NF","color":"#b45309","offsetPx":18,"width":1.5}]},"q3s2":{"domain":{"minX":-1.8,"maxX":4.2,"minY":-2.5,"maxY":1.6},"pointOverrides":{"E":["-1+u*LRep","0"],"F":["-1+(1+u)*LRep","1"]},"add":[{"type":"point","at":"Np","labelText":"N′","color":"#b45309","dx":-24,"dy":20,"r":5.2},{"type":"point","at":"E","dx":12,"dy":-18,"color":"#1f2937","r":5.2},{"type":"point","at":"F","dx":12,"dy":-18,"color":"#1f2937","r":5.2},{"type":"outlineRegion","vertices":["M","E","Np"],"fill":"rgba(245, 158, 11, 0.14)","color":"#b45309","width":1.8,"dash":""},{"type":"dashedLine","from":"N","to":"Np","color":"#b45309","width":2,"dash":"6 5"},{"type":"dashedLine","from":"M","to":"A","color":"#b45309","width":2,"dash":"6 5"},{"type":"coloredLine","from":"A","to":"E","color":"#dc2626","width":2},{"type":"coloredLine","from":"E","to":"F","color":"#dc2626","width":2},{"type":"coloredLine","from":"F","to":"M","color":"#dc2626","width":2},{"type":"coloredLine","from":"M","to":"A","color":"#dc2626","width":2},{"type":"dottedLine","from":"N","to":"E","color":"#64748b","width":2,"dash":"2 4"},{"type":"dottedLine","from":"N","to":"F","color":"#64748b","width":2,"dash":"2 4"},{"type":"coloredLine","from":"M","to":"E","color":"#b45309","width":2},{"type":"coloredLine","from":"E","to":"Np","color":"#b45309","width":2},{"type":"dashedLine","from":"M","to":"Np","color":"#b45309","width":2,"dash":"6 5"},{"type":"segment","from":"M","to":"E","label":"ME=NE","color":"#b45309","offsetPx":18,"width":1.5},{"type":"segment","from":"E","to":"Np","label":"EN′=NF","color":"#b45309","offsetPx":18,"width":1.5}]},"q3s3":{"domain":{"minX":-1.5,"maxX":3.4,"minY":-2.4,"maxY":1.6},"add":[{"type":"point","at":"Np3","labelText":"N′","color":"#b45309","dx":-24,"dy":20,"r":5.2},{"type":"point","at":"E3","labelText":"E","dx":12,"dy":-18,"color":"#1f2937","r":5.2},{"type":"point","at":"F3","labelText":"F","dx":16,"dy":-34,"color":"#1f2937","r":5.2},{"type":"outlineRegion","vertices":["M3","E3","Np3"],"fill":"rgba(245, 158, 11, 0.14)","color":"#b45309","width":1.8,"dash":""},{"type":"coloredLine","from":"M3","to":"Np3","color":"#b45309","width":2},{"type":"coloredLine","from":"A","to":"E3","color":"#dc2626","width":2},{"type":"coloredLine","from":"E3","to":"F3","color":"#dc2626","width":2},{"type":"coloredLine","from":"F3","to":"M3","color":"#dc2626","width":2},{"type":"coloredLine","from":"M3","to":"A","color":"#dc2626","width":2},{"type":"segment","from":"M3","to":"Np3","label":"MN′=√13","color":"#b45309","offsetPx":20,"width":1.5},{"type":"coordinateLabel","at":"M3","text":"M(1,1)","dx":14,"dy":-22,"color":"#334155","fontSize":14},{"type":"coordinateLabel","at":"Np3","text":"N′(−1,−2)","dx":12,"dy":22,"color":"#334155","fontSize":14},{"type":"coordinateLabel","at":"E3","text":"E(1/3,0)","dx":12,"dy":-24,"color":"#334155","fontSize":14},{"type":"coordinateLabel","at":"F3","text":"F(7/3,1)","dx":22,"dy":-38,"color":"#334155","fontSize":14}]},"q3s4":{"domain":{"minX":-1.8,"maxX":3.6,"minY":-0.8,"maxY":2.2},"add":[{"type":"point","at":"E3","labelText":"E","dx":12,"dy":-18,"color":"#1f2937","r":5.2},{"type":"point","at":"F3","labelText":"F","color":"#0f766e","dx":12,"dy":-18,"r":5.2},{"type":"coloredLine","from":"A","to":"E3","color":"#dc2626","width":2},{"type":"coloredLine","from":"E3","to":"F3","color":"#dc2626","width":2},{"type":"coloredLine","from":"F3","to":"M3","color":"#dc2626","width":2},{"type":"coloredLine","from":"M3","to":"A","color":"#dc2626","width":2},{"type":"coordinateLabel","at":"A","text":"A(−1,0)","dx":-64,"dy":-18,"color":"#334155","fontSize":14},{"type":"coordinateLabel","at":"B3","text":"B(3,0)","dx":12,"dy":18,"color":"#334155","fontSize":14},{"type":"coordinateLabel","at":"F3","text":"F(7/3,1)","dx":14,"dy":-20,"color":"#334155","fontSize":14},{"type":"segment","from":"A","to":"B3","label":"y=a(x+1)(x−3)","offsetPx":-24,"color":"#0f766e","width":1.5}]}}};
+  const renderer = GeometryLessonFromSpec.createSpecRenderer(__GEOMETRY_SPEC__, __STEP_DECORATIONS__, STEPS, POLICIES);
+  function groupTitle(section) {
+    const map = {"第（Ⅰ）问":"第（Ⅰ）问  求顶点 P","第（Ⅱ）问":"第（Ⅱ）问  正方形求 b","第（Ⅲ）问":"第（Ⅲ）问  平移对称求最短路"};
+    return map[section] || section;
+  }
+  var diagramMarkupFor = renderer.diagramMarkupFor;
+  var drawMini = renderer.drawMini;
+  var __LESSON_LEGEND_HTML__ = "<span><i class=\"sw\" style=\"background:var(--paper)\"></i>抛物线与坐标轴</span><span><i class=\"sw\" style=\"background:var(--fold)\"></i>菱形、平行四边形与折线最短</span>";
+  // 原题图形渲染：由 renderer 负责（可选）
+  var __AFTER_RENDER_ALL_STEPS__ = renderer.renderOriginalFigures;
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "局部动点 E",
+      paramLabelPrefix: "AE/AD=",
+      goToProblemMode: "doubleScroll"
+    });
+  </script>
+</body>
+</html>

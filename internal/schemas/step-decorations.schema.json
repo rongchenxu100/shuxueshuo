@@ -48,6 +48,10 @@
             "items": { "$ref": "#/$defs/stringOrNumber" }
           }
         },
+        "hideLayers": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
         "conclusionBox": {
           "type": "object",
           "properties": {
@@ -119,6 +123,34 @@
         },
         "curveId": { "type": "string" },
         "curve": { "type": "string" },
+        "panels": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["minX", "maxX", "minY", "maxY"],
+            "properties": {
+              "minX": { "$ref": "#/$defs/number" },
+              "maxX": { "$ref": "#/$defs/number" },
+              "minY": { "$ref": "#/$defs/number" },
+              "maxY": { "$ref": "#/$defs/number" },
+              "originX": { "$ref": "#/$defs/number" },
+              "originY": { "$ref": "#/$defs/number" },
+              "xLabel": { "type": "string" },
+              "yLabel": { "type": "string" },
+              "originLabel": { "type": "string" },
+              "axesColor": { "type": "string" },
+              "axesWidth": { "$ref": "#/$defs/number" },
+              "axesLabelColor": { "type": "string" },
+              "axesLabelFontSize": { "$ref": "#/$defs/number" },
+              "originColor": { "type": "string" },
+              "originDx": { "$ref": "#/$defs/number" },
+              "originDy": { "$ref": "#/$defs/number" },
+              "originFontSize": { "$ref": "#/$defs/number" },
+              "showOriginLabel": { "type": "boolean" }
+            },
+            "additionalProperties": false
+          }
+        },
         "center": { "$ref": "#/$defs/pointName" },
         "radius": { "type": "string" },
         "radiusExpr": { "type": "string" },

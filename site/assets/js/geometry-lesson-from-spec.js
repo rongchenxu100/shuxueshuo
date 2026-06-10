@@ -276,6 +276,46 @@
       var axesArrow = gopts.axesArrow === true;
       var lines = [];
       var defs = "";
+      function drawGridPanel(panel) {
+        var pMinX = panel.minX != null ? panel.minX : domain.minX;
+        var pMaxX = panel.maxX != null ? panel.maxX : domain.maxX;
+        var pMinY = panel.minY != null ? panel.minY : domain.minY;
+        var pMaxY = panel.maxY != null ? panel.maxY : domain.maxY;
+        var pOriginX = panel.originX != null ? panel.originX : 0;
+        var pOriginY = panel.originY != null ? panel.originY : 0;
+        for (var px = Math.ceil(pMinX); px <= pMaxX; px++) {
+          var vp1 = toScreen({ x: px, y: pMinY }), vp2 = toScreen({ x: px, y: pMaxY });
+          lines.push('<line x1="' + vp1.x + '" y1="' + vp1.y + '" x2="' + vp2.x + '" y2="' + vp2.y + '" stroke="rgba(15,23,42,.06)" stroke-width="1" />');
+        }
+        for (var py = Math.ceil(pMinY); py <= pMaxY; py++) {
+          var hp1 = toScreen({ x: pMinX, y: py }), hp2 = toScreen({ x: pMaxX, y: py });
+          lines.push('<line x1="' + hp1.x + '" y1="' + hp1.y + '" x2="' + hp2.x + '" y2="' + hp2.y + '" stroke="rgba(15,23,42,.06)" stroke-width="1" />');
+        }
+        if (pOriginY >= pMinY && pOriginY <= pMaxY) {
+          var pax1 = toScreen({ x: pMinX, y: pOriginY }), pax2 = toScreen({ x: pMaxX, y: pOriginY });
+          lines.push('<line x1="' + pax1.x + '" y1="' + pax1.y + '" x2="' + pax2.x + '" y2="' + pax2.y + '" stroke="' + (panel.axesColor || axesColor) + '" stroke-width="' + (panel.axesWidth || axesWidth) + '" />');
+          lines.push(textAtSvg({ x: pMaxX - 0.18, y: pOriginY }, panel.xLabel || "x", panel.axesLabelColor || axesLabelColor, 0, -10, panel.axesLabelFontSize || axesLabelFontSize));
+        }
+        if (pOriginX >= pMinX && pOriginX <= pMaxX) {
+          var pay1 = toScreen({ x: pOriginX, y: pMinY }), pay2 = toScreen({ x: pOriginX, y: pMaxY });
+          lines.push('<line x1="' + pay1.x + '" y1="' + pay1.y + '" x2="' + pay2.x + '" y2="' + pay2.y + '" stroke="' + (panel.axesColor || axesColor) + '" stroke-width="' + (panel.axesWidth || axesWidth) + '" />');
+          lines.push(textAtSvg({ x: pOriginX, y: pMaxY - 0.14 }, panel.yLabel || "y", panel.axesLabelColor || axesLabelColor, 10, 0, panel.axesLabelFontSize || axesLabelFontSize));
+        }
+        if (panel.showOriginLabel !== false) {
+          lines.push(textAtSvg(
+            { x: pOriginX, y: pOriginY },
+            panel.originLabel || "O",
+            panel.originColor || panel.axesLabelColor || axesLabelColor,
+            panel.originDx != null ? panel.originDx : -26,
+            panel.originDy != null ? panel.originDy : 24,
+            panel.originFontSize || axesLabelFontSize
+          ));
+        }
+      }
+      if (Array.isArray(gopts.panels) && gopts.panels.length) {
+        gopts.panels.forEach(drawGridPanel);
+        return lines.join("");
+      }
       if (axesArrow) {
         var arrowId = "axisArrow" + Math.floor(Math.random() * 1e9).toString(36);
         defs = '<defs><marker id="' + arrowId + '" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 Z" fill="' + axesColor + '" /></marker></defs>';
@@ -596,7 +636,10 @@
 
     function renderLayers(stepId, section, pts, state) {
       var out = "";
+      var deco = stepDecos[stepId] || {};
+      var hideLayers = Array.isArray(deco.hideLayers) ? deco.hideLayers : [];
       Object.keys(layers).forEach(function (layerName) {
+        if (hideLayers.indexOf(layerName) >= 0) return;
         var layerDef = layers[layerName];
         var active = (layerName === "global") ? true : isLayerActive(layerDef, stepId, section);
         if (!active) return;
@@ -611,10 +654,13 @@
 
     function coordinateLabelPointsForStep(stepId, section) {
       var points = {};
+      var deco = stepDecos[stepId] || {};
+      var hideLayers = Array.isArray(deco.hideLayers) ? deco.hideLayers : [];
       function collect(elem) {
         if (elem && elem.type === "coordinateLabel" && elem.at) points[elem.at] = true;
       }
       Object.keys(layers).forEach(function (layerName) {
+        if (hideLayers.indexOf(layerName) >= 0) return;
         var layerDef = layers[layerName];
         var active = (layerName === "global") ? true : isLayerActive(layerDef, stepId, section);
         if (!active) return;

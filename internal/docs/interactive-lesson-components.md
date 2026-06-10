@@ -182,6 +182,90 @@ They can coexist in one step, but only do that when the math meaning is clear. I
 - main slider for broad parameter exploration;
 - local point controls for focused auxiliary construction or shortest-path observation.
 
+## Local Diagram Panels And Hidden Layers
+
+Use local diagram panels when a single step must show separate coordinate planes or separated comparison snapshots inside one SVG.
+
+This component has two parts:
+
+1. `step-decorations.steps[stepId].hideLayers` can suppress named context layers for that step.
+2. A `grid` decoration can declare `panels`, each with its own bounds, origin, axis labels, and origin label.
+
+Example: two isolated coordinate panels in one step.
+
+```json
+{
+  "layers": {
+    "global": {
+      "elements": [
+        { "type": "grid" },
+        { "type": "point", "at": "O", "showLabel": false }
+      ]
+    },
+    "twoCasesGrid": {
+      "stepStartsWith": ["q2s2"],
+      "elements": [
+        {
+          "type": "grid",
+          "panels": [
+            {
+              "minX": -1.5,
+              "maxX": 1.2,
+              "minY": -1.4,
+              "maxY": 1.7,
+              "originX": 0,
+              "originY": 0,
+              "xLabel": "x_L",
+              "yLabel": "y_L",
+              "originLabel": "O_L"
+            },
+            {
+              "minX": 3.8,
+              "maxX": 9.8,
+              "minY": -1.4,
+              "maxY": 1.7,
+              "originX": 4.2,
+              "originY": 0,
+              "xLabel": "x_R",
+              "yLabel": "y_R",
+              "originLabel": "O_R"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "steps": {
+    "q2s2": {
+      "domain": { "minX": -1.8, "maxX": 10, "minY": -1.6, "maxY": 2 },
+      "hideLayers": ["global"],
+      "add": []
+    }
+  }
+}
+```
+
+Runtime behavior:
+
+- Rendered by `site/assets/js/geometry-lesson-from-spec.js`.
+- `hideLayers` applies only while rendering that step; it does not mutate the shared layer definitions.
+- `grid.panels` draws local grid lines and local x/y axes only inside each panel's rectangular math bounds.
+- Each panel defaults to the current render domain and origin `(0,0)` when optional fields are omitted.
+- Panel labels should stay ASCII when they appear inside SVG, for example `x_L`, `y_R`, `O_L`.
+
+Use it for:
+
+- side-by-side algebraic cases where each case needs its own coordinate axes;
+- comparing two solved states whose y-axes or origins should not be visually merged;
+- preventing a global grid/axis layer from drawing through a deliberate blank gap between panels.
+
+Rules:
+
+- Use `hideLayers: ["global"]` when the global grid would create a misleading continuous coordinate plane.
+- Keep panel bounds tight enough that the blank gap is visible but not so tight that labels or curves are clipped.
+- Do not use panels just for ordinary zooming. Use `steps[stepId].domain` for a single local zoom.
+- If panel origins differ from the global origin, add explicit panel labels such as `O_L` and `O_R`; avoid duplicate `O`.
+
 ## Derivation Step References
 
 Use derivation step references when a later step cites a previous proof or result and students may need to jump back briefly.

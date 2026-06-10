@@ -9,6 +9,7 @@
 | problem-id | 题位 | pattern 补充 | 使用的 methods |
 |---|---|---|---|
 | `tj-2026-hexi-yimo-25` | 25 | `√2MN+AN`，构造等腰直角三角形转化 `AN` 后折线最短 | `coefficient-from-point-on-parabola`, `right-triangle-congruence-coordinate`, `isosceles-right-triangle-transform`, `horse-drinking` |
+| `tj-2026-hexi-ermo-25` | 25 | `NE+NF`，由平行四边形平移 `NF`，再关于 `AD` 对称拉直求最短并反求 `F,a` | `translation-path-transform`, `horse-drinking`, `known-root-factorization`, `coefficient-from-point-on-parabola` |
 | `tj-2026-binhai-yimo-25` | 25 | `BE+DF`，平移一段线段后求折线最短 | `coefficient-from-point-on-parabola`, `translation-path-transform` |
 | `tj-2026-nankai-yimo-25` | 25 | `EG+FG`，先证 `EG=DG`，再对称拉直 | `right-triangle-congruence-coordinate`, `isosceles-right-triangle-transform`, `horse-drinking` |
 | `tj-2026-nankai-sanmo-25` | 25 | `△EFG` 周长，固定 `G` 反射拉直后转为 `√2·DG`，再由 `DG⊥NQ` 求最小并反求 `m` | `known-root-factorization`, `coefficient-from-point-on-parabola`, `coordinate-distance-pythagorean`, `horse-drinking` |
@@ -88,6 +89,7 @@
 | `tj-2026-hongqiao-ermo-25` | 25 | 第（Ⅱ）①② | 由已知根 `A(-2,0)` 写出 `B(2−4b,0)` 与 `C(0,2b−1)` |
 | `tj-2026-hongqiao-yimo-25` | 25 | 第（Ⅱ）①② | 由 `A(-1,0)` 是根写 `y=(x+1)(ax+c)`，读另一个交点 |
 | `tj-2026-heping-ermo-25` | 25 | 第（Ⅱ）公共结论 | 由 `A(-c,0)` 是根得到 `b=1-c`，读出另一个交点 `B(1,0)` 与对称轴交点 `M((1-c)/2,0)` |
+| `tj-2026-hexi-ermo-25` | 25 | 第（Ⅲ）问 | 由菱形和 `AD=2` 得 `B(3,0)`，结合已知根 `A(-1,0)` 写 `y=a(x+1)(x-3)` |
 | `sh-2026-xuhui-ermo-24` | 24 | 第（1）问、第（2）问 | 由 `A(-1,0)`、`B(3,0)` 直接写 `C₁: y=(x-1)²-4` 与 `C₂: y=a(x-1)²-4a`，顶点分别为 `M(1,-4)` 与 `N(1,-4a)` |
 
 ### coefficient-from-point-on-parabola
@@ -96,6 +98,7 @@
 |---|---|---|---|
 | `tj-2026-hexi-jieke-25` | 25 | 第（Ⅱ）①② | 由点在抛物线和线段/角度条件求参数 |
 | `tj-2026-hexi-yimo-25` | 25 | 第（Ⅱ）问、第（Ⅲ）问 | 先几何求 `D` 或 `M` 坐标，再代入抛物线求系数 |
+| `tj-2026-hexi-ermo-25` | 25 | 第（Ⅲ）问 | 由最短路确定 `F(7/3,1)` 后，代入 `y=a(x+1)(x-3)` 求 `a=-9/20` |
 | `tj-2026-binhai-yimo-25` | 25 | 第（2）问 | 由 `A`、`D` 等点在抛物线上化简并求 `b` |
 | `tj-2026-heping-yimo-25` | 25 | 第（Ⅰ）①、第（Ⅱ）问 | 由 `A`、`D` 在抛物线上求解析式，再由最值反求 `a` |
 | `tj-2026-xiqing-yimo-25` | 25 | 第（2）①② | 由 `A(-1,0)` 在抛物线上化简，再由线段关系和最值反求 `b` |
@@ -166,6 +169,7 @@
 | problem-id | 题位 | 涉及步骤 | 摘要 |
 |---|---|---|---|
 | `tj-2026-hexi-yimo-25` | 25 | 第（Ⅲ）问 | `√2MN+AN` 转为 `√2(MN+QN)`，`Q,N,M` 共线且垂直时最短 |
+| `tj-2026-hexi-ermo-25` | 25 | 第（Ⅲ）问 | 将 `NF` 平移为 `N′E`，再把 `NE` 对称为 `ME`，折线 `M-E-N′` 共线时最短 |
 | `tj-2026-nankai-yimo-25` | 25 | 第（Ⅱ）①④、第（Ⅱ）② | 先转化 `EG=DG`，再用对称点 `D′` 拉直求 `EG+FG` 最小 |
 | `tj-2026-nankai-sanmo-25` | 25 | 第（Ⅱ）问 | 固定 `G` 时反射拉直得周长最小值 `G₁G₂`，再移动 `G`，由 `G₁G₂=√2·DG` 与 `DG⊥NQ` 求最小周长 |
 | `tj-2026-heping-yimo-25` | 25 | 第（Ⅱ）问 | 把 `BN` 转化为等长线段，`O,M,G` 共线时取最小 |
@@ -188,6 +192,7 @@
 |---|---|---|---|
 | `tj-2026-binhai-yimo-25` | 25 | 第（2）② | 将 `DF` 平移成等长线段，转化 `BE+DF` 的最小值 |
 | `tj-2026-hongqiao-ermo-25` | 25 | 第（Ⅱ）② | 用平行四边形得到 `GF=DE`、`FE=DG`，把 `AG+GF+FE` 转为 `AG+DG+√5` |
+| `tj-2026-hexi-ermo-25` | 25 | 第（Ⅲ）问 | 由 `▱AEFM` 得 `F=E+AM`，构造 `N′` 使 `EN′=NF`，把双动点距离和化为同一动点折线 |
 
 ### axis-symmetry-distance-difference
 

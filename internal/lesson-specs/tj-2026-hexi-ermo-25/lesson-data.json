@@ -1,0 +1,184 @@
+{
+  "meta": {
+    "id": "tj-2026-hexi-ermo-25",
+    "outputPath": "site/problems/tj/25/tj-2026-hexi-ermo-25.html",
+    "pageTitle": "2026 年天津市河西区二模 第 25 题（二次函数综合）",
+    "pageDescription": "2026 天津市河西区二模第 25 题：求顶点、由正方形对角线关系求 b，并用平行四边形平移、对称拉直求 NE+NF 最小值，从而确定 F 和 a。",
+    "breadcrumbTitle": "2026 天津市河西区二模 第 25 题",
+    "classification": {
+      "pattern": "path-minimum",
+      "methods": ["translation-path-transform", "horse-drinking", "known-root-factorization", "coefficient-from-point-on-parabola"]
+    }
+  },
+  "problem": {
+    "summary": "第 25 题（2026 天津市河西区二模）二次函数综合：顶点、正方形条件求参、菱形与平行四边形中的折线最短。",
+    "lines": [
+      { "text": "（25）（本小题 10 分）已知抛物线 y＝ax²＋bx＋c（a，b，c 为常数，a＜0）与 x 轴相交于 A，B 两点（点 A 在点 B 的左侧），抛物线顶点为 P，对称轴与 x 轴交点为 D，对称轴上有 M，N 两点，点 M 在 x 轴上方。" },
+      { "text": "（Ⅰ）若 a＝−1，b＝2，c＝3，求该抛物线顶点 P 的坐标；", "answerId": "answerI", "answer": "P(1,4)" },
+      { "text": "（Ⅱ）若 a＝−1，c＋2b＝0，当点 M 与点 P 重合时，且四边形 AMBN 为正方形时，求 b 的值；", "answerId": "answerII", "answer": "b＝4−2√5 或 b＝4＋2√5" },
+      { "text": "（Ⅲ）若 A(−1,0)，四边形 AMBN 为菱形，在线段 AD 上有动点 E，抛物线上有点 F，使得四边形 AEFM 为平行四边形，当 MN＝2 时，NE＋NF 的最小值取得 √13，求此时点 F 的坐标和 a 的值。", "answerId": "answerIII", "answer": "F(7/3,1)，a＝−9/20" }
+    ]
+  },
+  "ui": {
+    "legend": [
+      { "colorVar": "paper", "label": "抛物线与坐标轴" },
+      { "colorVar": "fold", "label": "菱形、平行四边形与折线最短" }
+    ],
+    "sliderLabel": "局部动点 E",
+    "paramLabelPrefix": "AE/AD=",
+    "goToProblemMode": "doubleScroll",
+    "groupTitles": {
+      "第（Ⅰ）问": "第（Ⅰ）问  求顶点 P",
+      "第（Ⅱ）问": "第（Ⅱ）问  正方形求 b",
+      "第（Ⅲ）问": "第（Ⅲ）问  平移对称求最短路"
+    }
+  },
+  "steps": [
+    {
+      "id": "i1s1",
+      "section": "第（Ⅰ）问",
+      "title": "第1步：配方求顶点",
+      "t": 0,
+      "derive": [
+        ["∵", "a＝−1，b＝2，c＝3"],
+        ["∴", "y＝−x²＋2x＋3"],
+        ["∴", "y＝−(x−1)²＋4"],
+        ["∴", "顶点 P(1,4)"]
+      ],
+      "box": ["P(1,4)"]
+    },
+    {
+      "id": "q2s1",
+      "section": "第（Ⅱ）问",
+      "title": "第1步：写出 DM 与 AB",
+      "t": 0,
+      "derive": [
+        ["∵", "a＝−1，c＋2b＝0"],
+        ["∴", "c＝−2b，y＝−x²＋bx−2b"],
+        ["∵", "令 y＝0，得 x²−bx＋2b＝0"],
+        ["设", "Δ＝b²−8b"],
+        ["∴", "AB＝√Δ"],
+        ["∵", "M=P，且 M 在 x 轴上方"],
+        ["∴", "DM＝y_P＝b²/4−2b＝Δ/4"]
+      ],
+      "box": ["AB＝√Δ", "DM＝Δ/4"]
+    },
+    {
+      "id": "q2s2",
+      "section": "第（Ⅱ）问",
+      "title": "第2步：对角线相等求 b",
+      "t": 0,
+      "derive": [
+        ["∵", "正方形 AMBN 的对角线为 AB 与 MN"],
+        ["∴", "MN＝AB"],
+        ["∵", "D 是正方形中心，M=P"],
+        ["∴", "MN＝2DM＝Δ/2"],
+        ["∴", "Δ/2＝√Δ"],
+        ["∵", "Δ＞0"],
+        ["∴", "√Δ＝2，即 Δ＝4"],
+        ["∴", "b²−8b＝4"],
+        ["∴", "b＝4−2√5 或 b＝4＋2√5"]
+      ],
+      "box": ["b＝4−2√5", "b＝4＋2√5"]
+    },
+    {
+      "id": "q3s1",
+      "section": "第（Ⅲ）问",
+      "title": "第1步：构造平行四边形转化双动点为单动点",
+      "t": 0,
+      "derive": [
+        ["设", "E 在 AD 上运动"],
+        ["∵", "▱AEFM 中 EF∥AM 且 EF＝AM"],
+        ["∵", "菱形 AMBN 中 BN∥AM"],
+        ["作", "延长 BN 到 N′，使 NN′＝MA"],
+        ["∴", "NN′∥AM，且 NN′＝EF"],
+        ["∴", "四边形 N′EFN 为平行四边形"],
+        ["∴", "EN′＝NF"],
+        ["∴", "NE＋NF＝NE＋EN′"]
+      ],
+      "box": ["EN′＝NF", "NE＋NF＝NE＋EN′"]
+    },
+    {
+      "id": "q3s2",
+      "section": "第（Ⅲ）问",
+      "title": "第2步：将军饮马求最短",
+      "t": 0,
+      "derive": [
+        ["由上步", "NE＋NF＝NE＋EN′"],
+        ["∵", "M，N 关于 AD 所在直线对称，且 E 在 AD 上"],
+        ["∴", "ME＝NE"],
+        ["∴", "NE＋EN′＝ME＋EN′"],
+        ["∴", "NE＋NF＝ME＋EN′"],
+        ["∴", "当 M，E，N′ 三点共线时，路径最短"],
+        ["∴", "最小值为 MN′"]
+      ],
+      "box": ["NE＋NF＝ME＋EN′", "min＝MN′"],
+      "localControls": {
+        "values": { "u": 0.55 },
+        "note": "拖动 E 观察：F 按平行四边形联动，M、E、N′ 共线时折线最短。",
+        "controls": [
+          { "var": "u", "label": "动点 E：AE/AD", "min": 0, "max": 1, "step": 0.01, "scale": 1, "precision": 2 }
+        ]
+      }
+    },
+    {
+      "id": "q3s3",
+      "section": "第（Ⅲ）问",
+      "title": "第3步：代入路径最小值求E和F",
+      "t": 0,
+      "derive": [
+        ["设", "M 的横坐标为 m"],
+        ["∵", "MN＝2，M 在 x 轴上方"],
+        ["∴", "M(m,1)，N(m,−1)"],
+        ["∵", "AN′∥MN，且 AN′＝MN＝2"],
+        ["∵", "A(−1,0)，N′ 在 A 下方"],
+        ["∴", "N′(−1,−2)"],
+        ["∵", "最小值为 √13，即 MN′＝√13"],
+        ["∴", "√((m＋1)²＋3²)＝√13"],
+        ["∴", "m＋1＝2，m＝1"],
+        ["∴", "M(1,1)，N′(−1,−2)"],
+        ["∵", "最短时 M，E，N′ 共线"],
+        ["∴", "直线 MN′：y＝3/2x−1/2"],
+        ["令", "y＝0，得 x＝1/3"],
+        ["∴", "E(1/3,0)"],
+        ["∵", "F 由 E 按 AM=(2,1) 平移得到"],
+        ["∴", "F(7/3,1)"]
+      ],
+      "box": ["MN′=√13", "E(1/3,0)", "F(7/3,1)"],
+      "conclusionBox": { "x": 710, "y": 430, "w": 260, "lineH": 24 }
+    },
+    {
+      "id": "q3s4",
+      "section": "第（Ⅲ）问",
+      "title": "第4步：点在抛物线上求 a",
+      "t": 0,
+      "derive": [
+        ["∵", "A(−1,0)，B(3,0) 是抛物线与 x 轴交点"],
+        ["∴", "y＝a(x＋1)(x−3)"],
+        ["∵", "F(7/3,1) 在抛物线上"],
+        ["∴", "1＝a·(10/3)·(−2/3)"],
+        ["∴", "1＝−20a/9"],
+        ["∴", "a＝−9/20"]
+      ],
+      "box": ["F(7/3,1)", "a＝−9/20"]
+    }
+  ],
+  "policies": {
+    "i1s1": { "movable": false, "range": [0, 0] },
+    "q2s1": { "movable": false, "range": [0, 0] },
+    "q2s2": { "movable": false, "range": [0, 0] },
+    "q3s1": { "movable": false, "range": [0, 0] },
+    "q3s2": { "movable": false, "range": [0, 0] },
+    "q3s3": { "movable": false, "range": [0, 0] },
+    "q3s4": { "movable": false, "range": [0, 0] }
+  },
+  "stepLabels": {
+    "i1s1": "1 配方求P",
+    "q2s1": "1 写出DM与AB",
+    "q2s2": "2 对角线求b",
+    "q3s1": "1 双动点转单动点",
+    "q3s2": "2 将军饮马最短",
+    "q3s3": "3 代入最小值求F",
+    "q3s4": "4 代入求a"
+  }
+}
