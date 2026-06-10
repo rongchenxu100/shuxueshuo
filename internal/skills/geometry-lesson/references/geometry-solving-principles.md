@@ -2,7 +2,7 @@
 
 Use these principles when writing `02_solution.md`, planning `03_visual_steps.md`, and deciding what belongs in `step-decorations.json` versus `lesson-data.json`.
 
-This file is the compact teaching-quality reference. It should preserve the high-value rules from the old all-in-one skill without pulling renderer or HTML implementation details back into the skill.
+This file expands the `SKILL.md` Per-Problem Checklist into concrete teaching rules for solution writing, visual planning, labels, and area/boundary reasoning.
 
 ## Step Design
 
@@ -14,6 +14,7 @@ This file is the compact teaching-quality reference. It should preserve the high
 - When two adjacent steps use the same method on different objects, the title must distinguish the objects, such as `判断 △G′F′H′` versus `判断 △G′MN`.
 - Navigation labels may be shorter than full step titles, but they still need an action and object, such as `判等边△G′MN` or `求△G′MN面积`; avoid labels like `判G′MN` or `左侧范围` that require guessing.
 - Use a title like `参数状态 + 方法 + 目标` only when the step is explicitly about a special parameter value, boundary state, or case split.
+- If a boundary/extremum snapshot matters because of an exact parameter value, include that value in the step title or conclusion box, such as `由左端三角形求 S（t=√3/2）`.
 - For area-range boundary calculations, name the side and target directly, such as `由左侧边界求最小值` or `由右侧边界求最小值`. Prefer this over a title that only names the substituted parameter value, unless the substitution itself is the learning goal.
 - Avoid weak titles such as `先求...`, `观察...`, or vague titles such as `由图形关系求...`.
 - Step titles must match the visual step. Do not write `构建...` unless that step really introduces a new auxiliary construction.
@@ -31,9 +32,13 @@ This file is the compact teaching-quality reference. It should preserve the high
 - Coordinates are acceptable when they are the clearest route, but they should not replace an easier geometric idea.
 - Before finalizing a solution path, try two or three plausible routes and choose the one with the fewest new symbols, the most visible diagram relationship, and the least algebra for a Grade 9 student.
 - Prefer a standard-shape route when available: equilateral triangles, isosceles right triangles, 30°-60°-90° triangles, rectangles, rhombi, parallel-line cuts, and similarity should be checked before coordinate-heavy derivations.
+- For transformation or fixed-shape problems, actively look for visible facts created by folds, rotations, translations, equilateral triangles, and rhombi: preserved lengths/angles, isosceles triangles, perpendiculars, parallel distances, and line-segment differences.
 - If a line cuts a standard triangle parallel to one side, first ask whether the smaller triangle keeps the same standard shape; this often gives a friendlier height/area route than computing the cut segment directly.
 - Use coordinates as supporting evidence for a familiar shape or simple distance, not as the default main narrative when the diagram already contains a recognizable geometric structure.
 - When a coordinate-intersection route and a geometric-standard-shape route both solve the same target, prefer the geometric route for middle-school lessons if it can be seen on the diagram. For example, use `OM=1/2` and `△MO′N` as an isosceles right triangle to get `O′N`, instead of first solving the coordinates of `N`.
+- When a coordinate expression is still useful, derive it from a named construction first when possible, such as an isosceles triangle, a perpendicular foot, or an extended-line intersection.
+- Every non-obvious length, distance, or coordinate formula must cite its immediate source: the named triangle, a previous expression, a transformation-preserved fact, or a visible segment difference.
+- When the target is a difference of visible pieces, derive and display the pieces before subtracting. For example, show `AN` and `AG` before `GN=AN-AG`, or construct `K` and show `DK` before `E′D=E′K-DK`.
 - A student-friendly route usually has this shape: identify one familiar local figure, derive one or two key lengths or angles, then finish with a short calculation. A less student-friendly route often introduces line equations, solves an intersection, and only afterward interprets the result geometrically.
 - Use analytic coordinate work as the main route only when no visible standard shape, equal-angle relation, parallel cut, similarity, or simple length difference gives the target with less symbolic load.
 - Split any sentence with multiple reasoning jumps.
@@ -97,6 +102,8 @@ This file is the compact teaching-quality reference. It should preserve the high
 - For overlap area, first identify the target region shape, then derive needed lengths/heights, then write the area formula.
 - Prefer visible decompositions such as `大图形 - 小图形`, `矩形 - 三角形`, `大三角形 - 两个小三角形`, or another student-visible split.
 - When an overlap region is a standard shape, say that shape before writing a formula.
+- For boundary/extremum calculations, match the formula to the actual visible boundary shape. Use a small triangle as a triangle, a 60° rhombus as a rhombus, and a visible decomposition as the container minus the removed piece.
+- If a standard boundary shape needs one side, height, or included angle, add the construction point, extension, or perpendicular that reveals it before computing the area.
 - When the removed or retained region is a standard triangle, prefer deriving its height, side, or familiar area formula over deriving an intermediate base length that is not needed later.
 - If a cut-off triangle is similar to or nested inside an equilateral triangle, consider using `面积 = 高²/√3 = √3·高²/3` after clearly proving the triangle is equilateral.
 - For symmetric left/right cut-off regions, reuse the same student-friendly structure on both sides when possible: prove the cut-off triangle is standard, find its height from a coordinate distance, then compute area.
@@ -156,6 +163,8 @@ This file is the compact teaching-quality reference. It should preserve the high
 - Keep diagram text minimal; use the derivation panel for explanations.
 - When a local diagram area is crowded, keep only the label that directly supports the current calculation; move secondary facts such as parallel relations into the derivation panel or conclusion box.
 - Keep labels exact. A wrong segment name, coordinate, or length label is a teaching bug.
+- Anchor every length or distance label to a real visible segment or constructed perpendicular. Do not place standalone words such as `高=...` or `距离=...` in the diagram unless the corresponding segment is drawn and connected to its endpoints.
+- Prefer labelling the segment itself with just the length when the construction already makes the meaning clear.
 
 ## Area Visuals
 
@@ -164,9 +173,11 @@ This file is the compact teaching-quality reference. It should preserve the high
 - Draw helper containers with subtle outlines or pale fills.
 - Draw subtracted/cut regions with a distinct secondary style.
 - Make the visual hierarchy match formulas such as `S = large area - small triangle - small triangle`.
+- For subtraction regions, prefer mathematical symbols such as `-` in the diagram or formula card; keep explanatory words such as `减去` in the derivation text.
 - When an area formula uses a triangle, expose the exact base/height or included-angle data used by that formula.
 - If a right-triangle area uses `1/2 × base × height`, mark the base segment, the perpendicular leg or height, and the right-angle marker. If a `30°` or `60°` relation supplies the height, mark that angle too.
 - Avoid putting low-value helper-shape names inside crowded diagram regions; prefer formula cards or the derivation panel.
+- Keep formula cards at the model level, such as `S=S△BPQ`, `S=大三角形-小三角形`, or `60°菱形`. Put detailed algebra and substitutions in the derivation panel or conclusion box.
 
 ## Original Problem Figures
 

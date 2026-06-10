@@ -9,6 +9,10 @@ Use this skill when creating or updating a geometry comprehensive problem page i
 
 The core rule: HTML is a compiled artifact. Do not hand-write page HTML, SVG path logic, `toScreen`, `diagramMarkupFor`, `drawMini`, polygon clipping, step navigation, sliders, thumbnails, or page runtime JavaScript.
 
+## Responsibility Split
+
+`SKILL.md` says how to build the page; references say how to make it a good lesson. Use the complete loading rules in `Reference Files` below.
+
 ## Output Contract
 
 Work in this order:
@@ -50,7 +54,7 @@ Load only the references needed for the current task:
 - Read `references/original-figure-principles.md` before writing or revising `geometry-spec.originalFigures`.
 - Read `../../docs/interactive-lesson-components.md` (repo path: `internal/docs/interactive-lesson-components.md`) before adding or changing sliders, local point controls, or draggable-point interactions. It defines the relationship between the main parameter slider and step-local point controls.
 - Read `references/nankai-24-fewshot.md` only as a fallback when `case-index.md` has no sufficiently similar published case, or when the selected cases do not demonstrate the JSON shape you need. Do not prefer this fixed few-shot over a closer indexed case.
-- Read `references/piecewise-area-trends.md` for area ranges, overlap-area extrema, moving-figure phase analysis, boundary thumbnails, or representative interval minis.
+- Read `references/piecewise-area-trends.md` only for overlap-area ranges, moving-figure phase analysis, boundary thumbnails, or representative interval minis.
 - Read the real schema files before finalizing JSON:
   - `internal/schemas/geometry-spec.schema.json`
   - `internal/schemas/step-decorations.schema.json`
@@ -124,13 +128,9 @@ Quality requirements:
 
 - Restart step numbering inside each sub-question.
 - Each step should do one main thing.
-- Step titles should use `方法 + 目标量`, such as `由直角三角形求 DG`.
-- For boundary or extremum steps, include the exact parameter value in the step title or conclusion box when it is the reason the snapshot matters, such as `由左端三角形求 S（t=√3/2）`.
 - Reuse named points and earlier conclusions instead of re-deriving them.
 - Keep endpoint inclusiveness identical across solution text, visual steps, JSON policies, answer chips, and final answers.
-- Follow the unified reasoning and visual principles below when choosing the route and diagram contents.
-
-For detailed reasoning rules, use `references/geometry-solving-principles.md`.
+- Follow `Per-Problem Checklist` and `references/geometry-solving-principles.md`; detailed step title, navigation label, and boundary-parameter wording rules live in §Step Design.
 
 ## Step 3: `03_visual_steps.md`
 
@@ -164,55 +164,24 @@ Prefer this shape:
 - 缩略图：
 ```
 
-Layering rules:
+Layering and `when` / section scoping rules live in `references/geometry-solving-principles.md` §Visual Layering.
 
-- Put whole-problem context in the global layer.
-- Put sub-question context in a section layer.
-- Put repeated local context in a phase layer.
-- Put one-step helpers and highlights in the step layer.
-- Put previously derived values in `lesson-data.steps[].box`, not as extra diagram text unless the value has spatial meaning in the current inference.
+## Per-Problem Checklist
 
-## Reasoning And Visual Principles
+Scan this checklist for every lesson; load the referenced files for the detailed teaching rules.
 
-Keep these principles together when revising a lesson. Do not solve one local visual problem by adding ad hoc labels or duplicate elements that contradict the overall model.
+- Prefer visible geometry before coordinate-intersection algebra.
+- Derive coordinate expressions, non-obvious formulas, and difference lengths from named constructions first.
+- For piecewise overlap or area ranges, name phases and boundary values first; for clickable minis, align `policies[].movable` and ranges with all mini `t` values. See `references/piecewise-area-trends.md`.
+- Match boundary/extremum area formulas to the visible shape and construction.
+- For folds, draw the actual interval-specific folded paper piece.
+- Use global, sub-question, phase, step, and derived-results layers; see `references/geometry-solving-principles.md` §Visual Layering.
+- Use public decoration fields first, and make angle marks, auxiliary segments, and perpendiculars match the current derivation exactly.
+- Diagram label, formula card, duplicate-label, and navigation-label rules live in `references/geometry-solving-principles.md` §Diagram Content / §Area Visuals / §Step Design.
+- Extend shared renderer/schema for generally useful missing behavior in `site/assets/js/geometry-lesson-from-spec.js` and `internal/schemas/step-decorations.schema.json`; do not fake it with duplicated labels, extra text, or generated-HTML edits.
+- If using `references/nankai-24-fewshot.md`, treat the real schema/runtime as authoritative for renderer behavior.
 
-### Reasoning Route
-
-- When a transformation or fixed shape (fold, rotation, translation, equilateral triangle, rhombus) gives 30°、45°、60° right triangles, isosceles triangles, perpendiculars, or visible parallel distances, prefer those constructions and line-segment differences before coordinate-intersection algebra. For example, derive `CG` and `HB` from local `30°` right triangles, then use `GH=BC-CG-HB`, instead of solving coordinates for `G` and `H` directly.
-- When a coordinate expression is still needed, derive it from a visible geometric construction first when possible. For example, use an isosceles triangle plus a perpendicular foot to get a moving point, then record the coordinate expression for later reuse.
-- Every non-obvious length or distance formula in the derivation must cite its immediate source: the named right triangle, a previous coordinate expression, a transformation-preserved length/angle, or a visible segment difference. Avoid lines that introduce `OD=...`, `DG=...`, or a point-to-line distance without the preceding reason.
-- When a target length is obtained by subtracting visible pieces, first derive and display the intermediate pieces actually used, then take the difference. For example, show `AN` and `AG` before `GN=AN-AG`, or construct `K` and show `DK` before `E′D=E′K-DK`.
-- For piecewise overlap or area problems, first name every phase and boundary value, then choose the simplest phase that can produce the requested value. Use interval thumbnails only for phase comparison; put formula-specific helper lines in the later calculation step that actually uses them.
-- For area ranges, first decide the shape, monotonic trend, and degenerate boundary states of each phase. Compute exact area formulas only for phases that can contain an interior extremum; for simple monotone phases, compare boundary candidates directly.
-- For boundary/extremum area calculations, match the formula to the actual visible boundary shape: use a small triangle as a triangle, a 60° rhombus as a rhombus, and add the construction point or perpendicular that reveals the needed side/height before computing the area.
-- For open-domain area ranges, calculate excluded endpoints as exact boundary snapshots when they determine a strict bound, but state clearly that the value is not attained. Keep left boundary calculation, interior extremum calculation, right boundary calculation, and final merge as separate steps when each has its own geometry.
-- For quadrilateral overlap areas, check whether the quadrilateral is naturally a large triangle minus a small triangle before splitting it by a diagonal. Prefer the subtraction model when it matches the visible containment, such as `S=△EHF-△EDG`.
-- At folding boundary states, prefer fold facts and local standard triangles over coordinates. For example, use the perpendicular-bisector relation to get `A′D=AA′/2`, then use a visible `30°` right triangle for the other area leg, instead of computing the intersection point coordinates.
-- For folds, the displayed folded polygon must be the actual image of the current paper piece for that interval. If the fold line cuts different original sides in different intervals, use interval-specific `movingPolygons` instead of extending a later-stage polygon backward.
-
-### Layer And When Scoping
-
-- Section layers must not leak objects into unrelated steps. Use `section`, `sectionNot`, or `stepStartsWith` conditions that exactly match the intended scope.
-- A boundary-only label (e.g. a `when`-gated annotation for a phase boundary) must not appear at non-boundary parameter values; verify every `when` condition covers exactly the intended parameter range.
-
-### Public Renderer First
-
-- Use existing public decoration fields first, such as `originLabel` / `showOriginLabel` on `grid`, `labelRadius` / `lockLabel` on `angleArc`, `offsetPx` / `rotateWithLine` on `segment`, and `showLabel:false` on `point`.
-- Keep diagram labels sparse and step-local. Show only the angles, lengths, point names, and regions used in the current inference; put derived coordinates and reusable algebraic conclusions in `lesson-data.steps[].box` or the derivation text unless they have spatial meaning.
-- Anchor every length or distance label to a real visible segment or constructed perpendicular. Do not place standalone words such as `高=...` or `距离=...` in the diagram unless the corresponding segment is drawn and connected to its endpoints; prefer labelling the segment itself with just the length when context is clear.
-- If two named points coincide, prefer one merged label such as `O(D)` through grid/origin-label configuration or a single point label. Do not show both the coordinate grid's `O` and a separate nearby `D` label.
-- Place angle text with the angle arc: use `angleArc` label controls such as `labelRadius` and `lockLabel` before adding separate text. The numeric angle label should sit near the middle of the arc, slightly outside it.
-- Angle arcs must correspond to the exact triangle used in the current derivation. If the text uses `Rt△ODE` and `∠DEO=30°`, mark that angle, not merely a related parallel angle elsewhere.
-- For subtraction regions, prefer mathematical symbols such as `-` in the diagram and formula card text such as `S=△EHF-△EDG`; keep explanatory words like "减去" in the derivation text.
-- Use `coloredLine`, `dashedLine`, or `dottedLine` for actual auxiliary segments that must be visibly connected, especially perpendiculars and construction lines. Use `segment` for measured/labelled line segments; do not rely on an unlabeled `segment` as a visible helper line.
-- Do not redraw or label a boundary such as `CB` when it is already an edge of `basePoly`, unless that exact boundary length is the current object being calculated.
-- Keep formula cards at the model level, such as `S=S△BPQ` or `60°菱形`; put the detailed algebra in the derivation text or conclusion box so the diagram does not duplicate the proof.
-- Use navigation labels that state the target quantity and action, such as `边界面积最小值`, `四边形面积最大值`, or `合并面积范围`, instead of terse method-only labels like `三角形差`.
-- If the required behavior is generally useful but not available declaratively, update the shared renderer/schema in `site/assets/js/geometry-lesson-from-spec.js` and `internal/schemas/step-decorations.schema.json`, then use the new JSON field. Do not fake it with duplicated labels, extra text, or generated-HTML edits.
-- If `minis` are meant to be clickable boundary/extremum cards, the owning step must have `policies[stepId].movable: true`, and the policy range must include every mini `t` value, including exact excluded-boundary snapshots used for teaching.
-- If no closer indexed case exists and you use `references/nankai-24-fewshot.md` as a fallback for id alignment and layer shape, do not rely on few-shots alone for renderer behavior; the real public runtime and schema are authoritative.
-
-### Style Preset and Normalizer
+## Style Preset and Normalizer
 
 The build pipeline runs a normalizer (`tools/lib/lesson-normalizer.mjs`) before compilation and validation. It reads `internal/config/style-presets.json` and fills in any missing style fields on decoration elements by type. It also auto-generates `range: [t, t]` for non-movable steps that lack a range.
 
@@ -316,7 +285,7 @@ If validation or rendering fails, fix the JSON spec or the shared compiler/runti
 - For publish compilation, `case-index.md` contains the current page under its pattern and every listed method.
 - Pure geometry original figures set `showGrid:false`, include all printed point labels, and reproduce printed right-angle marks without adding solution-only highlights.
 - Original figure point labels use object entries such as `{ "at": "A", "label": "A", "dx": 10, "dy": 26 }`; never use string arrays such as `["A", "B"]`.
-- The unified reasoning and visual principles above are satisfied: no duplicate same-point labels, no unlabeled measured segments, no unnecessary boundary redraws, no phase helpers in trend-only snapshots, and no false folded polygon for the interval.
+- The `Per-Problem Checklist` and referenced teaching rules are satisfied: no duplicate same-point labels, no unlabeled measured segments, no unnecessary boundary redraws, no phase helpers in trend-only snapshots, and no false folded polygon for the interval.
 - Extremum reasoning compares every included endpoint candidate that the trend step identifies; do not discard a candidate endpoint without a comparison.
 - Boundary inclusiveness matches everywhere.
 - Validation and compilation both pass.
