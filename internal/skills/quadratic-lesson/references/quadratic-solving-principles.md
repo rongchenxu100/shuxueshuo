@@ -103,6 +103,33 @@ In horse-drinking or broken-line-shortest steps, fill the path-comparison triang
 
 For interactive pages, split the optimization into two states when possible: an observation state with local controls for the moving point, and a calculation state locked to the optimal configuration. The observation state should support the inequality or collinearity idea; the calculation state may mark final lengths, special triangles, and final coordinates.
 
+### Double-Moving Point To Single-Moving Point Path
+
+When the target is a distance sum with two moving points, such as `NE+NF`, and one moving point is linked to the other by a parallelogram or translation, first try to convert the problem to a one-moving-point broken path.
+
+Preferred route:
+
+1. Identify the translation relation. For example, from parallelogram `AEFM`, read `F=E+AM` or `EF∥AM` and `EF=AM`.
+2. Build a fixed auxiliary point so the segment ending at the second moving point becomes a segment ending at the first moving point. Prefer extending an existing side/ray if possible. For example, if a rhombus gives `BN∥AM`, extend `BN` to `N′` with `NN′=MA`; then `NN′∥EF` and `NN′=EF`, so `N′EFN` is a parallelogram and `EN′=NF`.
+3. Rewrite the target as a path through one moving point, such as `NE+NF = NE+EN′`.
+4. Apply reflection/将军饮马 if the first moving point lies on a symmetry axis or fixed line. If `M` and `N` are symmetric about the line containing `E`, then `NE=ME`, so `NE+EN′=ME+EN′`, minimized when `M,E,N′` are collinear.
+5. Only after the shortest path is established, compute coordinates or final values.
+
+Coordinate-computation discipline for this route:
+
+- Use the simplest coordinate fact that locates the auxiliary point. If `AN′∥MN` and `AN′=MN=2` with `A(-1,0)` and `N′` below `A`, write `N′(-1,-2)` directly; do not force a vector expression if the vertical segment relation is clearer.
+- Do not derive or display intermediate coordinates that are not used later. A center point such as `D(1,0)` should not appear in `derive`, `box`, or the diagram unless the next computation uses it.
+- If the optimal point is the intersection of the straightened path with an axis, write the line expression from the two known collinear points and then substitute the axis value. For example, from `M(1,1)` and `N′(-1,-2)`, write `MN′: y=3/2x-1/2`, set `y=0`, and get `E(1/3,0)`.
+- When a final point is obtained by the original translation, say so explicitly: `F` is obtained from `E` by translating by `AM=(2,1)`. This is clearer than recomputing `F` from unrelated coordinate formulas.
+
+Step-splitting and diagram expectations:
+
+- Split conversion, straightening, and coordinate computation into separate steps when each idea is nontrivial.
+- In the conversion step, show the parallelogram/extension that proves the segment equality (`EN′=NF`), but do not reveal final coordinates.
+- In the straightening step, use local controls when helpful so students can observe the moving point and the collinear shortest state.
+- In the computation step, keep the diagram lean: draw the decisive segment such as `MN′`, label only the final coordinates actually used, and avoid supporting length labels that clutter the picture.
+- For separated coordinate panels or step-specific hidden layers needed by the diagrams, use `json-schema-guide.md` §Grid panels and hidden layers.
+
 ### Nested Reflection Minimum On Triangle Sides
 
 When a shortest-perimeter problem has moving points on several sides of a triangle, avoid jumping directly to "the orthic/foot triangle is shortest" as a standalone theorem. Build the result inside the solution in the order students can see it.

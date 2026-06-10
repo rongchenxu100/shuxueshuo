@@ -17,6 +17,8 @@ The core rule: HTML is a compiled artifact. Do not hand-write page HTML, SVG pat
 
 Work in this order:
 
+If the task is only to **iterate this skill**, update the skill/reference files themselves and do **not** update the knowledge base or `case-index.md`. The knowledge-base update rules below apply when creating or publishing a lesson page, not when refining skill instructions.
+
 0. Select knowledge-base references before solving:
    - Read `internal/knowledge-points/junior-math-methods.md`.
    - Read `internal/knowledge-points/case-index.md`.
@@ -52,7 +54,7 @@ Load only the references needed for the current task:
 - Read `references/geometry-solving-principles.md` before writing `02_solution.md` or revising reasoning quality.
 - Read `references/json-schema-guide.md` before writing any of the three JSON specs.
 - Read `references/original-figure-principles.md` before writing or revising `geometry-spec.originalFigures`.
-- Read `../../docs/interactive-lesson-components.md` (repo path: `internal/docs/interactive-lesson-components.md`) before adding or changing sliders, local point controls, or draggable-point interactions. It defines the relationship between the main parameter slider and step-local point controls.
+- Read `../../docs/interactive-lesson-components.md` (repo path: `internal/docs/interactive-lesson-components.md`) before adding or changing sliders, local point controls, draggable-point interactions, custom local grid panels, or step-specific hidden layers. It defines the relationship between the main parameter slider, step-local point controls, and shared `hideLayers` / `grid.panels` behavior.
 - Read `references/nankai-24-fewshot.md` only as a fallback when `case-index.md` has no sufficiently similar published case, or when the selected cases do not demonstrate the JSON shape you need. Do not prefer this fixed few-shot over a closer indexed case.
 - Read `references/piecewise-area-trends.md` only for overlap-area ranges, moving-figure phase analysis, boundary thumbnails, or representative interval minis.
 - Read the real schema files before finalizing JSON:
@@ -189,7 +191,7 @@ What this means for writing JSON specs:
 
 - **Omit default style fields** such as `color`, `width`, `dash`, `r`, `size`, `fontSize` when the preset value is acceptable. The normalizer will fill them in.
 - **Only declare a style field** when you need a value different from the preset — for example, a lighter parabola for background context, or a custom point radius.
-- **Always declare semantic fields** that the normalizer does not handle: `at`, `from`, `to`, `label`, `labelText`, `text`, `curveId`, `xExpr`, `vertex`, `rayA`, `rayB`, `dx`, `dy`, `showLabel`, `offsetPx`, `labelRadius`, `lockLabel`, `domain`, `pointOverrides`.
+- **Always declare semantic fields** that the normalizer does not handle when you use them: decoration fields such as `at`, `from`, `to`, `label`, `labelText`, `text`, `curveId`, `xExpr`, `vertex`, `rayA`, `rayB`, `dx`, `dy`, `showLabel`, `offsetPx`, `labelRadius`, `lockLabel`; step-level fields such as `domain`, `pointOverrides`, `hideLayers`; and grid-element fields such as `panels`.
 - **Always declare `range`** for movable steps (`movable: true`). Non-movable steps may omit `range`.
 
 See `internal/config/style-presets.json` for the full list of types and their defaults.

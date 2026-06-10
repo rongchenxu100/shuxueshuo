@@ -106,6 +106,8 @@ Step shape:
 {
   "steps": {
     "q1s1": {
+      "domain": { "minX": 0, "maxX": 5, "minY": -3, "maxY": 2 },
+      "hideLayers": ["global"],
       "add": [
         { "type": "segment", "from": "D", "to": "P", "label": "DP=t-3" }
       ]
@@ -125,6 +127,71 @@ Supported decoration types include:
 - `areaLabel`, `areaFormulaCard`
 - **抛物线 / 坐标示意：** `parabola`, `axisOfSymmetry`, `vertex`, `curvePoint`（需对应 `geometry-spec.curves[].id`，常用字段 `curveId`、`xExpr`）
 
+### Grid panels and hidden layers
+
+Use `steps[stepId].hideLayers` to suppress named shared layers for a single step. This is most commonly used to hide the `global` grid when the step draws custom local coordinate panels.
+
+Use `grid.panels` when one step needs two or more isolated coordinate planes in the same SVG. Each panel has its own math bounds and local origin:
+
+```json
+{
+  "layers": {
+    "casePanels": {
+      "stepStartsWith": ["q2s2"],
+      "elements": [
+        {
+          "type": "grid",
+          "panels": [
+            {
+              "minX": -1.5,
+              "maxX": 1.2,
+              "minY": -1.4,
+              "maxY": 1.7,
+              "originX": 0,
+              "originY": 0,
+              "xLabel": "x_L",
+              "yLabel": "y_L",
+              "originLabel": "O_L"
+            },
+            {
+              "minX": 3.8,
+              "maxX": 9.8,
+              "minY": -1.4,
+              "maxY": 1.7,
+              "originX": 4.2,
+              "originY": 0,
+              "xLabel": "x_R",
+              "yLabel": "y_R",
+              "originLabel": "O_R"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "steps": {
+    "q2s2": {
+      "domain": { "minX": -1.8, "maxX": 10, "minY": -1.6, "maxY": 2 },
+      "hideLayers": ["global"],
+      "add": []
+    }
+  }
+}
+```
+
+Panel fields:
+
+- required: `minX`, `maxX`, `minY`, `maxY`
+- optional: `originX`, `originY`, `xLabel`, `yLabel`, `originLabel`
+- optional style: `axesColor`, `axesWidth`, `axesLabelColor`, `axesLabelFontSize`, `originColor`, `originDx`, `originDy`, `originFontSize`, `showOriginLabel`
+
+Rules:
+
+- Prefer `steps[stepId].domain` for ordinary zooming; use `grid.panels` only when separate coordinate systems must be visually isolated.
+- Use `hideLayers: ["global"]` if the default global grid/axes would draw through the blank gap between panels.
+- Keep panel labels ASCII inside SVG, such as `x_L`, `y_R`, `O_L`, when the page has a "diagram has no Chinese labels" requirement.
+- Ensure points/curves for a shifted panel are also shifted in `geometry-spec` or via step-specific point definitions; panels change the displayed grid, not the underlying geometry coordinates.
+
 ### Style fields: omit vs declare
 
 The normalizer fills default style values from `internal/config/style-presets.json` by decoration `type`. You should **omit** style fields when the preset default is acceptable, and **only declare** them when overriding.
@@ -142,9 +209,9 @@ Fields that can be omitted (normalizer fills from preset):
 | `radius` | `angleArc` |
 | `fill` | `circle`, `outlineRegion` |
 
-Fields that must always be declared (semantic, not defaulted):
+Semantic fields that must be declared when used (the normalizer does not invent these):
 
-`type`, `at`, `from`, `to`, `label`, `labelText`, `text`, `curveId`, `xExpr`, `vertex`, `rayA`, `rayB`, `dx`, `dy`, `showLabel`, `offsetPx`, `labelRadius`, `lockLabel`.
+`type`, `at`, `from`, `to`, `label`, `labelText`, `text`, `curveId`, `xExpr`, `vertex`, `rayA`, `rayB`, `dx`, `dy`, `showLabel`, `offsetPx`, `labelRadius`, `lockLabel`, `hideLayers`, `panels`.
 
 Example — a point that uses all defaults:
 
@@ -163,6 +230,7 @@ Rules:
 - Put stable context in `layers`, not repeated step additions.
 - Put only current-step helper/highlight elements in `steps[stepId].add`.
 - Every `lesson-data.steps[].id` must have a matching `step-decorations.steps[id]`.
+- Use `steps[stepId].hideLayers` to hide named context layers for one step, usually to replace a global grid with custom `grid.panels`.
 - When point `O` is also the coordinate origin, avoid duplicate `O` labels. Prefer `{ "type": "point", "at": "O", "showLabel": false }` if the grid already labels the origin.
 - Decorations may use `minT` / `maxT` when a named point only exists in part of the folding process. For example, `Q` on an upper edge should not be labeled before the fold line reaches that edge. However, do not use decoration visibility to hide an incorrect folded polygon; fix `geometry-spec.movingPolygons` or `foldedPolygon` so the underlying overlap model is correct.
 

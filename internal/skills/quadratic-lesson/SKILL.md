@@ -51,7 +51,7 @@ Load only the references needed for the current task:
 - **Always read** `references/json-schema-guide.md` before writing any of the three JSON specs — covers field types, required vs optional, and how to align ids across files.
 - **Always read** `references/diagram-drawing-principles.md` before writing or revising `03_visual_steps.md` or `step-decorations.json` — covers what to draw, how to mark used values/equalities, constructed segments, moving segments, and geometric transformations.
 - **Always read** `references/original-figure-principles.md` before adding or changing `geometry-spec.originalFigures` or any `lesson-data.problem.lines[].figures` entry. If the source problem has no printed figure, do not invent one.
-- **Read** `../../docs/interactive-lesson-components.md` (repo path: `internal/docs/interactive-lesson-components.md`) before adding or changing sliders, local point controls, or draggable-point interactions. It defines the relationship between the main parameter slider and step-local point controls.
+- **Read** `../../docs/interactive-lesson-components.md` (repo path: `internal/docs/interactive-lesson-components.md`) before adding or changing sliders, local point controls, draggable-point interactions, custom local grid panels, or step-specific hidden layers. It defines the relationship between the main parameter slider, step-local point controls, and `hideLayers` / `grid.panels`.
 - **Read** `references/nankai-25-fewshot.md` only as a fallback when `case-index.md` has no sufficiently similar published case, or when the selected cases do not demonstrate the JSON shape you need. Do not prefer this fixed few-shot over a closer indexed case.
 - Read the real schema files before writing JSON (they override anything in the reference docs if there is a conflict):
   - `internal/schemas/geometry-spec.schema.json` (`expressionEnv`, `curves`, optional `basePolygon`/`movingPolygon`)
@@ -69,7 +69,7 @@ What this means for writing JSON specs:
 
 - **Omit default style fields** such as `color`, `width`, `dash`, `r`, `size`, `fontSize` when the preset value is acceptable. The normalizer will fill them in.
 - **Only declare a style field** when you need a value different from the preset — for example, a lighter parabola for background context, or a custom point radius.
-- **Always declare semantic fields** that the normalizer does not handle: `at`, `from`, `to`, `label`, `labelText`, `text`, `curveId`, `xExpr`, `vertex`, `rayA`, `rayB`, `dx`, `dy`, `showLabel`, `offsetPx`, `labelRadius`, `lockLabel`, `domain`, `pointOverrides`.
+- **Always declare semantic fields** that the normalizer does not handle when you use them: decoration fields such as `at`, `from`, `to`, `label`, `labelText`, `text`, `curveId`, `xExpr`, `vertex`, `rayA`, `rayB`, `dx`, `dy`, `showLabel`, `offsetPx`, `labelRadius`, `lockLabel`; step-level fields such as `domain`, `pointOverrides`, `hideLayers`; and grid-element fields such as `panels`.
 - **Always declare `range`** for movable steps (`movable: true`). Non-movable steps may omit `range`.
 
 See `internal/config/style-presets.json` for the full list of types and their defaults.
@@ -125,6 +125,7 @@ For geometry-heavy quadratic综合题, prefer a visible geometric derivation bef
 - Reuse prior conclusions through reference components in `lesson-data.json` instead of repeating a full derivation block.
 - For nested shortest-path arguments, split by idea rather than by algebra length. A typical sequence is: fixed moving-point state and reflection straightening; auxiliary angle proof; moving the remaining point and applying perpendicular-distance shortest; final computation.
 - If a path-minimum conclusion can be reduced to one decisive segment such as `√2·DG`, compute from that segment directly. Do not derive unused optimal-point coordinates or side lengths merely because they are available.
+- For two-moving-point distance sums and shortest-path coordinate computation, use `references/quadratic-solving-principles.md` §Double-Moving Point To Single-Moving Point Path.
 
 ## Step 3: `03_visual_steps.md`
 
@@ -136,12 +137,15 @@ Same layering mindset as geometry-lesson (whole-problem / section / phase / step
 - which labels are allowed at each stage: use symbolic coordinates before a parameter is solved; reserve final numeric coordinates and final answer labels for the step that derives them.
 - where local zoom domains are needed. Geometry-heavy congruence or shortest-path computation steps should often use `steps[stepId].domain` so the construction, angle marks, and used lengths are readable.
 - which diagram labels are new visual information. Do not add formula cards or labels that merely repeat the derivation panel or the step `box`.
+- when a step compares multiple solved coordinate states. If each state has a different meaningful origin/y-axis, follow `references/diagram-drawing-principles.md` §Quadratic-Specific Drawing and `references/json-schema-guide.md` §Grid panels and hidden layers.
 - how `stepLabels` name each step. Prefer compact "method + target" labels such as `等角作C′定BM`, `铅垂面积求b`, or `构造等腰求a` instead of vague result labels such as `确定 BM` or `求 b`.
 
 Use review-friendly visual discipline:
 
+- Keep SVG diagram labels symbolic/ASCII where possible. See `references/diagram-drawing-principles.md` §Step Relevance / §Mark Used Quantities.
 - Fill congruent triangles or corresponding construction triangles with the same light color so students can see the matched shapes before reading the text.
 - Keep labels limited to the quantities used in the current derivation. For a line-segment conversion step, prefer the two decisive labels such as `FM=1/2AE` and `FH=1/2AG`; omit midpoint labels if the derivation panel already states them.
+- For dense shortest-path computation diagrams and label/box occlusion checks, use `references/diagram-drawing-principles.md` §Mark Used Quantities and §Step Relevance.
 - Local zoom should focus on the active construction while preserving necessary context such as the moving point trajectory. Do not leave large empty regions when a tighter domain would make the construction clearer.
 - Split steps when two different ideas are being taught, such as "derive G's trajectory" and "apply reflection shortest path". Each idea may have its own local control if dragging helps the student see it.
 - For a fixed-point reflection step, use local controls for the points that are genuinely moving in that fixed state. For a later step where the fixed point itself moves, switch the local control to that point and keep dependent points linked or hidden if they are no longer the focus.
@@ -177,6 +181,8 @@ Besides geometry decorators, you may use:
 | `axisOfSymmetry` | vertical line \(x = -b/(2a)\) |
 | `vertex` | vertex marker from coefficients |
 | `curvePoint` | `(xExpr, y)` from curve via `xExpr` evaluated with `state.env` |
+
+For separated coordinate cases, use `grid.panels` together with `steps[stepId].hideLayers`; details live in `references/json-schema-guide.md` §Grid panels and hidden layers.
 
 ### `lesson-data.json`
 
@@ -216,9 +222,12 @@ Then spot-check the HTML locally.
 - Known roots/intercepts are used to simplify/factor the parabola directly before introducing any new unknown point parameter.
 - Geometry conditions are solved geometrically when possible: perpendicular feet, right-triangle congruence, isosceles-right triangles, and 将军饮马 before coordinate/vector formulas.
 - Coordinate claims for constructed points explain both horizontal and vertical origins, and the diagram marks the line or distance used to read them.
+- For two-moving-point path expressions, natural construction language, and shortest-path coordinate computation discipline, check `references/quadratic-solving-principles.md` §Double-Moving Point To Single-Moving Point Path.
 - Angle conditions are converted with visible auxiliary geometry when possible: symmetry points, isosceles triangles, or axis-intersection points before slope/tangent formulas.
 - Coordinate-area steps use vertical/horizontal split areas when the diagram provides a natural base, before determinant formulas.
 - Diagram labels are not duplicating the derivation panel: no repeated formula cards when the same result is already in `derive` or `box`.
+- SVG diagrams contain no Chinese explanatory text; dense diagrams keep decisive labels only; conclusion boxes do not cover important points or paths. See `references/diagram-drawing-principles.md`.
+- Multiple coordinate states with different origins/axes use `hideLayers` + `grid.panels` instead of a misleading continuous coordinate plane. See `references/json-schema-guide.md`.
 - Step navigation labels are short but meaningful, usually "method + target".
 - Congruent or corresponding triangles that drive a step use matching light fills, and nonessential labels are removed from dense diagrams.
 - Long derivations are split when a trajectory result, a segment conversion, and an optimization argument are separate ideas.
