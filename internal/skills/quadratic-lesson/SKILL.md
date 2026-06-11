@@ -87,6 +87,8 @@ Default to middle-school students. Compared with pure folding/rotation geometry 
 - Dynamic controls usually correspond to a **parameter letter shown on the exam** (`m`, `t`, etc.). Align `geometry-spec.movingParam`, expressions that reference this letter, `lesson-data.ui.sliderLabel`, and `lesson-data.policies[].range`.
 - Do **not** add a main slider for a coefficient or unknown that the problem asks students to solve (`a`、`b`、`c`). Keep those steps non-movable and use a representative symbolic/solved drawing state only for the diagram. Use local controls only for genuine moving points inside a construction or shortest-path observation.
 - Keep numeric endpoints consistent everywhere (`≤`, `<`) across markdown, JSON chips, and slider ranges.
+- Prefer the student's natural solving order over a compact formula-first route. If coefficients are already numeric, substitute them first and then complete the square; do not start with a general vertex formula unless the symbolic form is itself the point of the step.
+- Keep each step's algebra scoped to the current idea. Do not solve parameter relations such as `a-r-c` early merely because they are available; save them for the step where the problem actually asks to determine the coefficient.
 
 ## Step 1: `01_problem.md`
 
@@ -110,6 +112,14 @@ Use short derivation lines with `∵` / `∴`. Prefer titles such as:
 
 Avoid dumping lengthy algebraic manipulation without naming intermediate meanings each step.
 
+Student-facing sequencing rules:
+
+- When a sub-question gives numeric coefficients, first write the concrete function and then derive the requested object (`y=-2x²+8x+6` → `y=-2(x-2)²+14` → `D(2,14)`).
+- Every key coordinate must name its source: which two lines are intersected, which foot is constructed, which fixed length is read, or which special triangle supplies the coordinate.
+- If a distance condition gives two candidate positions, list both and then use the quadrant, opening direction, or point-on-curve condition to choose.
+- For an auxiliary foot that drives an area or length computation, give the foot a visible point name and use the same name in the derivation (`MG`, not a hidden `h`) so the formula maps directly to the diagram.
+- In a multi-step path-minimum argument, first record only the facts needed for the conversion (for example `A(r,0)`, `AA′=8-r`, and `P(r/2,√3r/2)`), then do the path conversion, then use the final minimum to solve the coefficient.
+
 When a coordinate-geometry condition contains `90°` or equal lengths, prefer a middle-school geometry route before coefficient solving: draw the needed perpendicular foot, prove right-triangle congruence or an isosceles-right relation, obtain the target point coordinate, then substitute into the parabola.
 
 When an angle condition determines a line through an axis point, first look for a middle-school construction before using slope language. Useful patterns include reflecting a point across an axis, building an isosceles triangle, or letting the target line meet an axis at an auxiliary point \(C'\) so equal angles become equal vertical segments such as \(C'O=CO\). Use slope only after the construction has produced two points on the line, and phrase it as "由两点确定直线" when possible.
@@ -126,6 +136,9 @@ For geometry-heavy quadratic综合题, prefer a visible geometric derivation bef
 - For nested shortest-path arguments, split by idea rather than by algebra length. A typical sequence is: fixed moving-point state and reflection straightening; auxiliary angle proof; moving the remaining point and applying perpendicular-distance shortest; final computation.
 - If a path-minimum conclusion can be reduced to one decisive segment such as `√2·DG`, compute from that segment directly. Do not derive unused optimal-point coordinates or side lengths merely because they are available.
 - For two-moving-point distance sums and shortest-path coordinate computation, use `references/quadratic-solving-principles.md` §Double-Moving Point To Single-Moving Point Path.
+- For weighted or double-moving path sums, make the conversion step explicit in the step title and derivation: construct the parallelogram/translation that turns one moving segment into a segment from a fixed or linked point, construct the special right triangle that absorbs the weight, and state that the two-moving-point problem has become a one-moving-point broken path.
+- Mark fixed distances as fixed before optimizing. For example, when `EF` is the distance between two parallel lines, state that it is independent of the moving point before rewriting the target expression.
+- Do not over-explain coordinates inside the optimization step if a prior step already established them. Move reusable point coordinates such as `P(r/2,√3r/2)` into an earlier setup step, then cite them compactly during the shortest-path computation.
 
 ## Step 3: `03_visual_steps.md`
 
@@ -137,8 +150,10 @@ Same layering mindset as geometry-lesson (whole-problem / section / phase / step
 - which labels are allowed at each stage: use symbolic coordinates before a parameter is solved; reserve final numeric coordinates and final answer labels for the step that derives them.
 - where local zoom domains are needed. Geometry-heavy congruence or shortest-path computation steps should often use `steps[stepId].domain` so the construction, angle marks, and used lengths are readable.
 - which diagram labels are new visual information. Do not add formula cards or labels that merely repeat the derivation panel or the step `box`.
+- which objects should disappear after their job is done. In a final coefficient-solving step, remove path-construction points such as `E,F,N,H` if the calculation only needs `A,C,P` and the parabola.
 - when a step compares multiple solved coordinate states. If each state has a different meaningful origin/y-axis, follow `references/diagram-drawing-principles.md` §Quadratic-Specific Drawing and `references/json-schema-guide.md` §Grid panels and hidden layers.
 - how `stepLabels` name each step. Prefer compact "method + target" labels such as `等角作C′定BM`, `铅垂面积求b`, or `构造等腰求a` instead of vague result labels such as `确定 BM` or `求 b`.
+- For path-minimum navigation, use method-forward labels such as `双动点转单动点`, `将军饮马求最小值`, and `代入最小值求a`.
 
 Use review-friendly visual discipline:
 
@@ -151,6 +166,7 @@ Use review-friendly visual discipline:
 - For a fixed-point reflection step, use local controls for the points that are genuinely moving in that fixed state. For a later step where the fixed point itself moves, switch the local control to that point and keep dependent points linked or hidden if they are no longer the focus.
 - When a coordinate formula is derived from a distance, show the corresponding auxiliary segment or projection in the diagram, for example a horizontal distance from `A` to the projection of `G`.
 - Keep navigation labels synchronized with step titles and make them method-based, e.g. `中线中位线转线段`, `推导G轨迹`, `将军饮马求最小值`.
+- If a step computes a perpendicular distance without using a distance formula, draw the small right-triangle decomposition used by middle-school geometry. Add auxiliary points such as `J,K` only when they make the length computation visible; remove whole-length labels that duplicate the derivation when component lengths are clearer.
 
 ## Step 4: JSON Specs
 
@@ -219,13 +235,17 @@ Then spot-check the HTML locally.
 - No main slider is used for coefficients that are being solved.
 - Every lesson step has diagram intent documented in `03_visual_steps.md`.
 - Earlier diagrams do not contain later conclusions: no solved coordinates, final coefficient values, helper points, or final curve state before the matching derivation step.
+- Setup steps do not prematurely solve parameters that are only needed after the minimum or existence condition is known.
 - Known roots/intercepts are used to simplify/factor the parabola directly before introducing any new unknown point parameter.
 - Geometry conditions are solved geometrically when possible: perpendicular feet, right-triangle congruence, isosceles-right triangles, and 将军饮马 before coordinate/vector formulas.
 - Coordinate claims for constructed points explain both horizontal and vertical origins, and the diagram marks the line or distance used to read them.
+- Key points from line intersections, such as `Q`, explicitly state the two objects being intersected before the coordinate is written.
+- Auxiliary feet used in formulas are named consistently in text and diagram, and the formula uses that name.
 - For two-moving-point path expressions, natural construction language, and shortest-path coordinate computation discipline, check `references/quadratic-solving-principles.md` §Double-Moving Point To Single-Moving Point Path.
 - Angle conditions are converted with visible auxiliary geometry when possible: symmetry points, isosceles triangles, or axis-intersection points before slope/tangent formulas.
 - Coordinate-area steps use vertical/horizontal split areas when the diagram provides a natural base, before determinant formulas.
 - Diagram labels are not duplicating the derivation panel: no repeated formula cards when the same result is already in `derive` or `box`.
+- Final computation diagrams remove stale shortest-path construction objects and show only the objects needed for the current substitution.
 - SVG diagrams contain no Chinese explanatory text; dense diagrams keep decisive labels only; conclusion boxes do not cover important points or paths. See `references/diagram-drawing-principles.md`.
 - Multiple coordinate states with different origins/axes use `hideLayers` + `grid.panels` instead of a misleading continuous coordinate plane. See `references/json-schema-guide.md`.
 - Step navigation labels are short but meaningful, usually "method + target".
