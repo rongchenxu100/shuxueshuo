@@ -122,6 +122,8 @@ Use the debug artifacts to classify each failure before changing code.
 
 Inspect the whole attempt, not only the first blocking exception. When available, read the raw draft, effective draft, normalization report, candidate report, execution diagnostic, accepted prefix, and previous-attempt payload.
 
+Compare attempts when a later attempt succeeds. The most useful bugs often appear as a small shape difference between the failed and successful drafts. If the failed draft is mathematically correct but differs by naming, missing alias, multi-output shape, omitted state fact, or step ordering, prefer a code-side fix and add a fixed regression fixture.
+
 Prefer this classification order:
 
 1. **ProblemIR gap**: missing entity, fact, scope, constraint, relation, or answer goal.
@@ -142,7 +144,41 @@ Use these decision rules:
 - Add a **normalizer** only for deterministic structural drift, such as safe alias correction, scope widening to a visible parent, output-type alias, duplicate exact `creates`, or harmless utility fact rewrite.
 - Tune **prompt/few-shot** when capabilities already exist but the LLM repeatedly chooses the wrong family strategy or wrong executable granularity.
 
+Treat the first blocker as the execution boundary, not as the whole diagnosis. Use preflight warnings and skipped-step review to surface downstream issues of the same kind, but do not ask the LLM to rewrite accepted prefix steps unless the prefix itself is wrong.
+
 The repair loop is stateless chat-wise. If a round fails, preserve rich repair context: previous raw/effective StepIntent draft, accepted prefix, applied fills, blockers, skipped steps, and repair instructions. A validation-only failure must not erase a previous rich execution diagnostic.
+
+### Code-Side Absorption Rules
+
+Absorb deterministic, structure-preserving deviations in code:
+
+- If LLM reads an entity handle but omits the already-computed state fact, use entity-state resolution to bind the unique visible state. This applies to points, functions, symbols, segments, and other entity classes when the runtime type is known.
+- If LLM uses an enumerated alias or parent-scope handle variant, canonicalize it through explicit alias rules only. Do not use fuzzy spelling correction.
+- If a method returns multiple outputs, map produced handles to method output keys by structured signals first: `output_type`, answer value type, fact type, and handle semantic name. Never rely on output order or natural-language description as the primary mapping.
+- If LLM emits a recipe’s internal method sequence, fold it back to the public recipe only when the recipe declares or clearly owns that sequence and the rewrite preserves all produced handles needed downstream.
+- If a method has verified companion outputs, register them as readable runtime aliases even when the LLM does not explicitly produce every companion fact.
+- If an existing method can safely prepare a missing prerequisite object, use declarative prep rules and expose only semantic StepIntent facts to the LLM, not runtime paths.
+
+Do not absorb true mathematical gaps. Missing construction, missing relation, wrong family strategy, or an unsupported transformation should become repair feedback or a new reusable method/recipe.
+
+### Planner Insight And Repair Feedback
+
+Some methods reveal roles that the LLM should not guess before execution, such as the moving point after path reduction, selected candidates, or endpoints from a straightening recipe. Expose these as planner-visible insights in `previous_attempts`, not as expected answers.
+
+Good planner insights:
+
+- use canonical handles and output types only;
+- say what was learned, such as `moving_point`, `fixed_points`, `transformed_path`, or recommended next capability;
+- never include `ContextPath`, runtime invocation details, traceback, or expected answer values.
+
+Repair guidance belongs near the capability that understands the failure:
+
+- method-owned repair hints live in method Python `SPEC.repair_hints`;
+- recipe-owned hints live with recipe execution metadata;
+- binding-selector hints live with the selector or binding rule;
+- `RepairFeedbackBuilder` only collects, ranks, merges, and filters hints for LLM consumption.
+
+Do not hard-code a family-specific repair instruction in the generic builder or compiler. If a repair message names a method or recipe, it should be scoped by capability id, recipe id, or binding selector.
 
 ### 4. Add Reusable Capability
 
@@ -153,6 +189,8 @@ When adding or extending a method:
 - Write the method summary as a capability statement, not an operation trace for one题.
 - Include applicability, preconditions, input/output semantics, unsupported cases, and symbolic/parameterized support.
 - If the method is useful for student explanation, describe the reusable mathematical idea, not a current-case derivation. Detailed derivation belongs to the explanation layer.
+- If the method returns multiple useful values, declare all outputs in `SPEC.outputs`. Compiler alias registration must map those outputs structurally, especially for multi-output methods such as geometry transforms.
+- If the method can repair a common misuse, add `repair_hints` to the method `SPEC` instead of putting the message in generic runtime code.
 - Run the method spec generator:
 
 ```bash
@@ -168,6 +206,8 @@ When adding recipe or binding capability:
 - Describe what the recipe solves at the executable step level, for example “reduce a two-moving-point path by an equal-length ray construction,” not “construct point F in 和平”.
 - Let recipe execution own internal helper entities and method wiring when they are part of the standard action.
 - Add unit tests for recipe selection, selector existence, binding behavior, and any normalizer rewrite.
+- For recipe internals, keep a clear public contract. If the LLM should call the recipe, do not require it to know every internal method output; the compiler should wire and register companion outputs.
+- If later planning depends on an internal result, expose a planner insight rather than expanding the recipe into a problem-specific mega method.
 
 When changing prompt/few-shot:
 
