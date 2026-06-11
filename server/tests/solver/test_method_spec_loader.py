@@ -72,6 +72,27 @@ def test_loads_quadratic_candidate_filter_spec() -> None:
     assert spec.outputs["selected_candidate"] == "Point"
 
 
+def test_loads_square_axis_candidate_atomic_specs() -> None:
+    registry = MethodSpecRegistry.load_from_code()
+    axis_point = registry.require("quadratic_axis_parameterized_point")
+    square_vertex = registry.require("square_adjacent_vertex_from_side")
+    curve_condition = registry.require("point_candidates_from_curve_point_condition")
+    point_at_parameter = registry.require("evaluate_point_at_parameter")
+    minimum_point = registry.require("line_locus_minimum_point")
+
+    assert axis_point.inputs["parabola"].type == "Parabola"
+    assert axis_point.outputs["point"] == "Point"
+    assert square_vertex.inputs["square_condition"].type == "Condition"
+    assert square_vertex.outputs["point"] == "Point"
+    assert curve_condition.inputs["target_point"].type == "Point"
+    assert curve_condition.inputs["curve_point"].type == "Point"
+    assert curve_condition.outputs["candidates"] == "PointList"
+    assert point_at_parameter.inputs["point"].type == "Point"
+    assert point_at_parameter.outputs["evaluated_point"] == "Point"
+    assert minimum_point.inputs["moving_locus"].type == "Line"
+    assert minimum_point.outputs["point"] == "Point"
+
+
 def test_loads_parameter_from_curve_point_on_quadratic_spec() -> None:
     registry = MethodSpecRegistry.load_from_code()
     spec = registry.require("parameter_from_curve_point_on_quadratic")

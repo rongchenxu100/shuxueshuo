@@ -1,0 +1,44 @@
+{
+  "method_id": "line_locus_minimum_point",
+  "title": "由最短线段和轨迹求动点",
+  "description": "求最短线段与动点轨迹直线的交点。",
+  "summary": "Given 动点轨迹直线和拉直后的最短线段两端点, derive 最短状态下的动点坐标。",
+  "solves": [
+    "derive_line_locus_minimum_point"
+  ],
+  "inputs": {
+    "moving_locus": {
+      "type": "Line",
+      "required": true
+    },
+    "minimum_point_1": {
+      "type": "Point",
+      "required": true
+    },
+    "minimum_point_2": {
+      "type": "Point",
+      "required": true
+    },
+    "target": {
+      "type": "PointRef",
+      "required": true
+    },
+    "parameter": {
+      "type": "Symbol",
+      "required": false
+    },
+    "parameter_value": {
+      "type": "ParameterValue",
+      "required": false
+    }
+  },
+  "outputs": {
+    "point": "Point"
+  },
+  "preconditions": [
+    "最短线段与 moving_locus 不平行"
+  ],
+  "postconditions": [
+    "输出点同时位于最短线段和 moving_locus 上"
+  ]
+}

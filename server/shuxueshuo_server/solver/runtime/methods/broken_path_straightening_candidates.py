@@ -27,24 +27,26 @@ class BrokenPathStraighteningCandidatesMethod:
 
     def run(self, inputs: dict[str, Any], kernel: SympyKernel) -> StatelessMethodResult:
         transformation = inputs["path_transformation"]
-        moving_membership = inputs["moving_point_membership"]
+        moving_membership = inputs.get("moving_point_membership")
+        moving_locus = inputs.get("moving_locus")
         fixed_point_1: Point = inputs["fixed_point_1"]
         fixed_point_2: Point = inputs["fixed_point_2"]
-        line_point_1: Point = inputs["line_point_1"]
-        line_point_2: Point = inputs["line_point_2"]
+        line_point_1, line_point_2, moving_line_name, expected_moving = _line_from_inputs(
+            moving_membership=moving_membership,
+            moving_locus=moving_locus,
+            inputs=inputs,
+        )
         transformed_path = str(transformation["transformed_path"])
         segments = _parse_path_segments(transformed_path)
         if len(segments) != 2:
             raise ValueError("broken_path_straightening_candidates requires a two-segment broken path")
         moving_point_name = _common_endpoint(segments[0], segments[1])
-        expected_moving = str(moving_membership["point"])
-        if moving_point_name != expected_moving:
+        if expected_moving is not None and moving_point_name != expected_moving:
             raise ValueError(
                 f"path moving point {moving_point_name!r} does not match membership {expected_moving!r}"
             )
         fixed_name_1 = _other_segment_endpoint(segments[0], moving_point_name)
         fixed_name_2 = _other_segment_endpoint(segments[1], moving_point_name)
-        moving_line_name = "".join(str(name) for name in moving_membership["segment"])
         candidates = [
             _straightening_candidate(
                 kernel=kernel,
@@ -130,8 +132,13 @@ SPEC = MethodSpecSource(
     },
     "moving_point_membership": {
         "type": "Condition",
-        "required": True,
+        "required": False,
         "description": "动点所在直线/线段，例如 G 在线段 MN 上。"
+    },
+    "moving_locus": {
+        "type": "Line",
+        "required": False,
+        "description": "动点轨迹直线；若提供该输入，则不需要 moving_point_membership 和 line_point_1/line_point_2。"
     },
     "fixed_point_1": {
         "type": "Point",
@@ -145,19 +152,62 @@ SPEC = MethodSpecSource(
     },
     "line_point_1": {
         "type": "Point",
-        "required": True,
+        "required": False,
         "description": "动点所在直线上的第一个点。"
     },
     "line_point_2": {
         "type": "Point",
-        "required": True,
+        "required": False,
         "description": "动点所在直线上的第二个点。"
     }
 },
     outputs={
     "candidates": "StraighteningCandidateList"
 },
-    preconditions=('path_transformation.transformed_path 是由两条线段组成的单动点折线', 'moving_point_membership.point 是两条线段的公共端点', 'line_point_1 与 line_point_2 确定动点所在直线'),
+    preconditions=('path_transformation.transformed_path 是由两条线段组成的单动点折线', '提供 moving_locus，或同时提供 moving_point_membership、line_point_1 和 line_point_2', '动点轨迹直线与 transformed_path 的公共动点一致'),
     postconditions=('每个候选都包含一个反射点和对应的最短线段',),
     trace_template=(),
 )
+
+
+def _line_from_inputs(
+    *,
+    moving_membership: dict[str, Any] | None,
+    moving_locus: dict[str, Any] | None,
+    inputs: dict[str, Any],
+) -> tuple[Point, Point, str, str | None]:
+    """从 membership 或直接 Line 输入读取动点所在直线。"""
+    if moving_locus is not None:
+        start = _line_point(moving_locus, "start_point")
+        direction = _line_point(moving_locus, "direction")
+        line_point_2 = (
+            sp.simplify(start[0] + direction[0]),
+            sp.simplify(start[1] + direction[1]),
+        )
+        point_name = str(moving_locus["point_name"]) if "point_name" in moving_locus else ""
+        expected = None if point_name in {"", "moving_point", "point", "P"} else point_name
+        return (
+            start,
+            line_point_2,
+            str(moving_locus.get("equation") or moving_locus.get("point_name") or "moving_locus"),
+            expected,
+        )
+    if moving_membership is None:
+        raise ValueError("broken_path_straightening_candidates requires moving_locus or moving_point_membership")
+    if "line_point_1" not in inputs or "line_point_2" not in inputs:
+        raise ValueError("moving_point_membership mode requires line_point_1 and line_point_2")
+    return (
+        inputs["line_point_1"],
+        inputs["line_point_2"],
+        "".join(str(name) for name in moving_membership["segment"]),
+        str(moving_membership["point"]),
+    )
+
+
+def _line_point(line: dict[str, Any], key: str) -> Point:
+    raw = line.get(key)
+    if isinstance(raw, list) and len(raw) == 2:
+        raw = tuple(raw)
+    if not isinstance(raw, tuple) or len(raw) != 2:
+        raise ValueError(f"moving_locus requires 2D {key}")
+    return (sp.simplify(raw[0]), sp.simplify(raw[1]))

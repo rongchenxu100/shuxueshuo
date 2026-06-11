@@ -15,6 +15,7 @@ from .quadratic_from_constraints import QuadraticFromConstraintsMethod, SPEC as 
 from .quadratic_vertex_point import QuadraticVertexPointMethod, SPEC as QUADRATIC_VERTEX_POINT_SPEC
 from .quadratic_y_axis_intercept_point import QuadraticYAxisInterceptPointMethod, SPEC as QUADRATIC_Y_AXIS_INTERCEPT_POINT_SPEC
 from .quadratic_x_axis_intercept_point import QuadraticXAxisInterceptPointMethod, SPEC as QUADRATIC_X_AXIS_INTERCEPT_POINT_SPEC
+from .quadratic_axis_x_intercept_point import QuadraticAxisXInterceptPointMethod, SPEC as QUADRATIC_AXIS_X_INTERCEPT_POINT_SPEC
 from .point_on_parabola_at_x import PointOnParabolaAtXMethod, SPEC as POINT_ON_PARABOLA_AT_X_SPEC
 from .midpoint_point import MidpointPointMethod, SPEC as MIDPOINT_POINT_SPEC
 from .parameter_from_segment_length import ParameterFromSegmentLengthMethod, SPEC as PARAMETER_FROM_SEGMENT_LENGTH_SPEC
@@ -38,12 +39,19 @@ from .linked_broken_path_geometric_minimum import (
 )
 from .coefficient_at_parameter import CoefficientAtParameterMethod, SPEC as COEFFICIENT_AT_PARAMETER_SPEC
 from .evaluate_expression_at_parameter import EvaluateExpressionAtParameterMethod, SPEC as EVALUATE_EXPRESSION_AT_PARAMETER_SPEC
+from .evaluate_point_at_parameter import EvaluatePointAtParameterMethod, SPEC as EVALUATE_POINT_AT_PARAMETER_SPEC
 from .parameter_from_curve_point_on_quadratic import ParameterFromCurvePointOnQuadraticMethod, SPEC as PARAMETER_FROM_CURVE_POINT_ON_QUADRATIC_SPEC
 from .translated_point import TranslatedPointMethod, SPEC as TRANSLATED_POINT_SPEC
 from .angle_sum_equal_angle_candidates import AngleSumEqualAngleCandidatesMethod, SPEC as ANGLE_SUM_EQUAL_ANGLE_CANDIDATES_SPEC
 from .axis_intercept_from_equal_acute_angles import AxisInterceptFromEqualAcuteAnglesMethod, SPEC as AXIS_INTERCEPT_FROM_EQUAL_ACUTE_ANGLES_SPEC
 from .line_parabola_second_intersection_point import LineParabolaSecondIntersectionPointMethod, SPEC as LINE_PARABOLA_SECOND_INTERSECTION_POINT_SPEC
 from .equal_length_ray_point import EqualLengthRayPointMethod, SPEC as EQUAL_LENGTH_RAY_POINT_SPEC
+from .quadratic_axis_parameterized_point import QuadraticAxisParameterizedPointMethod, SPEC as QUADRATIC_AXIS_PARAMETERIZED_POINT_SPEC
+from .square_adjacent_vertex_from_side import SquareAdjacentVertexFromSideMethod, SPEC as SQUARE_ADJACENT_VERTEX_FROM_SIDE_SPEC
+from .point_candidates_from_curve_point_condition import PointCandidatesFromCurvePointConditionMethod, SPEC as POINT_CANDIDATES_FROM_CURVE_POINT_CONDITION_SPEC
+from .square_path_dimension_reduction import SquarePathDimensionReductionMethod, SPEC as SQUARE_PATH_DIMENSION_REDUCTION_SPEC
+from .parameterized_point_locus_line import ParameterizedPointLocusLineMethod, SPEC as PARAMETERIZED_POINT_LOCUS_LINE_SPEC
+from .line_locus_minimum_point import LineLocusMinimumPointMethod, SPEC as LINE_LOCUS_MINIMUM_POINT_SPEC
 
 ALL_METHOD_SPEC_SOURCES = (
     RIGHT_ANGLE_EQUAL_LENGTH_CANDIDATES_SPEC,
@@ -53,6 +61,7 @@ ALL_METHOD_SPEC_SOURCES = (
     QUADRATIC_VERTEX_POINT_SPEC,
     QUADRATIC_Y_AXIS_INTERCEPT_POINT_SPEC,
     QUADRATIC_X_AXIS_INTERCEPT_POINT_SPEC,
+    QUADRATIC_AXIS_X_INTERCEPT_POINT_SPEC,
     POINT_ON_PARABOLA_AT_X_SPEC,
     MIDPOINT_POINT_SPEC,
     PARAMETER_FROM_SEGMENT_LENGTH_SPEC,
@@ -72,12 +81,19 @@ ALL_METHOD_SPEC_SOURCES = (
     LINKED_BROKEN_PATH_GEOMETRIC_MINIMUM_SPEC,
     COEFFICIENT_AT_PARAMETER_SPEC,
     EVALUATE_EXPRESSION_AT_PARAMETER_SPEC,
+    EVALUATE_POINT_AT_PARAMETER_SPEC,
     PARAMETER_FROM_CURVE_POINT_ON_QUADRATIC_SPEC,
     TRANSLATED_POINT_SPEC,
     ANGLE_SUM_EQUAL_ANGLE_CANDIDATES_SPEC,
     AXIS_INTERCEPT_FROM_EQUAL_ACUTE_ANGLES_SPEC,
     LINE_PARABOLA_SECOND_INTERSECTION_POINT_SPEC,
     EQUAL_LENGTH_RAY_POINT_SPEC,
+    QUADRATIC_AXIS_PARAMETERIZED_POINT_SPEC,
+    SQUARE_ADJACENT_VERTEX_FROM_SIDE_SPEC,
+    POINT_CANDIDATES_FROM_CURVE_POINT_CONDITION_SPEC,
+    SQUARE_PATH_DIMENSION_REDUCTION_SPEC,
+    PARAMETERIZED_POINT_LOCUS_LINE_SPEC,
+    LINE_LOCUS_MINIMUM_POINT_SPEC,
 )
 
 
@@ -96,6 +112,7 @@ def default_stateless_registry() -> StatelessMethodRegistry:
         QuadraticVertexPointMethod(),
         QuadraticYAxisInterceptPointMethod(),
         QuadraticXAxisInterceptPointMethod(),
+        QuadraticAxisXInterceptPointMethod(),
         PointOnParabolaAtXMethod(),
         MidpointPointMethod(),
         ParameterFromSegmentLengthMethod(),
@@ -115,12 +132,19 @@ def default_stateless_registry() -> StatelessMethodRegistry:
         LinkedBrokenPathGeometricMinimumMethod(),
         CoefficientAtParameterMethod(),
         EvaluateExpressionAtParameterMethod(),
+        EvaluatePointAtParameterMethod(),
         ParameterFromCurvePointOnQuadraticMethod(),
         TranslatedPointMethod(),
         AngleSumEqualAngleCandidatesMethod(),
         AxisInterceptFromEqualAcuteAnglesMethod(),
         LineParabolaSecondIntersectionPointMethod(),
         EqualLengthRayPointMethod(),
+        QuadraticAxisParameterizedPointMethod(),
+        SquareAdjacentVertexFromSideMethod(),
+        PointCandidatesFromCurvePointConditionMethod(),
+        SquarePathDimensionReductionMethod(),
+        ParameterizedPointLocusLineMethod(),
+        LineLocusMinimumPointMethod(),
     ]
     return StatelessMethodRegistry({method.method_id: method for method in methods})
 
@@ -138,6 +162,7 @@ __all__ = [
     "QuadraticVertexPointMethod",
     "QuadraticYAxisInterceptPointMethod",
     "QuadraticXAxisInterceptPointMethod",
+    "QuadraticAxisXInterceptPointMethod",
     "PointOnParabolaAtXMethod",
     "MidpointPointMethod",
     "ParameterFromSegmentLengthMethod",
@@ -157,10 +182,17 @@ __all__ = [
     "LinkedBrokenPathGeometricMinimumMethod",
     "CoefficientAtParameterMethod",
     "EvaluateExpressionAtParameterMethod",
+    "EvaluatePointAtParameterMethod",
     "ParameterFromCurvePointOnQuadraticMethod",
     "TranslatedPointMethod",
     "AngleSumEqualAngleCandidatesMethod",
     "AxisInterceptFromEqualAcuteAnglesMethod",
     "LineParabolaSecondIntersectionPointMethod",
     "EqualLengthRayPointMethod",
+    "QuadraticAxisParameterizedPointMethod",
+    "SquareAdjacentVertexFromSideMethod",
+    "PointCandidatesFromCurvePointConditionMethod",
+    "SquarePathDimensionReductionMethod",
+    "ParameterizedPointLocusLineMethod",
+    "LineLocusMinimumPointMethod",
 ]

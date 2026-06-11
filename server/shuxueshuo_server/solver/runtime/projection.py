@@ -309,7 +309,13 @@ def _runtime_points(
     entities: list[dict[str, Any]],
     facts: list[dict[str, Any]],
 ) -> dict[str, dict[str, Any]]:
-    """从 point entity 派生 ContextBuilder 的 legacy point index。"""
+    """从 point entity 派生 ContextBuilder 的 legacy point index。
+
+    legacy ``data.entities.points`` 是一个 dict，不能天然表达同名不同 scope
+    的点。canonical Entity 允许 ``point:problem:A`` 与 ``point:ii:A`` 同时
+    存在，因此这里的 dict key 只作为内部唯一索引；真正写入 RuntimeContext
+    的点名由 payload["name"] 决定。
+    """
 
     quadrants = _quadrants_by_point_handle(facts)
     points: dict[str, dict[str, Any]] = {}
@@ -319,11 +325,7 @@ def _runtime_points(
         name = str(item.get("name") or _handle_name(str(item.get("handle", "")))).strip()
         if not name:
             continue
-        payload = {
-            key: deepcopy(value)
-            for key, value in item.items()
-            if key not in {"name"}
-        }
+        payload = {key: deepcopy(value) for key, value in item.items()}
         if isinstance(payload.get("coordinate"), list):
             payload["coordinate"] = [
                 _runtime_expression_value(value)
@@ -352,7 +354,10 @@ def _runtime_points(
         payload.setdefault("entity_type", "point")
         payload.setdefault("scope_id", item.get("scope_id", "problem"))
         payload.setdefault("source", "ProblemIR.entities")
-        points[name] = payload
+        point_key = name
+        if point_key in points:
+            point_key = f"{payload.get('scope_id', 'problem')}:{name}"
+        points[point_key] = payload
     return points
 
 

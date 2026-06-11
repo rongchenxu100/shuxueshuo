@@ -24,6 +24,7 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     StepIntentDraft,
     StepIntentResolutionCandidate,
     StepIntentResolutionStepReport,
+    answer_output_type_compatible,
 )
 
 class StepIntentCandidateResolver:
@@ -876,8 +877,15 @@ def _produced_output_type_inference(
     """返回产物类型和来源，避免 description 文本覆盖 canonical handle。"""
     if produced.handle.startswith("answer:"):
         if produced.handle in registry.answer_value_types:
+            expected_type = registry.answer_value_types[produced.handle]
+            if (
+                produced.output_type is not None
+                and produced.output_type != expected_type
+                and answer_output_type_compatible(expected_type, produced.output_type)
+            ):
+                return _OutputTypeInference(produced.output_type, "explicit_output_type")
             return _OutputTypeInference(
-                registry.answer_value_types[produced.handle],
+                expected_type,
                 "answer_value_type",
             )
         if produced.output_type is not None:

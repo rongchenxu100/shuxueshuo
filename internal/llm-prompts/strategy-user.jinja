@@ -11,6 +11,19 @@
 
 {{ payload.problem_ir | pretty_json }}
 
+## StepIntent Naming Conventions
+
+下面是新建 StepIntent 名称和新产物 handle 的命名约定。
+
+注意：
+- 这些规则只用于你新输出的 `step_id`、`creates[].handle`、`produces[].handle`、
+  `produces[].output_type` 和 `produces[].valid_scope`。
+- `reads` 中已有 handle 必须从“当前题目 ProblemIR JSON”或当前题前序 step 的
+  `creates / produces` 中原样复制；不要为了符合命名约定而改写已有 handle。
+- 如果示例题或 previous_attempts 中的 handle 与当前题不同，不能照抄到当前题。
+
+{{ payload.naming_conventions | pretty_json }}
+
 ## FamilySpec
 
 {{ payload.family_spec | pretty_json }}
@@ -55,7 +68,15 @@ Catalog：只有两张 catalog 都没有对应能力时才允许 null。null 表
 ## Previous Attempts
 
 如果这里非空，说明上一轮输出没有通过校验。每个 attempt 可能包含
-`effective_draft`、`diagnostic`、`repair_instruction` 和 `errors`：
+`repair_summary`、`effective_draft`、`diagnostic`、`repair_instruction` 和 `errors`：
+- `repair_summary` 是最重要的修复摘要。请先读它，再参考
+  `effective_draft / diagnostic`。其中：
+  - `frozen_prefix` 是系统已接受并会保留的步骤，不要重写这些步骤的语义；
+  - `planner_state` 是已执行 method/recipe 暴露出的关键角色信息，例如降维后的
+    moving point、固定端点、将军饮马最短线段端点；
+  - `already_handled` 是代码已能自动补位的问题，不要为这些内容新增 utility step；
+  - `next_actions` 是下一轮应如何从 blocker 继续；
+  - `do_not` 是硬约束，必须避免。
 - `effective_draft` 是系统在上一轮对你原始输出做 alias/normalizer/entity-state 补位
   和 accepted-prefix 合并后的 StepIntent 版本；它仍然只是 StepIntent 层数据，不含
   RuntimePath。

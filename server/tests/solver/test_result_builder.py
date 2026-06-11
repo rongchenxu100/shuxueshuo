@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pytest
+import sympy as sp
 
 from shuxueshuo_server.solver.fixtures import load_expected_answers, load_problem_ir
 from shuxueshuo_server.solver.math_kernel import SympyKernel
@@ -15,6 +16,7 @@ from shuxueshuo_server.solver.runtime.executor import (
 )
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.methods import default_stateless_registry
+from shuxueshuo_server.solver.runtime.models import PlanExecutionResult, TypedValue
 from shuxueshuo_server.solver.runtime.quadratic_path_planner import (
     QuadraticPathMinimumPlannerV15,
 )
@@ -112,3 +114,30 @@ def test_result_builder_skips_missing_optional_goal() -> None:
     answers = ResultBuilder().build(context, execution, goals)
 
     assert answers == {}
+
+
+def test_result_builder_sorts_point_list_answers_by_coordinate_value() -> None:
+    """PointList 是无序解集，对外 answers 应稳定按坐标值排序。"""
+    problem = load_problem_ir(NANKAI_FIXTURE)
+    context = ContextBuilder(SympyKernel()).build(problem)
+    sqrt6 = sp.sqrt(6)
+    context.write_path(
+        "$question.i.outputs.point_list",
+        TypedValue("PointList", [(-1, 2 + sqrt6), (-1, 2 - sqrt6)], source="test"),
+        from_scope_id="i",
+        allow_overwrite=True,
+    )
+    goals = [
+        QuestionGoal(
+            question_id="i",
+            id="i.point_list",
+            answer_key="E",
+            target_path="$question.i.outputs.point_list",
+            value_type="PointList",
+            required=True,
+        )
+    ]
+
+    answers = ResultBuilder().build(context, PlanExecutionResult(), goals)
+
+    assert answers == {"i": {"E": [["-1", "2 - sqrt(6)"], ["-1", "2 + sqrt(6)"]]}}

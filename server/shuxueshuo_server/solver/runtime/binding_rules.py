@@ -76,6 +76,8 @@ class MethodBindingRuleRegistry:
         index: CanonicalRuntimeBindingIndex,
         *,
         local_outputs: dict[str, str] | None = None,
+        include_expansion_selectors: bool = True,
+        expansion_selectors_override: tuple[str, ...] | None = None,
     ) -> dict[str, str]:
         """返回 method invocation inputs。"""
         local_outputs = local_outputs or {}
@@ -92,7 +94,13 @@ class MethodBindingRuleRegistry:
                 continue
             if value is not None:
                 inputs[binding.input_name] = value
-        for selector in rule.expansion_selectors:
+        if expansion_selectors_override is not None:
+            expansion_selectors = expansion_selectors_override
+        elif include_expansion_selectors:
+            expansion_selectors = rule.expansion_selectors
+        else:
+            expansion_selectors = ()
+        for selector in expansion_selectors:
             inputs.update(
                 self._expand(selector, step, index, local_outputs=local_outputs)
             )
@@ -156,6 +164,24 @@ def _fact_selector(fact_type: str, expected_type: str) -> BindingSelectorFn:
             index.fact_handle_by_type(fact_type, step=step),
             expected_type=expected_type,
         )
+
+    return select
+
+def _optional_fact_selector(fact_type: str, expected_type: str) -> BindingSelectorFn:
+    """创建可选 fact selector；找不到时返回 None。"""
+
+    def select(
+        step: StepIntent,
+        index: CanonicalRuntimeBindingIndex,
+        local_outputs: Mapping[str, str],
+    ) -> str | None:
+        try:
+            return index.path_for(
+                index.fact_handle_by_type(fact_type, step=step),
+                expected_type=expected_type,
+            )
+        except StrategyDraftValidationError:
+            return None
 
     return select
 
@@ -223,6 +249,99 @@ def _function_parabola_selector(
 ) -> str:
     """读取 problem scope 下的二次函数表达式。"""
     return index.path_for("function:problem:parabola", expected_type="Expression")
+
+def _square_side_start_selector(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+    local_outputs: Mapping[str, str],
+) -> str:
+    """读取 square fact 的第一个顶点，作为以 AE 为边的起点 A。"""
+    side_start = _square_side_start_handle(step, index)
+    try:
+        return _point_state_path_for_name(
+            _handle_name(side_start),
+            step,
+            index,
+            error_code="square_side_start_state_not_found",
+        )
+    except StrategyDraftValidationError:
+        return _point_path_from_step_reads(side_start, step, index)
+
+def _square_side_end_selector(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+    local_outputs: Mapping[str, str],
+) -> str:
+    """读取 square step 的已知边第二端点。"""
+    side_end = _square_side_end_handle(step, index)
+    return _point_state_path_for_name(
+        _handle_name(side_end),
+        step,
+        index,
+        error_code="square_side_end_state_not_found",
+    )
+
+def _square_side_start_ref_selector(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+    local_outputs: Mapping[str, str],
+) -> str:
+    """读取 square 已知边起点 PointRef。"""
+    return index.point_ref_path_for(_square_side_start_handle(step, index))
+
+def _square_side_end_ref_selector(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+    local_outputs: Mapping[str, str],
+) -> str:
+    """读取 square 已知边终点 PointRef。"""
+    return index.point_ref_path_for(_square_side_end_handle(step, index))
+
+def _square_side_start_handle(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> str:
+    """读取 square fact 的第一个顶点 handle。"""
+    fact = index.fact_handle_by_type("square", step=step)
+    payload = index.fact_payload(fact)
+    vertices = payload.get("vertices")
+    if not isinstance(vertices, list) or len(vertices) < 2:
+        raise StrategyDraftValidationError(f"square_vertices_not_found: {fact}")
+    return str(vertices[0])
+
+def _square_side_end_handle(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> str:
+    """根据当前 target 从 reads 中选择 square 已知边第二端点。"""
+    side_start = _square_side_start_handle(step, index)
+    target = _point_output_handle(step, index)
+    candidates: list[str] = []
+    for handle in step.reads:
+        point_name = _point_state_read_name(handle, index)
+        if point_name is None or point_name in {_handle_name(side_start), _handle_name(target)}:
+            continue
+        try:
+            point_handle = index.point_handle_by_name(point_name, step=step)
+        except StrategyDraftValidationError:
+            continue
+        try:
+            _point_state_path_for_name(
+                point_name,
+                step,
+                index,
+                error_code="square_side_end_state_not_found",
+            )
+        except StrategyDraftValidationError:
+            continue
+        candidates.append(point_handle)
+    unique = _unique_ordered(candidates)
+    if len(unique) == 1:
+        return unique[0]
+    raise StrategyDraftValidationError(
+        "square_side_end_not_found: "
+        f"step={step.step_id}, candidates={','.join(unique)}"
+    )
 
 def _point_output_ref_selector(
     step: StepIntent,
@@ -604,6 +723,93 @@ def _equal_length_ray_selector(role: str) -> BindingSelectorFn:
 
     return select
 
+def _straightening_minimum_point_selector(role: str) -> BindingSelectorFn:
+    """读取通用将军饮马 recipe 产出的最短线段端点。"""
+
+    def select(
+        step: StepIntent,
+        index: CanonicalRuntimeBindingIndex,
+        local_outputs: Mapping[str, str],
+    ) -> str:
+        semantic_suffixes = (
+            ("point_1", "endpoint1", "endpoint_1")
+            if role == "p1"
+            else ("point_2", "endpoint2", "endpoint_2")
+        )
+        matches = _straightening_minimum_endpoint_handles(
+            step,
+            index,
+            semantic_suffixes=semantic_suffixes,
+            handles=step.reads,
+        )
+        if not matches:
+            matches = _straightening_minimum_endpoint_handles(
+                step,
+                index,
+                semantic_suffixes=semantic_suffixes,
+                handles=tuple(index.bindings),
+            )
+        unique = _unique_ordered(matches)
+        if len(unique) != 1:
+            raise StrategyDraftValidationError(
+                f"straightening_minimum_{role}_not_found: "
+                f"step={step.step_id}, candidates={','.join(unique)}"
+            )
+        return index.path_for(unique[0], expected_type="Point")
+
+    return select
+
+
+def _straightening_minimum_endpoint_handles(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+    *,
+    semantic_suffixes: tuple[str, ...],
+    handles: tuple[str, ...],
+) -> list[str]:
+    """读取当前 step 可见的拉直最短线段端点 handles。"""
+    matches: list[str] = []
+    for handle in handles:
+        binding = index.bindings.get(handle)
+        if binding is None or binding.value_type != "Point":
+            continue
+        try:
+            if not index.context.is_visible(step.scope_id, _binding_scope(binding.path)):
+                continue
+        except Exception:
+            continue
+        semantic_name = _answer_key_from_handle(handle) if handle.startswith("answer:") else _semantic_name(handle)
+        if any(suffix in semantic_name for suffix in semantic_suffixes):
+            matches.append(handle)
+    return matches
+
+
+def _curve_condition_point_selector(role: str) -> BindingSelectorFn:
+    """创建“目标点 P(t)、曲线点 Q(t) 且 Q 在曲线上” method 的点 selector。"""
+
+    def select(
+        step: StepIntent,
+        index: CanonicalRuntimeBindingIndex,
+        local_outputs: Mapping[str, str],
+    ) -> str:
+        curve_point_name = _curve_condition_point_name(step, index)
+        if role == "curve_point":
+            return _point_state_path_for_name(
+                curve_point_name,
+                step,
+                index,
+                error_code="curve_condition_curve_point_not_found",
+            )
+        target_name = _curve_condition_target_point_name(step, index, curve_point_name)
+        return _point_state_path_for_name(
+            target_name,
+            step,
+            index,
+            error_code="curve_condition_target_point_not_found",
+        )
+
+    return select
+
 def _known_coefficients_if_read(
     step: StepIntent,
     index: CanonicalRuntimeBindingIndex,
@@ -627,14 +833,42 @@ def _parameter_value_if_read(
     index: CanonicalRuntimeBindingIndex,
     local_outputs: Mapping[str, str],
 ) -> dict[str, str]:
-    """若 step 读取了参数值，则补充参数与参数值输入。"""
+    """若 step 读取了参数值，或当前 scope 有唯一可见参数值，则补充参数输入。"""
     parameter_value = _parameter_value_handle(step, index)
+    if parameter_value is None:
+        parameter_value = _unique_visible_parameter_value_handle(step, index)
     if parameter_value is None:
         return {}
     return {
         "parameter": index.parameter_symbol_path(),
         "parameter_value": index.path_for(parameter_value, expected_type="ParameterValue"),
     }
+
+
+def _unique_visible_parameter_value_handle(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> str | None:
+    """读取当前 step 可见的唯一非结构 ParameterValue fact；多候选时不猜。"""
+    candidates: list[str] = []
+    for handle, binding in sorted(index.bindings.items()):
+        if not handle.startswith("fact:"):
+            continue
+        if binding.value_type != "ParameterValue":
+            continue
+        if index.is_structural_symbol_value_fact(handle):
+            continue
+        try:
+            if not index.context.is_visible(step.scope_id, _binding_scope(binding.path)):
+                continue
+        except Exception:
+            continue
+        candidates.append(handle)
+    unique = _unique_ordered(candidates)
+    if len(unique) == 1:
+        return unique[0]
+    return None
+
 
 def _curve_points_if_parameterized(
     step: StepIntent,
@@ -675,6 +909,9 @@ def _curve_point_if_read(
 DEFAULT_BINDING_SELECTORS: dict[str, BindingSelectorFn] = {
     "fact:coefficient_relation:Equation": _fact_selector("coefficient_relation", "Equation"),
     "fact:path_minimum_target:Condition": _fact_selector("path_minimum_target", "Condition"),
+    "fact:square:Condition": _optional_fact_selector("square", "Condition"),
+    "fact:midpoint_definition:Condition": _fact_selector("midpoint_definition", "Condition"),
+    "fact:square_center:Condition": _fact_selector("square_center", "Condition"),
     "fact:length_squared:Condition": _fact_selector("length_squared", "Condition"),
     "fact:length_condition:Condition": _length_condition_selector,
     "fact:minimum_value:Condition": _fact_selector("minimum_value", "Condition"),
@@ -686,6 +923,10 @@ DEFAULT_BINDING_SELECTORS: dict[str, BindingSelectorFn] = {
     "free_parameter:b_if_single_curve_point": _free_parameter_if_single_curve_point_selector("b"),
     "free_parameter:c_if_single_curve_point": _free_parameter_if_single_curve_point_selector("c"),
     "function:parabola": _function_parabola_selector,
+    "square:side_start": _square_side_start_selector,
+    "square:side_end": _square_side_end_selector,
+    "square:side_start_ref": _square_side_start_ref_selector,
+    "square:side_end_ref": _square_side_end_ref_selector,
     "quadratic_coefficients": _constant_selector("$problem.symbol_lists.quadratic_coefficients"),
     "point_output_ref": _point_output_ref_selector,
     "translated_point:source": _translated_point_selector("source"),
@@ -754,6 +995,10 @@ DEFAULT_BINDING_SELECTORS: dict[str, BindingSelectorFn] = {
     "equal_length_ray:reference_point": _equal_length_ray_selector("reference_point"),
     "equal_length_ray:ray_point": _equal_length_ray_selector("ray_point"),
     "equal_length_ray:target": _equal_length_ray_selector("target"),
+    "straightening_minimum:p1": _straightening_minimum_point_selector("p1"),
+    "straightening_minimum:p2": _straightening_minimum_point_selector("p2"),
+    "curve_condition:target_point": _curve_condition_point_selector("target_point"),
+    "curve_condition:curve_point": _curve_condition_point_selector("curve_point"),
 }
 
 DEFAULT_EXPANSION_SELECTORS: dict[str, ExpansionSelectorFn] = {
@@ -809,7 +1054,10 @@ def _point_output_handle(step: StepIntent, index: CanonicalRuntimeBindingIndex) 
                 )
                 if target is not None:
                     return target
-            name = _semantic_name(produced.handle).split("_", 1)[0]
+            name = (
+                _point_name_from_state_semantic(_semantic_name(produced.handle))
+                or _semantic_name(produced.handle).split("_", 1)[0]
+            )
             return index.point_handle_by_name(name, step=step)
     raise StrategyDraftValidationError(f"point_output_handle_not_found: {step.step_id}")
 
@@ -905,6 +1153,15 @@ def _parameter_value_handle(
 ) -> str | None:
     """从 reads 中找参数值 fact。"""
     for handle in step.reads:
+        if index is not None:
+            binding = index.bindings.get(handle)
+            if (
+                handle.startswith("fact:")
+                and binding is not None
+                and binding.value_type == "ParameterValue"
+                and not index.is_structural_symbol_value_fact(handle)
+            ):
+                return handle
         if not (handle.startswith("fact:") and _semantic_name(handle).endswith("_value")):
             continue
         if index is not None:
@@ -1171,22 +1428,247 @@ def _curve_point_handles_from_reads(
     handles: list[str] = []
     for name in point_names:
         try:
+            coordinate_handle = _point_coordinate_fact_for_name(name, step, index)
+            if coordinate_handle is not None:
+                index.path_for(coordinate_handle, expected_type="Point")
+                handles.append(coordinate_handle)
+                continue
             point_handle = index.point_handle_by_name(name, step=step)
             # 只有当前已经计算成 Point 的点才适合作为曲线约束输入；PointRef
             # 不能在这里提前解析，否则会把“待由当前抛物线求坐标”的点反过来当作
             # 已知曲线点，造成循环依赖。
             if index.binding_for(point_handle).value_type != "Point":
-                coordinate_handle = _point_coordinate_fact_for_name(name, step, index)
-                if coordinate_handle is None:
-                    continue
-                index.path_for(coordinate_handle, expected_type="Point")
-                handles.append(coordinate_handle)
                 continue
             index.path_for(point_handle, expected_type="Point")
             handles.append(point_handle)
         except Exception:
             continue
     return _unique_ordered(handles)
+
+
+def _curve_condition_point_name(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> str:
+    """由当前 step 读取的 point_on_curve fact 确定曲线点名。"""
+    fact = index.fact_handle_by_type("point_on_curve", step=step)
+    payload = index.fact_payload(fact)
+    point_handle = payload.get("point")
+    if isinstance(point_handle, str) and point_handle.startswith("point:"):
+        return _handle_name(point_handle)
+    name = _semantic_name(fact)
+    if "_on_" in name:
+        return name.split("_on_", 1)[0]
+    raise StrategyDraftValidationError(f"curve_condition_point_not_found: {fact}")
+
+
+def _curve_condition_target_point_name(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+    curve_point_name: str,
+) -> str:
+    """由 target/answer 语义或显式 reads 确定目标点名。"""
+    if step.target.startswith("point:"):
+        return _handle_name(step.target)
+    if step.target.startswith("answer:"):
+        answer_key = _answer_key_from_handle(step.target)
+        if answer_key:
+            return answer_key
+    for produced in step.produces:
+        if produced.handle.startswith("answer:"):
+            answer_key = _answer_key_from_handle(produced.handle)
+            if answer_key:
+                return answer_key
+    candidates = [
+        name
+        for name in (_point_state_read_name(handle, index) for handle in step.reads)
+        if name is not None and name != curve_point_name
+    ]
+    unique = _unique_ordered(candidates)
+    if len(unique) == 1:
+        return unique[0]
+    raise StrategyDraftValidationError(
+        "curve_condition_target_point_name_not_found: "
+        f"step={step.step_id}, candidates={','.join(unique)}"
+    )
+
+
+def _point_state_path_for_name(
+    point_name: str,
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+    *,
+    error_code: str,
+) -> str:
+    """从当前 step reads 中寻找指定点名的已计算 Point 状态。"""
+    explicit_fact_matches: list[tuple[str, str]] = []
+    entity_matches: list[tuple[str, str]] = []
+    for handle in step.reads:
+        name = _point_state_read_name(handle, index)
+        if name != point_name:
+            continue
+        try:
+            path = _point_state_read_path(handle, step, index)
+        except StrategyDraftValidationError:
+            continue
+        if handle.startswith("point:"):
+            entity_matches.append((handle, path))
+        else:
+            explicit_fact_matches.append((handle, path))
+    matches = explicit_fact_matches if explicit_fact_matches else entity_matches
+    unique_paths = _unique_ordered([path for _handle, path in matches])
+    if len(unique_paths) == 1:
+        return unique_paths[0]
+    if len(unique_paths) > 1:
+        raise StrategyDraftValidationError(
+            f"ambiguous_curve_condition_point_state: point={point_name}, "
+            f"handles={','.join(handle for handle, _path in matches)}"
+        )
+    visible_matches = _visible_point_state_matches_for_name(point_name, step, index)
+    unique_visible_paths = _unique_ordered([path for _handle, path in visible_matches])
+    if len(unique_visible_paths) == 1:
+        source_handle = _point_handle_for_state_fill(point_name, step, index)
+        index.record_applied_fill(
+            step=step,
+            input_handle=source_handle or f"point:{step.scope_id}:{point_name}",
+            required_type="Point",
+            resolved_handle=visible_matches[0][0],
+            reason="unique_visible_point_state_for_curve_condition",
+        )
+        return unique_visible_paths[0]
+    if len(unique_visible_paths) > 1:
+        raise StrategyDraftValidationError(
+            f"ambiguous_curve_condition_point_state: point={point_name}, "
+            f"handles={','.join(handle for handle, _path in visible_matches)}"
+        )
+    raise StrategyDraftValidationError(
+        f"{error_code}: point={point_name}, step={step.step_id}"
+    )
+
+
+def _point_state_read_name(
+    handle: str,
+    index: CanonicalRuntimeBindingIndex,
+) -> str | None:
+    """如果 read handle 表示某个点的已计算状态，返回点名。"""
+    binding = index.bindings.get(handle)
+    if binding is not None and binding.value_type == "Point":
+        if handle.startswith("point:"):
+            return _handle_name(handle)
+        if handle.startswith("fact:"):
+            semantic = _semantic_name(handle)
+            structured_name = _point_name_from_state_semantic(semantic)
+            if structured_name is not None:
+                return structured_name
+            for separator in (
+                "_coordinate",
+                "_coord",
+                "_parameterized",
+                "_point",
+                "_expr",
+                "_expression",
+            ):
+                if separator in semantic:
+                    return semantic.split(separator, 1)[0]
+            return semantic.split("_", 1)[0]
+    if handle.startswith("point:"):
+        return _handle_name(handle)
+    return None
+
+
+def _point_name_from_state_semantic(semantic: str) -> str | None:
+    """从点状态 fact 的语义名中读取点名，支持 ``E_param_coord`` 等变体。"""
+    match = re.fullmatch(
+        r"(?:optimal|minimum|extremal)_?(?P<point>[A-Za-z][A-Za-z0-9]*)"
+        r"(?:_(?:coord|coordinate|point|expr|expression|numeric|value)[A-Za-z0-9_]*)?",
+        semantic,
+        flags=re.IGNORECASE,
+    )
+    if match is not None:
+        point = match.group("point")
+        return point[:1].upper() + point[1:]
+    match = re.fullmatch(
+        r"(?P<point>[A-Za-z][A-Za-z0-9]*)_"
+        r"(?:(?:param|parametric|parameterized)_)?"
+        r"(?:coord|coordinate|point)(?:_[A-Za-z0-9_]+)?",
+        semantic,
+        flags=re.IGNORECASE,
+    )
+    if match is not None:
+        return match.group("point")
+    match = re.fullmatch(
+        r"(?P<point>[A-Za-z][A-Za-z0-9]*)_(?:point|expr|expression)(?:_[A-Za-z0-9]+)?",
+        semantic,
+        flags=re.IGNORECASE,
+    )
+    if match is not None:
+        return match.group("point")
+    return None
+
+
+def _point_state_read_path(
+    handle: str,
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> str:
+    """读取某个 point state read 的 Point path。"""
+    if handle.startswith("point:"):
+        resolved = EntityStateResolver().resolve(handle, "Point", step, index)
+        if resolved is not None:
+            return resolved
+        binding = index.bindings.get(handle)
+        if binding is not None and binding.value_type == "Point":
+            return index.path_for(handle, expected_type="Point")
+        raise StrategyDraftValidationError(f"point_state_read_not_found: {handle}")
+    binding = index.bindings.get(handle)
+    if binding is not None and binding.value_type == "Point":
+        return index.path_for(handle, expected_type="Point")
+    raise StrategyDraftValidationError(f"point_state_read_not_found: {handle}")
+
+
+def _visible_point_state_matches_for_name(
+    point_name: str,
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> list[tuple[str, str]]:
+    """从可见 prefix binding 中寻找同名点的已计算状态 fact。"""
+    matches: list[tuple[str, str]] = []
+    for handle, binding in sorted(index.bindings.items()):
+        if not handle.startswith("fact:") and not handle.startswith("answer:"):
+            continue
+        if binding.value_type != "Point":
+            continue
+        try:
+            if not index.context.is_visible(step.scope_id, _binding_scope(binding.path)):
+                continue
+        except Exception:
+            continue
+        name = _point_state_read_name(handle, index)
+        if name == point_name:
+            matches.append((handle, binding.path))
+    return matches
+
+
+def _point_handle_for_state_fill(
+    point_name: str,
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> str | None:
+    """为 applied fill 记录补位来源实体 handle。"""
+    try:
+        return index.point_handle_by_name(point_name, step=step)
+    except StrategyDraftValidationError:
+        return None
+
+
+def _answer_key_from_handle(handle: str) -> str:
+    """读取 answer handle 的 key，用作 PointList 目标点名。"""
+    if not handle.startswith("answer:"):
+        return ""
+    value = handle.split(":", 1)[1]
+    if "." not in value:
+        return value
+    return value.rsplit(".", 1)[-1]
 
 
 def _visible_point_on_curve_fact_for_name(

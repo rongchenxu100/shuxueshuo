@@ -1,0 +1,40 @@
+{
+  "method_id": "square_path_dimension_reduction",
+  "title": "正方形路径降维",
+  "description": "由正方形中点与中心关系把多段路径降为单动点折线。",
+  "summary": "Given 正方形边、中点、中心和三段路径条件, derive 等价的单动点两段折线路径。该 method 只做正方形结构下的路径降维，不负责拉直求最值；输出的 PathTransformation 会揭示后续真实 moving_point 与 fixed_points，planner 不应在执行前猜测降维后的动点。",
+  "solves": [
+    "reduce_square_path_dimension",
+    "derive_path_transformation"
+  ],
+  "inputs": {
+    "path_condition": {
+      "type": "Condition",
+      "required": true
+    },
+    "square_condition": {
+      "type": "Condition",
+      "required": true
+    },
+    "midpoint_condition": {
+      "type": "Condition",
+      "required": true
+    },
+    "square_center_condition": {
+      "type": "Condition",
+      "required": true
+    }
+  },
+  "outputs": {
+    "path_transformation": "PathTransformation"
+  },
+  "preconditions": [
+    "path_condition.path 是三段路径",
+    "midpoint_condition 指向正方形一边的中点",
+    "square_center_condition 指向该正方形中心或对角线交点"
+  ],
+  "postconditions": [
+    "输出 transformed_path 是两段共享同一动点的折线路径",
+    "输出 payload 包含 moving_point_name 与 fixed_point_names，供后续 planner repair 继续规划"
+  ]
+}

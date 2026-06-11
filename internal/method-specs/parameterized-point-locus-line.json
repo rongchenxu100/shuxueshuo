@@ -1,0 +1,32 @@
+{
+  "method_id": "parameterized_point_locus_line",
+  "title": "由参数化点求轨迹直线",
+  "description": "由参数化点坐标求运动轨迹直线。",
+  "summary": "Given 单参数仿射点坐标 P(t), derive 该动点的直线轨迹。适用于几何构造得到点坐标后，再把折线路径最值转化到动点所在直线的场景。",
+  "solves": [
+    "derive_parameterized_point_locus_line"
+  ],
+  "inputs": {
+    "point": {
+      "type": "Point",
+      "required": true
+    },
+    "target": {
+      "type": "PointRef",
+      "required": false
+    },
+    "parameter": {
+      "type": "Symbol",
+      "required": false
+    }
+  },
+  "outputs": {
+    "line": "Line"
+  },
+  "preconditions": [
+    "point 的两个坐标最多含一个公共参数，且关于该参数为一次式"
+  ],
+  "postconditions": [
+    "输出 Line 包含 start_point、direction 和 point_name"
+  ]
+}

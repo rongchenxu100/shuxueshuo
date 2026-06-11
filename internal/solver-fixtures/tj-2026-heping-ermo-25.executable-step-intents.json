@@ -1,0 +1,413 @@
+{
+  "scopes": [
+    {
+      "scope_id": "i_1",
+      "label": "第（Ⅰ）①问",
+      "steps": [
+        {
+          "step_id": "determine_quadratic_i",
+          "recipe_hint": "quadratic_from_constraints",
+          "goal_type": "derive_parabola",
+          "target": "fact:i:parabola_expression",
+          "strategy": "由给定系数 b=-2, c=3，直接写出抛物线解析式 y=-x²-2x+3。",
+          "reads": [
+            "function:problem:parabola",
+            "fact:i:b_value",
+            "fact:i:c_value"
+          ],
+          "creates": [],
+          "produces": [
+            {
+              "handle": "fact:i:parabola_expression",
+              "valid_scope": "i",
+              "description": "第（Ⅰ）问抛物线解析式 y=-x²-2x+3",
+              "output_type": "Parabola"
+            }
+          ],
+          "reason": "已知系数直接代入，得到第（Ⅰ）问两个小问都可复用的具体抛物线。"
+        },
+        {
+          "step_id": "derive_vertex_P",
+          "recipe_hint": "quadratic_vertex_point",
+          "goal_type": "derive_vertex_point",
+          "target": "answer:i_1.P",
+          "strategy": "对抛物线 y=-x²-2x+3 用顶点公式或配方法求顶点 P 的坐标。",
+          "reads": [
+            "fact:i:parabola_expression",
+            "point:i_1:P"
+          ],
+          "creates": [],
+          "produces": [
+            {
+              "handle": "answer:i_1.P",
+              "valid_scope": "i_1",
+              "description": "第（Ⅰ）①问中顶点 P 的坐标",
+              "output_type": "Point"
+            }
+          ],
+          "reason": "直接代入公式即可得到顶点坐标。"
+        },
+        {
+          "step_id": "derive_x_intercept_A",
+          "recipe_hint": "quadratic_x_axis_intercept_point",
+          "goal_type": "derive_x_axis_intercept_point",
+          "target": "answer:i_1.A",
+          "strategy": "令 y=0 求解二次方程 -x²-2x+3=0，取左侧根得到 A 坐标。",
+          "reads": [
+            "fact:i:parabola_expression",
+            "point:problem:A"
+          ],
+          "creates": [],
+          "produces": [
+            {
+              "handle": "answer:i_1.A",
+              "valid_scope": "i_1",
+              "description": "第（Ⅰ）①问中与 x 轴左交点 A 的坐标",
+              "output_type": "Point"
+            }
+          ],
+          "reason": "解方程得到两个根，取较小的一个即为 A 点横坐标。"
+        }
+      ]
+    },
+    {
+      "scope_id": "i_2",
+      "label": "第（Ⅰ）②问",
+      "steps": [
+        {
+          "step_id": "parameterize_axis_point_E_i2",
+          "recipe_hint": "quadratic_axis_parameterized_point",
+          "goal_type": "parameterize_axis_point",
+          "target": "fact:i_2:E_parameterized_point",
+          "strategy": "利用第（Ⅰ）问抛物线，先把对称轴上的点 E 表示为含一个参数的点。",
+          "reads": [
+            "fact:i:parabola_expression",
+            "point:i_2:E",
+            "fact:i_2:E_on_axis"
+          ],
+          "creates": [],
+          "produces": [
+            {
+              "handle": "fact:i_2:E_parameterized_point",
+              "valid_scope": "i_2",
+              "description": "第（Ⅰ）②问中 E 在对称轴上的参数化坐标",
+              "output_type": "Point"
+            }
+          ],
+          "reason": "先用一个参数表示轴上点，后续正方形顶点和曲线条件都复用这个表达式。"
+        },
+        {
+          "step_id": "derive_square_vertex_G_i2",
+          "recipe_hint": "square_adjacent_vertex_from_side",
+          "goal_type": "derive_square_adjacent_vertex",
+          "target": "fact:i_2:G_coordinate_expr",
+          "strategy": "由正方形 AEKG 的边 AE 和 G 在 x 轴下方，推出顶点 G 的参数化坐标。",
+          "reads": [
+            "fact:i_2:E_parameterized_point",
+            "point:problem:A",
+            "point:i_2:G",
+            "fact:i_2:square_AEKG"
+          ],
+          "creates": [],
+          "produces": [
+            {
+              "handle": "fact:i_2:G_coordinate_expr",
+              "valid_scope": "i_2",
+              "description": "第（Ⅰ）②问中正方形顶点 G 的参数化坐标",
+              "output_type": "Point"
+            }
+          ],
+          "reason": "正方形相邻边垂直且等长，边 AE 旋转 90° 得到 G。"
+        },
+        {
+          "step_id": "solve_E_candidates_from_G_on_parabola",
+          "recipe_hint": "point_candidates_from_curve_point_condition",
+          "goal_type": "derive_square_constrained_point_candidates",
+          "target": "answer:i_2.E",
+          "strategy": "把参数化的 G 坐标代入第（Ⅰ）问抛物线，解出参数并回代 E，得到 E 的两个可能坐标。",
+          "reads": [
+            "fact:i:parabola_expression",
+            "fact:i_2:E_parameterized_point",
+            "fact:i_2:G_coordinate_expr",
+            "fact:i_2:G_on_parabola"
+          ],
+          "creates": [],
+          "produces": [
+            {
+              "handle": "answer:i_2.E",
+              "valid_scope": "i_2",
+              "description": "第（Ⅰ）②问中点 E 的两个可能坐标（列表）",
+              "output_type": "PointList"
+            }
+          ],
+          "reason": "目标点 E 和曲线点 G 含同一参数；G 落在抛物线上给出参数方程。"
+        }
+      ]
+    },
+    {
+      "scope_id": "ii",
+      "label": "第（Ⅱ）问",
+      "steps": [
+        {
+          "step_id": "simplify_quadratic_with_A",
+          "recipe_hint": "quadratic_from_constraints",
+          "goal_type": "derive_parabola",
+          "target": "fact:ii:parabola_expression",
+          "strategy": "利用 A(-c,0) 在抛物线上，代入解析式 y=-x²+bx+c，得到 -c² - bc + c = 0，解得 b=1-c，从而抛物线为 y=-x²+(1-c)x+c。",
+          "reads": [
+            "function:problem:parabola",
+            "fact:ii:A_coordinate_value",
+            "fact:problem:A_on_parabola"
+          ],
+          "creates": [],
+          "produces": [
+            {
+              "handle": "fact:ii:parabola_expression",
+              "valid_scope": "ii",
+              "description": "第（Ⅱ）问中抛物线解析式（含参数 c）y = -x² + (1-c)x + c",
+              "output_type": "Parabola"
+            }
+          ],
+          "reason": "代入 A 坐标得到 b 与 c 的关系，简化抛物线。"
+        },
+        {
+          "step_id": "derive_axis_point_M",
+          "recipe_hint": "quadratic_axis_x_intercept_point",
+          "goal_type": "derive_axis_x_intercept_point",
+          "target": "point:problem:M",
+          "strategy": "由第（Ⅱ）问抛物线解析式求对称轴与 x 轴交点 M 的坐标表达式。",
+          "reads": [
+            "fact:ii:parabola_expression",
+            "point:problem:M"
+          ],
+          "creates": [],
+          "produces": [
+            {
+              "handle": "fact:ii:M_coordinate_expr",
+              "valid_scope": "ii",
+              "description": "第（Ⅱ）问中对称轴与 x 轴交点 M 的坐标表达式",
+              "output_type": "Point"
+            }
+          ],
+          "reason": "路径最值拉直后需要固定端点 M 的坐标，因此先把题设定义点 M 落成坐标表达式。"
+        },
+        {
+          "step_id": "reduce_square_path_dimension",
+          "recipe_hint": "square_path_dimension_reduction",
+          "goal_type": "reduce_path_expression",
+          "target": "fact:ii:square_path_transformation",
+          "strategy": "利用 F 是 AE 中点、H 是正方形中心，把 HF+FM 两段合并为 AG，从而把 HF+FM+MG 降维为 AG+MG。",
+          "reads": [
+            "fact:ii:square_AEKG",
+            "fact:ii:F_midpoint_of_AE",
+            "fact:ii:H_square_diagonal_intersection",
+            "fact:ii:path_minimum_target"
+          ],
+          "creates": [],
+          "produces": [
+            {
+              "handle": "fact:ii:square_path_transformation",
+              "valid_scope": "ii",
+              "description": "由正方形中点/中心关系得到的等价单动点折线路径 AG+MG",
+              "output_type": "PathTransformation"
+            }
+          ],
+          "reason": "正方形中点和中心关系给出两段半边长，合并后只剩动点 G 的两段折线。"
+        },
+        {
+          "step_id": "parameterize_axis_point_E_ii",
+          "recipe_hint": "quadratic_axis_parameterized_point",
+          "goal_type": "parameterize_axis_point",
+          "target": "fact:ii:E_parameterized_point",
+          "strategy": "E 在第（Ⅱ）问抛物线对称轴上，先把 E 表示为含一个参数的点。",
+          "reads": [
+            "fact:ii:parabola_expression",
+            "point:ii:E",
+            "fact:ii:E_on_axis"
+          ],
+          "creates": [],
+          "produces": [
+            {
+              "handle": "fact:ii:E_parameterized_point",
+              "valid_scope": "ii",
+              "description": "第（Ⅱ）问中 E 在对称轴上的参数化坐标",
+              "output_type": "Point"
+            }
+          ],
+          "reason": "先用一个参数表示轴上动点，为后续正方形顶点和轨迹推导服务。"
+        },
+        {
+          "step_id": "derive_square_vertex_G_ii",
+          "recipe_hint": "square_adjacent_vertex_from_side",
+          "goal_type": "derive_square_adjacent_vertex",
+          "target": "fact:ii:G_parameterized_point",
+          "strategy": "由正方形 AEKG 的边 AE 和 G 在 x 轴下方，推出顶点 G 的参数化坐标。",
+          "reads": [
+            "fact:ii:E_parameterized_point",
+            "point:ii:A",
+            "fact:ii:A_coordinate_value",
+            "point:ii:G",
+            "fact:ii:square_AEKG"
+          ],
+          "creates": [],
+          "produces": [
+            {
+              "handle": "fact:ii:G_parameterized_point",
+              "valid_scope": "ii",
+              "description": "第（Ⅱ）问中正方形顶点 G 的参数化坐标",
+              "output_type": "Point"
+            }
+          ],
+          "reason": "正方形相邻边垂直且等长，边 AE 旋转 90° 得到 G。"
+        },
+        {
+          "step_id": "derive_G_locus_line",
+          "recipe_hint": "parameterized_point_locus_line",
+          "goal_type": "derive_parameterized_point_locus_line",
+          "target": "fact:ii:G_locus_line",
+          "strategy": "由 G 的参数化坐标消去参数，得到动点 G 的轨迹直线。",
+          "reads": [
+            "fact:ii:G_parameterized_point",
+            "point:ii:G"
+          ],
+          "creates": [],
+          "produces": [
+            {
+              "handle": "fact:ii:G_locus_line",
+              "valid_scope": "ii",
+              "description": "第（Ⅱ）问中动点 G 的轨迹直线",
+              "output_type": "Line"
+            }
+          ],
+          "reason": "G 坐标只含一个一次参数，因此轨迹是一条直线。"
+        },
+        {
+          "step_id": "derive_path_minimum_expr",
+          "recipe_hint": "broken_path_straightening_minimum_expression",
+          "goal_type": "derive_path_minimum_expression",
+          "target": "fact:ii:path_minimum_expression",
+          "strategy": "对等价路径 AG+MG 使用将军饮马：基于 G 的轨迹直线生成拉直候选，选择最适合计算的候选，并计算对应最短线段距离。",
+          "reads": [
+            "fact:ii:square_path_transformation",
+            "fact:ii:G_locus_line",
+            "point:ii:A",
+            "fact:ii:A_coordinate_value",
+            "point:problem:M",
+            "fact:ii:M_coordinate_expr"
+          ],
+          "creates": [],
+          "produces": [
+            {
+              "handle": "fact:ii:path_minimum_expression",
+              "valid_scope": "ii",
+              "description": "第（Ⅱ）问中路径 HF+FM+MG 的最小值表达式（关于 c）",
+              "output_type": "MinimumExpression"
+            },
+            {
+              "handle": "fact:ii:path_minimum_point_1",
+              "valid_scope": "ii",
+              "description": "第（Ⅱ）问中拉直后最短线段的第一个端点",
+              "output_type": "Point"
+            },
+            {
+              "handle": "fact:ii:path_minimum_point_2",
+              "valid_scope": "ii",
+              "description": "第（Ⅱ）问中拉直后最短线段的第二个端点",
+              "output_type": "Point"
+            }
+          ],
+          "reason": "降维和轨迹都已得到，此步只做通用折线拉直并求距离表达式。"
+        },
+        {
+          "step_id": "derive_parameter_c",
+          "recipe_hint": "parameter_from_expression_value",
+          "goal_type": "derive_parameter",
+          "target": "fact:ii:c_value",
+          "strategy": "将 path_minimum_expression 等于 3√5 列方程，解出参数 c 的值，注意 c>1 条件。",
+          "reads": [
+            "fact:ii:path_minimum_expression",
+            "fact:ii:path_minimum_value_given"
+          ],
+          "creates": [],
+          "produces": [
+            {
+              "handle": "fact:ii:c_value",
+              "valid_scope": "ii",
+              "description": "第（Ⅱ）问中参数 c 的值",
+              "output_type": "ParameterValue"
+            }
+          ],
+          "reason": "已知最小值表达式和给定最小值 3√5，解方程求出 c。"
+        },
+        {
+          "step_id": "evaluate_A_at_c",
+          "recipe_hint": "evaluate_point_at_parameter",
+          "goal_type": "evaluate_point_at_parameter",
+          "target": "fact:ii:A_point_at_c",
+          "strategy": "将已求得的 c 值代入 A(-c,0)，得到最短状态下使用的定值 A 坐标。",
+          "reads": [
+            "fact:ii:c_value",
+            "fact:ii:A_coordinate_value"
+          ],
+          "creates": [],
+          "produces": [
+            {
+              "handle": "fact:ii:A_point_at_c",
+              "valid_scope": "ii",
+              "description": "第（Ⅱ）问中代入 c 后的 A 点坐标",
+              "output_type": "Point"
+            }
+          ],
+          "reason": "题设给出 A=(-c,0)，参数 c 已确定后直接代入。"
+        },
+        {
+          "step_id": "derive_minimum_G_point",
+          "recipe_hint": "line_locus_minimum_point",
+          "goal_type": "derive_line_locus_minimum_point",
+          "target": "point:ii:G",
+          "strategy": "最短状态下，G 是拉直后的最短线段与 G 的轨迹直线的交点；代入 c 值求出 G 坐标。",
+          "reads": [
+            "fact:ii:G_locus_line",
+            "fact:ii:path_minimum_point_1",
+            "fact:ii:path_minimum_point_2",
+            "fact:ii:c_value",
+            "point:ii:G"
+          ],
+          "creates": [],
+          "produces": [
+            {
+              "handle": "fact:ii:G_point_at_minimum",
+              "valid_scope": "ii",
+              "description": "第（Ⅱ）问中最短状态下 G 的坐标",
+              "output_type": "Point"
+            }
+          ],
+          "reason": "将军饮马确定了最短线段，动点 G 又必须在自己的轨迹线上，因此取两线交点。"
+        },
+        {
+          "step_id": "derive_extremal_E_from_square_side",
+          "recipe_hint": "square_adjacent_vertex_from_side",
+          "goal_type": "derive_extremal_point",
+          "target": "answer:ii.E",
+          "strategy": "已知正方形 AEKG 中相邻边端点 A 和 G 的坐标，按顶点顺序反推出相邻顶点 E 的坐标。",
+          "reads": [
+            "fact:ii:A_point_at_c",
+            "fact:ii:G_point_at_minimum",
+            "point:ii:E",
+            "fact:ii:square_AEKG"
+          ],
+          "creates": [],
+          "produces": [
+            {
+              "handle": "answer:ii.E",
+              "valid_scope": "ii",
+              "description": "第（Ⅱ）问中点 E 的坐标",
+              "output_type": "Point"
+            }
+          ],
+          "reason": "最后一步只使用正方形相邻边垂直等长关系，不再内置路径最值公式。"
+        }
+      ]
+    }
+  ]
+}

@@ -33,6 +33,8 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     StepIntentExecutionDiagnostic,
     StepIntentNormalizationAction,
     StepIntentNormalizationReport,
+    StepIntentPlannerInsight,
+    StepIntentPreflightIssue,
     StepIntentRepairAttempt,
     StepIntentResolutionCandidate,
     StepIntentResolutionStepReport,
@@ -43,6 +45,14 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
 )
 from shuxueshuo_server.solver.runtime.strategy_normalizer import (
     StepIntentNormalizer,
+)
+from shuxueshuo_server.solver.runtime.strategy_preflight import (
+    StepIntentPreflightAnalyzer,
+)
+from shuxueshuo_server.solver.runtime.strategy_repair_feedback import (
+    RepairFeedbackBuilder,
+    RepairHintRegistry,
+    RepairHintSpec,
 )
 from shuxueshuo_server.solver.runtime.strategy_payload import (
     StrategyPayloadBuilder,
@@ -75,6 +85,9 @@ __all__ = [
     "ProducedFact",
     "RecipeExecutionSpecRegistry",
     "RecipeAlignmentReport",
+    "RepairFeedbackBuilder",
+    "RepairHintRegistry",
+    "RepairHintSpec",
     "RecipeTrialExecutor",
     "STEP_INTENT_JSON_SCHEMA",
     "StepIntentCandidateResolver",
@@ -87,6 +100,9 @@ __all__ = [
     "StepIntentNormalizationAction",
     "StepIntentNormalizationReport",
     "StepIntentNormalizer",
+    "StepIntentPlannerInsight",
+    "StepIntentPreflightAnalyzer",
+    "StepIntentPreflightIssue",
     "StepIntentRepairAttempt",
     "StepIntentResolutionCandidate",
     "StepIntentResolutionStepReport",

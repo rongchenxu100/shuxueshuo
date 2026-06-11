@@ -21,11 +21,13 @@ from shuxueshuo_server.solver.runtime.models import PlannerOutput
 from shuxueshuo_server.solver.runtime.planner import PlannerInputs
 from shuxueshuo_server.solver.runtime.projection import RuntimeProjection
 from shuxueshuo_server.solver.runtime.recipe_compiler import RecipeTrialExecutor
+from shuxueshuo_server.solver.runtime.strategy_repair_feedback import (
+    RepairFeedbackBuilder,
+)
 from shuxueshuo_server.solver.runtime.strategy_models import (
     StepIntentExecutionDiagnostic,
     StepIntentRepairAttempt,
     StepIntentScope,
-    StepIntentSkippedStep,
     StepIntentDraft,
     StrategyDraftValidationError,
     StrategyPrompt,
@@ -193,36 +195,6 @@ class StrategyPlanner:
             method_specs=inputs.method_specs,
             handle_registry=handle_registry,
         )
-        if not resolution_report.ok:
-            diagnostic = StepIntentExecutionDiagnostic(
-                ok=False,
-                candidate_errors=tuple(resolution_report.errors),
-                skipped_steps=tuple(
-                    StepIntentSkippedStep(
-                        step_id=step.step_id,
-                        scope_id=step.scope_id,
-                        reason="candidate_resolution_failed",
-                    )
-                    for step in normalized.steps
-                ),
-            )
-            self._capture(
-                payload=payload,
-                prompt=prompt,
-                raw_response=raw_response,
-                draft=raw_draft,
-                validation_report=validation_report,
-                effective_draft=normalized,
-                normalized_draft=normalized,
-                normalization_report=normalization_report,
-                resolution_report=resolution_report,
-                execution_diagnostic=diagnostic,
-                output=None,
-            )
-            raise StrategyDraftValidationError(
-                "strategy_candidate_resolution_failed: "
-                + json.dumps(resolution_report.errors, ensure_ascii=False)
-            )
         output, execution_diagnostic, effective_draft = RecipeTrialExecutor().diagnose(
             normalized,
             family_spec=inputs.family_spec,
@@ -283,11 +255,20 @@ class StrategyPlanner:
             return None
         if effective is None and diagnostic is None and not errors:
             return None
+        repair_summary = RepairFeedbackBuilder(
+            diagnostic=diagnostic,
+            errors=tuple(errors),
+            effective_draft=effective,
+        ).build()
         repair = StepIntentRepairAttempt(
             attempt=attempt,
             effective_draft=effective.to_payload() if effective is not None else None,
             diagnostic=diagnostic,
-            repair_instruction=_repair_instruction(diagnostic),
+            repair_summary=repair_summary,
+            repair_instruction=_repair_instruction(
+                diagnostic,
+                repair_summary=repair_summary,
+            ),
             errors=tuple(errors),
         )
         return repair.to_payload()
@@ -514,8 +495,13 @@ def _last_previous_attempt(previous_attempts: list[object]) -> dict[str, Any] | 
     return None
 
 
-def _repair_instruction(diagnostic: StepIntentExecutionDiagnostic | None) -> str:
+def _repair_instruction(
+    diagnostic: StepIntentExecutionDiagnostic | None,
+    repair_summary: dict[str, Any] | None = None,
+) -> str:
     """生成下一轮 prompt 中的 repair 指令。"""
+    if repair_summary is not None:
+        return _repair_instruction_from_summary(repair_summary)
     if diagnostic is None:
         return (
             "请根据 errors 修复并重新输出完整 StepIntent JSON。不要输出 patch，"
@@ -530,10 +516,72 @@ def _repair_instruction(diagnostic: StepIntentExecutionDiagnostic | None) -> str
     ]
     if accepted:
         parts.append("accepted_prefix=" + ",".join(accepted))
+    if diagnostic.planner_insights:
+        latest = diagnostic.planner_insights[-1]
+        parts.append(
+            "请优先根据最新 planner_insight 继续规划后续步骤："
+            + json.dumps(latest.to_payload(), ensure_ascii=False)
+        )
+    if diagnostic.preflight_issues:
+        code_fillable = [
+            issue.to_payload()
+            for issue in diagnostic.preflight_issues
+            if issue.category == "code_fillable"
+        ]
+        downstream = [
+            issue.to_payload()
+            for issue in diagnostic.preflight_issues
+            if issue.category != "code_fillable"
+        ]
+        if code_fillable:
+            parts.append(
+                "preflight 检测到这些输入代码可以临时补位；不要为它们新增 utility step："
+                + json.dumps(code_fillable, ensure_ascii=False)
+            )
+        if downstream:
+            parts.append(
+                "preflight 检测到后续同源潜在问题；修复 blocker 时请一并调整这些 steps："
+                + json.dumps(downstream, ensure_ascii=False)
+            )
     if blocker is not None:
         parts.append(
             f"请从 blocker step `{blocker.step_id}` 开始修复后续步骤；"
             f"错误码是 `{blocker.code}`。"
+        )
+    return " ".join(parts)
+
+
+def _repair_instruction_from_summary(summary: dict[str, Any]) -> str:
+    """根据 LLM-facing repair_summary 生成短指令。"""
+    parts = [
+        "请优先阅读 repair_summary，再参考 effective_draft/diagnostic；重新输出完整 StepIntent JSON。",
+    ]
+    frozen = summary.get("frozen_prefix")
+    if isinstance(frozen, list) and frozen:
+        ids = [
+            str(item.get("step_id"))
+            for item in frozen
+            if isinstance(item, dict) and item.get("step_id")
+        ]
+        if ids:
+            parts.append("系统会保留 frozen_prefix，不要重写这些步骤：" + ",".join(ids))
+    current = summary.get("current_blocker")
+    if isinstance(current, dict) and current.get("step_id"):
+        parts.append(
+            f"请从 blocker step `{current.get('step_id')}` 开始修复后续步骤；"
+            f"错误码是 `{current.get('code')}`。"
+        )
+    next_actions = summary.get("next_actions")
+    if isinstance(next_actions, list) and next_actions:
+        parts.append(
+            "下一轮请执行这些修复动作："
+            + json.dumps(next_actions, ensure_ascii=False)
+        )
+    do_not = summary.get("do_not")
+    if isinstance(do_not, list) and do_not:
+        parts.append(
+            "必须避免："
+            + json.dumps(do_not, ensure_ascii=False)
         )
     return " ".join(parts)
 

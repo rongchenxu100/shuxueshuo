@@ -28,6 +28,7 @@ class MethodSpecSource:
     preconditions: tuple[str, ...] = ()
     postconditions: tuple[str, ...] = ()
     trace_template: tuple[str, ...] = ()
+    repair_hints: tuple[dict[str, Any], ...] = ()
     description: str = ""
     summary: str = ""
 
@@ -52,9 +53,21 @@ class MethodSpecSource:
             payload["postconditions"] = list(self.postconditions)
         if self.trace_template:
             payload["trace_template"] = list(self.trace_template)
+        if self.repair_hints:
+            payload["repair_hints"] = [
+                _json_ready_hint(item) for item in self.repair_hints
+            ]
         return payload
 
 
 def _first_docstring_paragraph(method_cls: type) -> str:
     doc = inspect.getdoc(method_cls) or ""
     return doc.split("\n\n", 1)[0]
+
+
+def _json_ready_hint(raw: dict[str, Any]) -> dict[str, Any]:
+    """Convert repair hint tuple values to JSON-equivalent lists."""
+    return {
+        key: list(value) if isinstance(value, tuple) else value
+        for key, value in raw.items()
+    }

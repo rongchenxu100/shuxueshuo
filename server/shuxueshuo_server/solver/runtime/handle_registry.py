@@ -192,6 +192,16 @@ class CanonicalHandleAliasResolver:
         if namespace_alias is not None:
             return namespace_alias
 
+        state_point_alias = self._resolve_state_point_alias(
+            handle,
+            field=field,
+            step=step,
+            registry=registry,
+            available=available,
+        )
+        if state_point_alias is not None:
+            return state_point_alias
+
         return self._resolve_visible_ancestor_or_point_entity(
             handle,
             field=field,
@@ -281,6 +291,51 @@ class CanonicalHandleAliasResolver:
             available=available,
             original_handle=handle,
             reason_prefix="namespace_alias",
+        )
+
+    def _resolve_state_point_alias(
+        self,
+        handle: str,
+        *,
+        field: str,
+        step: StepIntent,
+        registry: CanonicalHandleRegistry,
+        available: set[str],
+    ) -> ResolvedHandle | None:
+        """把 ``point:ii:OptimalG`` 这类状态化点名修正为已有点 ``point:ii:G``。
+
+        只接受可枚举前缀加 exact 点名，不做编辑距离或语义相似度猜测。
+        """
+        parsed = _parse_scoped_non_answer_handle(handle)
+        if parsed is None:
+            return None
+        kind, written_scope, name = parsed
+        if kind != "point":
+            return None
+        base_name = _state_point_base_name(name)
+        if base_name is None:
+            return None
+        visible_scopes = registry.ancestor_scopes(step.scope_id)
+        if written_scope not in visible_scopes:
+            return None
+        written_index = visible_scopes.index(written_scope)
+        candidates = [
+            f"point:{scope_id}:{base_name}"
+            for scope_id in visible_scopes[written_index:]
+            if f"point:{scope_id}:{base_name}" in available
+        ]
+        if len(candidates) != 1:
+            return None
+        corrected = candidates[0]
+        return ResolvedHandle(
+            handle=corrected,
+            correction=HandleCorrection(
+                step_id=step.step_id,
+                scope_id=step.scope_id,
+                from_handle=handle,
+                to_handle=corrected,
+                reason=f"state_point_alias:{field}",
+            ),
         )
 
     def _resolve_visible_ancestor_or_point_entity(
@@ -968,6 +1023,18 @@ def _namespace_alias_handle(handle: str) -> str:
     if handle.startswith("seg:"):
         return "segment:" + handle[len("seg:"):]
     return handle
+
+
+def _state_point_base_name(name: str) -> str | None:
+    """读取 ``OptimalG`` / ``optimal_G`` 中的真实点名。"""
+    match = re.fullmatch(
+        r"(?i)(?:optimal|minimum|extremal)_?(?P<point>[A-Za-z][A-Za-z0-9]*)",
+        name,
+    )
+    if match is None:
+        return None
+    point = match.group("point")
+    return point[:1].upper() + point[1:]
 
 
 def _parse_scoped_non_answer_handle(handle: str) -> tuple[str, str, str] | None:

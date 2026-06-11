@@ -177,13 +177,26 @@ def _is_point_coordinate_for(
 ) -> bool:
     """判断 candidate 是否是指定点名的坐标 fact。"""
     if index.fact_types.get(candidate) == "point_coordinate":
-        return _semantic_name(candidate).split("_coordinate", 1)[0] == point_name
+        return _point_name_from_coordinate_state(_semantic_name(candidate)) == point_name
     if not candidate.startswith("fact:"):
         return False
     return bool(re.fullmatch(
-        rf"{re.escape(point_name)}_coordinate(?:_[A-Za-z0-9_]+)?",
+        rf"{re.escape(point_name)}_(?:param_)?(?:coord|coordinate)(?:_[A-Za-z0-9_]+)?",
         _semantic_name(candidate),
     ))
+
+
+def _point_name_from_coordinate_state(semantic_name: str) -> str | None:
+    """从 ``E_coordinate`` / ``E_param_coord`` 这类状态 fact 读取点名。"""
+    match = re.fullmatch(
+        r"(?P<point>[A-Za-z][A-Za-z0-9]*)_(?:param_)?(?:coord|coordinate)(?:_[A-Za-z0-9_]+)?",
+        semantic_name,
+    )
+    if match is not None:
+        return match.group("point")
+    if "_coordinate" in semantic_name:
+        return semantic_name.split("_coordinate", 1)[0]
+    return None
 
 
 def _is_parabola_state(

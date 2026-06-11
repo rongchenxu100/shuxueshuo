@@ -100,6 +100,7 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
         preconditions=tuple(str(item) for item in raw.get("preconditions", [])),
         postconditions=tuple(str(item) for item in raw.get("postconditions", [])),
         trace_template=tuple(str(item) for item in raw.get("trace_template", [])),
+        repair_hints=_parse_repair_hints(raw.get("repair_hints", [])),
     )
 
 
@@ -145,6 +146,20 @@ def _parse_outputs(raw_outputs: object) -> dict[str, str]:
             raise ValueError(f"unknown output type for {name}: {output_type}")
         outputs[str(name)] = output_type
     return outputs
+
+
+def _parse_repair_hints(raw_hints: object) -> tuple[dict[str, Any], ...]:
+    """解析 method spec 中面向 LLM repair 的提示。"""
+    if raw_hints in (None, ()):
+        return ()
+    if not isinstance(raw_hints, list):
+        raise ValueError("MethodSpec.repair_hints must be a list")
+    hints: list[dict[str, Any]] = []
+    for raw in raw_hints:
+        if not isinstance(raw, dict):
+            raise ValueError("MethodSpec.repair_hints items must be objects")
+        hints.append(dict(raw))
+    return tuple(hints)
 
 
 def _resolve_spec_dir(path: str | Path | None) -> Path:

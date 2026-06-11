@@ -74,6 +74,8 @@ class MethodPrepInvocationSpec:
     method_id: str
     output_aliases: tuple[tuple[str, str], ...] = ()
     local_output_aliases: tuple[tuple[str, str], ...] = ()
+    include_expansion_selectors: bool = True
+    expansion_selectors: tuple[str, ...] | None = None
 
 
 @dataclass(frozen=True)

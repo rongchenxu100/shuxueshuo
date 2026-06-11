@@ -389,6 +389,8 @@ class RuntimeContext:
         """
         if isinstance(value, tuple) and len(value) == 2:
             return [self.kernel.sstr(value[0]), self.kernel.sstr(value[1])]
+        if isinstance(value, list):
+            return [self.to_answer_value(child) for child in value]
         if isinstance(value, dict):
             return {
                 str(getattr(key, "name", key)): self.to_answer_value(child)
@@ -568,9 +570,10 @@ class ContextBuilder:
         象限信息，会额外写入 ``OrientationHint`` 约束，供旋转类 method 选择候选。
         """
         points = dict(context.problem.data.get("entities", {}).get("points", {}))
-        for name, raw in points.items():
+        for point_key, raw in points.items():
             if not isinstance(raw, Mapping):
                 continue
+            name = str(raw.get("name") or point_key)
             scope_id = self._choose_point_scope(context, name, raw)
             path = _format_path(context.get_scope(scope_id), "points", name)
             context.get_scope(scope_id).container("points")[name] = self._typed_point(

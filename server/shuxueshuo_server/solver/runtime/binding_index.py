@@ -242,11 +242,37 @@ class CanonicalRuntimeBindingIndex:
         ] + sorted(handle for handle in handles if handle not in read_set)
 
     def point_handle_by_name(self, name: str, *, step: StepIntent | None = None) -> str:
-        """按点名查找 point handle，优先当前 step reads。"""
+        """按点名查找 point handle，优先当前 step reads 和当前 scope。
+
+        同一道综合题中，不同小问经常会复用同一个字母点名，例如
+        ``point:i_2:G`` 与 ``point:ii:G``。binding 阶段必须按当前 step
+        的可见性选择，不能因为注册顺序误读 sibling scope 的同名点。
+        """
         candidates = [
-            handle for handle in self.entity_handles("point", step=step)
+            handle for handle in self.entity_handles("point")
             if _handle_name(handle) == name
         ]
+        if step is not None:
+            candidates = [
+                handle for handle in candidates
+                if self._handle_binding_visible(handle, step.scope_id)
+            ]
+            read_candidates = [
+                handle for handle in step.reads
+                if handle in candidates
+            ]
+            if read_candidates:
+                return read_candidates[0]
+            candidates = sorted(
+                candidates,
+                key=lambda handle: (
+                    self._scope_distance(
+                        step.scope_id,
+                        _binding_scope(self.binding_for(handle).path),
+                    ),
+                    handle,
+                ),
+            )
         if not candidates:
             raise StrategyDraftValidationError(f"point_handle_not_found: {name}")
         return candidates[0]
@@ -258,19 +284,53 @@ class CanonicalRuntimeBindingIndex:
         step: StepIntent | None = None,
         predicate: Any | None = None,
     ) -> str:
-        """按 fact type 查找 handle，优先 step.reads。"""
+        """按 fact type 查找 handle，优先 step.reads 和当前 scope。"""
         handles = self.handles_by_fact_type(fact_type)
         if predicate is not None:
             handles = [handle for handle in handles if predicate(handle)]
         if step is not None:
             for handle in step.reads:
-                if handle in handles:
+                if handle in handles and self._handle_binding_visible(handle, step.scope_id):
                     return handle
+            visible_handles = [
+                handle for handle in handles
+                if self._handle_binding_visible(handle, step.scope_id)
+            ]
+            if visible_handles:
+                return sorted(
+                    visible_handles,
+                    key=lambda handle: (
+                        self._scope_distance(
+                            step.scope_id,
+                            _binding_scope(self.binding_for(handle).path),
+                        ),
+                        handle,
+                    ),
+                )[0]
         if len(handles) == 1:
             return handles[0]
         if handles:
             return handles[0]
         raise StrategyDraftValidationError(f"fact_handle_not_found: {fact_type}")
+
+    def _handle_binding_visible(self, handle: str, from_scope_id: str) -> bool:
+        """判断 handle 对应 runtime path 是否从当前 step scope 可见。"""
+        try:
+            binding = self.binding_for(handle)
+        except StrategyDraftValidationError:
+            return False
+        return self.context.is_visible(from_scope_id, _binding_scope(binding.path))
+
+    def _scope_distance(self, from_scope_id: str, target_scope_id: str) -> int:
+        """返回 target 在 from_scope 父链上的距离；不可见时排到最后。"""
+        current: str | None = from_scope_id
+        distance = 0
+        while current is not None:
+            if current == target_scope_id:
+                return distance
+            current = self.context.scopes[current].parent_id
+            distance += 1
+        return 10_000
 
     def parameter_symbol_path(self) -> str:
         """返回当前 step family 要求解的主参数符号路径。
@@ -499,6 +559,11 @@ class CanonicalRuntimeBindingIndex:
             "point_on_segment",
             "point_on_ray",
             "equal_length_condition",
+            "axis_membership",
+            "point_on_curve",
+            "square",
+            "square_center",
+            "midpoint_definition",
         }:
             self.register(handle, _runtime_path_for_scope(self.context, scope_id, "conditions", fact_type), "Condition", source="fact")
         elif fact_type == "point_coordinate":
@@ -555,6 +620,10 @@ def _context_path_exists(context: RuntimeContext, raw_path: str) -> bool:
         return path.key in context.get_scope(path.scope_id).container(path.container)
     except Exception:
         return False
+
+def _binding_scope(raw_path: str) -> str:
+    """读取 runtime path 所在 scope。"""
+    return ContextPath.parse(raw_path).scope_id
 
 def _point_declaration_for_path(
     context: RuntimeContext,

@@ -20,7 +20,9 @@
   },
   "outputs": {
     "selected_candidate": "StraighteningCandidate",
-    "auxiliary_point": "Point"
+    "auxiliary_point": "Point",
+    "minimum_point_1": "Point",
+    "minimum_point_2": "Point"
   },
   "preconditions": [
     "candidates 至少包含一个候选",
@@ -28,6 +30,7 @@
   ],
   "postconditions": [
     "唯一最低复杂度候选被选中",
-    "选中候选的反射点坐标作为辅助点输出"
+    "选中候选的反射点坐标作为辅助点输出",
+    "选中候选的最短线段两端点可直接交给 distance_between_points"
   ]
 }

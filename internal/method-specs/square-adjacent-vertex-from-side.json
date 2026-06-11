@@ -1,0 +1,73 @@
+{
+  "method_id": "square_adjacent_vertex_from_side",
+  "title": "由正方形边求相邻顶点",
+  "description": "由正方形边端点和方向条件求指定相邻顶点。",
+  "summary": "Given 正方形一边两个端点、顶点顺序和方向条件, derive 指定相邻顶点的坐标表达式。该 method 只做 90° 旋转构造，不负责把顶点代入曲线求参数。",
+  "solves": [
+    "derive_square_adjacent_vertex_from_side"
+  ],
+  "inputs": {
+    "side_start": {
+      "type": "Point",
+      "required": true
+    },
+    "side_end": {
+      "type": "Point",
+      "required": true
+    },
+    "square_condition": {
+      "type": "Condition",
+      "required": true
+    },
+    "target": {
+      "type": "PointRef",
+      "required": true
+    },
+    "side_start_ref": {
+      "type": "PointRef",
+      "required": false
+    },
+    "side_end_ref": {
+      "type": "PointRef",
+      "required": false
+    },
+    "parameter": {
+      "type": "Symbol",
+      "required": false
+    },
+    "parameter_value": {
+      "type": "ParameterValue",
+      "required": false
+    },
+    "parameter_constraint": {
+      "type": "Constraint",
+      "required": false
+    }
+  },
+  "outputs": {
+    "point": "Point"
+  },
+  "preconditions": [
+    "square_condition 包含 ordered vertices 和可判定的 orientation；若 orientation 依赖参数符号，可提供参数范围约束"
+  ],
+  "postconditions": [
+    "输出顶点与给定边构成垂直等长的正方形相邻边"
+  ],
+  "repair_hints": [
+    {
+      "code": "square_side_end_not_found",
+      "applies_to": [
+        "method:square_adjacent_vertex_from_side",
+        "binding_selector:square:side_end"
+      ],
+      "message": "正方形边端点绑定失败；通常不需要新增 segment，系统可从已求点坐标 fact/answer 绑定正方形边端点。",
+      "next_actions": [
+        "保持 `square_adjacent_vertex_from_side`；让它读取正方形条件、目标点实体和已有点坐标 fact/answer，不要新增 `segment:*` 或只为端点绑定服务的 utility step。"
+      ],
+      "do_not": [
+        "不要新增 `segment:*` 只为让正方形边端点绑定通过。",
+        "不要新增只计算端点坐标的临时 utility step。"
+      ]
+    }
+  ]
+}

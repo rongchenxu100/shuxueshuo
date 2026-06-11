@@ -138,7 +138,8 @@ def test_canonical_projection_point_index_carries_entity_metadata(fixture_path: 
     points = load_problem_ir(fixture_path).data["entities"]["points"]
 
     for point_name, point in points.items():
-        assert point["handle"].endswith(f":{point_name}")
+        runtime_name = point.get("name", point_name)
+        assert point["handle"].endswith(f":{runtime_name}")
         assert point["entity_type"] == "point"
         assert point["scope_id"]
         assert point["source"] == "ProblemIR.entities"

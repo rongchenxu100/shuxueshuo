@@ -1,0 +1,48 @@
+{
+  "method_id": "evaluate_point_at_parameter",
+  "title": "代入参数求点坐标",
+  "description": "把点坐标中的参数替换为已求出的参数值。",
+  "summary": "Given 含参点坐标、参数符号和参数值, derive 代入参数后的点坐标。",
+  "solves": [
+    "evaluate_point_at_parameter"
+  ],
+  "inputs": {
+    "point": {
+      "type": "Point",
+      "required": true
+    },
+    "parameter": {
+      "type": "Symbol",
+      "required": true
+    },
+    "parameter_value": {
+      "type": "ParameterValue",
+      "required": true
+    }
+  },
+  "outputs": {
+    "evaluated_point": "Point"
+  },
+  "preconditions": [
+    "point 坐标可以包含 parameter"
+  ],
+  "postconditions": [
+    "输出点坐标不再含 parameter"
+  ],
+  "repair_hints": [
+    {
+      "code": "final_point_requires_square_recovery",
+      "applies_to": [
+        "method:evaluate_point_at_parameter"
+      ],
+      "message": "最终答案点不能直接参数代入；应先求最短状态 moving point，再用正方形关系恢复。",
+      "next_actions": [
+        "先用 `line_locus_minimum_point` 读取动点轨迹、`fact:<scope>:path_minimum_point_1/2` 和参数值，求最短状态 moving point。",
+        "再用 `square_adjacent_vertex_from_side` 读取正方形条件、已知边端点和该 moving point，恢复最终答案点。"
+      ],
+      "do_not": [
+        "不要用 `evaluate_point_at_parameter` 直接 produces 最终 Point answer。"
+      ]
+    }
+  ]
+}

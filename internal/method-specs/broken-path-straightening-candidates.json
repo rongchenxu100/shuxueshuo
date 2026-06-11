@@ -14,8 +14,13 @@
     },
     "moving_point_membership": {
       "type": "Condition",
-      "required": true,
+      "required": false,
       "description": "动点所在直线/线段，例如 G 在线段 MN 上。"
+    },
+    "moving_locus": {
+      "type": "Line",
+      "required": false,
+      "description": "动点轨迹直线；若提供该输入，则不需要 moving_point_membership 和 line_point_1/line_point_2。"
     },
     "fixed_point_1": {
       "type": "Point",
@@ -29,12 +34,12 @@
     },
     "line_point_1": {
       "type": "Point",
-      "required": true,
+      "required": false,
       "description": "动点所在直线上的第一个点。"
     },
     "line_point_2": {
       "type": "Point",
-      "required": true,
+      "required": false,
       "description": "动点所在直线上的第二个点。"
     }
   },
@@ -43,8 +48,8 @@
   },
   "preconditions": [
     "path_transformation.transformed_path 是由两条线段组成的单动点折线",
-    "moving_point_membership.point 是两条线段的公共端点",
-    "line_point_1 与 line_point_2 确定动点所在直线"
+    "提供 moving_locus，或同时提供 moving_point_membership、line_point_1 和 line_point_2",
+    "动点轨迹直线与 transformed_path 的公共动点一致"
   ],
   "postconditions": [
     "每个候选都包含一个反射点和对应的最短线段"

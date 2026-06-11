@@ -35,6 +35,7 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     StepIntentScope,
     StepIntentValidationReport,
     StrategyDraftValidationError,
+    answer_output_type_compatible,
 )
 from shuxueshuo_server.solver.runtime.strategy_resolver import (
     _output_type_from_text,
@@ -386,6 +387,8 @@ def _optional_string_or_null(
             f"scopes[{scope_index}].steps[{step_index}].{key} must be a string or null"
         )
     text = value.strip()
+    if text.lower() in {"null", "none", "n/a", "na"}:
+        return None
     return text or None
 
 
@@ -777,7 +780,7 @@ def _validate_produced_fact(
         if (
             item.output_type is not None
             and expected_type is not None
-            and item.output_type != expected_type
+            and not answer_output_type_compatible(expected_type, item.output_type)
         ):
             raise StrategyDraftValidationError(
                 "produced_output_type_mismatch: "

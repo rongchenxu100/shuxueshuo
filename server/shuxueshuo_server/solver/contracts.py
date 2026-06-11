@@ -100,6 +100,7 @@ class MethodSpec:
     preconditions: tuple[str, ...] = ()
     postconditions: tuple[str, ...] = ()
     trace_template: tuple[str, ...] = ()
+    repair_hints: tuple[dict[str, Any], ...] = ()
 
 
 @dataclass

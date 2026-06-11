@@ -107,6 +107,16 @@ class StepIntentNormalizer:
                 handle_registry=handle_registry,
             )
             actions.extend(scope_actions)
+            scope_steps, scope_actions = _fold_broken_path_internal_sequence_for_scope(
+                scope_steps,
+                handle_registry=handle_registry,
+            )
+            actions.extend(scope_actions)
+            scope_steps, scope_actions = _drop_square_pre_reduction_point_utility_steps_for_scope(
+                scope_steps,
+                handle_registry=handle_registry,
+            )
+            actions.extend(scope_actions)
             for step in scope_steps:
                 append_step = True
                 for rule in self.rules:
@@ -189,6 +199,18 @@ class _WeightedAuxiliaryLocusTypeRule:
         context: NormalizationRuleContext,
     ) -> NormalizationRuleResult:
         step, actions = _normalize_weighted_auxiliary_locus_type_step(step)
+        return NormalizationRuleResult(step=step, actions=tuple(actions))
+
+
+class _BrokenPathMinimumEndpointProducesRule:
+    """让通用将军饮马最值 recipe 显式暴露最短线段端点。"""
+
+    def apply(
+        self,
+        step: StepIntent,
+        context: NormalizationRuleContext,
+    ) -> NormalizationRuleResult:
+        step, actions = _ensure_broken_path_minimum_endpoint_produces(step)
         return NormalizationRuleResult(step=step, actions=tuple(actions))
 
 
@@ -323,6 +345,7 @@ DEFAULT_NORMALIZATION_RULES: tuple[NormalizationRule, ...] = (
     _QuadraticFromConstraintsRule(),
     _CandidatePointFactsRule(),
     _WeightedAuxiliaryLocusTypeRule(),
+    _BrokenPathMinimumEndpointProducesRule(),
     _PointAnswerCoordinateRule(),
     _AxisPointAliasRule(),
     _KnownPointCoordinateUtilityRule(),
@@ -464,6 +487,326 @@ def _drop_unreferenced_path_transformation_steps_for_scope(
             continue
         kept.append(step)
     return tuple(kept), actions
+
+
+def _fold_broken_path_internal_sequence_for_scope(
+    steps: tuple[StepIntent, ...],
+    *,
+    handle_registry: CanonicalHandleRegistry,
+) -> tuple[tuple[StepIntent, ...], list[StepIntentNormalizationAction]]:
+    """把 LLM 拆开的将军饮马内部 method 序列折叠回 recipe step。
+
+    square family 对外暴露的是 ``broken_path_straightening_minimum_expression``。
+    DeepSeek 偶尔会直接选择 recipe 内部的三个 method；这不是数学路线错误，
+    只是执行颗粒度偏差，可以确定性折叠。
+    """
+    if len(steps) < 3:
+        return steps, []
+
+    result: list[StepIntent] = []
+    actions: list[StepIntentNormalizationAction] = []
+    read_rewrites: dict[str, tuple[str, ...]] = {}
+    index = 0
+    while index < len(steps):
+        if index + 2 >= len(steps):
+            result.append(_rewrite_step_reads_many(steps[index], read_rewrites))
+            index += 1
+            continue
+        candidate_step = _rewrite_step_reads_many(steps[index], read_rewrites)
+        select_step = _rewrite_step_reads_many(steps[index + 1], read_rewrites)
+        distance_step = _rewrite_step_reads_many(steps[index + 2], read_rewrites)
+        folded = _fold_broken_path_sequence(
+            candidate_step,
+            select_step,
+            distance_step,
+            handle_registry=handle_registry,
+        )
+        if folded is None:
+            result.append(candidate_step)
+            index += 1
+            continue
+        folded_step, rewrites, action = folded
+        result.append(folded_step)
+        read_rewrites.update(rewrites)
+        actions.append(action)
+        index += 3
+
+    return tuple(result), actions
+
+
+def _fold_broken_path_sequence(
+    candidate_step: StepIntent,
+    select_step: StepIntent,
+    distance_step: StepIntent,
+    *,
+    handle_registry: CanonicalHandleRegistry,
+) -> tuple[StepIntent, dict[str, tuple[str, ...]], StepIntentNormalizationAction] | None:
+    """若三个连续 step 是拉直候选、选择、距离计算，返回折叠结果。"""
+    if candidate_step.scope_id != select_step.scope_id or select_step.scope_id != distance_step.scope_id:
+        return None
+    if candidate_step.recipe_hint != "broken_path_straightening_candidates":
+        return None
+    if select_step.recipe_hint != "select_straightening_candidate":
+        return None
+    if distance_step.recipe_hint != "distance_between_points":
+        return None
+
+    candidate_handles = tuple(item.handle for item in candidate_step.produces)
+    selected_handles = tuple(item.handle for item in select_step.produces)
+    if not candidate_handles or not selected_handles:
+        return None
+    if not any(handle in select_step.reads for handle in candidate_handles):
+        return None
+    if not any(handle in distance_step.reads for handle in selected_handles):
+        return None
+    minimum_produces = tuple(
+        item for item in distance_step.produces
+        if _produced_output_type(item, handle_registry) == "MinimumExpression"
+    )
+    if not minimum_produces:
+        return None
+
+    scope_id = distance_step.scope_id
+    point_1 = _minimum_point_fact(scope_id, "path_minimum_point_1", "拉直后最短线段的第一个端点")
+    point_2 = _minimum_point_fact(scope_id, "path_minimum_point_2", "拉直后最短线段的第二个端点")
+    existing_handles = {item.handle for item in distance_step.produces}
+    point_produces = tuple(
+        item for item in (point_1, point_2)
+        if item.handle not in existing_handles
+    )
+
+    reads = _unique_read_handles(
+        (
+            *candidate_step.reads,
+            *select_step.reads,
+            *distance_step.reads,
+        ),
+        exclude={*candidate_handles, *selected_handles},
+    )
+    folded_step = replace(
+        distance_step,
+        recipe_hint="broken_path_straightening_minimum_expression",
+        goal_type="derive_path_minimum_expression",
+        target=minimum_produces[0].handle,
+        reads=reads,
+        creates=tuple(
+            created
+            for step in (candidate_step, select_step, distance_step)
+            for created in step.creates
+        ),
+        produces=(*distance_step.produces, *point_produces),
+        strategy=(
+            "对单动点折线路径生成拉直候选、选择可计算方案，并计算最小值表达式。"
+        ),
+        reason=(
+            "LLM 将通用将军饮马 recipe 拆成内部 method；系统折叠为一个 "
+            "broken_path_straightening_minimum_expression step。"
+        ),
+    )
+    rewrites = {
+        handle: (point_1.handle, point_2.handle)
+        for handle in selected_handles
+    }
+    action = StepIntentNormalizationAction(
+        action="fold_broken_path_internal_sequence",
+        step_id=candidate_step.step_id,
+        target_step_id=distance_step.step_id,
+        handle=",".join((*candidate_handles, *selected_handles)),
+        reason=(
+            "连续的 broken_path_straightening_candidates / select_straightening_candidate / "
+            "distance_between_points 是 recipe 内部实现，折叠为对外 recipe step。"
+        ),
+    )
+    return folded_step, rewrites, action
+
+
+def _drop_square_pre_reduction_point_utility_steps_for_scope(
+    steps: tuple[StepIntent, ...],
+    *,
+    handle_registry: CanonicalHandleRegistry,
+) -> tuple[tuple[StepIntent, ...], list[StepIntentNormalizationAction]]:
+    """删除 square 降维前不必要的 midpoint/center 坐标 utility step。
+
+    ``square_path_dimension_reduction`` 读取的是正方形、中点、中心和路径结构 fact；
+    不需要 LLM 先把中点/中心坐标算出来。若 LLM 在降维前输出了空 hint 的 Point
+    utility step，且该 step 没有被降维前的其它步骤使用，可以删除它，让降维 step
+    先执行并产生 planner insight。
+    """
+    if len(steps) < 2:
+        return steps, []
+
+    reduction_indices = [
+        index for index, step in enumerate(steps)
+        if step.recipe_hint == "square_path_dimension_reduction"
+    ]
+    if not reduction_indices:
+        return steps, []
+
+    drop_indices: set[int] = set()
+    dropped_handles: set[str] = set()
+    actions: list[StepIntentNormalizationAction] = []
+    for reduction_index in reduction_indices:
+        reduction_step = steps[reduction_index]
+        reduction_reads = set(reduction_step.reads)
+        for index, step in enumerate(steps[:reduction_index]):
+            produced_handles = tuple(item.handle for item in step.produces)
+            if not produced_handles:
+                continue
+            if not _is_square_pre_reduction_point_utility_step(step, handle_registry):
+                continue
+            if _produced_handles_used_before_index(
+                produced_handles,
+                steps,
+                start_index=index + 1,
+                stop_index=reduction_index,
+            ):
+                continue
+            drop_indices.add(index)
+            dropped_handles.update(produced_handles)
+            actions.append(
+                StepIntentNormalizationAction(
+                    action="drop_square_pre_reduction_point_utility_step",
+                    step_id=step.step_id,
+                    target_step_id=reduction_step.step_id,
+                    handle=",".join(produced_handles),
+                    reason=(
+                        "square_path_dimension_reduction 只需要正方形/中点/中心/路径结构 fact；"
+                        "该空 hint Point utility step 只是提前猜测降维动点相关坐标，删除后让降维"
+                        "先执行并通过 planner insight 告诉后续真实 moving_point。"
+                    ),
+                )
+            )
+
+    if not drop_indices:
+        return steps, []
+
+    result: list[StepIntent] = []
+    for index, step in enumerate(steps):
+        if index in drop_indices:
+            continue
+        if step.recipe_hint == "square_path_dimension_reduction":
+            step = replace(
+                step,
+                reads=tuple(handle for handle in step.reads if handle not in dropped_handles),
+            )
+        result.append(step)
+    return tuple(result), actions
+
+
+def _produced_handles_used_before_index(
+    handles: tuple[str, ...],
+    steps: tuple[StepIntent, ...],
+    *,
+    start_index: int,
+    stop_index: int,
+) -> bool:
+    """判断 produced handles 是否被 stop_index 前的其它 step 消费。"""
+    produced = set(handles)
+    for step in steps[start_index:stop_index]:
+        if any(handle in produced for handle in step.reads):
+            return True
+    return False
+
+
+def _is_square_pre_reduction_point_utility_step(
+    step: StepIntent,
+    handle_registry: CanonicalHandleRegistry,
+) -> bool:
+    """判断 step 是否是 square 降维前可删除的结构点坐标 utility step。"""
+    if step.recipe_hint is not None or step.creates:
+        return False
+    if not step.produces:
+        return False
+    if any(item.handle.startswith("answer:") for item in step.produces):
+        return False
+    if not all(_produced_output_type(item, handle_registry) == "Point" for item in step.produces):
+        return False
+    structural_fact_types = {"midpoint_definition", "square_center"}
+    return any(
+        handle_registry.fact_types.get(handle) in structural_fact_types
+        for handle in step.reads
+    )
+
+
+def _ensure_broken_path_minimum_endpoint_produces(
+    step: StepIntent,
+) -> tuple[StepIntent, list[StepIntentNormalizationAction]]:
+    """给 ``broken_path_straightening_minimum_expression`` step 补端点 Point fact。"""
+    if step.recipe_hint != "broken_path_straightening_minimum_expression":
+        return step, []
+    existing_handles = {item.handle for item in step.produces}
+    point_1 = _minimum_point_fact(step.scope_id, "path_minimum_point_1", "拉直后最短线段的第一个端点")
+    point_2 = _minimum_point_fact(step.scope_id, "path_minimum_point_2", "拉直后最短线段的第二个端点")
+    additions = tuple(
+        item for item in (point_1, point_2)
+        if item.handle not in existing_handles
+    )
+    if not additions:
+        return step, []
+    return (
+        replace(step, produces=(*step.produces, *additions)),
+        [
+            StepIntentNormalizationAction(
+                action="add_broken_path_minimum_endpoint_outputs",
+                step_id=step.step_id,
+                handle=",".join(item.handle for item in additions),
+                reason=(
+                    "broken_path_straightening_minimum_expression recipe 内部会选择拉直方案并"
+                    "计算最短线段；补充暴露最短线段端点，供后续 line_locus_minimum_point 读取。"
+                ),
+            )
+        ],
+    )
+
+
+def _minimum_point_fact(scope_id: str, name: str, description: str) -> ProducedFact:
+    """构造拉直 recipe 暴露的最短线段端点 fact。"""
+    return ProducedFact(
+        handle=f"fact:{scope_id}:{name}",
+        valid_scope=scope_id,
+        description=description,
+        output_type="Point",
+    )
+
+
+def _unique_read_handles(
+    handles: tuple[str, ...],
+    *,
+    exclude: set[str],
+) -> tuple[str, ...]:
+    """合并 reads，去掉被 recipe 内部折叠的临时候选 handle。"""
+    result: list[str] = []
+    seen: set[str] = set()
+    for handle in handles:
+        if handle in exclude or handle in seen:
+            continue
+        seen.add(handle)
+        result.append(handle)
+    return tuple(result)
+
+
+def _rewrite_step_reads_many(
+    step: StepIntent,
+    rewrites: dict[str, tuple[str, ...]],
+) -> StepIntent:
+    """把一个 read handle 替换成多个 handle，保持顺序与去重。"""
+    if not rewrites:
+        return step
+    reads: list[str] = []
+    seen: set[str] = set()
+    for handle in step.reads:
+        replacements = rewrites.get(handle, (handle,))
+        for replacement in replacements:
+            if replacement in seen:
+                continue
+            seen.add(replacement)
+            reads.append(replacement)
+    target_replacements = rewrites.get(step.target)
+    return replace(
+        step,
+        reads=tuple(reads),
+        target=target_replacements[0] if target_replacements else step.target,
+    )
 
 
 def _angle_sum_existing_point_target(step: StepIntent) -> str | None:

@@ -9,7 +9,7 @@ from __future__ import annotations
 from dataclasses import asdict
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
@@ -17,6 +17,7 @@ from shuxueshuo_server.solver.family import (
     DEFAULT_FAMILY_REGISTRY,
     FamilyRegistry,
     QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY,
+    QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY,
 )
 from shuxueshuo_server.solver.problem_models import ProblemIR
 from shuxueshuo_server.solver.question_goals import extract_question_goals
@@ -92,6 +93,7 @@ class StrategyPayloadBuilder:
             "problem_id": inputs.problem_id,
             "family_id": inputs.family_spec.family_id,
             "problem_ir": dict(problem_payload),
+            "naming_conventions": _naming_conventions_payload(),
             "family_spec": _family_spec_payload(inputs.family_spec),
             "method_catalog": _method_catalog_payload(
                 inputs.method_specs,
@@ -201,6 +203,7 @@ def write_strategy_debug_artifacts(
     (target / "prompt.user.md").write_text(prompt.user, encoding="utf-8")
     source_keys = [
         "problem_ir",
+        "naming_conventions",
         "family_spec",
         "method_catalog",
         "recipe_catalog",
@@ -334,9 +337,11 @@ def _recipe_catalog_payload(family: SolverFamilySpec) -> dict[str, Any]:
 
 def _default_few_shot_examples(family_id: str) -> list[dict[str, Any]]:
     """提供虚构 few-shot，只展示 recipe 范式，不给当前题完整答案。"""
-    if family_id == QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY.family_id:
-        return [_equal_length_ray_path_fallback_few_shot(family_id)]
-    return [_generic_fallback_few_shot(family_id)]
+    builder = _FALLBACK_FEW_SHOT_BUILDERS.get(
+        family_id,
+        _generic_fallback_few_shot,
+    )
+    return [builder(family_id)]
 
 
 def _generic_fallback_few_shot(family_id: str) -> dict[str, Any]:
@@ -559,6 +564,260 @@ def _equal_length_ray_path_fallback_few_shot(family_id: str) -> dict[str, Any]:
         "example": {"scopes": scopes},
     }
 
+
+def _square_reflection_path_fallback_few_shot(family_id: str) -> dict[str, Any]:
+    """为正方形反射路径 family 提供抽象 mock few-shot。"""
+    scopes = [
+        {
+            "scope_id": "demo_part",
+            "label": "虚构示例：正方形点约束与路径降维",
+            "steps": [
+                {
+                    "step_id": "parameterize_axis_point",
+                    "recipe_hint": "quadratic_axis_parameterized_point",
+                    "goal_type": "derive_parameterized_point",
+                    "target": "fact:demo_part:axis_point_parametric",
+                    "strategy": "把位于二次函数对称轴上的目标点写成单参数点坐标。",
+                    "reads": [
+                        "function:demo:quadratic",
+                        "point:demo_part:AxisPoint",
+                        "fact:demo_part:axis_point_on_axis",
+                    ],
+                    "creates": [],
+                    "produces": [
+                        {
+                            "handle": "fact:demo_part:axis_point_parametric",
+                            "valid_scope": "demo_part",
+                            "description": "轴上目标点的单参数坐标表达式",
+                            "output_type": "Point",
+                        }
+                    ],
+                    "reason": "先得到目标点的参数化表达式，再进入正方形构造。",
+                },
+                {
+                    "step_id": "derive_square_mover",
+                    "recipe_hint": "square_adjacent_vertex_from_side",
+                    "goal_type": "derive_square_adjacent_vertex",
+                    "target": "fact:demo_part:square_mover_parametric",
+                    "strategy": "由已知正方形边端点和方向，推出另一个随参数变化的正方形顶点。",
+                    "reads": [
+                        "point:demo:SidePoint",
+                        "fact:demo_part:axis_point_parametric",
+                        "point:demo_part:SquareMover",
+                        "fact:demo_part:square_side_relation",
+                    ],
+                    "creates": [],
+                    "produces": [
+                        {
+                            "handle": "fact:demo_part:square_mover_parametric",
+                            "valid_scope": "demo_part",
+                            "description": "正方形动点的参数化坐标表达式",
+                            "output_type": "Point",
+                        }
+                    ],
+                    "reason": "曲线条件通常落在正方形的另一个顶点上，不要跳过这一动点。",
+                },
+                {
+                    "step_id": "solve_axis_point_candidates",
+                    "recipe_hint": "point_candidates_from_curve_point_condition",
+                    "goal_type": "derive_point_candidates_from_curve_point_condition",
+                    "target": "answer:demo_part.axis_point_candidates",
+                    "strategy": "把正方形动点代入曲线，解出轴上目标点的候选。",
+                    "reads": [
+                        "fact:demo_part:axis_point_parametric",
+                        "fact:demo_part:square_mover_parametric",
+                        "fact:demo_part:current_parabola",
+                        "fact:demo_part:square_mover_on_curve",
+                    ],
+                    "creates": [],
+                    "produces": [
+                        {
+                            "handle": "answer:demo_part.axis_point_candidates",
+                            "valid_scope": "demo_part",
+                            "description": "由正方形动点在曲线上得到的目标点候选",
+                            "output_type": "PointList",
+                        }
+                    ],
+                    "reason": "curve point 和 target point 共享同一参数，代码负责联立曲线条件。",
+                },
+                {
+                    "step_id": "reduce_square_path",
+                    "recipe_hint": "square_path_dimension_reduction",
+                    "goal_type": "reduce_square_path_dimension",
+                    "target": "fact:demo_part:reduced_path",
+                    "strategy": "先读取正方形、中点、中心和路径结构，让 method 揭示降维后的真实动点。",
+                    "reads": [
+                        "fact:demo_part:square_side_relation",
+                        "fact:demo_part:side_midpoint_condition",
+                        "fact:demo_part:square_center_condition",
+                        "fact:demo_part:path_minimum_target",
+                    ],
+                    "creates": [],
+                    "produces": [
+                        {
+                            "handle": "fact:demo_part:reduced_path",
+                            "valid_scope": "demo_part",
+                            "description": "正方形结构降维后的单动点折线路径",
+                            "output_type": "PathTransformation",
+                        }
+                    ],
+                    "reason": "不要在降维前猜测后续动点；执行反馈会给出 moving_point。",
+                },
+                {
+                    "step_id": "derive_square_mover_locus",
+                    "recipe_hint": "parameterized_point_locus_line",
+                    "goal_type": "derive_locus_line",
+                    "target": "fact:demo_part:square_mover_locus",
+                    "strategy": "围绕降维 insight 指出的正方形动点，求它随参数变化的轨迹直线。",
+                    "reads": [
+                        "fact:demo_part:square_mover_parametric",
+                        "fact:demo_part:reduced_path",
+                    ],
+                    "creates": [],
+                    "produces": [
+                        {
+                            "handle": "fact:demo_part:square_mover_locus",
+                            "valid_scope": "demo_part",
+                            "description": "降维后真实动点的轨迹直线",
+                            "output_type": "Line",
+                        }
+                    ],
+                    "reason": "降维后，轨迹、拉直和最短状态点都围绕 moving_point 展开。",
+                },
+                {
+                    "step_id": "compute_reduced_path_minimum",
+                    "recipe_hint": "broken_path_straightening_minimum_expression",
+                    "goal_type": "derive_path_minimum_expression",
+                    "target": "fact:demo_part:path_minimum_expression",
+                    "strategy": "对单动点折线路径使用将军饮马拉直，得到最小值表达式。",
+                    "reads": [
+                        "fact:demo_part:reduced_path",
+                        "fact:demo_part:square_mover_locus",
+                    ],
+                    "creates": [],
+                    "produces": [
+                        {
+                            "handle": "fact:demo_part:path_minimum_expression",
+                            "valid_scope": "demo_part",
+                            "description": "单动点折线路径的最小值表达式",
+                            "output_type": "MinimumExpression",
+                        },
+                        {
+                            "handle": "fact:demo_part:path_minimum_point_1",
+                            "valid_scope": "demo_part",
+                            "description": "拉直后最短线段的第一个端点",
+                            "output_type": "Point",
+                        },
+                        {
+                            "handle": "fact:demo_part:path_minimum_point_2",
+                            "valid_scope": "demo_part",
+                            "description": "拉直后最短线段的第二个端点",
+                            "output_type": "Point",
+                        },
+                    ],
+                    "reason": "拉直 recipe 同时提供最小值表达式和后续求最短状态动点所需端点。",
+                },
+                {
+                    "step_id": "solve_parameter_from_minimum",
+                    "recipe_hint": "parameter_from_expression_value",
+                    "goal_type": "derive_parameter_from_expression_value",
+                    "target": "fact:demo_part:parameter_value",
+                    "strategy": "用题设给定最小值等于上一步表达式，反求参数。",
+                    "reads": [
+                        "fact:demo_part:path_minimum_expression",
+                        "fact:demo_part:path_minimum_value_given",
+                    ],
+                    "creates": [],
+                    "produces": [
+                        {
+                            "handle": "fact:demo_part:parameter_value",
+                            "valid_scope": "demo_part",
+                            "description": "由最小值条件反求出的参数",
+                            "output_type": "ParameterValue",
+                        }
+                    ],
+                    "reason": "先算路径最小值表达式，再和题设最小值比较。",
+                },
+                {
+                    "step_id": "derive_optimal_square_mover",
+                    "recipe_hint": "line_locus_minimum_point",
+                    "goal_type": "derive_line_locus_minimum_point",
+                    "target": "fact:demo_part:optimal_square_mover",
+                    "strategy": "用动点轨迹和拉直后最短线段，求最短状态下的正方形动点。",
+                    "reads": [
+                        "fact:demo_part:square_mover_locus",
+                        "fact:demo_part:path_minimum_point_1",
+                        "fact:demo_part:path_minimum_point_2",
+                        "fact:demo_part:parameter_value",
+                    ],
+                    "creates": [],
+                    "produces": [
+                        {
+                            "handle": "fact:demo_part:optimal_square_mover",
+                            "valid_scope": "demo_part",
+                            "description": "最短状态下正方形动点的坐标",
+                            "output_type": "Point",
+                        }
+                    ],
+                    "reason": "路径最短时先确定 moving_point，而不是直接猜最终答案点。",
+                },
+                {
+                    "step_id": "recover_axis_point_answer",
+                    "recipe_hint": "square_adjacent_vertex_from_side",
+                    "goal_type": "derive_square_adjacent_vertex",
+                    "target": "answer:demo_part.axis_point",
+                    "strategy": "由已知正方形边端点和最短状态动点，恢复最终要求的轴上点。",
+                    "reads": [
+                        "point:demo:SidePoint",
+                        "fact:demo_part:optimal_square_mover",
+                        "point:demo_part:AxisPoint",
+                        "fact:demo_part:square_side_relation",
+                    ],
+                    "creates": [],
+                    "produces": [
+                        {
+                            "handle": "answer:demo_part.axis_point",
+                            "valid_scope": "demo_part",
+                            "description": "由正方形关系恢复出的最终目标点",
+                            "output_type": "Point",
+                        }
+                    ],
+                    "reason": "最终答案点不一定是降维后的 moving_point，需要用正方形关系恢复。",
+                },
+            ],
+        }
+    ]
+    return {
+        "problem_id": "fallback-square-reflection-path-minimum",
+        "family_id": family_id,
+        "title": "square reflection path minimum fallback demo",
+        "original_text": [
+            "一个轴上点与固定点组成正方形，正方形另一个动点满足曲线条件；路径最值先由正方形结构降维，再对降维后的动点做轨迹和将军饮马。"
+        ],
+        "retrieval": {
+            "goal_types": goal_types_from_scopes(scopes),
+        },
+        "note": (
+            "这是虚构简化场景，只展示正方形反射路径 family 的可执行步骤粒度；"
+            "不要照抄示例题 handle、点名、题号、路径名或答案。"
+        ),
+        "example": {"scopes": scopes},
+    }
+
+
+FallbackFewShotBuilder = Callable[[str], dict[str, Any]]
+
+
+_FALLBACK_FEW_SHOT_BUILDERS: dict[str, FallbackFewShotBuilder] = {
+    QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY.family_id: (
+        _equal_length_ray_path_fallback_few_shot
+    ),
+    QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY.family_id: (
+        _square_reflection_path_fallback_few_shot
+    ),
+}
+
+
 def _pretty_json(value: Any) -> str:
     """Jinja 过滤器：输出可读中文 JSON。"""
     return json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True)
@@ -587,3 +846,23 @@ def _to_jsonable(value: Any) -> Any:
 def _default_template_dir() -> Path:
     """定位 internal/llm-prompts，避免硬编码固定 parents 层级。"""
     return repo_root(Path(__file__)) / "internal" / "llm-prompts"
+
+def _naming_conventions_payload() -> dict[str, Any]:
+    """读取 LLM-facing StepIntent 命名约定。"""
+    path = _default_template_dir() / "strategy-naming-conventions.json"
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except FileNotFoundError as exc:
+        raise ValueError(f"strategy naming conventions file missing: {path}") from exc
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"strategy naming conventions file is invalid JSON: {path}") from exc
+    if not isinstance(payload, dict):
+        raise ValueError(f"strategy naming conventions must be a JSON object: {path}")
+    serialized = json.dumps(payload, ensure_ascii=False)
+    forbidden_tokens = ("$problem", "$question", "$subquestion", "expected answer", "raw DeepSeek")
+    for token in forbidden_tokens:
+        if token in serialized:
+            raise ValueError(
+                f"strategy naming conventions contain forbidden runtime/test token: {token}"
+            )
+    return payload

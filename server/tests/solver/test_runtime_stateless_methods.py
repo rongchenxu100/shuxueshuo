@@ -16,7 +16,9 @@ from shuxueshuo_server.solver.runtime.methods import (
     DistanceBetweenPointsMethod,
     EqualLengthRayPointMethod,
     EvaluateExpressionAtParameterMethod,
+    EvaluatePointAtParameterMethod,
     FilterPointCandidatesByQuadraticCurveMethod,
+    LineLocusMinimumPointMethod,
     LineParabolaSecondIntersectionPointMethod,
     LineIntersectionPointMethod,
     LinkedBrokenPathGeometricMinimumMethod,
@@ -28,7 +30,10 @@ from shuxueshuo_server.solver.runtime.methods import (
     ParameterFromCurvePointOnQuadraticMethod,
     ParabolaAtParameterMethod,
     PointOnParabolaAtXMethod,
+    PointCandidatesFromCurvePointConditionMethod,
+    ParameterizedPointLocusLineMethod,
     QuadraticAxisFromRelationMethod,
+    QuadraticAxisParameterizedPointMethod,
     QuadraticFromConstraintsMethod,
     QuadraticXAxisInterceptPointMethod,
     QuadraticVertexPointMethod,
@@ -37,7 +42,9 @@ from shuxueshuo_server.solver.runtime.methods import (
     SelectCurvePointCandidateAndSolveCoefficientsMethod,
     SelectPointByQuadrantConstraintMethod,
     SelectStraighteningCandidateMethod,
+    SquareAdjacentVertexFromSideMethod,
     SquareOppositePointMethod,
+    SquarePathDimensionReductionMethod,
     TwoMovingPointsPathReductionMethod,
     TranslatedPointMethod,
     WeightedAxisPathTriangleTransformMethod,
@@ -115,6 +122,101 @@ def test_quadratic_from_constraints_with_known_coefficients_and_relation() -> No
     )
 
     assert sp.simplify(result.outputs["parabola"].value - (2 * x**2 - 4 * x - 5)) == 0
+
+
+def test_quadratic_axis_parameterized_point_method() -> None:
+    kernel = SympyKernel()
+    x = kernel.symbols(["x"])["x"]
+
+    result = QuadraticAxisParameterizedPointMethod().run(
+        {
+            "parabola": -x**2 - 2 * x + 3,
+            "x": x,
+            "target": PointRef("E", "$subquestion.i_2.points.E"),
+        },
+        kernel,
+    )
+
+    point = result.outputs["point"].value
+    assert point[0] == -1
+    assert point[1].name == "_axis_param_E"
+    assert all(check.ok for check in result.checks)
+
+
+def test_square_adjacent_vertex_from_side_method_uses_square_orientation() -> None:
+    kernel = SympyKernel()
+    t = sp.Symbol("_axis_param_E", real=True)
+
+    result = SquareAdjacentVertexFromSideMethod().run(
+        {
+            "side_start": (sp.Integer(-3), sp.Integer(0)),
+            "side_end": (sp.Integer(-1), t),
+            "square_condition": {
+                "type": "square",
+                "vertices": [
+                    "point:problem:A",
+                    "point:i_2:E",
+                    "point:i_2:K",
+                    "point:i_2:G",
+                ],
+                "orientation": "below_x_axis",
+            },
+            "target": PointRef("G", "$subquestion.i_2.points.G"),
+        },
+        kernel,
+    )
+
+    assert result.outputs["point"].value == (t - 3, -2)
+    assert all(check.ok for check in result.checks)
+
+
+def test_square_adjacent_vertex_from_side_method_accepts_known_ag_side() -> None:
+    kernel = SympyKernel()
+
+    result = SquareAdjacentVertexFromSideMethod().run(
+        {
+            "side_start": (sp.Integer(-5), sp.Integer(0)),
+            "side_end": (sp.Rational(-7, 2), sp.Integer(-3)),
+            "square_condition": {
+                "type": "square",
+                "vertices": [
+                    "point:ii:A",
+                    "point:ii:E",
+                    "point:ii:K",
+                    "point:ii:G",
+                ],
+                "orientation": "below_x_axis",
+            },
+            "target": PointRef("E", "$question.ii.points.E"),
+        },
+        kernel,
+    )
+
+    assert result.outputs["point"].value == (sp.Integer(-2), sp.Rational(3, 2))
+    assert all(check.ok for check in result.checks)
+
+
+def test_point_candidates_from_curve_point_condition_method() -> None:
+    kernel = SympyKernel()
+    x = kernel.symbols(["x"])["x"]
+    t = sp.Symbol("_axis_param_E", real=True)
+
+    result = PointCandidatesFromCurvePointConditionMethod().run(
+        {
+            "target_point": (sp.Integer(-1), t),
+            "curve_point": (t - 3, sp.Integer(-2)),
+            "parabola": -x**2 - 2 * x + 3,
+            "x": x,
+        },
+        kernel,
+    )
+
+    candidates = result.outputs["candidates"].value
+    assert set(candidates) == {
+        (sp.Integer(-1), 2 - sp.sqrt(6)),
+        (sp.Integer(-1), 2 + sp.sqrt(6)),
+    }
+    assert all(check.ok for check in result.checks)
 
 
 def test_angle_sum_equal_angle_candidates_method_heping_geometry() -> None:
@@ -720,6 +822,48 @@ def test_quadratic_x_axis_intercept_point_method_returns_other_root() -> None:
     assert all(check.ok for check in result.checks)
 
 
+def test_quadratic_x_axis_intercept_point_method_uses_left_target_side() -> None:
+    kernel = SympyKernel()
+    x = kernel.symbols(["x"])["x"]
+
+    result = QuadraticXAxisInterceptPointMethod().run(
+        {
+            "quadratic": -x**2 - 2 * x + 3,
+            "x": x,
+            "target": PointRef(
+                "A",
+                "$problem.points.A",
+                definition={"definition": "x_axis_intercept", "side": "left"},
+            ),
+        },
+        kernel,
+    )
+
+    assert result.outputs["point"].value == (-3, 0)
+    assert all(check.ok for check in result.checks)
+
+
+def test_quadratic_x_axis_intercept_point_method_uses_right_target_side() -> None:
+    kernel = SympyKernel()
+    x = kernel.symbols(["x"])["x"]
+
+    result = QuadraticXAxisInterceptPointMethod().run(
+        {
+            "quadratic": -x**2 - 2 * x + 3,
+            "x": x,
+            "target": PointRef(
+                "B",
+                "$problem.points.B",
+                definition={"definition": "x_axis_intercept", "side": "right"},
+            ),
+        },
+        kernel,
+    )
+
+    assert result.outputs["point"].value == (1, 0)
+    assert all(check.ok for check in result.checks)
+
+
 def test_two_moving_points_path_reduction_method() -> None:
     kernel = SympyKernel()
     m = kernel.symbols(["m"])["m"]
@@ -1076,6 +1220,88 @@ def test_linked_broken_path_minimum_expression_method_supports_weight_2() -> Non
     assert all(check.ok for check in result.checks)
 
 
+def test_square_path_dimension_reduction_method() -> None:
+    """正方形中心/中点结构把 HF+FM+MG 降维为 AG+MG。"""
+    kernel = SympyKernel()
+
+    result = SquarePathDimensionReductionMethod().run(
+        {
+            "path_condition": {"path": "HF+FM+MG"},
+            "square_condition": {
+                "vertices": ["point:ii:A", "point:ii:E", "point:ii:K", "point:ii:G"],
+            },
+            "midpoint_condition": {
+                "point": "point:ii:F",
+                "of": ["point:ii:A", "point:ii:E"],
+            },
+            "square_center_condition": {
+                "point": "point:ii:H",
+                "square": "fact:ii:square_AEKG",
+            },
+        },
+        kernel,
+    )
+
+    transform = result.outputs["path_transformation"].value
+    assert transform["transformed_path"] == "AG+MG"
+    assert transform["fixed_point_names"] == ("A", "M")
+    assert transform["moving_point_name"] == "G"
+    assert all(check.ok for check in result.checks)
+
+
+def test_parameterized_point_locus_line_method_allows_problem_parameter() -> None:
+    """轨迹参数可与题目参数共存，优先选择内部运动参数。"""
+    kernel = SympyKernel()
+    c, t = sp.symbols("c _axis_param_E")
+
+    result = ParameterizedPointLocusLineMethod().run(
+        {
+            "point": (t - c, -(c + 1) / 2),
+            "target": PointRef("G", "$question.ii.points.G"),
+        },
+        kernel,
+    )
+
+    line = result.outputs["line"].value
+    assert line["point_name"] == "G"
+    assert line["direction"] == (1, 0)
+    assert sp.simplify(line["start_point"][1] + (c + 1) / 2) == 0
+    assert all(check.ok for check in result.checks)
+
+
+def test_broken_path_straightening_candidates_accepts_locus_line() -> None:
+    """将军饮马候选生成可直接读取动点轨迹 Line。"""
+    kernel = SympyKernel()
+    candidates = BrokenPathStraighteningCandidatesMethod().run(
+        {
+            "path_transformation": {"transformed_path": "AG+MG"},
+            "moving_locus": {
+                "kind": "line",
+                "point_name": "G",
+                "start_point": (0, -2),
+                "direction": (1, 0),
+            },
+            "fixed_point_1": (0, 0),
+            "fixed_point_2": (2, 0),
+        },
+        kernel,
+    ).outputs["candidates"].value
+    candidates = [dict(candidate) for candidate in candidates]
+    candidates[1]["complexity_score"] += 1
+
+    selected = SelectStraighteningCandidateMethod().run(
+        {
+            "candidates": candidates,
+            "target": PointRef("Aux", "$question.ii.points.Aux", {"definition": "straightening_auxiliary_point"}),
+        },
+        kernel,
+    )
+
+    assert len(candidates) == 2
+    assert selected.outputs["minimum_point_1"].type == "Point"
+    assert selected.outputs["minimum_point_2"].type == "Point"
+
+
 def test_coefficient_at_parameter_method() -> None:
     kernel = SympyKernel()
     symbols = kernel.symbols(["b", "c"])
@@ -1110,4 +1336,45 @@ def test_evaluate_expression_at_parameter_method() -> None:
 
     assert result.outputs["evaluated_expression"].type == "Expression"
     assert result.outputs["evaluated_expression"].value == 2 * x + 4
+    assert all(check.ok for check in result.checks)
+
+
+def test_evaluate_point_at_parameter_method() -> None:
+    kernel = SympyKernel()
+    c = kernel.symbols(["c"])["c"]
+
+    result = EvaluatePointAtParameterMethod().run(
+        {
+            "point": (-c, sp.Integer(0)),
+            "parameter": c,
+            "parameter_value": sp.Integer(5),
+        },
+        kernel,
+    )
+
+    assert result.outputs["evaluated_point"].type == "Point"
+    assert result.outputs["evaluated_point"].value == (sp.Integer(-5), sp.Integer(0))
+    assert all(check.ok for check in result.checks)
+
+
+def test_line_locus_minimum_point_method() -> None:
+    kernel = SympyKernel()
+
+    result = LineLocusMinimumPointMethod().run(
+        {
+            "moving_locus": {
+                "kind": "line",
+                "point_name": "G",
+                "start_point": (sp.Integer(0), sp.Integer(-3)),
+                "direction": (sp.Integer(1), sp.Integer(0)),
+            },
+            "minimum_point_1": (sp.Integer(-5), sp.Integer(0)),
+            "minimum_point_2": (sp.Rational(-7, 2), sp.Integer(-3)),
+            "target": PointRef("G", "$question.ii.points.G"),
+        },
+        kernel,
+    )
+
+    assert result.outputs["point"].type == "Point"
+    assert result.outputs["point"].value == (sp.Rational(-7, 2), sp.Integer(-3))
     assert all(check.ok for check in result.checks)

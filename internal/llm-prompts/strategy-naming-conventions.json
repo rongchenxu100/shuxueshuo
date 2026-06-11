@@ -1,0 +1,107 @@
+{
+  "purpose": "Rules for naming new StepIntent step_id, creates.handle, produces.handle, output_type, and valid_scope. Existing reads handles must still be copied exactly from the current ProblemIR or previous current-problem steps.",
+  "step_id_patterns": {
+    "style": "semantic snake_case",
+    "good_examples": [
+      "derive_parabola_i1",
+      "parameterize_axis_point_E",
+      "construct_square_vertex_G",
+      "compute_path_minimum_expression",
+      "recover_final_point_E"
+    ],
+    "bad_examples": [
+      "step_1",
+      "quadratic_from_constraints",
+      "broken_path_straightening_minimum_expression"
+    ],
+    "rules": [
+      "Do not use a recipe_id or method_id directly as step_id.",
+      "Use a readable mathematical action plus the object being derived."
+    ]
+  },
+  "entity_handle_rules": {
+    "pattern": "<entity_type>:<scope>:<Name>",
+    "rules": [
+      "ProblemIR entities are existing objects. Reference them in reads, never recreate them in creates.",
+      "Only truly new auxiliary objects introduced by the solution belong in creates.",
+      "The same entity keeps the same handle even when later steps derive coordinates, expressions, or numeric states for it."
+    ],
+    "good_examples": [
+      "point:problem:A",
+      "point:ii:G",
+      "line:ii:l_aux"
+    ],
+    "bad_examples": [
+      "point:A",
+      "fact:ii:G",
+      "point:ii:G_coordinate"
+    ]
+  },
+  "fact_handle_patterns": {
+    "pattern": "fact:<scope>:<object_or_result>_<state>",
+    "recommended_examples": [
+      "fact:i:parabola_expression",
+      "fact:i:A_coordinate",
+      "fact:i_2:E_parametric_coordinate",
+      "fact:ii:G_locus_line",
+      "fact:ii:path_minimum_expression",
+      "fact:ii:optimal_G_coordinate",
+      "fact:ii:c_value",
+      "fact:ii:E_candidates"
+    ],
+    "rules": [
+      "For a point state, include the point name before the state suffix, for example G_parametric_coordinate or optimal_G_coordinate.",
+      "For a function state, prefer parabola_expression for a solved or simplified parabola.",
+      "For parameters, prefer <symbol>_value, for example m_value or c_value.",
+      "For candidate lists, use plural candidates and output_type PointList.",
+      "For path minimum expressions, prefer path_minimum_expression and output_type MinimumExpression."
+    ]
+  },
+  "state_suffixes": {
+    "point_states": [
+      "coordinate",
+      "parametric_coordinate",
+      "numeric_coordinate",
+      "optimal_<Point>_coordinate"
+    ],
+    "function_states": [
+      "expression",
+      "parabola_expression"
+    ],
+    "parameter_states": [
+      "<symbol>_value"
+    ],
+    "path_states": [
+      "path_transformation",
+      "path_minimum_expression",
+      "path_minimum_point_1",
+      "path_minimum_point_2"
+    ],
+    "set_states": [
+      "candidates"
+    ]
+  },
+  "scope_rules": [
+    "The scope segment in a handle is where the entity or fact is defined, not where the current step uses it.",
+    "When reading an existing ProblemIR handle, copy it exactly and do not change its scope prefix.",
+    "Set produces[].valid_scope to the largest scope where the conclusion is truly valid.",
+    "If a conclusion is reusable across sibling subquestions, produce one parent-scope fact once and let later steps read it.",
+    "If a conclusion depends on a child-only condition such as ii_1, do not give it parent valid_scope ii."
+  ],
+  "output_type_rules": {
+    "Point": "single point coordinate or point expression",
+    "PointList": "candidate list of points",
+    "Parabola": "solved or simplified quadratic function expression",
+    "ParameterValue": "a solved parameter value",
+    "MinimumExpression": "an expression for a path or distance minimum",
+    "PathTransformation": "equivalent path or dimension-reduction result",
+    "Line": "line or locus line"
+  },
+  "bad_patterns": [
+    "Do not use free abbreviations such as coords2, exprs, minmum, tmp, calc_result.",
+    "Do not produce fact:*:parabola_coefficients when a later step needs a Parabola; produce or read fact:*:parabola_expression instead.",
+    "Do not produce sibling-scope duplicates for the same entity state, such as fact:ii_1:F_coordinate and fact:ii_2:F_coordinate_expr for the same point.",
+    "Do not encode numeric answers in handle names.",
+    "Do not invent relation:* or condition:* namespaces."
+  ]
+}

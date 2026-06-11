@@ -25,6 +25,19 @@ STEP_INTENT_OUTPUT_TYPES: tuple[str, ...] = (
 )
 
 
+def answer_output_type_compatible(expected_type: str | None, actual_type: str | None) -> bool:
+    """判断 StepIntent answer 产物类型能否满足 QuestionGoal 类型。
+
+    题目解析阶段可能只知道“求点 E”，但不知道最后会有两个候选坐标。因此
+    ``PointList`` 可以满足 ``Point`` 型答案目标；其它类型继续严格匹配。
+    """
+    if expected_type is None or actual_type is None:
+        return True
+    if expected_type == actual_type:
+        return True
+    return expected_type == "Point" and actual_type == "PointList"
+
+
 @dataclass(frozen=True)
 class CreatedEntity:
     """StepIntent 在推导过程中声明的新实体。
@@ -387,6 +400,63 @@ class StepIntentAcceptedStep:
 
 
 @dataclass(frozen=True)
+class StepIntentPlannerInsight:
+    """已执行前缀向下一轮 planner 暴露的语义 insight。
+
+    insight 只来自 method/recipe 已执行产物，用于告诉 LLM 后续规划的关键角色。
+    它不包含 RuntimePath、MethodInvocation、traceback 或 expected answer。
+    """
+
+    step_id: str
+    scope_id: str
+    produced_handle: str
+    output_type: str
+    facts: dict[str, Any]
+    repair_note: str
+
+    def to_payload(self) -> dict[str, Any]:
+        """转成可放入 previous_attempts 的安全 JSON。"""
+        return {
+            "step_id": self.step_id,
+            "scope_id": self.scope_id,
+            "produced_handle": self.produced_handle,
+            "output_type": self.output_type,
+            "facts": self.facts,
+            "repair_note": self.repair_note,
+        }
+
+
+@dataclass(frozen=True)
+class StepIntentPreflightIssue:
+    """执行前全量扫描发现的结构性提醒。
+
+    Preflight issue 只基于 StepIntent 的 handle graph 与 capability contract，
+    不运行 method，也不暴露 RuntimePath。它用于补足 prefix dry-run 只返回首个
+    blocker 的盲区。
+    """
+
+    step_id: str
+    scope_id: str
+    category: str
+    code: str
+    message: str
+    repair: str
+    related_steps: tuple[str, ...] = ()
+
+    def to_payload(self) -> dict[str, Any]:
+        """转成可放入 previous_attempts 的安全 JSON。"""
+        return {
+            "step_id": self.step_id,
+            "scope_id": self.scope_id,
+            "category": self.category,
+            "code": self.code,
+            "message": self.message,
+            "repair": self.repair,
+            "related_steps": list(self.related_steps),
+        }
+
+
+@dataclass(frozen=True)
 class StepIntentExecutionBlocker:
     """StepIntent 执行诊断中的首个 runtime 阻塞点。"""
 
@@ -396,11 +466,13 @@ class StepIntentExecutionBlocker:
     code: str
     message: str
     capability_errors: tuple[str, ...] = ()
+    capability_id: str | None = None
+    missing_runtime_type: str | None = None
     retryable: bool = True
 
     def to_payload(self) -> dict[str, Any]:
         """转成可放入 previous_attempts 的安全 JSON。"""
-        return {
+        payload: dict[str, Any] = {
             "step_id": self.step_id,
             "scope_id": self.scope_id,
             "stage": self.stage,
@@ -409,6 +481,11 @@ class StepIntentExecutionBlocker:
             "capability_errors": list(self.capability_errors),
             "retryable": self.retryable,
         }
+        if self.capability_id is not None:
+            payload["capability_id"] = self.capability_id
+        if self.missing_runtime_type is not None:
+            payload["missing_runtime_type"] = self.missing_runtime_type
+        return payload
 
 
 @dataclass(frozen=True)
@@ -440,6 +517,8 @@ class StepIntentExecutionDiagnostic:
     ok: bool
     accepted_prefix: tuple[StepIntentAcceptedStep, ...] = ()
     applied_fills: tuple[StepIntentAppliedFill, ...] = ()
+    planner_insights: tuple[StepIntentPlannerInsight, ...] = ()
+    preflight_issues: tuple[StepIntentPreflightIssue, ...] = ()
     blockers: tuple[StepIntentExecutionBlocker, ...] = ()
     skipped_steps: tuple[StepIntentSkippedStep, ...] = ()
     candidate_errors: tuple[str, ...] = ()
@@ -459,6 +538,12 @@ class StepIntentExecutionDiagnostic:
             "applied_fills": [
                 item.to_payload() for item in self.applied_fills
             ],
+            "planner_insights": [
+                item.to_payload() for item in self.planner_insights
+            ],
+            "preflight_issues": [
+                item.to_payload() for item in self.preflight_issues
+            ],
             "blockers": [item.to_payload() for item in self.blockers],
             "skipped_steps": [item.to_payload() for item in self.skipped_steps],
             "candidate_errors": list(self.candidate_errors),
@@ -473,6 +558,7 @@ class StepIntentRepairAttempt:
     effective_draft: dict[str, Any] | None
     diagnostic: StepIntentExecutionDiagnostic | None
     repair_instruction: str
+    repair_summary: dict[str, Any] | None = None
     errors: tuple[str, ...] = ()
 
     def to_payload(self) -> dict[str, Any]:
@@ -480,6 +566,7 @@ class StepIntentRepairAttempt:
         payload: dict[str, Any] = {
             "attempt": self.attempt,
             "effective_draft": self.effective_draft,
+            "repair_summary": self.repair_summary,
             "repair_instruction": self.repair_instruction,
             "errors": list(self.errors),
         }

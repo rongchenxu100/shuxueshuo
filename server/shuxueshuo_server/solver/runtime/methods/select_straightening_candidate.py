@@ -35,6 +35,7 @@ class SelectStraighteningCandidateMethod:
             raise ValueError("straightening candidate selection is ambiguous")
         selected = dict(scores[0][2])
         point: Point = selected["reflected_point"]
+        minimum_point_1, minimum_point_2 = selected["minimum_endpoints"]
         score_text = "；".join(
             (
                 f"{candidate['reflected_point_name']} 坐标复杂度"
@@ -65,6 +66,16 @@ class SelectStraighteningCandidateMethod:
                 "auxiliary_point": TypedValue(
                     "Point",
                     point,
+                    source=self.method_id,
+                ),
+                "minimum_point_1": TypedValue(
+                    "Point",
+                    minimum_point_1,
+                    source=self.method_id,
+                ),
+                "minimum_point_2": TypedValue(
+                    "Point",
+                    minimum_point_2,
                     source=self.method_id,
                 ),
             },
@@ -112,9 +123,11 @@ SPEC = MethodSpecSource(
 },
     outputs={
     "selected_candidate": "StraighteningCandidate",
-    "auxiliary_point": "Point"
+    "auxiliary_point": "Point",
+    "minimum_point_1": "Point",
+    "minimum_point_2": "Point"
 },
     preconditions=('candidates 至少包含一个候选', '候选包含 complexity_score'),
-    postconditions=('唯一最低复杂度候选被选中', '选中候选的反射点坐标作为辅助点输出'),
+    postconditions=('唯一最低复杂度候选被选中', '选中候选的反射点坐标作为辅助点输出', '选中候选的最短线段两端点可直接交给 distance_between_points'),
     trace_template=(),
 )
