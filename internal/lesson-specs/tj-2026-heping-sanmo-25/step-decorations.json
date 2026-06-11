@@ -1,0 +1,177 @@
+{
+  "_comment": "和平区 2026 三模第 25 题 — 二次函数综合",
+  "layers": {
+    "global": {
+      "elements": [
+        { "type": "grid" },
+        { "type": "point", "at": "O", "showLabel": false }
+      ]
+    },
+    "partI": {
+      "stepStartsWith": ["i1"],
+      "elements": [
+        { "type": "parabola", "curveId": "parabolaPartI" },
+        { "type": "axisOfSymmetry", "curveId": "parabolaPartI" }
+      ]
+    },
+    "linePrime": {
+      "stepStartsWith": ["q1", "q2"],
+      "elements": [
+        { "type": "point", "at": "Aprime", "labelText": "A′", "dx": 10, "dy": 22 },
+        { "type": "point", "at": "Cprime", "labelText": "C′", "dx": 10, "dy": -14 },
+        { "type": "coloredLine", "from": "Aprime", "to": "Cprime" }
+      ]
+    },
+    "parabolaQ1": {
+      "stepStartsWith": ["q1s3"],
+      "elements": [
+        { "type": "parabola", "curveId": "parabolaQ1" },
+        { "type": "axisOfSymmetry", "curveId": "parabolaQ1" }
+      ]
+    },
+    "parallelLines": {
+      "stepStartsWith": ["q2"],
+      "elements": [
+        { "type": "point", "at": "A", "dx": 10, "dy": 22 },
+        { "type": "point", "at": "C", "dx": 10, "dy": -14 },
+        { "type": "coloredLine", "from": "A", "to": "C" }
+      ]
+    }
+  },
+  "steps": {
+    "i1s1": {
+      "domain": { "minX": -1, "maxX": 5, "minY": -1, "maxY": 15 },
+      "add": [
+        { "type": "vertex", "curveId": "parabolaPartI", "labelText": "D", "dx": 12, "dy": -16 },
+        { "type": "coordinateLabel", "at": "D1", "text": "D(2,14)", "dx": 18, "dy": -28 }
+      ]
+    },
+    "q1s1": {
+      "domain": { "minX": -0.8, "maxX": 8.8, "minY": -0.8, "maxY": 5.4 },
+      "add": [
+        { "type": "coloredLine", "from": "O", "to": "Aprime" },
+        { "type": "coloredLine", "from": "O", "to": "Cprime" },
+        { "type": "rightAngle", "vertex": "O", "rayA": "Aprime", "rayB": "Cprime" },
+        { "type": "angleArc", "vertex": "Aprime", "rayA": "O", "rayB": "Cprime", "label": "30°", "labelRadius": 42 },
+        { "type": "segment", "from": "O", "to": "Aprime", "label": "8", "offsetPx": 20 },
+        { "type": "coordinateLabel", "at": "Cprime", "text": "C′(0,8√3/3)", "dx": 14, "dy": -24 }
+      ]
+    },
+    "q1s2": {
+      "domain": { "minX": -0.5, "maxX": 8.5, "minY": -0.5, "maxY": 7.6 },
+      "add": [
+        { "type": "dashedLine", "from": "AxisBottom", "to": "AxisTop" },
+        { "type": "outlineRegion", "vertices": ["Mq", "Dq", "Q"], "fill": "rgba(37,99,235,.10)", "dash": "" },
+        { "type": "point", "at": "Q", "dx": 12, "dy": 18 },
+        { "type": "point", "at": "Mq", "labelText": "M", "dx": 12, "dy": 8 },
+        { "type": "point", "at": "G", "dx": -22, "dy": 18 },
+        { "type": "point", "at": "Dq", "labelText": "D", "dx": 12, "dy": -14 },
+        { "type": "coloredLine", "from": "Dq", "to": "Q" },
+        { "type": "coloredLine", "from": "Mq", "to": "Q" },
+        { "type": "coloredLine", "from": "Mq", "to": "G" },
+        { "type": "rightAngle", "vertex": "G", "rayA": "Mq", "rayB": "Q" },
+        { "type": "angleArc", "vertex": "Aprime", "rayA": "O", "rayB": "Cprime", "label": "30°", "labelRadius": 42 },
+        { "type": "angleArc", "vertex": "Mq", "rayA": "G", "rayB": "Q", "label": "30°", "labelRadius": 38 },
+        { "type": "segment", "from": "Dq", "to": "Q", "label": "DQ=2√3", "offsetPx": -18 },
+        { "type": "segment", "from": "Mq", "to": "Q", "label": "MQ=2√3", "offsetPx": 18 },
+        { "type": "segment", "from": "Mq", "to": "G", "label": "MG=3", "offsetPx": 18 },
+        { "type": "coordinateLabel", "at": "Mq", "text": "M(5,√3)", "dx": 14, "dy": 20 },
+        { "type": "coordinateLabel", "at": "Dq", "text": "D(2,4√3)", "dx": 14, "dy": -28 }
+      ]
+    },
+    "q1s3": {
+      "domain": { "minX": -1, "maxX": 8.5, "minY": -0.8, "maxY": 7.6 },
+      "add": [
+        { "type": "point", "at": "Dq", "labelText": "D", "dx": 12, "dy": -14 },
+        { "type": "point", "at": "Mq", "labelText": "M", "dx": 12, "dy": 8 },
+        { "type": "coordinateLabel", "at": "Dq", "text": "D(2,4√3)", "dx": 14, "dy": -28 },
+        { "type": "coordinateLabel", "at": "Mq", "text": "M(5,√3)", "dx": 14, "dy": 20 }
+      ]
+    },
+    "q2s1": {
+      "domain": { "minX": -0.8, "maxX": 8.8, "minY": -0.8, "maxY": 5.4 },
+      "add": [
+        { "type": "coloredLine", "from": "A", "to": "Aprime" },
+        { "type": "coloredLine", "from": "O", "to": "P" },
+        { "type": "coloredLine", "from": "A", "to": "P" },
+        { "type": "point", "at": "P", "dx": -24, "dy": -12 },
+        { "type": "angleArc", "vertex": "A", "rayA": "O", "rayB": "C", "label": "30°", "labelRadius": 42 },
+        { "type": "segment", "from": "A", "to": "Aprime", "label": "8−r", "offsetPx": 18 },
+        { "type": "coordinateLabel", "at": "A", "text": "A(r,0)", "dx": 12, "dy": -24 },
+        { "type": "coordinateLabel", "at": "P", "text": "P(r/2,√3r/2)", "dx": -118, "dy": -20 }
+      ]
+    },
+    "q2s2": {
+      "domain": { "minX": 2.4, "maxX": 8.8, "minY": -0.9, "maxY": 6.7 },
+      "pointOverrides": {
+        "F": ["8-S3*u/2", "u/2"],
+        "E": ["8-S3*u/2-d/2", "u/2-S3*d/2"],
+        "N": ["8-S3*u/4", "-u/4"]
+      },
+      "add": [
+        { "type": "point", "at": "P", "dx": -24, "dy": -12 },
+        { "type": "point", "at": "P1", "labelText": "P₁", "dx": -30, "dy": -12 },
+        { "type": "point", "at": "E", "dx": -24, "dy": 18 },
+        { "type": "point", "at": "F", "dx": 10, "dy": -14 },
+        { "type": "point", "at": "N", "dx": 10, "dy": 18 },
+        { "type": "coloredLine", "from": "P", "to": "E" },
+        { "type": "coloredLine", "from": "P1", "to": "F" },
+        { "type": "coloredLine", "from": "P", "to": "P1" },
+        { "type": "coloredLine", "from": "E", "to": "F" },
+        { "type": "outlineRegion", "vertices": ["P", "E", "F", "P1"], "fill": "rgba(15,118,110,.10)", "dash": "" },
+        { "type": "outlineRegion", "vertices": ["Aprime", "F", "N"], "fill": "rgba(180,83,9,.14)", "dash": "" },
+        { "type": "coloredLine", "from": "Aprime", "to": "N" },
+        { "type": "coloredLine", "from": "F", "to": "N" },
+        { "type": "rightAngle", "vertex": "N", "rayA": "Aprime", "rayB": "F" },
+        { "type": "angleArc", "vertex": "Aprime", "rayA": "F", "rayB": "N", "label": "60°", "labelRadius": 40 },
+        { "type": "segment", "from": "P", "to": "E", "label": "PE", "offsetPx": -18 },
+        { "type": "segment", "from": "P1", "to": "F", "label": "P₁F=PE", "offsetPx": 18 },
+        { "type": "segment", "from": "E", "to": "F", "label": "EF=4−r/2", "offsetPx": -18 },
+        { "type": "segment", "from": "F", "to": "N", "label": "FN=√3/2 FA′", "offsetPx": 18 }
+      ]
+    },
+    "q2s3": {
+      "domain": { "minX": 2.2, "maxX": 8.8, "minY": -1.2, "maxY": 6.8 },
+      "pointOverrides": {
+        "F": ["8-S3*sOpt/2", "sOpt/2"],
+        "E": ["8-S3*sOpt/2-d/2", "sOpt/2-S3*d/2"],
+        "N": ["xH", "yH"]
+      },
+      "add": [
+        { "type": "point", "at": "P1", "labelText": "P₁", "dx": -30, "dy": -12 },
+        { "type": "point", "at": "K", "dx": 10, "dy": 18 },
+        { "type": "point", "at": "J", "dx": 10, "dy": 18 },
+        { "type": "point", "at": "F", "dx": 10, "dy": -14 },
+        { "type": "point", "at": "H", "labelText": "N=H", "dx": 12, "dy": 18 },
+        { "type": "coloredLine", "from": "Aprime", "to": "R" },
+        { "type": "coloredLine", "from": "P1", "to": "H" },
+        { "type": "coloredLine", "from": "P1", "to": "F" },
+        { "type": "coloredLine", "from": "F", "to": "H" },
+        { "type": "dashedLine", "from": "P1", "to": "K" },
+        { "type": "dashedLine", "from": "K", "to": "J" },
+        { "type": "dashedLine", "from": "J", "to": "H" },
+        { "type": "dashedLine", "from": "Aprime", "to": "J" },
+        { "type": "rightAngle", "vertex": "H", "rayA": "P1", "rayB": "Aprime" },
+        { "type": "rightAngle", "vertex": "K", "rayA": "P1", "rayB": "J" },
+        { "type": "angleArc", "vertex": "Aprime", "rayA": "J", "rayB": "H", "label": "30°", "labelRadius": 34 },
+        { "type": "angleArc", "vertex": "J", "rayA": "K", "rayB": "P1", "label": "60°", "labelRadius": 34 },
+        { "type": "segment", "from": "P1", "to": "J", "label": "P₁J=4+r/2", "offsetPx": 18 },
+        { "type": "segment", "from": "J", "to": "H", "label": "JH=2−r/4", "offsetPx": 16 }
+      ]
+    },
+    "q2s4": {
+      "domain": { "minX": -0.8, "maxX": 8.8, "minY": -0.8, "maxY": 6.8 },
+      "add": [
+        { "type": "parabola", "curveId": "parabolaQ2" },
+        { "type": "point", "at": "P", "dx": -24, "dy": -12 },
+        { "type": "point", "at": "A", "dx": 12, "dy": 20 },
+        { "type": "point", "at": "C", "dx": 12, "dy": -14 },
+        { "type": "coloredLine", "from": "O", "to": "P" },
+        { "type": "coloredLine", "from": "A", "to": "P" },
+        { "type": "coloredLine", "from": "A", "to": "C" },
+        { "type": "coordinateLabel", "at": "A", "text": "A(6,0)", "dx": 12, "dy": -24 },
+        { "type": "coordinateLabel", "at": "C", "text": "C(0,2√3)", "dx": 14, "dy": -24 }
+      ]
+    }
+  }
+}

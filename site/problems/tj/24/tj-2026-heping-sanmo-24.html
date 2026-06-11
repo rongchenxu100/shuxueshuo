@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2026 年天津市和平区三模 第 24 题（旋转三角形与重叠面积） | 数学说</title>
+  <meta name="description" content="2026 天津市和平区三模第 24 题：线段 OP 绕 O 旋转 120°，求 P 与 PP′，再由四边形重叠状态求 DP′ 和面积条件下的 t 范围。" />
+  <meta property="og:title" content="2026 年天津市和平区三模 第 24 题（旋转三角形与重叠面积） | 数学说" />
+  <meta property="og:description" content="2026 天津市和平区三模第 24 题：线段 OP 绕 O 旋转 120°，求 P 与 PP′，再由四边形重叠状态求 DP′ 和面积条件下的 t 范围。" />
+  <meta property="og:image" content="../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../assets/css/interactive-geometry-page.css" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../nav/index.html">题库导航</a>
+    <span class="lesson-title">2026 天津市和平区三模 第 24 题</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <div class="problem-summary">
+            <div class="problem-summary-text">第 24 题（2026 天津市和平区三模）旋转三角形与重叠面积</div>
+            <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          </div>
+          <div class="problem-full">
+            <div class="problem-line"><span>（24）（本小题 10 分）在平面直角坐标系中，O 为原点，△ABC 的顶点 A（6，0），B（0，2√3），点 P 为 x 轴负半轴上一动点，将线段 OP 绕点 O 顺时针旋转 120° 得到线段 OP′，连接 PP′。</span></div>
+<div class="problem-line"><span>（I）填空：如图①，当 PP′ 过点 B 时，点 P 的坐标为__________，线段 PP′ 的长为__________；</span><span class="answer-chip" id="answerI">答案：P（−6，0），PP′＝6√3</span></div>
+<div class="problem-line"><span>（II）点 P 从原点出发沿水平方向向左移动，设 OP＝t。</span></div>
+<div class="problem-line"><span>① 如图②，若 PP′ 与边 OB 相交于点 C，与 AB 相交于点 D，OP′ 与 AB 相交于点 E，当 △OPP′ 与 △OAB 重叠部分为四边形 OCDE 时，试用含有 t 的式子表示线段 DP′，并直接写出 t 的取值范围；</span><span class="answer-chip" id="answerQ1">答案：DP′＝2√3(t−3)/3，3＜t＜6</span></div>
+<div class="problem-line"><span>② 设 △OPP′ 与 △OAB 重叠部分面积为 S，当 √3/2≤S≤3√3/2 时，求 t 的取值范围（直接写出结果即可）。</span><span class="answer-chip" id="answerQ2">答案：t≥√6</span></div>
+<div class="problem-line"><strong>原题图形</strong></div>
+<div class="problem-original-figures" aria-label="原题图 1 和图 2">
+  <figure class="problem-figure">
+    <svg id="originalFigure1" viewBox="0 0 1080 760" role="img" aria-label="图 1：PP′ 过点 B 的旋转三角形"></svg>
+    <h3>图 1</h3>
+  </figure>
+  <figure class="problem-figure">
+    <svg id="originalFigure2" viewBox="0 0 1080 760" role="img" aria-label="图 2：四边形 OCDE 重叠状态"></svg>
+    <h3>图 2</h3>
+  </figure>
+</div>
+          </div>
+        </section>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../assets/js/lesson-page-runtime.js"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"i1s1","section":"第（I）问","title":"第1步：由 30° 直角三角形求 P 坐标","t":6,"derive":[["∵","OP 绕 O 顺时针旋转 120° 得到 OP′"],["∴","OP＝OP′，∠POP′＝120°"],["∴","△OPP′ 的底角 ∠OPP′＝∠OP′P＝30°"],["∵","当 PP′ 过 B 时，△POB 是直角三角形，∠OPB＝30°"],["∵","OB＝2√3"],["∴","tan30°＝OB/OP＝2√3/OP"],["∴","OP＝6"],["∴","P（−6，0）"]],"box":["OP＝6","P（−6，0）"]},{"id":"i1s2","section":"第（I）问","title":"第2步：由旋转等腰三角形求 PP′","t":6,"derive":[["∵","OP＝OP′＝6，∠POP′＝120°"],["取","PP′ 的中点 H，连接 OH"],["∵","△OPP′ 是等腰三角形"],["∴","OH⊥PP′，∠POH＝60°"],["∴","PH＝OP·sin60°＝6×√3/2＝3√3"],["∴","PP′＝2PH＝6√3"]],"box":["PH＝3√3","PP′＝6√3"]},{"id":"q1s1","section":"第（II）①问","title":"第1步：由线段差和等边三角形求 DP′","t":4.5,"derive":[["∵","OP＝OP′＝t，∠POP′＝120°"],["∴","PP′＝√3t"],["∵","C 在 OB 上，∠OPC＝30°"],["∴","在 Rt△POC 中，PC＝OP/cos30°＝2√3t/3"],["∵","PP′ 与 OB 的夹角为 60°，AB 与 OB 的夹角为 60°"],["∴","△BCD 是等边三角形"],["∴","CD＝BC"],["∵","OC＝OP·tan30°＝√3t/3"],["∴","CD＝BC＝OB−OC＝2√3−√3t/3＝√3(6−t)/3"],["∵","DP′＝PP′−PC−CD"],["∴","DP′＝2√3(t−3)/3"]],"box":["PP′＝√3t","PC＝2√3t/3","CD＝BC＝√3(6−t)/3","DP′＝2√3(t−3)/3"]},{"id":"q1s2","section":"第（II）①问","title":"第2步：由边界位置判断四边形范围","t":4.5,"derive":[["∵","t＝3 时，D 与 E 重合，重叠部分退化为三角形"],["∵","3＜t＜6 时，C 在 OB 内部，D 在 BE 内部，重叠部分为四边形 OCDE"],["∵","t＝6 时，C、D 与 B 重合，重叠部分退化为三角形 OBE"],["∴","四边形 OCDE 对应 3＜t＜6"],["∴","DP′＝2√3(t−3)/3，3＜t＜6"]],"box":["DP′＝2√3(t−3)/3","四边形 OCDE：3＜t＜6"],"minis":[{"title":"t＝3","caption":"D 与 E 重合，四边形尚未形成。","t":3},{"title":"3＜t＜6","caption":"重叠部分为四边形 OCDE。","t":4.5},{"title":"t＝6","caption":"C、D 与 B 重合，四边形退化。","t":6}]},{"id":"q2s1","section":"第（II）②问","title":"第1步：由重叠形状判断面积分段","t":4.5,"derive":[["∵","0≤t≤3 时，P′ 未超过点 E，重叠部分是 △OCP′"],["∵","3＜t＜6 时，重叠部分是四边形 OCDE"],["∵","t≥6 时，PP′ 已经过 B，重叠部分固定为 △OBE"],["∴","面积 S 分三段讨论"]],"box":["0≤t≤3：△OCP′","3＜t＜6：四边形 OCDE","t≥6：△OBE"],"minis":[{"title":"0≤t≤3","caption":"重叠部分为 △OCP′。","t":2.4},{"title":"3＜t＜6","caption":"重叠部分为四边形 OCDE。","t":4.5},{"title":"t≥6","caption":"重叠部分固定为 △OBE。","t":7}]},{"id":"q2s2","section":"第（II）②问","title":"第2步：三角形段求范围","t":2.449,"derive":[["∵","PP′ 与 OB 交于 C"],["∴","C（0，√3t/3）"],["∵","P′（t/2，√3t/2）"],["∴","OC＝√3t/3，点 P′ 到 y 轴的距离为 t/2"],["∴","S＝S△OCP′＝1/2×√3t/3×t/2＝√3t²/12"],["∵","0≤t≤3 时，S≤3√3/4＜3√3/2"],["∵","√3t²/12≥√3/2"],["∴","t²≥6"],["∴","第一段满足条件的范围为 √6≤t≤3"]],"box":["S＝√3t²/12","第一段：√6≤t≤3"]},{"id":"q2s3","section":"第（II）②问","title":"第3步：四边形段求范围","t":4.5,"derive":[["∵","四边形 OCDE＝△OBE−△BCD"],["∵","OB＝2√3，点 E 到 y 轴的距离为 3/2"],["∴","S△OBE＝1/2×2√3×3/2＝3√3/2"],["∵","第（II）①已得 BC＝√3(6−t)/3"],["∵","△BCD 是等边三角形"],["∴","S△BCD＝√3/4×[√3(6−t)/3]²＝√3(6−t)²/12"],["∴","S＝3√3/2−√3(6−t)²/12"],["∵","3＜t＜6 时，S 从 3√3/4 增大到 3√3/2"],["∴","这一段全部满足 √3/2≤S≤3√3/2"]],"box":["S△OBE＝3√3/2","S△BCD＝√3(6−t)²/12","3＜t＜6 全部满足"]},{"id":"q2s4","section":"第（II）②问","title":"第4步：固定三角形求面积","t":7,"derive":[["∵","t＝6 时，C、D 与 B 重合"],["∴","重叠部分变为 △OBE"],["∵","t≥6 时，PP′ 继续向上移动，△OBE 始终保持为公共部分"],["∴","S＝S△OBE＝3√3/2"],["∴","t≥6 全部满足 √3/2≤S≤3√3/2"]],"box":["t≥6：S＝3√3/2","第三段全部满足"]},{"id":"q2s5","section":"第（II）②问","title":"第5步：合并三个阶段求 t 范围","t":4.5,"derive":[["∵","第一段满足 √6≤t≤3"],["∵","第二段 3＜t＜6 全部满足"],["∵","第三段 t≥6 全部满足"],["∴","合并得 t≥√6"]],"box":["t≥√6"]}];
+    var STEP_LABELS = {"i1s1":"1 30°求P","i1s2":"2 旋转求PP′","q1s1":"1 线段差求DP′","q1s2":"2 判断四边形范围","q2s1":"1 判断面积分段","q2s2":"2 三角形段求范围","q2s3":"3 四边形段求范围","q2s4":"4 固定三角形求面积","q2s5":"5 合并t范围"};
+    var POLICIES   = {"i1s1":{"movable":false,"range":[6,6]},"i1s2":{"movable":false,"range":[6,6]},"q1s1":{"movable":true,"range":[3.001,5.999]},"q1s2":{"movable":true,"range":[2.9,6.1]},"q2s1":{"movable":true,"range":[0.05,8]},"q2s2":{"movable":true,"range":[0.05,3]},"q2s3":{"movable":true,"range":[3.001,5.999]},"q2s4":{"movable":true,"range":[6,8]},"q2s5":{"movable":true,"range":[2.449,8]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script type="application/json" id="geometrySpec">{"version":1,"id":"tj-2026-heping-sanmo-24","domain":{"minX":-7.6,"maxX":6.7,"minY":-0.8,"maxY":6.4},"fixedPoints":{"O":["0","0"],"A":["6","0"],"B":["0","2*S3"]},"movingParam":"t","movingPoints":{"P":["-t","0"],"Pp":["t/2","S3*t/2"],"H":["-t/4","S3*t/4"]},"basePolygon":["O","A","B"],"movingPolygon":["O","P","Pp"],"derivedIntersections":[{"name":"C","a":["O","B"],"b":["P","Pp"],"fallback":["0","S3*t/3"]},{"name":"D","a":["A","B"],"b":["P","Pp"],"fallback":["3-t/2","S3*(6+t)/6"]},{"name":"E","a":["A","B"],"b":["O","Pp"],"fallback":["3/2","3*S3/2"]}],"originalFigures":[{"id":"originalFigure1","t":6,"showMoving":true,"showOverlap":false,"showIntersections":false,"fixedLabels":[{"at":"A","label":"A","dx":12,"dy":22},{"at":"B","label":"B","dx":12,"dy":-12}],"movingLabels":[{"at":"P","label":"P","dx":-28,"dy":20},{"at":"Pp","label":"P′","dx":12,"dy":-12}]},{"id":"originalFigure2","t":4.5,"showMoving":true,"showOverlap":true,"showIntersections":true,"fixedLabels":[{"at":"A","label":"A","dx":12,"dy":22},{"at":"B","label":"B","dx":12,"dy":-12}],"movingLabels":[{"at":"P","label":"P","dx":-28,"dy":20},{"at":"Pp","label":"P′","dx":12,"dy":-12}],"intersectionLabels":[{"at":"C","label":"C","dx":-28,"dy":-8},{"at":"D","label":"D","dx":10,"dy":-14},{"at":"E","label":"E","dx":12,"dy":18}]}]}</script>
+<script src="../../../assets/js/geometry-engine.js"></script>
+<script src="../../../assets/js/geometry-lesson-from-spec.js"></script>
+
+<script>
+  const __GEOMETRY_SPEC__ = JSON.parse(document.getElementById('geometrySpec').textContent);
+  const __STEP_DECORATIONS__ = {"_comment":"和平区 2026 三模第 24 题 — 旋转三角形与重叠面积。","layers":{"global":{"elements":[{"type":"grid"},{"type":"basePoly"},{"type":"point","at":"O","showLabel":false,"color":"#1f2937","r":5.2},{"type":"point","at":"A","dx":12,"dy":22,"color":"#1f2937","r":5.2},{"type":"point","at":"B","dx":12,"dy":-12,"color":"#1f2937","r":5.2}]},"movingContext":{"sectionNot":"第（I）问","elements":[{"type":"movingPoly"},{"type":"overlap"},{"type":"point","at":"P","color":"#0f766e","dx":-28,"dy":20,"r":5.2},{"type":"point","at":"Pp","labelText":"P′","color":"#0f766e","dx":12,"dy":-12,"r":5.2},{"type":"segment","from":"O","to":"P","label":"OP=t","offsetPx":-22,"collinearGroup":true,"color":"#0f766e","width":1.5}]},"q1Intersections":{"stepStartsWith":["q1"],"elements":[{"type":"derivedPoint","at":"C","dx":-28,"dy":-8,"color":"#dc2626","r":4.6},{"type":"derivedPoint","at":"D","dx":10,"dy":-14,"color":"#dc2626","r":4.6},{"type":"derivedPoint","at":"E","dx":12,"dy":18,"color":"#dc2626","r":4.6}]}},"steps":{"i1s1":{"add":[{"type":"movingPoly"},{"type":"point","at":"P","color":"#0f766e","dx":-28,"dy":20,"r":5.2},{"type":"point","at":"Pp","labelText":"P′","color":"#0f766e","dx":12,"dy":-12,"r":5.2},{"type":"coloredLine","from":"P","to":"Pp","color":"#dc2626","width":2},{"type":"segment","from":"O","to":"B","label":"2√3","offsetPx":28,"collinearGroup":false,"color":"#0f766e","width":1.5},{"type":"angleArc","vertex":"P","rayA":"O","rayB":"B","label":"30°","radius":30,"labelRadius":42,"color":"#b45309","fontSize":14},{"type":"rightAngle","vertex":"O","rayA":"P","rayB":"B","size":12,"color":"#0f766e"},{"type":"coordinateLabel","at":"P","text":"P(−6,0)","dx":-76,"dy":30,"color":"#334155","fontSize":14}]},"i1s2":{"add":[{"type":"movingPoly"},{"type":"point","at":"P","color":"#0f766e","dx":-28,"dy":20,"r":5.2},{"type":"point","at":"Pp","labelText":"P′","color":"#0f766e","dx":12,"dy":-12,"r":5.2},{"type":"point","at":"H","color":"#0f766e","dx":-28,"dy":-10,"r":5.2},{"type":"dashedLine","from":"O","to":"H","color":"#0f766e","width":2,"dash":"6 5"},{"type":"segment","from":"P","to":"Pp","label":"PP′","offsetPx":24,"collinearGroup":false,"color":"#0f766e","width":1.5},{"type":"angleArc","vertex":"O","rayA":"P","rayB":"Pp","label":"120°","radius":36,"labelRadius":50,"color":"#b45309","fontSize":14},{"type":"angleArc","vertex":"O","rayA":"P","rayB":"H","label":"60°","radius":22,"labelRadius":34,"color":"#b45309","fontSize":14},{"type":"rightAngle","vertex":"H","rayA":"P","rayB":"O","size":12,"color":"#0f766e"}]},"q1s1":{"add":[{"type":"coloredLine","from":"P","to":"Pp","color":"#dc2626","width":2},{"type":"segment","from":"P","to":"Pp","label":"PP′=√3t","offsetPx":34,"collinearGroup":false,"color":"#0f766e","width":1.5},{"type":"segment","from":"P","to":"C","label":"PC=2√3t/3","offsetPx":-30,"collinearGroup":false,"color":"#0f766e","width":1.5},{"type":"segment","from":"C","to":"D","label":"CD=BC","offsetPx":24,"collinearGroup":false,"color":"#0f766e","width":1.5},{"type":"segment","from":"B","to":"C","label":"BC","offsetPx":30,"collinearGroup":false,"color":"#0f766e","width":1.5},{"type":"coloredLine","from":"D","to":"Pp","color":"#dc2626","width":2},{"type":"angleArc","vertex":"C","rayA":"B","rayB":"D","label":"60°","radius":20,"labelRadius":31,"color":"#b45309","fontSize":14},{"type":"angleArc","vertex":"B","rayA":"C","rayB":"D","label":"60°","radius":18,"labelRadius":29,"color":"#b45309","fontSize":14},{"type":"angleArc","vertex":"P","rayA":"O","rayB":"C","label":"30°","radius":24,"labelRadius":36,"color":"#b45309","fontSize":14}]},"q1s2":{"add":[{"type":"coloredLine","from":"O","to":"C","color":"#dc2626","width":2},{"type":"coloredLine","from":"C","to":"D","color":"#dc2626","width":2},{"type":"coloredLine","from":"D","to":"E","color":"#dc2626","width":2},{"type":"coloredLine","from":"E","to":"O","color":"#dc2626","width":2},{"type":"coincidentLabel","anchor":"E","when":3,"eps":0.05,"text":"D=E","dx":10,"dy":-18},{"type":"coincidentLabel","anchor":"B","when":6,"eps":0.05,"text":"C=D=B","dx":16,"dy":-18}]},"q2s1":{"add":[{"type":"areaLabel","region":"overlap","text":"S","dx":0,"dy":0,"color":"#dc2626","size":16}]},"q2s2":{"add":[{"type":"derivedPoint","at":"C","dx":-28,"dy":-8,"color":"#dc2626","r":4.6},{"type":"coloredLine","from":"O","to":"C","color":"#dc2626","width":2},{"type":"dashedLine","from":"Pp","to":"C","color":"#0f766e","width":2,"dash":"6 5"},{"type":"segment","from":"O","to":"C","label":"√3t/3","offsetPx":26,"collinearGroup":false,"color":"#0f766e","width":1.5},{"type":"areaLabel","region":"overlap","text":"S","dx":0,"dy":0,"color":"#dc2626","size":16},{"type":"areaFormulaCard","pos":[-6.2,5.8],"terms":[{"text":"S","kind":"target"},{"text":"=","kind":"op"},{"text":"△OCP′","kind":"base"}]}]},"q2s3":{"add":[{"type":"derivedPoint","at":"C","dx":-28,"dy":-8,"color":"#dc2626","r":4.6},{"type":"derivedPoint","at":"D","dx":10,"dy":-14,"color":"#dc2626","r":4.6},{"type":"derivedPoint","at":"E","dx":12,"dy":18,"color":"#dc2626","r":4.6},{"type":"coordinateLabel","at":"E","text":"E(3/2,3√3/2)","dx":14,"dy":26,"color":"#334155","fontSize":14},{"type":"outlineRegion","vertices":["O","B","E"],"color":"#b45309","width":2.2,"dash":"6 5","fill":"none"},{"type":"cutRegion","vertices":["B","C","D"],"style":"subtracted","centroidLabel":"−"},{"type":"segment","from":"B","to":"C","label":"√3(6−t)/3","offsetPx":30,"collinearGroup":false,"color":"#0f766e","width":1.5},{"type":"areaLabel","region":"overlap","text":"S","dx":0,"dy":0,"color":"#dc2626","size":16},{"type":"areaFormulaCard","pos":[-6.2,5.8],"terms":[{"text":"S","kind":"target"},{"text":"=","kind":"op"},{"text":"△OBE","kind":"base"},{"text":"−","kind":"op"},{"text":"△BCD","kind":"cut"}]}]},"q2s4":{"add":[{"type":"derivedPoint","at":"E","dx":12,"dy":18,"color":"#dc2626","r":4.6},{"type":"coordinateLabel","at":"E","text":"E(3/2,3√3/2)","dx":14,"dy":26,"color":"#334155","fontSize":14},{"type":"outlineRegion","vertices":["O","B","E"],"color":"#b45309","width":2.2,"dash":"6 5","fill":"none"},{"type":"areaLabel","region":"overlap","text":"S","dx":0,"dy":0,"color":"#dc2626","size":16},{"type":"areaFormulaCard","pos":[-6.2,5.8],"terms":[{"text":"S","kind":"target"},{"text":"=","kind":"op"},{"text":"△OBE","kind":"base"}]}]},"q2s5":{"add":[{"type":"areaLabel","region":"overlap","text":"S","dx":0,"dy":0,"color":"#dc2626","size":16}]}}};
+  const renderer = GeometryLessonFromSpec.createSpecRenderer(__GEOMETRY_SPEC__, __STEP_DECORATIONS__, STEPS, POLICIES);
+  function groupTitle(section) {
+    const map = {"第（I）问":"第（I）问  求 P 与 PP′","第（II）①问":"第（II）①  四边形状态求 DP′","第（II）②问":"第（II）②  面积条件求 t"};
+    return map[section] || section;
+  }
+  var diagramMarkupFor = renderer.diagramMarkupFor;
+  var drawMini = renderer.drawMini;
+  var __LESSON_LEGEND_HTML__ = "<span><i class=\"sw\" style=\"background:var(--paper)\"></i>固定 △OAB</span><span><i class=\"sw\" style=\"background:var(--fold)\"></i>旋转得到 △OPP′</span><span><i class=\"sw\" style=\"background:var(--overlap)\"></i>当前重叠区域 S</span>";
+  // 原题图形渲染：由 renderer 负责（可选）
+  var __AFTER_RENDER_ALL_STEPS__ = renderer.renderOriginalFigures;
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "动点 P · t＝OP",
+      paramLabelPrefix: "t=",
+      goToProblemMode: "doubleScroll"
+    });
+  </script>
+</body>
+</html>

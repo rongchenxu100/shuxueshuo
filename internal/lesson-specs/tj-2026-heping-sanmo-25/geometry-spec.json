@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "id": "tj-2026-heping-sanmo-25",
+  "domain": { "minX": -1.2, "maxX": 9.2, "minY": -1.8, "maxY": 14.8 },
+  "movingParam": "s",
+  "expressionEnv": [
+    { "name": "aI", "expr": "-2" },
+    { "name": "bI", "expr": "8" },
+    { "name": "cI", "expr": "6" },
+    { "name": "aQ1", "expr": "-S3/3" },
+    { "name": "bQ1", "expr": "4*S3/3" },
+    { "name": "cQ1", "expr": "8*S3/3" },
+    { "name": "r", "expr": "6" },
+    { "name": "cQ2", "expr": "r/S3" },
+    { "name": "aQ2", "expr": "-S3/6" },
+    { "name": "bQ2", "expr": "-4*aQ2" },
+    { "name": "d", "expr": "4-r/2" },
+    { "name": "sOpt", "expr": "S3*d" },
+    { "name": "xP1", "expr": "2+r/4" },
+    { "name": "yP1", "expr": "2*S3+S3*r/4" },
+    { "name": "xH", "expr": "5+3*r/8" },
+    { "name": "yH", "expr": "-S3*(8-r)/8" }
+  ],
+  "fixedPoints": {
+    "O": ["0", "0"],
+    "D1": ["2", "14"],
+    "Aprime": ["8", "0"],
+    "Cprime": ["0", "8*S3/3"],
+    "AxisTop": ["2", "14"],
+    "AxisBottom": ["2", "-1"],
+    "Q": ["2", "2*S3"],
+    "Mq": ["5", "S3"],
+    "G": ["2", "S3"],
+    "Dq": ["2", "4*S3"],
+    "A": ["r", "0"],
+    "C": ["0", "cQ2"],
+    "P": ["r/2", "S3*r/2"],
+    "P1": ["xP1", "yP1"],
+    "K": ["xP1", "0"],
+    "J": ["4+r/2", "0"],
+    "R": ["8-2*S3", "-2"],
+    "H": ["xH", "yH"],
+    "Afinal": ["6", "0"]
+  },
+  "movingPoints": {
+    "F": ["8-S3*s/2", "s/2"],
+    "E": ["8-S3*s/2-d/2", "s/2-S3*d/2"],
+    "N": ["8-S3*s/4", "-s/4"]
+  },
+  "curves": [
+    { "id": "parabolaPartI", "type": "parabola", "a": "aI", "b": "bI", "c": "cI" },
+    { "id": "parabolaQ1", "type": "parabola", "a": "aQ1", "b": "bQ1", "c": "cQ1" },
+    { "id": "parabolaQ2", "type": "parabola", "a": "aQ2", "b": "bQ2", "c": "cQ2" }
+  ],
+  "derivedIntersections": []
+}

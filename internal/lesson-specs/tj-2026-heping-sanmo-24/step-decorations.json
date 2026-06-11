@@ -1,0 +1,138 @@
+{
+  "_comment": "和平区 2026 三模第 24 题 — 旋转三角形与重叠面积。",
+  "layers": {
+    "global": {
+      "elements": [
+        { "type": "grid" },
+        { "type": "basePoly" },
+        { "type": "point", "at": "O", "showLabel": false },
+        { "type": "point", "at": "A", "dx": 12, "dy": 22 },
+        { "type": "point", "at": "B", "dx": 12, "dy": -12 }
+      ]
+    },
+    "movingContext": {
+      "sectionNot": "第（I）问",
+      "elements": [
+        { "type": "movingPoly" },
+        { "type": "overlap" },
+        { "type": "point", "at": "P", "color": "#0f766e", "dx": -28, "dy": 20 },
+        { "type": "point", "at": "Pp", "labelText": "P′", "color": "#0f766e", "dx": 12, "dy": -12 },
+        { "type": "segment", "from": "O", "to": "P", "label": "OP=t", "offsetPx": -22, "collinearGroup": true }
+      ]
+    },
+    "q1Intersections": {
+      "stepStartsWith": ["q1"],
+      "elements": [
+        { "type": "derivedPoint", "at": "C", "dx": -28, "dy": -8 },
+        { "type": "derivedPoint", "at": "D", "dx": 10, "dy": -14 },
+        { "type": "derivedPoint", "at": "E", "dx": 12, "dy": 18 }
+      ]
+    }
+  },
+  "steps": {
+    "i1s1": {
+      "add": [
+        { "type": "movingPoly" },
+        { "type": "point", "at": "P", "color": "#0f766e", "dx": -28, "dy": 20 },
+        { "type": "point", "at": "Pp", "labelText": "P′", "color": "#0f766e", "dx": 12, "dy": -12 },
+        { "type": "coloredLine", "from": "P", "to": "Pp" },
+        { "type": "segment", "from": "O", "to": "B", "label": "2√3", "offsetPx": 28, "collinearGroup": false },
+        { "type": "angleArc", "vertex": "P", "rayA": "O", "rayB": "B", "label": "30°", "radius": 30, "labelRadius": 42 },
+        { "type": "rightAngle", "vertex": "O", "rayA": "P", "rayB": "B" },
+        { "type": "coordinateLabel", "at": "P", "text": "P(−6,0)", "dx": -76, "dy": 30 }
+      ]
+    },
+    "i1s2": {
+      "add": [
+        { "type": "movingPoly" },
+        { "type": "point", "at": "P", "color": "#0f766e", "dx": -28, "dy": 20 },
+        { "type": "point", "at": "Pp", "labelText": "P′", "color": "#0f766e", "dx": 12, "dy": -12 },
+        { "type": "point", "at": "H", "color": "#0f766e", "dx": -28, "dy": -10 },
+        { "type": "dashedLine", "from": "O", "to": "H" },
+        { "type": "segment", "from": "P", "to": "Pp", "label": "PP′", "offsetPx": 24, "collinearGroup": false },
+        { "type": "angleArc", "vertex": "O", "rayA": "P", "rayB": "Pp", "label": "120°", "radius": 36, "labelRadius": 50 },
+        { "type": "angleArc", "vertex": "O", "rayA": "P", "rayB": "H", "label": "60°", "radius": 22, "labelRadius": 34 },
+        { "type": "rightAngle", "vertex": "H", "rayA": "P", "rayB": "O" }
+      ]
+    },
+    "q1s1": {
+      "add": [
+        { "type": "coloredLine", "from": "P", "to": "Pp" },
+        { "type": "segment", "from": "P", "to": "Pp", "label": "PP′=√3t", "offsetPx": 34, "collinearGroup": false },
+        { "type": "segment", "from": "P", "to": "C", "label": "PC=2√3t/3", "offsetPx": -30, "collinearGroup": false },
+        { "type": "segment", "from": "C", "to": "D", "label": "CD=BC", "offsetPx": 24, "collinearGroup": false },
+        { "type": "segment", "from": "B", "to": "C", "label": "BC", "offsetPx": 30, "collinearGroup": false },
+        { "type": "coloredLine", "from": "D", "to": "Pp" },
+        { "type": "angleArc", "vertex": "C", "rayA": "B", "rayB": "D", "label": "60°", "radius": 20, "labelRadius": 31 },
+        { "type": "angleArc", "vertex": "B", "rayA": "C", "rayB": "D", "label": "60°", "radius": 18, "labelRadius": 29 },
+        { "type": "angleArc", "vertex": "P", "rayA": "O", "rayB": "C", "label": "30°", "radius": 24, "labelRadius": 36 }
+      ]
+    },
+    "q1s2": {
+      "add": [
+        { "type": "coloredLine", "from": "O", "to": "C" },
+        { "type": "coloredLine", "from": "C", "to": "D" },
+        { "type": "coloredLine", "from": "D", "to": "E" },
+        { "type": "coloredLine", "from": "E", "to": "O" },
+        { "type": "coincidentLabel", "anchor": "E", "when": 3, "eps": 0.05, "text": "D=E", "dx": 10, "dy": -18 },
+        { "type": "coincidentLabel", "anchor": "B", "when": 6, "eps": 0.05, "text": "C=D=B", "dx": 16, "dy": -18 }
+      ]
+    },
+    "q2s1": {
+      "add": [
+        { "type": "areaLabel", "region": "overlap", "text": "S", "dx": 0, "dy": 0 }
+      ]
+    },
+    "q2s2": {
+      "add": [
+        { "type": "derivedPoint", "at": "C", "dx": -28, "dy": -8 },
+        { "type": "coloredLine", "from": "O", "to": "C" },
+        { "type": "dashedLine", "from": "Pp", "to": "C" },
+        { "type": "segment", "from": "O", "to": "C", "label": "√3t/3", "offsetPx": 26, "collinearGroup": false },
+        { "type": "areaLabel", "region": "overlap", "text": "S", "dx": 0, "dy": 0 },
+        { "type": "areaFormulaCard", "pos": [-6.2, 5.8], "terms": [
+          { "text": "S", "kind": "target" },
+          { "text": "=", "kind": "op" },
+          { "text": "△OCP′", "kind": "base" }
+        ] }
+      ]
+    },
+    "q2s3": {
+      "add": [
+        { "type": "derivedPoint", "at": "C", "dx": -28, "dy": -8 },
+        { "type": "derivedPoint", "at": "D", "dx": 10, "dy": -14 },
+        { "type": "derivedPoint", "at": "E", "dx": 12, "dy": 18 },
+        { "type": "coordinateLabel", "at": "E", "text": "E(3/2,3√3/2)", "dx": 14, "dy": 26 },
+        { "type": "outlineRegion", "vertices": ["O", "B", "E"] },
+        { "type": "cutRegion", "vertices": ["B", "C", "D"], "style": "subtracted", "centroidLabel": "−" },
+        { "type": "segment", "from": "B", "to": "C", "label": "√3(6−t)/3", "offsetPx": 30, "collinearGroup": false },
+        { "type": "areaLabel", "region": "overlap", "text": "S", "dx": 0, "dy": 0 },
+        { "type": "areaFormulaCard", "pos": [-6.2, 5.8], "terms": [
+          { "text": "S", "kind": "target" },
+          { "text": "=", "kind": "op" },
+          { "text": "△OBE", "kind": "base" },
+          { "text": "−", "kind": "op" },
+          { "text": "△BCD", "kind": "cut" }
+        ] }
+      ]
+    },
+    "q2s4": {
+      "add": [
+        { "type": "derivedPoint", "at": "E", "dx": 12, "dy": 18 },
+        { "type": "coordinateLabel", "at": "E", "text": "E(3/2,3√3/2)", "dx": 14, "dy": 26 },
+        { "type": "outlineRegion", "vertices": ["O", "B", "E"] },
+        { "type": "areaLabel", "region": "overlap", "text": "S", "dx": 0, "dy": 0 },
+        { "type": "areaFormulaCard", "pos": [-6.2, 5.8], "terms": [
+          { "text": "S", "kind": "target" },
+          { "text": "=", "kind": "op" },
+          { "text": "△OBE", "kind": "base" }
+        ] }
+      ]
+    },
+    "q2s5": {
+      "add": [
+        { "type": "areaLabel", "region": "overlap", "text": "S", "dx": 0, "dy": 0 }
+      ]
+    }
+  }
+}

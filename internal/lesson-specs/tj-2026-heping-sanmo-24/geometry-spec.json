@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "id": "tj-2026-heping-sanmo-24",
+  "domain": { "minX": -7.6, "maxX": 6.7, "minY": -0.8, "maxY": 6.4 },
+  "fixedPoints": {
+    "O": ["0", "0"],
+    "A": ["6", "0"],
+    "B": ["0", "2*S3"]
+  },
+  "movingParam": "t",
+  "movingPoints": {
+    "P": ["-t", "0"],
+    "Pp": ["t/2", "S3*t/2"],
+    "H": ["-t/4", "S3*t/4"]
+  },
+  "basePolygon": ["O", "A", "B"],
+  "movingPolygon": ["O", "P", "Pp"],
+  "derivedIntersections": [
+    { "name": "C", "a": ["O", "B"], "b": ["P", "Pp"], "fallback": ["0", "S3*t/3"] },
+    { "name": "D", "a": ["A", "B"], "b": ["P", "Pp"], "fallback": ["3-t/2", "S3*(6+t)/6"] },
+    { "name": "E", "a": ["A", "B"], "b": ["O", "Pp"], "fallback": ["3/2", "3*S3/2"] }
+  ],
+  "originalFigures": [
+    {
+      "id": "originalFigure1",
+      "t": 6,
+      "showMoving": true,
+      "showOverlap": false,
+      "showIntersections": false,
+      "fixedLabels": [
+        { "at": "A", "label": "A", "dx": 12, "dy": 22 },
+        { "at": "B", "label": "B", "dx": 12, "dy": -12 }
+      ],
+      "movingLabels": [
+        { "at": "P", "label": "P", "dx": -28, "dy": 20 },
+        { "at": "Pp", "label": "P′", "dx": 12, "dy": -12 }
+      ]
+    },
+    {
+      "id": "originalFigure2",
+      "t": 4.5,
+      "showMoving": true,
+      "showOverlap": true,
+      "showIntersections": true,
+      "fixedLabels": [
+        { "at": "A", "label": "A", "dx": 12, "dy": 22 },
+        { "at": "B", "label": "B", "dx": 12, "dy": -12 }
+      ],
+      "movingLabels": [
+        { "at": "P", "label": "P", "dx": -28, "dy": 20 },
+        { "at": "Pp", "label": "P′", "dx": 12, "dy": -12 }
+      ],
+      "intersectionLabels": [
+        { "at": "C", "label": "C", "dx": -28, "dy": -8 },
+        { "at": "D", "label": "D", "dx": 10, "dy": -14 },
+        { "at": "E", "label": "E", "dx": 12, "dy": 18 }
+      ]
+    }
+  ]
+}

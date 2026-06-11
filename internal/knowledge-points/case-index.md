@@ -14,6 +14,7 @@
 | `tj-2026-nankai-yimo-25` | 25 | `EG+FG`，先证 `EG=DG`，再对称拉直 | `right-triangle-congruence-coordinate`, `isosceles-right-triangle-transform`, `horse-drinking` |
 | `tj-2026-nankai-sanmo-25` | 25 | `△EFG` 周长，固定 `G` 反射拉直后转为 `√2·DG`，再由 `DG⊥NQ` 求最小并反求 `m` | `known-root-factorization`, `coefficient-from-point-on-parabola`, `coordinate-distance-pythagorean`, `horse-drinking` |
 | `tj-2026-heping-yimo-25` | 25 | `OM+BN`，由等长构造把 `BN` 转化后求最小 | `coefficient-from-point-on-parabola`, `tangent-definition-in-right-triangle`, `horse-drinking` |
+| `tj-2026-heping-sanmo-25` | 25 | `PE+EF+√3/2·FA′`，平移 `P` 并构造 30° 直角三角形吸收权重，再拉直求最小值反求 `a` | `tangent-definition-in-right-triangle`, `coefficient-from-point-on-parabola`, `weighted-path-segment-transform`, `horse-drinking` |
 | `tj-2026-xiqing-yimo-25` | 25 | `2DM+AM` 含权重路径，30° 构造吸收权重后拉直 | `known-root-factorization`, `coefficient-from-point-on-parabola`, `weighted-path-segment-transform`, `horse-drinking` |
 | `tj-2026-hedong-yimo-25` | 25 | `AG+GH+FH`，等腰直角与对称构造得到最短路 | `known-root-factorization`, `right-triangle-congruence-coordinate`, `isosceles-right-triangle-transform`, `horse-drinking` |
 | `tj-2026-beichen-yimo-25` | 25 | `2AH+√2BH`，构造等腰直角三角形把权重转为折线，再用垂线段最短 | `coefficient-from-point-on-parabola`, `known-root-factorization`, `rotation-by-congruence`, `isosceles-right-triangle-transform`, `weighted-path-segment-transform`, `horse-drinking` |
@@ -66,6 +67,7 @@
 | problem-id | 题位 | pattern 补充 | 使用的 methods |
 |---|---|---|---|
 | `tj-2026-nankai-yimo-24` | 24 | 三角形旋转后求线段、范围与重叠面积 | `rotation-overlap-area`, `area-piecewise-by-overlap` |
+| `tj-2026-heping-sanmo-24` | 24 | 线段 `OP` 绕 `O` 旋转 `120°`，四边形阶段求 `DP′`，再分段判断 `√3/2≤S≤3√3/2` 的 `t` 范围 | `rotation-overlap-area`, `area-piecewise-by-overlap` |
 
 ### parameter-range-inequality
 
@@ -101,6 +103,7 @@
 | `tj-2026-hexi-ermo-25` | 25 | 第（Ⅲ）问 | 由最短路确定 `F(7/3,1)` 后，代入 `y=a(x+1)(x-3)` 求 `a=-9/20` |
 | `tj-2026-binhai-yimo-25` | 25 | 第（2）问 | 由 `A`、`D` 等点在抛物线上化简并求 `b` |
 | `tj-2026-heping-yimo-25` | 25 | 第（Ⅰ）①、第（Ⅱ）问 | 由 `A`、`D` 在抛物线上求解析式，再由最值反求 `a` |
+| `tj-2026-heping-sanmo-25` | 25 | 第（Ⅱ）①② | 由 `M(5,√3)` 在抛物线上求 `a,c`；由 `A(r,0)` 在抛物线上建立 `r=4−1/(a√3)` 并反求 `a` |
 | `tj-2026-xiqing-yimo-25` | 25 | 第（2）①② | 由 `A(-1,0)` 在抛物线上化简，再由线段关系和最值反求 `b` |
 | `bj-2026-haidian-yimo-26` | 26 | 第（1）问 | 由抛物线过 `O` 与 `(2,0)` 求 `c` 和 `b` |
 | `tj-2026-beichen-yimo-25` | 25 | 第（Ⅰ）问、第（Ⅱ）问 | 代入 `A(-2,0)` 求解析式，再把旋转后的 `Q` 代入抛物线求 `P` |
@@ -162,6 +165,7 @@
 | problem-id | 题位 | 涉及步骤 | 摘要 |
 |---|---|---|---|
 | `tj-2026-xiqing-yimo-25` | 25 | 第（2）② | 将 `2DM+AM` 改写为 `2(DM+1/2 AM)`，构造 30° 直角三角形吸收权重 |
+| `tj-2026-heping-sanmo-25` | 25 | 第（Ⅱ）② | 将 `PE` 平移为 `P₁F`，再构造 30° 直角三角形把 `√3/2·FA′` 转为 `FN` |
 | `tj-2026-beichen-yimo-25` | 25 | 第（Ⅲ）问 | 将 `2AH+√2BH` 转化为 `2(AH+HR)`，再研究折线 `A-H-R` |
 
 ### horse-drinking
@@ -173,6 +177,7 @@
 | `tj-2026-nankai-yimo-25` | 25 | 第（Ⅱ）①④、第（Ⅱ）② | 先转化 `EG=DG`，再用对称点 `D′` 拉直求 `EG+FG` 最小 |
 | `tj-2026-nankai-sanmo-25` | 25 | 第（Ⅱ）问 | 固定 `G` 时反射拉直得周长最小值 `G₁G₂`，再移动 `G`，由 `G₁G₂=√2·DG` 与 `DG⊥NQ` 求最小周长 |
 | `tj-2026-heping-yimo-25` | 25 | 第（Ⅱ）问 | 把 `BN` 转化为等长线段，`O,M,G` 共线时取最小 |
+| `tj-2026-heping-sanmo-25` | 25 | 第（Ⅱ）② | `P₁F+FN` 拉直为 `P₁N`，再由 `N` 在固定射线上运动，用垂线段最短得到 `10−r/4` |
 | `tj-2026-xiqing-yimo-25` | 25 | 第（2）② | 权重转化后看折线 `D-M-N`，三点共线取最小 |
 | `tj-2026-hedong-yimo-25` | 25 | 第（Ⅱ）② | 通过对称/构造把多段路径转成直线最短 |
 | `tj-2026-beichen-yimo-25` | 25 | 第（Ⅲ）问 | 折线 `A-H-R` 拉直后，转为点 `A` 到定直线 `ℓ` 的垂线段最短 |
@@ -205,6 +210,7 @@
 | problem-id | 题位 | 涉及步骤 | 摘要 |
 |---|---|---|---|
 | `tj-2026-heping-yimo-25` | 25 | 第（Ⅰ）② | 由 `∠CBE+∠ACO=45°` 转化角度，在直角三角形中用 tan 定义求点 |
+| `tj-2026-heping-sanmo-25` | 25 | 第（Ⅱ）①② | 在 `Rt△OA′C′` 与 `Rt△AOC` 中用 `tan30°` 读出 `C′` 和 `c=r/√3` |
 
 ### translation-overlap-area
 
@@ -230,6 +236,7 @@
 | problem-id | 题位 | 涉及步骤 | 摘要 |
 |---|---|---|---|
 | `tj-2026-nankai-yimo-24` | 24 | 第（II）①② | 三角形旋转后求关键线段、参数范围和重叠面积 |
+| `tj-2026-heping-sanmo-24` | 24 | 第（I）问、第（II）①② | 由 `120°` 旋转得到 `30°` 底角，求 `P`、`PP′`、四边形阶段的 `DP′` 和重叠面积分段 |
 
 ### area-piecewise-by-overlap
 
@@ -245,6 +252,7 @@
 | `tj-2026-nankai-ermo-24` | 24 | 第（II）② | 折叠四边形重叠面积范围 |
 | `tj-2026-nankai-sanmo-24` | 24 | 第（II）② | 按 `4<t≤6`、`6<t<8`、`8≤t<10` 分段，四边形给严格下界，五边形公式给最大值 |
 | `tj-2026-nankai-yimo-24` | 24 | 第（II）② | 旋转三角形重叠面积范围 |
+| `tj-2026-heping-sanmo-24` | 24 | 第（II）② | 按 `0≤t≤3`、`3<t<6`、`t≥6` 分段，第一段解下界 `t=√6`，后两段全部满足 |
 
 ### parameter-range-by-sign-and-order
 
