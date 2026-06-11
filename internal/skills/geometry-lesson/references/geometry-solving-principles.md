@@ -13,6 +13,7 @@ This file expands the `SKILL.md` Per-Problem Checklist into concrete teaching ru
 - Step titles must name the specific target object or quantity, such as `由边长判断 △G′F′H′ 为等边三角形` instead of `由边长判断等边三角形`.
 - When two adjacent steps use the same method on different objects, the title must distinguish the objects, such as `判断 △G′F′H′` versus `判断 △G′MN`.
 - Navigation labels may be shorter than full step titles, but they still need an action and object, such as `判等边△G′MN` or `求△G′MN面积`; avoid labels like `判G′MN` or `左侧范围` that require guessing.
+- When consecutive navigation labels describe parallel roles, keep their grammar parallel. For example, use `三角形段求范围`, `四边形段求范围`, `固定三角形求面积` instead of mixing `判断...`, `求...`, and `计算...` without a teaching reason.
 - Use a title like `参数状态 + 方法 + 目标` only when the step is explicitly about a special parameter value, boundary state, or case split.
 - If a boundary/extremum snapshot matters because of an exact parameter value, include that value in the step title or conclusion box, such as `由左端三角形求 S（t=√3/2）`.
 - For area-range boundary calculations, name the side and target directly, such as `由左侧边界求最小值` or `由右侧边界求最小值`. Prefer this over a title that only names the substituted parameter value, unless the substitution itself is the learning goal.
@@ -41,6 +42,8 @@ This file expands the `SKILL.md` Per-Problem Checklist into concrete teaching ru
 - When the target is a difference of visible pieces, derive and display the pieces before subtracting. For example, show `AN` and `AG` before `GN=AN-AG`, or construct `K` and show `DK` before `E′D=E′K-DK`.
 - A student-friendly route usually has this shape: identify one familiar local figure, derive one or two key lengths or angles, then finish with a short calculation. A less student-friendly route often introduces line equations, solves an intersection, and only afterward interprets the result geometrically.
 - Use analytic coordinate work as the main route only when no visible standard shape, equal-angle relation, parallel cut, similarity, or simple length difference gives the target with less symbolic load.
+- Do not create a standalone coordinate/intersection step if those coordinates are not the shortest bridge to the target. Merge or delete the step and solve from visible segment relations when possible.
+- For a target segment on a known line, first test whether it is `whole segment - known pieces`. Derive the pieces from rotation, standard triangles, or prior conclusions before introducing coordinates.
 - Split any sentence with multiple reasoning jumps.
 - Avoid `显然`, `容易得到`, `同理可得`, and vague phrases such as `代入折叠关系`.
 - Use mathematical notation for calculations and formulas, but use classroom language for boundary states and positional descriptions.
@@ -63,6 +66,7 @@ This file expands the `SKILL.md` Per-Problem Checklist into concrete teaching ru
 
 - For rotation-generated moving triangles, do not introduce full coordinates for every moving vertex by default.
 - If the target is a segment length, range, or overlap shape, first try rotation angles, right triangles, similar triangles, and line-segment differences.
+- For rotation-generated triangles, when the target endpoint lies on a rotated side or a line cut by that side, try `rotated side length - subsegments` plus equilateral or 30°-60°-90° triangles before solving the moving point coordinates.
 - If a local coordinate calculation makes one helper length clearer, compute only the needed nearby point or segment, then return to geometric reasoning.
 - Avoid setting up a full coordinate system for the whole moving figure when only one local segment such as `ME` is needed.
 
@@ -106,6 +110,7 @@ This file expands the `SKILL.md` Per-Problem Checklist into concrete teaching ru
 - If a standard boundary shape needs one side, height, or included angle, add the construction point, extension, or perpendicular that reveals it before computing the area.
 - When the removed or retained region is a standard triangle, prefer deriving its height, side, or familiar area formula over deriving an intermediate base length that is not needed later.
 - If a cut-off triangle is similar to or nested inside an equilateral triangle, consider using `面积 = 高²/√3 = √3·高²/3` after clearly proving the triangle is equilateral.
+- If a cut-off triangle has already been proved equilateral, use `面积 = √3/4 × 边长²` directly from its side length instead of recomputing a base-height pair from coordinates.
 - For symmetric left/right cut-off regions, reuse the same student-friendly structure on both sides when possible: prove the cut-off triangle is standard, find its height from a coordinate distance, then compute area.
 - For piecewise overlap-area problems, create one trend/classification step before formula steps. Use `references/piecewise-area-trends.md` for detailed phase and thumbnail rules.
 - After the trend/classification step, use monotonicity to identify the only candidate values that can produce the maximum or minimum before doing detailed area calculations. Then calculate only those candidate values whenever possible, instead of deriving and evaluating every full interval formula.
@@ -118,6 +123,7 @@ This file expands the `SKILL.md` Per-Problem Checklist into concrete teaching ru
 - If an area decomposition names vertices in its formula card, label those vertices on the diagram unless the point is already clearly labeled by a parent layer. Missing labels on formula vertices make the decomposition hard to inspect.
 - When a cut length is obtained by an auxiliary perpendicular or projection, draw that auxiliary line in the step diagram and name the foot/intersection. For example, if `F′R` is found by `CK⊥E′F′`, show `CK`, `K`, and the small right triangle that gives `RK=CK`.
 - Reuse earlier lengths in later area steps; later steps should feel like calling prior conclusions, not restarting the problem.
+- If a later area step needs a length already derived in a previous step, cite the prior result directly and continue. Do not recompute it from point coordinates or point-to-axis distances unless the recomputation is the lesson point.
 - When a later overlap shape sits near a known vertex and a previous segment is available, prefer decompositions that reuse known segments.
 - Do not introduce helper area formulas such as `S△PHG=...` or a whole-stage expression such as `S=...` without deriving the needed base, height, included angle, or decomposition immediately before it. If a cut length such as `F′R` is used, show the short chain that obtains it before using it in an area formula.
 - If the target area is `S`, keep `S` as the target throughout the problem. Helper shapes are calculation aids, not new target regions.
@@ -152,6 +158,7 @@ This file expands the `SKILL.md` Per-Problem Checklist into concrete teaching ru
 - Prefer moving secondary conclusions to `lesson-data.steps[].box` or the derivation panel before making the diagram dense. Do not rely on conclusion boxes to carry the one visual quantity students must inspect.
 - If a geometry vertex `O` is also the coordinate origin and the grid already shows origin label `O`, do not label the same point twice. Use `showLabel:false` for the point decoration or omit `O` from original-figure `fixedLabels`.
 - Avoid coordinate labels on diagrams unless coordinates are the current object being calculated. If a coordinate is only a shortcut for a length that can be found geometrically, remove the coordinate label and show the relevant segment, angle, or right-triangle marker instead.
+- Label a fixed point's coordinate only when that point defines the current formula's container, base, or height. Remove coordinate labels for helper points whose coordinates were deliberately avoided in the solution path.
 - Put current-step conclusions in `lesson-data.steps[].box`.
 - Choose box contents by dependency, not recency: show prior conclusions the current derivation actually uses plus the new conclusion.
 - If a reused conclusion has strong spatial meaning, such as a segment length actively used in the step, it may also appear on the diagram.
