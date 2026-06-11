@@ -290,6 +290,36 @@ def test_hexi_weighted_transform_companion_outputs_are_registered(monkeypatch: p
     assert "$step.transform_iii_weighted_path.temp.auxiliary_locus" in transform_plan.promote_outputs
 
 
+def test_hexi_weighted_transform_path_transformation_alias_survives_auxiliary_point(monkeypatch: pytest.MonkeyPatch) -> None:
+    """weighted 转化同时 produces 辅助点和 PathTransformation 时，后续仍能读取转化 fact。"""
+    from shuxueshuo_server.solver.runtime.hexi_weighted_path_planner import (
+        Hexi25WeightedPathPlannerV15,
+    )
+
+    monkeypatch.setattr(
+        Hexi25WeightedPathPlannerV15,
+        "plan",
+        lambda self, inputs: (_ for _ in ()).throw(AssertionError("deterministic Hexi planner must not run")),
+    )
+    payload = _hexi_payload_with_explicit_auxiliary_point_and_path_transformation()
+    result, captured = _solve_hexi_from_step_intent_payload(payload)
+
+    assert result.status == "ok", result.errors
+    assert result.answers == {
+        "i": {"P": ["1", "2"]},
+        "ii": {"D": ["sqrt(2)", "1"]},
+        "iii": {"b": "2"},
+    }
+    transform_plan = next(
+        step
+        for step in captured["planner_output"].step_plans
+        if step.step_id == "transform_iii_weighted_path"
+    )
+    assert transform_plan.promote_outputs[
+        "$step.transform_iii_weighted_path.temp.path_transformation"
+    ] == "$question.iii.outputs.path_transformation"
+
+
 @pytest.mark.skipif(
     not RUN_DEEPSEEK_HEXI_STRATEGY_PLANNER,
     reason="DeepSeek strategy planner integration is opt-in",
@@ -507,6 +537,31 @@ def _hexi_payload_without_explicit_auxiliary_locus() -> dict:
                     for handle in step["reads"]
                     if handle != "fact:iii:auxiliary_locus"
                 ]
+    return payload
+
+
+def _hexi_payload_with_explicit_auxiliary_point_and_path_transformation() -> dict:
+    """构造 Attempt-1 形态：同一 transform step 同时输出辅助点和路径转化。"""
+    payload = deepcopy(_hexi_payload_without_explicit_auxiliary_locus())
+    for scope in payload["scopes"]:
+        if scope["scope_id"] != "iii":
+            continue
+        for step in scope["steps"]:
+            if step["step_id"] != "transform_iii_weighted_path":
+                continue
+            if not any(
+                produced["handle"] == "fact:iii:Aux_coordinate_expr"
+                for produced in step["produces"]
+            ):
+                step["produces"].insert(
+                    0,
+                    {
+                        "handle": "fact:iii:Aux_coordinate_expr",
+                        "valid_scope": "iii",
+                        "description": "辅助点 Aux 坐标表达式",
+                        "output_type": "Point",
+                    },
+                )
     return payload
 
 

@@ -5409,6 +5409,36 @@ def test_output_key_mapping_prefers_structured_minimum_expression_fact_handle() 
     )
 
 
+def test_output_key_mapping_prefers_structured_path_transformation_fact_handle() -> None:
+    """weighted transform 同时产出点和转化时，PathTransformation fact 应映射正确 output。"""
+    index = CanonicalRuntimeBindingIndex.from_context(
+        _runtime_context(),
+        handle_registry=_registry(),
+        question_goals=_question_goals(),
+    )
+    promote = {
+        "$step.transform_path.temp.auxiliary_point": "$question.ii.points.Aux",
+        "$step.transform_path.temp.path_transformation": "$question.ii.outputs.path_transformation",
+        "$step.transform_path.temp.auxiliary_locus": "$question.ii.outputs.auxiliary_locus",
+    }
+
+    assert (
+        _output_key_from_promote_source(
+            "transform_path",
+            ProducedFact(
+                handle="fact:ii:path_transformation",
+                valid_scope="ii",
+                description="等价路径转化方案",
+                output_type="PathTransformation",
+            ),
+            "weighted_axis_path_triangle_transform",
+            promote,
+            index,
+        )
+        == "path_transformation"
+    )
+
+
 def test_recipe_execution_registry_is_built_from_family_spec() -> None:
     """Recipe 执行 registry 应从 FamilySpec 派生，不再依赖 runtime default 表。"""
     registry = RecipeExecutionSpecRegistry.from_family_spec(_nankai_inputs().family_spec)

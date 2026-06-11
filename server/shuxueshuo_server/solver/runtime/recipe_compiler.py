@@ -2232,6 +2232,8 @@ def _structured_output_key_from_produced(
         return _first_candidate(candidates, "candidates", "filtered_candidates")
     if output_type == "Line":
         return _first_candidate(candidates, semantic_name, "auxiliary_locus", "line")
+    if output_type == "PathTransformation":
+        return _first_candidate(candidates, semantic_name, "path_transformation")
     return None
 
 def _answer_semantic_name(handle: str) -> str:
