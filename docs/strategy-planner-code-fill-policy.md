@@ -257,14 +257,14 @@ LLM 输出：
 
 重构目标应是“各层接口更清楚、规则可注册”，不是把所有容错都集中到一个地方。
 
-## Test Plan
+## Regression Requirements
 
 - 单元测试覆盖：显式 reads、唯一可见补位、父级可见、sibling 不可见、多候选歧义、结构化类型优先、description fallback 不覆盖结构化类型。
 - 固定 attempt 测试覆盖：LLM 漏读 `B_coordinate` 时，line-parabola / angle-equality method 都能补位。
 - recorded E2E 覆盖：补位发生后仍由 RuntimeOrchestrator 执行并通过 expected answers。
 - 真实 DeepSeek opt-in：观察 retry 数是否减少，但不把 attempt 数作为硬门槛。
 
-## Assumptions
+## Boundaries
 
 - canonical Entity/Fact handle 命名规范是补位的基础。
 - 补位逻辑属于执行层确定性增强，不改变 StepIntent schema。

@@ -1,4 +1,4 @@
-# 动态 Few-shot Strategy Planner 方案
+# 动态 Few-shot Strategy Planner 当前方案
 
 ## Summary
 
@@ -39,14 +39,14 @@ question_goals
 
 V1 的 retrieval 只包含 `goal_types`，该字段由同步工具从 `example.scopes[].steps[].goal_type` 去重生成。如果未来需要更强检索，可以基于 `original_text` 做向量搜索，或由同步工具从 canonical ProblemIR 生成独立索引，而不是把大量检索元数据塞进 few-shot JSON。
 
-## Key Changes
+## Current Implementation
 
 - **目录与数据定位**
-  - 新增与 `internal/method-specs/` 同层的 few-shot 目录，建议路径为 `internal/few-shots/`。
+  - few-shot 目录为 `internal/few-shots/`，与 `internal/method-specs/` 同层。
   - few-shot 文件名与 solver fixture 命名保持一致，格式为 `<problem_id>.few-shot.json`，例如 `tj-2026-nankai-yimo-25.few-shot.json`。
   - `internal/few-shots/` 是题库的 Strategy Planner 投射层，不是人工临时 prompt 示例库。
   - 每新增一道经过验证的题目，题库中的 canonical ProblemIR 与 executable StepIntent 应同步投射到该目录。
-  - 未来新增内部同步工具，例如 `tools/sync_strategy_few_shots.py`，从题库/solver golden 中生成 few-shot 条目。
+  - 同步工具为 `tools/sync_strategy_few_shots.py`，从 canonical ProblemIR 与 solver executable StepIntent 生成 few-shot 条目。
   - Strategy prompt 只读取 `internal/few-shots/` 中已生成、已验证的条目；不要直接扫描 `internal/solver-fixtures/` 作为长期方案。
 
 - **Few-shot 来源**
@@ -156,7 +156,7 @@ V1 的 retrieval 只包含 `goal_types`，该字段由同步工具从 `example.s
 - `example.scopes[].steps[].reads / creates / produces` 使用 canonical Entity/Fact/Answer handle，帮助 LLM 学习规范引用。
 - `original_text` 连接未来文本检索和向量检索。
 
-## Test Plan
+## Regression Requirements
 
 - **同步目录测试**
   - `internal/few-shots/` 中的条目能被轻量 validator 校验。
@@ -182,7 +182,7 @@ V1 的 retrieval 只包含 `goal_types`，该字段由同步工具从 `example.s
     cd server && uv run pytest tests/solver -q
     ```
 
-## Assumptions
+## Boundaries
 
 - 已验证 executable StepIntent fixture 是 few-shot 的唯一可信步骤来源。
 - `internal/few-shots/` 是题库投射结果，不是新的题目事实源；题目事实仍来自 canonical ProblemIR。

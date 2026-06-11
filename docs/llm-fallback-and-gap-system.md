@@ -2,9 +2,9 @@
 
 ## Summary
 
-用户会用系统自助生成题目网页，因此 family/method 不足时不能直接让服务不可用。在线链路应优先使用 Method Solver 生成 verified solution；如果 family 未命中、method 缺失、binding 不足或执行失败，则降级到 LLM fallback，先产出可用于网页生成的未验证解题步骤，同时记录结构化 gap 日志，供离线补 FamilySpec、MethodSpec、PlanningSignal 或 ProblemIR 抽取。
+用户会用系统自助生成题目网页，因此 family/method 不足时不能直接让服务不可用。在线链路应优先使用 Method Solver 生成 verified solution；如果 family 未命中、method 缺失、binding 不足或执行失败，则降级到 LLM fallback，先产出可用于网页生成的未验证解题步骤，同时记录结构化 gap 日志，供离线补 ProblemIR、FamilySpec、MethodSpec、recipe、binding 或 normalizer。
 
-Fallback Solver 与 Method Solver Planner 是两条独立链路：Planner 未来会走
+Fallback Solver 与当前 Strategy Planner 是两条独立链路：Strategy Planner 已走
 `StepIntent -> method/binding trial -> Executor`；Fallback 绕过 method executor，
 由 LLM 直接生成结构化答案和步骤。两者共享 provider/config/CLI 基础设施，但后续实现和验收应独立推进。
 
@@ -218,8 +218,8 @@ server/logs/solver-gaps/YYYY-MM-DD.gaps.jsonl
 ```text
 1. 收集 gaps.jsonl / SolveSession / fallback outputs
 2. 按 family_id、gap_type、missing_capability、relation pattern 聚类
-3. 判断是新增 FamilySpec、补 MethodSpec、补 PlanningSignal、扩展 method 输入，还是 ProblemIR 抽取缺失
-4. 新增 method/spec/test 或 family spec
+3. 判断是 ProblemIR 抽取缺失、FamilySpec 缺策略/recipe、MethodSpec 缺能力、binding rule 不足、normalizer 可补位，还是 prompt/few-shot 引导不足
+4. 新增或扩展 method/spec/test、recipe/binding/normalizer，或更新 family spec
 5. 将失败题加入 fixture + expected
 6. 回归跑 solver，减少下一轮 fallback
 ```

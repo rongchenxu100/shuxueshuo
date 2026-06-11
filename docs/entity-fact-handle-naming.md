@@ -576,11 +576,16 @@ Resolver / Validator 应执行以下检查：
 
 ## 与 ProblemIR 的关系
 
-ProblemIR schema 直接显式保存以下内容：
+Canonical ProblemIR schema 直接显式保存以下内容：
 
-- `data.entities.items[]`：Entity 一等表，保存点、线、线段、函数、参数等 canonical Entity。
-- `data.facts[]`：Fact 一等表，保存题设关系、约束、点在线上、点在曲线上、等长、垂直、长度条件、坐标、参数值、函数解析式等 canonical Fact。
+- `entities[]`：Entity 一等表，保存点、线、线段、函数、参数等 canonical Entity。
+- `facts[]`：Fact 一等表，保存题设关系、约束、点在线上、点在曲线上、等长、垂直、长度条件、题设给定值等 canonical Fact。
 - QuestionGoal：最终作答目标。
 - Scope tree：整题、大问、小问的层级。
 
-当前 runtime 仍保留 `data.entities.points`、`data.relations`、`data.function` 等字段供既有 ContextBuilder 和 deterministic planner 读取；但 LLM Planner / SemanticInventoryBuilder 应优先使用 `data.entities.items[]` 和 `data.facts[]` 作为 canonical handle 事实源。若 canonical 表与旧字段冲突，应视为 ProblemIR 抽取错误，而不是让 Resolver 做模糊猜测。
+RuntimeProjection 从这份 canonical ProblemIR 派生两类视图：
+
+- runtime-compatible view：供 `ContextBuilder` 构建 `RuntimeContext`；
+- LLM payload view：供 Strategy prompt 使用，只包含 canonical handles。
+
+fixture 不再手写旧 runtime 兼容字段，也不维护单独 `.llm.json`。若 canonical ProblemIR 与 runtime/LLM projection 表达冲突，应视为 ProblemIR 抽取或 projection 错误，而不是让 Resolver 做模糊猜测。
