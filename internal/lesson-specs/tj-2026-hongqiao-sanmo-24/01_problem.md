@@ -2,9 +2,9 @@
 
 ## 基本信息
 - 题号：24
-- 来源：天津数学 24 题专题训练
+- 来源：2026 年天津市红桥区三模数学
 - 题型：平面直角坐标系中的图形平移与重叠面积
-- problem-id：tj-topic-training-24-rhombus-triangle-translation
+- problem-id：tj-2026-hongqiao-sanmo-24
 
 ## 题目原文
 

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "id": "tj-topic-training-24-rhombus-triangle-translation",
+  "id": "tj-2026-hongqiao-sanmo-24",
   "domain": { "minX": -2.25, "maxX": 4.9, "minY": -0.55, "maxY": 2.55 },
   "fixedPoints": {
     "O": ["0", "0"],
