@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "id": "tj-2026-hongqiao-sanmo-25",
+  "domain": { "minX": -3.5, "maxX": 7.2, "minY": -11, "maxY": 5.2 },
+  "movingParam": "u",
+  "expressionEnv": [
+    { "name": "aI", "expr": "1" },
+    { "name": "bI", "expr": "-4" },
+    { "name": "cI", "expr": "-5" },
+    { "name": "a", "expr": "7/5" },
+    { "name": "b", "expr": "-4*a" },
+    { "name": "c", "expr": "-5*a" },
+    { "name": "uOpt", "expr": "-3" }
+  ],
+  "fixedPoints": {
+    "O": ["0", "0"],
+    "A": ["-1", "0"],
+    "B": ["5", "0"],
+    "C1": ["0", "-5"],
+    "D1": ["4", "-5"],
+    "P": ["2", "-9"],
+    "E1": ["-3", "-8"],
+    "M1": ["1", "-8"],
+    "C": ["0", "c"],
+    "B1": ["6", "c"],
+    "T": ["6", "0"],
+    "AxisTop": ["2", "5"],
+    "AxisBottom": ["2", "-11"]
+  },
+  "movingPoints": {
+    "F": ["2", "u"],
+    "G": ["1", "u-c"]
+  },
+  "curves": [
+    { "id": "parabolaPartI", "type": "parabola", "a": "aI", "b": "bI", "c": "cI" },
+    { "id": "parabolaPartII", "type": "parabola", "a": "a", "b": "b", "c": "c" }
+  ],
+  "derivedIntersections": []
+}

@@ -130,6 +130,7 @@ For geometry-heavy quadratic综合题, prefer a visible geometric derivation bef
 
 - When a square or rotated side determines a point such as `G`, avoid saying only "rotate 90° to get coordinates". First draw the needed perpendicular foot, prove the right-triangle congruence, and then read the horizontal and vertical distances.
 - Every coordinate expression like `G(x(t), y0)` must explain the source of each coordinate separately: the horizontal part from an equal segment or distance, and the vertical part from a fixed line, foot, or trajectory.
+- When a parallelogram determines a moving point such as `G`, do not present a vector formula in student-facing text. Read the same horizontal and vertical changes from one side of the parallelogram and apply them to the adjacent vertex, then state the trajectory of `G`.
 - Avoid introducing a new auxiliary variable merely to shorten arithmetic when the original expressions are readable. Keep the problem's own parameters visible unless the substitution reveals a real structure.
 - If a conclusion uses a midpoint or a shortest-position collinearity, state why the chosen point is the midpoint or intersection before using its coordinate.
 - Reuse prior conclusions through reference components in `lesson-data.json` instead of repeating a full derivation block.
@@ -137,6 +138,7 @@ For geometry-heavy quadratic综合题, prefer a visible geometric derivation bef
 - If a path-minimum conclusion can be reduced to one decisive segment such as `√2·DG`, compute from that segment directly. Do not derive unused optimal-point coordinates or side lengths merely because they are available.
 - For two-moving-point distance sums and shortest-path coordinate computation, use `references/quadratic-solving-principles.md` §Double-Moving Point To Single-Moving Point Path.
 - For weighted or double-moving path sums, make the conversion step explicit in the step title and derivation: construct the parallelogram/translation that turns one moving segment into a segment from a fixed or linked point, construct the special right triangle that absorbs the weight, and state that the two-moving-point problem has become a one-moving-point broken path.
+- For a path such as `BF+BG`, first construct a parallelogram to replace `BG` by a segment ending at the same moving point, then use symmetry/reflection to replace the other segment if available, and only then apply the broken-line or 将军饮马 inequality.
 - Mark fixed distances as fixed before optimizing. For example, when `EF` is the distance between two parallel lines, state that it is independent of the moving point before rewriting the target expression.
 - Do not over-explain coordinates inside the optimization step if a prior step already established them. Move reusable point coordinates such as `P(r/2,√3r/2)` into an earlier setup step, then cite them compactly during the shortest-path computation.
 
@@ -164,6 +166,7 @@ Use review-friendly visual discipline:
 - Local zoom should focus on the active construction while preserving necessary context such as the moving point trajectory. Do not leave large empty regions when a tighter domain would make the construction clearer.
 - Split steps when two different ideas are being taught, such as "derive G's trajectory" and "apply reflection shortest path". Each idea may have its own local control if dragging helps the student see it.
 - For a fixed-point reflection step, use local controls for the points that are genuinely moving in that fixed state. For a later step where the fixed point itself moves, switch the local control to that point and keep dependent points linked or hidden if they are no longer the focus.
+- For linked moving points, a dual local-control display is useful only when it makes the dependency visible. Label the controlling point and the linked point consistently, and state in the derivation that the second point moves with the first rather than being an independent variable.
 - When a coordinate formula is derived from a distance, show the corresponding auxiliary segment or projection in the diagram, for example a horizontal distance from `A` to the projection of `G`.
 - Keep navigation labels synchronized with step titles and make them method-based, e.g. `中线中位线转线段`, `推导G轨迹`, `将军饮马求最小值`.
 - If a step computes a perpendicular distance without using a distance formula, draw the small right-triangle decomposition used by middle-school geometry. Add auxiliary points such as `J,K` only when they make the length computation visible; remove whole-length labels that duplicate the derivation when component lengths are clearer.
