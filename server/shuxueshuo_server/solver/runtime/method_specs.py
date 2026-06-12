@@ -13,7 +13,11 @@ import json
 from pathlib import Path
 from typing import Any
 
-from shuxueshuo_server.solver.contracts import MethodInputSpec, MethodSpec
+from shuxueshuo_server.solver.contracts import (
+    MethodExplanationSpec,
+    MethodInputSpec,
+    MethodSpec,
+)
 
 
 class MethodSpecRegistry:
@@ -101,6 +105,7 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
         postconditions=tuple(str(item) for item in raw.get("postconditions", [])),
         trace_template=tuple(str(item) for item in raw.get("trace_template", [])),
         repair_hints=_parse_repair_hints(raw.get("repair_hints", [])),
+        explanation=_parse_explanation(raw.get("explanation")),
     )
 
 
@@ -160,6 +165,25 @@ def _parse_repair_hints(raw_hints: object) -> tuple[dict[str, Any], ...]:
             raise ValueError("MethodSpec.repair_hints items must be objects")
         hints.append(dict(raw))
     return tuple(hints)
+
+
+def _parse_explanation(raw: object) -> MethodExplanationSpec | None:
+    if raw in (None, ()):
+        return None
+    if not isinstance(raw, dict):
+        raise ValueError("MethodSpec.explanation must be an object")
+    role_schema = raw.get("role_schema", {})
+    if not isinstance(role_schema, dict):
+        raise ValueError("MethodSpec.explanation.role_schema must be an object")
+    return MethodExplanationSpec(
+        role_schema={str(key): str(value) for key, value in role_schema.items()},
+        student_goal_template=str(raw.get("student_goal_template", "")),
+        derive_templates=tuple(str(item) for item in raw.get("derive_templates", ())),
+        box_templates=tuple(str(item) for item in raw.get("box_templates", ())),
+        explanation_level=str(raw.get("explanation_level", "template")),
+        role_binding_strategy=str(raw.get("role_binding_strategy", "role_name_registry")),
+        role_binder_id=str(raw.get("role_binder_id", "generic_trace")),
+    )
 
 
 def _resolve_spec_dir(path: str | Path | None) -> Path:

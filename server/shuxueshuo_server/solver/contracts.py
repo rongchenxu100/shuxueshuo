@@ -83,6 +83,19 @@ class MethodInputSpec:
 
 
 @dataclass(frozen=True)
+class MethodExplanationSpec:
+    """Method 面向讲解层的角色化模板。"""
+
+    role_schema: dict[str, str]
+    student_goal_template: str
+    derive_templates: tuple[str, ...] = ()
+    box_templates: tuple[str, ...] = ()
+    explanation_level: str = "template"
+    role_binding_strategy: str = "role_name_registry"
+    role_binder_id: str = "generic_trace"
+
+
+@dataclass(frozen=True)
 class MethodSpec:
     """可检索、可校验的 method 能力规格。
 
@@ -101,6 +114,7 @@ class MethodSpec:
     postconditions: tuple[str, ...] = ()
     trace_template: tuple[str, ...] = ()
     repair_hints: tuple[dict[str, Any], ...] = ()
+    explanation: MethodExplanationSpec | None = None
 
 
 @dataclass

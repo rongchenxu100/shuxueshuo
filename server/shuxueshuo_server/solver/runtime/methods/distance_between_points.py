@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from shuxueshuo_server.solver.contracts import MethodExplanationSpec
+
 from ._common import *
 from ._spec import MethodSpecSource
 
@@ -74,4 +76,18 @@ SPEC = MethodSpecSource(
     preconditions=(),
     postconditions=(),
     trace_template=(),
+    explanation=MethodExplanationSpec(
+        role_schema={
+            "p1": "第一个点或线段端点。",
+            "p2": "第二个点或线段端点。",
+            "distance": "两点距离表达式。",
+        },
+        student_goal_template="计算 {p1} 与 {p2} 的距离，作为当前路径最值表达式。",
+        derive_templates=(
+            "由距离公式，{p1}{p2} = {distance}。",
+            "化简得到当前需要的距离或最小值表达式。",
+        ),
+        box_templates=("{p1}{p2} = {distance}",),
+        role_binder_id="distance_between_points",
+    ),
 )
