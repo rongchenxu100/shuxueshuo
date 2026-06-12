@@ -195,16 +195,16 @@
     "status": "published"
   },
   {
-    "id": "tj-topic-training-24-rhombus-triangle-translation",
+    "id": "tj-2026-hongqiao-sanmo-24",
     "city": "tianjin",
     "cityLabel": "天津",
     "year": 2026,
-    "exam": "topic-training",
-    "examLabel": "24 题专题训练",
+    "exam": "hongqiao-sanmo",
+    "examLabel": "红桥区三模",
     "slot": "24",
-    "title": "天津数学 24 题专题训练（菱形与平移等边三角形）",
+    "title": "2026 年天津市红桥区三模第 24 题（菱形平移与重叠面积）",
     "tags": ["geometry", "translation", "dynamic-point"],
-    "path": "../problems/tj/24/tj-topic-training-24-rhombus-triangle-translation.html",
+    "path": "../problems/tj/24/tj-2026-hongqiao-sanmo-24.html",
     "status": "published"
   },
   {

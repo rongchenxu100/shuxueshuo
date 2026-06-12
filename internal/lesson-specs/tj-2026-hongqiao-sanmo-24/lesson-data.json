@@ -1,17 +1,17 @@
 {
   "meta": {
-    "id": "tj-topic-training-24-rhombus-triangle-translation",
-    "outputPath": "site/problems/tj/24/tj-topic-training-24-rhombus-triangle-translation.html",
-    "pageTitle": "天津数学 24 题专题训练（菱形与平移等边三角形）",
-    "pageDescription": "天津数学 24 题专题训练：菱形 ABCD、等边三角形 OEF 水平平移、线段 GN 与重叠面积 S 的范围。",
-    "breadcrumbTitle": "天津 24 题专题训练",
+    "id": "tj-2026-hongqiao-sanmo-24",
+    "outputPath": "site/problems/tj/24/tj-2026-hongqiao-sanmo-24.html",
+    "pageTitle": "2026 年天津市红桥区三模第 24 题（菱形平移与重叠面积）",
+    "pageDescription": "2026 年天津市红桥区三模第 24 题：菱形 ABCD、等边三角形 OEF 水平平移、线段 GN 与重叠面积 S 的范围。",
+    "breadcrumbTitle": "红桥区三模 24 题",
     "classification": {
       "pattern": "moving-point-translation-area",
       "methods": ["translation-overlap-area", "area-piecewise-by-overlap"]
     }
   },
   "problem": {
-    "summary": "第 24 题（天津专题训练）菱形与平移等边三角形重叠面积",
+    "summary": "2026 年天津市红桥区三模第 24 题（菱形平移与重叠面积）",
     "lines": [
       { "text": "（24）（本小题 10 分）在平面直角坐标系中，O 为原点，菱形 ABCD 的顶点 A（√3，0），B（0，1），C（√3，2），等边三角形 OEF 的顶点 E 在第二象限，顶点 F（0，2）。" },
       { "text": "（1）填空：如图①，点 D 的坐标为__________，点 E 的坐标为__________；", "answerId": "answer1", "answer": "答案：D（2√3，1），E（-√3，1）" },
