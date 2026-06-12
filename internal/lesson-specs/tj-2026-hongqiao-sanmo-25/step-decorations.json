@@ -1,0 +1,128 @@
+{
+  "_comment": "2026 年天津市红桥区三模第 25 题（二次函数综合）。",
+  "layers": {
+    "global": {
+      "elements": [
+        { "type": "grid" },
+        { "type": "point", "at": "O", "showLabel": false }
+      ]
+    },
+    "partI": {
+      "stepStartsWith": ["i1", "i2"],
+      "elements": [
+        { "type": "parabola", "curveId": "parabolaPartI" },
+        { "type": "point", "at": "A", "dx": -16, "dy": 18 },
+        { "type": "point", "at": "B", "dx": 10, "dy": 18 },
+        { "type": "point", "at": "C1", "labelText": "C", "dx": -24, "dy": 4 },
+        { "type": "point", "at": "D1", "labelText": "D", "dx": 12, "dy": 4 }
+      ]
+    },
+    "partII": {
+      "stepStartsWith": ["q2"],
+      "elements": [
+        { "type": "parabola", "curveId": "parabolaPartII" },
+        { "type": "dashedLine", "from": "AxisTop", "to": "AxisBottom", "label": "x=2", "offsetPx": 22 },
+        { "type": "point", "at": "A", "dx": -16, "dy": 18 },
+        { "type": "point", "at": "B", "dx": 10, "dy": 18 },
+        { "type": "point", "at": "C", "dx": -66, "dy": 4, "labelText": "C" }
+      ]
+    }
+  },
+  "steps": {
+    "i1s1": {
+      "add": [
+        { "type": "dashedLine", "from": "AxisTop", "to": "AxisBottom", "label": "x=2", "offsetPx": 22 },
+        { "type": "point", "at": "P", "color": "#dc2626", "dx": 12, "dy": 16 },
+        { "type": "coordinateLabel", "at": "P", "text": "P(2,-9)", "dx": 16, "dy": -18 }
+      ]
+    },
+    "i2s1": {
+      "add": [
+        { "type": "coloredLine", "from": "C1", "to": "D1" },
+        { "type": "coloredLine", "from": "B", "to": "C1" },
+        { "type": "outlineRegion", "vertices": ["C1", "D1", "M1", "E1"], "style": "target" },
+        { "type": "point", "at": "E1", "labelText": "E", "dx": -18, "dy": 16 },
+        { "type": "point", "at": "M1", "labelText": "M", "dx": 12, "dy": 16 },
+        { "type": "coordinateLabel", "at": "D1", "text": "D(4,-5)", "dx": 16, "dy": -18 },
+        { "type": "coordinateLabel", "at": "E1", "text": "E(s,s-5)", "dx": -90, "dy": 20 },
+        { "type": "coordinateLabel", "at": "M1", "text": "M(4+s,s-5)", "dx": 20, "dy": 20 }
+      ]
+    },
+    "i2s2": {
+      "add": [
+        { "type": "coloredLine", "from": "B", "to": "C1" },
+        { "type": "outlineRegion", "vertices": ["C1", "D1", "M1", "E1"], "style": "target" },
+        { "type": "point", "at": "E1", "labelText": "E", "dx": -18, "dy": 16 },
+        { "type": "point", "at": "M1", "labelText": "M", "color": "#dc2626", "dx": 12, "dy": 16 },
+        { "type": "coordinateLabel", "at": "M1", "text": "M(1,-8)", "dx": 18, "dy": -22 },
+        { "type": "coordinateLabel", "at": "E1", "text": "E(-3,-8)", "dx": -86, "dy": -22 }
+      ]
+    },
+    "q2s1": {
+      "add": [
+        { "type": "coordinateLabel", "at": "B", "text": "B(5,0)", "dx": 14, "dy": -22 },
+        { "type": "coordinateLabel", "at": "C", "text": "C(0,-5a)", "dx": -88, "dy": -16 }
+      ]
+    },
+    "q2s2": {
+      "add": [
+        { "type": "outlineRegion", "vertices": ["A", "C", "F", "G"], "style": "target" },
+        { "type": "point", "at": "F", "labelText": "F", "color": "#0f766e", "dx": 12, "dy": -16 },
+        { "type": "point", "at": "G", "labelText": "G", "color": "#0f766e", "dx": -20, "dy": -16 },
+        { "type": "coloredLine", "from": "A", "to": "G" },
+        { "type": "coloredLine", "from": "C", "to": "F" },
+        { "type": "coordinateLabel", "at": "F", "text": "F(2,u)", "dx": 16, "dy": 16 },
+        { "type": "coordinateLabel", "at": "G", "text": "G(1,u+5a)", "dx": -110, "dy": -22 }
+      ]
+    },
+    "q2s3": {
+      "pointOverrides": {
+        "F": ["2", "v"],
+        "G": ["1", "v-c"]
+      },
+      "add": [
+        { "type": "point", "at": "F", "labelText": "F", "color": "#0f766e", "dx": 12, "dy": -16 },
+        { "type": "point", "at": "G", "labelText": "G", "color": "#0f766e", "dx": -20, "dy": -16 },
+        { "type": "point", "at": "B1", "labelText": "B₁", "color": "#dc2626", "dx": 12, "dy": 16 },
+        { "type": "outlineRegion", "vertices": ["B", "G", "F", "B1"], "style": "target" },
+        { "type": "coloredLine", "from": "B", "to": "F" },
+        { "type": "coloredLine", "from": "B", "to": "G" },
+        { "type": "coloredLine", "from": "B1", "to": "F" },
+        { "type": "dashedLine", "from": "B", "to": "B1" },
+        { "type": "segment", "from": "B", "to": "G", "label": "BG", "offsetPx": 20, "collinearGroup": false },
+        { "type": "segment", "from": "B1", "to": "F", "label": "B₁F=BG", "offsetPx": -22, "collinearGroup": false },
+        { "type": "coordinateLabel", "at": "B1", "text": "B₁(6,-5a)", "dx": 16, "dy": -22 }
+      ]
+    },
+    "q2s4": {
+      "pointOverrides": {
+        "F": ["2", "v"],
+        "G": ["1", "v-c"]
+      },
+      "add": [
+        { "type": "point", "at": "F", "labelText": "F", "color": "#0f766e", "dx": 12, "dy": -16 },
+        { "type": "point", "at": "G", "labelText": "G", "color": "#0f766e", "dx": -20, "dy": -16 },
+        { "type": "point", "at": "B1", "labelText": "B₁", "color": "#dc2626", "dx": 12, "dy": 16 },
+        { "type": "outlineRegion", "vertices": ["A", "F", "B1"], "fill": "rgba(245, 158, 11, 0.16)", "color": "#b45309", "width": 1.8, "dash": "" },
+        { "type": "coloredLine", "from": "B", "to": "F" },
+        { "type": "coloredLine", "from": "A", "to": "F" },
+        { "type": "coloredLine", "from": "F", "to": "B1" },
+        { "type": "dashedLine", "from": "A", "to": "B1" },
+        { "type": "segment", "from": "A", "to": "F", "label": "AF=BF", "offsetPx": 20, "collinearGroup": false },
+        { "type": "segment", "from": "F", "to": "B1", "label": "B₁F", "offsetPx": -22, "collinearGroup": false }
+      ]
+    },
+    "q2s5": {
+      "add": [
+        { "type": "point", "at": "B1", "labelText": "B₁", "color": "#dc2626", "dx": 12, "dy": 16 },
+        { "type": "point", "at": "T", "labelText": "T", "color": "#dc2626", "dx": 10, "dy": 18 },
+        { "type": "coloredLine", "from": "A", "to": "B1" },
+        { "type": "dashedLine", "from": "B1", "to": "T" },
+        { "type": "rightAngle", "vertex": "T", "rayA": "A", "rayB": "B1" },
+        { "type": "segment", "from": "A", "to": "T", "label": "7", "offsetPx": 22, "collinearGroup": false },
+        { "type": "segment", "from": "T", "to": "B1", "label": "5a", "offsetPx": 22, "collinearGroup": false },
+        { "type": "segment", "from": "A", "to": "B1", "label": "7√2", "offsetPx": -26, "collinearGroup": false }
+      ]
+    }
+  }
+}
