@@ -423,6 +423,9 @@ def _filter_safe_append_add(items: list[dict[str, Any]]) -> list[dict[str, Any]]
     for item in items:
         if str(item.get("component") or "") == "CoordinateLabel":
             continue
+        if item.get("persistence") not in (None, "step_only"):
+            raise VisualOptimizationError("LLM visual patches cannot create carry_forward objects")
+        item = dict(item)
         safe.append(item)
     return safe
 

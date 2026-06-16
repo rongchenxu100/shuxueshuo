@@ -90,6 +90,8 @@ class TeachingSubstepSpec:
     title: str
     focus: str
     nav_title: str | None = None
+    title_required_terms: tuple[str, ...] = ()
+    nav_title_required_terms: tuple[str, ...] = ()
     preferred_method_ids: tuple[str, ...] = ()
     forbid_merge_with_sibling_substeps: bool = True
 
@@ -98,6 +100,8 @@ class TeachingSubstepSpec:
             "substep_id": self.substep_id,
             "title": self.title,
             "focus": self.focus,
+            "title_required_terms": list(self.title_required_terms),
+            "nav_title_required_terms": list(self.nav_title_required_terms),
             "preferred_method_ids": list(self.preferred_method_ids),
             "forbid_merge_with_sibling_substeps": self.forbid_merge_with_sibling_substeps,
         }

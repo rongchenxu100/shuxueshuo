@@ -209,6 +209,16 @@ def test_llm_lesson_planner_can_group_steps_and_writes_debug_artifacts(tmp_path)
 
     assert lesson.steps
     assert any(len(step.source_step_ids) > 1 for step in lesson.steps)
+    path_reduction_step = next(
+        step for step in lesson.steps if step.teaching_substep_ids == ("path_reduction",)
+    )
+    minimum_step = next(
+        step for step in lesson.steps if step.teaching_substep_ids == ("minimum_by_segment",)
+    )
+    assert path_reduction_step.title == "构造全等三角形，把两动点问题转化为单动点问题"
+    assert path_reduction_step.nav_title == "两动点转化单动点"
+    assert minimum_step.title == "将军饮马得到最小值表达式"
+    assert minimum_step.nav_title == "将军饮马取最小值"
     assert (tmp_path / "payload.explanation.json").exists()
     assert (tmp_path / "prompt.system.txt").exists()
     assert (tmp_path / "prompt.user.txt").exists()
@@ -228,6 +238,51 @@ def test_llm_lesson_planner_can_group_steps_and_writes_debug_artifacts(tmp_path)
     assert "每个 derive item" in user_prompt
     assert "不要使用 `代入 / 化简 / 解 / 筛选`" in user_prompt
     assert "derive 标签" in user_prompt
+
+
+def test_lesson_draft_preserves_contextual_substep_titles_when_contract_is_met() -> None:
+    orchestrator, _ = _solve_recorded_heping()
+    snapshot = ExplanationSnapshotBuilder().build(orchestrator.last_success_artifacts)
+    groups = tuple(explanation_builder._build_lesson_groups(snapshot))
+    raw_steps = []
+    for group in groups:
+        title = f"讲解 {group.candidate_group_id}"
+        nav_title = f"导航 {group.candidate_group_id}"
+        if group.teaching_substep_id == "path_reduction":
+            title = "构造辅助点G，把两动点问题转化为单动点问题"
+            nav_title = "两动点到单动点"
+        if group.teaching_substep_id == "minimum_by_segment":
+            title = "用将军饮马求路径最小值表达式"
+            nav_title = "将军饮马最小值"
+        raw_steps.append(
+            {
+                "id": f"draft_{len(raw_steps) + 1}",
+                "candidate_group_ids": [group.candidate_group_id],
+                "title": title,
+                "nav_title": nav_title,
+                "goal": "按已验证结果整理讲解",
+                "derive": [["∴", "得到当前步骤结论"]],
+                "box": [],
+            }
+        )
+
+    result = explanation_builder.validate_lesson_draft(
+        {"steps": raw_steps},
+        groups,
+        snapshot,
+    )
+
+    assert result.lesson is not None
+    path_step = next(
+        step for step in result.lesson.steps if step.teaching_substep_ids == ("path_reduction",)
+    )
+    minimum_step = next(
+        step for step in result.lesson.steps if step.teaching_substep_ids == ("minimum_by_segment",)
+    )
+    assert path_step.title == "构造辅助点G，把两动点问题转化为单动点问题"
+    assert path_step.nav_title == "两动点到单动点"
+    assert minimum_step.title == "用将军饮马求路径最小值表达式"
+    assert minimum_step.nav_title == "将军饮马最小值"
 
 
 def test_llm_mixed_reason_conclusion_derive_is_split() -> None:
@@ -644,6 +699,8 @@ class _GroupingLessonClient:
                 index + 1 < len(groups)
                 and groups[index + 1]["scope_id"] == current["scope_id"]
                 and groups[index + 1]["source_step_id"] != current["source_step_id"]
+                and not current.get("teaching_substep_id")
+                and not groups[index + 1].get("teaching_substep_id")
             ):
                 candidate_ids.append(groups[index + 1]["candidate_group_id"])
                 index += 1

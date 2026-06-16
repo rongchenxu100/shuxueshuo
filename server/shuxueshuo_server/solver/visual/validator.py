@@ -6,6 +6,7 @@ from typing import Any
 
 from .models import VisualStep, VisualStepIR
 from .registry import ComponentTypeSpecRegistry, LayerRegistry, default_component_registry, default_layer_registry
+from .scene_accumulator import VALID_PERSISTENCE
 
 
 class VisualStepIRValidationError(ValueError):
@@ -86,6 +87,14 @@ class VisualStepIRValidator:
         state = item.get("state")
         if state is not None and state not in VALID_STATES:
             raise VisualStepIRValidationError(f"{label}: invalid state: {state}")
+        persistence = item.get("persistence", "step_only")
+        if persistence not in VALID_PERSISTENCE:
+            raise VisualStepIRValidationError(f"{label}: invalid persistence: {persistence}")
+        if persistence == "carry_forward" and not item.get("handle"):
+            raise VisualStepIRValidationError(f"{label}: carry_forward item requires handle")
+        decay_state = item.get("decay_state")
+        if decay_state is not None and decay_state not in VALID_STATES:
+            raise VisualStepIRValidationError(f"{label}: invalid decay_state: {decay_state}")
         if component == "VisualGap":
             self._validate_visual_gap(item, label)
         for role in spec.required_roles:

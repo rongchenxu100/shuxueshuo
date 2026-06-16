@@ -248,6 +248,7 @@ def build_lesson_planner_payload(
             "不要输出标签“代入”“化简”“解”“筛选”；例如写成 [\"∴\", \"代入得 a-b=3\"] 或 [\"∴\", \"解得 a=1，b=-2\"]。",
             "title 写带当前题上下文的解题思路，例如“第1步：求 C、D 点坐标，代入求函数解析式”。",
             "nav_title 写短导航标题，不必带所有点名，例如“代入已知点求解析式”。",
+            "若 candidate_group 提供 teaching_substep_title/nav_title 与 required_terms，title/nav_title 必须覆盖这些教学关键词；可加入当前题点名，但不要偏离该认知动作。",
             "box 只能写学生可读关键结论，例如 C(0,-3)、y=x²-2x-3、a=3/4；不要写 answer:*、fact:*、i_1.parabola = ... 或 Python/SymPy 表达式。",
             "answers 中的每个最终答案都必须以学生可读形式出现在相关最终讲解步骤的 box 中。",
         ],
@@ -451,6 +452,13 @@ def _group_payload(group: LessonCandidateGroup, snapshot: ExplanationSnapshot) -
         "source_step_id": group.step_id,
         "teaching_substep_id": group.teaching_substep_id,
         "teaching_substep_title": group.teaching_substep_title,
+        "teaching_substep_nav_title": group.teaching_substep_nav_title,
+        "teaching_substep_title_required_terms": list(
+            group.teaching_substep_title_required_terms
+        ),
+        "teaching_substep_nav_title_required_terms": list(
+            group.teaching_substep_nav_title_required_terms
+        ),
         "teaching_focus": group.teaching_focus,
         "scope_id": group.scope_id,
         "capability_id": group.capability_id,

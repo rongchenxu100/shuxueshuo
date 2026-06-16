@@ -154,7 +154,14 @@ class VisualRoleBinderRegistry:
             translation_markers=tuple(
                 self._translation_markers(lesson_step, snapshot, source_steps)
             ),
-            angle_equalities=tuple(self._angle_equalities(lesson_step, point_handles)),
+            angle_equalities=tuple(
+                self._angle_equalities(
+                    lesson_step,
+                    snapshot,
+                    source_steps,
+                    point_handles,
+                )
+            ),
             angle_references=tuple(self._angle_references(lesson_step, snapshot)),
             axis_intercept_markers=tuple(
                 self._axis_intercept_markers(lesson_step, source_steps, point_handles)
@@ -293,11 +300,17 @@ class VisualRoleBinderRegistry:
     def _angle_equalities(
         self,
         lesson_step: LessonStep,
+        snapshot: ExplanationSnapshot,
+        source_steps: dict[str, dict[str, Any]],
         point_handles: dict[str, str],
     ) -> list[dict[str, Any]]:
         if "angle_sum_equal_angle_candidates" not in lesson_step.capability_ids:
             return []
-        equalities = _visible_angle_equalities(lesson_step)
+        equalities = _angle_sum_display_equalities_from_source(
+            lesson_step,
+            snapshot,
+            source_steps,
+        ) or _visible_angle_equalities(lesson_step)
         out: list[dict[str, Any]] = []
         for left, right in equalities:
             marker = self._angle_equality_marker(left, right, lesson_step.scope_id, point_handles)
@@ -389,9 +402,16 @@ class VisualRoleBinderRegistry:
             if not axis_equality or not origin_label:
                 continue
             equality_markers: list[dict[str, Any]] = []
+            display_line = _display_line_segment_from_lesson_step(lesson_step)
             for left, right in display_equalities or [axis_equality]:
                 marker = self._angle_equality_marker(left, right, lesson_step.scope_id, point_handles)
                 if marker:
+                    if display_line:
+                        marker = self._with_display_line_guide(
+                            marker,
+                            display_line,
+                            lesson_step.scope_id,
+                        )
                     equality_markers.append(marker)
             axis_sides = self._axis_triangle_sides(axis_equality, origin_label, lesson_step.scope_id)
             right_angles = self._right_angle_markers(axis_equality, origin_label, lesson_step.scope_id)
@@ -404,6 +424,44 @@ class VisualRoleBinderRegistry:
                     "right_angles": right_angles,
                 }
             )
+        return out
+
+    def _with_display_line_guide(
+        self,
+        marker: dict[str, Any],
+        line_segment: str,
+        scope_id: str,
+    ) -> dict[str, Any]:
+        if len(line_segment) != 2:
+            return marker
+        start_label, end_label = line_segment[0], line_segment[1]
+        start = self.index.geometry_point_name(start_label, scope_id)
+        end = self.index.geometry_point_name(end_label, scope_id)
+        if not start or not end:
+            return marker
+        target_angle = str(marker.get("left_angle") or "")
+        if len(target_angle) != 3 or target_angle[1] not in line_segment:
+            return marker
+        out = dict(marker)
+        guide_arms: list[dict[str, Any]] = []
+        replaced = False
+        for guide in marker.get("guide_arms") or ():
+            if not isinstance(guide, dict):
+                continue
+            item = dict(guide)
+            if str(item.get("angle_name") or "") == target_angle:
+                item.update(
+                    {
+                        "handle": f"line:{scope_id}:{line_segment}",
+                        "from": start,
+                        "to": end,
+                        "show_endpoint_refs": [end],
+                    }
+                )
+                replaced = True
+            guide_arms.append(item)
+        if replaced:
+            out["guide_arms"] = guide_arms
         return out
 
     def _origin_label_from_step(self, step: dict[str, Any]) -> str:
@@ -614,18 +672,21 @@ class VisualRoleBinderRegistry:
             ],
             "guide_lines": [
                 {
+                    "label": f"{anchor}{segment_moving}",
                     "from": geom(anchor),
                     "to": geom(segment_moving),
                     "style": "dashed",
                     "role": "anchor_to_segment_moving",
                 },
                 {
+                    "label": f"{anchor}{ray_moving}",
                     "from": geom(anchor),
                     "to": geom(ray_moving),
                     "style": "dashed",
                     "role": "anchor_to_ray_moving",
                 },
                 {
+                    "label": f"{anchor}{auxiliary}",
                     "from": geom(anchor),
                     "to": geom(auxiliary),
                     "style": "solid",
@@ -871,6 +932,7 @@ def _path_terms_from_lesson_step(
 ) -> tuple[list[str], list[str]]:
     texts = [*lesson_step.box, *[text for _, text in lesson_step.derive], lesson_step.title]
     original_norm = _path_norm(original_path)
+    original_terms = _segment_terms(original_path)
     for text in texts:
         for left, right in re.findall(
             r"([A-Z]{2}(?:\s*[+＋]\s*[A-Z]{2})*)\s*=\s*([A-Z]{2}(?:\s*[+＋]\s*[A-Z]{2})*)",
@@ -882,9 +944,21 @@ def _path_terms_from_lesson_step(
                 return left_terms, right_terms
             if original_norm and _path_norm("+".join(right_terms)) == original_norm:
                 return right_terms, left_terms
-            if left_terms and right_terms:
+            if left_terms and right_terms and (len(left_terms) > 1 or len(right_terms) > 1):
                 return left_terms, right_terms
-    return (_segment_terms(original_path), [])
+    for text in texts:
+        for candidate in re.findall(
+            r"(?<![A-Za-z])([A-Z]{2}(?:\s*[+＋]\s*[A-Z]{2})+)(?![A-Za-z])",
+            text,
+        ):
+            terms = _segment_terms(candidate)
+            if not terms:
+                continue
+            if original_norm and _path_norm("+".join(terms)) == original_norm:
+                continue
+            if original_terms and set(terms).intersection(original_terms):
+                return original_terms, terms
+    return (original_terms, [])
 
 
 def _segment_terms(value: str) -> list[str]:
@@ -991,6 +1065,123 @@ def _visible_angle_equalities(lesson_step: LessonStep) -> list[tuple[str, str]]:
     text_parts = [text for _, text in lesson_step.derive]
     text_parts.append(lesson_step.title)
     return _angle_equalities_from_texts(text_parts)
+
+
+def _angle_sum_display_equalities_from_source(
+    lesson_step: LessonStep,
+    snapshot: ExplanationSnapshot,
+    source_steps: dict[str, dict[str, Any]],
+) -> list[tuple[str, str]]:
+    facts = _facts_by_handle(snapshot.problem)
+    outputs = _angle_sum_outputs_from_method(lesson_step, snapshot)
+    source_step_ids = set(lesson_step.source_step_ids)
+    out: list[tuple[str, str]] = []
+    for step_id in source_step_ids:
+        step = source_steps.get(step_id)
+        if not step or step.get("recipe_hint") != "angle_sum_equal_angle_candidates":
+            continue
+        for handle in step.get("reads") or ():
+            if not isinstance(handle, str):
+                continue
+            fact = facts.get(handle)
+            if not fact or fact.get("type") != "angle_sum":
+                continue
+            terms = [str(item) for item in fact.get("angle_terms") or ()]
+            if len(terms) != 2 or not all(len(item) == 3 for item in terms):
+                continue
+            for output in outputs:
+                reference_angle = str(output.get("reference_angle") or "")
+                candidate = _display_equality_from_angle_sum_terms(terms, reference_angle)
+                if candidate:
+                    out.append(candidate)
+                    break
+            if not outputs:
+                # Fall back to the canonical method convention when the runtime
+                # trace is not available: first term is the shared angle, second
+                # term is the reference angle.
+                shared, reference = terms
+                target = _angle_target_by_replacing_shared_ray(shared, f"{shared[0]}{shared[1]}O")
+                if target:
+                    out.append((target, reference))
+    return _dedupe_angle_equalities(out)
+
+
+def _angle_sum_outputs_from_method(
+    lesson_step: LessonStep,
+    snapshot: ExplanationSnapshot,
+) -> list[dict[str, Any]]:
+    source_step_ids = {str(step_id) for step_id in lesson_step.source_step_ids}
+    out: list[dict[str, Any]] = []
+    for item in snapshot.fact_index.values():
+        if not isinstance(item, dict) or item.get("type") != "AngleEquality":
+            continue
+        if not _angle_equality_fact_belongs_to_step(item, source_step_ids, lesson_step.scope_id):
+            continue
+        value = item.get("value")
+        if isinstance(value, dict):
+            out.append(dict(value))
+    return out
+
+
+def _display_equality_from_angle_sum_terms(
+    terms: list[str],
+    reference_angle: str,
+) -> tuple[str, str] | None:
+    if len(reference_angle) != 3:
+        return None
+    for index, shared in enumerate(terms):
+        target = _angle_target_by_replacing_shared_ray(shared, reference_angle)
+        if not target:
+            continue
+        right = terms[1 - index]
+        return (target, right)
+    return None
+
+
+def _angle_target_by_replacing_shared_ray(shared: str, reference_angle: str) -> str:
+    """Return the display angle for the narrow two-angle-sum case.
+
+    This intentionally only handles structures where ``shared`` and
+    ``reference_angle`` have the same vertex and exactly one shared ray.  More
+    complex angle-sum facts should fall back to text-based display instead of
+    guessing a visual target angle.
+    """
+    if len(shared) != 3 or len(reference_angle) != 3:
+        return ""
+    if shared[1] != reference_angle[1]:
+        return ""
+    shared_rays = {shared[0], shared[2]}
+    reference_rays = {reference_angle[0], reference_angle[2]}
+    common = shared_rays & reference_rays
+    if len(common) != 1:
+        return ""
+    shared_ray = next(iter(common))
+    replacement = next((label for label in reference_rays if label != shared_ray), "")
+    target_ray = next((label for label in shared_rays if label != shared_ray), "")
+    if not replacement or not target_ray:
+        return ""
+    return f"{replacement}{shared[1]}{target_ray}"
+
+
+def _display_line_segment_from_lesson_step(lesson_step: LessonStep) -> str:
+    texts = [lesson_step.title, lesson_step.goal, *lesson_step.box]
+    texts.extend(text for _, text in lesson_step.derive)
+    for text in texts:
+        match = re.search(r"直线\s*([A-Z]{2})", text)
+        if match:
+            return match.group(1)
+    return ""
+
+
+def _dedupe_angle_equalities(items: list[tuple[str, str]]) -> list[tuple[str, str]]:
+    out: list[tuple[str, str]] = []
+    seen: set[tuple[str, str]] = set()
+    for item in items:
+        if item in seen:
+            continue
+        seen.add(item)
+        out.append(item)
+    return out
 
 
 def _reference_angles_from_method_output(

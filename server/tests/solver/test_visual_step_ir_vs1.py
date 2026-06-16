@@ -294,6 +294,43 @@ def test_vs1_angle_equality_static_step_uses_be_guide_not_future_f() -> None:
     assert not any(item.get("type") == "coordinateLabel" and item.get("at") == "E1" for item in raw_step["add"])
 
 
+def test_vs1_angle_sum_visual_ignores_llm_future_f_box_text() -> None:
+    snapshot = _solve_heping_snapshot()
+    payload = _load_recorded_heping_lesson_ir().to_payload()
+    for step in payload["steps"]:
+        if "angle_sum_equal_angle_candidates" not in step.get("capability_ids", []):
+            continue
+        step["title"] = "第2步：由∠CBE+∠ACO=45°推出等角关系"
+        step["derive"] = [
+            ["∵", "∠CBE + ∠ACO = 45°，且 ∠CBE + ∠EBF = ∠CBO = 45°"],
+            ["∴", "∠EBF = ∠ACO，即 ∠OBF = ∠ACO"],
+        ]
+        step["box"] = ["∠OBF = ∠ACO"]
+    lesson = lesson_ir_from_payload(payload)
+
+    visual_ir = _build_visual_ir_from_lesson(snapshot=snapshot, lesson=lesson)
+    angle_step = _visual_step_for_capability(visual_ir, lesson, "angle_sum_equal_angle_candidates")
+    compiled = forward_compile(visual_ir)
+    raw_step = compiled.step_decorations["steps"][angle_step.lesson_step_id]
+    serialized = json.dumps(angle_step.scene["add"], ensure_ascii=False)
+
+    assert "F1" not in serialized
+    marker = next(item for item in angle_step.scene["add"] if item["component"] == "AngleEqualityMarker")
+    assert {angle["name"] for angle in marker["angles"]} == {"OBE", "ACO"}
+    assert any(guide.get("handle") == "line:i_2:BE" for guide in marker["guide_arms"])
+    assert any(item.get("component") == "Point" and item.get("at") == "E1" for item in angle_step.scene["add"])
+    assert not any(
+        item.get("component") == "CoordinateLabel" and item.get("at") == "O"
+        for item in angle_step.scene["add"]
+    )
+    assert any(
+        item.get("type") == "dashedLine"
+        and item.get("from") == "B1"
+        and item.get("to") == "E1"
+        for item in raw_step["add"]
+    )
+
+
 def test_vs1_reference_angle_marker_comes_from_method_output_not_derive_text() -> None:
     snapshot = _solve_heping_snapshot()
     lesson = _load_recorded_heping_lesson_ir()
@@ -319,6 +356,24 @@ def test_vs1_reference_angle_marker_comes_from_method_output_not_derive_text() -
         and item.get("label") == "45°"
         for item in angle_step.scene["add"]
     )
+
+
+def test_vs1_generated_layers_use_exact_step_ids_to_avoid_prefix_collision() -> None:
+    snapshot = _solve_heping_snapshot()
+    payload = _load_recorded_heping_lesson_ir().to_payload()
+    last_id = payload["steps"][-1]["id"]
+    payload["steps"][-1]["id"] = "step_10"
+    for section in payload["sections"]:
+        section["steps"] = ["step_10" if step_id == last_id else step_id for step_id in section["steps"]]
+    lesson = lesson_ir_from_payload(payload)
+
+    visual_ir = _build_visual_ir_from_lesson(snapshot=snapshot, lesson=lesson)
+    compiled = forward_compile(visual_ir)
+    layers = compiled.step_decorations["layers"]
+
+    assert "step_10" in layers["partII"]["stepIds"]
+    assert "step_10" not in layers["partI"]["stepIds"]
+    assert "step_1" in layers["partI"]["stepStartsWith"]
 
 
 def test_vs1_axis_intercept_step_reuses_be_visual_handle_and_adds_f() -> None:
@@ -757,6 +812,21 @@ def test_vs1_visual_llm_filter_safe_append_add_removes_coordinate_labels() -> No
     )
 
     assert safe == [{"component": "Point", "at": "A"}]
+
+
+def test_vs1_visual_llm_filter_safe_append_add_rejects_carry_forward_items() -> None:
+    with pytest.raises(visual_llm.VisualOptimizationError, match="carry_forward"):
+        visual_llm._filter_safe_append_add(
+            [
+                {
+                    "component": "ColoredLine",
+                    "from": "A",
+                    "to": "B",
+                    "handle": "line:i:AB",
+                    "persistence": "carry_forward",
+                }
+            ]
+        )
 
 
 def test_vs1_visual_llm_assert_scene_item_refs_checks_geometry_and_labels() -> None:

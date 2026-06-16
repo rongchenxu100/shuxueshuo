@@ -11,6 +11,7 @@ from .registry import (
     default_component_registry,
     default_layer_registry,
 )
+from .scene_accumulator import resolved_steps_with_carry_forward
 from .validator import VisualStepIRValidationError, VisualStepIRValidator
 
 __all__ = [
@@ -33,5 +34,6 @@ __all__ = [
     "default_layer_registry",
     "forward_compile",
     "reverse_compile",
+    "resolved_steps_with_carry_forward",
     "write_visual_optimization_debug_artifacts",
 ]

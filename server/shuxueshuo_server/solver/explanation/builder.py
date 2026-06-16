@@ -269,6 +269,8 @@ def _split_lesson_group(group: LessonCandidateGroup) -> tuple[LessonCandidateGro
             teaching_substep_id=substep.substep_id,
             teaching_substep_title=substep.title,
             teaching_substep_nav_title=substep.nav_title,
+            teaching_substep_title_required_terms=substep.title_required_terms,
+            teaching_substep_nav_title_required_terms=substep.nav_title_required_terms,
             teaching_focus=substep.focus,
             preferred_method_ids=substep.preferred_method_ids,
             forbid_merge_with_sibling_substeps=substep.forbid_merge_with_sibling_substeps,
@@ -287,19 +289,17 @@ def _recipe_registry_for_builder() -> RecipeSpecRegistry:
 
 
 def _lesson_step_from_group(group: LessonCandidateGroup, text: dict[str, Any]) -> LessonStep:
+    title = _student_title_for_group(group, text)
+    nav_title = _student_nav_title_for_group(group, text, title)
     return LessonStep(
         id=f"explain_{group.candidate_group_id.replace('.', '_')}",
         scope_id=group.scope_id,
         source_step_ids=(group.step_id,),
         capability_ids=(group.capability_id,),
         trace_refs=group.trace_refs,
-        title=str(text.get("title") or _short_title(group.step)),
+        title=title,
         goal=str(text.get("goal") or group.step.get("target") or ""),
-        nav_title=str(
-            text.get("nav_title")
-            or group.teaching_substep_nav_title
-            or _nav_title_from_title(str(text.get("title") or _short_title(group.step)))
-        ),
+        nav_title=nav_title,
         derive=_derive_items(text.get("derive", ())),
         box=tuple(str(item) for item in text.get("box", ()) if str(item)),
         gaps=tuple(str(item) for item in text.get("gaps", ()) if str(item)),
@@ -411,6 +411,8 @@ def validate_lesson_draft(
             )
         if index == len(raw_steps):
             text["box"] = _merge_boxes(text.get("box", ()), _answer_boxes(snapshot.answers))
+        title = _student_title_for_source_groups(source_groups, text)
+        nav_title = _student_nav_title_for_source_groups(source_groups, text, title)
         lesson_step = LessonStep(
             id=str(raw_step.get("id") or f"explain_{index}"),
             scope_id=source_groups[0].scope_id,
@@ -421,12 +423,9 @@ def validate_lesson_draft(
                 for group in source_groups
                 for trace_id in group.trace_refs
             ),
-            title=str(text.get("title") or _short_title(source_groups[0].step)),
+            title=title,
             goal=str(text.get("goal") or source_groups[0].step.get("target") or ""),
-            nav_title=str(
-                text.get("nav_title")
-                or _nav_title_from_title(str(text.get("title") or _short_title(source_groups[0].step)))
-            ),
+            nav_title=nav_title,
             derive=_derive_items(text.get("derive", ())),
             box=tuple(str(item) for item in text.get("box", ()) if str(item)),
             gaps=tuple(str(item) for item in text.get("gaps", ()) if str(item)),
@@ -664,6 +663,85 @@ def _build_sections(steps: list[LessonStep]) -> tuple[LessonSection, ...]:
         )
         for scope_id, step_ids in by_scope.items()
     )
+
+
+def _student_title_for_group(group: LessonCandidateGroup, text: dict[str, Any]) -> str:
+    candidate = str(text.get("title") or "")
+    if group.teaching_substep_title:
+        return _constrained_title(
+            candidate=candidate,
+            fallback=group.teaching_substep_title,
+            required_terms=group.teaching_substep_title_required_terms,
+        )
+    return candidate or _short_title(group.step)
+
+
+def _student_nav_title_for_group(
+    group: LessonCandidateGroup,
+    text: dict[str, Any],
+    title: str,
+) -> str:
+    candidate = str(text.get("nav_title") or "")
+    if group.teaching_substep_nav_title:
+        return _constrained_title(
+            candidate=candidate,
+            fallback=group.teaching_substep_nav_title,
+            required_terms=group.teaching_substep_nav_title_required_terms,
+        )
+    return candidate or _nav_title_from_title(title)
+
+
+def _student_title_for_source_groups(
+    source_groups: list[LessonCandidateGroup],
+    text: dict[str, Any],
+) -> str:
+    candidate = str(text.get("title") or "")
+    if len(source_groups) == 1 and source_groups[0].teaching_substep_title:
+        group = source_groups[0]
+        return _constrained_title(
+            candidate=candidate,
+            fallback=group.teaching_substep_title,
+            required_terms=group.teaching_substep_title_required_terms,
+        )
+    return candidate or _short_title(source_groups[0].step)
+
+
+def _student_nav_title_for_source_groups(
+    source_groups: list[LessonCandidateGroup],
+    text: dict[str, Any],
+    title: str,
+) -> str:
+    candidate = str(text.get("nav_title") or "")
+    if len(source_groups) == 1 and source_groups[0].teaching_substep_nav_title:
+        group = source_groups[0]
+        return _constrained_title(
+            candidate=candidate,
+            fallback=group.teaching_substep_nav_title,
+            required_terms=group.teaching_substep_nav_title_required_terms,
+        )
+    return candidate or _nav_title_from_title(title)
+
+
+def _constrained_title(
+    *,
+    candidate: str,
+    fallback: str,
+    required_terms: tuple[str, ...],
+) -> str:
+    if candidate and _contains_required_terms(candidate, required_terms):
+        return candidate
+    return fallback
+
+
+def _contains_required_terms(text: str, required_terms: tuple[str, ...]) -> bool:
+    if not required_terms:
+        return bool(text)
+    compact = _compact_title_text(text)
+    return all(_compact_title_text(term) in compact for term in required_terms)
+
+
+def _compact_title_text(text: str) -> str:
+    return "".join(str(text).split())
 
 
 def _validate_text_output(raw: dict[str, Any], snapshot: ExplanationSnapshot) -> dict[str, Any]:

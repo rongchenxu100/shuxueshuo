@@ -8,6 +8,7 @@ import copy
 
 from .models import JsonObject, VisualStep, VisualStepIR
 from .registry import LayerRegistry, default_layer_registry, low_level_for_visual_type, visual_type_for_low_level
+from .scene_accumulator import resolved_steps_with_carry_forward
 
 
 @dataclass(frozen=True)
@@ -73,8 +74,12 @@ def forward_compile(visual_ir: VisualStepIR) -> CompiledVisualArtifacts:
         layer_key = layer_registry.require_layer_key(semantic_ref)
         layers[layer_key] = copy.deepcopy(layer)
 
+    visual_steps = visual_ir.steps
+    if visual_ir.metadata.get("scene_model") == "section_accumulator":
+        visual_steps = resolved_steps_with_carry_forward(visual_steps)
+
     steps: dict[str, Any] = {}
-    for visual_step in visual_ir.steps:
+    for visual_step in visual_steps:
         scene = visual_step.scene or {}
         raw_step: dict[str, Any] = copy.deepcopy(visual_step.metadata.get("step_extra") or {})
         add = [
@@ -167,7 +172,10 @@ def _compile_scene_items(item: JsonObject) -> list[JsonObject]:
     component = str(raw.pop("component"))
     raw.pop("handle", None)
     raw.pop("state", None)
+    raw.pop("persistence", None)
+    raw.pop("decay_state", None)
     raw.pop("guide_only_refs", None)
+    raw.pop("show_endpoint_refs", None)
     if component == "VisualGap":
         return []
     if component == "DistanceMarker":
@@ -410,6 +418,10 @@ def _lesson_step(lesson_data: JsonObject, step_id: str) -> JsonObject:
 
 
 def _semantic_layer_for_step(step_id: str, step_decorations: JsonObject, registry: LayerRegistry) -> str:
+    for layer_key, layer in (step_decorations.get("layers") or {}).items():
+        step_ids = layer.get("stepIds") or ()
+        if any(step_id == str(candidate) for candidate in step_ids):
+            return registry.semantic_for_layer_key(str(layer_key))
     for layer_key, layer in (step_decorations.get("layers") or {}).items():
         prefixes = layer.get("stepStartsWith") or ()
         if any(step_id.startswith(str(prefix)) for prefix in prefixes):

@@ -605,6 +605,9 @@
     function isLayerActive(layerDef, stepId, section) {
       if (layerDef.section && section !== layerDef.section) return false;
       if (layerDef.sectionNot) return section !== layerDef.sectionNot;
+      if (Array.isArray(layerDef.stepIds)) {
+        return layerDef.stepIds.indexOf(stepId) >= 0;
+      }
       if (layerDef.stepStartsWith) {
         return layerDef.stepStartsWith.some(function (prefix) { return stepId.indexOf(prefix) === 0; });
       }

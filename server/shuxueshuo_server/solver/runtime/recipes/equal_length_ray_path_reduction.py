@@ -58,6 +58,8 @@ SPEC = RecipeSpecSource(
                 title="构造全等三角形，把两动点问题转化为单动点问题",
                 focus="构造辅助点、证明距离替换，并得到等价的单动点路径。",
                 nav_title="两动点转化单动点",
+                title_required_terms=("两动点", "单动点"),
+                nav_title_required_terms=("两动点", "单动点"),
                 preferred_method_ids=("equal_length_ray_point",),
             ),
             TeachingSubstepSpec(
@@ -65,6 +67,8 @@ SPEC = RecipeSpecSource(
                 title="将军饮马得到最小值表达式",
                 focus="在路径已经降维后，用最短线段计算最小值表达式。",
                 nav_title="将军饮马取最小值",
+                title_required_terms=("将军饮马", "最小值"),
+                nav_title_required_terms=("将军饮马", "最小值"),
                 preferred_method_ids=("distance_between_points",),
             ),
         ),

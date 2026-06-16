@@ -19,6 +19,7 @@ from shuxueshuo_server.solver.visual import (
     default_layer_registry,
     forward_compile,
     reverse_compile,
+    resolved_steps_with_carry_forward,
 )
 from shuxueshuo_server.solver.visual.models import visual_step_ir_from_payload
 from shuxueshuo_server.solver.visual.registry import low_level_for_visual_type
@@ -93,6 +94,138 @@ def test_visual_step_ir_validator_rejects_invalid_state_override() -> None:
     )
     with pytest.raises(VisualStepIRValidationError, match="invalid state"):
         VisualStepIRValidator().validate(visual_ir)
+
+
+def test_visual_step_ir_validator_rejects_invalid_carry_forward_item() -> None:
+    visual_ir = _minimal_visual_ir(
+        scene_add=(
+            {
+                "component": "ColoredLine",
+                "from": "A",
+                "to": "B",
+                "persistence": "carry_forward",
+            },
+        )
+    )
+
+    with pytest.raises(VisualStepIRValidationError, match="requires handle"):
+        VisualStepIRValidator().validate(visual_ir)
+
+
+def test_scene_accumulator_carries_decays_overrides_and_drops_step_only_items() -> None:
+    visual_ir = _minimal_visual_ir(
+        steps=(
+            _visual_step(
+                "s1",
+                scene_add=(
+                    {
+                        "component": "ColoredLine",
+                        "handle": "line:i:BE",
+                        "from": "B",
+                        "to": "E",
+                        "state": "highlight",
+                        "persistence": "carry_forward",
+                        "decay_state": "muted",
+                    },
+                    {
+                        "component": "AngleArc",
+                        "vertex": "B",
+                        "rayA": "O",
+                        "rayB": "E",
+                        "persistence": "step_only",
+                    },
+                ),
+            ),
+            _visual_step(
+                "s2",
+                scene_add=(),
+                state_overrides=({"handle": "line:i:BE", "state": "highlight"},),
+            ),
+            _visual_step("s3", scene_add=(), hide=("line:i:BE",)),
+        ),
+        lesson_steps=("s1", "s2", "s3"),
+    )
+
+    resolved = resolved_steps_with_carry_forward(visual_ir.steps)
+
+    assert any(item.get("handle") == "line:i:BE" for item in resolved[0].scene["add"])
+    assert any(item.get("component") == "AngleArc" for item in resolved[0].scene["add"])
+    assert resolved[1].scene["add"] == [
+        {
+            "component": "ColoredLine",
+            "handle": "line:i:BE",
+            "from": "B",
+            "to": "E",
+            "state": "highlight",
+            "persistence": "carry_forward",
+            "decay_state": "muted",
+        }
+    ]
+    assert resolved[2].scene["add"] == []
+
+
+def test_forward_compile_accumulates_only_when_scene_model_requests_it() -> None:
+    base = _minimal_visual_ir(
+        steps=(
+            _visual_step(
+                "s1",
+                scene_add=(
+                    {
+                        "component": "ColoredLine",
+                        "handle": "line:i:BE",
+                        "from": "B",
+                        "to": "E",
+                        "persistence": "carry_forward",
+                        "decay_state": "muted",
+                        "metadata": {"low_level_type": "coloredLine"},
+                    },
+                ),
+            ),
+            _visual_step("s2", scene_add=()),
+        ),
+        lesson_steps=("s1", "s2"),
+    )
+
+    compiled_plain = forward_compile(base)
+    assert "add" not in compiled_plain.step_decorations["steps"]["s2"]
+
+    payload = base.to_payload()
+    payload["metadata"]["scene_model"] = "section_accumulator"
+    compiled_accumulated = forward_compile(visual_step_ir_from_payload(payload))
+    assert compiled_accumulated.step_decorations["steps"]["s2"]["add"] == [
+        {
+            "type": "coloredLine",
+            "from": "B",
+            "to": "E",
+        }
+    ]
+
+
+def test_scene_accumulator_resets_when_scope_root_changes() -> None:
+    visual_ir = _minimal_visual_ir(
+        steps=(
+            _visual_step(
+                "s1",
+                scope_id="i_2",
+                scene_add=(
+                    {
+                        "component": "ColoredLine",
+                        "handle": "line:i_2:BE",
+                        "from": "B1",
+                        "to": "E1",
+                        "persistence": "carry_forward",
+                    },
+                ),
+            ),
+            _visual_step("s2", scope_id="ii", scene_add=()),
+        ),
+        lesson_steps=("s1", "s2"),
+    )
+
+    resolved = resolved_steps_with_carry_forward(visual_ir.steps)
+
+    assert any(item.get("handle") == "line:i_2:BE" for item in resolved[0].scene["add"])
+    assert resolved[1].scene["add"] == []
 
 
 def test_visual_step_ir_validator_rejects_bad_annotation_text_source() -> None:
@@ -322,6 +455,7 @@ def _minimal_visual_ir(
     scene_add: tuple[dict, ...] = ({"component": "Point", "handle": "point:i:A", "state": "visible"},),
     state_overrides: tuple[dict, ...] = (),
     annotations: tuple[dict, ...] = (),
+    lesson_steps: tuple[str, ...] | None = None,
 ) -> VisualStepIR:
     step = VisualStep(
         visual_step_id="visual:s1",
@@ -348,10 +482,36 @@ def _minimal_visual_ir(
         version=1,
         problem_id="minimal",
         geometry_spec={"version": 1, "id": "minimal", "domain": {}},
-        lesson_data={"meta": {"id": "minimal"}, "steps": [{"id": "s1", "box": ["A(0,0)"]}]},
+        lesson_data={
+            "meta": {"id": "minimal"},
+            "steps": [{"id": step_id, "box": ["A(0,0)"]} for step_id in (lesson_steps or ("s1",))],
+        },
         layers={"global": {"elements": []}},
         layer_registry=dict(default_layer_registry().semantic_to_layer),
         steps=steps or (step,),
+    )
+
+
+def _visual_step(
+    step_id: str,
+    *,
+    scope_id: str = "i",
+    scene_add: tuple[dict, ...],
+    state_overrides: tuple[dict, ...] = (),
+    hide: tuple[str, ...] = (),
+) -> VisualStep:
+    return VisualStep(
+        visual_step_id=f"visual:{step_id}",
+        lesson_step_id=step_id,
+        scope_id=scope_id,
+        scene={
+            "inherits_from": "global",
+            "add": list(scene_add),
+            "state_overrides": list(state_overrides),
+            "hide": list(hide),
+            "focus": {"primary": [], "dim": []},
+            "annotations": [],
+        },
     )
 
 

@@ -172,6 +172,7 @@ class BaseSceneBuilder:
                     snapshot=snapshot,
                     index=index,
                 ),
+                "stepIds": step_ids,
                 "stepStartsWith": step_ids,
             }
         return layers
@@ -223,6 +224,7 @@ class VisualStepBuilder:
             metadata={
                 "source": "vs1_visual_step_builder",
                 "base_source": "generated" if legacy_authoring_base is None else "authored_legacy",
+                "scene_model": "section_accumulator",
             },
         )
 
@@ -276,6 +278,9 @@ def _layers_for_lesson(lesson: LessonIR, base_step_decorations: JsonObject) -> d
     for section_root in section_roots:
         semantic_ref = f"section:{section_root}"
         layer = layers.setdefault(semantic_ref, {"elements": []})
+        layer["stepIds"] = [
+            step.id for step in lesson.steps if _scope_root(step.scope_id) == section_root
+        ]
         layer["stepStartsWith"] = [
             step.id for step in lesson.steps if _scope_root(step.scope_id) == section_root
         ]
@@ -1381,6 +1386,7 @@ def _translation_marker_items(
                 "dash": "5 5",
                 "dx": 16,
                 "dy": -10,
+                "persistence": str(template.get("persistence") or "step_only"),
             }
         )
     return items
@@ -1407,6 +1413,7 @@ def _congruent_triangle_marker_items(
                     "width": float(template.get("width") or 1.0),
                     "dash": str(template.get("dash") or ""),
                     "state": "muted",
+                    "persistence": "step_only",
                 }
             )
         for line in marker.get("path_lines") or ():
@@ -1414,10 +1421,13 @@ def _congruent_triangle_marker_items(
                 items.append(
                     {
                         "component": "ColoredLine",
+                        "handle": _line_handle(line),
                         "from": line.get("from"),
                         "to": line.get("to"),
                         "color": COLOR_PATH,
                         "width": 2.2,
+                        "persistence": "carry_forward",
+                        "decay_state": "muted",
                         "metadata": {"low_level_type": "coloredLine"},
                     }
                 )
@@ -1425,19 +1435,23 @@ def _congruent_triangle_marker_items(
             if not isinstance(line, dict):
                 continue
             component = "DashedLine" if line.get("style") == "dashed" else "ColoredLine"
-            items.append(
-                {
-                    "component": component,
-                    "from": line.get("from"),
-                    "to": line.get("to"),
-                    "color": COLOR_MUTED if component == "DashedLine" else COLOR_CONSTRAINT,
-                    "width": 1.35 if component == "DashedLine" else 2.0,
-                    "dash": "5 6",
-                    "metadata": {
-                        "low_level_type": "dashedLine" if component == "DashedLine" else "coloredLine"
-                    },
-                }
-            )
+            carry = line.get("role") == "anchor_to_auxiliary"
+            item: JsonObject = {
+                "component": component,
+                "from": line.get("from"),
+                "to": line.get("to"),
+                "color": COLOR_MUTED if component == "DashedLine" else COLOR_CONSTRAINT,
+                "width": 1.35 if component == "DashedLine" else 2.0,
+                "dash": "5 6",
+                "persistence": "carry_forward" if carry else "step_only",
+                "metadata": {
+                    "low_level_type": "dashedLine" if component == "DashedLine" else "coloredLine"
+                },
+            }
+            if carry:
+                item["handle"] = _line_handle(line)
+                item["decay_state"] = "muted"
+            items.append(item)
         for raw_label in marker.get("point_labels") or ():
             if isinstance(raw_label, dict):
                 label = str(raw_label.get("label") or "")
@@ -1452,11 +1466,14 @@ def _congruent_triangle_marker_items(
             items.append(
                 {
                     "component": "Point",
+                    "handle": f"point:{point}",
                     "at": point,
                     "labelText": label,
                     "color": style.color,
                     "dx": style.dx,
                     "dy": style.dy,
+                    "persistence": "carry_forward",
+                    "decay_state": "muted",
                     "metadata": {"low_level_type": "point"},
                 }
             )
@@ -1495,6 +1512,7 @@ def _equivalent_segment_marker_items(
                 "width": float(template.get("width") or 2.25),
                 "dx": int(template.get("dx") or 12),
                 "dy": int(template.get("dy") or -16),
+                "persistence": "step_only",
             }
         )
     return items
@@ -1512,11 +1530,14 @@ def _auxiliary_ray_guide_marker_items(
             items.append(
                 {
                     "component": "ColoredLine",
+                    "handle": _line_handle(line),
                     "from": line.get("from"),
                     "to": line.get("to"),
                     "color": str(template.get("color") or COLOR_CONSTRAINT),
                     "width": float(template.get("width") or 2.0),
                     "dash": str(template.get("dash") or "5 6"),
+                    "persistence": "carry_forward",
+                    "decay_state": "muted",
                     "metadata": {"low_level_type": "coloredLine"},
                 }
             )
@@ -1550,9 +1571,39 @@ def _angle_equality_marker_items(
                 "guideWidth": 1.25,
                 "guideDash": "4 7",
                 "state": "muted",
+                "persistence": "step_only",
             }
         )
+        items.extend(_carry_forward_angle_guide_arm_items(marker))
     return items
+
+
+def _carry_forward_angle_guide_arm_items(marker: JsonObject) -> list[JsonObject]:
+    out: list[JsonObject] = []
+    for guide in marker.get("guide_arms") or ():
+        if not isinstance(guide, dict):
+            continue
+        handle = str(guide.get("handle") or "")
+        start = str(guide.get("from") or "")
+        end = str(guide.get("to") or "")
+        if not handle or not start or not end:
+            continue
+        out.append(
+            {
+                "component": "DashedLine",
+                "handle": handle,
+                "from": start,
+                "to": end,
+                "color": COLOR_MUTED,
+                "width": 1.25,
+                "dash": "4 7",
+                "state": "muted",
+                "persistence": "carry_forward",
+                "decay_state": "muted",
+                "metadata": {"low_level_type": "dashedLine"},
+            }
+        )
+    return out
 
 
 def _angle_reference_items(bindings: VisualRoleBindings) -> list[JsonObject]:
@@ -1653,6 +1704,7 @@ def _equal_acute_angle_intercept_marker_items(
                 "rightAngleColor": COLOR_CONSTRAINT,
                 "rightAngleSize": 10,
                 "state": "highlight",
+                "persistence": "step_only",
             }
         )
     return items
@@ -1697,11 +1749,14 @@ def _point_items(
         out.append(
             {
                 "component": "Point",
+                "handle": f"point:{at}",
                 "at": at,
                 "labelText": label,
                 "color": style.color,
                 "dx": style.dx,
                 "dy": style.dy,
+                "persistence": "carry_forward",
+                "decay_state": "muted",
                 "metadata": {"low_level_type": "point"},
             }
         )
@@ -1723,11 +1778,14 @@ def _point_items_for_geometry_refs(
         out.append(
             {
                 "component": "Point",
+                "handle": f"point:{ref}",
                 "at": ref,
                 "labelText": label,
                 "color": style.color,
                 "dx": style.dx,
                 "dy": style.dy,
+                "persistence": "carry_forward",
+                "decay_state": "muted",
                 "metadata": {"low_level_type": "point"},
             }
         )
@@ -1795,6 +1853,8 @@ def _coordinate_labels(
         coordinate = (coordinate_texts or {}).get(label) or _coordinate_for_label(label, text)
         if not coordinate:
             continue
+        if _is_origin_coordinate_label(label, coordinate):
+            continue
         out.append(
             {
                 "component": "CoordinateLabel",
@@ -1806,6 +1866,13 @@ def _coordinate_labels(
             }
         )
     return out
+
+
+def _is_origin_coordinate_label(label: str, coordinate: str) -> bool:
+    if label != "O":
+        return False
+    normalized = re.sub(r"\s+", "", coordinate)
+    return normalized in {"O(0,0)", "O(0,0.0)", "O(0.0,0)", "O(0.0,0.0)"}
 
 
 def _derive_texts(lesson_step: LessonStep) -> tuple[str, ...]:
@@ -1880,10 +1947,13 @@ def _line_if_points(
         return []
     item: JsonObject = {
         "component": "ColoredLine",
+        "handle": handle or f"line:{points[start]}:{points[end]}",
         "from": points[start],
         "to": points[end],
         "color": color,
         "width": width,
+        "persistence": "carry_forward",
+        "decay_state": "muted",
         "metadata": {"low_level_type": "coloredLine"},
     }
     if handle:
@@ -1908,13 +1978,25 @@ def _line_from_segment_payload(
     return [
         {
             "component": "ColoredLine",
+            "handle": _line_handle(segment),
             "from": start,
             "to": end,
             "color": color,
             "width": width,
+            "persistence": "carry_forward",
+            "decay_state": "muted",
             "metadata": {"low_level_type": "coloredLine"},
         }
     ]
+
+
+def _line_handle(segment: dict[str, Any]) -> str:
+    label = str(segment.get("label") or "")
+    if label:
+        return f"line:{label}"
+    start = str(segment.get("from") or "")
+    end = str(segment.get("to") or "")
+    return f"line:{start}:{end}"
 
 
 def _dashed_line_if_points(points: dict[str, str], start: str, end: str) -> list[JsonObject]:
@@ -1948,12 +2030,14 @@ def _distance_marker(
     return [
         {
             "component": "DistanceMarker",
+            "handle": f"distance:{points[start]}:{points[end]}:{label}",
             "from": points[start],
             "to": points[end],
             "label": label,
             "color": color,
             "width": width,
             "offsetPx": offset_px,
+            "persistence": "step_only",
         }
     ]
 
@@ -1975,12 +2059,14 @@ def _distance_marker_from_segment_payload(
     return [
         {
             "component": "DistanceMarker",
+            "handle": f"distance:{start}:{end}:{label}",
             "from": start,
             "to": end,
             "label": label,
             "color": color,
             "width": width,
             "offsetPx": offset_px,
+            "persistence": "step_only",
         }
     ]
 

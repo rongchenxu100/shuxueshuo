@@ -74,6 +74,8 @@ class LessonCandidateGroup:
     teaching_substep_id: str | None = None
     teaching_substep_title: str | None = None
     teaching_substep_nav_title: str | None = None
+    teaching_substep_title_required_terms: tuple[str, ...] = ()
+    teaching_substep_nav_title_required_terms: tuple[str, ...] = ()
     teaching_focus: str | None = None
     preferred_method_ids: tuple[str, ...] = ()
     forbid_merge_with_sibling_substeps: bool = True
