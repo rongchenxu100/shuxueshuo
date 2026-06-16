@@ -5,7 +5,10 @@ from __future__ import annotations
 import re
 from typing import Any, Protocol
 
+import sympy as sp
+
 from shuxueshuo_server.solver.runtime.recipes._spec import RecipeExplanationSpec, RecipeSpec
+from shuxueshuo_server.solver.student_display import student_math_display as _student_expr
 
 from ..models import ExplanationSnapshot, LessonCandidateGroup
 from .common import (
@@ -146,6 +149,8 @@ def _equal_length_ray_path_reduction_draft(
     minimum_expression = _minimum_expression_from_distance_trace(group)
     if minimum_expression:
         roles["minimum_expression"] = minimum_expression
+        roles["minimum_expression_display"] = _student_expr(minimum_expression)
+    roles.update(_minimum_segment_calculation_roles(group, snapshot, roles, entities))
     proof = [
         format_template(template, roles)
         for template in explanation.proof_outline_templates
@@ -212,12 +217,30 @@ def _equal_length_ray_path_substep_drafts(
     minimum_templates = (
         "由上一步已经得到 {original_path} = {reduced_path}。",
         "转化后只剩一个动点，路径最小值对应两端点间的最短线段 {minimum_segment}。",
-        "由已验算的距离计算，得到最小值表达式 {minimum_expression}。",
     )
+    if roles.get("auxiliary_coordinate"):
+        minimum_templates += (
+            "由 {auxiliary_equal_length} 且 {auxiliary_point} 在 {ray_name} 上，得到 {auxiliary_coordinate}。",
+        )
+    if roles.get("minimum_distance_formula"):
+        minimum_templates += ("{minimum_distance_formula}。",)
+    else:
+        minimum_templates += (
+            "由已验算的距离计算，得到最小值表达式 {minimum_expression_display}。",
+        )
     minimum_proof = [
         format_template(template, roles)
         for template in minimum_templates
     ]
+    minimum_box = []
+    if roles.get("auxiliary_coordinate"):
+        minimum_box.append(format_template("{auxiliary_coordinate}", roles))
+    if roles.get("minimum_expression_display"):
+        minimum_box.append(format_template("路径最小值 = {minimum_expression_display}", roles))
+    elif roles.get("minimum_expression"):
+        minimum_box.append(format_template("路径最小值 = {minimum_expression}", roles))
+    else:
+        minimum_box.append(format_template("路径最小值对应 {minimum_segment}", roles))
     return [
         {
             **common,
@@ -233,11 +256,7 @@ def _equal_length_ray_path_substep_drafts(
             "teaching_substep_id": "minimum_by_segment",
             "student_intent_draft": "在已经降维的单动点路径中，用两点之间线段最短求最小值表达式。",
             "proof_draft": minimum_proof,
-            "box": [
-                format_template("路径最小值 = {minimum_expression}", roles)
-                if roles.get("minimum_expression")
-                else format_template("路径最小值对应 {minimum_segment}", roles),
-            ],
+            "box": minimum_box,
         },
     ]
 
@@ -371,6 +390,154 @@ def _minimum_expression_from_distance_trace(group: LessonCandidateGroup) -> str:
                 if value:
                     return value
     return ""
+
+
+def _minimum_segment_calculation_roles(
+    group: LessonCandidateGroup,
+    snapshot: ExplanationSnapshot,
+    roles: dict[str, Any],
+    entities: dict[str, dict[str, Any]],
+) -> dict[str, Any]:
+    auxiliary = _point_pair_for_auxiliary(group, snapshot)
+    fixed = _point_pair_for_role("fixed_point", group, snapshot, roles, entities)
+    if auxiliary is None or fixed is None:
+        return {}
+    aux_label = str((roles.get("auxiliary_point") or {}).get("label") or "辅助点")
+    fixed_label = str((roles.get("fixed_point") or {}).get("label") or "固定点")
+    anchor_label = str((roles.get("anchor") or {}).get("label") or "")
+    reference_label = str((roles.get("segment_reference_point") or {}).get("label") or "")
+    dx = sp.simplify(auxiliary[0] - fixed[0])
+    dy = sp.simplify(auxiliary[1] - fixed[1])
+    distance = sp.simplify(sp.sqrt(dx**2 + dy**2))
+    minimum_expression = roles.get("minimum_expression")
+    if minimum_expression:
+        parsed_minimum = _sympify(minimum_expression)
+        if parsed_minimum is not None:
+            distance = sp.simplify(parsed_minimum)
+    result = {
+        "auxiliary_coordinate": _point_text(aux_label, auxiliary),
+        "minimum_distance_formula": (
+            f"{fixed_label}{aux_label}=√(({_student_expr(dx)})²+({_student_expr(dy)})²)"
+            f"={_student_expr(distance)}"
+        ),
+    }
+    if anchor_label and reference_label:
+        result["auxiliary_equal_length"] = f"{anchor_label}{aux_label}={anchor_label}{reference_label}"
+    return result
+
+
+def _point_pair_for_role(
+    role: str,
+    group: LessonCandidateGroup,
+    snapshot: ExplanationSnapshot,
+    roles: dict[str, Any],
+    entities: dict[str, dict[str, Any]],
+) -> tuple[sp.Expr, sp.Expr] | None:
+    value = roles.get(role)
+    if not isinstance(value, dict):
+        return None
+    handle = str(value.get("handle") or "")
+    label = str(value.get("label") or "")
+    entity_pair = _point_pair_from_entity(handle, entities)
+    if entity_pair is not None:
+        return entity_pair
+    return _point_pair_for_label(label, group.scope_id, snapshot)
+
+
+def _point_pair_for_auxiliary(
+    group: LessonCandidateGroup,
+    snapshot: ExplanationSnapshot,
+) -> tuple[sp.Expr, sp.Expr] | None:
+    candidates: list[tuple[int, tuple[sp.Expr, sp.Expr]]] = []
+    for item in snapshot.fact_index.values():
+        if not isinstance(item, dict) or item.get("type") != "Point":
+            continue
+        if str(item.get("source") or "") != "equal_length_ray_point":
+            continue
+        pair = _point_pair_from_value(item.get("value"))
+        if pair is None:
+            continue
+        scope_id = str(item.get("scope_id") or "")
+        score = 0
+        if scope_id == group.step_id:
+            score = 3
+        elif scope_id == group.scope_id:
+            score = 2
+        candidates.append((score, pair))
+    if not candidates:
+        return None
+    candidates.sort(key=lambda item: item[0], reverse=True)
+    return candidates[0][1]
+
+
+def _point_pair_for_label(
+    label: str,
+    preferred_scope: str,
+    snapshot: ExplanationSnapshot,
+) -> tuple[sp.Expr, sp.Expr] | None:
+    if not label:
+        return None
+    candidates: list[tuple[int, tuple[sp.Expr, sp.Expr]]] = []
+    for item in snapshot.fact_index.values():
+        if not isinstance(item, dict) or item.get("type") != "Point":
+            continue
+        pair = _point_pair_from_value(item.get("value"))
+        if pair is None:
+            continue
+        name = str(item.get("name") or "")
+        handle = str(item.get("handle") or "")
+        if name != label and not name.startswith(f"{label}_coordinate") and f":{label}" not in handle:
+            continue
+        score = 1
+        if str(item.get("scope_id") or "") == preferred_scope:
+            score += 3
+        if item.get("container") == "outputs":
+            score += 1
+        candidates.append((score, pair))
+    if not candidates:
+        return None
+    candidates.sort(key=lambda item: item[0], reverse=True)
+    return candidates[0][1]
+
+
+def _point_pair_from_entity(
+    handle: str,
+    entities: dict[str, dict[str, Any]],
+) -> tuple[sp.Expr, sp.Expr] | None:
+    entity = entities.get(handle)
+    if not entity:
+        return None
+    coordinate = entity.get("coordinate")
+    pair = _point_pair_from_value(coordinate)
+    if pair is not None:
+        return pair
+    if str(entity.get("definition") or "") == "coordinate_origin":
+        return (sp.Integer(0), sp.Integer(0))
+    return None
+
+
+def _point_pair_from_value(value: Any) -> tuple[sp.Expr, sp.Expr] | None:
+    if not isinstance(value, list | tuple) or len(value) != 2:
+        return None
+    x = _sympify(value[0])
+    y = _sympify(value[1])
+    if x is None or y is None:
+        return None
+    return (x, y)
+
+
+def _sympify(value: Any) -> sp.Expr | None:
+    try:
+        return sp.sympify(
+            str(value).replace("^", "**"),
+            locals={"sqrt": sp.sqrt, "Abs": sp.Abs, "abs": sp.Abs},
+        )
+    except Exception:
+        return None
+
+
+def _point_text(label: str, pair: tuple[sp.Expr, sp.Expr]) -> str:
+    return f"{label}({_student_expr(pair[0])},{_student_expr(pair[1])})"
 
 
 def _label_for_handle(handle: str, entities: dict[str, dict[str, Any]]) -> str:

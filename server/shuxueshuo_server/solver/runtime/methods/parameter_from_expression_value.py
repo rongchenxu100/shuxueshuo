@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from shuxueshuo_server.solver.contracts import MethodExplanationSpec
+
 from ._common import *
 from ._spec import MethodSpecSource
 
@@ -75,4 +77,13 @@ SPEC = MethodSpecSource(
     outputs={"parameter_value": "ParameterValue"},
     preconditions=("expression 已由前序 method 推导得到",),
     postconditions=("输出参数值满足表达式取值条件",),
+    explanation=MethodExplanationSpec(
+        role_schema={
+            "expression": "前序步骤得到的含参表达式。",
+            "target_value": "题设给出的表达式取值。",
+            "parameter": "需要反求的参数。",
+        },
+        student_goal_template="把题设给定值代入已得到的表达式，解出参数。",
+        student_title_template="由最小值反求参数",
+    ),
 )

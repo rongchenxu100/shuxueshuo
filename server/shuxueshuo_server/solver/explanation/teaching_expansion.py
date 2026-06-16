@@ -92,6 +92,9 @@ def _method_explanation_payload(explanation: MethodExplanationSpec | None) -> di
     return {
         "role_schema": dict(explanation.role_schema),
         "student_goal_template": explanation.student_goal_template,
+        "student_title_template": explanation.student_title_template,
+        "student_nav_title_template": explanation.student_nav_title_template,
+        "student_title_templates_by_goal": dict(explanation.student_title_templates_by_goal),
         "derive_templates": list(explanation.derive_templates),
         "box_templates": list(explanation.box_templates),
         "explanation_level": explanation.explanation_level,
@@ -106,6 +109,7 @@ def _method_teaching_draft(
     snapshot: ExplanationSnapshot,
 ) -> dict[str, Any]:
     proofs: list[str] = []
+    boxes: list[str] = []
     unbound: list[str] = []
     bound_roles: dict[str, Any] = {}
     for method_id in group.method_ids:
@@ -128,6 +132,10 @@ def _method_teaching_draft(
                 unbound.append(role)
         for template in explanation.derive_templates:
             proofs.append(format_template(str(template), local_roles))
+        for template in explanation.box_templates:
+            box = format_template(str(template), local_roles).strip()
+            if box and box not in boxes:
+                boxes.append(box)
     if not proofs:
         for trace in group.traces:
             for fragment in trace.trace_fragments:
@@ -140,6 +148,7 @@ def _method_teaching_draft(
         "bound_roles": bound_roles,
         "unbound_roles": unbound,
         "proof_draft": proofs,
+        "box": boxes,
         "llm_can_complete": [
             "可以把 method 计算草稿改写成更自然的初中数学推导。",
             "可以根据 trace 中的 calculation/conclusion 补充代入、化简、筛选等过渡句。",

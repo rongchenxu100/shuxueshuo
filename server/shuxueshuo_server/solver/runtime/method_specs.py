@@ -17,6 +17,7 @@ from shuxueshuo_server.solver.contracts import (
     MethodExplanationSpec,
     MethodInputSpec,
     MethodSpec,
+    MethodVisualSpec,
 )
 
 
@@ -106,6 +107,7 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
         trace_template=tuple(str(item) for item in raw.get("trace_template", [])),
         repair_hints=_parse_repair_hints(raw.get("repair_hints", [])),
         explanation=_parse_explanation(raw.get("explanation")),
+        visual=_parse_visual(raw.get("visual")),
     )
 
 
@@ -175,14 +177,45 @@ def _parse_explanation(raw: object) -> MethodExplanationSpec | None:
     role_schema = raw.get("role_schema", {})
     if not isinstance(role_schema, dict):
         raise ValueError("MethodSpec.explanation.role_schema must be an object")
+    title_by_goal = raw.get("student_title_templates_by_goal", {})
+    if not isinstance(title_by_goal, dict):
+        raise ValueError("MethodSpec.explanation.student_title_templates_by_goal must be an object")
     return MethodExplanationSpec(
         role_schema={str(key): str(value) for key, value in role_schema.items()},
         student_goal_template=str(raw.get("student_goal_template", "")),
+        student_title_template=str(raw.get("student_title_template", "")),
+        student_nav_title_template=str(raw.get("student_nav_title_template", "")),
+        student_title_templates_by_goal={
+            str(key): str(value)
+            for key, value in title_by_goal.items()
+        },
         derive_templates=tuple(str(item) for item in raw.get("derive_templates", ())),
         box_templates=tuple(str(item) for item in raw.get("box_templates", ())),
         explanation_level=str(raw.get("explanation_level", "template")),
         role_binding_strategy=str(raw.get("role_binding_strategy", "role_name_registry")),
         role_binder_id=str(raw.get("role_binder_id", "generic_trace")),
+    )
+
+
+def _parse_visual(raw: object) -> MethodVisualSpec | None:
+    if raw in (None, ()):
+        return None
+    if not isinstance(raw, dict):
+        raise ValueError("MethodSpec.visual must be an object")
+    role_schema = raw.get("role_schema", {})
+    if not isinstance(role_schema, dict):
+        raise ValueError("MethodSpec.visual.role_schema must be an object")
+    scene_templates = raw.get("scene_templates", ())
+    annotation_templates = raw.get("annotation_templates", ())
+    if not isinstance(scene_templates, list | tuple):
+        raise ValueError("MethodSpec.visual.scene_templates must be a list")
+    if not isinstance(annotation_templates, list | tuple):
+        raise ValueError("MethodSpec.visual.annotation_templates must be a list")
+    return MethodVisualSpec(
+        role_schema={str(key): str(value) for key, value in role_schema.items()},
+        scene_templates=tuple(dict(item) for item in scene_templates if isinstance(item, dict)),
+        annotation_templates=tuple(dict(item) for item in annotation_templates if isinstance(item, dict)),
+        role_binder_id=str(raw.get("role_binder_id", "generic_visual")),
     )
 
 

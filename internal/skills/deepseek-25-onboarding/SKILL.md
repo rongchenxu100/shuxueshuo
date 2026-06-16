@@ -49,7 +49,15 @@ For `<problem_id>`, create or update:
 - after DeepSeek succeeds: `internal/solver-fixtures/<problem_id>.executable-step-intents.json`
 - after recorded succeeds: `internal/few-shots/<problem_id>.few-shot.json`
 
-The canonical ProblemIR is the only authored problem fact source. Its `input` object must contain only `problem_id`, `pattern`, `problem_type`, `original_text`, `scopes`, `entities`, `facts`, and `question_goals`.
+The canonical ProblemIR is the only authored problem fact source. Its `input` object must contain only `problem_id`, `pattern`, `problem_type`, `display`, `original_text`, `scopes`, `entities`, `facts`, and `question_goals`.
+
+`display` is generated during ProblemIR creation, not by LessonIR or VisualBuilder. It should contain student-page metadata such as:
+
+- `summary`: one-line problem card summary, e.g. `第 25 题（2026 天津市和平区一模）二次函数综合：解析式、角度条件与 OM+BN 路径最值。`
+- `page_title`: full page title.
+- `breadcrumb_title`: short breadcrumb title.
+
+`original_text` remains the faithful problem text metadata and lines. Include `source`, `number`, optional `score`, and the exact original problem lines.
 
 Do not hand-author runtime compatibility fields such as `symbols`, `symbol_roles`, `constraints`, `data.function`, `data.entities.points`, `data.entities.items`, `data.relations`, `data.path_problem`, `questions[].conditions`, or `questions[].goals.target_path`. `RuntimeProjection` derives those fields for `ContextBuilder` and `ResultBuilder`.
 
@@ -98,6 +106,7 @@ The LLM should prefer `recipe_hint` from the recipe catalog first, then method i
 
 - Choose a stable `problem_id` matching repository naming, such as `tj-2026-xiqing-yimo-25`.
 - Choose `pattern` and `problem_type` from the structured problem, not from LLM guesswork during solving.
+- Fill `display.summary/page_title/breadcrumb_title` from the problem source, number, and key visible goals. Do not leave page summary generation to LessonIR or VisualBuilder.
 - Create expected answers separately under `server/tests/solver/expected/`.
 - Make sure `QuestionGoal.handle` uses `answer:<goal_id>` and canonical entity/fact handles follow the repository naming scheme.
 - For Point answers, set `question_goals[].target_handle` to the canonical point entity. For non-Point answers, the projection writes the result to the runtime `outputs` container.

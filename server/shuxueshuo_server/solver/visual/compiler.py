@@ -77,7 +77,11 @@ def forward_compile(visual_ir: VisualStepIR) -> CompiledVisualArtifacts:
     for visual_step in visual_ir.steps:
         scene = visual_step.scene or {}
         raw_step: dict[str, Any] = copy.deepcopy(visual_step.metadata.get("step_extra") or {})
-        add = [_compile_scene_item(item) for item in scene.get("add") or ()]
+        add = [
+            compiled
+            for item in scene.get("add") or ()
+            for compiled in _compile_scene_items(item)
+        ]
         if add:
             raw_step["add"] = add
         hide = scene.get("hide") or ()
@@ -157,15 +161,218 @@ def _reverse_element(item: JsonObject) -> JsonObject:
     return out
 
 
-def _compile_scene_item(item: JsonObject) -> JsonObject:
+def _compile_scene_items(item: JsonObject) -> list[JsonObject]:
     raw = copy.deepcopy(item)
     metadata = raw.pop("metadata", {}) or {}
     component = str(raw.pop("component"))
+    raw.pop("handle", None)
+    raw.pop("state", None)
+    raw.pop("guide_only_refs", None)
+    if component == "VisualGap":
+        return []
+    if component == "DistanceMarker":
+        return [_compile_distance_marker(raw)]
+    if component == "TranslationMarker":
+        return _compile_translation_marker(raw)
+    if component == "AngleEqualityMarker":
+        return _compile_angle_equality_marker(raw)
+    if component == "EqualAcuteAngleInterceptMarker":
+        return _compile_equal_acute_angle_intercept_marker(raw)
+    if component == "CongruentTriangleMarker":
+        return _compile_congruent_triangle_marker(raw)
+    if component == "EquivalentSegmentMarker":
+        return _compile_equivalent_segment_marker(raw)
     low_level_type = metadata.get("low_level_type") or low_level_for_visual_type(component)
     if low_level_type is None:
         raise ValueError(f"cannot compile component without low-level type: {component}")
     raw["type"] = low_level_type
-    return raw
+    return [raw]
+
+
+def _compile_distance_marker(raw: JsonObject) -> JsonObject:
+    return {
+        "type": "segment",
+        "from": raw.get("from"),
+        "to": raw.get("to"),
+        "label": raw.get("label") or raw.get("text") or "",
+        "color": raw.get("color"),
+        "width": raw.get("width", 2.0),
+        "offsetPx": raw.get("offsetPx", 16),
+    }
+
+
+def _compile_translation_marker(raw: JsonObject) -> list[JsonObject]:
+    source = raw.get("source")
+    target = raw.get("target")
+    label = raw.get("label") or "v"
+    return [
+        {
+            "type": "dashedLine",
+            "from": source,
+            "to": target,
+            "color": raw.get("color"),
+            "width": raw.get("width", 1.6),
+            "dash": raw.get("dash", "5 5"),
+        },
+        {
+            "type": "coordinateLabel",
+            "at": target,
+            "text": label,
+            "dx": raw.get("dx", 16),
+            "dy": raw.get("dy", -10),
+        },
+    ]
+
+
+def _compile_angle_equality_marker(raw: JsonObject) -> list[JsonObject]:
+    label = raw.get("label") or "α"
+    color = raw.get("color")
+    guide_color = raw.get("guideColor") or raw.get("guide_color") or color
+    out: list[JsonObject] = []
+    for guide in raw.get("guide_arms") or ():
+        if not isinstance(guide, dict):
+            continue
+        line = {
+            "type": "dashedLine",
+            "from": guide.get("from"),
+            "to": guide.get("to"),
+            "color": guide.get("color") or guide_color,
+            "width": guide.get("width", raw.get("guideWidth", 1.4)),
+            "dash": guide.get("dash", raw.get("guideDash", "4 6")),
+        }
+        out.append(line)
+    for angle in raw.get("angles") or ():
+        if not isinstance(angle, dict):
+            continue
+        out.append(
+            {
+                "type": "angleArc",
+                "vertex": angle.get("vertex"),
+                "rayA": angle.get("rayA"),
+                "rayB": angle.get("rayB"),
+                "color": angle.get("color") or color,
+                "radius": angle.get("radius", raw.get("radius", 34)),
+                "label": angle.get("label") or label,
+                "labelRadius": angle.get("labelRadius", raw.get("labelRadius", 48)),
+            }
+        )
+    return out
+
+
+def _compile_equal_acute_angle_intercept_marker(raw: JsonObject) -> list[JsonObject]:
+    label = raw.get("label") or "α"
+    color = raw.get("color")
+    out: list[JsonObject] = []
+    for region in raw.get("triangle_regions") or ():
+        if not isinstance(region, dict):
+            continue
+        out.append(
+            {
+                "type": "outlineRegion",
+                "vertices": list(region.get("vertices") or ()),
+                "fill": region.get("fill"),
+                "color": region.get("color"),
+                "width": region.get("width", 1.0),
+                "dash": region.get("dash", ""),
+            }
+        )
+    for line in raw.get("lines") or ():
+        if not isinstance(line, dict):
+            continue
+        line_type = "dashedLine" if line.get("style") == "dashed" else "coloredLine"
+        item = {
+            "type": line_type,
+            "from": line.get("from"),
+            "to": line.get("to"),
+            "color": line.get("color"),
+            "width": line.get("width", 1.6),
+        }
+        if line_type == "dashedLine":
+            item["dash"] = line.get("dash", "4 7")
+        out.append(item)
+    for angle in raw.get("angles") or ():
+        if not isinstance(angle, dict):
+            continue
+        out.append(
+            {
+                "type": "angleArc",
+                "vertex": angle.get("vertex"),
+                "rayA": angle.get("rayA"),
+                "rayB": angle.get("rayB"),
+                "color": angle.get("color") or color,
+                "radius": angle.get("radius", raw.get("radius", 34)),
+                "label": angle.get("label") or label,
+                "labelRadius": angle.get("labelRadius", raw.get("labelRadius", 48)),
+            }
+        )
+    for right_angle in raw.get("right_angles") or ():
+        if not isinstance(right_angle, dict):
+            continue
+        out.append(
+            {
+                "type": "rightAngle",
+                "vertex": right_angle.get("vertex"),
+                "rayA": right_angle.get("rayA"),
+                "rayB": right_angle.get("rayB"),
+                "size": right_angle.get("size", raw.get("rightAngleSize", 10)),
+                "color": right_angle.get("color") or raw.get("rightAngleColor"),
+            }
+        )
+    return out
+
+
+def _compile_congruent_triangle_marker(raw: JsonObject) -> list[JsonObject]:
+    out: list[JsonObject] = []
+    for triangle in raw.get("triangles") or ():
+        if not isinstance(triangle, dict):
+            continue
+        out.append(
+            {
+                "type": "outlineRegion",
+                "vertices": list(triangle.get("vertices") or ()),
+                "fill": triangle.get("fill") or raw.get("fill"),
+                "color": triangle.get("color") or raw.get("color"),
+                "width": triangle.get("width", raw.get("width", 1.0)),
+                "dash": triangle.get("dash", raw.get("dash", "")),
+            }
+        )
+    return out
+
+
+def _compile_equivalent_segment_marker(raw: JsonObject) -> list[JsonObject]:
+    out: list[JsonObject] = []
+    segments = [item for item in raw.get("segments") or () if isinstance(item, dict)]
+    color = raw.get("color")
+    width = raw.get("width", 2.2)
+    offset_px = raw.get("offsetPx", 18)
+    for index, segment in enumerate(segments):
+        out.append(
+            {
+                "type": "coloredLine",
+                "from": segment.get("from"),
+                "to": segment.get("to"),
+                "color": segment.get("color") or color,
+                "width": segment.get("width", width),
+            }
+        )
+        out.append(
+            {
+                "type": "segment",
+                "from": segment.get("from"),
+                "to": segment.get("to"),
+                "label": segment.get("label") or raw.get("label") or "",
+                "color": segment.get("color") or color,
+                "width": raw.get("measureWidth", 1.6),
+                "offsetPx": segment.get(
+                    "offsetPx",
+                    offset_px if index == 0 else -offset_px,
+                ),
+                "style": "dimension",
+                "rotateWithLine": False,
+                "extraNormal": 8,
+            }
+        )
+    return out
 
 
 def _reverse_interactions(step_id: str, lesson_step: JsonObject, lesson_data: JsonObject) -> list[JsonObject]:

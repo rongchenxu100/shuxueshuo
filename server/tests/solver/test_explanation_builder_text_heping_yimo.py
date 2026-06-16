@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
+import inspect
 import shutil
 from types import SimpleNamespace
 
@@ -12,15 +13,18 @@ from shuxueshuo_server.solver import load_expected_answers, load_problem_ir
 from shuxueshuo_server.solver.explanation import (
     ExplanationBuilder,
     ExplanationSnapshotBuilder,
+    LessonIRValidator,
     LLMLessonPlanner,
     write_explanation_debug_artifacts,
 )
+from shuxueshuo_server.solver.explanation import builder as explanation_builder
+from shuxueshuo_server.solver.explanation.builder import LessonIRValidationError
 from shuxueshuo_server.solver.explanation.few_shots import (
     select_lesson_few_shot_examples,
     validate_lesson_few_shot_entry,
 )
 from shuxueshuo_server.solver.explanation.llm import build_lesson_planner_payload
-from shuxueshuo_server.solver.explanation.models import LessonCandidateGroup, TeachingTraceEntry
+from shuxueshuo_server.solver.explanation.models import LessonCandidateGroup, LessonStep, TeachingTraceEntry
 from shuxueshuo_server.solver.explanation.role_binders import RoleBinderRegistry, RoleBindingError
 from shuxueshuo_server.solver.explanation.teaching_expansion import (
     explanation_payload_for_group,
@@ -57,6 +61,30 @@ def test_recorded_heping_success_artifacts_are_available_and_not_serialized() ->
     assert "last_success_artifacts" not in payload
     assert "context" not in payload
     assert "planner_output" not in payload
+
+
+def test_lesson_titles_come_from_capability_explanation_specs() -> None:
+    source = inspect.getsource(explanation_builder._title_for_recipe)
+
+    assert "if recipe ==" not in source
+    assert explanation_builder._title_for_recipe(
+        "quadratic_from_constraints",
+        "derive_parabola",
+    ) == "代入已知点求抛物线解析式"
+    assert explanation_builder._title_for_recipe(
+        "quadratic_from_constraints",
+        "derive_parametric_parabola",
+    ) == "用参数表示抛物线解析式"
+    assert explanation_builder._title_for_recipe(
+        "line_parabola_second_intersection_point",
+        "derive_curve_intersection_point",
+    ) == "联立直线与抛物线求交点"
+
+    spec = MethodSpecRegistry.load_from_code().require("quadratic_from_constraints")
+    assert spec.explanation is not None
+    assert spec.explanation.student_title_templates_by_goal[
+        "derive_parametric_parabola"
+    ] == "用参数表示抛物线解析式"
 
 
 def test_failed_or_unsupported_solve_does_not_keep_stale_success_artifacts() -> None:
@@ -117,9 +145,43 @@ def test_lesson_ir_from_recorded_heping_contains_answers_and_trace_refs() -> Non
         assert step.source_step_ids
         assert step.capability_ids
         assert step.trace_refs
-    for values in load_expected_answers(HEPING_EXPECTED).values():
-        for value in values.values():
-            assert _answer_text(value) in serialized
+    assert "y=x²-2x-3" in serialized
+    assert "E(-2/3,-11/9)" in serialized
+    assert "a=3/4" in serialized
+    assert "x**2 - 2*x - 3" not in serialized
+    assert "i_1.parabola =" not in serialized
+    assert "answer:" not in serialized
+    assert "fact:" not in serialized
+
+
+def test_lesson_ir_validator_rejects_machine_box_expression() -> None:
+    orchestrator, _ = _solve_recorded_heping()
+    snapshot = ExplanationSnapshotBuilder().build(orchestrator.last_success_artifacts)
+    lesson = ExplanationBuilder().build_lesson(snapshot)
+    first_step = lesson.steps[0]
+    bad_step = LessonStep(
+        id=first_step.id,
+        scope_id=first_step.scope_id,
+        source_step_ids=first_step.source_step_ids,
+        capability_ids=first_step.capability_ids,
+        trace_refs=first_step.trace_refs,
+        title=first_step.title,
+        goal=first_step.goal,
+        nav_title=first_step.nav_title,
+        derive=first_step.derive,
+        box=("i_1.parabola = x**2 - 2*x - 3",),
+        gaps=first_step.gaps,
+        teaching_substep_ids=first_step.teaching_substep_ids,
+    )
+    bad_lesson = type(lesson)(
+        problem_id=lesson.problem_id,
+        family_id=lesson.family_id,
+        sections=lesson.sections,
+        steps=(bad_step, *lesson.steps[1:]),
+    )
+
+    with pytest.raises(LessonIRValidationError, match="student-readable"):
+        LessonIRValidator().validate(bad_lesson, snapshot)
 
 
 def test_illegal_llm_text_output_falls_back_to_deterministic_template() -> None:
@@ -252,6 +314,11 @@ def test_recipe_explanation_spec_is_template_not_heping_specific() -> None:
         assert forbidden not in serialized
     assert "{anchor}" in serialized
     assert "{original_path}" in serialized
+    substeps = payload["explanation"]["teaching_substep_specs"]
+    assert substeps[0]["title"] == "构造全等三角形，把两动点问题转化为单动点问题"
+    assert substeps[0]["nav_title"] == "两动点转化单动点"
+    assert substeps[1]["title"] == "将军饮马得到最小值表达式"
+    assert substeps[1]["nav_title"] == "将军饮马取最小值"
     assert "最小值表达式" not in "\n".join(
         EQUAL_LENGTH_RAY_PATH_REDUCTION_SPEC.explanation.proof_outline_templates
     )
@@ -298,7 +365,8 @@ def test_equal_length_ray_recipe_teaching_draft_binds_heping_roles(tmp_path) -> 
 
     assert minimum_group["candidate_group_id"] == "reduce_ii_equal_length_ray_path.minimum_by_segment"
     assert "两点之间线段最短" in minimum_serialized
-    assert "3*sqrt(2*a**2 + 1)" in minimum_serialized
+    assert "G(3√(a²+1)/|a|,-3)" in minimum_serialized
+    assert "OG=√((3√(a²+1)/|a|)²+(-3)²)=3√(2a²+1)/|a|" in minimum_serialized
 
 
 def test_recorded_heping_lesson_splits_equal_length_reduction() -> None:
@@ -316,8 +384,45 @@ def test_recorded_heping_lesson_splits_equal_length_reduction() -> None:
         ("path_reduction",),
         ("minimum_by_segment",),
     ]
-    assert "单动点路径" in reduction_steps[0].title
-    assert "最小值表达式" in reduction_steps[1].title
+    assert reduction_steps[0].title == "构造全等三角形，把两动点问题转化为单动点问题"
+    assert reduction_steps[0].nav_title == "两动点转化单动点"
+    assert reduction_steps[1].title == "将军饮马得到最小值表达式"
+    assert reduction_steps[1].nav_title == "将军饮马取最小值"
+
+
+def test_line_parabola_method_keeps_single_step_with_intermediate_box() -> None:
+    orchestrator, _ = _solve_recorded_heping()
+    snapshot = ExplanationSnapshotBuilder().build(orchestrator.last_success_artifacts)
+    groups = tuple(__import__(
+        "shuxueshuo_server.solver.explanation.builder",
+        fromlist=["_build_lesson_groups"],
+    )._build_lesson_groups(snapshot))
+    line_groups = [
+        group
+        for group in groups
+        if group.step_id == "derive_i_2_E_coordinate"
+    ]
+
+    assert len(line_groups) == 1
+    assert line_groups[0].teaching_substep_id is None
+
+    payload = explanation_payload_for_group(line_groups[0], snapshot)
+
+    assert payload["teaching_expansion_draft"]["box"] == [
+        "BE: y=(1/3)x-1",
+        "E(-2/3,-11/9)",
+    ]
+
+    lesson = ExplanationBuilder().build_lesson(snapshot)
+    split_steps = [
+        step
+        for step in lesson.steps
+        if "derive_i_2_E_coordinate" in step.source_step_ids
+    ]
+
+    assert len(split_steps) == 1
+    assert split_steps[0].teaching_substep_ids == ()
+    assert split_steps[0].box == ("BE: y=(1/3)x-1", "E(-2/3,-11/9)")
 
 
 def test_method_explanation_templates_support_placeholders() -> None:

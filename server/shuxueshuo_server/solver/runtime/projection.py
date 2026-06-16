@@ -56,6 +56,7 @@ def problem_to_llm_payload(problem: ProblemIR) -> dict[str, Any]:
         "problem_id": problem.problem_id,
         "purpose": "llm_strategy_planner_prompt",
         "title": _problem_title(problem),
+        "display": _display_payload(problem),
         "original_text": _original_text_lines(problem),
         "scopes": _scope_payload(problem),
         "entities": _entity_payload(problem),
@@ -118,6 +119,7 @@ def problem_from_canonical_input(raw: Mapping[str, Any]) -> ProblemIR:
         symbols=symbols,
         symbol_roles=symbol_roles,
         original_text=dict(raw["original_text"]),
+        display=dict(canonical_payload.get("display") or {}),
         constraints=constraints,
         data=runtime_data,
         solver_config={},
@@ -134,6 +136,7 @@ def _validate_canonical_input(raw: Mapping[str, Any]) -> None:
         "problem_id",
         "pattern",
         "problem_type",
+        "display",
         "original_text",
         "scopes",
         "entities",
@@ -160,6 +163,7 @@ def _canonical_payload(raw: Mapping[str, Any]) -> dict[str, Any]:
         problem_type=str(raw["problem_type"]),
         symbols=[],
         original_text=dict(original_text),
+        display=dict(raw.get("display") or {}),
     )
     payload = {
         "problem_id": str(raw["problem_id"]),
@@ -167,6 +171,7 @@ def _canonical_payload(raw: Mapping[str, Any]) -> dict[str, Any]:
         "problem_type": str(raw["problem_type"]),
         "purpose": "llm_strategy_planner_prompt",
         "title": _problem_title(problem),
+        "display": _display_payload(problem),
         "original_text": _original_text_lines(problem),
         "scopes": deepcopy(list(raw["scopes"])),
         "entities": deepcopy(list(raw["entities"])),
@@ -650,10 +655,26 @@ def _problem_title(problem: ProblemIR) -> str:
     source = str(problem.original_text.get("source", "")).strip()
     number = str(problem.original_text.get("number", "")).strip()
     if source and number:
-        return f"{source}第 {number} 题"
+        return f"{source} 第 {number} 题"
     if source:
         return source
     return problem.problem_id
+
+
+def _display_payload(problem: ProblemIR) -> dict[str, Any]:
+    """题目展示元数据，供页面/讲解层消费。"""
+    display = dict(problem.display or {})
+    original = dict(problem.original_text or {})
+    source = str(original.get("source", "")).strip()
+    number = str(original.get("number", "")).strip()
+    score = str(original.get("score", "")).strip()
+    if source:
+        display.setdefault("source", source)
+    if number:
+        display.setdefault("number", number)
+    if score:
+        display.setdefault("score", score)
+    return display
 
 
 def _original_text_lines(problem: ProblemIR) -> list[str]:

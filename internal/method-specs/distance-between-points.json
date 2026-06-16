@@ -35,6 +35,9 @@
       "distance": "两点距离表达式。"
     },
     "student_goal_template": "计算 {p1} 与 {p2} 的距离，作为当前路径最值表达式。",
+    "student_title_template": "",
+    "student_nav_title_template": "",
+    "student_title_templates_by_goal": {},
     "derive_templates": [
       "由距离公式，{p1}{p2} = {distance}。",
       "化简得到当前需要的距离或最小值表达式。"

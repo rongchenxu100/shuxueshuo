@@ -73,6 +73,7 @@ class LessonCandidateGroup:
     traces: tuple[TeachingTraceEntry, ...]
     teaching_substep_id: str | None = None
     teaching_substep_title: str | None = None
+    teaching_substep_nav_title: str | None = None
     teaching_focus: str | None = None
     preferred_method_ids: tuple[str, ...] = ()
     forbid_merge_with_sibling_substeps: bool = True
@@ -124,13 +125,14 @@ class LessonStep:
     trace_refs: tuple[str, ...]
     title: str
     goal: str
+    nav_title: str | None = None
     derive: tuple[tuple[str, str], ...] = ()
     box: tuple[str, ...] = ()
     gaps: tuple[str, ...] = ()
     teaching_substep_ids: tuple[str, ...] = ()
 
     def to_payload(self) -> dict[str, Any]:
-        return {
+        payload = {
             "id": self.id,
             "scope_id": self.scope_id,
             "source_step_ids": list(self.source_step_ids),
@@ -143,6 +145,9 @@ class LessonStep:
             "gaps": list(self.gaps),
             "teaching_substep_ids": list(self.teaching_substep_ids),
         }
+        if self.nav_title:
+            payload["nav_title"] = self.nav_title
+        return payload
 
 
 @dataclass(frozen=True)
@@ -177,3 +182,44 @@ class LessonIR:
             "sections": [section.to_payload() for section in self.sections],
             "steps": [step.to_payload() for step in self.steps],
         }
+
+
+def lesson_ir_from_payload(payload: dict[str, Any]) -> LessonIR:
+    """Restore LessonIR from a JSON payload."""
+    return LessonIR(
+        problem_id=str(payload["problem_id"]),
+        family_id=str(payload["family_id"]),
+        sections=tuple(
+            LessonSection(
+                scope_id=str(item["scope_id"]),
+                title=str(item["title"]),
+                steps=tuple(str(step_id) for step_id in item.get("steps", ())),
+            )
+            for item in payload.get("sections", ())
+            if isinstance(item, dict)
+        ),
+        steps=tuple(
+            LessonStep(
+                id=str(item["id"]),
+                scope_id=str(item["scope_id"]),
+                source_step_ids=tuple(str(value) for value in item.get("source_step_ids", ())),
+                capability_ids=tuple(str(value) for value in item.get("capability_ids", ())),
+                trace_refs=tuple(str(value) for value in item.get("trace_refs", ())),
+                title=str(item.get("title") or ""),
+                goal=str(item.get("goal") or ""),
+                nav_title=str(item["nav_title"]) if item.get("nav_title") else None,
+                derive=tuple(
+                    (str(pair[0]), str(pair[1]))
+                    for pair in item.get("derive", ())
+                    if isinstance(pair, list | tuple) and len(pair) == 2
+                ),
+                box=tuple(str(value) for value in item.get("box", ()) if str(value)),
+                gaps=tuple(str(value) for value in item.get("gaps", ()) if str(value)),
+                teaching_substep_ids=tuple(
+                    str(value) for value in item.get("teaching_substep_ids", ())
+                ),
+            )
+            for item in payload.get("steps", ())
+            if isinstance(item, dict)
+        ),
+    )

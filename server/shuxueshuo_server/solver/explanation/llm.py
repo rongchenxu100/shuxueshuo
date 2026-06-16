@@ -222,6 +222,7 @@ def build_lesson_planner_payload(
                     "id": "string",
                     "source_step_ids": ["兼容字段；优先使用 candidate_group_ids"],
                     "title": "string",
+                    "nav_title": "string",
                     "goal": "string",
                     "derive": [["标签", "面向学生的讲解句"]],
                     "box": ["重要结论文字"],
@@ -245,7 +246,10 @@ def build_lesson_planner_payload(
             "每个 derive item 只表达一个逻辑动作：∵ 只写依据/前提，∴ 只写由前文推出的方程、化简结果、解或结论。",
             "不要在同一个 derive item 中写“……所以/因此/∴……”；必须拆成相邻的 ∵/代入/化简/解 与 ∴ 两行。",
             "不要输出标签“代入”“化简”“解”“筛选”；例如写成 [\"∴\", \"代入得 a-b=3\"] 或 [\"∴\", \"解得 a=1，b=-2\"]。",
-            "answers 中的每个最终答案都必须出现在相关最终讲解步骤的 box 中。",
+            "title 写带当前题上下文的解题思路，例如“第1步：求 C、D 点坐标，代入求函数解析式”。",
+            "nav_title 写短导航标题，不必带所有点名，例如“代入已知点求解析式”。",
+            "box 只能写学生可读关键结论，例如 C(0,-3)、y=x²-2x-3、a=3/4；不要写 answer:*、fact:*、i_1.parabola = ... 或 Python/SymPy 表达式。",
+            "answers 中的每个最终答案都必须以学生可读形式出现在相关最终讲解步骤的 box 中。",
         ],
     }
 

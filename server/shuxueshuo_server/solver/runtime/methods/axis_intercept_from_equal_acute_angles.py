@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from shuxueshuo_server.solver.contracts import MethodExplanationSpec, MethodVisualSpec
+
 from ._common import *
 from ._spec import MethodSpecSource
 
@@ -96,4 +98,28 @@ SPEC = MethodSpecSource(
         "y_axis_point 在以 origin 为原点的竖直轴上",
     ),
     postconditions=("输出点在 y 轴上，且满足 OF/OB=AO/CO",),
+    explanation=MethodExplanationSpec(
+        role_schema={
+            "angle_equality": "已推出的等锐角关系。",
+            "reference_right_triangle": "参考直角三角形。",
+            "target_intercept": "目标直线与坐标轴的交点。",
+        },
+        student_goal_template="由等锐角得到正切比相等，求出目标直线在坐标轴上的截点。",
+        student_title_template="由等角关系求辅助点坐标",
+    ),
+    visual=MethodVisualSpec(
+        role_schema={
+            "angle_equality": "用于保留当前讲解中的等角关系与对应角边。",
+            "target_intercept": "目标线与竖直轴的交点。",
+            "reference_right_triangle": "由参考水平轴点、origin、竖直轴点组成的直角三角形。",
+            "target_right_triangle": "由目标水平轴点、origin、目标截点组成的直角三角形。",
+        },
+        scene_templates=(
+            {
+                "component": "EqualAcuteAngleInterceptMarker",
+                "style_intent": "tangent_ratio_from_equal_acute_angles",
+            },
+        ),
+        role_binder_id="axis_intercept_from_equal_acute_angles",
+    ),
 )

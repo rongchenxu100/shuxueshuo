@@ -112,6 +112,8 @@ class VisualStepIRValidator:
     def _validate_annotation(self, item: dict[str, Any], lesson_step: dict[str, Any], label: str) -> None:
         if "text_source" not in item and "text" not in item:
             raise VisualStepIRValidationError(f"{label}: annotation requires text_source or text")
+        if "text_source" not in item and not str(item.get("text") or "").strip():
+            raise VisualStepIRValidationError(f"{label}: annotation text cannot be empty")
         if "text_source" not in item:
             return
         source = item["text_source"]

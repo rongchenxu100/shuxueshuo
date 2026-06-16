@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from shuxueshuo_server.solver.contracts import MethodExplanationSpec, MethodVisualSpec
+
 from ._common import *
 from ._spec import MethodSpecSource
 
@@ -126,4 +128,29 @@ SPEC = MethodSpecSource(
         "x_axis_point、y_axis_point、origin 形成另一个 45° 坐标轴角",
     ),
     postconditions=("输出唯一等角事实：目标线角等于参考角",),
+    explanation=MethodExplanationSpec(
+        role_schema={
+            "angle_sum_condition": "题设给出的角和条件。",
+            "reference_angle": "可验证出的 45° 参考角。",
+            "angle_equality": "消去公共角后得到的等角关系。",
+        },
+        student_goal_template="利用角和条件和 45° 参考角，推出后续可用的等角关系。",
+        student_title_template="由角和条件推出等角关系",
+    ),
+    visual=MethodVisualSpec(
+        role_schema={
+            "angle_equality": "当前讲解中需要展示的等角关系。",
+            "reference_angle": "method 从坐标轴参考三角形中验证出的 45° 角。",
+            "guide_arms": "为了让角边界可见而补充的淡 guide arm。",
+        },
+        scene_templates=(
+            {
+                "component": "AngleEqualityMarker",
+                "equality_role": "angle_equality",
+                "reference_angle_role": "reference_angle",
+                "style_intent": "angle_comparison",
+            },
+        ),
+        role_binder_id="angle_sum_equal_angle_candidates",
+    ),
 )

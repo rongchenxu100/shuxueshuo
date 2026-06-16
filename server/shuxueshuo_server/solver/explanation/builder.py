@@ -9,7 +9,9 @@ import json
 import re
 from typing import Any, Protocol
 
+from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.recipes import RecipeSpecRegistry
+from shuxueshuo_server.solver.student_display import student_math_display
 
 from .models import ExplanationSnapshot, LessonCandidateGroup, LessonIR, LessonSection, LessonStep, TeachingTraceEntry
 from .teaching_expansion import explanation_payload_for_group
@@ -109,23 +111,24 @@ class DeterministicLessonTextPlanner:
         step = group.step
         draft_payload = explanation_payload_for_group(group, snapshot)
         draft = draft_payload.get("teaching_expansion_draft")
+        draft_boxes = tuple(
+            str(item)
+            for item in (draft.get("box", ()) if isinstance(draft, dict) else ())
+            if str(item)
+        )
         if isinstance(draft, dict) and group.teaching_substep_id:
             proof = [
                 ("说明", str(item))
                 for item in draft.get("proof_draft", ())
                 if str(item)
             ]
-            boxes = tuple(
-                str(item)
-                for item in draft.get("box", ())
-                if str(item)
-            )
             if proof:
                 return {
                     "title": group.teaching_substep_title or _short_title(step),
+                    "nav_title": group.teaching_substep_nav_title,
                     "goal": str(draft.get("student_intent_draft") or group.teaching_focus or ""),
                     "derive": proof,
-                    "box": boxes or _produced_boxes(step),
+                    "box": draft_boxes or _produced_boxes(step),
                 }
         title = group.teaching_substep_title or _short_title(step)
         goal = str(step.get("strategy") or step.get("goal_type") or "推进当前解题步骤")
@@ -141,7 +144,7 @@ class DeterministicLessonTextPlanner:
             "title": title,
             "goal": goal,
             "derive": derive,
-            "box": _produced_boxes(step),
+            "box": draft_boxes or _produced_boxes(step),
         }
 
 
@@ -171,6 +174,7 @@ class ExplanationBuilder:
                 # LLM 讲解失败不影响 EB1：回退到 deterministic skeleton。
                 pass
         steps = []
+        rendered_answer_boxes: set[str] = set()
         for index, group in enumerate(groups):
             fallback = DeterministicLessonTextPlanner().plan_text(
                 group=group,
@@ -182,8 +186,22 @@ class ExplanationBuilder:
             except Exception:
                 text = fallback
                 text.setdefault("gaps", []).append("lesson_text_planner_fallback")
+            step_answer_boxes = _answer_boxes_for_step(group.step, snapshot.answers)
+            if group.teaching_substep_id and text.get("box"):
+                step_answer_boxes = ()
+            if step_answer_boxes:
+                text["box"] = _merge_boxes(text.get("box", ()), step_answer_boxes)
+                rendered_answer_boxes.update(step_answer_boxes)
+            rendered_answer_boxes.update(
+                item for item in _answer_boxes(snapshot.answers)
+                if item in tuple(str(box) for box in text.get("box", ()))
+            )
             if index == len(groups) - 1:
-                text["box"] = _merge_boxes(text.get("box", ()), _answer_boxes(snapshot.answers))
+                missing_answers = tuple(
+                    item for item in _answer_boxes(snapshot.answers)
+                    if item not in rendered_answer_boxes
+                )
+                text["box"] = _merge_boxes(text.get("box", ()), missing_answers)
             steps.append(_lesson_step_from_group(group, text))
         lesson = LessonIR(
             problem_id=snapshot.problem_id,
@@ -217,6 +235,7 @@ class LessonIRValidator:
             unknown_handles = sorted(_handle_refs(step.to_payload()) - allowed_handles)
             if unknown_handles:
                 raise LessonIRValidationError(f"unknown handle refs: {unknown_handles}")
+            _assert_student_readable_box(step.box)
         _assert_answers_present(lesson, snapshot.answers)
 
 
@@ -236,7 +255,7 @@ def _build_lesson_groups(snapshot: ExplanationSnapshot) -> list[LessonCandidateG
 def _split_lesson_group(group: LessonCandidateGroup) -> tuple[LessonCandidateGroup, ...]:
     """把单个 executable step 拆成更细的学生认知步骤。
 
-    拆分边界来自 recipe explanation spec；执行层仍共享同一个 StepIntent source。
+    拆分边界来自 recipe explanation spec；method 是默认最小讲解单元。
     """
     spec = _recipe_spec_for_group(group)
     explanation = spec.explanation if spec is not None else None
@@ -249,6 +268,7 @@ def _split_lesson_group(group: LessonCandidateGroup) -> tuple[LessonCandidateGro
             group.traces,
             teaching_substep_id=substep.substep_id,
             teaching_substep_title=substep.title,
+            teaching_substep_nav_title=substep.nav_title,
             teaching_focus=substep.focus,
             preferred_method_ids=substep.preferred_method_ids,
             forbid_merge_with_sibling_substeps=substep.forbid_merge_with_sibling_substeps,
@@ -275,6 +295,11 @@ def _lesson_step_from_group(group: LessonCandidateGroup, text: dict[str, Any]) -
         trace_refs=group.trace_refs,
         title=str(text.get("title") or _short_title(group.step)),
         goal=str(text.get("goal") or group.step.get("target") or ""),
+        nav_title=str(
+            text.get("nav_title")
+            or group.teaching_substep_nav_title
+            or _nav_title_from_title(str(text.get("title") or _short_title(group.step)))
+        ),
         derive=_derive_items(text.get("derive", ())),
         box=tuple(str(item) for item in text.get("box", ()) if str(item)),
         gaps=tuple(str(item) for item in text.get("gaps", ()) if str(item)),
@@ -398,6 +423,10 @@ def validate_lesson_draft(
             ),
             title=str(text.get("title") or _short_title(source_groups[0].step)),
             goal=str(text.get("goal") or source_groups[0].step.get("target") or ""),
+            nav_title=str(
+                text.get("nav_title")
+                or _nav_title_from_title(str(text.get("title") or _short_title(source_groups[0].step)))
+            ),
             derive=_derive_items(text.get("derive", ())),
             box=tuple(str(item) for item in text.get("box", ()) if str(item)),
             gaps=tuple(str(item) for item in text.get("gaps", ()) if str(item)),
@@ -526,7 +555,7 @@ def _cognitive_merge_blocker(
             return LessonDraftBlocker(
                 code="cognitive_action_merge_not_allowed",
                 message=(
-                    "recipe teaching substeps marked as separate cognitive actions must be separate LessonIR steps"
+                    "teaching substeps marked as separate cognitive actions must be separate LessonIR steps"
                 ),
                 step_id=str(raw_step.get("id", "")),
                 details={
@@ -630,7 +659,7 @@ def _build_sections(steps: list[LessonStep]) -> tuple[LessonSection, ...]:
     return tuple(
         LessonSection(
             scope_id=scope_id,
-            title=f"{scope_id} 问",
+            title=_section_title(scope_id),
             steps=tuple(step_ids),
         )
         for scope_id, step_ids in by_scope.items()
@@ -643,6 +672,7 @@ def _validate_text_output(raw: dict[str, Any], snapshot: ExplanationSnapshot) ->
     _assert_raw_derive_shape(raw.get("derive", ()))
     payload = {
         "title": str(raw.get("title", "")),
+        "nav_title": str(raw.get("nav_title") or _nav_title_from_title(str(raw.get("title", "")))),
         "goal": str(raw.get("goal", "")),
         "derive": _derive_items(raw.get("derive", ())),
         "box": tuple(str(item) for item in raw.get("box", ()) if str(item)),
@@ -652,6 +682,7 @@ def _validate_text_output(raw: dict[str, Any], snapshot: ExplanationSnapshot) ->
     if unknown_handles:
         raise LessonIRValidationError(f"LLM introduced unknown handles: {sorted(unknown_handles)}")
     _assert_derive_style(payload["derive"])
+    _assert_student_readable_box(payload["box"])
     return payload
 
 
@@ -776,11 +807,96 @@ def _assert_derive_style(items: tuple[tuple[str, str], ...]) -> None:
 
 
 def _short_title(step: dict[str, Any]) -> str:
+    recipe = str(step.get("recipe_hint") or "")
+    goal = str(step.get("goal_type") or "")
+    if recipe:
+        title = _title_for_recipe(recipe, goal)
+        if title:
+            return title
+    if goal:
+        title = _title_for_goal(goal)
+        if title:
+            return title
+        return goal.replace("_", " ")
+    description = _first_produced_description(step)
+    if description:
+        return description
     if step.get("target"):
-        return str(step["target"])
-    if step.get("goal_type"):
-        return str(step["goal_type"]).replace("_", " ")
+        return _title_from_handle(str(step["target"]))
     return str(step.get("step_id", "讲解步骤"))
+
+
+def _title_for_recipe(recipe: str, goal: str) -> str:
+    method_spec = _method_spec(recipe)
+    if method_spec is not None:
+        title = _title_from_explanation_spec(method_spec.explanation, goal)
+        return title or method_spec.title
+    recipe_spec = _recipe_spec_registry().get(recipe)
+    if recipe_spec is not None:
+        title = _title_from_explanation_spec(recipe_spec.explanation, goal)
+        return title or recipe_spec.title
+    return ""
+
+
+def _title_from_explanation_spec(explanation: Any, goal: str) -> str:
+    if explanation is None:
+        return ""
+    by_goal = getattr(explanation, "student_title_templates_by_goal", None) or {}
+    if goal and isinstance(by_goal, dict) and by_goal.get(goal):
+        return str(by_goal[goal])
+    return str(getattr(explanation, "student_title_template", "") or "")
+
+
+@lru_cache(maxsize=1)
+def _method_spec_registry() -> MethodSpecRegistry:
+    return MethodSpecRegistry.load_from_code()
+
+
+def _method_spec(method_id: str):
+    try:
+        return _method_spec_registry().require(method_id)
+    except KeyError:
+        return None
+
+
+def _title_for_goal(goal: str) -> str:
+    mapping = {
+        "derive_y_axis_intercept_point": "求抛物线与 y 轴交点",
+        "derive_translated_point": "由平移关系求点坐标",
+        "derive_parabola": "求抛物线解析式",
+        "derive_parametric_parabola": "用参数表示抛物线解析式",
+        "derive_axis_intercept_point": "求抛物线与 x 轴交点",
+        "derive_equal_angle": "推出等角关系",
+        "derive_angle_constructed_point": "由等角关系求辅助点",
+        "derive_curve_intersection_point": "联立直线与抛物线求交点",
+        "derive_path_minimum_expression": "求路径最小值表达式",
+        "derive_parameter": "反求参数",
+    }
+    return mapping.get(goal, "")
+
+
+def _first_produced_description(step: dict[str, Any]) -> str:
+    for produced in step.get("produces", ()):
+        if not isinstance(produced, dict):
+            continue
+        description = str(produced.get("description") or "")
+        if description:
+            return description
+    return ""
+
+
+def _title_from_handle(handle: str) -> str:
+    name = handle.rsplit(":", 1)[-1].replace("_", " ").replace(".", " ")
+    return name or "讲解步骤"
+
+
+def _nav_title_from_title(title: str) -> str:
+    """从正文标题派生短导航标题；LLM/fixture 可显式覆盖。"""
+    title = re.sub(r"^第\s*\d+\s*步[:：]\s*", "", str(title)).strip()
+    title = title.replace("，", "，")
+    if len(title) <= 12:
+        return title
+    return title[:12]
 
 
 def _produced_boxes(step: dict[str, Any]) -> tuple[str, ...]:
@@ -801,8 +917,42 @@ def _answer_boxes(answers: dict[str, Any]) -> tuple[str, ...]:
         if not isinstance(values, dict):
             continue
         for key, value in values.items():
-            boxes.append(f"{scope_id}.{key} = {_answer_text(value)}")
+            boxes.append(_student_answer_box(str(key), value))
     return tuple(boxes)
+
+
+def _answer_boxes_for_step(step: dict[str, Any], answers: dict[str, Any]) -> tuple[str, ...]:
+    boxes: list[str] = []
+    for produced in step.get("produces", ()):
+        if not isinstance(produced, dict):
+            continue
+        handle = str(produced.get("handle") or "")
+        if not handle.startswith("answer:"):
+            continue
+        resolved = _answer_for_handle(handle, answers)
+        if resolved is None:
+            continue
+        scope_id, key, value = resolved
+        boxes.append(_student_answer_box(key, value))
+    return tuple(dict.fromkeys(boxes))
+
+
+def _answer_for_handle(handle: str, answers: dict[str, Any]) -> tuple[str, str, Any] | None:
+    tail = handle.split(":", 1)[-1]
+    for scope_id in sorted(answers, key=len, reverse=True):
+        values = answers.get(scope_id)
+        if not isinstance(values, dict):
+            continue
+        prefix = f"{scope_id}_"
+        if tail.startswith(prefix):
+            key = tail[len(prefix):]
+        elif tail.startswith(f"{scope_id}."):
+            key = tail[len(scope_id) + 1:]
+        else:
+            continue
+        if key in values:
+            return scope_id, key, values[key]
+    return None
 
 
 def _answer_text(value: Any) -> str:
@@ -811,6 +961,23 @@ def _answer_text(value: Any) -> str:
     if isinstance(value, dict):
         return "{" + ", ".join(f"{k}: {_answer_text(v)}" for k, v in value.items()) + "}"
     return str(value)
+
+
+def _student_answer_box(key: str, value: Any) -> str:
+    if key == "parabola":
+        return f"y={_display_math_expr(value)}"
+    if isinstance(value, list):
+        rendered = ",".join(_display_math_expr(item) for item in value)
+        if re.fullmatch(r"[A-Z][A-Za-z0-9_]*", key):
+            return f"{key}({rendered})"
+        return f"({rendered})"
+    if re.fullmatch(r"[a-zA-Z][A-Za-z0-9_]*", key):
+        return f"{key}={_display_math_expr(value)}"
+    return _display_math_expr(value)
+
+
+def _display_math_expr(value: Any) -> str:
+    return student_math_display(_answer_text(value), simplify_sympy=False)
 
 
 def _merge_boxes(raw: Any, extra: tuple[str, ...]) -> tuple[str, ...]:
@@ -822,17 +989,69 @@ def _merge_boxes(raw: Any, extra: tuple[str, ...]) -> tuple[str, ...]:
 
 
 def _assert_answers_present(lesson: LessonIR, answers: dict[str, Any]) -> None:
-    text = str(lesson.to_payload())
+    text = _normalize_visible_math(str(lesson.to_payload()))
     missing = []
     for values in answers.values():
         if not isinstance(values, dict):
             continue
-        for value in values.values():
-            rendered = _answer_text(value)
-            if rendered and rendered not in text:
-                missing.append(rendered)
+        for key, value in values.items():
+            candidates = _student_answer_candidates(str(key), value)
+            if candidates and not any(_normalize_visible_math(candidate) in text for candidate in candidates):
+                missing.append(_student_answer_box(str(key), value))
     if missing:
         raise LessonIRValidationError(f"answer values missing from LessonIR: {missing}")
+
+
+def _student_answer_candidates(key: str, value: Any) -> tuple[str, ...]:
+    candidates = [_student_answer_box(key, value), _answer_text(value), _display_math_expr(value)]
+    if key == "parabola":
+        candidates.append(f"y={_display_math_expr(value)}")
+    if isinstance(value, list) and re.fullmatch(r"[A-Z][A-Za-z0-9_]*", key):
+        candidates.append(f"{key}({_display_math_expr(value)})")
+    return tuple(dict.fromkeys(candidate for candidate in candidates if candidate))
+
+
+def _normalize_visible_math(text: str) -> str:
+    return (
+        str(text)
+        .replace(" ", "")
+        .replace("，", ",")
+        .replace("−", "-")
+        .replace("**2", "²")
+        .replace("*", "")
+    )
+
+
+_MACHINE_BOX_RE = re.compile(r"\b[a-z]+(?:_[0-9]+)?\.[A-Za-z_][A-Za-z0-9_]*\s*=")
+
+
+def _assert_student_readable_box(boxes: tuple[str, ...]) -> None:
+    text = "\n".join(boxes)
+    if _HANDLE_RE.search(text):
+        raise LessonIRValidationError("box must not contain internal handles")
+    if _MACHINE_BOX_RE.search(text):
+        raise LessonIRValidationError("box must use student-readable conclusions, not internal answer keys")
+    if re.search(r"\b[a-zA-Z_][A-Za-z0-9_]*\s*=\s*[^，,;\n]*\*\*", text):
+        raise LessonIRValidationError("box must not contain Python/SymPy style expressions")
+
+
+def _section_title(scope_id: str) -> str:
+    parts = scope_id.split("_", 1)
+    root = parts[0]
+    root_title = {
+        "i": "第（Ⅰ）问",
+        "ii": "第（Ⅱ）问",
+        "iii": "第（Ⅲ）问",
+    }.get(root, f"{scope_id} 问")
+    if len(parts) == 1:
+        return root_title
+    sub_title = {
+        "1": "①",
+        "2": "②",
+        "3": "③",
+        "4": "④",
+    }.get(parts[1], parts[1])
+    return root_title.replace("问", f"{sub_title}问")
 
 
 _HANDLE_RE = re.compile(

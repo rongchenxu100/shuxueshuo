@@ -12,8 +12,9 @@
     "original_text": {
       "source": "2026 年天津市和平区一模",
       "number": "25",
+      "score": "10",
       "lines": [
-        "已知抛物线 y=ax²+bx-3（a，b 为常数，a＞0）与 x 轴交于点 A(-1,0) 和点 B，与 y 轴交于点 C，点 D 是点 C 向右平移 2 个单位得到的点。",
+        "已知抛物线 y=ax²+bx-3（a，b 为常数，a＞0）与 x 轴交于点 A(-1,0) 和点 B，与 y 轴交于点 C，点 D 是点 C 向右平移 2 个单位得到的点，连接 BC。",
         "（Ⅰ）若点 D 在抛物线上。",
         "① 求该抛物线的解析式；",
         "② 抛物线上的点 E 的横坐标为 m，且 -1＜m＜0，若 ∠CBE+∠ACO=45°，求点 E 的坐标；",
@@ -148,6 +149,17 @@
           "0"
         ],
         "description": "D 是点 C 向右平移 2 个单位得到的点"
+      },
+      {
+        "handle": "segment:problem:BC",
+        "entity_type": "segment",
+        "name": "BC",
+        "scope_id": "problem",
+        "endpoints": [
+          "point:problem:B",
+          "point:problem:C"
+        ],
+        "description": "连接 BC"
       },
       {
         "handle": "point:i_2:E",

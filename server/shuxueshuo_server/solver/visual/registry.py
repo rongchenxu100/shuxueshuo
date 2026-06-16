@@ -130,6 +130,36 @@ def default_component_registry() -> ComponentTypeSpecRegistry:
                 required_roles=("expected_role",),
                 optional_roles=("reason",),
             ),
+            ComponentTypeSpec(
+                visual_type="TranslationMarker",
+                compiles_to=("dashedLine", "coordinateLabel"),
+                required_roles=("source", "target"),
+                optional_roles=("vector", "label"),
+            ),
+            ComponentTypeSpec(
+                visual_type="AngleEqualityMarker",
+                compiles_to=("angleArc", "dashedLine"),
+                required_roles=("angles",),
+                optional_roles=("guide_arms", "label"),
+            ),
+            ComponentTypeSpec(
+                visual_type="EqualAcuteAngleInterceptMarker",
+                compiles_to=("outlineRegion", "coloredLine", "dashedLine", "angleArc", "rightAngle"),
+                required_roles=(),
+                optional_roles=("triangle_regions", "lines", "angles", "right_angles", "label"),
+            ),
+            ComponentTypeSpec(
+                visual_type="CongruentTriangleMarker",
+                compiles_to=("outlineRegion",),
+                required_roles=("triangles",),
+                optional_roles=("fill", "color"),
+            ),
+            ComponentTypeSpec(
+                visual_type="EquivalentSegmentMarker",
+                compiles_to=("coloredLine", "coordinateLabel"),
+                required_roles=("segments",),
+                optional_roles=("label",),
+            ),
         ]
     )
     return ComponentTypeSpecRegistry(tuple(specs))

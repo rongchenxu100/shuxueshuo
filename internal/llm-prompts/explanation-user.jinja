@@ -14,6 +14,7 @@
       "candidate_group_ids": ["一个或多个 candidate candidate_group_ids"],
       "source_step_ids": ["兼容字段；优先使用 candidate_group_ids"],
       "title": "string",
+      "nav_title": "string",
       "goal": "string",
       "derive": [["标签", "面向学生的讲解句"]],
       "box": ["重要结论文字"]
@@ -48,6 +49,9 @@
 - draft 标记为 `partial` 或 `gap` 时，只能用谨慎表达补充，不要硬写未验证的具体三角形、点名或结论。
 - `explanation_only_label=true` 的辅助点只用于学生讲解，不是 StepIntent 中的 creates，也不是新的 runtime fact。
 - 不要使用 draft 没有明确给出的“对称”“旋转”“相似”“对顶角”等几何关系来补证明。
+- `title` 写带当前题上下文的解题思路；`nav_title` 写短导航标题，不必带所有点名。
+- `box` 只能写学生可读关键结论，例如 `C(0,-3)`、`y=x²-2x-3`、`a=3/4`。
+- `box` 不要写 `answer:*`、`fact:*`、`i_1.parabola = ...` 或 `x**2 - 2*x - 3` 这类内部/Python 表达式。
 
 ## 当前题目
 

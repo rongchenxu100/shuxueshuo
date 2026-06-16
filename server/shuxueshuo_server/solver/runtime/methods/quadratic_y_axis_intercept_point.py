@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+from shuxueshuo_server.solver.contracts import MethodExplanationSpec
 from shuxueshuo_server.solver.math_ops import y_axis_intercept
 
 from ._common import *
@@ -64,4 +65,12 @@ SPEC = MethodSpecSource(
     outputs={"point": "Point"},
     preconditions=("quadratic 是关于 x 的函数表达式，可以含未定系数",),
     postconditions=("输出点横坐标为 0 且在曲线上；若输入含参数，输出坐标保留参数表达式",),
+    explanation=MethodExplanationSpec(
+        role_schema={
+            "parabola": "当前抛物线解析式。",
+            "target_point": "抛物线与 y 轴的交点。",
+        },
+        student_goal_template="令 x=0，求抛物线与 y 轴的交点。",
+        student_title_template="求抛物线与 y 轴交点",
+    ),
 )

@@ -8,6 +8,7 @@ from .models import (
     LessonSection,
     LessonStep,
     TeachingTraceEntry,
+    lesson_ir_from_payload,
 )
 from .snapshot import ExplanationSnapshotBuilder
 
@@ -21,5 +22,6 @@ __all__ = [
     "LessonSection",
     "LessonStep",
     "TeachingTraceEntry",
+    "lesson_ir_from_payload",
     "write_explanation_debug_artifacts",
 ]

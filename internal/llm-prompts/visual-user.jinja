@@ -1,0 +1,39 @@
+## 当前任务
+
+你会看到一份由代码生成的 VisualStepIR 摘要。请只做视觉优化 patch：
+
+- 可以追加已有几何对象的视觉标注、强调线、focus。
+- 可以追加 `append_add / append_annotations / state_overrides / hide / focus`。
+- 不要删除或覆盖代码生成的 `scene.add`。
+- 不要改 LessonIR、题目、答案、数学事实或几何坐标。
+- 不要新增 `CoordinateLabel`；坐标标签只能来自代码生成的 verified runtime values。
+- 不要复制不存在于 `allowed_geometry_refs` 的对象名。
+- 图形内 `label/text` 只能使用数学符号、点名、线段名、坐标或公式；不要写中文说明文字。
+
+## 允许使用的几何对象
+
+{{ payload.allowed_geometry_refs | pretty_json }}
+
+## 可用组件类型
+
+{{ payload.component_types | pretty_json }}
+
+## 代码生成的 Visual Steps
+
+{{ payload.visual_steps | pretty_json }}
+
+## 输出 Schema
+
+{{ payload.output_schema | pretty_json }}
+
+## 规则
+
+{% for rule in payload.rules %}
+- {{ rule }}
+{% endfor %}
+
+请返回如下 JSON 对象，不要 Markdown 代码块：
+
+{
+  "visual_step_patches": []
+}

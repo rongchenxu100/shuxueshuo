@@ -2,7 +2,12 @@
 
 from __future__ import annotations
 
-from ._spec import RecipeExplanationSpec, RecipeSpecSource, TeachingSubstepSpec
+from ._spec import (
+    RecipeExplanationSpec,
+    RecipeSpecSource,
+    RecipeVisualSpec,
+    TeachingSubstepSpec,
+)
 
 
 SPEC = RecipeSpecSource(
@@ -50,14 +55,16 @@ SPEC = RecipeSpecSource(
         teaching_substep_specs=(
             TeachingSubstepSpec(
                 substep_id="path_reduction",
-                title="构造等长辅助点，把两动点路径转化为单动点路径",
+                title="构造全等三角形，把两动点问题转化为单动点问题",
                 focus="构造辅助点、证明距离替换，并得到等价的单动点路径。",
+                nav_title="两动点转化单动点",
                 preferred_method_ids=("equal_length_ray_point",),
             ),
             TeachingSubstepSpec(
                 substep_id="minimum_by_segment",
-                title="利用两点之间线段最短，求路径最小值表达式",
+                title="将军饮马得到最小值表达式",
                 focus="在路径已经降维后，用最短线段计算最小值表达式。",
+                nav_title="将军饮马取最小值",
                 preferred_method_ids=("distance_between_points",),
             ),
         ),
@@ -66,6 +73,25 @@ SPEC = RecipeSpecSource(
             "可以把全等证明写成初中生能读懂的两三句话。",
             "如果三角形名称没有完全绑定，只能用“对应三角形”这类谨慎表达。",
         ),
+        role_binder_id="equal_length_ray_path_reduction",
+    ),
+    visual=RecipeVisualSpec(
+        role_schema={
+            "congruent_triangles": "由等长条件和共线关系得到的一对全等三角形。",
+            "replaced_segment": "原路径中被替换的距离段。",
+            "replacement_segment": "替换后的等长距离段。",
+            "common_path_segment": "路径转化前后共同保留的距离段。",
+            "construction_lines": "用于说明共线和辅助点构造的低调辅助线。",
+        },
+        teaching_substep_templates={
+            "path_reduction": (
+                {"component": "CongruentTriangleMarker"},
+                {"component": "EquivalentSegmentMarker"},
+            ),
+            "minimum_by_segment": (
+                {"component": "AuxiliaryRayGuideMarker"},
+            ),
+        },
         role_binder_id="equal_length_ray_path_reduction",
     ),
 )

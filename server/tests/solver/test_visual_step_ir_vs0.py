@@ -9,6 +9,7 @@ import pytest
 from shuxueshuo_server.solver.visual import (
     ComponentTypeSpec,
     ComponentTypeSpecRegistry,
+    JsonObject,
     LayerRegistry,
     VisualStep,
     VisualStepIR,
@@ -20,6 +21,7 @@ from shuxueshuo_server.solver.visual import (
     reverse_compile,
 )
 from shuxueshuo_server.solver.visual.models import visual_step_ir_from_payload
+from shuxueshuo_server.solver.visual.registry import low_level_for_visual_type
 
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -117,6 +119,13 @@ def test_visual_step_ir_validator_rejects_empty_annotation() -> None:
     with pytest.raises(VisualStepIRValidationError, match="requires text_source or text"):
         VisualStepIRValidator().validate(visual_ir)
 
+    visual_ir = _minimal_visual_ir(
+        annotations=({"type": "label", "target": "point:i:A", "text": "  "},)
+    )
+
+    with pytest.raises(VisualStepIRValidationError, match="annotation text cannot be empty"):
+        VisualStepIRValidator().validate(visual_ir)
+
 
 def test_visual_step_ir_validator_rejects_unsafe_visual_gap_payload() -> None:
     visual_ir = _minimal_visual_ir(
@@ -202,6 +211,15 @@ def test_component_registry_rejects_duplicates_and_covers_low_level_types() -> N
                 ComponentTypeSpec("DistanceMarker", ("coordinateLabel",)),
             )
         )
+
+
+def test_visual_type_reverse_lookup_uses_registered_low_level_mapping() -> None:
+    payload: JsonObject = {"component": "Point"}
+
+    assert payload["component"] == "Point"
+    assert low_level_for_visual_type("Point") == "point"
+    assert low_level_for_visual_type("ColoredLine") == "coloredLine"
+    assert low_level_for_visual_type("DistanceMarker") is None
 
 
 def test_layer_registry_is_configurable_and_rejects_unknown_refs() -> None:

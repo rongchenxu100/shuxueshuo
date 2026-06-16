@@ -1,0 +1,455 @@
+{
+  "problem_id": "tj-2026-heping-yimo-25",
+  "family_id": "QuadraticEqualLengthRayPathMinimumSolver",
+  "sections": [
+    {
+      "scope_id": "i_1",
+      "title": "第（Ⅰ）①问",
+      "steps": [
+        "step_1"
+      ]
+    },
+    {
+      "scope_id": "i_2",
+      "title": "第（Ⅰ）②问",
+      "steps": [
+        "step_2",
+        "step_3",
+        "step_4"
+      ]
+    },
+    {
+      "scope_id": "ii",
+      "title": "第（Ⅱ）问",
+      "steps": [
+        "step_5",
+        "step_6",
+        "step_7",
+        "step_8"
+      ]
+    }
+  ],
+  "steps": [
+    {
+      "id": "step_1",
+      "scope_id": "i_1",
+      "source_step_ids": [
+        "derive_C_coordinate",
+        "derive_D_coordinate",
+        "derive_i_1_parabola"
+      ],
+      "capability_ids": [
+        "quadratic_y_axis_intercept_point",
+        "translated_point",
+        "quadratic_from_constraints"
+      ],
+      "trace_refs": [
+        "trace:derive_C_coordinate:0:quadratic_y_axis_intercept_point",
+        "trace:derive_D_coordinate:0:translated_point",
+        "trace:derive_i_1_parabola:0:quadratic_from_constraints"
+      ],
+      "title": "第1步：求 C、D 点坐标，代入求函数解析式",
+      "nav_title": "代入已知点求解析式",
+      "goal": "确定第（Ⅰ）问的抛物线",
+      "derive": [
+        [
+          "∵",
+          "抛物线与 y 轴交于点 C，令 x=0 得 y=-3"
+        ],
+        [
+          "∴",
+          "C(0,-3)"
+        ],
+        [
+          "∵",
+          "点 D 是 C 向右平移 2 个单位得到的"
+        ],
+        [
+          "∴",
+          "D(2,-3)"
+        ],
+        [
+          "∵",
+          "点 A(-1,0) 和 D(2,-3) 都在抛物线上"
+        ],
+        [
+          "∴",
+          "代入 y=ax²+bx-3 得方程组"
+        ],
+        [
+          "∴",
+          "a·(-1)²+b·(-1)-3=0，4a+2b-3=-3"
+        ],
+        [
+          "∴",
+          "a=1，b=-2"
+        ],
+        [
+          "∴",
+          "y=x²-2x-3"
+        ]
+      ],
+      "box": [
+        "C(0,-3)",
+        "D(2,-3)",
+        "y=x²-2x-3"
+      ],
+      "gaps": [],
+      "teaching_substep_ids": []
+    },
+    {
+      "id": "step_2",
+      "scope_id": "i_2",
+      "source_step_ids": [
+        "derive_i_B_coordinate",
+        "derive_i_2_equal_angle"
+      ],
+      "capability_ids": [
+        "quadratic_x_axis_intercept_point",
+        "angle_sum_equal_angle_candidates"
+      ],
+      "trace_refs": [
+        "trace:derive_i_B_coordinate:0:quadratic_x_axis_intercept_point",
+        "trace:derive_i_2_equal_angle:0:angle_sum_equal_angle_candidates"
+      ],
+      "title": "第2步：求 B 坐标，并利用 45° 条件推出等角关系",
+      "nav_title": "求B并推出等角",
+      "goal": "找到与 ∠ACO 相等的角",
+      "derive": [
+        [
+          "∵",
+          "抛物线 y=x²-2x-3，令 y=0 得 x²-2x-3=0"
+        ],
+        [
+          "∴",
+          "解得 x₁=-1（点 A），x₂=3"
+        ],
+        [
+          "∴",
+          "B(3,0)"
+        ],
+        [
+          "∵",
+          "C(0,-3)，B(3,0)"
+        ],
+        [
+          "∴",
+          "∠CBO=45°（△CBO 是等腰直角三角形）"
+        ],
+        [
+          "∵",
+          "∠CBE+∠ACO=45°"
+        ],
+        [
+          "∴",
+          "∠CBE+∠ACO=∠CBO，即 ∠ACO=∠OBE"
+        ]
+      ],
+      "box": [
+        "∠OBE=∠ACO"
+      ],
+      "gaps": [],
+      "teaching_substep_ids": []
+    },
+    {
+      "id": "step_3",
+      "scope_id": "i_2",
+      "source_step_ids": [
+        "derive_i_2_F_coordinate"
+      ],
+      "capability_ids": [
+        "axis_intercept_from_equal_acute_angles"
+      ],
+      "trace_refs": [
+        "trace:derive_i_2_F_coordinate:0:axis_intercept_from_equal_acute_angles"
+      ],
+      "title": "第3步：由等角关系确定直线 BE 与 y 轴的交点 F",
+      "nav_title": "由等角求F",
+      "goal": "找到 F 的坐标，为求直线 BE 做准备",
+      "derive": [
+        [
+          "∵",
+          "∠OBE=∠ACO，且 ∠AOC=90°，∠BOF=90°"
+        ],
+        [
+          "∴",
+          "在 Rt△AOC 中，tan∠ACO=AO/CO=1/3；在 Rt△BOF 中，tan∠OBE=OF/OB=OF/3"
+        ],
+        [
+          "∵",
+          "∠OBE=∠ACO"
+        ],
+        [
+          "∴",
+          "tan 值相等，OF/3=1/3，得 OF=1"
+        ],
+        [
+          "∵",
+          "F 在 y 轴负半轴上"
+        ],
+        [
+          "∴",
+          "F(0,-1)"
+        ]
+      ],
+      "box": [
+        "F(0,-1)"
+      ],
+      "gaps": [],
+      "teaching_substep_ids": []
+    },
+    {
+      "id": "step_4",
+      "scope_id": "i_2",
+      "source_step_ids": [
+        "derive_i_2_E_coordinate"
+      ],
+      "capability_ids": [
+        "line_parabola_second_intersection_point"
+      ],
+      "trace_refs": [
+        "trace:derive_i_2_E_coordinate:0:line_parabola_second_intersection_point"
+      ],
+      "title": "第4步：联立直线与抛物线求点 E",
+      "nav_title": "联立求E",
+      "goal": "求出满足条件的 E 的坐标",
+      "derive": [
+        [
+          "∵",
+          "直线 BE 过 B(3,0) 和 F(0,-1)"
+        ],
+        [
+          "∴",
+          "BE: y=(1/3)x-1"
+        ],
+        [
+          "∵",
+          "E 是直线 BE 与抛物线 y=x²-2x-3 的交点（除 B 外）"
+        ],
+        [
+          "∴",
+          "联立 (1/3)x-1=x²-2x-3"
+        ],
+        [
+          "∴",
+          "整理得 3x²-7x-6=0，解得 x=3（点 B）或 x=-2/3"
+        ],
+        [
+          "∵",
+          "点 E 的横坐标 m 满足 -1<m<0"
+        ],
+        [
+          "∴",
+          "取 x=-2/3，E(-2/3,-11/9)"
+        ]
+      ],
+      "box": [
+        "BE: y=(1/3)x-1",
+        "E(-2/3,-11/9)"
+      ],
+      "gaps": [],
+      "teaching_substep_ids": []
+    },
+    {
+      "id": "step_5",
+      "scope_id": "ii",
+      "source_step_ids": [
+        "derive_ii_parametric_parabola",
+        "derive_ii_B_coordinate_expr"
+      ],
+      "capability_ids": [
+        "quadratic_from_constraints",
+        "quadratic_x_axis_intercept_point"
+      ],
+      "trace_refs": [
+        "trace:derive_ii_parametric_parabola:0:quadratic_from_constraints",
+        "trace:derive_ii_B_coordinate_expr:0:quadratic_x_axis_intercept_point"
+      ],
+      "title": "第1步：用参数 a 表示第（Ⅱ）问的抛物线和点 B",
+      "nav_title": "参数表示函数和B",
+      "goal": "为后续计算建立含参表达式",
+      "derive": [
+        [
+          "∵",
+          "点 A(-1,0) 在抛物线 y=ax²+bx-3 上"
+        ],
+        [
+          "∴",
+          "代入得 a·(-1)²+b·(-1)-3=0"
+        ],
+        [
+          "∴",
+          "a-b-3=0，即 b=a-3"
+        ],
+        [
+          "∴",
+          "第（Ⅱ）问抛物线为 y=ax²+(a-3)x-3"
+        ],
+        [
+          "∵",
+          "令 y=0，已知一个根 x=-1，由韦达定理，两根之积为 -3/a"
+        ],
+        [
+          "∴",
+          "另一根为 3/a，所以 B(3/a,0)"
+        ]
+      ],
+      "box": [
+        "y=ax²+(a-3)x-3",
+        "B(3/a,0)"
+      ],
+      "gaps": [],
+      "teaching_substep_ids": []
+    },
+    {
+      "id": "step_6",
+      "scope_id": "ii",
+      "source_step_ids": [
+        "reduce_ii_equal_length_ray_path"
+      ],
+      "capability_ids": [
+        "equal_length_ray_path_reduction"
+      ],
+      "trace_refs": [
+        "trace:reduce_ii_equal_length_ray_path:0:equal_length_ray_point"
+      ],
+      "title": "第2步：构造全等三角形，把两动点问题转化为单动点问题",
+      "nav_title": "两动点转化单动点",
+      "goal": "把两动点路径降维",
+      "derive": [
+        [
+          "作",
+          "在射线 CD 上构造点 G，使 CG=CB"
+        ],
+        [
+          "∵",
+          "B、C、M 共线，N、C、G 共线，且 CN=CM"
+        ],
+        [
+          "∴",
+          "△BCN≌△GCM（SAS）"
+        ],
+        [
+          "∴",
+          "BN=MG"
+        ],
+        [
+          "∴",
+          "OM+BN=OM+MG"
+        ]
+      ],
+      "box": [
+        "OM+BN = OM+MG"
+      ],
+      "gaps": [],
+      "teaching_substep_ids": [
+        "path_reduction"
+      ]
+    },
+    {
+      "id": "step_7",
+      "scope_id": "ii",
+      "source_step_ids": [
+        "reduce_ii_equal_length_ray_path"
+      ],
+      "capability_ids": [
+        "equal_length_ray_path_reduction"
+      ],
+      "trace_refs": [
+        "trace:reduce_ii_equal_length_ray_path:1:distance_between_points"
+      ],
+      "title": "第3步：将军饮马得到最小值表达式",
+      "nav_title": "将军饮马取最小值",
+      "goal": "计算 OG 的长度作为最小值",
+      "derive": [
+        [
+          "∵",
+          "由上一步，OM+BN=OM+MG"
+        ],
+        [
+          "∵",
+          "M 在线段 BC 上运动，G 是固定点"
+        ],
+        [
+          "∴",
+          "当 O、M、G 共线时，OM+MG 取得最小值 OG"
+        ],
+        [
+          "∵",
+          "G 在射线 CD 上，且 CG=CB"
+        ],
+        [
+          "∴",
+          "G(3√(a²+1)/|a|,-3)"
+        ],
+        [
+          "∴",
+          "OG=√((3√(a²+1)/|a|)²+(-3)²)=3√(2a²+1)/|a|"
+        ]
+      ],
+      "box": [
+        "G(3√(a²+1)/|a|,-3)",
+        "最小值为 3√(2a²+1)/|a|"
+      ],
+      "gaps": [],
+      "teaching_substep_ids": [
+        "minimum_by_segment"
+      ]
+    },
+    {
+      "id": "step_8",
+      "scope_id": "ii",
+      "source_step_ids": [
+        "solve_ii_a_from_minimum_value"
+      ],
+      "capability_ids": [
+        "parameter_from_expression_value"
+      ],
+      "trace_refs": [
+        "trace:solve_ii_a_from_minimum_value:0:parameter_from_expression_value"
+      ],
+      "title": "第4步：由最小值等于 √34，解出 a 的值",
+      "nav_title": "由最小值求a",
+      "goal": "求出 a",
+      "derive": [
+        [
+          "∵",
+          "题设给出 OM+BN 的最小值为 √34，且最小值表达式为 3√(2a²+1)/|a|"
+        ],
+        [
+          "∴",
+          "3√(2a²+1)/|a|=√34"
+        ],
+        [
+          "∵",
+          "a>0"
+        ],
+        [
+          "∴",
+          "|a|=a"
+        ],
+        [
+          "∴",
+          "两边平方得 9(2a²+1)=34a²"
+        ],
+        [
+          "∴",
+          "16a²=9，a²=9/16"
+        ],
+        [
+          "∵",
+          "a>0"
+        ],
+        [
+          "∴",
+          "a=3/4"
+        ]
+      ],
+      "box": [
+        "a=3/4"
+      ],
+      "gaps": [],
+      "teaching_substep_ids": []
+    }
+  ]
+}

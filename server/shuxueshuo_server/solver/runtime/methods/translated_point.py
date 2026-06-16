@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from shuxueshuo_server.solver.contracts import MethodExplanationSpec, MethodVisualSpec
+
 from ._common import *
 from ._spec import MethodSpecSource
 
@@ -68,4 +70,30 @@ SPEC = MethodSpecSource(
     outputs={"point": "Point"},
     preconditions=("target.definition 包含 vector 或 dx/dy 平移信息",),
     postconditions=("输出点等于 source 加平移向量",),
+    explanation=MethodExplanationSpec(
+        role_schema={
+            "source_point": "被平移的源点。",
+            "target_point": "平移后得到的目标点。",
+            "vector": "平移向量。",
+        },
+        student_goal_template="根据题设平移关系，由源点坐标求目标点坐标。",
+        student_title_template="由平移关系求点坐标",
+    ),
+    visual=MethodVisualSpec(
+        role_schema={
+            "source_point": "被平移的源点。",
+            "target_point": "平移后得到的目标点。",
+            "vector": "平移向量。",
+        },
+        scene_templates=(
+            {
+                "component": "TranslationMarker",
+                "source_role": "source_point",
+                "target_role": "target_point",
+                "vector_role": "vector",
+                "style_intent": "construction",
+            },
+        ),
+        role_binder_id="translated_point",
+    ),
 )

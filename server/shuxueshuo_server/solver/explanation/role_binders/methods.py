@@ -5,7 +5,10 @@ from __future__ import annotations
 import re
 from typing import Any, Protocol
 
+import sympy as sp
+
 from shuxueshuo_server.solver.contracts import MethodExplanationSpec
+from shuxueshuo_server.solver.student_display import student_math_display as _student_expr
 
 from ..models import ExplanationSnapshot, LessonCandidateGroup
 from .common import (
@@ -80,12 +83,44 @@ class DistanceBetweenPointsRoleBinder(RoleNameRegistryMethodRoleBinder):
     """Named binder for distance_between_points; delegates to role-name binding."""
 
 
+class LineParabolaSecondIntersectionRoleBinder(RoleNameRegistryMethodRoleBinder):
+    """Bind line expression and target point for a line-parabola intersection step."""
+
+    def bind(
+        self,
+        *,
+        method_id: str,
+        explanation: MethodExplanationSpec,
+        group: LessonCandidateGroup,
+        snapshot: ExplanationSnapshot,
+    ) -> dict[str, Any]:
+        roles = super().bind(
+            method_id=method_id,
+            explanation=explanation,
+            group=group,
+            snapshot=snapshot,
+        )
+        trace_roles = roles_from_trace(group)
+        line_points = str(roles.get("line_points") or "两个已知点")
+        parabola = _student_parabola_text(str(roles.get("parabola") or "抛物线"))
+        known_point = str(roles.get("known_point") or "已知交点")
+        target_point = _compact_point_text(str(roles.get("target_point") or trace_roles.get("conclusion", "")))
+        if target_point:
+            roles["target_point"] = target_point
+        line_name = _line_name(known_point, target_point)
+        line_expression = _line_expression_from_trace(trace_roles.get("calculation", ""), line_name)
+        if line_expression:
+            roles["line_expression"] = line_expression
+        return roles
+
+
 def method_role_binders() -> dict[str, MethodRoleBinder]:
     role_name = RoleNameRegistryMethodRoleBinder()
     return {
         "generic_trace": GenericTraceMethodRoleBinder(),
         "role_name_registry": role_name,
         "distance_between_points": DistanceBetweenPointsRoleBinder(),
+        "line_parabola_second_intersection_point": LineParabolaSecondIntersectionRoleBinder(),
     }
 
 
@@ -279,6 +314,65 @@ def _parabola_description(step: dict[str, Any], snapshot: ExplanationSnapshot) -
         if fact and fact.get("type") == "Parabola":
             return str(fact.get("value") or fact.get("description") or "抛物线")
     return "抛物线"
+
+
+def _line_expression_from_trace(text: str, line_name: str) -> str:
+    match = re.search(r"line:\s*y\s*=\s*(.+)$", text.strip())
+    if not match:
+        return text.strip()
+    rhs = match.group(1).strip()
+    display = _linear_expr_display(rhs)
+    prefix = f"{line_name}: " if line_name else ""
+    return f"{prefix}{display}" if display else f"{prefix}y={rhs}"
+
+
+def _line_name(known_point: str, target_point: str) -> str:
+    known = re.match(r"([A-Z])$", known_point.strip())
+    target = re.match(r"([A-Z])(?:\(|$)", target_point.strip())
+    if known and target:
+        return f"{known.group(1)}{target.group(1)}"
+    return "目标直线"
+
+
+def _linear_expr_display(rhs: str) -> str:
+    try:
+        x = sp.Symbol("x")
+        expr = sp.sympify(rhs, locals={"x": x})
+        slope = sp.simplify(expr.coeff(x))
+        intercept = sp.simplify(expr.subs(x, 0))
+    except Exception:
+        return f"y={rhs.replace('*', '')}"
+    slope_text = _slope_text(slope)
+    intercept_text = _signed_term(intercept)
+    return f"y={slope_text}x{intercept_text}"
+
+
+def _slope_text(value: sp.Expr) -> str:
+    if sp.simplify(value - 1) == 0:
+        return ""
+    if sp.simplify(value + 1) == 0:
+        return "-"
+    return f"({_student_expr(value)})"
+
+
+def _signed_term(value: sp.Expr) -> str:
+    value = sp.simplify(value)
+    if value == 0:
+        return ""
+    if value.is_negative:
+        return f"-{_student_expr(-value)}"
+    return f"+{_student_expr(value)}"
+
+
+def _student_parabola_text(value: str) -> str:
+    text = _student_expr(value)
+    if text == "抛物线" or text.startswith("y="):
+        return text
+    return f"y={text}"
+
+
+def _compact_point_text(value: str) -> str:
+    return re.sub(r",\s+", ",", value.strip())
 
 
 def _facts_by_handle(snapshot: ExplanationSnapshot) -> dict[str, dict[str, Any]]:
