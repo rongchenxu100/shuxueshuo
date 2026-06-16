@@ -10,6 +10,7 @@ import subprocess
 import shutil
 
 import pytest
+import sympy as sp
 
 from shuxueshuo_server.solver import load_problem_ir
 from shuxueshuo_server.solver.explanation import (
@@ -29,15 +30,17 @@ from shuxueshuo_server.solver.visual import (
     LLMVisualStepOptimizer,
     BaseSceneBuilder,
     GeometrySpecBuilder,
+    ParametricExpressionResolver,
     VisualStepBuilder,
     VisualStepIRValidator,
     forward_compile,
 )
 from shuxueshuo_server.solver.visual import builder as visual_builder
 from shuxueshuo_server.solver.visual import llm as visual_llm
+from shuxueshuo_server.solver.visual import parametric as visual_parametric
 from shuxueshuo_server.solver.visual.geometry_naming import GeometryPointScopeNamer
 from shuxueshuo_server.solver.visual.models import visual_step_ir_from_payload
-from shuxueshuo_server.solver.visual.role_binders import VisualGeometryIndex
+from shuxueshuo_server.solver.visual.role_binders import VisualGeometryIndex, VisualRoleBindings
 from shuxueshuo_server.solver.visual.validator import VisualStepIRValidationError
 
 
@@ -118,6 +121,7 @@ def test_vs1_distance_step_generates_static_visual_components() -> None:
     assert "Point" in components
     assert "ColoredLine" in components
     assert "DistanceMarker" in components
+    assert "OutlineRegion" in components
     assert any(item.get("label") == "OG" for item in minimum_step.scene["add"])
 
 
@@ -132,21 +136,123 @@ def test_vs1_recipe_substep_uses_only_path_reduction_visual_templates() -> None:
     assert "Point" in components
     assert "ColoredLine" in components
     assert '"at": "G"' in serialized
-    assert '"at": "M"' not in serialized
-    assert '"at": "N"' not in serialized
-    assert "BN=MG" not in serialized
-    assert '"label": "||"' not in serialized
+    assert '"at": "M"' in serialized
+    assert '"at": "N"' in serialized
+    assert "BN=MG" in serialized
     assert "OG" not in serialized
 
     compiled = forward_compile(visual_ir)
     raw_add = compiled.step_decorations["steps"][path_step.lesson_step_id]["add"]
+    assert compiled.step_decorations["steps"][path_step.lesson_step_id]["pointOverrides"]
     assert any(
         item.get("type") == "point" and item.get("at") == "G" and item.get("labelText") == "G"
         for item in raw_add
     )
     assert any(item.get("type") == "coloredLine" and item.get("from") == "C" and item.get("to") == "G" for item in raw_add)
-    assert not any(item.get("at") in {"M", "N"} for item in raw_add)
-    assert not any(item.get("type") == "segment" and item.get("label") in {"BN", "MG"} for item in raw_add)
+    assert any(item.get("at") == "M" for item in raw_add)
+    assert any(item.get("at") == "N" for item in raw_add)
+    assert any(item.get("type") == "segment" and item.get("label") in {"BN", "MG"} for item in raw_add)
+
+
+def test_vs2_equal_length_recipe_generates_local_controls_and_point_overrides() -> None:
+    visual_ir, lesson, _ = _build_heping_vs1_visual_ir()
+    path_step = _visual_step_for_substep(visual_ir, lesson, "path_reduction")
+    minimum_step = _visual_step_for_substep(visual_ir, lesson, "minimum_by_segment")
+
+    assert path_step.interactions
+    assert path_step.interactions[0]["component"] == "LinkedControls"
+    assert minimum_step.interactions
+    assert minimum_step.interactions[0]["component"] == "LocalSlider"
+    assert path_step.interactions[0]["domain"]["default"] == pytest.approx(5 / 9, abs=1e-6)
+
+    compiled = forward_compile(visual_ir)
+    path_deco = compiled.step_decorations["steps"][path_step.lesson_step_id]
+    min_deco = compiled.step_decorations["steps"][minimum_step.lesson_step_id]
+    path_lesson = next(step for step in compiled.lesson_data["steps"] if step["id"] == path_step.lesson_step_id)
+    min_lesson = next(step for step in compiled.lesson_data["steps"] if step["id"] == minimum_step.lesson_step_id)
+
+    assert set(path_deco["pointOverrides"]) == {"M", "N"}
+    assert set(min_deco["pointOverrides"]) == {"M", "N"}
+    assert path_deco["pointOverrides"]["M"] == ["3*u/a", "3*u-3"]
+    assert path_deco["pointOverrides"]["N"] == ["3*u*sqrt((a*a)+1)/abs(a)", "-3"]
+    assert len(path_lesson["localControls"]["controls"]) == 2
+    assert len(min_lesson["localControls"]["controls"]) == 1
+    assert path_lesson["localControls"]["values"]["u"] == pytest.approx(5 / 9, abs=1e-6)
+    assert "M" not in compiled.geometry_spec["movingPoints"]
+    assert "N" not in compiled.geometry_spec["movingPoints"]
+
+
+def test_vs2_equal_length_point_overrides_preserve_equal_length_constraint() -> None:
+    visual_ir, lesson, _ = _build_heping_vs1_visual_ir()
+    path_step = _visual_step_for_substep(visual_ir, lesson, "path_reduction")
+    compiled = forward_compile(visual_ir)
+    overrides = compiled.step_decorations["steps"][path_step.lesson_step_id]["pointOverrides"]
+
+    def evaluate(pair: list[str], *, a_value: float, u_value: float) -> tuple[float, float]:
+        locals_ = {"sqrt": sp.sqrt, "abs": sp.Abs}
+        env = {sp.Symbol("a"): a_value, sp.Symbol("u"): u_value}
+        x = sp.sympify(pair[0], locals=locals_).subs(env)
+        y = sp.sympify(pair[1], locals=locals_).subs(env)
+        return (float(sp.N(x)), float(sp.N(y)))
+
+    for u_value in (0.2, 5 / 9, 0.8):
+        m = evaluate(overrides["M"], a_value=0.75, u_value=u_value)
+        n = evaluate(overrides["N"], a_value=0.75, u_value=u_value)
+        cm = ((m[0] - 0) ** 2 + (m[1] + 3) ** 2) ** 0.5
+        cn = ((n[0] - 0) ** 2 + (n[1] + 3) ** 2) ** 0.5
+        assert cn == pytest.approx(cm)
+
+
+def test_vs2_parametric_expression_resolver_falls_back_to_midpoint_default() -> None:
+    resolver = ParametricExpressionResolver(
+        geometry_spec={
+            "movingParam": "a",
+            "fixedPoints": {
+                "A": ["0", "0"],
+                "B": ["2", "0"],
+                "G": ["2", "2"],
+            },
+            "movingPoints": {},
+        }
+    )
+    marker = {
+        "roles": {
+            "anchor": "A",
+            "segment_reference_point": "B",
+            "segment_moving_point": "M",
+            "ray_moving_point": "N",
+            "auxiliary_point": "G",
+        },
+        "role_point_refs": {"A": "A", "B": "B", "G": "G", "M": "M", "N": "N"},
+    }
+    lesson_step = LessonStep(
+        id="demo",
+        scope_id="ii",
+        source_step_ids=("s",),
+        capability_ids=("equal_length_ray_path_reduction",),
+        trace_refs=(),
+        title="demo",
+        goal="demo",
+        nav_title=None,
+        derive=(),
+        box=(),
+        teaching_substep_ids=("path_reduction",),
+    )
+
+    interaction = resolver.interactions_for_step(
+        lesson_step,
+        bindings=VisualRoleBindings(equal_length_path_markers=(marker,)),
+    )[0]
+
+    assert interaction["parameterized_points"]["M"]["expression"] == ["2*u", "0"]
+    assert interaction["parameterized_points"]["N"]["expression"] == ["2*u", "2*u"]
+    assert interaction["domain"]["default"] == 0.5
+
+
+def test_vs2_page_expr_expands_integer_powers_beyond_quadratic() -> None:
+    assert visual_parametric._page_expr("a**2 + b**3") == "(a*a)+(b*b*b)"
+    assert visual_parametric._page_expr("(a + 1)**3") == "((a+1)*(a+1)*(a+1))"
+    assert visual_builder._page_expr("x**4") == "(x*x*x*x)"
 
 
 def test_vs1_recipe_minimum_substep_uses_only_minimum_visual_templates() -> None:
@@ -158,6 +264,11 @@ def test_vs1_recipe_minimum_substep_uses_only_minimum_visual_templates() -> None
     assert "OG" in serialized
     assert '"label": "BN"' not in serialized
     assert '"label": "MG"' not in serialized
+    assert any(
+        item.get("component") == "OutlineRegion"
+        and item.get("vertices") == ["O", "M", "G"]
+        for item in minimum_step.scene["add"]
+    )
     assert any(
         item.get("component") == "ColoredLine"
         and item.get("from") == "C"
@@ -228,6 +339,8 @@ def test_vs1_axis_intercept_method_declares_equal_acute_intercept_visual_spec() 
     assert spec.visual is not None
     assert spec.visual.role_binder_id == "axis_intercept_from_equal_acute_angles"
     assert spec.visual.scene_templates[0]["component"] == "EqualAcuteAngleInterceptMarker"
+    assert spec.visual.scene_templates[0]["show_angles"] is False
+    assert spec.visual.scene_templates[0]["show_right_angles"] is False
 
 
 def test_vs1_equal_length_recipe_declares_congruent_triangle_visual_spec() -> None:
@@ -240,6 +353,13 @@ def test_vs1_equal_length_recipe_declares_congruent_triangle_visual_spec() -> No
     assert [template["component"] for template in templates] == [
         "CongruentTriangleMarker",
         "EquivalentSegmentMarker",
+    ]
+    assert [
+        template["component"]
+        for template in spec.visual.teaching_substep_templates["minimum_by_segment"]
+    ] == [
+        "PathMinimumTriangleMarker",
+        "AuxiliaryRayGuideMarker",
     ]
 
 
@@ -412,15 +532,8 @@ def test_vs1_axis_intercept_step_reuses_be_visual_handle_and_adds_f() -> None:
         and line.get("style") == "dashed"
         for line in marker["lines"]
     )
-    assert {
-        ("O", "A", "C"),
-        ("O", "B1", "F1"),
-    }.issubset(
-        {
-            (angle.get("vertex"), angle.get("rayA"), angle.get("rayB"))
-            for angle in marker["right_angles"]
-        }
-    )
+    assert marker["angles"] == []
+    assert marker["right_angles"] == []
     assert any(item.get("component") == "Point" and item.get("at") == "F1" for item in f_step.scene["add"])
     assert any(item.get("component") == "Point" and item.get("at") == "E1" for item in f_step.scene["add"])
     coordinate_labels = {
@@ -455,18 +568,10 @@ def test_vs1_axis_intercept_step_reuses_be_visual_handle_and_adds_f() -> None:
         and item.get("to") == "A"
         for item in raw_step["add"]
     )
-    assert any(
-        item.get("type") == "rightAngle"
-        and item.get("vertex") == "O"
-        and item.get("rayA") == "A"
-        and item.get("rayB") == "C"
-        for item in raw_step["add"]
-    )
-    assert any(
-        item.get("type") == "rightAngle"
-        and item.get("vertex") == "O"
-        and item.get("rayA") == "B1"
-        and item.get("rayB") == "F1"
+    assert not any(item.get("type") == "rightAngle" for item in raw_step["add"])
+    assert not any(
+        item.get("type") == "angleArc"
+        and item.get("label") == "α"
         for item in raw_step["add"]
     )
 
@@ -525,6 +630,18 @@ def test_vs1_annotation_text_source_is_checked() -> None:
         VisualStepIRValidator().validate(bad)
 
 
+def test_vs2_visual_step_ir_validator_rejects_invalid_local_interaction() -> None:
+    visual_ir, lesson, _ = _build_heping_vs1_visual_ir()
+    path_step = _visual_step_for_substep(visual_ir, lesson, "path_reduction")
+    payload = visual_ir.to_payload()
+    step_payload = next(step for step in payload["steps"] if step["lesson_step_id"] == path_step.lesson_step_id)
+    step_payload["interactions"][0]["parameterized_points"]["M"]["expression"] = ["u"]
+    bad = visual_step_ir_from_payload(payload)
+
+    with pytest.raises(VisualStepIRValidationError, match="expression must be a 2-item list"):
+        VisualStepIRValidator().validate(bad)
+
+
 def test_vs1_visual_role_binding_uses_known_geometry_handles() -> None:
     visual_ir, lesson, _ = _build_heping_vs1_visual_ir()
     path_step = _visual_step_for_substep(visual_ir, lesson, "path_reduction")
@@ -533,8 +650,8 @@ def test_vs1_visual_role_binding_uses_known_geometry_handles() -> None:
     assert '"at": "G"' in serialized
     assert '"from": "C"' in serialized
     assert '"to": "G"' in serialized
-    assert '"at": "M"' not in serialized
-    assert '"at": "N"' not in serialized
+    assert '"at": "M"' in serialized
+    assert '"at": "N"' in serialized
 
 
 def test_vs1_recorded_heping_compiles_three_json_files_and_page(tmp_path: Path) -> None:
@@ -544,6 +661,12 @@ def test_vs1_recorded_heping_compiles_three_json_files_and_page(tmp_path: Path) 
     VisualStepIRValidator().validate(visual_ir)
 
     compiled = forward_compile(visual_ir)
+    assert any(step.get("localControls") for step in compiled.lesson_data["steps"])
+    assert any(
+        step.get("pointOverrides")
+        for step in compiled.step_decorations["steps"].values()
+        if isinstance(step, dict)
+    )
     lesson_data = copy.deepcopy(compiled.lesson_data)
     html_path = tmp_path / "heping-vs1.html"
     lesson_data["meta"]["outputPath"] = str(html_path)
@@ -567,6 +690,8 @@ def test_vs1_recorded_heping_compiles_three_json_files_and_page(tmp_path: Path) 
 
     html = html_path.read_text(encoding="utf-8")
     assert "STEPS" in html
+    assert "localControls" in html
+    assert "pointOverrides" in html
     for step in lesson.steps:
         assert step.id in compiled.step_decorations["steps"]
         assert step.id in html
@@ -761,11 +886,8 @@ def test_vs1_alignment_with_reverse_golden_key_objects() -> None:
     path_refs = _refs(path_step.scene["add"])
     minimum_refs = _refs(minimum_step.scene["add"])
 
-    assert {"C", "G"}.issubset(path_refs)
-    assert "M" not in path_refs
-    assert "N" not in path_refs
-    assert {"O", "G"}.issubset(minimum_refs)
-    assert "M" not in minimum_refs
+    assert {"C", "G", "M", "N"}.issubset(path_refs)
+    assert {"O", "G", "M"}.issubset(minimum_refs)
 
 
 def test_vs1_llm_visual_optimizer_applies_safe_patch_and_writes_debug(tmp_path: Path) -> None:
@@ -1207,6 +1329,16 @@ def test_vs1_llm_visual_optimizer_rejects_future_point_in_angle_step(tmp_path: P
     assert "F1" in error
 
 
+def test_vs2_llm_visual_optimizer_cannot_mutate_interactions(tmp_path: Path) -> None:
+    visual_ir, lesson, snapshot = _build_heping_vs1_visual_ir()
+    optimizer = LLMVisualStepOptimizer(client=_InteractionMutationClient(), debug_dir=tmp_path)
+
+    optimized = optimizer.optimize(snapshot=snapshot, lesson=lesson, visual_ir=visual_ir)
+
+    assert optimized.to_payload()["metadata"]["visual_optimizer"]["applied"] is False
+    assert "interactions" in (tmp_path / "visual-optimization-error.txt").read_text(encoding="utf-8")
+
+
 @pytest.mark.skipif(
     not RUN_DEEPSEEK_HEPING_VISUAL,
     reason="DeepSeek Heping visual optimizer integration is opt-in",
@@ -1578,6 +1710,28 @@ class _FuturePointInAngleStepClient:
                                 "labelText": "F",
                             }
                         ],
+                    }
+                ]
+            },
+            ensure_ascii=False,
+        )
+
+
+class _InteractionMutationClient:
+    provider_name = "fake-visual"
+    model = "fake"
+
+    def __init__(self) -> None:
+        self.last_usage = None
+        self.last_response_model = "fake"
+
+    def complete(self, payload: dict) -> str:
+        return json.dumps(
+            {
+                "visual_step_patches": [
+                    {
+                        "lesson_step_id": "explain_reduce_ii_equal_length_ray_path_path_reduction",
+                        "interactions": [],
                     }
                 ]
             },

@@ -4,6 +4,7 @@ from .builder import BaseSceneBuilder, GeneratedVisualBase, GeometrySpecBuilder,
 from .compiler import CompiledVisualArtifacts, forward_compile, reverse_compile
 from .llm import LLMVisualStepOptimizer, write_visual_optimization_debug_artifacts
 from .models import JsonObject, VisualStep, VisualStepIR
+from .parametric import ParametricExpressionResolver
 from .registry import (
     ComponentTypeSpec,
     ComponentTypeSpecRegistry,
@@ -24,6 +25,7 @@ __all__ = [
     "JsonObject",
     "LayerRegistry",
     "LLMVisualStepOptimizer",
+    "ParametricExpressionResolver",
     "VisualAuthoringBase",
     "VisualStep",
     "VisualStepBuilder",

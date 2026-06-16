@@ -180,8 +180,8 @@ function pointNames(spec) {
 
 function validatePointRefs(spec, deco) {
   const known = pointNames(spec);
-  const check = (name, label) => {
-    if (name && !known.has(name)) errors.push(label + " 引用了未声明点: " + name);
+  const check = (name, label, localKnown = known) => {
+    if (name && !localKnown.has(name)) errors.push(label + " 引用了未声明点: " + name);
   };
   (spec.basePolygon ?? []).forEach((name, i) => check(name, "geometry-spec.basePolygon[" + i + "]"));
   (spec.movingPolygon ?? []).forEach((name, i) => check(name, "geometry-spec.movingPolygon[" + i + "]"));
@@ -190,19 +190,23 @@ function validatePointRefs(spec, deco) {
       check(name, "geometry-spec.movingPolygons[" + pi + "].vertices[" + i + "]");
     });
   });
-  const checkDecoration = (item, label) => {
+  const checkDecoration = (item, label, localKnown = known) => {
     for (const key of ["at", "from", "to", "vertex", "rayA", "rayB", "anchor"]) {
-      check(item[key], label + "." + key);
+      check(item[key], label + "." + key, localKnown);
     }
     if (Array.isArray(item.vertices)) {
-      item.vertices.forEach((name, i) => check(name, label + ".vertices[" + i + "]"));
+      item.vertices.forEach((name, i) => check(name, label + ".vertices[" + i + "]", localKnown));
     }
   };
   for (const [layerName, layer] of Object.entries(deco.layers ?? {})) {
     (layer.elements ?? []).forEach((item, i) => checkDecoration(item, "layers." + layerName + ".elements[" + i + "]"));
   }
   for (const [stepId, step] of Object.entries(deco.steps ?? {})) {
-    (step.add ?? []).forEach((item, i) => checkDecoration(item, "steps." + stepId + ".add[" + i + "]"));
+    const localKnown = new Set([
+      ...known,
+      ...Object.keys(step.pointOverrides ?? {}),
+    ]);
+    (step.add ?? []).forEach((item, i) => checkDecoration(item, "steps." + stepId + ".add[" + i + "]", localKnown));
   }
 }
 

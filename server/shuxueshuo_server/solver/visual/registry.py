@@ -160,6 +160,12 @@ def default_component_registry() -> ComponentTypeSpecRegistry:
                 required_roles=("segments",),
                 optional_roles=("label",),
             ),
+            ComponentTypeSpec(
+                visual_type="PathMinimumTriangleMarker",
+                compiles_to=("outlineRegion",),
+                required_roles=("vertices",),
+                optional_roles=("fill", "color"),
+            ),
         ]
     )
     return ComponentTypeSpecRegistry(tuple(specs))

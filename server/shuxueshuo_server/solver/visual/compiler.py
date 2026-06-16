@@ -8,6 +8,7 @@ import copy
 
 from .models import JsonObject, VisualStep, VisualStepIR
 from .registry import LayerRegistry, default_layer_registry, low_level_for_visual_type, visual_type_for_low_level
+from .geometry_naming import scope_root
 from .scene_accumulator import resolved_steps_with_carry_forward
 
 
@@ -75,10 +76,20 @@ def forward_compile(visual_ir: VisualStepIR) -> CompiledVisualArtifacts:
         layers[layer_key] = copy.deepcopy(layer)
 
     visual_steps = visual_ir.steps
-    if visual_ir.metadata.get("scene_model") == "section_accumulator":
+    use_scene_accumulator = visual_ir.metadata.get("scene_model") == "section_accumulator"
+    if use_scene_accumulator:
         visual_steps = resolved_steps_with_carry_forward(visual_steps)
 
+    lesson_data = copy.deepcopy(visual_ir.lesson_data)
+    lesson_steps_by_id = {
+        str(item.get("id")): item
+        for item in lesson_data.get("steps") or ()
+        if isinstance(item, dict) and item.get("id")
+    }
+    policies = lesson_data.setdefault("policies", {})
     steps: dict[str, Any] = {}
+    carried_overrides_by_scope: dict[str, JsonObject] = {}
+    carried_values_by_scope: dict[str, JsonObject] = {}
     for visual_step in visual_steps:
         scene = visual_step.scene or {}
         raw_step: dict[str, Any] = copy.deepcopy(visual_step.metadata.get("step_extra") or {})
@@ -92,6 +103,26 @@ def forward_compile(visual_ir: VisualStepIR) -> CompiledVisualArtifacts:
         hide = scene.get("hide") or ()
         if hide:
             raw_step["hideLayers"] = list(hide)
+        _compile_interactions(
+            visual_step,
+            raw_step=raw_step,
+            lesson_step=lesson_steps_by_id.get(visual_step.lesson_step_id),
+            policies=policies,
+        )
+        if use_scene_accumulator:
+            scope_key = scope_root(visual_step.scope_id)
+            _inherit_local_point_overrides_if_needed(
+                visual_step,
+                raw_step=raw_step,
+                lesson_step=lesson_steps_by_id.get(visual_step.lesson_step_id),
+                carried_overrides=carried_overrides_by_scope.get(scope_key, {}),
+                carried_values=carried_values_by_scope.get(scope_key, {}),
+            )
+            if raw_step.get("pointOverrides"):
+                carried_overrides_by_scope[scope_key] = copy.deepcopy(raw_step["pointOverrides"])
+                local_controls = (lesson_steps_by_id.get(visual_step.lesson_step_id) or {}).get("localControls")
+                if isinstance(local_controls, dict) and isinstance(local_controls.get("values"), dict):
+                    carried_values_by_scope[scope_key] = copy.deepcopy(local_controls["values"])
         steps[visual_step.lesson_step_id] = raw_step
 
     step_decorations: dict[str, Any] = {}
@@ -103,8 +134,120 @@ def forward_compile(visual_ir: VisualStepIR) -> CompiledVisualArtifacts:
     return CompiledVisualArtifacts(
         geometry_spec=copy.deepcopy(visual_ir.geometry_spec),
         step_decorations=step_decorations,
-        lesson_data=copy.deepcopy(visual_ir.lesson_data),
+        lesson_data=lesson_data,
     )
+
+
+def _compile_interactions(
+    visual_step: VisualStep,
+    *,
+    raw_step: JsonObject,
+    lesson_step: JsonObject | None,
+    policies: JsonObject,
+) -> None:
+    for interaction in visual_step.interactions or ():
+        if not isinstance(interaction, dict):
+            continue
+        component = str(interaction.get("component") or "")
+        if component in {"LocalSlider", "LinkedControls"}:
+            _compile_local_slider_interaction(
+                visual_step,
+                interaction,
+                raw_step=raw_step,
+                lesson_step=lesson_step,
+                policies=policies,
+            )
+        elif component == "MainSlider":
+            raw_policy = interaction.get("raw_policy")
+            if isinstance(raw_policy, dict):
+                policies[visual_step.lesson_step_id] = copy.deepcopy(raw_policy)
+
+
+def _compile_local_slider_interaction(
+    visual_step: VisualStep,
+    interaction: JsonObject,
+    *,
+    raw_step: JsonObject,
+    lesson_step: JsonObject | None,
+    policies: JsonObject,
+) -> None:
+    point_overrides = raw_step.setdefault("pointOverrides", {})
+    for point_id, payload in (interaction.get("parameterized_points") or {}).items():
+        if not isinstance(payload, dict):
+            continue
+        expression = payload.get("expression")
+        if isinstance(expression, list) and len(expression) >= 2:
+            point_overrides[str(point_id)] = [str(expression[0]), str(expression[1])]
+
+    if lesson_step is None:
+        return
+    raw_local = interaction.get("raw_local_controls")
+    if isinstance(raw_local, dict):
+        lesson_step["localControls"] = copy.deepcopy(raw_local)
+        return
+    parameter = str(interaction.get("parameter") or "")
+    domain = interaction.get("domain") if isinstance(interaction.get("domain"), dict) else {}
+    default_value = domain.get("default", 0.5)
+    controls = [
+        copy.deepcopy(control)
+        for control in interaction.get("controls") or ()
+        if isinstance(control, dict)
+    ]
+    if not parameter or not controls:
+        return
+    lesson_step["localControls"] = {
+        "values": {parameter: default_value},
+        "note": str(interaction.get("note") or ""),
+        "controls": controls,
+    }
+    policies[visual_step.lesson_step_id] = {
+        "movable": False,
+        "range": [lesson_step.get("t", 0), lesson_step.get("t", 0)],
+    }
+
+
+def _inherit_local_point_overrides_if_needed(
+    visual_step: VisualStep,
+    *,
+    raw_step: JsonObject,
+    lesson_step: JsonObject | None,
+    carried_overrides: JsonObject,
+    carried_values: JsonObject,
+) -> None:
+    if raw_step.get("pointOverrides") or not carried_overrides:
+        return
+    refs = _geometry_refs_from_step(raw_step)
+    if not refs.intersection(carried_overrides):
+        return
+    raw_step["pointOverrides"] = copy.deepcopy(carried_overrides)
+    if lesson_step is not None and carried_values and "localControls" not in lesson_step:
+        lesson_step["localControls"] = {
+            "values": copy.deepcopy(carried_values),
+            "controls": [],
+        }
+
+
+def _geometry_refs_from_step(raw_step: JsonObject) -> set[str]:
+    refs: set[str] = set()
+    for item in raw_step.get("add") or ():
+        if isinstance(item, dict):
+            refs.update(_geometry_refs_from_item(item))
+    return refs
+
+
+def _geometry_refs_from_item(item: JsonObject) -> set[str]:
+    refs: set[str] = set()
+    for key in ("at", "from", "to", "vertex", "rayA", "rayB", "anchor"):
+        value = item.get(key)
+        if isinstance(value, str):
+            refs.add(value)
+    if isinstance(item.get("vertices"), list):
+        refs.update(str(value) for value in item["vertices"] if isinstance(value, str))
+    for key in ("angles", "guide_arms", "lines", "right_angles", "segments", "triangles"):
+        for nested in item.get(key) or ():
+            if isinstance(nested, dict):
+                refs.update(_geometry_refs_from_item(nested))
+    return refs
 
 
 def _reverse_layers(step_decorations: JsonObject, registry: LayerRegistry) -> dict[str, JsonObject]:

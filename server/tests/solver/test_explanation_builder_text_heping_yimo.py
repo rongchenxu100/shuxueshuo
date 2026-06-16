@@ -308,6 +308,14 @@ def test_llm_mixed_reason_conclusion_derive_is_split() -> None:
     )
 
 
+def test_lesson_derive_normalizes_future_axis_intercept_angle_reference() -> None:
+    derive = explanation_builder._derive_items(
+        [["∵", "消去公共角，得 ∠OBF = ∠ACO（F是BE与y轴的交点）"]]
+    )
+
+    assert derive == (("∵", "消去公共角，得 ∠OBE = ∠ACO"),)
+
+
 def test_lesson_planner_repair_loop_fixes_unknown_candidate_id(tmp_path) -> None:
     orchestrator, _ = _solve_recorded_heping()
     snapshot = ExplanationSnapshotBuilder().build(orchestrator.last_success_artifacts)

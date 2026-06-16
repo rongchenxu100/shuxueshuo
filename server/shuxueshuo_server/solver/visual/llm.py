@@ -283,6 +283,9 @@ def write_visual_optimization_debug_artifacts(
 
 
 def _apply_patch_to_step(step: dict[str, Any], patch: dict[str, Any], allowed_refs: set[str]) -> None:
+    for forbidden in ("interactions", "parameterized_points", "pointOverrides", "localControls"):
+        if forbidden in patch:
+            raise VisualOptimizationError(f"LLM visual patches cannot modify {forbidden}")
     scene = step.setdefault("scene", {})
     if "append_add" in patch:
         append_add = _list_of_objects(patch["append_add"], "append_add")
@@ -488,6 +491,14 @@ def _allowed_geometry_refs_for_step(visual_ir: VisualStepIR, step: Any) -> set[s
             continue
         refs.update(_item_geometry_refs(item))
         guide_only_refs.update(str(ref) for ref in item.get("guide_only_refs") or ())
+    for interaction in step.interactions or ():
+        if not isinstance(interaction, dict):
+            continue
+        refs.update(
+            str(point_id)
+            for point_id in (interaction.get("parameterized_points") or {})
+            if point_id
+        )
     return refs - guide_only_refs
 
 

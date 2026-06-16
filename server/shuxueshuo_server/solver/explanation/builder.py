@@ -788,7 +788,7 @@ def _derive_items(raw: Any) -> tuple[tuple[str, str], ...]:
 def _split_derive_item(label: str, text: str) -> list[tuple[str, str]]:
     """把“依据，所以结论”这类混写拆成独立 derive items。"""
     label = _normalize_derive_label(label)
-    text = _strip_sentence(text)
+    text = _normalize_intercept_angle_reference(_strip_sentence(text))
     if not text:
         return []
     split = _split_on_conclusion_marker(text)
@@ -816,6 +816,37 @@ def _split_on_conclusion_marker(text: str) -> tuple[str, str] | None:
     if not cause or not conclusion:
         return None
     return cause, conclusion
+
+
+def _normalize_intercept_angle_reference(text: str) -> str:
+    """把提前出现的轴截点角，改写回同一直线上的已知端点角。
+
+    LLM 有时会把“F 是 BE 与 y 轴的交点”提前塞进上一讲解步，并把
+    ∠OBE 写成 ∠OBF。由于 F 还未由后续 method 产生，这里只利用文本中
+    已声明的“截点在某条直线上”关系做等价角改写；不引入新数学事实。
+    """
+    out = text
+    for match in re.finditer(r"([A-Z])是([A-Z])([A-Z])与[xyXYｘｙ]轴的交点", text):
+        intercept, line_start, line_end = match.groups()
+
+        def replace_angle(angle_match: re.Match[str]) -> str:
+            ray_a, vertex, ray_b = angle_match.groups()
+            if ray_b == intercept:
+                if vertex == line_start:
+                    return f"∠{ray_a}{vertex}{line_end}"
+                if vertex == line_end:
+                    return f"∠{ray_a}{vertex}{line_start}"
+            if ray_a == intercept:
+                if vertex == line_start:
+                    return f"∠{line_end}{vertex}{ray_b}"
+                if vertex == line_end:
+                    return f"∠{line_start}{vertex}{ray_b}"
+            return angle_match.group(0)
+
+        out = re.sub(rf"∠([A-Z])([A-Z])({intercept})", replace_angle, out)
+        out = re.sub(rf"∠({intercept})([A-Z])([A-Z])", replace_angle, out)
+        out = re.sub(r"[（(]\s*" + re.escape(match.group(0)) + r"\s*[）)]", "", out)
+    return _strip_sentence(out)
 
 
 def _split_on_derived_result_marker(label: str, text: str) -> tuple[str, str] | None:

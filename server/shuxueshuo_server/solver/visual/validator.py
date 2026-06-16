@@ -151,6 +151,77 @@ class VisualStepIRValidator:
         component = item.get("component")
         if component not in VALID_INTERACTION_COMPONENTS:
             raise VisualStepIRValidationError(f"{label}: unknown interaction component: {component}")
+        if component == "MainSlider":
+            return
+        if isinstance(item.get("raw_local_controls"), dict):
+            return
+        interaction_id = str(item.get("id") or "")
+        if not interaction_id:
+            raise VisualStepIRValidationError(f"{label}: missing interaction id")
+        parameter = str(item.get("parameter") or "")
+        if not parameter:
+            raise VisualStepIRValidationError(f"{label}: missing parameter")
+        domain = item.get("domain")
+        if not isinstance(domain, dict):
+            raise VisualStepIRValidationError(f"{label}: missing domain")
+        self._validate_interaction_domain(domain, f"{label}.domain")
+        controls = item.get("controls")
+        if not isinstance(controls, list) or not controls:
+            raise VisualStepIRValidationError(f"{label}: controls must be a non-empty list")
+        for index, control in enumerate(controls):
+            self._validate_interaction_control(control, parameter, f"{label}.controls[{index}]")
+        parameterized = item.get("parameterized_points")
+        if not isinstance(parameterized, dict) or not parameterized:
+            raise VisualStepIRValidationError(
+                f"{label}: parameterized_points must be a non-empty object"
+            )
+        for point_id, payload in parameterized.items():
+            self._validate_parameterized_point(payload, f"{label}.parameterized_points[{point_id}]")
+
+    def _validate_interaction_domain(self, domain: dict[str, Any], label: str) -> None:
+        for key in ("min", "max", "step", "default"):
+            if key not in domain:
+                raise VisualStepIRValidationError(f"{label}: missing {key}")
+        try:
+            min_value = float(domain["min"])
+            max_value = float(domain["max"])
+            step_value = float(domain["step"])
+            default_value = float(domain["default"])
+        except Exception as exc:
+            raise VisualStepIRValidationError(f"{label}: domain values must be numeric") from exc
+        if min_value >= max_value:
+            raise VisualStepIRValidationError(f"{label}: min must be less than max")
+        if step_value <= 0:
+            raise VisualStepIRValidationError(f"{label}: step must be positive")
+        if not (min_value <= default_value <= max_value):
+            raise VisualStepIRValidationError(f"{label}: default must be inside domain")
+
+    def _validate_interaction_control(
+        self,
+        control: Any,
+        parameter: str,
+        label: str,
+    ) -> None:
+        if not isinstance(control, dict):
+            raise VisualStepIRValidationError(f"{label}: control must be an object")
+        if str(control.get("var") or "") != parameter:
+            raise VisualStepIRValidationError(f"{label}: control var must match parameter")
+        if not str(control.get("label") or "").strip():
+            raise VisualStepIRValidationError(f"{label}: missing label")
+        for key in ("min", "max", "step"):
+            if key not in control:
+                raise VisualStepIRValidationError(f"{label}: missing {key}")
+
+    def _validate_parameterized_point(self, payload: Any, label: str) -> None:
+        if not isinstance(payload, dict):
+            raise VisualStepIRValidationError(f"{label}: payload must be an object")
+        expression = payload.get("expression")
+        if not isinstance(expression, list) or len(expression) != 2:
+            raise VisualStepIRValidationError(f"{label}: expression must be a 2-item list")
+        if not all(str(item).strip() for item in expression):
+            raise VisualStepIRValidationError(f"{label}: expression values cannot be empty")
+        if not isinstance(payload.get("source"), dict):
+            raise VisualStepIRValidationError(f"{label}: missing source provenance")
 
     def _validate_timeline(self, timeline: dict[str, Any] | None, label: str) -> None:
         if timeline is None:

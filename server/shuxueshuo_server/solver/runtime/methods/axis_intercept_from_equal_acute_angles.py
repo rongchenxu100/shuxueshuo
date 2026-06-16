@@ -118,6 +118,8 @@ SPEC = MethodSpecSource(
             {
                 "component": "EqualAcuteAngleInterceptMarker",
                 "style_intent": "tangent_ratio_from_equal_acute_angles",
+                "show_angles": False,
+                "show_right_angles": False,
             },
         ),
         role_binder_id="axis_intercept_from_equal_acute_angles",

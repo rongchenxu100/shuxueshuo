@@ -16,6 +16,7 @@ from shuxueshuo_server.solver.runtime.recipes import RecipeSpecRegistry
 from shuxueshuo_server.solver.student_display import student_math_display
 
 from .models import JsonObject, VisualStep, VisualStepIR
+from .parametric import ParametricExpressionResolver
 from .registry import default_layer_registry
 from .geometry_naming import GeometryPointScopeNamer, scope_root as _shared_scope_root
 from .role_binders import VisualGeometryIndex, VisualRoleBinderRegistry, VisualRoleBindings
@@ -1065,8 +1066,29 @@ def _page_expr(value: Any) -> str:
         pass
     text = text.replace("Abs(", "abs(")
     text = text.replace(" ", "")
-    text = re.sub(r"\b([A-Za-z_][A-Za-z0-9_]*)\*\*2\b", r"(\1*\1)", text)
-    text = re.sub(r"\(([^()]+)\)\*\*2", r"((\1)*(\1))", text)
+    return _expand_integer_powers(text)
+
+
+def _expand_integer_powers(text: str) -> str:
+    def repl(match: re.Match[str]) -> str:
+        base = match.group("atom") or match.group("group")
+        exponent = int(match.group("exponent"))
+        if exponent < 0:
+            return match.group(0)
+        if exponent == 0:
+            return "1"
+        if exponent == 1:
+            return base
+        factor = base if match.group("atom") else f"({base})"
+        return "(" + "*".join(factor for _ in range(exponent)) + ")"
+
+    pattern = re.compile(
+        r"(?:(?P<atom>\b[A-Za-z_][A-Za-z0-9_]*\b)|\((?P<group>[^()]+)\))\*\*(?P<exponent>\d+)"
+    )
+    previous = None
+    while previous != text:
+        previous = text
+        text = pattern.sub(repl, text)
     return text
 
 
@@ -1099,6 +1121,10 @@ def _visual_step_for_lesson_step(
     geometry_spec: JsonObject,
     bindings: VisualRoleBindings,
 ) -> VisualStep:
+    interactions = ParametricExpressionResolver(
+        geometry_spec=geometry_spec,
+        default_t=_parameter_default_value(snapshot),
+    ).interactions_for_step(lesson_step, bindings)
     scene_add = _scene_add_for_lesson_step(
         lesson_step,
         bindings,
@@ -1131,7 +1157,7 @@ def _visual_step_for_lesson_step(
             "panels": [],
         },
         scene=scene,
-        interactions=(),
+        interactions=interactions,
         timeline={"mode": "none"},
         metadata={"step_extra": {}},
     )
@@ -1334,6 +1360,8 @@ def _recipe_visual_template_items(
                     items.extend(_congruent_triangle_marker_items(template, bindings))
                 elif component == "EquivalentSegmentMarker":
                     items.extend(_equivalent_segment_marker_items(template, bindings))
+                elif component == "PathMinimumTriangleMarker":
+                    items.extend(_path_minimum_triangle_marker_items(template, bindings))
                 elif component == "AuxiliaryRayGuideMarker":
                     items.extend(_auxiliary_ray_guide_marker_items(template, bindings))
     return items
@@ -1459,7 +1487,8 @@ def _congruent_triangle_marker_items(
             else:
                 label = str(raw_label)
                 role = ""
-            point = bindings.point_handles.get(label)
+            point_refs = marker.get("role_point_refs") if isinstance(marker.get("role_point_refs"), dict) else {}
+            point = bindings.point_handles.get(label) or point_refs.get(label)
             if not point:
                 continue
             style = _point_style_for_role(role)
@@ -1513,6 +1542,41 @@ def _equivalent_segment_marker_items(
                 "dx": int(template.get("dx") or 12),
                 "dy": int(template.get("dy") or -16),
                 "persistence": "step_only",
+            }
+        )
+    return items
+
+
+def _path_minimum_triangle_marker_items(
+    template: dict[str, Any],
+    bindings: VisualRoleBindings,
+) -> list[JsonObject]:
+    items: list[JsonObject] = []
+    for marker in bindings.equal_length_path_markers:
+        roles = marker.get("roles") if isinstance(marker.get("roles"), dict) else {}
+        point_refs = (
+            marker.get("role_point_refs")
+            if isinstance(marker.get("role_point_refs"), dict)
+            else {}
+        )
+        vertices = [
+            point_refs.get(str(roles.get("fixed_point") or "")),
+            point_refs.get(str(roles.get("segment_moving_point") or "")),
+            point_refs.get(str(roles.get("auxiliary_point") or "")),
+        ]
+        if not all(vertices):
+            continue
+        items.append(
+            {
+                "component": "OutlineRegion",
+                "handle": f"visual:path_minimum_triangle:{'-'.join(str(vertex) for vertex in vertices)}",
+                "vertices": vertices,
+                "fill": str(template.get("fill") or "rgba(180, 83, 9, 0.10)"),
+                "color": str(template.get("color") or "rgba(180, 83, 9, 0.25)"),
+                "width": float(template.get("width") or 1.0),
+                "dash": str(template.get("dash") or ""),
+                "persistence": "step_only",
+                "metadata": {"low_level_type": "outlineRegion"},
             }
         )
     return items
@@ -1630,6 +1694,8 @@ def _equal_acute_angle_intercept_marker_items(
     bindings: VisualRoleBindings,
 ) -> list[JsonObject]:
     items: list[JsonObject] = []
+    show_angles = bool(template.get("show_angles", True))
+    show_right_angles = bool(template.get("show_right_angles", True))
     for marker in bindings.axis_intercept_markers:
         triangle_regions: list[JsonObject] = []
         lines: list[JsonObject] = []
@@ -1656,9 +1722,10 @@ def _equal_acute_angle_intercept_marker_items(
                         "show_endpoint_refs": list(guide.get("show_endpoint_refs") or ()),
                     }
                 )
-            for angle in equality.get("angles") or ():
-                if isinstance(angle, dict):
-                    angles.append(dict(angle))
+            if show_angles:
+                for angle in equality.get("angles") or ():
+                    if isinstance(angle, dict):
+                        angles.append(dict(angle))
         for side in marker.get("axis_sides") or ():
             if not isinstance(side, dict):
                 continue
@@ -1673,23 +1740,25 @@ def _equal_acute_angle_intercept_marker_items(
                 }
             )
         for angle in marker.get("right_angles") or ():
-            if isinstance(angle, dict):
+            if not isinstance(angle, dict):
+                continue
+            if show_right_angles:
                 right_angles.append(dict(angle))
-                vertices = [
-                    str(angle.get("rayA") or ""),
-                    str(angle.get("vertex") or ""),
-                    str(angle.get("rayB") or ""),
-                ]
-                if all(vertices):
-                    triangle_regions.append(
-                        {
-                            "vertices": vertices,
-                            "fill": "rgba(124, 58, 237, 0.10)",
-                            "color": "rgba(124, 58, 237, 0.28)",
-                            "width": 1.0,
-                            "dash": "",
-                        }
-                    )
+            vertices = [
+                str(angle.get("rayA") or ""),
+                str(angle.get("vertex") or ""),
+                str(angle.get("rayB") or ""),
+            ]
+            if all(vertices):
+                triangle_regions.append(
+                    {
+                        "vertices": vertices,
+                        "fill": "rgba(124, 58, 237, 0.10)",
+                        "color": "rgba(124, 58, 237, 0.28)",
+                        "width": 1.0,
+                        "dash": "",
+                    }
+                )
         if not lines and not angles and not right_angles:
             continue
         items.append(

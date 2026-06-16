@@ -69,7 +69,9 @@
     "scene_templates": [
       {
         "component": "EqualAcuteAngleInterceptMarker",
-        "style_intent": "tangent_ratio_from_equal_acute_angles"
+        "style_intent": "tangent_ratio_from_equal_acute_angles",
+        "show_angles": false,
+        "show_right_angles": false
       }
     ],
     "annotation_templates": [],

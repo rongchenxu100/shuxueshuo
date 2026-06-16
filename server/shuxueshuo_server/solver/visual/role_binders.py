@@ -626,15 +626,25 @@ class VisualRoleBinderRegistry:
         if not roles:
             return []
 
-        def geom(label: str) -> str | None:
-            return point_handles.get(label) or self.index.geometry_point_name(label, lesson_step.scope_id)
-
         segment_reference = str(roles.get("segment_reference_point") or "")
         anchor = str(roles.get("anchor") or "")
         ray_moving = str(roles.get("ray_moving_point") or "")
         auxiliary = str(roles.get("auxiliary_point") or "")
         segment_moving = str(roles.get("segment_moving_point") or "")
         fixed = str(roles.get("fixed_point") or "")
+        local_override_labels = {segment_moving, ray_moving}
+
+        def geom(label: str) -> str | None:
+            point = point_handles.get(label) or self.index.geometry_point_name(
+                label,
+                lesson_step.scope_id,
+            )
+            if point:
+                return point
+            if label in local_override_labels:
+                return label
+            return None
+
         has_full_congruence_visual = all(
             geom(label)
             for label in (
@@ -663,7 +673,27 @@ class VisualRoleBinderRegistry:
             auxiliary,
             geom,
         )
+        role_point_refs = {
+            label: geom(label)
+            for label in (
+                segment_reference,
+                anchor,
+                ray_moving,
+                auxiliary,
+                segment_moving,
+                fixed,
+            )
+            if label
+        }
         marker: dict[str, Any] = {
+            "roles": {
+                key: value
+                for key, value in roles.items()
+                if isinstance(value, (str, int, float)) and str(value)
+            },
+            "role_point_refs": {
+                key: value for key, value in role_point_refs.items() if value
+            },
             "triangles": [],
             "point_labels": [
                 {"label": segment_moving, "role": "moving_point"},

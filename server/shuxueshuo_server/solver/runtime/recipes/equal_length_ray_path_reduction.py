@@ -93,6 +93,7 @@ SPEC = RecipeSpecSource(
                 {"component": "EquivalentSegmentMarker"},
             ),
             "minimum_by_segment": (
+                {"component": "PathMinimumTriangleMarker"},
                 {"component": "AuxiliaryRayGuideMarker"},
             ),
         },
