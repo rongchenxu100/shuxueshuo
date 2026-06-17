@@ -1,0 +1,16 @@
+{
+  "id": "problem_hongqiao_25",
+  "title": "2026 年天津市红桥区三模第 25 题",
+  "shortTitle": "红桥三模 25题",
+  "status": "published_dirty",
+  "defaultMode": "edit",
+  "canEdit": true,
+  "canTutor": true,
+  "subject": "math",
+  "tags": ["二次函数综合", "路径最值"],
+  "updatedAt": "2026-06-16T09:00:00.000Z",
+  "autosavedAt": "2026-06-16T09:00:00.000Z",
+  "publicUrl": "/users/haorong/problems/tj-2026-hongqiao-sanmo-25/",
+  "previewUrl": "/preview-fixtures/problems/hongqiao-25.html",
+  "previewVersion": "mock-1"
+}

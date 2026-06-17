@@ -1,0 +1,12 @@
+{
+  "id": "site_home_haorong",
+  "siteName": "数学可视化题库",
+  "description": "按专题整理天津中考与模拟题的可视化讲解网页。",
+  "status": "published",
+  "autosavedAt": "2026-06-16T09:00:00.000Z",
+  "publicUrl": "/users/haorong/",
+  "previewUrl": "/preview-fixtures/site/home.html",
+  "featuredTopicIds": ["topic_tianjin_sanmo_25"],
+  "recentProblemLimit": 6,
+  "knowledgeTags": ["二次函数", "路径最值", "几何动点", "面积重叠"]
+}

@@ -1,0 +1,26 @@
+[
+  {
+    "id": "msg_1",
+    "problemId": "problem_hongqiao_25",
+    "role": "user",
+    "content": "上传题目图片",
+    "attachments": [
+      {
+        "id": "att_1",
+        "kind": "problem_image",
+        "url": "/uploads/problem_hongqiao_25/original.jpg",
+        "filename": "original.jpg",
+        "mimeType": "image/jpeg",
+        "createdAt": "2026-06-16T09:00:00.000Z"
+      }
+    ],
+    "createdAt": "2026-06-16T09:00:00.000Z"
+  },
+  {
+    "id": "msg_2",
+    "problemId": "problem_hongqiao_25",
+    "role": "assistant",
+    "content": "已识别题目并生成网页预览。",
+    "createdAt": "2026-06-16T09:00:03.000Z"
+  }
+]
