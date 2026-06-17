@@ -236,6 +236,22 @@ After the real DeepSeek test passes:
 4. Generate the few-shot projection for the problem.
 5. Run focused tests and full solver regression.
 
+### 6. Handoff To Lesson Page Generation
+
+After the solver/runtime path is stable, use `solver-to-lesson-page-onboarding` for the student-facing page pipeline:
+
+```text
+successful runtime artifacts
+-> ExplanationSnapshot
+-> LessonIR
+-> VisualStepIR
+-> interactions / animations
+-> generated three JSON artifacts
+-> compiled HTML
+```
+
+Keep webpage rendering requirements out of solver onboarding unless the page failure reveals a missing reusable runtime fact, method, recipe, binding, or planner insight. The solver skill answers “can the system solve the problem?”; the lesson-page skill answers “can the system teach, draw, animate, and compile the solved problem into a page?”
+
 ## Commands
 
 Recorded CLI smoke:
