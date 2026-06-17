@@ -1,0 +1,39 @@
+{
+  "id": "topic_tianjin_sanmo_25",
+  "title": "天津三模 25题专题",
+  "description": "汇总天津各区三模中第 25 题的二次函数综合题。",
+  "status": "published_dirty",
+  "updatedAt": "2026-06-16T09:00:00.000Z",
+  "autosavedAt": "2026-06-16T09:00:00.000Z",
+  "publicUrl": "/users/haorong/topics/tianjin-sanmo-25/",
+  "previewUrl": "/preview-fixtures/topics/tianjin-sanmo-25.html",
+  "previewVersion": "mock-1",
+  "items": [
+    {
+      "id": "topic_item_1",
+      "problemId": "problem_hongqiao_25",
+      "title": "2026 年天津市红桥区三模第 25 题",
+      "tags": ["二次函数综合", "路径最值"],
+      "status": "published_dirty",
+      "order": 1
+    },
+    {
+      "id": "topic_item_2",
+      "problemId": "problem_heping_25",
+      "title": "2026 年天津市和平区三模第 25 题",
+      "tags": ["二次函数综合"],
+      "status": "published",
+      "order": 2
+    }
+  ],
+  "suggestedProblems": [
+    {
+      "id": "suggested_problem_1",
+      "problemId": "problem_hexi_25",
+      "title": "2026 年天津市河西区三模第 25 题",
+      "reason": "题号为 25，且包含二次函数路径最值。",
+      "confidence": 0.84,
+      "tags": ["二次函数综合", "路径最值"]
+    }
+  ]
+}

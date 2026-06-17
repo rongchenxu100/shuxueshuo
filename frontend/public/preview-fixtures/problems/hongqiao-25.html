@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>红桥三模 25题预览</title>
+    <style>
+      body {
+        margin: 0;
+        background: #f8fafc;
+        color: #0f172a;
+        font-family: Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+      }
+      main {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 32px;
+      }
+      article,
+      section {
+        margin-bottom: 24px;
+        border: 1px solid #dbeafe;
+        border-radius: 8px;
+        background: #fff;
+        padding: 20px;
+      }
+      .diagram {
+        height: 220px;
+        border: 1px dashed #93c5fd;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #eff6ff, #fff7ed);
+        display: grid;
+        place-items: center;
+      }
+      .derivation {
+        margin-top: 16px;
+        border-radius: 8px;
+        background: #f8fafc;
+        padding: 16px;
+        line-height: 1.8;
+      }
+      nav {
+        position: fixed;
+        top: 32px;
+        right: 24px;
+        width: 160px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.92);
+        padding: 12px;
+        font-size: 13px;
+      }
+      nav a {
+        display: block;
+        margin: 8px 0;
+        color: #0f766e;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <nav data-target-id="navigation.step_map">
+      <strong>步骤导航</strong>
+      <a href="#step-q2s3">双动点转化</a>
+      <a href="#step-q2s4">将军饮马求最小值</a>
+      <a href="#step-q2s5">代入最小值求 a</a>
+    </nav>
+    <main>
+      <section data-target-id="problem.text">
+        <h1>2026 年天津市红桥区三模第 25 题</h1>
+        <p>已知抛物线与坐标轴交于 A、B、C，求顶点、点 M，并研究路径最小值。</p>
+      </section>
+      <section data-target-id="problem.figure.original">
+        <h2>原题图形</h2>
+        <div class="diagram">原题图片区域</div>
+      </section>
+      <article id="step-q2s3" data-target-id="step.q2s3">
+        <h2 data-target-id="step.q2s3.title">第3步：双动点转化单动点</h2>
+        <div class="diagram" data-target-id="step.q2s3.figure">平行四边形 BGFB₁</div>
+        <div class="derivation" data-target-id="step.q2s3.derivation">
+          由平行四边形可得 BG = B₁F，原式转化为 BF + B₁F。
+        </div>
+      </article>
+      <article id="step-q2s4" data-target-id="step.q2s4">
+        <h2 data-target-id="step.q2s4.title">第4步：将军饮马求最小值</h2>
+        <div class="diagram" data-target-id="step.q2s4.figure">△AFB₁ 填充图形区域</div>
+        <div class="derivation" data-target-id="step.q2s4.derivation">
+          ∵ BF = AF，∴ BF + B₁F = AF + B₁F ≥ AB₁。
+        </div>
+      </article>
+      <article id="step-q2s5" data-target-id="step.q2s5">
+        <h2 data-target-id="step.q2s5.title">第5步：代入最小值求 a</h2>
+        <div class="diagram" data-target-id="step.q2s5.figure">直角三角形计算区域</div>
+        <div class="derivation" data-target-id="step.q2s5.derivation">
+          AB₁² = 7² + (5a)²，代入最小值 7√2。
+        </div>
+      </article>
+    </main>
+  </body>
+</html>

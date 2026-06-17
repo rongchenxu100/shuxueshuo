@@ -1,0 +1,123 @@
+{
+  "problems": [
+    {
+      "id": "problem_hongqiao_25",
+      "title": "2026 年天津市红桥区三模第 25 题",
+      "shortTitle": "红桥三模 25题",
+      "status": "published_dirty",
+      "defaultMode": "edit",
+      "canEdit": true,
+      "canTutor": true,
+      "subject": "math",
+      "tags": ["二次函数综合", "路径最值"],
+      "updatedAt": "2026-06-16T09:00:00.000Z",
+      "autosavedAt": "2026-06-16T09:00:00.000Z",
+      "publicUrl": "/users/haorong/problems/tj-2026-hongqiao-sanmo-25/",
+      "previewUrl": "/preview-fixtures/problems/hongqiao-25.html",
+      "previewVersion": "mock-1"
+    },
+    {
+      "id": "problem_heping_24",
+      "title": "2026 年天津市和平区三模第 24 题",
+      "shortTitle": "和平三模 24题",
+      "status": "published",
+      "defaultMode": "edit",
+      "canEdit": true,
+      "canTutor": true,
+      "subject": "math",
+      "tags": ["几何综合"],
+      "updatedAt": "2026-06-15T10:00:00.000Z",
+      "autosavedAt": "2026-06-15T10:00:00.000Z",
+      "publicUrl": "/users/haorong/problems/tj-2026-heping-sanmo-24/",
+      "previewUrl": "/preview-fixtures/problems/hongqiao-25.html",
+      "previewVersion": "mock-1"
+    },
+    {
+      "id": "problem_heping_25",
+      "title": "2026 年天津市和平区三模第 25 题",
+      "shortTitle": "和平三模 25题",
+      "status": "draft",
+      "defaultMode": "edit",
+      "canEdit": true,
+      "canTutor": true,
+      "subject": "math",
+      "tags": ["二次函数综合"],
+      "updatedAt": "2026-06-14T08:00:00.000Z",
+      "autosavedAt": "2026-06-14T08:00:00.000Z",
+      "publicUrl": null,
+      "previewUrl": "/preview-fixtures/problems/hongqiao-25.html",
+      "previewVersion": "mock-1"
+    }
+  ],
+  "siteHome": {
+    "id": "site_home_haorong",
+    "siteName": "数学可视化题库",
+    "description": "按专题整理天津中考与模拟题的可视化讲解网页。",
+    "status": "published",
+    "autosavedAt": "2026-06-16T09:00:00.000Z",
+    "publicUrl": "/users/haorong/",
+    "previewUrl": "/preview-fixtures/site/home.html",
+    "featuredTopicIds": ["topic_tianjin_sanmo_25"],
+    "recentProblemLimit": 6,
+    "knowledgeTags": ["二次函数", "路径最值", "几何动点", "面积重叠"]
+  },
+  "topics": [
+    {
+      "id": "topic_tianjin_sanmo_25",
+      "title": "天津三模 25题专题",
+      "description": "汇总天津各区三模中第 25 题的二次函数综合题。",
+      "status": "published_dirty",
+      "updatedAt": "2026-06-16T09:00:00.000Z",
+      "autosavedAt": "2026-06-16T09:00:00.000Z",
+      "publicUrl": "/users/haorong/topics/tianjin-sanmo-25/",
+      "previewUrl": "/preview-fixtures/topics/tianjin-sanmo-25.html",
+      "previewVersion": "mock-1",
+      "items": [
+        {
+          "id": "topic_item_1",
+          "problemId": "problem_hongqiao_25",
+          "title": "2026 年天津市红桥区三模第 25 题",
+          "tags": ["二次函数综合", "路径最值"],
+          "status": "published_dirty",
+          "order": 1
+        }
+      ],
+      "suggestedProblems": [
+        {
+          "id": "suggested_problem_1",
+          "problemId": "problem_hexi_25",
+          "title": "2026 年天津市河西区三模第 25 题",
+          "reason": "题号为 25，且包含二次函数路径最值。",
+          "confidence": 0.84,
+          "tags": ["二次函数综合", "路径最值"]
+        }
+      ]
+    },
+    {
+      "id": "topic_path_minimum",
+      "title": "二次函数路径最值",
+      "description": "整理二次函数综合题中的折线路径和将军饮马问题。",
+      "status": "published",
+      "updatedAt": "2026-06-13T09:00:00.000Z",
+      "autosavedAt": "2026-06-13T09:00:00.000Z",
+      "publicUrl": "/users/haorong/topics/path-minimum/",
+      "previewUrl": "/preview-fixtures/topics/tianjin-sanmo-25.html",
+      "previewVersion": "mock-1",
+      "items": [],
+      "suggestedProblems": []
+    },
+    {
+      "id": "topic_geometry_overlap",
+      "title": "几何动态重叠面积",
+      "description": "整理平移、旋转、折叠中的面积变化题。",
+      "status": "draft",
+      "updatedAt": "2026-06-12T09:00:00.000Z",
+      "autosavedAt": "2026-06-12T09:00:00.000Z",
+      "publicUrl": null,
+      "previewUrl": "/preview-fixtures/topics/tianjin-sanmo-25.html",
+      "previewVersion": "mock-1",
+      "items": [],
+      "suggestedProblems": []
+    }
+  ]
+}
