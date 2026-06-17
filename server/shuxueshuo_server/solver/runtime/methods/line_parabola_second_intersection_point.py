@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from shuxueshuo_server.solver.contracts import MethodExplanationSpec
+
 from ._common import *
 from ._spec import MethodSpecSource
 
@@ -121,4 +123,21 @@ SPEC = MethodSpecSource(
     outputs={"point": "Point"},
     preconditions=("line_p1 与 line_p2 不能形成竖直线", "已知交点必须在直线和抛物线上"),
     postconditions=("输出点在直线和抛物线上，且不同于 known_point",),
+    explanation=MethodExplanationSpec(
+        role_schema={
+            "line_points": "确定目标直线的两个已知点。",
+            "line_expression": "由两个已知点确定的目标直线表达式。",
+            "parabola": "待联立的抛物线解析式。",
+            "known_point": "需要排除的已知交点。",
+            "target_point": "最终求出的另一交点。",
+        },
+        student_goal_template="先由两个已知点确定目标直线，再联立抛物线求另一交点。",
+        student_title_template="联立直线与抛物线求交点",
+        derive_templates=(
+            "由 {line_points} 可确定目标直线，得到 {line_expression}。",
+            "联立 {line_expression} 与 {parabola}，排除已知交点 {known_point}，得到 {target_point}。",
+        ),
+        box_templates=("{line_expression}", "{target_point}"),
+        role_binder_id="line_parabola_second_intersection_point",
+    ),
 )

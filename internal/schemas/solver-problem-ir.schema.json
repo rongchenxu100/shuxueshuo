@@ -33,6 +33,16 @@
         "problem_id": { "type": "string" },
         "pattern": { "type": "string" },
         "problem_type": { "type": "string" },
+        "display": {
+          "type": "object",
+          "required": ["summary"],
+          "additionalProperties": false,
+          "properties": {
+            "summary": { "type": "string", "minLength": 1 },
+            "page_title": { "type": "string", "minLength": 1 },
+            "breadcrumb_title": { "type": "string", "minLength": 1 }
+          }
+        },
         "original_text": {
           "type": "object",
           "required": ["source", "number", "lines"],
@@ -40,6 +50,7 @@
           "properties": {
             "source": { "type": "string" },
             "number": { "type": "string" },
+            "score": { "type": "string" },
             "lines": {
               "type": "array",
               "items": { "type": "string" },

@@ -11,6 +11,8 @@ from dataclasses import dataclass, field
 from typing import Any
 import inspect
 
+from shuxueshuo_server.solver.contracts import MethodExplanationSpec, MethodVisualSpec
+
 
 @dataclass(frozen=True)
 class MethodSpecSource:
@@ -29,6 +31,8 @@ class MethodSpecSource:
     postconditions: tuple[str, ...] = ()
     trace_template: tuple[str, ...] = ()
     repair_hints: tuple[dict[str, Any], ...] = ()
+    explanation: MethodExplanationSpec | None = None
+    visual: MethodVisualSpec | None = None
     description: str = ""
     summary: str = ""
 
@@ -57,6 +61,10 @@ class MethodSpecSource:
             payload["repair_hints"] = [
                 _json_ready_hint(item) for item in self.repair_hints
             ]
+        if self.explanation is not None:
+            payload["explanation"] = _json_ready_explanation(self.explanation)
+        if self.visual is not None:
+            payload["visual"] = _json_ready_visual(self.visual)
         return payload
 
 
@@ -70,4 +78,28 @@ def _json_ready_hint(raw: dict[str, Any]) -> dict[str, Any]:
     return {
         key: list(value) if isinstance(value, tuple) else value
         for key, value in raw.items()
+    }
+
+
+def _json_ready_explanation(explanation: MethodExplanationSpec) -> dict[str, Any]:
+    return {
+        "role_schema": dict(explanation.role_schema),
+        "student_goal_template": explanation.student_goal_template,
+        "student_title_template": explanation.student_title_template,
+        "student_nav_title_template": explanation.student_nav_title_template,
+        "student_title_templates_by_goal": dict(explanation.student_title_templates_by_goal),
+        "derive_templates": list(explanation.derive_templates),
+        "box_templates": list(explanation.box_templates),
+        "explanation_level": explanation.explanation_level,
+        "role_binding_strategy": explanation.role_binding_strategy,
+        "role_binder_id": explanation.role_binder_id,
+    }
+
+
+def _json_ready_visual(visual: MethodVisualSpec) -> dict[str, Any]:
+    return {
+        "role_schema": dict(visual.role_schema),
+        "scene_templates": [dict(item) for item in visual.scene_templates],
+        "annotation_templates": [dict(item) for item in visual.annotation_templates],
+        "role_binder_id": visual.role_binder_id,
     }

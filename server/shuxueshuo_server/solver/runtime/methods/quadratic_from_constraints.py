@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from shuxueshuo_server.solver.contracts import MethodExplanationSpec
+
 from ._common import *
 from ._spec import MethodSpecSource
 
@@ -256,5 +258,16 @@ SPEC = MethodSpecSource(
     postconditions=(
         "输出抛物线满足已知系数、曲线点和额外方程约束",
         "输出 coefficients/parabola 表示当前问已知约束下的最简函数表达式",
+    ),
+    explanation=MethodExplanationSpec(
+        role_schema={
+            "constraints": "用于确定当前问二次函数的系数约束。",
+            "result_parabola": "由约束得到的当前问抛物线解析式。",
+        },
+        student_goal_template="代入当前问给出的约束，确定二次函数解析式。",
+        student_title_template="代入已知点求抛物线解析式",
+        student_title_templates_by_goal={
+            "derive_parametric_parabola": "用参数表示抛物线解析式",
+        },
     ),
 )

@@ -32,5 +32,21 @@
   ],
   "postconditions": [
     "输出参数值满足表达式取值条件"
-  ]
+  ],
+  "explanation": {
+    "role_schema": {
+      "expression": "前序步骤得到的含参表达式。",
+      "target_value": "题设给出的表达式取值。",
+      "parameter": "需要反求的参数。"
+    },
+    "student_goal_template": "把题设给定值代入已得到的表达式，解出参数。",
+    "student_title_template": "由最小值反求参数",
+    "student_nav_title_template": "",
+    "student_title_templates_by_goal": {},
+    "derive_templates": [],
+    "box_templates": [],
+    "explanation_level": "template",
+    "role_binding_strategy": "role_name_registry",
+    "role_binder_id": "generic_trace"
+  }
 }

@@ -1,0 +1,181 @@
+{
+  "problem_id": "tj-2026-heping-yimo-25",
+  "family_id": "QuadraticEqualLengthRayPathMinimumSolver",
+  "title": "和平区一模 25 讲解 few-shot",
+  "original_text": [
+    "已知抛物线 y=ax²+bx-3 与 x 轴交于 A(-1,0)、B，与 y 轴交于 C。D 是 C 向右平移 2 个单位得到的点。",
+    "第（Ⅰ）问包含求解析式和由角和条件求点 E。",
+    "第（Ⅱ）问包含 M 在线段 BC 上、N 在射线 CD 上且 CN=CM，已知 OM+BN 的最小值，求参数。"
+  ],
+  "retrieval": {
+    "goal_types": [
+      "derive_parabola",
+      "derive_constructed_point",
+      "derive_path_minimum_expression",
+      "derive_parameter"
+    ],
+    "capability_ids": [
+      "quadratic_from_constraints",
+      "angle_sum_equal_angle_candidates",
+      "axis_intercept_from_equal_acute_angles",
+      "line_parabola_second_intersection_point",
+      "equal_length_ray_path_reduction",
+      "parameter_from_expression_value"
+    ]
+  },
+  "example": {
+    "lesson_ir": {
+      "steps": [
+        {
+          "id": "example_step_1",
+          "title": "第1步：代入已知点求抛物线解析式",
+          "source_step_ids": [
+            "example_parabola"
+          ],
+          "derive": [
+            [
+              "∵",
+              "已知点在抛物线上，可以把点坐标代入二次函数。"
+            ],
+            [
+              "∴",
+              "联立得到缺少的系数。"
+            ],
+            [
+              "∴",
+              "整理出当前小问的抛物线解析式。"
+            ]
+          ],
+          "box": [
+            "得到抛物线解析式"
+          ]
+        },
+        {
+          "id": "example_step_2",
+          "title": "第2步：由角和条件转化为等角并求辅助交点",
+          "source_step_ids": [
+            "example_angle",
+            "example_axis_intercept"
+          ],
+          "derive": [
+            [
+              "∵",
+              "坐标轴中的直角三角形可以提供一个 45° 参考角。"
+            ],
+            [
+              "∴",
+              "把参考角与题设角和比较，消去公共角，得到等角。"
+            ],
+            [
+              "∴",
+              "利用两个直角三角形正切相等，求出辅助交点。"
+            ]
+          ],
+          "box": [
+            "得到辅助交点坐标"
+          ]
+        },
+        {
+          "id": "example_step_3",
+          "title": "第3步：联立直线与抛物线求目标点",
+          "source_step_ids": [
+            "example_curve_intersection"
+          ],
+          "derive": [
+            [
+              "∵",
+              "两个已知点可以确定直线。"
+            ],
+            [
+              "∴",
+              "把直线方程与抛物线方程联立。"
+            ],
+            [
+              "筛选",
+              "排除已知交点，再根据题设范围选择目标点。"
+            ]
+          ],
+          "box": [
+            "得到目标点坐标"
+          ]
+        },
+        {
+          "id": "example_step_4",
+          "title": "第4步：构造等长辅助点，把两动点问题转化为单动点问题",
+          "source_step_ids": [
+            "example_equal_length_reduction"
+          ],
+          "derive": [
+            [
+              "作",
+              "在射线上取辅助点，使它到公共端点的距离等于线段参考端点到公共端点的距离。"
+            ],
+            [
+              "∵",
+              "射线动点和线段动点到公共端点的距离相等，且夹角对应相等。"
+            ],
+            [
+              "∴",
+              "对应三角形全等，原路径中的一段距离可以替换。"
+            ],
+            [
+              "∴",
+              "两动点路径和转化为单动点路径和。"
+            ]
+          ],
+          "box": [
+            "完成路径降维"
+          ]
+        },
+        {
+          "id": "example_step_5",
+          "title": "第5步：用两点之间线段最短确定最小值",
+          "source_step_ids": [
+            "example_equal_length_reduction"
+          ],
+          "derive": [
+            [
+              "∵",
+              "降维后的路径只经过一个动点。"
+            ],
+            [
+              "∵",
+              "两点之间线段最短。"
+            ],
+            [
+              "∴",
+              "当固定点、动点、辅助点共线时，路径和取得最小值。"
+            ]
+          ],
+          "box": [
+            "最小值转化为固定线段长度"
+          ]
+        },
+        {
+          "id": "example_step_6",
+          "title": "第6步：由最小值条件反求参数",
+          "source_step_ids": [
+            "example_parameter"
+          ],
+          "derive": [
+            [
+              "∵",
+              "前面已经得到含参数的最小值表达式。"
+            ],
+            [
+              "∴",
+              "令该表达式等于题设给定的最小值。"
+            ],
+            [
+              "∴",
+              "解方程并结合参数范围筛选。"
+            ]
+          ],
+          "box": [
+            "得到参数值"
+          ]
+        }
+      ]
+    }
+  }
+}

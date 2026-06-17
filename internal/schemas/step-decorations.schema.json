@@ -28,6 +28,10 @@
           "type": "array",
           "items": { "type": "string" }
         },
+        "stepIds": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
         "elements": {
           "type": "array",
           "items": { "$ref": "#/$defs/decoration" }

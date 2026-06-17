@@ -83,6 +83,60 @@ class MethodInputSpec:
 
 
 @dataclass(frozen=True)
+class TeachingSubstepSpec:
+    """一个 executable capability 在 LessonIR 中建议拆出的认知子步骤。"""
+
+    substep_id: str
+    title: str
+    focus: str
+    nav_title: str | None = None
+    title_required_terms: tuple[str, ...] = ()
+    nav_title_required_terms: tuple[str, ...] = ()
+    preferred_method_ids: tuple[str, ...] = ()
+    forbid_merge_with_sibling_substeps: bool = True
+
+    def to_payload(self) -> dict[str, Any]:
+        payload = {
+            "substep_id": self.substep_id,
+            "title": self.title,
+            "focus": self.focus,
+            "title_required_terms": list(self.title_required_terms),
+            "nav_title_required_terms": list(self.nav_title_required_terms),
+            "preferred_method_ids": list(self.preferred_method_ids),
+            "forbid_merge_with_sibling_substeps": self.forbid_merge_with_sibling_substeps,
+        }
+        if self.nav_title:
+            payload["nav_title"] = self.nav_title
+        return payload
+
+
+@dataclass(frozen=True)
+class MethodExplanationSpec:
+    """Method 面向讲解层的角色化模板。"""
+
+    role_schema: dict[str, str]
+    student_goal_template: str
+    student_title_template: str = ""
+    student_nav_title_template: str = ""
+    student_title_templates_by_goal: dict[str, str] = field(default_factory=dict)
+    derive_templates: tuple[str, ...] = ()
+    box_templates: tuple[str, ...] = ()
+    explanation_level: str = "template"
+    role_binding_strategy: str = "role_name_registry"
+    role_binder_id: str = "generic_trace"
+
+
+@dataclass(frozen=True)
+class MethodVisualSpec:
+    """Method 面向 VisualStepIR 的角色化视觉模板。"""
+
+    role_schema: dict[str, str]
+    scene_templates: tuple[dict[str, Any], ...] = ()
+    annotation_templates: tuple[dict[str, Any], ...] = ()
+    role_binder_id: str = "generic_visual"
+
+
+@dataclass(frozen=True)
 class MethodSpec:
     """可检索、可校验的 method 能力规格。
 
@@ -101,6 +155,8 @@ class MethodSpec:
     postconditions: tuple[str, ...] = ()
     trace_template: tuple[str, ...] = ()
     repair_hints: tuple[dict[str, Any], ...] = ()
+    explanation: MethodExplanationSpec | None = None
+    visual: MethodVisualSpec | None = None
 
 
 @dataclass

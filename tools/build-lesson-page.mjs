@@ -43,6 +43,16 @@ function esc(s) {
     .replace(/"/g, "&quot;");
 }
 
+function toBrowserPath(p) {
+  return p.split(path.sep).join("/");
+}
+
+function assetPrefixForOutput(outPath) {
+  const rel = path.relative(path.dirname(outPath), path.join(repoRoot, "site", "assets"));
+  const normalized = toBrowserPath(rel || ".");
+  return normalized.startsWith(".") ? normalized : "./" + normalized;
+}
+
 /**
  * 把 problem.lines 数组编译成 HTML 字符串。
  * 支持四种行类型：普通文字行 / 带答案chip行 / 粗体小标题行 / 原题图形组。
@@ -137,10 +147,13 @@ const geometrySpecTag = `<script type="application/json" id="geometrySpec">${JSO
   geometrySpec
 )}</script>`;
 
+const outPath = path.resolve(repoRoot, meta.outputPath);
+const assetPrefix = assetPrefixForOutput(outPath);
+
 const geometryScript = [
   geometrySpecTag,
-  `<script src="../../../assets/js/geometry-engine.js"></script>`,
-  `<script src="../../../assets/js/geometry-lesson-from-spec.js"></script>`,
+  `<script src="${assetPrefix}/js/geometry-engine.js"></script>`,
+  `<script src="${assetPrefix}/js/geometry-lesson-from-spec.js"></script>`,
   "",
   "<script>",
   "  const __GEOMETRY_SPEC__ = JSON.parse(document.getElementById('geometrySpec').textContent);",
@@ -164,6 +177,7 @@ const html = replaceAll(template, {
   "{{PAGE_TITLE}}": meta.pageTitle,
   "{{PAGE_DESCRIPTION}}": meta.pageDescription ?? "",
   "{{BREADCRUMB_TITLE}}": meta.breadcrumbTitle ?? meta.pageTitle,
+  "{{ASSET_PREFIX}}": assetPrefix,
   "{{PROBLEM_SUMMARY}}": problem.summary ?? "",
   "{{PROBLEM_FULL_HTML}}": problemFullHtml,
   "{{STEPS_JSON}}": stepsJson,
@@ -176,7 +190,6 @@ const html = replaceAll(template, {
   'goToProblemMode: "doubleScroll"':   `goToProblemMode: ${JSON.stringify(ui.goToProblemMode ?? "doubleScroll")}`,
 });
 
-const outPath = path.resolve(repoRoot, meta.outputPath);
 ensureDirForFile(outPath);
 fs.writeFileSync(outPath, html, "utf8");
 console.log("Wrote:", outPath);

@@ -14,7 +14,7 @@ deterministic planner 跑通现有黄金用例。这个映射属于运行器配�
 from __future__ import annotations
 
 from collections.abc import Callable, Mapping
-from dataclasses import asdict, is_dataclass
+from dataclasses import asdict, dataclass, is_dataclass
 import json
 from pathlib import Path
 import time
@@ -26,8 +26,9 @@ from shuxueshuo_server.solver.family import (
     QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
     FamilyRegistry,
 )
+from shuxueshuo_server.solver.family.models import SolverFamilySpec
 from shuxueshuo_server.solver.math_kernel import SympyKernel
-from shuxueshuo_server.solver.problem_models import ProblemIR
+from shuxueshuo_server.solver.problem_models import ProblemIR, QuestionGoal
 from shuxueshuo_server.solver.question_goals import extract_question_goals
 from shuxueshuo_server.solver.result_models import DerivationTrace, SolverResult
 from shuxueshuo_server.solver.runtime.context import RuntimeContext, ContextBuilder
@@ -38,7 +39,7 @@ from shuxueshuo_server.solver.runtime.executor import (
 )
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.methods import default_stateless_registry
-from shuxueshuo_server.solver.runtime.models import PlannerOutput
+from shuxueshuo_server.solver.runtime.models import PlanExecutionResult, PlannerOutput
 from shuxueshuo_server.solver.runtime.planner import (
     GenericPlanner,
     Nankai25DeterministicPlannerAdapter,
@@ -58,6 +59,20 @@ from shuxueshuo_server.solver.runtime.strategy_runtime_planner import (
 
 
 PlannerProvider = Callable[[RuntimeContext], GenericPlanner]
+
+
+@dataclass(frozen=True)
+class RuntimeSuccessArtifacts:
+    """ExplanationBuilder 使用的内存成功产物。"""
+
+    problem: ProblemIR
+    family: SolverFamilySpec
+    planner: GenericPlanner
+    planner_output: PlannerOutput
+    context: RuntimeContext
+    execution: PlanExecutionResult
+    question_goals: tuple[QuestionGoal, ...]
+    solver_result: SolverResult
 
 
 def _nankai25_planner_provider(context: RuntimeContext) -> GenericPlanner:
@@ -121,9 +136,11 @@ class RuntimeOrchestrator:
         self.max_attempts = max(1, int(max_attempts))
         self.debug_dir = Path(debug_dir) if debug_dir else None
         self.last_session: SolveSession | None = None
+        self.last_success_artifacts: RuntimeSuccessArtifacts | None = None
 
     def solve(self, problem: ProblemIR) -> SolverResult:
         """求解 ProblemIR，并返回统一 SolverResult。"""
+        self.last_success_artifacts = None
         family = self.family_registry.match(problem)
         if family is None:
             return SolverResult(
@@ -303,7 +320,7 @@ class RuntimeOrchestrator:
                 methods=execution.methods_used,
                 steps=execution.trace_fragments,
             )
-            return SolverResult(
+            result = SolverResult(
                 problem_id=problem.problem_id,
                 status="ok",
                 solver_family=family.family_id,
@@ -315,6 +332,17 @@ class RuntimeOrchestrator:
                 errors=[],
                 run_log=_run_log(session),
             )
+            self.last_success_artifacts = RuntimeSuccessArtifacts(
+                problem=problem,
+                family=family,
+                planner=planner,
+                planner_output=planner_output,
+                context=context,
+                execution=execution,
+                question_goals=tuple(question_goals),
+                solver_result=result,
+            )
+            return result
 
         session.final_status = "failed"
         return SolverResult(

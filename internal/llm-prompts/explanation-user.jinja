@@ -1,0 +1,99 @@
+请基于下面的 verified ExplanationSnapshot 摘要，输出 LessonIR 的文字步骤草稿。
+
+你只做“讲解分组 + 讲解文字优化”，不重新解题。
+
+## 输出格式
+
+返回 JSON 对象：
+
+```json
+{
+  "steps": [
+    {
+      "id": "string",
+      "candidate_group_ids": ["一个或多个 candidate candidate_group_ids"],
+      "source_step_ids": ["兼容字段；优先使用 candidate_group_ids"],
+      "title": "string",
+      "nav_title": "string",
+      "goal": "string",
+      "derive": [["标签", "面向学生的讲解句"]],
+      "box": ["重要结论文字"]
+    }
+  ]
+}
+```
+
+## 讲解步骤分组策略
+
+{{ payload.teaching_step_policy | pretty_json }}
+
+## 安全规则
+
+{{ payload.rules | pretty_json }}
+
+## 讲解草稿使用规则
+
+- `candidate_groups[].teaching_expansion_draft` 是代码根据已验算的步骤、facts 和 recipe/method 模板生成的可信草稿。
+- 若某个候选步骤包含 `teaching_expansion_draft`，讲解时必须优先使用其中的 `proof_draft`、`student_intent_draft`、`bound_roles` 和 `recommended_lesson_splits`。
+- 请优先用 `candidate_group_ids` 选择候选；同一个 `source_step_id` 可能已经被代码拆成多个 `candidate_group_id`。
+- 你可以把一个 executable recipe 拆成多个 LessonIR steps，只要 `candidate_group_ids` 来自候选列表。
+- 如果候选或草稿同时涉及“构造/路径转化”和“求最值/计算表达式”，必须拆成两个 LessonIR steps：先讲转化，再讲最值，不要合并到同一个标题或 derive 中。
+- 每个 derive item 只能表达一个逻辑动作：
+  - `作`：只写构造。
+  - `∵`：只写已知、依据、计算前提，例如 `A(-1,0)和D(2,-3)在抛物线上，代入得方程组`。
+  - `∴`：只写由前文推出的方程、化简结果、解或结论，例如 `a·(-1)²+b·(-1)-3=0 → a-b=3`、`a=1，b=-2`。
+- 不要使用 `代入 / 化简 / 解 / 筛选` 作为标签；这些词可以写在正文里。
+- 不要写 `["解", "令 x=0 得 y=-3，所以 C(0,-3)"]`；应拆成 `["∵", "令 x=0 得 y=-3"]`、`["∴", "C(0,-3)"]`。
+- 不要写 `["代入", "a·(-1)²+b·(-1)-3=0 → a-b=3"]`；应写成 `["∴", "a·(-1)²+b·(-1)-3=0 → a-b=3"]`。
+- 不要写 `["∵", "A(-1,0)在抛物线上，代入得 a·(-1)²+b·(-1)-3=0 → a-b=3"]`；应拆成 `["∵", "A(-1,0)在抛物线上"]`、`["∴", "代入得 a·(-1)²+b·(-1)-3=0 → a-b=3"]`。
+- draft 标记为 `partial` 或 `gap` 时，只能用谨慎表达补充，不要硬写未验证的具体三角形、点名或结论。
+- `explanation_only_label=true` 的辅助点只用于学生讲解，不是 StepIntent 中的 creates，也不是新的 runtime fact。
+- 不要使用 draft 没有明确给出的“对称”“旋转”“相似”“对顶角”等几何关系来补证明。
+- `title` 写带当前题上下文的解题思路；`nav_title` 写短导航标题，不必带所有点名。
+- `box` 只能写学生可读关键结论，例如 `C(0,-3)`、`y=x²-2x-3`、`a=3/4`。
+- `box` 不要写 `answer:*`、`fact:*`、`i_1.parabola = ...` 或 `x**2 - 2*x - 3` 这类内部/Python 表达式。
+
+## 当前题目
+
+{{ payload.problem | pretty_json }}
+
+## 已验算答案
+
+{{ payload.answers | pretty_json }}
+
+## 已执行步骤提供的规划提示
+
+{{ payload.planner_insights | pretty_json }}
+
+{% if payload.previous_attempts %}
+## Previous Attempts
+
+下面是上一轮或多轮 LessonIR draft 的校验反馈。请优先阅读每个 attempt 的
+`repair_summary`，再参考 `normalized_lesson_draft` 和 `diagnostic`。
+
+- 你仍然必须输出完整 LessonIR draft，不要只输出 patch。
+- `accepted_steps` 表示结构和引用已通过的步骤，下一轮尽量保留它们的分组意图。
+- `already_normalized` 表示系统已经能规范化的问题，下一轮请直接写成规范格式。
+- `do_not` 是硬约束，不要为了修一个错误而新增未验证的点、事实、数值或结论。
+
+{{ payload.previous_attempts | pretty_json }}
+{% endif %}
+
+## 示例讲解
+
+下面是相似题或同题型 mock 的 LessonIR 示例。它不是当前题条件，只学习：
+
+- 标题如何写成“第 N 步：动作 + 目的”。
+- derive 如何使用 `作 / ∵ / ∴` 组织证明流；代入、化简、解方程、筛选等动作词写在正文里。
+- recipe 如何拆成多个学生认知步骤。
+- 不要复制示例题的点名、数值、答案或 source_step_ids。
+
+{{ payload.explanation_few_shots | pretty_json }}
+
+## 可分组的候选步骤
+
+{{ payload.candidate_groups | pretty_json }}
+
+## 输出结构提醒
+
+{{ payload.output_schema | pretty_json }}
