@@ -7,7 +7,7 @@ current problem's verified handles and existing geometry objects.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 
@@ -18,6 +18,7 @@ class MethodVisualSpec:
     role_schema: dict[str, str]
     scene_templates: tuple[dict[str, Any], ...] = ()
     annotation_templates: tuple[dict[str, Any], ...] = ()
+    timeline_templates: tuple[dict[str, Any], ...] = ()
     role_binder_id: str = "generic_visual"
 
     def to_payload(self) -> dict[str, Any]:
@@ -25,6 +26,7 @@ class MethodVisualSpec:
             "role_schema": dict(self.role_schema),
             "scene_templates": [dict(item) for item in self.scene_templates],
             "annotation_templates": [dict(item) for item in self.annotation_templates],
+            "timeline_templates": [dict(item) for item in self.timeline_templates],
             "role_binder_id": self.role_binder_id,
         }
 
@@ -35,6 +37,7 @@ class RecipeVisualSpec:
 
     role_schema: dict[str, str]
     teaching_substep_templates: dict[str, tuple[dict[str, Any], ...]]
+    teaching_substep_timeline_templates: dict[str, tuple[dict[str, Any], ...]] = field(default_factory=dict)
     annotation_templates: tuple[dict[str, Any], ...] = ()
     role_binder_id: str = "generic_visual"
 
@@ -45,7 +48,10 @@ class RecipeVisualSpec:
                 key: [dict(item) for item in value]
                 for key, value in self.teaching_substep_templates.items()
             },
+            "teaching_substep_timeline_templates": {
+                key: [dict(item) for item in value]
+                for key, value in self.teaching_substep_timeline_templates.items()
+            },
             "annotation_templates": [dict(item) for item in self.annotation_templates],
             "role_binder_id": self.role_binder_id,
         }
-

@@ -413,6 +413,10 @@ def validate_lesson_draft(
             text["box"] = _merge_boxes(text.get("box", ()), _answer_boxes(snapshot.answers))
         title = _student_title_for_source_groups(source_groups, text)
         nav_title = _student_nav_title_for_source_groups(source_groups, text, title)
+        derive_items = _filter_redundant_derive_items(
+            _derive_items(text.get("derive", ())),
+            source_groups,
+        )
         lesson_step = LessonStep(
             id=str(raw_step.get("id") or f"explain_{index}"),
             scope_id=source_groups[0].scope_id,
@@ -426,7 +430,7 @@ def validate_lesson_draft(
             title=title,
             goal=str(text.get("goal") or source_groups[0].step.get("target") or ""),
             nav_title=nav_title,
-            derive=_derive_items(text.get("derive", ())),
+            derive=derive_items,
             box=tuple(str(item) for item in text.get("box", ()) if str(item)),
             gaps=tuple(str(item) for item in text.get("gaps", ()) if str(item)),
             teaching_substep_ids=tuple(
@@ -783,6 +787,39 @@ def _derive_items(raw: Any) -> tuple[tuple[str, str], ...]:
             elif isinstance(item, str):
                 items.extend(_split_derive_item("说明", item))
     return tuple(items)
+
+
+def _filter_redundant_derive_items(
+    items: tuple[tuple[str, str], ...],
+    source_groups: list[LessonCandidateGroup],
+) -> tuple[tuple[str, str], ...]:
+    if not _is_equal_length_path_reduction_group(source_groups):
+        return items
+    filtered: list[tuple[str, str]] = []
+    for label, text in items:
+        if _is_redundant_equal_length_collinearity_text(text):
+            continue
+        filtered.append((label, text))
+    return tuple(filtered)
+
+
+def _is_equal_length_path_reduction_group(source_groups: list[LessonCandidateGroup]) -> bool:
+    return any(
+        group.capability_id == "equal_length_ray_path_reduction"
+        and group.teaching_substep_id == "path_reduction"
+        for group in source_groups
+    )
+
+
+def _is_redundant_equal_length_collinearity_text(text: str) -> bool:
+    normalized = _strip_sentence(str(text))
+    return bool(_COLLINEARITY_STATEMENT_RE.search(normalized))
+
+
+_POINT_LIST_TOKEN_RE = r"(?:[A-Za-z][A-Za-z0-9_]*|[一-龥])"
+_COLLINEARITY_STATEMENT_RE = re.compile(
+    rf"{_POINT_LIST_TOKEN_RE}(?:[、,，]\s*{_POINT_LIST_TOKEN_RE}){{1,}}\s*共线"
+)
 
 
 def _split_derive_item(label: str, text: str) -> list[tuple[str, str]]:

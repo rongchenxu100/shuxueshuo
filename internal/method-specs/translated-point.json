@@ -57,6 +57,14 @@
       }
     ],
     "annotation_templates": [],
+    "timeline_templates": [
+      {
+        "component": "TranslationAnimation",
+        "source_role": "source_point",
+        "target_role": "target_point",
+        "vector_role": "vector"
+      }
+    ],
     "role_binder_id": "translated_point"
   }
 }

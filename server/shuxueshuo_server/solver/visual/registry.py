@@ -85,6 +85,7 @@ LOW_LEVEL_TO_VISUAL_TYPE: dict[str, str] = {
     "dashedLine": "DashedLine",
     "derivedPoint": "DerivedPoint",
     "grid": "Grid",
+    "movingPoint": "MovingPoint",
     "outlineRegion": "OutlineRegion",
     "parabola": "Parabola",
     "point": "Point",

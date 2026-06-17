@@ -292,6 +292,8 @@ class VisualRoleBinderRegistry:
                         {
                             "source_point": source,
                             "target_point": target,
+                            "source_display": _point_display_from_geometry(source, self.geometry_spec),
+                            "target_display": _point_display_from_geometry(target, self.geometry_spec),
                             "vector": [str(vector[0]), str(vector[1])],
                         }
                     )
@@ -1007,6 +1009,21 @@ def _sympy_pair(value: Any) -> tuple[sp.Expr, sp.Expr] | None:
     if x is None or y is None:
         return None
     return (x, y)
+
+
+def _point_display_from_geometry(point_id: str, geometry_spec: JsonObject) -> str:
+    all_points: dict[str, Any] = {}
+    all_points.update(geometry_spec.get("fixedPoints") or {})
+    all_points.update(geometry_spec.get("movingPoints") or {})
+    pair = _sympy_pair(all_points.get(point_id))
+    if pair is None:
+        return ""
+    label = str(point_id).rstrip("0123456789") or str(point_id)
+    return f"{label}({_student_coord(pair[0])},{_student_coord(pair[1])})"
+
+
+def _student_coord(value: sp.Expr) -> str:
+    return sp.sstr(value).replace("**2", "²").replace("*", "")
 
 
 def _sympify_expr(value: Any) -> sp.Expr | None:

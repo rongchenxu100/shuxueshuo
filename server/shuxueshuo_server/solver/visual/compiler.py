@@ -109,6 +109,10 @@ def forward_compile(visual_ir: VisualStepIR) -> CompiledVisualArtifacts:
             lesson_step=lesson_steps_by_id.get(visual_step.lesson_step_id),
             policies=policies,
         )
+        _compile_timeline(
+            visual_step,
+            lesson_step=lesson_steps_by_id.get(visual_step.lesson_step_id),
+        )
         if use_scene_accumulator:
             scope_key = scope_root(visual_step.scope_id)
             _inherit_local_point_overrides_if_needed(
@@ -204,6 +208,44 @@ def _compile_local_slider_interaction(
         "movable": False,
         "range": [lesson_step.get("t", 0), lesson_step.get("t", 0)],
     }
+
+
+def _compile_timeline(
+    visual_step: VisualStep,
+    *,
+    lesson_step: JsonObject | None,
+) -> None:
+    if lesson_step is None:
+        return
+    timeline = visual_step.timeline
+    if not isinstance(timeline, dict) or timeline.get("mode", "none") == "none":
+        lesson_step.pop("animation", None)
+        return
+    compiled = copy.deepcopy(timeline)
+    beats: list[JsonObject] = []
+    for beat in compiled.get("beats") or ():
+        if not isinstance(beat, dict):
+            continue
+        patch = beat.get("scene_patch")
+        if isinstance(patch, dict):
+            patch["add"] = [
+                raw_item
+                for item in patch.get("add") or ()
+                if isinstance(item, dict)
+                for raw_item in _compile_scene_items(item)
+            ]
+            if "hide" in patch:
+                patch["hide"] = [str(item) for item in patch.get("hide") or ()]
+            if "state_overrides" in patch:
+                patch["state_overrides"] = [
+                    copy.deepcopy(item)
+                    for item in patch.get("state_overrides") or ()
+                    if isinstance(item, dict)
+                ]
+        beats.append(beat)
+    compiled.pop("frames", None)
+    compiled["beats"] = beats
+    lesson_step["animation"] = compiled
 
 
 def _inherit_local_point_overrides_if_needed(
@@ -313,6 +355,8 @@ def _compile_scene_items(item: JsonObject) -> list[JsonObject]:
     raw = copy.deepcopy(item)
     metadata = raw.pop("metadata", {}) or {}
     component = str(raw.pop("component"))
+    # Handles are VisualStepIR reconciliation keys. Existing step-decorations
+    # low-level schema does not accept them, so they are consumed before emit.
     raw.pop("handle", None)
     raw.pop("state", None)
     raw.pop("persistence", None)
@@ -321,23 +365,26 @@ def _compile_scene_items(item: JsonObject) -> list[JsonObject]:
     raw.pop("show_endpoint_refs", None)
     if component == "VisualGap":
         return []
+    compiled: list[JsonObject]
     if component == "DistanceMarker":
-        return [_compile_distance_marker(raw)]
-    if component == "TranslationMarker":
-        return _compile_translation_marker(raw)
-    if component == "AngleEqualityMarker":
-        return _compile_angle_equality_marker(raw)
-    if component == "EqualAcuteAngleInterceptMarker":
-        return _compile_equal_acute_angle_intercept_marker(raw)
-    if component == "CongruentTriangleMarker":
-        return _compile_congruent_triangle_marker(raw)
-    if component == "EquivalentSegmentMarker":
-        return _compile_equivalent_segment_marker(raw)
-    low_level_type = metadata.get("low_level_type") or low_level_for_visual_type(component)
-    if low_level_type is None:
-        raise ValueError(f"cannot compile component without low-level type: {component}")
-    raw["type"] = low_level_type
-    return [raw]
+        compiled = [_compile_distance_marker(raw)]
+    elif component == "TranslationMarker":
+        compiled = _compile_translation_marker(raw)
+    elif component == "AngleEqualityMarker":
+        compiled = _compile_angle_equality_marker(raw)
+    elif component == "EqualAcuteAngleInterceptMarker":
+        compiled = _compile_equal_acute_angle_intercept_marker(raw)
+    elif component == "CongruentTriangleMarker":
+        compiled = _compile_congruent_triangle_marker(raw)
+    elif component == "EquivalentSegmentMarker":
+        compiled = _compile_equivalent_segment_marker(raw)
+    else:
+        low_level_type = metadata.get("low_level_type") or low_level_for_visual_type(component)
+        if low_level_type is None:
+            raise ValueError(f"cannot compile component without low-level type: {component}")
+        raw["type"] = low_level_type
+        compiled = [raw]
+    return compiled
 
 
 def _compile_distance_marker(raw: JsonObject) -> JsonObject:

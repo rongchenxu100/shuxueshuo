@@ -94,6 +94,14 @@ SPEC = MethodSpecSource(
                 "style_intent": "construction",
             },
         ),
+        timeline_templates=(
+            {
+                "component": "TranslationAnimation",
+                "source_role": "source_point",
+                "target_role": "target_point",
+                "vector_role": "vector",
+            },
+        ),
         role_binder_id="translated_point",
     ),
 )

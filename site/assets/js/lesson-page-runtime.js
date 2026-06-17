@@ -66,6 +66,9 @@
     const POLICIES = config.policies || config.POLICIES;
     const STEP_LABELS = config.stepLabels || config.STEP_LABELS;
     const diagramMarkupFor = config.diagramMarkupFor;
+    const diagramMarkupForFrame = config.diagramMarkupForFrame || function (index, frame, activeT, localVars) {
+      return diagramMarkupFor(index, activeT, Object.assign({}, localVars || {}));
+    };
     const drawMini = config.drawMini;
     const groupTitle = typeof config.groupTitle === "function" ? config.groupTitle : null;
     const legendHtml = config.legendHtml ?? config.legendHTML ?? "";
@@ -106,6 +109,8 @@
     let problemUserPreference = null;
     let stepObserver = null;
     const localVarsByStep = {};
+    let animationState = null;
+    let animationScrollLock = null;
 
     function defaultGroupTitle(section) {
       return section;
@@ -299,6 +304,27 @@
       );
     }
 
+    function stepAnimation(step) {
+      const animation = step && step.animation;
+      if (!animation || animation.mode === "none" || !Array.isArray(animation.beats) || !animation.beats.length) {
+        return null;
+      }
+      return animation;
+    }
+
+    function renderAnimationButtonMarkup(step, index) {
+      const animation = stepAnimation(step);
+      if (!animation) return "";
+      const trigger = animation.trigger || {};
+      return (
+        '<button class="step-animation-button" type="button" data-animation-open="' +
+        index +
+        '">' +
+        esc(trigger.label || "播放演示") +
+        "</button>"
+      );
+    }
+
     function renderDeriveLine(pair) {
       if (!Array.isArray(pair) || pair.length < 2) return "";
       const ref = pair[2];
@@ -336,6 +362,7 @@
           .join("");
         const minis = renderMinisMarkup(step, activeT);
         const localControls = renderLocalControlsMarkup(step, index);
+        const animationButton = renderAnimationButtonMarkup(step, index);
         const stepAttr = policy.step != null ? String(policy.step) : String(stepRangeStep);
         const tools = policy.movable
           ? '<div class="step-local-tools" data-step-tools="' +
@@ -393,6 +420,7 @@
           '</svg></div><div class="legend">' +
           legendHtml +
           "</div>" +
+          animationButton +
           tools +
           localControls +
           minis +
@@ -541,6 +569,357 @@
       if (svgEl) svgEl.innerHTML = diagramMarkupFor(index, currentStepT(card, index), vars);
     }
 
+    function ensureAnimationModal() {
+      let modal = document.getElementById("lessonAnimationModal");
+      if (modal) return modal;
+      modal = document.createElement("div");
+      modal.id = "lessonAnimationModal";
+      modal.className = "lesson-animation-modal";
+      modal.setAttribute("aria-hidden", "true");
+      modal.innerHTML =
+        '<div class="lesson-animation-backdrop" data-animation-action="close"></div>' +
+        '<div class="lesson-animation-dialog" role="dialog" aria-modal="true" aria-label="动画演示">' +
+        '<div class="lesson-animation-head">' +
+        '<div class="lesson-animation-kicker">动画演示</div>' +
+        '<button class="lesson-animation-close" type="button" data-animation-action="close" aria-label="关闭动画">×</button>' +
+        '</div><div class="lesson-animation-body">' +
+        '<div class="lesson-animation-canvas"><svg viewBox="0 0 ' +
+        viewBoxW +
+        " " +
+        viewBoxH +
+        '"></svg></div>' +
+        '<div class="lesson-animation-side"><div class="lesson-animation-derive"></div></div>' +
+        '</div><div class="lesson-animation-controls">' +
+        '<button type="button" data-animation-action="prev">上一段</button>' +
+        '<button type="button" class="primary" data-animation-action="play">播放</button>' +
+        '<button type="button" data-animation-action="next">下一段</button>' +
+        '<button type="button" data-animation-action="replay">重播</button>' +
+        '<span class="lesson-animation-progress"></span>' +
+        "</div></div>";
+      document.body.appendChild(modal);
+      modal.addEventListener("click", function (event) {
+        const target = event.target.closest("[data-animation-action]");
+        if (!target) return;
+        const action = target.dataset.animationAction;
+        if (action === "close") closeAnimationModal();
+        else if (action === "prev") stepAnimationFrame(-1);
+        else if (action === "next") stepAnimationFrame(1);
+        else if (action === "play") playAnimation();
+        else if (action === "replay") replayAnimation();
+      });
+      modal.addEventListener("wheel", function (event) {
+        if (!modal.classList.contains("open")) return;
+        if (event.target.closest(".lesson-animation-derive")) {
+          event.stopPropagation();
+          return;
+        }
+        event.preventDefault();
+      }, { passive: false });
+      return modal;
+    }
+
+    function openAnimationModal(index) {
+      const step = STEPS[index];
+      const animation = stepAnimation(step);
+      if (!animation) return;
+      stopAnimationTimer();
+      animationState = {
+        index: index,
+        beatIndex: 0,
+        progress: 0,
+        playing: false,
+        timer: null,
+        raf: null,
+        startedAt: null
+      };
+      const modal = ensureAnimationModal();
+      lockAnimationPageScroll();
+      modal.classList.add("open");
+      modal.setAttribute("aria-hidden", "false");
+      renderAnimationModal();
+      const play = modal.querySelector('[data-animation-action="play"]');
+      if (play) play.focus();
+    }
+
+    function closeAnimationModal() {
+      stopAnimationTimer();
+      const modal = document.getElementById("lessonAnimationModal");
+      if (modal) {
+        modal.classList.remove("open");
+        modal.setAttribute("aria-hidden", "true");
+      }
+      unlockAnimationPageScroll();
+      animationState = null;
+    }
+
+    function lockAnimationPageScroll() {
+      if (animationScrollLock) return;
+      const scrollY = window.scrollY || document.documentElement.scrollTop || 0;
+      animationScrollLock = {
+        scrollY: scrollY,
+        bodyPosition: document.body.style.position,
+        bodyTop: document.body.style.top,
+        bodyWidth: document.body.style.width,
+        bodyOverflow: document.body.style.overflow
+      };
+      document.body.style.position = "fixed";
+      document.body.style.top = "-" + scrollY + "px";
+      document.body.style.width = "100%";
+      document.body.style.overflow = "hidden";
+    }
+
+    function unlockAnimationPageScroll() {
+      if (!animationScrollLock) return;
+      const scrollY = animationScrollLock.scrollY || 0;
+      document.body.style.position = animationScrollLock.bodyPosition || "";
+      document.body.style.top = animationScrollLock.bodyTop || "";
+      document.body.style.width = animationScrollLock.bodyWidth || "";
+      document.body.style.overflow = animationScrollLock.bodyOverflow || "";
+      animationScrollLock = null;
+      window.scrollTo(0, scrollY);
+    }
+
+    function stopAnimationTimer() {
+      if (!animationState) return;
+      if (animationState.timer) {
+        clearTimeout(animationState.timer);
+        animationState.timer = null;
+      }
+      if (animationState.raf) {
+        cancelAnimationFrame(animationState.raf);
+        animationState.raf = null;
+      }
+      animationState.startedAt = null;
+    }
+
+    function currentAnimation() {
+      if (!animationState) return null;
+      const step = STEPS[animationState.index];
+      const animation = stepAnimation(step);
+      if (!animation) return null;
+      return { step: step, animation: animation };
+    }
+
+    function renderAnimationModal() {
+      const current = currentAnimation();
+      const modal = document.getElementById("lessonAnimationModal");
+      if (!current || !modal) return;
+      const beats = current.animation.beats;
+      const beat = beats[animationState.beatIndex] || beats[0];
+      const index = animationState.index;
+      const card = document.querySelector('.lesson-step-card[data-step-index="' + index + '"]');
+      const activeT = currentStepT(card, index);
+      const transition = beat.transition || {};
+      const eased = easeAnimationProgress(animationState.progress, transition.easing);
+      const vars = varsForBeat(index, current.step, beat, eased);
+      const renderBeat = cumulativeAnimationBeat(beats, animationState.beatIndex, eased);
+      const svg = modal.querySelector("svg");
+      const derive = modal.querySelector(".lesson-animation-derive");
+      const progress = modal.querySelector(".lesson-animation-progress");
+      const play = modal.querySelector('[data-animation-action="play"]');
+      if (svg) svg.innerHTML = diagramMarkupForFrame(index, renderBeat, activeT, vars);
+      if (derive) {
+        derive.innerHTML = cumulativeAnimationDerive(beats, animationState.beatIndex);
+        derive.scrollTop = derive.scrollHeight;
+      }
+      if (progress) progress.textContent = animationState.beatIndex + 1 + " / " + beats.length;
+      if (play) play.textContent = animationState.playing ? "暂停" : "播放";
+    }
+
+    function cumulativeAnimationBeat(beats, activeIndex, progress) {
+      const activeBeat = beats[activeIndex] || beats[0] || {};
+      const combinedPatch = {
+        add: [],
+        hide: [],
+        state_overrides: []
+      };
+      const maxIndex = Math.max(0, activeIndex);
+      for (let beatIndex = 0; beatIndex <= maxIndex; beatIndex += 1) {
+        const beat = beats[beatIndex] || {};
+        const patch = beat.scene_patch || {};
+        const transition = beat.transition || {};
+        if (patch.replace_add && beatIndex === 0) {
+          combinedPatch.add = [];
+          combinedPatch.replace_add = true;
+        }
+        const itemProgress = beatIndex === activeIndex ? progress : 1;
+        const itemEffect = transition.type || "cut";
+        (patch.add || []).forEach(function (item) {
+          const next = Object.assign({}, item, {
+            animation_progress: itemProgress,
+            enter_effect: itemEffect
+          });
+          combinedPatch.add.push(next);
+        });
+        if (Array.isArray(patch.hide)) {
+          combinedPatch.hide = combinedPatch.hide.concat(patch.hide);
+        }
+        if (Array.isArray(patch.state_overrides)) {
+          combinedPatch.state_overrides = combinedPatch.state_overrides.concat(patch.state_overrides);
+        }
+        if (patch.pointOverrides) {
+          combinedPatch.pointOverrides = Object.assign({}, combinedPatch.pointOverrides || {}, patch.pointOverrides);
+        }
+        if (patch.conclusionBox) combinedPatch.conclusionBox = patch.conclusionBox;
+      }
+      return Object.assign({}, activeBeat, {
+        animation_progress: progress,
+        enter_effect: ((activeBeat.transition || {}).type) || "cut",
+        scene_patch: combinedPatch
+      });
+    }
+
+    function cumulativeAnimationDerive(beats, activeIndex) {
+      const rows = [];
+      beats.forEach(function (beat, beatIndex) {
+        if (beatIndex > activeIndex) return;
+        (beat.derive || []).forEach(function (line) {
+          const label = Array.isArray(line) ? line[0] : "";
+          const text = Array.isArray(line) ? line[1] : line;
+          const content = [label, text].filter(Boolean).join(" ");
+          rows.push(
+            '<div class="derive-line animation-derive-line ' +
+              (beatIndex === activeIndex ? "active" : "past") +
+              '"><span>' +
+              esc(content) +
+              "</span></div>"
+          );
+        });
+      });
+      return rows.join("");
+    }
+
+    function stepAnimationFrame(delta) {
+      const current = currentAnimation();
+      if (!current) return;
+      stopAnimationTimer();
+      animationState.playing = false;
+      const length = current.animation.beats.length;
+      animationState.beatIndex = clamp(animationState.beatIndex + delta, 0, length - 1);
+      animationState.progress = 1;
+      renderAnimationModal();
+    }
+
+    function replayAnimation() {
+      if (!animationState) return;
+      stopAnimationTimer();
+      animationState.beatIndex = 0;
+      animationState.progress = 0;
+      animationState.playing = true;
+      renderAnimationModal();
+      scheduleAnimationBeat();
+    }
+
+    function playAnimation() {
+      const current = currentAnimation();
+      if (!current) return;
+      if (animationState.playing) {
+        animationState.playing = false;
+        stopAnimationTimer();
+        renderAnimationModal();
+        return;
+      }
+      const currentBeat = current.animation.beats[animationState.beatIndex] || {};
+      if (animationState.progress >= 1 && animationState.beatIndex >= current.animation.beats.length - 1) {
+        animationState.beatIndex = 0;
+        animationState.progress = 0;
+      } else if (animationState.progress >= 1 && currentBeat) {
+        animationState.beatIndex += 1;
+        animationState.progress = 0;
+      }
+      animationState.playing = true;
+      renderAnimationModal();
+      scheduleAnimationBeat();
+    }
+
+    function scheduleAnimationBeat() {
+      const current = currentAnimation();
+      if (!current || !animationState.playing) return;
+      const beats = current.animation.beats;
+      const beat = beats[animationState.beatIndex] || {};
+      const transition = beat.transition || {};
+      const transitionMs = Math.max(1, Number(transition.duration_ms || 1));
+      stopAnimationTimer();
+      function tick(timestamp) {
+        if (!animationState || !animationState.playing) return;
+        if (animationState.startedAt == null) {
+          animationState.startedAt = timestamp - animationState.progress * transitionMs;
+        }
+        animationState.progress = clamp((timestamp - animationState.startedAt) / transitionMs, 0, 1);
+        renderAnimationModal();
+        if (animationState.progress < 1) {
+          animationState.raf = requestAnimationFrame(tick);
+          return;
+        }
+        const holdMs = Math.max(0, Number(beat.duration_ms || transitionMs) - transitionMs);
+        animationState.timer = setTimeout(function () {
+          if (!animationState || !animationState.playing) return;
+          if (animationState.beatIndex >= beats.length - 1) {
+            animationState.playing = false;
+            renderAnimationModal();
+            return;
+          }
+          animationState.beatIndex += 1;
+          animationState.progress = 0;
+          animationState.startedAt = null;
+          renderAnimationModal();
+          scheduleAnimationBeat();
+        }, holdMs);
+      }
+      animationState.raf = requestAnimationFrame(tick);
+    }
+
+    function easeAnimationProgress(progress, easing) {
+      const p = clamp(Number(progress || 0), 0, 1);
+      if (easing === "easeInOutCubic") {
+        return p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+      }
+      return p;
+    }
+
+    function varsForBeat(index, step, beat, progress) {
+      const vars = Object.assign({}, localVarsForStep(index, step));
+      const localTweens = ((beat.transition || {}).local_vars) || {};
+      Object.keys(localTweens).forEach(function (key) {
+        const payload = localTweens[key] || {};
+        if (Array.isArray(payload.keyframes) && payload.keyframes.length) {
+          const value = valueForKeyframes(payload.keyframes, progress);
+          if (Number.isFinite(value)) vars[key] = value;
+          return;
+        }
+        const from = Number(payload.from);
+        const to = Number(payload.to);
+        if (Number.isFinite(from) && Number.isFinite(to)) {
+          vars[key] = from + (to - from) * progress;
+        }
+      });
+      return vars;
+    }
+
+    function valueForKeyframes(keyframes, progress) {
+      const p = clamp(Number(progress || 0), 0, 1);
+      const frames = keyframes
+        .map(function (frame) {
+          return { at: Number(frame.at), value: Number(frame.value) };
+        })
+        .filter(function (frame) {
+          return Number.isFinite(frame.at) && Number.isFinite(frame.value);
+        })
+        .sort(function (a, b) { return a.at - b.at; });
+      if (!frames.length) return NaN;
+      if (p <= frames[0].at) return frames[0].value;
+      for (let index = 1; index < frames.length; index += 1) {
+        const prev = frames[index - 1];
+        const next = frames[index];
+        if (p <= next.at) {
+          const span = Math.max(0.000001, next.at - prev.at);
+          const local = clamp((p - prev.at) / span, 0, 1);
+          return prev.value + (next.value - prev.value) * local;
+        }
+      }
+      return frames[frames.length - 1].value;
+    }
+
     function observeSteps() {
       if (stepObserver) stepObserver.disconnect();
       stepObserver = new IntersectionObserver(
@@ -605,6 +984,11 @@
       if (target) updateStepDiagram(Number(target.dataset.stepRange), target.value);
     });
     stepCards.addEventListener("click", function (event) {
+      const animationTarget = event.target.closest("[data-animation-open]");
+      if (animationTarget) {
+        openAnimationModal(Number(animationTarget.dataset.animationOpen));
+        return;
+      }
       const refTarget = event.target.closest("[data-step-ref]");
       if (refTarget) {
         const targetIndex = STEPS.findIndex(function (step) {
@@ -631,6 +1015,9 @@
         setProblemVisibility(!problemCard.classList.contains("collapsed"), true);
       });
     }
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && animationState) closeAnimationModal();
+    });
     updateProblemToggle();
     showProblemAnswers();
     renderAllSteps();

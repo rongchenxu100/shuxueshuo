@@ -8,6 +8,7 @@ from pathlib import Path
 import re
 import subprocess
 import shutil
+from typing import Any
 
 import pytest
 import sympy as sp
@@ -27,6 +28,7 @@ from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.orchestrator import RuntimeOrchestrator
 from shuxueshuo_server.solver.runtime.recipes import RecipeSpecRegistry
 from shuxueshuo_server.solver.visual import (
+    AnimationTimelineBuilder,
     LLMVisualStepOptimizer,
     BaseSceneBuilder,
     GeometrySpecBuilder,
@@ -110,6 +112,39 @@ def test_geometry_spec_builder_extracts_points_curves_and_domain() -> None:
     assert domain["maxX"] > 3
     assert domain["minY"] < -3
     assert domain["maxY"] > 0
+
+
+def test_geometry_builder_names_equal_length_auxiliary_from_path_equation() -> None:
+    snapshot = _solve_heping_snapshot()
+    lesson = _load_recorded_heping_lesson_ir()
+    payload = lesson.to_payload()
+    for step in payload["steps"]:
+        if "equal_length_ray_path_reduction" not in step.get("capability_ids", ()):
+            continue
+        if "path_reduction" in step.get("teaching_substep_ids", ()):
+            step["title"] = "构造全等三角形，把两动点问题转化为单动点"
+            step["derive"] = [["∴", "OM+BN=OM+MG"]]
+            step["box"] = ["OM+BN=OM+MG"]
+        if "minimum_by_segment" in step.get("teaching_substep_ids", ()):
+            step["title"] = "将军饮马得到最小值表达式"
+            step["derive"] = [["∴", "路径最小值 = 3√(2a²+1)/|a|"]]
+            step["box"] = ["路径最小值 = 3√(2a²+1)/|a|"]
+    lesson_without_auxiliary_name = lesson_ir_from_payload(payload)
+
+    visual_ir = VisualStepBuilder().build(
+        snapshot=snapshot,
+        lesson=lesson_without_auxiliary_name,
+    )
+    compiled = forward_compile(visual_ir)
+
+    assert compiled.geometry_spec["movingPoints"]["G"] == ["3*sqrt((a*a)+1)/abs(a)", "-3"]
+    path_step = _visual_step_for_substep(
+        visual_ir,
+        lesson_without_auxiliary_name,
+        "path_reduction",
+    )
+    assert path_step.interactions
+    assert compiled.step_decorations["steps"][path_step.lesson_step_id]["pointOverrides"]
 
 
 def test_vs1_distance_step_generates_static_visual_components() -> None:
@@ -253,6 +288,217 @@ def test_vs2_page_expr_expands_integer_powers_beyond_quadratic() -> None:
     assert visual_parametric._page_expr("a**2 + b**3") == "(a*a)+(b*b*b)"
     assert visual_parametric._page_expr("(a + 1)**3") == "((a+1)*(a+1)*(a+1))"
     assert visual_builder._page_expr("x**4") == "(x*x*x*x)"
+
+
+def test_vs3_animation_timeline_builder_generates_supported_timelines() -> None:
+    visual_ir, lesson, _ = _build_heping_vs1_visual_ir()
+    d_step = _visual_step_for_capability(visual_ir, lesson, "translated_point")
+    path_step = _visual_step_for_substep(visual_ir, lesson, "path_reduction")
+    minimum_step = _visual_step_for_substep(visual_ir, lesson, "minimum_by_segment")
+
+    assert d_step.timeline["mode"] == "manual_then_interactive"
+    assert len(d_step.timeline["beats"]) == 3
+    assert "frames" not in d_step.timeline
+    assert any(
+        item.get("component") == "TranslationMarker"
+        for beat in d_step.timeline["beats"]
+        for item in beat["scene_patch"]["add"]
+    )
+    assert any(
+        item.get("component") == "MovingPoint"
+        for beat in d_step.timeline["beats"]
+        for item in beat["scene_patch"]["add"]
+    )
+    assert d_step.timeline["beats"][0]["caption"] == "C(0,-3)"
+    assert d_step.timeline["beats"][1]["caption"] == "C → D"
+    assert d_step.timeline["beats"][2]["caption"] == "D(2,-3)"
+    assert "源点" not in json.dumps(d_step.timeline, ensure_ascii=False)
+    assert all(beat.get("transition") for beat in d_step.timeline["beats"])
+
+    assert path_step.timeline["mode"] == "manual_then_interactive"
+    assert path_step.timeline["trigger"]["label"] == "播放演示"
+    assert len(path_step.timeline["beats"]) >= 6
+    assert path_step.timeline["beats"][0]["scene_patch"].get("replace_add") is True
+    assert not any(
+        item.get("component") == "Point" and item.get("at") == "G"
+        for item in path_step.timeline["beats"][0]["scene_patch"]["add"]
+    )
+    assert any(
+        item.get("component") == "Point" and item.get("at") == "G"
+        for beat in path_step.timeline["beats"]
+        for item in beat["scene_patch"]["add"]
+    )
+    assert any(
+        item.get("component") == "DistanceMarker" and item.get("label") in {"CB", "CG"}
+        for beat in path_step.timeline["beats"]
+        for item in beat["scene_patch"]["add"]
+    )
+    assert any(
+        item.get("component") == "CongruentTriangleMarker"
+        for beat in path_step.timeline["beats"]
+        for item in beat["scene_patch"]["add"]
+    )
+    assert any(
+        item.get("component") == "EquivalentSegmentMarker"
+        for beat in path_step.timeline["beats"]
+        for item in beat["scene_patch"]["add"]
+    )
+    path_timeline_text = json.dumps(path_step.timeline, ensure_ascii=False)
+    assert "沿CD所在方向作辅助线" in path_timeline_text
+    assert "沿CG所在方向作辅助线" not in path_timeline_text
+    assert "取点G，使CG=CB" in path_timeline_text
+    assert "辅助点G确定" not in path_timeline_text
+    assert "共线" not in path_timeline_text
+    assert any(
+        beat.get("transition", {}).get("local_vars", {}).get("u")
+        for beat in path_step.timeline["beats"]
+    )
+    replacement_index = next(
+        index
+        for index, beat in enumerate(path_step.timeline["beats"])
+        if str(beat.get("id") or "").endswith("path-replacement-reveal")
+    )
+    assert any(
+        beat.get("transition", {}).get("type") == "tween"
+        and beat.get("transition", {}).get("local_vars", {}).get("u")
+        for beat in path_step.timeline["beats"][replacement_index + 1 :]
+    )
+    path_sweep = next(
+        beat
+        for beat in path_step.timeline["beats"][replacement_index + 1 :]
+        if beat.get("transition", {}).get("type") == "tween"
+        and beat.get("transition", {}).get("local_vars", {}).get("u")
+    )
+    path_keyframes = path_sweep["transition"]["local_vars"]["u"]["keyframes"]
+    assert [frame["value"] for frame in path_keyframes] == pytest.approx(
+        [5 / 9, 0.8756, 0.25, 5 / 9],
+        abs=1e-4,
+    )
+
+    assert minimum_step.timeline["mode"] == "manual_then_interactive"
+    assert not minimum_step.timeline["beats"][0]["scene_patch"].get("replace_add")
+    assert any(
+        item.get("component") == "DistanceMarker" and item.get("label") == "OG"
+        for beat in minimum_step.timeline["beats"]
+        for item in beat["scene_patch"]["add"]
+    )
+    minimum_sweep = next(
+        beat for beat in minimum_step.timeline["beats"]
+        if str(beat.get("id") or "").endswith("path-minimum-sweep")
+    )
+    minimum_keyframes = minimum_sweep["transition"]["local_vars"]["u"]["keyframes"]
+    minimum_values = [frame["value"] for frame in minimum_keyframes]
+    assert minimum_values == pytest.approx([5 / 9, 0.8756, 0.25, 5 / 9], abs=1e-4)
+    assert minimum_values[0] == pytest.approx(minimum_values[-1])
+    assert max(minimum_values) > minimum_values[0] > min(minimum_values)
+
+
+def test_vs3_animation_timeline_builder_returns_none_when_roles_missing() -> None:
+    lesson_step = LessonStep(
+        id="demo",
+        scope_id="ii",
+        source_step_ids=("s",),
+        capability_ids=("equal_length_ray_path_reduction",),
+        trace_refs=(),
+        title="demo",
+        goal="demo",
+        nav_title=None,
+        derive=(),
+        box=(),
+        teaching_substep_ids=("path_reduction",),
+    )
+
+    timeline = AnimationTimelineBuilder().timeline_for_step(
+        lesson_step,
+        VisualRoleBindings(),
+        interactions=(),
+    )
+
+    assert timeline == {"mode": "none"}
+
+
+def test_vs3_forward_compile_writes_animation_to_lesson_data() -> None:
+    visual_ir, lesson, _ = _build_heping_vs1_visual_ir()
+    path_step = _visual_step_for_substep(visual_ir, lesson, "path_reduction")
+
+    compiled = forward_compile(visual_ir)
+    lesson_step = next(
+        step for step in compiled.lesson_data["steps"]
+        if step["id"] == path_step.lesson_step_id
+    )
+    raw_deco = compiled.step_decorations["steps"][path_step.lesson_step_id]
+
+    assert "animation" in lesson_step
+    assert lesson_step["animation"]["mode"] == "manual_then_interactive"
+    assert "beats" in lesson_step["animation"]
+    assert "frames" not in lesson_step["animation"]
+    assert "animation" not in raw_deco
+    minimum_step = _visual_step_for_substep(visual_ir, lesson, "minimum_by_segment")
+    minimum_raw_deco = compiled.step_decorations["steps"][minimum_step.lesson_step_id]
+    assert _count_segment_label(minimum_raw_deco, "O", "G", "OG") == 1
+    minimum_lesson_step = next(
+        step for step in compiled.lesson_data["steps"]
+        if step["id"] == minimum_step.lesson_step_id
+    )
+    reduced_beat = next(
+        beat for beat in minimum_lesson_step["animation"]["beats"]
+        if str(beat.get("id") or "").endswith("path-minimum-reduced-path")
+    )
+    assert {"line:O:G", "distance:O:G:OG"}.issubset(
+        set(reduced_beat["scene_patch"]["hide"])
+    )
+    result_beat = next(
+        beat for beat in minimum_lesson_step["animation"]["beats"]
+        if str(beat.get("id") or "").endswith("path-minimum-result")
+    )
+    assert _count_segment_label(
+        {"add": result_beat["scene_patch"]["add"]},
+        "O",
+        "G",
+        "OG",
+    ) == 1
+    assert any(
+        item.get("type") == "outlineRegion"
+        for beat in lesson_step["animation"]["beats"]
+        for item in beat["scene_patch"]["add"]
+    )
+
+
+def test_vs3_visual_step_ir_validator_rejects_invalid_timeline_local_var() -> None:
+    visual_ir, lesson, _ = _build_heping_vs1_visual_ir()
+    path_step = _visual_step_for_substep(visual_ir, lesson, "path_reduction")
+    payload = visual_ir.to_payload()
+    step_payload = next(
+        step for step in payload["steps"]
+        if step["lesson_step_id"] == path_step.lesson_step_id
+    )
+    step_payload["timeline"]["beats"][0]["transition"]["local_vars"] = {
+        "unknown": {"from": 0.2, "to": 0.3}
+    }
+    bad = visual_step_ir_from_payload(payload)
+
+    with pytest.raises(VisualStepIRValidationError, match="unknown local var"):
+        VisualStepIRValidator().validate(bad)
+
+
+def test_vs3_visual_step_ir_validator_rejects_empty_non_none_timeline() -> None:
+    visual_ir, _, _ = _build_heping_vs1_visual_ir()
+    payload = visual_ir.to_payload()
+    payload["steps"][0]["timeline"] = {"mode": "manual_then_interactive", "beats": []}
+    bad = visual_step_ir_from_payload(payload)
+
+    with pytest.raises(VisualStepIRValidationError, match="requires beats"):
+        VisualStepIRValidator().validate(bad)
+
+
+def test_vs3_visual_step_ir_validator_rejects_legacy_frames_timeline() -> None:
+    visual_ir, _, _ = _build_heping_vs1_visual_ir()
+    payload = visual_ir.to_payload()
+    payload["steps"][0]["timeline"] = {"mode": "manual_then_interactive", "frames": []}
+    bad = visual_step_ir_from_payload(payload)
+
+    with pytest.raises(VisualStepIRValidationError, match="frames are no longer supported"):
+        VisualStepIRValidator().validate(bad)
 
 
 def test_vs1_recipe_minimum_substep_uses_only_minimum_visual_templates() -> None:
@@ -1339,6 +1585,16 @@ def test_vs2_llm_visual_optimizer_cannot_mutate_interactions(tmp_path: Path) -> 
     assert "interactions" in (tmp_path / "visual-optimization-error.txt").read_text(encoding="utf-8")
 
 
+def test_vs3_llm_visual_optimizer_cannot_mutate_timeline(tmp_path: Path) -> None:
+    visual_ir, lesson, snapshot = _build_heping_vs1_visual_ir()
+    optimizer = LLMVisualStepOptimizer(client=_TimelineMutationClient(), debug_dir=tmp_path)
+
+    optimized = optimizer.optimize(snapshot=snapshot, lesson=lesson, visual_ir=visual_ir)
+
+    assert optimized.to_payload()["metadata"]["visual_optimizer"]["applied"] is False
+    assert "timeline" in (tmp_path / "visual-optimization-error.txt").read_text(encoding="utf-8")
+
+
 @pytest.mark.skipif(
     not RUN_DEEPSEEK_HEPING_VISUAL,
     reason="DeepSeek Heping visual optimizer integration is opt-in",
@@ -1365,6 +1621,7 @@ def test_deepseek_explanation_and_visual_optimizer_heping_loop() -> None:
     assert (DEBUG_DIR / "visual-step-ir.before-optimization.json").exists()
     assert (DEBUG_DIR / "visual-step-ir.after-optimization.json").exists()
     assert (DEBUG_DIR / "heping-visual-optimized.html").exists()
+    _assert_animation_artifacts(DEBUG_DIR, "heping-visual-optimized.html")
 
 
 @pytest.mark.skipif(
@@ -1391,6 +1648,7 @@ def test_deepseek_visual_optimizer_with_recorded_lesson_ir_fixture() -> None:
     assert (RECORDED_LESSON_DEBUG_DIR / "lesson-ir.json").exists()
     assert (RECORDED_LESSON_DEBUG_DIR / "payload.visual.json").exists()
     assert (RECORDED_LESSON_DEBUG_DIR / "heping-visual-recorded-lesson.html").exists()
+    _assert_animation_artifacts(RECORDED_LESSON_DEBUG_DIR, "heping-visual-recorded-lesson.html")
 
 
 def _build_heping_vs1_visual_ir():
@@ -1493,6 +1751,62 @@ def _write_json(path: Path, payload: dict) -> None:
     path.write_text(
         json.dumps(payload, ensure_ascii=False, indent=2),
         encoding="utf-8",
+    )
+
+
+def _assert_animation_artifacts(debug_dir: Path, html_name: str) -> None:
+    lesson_data = json.loads((debug_dir / "lesson-data.json").read_text(encoding="utf-8"))
+    animated_steps = [
+        step for step in lesson_data.get("steps") or ()
+        if isinstance(step.get("animation"), dict)
+        and step["animation"].get("mode") == "manual_then_interactive"
+        and step["animation"].get("beats")
+    ]
+    html = (debug_dir / html_name).read_text(encoding="utf-8")
+    runtime_js = (ROOT / "site/assets/js/lesson-page-runtime.js").read_text(encoding="utf-8")
+    geometry_js = (ROOT / "site/assets/js/geometry-lesson-from-spec.js").read_text(encoding="utf-8")
+    runtime_css = (ROOT / "site/assets/css/interactive-geometry-page.css").read_text(encoding="utf-8")
+
+    assert len(animated_steps) >= 2
+    assert all("frames" not in step["animation"] for step in animated_steps)
+    assert any(
+        any((beat.get("transition") or {}).get("local_vars") for beat in step["animation"]["beats"])
+        for step in animated_steps
+    )
+    assert any(step.get("localControls") for step in lesson_data.get("steps") or ())
+    assert '"animation"' in html
+    assert "diagramMarkupForFrame" in html
+    assert "step-animation-button" in runtime_js
+    assert "lessonAnimationModal" in runtime_js
+    assert "cumulativeAnimationDerive" in runtime_js
+    assert "derive.scrollTop = derive.scrollHeight" in runtime_js
+    assert "lessonAnimationTitle" not in runtime_js
+    assert "lesson-animation-caption" not in runtime_js
+    assert "cumulativeAnimationBeat" in runtime_js
+    assert "patch.replace_add && beatIndex === 0" in runtime_js
+    assert "lockAnimationPageScroll" in runtime_js
+    assert "unlockAnimationPageScroll" in runtime_js
+    assert "itemMatchesHideRef" in geometry_js
+    assert 'modal.addEventListener("wheel"' in runtime_js
+    assert "{ passive: false }" in runtime_js
+    assert 'esc(content)' in runtime_js
+    assert '"</span><p>"' not in runtime_js
+    assert ".animation-derive-line span" in runtime_css
+    assert "display: flex;" in runtime_css
+    assert "align-self: stretch;" in runtime_css
+    assert "grid-template-rows: minmax(0, 1fr)" in runtime_css
+    assert "min-height: 420px" in runtime_css
+
+
+def _count_segment_label(payload: dict[str, Any], from_id: str, to_id: str, label: str) -> int:
+    return sum(
+        1
+        for item in payload.get("add", ())
+        if isinstance(item, dict)
+        and item.get("type") == "segment"
+        and item.get("from") == from_id
+        and item.get("to") == to_id
+        and item.get("label") == label
     )
 
 
@@ -1732,6 +2046,28 @@ class _InteractionMutationClient:
                     {
                         "lesson_step_id": "explain_reduce_ii_equal_length_ray_path_path_reduction",
                         "interactions": [],
+                    }
+                ]
+            },
+            ensure_ascii=False,
+        )
+
+
+class _TimelineMutationClient:
+    provider_name = "fake-visual"
+    model = "fake"
+
+    def __init__(self) -> None:
+        self.last_usage = None
+        self.last_response_model = "fake"
+
+    def complete(self, payload: dict) -> str:
+        return json.dumps(
+            {
+                "visual_step_patches": [
+                    {
+                        "lesson_step_id": "explain_reduce_ii_equal_length_ray_path_path_reduction",
+                        "timeline": {"mode": "none"},
                     }
                 ]
             },

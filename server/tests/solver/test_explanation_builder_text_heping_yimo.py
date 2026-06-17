@@ -285,6 +285,51 @@ def test_lesson_draft_preserves_contextual_substep_titles_when_contract_is_met()
     assert minimum_step.nav_title == "将军饮马最小值"
 
 
+def test_lesson_draft_removes_redundant_equal_length_collinearity_line() -> None:
+    orchestrator, _ = _solve_recorded_heping()
+    snapshot = ExplanationSnapshotBuilder().build(orchestrator.last_success_artifacts)
+    groups = tuple(explanation_builder._build_lesson_groups(snapshot))
+    raw_steps = []
+    for group in groups:
+        derive = [["∴", "得到当前步骤结论"]]
+        if group.teaching_substep_id == "path_reduction":
+            derive = [
+                ["作", "在射线CD上构造点G，使CG=CB"],
+                ["∵", "B、C、M共线，N、C、G共线，对应角由同两条直线确定而相等"],
+                ["说明", "若三点不共线，则不能直接进行路径替换"],
+                ["∴", "BN=MG"],
+                ["∴", "OM+BN=OM+MG，转化为单动点路径"],
+            ]
+        raw_steps.append(
+            {
+                "id": f"draft_{len(raw_steps) + 1}",
+                "candidate_group_ids": [group.candidate_group_id],
+                "title": f"讲解 {group.candidate_group_id}",
+                "nav_title": f"导航 {group.candidate_group_id}",
+                "goal": "按已验证结果整理讲解",
+                "derive": derive,
+                "box": [],
+            }
+        )
+
+    result = explanation_builder.validate_lesson_draft(
+        {"steps": raw_steps},
+        groups,
+        snapshot,
+    )
+
+    assert result.lesson is not None
+    path_step = next(
+        step for step in result.lesson.steps if step.teaching_substep_ids == ("path_reduction",)
+    )
+    serialized = json.dumps(path_step.to_payload(), ensure_ascii=False)
+    assert "B、C、M共线" not in serialized
+    assert "N、C、G共线" not in serialized
+    assert "若三点不共线" in serialized
+    assert "BN=MG" in serialized
+    assert "OM+BN=OM+MG" in serialized
+
+
 def test_llm_mixed_reason_conclusion_derive_is_split() -> None:
     orchestrator, _ = _solve_recorded_heping()
     snapshot = ExplanationSnapshotBuilder().build(orchestrator.last_success_artifacts)

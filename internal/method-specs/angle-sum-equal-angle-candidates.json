@@ -75,6 +75,7 @@
       }
     ],
     "annotation_templates": [],
+    "timeline_templates": [],
     "role_binder_id": "angle_sum_equal_angle_candidates"
   }
 }

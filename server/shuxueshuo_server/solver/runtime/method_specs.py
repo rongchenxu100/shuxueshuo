@@ -207,14 +207,18 @@ def _parse_visual(raw: object) -> MethodVisualSpec | None:
         raise ValueError("MethodSpec.visual.role_schema must be an object")
     scene_templates = raw.get("scene_templates", ())
     annotation_templates = raw.get("annotation_templates", ())
+    timeline_templates = raw.get("timeline_templates", ())
     if not isinstance(scene_templates, list | tuple):
         raise ValueError("MethodSpec.visual.scene_templates must be a list")
     if not isinstance(annotation_templates, list | tuple):
         raise ValueError("MethodSpec.visual.annotation_templates must be a list")
+    if not isinstance(timeline_templates, list | tuple):
+        raise ValueError("MethodSpec.visual.timeline_templates must be a list")
     return MethodVisualSpec(
         role_schema={str(key): str(value) for key, value in role_schema.items()},
         scene_templates=tuple(dict(item) for item in scene_templates if isinstance(item, dict)),
         annotation_templates=tuple(dict(item) for item in annotation_templates if isinstance(item, dict)),
+        timeline_templates=tuple(dict(item) for item in timeline_templates if isinstance(item, dict)),
         role_binder_id=str(raw.get("role_binder_id", "generic_visual")),
     )
 

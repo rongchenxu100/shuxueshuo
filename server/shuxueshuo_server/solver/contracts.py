@@ -133,6 +133,7 @@ class MethodVisualSpec:
     role_schema: dict[str, str]
     scene_templates: tuple[dict[str, Any], ...] = ()
     annotation_templates: tuple[dict[str, Any], ...] = ()
+    timeline_templates: tuple[dict[str, Any], ...] = ()
     role_binder_id: str = "generic_visual"
 
 

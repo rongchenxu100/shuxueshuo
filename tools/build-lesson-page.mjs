@@ -164,6 +164,7 @@ const geometryScript = [
   "    return map[section] || section;",
   "  }",
   "  var diagramMarkupFor = renderer.diagramMarkupFor;",
+  "  var diagramMarkupForFrame = renderer.diagramMarkupForFrame;",
   "  var drawMini = renderer.drawMini;",
   "  var __LESSON_LEGEND_HTML__ = " + JSON.stringify(legendHtmlStr) + ";",
   "  // 原题图形渲染：由 renderer 负责（可选）",

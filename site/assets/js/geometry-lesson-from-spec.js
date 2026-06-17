@@ -188,17 +188,38 @@
       return Math.abs(e.x - c.x);
     }
 
-    function lineSvg(a, b, color, width, dash) {
-      var p = toScreen(a), q = toScreen(b);
-      var da = dash ? ' stroke-dasharray="' + dash + '"' : "";
-      return '<line x1="' + p.x + '" y1="' + p.y + '" x2="' + q.x + '" y2="' + q.y +
-        '" stroke="' + (color || "#334155") + '" stroke-width="' + (width || 2) + '"' + da + ' />';
+    function opacityAttr(value) {
+      if (value == null) return "";
+      var opacity = Math.max(0, Math.min(1, Number(value)));
+      return Number.isFinite(opacity) ? ' opacity="' + opacity + '"' : "";
     }
 
-    function textAtSvg(p, text, color, dx, dy, size) {
+    function withOpacity(svg, value) {
+      var attr = opacityAttr(value);
+      return attr ? '<g' + attr + '>' + svg + '</g>' : svg;
+    }
+
+    function lineSvg(a, b, color, width, dash, lopts) {
+      lopts = lopts || {};
+      var p = toScreen(a), q = toScreen(b);
+      if (lopts.drawProgress != null) {
+        var progress = Math.max(0, Math.min(1, Number(lopts.drawProgress)));
+        if (Number.isFinite(progress)) {
+          q = { x: p.x + (q.x - p.x) * progress, y: p.y + (q.y - p.y) * progress };
+        }
+      }
+      var da = dash ? ' stroke-dasharray="' + dash + '"' : "";
+      return '<line x1="' + p.x + '" y1="' + p.y + '" x2="' + q.x + '" y2="' + q.y +
+        '" stroke="' + (color || "#334155") + '" stroke-width="' + (width || 2) + '"' + da +
+        opacityAttr(lopts.opacity) + ' />';
+    }
+
+    function textAtSvg(p, text, color, dx, dy, size, topts) {
+      topts = topts || {};
       var s = toScreen(p);
       return '<text x="' + (s.x + (dx || 8)) + '" y="' + (s.y + (dy || -10)) +
-        '" font-size="' + (size || 14) + '" font-weight="900" fill="' + (color || "#334155") + '">' +
+        '" font-size="' + (size || 14) + '" font-weight="900" fill="' + (color || "#334155") + '"' +
+        opacityAttr(topts.opacity) + '>' +
         GE.svgEsc(text) + '</text>';
     }
 
@@ -209,23 +230,26 @@
       var col = color || "#1f2937";
       var circle = '<circle cx="' + s.x + '" cy="' + s.y + '" r="' + r +
         '" fill="' + col + '" stroke="#fff" stroke-width="1.8" />';
-      if (!label) return circle;
+      if (!label) return withOpacity(circle, popts.opacity);
       var fs = popts.fontSize || 15, fw = popts.fontWeight || 900;
+      var out;
       if (GLL && _layout) {
         _layout.occupied.push({ left: s.x - 8, top: s.y - 8, right: s.x + 8, bottom: s.y + 8, kind: "self-point" });
         var candidates = [{ dx: dx || 8, dy: dy || -8 }];
         if (popts.altDx != null) candidates.push({ dx: popts.altDx, dy: popts.altDy != null ? popts.altDy : (dy || -8) });
         if (GLL.candidateOffsets) candidates = candidates.concat(GLL.candidateOffsets(dx || 8, dy || -8));
-        return circle + GLL.labelSvg(_layout, p, label, { color: col, fontSize: fs, fontWeight: fw, preferredDx: dx || 8, preferredDy: dy || -8, candidates: candidates, allowNearPoint: true });
+        out = circle + GLL.labelSvg(_layout, p, label, { color: col, fontSize: fs, fontWeight: fw, preferredDx: dx || 8, preferredDy: dy || -8, candidates: candidates, allowNearPoint: true });
+        return withOpacity(out, popts.opacity);
       }
-      return circle + '<text x="' + (s.x + (dx || 8)) + '" y="' + (s.y + (dy || -8)) +
+      out = circle + '<text x="' + (s.x + (dx || 8)) + '" y="' + (s.y + (dy || -8)) +
         '" font-size="' + fs + '" font-weight="' + fw + '" fill="' + col + '">' + GE.svgEsc(label) + '</text>';
+      return withOpacity(out, popts.opacity);
     }
 
     function segmentSvg(a, b, text, color, offsetPx, sopts) {
       sopts = sopts || {};
       if (!GLL || !_layout) return "";
-      return GLL.segmentMeasureSvg(_layout, toScreen, a, b, text, {
+      return withOpacity(GLL.segmentMeasureSvg(_layout, toScreen, a, b, text, {
         color: color || "#0f766e",
         style: sopts.style || "dimension",
         showGuide: sopts.showGuide !== false,
@@ -240,7 +264,7 @@
         reusedInFormula: sopts.reusedInFormula !== false,
         named: sopts.named || false,
         segmentName: sopts.segmentName
-      });
+      }), sopts.opacity);
     }
 
     function angleArcSvg(c, a, b, aopts) {
@@ -420,7 +444,18 @@
             else _pointLabelKeys[pointKey] = true;
           }
           return pointSvg(at, lbl, elem.color || "#1f2937", elem.dx || 8, elem.dy || -8,
-            { r: elem.r, fontSize: elem.fontSize, altDx: elem.altDx, altDy: elem.altDy });
+            { r: elem.r, fontSize: elem.fontSize, altDx: elem.altDx, altDy: elem.altDy, opacity: elem.opacity });
+        }
+        case "movingPoint": {
+          a = pts[elem.from]; b = pts[elem.to];
+          if (!a || !b) return "";
+          var mp = Math.max(0, Math.min(1, Number(elem.animationProgress || 0)));
+          var moving = { x: a.x + (b.x - a.x) * mp, y: a.y + (b.y - a.y) * mp };
+          var movingLabel = elem.showLabel === false
+            ? null
+            : (elem.labelText != null ? elem.labelText : (elem.label != null ? elem.label : ""));
+          return pointSvg(moving, movingLabel, elem.color || "#dc2626", elem.dx || 8, elem.dy || -8,
+            { r: elem.r || 5.8, fontSize: elem.fontSize, opacity: elem.opacity });
         }
         case "derivedPoint": {
           var dp = pts[elem.at];
@@ -433,7 +468,7 @@
             if (_pointLabelKeys[derivedKey]) dLabel = null;
             else _pointLabelKeys[derivedKey] = true;
           }
-          return pointSvg(dp, dLabel, elem.color || "#dc2626", elem.dx || 8, elem.dy || -8, { r: elem.r || 4.6 });
+          return pointSvg(dp, dLabel, elem.color || "#dc2626", elem.dx || 8, elem.dy || -8, { r: elem.r || 4.6, opacity: elem.opacity });
         }
         case "segment": {
           a = pts[elem.from]; b = pts[elem.to];
@@ -443,13 +478,13 @@
         case "coloredLine": {
           a = pts[elem.from]; b = pts[elem.to];
           if (!a || !b) return "";
-          return lineSvg(a, b, elem.color || "#dc2626", elem.width || 2, "");
+          return lineSvg(a, b, elem.color || "#dc2626", elem.width || 2, "", elem);
         }
         case "dashedLine":
         case "dottedLine": {
           a = pts[elem.from]; b = pts[elem.to];
           if (!a || !b) return "";
-          return lineSvg(a, b, elem.color || "#0f766e", elem.width || 2, elem.dash || "6 5");
+          return lineSvg(a, b, elem.color || "#0f766e", elem.width || 2, elem.dash || "6 5", elem);
         }
         case "rightAngle": {
           v = pts[elem.vertex]; a = pts[elem.rayA]; b = pts[elem.rayB];
@@ -494,7 +529,7 @@
         case "coordinateLabel": {
           var cp = pts[elem.at];
           if (!cp) return "";
-          return textAtSvg(cp, elem.text != null ? elem.text : (elem.label || ""), elem.color || "#334155", elem.dx || 8, elem.dy || -10, elem.fontSize || 14);
+          return textAtSvg(cp, elem.text != null ? elem.text : (elem.label || ""), elem.color || "#334155", elem.dx || 8, elem.dy || -10, elem.fontSize || 14, elem);
         }
         case "areaLabel": {
           var region = (elem.region === "moving") ? state.moving : state.overlap;
@@ -522,7 +557,7 @@
           var stroke2 = elem.color || (isHorseTriangle ? "#2563eb" : "#b45309");
           var width2 = elem.width || (isHorseTriangle ? 2.2 : 2.2);
           var dash2 = elem.dash == null ? (isHorseTriangle ? "" : "6 5") : elem.dash;
-          return '<path d="' + pathD(verts2) + '" fill="' + fill2 + '" stroke="' + stroke2 + '" stroke-width="' + width2 + '"' + (dash2 ? ' stroke-dasharray="' + dash2 + '"' : "") + ' />';
+          return '<path d="' + pathD(verts2) + '" fill="' + fill2 + '" stroke="' + stroke2 + '" stroke-width="' + width2 + '"' + (dash2 ? ' stroke-dasharray="' + dash2 + '"' : "") + opacityAttr(elem.opacity) + ' />';
         }
         case "areaFormulaCard": {
           var pos = elem.pos;
@@ -693,12 +728,102 @@
       return nextState;
     }
 
-    function diagramMarkupFor(index, overrideT, localVars) {
+    function cloneDeco(deco) {
+      if (!deco) return {};
+      try {
+        return JSON.parse(JSON.stringify(deco));
+      } catch (e) {
+        return Object.assign({}, deco);
+      }
+    }
+
+    function animationItemForFrame(item, frame) {
+      var out = cloneDeco(item);
+      var progress = item && item.animation_progress != null
+        ? Number(item.animation_progress)
+        : (frame && frame.animation_progress != null ? Number(frame.animation_progress) : null);
+      var effect = (item && item.enter_effect) || (frame && frame.enter_effect);
+      delete out.animation_progress;
+      delete out.enter_effect;
+      if (!Number.isFinite(progress)) return out;
+      out.animationProgress = progress;
+      if (effect === "fade" || effect === "fade_draw") {
+        out.opacity = out.opacity == null ? progress : Number(out.opacity) * progress;
+      }
+      if (effect === "draw" || effect === "fade_draw") {
+        if (out.type === "coloredLine" || out.type === "dashedLine" || out.type === "dottedLine") {
+          out.drawProgress = progress;
+        } else if (out.type === "point" || out.type === "derivedPoint" || out.type === "coordinateLabel" || out.type === "outlineRegion" || out.type === "segment") {
+          out.opacity = out.opacity == null ? progress : Number(out.opacity) * progress;
+        }
+      }
+      return out;
+    }
+
+    function itemEndpointsMatch(item, from, to) {
+      return item && String(item.from || "") === from && String(item.to || "") === to;
+    }
+
+    function itemMatchesHideRef(item, ref) {
+      if (!item) return false;
+      var text = String(ref || "");
+      if (item.handle && String(item.handle) === text) return true;
+      var parts = text.split(":");
+      if (parts[0] === "line" && parts.length >= 3) {
+        var lineTypes = { coloredLine: true, dashedLine: true, dottedLine: true, ray: true };
+        return !!lineTypes[item.type] && itemEndpointsMatch(item, parts[1], parts[2]);
+      }
+      if (parts[0] === "distance" && parts.length >= 4) {
+        return item.type === "segment" &&
+          itemEndpointsMatch(item, parts[1], parts[2]) &&
+          String(item.label || "") === parts.slice(3).join(":");
+      }
+      return false;
+    }
+
+    function isHiddenFrameItem(item, hiddenRefs) {
+      for (var i = 0; i < hiddenRefs.length; i += 1) {
+        if (itemMatchesHideRef(item, hiddenRefs[i])) return true;
+      }
+      return false;
+    }
+
+    function decoWithFramePatch(stepId, frame) {
+      var deco = cloneDeco(stepDecos[stepId] || {});
+      var patch = frame && frame.scene_patch;
+      if (!patch) return deco;
+      var hiddenRefs = Array.isArray(patch.hide)
+        ? patch.hide.map(function (item) { return String(item); })
+        : [];
+      if (hiddenRefs.length && Array.isArray(deco.add)) {
+        deco.add = deco.add.filter(function (item) {
+          return !isHiddenFrameItem(item, hiddenRefs);
+        });
+      }
+      var patchAdd = Array.isArray(patch.add)
+        ? patch.add.map(function (item) { return animationItemForFrame(item, frame); })
+        : [];
+      if (patch.replace_add) {
+        deco.add = patchAdd.slice();
+      } else if (patchAdd.length) {
+        deco.add = (deco.add || []).concat(patchAdd);
+      }
+      if (Array.isArray(patch.hide) && patch.hide.length) {
+        deco.hideLayers = (deco.hideLayers || []).concat(patch.hide);
+      }
+      if (patch.pointOverrides) {
+        deco.pointOverrides = Object.assign({}, deco.pointOverrides || {}, patch.pointOverrides);
+      }
+      if (patch.conclusionBox) deco.conclusionBox = patch.conclusionBox;
+      return deco;
+    }
+
+    function diagramMarkupWithDeco(index, overrideT, localVars, decoOverride) {
       var step = STEPS[index];
       var policy = POLICIES[step.id];
       var rng = policy.range || [0, 10];
       var localT = Math.max(rng[0], Math.min(rng[1], overrideT != null ? overrideT : step.t));
-      var deco = stepDecos[step.id] || {};
+      var deco = decoOverride || stepDecos[step.id] || {};
       setRenderDomain(deco.domain);
       var state = applyPointOverrides(resolveClipOverlap(spec, localT), deco.pointOverrides, localVars);
       var pts = state.points;
@@ -724,6 +849,18 @@
       _pointLabelKeys = null;
       setRenderDomain(defaultDomain);
       return out;
+    }
+
+    function diagramMarkupFor(index, overrideT, localVars) {
+      return diagramMarkupWithDeco(index, overrideT, localVars, null);
+    }
+
+    function diagramMarkupForFrame(index, frame, overrideT, localVars) {
+      var step = STEPS[index];
+      var frameVars = Object.assign({}, localVars || {});
+      var frameT = frame && frame.t != null ? Number(frame.t) : overrideT;
+      var deco = decoWithFramePatch(step.id, frame || {});
+      return diagramMarkupWithDeco(index, frameT, frameVars, deco);
     }
 
     // ── 缩略图 SVG ───────────────────────────────────────────────────────
@@ -900,7 +1037,12 @@
       });
     }
 
-    return { diagramMarkupFor: diagramMarkupFor, drawMini: drawMini, renderOriginalFigures: renderOriginalFigures };
+    return {
+      diagramMarkupFor: diagramMarkupFor,
+      diagramMarkupForFrame: diagramMarkupForFrame,
+      drawMini: drawMini,
+      renderOriginalFigures: renderOriginalFigures
+    };
   }
 
   global.GeometryLessonFromSpec = {

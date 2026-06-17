@@ -101,5 +101,6 @@ def _json_ready_visual(visual: MethodVisualSpec) -> dict[str, Any]:
         "role_schema": dict(visual.role_schema),
         "scene_templates": [dict(item) for item in visual.scene_templates],
         "annotation_templates": [dict(item) for item in visual.annotation_templates],
+        "timeline_templates": [dict(item) for item in visual.timeline_templates],
         "role_binder_id": visual.role_binder_id,
     }

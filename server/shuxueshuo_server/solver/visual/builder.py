@@ -16,6 +16,7 @@ from shuxueshuo_server.solver.runtime.recipes import RecipeSpecRegistry
 from shuxueshuo_server.solver.student_display import student_math_display
 
 from .models import JsonObject, VisualStep, VisualStepIR
+from .animation import AnimationTimelineBuilder
 from .parametric import ParametricExpressionResolver
 from .registry import default_layer_registry
 from .geometry_naming import GeometryPointScopeNamer, scope_root as _shared_scope_root
@@ -601,6 +602,16 @@ class GeometryPointNamer:
             for step in snapshot.effective_steps
             if isinstance(step, dict) and step.get("step_id")
         }
+        self.facts_by_handle = {
+            str(fact.get("handle")): fact
+            for fact in (snapshot.problem or {}).get("facts") or ()
+            if isinstance(fact, dict) and fact.get("handle")
+        }
+        self.entities_by_handle = {
+            str(entity.get("handle")): entity
+            for entity in (snapshot.problem or {}).get("entities") or ()
+            if isinstance(entity, dict) and entity.get("handle")
+        }
         self.problem_point_names = {
             str(entity.get("name") or _handle_tail(str(entity.get("handle") or "")))
             for entity in (snapshot.problem or {}).get("entities") or ()
@@ -642,7 +653,10 @@ class GeometryPointNamer:
     def _raw_label_for_fact(self, item: dict[str, Any]) -> str:
         name = str(item.get("name") or "")
         if name == "equal_length_auxiliary_point":
-            auxiliary = self._auxiliary_label_from_equal_length_lesson(item)
+            auxiliary = (
+                self._auxiliary_label_from_equal_length_roles(item)
+                or self._auxiliary_label_from_equal_length_lesson(item)
+            )
             if auxiliary:
                 return auxiliary
         source_step_id = self._source_step_id_for_fact(item)
@@ -688,14 +702,7 @@ class GeometryPointNamer:
         source_step_id = self._source_step_id_for_fact(item)
         if not source_step_id:
             return ""
-        texts: list[str] = []
-        for step in self.lesson.steps:
-            if source_step_id not in step.source_step_ids:
-                continue
-            if "equal_length_ray_path_reduction" not in step.capability_ids:
-                continue
-            texts.extend(text for _tag, text in step.derive)
-            texts.extend(step.box)
+        texts = self._equal_length_lesson_texts(source_step_id)
         for text in texts:
             match = re.search(r"构造(?:辅助点|点)?\s*([A-Z][A-Za-z0-9_]*)", text)
             if match:
@@ -705,6 +712,71 @@ class GeometryPointNamer:
             if match:
                 return match.group(1)
         return ""
+
+    def _auxiliary_label_from_equal_length_roles(self, item: dict[str, Any]) -> str:
+        source_step_id = self._source_step_id_for_fact(item)
+        source_step = self.steps_by_id.get(source_step_id)
+        if not source_step or source_step.get("recipe_hint") != "equal_length_ray_path_reduction":
+            return ""
+        segment_moving = ""
+        ray_moving = ""
+        anchor = ""
+        for handle in source_step.get("reads") or ():
+            if not isinstance(handle, str):
+                continue
+            fact = self.facts_by_handle.get(handle)
+            if not fact:
+                continue
+            fact_type = str(fact.get("type") or "")
+            if fact_type == "point_on_segment":
+                segment_moving = self._point_label_from_entity_handle(str(fact.get("point") or ""))
+            elif fact_type == "point_on_ray":
+                ray_moving = self._point_label_from_entity_handle(str(fact.get("point") or ""))
+                ray_entity = self.entities_by_handle.get(str(fact.get("ray") or "")) or {}
+                anchor = anchor or self._point_label_from_entity_handle(
+                    str(ray_entity.get("origin") or "")
+                )
+            elif fact_type == "equal_length_condition":
+                anchor = anchor or _common_label_in_segments(
+                    [
+                        str(fact.get("left") or ""),
+                        str(fact.get("right") or ""),
+                    ]
+                )
+        if not segment_moving:
+            return ""
+
+        for text in self._equal_length_lesson_texts(source_step_id):
+            for left, right in re.findall(
+                r"([A-Z]{2}(?:\s*[+＋]\s*[A-Z]{2})*)\s*=\s*([A-Z]{2}(?:\s*[+＋]\s*[A-Z]{2})*)",
+                text,
+            ):
+                auxiliary = _auxiliary_label_from_path_equation(
+                    left,
+                    right,
+                    segment_moving=segment_moving,
+                    ray_moving=ray_moving,
+                    anchor=anchor,
+                )
+                if auxiliary:
+                    return auxiliary
+        return ""
+
+    def _equal_length_lesson_texts(self, source_step_id: str) -> list[str]:
+        texts: list[str] = []
+        for step in self.lesson.steps:
+            if source_step_id not in step.source_step_ids:
+                continue
+            if "equal_length_ray_path_reduction" not in step.capability_ids:
+                continue
+            texts.append(step.title)
+            texts.extend(text for _tag, text in step.derive)
+            texts.extend(step.box)
+        return texts
+
+    def _point_label_from_entity_handle(self, handle: str) -> str:
+        entity = self.entities_by_handle.get(handle) or {}
+        return str(entity.get("name") or _handle_tail(handle))
 
 
 def _label_from_effective_step(step_id: str, snapshot: ExplanationSnapshot) -> str:
@@ -743,6 +815,63 @@ def _move_duplicate_dynamic_points(
         pair = fixed[label]
         if _pair_depends_on_parameter(pair, parameter_name):
             moving[label] = fixed.pop(label)
+
+
+def _auxiliary_label_from_path_equation(
+    left: str,
+    right: str,
+    *,
+    segment_moving: str,
+    ray_moving: str,
+    anchor: str = "",
+) -> str:
+    left_terms = _segment_terms(left)
+    right_terms = _segment_terms(right)
+    if not left_terms or not right_terms:
+        return ""
+
+    common_terms = set(left_terms).intersection(right_terms)
+    reduced_terms: list[str] = []
+    if ray_moving and any(ray_moving in term for term in left_terms):
+        reduced_terms = right_terms
+    elif ray_moving and any(ray_moving in term for term in right_terms):
+        reduced_terms = left_terms
+    else:
+        for terms in (left_terms, right_terms):
+            candidates = [
+                term
+                for term in terms
+                if term not in common_terms and segment_moving in term
+            ]
+            if candidates:
+                reduced_terms = terms
+                break
+
+    for term in reduced_terms:
+        if term in common_terms or segment_moving not in term:
+            continue
+        auxiliary = _other_endpoint(term, segment_moving)
+        if auxiliary and auxiliary != anchor:
+            return auxiliary
+    return ""
+
+
+def _segment_terms(value: str) -> list[str]:
+    return re.findall(r"(?<![A-Za-z])([A-Z]{2})(?![A-Za-z])", value or "")
+
+
+def _common_label_in_segments(segments: list[str]) -> str:
+    labels = [set(_capital_point_labels(segment)) for segment in segments if segment]
+    if len(labels) < 2:
+        return ""
+    common = set.intersection(*labels)
+    return next(iter(common), "")
+
+
+def _other_endpoint(segment: str, endpoint: str) -> str:
+    if len(segment) != 2 or endpoint not in segment:
+        return ""
+    return segment[0] if segment[1] == endpoint else segment[1]
 
 
 def _curves_from_snapshot(snapshot: ExplanationSnapshot) -> list[JsonObject]:
@@ -1125,6 +1254,11 @@ def _visual_step_for_lesson_step(
         geometry_spec=geometry_spec,
         default_t=_parameter_default_value(snapshot),
     ).interactions_for_step(lesson_step, bindings)
+    timeline = AnimationTimelineBuilder().timeline_for_step(
+        lesson_step,
+        bindings,
+        interactions=interactions,
+    )
     scene_add = _scene_add_for_lesson_step(
         lesson_step,
         bindings,
@@ -1158,7 +1292,7 @@ def _visual_step_for_lesson_step(
         },
         scene=scene,
         interactions=interactions,
-        timeline={"mode": "none"},
+        timeline=timeline,
         metadata={"step_extra": {}},
     )
 

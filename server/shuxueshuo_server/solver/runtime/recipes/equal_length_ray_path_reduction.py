@@ -97,6 +97,18 @@ SPEC = RecipeSpecSource(
                 {"component": "AuxiliaryRayGuideMarker"},
             ),
         },
+        teaching_substep_timeline_templates={
+            "path_reduction": (
+                {"component": "EqualLengthPointConstruction"},
+                {"component": "CongruentTriangleReveal"},
+                {"component": "EquivalentSegmentEmphasis"},
+                {"component": "PathReplacementReveal"},
+            ),
+            "minimum_by_segment": (
+                {"component": "MovingPointSweepToMinimum"},
+                {"component": "MinimumSegmentReveal"},
+            ),
+        },
         role_binder_id="equal_length_ray_path_reduction",
     ),
 )

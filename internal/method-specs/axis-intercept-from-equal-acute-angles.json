@@ -75,6 +75,7 @@
       }
     ],
     "annotation_templates": [],
+    "timeline_templates": [],
     "role_binder_id": "axis_intercept_from_equal_acute_angles"
   }
 }

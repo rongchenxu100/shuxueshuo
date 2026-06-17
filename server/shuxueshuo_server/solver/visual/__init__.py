@@ -1,6 +1,7 @@
 """VisualStepIR VS0/VS1 compilation helpers."""
 
 from .builder import BaseSceneBuilder, GeneratedVisualBase, GeometrySpecBuilder, VisualAuthoringBase, VisualStepBuilder
+from .animation import AnimationTimelineBuilder
 from .compiler import CompiledVisualArtifacts, forward_compile, reverse_compile
 from .llm import LLMVisualStepOptimizer, write_visual_optimization_debug_artifacts
 from .models import JsonObject, VisualStep, VisualStepIR
@@ -20,6 +21,7 @@ __all__ = [
     "ComponentTypeSpec",
     "ComponentTypeSpecRegistry",
     "BaseSceneBuilder",
+    "AnimationTimelineBuilder",
     "GeneratedVisualBase",
     "GeometrySpecBuilder",
     "JsonObject",

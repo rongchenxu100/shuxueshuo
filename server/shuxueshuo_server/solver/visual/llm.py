@@ -283,7 +283,7 @@ def write_visual_optimization_debug_artifacts(
 
 
 def _apply_patch_to_step(step: dict[str, Any], patch: dict[str, Any], allowed_refs: set[str]) -> None:
-    for forbidden in ("interactions", "parameterized_points", "pointOverrides", "localControls"):
+    for forbidden in ("interactions", "parameterized_points", "pointOverrides", "localControls", "timeline", "animation"):
         if forbidden in patch:
             raise VisualOptimizationError(f"LLM visual patches cannot modify {forbidden}")
     scene = step.setdefault("scene", {})

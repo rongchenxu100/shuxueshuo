@@ -26,7 +26,9 @@ VALID_STATES = {
 }
 
 VALID_INTERACTION_COMPONENTS = {"LinkedControls", "LocalSlider", "MainSlider"}
-VALID_TIMELINE_MODES = {"auto_then_interactive", "manual_then_interactive", "none"}
+VALID_TIMELINE_MODES = {"manual_then_interactive", "none"}
+VALID_TRANSITION_TYPES = {"cut", "fade", "draw", "fade_draw", "tween"}
+VALID_TRANSITION_EASINGS = {"linear", "easeInOutCubic"}
 
 
 class VisualStepIRValidator:
@@ -75,7 +77,11 @@ class VisualStepIRValidator:
             self._validate_annotation(item, lesson_steps[step.lesson_step_id], f"{label}.scene.annotations[{index}]")
         for index, item in enumerate(step.interactions or ()):
             self._validate_interaction(item, f"{label}.interactions[{index}]")
-        self._validate_timeline(step.timeline, f"{label}.timeline")
+        self._validate_timeline(
+            step.timeline,
+            f"{label}.timeline",
+            interaction_vars=_interaction_vars(step.interactions),
+        )
 
     def _validate_scene_item(self, item: dict[str, Any], label: str) -> None:
         component = item.get("component")
@@ -223,12 +229,127 @@ class VisualStepIRValidator:
         if not isinstance(payload.get("source"), dict):
             raise VisualStepIRValidationError(f"{label}: missing source provenance")
 
-    def _validate_timeline(self, timeline: dict[str, Any] | None, label: str) -> None:
+    def _validate_timeline(
+        self,
+        timeline: dict[str, Any] | None,
+        label: str,
+        *,
+        interaction_vars: set[str],
+    ) -> None:
         if timeline is None:
             return
         mode = timeline.get("mode", "none")
         if mode not in VALID_TIMELINE_MODES:
             raise VisualStepIRValidationError(f"{label}: invalid timeline mode: {mode}")
+        if "frames" in timeline:
+            raise VisualStepIRValidationError(f"{label}: frames are no longer supported; use beats")
+        beats = timeline.get("beats") or []
+        if mode == "none":
+            if beats:
+                raise VisualStepIRValidationError(f"{label}: mode none cannot define beats")
+            return
+        if not isinstance(beats, list) or not beats:
+            raise VisualStepIRValidationError(f"{label}: non-none timeline requires beats")
+        seen_beat_ids: set[str] = set()
+        for index, beat in enumerate(beats):
+            self._validate_timeline_beat(
+                beat,
+                f"{label}.beats[{index}]",
+                seen_beat_ids=seen_beat_ids,
+                interaction_vars=interaction_vars,
+            )
+
+    def _validate_timeline_beat(
+        self,
+        beat: Any,
+        label: str,
+        *,
+        seen_beat_ids: set[str],
+        interaction_vars: set[str],
+    ) -> None:
+        if not isinstance(beat, dict):
+            raise VisualStepIRValidationError(f"{label}: beat must be an object")
+        beat_id = str(beat.get("id") or "")
+        if not beat_id:
+            raise VisualStepIRValidationError(f"{label}: missing beat id")
+        if beat_id in seen_beat_ids:
+            raise VisualStepIRValidationError(f"{label}: duplicate beat id: {beat_id}")
+        seen_beat_ids.add(beat_id)
+        try:
+            duration = int(beat.get("duration_ms", 0))
+        except Exception as exc:
+            raise VisualStepIRValidationError(f"{label}: duration_ms must be numeric") from exc
+        if duration <= 0:
+            raise VisualStepIRValidationError(f"{label}: duration_ms must be positive")
+        patch = beat.get("scene_patch")
+        if not isinstance(patch, dict):
+            raise VisualStepIRValidationError(f"{label}: missing scene_patch")
+        for index, item in enumerate(patch.get("add") or ()):
+            self._validate_scene_item(item, f"{label}.scene_patch.add[{index}]")
+        for index, item in enumerate(patch.get("state_overrides") or ()):
+            self._validate_state_override(item, f"{label}.scene_patch.state_overrides[{index}]")
+        self._validate_transition(beat.get("transition"), f"{label}.transition", interaction_vars)
+
+    def _validate_transition(
+        self,
+        transition: Any,
+        label: str,
+        interaction_vars: set[str],
+    ) -> None:
+        if not isinstance(transition, dict):
+            raise VisualStepIRValidationError(f"{label}: missing transition")
+        transition_type = str(transition.get("type") or "")
+        if transition_type not in VALID_TRANSITION_TYPES:
+            raise VisualStepIRValidationError(f"{label}: invalid transition type: {transition_type}")
+        easing = str(transition.get("easing") or "")
+        if easing not in VALID_TRANSITION_EASINGS:
+            raise VisualStepIRValidationError(f"{label}: invalid easing: {easing}")
+        try:
+            duration = int(transition.get("duration_ms", 0))
+        except Exception as exc:
+            raise VisualStepIRValidationError(f"{label}: duration_ms must be numeric") from exc
+        if duration <= 0:
+            raise VisualStepIRValidationError(f"{label}: duration_ms must be positive")
+        local_vars = transition.get("local_vars") or {}
+        if not isinstance(local_vars, dict):
+            raise VisualStepIRValidationError(f"{label}: local_vars must be an object")
+        for key, payload in local_vars.items():
+            if str(key) not in interaction_vars:
+                raise VisualStepIRValidationError(f"{label}: unknown local var: {key}")
+            if not isinstance(payload, dict):
+                raise VisualStepIRValidationError(f"{label}: local var tween must be an object")
+            if "keyframes" in payload:
+                self._validate_local_var_keyframes(payload["keyframes"], f"{label}.local_vars[{key}].keyframes")
+                continue
+            for bound in ("from", "to"):
+                if bound not in payload:
+                    raise VisualStepIRValidationError(f"{label}: local var tween missing {bound}")
+                try:
+                    float(payload[bound])
+                except Exception as exc:
+                    raise VisualStepIRValidationError(
+                        f"{label}: local var tween values must be numeric"
+                    ) from exc
+
+    def _validate_local_var_keyframes(self, keyframes: Any, label: str) -> None:
+        if not isinstance(keyframes, list) or len(keyframes) < 2:
+            raise VisualStepIRValidationError(f"{label}: keyframes must contain at least two points")
+        previous_at = -1.0
+        for index, frame in enumerate(keyframes):
+            if not isinstance(frame, dict):
+                raise VisualStepIRValidationError(f"{label}[{index}]: keyframe must be an object")
+            if "at" not in frame or "value" not in frame:
+                raise VisualStepIRValidationError(f"{label}[{index}]: keyframe requires at and value")
+            try:
+                at = float(frame["at"])
+                float(frame["value"])
+            except Exception as exc:
+                raise VisualStepIRValidationError(f"{label}[{index}]: keyframe values must be numeric") from exc
+            if not (0 <= at <= 1):
+                raise VisualStepIRValidationError(f"{label}[{index}]: keyframe at must be in [0, 1]")
+            if at < previous_at:
+                raise VisualStepIRValidationError(f"{label}[{index}]: keyframe at must be sorted")
+            previous_at = at
 
     def _layer_registry_for(self, visual_ir: VisualStepIR) -> LayerRegistry:
         if not visual_ir.layer_registry:
@@ -243,6 +364,20 @@ def _lesson_steps_by_id(lesson_data: dict[str, Any]) -> dict[str, dict[str, Any]
     for item in lesson_data.get("steps") or ():
         if isinstance(item, dict) and item.get("id"):
             out[str(item["id"])] = item
+    return out
+
+
+def _interaction_vars(interactions: tuple[dict[str, Any], ...]) -> set[str]:
+    out: set[str] = set()
+    for item in interactions or ():
+        if not isinstance(item, dict):
+            continue
+        parameter = str(item.get("parameter") or "")
+        if parameter:
+            out.add(parameter)
+        for control in item.get("controls") or ():
+            if isinstance(control, dict) and control.get("var"):
+                out.add(str(control["var"]))
     return out
 
 
