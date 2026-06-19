@@ -6,6 +6,7 @@ import navFixture from "../../fixtures/nav.json";
 import {
   autosaveStateLabel,
   getInitialSelection,
+  insertProblem,
   previewUrlWithVersion,
   publishStatusLabel,
   resolveSelection,
@@ -74,5 +75,12 @@ describe("workspace model", () => {
     expect(previewUrlWithVersion("/preview.html?v=old#step", "mock-3")).toBe(
       "/preview.html?v=mock-3#step",
     );
+  });
+
+  it("inserts a created problem at the top", () => {
+    const [problem] = nav.problems;
+    const nextNav = insertProblem(nav, { ...problem, id: "problem_new" });
+
+    expect(nextNav.problems[0].id).toBe("problem_new");
   });
 });

@@ -2,10 +2,15 @@ import { describe, expect, it } from "vitest";
 import { z } from "zod";
 
 import {
+  CreateProblemRequestSchema,
+  CreateProblemResponseSchema,
   NavResponseSchema,
+  PatchProblemRequestSchema,
+  PatchProblemResponseSchema,
   ProblemSchema,
   ProblemMessageSchema,
   SiteHomeSchema,
+  StartProblemUploadResponseSchema,
   TopicSchema,
   WebAnnotationSchema,
 } from "./index";
@@ -63,5 +68,47 @@ describe("contract fixtures", () => {
     delete invalidProblem.previewVersion;
 
     expect(() => ProblemSchema.parse(invalidProblem)).toThrow();
+  });
+
+  it("validates create problem contracts", () => {
+    expect(() =>
+      CreateProblemRequestSchema.parse({ text: "一道新题" }),
+    ).not.toThrow();
+    expect(() =>
+      CreateProblemRequestSchema.parse({
+        scenario: "failed",
+        text: "一道新题",
+      }),
+    ).toThrow();
+    expect(() =>
+      CreateProblemResponseSchema.parse({
+        problem: problemFixture,
+        initialMessage: messagesFixture[0],
+      }),
+    ).not.toThrow();
+  });
+
+  it("validates upload start contract", () => {
+    expect(() =>
+      StartProblemUploadResponseSchema.parse({
+        jobId: "job_upload_1",
+        streamUrl: "/api/problem-upload-jobs/job_upload_1/events",
+      }),
+    ).not.toThrow();
+  });
+
+  it("validates patch problem contracts", () => {
+    expect(() =>
+      PatchProblemRequestSchema.parse({
+        expectedAutosavedAt: "2026-06-16T09:00:00.000Z",
+        patch: {
+          title: "新标题",
+          tags: ["二次函数综合"],
+        },
+      }),
+    ).not.toThrow();
+    expect(() =>
+      PatchProblemResponseSchema.parse({ problem: problemFixture }),
+    ).not.toThrow();
   });
 });

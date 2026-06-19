@@ -178,6 +178,49 @@ export const ApiErrorSchema = z.object({
 });
 export type ApiError = z.infer<typeof ApiErrorSchema>;
 
+export const CreateProblemRequestSchema = z
+  .object({
+    text: z.string().min(1),
+  })
+  .strict();
+export type CreateProblemRequest = z.infer<typeof CreateProblemRequestSchema>;
+
+export const CreateProblemResponseSchema = z.object({
+  problem: ProblemSchema,
+  initialMessage: ProblemMessageSchema,
+});
+export type CreateProblemResponse = z.infer<
+  typeof CreateProblemResponseSchema
+>;
+
+export const StartProblemUploadResponseSchema = z.object({
+  jobId: z.string(),
+  streamUrl: z.string(),
+});
+export type StartProblemUploadResponse = z.infer<
+  typeof StartProblemUploadResponseSchema
+>;
+
+export const PatchProblemRequestSchema = z.object({
+  patch: z
+    .object({
+      title: z.string().optional(),
+      tags: z.array(z.string()).optional(),
+    })
+    .refine((patch) => patch.title !== undefined || patch.tags !== undefined, {
+      message: "patch must include title or tags",
+    }),
+  expectedAutosavedAt: z.string(),
+});
+export type PatchProblemRequest = z.infer<typeof PatchProblemRequestSchema>;
+
+export const PatchProblemResponseSchema = z.object({
+  problem: ProblemSchema,
+});
+export type PatchProblemResponse = z.infer<
+  typeof PatchProblemResponseSchema
+>;
+
 export const UploadJobProgressEventSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("progress"),
