@@ -1,10 +1,13 @@
 import {
+  CreateProblemResponseSchema,
   NavResponseSchema,
+  PatchProblemResponseSchema,
+  StartProblemUploadResponseSchema,
   type NavResponse,
-  type Problem,
-  type SiteHome,
-  type Topic,
+  type PatchProblemRequest,
 } from "@/lib/contracts";
+
+type MockProblemScenario = "success" | "rejected" | "failed" | "disconnect";
 
 const BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ??
@@ -24,20 +27,75 @@ async function fetchJson(path: string): Promise<unknown> {
   return response.json();
 }
 
+async function fetchJsonWithInit(
+  path: string,
+  init: RequestInit,
+): Promise<unknown> {
+  const response = await fetch(`${BASE_URL}${path}`, init);
+
+  if (!response.ok) {
+    const payload = await response.json().catch(() => null);
+    const message =
+      typeof payload === "object" &&
+      payload !== null &&
+      "error" in payload &&
+      typeof payload.error === "object" &&
+      payload.error !== null &&
+      "message" in payload.error
+        ? String(payload.error.message)
+        : `Request failed: ${response.status} ${response.statusText}`;
+    const error = new Error(message);
+    error.name = response.status === 409 ? "AutosaveConflictError" : "ApiError";
+    throw error;
+  }
+
+  return response.json();
+}
+
 export async function getNav(): Promise<NavResponse> {
   return NavResponseSchema.parse(await fetchJson("/api/nav"));
 }
 
-export async function getProblem(problemId: string): Promise<Problem> {
-  void problemId;
-  throw new Error("getProblem is not implemented in Phase 0");
+export async function createProblemFromText(input: {
+  text: string;
+}, options?: { mockScenario?: MockProblemScenario }) {
+  const headers = new Headers({
+    "Content-Type": "application/json",
+  });
+
+  if (options?.mockScenario) {
+    headers.set("x-mock-scenario", options.mockScenario);
+  }
+
+  return CreateProblemResponseSchema.parse(
+    await fetchJsonWithInit("/api/problems", {
+      body: JSON.stringify(input),
+      headers,
+      method: "POST",
+    }),
+  );
 }
 
-export async function getTopic(topicId: string): Promise<Topic> {
-  void topicId;
-  throw new Error("getTopic is not implemented in Phase 0");
+export async function startProblemUpload(formData: FormData) {
+  return StartProblemUploadResponseSchema.parse(
+    await fetchJsonWithInit("/api/problems/from-upload", {
+      body: formData,
+      method: "POST",
+    }),
+  );
 }
 
-export async function getSiteHome(): Promise<SiteHome> {
-  throw new Error("getSiteHome is not implemented in Phase 0");
+export async function patchProblem(
+  problemId: string,
+  request: PatchProblemRequest,
+) {
+  return PatchProblemResponseSchema.parse(
+    await fetchJsonWithInit(`/api/problems/${problemId}`, {
+      body: JSON.stringify(request),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      method: "PATCH",
+    }),
+  );
 }

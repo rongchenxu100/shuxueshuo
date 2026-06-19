@@ -1,6 +1,6 @@
 # 创作后台前端
 
-这是数学可视化题库的创作后台前端子项目。Phase 0 先建立 Next.js App Router 工程、接口契约、mock API、fixture 数据和静态预览入口，后续页面开发应沿真实 API 路径接入。
+这是数学可视化题库的创作后台前端子项目。当前前端提供三栏创作工作台、Codex 风格题目创建对话、mock 上传进度、静态网页预览和接口契约校验，后续页面开发应沿真实 API 路径接入。
 
 ## 启动
 
@@ -20,6 +20,7 @@ http://localhost:3000
 npm test
 npm run typecheck
 npm run lint
+npm run build
 ```
 
 ## 目录

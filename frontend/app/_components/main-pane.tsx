@@ -1,9 +1,12 @@
-import type { Problem, Topic } from "@/lib/contracts";
+import type { Problem, Topic, UploadJobProgressEvent } from "@/lib/contracts";
 
+import type { ProblemConversationAttempt } from "./conversation-types";
+import { NewProblemPanel } from "./new-problem-panel";
+import { ProblemConversationPanel } from "./problem-conversation-panel";
+import { ProblemMetadataPopover } from "./problem-metadata-popover";
 import { AutosaveBadge } from "./ui/autosave-badge";
 import { HeaderBlock } from "./ui/header-block";
 import { InfoGroup } from "./ui/info-group";
-import { ModePill } from "./ui/mode-pill";
 import { PlaceholderContent } from "./ui/placeholder-content";
 import {
   publishStatusLabel,
@@ -13,59 +16,138 @@ import {
 
 export function MainPane({
   autosaveState,
+  autosaveError,
+  onAutosaveErrorChange,
+  onAutosaveStateChange,
+  onProblemCreated,
+  onProblemConversationChange,
+  onProblemDraftChange,
+  onProblemPatched,
+  onUploadErrorChange,
+  onUploadEventsChange,
+  problemConversation,
   selectedObject,
 }: {
   autosaveState: AutosaveState;
+  autosaveError: string | null;
+  onAutosaveErrorChange: (message: string | null) => void;
+  onAutosaveStateChange: (state: AutosaveState) => void;
+  onProblemCreated: (
+    problem: Problem,
+    conversation: ProblemConversationAttempt[],
+  ) => void;
+  onProblemConversationChange: (
+    problemId: string,
+    conversation: ProblemConversationAttempt[],
+  ) => void;
+  onProblemDraftChange: (
+    problemId: string,
+    patch: { title?: string; tags?: string[] },
+  ) => void;
+  onProblemPatched: (problem: Problem) => void;
+  onUploadErrorChange: (message: string | null) => void;
+  onUploadEventsChange: (events: UploadJobProgressEvent[]) => void;
+  problemConversation: ProblemConversationAttempt[];
   selectedObject: SelectedWorkspaceObject;
 }) {
   const showAutosave = hasAutosaveSemantics(selectedObject);
+  const shouldLockContent =
+    selectedObject.kind === "new_problem" || selectedObject.kind === "problem";
+  const statusLabel = mainStatusLabel(selectedObject);
 
   return (
-    <section className="flex h-full flex-col border-r border-zinc-200 bg-zinc-50">
-      <div className="border-b border-zinc-200 bg-white px-6 py-4">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <p className="text-xs font-medium text-zinc-500">中间编辑区</p>
-            <h2 className="mt-1 text-xl font-semibold">
-              {mainTitle(selectedObject)}
-            </h2>
+    <section className="flex h-full min-h-0 min-w-0 flex-col border-r border-zinc-200 bg-zinc-50">
+      <div className="h-12 shrink-0 border-b border-zinc-200 bg-white px-4">
+        <div className="flex h-full items-center justify-between gap-4">
+          <h2 className="truncate text-sm font-medium text-zinc-800">
+            {mainTitle(selectedObject)}
+          </h2>
+          <div className="flex shrink-0 items-center gap-2">
+            {statusLabel ? (
+              <span className="rounded-full border border-zinc-200 px-2 py-0.5 text-xs text-zinc-500">
+                {statusLabel}
+              </span>
+            ) : null}
+            {selectedObject.kind === "problem" ? (
+              <ProblemMetadataPopover
+                key={selectedObject.item.id}
+                problem={selectedObject.item}
+                onAutosaveErrorChange={onAutosaveErrorChange}
+                onAutosaveStateChange={onAutosaveStateChange}
+                onProblemDraftChange={onProblemDraftChange}
+                onProblemPatched={onProblemPatched}
+              />
+            ) : null}
+            {showAutosave ? <AutosaveBadge state={autosaveState} /> : null}
           </div>
-          {showAutosave ? <AutosaveBadge state={autosaveState} /> : null}
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-6 py-6">
-        <MainContent selectedObject={selectedObject} />
+      <div
+        className={
+          shouldLockContent
+            ? "min-h-0 flex-1 overflow-hidden"
+            : "flex-1 overflow-y-auto px-5 py-5"
+        }
+      >
+        {autosaveError && showAutosave ? (
+          <p className="mb-4 rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+            {autosaveError}
+          </p>
+        ) : null}
+        <MainContent
+          selectedObject={selectedObject}
+          onProblemCreated={onProblemCreated}
+          onProblemConversationChange={onProblemConversationChange}
+          onUploadErrorChange={onUploadErrorChange}
+          onUploadEventsChange={onUploadEventsChange}
+          problemConversation={problemConversation}
+        />
       </div>
     </section>
   );
 }
 
 function MainContent({
+  onProblemCreated,
+  onProblemConversationChange,
+  onUploadErrorChange,
+  onUploadEventsChange,
+  problemConversation,
   selectedObject,
 }: {
+  onProblemCreated: (
+    problem: Problem,
+    conversation: ProblemConversationAttempt[],
+  ) => void;
+  onProblemConversationChange: (
+    problemId: string,
+    conversation: ProblemConversationAttempt[],
+  ) => void;
+  onUploadErrorChange: (message: string | null) => void;
+  onUploadEventsChange: (events: UploadJobProgressEvent[]) => void;
+  problemConversation: ProblemConversationAttempt[];
   selectedObject: SelectedWorkspaceObject;
 }) {
   if (selectedObject.kind === "new_problem") {
     return (
-      <PlaceholderContent
-        description="后续会在这里接入图片上传、OCR 进度和生成任务。"
-        title="新建题目"
-      />
-    );
-  }
-
-  if (selectedObject.kind === "search") {
-    return (
-      <PlaceholderContent
-        description="后续会在这里接入题目标题、标签和状态筛选。"
-        title="搜索题目"
+      <NewProblemPanel
+        onProblemCreated={onProblemCreated}
+        onUploadErrorChange={onUploadErrorChange}
+        onUploadEventsChange={onUploadEventsChange}
       />
     );
   }
 
   if (selectedObject.kind === "problem") {
-    return <ProblemEditorPlaceholder problem={selectedObject.item} />;
+    return (
+      <ProblemConversationPanel
+        key={selectedObject.item.id}
+        conversation={problemConversation}
+        problem={selectedObject.item}
+        onConversationChange={onProblemConversationChange}
+      />
+    );
   }
 
   if (selectedObject.kind === "site_home") {
@@ -94,30 +176,6 @@ function MainContent({
   }
 
   return <TopicEditorPlaceholder topic={selectedObject.item} />;
-}
-
-function ProblemEditorPlaceholder({ problem }: { problem: Problem }) {
-  return (
-    <div className="space-y-6">
-      <HeaderBlock
-        description={problem.tags.join("、")}
-        status={problem.status}
-        title={problem.title}
-      />
-      <div className="grid grid-cols-2 gap-3">
-        <ModePill active label="编辑模式" />
-        <ModePill label="对话模式" />
-      </div>
-      <PlaceholderContent
-        description="后续会在这里显示作者对话、注释组消息和底部输入框。"
-        title="题目编辑占位"
-      />
-      <PlaceholderContent
-        description="Phase 1 不发送消息，只预留对话区域。"
-        title="后续对话区域占位"
-      />
-    </div>
-  );
 }
 
 function TopicEditorPlaceholder({ topic }: { topic: Topic }) {
@@ -197,10 +255,6 @@ function mainTitle(selectedObject: SelectedWorkspaceObject): string {
     return "新建题目";
   }
 
-  if (selectedObject.kind === "search") {
-    return "搜索题目";
-  }
-
   if (selectedObject.kind === "problem") {
     return selectedObject.item.shortTitle;
   }
@@ -210,4 +264,16 @@ function mainTitle(selectedObject: SelectedWorkspaceObject): string {
   }
 
   return selectedObject.item.title;
+}
+
+function mainStatusLabel(selectedObject: SelectedWorkspaceObject): string | null {
+  if (
+    selectedObject.kind === "problem" ||
+    selectedObject.kind === "site_home" ||
+    selectedObject.kind === "topic"
+  ) {
+    return publishStatusLabel(selectedObject.item.status);
+  }
+
+  return null;
 }

@@ -8,7 +8,6 @@ import type {
 
 export type WorkspaceSelection =
   | { kind: "new_problem" }
-  | { kind: "search" }
   | { kind: "problem"; id: string }
   | { kind: "site_home" }
   | { kind: "topic"; id: string };
@@ -17,7 +16,6 @@ export type AutosaveState = "saving" | "saved" | "error";
 
 export type SelectedWorkspaceObject =
   | { kind: "new_problem" }
-  | { kind: "search" }
   | { kind: "problem"; item: Problem }
   | { kind: "site_home"; item: SiteHome }
   | { kind: "topic"; item: Topic };
@@ -60,10 +58,6 @@ export function resolveSelection(
 
   if (selection.kind === "site_home") {
     return { kind: "site_home", item: nav.siteHome };
-  }
-
-  if (selection.kind === "search") {
-    return { kind: "search" };
   }
 
   if (selection.kind === "new_problem") {
@@ -113,4 +107,11 @@ export function previewUrlWithVersion(
   params.set("v", previewVersion);
 
   return `${path}?${params.toString()}${hash}`;
+}
+
+export function insertProblem(nav: NavResponse, problem: Problem): NavResponse {
+  return {
+    ...nav,
+    problems: [problem, ...nav.problems.filter((item) => item.id !== problem.id)],
+  };
 }
