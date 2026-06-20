@@ -5,13 +5,18 @@ import {
   startProblemUpload,
 } from "@/lib/api/client";
 import { parseUploadJobEvent } from "@/lib/api/sse";
-import type { Problem, UploadJobProgressEvent } from "@/lib/contracts";
+import type {
+  Problem,
+  ProblemMessage,
+  UploadJobProgressEvent,
+} from "@/lib/contracts";
 
 import {
   ConversationComposer,
   ImagePreviewDialog,
   SystemFeedback,
   UserPromptMessage,
+  uploadEventLabel,
   usePromptSnapshotRegistry,
 } from "./composer";
 import type {
@@ -26,7 +31,7 @@ export function NewProblemPanel({
 }: {
   onProblemCreated: (
     problem: Problem,
-    conversation: ProblemConversationAttempt[],
+    messages: ProblemMessage[],
   ) => void;
   onUploadErrorChange: (message: string | null) => void;
   onUploadEventsChange: (events: UploadJobProgressEvent[]) => void;
@@ -50,10 +55,8 @@ export function NewProblemPanel({
   const attemptsRef = useRef<ProblemConversationAttempt[]>([]);
   const uploadEventsRef = useRef<UploadJobProgressEvent[]>([]);
   const uploadAbortControllerRef = useRef<AbortController | null>(null);
-  const {
-    createPromptSnapshot,
-    retainConversationPreviews,
-  } = usePromptSnapshotRegistry();
+  const { createPromptSnapshot, retainConversationPreviews } =
+    usePromptSnapshotRegistry();
 
   useEffect(() => {
     return () => {
@@ -158,12 +161,21 @@ export function NewProblemPanel({
         { text: submittedText },
         { mockScenario: submittedScenario },
       );
-      const conversation = updateAttempt(attemptId, {
+      const nextAttempts = updateAttempt(attemptId, {
         status: "completed",
         systemMessage: "已创建草稿题目",
       });
-      retainConversationPreviews(conversation);
-      onProblemCreated(response.problem, conversation);
+      const completedAttempt = findAttempt(nextAttempts, attemptId);
+      onProblemCreated(
+        response.problem,
+        completedAttempt
+          ? buildProblemMessagesFromAttempt(
+              response.problem.id,
+              completedAttempt,
+              response.initialMessage,
+            )
+          : [response.initialMessage],
+      );
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "创建题目失败，请重试。";
@@ -200,12 +212,23 @@ export function NewProblemPanel({
           onUploadEventsChange(nextEvents);
 
           if (event.type === "done") {
-            const conversation = updateAttempt(attemptId, {
+            const nextAttempts = updateAttempt(attemptId, {
               status: "completed",
               systemMessage: "已完成上传生成",
             });
-            retainConversationPreviews(conversation);
-            onProblemCreated(event.problem, conversation);
+            const completedAttempt = findAttempt(nextAttempts, attemptId);
+
+            retainConversationPreviews(nextAttempts);
+            onProblemCreated(
+              event.problem,
+              completedAttempt
+                ? buildProblemMessagesFromAttempt(
+                    event.problem.id,
+                    completedAttempt,
+                    event.initialMessage,
+                  )
+                : [event.initialMessage],
+            );
           }
 
           if (event.type === "rejected") {
@@ -263,6 +286,7 @@ export function NewProblemPanel({
             要创建什么题目？
           </h3>
           <ConversationComposer
+            autoFocusOnReady
             busy={isBusy}
             canSubmit={canSubmit}
             disabled={isBusy}
@@ -305,6 +329,7 @@ export function NewProblemPanel({
       <div className="pointer-events-none shrink-0 bg-gradient-to-t from-zinc-50 via-zinc-50 to-transparent px-4 pb-4 pt-4">
         <div className="pointer-events-auto mx-auto max-w-4xl">
           <ConversationComposer
+            autoFocusOnReady
             busy={isBusy}
             canSubmit={canSubmit}
             disabled={isBusy}
@@ -401,4 +426,90 @@ function createAbortError() {
 
 function isAbortError(error: unknown): boolean {
   return error instanceof DOMException && error.name === "AbortError";
+}
+
+function findAttempt(
+  attempts: ProblemConversationAttempt[],
+  attemptId: number,
+) {
+  return attempts.find((attempt) => attempt.id === attemptId);
+}
+
+function buildProblemMessagesFromAttempt(
+  problemId: string,
+  attempt: ProblemConversationAttempt,
+  initialMessage: ProblemMessage,
+): ProblemMessage[] {
+  const createdAt = new Date().toISOString();
+  const userMessage = createUserMessageFromAttempt(
+    problemId,
+    attempt,
+    initialMessage,
+  );
+  const feedbackContent = createFeedbackContent(attempt);
+
+  if (!feedbackContent) {
+    return [userMessage];
+  }
+
+  return [
+    userMessage,
+    {
+      content: feedbackContent,
+      createdAt,
+      id: `msg_created_feedback_${attempt.id}_${Date.now()}`,
+      problemId,
+      role: "system",
+    },
+  ];
+}
+
+function createUserMessageFromAttempt(
+  problemId: string,
+  attempt: ProblemConversationAttempt,
+  initialMessage: ProblemMessage,
+): ProblemMessage {
+  const filePreviewUrl = attempt.prompt.filePreviewUrl;
+  const fileName = attempt.prompt.fileName ?? undefined;
+  const fallbackContent =
+    attempt.prompt.text || (attempt.prompt.fileName ? "上传题目图片" : "");
+
+  if (!filePreviewUrl) {
+    return {
+      ...initialMessage,
+      content: initialMessage.content || fallbackContent,
+      problemId,
+    };
+  }
+
+  const [initialAttachment] = initialMessage.attachments ?? [];
+
+  return {
+    ...initialMessage,
+    attachments: [
+      {
+        createdAt: initialAttachment?.createdAt ?? initialMessage.createdAt,
+        filename: fileName ?? initialAttachment?.filename,
+        id: initialAttachment?.id ?? `att_created_${attempt.id}`,
+        kind: initialAttachment?.kind ?? "problem_image",
+        mimeType: initialAttachment?.mimeType ?? "image/*",
+        ocrText: initialAttachment?.ocrText,
+        url: filePreviewUrl,
+      },
+    ],
+    content: fallbackContent || initialMessage.content,
+    problemId,
+  };
+}
+
+function createFeedbackContent(
+  attempt: ProblemConversationAttempt,
+): string {
+  const lines = attempt.events.map((event) => uploadEventLabel(event));
+
+  if (attempt.systemMessage) {
+    lines.push(attempt.systemMessage);
+  }
+
+  return Array.from(new Set(lines)).join("\n");
 }

@@ -9,14 +9,15 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from "react";
 
+import { getProblemMessages } from "@/lib/api/client";
 import type {
   NavResponse,
   Problem,
+  ProblemMessage,
   UploadJobProgressEvent,
 } from "@/lib/contracts";
 import { deriveProblemShortTitle } from "@/lib/problems/short-title";
 
-import type { ProblemConversationAttempt } from "./conversation-types";
 import { MainPane } from "./main-pane";
 import { PreviewPane } from "./preview-pane";
 import { Sidebar } from "./sidebar";
@@ -50,9 +51,9 @@ export function AuthoringWorkspace({ initialNav }: { initialNav: NavResponse }) 
   const [, setUploadEvents] = useState<UploadJobProgressEvent[]>([]);
   const [, setUploadError] = useState<string | null>(null);
   const [problemConversations, setProblemConversations] = useState<
-    Record<string, ProblemConversationAttempt[]>
+    Record<string, ProblemMessage[]>
   >({});
-  const conversationPreviewUrlsRef = useRef<Set<string>>(new Set());
+  const loadedProblemMessageIdsRef = useRef<Set<string>>(new Set());
   const [workspaceScale, setWorkspaceScale] = useState(1);
   const [workspaceViewportWidth, setWorkspaceViewportWidth] = useState(
     WORKSPACE_DESIGN_WIDTH,
@@ -94,34 +95,6 @@ export function AuthoringWorkspace({ initialNav }: { initialNav: NavResponse }) 
   }, []);
 
   useEffect(() => {
-    const currentUrls = conversationPreviewUrlsRef.current;
-    const nextUrls = new Set(
-      Object.values(problemConversations).flatMap((conversation) =>
-        conversation
-          .map((attempt) => attempt.prompt.filePreviewUrl)
-          .filter(isBlobPreviewUrl),
-      ),
-    );
-
-    currentUrls.forEach((previewUrl) => {
-      if (!nextUrls.has(previewUrl)) {
-        URL.revokeObjectURL(previewUrl);
-        currentUrls.delete(previewUrl);
-      }
-    });
-    nextUrls.forEach((previewUrl) => currentUrls.add(previewUrl));
-  }, [problemConversations]);
-
-  useEffect(() => {
-    const currentUrls = conversationPreviewUrlsRef.current;
-
-    return () => {
-      currentUrls.forEach((previewUrl) => URL.revokeObjectURL(previewUrl));
-      currentUrls.clear();
-    };
-  }, []);
-
-  useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
@@ -136,26 +109,70 @@ export function AuthoringWorkspace({ initialNav }: { initialNav: NavResponse }) 
     };
   }, []);
 
+  useEffect(() => {
+    if (selectedObject.kind !== "problem") {
+      return;
+    }
+
+    const problemId = selectedObject.item.id;
+
+    if (
+      loadedProblemMessageIdsRef.current.has(problemId) ||
+      problemConversations[problemId]
+    ) {
+      return;
+    }
+
+    let isActive = true;
+    loadedProblemMessageIdsRef.current.add(problemId);
+
+    getProblemMessages(problemId)
+      .then(({ messages }) => {
+        if (!isActive) {
+          return;
+        }
+
+        setProblemConversations((currentConversations) => {
+          if (currentConversations[problemId]) {
+            return currentConversations;
+          }
+
+          return {
+            ...currentConversations,
+            [problemId]: messages,
+          };
+        });
+      })
+      .catch(() => {
+        loadedProblemMessageIdsRef.current.delete(problemId);
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, [problemConversations, selectedObject]);
+
   function handleProblemCreated(
     problem: Problem,
-    conversation: ProblemConversationAttempt[],
+    messages: ProblemMessage[],
   ) {
     setNav((currentNav) => insertProblem(currentNav, problem));
     setProblemConversations((currentConversations) => ({
       ...currentConversations,
-      [problem.id]: conversation,
+      [problem.id]: messages,
     }));
+    loadedProblemMessageIdsRef.current.add(problem.id);
     setSelection({ kind: "problem", id: problem.id });
     setAutosaveError(null);
   }
 
   function handleProblemConversationChange(
     problemId: string,
-    conversation: ProblemConversationAttempt[],
+    messages: ProblemMessage[],
   ) {
     setProblemConversations((currentConversations) => ({
       ...currentConversations,
-      [problemId]: conversation,
+      [problemId]: messages,
     }));
   }
 
@@ -186,6 +203,14 @@ export function AuthoringWorkspace({ initialNav }: { initialNav: NavResponse }) 
   }
 
   function handleProblemPatched(problem: Problem) {
+    updateProblemInNav(problem);
+  }
+
+  function handleProblemEdited(problem: Problem) {
+    updateProblemInNav(problem);
+  }
+
+  function updateProblemInNav(problem: Problem) {
     setNav((currentNav) => ({
       ...currentNav,
       problems: currentNav.problems.map((item) =>
@@ -323,6 +348,7 @@ export function AuthoringWorkspace({ initialNav }: { initialNav: NavResponse }) 
           }
           selectedObject={selectedObject}
           onProblemCreated={handleProblemCreated}
+          onProblemEdited={handleProblemEdited}
           onProblemDraftChange={handleProblemDraftChange}
           onProblemPatched={handleProblemPatched}
           onProblemConversationChange={handleProblemConversationChange}
@@ -391,10 +417,6 @@ function ResizeHandle({
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
-}
-
-function isBlobPreviewUrl(value: string | null): value is string {
-  return typeof value === "string" && value.startsWith("blob:");
 }
 
 type SearchResult = {

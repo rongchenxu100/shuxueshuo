@@ -1,8 +1,11 @@
 import {
+  CreateProblemMessageResponseSchema,
   CreateProblemResponseSchema,
   NavResponseSchema,
   PatchProblemResponseSchema,
+  ProblemMessagesResponseSchema,
   StartProblemUploadResponseSchema,
+  type CreateProblemMessageRequest,
   type NavResponse,
   type PatchProblemRequest,
 } from "@/lib/contracts";
@@ -96,6 +99,27 @@ export async function patchProblem(
         "Content-Type": "application/json",
       },
       method: "PATCH",
+    }),
+  );
+}
+
+export async function getProblemMessages(problemId: string) {
+  return ProblemMessagesResponseSchema.parse(
+    await fetchJson(`/api/problems/${problemId}/messages`),
+  );
+}
+
+export async function createProblemMessage(
+  problemId: string,
+  request: CreateProblemMessageRequest,
+) {
+  return CreateProblemMessageResponseSchema.parse(
+    await fetchJsonWithInit(`/api/problems/${problemId}/messages`, {
+      body: JSON.stringify(request),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      method: "POST",
     }),
   );
 }

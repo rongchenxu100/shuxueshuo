@@ -6,7 +6,7 @@ import {
   type RefObject,
 } from "react";
 
-import type { UploadJobProgressEvent } from "@/lib/contracts";
+import type { ProblemMessage, UploadJobProgressEvent } from "@/lib/contracts";
 
 import type {
   NewProblemPromptSnapshot,
@@ -68,6 +68,7 @@ export function usePromptSnapshotRegistry() {
 }
 
 export function ConversationComposer({
+  autoFocusOnReady = false,
   busy = false,
   canSubmit,
   disabled = false,
@@ -79,11 +80,13 @@ export function ConversationComposer({
   setFile,
   setScenario,
   setText,
+  showAttachmentButton = true,
   showPreviewImage,
   showScenarioSelect = false,
   submitLabel = "发送消息",
   text,
 }: {
+  autoFocusOnReady?: boolean;
   busy?: boolean;
   canSubmit: boolean;
   disabled?: boolean;
@@ -95,11 +98,14 @@ export function ConversationComposer({
   setFile: (file: File | null) => void;
   setScenario?: (scenario: ProblemCreationScenario) => void;
   setText: (text: string) => void;
+  showAttachmentButton?: boolean;
   showPreviewImage: (image: PreviewImage) => void;
   showScenarioSelect?: boolean;
   submitLabel?: string;
   text: string;
 }) {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const wasDisabledRef = useRef(disabled || busy);
   const filePreviewUrl = useMemo(() => {
     if (!file || !file.type.startsWith("image/")) {
       return null;
@@ -126,6 +132,14 @@ export function ConversationComposer({
   const isDisabled = disabled || busy;
   const canShowScenarioSelect =
     showScenarioSelect && scenario !== undefined && setScenario;
+
+  useEffect(() => {
+    if (autoFocusOnReady && wasDisabledRef.current && !isDisabled) {
+      textareaRef.current?.focus();
+    }
+
+    wasDisabledRef.current = isDisabled;
+  }, [autoFocusOnReady, isDisabled]);
 
   return (
     <section className="rounded-[22px] border border-zinc-200 bg-white px-4 py-2.5 shadow-sm transition focus-within:border-zinc-300 focus-within:shadow-md">
@@ -185,6 +199,7 @@ export function ConversationComposer({
         }}
         onChange={(event) => setText(event.target.value)}
         placeholder={placeholder}
+        ref={textareaRef}
         value={text}
       />
       {file && !filePreviewUrl ? (
@@ -201,13 +216,15 @@ export function ConversationComposer({
         </div>
       ) : null}
       <div className="flex items-center gap-2">
-        <ComposerIconButton
-          disabled={isDisabled}
-          label="附加图片"
-          onClick={() => fileInputRef.current?.click()}
-        >
-          <PlusIcon />
-        </ComposerIconButton>
+        {showAttachmentButton ? (
+          <ComposerIconButton
+            disabled={isDisabled}
+            label="附加图片"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <PlusIcon />
+          </ComposerIconButton>
+        ) : null}
         {canShowScenarioSelect ? (
           <select
             aria-label="mock 场景"
@@ -286,6 +303,66 @@ export function UserPromptMessage({
             <p className="mt-1 text-xs text-zinc-500">{prompt.fileName}</p>
           ) : null}
         </div>
+      </div>
+    </div>
+  );
+}
+
+export function ProblemMessageItem({
+  message,
+  showPreviewImage,
+}: {
+  message: ProblemMessage;
+  showPreviewImage: (image: PreviewImage) => void;
+}) {
+  if (message.role === "user") {
+    const imageAttachment = message.attachments?.find((attachment) =>
+      attachment.mimeType?.startsWith("image/"),
+    );
+
+    return (
+      <div className="flex justify-end">
+        <div className="flex max-w-[82%] flex-col items-end gap-2">
+          {imageAttachment ? (
+            <button
+              aria-label="查看图片"
+              className="overflow-hidden rounded-xl border border-zinc-200 bg-zinc-100"
+              onClick={() =>
+                showPreviewImage({
+                  alt: imageAttachment.filename ?? "题目图片",
+                  url: imageAttachment.url,
+                })
+              }
+              type="button"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element -- Fixture and upload previews are not optimized assets. */}
+              <img
+                alt={imageAttachment.filename ?? "题目图片"}
+                className="size-24 object-cover"
+                src={imageAttachment.url}
+              />
+            </button>
+          ) : null}
+          <div className="rounded-2xl bg-zinc-200 px-4 py-3 text-sm leading-6 text-zinc-900">
+            <p className="whitespace-pre-wrap">{message.content}</p>
+            {message.attachments?.length && !imageAttachment ? (
+              <p className="mt-2 rounded-md bg-white/70 px-2 py-1 text-xs text-zinc-600">
+                附件：{message.attachments.length} 个
+              </p>
+            ) : null}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-[82%] space-y-2">
+      <div className="text-sm font-medium text-zinc-500">
+        {message.role === "assistant" ? "已处理" : "系统消息"}
+      </div>
+      <div className="whitespace-pre-wrap text-sm leading-6 text-zinc-800">
+        {message.content}
       </div>
     </div>
   );
@@ -398,7 +475,7 @@ export function SystemFeedback({
   );
 }
 
-function uploadEventLabel(event: UploadJobProgressEvent): string {
+export function uploadEventLabel(event: UploadJobProgressEvent): string {
   if (event.type === "progress") {
     return event.message;
   }

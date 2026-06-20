@@ -221,6 +221,33 @@ export type PatchProblemResponse = z.infer<
   typeof PatchProblemResponseSchema
 >;
 
+export const ProblemMessagesResponseSchema = z.object({
+  messages: z.array(ProblemMessageSchema),
+});
+export type ProblemMessagesResponse = z.infer<
+  typeof ProblemMessagesResponseSchema
+>;
+
+export const CreateProblemMessageRequestSchema = z.object({
+  annotationIds: z.array(z.string()).optional(),
+  content: z.string().min(1),
+});
+export type CreateProblemMessageRequest = z.infer<
+  typeof CreateProblemMessageRequestSchema
+>;
+
+export const CreateProblemMessageResponseSchema = z.object({
+  messages: z.array(ProblemMessageSchema),
+  preview: z.object({
+    previewUrl: z.string(),
+    previewVersion: z.string(),
+  }),
+  problem: ProblemSchema,
+});
+export type CreateProblemMessageResponse = z.infer<
+  typeof CreateProblemMessageResponseSchema
+>;
+
 export const UploadJobProgressEventSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("progress"),
