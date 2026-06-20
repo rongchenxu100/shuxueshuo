@@ -4,11 +4,14 @@ import { z } from "zod";
 import {
   CreateProblemRequestSchema,
   CreateProblemResponseSchema,
+  CreateProblemMessageRequestSchema,
+  CreateProblemMessageResponseSchema,
   NavResponseSchema,
   PatchProblemRequestSchema,
   PatchProblemResponseSchema,
   ProblemSchema,
   ProblemMessageSchema,
+  ProblemMessagesResponseSchema,
   SiteHomeSchema,
   StartProblemUploadResponseSchema,
   TopicSchema,
@@ -109,6 +112,44 @@ describe("contract fixtures", () => {
     ).not.toThrow();
     expect(() =>
       PatchProblemResponseSchema.parse({ problem: problemFixture }),
+    ).not.toThrow();
+  });
+
+  it("validates problem edit message contracts", () => {
+    expect(() =>
+      ProblemMessagesResponseSchema.parse({ messages: messagesFixture }),
+    ).not.toThrow();
+    expect(() =>
+      CreateProblemMessageRequestSchema.parse({
+        annotationIds: ["ann_1"],
+        content: "把第4步图形填充更明显",
+      }),
+    ).not.toThrow();
+    expect(() =>
+      CreateProblemMessageRequestSchema.parse({ content: "" }),
+    ).toThrow();
+    expect(() =>
+      CreateProblemMessageResponseSchema.parse({
+        messages: [
+          messagesFixture[0],
+          {
+            content: "已按要求更新网页预览。",
+            createdAt: "2026-06-16T09:00:00.000Z",
+            id: "msg_assistant_mock",
+            problemId: "problem_hongqiao_25",
+            role: "assistant",
+          },
+        ],
+        preview: {
+          previewUrl: problemFixture.previewUrl,
+          previewVersion: "mock-edited-1",
+        },
+        problem: {
+          ...problemFixture,
+          previewVersion: "mock-edited-1",
+          status: "published_dirty",
+        },
+      }),
     ).not.toThrow();
   });
 });

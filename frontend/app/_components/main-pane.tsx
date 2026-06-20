@@ -1,6 +1,10 @@
-import type { Problem, Topic, UploadJobProgressEvent } from "@/lib/contracts";
+import type {
+  Problem,
+  ProblemMessage,
+  Topic,
+  UploadJobProgressEvent,
+} from "@/lib/contracts";
 
-import type { ProblemConversationAttempt } from "./conversation-types";
 import { NewProblemPanel } from "./new-problem-panel";
 import { ProblemConversationPanel } from "./problem-conversation-panel";
 import { ProblemMetadataPopover } from "./problem-metadata-popover";
@@ -21,6 +25,7 @@ export function MainPane({
   onAutosaveStateChange,
   onProblemCreated,
   onProblemConversationChange,
+  onProblemEdited,
   onProblemDraftChange,
   onProblemPatched,
   onUploadErrorChange,
@@ -34,12 +39,13 @@ export function MainPane({
   onAutosaveStateChange: (state: AutosaveState) => void;
   onProblemCreated: (
     problem: Problem,
-    conversation: ProblemConversationAttempt[],
+    messages: ProblemMessage[],
   ) => void;
   onProblemConversationChange: (
     problemId: string,
-    conversation: ProblemConversationAttempt[],
+    messages: ProblemMessage[],
   ) => void;
+  onProblemEdited: (problem: Problem) => void;
   onProblemDraftChange: (
     problemId: string,
     patch: { title?: string; tags?: string[] },
@@ -47,7 +53,7 @@ export function MainPane({
   onProblemPatched: (problem: Problem) => void;
   onUploadErrorChange: (message: string | null) => void;
   onUploadEventsChange: (events: UploadJobProgressEvent[]) => void;
-  problemConversation: ProblemConversationAttempt[];
+  problemConversation: ProblemMessage[];
   selectedObject: SelectedWorkspaceObject;
 }) {
   const showAutosave = hasAutosaveSemantics(selectedObject);
@@ -99,6 +105,7 @@ export function MainPane({
           selectedObject={selectedObject}
           onProblemCreated={onProblemCreated}
           onProblemConversationChange={onProblemConversationChange}
+          onProblemEdited={onProblemEdited}
           onUploadErrorChange={onUploadErrorChange}
           onUploadEventsChange={onUploadEventsChange}
           problemConversation={problemConversation}
@@ -111,6 +118,7 @@ export function MainPane({
 function MainContent({
   onProblemCreated,
   onProblemConversationChange,
+  onProblemEdited,
   onUploadErrorChange,
   onUploadEventsChange,
   problemConversation,
@@ -118,15 +126,16 @@ function MainContent({
 }: {
   onProblemCreated: (
     problem: Problem,
-    conversation: ProblemConversationAttempt[],
+    messages: ProblemMessage[],
   ) => void;
   onProblemConversationChange: (
     problemId: string,
-    conversation: ProblemConversationAttempt[],
+    messages: ProblemMessage[],
   ) => void;
+  onProblemEdited: (problem: Problem) => void;
   onUploadErrorChange: (message: string | null) => void;
   onUploadEventsChange: (events: UploadJobProgressEvent[]) => void;
-  problemConversation: ProblemConversationAttempt[];
+  problemConversation: ProblemMessage[];
   selectedObject: SelectedWorkspaceObject;
 }) {
   if (selectedObject.kind === "new_problem") {
@@ -145,6 +154,7 @@ function MainContent({
         key={selectedObject.item.id}
         conversation={problemConversation}
         problem={selectedObject.item}
+        onProblemEdited={onProblemEdited}
         onConversationChange={onProblemConversationChange}
       />
     );
