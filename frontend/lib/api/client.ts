@@ -5,6 +5,8 @@ import {
   CreateWebAnnotationResponseSchema,
   CreateProblemMessageResponseSchema,
   CreateProblemResponseSchema,
+  CreateTutorMessageResponseSchema,
+  CreateTutorSessionResponseSchema,
   DeleteTopicItemResponseSchema,
   DeleteTopicResponseSchema,
   IgnoreSuggestedProblemResponseSchema,
@@ -19,10 +21,13 @@ import {
   PublishTopicResponseSchema,
   TopicResponseSchema,
   TopicSuggestedProblemsResponseSchema,
+  TutorMessagesResponseSchema,
+  TutorSessionsResponseSchema,
   StartProblemUploadResponseSchema,
   type AddTopicItemRequest,
   type CreateTopicRequest,
   type CreateProblemMessageRequest,
+  type CreateTutorMessageRequest,
   type CreateWebAnnotationRequest,
   type NavResponse,
   type PatchProblemRequest,
@@ -293,6 +298,41 @@ export async function createProblemMessage(
 ) {
   return CreateProblemMessageResponseSchema.parse(
     await fetchJsonWithInit(`/api/problems/${problemId}/messages`, {
+      body: JSON.stringify(request),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      method: "POST",
+    }),
+  );
+}
+
+export async function getTutorSessions(problemId: string) {
+  return TutorSessionsResponseSchema.parse(
+    await fetchJson(`/api/problems/${problemId}/tutor-sessions`),
+  );
+}
+
+export async function createTutorSession(problemId: string) {
+  return CreateTutorSessionResponseSchema.parse(
+    await fetchJsonWithInit(`/api/problems/${problemId}/tutor-sessions`, {
+      method: "POST",
+    }),
+  );
+}
+
+export async function getTutorMessages(sessionId: string) {
+  return TutorMessagesResponseSchema.parse(
+    await fetchJson(`/api/tutor-sessions/${sessionId}/messages`),
+  );
+}
+
+export async function createTutorMessage(
+  sessionId: string,
+  request: CreateTutorMessageRequest,
+) {
+  return CreateTutorMessageResponseSchema.parse(
+    await fetchJsonWithInit(`/api/tutor-sessions/${sessionId}/messages`, {
       body: JSON.stringify(request),
       headers: {
         "Content-Type": "application/json",

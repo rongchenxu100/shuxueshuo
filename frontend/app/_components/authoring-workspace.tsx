@@ -25,8 +25,10 @@ import type {
   NavResponse,
   Problem,
   ProblemMessage,
+  ProblemMode,
   SiteHome,
   Topic,
+  TutorAction,
   UploadJobProgressEvent,
   WebAnnotation,
 } from "@/lib/contracts";
@@ -35,6 +37,7 @@ import { deriveProblemShortTitle } from "@/lib/problems/short-title";
 import { MainPane } from "./main-pane";
 import { PreviewPane } from "./preview-pane";
 import { Sidebar } from "./sidebar";
+import type { TutorPromptRequest } from "./tutor-chat";
 import {
   getInitialSelection,
   getSelectionAfterRemoval,
@@ -51,6 +54,7 @@ import {
   type SelectedWorkspaceObject,
   type WorkspaceSelection,
 } from "./workspace-model";
+import type { PreviewTargetSelectedMessage } from "./preview-bridge";
 
 const WORKSPACE_DESIGN_WIDTH = 1060;
 const SIDEBAR_COLLAPSED_WIDTH = 48;
@@ -80,6 +84,17 @@ export function AuthoringWorkspace({ initialNav }: { initialNav: NavResponse }) 
   const [pendingAnnotationIds, setPendingAnnotationIds] = useState<
     Record<string, string[]>
   >({});
+  const [problemModes, setProblemModes] = useState<Record<string, ProblemMode>>(
+    {},
+  );
+  const [selectedTutorTarget, setSelectedTutorTarget] =
+    useState<PreviewTargetSelectedMessage | null>(null);
+  const [tutorPromptRequest, setTutorPromptRequest] =
+    useState<TutorPromptRequest | null>(null);
+  const [tutorActionBatch, setTutorActionBatch] = useState<{
+    actions: TutorAction[];
+    id: number;
+  } | null>(null);
   const loadedProblemMessageIdsRef = useRef<Set<string>>(new Set());
   const loadedProblemAnnotationIdsRef = useRef<Set<string>>(new Set());
   const previewContainerRef = useRef<HTMLDivElement>(null);
@@ -104,6 +119,12 @@ export function AuthoringWorkspace({ initialNav }: { initialNav: NavResponse }) 
     selectedObject.kind === "problem" ||
     selectedObject.kind === "site_home" ||
     selectedObject.kind === "topic";
+  const selectedProblemMode =
+    selectedObject.kind === "problem"
+      ? (problemModes[selectedObject.item.id] ??
+        selectedObject.item.defaultMode ??
+        "edit")
+      : "edit";
 
   useEffect(() => {
     function updateWorkspaceScale() {
@@ -254,6 +275,7 @@ export function AuthoringWorkspace({ initialNav }: { initialNav: NavResponse }) 
     loadedProblemMessageIdsRef.current.add(problem.id);
     loadedProblemAnnotationIdsRef.current.add(problem.id);
     setSelection({ kind: "problem", id: problem.id });
+    setSelectedTutorTarget(null);
     setAutosaveError(null);
   }
 
@@ -265,6 +287,40 @@ export function AuthoringWorkspace({ initialNav }: { initialNav: NavResponse }) 
       ...currentConversations,
       [problemId]: messages,
     }));
+  }
+
+  function handleProblemModeChange(problemId: string, mode: ProblemMode) {
+    setProblemModes((currentModes) => ({
+      ...currentModes,
+      [problemId]: mode,
+    }));
+    setSelectedTutorTarget(null);
+    setTutorPromptRequest(null);
+  }
+
+  function handleSelectionChange(nextSelection: WorkspaceSelection) {
+    setSelection(nextSelection);
+    setSelectedTutorTarget(null);
+    setTutorPromptRequest(null);
+  }
+
+  function handleTutorActions(actions: TutorAction[]) {
+    setTutorActionBatch({
+      actions,
+      id: Date.now(),
+    });
+  }
+
+  function handleTutorQuestionSubmit(
+    target: PreviewTargetSelectedMessage,
+    content: string,
+  ) {
+    setSelectedTutorTarget(target);
+    setTutorPromptRequest({
+      content,
+      id: Date.now(),
+      target,
+    });
   }
 
   function handleProblemDraftChange(
@@ -576,7 +632,7 @@ export function AuthoringWorkspace({ initialNav }: { initialNav: NavResponse }) 
             onToggleCollapsed={() =>
               setIsSidebarCollapsed((current) => !current)
             }
-            onSelect={setSelection}
+            onSelect={handleSelectionChange}
           />
           {!isSidebarCollapsed ? (
             <ResizeHandle
@@ -596,22 +652,31 @@ export function AuthoringWorkspace({ initialNav }: { initialNav: NavResponse }) 
               ? (problemConversations[selectedObject.item.id] ?? [])
               : []
           }
-          problemAnnotations={
-            selectedProblemAnnotations
-          }
+          problemAnnotations={selectedProblemAnnotations}
           pendingAnnotationIds={selectedPendingAnnotationIds}
+          problemMode={selectedProblemMode}
           problems={nav.problems}
           selectedObject={selectedObject}
+          tutorPromptRequest={tutorPromptRequest}
+          tutorTarget={selectedTutorTarget}
           topics={nav.topics}
           onProblemCreated={handleProblemCreated}
           onProblemEdited={handleProblemEdited}
+          onProblemModeChange={handleProblemModeChange}
           onProblemDraftChange={handleProblemDraftChange}
           onProblemPatched={handleProblemPatched}
           onProblemConversationChange={handleProblemConversationChange}
           onPublish={handlePublish}
-          onSelectionChange={setSelection}
+          onSelectionChange={handleSelectionChange}
           onSiteHomeChange={handleSiteHomeChange}
           onTopicChange={handleTopicChange}
+          onTutorActions={handleTutorActions}
+          onTutorPromptRequestHandled={(promptId) => {
+            setTutorPromptRequest((currentRequest) =>
+              currentRequest?.id === promptId ? null : currentRequest,
+            );
+          }}
+          onTutorTargetClear={() => setSelectedTutorTarget(null)}
           onPendingAnnotationRemove={handlePendingAnnotationRemove}
           onPendingAnnotationsCommitted={handlePendingAnnotationsCommitted}
           onAutosaveErrorChange={setAutosaveError}
@@ -633,8 +698,11 @@ export function AuthoringWorkspace({ initialNav }: { initialNav: NavResponse }) 
             <PreviewPane
               annotations={selectedPendingAnnotations}
               collapsed={isPreviewCollapsed}
+              mode={selectedProblemMode}
               selectedObject={selectedObject}
+              tutorActionBatch={tutorActionBatch}
               onCreateAnnotation={handleProblemAnnotationCreate}
+              onTutorQuestionSubmit={handleTutorQuestionSubmit}
               onToggleCollapsed={() =>
                 setIsPreviewCollapsed((current) => !current)
               }
@@ -647,7 +715,7 @@ export function AuthoringWorkspace({ initialNav }: { initialNav: NavResponse }) 
           nav={nav}
           onClose={() => setIsSearchOpen(false)}
           onSelect={(nextSelection) => {
-            setSelection(nextSelection);
+            handleSelectionChange(nextSelection);
             setIsSearchOpen(false);
           }}
         />

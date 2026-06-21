@@ -1,7 +1,15 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 
 import type {
   CreateWebAnnotationRequest,
+  TutorAction,
   WebAnnotation,
 } from "@/lib/contracts";
 
@@ -20,26 +28,38 @@ import {
 } from "./preview-bridge";
 import {
   AnnotationIcon,
+  ArrowUpIcon,
   ChevronIcon,
   ExternalLinkIcon,
+  MicIcon,
   RefreshIcon,
+  SlidersIcon,
 } from "./ui/icons";
 
 export function PreviewPane({
   annotations,
   collapsed,
+  mode,
   onCreateAnnotation,
+  onTutorQuestionSubmit,
   onToggleCollapsed,
   selectedObject,
+  tutorActionBatch,
 }: {
   annotations: WebAnnotation[];
   collapsed: boolean;
+  mode: "edit" | "tutor";
   onCreateAnnotation: (
     problemId: string,
     request: CreateWebAnnotationRequest,
   ) => Promise<WebAnnotation>;
+  onTutorQuestionSubmit?: (
+    target: PreviewTargetSelectedMessage,
+    content: string,
+  ) => void;
   onToggleCollapsed: () => void;
   selectedObject: SelectedWorkspaceObject;
+  tutorActionBatch?: { actions: TutorAction[]; id: number } | null;
 }) {
   const preview = getPreview(selectedObject);
   const [reloadNonce, setReloadNonce] = useState(0);
@@ -52,11 +72,17 @@ export function PreviewPane({
     null,
   );
   const [comment, setComment] = useState("");
+  const [tutorTarget, setTutorTarget] =
+    useState<PreviewTargetSelectedMessage | null>(null);
+  const [tutorPrompt, setTutorPrompt] = useState("");
   const [isCreatingAnnotation, setIsCreatingAnnotation] = useState(false);
   const [annotationError, setAnnotationError] = useState<string | null>(null);
   const problemId =
     selectedObject.kind === "problem" ? selectedObject.item.id : null;
-  const canAnnotate = Boolean(preview && problemId);
+  const canAnnotate = Boolean(preview && problemId && mode === "edit");
+  const canSelectTutorTarget = Boolean(
+    preview && problemId && mode === "tutor" && onTutorQuestionSubmit,
+  );
   const previewOrigin = useMemo(() => {
     if (!preview || typeof window === "undefined") {
       return "";
@@ -99,6 +125,8 @@ export function PreviewPane({
       setSelectedTarget(null);
       setSelectedMarker(null);
       setComment("");
+      setTutorTarget(null);
+      setTutorPrompt("");
       setTargetRects([]);
       setAnnotationError(null);
     });
@@ -109,7 +137,25 @@ export function PreviewPane({
   }, [preview?.src]);
 
   useEffect(() => {
-    if (!canAnnotate || !previewOrigin) {
+    if (mode === "tutor") {
+      const frameId = window.requestAnimationFrame(() => {
+        setAnnotationMode(false);
+        setSelectedTarget(null);
+        setSelectedMarker(null);
+        setComment("");
+        setTutorTarget(null);
+        setTutorPrompt("");
+        setAnnotationError(null);
+      });
+
+      return () => {
+        window.cancelAnimationFrame(frameId);
+      };
+    }
+  }, [mode]);
+
+  useEffect(() => {
+    if ((!canAnnotate && !canSelectTutorTarget) || !previewOrigin) {
       return;
     }
 
@@ -141,12 +187,21 @@ export function PreviewPane({
         return;
       }
 
-      if (event.data.type === "preview-target-selected" && annotationMode) {
-        setSelectedMarker(null);
-        setSelectedTarget(event.data);
-        setComment("");
-        setAnnotationError(null);
-        requestTargetRects(event.data.targetId);
+      if (event.data.type === "preview-target-selected") {
+        if (mode === "edit" && annotationMode) {
+          setSelectedMarker(null);
+          setSelectedTarget(event.data);
+          setComment("");
+          setAnnotationError(null);
+          requestTargetRects(event.data.targetId);
+          return;
+        }
+
+        if (mode === "tutor") {
+          setTutorTarget(event.data);
+          setTutorPrompt("");
+          requestTargetRects(event.data.targetId);
+        }
       }
     }
 
@@ -155,7 +210,14 @@ export function PreviewPane({
     return () => {
       window.removeEventListener("message", handleMessage);
     };
-  }, [annotationMode, canAnnotate, previewOrigin, requestTargetRects]);
+  }, [
+    annotationMode,
+    canAnnotate,
+    canSelectTutorTarget,
+    mode,
+    previewOrigin,
+    requestTargetRects,
+  ]);
 
   useEffect(() => {
     postToPreview({
@@ -165,10 +227,39 @@ export function PreviewPane({
   }, [annotationMode, canAnnotate, postToPreview, preview?.src]);
 
   useEffect(() => {
-    if (canAnnotate) {
+    postToPreview({
+      enabled: canSelectTutorTarget,
+      type: "preview-set-tutor-target-mode",
+    });
+  }, [canSelectTutorTarget, postToPreview, preview?.src]);
+
+  useEffect(() => {
+    if (!tutorActionBatch) {
+      return;
+    }
+
+    tutorActionBatch.actions.forEach((action) => {
+      if (action.type === "scroll_to_step") {
+        postToPreview({
+          stepId: action.stepId,
+          type: "preview-scroll-to-step",
+        });
+      }
+
+      if (action.type === "highlight_target") {
+        postToPreview({
+          targetId: action.targetId,
+          type: "preview-highlight-target",
+        });
+      }
+    });
+  }, [postToPreview, tutorActionBatch]);
+
+  useEffect(() => {
+    if (canAnnotate || canSelectTutorTarget) {
       requestTargetRects();
     }
-  }, [canAnnotate, preview?.src, requestTargetRects]);
+  }, [canAnnotate, canSelectTutorTarget, preview?.src, requestTargetRects]);
 
   async function handleCreateAnnotation() {
     if (!problemId || !selectedTarget || !comment.trim()) {
@@ -210,6 +301,16 @@ export function PreviewPane({
       setComment("");
       setAnnotationError(null);
     }
+  }
+
+  function handleTutorPromptSubmit() {
+    if (!tutorTarget || !tutorPrompt.trim()) {
+      return;
+    }
+
+    onTutorQuestionSubmit?.(tutorTarget, tutorPrompt.trim());
+    setTutorTarget(null);
+    setTutorPrompt("");
   }
 
   if (collapsed) {
@@ -276,6 +377,10 @@ export function PreviewPane({
                   enabled: annotationMode && canAnnotate,
                   type: "preview-set-annotation-mode",
                 });
+                postToPreview({
+                  enabled: canSelectTutorTarget,
+                  type: "preview-set-tutor-target-mode",
+                });
                 requestTargetRects();
               }}
               ref={iframeRef}
@@ -302,6 +407,18 @@ export function PreviewPane({
                 onSelectMarker={setSelectedMarker}
               />
             ) : null}
+            {canSelectTutorTarget ? (
+              <TutorPromptOverlay
+                prompt={tutorPrompt}
+                selectedTarget={tutorTarget}
+                onClose={() => {
+                  setTutorTarget(null);
+                  setTutorPrompt("");
+                }}
+                onPromptChange={setTutorPrompt}
+                onSubmit={handleTutorPromptSubmit}
+              />
+            ) : null}
           </>
         ) : (
           <div className="flex h-full items-center justify-center rounded border border-dashed border-zinc-300 bg-zinc-50 text-sm text-zinc-500">
@@ -310,6 +427,123 @@ export function PreviewPane({
         )}
       </div>
     </section>
+  );
+}
+
+function TutorPromptOverlay({
+  onClose,
+  onPromptChange,
+  onSubmit,
+  prompt,
+  selectedTarget,
+}: {
+  onClose: () => void;
+  onPromptChange: (prompt: string) => void;
+  onSubmit: () => void;
+  prompt: string;
+  selectedTarget: PreviewTargetSelectedMessage | null;
+}) {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const targetPosition = selectedTarget
+    ? {
+        left: `max(1rem, min(${selectedTarget.clientX + 12}px, calc(100% - 25rem)))`,
+        top: `max(1rem, min(${selectedTarget.clientY + 12}px, calc(100% - 12rem)))`,
+      }
+    : { left: 16, top: 16 };
+
+  useEffect(() => {
+    if (!selectedTarget) {
+      return;
+    }
+
+    const frameId = window.requestAnimationFrame(() => {
+      textareaRef.current?.focus();
+    });
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+    };
+  }, [selectedTarget]);
+
+  useEffect(() => {
+    const input = textareaRef.current;
+
+    if (!input) {
+      return;
+    }
+
+    input.style.height = "auto";
+    input.style.height = `${Math.min(input.scrollHeight, 144)}px`;
+  }, [prompt]);
+
+  useEffect(() => {
+    if (!selectedTarget) {
+      return;
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [onClose, selectedTarget]);
+
+  if (!selectedTarget) {
+    return null;
+  }
+
+  return (
+    <div className="pointer-events-none absolute inset-0 overflow-hidden">
+      <div
+        className="pointer-events-auto absolute w-96 max-w-[calc(100%-2rem)] rounded-[28px] border border-zinc-200 bg-white px-4 py-3 shadow-xl"
+        style={targetPosition}
+      >
+        <div className="flex items-end gap-3">
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-full text-zinc-400">
+            <SlidersIcon />
+          </span>
+          <textarea
+            className="max-h-36 min-h-8 min-w-0 flex-1 resize-none overflow-y-auto bg-transparent py-1 text-base leading-7 outline-none placeholder:text-zinc-400"
+            onChange={(event) => onPromptChange(event.target.value)}
+            onKeyDown={(event) => {
+              if (
+                event.key === "Enter" &&
+                !event.shiftKey &&
+                !event.nativeEvent.isComposing &&
+                prompt.trim()
+              ) {
+                event.preventDefault();
+                onSubmit();
+              }
+            }}
+            placeholder="问这里..."
+            ref={textareaRef}
+            rows={1}
+            value={prompt}
+          />
+          {prompt.trim() ? (
+            <button
+              aria-label="发送提问"
+              className="flex size-9 shrink-0 items-center justify-center rounded-full bg-zinc-900 text-white transition hover:bg-zinc-700"
+              onClick={onSubmit}
+              type="button"
+            >
+              <ArrowUpIcon />
+            </button>
+          ) : (
+            <span className="flex size-8 shrink-0 items-center justify-center text-zinc-400">
+              <MicIcon />
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
 
