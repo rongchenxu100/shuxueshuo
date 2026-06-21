@@ -7,9 +7,27 @@ import { useCurrentUser } from "@/lib/user/current-user";
 
 import { type WorkspaceSelection } from "./workspace-model";
 
+type HoveredSidebarEntity = {
+  description: string;
+  id: string;
+  kind: "专题" | "题目" | "网站";
+  label: string;
+  left: number;
+  status: PublishStatus;
+  timestamp: string;
+  top: number;
+};
+
+type DeleteSidebarEntity = HoveredSidebarEntity & {
+  onDelete: () => void;
+};
+
 export function Sidebar({
   collapsed,
   nav,
+  onCreateTopic,
+  onDeleteProblem,
+  onDeleteTopic,
   onOpenSearch,
   onToggleCollapsed,
   selection,
@@ -17,11 +35,19 @@ export function Sidebar({
 }: {
   collapsed: boolean;
   nav: NavResponse;
+  onCreateTopic: () => void;
+  onDeleteProblem: (problemId: string) => void;
+  onDeleteTopic: (topicId: string) => void;
   onOpenSearch: () => void;
   onToggleCollapsed: () => void;
   selection: WorkspaceSelection;
   onSelect: (selection: WorkspaceSelection) => void;
 }) {
+  const [hoveredEntity, setHoveredEntity] =
+    useState<HoveredSidebarEntity | null>(null);
+  const [deleteEntity, setDeleteEntity] =
+    useState<DeleteSidebarEntity | null>(null);
+
   if (collapsed) {
     return (
       <aside className="flex h-full min-w-0 flex-col items-center border-r border-zinc-200 bg-white">
@@ -61,16 +87,32 @@ export function Sidebar({
       </nav>
 
       <nav className="min-h-0 flex-1 space-y-6 overflow-y-auto px-3 py-4">
-        <SidebarSection title="题目">
+        <SidebarSection
+          action={
+            <IconButton
+              label="新建题目"
+              onClick={() => onSelect({ kind: "new_problem" })}
+            >
+              <PlusIcon />
+            </IconButton>
+          }
+          title="题目"
+        >
           {nav.problems.map((problem) => (
             <SidebarEntityButton
               active={
                 selection.kind === "problem" && selection.id === problem.id
               }
+              description={problem.tags.join("、") || "暂无标签"}
+              id={problem.id}
               status={problem.status}
               timestamp={problem.updatedAt}
               key={problem.id}
               label={problem.shortTitle}
+              kind="题目"
+              onDelete={() => onDeleteProblem(problem.id)}
+              onDeleteRequest={setDeleteEntity}
+              onHoverChange={setHoveredEntity}
               onClick={() => onSelect({ kind: "problem", id: problem.id })}
             />
           ))}
@@ -79,27 +121,58 @@ export function Sidebar({
         <SidebarSection title="网站">
           <SidebarEntityButton
             active={selection.kind === "site_home"}
+            description={nav.siteHome.description}
+            id={nav.siteHome.id}
+            kind="网站"
             status={nav.siteHome.status}
             timestamp={nav.siteHome.autosavedAt}
             label="网站首页"
+            onHoverChange={setHoveredEntity}
             onClick={() => onSelect({ kind: "site_home" })}
           />
         </SidebarSection>
 
-        <SidebarSection title="专题">
+        <SidebarSection
+          action={
+            <IconButton label="新建专题" onClick={onCreateTopic}>
+              <PlusIcon />
+            </IconButton>
+          }
+          title="专题"
+        >
           {nav.topics.map((topic) => (
             <SidebarEntityButton
               active={selection.kind === "topic" && selection.id === topic.id}
+              description={topic.description}
+              id={topic.id}
               status={topic.status}
               timestamp={topic.updatedAt}
               key={topic.id}
               label={topic.title}
+              kind="专题"
+              onDelete={() => onDeleteTopic(topic.id)}
+              onDeleteRequest={setDeleteEntity}
+              onHoverChange={setHoveredEntity}
               onClick={() => onSelect({ kind: "topic", id: topic.id })}
             />
           ))}
         </SidebarSection>
       </nav>
       <SidebarAccount />
+      {hoveredEntity && !deleteEntity ? (
+        <SidebarEntityPopover entity={hoveredEntity} />
+      ) : null}
+      {deleteEntity ? (
+        <SidebarDeletePopover
+          entity={deleteEntity}
+          onCancel={() => setDeleteEntity(null)}
+          onConfirm={() => {
+            const deleteAction = deleteEntity.onDelete;
+            setDeleteEntity(null);
+            deleteAction();
+          }}
+        />
+      ) : null}
     </aside>
   );
 }
@@ -145,6 +218,24 @@ function ChevronIcon({ direction }: { direction: "left" | "right" }) {
   );
 }
 
+function PlusIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="size-4"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <path
+        d="M12 5v14M5 12h14"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeWidth="2"
+      />
+    </svg>
+  );
+}
+
 function SidebarSection({
   action,
   children,
@@ -158,7 +249,7 @@ function SidebarSection({
     <section>
       <div className="flex min-h-8 items-center justify-between gap-2 px-2">
         <h2 className="text-xs font-semibold text-zinc-500">{title}</h2>
-        {action}
+        {action ? <div className="flex w-16 justify-end">{action}</div> : null}
       </div>
       <div className="mt-2 space-y-1">{children}</div>
     </section>
@@ -352,39 +443,225 @@ function SidebarButton({
 
 function SidebarEntityButton({
   active,
+  description,
+  id,
+  kind,
   label,
+  onDelete,
+  onDeleteRequest,
+  onHoverChange,
   onClick,
   status,
   timestamp,
 }: {
   active: boolean;
+  description: string;
+  id: string;
+  kind: "专题" | "题目" | "网站";
   label: string;
+  onDelete?: () => void;
+  onDeleteRequest?: (entity: DeleteSidebarEntity | null) => void;
+  onHoverChange: (entity: HoveredSidebarEntity | null) => void;
   onClick: () => void;
   status: PublishStatus;
   timestamp: string;
 }) {
+  function getEntityFromElement(
+    element: HTMLDivElement,
+  ): HoveredSidebarEntity {
+    const rect = element.getBoundingClientRect();
+
+    return {
+      description,
+      id,
+      kind,
+      label,
+      left: rect.right + 8,
+      status,
+      timestamp,
+      top: rect.top,
+    };
+  }
+
+  function handleMouseEnter(event: React.MouseEvent<HTMLDivElement>) {
+    onHoverChange(getEntityFromElement(event.currentTarget));
+  }
+
+  function handleDeleteClick(event: React.MouseEvent<HTMLButtonElement>) {
+    const rect = event.currentTarget.getBoundingClientRect();
+
+    if (!onDelete || !onDeleteRequest) {
+      return;
+    }
+
+    onHoverChange(null);
+    onDeleteRequest({
+      description,
+      id,
+      kind,
+      label,
+      left: rect.right + 8,
+      onDelete,
+      status,
+      timestamp,
+      top: rect.top,
+    });
+  }
+
   return (
-    <button
-      aria-current={active ? "page" : undefined}
-      className={`w-full rounded-md border px-2 py-1.5 text-left transition ${
-        active
-          ? "border-teal-300 bg-teal-50 text-teal-950"
-          : "border-transparent text-zinc-700 hover:border-zinc-200 hover:bg-zinc-50"
-      }`}
-      onClick={onClick}
-      type="button"
+    <div
+      className="group relative"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={() => onHoverChange(null)}
     >
-      <span className="flex items-center gap-2">
-        <PublishStatusIcon status={status} />
-        <span className="min-w-0 flex-1 truncate text-sm font-medium">
-          {label}
+      <button
+        aria-current={active ? "page" : undefined}
+        className={`block w-full min-w-0 rounded-md border px-2 py-1.5 text-left transition ${
+          active
+            ? "border-teal-300 bg-teal-50 text-teal-950"
+            : "border-transparent text-zinc-700 hover:border-zinc-200 hover:bg-zinc-50"
+        }`}
+        onClick={onClick}
+        type="button"
+      >
+        <span className="flex min-w-0 items-center gap-2">
+          <PublishStatusIcon status={status} />
+          <span
+            className="block min-w-0 flex-1 truncate text-sm font-medium"
+            title={label}
+          >
+            {label}
+          </span>
+          <span className="w-16 shrink-0 text-right text-xs text-zinc-400 group-hover:hidden">
+            {relativeTimeLabel(timestamp)}
+          </span>
         </span>
-        <span className="shrink-0 text-xs text-zinc-400">
-          {relativeTimeLabel(timestamp)}
-        </span>
-      </span>
-    </button>
+      </button>
+      <div className="absolute right-1 top-1/2 hidden -translate-y-1/2 items-center gap-1 group-hover:flex">
+        {onDelete ? (
+          <button
+            aria-label={`删除${kind}`}
+            className="flex size-6 items-center justify-center rounded text-zinc-500 hover:bg-red-50 hover:text-red-600"
+            onClick={(event) => {
+              event.stopPropagation();
+              handleDeleteClick(event);
+            }}
+            type="button"
+          >
+            <TrashIcon />
+          </button>
+        ) : null}
+      </div>
+    </div>
   );
+}
+
+function TrashIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="size-4"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <path
+        d="M5 7h14M10 11v6M14 11v6M9 7l.7-2h4.6L15 7M7 7l.7 13h8.6L17 7"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.8"
+      />
+    </svg>
+  );
+}
+
+function SidebarEntityPopover({ entity }: { entity: HoveredSidebarEntity }) {
+  return (
+    <div
+      className="fixed z-50 w-80 rounded-xl border border-zinc-200 bg-white p-4 shadow-xl"
+      style={{
+        left: entity.left,
+        top: `min(${entity.top}px, calc(100vh - 11rem))`,
+      }}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <h3 className="min-w-0 flex-1 text-sm font-semibold text-zinc-900">
+          {entity.label}
+        </h3>
+        <span className="shrink-0 text-xs text-zinc-400">
+          {relativeTimeLabel(entity.timestamp)}
+        </span>
+      </div>
+      <div className="mt-3 flex items-center gap-2 text-xs text-zinc-500">
+        <PublishStatusIcon status={entity.status} />
+        <span>{publishStatusText(entity.status)}</span>
+        <span className="text-zinc-300">·</span>
+        <span>{entity.kind}</span>
+      </div>
+      <p className="mt-3 text-sm leading-6 text-zinc-600">
+        {entity.description || `暂无${entity.kind}说明。`}
+      </p>
+      <p className="mt-3 truncate font-mono text-xs text-zinc-400">
+        {entity.id}
+      </p>
+    </div>
+  );
+}
+
+function SidebarDeletePopover({
+  entity,
+  onCancel,
+  onConfirm,
+}: {
+  entity: DeleteSidebarEntity;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  return (
+    <div
+      className="fixed z-50 w-72 rounded-xl border border-zinc-200 bg-white p-3 shadow-xl"
+      style={{
+        left: entity.left,
+        top: `min(${entity.top}px, calc(100vh - 9rem))`,
+      }}
+    >
+      <p className="text-sm font-medium text-zinc-900">删除{entity.kind}？</p>
+      <p className="mt-1 line-clamp-2 text-xs leading-5 text-zinc-500">
+        {entity.label}
+      </p>
+      <p className="mt-2 text-xs leading-5 text-zinc-500">
+        这是 mock 会话内删除，刷新后会恢复 fixture。
+      </p>
+      <div className="mt-3 flex justify-end gap-2">
+        <button
+          className="rounded px-2 py-1 text-xs text-zinc-500 hover:bg-zinc-50"
+          onClick={onCancel}
+          type="button"
+        >
+          取消
+        </button>
+        <button
+          className="rounded bg-red-600 px-2 py-1 text-xs font-medium text-white hover:bg-red-700"
+          onClick={onConfirm}
+          type="button"
+        >
+          删除
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function publishStatusText(status: PublishStatus): string {
+  if (status === "published") {
+    return "已发布";
+  }
+
+  if (status === "published_dirty") {
+    return "已发布 · 有改动";
+  }
+
+  return "草稿";
 }
 
 function PublishStatusIcon({ status }: { status: PublishStatus }) {

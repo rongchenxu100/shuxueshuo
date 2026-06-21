@@ -8,9 +8,12 @@ import {
   type CSSProperties,
   type PointerEvent as ReactPointerEvent,
 } from "react";
+import { flushSync } from "react-dom";
 
 import {
+  createTopic,
   createProblemAnnotation,
+  deleteTopic,
   getProblemAnnotations,
   getProblemMessages,
   publishProblem,
@@ -22,6 +25,8 @@ import type {
   NavResponse,
   Problem,
   ProblemMessage,
+  SiteHome,
+  Topic,
   UploadJobProgressEvent,
   WebAnnotation,
 } from "@/lib/contracts";
@@ -32,8 +37,12 @@ import { PreviewPane } from "./preview-pane";
 import { Sidebar } from "./sidebar";
 import {
   getInitialSelection,
+  getSelectionAfterRemoval,
   insertProblem,
+  insertTopic,
   mergePublishedProblem,
+  removeProblem,
+  removeTopic,
   resolveSelection,
   updateProblem,
   updateSiteHome,
@@ -49,10 +58,9 @@ const SIDEBAR_DEFAULT_WIDTH = 280;
 const SIDEBAR_MIN_WIDTH = 220;
 const SIDEBAR_MAX_WIDTH = 420;
 const PREVIEW_COLLAPSED_WIDTH = 48;
-const PREVIEW_DEFAULT_WIDTH = 420;
-const PREVIEW_MIN_WIDTH = 360;
-const PREVIEW_MAX_WIDTH = 760;
+const PREVIEW_MIN_WIDTH = 280;
 const MAIN_MIN_WIDTH = 360;
+const PREVIEW_DEFAULT_WIDTH = 420;
 
 export function AuthoringWorkspace({ initialNav }: { initialNav: NavResponse }) {
   const [nav, setNav] = useState<NavResponse>(initialNav);
@@ -74,14 +82,18 @@ export function AuthoringWorkspace({ initialNav }: { initialNav: NavResponse }) 
   >({});
   const loadedProblemMessageIdsRef = useRef<Set<string>>(new Set());
   const loadedProblemAnnotationIdsRef = useRef<Set<string>>(new Set());
+  const previewContainerRef = useRef<HTMLDivElement>(null);
   const [workspaceScale, setWorkspaceScale] = useState(1);
   const [workspaceViewportWidth, setWorkspaceViewportWidth] = useState(
     WORKSPACE_DESIGN_WIDTH,
   );
   const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_DEFAULT_WIDTH);
   const [previewWidth, setPreviewWidth] = useState(PREVIEW_DEFAULT_WIDTH);
+  const [hasManuallyResizedPreview, setHasManuallyResizedPreview] =
+    useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isPreviewCollapsed, setIsPreviewCollapsed] = useState(false);
+  const [isWorkspaceResizing, setIsWorkspaceResizing] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const selectedObject = useMemo<SelectedWorkspaceObject>(
@@ -96,10 +108,17 @@ export function AuthoringWorkspace({ initialNav }: { initialNav: NavResponse }) 
   useEffect(() => {
     function updateWorkspaceScale() {
       const viewportWidth = Math.max(window.innerWidth, 1);
+      const logicalWorkspaceWidth =
+        viewportWidth < WORKSPACE_DESIGN_WIDTH
+          ? WORKSPACE_DESIGN_WIDTH
+          : viewportWidth;
       setWorkspaceViewportWidth(viewportWidth);
       setWorkspaceScale(
         Math.min(1, viewportWidth / WORKSPACE_DESIGN_WIDTH),
       );
+      if (!hasManuallyResizedPreview) {
+        setPreviewWidth(defaultPreviewWidth(logicalWorkspaceWidth));
+      }
     }
 
     updateWorkspaceScale();
@@ -112,7 +131,7 @@ export function AuthoringWorkspace({ initialNav }: { initialNav: NavResponse }) 
       window.removeEventListener("resize", updateWorkspaceScale);
       visualViewport?.removeEventListener("resize", updateWorkspaceScale);
     };
-  }, []);
+  }, [hasManuallyResizedPreview]);
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -282,6 +301,40 @@ export function AuthoringWorkspace({ initialNav }: { initialNav: NavResponse }) 
     updateProblemInNav(problem);
   }
 
+  async function handleTopicCreate() {
+    const { topic } = await createTopic();
+    setNav((currentNav) => insertTopic(currentNav, topic));
+    setSelection({ kind: "topic", id: topic.id });
+    setAutosaveError(null);
+  }
+
+  async function handleTopicDelete(topicId: string) {
+    await deleteTopic(topicId);
+    const nextNav = removeTopic(nav, topicId);
+    setNav(nextNav);
+
+    if (selection.kind === "topic" && selection.id === topicId) {
+      setSelection(getSelectionAfterRemoval(nav, selection));
+    }
+  }
+
+  function handleProblemDelete(problemId: string) {
+    const nextNav = removeProblem(nav, problemId);
+    setNav(nextNav);
+
+    if (selection.kind === "problem" && selection.id === problemId) {
+      setSelection(getSelectionAfterRemoval(nav, selection));
+    }
+  }
+
+  function handleTopicChange(topic: Topic) {
+    setNav((currentNav) => updateTopic(currentNav, topic));
+  }
+
+  function handleSiteHomeChange(siteHome: SiteHome) {
+    setNav((currentNav) => updateSiteHome(currentNav, siteHome));
+  }
+
   async function handleProblemAnnotationCreate(
     problemId: string,
     request: CreateWebAnnotationRequest,
@@ -357,9 +410,29 @@ export function AuthoringWorkspace({ initialNav }: { initialNav: NavResponse }) 
     event: ReactPointerEvent<HTMLButtonElement>,
   ) {
     event.preventDefault();
+    const resizeHandle = event.currentTarget;
+    resizeHandle.setPointerCapture(event.pointerId);
+    const iframePointerEvents = Array.from(
+      document.querySelectorAll("iframe"),
+      (iframe) => ({
+        iframe,
+        pointerEvents: iframe.style.pointerEvents,
+      }),
+    );
+    iframePointerEvents.forEach(({ iframe }) => {
+      iframe.style.pointerEvents = "none";
+    });
+    setIsWorkspaceResizing(true);
+
+    const measuredPreviewWidth =
+      (previewContainerRef.current?.getBoundingClientRect().width ??
+        previewWidth * workspaceScale) / workspaceScale;
+
     const pointerStartX = event.clientX;
     const sidebarStartWidth = sidebarWidth;
-    const previewStartWidth = previewWidth;
+    const previewStartWidth =
+      side === "right" ? measuredPreviewWidth : previewWidth;
+    let isPreviewManualForDrag = hasManuallyResizedPreview;
     const logicalWorkspaceWidth =
       workspaceScale < 1 ? WORKSPACE_DESIGN_WIDTH : workspaceViewportWidth;
     const leftWidth = isSidebarCollapsed
@@ -367,7 +440,9 @@ export function AuthoringWorkspace({ initialNav }: { initialNav: NavResponse }) 
       : sidebarWidth;
     const rightWidth =
       selectedObjectHasPreview && !isPreviewCollapsed
-        ? previewWidth
+        ? hasManuallyResizedPreview
+          ? previewWidth
+          : measuredPreviewWidth
         : selectedObjectHasPreview
           ? PREVIEW_COLLAPSED_WIDTH
           : 0;
@@ -390,30 +465,44 @@ export function AuthoringWorkspace({ initialNav }: { initialNav: NavResponse }) 
         return;
       }
 
-      const maxAllowedWidth = Math.min(
-        PREVIEW_MAX_WIDTH,
-        logicalWorkspaceWidth - leftWidth - MAIN_MIN_WIDTH,
+      const maxAllowedWidth =
+        logicalWorkspaceWidth - leftWidth - MAIN_MIN_WIDTH;
+      const nextPreviewWidth = clamp(
+        previewStartWidth - delta,
+        PREVIEW_MIN_WIDTH,
+        Math.max(PREVIEW_MIN_WIDTH, maxAllowedWidth),
       );
-      setPreviewWidth(
-        clamp(
-          previewStartWidth - delta,
-          PREVIEW_MIN_WIDTH,
-          Math.max(PREVIEW_MIN_WIDTH, maxAllowedWidth),
-        ),
-      );
+      if (!isPreviewManualForDrag) {
+        isPreviewManualForDrag = true;
+        flushSync(() => {
+          setHasManuallyResizedPreview(true);
+          setPreviewWidth(nextPreviewWidth);
+        });
+        return;
+      }
+      setPreviewWidth(nextPreviewWidth);
     }
 
-    function handlePointerUp() {
+    function finishResize() {
+      iframePointerEvents.forEach(({ iframe, pointerEvents }) => {
+        iframe.style.pointerEvents = pointerEvents;
+      });
+      if (resizeHandle.hasPointerCapture(event.pointerId)) {
+        resizeHandle.releasePointerCapture(event.pointerId);
+      }
+      setIsWorkspaceResizing(false);
       document.body.style.cursor = "";
       document.body.style.userSelect = "";
       window.removeEventListener("pointermove", handlePointerMove);
-      window.removeEventListener("pointerup", handlePointerUp);
+      window.removeEventListener("pointerup", finishResize);
+      window.removeEventListener("pointercancel", finishResize);
     }
 
     document.body.style.cursor = "col-resize";
     document.body.style.userSelect = "none";
     window.addEventListener("pointermove", handlePointerMove);
-    window.addEventListener("pointerup", handlePointerUp);
+    window.addEventListener("pointerup", finishResize);
+    window.addEventListener("pointercancel", finishResize);
   }
 
   const shouldScaleWorkspace = workspaceScale < 1;
@@ -440,7 +529,9 @@ export function AuthoringWorkspace({ initialNav }: { initialNav: NavResponse }) 
     selectedObjectHasPreview
       ? isPreviewCollapsed
         ? `${PREVIEW_COLLAPSED_WIDTH}px`
-        : `${previewWidth}px`
+        : hasManuallyResizedPreview
+          ? `${previewWidth}px`
+          : "minmax(360px, 1fr)"
       : "0px"
   }`;
   const selectedProblemAnnotations =
@@ -467,11 +558,20 @@ export function AuthoringWorkspace({ initialNav }: { initialNav: NavResponse }) 
         className="grid h-full"
         style={{ ...workspaceStyle, gridTemplateColumns }}
       >
+        {isWorkspaceResizing ? (
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 z-50 cursor-col-resize"
+          />
+        ) : null}
         <div className="relative min-w-0">
           <Sidebar
             collapsed={isSidebarCollapsed}
             nav={nav}
             selection={selection}
+            onCreateTopic={handleTopicCreate}
+            onDeleteProblem={handleProblemDelete}
+            onDeleteTopic={handleTopicDelete}
             onOpenSearch={() => setIsSearchOpen(true)}
             onToggleCollapsed={() =>
               setIsSidebarCollapsed((current) => !current)
@@ -500,13 +600,18 @@ export function AuthoringWorkspace({ initialNav }: { initialNav: NavResponse }) 
             selectedProblemAnnotations
           }
           pendingAnnotationIds={selectedPendingAnnotationIds}
+          problems={nav.problems}
           selectedObject={selectedObject}
+          topics={nav.topics}
           onProblemCreated={handleProblemCreated}
           onProblemEdited={handleProblemEdited}
           onProblemDraftChange={handleProblemDraftChange}
           onProblemPatched={handleProblemPatched}
           onProblemConversationChange={handleProblemConversationChange}
           onPublish={handlePublish}
+          onSelectionChange={setSelection}
+          onSiteHomeChange={handleSiteHomeChange}
+          onTopicChange={handleTopicChange}
           onPendingAnnotationRemove={handlePendingAnnotationRemove}
           onPendingAnnotationsCommitted={handlePendingAnnotationsCommitted}
           onAutosaveErrorChange={setAutosaveError}
@@ -515,7 +620,7 @@ export function AuthoringWorkspace({ initialNav }: { initialNav: NavResponse }) 
           onUploadEventsChange={setUploadEvents}
         />
         {selectedObjectHasPreview ? (
-          <div className="relative min-w-0">
+          <div className="relative min-w-0" ref={previewContainerRef}>
             {!isPreviewCollapsed ? (
               <ResizeHandle
                 label="调整右侧栏宽度"
@@ -576,6 +681,13 @@ function ResizeHandle({
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
+}
+
+function defaultPreviewWidth(workspaceWidth: number): number {
+  return Math.max(
+    PREVIEW_MIN_WIDTH,
+    Math.round((workspaceWidth - SIDEBAR_DEFAULT_WIDTH) / 2),
+  );
 }
 
 type SearchResult = {

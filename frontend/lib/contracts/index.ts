@@ -296,6 +296,113 @@ export type CreateProblemMessageResponse = z.infer<
   typeof CreateProblemMessageResponseSchema
 >;
 
+export const CreateTopicRequestSchema = z
+  .object({
+    title: z.string().min(1).optional(),
+    description: z.string().optional(),
+  })
+  .strict();
+export type CreateTopicRequest = z.infer<typeof CreateTopicRequestSchema>;
+
+export const TopicResponseSchema = z.object({
+  topic: TopicSchema,
+});
+export type TopicResponse = z.infer<typeof TopicResponseSchema>;
+
+export const PatchTopicRequestSchema = z.object({
+  patch: z
+    .object({
+      title: z.string().min(1).optional(),
+      description: z.string().optional(),
+    })
+    .refine(
+      (patch) => patch.title !== undefined || patch.description !== undefined,
+      {
+        message: "patch must include title or description",
+      },
+    ),
+});
+export type PatchTopicRequest = z.infer<typeof PatchTopicRequestSchema>;
+
+export const DeleteTopicResponseSchema = z.object({
+  topicId: z.string(),
+});
+export type DeleteTopicResponse = z.infer<typeof DeleteTopicResponseSchema>;
+
+export const AddTopicItemRequestSchema = z.object({
+  problemId: z.string(),
+  title: z.string().min(1),
+  tags: z.array(z.string()),
+  status: PublishStatusSchema,
+});
+export type AddTopicItemRequest = z.infer<typeof AddTopicItemRequestSchema>;
+
+export const AddTopicItemResponseSchema = z.object({
+  item: TopicItemSchema,
+  topic: TopicSchema,
+});
+export type AddTopicItemResponse = z.infer<typeof AddTopicItemResponseSchema>;
+
+export const ReorderTopicItemsRequestSchema = z.object({
+  itemIds: z.array(z.string()),
+});
+export type ReorderTopicItemsRequest = z.infer<
+  typeof ReorderTopicItemsRequestSchema
+>;
+
+export const DeleteTopicItemResponseSchema = z.object({
+  itemId: z.string(),
+  topic: TopicSchema,
+});
+export type DeleteTopicItemResponse = z.infer<
+  typeof DeleteTopicItemResponseSchema
+>;
+
+export const TopicSuggestedProblemsResponseSchema = z.object({
+  suggestedProblems: z.array(SuggestedProblemSchema),
+});
+export type TopicSuggestedProblemsResponse = z.infer<
+  typeof TopicSuggestedProblemsResponseSchema
+>;
+
+export const AcceptSuggestedProblemResponseSchema = z.object({
+  item: TopicItemSchema,
+  topic: TopicSchema,
+});
+export type AcceptSuggestedProblemResponse = z.infer<
+  typeof AcceptSuggestedProblemResponseSchema
+>;
+
+export const IgnoreSuggestedProblemResponseSchema = z.object({
+  suggestedProblemId: z.string(),
+  topic: TopicSchema,
+});
+export type IgnoreSuggestedProblemResponse = z.infer<
+  typeof IgnoreSuggestedProblemResponseSchema
+>;
+
+export const PatchSiteHomeRequestSchema = z.object({
+  patch: z
+    .object({
+      siteName: z.string().min(1).optional(),
+      description: z.string().optional(),
+      featuredTopicIds: z.array(z.string()).optional(),
+      recentProblemLimit: z.number().int().min(1).max(24).optional(),
+      knowledgeTags: z.array(z.string()).optional(),
+    })
+    .refine((patch) => Object.keys(patch).length > 0, {
+      message: "patch must include at least one field",
+    }),
+});
+export type PatchSiteHomeRequest = z.infer<typeof PatchSiteHomeRequestSchema>;
+
+export const PatchSiteHomeResponseSchema = z.object({
+  siteHome: SiteHomeSchema,
+});
+export type PatchSiteHomeResponse = z.infer<
+  typeof PatchSiteHomeResponseSchema
+>;
+
 export const UploadJobProgressEventSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("progress"),

@@ -1,9 +1,11 @@
 import type {
   NavResponse,
   Problem,
+  SuggestedProblem,
   PublishStatus,
   SiteHome,
   Topic,
+  TopicItem,
 } from "@/lib/contracts";
 
 export type WorkspaceSelection =
@@ -160,6 +162,27 @@ export function updateTopic(nav: NavResponse, topic: Topic): NavResponse {
   };
 }
 
+export function insertTopic(nav: NavResponse, topic: Topic): NavResponse {
+  return {
+    ...nav,
+    topics: [topic, ...nav.topics.filter((item) => item.id !== topic.id)],
+  };
+}
+
+export function removeTopic(nav: NavResponse, topicId: string): NavResponse {
+  return {
+    ...nav,
+    topics: nav.topics.filter((topic) => topic.id !== topicId),
+  };
+}
+
+export function removeProblem(nav: NavResponse, problemId: string): NavResponse {
+  return {
+    ...nav,
+    problems: nav.problems.filter((problem) => problem.id !== problemId),
+  };
+}
+
 export function updateSiteHome(
   nav: NavResponse,
   siteHome: SiteHome,
@@ -168,4 +191,84 @@ export function updateSiteHome(
     ...nav,
     siteHome,
   };
+}
+
+export function getSelectionAfterRemoval(
+  nav: NavResponse,
+  removedSelection: WorkspaceSelection,
+): WorkspaceSelection {
+  const nextNav =
+    removedSelection.kind === "problem"
+      ? removeProblem(nav, removedSelection.id)
+      : removedSelection.kind === "topic"
+        ? removeTopic(nav, removedSelection.id)
+        : nav;
+
+  return getInitialSelection(nextNav);
+}
+
+export function paginateItems<T>(
+  items: T[],
+  page: number,
+  pageSize: number,
+): { items: T[]; page: number; pageCount: number; total: number } {
+  const total = items.length;
+  const pageCount = Math.max(1, Math.ceil(total / pageSize));
+  const safePage = Math.min(Math.max(page, 1), pageCount);
+  const start = (safePage - 1) * pageSize;
+
+  return {
+    items: items.slice(start, start + pageSize),
+    page: safePage,
+    pageCount,
+    total,
+  };
+}
+
+export function moveTopicItem(
+  items: TopicItem[],
+  itemId: string,
+  direction: "down" | "up",
+): TopicItem[] {
+  const index = items.findIndex((item) => item.id === itemId);
+  const nextIndex = direction === "up" ? index - 1 : index + 1;
+
+  if (index < 0 || nextIndex < 0 || nextIndex >= items.length) {
+    return items;
+  }
+
+  const nextItems = [...items];
+  const [item] = nextItems.splice(index, 1);
+  nextItems.splice(nextIndex, 0, item);
+
+  return normalizeTopicItemOrder(nextItems);
+}
+
+export function mergeAcceptedSuggestion(
+  topic: Topic,
+  item: TopicItem,
+  suggestedProblemId: string,
+): Topic {
+  return {
+    ...topic,
+    items: normalizeTopicItemOrder([...topic.items, item]),
+    suggestedProblems: removeSuggestedProblem(
+      topic.suggestedProblems,
+      suggestedProblemId,
+    ),
+  };
+}
+
+export function removeSuggestedProblem(
+  suggestions: SuggestedProblem[],
+  suggestedProblemId: string,
+): SuggestedProblem[] {
+  return suggestions.filter((item) => item.id !== suggestedProblemId);
+}
+
+function normalizeTopicItemOrder(items: TopicItem[]): TopicItem[] {
+  return items.map((item, index) => ({
+    ...item,
+    order: index + 1,
+  }));
 }

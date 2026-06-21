@@ -1,19 +1,34 @@
 import {
+  AcceptSuggestedProblemResponseSchema,
+  AddTopicItemResponseSchema,
+  CreateTopicRequestSchema,
   CreateWebAnnotationResponseSchema,
   CreateProblemMessageResponseSchema,
   CreateProblemResponseSchema,
+  DeleteTopicItemResponseSchema,
+  DeleteTopicResponseSchema,
+  IgnoreSuggestedProblemResponseSchema,
   NavResponseSchema,
   PatchProblemResponseSchema,
+  PatchSiteHomeResponseSchema,
+  PatchTopicRequestSchema,
   ProblemAnnotationsResponseSchema,
   ProblemMessagesResponseSchema,
   PublishProblemResponseSchema,
   PublishSiteHomeResponseSchema,
   PublishTopicResponseSchema,
+  TopicResponseSchema,
+  TopicSuggestedProblemsResponseSchema,
   StartProblemUploadResponseSchema,
+  type AddTopicItemRequest,
+  type CreateTopicRequest,
   type CreateProblemMessageRequest,
   type CreateWebAnnotationRequest,
   type NavResponse,
   type PatchProblemRequest,
+  type PatchSiteHomeRequest,
+  type PatchTopicRequest,
+  type ReorderTopicItemsRequest,
 } from "@/lib/contracts";
 
 type MockProblemScenario = "success" | "rejected" | "failed" | "disconnect";
@@ -129,6 +144,118 @@ export async function publishSiteHome() {
   return PublishSiteHomeResponseSchema.parse(
     await fetchJsonWithInit("/api/site/home/publish", {
       method: "POST",
+    }),
+  );
+}
+
+export async function createTopic(request: CreateTopicRequest = {}) {
+  return TopicResponseSchema.parse(
+    await fetchJsonWithInit("/api/topics", {
+      body: JSON.stringify(CreateTopicRequestSchema.parse(request)),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      method: "POST",
+    }),
+  );
+}
+
+export async function patchTopic(topicId: string, request: PatchTopicRequest) {
+  return TopicResponseSchema.parse(
+    await fetchJsonWithInit(`/api/topics/${topicId}`, {
+      body: JSON.stringify(PatchTopicRequestSchema.parse(request)),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      method: "PATCH",
+    }),
+  );
+}
+
+export async function deleteTopic(topicId: string) {
+  return DeleteTopicResponseSchema.parse(
+    await fetchJsonWithInit(`/api/topics/${topicId}`, {
+      method: "DELETE",
+    }),
+  );
+}
+
+export async function addTopicItem(
+  topicId: string,
+  request: AddTopicItemRequest,
+) {
+  return AddTopicItemResponseSchema.parse(
+    await fetchJsonWithInit(`/api/topics/${topicId}/items`, {
+      body: JSON.stringify(request),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      method: "POST",
+    }),
+  );
+}
+
+export async function reorderTopicItems(
+  topicId: string,
+  request: ReorderTopicItemsRequest,
+) {
+  return TopicResponseSchema.parse(
+    await fetchJsonWithInit(`/api/topics/${topicId}/items/reorder`, {
+      body: JSON.stringify(request),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      method: "PATCH",
+    }),
+  );
+}
+
+export async function deleteTopicItem(topicId: string, itemId: string) {
+  return DeleteTopicItemResponseSchema.parse(
+    await fetchJsonWithInit(`/api/topics/${topicId}/items/${itemId}`, {
+      method: "DELETE",
+    }),
+  );
+}
+
+export async function getTopicSuggestedProblems(topicId: string) {
+  return TopicSuggestedProblemsResponseSchema.parse(
+    await fetchJson(`/api/topics/${topicId}/suggested-problems`),
+  );
+}
+
+export async function acceptTopicSuggestedProblem(
+  topicId: string,
+  suggestedProblemId: string,
+) {
+  return AcceptSuggestedProblemResponseSchema.parse(
+    await fetchJsonWithInit(
+      `/api/topics/${topicId}/suggested-problems/${suggestedProblemId}/accept`,
+      { method: "POST" },
+    ),
+  );
+}
+
+export async function ignoreTopicSuggestedProblem(
+  topicId: string,
+  suggestedProblemId: string,
+) {
+  return IgnoreSuggestedProblemResponseSchema.parse(
+    await fetchJsonWithInit(
+      `/api/topics/${topicId}/suggested-problems/${suggestedProblemId}/ignore`,
+      { method: "POST" },
+    ),
+  );
+}
+
+export async function patchSiteHome(request: PatchSiteHomeRequest) {
+  return PatchSiteHomeResponseSchema.parse(
+    await fetchJsonWithInit("/api/site/home", {
+      body: JSON.stringify(request),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      method: "PATCH",
     }),
   );
 }

@@ -6,8 +6,12 @@ import navFixture from "../../fixtures/nav.json";
 import {
   autosaveStateLabel,
   getInitialSelection,
+  getSelectionAfterRemoval,
   insertProblem,
   mergePublishedProblem,
+  mergeAcceptedSuggestion,
+  moveTopicItem,
+  paginateItems,
   previewUrlWithVersion,
   publishActionLabel,
   publishStatusLabel,
@@ -127,6 +131,68 @@ describe("workspace model", () => {
     expect(updateSiteHome(nav, publishedSiteHome).siteHome.status).toBe(
       "published_dirty",
     );
+  });
+
+  it("paginates items and clamps page bounds", () => {
+    const items = Array.from({ length: 23 }, (_, index) => index + 1);
+
+    expect(paginateItems(items, 2, 10)).toMatchObject({
+      items: [11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+      page: 2,
+      pageCount: 3,
+      total: 23,
+    });
+    expect(paginateItems(items, 9, 10).page).toBe(3);
+  });
+
+  it("moves topic items and normalizes order", () => {
+    const items = [
+      { ...nav.topics[0].items[0], id: "a", order: 1 },
+      { ...nav.topics[0].items[0], id: "b", order: 2 },
+      { ...nav.topics[0].items[0], id: "c", order: 3 },
+    ];
+
+    expect(moveTopicItem(items, "b", "up").map((item) => item.id)).toEqual([
+      "b",
+      "a",
+      "c",
+    ]);
+    expect(moveTopicItem(items, "c", "down")).toBe(items);
+  });
+
+  it("merges accepted suggestions into topic state", () => {
+    const topic = nav.topics[0];
+    const suggestion = topic.suggestedProblems[0];
+    const item = {
+      id: "topic_item_new",
+      order: topic.items.length + 1,
+      problemId: suggestion.problemId,
+      status: "draft" as const,
+      tags: suggestion.tags,
+      title: suggestion.title,
+    };
+    const nextTopic = mergeAcceptedSuggestion(topic, item, suggestion.id);
+
+    expect(nextTopic.items.at(-1)?.id).toBe("topic_item_new");
+    expect(nextTopic.suggestedProblems).toHaveLength(0);
+  });
+
+  it("selects a fallback object after deleting selected objects", () => {
+    expect(
+      getSelectionAfterRemoval(nav, {
+        kind: "problem",
+        id: "problem_hongqiao_25",
+      }),
+    ).toEqual({ kind: "problem", id: "problem_heping_24" });
+    expect(
+      getSelectionAfterRemoval(
+        { ...nav, problems: [] },
+        {
+          kind: "topic",
+          id: "topic_tianjin_sanmo_25",
+        },
+      ),
+    ).toEqual({ kind: "site_home" });
   });
 
   it("merges published problem status without losing local draft fields", () => {
