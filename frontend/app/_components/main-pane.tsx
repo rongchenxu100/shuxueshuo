@@ -4,6 +4,7 @@ import type {
   Problem,
   ProblemMessage,
   PublishStatus,
+  SiteHome,
   Topic,
   UploadJobProgressEvent,
   WebAnnotation,
@@ -12,15 +13,15 @@ import type {
 import { NewProblemPanel } from "./new-problem-panel";
 import { ProblemConversationPanel } from "./problem-conversation-panel";
 import { ProblemMetadataPopover } from "./problem-metadata-popover";
+import { SiteHomeManagementPanel } from "./site-home-management-panel";
+import { TopicManagementPanel } from "./topic-management-panel";
 import { AutosaveBadge } from "./ui/autosave-badge";
-import { HeaderBlock } from "./ui/header-block";
-import { InfoGroup } from "./ui/info-group";
-import { PlaceholderContent } from "./ui/placeholder-content";
 import {
   publishActionLabel,
   publishStatusLabel,
   type AutosaveState,
   type SelectedWorkspaceObject,
+  type WorkspaceSelection,
 } from "./workspace-model";
 
 export function MainPane({
@@ -36,12 +37,17 @@ export function MainPane({
   onPendingAnnotationRemove,
   onPendingAnnotationsCommitted,
   onPublish,
+  onSiteHomeChange,
+  onSelectionChange,
+  onTopicChange,
   onUploadErrorChange,
   onUploadEventsChange,
   pendingAnnotationIds,
+  problems,
   problemAnnotations,
   problemConversation,
   selectedObject,
+  topics,
 }: {
   autosaveState: AutosaveState;
   autosaveError: string | null;
@@ -67,12 +73,17 @@ export function MainPane({
   ) => void;
   onPendingAnnotationsCommitted: (problemId: string) => void;
   onPublish: (selectedObject: SelectedWorkspaceObject) => Promise<void>;
+  onSiteHomeChange: (siteHome: SiteHome) => void;
+  onSelectionChange: (selection: WorkspaceSelection) => void;
+  onTopicChange: (topic: Topic) => void;
   onUploadErrorChange: (message: string | null) => void;
   onUploadEventsChange: (events: UploadJobProgressEvent[]) => void;
   pendingAnnotationIds: string[];
+  problems: Problem[];
   problemAnnotations: WebAnnotation[];
   problemConversation: ProblemMessage[];
   selectedObject: SelectedWorkspaceObject;
+  topics: Topic[];
 }) {
   const showAutosave = hasAutosaveSemantics(selectedObject);
   const shouldLockContent =
@@ -190,13 +201,20 @@ export function MainPane({
           onProblemCreated={onProblemCreated}
           onProblemConversationChange={onProblemConversationChange}
           onProblemEdited={onProblemEdited}
+          onAutosaveErrorChange={onAutosaveErrorChange}
+          onAutosaveStateChange={onAutosaveStateChange}
           onPendingAnnotationRemove={onPendingAnnotationRemove}
           onPendingAnnotationsCommitted={onPendingAnnotationsCommitted}
+          onSiteHomeChange={onSiteHomeChange}
+          onSelectionChange={onSelectionChange}
+          onTopicChange={onTopicChange}
           onUploadErrorChange={onUploadErrorChange}
           onUploadEventsChange={onUploadEventsChange}
           pendingAnnotationIds={pendingAnnotationIds}
+          problems={problems}
           problemAnnotations={problemAnnotations}
           problemConversation={problemConversation}
+          topics={topics}
         />
       </div>
     </section>
@@ -204,18 +222,27 @@ export function MainPane({
 }
 
 function MainContent({
+  onAutosaveErrorChange,
+  onAutosaveStateChange,
   onProblemCreated,
   onProblemConversationChange,
   onProblemEdited,
   onPendingAnnotationRemove,
   onPendingAnnotationsCommitted,
+  onSiteHomeChange,
+  onSelectionChange,
+  onTopicChange,
   onUploadErrorChange,
   onUploadEventsChange,
   pendingAnnotationIds,
+  problems,
   problemAnnotations,
   problemConversation,
   selectedObject,
+  topics,
 }: {
+  onAutosaveErrorChange: (message: string | null) => void;
+  onAutosaveStateChange: (state: AutosaveState) => void;
   onProblemCreated: (
     problem: Problem,
     messages: ProblemMessage[],
@@ -230,12 +257,17 @@ function MainContent({
     annotationId: string,
   ) => void;
   onPendingAnnotationsCommitted: (problemId: string) => void;
+  onSiteHomeChange: (siteHome: SiteHome) => void;
+  onSelectionChange: (selection: WorkspaceSelection) => void;
+  onTopicChange: (topic: Topic) => void;
   onUploadErrorChange: (message: string | null) => void;
   onUploadEventsChange: (events: UploadJobProgressEvent[]) => void;
   pendingAnnotationIds: string[];
+  problems: Problem[];
   problemAnnotations: WebAnnotation[];
   problemConversation: ProblemMessage[];
   selectedObject: SelectedWorkspaceObject;
+  topics: Topic[];
 }) {
   if (selectedObject.kind === "new_problem") {
     return (
@@ -264,92 +296,33 @@ function MainContent({
   }
 
   if (selectedObject.kind === "site_home") {
-    const siteHome = selectedObject.item;
-
     return (
-      <div className="space-y-6">
-        <HeaderBlock
-          description={siteHome.description}
-          status={siteHome.status}
-          title={siteHome.siteName}
-        />
-        <InfoGroup
-          items={[
-            ["精选专题", siteHome.featuredTopicIds.join("、") || "暂无"],
-            ["最近发布题目数量", `${siteHome.recentProblemLimit}`],
-            ["知识点入口", siteHome.knowledgeTags.join("、")],
-          ]}
-        />
-        <PlaceholderContent
-          description="Phase 1 只展示首页配置摘要，Phase 4 再接入可编辑的首页管理。"
-          title="首页管理占位"
-        />
-      </div>
+      <SiteHomeManagementPanel
+        key={selectedObject.item.id}
+        siteHome={selectedObject.item}
+        topics={topics}
+        onAutosaveErrorChange={onAutosaveErrorChange}
+        onAutosaveStateChange={onAutosaveStateChange}
+        onOpenTopic={(topicId) =>
+          onSelectionChange({ kind: "topic", id: topicId })
+        }
+        onSiteHomeChange={onSiteHomeChange}
+      />
     );
   }
 
-  return <TopicEditorPlaceholder topic={selectedObject.item} />;
-}
-
-function TopicEditorPlaceholder({ topic }: { topic: Topic }) {
   return (
-    <div className="space-y-6">
-      <HeaderBlock
-        description={topic.description}
-        status={topic.status}
-        title={topic.title}
-      />
-      <InfoGroup
-        items={[
-          ["已收录题目", `${topic.items.length} 个`],
-          ["自动归类建议", `${topic.suggestedProblems.length} 条`],
-        ]}
-      />
-      <section>
-        <h3 className="text-sm font-semibold">已收录题目</h3>
-        <div className="mt-3 space-y-2">
-          {topic.items.length ? (
-            topic.items.map((item) => (
-              <div
-                className="rounded-md border border-zinc-200 bg-white px-4 py-3"
-                key={item.id}
-              >
-                <p className="text-sm font-medium">{item.title}</p>
-                <p className="mt-1 text-xs text-zinc-500">
-                  {item.tags.join("、")} · {publishStatusLabel(item.status)}
-                </p>
-              </div>
-            ))
-          ) : (
-            <p className="rounded-md border border-dashed border-zinc-300 px-4 py-6 text-sm text-zinc-500">
-              暂无已收录题目。
-            </p>
-          )}
-        </div>
-      </section>
-      <section>
-        <h3 className="text-sm font-semibold">自动归类建议</h3>
-        <div className="mt-3 space-y-2">
-          {topic.suggestedProblems.length ? (
-            topic.suggestedProblems.map((item) => (
-              <div
-                className="rounded-md border border-zinc-200 bg-white px-4 py-3"
-                key={item.id}
-              >
-                <p className="text-sm font-medium">{item.title}</p>
-                <p className="mt-1 text-xs leading-5 text-zinc-500">
-                  {item.reason}
-                </p>
-              </div>
-            ))
-          ) : (
-            <p className="rounded-md border border-dashed border-zinc-300 px-4 py-6 text-sm text-zinc-500">
-              暂无建议题目。
-            </p>
-          )}
-        </div>
-      </section>
-    </div>
+    <TopicManagementPanel
+      key={selectedObject.item.id}
+      problems={problems}
+      topic={selectedObject.item}
+      onAutosaveErrorChange={onAutosaveErrorChange}
+      onAutosaveStateChange={onAutosaveStateChange}
+      onOpenProblem={(problemId) =>
+        onSelectionChange({ kind: "problem", id: problemId })
+      }
+      onTopicChange={onTopicChange}
+    />
   );
 }
 

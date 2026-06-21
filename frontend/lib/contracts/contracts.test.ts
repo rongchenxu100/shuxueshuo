@@ -2,15 +2,25 @@ import { describe, expect, it } from "vitest";
 import { z } from "zod";
 
 import {
+  AcceptSuggestedProblemResponseSchema,
+  AddTopicItemRequestSchema,
+  AddTopicItemResponseSchema,
   CreateWebAnnotationRequestSchema,
   CreateWebAnnotationResponseSchema,
   CreateProblemRequestSchema,
   CreateProblemResponseSchema,
   CreateProblemMessageRequestSchema,
+  CreateTopicRequestSchema,
+  DeleteTopicItemResponseSchema,
+  DeleteTopicResponseSchema,
+  IgnoreSuggestedProblemResponseSchema,
   CreateProblemMessageResponseSchema,
   NavResponseSchema,
   PatchProblemRequestSchema,
   PatchProblemResponseSchema,
+  PatchSiteHomeRequestSchema,
+  PatchSiteHomeResponseSchema,
+  PatchTopicRequestSchema,
   ProblemSchema,
   ProblemAnnotationsResponseSchema,
   ProblemMessageSchema,
@@ -18,8 +28,11 @@ import {
   PublishProblemResponseSchema,
   PublishSiteHomeResponseSchema,
   PublishTopicResponseSchema,
+  ReorderTopicItemsRequestSchema,
   SiteHomeSchema,
   StartProblemUploadResponseSchema,
+  TopicResponseSchema,
+  TopicSuggestedProblemsResponseSchema,
   TopicSchema,
   WebAnnotationSchema,
 } from "./index";
@@ -181,6 +194,87 @@ describe("contract fixtures", () => {
           status: "published",
         },
       }),
+    ).not.toThrow();
+  });
+
+  it("validates topic management contracts", () => {
+    const [topicItem] = topicFixture.items;
+    const [suggestion] = topicFixture.suggestedProblems;
+
+    expect(() =>
+      CreateTopicRequestSchema.parse({
+        description: "整理几何专题",
+        title: "几何专题",
+      }),
+    ).not.toThrow();
+    expect(() =>
+      PatchTopicRequestSchema.parse({
+        patch: {
+          description: "新的说明",
+          title: "新的专题",
+        },
+      }),
+    ).not.toThrow();
+    expect(() => TopicResponseSchema.parse({ topic: topicFixture }))
+      .not.toThrow();
+    expect(() =>
+      DeleteTopicResponseSchema.parse({ topicId: topicFixture.id }),
+    ).not.toThrow();
+    expect(() =>
+      AddTopicItemRequestSchema.parse({
+        problemId: "problem_hexi_25",
+        status: "draft",
+        tags: ["二次函数综合"],
+        title: "河西三模 25题",
+      }),
+    ).not.toThrow();
+    expect(() =>
+      AddTopicItemResponseSchema.parse({
+        item: topicItem,
+        topic: topicFixture,
+      }),
+    ).not.toThrow();
+    expect(() =>
+      ReorderTopicItemsRequestSchema.parse({ itemIds: [topicItem.id] }),
+    ).not.toThrow();
+    expect(() =>
+      DeleteTopicItemResponseSchema.parse({
+        itemId: topicItem.id,
+        topic: topicFixture,
+      }),
+    ).not.toThrow();
+    expect(() =>
+      TopicSuggestedProblemsResponseSchema.parse({
+        suggestedProblems: topicFixture.suggestedProblems,
+      }),
+    ).not.toThrow();
+    expect(() =>
+      AcceptSuggestedProblemResponseSchema.parse({
+        item: topicItem,
+        topic: topicFixture,
+      }),
+    ).not.toThrow();
+    expect(() =>
+      IgnoreSuggestedProblemResponseSchema.parse({
+        suggestedProblemId: suggestion.id,
+        topic: topicFixture,
+      }),
+    ).not.toThrow();
+  });
+
+  it("validates site home management contracts", () => {
+    expect(() =>
+      PatchSiteHomeRequestSchema.parse({
+        patch: {
+          featuredTopicIds: ["topic_tianjin_sanmo_25"],
+          knowledgeTags: ["二次函数"],
+          recentProblemLimit: 6,
+          siteName: "数学可视化题库",
+        },
+      }),
+    ).not.toThrow();
+    expect(() =>
+      PatchSiteHomeResponseSchema.parse({ siteHome: siteHomeFixture }),
     ).not.toThrow();
   });
 

@@ -2,6 +2,7 @@ import {
   useEffect,
   useMemo,
   useRef,
+  useState,
   type ReactNode,
   type RefObject,
 } from "react";
@@ -324,24 +325,12 @@ export function ProblemMessageItem({
       <div className="flex justify-end">
         <div className="flex max-w-[82%] flex-col items-end gap-2">
           {imageAttachment ? (
-            <button
-              aria-label="查看图片"
-              className="overflow-hidden rounded-xl border border-zinc-200 bg-zinc-100"
-              onClick={() =>
-                showPreviewImage({
-                  alt: imageAttachment.filename ?? "题目图片",
-                  url: imageAttachment.url,
-                })
-              }
-              type="button"
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element -- Fixture and upload previews are not optimized assets. */}
-              <img
-                alt={imageAttachment.filename ?? "题目图片"}
-                className="size-24 object-cover"
-                src={imageAttachment.url}
-              />
-            </button>
+            <MessageImageAttachment
+              alt={imageAttachment.filename ?? "题目图片"}
+              filename={imageAttachment.filename ?? "题目图片"}
+              url={imageAttachment.url}
+              onPreview={showPreviewImage}
+            />
           ) : null}
           <div className="rounded-2xl bg-zinc-200 px-4 py-3 text-sm leading-6 text-zinc-900">
             <p className="whitespace-pre-wrap">{message.content}</p>
@@ -383,6 +372,78 @@ export function ProblemMessageItem({
         {message.content}
       </div>
     </div>
+  );
+}
+
+function MessageImageAttachment({
+  alt,
+  filename,
+  onPreview,
+  url,
+}: {
+  alt: string;
+  filename: string;
+  onPreview: (image: PreviewImage) => void;
+  url: string;
+}) {
+  const [hasError, setHasError] = useState(false);
+
+  if (hasError || !url) {
+    return (
+      <div className="flex w-40 items-center gap-2 rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-left shadow-sm">
+        <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-white text-zinc-400">
+          <ImageIcon />
+        </div>
+        <div className="min-w-0">
+          <p className="truncate text-xs font-medium text-zinc-700">
+            图片附件
+          </p>
+          <p className="mt-0.5 truncate text-xs text-zinc-400">{filename}</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <button
+      aria-label="查看图片"
+      className="overflow-hidden rounded-xl border border-zinc-200 bg-zinc-100 shadow-sm transition hover:border-zinc-300"
+      onClick={() => onPreview({ alt, url })}
+      type="button"
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element -- Fixture and upload previews are not optimized assets. */}
+      <img
+        alt={alt}
+        className="size-20 object-cover"
+        onError={() => setHasError(true)}
+        src={url}
+      />
+    </button>
+  );
+}
+
+function ImageIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="size-5"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <path
+        d="M5.5 6.5A1.5 1.5 0 0 1 7 5h10a1.5 1.5 0 0 1 1.5 1.5v11A1.5 1.5 0 0 1 17 19H7a1.5 1.5 0 0 1-1.5-1.5v-11Z"
+        stroke="currentColor"
+        strokeWidth="1.8"
+      />
+      <path
+        d="m7.5 16 3-3 2 2 2.5-3 2 4"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.8"
+      />
+      <circle cx="9" cy="8.5" r="1" fill="currentColor" />
+    </svg>
   );
 }
 
