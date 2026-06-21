@@ -15,6 +15,9 @@ import {
   ProblemAnnotationsResponseSchema,
   ProblemMessageSchema,
   ProblemMessagesResponseSchema,
+  PublishProblemResponseSchema,
+  PublishSiteHomeResponseSchema,
+  PublishTopicResponseSchema,
   SiteHomeSchema,
   StartProblemUploadResponseSchema,
   TopicSchema,
@@ -145,6 +148,39 @@ describe("contract fixtures", () => {
     ).not.toThrow();
     expect(() =>
       PatchProblemResponseSchema.parse({ problem: problemFixture }),
+    ).not.toThrow();
+  });
+
+  it("validates publish response contracts", () => {
+    expect(() =>
+      PublishProblemResponseSchema.parse({
+        problem: {
+          ...problemFixture,
+          publicUrl: "/users/haorong/problems/tj-2026-hongqiao-sanmo-25/",
+          status: "published",
+        },
+        publicUrl: "/users/haorong/problems/tj-2026-hongqiao-sanmo-25/",
+      }),
+    ).not.toThrow();
+    expect(() =>
+      PublishTopicResponseSchema.parse({
+        publicUrl: "/users/haorong/topics/tianjin-sanmo-25/",
+        topic: {
+          ...topicFixture,
+          publicUrl: "/users/haorong/topics/tianjin-sanmo-25/",
+          status: "published",
+        },
+      }),
+    ).not.toThrow();
+    expect(() =>
+      PublishSiteHomeResponseSchema.parse({
+        publicUrl: "/users/haorong/",
+        siteHome: {
+          ...siteHomeFixture,
+          publicUrl: "/users/haorong/",
+          status: "published",
+        },
+      }),
     ).not.toThrow();
   });
 

@@ -7,9 +7,14 @@ import {
   autosaveStateLabel,
   getInitialSelection,
   insertProblem,
+  mergePublishedProblem,
   previewUrlWithVersion,
+  publishActionLabel,
   publishStatusLabel,
   resolveSelection,
+  updateProblem,
+  updateSiteHome,
+  updateTopic,
 } from "./workspace-model";
 
 const nav = navFixture as NavResponse;
@@ -59,6 +64,15 @@ describe("workspace model", () => {
     expect(publishStatusLabel("published_dirty")).toBe("已发布 · 有改动");
   });
 
+  it("maps publish actions from status and public URL", () => {
+    expect(publishActionLabel("draft", null)).toBe("发布");
+    expect(publishActionLabel("published_dirty", "/users/haorong/problems/a/"))
+      .toBe("发布更新");
+    expect(publishActionLabel("published", "/users/haorong/problems/a/"))
+      .toBe("打开页面");
+    expect(publishActionLabel("published", null)).toBe("发布");
+  });
+
   it("maps autosave states to Chinese labels", () => {
     expect(autosaveStateLabel("saving")).toBe("正在保存");
     expect(autosaveStateLabel("saved")).toBe("刚刚已保存");
@@ -82,5 +96,64 @@ describe("workspace model", () => {
     const nextNav = insertProblem(nav, { ...problem, id: "problem_new" });
 
     expect(nextNav.problems[0].id).toBe("problem_new");
+  });
+
+  it("updates published objects in nav", () => {
+    const publishedProblem = {
+      ...nav.problems[2],
+      publicUrl: "/users/haorong/problems/heping-25/",
+      status: "published" as const,
+    };
+    const publishedTopic = {
+      ...nav.topics[2],
+      publicUrl: "/users/haorong/topics/geometry-overlap/",
+      status: "published" as const,
+    };
+    const publishedSiteHome = {
+      ...nav.siteHome,
+      status: "published_dirty" as const,
+    };
+
+    expect(
+      updateProblem(nav, publishedProblem).problems.find(
+        (problem) => problem.id === publishedProblem.id,
+      )?.publicUrl,
+    ).toBe("/users/haorong/problems/heping-25/");
+    expect(
+      updateTopic(nav, publishedTopic).topics.find(
+        (topic) => topic.id === publishedTopic.id,
+      )?.status,
+    ).toBe("published");
+    expect(updateSiteHome(nav, publishedSiteHome).siteHome.status).toBe(
+      "published_dirty",
+    );
+  });
+
+  it("merges published problem status without losing local draft fields", () => {
+    const currentProblem = {
+      ...nav.problems[2],
+      previewVersion: "mock-created-local",
+      shortTitle: "本地新题",
+      title: "本地新题完整标题",
+    };
+    const publishedProblem = {
+      ...currentProblem,
+      previewVersion: "mock-published-fallback",
+      publicUrl: "/users/haorong/problems/local/",
+      shortTitle: "新建题目",
+      status: "published" as const,
+      title: "新建题目",
+      updatedAt: "2026-06-21T09:00:00.000Z",
+    };
+
+    expect(mergePublishedProblem(currentProblem, publishedProblem))
+      .toMatchObject({
+        previewVersion: "mock-created-local",
+        publicUrl: "/users/haorong/problems/local/",
+        shortTitle: "本地新题",
+        status: "published",
+        title: "本地新题完整标题",
+        updatedAt: "2026-06-21T09:00:00.000Z",
+      });
   });
 });
