@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import { z } from "zod";
 
 import {
+  CreateWebAnnotationRequestSchema,
+  CreateWebAnnotationResponseSchema,
   CreateProblemRequestSchema,
   CreateProblemResponseSchema,
   CreateProblemMessageRequestSchema,
@@ -10,6 +12,7 @@ import {
   PatchProblemRequestSchema,
   PatchProblemResponseSchema,
   ProblemSchema,
+  ProblemAnnotationsResponseSchema,
   ProblemMessageSchema,
   ProblemMessagesResponseSchema,
   SiteHomeSchema,
@@ -57,6 +60,36 @@ describe("contract fixtures", () => {
   it("validates annotations fixture", () => {
     expect(() =>
       z.array(WebAnnotationSchema).parse(annotationsFixture),
+    ).not.toThrow();
+  });
+
+  it("validates problem annotation contracts", () => {
+    expect(() =>
+      ProblemAnnotationsResponseSchema.parse({
+        annotations: annotationsFixture,
+      }),
+    ).not.toThrow();
+    expect(() =>
+      CreateWebAnnotationRequestSchema.parse({
+        comment: "这个图形填充更明显",
+        label: "第4步 · 图形",
+        stepId: "q2s4",
+        targetId: "step.q2s4.figure",
+        targetType: "step_figure",
+      }),
+    ).not.toThrow();
+    expect(() =>
+      CreateWebAnnotationRequestSchema.parse({
+        comment: "",
+        label: "第4步 · 图形",
+        targetId: "step.q2s4.figure",
+        targetType: "step_figure",
+      }),
+    ).toThrow();
+    expect(() =>
+      CreateWebAnnotationResponseSchema.parse({
+        annotation: annotationsFixture[0],
+      }),
     ).not.toThrow();
   });
 

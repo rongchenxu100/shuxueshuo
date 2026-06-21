@@ -350,6 +350,24 @@ export function ProblemMessageItem({
                 附件：{message.attachments.length} 个
               </p>
             ) : null}
+            {message.annotations?.length ? (
+              <div className="mt-3 space-y-1 rounded-xl bg-white/70 p-2 text-xs text-zinc-700">
+                <div className="font-medium">
+                  来自网页预览的 {message.annotations.length} 条注释
+                </div>
+                {message.annotations.map((annotation, index) => (
+                  <div className="flex gap-1.5" key={annotation.id}>
+                    <span className="text-zinc-400">{index + 1}.</span>
+                    <span className="min-w-0">
+                      <span className="font-medium">{annotation.label}</span>
+                      <span className="text-zinc-500">
+                        ：{annotation.comment}
+                      </span>
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : null}
           </div>
         </div>
       </div>

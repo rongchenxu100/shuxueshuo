@@ -8,9 +8,9 @@ function createContext(problemId: string) {
   };
 }
 
-function createPostRequest(content: string) {
+function createPostRequest(content: string, annotationIds?: string[]) {
   return new Request("http://localhost/api/problems/problem/messages", {
-    body: JSON.stringify({ content }),
+    body: JSON.stringify({ annotationIds, content }),
     headers: {
       "Content-Type": "application/json",
     },
@@ -74,5 +74,23 @@ describe("problem messages route", () => {
     expect(firstPayload.preview.previewVersion).not.toBe(
       secondPayload.preview.previewVersion,
     );
+  });
+
+  it("attaches annotation context to edit messages", async () => {
+    const response = await POST(
+      createPostRequest("按这条注释调整", ["ann_1"]),
+      createContext("problem_hongqiao_25"),
+    );
+    const payload = await response.json();
+
+    expect(payload.messages[0].annotations).toHaveLength(1);
+    expect(payload.messages[0].annotations[0]).toMatchObject({
+      id: "ann_1",
+      targetId: "step.q2s4.figure",
+    });
+    expect(payload.messages[1]).toMatchObject({
+      content: "已按 1 条注释更新网页预览。",
+      role: "assistant",
+    });
   });
 });

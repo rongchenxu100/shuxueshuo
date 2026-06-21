@@ -3,6 +3,7 @@ import type {
   ProblemMessage,
   Topic,
   UploadJobProgressEvent,
+  WebAnnotation,
 } from "@/lib/contracts";
 
 import { NewProblemPanel } from "./new-problem-panel";
@@ -28,8 +29,12 @@ export function MainPane({
   onProblemEdited,
   onProblemDraftChange,
   onProblemPatched,
+  onPendingAnnotationRemove,
+  onPendingAnnotationsCommitted,
   onUploadErrorChange,
   onUploadEventsChange,
+  pendingAnnotationIds,
+  problemAnnotations,
   problemConversation,
   selectedObject,
 }: {
@@ -51,8 +56,15 @@ export function MainPane({
     patch: { title?: string; tags?: string[] },
   ) => void;
   onProblemPatched: (problem: Problem) => void;
+  onPendingAnnotationRemove: (
+    problemId: string,
+    annotationId: string,
+  ) => void;
+  onPendingAnnotationsCommitted: (problemId: string) => void;
   onUploadErrorChange: (message: string | null) => void;
   onUploadEventsChange: (events: UploadJobProgressEvent[]) => void;
+  pendingAnnotationIds: string[];
+  problemAnnotations: WebAnnotation[];
   problemConversation: ProblemMessage[];
   selectedObject: SelectedWorkspaceObject;
 }) {
@@ -106,8 +118,12 @@ export function MainPane({
           onProblemCreated={onProblemCreated}
           onProblemConversationChange={onProblemConversationChange}
           onProblemEdited={onProblemEdited}
+          onPendingAnnotationRemove={onPendingAnnotationRemove}
+          onPendingAnnotationsCommitted={onPendingAnnotationsCommitted}
           onUploadErrorChange={onUploadErrorChange}
           onUploadEventsChange={onUploadEventsChange}
+          pendingAnnotationIds={pendingAnnotationIds}
+          problemAnnotations={problemAnnotations}
           problemConversation={problemConversation}
         />
       </div>
@@ -119,8 +135,12 @@ function MainContent({
   onProblemCreated,
   onProblemConversationChange,
   onProblemEdited,
+  onPendingAnnotationRemove,
+  onPendingAnnotationsCommitted,
   onUploadErrorChange,
   onUploadEventsChange,
+  pendingAnnotationIds,
+  problemAnnotations,
   problemConversation,
   selectedObject,
 }: {
@@ -133,8 +153,15 @@ function MainContent({
     messages: ProblemMessage[],
   ) => void;
   onProblemEdited: (problem: Problem) => void;
+  onPendingAnnotationRemove: (
+    problemId: string,
+    annotationId: string,
+  ) => void;
+  onPendingAnnotationsCommitted: (problemId: string) => void;
   onUploadErrorChange: (message: string | null) => void;
   onUploadEventsChange: (events: UploadJobProgressEvent[]) => void;
+  pendingAnnotationIds: string[];
+  problemAnnotations: WebAnnotation[];
   problemConversation: ProblemMessage[];
   selectedObject: SelectedWorkspaceObject;
 }) {
@@ -153,9 +180,13 @@ function MainContent({
       <ProblemConversationPanel
         key={selectedObject.item.id}
         conversation={problemConversation}
+        annotations={problemAnnotations}
+        pendingAnnotationIds={pendingAnnotationIds}
         problem={selectedObject.item}
         onProblemEdited={onProblemEdited}
         onConversationChange={onProblemConversationChange}
+        onPendingAnnotationRemove={onPendingAnnotationRemove}
+        onPendingAnnotationsCommitted={onPendingAnnotationsCommitted}
       />
     );
   }
