@@ -13,6 +13,9 @@ import {
   createProblemAnnotation,
   getProblemAnnotations,
   getProblemMessages,
+  publishProblem,
+  publishSiteHome,
+  publishTopic,
 } from "@/lib/api/client";
 import type {
   CreateWebAnnotationRequest,
@@ -30,7 +33,11 @@ import { Sidebar } from "./sidebar";
 import {
   getInitialSelection,
   insertProblem,
+  mergePublishedProblem,
   resolveSelection,
+  updateProblem,
+  updateSiteHome,
+  updateTopic,
   type AutosaveState,
   type SelectedWorkspaceObject,
   type WorkspaceSelection,
@@ -318,12 +325,31 @@ export function AuthoringWorkspace({ initialNav }: { initialNav: NavResponse }) 
   }
 
   function updateProblemInNav(problem: Problem) {
-    setNav((currentNav) => ({
-      ...currentNav,
-      problems: currentNav.problems.map((item) =>
-        item.id === problem.id ? problem : item,
-      ),
-    }));
+    setNav((currentNav) => updateProblem(currentNav, problem));
+  }
+
+  async function handlePublish(selectedObjectToPublish: SelectedWorkspaceObject) {
+    if (selectedObjectToPublish.kind === "problem") {
+      const { problem } = await publishProblem(selectedObjectToPublish.item.id);
+      setNav((currentNav) =>
+        updateProblem(
+          currentNav,
+          mergePublishedProblem(selectedObjectToPublish.item, problem),
+        ),
+      );
+      return;
+    }
+
+    if (selectedObjectToPublish.kind === "topic") {
+      const { topic } = await publishTopic(selectedObjectToPublish.item.id);
+      setNav((currentNav) => updateTopic(currentNav, topic));
+      return;
+    }
+
+    if (selectedObjectToPublish.kind === "site_home") {
+      const { siteHome } = await publishSiteHome();
+      setNav((currentNav) => updateSiteHome(currentNav, siteHome));
+    }
   }
 
   function handleResizePointerDown(
@@ -480,6 +506,7 @@ export function AuthoringWorkspace({ initialNav }: { initialNav: NavResponse }) 
           onProblemDraftChange={handleProblemDraftChange}
           onProblemPatched={handleProblemPatched}
           onProblemConversationChange={handleProblemConversationChange}
+          onPublish={handlePublish}
           onPendingAnnotationRemove={handlePendingAnnotationRemove}
           onPendingAnnotationsCommitted={handlePendingAnnotationsCommitted}
           onAutosaveErrorChange={setAutosaveError}

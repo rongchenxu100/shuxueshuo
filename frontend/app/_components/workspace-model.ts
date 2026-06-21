@@ -77,6 +77,21 @@ export function publishStatusLabel(status: PublishStatus): string {
   return labels[status];
 }
 
+export function publishActionLabel(
+  status: PublishStatus,
+  publicUrl: string | null,
+): string {
+  if (status === "published" && publicUrl) {
+    return "打开页面";
+  }
+
+  if (status === "published_dirty") {
+    return "发布更新";
+  }
+
+  return "发布";
+}
+
 export function autosaveStateLabel(state: AutosaveState): string {
   const labels: Record<AutosaveState, string> = {
     saving: "正在保存",
@@ -113,5 +128,44 @@ export function insertProblem(nav: NavResponse, problem: Problem): NavResponse {
   return {
     ...nav,
     problems: [problem, ...nav.problems.filter((item) => item.id !== problem.id)],
+  };
+}
+
+export function updateProblem(nav: NavResponse, problem: Problem): NavResponse {
+  return {
+    ...nav,
+    problems: nav.problems.map((item) =>
+      item.id === problem.id ? problem : item,
+    ),
+  };
+}
+
+export function mergePublishedProblem(
+  currentProblem: Problem,
+  publishedProblem: Problem,
+): Problem {
+  return {
+    ...currentProblem,
+    autosavedAt: publishedProblem.autosavedAt,
+    publicUrl: publishedProblem.publicUrl,
+    status: publishedProblem.status,
+    updatedAt: publishedProblem.updatedAt,
+  };
+}
+
+export function updateTopic(nav: NavResponse, topic: Topic): NavResponse {
+  return {
+    ...nav,
+    topics: nav.topics.map((item) => (item.id === topic.id ? topic : item)),
+  };
+}
+
+export function updateSiteHome(
+  nav: NavResponse,
+  siteHome: SiteHome,
+): NavResponse {
+  return {
+    ...nav,
+    siteHome,
   };
 }

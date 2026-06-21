@@ -247,6 +247,28 @@ export type PatchProblemResponse = z.infer<
   typeof PatchProblemResponseSchema
 >;
 
+export const PublishProblemResponseSchema = z.object({
+  problem: ProblemSchema,
+  publicUrl: z.string(),
+});
+export type PublishProblemResponse = z.infer<
+  typeof PublishProblemResponseSchema
+>;
+
+export const PublishTopicResponseSchema = z.object({
+  topic: TopicSchema,
+  publicUrl: z.string(),
+});
+export type PublishTopicResponse = z.infer<typeof PublishTopicResponseSchema>;
+
+export const PublishSiteHomeResponseSchema = z.object({
+  siteHome: SiteHomeSchema,
+  publicUrl: z.string(),
+});
+export type PublishSiteHomeResponse = z.infer<
+  typeof PublishSiteHomeResponseSchema
+>;
+
 export const ProblemMessagesResponseSchema = z.object({
   messages: z.array(ProblemMessageSchema),
 });

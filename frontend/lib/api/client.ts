@@ -6,6 +6,9 @@ import {
   PatchProblemResponseSchema,
   ProblemAnnotationsResponseSchema,
   ProblemMessagesResponseSchema,
+  PublishProblemResponseSchema,
+  PublishSiteHomeResponseSchema,
+  PublishTopicResponseSchema,
   StartProblemUploadResponseSchema,
   type CreateProblemMessageRequest,
   type CreateWebAnnotationRequest,
@@ -102,6 +105,30 @@ export async function patchProblem(
         "Content-Type": "application/json",
       },
       method: "PATCH",
+    }),
+  );
+}
+
+export async function publishProblem(problemId: string) {
+  return PublishProblemResponseSchema.parse(
+    await fetchJsonWithInit(`/api/problems/${problemId}/publish`, {
+      method: "POST",
+    }),
+  );
+}
+
+export async function publishTopic(topicId: string) {
+  return PublishTopicResponseSchema.parse(
+    await fetchJsonWithInit(`/api/topics/${topicId}/publish`, {
+      method: "POST",
+    }),
+  );
+}
+
+export async function publishSiteHome() {
+  return PublishSiteHomeResponseSchema.parse(
+    await fetchJsonWithInit("/api/site/home/publish", {
+      method: "POST",
     }),
   );
 }
