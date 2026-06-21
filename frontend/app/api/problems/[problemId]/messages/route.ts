@@ -8,6 +8,7 @@ import {
   type Problem,
   type ProblemMessage,
 } from "@/lib/contracts";
+import { getProblemAnnotationsByIds } from "@/lib/mock/annotation-store";
 import { loadFixture } from "@/lib/mock/load-fixture";
 
 // Mock-only runtime state for producing visibly changing preview versions.
@@ -34,8 +35,13 @@ export async function POST(
   const timestamp = now.toISOString();
   const idSuffix = `${now.getTime()}_${mockEditRun++}`;
   const problem = await loadProblem(problemId, now);
+  const annotations = await getProblemAnnotationsByIds(
+    problemId,
+    payload.annotationIds,
+  );
   const previewVersion = `mock-edited-${idSuffix}`;
   const userMessage: ProblemMessage = {
+    annotations: annotations.length ? annotations : undefined,
     content: payload.content,
     createdAt: timestamp,
     id: `msg_user_${idSuffix}`,
@@ -43,7 +49,9 @@ export async function POST(
     role: "user",
   };
   const assistantMessage: ProblemMessage = {
-    content: "已按要求更新网页预览。",
+    content: annotations.length
+      ? `已按 ${annotations.length} 条注释更新网页预览。`
+      : "已按要求更新网页预览。",
     createdAt: timestamp,
     id: `msg_assistant_${idSuffix}`,
     problemId,

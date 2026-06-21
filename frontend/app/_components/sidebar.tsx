@@ -2,13 +2,10 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
-import type { NavResponse } from "@/lib/contracts";
+import type { NavResponse, PublishStatus } from "@/lib/contracts";
 import { useCurrentUser } from "@/lib/user/current-user";
 
-import {
-  publishStatusLabel,
-  type WorkspaceSelection,
-} from "./workspace-model";
+import { type WorkspaceSelection } from "./workspace-model";
 
 export function Sidebar({
   collapsed,
@@ -52,13 +49,11 @@ export function Sidebar({
         >
           <SidebarButton
             active={selection.kind === "new_problem"}
-            detail="上传或录入题目"
             label="新题目"
             onClick={() => onSelect({ kind: "new_problem" })}
           />
           <SidebarButton
             active={false}
-            detail="按标题、标签查找"
             label="搜索"
             onClick={onOpenSearch}
           />
@@ -68,12 +63,12 @@ export function Sidebar({
       <nav className="min-h-0 flex-1 space-y-6 overflow-y-auto px-3 py-4">
         <SidebarSection title="题目">
           {nav.problems.map((problem) => (
-            <SidebarButton
+            <SidebarEntityButton
               active={
                 selection.kind === "problem" && selection.id === problem.id
               }
-              badge={publishStatusLabel(problem.status)}
-              detail={problem.tags.join(" · ")}
+              status={problem.status}
+              timestamp={problem.updatedAt}
               key={problem.id}
               label={problem.shortTitle}
               onClick={() => onSelect({ kind: "problem", id: problem.id })}
@@ -82,10 +77,10 @@ export function Sidebar({
         </SidebarSection>
 
         <SidebarSection title="网站">
-          <SidebarButton
+          <SidebarEntityButton
             active={selection.kind === "site_home"}
-            badge={publishStatusLabel(nav.siteHome.status)}
-            detail={nav.siteHome.siteName}
+            status={nav.siteHome.status}
+            timestamp={nav.siteHome.autosavedAt}
             label="网站首页"
             onClick={() => onSelect({ kind: "site_home" })}
           />
@@ -93,10 +88,10 @@ export function Sidebar({
 
         <SidebarSection title="专题">
           {nav.topics.map((topic) => (
-            <SidebarButton
+            <SidebarEntityButton
               active={selection.kind === "topic" && selection.id === topic.id}
-              badge={publishStatusLabel(topic.status)}
-              detail={`${topic.items.length} 个题目`}
+              status={topic.status}
+              timestamp={topic.updatedAt}
               key={topic.id}
               label={topic.title}
               onClick={() => onSelect({ kind: "topic", id: topic.id })}
@@ -332,14 +327,10 @@ function SettingsIcon() {
 
 function SidebarButton({
   active,
-  badge,
-  detail,
   label,
   onClick,
 }: {
   active: boolean;
-  badge?: string;
-  detail: string;
   label: string;
   onClick: () => void;
 }) {
@@ -354,19 +345,167 @@ function SidebarButton({
       onClick={onClick}
       type="button"
     >
-      <span className="flex items-start justify-between gap-3">
-        <span className="min-w-0">
-          <span className="block truncate text-sm font-medium">{label}</span>
-          <span className="mt-1 block truncate text-xs text-zinc-500">
-            {detail}
-          </span>
+      <span className="block truncate text-sm font-medium">{label}</span>
+    </button>
+  );
+}
+
+function SidebarEntityButton({
+  active,
+  label,
+  onClick,
+  status,
+  timestamp,
+}: {
+  active: boolean;
+  label: string;
+  onClick: () => void;
+  status: PublishStatus;
+  timestamp: string;
+}) {
+  return (
+    <button
+      aria-current={active ? "page" : undefined}
+      className={`w-full rounded-md border px-2 py-1.5 text-left transition ${
+        active
+          ? "border-teal-300 bg-teal-50 text-teal-950"
+          : "border-transparent text-zinc-700 hover:border-zinc-200 hover:bg-zinc-50"
+      }`}
+      onClick={onClick}
+      type="button"
+    >
+      <span className="flex items-center gap-2">
+        <PublishStatusIcon status={status} />
+        <span className="min-w-0 flex-1 truncate text-sm font-medium">
+          {label}
         </span>
-        {badge ? (
-          <span className="shrink-0 rounded border border-zinc-200 bg-white px-1.5 py-0.5 text-[11px] text-zinc-600">
-            {badge}
-          </span>
-        ) : null}
+        <span className="shrink-0 text-xs text-zinc-400">
+          {relativeTimeLabel(timestamp)}
+        </span>
       </span>
     </button>
   );
+}
+
+function PublishStatusIcon({ status }: { status: PublishStatus }) {
+  if (status === "published") {
+    return (
+      <span
+        aria-label="已发布"
+        className="flex size-4 shrink-0 items-center justify-center text-emerald-600"
+        title="已发布"
+      >
+        <GlobeIcon />
+      </span>
+    );
+  }
+
+  if (status === "published_dirty") {
+    return (
+      <span
+        aria-label="已发布，有改动"
+        className="relative flex size-4 shrink-0 items-center justify-center text-emerald-600"
+        title="已发布 · 有改动"
+      >
+        <GlobeIcon />
+        <span className="absolute -right-0.5 -top-0.5 size-2 rounded-full border border-white bg-amber-500" />
+      </span>
+    );
+  }
+
+  return (
+    <span
+      aria-label="草稿"
+      className="flex size-4 shrink-0 items-center justify-center text-zinc-400"
+      title="草稿"
+    >
+      <FilePenIcon />
+    </span>
+  );
+}
+
+function GlobeIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="size-4"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <circle cx="12" cy="12" r="8.5" stroke="currentColor" strokeWidth="1.8" />
+      <path
+        d="M3.8 12h16.4M12 3.5c2.2 2.2 3.3 5 3.3 8.5s-1.1 6.3-3.3 8.5c-2.2-2.2-3.3-5-3.3-8.5S9.8 5.7 12 3.5Z"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.8"
+      />
+    </svg>
+  );
+}
+
+function FilePenIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="size-4"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <path
+        d="M6.5 4.5h6l4 4v4.2"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.8"
+      />
+      <path
+        d="M13 4.5v4h4M6.5 4.5A1.5 1.5 0 0 0 5 6v12a1.5 1.5 0 0 0 1.5 1.5h5"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.8"
+      />
+      <path
+        d="m14 18.8 4.2-4.2a1.4 1.4 0 0 1 2 2L16 20.8l-2.8.7.8-2.7Z"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.8"
+      />
+    </svg>
+  );
+}
+
+function relativeTimeLabel(timestamp: string): string {
+  const then = new Date(timestamp).getTime();
+
+  if (!Number.isFinite(then)) {
+    return "";
+  }
+
+  const diffMs = Math.max(Date.now() - then, 0);
+  const diffMinutes = Math.floor(diffMs / 60_000);
+
+  if (diffMinutes < 1) {
+    return "刚刚";
+  }
+
+  if (diffMinutes < 60) {
+    return `${diffMinutes}分钟前`;
+  }
+
+  const diffHours = Math.floor(diffMinutes / 60);
+
+  if (diffHours < 24) {
+    return `${diffHours}小时前`;
+  }
+
+  const diffWeeks = Math.max(1, Math.floor(diffHours / (24 * 7)));
+
+  if (diffWeeks < 5) {
+    return `${diffWeeks}周前`;
+  }
+
+  return `${Math.max(1, Math.floor(diffWeeks / 4))}月前`;
 }

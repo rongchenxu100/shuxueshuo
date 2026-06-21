@@ -45,6 +45,32 @@ export const WebAnnotationSchema = z.object({
 });
 export type WebAnnotation = z.infer<typeof WebAnnotationSchema>;
 
+export const CreateWebAnnotationRequestSchema = z.object({
+  targetId: z.string(),
+  targetType: AnnotationTargetTypeSchema,
+  stepId: z.string().optional(),
+  label: z.string(),
+  comment: z.string().min(1),
+  screenshotUrl: z.string().optional(),
+});
+export type CreateWebAnnotationRequest = z.infer<
+  typeof CreateWebAnnotationRequestSchema
+>;
+
+export const CreateWebAnnotationResponseSchema = z.object({
+  annotation: WebAnnotationSchema,
+});
+export type CreateWebAnnotationResponse = z.infer<
+  typeof CreateWebAnnotationResponseSchema
+>;
+
+export const ProblemAnnotationsResponseSchema = z.object({
+  annotations: z.array(WebAnnotationSchema),
+});
+export type ProblemAnnotationsResponse = z.infer<
+  typeof ProblemAnnotationsResponseSchema
+>;
+
 export const ProblemMessageSchema = z.object({
   id: z.string(),
   problemId: z.string(),

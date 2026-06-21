@@ -9,12 +9,18 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from "react";
 
-import { getProblemMessages } from "@/lib/api/client";
+import {
+  createProblemAnnotation,
+  getProblemAnnotations,
+  getProblemMessages,
+} from "@/lib/api/client";
 import type {
+  CreateWebAnnotationRequest,
   NavResponse,
   Problem,
   ProblemMessage,
   UploadJobProgressEvent,
+  WebAnnotation,
 } from "@/lib/contracts";
 import { deriveProblemShortTitle } from "@/lib/problems/short-title";
 
@@ -53,7 +59,14 @@ export function AuthoringWorkspace({ initialNav }: { initialNav: NavResponse }) 
   const [problemConversations, setProblemConversations] = useState<
     Record<string, ProblemMessage[]>
   >({});
+  const [problemAnnotations, setProblemAnnotations] = useState<
+    Record<string, WebAnnotation[]>
+  >({});
+  const [pendingAnnotationIds, setPendingAnnotationIds] = useState<
+    Record<string, string[]>
+  >({});
   const loadedProblemMessageIdsRef = useRef<Set<string>>(new Set());
+  const loadedProblemAnnotationIdsRef = useRef<Set<string>>(new Set());
   const [workspaceScale, setWorkspaceScale] = useState(1);
   const [workspaceViewportWidth, setWorkspaceViewportWidth] = useState(
     WORKSPACE_DESIGN_WIDTH,
@@ -152,6 +165,49 @@ export function AuthoringWorkspace({ initialNav }: { initialNav: NavResponse }) 
     };
   }, [problemConversations, selectedObject]);
 
+  useEffect(() => {
+    if (selectedObject.kind !== "problem") {
+      return;
+    }
+
+    const problemId = selectedObject.item.id;
+
+    if (
+      loadedProblemAnnotationIdsRef.current.has(problemId) ||
+      problemAnnotations[problemId]
+    ) {
+      return;
+    }
+
+    let isActive = true;
+    loadedProblemAnnotationIdsRef.current.add(problemId);
+
+    getProblemAnnotations(problemId)
+      .then(({ annotations }) => {
+        if (!isActive) {
+          return;
+        }
+
+        setProblemAnnotations((currentAnnotations) => {
+          if (currentAnnotations[problemId]) {
+            return currentAnnotations;
+          }
+
+          return {
+            ...currentAnnotations,
+            [problemId]: annotations,
+          };
+        });
+      })
+      .catch(() => {
+        loadedProblemAnnotationIdsRef.current.delete(problemId);
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, [problemAnnotations, selectedObject]);
+
   function handleProblemCreated(
     problem: Problem,
     messages: ProblemMessage[],
@@ -161,7 +217,16 @@ export function AuthoringWorkspace({ initialNav }: { initialNav: NavResponse }) 
       ...currentConversations,
       [problem.id]: messages,
     }));
+    setProblemAnnotations((currentAnnotations) => ({
+      ...currentAnnotations,
+      [problem.id]: [],
+    }));
+    setPendingAnnotationIds((currentPendingIds) => ({
+      ...currentPendingIds,
+      [problem.id]: [],
+    }));
     loadedProblemMessageIdsRef.current.add(problem.id);
+    loadedProblemAnnotationIdsRef.current.add(problem.id);
     setSelection({ kind: "problem", id: problem.id });
     setAutosaveError(null);
   }
@@ -208,6 +273,48 @@ export function AuthoringWorkspace({ initialNav }: { initialNav: NavResponse }) 
 
   function handleProblemEdited(problem: Problem) {
     updateProblemInNav(problem);
+  }
+
+  async function handleProblemAnnotationCreate(
+    problemId: string,
+    request: CreateWebAnnotationRequest,
+  ) {
+    const { annotation } = await createProblemAnnotation(problemId, request);
+
+    setProblemAnnotations((currentAnnotations) => ({
+      ...currentAnnotations,
+      [problemId]: [...(currentAnnotations[problemId] ?? []), annotation],
+    }));
+    setPendingAnnotationIds((currentPendingIds) => ({
+      ...currentPendingIds,
+      [problemId]: [
+        ...(currentPendingIds[problemId] ?? []).filter(
+          (annotationId) => annotationId !== annotation.id,
+        ),
+        annotation.id,
+      ],
+    }));
+
+    return annotation;
+  }
+
+  function handlePendingAnnotationRemove(
+    problemId: string,
+    annotationId: string,
+  ) {
+    setPendingAnnotationIds((currentPendingIds) => ({
+      ...currentPendingIds,
+      [problemId]: (currentPendingIds[problemId] ?? []).filter(
+        (currentAnnotationId) => currentAnnotationId !== annotationId,
+      ),
+    }));
+  }
+
+  function handlePendingAnnotationsCommitted(problemId: string) {
+    setPendingAnnotationIds((currentPendingIds) => ({
+      ...currentPendingIds,
+      [problemId]: [],
+    }));
   }
 
   function updateProblemInNav(problem: Problem) {
@@ -310,6 +417,23 @@ export function AuthoringWorkspace({ initialNav }: { initialNav: NavResponse }) 
         : `${previewWidth}px`
       : "0px"
   }`;
+  const selectedProblemAnnotations =
+    selectedObject.kind === "problem"
+      ? (problemAnnotations[selectedObject.item.id] ?? [])
+      : [];
+  const selectedPendingAnnotationIds =
+    selectedObject.kind === "problem"
+      ? (pendingAnnotationIds[selectedObject.item.id] ?? [])
+      : [];
+  const selectedPendingAnnotations = selectedPendingAnnotationIds.flatMap(
+    (annotationId) => {
+      const annotation = selectedProblemAnnotations.find(
+        (item) => item.id === annotationId,
+      );
+
+      return annotation ? [annotation] : [];
+    },
+  );
 
   return (
     <main className="relative h-full overflow-hidden bg-zinc-100 text-zinc-950">
@@ -346,12 +470,18 @@ export function AuthoringWorkspace({ initialNav }: { initialNav: NavResponse }) 
               ? (problemConversations[selectedObject.item.id] ?? [])
               : []
           }
+          problemAnnotations={
+            selectedProblemAnnotations
+          }
+          pendingAnnotationIds={selectedPendingAnnotationIds}
           selectedObject={selectedObject}
           onProblemCreated={handleProblemCreated}
           onProblemEdited={handleProblemEdited}
           onProblemDraftChange={handleProblemDraftChange}
           onProblemPatched={handleProblemPatched}
           onProblemConversationChange={handleProblemConversationChange}
+          onPendingAnnotationRemove={handlePendingAnnotationRemove}
+          onPendingAnnotationsCommitted={handlePendingAnnotationsCommitted}
           onAutosaveErrorChange={setAutosaveError}
           onAutosaveStateChange={setAutosaveState}
           onUploadErrorChange={setUploadError}
@@ -369,8 +499,10 @@ export function AuthoringWorkspace({ initialNav }: { initialNav: NavResponse }) 
               />
             ) : null}
             <PreviewPane
+              annotations={selectedPendingAnnotations}
               collapsed={isPreviewCollapsed}
               selectedObject={selectedObject}
+              onCreateAnnotation={handleProblemAnnotationCreate}
               onToggleCollapsed={() =>
                 setIsPreviewCollapsed((current) => !current)
               }

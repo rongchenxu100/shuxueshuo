@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import { createProblemMessage } from "@/lib/api/client";
-import type { Problem, ProblemMessage } from "@/lib/contracts";
+import type { Problem, ProblemMessage, WebAnnotation } from "@/lib/contracts";
 
 import {
   ConversationComposer,
@@ -10,17 +10,28 @@ import {
 } from "./composer";
 
 export function ProblemConversationPanel({
+  annotations,
   conversation,
   onConversationChange,
+  onPendingAnnotationRemove,
+  onPendingAnnotationsCommitted,
   onProblemEdited,
+  pendingAnnotationIds,
   problem,
 }: {
+  annotations: WebAnnotation[];
   conversation: ProblemMessage[];
   onConversationChange: (
     problemId: string,
     conversation: ProblemMessage[],
   ) => void;
+  onPendingAnnotationRemove: (
+    problemId: string,
+    annotationId: string,
+  ) => void;
+  onPendingAnnotationsCommitted: (problemId: string) => void;
   onProblemEdited: (problem: Problem) => void;
+  pendingAnnotationIds: string[];
   problem: Problem;
 }) {
   const [text, setText] = useState("");
@@ -33,6 +44,11 @@ export function ProblemConversationPanel({
   const [submitError, setSubmitError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const historyScrollRef = useRef<HTMLDivElement>(null);
+  const pendingAnnotations = pendingAnnotationIds.flatMap((annotationId) => {
+    const annotation = annotations.find((item) => item.id === annotationId);
+
+    return annotation ? [annotation] : [];
+  });
 
   useEffect(() => {
     const frameId = window.requestAnimationFrame(() => {
@@ -53,14 +69,17 @@ export function ProblemConversationPanel({
 
   async function handleSubmit() {
     const submittedText = text.trim();
+    const hasPendingAnnotations = pendingAnnotations.length > 0;
+    const messageContent = submittedText || "处理这些网页注释";
 
-    if (!submittedText || isSubmitting) {
+    if ((!submittedText && !hasPendingAnnotations) || isSubmitting) {
       return;
     }
 
     const timestamp = new Date().toISOString();
     const optimisticMessage: ProblemMessage = {
-      content: submittedText,
+      content: messageContent,
+      annotations: pendingAnnotations.length ? pendingAnnotations : undefined,
       createdAt: timestamp,
       id: `msg_local_${Date.now()}`,
       problemId: problem.id,
@@ -79,7 +98,8 @@ export function ProblemConversationPanel({
 
     try {
       const response = await createProblemMessage(problem.id, {
-        content: submittedText,
+        annotationIds: pendingAnnotationIds,
+        content: messageContent,
       });
       onConversationChange(problem.id, [
         ...previousConversation,
@@ -93,6 +113,7 @@ export function ProblemConversationPanel({
         status: response.problem.status,
         updatedAt: response.problem.updatedAt,
       });
+      onPendingAnnotationsCommitted(problem.id);
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "发送修改请求失败，请重试。";
@@ -140,10 +161,21 @@ export function ProblemConversationPanel({
       </div>
       <div className="pointer-events-none shrink-0 bg-gradient-to-t from-zinc-50 via-zinc-50 to-transparent px-4 pb-4 pt-4">
         <div className="pointer-events-auto mx-auto max-w-4xl">
+          {pendingAnnotations.length ? (
+            <PendingAnnotationsCard
+              annotations={pendingAnnotations}
+              onRemove={(annotationId) =>
+                onPendingAnnotationRemove(problem.id, annotationId)
+              }
+            />
+          ) : null}
           <ConversationComposer
             autoFocusOnReady
             busy={isSubmitting}
-            canSubmit={Boolean(text.trim()) && !isSubmitting}
+            canSubmit={
+              Boolean(text.trim() || pendingAnnotations.length) &&
+              !isSubmitting
+            }
             disabled={isSubmitting}
             file={file}
             fileInputRef={fileInputRef}
@@ -166,5 +198,50 @@ export function ProblemConversationPanel({
         />
       ) : null}
     </div>
+  );
+}
+
+function PendingAnnotationsCard({
+  annotations,
+  onRemove,
+}: {
+  annotations: WebAnnotation[];
+  onRemove: (annotationId: string) => void;
+}) {
+  return (
+    <section className="mb-3 rounded-2xl border border-teal-200 bg-white/95 p-3 shadow-sm">
+      <div className="flex items-center justify-between gap-3">
+        <h3 className="text-sm font-medium text-zinc-800">
+          来自网页预览的 {annotations.length} 条注释
+        </h3>
+      </div>
+      <div className="mt-2 space-y-2">
+        {annotations.map((annotation, index) => (
+          <div
+            className="flex items-start gap-2 rounded-xl bg-zinc-50 px-3 py-2 text-sm"
+            key={annotation.id}
+          >
+            <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-teal-600 text-xs font-medium text-white">
+              {index + 1}
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className="truncate font-medium text-zinc-800">
+                {annotation.label}
+              </div>
+              <p className="mt-0.5 line-clamp-2 text-zinc-600">
+                {annotation.comment}
+              </p>
+            </div>
+            <button
+              className="shrink-0 rounded-md px-2 py-1 text-xs text-zinc-500 transition hover:bg-white hover:text-zinc-900"
+              onClick={() => onRemove(annotation.id)}
+              type="button"
+            >
+              移除
+            </button>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }

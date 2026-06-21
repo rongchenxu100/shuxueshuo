@@ -1,11 +1,14 @@
 import {
+  CreateWebAnnotationResponseSchema,
   CreateProblemMessageResponseSchema,
   CreateProblemResponseSchema,
   NavResponseSchema,
   PatchProblemResponseSchema,
+  ProblemAnnotationsResponseSchema,
   ProblemMessagesResponseSchema,
   StartProblemUploadResponseSchema,
   type CreateProblemMessageRequest,
+  type CreateWebAnnotationRequest,
   type NavResponse,
   type PatchProblemRequest,
 } from "@/lib/contracts";
@@ -106,6 +109,27 @@ export async function patchProblem(
 export async function getProblemMessages(problemId: string) {
   return ProblemMessagesResponseSchema.parse(
     await fetchJson(`/api/problems/${problemId}/messages`),
+  );
+}
+
+export async function getProblemAnnotations(problemId: string) {
+  return ProblemAnnotationsResponseSchema.parse(
+    await fetchJson(`/api/problems/${problemId}/annotations`),
+  );
+}
+
+export async function createProblemAnnotation(
+  problemId: string,
+  request: CreateWebAnnotationRequest,
+) {
+  return CreateWebAnnotationResponseSchema.parse(
+    await fetchJsonWithInit(`/api/problems/${problemId}/annotations`, {
+      body: JSON.stringify(request),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      method: "POST",
+    }),
   );
 }
 

@@ -1,21 +1,216 @@
-import { useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
+import type {
+  CreateWebAnnotationRequest,
+  WebAnnotation,
+} from "@/lib/contracts";
+
+import { AnnotationOverlay } from "./annotation-overlay";
 import {
   previewUrlWithVersion,
   type SelectedWorkspaceObject,
 } from "./workspace-model";
+import {
+  canAcceptPreviewMessage,
+  getAnnotationMarkerPositions,
+  getPreviewOrigin,
+  isPreviewBridgeMessage,
+  type PreviewTargetRect,
+  type PreviewTargetSelectedMessage,
+} from "./preview-bridge";
+import {
+  AnnotationIcon,
+  ChevronIcon,
+  ExternalLinkIcon,
+  RefreshIcon,
+} from "./ui/icons";
 
 export function PreviewPane({
+  annotations,
   collapsed,
+  onCreateAnnotation,
   onToggleCollapsed,
   selectedObject,
 }: {
+  annotations: WebAnnotation[];
   collapsed: boolean;
+  onCreateAnnotation: (
+    problemId: string,
+    request: CreateWebAnnotationRequest,
+  ) => Promise<WebAnnotation>;
   onToggleCollapsed: () => void;
   selectedObject: SelectedWorkspaceObject;
 }) {
   const preview = getPreview(selectedObject);
   const [reloadNonce, setReloadNonce] = useState(0);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [annotationMode, setAnnotationMode] = useState(false);
+  const [targetRects, setTargetRects] = useState<PreviewTargetRect[]>([]);
+  const [selectedTarget, setSelectedTarget] =
+    useState<PreviewTargetSelectedMessage | null>(null);
+  const [selectedMarker, setSelectedMarker] = useState<WebAnnotation | null>(
+    null,
+  );
+  const [comment, setComment] = useState("");
+  const [isCreatingAnnotation, setIsCreatingAnnotation] = useState(false);
+  const [annotationError, setAnnotationError] = useState<string | null>(null);
+  const problemId =
+    selectedObject.kind === "problem" ? selectedObject.item.id : null;
+  const canAnnotate = Boolean(preview && problemId);
+  const previewOrigin = useMemo(() => {
+    if (!preview || typeof window === "undefined") {
+      return "";
+    }
+
+    return getPreviewOrigin(preview.src, window.location.origin);
+  }, [preview]);
+  const markerPositions = useMemo(
+    () => getAnnotationMarkerPositions(annotations, targetRects),
+    [annotations, targetRects],
+  );
+
+  const postToPreview = useCallback((message: unknown) => {
+    const targetWindow = iframeRef.current?.contentWindow;
+
+    if (!targetWindow || !previewOrigin) {
+      return;
+    }
+
+    targetWindow.postMessage(message, previewOrigin);
+  }, [previewOrigin]);
+
+  const requestTargetRects = useCallback((extraTargetId?: string) => {
+    const targetIds = Array.from(
+      new Set([
+        ...annotations.map((annotation) => annotation.targetId),
+        ...(extraTargetId ? [extraTargetId] : []),
+      ]),
+    );
+
+    postToPreview({
+      targetIds,
+      type: "preview-request-target-rects",
+    });
+  }, [annotations, postToPreview]);
+
+  useEffect(() => {
+    const frameId = window.requestAnimationFrame(() => {
+      setAnnotationMode(false);
+      setSelectedTarget(null);
+      setSelectedMarker(null);
+      setComment("");
+      setTargetRects([]);
+      setAnnotationError(null);
+    });
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+    };
+  }, [preview?.src]);
+
+  useEffect(() => {
+    if (!canAnnotate || !previewOrigin) {
+      return;
+    }
+
+    function handleMessage(event: MessageEvent) {
+      const iframeWindow = iframeRef.current?.contentWindow ?? null;
+
+      if (
+        !canAcceptPreviewMessage({
+          eventOrigin: event.origin,
+          eventSource: event.source,
+          expectedOrigin: previewOrigin,
+          iframeWindow,
+        }) ||
+        !isPreviewBridgeMessage(event.data)
+      ) {
+        return;
+      }
+
+      if (
+        event.data.type === "preview-ready" ||
+        event.data.type === "preview-layout-changed"
+      ) {
+        requestTargetRects();
+        return;
+      }
+
+      if (event.data.type === "preview-target-rects") {
+        setTargetRects(event.data.rects);
+        return;
+      }
+
+      if (event.data.type === "preview-target-selected" && annotationMode) {
+        setSelectedMarker(null);
+        setSelectedTarget(event.data);
+        setComment("");
+        setAnnotationError(null);
+        requestTargetRects(event.data.targetId);
+      }
+    }
+
+    window.addEventListener("message", handleMessage);
+
+    return () => {
+      window.removeEventListener("message", handleMessage);
+    };
+  }, [annotationMode, canAnnotate, previewOrigin, requestTargetRects]);
+
+  useEffect(() => {
+    postToPreview({
+      enabled: annotationMode && canAnnotate,
+      type: "preview-set-annotation-mode",
+    });
+  }, [annotationMode, canAnnotate, postToPreview, preview?.src]);
+
+  useEffect(() => {
+    if (canAnnotate) {
+      requestTargetRects();
+    }
+  }, [canAnnotate, preview?.src, requestTargetRects]);
+
+  async function handleCreateAnnotation() {
+    if (!problemId || !selectedTarget || !comment.trim()) {
+      return;
+    }
+
+    setIsCreatingAnnotation(true);
+    setAnnotationError(null);
+
+    try {
+      await onCreateAnnotation(problemId, {
+        comment: comment.trim(),
+        label: selectedTarget.label,
+        screenshotUrl: undefined,
+        stepId: selectedTarget.stepId,
+        targetId: selectedTarget.targetId,
+        targetType: selectedTarget.targetType,
+      });
+      setSelectedTarget(null);
+      setComment("");
+      requestTargetRects(selectedTarget.targetId);
+    } catch (error) {
+      setAnnotationError(
+        error instanceof Error ? error.message : "创建注释失败，请重试。",
+      );
+    } finally {
+      setIsCreatingAnnotation(false);
+    }
+  }
+
+  function handleToggleAnnotationMode() {
+    const nextAnnotationMode = !annotationMode;
+
+    setAnnotationMode(nextAnnotationMode);
+
+    if (!nextAnnotationMode) {
+      setSelectedTarget(null);
+      setSelectedMarker(null);
+      setComment("");
+      setAnnotationError(null);
+    }
+  }
 
   if (collapsed) {
     return (
@@ -60,20 +255,54 @@ export function PreviewPane({
               <ExternalLinkIcon />
             </IconButton>
           )}
-          <IconButton disabled label="添加注释" onClick={() => undefined}>
-            <AnnotationIcon />
-          </IconButton>
+          {canAnnotate ? (
+            <AnnotationModeButton
+              active={annotationMode}
+              label={annotationMode ? "关闭注释" : "添加注释"}
+              onClick={handleToggleAnnotationMode}
+            />
+          ) : null}
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 bg-zinc-200">
+      <div className="relative min-h-0 flex-1 bg-zinc-200">
         {preview ? (
-          <iframe
-            className="h-full w-full border-0 bg-white"
-            key={`${preview.src}-${reloadNonce}`}
-            src={preview.src}
-            title={`${preview.title}预览`}
-          />
+          <>
+            <iframe
+              className="h-full w-full border-0 bg-white"
+              key={`${preview.src}-${reloadNonce}`}
+              onLoad={() => {
+                postToPreview({
+                  enabled: annotationMode && canAnnotate,
+                  type: "preview-set-annotation-mode",
+                });
+                requestTargetRects();
+              }}
+              ref={iframeRef}
+              src={preview.src}
+              title={`${preview.title}预览`}
+            />
+            {canAnnotate ? (
+              <AnnotationOverlay
+                annotationError={annotationError}
+                annotationMode={annotationMode}
+                comment={comment}
+                isCreatingAnnotation={isCreatingAnnotation}
+                markerPositions={markerPositions}
+                selectedMarker={selectedMarker}
+                selectedTarget={selectedTarget}
+                onCloseMarker={() => setSelectedMarker(null)}
+                onCloseTarget={() => {
+                  setSelectedTarget(null);
+                  setComment("");
+                  setAnnotationError(null);
+                }}
+                onCommentChange={setComment}
+                onCreateAnnotation={handleCreateAnnotation}
+                onSelectMarker={setSelectedMarker}
+              />
+            ) : null}
+          </>
         ) : (
           <div className="flex h-full items-center justify-center rounded border border-dashed border-zinc-300 bg-zinc-50 text-sm text-zinc-500">
             当前对象暂无网页预览。
@@ -85,11 +314,13 @@ export function PreviewPane({
 }
 
 function IconButton({
+  active,
   children,
   disabled,
   label,
   onClick,
 }: {
+  active?: boolean;
   children: ReactNode;
   disabled?: boolean;
   label: string;
@@ -98,7 +329,9 @@ function IconButton({
   return (
     <button
       aria-label={label}
-      className="flex size-8 shrink-0 items-center justify-center rounded-md text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-900 disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:bg-transparent disabled:hover:text-zinc-500"
+      className={`flex size-8 shrink-0 items-center justify-center rounded-md transition hover:bg-zinc-100 hover:text-zinc-900 disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:bg-transparent disabled:hover:text-zinc-500 ${
+        active ? "bg-teal-50 text-teal-700" : "text-zinc-500"
+      }`}
       disabled={disabled}
       onClick={onClick}
       title={label}
@@ -109,96 +342,36 @@ function IconButton({
   );
 }
 
-function RefreshIcon() {
-  return (
-    <svg
-      aria-hidden="true"
-      className="size-4"
-      fill="none"
-      viewBox="0 0 24 24"
-    >
-      <path
-        d="M20 12a8 8 0 0 1-13.5 5.8M4 12A8 8 0 0 1 17.5 6.2"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeWidth="1.8"
-      />
-      <path
-        d="M17.5 3.8v2.4h-2.4M6.5 20.2v-2.4h2.4"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.8"
-      />
-    </svg>
-  );
-}
+function AnnotationModeButton({
+  active,
+  label,
+  onClick,
+}: {
+  active: boolean;
+  label: string;
+  onClick: () => void;
+}) {
+  if (active) {
+    return (
+      <button
+        aria-label={label}
+        className="flex h-9 shrink-0 items-center gap-2 rounded-2xl bg-sky-50 px-3 text-sm font-medium text-sky-600 transition hover:bg-sky-100"
+        onClick={onClick}
+        title={label}
+        type="button"
+      >
+        <span className="flex size-5 items-center justify-center rounded-full border border-sky-500 text-sky-600">
+          <AnnotationIcon />
+        </span>
+        <span>正在注释</span>
+      </button>
+    );
+  }
 
-function ExternalLinkIcon() {
   return (
-    <svg
-      aria-hidden="true"
-      className="size-4"
-      fill="none"
-      viewBox="0 0 24 24"
-    >
-      <path
-        d="M14 5h5v5M19 5l-8 8"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.8"
-      />
-      <path
-        d="M19 14v3.5A1.5 1.5 0 0 1 17.5 19h-11A1.5 1.5 0 0 1 5 17.5v-11A1.5 1.5 0 0 1 6.5 5H10"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeWidth="1.8"
-      />
-    </svg>
-  );
-}
-
-function AnnotationIcon() {
-  return (
-    <svg
-      aria-hidden="true"
-      className="size-4"
-      fill="none"
-      viewBox="0 0 24 24"
-    >
-      <path
-        d="M6.5 5h11A1.5 1.5 0 0 1 19 6.5v8a1.5 1.5 0 0 1-1.5 1.5H11l-4 3v-3h-.5A1.5 1.5 0 0 1 5 14.5v-8A1.5 1.5 0 0 1 6.5 5Z"
-        stroke="currentColor"
-        strokeLinejoin="round"
-        strokeWidth="1.8"
-      />
-      <path
-        d="M8.5 9h7M8.5 12h4"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeWidth="1.8"
-      />
-    </svg>
-  );
-}
-
-function ChevronIcon({ direction }: { direction: "left" | "right" }) {
-  return (
-    <svg
-      aria-hidden="true"
-      className="size-4"
-      fill="none"
-      viewBox="0 0 24 24"
-    >
-      <path
-        d={direction === "left" ? "M15 6l-6 6 6 6" : "M9 6l6 6-6 6"}
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="2"
-      />
-    </svg>
+    <IconButton label={label} onClick={onClick}>
+      <AnnotationIcon />
+    </IconButton>
   );
 }
 
