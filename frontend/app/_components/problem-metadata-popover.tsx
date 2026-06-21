@@ -5,6 +5,7 @@ import type { Problem } from "@/lib/contracts";
 import { getAutosaveDelayMs } from "@/lib/autosave/scheduler";
 
 import type { AutosaveState } from "./workspace-model";
+import { SlidersIcon } from "./ui/icons";
 
 export function ProblemMetadataPopover({
   onAutosaveErrorChange,
@@ -172,12 +173,14 @@ export function ProblemMetadataPopover({
   return (
     <div className="relative" ref={containerRef}>
       <button
+        aria-label="编辑题目信息"
         aria-expanded={isOpen}
-        className="rounded-md border border-zinc-200 px-2 py-1 text-xs text-zinc-600 transition hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-900"
+        className="flex size-7 items-center justify-center rounded-md text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-800"
         onClick={() => setIsOpen((current) => !current)}
+        title="编辑题目信息"
         type="button"
       >
-        题目信息
+        <SlidersIcon className="size-4" />
       </button>
       {isOpen ? (
         <div className="absolute right-0 top-9 z-30 w-80 rounded-lg border border-zinc-200 bg-white p-4 text-left shadow-xl">

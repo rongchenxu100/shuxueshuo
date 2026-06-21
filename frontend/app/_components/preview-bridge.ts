@@ -31,6 +31,13 @@ export type PreviewBridgeMessage =
   | PreviewTargetSelectedMessage
   | PreviewTargetRectsMessage;
 
+export type PreviewCommandMessage =
+  | { enabled: boolean; type: "preview-set-annotation-mode" }
+  | { enabled: boolean; type: "preview-set-tutor-target-mode" }
+  | { targetIds?: string[]; type: "preview-request-target-rects" }
+  | { stepId: string; type: "preview-scroll-to-step" }
+  | { targetId: string; type: "preview-highlight-target" };
+
 export type AnnotationMarkerPosition = {
   annotation: WebAnnotation;
   x: number;

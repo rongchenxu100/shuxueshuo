@@ -121,6 +121,12 @@ export const TutorMessageSchema = z.object({
 });
 export type TutorMessage = z.infer<typeof TutorMessageSchema>;
 
+export const TutorPageStateSchema = z.object({
+  scrollY: z.number().optional(),
+  sliderValues: z.record(z.string(), z.unknown()).optional(),
+});
+export type TutorPageState = z.infer<typeof TutorPageStateSchema>;
+
 export const ProblemSchema = z.object({
   id: z.string(),
   title: z.string(),
@@ -294,6 +300,46 @@ export const CreateProblemMessageResponseSchema = z.object({
 });
 export type CreateProblemMessageResponse = z.infer<
   typeof CreateProblemMessageResponseSchema
+>;
+
+export const TutorSessionsResponseSchema = z.object({
+  sessions: z.array(TutorSessionSchema),
+});
+export type TutorSessionsResponse = z.infer<
+  typeof TutorSessionsResponseSchema
+>;
+
+export const CreateTutorSessionResponseSchema = z.object({
+  session: TutorSessionSchema,
+});
+export type CreateTutorSessionResponse = z.infer<
+  typeof CreateTutorSessionResponseSchema
+>;
+
+export const TutorMessagesResponseSchema = z.object({
+  messages: z.array(TutorMessageSchema),
+  session: TutorSessionSchema,
+});
+export type TutorMessagesResponse = z.infer<
+  typeof TutorMessagesResponseSchema
+>;
+
+export const CreateTutorMessageRequestSchema = z.object({
+  content: z.string().min(1),
+  currentStepId: z.string().optional(),
+  pageState: TutorPageStateSchema.optional(),
+  selectedTargetId: z.string().optional(),
+});
+export type CreateTutorMessageRequest = z.infer<
+  typeof CreateTutorMessageRequestSchema
+>;
+
+export const CreateTutorMessageResponseSchema = z.object({
+  messages: z.array(TutorMessageSchema),
+  session: TutorSessionSchema,
+});
+export type CreateTutorMessageResponse = z.infer<
+  typeof CreateTutorMessageResponseSchema
 >;
 
 export const CreateTopicRequestSchema = z

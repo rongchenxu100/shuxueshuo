@@ -11,6 +11,9 @@ import {
   CreateProblemResponseSchema,
   CreateProblemMessageRequestSchema,
   CreateTopicRequestSchema,
+  CreateTutorMessageRequestSchema,
+  CreateTutorMessageResponseSchema,
+  CreateTutorSessionResponseSchema,
   DeleteTopicItemResponseSchema,
   DeleteTopicResponseSchema,
   IgnoreSuggestedProblemResponseSchema,
@@ -34,6 +37,9 @@ import {
   TopicResponseSchema,
   TopicSuggestedProblemsResponseSchema,
   TopicSchema,
+  TutorActionSchema,
+  TutorMessagesResponseSchema,
+  TutorSessionsResponseSchema,
   WebAnnotationSchema,
 } from "./index";
 import annotationsFixture from "../../fixtures/annotations/hongqiao-25.json";
@@ -312,6 +318,74 @@ describe("contract fixtures", () => {
           previewVersion: "mock-edited-1",
           status: "published_dirty",
         },
+      }),
+    ).not.toThrow();
+  });
+
+  it("validates tutor mode contracts", () => {
+    const session = {
+      createdAt: "2026-06-16T09:00:00.000Z",
+      currentStepId: "q2s4",
+      id: "tutor_session_problem_hongqiao_25_user_haorong",
+      problemId: "problem_hongqiao_25",
+      title: "学习对话",
+      updatedAt: "2026-06-16T09:00:00.000Z",
+      userId: "user_haorong",
+    };
+    const messages = [
+      {
+        content: "为什么这里要构造 B₁？",
+        createdAt: "2026-06-16T09:00:00.000Z",
+        currentStepId: "q2s4",
+        id: "tmsg_user_1",
+        role: "user",
+        selectedTargetId: "step.q2s4.figure",
+        sessionId: session.id,
+      },
+      {
+        actions: [
+          { stepId: "q2s4", type: "scroll_to_step" },
+          { targetId: "step.q2s4.figure", type: "highlight_target" },
+          { text: "先看等量关系。", type: "show_hint" },
+        ],
+        content: "我会结合你选中的网页区域来解释。",
+        createdAt: "2026-06-16T09:00:00.000Z",
+        id: "tmsg_assistant_1",
+        role: "assistant",
+        sessionId: session.id,
+      },
+    ];
+
+    expect(() =>
+      TutorSessionsResponseSchema.parse({ sessions: [session] }),
+    ).not.toThrow();
+    expect(() =>
+      CreateTutorSessionResponseSchema.parse({ session }),
+    ).not.toThrow();
+    expect(() =>
+      TutorMessagesResponseSchema.parse({ messages, session }),
+    ).not.toThrow();
+    expect(() =>
+      CreateTutorMessageRequestSchema.parse({
+        content: "为什么这里要构造 B₁？",
+        currentStepId: "q2s4",
+        pageState: {
+          scrollY: 1280,
+          sliderValues: {},
+        },
+        selectedTargetId: "step.q2s4.figure",
+      }),
+    ).not.toThrow();
+    expect(() =>
+      CreateTutorMessageRequestSchema.parse({ content: "" }),
+    ).toThrow();
+    expect(() =>
+      CreateTutorMessageResponseSchema.parse({ messages, session }),
+    ).not.toThrow();
+    expect(() =>
+      TutorActionSchema.parse({
+        targetId: "step.q2s4.figure",
+        type: "highlight_target",
       }),
     ).not.toThrow();
   });
