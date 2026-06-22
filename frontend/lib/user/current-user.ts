@@ -2,7 +2,7 @@ export const CURRENT_USER = {
   id: "user_haorong",
   slug: "haorong",
   displayName: "haorong",
-  email: "rongchenxu100@gmail.com",
+  email: "ronghao@shuxueshuo.com",
 } as const;
 
 export function getCurrentUser() {
