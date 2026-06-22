@@ -1,5 +1,3 @@
-# syntax=docker/dockerfile:1
-
 # 这个 Dockerfile 用来部署 frontend Studio 创作工作台。
 #
 # 设计目标：
@@ -10,6 +8,9 @@
 #
 # 构建命令：
 #   docker build -t shuxueshuo-studio:latest .
+#
+# Mac 本地构建并上传 CentOS 服务器时，建议显式构建 amd64：
+#   docker buildx build --platform linux/amd64 -t shuxueshuo-studio:latest --load .
 #
 # 运行命令：
 #   docker run -d --name shuxueshuo-studio --restart unless-stopped -p 3000:3000 shuxueshuo-studio:latest
