@@ -6,6 +6,8 @@
 
 更细的 CentOS 7、故障排查与接口说明见：[server/README.md](../server/README.md)。
 
+Studio 创作工作台的 Docker 部署与维护见：[frontend-studio-workbench.md](frontend-studio-workbench.md)。
+
 ---
 
 ## 一次开通：安装 uv 与 Python 3.11（业务用户 `ronghao`，首次部署执行）
@@ -231,4 +233,3 @@ sudo nginx -t && sudo systemctl reload nginx
 | TLS | CLB 终结 | **ECS Nginx 终结** |
 | ECS **`listen 443`** | 可能闲置 | **必须使用且证书有效** |
 | **`listen 80` 上的 API** | 强烈建议独立 `server_name`（已写入 api.conf） | 同上；可加 **301 → HTTPS** |
-
