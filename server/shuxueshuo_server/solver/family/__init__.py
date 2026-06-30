@@ -5,6 +5,8 @@ family 包只承载题型级 spec 和 registry，不执行求解。通用 Runtim
 """
 
 from shuxueshuo_server.solver.family.models import (
+    CapabilityPackRegistry,
+    CapabilityPackSpec,
     FamilyMatchRule,
     FamilyRegistry,
     MethodBindingRuleSpec,
@@ -14,6 +16,10 @@ from shuxueshuo_server.solver.family.models import (
     RecipeExecutionSpec,
     SolverFamilySpec,
     StepRecipeSpec,
+    expand_family_spec,
+)
+from shuxueshuo_server.solver.family.capability_packs import (
+    DEFAULT_CAPABILITY_PACK_REGISTRY,
 )
 from shuxueshuo_server.solver.family.quadratic_path_minimum import (
     QUADRATIC_PATH_MINIMUM_FAMILY,
@@ -37,6 +43,9 @@ DEFAULT_FAMILY_REGISTRY = FamilyRegistry((
 
 __all__ = [
     "DEFAULT_FAMILY_REGISTRY",
+    "DEFAULT_CAPABILITY_PACK_REGISTRY",
+    "CapabilityPackRegistry",
+    "CapabilityPackSpec",
     "FamilyMatchRule",
     "FamilyRegistry",
     "MethodBindingRuleSpec",
@@ -50,4 +59,5 @@ __all__ = [
     "RecipeExecutionSpec",
     "SolverFamilySpec",
     "StepRecipeSpec",
+    "expand_family_spec",
 ]

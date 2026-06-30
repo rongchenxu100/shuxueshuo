@@ -14,10 +14,14 @@ from shuxueshuo_server.solver.family.models import (
     RecipeExecutionSpec,
     SolverFamilySpec,
     StepRecipeSpec,
+    expand_family_spec,
+)
+from shuxueshuo_server.solver.family.capability_packs import (
+    DEFAULT_CAPABILITY_PACK_REGISTRY,
 )
 
 
-QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
+_QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
     family_id="QuadraticPathMinimumSolver",
     match=FamilyMatchRule(
         patterns=("path-minimum",),
@@ -44,6 +48,13 @@ QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         "普通路径最值按 recipe 独立拆分：先 two_moving_points_path_reduction 降维，再 broken_path_straightening_and_select 选择拉直方案，最后 path_minimum_by_straightened_distance 单独求最小值表达式。",
         "最短路径对应点通常来自约束轨迹与拉直线段的交点。",
     ),
+    base_packs=(
+        "quadratic_core",
+        "parameter_solving_core",
+        "coordinate_geometry_core",
+        "broken_path_minimum_core",
+    ),
+    mechanism_packs=("right_angle_equal_length_core",),
     method_ids=(
         "quadratic_axis_from_relation",
         "quadratic_from_constraints",
@@ -254,4 +265,9 @@ QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
     # 2. planner 不再依赖 D/M/N/F/G、i/ii/ii_1/ii_2 等 canonical 命名；
     # 3. 去掉门控后，alt-label 同构题能通过，其他 family 题仍不会误路由。
     enabled_problem_ids=("tj-2026-nankai-yimo-25",),
+)
+
+QUADRATIC_PATH_MINIMUM_FAMILY = expand_family_spec(
+    _QUADRATIC_PATH_MINIMUM_FAMILY,
+    DEFAULT_CAPABILITY_PACK_REGISTRY,
 )

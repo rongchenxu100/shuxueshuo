@@ -20,6 +20,10 @@ from shuxueshuo_server.solver.family.models import (
     RecipeExecutionSpec,
     SolverFamilySpec,
     StepRecipeSpec,
+    expand_family_spec,
+)
+from shuxueshuo_server.solver.family.capability_packs import (
+    DEFAULT_CAPABILITY_PACK_REGISTRY,
 )
 
 _PARABOLA_PREP = (
@@ -39,7 +43,7 @@ _PARABOLA_PREP = (
 )
 
 
-QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
+_QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
     family_id="QuadraticSquareReflectionPathMinimumSolver",
     match=FamilyMatchRule(
         patterns=("path-minimum",),
@@ -67,6 +71,13 @@ QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         "最终答案若是正方形中的某个顶点，应优先由已定值的相邻顶点和正方形关系恢复，不要使用针对单题的闭式公式。",
         "网页讲解可以把若干 method 合并成一段说明；这里输出的 steps 必须尽量对应 catalog 中已有 method/recipe。",
     ),
+    base_packs=(
+        "quadratic_core",
+        "parameter_solving_core",
+        "coordinate_geometry_core",
+        "broken_path_minimum_core",
+    ),
+    mechanism_packs=("square_path_reduction_core",),
     method_ids=(
         "quadratic_from_constraints",
         "quadratic_vertex_point",
@@ -242,4 +253,9 @@ QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             ),
         ),
     ),
+)
+
+QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = expand_family_spec(
+    _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY,
+    DEFAULT_CAPABILITY_PACK_REGISTRY,
 )

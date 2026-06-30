@@ -15,10 +15,14 @@ from shuxueshuo_server.solver.family.models import (
     RecipeExecutionSpec,
     SolverFamilySpec,
     StepRecipeSpec,
+    expand_family_spec,
+)
+from shuxueshuo_server.solver.family.capability_packs import (
+    DEFAULT_CAPABILITY_PACK_REGISTRY,
 )
 
 
-QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = SolverFamilySpec(
+_QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = SolverFamilySpec(
     family_id="QuadraticEqualLengthRayPathMinimumSolver",
     match=FamilyMatchRule(
         patterns=("path-minimum",),
@@ -47,6 +51,12 @@ QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         "不要单独 produces M_coordinate_expr、N_coordinate_expr、OM_distance_expr、BN_distance_expr 这类参数化/分段距离 utility fact；这些不是初中生优先的解题步骤，也不是本 family 的可执行标准路线。",
         "不要把含参系数缓存、纯文字全等说明或最终讲解段落作为独立 produces；这些可以放在 strategy/reason 中。",
     ),
+    base_packs=(
+        "quadratic_core",
+        "parameter_solving_core",
+        "coordinate_geometry_core",
+    ),
+    mechanism_packs=("equal_length_ray_reduction_core",),
     method_ids=(
         "quadratic_from_constraints",
         "quadratic_y_axis_intercept_point",
@@ -209,4 +219,9 @@ QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             ),
         ),
     ),
+)
+
+QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = expand_family_spec(
+    _QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY,
+    DEFAULT_CAPABILITY_PACK_REGISTRY,
 )

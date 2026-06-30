@@ -116,6 +116,45 @@ class StepRecipeSpec:
 
 
 @dataclass(frozen=True)
+class CapabilityPackSpec:
+    """一组可复用 method / recipe 能力。
+
+    Phase 1a 中 pack 只负责组织 catalog 暴露边界，不承载 binding rules；binding
+    仍保留在 family 上。后续函数式编排可以把 ``method_ids`` 演进成 functions、
+    ``step_recipes`` 演进成 macros。
+    """
+
+    pack_id: str
+    kind: str
+    method_ids: tuple[str, ...] = ()
+    step_recipes: tuple[StepRecipeSpec, ...] = ()
+    strategy_notes: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class CapabilityPackRegistry:
+    """内存中的 CapabilityPackSpec 注册表。"""
+
+    packs: tuple[CapabilityPackSpec, ...]
+    _by_id: dict[str, CapabilityPackSpec] = field(init=False, repr=False, compare=False)
+
+    def __post_init__(self) -> None:
+        by_id: dict[str, CapabilityPackSpec] = {}
+        for pack in self.packs:
+            if pack.pack_id in by_id:
+                raise ValueError(f"duplicate capability pack: {pack.pack_id}")
+            by_id[pack.pack_id] = pack
+        object.__setattr__(self, "_by_id", by_id)
+
+    def require(self, pack_id: str) -> CapabilityPackSpec:
+        """按 pack_id 读取 pack；不存在时给出稳定错误。"""
+        try:
+            return self._by_id[pack_id]
+        except KeyError as exc:
+            raise ValueError(f"unknown capability pack: {pack_id}") from exc
+
+
+@dataclass(frozen=True)
 class FamilyMatchRule:
     """Family 的粗粒度匹配条件。
 
@@ -146,6 +185,8 @@ class SolverFamilySpec:
     match: FamilyMatchRule
     common_goal_types: tuple[str, ...] = ()
     strategy_principles: tuple[str, ...] = ()
+    base_packs: tuple[str, ...] = ()
+    mechanism_packs: tuple[str, ...] = ()
     # Intent Planner 用这个 allowlist 控制 prompt 中可见的 method 集合。它只是
     # family 给 planner 的能力边界，不表示 family 指定某个 planner 或固定步骤。
     method_ids: tuple[str, ...] = ()
@@ -172,6 +213,86 @@ class SolverFamilySpec:
         if self.enabled_problem_ids and problem.problem_id not in self.enabled_problem_ids:
             return False
         return True
+
+
+def expand_family_spec(
+    family: SolverFamilySpec,
+    packs: CapabilityPackRegistry,
+) -> SolverFamilySpec:
+    """把 family 声明的 packs 展开成 runtime 仍可直接消费的 SolverFamilySpec。
+
+    合并顺序固定为 base packs -> mechanism packs -> family local additions。
+    ``method_ids`` 稳定去重；``step_recipes`` 按 recipe_id 去重，family local recipe
+    可以覆盖 pack recipe；pack ``strategy_notes`` 合并到 ``strategy_principles``
+    前面。
+    """
+
+    selected_packs = tuple(
+        packs.require(pack_id)
+        for pack_id in (*family.base_packs, *family.mechanism_packs)
+    )
+    method_ids = _unique_ordered(
+        *(
+            method_id
+            for pack in selected_packs
+            for method_id in pack.method_ids
+        ),
+        *family.method_ids,
+    )
+    recipes = _merge_step_recipes(
+        *(
+            recipe
+            for pack in selected_packs
+            for recipe in pack.step_recipes
+        ),
+        *family.step_recipes,
+    )
+    strategy_principles = _unique_ordered(
+        *(
+            note
+            for pack in selected_packs
+            for note in pack.strategy_notes
+        ),
+        *family.strategy_principles,
+    )
+    return SolverFamilySpec(
+        family_id=family.family_id,
+        match=family.match,
+        common_goal_types=family.common_goal_types,
+        strategy_principles=strategy_principles,
+        base_packs=family.base_packs,
+        mechanism_packs=family.mechanism_packs,
+        method_ids=method_ids,
+        step_recipes=recipes,
+        method_binding_rules=family.method_binding_rules,
+        enabled_problem_ids=family.enabled_problem_ids,
+    )
+
+
+def _unique_ordered(*items: str) -> tuple[str, ...]:
+    """保持首次出现顺序去重。"""
+    seen: set[str] = set()
+    result: list[str] = []
+    for item in items:
+        if item in seen:
+            continue
+        seen.add(item)
+        result.append(item)
+    return tuple(result)
+
+
+def _merge_step_recipes(*recipes: StepRecipeSpec) -> tuple[StepRecipeSpec, ...]:
+    """按 recipe_id 稳定合并，后出现的 recipe 覆盖同 id 的内容。"""
+    index_by_id: dict[str, int] = {}
+    result: list[StepRecipeSpec] = []
+    for recipe in recipes:
+        existing = index_by_id.get(recipe.recipe_id)
+        if existing is None:
+            index_by_id[recipe.recipe_id] = len(result)
+            result.append(recipe)
+        else:
+            result[existing] = recipe
+    return tuple(result)
 
 
 @dataclass(frozen=True)

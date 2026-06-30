@@ -396,6 +396,8 @@ def _output_type_search_allowed(
         return False
     if set(produced_types) == {"Point"} and not step.recipe_hint:
         return False
+    if set(produced_types) == {"Expression"} and not step.recipe_hint:
+        return False
     return True
 
 
@@ -447,6 +449,11 @@ def _evaluate_step_candidate(
         score += 30
     if "output_types" in matched_by:
         score += 40
+        # Phase 1a packs can expose broader methods that happen to include the
+        # requested output type. For null-hint automatic selection, prefer the
+        # capability whose public output boundary has fewer extra types.
+        extra_output_count = len(set(capability.output_types) - set(produced_types))
+        score += max(0, 10 - extra_output_count)
     if capability.preferred:
         score += 10
     if capability.kind == "recipe":
@@ -500,6 +507,19 @@ def _applicability_errors_for_candidate(
                 "missing_line_parabola_inputs: missing_curve_intersection_target_pointref; "
                 "read the current problem's target point entity (for example point:<scope>:<name>) "
                 "or explicitly create the target point before line_parabola_second_intersection_point"
+            )
+        return tuple(errors)
+    if capability_id == "parameter_from_curve_point_on_quadratic":
+        errors: list[str] = []
+        if not _reads_parabola(step, handle_registry):
+            errors.append(
+                "capability_read_signature_mismatch:"
+                "parameter_from_curve_point_on_quadratic missing Parabola read"
+            )
+        if not _reads_curve_point(step, handle_registry):
+            errors.append(
+                "capability_read_signature_mismatch:"
+                "parameter_from_curve_point_on_quadratic missing curve point read"
             )
         return tuple(errors)
     return ()
@@ -595,6 +615,20 @@ def _reads_curve_target_point(
     return False
 
 
+def _reads_curve_point(
+    step: StepIntent,
+    handle_registry: CanonicalHandleRegistry,
+) -> bool:
+    """判断 reads 是否显式包含可代入曲线的点或曲线点条件。"""
+    for handle in step.reads:
+        fact_type = handle_registry.fact_types.get(handle, "")
+        if fact_type in {"point_on_curve", "point_coordinate"}:
+            return True
+        if handle.startswith("point:"):
+            return True
+    return False
+
+
 def _answer_point_name(
     handle: str,
     handle_registry: CanonicalHandleRegistry,
@@ -636,8 +670,8 @@ def _parameter_capability_from_reads(
         and _reads_given_minimum_value(step, handle_registry)
     ):
         return (
-            capabilities_by_id.get("parameter_from_expression_value")
-            or capabilities_by_id.get("parameter_from_minimum_value")
+            capabilities_by_id.get("parameter_from_minimum_value")
+            or capabilities_by_id.get("parameter_from_expression_value")
         )
     return None
 

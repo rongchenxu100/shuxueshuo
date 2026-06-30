@@ -78,7 +78,10 @@ from shuxueshuo_server.solver.runtime.recipe_compiler import (
     _target_path_for_produced,
 )
 from shuxueshuo_server.solver.runtime.binding_rules import _parameter_value_handle, _point_output_handle
-from shuxueshuo_server.solver.runtime.strategy_resolver import build_executable_capabilities
+from shuxueshuo_server.solver.runtime.strategy_resolver import (
+    _reads_curve_point,
+    build_executable_capabilities,
+)
 from shuxueshuo_server.solver.runtime.strategy_normalizer import NormalizationRuleResult
 from shuxueshuo_server.solver.runtime.strategy_models import StepIntentScope
 
@@ -1812,7 +1815,12 @@ def test_method_catalog_is_family_allowlist_summary_not_method_schema() -> None:
     spec = MethodSpecRegistry.load_from_code().require("quadratic_from_constraints")
     assert quadratic["summary"] == spec.summary
     assert "已知系数" in quadratic["summary"]
-    assert "curve_point" not in json.dumps(catalog, ensure_ascii=False)
+    assert any(
+        method["method_id"] == "parameter_from_curve_point_on_quadratic"
+        for method in methods
+    )
+    assert "input_schema" not in json.dumps(catalog, ensure_ascii=False)
+    assert "output_schema" not in json.dumps(catalog, ensure_ascii=False)
     assert "required" not in json.dumps(catalog, ensure_ascii=False)
 
 
@@ -1823,12 +1831,12 @@ def test_recipe_catalog_is_family_recipe_summary() -> None:
     recipes = catalog["recipes"]
 
     recipe_ids = {recipe["recipe_id"] for recipe in recipes}
-    assert recipe_ids == {
+    assert {
         "right_angle_equal_length_construct_and_select",
         "two_moving_points_path_reduction",
         "broken_path_straightening_and_select",
         "path_minimum_by_straightened_distance",
-    }
+    }.issubset(recipe_ids)
     path_recipe = next(
         recipe for recipe in recipes
         if recipe["recipe_id"] == "two_moving_points_path_reduction"
@@ -4090,6 +4098,23 @@ def test_recipe_alignment_report_tracks_missing_preferred_recipes() -> None:
     )
 
 
+def test_curve_point_read_signature_ignores_untyped_coordinate_fact() -> None:
+    """vertex/intercept coordinate 文本不能冒充曲线点条件。"""
+    step = _step(
+        scope_id="ii",
+        step_id="use_vertex_coordinate",
+        recipe_hint=None,
+        goal_type="derive_parameter",
+        target="fact:ii:m_value",
+        reads=(
+            "function:problem:parabola",
+            "fact:ii:vertex_coordinate",
+        ),
+    )
+
+    assert not _reads_curve_point(step, _registry())
+
+
 def test_step_intent_candidate_resolver_finds_method_when_hint_is_null() -> None:
     """recipe_hint=null 时，resolver 应能按产物类型找到可尝试 method。"""
     inputs = _nankai_inputs()
@@ -5460,6 +5485,7 @@ def test_recipe_capability_output_types_come_from_execution_output_aliases() -> 
         _nankai_inputs().family_spec,
         QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
         QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY,
+        QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY,
     )
 
     for family in families:
@@ -5521,6 +5547,7 @@ def test_recipe_compiler_registry_covers_family_execution_strategies() -> None:
         _nankai_inputs().family_spec,
         QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
         QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY,
+        QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY,
     )
     missing: list[str] = []
     for family in families:

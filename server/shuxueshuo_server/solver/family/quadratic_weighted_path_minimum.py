@@ -15,10 +15,14 @@ from shuxueshuo_server.solver.family.models import (
     RecipeExecutionSpec,
     SolverFamilySpec,
     StepRecipeSpec,
+    expand_family_spec,
+)
+from shuxueshuo_server.solver.family.capability_packs import (
+    DEFAULT_CAPABILITY_PACK_REGISTRY,
 )
 
 
-QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
+_QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
     family_id="QuadraticWeightedPathMinimumSolver",
     match=FamilyMatchRule(
         patterns=("weighted-path-minimum",),
@@ -37,6 +41,15 @@ QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         "几何构造点先列候选；若候选点还需落在含参曲线上，再用候选曲线点求参 recipe 筛选并反求参数。",
         "加权路径最值优先寻找几何转化：用辅助直角三角形把加权段转成同倍率折线，再用折线拉直或等价最短路径处理。",
         "加权路径最值按可执行颗粒拆成：weighted_axis_path_triangle_transform 做几何转化，linked_broken_path_minimum_expression 求最小值表达式，parameter_from_expression_value 由给定值反求参数；不要把三步合成一个 utility step。",
+    ),
+    base_packs=(
+        "quadratic_core",
+        "parameter_solving_core",
+        "coordinate_geometry_core",
+    ),
+    mechanism_packs=(
+        "right_angle_equal_length_core",
+        "weighted_path_transform_core",
     ),
     method_ids=(
         "quadratic_from_constraints",
@@ -239,4 +252,9 @@ QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             ),
         ),
     ),
+)
+
+QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = expand_family_spec(
+    _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
+    DEFAULT_CAPABILITY_PACK_REGISTRY,
 )

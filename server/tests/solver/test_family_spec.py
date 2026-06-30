@@ -1,16 +1,30 @@
 from dataclasses import fields
 
+import pytest
+
 from shuxueshuo_server.solver.family import (
+    CapabilityPackRegistry,
+    CapabilityPackSpec,
+    DEFAULT_CAPABILITY_PACK_REGISTRY,
+    QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY,
     FamilyRegistry,
     QUADRATIC_PATH_MINIMUM_FAMILY,
+    QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY,
     QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
+    RecipeExecutionSpec,
+    SolverFamilySpec,
+    StepRecipeSpec,
+    expand_family_spec,
 )
 from shuxueshuo_server.solver.fixtures import load_problem_ir
+from shuxueshuo_server.solver.runtime.binding_rules import MethodBindingRuleRegistry
 
 
 NANKAI_FIXTURE = "../internal/solver-fixtures/tj-2026-nankai-yimo-25.json"
 ALT_LABEL_FIXTURE = "../internal/solver-fixtures/tj-2026-nankai-yimo-25-alt-labels.json"
 HEXI_FIXTURE = "../internal/solver-fixtures/tj-2026-hexi-yimo-25.json"
+HEPING_FIXTURE = "../internal/solver-fixtures/tj-2026-heping-yimo-25.json"
+HEPING_ERMO_FIXTURE = "../internal/solver-fixtures/tj-2026-heping-ermo-25.json"
 
 
 def test_quadratic_path_family_supports_canonical_nankai_fixture() -> None:
@@ -57,6 +71,26 @@ def test_quadratic_weighted_path_family_uses_structural_match_without_problem_ga
     assert QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY.match.matches(problem)
     assert not QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY.enabled_problem_ids
     assert QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY.supports(problem)
+
+
+def test_equal_length_ray_family_supports_heping_fixture() -> None:
+    problem = load_problem_ir(HEPING_FIXTURE)
+
+    assert QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY.supports(problem)
+    assert (
+        QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY.family_id
+        == "QuadraticEqualLengthRayPathMinimumSolver"
+    )
+
+
+def test_square_reflection_family_supports_heping_ermo_fixture() -> None:
+    problem = load_problem_ir(HEPING_ERMO_FIXTURE)
+
+    assert QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY.supports(problem)
+    assert (
+        QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY.family_id
+        == "QuadraticSquareReflectionPathMinimumSolver"
+    )
 
 
 def test_family_spec_keeps_planner_and_answer_shape_out_of_spec() -> None:
@@ -134,3 +168,172 @@ def test_family_registry_matches_supported_problem_only() -> None:
     assert registry.match(supported) is QUADRATIC_PATH_MINIMUM_FAMILY
     assert registry.match(hexi) is QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY
     assert registry.match(unsupported) is None
+
+
+def test_capability_pack_registry_rejects_unknown_pack() -> None:
+    registry = CapabilityPackRegistry(())
+
+    with pytest.raises(ValueError, match="unknown capability pack: missing_pack"):
+        registry.require("missing_pack")
+
+
+def test_capability_pack_expansion_deduplicates_methods_and_overrides_recipes() -> None:
+    base_recipe = StepRecipeSpec(
+        recipe_id="shared_recipe",
+        goal_type="derive_base",
+        title="base recipe",
+        description="base recipe",
+        method_ids=("method_a",),
+        execution=RecipeExecutionSpec(
+            recipe_id="shared_recipe",
+            method_sequence=("method_a",),
+        ),
+    )
+    local_recipe = StepRecipeSpec(
+        recipe_id="shared_recipe",
+        goal_type="derive_local",
+        title="local recipe",
+        description="local recipe",
+        method_ids=("method_local",),
+        execution=RecipeExecutionSpec(
+            recipe_id="shared_recipe",
+            method_sequence=("method_local",),
+        ),
+    )
+    mechanism_recipe = StepRecipeSpec(
+        recipe_id="mechanism_recipe",
+        goal_type="derive_mechanism",
+        title="mechanism recipe",
+        description="mechanism recipe",
+        method_ids=("method_c",),
+        execution=RecipeExecutionSpec(
+            recipe_id="mechanism_recipe",
+            method_sequence=("method_c",),
+        ),
+    )
+    registry = CapabilityPackRegistry((
+        CapabilityPackSpec(
+            pack_id="base_pack",
+            kind="base",
+            method_ids=("method_a", "method_b"),
+            step_recipes=(base_recipe,),
+            strategy_notes=("base note", "shared note"),
+        ),
+        CapabilityPackSpec(
+            pack_id="mechanism_pack",
+            kind="mechanism",
+            method_ids=("method_b", "method_c"),
+            step_recipes=(mechanism_recipe,),
+            strategy_notes=("mechanism note", "shared note"),
+        ),
+    ))
+    family = SolverFamilySpec(
+        family_id="SyntheticFamily",
+        match=QUADRATIC_PATH_MINIMUM_FAMILY.match,
+        base_packs=("base_pack",),
+        mechanism_packs=("mechanism_pack",),
+        strategy_principles=("family note", "shared note"),
+        method_ids=("method_c", "method_local"),
+        step_recipes=(local_recipe,),
+    )
+
+    expanded = expand_family_spec(family, registry)
+
+    assert expanded.method_ids == (
+        "method_a",
+        "method_b",
+        "method_c",
+        "method_local",
+    )
+    assert [recipe.recipe_id for recipe in expanded.step_recipes] == [
+        "shared_recipe",
+        "mechanism_recipe",
+    ]
+    assert expanded.step_recipes[0].title == "local recipe"
+    assert expanded.strategy_principles == (
+        "base note",
+        "shared note",
+        "mechanism note",
+        "family note",
+    )
+
+
+def test_real_families_declare_packs_and_keep_legacy_family_ids() -> None:
+    families = (
+        QUADRATIC_PATH_MINIMUM_FAMILY,
+        QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
+        QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY,
+        QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY,
+    )
+
+    for family in families:
+        assert family.base_packs
+        for pack_id in (*family.base_packs, *family.mechanism_packs):
+            DEFAULT_CAPABILITY_PACK_REGISTRY.require(pack_id)
+
+    assert QUADRATIC_PATH_MINIMUM_FAMILY.family_id == "QuadraticPathMinimumSolver"
+
+
+def test_expanded_family_catalogs_keep_pack_and_local_capabilities() -> None:
+    expected = {
+        QUADRATIC_PATH_MINIMUM_FAMILY.family_id: (
+            QUADRATIC_PATH_MINIMUM_FAMILY,
+            {
+                "quadratic_from_constraints",
+                "quadratic_vertex_point",
+                "right_angle_equal_length_candidates",
+            },
+            {
+                "right_angle_equal_length_construct_and_select",
+                "path_minimum_by_straightened_distance",
+            },
+        ),
+        QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY.family_id: (
+            QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
+            {
+                "quadratic_axis_from_relation",
+                "filter_point_candidates_by_quadratic_curve",
+                "linked_broken_path_minimum_expression",
+            },
+            {
+                "right_angle_equal_length_construct_and_select",
+                "curve_candidate_parameter_solve",
+            },
+        ),
+        QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY.family_id: (
+            QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY,
+            {
+                "quadratic_vertex_point",
+                "angle_sum_equal_angle_candidates",
+                "equal_length_ray_point",
+            },
+            {"equal_length_ray_path_reduction"},
+        ),
+        QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY.family_id: (
+            QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY,
+            {
+                "two_moving_points_path_reduction",
+                "square_path_dimension_reduction",
+                "line_locus_minimum_point",
+            },
+            {
+                "broken_path_straightening_and_select",
+                "broken_path_straightening_minimum_expression",
+            },
+        ),
+    }
+
+    for family, method_ids, recipe_ids in expected.values():
+        assert method_ids.issubset(set(family.method_ids))
+        assert recipe_ids.issubset(
+            {recipe.recipe_id for recipe in family.step_recipes}
+        )
+
+
+def test_pack_exposed_methods_do_not_imply_binding_rule_migration() -> None:
+    """Phase 1a may widen catalog, but binding rules still come from the family."""
+    rules = MethodBindingRuleRegistry.from_family_spec(QUADRATIC_PATH_MINIMUM_FAMILY)
+
+    assert "quadratic_vertex_point" in QUADRATIC_PATH_MINIMUM_FAMILY.method_ids
+    assert rules.rule_for("quadratic_vertex_point") is None
+    assert rules.rule_for("quadratic_from_constraints") is not None
