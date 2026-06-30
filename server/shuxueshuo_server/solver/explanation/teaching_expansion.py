@@ -112,6 +112,8 @@ def _method_teaching_draft(
     boxes: list[str] = []
     unbound: list[str] = []
     bound_roles: dict[str, Any] = {}
+    student_title = ""
+    student_nav_title = ""
     for method_id in group.method_ids:
         spec = method_specs.get(method_id)
         explanation = spec.explanation if spec is not None else None
@@ -125,13 +127,23 @@ def _method_teaching_draft(
             group=group,
             snapshot=snapshot,
         )
+        title = _format_optional_template(explanation.student_title_template, local_roles)
+        nav_title = _format_optional_template(explanation.student_nav_title_template, local_roles)
+        if title:
+            student_title = title
+        if nav_title:
+            student_nav_title = nav_title
         for role in explanation.role_schema:
             if role in local_roles:
                 bound_roles[role] = local_roles[role]
             elif role not in unbound:
                 unbound.append(role)
-        for template in explanation.derive_templates:
-            proofs.append(format_template(str(template), local_roles))
+        local_proofs = local_roles.get("derive_items")
+        if isinstance(local_proofs, (tuple, list)) and local_proofs:
+            proofs.extend(str(item) for item in local_proofs if str(item).strip())
+        else:
+            for template in explanation.derive_templates:
+                proofs.append(format_template(str(template), local_roles))
         for template in explanation.box_templates:
             box = format_template(str(template), local_roles).strip()
             if box and box not in boxes:
@@ -147,6 +159,8 @@ def _method_teaching_draft(
         "confidence": "complete" if not unbound else "partial",
         "bound_roles": bound_roles,
         "unbound_roles": unbound,
+        "student_title": student_title,
+        "student_nav_title": student_nav_title,
         "proof_draft": proofs,
         "box": boxes,
         "llm_can_complete": [
@@ -179,6 +193,16 @@ def _method_role_binder_id(explanation: MethodExplanationSpec) -> str:
     if explanation.role_binding_strategy == "role_name_registry":
         return "role_name_registry"
     return explanation.role_binder_id
+
+
+def _format_optional_template(template: str, roles: dict[str, Any]) -> str:
+    text = str(template or "").strip()
+    if not text:
+        return ""
+    formatted = format_template(text, roles).strip()
+    if "{" in formatted or "}" in formatted:
+        return ""
+    return formatted
 
 
 __all__ = ["explanation_payload_for_group"]

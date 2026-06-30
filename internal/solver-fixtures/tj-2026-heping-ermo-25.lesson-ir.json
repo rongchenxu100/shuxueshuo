@@ -1,0 +1,600 @@
+{
+  "problem_id": "tj-2026-heping-ermo-25",
+  "family_id": "QuadraticSquareReflectionPathMinimumSolver",
+  "sections": [
+    {
+      "scope_id": "i_1",
+      "title": "第（Ⅰ）①问",
+      "steps": [
+        "explain_determine_quadratic_i_foundation"
+      ]
+    },
+    {
+      "scope_id": "i_2",
+      "title": "第（Ⅰ）②问",
+      "steps": [
+        "explain_parameterize_axis_point_E_i2_derive_square_vertex_G_i2",
+        "explain_solve_E_candidates_from_G_on_parabola"
+      ]
+    },
+    {
+      "scope_id": "ii",
+      "title": "第（Ⅱ）问",
+      "steps": [
+        "explain_simplify_quadratic_with_A_derive_axis_point_M",
+        "explain_reduce_square_path_dimension",
+        "explain_parameterize_axis_point_E_ii_derive_square_vertex_G_ii_derive_G_locus_line",
+        "explain_derive_path_minimum_expr",
+        "explain_derive_parameter_c_evaluate_A_at_c_derive_minimum_G_point",
+        "explain_derive_extremal_E_from_square_side"
+      ]
+    }
+  ],
+  "steps": [
+    {
+      "id": "explain_determine_quadratic_i_foundation",
+      "scope_id": "i_1",
+      "source_step_ids": [
+        "determine_quadratic_i",
+        "derive_vertex_P",
+        "derive_x_intercept_A"
+      ],
+      "capability_ids": [
+        "quadratic_from_constraints",
+        "quadratic_vertex_point",
+        "quadratic_x_axis_intercept_point"
+      ],
+      "trace_refs": [
+        "trace:determine_quadratic_i:0:quadratic_from_constraints",
+        "trace:derive_vertex_P:0:quadratic_vertex_point",
+        "trace:derive_x_intercept_A:0:quadratic_x_axis_intercept_point"
+      ],
+      "title": "代入已知条件，求解析式、顶点和 x 轴交点",
+      "goal": "先确定当前抛物线，再读出顶点并求与 x 轴的交点。",
+      "derive": [
+        [
+          "∵",
+          "b＝－2，c＝3"
+        ],
+        [
+          "∴",
+          "y＝－x²－2x＋3＝－(x＋1)²＋4"
+        ],
+        [
+          "∵",
+          "y＝－(x＋1)²＋4"
+        ],
+        [
+          "∴",
+          "P(－1,4)"
+        ],
+        [
+          "∵",
+          "x 轴交点满足 y＝0，即 －x²－2x＋3＝0"
+        ],
+        [
+          "∴",
+          "A(－3,0)"
+        ]
+      ],
+      "box": [
+        "y＝－x²－2x＋3",
+        "P(-1,4)",
+        "A(-3,0)"
+      ],
+      "gaps": [],
+      "teaching_substep_ids": [],
+      "nav_title": "求解析式、顶点和交点"
+    },
+    {
+      "id": "explain_parameterize_axis_point_E_i2_derive_square_vertex_G_i2",
+      "scope_id": "i_2",
+      "source_step_ids": [
+        "parameterize_axis_point_E_i2",
+        "derive_square_vertex_G_i2"
+      ],
+      "capability_ids": [
+        "quadratic_axis_parameterized_point",
+        "square_adjacent_vertex_from_side"
+      ],
+      "trace_refs": [
+        "trace:parameterize_axis_point_E_i2:0:quadratic_axis_parameterized_point",
+        "trace:derive_square_vertex_G_i2:0:square_adjacent_vertex_from_side"
+      ],
+      "title": "由正方形求相邻顶点G",
+      "goal": "先用参数表示对称轴上的点，再利用正方形相邻边关系表示另一个顶点。",
+      "derive": [
+        [
+          "∵",
+          "E 在对称轴 x＝－1 上"
+        ],
+        [
+          "∴",
+          "设 E(－1,t)"
+        ],
+        [
+          "作",
+          "GQ⊥x轴于 Q"
+        ],
+        [
+          "∵",
+          "四边形 AEKG 是正方形"
+        ],
+        [
+          "∴",
+          "AE＝AG，∠EAG＝90°"
+        ],
+        [
+          "∵",
+          "∠EMA＝∠GQA＝90°"
+        ],
+        [
+          "∴",
+          "∠EAM＝∠AGQ"
+        ],
+        [
+          "∴",
+          "Rt△AEM≌Rt△GAQ"
+        ],
+        [
+          "∴",
+          "AQ＝ME＝t，GQ＝AM＝2"
+        ],
+        [
+          "∵",
+          "G 在 x 轴下方"
+        ],
+        [
+          "∴",
+          "G(t－3,－2)"
+        ]
+      ],
+      "box": [
+        "E(－1,t)",
+        "G(t－3,－2)"
+      ],
+      "gaps": [],
+      "teaching_substep_ids": [],
+      "nav_title": "正方形求顶点G"
+    },
+    {
+      "id": "explain_solve_E_candidates_from_G_on_parabola",
+      "scope_id": "i_2",
+      "source_step_ids": [
+        "solve_E_candidates_from_G_on_parabola"
+      ],
+      "capability_ids": [
+        "point_candidates_from_curve_point_condition"
+      ],
+      "trace_refs": [
+        "trace:solve_E_candidates_from_G_on_parabola:0:point_candidates_from_curve_point_condition"
+      ],
+      "title": "代入抛物线求点E候选",
+      "goal": "answer:i_2.E",
+      "derive": [
+        [
+          "∵",
+          "G(t－3,－2) 在 y＝－x²－2x＋3 上"
+        ],
+        [
+          "∴",
+          "－2＝－(t－3)²－2(t－3)＋3"
+        ],
+        [
+          "∴",
+          "(t－3)²＋2(t－3)－5＝0"
+        ],
+        [
+          "设",
+          "u＝t－3"
+        ],
+        [
+          "∴",
+          "u²＋2u－5＝0"
+        ],
+        [
+          "∴",
+          "u＝－1±√6"
+        ],
+        [
+          "∴",
+          "t＝2±√6"
+        ],
+        [
+          "∴",
+          "E(－1,2＋√6) 或 E(－1,2－√6)"
+        ]
+      ],
+      "box": [
+        "E(－1,2＋√6) 或 E(－1,2－√6)"
+      ],
+      "gaps": [],
+      "teaching_substep_ids": [],
+      "nav_title": "求点E候选"
+    },
+    {
+      "id": "explain_simplify_quadratic_with_A_derive_axis_point_M",
+      "scope_id": "ii",
+      "source_step_ids": [
+        "simplify_quadratic_with_A",
+        "derive_axis_point_M"
+      ],
+      "capability_ids": [
+        "quadratic_from_constraints",
+        "quadratic_axis_x_intercept_point"
+      ],
+      "trace_refs": [
+        "trace:simplify_quadratic_with_A:0:quadratic_from_constraints",
+        "trace:derive_axis_point_M:0:quadratic_axis_x_intercept_point"
+      ],
+      "title": "化简函数解析式，求对称轴与X轴交点M",
+      "goal": "先确定当前抛物线，再求对称轴与 x 轴的交点。",
+      "derive": [
+        [
+          "∵",
+          "A(－c,0) 在 y＝－x²＋bx＋c 上"
+        ],
+        [
+          "∴",
+          "0＝－c²－bc＋c＝c(1－c－b)"
+        ],
+        [
+          "∵",
+          "c＞1"
+        ],
+        [
+          "∴",
+          "b＝1－c"
+        ],
+        [
+          "∴",
+          "y＝－x²＋(1－c)x＋c"
+        ],
+        [
+          "∵",
+          "对称轴为 x＝1/2－c/2"
+        ],
+        [
+          "∴",
+          "M(1/2－c/2,0)"
+        ]
+      ],
+      "box": [
+        "y＝－x²＋(1－c)x＋c",
+        "M(1/2－c/2,0)"
+      ],
+      "gaps": [],
+      "teaching_substep_ids": [],
+      "nav_title": "化简解析式求M"
+    },
+    {
+      "id": "explain_reduce_square_path_dimension",
+      "scope_id": "ii",
+      "source_step_ids": [
+        "reduce_square_path_dimension"
+      ],
+      "capability_ids": [
+        "square_path_dimension_reduction"
+      ],
+      "trace_refs": [
+        "trace:reduce_square_path_dimension:0:square_path_dimension_reduction"
+      ],
+      "title": "由斜边中线和中位线转化线段",
+      "goal": "fact:ii:square_path_transformation",
+      "derive": [
+        [
+          "∵",
+          "F 是 AE 的中点"
+        ],
+        [
+          "∴",
+          "在 Rt△AEM 中，斜边中线 FM＝AE/2"
+        ],
+        [
+          "∵",
+          "H 是正方形对角线 EG 的中点，F 是 AE 的中点"
+        ],
+        [
+          "∴",
+          "在 △AEG 中，HF 是中位线"
+        ],
+        [
+          "∴",
+          "HF＝AG/2"
+        ],
+        [
+          "∵",
+          "AE 与 AG 都是正方形 AEKG 的边，AE＝AG"
+        ],
+        [
+          "∴",
+          "HF＋FM＝AG"
+        ],
+        [
+          "∴",
+          "HF＋FM＋MG＝AG＋MG"
+        ]
+      ],
+      "box": [
+        "FM＝AE/2",
+        "HF＝AG/2",
+        "HF＋FM＝AG",
+        "HF＋FM＋MG＝AG＋MG"
+      ],
+      "gaps": [],
+      "teaching_substep_ids": [],
+      "nav_title": "多动点转化为单动点问题"
+    },
+    {
+      "id": "explain_parameterize_axis_point_E_ii_derive_square_vertex_G_ii_derive_G_locus_line",
+      "scope_id": "ii",
+      "source_step_ids": [
+        "parameterize_axis_point_E_ii",
+        "derive_square_vertex_G_ii",
+        "derive_G_locus_line"
+      ],
+      "capability_ids": [
+        "quadratic_axis_parameterized_point",
+        "square_adjacent_vertex_from_side",
+        "parameterized_point_locus_line"
+      ],
+      "trace_refs": [
+        "trace:parameterize_axis_point_E_ii:0:quadratic_axis_parameterized_point",
+        "trace:derive_square_vertex_G_ii:0:square_adjacent_vertex_from_side",
+        "trace:derive_G_locus_line:0:parameterized_point_locus_line"
+      ],
+      "title": "正方形求顶点G轨迹",
+      "goal": "先用参数表示对称轴上的点，再由正方形关系表示顶点，并确定该顶点的轨迹直线。",
+      "derive": [
+        [
+          "∵",
+          "E 在对称轴 x＝1/2－c/2 上"
+        ],
+        [
+          "∴",
+          "设 E(1/2－c/2,t)"
+        ],
+        [
+          "作",
+          "GQ⊥x轴于 Q"
+        ],
+        [
+          "∵",
+          "四边形 AEKG 是正方形"
+        ],
+        [
+          "∴",
+          "AE＝AG，∠EAG＝90°"
+        ],
+        [
+          "∵",
+          "∠EMA＝∠GQA＝90°"
+        ],
+        [
+          "∴",
+          "∠EAM＝∠AGQ"
+        ],
+        [
+          "∴",
+          "Rt△AEM≌Rt△GAQ"
+        ],
+        [
+          "∴",
+          "AQ＝ME＝t，GQ＝AM＝c/2＋1/2"
+        ],
+        [
+          "∵",
+          "G 在 x 轴下方"
+        ],
+        [
+          "∴",
+          "G(－c＋t,－c/2－1/2)"
+        ],
+        [
+          "∴",
+          "G 始终在直线 y＝－(c＋1)/2 上"
+        ]
+      ],
+      "box": [
+        "E(1/2－c/2,t)",
+        "G(－c＋t,－c/2－1/2)",
+        "y＝－(c＋1)/2"
+      ],
+      "gaps": [],
+      "teaching_substep_ids": [],
+      "nav_title": "正方形求顶点G轨迹"
+    },
+    {
+      "id": "explain_derive_path_minimum_expr",
+      "scope_id": "ii",
+      "source_step_ids": [
+        "derive_path_minimum_expr"
+      ],
+      "capability_ids": [
+        "broken_path_straightening_minimum_expression"
+      ],
+      "trace_refs": [
+        "trace:derive_path_minimum_expr:0:broken_path_straightening_candidates",
+        "trace:derive_path_minimum_expr:1:select_straightening_candidate",
+        "trace:derive_path_minimum_expr:2:distance_between_points"
+      ],
+      "title": "将军饮马折线最值",
+      "goal": "把单动点折线路径拉直成一条线段，用两点之间线段最短求最小值。",
+      "derive": [
+        [
+          "∵",
+          "由上一步，AG+MG 是等价后的单动点折线"
+        ],
+        [
+          "∵",
+          "G 在直线 y＝－(c＋1)/2 上运动"
+        ],
+        [
+          "作",
+          "A 关于 y＝－(c＋1)/2 的对称点 A′"
+        ],
+        [
+          "∴",
+          "A′(-c,-c-1)"
+        ],
+        [
+          "∴",
+          "AG=A′G"
+        ],
+        [
+          "∴",
+          "AG+MG=A′G+MG"
+        ],
+        [
+          "∴",
+          "当 A′、G、M 共线时，路径取得最小值 A′M"
+        ],
+        [
+          "∴",
+          "A′M＝√(((c＋1)/2)²＋(c＋1)²)＝√5|c＋1|/2"
+        ]
+      ],
+      "box": [
+        "A′(-c,-c-1)",
+        "A′M＝√(((c＋1)/2)²＋(c＋1)²)＝√5|c＋1|/2"
+      ],
+      "gaps": [],
+      "teaching_substep_ids": [],
+      "nav_title": "将军饮马取最小值"
+    },
+    {
+      "id": "explain_derive_parameter_c_evaluate_A_at_c_derive_minimum_G_point",
+      "scope_id": "ii",
+      "source_step_ids": [
+        "derive_parameter_c",
+        "evaluate_A_at_c",
+        "derive_minimum_G_point"
+      ],
+      "capability_ids": [
+        "parameter_from_expression_value",
+        "evaluate_point_at_parameter",
+        "line_locus_minimum_point"
+      ],
+      "trace_refs": [
+        "trace:derive_parameter_c:0:parameter_from_expression_value",
+        "trace:evaluate_A_at_c:0:evaluate_point_at_parameter",
+        "trace:derive_minimum_G_point:0:line_locus_minimum_point"
+      ],
+      "title": "由最小值反求参数，并求A、G坐标",
+      "goal": "先由最小值条件反求参数，再把参数代入含参点坐标，并确定最短状态下的动点。",
+      "derive": [
+        [
+          "∵",
+          "√5|c＋1|/2＝3√5"
+        ],
+        [
+          "∴",
+          "c＝5"
+        ],
+        [
+          "∵",
+          "A(－c,0)，c＝5"
+        ],
+        [
+          "∴",
+          "A(－5,0)"
+        ],
+        [
+          "∵",
+          "c＝5"
+        ],
+        [
+          "∴",
+          "A′(－5,－6)，M(－2,0)，G 的轨迹为 y＝－3"
+        ],
+        [
+          "∵",
+          "最短时 A′、G、M 共线"
+        ],
+        [
+          "∴",
+          "G 在直线 A′M 上"
+        ],
+        [
+          "∵",
+          "A′M：y＝2x＋4"
+        ],
+        [
+          "∴",
+          "－3＝2x＋4，x＝－7/2"
+        ],
+        [
+          "∴",
+          "G(－7/2,－3)"
+        ]
+      ],
+      "box": [
+        "c＝5",
+        "A(－5,0)",
+        "G(－7/2,－3)"
+      ],
+      "gaps": [],
+      "teaching_substep_ids": [],
+      "nav_title": "反求参数求A、G"
+    },
+    {
+      "id": "explain_derive_extremal_E_from_square_side",
+      "scope_id": "ii",
+      "source_step_ids": [
+        "derive_extremal_E_from_square_side"
+      ],
+      "capability_ids": [
+        "square_adjacent_vertex_from_side"
+      ],
+      "trace_refs": [
+        "trace:derive_extremal_E_from_square_side:0:square_adjacent_vertex_from_side"
+      ],
+      "title": "由正方形求相邻顶点E",
+      "goal": "answer:ii.E",
+      "derive": [
+        [
+          "作",
+          "GQ⊥x轴于 Q，EM⊥x轴于 M"
+        ],
+        [
+          "∵",
+          "四边形 AEKG 是正方形"
+        ],
+        [
+          "∴",
+          "AG＝AE，∠GAE＝90°"
+        ],
+        [
+          "∵",
+          "∠GQA＝∠EMA＝90°"
+        ],
+        [
+          "∴",
+          "∠GAQ＝∠AEM"
+        ],
+        [
+          "∴",
+          "Rt△AGQ≌Rt△EAM"
+        ],
+        [
+          "∴",
+          "AM＝QG＝3，EM＝AQ＝3/2"
+        ],
+        [
+          "∵",
+          "按正方形顶点顺序选取 E"
+        ],
+        [
+          "∴",
+          "E(－2,3/2)"
+        ]
+      ],
+      "box": [
+        "E(－2,3/2)"
+      ],
+      "gaps": [],
+      "teaching_substep_ids": [],
+      "nav_title": "正方形求顶点E"
+    }
+  ]
+}

@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
@@ -13,9 +13,11 @@ from shuxueshuo_server.solver.runtime._paths import repo_root
 from shuxueshuo_server.solver.runtime.llm_clients import LLMPlannerClient
 
 from .builder import (
+    LessonMergeRule,
     LessonDraftBlocker,
     LessonDraftDiagnostic,
     LessonDraftValidationResult,
+    lesson_merge_cluster_at,
     validate_lesson_draft,
 )
 from .few_shots import (
@@ -24,6 +26,10 @@ from .few_shots import (
     select_lesson_few_shot_examples,
 )
 from .models import ExplanationSnapshot, LessonCandidateGroup, LessonIR
+from .target_labels import (
+    target_point_label_for_group as _target_point_label_for_group,
+    target_point_labels_for_groups as _target_point_labels_for_groups,
+)
 from .teaching_expansion import explanation_payload_for_group
 
 
@@ -208,6 +214,7 @@ def build_lesson_planner_payload(
         "planner_insights": list(snapshot.planner_insights),
         "previous_attempts": list(previous_attempts or ()),
         "teaching_step_policy": _teaching_step_policy(groups),
+        "merge_suggestions": _merge_suggestions(groups),
         "explanation_few_shots": _lesson_few_shot_examples(
             snapshot=snapshot,
             candidate_groups=candidate_groups,
@@ -237,6 +244,7 @@ def build_lesson_planner_payload(
             "不要提到 runtime ContextPath 或内部 method 路径。",
             "讲解文字使用适合初中生的中文表达。",
             "不要只按大问/小问整体分组；较长小问通常需要拆成多个讲解步骤。",
+            "若 merge_suggestions 给出 candidate_group_ids，可以按建议合并这些简单连续步骤；仍必须保留所有 source_step_ids/capability_ids 的事实边界。",
             "若 candidate_group 提供 teaching_expansion_draft，优先使用该草稿，不要根据 method_id 自己猜证明。",
             "可以把一个 executable recipe 拆成多个 LessonIR steps，但 source_step_ids 必须仍来自 candidate_groups。",
             "teaching_expansion_draft 中 explanation_only_label=true 的辅助点只用于讲解，不是新的 StepIntent creates。",
@@ -253,6 +261,123 @@ def build_lesson_planner_payload(
             "answers 中的每个最终答案都必须以学生可读形式出现在相关最终讲解步骤的 box 中。",
         ],
     }
+
+
+def _merge_suggestions(groups: tuple[LessonCandidateGroup, ...]) -> list[dict[str, Any]]:
+    suggestions: list[dict[str, Any]] = []
+    index = 0
+    while index < len(groups):
+        rule, selected = lesson_merge_cluster_at(groups, index)
+        if rule is not None and selected:
+            title = _merge_title_hint(rule, selected)
+            nav_title = _merge_nav_title_hint(rule, selected)
+            suggestions.append(
+                {
+                    "candidate_group_ids": [group.candidate_group_id for group in selected],
+                    "scope_id": selected[0].scope_id,
+                    "title_hint": title,
+                    "nav_title_hint": nav_title,
+                    "reason": rule.reason,
+                }
+            )
+            index += len(selected)
+            continue
+        index += 1
+    return suggestions
+
+
+_MergeHintBuilder = Callable[[LessonMergeRule, tuple[LessonCandidateGroup, ...]], str]
+
+
+def _quadratic_foundation_axis_point_title_hint(
+    rule: LessonMergeRule,
+    selected: tuple[LessonCandidateGroup, ...],
+) -> str:
+    label = _target_point_label_for_group(selected[1])
+    return f"化简函数解析式，求对称轴与X轴交点{label}" if label else rule.title_hint
+
+
+def _axis_parameter_square_adjacent_locus_title_hint(
+    rule: LessonMergeRule,
+    selected: tuple[LessonCandidateGroup, ...],
+) -> str:
+    label = _target_point_label_for_group(selected[2]) or _target_point_label_for_group(selected[1])
+    return f"正方形求顶点{label}轨迹" if label else rule.title_hint
+
+
+def _parameter_value_point_evaluation_minimum_title_hint(
+    rule: LessonMergeRule,
+    selected: tuple[LessonCandidateGroup, ...],
+) -> str:
+    labels = _target_point_labels_for_groups(selected)
+    return f"由最小值反求参数，并求{'、'.join(labels)}坐标" if labels else rule.title_hint
+
+
+def _parameter_value_point_evaluation_title_hint(
+    rule: LessonMergeRule,
+    selected: tuple[LessonCandidateGroup, ...],
+) -> str:
+    labels = _target_point_labels_for_groups(selected)
+    return f"由表达式取值反求参数，并求{'、'.join(labels)}坐标" if labels else rule.title_hint
+
+
+def _quadratic_foundation_axis_point_nav_title_hint(
+    rule: LessonMergeRule,
+    selected: tuple[LessonCandidateGroup, ...],
+) -> str:
+    label = _target_point_label_for_group(selected[1])
+    return f"化简解析式求{label}" if label else rule.nav_title_hint
+
+
+def _axis_parameter_square_adjacent_locus_nav_title_hint(
+    rule: LessonMergeRule,
+    selected: tuple[LessonCandidateGroup, ...],
+) -> str:
+    label = _target_point_label_for_group(selected[2]) or _target_point_label_for_group(selected[1])
+    return f"正方形求顶点{label}轨迹" if label else rule.nav_title_hint
+
+
+def _parameter_value_point_evaluation_nav_title_hint(
+    rule: LessonMergeRule,
+    selected: tuple[LessonCandidateGroup, ...],
+) -> str:
+    labels = _target_point_labels_for_groups(selected)
+    return f"反求参数求{'、'.join(labels)}" if labels else rule.nav_title_hint
+
+
+_MERGE_TITLE_HINT_BUILDERS: dict[str, _MergeHintBuilder] = {
+    "quadratic_foundation_axis_point": _quadratic_foundation_axis_point_title_hint,
+    "axis_parameter_square_adjacent_locus": _axis_parameter_square_adjacent_locus_title_hint,
+    "parameter_value_point_evaluation_minimum_point": _parameter_value_point_evaluation_minimum_title_hint,
+    "parameter_value_point_evaluation": _parameter_value_point_evaluation_title_hint,
+}
+
+_MERGE_NAV_TITLE_HINT_BUILDERS: dict[str, _MergeHintBuilder] = {
+    "quadratic_foundation_axis_point": _quadratic_foundation_axis_point_nav_title_hint,
+    "axis_parameter_square_adjacent_locus": _axis_parameter_square_adjacent_locus_nav_title_hint,
+    "parameter_value_point_evaluation_minimum_point": _parameter_value_point_evaluation_nav_title_hint,
+    "parameter_value_point_evaluation": _parameter_value_point_evaluation_nav_title_hint,
+}
+
+
+def _merge_title_hint(
+    rule: LessonMergeRule,
+    selected: tuple[LessonCandidateGroup, ...],
+) -> str:
+    builder = _MERGE_TITLE_HINT_BUILDERS.get(rule.rule_id)
+    if builder is None:
+        return rule.title_hint
+    return builder(rule, selected)
+
+
+def _merge_nav_title_hint(
+    rule: LessonMergeRule,
+    selected: tuple[LessonCandidateGroup, ...],
+) -> str:
+    builder = _MERGE_NAV_TITLE_HINT_BUILDERS.get(rule.rule_id)
+    if builder is None:
+        return rule.nav_title_hint
+    return builder(rule, selected)
 
 
 def render_lesson_prompt(payload: dict[str, Any]) -> ExplanationPrompt:

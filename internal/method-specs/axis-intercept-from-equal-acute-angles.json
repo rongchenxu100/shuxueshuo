@@ -51,7 +51,6 @@
     },
     "student_goal_template": "由等锐角得到正切比相等，求出目标直线在坐标轴上的截点。",
     "student_title_template": "由等角关系求辅助点坐标",
-    "student_nav_title_template": "",
     "student_title_templates_by_goal": {},
     "derive_templates": [],
     "box_templates": [],
@@ -63,8 +62,8 @@
     "role_schema": {
       "angle_equality": "用于保留当前讲解中的等角关系与对应角边。",
       "target_intercept": "目标线与竖直轴的交点。",
-      "reference_right_triangle": "由参考水平轴点、origin、竖直轴点组成的直角三角形。",
-      "target_right_triangle": "由目标水平轴点、origin、目标截点组成的直角三角形。"
+      "reference_right_triangle": "由参考水平轴点、原点、竖直轴点组成的直角三角形。",
+      "target_right_triangle": "由目标水平轴点、原点、目标截点组成的直角三角形。"
     },
     "scene_templates": [
       {

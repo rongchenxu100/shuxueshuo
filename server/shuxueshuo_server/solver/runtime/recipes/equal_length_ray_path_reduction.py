@@ -27,6 +27,7 @@ SPEC = RecipeSpecSource(
             "anchor": "等长关系的公共端点，也是射线端点。",
             "segment_moving_point": "在线段上运动的点。",
             "ray_moving_point": "在射线上运动的点。",
+            "ray_name": "辅助点所在射线的名称。",
             "segment_reference_point": "线段另一端点，用来确定辅助点的等长半径。",
             "ray_direction_point": "确定射线方向的已知点。",
             "fixed_point": "原路径中连接线段动点的固定点。",

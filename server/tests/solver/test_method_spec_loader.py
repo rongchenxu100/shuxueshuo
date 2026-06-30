@@ -6,6 +6,7 @@
 
 import json
 from pathlib import Path
+import re
 
 import pytest
 
@@ -14,6 +15,11 @@ from shuxueshuo_server.solver.runtime.method_specs import (
     parse_method_spec,
 )
 from shuxueshuo_server.solver.runtime.methods import method_spec_payloads
+from shuxueshuo_server.solver.runtime.recipes import RecipeSpecRegistry
+
+
+PLACEHOLDER_RE = re.compile(r"{([A-Za-z_][A-Za-z0-9_]*)}")
+ENGLISH_WORD_RE = re.compile(r"[A-Za-z]{2,}")
 
 
 def test_loads_right_angle_candidate_and_selector_specs() -> None:
@@ -125,6 +131,8 @@ def test_loads_weighted_geometric_path_specs() -> None:
     assert "parameter_value" not in minimum.outputs
     assert parameter.inputs["expression"].type == "MinimumExpression"
     assert parameter.outputs["parameter_value"] == "ParameterValue"
+    assert parameter.explanation is not None
+    assert parameter.explanation.student_title_template == "由表达式取值反求参数"
 
 
 def test_y_axis_intercept_summary_allows_symbolic_coefficients() -> None:
@@ -159,6 +167,91 @@ def test_generated_json_specs_match_code_source() -> None:
     }
 
     assert actual == expected
+
+
+def test_method_explanation_placeholders_are_declared_roles() -> None:
+    registry = MethodSpecRegistry.load_from_code()
+
+    for spec in registry.specs.values():
+        explanation = spec.explanation
+        if explanation is None:
+            continue
+        templates = (
+            explanation.student_goal_template,
+            explanation.student_title_template,
+            explanation.student_nav_title_template,
+            *explanation.derive_templates,
+            *explanation.box_templates,
+        )
+        placeholders = {
+            match
+            for template in templates
+            for match in PLACEHOLDER_RE.findall(template)
+        }
+
+        assert placeholders <= set(explanation.role_schema), spec.method_id
+
+
+def test_method_role_schema_descriptions_are_student_facing_chinese() -> None:
+    for payload in method_spec_payloads():
+        for section in ("explanation", "visual"):
+            role_schema = (payload.get(section) or {}).get("role_schema") or {}
+            for role_id, description in role_schema.items():
+                assert ENGLISH_WORD_RE.search(str(description)) is None, (
+                    payload["method_id"],
+                    section,
+                    role_id,
+                    description,
+                )
+
+
+def test_curve_point_candidate_visual_spec_is_not_square_bound() -> None:
+    spec = MethodSpecRegistry.load_from_code().require("point_candidates_from_curve_point_condition")
+
+    assert spec.visual is not None
+    assert spec.visual.role_schema == {
+        "target_candidates": "由曲线条件得到的目标点候选。",
+        "candidate_context_regions": "可选的候选几何上下文区域，例如候选正方形。",
+    }
+    assert [template["component"] for template in spec.visual.scene_templates] == [
+        "CurvePointCandidateMarker",
+    ]
+
+
+def test_empty_student_nav_title_template_is_omitted_from_generated_json() -> None:
+    generated = {
+        payload["method_id"]: payload
+        for payload in method_spec_payloads()
+    }
+    raw_specs = {
+        raw["method_id"]: raw
+        for raw in (
+            json.loads(path.read_text(encoding="utf-8"))
+            for path in Path("../internal/method-specs").glob("*.json")
+        )
+    }
+
+    for method_id, payload in generated.items():
+        explanation = payload.get("explanation")
+        if not isinstance(explanation, dict):
+            continue
+        assert explanation.get("student_nav_title_template") != "", method_id
+        assert raw_specs[method_id].get("explanation", {}).get("student_nav_title_template") != "", method_id
+
+
+def test_recipe_proof_outline_placeholders_are_declared_roles() -> None:
+    registry = RecipeSpecRegistry.load_from_code()
+
+    for spec in registry.specs.values():
+        explanation = spec.explanation
+        if explanation is None:
+            continue
+        placeholders = {
+            match
+            for template in explanation.proof_outline_templates
+            for match in PLACEHOLDER_RE.findall(template)
+        }
+        assert placeholders <= set(explanation.role_schema), spec.recipe_id
 
 
 def test_rejects_missing_required_field() -> None:

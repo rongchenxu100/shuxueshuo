@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from shuxueshuo_server.solver.contracts import MethodExplanationSpec, MethodVisualSpec
+
 from ._common import *
 from ._spec import MethodSpecSource
 
@@ -107,4 +109,38 @@ SPEC = MethodSpecSource(
     outputs={"line": "Line"},
     preconditions=("point 的两个坐标最多含一个公共参数，且关于该参数为一次式",),
     postconditions=("输出 Line 包含 start_point、direction 和 point_name",),
+    explanation=MethodExplanationSpec(
+        role_schema={
+            "parameterized_point": "含一个参数的动点坐标。",
+            "point_label": "动点的学生可见名称。",
+            "locus_line": "消去参数后的轨迹直线。",
+        },
+        student_goal_template="由参数化坐标看出动点所在的轨迹直线。",
+        student_title_template="由参数化点确定轨迹直线",
+        derive_templates=(
+            "∵{parameterized_point}",
+            "∴{point_label} 始终在直线 {locus_line} 上",
+        ),
+        box_templates=("{locus_line}",),
+        role_binder_id="parameterized_point_locus_line",
+    ),
+    visual=MethodVisualSpec(
+        role_schema={
+            "moving_point": "产生轨迹的参数化动点。",
+            "locus_line": "该动点所在的轨迹直线。",
+        },
+        role_binder_id="parameterized_point_locus_line",
+        scene_templates=(
+            {
+                "component": "LocusLineMarker",
+                "persistence": "carry_forward",
+                "color": "#0f766e",
+                "dash": "7 5",
+                "width": 2.0,
+                "label_anchor": "end",
+                "label_dx": -170,
+                "label_dy": -14,
+            },
+        ),
+    ),
 )

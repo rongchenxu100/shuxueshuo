@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from shuxueshuo_server.solver.contracts import MethodExplanationSpec
+from shuxueshuo_server.solver.contracts import MethodExplanationSpec, MethodVisualSpec
 
 from ._common import *
 from ._spec import MethodSpecSource
@@ -154,10 +154,32 @@ SPEC = MethodSpecSource(
     explanation=MethodExplanationSpec(
         role_schema={
             "parabola": "当前抛物线解析式。",
+            "intercept_equation": "令 y=0 后得到的一元二次方程。",
             "target_point": "需要求出的 x 轴交点。",
             "known_point": "可选的已知 x 轴交点。",
         },
         student_goal_template="令 y=0，求抛物线与 x 轴的交点。",
         student_title_template="求抛物线与 x 轴交点",
+        derive_templates=(
+            "∵x 轴交点满足 y＝0，即 {intercept_equation}",
+            "∴{target_point}",
+        ),
+        role_binder_id="quadratic_x_axis_intercept_point",
+    ),
+    visual=MethodVisualSpec(
+        role_schema={
+            "parabola": "当前抛物线。",
+            "x_axis_intercepts": "抛物线与 x 轴交点。",
+            "target_point": "该方法要求的目标交点。",
+        },
+        scene_templates=(
+            {
+                "component": "QuadraticXAxisInterceptMarker",
+                "point_color": "#b45309",
+                "context_color": "#1f2937",
+                "persistence": "carry_forward",
+            },
+        ),
+        role_binder_id="generic_visual",
     ),
 )

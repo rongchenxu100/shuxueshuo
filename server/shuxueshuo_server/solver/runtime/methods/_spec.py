@@ -82,11 +82,10 @@ def _json_ready_hint(raw: dict[str, Any]) -> dict[str, Any]:
 
 
 def _json_ready_explanation(explanation: MethodExplanationSpec) -> dict[str, Any]:
-    return {
+    payload = {
         "role_schema": dict(explanation.role_schema),
         "student_goal_template": explanation.student_goal_template,
         "student_title_template": explanation.student_title_template,
-        "student_nav_title_template": explanation.student_nav_title_template,
         "student_title_templates_by_goal": dict(explanation.student_title_templates_by_goal),
         "derive_templates": list(explanation.derive_templates),
         "box_templates": list(explanation.box_templates),
@@ -94,6 +93,9 @@ def _json_ready_explanation(explanation: MethodExplanationSpec) -> dict[str, Any
         "role_binding_strategy": explanation.role_binding_strategy,
         "role_binder_id": explanation.role_binder_id,
     }
+    if explanation.student_nav_title_template:
+        payload["student_nav_title_template"] = explanation.student_nav_title_template
+    return payload
 
 
 def _json_ready_visual(visual: MethodVisualSpec) -> dict[str, Any]:

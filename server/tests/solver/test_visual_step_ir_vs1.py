@@ -37,12 +37,15 @@ from shuxueshuo_server.solver.visual import (
     VisualStepIRValidator,
     forward_compile,
 )
+from shuxueshuo_server.solver.visual import animation as visual_animation
 from shuxueshuo_server.solver.visual import builder as visual_builder
 from shuxueshuo_server.solver.visual import llm as visual_llm
 from shuxueshuo_server.solver.visual import parametric as visual_parametric
-from shuxueshuo_server.solver.visual.geometry_naming import GeometryPointScopeNamer
+from shuxueshuo_server.solver.visual import role_binders as visual_role_binders
+from shuxueshuo_server.solver.visual.geometry_naming import GeometryPointScopeNamer, scope_root
 from shuxueshuo_server.solver.visual.models import visual_step_ir_from_payload
 from shuxueshuo_server.solver.visual.role_binders import VisualGeometryIndex, VisualRoleBindings
+from shuxueshuo_server.solver.visual.sympy_helpers import sympy_pair
 from shuxueshuo_server.solver.visual.validator import VisualStepIRValidationError
 
 
@@ -56,6 +59,76 @@ RUN_DEEPSEEK_HEPING_VISUAL = (
     and os.getenv("RUN_DEEPSEEK_VISUAL_BUILDER") == "1"
     and os.getenv("RUN_DEEPSEEK_HEPING_VISUAL") == "1"
 )
+
+
+def test_visual_sympy_pair_uses_shared_axis_parameter_and_power_normalization() -> None:
+    pair = sympy_pair(
+        ["_axis_param_i^2 + abs(x)", "y*y + sqrt(4)"],
+        axis_parameter_alias="u",
+    )
+    assert pair is not None
+    assert sp.simplify(pair[0] - (sp.Symbol("u") ** 2 + sp.Abs(sp.Symbol("x")))) == 0
+    assert sp.simplify(pair[1] - (sp.Symbol("y") ** 2 + 2)) == 0
+
+    raw_pair = sympy_pair(["_axis_param_i + 1", "0"])
+    assert raw_pair is not None
+    assert sp.Symbol("_axis_param_i") in raw_pair[0].free_symbols
+
+    assert "sp.sympify" not in inspect.getsource(visual_builder._sympy_pair_value)
+    assert "sp.sympify" not in inspect.getsource(visual_role_binders._sympy_pair)
+    assert "sp.sympify" not in inspect.getsource(visual_parametric._sympy_pair)
+
+
+def test_method_and_recipe_visual_template_dispatch_uses_component_registry() -> None:
+    method_registry = MethodSpecRegistry.load_from_code()
+    method_components = {
+        str(template.get("component") or "")
+        for spec in method_registry.specs.values()
+        if spec.visual is not None
+        for template in spec.visual.scene_templates
+    }
+    recipe_registry = RecipeSpecRegistry.load_from_code()
+    recipe_components = {
+        str(template.get("component") or "")
+        for spec in recipe_registry.specs.values()
+        if spec.visual is not None
+        for templates in spec.visual.teaching_substep_templates.values()
+        for template in templates
+    }
+
+    assert method_components <= set(visual_builder._METHOD_VISUAL_TEMPLATE_RENDERERS)
+    assert recipe_components <= set(visual_builder._RECIPE_VISUAL_TEMPLATE_RENDERERS)
+    assert "CurvePointCandidateMarker" in visual_builder._METHOD_VISUAL_TEMPLATE_RENDERERS
+    assert "BrokenPathStraighteningMarker" in visual_builder._RECIPE_VISUAL_TEMPLATE_RENDERERS
+    assert "elif" not in inspect.getsource(visual_builder._method_visual_template_items)
+    assert "elif" not in inspect.getsource(visual_builder._recipe_visual_template_items)
+
+
+def test_visual_rgba_literals_are_palette_backed() -> None:
+    assert "rgba(" not in inspect.getsource(visual_builder)
+    assert "rgba(" not in inspect.getsource(visual_animation)
+
+
+def test_scope_root_keeps_later_roman_questions_distinct() -> None:
+    assert scope_root("i") == "i"
+    assert scope_root("i_2") == "i"
+    assert scope_root("ii") == "ii"
+    assert scope_root("ii_3") == "ii"
+    assert scope_root("iii") == "iii"
+    assert scope_root("iii_1") == "iii"
+    assert scope_root("iv") == "iv"
+
+
+def test_parametric_control_label_without_roles_does_not_default_to_named_points() -> None:
+    assert (
+        visual_parametric._control_label(
+            {},
+            moving_role="moving",
+            anchor_role="anchor",
+            endpoint_role="endpoint",
+        )
+        == "动点参数"
+    )
 
 
 def test_visual_step_builder_generates_from_lesson_ir_directly() -> None:
@@ -697,6 +770,63 @@ def test_vs1_angle_sum_visual_ignores_llm_future_f_box_text() -> None:
     )
 
 
+def test_vs1_reference_angle_without_bound_value_has_no_implicit_45_label() -> None:
+    items = visual_builder._angle_reference_items(
+        VisualRoleBindings(
+            angle_references=(
+                {
+                    "vertex": "B",
+                    "rayA": "A",
+                    "rayB": "C",
+                },
+            )
+        )
+    )
+
+    assert items == [
+        {
+            "component": "AngleArc",
+            "vertex": "B",
+            "rayA": "A",
+            "rayB": "C",
+            "color": "#0f766e",
+            "radius": 43,
+            "metadata": {"low_level_type": "angleArc"},
+        }
+    ]
+    assert '"45°"' not in inspect.getsource(visual_role_binders._reference_angles_from_method_output)
+
+
+def test_visual_axis_arm_detection_uses_problem_origin_label_not_literal_o() -> None:
+    assert visual_role_binders._axis_arm("Z", "A", frozenset({"Z"})) is True
+    assert visual_role_binders._axis_arm("A", "Z", frozenset({"Z"})) is True
+    assert visual_role_binders._axis_arm("O", "A", frozenset({"Z"})) is False
+
+    index = VisualGeometryIndex(
+        {"fixedPoints": {"Z": ["0", "0"]}, "movingPoints": {}},
+        {
+            "entities": [
+                {
+                    "entity_type": "point",
+                    "handle": "point:origin",
+                    "name": "Z",
+                    "definition": "coordinate_origin",
+                }
+            ]
+        },
+    )
+
+    assert index.origin_labels == frozenset({"Z"})
+
+
+def test_visual_projection_helper_label_falls_forward_after_conflicts() -> None:
+    used = set(visual_role_binders.PROJECTION_HELPER_LABEL_CANDIDATES)
+
+    assert visual_role_binders._fresh_projection_label(used) == "Q1"
+    used.add("Q1")
+    assert visual_role_binders._fresh_projection_label(used) == "R1"
+
+
 def test_vs1_reference_angle_marker_comes_from_method_output_not_derive_text() -> None:
     snapshot = _solve_heping_snapshot()
     lesson = _load_recorded_heping_lesson_ir()
@@ -965,9 +1095,9 @@ def test_vs1_lesson_data_uses_student_titles_and_distributed_answer_boxes() -> N
     assert problem["lines"][3]["answerId"] == "answer_ii_a"
     assert problem["lines"][3]["answer"] == "a＝3/4"
     assert all(not title.startswith(("fact:", "answer:")) for title in titles)
-    assert "第（Ⅰ）①问" in sections
-    assert "第（Ⅰ）②问" in sections
-    assert "第（Ⅱ）问" in sections
+    assert any(section.startswith("第（Ⅰ）①问") for section in sections)
+    assert any(section.startswith("第（Ⅰ）②问") for section in sections)
+    assert any(section.startswith("第（Ⅱ）问") for section in sections)
     serialized_boxes = json.dumps(boxes_by_id, ensure_ascii=False)
     assert "i_1.parabola =" not in serialized_boxes
     assert "i_2.E =" not in serialized_boxes
@@ -1009,10 +1139,22 @@ def test_vs1_problem_answer_chips_use_question_goals_not_line_keywords() -> None
                     "value_type": "Point",
                 },
                 {
+                    "handle": "answer:alpha_vertex",
+                    "scope_id": "alpha",
+                    "answer_key": "V",
+                    "value_type": "Point",
+                },
+                {
                     "handle": "answer:beta_k",
                     "scope_id": "beta",
                     "answer_key": "k",
                     "value_type": "ParameterValue",
+                },
+                {
+                    "handle": "answer:gamma_E",
+                    "scope_id": "gamma",
+                    "answer_key": "E",
+                    "value_type": "PointList",
                 },
             ],
         },
@@ -1020,18 +1162,22 @@ def test_vs1_problem_answer_chips_use_question_goals_not_line_keywords() -> None
             "公共条件：给出若干点和函数。",
             "求第一个目标。",
             "继续求第二个目标。",
+            "求候选点。",
         ],
         answers={
-            "alpha": {"root": ["1", "2"]},
+            "alpha": {"root": ["1", "2"], "V": ["3", "4"]},
             "beta": {"k": "5"},
+            "gamma": {"E": [["-1", "2 + sqrt(6)"], ["-1", "2 - sqrt(6)"]]},
         },
     )
 
     assert "answerId" not in lines[0]
-    assert lines[1]["answerId"] == "answer_alpha_root"
-    assert lines[1]["answer"] == "点(1, 2)"
+    assert lines[1]["answerId"] == "answer_alpha"
+    assert lines[1]["answer"] == "点(1, 2)，V(3, 4)"
     assert lines[2]["answerId"] == "answer_beta_k"
     assert lines[2]["answer"] == "k＝5"
+    assert lines[3]["answerId"] == "answer_gamma_E"
+    assert lines[3]["answer"] == "E(－1, 2＋√6) 或 E(－1, 2－√6)"
 
 
 def test_vs1_problem_line_merge_uses_generic_parent_child_markers() -> None:
@@ -1180,6 +1326,54 @@ def test_vs1_visual_llm_filter_safe_append_add_removes_coordinate_labels() -> No
     )
 
     assert safe == [{"component": "Point", "at": "A"}]
+
+
+def test_vs1_visual_llm_filter_safe_append_add_normalizes_dashed_segments() -> None:
+    safe = visual_llm._filter_safe_append_add(
+        [
+            {
+                "component": "Segment",
+                "from": "A",
+                "to": "B",
+                "color": "#9ca3af",
+                "width": 1.2,
+                "dashed": True,
+                "metadata": {"low_level_type": "segment"},
+            }
+        ]
+    )
+
+    assert safe == [
+        {
+            "component": "DashedLine",
+            "from": "A",
+            "to": "B",
+            "color": "#9ca3af",
+            "width": 1.2,
+        }
+    ]
+
+
+def test_vs1_visual_llm_filter_safe_append_add_normalizes_line_at_pairs() -> None:
+    safe = visual_llm._filter_safe_append_add(
+        [
+            {
+                "component": "Segment",
+                "at": ["point:A", "point:G"],
+                "color": "#ff6347",
+                "dashed": True,
+            }
+        ]
+    )
+
+    assert safe == [
+        {
+            "component": "DashedLine",
+            "from": "A",
+            "to": "G",
+            "color": "#ff6347",
+        }
+    ]
 
 
 def test_vs1_visual_llm_filter_safe_append_add_rejects_carry_forward_items() -> None:

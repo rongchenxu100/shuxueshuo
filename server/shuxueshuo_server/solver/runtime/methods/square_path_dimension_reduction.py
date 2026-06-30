@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from shuxueshuo_server.solver.contracts import MethodExplanationSpec, MethodVisualSpec
+
 from ._common import *
 from ._spec import MethodSpecSource
 
@@ -43,6 +45,8 @@ class SquarePathDimensionReductionMethod:
         midpoint_other = _segment_with_endpoint(segments, midpoint, exclude=center_midpoint)
         other_fixed = _other_segment_endpoint(midpoint_other, midpoint)
         other_moving = _find_segment(segments, other_fixed, moving_vertex)
+        square_side = f"{side_start}{side_end}"
+        replacement_segment = f"{side_start}{moving_vertex}"
         transformed_path = f"{side_start}{moving_vertex}+{other_fixed}{moving_vertex}"
 
         transformation = {
@@ -51,10 +55,32 @@ class SquarePathDimensionReductionMethod:
             "transformed_path": transformed_path,
             "moving_point_name": moving_vertex,
             "fixed_point_names": (side_start, other_fixed),
+            "roles": {
+                "square_vertices": (side_start, side_end, _handle_name(vertices[2]), moving_vertex),
+                "side_start": side_start,
+                "side_end": side_end,
+                "midpoint": midpoint,
+                "center": center,
+                "other_fixed": other_fixed,
+                "moving_vertex": moving_vertex,
+            },
+            "segments": {
+                "square_side": square_side,
+                "center_midpoint": center_midpoint,
+                "midpoint_fixed": midpoint_other,
+                "fixed_moving": other_moving,
+                "replacement": replacement_segment,
+            },
+            "relations": {
+                "midpoint_fixed_half_of_side": f"{midpoint_other}={square_side}/2",
+                "center_midpoint_half_of_replacement": f"{center_midpoint}={replacement_segment}/2",
+                "square_sides_equal": f"{square_side}={replacement_segment}",
+                "merged_segment": f"{center_midpoint}+{midpoint_other}={replacement_segment}",
+                "path_equality": f"{path}={transformed_path}",
+            },
             "reason": (
-                f"{center}{midpoint} 和 {midpoint}{other_fixed} 分别等于 "
-                f"{side_start}{moving_vertex} 的一半，因此 "
-                f"{path} 转化为 {transformed_path}"
+                f"{center_midpoint}={replacement_segment}/2，{midpoint_other}={square_side}/2，"
+                f"且 {square_side}={replacement_segment}，因此 {path} 转化为 {transformed_path}"
             ),
         }
         return StatelessMethodResult(
@@ -76,8 +102,11 @@ class SquarePathDimensionReductionMethod:
                     self.method_id,
                     "正方形路径降维",
                     "把三段路径化成单动点折线",
-                    "正方形中点与中心给出两段半边长关系，可合并成一条到正方形顶点的线段。",
-                    f"{path}={transformed_path}",
+                    (
+                        f"{midpoint} 是 {square_side} 的中点，{center} 是正方形对角线 "
+                        f"{side_end}{moving_vertex} 的中点。"
+                    ),
+                    f"{center_midpoint}={replacement_segment}/2, {midpoint_other}={square_side}/2, {path}={transformed_path}",
                     f"后续只需研究动点 {moving_vertex} 在线上的折线路径 {transformed_path}",
                 )
             ],
@@ -135,5 +164,53 @@ SPEC = MethodSpecSource(
     postconditions=(
         "输出 transformed_path 是两段共享同一动点的折线路径",
         "输出 payload 包含 moving_point_name 与 fixed_point_names，供后续 planner repair 继续规划",
+    ),
+    explanation=MethodExplanationSpec(
+        role_schema={
+            "midpoint_statement": "说明哪个点是正方形边的中点。",
+            "right_triangle_statement": "用于斜边中线关系的直角三角形。",
+            "midpoint_fixed_half": "边中点到固定点线段的半长关系。",
+            "center_midpoint_statement": "说明哪个点是正方形对角线中心。",
+            "midline_statement": "正方形边与动点构成三角形中的中位线关系。",
+            "center_midpoint_half": "中心到中点线段的半长关系。",
+            "square_side_equality": "用于合并两段半长的正方形相邻边相等关系。",
+            "merged_segment": "合并后的线段等量关系。",
+            "path_equality": "最终路径转化等式。",
+        },
+        student_goal_template="利用斜边中线和三角形中位线，把正方形路径中的两段合并为一段。",
+        student_title_template="由斜边中线和中位线转化线段",
+        student_nav_title_template="多动点转化为单动点问题",
+        derive_templates=(
+            "∵{midpoint_statement}",
+            "∴{right_triangle_statement}，{midpoint_fixed_half}",
+            "∵{center_midpoint_statement}",
+            "∴{midline_statement}",
+            "∴{center_midpoint_half}",
+            "∵{square_side_equality}",
+            "∴{merged_segment}",
+            "∴{path_equality}",
+        ),
+        box_templates=("{midpoint_fixed_half}", "{center_midpoint_half}", "{merged_segment}", "{path_equality}"),
+        role_binder_id="square_path_dimension_reduction",
+    ),
+    visual=MethodVisualSpec(
+        role_schema={
+            "square_path_marker": "正方形路径降维中的直角三角形和中位线视觉证明。",
+        },
+        role_binder_id="square_path_dimension_reduction",
+        scene_templates=(
+            {
+                "component": "SquarePathDimensionMarker",
+                "persistence": "carry_forward",
+                "square_fill": "rgba(15, 118, 110, 0.055)",
+                "square_color": "rgba(15, 118, 110, 0.50)",
+                "right_triangle_fill": "rgba(14, 165, 233, 0.12)",
+                "midline_triangle_fill": "rgba(245, 158, 11, 0.12)",
+                "half_segment_color": "#7c3aed",
+                "path_segment_color": "#dc2626",
+                "replacement_color": "#b45309",
+                "show_half_segment_labels": False,
+            },
+        ),
     ),
 )

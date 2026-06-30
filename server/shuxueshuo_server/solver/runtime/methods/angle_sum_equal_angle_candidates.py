@@ -140,8 +140,8 @@ SPEC = MethodSpecSource(
     visual=MethodVisualSpec(
         role_schema={
             "angle_equality": "当前讲解中需要展示的等角关系。",
-            "reference_angle": "method 从坐标轴参考三角形中验证出的 45° 角。",
-            "guide_arms": "为了让角边界可见而补充的淡 guide arm。",
+            "reference_angle": "该方法从坐标轴参考三角形中验证出的 45° 角。",
+            "guide_arms": "为了让角边界可见而补充的淡色辅助角边。",
         },
         scene_templates=(
             {

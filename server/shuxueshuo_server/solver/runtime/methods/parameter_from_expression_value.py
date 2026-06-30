@@ -82,8 +82,15 @@ SPEC = MethodSpecSource(
             "expression": "前序步骤得到的含参表达式。",
             "target_value": "题设给出的表达式取值。",
             "parameter": "需要反求的参数。",
+            "parameter_value": "解出的参数值。",
         },
         student_goal_template="把题设给定值代入已得到的表达式，解出参数。",
-        student_title_template="由最小值反求参数",
+        student_title_template="由表达式取值反求参数",
+        derive_templates=(
+            "∵{expression}＝{target_value}",
+            "∴{parameter}＝{parameter_value}",
+        ),
+        box_templates=("{parameter}＝{parameter_value}",),
+        role_binder_id="parameter_from_expression_value",
     ),
 )

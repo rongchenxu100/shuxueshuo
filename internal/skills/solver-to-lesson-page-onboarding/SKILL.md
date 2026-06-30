@@ -21,6 +21,32 @@ successful runtime artifacts
 
 This skill is not just a testing checklist. If the page pipeline fails because a reusable explanation, visual, interaction, animation, builder, compiler, validator, or frontend capability is missing, add the generic capability in the existing architecture and test it.
 
+## Spec-First Development
+
+A core responsibility of this skill is to complete missing method / recipe teaching specs while onboarding a page. Treat a generated page review as a capability audit:
+
+```text
+bad LessonIR / VisualStepIR / interaction / animation
+-> identify the source Lesson step
+-> inspect its capability ids and source step ids
+-> inspect the method / recipe specs and role binders
+-> add or improve reusable specs and builders
+-> regenerate artifacts and tests
+```
+
+Before changing prompt text, generated fixtures, or one-off builder branches, check whether the involved capability is missing one of:
+
+- `MethodExplanationSpec` / `RecipeExplanationSpec`;
+- `TeachingSubstepSpec`, including `title`, `nav_title`, required terms, and split/merge intent;
+- explanation role binder;
+- `MethodVisualSpec` / `RecipeVisualSpec`;
+- visual role binder and semantic component compiler support;
+- interaction resolver / interaction spec;
+- animation timeline template / animation component;
+- validator or repair feedback coverage.
+
+Recorded LessonIR fixtures are regression inputs, not the source of truth. If deterministic generation produces a better generic result, update the fixture to match the architecture rather than preserving stale wording.
+
 ## Preconditions
 
 - The solver path for the problem is already passing with recorded or real DeepSeek Strategy Planner.
@@ -75,11 +101,18 @@ Use the Explanation LLM when enabled to improve grouping and wording, not to cre
 When LessonIR quality or validation fails:
 
 - Add or improve `MethodExplanationSpec` or `RecipeExplanationSpec`.
+- Put reusable step titles in method/recipe specs. Prefer `student_title_template` and `student_nav_title_template` filled from role-binder outputs such as `target_label`, `curve_kind`, `result_label`, or `object_label`, so similar methods can produce titles like `由正方形求相邻顶点G` or `代入抛物线求点E候选` without current-problem special cases.
 - Add teaching substep specs when one executable recipe contains multiple cognitive actions.
 - Add `title_required_terms` / `nav_title_required_terms` to teaching substep specs when LLM titles consistently drift from the intended teaching keywords.
 - Add or improve method/recipe role binders.
 - Add explanation few-shot or family mock few-shot when style and grouping are unstable.
 - Improve normalizer / validator / repair feedback when LLM output is structurally repairable.
+
+Use math-language derive lines. Prefer compact `∵ / ∴ / 作 / 设` statements such as `∵A(－c,0) 在 y＝... 上` and `∴A(－5,0)`. Do not accept explanatory prose when the method can provide a verified algebraic or geometric derivation.
+
+`box` is for student-readable key conclusions from the source steps. It should contain expressions like `A(－5,0)` or `y＝－x²＋3x＋2`, not internal handles, runtime descriptions, Python/SymPy syntax, or vague method summaries.
+
+Simple adjacent method steps may be merged into one student step when they form one cognitive action, such as `parameter_from_expression_value -> evaluate_point_at_parameter`. Add the merge as a generic capability-sequence rule and give every participating method an explanation spec.
 
 Do not write current problem point names, answer values, problem ids, or fixed paths into generic explanation builders or prompt rules.
 
@@ -103,6 +136,15 @@ When VisualStepIR fails or the graph is wrong:
 - Extend `GeometrySpecBuilder`, `BaseSceneBuilder`, or `SceneAccumulator` when the generated base or carry-forward model is insufficient.
 - Extend `GeometryPointScopeNamer` when multi-scope point naming produces collisions, wrong suffixes, or inconsistent geometry ids.
 
+The page should show the mathematical object implied by the current method/recipe, not only a final result callout. Examples:
+
+- vertex/intercept methods should show the vertex, axis, and relevant intersections;
+- square-adjacent-vertex methods should show the square, all relevant vertices, and any projection/right-triangle construction needed by the proof;
+- locus-line methods should show the locus and, when useful, a local slider proving the point stays on it;
+- shortest-path recipes should show the reflected point, moving point, fixed point, and the straightened path.
+
+If a visual detail should persist into later steps, model it with spec-controlled `persistence` / carry-forward behavior. Do not rely on a later step re-creating the same line or point by accident.
+
 Do not draw by problem id, exam name, or fixed point-letter special cases. Role language and canonical handles must drive visual generation.
 
 ### 4. Add Interactions
@@ -117,6 +159,8 @@ When interactions fail:
 - Add or improve interaction spec, compiler, or validator.
 - Ensure `lesson-data.steps[].localControls` and `step-decorations.steps[].pointOverrides` are generated together.
 - Keep local interaction points out of global `geometry-spec.movingPoints` unless they truly belong to global state.
+
+Use interactions when a method/recipe introduces a moving point, locus, or path minimum that students need to inspect. The slider should follow role-bound geometry, not hand-authored point names.
 
 LLM must not create or modify `pointOverrides`, `parameterized_points`, `localControls`, interaction domains, or parameterized formulas.
 
@@ -135,6 +179,8 @@ When animation fails:
 - Add or improve `AnimationTimelineBuilder`.
 - Extend validator or frontend runtime only for general animation behavior.
 - Keep modal playback isolated from the main page state.
+
+Use animation components for reusable teaching actions: constructing an equal-length point, revealing congruent triangles, sweeping a moving point, straightening a broken path, or highlighting a final minimum segment. Keep animation derive cumulative and concise; the figure should carry the visual story.
 
 LLM must not modify timeline beats, scene patches, local var tweens, or animation structure unless a future validated review mode explicitly permits it.
 
@@ -183,8 +229,11 @@ Classify failures before editing code.
 LessonIR failures usually indicate:
 
 - missing method/recipe explanation spec;
+- missing method title/nav title/box templates;
+- title/nav templates not yet parameterized by role-binder fields such as `target_label` or `curve_kind`;
 - missing teaching substep split;
 - weak explanation role binder;
+- stale recorded LessonIR fixture;
 - insufficient few-shot or mock few-shot;
 - invalid student-facing box or derive style;
 - validator or repair feedback gap.
@@ -194,6 +243,7 @@ VisualStepIR failures usually indicate:
 - missing visual spec;
 - missing visual role binder;
 - missing semantic component;
+- missing scene persistence / carry-forward intent;
 - geometry id / canonical handle mapping gap;
 - base layer or carry-forward model gap;
 - compiler / validator gap.
@@ -210,6 +260,7 @@ Animation failures usually indicate:
 - missing timeline template;
 - missing reusable animation component;
 - stale static-scene assumptions;
+- non-cumulative derive or disconnected beats;
 - modal runtime issue;
 - derive accumulation or visual continuity gap.
 

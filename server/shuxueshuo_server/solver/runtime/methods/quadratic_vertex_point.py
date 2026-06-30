@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+from shuxueshuo_server.solver.contracts import MethodExplanationSpec, MethodVisualSpec
 from shuxueshuo_server.solver.math_ops import vertex_of_quadratic
 
 from ._common import *
@@ -58,4 +59,34 @@ SPEC = MethodSpecSource(
     outputs={"point": "Point"},
     preconditions=("parabola 必须是关于 x 的二次函数",),
     postconditions=("输出点是该二次函数顶点",),
+    explanation=MethodExplanationSpec(
+        role_schema={
+            "parabola_vertex_form": "抛物线配方后的顶点式。",
+            "vertex_point": "由顶点式读出的顶点坐标。",
+        },
+        student_goal_template="把二次函数整理成顶点式，读出顶点坐标。",
+        student_title_template="求二次函数顶点",
+        derive_templates=(
+            "∵{parabola_vertex_form}",
+            "∴{vertex_point}",
+        ),
+        role_binder_id="quadratic_vertex_point",
+    ),
+    visual=MethodVisualSpec(
+        role_schema={
+            "parabola": "当前抛物线。",
+            "vertex_point": "顶点。",
+            "axis": "对称轴。",
+        },
+        scene_templates=(
+            {
+                "component": "QuadraticVertexMarker",
+                "axis_color": "#64748b",
+                "vertex_color": "#b45309",
+                "persistence": "carry_forward",
+                "vertex_persistence": "step_only",
+            },
+        ),
+        role_binder_id="generic_visual",
+    ),
 )

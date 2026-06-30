@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from shuxueshuo_server.solver.contracts import MethodExplanationSpec, MethodVisualSpec
+
 from ._common import *
 from ._spec import MethodSpecSource
 
@@ -98,4 +100,43 @@ SPEC = MethodSpecSource(
     outputs={"point": "Point"},
     preconditions=("最短线段与 moving_locus 不平行",),
     postconditions=("输出点同时位于最短线段和 moving_locus 上",),
+    explanation=MethodExplanationSpec(
+        role_schema={
+            "parameter_assignment": "已求出的参数值（若有）。",
+            "locus_line": "动点的轨迹直线。",
+            "minimum_segment_line": "拉直后最短线段所在直线。",
+            "line_intersection_equation": "由两条直线联立得到交点横纵坐标的关键等式。",
+            "target_point": "最短状态下动点坐标。",
+        },
+        student_goal_template="把最短线段所在直线与动点轨迹直线相交，求最短状态下的动点。",
+        student_title_template="由最短线段和轨迹求动点",
+        student_nav_title_template="求最短状态动点",
+        derive_templates=(
+            "{parameter_assignment}",
+            "∵动点在轨迹直线 {locus_line} 上",
+            "∵最短时动点也在直线 {minimum_segment_line} 上",
+            "∴{line_intersection_equation}",
+            "∴{target_point}",
+        ),
+        box_templates=("{target_point}",),
+        role_binder_id="line_locus_minimum_point",
+    ),
+    visual=MethodVisualSpec(
+        role_schema={
+            "locus_line": "动点轨迹直线。",
+            "minimum_segment_line": "拉直后的最短线段。",
+            "target_point": "两线交点。",
+        },
+        role_binder_id="line_locus_minimum_point",
+        scene_templates=(
+            {
+                "component": "LineLocusMinimumPointMarker",
+                "persistence": "carry_forward",
+                "locus_color": "#0f766e",
+                "minimum_line_color": "#b45309",
+                "target_color": "#b45309",
+                "show_locus_label": False,
+            },
+        ),
+    ),
 )

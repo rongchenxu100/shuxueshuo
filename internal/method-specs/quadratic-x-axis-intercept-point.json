@@ -36,17 +36,38 @@
   "explanation": {
     "role_schema": {
       "parabola": "当前抛物线解析式。",
+      "intercept_equation": "令 y=0 后得到的一元二次方程。",
       "target_point": "需要求出的 x 轴交点。",
       "known_point": "可选的已知 x 轴交点。"
     },
     "student_goal_template": "令 y=0，求抛物线与 x 轴的交点。",
     "student_title_template": "求抛物线与 x 轴交点",
-    "student_nav_title_template": "",
     "student_title_templates_by_goal": {},
-    "derive_templates": [],
+    "derive_templates": [
+      "∵x 轴交点满足 y＝0，即 {intercept_equation}",
+      "∴{target_point}"
+    ],
     "box_templates": [],
     "explanation_level": "template",
     "role_binding_strategy": "role_name_registry",
-    "role_binder_id": "generic_trace"
+    "role_binder_id": "quadratic_x_axis_intercept_point"
+  },
+  "visual": {
+    "role_schema": {
+      "parabola": "当前抛物线。",
+      "x_axis_intercepts": "抛物线与 x 轴交点。",
+      "target_point": "该方法要求的目标交点。"
+    },
+    "scene_templates": [
+      {
+        "component": "QuadraticXAxisInterceptMarker",
+        "point_color": "#b45309",
+        "context_color": "#1f2937",
+        "persistence": "carry_forward"
+      }
+    ],
+    "annotation_templates": [],
+    "timeline_templates": [],
+    "role_binder_id": "generic_visual"
   }
 }

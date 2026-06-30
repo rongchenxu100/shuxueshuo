@@ -80,18 +80,23 @@
   "explanation": {
     "role_schema": {
       "constraints": "用于确定当前问二次函数的系数约束。",
-      "result_parabola": "由约束得到的当前问抛物线解析式。"
+      "result_parabola": "由约束得到的当前问抛物线解析式。",
+      "parabola_title_action": "标题动词；完全确定时为求，含后续参数时为化简。",
+      "completed_square_suffix": "配方形式补充说明；没有配方形式时为空。"
     },
     "student_goal_template": "代入当前问给出的约束，确定二次函数解析式。",
-    "student_title_template": "代入已知点求抛物线解析式",
-    "student_nav_title_template": "",
-    "student_title_templates_by_goal": {
-      "derive_parametric_parabola": "用参数表示抛物线解析式"
-    },
-    "derive_templates": [],
-    "box_templates": [],
+    "student_title_template": "{parabola_title_action}函数解析式",
+    "student_nav_title_template": "{parabola_title_action}解析式",
+    "student_title_templates_by_goal": {},
+    "derive_templates": [
+      "∵{constraints}",
+      "∴y＝{result_parabola}{completed_square_suffix}"
+    ],
+    "box_templates": [
+      "y＝{result_parabola}"
+    ],
     "explanation_level": "template",
     "role_binding_strategy": "role_name_registry",
-    "role_binder_id": "generic_trace"
+    "role_binder_id": "quadratic_from_constraints"
   }
 }

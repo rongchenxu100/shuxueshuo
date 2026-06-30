@@ -36,5 +36,63 @@
   "postconditions": [
     "输出 transformed_path 是两段共享同一动点的折线路径",
     "输出 payload 包含 moving_point_name 与 fixed_point_names，供后续 planner repair 继续规划"
-  ]
+  ],
+  "explanation": {
+    "role_schema": {
+      "midpoint_statement": "说明哪个点是正方形边的中点。",
+      "right_triangle_statement": "用于斜边中线关系的直角三角形。",
+      "midpoint_fixed_half": "边中点到固定点线段的半长关系。",
+      "center_midpoint_statement": "说明哪个点是正方形对角线中心。",
+      "midline_statement": "正方形边与动点构成三角形中的中位线关系。",
+      "center_midpoint_half": "中心到中点线段的半长关系。",
+      "square_side_equality": "用于合并两段半长的正方形相邻边相等关系。",
+      "merged_segment": "合并后的线段等量关系。",
+      "path_equality": "最终路径转化等式。"
+    },
+    "student_goal_template": "利用斜边中线和三角形中位线，把正方形路径中的两段合并为一段。",
+    "student_title_template": "由斜边中线和中位线转化线段",
+    "student_nav_title_template": "多动点转化为单动点问题",
+    "student_title_templates_by_goal": {},
+    "derive_templates": [
+      "∵{midpoint_statement}",
+      "∴{right_triangle_statement}，{midpoint_fixed_half}",
+      "∵{center_midpoint_statement}",
+      "∴{midline_statement}",
+      "∴{center_midpoint_half}",
+      "∵{square_side_equality}",
+      "∴{merged_segment}",
+      "∴{path_equality}"
+    ],
+    "box_templates": [
+      "{midpoint_fixed_half}",
+      "{center_midpoint_half}",
+      "{merged_segment}",
+      "{path_equality}"
+    ],
+    "explanation_level": "template",
+    "role_binding_strategy": "role_name_registry",
+    "role_binder_id": "square_path_dimension_reduction"
+  },
+  "visual": {
+    "role_schema": {
+      "square_path_marker": "正方形路径降维中的直角三角形和中位线视觉证明。"
+    },
+    "scene_templates": [
+      {
+        "component": "SquarePathDimensionMarker",
+        "persistence": "carry_forward",
+        "square_fill": "rgba(15, 118, 110, 0.055)",
+        "square_color": "rgba(15, 118, 110, 0.50)",
+        "right_triangle_fill": "rgba(14, 165, 233, 0.12)",
+        "midline_triangle_fill": "rgba(245, 158, 11, 0.12)",
+        "half_segment_color": "#7c3aed",
+        "path_segment_color": "#dc2626",
+        "replacement_color": "#b45309",
+        "show_half_segment_labels": false
+      }
+    ],
+    "annotation_templates": [],
+    "timeline_templates": [],
+    "role_binder_id": "square_path_dimension_reduction"
+  }
 }

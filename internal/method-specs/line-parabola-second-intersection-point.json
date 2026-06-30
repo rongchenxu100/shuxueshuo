@@ -53,7 +53,6 @@
     },
     "student_goal_template": "先由两个已知点确定目标直线，再联立抛物线求另一交点。",
     "student_title_template": "联立直线与抛物线求交点",
-    "student_nav_title_template": "",
     "student_title_templates_by_goal": {},
     "derive_templates": [
       "由 {line_points} 可确定目标直线，得到 {line_expression}。",

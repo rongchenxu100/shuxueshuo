@@ -28,5 +28,43 @@
   ],
   "postconditions": [
     "输出点位于 x 轴，横坐标为抛物线对称轴横坐标"
-  ]
+  ],
+  "explanation": {
+    "role_schema": {
+      "axis_equation": "当前抛物线的对称轴方程。",
+      "axis_point": "对称轴与 x 轴的交点。",
+      "target_label": "对称轴与 x 轴交点的学生可见点名。"
+    },
+    "student_goal_template": "求抛物线对称轴与 x 轴的交点。",
+    "student_title_template": "求对称轴与X轴交点{target_label}",
+    "student_nav_title_template": "求对称轴交点{target_label}",
+    "student_title_templates_by_goal": {},
+    "derive_templates": [
+      "∵对称轴为 {axis_equation}",
+      "∴{axis_point}"
+    ],
+    "box_templates": [
+      "{axis_point}"
+    ],
+    "explanation_level": "template",
+    "role_binding_strategy": "role_name_registry",
+    "role_binder_id": "quadratic_axis_x_intercept_point"
+  },
+  "visual": {
+    "role_schema": {
+      "axis": "当前抛物线对称轴。",
+      "axis_point": "对称轴与 x 轴的交点。"
+    },
+    "scene_templates": [
+      {
+        "component": "QuadraticAxisXInterceptMarker",
+        "axis_color": "#64748b",
+        "point_color": "#b45309",
+        "persistence": "carry_forward"
+      }
+    ],
+    "annotation_templates": [],
+    "timeline_templates": [],
+    "role_binder_id": "generic_visual"
+  }
 }

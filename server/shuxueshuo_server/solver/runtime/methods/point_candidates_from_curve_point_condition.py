@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from shuxueshuo_server.solver.contracts import MethodExplanationSpec, MethodVisualSpec
+
 from ._common import *
 from ._spec import MethodSpecSource
 
@@ -106,4 +108,49 @@ SPEC = MethodSpecSource(
     outputs={"candidates": "PointList"},
     preconditions=("target_point 与 curve_point 只共享一个待定参数", "parabola 已代入当前问已知条件"),
     postconditions=("输出每个目标点候选对应的 curve_point 都在抛物线上",),
+    explanation=MethodExplanationSpec(
+        role_schema={
+            "target_label": "目标点点名。",
+            "curve_kind": "曲线类型的学生化名称。",
+            "curve_point": "带参数的曲线点。",
+            "curve_equation": "当前问已经确定的曲线方程。",
+            "substitution_equation": "把曲线点代入曲线后的方程。",
+            "parameter_equation": "整理后的参数方程。",
+            "auxiliary_parameter": "为简化方程引入的辅助参数。",
+            "auxiliary_equation": "辅助参数满足的方程。",
+            "auxiliary_solutions": "辅助参数的解。",
+            "parameter_solutions": "原参数的解。",
+            "target_candidates": "目标点候选列表。",
+        },
+        student_goal_template="把同参数曲线点代入已知曲线，解出参数并回代目标点。",
+        student_title_template="代入{curve_kind}求点{target_label}候选",
+        student_nav_title_template="求点{target_label}候选",
+        derive_templates=(
+            "∵{curve_point} 在 {curve_equation} 上",
+            "∴{substitution_equation}",
+            "∴{parameter_equation}",
+            "设{auxiliary_parameter}",
+            "∴{auxiliary_equation}",
+            "∴{auxiliary_solutions}",
+            "∴{parameter_solutions}",
+            "∴{target_candidates}",
+        ),
+        box_templates=("{target_candidates}",),
+        role_binder_id="point_candidates_from_curve_point_condition",
+    ),
+    visual=MethodVisualSpec(
+        role_schema={
+            "target_candidates": "由曲线条件得到的目标点候选。",
+            "candidate_context_regions": "可选的候选几何上下文区域，例如候选正方形。",
+        },
+        scene_templates=(
+            {
+                "component": "CurvePointCandidateMarker",
+                "persistence": "carry_forward",
+                "fill": "rgba(14, 165, 233, 0.08)",
+                "color": "rgba(2, 132, 199, 0.42)",
+                "edge_color": "#0f766e",
+            },
+        ),
+    ),
 )

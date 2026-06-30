@@ -18,6 +18,7 @@ from shuxueshuo_server.solver.explanation import (
     write_explanation_debug_artifacts,
 )
 from shuxueshuo_server.solver.explanation import builder as explanation_builder
+from shuxueshuo_server.solver.explanation import llm as explanation_llm
 from shuxueshuo_server.solver.explanation.builder import LessonIRValidationError
 from shuxueshuo_server.solver.explanation.few_shots import (
     select_lesson_few_shot_examples,
@@ -26,6 +27,8 @@ from shuxueshuo_server.solver.explanation.few_shots import (
 from shuxueshuo_server.solver.explanation.llm import build_lesson_planner_payload
 from shuxueshuo_server.solver.explanation.models import LessonCandidateGroup, LessonStep, TeachingTraceEntry
 from shuxueshuo_server.solver.explanation.role_binders import RoleBinderRegistry, RoleBindingError
+from shuxueshuo_server.solver.explanation.role_binders import methods as method_role_binder_methods
+from shuxueshuo_server.solver.explanation.role_binders import recipes as recipe_role_binder_recipes
 from shuxueshuo_server.solver.explanation.teaching_expansion import (
     explanation_payload_for_group,
 )
@@ -47,6 +50,224 @@ RUN_DEEPSEEK_HEPING_EXPLANATION = (
 )
 
 
+def _lesson_step(
+    step_id: str,
+    capability_id: str,
+    *,
+    scope_id: str = "i",
+    title: str | None = None,
+    nav_title: str = "",
+    box: tuple[str, ...] = (),
+) -> LessonStep:
+    return LessonStep(
+        id=step_id,
+        scope_id=scope_id,
+        source_step_ids=(step_id,),
+        capability_ids=(capability_id,),
+        trace_refs=(f"trace:{step_id}",),
+        title=title or capability_id,
+        goal="",
+        nav_title=nav_title,
+        derive=(),
+        box=box,
+    )
+
+
+def _lesson_group(
+    step_id: str,
+    capability_id: str,
+    *,
+    scope_id: str = "i",
+) -> LessonCandidateGroup:
+    return LessonCandidateGroup(
+        {
+            "step_id": step_id,
+            "scope_id": scope_id,
+            "recipe_hint": capability_id,
+        },
+        (),
+    )
+
+
+def test_explanation_scope_roots_keep_later_roman_questions_distinct() -> None:
+    assert method_role_binder_methods._scope_root_for_explanation("iii") == "iii"
+    assert method_role_binder_methods._scope_root_for_explanation("iii_1") == "iii"
+    assert method_role_binder_methods._scope_root_for_explanation("iv") == "iv"
+    assert recipe_role_binder_recipes._scope_root("iii") == "iii"
+    assert recipe_role_binder_recipes._scope_root("iii_1") == "iii"
+    assert recipe_role_binder_recipes._scope_root("iv") == "iv"
+
+
+def test_answer_candidate_matching_does_not_accept_substring_collisions() -> None:
+    assert explanation_builder._answer_candidate_matches_box("x=1", "x=10") is False
+    assert explanation_builder._answer_candidate_matches_box("x=1", "x=1-2") is False
+    assert explanation_builder._answer_candidate_matches_box("x=1", "x=1") is True
+    assert explanation_builder._answer_candidate_matches_box("x=1", "x=1,C(0,-3)") is True
+
+
+def test_axis_square_locus_merge_without_label_does_not_default_to_g() -> None:
+    steps = [
+        LessonStep(
+            id="axis",
+            scope_id="ii",
+            source_step_ids=("axis",),
+            capability_ids=("quadratic_axis_parameterized_point",),
+            trace_refs=(),
+            title="设对称轴上的参数点",
+            goal="",
+            nav_title="",
+            derive=(),
+            box=(),
+        ),
+        LessonStep(
+            id="square",
+            scope_id="ii",
+            source_step_ids=("square",),
+            capability_ids=("square_adjacent_vertex_from_side",),
+            trace_refs=(),
+            title="由正方形求相邻顶点",
+            goal="",
+            nav_title="",
+            derive=(),
+            box=(),
+        ),
+        LessonStep(
+            id="locus",
+            scope_id="ii",
+            source_step_ids=("locus",),
+            capability_ids=("parameterized_point_locus_line",),
+            trace_refs=(),
+            title="确定轨迹直线",
+            goal="",
+            nav_title="",
+            derive=(),
+            box=(),
+        ),
+    ]
+
+    merged = explanation_builder._merge_axis_square_locus_steps(steps)
+
+    assert merged.title == "正方形求顶点轨迹"
+    assert "G" not in merged.title
+
+
+def test_axis_square_locus_merge_uses_locus_box_label() -> None:
+    steps = [
+        _lesson_step("axis", "quadratic_axis_parameterized_point", title="设对称轴上的参数点"),
+        _lesson_step("square", "square_adjacent_vertex_from_side", title="由正方形求相邻顶点"),
+        _lesson_step(
+            "locus",
+            "parameterized_point_locus_line",
+            title="确定轨迹直线",
+            box=("H 的轨迹：y=2x-1",),
+        ),
+    ]
+
+    merged = explanation_builder._merge_axis_square_locus_steps(steps)
+
+    assert merged.title == "正方形求顶点H轨迹"
+
+
+def test_lesson_merge_rules_drive_deterministic_and_llm_suggestions() -> None:
+    groups = tuple(
+        _lesson_group(f"{rule.rule_id}_{index}", capability)
+        for rule in explanation_builder.LESSON_MERGE_RULES
+        for index, capability in enumerate(rule.sequence)
+    )
+    expected_sequences = [rule.sequence for rule in explanation_builder.LESSON_MERGE_RULES]
+
+    deterministic_clusters = explanation_builder._deterministic_lesson_group_clusters(groups)
+    assert [tuple(group.capability_id for group in cluster) for cluster in deterministic_clusters] == expected_sequences
+
+    suggestions = explanation_llm._merge_suggestions(groups)
+    id_to_capability = {group.candidate_group_id: group.capability_id for group in groups}
+    suggestion_sequences = [
+        tuple(id_to_capability[group_id] for group_id in suggestion["candidate_group_ids"])
+        for suggestion in suggestions
+    ]
+    assert suggestion_sequences == expected_sequences
+    assert "merge_patterns" not in inspect.getsource(explanation_llm._merge_suggestions)
+    assert "def _target_point_label_for_group" not in inspect.getsource(explanation_builder)
+    assert "def _target_point_label_for_group" not in inspect.getsource(explanation_llm)
+
+
+def test_lesson_merge_hint_and_duplicate_recipe_rules_are_registry_backed() -> None:
+    title_source = inspect.getsource(explanation_llm._merge_title_hint)
+    nav_source = inspect.getsource(explanation_llm._merge_nav_title_hint)
+    duplicate_source = inspect.getsource(explanation_builder._should_merge_duplicate_recipe_steps)
+
+    assert "if rule.rule_id" not in title_source
+    assert "if rule.rule_id" not in nav_source
+    assert "broken_path_straightening_minimum_expression" not in duplicate_source
+    assert "parameter_value_point_evaluation" in explanation_llm._MERGE_TITLE_HINT_BUILDERS
+    assert explanation_builder.DUPLICATE_LESSON_STEP_MERGE_RULES
+
+
+def test_llm_adjacent_step_merge_matches_deterministic_capability_sequences() -> None:
+    steps = [
+        _lesson_step("q1", "quadratic_from_constraints"),
+        _lesson_step("v1", "quadratic_vertex_point"),
+        _lesson_step("x1", "quadratic_x_axis_intercept_point"),
+        _lesson_step(
+            "q2",
+            "quadratic_from_constraints",
+            title="化简函数解析式",
+            nav_title="化简解析式",
+        ),
+        _lesson_step("axis_point", "quadratic_axis_x_intercept_point", box=("M(-1,0)",)),
+        _lesson_step("axis_param_locus", "quadratic_axis_parameterized_point", box=("E(-1,t)",)),
+        _lesson_step("square_locus", "square_adjacent_vertex_from_side", box=("H(t-3,-2)",)),
+        _lesson_step("locus", "parameterized_point_locus_line", box=("H 的轨迹：y=2x-1",)),
+        _lesson_step("axis_param_square", "quadratic_axis_parameterized_point", box=("E(-1,t)",)),
+        _lesson_step(
+            "square",
+            "square_adjacent_vertex_from_side",
+            title="由正方形求相邻顶点F",
+            nav_title="正方形求F",
+            box=("F(1,2)",),
+        ),
+        _lesson_step("param_min", "parameter_from_expression_value", box=("a=3/4",)),
+        _lesson_step("eval_min", "evaluate_point_at_parameter", box=("K(2,3)",)),
+        _lesson_step("minimum", "line_locus_minimum_point", title="求K到直线的最短距离"),
+        _lesson_step("param_eval", "parameter_from_expression_value", box=("t=1",)),
+        _lesson_step("eval", "evaluate_point_at_parameter", box=("H(0,1)",)),
+    ]
+
+    merged = explanation_builder._merge_adjacent_lesson_steps(steps)
+
+    assert [step.capability_ids for step in merged] == [
+        (
+            "quadratic_from_constraints",
+            "quadratic_vertex_point",
+            "quadratic_x_axis_intercept_point",
+        ),
+        ("quadratic_from_constraints", "quadratic_axis_x_intercept_point"),
+        (
+            "quadratic_axis_parameterized_point",
+            "square_adjacent_vertex_from_side",
+            "parameterized_point_locus_line",
+        ),
+        ("quadratic_axis_parameterized_point", "square_adjacent_vertex_from_side"),
+        (
+            "parameter_from_expression_value",
+            "evaluate_point_at_parameter",
+            "line_locus_minimum_point",
+        ),
+        ("parameter_from_expression_value", "evaluate_point_at_parameter"),
+    ]
+    assert [step.title for step in merged] == [
+        "代入已知条件，求解析式、顶点和 x 轴交点",
+        "化简函数解析式，求对称轴与X轴交点M",
+        "正方形求顶点H轨迹",
+        "由正方形求相邻顶点F",
+        "由最小值反求参数，并求K坐标",
+        "由表达式取值反求参数，并求H坐标",
+    ]
+    assert merged[1].nav_title == "化简解析式求M"
+    assert merged[3].nav_title == "正方形求F"
+    assert merged[5].nav_title == "反求参数求H"
+
+
 def test_recorded_heping_success_artifacts_are_available_and_not_serialized() -> None:
     orchestrator, result = _solve_recorded_heping()
 
@@ -65,26 +286,35 @@ def test_recorded_heping_success_artifacts_are_available_and_not_serialized() ->
 
 def test_lesson_titles_come_from_capability_explanation_specs() -> None:
     source = inspect.getsource(explanation_builder._title_for_recipe)
+    spec = MethodSpecRegistry.load_from_code().require("quadratic_from_constraints")
+    assert spec.explanation is not None
 
     assert "if recipe ==" not in source
+    assert spec.explanation.student_title_template == "{parabola_title_action}函数解析式"
+    assert spec.explanation.student_nav_title_template == "{parabola_title_action}解析式"
+    assert not spec.explanation.student_title_templates_by_goal
     assert explanation_builder._title_for_recipe(
         "quadratic_from_constraints",
         "derive_parabola",
-    ) == "代入已知点求抛物线解析式"
+    ) == spec.title
     assert explanation_builder._title_for_recipe(
         "quadratic_from_constraints",
         "derive_parametric_parabola",
-    ) == "用参数表示抛物线解析式"
+    ) == spec.title
     assert explanation_builder._title_for_recipe(
         "line_parabola_second_intersection_point",
         "derive_curve_intersection_point",
     ) == "联立直线与抛物线求交点"
-
-    spec = MethodSpecRegistry.load_from_code().require("quadratic_from_constraints")
-    assert spec.explanation is not None
-    assert spec.explanation.student_title_templates_by_goal[
-        "derive_parametric_parabola"
-    ] == "用参数表示抛物线解析式"
+    assert "{" not in explanation_builder._title_for_recipe(
+        "quadratic_from_constraints",
+        "",
+    )
+    assert explanation_builder._nav_title_for_recipe("quadratic_from_constraints") == ""
+    assert "{" not in explanation_builder._title_for_recipe(
+        "square_adjacent_vertex_from_side",
+        "",
+    )
+    assert explanation_builder._nav_title_for_recipe("square_adjacent_vertex_from_side") == ""
 
 
 def test_failed_or_unsupported_solve_does_not_keep_stale_success_artifacts() -> None:
@@ -359,6 +589,44 @@ def test_lesson_derive_normalizes_future_axis_intercept_angle_reference() -> Non
     )
 
     assert derive == (("∵", "消去公共角，得 ∠OBE = ∠ACO"),)
+
+
+def test_lesson_derive_splits_variable_definition_from_previous_result() -> None:
+    derive = explanation_builder._derive_items(
+        [["∴", "(t－3)²＋2(t－3)－5＝0，令 u＝t－3"]]
+    )
+
+    assert derive == (
+        ("∴", "(t－3)²＋2(t－3)－5＝0"),
+        ("设", "u＝t－3"),
+    )
+
+
+def test_lesson_derive_splits_leading_variable_definition_and_result() -> None:
+    derive = explanation_builder._derive_items(
+        [["∴", "设u＝t－3，得u²＋2u－5＝0"]]
+    )
+
+    assert derive == (
+        ("设", "u＝t－3"),
+        ("∴", "u²＋2u－5＝0"),
+    )
+
+
+def test_lesson_derive_relabels_standalone_variable_definition() -> None:
+    derive = explanation_builder._derive_items(
+        [["作", "设u＝t－3"]]
+    )
+
+    assert derive == (("设", "u＝t－3"),)
+
+
+def test_lesson_derive_spaces_or_between_math_candidates() -> None:
+    derive = explanation_builder._derive_items(
+        [["∴", "E(－1,2＋√6)或E(－1,2－√6)"]]
+    )
+
+    assert derive == (("∴", "E(－1,2＋√6) 或 E(－1,2－√6)"),)
 
 
 def test_lesson_planner_repair_loop_fixes_unknown_candidate_id(tmp_path) -> None:
