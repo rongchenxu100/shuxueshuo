@@ -11,6 +11,7 @@ import re
 from typing import Any
 
 from shuxueshuo_server.solver.family.models import SolverFamilySpec
+from shuxueshuo_server.solver.problem_models import QuestionGoal
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.handle_registry import (
     CanonicalHandleRegistry,
@@ -25,11 +26,17 @@ from shuxueshuo_server.solver.runtime.handle_registry import (
     _reject_noncanonical_handle,
     _semantic_name,
 )
+from shuxueshuo_server.solver.runtime.semantic_reads import (
+    SemanticReadResolver,
+    payload_has_nonempty_semantic_reads,
+)
 from shuxueshuo_server.solver.runtime.strategy_models import (
     CreatedEntity,
+    HandleResolutionReport,
     ProducedFact,
     RecipeAlignmentReport,
     STEP_INTENT_OUTPUT_TYPES,
+    SemanticReadResolutionReport,
     StepIntent,
     StepIntentDraft,
     StepIntentScope,
@@ -40,6 +47,7 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
 from shuxueshuo_server.solver.runtime.strategy_resolver import (
     _output_type_from_text,
     _produced_output_type,
+    _unique_ordered,
     build_executable_capabilities,
 )
 
@@ -52,6 +60,7 @@ class StepIntentValidator:
 
     def __init__(self) -> None:
         self.last_handle_resolution_report: HandleResolutionReport | None = None
+        self.last_semantic_read_resolution_report: SemanticReadResolutionReport | None = None
 
     def validate_json(
         self,
@@ -63,6 +72,7 @@ class StepIntentValidator:
     ) -> StepIntentDraft:
         """解析并校验 LLM 原始 JSON 字符串。"""
         self.last_handle_resolution_report = None
+        self.last_semantic_read_resolution_report = None
         data = _parse_json_object(raw)
         return self.validate(
             data,
@@ -91,6 +101,8 @@ class StepIntentValidator:
             return None, StepIntentValidationReport(
                 ok=False,
                 errors=(str(exc),),
+                handle_resolution=self.last_handle_resolution_report,
+                semantic_read_resolution=self.last_semantic_read_resolution_report,
             )
         return draft, self.report(
             draft,
@@ -98,6 +110,7 @@ class StepIntentValidator:
             family_spec=family_spec,
             handle_registry=handle_registry,
             handle_resolution=self.last_handle_resolution_report,
+            semantic_read_resolution=self.last_semantic_read_resolution_report,
         )
 
     def validate(
@@ -110,6 +123,7 @@ class StepIntentValidator:
     ) -> StepIntentDraft:
         """校验已解析 JSON 对象，并转成 StepIntentDraft。"""
         self.last_handle_resolution_report = None
+        self.last_semantic_read_resolution_report = None
         if not isinstance(data, dict):
             raise StrategyDraftValidationError("top-level response must be an object")
         extra = sorted(set(data) - {"scopes"})
@@ -121,6 +135,20 @@ class StepIntentValidator:
         raw_scopes = data.get("scopes")
         if not isinstance(raw_scopes, list) or not raw_scopes:
             raise StrategyDraftValidationError("scopes must be a non-empty list")
+        if payload_has_nonempty_semantic_reads(data):
+            if handle_registry is None:
+                raise StrategyDraftValidationError(
+                    "semantic_reads_require_handle_registry"
+                )
+            data, semantic_report = SemanticReadResolver(handle_registry).resolve_payload(data)
+            raw_scopes = data.get("scopes")
+            self.last_semantic_read_resolution_report = semantic_report
+            if semantic_report.errors:
+                raise StrategyDraftValidationError(
+                    _semantic_read_error_summary(semantic_report)
+                )
+            if not isinstance(raw_scopes, list) or not raw_scopes:
+                raise StrategyDraftValidationError("scopes must be a non-empty list")
         scopes: list[StepIntentScope] = []
         for scope_index, raw_scope in enumerate(raw_scopes):
             scope = _parse_scope(raw_scope, scope_index=scope_index)
@@ -148,6 +176,7 @@ class StepIntentValidator:
             family_spec=family_spec,
             handle_registry=handle_registry,
             handle_resolution=self.last_handle_resolution_report,
+            semantic_read_resolution=self.last_semantic_read_resolution_report,
         )
         if report.missing_goals:
             raise StrategyDraftValidationError(
@@ -164,6 +193,7 @@ class StepIntentValidator:
         family_spec: SolverFamilySpec | None = None,
         handle_registry: CanonicalHandleRegistry | None = None,
         handle_resolution: HandleResolutionReport | None = None,
+        semantic_read_resolution: SemanticReadResolutionReport | None = None,
     ) -> StepIntentValidationReport:
         """生成覆盖情况报告。"""
         produced_text = "\n".join(
@@ -192,7 +222,17 @@ class StepIntentValidator:
             missing_goals=missing,
             recipe_alignment=alignment,
             handle_resolution=handle_resolution,
+            semantic_read_resolution=semantic_read_resolution,
         )
+
+
+def _semantic_read_error_summary(report: SemanticReadResolutionReport) -> str:
+    details = "; ".join(
+        error.message
+        for error in report.errors
+    )
+    return f"semantic_read_errors: count={len(report.errors)}; {details}"
+
 
 def _validate_step_scope_targets(
     draft: StepIntentDraft,
@@ -321,12 +361,11 @@ def _parse_step(
         "goal_type",
         "target",
         "strategy",
-        "reads",
         "creates",
         "produces",
         "reason",
     }
-    optional = {"recipe_hint"}
+    optional = {"recipe_hint", "reads", "semantic_reads"}
     extra = sorted(set(raw_step) - required - optional)
     missing = sorted(required - set(raw_step))
     if missing:
@@ -364,7 +403,7 @@ def _parse_step(
         goal_type=_required_string(raw_step, "goal_type", scope_index=scope_index, step_index=step_index),
         target=_required_string(raw_step, "target", scope_index=scope_index, step_index=step_index),
         strategy=_required_string(raw_step, "strategy", scope_index=scope_index, step_index=step_index),
-        reads=tuple(_string_list(raw_step, "reads", scope_index=scope_index, step_index=step_index)),
+        reads=tuple(_reads_list(raw_step, scope_index=scope_index, step_index=step_index)),
         creates=tuple(_creates_list(raw_step, scope_index=scope_index, step_index=step_index)),
         produces=tuple(_produces_list(raw_step, scope_index=scope_index, step_index=step_index)),
         reason=_required_string(raw_step, "reason", scope_index=scope_index, step_index=step_index),
@@ -429,6 +468,31 @@ def _string_list(
             )
         result.append(item.strip())
     return result
+
+
+def _reads_list(
+    raw_step: dict[str, Any],
+    *,
+    scope_index: int,
+    step_index: int,
+) -> list[str]:
+    """读取 canonical reads；semantic-only raw steps are normalized before this."""
+    if "reads" in raw_step:
+        return _string_list(
+            raw_step,
+            "reads",
+            scope_index=scope_index,
+            step_index=step_index,
+        )
+    if "semantic_reads" in raw_step:
+        if not isinstance(raw_step.get("semantic_reads"), list):
+            raise StrategyDraftValidationError(
+                f"scopes[{scope_index}].steps[{step_index}].semantic_reads must be an object array"
+            )
+        return []
+    raise StrategyDraftValidationError(
+        f"scopes[{scope_index}].steps[{step_index}] missing required fields: reads or semantic_reads"
+    )
 
 
 def _creates_list(
@@ -849,14 +913,7 @@ def _validate_produced_semantic_signature(
         previous_is_visible_from_current = previous_scope in registry.ancestor_scopes(item.valid_scope)
         current_is_visible_from_previous = item.valid_scope in registry.ancestor_scopes(previous_scope)
         if item.valid_scope != previous_scope and current_is_visible_from_previous:
-            raise StrategyDraftValidationError(
-                "common_fact_after_narrow_fact: "
-                f"signature={signature}, previous_step={previous_step_id}, "
-                f"previous_handle={previous_handle}, previous_valid_scope={previous_scope}, "
-                f"current_step={step.step_id}, current_handle={item.handle}, "
-                f"current_valid_scope={item.valid_scope}; produce the broader common fact first, "
-                "then let later subquestions read it"
-            )
+            continue
         if previous_is_visible_from_current:
             raise StrategyDraftValidationError(
                 "duplicate_point_coordinate_fact: "
@@ -939,6 +996,9 @@ def _produced_fact_signature(
             return f"point_coordinate:{point_name}"
     if output_type == "ParameterValue":
         symbol = name.split("_", 1)[0]
+        context = _parameter_value_dependency_context(step, registry)
+        if context is not None:
+            return f"parameter:{symbol}@{context}"
         return f"parameter:{symbol}"
     if output_type == "Parabola":
         return f"parabola:{item.valid_scope}"
@@ -970,6 +1030,8 @@ def _point_coordinate_dependency_context(
     这不是重复事实，不能只按点名合并。
     """
     for handle in step.reads:
+        if handle.startswith("fact:") and _is_runtime_parameter_value_read(handle):
+            return f"parameter={handle}"
         if handle.startswith("answer:") and registry.answer_value_types.get(handle) == "Parabola":
             return f"parabola={handle}"
         if registry.fact_types.get(handle) == "parabola":
@@ -981,6 +1043,49 @@ def _point_coordinate_dependency_context(
         if handle.startswith("function:"):
             return f"function={handle}"
     return None
+
+
+def _parameter_value_dependency_context(
+    step: StepIntent,
+    registry: CanonicalHandleRegistry,
+) -> str | None:
+    """参数值若来自不同候选点/曲线点，应视为不同候选分支。
+
+    ``b_candidate1`` 与 ``b_candidate2`` 都是在求同一个符号 ``b``，但它们
+    读取的是不同候选点坐标；在最终筛选前不能按 ``parameter:b`` 提前判重。
+    这里只把候选点/点坐标类 reads 纳入上下文，普通最小值或长度反求参数仍按
+    原来的同符号签名去重。
+    """
+    candidates: list[str] = []
+    for handle in step.reads:
+        fact_type = registry.fact_types.get(handle, "")
+        semantic = _semantic_name(handle).lower()
+        if handle.startswith("point:"):
+            candidates.append(handle)
+            continue
+        if fact_type in {"point_coordinate", "point_on_curve"}:
+            candidates.append(handle)
+            continue
+        if handle.startswith("fact:") and (
+            "candidate" in semantic
+            or "candidates" in semantic
+            or "_cand" in semantic
+            or "候选" in semantic
+        ):
+            candidates.append(handle)
+    unique = _unique_ordered(candidates)
+    if not unique:
+        return None
+    return "reads=" + "|".join(unique)
+
+
+def _is_runtime_parameter_value_read(handle: str) -> bool:
+    """识别运行参数值 read，避免把 minimum_value / 系数 a,b,c 误当参数。"""
+    name = _semantic_name(handle).lower()
+    if name in {"parameter_value", "m_value"}:
+        return True
+    match = re.fullmatch(r"(?P<symbol>[a-z])_value", name)
+    return match is not None and match.group("symbol") not in {"a", "b", "c", "x", "y"}
 
 
 def _point_name_from_coordinate_semantic_name(name: str) -> str | None:
@@ -1301,7 +1406,7 @@ def _capability_alignment_errors(
                 "recipe_missing_straightening_choice",
                 "recipe should produce selected straightening choice",
             ))
-        if _contains_any(produced, ("minimum", "min_value", "最小值")):
+        if _produces_minimum_expression(step, registry=registry):
             errors.append(_capability_error(
                 step,
                 hint,
@@ -1393,15 +1498,7 @@ def _capability_alignment_errors(
         return errors
 
     if hint == "line_intersection_point":
-        _add_forbidden_output_errors(
-            errors,
-            step,
-            hint,
-            produced,
-            forbidden=("parabola", "抛物线", "minimum", "最小值", "m_value", "a_value"),
-            code="method_mixes_non_intersection_outputs",
-            message="line_intersection_point should produce intersection point only",
-        )
+        errors.extend(_line_intersection_capability_errors(step, registry=registry))
         return errors
 
     if hint == "distance_between_points":
@@ -1432,6 +1529,26 @@ def _produced_semantic_text(step: StepIntent) -> str:
     """把 produces 的 handle/description 合成小写文本，供轻量能力判断。"""
     return "\n".join(
         f"{item.handle}\n{item.description}"
+        for item in step.produces
+    ).lower()
+
+
+def _produced_structured_text(
+    step: StepIntent,
+    *,
+    registry: CanonicalHandleRegistry,
+) -> str:
+    """把 produces 的结构化字段合成文本，不包含自然语言 description。"""
+    return "\n".join(
+        "\n".join(
+            value
+            for value in (
+                item.handle,
+                item.output_type or "",
+                _produced_output_type(item, registry) or "",
+            )
+            if value
+        )
         for item in step.produces
     ).lower()
 
@@ -1516,6 +1633,44 @@ def _axis_point_capability_errors(
             "quadratic_axis_from_relation should not produce coordinates for multiple different points",
         ))
     return errors
+
+
+def _line_intersection_capability_errors(
+    step: StepIntent,
+    *,
+    registry: CanonicalHandleRegistry,
+) -> list[dict[str, str]]:
+    """校验 line_intersection_point 只产出交点 Point。
+
+    “最小值取得时的交点”是合法上下文；这里不能读取 description 里的“最小值”
+    关键词，只使用 handle 与 output_type 这些结构化字段判断是否混产。
+    """
+    hint = step.recipe_hint or "line_intersection_point"
+    structured = _produced_structured_text(step, registry=registry)
+    if _contains_any(
+        structured,
+        ("parabola", "抛物线", "minimum", "最小值", "m_value", "a_value"),
+    ):
+        return [
+            _capability_error(
+                step,
+                hint,
+                "method_mixes_non_intersection_outputs",
+                "line_intersection_point should produce intersection point only",
+            )
+        ]
+    for item in step.produces:
+        output_type = _produced_output_type(item, registry)
+        if output_type is not None and output_type != "Point":
+            return [
+                _capability_error(
+                    step,
+                    hint,
+                    "method_mixes_non_intersection_outputs",
+                    "line_intersection_point should produce intersection point only",
+                )
+            ]
+    return []
 
 
 def _axis_coordinate_fact_point_name(item: ProducedFact) -> str | None:

@@ -23,8 +23,15 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     ExecutableCapabilitySpec,
     ExecutablePlanResolutionReport,
     ProducedFact,
+    PlannerRetryIssue,
+    PlannerRetryState,
     RecipeAlignmentReport,
     STEP_INTENT_JSON_SCHEMA,
+    SemanticReadFallback,
+    SemanticReadResolution,
+    SemanticReadResolutionError,
+    SemanticReadResolutionReport,
+    SemanticRef,
     StepIntent,
     StepIntentAcceptedStep,
     StepIntentAppliedFill,
@@ -42,6 +49,10 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     StepIntentValidationReport,
     StrategyDraftValidationError,
     StrategyPrompt,
+)
+from shuxueshuo_server.solver.runtime.semantic_reads import (
+    SemanticReadResolver,
+    build_semantic_read_catalog_payload,
 )
 from shuxueshuo_server.solver.runtime.strategy_normalizer import (
     StepIntentNormalizer,
@@ -64,6 +75,20 @@ from shuxueshuo_server.solver.runtime.strategy_resolver import (
     StepIntentCandidateResolver,
     build_executable_capabilities,
 )
+from shuxueshuo_server.solver.runtime.strategy_draft_merge import (
+    merge_previous_accepted_prefix,
+    prepare_step_intent_raw_response,
+    sanitize_step_intent_raw_payload,
+)
+from shuxueshuo_server.solver.runtime.strategy_replay import (
+    PlannerRetryReplayResult,
+    PlannerRetryReplayService,
+    repair_attempt_payload_from_replay,
+)
+from shuxueshuo_server.solver.runtime.strategy_retry_state import (
+    build_planner_retry_state,
+    retry_state_from_attempt,
+)
 from shuxueshuo_server.solver.runtime.strategy_runtime_planner import (
     StrategyPlanner,
     StrategyPlannerArtifacts,
@@ -83,6 +108,11 @@ __all__ = [
     "HandleResolutionReport",
     "HandleResolver",
     "ProducedFact",
+    "PlannerRetryIssue",
+    "PlannerRetryReplayResult",
+    "PlannerRetryReplayService",
+    "PlannerRetryState",
+    "prepare_step_intent_raw_response",
     "RecipeExecutionSpecRegistry",
     "RecipeAlignmentReport",
     "RepairFeedbackBuilder",
@@ -90,6 +120,12 @@ __all__ = [
     "RepairHintSpec",
     "RecipeTrialExecutor",
     "STEP_INTENT_JSON_SCHEMA",
+    "SemanticReadFallback",
+    "SemanticReadResolution",
+    "SemanticReadResolutionError",
+    "SemanticReadResolutionReport",
+    "SemanticReadResolver",
+    "SemanticRef",
     "StepIntentCandidateResolver",
     "StepIntent",
     "StepIntentAcceptedStep",
@@ -115,8 +151,14 @@ __all__ = [
     "StrategyPayloadBuilder",
     "StrategyPrompt",
     "StrategyPromptRenderer",
+    "sanitize_step_intent_raw_payload",
     "MethodBindingRuleRegistry",
+    "build_semantic_read_catalog_payload",
+    "build_planner_retry_state",
     "build_strategy_probe_inputs",
+    "merge_previous_accepted_prefix",
+    "repair_attempt_payload_from_replay",
+    "retry_state_from_attempt",
     "strategy_planner_provider",
     "write_strategy_debug_artifacts",
 ]

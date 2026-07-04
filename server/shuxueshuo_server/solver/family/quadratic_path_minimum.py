@@ -19,6 +19,10 @@ from shuxueshuo_server.solver.family.models import (
 from shuxueshuo_server.solver.family.capability_packs import (
     DEFAULT_CAPABILITY_PACK_REGISTRY,
 )
+from shuxueshuo_server.solver.family.common_binding_rules import (
+    evaluate_expression_at_parameter_rule,
+    evaluate_point_at_parameter_rule,
+)
 
 
 _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
@@ -159,7 +163,7 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             execution=RecipeExecutionSpec(
                 recipe_id="path_minimum_by_straightened_distance",
                 method_sequence=("distance_between_points",),
-                execution_strategy="single_method",
+                execution_strategy="straightened_distance_minimum",
                 output_aliases=(
                     ("distance_between_points.distance", "MinimumExpression"),
                     ("distance_between_points.evaluated_distance", "MinimumExpression"),
@@ -189,6 +193,7 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             expansion_selectors=(
                 "known_coefficients_if_read",
                 "parameter_value_if_read",
+                "curve_point_if_read",
                 "curve_points_if_parameterized",
             ),
             always_emit_outputs=("coefficients",),
@@ -227,6 +232,8 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 MethodInputBindingSpec("constraint", "parameter_constraint"),
             ),
         ),
+        evaluate_expression_at_parameter_rule(),
+        evaluate_point_at_parameter_rule(),
         MethodBindingRuleSpec(
             method_id="two_moving_points_path_reduction",
             input_bindings=(

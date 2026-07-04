@@ -20,7 +20,7 @@
       "required": true
     },
     "target": {
-      "type": "PointRef",
+      "type": "PointRef|Point",
       "required": true
     },
     "parameter": {
@@ -51,7 +51,6 @@
     },
     "student_goal_template": "把最短线段所在直线与动点轨迹直线相交，求最短状态下的动点。",
     "student_title_template": "由最短线段和轨迹求动点",
-    "student_nav_title_template": "求最短状态动点",
     "student_title_templates_by_goal": {},
     "derive_templates": [
       "{parameter_assignment}",
@@ -65,7 +64,8 @@
     ],
     "explanation_level": "template",
     "role_binding_strategy": "role_name_registry",
-    "role_binder_id": "line_locus_minimum_point"
+    "role_binder_id": "line_locus_minimum_point",
+    "student_nav_title_template": "求最短状态动点"
   },
   "visual": {
     "role_schema": {

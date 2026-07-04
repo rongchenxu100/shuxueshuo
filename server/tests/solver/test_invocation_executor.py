@@ -6,6 +6,7 @@
 
 import inspect
 
+import pytest
 import sympy as sp
 
 from shuxueshuo_server.solver.fixtures import load_problem_ir
@@ -17,6 +18,7 @@ from shuxueshuo_server.solver.runtime.methods import (
     RightAngleEqualLengthCandidatesMethod,
     SelectPointByQuadrantConstraintMethod,
 )
+from shuxueshuo_server.solver.runtime.models import MethodInvocation, StepGoal, StepPlan, TypedValue
 from shuxueshuo_server.solver.runtime.planner import RuleBasedStepPlannerV15
 
 
@@ -83,3 +85,133 @@ def test_stateless_methods_do_not_accept_solve_context() -> None:
 
     assert list(candidate_signature.parameters) == ["inputs", "kernel"]
     assert list(selector_signature.parameters) == ["inputs", "kernel"]
+
+
+def test_executor_recovers_point_ref_from_computed_point_output_path() -> None:
+    """PointRef|Point target 若来自 outputs/fact path，也应恢复学生可见点名。"""
+    context = ContextBuilder().build(load_problem_ir(NANKAI_FIXTURE))
+    specs = MethodSpecRegistry.load_from_code()
+    outputs = context.get_scope("ii").container("outputs")
+    outputs["G_locus_line"] = TypedValue(
+        "Line",
+        {
+            "kind": "line",
+            "start_point": (sp.Integer(0), sp.Integer(0)),
+            "direction": (sp.Integer(1), sp.Integer(0)),
+        },
+        source="test",
+    )
+    outputs["path_minimum_point_1"] = TypedValue(
+        "Point",
+        (sp.Integer(2), sp.Integer(-1)),
+        source="test",
+    )
+    outputs["path_minimum_point_2"] = TypedValue(
+        "Point",
+        (sp.Integer(2), sp.Integer(1)),
+        source="test",
+    )
+    outputs["G_coordinate"] = TypedValue(
+        "Point",
+        (sp.Integer(0), sp.Integer(0)),
+        source="test",
+    )
+    invocation = MethodInvocation(
+        invocation_id="derive_minimum_G_point.line_locus_minimum_point",
+        method_id="line_locus_minimum_point",
+        scope="ii",
+        inputs={
+            "moving_locus": "$question.ii.outputs.G_locus_line",
+            "minimum_point_1": "$question.ii.outputs.path_minimum_point_1",
+            "minimum_point_2": "$question.ii.outputs.path_minimum_point_2",
+            "target": "$question.ii.outputs.G_coordinate",
+        },
+        outputs={"point": "$question.ii.outputs.optimal_G_coordinate"},
+    )
+
+    result = InvocationExecutor(specs).execute_invocation(context, invocation)
+
+    assert result.outputs["point"].value == (sp.Integer(2), sp.Integer(0))
+    assert result.trace_fragments[0].goal == "确定 G 的坐标"
+    assert "moving_point" not in result.trace_fragments[0].goal
+    written = context.read_path(
+        "$question.ii.outputs.optimal_G_coordinate",
+        from_scope_id="ii",
+        expected_type="Point",
+    )
+    assert written.value == (sp.Integer(2), sp.Integer(0))
+
+
+def test_promote_outputs_can_update_unlocked_existing_point_state() -> None:
+    """promote 可把同一对象从参数化 Point 更新为已代入 Point。"""
+    context = ContextBuilder().build(load_problem_ir(NANKAI_FIXTURE))
+    specs = MethodSpecRegistry.load_from_code()
+    step_id = "manual_promote_g"
+    context.ensure_step_scope(step_id, "ii")
+    m = context.symbols["m"]
+    context.get_scope("ii").container("points")["G"] = TypedValue(
+        "Point",
+        (m, m),
+        locked=False,
+        source="test",
+    )
+    context.write_path(
+        "$step.manual_promote_g.temp.point",
+        TypedValue("Point", (sp.Integer(2), sp.Integer(3)), source="test"),
+        from_scope_id=step_id,
+    )
+
+    InvocationExecutor(specs).execute_step(
+        context,
+        StepPlan(
+            step_id=step_id,
+            goal=StepGoal(
+                goal_id="test:update_g",
+                type="derive_extremal_point",
+                target_path="$question.ii.points.G",
+                scope_id="ii",
+            ),
+            scope="ii",
+            promote_outputs={
+                "$step.manual_promote_g.temp.point": "$question.ii.points.G"
+            },
+        ),
+    )
+
+    point = context.read_path(
+        "$question.ii.points.G",
+        from_scope_id="ii",
+        expected_type="Point",
+    ).value
+    assert point == (sp.Integer(2), sp.Integer(3))
+
+
+def test_promote_outputs_still_reject_locked_existing_point() -> None:
+    """promote 不能覆盖 locked 题设值。"""
+    context = ContextBuilder().build(load_problem_ir(NANKAI_FIXTURE))
+    specs = MethodSpecRegistry.load_from_code()
+    step_id = "manual_promote_d"
+    context.ensure_step_scope(step_id, "ii")
+    context.write_path(
+        "$step.manual_promote_d.temp.point",
+        TypedValue("Point", (sp.Integer(9), sp.Integer(9)), source="test"),
+        from_scope_id=step_id,
+    )
+
+    with pytest.raises(PermissionError, match="promote target is not writable"):
+        InvocationExecutor(specs).execute_step(
+            context,
+            StepPlan(
+                step_id=step_id,
+                goal=StepGoal(
+                    goal_id="test:update_m",
+                    type="derive_point",
+                    target_path="$question.ii.points.M",
+                    scope_id="ii",
+                ),
+                scope="ii",
+                promote_outputs={
+                    "$step.manual_promote_d.temp.point": "$question.ii.points.M"
+                },
+            ),
+        )

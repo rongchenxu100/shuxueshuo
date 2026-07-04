@@ -181,16 +181,22 @@ def _is_point_coordinate_for(
     if not candidate.startswith("fact:"):
         return False
     return bool(re.fullmatch(
-        rf"{re.escape(point_name)}_(?:param_)?(?:coord|coordinate)(?:_[A-Za-z0-9_]+)?",
+        rf"{re.escape(point_name)}_"
+        r"(?:(?:param|parametric|parameterized)_(?:coord|coordinate|point)"
+        r"|(?:coord|coordinate))(?:_[A-Za-z0-9_]+)?",
         _semantic_name(candidate),
+        flags=re.IGNORECASE,
     ))
 
 
 def _point_name_from_coordinate_state(semantic_name: str) -> str | None:
-    """从 ``E_coordinate`` / ``E_param_coord`` 这类状态 fact 读取点名。"""
+    """从 ``E_coordinate`` / ``E_parametric_coordinate`` 这类状态 fact 读取点名。"""
     match = re.fullmatch(
-        r"(?P<point>[A-Za-z][A-Za-z0-9]*)_(?:param_)?(?:coord|coordinate)(?:_[A-Za-z0-9_]+)?",
+        r"(?P<point>[A-Za-z][A-Za-z0-9]*)_"
+        r"(?:(?:param|parametric|parameterized)_(?:coord|coordinate|point)"
+        r"|(?:coord|coordinate))(?:_[A-Za-z0-9_]+)?",
         semantic_name,
+        flags=re.IGNORECASE,
     )
     if match is not None:
         return match.group("point")

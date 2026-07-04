@@ -51,7 +51,6 @@
     },
     "student_goal_template": "利用斜边中线和三角形中位线，把正方形路径中的两段合并为一段。",
     "student_title_template": "由斜边中线和中位线转化线段",
-    "student_nav_title_template": "多动点转化为单动点问题",
     "student_title_templates_by_goal": {},
     "derive_templates": [
       "∵{midpoint_statement}",
@@ -71,7 +70,8 @@
     ],
     "explanation_level": "template",
     "role_binding_strategy": "role_name_registry",
-    "role_binder_id": "square_path_dimension_reduction"
+    "role_binder_id": "square_path_dimension_reduction",
+    "student_nav_title_template": "多动点转化为单动点问题"
   },
   "visual": {
     "role_schema": {

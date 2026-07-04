@@ -20,6 +20,9 @@ from shuxueshuo_server.solver.family.models import (
 from shuxueshuo_server.solver.family.capability_packs import (
     DEFAULT_CAPABILITY_PACK_REGISTRY,
 )
+from shuxueshuo_server.solver.family.common_binding_rules import (
+    parameter_from_expression_value_rule,
+)
 
 
 _QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = SolverFamilySpec(
@@ -209,15 +212,7 @@ _QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             ),
             expansion_selectors=("distance_parameter_value_if_read",),
         ),
-        MethodBindingRuleSpec(
-            method_id="parameter_from_expression_value",
-            input_bindings=(
-                MethodInputBindingSpec("expression", "read_type:MinimumExpression"),
-                MethodInputBindingSpec("condition", "fact:minimum_value:Condition"),
-                MethodInputBindingSpec("parameter", "parameter_symbol"),
-                MethodInputBindingSpec("constraint", "parameter_constraint", required=False),
-            ),
-        ),
+        parameter_from_expression_value_rule(),
     ),
 )
 

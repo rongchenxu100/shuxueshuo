@@ -109,6 +109,7 @@ SPEC = MethodSpecSource(
     title="由角和条件寻找等角",
     summary=(
         "输入: 45° 角和条件、坐标轴上的参考点和目标 PointRef；输出: 唯一等角事实。"
+        "目标 PointRef 表示等角关系服务的目标点，应与后续消费该 AngleEquality 的点输出 step 一致。"
         "首版支持通过另一个 45° 坐标轴角比较，消去公共角得到目标线角与参考角相等。"
     ),
     solves=("derive_equal_angle_from_angle_sum",),
@@ -152,5 +153,19 @@ SPEC = MethodSpecSource(
             },
         ),
         role_binder_id="angle_sum_equal_angle_candidates",
+    ),
+    repair_hints=(
+        {
+            "code": "point_output_handle_not_found",
+            "applies_to": ("method:angle_sum_equal_angle_candidates",),
+            "message": "角和等角 step 缺少目标 PointRef；该目标点定义了等角关系要服务的点输出。",
+            "next_actions": (
+                "让 `angle_sum_equal_angle_candidates` 的 target 或 creates 指向目标点 PointRef，例如 `point:<scope>:<target_point>`。",
+                "后续消费该 AngleEquality 的点输出 step 应 reads 该 AngleEquality fact，并使用同一个目标 PointRef。",
+            ),
+            "do_not": (
+                "不要只 produces 一个泛化 AngleEquality fact 而不声明目标点。",
+            ),
+        },
     ),
 )

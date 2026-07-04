@@ -42,9 +42,17 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     StepIntentExecutionBlocker,
     StepIntentExecutionDiagnostic,
     StepIntentPlannerInsight,
+    StepIntentResolutionStepReport,
+    StepIntentScope,
     StepIntentSkippedStep,
     StrategyDraftValidationError,
     answer_output_type_compatible,
+)
+from shuxueshuo_server.solver.runtime.straightening_metadata import (
+    STRAIGHTENING_ENDPOINT_POINT_1,
+    STRAIGHTENING_ENDPOINT_POINT_2,
+    collect_straightening_endpoint_handles,
+    is_straightening_endpoint_name,
 )
 from shuxueshuo_server.solver.runtime.strategy_normalizer import StepIntentNormalizer
 from shuxueshuo_server.solver.runtime.strategy_preflight import StepIntentPreflightAnalyzer
@@ -305,9 +313,9 @@ class RecipeTrialExecutor:
             binding_rules=binding_rules,
             recipe_compilers=self.recipe_compilers,
         )
-        output, diagnostic = compiler.diagnose(draft)
+        output, diagnostic, effective_draft = compiler.diagnose(draft)
         diagnostic = replace(diagnostic, preflight_issues=preflight_issues)
-        return output, diagnostic, draft
+        return output, diagnostic, effective_draft
 
 class _RecipePlanCompiler:
     """StepIntent -> StepPlan 的通用编译器。"""
@@ -340,7 +348,7 @@ class _RecipePlanCompiler:
 
     def compile(self, draft: StepIntentDraft) -> PlannerOutput:
         """按 LLM 输出顺序编译并 dry-run prefix。"""
-        output, diagnostic = self.diagnose(draft)
+        output, diagnostic, _effective_draft = self.diagnose(draft)
         if output is not None:
             return output
         blocker = diagnostic.first_blocker
@@ -357,7 +365,7 @@ class _RecipePlanCompiler:
     def diagnose(
         self,
         draft: StepIntentDraft,
-    ) -> tuple[PlannerOutput | None, StepIntentExecutionDiagnostic]:
+    ) -> tuple[PlannerOutput | None, StepIntentExecutionDiagnostic, StepIntentDraft]:
         """按顺序编译并记录 accepted prefix 与首个 runtime blocker。"""
         plans: list[StepPlan] = []
         declarations: list[Any] = []
@@ -365,7 +373,9 @@ class _RecipePlanCompiler:
         accepted: list[StepIntentAcceptedStep] = []
         planner_insights: list[StepIntentPlannerInsight] = []
         steps = list(draft.steps)
-        for index, step in enumerate(steps):
+        index = 0
+        while index < len(steps):
+            step = steps[index]
             candidate_errors: list[str] = []
             capability_ids = self._capability_ids_for_step(step)
             if not capability_ids:
@@ -373,6 +383,7 @@ class _RecipePlanCompiler:
                 candidate_errors = list(report.errors) if report is not None else [
                     "no_executable_candidate"
                 ]
+                candidate_errors.extend(_candidate_warnings_for_report(report))
                 blocker = StepIntentExecutionBlocker(
                     step_id=step.step_id,
                     scope_id=step.scope_id,
@@ -391,16 +402,21 @@ class _RecipePlanCompiler:
                     )
                     for later in steps[index + 1:]
                 )
-                return None, StepIntentExecutionDiagnostic(
-                    ok=False,
-                    accepted_prefix=tuple(accepted),
-                    applied_fills=tuple(self.index.applied_fills),
-                    planner_insights=tuple(planner_insights),
-                    preflight_issues=(),
-                    blockers=(blocker,),
-                    skipped_steps=skipped,
-                    candidate_errors=tuple(candidate_errors),
+                return (
+                    None,
+                    StepIntentExecutionDiagnostic(
+                        ok=False,
+                        accepted_prefix=tuple(accepted),
+                        applied_fills=tuple(self.index.applied_fills),
+                        planner_insights=tuple(planner_insights),
+                        preflight_issues=(),
+                        blockers=(blocker,),
+                        skipped_steps=skipped,
+                        candidate_errors=tuple(candidate_errors),
+                    ),
+                    _draft_with_steps(draft, steps),
                 )
+            accepted_current_step = False
             for capability_id in capability_ids:
                 try:
                     compiled = self._compile_with_capability(step, capability_id)
@@ -435,6 +451,7 @@ class _RecipePlanCompiler:
                             ),
                         )
                     )
+                    accepted_current_step = True
                     break
                 except Exception as exc:
                     candidate_errors.append(
@@ -446,26 +463,38 @@ class _RecipePlanCompiler:
                             handle_registry=self.index.handle_registry,
                         )
                     )
-            else:
-                blocker = StepIntentExecutionBlocker(
-                    step_id=step.step_id,
-                    scope_id=step.scope_id,
-                    stage="recipe_trial",
-                    code=_execution_blocker_code(candidate_errors),
-                    message=_execution_blocker_message(step.step_id, candidate_errors),
-                    capability_errors=tuple(candidate_errors),
-                    capability_id=_execution_blocker_capability_id(candidate_errors),
-                    missing_runtime_type=_execution_blocker_missing_runtime_type(candidate_errors),
-                )
-                skipped = tuple(
-                    StepIntentSkippedStep(
-                        step_id=later.step_id,
-                        scope_id=later.scope_id,
-                        reason=f"skipped_due_to_prefix_blocker:{step.step_id}",
+            if accepted_current_step:
+                index += 1
+                continue
+
+            blocker = StepIntentExecutionBlocker(
+                step_id=step.step_id,
+                scope_id=step.scope_id,
+                stage="recipe_trial",
+                code=_execution_blocker_code(candidate_errors),
+                message=_execution_blocker_message(step.step_id, candidate_errors),
+                capability_errors=tuple(
+                    _unique_ordered(
+                        [
+                            *candidate_errors,
+                            *self._candidate_warnings_for_step(step),
+                        ]
                     )
-                    for later in steps[index + 1:]
+                ),
+                capability_id=_execution_blocker_capability_id(candidate_errors),
+                missing_runtime_type=_execution_blocker_missing_runtime_type(candidate_errors),
+            )
+            skipped = tuple(
+                StepIntentSkippedStep(
+                    step_id=later.step_id,
+                    scope_id=later.scope_id,
+                    reason=f"skipped_due_to_prefix_blocker:{step.step_id}",
                 )
-                return None, StepIntentExecutionDiagnostic(
+                for later in steps[index + 1:]
+            )
+            return (
+                None,
+                StepIntentExecutionDiagnostic(
                     ok=False,
                     accepted_prefix=tuple(accepted),
                     applied_fills=tuple(self.index.applied_fills),
@@ -473,16 +502,22 @@ class _RecipePlanCompiler:
                     preflight_issues=(),
                     blockers=(blocker,),
                     skipped_steps=skipped,
-                )
-        return PlannerOutput(
-            context_declarations=declarations,
-            step_plans=plans,
-        ), StepIntentExecutionDiagnostic(
-            ok=True,
-            accepted_prefix=tuple(accepted),
-            applied_fills=tuple(self.index.applied_fills),
-            planner_insights=tuple(planner_insights),
-            preflight_issues=(),
+                ),
+                _draft_with_steps(draft, steps),
+            )
+        return (
+            PlannerOutput(
+                context_declarations=declarations,
+                step_plans=plans,
+            ),
+            StepIntentExecutionDiagnostic(
+                ok=True,
+                accepted_prefix=tuple(accepted),
+                applied_fills=tuple(self.index.applied_fills),
+                planner_insights=tuple(planner_insights),
+                preflight_issues=(),
+            ),
+            _draft_with_steps(draft, steps),
         )
 
     def _capability_ids_for_step(self, step: StepIntent) -> list[str]:
@@ -496,6 +531,10 @@ class _RecipePlanCompiler:
         if report is not None:
             candidates.extend(candidate.capability_id for candidate in report.candidates if candidate.ok)
         return _unique_ordered(candidates)
+
+    def _candidate_warnings_for_step(self, step: StepIntent) -> list[str]:
+        """返回 resolver 生成的 LLM-facing warning，供 runtime blocker 兼容携带。"""
+        return _candidate_warnings_for_report(self.step_reports.get(step.step_id))
 
     def _compile_with_capability(self, step: StepIntent, capability_id: str) -> _CompiledStep:
         """按 recipe 或 method capability 编译单个 StepIntent。"""
@@ -670,9 +709,16 @@ class _RecipePlanCompiler:
         candidates = _temp(step.step_id, "candidates")
         selected = _temp(step.step_id, "selected_candidate")
         auxiliary = _temp(step.step_id, "auxiliary_point")
+        minimum_point_1 = _temp(step.step_id, "minimum_point_1")
+        minimum_point_2 = _temp(step.step_id, "minimum_point_2")
         moving_membership = _moving_membership_for_straightening(step, self.index)
         fixed_1, fixed_2, line_1, line_2 = _straightening_point_roles(step, self.index)
+        fixed_1_path, fixed_1_prep = _point_value_path_or_prepare(fixed_1, step, self.index)
+        fixed_2_path, fixed_2_prep = _point_value_path_or_prepare(fixed_2, step, self.index)
+        prep_invocations = [*fixed_1_prep[0], *fixed_2_prep[0]]
+        prep_promote = {**fixed_1_prep[1], **fixed_2_prep[1]}
         invocations = [
+            *prep_invocations,
             MethodInvocation(
                 invocation_id=f"{step.step_id}.broken_path_straightening_candidates",
                 method_id="broken_path_straightening_candidates",
@@ -680,8 +726,8 @@ class _RecipePlanCompiler:
                 inputs={
                     "path_transformation": _path_for_first_type(self.index, step, "PathTransformation"),
                     "moving_point_membership": self.index.path_for(moving_membership, expected_type="Condition"),
-                    "fixed_point_1": self.index.path_for(fixed_1, expected_type="Point"),
-                    "fixed_point_2": self.index.path_for(fixed_2, expected_type="Point"),
+                    "fixed_point_1": fixed_1_path,
+                    "fixed_point_2": fixed_2_path,
                     "line_point_1": self.index.path_for(line_1, expected_type="Point"),
                     "line_point_2": self.index.path_for(line_2, expected_type="Point"),
                 },
@@ -692,13 +738,25 @@ class _RecipePlanCompiler:
                 method_id="select_straightening_candidate",
                 scope=step.step_id,
                 inputs={"candidates": candidates, "target": auxiliary_path},
-                outputs={"selected_candidate": selected, "auxiliary_point": auxiliary},
+                outputs={
+                    "selected_candidate": selected,
+                    "auxiliary_point": auxiliary,
+                    "minimum_point_1": minimum_point_1,
+                    "minimum_point_2": minimum_point_2,
+                },
             ),
         ]
+        endpoint_point_1, endpoint_point_2 = _straightening_endpoint_target_paths(
+            step,
+            self.index,
+        )
         promote = {
+            **prep_promote,
             candidates: _scoped_output_path(self.index.context, step.scope_id, "straightening_candidates"),
             selected: _scoped_output_path(self.index.context, step.scope_id, "straightening_candidate"),
             auxiliary: auxiliary_path,
+            minimum_point_1: endpoint_point_1,
+            minimum_point_2: endpoint_point_2,
         }
         plan = StepPlan(
             step_id=step.step_id,
@@ -713,10 +771,38 @@ class _RecipePlanCompiler:
             expected_outputs=list(promote.values()),
             promote_outputs=promote,
         )
-        registrations = [
-            RuntimeHandleBinding(item.handle, promote[selected], "StraighteningCandidate", f"step:{step.step_id}")
-            for item in step.produces
-        ]
+        registrations: list[RuntimeHandleBinding] = []
+        for item in step.produces:
+            output_type = _produced_output_type(item, self.index.handle_registry)
+            if output_type == "StraighteningCandidate":
+                registrations.append(
+                    RuntimeHandleBinding(
+                        item.handle,
+                        promote[selected],
+                        "StraighteningCandidate",
+                        f"step:{step.step_id}",
+                    )
+                )
+            elif output_type == "Point":
+                semantic = _semantic_name(item.handle)
+                if semantic == STRAIGHTENING_ENDPOINT_POINT_1:
+                    registrations.append(
+                        RuntimeHandleBinding(
+                            item.handle,
+                            endpoint_point_1,
+                            "Point",
+                            f"step:{step.step_id}",
+                        )
+                    )
+                elif semantic == STRAIGHTENING_ENDPOINT_POINT_2:
+                    registrations.append(
+                        RuntimeHandleBinding(
+                            item.handle,
+                            endpoint_point_2,
+                            "Point",
+                            f"step:{step.step_id}",
+                        )
+                    )
         if auxiliary_handle is not None:
             registrations.append(
                 RuntimeHandleBinding(auxiliary_handle.handle, auxiliary_path, "Point", f"step:{step.step_id}")
@@ -895,6 +981,59 @@ class _RecipePlanCompiler:
             declarations=(declaration,),
             registrations=registrations,
         )
+
+    def _compile_straightened_distance_minimum_recipe(self, step: StepIntent) -> _CompiledStep:
+        """编译“已拉直方案 -> 端点距离最值” recipe。
+
+        split recipe 路径中，前序 ``broken_path_straightening_and_select`` 已经确定
+        最短线段端点；这里优先消费这些 endpoint metadata，避免继续让 LLM
+        通过普通 point reads 猜测距离两端。
+        """
+        endpoints = _straightening_endpoint_handles_from_reads(step, self.index)
+        if endpoints is None:
+            return self._compile_method(step, "distance_between_points")
+        point_1, point_2 = endpoints
+        output_name = "evaluated_distance" if _parameter_value_handle(step, self.index) else "distance"
+        distance = _temp(step.step_id, output_name)
+        target_path = _minimum_expression_target_path(step, self.index)
+        inputs = {
+            "p1": self.index.path_for(point_1, expected_type="Point"),
+            "p2": self.index.path_for(point_2, expected_type="Point"),
+        }
+        parameter_handle = _parameter_value_handle(step, self.index)
+        if parameter_handle is not None:
+            inputs["parameter"] = self.index.parameter_symbol_path()
+            inputs["parameter_value"] = self.index.path_for(
+                parameter_handle,
+                expected_type="ParameterValue",
+            )
+        plan = StepPlan(
+            step_id=step.step_id,
+            goal=StepGoal(
+                goal_id=f"{step.goal_type}:{step.step_id}",
+                type=step.goal_type,
+                target_path=target_path,
+                scope_id=step.scope_id,
+            ),
+            scope=step.scope_id,
+            invocations=[
+                MethodInvocation(
+                    invocation_id=f"{step.step_id}.distance_between_points",
+                    method_id="distance_between_points",
+                    scope=step.step_id,
+                    inputs=inputs,
+                    outputs={output_name: distance},
+                )
+            ],
+            expected_outputs=[target_path],
+            promote_outputs={distance: target_path},
+        )
+        registrations = tuple(
+            RuntimeHandleBinding(item.handle, target_path, "MinimumExpression", f"step:{step.step_id}")
+            for item in step.produces
+            if _produced_output_type(item, self.index.handle_registry) == "MinimumExpression"
+        )
+        return _CompiledStep(plan=plan, registrations=registrations)
 
     def _compile_broken_path_straightening_minimum_expression_recipe(self, step: StepIntent) -> _CompiledStep:
         """编译“折线拉直候选 + 选择方案 + 计算最小值表达式” recipe。"""
@@ -1163,17 +1302,14 @@ class PlannerInsightExtractorRegistry:
     ) -> list[StepIntentPlannerInsight]:
         """抽取通用将军饮马 recipe 暴露的最短线段端点。"""
         method_ids = {invocation.method_id for invocation in compiled.plan.invocations}
-        if not {"select_straightening_candidate", "distance_between_points"} <= method_ids:
+        if "select_straightening_candidate" not in method_ids:
             return []
         endpoint_handles = [
             produced.handle
             for produced in step.produces
             if (
                 _produced_output_type(produced, index.handle_registry) == "Point"
-                and (
-                    "point_1" in _semantic_name(produced.handle)
-                    or "point_2" in _semantic_name(produced.handle)
-                )
+                and is_straightening_endpoint_name(_semantic_name(produced.handle))
             )
         ]
         endpoint_handles = _unique_ordered(endpoint_handles)
@@ -1247,6 +1383,32 @@ def _recommended_locus_step_for_moving_point(
         "recommended_produces": f"fact:{step.scope_id}:{point_name}_locus_line",
         "before_capability": "broken_path_straightening_minimum_expression",
     }
+
+
+def _draft_with_steps(
+    draft: StepIntentDraft,
+    steps: list[StepIntent] | tuple[StepIntent, ...],
+) -> StepIntentDraft:
+    """用已执行/补位后的 flat steps 重建 scoped effective draft。"""
+    grouped: dict[str, list[StepIntent]] = {scope.scope_id: [] for scope in draft.scopes}
+    for step in steps:
+        grouped.setdefault(step.scope_id, []).append(step)
+    scopes = [
+        replace(scope, steps=tuple(grouped.get(scope.scope_id, ())))
+        for scope in draft.scopes
+    ]
+    known_scope_ids = {scope.scope_id for scope in draft.scopes}
+    for scope_id, scope_steps in grouped.items():
+        if scope_id in known_scope_ids:
+            continue
+        scopes.append(
+            StepIntentScope(
+                scope_id=scope_id,
+                label=f"scope {scope_id}",
+                steps=tuple(scope_steps),
+            )
+        )
+    return StepIntentDraft(scopes=tuple(scopes))
 
 
 def _parameterized_point_state_name(semantic_name: str) -> str | None:
@@ -1338,6 +1500,15 @@ def _compile_equal_length_ray_path_reduction_recipe(
     return compiler._compile_equal_length_ray_path_reduction_recipe(step)
 
 
+def _compile_straightened_distance_minimum_recipe(
+    compiler: _RecipePlanCompiler,
+    step: StepIntent,
+    recipe: FamilyRecipeExecutionSpec,
+) -> _CompiledStep:
+    """编译 split 将军饮马后续的端点距离最值 recipe。"""
+    return compiler._compile_straightened_distance_minimum_recipe(step)
+
+
 def _compile_broken_path_straightening_minimum_expression_recipe(
     compiler: _RecipePlanCompiler,
     step: StepIntent,
@@ -1353,6 +1524,7 @@ DEFAULT_RECIPE_COMPILERS: dict[str, RecipeCompileStrategyFn] = {
     "curve_candidate_parameter_solve": _compile_curve_candidate_parameter_solve_recipe,
     "straightening_candidates_select": _compile_straightening_candidates_select_recipe,
     "equal_length_ray_path_reduction": _compile_equal_length_ray_path_reduction_recipe,
+    "straightened_distance_minimum": _compile_straightened_distance_minimum_recipe,
     "broken_path_straightening_minimum_expression": _compile_broken_path_straightening_minimum_expression_recipe,
 }
 
@@ -1487,7 +1659,10 @@ def _point_value_path_or_prepare(
     try:
         return _point_value_path_for_step(point_handle, step, index), ((), {})
     except StrategyDraftValidationError:
-        if _point_definition(point_handle, index) != "axis_x_intercept":
+        definition = _point_definition(point_handle, index)
+        if definition == "midpoint":
+            return _prepare_midpoint_point_value(point_handle, step, index)
+        if definition != "axis_x_intercept":
             raise
         point_name = _handle_name(point_handle)
         output_path = _temp(step.step_id, f"prepared_{point_name}_coordinate")
@@ -1504,6 +1679,45 @@ def _point_value_path_or_prepare(
             outputs={"axis_point": output_path},
         )
         return output_path, ((invocation,), {output_path: promote_path})
+
+
+def _prepare_midpoint_point_value(
+    point_handle: str,
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> tuple[str, tuple[tuple[MethodInvocation, ...], dict[str, str]]]:
+    """为 midpoint definition 点生成 recipe 内部 midpoint_point prep。"""
+    payload = index.entity_payload(point_handle)
+    raw_endpoints = payload.get("of")
+    if not (
+        isinstance(raw_endpoints, list)
+        and len(raw_endpoints) == 2
+        and all(isinstance(item, str) for item in raw_endpoints)
+    ):
+        raise StrategyDraftValidationError(f"midpoint_definition_endpoints_missing: {point_handle}")
+    p1_path, p1_prep = _point_value_path_or_prepare(raw_endpoints[0], step, index)
+    p2_path, p2_prep = _point_value_path_or_prepare(raw_endpoints[1], step, index)
+    point_name = _handle_name(point_handle)
+    output_path = _temp(step.step_id, f"prepared_{point_name}_coordinate")
+    promote_path = _scoped_output_path(index.context, step.scope_id, f"{point_name}_coordinate")
+    invocation = MethodInvocation(
+        invocation_id=f"{step.step_id}.prepare_{point_name}_midpoint_coordinate",
+        method_id="midpoint_point",
+        scope=step.step_id,
+        inputs={
+            "p1": p1_path,
+            "p2": p2_path,
+            "target": index.point_ref_path_for(point_handle),
+        },
+        outputs={"midpoint": output_path},
+    )
+    return (
+        output_path,
+        (
+            (*p1_prep[0], *p2_prep[0], invocation),
+            {**p1_prep[1], **p2_prep[1], output_path: promote_path},
+        ),
+    )
 
 
 def _point_definition(point_handle: str, index: CanonicalRuntimeBindingIndex) -> str | None:
@@ -1637,6 +1851,47 @@ def _minimum_expression_target_path(
     raise StrategyDraftValidationError(
         f"equal_length_ray_path_reduction_requires_minimum_expression: {step.step_id}"
     )
+
+
+def _straightening_endpoint_target_paths(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> tuple[str, str]:
+    """返回 split 拉直 recipe 推广的最短线段端点路径。"""
+    return (
+        _straightening_endpoint_target_path(step, index, STRAIGHTENING_ENDPOINT_POINT_1),
+        _straightening_endpoint_target_path(step, index, STRAIGHTENING_ENDPOINT_POINT_2),
+    )
+
+
+def _straightening_endpoint_target_path(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+    semantic_name: str,
+) -> str:
+    """优先使用 step 显式 produced endpoint fact 的 valid_scope。"""
+    for produced in step.produces:
+        if (
+            _produced_output_type(produced, index.handle_registry) == "Point"
+            and _semantic_name(produced.handle) == semantic_name
+        ):
+            return _target_path_for_produced(produced, "Point", index, step)
+    return _scoped_output_path(index.context, step.scope_id, semantic_name)
+
+
+def _straightening_endpoint_handles_from_reads(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> tuple[str, str] | None:
+    """从 step reads 中读取前序拉直 recipe 暴露的 endpoint facts。"""
+    candidates: list[tuple[str, str]] = []
+    for handle in step.reads:
+        semantic_name = _semantic_name(handle)
+        binding = index.bindings.get(handle)
+        if binding is None or binding.value_type != "Point":
+            continue
+        candidates.append((semantic_name, handle))
+    return collect_straightening_endpoint_handles(candidates)
 
 
 def _straightening_minimum_fixed_points(
@@ -2335,7 +2590,9 @@ def _is_point_coordinate_semantic_name(name: str) -> bool:
     """判断 produced semantic name 是否表示某点坐标 fact。"""
     return bool(
         re.fullmatch(
-            r"[A-Za-z][A-Za-z0-9]*(?:_param)?_(?:coord|coordinate)(?:_[A-Za-z0-9_]+)?",
+            r"[A-Za-z][A-Za-z0-9]*_"
+            r"(?:(?:param|parametric|parameterized)_(?:coord|coordinate)"
+            r"|(?:coord|coordinate))(?:_[A-Za-z0-9_]+)?",
             name,
             flags=re.IGNORECASE,
         )
@@ -2353,7 +2610,9 @@ def _point_name_from_point_state_semantic(name: str) -> str | None:
         point = match.group("point")
         return point[:1].upper() + point[1:]
     match = re.fullmatch(
-        r"(?P<point>[A-Za-z][A-Za-z0-9]*)(?:_param)?_(?:coord|coordinate)(?:_[A-Za-z0-9_]+)?",
+        r"(?P<point>[A-Za-z][A-Za-z0-9]*)_"
+        r"(?:(?:param|parametric|parameterized)_(?:coord|coordinate)"
+        r"|(?:coord|coordinate))(?:_[A-Za-z0-9_]+)?",
         name,
         flags=re.IGNORECASE,
     )
@@ -2462,6 +2721,8 @@ def _method_output_union(
 def _execution_blocker_code(candidate_errors: list[str]) -> str:
     """把候选执行错误压成稳定短错误码。"""
     text = "\n".join(candidate_errors)
+    if "unsupported_direction_point_utility" in text:
+        return "unsupported_direction_point_utility"
     if "final_point_requires_square_recovery" in text:
         return "final_point_requires_square_recovery"
     if "missing_required_runtime_fact" in text:
@@ -2509,6 +2770,13 @@ def _execution_blocker_missing_runtime_type(candidate_errors: list[str]) -> str 
         if value:
             return value
     return None
+
+
+def _candidate_warnings_for_report(report: StepIntentResolutionStepReport | None) -> list[str]:
+    """把 resolver warnings 安全带到 runtime diagnostic。"""
+    if report is None:
+        return []
+    return [f"candidate_warning:{warning}" for warning in report.warnings]
 
 
 def _candidate_error_for_exception(

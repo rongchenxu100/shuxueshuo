@@ -10,6 +10,15 @@ from dataclasses import dataclass, field, replace
 import re
 from typing import Any
 
+from shuxueshuo_server.solver.runtime.handle_alias_index import (
+    ENTITY_KIND_ORDER,
+    ENTITY_KINDS,
+    NON_CANONICAL_PREFIXES,
+    HandleAliasIndex,
+    bare_read_alias_matches,
+    looks_canonical_or_namespaced,
+    namespace_alias_handle,
+)
 from shuxueshuo_server.solver.runtime.strategy_models import (
     CreatedEntity,
     HandleCorrection,
@@ -21,21 +30,14 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     StrategyDraftValidationError,
 )
 
-_ENTITY_TYPES = frozenset(
-    ("point", "line", "segment", "ray", "function", "symbol", "angle", "circle", "polygon")
-)
+_ENTITY_TYPES = ENTITY_KINDS
 _ENTITY_HANDLE_RE = re.compile(
-    r"^(?P<kind>point|line|segment|ray|function|symbol|angle|circle|polygon):"
+    rf"^(?P<kind>{'|'.join(ENTITY_KIND_ORDER)}):"
     r"(?P<scope>[A-Za-z0-9_]+):(?P<name>[A-Za-z0-9_]+)$"
 )
 _FACT_HANDLE_RE = re.compile(r"^fact:(?P<scope>[A-Za-z0-9_]+):(?P<name>[A-Za-z0-9_]+)$")
 _ANSWER_HANDLE_RE = re.compile(r"^answer:[A-Za-z0-9_.]+$")
-_NON_CANONICAL_PREFIXES = (
-    "relation:",
-    "condition:",
-    "constraint:",
-    "value:",
-)
+_NON_CANONICAL_PREFIXES = NON_CANONICAL_PREFIXES
 _LEGACY_LLM_PROBLEM_KEYS = {
     "relations",
     "points",
@@ -156,6 +158,7 @@ class CanonicalHandleAliasResolver:
         step: StepIntent,
         registry: CanonicalHandleRegistry,
         available: set[str],
+        handle_valid_scopes: dict[str, str] | None = None,
     ) -> ResolvedHandle:
         """解析一个 handle；无法确定修正时原样返回。"""
         if handle in available:
@@ -171,6 +174,17 @@ class CanonicalHandleAliasResolver:
             return answer_alias
         if field != "reads":
             return ResolvedHandle(handle=handle)
+
+        bare_alias = self._resolve_bare_read_alias(
+            handle,
+            field=field,
+            step=step,
+            registry=registry,
+            available=available,
+            handle_valid_scopes=handle_valid_scopes or registry.handle_valid_scopes,
+        )
+        if bare_alias is not None:
+            return bare_alias
 
         registered_alias = self._resolve_registered_alias(
             handle,
@@ -259,6 +273,42 @@ class CanonicalHandleAliasResolver:
             ),
         )
 
+    def _resolve_bare_read_alias(
+        self,
+        handle: str,
+        *,
+        field: str,
+        step: StepIntent,
+        registry: CanonicalHandleRegistry,
+        available: set[str],
+        handle_valid_scopes: dict[str, str],
+    ) -> ResolvedHandle | None:
+        """Resolve exact visible ``name`` or ``scope:name`` read aliases.
+
+        This is still deterministic handle repair: the LLM supplied the exact
+        semantic name, and we only accept a unique currently visible handle.
+        """
+        if _looks_canonical_or_namespaced(handle):
+            return None
+        candidates = HandleAliasIndex(
+            registry=registry,
+            available=available,
+            handle_valid_scopes=handle_valid_scopes,
+        ).visible_bare_read_alias_handles(handle, scope_id=step.scope_id)
+        if len(candidates) != 1:
+            return None
+        corrected = candidates[0]
+        return ResolvedHandle(
+            handle=corrected,
+            correction=HandleCorrection(
+                step_id=step.step_id,
+                scope_id=step.scope_id,
+                from_handle=handle,
+                to_handle=corrected,
+                reason=f"bare_read_alias:{field}",
+            ),
+        )
+
     def _resolve_namespace_alias(
         self,
         handle: str,
@@ -315,15 +365,17 @@ class CanonicalHandleAliasResolver:
         base_name = _state_point_base_name(name)
         if base_name is None:
             return None
-        visible_scopes = registry.ancestor_scopes(step.scope_id)
-        if written_scope not in visible_scopes:
-            return None
-        written_index = visible_scopes.index(written_scope)
-        candidates = [
-            f"point:{scope_id}:{base_name}"
-            for scope_id in visible_scopes[written_index:]
-            if f"point:{scope_id}:{base_name}" in available
-        ]
+        candidates = HandleAliasIndex(
+            registry=registry,
+            available=available,
+            handle_valid_scopes=registry.handle_valid_scopes,
+        ).visible_ancestor_handles(
+            kind="point",
+            written_scope=written_scope,
+            name=base_name,
+            scope_id=step.scope_id,
+            include_written_scope=True,
+        )
         if len(candidates) != 1:
             return None
         corrected = candidates[0]
@@ -355,29 +407,43 @@ class CanonicalHandleAliasResolver:
         if parsed is None:
             return ResolvedHandle(handle=from_handle)
         kind, written_scope, name = parsed
+        alias_index = HandleAliasIndex(
+            registry=registry,
+            available=available,
+            handle_valid_scopes=registry.handle_valid_scopes,
+        )
         visible_scopes = registry.ancestor_scopes(step.scope_id)
         if written_scope not in visible_scopes:
             return ResolvedHandle(handle=from_handle)
-        written_index = visible_scopes.index(written_scope)
 
         if kind == "fact":
-            entity_correction = self._resolve_fact_as_point_entity(
-                written_index=written_index,
+            entity_candidates = alias_index.point_entity_handles_for_fact_alias(
+                written_scope=written_scope,
                 name=name,
-                visible_scopes=visible_scopes,
-                available=available,
-                step=step,
-                from_handle=from_handle,
-                reason_prefix=reason_prefix,
+                scope_id=step.scope_id,
             )
-            if entity_correction is not None:
-                return entity_correction
+            if len(entity_candidates) == 1:
+                corrected = entity_candidates[0]
+                reason = "fact_namespace_for_point_entity"
+                if reason_prefix is not None:
+                    reason = f"{reason_prefix}:{reason}"
+                return ResolvedHandle(
+                    handle=corrected,
+                    correction=HandleCorrection(
+                        step_id=step.step_id,
+                        scope_id=step.scope_id,
+                        from_handle=from_handle,
+                        to_handle=corrected,
+                        reason=reason,
+                    ),
+                )
 
-        candidates = [
-            f"{kind}:{scope_id}:{name}"
-            for scope_id in visible_scopes[written_index + 1:]
-            if f"{kind}:{scope_id}:{name}" in available
-        ]
+        candidates = alias_index.visible_ancestor_handles(
+            kind=kind,
+            written_scope=written_scope,
+            name=name,
+            scope_id=step.scope_id,
+        )
         if len(candidates) != 1:
             return ResolvedHandle(handle=from_handle)
 
@@ -460,6 +526,7 @@ class HandleResolver:
                     step,
                     registry=registry,
                     available=available,
+                    handle_valid_scopes=handle_valid_scopes,
                     alias_resolver=alias_resolver,
                 )
                 corrections.extend(alias_corrections)
@@ -602,6 +669,7 @@ class HandleResolver:
         *,
         registry: CanonicalHandleRegistry,
         available: set[str],
+        handle_valid_scopes: dict[str, str],
         alias_resolver: CanonicalHandleAliasResolver,
     ) -> tuple[StepIntent, list[HandleCorrection]]:
         """统一修正 target/reads/produces 中可确定的 handle alias。"""
@@ -614,6 +682,7 @@ class HandleResolver:
                 step=step,
                 registry=registry,
                 available=available,
+                handle_valid_scopes=handle_valid_scopes,
             )
             if resolved.correction is not None:
                 corrections.append(resolved.correction)
@@ -1018,11 +1087,17 @@ def _namespace_alias_handle(handle: str) -> str:
     这只发生在 reads 修正阶段；只有修正后能命中已存在 handle 或唯一可见父级
     handle 时，CanonicalHandleAliasResolver 才会真正接受。
     """
-    if handle.startswith("facts:"):
-        return "fact:" + handle[len("facts:"):]
-    if handle.startswith("seg:"):
-        return "segment:" + handle[len("seg:"):]
-    return handle
+    return namespace_alias_handle(handle)
+
+
+def _looks_canonical_or_namespaced(handle: str) -> bool:
+    """Return whether a read should use stricter canonical/namespace paths."""
+    return looks_canonical_or_namespaced(handle)
+
+
+def _bare_read_alias_matches(candidate: str, alias: str) -> bool:
+    """Match ``name`` or ``scope:name`` against a canonical non-answer handle."""
+    return bare_read_alias_matches(candidate, alias)
 
 
 def _state_point_base_name(name: str) -> str | None:

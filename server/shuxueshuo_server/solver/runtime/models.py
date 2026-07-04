@@ -35,6 +35,12 @@ def runtime_type_matches(expected_type: str, actual_type: str) -> bool:
     可以传给只需要代入/求截距的 ``Expression`` 输入。其他类型继续保持严格匹配，
     避免 planner 通过宽松类型绕过 method 边界。
     """
+    if "|" in expected_type:
+        return any(
+            runtime_type_matches(item.strip(), actual_type)
+            for item in expected_type.split("|")
+            if item.strip()
+        )
     if expected_type == actual_type:
         return True
     if expected_type == "Expression" and actual_type == "Parabola":

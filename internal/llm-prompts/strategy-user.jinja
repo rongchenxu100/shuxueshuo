@@ -11,6 +11,17 @@
 
 {{ payload.problem_ir | pretty_json }}
 
+## Semantic Read Catalog
+
+优先在每个 step 中使用 `semantic_reads`。`ref` 推荐从下面 catalog 里选择短语义名，也可以直接复制 ProblemIR 或前序 step 里的 canonical handle：
+
+- 读取题面已有对象：使用 `{ "ref": ..., "kind": ..., "value_type": ...? }`，不要填写 `from_step`。
+- 读取前序 step 的 `creates` / `produces`：使用该产物的语义名或完整 canonical handle 作为 `ref`；建议填写 `from_step` 为前序 `step_id`，若省略，系统只在唯一可见 exact match 时自动推断。
+- `semantic_reads` 会由系统解析成 canonical `reads`；不要把 catalog、ProblemIR 或前序产物中都不存在的对象写进 `semantic_reads`。
+- legacy `reads` 仍兼容，但只在本步不输出 `semantic_reads` 时作为主输入。若同时输出 `semantic_reads` 和 `reads`，系统以 `semantic_reads` 为准；若本步 `semantic_reads` 解析失败，系统会反馈 semantic read 错误，不会静默采用同一步的 legacy `reads`。
+
+{{ payload.semantic_read_catalog | pretty_json }}
+
 ## StepIntent Naming Conventions
 
 下面是新建 StepIntent 名称和新产物 handle 的命名约定。
@@ -65,12 +76,44 @@ Catalog：只有两张 catalog 都没有对应能力时才允许 null。null 表
 
 {{ payload.few_shot_examples | pretty_json }}
 
+## Previous Attempt State
+
+如果这里非空，请先读这份状态索引；`latest_retry_state` 是唯一正式修复入口：
+- `latest_retry_state` 是正式修复状态。优先使用它，而不是从历史错误里重新推理。
+  - `baseline_draft` 是系统对上一轮输出 deterministic replay 后得到的稳定基线；
+  - `stable_prefix` 是已通过校验/候选解析/runtime trial 的前缀步骤；
+  - `repair_suffix_start` 是建议开始修改的位置；
+  - `issues[]` 统一记录每个仍需修复的 blocking `layer / code / step_id / preserve_policy / repair_target`；
+  - `recovered_issues[]` 是系统已经确定性接管的问题，只作 debug 参考，不要作为主修复目标；
+  - `replay_timeline` 展示 replay 各层状态，`selected_repair_layer` 是当前主修复层；
+  - 若 `preserve_policy: "preserve_prefix"`，不要改写 `stable_prefix` 的语义，只从
+    `repair_suffix_start` 及其后续步骤修复；
+  - 若 `preserve_policy: "preserve_handles"`，可以改稳定 step 的 `strategy/reason`，
+    但不要改它们的 `reads/creates/produces/target/recipe_hint`；
+  - 若 `preserve_policy: "preserve_step"`，保留指定稳定 step，只修它后面的步骤；
+  - 若为 `"none"`，可以调整 baseline 中与 `issues[]` 相关的步骤。
+- `latest_stable_runtime` 是最近一次已经进入 runtime compile + dry-run 的稳定版本。
+  这是兼容旧字段，内容会从 `latest_retry_state.baseline_draft` 和 replay reports 派生；
+  若两者同时存在，以 `latest_retry_state` 为准。
+- `latest_semantic_failure` 是最近一次 `semantic_reads` 解析失败。它只表示本轮读入引用需要修复；
+  不应覆盖更早的 `latest_stable_runtime`。若其中有
+  `semantic_read_resolution.partially_resolved_payload`，请保留已解析成功的 canonical `reads`，
+  只根据 `semantic_read_resolution.errors` 修复剩余 `semantic_reads`。
+- 如果 retry state 和 semantic failure 同时存在，优先保留 `latest_retry_state.baseline_draft`
+  的 scope/step 结构和 stable prefix，再把 semantic failure 指出的读入项修好。
+
+{{ payload.previous_attempt_state | pretty_json }}
+
 ## Previous Attempts
 
 如果这里非空，说明上一轮输出没有通过校验。每个 attempt 可能包含
-`repair_summary`、`effective_draft`、`diagnostic`、`repair_instruction` 和 `errors`：
-- `repair_summary` 是最重要的修复摘要。请先读它，再参考
-  `effective_draft / diagnostic`。其中：
+`planner_retry_state`、`repair_summary`、`effective_draft`、`diagnostic`、`repair_instruction` 和 `errors`：
+- `planner_retry_state` 是最重要的正式修复状态。请以其中的 `baseline_draft` 为基线，
+  按 `issues[]` 和 `repair_suffix_start` 修 suffix；不要从原始失败历史重新规划整题。
+  `recovered_issues[]` 只说明代码已处理的浅层问题，不要为了它们改写稳定步骤。
+  `preserve_policy` 是硬约束：例如 `preserve_prefix` 表示 stable prefix 的语义必须保留。
+- `repair_summary` 是兼容旧字段的修复摘要；只有没有 `planner_retry_state` 时才把它作为主参考。
+  其中：
   - `frozen_prefix` 是系统已接受并会保留的步骤，不要重写这些步骤的语义；
   - `planner_state` 是已执行 method/recipe 暴露出的关键角色信息，例如降维后的
     moving point、固定端点、将军饮马最短线段端点；
@@ -86,6 +129,9 @@ Catalog：只有两张 catalog 都没有对应能力时才允许 null。null 表
   可见坐标 fact。不要为了这些补位新增 utility step。
 - `diagnostic.blockers` 是真正需要你修复的第一个执行阻塞点；请从 blocker 所在 step
   开始修复后续步骤。
+- 若 `validation_report.semantic_read_resolution.partially_resolved_payload` 存在，
+  它表示系统已将可确定的 `semantic_reads` 解析成 canonical `reads` 的中间版本；
+  请保留这些已解析依赖，并根据 `semantic_read_resolution.errors` 修复剩余读入项。
 
 请先阅读上一轮 `effective_draft` 和 `diagnostic`，再重新生成完整 `scopes`，不要只输出 patch。
 常见错误含义：
@@ -93,13 +139,17 @@ Catalog：只有两张 catalog 都没有对应能力时才允许 null。null 表
 - `create_overwrites_given_entity`：你把 ProblemIR 已有实体放进了 `creates`；请改为在 `reads` 中引用该实体，并在 `produces` 中输出它的坐标/表达式 fact。
 - `unknown_read_handle` 或 `noncanonical_handle`：`reads` 里用了不存在或不规范的 handle；请从 ProblemIR 或前序 step 的 `creates` / `produces` 原样复制 handle。
 - `missing required answer handles`：有 required answer goal 没被任何 step 的 `target` 或 `produces` 覆盖。
-- `avoid_pattern_hits` 非空：步骤策略偏离了题型推荐。若是路径最值路线，请优先使用 recipe catalog 中的路径 recipe；若是当前问能先确定参数数值，却提前抽通用含参系数/解析式，请先求参数再代入。若参数暂不能定值但化简能减少未知量，可以保留化简 step。
+- `avoid_pattern_hits` 非空：步骤策略偏离了题型推荐。{% if payload.prompt_flags.supports_path_minimum %}若是路径最值路线，请优先使用 recipe catalog 中的路径 recipe；{% endif %}若是当前问能先确定参数数值，却提前抽通用含参系数/解析式，请先求参数再代入。若参数暂不能定值但化简能减少未知量，可以保留化简 step。
 - `capability_errors` 非空：某个 step 的 `recipe_hint` 与 `produces` 不匹配。请让一个 step 严格对应一个 recipe 或一个 method；如果要先求参数再求解析式，请拆成两个 step。
-  若 `broken_path_straightening_and_select` 报错，不要在该 step 的 `produces` 里输出 `line_equation`、`Equation` 或最小值表达式；该 recipe 只负责创建辅助点并产生拉直方案 fact。直线方程等计算细节写在 `strategy/reason`，求最小值或交点交给后续对应 step。
+  若某个路径拉直/方案选择 recipe 报错，不要在该 step 的 `produces` 里输出直线方程、距离表达式或最小值；该类 recipe 通常只负责创建辅助点并产生拉直方案 fact。计算细节写在 `strategy/reason`，求最小值或交点交给后续对应 step。
 - `executable_resolution_errors` 非空：某个 step 无法映射到任何 recipe/method 候选。通常是产生了自由中间 fact（如某种临时关系式）、自造辅助点构造、或自造路径转化，但 method/recipe 菜单中没有对应能力；请改为让后续通用 method 内部处理，或选择能直接产出该结论的 recipe/method。不要把 `recipe_hint: null` 当成可执行兜底；它只表示 catalog 缺能力。
+  若失败 step 在 produces `tan_*`、`slope_*`、正切值或斜率值，请删除这些裸 scalar utility steps。
+  角度/斜率推理应并入当前 Recipe/Method Catalog 中可见且能产出目标结论的 step 的 `strategy` / `reason` 中；不要点名或自造 catalog 里不存在的能力。
 - `missing_capability:*` 或 `missing_required_runtime_fact:*`：策略层看起来合法，但代码执行时发现缺少必要的推导步骤。不要只把缺失的 fact/entity 写进后续 `reads`；必须在更早的位置新增一个能产生该 fact/entity 的 step。
-  例如错误提示缺少 `midpoint_point` 时，说明后续步骤读取了某个中点坐标，但你没有先用中点 method 推出它；请新增一个 `recipe_hint: "midpoint_point"` 的 step，读取中点定义和两个端点坐标，produces 对应的中点坐标 fact。
-  如果错误提示缺少 `minimum_expression`，说明 `parameter_from_minimum_value` 没有读到公共最小值表达式。请让前面的 `path_minimum_by_straightened_distance` step produces 一个父级公共 `MinimumExpression` fact（例如 `fact:ii:path_minimum_expression`），后续反求参数 step 在 `reads` 中引用它；不要读取兄弟小问的 `answer:ii_1.minimum_value`。
+  例如后续步骤读取了某个中点坐标，但前面没有先用当前 catalog 中的中点能力推出它，请新增一个能产生该中点坐标 fact 的 step。
+{% if payload.prompt_flags.supports_path_minimum %}
+  如果后续参数求解缺少公共最小值表达式，请让前面的路径最值 step 产生父级公共 `MinimumExpression` fact（例如 `fact:<scope>:path_minimum_expression`），后续反求参数 step 在 `reads` 中引用它；不要读取兄弟小问的最终答案替代表达式输入。
+{% endif %}
 - `capability_input_type_mismatch`：你把某个 recipe/method 用在了错误阶段。例如直角等腰构造 recipe 需要的是“尚未求出坐标的目标点”，如果前序已经产生了该点的坐标表达式 fact，就不要再次调用同一个构造 recipe 只为代入参数；后续步骤应直接读取这个坐标表达式 fact 和参数 fact，再使用中点、参数求解、二次函数约束、距离或交点等下一步 method。
 - `duplicate_point_coordinate_fact`：你重复推导了同一点坐标、同一参数值、同一函数解析式或同一最值表达式。请删除后面的重复 step，让后续步骤在 `reads` 中引用已有 fact。
 - `common_fact_after_narrow_fact`：你先在某个子问里产生了窄 scope 结论，后面又产生父级公共结论。请把公共结论提前到第一次需要它的位置，设置较大的 `valid_scope`，后续子问只 reads 它。
@@ -138,26 +188,30 @@ Catalog：只有两张 catalog 都没有对应能力时才允许 null。null 表
   - 若你想输出的 step 会 `creates` 新辅助点、produces `PathTransformation`、`MinimumExpression`、`Point` 等需要代码执行的产物，但 catalog 没有对应 recipe/method，请不要自造该能力；改用 catalog 中已有路线，或把这一步作为明确的能力缺口。
 - `step_id` 仍然必须是可读的语义名称，不要直接用 recipe_id 或 method_id 充当 step_id。
 - 每个 step 的 `produces` 必须落在 `recipe_hint` 对应 recipe/method 的能力范围内：
-  - `parameter_from_segment_length` / `parameter_from_minimum_value` 只产生参数 fact，不要同时产生抛物线、点坐标或最终答案；
-  - `quadratic_from_constraints` 只产生系数/抛物线相关 fact 或 answer，不要同时产生参数求解、点坐标或最小值；
-  - `right_angle_equal_length_construct_and_select` 是一个完整 recipe，直接产生筛选后的构造点坐标 fact，不要拆成“候选点列表 step + 筛选 step”；
+  - 参数求解类能力只产生参数或数值 fact，不要同时产生抛物线、点坐标或无关最终答案；
+  - 函数约束求解类能力只产生系数、函数表达式或对应 answer，不要同时产生参数求解、点坐标或最值；
+  - 构造并筛选类 recipe 如果 description 说明它是完整动作，就不要拆成“候选列表 step + 筛选 step”；
   - 路径 recipe 依次产生路径降维 fact、拉直方案 fact、最小值/距离 fact，不要互相混产。
-  - `broken_path_straightening_and_select` 只 produces 拉直方案 fact，并可在 `creates` 中声明辅助点；不要 produces 直线方程、距离表达式或最小值。
-  - `path_minimum_by_straightened_distance` 若后续还要用最值条件反求参数，应同时或优先 produces 一个父级公共最小值表达式 fact，例如 `fact:ii:path_minimum_expression`；①问最终答案 `answer:ii_1.minimum_value` 只属于 ①，不能作为 ② 反求参数的表达式输入。
+  - 折线拉直/方案选择类步骤只 produces 拉直方案 fact，并可在 `creates` 中声明辅助点；不要同时 produces 直线方程、距离表达式或最小值。
+{% if payload.prompt_flags.supports_path_minimum %}
+  - 路径最值类步骤若后续还要用最值条件反求参数，应同时或优先 produces 一个父级公共最小值表达式 fact，例如 `fact:<scope>:path_minimum_expression`；某个子问的最终最小值答案只属于该子问，不能作为兄弟子问的表达式输入。
+{% endif %}
 - 不要单独产生 method/recipe 菜单外的自由 Equation 中间关系，例如“由代入得到某两个参数的关系式”这类 utility fact。
-  如果这个关系只是为了求抛物线、参数或点坐标，请把它写在对应 method step 的 `strategy/reason` 中，让 `quadratic_from_constraints`、参数求解或点构造 step 直接产生最终 fact/answer。
+  如果这个关系只是为了求函数、参数或点坐标，请把它写在对应 catalog step 的 `strategy/reason` 中，让该 step 直接产生最终 fact/answer。
+- 不要单独产生 `fact:*:tan_*`、`fact:*:slope_*`、斜率值、正切值这类裸中间 scalar fact。
+  如果要处理角度和斜率关系，把推理写在 `strategy/reason` 中，并放进当前 Recipe/Method Catalog 中可见的可执行 step；不要引用或自造 catalog 中不存在的能力。
 - 采用“先定值，再代入；不能定值但能降复杂度时先化简”的原则：
   - 若当前问已有长度、最值或其他条件可以直接确定参数/数值，先用对应参数求解 method 产出参数 fact，再把数值代入后续求解。
   - 若参数暂时不能定值，但代入已知系数、已知点或系数关系能减少未知量，可以产生简化后的函数/系数 fact；该 fact 必须是后续步骤明确需要的输入，不要只是为了“后续可复用”缓存通用含参表达式。
-  - `quadratic_from_constraints` 的理想化简结果是：系数 `a,b,c` 完全确定，或只剩一个后续条件/目标会直接求解或引用的未知量。
+  - 函数约束求解 step 的理想化简结果是：系数完全确定，或只剩一个后续条件/目标会直接求解或引用的未知量。
     如果化简后仍有多个等价自由参数（例如既可用 `b` 表达，也可用 `c` 表达），必须根据后续长度条件、最值条件、曲线点筛选或最终答案目标选择最有用的参数；如果上下文还不能判断，就不要提前产生含参系数缓存 step。
-  - 例如已知 N 坐标表达且本问有 MN 长度条件时，先用 `parameter_from_segment_length` 求 m，再用 `quadratic_from_constraints` 直接产生该问的 `answer:*.parabola`；不要先 produces `fact:ii:parabola_coefficients_expr` 这类公共含参系数表达式。
+  - 例如已知某动点坐标表达且本问有长度条件时，先用当前 catalog 中的参数求解能力求参数，再用函数约束能力直接产生该问的函数答案；不要先 produces 公共含参系数表达式。
   - `fact:<scope>:parabola_coefficients_expr`、`fact:<scope>:coefficients_in_m`、`fact:<scope>:coefficients_expr`
     这类公共含参系数缓存不是独立 executable step；相关代数推导可以写在 `strategy/reason`，
     但不要作为 `produces` 进入数据流，除非后续确实没有任何参数定值条件可用。
   - 如果前序 step 已产生完整抛物线（例如 `answer:*.parabola` 或 `fact:*:parabola_expression`），后续求 x 轴交点、曲线交点或点坐标时必须在 `reads` 中引用该 Parabola handle；不要只引用 `parabola_coefficients` / `coefficients` 这类系数缓存。
 - `target` 表达本步目标，优先使用 `answer:<QuestionGoal.id>` 或清晰自然语言。
-- `reads` 写本步依赖的 Entity/Fact/answer handle，只能使用 ProblemIR 中已有的 handle 或前序 step 产生的 handle，不写内部路径。
+- 优先用 `semantic_reads` 写本步依赖的 Entity/Fact/answer。`semantic_reads.ref` 推荐短语义名，也兼容直接复制 canonical handle；legacy `reads` 仍可用，但只在本步不输出 `semantic_reads` 时作为主输入；`reads` 只能使用 ProblemIR 中已有的 handle 或前序 step 产生的 handle，不写内部路径。
 - `reads` 里的已有 handle 必须从 ProblemIR 原样复制，handle 里的 scope 表示“实体/事实定义在哪里”，不是“当前 step 在哪里使用”。
   例如公共实体若是 `point:problem:Anchor`，即使在子问步骤中使用，也必须继续写 `point:problem:Anchor`，不要改成当前子问 scope。
 - `creates` 写本步新增的辅助实体，每条必须包含：
@@ -172,13 +226,15 @@ Catalog：只有两张 catalog 都没有对应能力时才允许 null。null 表
   - `valid_scope`：事实在哪个 scope 及其子 scope 可用；
   - `description`：这条事实或答案的自然语言说明，并说明它的可见范围，例如“后续全题可用”“后续第（Ⅱ）①②可用”“仅第（Ⅱ）①问使用”。
   - `output_type`：可选；能确定时请填写 schema enum 中的类型，例如 `Point`、`PointList`、`Parabola`、`ParameterValue`、`MinimumExpression`、`PathTransformation`、`StraighteningCandidate`。不要写 enum 之外的类型。
+- 新建 handle 必须是稳定语义名，不能包含 `?`、`??`、`unknown`、`todo` 等占位符。
+  如果角度 recipe 的具体等角名称不想展开，使用 `fact:<scope>:angle_equality_result` 这类通用但确定的名字，不要写 `equal_angle_*_??`。
 - 如果后续 step 用到已产生的实体或事实，直接把该 `handle` 放进 `reads`，不要再生成一个重复求解或“复用结论”的 step。
 - 如果某个前序 step 已经产生了一个公共 fact（例如 `valid_scope: "problem"` 或 `valid_scope: "ii"`），后续 scope 只能读取它，不能再次 produces 同一个 handle。
   例如前序步骤已经 produces `fact:problem:shared_coordinate_value`，后续步骤若要使用该结论，直接在 `reads` 写这个 handle，不要再输出重复求同一结论的 step。
 - 不要用不同 handle 重复表达同一数学结论。例如某一点坐标已经有通用表达式 fact，后续小问不要再 produces 另一个“数值版/表达式版”坐标 fact；需要代入参数时，让后续参数、函数、距离或交点 step 读取通用坐标 fact 和参数 fact。
-- 同一个父级 Entity 点的坐标不能在兄弟小问分别 produces。例如 `fact:ii_1:F_coordinate`
-  和 `fact:ii_2:F_coordinate_expr` 都是在求同一个 `point:ii:F`，这不是可执行计划；
-  应先在第一次需要 F 时 produces 父级 `fact:ii:F_coordinate_expr`，设置 `valid_scope: "ii"`，
+- 同一个父级 Entity 点的坐标不能在兄弟小问分别 produces。例如 `fact:child_1:shared_point_coordinate`
+  和 `fact:child_2:shared_point_coordinate_expr` 都是在求同一个 `point:parent:SharedPoint`，这不是可执行计划；
+  应先在第一次需要该点时 produces 父级 `fact:parent:shared_point_coordinate_expr`，设置 `valid_scope: "parent"`，
   后续 ①② 只 reads 它，并由参数/距离/函数 method 完成代入。
 - `valid_scope` 尽量取最大安全范围：只依赖全题条件就是 `problem`；依赖第（Ⅱ）公共条件就是 `ii`；依赖 ① 独有条件就是 `ii_1`。
 - `valid_scope` 不能比 reads 支持的范围更大：如果某个 step 读取了子问独有 fact，例如 `fact:ii_1:*`，它产生的 fact 通常只能在 `ii_1` 内有效，不能写成父级 `ii`。

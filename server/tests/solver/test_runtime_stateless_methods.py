@@ -1336,6 +1336,28 @@ def test_evaluate_expression_at_parameter_method() -> None:
 
     assert result.outputs["evaluated_expression"].type == "Expression"
     assert result.outputs["evaluated_expression"].value == 2 * x + 4
+    assert "evaluated_minimum_expression" not in result.outputs
+    assert all(check.ok for check in result.checks)
+
+
+def test_evaluate_expression_at_parameter_preserves_minimum_expression_type() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["b", "x"])
+    b, x = symbols["b"], symbols["x"]
+
+    result = EvaluateExpressionAtParameterMethod().run(
+        {
+            "expression": b * x + b**2,
+            "parameter": b,
+            "parameter_value": sp.Integer(2),
+            "__input_types__": {"expression": "MinimumExpression"},
+        },
+        kernel,
+    )
+
+    assert "evaluated_expression" not in result.outputs
+    assert result.outputs["evaluated_minimum_expression"].type == "MinimumExpression"
+    assert result.outputs["evaluated_minimum_expression"].value == 2 * x + 4
     assert all(check.ok for check in result.checks)
 
 
@@ -1378,3 +1400,24 @@ def test_line_locus_minimum_point_method() -> None:
     assert result.outputs["point"].type == "Point"
     assert result.outputs["point"].value == (sp.Rational(-7, 2), sp.Integer(-3))
     assert all(check.ok for check in result.checks)
+
+
+def test_line_locus_minimum_point_requires_named_target_ref() -> None:
+    """method 层不应从 locus payload 兜底点名；PointRef 恢复由 executor 负责。"""
+    kernel = SympyKernel()
+
+    with pytest.raises(ValueError, match="target must be a PointRef"):
+        LineLocusMinimumPointMethod().run(
+            {
+                "moving_locus": {
+                    "kind": "line",
+                    "point_name": "G",
+                    "start_point": (sp.Integer(0), sp.Integer(-3)),
+                    "direction": (sp.Integer(1), sp.Integer(0)),
+                },
+                "minimum_point_1": (sp.Integer(-5), sp.Integer(0)),
+                "minimum_point_2": (sp.Rational(-7, 2), sp.Integer(-3)),
+                "target": (sp.Integer(0), sp.Integer(-3)),
+            },
+            kernel,
+        )

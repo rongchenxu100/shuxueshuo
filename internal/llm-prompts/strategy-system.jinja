@@ -20,7 +20,11 @@
 8. 不要输出候选编号、method invocation、bindings、promote_to、depends_on。
 9. 不要把坐标、解析式、参数值写成结构化字段；`strategy` / `reason` 可以出现自然语言推导结论，但执行层不会从这些文字读取数值。
 10. 可以使用 prompt 中列出的 answer handle，例如 `answer:i.parabola`。
-11. `reads` 只能引用 ProblemIR 中已有的 Entity/Fact/answer handle，或前序 step 在 `creates`/`produces` 中产生的 handle。
+11. 优先使用 `semantic_reads` 表达本步读入项；`ref` 推荐使用 user prompt 的 Semantic Read Catalog 短语义名，也可以直接复制 ProblemIR 或前序 step 里的 canonical handle。
+    - 题面已有对象不要填写 `from_step`。
+    - 读取前序 step 的 `creates` / `produces` 时，`ref` 可以写该产物的语义名，也可以写该产物的完整 canonical handle；建议填写 `from_step`，如果省略，系统只会在唯一可见 exact match 时自动推断。
+    - `semantic_reads` 和 legacy `reads` 同时出现时，系统以 `semantic_reads` 为准；若本步 `semantic_reads` 解析失败，系统会反馈 semantic read 错误，不会静默采用同一步的 legacy `reads`。
+    - legacy `reads` 仍兼容：如果不输出 `semantic_reads`，`reads` 只能引用 ProblemIR 中已有的 Entity/Fact/answer handle，或前序 step 在 `creates`/`produces` 中产生的 handle。
     - 必须原样复制已有 canonical handle，不要因为当前 step 位于某个 scope 就改写 handle 的 scope 前缀。
     - 例如某题的公共点 handle 是 `point:problem:Anchor`，在子问步骤中仍然写 `point:problem:Anchor`，不要改成当前子问 scope。
     - 新产生的 `creates` / `produces` handle 命名模式见 user prompt 的 StepIntent Naming Conventions。
@@ -29,6 +33,7 @@
 13. `produces` 只声明新 fact 或最终 answer；每条必须包含 `handle`、`valid_scope`、`description`，且 description 应说明结论可见范围。
     - `output_type` 是可选字段；若你能判断这条产物类型，请从 schema enum 中显式填写，例如 `Point`、`Parabola`、`ParameterValue`、`MinimumExpression`、`PathTransformation`、`StraighteningCandidate`、`PointList`。
     - 若不能确定，`output_type` 可以省略或填 `null`；不要发明 enum 之外的类型。
+    - 新建 handle 不能包含 `?`、`??`、`unknown`、`todo` 等占位符；如果结论语义可确定但具体角名不想展开，使用稳定语义名，例如 `fact:<scope>:angle_equality_result`。
 14. 同一公共结论只产生一次；后续 step 直接在 `reads` 中引用它，不要重复生成求解 step。
     - 如果前序 step 已经 `produces` 了某个 handle，后续任何 scope 都不能再次 `produces` 同一个 handle。
     - 即使 handle 名不同，只要语义上是同一点坐标、同一参数值、同一函数解析式或同一最值表达式，也不要在窄 scope 和宽 scope 重复推导。
@@ -41,11 +46,18 @@
     - 错误示例：`record_relation`、`record_known_conditions`、`organize_given_facts`。
     - 正确写法：在路径转化 step 的 `reads` 中引用这些事实 handle。
 18. 不要为了单纯准备一个临时坐标、表达式或中间记号而创建 utility step；只有当它是最终答案、可跨后续步骤复用的公共 fact，或对应明确 recipe/method 的关键数学动作时，才单独成 step。
+    - 特别不要单独 produces `fact:*:tan_*`、`fact:*:slope_*`、斜率值、正切值这类裸中间 scalar fact；角度/斜率推理写在真正 method/recipe step 的 `strategy` / `reason` 中。
+    - 遇到角和、等角、轴截点、斜率/正切关系等几何角度条件时，优先选择当前 Recipe/Method Catalog 中可见的对应能力；不要为了计算斜率或正切单独拆 utility steps。
 19. 如果一个父 scope 只是用于组织子问、自己没有 required answer goal，不要为了公共结论单独创建父级步骤段；把该结论放在最先展示它的子问步骤中，并用 `valid_scope` 标明可在父级或更大范围复用。输出公共推导段会校验失败。
     - `valid_scope` 表示结论本身在哪个 scope 及其子 scope 成立，不是当前 step 写在哪个 scope。
     - 若某个结论读取了子问独有条件，它的 `valid_scope` 不能写成父级公共 scope。
-20. 如果有 previous_attempts，仍然重新输出完整 `scopes`，不要只输出 patch；但要遵守
-    previous_attempts 中 accepted_prefix 的语义，不要重写已通过步骤。
+20. 如果有 previous_attempts，仍然重新输出完整 `scopes`，不要只输出 patch；但要优先遵守
+    previous_attempt_state.latest_retry_state：
+    - 以 `baseline_draft` 为修复基线；
+    - 保留 `stable_prefix` 和 `preserve_policy` 指定的已通过步骤语义；
+    - `preserve_handles` 时可改文字说明，但不要改稳定 step 的 reads/creates/produces/target/recipe_hint；
+    - `preserve_step` 时保留指定稳定 step，只修它之后的步骤；
+    - 从 `repair_suffix_start` 及其后续步骤修复。
 
 JSON Schema:
 

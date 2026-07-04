@@ -2,13 +2,13 @@
   "method_id": "evaluate_expression_at_parameter",
   "title": "代入参数化简表达式",
   "description": "把表达式中的参数替换为已求出的参数值。",
-  "summary": "输入: 表达式、参数符号和参数值；输出: 代入参数后的表达式。",
+  "summary": "输入: 表达式或最小值表达式、参数符号和参数值；输出: 代入参数后的同类型表达式。",
   "solves": [
     "evaluate_expression_at_parameter"
   ],
   "inputs": {
     "expression": {
-      "type": "Expression",
+      "type": "Expression|MinimumExpression",
       "required": true
     },
     "parameter": {
@@ -21,12 +21,13 @@
     }
   },
   "outputs": {
-    "evaluated_expression": "Expression"
+    "evaluated_expression": "Expression",
+    "evaluated_minimum_expression": "MinimumExpression"
   },
   "preconditions": [
     "expression 可以包含 parameter"
   ],
   "postconditions": [
-    "输出表达式不再含 parameter"
+    "输出表达式不再含 parameter，且保持输入表达式的 runtime 语义类型"
   ]
 }

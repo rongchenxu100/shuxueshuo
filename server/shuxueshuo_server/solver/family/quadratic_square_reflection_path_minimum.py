@@ -25,6 +25,10 @@ from shuxueshuo_server.solver.family.models import (
 from shuxueshuo_server.solver.family.capability_packs import (
     DEFAULT_CAPABILITY_PACK_REGISTRY,
 )
+from shuxueshuo_server.solver.family.common_binding_rules import (
+    evaluate_point_at_parameter_rule,
+    parameter_from_expression_value_rule,
+)
 
 _PARABOLA_PREP = (
     MethodPrepInvocationSpec(
@@ -182,6 +186,14 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             ),
         ),
         MethodBindingRuleSpec(
+            method_id="midpoint_point",
+            input_bindings=(
+                MethodInputBindingSpec("p1", "midpoint:p1"),
+                MethodInputBindingSpec("p2", "midpoint:p2"),
+                MethodInputBindingSpec("target", "midpoint:target"),
+            ),
+        ),
+        MethodBindingRuleSpec(
             method_id="quadratic_axis_parameterized_point",
             input_bindings=(
                 MethodInputBindingSpec("parabola", "read_type:Parabola"),
@@ -197,6 +209,8 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 MethodInputBindingSpec("side_end", "square:side_end"),
                 MethodInputBindingSpec("square_condition", "fact:square:Condition"),
                 MethodInputBindingSpec("target", "point_output_ref"),
+                MethodInputBindingSpec("side_start_ref", "square:side_start_ref", required=False),
+                MethodInputBindingSpec("side_end_ref", "square:side_end_ref", required=False),
                 MethodInputBindingSpec("parameter", "parameter_symbol", required=False),
                 MethodInputBindingSpec("parameter_constraint", "parameter_constraint", required=False),
             ),
@@ -218,13 +232,7 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 MethodInputBindingSpec("point", "read_type:Point"),
             ),
         ),
-        MethodBindingRuleSpec(
-            method_id="evaluate_point_at_parameter",
-            input_bindings=(
-                MethodInputBindingSpec("point", "read_type:Point"),
-            ),
-            expansion_selectors=("parameter_value_if_read",),
-        ),
+        evaluate_point_at_parameter_rule(),
         MethodBindingRuleSpec(
             method_id="line_locus_minimum_point",
             input_bindings=(
@@ -243,15 +251,7 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             ),
             expansion_selectors=("distance_parameter_value_if_read",),
         ),
-        MethodBindingRuleSpec(
-            method_id="parameter_from_expression_value",
-            input_bindings=(
-                MethodInputBindingSpec("expression", "read_type:MinimumExpression"),
-                MethodInputBindingSpec("condition", "fact:minimum_value:Condition"),
-                MethodInputBindingSpec("parameter", "parameter_symbol"),
-                MethodInputBindingSpec("constraint", "parameter_constraint", required=False),
-            ),
-        ),
+        parameter_from_expression_value_rule(),
     ),
 )
 

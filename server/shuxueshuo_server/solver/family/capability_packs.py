@@ -112,7 +112,7 @@ PATH_MINIMUM_BY_STRAIGHTENED_DISTANCE = StepRecipeSpec(
     execution=RecipeExecutionSpec(
         recipe_id="path_minimum_by_straightened_distance",
         method_sequence=("distance_between_points",),
-        execution_strategy="single_method",
+        execution_strategy="straightened_distance_minimum",
         output_aliases=(
             ("distance_between_points.distance", "MinimumExpression"),
             ("distance_between_points.evaluated_distance", "MinimumExpression"),

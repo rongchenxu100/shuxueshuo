@@ -26,6 +26,7 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     StepIntentResolutionStepReport,
     answer_output_type_compatible,
 )
+from shuxueshuo_server.solver.runtime.strategy_repair_feedback import RepairHintRegistry
 
 class StepIntentCandidateResolver:
     """把 StepIntent 解析成 recipe/method 可执行候选。
@@ -46,6 +47,10 @@ class StepIntentCandidateResolver:
         """返回每个 StepIntent 的候选解析报告。"""
         capabilities = build_executable_capabilities(family_spec, method_specs)
         by_id = {capability.capability_id: capability for capability in capabilities}
+        binding_rule_ids = {
+            rule.method_id
+            for rule in family_spec.method_binding_rules
+        }
         step_reports: list[StepIntentResolutionStepReport] = []
         errors: list[str] = []
 
@@ -55,6 +60,7 @@ class StepIntentCandidateResolver:
                 capabilities=capabilities,
                 capabilities_by_id=by_id,
                 handle_registry=handle_registry,
+                binding_rule_ids=binding_rule_ids,
             )
             step_reports.append(report)
             errors.extend(
@@ -167,6 +173,7 @@ def _resolve_step_intent_candidates(
     capabilities: tuple[ExecutableCapabilitySpec, ...],
     capabilities_by_id: dict[str, ExecutableCapabilitySpec],
     handle_registry: CanonicalHandleRegistry,
+    binding_rule_ids: set[str],
 ) -> StepIntentResolutionStepReport:
     """解析单个 step 的候选能力。"""
     produced_inferences: list[_OutputTypeInference] = []
@@ -203,6 +210,7 @@ def _resolve_step_intent_candidates(
             capability,
             produced_types=produced_types,
             handle_registry=handle_registry,
+            binding_rule_ids=binding_rule_ids,
         )
         for capability in candidate_caps
     )
@@ -224,6 +232,7 @@ def _resolve_step_intent_candidates(
                 capabilities_by_id=capabilities_by_id,
             )
             if shape_error_text:
+                warnings.append(shape_error_text)
                 candidate_error_text = "; ".join(
                     item for item in (candidate_error_text, shape_error_text) if item
                 )
@@ -285,7 +294,141 @@ def _unsupported_step_shape_hint(
             "unsupported_path_transformation_without_recipe: no catalog capability can produce "
             "PathTransformation; choose a listed recipe/method or leave this as a gap."
         )
+    if step.recipe_hint is None and _has_non_executable_direction_output_type(step):
+        suggestions = _available_direction_point_repair_capabilities(capabilities_by_id)
+        suffix = (
+            f" available_related_capabilities={list(suggestions)}."
+            if suggestions
+            else ""
+        )
+        return (
+            "unsupported_direction_point_utility: recipe_hint=null output cannot "
+            "encode direction/slope/tangent helper state. Delete this utility step "
+            "and choose a catalog recipe/method that directly derives the needed geometry "
+            "state; if a later step needs a line, produce/read concrete states such as an "
+            "angle equality, intercept point, or line-curve intersection target instead."
+            + suffix
+        )
     return None
+
+
+_NON_EXECUTABLE_DIRECTION_OUTPUT_TYPES = frozenset((
+    "Direction",
+    "LineDirection",
+    "Slope",
+    "Tangent",
+    "TangentRatio",
+    "Tan",
+    "Scalar",
+    "Ratio",
+))
+
+def _has_non_executable_direction_output_type(step: StepIntent) -> bool:
+    """识别 LLM 显式声明的方向/斜率/正切类非 catalog 输出类型。"""
+    return any(
+        (produced.output_type or "").strip() in _NON_EXECUTABLE_DIRECTION_OUTPUT_TYPES
+        for produced in step.produces
+    )
+
+
+def _available_direction_point_repair_capabilities(
+    capabilities_by_id: dict[str, ExecutableCapabilitySpec],
+    *,
+    hint_registry: RepairHintRegistry | None = None,
+) -> tuple[str, ...]:
+    """返回当前 catalog 中与方向/角度/直线状态最相关的能力 id。"""
+    registry = hint_registry or RepairHintRegistry.default()
+    hinted = tuple(
+        capability_id
+        for capability_id in registry.related_capabilities_for_code(
+            "unsupported_direction_point_utility"
+        )
+        if capability_id in capabilities_by_id
+    )
+    if hinted:
+        return hinted
+    scored = [
+        (score, index, capability.capability_id)
+        for index, capability in enumerate(capabilities_by_id.values())
+        if (score := _direction_point_repair_capability_score(capability)) > 0
+    ]
+    scored.sort(key=lambda item: (-item[0], item[1], item[2]))
+    return tuple(capability_id for _score, _index, capability_id in scored[:6])
+
+
+_DIRECTION_POINT_REPAIR_KEYWORDS = (
+    "angle",
+    "line",
+    "intersection",
+    "intersect",
+    "locus",
+    "direction",
+    "slope",
+    "tangent",
+    "tan",
+    "角",
+    "直线",
+    "交点",
+    "相交",
+    "轨迹",
+    "方向",
+    "斜率",
+    "正切",
+)
+
+_DIRECTION_POINT_REPAIR_OUTPUT_TYPES = frozenset((
+    "AngleEquality",
+    "Line",
+    "Point",
+    "PointList",
+    "PointRef",
+))
+
+
+def _direction_point_repair_capability_score(
+    capability: ExecutableCapabilitySpec,
+) -> int:
+    """根据 catalog metadata 判断 capability 是否适合修复方向辅助点。"""
+    output_types = set(capability.output_types)
+    if not output_types.intersection(_DIRECTION_POINT_REPAIR_OUTPUT_TYPES):
+        return 0
+    text = _capability_search_text(capability)
+    hits = {
+        keyword
+        for keyword in _DIRECTION_POINT_REPAIR_KEYWORDS
+        if keyword in text
+    }
+    if not hits:
+        return 0
+    score = len(hits)
+    if "AngleEquality" in output_types:
+        score += 8
+    if "Line" in output_types:
+        score += 7
+    if "PointList" in output_types:
+        score += 4
+    if "Point" in output_types or "PointRef" in output_types:
+        score += 3
+    if capability.kind == "recipe":
+        score += 2
+    if capability.preferred:
+        score += 2
+    return score
+
+
+def _capability_search_text(capability: ExecutableCapabilitySpec) -> str:
+    """汇总 capability metadata，供保守关键词匹配使用。"""
+    return "\n".join(
+        (
+            capability.capability_id,
+            capability.goal_type,
+            *capability.goal_aliases,
+            *capability.method_ids,
+            *capability.output_types,
+            capability.title,
+            capability.description,
+        )
+    ).lower()
 
 
 def _candidate_error_summary(
@@ -407,6 +550,7 @@ def _evaluate_step_candidate(
     *,
     produced_types: tuple[str, ...],
     handle_registry: CanonicalHandleRegistry,
+    binding_rule_ids: set[str],
 ) -> StepIntentResolutionCandidate:
     """判断某个候选是否覆盖该 step 的产物边界。"""
     errors: list[str] = []
@@ -427,6 +571,11 @@ def _evaluate_step_candidate(
         errors.append(
             "capability_does_not_create_entities:"
             f"creates={[item.handle for item in step.creates]}"
+        )
+    if capability.kind == "method" and capability.capability_id not in binding_rule_ids:
+        errors.append(
+            "method_binding_rule_missing:"
+            f"{capability.capability_id}"
         )
     errors.extend(
         _valid_scope_errors_for_candidate(
@@ -570,10 +719,14 @@ def _reads_parabola(
 ) -> bool:
     """判断 reads 是否包含已解抛物线，而不是裸 coefficients 缓存。"""
     for handle in step.reads:
-        if handle.startswith("answer:") and handle_registry.answer_value_types.get(handle) == "Parabola":
-            return True
+        if handle.startswith("answer:"):
+            if handle_registry.answer_value_types.get(handle) == "Parabola":
+                return True
+            continue
         if handle_registry.fact_types.get(handle, "") == "parabola":
             return True
+        if not handle.startswith("fact:"):
+            continue
         semantic = _semantic_name(handle).lower()
         if "parabola" in semantic and "coefficient" not in semantic:
             return True

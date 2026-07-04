@@ -20,15 +20,15 @@
       "required": true
     },
     "target": {
-      "type": "PointRef",
+      "type": "PointRef|Point",
       "required": true
     },
     "side_start_ref": {
-      "type": "PointRef",
+      "type": "PointRef|Point",
       "required": false
     },
     "side_end_ref": {
-      "type": "PointRef",
+      "type": "PointRef|Point",
       "required": false
     },
     "parameter": {
@@ -86,7 +86,6 @@
     },
     "student_goal_template": "利用正方形相邻边垂直且等长，求相邻顶点坐标。",
     "student_title_template": "由正方形求相邻顶点{target_label}",
-    "student_nav_title_template": "正方形求顶点{target_label}",
     "student_title_templates_by_goal": {},
     "derive_templates": [
       "作{projection_construction}",
@@ -104,7 +103,8 @@
     ],
     "explanation_level": "template",
     "role_binding_strategy": "role_name_registry",
-    "role_binder_id": "square_adjacent_vertex_from_side"
+    "role_binder_id": "square_adjacent_vertex_from_side",
+    "student_nav_title_template": "正方形求顶点{target_label}"
   },
   "visual": {
     "role_schema": {

@@ -2,6 +2,7 @@
 
 本 method 只处理“表达式代入参数值”这一层通用代数动作。抛物线、系数等
 结构化对象仍由更具体的 method 负责，避免一个 method 承担多态类型分发。
+路径最小值表达式可以走同一套代入逻辑，但输出仍保留 MinimumExpression 视图。
 """
 
 from __future__ import annotations
@@ -20,14 +21,21 @@ class EvaluateExpressionAtParameterMethod:
         parameter = inputs["parameter"]
         parameter_value = sp.sympify(inputs["parameter_value"])
         evaluated = sp.simplify(expression.subs(parameter, parameter_value))
+        expression_type = inputs.get("__input_types__", {}).get("expression", "Expression")
+        output_name = (
+            "evaluated_minimum_expression"
+            if expression_type == "MinimumExpression"
+            else "evaluated_expression"
+        )
+        output_type = "MinimumExpression" if expression_type == "MinimumExpression" else "Expression"
         return StatelessMethodResult(
             method_id=self.method_id,
             outputs={
-                "evaluated_expression": TypedValue(
-                    "Expression",
+                output_name: TypedValue(
+                    output_type,
                     evaluated,
                     source=self.method_id,
-                )
+                ),
             },
             checks=[
                 _check(
@@ -52,14 +60,19 @@ class EvaluateExpressionAtParameterMethod:
 SPEC = MethodSpecSource(
     method_cls=EvaluateExpressionAtParameterMethod,
     title="代入参数化简表达式",
-    summary="输入: 表达式、参数符号和参数值；输出: 代入参数后的表达式。",
+    summary=(
+        "输入: 表达式或最小值表达式、参数符号和参数值；输出: 代入参数后的同类型表达式。"
+    ),
     solves=("evaluate_expression_at_parameter",),
     inputs={
-        "expression": {"type": "Expression", "required": True},
+        "expression": {"type": "Expression|MinimumExpression", "required": True},
         "parameter": {"type": "Symbol", "required": True},
         "parameter_value": {"type": "ParameterValue", "required": True},
     },
-    outputs={"evaluated_expression": "Expression"},
+    outputs={
+        "evaluated_expression": "Expression",
+        "evaluated_minimum_expression": "MinimumExpression",
+    },
     preconditions=("expression 可以包含 parameter",),
-    postconditions=("输出表达式不再含 parameter",),
+    postconditions=("输出表达式不再含 parameter，且保持输入表达式的 runtime 语义类型",),
 )

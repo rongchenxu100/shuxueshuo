@@ -50,7 +50,6 @@
     },
     "student_goal_template": "把同参数曲线点代入已知曲线，解出参数并回代目标点。",
     "student_title_template": "代入{curve_kind}求点{target_label}候选",
-    "student_nav_title_template": "求点{target_label}候选",
     "student_title_templates_by_goal": {},
     "derive_templates": [
       "∵{curve_point} 在 {curve_equation} 上",
@@ -67,14 +66,15 @@
     ],
     "explanation_level": "template",
     "role_binding_strategy": "role_name_registry",
-    "role_binder_id": "point_candidates_from_curve_point_condition"
-    },
-    "visual": {
-      "role_schema": {
+    "role_binder_id": "point_candidates_from_curve_point_condition",
+    "student_nav_title_template": "求点{target_label}候选"
+  },
+  "visual": {
+    "role_schema": {
       "target_candidates": "由曲线条件得到的目标点候选。",
       "candidate_context_regions": "可选的候选几何上下文区域，例如候选正方形。"
-      },
-      "scene_templates": [
+    },
+    "scene_templates": [
       {
         "component": "CurvePointCandidateMarker",
         "persistence": "carry_forward",

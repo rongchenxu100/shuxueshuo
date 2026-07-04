@@ -86,7 +86,6 @@
     },
     "student_goal_template": "代入当前问给出的约束，确定二次函数解析式。",
     "student_title_template": "{parabola_title_action}函数解析式",
-    "student_nav_title_template": "{parabola_title_action}解析式",
     "student_title_templates_by_goal": {},
     "derive_templates": [
       "∵{constraints}",
@@ -97,6 +96,7 @@
     ],
     "explanation_level": "template",
     "role_binding_strategy": "role_name_registry",
-    "role_binder_id": "quadratic_from_constraints"
+    "role_binder_id": "quadratic_from_constraints",
+    "student_nav_title_template": "{parabola_title_action}解析式"
   }
 }

@@ -131,7 +131,7 @@ def _parse_inputs(raw_inputs: object) -> dict[str, MethodInputSpec]:
             required = bool(raw.get("required", True))
         else:
             raise ValueError(f"invalid input spec for {name}")
-        if input_type not in _KNOWN_TYPES:
+        if not _input_type_is_known(input_type):
             raise ValueError(f"unknown input type for {name}: {input_type}")
         inputs[str(name)] = MethodInputSpec(
             name=str(name),
@@ -149,7 +149,7 @@ def _parse_outputs(raw_outputs: object) -> dict[str, str]:
     outputs: dict[str, str] = {}
     for name, output_type in raw_outputs.items():
         output_type = str(output_type)
-        if output_type not in _KNOWN_TYPES:
+        if not _output_type_is_known(output_type):
             raise ValueError(f"unknown output type for {name}: {output_type}")
         outputs[str(name)] = output_type
     return outputs
@@ -258,3 +258,22 @@ _KNOWN_TYPES = {
     "StraighteningCandidate",
     "StraighteningCandidateList",
 }
+
+
+def _input_type_is_known(input_type: str) -> bool:
+    """输入类型允许用 ``A|B`` 表达一个很窄的 runtime union。"""
+    return _type_expression_is_known(input_type)
+
+
+def _output_type_is_known(output_type: str) -> bool:
+    """输出类型使用同一套 union-aware 校验，避免 JSON spec 漏掉坏成员。"""
+    return _type_expression_is_known(output_type)
+
+
+def _type_expression_is_known(type_expr: str) -> bool:
+    if type_expr in _KNOWN_TYPES:
+        return True
+    if "|" not in type_expr:
+        return False
+    parts = [part.strip() for part in type_expr.split("|")]
+    return bool(parts) and all(part in _KNOWN_TYPES for part in parts)

@@ -54,7 +54,6 @@
     },
     "student_goal_template": "把已求出的参数代入含参点坐标，得到定点坐标。",
     "student_title_template": "代入参数求点坐标",
-    "student_nav_title_template": "代入参数求点坐标",
     "student_title_templates_by_goal": {},
     "derive_templates": [
       "∵{source_point}，{parameter}＝{parameter_value}",
@@ -65,7 +64,8 @@
     ],
     "explanation_level": "template",
     "role_binding_strategy": "role_name_registry",
-    "role_binder_id": "evaluate_point_at_parameter"
+    "role_binder_id": "evaluate_point_at_parameter",
+    "student_nav_title_template": "代入参数求点坐标"
   },
   "visual": {
     "role_schema": {

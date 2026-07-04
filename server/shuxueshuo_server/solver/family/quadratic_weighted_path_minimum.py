@@ -20,6 +20,11 @@ from shuxueshuo_server.solver.family.models import (
 from shuxueshuo_server.solver.family.capability_packs import (
     DEFAULT_CAPABILITY_PACK_REGISTRY,
 )
+from shuxueshuo_server.solver.family.common_binding_rules import (
+    evaluate_expression_at_parameter_rule,
+    parameter_from_curve_point_on_quadratic_rule,
+    parameter_from_expression_value_rule,
+)
 
 
 _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
@@ -174,24 +179,8 @@ _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 MethodInputBindingSpec("target", "right_angle:target"),
             ),
         ),
-        MethodBindingRuleSpec(
-            method_id="parameter_from_curve_point_on_quadratic",
-            input_bindings=(
-                MethodInputBindingSpec("quadratic", "read_type:Parabola"),
-                MethodInputBindingSpec("x", "symbol:x"),
-                MethodInputBindingSpec("point", "read_type:Point"),
-                MethodInputBindingSpec("parameter", "parameter_symbol"),
-                MethodInputBindingSpec("parameter_constraint", "parameter_constraint", required=False),
-            ),
-        ),
-        MethodBindingRuleSpec(
-            method_id="evaluate_expression_at_parameter",
-            input_bindings=(
-                MethodInputBindingSpec("expression", "read_type:Expression"),
-                MethodInputBindingSpec("parameter", "parameter_symbol"),
-            ),
-            expansion_selectors=("parameter_value_if_read",),
-        ),
+        parameter_from_curve_point_on_quadratic_rule(),
+        evaluate_expression_at_parameter_rule(),
         MethodBindingRuleSpec(
             method_id="parameter_from_segment_length",
             input_bindings=(
@@ -242,15 +231,7 @@ _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 MethodInputBindingSpec("dynamic_constraint", "dynamic_constraint"),
             ),
         ),
-        MethodBindingRuleSpec(
-            method_id="parameter_from_expression_value",
-            input_bindings=(
-                MethodInputBindingSpec("expression", "read_type:MinimumExpression"),
-                MethodInputBindingSpec("condition", "fact:minimum_value:Condition"),
-                MethodInputBindingSpec("parameter", "parameter_symbol"),
-                MethodInputBindingSpec("constraint", "parameter_constraint", required=False),
-            ),
-        ),
+        parameter_from_expression_value_rule(),
     ),
 )
 

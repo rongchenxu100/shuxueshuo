@@ -18,6 +18,11 @@ from shuxueshuo_server.solver.family import (
 )
 from shuxueshuo_server.solver.fixtures import load_problem_ir
 from shuxueshuo_server.solver.runtime.binding_rules import MethodBindingRuleRegistry
+from shuxueshuo_server.solver.runtime.projection import problem_to_llm_payload
+from shuxueshuo_server.solver.runtime.strategy_planner import (
+    StrategyPayloadBuilder,
+    build_strategy_probe_inputs,
+)
 
 
 NANKAI_FIXTURE = "../internal/solver-fixtures/tj-2026-nankai-yimo-25.json"
@@ -330,10 +335,51 @@ def test_expanded_family_catalogs_keep_pack_and_local_capabilities() -> None:
         )
 
 
-def test_pack_exposed_methods_do_not_imply_binding_rule_migration() -> None:
-    """Phase 1a may widen catalog, but binding rules still come from the family."""
+def test_unbound_pack_methods_are_hidden_from_prompt_method_catalog() -> None:
+    """Pack expansion may widen family internals, but prompt direct methods must bind."""
+    problem = load_problem_ir(NANKAI_FIXTURE)
+    inputs = build_strategy_probe_inputs(problem)
+    payload = StrategyPayloadBuilder().build(
+        inputs,
+        problem_payload=problem_to_llm_payload(problem),
+    )
+    prompt_method_ids = {
+        method["method_id"]
+        for method in payload["method_catalog"]["methods"]
+    }
     rules = MethodBindingRuleRegistry.from_family_spec(QUADRATIC_PATH_MINIMUM_FAMILY)
 
     assert "quadratic_vertex_point" in QUADRATIC_PATH_MINIMUM_FAMILY.method_ids
     assert rules.rule_for("quadratic_vertex_point") is None
-    assert rules.rule_for("quadratic_from_constraints") is not None
+    assert "quadratic_vertex_point" not in prompt_method_ids
+    assert "quadratic_from_constraints" in prompt_method_ids
+
+
+def test_prompt_direct_method_catalog_has_binding_rules_for_real_families() -> None:
+    """Every direct method shown to the LLM must be executable by binding rules."""
+    for fixture in (
+        NANKAI_FIXTURE,
+        HEXI_FIXTURE,
+        HEPING_FIXTURE,
+        HEPING_ERMO_FIXTURE,
+    ):
+        problem = load_problem_ir(fixture)
+        inputs = build_strategy_probe_inputs(problem)
+        payload = StrategyPayloadBuilder().build(
+            inputs,
+            problem_payload=problem_to_llm_payload(problem),
+        )
+        binding_rule_ids = {
+            rule.method_id
+            for rule in inputs.family_spec.method_binding_rules
+        }
+        prompt_method_ids = {
+            method["method_id"]
+            for method in payload["method_catalog"]["methods"]
+        }
+
+        assert prompt_method_ids
+        assert not sorted(prompt_method_ids - binding_rule_ids), (
+            inputs.family_spec.family_id,
+            sorted(prompt_method_ids - binding_rule_ids),
+        )

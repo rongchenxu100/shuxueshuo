@@ -20,24 +20,28 @@ from shuxueshuo_server.solver.runtime.llm_clients import LLMPlannerClient
 from shuxueshuo_server.solver.runtime.models import PlannerOutput
 from shuxueshuo_server.solver.runtime.planner import PlannerInputs
 from shuxueshuo_server.solver.runtime.projection import RuntimeProjection
-from shuxueshuo_server.solver.runtime.recipe_compiler import RecipeTrialExecutor
-from shuxueshuo_server.solver.runtime.strategy_repair_feedback import (
-    RepairFeedbackBuilder,
-)
 from shuxueshuo_server.solver.runtime.strategy_models import (
+    ExecutablePlanResolutionReport,
     StepIntentExecutionDiagnostic,
-    StepIntentRepairAttempt,
-    StepIntentScope,
+    StepIntentNormalizationReport,
     StepIntentDraft,
+    StepIntentValidationReport,
     StrategyDraftValidationError,
     StrategyPrompt,
 )
-from shuxueshuo_server.solver.runtime.strategy_normalizer import StepIntentNormalizer
 from shuxueshuo_server.solver.runtime.strategy_payload import (
     StrategyPayloadBuilder,
     StrategyPromptRenderer,
 )
-from shuxueshuo_server.solver.runtime.strategy_resolver import StepIntentCandidateResolver
+from shuxueshuo_server.solver.runtime.strategy_draft_merge import (
+    merge_previous_accepted_prefix,
+    prepare_step_intent_raw_response,
+)
+from shuxueshuo_server.solver.runtime.strategy_replay import (
+    PlannerRetryReplayResult,
+    PlannerRetryReplayService,
+    repair_attempt_payload_from_replay,
+)
 from shuxueshuo_server.solver.runtime.strategy_validator import StepIntentValidator
 
 
@@ -62,6 +66,7 @@ class StrategyPlannerArtifacts:
     normalization_report: object | None = None
     resolution_report: object | None = None
     execution_diagnostic: StepIntentExecutionDiagnostic | None = None
+    retry_replay_result: PlannerRetryReplayResult | None = None
     output: PlannerOutput | None = None
 
 
@@ -176,48 +181,32 @@ class StrategyPlanner:
             draft=draft,
             validation_report=validation_report,
         )
-        raw_draft = draft
-        draft = _merge_previous_accepted_prefix(
+        replay_result = PlannerRetryReplayService().replay_draft(
             draft,
-            previous_attempts=inputs.previous_errors,
-            handle_registry=handle_registry,
             inputs=inputs,
-        )
-        normalized, normalization_report = StepIntentNormalizer().normalize(
-            draft,
-            family_spec=inputs.family_spec,
-            question_goals=inputs.question_goals,
-            handle_registry=handle_registry,
-        )
-        resolution_report = StepIntentCandidateResolver().resolve(
-            normalized,
-            family_spec=inputs.family_spec,
-            method_specs=inputs.method_specs,
-            handle_registry=handle_registry,
-        )
-        output, execution_diagnostic, effective_draft = RecipeTrialExecutor().diagnose(
-            normalized,
-            family_spec=inputs.family_spec,
-            method_specs=inputs.method_specs,
             handle_registry=handle_registry,
             context=self.context,
-            question_goals=inputs.question_goals,
+            attempt=0,
+            errors=(),
+            validation_report=validation_report,
         )
+        output = replay_result.output
         if output is None:
             self._capture(
                 payload=payload,
                 prompt=prompt,
                 raw_response=raw_response,
-                draft=raw_draft,
+                draft=draft,
                 validation_report=validation_report,
-                effective_draft=effective_draft,
-                normalized_draft=normalized,
-                normalization_report=normalization_report,
-                resolution_report=resolution_report,
-                execution_diagnostic=execution_diagnostic,
+                effective_draft=replay_result.effective_draft,
+                normalized_draft=replay_result.normalized_draft,
+                normalization_report=replay_result.normalization_report,
+                resolution_report=replay_result.resolution_report,
+                execution_diagnostic=replay_result.diagnostic,
+                retry_replay_result=replay_result,
                 output=None,
             )
-            blocker = execution_diagnostic.first_blocker
+            blocker = replay_result.diagnostic.first_blocker if replay_result.diagnostic else None
             if blocker is not None:
                 raise StrategyDraftValidationError(
                     f"recipe_trial_step_failed: step={blocker.step_id}, "
@@ -225,19 +214,25 @@ class StrategyPlanner:
                 )
             raise StrategyDraftValidationError(
                 "strategy_candidate_resolution_failed: "
-                + json.dumps(execution_diagnostic.candidate_errors, ensure_ascii=False)
+                + json.dumps(
+                    replay_result.diagnostic.candidate_errors
+                    if replay_result.diagnostic is not None
+                    else (),
+                    ensure_ascii=False,
+                )
             )
         self._capture(
             payload=payload,
             prompt=prompt,
             raw_response=raw_response,
-            draft=raw_draft,
+            draft=draft,
             validation_report=validation_report,
-            effective_draft=effective_draft,
-            normalized_draft=normalized,
-            normalization_report=normalization_report,
-            resolution_report=resolution_report,
-            execution_diagnostic=execution_diagnostic,
+            effective_draft=replay_result.effective_draft,
+            normalized_draft=replay_result.normalized_draft,
+            normalization_report=replay_result.normalization_report,
+            resolution_report=replay_result.resolution_report,
+            execution_diagnostic=replay_result.diagnostic,
+            retry_replay_result=replay_result,
             output=output,
         )
         return output
@@ -255,23 +250,31 @@ class StrategyPlanner:
             return None
         if effective is None and diagnostic is None and not errors:
             return None
-        repair_summary = RepairFeedbackBuilder(
-            diagnostic=diagnostic,
-            errors=tuple(errors),
-            effective_draft=effective,
-        ).build()
-        repair = StepIntentRepairAttempt(
+        replay_result = PlannerRetryReplayService().replay_from_artifacts(
             attempt=attempt,
-            effective_draft=effective.to_payload() if effective is not None else None,
-            diagnostic=diagnostic,
-            repair_summary=repair_summary,
-            repair_instruction=_repair_instruction(
-                diagnostic,
-                repair_summary=repair_summary,
-            ),
             errors=tuple(errors),
+            raw_draft=self.artifacts.draft,
+            effective_draft=effective,
+            normalized_draft=self.artifacts.normalized_draft,
+            normalization_report=(
+                self.artifacts.normalization_report
+                if isinstance(self.artifacts.normalization_report, StepIntentNormalizationReport)
+                else None
+            ),
+            validation_report=(
+                self.artifacts.validation_report
+                if isinstance(self.artifacts.validation_report, StepIntentValidationReport)
+                else None
+            ),
+            resolution_report=(
+                self.artifacts.resolution_report
+                if isinstance(self.artifacts.resolution_report, ExecutablePlanResolutionReport)
+                else None
+            ),
+            diagnostic=diagnostic,
+            output=self.artifacts.output,
         )
-        return repair.to_payload()
+        return repair_attempt_payload_from_replay(replay_result)
 
     def _recorded_draft(
         self,
@@ -312,8 +315,12 @@ class StrategyPlanner:
                 "planner_payload": payload,
             }
         )
-        draft, validation_report = StepIntentValidator().validate_json_with_report(
+        prepared_raw_response = prepare_step_intent_raw_response(
             raw_response,
+            previous_attempts=inputs.previous_errors,
+        )
+        draft, validation_report = StepIntentValidator().validate_json_with_report(
+            prepared_raw_response,
             question_goals=inputs.question_goals,
             handle_registry=handle_registry,
             family_spec=inputs.family_spec,
@@ -345,6 +352,7 @@ class StrategyPlanner:
         normalization_report: object,
         resolution_report: object,
         execution_diagnostic: StepIntentExecutionDiagnostic | None,
+        retry_replay_result: PlannerRetryReplayResult | None,
         output: PlannerOutput | None,
     ) -> None:
         """保存最近一次规划产物，供 Orchestrator debug 或测试读取。"""
@@ -359,6 +367,7 @@ class StrategyPlanner:
             normalization_report=normalization_report,
             resolution_report=resolution_report,
             execution_diagnostic=execution_diagnostic,
+            retry_replay_result=retry_replay_result,
             output=output,
         )
 
@@ -400,87 +409,13 @@ def _merge_previous_accepted_prefix(
     handle_registry: CanonicalHandleRegistry,
     inputs: PlannerInputs,
 ) -> StepIntentDraft:
-    """把上一轮已 dry-run 通过的前缀覆盖回当前完整 draft。
-
-    LLM 下一轮仍输出完整 JSON；这里仅保留系统已验证的 prefix，避免模型修复后续
-    blocker 时改坏前序步骤。若上一轮 payload 缺少 effective_draft 或 diagnostic，
-    保持当前 draft 不变。
-    """
-    previous = _last_previous_attempt(previous_attempts)
-    if previous is None:
-        return draft
-    effective_payload = previous.get("effective_draft")
-    diagnostic = previous.get("diagnostic")
-    if not isinstance(effective_payload, dict) or not isinstance(diagnostic, dict):
-        return draft
-    accepted_items = diagnostic.get("accepted_prefix")
-    if not isinstance(accepted_items, list) or not accepted_items:
-        return draft
-    accepted_ids = {
-        str(item.get("step_id"))
-        for item in accepted_items
-        if isinstance(item, dict) and item.get("step_id")
-    }
-    if not accepted_ids:
-        return draft
-    try:
-        previous_draft = StepIntentValidator().validate(
-            effective_payload,
-            question_goals=inputs.question_goals,
-            handle_registry=handle_registry,
-            family_spec=inputs.family_spec,
-        )
-    except Exception:
-        return draft
-
-    previous_scopes = {scope.scope_id: scope for scope in previous_draft.scopes}
-    current_scopes = {scope.scope_id: scope for scope in draft.scopes}
-    merged_scopes: list[StepIntentScope] = []
-    emitted_scope_ids: set[str] = set()
-    for current_scope in draft.scopes:
-        previous_scope = previous_scopes.get(current_scope.scope_id)
-        if previous_scope is None:
-            merged_scopes.append(current_scope)
-            emitted_scope_ids.add(current_scope.scope_id)
-            continue
-        frozen_prefix = []
-        for step in previous_scope.steps:
-            if step.step_id not in accepted_ids:
-                break
-            frozen_prefix.append(step)
-        if not frozen_prefix:
-            merged_scopes.append(current_scope)
-            emitted_scope_ids.add(current_scope.scope_id)
-            continue
-        frozen_ids = {step.step_id for step in frozen_prefix}
-        merged_steps = [
-            *frozen_prefix,
-            *(step for step in current_scope.steps if step.step_id not in frozen_ids),
-        ]
-        merged_scopes.append(
-            StepIntentScope(
-                scope_id=current_scope.scope_id,
-                label=current_scope.label,
-                steps=tuple(merged_steps),
-            )
-        )
-        emitted_scope_ids.add(current_scope.scope_id)
-
-    for previous_scope in previous_draft.scopes:
-        if previous_scope.scope_id in emitted_scope_ids:
-            continue
-        frozen_steps = tuple(
-            step for step in previous_scope.steps if step.step_id in accepted_ids
-        )
-        if frozen_steps:
-            merged_scopes.append(
-                StepIntentScope(
-                    scope_id=previous_scope.scope_id,
-                    label=previous_scope.label,
-                    steps=frozen_steps,
-                )
-            )
-    return StepIntentDraft(scopes=tuple(merged_scopes))
+    """兼容旧私有入口；实现已移到 retry replay 层。"""
+    return merge_previous_accepted_prefix(
+        draft,
+        previous_attempts=previous_attempts,
+        handle_registry=handle_registry,
+        inputs=inputs,
+    )
 
 
 def _last_previous_attempt(previous_attempts: list[object]) -> dict[str, Any] | None:
@@ -488,8 +423,13 @@ def _last_previous_attempt(previous_attempts: list[object]) -> dict[str, Any] | 
     for item in reversed(previous_attempts):
         if (
             isinstance(item, dict)
-            and isinstance(item.get("effective_draft"), dict)
-            and isinstance(item.get("diagnostic"), dict)
+            and (
+                isinstance(item.get("planner_retry_state"), dict)
+                or (
+                    isinstance(item.get("effective_draft"), dict)
+                    and isinstance(item.get("diagnostic"), dict)
+                )
+            )
         ):
             return item
     return None

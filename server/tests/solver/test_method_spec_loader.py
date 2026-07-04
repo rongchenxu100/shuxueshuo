@@ -89,6 +89,9 @@ def test_loads_square_axis_candidate_atomic_specs() -> None:
     assert axis_point.inputs["parabola"].type == "Parabola"
     assert axis_point.outputs["point"] == "Point"
     assert square_vertex.inputs["square_condition"].type == "Condition"
+    assert square_vertex.inputs["target"].type == "PointRef|Point"
+    assert square_vertex.inputs["side_start_ref"].type == "PointRef|Point"
+    assert square_vertex.inputs["side_end_ref"].type == "PointRef|Point"
     assert square_vertex.outputs["point"] == "Point"
     assert curve_condition.inputs["target_point"].type == "Point"
     assert curve_condition.inputs["curve_point"].type == "Point"
@@ -96,6 +99,7 @@ def test_loads_square_axis_candidate_atomic_specs() -> None:
     assert point_at_parameter.inputs["point"].type == "Point"
     assert point_at_parameter.outputs["evaluated_point"] == "Point"
     assert minimum_point.inputs["moving_locus"].type == "Line"
+    assert minimum_point.inputs["target"].type == "PointRef|Point"
     assert minimum_point.outputs["point"] == "Point"
 
 
@@ -268,5 +272,32 @@ def test_rejects_unknown_input_type() -> None:
                 "solves": ["derive_point_coordinate"],
                 "inputs": {"x": {"type": "Unknown"}},
                 "outputs": {"derived_point": "Point"},
+            }
+        )
+
+
+def test_accepts_known_output_union_type() -> None:
+    spec = parse_method_spec(
+        {
+            "method_id": "union_output",
+            "title": "Union Output",
+            "solves": ["derive_expression"],
+            "inputs": {"x": {"type": "Expression|MinimumExpression"}},
+            "outputs": {"value": "Expression|MinimumExpression"},
+        }
+    )
+
+    assert spec.outputs["value"] == "Expression|MinimumExpression"
+
+
+def test_rejects_unknown_output_union_member() -> None:
+    with pytest.raises(ValueError, match="unknown output type"):
+        parse_method_spec(
+            {
+                "method_id": "broken_output",
+                "title": "Broken Output",
+                "solves": ["derive_expression"],
+                "inputs": {"x": {"type": "Expression"}},
+                "outputs": {"value": "Expression|Unknown"},
             }
         )

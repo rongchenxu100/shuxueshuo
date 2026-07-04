@@ -20,7 +20,8 @@ class LineLocusMinimumPointMethod:
         moving_locus = inputs["moving_locus"]
         minimum_point_1: Point = inputs["minimum_point_1"]
         minimum_point_2: Point = inputs["minimum_point_2"]
-        target: PointRef = inputs["target"]
+        target = inputs["target"]
+        target_name = _target_point_name(target)
         parameter = inputs.get("parameter")
         parameter_value = inputs.get("parameter_value")
 
@@ -42,22 +43,22 @@ class LineLocusMinimumPointMethod:
                 _check(
                     "minimum_point_on_minimum_segment",
                     point_collinear(point, minimum_point_1, minimum_point_2),
-                    f"{target.name} 在最短线段上",
+                    f"{target_name} 在最短线段上",
                 ),
                 _check(
                     "minimum_point_on_locus",
                     point_collinear(point, line_p1, line_p2),
-                    f"{target.name} 在动点轨迹直线上",
+                    f"{target_name} 在动点轨迹直线上",
                 ),
             ],
             trace_fragments=[
                 _step(
                     self.method_id,
                     "求最短状态动点",
-                    f"确定 {target.name} 的坐标",
+                    f"确定 {target_name} 的坐标",
                     "最短状态下，动点是拉直后的最短线段与原动点轨迹直线的交点。",
-                    f"{target.name}=({_fmt_point(point, kernel)})",
-                    f"{target.name}({_fmt_point(point, kernel)})",
+                    f"{target_name}=({_fmt_point(point, kernel)})",
+                    f"{target_name}({_fmt_point(point, kernel)})",
                 )
             ],
         )
@@ -84,6 +85,20 @@ def _line_point(line: dict[str, Any], key: str) -> Point:
     return (sp.simplify(raw[0]), sp.simplify(raw[1]))
 
 
+def _target_point_name(target: PointRef | Point) -> str:
+    """读取最短状态动点的显示名。
+
+    ``line_locus_minimum_point`` 的 target 只用于 trace/check 文案。若 target
+    实体已经被前序步骤求成 Point，executor 会先从 runtime path 恢复 PointRef。
+    """
+    if isinstance(target, PointRef):
+        return target.name
+    raise ValueError(
+        "line_locus_minimum_point target must be a PointRef; "
+        "executor should recover PointRef from the target runtime path before method execution"
+    )
+
+
 SPEC = MethodSpecSource(
     method_cls=LineLocusMinimumPointMethod,
     title="由最短线段和轨迹求动点",
@@ -93,7 +108,7 @@ SPEC = MethodSpecSource(
         "moving_locus": {"type": "Line", "required": True},
         "minimum_point_1": {"type": "Point", "required": True},
         "minimum_point_2": {"type": "Point", "required": True},
-        "target": {"type": "PointRef", "required": True},
+        "target": {"type": "PointRef|Point", "required": True},
         "parameter": {"type": "Symbol", "required": False},
         "parameter_value": {"type": "ParameterValue", "required": False},
     },

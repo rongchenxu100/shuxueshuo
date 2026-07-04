@@ -432,7 +432,13 @@ def _is_rich_repair_context(payload: object) -> bool:
     """判断 previous_attempt 是否包含 effective draft + diagnostic。"""
     if not isinstance(payload, dict):
         return False
-    return isinstance(payload.get("effective_draft"), dict) and isinstance(payload.get("diagnostic"), dict)
+    return (
+        isinstance(payload.get("planner_retry_state"), dict)
+        or (
+            isinstance(payload.get("effective_draft"), dict)
+            and isinstance(payload.get("diagnostic"), dict)
+        )
+    )
 
 
 def _has_rich_repair_context(items: list[object]) -> bool:

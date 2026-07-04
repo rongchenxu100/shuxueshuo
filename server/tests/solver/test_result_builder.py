@@ -141,3 +141,31 @@ def test_result_builder_sorts_point_list_answers_by_coordinate_value() -> None:
     answers = ResultBuilder().build(context, PlanExecutionResult(), goals)
 
     assert answers == {"i": {"E": [["-1", "2 - sqrt(6)"], ["-1", "2 + sqrt(6)"]]}}
+
+
+def test_result_builder_fails_required_point_answer_with_free_symbol() -> None:
+    """最终 Point 答案不能残留动点参数，否则会误报求解成功。"""
+    problem = load_problem_ir(NANKAI_FIXTURE)
+    context = ContextBuilder(SympyKernel()).build(problem)
+    context.write_path(
+        "$question.i.outputs.unresolved_point",
+        TypedValue(
+            "Point",
+            (sp.Integer(1), sp.Symbol("_axis_param_E")),
+            source="test",
+        ),
+        from_scope_id="i",
+    )
+    goals = [
+        QuestionGoal(
+            question_id="i",
+            id="answer:i.unresolved_point",
+            answer_key="P",
+            target_path="$question.i.outputs.unresolved_point",
+            value_type="Point",
+            required=True,
+        )
+    ]
+
+    with pytest.raises(ResultBuilderError, match="answer_unresolved:.*_axis_param_E"):
+        ResultBuilder().build(context, PlanExecutionResult(), goals)

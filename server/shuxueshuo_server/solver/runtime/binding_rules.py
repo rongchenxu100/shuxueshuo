@@ -230,6 +230,35 @@ def _read_type_selector(value_type: str) -> BindingSelectorFn:
 
     return select
 
+
+def _read_type_union_selector(*value_types: str) -> BindingSelectorFn:
+    """创建可读取一组 runtime 类型的 selector，优先遵守 step.reads 顺序。"""
+
+    def select(
+        step: StepIntent,
+        index: CanonicalRuntimeBindingIndex,
+        local_outputs: Mapping[str, str],
+    ) -> str:
+        for value_type in value_types:
+            local_path = local_outputs.get(f"type:{value_type}")
+            if local_path is not None:
+                return local_path
+        value_type_set = set(value_types)
+        for handle in step.reads:
+            binding = index.bindings.get(handle)
+            if binding is not None and binding.value_type in value_type_set:
+                return binding.path
+        for value_type in value_types:
+            path = _path_for_readable_type_or_none(index, step, value_type)
+            if path is not None:
+                return path
+        joined = "|".join(value_types)
+        raise StrategyDraftValidationError(
+            f"binding_type_not_found: step={step.step_id}, type={joined}"
+        )
+
+    return select
+
 def _constant_selector(value: str) -> BindingSelectorFn:
     """创建返回固定 runtime path 的 selector。"""
 
@@ -933,6 +962,10 @@ DEFAULT_BINDING_SELECTORS: dict[str, BindingSelectorFn] = {
     "translated_point:target": _translated_point_selector("target"),
     "read_type:Coefficients": _read_type_selector("Coefficients"),
     "read_type:Expression": _read_type_selector("Expression"),
+    "read_type:Expression|MinimumExpression": _read_type_union_selector(
+        "Expression",
+        "MinimumExpression",
+    ),
     "read_type:Parabola": _read_type_selector("Parabola"),
     "read_type:Point": _read_type_selector("Point"),
     "read_type:PointList": _read_type_selector("PointList"),
@@ -1130,8 +1163,11 @@ def _is_point_coordinate_fact_handle(
     if not handle.startswith("fact:"):
         return False
     return bool(re.fullmatch(
-        r"[A-Za-z][A-Za-z0-9_]*_coordinate(?:_[A-Za-z0-9_]+)?",
+        r"[A-Za-z][A-Za-z0-9_]*_"
+        r"(?:(?:param|parametric|parameterized)_(?:coord|coordinate)"
+        r"|(?:coord|coordinate))(?:_[A-Za-z0-9_]+)?",
         _semantic_name(handle),
+        flags=re.IGNORECASE,
     ))
 
 
@@ -1323,7 +1359,7 @@ def _midpoint_roles(
     index: CanonicalRuntimeBindingIndex,
 ) -> tuple[str, str, str]:
     """从 ``<target>_midpoint_of_<p1><p2>`` fact 推断 target/p1/p2。"""
-    fact = index.fact_handle_by_type("midpoint_definition", step=step)
+    fact = _midpoint_definition_read(step, index)
     name = _semantic_name(fact)
     match = re.fullmatch(r"(?P<target>[A-Za-z0-9_]+)_midpoint_of_(?P<p1>[A-Za-z0-9_]+)(?P<p2>[A-Za-z0-9_]+)", name)
     if match is None:
@@ -1333,6 +1369,27 @@ def _midpoint_roles(
         index.point_handle_by_name(match.group("p1"), step=step),
         index.point_handle_by_name(match.group("p2"), step=step),
     )
+
+
+def _midpoint_definition_read(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> str:
+    """midpoint_point 必须绑定当前 step 明确读取的中点定义。"""
+    midpoint_reads = [
+        handle
+        for handle in step.reads
+        if index.fact_types.get(handle) == "midpoint_definition"
+        and index._handle_binding_visible(handle, step.scope_id)
+    ]
+    if midpoint_reads:
+        return midpoint_reads[0]
+    raise StrategyDraftValidationError(
+        "midpoint_definition_not_read: "
+        f"step={step.step_id}, method=midpoint_point requires a "
+        "midpoint_definition read such as fact:<scope>:<target>_midpoint_of_<p1><p2>"
+    )
+
 
 def _length_condition_points(
     step: StepIntent,
