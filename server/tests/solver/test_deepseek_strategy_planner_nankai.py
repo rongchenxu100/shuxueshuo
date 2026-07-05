@@ -642,6 +642,7 @@ def test_deepseek_strategy_planner_outputs_valid_step_intents_and_solves_nankai(
             handle_registry=handle_registry,
             context=runtime_context,
             attempt=attempt,
+            problem_payload=llm_problem,
         )
         draft = replay.normalized_draft
         report = replay.validation_report
@@ -681,6 +682,7 @@ def test_deepseek_strategy_planner_outputs_valid_step_intents_and_solves_nankai(
             effective_draft=effective_draft,
             diagnostic=diagnostic,
             output=replay.output,
+            planner_state_context=replay.planner_state_context,
         )
         metadata = {
             "provider": "deepseek",
@@ -700,6 +702,7 @@ def test_deepseek_strategy_planner_outputs_valid_step_intents_and_solves_nankai(
             normalization_report=normalization_report,
             resolution_report=resolution_report,
             planner_retry_state=current_replay.retry_state,
+            planner_state_context=current_replay.planner_state_context,
             llm_metadata=metadata,
         )
         _write_execution_debug_artifacts(

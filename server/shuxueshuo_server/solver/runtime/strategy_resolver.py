@@ -6,8 +6,6 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-import re
 from typing import Any
 
 from shuxueshuo_server.solver.family.models import SolverFamilySpec
@@ -24,7 +22,12 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     StepIntentDraft,
     StepIntentResolutionCandidate,
     StepIntentResolutionStepReport,
-    answer_output_type_compatible,
+)
+from shuxueshuo_server.solver.runtime.output_type_inference import (
+    OutputTypeInference,
+    output_type_from_text,
+    produced_output_type,
+    produced_output_type_inference,
 )
 from shuxueshuo_server.solver.runtime.strategy_repair_feedback import RepairHintRegistry
 
@@ -1037,134 +1040,10 @@ def _candidate_by_id(
             return candidate
     return None
 
-@dataclass(frozen=True)
-class _OutputTypeInference:
-    """StepIntent 产物类型推断结果。
-
-    ``source`` 用来区分高置信度的 canonical handle/fact 类型和低置信度的自然语言
-    description。后续若要根据 capability hint 修正，只允许修正低置信度结果。
-    """
-
-    output_type: str | None
-    source: str
-
-
-def _produced_output_type(
-    produced: ProducedFact,
-    registry: CanonicalHandleRegistry,
-) -> str | None:
-    """根据 answer value_type、fact type 和语义名推断产物类型。"""
-    return _produced_output_type_inference(produced, registry).output_type
-
-
-def _produced_output_type_inference(
-    produced: ProducedFact,
-    registry: CanonicalHandleRegistry,
-) -> _OutputTypeInference:
-    """返回产物类型和来源，避免 description 文本覆盖 canonical handle。"""
-    if produced.handle.startswith("answer:"):
-        if produced.handle in registry.answer_value_types:
-            expected_type = registry.answer_value_types[produced.handle]
-            if (
-                produced.output_type is not None
-                and produced.output_type != expected_type
-                and answer_output_type_compatible(expected_type, produced.output_type)
-            ):
-                return _OutputTypeInference(produced.output_type, "explicit_output_type")
-            return _OutputTypeInference(
-                expected_type,
-                "answer_value_type",
-            )
-        if produced.output_type is not None:
-            return _OutputTypeInference(produced.output_type, "explicit_output_type")
-        return _output_type_inference_from_text(produced.handle, produced.description)
-    if produced.handle in registry.fact_types:
-        fact_type = registry.fact_types[produced.handle]
-        if fact_type in _FACT_TYPE_TO_OUTPUT_TYPE:
-            return _OutputTypeInference(
-                _FACT_TYPE_TO_OUTPUT_TYPE[fact_type],
-                "fact_type",
-            )
-    if produced.output_type is not None:
-        return _OutputTypeInference(produced.output_type, "explicit_output_type")
-    return _output_type_inference_from_text(produced.handle, produced.description)
-
-
-def _output_type_from_text(handle: str, description: str) -> str | None:
-    """从 handle semantic_name 和说明中推断 method/recipe 输出类型。"""
-    return _output_type_inference_from_text(handle, description).output_type
-
-
-def _output_type_inference_from_text(handle: str, description: str) -> _OutputTypeInference:
-    """从 handle 和说明推断类型，优先相信 handle semantic name。
-
-    DeepSeek 常会写“由最小值条件反求参数 m”，如果先看 description 里的“最小值”，
-    ``fact:*:m_value`` 会被误判成 ``MinimumExpression``。这里先看 canonical
-    semantic name，再把自然语言作为最后兜底。
-    """
-    text = f"{handle}\n{description}".lower()
-    name = handle.split(":", 2)[-1].lower()
-    if (
-        ("angle_" in name and "_eq_" in name)
-        or "equal_angle" in name
-        or "angle_equality" in name
-    ):
-        return _OutputTypeInference("AngleEquality", "semantic_name")
-    if "relation" in name or "equation" in name:
-        return _OutputTypeInference("Equation", "semantic_name")
-    if _is_parameter_value_semantic_name(name):
-        return _OutputTypeInference("ParameterValue", "semantic_name")
-    if any(value in name for value in ("candidate", "candidates", "候选")):
-        return _OutputTypeInference("PointList", "semantic_name")
-    if any(value in name for value in ("coord", "coordinate", "intersection", "axis_point", "point")):
-        return _OutputTypeInference("Point", "semantic_name")
-    if "intercept" in name:
-        return _OutputTypeInference("Point", "semantic_name")
-    if any(value in name for value in ("locus", "ray", "line")):
-        return _OutputTypeInference("Line", "semantic_name")
-    if any(value in name for value in ("coefficient", "coefficients")):
-        return _OutputTypeInference("Coefficients", "semantic_name")
-    if any(value in name for value in ("minimum", "min_value", "path_minimum")):
-        return _OutputTypeInference("MinimumExpression", "semantic_name")
-    if any(value in name for value in ("distance", "expr", "expression")):
-        return _OutputTypeInference("Expression", "semantic_name")
-    if any(value in name for value in ("straightened", "straightening", "choice")):
-        return _OutputTypeInference("StraighteningCandidate", "semantic_name")
-    if any(value in name for value in ("path", "equivalence", "reduction")):
-        return _OutputTypeInference("PathTransformation", "semantic_name")
-    if any(value in text for value in ("parabola", "抛物线", "解析式")):
-        return _OutputTypeInference("Parabola", "description")
-    if any(value in text for value in ("straightened", "straightening", "choice", "拉直", "方案")):
-        return _OutputTypeInference("StraighteningCandidate", "description")
-    if any(value in text for value in ("path", "equivalence", "reduction", "路径", "等价", "降维")):
-        return _OutputTypeInference("PathTransformation", "description")
-    if any(value in text for value in ("locus", "ray", "line", "轨迹", "射线", "直线")):
-        return _OutputTypeInference("Line", "description")
-    if any(value in name for value in ("coord", "coordinate", "intersection", "axis_point", "point")):
-        return _OutputTypeInference("Point", "semantic_name")
-    if any(value in text for value in ("坐标", "交点")):
-        return _OutputTypeInference("Point", "description")
-    if any(value in text for value in ("minimum", "min_value", "最小值")):
-        return _OutputTypeInference("MinimumExpression", "description")
-    if any(value in text for value in ("distance", "距离", "表达式", "expression")):
-        return _OutputTypeInference("Expression", "description")
-    if "关系" in text:
-        return _OutputTypeInference("Equation", "description")
-    return _OutputTypeInference(None, "unknown")
-
-
-def _is_parameter_value_semantic_name(name: str) -> bool:
-    """判断 semantic name 是否明确表示参数/系数取值。
-
-    不能用 ``"m_value" in name``，因为 ``minimum_value`` 中也会出现相似片段。
-    """
-    if name in {"m_value", "a_value", "b_value", "c_value", "parameter_value"}:
-        return True
-    if re.fullmatch(r"parameter_[a-z][a-z0-9]*", name):
-        return True
-    return bool(
-        re.fullmatch(r"(?:parameter_)?[a-z][a-z0-9]*_(?:parameter_)?value", name)
-    )
+_OutputTypeInference = OutputTypeInference
+_produced_output_type = produced_output_type
+_produced_output_type_inference = produced_output_type_inference
+_output_type_from_text = output_type_from_text
 
 
 def _maybe_correct_output_types_from_hint(
@@ -1203,27 +1082,6 @@ def _maybe_correct_output_types_from_hint(
         )
     return output_types, []
 
-
-_FACT_TYPE_TO_OUTPUT_TYPE: dict[str, str] = {
-    "coefficients": "Coefficients",
-    "expression": "Expression",
-    "minimum_expression": "MinimumExpression",
-    "minimum_value_expression": "MinimumExpression",
-    "parabola": "Parabola",
-    "point_coordinate": "Point",
-    "symbol_value": "ParameterValue",
-    "coefficient_relation": "Equation",
-    "length_squared": "Condition",
-    "segment_length_relation": "Condition",
-    "minimum_value": "MinimumExpression",
-    "point_candidates": "PointList",
-    "path_minimum_target": "Condition",
-    "right_angle_equal_length": "Condition",
-    "segment_membership": "Condition",
-    "segment_relation": "Condition",
-    "midpoint_definition": "Condition",
-    "orientation_constraint": "OrientationHint",
-}
 
 def _method_capability_summary(spec: Any) -> str:
     """生成给 LLM 看的 method 能力短句。

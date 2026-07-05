@@ -189,6 +189,7 @@ class StrategyPlanner:
             attempt=0,
             errors=(),
             validation_report=validation_report,
+            problem_payload=problem_payload,
         )
         output = replay_result.output
         if output is None:

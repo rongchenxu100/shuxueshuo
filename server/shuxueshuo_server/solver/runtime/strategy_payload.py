@@ -460,6 +460,7 @@ def write_strategy_debug_artifacts(
     execution_diagnostic: StepIntentExecutionDiagnostic | None = None,
     effective_draft: StepIntentDraft | None = None,
     planner_retry_state: Any | None = None,
+    planner_state_context: Any | None = None,
     llm_metadata: dict[str, Any] | None = None,
 ) -> None:
     """把 DeepSeek probe 的输入输出按来源落盘，方便人工 review prompt。"""
@@ -503,6 +504,26 @@ def write_strategy_debug_artifacts(
     _write_json(
         target / "replay-reports.json",
         retry_payload.get("replay_reports") if retry_payload else None,
+    )
+    context_payload = _planner_state_context_payload(planner_state_context)
+    _write_json(target / "planner-state-context.json", context_payload)
+    _write_json(
+        target / "state-rewrite-ledger.json",
+        (
+            planner_state_context.rewrite_ledger_payload
+            if planner_state_context is not None
+            and hasattr(planner_state_context, "rewrite_ledger_payload")
+            else None
+        ),
+    )
+    _write_json(
+        target / "context-events.json",
+        (
+            planner_state_context.events_payload
+            if planner_state_context is not None
+            and hasattr(planner_state_context, "events_payload")
+            else None
+        ),
     )
     _write_json(target / "output.schema.json", STEP_INTENT_JSON_SCHEMA)
     (target / "raw-response.txt").write_text(raw_response, encoding="utf-8")
@@ -567,6 +588,9 @@ def _clear_previous_debug_artifacts(target: Path) -> None:
         "effective-step-intents.json",
         "execution-diagnostic.json",
         "planner-retry-state.json",
+        "planner-state-context.json",
+        "state-rewrite-ledger.json",
+        "context-events.json",
         "baseline-draft.json",
         "stable-prefix.json",
         "repair-suffix.json",
@@ -584,6 +608,19 @@ def _retry_state_payload(value: Any | None) -> dict[str, Any] | None:
         return None
     payload = _to_jsonable(value)
     return payload if isinstance(payload, dict) else None
+
+
+def _planner_state_context_payload(value: Any | None) -> dict[str, Any] | None:
+    """兼容 dataclass 或 dict 形态的 PlannerStateContext。"""
+    if value is None:
+        return None
+    if hasattr(value, "to_payload"):
+        payload = value.to_payload()
+        return payload if isinstance(payload, dict) else None
+    if isinstance(value, dict):
+        return value
+    return None
+
 
 def _family_spec_payload(family: SolverFamilySpec) -> dict[str, Any]:
     """把 FamilySpec 中的题型策略字段压成 prompt payload。"""

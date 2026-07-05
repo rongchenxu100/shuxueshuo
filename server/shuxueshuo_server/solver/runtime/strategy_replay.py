@@ -2,11 +2,16 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Any
 
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
+from shuxueshuo_server.solver.runtime.planner_state_context import (
+    PlannerStateContext,
+    PlannerStateContextBuilder,
+)
 from shuxueshuo_server.solver.runtime.planner import PlannerInputs
+from shuxueshuo_server.solver.runtime.projection import problem_to_llm_payload
 from shuxueshuo_server.solver.runtime.recipe_compiler import RecipeTrialExecutor
 from shuxueshuo_server.solver.runtime.strategy_draft_merge import (
     merge_previous_accepted_prefix,
@@ -18,14 +23,20 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     StepIntentDraft,
     StepIntentExecutionDiagnostic,
     StepIntentNormalizationReport,
+    StepIntentNormalizationAction,
     StepIntentRepairAttempt,
     StepIntentValidationReport,
 )
 from shuxueshuo_server.solver.runtime.strategy_normalizer import StepIntentNormalizer
+from shuxueshuo_server.solver.runtime.strategy_output_types import (
+    canonicalize_produced_output_types,
+)
 from shuxueshuo_server.solver.runtime.strategy_repair_feedback import RepairFeedbackBuilder
 from shuxueshuo_server.solver.runtime.strategy_resolver import StepIntentCandidateResolver
 from shuxueshuo_server.solver.runtime.strategy_retry_state import build_planner_retry_state
 from shuxueshuo_server.solver.runtime.strategy_validator import StepIntentValidator
+
+
 @dataclass(frozen=True)
 class PlannerRetryReplayResult:
     """一次 deterministic replay 的完整产物。"""
@@ -41,6 +52,7 @@ class PlannerRetryReplayResult:
     diagnostic: StepIntentExecutionDiagnostic | None = None
     retry_state: PlannerRetryState | None = None
     output: Any | None = None
+    planner_state_context: PlannerStateContext | None = None
 
     def to_payload(self) -> dict[str, Any]:
         """转成 debug JSON。"""
@@ -84,6 +96,11 @@ class PlannerRetryReplayResult:
                 else None
             ),
             "output_ok": self.output is not None,
+            "planner_state_context": (
+                self.planner_state_context.to_payload()
+                if self.planner_state_context is not None
+                else None
+            ),
         }
 
 class PlannerRetryReplayService:
@@ -99,6 +116,7 @@ class PlannerRetryReplayService:
         attempt: int,
         errors: tuple[str, ...] = (),
         merge_previous_prefix: bool = True,
+        problem_payload: dict[str, Any] | None = None,
     ) -> PlannerRetryReplayResult:
         """从 LLM raw JSON 开始 replay。"""
         raw_response = prepare_step_intent_raw_response(
@@ -118,11 +136,17 @@ class PlannerRetryReplayService:
                 errors=replay_errors,
                 validation_report=validation_report,
             )
-            return PlannerRetryReplayResult(
+            replay = PlannerRetryReplayResult(
                 attempt=attempt,
                 errors=replay_errors,
                 validation_report=validation_report,
                 retry_state=retry_state,
+            )
+            return _with_planner_state_context(
+                replay,
+                inputs=inputs,
+                handle_registry=handle_registry,
+                problem_payload=problem_payload,
             )
         return self.replay_draft(
             draft,
@@ -133,6 +157,7 @@ class PlannerRetryReplayService:
             errors=errors,
             validation_report=validation_report,
             merge_previous_prefix=merge_previous_prefix,
+            problem_payload=problem_payload,
         )
 
     def replay_draft(
@@ -146,6 +171,7 @@ class PlannerRetryReplayService:
         errors: tuple[str, ...] = (),
         validation_report: StepIntentValidationReport | None = None,
         merge_previous_prefix: bool = True,
+        problem_payload: dict[str, Any] | None = None,
     ) -> PlannerRetryReplayResult:
         """从已通过 validation 的 draft 开始 replay。"""
         raw_draft = draft
@@ -166,6 +192,16 @@ class PlannerRetryReplayService:
                 question_goals=inputs.question_goals,
                 handle_registry=handle_registry,
             )
+            normalized, output_type_actions = canonicalize_produced_output_types(
+                normalized,
+                family_spec=inputs.family_spec,
+                method_specs=inputs.method_specs,
+                handle_registry=handle_registry,
+            )
+            normalization_report = _append_normalization_actions(
+                normalization_report,
+                output_type_actions,
+            )
         except Exception as exc:
             replay_errors = errors or (str(exc),)
             retry_state = build_planner_retry_state(
@@ -175,13 +211,19 @@ class PlannerRetryReplayService:
                 validation_report=validation_report,
                 normalization_errors=(str(exc),),
             )
-            return PlannerRetryReplayResult(
+            replay = PlannerRetryReplayResult(
                 attempt=attempt,
                 errors=replay_errors,
                 raw_draft=raw_draft,
                 validation_report=validation_report,
                 normalized_draft=replay_draft,
                 retry_state=retry_state,
+            )
+            return _with_planner_state_context(
+                replay,
+                inputs=inputs,
+                handle_registry=handle_registry,
+                problem_payload=problem_payload,
             )
 
         resolution_report = StepIntentCandidateResolver().resolve(
@@ -207,7 +249,7 @@ class PlannerRetryReplayService:
             resolution_report=resolution_report,
             diagnostic=diagnostic,
         )
-        return PlannerRetryReplayResult(
+        replay = PlannerRetryReplayResult(
             attempt=attempt,
             errors=errors,
             raw_draft=raw_draft,
@@ -219,6 +261,12 @@ class PlannerRetryReplayService:
             diagnostic=diagnostic,
             retry_state=retry_state,
             output=output,
+        )
+        return _with_planner_state_context(
+            replay,
+            inputs=inputs,
+            handle_registry=handle_registry,
+            problem_payload=problem_payload,
         )
 
     def replay_from_artifacts(
@@ -234,6 +282,7 @@ class PlannerRetryReplayService:
         effective_draft: StepIntentDraft | None = None,
         diagnostic: StepIntentExecutionDiagnostic | None = None,
         output: Any | None = None,
+        planner_state_context: PlannerStateContext | None = None,
     ) -> PlannerRetryReplayResult:
         """从已存在 artifacts 生成同一形态 replay result。"""
         retry_state = build_planner_retry_state(
@@ -258,7 +307,9 @@ class PlannerRetryReplayService:
             diagnostic=diagnostic,
             retry_state=retry_state,
             output=output,
+            planner_state_context=planner_state_context,
         )
+
 
 def repair_attempt_payload_from_replay(
     replay: PlannerRetryReplayResult,
@@ -289,8 +340,82 @@ def repair_attempt_payload_from_replay(
         errors=replay.errors,
     ).to_payload()
 
+
 __all__ = [
     "PlannerRetryReplayResult",
     "PlannerRetryReplayService",
     "repair_attempt_payload_from_replay",
 ]
+
+
+def _with_planner_state_context(
+    replay: PlannerRetryReplayResult,
+    *,
+    inputs: PlannerInputs,
+    handle_registry: CanonicalHandleRegistry,
+    problem_payload: dict[str, Any] | None,
+) -> PlannerRetryReplayResult:
+    return replace(
+        replay,
+        planner_state_context=_planner_state_context_from_replay(
+            replay,
+            inputs=inputs,
+            handle_registry=handle_registry,
+            problem_payload=problem_payload,
+        ),
+    )
+
+
+def _append_normalization_actions(
+    report: StepIntentNormalizationReport,
+    actions: tuple[StepIntentNormalizationAction, ...],
+) -> StepIntentNormalizationReport:
+    if not actions:
+        return report
+    return StepIntentNormalizationReport(
+        actions=(*report.actions, *actions),
+        warnings=report.warnings,
+    )
+
+
+def _planner_state_context_from_replay(
+    replay: PlannerRetryReplayResult,
+    *,
+    inputs: PlannerInputs,
+    handle_registry: CanonicalHandleRegistry,
+    problem_payload: dict[str, Any] | None,
+) -> PlannerStateContext:
+    context_problem_payload, context_warnings = _problem_payload_for_context(
+        inputs,
+        problem_payload,
+    )
+    return PlannerStateContextBuilder.from_replay_result(
+        replay,
+        inputs=inputs,
+        problem_payload=context_problem_payload,
+        handle_registry=handle_registry,
+        context_warnings=context_warnings,
+    )
+
+
+def _problem_payload_for_context(
+    inputs: PlannerInputs,
+    problem_payload: dict[str, Any] | None,
+) -> tuple[dict[str, Any], tuple[dict[str, Any], ...]]:
+    if problem_payload is not None:
+        return problem_payload, ()
+    if inputs.problem is not None:
+        return problem_to_llm_payload(inputs.problem), ()
+    return (
+        {"problem_id": inputs.problem_id, "scopes": []},
+        (
+            {
+                "layer": "planner_state_context",
+                "code": "incomplete_problem_payload",
+                "message": (
+                    "PlannerStateContext was built without problem_payload or "
+                    "PlannerInputs.problem; problem_ir is a minimal fallback."
+                ),
+            },
+        ),
+    )
