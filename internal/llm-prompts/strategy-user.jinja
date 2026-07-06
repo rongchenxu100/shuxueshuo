@@ -92,6 +92,12 @@ Catalog：只有两张 catalog 都没有对应能力时才允许 null。null 表
     但不要改它们的 `reads/creates/produces/target/recipe_hint`；
   - 若 `preserve_policy: "preserve_step"`，保留指定稳定 step，只修它后面的步骤；
   - 若为 `"none"`，可以调整 baseline 中与 `issues[]` 相关的步骤。
+- 若 `issues[].code == "compressed_step_missing_prerequisites"`：
+  - 这表示某个 step 把多个 runtime 不可验证的数学动作压缩成了一步；
+  - 保留 `stable_prefix`，从该 step 开始把 suffix 拆成多个可执行 StepIntent；
+  - 先让前序 step 产生 `details.missing_prerequisites[]` 中列出的状态，再让目标 step 读取这些状态；
+  - `details.method_guidance.items` 为空时，不代表没有方法，而是系统不能确定唯一方法；
+    请从当前 Recipe/Method Catalog 中自行选择能产生缺失状态的能力，不要照抄固定链条。
 - `latest_stable_runtime` 是最近一次已经进入 runtime compile + dry-run 的稳定版本。
   这是兼容旧字段，内容会从 `latest_retry_state.baseline_draft` 和 replay reports 派生；
   若两者同时存在，以 `latest_retry_state` 为准。

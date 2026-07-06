@@ -798,7 +798,7 @@ class StateSlotPattern:
     object_ref: str | None        # optional exact MathObject id, usually None in pack contracts
     state_kind: str               # coordinate / expression / coefficients / minimum_value / ...
     runtime_type: str | None      # Point / Parabola / Expression / ...
-    scope_policy: Literal["current", "ancestor_visible", "problem", "same_as_target"]
+    scope_policy: Literal["current", "current_or_visible", "problem", "same_as_target"]
     cardinality: Literal["one", "optional", "many"]
 
 
@@ -807,7 +807,7 @@ class ConditionPattern:
     condition_kind: str           # point_on_curve / midpoint / angle_sum / coefficient_relation / ...
     subject_kinds: tuple[str, ...]
     value_type: str | None
-    scope_policy: Literal["current", "ancestor_visible", "problem", "same_as_target"]
+    scope_policy: Literal["current", "current_or_visible", "problem", "same_as_target"]
     cardinality: Literal["one", "optional", "many"]
 ```
 

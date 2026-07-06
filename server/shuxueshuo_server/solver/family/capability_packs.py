@@ -1,16 +1,215 @@
-"""Capability Pack registry for solver families.
-
-Phase 1a packs organize method/recipe catalog exposure only. Method binding
-rules intentionally remain on SolverFamilySpec until Phase 1b.
-"""
+"""Capability Pack registry for solver families."""
 
 from __future__ import annotations
 
 from shuxueshuo_server.solver.family.models import (
+    CapabilityContractSpec,
+    CapabilityCardinality,
+    CapabilityExecutionStatus,
     CapabilityPackRegistry,
     CapabilityPackSpec,
+    ConditionPattern,
     RecipeExecutionSpec,
+    StateSlotPattern,
     StepRecipeSpec,
+)
+from shuxueshuo_server.solver.family.common_binding_rules import (
+    distance_between_points_rule,
+    evaluate_expression_at_parameter_rule,
+    evaluate_point_at_parameter_rule,
+    line_intersection_point_rule,
+    line_parabola_second_intersection_point_rule,
+    midpoint_point_rule,
+    parameter_from_expression_value_rule,
+    quadratic_from_constraints_rule,
+    quadratic_vertex_point_rule,
+    quadratic_x_axis_intercept_point_rule,
+    quadratic_y_axis_intercept_point_rule,
+    translated_point_rule,
+)
+from shuxueshuo_server.solver.output_type_policy import TRANSIENT_OUTPUT_TYPES
+
+
+def _slot(
+    state_kind: str,
+    runtime_type: str,
+    *,
+    object_kind: str | None = None,
+    cardinality: CapabilityCardinality = "one",
+    required: bool | None = None,
+) -> StateSlotPattern:
+    resolved_required = (
+        runtime_type not in TRANSIENT_OUTPUT_TYPES
+        if required is None
+        else required
+    )
+    return StateSlotPattern(
+        state_kind=state_kind,
+        runtime_type=runtime_type,
+        object_kind=object_kind,
+        cardinality=cardinality,
+        required=resolved_required,
+    )
+
+
+def _condition(
+    condition_kind: str,
+    *,
+    runtime_type: str = "Condition",
+    required: bool = True,
+) -> ConditionPattern:
+    return ConditionPattern(
+        condition_kind=condition_kind,
+        runtime_type=runtime_type,
+        required=required,
+    )
+
+
+def _method_contract(
+    capability_id: str,
+    *,
+    slot_reads: tuple[StateSlotPattern, ...] = (),
+    condition_reads: tuple[ConditionPattern, ...] = (),
+    slot_writes: tuple[StateSlotPattern, ...] = (),
+    condition_writes: tuple[ConditionPattern, ...] = (),
+    execution_status: CapabilityExecutionStatus = "executable",
+    exposes_to_llm: bool = True,
+) -> CapabilityContractSpec:
+    return CapabilityContractSpec(
+        capability_id=capability_id,
+        kind="method",
+        execution_status=execution_status,
+        slot_reads=slot_reads,
+        condition_reads=condition_reads,
+        slot_writes=slot_writes,
+        condition_writes=condition_writes,
+        exposes_to_llm=exposes_to_llm,
+    )
+
+
+def _recipe_contract(
+    capability_id: str,
+    *,
+    slot_reads: tuple[StateSlotPattern, ...] = (),
+    condition_reads: tuple[ConditionPattern, ...] = (),
+    slot_writes: tuple[StateSlotPattern, ...] = (),
+    condition_writes: tuple[ConditionPattern, ...] = (),
+    execution_status: CapabilityExecutionStatus = "executable",
+    exposes_to_llm: bool = True,
+) -> CapabilityContractSpec:
+    return CapabilityContractSpec(
+        capability_id=capability_id,
+        kind="recipe",
+        execution_status=execution_status,
+        slot_reads=slot_reads,
+        condition_reads=condition_reads,
+        slot_writes=slot_writes,
+        condition_writes=condition_writes,
+        exposes_to_llm=exposes_to_llm,
+    )
+
+
+QUADRATIC_CORE_CONTRACTS = (
+    _method_contract(
+        "quadratic_axis_from_relation",
+        condition_reads=(_condition("coefficient_relation", runtime_type="Equation"),),
+        slot_writes=(_slot("coordinate", "Point", object_kind="point"),),
+    ),
+    _method_contract(
+        "quadratic_from_constraints",
+        slot_reads=(_slot("expression", "Function", object_kind="function"),),
+        condition_reads=(
+            _condition("coefficient_relation", runtime_type="Equation", required=False),
+            _condition("point_on_curve", required=False),
+        ),
+        slot_writes=(
+            _slot("expression", "Parabola", object_kind="function"),
+            _slot("coefficients", "Coefficients", object_kind="function"),
+        ),
+    ),
+    _method_contract(
+        "quadratic_vertex_point",
+        slot_reads=(_slot("expression", "Parabola", object_kind="function"),),
+        slot_writes=(_slot("coordinate", "Point", object_kind="point"),),
+    ),
+    _method_contract(
+        "quadratic_x_axis_intercept_point",
+        slot_reads=(_slot("expression", "Parabola", object_kind="function"),),
+        condition_reads=(_condition("x_axis_known_point", required=False),),
+        slot_writes=(_slot("coordinate", "Point", object_kind="point"),),
+    ),
+    _method_contract(
+        "quadratic_y_axis_intercept_point",
+        slot_reads=(_slot("expression", "Parabola", object_kind="function"),),
+        slot_writes=(_slot("coordinate", "Point", object_kind="point"),),
+    ),
+    _method_contract(
+        "line_parabola_second_intersection_point",
+        slot_reads=(
+            _slot("expression", "Parabola", object_kind="function"),
+            _slot("coordinate", "Point", object_kind="point"),
+        ),
+        condition_reads=(_condition("line_relation", required=False),),
+        slot_writes=(_slot("coordinate", "Point", object_kind="point"),),
+    ),
+)
+
+PARAMETER_SOLVING_CONTRACTS = (
+    _method_contract(
+        "parameter_from_expression_value",
+        slot_reads=(_slot("expression", "MinimumExpression"),),
+        condition_reads=(_condition("minimum_value"),),
+        slot_writes=(_slot("value", "ParameterValue", object_kind="symbol"),),
+    ),
+    _method_contract(
+        "evaluate_expression_at_parameter",
+        slot_reads=(
+            _slot("expression", "Expression"),
+            _slot("value", "ParameterValue", object_kind="symbol"),
+        ),
+        slot_writes=(_slot("expression", "Expression"),),
+    ),
+    _method_contract(
+        "evaluate_point_at_parameter",
+        slot_reads=(
+            _slot("coordinate", "Point", object_kind="point"),
+            _slot("value", "ParameterValue", object_kind="symbol"),
+        ),
+        slot_writes=(_slot("coordinate", "Point", object_kind="point"),),
+    ),
+)
+
+COORDINATE_GEOMETRY_CONTRACTS = (
+    _method_contract(
+        "distance_between_points",
+        slot_reads=(
+            _slot("coordinate", "Point", object_kind="point"),
+            _slot("coordinate", "Point", object_kind="point"),
+        ),
+        slot_writes=(
+            _slot("expression", "Expression"),
+            _slot("expression", "MinimumExpression", required=False),
+        ),
+    ),
+    _method_contract(
+        "midpoint_point",
+        condition_reads=(_condition("midpoint_definition"),),
+        slot_writes=(_slot("coordinate", "Point", object_kind="point"),),
+    ),
+    _method_contract(
+        "translated_point",
+        slot_reads=(_slot("coordinate", "Point", object_kind="point"),),
+        condition_reads=(_condition("translation"),),
+        slot_writes=(_slot("coordinate", "Point", object_kind="point"),),
+    ),
+    _method_contract(
+        "line_intersection_point",
+        slot_reads=(
+            _slot("coordinate", "Point", object_kind="point"),
+            _slot("coordinate", "Point", object_kind="point"),
+        ),
+        slot_writes=(_slot("coordinate", "Point", object_kind="point"),),
+    ),
 )
 
 
@@ -142,6 +341,7 @@ BROKEN_PATH_STRAIGHTENING_MINIMUM_EXPRESSION = StepRecipeSpec(
             "distance_between_points",
         ),
         execution_strategy="broken_path_straightening_minimum_expression",
+        creates=("point",),
         output_aliases=(
             ("select_straightening_candidate.minimum_point_1", "Point"),
             ("select_straightening_candidate.minimum_point_2", "Point"),
@@ -191,6 +391,14 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
             "point_on_parabola_at_x",
             "line_parabola_second_intersection_point",
         ),
+        contracts=QUADRATIC_CORE_CONTRACTS,
+        method_binding_rules=(
+            quadratic_from_constraints_rule(),
+            quadratic_vertex_point_rule(),
+            quadratic_x_axis_intercept_point_rule(),
+            quadratic_y_axis_intercept_point_rule(),
+            line_parabola_second_intersection_point_rule(),
+        ),
     ),
     CapabilityPackSpec(
         pack_id="parameter_solving_core",
@@ -203,6 +411,12 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
             "evaluate_expression_at_parameter",
             "evaluate_point_at_parameter",
         ),
+        contracts=PARAMETER_SOLVING_CONTRACTS,
+        method_binding_rules=(
+            parameter_from_expression_value_rule(),
+            evaluate_expression_at_parameter_rule(),
+            evaluate_point_at_parameter_rule(),
+        ),
     ),
     CapabilityPackSpec(
         pack_id="coordinate_geometry_core",
@@ -212,6 +426,13 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
             "line_intersection_point",
             "translated_point",
             "midpoint_point",
+        ),
+        contracts=COORDINATE_GEOMETRY_CONTRACTS,
+        method_binding_rules=(
+            distance_between_points_rule(),
+            midpoint_point_rule(),
+            translated_point_rule(),
+            line_intersection_point_rule(),
         ),
     ),
     CapabilityPackSpec(
@@ -231,6 +452,37 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
             PATH_MINIMUM_BY_STRAIGHTENED_DISTANCE,
             BROKEN_PATH_STRAIGHTENING_MINIMUM_EXPRESSION,
         ),
+        contracts=(
+            _recipe_contract(
+                "two_moving_points_path_reduction",
+                condition_reads=(_condition("path_minimum_target"),),
+                slot_writes=(_slot("transformation", "PathTransformation"),),
+            ),
+            _recipe_contract(
+                "broken_path_straightening_and_select",
+                condition_reads=(_condition("path_minimum_target"),),
+                slot_writes=(
+                    _slot("candidate", "StraighteningCandidate"),
+                    _slot("coordinate", "Point", object_kind="point", required=False),
+                ),
+            ),
+            _recipe_contract(
+                "path_minimum_by_straightened_distance",
+                slot_reads=(
+                    _slot("coordinate", "Point", object_kind="point"),
+                    _slot("coordinate", "Point", object_kind="point"),
+                ),
+                slot_writes=(_slot("expression", "MinimumExpression"),),
+            ),
+            _recipe_contract(
+                "broken_path_straightening_minimum_expression",
+                condition_reads=(_condition("path_minimum_target"),),
+                slot_writes=(
+                    _slot("coordinate", "Point", object_kind="point", cardinality="many"),
+                    _slot("expression", "MinimumExpression"),
+                ),
+            ),
+        ),
     ),
     CapabilityPackSpec(
         pack_id="right_angle_equal_length_core",
@@ -240,6 +492,18 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
             "select_point_by_quadrant_constraint",
         ),
         step_recipes=(RIGHT_ANGLE_EQUAL_LENGTH_CONSTRUCT_AND_SELECT,),
+        contracts=(
+            _recipe_contract(
+                "right_angle_equal_length_construct_and_select",
+                condition_reads=(_condition("right_angle_equal_length"),),
+                slot_writes=(_slot("coordinate", "Point", object_kind="point"),),
+            ),
+            _method_contract(
+                "right_angle_equal_length_candidates",
+                condition_reads=(_condition("right_angle_equal_length"),),
+                slot_writes=(_slot("candidate", "PointList", object_kind="point"),),
+            ),
+        ),
     ),
     CapabilityPackSpec(
         pack_id="weighted_path_transform_core",
@@ -247,6 +511,24 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
         method_ids=(
             "weighted_axis_path_triangle_transform",
             "linked_broken_path_minimum_expression",
+        ),
+        contracts=(
+            _method_contract(
+                "weighted_axis_path_triangle_transform",
+                condition_reads=(_condition("weighted_path_relation"),),
+                slot_writes=(
+                    _slot("coordinate", "Point", object_kind="point"),
+                    _slot("locus", "Line", object_kind="line"),
+                ),
+            ),
+            _method_contract(
+                "linked_broken_path_minimum_expression",
+                slot_reads=(
+                    _slot("transformation", "PathTransformation"),
+                    _slot("locus", "Line", object_kind="line"),
+                ),
+                slot_writes=(_slot("expression", "MinimumExpression"),),
+            ),
         ),
     ),
     CapabilityPackSpec(
@@ -257,6 +539,18 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
             "distance_between_points",
         ),
         step_recipes=(EQUAL_LENGTH_RAY_PATH_REDUCTION,),
+        contracts=(
+            _recipe_contract(
+                "equal_length_ray_path_reduction",
+                condition_reads=(_condition("equal_length_ray"),),
+                slot_writes=(_slot("expression", "MinimumExpression"),),
+            ),
+            _method_contract(
+                "equal_length_ray_point",
+                condition_reads=(_condition("equal_length_ray"),),
+                slot_writes=(_slot("coordinate", "Point", object_kind="point"),),
+            ),
+        ),
     ),
     CapabilityPackSpec(
         pack_id="square_path_reduction_core",
@@ -268,6 +562,41 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
             "point_candidates_from_curve_point_condition",
             "parameterized_point_locus_line",
             "line_locus_minimum_point",
+        ),
+        contracts=(
+            _method_contract(
+                "square_path_dimension_reduction",
+                condition_reads=(
+                    _condition("path_minimum_target"),
+                    _condition("square"),
+                ),
+                slot_writes=(_slot("transformation", "PathTransformation"),),
+            ),
+            _method_contract(
+                "quadratic_axis_parameterized_point",
+                slot_reads=(_slot("expression", "Parabola", object_kind="function"),),
+                slot_writes=(_slot("coordinate", "Point", object_kind="point"),),
+            ),
+            _method_contract(
+                "square_adjacent_vertex_from_side",
+                condition_reads=(_condition("square"),),
+                slot_writes=(_slot("coordinate", "Point", object_kind="point"),),
+            ),
+            _method_contract(
+                "point_candidates_from_curve_point_condition",
+                condition_reads=(_condition("point_on_curve"),),
+                slot_writes=(_slot("candidate", "PointList", object_kind="point"),),
+            ),
+            _method_contract(
+                "parameterized_point_locus_line",
+                slot_reads=(_slot("coordinate", "Point", object_kind="point"),),
+                slot_writes=(_slot("locus", "Line", object_kind="line"),),
+            ),
+            _method_contract(
+                "line_locus_minimum_point",
+                slot_reads=(_slot("locus", "Line", object_kind="line"),),
+                slot_writes=(_slot("coordinate", "Point", object_kind="point"),),
+            ),
         ),
     ),
 ))

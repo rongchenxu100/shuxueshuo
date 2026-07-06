@@ -6597,6 +6597,50 @@ def test_promote_outputs_prefers_answer_target_over_reusable_fact_alias() -> Non
     assert promote["$step.derive_parabola_i.temp.parabola"] == "$question.i.outputs.parabola"
 
 
+def test_promote_outputs_rejects_distinct_facts_sharing_single_method_output() -> None:
+    """多个不同 fact 不应静默共用同一个 single-output method 结果。"""
+    index = CanonicalRuntimeBindingIndex.from_context(
+        _runtime_context(),
+        handle_registry=_registry(),
+        question_goals=_question_goals(),
+    )
+    rules = MethodBindingRuleRegistry.from_family_spec(_nankai_inputs().family_spec)
+    step = _step(
+        scope_id="ii_1",
+        step_id="evaluate_MN_coords_ii1",
+        recipe_hint="evaluate_point_at_parameter",
+        goal_type="evaluate_point_at_parameter",
+        target="compute concrete coordinates of M and N",
+        produces=(
+            ProducedFact(
+                "fact:ii_1:M_coordinate",
+                "ii_1",
+                "M 的具体坐标",
+                output_type="Point",
+            ),
+            ProducedFact(
+                "fact:ii_1:N_coordinate",
+                "ii_1",
+                "N 的具体坐标",
+                output_type="Point",
+            ),
+        ),
+    )
+
+    with pytest.raises(
+        StrategyDraftValidationError,
+        match="ambiguous_multi_produced_single_output",
+    ):
+        _promote_outputs_for_step(
+            step,
+            "evaluate_point_at_parameter",
+            {"evaluated_point": "$step.evaluate_MN_coords_ii1.temp.evaluated_point"},
+            {"evaluated_point": "Point"},
+            index,
+            rules,
+        )
+
+
 def test_equal_angle_axis_intercept_reads_computed_x_axis_point_fact() -> None:
     """等角截点 method 应从 reads 中的 B 坐标 fact 读取 B，而不是未解析 PointRef。"""
     problem = load_problem_ir(HEPING_FIXTURE)
@@ -6876,6 +6920,53 @@ def test_entity_state_resolver_records_applied_fill_without_runtime_path() -> No
     assert payload["input_handle"] == "point:problem:Z"
     assert payload["resolved_handle"] == "fact:i:Z_coordinate"
     assert "$question" not in json.dumps(payload, ensure_ascii=False)
+
+
+def test_distance_binding_accepts_coordinate_fact_endpoint_without_point_entity_read() -> None:
+    """距离端点可直接读取同名坐标 fact，不要求 LLM 同时写 point 实体 handle。"""
+    index = CanonicalRuntimeBindingIndex.from_context(
+        _runtime_context(),
+        handle_registry=_registry(),
+        question_goals=_question_goals(),
+    )
+    index.register(
+        "fact:ii:M_coordinate_expr",
+        "$question.ii.outputs.M_coordinate_expr",
+        "Point",
+        source="test",
+    )
+    index.register(
+        "fact:ii:N_coordinate_expr",
+        "$question.ii.outputs.N_coordinate_expr",
+        "Point",
+        source="test",
+    )
+    rules = MethodBindingRuleRegistry.from_family_spec(_nankai_inputs().family_spec)
+    step = _step(
+        scope_id="ii",
+        step_id="derive_MN_length",
+        recipe_hint="distance_between_points",
+        goal_type="derive_distance_between_points",
+        target="fact:ii:MN_length_expr",
+        reads=(
+            "point:ii:M",
+            "fact:ii:M_coordinate_expr",
+            "fact:ii:N_coordinate_expr",
+        ),
+        produces=(
+            ProducedFact(
+                "fact:ii:MN_length_expr",
+                "ii",
+                "MN 长度表达式",
+                output_type="MinimumExpression",
+            ),
+        ),
+    )
+
+    bound = rules.bind("distance_between_points", step, index)
+
+    assert bound["p1"] == "$question.ii.outputs.M_coordinate_expr"
+    assert bound["p2"] == "$question.ii.outputs.N_coordinate_expr"
 
 
 def test_entity_state_resolver_fills_function_from_visible_parabola_state() -> None:

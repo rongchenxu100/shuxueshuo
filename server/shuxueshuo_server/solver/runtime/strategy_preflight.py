@@ -7,7 +7,12 @@ prefix dry-run 只返回首个 blocker 的盲区。
 
 from __future__ import annotations
 
-from shuxueshuo_server.solver.family.models import MethodBindingRuleSpec, SolverFamilySpec
+from shuxueshuo_server.solver.family.models import (
+    CapabilityContractSpec,
+    MethodBindingRuleSpec,
+    SolverFamilySpec,
+)
+from shuxueshuo_server.solver.runtime.capability_contracts import explicit_contract_by_id
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
 from shuxueshuo_server.solver.runtime.strategy_models import (
     StepIntent,
@@ -28,6 +33,7 @@ class StepIntentPreflightAnalyzer:
     ) -> tuple[StepIntentPreflightIssue, ...]:
         """返回完整 draft 的 preflight warnings。"""
         method_rules = {rule.method_id: rule for rule in family_spec.method_binding_rules}
+        contracts = explicit_contract_by_id(family_spec)
         recipe_methods = {
             recipe.recipe_id: tuple(recipe.method_ids)
             for recipe in family_spec.step_recipes
@@ -35,7 +41,7 @@ class StepIntentPreflightAnalyzer:
         readable_parabolas: list[tuple[str, str]] = []
         issues: list[StepIntentPreflightIssue] = []
         for step in draft.steps:
-            if _step_needs_parabola(step, method_rules, recipe_methods):
+            if _step_needs_parabola(step, method_rules, recipe_methods, contracts):
                 if (
                     not _has_readable_parabola(step, readable_parabolas, handle_registry)
                     and _has_quadratic_source_reads(step, handle_registry)
@@ -47,6 +53,7 @@ class StepIntentPreflightAnalyzer:
                                 step,
                                 method_rules,
                                 recipe_methods,
+                                contracts,
                             ),
                         )
                     )
@@ -63,10 +70,13 @@ def _step_needs_parabola(
     step: StepIntent,
     method_rules: dict[str, MethodBindingRuleSpec],
     recipe_methods: dict[str, tuple[str, ...]],
+    contracts: dict[str, CapabilityContractSpec],
 ) -> bool:
     """判断 step 的 hint 对应能力是否需要 Parabola 输入。"""
+    if step.recipe_hint and _contract_needs_parabola(contracts.get(step.recipe_hint)):
+        return True
     return any(
-        _method_needs_parabola(method_id, method_rules)
+        _method_needs_parabola(method_id, method_rules, contracts)
         for method_id in _capability_method_ids(step, recipe_methods)
     )
 
@@ -75,12 +85,13 @@ def _all_parabola_methods_have_prep(
     step: StepIntent,
     method_rules: dict[str, MethodBindingRuleSpec],
     recipe_methods: dict[str, tuple[str, ...]],
+    contracts: dict[str, CapabilityContractSpec],
 ) -> bool:
     """判断相关 Parabola method 是否都具备 missing Parabola prep。"""
     method_ids = [
         method_id
         for method_id in _capability_method_ids(step, recipe_methods)
-        if _method_needs_parabola(method_id, method_rules)
+        if _method_needs_parabola(method_id, method_rules, contracts)
     ]
     return bool(method_ids) and all(
         _method_has_missing_parabola_prep(method_id, method_rules)
@@ -103,12 +114,22 @@ def _capability_method_ids(
 def _method_needs_parabola(
     method_id: str,
     method_rules: dict[str, MethodBindingRuleSpec],
+    contracts: dict[str, CapabilityContractSpec],
 ) -> bool:
     """method binding rule 是否声明了 read_type:Parabola 输入。"""
+    if _contract_needs_parabola(contracts.get(method_id)):
+        return True
     rule = method_rules.get(method_id)
     if rule is None:
         return False
     return any(binding.selector == "read_type:Parabola" for binding in rule.input_bindings)
+
+
+def _contract_needs_parabola(contract: CapabilityContractSpec | None) -> bool:
+    """Capability contract 是否声明需要 Parabola state。"""
+    if contract is None:
+        return False
+    return any(slot.runtime_type == "Parabola" for slot in contract.slot_reads)
 
 
 def _method_has_missing_parabola_prep(

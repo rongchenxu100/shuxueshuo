@@ -21,9 +21,7 @@ from shuxueshuo_server.solver.family.capability_packs import (
     DEFAULT_CAPABILITY_PACK_REGISTRY,
 )
 from shuxueshuo_server.solver.family.common_binding_rules import (
-    evaluate_expression_at_parameter_rule,
     parameter_from_curve_point_on_quadratic_rule,
-    parameter_from_expression_value_rule,
 )
 
 
@@ -147,23 +145,6 @@ _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             ),
         ),
         MethodBindingRuleSpec(
-            method_id="quadratic_y_axis_intercept_point",
-            input_bindings=(
-                MethodInputBindingSpec("quadratic", "read_type:Parabola"),
-                MethodInputBindingSpec("x", "symbol:x"),
-                MethodInputBindingSpec("target", "point_output_ref"),
-            ),
-        ),
-        MethodBindingRuleSpec(
-            method_id="quadratic_x_axis_intercept_point",
-            input_bindings=(
-                MethodInputBindingSpec("quadratic", "read_type:Parabola"),
-                MethodInputBindingSpec("x", "symbol:x"),
-                MethodInputBindingSpec("target", "point_output_ref"),
-                MethodInputBindingSpec("known_point", "x_axis_known_point", required=False),
-            ),
-        ),
-        MethodBindingRuleSpec(
             method_id="point_on_parabola_at_x",
             input_bindings=(
                 MethodInputBindingSpec("parabola", "read_type:Parabola"),
@@ -180,7 +161,6 @@ _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             ),
         ),
         parameter_from_curve_point_on_quadratic_rule(),
-        evaluate_expression_at_parameter_rule(),
         MethodBindingRuleSpec(
             method_id="parameter_from_segment_length",
             input_bindings=(
@@ -231,7 +211,6 @@ _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 MethodInputBindingSpec("dynamic_constraint", "dynamic_constraint"),
             ),
         ),
-        parameter_from_expression_value_rule(),
     ),
 )
 

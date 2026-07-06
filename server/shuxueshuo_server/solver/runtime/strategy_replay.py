@@ -135,6 +135,7 @@ class PlannerRetryReplayService:
                 attempt=attempt,
                 errors=replay_errors,
                 validation_report=validation_report,
+                handle_registry=handle_registry,
             )
             replay = PlannerRetryReplayResult(
                 attempt=attempt,
@@ -210,6 +211,7 @@ class PlannerRetryReplayService:
                 normalized_draft=replay_draft,
                 validation_report=validation_report,
                 normalization_errors=(str(exc),),
+                handle_registry=handle_registry,
             )
             replay = PlannerRetryReplayResult(
                 attempt=attempt,
@@ -248,6 +250,7 @@ class PlannerRetryReplayService:
             validation_report=validation_report,
             resolution_report=resolution_report,
             diagnostic=diagnostic,
+            handle_registry=handle_registry,
         )
         replay = PlannerRetryReplayResult(
             attempt=attempt,

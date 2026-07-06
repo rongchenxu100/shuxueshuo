@@ -13,6 +13,7 @@ import hashlib
 import json
 from typing import Any, Literal, Protocol
 
+from shuxueshuo_server.solver.runtime.capability_contracts import contract_payloads
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
 from shuxueshuo_server.solver.runtime.output_type_inference import (
     FACT_TYPE_TO_OUTPUT_TYPE,
@@ -26,6 +27,7 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     StepIntent,
     StepIntentDraft,
 )
+from shuxueshuo_server.solver.utils import unique_ordered as _unique_ordered
 
 ContextSource = Literal["problem", "derived", "answer", "temporary"]
 StateStatus = Literal["given", "planned", "validated", "runtime_verified", "invalid"]
@@ -509,6 +511,9 @@ class PlannerStateContextBuilder:
             conditions=conditions,
             state_slots=state_slots,
             alias_index=alias_index,
+            capability_contracts=list(
+                contract_payloads(inputs.family_spec, inputs.method_specs)
+            ),
         )
 
     @staticmethod
@@ -1192,18 +1197,7 @@ def _aliases_for_handle(
     aliases = [handle]
     aliases.extend(alias for alias, target in registry.handle_aliases.items() if target == handle)
     aliases.extend(alias for alias, target in registry.answer_aliases.items() if target == handle)
-    return _unique_ordered(aliases)
-
-
-def _unique_ordered(values: Any) -> list[Any]:
-    result: list[Any] = []
-    seen: set[Any] = set()
-    for value in values:
-        if value in seen:
-            continue
-        seen.add(value)
-        result.append(value)
-    return result
+    return list(_unique_ordered(aliases))
 
 
 def _stable_hash(payload: Any) -> str:

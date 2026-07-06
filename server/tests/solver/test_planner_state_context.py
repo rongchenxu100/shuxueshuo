@@ -21,6 +21,10 @@ del _name, _base, _base_path, _spec, util
 from shuxueshuo_server.solver.runtime.planner_state_context import (  # noqa: E402
     PlannerStateContextBuilder,
 )
+from shuxueshuo_server.solver.family import (  # noqa: E402
+    CapabilityContractSpec,
+    StateSlotPattern,
+)
 from shuxueshuo_server.solver.runtime.strategy_models import (  # noqa: E402
     StepIntentAcceptedStep,
     StepIntentExecutionDiagnostic,
@@ -58,6 +62,18 @@ def test_planner_state_context_initial_snapshot_is_json_serializable() -> None:
         item["kind"] == "coefficient_relation"
         for item in payload["state"]["conditions"]
     )
+    contract_ids = {
+        item["capability_id"]
+        for item in payload["state"]["capability_contracts"]
+    }
+    assert "quadratic_from_constraints" in contract_ids
+    assert "distance_between_points" in contract_ids
+    sources = {
+        item["capability_id"]: item["source"]
+        for item in payload["state"]["capability_contracts"]
+    }
+    assert sources["quadratic_from_constraints"] == "explicit"
+    assert "projected" in set(sources.values())
     json.dumps(payload, ensure_ascii=False)
 
 
@@ -248,8 +264,8 @@ def test_output_type_canonicalizer_leaves_ambiguous_unknown_output_unmodified() 
     assert actions == ()
 
 
-def test_output_type_canonicalizer_does_not_write_missing_transient_point_type() -> None:
-    """Missing Point metadata remains absent to avoid typed valueless facts."""
+def test_output_type_canonicalizer_does_not_write_optional_transient_point_type() -> None:
+    """Optional Point metadata remains absent to avoid typed valueless facts."""
     step = _step(
         scope_id="ii",
         step_id="derive_ii_B_coordinate_expr",
@@ -274,6 +290,47 @@ def test_output_type_canonicalizer_does_not_write_missing_transient_point_type()
 
     assert canonical.steps[0].produces[0].output_type is None
     assert actions == ()
+
+
+def test_output_type_canonicalizer_writes_required_contract_point_type() -> None:
+    """A required contract write is authoritative even for transient Point types."""
+    step = _step(
+        scope_id="ii",
+        step_id="derive_ii_B_coordinate_expr",
+        recipe_hint="quadratic_x_axis_intercept_point",
+        goal_type="derive_axis_intercept_point",
+        target="fact:ii:B_coordinate_expr",
+        produces=(
+            ProducedFact(
+                "fact:ii:B_coordinate_expr",
+                "ii",
+                "第（Ⅱ）问 B 点坐标表达式",
+            ),
+        ),
+    )
+    inputs = _nankai_inputs()
+    required_point_contract = CapabilityContractSpec(
+        capability_id="quadratic_x_axis_intercept_point",
+        slot_writes=(StateSlotPattern("coordinate", "Point", required=True),),
+    )
+    family = replace(
+        inputs.family_spec,
+        capability_contracts=(
+            *inputs.family_spec.capability_contracts,
+            required_point_contract,
+        ),
+    )
+
+    canonical, actions = canonicalize_produced_output_types(
+        _single_scope_draft(step, scope_id="ii"),
+        family_spec=family,
+        method_specs=inputs.method_specs,
+        handle_registry=_registry(),
+    )
+
+    assert canonical.steps[0].produces[0].output_type == "Point"
+    assert actions
+    assert actions[0].action == "infer_output_type"
 
 
 def test_planner_state_context_fallback_problem_payload_records_warning() -> None:

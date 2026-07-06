@@ -743,10 +743,11 @@ class PlannerRetryIssue:
     message: str = ""
     hints: tuple[str, ...] = ()
     related_handles: tuple[str, ...] = ()
+    details: dict[str, Any] | None = None
 
     def to_payload(self) -> dict[str, Any]:
         """转成 prompt/debug JSON。"""
-        return {
+        payload: dict[str, Any] = {
             "layer": self.layer,
             "code": self.code,
             "step_id": self.step_id,
@@ -757,6 +758,9 @@ class PlannerRetryIssue:
             "hints": list(self.hints),
             "related_handles": list(self.related_handles),
         }
+        if self.details is not None:
+            payload["details"] = self.details
+        return payload
 
 
 @dataclass(frozen=True)
@@ -846,10 +850,12 @@ class ExecutableCapabilitySpec:
     preferred: bool = False
     title: str = ""
     description: str = ""
+    execution_status: str = "executable"
+    contract: dict[str, Any] | None = None
 
     def to_payload(self) -> dict[str, Any]:
         """转成 debug JSON。"""
-        return {
+        payload = {
             "capability_id": self.capability_id,
             "kind": self.kind,
             "goal_type": self.goal_type,
@@ -860,7 +866,11 @@ class ExecutableCapabilitySpec:
             "preferred": self.preferred,
             "title": self.title,
             "description": self.description,
+            "execution_status": self.execution_status,
         }
+        if self.contract is not None:
+            payload["contract"] = self.contract
+        return payload
 
 
 @dataclass(frozen=True)

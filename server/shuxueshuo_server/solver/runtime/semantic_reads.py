@@ -7,6 +7,7 @@ canonical ``reads`` handles consumed by the existing StepIntent runtime.
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
+import re
 from typing import Any
 
 from shuxueshuo_server.solver.runtime.handle_alias_index import (
@@ -572,7 +573,7 @@ def _matching_candidates(
     match_handle: bool,
     allow_missing_from_step_inference: bool = False,
 ) -> list[SemanticReadCatalogItem]:
-    return [
+    candidates = [
         item
         for item in catalog
         if _semantic_ref_matches_item(
@@ -586,9 +587,37 @@ def _matching_candidates(
             semantic_ref,
             allow_missing_from_step_inference=allow_missing_from_step_inference,
         )
-        and _value_type_matches(item, semantic_ref)
         and _is_visible(item, scope_id, registry)
     ]
+    return _filter_candidates_by_value_type_hint(candidates, semantic_ref)
+
+
+def _filter_candidates_by_value_type_hint(
+    candidates: list[SemanticReadCatalogItem],
+    semantic_ref: SemanticRef,
+) -> list[SemanticReadCatalogItem]:
+    """Use ``value_type`` as a deterministic disambiguation hint, not identity.
+
+    The LLM-facing field often names the mathematical role (for example
+    ``symbol_value`` or ``minimum_expression``), while dynamic runtime outputs
+    use canonical types such as ``ParameterValue`` or ``MinimumExpression``.
+    If ref/kind/scope already identify one visible item, a non-structural
+    value_type mismatch should not block the plan.
+    """
+    if semantic_ref.value_type is None or not candidates:
+        return candidates
+    exact_or_alias_matches = [
+        item for item in candidates
+        if _value_type_matches(item, semantic_ref)
+    ]
+    if exact_or_alias_matches:
+        return exact_or_alias_matches
+    if len(candidates) == 1 and _value_type_hint_can_be_ignored(
+        candidates[0],
+        semantic_ref,
+    ):
+        return candidates
+    return []
 
 
 def _point_coordinate_fact_alias_candidates(
@@ -686,9 +715,66 @@ def _value_type_matches(item: SemanticReadCatalogItem, semantic_ref: SemanticRef
         return True
     if item.value_type == semantic_ref.value_type:
         return True
+    if _normalized_value_type(item.value_type) == _normalized_value_type(
+        semantic_ref.value_type
+    ):
+        return True
     if _function_value_type_alias_matches(item, semantic_ref):
         return True
     return _dynamic_point_coordinate_alias_matches(item, semantic_ref)
+
+
+def _value_type_hint_can_be_ignored(
+    item: SemanticReadCatalogItem,
+    semantic_ref: SemanticRef,
+) -> bool:
+    """Return whether a unique ref/kind match may ignore value_type mismatch."""
+    if semantic_ref.value_type is None:
+        return True
+    if _requires_coordinate_fact_semantics(semantic_ref):
+        return _dynamic_point_coordinate_alias_matches(item, semantic_ref)
+    return True
+
+
+def _requires_coordinate_fact_semantics(semantic_ref: SemanticRef) -> bool:
+    return _normalized_value_type(semantic_ref.value_type) == "point_coordinate"
+
+
+# LLM-facing value type aliases. This overlaps with output type inference today
+# because semantic_reads accepts human labels before a canonical handle exists.
+# Keep this table small and migrate toward a shared canonical type mapper when
+# output type contracts become the single source of truth.
+_VALUE_TYPE_ALIASES: dict[str, str] = {
+    "angleequality": "AngleEquality",
+    "coefficients": "Coefficients",
+    "equation": "Equation",
+    "expression": "Expression",
+    "line": "Line",
+    "minimumexpression": "MinimumExpression",
+    "minimumvalueexpression": "MinimumExpression",
+    "parabola": "Parabola",
+    "quadratic": "Parabola",
+    "quadraticfunction": "Parabola",
+    "parametervalue": "ParameterValue",
+    "parameter": "ParameterValue",
+    "symbolvalue": "ParameterValue",
+    "pathtransformation": "PathTransformation",
+    "transformation": "PathTransformation",
+    "point": "Point",
+    "pointlist": "PointList",
+    "straighteningcandidate": "StraighteningCandidate",
+    "straightenedpathchoice": "StraighteningCandidate",
+    "pointcoordinate": "point_coordinate",
+    "coordinate": "point_coordinate",
+    "coordinateexpression": "point_coordinate",
+}
+
+
+def _normalized_value_type(value_type: str | None) -> str | None:
+    if value_type is None:
+        return None
+    key = re.sub(r"[^A-Za-z0-9]+", "", value_type).lower()
+    return _VALUE_TYPE_ALIASES.get(key, value_type)
 
 
 def _function_value_type_alias_matches(

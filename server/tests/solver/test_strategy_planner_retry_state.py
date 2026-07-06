@@ -426,6 +426,181 @@ def test_planner_retry_state_builds_candidate_resolution_issue() -> None:
     assert state.issues[0].hints == ("choose a method/recipe catalog item",)
 
 
+def test_planner_retry_state_builds_compressed_step_work_order() -> None:
+    """一步裸算多个数学动作时，应反馈缺失状态工单而不是推荐固定 method 链。"""
+    draft = _single_scope_draft(
+        _step(
+            scope_id="i_2",
+            step_id="derive_E_from_angle",
+            recipe_hint=None,
+            goal_type="derive_curve_intersection_point",
+            target="answer:i_2_E",
+            reads=(
+                "function:problem:parabola",
+                "fact:i_2:angle_sum_CBE_ACO_45",
+                "fact:problem:A_coordinate_value",
+                "fact:i:B_coordinate",
+            ),
+            produces=(
+                ProducedFact(
+                    "answer:i_2_E",
+                    "i_2",
+                    "E 点坐标答案",
+                    output_type="Point",
+                ),
+            ),
+        ),
+        scope_id="i_2",
+    )
+    registry = CanonicalHandleRegistry(
+        scope_ids=frozenset(("problem", "i", "i_2")),
+        entity_handles=frozenset(("function:problem:parabola",)),
+        fact_handles=frozenset((
+            "fact:i_2:angle_sum_CBE_ACO_45",
+            "fact:problem:A_coordinate_value",
+            "fact:i:B_coordinate",
+        )),
+        answer_handles=frozenset(("answer:i_2_E",)),
+        scope_parents={"problem": None, "i": "problem", "i_2": "i"},
+        fact_types={
+            "fact:i_2:angle_sum_CBE_ACO_45": "angle_sum",
+            "fact:problem:A_coordinate_value": "point_coordinate",
+            "fact:i:B_coordinate": "point_coordinate",
+        },
+        answer_value_types={"answer:i_2_E": "Point"},
+        handle_valid_scopes={
+            "function:problem:parabola": "problem",
+            "fact:i_2:angle_sum_CBE_ACO_45": "i_2",
+            "fact:problem:A_coordinate_value": "problem",
+            "fact:i:B_coordinate": "i",
+            "answer:i_2_E": "i_2",
+        },
+    )
+    report = ExecutablePlanResolutionReport(
+        ok=False,
+        step_reports=(
+            StepIntentResolutionStepReport(
+                step_id="derive_E_from_angle",
+                scope_id="i_2",
+                recipe_hint=None,
+                produced_types=("Point",),
+                selected_capability_id=None,
+                candidates=(),
+                errors=(
+                    "no_executable_candidate:produced_types=['Point'], "
+                    "candidate_errors=line_parabola_second_intersection_point:"
+                    "missing_line_parabola_inputs: missing solved Parabola read|"
+                    "missing_line_parabola_inputs: "
+                    "missing_curve_intersection_target_pointref",
+                ),
+            ),
+        ),
+    )
+
+    state = build_planner_retry_state(
+        attempt=3,
+        errors=("executable_resolution_errors: no_executable_candidate",),
+        normalized_draft=draft,
+        resolution_report=report,
+        handle_registry=registry,
+    )
+
+    assert state is not None
+    issue = state.issues[0]
+    assert issue.code == "compressed_step_missing_prerequisites"
+    assert issue.repair_target == "expand_step"
+    assert issue.details is not None
+    assert issue.details["method_guidance"] == {
+        "policy": "only_when_unique_contract_match",
+        "items": [],
+    }
+    missing_states = {
+        item["state"]
+        for item in issue.details["missing_prerequisites"]
+    }
+    assert {
+        "solved_parabola",
+        "target_point_ref",
+        "line_defining_state",
+        "angle_relation_state",
+    } <= missing_states
+    available_states = {
+        item["state"]
+        for item in issue.details["available_states"]
+    }
+    assert {"angle_sum", "point_coordinate", "function_entity"} <= available_states
+    assert state.issues[1].code == "no_executable_candidate"
+
+    retry_attempt = {"attempt": 3, "planner_retry_state": state.to_payload()}
+    payload = StrategyPayloadBuilder().build(
+        replace(_nankai_inputs(), previous_errors=[retry_attempt]),
+        problem_payload=_nankai_llm_problem(),
+    )
+    prompt = StrategyPromptRenderer().render(payload)
+
+    latest_retry_state = payload["previous_attempt_state"]["latest_retry_state"]
+    assert latest_retry_state["issues"][0]["code"] == "compressed_step_missing_prerequisites"
+    assert latest_retry_state["repair_suffix_start"] == {
+        "scope_id": "i_2",
+        "step_id": "derive_E_from_angle",
+    }
+    assert "compressed_step_missing_prerequisites" in prompt.system + prompt.user
+    assert "suffix 拆成多个可执行 StepIntent" in prompt.user
+
+
+def test_planner_retry_state_does_not_compress_generic_missing_text() -> None:
+    """普通 missing 文案不应被误判为 over-compressed executable step。"""
+    draft = _single_scope_draft(
+        _step(
+            scope_id="i_2",
+            step_id="derive_E_from_angle",
+            recipe_hint=None,
+            goal_type="derive_curve_intersection_point",
+            target="answer:i_2_E",
+            reads=("function:problem:parabola",),
+            produces=(
+                ProducedFact(
+                    "answer:i_2_E",
+                    "i_2",
+                    "E 点坐标答案",
+                    output_type="Point",
+                ),
+            ),
+        ),
+        scope_id="i_2",
+    )
+    report = ExecutablePlanResolutionReport(
+        ok=False,
+        step_reports=(
+            StepIntentResolutionStepReport(
+                step_id="derive_E_from_angle",
+                scope_id="i_2",
+                recipe_hint=None,
+                produced_types=("Point",),
+                selected_capability_id=None,
+                candidates=(),
+                errors=(
+                    "validation_missing: missing parabola context; missing line context",
+                ),
+            ),
+        ),
+    )
+
+    state = build_planner_retry_state(
+        attempt=3,
+        errors=("executable_resolution_errors: validation_missing",),
+        normalized_draft=draft,
+        resolution_report=report,
+        handle_registry=None,
+    )
+
+    assert state is not None
+    assert all(
+        issue.code != "compressed_step_missing_prerequisites"
+        for issue in state.issues
+    )
+
+
 def test_planner_retry_state_prioritizes_family_route_deviation() -> None:
     """已有 preferred family route 时，null-hint utility 绕路应抢在局部 candidate 错误前反馈。"""
     validation_report = StepIntentValidationReport(

@@ -8,6 +8,7 @@ import re
 from shuxueshuo_server.solver.question_goals import QuestionGoal
 from shuxueshuo_server.solver.runtime.handle_registry import (
     _handle_name,
+    _handle_scope,
     _semantic_name,
     CanonicalHandleRegistry,
 )
@@ -22,6 +23,7 @@ from shuxueshuo_server.solver.runtime.normalizer_common import (
     NormalizationRuleContext,
     NormalizationRuleResult,
     _angle_sum_existing_point_target,
+    _append_unique_produces,
     _append_unique,
     _available_handles,
     _axis_intercept_target_point_handle,
@@ -90,6 +92,38 @@ class _MixedQuadraticOutputSplitRule:
             context=context,
         )
         return NormalizationRuleResult(step=step, actions=tuple(actions))
+
+class _ParameterSolverOutputAliasRule:
+    """删除参数求解 step 中夹带的二次函数系数值别名。"""
+
+    def apply(
+        self,
+        step: StepIntent,
+        context: NormalizationRuleContext,
+    ) -> NormalizationRuleResult:
+        step, actions = _normalize_parameter_solver_outputs_step(
+            step,
+            context=context,
+        )
+        return NormalizationRuleResult(step=step, actions=tuple(actions))
+
+class _MultiPointEvaluationSplitRule:
+    """把一个参数代入 step 中的多个点坐标输出拆成多个单点代入 step。"""
+
+    def apply(
+        self,
+        step: StepIntent,
+        context: NormalizationRuleContext,
+    ) -> NormalizationRuleResult:
+        append_step, actions = _split_multi_point_evaluation_step(
+            step,
+            context=context,
+        )
+        return NormalizationRuleResult(
+            step=step,
+            actions=tuple(actions),
+            append_step=append_step,
+        )
 
 class _AxisPointMethodAliasRule:
     """把轴点 answer 的相邻 method alias 收敛到 family 可执行 method。"""
@@ -177,6 +211,24 @@ class _AxisPointAliasRule:
             append_step=append_step,
         )
 
+class _AnswerPointAliasRule:
+    """把裸 Point answer step 合并到前序同点坐标状态。"""
+
+    def apply(
+        self,
+        step: StepIntent,
+        context: NormalizationRuleContext,
+    ) -> NormalizationRuleResult:
+        append_step, actions = _merge_point_answer_alias_step(
+            step,
+            context=context,
+        )
+        return NormalizationRuleResult(
+            step=step,
+            actions=tuple(actions),
+            append_step=append_step,
+        )
+
 class _EvaluateParameterizedOutputAliasRule:
     """把“代入参数求结构化输出”的自然写法改成可执行 capability。"""
 
@@ -222,6 +274,20 @@ class _MinimumAnswerParameterReadRule:
             step=step,
             actions=(action,) if action is not None else (),
         )
+
+class _KnownSymbolValueReadCompletionRule:
+    """为 quadratic_from_constraints 自动补齐已知系数值 reads。"""
+
+    def apply(
+        self,
+        step: StepIntent,
+        context: NormalizationRuleContext,
+    ) -> NormalizationRuleResult:
+        step, actions = _complete_known_symbol_value_reads_step(
+            step,
+            context=context,
+        )
+        return NormalizationRuleResult(step=step, actions=tuple(actions))
 
 class _KnownPointCoordinateUtilityRule:
     """删除已知点坐标 utility step，并把后续 reads 改为已有 point handle。"""
@@ -475,6 +541,113 @@ def _add_parameter_read_for_minimum_answer_step(
             ),
         ),
     )
+
+def _complete_known_symbol_value_reads_step(
+    step: StepIntent,
+    *,
+    context: NormalizationRuleContext,
+) -> tuple[StepIntent, list[StepIntentNormalizationAction]]:
+    """为二次函数约束 step 补齐 LLM 省略的已知 symbol value fact。"""
+    if step.recipe_hint != "quadratic_from_constraints":
+        return step, []
+    symbol_reads = tuple(handle for handle in step.reads if handle.startswith("symbol:"))
+    if not symbol_reads:
+        return step, []
+
+    additions: list[str] = []
+    actions: list[StepIntentNormalizationAction] = []
+    for symbol_handle in symbol_reads:
+        if _step_already_reads_symbol_value(step, symbol_handle, context):
+            continue
+        value_handle = _visible_symbol_value_fact_for_symbol(
+            symbol_handle,
+            step=step,
+            context=context,
+        )
+        if value_handle is None or value_handle in step.reads:
+            continue
+        additions.append(value_handle)
+        actions.append(
+            StepIntentNormalizationAction(
+                action="add_known_symbol_value_read",
+                step_id=step.step_id,
+                handle=value_handle,
+                target_step_id=None,
+                reason=(
+                    f"{step.recipe_hint} 读取了 {symbol_handle}，且题面存在唯一可见的"
+                    " symbol_value fact；自动补齐该已知值 read，减少 LLM 区分"
+                    " symbol entity 与 value fact 的负担。"
+                ),
+            )
+        )
+    if not additions:
+        return step, []
+    return replace(step, reads=_append_unique(step.reads, tuple(additions))), actions
+
+def _step_already_reads_symbol_value(
+    step: StepIntent,
+    symbol_handle: str,
+    context: NormalizationRuleContext,
+) -> bool:
+    """判断 step 是否已经读取了某 symbol 对应的 value fact。"""
+    return any(
+        _symbol_value_fact_subject(handle, context) == symbol_handle
+        for handle in step.reads
+    )
+
+def _visible_symbol_value_fact_for_symbol(
+    symbol_handle: str,
+    *,
+    step: StepIntent,
+    context: NormalizationRuleContext,
+) -> str | None:
+    """查找当前 step 可见且唯一的 symbol_value fact。"""
+    candidates = [
+        handle
+        for handle in sorted(context.handle_registry.fact_handles)
+        if _symbol_value_fact_subject(handle, context) == symbol_handle
+        and _valid_scope_visible_from(
+            context.handle_registry.handle_valid_scopes.get(handle, step.scope_id),
+            step.scope_id,
+            context.handle_registry,
+        )
+    ]
+    unique = _unique_ordered(candidates)
+    return unique[0] if len(unique) == 1 else None
+
+def _symbol_value_fact_subject(
+    handle: str,
+    context: NormalizationRuleContext,
+) -> str | None:
+    """读取 symbol_value fact 的 subject symbol handle。"""
+    if context.handle_registry.fact_types.get(handle) != "symbol_value":
+        return None
+    payload = context.handle_registry.fact_payloads.get(handle, {})
+    subject = payload.get("subject")
+    if isinstance(subject, str) and subject.startswith("symbol:"):
+        return subject
+    subjects = payload.get("subjects")
+    if isinstance(subjects, list):
+        symbol_subjects = [
+            item for item in subjects
+            if isinstance(item, str) and item.startswith("symbol:")
+        ]
+        unique = _unique_ordered(symbol_subjects)
+        return unique[0] if len(unique) == 1 else None
+    semantic = _semantic_name(handle).lower()
+    match = re.fullmatch(r"(?P<symbol>[A-Za-z][A-Za-z0-9_]*)_value", semantic)
+    if match is None:
+        return None
+    symbol_name = match.group("symbol")
+    scope = context.handle_registry.handle_valid_scopes.get(handle)
+    if scope is not None:
+        candidate = f"symbol:{scope}:{symbol_name}"
+        if candidate in context.handle_registry.entity_handles:
+            return candidate
+    problem_candidate = f"symbol:problem:{symbol_name}"
+    if problem_candidate in context.handle_registry.entity_handles:
+        return problem_candidate
+    return None
 
 def _step_outputs_minimum_answer(step: StepIntent) -> bool:
     """判断 step 是否产出最终最小值 answer。"""
@@ -1187,6 +1360,60 @@ def _split_mixed_quadratic_outputs_step(
         actions,
     )
 
+def _normalize_parameter_solver_outputs_step(
+    step: StepIntent,
+    *,
+    context: NormalizationRuleContext,
+) -> tuple[StepIntent, list[StepIntentNormalizationAction]]:
+    """参数求解 method 只保留运行参数值，不承载 a/b/c 系数别名。
+
+    LLM 有时把“由长度/表达式求运行参数”和“后续由 constraints 求二次函数系数”
+    合并到同一个 parameter solver step，例如同时 produces ``m_value`` 与
+    ``a_value``。执行层的 ``parameter_from_*`` method 只有一个语义输出：
+    题目运行参数。二次函数系数应由 ``quadratic_from_constraints`` 的
+    Coefficients/Parabola 输出表达。
+    """
+    if not _is_parameter_solver_hint(step.recipe_hint):
+        return step, []
+    if len(step.produces) < 2:
+        return step, []
+
+    output_types = {
+        item.handle: _normalizer_output_type(item, context)
+        for item in step.produces
+    }
+    if any(output_types[item.handle] != "ParameterValue" for item in step.produces):
+        return step, []
+
+    runtime_items = [
+        item for item in step.produces
+        if _is_runtime_parameter_value_name(_semantic_name(item.handle).lower())
+    ]
+    if len(runtime_items) != 1:
+        return step, []
+
+    retained = runtime_items[0]
+    dropped = tuple(item for item in step.produces if item.handle != retained.handle)
+    if not dropped:
+        return step, []
+
+    actions = [
+        StepIntentNormalizationAction(
+            action="drop_parameter_solver_coefficient_value_alias",
+            step_id=step.step_id,
+            handle=item.handle,
+            target_step_id=None,
+            reason=(
+                f"{step.recipe_hint} 只产出题目运行参数值；"
+                "a/b/c 等二次函数系数值属于 quadratic_from_constraints 的"
+                "系数状态，不作为独立 ParameterValue 输出。"
+            ),
+        )
+        for item in dropped
+    ]
+    target = step.target if step.target == retained.handle else retained.handle
+    return replace(step, target=target, produces=(retained,)), actions
+
 def _normalizer_output_type(
     item: ProducedFact,
     context: NormalizationRuleContext,
@@ -1207,9 +1434,15 @@ def _primary_parameter_output_item(
             return item
     return None
 
+def _is_parameter_solver_hint(recipe_hint: str | None) -> bool:
+    """判断 step 是否使用参数求解类 method。"""
+    if recipe_hint is None:
+        return False
+    return recipe_hint.startswith("parameter_from_")
+
 def _is_runtime_parameter_value_name(name: str) -> bool:
     """判断 ``*_value`` 是否表示题目运行参数，而非二次函数系数。"""
-    if name in {"parameter_value", "m_value"}:
+    if name == "parameter_value":
         return True
     match = re.fullmatch(r"(?P<symbol>[a-z])_value", name)
     return match is not None and match.group("symbol") not in {"a", "b", "c", "x", "y"}
@@ -1421,6 +1654,83 @@ def _mixed_quadratic_point_evaluation_step(
         produces=(point_item,),
         reason="原 quadratic_from_constraints step 混入点坐标代入；拆出为可执行点坐标 step。",
     )
+
+def _split_multi_point_evaluation_step(
+    step: StepIntent,
+    *,
+    context: NormalizationRuleContext,
+) -> tuple[bool, list[StepIntentNormalizationAction]]:
+    """拆分 ``evaluate_point_at_parameter`` 的多点输出。
+
+    ``evaluate_point_at_parameter`` 是单输入、单输出 method。LLM 有时会把
+    “把同一个参数值分别代入多个点”写成一个 step；若不拆分，compiler 会把多个
+    produced fact alias 到同一个 runtime output，后续曲线点约束会退化。
+    """
+    if step.recipe_hint != "evaluate_point_at_parameter":
+        return True, []
+    if len(step.produces) < 2:
+        return True, []
+    point_items = [
+        item for item in step.produces
+        if _normalizer_output_type(item, context) == "Point"
+    ]
+    if len(point_items) != len(step.produces):
+        return True, []
+    if any(item.handle.startswith("answer:") for item in point_items):
+        return True, []
+
+    point_names = tuple(_point_name_from_coordinate_fact(item.handle) for item in point_items)
+    if any(name is None for name in point_names):
+        return True, []
+    if len(set(point_names)) < 2:
+        return True, []
+
+    parameter_handle = _parameter_value_read_for_mixed_quadratic(step, context)
+    if parameter_handle is None:
+        return True, []
+
+    split_steps: list[StepIntent] = []
+    for item in point_items:
+        source = _source_point_read_for_mixed_quadratic_point(
+            item,
+            step=step,
+            context=context,
+        )
+        if source is None:
+            return True, []
+        split_steps.append(
+            replace(
+                _mixed_quadratic_point_evaluation_step(
+                    step,
+                    point_item=item,
+                    source_handle=source,
+                    parameter_handle=parameter_handle,
+                    context=context,
+                ),
+                strategy="把已求出的运行参数分别代入对应的含参点坐标。",
+                reason=(
+                    "原 evaluate_point_at_parameter step 同时产出多个点坐标；"
+                    "拆成多个单点代入 step，避免多个 produced fact 绑定到同一个 runtime output。"
+                ),
+            )
+        )
+
+    actions: list[StepIntentNormalizationAction] = []
+    for split_step in split_steps:
+        _append_generated_normalized_step(context, split_step)
+        actions.append(
+            StepIntentNormalizationAction(
+                action="split_multi_point_evaluation_step",
+                step_id=step.step_id,
+                handle=split_step.produces[0].handle,
+                target_step_id=split_step.step_id,
+                reason=(
+                    "evaluate_point_at_parameter 是单点代入 method；"
+                    "将多点 produces 拆成一组单点代入 step。"
+                ),
+            )
+        )
+    return False, actions
 
 def _append_generated_normalized_step(
     context: NormalizationRuleContext,
@@ -1690,6 +2000,156 @@ def _normalize_axis_point_alias_step(
     )
     return normalized, rewrites, actions, append_step, merge_target_index
 
+def _merge_point_answer_alias_step(
+    step: StepIntent,
+    *,
+    context: NormalizationRuleContext,
+) -> tuple[bool, list[StepIntentNormalizationAction]]:
+    """把“读取已有点状态并产出最终 Point answer”的裸 step 合并到源 step。
+
+    LLM 经常把最终答案写成一个 ``recipe_hint=null`` 的收口 step。若该答案的
+    target_path 指向的点，已经由前序可见 Point 坐标状态唯一表达，则这个 step
+    不需要进入 candidate resolver；它只是给已有状态加一个 answer alias。
+    """
+    if step.recipe_hint is not None or step.creates:
+        return True, []
+    if len(step.produces) != 1:
+        return True, []
+    answer = step.produces[0]
+    goal = context.question_goal_map.get(answer.handle)
+    if goal is None or goal.value_type != "Point":
+        return True, []
+    point_name = _point_name_from_goal_target(goal)
+    if point_name is None:
+        return True, []
+    source = _point_answer_alias_source(
+        point_name,
+        step=step,
+        context=context,
+    )
+    if source is None:
+        return True, []
+    source_scope_index, source_step_index, source_step, source_handle = source
+    answer_item = ProducedFact(
+        handle=answer.handle,
+        valid_scope=answer.valid_scope,
+        description=answer.description,
+        output_type=answer.output_type or goal.value_type,
+    )
+    merged = replace(
+        source_step,
+        produces=_append_unique_produces(source_step.produces, (answer_item,)),
+    )
+    _replace_normalized_step(
+        context,
+        scope_index=source_scope_index,
+        step_index=source_step_index,
+        step=merged,
+    )
+    return False, [
+        StepIntentNormalizationAction(
+            action="merge_point_answer_alias_to_existing_state",
+            step_id=step.step_id,
+            target_step_id=source_step.step_id,
+            handle=answer.handle,
+            reason=(
+                f"{answer.handle} 是点 {point_name} 的最终 answer；"
+                f"前序可见状态 {source_handle} 已经表达同一点坐标，"
+                "将 answer alias 合并到该 step，避免裸 Point answer 进入 resolver。"
+            ),
+        )
+    ]
+
+def _point_answer_alias_source(
+    point_name: str,
+    *,
+    step: StepIntent,
+    context: NormalizationRuleContext,
+) -> tuple[int, int, StepIntent, str] | None:
+    """查找可合并 Point answer 的唯一前序坐标状态。"""
+    candidates: list[tuple[int, int, StepIntent, str]] = []
+    for scope_index, scope in enumerate(context.normalized_scopes):
+        for step_index, previous in enumerate(scope.steps):
+            _extend_point_answer_alias_candidates(
+                candidates,
+                scope_index=scope_index,
+                step_index=step_index,
+                previous=previous,
+                point_name=point_name,
+                current_step=step,
+                context=context,
+            )
+    for step_index, previous in enumerate(context.previous_steps):
+        _extend_point_answer_alias_candidates(
+            candidates,
+            scope_index=context.current_scope_index,
+            step_index=step_index,
+            previous=previous,
+            point_name=point_name,
+            current_step=step,
+            context=context,
+        )
+    if not candidates:
+        return None
+    read_candidates = [
+        candidate for candidate in candidates
+        if candidate[3] in step.reads
+    ]
+    unique = _unique_point_answer_alias_candidates(read_candidates or candidates)
+    return unique[0] if len(unique) == 1 else None
+
+def _extend_point_answer_alias_candidates(
+    candidates: list[tuple[int, int, StepIntent, str]],
+    *,
+    scope_index: int,
+    step_index: int,
+    previous: StepIntent,
+    point_name: str,
+    current_step: StepIntent,
+    context: NormalizationRuleContext,
+) -> None:
+    for item in previous.produces:
+        if _produced_output_type(item, context.handle_registry) != "Point":
+            continue
+        if _point_name_from_coordinate_fact(item.handle) != point_name:
+            continue
+        if not _valid_scope_visible_from(
+            item.valid_scope,
+            current_step.scope_id,
+            context.handle_registry,
+        ):
+            continue
+        candidates.append((scope_index, step_index, previous, item.handle))
+
+def _unique_point_answer_alias_candidates(
+    candidates: list[tuple[int, int, StepIntent, str]],
+) -> tuple[tuple[int, int, StepIntent, str], ...]:
+    result: list[tuple[int, int, StepIntent, str]] = []
+    seen: set[str] = set()
+    for candidate in candidates:
+        handle = candidate[3]
+        if handle in seen:
+            continue
+        seen.add(handle)
+        result.append(candidate)
+    return tuple(result)
+
+def _replace_normalized_step(
+    context: NormalizationRuleContext,
+    *,
+    scope_index: int,
+    step_index: int,
+    step: StepIntent,
+) -> None:
+    """替换当前或已完成 scope 中的 normalized step。"""
+    if scope_index == context.current_scope_index:
+        context.previous_steps[step_index] = step
+        return
+    scope = context.normalized_scopes[scope_index]
+    steps = list(scope.steps)
+    steps[step_index] = step
+    context.normalized_scopes[scope_index] = replace(scope, steps=tuple(steps))
+
 def _known_point_coordinate_rewrites(
     step: StepIntent,
     *,
@@ -1700,17 +2160,25 @@ def _known_point_coordinate_rewrites(
     这类 step 只是在把 ProblemIR 已经定义清楚的点（例如坐标原点 O）再 produced
     成一个坐标 fact。执行层可直接读取 point handle，不需要一个额外 method。
     """
-    if step.recipe_hint is not None or step.creates or not step.produces:
+    if step.creates or not step.produces:
         return {}, []
+    allow_axis_defined = step.recipe_hint == "quadratic_axis_from_relation"
     rewrites: dict[str, str] = {}
     actions: list[StepIntentNormalizationAction] = []
     for produced in step.produces:
         if _produced_output_type(produced, handle_registry) != "Point":
             return {}, []
+        if not _step_reads_visible_from_output_scope(step, produced.valid_scope, handle_registry):
+            return {}, []
         point_name = _point_name_from_coordinate_fact(produced.handle)
         if point_name is None:
             return {}, []
-        point_handle = _matching_known_point_read(step, point_name, handle_registry)
+        point_handle = _matching_known_point_read(
+            step,
+            point_name,
+            handle_registry,
+            allow_axis_defined=allow_axis_defined,
+        )
         if point_handle is None:
             return {}, []
         rewrites[produced.handle] = point_handle
@@ -1728,19 +2196,55 @@ def _known_point_coordinate_rewrites(
         )
     return rewrites, actions
 
+
+def _step_reads_visible_from_output_scope(
+    step: StepIntent,
+    output_scope: str,
+    handle_registry: CanonicalHandleRegistry,
+) -> bool:
+    """A reusable output must not depend on narrower child-scope reads."""
+    for handle in step.reads:
+        if ":" not in handle:
+            continue
+        read_scope = handle_registry.handle_valid_scopes.get(handle)
+        if read_scope is None and not handle.startswith("answer:"):
+            read_scope = _handle_scope(handle)
+        if read_scope is None:
+            continue
+        if not _valid_scope_visible_from(read_scope, output_scope, handle_registry):
+            return False
+    return True
+
+
 def _matching_known_point_read(
     step: StepIntent,
     point_name: str,
     handle_registry: CanonicalHandleRegistry,
+    *,
+    allow_axis_defined: bool = False,
 ) -> str | None:
-    """从 step reads 中找同名且定义已知坐标的 point entity。"""
-    for handle in step.reads:
-        if not handle.startswith("point:") or _point_name_from_point_handle(handle) != point_name:
+    """找同名且定义可直接复用的 point entity。"""
+    candidates = [
+        handle for handle in step.reads
+        if handle.startswith("point:")
+        and _point_name_from_point_handle(handle) == point_name
+    ]
+    candidates.extend(
+        handle for handle in sorted(handle_registry.entity_payloads)
+        if handle.startswith("point:")
+        and handle not in candidates
+        and _point_name_from_point_handle(handle) == point_name
+        and _valid_scope_visible_from(_handle_scope(handle), step.scope_id, handle_registry)
+    )
+    for handle in candidates:
+        if not handle.startswith("point:"):
             continue
         payload = handle_registry.entity_payloads.get(handle, {})
         definition = str(payload.get("definition", "")).lower()
         description = str(payload.get("description", "")).lower()
         if definition in {"coordinate_origin", "known_coordinate"}:
+            return handle
+        if allow_axis_defined and definition in {"axis_x_intercept", "axis_intercept"}:
             return handle
         if "坐标原点" in description or "origin" in definition:
             return handle

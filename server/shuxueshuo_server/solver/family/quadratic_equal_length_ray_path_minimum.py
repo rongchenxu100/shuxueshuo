@@ -20,9 +20,6 @@ from shuxueshuo_server.solver.family.models import (
 from shuxueshuo_server.solver.family.capability_packs import (
     DEFAULT_CAPABILITY_PACK_REGISTRY,
 )
-from shuxueshuo_server.solver.family.common_binding_rules import (
-    parameter_from_expression_value_rule,
-)
 
 
 _QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = SolverFamilySpec(
@@ -156,13 +153,6 @@ _QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             ),
         ),
         MethodBindingRuleSpec(
-            method_id="translated_point",
-            input_bindings=(
-                MethodInputBindingSpec("source", "translated_point:source"),
-                MethodInputBindingSpec("target", "translated_point:target"),
-            ),
-        ),
-        MethodBindingRuleSpec(
             method_id="angle_sum_equal_angle_candidates",
             input_bindings=(
                 MethodInputBindingSpec("condition", "angle_sum:condition"),
@@ -185,17 +175,6 @@ _QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             ),
         ),
         MethodBindingRuleSpec(
-            method_id="line_parabola_second_intersection_point",
-            input_bindings=(
-                MethodInputBindingSpec("parabola", "read_type:Parabola"),
-                MethodInputBindingSpec("x", "symbol:x"),
-                MethodInputBindingSpec("line_p1", "line_parabola:line_p1"),
-                MethodInputBindingSpec("line_p2", "line_parabola:line_p2"),
-                MethodInputBindingSpec("known_point", "line_parabola:known_point"),
-                MethodInputBindingSpec("target", "line_parabola:target"),
-            ),
-        ),
-        MethodBindingRuleSpec(
             method_id="equal_length_ray_point",
             input_bindings=(
                 MethodInputBindingSpec("anchor", "equal_length_ray:anchor"),
@@ -204,15 +183,6 @@ _QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 MethodInputBindingSpec("target", "equal_length_ray:target"),
             ),
         ),
-        MethodBindingRuleSpec(
-            method_id="distance_between_points",
-            input_bindings=(
-                MethodInputBindingSpec("p1", "distance:p1"),
-                MethodInputBindingSpec("p2", "distance:p2"),
-            ),
-            expansion_selectors=("distance_parameter_value_if_read",),
-        ),
-        parameter_from_expression_value_rule(),
     ),
 )
 

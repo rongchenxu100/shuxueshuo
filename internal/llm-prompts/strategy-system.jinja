@@ -58,6 +58,10 @@
     - `preserve_handles` 时可改文字说明，但不要改稳定 step 的 reads/creates/produces/target/recipe_hint；
     - `preserve_step` 时保留指定稳定 step，只修它之后的步骤；
     - 从 `repair_suffix_start` 及其后续步骤修复。
+21. 如果 retry issue 是 `compressed_step_missing_prerequisites`，说明上一轮把多个
+    runtime 不可验证的数学动作压成了一步。保留 stable prefix，从 blocker step
+    开始把 suffix 展开为能逐步产生 `details.missing_prerequisites[]` 的 StepIntent；
+    不要把 `method_guidance.items` 为空理解为没有方法，也不要虚构不在 catalog 中的能力。
 
 JSON Schema:
 

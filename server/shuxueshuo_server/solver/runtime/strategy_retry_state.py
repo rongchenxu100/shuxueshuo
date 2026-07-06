@@ -16,6 +16,11 @@ from shuxueshuo_server.solver.runtime.strategy_repair_feedback import (
     RepairFeedbackBuilder,
     RepairHintRegistry,
 )
+from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
+from shuxueshuo_server.solver.runtime.strategy_compressed_steps import (
+    compressed_step_retry_issue,
+    find_step,
+)
 from shuxueshuo_server.solver.runtime.strategy_models import (
     ExecutablePlanResolutionReport,
     PlannerReplayDepth,
@@ -38,6 +43,7 @@ def build_planner_retry_state(
     normalization_errors: tuple[str, ...] = (),
     resolution_report: ExecutablePlanResolutionReport | None = None,
     diagnostic: StepIntentExecutionDiagnostic | None = None,
+    handle_registry: CanonicalHandleRegistry | None = None,
 ) -> PlannerRetryState | None:
     """根据现有 replay artifacts 构造正式 retry state。"""
     issues = _issues_from_reports(
@@ -46,6 +52,8 @@ def build_planner_retry_state(
         normalization_errors=normalization_errors,
         resolution_report=resolution_report,
         diagnostic=diagnostic,
+        draft=effective_draft or normalized_draft,
+        handle_registry=handle_registry,
     )
     recovered_issues = _recovered_issues_from_reports(
         validation_report=validation_report,
@@ -118,6 +126,8 @@ def _issues_from_reports(
     normalization_errors: tuple[str, ...],
     resolution_report: ExecutablePlanResolutionReport | None,
     diagnostic: StepIntentExecutionDiagnostic | None,
+    draft: StepIntentDraft | None,
+    handle_registry: CanonicalHandleRegistry | None,
 ) -> list[PlannerRetryIssue]:
     issues: list[PlannerRetryIssue] = []
     issues.extend(_semantic_issues(validation_report))
@@ -130,6 +140,14 @@ def _issues_from_reports(
         diagnostic=diagnostic,
     ):
         issues.extend(_strategy_route_issues(validation_report, resolution_report))
+        issues.extend(
+            _compressed_step_issues(
+                draft=draft,
+                resolution_report=resolution_report,
+                diagnostic=diagnostic,
+                handle_registry=handle_registry,
+            )
+        )
     issues.extend(_candidate_issues(resolution_report))
     issues.extend(_trial_issues(diagnostic))
     issues.extend(_answer_check_issues(errors, diagnostic=diagnostic))
@@ -143,6 +161,49 @@ def _issues_from_reports(
             )
             for error in errors
         )
+    return issues
+
+def _compressed_step_issues(
+    *,
+    draft: StepIntentDraft | None,
+    resolution_report: ExecutablePlanResolutionReport | None,
+    diagnostic: StepIntentExecutionDiagnostic | None,
+    handle_registry: CanonicalHandleRegistry | None,
+) -> list[PlannerRetryIssue]:
+    """把 over-compressed step 失败翻译成结构化 repair 工单。"""
+    issues: list[PlannerRetryIssue] = []
+    seen: set[tuple[str | None, str]] = set()
+    if resolution_report is not None and not resolution_report.ok:
+        for step_report in resolution_report.step_reports:
+            if step_report.ok:
+                continue
+            step = find_step(draft, step_report.step_id)
+            issue = compressed_step_retry_issue(
+                step=step,
+                layer="candidate_resolution",
+                messages=step_report.errors,
+                handle_registry=handle_registry,
+            )
+            if issue is not None:
+                key = (issue.step_id, issue.layer)
+                if key not in seen:
+                    issues.append(issue)
+                    seen.add(key)
+    if diagnostic is not None and not diagnostic.ok:
+        for blocker in diagnostic.blockers:
+            step = find_step(draft, blocker.step_id)
+            messages = (blocker.message, *blocker.capability_errors)
+            issue = compressed_step_retry_issue(
+                step=step,
+                layer="candidate_resolution",
+                messages=messages,
+                handle_registry=handle_registry,
+            )
+            if issue is not None:
+                key = (issue.step_id, issue.layer)
+                if key not in seen:
+                    issues.append(issue)
+                    seen.add(key)
     return issues
 
 def _has_blocking_failure(
@@ -704,6 +765,7 @@ def _with_preserve_policy(
         message=issue.message,
         hints=issue.hints,
         related_handles=issue.related_handles,
+        details=issue.details,
     )
 
 def _retry_instruction(

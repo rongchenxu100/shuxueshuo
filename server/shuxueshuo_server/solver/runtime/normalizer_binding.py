@@ -41,6 +41,24 @@ class _RewriteStepReadsRule:
             step=_rewrite_step_reads(step, context.handle_rewrites),
         )
 
+class _SiblingCommonOutputReadPromotionRule:
+    """把当前 step 读取的 sibling 公共中间量提升到共同父 scope。"""
+
+    def apply(
+        self,
+        step: StepIntent,
+        context: NormalizationRuleContext,
+    ) -> NormalizationRuleResult:
+        step, rewrites, actions = _promote_sibling_common_output_reads_step(
+            step,
+            context=context,
+        )
+        return NormalizationRuleResult(
+            step=step,
+            rewrites=rewrites,
+            actions=tuple(actions),
+        )
+
 class _PublicOutputAliasMergeRule:
     """合并后续 scope 重复产生的已可见同状态 output alias。"""
 
@@ -163,6 +181,136 @@ def _promote_common_scope_outputs_step(
         rewrites,
         actions,
     )
+
+def _promote_sibling_common_output_reads_step(
+    step: StepIntent,
+    *,
+    context: NormalizationRuleContext,
+) -> tuple[StepIntent, dict[str, str], list[StepIntentNormalizationAction]]:
+    """当前 step 读取 sibling output 时，将该 output 提升到共同父 scope。"""
+    rewrites: dict[str, str] = {}
+    actions: list[StepIntentNormalizationAction] = []
+    for handle in step.reads:
+        if handle in rewrites or not handle.startswith("fact:"):
+            continue
+        source = _find_sibling_produced_output(handle, step=step, context=context)
+        if source is None:
+            continue
+        scope_index, step_index, source_step, item = source
+        parent_scope = _common_parent_scope(
+            source_step.scope_id,
+            step.scope_id,
+            context.handle_registry,
+        )
+        if parent_scope is None or parent_scope == "problem":
+            continue
+        promoted = _promoted_common_scope_output(
+            item,
+            current_scope=source_step.scope_id,
+            parent_scope=parent_scope,
+        )
+        if promoted is None:
+            continue
+        rewrites[item.handle] = promoted.handle
+        _replace_step_produced_item(
+            context,
+            scope_index=scope_index,
+            step_index=step_index,
+            old_handle=item.handle,
+            promoted=promoted,
+        )
+        actions.append(
+            StepIntentNormalizationAction(
+                action="promote_sibling_common_output_read",
+                step_id=step.step_id,
+                target_step_id=source_step.step_id,
+                handle=item.handle,
+                reason=(
+                    f"{step.step_id} 读取了 sibling scope 的公共中间状态 {item.handle}；"
+                    f"将源输出提升到共同父 scope {parent_scope}，改写为 {promoted.handle}。"
+                ),
+            )
+        )
+    if not rewrites:
+        return step, {}, []
+    _rewrite_completed_scope_reads(context, rewrites)
+    return _rewrite_step_reads(step, rewrites), rewrites, actions
+
+def _find_sibling_produced_output(
+    handle: str,
+    *,
+    step: StepIntent,
+    context: NormalizationRuleContext,
+) -> tuple[int, int, StepIntent, ProducedFact] | None:
+    """在已完成 sibling scopes 中查找 exact produced handle。"""
+    handle_scope = _handle_scope(handle)
+    try:
+        if handle_scope in context.handle_registry.ancestor_scopes(step.scope_id):
+            return None
+    except Exception:
+        return None
+    for scope_index, scope in enumerate(context.normalized_scopes):
+        for step_index, previous in enumerate(scope.steps):
+            for item in previous.produces:
+                if item.handle == handle:
+                    return scope_index, step_index, previous, item
+    return None
+
+def _common_parent_scope(
+    left_scope: str,
+    right_scope: str,
+    handle_registry: CanonicalHandleRegistry,
+) -> str | None:
+    """返回两个 sibling scope 的最近共同父 scope。"""
+    try:
+        left_ancestors = handle_registry.ancestor_scopes(left_scope)
+        right_ancestors = handle_registry.ancestor_scopes(right_scope)
+    except Exception:
+        return None
+    right_set = set(right_ancestors)
+    for scope in left_ancestors[1:]:
+        if scope in right_set:
+            return scope
+    return None
+
+def _replace_step_produced_item(
+    context: NormalizationRuleContext,
+    *,
+    scope_index: int,
+    step_index: int,
+    old_handle: str,
+    promoted: ProducedFact,
+) -> None:
+    """替换已完成 scope 中的 produced item，并同步 target。"""
+    scope = context.normalized_scopes[scope_index]
+    steps = list(scope.steps)
+    source_step = steps[step_index]
+    produces = tuple(
+        promoted if item.handle == old_handle else item
+        for item in source_step.produces
+    )
+    steps[step_index] = replace(
+        source_step,
+        target=promoted.handle if source_step.target == old_handle else source_step.target,
+        produces=produces,
+    )
+    context.normalized_scopes[scope_index] = replace(scope, steps=tuple(steps))
+
+def _rewrite_completed_scope_reads(
+    context: NormalizationRuleContext,
+    rewrites: dict[str, str],
+) -> None:
+    """同步已经完成 scope 中的 stale reads/targets。"""
+    for scope_index, scope in enumerate(context.normalized_scopes):
+        changed = False
+        steps: list[StepIntent] = []
+        for step in scope.steps:
+            rewritten = _rewrite_step_reads(step, rewrites)
+            if rewritten != step:
+                changed = True
+            steps.append(rewritten)
+        if changed:
+            context.normalized_scopes[scope_index] = replace(scope, steps=tuple(steps))
 
 def _parent_scope(
     scope_id: str,

@@ -6,10 +6,12 @@ selector 解析成具体 RuntimeContext path。
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 import re
 from typing import Any, Callable, Mapping
 
 from shuxueshuo_server.solver.family.models import MethodBindingRuleSpec, SolverFamilySpec
+from shuxueshuo_server.solver.runtime.auxiliary_points import fresh_auxiliary_point_handle
 from shuxueshuo_server.solver.runtime.models import ContextPath
 from shuxueshuo_server.solver.runtime.handle_registry import (
     _handle_name,
@@ -42,6 +44,15 @@ ExpansionSelectorFn = Callable[
     [StepIntent, CanonicalRuntimeBindingIndex, Mapping[str, str]],
     dict[str, str],
 ]
+
+
+@dataclass(frozen=True)
+class _PointValueCandidate:
+    """A readable Point value for one geometric point object."""
+
+    point_name: str
+    handle: str
+    rank: int
 
 class MethodBindingRuleRegistry:
     """把 StepIntent semantic handles 绑定到 method input slots。
@@ -651,7 +662,7 @@ def _distance_selector(role: str) -> BindingSelectorFn:
     ) -> str:
         p1, p2 = _distance_point_handles(step, index)
         values = {"p1": p1, "p2": p2}
-        return index.path_for(values[role], expected_type="Point")
+        return _point_path_from_step_reads(values[role], step, index)
 
     return select
 
@@ -1972,11 +1983,12 @@ def _fresh_auxiliary_point_handle(
     index: CanonicalRuntimeBindingIndex,
 ) -> str:
     """为 recipe 自动创建当前 scope 下未占用的辅助点 handle。"""
-    for suffix in ("", *[str(number) for number in range(1, 20)]):
-        name = f"Aux{suffix}"
-        handle = f"point:{step.scope_id}:{name}"
-        if handle not in index.bindings and handle not in index.handle_registry.entity_handles:
-            return handle
+    handle = fresh_auxiliary_point_handle(
+        step.scope_id,
+        set(index.bindings) | set(index.handle_registry.entity_handles),
+    )
+    if handle is not None:
+        return handle
     raise StrategyDraftValidationError(
         f"auxiliary_point_handle_exhausted: {step.step_id}"
     )
@@ -1992,11 +2004,187 @@ def _first_pointref_handle(
             return handle
     raise StrategyDraftValidationError(f"pointref_handle_not_found: {step.step_id}")
 
+
+def _point_value_candidates_from_reads(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> list[_PointValueCandidate]:
+    """Return readable Point values grouped by geometric point name.
+
+    LLMs often mix object reads such as ``point:ii:M`` with state reads such as
+    ``fact:ii:M_coordinate_expr``. Binding rules should consume the Point state
+    when it is available, while still accepting the object handle as a readable
+    alias via ``EntityStateResolver``.
+    """
+    candidates: list[_PointValueCandidate] = []
+    seen: set[str] = set()
+    for handle in step.reads:
+        candidate = _point_value_candidate_for_handle(handle, step, index)
+        if candidate is None or candidate.handle in seen:
+            continue
+        seen.add(candidate.handle)
+        candidates.append(candidate)
+    return candidates
+
+
+def _point_value_candidate_for_handle(
+    handle: str,
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> _PointValueCandidate | None:
+    """Return a Point candidate represented by ``handle`` if it is readable."""
+    binding = index.bindings.get(handle)
+    if binding is None:
+        return None
+    if handle.startswith("point:"):
+        if not _point_read_is_usable_as_point(handle, step, index):
+            return None
+        rank = 10 if binding.value_type == "Point" else 20
+        return _PointValueCandidate(_handle_name(handle), handle, rank)
+    if binding.value_type != "Point":
+        return None
+    if handle.startswith("fact:"):
+        point_name = _point_name_from_state_semantic(_semantic_name(handle))
+        if point_name is None and index.fact_types.get(handle) == "point_coordinate":
+            point_name = _point_state_read_name(handle, index)
+        if point_name is None:
+            return None
+        return _PointValueCandidate(point_name, handle, 0)
+    if handle.startswith("answer:"):
+        point_name = _answer_key_from_handle(handle)
+        if not point_name:
+            return None
+        return _PointValueCandidate(point_name, handle, 5)
+    return None
+
+
+def _point_value_handles_for_names(
+    names: tuple[str, str],
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+    candidates: list[_PointValueCandidate],
+) -> tuple[str, str] | None:
+    """Bind a pair of point names to readable Point handles."""
+    first = _point_value_handle_for_name(names[0], step, index, candidates)
+    second = _point_value_handle_for_name(names[1], step, index, candidates)
+    if first is None or second is None:
+        return None
+    if first == second:
+        return None
+    return first, second
+
+
+def _point_value_handle_for_name(
+    point_name: str,
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+    candidates: list[_PointValueCandidate],
+) -> str | None:
+    """Return the best explicit or visible Point value for ``point_name``."""
+    explicit = [candidate for candidate in candidates if candidate.point_name == point_name]
+    if explicit:
+        return sorted(explicit, key=lambda item: (item.rank, item.handle))[0].handle
+
+    visible_matches = _visible_point_state_matches_for_name(point_name, step, index)
+    unique_visible_handles = _unique_ordered([handle for handle, _path in visible_matches])
+    if len(unique_visible_handles) == 1:
+        index.record_applied_fill(
+            step=step,
+            input_handle=f"point:{step.scope_id}:{point_name}",
+            required_type="Point",
+            resolved_handle=unique_visible_handles[0],
+            reason="unique_visible_point_state_for_distance_endpoint",
+        )
+        return unique_visible_handles[0]
+    if len(unique_visible_handles) > 1:
+        raise StrategyDraftValidationError(
+            f"ambiguous_distance_point_state: point={point_name}, "
+            f"handles={','.join(unique_visible_handles)}"
+        )
+
+    try:
+        point_handle = index.point_handle_by_name(point_name, step=step)
+    except StrategyDraftValidationError:
+        return None
+    if _point_read_is_usable_as_point(point_handle, step, index):
+        return point_handle
+    return None
+
+
+def _distance_endpoint_names_from_step(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+    candidates: list[_PointValueCandidate],
+) -> tuple[str, str] | None:
+    """Infer intended distance endpoints from structured handles."""
+    point_names = _known_point_names_for_distance(step, index, candidates)
+    for handle in step.reads:
+        if handle.startswith("segment:"):
+            match = _point_pair_from_text(_semantic_name(handle), point_names)
+            if match is not None:
+                return match
+    structured_texts = [step.target]
+    structured_texts.extend(produced.handle for produced in step.produces)
+    structured_texts.extend(
+        produced.description for produced in step.produces
+        if produced.description
+    )
+    for text in structured_texts:
+        match = _point_pair_from_text(text, point_names)
+        if match is not None:
+            return match
+    return None
+
+
+def _known_point_names_for_distance(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+    candidates: list[_PointValueCandidate],
+) -> tuple[str, ...]:
+    """Return point names known to the current step and visible context."""
+    names = [candidate.point_name for candidate in candidates]
+    names.extend(_handle_name(handle) for handle in index.entity_handles("point", step=step))
+    return tuple(_unique_ordered(name for name in names if name))
+
+
+def _point_pair_from_text(
+    text: str,
+    point_names: tuple[str, ...],
+) -> tuple[str, str] | None:
+    """Extract a point-name pair from a semantic handle or short description."""
+    ordered_names = sorted(point_names, key=len, reverse=True)
+    for token in re.findall(r"[A-Za-z][A-Za-z0-9]*", text):
+        lowered = token.lower()
+        if lowered in {"fact", "answer", "point", "segment", "length", "distance", "expr", "expression"}:
+            continue
+        for first in ordered_names:
+            if not token.startswith(first):
+                continue
+            second = token[len(first):]
+            if second and second != first and second in point_names:
+                return first, second
+        if len(token) == 2 and token.isupper():
+            return token[0], token[1]
+    return None
+
+
 def _distance_point_handles(
     step: StepIntent,
     index: CanonicalRuntimeBindingIndex,
 ) -> tuple[str, str]:
     """为 distance_between_points 选择两端点。"""
+    candidates = _point_value_candidates_from_reads(step, index)
+    endpoint_names = _distance_endpoint_names_from_step(step, index, candidates)
+    if endpoint_names is not None:
+        endpoint_handles = _point_value_handles_for_names(
+            endpoint_names,
+            step,
+            index,
+            candidates,
+        )
+        if endpoint_handles is not None:
+            return endpoint_handles
+
     created_or_aux = [
         handle for handle in step.reads
         if handle.startswith("point:")
@@ -2023,16 +2211,17 @@ def _distance_point_handles(
         for p2 in midpoint_handles:
             if p1 != p2:
                 return p1, p2
-    point_reads = [
-        handle for handle in step.reads
-        if handle.startswith("point:") and index.bindings.get(handle) is not None
-    ]
-    if len(point_reads) >= 2:
-        return point_reads[0], point_reads[1]
+    unique_by_name: dict[str, _PointValueCandidate] = {}
+    for candidate in sorted(candidates, key=lambda item: (item.rank, item.handle)):
+        unique_by_name.setdefault(candidate.point_name, candidate)
+    if len(unique_by_name) == 2:
+        ordered = list(unique_by_name.values())
+        return ordered[0].handle, ordered[1].handle
     raise StrategyDraftValidationError(
         f"distance_points_not_found: {step.step_id}; "
-        "need an auxiliary/straightening point and a computed endpoint point "
-        "(usually midpoint F with its coordinate fact)"
+        "need two readable Point states. Read each endpoint point object or its "
+        "coordinate fact, and name the target/output with the segment endpoints "
+        "when multiple point states are visible."
     )
 
 def _angle_sum_y_axis_roles(

@@ -16,6 +16,11 @@ for _name in dir(_base):
     globals()[_name] = getattr(_base, _name)
 del _name, _base, _base_path, _spec, util
 
+from shuxueshuo_server.solver.runtime.normalizer_core import (  # noqa: E402
+    DEFAULT_NORMALIZATION_RULES,
+    _validate_normalization_rule_order,
+)
+
 
 def test_step_intent_normalizer_accepts_injected_rule() -> None:
     """Normalizer 应通过 rule list 调度，新增 rule 不需要改主循环。"""
@@ -64,6 +69,27 @@ def test_step_intent_normalizer_accepts_injected_rule() -> None:
     assert [action.action for action in report.actions] == [
         "synthetic_normalization_rule"
     ]
+
+
+def test_normalizer_rule_order_constraints_reject_known_dependency_violation() -> None:
+    """关键 rule 顺序依赖应由声明式约束检查，而不是只靠注释。"""
+    rules = list(DEFAULT_NORMALIZATION_RULES)
+    drop_index = next(
+        index for index, rule in enumerate(rules)
+        if rule.__class__.__name__ == "_DropUnavailableQuadraticCoefficientReadsRule"
+    )
+    quadratic_index = next(
+        index for index, rule in enumerate(rules)
+        if rule.__class__.__name__ == "_QuadraticFromConstraintsRule"
+    )
+    rules[drop_index], rules[quadratic_index] = rules[quadratic_index], rules[drop_index]
+
+    with pytest.raises(
+        ValueError,
+        match="_DropUnavailableQuadraticCoefficientReadsRule must run before "
+        "_QuadraticFromConstraintsRule",
+    ):
+        _validate_normalization_rule_order(tuple(rules))
 
 
 def test_step_intent_normalizer_accepts_injected_scope_transform() -> None:
@@ -405,6 +431,55 @@ def test_step_intent_normalizer_drops_known_origin_coordinate_utility_step() -> 
         "point:problem:O",
         "fact:i_2:angle_sum_CBE_ACO_45",
     )
+    assert [action.action for action in report.actions] == [
+        "drop_known_point_coordinate_utility_step"
+    ]
+
+
+def test_normalizer_drops_recomputed_visible_axis_point_coordinate_step() -> None:
+    """已可见的题面轴点不应在后续小问中再 produced 成坐标 fact。"""
+    recompute_d = _step(
+        scope_id="ii_1",
+        step_id="derive_D_coordinate_ii",
+        recipe_hint="quadratic_axis_from_relation",
+        goal_type="derive_axis_point",
+        target="fact:ii:D_coordinate",
+        reads=("fact:problem:coefficient_relation",),
+        produces=(
+            ProducedFact(
+                "fact:ii:D_coordinate",
+                "ii",
+                "D 点坐标",
+                output_type="Point",
+            ),
+        ),
+    )
+    use_d = _step(
+        scope_id="ii_1",
+        step_id="derive_F_coordinate_expr",
+        recipe_hint="midpoint_point",
+        goal_type="derive_midpoint",
+        target="fact:ii:F_coordinate_expr",
+        reads=("fact:ii:D_coordinate", "fact:ii:F_midpoint_of_DN"),
+        produces=(
+            ProducedFact(
+                "fact:ii:F_coordinate_expr",
+                "ii",
+                "F 点坐标",
+                output_type="Point",
+            ),
+        ),
+    )
+
+    normalized, report = StepIntentNormalizer().normalize(
+        _single_scope_draft(recompute_d, use_d, scope_id="ii_1"),
+        family_spec=_nankai_inputs().family_spec,
+        question_goals=_question_goals(),
+        handle_registry=_registry(),
+    )
+
+    assert [step.step_id for step in normalized.steps] == ["derive_F_coordinate_expr"]
+    assert normalized.steps[0].reads == ("point:problem:D", "fact:ii:F_midpoint_of_DN")
     assert [action.action for action in report.actions] == [
         "drop_known_point_coordinate_utility_step"
     ]
@@ -1593,6 +1668,196 @@ def test_normalizer_splits_deepseek_mixed_quadratic_outputs() -> None:
     }
 
 
+def test_normalizer_splits_multi_point_parameter_evaluation_step() -> None:
+    """单个 evaluate_point_at_parameter step 产出多个点坐标时，应拆成多次单点代入。"""
+    n_step = _step(
+        scope_id="ii_1",
+        step_id="construct_N_coordinate_ii",
+        recipe_hint="right_angle_equal_length_construct_and_select",
+        goal_type="derive_constructed_point",
+        target="fact:ii:N_coordinate_expr",
+        reads=(
+            "point:problem:D",
+            "point:ii:M",
+            "fact:ii:right_angle_equal_length_MDN",
+            "fact:ii:N_fourth_quadrant",
+        ),
+        produces=(
+            ProducedFact(
+                "fact:ii:N_coordinate_expr",
+                "ii",
+                "N 点坐标表达式",
+                output_type="Point",
+            ),
+        ),
+    )
+    parameter_step = _step(
+        scope_id="ii_1",
+        step_id="solve_m_from_MN_length",
+        recipe_hint="parameter_from_segment_length",
+        goal_type="derive_parameter",
+        target="fact:ii_1:m_value",
+        reads=(
+            "point:ii:M",
+            "fact:ii:N_coordinate_expr",
+            "fact:ii_1:MN_length_squared_eq_10",
+        ),
+        produces=(
+            ProducedFact(
+                "fact:ii_1:m_value",
+                "ii_1",
+                "第（Ⅱ）①问 m 的值",
+                output_type="ParameterValue",
+            ),
+        ),
+    )
+    multi_point_step = _step(
+        scope_id="ii_1",
+        step_id="evaluate_MN_coords_ii1",
+        recipe_hint="evaluate_point_at_parameter",
+        goal_type="evaluate_point_at_parameter",
+        target="compute concrete coordinates of M and N",
+        reads=(
+            "point:ii:M",
+            "fact:ii:N_coordinate_expr",
+            "fact:ii_1:m_value",
+        ),
+        produces=(
+            ProducedFact(
+                "fact:ii_1:M_coordinate",
+                "ii_1",
+                "M 的具体坐标",
+                output_type="Point",
+            ),
+            ProducedFact(
+                "fact:ii_1:N_coordinate",
+                "ii_1",
+                "N 的具体坐标",
+                output_type="Point",
+            ),
+        ),
+    )
+
+    normalized, report = StepIntentNormalizer().normalize(
+        StepIntentDraft(
+            scopes=(
+                StepIntentScope(
+                    scope_id="ii_1",
+                    label="第（Ⅱ）①问",
+                    steps=(n_step, parameter_step, multi_point_step),
+                ),
+            )
+        ),
+        family_spec=_nankai_inputs().family_spec,
+        question_goals=_question_goals(),
+        handle_registry=_registry(),
+    )
+
+    assert [step.step_id for step in normalized.scopes[0].steps] == [
+        "construct_N_coordinate_ii",
+        "solve_m_from_MN_length",
+        "evaluate_mn_coords_ii1_evaluate_m_coordinate",
+        "evaluate_mn_coords_ii1_evaluate_n_coordinate",
+    ]
+    steps = {step.step_id: step for step in normalized.scopes[0].steps}
+    assert steps["evaluate_mn_coords_ii1_evaluate_m_coordinate"].reads == (
+        "point:ii:M",
+        "fact:ii_1:m_value",
+    )
+    assert steps["evaluate_mn_coords_ii1_evaluate_m_coordinate"].produces[0].handle == (
+        "fact:ii_1:M_coordinate"
+    )
+    assert steps["evaluate_mn_coords_ii1_evaluate_n_coordinate"].reads == (
+        "fact:ii:N_coordinate_expr",
+        "fact:ii_1:m_value",
+    )
+    assert steps["evaluate_mn_coords_ii1_evaluate_n_coordinate"].produces[0].handle == (
+        "fact:ii_1:N_coordinate"
+    )
+    assert [action.action for action in report.actions] == [
+        "split_multi_point_evaluation_step",
+        "split_multi_point_evaluation_step",
+    ]
+
+
+def test_normalizer_drops_coefficient_aliases_from_parameter_solver_step() -> None:
+    """参数求解 step 夹带 a/b/c 系数值时，只保留唯一运行参数输出。"""
+    parameter_step = _step(
+        scope_id="ii_1",
+        step_id="solve_parameters_from_length",
+        recipe_hint="parameter_from_segment_length",
+        goal_type="derive_parameter",
+        target="求 a 和 m 的值",
+        reads=(
+            "fact:ii:N_coordinate_expr",
+            "fact:ii:M_coordinate_expr",
+            "fact:ii_1:MN_length_squared_eq_10",
+        ),
+        produces=(
+            ProducedFact(
+                "fact:ii_1:a_value",
+                "ii_1",
+                "系数 a",
+                output_type="ParameterValue",
+            ),
+            ProducedFact(
+                "fact:ii_1:m_value",
+                "ii_1",
+                "参数 m",
+                output_type="ParameterValue",
+            ),
+        ),
+    )
+    derive_parabola = _step(
+        scope_id="ii_1",
+        step_id="derive_parabola_after_parameter",
+        recipe_hint="quadratic_from_constraints",
+        goal_type="derive_parabola",
+        target="answer:ii_1.parabola",
+        reads=(
+            "function:problem:parabola",
+            "fact:problem:coefficient_relation",
+            "fact:ii_1:a_value",
+            "fact:ii_1:m_value",
+        ),
+        produces=(
+            ProducedFact(
+                "answer:ii_1.parabola",
+                "ii_1",
+                "①问抛物线",
+                output_type="Parabola",
+            ),
+        ),
+    )
+
+    normalized, report = StepIntentNormalizer().normalize(
+        StepIntentDraft(
+            scopes=(
+                StepIntentScope(
+                    scope_id="ii_1",
+                    label="第（Ⅱ）①问",
+                    steps=(parameter_step, derive_parabola),
+                ),
+            )
+        ),
+        family_spec=_nankai_inputs().family_spec,
+        question_goals=_question_goals(),
+        handle_registry=_registry(),
+    )
+
+    steps = {step.step_id: step for step in normalized.scopes[0].steps}
+    assert steps["solve_parameters_from_length"].target == "fact:ii_1:m_value"
+    assert [item.handle for item in steps["solve_parameters_from_length"].produces] == [
+        "fact:ii_1:m_value"
+    ]
+    assert "fact:ii_1:m_value" in steps["derive_parabola_after_parameter"].reads
+    assert "fact:ii_1:a_value" not in steps["derive_parabola_after_parameter"].reads
+    assert {action.action for action in report.actions} >= {
+        "drop_parameter_solver_coefficient_value_alias",
+        "drop_unavailable_quadratic_coefficient_read",
+    }
+
+
 def test_normalizer_splits_mixed_quadratic_parameter_from_minimum_value() -> None:
     """由给定最小值反求参数时，mixed quadratic step 应拆出 minimum-value 参数 step。"""
     mixed_quadratic = _step(
@@ -2138,6 +2403,132 @@ def test_midpoint_point_requires_current_midpoint_definition_read() -> None:
     )
     serialized_repair = json.dumps(repair_summary, ensure_ascii=False)
     assert "square_path_dimension_reduction" in serialized_repair
+
+
+def test_normalizer_auto_creates_required_recipe_point() -> None:
+    """recipe execution 声明 creates=point 时，LLM 可省略辅助点 creates。"""
+    step = _step(
+        scope_id="ii_1",
+        step_id="straighten_reduced_path_ii1",
+        recipe_hint="broken_path_straightening_and_select",
+        goal_type="straighten_broken_path",
+        target="选择折线拉直方案",
+        reads=(
+            "fact:ii:single_moving_path_equivalence",
+            "point:ii:F",
+            "point:ii:N",
+        ),
+        produces=(
+            ProducedFact(
+                "fact:ii:straightened_path_choice",
+                "ii",
+                "EG+FG 拉直后最短路径方案",
+                output_type="StraighteningCandidate",
+            ),
+        ),
+    )
+
+    normalized, report = StepIntentNormalizer().normalize(
+        StepIntentDraft(
+            scopes=(
+                StepIntentScope(
+                    scope_id="ii_1",
+                    label="第（Ⅱ）①问",
+                    steps=(step,),
+                ),
+            )
+        ),
+        family_spec=_nankai_inputs().family_spec,
+        question_goals=_question_goals(),
+        handle_registry=_registry(),
+    )
+
+    normalized_step = normalized.scopes[0].steps[0]
+    assert [item.handle for item in normalized_step.creates] == ["point:ii:Aux"]
+    assert normalized_step.creates[0].entity_type == "point"
+    assert any(
+        action.action == "auto_create_required_recipe_entity"
+        and action.handle == "point:ii:Aux"
+        for action in report.actions
+    )
+
+
+def test_normalizer_folds_internal_equation_utility_into_parameter_step() -> None:
+    """无 hint 的中间方程 utility 可折叠到唯一的参数求解消费者。"""
+    relation = _step(
+        scope_id="ii_2",
+        step_id="derive_relation_am_ii2",
+        recipe_hint=None,
+        goal_type="derive_parameter",
+        target="推导 a 与 m 的关系式",
+        reads=(
+            "point:ii:M",
+            "point:ii:N",
+            "fact:ii:M_coordinate_expr",
+            "fact:ii:N_coordinate_expr",
+            "fact:ii:M_on_parabola",
+            "fact:ii:N_on_parabola",
+            "fact:problem:coefficient_relation",
+        ),
+        produces=(
+            ProducedFact(
+                "fact:ii_2:parameter_relation_a_m",
+                "ii_2",
+                "a(m-2)=1",
+                output_type="Equation",
+            ),
+        ),
+    )
+    solve_parameter = _step(
+        scope_id="ii_2",
+        step_id="solve_m_from_minimum_ii2",
+        recipe_hint="parameter_from_minimum_value",
+        goal_type="derive_parameter_from_minimum_value",
+        target="fact:ii_2:m_value",
+        reads=(
+            "fact:ii_2:parameter_relation_a_m",
+            "fact:ii_2:path_minimum_expression",
+            "fact:ii_2:path_minimum_value_given",
+        ),
+        produces=(
+            ProducedFact(
+                "fact:ii_2:m_value",
+                "ii_2",
+                "②问 m 的值",
+                output_type="ParameterValue",
+            ),
+        ),
+    )
+
+    normalized, report = StepIntentNormalizer().normalize(
+        StepIntentDraft(
+            scopes=(
+                StepIntentScope(
+                    scope_id="ii_2",
+                    label="第（Ⅱ）②问",
+                    steps=(relation, solve_parameter),
+                ),
+            )
+        ),
+        family_spec=_nankai_inputs().family_spec,
+        question_goals=_question_goals(),
+        handle_registry=_registry(),
+    )
+
+    assert [step.step_id for step in normalized.scopes[0].steps] == [
+        "solve_m_from_minimum_ii2"
+    ]
+    reads = normalized.scopes[0].steps[0].reads
+    assert "fact:ii_2:parameter_relation_a_m" not in reads
+    assert "fact:ii_2:path_minimum_expression" in reads
+    assert "fact:ii:M_coordinate_expr" in reads
+    assert "fact:ii:N_on_parabola" in reads
+    assert any(
+        action.action == "fold_internal_equation_utility_step"
+        and action.step_id == "derive_relation_am_ii2"
+        and action.target_step_id == "solve_m_from_minimum_ii2"
+        for action in report.actions
+    )
 
 
 def test_normalizer_drops_square_pre_reduction_point_utility_step() -> None:
@@ -2689,6 +3080,553 @@ def test_normalizer_reuses_existing_locus_line_without_duplicate() -> None:
     assert "fact:ii:G_locus_line" in minimum_step.reads
     assert any(
         action.action == "add_square_path_locus_line_read"
+        for action in report.actions
+    )
+
+
+def test_normalizer_merges_null_hint_point_answer_to_existing_coordinate() -> None:
+    """裸 Point answer step 若只是收口已有同点坐标，应合并为 answer alias。"""
+    coordinate_step = _step(
+        scope_id="ii",
+        step_id="derive_G_coordinate",
+        recipe_hint="evaluate_point_at_parameter",
+        goal_type="evaluate_point_at_parameter",
+        target="fact:ii:G_coordinate",
+        reads=("fact:ii:G_coordinate_expr", "fact:ii_2:m_value"),
+        produces=(
+            ProducedFact(
+                "fact:ii:G_coordinate",
+                "ii",
+                "G 的坐标",
+                output_type="Point",
+            ),
+        ),
+    )
+    answer_step = _step(
+        scope_id="ii_2",
+        step_id="collect_G_answer",
+        recipe_hint=None,
+        goal_type="derive_extremal_point",
+        target="answer:ii_2.intersection",
+        reads=("fact:ii:G_coordinate",),
+        produces=(
+            ProducedFact(
+                "answer:ii_2.intersection",
+                "ii_2",
+                "第（Ⅱ）②问 G 的坐标",
+                output_type="Point",
+            ),
+        ),
+    )
+
+    normalized, report = StepIntentNormalizer().normalize(
+        StepIntentDraft(
+            scopes=(
+                StepIntentScope("ii", "第（Ⅱ）问", (coordinate_step,)),
+                StepIntentScope("ii_2", "第（Ⅱ）②问", (answer_step,)),
+            )
+        ),
+        family_spec=_nankai_inputs().family_spec,
+        question_goals=_question_goals(),
+        handle_registry=_registry(),
+    )
+
+    ii_step = normalized.scopes[0].steps[0]
+    assert [step.step_id for step in normalized.scopes[1].steps] == []
+    assert {item.handle for item in ii_step.produces} == {
+        "fact:ii:G_coordinate",
+        "answer:ii_2.intersection",
+    }
+    assert any(
+        action.action == "merge_point_answer_alias_to_existing_state"
+        and action.handle == "answer:ii_2.intersection"
+        for action in report.actions
+    )
+
+
+def test_normalizer_adds_known_symbol_value_reads_for_quadratic_constraints() -> None:
+    """quadratic_from_constraints 读取 symbol 时，应自动补题面已知 value fact。"""
+    step = _step(
+        scope_id="i",
+        step_id="derive_parabola_i",
+        recipe_hint="quadratic_from_constraints",
+        goal_type="derive_parabola",
+        target="answer:i.parabola",
+        reads=(
+            "symbol:problem:a",
+            "symbol:problem:c",
+            "fact:problem:coefficient_relation",
+        ),
+        produces=(
+            ProducedFact(
+                "answer:i.parabola",
+                "i",
+                "第（Ⅰ）问抛物线",
+                output_type="Parabola",
+            ),
+        ),
+    )
+
+    normalized, report = StepIntentNormalizer().normalize(
+        _single_scope_draft(step, scope_id="i"),
+        family_spec=_nankai_inputs().family_spec,
+        question_goals=_question_goals(),
+        handle_registry=_registry(),
+    )
+
+    reads = normalized.scopes[0].steps[0].reads
+    assert "fact:i:a_value" in reads
+    assert "fact:i:c_value" in reads
+    assert [
+        action.handle for action in report.actions
+        if action.action == "add_known_symbol_value_read"
+    ] == ["fact:i:a_value", "fact:i:c_value"]
+
+
+def test_normalizer_reuses_existing_midpoint_coordinate_backfill() -> None:
+    """已有同一 midpoint 坐标时，不应再插入 *_coordinate_expr backfill。"""
+    midpoint_step = _step(
+        scope_id="ii_1",
+        step_id="derive_F_coordinate",
+        recipe_hint="midpoint_point",
+        goal_type="derive_midpoint",
+        target="fact:ii:F_coordinate",
+        reads=("fact:problem:D_coordinate", "fact:ii:N_coordinate_expr"),
+        produces=(
+            ProducedFact(
+                "fact:ii:F_coordinate",
+                "ii",
+                "F 的坐标",
+                output_type="Point",
+            ),
+        ),
+    )
+    minimum_step = _step(
+        scope_id="ii_1",
+        step_id="derive_path_minimum_expr",
+        recipe_hint="broken_path_straightening_minimum_expression",
+        goal_type="derive_path_minimum_expression",
+        target="fact:ii:path_minimum_expression",
+        reads=(
+            "point:problem:D",
+            "point:ii:M",
+            "point:ii:N",
+            "point:ii:F",
+            "fact:ii:F_midpoint_of_DN",
+            "fact:ii:path_minimum_target",
+        ),
+        produces=(
+            ProducedFact(
+                "fact:ii:path_minimum_expression",
+                "ii",
+                "路径最小值表达式",
+                output_type="MinimumExpression",
+            ),
+        ),
+    )
+
+    normalized, report = StepIntentNormalizer().normalize(
+        _single_scope_draft(midpoint_step, minimum_step, scope_id="ii_1"),
+        family_spec=_nankai_inputs().family_spec,
+        question_goals=_question_goals(),
+        handle_registry=_registry(),
+    )
+
+    step_ids = [step.step_id for step in normalized.scopes[0].steps]
+    assert "derive_F_coordinate_expr" not in step_ids
+    normalized_midpoint = normalized.scopes[0].steps[0]
+    assert "fact:ii:F_midpoint_of_DN" in normalized_midpoint.reads
+    normalized_minimum = normalized.scopes[0].steps[-1]
+    assert "fact:ii:F_coordinate" in normalized_minimum.reads
+    assert "fact:ii:F_coordinate_expr" not in normalized_minimum.reads
+    assert any(
+        action.action == "add_midpoint_definition_read"
+        and action.handle == "fact:ii:F_midpoint_of_DN"
+        for action in report.actions
+    )
+    assert any(
+        action.action == "reuse_existing_midpoint_coordinate_fact"
+        and action.handle == "fact:ii:F_coordinate"
+        for action in report.actions
+    )
+
+
+def test_normalizer_inserts_path_transformation_backfill_for_combined_minimum_recipe() -> None:
+    """combined broken-path recipe 缺 PathTransformation 时应补公开降维 prerequisite。"""
+    minimum_step = _step(
+        scope_id="ii_1",
+        step_id="derive_path_minimum_expr",
+        recipe_hint="broken_path_straightening_minimum_expression",
+        goal_type="derive_path_minimum_expression",
+        target="fact:ii:path_minimum_expression",
+        reads=(
+            "point:problem:D",
+            "point:ii:M",
+            "point:ii:N",
+            "fact:ii:segment_DE_eq_sqrt2_NG",
+            "fact:ii:segment_E_on_DM",
+            "fact:ii:segment_G_on_MN",
+            "fact:ii:M_coordinate_expr",
+            "fact:ii:N_coordinate_expr",
+            "fact:problem:D_coordinate",
+        ),
+        produces=(
+            ProducedFact(
+                "fact:ii:path_minimum_expression",
+                "ii",
+                "路径最小值表达式",
+                output_type="MinimumExpression",
+            ),
+        ),
+    )
+
+    normalized, report = StepIntentNormalizer().normalize(
+        _single_scope_draft(minimum_step, scope_id="ii_1"),
+        family_spec=_nankai_inputs().family_spec,
+        question_goals=_question_goals(),
+        handle_registry=_registry(),
+    )
+
+    steps = normalized.scopes[0].steps
+    assert steps[0].recipe_hint == "two_moving_points_path_reduction"
+    assert steps[0].target == "fact:ii:path_transformation"
+    assert "fact:ii:path_minimum_target" in steps[0].reads
+    assert steps[1].step_id == "derive_path_minimum_expr"
+    assert "fact:ii:path_transformation" in steps[1].reads
+    assert any(
+        action.action == "insert_path_transformation_backfill_step"
+        and action.handle == "fact:ii:path_transformation"
+        for action in report.actions
+    )
+
+
+def test_normalizer_promotes_sibling_common_minimum_expression_read() -> None:
+    """后续 sibling 读取公共 MinimumExpression 时，应提升源 output 到父 scope。"""
+    local_endpoint_step = _step(
+        scope_id="ii_1",
+        step_id="derive_local_endpoint",
+        recipe_hint="evaluate_point_at_parameter",
+        goal_type="evaluate_point_at_parameter",
+        target="fact:ii_1:local_endpoint_coordinate",
+        produces=(
+            ProducedFact(
+                "fact:ii_1:local_endpoint_coordinate",
+                "ii_1",
+                "局部端点坐标",
+                output_type="Point",
+            ),
+        ),
+    )
+    minimum_step = _step(
+        scope_id="ii_1",
+        step_id="compute_minimum_expression",
+        recipe_hint="path_minimum_by_straightened_distance",
+        goal_type="derive_minimum_value",
+        target="fact:ii_1:path_minimum_expr",
+        reads=("fact:ii_1:local_endpoint_coordinate",),
+        produces=(
+            ProducedFact(
+                "fact:ii_1:path_minimum_expr",
+                "ii_1",
+                "适用于第（Ⅱ）问所有子问的路径最小值表达式",
+                output_type="MinimumExpression",
+            ),
+        ),
+    )
+    local_consumer_step = _step(
+        scope_id="ii_1",
+        step_id="evaluate_local_minimum",
+        recipe_hint="evaluate_expression_at_parameter",
+        goal_type="evaluate_expression_at_parameter",
+        target="answer:ii_1.minimum_value",
+        reads=("fact:ii_1:path_minimum_expr", "fact:ii_1:m_value"),
+        produces=(
+            ProducedFact(
+                "answer:ii_1.minimum_value",
+                "ii_1",
+                "第（Ⅱ）①问最小值",
+                output_type="MinimumExpression",
+            ),
+        ),
+    )
+    solve_step = _step(
+        scope_id="ii_2",
+        step_id="solve_m_by_minimum",
+        recipe_hint="parameter_from_minimum_value",
+        goal_type="derive_parameter",
+        target="fact:ii_2:m_value",
+        reads=(
+            "fact:ii_1:path_minimum_expr",
+            "fact:ii_2:path_minimum_value_given",
+        ),
+        produces=(
+            ProducedFact(
+                "fact:ii_2:m_value",
+                "ii_2",
+                "m 的值",
+                output_type="ParameterValue",
+            ),
+        ),
+    )
+
+    normalized, report = StepIntentNormalizer().normalize(
+        StepIntentDraft(
+            scopes=(
+                StepIntentScope("ii_1", "第（Ⅱ）①问", (local_endpoint_step, minimum_step, local_consumer_step)),
+                StepIntentScope("ii_2", "第（Ⅱ）②问", (solve_step,)),
+            )
+        ),
+        family_spec=_nankai_inputs().family_spec,
+        question_goals=_question_goals(),
+        handle_registry=_registry(),
+    )
+
+    promoted_step = normalized.scopes[0].steps[1]
+    assert promoted_step.target == "fact:ii:path_minimum_expr"
+    assert promoted_step.produces[0].handle == "fact:ii:path_minimum_expr"
+    assert promoted_step.produces[0].valid_scope == "ii"
+    normalized_local_consumer = normalized.scopes[0].steps[2]
+    assert "fact:ii:path_minimum_expr" in normalized_local_consumer.reads
+    assert "fact:ii_1:path_minimum_expr" not in normalized_local_consumer.reads
+    normalized_solve = normalized.scopes[1].steps[0]
+    assert "fact:ii:path_minimum_expr" in normalized_solve.reads
+    assert "fact:ii_1:path_minimum_expr" not in normalized_solve.reads
+    assert any(
+        action.action == "promote_sibling_common_output_read"
+        and action.handle == "fact:ii_1:path_minimum_expr"
+        for action in report.actions
+    )
+
+
+def test_normalizer_drops_duplicate_producer_after_common_scope_promotion() -> None:
+    """公共状态被 sibling scope 同时产生时，promotion 后应只保留首个 producer。"""
+    first_reduction = _step(
+        scope_id="ii_1",
+        step_id="reduce_path_first",
+        recipe_hint="two_moving_points_path_reduction",
+        goal_type="reduce_path_expression",
+        target="fact:ii_1:reduced_path_equivalence",
+        produces=(
+            ProducedFact(
+                "fact:ii_1:reduced_path_equivalence",
+                "ii_1",
+                "第一个 sibling 产生的公共路径转换",
+                output_type="PathTransformation",
+            ),
+        ),
+    )
+    duplicate_reduction = _step(
+        scope_id="ii_2",
+        step_id="reduce_path_duplicate",
+        recipe_hint="two_moving_points_path_reduction",
+        goal_type="reduce_path_expression",
+        target="fact:ii_2:reduced_path_equivalence",
+        produces=(
+            ProducedFact(
+                "fact:ii_2:reduced_path_equivalence",
+                "ii_2",
+                "第二个 sibling 重复产生的公共路径转换",
+                output_type="PathTransformation",
+            ),
+        ),
+    )
+    consumer = _step(
+        scope_id="ii_2",
+        step_id="consume_reduced_path",
+        recipe_hint="path_minimum_by_straightened_distance",
+        goal_type="derive_minimum_value",
+        target="fact:ii_2:minimum_expression",
+        reads=("fact:ii_2:reduced_path_equivalence",),
+        produces=(
+            ProducedFact(
+                "fact:ii_2:minimum_expression",
+                "ii_2",
+                "使用公共路径转换后的最小值表达式",
+                output_type="Expression",
+            ),
+        ),
+    )
+
+    normalized, report = StepIntentNormalizer().normalize(
+        StepIntentDraft(
+            scopes=(
+                StepIntentScope("ii_1", "第（Ⅱ）①问", (first_reduction,)),
+                StepIntentScope("ii_2", "第（Ⅱ）②问", (duplicate_reduction, consumer)),
+            )
+        ),
+        family_spec=_nankai_inputs().family_spec,
+        question_goals=_question_goals(),
+        handle_registry=_registry(),
+    )
+
+    steps = {step.step_id: step for scope in normalized.scopes for step in scope.steps}
+    assert "reduce_path_duplicate" not in steps
+    assert steps["reduce_path_first"].target == "fact:ii:reduced_path_equivalence"
+    assert steps["reduce_path_first"].produces[0].handle == "fact:ii:reduced_path_equivalence"
+    assert steps["consume_reduced_path"].reads == ("fact:ii:reduced_path_equivalence",)
+    produced_handles = [
+        item.handle
+        for scope in normalized.scopes
+        for step in scope.steps
+        for item in step.produces
+    ]
+    assert produced_handles.count("fact:ii:reduced_path_equivalence") == 1
+    assert any(
+        action.action == "drop_duplicate_producer_step"
+        and action.step_id == "reduce_path_duplicate"
+        and action.target_step_id == "reduce_path_first"
+        for action in report.actions
+    )
+
+
+def test_normalizer_merges_duplicate_path_transformation_signature_handles() -> None:
+    """同一 valid_scope 的 PathTransformation 即使 handle 不同，也应复用首个状态。"""
+    first_reduction = _step(
+        scope_id="ii_1",
+        step_id="reduce_path_ii1",
+        recipe_hint="two_moving_points_path_reduction",
+        goal_type="reduce_path_expression",
+        target="fact:ii:reduced_path_equivalence",
+        produces=(
+            ProducedFact(
+                "fact:ii:reduced_path_equivalence",
+                "ii",
+                "公共路径转换",
+                output_type="PathTransformation",
+            ),
+        ),
+    )
+    duplicate_reduction = _step(
+        scope_id="ii_2",
+        step_id="reduce_path_ii2",
+        recipe_hint="two_moving_points_path_reduction",
+        goal_type="reduce_path_expression",
+        target="fact:ii:reduced_path_expr_in_m",
+        produces=(
+            ProducedFact(
+                "fact:ii:reduced_path_expr_in_m",
+                "ii",
+                "同一公共路径转换的另一种命名",
+                output_type="PathTransformation",
+            ),
+        ),
+    )
+    consumer = _step(
+        scope_id="ii_2",
+        step_id="straighten_path_ii2",
+        recipe_hint="broken_path_straightening_and_select",
+        goal_type="straighten_broken_path",
+        target="fact:ii:straightened_candidate_in_m",
+        reads=("fact:ii:reduced_path_expr_in_m",),
+        produces=(
+            ProducedFact(
+                "fact:ii:straightened_candidate_in_m",
+                "ii",
+                "读取公共转换后的拉直候选",
+                output_type="StraighteningCandidate",
+            ),
+        ),
+    )
+
+    normalized, report = StepIntentNormalizer().normalize(
+        StepIntentDraft(
+            scopes=(
+                StepIntentScope("ii_1", "第（Ⅱ）①问", (first_reduction,)),
+                StepIntentScope("ii_2", "第（Ⅱ）②问", (duplicate_reduction, consumer)),
+            )
+        ),
+        family_spec=_nankai_inputs().family_spec,
+        question_goals=_question_goals(),
+        handle_registry=_registry(),
+    )
+
+    steps = {step.step_id: step for scope in normalized.scopes for step in scope.steps}
+    assert "reduce_path_ii2" not in steps
+    assert steps["straighten_path_ii2"].reads == ("fact:ii:reduced_path_equivalence",)
+    assert any(
+        action.action == "drop_duplicate_produced_state"
+        and action.step_id == "reduce_path_ii2"
+        and action.target_step_id == "reduce_path_ii1"
+        and action.handle == "fact:ii:reduced_path_expr_in_m"
+        for action in report.actions
+    )
+    assert any(
+        action.action == "rewrite_duplicate_produced_state_read"
+        and action.step_id == "straighten_path_ii2"
+        and action.handle == "fact:ii:reduced_path_expr_in_m"
+        for action in report.actions
+    )
+
+
+def test_normalizer_removes_duplicate_output_but_keeps_unique_outputs() -> None:
+    """若 step 只有部分 output 重复，删除重复 produced 并保留唯一 output。"""
+    first_candidate = _step(
+        scope_id="ii_1",
+        step_id="straighten_first",
+        recipe_hint="broken_path_straightening_and_select",
+        goal_type="straighten_broken_path",
+        target="fact:ii_1:straightening_candidate",
+        produces=(
+            ProducedFact(
+                "fact:ii_1:straightening_candidate",
+                "ii_1",
+                "第一个 sibling 产生的公共拉直方案",
+                output_type="StraighteningCandidate",
+            ),
+        ),
+    )
+    duplicate_with_endpoint = _step(
+        scope_id="ii_2",
+        step_id="straighten_duplicate_with_endpoint",
+        recipe_hint="broken_path_straightening_and_select",
+        goal_type="straighten_broken_path",
+        target="fact:ii_2:straightening_candidate",
+        produces=(
+            ProducedFact(
+                "fact:ii_2:straightening_candidate",
+                "ii_2",
+                "第二个 sibling 重复产生的公共拉直方案",
+                output_type="StraighteningCandidate",
+            ),
+            ProducedFact(
+                "fact:ii_2:path_minimum_point_1",
+                "ii_2",
+                "第二个 sibling 仍需保留的唯一端点",
+                output_type="Point",
+            ),
+        ),
+    )
+
+    normalized, report = StepIntentNormalizer().normalize(
+        StepIntentDraft(
+            scopes=(
+                StepIntentScope("ii_1", "第（Ⅱ）①问", (first_candidate,)),
+                StepIntentScope("ii_2", "第（Ⅱ）②问", (duplicate_with_endpoint,)),
+            )
+        ),
+        family_spec=_nankai_inputs().family_spec,
+        question_goals=_question_goals(),
+        handle_registry=_registry(),
+    )
+
+    steps = {step.step_id: step for scope in normalized.scopes for step in scope.steps}
+    retained = steps["straighten_duplicate_with_endpoint"]
+    assert retained.target == "fact:ii_2:path_minimum_point_1"
+    retained_handles = [item.handle for item in retained.produces]
+    assert "fact:ii:straightening_candidate" not in retained_handles
+    assert "fact:ii_2:path_minimum_point_1" in retained_handles
+    produced_handles = [
+        item.handle
+        for scope in normalized.scopes
+        for step in scope.steps
+        for item in step.produces
+    ]
+    assert produced_handles.count("fact:ii:straightening_candidate") == 1
+    assert any(
+        action.action == "drop_duplicate_produced_handle"
+        and action.step_id == "straighten_duplicate_with_endpoint"
+        and action.target_step_id == "straighten_first"
+        and action.handle == "fact:ii:straightening_candidate"
         for action in report.actions
     )
 

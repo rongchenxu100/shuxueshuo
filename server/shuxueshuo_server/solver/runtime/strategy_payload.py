@@ -25,6 +25,10 @@ from shuxueshuo_server.solver.question_goals import extract_question_goals
 from shuxueshuo_server.solver.runtime._paths import repo_root
 from shuxueshuo_server.solver.runtime.context import ContextBuilder
 from shuxueshuo_server.solver.runtime.context_inventory import ContextInventory
+from shuxueshuo_server.solver.runtime.capability_contracts import (
+    contract_is_prompt_executable,
+    effective_contract_by_id,
+)
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.planner import PlannerInputs
 from shuxueshuo_server.solver.runtime.projection import problem_to_llm_payload
@@ -96,6 +100,7 @@ class StrategyPayloadBuilder:
         prompt_method_ids = _prompt_exposed_direct_method_ids(
             inputs.family_spec,
             method_ids,
+            inputs.method_specs,
         )
         # 显式传入的 LLM ProblemIR 是 prompt 的唯一题目事实源。这里在 payload 边界
         # 校验，避免旧 solver fixture 的 relations/target_path 等字段混入 LLM 链路。
@@ -667,15 +672,23 @@ def _method_catalog_payload(
 def _prompt_exposed_direct_method_ids(
     family: SolverFamilySpec,
     method_ids: tuple[str, ...],
+    method_specs: MethodSpecRegistry,
 ) -> tuple[str, ...]:
-    """Only expose direct methods that runtime can bind for this family.
+    """Only expose direct methods with executable contracts and binding rules.
 
     Pack expansion may bring extra method_ids for recipe internals or future
     family additions. The LLM-facing direct Method Catalog should stay aligned
-    with executable binding rules so a copied method_id can actually run.
+    with executable binding rules and contract status so a copied method_id can
+    actually run.
     """
     binding_rule_ids = {rule.method_id for rule in family.method_binding_rules}
-    return tuple(method_id for method_id in method_ids if method_id in binding_rule_ids)
+    contracts_by_id = effective_contract_by_id(family, method_specs)
+    return tuple(
+        method_id
+        for method_id in method_ids
+        if method_id in binding_rule_ids
+        and contract_is_prompt_executable(contracts_by_id.get(method_id))
+    )
 
 
 def _recipe_catalog_payload(family: SolverFamilySpec) -> dict[str, Any]:

@@ -6,6 +6,10 @@ from dataclasses import replace
 from typing import Any
 
 from shuxueshuo_server.solver.family.models import SolverFamilySpec
+from shuxueshuo_server.solver.runtime.capability_contracts import (
+    contract_required_write_runtime_types,
+    effective_contract_by_id,
+)
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.output_type_inference import (
@@ -20,9 +24,7 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     StepIntentScope,
 )
 from shuxueshuo_server.solver.runtime.strategy_resolver import build_executable_capabilities
-
-
-_PHASE1_TRANSIENT_OUTPUT_TYPES = frozenset({"Point", "PointList", "ParameterValue"})
+from shuxueshuo_server.solver.output_type_policy import TRANSIENT_OUTPUT_TYPES
 
 
 def canonicalize_produced_output_types(
@@ -42,6 +44,7 @@ def canonicalize_produced_output_types(
         capability.capability_id: capability
         for capability in build_executable_capabilities(family_spec, method_specs)
     }
+    contracts_by_id = effective_contract_by_id(family_spec, method_specs)
     actions: list[StepIntentNormalizationAction] = []
     scopes: list[StepIntentScope] = []
     for scope in draft.scopes:
@@ -58,7 +61,11 @@ def canonicalize_produced_output_types(
                 if (
                     inferred is None
                     or produced.output_type == inferred
-                    or not _should_write_back_output_type(produced, inferred)
+                    or not _should_write_back_output_type(
+                        produced,
+                        inferred,
+                        contract=contracts_by_id.get(step.recipe_hint or ""),
+                    )
                 ):
                     produces.append(produced)
                     continue
@@ -145,14 +152,16 @@ def _capability_output_type_for_handle(
 def _should_write_back_output_type(
     produced: ProducedFact,
     inferred: str,
+    *,
+    contract: Any | None,
 ) -> bool:
     if produced.output_type is not None:
         return True
-    # Resolver/runtime already infer these transient value types. Writing them
-    # back onto produced metadata creates "typed but valueless" facts that can
-    # confuse explanation/visual projections. Phase 2 should derive this policy
-    # from capability contracts instead of this explicit transition set.
-    return inferred not in _PHASE1_TRANSIENT_OUTPUT_TYPES
+    required_contract_write_types = set(contract_required_write_runtime_types(contract))
+    if inferred in required_contract_write_types:
+        return True
+    # Migration fallback for methods without explicit contracts yet.
+    return inferred not in TRANSIENT_OUTPUT_TYPES
 
 
 __all__ = ["canonicalize_produced_output_types"]

@@ -9,6 +9,9 @@ from __future__ import annotations
 from typing import Any
 
 from shuxueshuo_server.solver.family.models import SolverFamilySpec
+from shuxueshuo_server.solver.runtime.capability_contracts import (
+    effective_contract_by_id,
+)
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.handle_registry import (
     CanonicalHandleRegistry,
@@ -89,7 +92,9 @@ def build_executable_capabilities(
     简单并集；因此这个类型边界必须和 recipe 执行规格放在同一事实源里。
     """
     capabilities: list[ExecutableCapabilitySpec] = []
+    contracts_by_id = effective_contract_by_id(family_spec, method_specs)
     for recipe in family_spec.step_recipes:
+        contract = contracts_by_id.get(recipe.recipe_id)
         output_types = _recipe_output_types(recipe)
         if not output_types:
             output_types = _method_output_union(recipe.method_ids, method_specs)
@@ -105,6 +110,10 @@ def build_executable_capabilities(
                 preferred=recipe.priority == "preferred",
                 title=recipe.title,
                 description=recipe.description,
+                execution_status=(
+                    contract.execution_status if contract is not None else "executable"
+                ),
+                contract=contract.to_payload() if contract is not None else None,
             )
         )
     for method_id in family_spec.method_ids:
@@ -112,6 +121,7 @@ def build_executable_capabilities(
             spec = method_specs.require(method_id)
         except KeyError:
             continue
+        contract = contracts_by_id.get(spec.method_id)
         method_output_types = tuple(_unique_ordered(spec.outputs.values()))
         capabilities.append(
             ExecutableCapabilitySpec(
@@ -125,6 +135,10 @@ def build_executable_capabilities(
                 preferred=False,
                 title=spec.title,
                 description=_method_capability_summary(spec),
+                execution_status=(
+                    contract.execution_status if contract is not None else "executable"
+                ),
+                contract=contract.to_payload() if contract is not None else None,
             )
         )
     return tuple(capabilities)

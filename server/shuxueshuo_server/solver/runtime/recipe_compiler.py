@@ -18,6 +18,7 @@ from shuxueshuo_server.solver.family.models import (
     SolverFamilySpec,
 )
 from shuxueshuo_server.solver.problem_models import QuestionGoal
+from shuxueshuo_server.solver.runtime.auxiliary_points import fresh_auxiliary_point_handle
 from shuxueshuo_server.solver.runtime.context import ContextBuilder, RuntimeContext
 from shuxueshuo_server.solver.runtime._planner_helpers import single_invocation_step
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
@@ -35,6 +36,7 @@ from shuxueshuo_server.solver.runtime.handle_registry import (
     _semantic_name,
 )
 from shuxueshuo_server.solver.runtime.strategy_models import (
+    CreatedEntity,
     ProducedFact,
     StepIntent,
     StepIntentAcceptedStep,
@@ -74,7 +76,6 @@ from shuxueshuo_server.solver.runtime.binding_rules import (
     _answer_scope_from_step,
     _created_point_handle,
     _curve_candidate_target_handle,
-    _first_pointref_handle,
     _moving_membership_for_straightening,
     _parameter_value_handle,
     _path_for_first_type,
@@ -705,7 +706,10 @@ class _RecipePlanCompiler:
             declarations.append(self.index.declarations[auxiliary_handle.handle])
             auxiliary_path = self.index.path_for(auxiliary_handle.handle, expected_type="PointRef")
         else:
-            auxiliary_path = self.index.path_for(_first_pointref_handle(step, self.index), expected_type="PointRef")
+            auxiliary_handle = _auto_created_recipe_point(step, self.index)
+            self.index.register_created_entity(auxiliary_handle)
+            declarations.append(self.index.declarations[auxiliary_handle.handle])
+            auxiliary_path = self.index.path_for(auxiliary_handle.handle, expected_type="PointRef")
         candidates = _temp(step.step_id, "candidates")
         selected = _temp(step.step_id, "selected_candidate")
         auxiliary = _temp(step.step_id, "auxiliary_point")
@@ -1038,6 +1042,24 @@ class _RecipePlanCompiler:
     def _compile_broken_path_straightening_minimum_expression_recipe(self, step: StepIntent) -> _CompiledStep:
         """编译“折线拉直候选 + 选择方案 + 计算最小值表达式” recipe。"""
         fixed_1, fixed_2 = _straightening_minimum_fixed_points(step, self.index)
+        straightening_inputs: dict[str, str] = {}
+        moving_locus = _path_for_readable_type_or_none(self.index, step, "Line")
+        if moving_locus is not None:
+            straightening_inputs["moving_locus"] = moving_locus
+        else:
+            moving_membership = _moving_membership_for_straightening(step, self.index)
+            role_fixed_1, role_fixed_2, line_1, line_2 = _straightening_point_roles(step, self.index)
+            fixed_1, fixed_2 = role_fixed_1, role_fixed_2
+            straightening_inputs.update(
+                {
+                    "moving_point_membership": self.index.path_for(
+                        moving_membership,
+                        expected_type="Condition",
+                    ),
+                    "line_point_1": self.index.path_for(line_1, expected_type="Point"),
+                    "line_point_2": self.index.path_for(line_2, expected_type="Point"),
+                }
+            )
         fixed_1_path, fixed_1_prep = _point_value_path_or_prepare(fixed_1, step, self.index)
         fixed_2_path, fixed_2_prep = _point_value_path_or_prepare(fixed_2, step, self.index)
         candidates = _temp(step.step_id, "candidates")
@@ -1047,12 +1069,21 @@ class _RecipePlanCompiler:
         minimum_point_2 = _temp(step.step_id, "minimum_point_2")
         distance = _temp(step.step_id, "distance")
         target_path = _minimum_expression_target_path(step, self.index)
-        auxiliary_path = _generated_straightening_auxiliary_point_path(step, self.index)
-        declaration = _point_declaration_for_path(
-            self.index.context,
-            auxiliary_path,
-            definition="straightening_auxiliary_point",
-        )
+        declarations = []
+        auxiliary_handle = _created_point_handle(step)
+        if auxiliary_handle is not None:
+            self.index.register_created_entity(auxiliary_handle)
+            declarations.append(self.index.declarations[auxiliary_handle.handle])
+            auxiliary_path = self.index.path_for(auxiliary_handle.handle, expected_type="PointRef")
+        else:
+            auxiliary_path = _generated_straightening_auxiliary_point_path(step, self.index)
+            declarations.append(
+                _point_declaration_for_path(
+                    self.index.context,
+                    auxiliary_path,
+                    definition="straightening_auxiliary_point",
+                )
+            )
         prep_invocations = [*fixed_1_prep[0], *fixed_2_prep[0]]
         prep_promote = {**fixed_1_prep[1], **fixed_2_prep[1]}
         invocations = [
@@ -1063,9 +1094,9 @@ class _RecipePlanCompiler:
                 scope=step.step_id,
                 inputs={
                     "path_transformation": _path_for_readable_type(self.index, step, "PathTransformation"),
-                    "moving_locus": _path_for_readable_type(self.index, step, "Line"),
                     "fixed_point_1": fixed_1_path,
                     "fixed_point_2": fixed_2_path,
+                    **straightening_inputs,
                 },
                 outputs={"candidates": candidates},
             ),
@@ -1092,13 +1123,17 @@ class _RecipePlanCompiler:
                 outputs={"distance": distance},
             ),
         ]
+        endpoint_point_1, endpoint_point_2 = _straightening_endpoint_target_paths(
+            step,
+            self.index,
+        )
         promote = {
             **prep_promote,
             candidates: _scoped_output_path(self.index.context, step.scope_id, "straightening_candidates"),
             selected: _scoped_output_path(self.index.context, step.scope_id, "straightening_candidate"),
             auxiliary: auxiliary_path,
-            minimum_point_1: _scoped_output_path(self.index.context, step.scope_id, "minimum_point_1"),
-            minimum_point_2: _scoped_output_path(self.index.context, step.scope_id, "minimum_point_2"),
+            minimum_point_1: endpoint_point_1,
+            minimum_point_2: endpoint_point_2,
             distance: target_path,
         }
         plan = StepPlan(
@@ -1141,7 +1176,7 @@ class _RecipePlanCompiler:
                             f"step:{step.step_id}",
                         )
                     )
-        return _CompiledStep(plan=plan, declarations=(declaration,), registrations=registrations)
+        return _CompiledStep(plan=plan, declarations=tuple(declarations), registrations=registrations)
 
     def _apply_registrations(self, compiled: _CompiledStep) -> None:
         """把已通过 dry-run 的输出 alias 写回 index。"""
@@ -2083,6 +2118,40 @@ def _unique_declarations(declarations: list[Any]) -> list[Any]:
         result.append(declaration)
     return result
 
+def _auto_created_recipe_point(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> CreatedEntity:
+    """Defensive fallback for recipe-required auxiliary PointRef targets."""
+    scope_id = _auto_created_recipe_point_scope(step)
+    handle = fresh_auxiliary_point_handle(
+        scope_id,
+        (
+            set(index.bindings)
+            | set(index.declarations)
+            | set(index.handle_registry.entity_handles)
+        ),
+    )
+    if handle is not None:
+        return CreatedEntity(
+            handle=handle,
+            entity_type="point",
+            valid_scope=scope_id,
+            description=f"{step.recipe_hint or step.step_id} 自动创建的辅助点",
+        )
+    raise StrategyDraftValidationError(
+        f"auxiliary_point_handle_exhausted: {step.step_id}"
+    )
+
+def _auto_created_recipe_point_scope(step: StepIntent) -> str:
+    """Match auto-created helper visibility to the recipe's public output scope."""
+    for item in step.produces:
+        if item.handle.startswith("answer:"):
+            continue
+        if item.valid_scope:
+            return item.valid_scope
+    return step.scope_id
+
 def _temp(step_id: str, output_key: str) -> str:
     """生成 step 临时输出路径。"""
     return f"$step.{step_id}.temp.{output_key}"
@@ -2224,6 +2293,7 @@ def _promote_outputs_for_step(
 ) -> dict[str, str]:
     """根据 produces/answer 自动生成 promote_outputs。"""
     promote: dict[str, str] = {}
+    source_to_produced: dict[str, list[ProducedFact]] = {}
     for produced in step.produces:
         output_name = _output_key_for_produced(method_id, produced, output_types, step, index)
         if output_name is None or output_name not in outputs:
@@ -2231,16 +2301,65 @@ def _promote_outputs_for_step(
         target = _target_path_for_produced(produced, output_types[output_name], index, step)
         _ensure_declaration_for_promote_target(target, output_types[output_name], index)
         source = outputs[output_name]
+        source_to_produced.setdefault(source, []).append(produced)
         # 同一个 method output 可能同时服务最终答案和可复用 fact alias。
         # promote 只能写一个目标，因此优先落到 answer target；普通 fact 后续注册到
         # 同一条 runtime path，避免 answer 被 alias 覆盖后 ResultBuilder 找不到答案。
         if source not in promote or produced.handle.startswith("answer:"):
             promote[source] = target
+    _validate_no_ambiguous_multi_produced_output_aliases(
+        step,
+        method_id,
+        source_to_produced,
+        index,
+    )
     _add_companion_promotes(step, method_id, outputs, promote, output_types, index, binding_rules)
     if not promote and outputs:
         first_key, first_path = next(iter(outputs.items()))
         promote[first_path] = _scoped_output_path(index.context, step.scope_id, first_key)
     return promote
+
+def _validate_no_ambiguous_multi_produced_output_aliases(
+    step: StepIntent,
+    method_id: str,
+    source_to_produced: Mapping[str, list[ProducedFact]],
+    index: CanonicalRuntimeBindingIndex,
+) -> None:
+    """防止 single method output 被多个不同语义 fact 静默共用。
+
+    answer + fact alias 是合法的：同一个 runtime output 可同时作为答案与后续
+    可复用 fact。两个非 answer fact 若语义名不同，则表示 LLM 把多次函数调用
+    合并成了一个 StepIntent，必须在 normalizer 或 retry 中拆开。
+    """
+    for source, produced_items in source_to_produced.items():
+        if len(produced_items) < 2:
+            continue
+        non_answer_items = [
+            item for item in produced_items
+            if not item.handle.startswith("answer:")
+        ]
+        if len(non_answer_items) < 2:
+            continue
+        identities = {
+            _produced_output_alias_identity(item, index)
+            for item in non_answer_items
+        }
+        if len(identities) <= 1:
+            continue
+        output_key = source.rsplit(".", 1)[-1]
+        handles = ",".join(item.handle for item in non_answer_items)
+        raise StrategyDraftValidationError(
+            "ambiguous_multi_produced_single_output:"
+            f"step={step.step_id},method={method_id},output={output_key},handles={handles}"
+        )
+
+def _produced_output_alias_identity(
+    produced: ProducedFact,
+    index: CanonicalRuntimeBindingIndex,
+) -> str:
+    """用于判断多个 produced fact 是否只是同一状态的 alias。"""
+    output_type = _produced_output_type(produced, index.handle_registry)
+    return f"{output_type}:{_semantic_name(produced.handle)}"
 
 def _add_companion_promotes(
     step: StepIntent,

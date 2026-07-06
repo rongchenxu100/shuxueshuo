@@ -2,6 +2,9 @@ from __future__ import annotations
 
 from importlib import util
 from pathlib import Path
+from types import SimpleNamespace
+
+from shuxueshuo_server.solver.runtime.handle_alias_index import HandleAliasIndex
 
 # Transitional domain split: shared fixtures/helpers still live in
 # test_strategy_planner_phase1.py until the support module is extracted.
@@ -66,6 +69,41 @@ def test_semantic_read_catalog_uses_registry_answer_valid_scope() -> None:
     assert item["ref"] == "foo_bar"
     assert item["scope"] == "ii_1"
     assert item["valid_scope"] == "ii_1"
+
+
+def test_handle_alias_index_matches_initial_point_coordinate_fact_without_from_step() -> None:
+    """题面初始坐标 fact 没有 source_step_id，也应支持 object-facing point read。"""
+    registry = CanonicalHandleRegistry(
+        scope_ids=frozenset(("problem", "i")),
+        entity_handles=frozenset(("point:problem:A",)),
+        fact_handles=frozenset(("fact:problem:A_coordinate",)),
+        answer_handles=frozenset(),
+        scope_parents={"problem": None, "i": "problem"},
+        fact_types={"fact:problem:A_coordinate": "point_coordinate"},
+        handle_valid_scopes={
+            "point:problem:A": "problem",
+            "fact:problem:A_coordinate": "problem",
+        },
+    )
+    item = SimpleNamespace(
+        kind="fact",
+        ref="A_coordinate",
+        handle="fact:problem:A_coordinate",
+        valid_scope="problem",
+        source_step_id=None,
+    )
+
+    matches = HandleAliasIndex.point_coordinate_fact_items(
+        kind="point",
+        ref="A",
+        from_step=None,
+        scope_id="i",
+        items=(item,),
+        registry=registry,
+        value_type_matches=lambda _item: True,
+    )
+
+    assert matches == [item]
 
 
 def test_step_intent_schema_semantic_read_kinds_use_shared_constant() -> None:
@@ -602,6 +640,177 @@ def test_semantic_reads_accepts_dynamic_point_coordinate_alias() -> None:
     draft = StepIntentValidator().validate(payload, handle_registry=registry)
 
     assert draft.steps[1].reads == ("fact:ii:moving_point_coordinate_expr",)
+
+
+def test_semantic_reads_accepts_initial_point_coordinate_state_from_point_ref() -> None:
+    """LLM 可用 point + point_coordinate 读取题面点坐标状态。"""
+    registry = CanonicalHandleRegistry(
+        scope_ids=frozenset(("problem", "ii")),
+        entity_handles=frozenset(("point:problem:A",)),
+        fact_handles=frozenset(("fact:problem:A_coordinate_value",)),
+        answer_handles=frozenset(),
+        scope_parents={"problem": None, "ii": "problem"},
+        fact_types={"fact:problem:A_coordinate_value": "point_coordinate"},
+        handle_valid_scopes={
+            "point:problem:A": "problem",
+            "fact:problem:A_coordinate_value": "problem",
+        },
+    )
+    payload = {
+        "scopes": [
+            {
+                "scope_id": "ii",
+                "label": "第（Ⅱ）问",
+                "steps": [
+                    {
+                        "step_id": "read_A_coordinate_state",
+                        "recipe_hint": None,
+                        "goal_type": "derive_relation",
+                        "target": "fact:ii:result",
+                        "strategy": "读取 A 点及其坐标状态。",
+                        "semantic_reads": [
+                            {
+                                "kind": "point",
+                                "ref": "A",
+                                "value_type": "point_coordinate",
+                            },
+                            {
+                                "kind": "point",
+                                "ref": "A",
+                            },
+                        ],
+                        "creates": [],
+                        "produces": [],
+                        "reason": "测试对象状态读取。",
+                    },
+                ],
+            }
+        ]
+    }
+
+    draft = StepIntentValidator().validate(payload, handle_registry=registry)
+
+    assert draft.steps[0].reads == (
+        "fact:problem:A_coordinate_value",
+        "point:problem:A",
+    )
+
+
+def test_semantic_reads_accepts_dynamic_coordinate_suffix_point_ref() -> None:
+    """kind=point/ref=B_coordinate 应归一到 B 的坐标状态。"""
+    registry = CanonicalHandleRegistry(
+        scope_ids=frozenset(("problem", "ii")),
+        entity_handles=frozenset(),
+        fact_handles=frozenset(),
+        answer_handles=frozenset(),
+        scope_parents={"problem": None, "ii": "problem"},
+    )
+    payload = {
+        "scopes": [
+            {
+                "scope_id": "ii",
+                "label": "第（Ⅱ）问",
+                "steps": [
+                    {
+                        "step_id": "derive_B_coordinate",
+                        "recipe_hint": None,
+                        "goal_type": "derive_axis_intercept_point",
+                        "target": "fact:ii:B_coordinate",
+                        "strategy": "求 B 坐标。",
+                        "reads": [],
+                        "creates": [],
+                        "produces": [
+                            {
+                                "handle": "fact:ii:B_coordinate",
+                                "valid_scope": "ii",
+                                "description": "B 点坐标。",
+                                "output_type": "Point",
+                            }
+                        ],
+                        "reason": "测试动态坐标产物。",
+                    },
+                    {
+                        "step_id": "read_B_coordinate",
+                        "recipe_hint": None,
+                        "goal_type": "derive_relation",
+                        "target": "fact:ii:result",
+                        "strategy": "读取 B 坐标。",
+                        "semantic_reads": [
+                            {
+                                "kind": "point",
+                                "ref": "B_coordinate",
+                                "value_type": "point_coordinate",
+                            }
+                        ],
+                        "creates": [],
+                        "produces": [],
+                        "reason": "测试坐标后缀 alias。",
+                    },
+                ],
+            }
+        ]
+    }
+
+    validator = StepIntentValidator()
+    draft = validator.validate(payload, handle_registry=registry)
+
+    assert draft.steps[1].reads == ("fact:ii:B_coordinate",)
+    assert validator.last_semantic_read_resolution_report is not None
+    resolution = validator.last_semantic_read_resolution_report.resolutions[-1]
+    assert resolution.inferred_from_step == "derive_B_coordinate"
+
+
+def test_semantic_reads_rejects_ambiguous_point_coordinate_state_alias() -> None:
+    """多个可见同名坐标状态时，point ref 不能静默挑一个。"""
+    registry = CanonicalHandleRegistry(
+        scope_ids=frozenset(("problem", "ii")),
+        entity_handles=frozenset(("point:problem:A",)),
+        fact_handles=frozenset((
+            "fact:problem:A_coordinate",
+            "fact:ii:A_coordinate",
+        )),
+        answer_handles=frozenset(),
+        scope_parents={"problem": None, "ii": "problem"},
+        fact_types={
+            "fact:problem:A_coordinate": "point_coordinate",
+            "fact:ii:A_coordinate": "point_coordinate",
+        },
+        handle_valid_scopes={
+            "point:problem:A": "problem",
+            "fact:problem:A_coordinate": "problem",
+            "fact:ii:A_coordinate": "ii",
+        },
+    )
+    payload = {
+        "scopes": [
+            {
+                "scope_id": "ii",
+                "label": "第（Ⅱ）问",
+                "steps": [
+                    {
+                        "step_id": "read_ambiguous_A_coordinate",
+                        "recipe_hint": None,
+                        "goal_type": "derive_relation",
+                        "target": "fact:ii:result",
+                        "strategy": "读取 A 坐标。",
+                        "semantic_reads": [
+                            {
+                                "kind": "point",
+                                "ref": "A",
+                                "value_type": "point_coordinate",
+                            }
+                        ],
+                        "creates": [],
+                        "produces": [],
+                        "reason": "测试歧义。",
+                    },
+                ],
+            }
+        ]
+    }
+
+    with pytest.raises(StrategyDraftValidationError, match="semantic_read_ambiguous"):
+        StepIntentValidator().validate(payload, handle_registry=registry)
 
 
 def test_semantic_reads_accepts_dynamic_coordinate_point_alias() -> None:
@@ -1341,38 +1550,32 @@ def test_semantic_reads_collects_all_resolution_errors() -> None:
     assert draft is None
     assert report.ok is False
     assert report.errors
-    assert "semantic_read_errors: count=2" in report.errors[0]
+    assert "semantic_read_errors: count=1" in report.errors[0]
     assert report.semantic_read_resolution is not None
     semantic_report = report.semantic_read_resolution
     assert semantic_report.ok is False
     assert [item.handle for item in semantic_report.resolutions] == [
-        "function:problem:parabola"
+        "function:problem:parabola",
+        "fact:problem:coefficient_relation",
     ]
-    assert [item.code for item in semantic_report.errors] == [
-        "semantic_read_unknown",
-        "semantic_read_unknown",
-    ]
+    assert [item.code for item in semantic_report.errors] == ["semantic_read_unknown"]
     assert [
         item.semantic_ref.to_payload() if item.semantic_ref else None
         for item in semantic_report.errors
-    ] == [
-        {"kind": "fact", "ref": "missing_relation"},
-        {
-            "kind": "fact",
-            "ref": "coefficient_relation",
-            "value_type": "symbol_value",
-        },
-    ]
+    ] == [{"kind": "fact", "ref": "missing_relation"}]
     partial = semantic_report.partially_resolved_payload
     assert partial is not None
     partial_step = partial["scopes"][0]["steps"][0]
-    assert partial_step["reads"] == ["function:problem:parabola"]
+    assert partial_step["reads"] == [
+        "function:problem:parabola",
+        "fact:problem:coefficient_relation",
+    ]
     assert "semantic_reads" not in partial_step
     serialized_report = report.to_payload()
     assert (
         serialized_report["semantic_read_resolution"]["partially_resolved_payload"]
         ["scopes"][0]["steps"][0]["reads"]
-        == ["function:problem:parabola"]
+        == ["function:problem:parabola", "fact:problem:coefficient_relation"]
     )
 
 
@@ -1457,8 +1660,8 @@ def test_semantic_read_resolver_rejects_unknown_ref() -> None:
         )
 
 
-def test_semantic_read_resolver_rejects_value_type_mismatch() -> None:
-    """value_type 是严格 disambiguation，不匹配时不 fallback。"""
+def test_semantic_read_resolver_treats_value_type_as_hint_for_unique_ref() -> None:
+    """ref/kind 已唯一时，value_type 口径差异不应阻断 semantic read。"""
     payload = _valid_step_intent_payload()
     payload["scopes"][0]["steps"][0].pop("reads", None)
     payload["scopes"][0]["steps"][0]["semantic_reads"] = [
@@ -1469,11 +1672,110 @@ def test_semantic_read_resolver_rejects_value_type_mismatch() -> None:
         },
     ]
 
-    with pytest.raises(StrategyDraftValidationError, match="semantic_read_unknown"):
-        StepIntentValidator().validate_json(
-            json.dumps(payload, ensure_ascii=False),
-            handle_registry=_registry(),
-        )
+    draft = StepIntentValidator().validate_json(
+        json.dumps(payload, ensure_ascii=False),
+        handle_registry=_registry(),
+    )
+
+    assert draft.steps[0].reads == ("fact:problem:coefficient_relation",)
+
+
+def test_semantic_reads_accept_runtime_value_type_aliases_for_dynamic_outputs() -> None:
+    """LLM 语义类型应能匹配 runtime canonical output types。"""
+    registry = CanonicalHandleRegistry(
+        scope_ids=frozenset(("problem", "ii")),
+        entity_handles=frozenset(),
+        fact_handles=frozenset(),
+        answer_handles=frozenset(),
+        scope_parents={"problem": None, "ii": "problem"},
+    )
+    payload = {
+        "scopes": [
+            {
+                "scope_id": "ii",
+                "label": "第（Ⅱ）问",
+                "steps": [
+                    {
+                        "step_id": "produce_runtime_values",
+                        "recipe_hint": None,
+                        "goal_type": "derive_runtime_values",
+                        "target": "fact:ii:runtime_values",
+                        "strategy": "产生多类 runtime outputs。",
+                        "reads": [],
+                        "creates": [],
+                        "produces": [
+                            {
+                                "handle": "fact:ii:m_value",
+                                "valid_scope": "ii",
+                                "description": "参数 m。",
+                                "output_type": "ParameterValue",
+                            },
+                            {
+                                "handle": "fact:ii:single_moving_path_equivalence",
+                                "valid_scope": "ii",
+                                "description": "路径降维结果。",
+                                "output_type": "PathTransformation",
+                            },
+                            {
+                                "handle": "fact:ii:straightened_path_choice",
+                                "valid_scope": "ii",
+                                "description": "折线拉直方案。",
+                                "output_type": "StraighteningCandidate",
+                            },
+                            {
+                                "handle": "fact:ii:path_minimum_expression",
+                                "valid_scope": "ii",
+                                "description": "路径最小值表达式。",
+                                "output_type": "MinimumExpression",
+                            },
+                        ],
+                        "reason": "测试。",
+                    },
+                    {
+                        "step_id": "read_runtime_values",
+                        "recipe_hint": None,
+                        "goal_type": "derive_next",
+                        "target": "fact:ii:next",
+                        "strategy": "使用 LLM 语义类型读取 runtime outputs。",
+                        "semantic_reads": [
+                            {
+                                "kind": "fact",
+                                "ref": "m_value",
+                                "value_type": "symbol_value",
+                            },
+                            {
+                                "kind": "fact",
+                                "ref": "single_moving_path_equivalence",
+                                "value_type": "transformation",
+                            },
+                            {
+                                "kind": "fact",
+                                "ref": "straightened_path_choice",
+                                "value_type": "straighteningCandidate",
+                            },
+                            {
+                                "kind": "fact",
+                                "ref": "path_minimum_expression",
+                                "value_type": "minimum_expression",
+                            },
+                        ],
+                        "creates": [],
+                        "produces": [],
+                        "reason": "测试。",
+                    },
+                ],
+            }
+        ]
+    }
+
+    draft = StepIntentValidator().validate(payload, handle_registry=registry)
+
+    assert draft.steps[1].reads == (
+        "fact:ii:m_value",
+        "fact:ii:single_moving_path_equivalence",
+        "fact:ii:straightened_path_choice",
+        "fact:ii:path_minimum_expression",
+    )
 
 
 def test_semantic_read_resolver_rejects_invisible_scope() -> None:

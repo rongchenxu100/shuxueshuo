@@ -6,6 +6,7 @@ from dataclasses import replace
 import re
 from typing import Any, Mapping
 
+from shuxueshuo_server.solver.runtime.auxiliary_points import fresh_auxiliary_point_handle
 from shuxueshuo_server.solver.runtime.handle_registry import (
     _handle_name,
     _handle_scope,
@@ -13,6 +14,7 @@ from shuxueshuo_server.solver.runtime.handle_registry import (
     CanonicalHandleRegistry,
 )
 from shuxueshuo_server.solver.runtime.strategy_models import (
+    CreatedEntity,
     ProducedFact,
     StepIntent,
     StepIntentNormalizationAction,
@@ -50,6 +52,20 @@ class _WeightedAuxiliaryLocusTypeRule:
         step, actions = _normalize_weighted_auxiliary_locus_type_step(step)
         return NormalizationRuleResult(step=step, actions=tuple(actions))
 
+class _RecipeRequiredCreatesRule:
+    """根据 recipe execution contract 自动补齐必需的辅助实体。"""
+
+    def apply(
+        self,
+        step: StepIntent,
+        context: NormalizationRuleContext,
+    ) -> NormalizationRuleResult:
+        step, actions = _ensure_required_recipe_creates(
+            step,
+            context=context,
+        )
+        return NormalizationRuleResult(step=step, actions=tuple(actions))
+
 class _BrokenPathMinimumEndpointProducesRule:
     """让将军饮马 recipe 显式暴露最短线段端点。"""
 
@@ -63,6 +79,32 @@ class _BrokenPathMinimumEndpointProducesRule:
             handle_registry=context.handle_registry,
         )
         return NormalizationRuleResult(step=step, actions=tuple(actions))
+
+class _PathTransformationBackfillRule:
+    """为折线拉直/最值 recipe 补齐 PathTransformation prerequisite。"""
+
+    def apply(
+        self,
+        step: StepIntent,
+        context: NormalizationRuleContext,
+    ) -> NormalizationRuleResult:
+        backfill_step, output_handle, action = _path_transformation_backfill_for_step(
+            step,
+            context=context,
+        )
+        if output_handle is None or action is None:
+            return NormalizationRuleResult(step=step)
+        if backfill_step is not None:
+            context.previous_steps.append(backfill_step)
+            _register_published_outputs(
+                context,
+                backfill_step,
+                step_index=len(context.previous_steps) - 1,
+            )
+        return NormalizationRuleResult(
+            step=_step_with_read(step, output_handle),
+            actions=(action,),
+        )
 
 class _StraightenedDistanceEndpointReadsRule:
     """让拉直后求距离 step 读取前序 recipe 已确定的最短线段端点。"""
@@ -119,18 +161,118 @@ class _MidpointCoordinateBackfillRule:
             step,
             context=context,
         )
-        if midpoint_step is None or output_handle is None or action is None:
+        if output_handle is None or action is None:
             return NormalizationRuleResult(step=step)
-        context.previous_steps.append(midpoint_step)
-        _register_published_outputs(
-            context,
-            midpoint_step,
-            step_index=len(context.previous_steps) - 1,
-        )
+        if midpoint_step is not None:
+            context.previous_steps.append(midpoint_step)
+            _register_published_outputs(
+                context,
+                midpoint_step,
+                step_index=len(context.previous_steps) - 1,
+            )
         return NormalizationRuleResult(
             step=_step_with_read(step, output_handle),
             actions=(action,),
         )
+
+class _MidpointDefinitionReadCompletionRule:
+    """midpoint_point 少读 midpoint_definition 时自动补齐结构事实。"""
+
+    def apply(
+        self,
+        step: StepIntent,
+        context: NormalizationRuleContext,
+    ) -> NormalizationRuleResult:
+        step, action = _add_midpoint_definition_read_for_step(
+            step,
+            context=context,
+        )
+        return NormalizationRuleResult(
+            step=step,
+            actions=(action,) if action is not None else (),
+        )
+
+def _ensure_required_recipe_creates(
+    step: StepIntent,
+    *,
+    context: NormalizationRuleContext,
+) -> tuple[StepIntent, list[StepIntentNormalizationAction]]:
+    """按 recipe execution contract 补齐 LLM 省略的辅助 entity creates。"""
+    if step.recipe_hint is None:
+        return step, []
+    required = context.recipe_required_creates.get(step.recipe_hint, ())
+    if not required:
+        return step, []
+
+    creates = list(step.creates)
+    actions: list[StepIntentNormalizationAction] = []
+    for entity_type in required:
+        if any(item.entity_type == entity_type for item in creates):
+            continue
+        created = _fresh_required_created_entity(
+            entity_type,
+            step=step,
+            context=context,
+            pending_creates=tuple(creates),
+        )
+        if created is None:
+            continue
+        creates.append(created)
+        actions.append(
+            StepIntentNormalizationAction(
+                action="auto_create_required_recipe_entity",
+                step_id=step.step_id,
+                handle=created.handle,
+                target_step_id=None,
+                reason=(
+                    f"{step.recipe_hint} 的 execution contract 声明需要创建 "
+                    f"{entity_type}；LLM 未提供 creates，系统自动补齐辅助实体。"
+                ),
+            )
+        )
+    if not actions:
+        return step, []
+    return replace(step, creates=tuple(creates)), actions
+
+
+def _fresh_required_created_entity(
+    entity_type: str,
+    *,
+    step: StepIntent,
+    context: NormalizationRuleContext,
+    pending_creates: tuple[CreatedEntity, ...],
+) -> CreatedEntity | None:
+    """构造当前 scope 下未占用的辅助 entity。"""
+    if entity_type != "point":
+        return None
+    scope_id = _required_create_scope(step)
+    used = set(context.handle_registry.entity_handles)
+    for previous in context.previous_steps:
+        used.update(item.handle for item in previous.creates)
+    for scope in context.normalized_scopes:
+        for previous in scope.steps:
+            used.update(item.handle for item in previous.creates)
+    used.update(item.handle for item in pending_creates)
+    handle = fresh_auxiliary_point_handle(scope_id, used)
+    if handle is None:
+        return None
+    return CreatedEntity(
+        handle=handle,
+        entity_type="point",
+        valid_scope=scope_id,
+        description=f"{step.recipe_hint} 自动创建的辅助点",
+    )
+
+
+def _required_create_scope(step: StepIntent) -> str:
+    """辅助 entity 跟随 recipe 主要非 answer 产物的可见 scope。"""
+    for item in step.produces:
+        if item.handle.startswith("answer:"):
+            continue
+        if item.valid_scope:
+            return item.valid_scope
+    return step.scope_id
+
 
 def _midpoint_backfill_for_step(
     step: StepIntent,
@@ -154,6 +296,27 @@ def _midpoint_backfill_for_step(
     output_handle = f"fact:{output_scope}:{midpoint_name}_coordinate_expr"
     if _handle_available(output_handle, step=step, context=context):
         return None, None, None
+    existing_coordinate = _visible_point_coordinate_handle_by_name(
+        midpoint_name,
+        scope_id=output_scope,
+        context=context,
+    )
+    if existing_coordinate is not None:
+        return (
+            None,
+            existing_coordinate,
+            StepIntentNormalizationAction(
+                action="reuse_existing_midpoint_coordinate_fact",
+                step_id=step.step_id,
+                target_step_id=None,
+                handle=existing_coordinate,
+                reason=(
+                    f"{midpoint_name} 的坐标状态已由前序可见 fact "
+                    f"{existing_coordinate} 表达；复用该 read，避免再插入重复的"
+                    " midpoint_point backfill step。"
+                ),
+            ),
+        )
     point_handle = _visible_point_handle_by_name(
         midpoint_name,
         scope_id=output_scope,
@@ -213,6 +376,79 @@ def _midpoint_backfill_for_step(
         ),
     )
     return midpoint_step, output_handle, action
+
+def _add_midpoint_definition_read_for_step(
+    step: StepIntent,
+    *,
+    context: NormalizationRuleContext,
+) -> tuple[StepIntent, StepIntentNormalizationAction | None]:
+    """为显式 midpoint_point step 补齐同目标点的 midpoint_definition read。"""
+    if step.recipe_hint != "midpoint_point":
+        return step, None
+    if any(context.handle_registry.fact_types.get(handle) == "midpoint_definition" for handle in step.reads):
+        return step, None
+    midpoint_name = _midpoint_output_point_name(step)
+    if midpoint_name is None:
+        return step, None
+    midpoint_fact = _visible_midpoint_fact_for_name(
+        midpoint_name,
+        step=step,
+        context=context,
+    )
+    if midpoint_fact is None:
+        return step, None
+    return (
+        _step_with_read(step, midpoint_fact),
+        StepIntentNormalizationAction(
+            action="add_midpoint_definition_read",
+            step_id=step.step_id,
+            target_step_id=None,
+            handle=midpoint_fact,
+            reason=(
+                f"{step.recipe_hint} 的目标点是 {midpoint_name}；"
+                "题面存在唯一可见 midpoint_definition，自动补齐该结构 read。"
+            ),
+        ),
+    )
+
+def _midpoint_output_point_name(step: StepIntent) -> str | None:
+    """从 midpoint_point 的 target/produces 推断中点名。"""
+    candidates: list[str] = []
+    target_name = _point_name_from_coordinate_fact(step.target)
+    if target_name is not None:
+        candidates.append(target_name)
+    for item in step.produces:
+        name = _point_name_from_coordinate_fact(item.handle)
+        if name is not None:
+            candidates.append(name)
+    unique = _unique_ordered(candidates)
+    return unique[0] if len(unique) == 1 else None
+
+def _visible_midpoint_fact_for_name(
+    midpoint_name: str,
+    *,
+    step: StepIntent,
+    context: NormalizationRuleContext,
+) -> str | None:
+    """查找当前 step 可见且指向指定中点的 midpoint_definition。"""
+    candidates: list[str] = []
+    for handle, fact_type in context.handle_registry.fact_types.items():
+        if fact_type != "midpoint_definition":
+            continue
+        if not _valid_scope_visible_from(
+            context.handle_registry.handle_valid_scopes.get(handle, _handle_scope(handle)),
+            step.scope_id,
+            context.handle_registry,
+        ):
+            continue
+        name, _endpoint_names = _parse_midpoint_fact(
+            handle,
+            handle_registry=context.handle_registry,
+        )
+        if name == midpoint_name:
+            candidates.append(handle)
+    unique = _unique_ordered(candidates)
+    return unique[0] if len(unique) == 1 else None
 
 def _step_can_need_midpoint_backfill(step: StepIntent) -> bool:
     """判断当前 step 是否属于会消费中点坐标的路径/最值链路。"""
@@ -749,6 +985,95 @@ def _rewrite_square_reduction_reads(
             result.append(replacement)
     return tuple(result)
 
+def _fold_internal_equation_utility_steps_for_scope(
+    steps: tuple[StepIntent, ...],
+    *,
+    handle_registry: CanonicalHandleRegistry,
+) -> tuple[tuple[StepIntent, ...], list[StepIntentNormalizationAction]]:
+    """把无 hint 的中间 Equation/Expression utility 合并到唯一消费者 step。"""
+    if len(steps) < 2:
+        return steps, []
+    replacements: dict[str, tuple[str, ...]] = {}
+    dropped_step_ids: set[str] = set()
+    actions: list[StepIntentNormalizationAction] = []
+    for index, step in enumerate(steps):
+        if not _is_internal_equation_utility_step(step, handle_registry):
+            continue
+        produced = step.produces[0].handle
+        consumer_indices = [
+            later_index for later_index, later in enumerate(steps[index + 1:], start=index + 1)
+            if produced in later.reads
+        ]
+        if len(consumer_indices) != 1:
+            continue
+        consumer = steps[consumer_indices[0]]
+        if not _can_absorb_internal_equation_utility(consumer):
+            continue
+        replacements[produced] = step.reads
+        dropped_step_ids.add(step.step_id)
+        actions.append(
+            StepIntentNormalizationAction(
+                action="fold_internal_equation_utility_step",
+                step_id=step.step_id,
+                target_step_id=consumer.step_id,
+                handle=produced,
+                reason=(
+                    "该无 recipe_hint 的 Equation/Expression 是后续可执行参数求解 step "
+                    "的内部中间关系；将其 reads 合并到消费者并删除 utility step。"
+                ),
+            )
+        )
+
+    if not dropped_step_ids:
+        return steps, []
+
+    result: list[StepIntent] = []
+    for step in steps:
+        if step.step_id in dropped_step_ids:
+            continue
+        reads = _rewrite_reads_with_tuple_replacements(step.reads, replacements)
+        result.append(replace(step, reads=reads) if reads != step.reads else step)
+    return tuple(result), actions
+
+
+def _is_internal_equation_utility_step(
+    step: StepIntent,
+    handle_registry: CanonicalHandleRegistry,
+) -> bool:
+    """判断 step 是否是可折叠的中间代数关系 utility。"""
+    if step.recipe_hint is not None:
+        return False
+    if step.creates:
+        return False
+    if len(step.produces) != 1:
+        return False
+    produced = step.produces[0]
+    if produced.handle.startswith("answer:"):
+        return False
+    output_type = _produced_output_type(produced, handle_registry) or produced.output_type
+    return output_type in {"Equation", "Expression"}
+
+
+def _can_absorb_internal_equation_utility(step: StepIntent) -> bool:
+    """只让明确可执行的参数求解 step 吸收内部代数关系。"""
+    return step.recipe_hint is not None and step.recipe_hint.startswith("parameter_from_")
+
+
+def _rewrite_reads_with_tuple_replacements(
+    reads: tuple[str, ...],
+    replacements: Mapping[str, tuple[str, ...]],
+) -> tuple[str, ...]:
+    result: list[str] = []
+    seen: set[str] = set()
+    for handle in reads:
+        for replacement in replacements.get(handle, (handle,)):
+            if replacement in seen:
+                continue
+            seen.add(replacement)
+            result.append(replacement)
+    return tuple(result)
+
+
 def _ensure_broken_path_minimum_endpoint_produces(
     step: StepIntent,
     *,
@@ -800,6 +1125,175 @@ def _straightening_endpoint_output_scope(
             "StraighteningCandidate",
         }:
             return item.valid_scope
+    return step.scope_id
+
+def _path_transformation_backfill_for_step(
+    step: StepIntent,
+    *,
+    context: NormalizationRuleContext,
+) -> tuple[StepIntent | None, str | None, StepIntentNormalizationAction | None]:
+    """为依赖路径降维的 recipe 复用或插入 PathTransformation step。"""
+    if step.recipe_hint not in {
+        "broken_path_straightening_and_select",
+        "broken_path_straightening_minimum_expression",
+    }:
+        return None, None, None
+    existing = _visible_path_transformation_handle(step, context)
+    if existing is not None:
+        if existing in step.reads:
+            return None, None, None
+        return (
+            None,
+            existing,
+            StepIntentNormalizationAction(
+                action="add_path_transformation_read",
+                step_id=step.step_id,
+                target_step_id=None,
+                handle=existing,
+                reason=(
+                    f"{step.recipe_hint} 需要 PathTransformation；"
+                    "前序已存在唯一可见路径降维状态，自动加入 read。"
+                ),
+            ),
+        )
+    if step.recipe_hint != "broken_path_straightening_minimum_expression":
+        return None, None, None
+    if _step_reads_path_or_straightening_state(step, context):
+        return None, None, None
+    path_target = _visible_fact_handle_by_type(
+        "path_minimum_target",
+        step.scope_id,
+        context.handle_registry,
+        preferred=step.reads,
+    )
+    if path_target is None:
+        return None, None, None
+    output_scope = _primary_non_answer_output_scope(step)
+    output_handle = f"fact:{output_scope}:path_transformation"
+    if _handle_available(output_handle, step=step, context=context):
+        return (
+            None,
+            output_handle,
+            StepIntentNormalizationAction(
+                action="add_path_transformation_read",
+                step_id=step.step_id,
+                target_step_id=None,
+                handle=output_handle,
+                reason=(
+                    "当前 recipe 需要 PathTransformation；"
+                    f"{output_handle} 已可见，自动加入 read。"
+                ),
+            ),
+        )
+    backfill_step = StepIntent(
+        scope_id=step.scope_id,
+        step_id=_unique_generated_step_id(
+            f"{step.step_id}_reduce_path",
+            (*context.previous_steps, step),
+        ),
+        recipe_hint="two_moving_points_path_reduction",
+        goal_type="reduce_path_expression",
+        target=output_handle,
+        strategy="先把两动点路径降维为单动点折线路径，供后续折线拉直最值 recipe 使用。",
+        reads=_unique_tuple((*step.reads, path_target)),
+        creates=(),
+        produces=(
+            ProducedFact(
+                output_handle,
+                output_scope,
+                "由 path_minimum_target 和动点约束得到的路径降维状态",
+                output_type="PathTransformation",
+            ),
+        ),
+        reason=(
+            "broken_path_straightening_minimum_expression 需要 PathTransformation；"
+            "当前 draft 省略了路径降维 prerequisite，系统插入公开 recipe step。"
+        ),
+    )
+    return (
+        backfill_step,
+        output_handle,
+        StepIntentNormalizationAction(
+            action="insert_path_transformation_backfill_step",
+            step_id=step.step_id,
+            target_step_id=backfill_step.step_id,
+            handle=output_handle,
+            reason=(
+                "当前折线最值 recipe 缺少 PathTransformation read；"
+                "根据可见 path_minimum_target 插入 two_moving_points_path_reduction prerequisite。"
+            ),
+        ),
+    )
+
+def _visible_path_transformation_handle(
+    step: StepIntent,
+    context: NormalizationRuleContext,
+) -> str | None:
+    """查找当前 step 唯一可见的 PathTransformation output。"""
+    candidates: list[str] = []
+    for previous in context.previous_steps:
+        for item in previous.produces:
+            if _produced_output_type(item, context.handle_registry) != "PathTransformation":
+                continue
+            if not _valid_scope_visible_from(
+                item.valid_scope,
+                step.scope_id,
+                context.handle_registry,
+            ):
+                continue
+            candidates.append(item.handle)
+    for scope in context.normalized_scopes:
+        for previous in scope.steps:
+            for item in previous.produces:
+                if _produced_output_type(item, context.handle_registry) != "PathTransformation":
+                    continue
+                if not _valid_scope_visible_from(
+                    item.valid_scope,
+                    step.scope_id,
+                    context.handle_registry,
+                ):
+                    continue
+                candidates.append(item.handle)
+    unique = _unique_ordered(candidates)
+    return unique[0] if len(unique) == 1 else None
+
+def _step_reads_path_or_straightening_state(
+    step: StepIntent,
+    context: NormalizationRuleContext,
+) -> bool:
+    """判断 LLM 是否已经显式读取某种路径降维/拉直中间状态。
+
+    ``fact_type`` is the authoritative path. The semantic-name token fallback is
+    a conservative compatibility shim for legacy/dynamic facts not yet surfaced
+    with structured runtime type metadata; false negatives only insert an extra
+    backfill candidate. Long-term this should use shared output type inference.
+    """
+    for handle in step.reads:
+        fact_type = context.handle_registry.fact_types.get(handle, "")
+        if fact_type in {"path_transformation", "straightening_candidate"}:
+            return True
+        name = _semantic_name(handle).lower() if handle.startswith("fact:") else handle.lower()
+        if any(
+            token in name
+            for token in (
+                "path_transformation",
+                "path_reduction",
+                "reduced_path",
+                "straightened",
+                "straightening",
+                "selected_candidate",
+                "straightened_scheme",
+            )
+        ):
+            return True
+    return False
+
+def _primary_non_answer_output_scope(step: StepIntent) -> str:
+    """读取 step 主要非 answer 产物 scope，作为 prerequisite 输出 scope。"""
+    for item in step.produces:
+        if item.handle.startswith("answer:"):
+            continue
+        return item.valid_scope
     return step.scope_id
 
 def _add_straightened_distance_endpoint_reads(

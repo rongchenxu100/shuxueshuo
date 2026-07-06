@@ -53,6 +53,7 @@ __all__ = (
 '_is_specific_point_coordinate_name',
 '_is_generic_point_coordinate_name',
 '_recipe_output_types',
+'_recipe_required_creates',
 '_append_unique_produces',
 '_append_unique',
 '_unique_ordered',
@@ -66,6 +67,7 @@ class NormalizationRuleContext:
     handle_registry: CanonicalHandleRegistry
     question_goal_map: dict[str, QuestionGoal]
     recipe_output_types: dict[str, tuple[str, ...]]
+    recipe_required_creates: dict[str, tuple[str, ...]] = field(default_factory=dict)
     handle_rewrites: dict[str, str] = field(default_factory=dict)
     previous_steps: list[StepIntent] = field(default_factory=list)
     published_outputs: list["_PublishedOutput"] = field(default_factory=list)
@@ -537,6 +539,17 @@ def _recipe_output_types(family_spec: SolverFamilySpec) -> dict[str, tuple[str, 
             output_type
             for _alias, output_type in recipe.execution.output_aliases
         )
+    return result
+
+
+def _recipe_required_creates(family_spec: SolverFamilySpec) -> dict[str, tuple[str, ...]]:
+    """读取 family recipe execution 声明的 required creates。"""
+    result: dict[str, tuple[str, ...]] = {}
+    for recipe in family_spec.step_recipes:
+        if recipe.execution is None:
+            result[recipe.recipe_id] = ()
+            continue
+        result[recipe.recipe_id] = tuple(recipe.execution.creates)
     return result
 
 

@@ -25,10 +25,6 @@ from shuxueshuo_server.solver.family.models import (
 from shuxueshuo_server.solver.family.capability_packs import (
     DEFAULT_CAPABILITY_PACK_REGISTRY,
 )
-from shuxueshuo_server.solver.family.common_binding_rules import (
-    evaluate_point_at_parameter_rule,
-    parameter_from_expression_value_rule,
-)
 
 _PARABOLA_PREP = (
     MethodPrepInvocationSpec(
@@ -186,14 +182,6 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             ),
         ),
         MethodBindingRuleSpec(
-            method_id="midpoint_point",
-            input_bindings=(
-                MethodInputBindingSpec("p1", "midpoint:p1"),
-                MethodInputBindingSpec("p2", "midpoint:p2"),
-                MethodInputBindingSpec("target", "midpoint:target"),
-            ),
-        ),
-        MethodBindingRuleSpec(
             method_id="quadratic_axis_parameterized_point",
             input_bindings=(
                 MethodInputBindingSpec("parabola", "read_type:Parabola"),
@@ -232,7 +220,6 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 MethodInputBindingSpec("point", "read_type:Point"),
             ),
         ),
-        evaluate_point_at_parameter_rule(),
         MethodBindingRuleSpec(
             method_id="line_locus_minimum_point",
             input_bindings=(
@@ -243,15 +230,6 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             ),
             expansion_selectors=("parameter_value_if_read",),
         ),
-        MethodBindingRuleSpec(
-            method_id="distance_between_points",
-            input_bindings=(
-                MethodInputBindingSpec("p1", "distance:p1"),
-                MethodInputBindingSpec("p2", "distance:p2"),
-            ),
-            expansion_selectors=("distance_parameter_value_if_read",),
-        ),
-        parameter_from_expression_value_rule(),
     ),
 )
 

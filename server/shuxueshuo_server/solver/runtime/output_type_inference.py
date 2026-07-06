@@ -11,6 +11,7 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     ProducedFact,
     answer_output_type_compatible,
 )
+from shuxueshuo_server.solver.utils import unique_ordered
 
 
 @dataclass(frozen=True)
@@ -220,7 +221,7 @@ def semantic_name_output_type_candidates(
         for value in ("distance", "expr", "expression", "距离", "表达式")
     ):
         candidates.append("Expression")
-    return tuple(dict.fromkeys(candidates))
+    return unique_ordered(candidates)
 
 
 def semantic_name_from_handle(handle: str) -> str:

@@ -162,8 +162,15 @@ class HandleAliasIndex:
         registry: Any,
         value_type_matches: Callable[[Any], bool],
     ) -> list[Any]:
-        """Return dynamic coordinate facts matching a semantic point ref."""
-        if kind != "point" or from_step is None:
+        """Return visible coordinate facts matching a semantic point ref.
+
+        ``semantic_reads`` are intentionally object-facing: LLMs may write
+        ``kind=point, ref=A, value_type=point_coordinate`` when they mean the
+        coordinate state of point A.  The caller decides whether a single
+        candidate can be accepted; this helper only gathers exact state
+        candidates from initial facts or previous produced facts.
+        """
+        if kind != "point":
             return []
         point_name = semantic_point_ref_name(ref)
         if point_name is None:
@@ -171,7 +178,11 @@ class HandleAliasIndex:
         return [
             item for item in items
             if getattr(item, "kind", None) == "fact"
-            and getattr(item, "source_step_id", None) == from_step
+            and (
+                getattr(item, "source_step_id", None) == from_step
+                if from_step is not None
+                else True
+            )
             and coordinate_fact_point_name(
                 str(getattr(item, "ref", "")),
                 str(getattr(item, "handle", "")),
@@ -292,18 +303,20 @@ def semantic_point_ref_name(ref: str) -> str | None:
         if ref.startswith("point:"):
             parsed = parse_scoped_non_answer_handle(ref)
             return parsed[2] if parsed is not None else None
+        if ref.startswith("fact:"):
+            return coordinate_fact_point_name(ref, ref)
         return None
     if ":" in ref:
         parts = ref.split(":")
         if len(parts) == 2 and all(parts):
-            return parts[1]
+            return strip_coordinate_fact_suffix(parts[1]) or parts[1]
         return None
     if "." in ref:
         parts = ref.rsplit(".", 1)
         if all(parts):
-            return parts[1]
+            return strip_coordinate_fact_suffix(parts[1]) or parts[1]
         return None
-    return ref or None
+    return strip_coordinate_fact_suffix(ref) or ref or None
 
 
 def semantic_name(handle: str) -> str:

@@ -19,10 +19,6 @@ from shuxueshuo_server.solver.family.models import (
 from shuxueshuo_server.solver.family.capability_packs import (
     DEFAULT_CAPABILITY_PACK_REGISTRY,
 )
-from shuxueshuo_server.solver.family.common_binding_rules import (
-    evaluate_expression_at_parameter_rule,
-    evaluate_point_at_parameter_rule,
-)
 
 
 _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
@@ -206,14 +202,6 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             ),
         ),
         MethodBindingRuleSpec(
-            method_id="midpoint_point",
-            input_bindings=(
-                MethodInputBindingSpec("p1", "midpoint:p1"),
-                MethodInputBindingSpec("p2", "midpoint:p2"),
-                MethodInputBindingSpec("target", "midpoint:target"),
-            ),
-        ),
-        MethodBindingRuleSpec(
             method_id="parameter_from_segment_length",
             input_bindings=(
                 MethodInputBindingSpec("p1", "length_segment:p1"),
@@ -232,8 +220,6 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 MethodInputBindingSpec("constraint", "parameter_constraint"),
             ),
         ),
-        evaluate_expression_at_parameter_rule(),
-        evaluate_point_at_parameter_rule(),
         MethodBindingRuleSpec(
             method_id="two_moving_points_path_reduction",
             input_bindings=(
@@ -245,25 +231,6 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 MethodInputBindingSpec("joint_point", "path_reduction:joint_point"),
                 MethodInputBindingSpec("second_segment_end", "path_reduction:second_segment_end"),
             ),
-        ),
-        MethodBindingRuleSpec(
-            method_id="distance_between_points",
-            input_bindings=(
-                MethodInputBindingSpec("p1", "distance:p1"),
-                MethodInputBindingSpec("p2", "distance:p2"),
-            ),
-            expansion_selectors=("distance_parameter_value_if_read",),
-        ),
-        MethodBindingRuleSpec(
-            method_id="line_intersection_point",
-            input_bindings=(
-                MethodInputBindingSpec("line1_p1", "intersection:line1_p1"),
-                MethodInputBindingSpec("line1_p2", "intersection:line1_p2"),
-                MethodInputBindingSpec("line2_p1", "intersection:line2_p1"),
-                MethodInputBindingSpec("line2_p2", "intersection:line2_p2"),
-                MethodInputBindingSpec("target", "intersection:target"),
-            ),
-            expansion_selectors=("intersection_parameter_value_if_read",),
         ),
     ),
     # 临时兼容硬门控：当前 V1.5 deterministic planner 只实现 canonical 南开 25。

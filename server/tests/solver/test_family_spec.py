@@ -1,8 +1,10 @@
-from dataclasses import fields
+from dataclasses import fields, replace
+import json
 
 import pytest
 
 from shuxueshuo_server.solver.family import (
+    CapabilityContractSpec,
     CapabilityPackRegistry,
     CapabilityPackSpec,
     DEFAULT_CAPABILITY_PACK_REGISTRY,
@@ -11,13 +13,22 @@ from shuxueshuo_server.solver.family import (
     QUADRATIC_PATH_MINIMUM_FAMILY,
     QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY,
     QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
+    MethodBindingRuleSpec,
+    MethodInputBindingSpec,
     RecipeExecutionSpec,
     SolverFamilySpec,
+    StateSlotPattern,
     StepRecipeSpec,
     expand_family_spec,
 )
+from shuxueshuo_server.solver.contracts import MethodSpec
 from shuxueshuo_server.solver.fixtures import load_problem_ir
 from shuxueshuo_server.solver.runtime.binding_rules import MethodBindingRuleRegistry
+from shuxueshuo_server.solver.runtime.capability_contracts import (
+    contract_is_prompt_executable,
+    effective_contract_by_id,
+    project_method_contract,
+)
 from shuxueshuo_server.solver.runtime.projection import problem_to_llm_payload
 from shuxueshuo_server.solver.runtime.strategy_planner import (
     StrategyPayloadBuilder,
@@ -263,6 +274,155 @@ def test_capability_pack_expansion_deduplicates_methods_and_overrides_recipes() 
     )
 
 
+def test_capability_pack_expansion_merges_binding_rules_and_family_override() -> None:
+    pack_rule = MethodBindingRuleSpec(
+        method_id="method_a",
+        input_bindings=(MethodInputBindingSpec("value", "pack_selector"),),
+    )
+    family_rule = MethodBindingRuleSpec(
+        method_id="method_a",
+        input_bindings=(MethodInputBindingSpec("value", "family_selector"),),
+    )
+    registry = CapabilityPackRegistry((
+        CapabilityPackSpec(
+            pack_id="base_pack",
+            kind="base",
+            method_ids=("method_a",),
+            method_binding_rules=(pack_rule,),
+        ),
+    ))
+    family = SolverFamilySpec(
+        family_id="SyntheticFamily",
+        match=QUADRATIC_PATH_MINIMUM_FAMILY.match,
+        base_packs=("base_pack",),
+        method_binding_rules=(family_rule,),
+    )
+
+    expanded = expand_family_spec(family, registry)
+    rule = next(
+        rule
+        for rule in expanded.method_binding_rules
+        if rule.method_id == "method_a"
+    )
+
+    assert rule == family_rule
+
+
+def test_capability_pack_expansion_rejects_conflicting_pack_binding_rules() -> None:
+    registry = CapabilityPackRegistry((
+        CapabilityPackSpec(
+            pack_id="base_pack",
+            kind="base",
+            method_binding_rules=(
+                MethodBindingRuleSpec(
+                    method_id="method_a",
+                    input_bindings=(MethodInputBindingSpec("value", "base_selector"),),
+                ),
+            ),
+        ),
+        CapabilityPackSpec(
+            pack_id="mechanism_pack",
+            kind="mechanism",
+            method_binding_rules=(
+                MethodBindingRuleSpec(
+                    method_id="method_a",
+                    input_bindings=(MethodInputBindingSpec("value", "mechanism_selector"),),
+                ),
+            ),
+        ),
+    ))
+    family = SolverFamilySpec(
+        family_id="SyntheticFamily",
+        match=QUADRATIC_PATH_MINIMUM_FAMILY.match,
+        base_packs=("base_pack",),
+        mechanism_packs=("mechanism_pack",),
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="conflicting capability pack binding rule: method_a",
+    ):
+        expand_family_spec(family, registry)
+
+
+def test_capability_pack_expansion_allows_identical_pack_binding_rules() -> None:
+    rule = MethodBindingRuleSpec(
+        method_id="method_a",
+        input_bindings=(MethodInputBindingSpec("value", "selector"),),
+    )
+    registry = CapabilityPackRegistry((
+        CapabilityPackSpec(
+            pack_id="base_pack",
+            kind="base",
+            method_binding_rules=(rule,),
+        ),
+        CapabilityPackSpec(
+            pack_id="mechanism_pack",
+            kind="mechanism",
+            method_binding_rules=(rule,),
+        ),
+    ))
+    family = SolverFamilySpec(
+        family_id="SyntheticFamily",
+        match=QUADRATIC_PATH_MINIMUM_FAMILY.match,
+        base_packs=("base_pack",),
+        mechanism_packs=("mechanism_pack",),
+    )
+
+    expanded = expand_family_spec(family, registry)
+
+    assert expanded.method_binding_rules == (rule,)
+
+
+def test_capability_pack_contracts_merge_and_are_json_serializable() -> None:
+    pack_contract = CapabilityContractSpec(
+        capability_id="method_a",
+        slot_writes=(StateSlotPattern("expression", "Expression"),),
+    )
+    family_contract = CapabilityContractSpec(
+        capability_id="method_a",
+        execution_status="catalog_only",
+        slot_writes=(StateSlotPattern("expression", "Expression"),),
+    )
+    registry = CapabilityPackRegistry((
+        CapabilityPackSpec(
+            pack_id="base_pack",
+            kind="base",
+            contracts=(pack_contract,),
+        ),
+    ))
+    family = SolverFamilySpec(
+        family_id="SyntheticFamily",
+        match=QUADRATIC_PATH_MINIMUM_FAMILY.match,
+        base_packs=("base_pack",),
+        capability_contracts=(family_contract,),
+    )
+
+    expanded = expand_family_spec(family, registry)
+
+    assert expanded.capability_contracts == (family_contract,)
+    json.dumps([contract.to_payload() for contract in expanded.capability_contracts])
+
+
+def test_projected_method_contract_without_outputs_stays_prompt_executable() -> None:
+    """A migration projection must not silently hide a registered no-output method."""
+    contract = project_method_contract(
+        MethodSpec(
+            method_id="diagnostic_method",
+            title="diagnostic method",
+            solves=("diagnose_state",),
+            inputs={},
+            outputs={},
+        )
+    )
+
+    assert contract.is_complete
+    assert contract.source == "projected"
+    assert contract.to_payload()["source"] == "projected"
+    assert contract_is_prompt_executable(contract)
+    assert "projected_no_outputs_declared" in contract.notes
+
+
 def test_real_families_declare_packs_and_keep_legacy_family_ids() -> None:
     families = (
         QUADRATIC_PATH_MINIMUM_FAMILY,
@@ -335,8 +495,8 @@ def test_expanded_family_catalogs_keep_pack_and_local_capabilities() -> None:
         )
 
 
-def test_unbound_pack_methods_are_hidden_from_prompt_method_catalog() -> None:
-    """Pack expansion may widen family internals, but prompt direct methods must bind."""
+def test_pack_bound_methods_with_executable_contracts_enter_prompt_method_catalog() -> None:
+    """Pack expansion can now expose methods once packs supply rules/contracts."""
     problem = load_problem_ir(NANKAI_FIXTURE)
     inputs = build_strategy_probe_inputs(problem)
     payload = StrategyPayloadBuilder().build(
@@ -350,13 +510,13 @@ def test_unbound_pack_methods_are_hidden_from_prompt_method_catalog() -> None:
     rules = MethodBindingRuleRegistry.from_family_spec(QUADRATIC_PATH_MINIMUM_FAMILY)
 
     assert "quadratic_vertex_point" in QUADRATIC_PATH_MINIMUM_FAMILY.method_ids
-    assert rules.rule_for("quadratic_vertex_point") is None
-    assert "quadratic_vertex_point" not in prompt_method_ids
+    assert rules.rule_for("quadratic_vertex_point") is not None
+    assert "quadratic_vertex_point" in prompt_method_ids
     assert "quadratic_from_constraints" in prompt_method_ids
 
 
-def test_prompt_direct_method_catalog_has_binding_rules_for_real_families() -> None:
-    """Every direct method shown to the LLM must be executable by binding rules."""
+def test_prompt_direct_method_catalog_has_binding_rules_and_contracts_for_real_families() -> None:
+    """Every direct method shown to the LLM must have a binding rule and contract."""
     for fixture in (
         NANKAI_FIXTURE,
         HEXI_FIXTURE,
@@ -377,9 +537,41 @@ def test_prompt_direct_method_catalog_has_binding_rules_for_real_families() -> N
             method["method_id"]
             for method in payload["method_catalog"]["methods"]
         }
+        contracts = effective_contract_by_id(inputs.family_spec, inputs.method_specs)
 
         assert prompt_method_ids
         assert not sorted(prompt_method_ids - binding_rule_ids), (
             inputs.family_spec.family_id,
             sorted(prompt_method_ids - binding_rule_ids),
         )
+        assert all(
+            contract_is_prompt_executable(contracts.get(method_id))
+            for method_id in prompt_method_ids
+        )
+
+
+def test_prompt_direct_method_catalog_hides_catalog_only_contracts() -> None:
+    problem = load_problem_ir(NANKAI_FIXTURE)
+    inputs = build_strategy_probe_inputs(problem)
+    catalog_only_override = CapabilityContractSpec(
+        capability_id="quadratic_from_constraints",
+        execution_status="catalog_only",
+        slot_writes=(StateSlotPattern("expression", "Parabola"),),
+    )
+    family = replace(
+        inputs.family_spec,
+        capability_contracts=(
+            *inputs.family_spec.capability_contracts,
+            catalog_only_override,
+        ),
+    )
+    payload = StrategyPayloadBuilder().build(
+        replace(inputs, family_spec=family),
+        problem_payload=problem_to_llm_payload(problem),
+    )
+    prompt_method_ids = {
+        method["method_id"]
+        for method in payload["method_catalog"]["methods"]
+    }
+
+    assert "quadratic_from_constraints" not in prompt_method_ids
