@@ -189,7 +189,13 @@ def test_strategy_payload_builder_indexes_planner_retry_state() -> None:
     assert state["latest_stable_runtime"]["attempt"] == 3
     assert "replay_reports" not in state["latest_stable_runtime"]["planner_retry_state"]
     assert state["latest_stable_runtime"]["effective_draft"] == retry_state["baseline_draft"]
-    assert state["latest_stable_runtime"]["diagnostic"] == retry_state["replay_reports"]["trial_execution"]
+    assert state["latest_stable_runtime"]["diagnostic"]["ok"] is False
+    assert state["latest_stable_runtime"]["diagnostic"]["accepted_prefix"] == [
+        {"step_id": "derive_axis_point", "scope_id": "i"}
+    ]
+    assert state["latest_stable_runtime"]["diagnostic"]["blockers"] == [
+        {"step_id": "derive_N_coordinate", "scope_id": "ii_1"}
+    ]
 
 
 def test_strategy_payload_builder_compresses_previous_attempts_for_prompt() -> None:

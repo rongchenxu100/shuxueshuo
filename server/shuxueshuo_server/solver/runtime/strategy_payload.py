@@ -29,6 +29,9 @@ from shuxueshuo_server.solver.runtime.capability_contracts import (
     contract_is_prompt_executable,
     effective_contract_by_id,
 )
+from shuxueshuo_server.solver.runtime.function_specs import (
+    function_catalog_payload,
+)
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.planner import PlannerInputs
 from shuxueshuo_server.solver.runtime.projection import problem_to_llm_payload
@@ -146,6 +149,10 @@ class StrategyPayloadBuilder:
             "method_catalog": _method_catalog_payload(
                 inputs.method_specs,
                 prompt_method_ids,
+            ),
+            "function_catalog": function_catalog_payload(
+                inputs.family_spec,
+                inputs.method_specs,
             ),
             "recipe_catalog": _recipe_catalog_payload(inputs.family_spec),
             "few_shot_examples": self._few_shot_examples(inputs, problem_payload),
@@ -474,6 +481,9 @@ def _latest_stable_runtime_attempt(
                 payload["effective_draft"] = state["baseline_draft"]
             if state.get("repair_instruction") is not None:
                 payload["repair_instruction"] = state["repair_instruction"]
+        diagnostic = payload.get("diagnostic")
+        if isinstance(diagnostic, dict):
+            payload["diagnostic"] = _prompt_diagnostic_summary(diagnostic)
         return payload
     return None
 
@@ -499,7 +509,12 @@ def _stable_runtime_from_retry_state(
         "attempt": retry_state.get("attempt"),
         "repair_summary": attempt_repair_summary,
         "effective_draft": retry_state.get("baseline_draft"),
-        "diagnostic": _retry_state_replay_report(retry_state, "trial_execution"),
+        "diagnostic": _prompt_diagnostic_summary(trial_report)
+        if isinstance(
+            (trial_report := _retry_state_replay_report(retry_state, "trial_execution")),
+            dict,
+        )
+        else None,
         "repair_instruction": retry_state.get("repair_instruction"),
         "errors": (
             attempt_errors
@@ -724,6 +739,7 @@ def write_strategy_debug_artifacts(
         "prompt_flags",
         "family_spec",
         "method_catalog",
+        "function_catalog",
         "recipe_catalog",
         "few_shot_examples",
         "previous_attempt_state",
@@ -734,6 +750,10 @@ def write_strategy_debug_artifacts(
     _write_json(
         target / "semantic-read-catalog.json",
         payload.get("semantic_read_catalog"),
+    )
+    _write_json(
+        target / "function-catalog.json",
+        payload.get("function_catalog"),
     )
     context_catalog = (
         planner_state_context.semantic_read_catalog_payload()
@@ -841,11 +861,34 @@ def write_strategy_debug_artifacts(
             target / "candidate-resolution-report.json",
             resolution_report,
         )
+    function_binding_report: list[dict[str, Any]] | None = None
     if execution_diagnostic is not None:
         _write_json(
             target / "execution-diagnostic.json",
             execution_diagnostic,
         )
+        function_binding_report = _function_binding_report_payload(
+            execution_diagnostic
+        )
+    if function_binding_report is None and retry_payload is not None:
+        trial_report = _retry_state_replay_report(retry_payload, "trial_execution")
+        if trial_report is not None:
+            function_binding_report = _function_binding_report_payload(trial_report)
+    _write_json(
+        target / "function-binding-report.json",
+        function_binding_report,
+    )
+    _write_json(
+        target / "function-adapter-fallbacks.json",
+        (
+            [
+                item for item in function_binding_report
+                if item.get("status") == "fallback"
+            ]
+            if function_binding_report is not None
+            else None
+        ),
+    )
     if llm_metadata is not None:
         _write_json(target / "llm-call.json", llm_metadata)
 
@@ -860,6 +903,7 @@ def _clear_previous_debug_artifacts(target: Path) -> None:
         "prompt.user.md",
         "output.schema.json",
         "semantic-read-catalog.json",
+        "function-catalog.json",
         "context-semantic-read-catalog.json",
         "semantic-read-resolution-report.json",
         "context-semantic-read-resolution-report.json",
@@ -874,6 +918,8 @@ def _clear_previous_debug_artifacts(target: Path) -> None:
         "candidate-resolution-report.json",
         "effective-step-intents.json",
         "execution-diagnostic.json",
+        "function-binding-report.json",
+        "function-adapter-fallbacks.json",
         "planner-retry-state.json",
         "planner-state-context.json",
         "context-retry-memory.json",
@@ -947,6 +993,17 @@ def _context_semantic_read_resolution_payload(value: Any) -> dict[str, Any]:
         ),
         "report": value,
     }
+
+
+def _function_binding_report_payload(value: Any) -> list[dict[str, Any]] | None:
+    """Return FunctionSpec adapter binding events from a diagnostic payload."""
+    events = getattr(value, "function_binding_events", None)
+    if events is None and isinstance(value, dict):
+        events = value.get("function_binding_events")
+    if events is None:
+        return None
+    payload = _to_jsonable(events)
+    return payload if isinstance(payload, list) else None
 
 
 def _family_spec_payload(family: SolverFamilySpec) -> dict[str, Any]:

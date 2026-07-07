@@ -13,6 +13,7 @@ from typing import Any, Callable, Mapping
 from shuxueshuo_server.solver.family.models import MethodBindingRuleSpec, SolverFamilySpec
 from shuxueshuo_server.solver.runtime.auxiliary_points import fresh_auxiliary_point_handle
 from shuxueshuo_server.solver.runtime.models import ContextPath
+from shuxueshuo_server.solver.runtime.function_specs import FunctionAdapterRegistry
 from shuxueshuo_server.solver.runtime.handle_registry import (
     _handle_name,
     _handle_scope,
@@ -20,6 +21,7 @@ from shuxueshuo_server.solver.runtime.handle_registry import (
 )
 from shuxueshuo_server.solver.runtime.strategy_models import (
     CreatedEntity,
+    StepIntentFunctionBindingEvent,
     StepIntent,
     StrategyDraftValidationError,
 )
@@ -81,6 +83,11 @@ class MethodBindingRuleRegistry:
         self.rules = {rule.method_id: rule for rule in rules}
         self.selectors = dict(selectors or DEFAULT_BINDING_SELECTORS)
         self.expansion_selectors = dict(expansion_selectors or DEFAULT_EXPANSION_SELECTORS)
+        self.function_adapters = FunctionAdapterRegistry(
+            selectors=self.selectors,
+            expansion_selectors=self.expansion_selectors,
+        )
+        self.function_binding_events: list[StepIntentFunctionBindingEvent] = []
         self._validate_rule_selectors()
 
     @classmethod
@@ -101,6 +108,51 @@ class MethodBindingRuleRegistry:
         """返回 method invocation inputs。"""
         local_outputs = local_outputs or {}
         rule = self.rules.get(method_id)
+        adapter = self.function_adapters.rule_for(method_id)
+        if adapter is not None:
+            try:
+                inputs = self.function_adapters.bind(
+                    method_id,
+                    step,
+                    index,
+                    local_outputs=local_outputs,
+                    include_expansion_selectors=include_expansion_selectors,
+                    expansion_selectors_override=(
+                        expansion_selectors_override
+                        if expansion_selectors_override is not None
+                        else (
+                            rule.expansion_selectors
+                            if rule is not None and include_expansion_selectors
+                            else None
+                        )
+                    ),
+                    input_bindings_override=(
+                        rule.input_bindings
+                        if rule is not None
+                        else None
+                    ),
+                )
+                self.function_binding_events.append(
+                    StepIntentFunctionBindingEvent(
+                        step_id=step.step_id,
+                        scope_id=step.scope_id,
+                        method_id=method_id,
+                        function_id=adapter.adapter_id,
+                        status="success",
+                    )
+                )
+                return inputs
+            except StrategyDraftValidationError as exc:
+                self.function_binding_events.append(
+                    StepIntentFunctionBindingEvent(
+                        step_id=step.step_id,
+                        scope_id=step.scope_id,
+                        method_id=method_id,
+                        function_id=adapter.adapter_id,
+                        status="fallback",
+                        errors=(str(exc),),
+                    )
+                )
         if rule is None:
             raise StrategyDraftValidationError(f"method_binding_rule_missing: {method_id}")
         inputs: dict[str, str] = {}

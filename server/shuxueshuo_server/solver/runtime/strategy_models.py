@@ -620,6 +620,36 @@ class StepIntentPreflightIssue:
 
 
 @dataclass(frozen=True)
+class StepIntentFunctionBindingEvent:
+    """FunctionSpec adapter binding result for one method attempt.
+
+    The payload is debug-safe: it exposes function ids, method ids, status, and
+    typed error codes, but never RuntimeContext paths.  ``fallback`` means the
+    FunctionSpec adapter path did not bind this attempt and runtime fell back to
+    the legacy binding rule; it is not by itself a final execution failure.
+    """
+
+    step_id: str
+    scope_id: str
+    method_id: str
+    function_id: str
+    status: Literal["success", "fallback"]
+    errors: tuple[str, ...] = ()
+
+    def to_payload(self) -> dict[str, Any]:
+        payload: dict[str, Any] = {
+            "step_id": self.step_id,
+            "scope_id": self.scope_id,
+            "method_id": self.method_id,
+            "function_id": self.function_id,
+            "status": self.status,
+        }
+        if self.errors:
+            payload["errors"] = list(self.errors)
+        return payload
+
+
+@dataclass(frozen=True)
 class StepIntentExecutionBlocker:
     """StepIntent 执行诊断中的首个 runtime 阻塞点。"""
 
@@ -682,6 +712,7 @@ class StepIntentExecutionDiagnostic:
     applied_fills: tuple[StepIntentAppliedFill, ...] = ()
     planner_insights: tuple[StepIntentPlannerInsight, ...] = ()
     preflight_issues: tuple[StepIntentPreflightIssue, ...] = ()
+    function_binding_events: tuple[StepIntentFunctionBindingEvent, ...] = ()
     blockers: tuple[StepIntentExecutionBlocker, ...] = ()
     skipped_steps: tuple[StepIntentSkippedStep, ...] = ()
     candidate_errors: tuple[str, ...] = ()
@@ -706,6 +737,9 @@ class StepIntentExecutionDiagnostic:
             ],
             "preflight_issues": [
                 item.to_payload() for item in self.preflight_issues
+            ],
+            "function_binding_events": [
+                item.to_payload() for item in self.function_binding_events
             ],
             "blockers": [item.to_payload() for item in self.blockers],
             "skipped_steps": [item.to_payload() for item in self.skipped_steps],

@@ -702,6 +702,8 @@ def test_deepseek_strategy_planner_outputs_valid_step_intents_and_solves_nankai(
             report=report,
             normalization_report=normalization_report,
             resolution_report=resolution_report,
+            execution_diagnostic=diagnostic,
+            effective_draft=effective_draft,
             planner_retry_state=current_replay.retry_state,
             planner_state_context=current_replay.planner_state_context,
             llm_metadata=metadata,
@@ -791,6 +793,16 @@ def test_deepseek_strategy_planner_outputs_valid_step_intents_and_solves_nankai(
         report=final_report,
         normalization_report=final_normalization_report,
         resolution_report=final_resolution_report,
+        execution_diagnostic=(
+            final_captured.get("execution_diagnostic")
+            if final_captured is not None
+            else None
+        ),
+        effective_draft=(
+            final_captured.get("effective_draft")
+            if final_captured is not None
+            else None
+        ),
         planner_retry_state=(
             attempt_summaries[-1].get("planner_retry_state")
             if attempt_summaries

@@ -315,7 +315,11 @@ class RecipeTrialExecutor:
             recipe_compilers=self.recipe_compilers,
         )
         output, diagnostic, effective_draft = compiler.diagnose(draft)
-        diagnostic = replace(diagnostic, preflight_issues=preflight_issues)
+        diagnostic = replace(
+            diagnostic,
+            preflight_issues=preflight_issues,
+            function_binding_events=tuple(binding_rules.function_binding_events),
+        )
         return output, diagnostic, effective_draft
 
 class _RecipePlanCompiler:
@@ -1880,9 +1884,18 @@ def _minimum_expression_target_path(
     index: CanonicalRuntimeBindingIndex,
 ) -> str:
     """读取 recipe 产出的 MinimumExpression target path。"""
-    for produced in step.produces:
-        if _produced_output_type(produced, index.handle_registry) == "MinimumExpression":
+    candidates = tuple(
+        produced for produced in step.produces
+        if _produced_output_type(produced, index.handle_registry) == "MinimumExpression"
+    )
+    for produced in candidates:
+        if step.target.startswith("answer:") and produced.handle == step.target:
             return _target_path_for_produced(produced, "MinimumExpression", index, step)
+    for produced in candidates:
+        if produced.handle.startswith("answer:"):
+            return _target_path_for_produced(produced, "MinimumExpression", index, step)
+    if candidates:
+        return _target_path_for_produced(candidates[0], "MinimumExpression", index, step)
     raise StrategyDraftValidationError(
         f"equal_length_ray_path_reduction_requires_minimum_expression: {step.step_id}"
     )

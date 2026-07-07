@@ -93,6 +93,7 @@ from shuxueshuo_server.solver.runtime.recipe_compiler import (
     _RecipePlanCompiler,
     _candidate_error_for_exception,
     _method_outputs_for_step,
+    _minimum_expression_target_path,
     _promote_outputs_for_step,
     _target_path_for_produced,
 )
@@ -1449,6 +1450,7 @@ def test_strategy_payload_builder_uses_problem_ir_without_expected_answers() -> 
         "prompt_flags",
         "family_spec",
         "method_catalog",
+        "function_catalog",
         "recipe_catalog",
         "few_shot_examples",
         "previous_attempt_state",
@@ -5708,6 +5710,42 @@ def test_output_key_mapping_prefers_structured_answer_minimum_value() -> None:
             index,
         )
         == "evaluated_distance"
+    )
+
+
+def test_minimum_expression_target_path_prefers_answer_when_fact_is_first() -> None:
+    """同一步同时产出中间 fact 和 answer 时，最终 answer path 不能被 fact 抢走。"""
+    index = CanonicalRuntimeBindingIndex.from_context(
+        _runtime_context(),
+        handle_registry=_registry(),
+        question_goals=_question_goals(),
+    )
+    step = _step(
+        scope_id="ii_1",
+        step_id="compute_minimum",
+        recipe_hint="broken_path_straightening_minimum_expression",
+        goal_type="derive_minimum_value",
+        target="answer:ii_1.minimum_value",
+        reads=("fact:ii_1:m_value",),
+        produces=(
+            ProducedFact(
+                "fact:ii_1:straightened_minimum",
+                "ii_1",
+                "拉直后的最小值",
+                output_type="MinimumExpression",
+            ),
+            ProducedFact(
+                "answer:ii_1.minimum_value",
+                "ii_1",
+                "最终最小值答案",
+                output_type="MinimumExpression",
+            ),
+        ),
+    )
+
+    assert (
+        _minimum_expression_target_path(step, index)
+        == "$subquestion.ii_1.outputs.min_value"
     )
 
 

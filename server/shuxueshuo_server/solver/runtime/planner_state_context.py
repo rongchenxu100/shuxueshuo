@@ -14,6 +14,7 @@ import json
 from typing import Any, Literal, Protocol, cast, get_args
 
 from shuxueshuo_server.solver.runtime.capability_contracts import contract_payloads
+from shuxueshuo_server.solver.runtime.function_specs import function_spec_payloads
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
 from shuxueshuo_server.solver.runtime.output_type_inference import (
     FACT_TYPE_TO_OUTPUT_TYPE,
@@ -389,6 +390,7 @@ class PlannerState:
     rewrite_events: tuple[StateRewriteEvent, ...] = ()
     context_events: tuple[ContextEvent, ...] = ()
     capability_contracts: tuple[dict[str, Any], ...] = ()
+    function_specs: tuple[dict[str, Any], ...] = ()
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -407,6 +409,7 @@ class PlannerState:
             "rewrite_events": [item.to_payload() for item in self.rewrite_events],
             "context_events": [item.to_payload() for item in self.context_events],
             "capability_contracts": [dict(item) for item in self.capability_contracts],
+            "function_specs": [dict(item) for item in self.function_specs],
         }
 
 
@@ -476,6 +479,7 @@ class _MutableState:
     rewrite_events: list[StateRewriteEvent] = field(default_factory=list)
     context_events: list[ContextEvent] = field(default_factory=list)
     capability_contracts: list[dict[str, Any]] = field(default_factory=list)
+    function_specs: list[dict[str, Any]] = field(default_factory=list)
 
     def freeze(self) -> PlannerStateContext:
         return PlannerStateContext(
@@ -498,6 +502,7 @@ class _MutableState:
                 rewrite_events=tuple(self.rewrite_events),
                 context_events=tuple(self.context_events),
                 capability_contracts=tuple(self.capability_contracts),
+                function_specs=tuple(self.function_specs),
             ),
         )
 
@@ -669,6 +674,9 @@ class PlannerStateContextBuilder:
             alias_index=alias_index,
             capability_contracts=list(
                 contract_payloads(inputs.family_spec, inputs.method_specs)
+            ),
+            function_specs=list(
+                function_spec_payloads(inputs.family_spec, inputs.method_specs)
             ),
         )
 
