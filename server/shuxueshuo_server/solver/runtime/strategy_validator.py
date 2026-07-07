@@ -66,6 +66,7 @@ class StepIntentValidator:
     def __init__(self) -> None:
         self.last_handle_resolution_report: HandleResolutionReport | None = None
         self.last_semantic_read_resolution_report: SemanticReadResolutionReport | None = None
+        self.last_raw_output_normalization_report: dict[str, Any] | None = None
 
     def validate_json(
         self,
@@ -79,6 +80,7 @@ class StepIntentValidator:
         """解析并校验 LLM 原始 JSON 字符串。"""
         self.last_handle_resolution_report = None
         self.last_semantic_read_resolution_report = None
+        self.last_raw_output_normalization_report = None
         data = _parse_json_object(raw)
         return self.validate(
             data,
@@ -112,6 +114,7 @@ class StepIntentValidator:
                 errors=(str(exc),),
                 handle_resolution=self.last_handle_resolution_report,
                 semantic_read_resolution=self.last_semantic_read_resolution_report,
+                raw_output_normalization=self.last_raw_output_normalization_report,
             )
         return draft, self.report(
             draft,
@@ -120,6 +123,7 @@ class StepIntentValidator:
             handle_registry=handle_registry,
             handle_resolution=self.last_handle_resolution_report,
             semantic_read_resolution=self.last_semantic_read_resolution_report,
+            raw_output_normalization=self.last_raw_output_normalization_report,
         )
 
     def validate(
@@ -134,6 +138,7 @@ class StepIntentValidator:
         """校验已解析 JSON 对象，并转成 StepIntentDraft。"""
         self.last_handle_resolution_report = None
         self.last_semantic_read_resolution_report = None
+        self.last_raw_output_normalization_report = None
         if not isinstance(data, dict):
             raise StrategyDraftValidationError("top-level response must be an object")
         extra = sorted(set(data) - {"scopes"})
@@ -142,9 +147,14 @@ class StepIntentValidator:
                 f"top-level response contains unsupported fields: {', '.join(extra)}"
             )
         _reject_forbidden_payload(data)
-        data, _raw_output_report = normalize_raw_outputs(
+        data, raw_output_report = normalize_raw_outputs(
             data,
             handle_registry=handle_registry,
+        )
+        self.last_raw_output_normalization_report = (
+            raw_output_report.to_payload()
+            if raw_output_report.changed or raw_output_report.warnings
+            else None
         )
         raw_scopes = data.get("scopes")
         if not isinstance(raw_scopes, list) or not raw_scopes:
@@ -196,6 +206,7 @@ class StepIntentValidator:
             handle_registry=handle_registry,
             handle_resolution=self.last_handle_resolution_report,
             semantic_read_resolution=self.last_semantic_read_resolution_report,
+            raw_output_normalization=self.last_raw_output_normalization_report,
         )
         if report.missing_goals:
             raise StrategyDraftValidationError(
@@ -213,6 +224,7 @@ class StepIntentValidator:
         handle_registry: CanonicalHandleRegistry | None = None,
         handle_resolution: HandleResolutionReport | None = None,
         semantic_read_resolution: SemanticReadResolutionReport | None = None,
+        raw_output_normalization: dict[str, Any] | None = None,
     ) -> StepIntentValidationReport:
         """生成覆盖情况报告。"""
         produced_text = "\n".join(
@@ -242,6 +254,7 @@ class StepIntentValidator:
             recipe_alignment=alignment,
             handle_resolution=handle_resolution,
             semantic_read_resolution=semantic_read_resolution,
+            raw_output_normalization=raw_output_normalization,
         )
 
 

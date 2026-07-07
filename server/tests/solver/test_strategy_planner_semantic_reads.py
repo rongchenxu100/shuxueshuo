@@ -405,6 +405,9 @@ def test_raw_outputs_warns_when_mixed_with_legacy_output_fields() -> None:
                 "steps": [
                     {
                         "step_id": "create_aux",
+                        "goal_type": "construct_point",
+                        "target": "point:i:Aux",
+                        "strategy": "声明辅助点。",
                         "reads": [],
                         "outputs": [
                             {
@@ -413,6 +416,7 @@ def test_raw_outputs_warns_when_mixed_with_legacy_output_fields() -> None:
                                 "description": "辅助点",
                             }
                         ],
+                        "reason": "测试 outputs 分拣。",
                     }
                 ],
             }
@@ -426,6 +430,9 @@ def test_raw_outputs_warns_when_mixed_with_legacy_output_fields() -> None:
                 "steps": [
                     {
                         "step_id": "create_aux",
+                        "goal_type": "construct_point",
+                        "target": "point:i:Aux",
+                        "strategy": "声明辅助点。",
                         "reads": [],
                         "creates": [
                             {
@@ -442,6 +449,7 @@ def test_raw_outputs_warns_when_mixed_with_legacy_output_fields() -> None:
                                 "description": "outputs 辅助点",
                             }
                         ],
+                        "reason": "测试 outputs 分拣。",
                     }
                 ],
             }
@@ -474,6 +482,115 @@ def test_raw_outputs_warns_when_mixed_with_legacy_output_fields() -> None:
             "description": "legacy 辅助点",
         }
     ]
+    assert any(
+        warning.startswith("raw_output_duplicate_handle_description_mismatch")
+        for warning in mixed_report.warnings
+    )
+
+    draft, validation_report = StepIntentValidator().validate_json_with_report(
+        json.dumps(mixed, ensure_ascii=False),
+        handle_registry=registry,
+    )
+
+    assert draft is not None
+    assert validation_report.raw_output_normalization is not None
+    assert any(
+        warning.startswith("raw_output_mixed_with_legacy_outputs")
+        for warning in validation_report.raw_output_normalization["warnings"]
+    )
+
+
+def test_raw_outputs_rejects_duplicate_create_handle_conflict() -> None:
+    """Same output handle cannot silently disagree on structural metadata."""
+    registry = CanonicalHandleRegistry(
+        scope_ids=frozenset(("problem", "i")),
+        entity_handles=frozenset(),
+        fact_handles=frozenset(),
+        answer_handles=frozenset(),
+        scope_parents={"problem": None, "i": "problem"},
+    )
+    payload = {
+        "scopes": [
+            {
+                "scope_id": "i",
+                "label": "第（Ⅰ）问",
+                "steps": [
+                    {
+                        "step_id": "create_aux",
+                        "reads": [],
+                        "creates": [
+                            {
+                                "handle": "point:i:Aux",
+                                "entity_type": "point",
+                                "valid_scope": "i",
+                                "description": "legacy 辅助点",
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "handle": "point:i:Aux",
+                                "valid_scope": "problem",
+                                "description": "outputs 辅助点",
+                            }
+                        ],
+                    }
+                ],
+            }
+        ]
+    }
+
+    with pytest.raises(
+        StrategyDraftValidationError,
+        match="raw_output_duplicate_handle_conflict",
+    ):
+        normalize_raw_outputs(payload, handle_registry=registry)
+
+
+def test_raw_outputs_rejects_duplicate_produce_output_type_conflict() -> None:
+    """Duplicate fact outputs may enrich missing type, but not contradict it."""
+    registry = CanonicalHandleRegistry(
+        scope_ids=frozenset(("problem", "i")),
+        entity_handles=frozenset(),
+        fact_handles=frozenset(),
+        answer_handles=frozenset(),
+        scope_parents={"problem": None, "i": "problem"},
+    )
+    payload = {
+        "scopes": [
+            {
+                "scope_id": "i",
+                "label": "第（Ⅰ）问",
+                "steps": [
+                    {
+                        "step_id": "derive_aux_coordinate",
+                        "reads": [],
+                        "produces": [
+                            {
+                                "handle": "fact:i:Aux_coordinate",
+                                "valid_scope": "i",
+                                "description": "legacy 坐标",
+                                "output_type": "Point",
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "handle": "fact:i:Aux_coordinate",
+                                "valid_scope": "i",
+                                "description": "outputs 坐标",
+                                "output_type": "Expression",
+                            }
+                        ],
+                    }
+                ],
+            }
+        ]
+    }
+
+    with pytest.raises(
+        StrategyDraftValidationError,
+        match="raw_output_duplicate_handle_conflict",
+    ):
+        normalize_raw_outputs(payload, handle_registry=registry)
 
 
 def test_step_intent_schema_semantic_read_kinds_use_shared_constant() -> None:

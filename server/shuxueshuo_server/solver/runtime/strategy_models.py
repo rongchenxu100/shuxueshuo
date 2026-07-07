@@ -489,6 +489,7 @@ class StepIntentValidationReport:
     recipe_alignment: RecipeAlignmentReport | None = None
     handle_resolution: HandleResolutionReport | None = None
     semantic_read_resolution: SemanticReadResolutionReport | None = None
+    raw_output_normalization: dict[str, Any] | None = None
 
     def to_payload(self) -> dict[str, Any]:
         """转成 JSON 友好结构。"""
@@ -507,6 +508,8 @@ class StepIntentValidationReport:
             payload["semantic_read_resolution"] = (
                 self.semantic_read_resolution.to_payload()
             )
+        if self.raw_output_normalization is not None:
+            payload["raw_output_normalization"] = self.raw_output_normalization
         return payload
 
 

@@ -573,6 +573,11 @@ def write_strategy_debug_artifacts(
         draft.to_payload() if draft else None,
     )
     _write_json(target / "validation-report.json", report.to_payload())
+    if report.raw_output_normalization is not None:
+        _write_json(
+            target / "raw-output-normalization-report.json",
+            report.raw_output_normalization,
+        )
     if normalization_report is not None:
         _write_json(target / "normalization-report.json", normalization_report)
         _write_json(
@@ -629,6 +634,7 @@ def _clear_previous_debug_artifacts(target: Path) -> None:
         "raw-response.txt",
         "parsed-step-intents.json",
         "validation-report.json",
+        "raw-output-normalization-report.json",
         "normalization-report.json",
         "normalized-step-intents.json",
         "handle-resolution-report.json",

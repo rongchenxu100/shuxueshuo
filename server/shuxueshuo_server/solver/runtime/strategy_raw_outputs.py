@@ -179,8 +179,22 @@ def _normalize_step_outputs(
             f"scopes[{scope_index}].steps[{step_index}].outputs[{item_index}].handle={handle}"
         )
     normalized["reads"] = list(unique_ordered(reads))
-    normalized["creates"] = _unique_objects_by_handle(creates)
-    normalized["produces"] = _unique_objects_by_handle(produces)
+    normalized_creates, create_warnings = _unique_objects_by_handle(
+        creates,
+        field="creates",
+        scope_index=scope_index,
+        step_index=step_index,
+    )
+    normalized_produces, produce_warnings = _unique_objects_by_handle(
+        produces,
+        field="produces",
+        scope_index=scope_index,
+        step_index=step_index,
+    )
+    warnings.extend(create_warnings)
+    warnings.extend(produce_warnings)
+    normalized["creates"] = normalized_creates
+    normalized["produces"] = normalized_produces
     normalized.pop("outputs", None)
     return normalized, tuple(warnings)
 
@@ -349,17 +363,125 @@ def _entity_type_for_output(handle: str, explicit_type: str | None) -> str | Non
     return entity_type
 
 
-def _unique_objects_by_handle(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def _unique_objects_by_handle(
+    items: list[dict[str, Any]],
+    *,
+    field: str,
+    scope_index: int,
+    step_index: int,
+) -> tuple[list[dict[str, Any]], tuple[str, ...]]:
     result: list[dict[str, Any]] = []
-    seen: set[str] = set()
+    by_key: dict[str, dict[str, Any]] = {}
+    warnings: list[str] = []
     for item in items:
         handle = item.get("handle")
         key = handle if isinstance(handle, str) else repr(item)
-        if key in seen:
+        existing = by_key.get(key)
+        if existing is not None:
+            warnings.extend(
+                _merge_duplicate_output_object(
+                    existing,
+                    item,
+                    field=field,
+                    handle=key,
+                    scope_index=scope_index,
+                    step_index=step_index,
+                )
+            )
             continue
-        seen.add(key)
+        by_key[key] = item
         result.append(item)
-    return result
+    return result, tuple(warnings)
+
+
+def _merge_duplicate_output_object(
+    existing: dict[str, Any],
+    duplicate: dict[str, Any],
+    *,
+    field: str,
+    handle: str,
+    scope_index: int,
+    step_index: int,
+) -> tuple[str, ...]:
+    """Merge safe duplicate metadata and reject conflicting structural fields."""
+    warnings: list[str] = []
+    path = f"scopes[{scope_index}].steps[{step_index}].{field}"
+    structural_fields = (
+        ("entity_type", "valid_scope")
+        if field == "creates"
+        else ("valid_scope", "output_type")
+    )
+    for metadata_field in structural_fields:
+        warning = _merge_duplicate_metadata_field(
+            existing,
+            duplicate,
+            metadata_field,
+            path=path,
+            handle=handle,
+        )
+        if warning is not None:
+            warnings.append(warning)
+    warning = _merge_duplicate_description(
+        existing,
+        duplicate,
+        path=path,
+        handle=handle,
+    )
+    if warning is not None:
+        warnings.append(warning)
+    return tuple(warnings)
+
+
+def _merge_duplicate_metadata_field(
+    existing: dict[str, Any],
+    duplicate: dict[str, Any],
+    metadata_field: str,
+    *,
+    path: str,
+    handle: str,
+) -> str | None:
+    left = existing.get(metadata_field)
+    right = duplicate.get(metadata_field)
+    if _empty_metadata(left) and not _empty_metadata(right):
+        existing[metadata_field] = right
+        return (
+            "raw_output_duplicate_handle_field_merged: "
+            f"{path} handle={handle} field={metadata_field}"
+        )
+    if _empty_metadata(right) or left == right:
+        return None
+    raise StrategyDraftValidationError(
+        "raw_output_duplicate_handle_conflict: "
+        f"{path} handle={handle} field={metadata_field} "
+        f"existing={left!r} duplicate={right!r}"
+    )
+
+
+def _merge_duplicate_description(
+    existing: dict[str, Any],
+    duplicate: dict[str, Any],
+    *,
+    path: str,
+    handle: str,
+) -> str | None:
+    left = existing.get("description")
+    right = duplicate.get("description")
+    if _empty_metadata(left) and not _empty_metadata(right):
+        existing["description"] = right
+        return (
+            "raw_output_duplicate_handle_field_merged: "
+            f"{path} handle={handle} field=description"
+        )
+    if _empty_metadata(right) or left == right:
+        return None
+    return (
+        "raw_output_duplicate_handle_description_mismatch: "
+        f"{path} handle={handle}; keeping first description"
+    )
+
+
+def _empty_metadata(value: object) -> bool:
+    return value is None or value == ""
 
 
 __all__ = [
