@@ -18,6 +18,9 @@ from shuxueshuo_server.solver.runtime.context import RuntimeContext
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
 from shuxueshuo_server.solver.runtime.llm_clients import LLMPlannerClient
 from shuxueshuo_server.solver.runtime.models import PlannerOutput
+from shuxueshuo_server.solver.runtime.planner_state_context import (
+    initial_planner_state_context,
+)
 from shuxueshuo_server.solver.runtime.planner import PlannerInputs
 from shuxueshuo_server.solver.runtime.projection import RuntimeProjection
 from shuxueshuo_server.solver.runtime.strategy_models import (
@@ -192,6 +195,26 @@ class StrategyPlanner:
             problem_payload=problem_payload,
         )
         output = replay_result.output
+        goal_issue = _goal_verification_issue(replay_result)
+        if goal_issue is not None:
+            self._capture(
+                payload=payload,
+                prompt=prompt,
+                raw_response=raw_response,
+                draft=draft,
+                validation_report=validation_report,
+                effective_draft=replay_result.effective_draft,
+                normalized_draft=replay_result.normalized_draft,
+                normalization_report=replay_result.normalization_report,
+                resolution_report=replay_result.resolution_report,
+                execution_diagnostic=replay_result.diagnostic,
+                retry_replay_result=replay_result,
+                output=output,
+            )
+            raise StrategyDraftValidationError(
+                "goal_verification_failed: "
+                f"step={goal_issue.step_id}, code={goal_issue.code}"
+            )
         if output is None:
             self._capture(
                 payload=payload,
@@ -245,6 +268,10 @@ class StrategyPlanner:
         errors: list[str],
     ) -> dict[str, Any] | None:
         """生成下一轮 previous_attempts 可携带的 repair context。"""
+        if _goal_verification_issue(self.artifacts.retry_replay_result) is not None:
+            return repair_attempt_payload_from_replay(
+                self.artifacts.retry_replay_result
+            )
         effective = self.last_effective_draft
         diagnostic = self.last_execution_diagnostic
         if not errors and (diagnostic is None or diagnostic.ok):
@@ -306,7 +333,16 @@ class StrategyPlanner:
         """调用 DeepSeek client 并解析 raw JSON。"""
         if self.client is None:
             raise StrategyDraftValidationError("deepseek strategy planner requires client")
-        payload = self.payload_builder.build(inputs, problem_payload=problem_payload)
+        planner_state_context = initial_planner_state_context(
+            inputs,
+            problem_payload=problem_payload,
+            handle_registry=handle_registry,
+        )
+        payload = self.payload_builder.build(
+            inputs,
+            problem_payload=problem_payload,
+            planner_state_context=planner_state_context,
+        )
         prompt = self.prompt_renderer.render(payload)
         raw_response = self.client.complete(
             {
@@ -325,6 +361,7 @@ class StrategyPlanner:
             question_goals=inputs.question_goals,
             handle_registry=handle_registry,
             family_spec=inputs.family_spec,
+            planner_state_context=planner_state_context,
         )
         self.artifacts = StrategyPlannerArtifacts(
             payload=payload,
@@ -401,6 +438,17 @@ def strategy_planner_provider(
 def _default_recorded_fixture_dir() -> Path:
     """返回 recorded StepIntent fixture 默认目录。"""
     return repo_root(Path(__file__)) / "internal" / "solver-fixtures"
+
+
+def _goal_verification_issue(
+    replay_result: PlannerRetryReplayResult | None,
+) -> Any | None:
+    if replay_result is None or replay_result.retry_state is None:
+        return None
+    for issue in replay_result.retry_state.issues:
+        if issue.layer == "goal_verification":
+            return issue
+    return None
 
 
 def _merge_previous_accepted_prefix(

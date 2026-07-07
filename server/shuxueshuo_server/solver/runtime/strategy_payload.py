@@ -9,7 +9,7 @@ from __future__ import annotations
 from dataclasses import asdict
 import json
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any, Callable, Protocol
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
@@ -33,7 +33,11 @@ from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.planner import PlannerInputs
 from shuxueshuo_server.solver.runtime.projection import problem_to_llm_payload
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
+from shuxueshuo_server.solver.runtime.planner_state_context import (
+    initial_planner_state_context,
+)
 from shuxueshuo_server.solver.runtime.semantic_reads import (
+    ContextSemanticReadSource,
     build_semantic_read_catalog_payload,
 )
 from shuxueshuo_server.solver.runtime.strategy_few_shots import (
@@ -56,6 +60,21 @@ from shuxueshuo_server.solver.runtime.strategy_resolver import (
 from shuxueshuo_server.solver.runtime.strategy_retry_state import (
     retry_state_from_attempt,
 )
+
+
+class PlannerStateContextDebugSource(ContextSemanticReadSource, Protocol):
+    """Planner context projection used by debug artifact writing."""
+
+    def to_payload(self) -> dict[str, Any]:
+        """Return full context snapshot payload."""
+
+    @property
+    def rewrite_ledger_payload(self) -> list[dict[str, str]]:
+        """Return state rewrite ledger payload."""
+
+    @property
+    def events_payload(self) -> list[dict[str, Any]]:
+        """Return context event payload."""
 
 class StrategyPayloadBuilder:
     """把 PlannerInputs 压缩成 LLM 可读的 probe payload。
@@ -83,6 +102,7 @@ class StrategyPayloadBuilder:
         inputs: PlannerInputs,
         *,
         problem_payload: dict[str, Any] | None = None,
+        planner_state_context: ContextSemanticReadSource | None = None,
     ) -> dict[str, Any]:
         """生成 prompt payload；每个顶层字段都对应一个可独立 fake 的来源。"""
         problem_payload = problem_payload or self.problem_payload
@@ -105,12 +125,21 @@ class StrategyPayloadBuilder:
         # 显式传入的 LLM ProblemIR 是 prompt 的唯一题目事实源。这里在 payload 边界
         # 校验，避免旧 solver fixture 的 relations/target_path 等字段混入 LLM 链路。
         handle_registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+        if planner_state_context is None:
+            planner_state_context = initial_planner_state_context(
+                inputs,
+                problem_payload=problem_payload,
+                handle_registry=handle_registry,
+            )
         previous_attempts = list(inputs.previous_errors)
         return {
             "problem_id": inputs.problem_id,
             "family_id": inputs.family_spec.family_id,
             "problem_ir": dict(problem_payload),
-            "semantic_read_catalog": build_semantic_read_catalog_payload(handle_registry),
+            "semantic_read_catalog": build_semantic_read_catalog_payload(
+                handle_registry,
+                planner_state_context=planner_state_context,
+            ),
             "naming_conventions": _naming_conventions_payload(),
             "prompt_flags": _prompt_flags(inputs.family_spec),
             "family_spec": _family_spec_payload(inputs.family_spec),
@@ -465,7 +494,7 @@ def write_strategy_debug_artifacts(
     execution_diagnostic: StepIntentExecutionDiagnostic | None = None,
     effective_draft: StepIntentDraft | None = None,
     planner_retry_state: Any | None = None,
-    planner_state_context: Any | None = None,
+    planner_state_context: PlannerStateContextDebugSource | None = None,
     llm_metadata: dict[str, Any] | None = None,
 ) -> None:
     """把 DeepSeek probe 的输入输出按来源落盘，方便人工 review prompt。"""
@@ -492,6 +521,15 @@ def write_strategy_debug_artifacts(
         target / "semantic-read-catalog.json",
         payload.get("semantic_read_catalog"),
     )
+    context_catalog = (
+        planner_state_context.semantic_read_catalog_payload()
+        if planner_state_context is not None
+        else None
+    )
+    _write_json(
+        target / "context-semantic-read-catalog.json",
+        context_catalog,
+    )
     retry_payload = _retry_state_payload(planner_retry_state)
     _write_json(target / "planner-retry-state.json", retry_payload)
     _write_json(
@@ -517,7 +555,6 @@ def write_strategy_debug_artifacts(
         (
             planner_state_context.rewrite_ledger_payload
             if planner_state_context is not None
-            and hasattr(planner_state_context, "rewrite_ledger_payload")
             else None
         ),
     )
@@ -526,7 +563,6 @@ def write_strategy_debug_artifacts(
         (
             planner_state_context.events_payload
             if planner_state_context is not None
-            and hasattr(planner_state_context, "events_payload")
             else None
         ),
     )
@@ -555,6 +591,12 @@ def write_strategy_debug_artifacts(
             target / "semantic-read-resolution-report.json",
             report.semantic_read_resolution,
         )
+        _write_json(
+            target / "context-semantic-read-resolution-report.json",
+            _context_semantic_read_resolution_payload(
+                report.semantic_read_resolution
+            ),
+        )
     if report.recipe_alignment is not None:
         _write_json(target / "recipe-alignment.json", report.recipe_alignment)
     if resolution_report is not None:
@@ -581,7 +623,9 @@ def _clear_previous_debug_artifacts(target: Path) -> None:
         "prompt.user.md",
         "output.schema.json",
         "semantic-read-catalog.json",
+        "context-semantic-read-catalog.json",
         "semantic-read-resolution-report.json",
+        "context-semantic-read-resolution-report.json",
         "raw-response.txt",
         "parsed-step-intents.json",
         "validation-report.json",
@@ -625,6 +669,18 @@ def _planner_state_context_payload(value: Any | None) -> dict[str, Any] | None:
     if isinstance(value, dict):
         return value
     return None
+
+
+def _context_semantic_read_resolution_payload(value: Any) -> dict[str, Any]:
+    """Mark the context-specific debug file as a compatibility mirror."""
+    return {
+        "mirror_of": "semantic-read-resolution-report.json",
+        "note": (
+            "Phase 3 uses the same SemanticReadResolutionReport object; "
+            "context-specific fields live inside each resolution item."
+        ),
+        "report": value,
+    }
 
 
 def _family_spec_payload(family: SolverFamilySpec) -> dict[str, Any]:

@@ -44,6 +44,7 @@ def build_planner_retry_state(
     resolution_report: ExecutablePlanResolutionReport | None = None,
     diagnostic: StepIntentExecutionDiagnostic | None = None,
     handle_registry: CanonicalHandleRegistry | None = None,
+    goal_verification_issues: tuple[PlannerRetryIssue, ...] = (),
 ) -> PlannerRetryState | None:
     """根据现有 replay artifacts 构造正式 retry state。"""
     issues = _issues_from_reports(
@@ -54,6 +55,7 @@ def build_planner_retry_state(
         diagnostic=diagnostic,
         draft=effective_draft or normalized_draft,
         handle_registry=handle_registry,
+        goal_verification_issues=goal_verification_issues,
     )
     recovered_issues = _recovered_issues_from_reports(
         validation_report=validation_report,
@@ -62,8 +64,18 @@ def build_planner_retry_state(
     if not issues and (diagnostic is None or diagnostic.ok):
         return None
 
-    has_answer_check = any(issue.layer == "answer_check" for issue in issues)
-    stable_prefix = () if has_answer_check else _stable_prefix(diagnostic)
+    has_goal_verification = any(
+        issue.layer == "goal_verification" for issue in issues
+    )
+    has_answer_check = (
+        any(issue.layer == "answer_check" for issue in issues)
+        and not has_goal_verification
+    )
+    stable_prefix = (
+        ()
+        if has_answer_check
+        else _stable_prefix_for_issues(diagnostic, issues)
+    )
     preserve_policy = "none" if has_answer_check else (
         "preserve_prefix" if stable_prefix else "none"
     )
@@ -128,6 +140,7 @@ def _issues_from_reports(
     diagnostic: StepIntentExecutionDiagnostic | None,
     draft: StepIntentDraft | None,
     handle_registry: CanonicalHandleRegistry | None,
+    goal_verification_issues: tuple[PlannerRetryIssue, ...],
 ) -> list[PlannerRetryIssue]:
     issues: list[PlannerRetryIssue] = []
     issues.extend(_semantic_issues(validation_report))
@@ -150,6 +163,7 @@ def _issues_from_reports(
         )
     issues.extend(_candidate_issues(resolution_report))
     issues.extend(_trial_issues(diagnostic))
+    issues.extend(goal_verification_issues)
     issues.extend(_answer_check_issues(errors, diagnostic=diagnostic))
     if not issues:
         issues.extend(
@@ -568,6 +582,28 @@ def _stable_prefix(
         return ()
     return tuple(item.to_payload() for item in diagnostic.accepted_prefix)
 
+def _stable_prefix_for_issues(
+    diagnostic: StepIntentExecutionDiagnostic | None,
+    issues: list[PlannerRetryIssue],
+) -> tuple[dict[str, Any], ...]:
+    prefix = _stable_prefix(diagnostic)
+    goal_issue_step = next(
+        (
+            issue.step_id
+            for issue in issues
+            if issue.layer == "goal_verification" and issue.step_id
+        ),
+        None,
+    )
+    if goal_issue_step is None:
+        return prefix
+    result: list[dict[str, Any]] = []
+    for item in prefix:
+        if item.get("step_id") == goal_issue_step:
+            break
+        result.append(item)
+    return tuple(result)
+
 def _baseline_payload(
     *,
     effective_draft: StepIntentDraft | None,
@@ -625,6 +661,8 @@ def _replay_depth(
     resolution_report: ExecutablePlanResolutionReport | None,
     diagnostic: StepIntentExecutionDiagnostic | None,
 ) -> PlannerReplayDepth | None:
+    if any(issue.layer == "goal_verification" for issue in issues):
+        return "goal_verification"
     if any(issue.layer == "answer_check" for issue in issues):
         return "answer_check"
     if diagnostic is not None:
@@ -705,6 +743,18 @@ def _replay_timeline(
                 recovered=recovered_by_layer.get("trial_execution", []),
                 ok=diagnostic.ok,
                 detail_count=len(diagnostic.blockers),
+            )
+        )
+    if any(issue.layer == "goal_verification" for issue in issues):
+        timeline.append(
+            _timeline_item(
+                "goal_verification",
+                blocking=blocking_by_layer.get("goal_verification"),
+                recovered=recovered_by_layer.get("goal_verification", []),
+                ok=False,
+                detail_count=sum(
+                    1 for issue in issues if issue.layer == "goal_verification"
+                ),
             )
         )
     if any(issue.layer == "answer_check" for issue in issues):

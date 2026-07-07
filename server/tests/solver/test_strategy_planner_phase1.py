@@ -7574,9 +7574,9 @@ def test_line_parabola_binding_uses_coordinate_fact_as_line_point() -> None:
         handle_registry=registry,
         question_goals=extract_question_goals(problem),
     )
-    index.register("point:problem:B", "$problem.points.B", "Point", source="test")
     index.register("point:i_2:F", "$subquestion.i_2.points.F", "PointRef", source="test")
     index.register("fact:i_2:F_coordinate", "$subquestion.i_2.outputs.F_coordinate", "Point", source="test")
+    index.register("fact:i:B_coordinate", "$question.i.outputs.B_coordinate", "Point", source="test")
     index.register("point:i_2:E", "$subquestion.i_2.points.E", "PointRef", source="test")
     step = _step(
         scope_id="i_2",
@@ -7585,8 +7585,8 @@ def test_line_parabola_binding_uses_coordinate_fact_as_line_point() -> None:
         goal_type="derive_curve_intersection_point",
         target="answer:i_2_E",
         reads=(
-            "point:problem:B",
             "fact:i_2:F_coordinate",
+            "fact:i:B_coordinate",
             "point:i_2:E",
             "fact:i_2:E_on_parabola_with_x_m",
         ),
@@ -7615,9 +7615,9 @@ def test_line_parabola_binding_uses_coordinate_fact_as_line_point() -> None:
 
     inputs = rules.bind("line_parabola_second_intersection_point", step, index)
 
-    assert inputs["line_p1"] == "$problem.points.B"
+    assert inputs["line_p1"] == "$question.i.outputs.B_coordinate"
     assert inputs["line_p2"] == "$subquestion.i_2.outputs.F_coordinate"
-    assert inputs["known_point"] == "$problem.points.B"
+    assert inputs["known_point"] == "$question.i.outputs.B_coordinate"
     assert inputs["target"] == "$subquestion.i_2.points.E"
 
 
@@ -9274,5 +9274,10 @@ def test_write_strategy_debug_artifacts(tmp_path: Path) -> None:
     )
     assert semantic_report["changed"] is True
     assert semantic_report["resolutions"][0]["handle"] == "function:problem:parabola"
+    context_semantic_report = json.loads(
+        (tmp_path / "context-semantic-read-resolution-report.json").read_text(encoding="utf-8")
+    )
+    assert context_semantic_report["mirror_of"] == "semantic-read-resolution-report.json"
+    assert context_semantic_report["report"]["changed"] is True
     assert (tmp_path / "recipe-alignment.json").exists()
     assert (tmp_path / "candidate-resolution-report.json").exists()

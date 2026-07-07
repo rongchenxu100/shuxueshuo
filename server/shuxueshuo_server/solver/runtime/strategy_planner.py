@@ -51,8 +51,13 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     StrategyPrompt,
 )
 from shuxueshuo_server.solver.runtime.semantic_reads import (
+    ContextSemanticReadResolver,
     SemanticReadResolver,
     build_semantic_read_catalog_payload,
+)
+from shuxueshuo_server.solver.runtime.strategy_raw_outputs import (
+    RawStepOutputNormalizationResult,
+    normalize_raw_outputs,
 )
 from shuxueshuo_server.solver.runtime.strategy_normalizer import (
     StepIntentNormalizer,
@@ -133,6 +138,7 @@ __all__ = [
     "ScopeGraph",
     "MathObject",
     "Condition",
+    "ContextSemanticReadResolver",
     "StateSlot",
     "StepState",
     "StableStep",
@@ -178,6 +184,7 @@ __all__ = [
     "StrategyPrompt",
     "StrategyPromptRenderer",
     "sanitize_step_intent_raw_payload",
+    "RawStepOutputNormalizationResult",
     "MethodBindingRuleRegistry",
     "build_semantic_read_catalog_payload",
     "build_planner_retry_state",
@@ -185,6 +192,7 @@ __all__ = [
     "merge_previous_accepted_prefix",
     "repair_attempt_payload_from_replay",
     "retry_state_from_attempt",
+    "normalize_raw_outputs",
     "strategy_planner_provider",
     "write_strategy_debug_artifacts",
 ]

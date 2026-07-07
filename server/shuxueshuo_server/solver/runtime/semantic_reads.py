@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, replace
 import re
-from typing import Any
+from typing import Any, Protocol
 
 from shuxueshuo_server.solver.runtime.handle_alias_index import (
     COORDINATE_FACT_SUFFIXES,
@@ -47,6 +47,10 @@ class SemanticReadCatalogItem:
     value_type: str | None = None
     source_step_id: str | None = None
     description: str = ""
+    state_slot_id: str | None = None
+    condition_id: str | None = None
+    source_context_id: str | None = None
+    prompt_visible: bool = True
 
     def to_prompt_payload(self) -> dict[str, Any]:
         """Return the LLM-facing payload without the canonical handle."""
@@ -63,6 +67,21 @@ class SemanticReadCatalogItem:
         if self.description:
             payload["description"] = self.description
         return payload
+
+
+class ContextSemanticReadSource(Protocol):
+    """Planner context projection required by context-driven semantic reads."""
+
+    def semantic_read_catalog(
+        self,
+        scope_id: str | None = None,
+    ) -> tuple[SemanticReadCatalogItem, ...]:
+        """Return internal semantic read catalog items."""
+        ...
+
+    def semantic_read_catalog_payload(self) -> dict[str, Any]:
+        """Return prompt-facing semantic read catalog payload."""
+        ...
 
 
 class SemanticReadResolver:
@@ -125,8 +144,12 @@ class SemanticReadResolver:
         """Return the prompt-facing initial semantic read catalog."""
         items = self.initial_catalog()
         return {
-            "items": [item.to_prompt_payload() for item in items],
-            "item_count": len(items),
+            "items": [
+                item.to_prompt_payload()
+                for item in items
+                if item.prompt_visible
+            ],
+            "item_count": len([item for item in items if item.prompt_visible]),
         }
 
     def resolve_payload(
@@ -217,6 +240,9 @@ class SemanticReadResolver:
                                 candidate_count=candidate_count,
                                 overrode_legacy_reads=overrode_legacy_reads,
                                 inferred_from_step=inferred_from_step,
+                                state_slot_id=item.state_slot_id,
+                                condition_id=item.condition_id,
+                                source_context_id=item.source_context_id,
                             )
                         )
                     if step_errors:
@@ -370,6 +396,24 @@ class SemanticReadResolver:
         return candidates[0], len(candidates)
 
 
+class ContextSemanticReadResolver(SemanticReadResolver):
+    """Resolve semantic reads against a PlannerStateContext projection first."""
+
+    def __init__(
+        self,
+        registry: CanonicalHandleRegistry,
+        planner_state_context: ContextSemanticReadSource,
+    ) -> None:
+        super().__init__(registry)
+        self.planner_state_context = planner_state_context
+
+    def initial_catalog(self) -> tuple[SemanticReadCatalogItem, ...]:
+        return self.planner_state_context.semantic_read_catalog()
+
+    def initial_catalog_payload(self) -> dict[str, Any]:
+        return self.planner_state_context.semantic_read_catalog_payload()
+
+
 def _inferred_from_step(
     item: SemanticReadCatalogItem,
     semantic_ref: SemanticRef,
@@ -386,8 +430,14 @@ def _inferred_from_step(
 
 def build_semantic_read_catalog_payload(
     registry: CanonicalHandleRegistry,
+    planner_state_context: ContextSemanticReadSource | None = None,
 ) -> dict[str, Any]:
     """Build the prompt-facing semantic read catalog."""
+    if planner_state_context is not None:
+        return ContextSemanticReadResolver(
+            registry,
+            planner_state_context,
+        ).initial_catalog_payload()
     return SemanticReadResolver(registry).initial_catalog_payload()
 
 

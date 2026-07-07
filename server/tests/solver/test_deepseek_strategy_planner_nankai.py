@@ -681,6 +681,7 @@ def test_deepseek_strategy_planner_outputs_valid_step_intents_and_solves_nankai(
             resolution_report=resolution_report,
             effective_draft=effective_draft,
             diagnostic=diagnostic,
+            goal_verification_issues=replay.goal_verification_issues,
             output=replay.output,
             planner_state_context=replay.planner_state_context,
         )

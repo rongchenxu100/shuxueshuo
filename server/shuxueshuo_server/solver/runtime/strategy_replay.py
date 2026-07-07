@@ -5,10 +5,12 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from typing import Any
 
+from shuxueshuo_server.solver.runtime.answer_goal_verifier import AnswerGoalVerifier
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
 from shuxueshuo_server.solver.runtime.planner_state_context import (
     PlannerStateContext,
     PlannerStateContextBuilder,
+    initial_planner_state_context,
 )
 from shuxueshuo_server.solver.runtime.planner import PlannerInputs
 from shuxueshuo_server.solver.runtime.projection import problem_to_llm_payload
@@ -50,6 +52,7 @@ class PlannerRetryReplayResult:
     resolution_report: ExecutablePlanResolutionReport | None = None
     effective_draft: StepIntentDraft | None = None
     diagnostic: StepIntentExecutionDiagnostic | None = None
+    goal_verification_issues: tuple[Any, ...] = ()
     retry_state: PlannerRetryState | None = None
     output: Any | None = None
     planner_state_context: PlannerStateContext | None = None
@@ -90,6 +93,10 @@ class PlannerRetryReplayResult:
                 if self.diagnostic is not None
                 else None
             ),
+            "goal_verification_issues": [
+                issue.to_payload()
+                for issue in self.goal_verification_issues
+            ],
             "retry_state": (
                 self.retry_state.to_payload()
                 if self.retry_state is not None
@@ -123,11 +130,18 @@ class PlannerRetryReplayService:
             raw_response,
             previous_attempts=inputs.previous_errors,
         )
+        planner_state_context = _initial_planner_state_context(
+            inputs=inputs,
+            handle_registry=handle_registry,
+            problem_payload=problem_payload,
+            attempt=attempt,
+        )
         draft, validation_report = StepIntentValidator().validate_json_with_report(
             raw_response,
             question_goals=inputs.question_goals,
             handle_registry=handle_registry,
             family_spec=inputs.family_spec,
+            planner_state_context=planner_state_context,
         )
         if draft is None:
             replay_errors = errors or tuple(validation_report.errors)
@@ -242,6 +256,16 @@ class PlannerRetryReplayService:
             context=context,
             question_goals=inputs.question_goals,
         )
+        context_problem_payload, _context_warnings = _problem_payload_for_context(
+            inputs,
+            problem_payload,
+        )
+        goal_verification_issues = AnswerGoalVerifier().verify(
+            effective_draft,
+            problem_payload=context_problem_payload,
+            handle_registry=handle_registry,
+            diagnostic=diagnostic,
+        )
         retry_state = build_planner_retry_state(
             attempt=attempt,
             errors=errors,
@@ -251,6 +275,7 @@ class PlannerRetryReplayService:
             resolution_report=resolution_report,
             diagnostic=diagnostic,
             handle_registry=handle_registry,
+            goal_verification_issues=goal_verification_issues,
         )
         replay = PlannerRetryReplayResult(
             attempt=attempt,
@@ -262,6 +287,7 @@ class PlannerRetryReplayService:
             resolution_report=resolution_report,
             effective_draft=effective_draft,
             diagnostic=diagnostic,
+            goal_verification_issues=goal_verification_issues,
             retry_state=retry_state,
             output=output,
         )
@@ -284,6 +310,7 @@ class PlannerRetryReplayService:
         resolution_report: ExecutablePlanResolutionReport | None = None,
         effective_draft: StepIntentDraft | None = None,
         diagnostic: StepIntentExecutionDiagnostic | None = None,
+        goal_verification_issues: tuple[Any, ...] = (),
         output: Any | None = None,
         planner_state_context: PlannerStateContext | None = None,
     ) -> PlannerRetryReplayResult:
@@ -297,6 +324,7 @@ class PlannerRetryReplayService:
             normalization_report=normalization_report,
             resolution_report=resolution_report,
             diagnostic=diagnostic,
+            goal_verification_issues=goal_verification_issues,
         )
         return PlannerRetryReplayResult(
             attempt=attempt,
@@ -308,6 +336,7 @@ class PlannerRetryReplayService:
             resolution_report=resolution_report,
             effective_draft=effective_draft,
             diagnostic=diagnostic,
+            goal_verification_issues=goal_verification_issues,
             retry_state=retry_state,
             output=output,
             planner_state_context=planner_state_context,
@@ -319,7 +348,11 @@ def repair_attempt_payload_from_replay(
 ) -> dict[str, Any] | None:
     """从 replay result 生成 previous_attempts 可携带的 repair context。"""
     diagnostic = replay.diagnostic
-    if not replay.errors and (diagnostic is None or diagnostic.ok):
+    if (
+        replay.retry_state is None
+        and not replay.errors
+        and (diagnostic is None or diagnostic.ok)
+    ):
         return None
     effective = replay.effective_draft
     repair_summary = RepairFeedbackBuilder(
@@ -398,6 +431,25 @@ def _planner_state_context_from_replay(
         problem_payload=context_problem_payload,
         handle_registry=handle_registry,
         context_warnings=context_warnings,
+    )
+
+
+def _initial_planner_state_context(
+    *,
+    inputs: PlannerInputs,
+    handle_registry: CanonicalHandleRegistry,
+    problem_payload: dict[str, Any] | None,
+    attempt: int,
+) -> PlannerStateContext:
+    context_problem_payload, _context_warnings = _problem_payload_for_context(
+        inputs,
+        problem_payload,
+    )
+    return initial_planner_state_context(
+        inputs,
+        problem_payload=context_problem_payload,
+        handle_registry=handle_registry,
+        attempt=attempt,
     )
 
 

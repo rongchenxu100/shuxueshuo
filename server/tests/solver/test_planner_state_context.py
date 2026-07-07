@@ -20,6 +20,7 @@ del _name, _base, _base_path, _spec, util
 
 from shuxueshuo_server.solver.runtime.planner_state_context import (  # noqa: E402
     PlannerStateContextBuilder,
+    initial_planner_state_context,
 )
 from shuxueshuo_server.solver.family import (  # noqa: E402
     CapabilityContractSpec,
@@ -46,7 +47,7 @@ from shuxueshuo_server.solver.runtime.strategy_replay import (  # noqa: E402
 
 def test_planner_state_context_initial_snapshot_is_json_serializable() -> None:
     """Initial context should snapshot registry-visible planner state."""
-    ctx = PlannerStateContextBuilder.initial_from_inputs(
+    ctx = initial_planner_state_context(
         _nankai_inputs(),
         problem_payload=_nankai_llm_problem(),
         handle_registry=_registry(),
@@ -74,6 +75,13 @@ def test_planner_state_context_initial_snapshot_is_json_serializable() -> None:
     }
     assert sources["quadratic_from_constraints"] == "explicit"
     assert "projected" in set(sources.values())
+    point_d = next(
+        item
+        for item in payload["state"]["math_objects"]
+        if item["canonical_handle"] == "point:problem:D"
+    )
+    assert point_d["valid_scope"] == "problem"
+    assert "source_step_id" not in point_d
     json.dumps(payload, ensure_ascii=False)
 
 
@@ -94,6 +102,49 @@ def test_planner_state_context_scope_graph_and_valid_scope_are_explicit() -> Non
     )
     assert coefficient_relation.scope_id == "problem"
     assert coefficient_relation.valid_scope == "problem"
+
+
+def test_context_semantic_catalog_preserves_hidden_aliases_for_scoped_entity_refs() -> None:
+    """Scope-qualified prompt refs should keep hidden short-ref aliases."""
+    registry = CanonicalHandleRegistry(
+        scope_ids=frozenset(("problem", "i", "ii")),
+        entity_handles=frozenset(("point:i:A", "point:ii:A")),
+        fact_handles=frozenset(),
+        answer_handles=frozenset(),
+        scope_parents={"problem": None, "i": "problem", "ii": "problem"},
+        handle_valid_scopes={
+            "point:i:A": "i",
+            "point:ii:A": "ii",
+        },
+    )
+    ctx = PlannerStateContextBuilder.initial_from_inputs(
+        _nankai_inputs(),
+        problem_payload={"problem_id": "synthetic-duplicate-entities"},
+        handle_registry=registry,
+    )
+
+    items = ctx.semantic_read_catalog()
+    prompt_refs = {
+        (item.handle, item.ref)
+        for item in items
+        if item.kind == "point" and item.prompt_visible
+    }
+    hidden_refs = {
+        (item.handle, item.ref)
+        for item in items
+        if item.kind == "point" and not item.prompt_visible
+    }
+
+    assert prompt_refs == {
+        ("point:i:A", "i.A"),
+        ("point:ii:A", "ii.A"),
+    }
+    assert {
+        ("point:i:A", "A"),
+        ("point:ii:A", "A"),
+        ("point:i:A", "point:i:A"),
+        ("point:ii:A", "point:ii:A"),
+    }.issubset(hidden_refs)
 
 
 def test_planner_state_context_records_normalizer_promotion_rewrite() -> None:
@@ -380,6 +431,7 @@ def test_write_strategy_debug_artifacts_writes_planner_state_context(
     assert (tmp_path / "planner-state-context.json").exists()
     assert (tmp_path / "state-rewrite-ledger.json").exists()
     assert (tmp_path / "context-events.json").exists()
+    assert (tmp_path / "context-semantic-read-catalog.json").exists()
     assert json.loads((tmp_path / "planner-state-context.json").read_text())[
         "manifest"
     ]["context_type"] == "planner"

@@ -8,7 +8,7 @@ continuity without changing the executable StepIntent contract.
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, replace
 import hashlib
 import json
 from typing import Any, Literal, Protocol
@@ -21,8 +21,10 @@ from shuxueshuo_server.solver.runtime.output_type_inference import (
     semantic_name_from_handle,
     semantic_name_to_runtime_type,
 )
+from shuxueshuo_server.solver.runtime.semantic_reads import SemanticReadCatalogItem
 from shuxueshuo_server.solver.runtime.planner import PlannerInputs
 from shuxueshuo_server.solver.runtime.strategy_models import (
+    CreatedEntity,
     ProducedFact,
     StepIntent,
     StepIntentDraft,
@@ -97,9 +99,11 @@ class MathObject:
     canonical_handle: str | None
     semantic_refs: tuple[str, ...]
     source: ContextSource
+    valid_scope: str | None = None
+    source_step_id: str | None = None
 
     def to_payload(self) -> dict[str, Any]:
-        return {
+        payload: dict[str, Any] = {
             "object_id": self.object_id,
             "kind": self.kind,
             "scope_id": self.scope_id,
@@ -107,6 +111,11 @@ class MathObject:
             "semantic_refs": list(self.semantic_refs),
             "source": self.source,
         }
+        if self.valid_scope is not None:
+            payload["valid_scope"] = self.valid_scope
+        if self.source_step_id is not None:
+            payload["source_step_id"] = self.source_step_id
+        return payload
 
 
 @dataclass(frozen=True)
@@ -332,6 +341,25 @@ class PlannerStateContext:
         for issue in self.state.issues:
             events.append({"event": "issue", **dict(issue)})
         return events
+
+    def semantic_read_catalog(
+        self,
+        scope_id: str | None = None,
+    ) -> tuple[SemanticReadCatalogItem, ...]:
+        """Project context state into internal semantic read catalog items."""
+        del scope_id
+        return _semantic_read_catalog_from_context(self)
+
+    def semantic_read_catalog_payload(self) -> dict[str, Any]:
+        """Return the prompt-facing semantic read catalog projection."""
+        items = self.semantic_read_catalog()
+        prompt_items = [item.to_prompt_payload() for item in items if item.prompt_visible]
+        return {
+            "source": "planner_state_context",
+            "source_context_id": self.manifest.context_id,
+            "items": prompt_items,
+            "item_count": len(prompt_items),
+        }
 
 
 @dataclass
@@ -576,6 +604,11 @@ class PlannerStateContextBuilder:
                 produced_by=step.step_id,
                 status="planned",
             )
+            _classify_creates(
+                step.creates,
+                state=state,
+                produced_by=step.step_id,
+            )
             state.step_timeline.append(
                 StepState(
                     step_id=step.step_id,
@@ -728,6 +761,22 @@ class PlannerStateContextBuilder:
                 state.issues.append(dict(issue))
 
 
+def initial_planner_state_context(
+    inputs: PlannerInputs,
+    *,
+    problem_payload: dict[str, Any],
+    handle_registry: CanonicalHandleRegistry,
+    attempt: int = 0,
+) -> PlannerStateContext:
+    """Build the initial planner context through one shared entry point."""
+    return PlannerStateContextBuilder.initial_from_inputs(
+        inputs,
+        problem_payload=problem_payload,
+        handle_registry=handle_registry,
+        attempt=attempt,
+    )
+
+
 def _math_objects_from_registry(
     registry: CanonicalHandleRegistry,
 ) -> list[MathObject]:
@@ -742,6 +791,7 @@ def _math_objects_from_registry(
                 canonical_handle=handle,
                 semantic_refs=(name,),
                 source="problem",
+                valid_scope=registry.handle_valid_scopes.get(handle, scope_id),
             )
         )
     for handle in sorted(registry.answer_handles):
@@ -755,6 +805,7 @@ def _math_objects_from_registry(
                 canonical_handle=handle,
                 semantic_refs=(answer_id,),
                 source="answer",
+                valid_scope=scope_id,
             )
         )
     return result
@@ -893,6 +944,40 @@ def _classify_handles(
     return tuple(_unique_ordered(slot_reads)), tuple(_unique_ordered(condition_reads))
 
 
+def _classify_creates(
+    creates: tuple[CreatedEntity, ...],
+    *,
+    state: _MutableState,
+    produced_by: str,
+) -> None:
+    for item in creates:
+        handle = item.handle
+        kind = item.entity_type or _scope_kind_from_handle(handle)
+        if not kind:
+            continue
+        scope_id = _scope_from_handle(handle) or item.valid_scope
+        name = _semantic_ref(handle)
+        object_id = f"{kind}:{name}@{scope_id}"
+        if any(existing.object_id == object_id for existing in state.math_objects):
+            continue
+        state.math_objects.append(
+            MathObject(
+                object_id=object_id,
+                kind=kind,
+                scope_id=scope_id,
+                canonical_handle=handle,
+                semantic_refs=(name,),
+                source="derived",
+                valid_scope=item.valid_scope or scope_id,
+                source_step_id=produced_by,
+            )
+        )
+        state.alias_index.by_handle[handle] = object_id
+        refs = list(state.alias_index.by_semantic_ref.get(name, ()))
+        refs.append(object_id)
+        state.alias_index.by_semantic_ref[name] = tuple(_unique_ordered(refs))
+
+
 def _classify_produces(
     produces: tuple[ProducedFact, ...],
     *,
@@ -906,7 +991,14 @@ def _classify_produces(
     for item in produces:
         runtime_type = _runtime_type_for_produced(item, handle_registry)
         if _produced_is_condition(item, handle_registry, runtime_type):
-            condition_id = f"condition:{_semantic_ref(item.handle)}@{_scope_from_handle(item.handle) or item.valid_scope}"
+            condition = _ensure_produced_condition(
+                state,
+                item,
+                produced_by=produced_by,
+                handle_registry=handle_registry,
+                runtime_type=runtime_type,
+            )
+            condition_id = condition.condition_id
             condition_writes.append(condition_id)
             continue
         slot = _ensure_produced_slot(
@@ -918,6 +1010,42 @@ def _classify_produces(
         )
         slot_writes.append(slot.slot_id)
     return tuple(_unique_ordered(slot_writes)), tuple(_unique_ordered(condition_writes))
+
+
+def _ensure_produced_condition(
+    state: _MutableState,
+    item: ProducedFact,
+    *,
+    produced_by: str,
+    handle_registry: CanonicalHandleRegistry,
+    runtime_type: str,
+) -> Condition:
+    scope_id = _scope_from_handle(item.handle) or item.valid_scope
+    ref = _semantic_ref(item.handle)
+    condition_id = f"condition:{ref}@{scope_id}"
+    existing = next(
+        (condition for condition in state.conditions if condition.condition_id == condition_id),
+        None,
+    )
+    if existing is not None:
+        state.alias_index.by_handle[item.handle] = existing.condition_id
+        return existing
+    value_type = handle_registry.fact_types.get(item.handle) or item.output_type or runtime_type
+    condition = Condition(
+        condition_id=condition_id,
+        kind=value_type,
+        scope_id=scope_id,
+        canonical_handle=item.handle,
+        value_type=value_type,
+        source_step_id=produced_by,
+        valid_scope=item.valid_scope,
+    )
+    state.conditions.append(condition)
+    state.alias_index.by_handle[item.handle] = condition_id
+    refs = list(state.alias_index.by_semantic_ref.get(ref, ()))
+    refs.append(condition_id)
+    state.alias_index.by_semantic_ref[ref] = tuple(_unique_ordered(refs))
+    return condition
 
 
 def _ensure_produced_slot(
@@ -1186,8 +1314,135 @@ def _scope_from_handle(handle: str) -> str | None:
     return None
 
 
+def _scope_kind_from_handle(handle: str) -> str | None:
+    parts = handle.split(":", 2)
+    if len(parts) == 3:
+        return parts[0]
+    return None
+
+
 def _semantic_ref(handle: str) -> str:
     return semantic_name_from_handle(handle)
+
+
+def _semantic_read_catalog_from_context(
+    context: PlannerStateContext,
+) -> tuple[SemanticReadCatalogItem, ...]:
+    source_context_id = context.manifest.context_id
+    items: list[SemanticReadCatalogItem] = []
+    entity_items: list[SemanticReadCatalogItem] = []
+    for item in context.state.math_objects:
+        if item.kind == "answer":
+            continue
+        handle = item.canonical_handle
+        if handle is None:
+            continue
+        valid_scope = item.valid_scope or item.scope_id
+        for ref in item.semantic_refs:
+            entity_items.append(
+                SemanticReadCatalogItem(
+                    handle=handle,
+                    kind=item.kind,
+                    ref=ref,
+                    scope=item.scope_id,
+                    valid_scope=valid_scope,
+                    source_step_id=item.source_step_id,
+                    source_context_id=source_context_id,
+                )
+            )
+        entity_items.append(
+            SemanticReadCatalogItem(
+                handle=handle,
+                kind=item.kind,
+                ref=handle,
+                scope=item.scope_id,
+                valid_scope=valid_scope,
+                source_step_id=item.source_step_id,
+                source_context_id=source_context_id,
+                prompt_visible=False,
+            )
+        )
+    items.extend(_disambiguate_context_entity_refs(entity_items))
+    for condition in context.state.conditions:
+        handle = condition.canonical_handle
+        if handle is None:
+            continue
+        items.append(
+            SemanticReadCatalogItem(
+                handle=handle,
+                kind="fact",
+                ref=_semantic_ref(handle),
+                scope=condition.scope_id,
+                valid_scope=condition.valid_scope or condition.scope_id,
+                value_type=condition.value_type,
+                source_step_id=condition.source_step_id,
+                condition_id=condition.condition_id,
+                source_context_id=source_context_id,
+            )
+        )
+    for slot in context.state.state_slots:
+        handle = slot.canonical_handle
+        if handle is None:
+            continue
+        kind = "answer" if handle.startswith("answer:") else "fact"
+        ref = handle.removeprefix("answer:") if kind == "answer" else _semantic_ref(handle)
+        items.append(
+            SemanticReadCatalogItem(
+                handle=handle,
+                kind=kind,
+                ref=ref,
+                scope=slot.scope_id,
+                valid_scope=slot.valid_scope or slot.scope_id,
+                value_type=_llm_value_type_for_slot(slot),
+                source_step_id=slot.produced_by,
+                state_slot_id=slot.slot_id,
+                source_context_id=source_context_id,
+            )
+        )
+        for alias in slot.aliases:
+            if alias == handle or alias == ref:
+                continue
+            items.append(
+                SemanticReadCatalogItem(
+                    handle=handle,
+                    kind=kind,
+                    ref=alias,
+                    scope=slot.scope_id,
+                    valid_scope=slot.valid_scope or slot.scope_id,
+                    value_type=_llm_value_type_for_slot(slot),
+                    source_step_id=slot.produced_by,
+                    state_slot_id=slot.slot_id,
+                    source_context_id=source_context_id,
+                    prompt_visible=False,
+                )
+            )
+    return tuple(items)
+
+
+def _disambiguate_context_entity_refs(
+    items: list[SemanticReadCatalogItem],
+) -> tuple[SemanticReadCatalogItem, ...]:
+    counts: dict[tuple[str, str], int] = {}
+    for item in items:
+        if not item.prompt_visible:
+            continue
+        key = (item.kind, item.ref)
+        counts[key] = counts.get(key, 0) + 1
+    result: list[SemanticReadCatalogItem] = []
+    for item in items:
+        if item.prompt_visible and counts.get((item.kind, item.ref), 0) > 1:
+            result.append(replace(item, ref=item.ref, prompt_visible=False))
+            result.append(replace(item, ref=f"{item.scope}.{item.ref}"))
+        else:
+            result.append(item)
+    return tuple(result)
+
+
+def _llm_value_type_for_slot(slot: StateSlot) -> str:
+    """Project runtime slot type to the current LLM-facing value_type vocabulary."""
+    if slot.runtime_type == "Point" and slot.state_kind == "coordinate":
+        return "point_coordinate"
+    return slot.runtime_type
 
 
 def _aliases_for_handle(
@@ -1213,6 +1468,7 @@ __all__ = [
     "PlannerState",
     "PlannerStateContext",
     "PlannerStateContextBuilder",
+    "initial_planner_state_context",
     "ScopeGraph",
     "StableStep",
     "StateRewriteEvent",

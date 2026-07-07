@@ -27,6 +27,8 @@ from shuxueshuo_server.solver.runtime.handle_registry import (
     _semantic_name,
 )
 from shuxueshuo_server.solver.runtime.semantic_reads import (
+    ContextSemanticReadResolver,
+    ContextSemanticReadSource,
     SemanticReadResolver,
     payload_has_nonempty_semantic_reads,
 )
@@ -50,6 +52,9 @@ from shuxueshuo_server.solver.runtime.strategy_resolver import (
     _unique_ordered,
     build_executable_capabilities,
 )
+from shuxueshuo_server.solver.runtime.strategy_raw_outputs import (
+    normalize_raw_outputs,
+)
 
 class StepIntentValidator:
     """Phase 1 StepIntent 校验器。
@@ -69,6 +74,7 @@ class StepIntentValidator:
         question_goals: list[QuestionGoal] | tuple[QuestionGoal, ...] = (),
         handle_registry: CanonicalHandleRegistry | None = None,
         family_spec: SolverFamilySpec | None = None,
+        planner_state_context: ContextSemanticReadSource | None = None,
     ) -> StepIntentDraft:
         """解析并校验 LLM 原始 JSON 字符串。"""
         self.last_handle_resolution_report = None
@@ -79,6 +85,7 @@ class StepIntentValidator:
             question_goals=question_goals,
             handle_registry=handle_registry,
             family_spec=family_spec,
+            planner_state_context=planner_state_context,
         )
 
     def validate_json_with_report(
@@ -88,6 +95,7 @@ class StepIntentValidator:
         question_goals: list[QuestionGoal] | tuple[QuestionGoal, ...] = (),
         handle_registry: CanonicalHandleRegistry | None = None,
         family_spec: SolverFamilySpec | None = None,
+        planner_state_context: ContextSemanticReadSource | None = None,
     ) -> tuple[StepIntentDraft | None, StepIntentValidationReport]:
         """校验并返回报告；集成测试用它把失败原因写入 debug artifact。"""
         try:
@@ -96,6 +104,7 @@ class StepIntentValidator:
                 question_goals=question_goals,
                 handle_registry=handle_registry,
                 family_spec=family_spec,
+                planner_state_context=planner_state_context,
             )
         except StrategyDraftValidationError as exc:
             return None, StepIntentValidationReport(
@@ -120,6 +129,7 @@ class StepIntentValidator:
         question_goals: list[QuestionGoal] | tuple[QuestionGoal, ...] = (),
         handle_registry: CanonicalHandleRegistry | None = None,
         family_spec: SolverFamilySpec | None = None,
+        planner_state_context: ContextSemanticReadSource | None = None,
     ) -> StepIntentDraft:
         """校验已解析 JSON 对象，并转成 StepIntentDraft。"""
         self.last_handle_resolution_report = None
@@ -132,6 +142,10 @@ class StepIntentValidator:
                 f"top-level response contains unsupported fields: {', '.join(extra)}"
             )
         _reject_forbidden_payload(data)
+        data, _raw_output_report = normalize_raw_outputs(
+            data,
+            handle_registry=handle_registry,
+        )
         raw_scopes = data.get("scopes")
         if not isinstance(raw_scopes, list) or not raw_scopes:
             raise StrategyDraftValidationError("scopes must be a non-empty list")
@@ -140,7 +154,12 @@ class StepIntentValidator:
                 raise StrategyDraftValidationError(
                     "semantic_reads_require_handle_registry"
                 )
-            data, semantic_report = SemanticReadResolver(handle_registry).resolve_payload(data)
+            semantic_resolver = (
+                ContextSemanticReadResolver(handle_registry, planner_state_context)
+                if planner_state_context is not None
+                else SemanticReadResolver(handle_registry)
+            )
+            data, semantic_report = semantic_resolver.resolve_payload(data)
             raw_scopes = data.get("scopes")
             self.last_semantic_read_resolution_report = semantic_report
             if semantic_report.errors:

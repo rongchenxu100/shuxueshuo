@@ -5,6 +5,16 @@ from pathlib import Path
 from types import SimpleNamespace
 
 from shuxueshuo_server.solver.runtime.handle_alias_index import HandleAliasIndex
+from shuxueshuo_server.solver.runtime.planner_state_context import (
+    PlannerStateContextBuilder,
+)
+from shuxueshuo_server.solver.runtime.semantic_reads import (
+    ContextSemanticReadResolver,
+)
+from shuxueshuo_server.solver.runtime.strategy_raw_outputs import (
+    normalize_raw_outputs,
+)
+from shuxueshuo_server.solver.runtime.strategy_replay import PlannerRetryReplayResult
 
 # Transitional domain split: shared fixtures/helpers still live in
 # test_strategy_planner_phase1.py until the support module is extracted.
@@ -26,6 +36,8 @@ def test_strategy_payload_includes_semantic_read_catalog_without_handles() -> No
     catalog = payload["semantic_read_catalog"]
     items = catalog["items"]
 
+    assert catalog["source"] == "planner_state_context"
+    assert catalog["source_context_id"]
     assert catalog["item_count"] == len(items)
     assert {"ref": "D", "kind": "point", "scope": "problem"} in [
         {
@@ -50,6 +62,51 @@ def test_strategy_payload_includes_semantic_read_catalog_without_handles() -> No
     assert all("handle" not in item for item in items)
 
 
+def test_context_semantic_read_resolver_reports_context_state_ids() -> None:
+    """Context-driven resolver should keep canonical reads plus context identity."""
+    inputs = _nankai_inputs()
+    ctx = PlannerStateContextBuilder.initial_from_inputs(
+        inputs,
+        problem_payload=_nankai_llm_problem(),
+        handle_registry=_registry(),
+    )
+    payload = _valid_step_intent_payload()
+    first_step = payload["scopes"][0]["steps"][0]
+    first_step["reads"] = ["fact:problem:not_a_real_handle"]
+    first_step["semantic_reads"] = [
+        {"kind": "function", "ref": "parabola", "value_type": "quadratic"},
+        {
+            "kind": "fact",
+            "ref": "coefficient_relation",
+            "value_type": "coefficient_relation",
+        },
+    ]
+
+    validator = StepIntentValidator()
+    draft = validator.validate_json(
+        json.dumps(payload, ensure_ascii=False),
+        question_goals=inputs.question_goals,
+        handle_registry=_registry(),
+        planner_state_context=ctx,
+    )
+
+    assert draft.steps[0].reads == (
+        "function:problem:parabola",
+        "fact:problem:coefficient_relation",
+    )
+    report = validator.last_semantic_read_resolution_report
+    assert report is not None
+    assert {item.source_context_id for item in report.resolutions} == {
+        ctx.manifest.context_id
+    }
+    condition_resolution = next(
+        item
+        for item in report.resolutions
+        if item.handle == "fact:problem:coefficient_relation"
+    )
+    assert condition_resolution.condition_id is not None
+
+
 def test_semantic_read_catalog_uses_registry_answer_valid_scope() -> None:
     """answer catalog 的 scope 应来自 registry，而不是从 answer id 字符串猜测。"""
     registry = CanonicalHandleRegistry(
@@ -69,6 +126,81 @@ def test_semantic_read_catalog_uses_registry_answer_valid_scope() -> None:
     assert item["ref"] == "foo_bar"
     assert item["scope"] == "ii_1"
     assert item["valid_scope"] == "ii_1"
+
+
+def test_context_semantic_read_resolver_can_read_context_state_slot() -> None:
+    """A replay-built StateSlot should be readable through Context semantic catalog."""
+    registry = CanonicalHandleRegistry(
+        scope_ids=frozenset(("problem", "i")),
+        entity_handles=frozenset(),
+        fact_handles=frozenset(),
+        answer_handles=frozenset(),
+        scope_parents={"problem": None, "i": "problem"},
+        handle_valid_scopes={},
+    )
+    inputs = _nankai_inputs()
+    produced_step = _step(
+        scope_id="i",
+        step_id="derive_A_coordinate",
+        recipe_hint=None,
+        goal_type="derive_point_coordinate",
+        target="fact:i:A_coordinate",
+        produces=(
+            ProducedFact(
+                "fact:i:A_coordinate",
+                "i",
+                "A 点坐标",
+                output_type="Point",
+            ),
+        ),
+    )
+    replay = PlannerRetryReplayResult(
+        attempt=1,
+        normalized_draft=_single_scope_draft(produced_step, scope_id="i"),
+    )
+    ctx = PlannerStateContextBuilder.from_replay_result(
+        replay,
+        inputs=inputs,
+        problem_payload=_nankai_llm_problem(),
+        handle_registry=registry,
+    )
+    raw_payload = {
+        "scopes": [
+            {
+                "scope_id": "i",
+                "label": "第（Ⅰ）问",
+                "steps": [
+                    {
+                        "step_id": "use_A_coordinate",
+                        "recipe_hint": None,
+                        "goal_type": "derive_expression",
+                        "target": "fact:i:next",
+                        "strategy": "读取前序坐标状态。",
+                        "semantic_reads": [
+                            {
+                                "kind": "fact",
+                                "ref": "A_coordinate",
+                                "value_type": "point_coordinate",
+                                "from_step": "derive_A_coordinate",
+                            }
+                        ],
+                        "creates": [],
+                        "produces": [],
+                        "reason": "测试 context slot read。",
+                    }
+                ],
+            }
+        ]
+    }
+
+    normalized, report = ContextSemanticReadResolver(
+        registry,
+        ctx,
+    ).resolve_payload(raw_payload)
+
+    assert normalized["scopes"][0]["steps"][0]["reads"] == ["fact:i:A_coordinate"]
+    assert report.errors == ()
+    assert report.resolutions[0].state_slot_id is not None
 
 
 def test_handle_alias_index_matches_initial_point_coordinate_fact_without_from_step() -> None:
@@ -104,6 +236,244 @@ def test_handle_alias_index_matches_initial_point_coordinate_fact_without_from_s
     )
 
     assert matches == [item]
+
+
+def test_raw_outputs_split_new_entity_into_creates() -> None:
+    """LLM-friendly outputs[] can declare a new entity without writing creates."""
+    registry = CanonicalHandleRegistry(
+        scope_ids=frozenset(("problem", "i")),
+        entity_handles=frozenset(),
+        fact_handles=frozenset(),
+        answer_handles=frozenset(),
+        scope_parents={"problem": None, "i": "problem"},
+    )
+    payload = {
+        "scopes": [
+            {
+                "scope_id": "i",
+                "label": "第（Ⅰ）问",
+                "steps": [
+                    {
+                        "step_id": "create_aux_point",
+                        "recipe_hint": None,
+                        "goal_type": "construct_point",
+                        "target": "point:i:Aux",
+                        "strategy": "声明辅助点。",
+                        "reads": [],
+                        "outputs": [
+                            {
+                                "handle": "point:i:Aux",
+                                "valid_scope": "i",
+                                "description": "辅助点",
+                            }
+                        ],
+                        "reason": "测试 outputs 分拣。",
+                    }
+                ],
+            }
+        ]
+    }
+
+    draft = StepIntentValidator().validate(
+        payload,
+        handle_registry=registry,
+    )
+
+    assert draft.steps[0].creates == (
+        CreatedEntity("point:i:Aux", "point", "i", "辅助点"),
+    )
+    assert draft.steps[0].produces == ()
+
+
+def test_raw_outputs_split_fact_and_existing_entity() -> None:
+    """outputs[] should produce new facts and turn existing objects into reads."""
+    registry = CanonicalHandleRegistry(
+        scope_ids=frozenset(("problem", "i")),
+        entity_handles=frozenset(("point:problem:A",)),
+        fact_handles=frozenset(),
+        answer_handles=frozenset(),
+        scope_parents={"problem": None, "i": "problem"},
+        handle_valid_scopes={"point:problem:A": "problem"},
+    )
+    payload = {
+        "scopes": [
+            {
+                "scope_id": "i",
+                "label": "第（Ⅰ）问",
+                "steps": [
+                    {
+                        "step_id": "derive_A_coordinate",
+                        "recipe_hint": None,
+                        "goal_type": "derive_point_coordinate",
+                        "target": "fact:i:A_coordinate",
+                        "strategy": "读取已有点并输出坐标事实。",
+                        "reads": [],
+                        "outputs": [
+                            {
+                                "handle": "point:problem:A",
+                                "valid_scope": "problem",
+                                "description": "题面点 A",
+                            },
+                            {
+                                "handle": "fact:i:A_coordinate",
+                                "valid_scope": "i",
+                                "description": "A 点坐标",
+                                "output_type": "Point",
+                            },
+                        ],
+                        "reason": "测试 outputs 分拣。",
+                    }
+                ],
+            }
+        ]
+    }
+
+    draft = StepIntentValidator().validate(
+        payload,
+        handle_registry=registry,
+    )
+
+    assert draft.steps[0].reads == ("point:problem:A",)
+    assert draft.steps[0].creates == ()
+    assert draft.steps[0].produces == (
+        ProducedFact("fact:i:A_coordinate", "i", "A 点坐标", "Point"),
+    )
+
+
+def test_missing_empty_creates_is_defaulted_when_produces_present() -> None:
+    """LLM need not spell creates: [] when a step only produces facts."""
+    registry = CanonicalHandleRegistry(
+        scope_ids=frozenset(("problem", "i")),
+        entity_handles=frozenset(),
+        fact_handles=frozenset(),
+        answer_handles=frozenset(),
+        scope_parents={"problem": None, "i": "problem"},
+    )
+    payload = {
+        "scopes": [
+            {
+                "scope_id": "i",
+                "label": "第（Ⅰ）问",
+                "steps": [
+                    {
+                        "step_id": "derive_A_coordinate",
+                        "recipe_hint": None,
+                        "goal_type": "derive_point_coordinate",
+                        "target": "fact:i:A_coordinate",
+                        "strategy": "输出坐标事实。",
+                        "reads": [],
+                        "produces": [
+                            {
+                                "handle": "fact:i:A_coordinate",
+                                "valid_scope": "i",
+                                "description": "A 点坐标",
+                                "output_type": "Point",
+                            }
+                        ],
+                        "reason": "测试缺省 creates。",
+                    }
+                ],
+            }
+        ]
+    }
+
+    draft = StepIntentValidator().validate(
+        payload,
+        handle_registry=registry,
+    )
+
+    assert draft.steps[0].creates == ()
+    assert draft.steps[0].produces == (
+        ProducedFact("fact:i:A_coordinate", "i", "A 点坐标", "Point"),
+    )
+
+
+def test_raw_outputs_warns_when_mixed_with_legacy_output_fields() -> None:
+    """Mixed outputs[] and legacy fields should remain visible to repair tooling."""
+    registry = CanonicalHandleRegistry(
+        scope_ids=frozenset(("problem", "i")),
+        entity_handles=frozenset(),
+        fact_handles=frozenset(),
+        answer_handles=frozenset(),
+        scope_parents={"problem": None, "i": "problem"},
+    )
+    outputs_only = {
+        "scopes": [
+            {
+                "scope_id": "i",
+                "label": "第（Ⅰ）问",
+                "steps": [
+                    {
+                        "step_id": "create_aux",
+                        "reads": [],
+                        "outputs": [
+                            {
+                                "handle": "point:i:Aux",
+                                "valid_scope": "i",
+                                "description": "辅助点",
+                            }
+                        ],
+                    }
+                ],
+            }
+        ]
+    }
+    mixed = {
+        "scopes": [
+            {
+                "scope_id": "i",
+                "label": "第（Ⅰ）问",
+                "steps": [
+                    {
+                        "step_id": "create_aux",
+                        "reads": [],
+                        "creates": [
+                            {
+                                "handle": "point:i:Aux",
+                                "entity_type": "point",
+                                "valid_scope": "i",
+                                "description": "legacy 辅助点",
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "handle": "point:i:Aux",
+                                "valid_scope": "i",
+                                "description": "outputs 辅助点",
+                            }
+                        ],
+                    }
+                ],
+            }
+        ]
+    }
+
+    _normalized_outputs_only, outputs_only_report = normalize_raw_outputs(
+        outputs_only,
+        handle_registry=registry,
+    )
+    normalized_mixed, mixed_report = normalize_raw_outputs(
+        mixed,
+        handle_registry=registry,
+    )
+
+    assert not any(
+        warning.startswith("raw_output_mixed_with_legacy_outputs")
+        for warning in outputs_only_report.warnings
+    )
+    assert any(
+        warning.startswith("raw_output_mixed_with_legacy_outputs")
+        and "uses outputs with creates" in warning
+        for warning in mixed_report.warnings
+    )
+    assert normalized_mixed["scopes"][0]["steps"][0]["creates"] == [
+        {
+            "handle": "point:i:Aux",
+            "entity_type": "point",
+            "valid_scope": "i",
+            "description": "legacy 辅助点",
+        }
+    ]
 
 
 def test_step_intent_schema_semantic_read_kinds_use_shared_constant() -> None:

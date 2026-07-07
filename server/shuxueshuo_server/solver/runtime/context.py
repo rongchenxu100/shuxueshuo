@@ -617,11 +617,12 @@ class ContextBuilder:
         - 无法判断时退回 problem，保证可见但不做解法假设。
         """
         definition = raw.get("definition")
-        if raw.get("scope_id") == "problem" and "coordinate" in raw:
+        raw_scope = str(raw.get("scope_id") or "").strip()
+        if raw_scope == "problem" and "coordinate" in raw:
             return "problem"
-        if raw.get("scope_id") not in {None, "", "problem"} and "coordinate" in raw:
-            return str(raw.get("scope_id"))
-        if raw.get("scope_id") == "problem" and definition in {
+        if raw_scope and raw_scope != "problem" and raw_scope in context.scopes:
+            return raw_scope
+        if raw_scope == "problem" and definition in {
             "coordinate_origin",
             "y_axis_intercept",
             "translated_point",

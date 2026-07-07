@@ -54,6 +54,14 @@ class _PointValueCandidate:
     handle: str
     rank: int
 
+
+_CURVE_MEMBERSHIP_FACT_TYPES = frozenset(
+    {
+        "point_on_curve",
+        "point_on_curve_with_x_coordinate",
+    }
+)
+
 class MethodBindingRuleRegistry:
     """把 StepIntent semantic handles 绑定到 method input slots。
 
@@ -1478,7 +1486,11 @@ def _curve_point_handles_from_reads(
     """
     point_names: list[str] = []
     for handle in step.reads:
-        if index.fact_types.get(handle) != "point_on_curve":
+        if index.fact_types.get(handle) not in _CURVE_MEMBERSHIP_FACT_TYPES:
+            continue
+        point_handle = _curve_membership_point_handle(handle, step, index)
+        if point_handle is not None:
+            point_names.append(_handle_name(point_handle))
             continue
         point_names.append(_semantic_name(handle).split("_on_", 1)[0])
     for handle in step.reads:
@@ -1744,10 +1756,14 @@ def _visible_point_on_curve_fact_for_name(
     step: StepIntent,
     index: CanonicalRuntimeBindingIndex,
 ) -> str | None:
-    """查找当前 scope 可见的 ``point_on_curve`` 题设 fact。"""
+    """查找当前 scope 可见的曲线成员关系题设 fact。"""
     prefix = f"{point_name}_on_"
-    for handle in index.handles_by_fact_type("point_on_curve"):
-        if not _semantic_name(handle).startswith(prefix):
+    for handle in _curve_membership_fact_handles(index):
+        point_handle = _curve_membership_point_handle(handle, step, index)
+        if point_handle is not None:
+            if _handle_name(point_handle) != point_name:
+                continue
+        elif not _semantic_name(handle).startswith(prefix):
             continue
         fact_scope = index.handle_registry.handle_valid_scopes.get(handle)
         if fact_scope is None or not index.context.is_visible(step.scope_id, fact_scope):
@@ -1788,9 +1804,13 @@ def _visible_curve_point_handles(
     曲线点；但不能读取 sibling 或 child-only scope 的曲线点。
     """
     point_names: list[str] = []
-    for handle in index.handles_by_fact_type("point_on_curve"):
+    for handle in _curve_membership_fact_handles(index):
         fact_scope = index.handle_registry.handle_valid_scopes.get(handle)
         if fact_scope is None or not index.context.is_visible(step.scope_id, fact_scope):
+            continue
+        point_handle = _curve_membership_point_handle(handle, step, index)
+        if point_handle is not None:
+            point_names.append(_handle_name(point_handle))
             continue
         point_names.append(_semantic_name(handle).split("_on_", 1)[0])
     handles: list[str] = []
@@ -2352,10 +2372,11 @@ def _line_parabola_roles(
     line_points = _unique_ordered(line_points)
     if len(line_points) < 2:
         raise StrategyDraftValidationError(f"line_parabola_line_points_not_found: {step.step_id}")
-    known_candidates = _curve_point_names_from_reads(step, index)
+    known_candidates = set(_curve_point_handles_from_curve_fact_reads(step, index))
+    known_candidates.update(_visible_curve_membership_line_points(line_points, step, index))
     known = None
     for handle in line_points:
-        if _handle_name(handle) in known_candidates:
+        if handle in known_candidates:
             known = handle
             break
     if known is None:
@@ -2386,17 +2407,88 @@ def _point_handles_from_coordinate_fact_reads(
             continue
     return result
 
-def _curve_point_names_from_reads(
+def _curve_point_handles_from_curve_fact_reads(
     step: StepIntent,
     index: CanonicalRuntimeBindingIndex,
-) -> set[str]:
-    """读取 step 显式读入的 point_on_curve fact 对应点名。"""
-    names: set[str] = set()
+) -> list[str]:
+    """读取 step 显式读入的曲线成员关系 fact 对应点 handle。"""
+    handles: list[str] = []
     for handle in step.reads:
-        if index.fact_types.get(handle) != "point_on_curve":
+        if index.fact_types.get(handle) not in _CURVE_MEMBERSHIP_FACT_TYPES:
             continue
-        names.add(_semantic_name(handle).split("_on_", 1)[0])
-    return names
+        point_handle = _curve_membership_point_handle(handle, step, index)
+        if point_handle is not None:
+            handles.append(point_handle)
+            continue
+        point_name = _semantic_name(handle).split("_on_", 1)[0]
+        try:
+            handles.append(index.point_handle_by_name(point_name, step=step))
+        except StrategyDraftValidationError:
+            continue
+    return _unique_ordered(handles)
+
+
+def _visible_curve_membership_line_points(
+    line_points: list[str],
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> list[str]:
+    """从题设可见曲线成员关系中识别直线上的已知曲线点。"""
+    handles: list[str] = []
+    for point_handle in line_points:
+        if _visible_curve_membership_fact_for_point(point_handle, step, index) is not None:
+            handles.append(point_handle)
+    return _unique_ordered(handles)
+
+
+def _visible_curve_membership_fact_for_point(
+    point_handle: str,
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> str | None:
+    """查找当前 scope 可见且精确绑定到 ``point_handle`` 的曲线成员关系 fact。"""
+    point_name = _handle_name(point_handle)
+    for handle in _curve_membership_fact_handles(index):
+        fact_scope = index.handle_registry.handle_valid_scopes.get(handle)
+        if fact_scope is None or not index.context.is_visible(step.scope_id, fact_scope):
+            continue
+        fact_point = _curve_membership_point_handle(handle, step, index)
+        if fact_point is not None:
+            if fact_point == point_handle:
+                return handle
+            continue
+        if _semantic_name(handle).startswith(f"{point_name}_on_"):
+            return handle
+    return None
+
+
+def _curve_membership_fact_handles(index: CanonicalRuntimeBindingIndex) -> list[str]:
+    """返回所有表示点在曲线上的 fact handle，保持稳定顺序。"""
+    handles: list[str] = []
+    for fact_type in sorted(_CURVE_MEMBERSHIP_FACT_TYPES):
+        handles.extend(index.handles_by_fact_type(fact_type))
+    return _unique_ordered(handles)
+
+
+def _curve_membership_point_handle(
+    fact_handle: str,
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> str | None:
+    """从曲线成员关系 fact 的结构化 payload 读取 point handle。"""
+    if index.fact_types.get(fact_handle) not in _CURVE_MEMBERSHIP_FACT_TYPES:
+        return None
+    payload = index.handle_registry.fact_payloads.get(fact_handle)
+    if isinstance(payload, Mapping):
+        point = payload.get("point")
+        if isinstance(point, str) and point.startswith("point:"):
+            return point
+    point_name = _semantic_name(fact_handle).split("_on_", 1)[0]
+    try:
+        return index.point_handle_by_name(point_name, step=step)
+    except StrategyDraftValidationError:
+        return None
+
 
 def _equal_length_ray_roles(
     step: StepIntent,

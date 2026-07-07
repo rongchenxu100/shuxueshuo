@@ -315,6 +315,9 @@ class SemanticReadResolution:
     candidate_count: int
     overrode_legacy_reads: bool = False
     inferred_from_step: str | None = None
+    state_slot_id: str | None = None
+    condition_id: str | None = None
+    source_context_id: str | None = None
 
     def to_payload(self) -> dict[str, Any]:
         """转成 JSON 友好结构。"""
@@ -328,6 +331,12 @@ class SemanticReadResolution:
         }
         if self.inferred_from_step is not None:
             payload["inferred_from_step"] = self.inferred_from_step
+        if self.state_slot_id is not None:
+            payload["state_slot_id"] = self.state_slot_id
+        if self.condition_id is not None:
+            payload["condition_id"] = self.condition_id
+        if self.source_context_id is not None:
+            payload["source_context_id"] = self.source_context_id
         return payload
 
 
@@ -708,6 +717,7 @@ PlannerRetryLayer = Literal[
     "normalization",
     "candidate_resolution",
     "trial_execution",
+    "goal_verification",
     "answer_check",
 ]
 
@@ -726,6 +736,7 @@ PlannerReplayDepth = Literal[
     "normalization",
     "candidate_resolution",
     "trial_execution",
+    "goal_verification",
     "answer_check",
 ]
 
@@ -988,13 +999,20 @@ STEP_INTENT_JSON_SCHEMA: dict[str, Any] = {
                                 {"required": ["reads"]},
                                 {"required": ["semantic_reads"]},
                             ],
+                            "allOf": [
+                                {
+                                    "anyOf": [
+                                        {"required": ["creates"]},
+                                        {"required": ["produces"]},
+                                        {"required": ["outputs"]},
+                                    ],
+                                },
+                            ],
                             "required": [
                                 "step_id",
                                 "goal_type",
                                 "target",
                                 "strategy",
-                                "creates",
-                                "produces",
                                 "reason",
                             ],
                             "properties": {
@@ -1105,6 +1123,40 @@ STEP_INTENT_JSON_SCHEMA: dict[str, Any] = {
                                                 "type": ["string", "null"],
                                                 "enum": [*STEP_INTENT_OUTPUT_TYPES, None],
                                                 "description": "可选：本 produces 对应的 runtime 输出类型；能确定时请显式填写，减少系统从自然语言猜测",
+                                            },
+                                        },
+                                    },
+                                },
+                                "outputs": {
+                                    "type": "array",
+                                    "description": "兼容输入层：可用统一 outputs[] 描述 creates/produces，系统会在校验前分拣成 canonical creates/produces；StepIntent 输出仍只保留 creates/produces",
+                                    "items": {
+                                        "type": "object",
+                                        "additionalProperties": False,
+                                        "required": [
+                                            "handle",
+                                            "valid_scope",
+                                            "description",
+                                        ],
+                                        "properties": {
+                                            "handle": {
+                                                "type": "string",
+                                                "description": "entity/fact/answer handle",
+                                            },
+                                            "entity_type": {
+                                                "type": ["string", "null"],
+                                                "description": "当 handle 是新 entity 时可填；缺省时系统从 handle 前缀推导",
+                                            },
+                                            "valid_scope": {
+                                                "type": "string",
+                                            },
+                                            "description": {
+                                                "type": "string",
+                                            },
+                                            "output_type": {
+                                                "type": ["string", "null"],
+                                                "enum": [*STEP_INTENT_OUTPUT_TYPES, None],
+                                                "description": "当输出是 fact/answer 时的可选类型 hint；系统会用 contract/handle 继续校准",
                                             },
                                         },
                                     },
