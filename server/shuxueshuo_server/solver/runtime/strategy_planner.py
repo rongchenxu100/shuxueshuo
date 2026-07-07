@@ -60,6 +60,7 @@ from shuxueshuo_server.solver.runtime.function_specs import (
     FunctionSpec,
     FunctionSpecRegistry,
     GENERIC_FUNCTION_METHOD_IDS,
+    assert_no_function_adapter_failures,
     assert_no_function_adapter_fallbacks,
     function_catalog_payload,
 )
@@ -195,6 +196,7 @@ __all__ = [
     "FunctionSpec",
     "FunctionSpecRegistry",
     "GENERIC_FUNCTION_METHOD_IDS",
+    "assert_no_function_adapter_failures",
     "assert_no_function_adapter_fallbacks",
     "function_catalog_payload",
     "StepIntentNormalizationAction",

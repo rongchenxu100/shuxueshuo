@@ -149,10 +149,11 @@ class MethodBindingRuleRegistry:
                         scope_id=step.scope_id,
                         method_id=method_id,
                         function_id=adapter.adapter_id,
-                        status="fallback",
+                        status="failure",
                         errors=(str(exc),),
                     )
                 )
+                raise
         if rule is None:
             raise StrategyDraftValidationError(f"method_binding_rule_missing: {method_id}")
         inputs: dict[str, str] = {}

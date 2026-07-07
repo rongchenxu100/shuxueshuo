@@ -187,8 +187,8 @@ COORDINATE_GEOMETRY_CONTRACTS = (
             _slot("coordinate", "Point", object_kind="point"),
         ),
         slot_writes=(
-            _slot("expression", "Expression"),
-            _slot("expression", "MinimumExpression", required=False),
+            _slot("expression", "MinimumExpression"),
+            _slot("expression", "Expression", required=False),
         ),
     ),
     _method_contract(

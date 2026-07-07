@@ -21,6 +21,12 @@ from shuxueshuo_server.solver.family import (
     StepRecipeSpec,
     expand_family_spec,
 )
+from shuxueshuo_server.solver.family import (
+    quadratic_equal_length_ray_path_minimum as equal_length_ray_family_module,
+    quadratic_path_minimum as path_family_module,
+    quadratic_square_reflection_path_minimum as square_family_module,
+    quadratic_weighted_path_minimum as weighted_family_module,
+)
 from shuxueshuo_server.solver.contracts import MethodSpec
 from shuxueshuo_server.solver.fixtures import load_problem_ir
 from shuxueshuo_server.solver.runtime.binding_rules import MethodBindingRuleRegistry
@@ -421,6 +427,28 @@ def test_projected_method_contract_without_outputs_stays_prompt_executable() -> 
     assert contract.to_payload()["source"] == "projected"
     assert contract_is_prompt_executable(contract)
     assert "projected_no_outputs_declared" in contract.notes
+
+
+def test_raw_family_binding_rules_do_not_duplicate_pack_rules() -> None:
+    """Family-local binding rules should be real overrides, not pack copies."""
+    raw_families = (
+        path_family_module._QUADRATIC_PATH_MINIMUM_FAMILY,
+        weighted_family_module._QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
+        equal_length_ray_family_module._QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY,
+        square_family_module._QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY,
+    )
+    duplicates: list[str] = []
+    for family in raw_families:
+        pack_rules: dict[str, MethodBindingRuleSpec] = {}
+        for pack_id in (*family.base_packs, *family.mechanism_packs):
+            pack = DEFAULT_CAPABILITY_PACK_REGISTRY.require(pack_id)
+            for rule in pack.method_binding_rules:
+                pack_rules[rule.method_id] = rule
+        for rule in family.method_binding_rules:
+            if pack_rules.get(rule.method_id) == rule:
+                duplicates.append(f"{family.family_id}:{rule.method_id}")
+
+    assert duplicates == []
 
 
 def test_real_families_declare_packs_and_keep_legacy_family_ids() -> None:

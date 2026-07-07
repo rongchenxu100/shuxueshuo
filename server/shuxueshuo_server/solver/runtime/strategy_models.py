@@ -624,16 +624,17 @@ class StepIntentFunctionBindingEvent:
     """FunctionSpec adapter binding result for one method attempt.
 
     The payload is debug-safe: it exposes function ids, method ids, status, and
-    typed error codes, but never RuntimeContext paths.  ``fallback`` means the
-    FunctionSpec adapter path did not bind this attempt and runtime fell back to
-    the legacy binding rule; it is not by itself a final execution failure.
+    typed error codes, but never RuntimeContext paths.  ``failure`` means the
+    migrated FunctionSpec adapter did not bind and execution stops at that
+    structured error. ``fallback`` is retained only for reading older debug
+    payloads where runtime still fell back to the legacy binding rule.
     """
 
     step_id: str
     scope_id: str
     method_id: str
     function_id: str
-    status: Literal["success", "fallback"]
+    status: Literal["success", "failure", "fallback"]
     errors: tuple[str, ...] = ()
 
     def to_payload(self) -> dict[str, Any]:

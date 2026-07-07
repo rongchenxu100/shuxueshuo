@@ -45,27 +45,10 @@ from shuxueshuo_server.solver.utils import unique_ordered
 
 FunctionArgKind = Literal["slot_read", "condition_read", "point_ref", "symbol", "auto"]
 FunctionSpecSource = Literal["explicit_contract", "projected_contract", "method_spec"]
-FunctionBindingStatus = Literal["success", "fallback"]
+FunctionBindingStatus = Literal["success", "failure", "fallback"]
 
 BindingSelectorFn = Callable[[StepIntent, Any, Mapping[str, str]], str | None]
 ExpansionSelectorFn = Callable[[StepIntent, Any, Mapping[str, str]], dict[str, str]]
-
-
-GENERIC_FUNCTION_METHOD_IDS: tuple[str, ...] = (
-    "quadratic_from_constraints",
-    "quadratic_vertex_point",
-    "quadratic_x_axis_intercept_point",
-    "quadratic_y_axis_intercept_point",
-    "line_parabola_second_intersection_point",
-    "distance_between_points",
-    "midpoint_point",
-    "translated_point",
-    "line_intersection_point",
-    "parameter_from_curve_point_on_quadratic",
-    "parameter_from_expression_value",
-    "evaluate_expression_at_parameter",
-    "evaluate_point_at_parameter",
-)
 
 
 @dataclass(frozen=True)
@@ -435,24 +418,40 @@ def function_spec_payloads(
     ).to_payload(include_adapter=True)
 
 
+def function_adapter_failure_events(
+    events: tuple[StepIntentFunctionBindingEvent, ...],
+) -> tuple[StepIntentFunctionBindingEvent, ...]:
+    return tuple(
+        event for event in events
+        if event.status in {"failure", "fallback"}
+    )
+
+
 def adapter_fallback_events(
     events: tuple[StepIntentFunctionBindingEvent, ...],
 ) -> tuple[StepIntentFunctionBindingEvent, ...]:
     return tuple(event for event in events if event.status == "fallback")
 
 
+def assert_no_function_adapter_failures(
+    events: tuple[StepIntentFunctionBindingEvent, ...],
+) -> None:
+    failures = function_adapter_failure_events(events)
+    if failures:
+        details = [
+            f"{event.step_id}:{event.method_id}:{'|'.join(event.errors)}"
+            for event in failures
+        ]
+        raise AssertionError(
+            "function adapter failure occurred: " + "; ".join(details)
+        )
+
+
 def assert_no_function_adapter_fallbacks(
     events: tuple[StepIntentFunctionBindingEvent, ...],
 ) -> None:
-    fallbacks = adapter_fallback_events(events)
-    if fallbacks:
-        details = [
-            f"{event.step_id}:{event.method_id}:{'|'.join(event.errors)}"
-            for event in fallbacks
-        ]
-        raise AssertionError(
-            "function adapter fallback occurred: " + "; ".join(details)
-        )
+    """Compatibility alias; Phase 5b treats fallback as adapter failure."""
+    assert_no_function_adapter_failures(events)
 
 
 def _arg_spec_from_method_input(name: str, input_spec: Any) -> FunctionArgSpec:
@@ -609,6 +608,10 @@ GENERIC_FUNCTION_BINDING_RULES: tuple[MethodBindingRuleSpec, ...] = (
     parameter_from_expression_value_rule(),
     evaluate_expression_at_parameter_rule(),
     evaluate_point_at_parameter_rule(),
+)
+
+GENERIC_FUNCTION_METHOD_IDS: tuple[str, ...] = tuple(
+    rule.method_id for rule in GENERIC_FUNCTION_BINDING_RULES
 )
 
 GENERIC_FUNCTION_ADAPTERS: dict[str, FunctionAdapterSpec] = {

@@ -4,6 +4,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+import pytest
+
 from shuxueshuo_server.solver.contracts import MethodInputSpec, MethodSpec
 from shuxueshuo_server.solver.family.models import (
     CapabilityContractSpec,
@@ -16,6 +18,7 @@ from shuxueshuo_server.solver.runtime.function_specs import (
     GENERIC_FUNCTION_BINDING_RULES,
     GENERIC_FUNCTION_METHOD_IDS,
     FunctionSpecRegistry,
+    assert_no_function_adapter_failures,
     assert_no_function_adapter_fallbacks,
     function_spec_from_method,
     function_catalog_payload,
@@ -23,8 +26,12 @@ from shuxueshuo_server.solver.runtime.function_specs import (
 from shuxueshuo_server.solver.runtime.projection import problem_to_llm_payload
 from shuxueshuo_server.solver.runtime.strategy_planner import (
     CanonicalHandleRegistry,
+    MethodBindingRuleRegistry,
+    ProducedFact,
     RecipeTrialExecutor,
+    StepIntent,
     StepIntentValidator,
+    StrategyDraftValidationError,
     build_strategy_probe_inputs,
 )
 
@@ -89,6 +96,12 @@ def test_function_spec_registry_derives_generic_methods_from_contracts() -> None
         json.dumps(spec.to_payload(), ensure_ascii=False, sort_keys=True)
 
 
+def test_generic_function_method_ids_are_derived_from_binding_rules() -> None:
+    assert GENERIC_FUNCTION_METHOD_IDS == tuple(
+        rule.method_id for rule in GENERIC_FUNCTION_BINDING_RULES
+    )
+
+
 def test_function_catalog_prompt_payload_hides_runtime_binding_details() -> None:
     problem = load_problem_ir(str(RECORDED_FIXTURES[0][0]))
     inputs = build_strategy_probe_inputs(problem)
@@ -150,6 +163,23 @@ def test_function_spec_notes_contract_return_mismatch() -> None:
     assert not any(note.endswith(":Expression") for note in spec.notes)
 
 
+def test_migrated_function_specs_have_no_required_contract_return_mismatch() -> None:
+    for problem_path, _step_intents_path in RECORDED_FIXTURES:
+        problem = load_problem_ir(str(problem_path))
+        inputs = build_strategy_probe_inputs(problem)
+        registry = FunctionSpecRegistry.from_family_spec(
+            inputs.family_spec,
+            inputs.method_specs,
+        )
+        notes = [
+            f"{spec.function_id}:{note}"
+            for spec in registry.specs.values()
+            for note in spec.notes
+            if note.startswith("contract_slot_write_missing:required:")
+        ]
+        assert notes == []
+
+
 def test_generic_function_adapters_are_projected_from_common_binding_rules() -> None:
     """Generic adapter selector truth lives in common binding rules."""
     assert set(GENERIC_FUNCTION_ADAPTERS) == set(GENERIC_FUNCTION_METHOD_IDS)
@@ -169,7 +199,57 @@ def test_generic_function_adapters_are_projected_from_common_binding_rules() -> 
         assert adapter.expansion_selectors == rule.expansion_selectors
 
 
-def test_recorded_fixtures_compile_generic_methods_without_function_fallbacks() -> None:
+def test_migrated_function_adapter_failure_does_not_fallback_to_legacy_rule() -> None:
+    distance_rule = next(
+        rule for rule in GENERIC_FUNCTION_BINDING_RULES
+        if rule.method_id == "distance_between_points"
+    )
+
+    def failing_selector(_step, _index, _local_outputs):
+        raise StrategyDraftValidationError("forced_missing_distance_endpoint")
+
+    registry = MethodBindingRuleRegistry(
+        rules=(distance_rule,),
+        selectors={
+            "distance:p1": failing_selector,
+            "distance:p2": lambda _step, _index, _local_outputs: "$fake.p2",
+        },
+        expansion_selectors={
+            "distance_parameter_value_if_read": (
+                lambda _step, _index, _local_outputs: {}
+            ),
+        },
+    )
+    step = StepIntent(
+        step_id="compute_distance",
+        scope_id="problem",
+        goal_type="derive_minimum_value",
+        target="fact:problem:distance",
+        strategy="compute a distance",
+        reason="exercise migrated function adapter failure",
+        recipe_hint="distance_between_points",
+        reads=(),
+        creates=(),
+        produces=(
+            ProducedFact(
+                "fact:problem:distance",
+                "problem",
+                output_type="MinimumExpression",
+            ),
+        ),
+    )
+
+    with pytest.raises(
+        StrategyDraftValidationError,
+        match="function.arg_missing: method=distance_between_points, arg=p1",
+    ):
+        registry.bind("distance_between_points", step, object())
+
+    assert [event.status for event in registry.function_binding_events] == ["failure"]
+    assert registry.function_binding_events[0].errors
+
+
+def test_recorded_fixtures_compile_generic_methods_without_function_failures() -> None:
     for problem_path, step_intents_path in RECORDED_FIXTURES:
         problem = load_problem_ir(str(problem_path))
         inputs = build_strategy_probe_inputs(problem)
@@ -194,6 +274,7 @@ def test_recorded_fixtures_compile_generic_methods_without_function_fallbacks() 
 
         assert diagnostic.ok, _diagnostic_payload(diagnostic)
         assert diagnostic.function_binding_events
+        assert_no_function_adapter_failures(diagnostic.function_binding_events)
         assert_no_function_adapter_fallbacks(diagnostic.function_binding_events)
 
 

@@ -879,6 +879,17 @@ def write_strategy_debug_artifacts(
         function_binding_report,
     )
     _write_json(
+        target / "function-adapter-failures.json",
+        (
+            [
+                item for item in function_binding_report
+                if item.get("status") in {"failure", "fallback"}
+            ]
+            if function_binding_report is not None
+            else None
+        ),
+    )
+    _write_json(
         target / "function-adapter-fallbacks.json",
         (
             [
@@ -919,6 +930,7 @@ def _clear_previous_debug_artifacts(target: Path) -> None:
         "effective-step-intents.json",
         "execution-diagnostic.json",
         "function-binding-report.json",
+        "function-adapter-failures.json",
         "function-adapter-fallbacks.json",
         "planner-retry-state.json",
         "planner-state-context.json",
