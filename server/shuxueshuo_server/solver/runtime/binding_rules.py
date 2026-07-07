@@ -2799,13 +2799,15 @@ def _line_intersection_roles(
     aux = None
     for handle in step.reads:
         if _is_auxiliary_point_handle(handle, index):
+            if not index._handle_binding_visible(handle, step.scope_id):
+                raise StrategyDraftValidationError(
+                    "intersection_auxiliary_point_not_visible: "
+                    f"handle={handle}, scope_id={step.scope_id}, step_id={step.step_id}"
+                )
             aux = handle
             break
     if aux is None:
-        for handle in index.bindings:
-            if _is_auxiliary_point_handle(handle, index):
-                aux = handle
-                break
+        aux = _visible_intersection_auxiliary_point(step, index)
     midpoint_fact = index.fact_handle_by_type("midpoint_definition", step=step)
     midpoint_name = _semantic_name(midpoint_fact).split("_midpoint_of_", 1)[0]
     line2_p2 = index.point_handle_by_name(midpoint_name, step=step)
@@ -2814,6 +2816,57 @@ def _line_intersection_roles(
     if aux is None:
         raise StrategyDraftValidationError(f"intersection_auxiliary_point_not_found: {step.step_id}")
     return line1_p1, line1_p2, aux, line2_p2, target_handle
+
+
+def _visible_intersection_auxiliary_point(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> str | None:
+    """Select a visible auxiliary point for line intersection fallback.
+
+    Global binding order is not semantic: sibling subquestions may both create
+    ``Aux`` points.  When the LLM does not explicitly read the auxiliary point,
+    fallback selection must stay within the current step's visible scope chain.
+    """
+    candidates = [
+        handle
+        for handle in index.bindings
+        if _is_auxiliary_point_handle(handle, index)
+        and index._handle_binding_visible(handle, step.scope_id)
+    ]
+    if not candidates:
+        return None
+    ranked = sorted(
+        candidates,
+        key=lambda handle: (
+            index._scope_distance(
+                step.scope_id,
+                _binding_scope(index.binding_for(handle).path),
+            ),
+            handle,
+        ),
+    )
+    best_distance = index._scope_distance(
+        step.scope_id,
+        _binding_scope(index.binding_for(ranked[0]).path),
+    )
+    same_rank = [
+        handle
+        for handle in ranked
+        if index._scope_distance(
+            step.scope_id,
+            _binding_scope(index.binding_for(handle).path),
+        )
+        == best_distance
+    ]
+    if len(same_rank) > 1:
+        raise StrategyDraftValidationError(
+            "intersection_auxiliary_point_ambiguous: "
+            f"step_id={step.step_id}, scope_id={step.scope_id}, "
+            f"handles={','.join(same_rank)}"
+        )
+    return ranked[0]
+
 
 def _answer_scope_from_step(step: StepIntent) -> str:
     """从 StepIntent 的 target/produces 中提取 answer 所属 scope。"""

@@ -644,6 +644,88 @@ def test_step_intent_normalizer_propagates_rewritten_handle_to_later_reads() -> 
     assert normalized.scopes[0].steps[1].target == "fact:ii:C_coordinate_expr"
 
 
+def test_step_intent_normalizer_rewrites_all_folded_quadratic_utility_aliases() -> None:
+    """同一 quadratic fold 中被删除的 utility facts 都必须同步到 canonical reads。"""
+    utility_step = _step(
+        scope_id="ii_1",
+        step_id="derive_a_m_relation",
+        recipe_hint="quadratic_from_constraints",
+        goal_type="derive_parameter",
+        target="fact:ii_1:a_expression",
+        reads=(
+            "fact:ii:M_coordinate_expr",
+            "fact:ii:N_coordinate_expr",
+            "fact:ii:N_on_parabola",
+            "fact:ii:M_on_parabola",
+            "fact:problem:coefficient_relation",
+            "symbol:problem:a",
+            "symbol:problem:m",
+            "point:ii:M",
+            "point:ii:N",
+        ),
+        produces=(
+            ProducedFact(
+                "fact:ii_1:c_expression",
+                "ii_1",
+                "c=1-m，由 N 在抛物线上得出",
+                output_type="Expression",
+            ),
+            ProducedFact(
+                "fact:ii_1:a_expression",
+                "ii_1",
+                "a=1/(m-2)，由代入运算得出",
+                output_type="Expression",
+            ),
+        ),
+    )
+    use_step = _step(
+        scope_id="ii_1",
+        step_id="derive_parabola_ii1",
+        recipe_hint="quadratic_from_constraints",
+        goal_type="derive_parabola",
+        target="answer:ii_1.parabola",
+        reads=(
+            "fact:ii_1:a_expression",
+            "fact:ii_1:c_expression",
+            "fact:ii_1:m_value",
+            "fact:problem:coefficient_relation",
+            "fact:ii:M_on_parabola",
+            "point:ii:M",
+        ),
+        produces=(
+            ProducedFact(
+                "answer:ii_1.parabola",
+                "ii_1",
+                "第（Ⅱ）①问的抛物线解析式",
+                output_type="Parabola",
+            ),
+        ),
+    )
+
+    normalized, report = StepIntentNormalizer().normalize(
+        _single_scope_draft(utility_step, use_step, scope_id="ii_1"),
+        family_spec=_nankai_inputs().family_spec,
+        question_goals=[],
+        handle_registry=_registry(),
+    )
+
+    first, second = normalized.scopes[0].steps
+    assert [item.handle for item in first.produces] == ["fact:ii:parametric_parabola"]
+    assert "fact:ii_1:a_expression" not in second.reads
+    assert "fact:ii_1:c_expression" not in second.reads
+    assert "fact:ii_1:parametric_parabola" not in second.reads
+    assert "fact:ii:parametric_parabola" in second.reads
+    folded_handles = {
+        action.handle
+        for action in report.actions
+        if action.action == "normalize_quadratic_utility_fact_to_parabola"
+    }
+    assert folded_handles == {
+        "fact:ii_1:a_expression",
+        "fact:ii_1:c_expression",
+    }
+
+
 def test_step_intent_normalizer_merges_candidate_point_facts_to_point_list() -> None:
     """候选生成 method 拆出的多个点坐标 fact 应合并为 PointList fact。"""
     candidate_step = _step(

@@ -15,6 +15,9 @@ from shuxueshuo_server.solver.runtime.planner_state_context import (
 from shuxueshuo_server.solver.runtime.planner import PlannerInputs
 from shuxueshuo_server.solver.runtime.projection import problem_to_llm_payload
 from shuxueshuo_server.solver.runtime.recipe_compiler import RecipeTrialExecutor
+from shuxueshuo_server.solver.runtime.planner_retry_projection import (
+    PlannerRetryStateProjector,
+)
 from shuxueshuo_server.solver.runtime.strategy_draft_merge import (
     merge_previous_accepted_prefix,
     prepare_step_intent_raw_response,
@@ -135,6 +138,7 @@ class PlannerRetryReplayService:
             handle_registry=handle_registry,
             problem_payload=problem_payload,
             attempt=attempt,
+            previous_attempts=inputs.previous_errors,
         )
         draft, validation_report = StepIntentValidator().validate_json_with_report(
             raw_response,
@@ -313,6 +317,9 @@ class PlannerRetryReplayService:
         goal_verification_issues: tuple[Any, ...] = (),
         output: Any | None = None,
         planner_state_context: PlannerStateContext | None = None,
+        inputs: PlannerInputs | None = None,
+        handle_registry: CanonicalHandleRegistry | None = None,
+        problem_payload: dict[str, Any] | None = None,
     ) -> PlannerRetryReplayResult:
         """从已存在 artifacts 生成同一形态 replay result。"""
         retry_state = build_planner_retry_state(
@@ -326,7 +333,7 @@ class PlannerRetryReplayService:
             diagnostic=diagnostic,
             goal_verification_issues=goal_verification_issues,
         )
-        return PlannerRetryReplayResult(
+        replay = PlannerRetryReplayResult(
             attempt=attempt,
             errors=errors,
             raw_draft=raw_draft,
@@ -341,6 +348,22 @@ class PlannerRetryReplayService:
             output=output,
             planner_state_context=planner_state_context,
         )
+        if (
+            planner_state_context is None
+            and inputs is not None
+            and handle_registry is not None
+        ):
+            return _with_planner_state_context(
+                replay,
+                inputs=inputs,
+                handle_registry=handle_registry,
+                problem_payload=problem_payload,
+            )
+        if planner_state_context is not None:
+            projected = PlannerRetryStateProjector.from_context(planner_state_context)
+            if projected is not None:
+                return replace(replay, retry_state=projected)
+        return replay
 
 
 def repair_attempt_payload_from_replay(
@@ -366,7 +389,7 @@ def repair_attempt_payload_from_replay(
         if retry_state is not None
         else "请根据 errors 修复并重新输出完整 StepIntent JSON。不要输出 patch。"
     )
-    return StepIntentRepairAttempt(
+    payload = StepIntentRepairAttempt(
         attempt=replay.attempt,
         effective_draft=effective.to_payload() if effective is not None else None,
         diagnostic=diagnostic,
@@ -375,6 +398,17 @@ def repair_attempt_payload_from_replay(
         repair_instruction=repair_instruction,
         errors=replay.errors,
     ).to_payload()
+    if replay.planner_state_context is not None:
+        context = replay.planner_state_context
+        payload["planner_state_context_ref"] = {
+            "context_id": context.manifest.context_id,
+            "parent_context_id": context.manifest.parent_context_id,
+            "schema_version": context.manifest.schema_version,
+        }
+        payload["context_retry_memory"] = context.state.retry_memory.to_payload()
+        if retry_state is not None:
+            payload["context_derived_retry_state"] = retry_state.to_payload()
+    return payload
 
 
 __all__ = [
@@ -391,14 +425,17 @@ def _with_planner_state_context(
     handle_registry: CanonicalHandleRegistry,
     problem_payload: dict[str, Any] | None,
 ) -> PlannerRetryReplayResult:
+    context = _planner_state_context_from_replay(
+        replay,
+        inputs=inputs,
+        handle_registry=handle_registry,
+        problem_payload=problem_payload,
+    )
+    projected_retry_state = PlannerRetryStateProjector.from_context(context)
     return replace(
         replay,
-        planner_state_context=_planner_state_context_from_replay(
-            replay,
-            inputs=inputs,
-            handle_registry=handle_registry,
-            problem_payload=problem_payload,
-        ),
+        planner_state_context=context,
+        retry_state=projected_retry_state or replay.retry_state,
     )
 
 
@@ -431,6 +468,7 @@ def _planner_state_context_from_replay(
         problem_payload=context_problem_payload,
         handle_registry=handle_registry,
         context_warnings=context_warnings,
+        parent_context_id=_parent_context_id_from_attempts(inputs.previous_errors),
     )
 
 
@@ -440,6 +478,7 @@ def _initial_planner_state_context(
     handle_registry: CanonicalHandleRegistry,
     problem_payload: dict[str, Any] | None,
     attempt: int,
+    previous_attempts: list[Any],
 ) -> PlannerStateContext:
     context_problem_payload, _context_warnings = _problem_payload_for_context(
         inputs,
@@ -450,6 +489,7 @@ def _initial_planner_state_context(
         problem_payload=context_problem_payload,
         handle_registry=handle_registry,
         attempt=attempt,
+        parent_context_id=_parent_context_id_from_attempts(previous_attempts),
     )
 
 
@@ -474,3 +514,27 @@ def _problem_payload_for_context(
             },
         ),
     )
+
+
+def _parent_context_id_from_attempts(
+    previous_attempts: list[Any],
+) -> str | None:
+    for item in reversed(previous_attempts):
+        if not isinstance(item, dict):
+            continue
+        # Prefer the direct context reference: it is written by the replay
+        # layer when the snapshot is created. Retry-state source_context_id is
+        # only a compatibility projection and may be absent on older attempts.
+        ref = item.get("planner_state_context_ref")
+        if isinstance(ref, dict):
+            context_id = ref.get("context_id")
+            if isinstance(context_id, str) and context_id:
+                return context_id
+        for key in ("context_derived_retry_state", "planner_retry_state"):
+            state = item.get(key)
+            if not isinstance(state, dict):
+                continue
+            context_id = state.get("source_context_id")
+            if isinstance(context_id, str) and context_id:
+                return context_id
+    return None

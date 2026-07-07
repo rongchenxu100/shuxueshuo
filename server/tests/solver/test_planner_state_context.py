@@ -19,7 +19,14 @@ for _name in dir(_base):
 del _name, _base, _base_path, _spec, util
 
 from shuxueshuo_server.solver.runtime.planner_state_context import (  # noqa: E402
+    ContextManifest,
+    DraftSnapshots,
     PlannerStateContextBuilder,
+    PlannerState,
+    PlannerStateContext,
+    RetryMemory,
+    ScopeGraph,
+    StableStep,
     initial_planner_state_context,
 )
 from shuxueshuo_server.solver.family import (  # noqa: E402
@@ -39,8 +46,12 @@ from shuxueshuo_server.solver.runtime.strategy_output_types import (  # noqa: E4
 from shuxueshuo_server.solver.runtime.strategy_payload import (  # noqa: E402
     write_strategy_debug_artifacts,
 )
+from shuxueshuo_server.solver.runtime.planner_retry_projection import (  # noqa: E402
+    PlannerRetryStateProjector,
+)
 from shuxueshuo_server.solver.runtime.strategy_replay import (  # noqa: E402
     PlannerRetryReplayResult,
+    PlannerRetryReplayService,
     _planner_state_context_from_replay,
 )
 
@@ -429,9 +440,201 @@ def test_write_strategy_debug_artifacts_writes_planner_state_context(
     )
 
     assert (tmp_path / "planner-state-context.json").exists()
+    assert (tmp_path / "context-retry-memory.json").exists()
+    assert (tmp_path / "context-derived-retry-state.json").exists()
+    assert (tmp_path / "context-baseline-draft.json").exists()
+    assert (tmp_path / "context-stable-prefix.json").exists()
     assert (tmp_path / "state-rewrite-ledger.json").exists()
     assert (tmp_path / "context-events.json").exists()
     assert (tmp_path / "context-semantic-read-catalog.json").exists()
     assert json.loads((tmp_path / "planner-state-context.json").read_text())[
         "manifest"
     ]["context_type"] == "planner"
+
+
+def test_planner_state_context_records_retry_memory_and_parent_context() -> None:
+    """Replay should produce a context version whose retry state is a projection."""
+    payload = {
+        "scopes": [
+            {
+                "scope_id": "i",
+                "label": "第（Ⅰ）问",
+                "steps": [
+                    {
+                        "step_id": "bad_semantic_read",
+                        "recipe_hint": None,
+                        "goal_type": "derive_point",
+                        "target": "fact:i:temp_point",
+                        "strategy": "测试 semantic read 失败。",
+                        "reads": [],
+                        "semantic_reads": [{"ref": "missing_fact", "kind": "fact"}],
+                        "creates": [],
+                        "produces": [
+                            {
+                                "handle": "fact:i:temp_point",
+                                "valid_scope": "i",
+                                "description": "临时点",
+                                "output_type": "Point",
+                            }
+                        ],
+                        "reason": "测试 context retry memory。",
+                    }
+                ],
+            }
+        ]
+    }
+    inputs = replace(
+        _nankai_inputs(),
+        question_goals=(),
+        previous_errors=[
+            {
+                "planner_state_context_ref": {
+                    "context_id": "ctx_planner_previous_attempt",
+                }
+            }
+        ],
+    )
+
+    replay = PlannerRetryReplayService().replay_raw_json(
+        json.dumps(payload, ensure_ascii=False),
+        inputs=inputs,
+        handle_registry=_registry(),
+        context=_runtime_context(),
+        attempt=2,
+        problem_payload=_nankai_llm_problem(),
+    )
+
+    assert replay.planner_state_context is not None
+    assert replay.retry_state is not None
+    assert (
+        replay.planner_state_context.manifest.parent_context_id
+        == "ctx_planner_previous_attempt"
+    )
+    assert replay.retry_state.source_context_id == replay.planner_state_context.manifest.context_id
+    assert replay.planner_state_context.state.retry_memory.issues
+    assert replay.planner_state_context.state.retry_memory.baseline_draft is not None
+
+
+def test_context_retry_projection_ignores_stable_prefix_noise_issue() -> None:
+    """Stable-prefix issues should not become the primary repair target."""
+    context = PlannerStateContext(
+        manifest=ContextManifest(
+            context_id="ctx_test_projection",
+            context_type="planner",
+            schema_version="planner-state-context/v1",
+            parent_context_id=None,
+            dependency_context_ids=(),
+            problem_id="problem",
+            family_id="family",
+            family_spec_hash="family-hash",
+            capability_pack_hash="pack-hash",
+        ),
+        state=PlannerState(
+            problem_ir={},
+            expanded_family_spec={},
+            scope_graph=ScopeGraph(scope_ids=("problem",), scope_parents={}),
+            stable_prefix=(
+                StableStep(
+                    step_id="derive_known_state",
+                    normalized_payload={"step_id": "derive_known_state"},
+                ),
+            ),
+            draft_snapshots=DraftSnapshots(
+                effective={
+                    "scopes": [
+                        {
+                            "scope_id": "problem",
+                            "steps": [
+                                {"step_id": "derive_known_state"},
+                                {"step_id": "derive_blocked_state"},
+                            ],
+                        }
+                    ]
+                }
+            ),
+            retry_memory=RetryMemory(
+                attempt=1,
+                repair_suffix_start={
+                    "step_id": "derive_blocked_state",
+                    "scope_id": "problem",
+                },
+                replay_reports={
+                    "trial_execution": {
+                        "blockers": [
+                            {
+                                "step_id": "derive_blocked_state",
+                                "scope_id": "problem",
+                                "code": "recipe_trial_step_failed",
+                                "missing_runtime_type": "Parabola",
+                            }
+                        ]
+                    }
+                },
+                issues=(
+                    {
+                        "layer": "candidate_resolution",
+                        "code": "unsupported_produced_handle_type",
+                        "step_id": "derive_known_state",
+                        "scope_id": "problem",
+                        "repair_target": "step",
+                        "message": "stable-prefix noise",
+                    },
+                    {
+                        "layer": "trial_execution",
+                        "code": "recipe_trial_step_failed",
+                        "step_id": "derive_blocked_state",
+                        "scope_id": "problem",
+                        "repair_target": "step",
+                        "message": "missing runtime state",
+                        "related_handles": ["Parabola"],
+                    },
+                ),
+            ),
+        ),
+    )
+
+    retry_state = PlannerRetryStateProjector.from_context(context)
+
+    assert retry_state is not None
+    assert retry_state.issues[0].step_id == "derive_blocked_state"
+    assert retry_state.issues[0].layer == "trial_execution"
+    assert retry_state.recovered_issues[0].step_id == "derive_known_state"
+    assert retry_state.selected_repair_layer == "trial_execution"
+    assert "derive_blocked_state" in retry_state.repair_instruction
+
+
+def test_context_retry_projection_keeps_replay_layer_issue() -> None:
+    """Replay-layer context issues should survive retry-state projection."""
+    context = PlannerStateContext(
+        manifest=ContextManifest(
+            context_id="ctx_test_replay_issue",
+            context_type="planner",
+            schema_version="planner-state-context/v1",
+            parent_context_id=None,
+            dependency_context_ids=(),
+            problem_id="problem",
+            family_id="family",
+            family_spec_hash="family-hash",
+            capability_pack_hash="pack-hash",
+        ),
+        state=PlannerState(
+            problem_ir={},
+            expanded_family_spec={},
+            scope_graph=ScopeGraph(scope_ids=("problem",), scope_parents={}),
+            issues=(
+                {
+                    "layer": "replay",
+                    "code": "error",
+                    "message": "synthetic replay failure",
+                },
+            ),
+        ),
+    )
+
+    retry_state = PlannerRetryStateProjector.from_context(context)
+
+    assert retry_state is not None
+    assert retry_state.issues[0].layer == "replay"
+    assert retry_state.issues[0].code == "error"
+    assert retry_state.issues[0].message == "synthetic replay failure"
+    assert retry_state.selected_repair_layer == "replay"

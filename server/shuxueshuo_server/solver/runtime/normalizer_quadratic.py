@@ -1163,6 +1163,12 @@ def _normalize_quadratic_from_constraints_step(
     ]
     if not utility_items:
         return step, {}, type_actions
+    folded_items = _quadratic_utility_fold_items(
+        step.produces,
+        parabola_items=tuple(parabola_items),
+        utility_items=tuple(utility_items),
+        handle_registry=handle_registry,
+    )
 
     target_handle = (
         parabola_items[0].handle
@@ -1179,13 +1185,16 @@ def _normalize_quadratic_from_constraints_step(
             output_type="Parabola",
         )
     )
-    rewrites = {item.handle: target_handle for item in utility_items}
-    new_produces = tuple(
-        item for item in step.produces
-        if item in parabola_items
-    )
+    rewrites = {item.handle: target_handle for item in folded_items}
+    new_produces = tuple(item for item in step.produces if item in parabola_items)
     if target_item not in new_produces:
         new_produces = (*new_produces, target_item)
+    retained_items = tuple(
+        item
+        for item in step.produces
+        if item not in parabola_items and item not in folded_items
+    )
+    new_produces = (*new_produces, *retained_items)
     actions = type_actions + [
         StepIntentNormalizationAction(
             action="normalize_quadratic_utility_fact_to_parabola",
@@ -1197,7 +1206,7 @@ def _normalize_quadratic_from_constraints_step(
                 f"将 utility fact {item.handle} 归一化为 {target_handle}。"
             ),
         )
-        for item in utility_items
+        for item in folded_items
     ]
     return (
         replace(
@@ -1209,6 +1218,43 @@ def _normalize_quadratic_from_constraints_step(
         rewrites,
         actions,
     )
+
+
+def _quadratic_utility_fold_items(
+    produces: tuple[ProducedFact, ...],
+    *,
+    parabola_items: tuple[ProducedFact, ...],
+    utility_items: tuple[ProducedFact, ...],
+    handle_registry: CanonicalHandleRegistry,
+) -> tuple[ProducedFact, ...]:
+    """Return fact outputs that must alias the normalized Parabola state.
+
+    Once a quadratic simplification step is folded to the executable
+    ``quadratic_from_constraints`` contract, stray Expression/Equation facts
+    emitted by the same step cannot remain standalone runtime outputs.  They
+    are aliases of the Parabola/Coefficients state and must get an explicit
+    rewrite instead of being silently dropped.
+    """
+    result: list[ProducedFact] = []
+    seen: set[str] = set()
+    for item in (*utility_items, *produces):
+        if (
+            item in parabola_items
+            or item.handle in seen
+            or not item.handle.startswith("fact:")
+        ):
+            continue
+        output_type = _produced_output_type(item, handle_registry)
+        if item in utility_items or output_type in {
+            None,
+            "Coefficients",
+            "Equation",
+            "Expression",
+        }:
+            seen.add(item.handle)
+            result.append(item)
+    return tuple(result)
+
 
 def _split_mixed_quadratic_outputs_step(
     step: StepIntent,

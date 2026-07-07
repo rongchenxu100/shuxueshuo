@@ -11,7 +11,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field, replace
 import hashlib
 import json
-from typing import Any, Literal, Protocol
+from typing import Any, Literal, Protocol, cast, get_args
 
 from shuxueshuo_server.solver.runtime.capability_contracts import contract_payloads
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
@@ -25,6 +25,9 @@ from shuxueshuo_server.solver.runtime.semantic_reads import SemanticReadCatalogI
 from shuxueshuo_server.solver.runtime.planner import PlannerInputs
 from shuxueshuo_server.solver.runtime.strategy_models import (
     CreatedEntity,
+    PlannerReplayDepth,
+    PlannerRetryLayer,
+    PlannerRetryPreservePolicy,
     ProducedFact,
     StepIntent,
     StepIntentDraft,
@@ -40,6 +43,17 @@ StepStatus = Literal[
     "normalized",
     "runtime_verified",
     "failed",
+]
+ContextEventName = Literal[
+    "llm_attempt_received",
+    "raw_output_normalized",
+    "semantic_resolved",
+    "validated",
+    "normalized",
+    "candidate_resolved",
+    "trial_diagnosed",
+    "answer_checked",
+    "retry_projected",
 ]
 
 
@@ -227,6 +241,60 @@ class StableStep:
 
 
 @dataclass(frozen=True)
+class DraftSnapshots:
+    """Canonical draft snapshots observed during deterministic replay.
+
+    ``validated`` is the raw draft after validation succeeded; there is no
+    separate transformed validated draft before normalization.
+    """
+
+    raw: dict[str, Any] | None = None
+    validated: dict[str, Any] | None = None
+    normalized: dict[str, Any] | None = None
+    effective: dict[str, Any] | None = None
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            "raw": self.raw,
+            "validated": self.validated,
+            "normalized": self.normalized,
+            "effective": self.effective,
+        }
+
+
+@dataclass(frozen=True)
+class RetryMemory:
+    """Context-owned retry projection facts."""
+
+    attempt: int = 0
+    baseline_draft: dict[str, Any] | None = None
+    repair_suffix_start: dict[str, Any] | None = None
+    preserve_policy: PlannerRetryPreservePolicy = "none"
+    repair_instruction: str = ""
+    replay_depth: PlannerReplayDepth | None = None
+    selected_repair_layer: PlannerRetryLayer | None = None
+    replay_timeline: tuple[dict[str, Any], ...] = ()
+    replay_reports: dict[str, Any] | None = None
+    issues: tuple[dict[str, Any], ...] = ()
+    recovered_issues: tuple[dict[str, Any], ...] = ()
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            "attempt": self.attempt,
+            "baseline_draft": self.baseline_draft,
+            "repair_suffix_start": self.repair_suffix_start,
+            "preserve_policy": self.preserve_policy,
+            "repair_instruction": self.repair_instruction,
+            "replay_depth": self.replay_depth,
+            "selected_repair_layer": self.selected_repair_layer,
+            "replay_timeline": [dict(item) for item in self.replay_timeline],
+            "replay_reports": self.replay_reports or {},
+            "issues": [dict(item) for item in self.issues],
+            "recovered_issues": [dict(item) for item in self.recovered_issues],
+        }
+
+
+@dataclass(frozen=True)
 class AliasIndex:
     """Lookup from handles/semantic refs to semantic state ids."""
 
@@ -283,6 +351,26 @@ class StateRewriteEvent:
 
 
 @dataclass(frozen=True)
+class ContextEvent:
+    """A typed replay event emitted while building planner state context."""
+
+    event: ContextEventName
+    ok: bool
+    detail_count: int = 0
+    attempt: int | None = None
+
+    def to_payload(self) -> dict[str, Any]:
+        payload: dict[str, Any] = {
+            "event": self.event,
+            "ok": self.ok,
+            "detail_count": self.detail_count,
+        }
+        if self.attempt is not None:
+            payload["attempt"] = self.attempt
+        return payload
+
+
+@dataclass(frozen=True)
 class PlannerState:
     """Planner semantic state snapshot."""
 
@@ -295,8 +383,11 @@ class PlannerState:
     alias_index: AliasIndex = field(default_factory=AliasIndex)
     step_timeline: tuple[StepState, ...] = ()
     stable_prefix: tuple[StableStep, ...] = ()
+    draft_snapshots: DraftSnapshots = field(default_factory=DraftSnapshots)
+    retry_memory: RetryMemory = field(default_factory=RetryMemory)
     issues: tuple[dict[str, Any], ...] = ()
     rewrite_events: tuple[StateRewriteEvent, ...] = ()
+    context_events: tuple[ContextEvent, ...] = ()
     capability_contracts: tuple[dict[str, Any], ...] = ()
 
     def to_payload(self) -> dict[str, Any]:
@@ -310,8 +401,11 @@ class PlannerState:
             "alias_index": self.alias_index.to_payload(),
             "step_timeline": [item.to_payload() for item in self.step_timeline],
             "stable_prefix": [item.to_payload() for item in self.stable_prefix],
+            "draft_snapshots": self.draft_snapshots.to_payload(),
+            "retry_memory": self.retry_memory.to_payload(),
             "issues": [dict(item) for item in self.issues],
             "rewrite_events": [item.to_payload() for item in self.rewrite_events],
+            "context_events": [item.to_payload() for item in self.context_events],
             "capability_contracts": [dict(item) for item in self.capability_contracts],
         }
 
@@ -335,7 +429,9 @@ class PlannerStateContext:
 
     @property
     def events_payload(self) -> list[dict[str, Any]]:
-        events: list[dict[str, Any]] = []
+        events: list[dict[str, Any]] = [
+            item.to_payload() for item in self.state.context_events
+        ]
         for event in self.state.rewrite_events:
             events.append({"event": "state_rewrite", **event.to_payload()})
         for issue in self.state.issues:
@@ -374,8 +470,11 @@ class _MutableState:
     alias_index: _MutableAliasIndex
     step_timeline: list[StepState] = field(default_factory=list)
     stable_prefix: list[StableStep] = field(default_factory=list)
+    draft_snapshots: DraftSnapshots = field(default_factory=DraftSnapshots)
+    retry_memory: RetryMemory = field(default_factory=RetryMemory)
     issues: list[dict[str, Any]] = field(default_factory=list)
     rewrite_events: list[StateRewriteEvent] = field(default_factory=list)
+    context_events: list[ContextEvent] = field(default_factory=list)
     capability_contracts: list[dict[str, Any]] = field(default_factory=list)
 
     def freeze(self) -> PlannerStateContext:
@@ -393,8 +492,11 @@ class _MutableState:
                 alias_index=self.alias_index.freeze(),
                 step_timeline=tuple(self.step_timeline),
                 stable_prefix=tuple(self.stable_prefix),
+                draft_snapshots=self.draft_snapshots,
+                retry_memory=self.retry_memory,
                 issues=tuple(self.issues),
                 rewrite_events=tuple(self.rewrite_events),
+                context_events=tuple(self.context_events),
                 capability_contracts=tuple(self.capability_contracts),
             ),
         )
@@ -425,12 +527,14 @@ class PlannerStateContextBuilder:
         problem_payload: dict[str, Any],
         handle_registry: CanonicalHandleRegistry,
         attempt: int = 0,
+        parent_context_id: str | None = None,
     ) -> PlannerStateContext:
         state = cls._initial_mutable_state(
             inputs,
             problem_payload=problem_payload,
             handle_registry=handle_registry,
             attempt=attempt,
+            parent_context_id=parent_context_id,
         )
         return state.freeze()
 
@@ -443,14 +547,24 @@ class PlannerStateContextBuilder:
         problem_payload: dict[str, Any],
         handle_registry: CanonicalHandleRegistry,
         context_warnings: tuple[dict[str, Any], ...] = (),
+        parent_context_id: str | None = None,
     ) -> PlannerStateContext:
         state = cls._initial_mutable_state(
             inputs,
             problem_payload=problem_payload,
             handle_registry=handle_registry,
             attempt=replay.attempt,
+            parent_context_id=parent_context_id,
         )
         state.issues.extend(dict(item) for item in context_warnings)
+        state.draft_snapshots = _draft_snapshots_from_replay(replay)
+        state.context_events.append(
+            _context_event(
+                "llm_attempt_received",
+                attempt=replay.attempt,
+                ok=True,
+            )
+        )
         cls._observe_validation_report(
             state,
             replay.validation_report,
@@ -488,7 +602,20 @@ class PlannerStateContextBuilder:
                 replay.effective_draft or normalized_draft
             ),
         )
+        cls._observe_replay_layer_events(state, replay)
         cls._observe_retry_issues(state, replay.retry_state)
+        state.retry_memory = _retry_memory_from_retry_state(
+            replay.retry_state,
+            attempt=replay.attempt,
+        )
+        if replay.retry_state is not None:
+            state.context_events.append(
+                _context_event(
+                    "retry_projected",
+                    attempt=replay.attempt,
+                    ok=False,
+                )
+            )
         for error in replay.errors or ():
             state.issues.append({"layer": "replay", "code": "error", "message": str(error)})
         return state.freeze()
@@ -500,12 +627,13 @@ class PlannerStateContextBuilder:
         problem_payload: dict[str, Any],
         handle_registry: CanonicalHandleRegistry,
         attempt: int,
+        parent_context_id: str | None,
     ) -> _MutableState:
         manifest = ContextManifest(
             context_id=f"ctx_planner_{inputs.problem_id}_attempt_{attempt}",
             context_type="planner",
             schema_version="planner-state-context/v1",
-            parent_context_id=None,
+            parent_context_id=parent_context_id,
             dependency_context_ids=(),
             problem_id=inputs.problem_id,
             family_id=inputs.family_spec.family_id,
@@ -551,6 +679,15 @@ class PlannerStateContextBuilder:
     ) -> None:
         if validation_report is None:
             return
+        raw_output = getattr(validation_report, "raw_output_normalization", None)
+        if isinstance(raw_output, dict):
+            state.context_events.append(
+                _context_event(
+                    "raw_output_normalized",
+                    ok=bool(raw_output.get("changed")),
+                    detail_count=len(raw_output.get("warnings", ()) or ()),
+                )
+            )
         for error in getattr(validation_report, "errors", ()) or ():
             state.issues.append(
                 {"layer": "validation", "code": "validation_error", "message": str(error)}
@@ -576,10 +713,27 @@ class PlannerStateContextBuilder:
                 )
         semantic_report = getattr(validation_report, "semantic_read_resolution", None)
         if semantic_report is not None:
+            state.context_events.append(
+                _context_event(
+                    "semantic_resolved",
+                    ok=bool(getattr(semantic_report, "ok", False)),
+                    detail_count=(
+                        len(getattr(semantic_report, "resolutions", ()) or ())
+                        + len(getattr(semantic_report, "errors", ()) or ())
+                    ),
+                )
+            )
             for error in getattr(semantic_report, "errors", ()) or ():
                 payload = error.to_payload() if hasattr(error, "to_payload") else dict(error)
                 payload.setdefault("layer", "semantic_reads")
                 state.issues.append(payload)
+        state.context_events.append(
+            _context_event(
+                "validated",
+                ok=bool(getattr(validation_report, "ok", False)),
+                detail_count=len(getattr(validation_report, "errors", ()) or ()),
+            )
+        )
 
     @classmethod
     def _observe_draft(
@@ -698,6 +852,13 @@ class PlannerStateContextBuilder:
     ) -> None:
         if normalization_report is None:
             return
+        state.context_events.append(
+            _context_event(
+                "normalized",
+                ok=True,
+                detail_count=len(getattr(normalization_report, "actions", ()) or ()),
+            )
+        )
         for action in getattr(normalization_report, "actions", ()) or ():
             action_name = getattr(action, "action", "")
             handle = getattr(action, "handle", None)
@@ -760,6 +921,146 @@ class PlannerStateContextBuilder:
             elif isinstance(issue, dict):
                 state.issues.append(dict(issue))
 
+    @staticmethod
+    def _observe_replay_layer_events(
+        state: _MutableState,
+        replay: PlannerRetryReplaySnapshot,
+    ) -> None:
+        resolution = getattr(replay, "resolution_report", None)
+        if resolution is not None:
+            state.context_events.append(
+                _context_event(
+                    "candidate_resolved",
+                    ok=bool(getattr(resolution, "ok", False)),
+                    detail_count=len(getattr(resolution, "errors", ()) or ()),
+                )
+            )
+        diagnostic = getattr(replay, "diagnostic", None)
+        if diagnostic is not None:
+            state.context_events.append(
+                _context_event(
+                    "trial_diagnosed",
+                    ok=bool(getattr(diagnostic, "ok", False)),
+                    detail_count=len(getattr(diagnostic, "blockers", ()) or ()),
+                )
+            )
+        goal_issues = getattr(replay, "goal_verification_issues", ()) or ()
+        if goal_issues:
+            state.context_events.append(
+                _context_event(
+                    "answer_checked",
+                    ok=False,
+                    detail_count=len(goal_issues),
+                )
+            )
+
+
+def _draft_snapshots_from_replay(
+    replay: PlannerRetryReplaySnapshot,
+) -> DraftSnapshots:
+    raw_payload = _draft_payload(replay.raw_draft)
+    normalized_payload = _draft_payload(replay.normalized_draft)
+    effective_payload = _draft_payload(replay.effective_draft)
+    return DraftSnapshots(
+        raw=raw_payload,
+        validated=raw_payload if replay.validation_report is not None else None,
+        normalized=normalized_payload,
+        effective=effective_payload,
+    )
+
+
+def _retry_memory_from_retry_state(
+    retry_state: Any | None,
+    *,
+    attempt: int,
+) -> RetryMemory:
+    if retry_state is None:
+        return RetryMemory(attempt=attempt)
+    payload = retry_state.to_payload() if hasattr(retry_state, "to_payload") else retry_state
+    if not isinstance(payload, dict):
+        return RetryMemory(attempt=attempt)
+    return RetryMemory(
+        attempt=_int_or_default(payload.get("attempt"), attempt),
+        baseline_draft=_dict_or_none(payload.get("baseline_draft")),
+        repair_suffix_start=_dict_or_none(payload.get("repair_suffix_start")),
+        preserve_policy=_planner_preserve_policy(payload.get("preserve_policy")),
+        repair_instruction=str(payload.get("repair_instruction") or ""),
+        replay_depth=_planner_replay_depth(payload.get("replay_depth")),
+        selected_repair_layer=_planner_retry_layer(
+            payload.get("selected_repair_layer")
+        ),
+        replay_timeline=tuple(
+            dict(item)
+            for item in payload.get("replay_timeline", ())
+            if isinstance(item, dict)
+        ),
+        replay_reports=(
+            dict(payload["replay_reports"])
+            if isinstance(payload.get("replay_reports"), dict)
+            else None
+        ),
+        issues=tuple(
+            dict(item)
+            for item in payload.get("issues", ())
+            if isinstance(item, dict)
+        ),
+        recovered_issues=tuple(
+            dict(item)
+            for item in payload.get("recovered_issues", ())
+            if isinstance(item, dict)
+        ),
+    )
+
+
+_PLANNER_REPLAY_DEPTHS = frozenset(get_args(PlannerReplayDepth))
+_PLANNER_RETRY_LAYERS = frozenset(get_args(PlannerRetryLayer))
+_PLANNER_PRESERVE_POLICIES = frozenset(get_args(PlannerRetryPreservePolicy))
+
+
+def _planner_replay_depth(value: object) -> PlannerReplayDepth | None:
+    if isinstance(value, str) and value in _PLANNER_REPLAY_DEPTHS:
+        return cast(PlannerReplayDepth, value)
+    return None
+
+
+def _planner_retry_layer(value: object) -> PlannerRetryLayer | None:
+    if isinstance(value, str) and value in _PLANNER_RETRY_LAYERS:
+        return cast(PlannerRetryLayer, value)
+    return None
+
+
+def _planner_preserve_policy(value: object) -> PlannerRetryPreservePolicy:
+    if isinstance(value, str) and value in _PLANNER_PRESERVE_POLICIES:
+        return cast(PlannerRetryPreservePolicy, value)
+    return "none"
+
+
+def _draft_payload(draft: StepIntentDraft | None) -> dict[str, Any] | None:
+    return draft.to_payload() if draft is not None else None
+
+
+def _dict_or_none(value: object) -> dict[str, Any] | None:
+    return dict(value) if isinstance(value, dict) else None
+
+
+def _int_or_default(value: object, default: int) -> int:
+    return value if isinstance(value, int) else default
+
+
+def _context_event(
+    event: ContextEventName,
+    *,
+    ok: bool,
+    attempt: int | None = None,
+    detail_count: int = 0,
+) -> ContextEvent:
+    return ContextEvent(
+        event=event,
+        ok=ok,
+        attempt=attempt,
+        detail_count=detail_count,
+    )
+
 
 def initial_planner_state_context(
     inputs: PlannerInputs,
@@ -767,6 +1068,7 @@ def initial_planner_state_context(
     problem_payload: dict[str, Any],
     handle_registry: CanonicalHandleRegistry,
     attempt: int = 0,
+    parent_context_id: str | None = None,
 ) -> PlannerStateContext:
     """Build the initial planner context through one shared entry point."""
     return PlannerStateContextBuilder.initial_from_inputs(
@@ -774,6 +1076,7 @@ def initial_planner_state_context(
         problem_payload=problem_payload,
         handle_registry=handle_registry,
         attempt=attempt,
+        parent_context_id=parent_context_id,
     )
 
 
@@ -1464,10 +1767,12 @@ __all__ = [
     "AliasIndex",
     "Condition",
     "ContextManifest",
+    "DraftSnapshots",
     "MathObject",
     "PlannerState",
     "PlannerStateContext",
     "PlannerStateContextBuilder",
+    "RetryMemory",
     "initial_planner_state_context",
     "ScopeGraph",
     "StableStep",

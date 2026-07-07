@@ -16,6 +16,13 @@ for _name in dir(_base):
     globals()[_name] = getattr(_base, _name)
 del _name, _base, _base_path, _spec, util
 
+from shuxueshuo_server.solver.runtime.planner_retry_projection import (  # noqa: E402
+    PlannerRetryStateProjector,
+)
+from shuxueshuo_server.solver.runtime.strategy_replay import (  # noqa: E402
+    PlannerRetryReplayService,
+)
+
 
 def test_strategy_payload_builder_indexes_stable_and_semantic_attempt_state() -> None:
     """semantic 早失败不应冲掉上一轮 runtime 稳定前缀。"""
@@ -97,7 +104,12 @@ def test_strategy_payload_builder_indexes_stable_and_semantic_attempt_state() ->
     )
     state = payload["previous_attempt_state"]
 
-    assert payload["previous_attempts"] == [stable_attempt, semantic_attempt]
+    assert payload["previous_attempts"][0]["attempt"] == 1
+    assert payload["previous_attempts"][0]["diagnostic_summary"]["accepted_prefix"] == [
+        {"step_id": "derive_axis_point", "scope_id": "i"}
+    ]
+    assert payload["previous_attempts"][1]["attempt"] == 2
+    assert "validation_report" not in payload["previous_attempts"][1]
     assert state["attempt_count"] == 2
     assert state["latest_stable_runtime"]["attempt"] == 1
     assert (
@@ -171,11 +183,154 @@ def test_strategy_payload_builder_indexes_planner_retry_state() -> None:
     )
     state = payload["previous_attempt_state"]
 
-    assert state["latest_retry_state"] == retry_state
+    assert state["latest_retry_state"]["baseline_draft"] == retry_state["baseline_draft"]
+    assert state["latest_retry_state"]["stable_prefix"] == retry_state["stable_prefix"]
+    assert "replay_reports" not in state["latest_retry_state"]
     assert state["latest_stable_runtime"]["attempt"] == 3
-    assert state["latest_stable_runtime"]["planner_retry_state"] == retry_state
+    assert "replay_reports" not in state["latest_stable_runtime"]["planner_retry_state"]
     assert state["latest_stable_runtime"]["effective_draft"] == retry_state["baseline_draft"]
     assert state["latest_stable_runtime"]["diagnostic"] == retry_state["replay_reports"]["trial_execution"]
+
+
+def test_strategy_payload_builder_compresses_previous_attempts_for_prompt() -> None:
+    """LLM prompt history should not include full replay/context debug payloads."""
+    retry_state = {
+        "attempt": 1,
+        "baseline_draft": {
+            "scopes": [
+                {
+                    "scope_id": "ii_1",
+                    "steps": [
+                        {"step_id": "stable_step"},
+                        {"step_id": "blocked_step"},
+                    ],
+                }
+            ]
+        },
+        "stable_prefix": [{"step_id": "stable_step", "scope_id": "ii_1"}],
+        "repair_suffix_start": {"step_id": "blocked_step", "scope_id": "ii_1"},
+        "issues": [
+            {
+                "layer": "trial_execution",
+                "code": "recipe_trial_step_failed",
+                "step_id": "blocked_step",
+                "scope_id": "ii_1",
+                "repair_target": "step",
+                "preserve_policy": "preserve_prefix",
+                "message": "missing runtime state",
+                "hints": [],
+                "related_handles": ["Parabola"],
+            }
+        ],
+        "preserve_policy": "preserve_prefix",
+        "repair_instruction": "repair suffix only",
+        "replay_reports": {
+            "candidate_resolution": {"large": ["debug"] * 100},
+            "trial_execution": {
+                "ok": False,
+                "blockers": [{"step_id": "blocked_step", "scope_id": "ii_1"}],
+            },
+        },
+        "source_context_id": "ctx_planner_attempt_1",
+    }
+    previous_attempt = {
+        "attempt": 1,
+        "context_derived_retry_state": retry_state,
+        "context_retry_memory": {"large": ["memory"] * 100},
+        "diagnostic": {"large": ["diagnostic"] * 100},
+        "effective_draft": {"large": ["draft"] * 100},
+        "planner_state_context_ref": {
+            "context_id": "ctx_planner_attempt_1",
+            "parent_context_id": None,
+            "schema_version": "planner-state-context/v1",
+        },
+        "errors": ["recipe_trial_step_failed:blocked_step"],
+    }
+    inputs = replace(_nankai_inputs(), previous_errors=[previous_attempt])
+
+    payload = StrategyPayloadBuilder().build(
+        inputs,
+        problem_payload=_nankai_llm_problem(),
+    )
+
+    prompt_attempt = payload["previous_attempts"][0]
+    assert "context_derived_retry_state" not in prompt_attempt
+    assert "context_retry_memory" not in prompt_attempt
+    assert "diagnostic" not in prompt_attempt
+    assert "effective_draft" not in prompt_attempt
+    assert prompt_attempt["stable_prefix_step_ids"] == ["stable_step"]
+    assert prompt_attempt["primary_issue"]["step_id"] == "blocked_step"
+    latest_retry_state = payload["previous_attempt_state"]["latest_retry_state"]
+    assert latest_retry_state["baseline_draft"] == retry_state["baseline_draft"]
+    assert "replay_reports" not in latest_retry_state
+
+
+def test_planner_retry_state_promotes_capability_alignment_error() -> None:
+    """Method/recipe contract errors should become explicit retry tickets."""
+    validation_report = StepIntentValidationReport(
+        ok=True,
+        step_count=1,
+        recipe_alignment=RecipeAlignmentReport(
+            matched_methods=("parameter_from_segment_length",),
+            capability_errors=(
+                {
+                    "step_id": "solve_parameter_from_length",
+                    "goal_type": "derive_parameter",
+                    "recipe_hint": "parameter_from_segment_length",
+                    "code": "method_outputs_answer",
+                    "message": "parameter method should not produce final answer directly",
+                },
+            ),
+        ),
+    )
+
+    state = build_planner_retry_state(
+        attempt=1,
+        errors=("strategy_candidate_resolution_failed: []",),
+        validation_report=validation_report,
+    )
+
+    assert state is not None
+    assert state.issues[0].layer == "candidate_resolution"
+    assert state.issues[0].code == "method_contract_mismatch"
+    assert state.issues[0].step_id == "solve_parameter_from_length"
+    assert "重新选择更合适的 catalog method/recipe" in state.issues[0].hints[0]
+    assert state.issues[0].details == {
+        "original_code": "method_outputs_answer",
+        "recipe_hint": "parameter_from_segment_length",
+        "goal_type": "derive_parameter",
+    }
+    assert state.replay_depth == "candidate_resolution"
+    assert state.replay_timeline[-1]["layer"] == "candidate_resolution"
+    assert state.replay_timeline[-1]["status"] == "blocked"
+
+
+def test_replay_keeps_builder_retry_state_when_context_projection_empty(
+    monkeypatch,
+) -> None:
+    """Context projection returning None must not erase the legacy retry state."""
+    monkeypatch.setattr(
+        PlannerRetryStateProjector,
+        "from_context",
+        staticmethod(lambda _context: None),
+    )
+    validation_report = StepIntentValidationReport(
+        ok=False,
+        errors=("synthetic_validation_error",),
+    )
+
+    replay = PlannerRetryReplayService().replay_from_artifacts(
+        attempt=1,
+        errors=("synthetic_validation_error",),
+        validation_report=validation_report,
+        inputs=_nankai_inputs(),
+        handle_registry=_registry(),
+        problem_payload=_nankai_llm_problem(),
+    )
+
+    assert replay.planner_state_context is not None
+    assert replay.retry_state is not None
+    assert replay.retry_state.issues[0].code == "synthetic_validation_error"
 
 
 def test_strategy_payload_builder_derives_semantic_failure_from_retry_state() -> None:
@@ -265,7 +420,9 @@ def test_strategy_payload_builder_derives_semantic_failure_from_retry_state() ->
     )
     state = payload["previous_attempt_state"]
 
-    assert state["latest_retry_state"] == retry_state
+    assert state["latest_retry_state"]["baseline_draft"] == retry_state["baseline_draft"]
+    assert state["latest_retry_state"]["issues"] == retry_state["issues"]
+    assert "replay_reports" not in state["latest_retry_state"]
     assert state["latest_semantic_failure"]["attempt"] == 2
     assert state["latest_semantic_failure"]["errors"] == ["new semantic failure"]
     assert state["latest_semantic_failure"]["validation_errors"] == [
@@ -1087,6 +1244,85 @@ def test_merge_previous_accepted_prefix_prefers_planner_retry_state() -> None:
         "derive_axis_point",
         "derive_suffix",
     ]
+
+
+def test_merge_previous_accepted_prefix_prefers_context_derived_retry_state() -> None:
+    """Context-derived retry projection should outrank the compatibility mirror."""
+    current_payload = _single_scope_draft(
+        _step(
+            scope_id="i",
+            step_id="derive_axis_point",
+            recipe_hint=None,
+            goal_type="derive_point",
+            target="fact:i:current_axis_point",
+            produces=(
+                ProducedFact("fact:i:current_axis_point", "i", "当前输出", output_type="Point"),
+            ),
+        ),
+        _step(
+            scope_id="i",
+            step_id="derive_suffix",
+            recipe_hint=None,
+            goal_type="derive_point",
+            target="fact:i:suffix",
+            produces=(ProducedFact("fact:i:suffix", "i", "后缀输出", output_type="Point"),),
+        ),
+        scope_id="i",
+    ).to_payload()
+    legacy_baseline = _single_scope_draft(
+        _step(
+            scope_id="i",
+            step_id="derive_axis_point",
+            recipe_hint=None,
+            goal_type="derive_point",
+            target="fact:i:legacy_axis_point",
+            produces=(
+                ProducedFact("fact:i:legacy_axis_point", "i", "旧 retry state", output_type="Point"),
+            ),
+        ),
+        scope_id="i",
+    ).to_payload()
+    context_baseline = _single_scope_draft(
+        _step(
+            scope_id="i",
+            step_id="derive_axis_point",
+            recipe_hint=None,
+            goal_type="derive_point",
+            target="fact:i:context_axis_point",
+            produces=(
+                ProducedFact("fact:i:context_axis_point", "i", "context retry state", output_type="Point"),
+            ),
+        ),
+        scope_id="i",
+    ).to_payload()
+    previous_attempt = {
+        "attempt": 2,
+        "planner_retry_state": {
+            "attempt": 2,
+            "baseline_draft": legacy_baseline,
+            "stable_prefix": [{"step_id": "derive_axis_point", "scope_id": "i"}],
+            "preserve_policy": "preserve_prefix",
+            "issues": [],
+            "replay_reports": {},
+        },
+        "context_derived_retry_state": {
+            "attempt": 2,
+            "baseline_draft": context_baseline,
+            "stable_prefix": [{"step_id": "derive_axis_point", "scope_id": "i"}],
+            "preserve_policy": "preserve_prefix",
+            "issues": [],
+            "replay_reports": {},
+            "source_context_id": "ctx_planner_current",
+        },
+    }
+
+    prepared = prepare_step_intent_raw_response(
+        json.dumps(current_payload, ensure_ascii=False),
+        previous_attempts=[previous_attempt],
+    )
+    merged = json.loads(prepared)
+
+    assert merged["scopes"][0]["steps"][0]["target"] == "fact:i:context_axis_point"
 
 
 def test_merge_previous_retry_state_preserve_handles_keeps_current_text() -> None:

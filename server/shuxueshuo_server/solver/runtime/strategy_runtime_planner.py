@@ -62,6 +62,7 @@ class StrategyPlannerArtifacts:
     payload: dict[str, Any] | None = None
     prompt: StrategyPrompt | None = None
     raw_response: str | None = None
+    planner_inputs: PlannerInputs | None = None
     draft: StepIntentDraft | None = None
     validation_report: object | None = None
     effective_draft: StepIntentDraft | None = None
@@ -181,6 +182,7 @@ class StrategyPlanner:
             payload=payload,
             prompt=prompt,
             raw_response=raw_response,
+            planner_inputs=inputs,
             draft=draft,
             validation_report=validation_report,
         )
@@ -201,6 +203,7 @@ class StrategyPlanner:
                 payload=payload,
                 prompt=prompt,
                 raw_response=raw_response,
+                planner_inputs=inputs,
                 draft=draft,
                 validation_report=validation_report,
                 effective_draft=replay_result.effective_draft,
@@ -220,6 +223,7 @@ class StrategyPlanner:
                 payload=payload,
                 prompt=prompt,
                 raw_response=raw_response,
+                planner_inputs=inputs,
                 draft=draft,
                 validation_report=validation_report,
                 effective_draft=replay_result.effective_draft,
@@ -236,19 +240,12 @@ class StrategyPlanner:
                     f"recipe_trial_step_failed: step={blocker.step_id}, "
                     f"errors={list(blocker.capability_errors)}"
                 )
-            raise StrategyDraftValidationError(
-                "strategy_candidate_resolution_failed: "
-                + json.dumps(
-                    replay_result.diagnostic.candidate_errors
-                    if replay_result.diagnostic is not None
-                    else (),
-                    ensure_ascii=False,
-                )
-            )
+            raise StrategyDraftValidationError(_planner_failure_message(replay_result))
         self._capture(
             payload=payload,
             prompt=prompt,
             raw_response=raw_response,
+            planner_inputs=inputs,
             draft=draft,
             validation_report=validation_report,
             effective_draft=replay_result.effective_draft,
@@ -278,9 +275,22 @@ class StrategyPlanner:
             return None
         if effective is None and diagnostic is None and not errors:
             return None
+        problem_payload = self.projection.to_llm_problem_payload()
+        handle_registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+        replay_inputs = self.artifacts.planner_inputs
+        replay_kwargs: dict[str, Any] = {}
+        if replay_inputs is not None:
+            replay_kwargs.update(
+                {
+                    "inputs": replay_inputs,
+                    "handle_registry": handle_registry,
+                    "problem_payload": problem_payload,
+                }
+            )
         replay_result = PlannerRetryReplayService().replay_from_artifacts(
             attempt=attempt,
             errors=tuple(errors),
+            **replay_kwargs,
             raw_draft=self.artifacts.draft,
             effective_draft=effective,
             normalized_draft=self.artifacts.normalized_draft,
@@ -367,6 +377,7 @@ class StrategyPlanner:
             payload=payload,
             prompt=prompt,
             raw_response=raw_response,
+            planner_inputs=inputs,
             draft=draft,
             validation_report=validation_report,
         )
@@ -383,6 +394,7 @@ class StrategyPlanner:
         payload: dict[str, Any] | None,
         prompt: StrategyPrompt | None,
         raw_response: str,
+        planner_inputs: PlannerInputs,
         draft: StepIntentDraft,
         validation_report: object | None,
         effective_draft: StepIntentDraft | None,
@@ -398,6 +410,7 @@ class StrategyPlanner:
             payload=payload,
             prompt=prompt,
             raw_response=raw_response,
+            planner_inputs=planner_inputs,
             draft=draft,
             validation_report=validation_report,
             effective_draft=effective_draft,
@@ -449,6 +462,29 @@ def _goal_verification_issue(
         if issue.layer == "goal_verification":
             return issue
     return None
+
+
+def _planner_failure_message(
+    replay_result: PlannerRetryReplayResult,
+) -> str:
+    retry_state = replay_result.retry_state
+    if retry_state is not None:
+        for issue in retry_state.issues:
+            if issue.layer == "candidate_resolution":
+                location = f" step={issue.step_id}" if issue.step_id else ""
+                return (
+                    "strategy_candidate_resolution_failed: "
+                    f"{issue.code}{location}: {issue.message}"
+                )
+    return (
+        "strategy_candidate_resolution_failed: "
+        + json.dumps(
+            replay_result.diagnostic.candidate_errors
+            if replay_result.diagnostic is not None
+            else (),
+            ensure_ascii=False,
+        )
+    )
 
 
 def _merge_previous_accepted_prefix(

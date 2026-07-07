@@ -188,6 +188,10 @@ class StepIntentNormalizer:
             handle_registry=handle_registry,
         )
         actions.extend(dedupe_actions)
+        normalized_draft = _apply_final_handle_rewrites(
+            normalized_draft,
+            context.handle_rewrites,
+        )
 
         return (
             normalized_draft,
@@ -210,6 +214,37 @@ def _scope_transform(
             handle_registry=handle_registry,
         ),
     )
+
+
+def _apply_final_handle_rewrites(
+    draft: StepIntentDraft,
+    rewrites: dict[str, str],
+) -> StepIntentDraft:
+    """Apply transitive handle rewrites after rule-specific semantics finish."""
+    if not rewrites:
+        return draft
+    scopes: list[StepIntentScope] = []
+    for scope in draft.scopes:
+        steps = tuple(
+            replace(
+                step,
+                reads=tuple(_resolve_final_handle(handle, rewrites) for handle in step.reads),
+                target=_resolve_final_handle(step.target, rewrites),
+            )
+            for step in scope.steps
+        )
+        scopes.append(replace(scope, steps=steps))
+    return StepIntentDraft(scopes=tuple(scopes))
+
+
+def _resolve_final_handle(handle: str, rewrites: dict[str, str]) -> str:
+    """Resolve rewrite chains conservatively at the final draft boundary."""
+    current = handle
+    seen: set[str] = set()
+    while current in rewrites and current not in seen:
+        seen.add(current)
+        current = rewrites[current]
+    return current
 
 
 DEFAULT_SCOPE_TRANSFORMS: tuple[ScopeNormalizationTransform, ...] = (

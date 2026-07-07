@@ -393,6 +393,7 @@ def _last_previous_attempt(previous_attempts: list[object]) -> dict[str, Any] | 
             isinstance(item, dict)
             and (
                 isinstance(item.get("planner_retry_state"), dict)
+                or isinstance(item.get("context_derived_retry_state"), dict)
                 or (
                     isinstance(item.get("effective_draft"), dict)
                     and isinstance(item.get("diagnostic"), dict)

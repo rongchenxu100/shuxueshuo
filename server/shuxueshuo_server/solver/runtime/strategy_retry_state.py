@@ -32,6 +32,13 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     StepIntentNormalizationReport,
     StepIntentValidationReport,
 )
+from shuxueshuo_server.solver.runtime.strategy_retry_common import (
+    repair_suffix_start_from_issues,
+    retry_instruction,
+    with_preserve_policy,
+)
+
+
 def build_planner_retry_state(
     *,
     attempt: int,
@@ -90,12 +97,12 @@ def build_planner_retry_state(
         stable_prefix=stable_prefix,
         repair_suffix_start=_repair_suffix_start(issues, diagnostic),
         issues=tuple(
-            _with_preserve_policy(issue, preserve_policy)
+            with_preserve_policy(issue, preserve_policy)
             for issue in issues
         ),
         recovered_issues=tuple(recovered_issues),
         preserve_policy=preserve_policy,
-        repair_instruction=_retry_instruction(
+        repair_instruction=retry_instruction(
             issues=issues,
             recovered_issues=recovered_issues,
             preserve_policy=preserve_policy,
@@ -128,6 +135,9 @@ def build_planner_retry_state(
 
 def retry_state_from_attempt(item: dict[str, Any]) -> dict[str, Any] | None:
     """从 previous attempt payload 中读取 retry state。"""
+    context_state = item.get("context_derived_retry_state")
+    if isinstance(context_state, dict):
+        return context_state
     state = item.get("planner_retry_state")
     return state if isinstance(state, dict) else None
 
@@ -152,6 +162,7 @@ def _issues_from_reports(
         resolution_report=resolution_report,
         diagnostic=diagnostic,
     ):
+        issues.extend(_capability_alignment_issues(validation_report))
         issues.extend(_strategy_route_issues(validation_report, resolution_report))
         issues.extend(
             _compressed_step_issues(
@@ -174,6 +185,63 @@ def _issues_from_reports(
                 message=_safe_error_message(error),
             )
             for error in errors
+        )
+    return issues
+
+def _capability_alignment_issues(
+    validation_report: StepIntentValidationReport | None,
+) -> list[PlannerRetryIssue]:
+    """Turn method/recipe contract mismatches into explicit repair tickets."""
+    alignment = (
+        validation_report.recipe_alignment
+        if validation_report is not None
+        else None
+    )
+    if alignment is None or not alignment.capability_errors:
+        return []
+    issues: list[PlannerRetryIssue] = []
+    for error in alignment.capability_errors:
+        step_id = _optional_error_field(error, "step_id")
+        recipe_hint = _optional_error_field(error, "recipe_hint")
+        goal_type = _optional_error_field(error, "goal_type")
+        original_code = _optional_error_field(error, "code") or "capability_error"
+        message = _optional_error_field(error, "message") or original_code
+        details = {
+            key: value
+            for key, value in {
+                "original_code": original_code,
+                "recipe_hint": recipe_hint,
+                "goal_type": goal_type,
+            }.items()
+            if value is not None
+        }
+        issues.append(
+            PlannerRetryIssue(
+                layer="candidate_resolution",
+                code="method_contract_mismatch",
+                step_id=step_id,
+                scope_id=None,
+                repair_target="step",
+                message=(
+                    "selected method/recipe does not match this step's "
+                    f"output contract: {message}"
+                ),
+                hints=(
+                    "重新选择更合适的 catalog method/recipe，或把该 step 拆成可执行的中间 fact 与最终 answer 收集。",
+                    "不要只改自然语言 strategy/reason；必须调整 recipe_hint、target、produces 或 dataflow。",
+                    (
+                        f"current_recipe_hint={recipe_hint}"
+                        if recipe_hint is not None
+                        else "current_recipe_hint=<missing>"
+                    ),
+                    (
+                        f"current_goal_type={goal_type}"
+                        if goal_type is not None
+                        else "current_goal_type=<missing>"
+                    ),
+                ),
+                details=details or None,
+            )
         )
     return issues
 
@@ -346,6 +414,13 @@ def _scope_id_for_step(
         if report.step_id == step_id:
             return report.scope_id
     return None
+
+def _optional_error_field(
+    payload: dict[str, str],
+    key: str,
+) -> str | None:
+    value = payload.get(key)
+    return value if isinstance(value, str) and value else None
 
 def _semantic_issues(
     validation_report: StepIntentValidationReport | None,
@@ -630,10 +705,7 @@ def _repair_suffix_start(
     if diagnostic is not None and diagnostic.first_blocker is not None:
         blocker = diagnostic.first_blocker
         return {"step_id": blocker.step_id, "scope_id": blocker.scope_id}
-    for issue in issues:
-        if issue.step_id or issue.scope_id:
-            return {"step_id": issue.step_id, "scope_id": issue.scope_id}
-    return None
+    return repair_suffix_start_from_issues(issues)
 
 def _replay_reports(
     *,
@@ -668,6 +740,8 @@ def _replay_depth(
     if diagnostic is not None:
         return "trial_execution"
     if resolution_report is not None:
+        return "candidate_resolution"
+    if any(issue.layer == "candidate_resolution" for issue in issues):
         return "candidate_resolution"
     if normalization_report is not None:
         return "normalization"
@@ -735,6 +809,19 @@ def _replay_timeline(
                 detail_count=len(resolution_report.errors),
             )
         )
+    elif blocking_by_layer.get("candidate_resolution") is not None:
+        timeline.append(
+            _timeline_item(
+                "candidate_resolution",
+                blocking=blocking_by_layer.get("candidate_resolution"),
+                recovered=recovered_by_layer.get("candidate_resolution", []),
+                ok=False,
+                detail_count=sum(
+                    1 for issue in issues
+                    if issue.layer == "candidate_resolution"
+                ),
+            )
+        )
     if diagnostic is not None:
         timeline.append(
             _timeline_item(
@@ -798,54 +885,6 @@ def _timeline_item(
         if issue.scope_id is not None:
             payload["scope_id"] = issue.scope_id
     return payload
-
-def _with_preserve_policy(
-    issue: PlannerRetryIssue,
-    preserve_policy: str,
-) -> PlannerRetryIssue:
-    if issue.layer in {"semantic_reads", "validation", "normalization", "answer_check"}:
-        return issue
-    return PlannerRetryIssue(
-        layer=issue.layer,
-        code=issue.code,
-        step_id=issue.step_id,
-        scope_id=issue.scope_id,
-        repair_target=issue.repair_target,
-        preserve_policy=preserve_policy,  # type: ignore[arg-type]
-        message=issue.message,
-        hints=issue.hints,
-        related_handles=issue.related_handles,
-        details=issue.details,
-    )
-
-def _retry_instruction(
-    *,
-    issues: list[PlannerRetryIssue],
-    recovered_issues: list[PlannerRetryIssue],
-    preserve_policy: str,
-    has_stable_prefix: bool,
-) -> str:
-    parts = [
-        "请优先阅读 latest_retry_state；以 baseline_draft 为修复基线，仍输出完整 StepIntent JSON。",
-    ]
-    if has_stable_prefix and preserve_policy == "preserve_prefix":
-        parts.append(
-            "保留 stable_prefix 中已通过 deterministic replay 的步骤语义，只修复 "
-            "repair_suffix_start 及其后续步骤。"
-        )
-    else:
-        parts.append("本轮不冻结 stable prefix；可以调整 baseline_draft 中与 issues 相关的步骤。")
-    first = issues[0] if issues else None
-    if first is not None:
-        location = f" step={first.step_id}" if first.step_id else ""
-        parts.append(
-            f"首要问题 layer={first.layer}, code={first.code}{location}。"
-        )
-    if recovered_issues:
-        parts.append(
-            "recovered_issues 记录的是代码已接管的问题，不要把它们作为主修复目标。"
-        )
-    return " ".join(parts)
 
 def _code_from_messages(messages: tuple[str, ...]) -> str:
     for message in messages:

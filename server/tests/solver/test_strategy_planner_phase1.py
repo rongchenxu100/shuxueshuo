@@ -705,6 +705,75 @@ def test_axis_point_answer_and_reusable_fact_alias_pass_capability_alignment() -
     assert report.recipe_alignment.capability_errors == ()
 
 
+def test_handle_resolver_dedupes_produces_after_scope_narrowing() -> None:
+    """同一步父/子 scope 产物被收窄到同一 handle 时应确定性去重。"""
+    payload = {
+        "scopes": [
+            {
+                "scope_id": "ii_1",
+                "label": "第（Ⅱ）①问",
+                "steps": [
+                    {
+                        "step_id": "straighten_reduced_path_public",
+                        "recipe_hint": "broken_path_straightening_and_select",
+                        "goal_type": "straighten_broken_path",
+                        "target": "fact:ii:straightened_path_choice",
+                        "strategy": "对折线路径构造拉直候选。",
+                        "reads": [
+                            "fact:ii_1:MN_length_squared_eq_10",
+                            "fact:ii:path_minimum_target",
+                            "point:ii:M",
+                            "point:ii:N",
+                        ],
+                        "creates": [],
+                        "produces": [
+                            _produce(
+                                "fact:ii_1:path_minimum_point_1",
+                                "ii_1",
+                                "子问内端点 1",
+                                output_type="Point",
+                            ),
+                            _produce(
+                                "fact:ii:path_minimum_point_1",
+                                "ii",
+                                "父 scope 端点 1",
+                                output_type="Point",
+                            ),
+                            _produce(
+                                "fact:ii:path_minimum_point_2",
+                                "ii",
+                                "父 scope 端点 2",
+                                output_type="Point",
+                            ),
+                        ],
+                        "reason": "LLM 同时写了公共和局部端点。",
+                    }
+                ],
+            }
+        ]
+    }
+
+    draft, report = StepIntentValidator().validate_json_with_report(
+        json.dumps(payload, ensure_ascii=False),
+        question_goals=[],
+        handle_registry=_registry(),
+        family_spec=_nankai_inputs().family_spec,
+    )
+
+    assert draft is not None
+    step = draft.steps[0]
+    assert [item.handle for item in step.produces] == [
+        "fact:ii_1:path_minimum_point_1",
+        "fact:ii_1:path_minimum_point_2",
+    ]
+    assert report.handle_resolution is not None
+    correction_reasons = {
+        correction.reason
+        for correction in report.handle_resolution.corrections
+    }
+    assert any("duplicate produced handle" in reason for reason in correction_reasons)
+
+
 def test_path_reduction_allows_distance_text_when_output_is_transformation() -> None:
     """路径降维 description 里出现“距离”时，不应被误判为最小值混产。"""
     payload = {
@@ -3639,6 +3708,66 @@ def test_minimum_expression_binding_reads_visible_parent_output() -> None:
 
     assert inputs["minimum_expression"] == "$question.ii.outputs.minimum_expression"
     assert inputs["condition"] == "$subquestion.ii_2.conditions.minimum_value"
+
+
+def test_line_intersection_auxiliary_fallback_ignores_sibling_scope_aux() -> None:
+    """line_intersection_point fallback 不应误读 sibling scope 的辅助点。"""
+    index = CanonicalRuntimeBindingIndex.from_context(
+        _runtime_context(),
+        handle_registry=_registry(),
+        question_goals=_question_goals(),
+    )
+    index.register_created_entity(
+        CreatedEntity(
+            handle="point:ii_1:Aux",
+            entity_type="point",
+            valid_scope="ii_1",
+            description="第 ii_1 问折线拉直辅助点",
+        )
+    )
+    index.register_created_entity(
+        CreatedEntity(
+            handle="point:ii:Aux",
+            entity_type="point",
+            valid_scope="ii",
+            description="第 ii 问公共折线拉直辅助点",
+        )
+    )
+    step = _unsafe_step_from_payload(
+        {
+            "step_id": "derive_G_ii2",
+            "recipe_hint": "line_intersection_point",
+            "goal_type": "derive_extremal_point",
+            "target": "answer:ii_2.intersection",
+            "strategy": "求拉直直线与线段 MN 的交点。",
+            "reads": [
+                "point:ii:G",
+                "segment:ii:MN",
+                "fact:ii:segment_G_on_MN",
+                "fact:ii:straightened_candidate",
+                "point:ii:M",
+                "point:ii:N",
+                "fact:ii:N_coordinate_expr",
+                "fact:ii_2:m_value",
+            ],
+            "creates": [],
+            "produces": [
+                _produce(
+                    "answer:ii_2.intersection",
+                    "ii_2",
+                    output_type="Point",
+                )
+            ],
+            "reason": "最值点是两条约束直线的交点。",
+        },
+        scope_id="ii_2",
+    )
+    rules = MethodBindingRuleRegistry.from_family_spec(_nankai_inputs().family_spec)
+
+    inputs = rules.bind("line_intersection_point", step, index)
+
+    assert inputs["line2_p1"] == "$question.ii.points.Aux"
+    assert inputs["line2_p1"] != "$subquestion.ii_1.points.Aux"
 
 
 def test_step_intent_validator_requires_required_question_goals() -> None:

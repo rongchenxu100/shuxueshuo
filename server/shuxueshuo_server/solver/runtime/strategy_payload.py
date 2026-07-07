@@ -150,7 +150,7 @@ class StrategyPayloadBuilder:
             "recipe_catalog": _recipe_catalog_payload(inputs.family_spec),
             "few_shot_examples": self._few_shot_examples(inputs, problem_payload),
             "previous_attempt_state": _previous_attempt_state(previous_attempts),
-            "previous_attempts": previous_attempts,
+            "previous_attempts": _prompt_previous_attempts(previous_attempts),
             "output_json_schema": STEP_INTENT_JSON_SCHEMA,
         }
 
@@ -182,22 +182,26 @@ class StrategyPayloadBuilder:
 def _previous_attempt_state(previous_attempts: list[Any]) -> dict[str, Any]:
     """为 prompt 提供上一轮失败历史的稳定索引。
 
-    ``previous_attempts`` 继续保留完整历史；这里额外抽出 LLM 最需要的两条线：
-    已通过 runtime dry-run 的稳定前缀，以及最新 semantic_reads 失败的局部修复信息。
+    内部 ``PlannerInputs.previous_errors`` 继续保留完整历史；prompt 只接收
+    LLM 真正需要的稳定前缀、修复窗口和 active issues，避免 replay/context
+    debug 大包稀释修复工单。
     """
     latest_retry_attempt = _latest_retry_state_attempt_payload(previous_attempts)
-    latest_retry_state = (
+    latest_retry_state_full = (
         retry_state_from_attempt(latest_retry_attempt)
         if latest_retry_attempt is not None
         else None
     )
-    if latest_retry_state is not None:
+    latest_retry_state = None
+    if latest_retry_state_full is not None:
+        latest_retry_state = _prompt_retry_state(latest_retry_state_full)
         latest_stable_runtime = _stable_runtime_from_retry_state(
-            latest_retry_state,
+            latest_retry_state_full,
             retry_attempt=latest_retry_attempt,
+            prompt_retry_state=latest_retry_state,
         )
         latest_semantic_failure = _semantic_failure_from_retry_state(
-            latest_retry_state,
+            latest_retry_state_full,
             retry_attempt=latest_retry_attempt,
         )
     else:
@@ -209,6 +213,215 @@ def _previous_attempt_state(previous_attempts: list[Any]) -> dict[str, Any]:
         "latest_stable_runtime": latest_stable_runtime,
         "latest_semantic_failure": latest_semantic_failure,
     }
+
+
+def _prompt_previous_attempts(previous_attempts: list[Any]) -> list[dict[str, Any]]:
+    """Return a compact LLM-facing view of previous attempts.
+
+    Full attempt payloads can carry context snapshots, replay reports, diagnostics,
+    and effective drafts for deterministic code paths. Those are useful internally
+    but too noisy for the model. The prompt view keeps a repair ticket summary only.
+    """
+    result: list[dict[str, Any]] = []
+    for item in previous_attempts:
+        if not isinstance(item, dict):
+            result.append({"summary": str(item)})
+            continue
+        retry_state = retry_state_from_attempt(item)
+        if retry_state is not None:
+            result.append(_prompt_attempt_from_retry_state(item, retry_state))
+            continue
+        result.append(_prompt_legacy_attempt(item))
+    return result
+
+
+def _prompt_attempt_from_retry_state(
+    item: dict[str, Any],
+    retry_state: dict[str, Any],
+) -> dict[str, Any]:
+    prompt_state = _prompt_retry_state(
+        retry_state,
+        include_baseline=False,
+        include_stable_prefix=False,
+    )
+    payload: dict[str, Any] = {
+        "attempt": item.get("attempt", retry_state.get("attempt")),
+        "status": "failed",
+        "errors": _short_errors(item.get("errors")),
+        "repair_suffix_start": retry_state.get("repair_suffix_start"),
+        "preserve_policy": retry_state.get("preserve_policy"),
+        "stable_prefix_step_ids": _stable_prefix_step_ids(retry_state),
+        "primary_issue": _first_issue(retry_state),
+        "retry_state_summary": prompt_state,
+    }
+    repair_instruction = retry_state.get("repair_instruction") or item.get(
+        "repair_instruction"
+    )
+    if isinstance(repair_instruction, str) and repair_instruction:
+        payload["repair_instruction"] = repair_instruction
+    context_ref = item.get("planner_state_context_ref")
+    if isinstance(context_ref, dict):
+        payload["planner_state_context_ref"] = _select_attempt_fields(
+            context_ref,
+            ("context_id", "parent_context_id", "schema_version"),
+        )
+    return payload
+
+
+def _prompt_legacy_attempt(item: dict[str, Any]) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "attempt": item.get("attempt"),
+        "status": "failed",
+        "errors": _short_errors(item.get("errors")),
+    }
+    repair_instruction = item.get("repair_instruction")
+    if isinstance(repair_instruction, str) and repair_instruction:
+        payload["repair_instruction"] = repair_instruction
+    repair_summary = item.get("repair_summary")
+    if isinstance(repair_summary, dict):
+        payload["repair_summary"] = _prompt_repair_summary(repair_summary)
+    diagnostic = item.get("diagnostic")
+    if isinstance(diagnostic, dict):
+        payload["diagnostic_summary"] = _prompt_diagnostic_summary(diagnostic)
+    semantic_report = _semantic_read_resolution_from_attempt(item)
+    if semantic_report and semantic_report.get("errors"):
+        payload["semantic_read_errors"] = semantic_report.get("errors")
+    return payload
+
+
+def _prompt_retry_state(
+    retry_state: dict[str, Any],
+    *,
+    include_baseline: bool = True,
+    include_stable_prefix: bool = True,
+) -> dict[str, Any]:
+    payload = _select_attempt_fields(
+        retry_state,
+        (
+            "attempt",
+            "repair_suffix_start",
+            "issues",
+            "recovered_issues",
+            "preserve_policy",
+            "repair_instruction",
+            "replay_depth",
+            "selected_repair_layer",
+            "source",
+            "source_context_id",
+        ),
+    )
+    if include_baseline:
+        payload["baseline_draft"] = retry_state.get("baseline_draft")
+    if include_stable_prefix:
+        payload["stable_prefix"] = retry_state.get("stable_prefix", [])
+    else:
+        payload["stable_prefix_step_ids"] = _stable_prefix_step_ids(retry_state)
+    timeline = retry_state.get("replay_timeline")
+    if isinstance(timeline, list):
+        payload["replay_timeline"] = [
+            _select_attempt_fields(item, ("layer", "status", "code"))
+            for item in timeline
+            if isinstance(item, dict)
+        ]
+    return payload
+
+
+def _prompt_repair_summary(summary: dict[str, Any]) -> dict[str, Any]:
+    return _select_attempt_fields(
+        summary,
+        (
+            "current_blocker",
+            "frozen_prefix",
+            "next_actions",
+            "do_not",
+            "already_handled",
+            "warnings",
+        ),
+    )
+
+
+def _prompt_diagnostic_summary(diagnostic: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "ok": diagnostic.get("ok"),
+        "accepted_prefix": [
+            _select_attempt_fields(item, ("step_id", "scope_id", "capability_id"))
+            for item in diagnostic.get("accepted_prefix", [])
+            if isinstance(item, dict)
+        ],
+        "blockers": [
+            _select_attempt_fields(
+                item,
+                (
+                    "step_id",
+                    "scope_id",
+                    "stage",
+                    "code",
+                    "message",
+                    "capability_id",
+                    "missing_runtime_type",
+                    "retryable",
+                ),
+            )
+            for item in diagnostic.get("blockers", [])
+            if isinstance(item, dict)
+        ],
+        "preflight_issues": [
+            _select_attempt_fields(
+                item,
+                ("step_id", "scope_id", "category", "code", "message", "repair"),
+            )
+            for item in diagnostic.get("preflight_issues", [])
+            if isinstance(item, dict)
+        ],
+    }
+
+
+def _stable_prefix_step_ids(retry_state: dict[str, Any]) -> list[str]:
+    result: list[str] = []
+    stable_prefix = retry_state.get("stable_prefix")
+    if not isinstance(stable_prefix, list):
+        return result
+    for item in stable_prefix:
+        if not isinstance(item, dict):
+            continue
+        step_id = item.get("step_id")
+        if isinstance(step_id, str) and step_id:
+            result.append(step_id)
+            continue
+        step = item.get("step")
+        if isinstance(step, dict) and isinstance(step.get("step_id"), str):
+            result.append(step["step_id"])
+    return result
+
+
+def _first_issue(retry_state: dict[str, Any]) -> dict[str, Any] | None:
+    issues = retry_state.get("issues")
+    if not isinstance(issues, list):
+        return None
+    for issue in issues:
+        if isinstance(issue, dict):
+            return _select_attempt_fields(
+                issue,
+                (
+                    "layer",
+                    "code",
+                    "step_id",
+                    "scope_id",
+                    "repair_target",
+                    "preserve_policy",
+                    "message",
+                    "hints",
+                    "related_handles",
+                    "details",
+                ),
+            )
+    return None
+
+
+def _short_errors(value: Any, *, limit: int = 3) -> list[str]:
+    if not isinstance(value, (list, tuple)):
+        return []
+    return [str(item) for item in value[:limit]]
 
 
 def _latest_retry_state_attempt(
@@ -269,6 +482,7 @@ def _stable_runtime_from_retry_state(
     retry_state: dict[str, Any],
     *,
     retry_attempt: dict[str, Any] | None = None,
+    prompt_retry_state: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """从正式 PlannerRetryState 派生旧 latest_stable_runtime 兼容镜像。"""
     attempt_repair_summary = (
@@ -292,7 +506,7 @@ def _stable_runtime_from_retry_state(
             if isinstance(attempt_errors, list)
             else _retry_state_issue_messages(retry_state)
         ),
-        "planner_retry_state": retry_state,
+        "planner_retry_state": prompt_retry_state or _prompt_retry_state(retry_state),
     }
 
 
@@ -550,6 +764,24 @@ def write_strategy_debug_artifacts(
     )
     context_payload = _planner_state_context_payload(planner_state_context)
     _write_json(target / "planner-state-context.json", context_payload)
+    context_retry_memory = _context_retry_memory_payload(context_payload)
+    # ``context-retry-memory`` is the context-owned source snapshot;
+    # ``context-derived-retry-state`` is the LLM/debug compatibility projection
+    # generated from that context plus the live stable prefix.
+    _write_json(target / "context-retry-memory.json", context_retry_memory)
+    _write_json(target / "context-derived-retry-state.json", retry_payload)
+    _write_json(
+        target / "context-baseline-draft.json",
+        (
+            context_retry_memory.get("baseline_draft")
+            if context_retry_memory is not None
+            else None
+        ),
+    )
+    _write_json(
+        target / "context-stable-prefix.json",
+        _context_stable_prefix_payload(context_payload),
+    )
     _write_json(
         target / "state-rewrite-ledger.json",
         (
@@ -644,6 +876,10 @@ def _clear_previous_debug_artifacts(target: Path) -> None:
         "execution-diagnostic.json",
         "planner-retry-state.json",
         "planner-state-context.json",
+        "context-retry-memory.json",
+        "context-derived-retry-state.json",
+        "context-baseline-draft.json",
+        "context-stable-prefix.json",
         "state-rewrite-ledger.json",
         "context-events.json",
         "baseline-draft.json",
@@ -675,6 +911,30 @@ def _planner_state_context_payload(value: Any | None) -> dict[str, Any] | None:
     if isinstance(value, dict):
         return value
     return None
+
+
+def _context_retry_memory_payload(
+    context_payload: dict[str, Any] | None,
+) -> dict[str, Any] | None:
+    if not isinstance(context_payload, dict):
+        return None
+    state = context_payload.get("state")
+    if not isinstance(state, dict):
+        return None
+    retry_memory = state.get("retry_memory")
+    return retry_memory if isinstance(retry_memory, dict) else None
+
+
+def _context_stable_prefix_payload(
+    context_payload: dict[str, Any] | None,
+) -> list[dict[str, Any]] | None:
+    if not isinstance(context_payload, dict):
+        return None
+    state = context_payload.get("state")
+    if not isinstance(state, dict):
+        return None
+    stable_prefix = state.get("stable_prefix")
+    return stable_prefix if isinstance(stable_prefix, list) else None
 
 
 def _context_semantic_read_resolution_payload(value: Any) -> dict[str, Any]:

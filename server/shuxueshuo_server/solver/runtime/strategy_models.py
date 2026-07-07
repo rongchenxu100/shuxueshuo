@@ -714,6 +714,7 @@ class StepIntentExecutionDiagnostic:
 
 
 PlannerRetryLayer = Literal[
+    "replay",
     "semantic_reads",
     "handle_resolution",
     "validation",
@@ -793,10 +794,11 @@ class PlannerRetryState:
     selected_repair_layer: PlannerRetryLayer | None = None
     replay_timeline: tuple[dict[str, Any], ...] = ()
     replay_reports: dict[str, Any] | None = None
+    source_context_id: str | None = None
 
     def to_payload(self) -> dict[str, Any]:
         """转成 ``previous_attempts`` 和 prompt 可携带的安全 JSON。"""
-        return {
+        payload = {
             "attempt": self.attempt,
             "baseline_draft": self.baseline_draft,
             "stable_prefix": list(self.stable_prefix),
@@ -812,6 +814,10 @@ class PlannerRetryState:
             "replay_timeline": list(self.replay_timeline),
             "replay_reports": self.replay_reports or {},
         }
+        if self.source_context_id is not None:
+            payload["source"] = "planner_state_context"
+            payload["source_context_id"] = self.source_context_id
+        return payload
 
 
 @dataclass(frozen=True)

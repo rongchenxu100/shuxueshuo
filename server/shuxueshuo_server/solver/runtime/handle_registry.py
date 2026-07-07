@@ -544,6 +544,10 @@ class HandleResolver:
                 )
                 corrections.extend(scope_corrections)
                 handle_rewrites.update(produce_rewrites)
+                corrected_step, duplicate_corrections = self._dedupe_step_produced_handles(
+                    corrected_step
+                )
+                corrections.extend(duplicate_corrections)
                 steps.append(corrected_step)
 
                 # 修正后续 step 时，需要知道前序 creates/produces 已经可读。
@@ -662,6 +666,46 @@ class HandleResolver:
             if all(read_scope in registry.ancestor_scopes(scope_id) for read_scope in read_scopes):
                 return scope_id
         return step.scope_id
+
+
+    def _dedupe_step_produced_handles(
+        self,
+        step: StepIntent,
+    ) -> tuple[StepIntent, list[HandleCorrection]]:
+        """Remove duplicate produced handles introduced by deterministic rewrites.
+
+        The LLM may emit both a broad public fact and a narrowed local fact in the
+        same step.  After alias/scope resolution those can become the same canonical
+        handle.  The duplicate carries no additional executable state, so keep the
+        first declaration and record the cleanup in the handle-resolution report.
+        """
+        if len(step.produces) < 2:
+            return step, []
+
+        retained: list[ProducedFact] = []
+        seen: set[str] = set()
+        corrections: list[HandleCorrection] = []
+        for item in step.produces:
+            if item.handle not in seen:
+                seen.add(item.handle)
+                retained.append(item)
+                continue
+            corrections.append(
+                HandleCorrection(
+                    step_id=step.step_id,
+                    scope_id=step.scope_id,
+                    from_handle=f"produces:{item.handle}",
+                    to_handle=item.handle,
+                    reason=(
+                        "duplicate produced handle after deterministic handle "
+                        "resolution; kept the first produced declaration"
+                    ),
+                )
+            )
+
+        if not corrections:
+            return step, []
+        return replace(step, produces=tuple(retained)), corrections
 
     def _resolve_handle_aliases(
         self,
