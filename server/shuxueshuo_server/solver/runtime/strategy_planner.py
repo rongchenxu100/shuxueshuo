@@ -61,7 +61,6 @@ from shuxueshuo_server.solver.runtime.function_specs import (
     FunctionSpecRegistry,
     GENERIC_FUNCTION_METHOD_IDS,
     assert_no_function_adapter_failures,
-    assert_no_function_adapter_fallbacks,
     function_catalog_payload,
 )
 from shuxueshuo_server.solver.runtime.semantic_reads import (
@@ -197,7 +196,6 @@ __all__ = [
     "FunctionSpecRegistry",
     "GENERIC_FUNCTION_METHOD_IDS",
     "assert_no_function_adapter_failures",
-    "assert_no_function_adapter_fallbacks",
     "function_catalog_payload",
     "StepIntentNormalizationAction",
     "StepIntentNormalizationReport",

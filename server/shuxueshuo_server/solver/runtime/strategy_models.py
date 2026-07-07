@@ -626,15 +626,14 @@ class StepIntentFunctionBindingEvent:
     The payload is debug-safe: it exposes function ids, method ids, status, and
     typed error codes, but never RuntimeContext paths.  ``failure`` means the
     migrated FunctionSpec adapter did not bind and execution stops at that
-    structured error. ``fallback`` is retained only for reading older debug
-    payloads where runtime still fell back to the legacy binding rule.
+    structured error.
     """
 
     step_id: str
     scope_id: str
     method_id: str
     function_id: str
-    status: Literal["success", "failure", "fallback"]
+    status: Literal["success", "failure"]
     errors: tuple[str, ...] = ()
 
     def to_payload(self) -> dict[str, Any]:

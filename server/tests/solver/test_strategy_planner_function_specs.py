@@ -19,7 +19,6 @@ from shuxueshuo_server.solver.runtime.function_specs import (
     GENERIC_FUNCTION_METHOD_IDS,
     FunctionSpecRegistry,
     assert_no_function_adapter_failures,
-    assert_no_function_adapter_fallbacks,
     function_spec_from_method,
     function_catalog_payload,
 )
@@ -275,7 +274,6 @@ def test_recorded_fixtures_compile_generic_methods_without_function_failures() -
         assert diagnostic.ok, _diagnostic_payload(diagnostic)
         assert diagnostic.function_binding_events
         assert_no_function_adapter_failures(diagnostic.function_binding_events)
-        assert_no_function_adapter_fallbacks(diagnostic.function_binding_events)
 
 
 def _diagnostic_payload(value: Any) -> dict[str, Any]:

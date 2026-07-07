@@ -883,18 +883,7 @@ def write_strategy_debug_artifacts(
         (
             [
                 item for item in function_binding_report
-                if item.get("status") in {"failure", "fallback"}
-            ]
-            if function_binding_report is not None
-            else None
-        ),
-    )
-    _write_json(
-        target / "function-adapter-fallbacks.json",
-        (
-            [
-                item for item in function_binding_report
-                if item.get("status") == "fallback"
+                if item.get("status") == "failure"
             ]
             if function_binding_report is not None
             else None

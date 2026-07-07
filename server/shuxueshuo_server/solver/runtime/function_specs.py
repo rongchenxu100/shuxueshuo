@@ -45,7 +45,7 @@ from shuxueshuo_server.solver.utils import unique_ordered
 
 FunctionArgKind = Literal["slot_read", "condition_read", "point_ref", "symbol", "auto"]
 FunctionSpecSource = Literal["explicit_contract", "projected_contract", "method_spec"]
-FunctionBindingStatus = Literal["success", "failure", "fallback"]
+FunctionBindingStatus = Literal["success", "failure"]
 
 BindingSelectorFn = Callable[[StepIntent, Any, Mapping[str, str]], str | None]
 ExpansionSelectorFn = Callable[[StepIntent, Any, Mapping[str, str]], dict[str, str]]
@@ -421,16 +421,7 @@ def function_spec_payloads(
 def function_adapter_failure_events(
     events: tuple[StepIntentFunctionBindingEvent, ...],
 ) -> tuple[StepIntentFunctionBindingEvent, ...]:
-    return tuple(
-        event for event in events
-        if event.status in {"failure", "fallback"}
-    )
-
-
-def adapter_fallback_events(
-    events: tuple[StepIntentFunctionBindingEvent, ...],
-) -> tuple[StepIntentFunctionBindingEvent, ...]:
-    return tuple(event for event in events if event.status == "fallback")
+    return tuple(event for event in events if event.status == "failure")
 
 
 def assert_no_function_adapter_failures(
@@ -445,13 +436,6 @@ def assert_no_function_adapter_failures(
         raise AssertionError(
             "function adapter failure occurred: " + "; ".join(details)
         )
-
-
-def assert_no_function_adapter_fallbacks(
-    events: tuple[StepIntentFunctionBindingEvent, ...],
-) -> None:
-    """Compatibility alias; Phase 5b treats fallback as adapter failure."""
-    assert_no_function_adapter_failures(events)
 
 
 def _arg_spec_from_method_input(name: str, input_spec: Any) -> FunctionArgSpec:

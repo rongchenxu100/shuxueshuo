@@ -160,7 +160,6 @@ from shuxueshuo_server.solver.runtime.strategy_planner import (
     FunctionSpecRegistry,
     GENERIC_FUNCTION_METHOD_IDS,
     assert_no_function_adapter_failures,
-    assert_no_function_adapter_fallbacks,
     function_catalog_payload,
 )
 from shuxueshuo_server.solver.runtime.orchestrator import (
@@ -264,7 +263,6 @@ __all__ = [
     "FunctionSpecRegistry",
     "GENERIC_FUNCTION_METHOD_IDS",
     "assert_no_function_adapter_failures",
-    "assert_no_function_adapter_fallbacks",
     "function_catalog_payload",
     "StepIntentPlannerInsight",
     "StepIntentPreflightAnalyzer",
