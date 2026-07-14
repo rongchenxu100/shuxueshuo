@@ -94,11 +94,23 @@ class HandleAliasIndex:
         name: str,
         scope_id: str,
     ) -> tuple[str, ...]:
-        """Return visible point entities for ``fact:<scope>:<PointName>`` aliases."""
-        return self.visible_ancestor_handles(
+        """Return visible point entities for exact or coordinate-state aliases."""
+        exact = self.visible_ancestor_handles(
             kind="point",
             written_scope=written_scope,
             name=name,
+            scope_id=scope_id,
+            include_written_scope=True,
+        )
+        if exact:
+            return exact
+        point_name = strip_coordinate_fact_suffix(name)
+        if point_name is None:
+            return ()
+        return self.visible_ancestor_handles(
+            kind="point",
+            written_scope=written_scope,
+            name=point_name,
             scope_id=scope_id,
             include_written_scope=True,
         )

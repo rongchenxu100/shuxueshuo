@@ -13,7 +13,6 @@ import re
 from typing import Any
 
 from shuxueshuo_server.solver.runtime.strategy_repair_feedback import (
-    RepairFeedbackBuilder,
     RepairHintRegistry,
 )
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
@@ -37,6 +36,9 @@ from shuxueshuo_server.solver.runtime.strategy_retry_common import (
     retry_instruction,
     with_preserve_policy,
 )
+from shuxueshuo_server.solver.runtime.strategy_repair_guidance import (
+    RepairGuidanceResolver,
+)
 
 
 def build_planner_retry_state(
@@ -52,6 +54,7 @@ def build_planner_retry_state(
     diagnostic: StepIntentExecutionDiagnostic | None = None,
     handle_registry: CanonicalHandleRegistry | None = None,
     goal_verification_issues: tuple[PlannerRetryIssue, ...] = (),
+    guidance_resolver: RepairGuidanceResolver | None = None,
 ) -> PlannerRetryState | None:
     """根据现有 replay artifacts 构造正式 retry state。"""
     issues = _issues_from_reports(
@@ -63,6 +66,7 @@ def build_planner_retry_state(
         draft=effective_draft or normalized_draft,
         handle_registry=handle_registry,
         goal_verification_issues=goal_verification_issues,
+        guidance_resolver=guidance_resolver,
     )
     recovered_issues = _recovered_issues_from_reports(
         validation_report=validation_report,
@@ -151,6 +155,7 @@ def _issues_from_reports(
     draft: StepIntentDraft | None,
     handle_registry: CanonicalHandleRegistry | None,
     goal_verification_issues: tuple[PlannerRetryIssue, ...],
+    guidance_resolver: RepairGuidanceResolver | None,
 ) -> list[PlannerRetryIssue]:
     issues: list[PlannerRetryIssue] = []
     issues.extend(_semantic_issues(validation_report))
@@ -173,7 +178,13 @@ def _issues_from_reports(
             )
         )
     issues.extend(_candidate_issues(resolution_report))
-    issues.extend(_trial_issues(diagnostic))
+    issues.extend(
+        _trial_issues(
+            diagnostic,
+            draft=draft,
+            guidance_resolver=guidance_resolver,
+        )
+    )
     issues.extend(goal_verification_issues)
     issues.extend(_answer_check_issues(errors, diagnostic=diagnostic))
     if not issues:
@@ -557,26 +568,47 @@ def _normalization_issues(errors: tuple[str, ...]) -> list[PlannerRetryIssue]:
 
 def _trial_issues(
     diagnostic: StepIntentExecutionDiagnostic | None,
+    *,
+    draft: StepIntentDraft | None,
+    guidance_resolver: RepairGuidanceResolver | None,
 ) -> list[PlannerRetryIssue]:
     if diagnostic is None or diagnostic.ok:
         return []
-    issues = [
-        PlannerRetryIssue(
+    issues: list[PlannerRetryIssue] = []
+    for blocker in diagnostic.blockers:
+        guidance = (
+            guidance_resolver.resolve(
+                missing_runtime_type=blocker.missing_runtime_type,
+                step=find_step(draft, blocker.step_id),
+                draft=draft,
+            )
+            if guidance_resolver is not None
+            else None
+        )
+        hints = list(_retry_hints_for_blocker(blocker))
+        if guidance is not None:
+            hints.append(
+                f"可用候选 `{guidance.capability_id}` 已通过当前 contract applicability 预检。"
+            )
+        issues.append(PlannerRetryIssue(
             layer="trial_execution",
             code=blocker.code,
             step_id=blocker.step_id,
             scope_id=blocker.scope_id,
             repair_target="step",
             message=blocker.message,
-            hints=_retry_hints_for_blocker(blocker),
+            hints=tuple(hints),
             related_handles=(
                 (blocker.missing_runtime_type,)
                 if blocker.missing_runtime_type is not None
                 else ()
             ),
-        )
-        for blocker in diagnostic.blockers
-    ]
+            details=(
+                {"method_guidance": guidance.to_payload()}
+                if guidance is not None
+                else None
+            ),
+        ))
     if issues:
         return issues
     return [
@@ -616,33 +648,69 @@ def _answer_check_issues(
             )
             continue
         if error.startswith("answer_unresolved:"):
+            producer = _unresolved_symbol_producer(error, diagnostic)
             issues.append(
                 PlannerRetryIssue(
                     layer="answer_check",
                     code="answer_unresolved",
+                    step_id=(producer.step_id if producer is not None else None),
+                    scope_id=(producer.scope_id if producer is not None else None),
                     repair_target="answer_goal",
                     preserve_policy="none",
                     message=_safe_error_message(error),
-                    hints=_answer_unresolved_hints(error, diagnostic),
+                    hints=_answer_unresolved_hints(error),
                     related_handles=_answer_related_handles(error),
+                    details=(
+                        {
+                            "unresolved_symbols": list(_unresolved_symbol_names(error)),
+                            "earliest_producer": producer.to_payload(),
+                        }
+                        if producer is not None
+                        else {"unresolved_symbols": list(_unresolved_symbol_names(error))}
+                    ),
                 )
             )
     return issues
 
 def _answer_unresolved_hints(
     error: str,
-    diagnostic: StepIntentExecutionDiagnostic | None,
 ) -> tuple[str, ...]:
-    hints = [
-        "最终答案仍含 unresolved_symbols；需要继续规划能确定这些自由参数的后续 step。",
-    ]
-    summary = RepairFeedbackBuilder(
-        diagnostic=diagnostic,
-        errors=(error,),
-    ).build()
-    hints.extend(str(item) for item in summary.get("next_actions", []) if item)
-    hints.extend(f"避免：{item}" for item in summary.get("do_not", []) if item)
-    return tuple(dict.fromkeys(hints))
+    del error
+    return (
+        "最终答案仍含 unresolved_symbols；从 earliest_producer 开始补齐对应 Symbol StateSlot 的 ParameterValue。",
+        "ParameterValue 必须保持输入 Symbol identity；不要仅改 produced handle 的参数名。",
+    )
+
+
+def _unresolved_symbol_names(error: str) -> tuple[str, ...]:
+    match = re.search(r"unresolved_symbols=([^;]+)", error)
+    if match is None:
+        return ()
+    return tuple(
+        item.strip()
+        for item in match.group(1).split(",")
+        if item.strip()
+    )
+
+
+def _unresolved_symbol_producer(
+    error: str,
+    diagnostic: StepIntentExecutionDiagnostic | None,
+) -> Any | None:
+    if diagnostic is None:
+        return None
+    names = set(_unresolved_symbol_names(error))
+    if not names:
+        return None
+    for item in diagnostic.state_write_provenance:
+        if item.runtime_type != "Symbol":
+            continue
+        if names.intersection(item.free_symbol_names):
+            return item
+    for item in diagnostic.state_write_provenance:
+        if names.intersection(item.free_symbol_names):
+            return item
+    return None
 
 def _answer_related_handles(error: str) -> tuple[str, ...]:
     match = re.search(r"goal=([^;]+)", error)

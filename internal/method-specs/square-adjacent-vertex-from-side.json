@@ -47,6 +47,7 @@
   "outputs": {
     "point": "Point"
   },
+  "is_pure": true,
   "preconditions": [
     "square_condition 包含 ordered vertices 和可判定的 orientation；若 orientation 依赖参数符号，可提供参数范围约束"
   ],

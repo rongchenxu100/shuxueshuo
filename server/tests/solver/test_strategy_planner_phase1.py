@@ -1451,6 +1451,7 @@ def test_strategy_payload_builder_uses_problem_ir_without_expected_answers() -> 
         "family_spec",
         "method_catalog",
         "function_catalog",
+        "macro_catalog",
         "recipe_catalog",
         "few_shot_examples",
         "previous_attempt_state",
@@ -5869,7 +5870,8 @@ def test_recipe_capability_output_types_come_from_execution_output_aliases() -> 
             if recipe.execution is None or not recipe.execution.output_aliases:
                 continue
             expected: list[str] = []
-            for _output_key, output_type in recipe.execution.output_aliases:
+            for output in recipe.execution.output_aliases:
+                output_type = output.runtime_type
                 if output_type not in expected:
                     expected.append(output_type)
 
@@ -7780,12 +7782,18 @@ def test_line_parabola_binding_uses_coordinate_fact_as_line_point() -> None:
         )
     )
 
-    inputs = rules.bind("line_parabola_second_intersection_point", step, index)
+    inputs = rules.bind(
+        "line_parabola_second_intersection_point",
+        step,
+        index,
+        local_outputs={"type:Parabola": "$step.prep.temp.parabola"},
+    )
 
     assert inputs["line_p1"] == "$question.i.outputs.B_coordinate"
     assert inputs["line_p2"] == "$subquestion.i_2.outputs.F_coordinate"
     assert inputs["known_point"] == "$question.i.outputs.B_coordinate"
     assert inputs["target"] == "$subquestion.i_2.points.E"
+    assert inputs["parabola"] == "$step.prep.temp.parabola"
 
 
 def test_recipe_trial_executor_diagnostic_reports_blocker_and_skipped_steps() -> None:
@@ -8628,9 +8636,9 @@ def test_final_point_recovery_blocker_uses_specific_repair_instruction() -> None
     )
     summary = RepairFeedbackBuilder(diagnostic=diagnostic).build()
     instruction = _repair_instruction(diagnostic, repair_summary=summary)
-    assert "line_locus_minimum_point" in instruction
-    assert "square_adjacent_vertex_from_side" in instruction
-    assert "path_minimum_point_1/2" in instruction
+    assert "极值状态 moving point" in instruction
+    assert "状态转移到最终目标点" in instruction
+    assert "line_locus_minimum_point" not in instruction
 
 
 def test_recipe_trial_keeps_accepted_prefix_when_later_candidate_resolution_fails() -> None:
@@ -9080,8 +9088,8 @@ def test_default_repair_hint_registry_loads_method_hints() -> None:
     hint = RepairHintRegistry.default().find(blocker)
 
     assert hint is not None
-    assert "line_locus_minimum_point" in " ".join(hint.next_actions)
-    assert "square_adjacent_vertex_from_side" in " ".join(hint.next_actions)
+    assert "极值状态 moving point" in " ".join(hint.next_actions)
+    assert "line_locus_minimum_point" not in " ".join(hint.next_actions)
 
 
 def test_repair_feedback_builder_merges_path_and_straightening_insights() -> None:
@@ -9136,8 +9144,8 @@ def test_repair_feedback_builder_merges_path_and_straightening_insights() -> Non
         "fact:ii:path_minimum_point_1",
         "fact:ii:path_minimum_point_2",
     ]
-    assert any("line_locus_minimum_point" in action for action in summary["next_actions"])
-    assert any("square_adjacent_vertex_from_side" in action for action in summary["next_actions"])
+    assert any("最短线段端点" in action for action in summary["next_actions"])
+    assert not any("line_locus_minimum_point" in action for action in summary["next_actions"])
 
 
 def test_repair_feedback_builder_guides_missing_locus_line_before_straightening() -> None:
@@ -9378,6 +9386,8 @@ def test_recipe_trial_executor_compiles_recorded_step_intents_without_d_prime_te
 
 def test_write_strategy_debug_artifacts(tmp_path: Path) -> None:
     """debug helper 应按约定文件名写出 prompt、payload、raw response 和 report。"""
+    stale_macro_transform_report = tmp_path / "macro-transform-report.json"
+    stale_macro_transform_report.write_text("{}", encoding="utf-8")
     payload = _nankai_payload()
     prompt = StrategyPromptRenderer().render(payload)
     semantic_payload = _payload_with_semantic_reads(
@@ -9416,11 +9426,15 @@ def test_write_strategy_debug_artifacts(tmp_path: Path) -> None:
     assert (tmp_path / "payload.naming_conventions.json").exists()
     assert (tmp_path / "payload.prompt_flags.json").exists()
     assert (tmp_path / "payload.method_catalog.json").exists()
+    assert (tmp_path / "payload.macro_catalog.json").exists()
     assert (tmp_path / "payload.recipe_catalog.json").exists()
     assert (tmp_path / "payload.previous_attempt_state.json").exists()
     assert (tmp_path / "function-binding-report.json").exists()
     assert (tmp_path / "function-adapter-failures.json").exists()
     assert not (tmp_path / "function-adapter-fallbacks.json").exists()
+    assert (tmp_path / "macro-catalog.json").exists()
+    assert (tmp_path / "macro-binding-report.json").exists()
+    assert not stale_macro_transform_report.exists()
     assert (tmp_path / "planner-retry-state.json").exists()
     assert (tmp_path / "baseline-draft.json").exists()
     assert (tmp_path / "stable-prefix.json").exists()

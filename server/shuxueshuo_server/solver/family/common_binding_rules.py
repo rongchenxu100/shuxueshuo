@@ -31,6 +31,7 @@ def quadratic_from_constraints_rule() -> MethodBindingRuleSpec:
                 "runtime_step_output:coefficients",
             ),
         ),
+        constraint_analyzer="quadratic_coefficients",
     )
 
 
@@ -180,7 +181,7 @@ def parameter_from_expression_value_rule() -> MethodBindingRuleSpec:
         input_bindings=(
             MethodInputBindingSpec("expression", "read_type:MinimumExpression"),
             MethodInputBindingSpec("condition", "fact:minimum_value:Condition"),
-            MethodInputBindingSpec("parameter", "parameter_symbol"),
+            MethodInputBindingSpec("parameter", "parameter_symbol_from_reads_or_expression"),
             MethodInputBindingSpec("constraint", "parameter_constraint", required=False),
         ),
     )

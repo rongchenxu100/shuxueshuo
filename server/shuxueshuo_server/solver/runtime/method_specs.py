@@ -95,6 +95,9 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
         raise ValueError("MethodSpec.solves must be a non-empty list")
     inputs = _parse_inputs(raw["inputs"])
     outputs = _parse_outputs(raw["outputs"])
+    is_pure = raw.get("is_pure", False)
+    if not isinstance(is_pure, bool):
+        raise ValueError("MethodSpec.is_pure must be a boolean")
     return MethodSpec(
         method_id=str(raw["method_id"]),
         title=str(raw["title"]),
@@ -108,6 +111,17 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
         repair_hints=_parse_repair_hints(raw.get("repair_hints", [])),
         explanation=_parse_explanation(raw.get("explanation")),
         visual=_parse_visual(raw.get("visual")),
+        constraint_analyzer=(
+            str(raw["constraint_analyzer"])
+            if raw.get("constraint_analyzer") is not None
+            else None
+        ),
+        plan_transformer=(
+            str(raw["plan_transformer"])
+            if raw.get("plan_transformer") is not None
+            else None
+        ),
+        is_pure=is_pure,
     )
 
 

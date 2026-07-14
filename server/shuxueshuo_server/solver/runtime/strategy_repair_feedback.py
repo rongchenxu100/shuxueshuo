@@ -230,7 +230,7 @@ def _planner_state_from_insights(
                 "source_step": insight.step_id,
                 "produced_handle": insight.produced_handle,
                 "minimum_points": points,
-                "next_method": insight.facts.get("next_method"),
+                "required_state_roles": insight.facts.get("required_state_roles", ()),
                 "repair_note": insight.repair_note,
             }
             continue
@@ -358,11 +358,6 @@ def _next_actions(
             + ", ".join(straightening["minimum_points"])
             + "。"
         )
-        next_method = straightening.get("next_method")
-        if next_method:
-            actions.append(
-                f"先用 `{next_method}` 读取动点轨迹和最短线段端点，求最短状态 moving point。"
-            )
     if already_handled:
         actions.append("`already_handled` 中的问题由代码处理，不需要新增对应 step。")
     if not actions and errors:

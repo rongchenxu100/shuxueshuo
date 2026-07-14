@@ -151,7 +151,7 @@ def _recipe_output_types(recipe: Any) -> tuple[str, ...]:
         return ()
     return tuple(
         _unique_ordered(
-            output_type for _output_key, output_type in execution.output_aliases
+            output.runtime_type for output in execution.output_aliases
         )
     )
 

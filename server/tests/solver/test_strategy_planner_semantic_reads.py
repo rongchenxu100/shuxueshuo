@@ -5,6 +5,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 from shuxueshuo_server.solver.runtime.handle_alias_index import HandleAliasIndex
+from shuxueshuo_server.solver.runtime.handle_registry import HandleResolver
 from shuxueshuo_server.solver.runtime.planner_state_context import (
     PlannerStateContextBuilder,
 )
@@ -201,6 +202,100 @@ def test_context_semantic_read_resolver_can_read_context_state_slot() -> None:
     assert normalized["scopes"][0]["steps"][0]["reads"] == ["fact:i:A_coordinate"]
     assert report.errors == ()
     assert report.resolutions[0].state_slot_id is not None
+
+
+def test_point_answer_projects_authored_target_coordinate_alias() -> None:
+    """A prior Point answer should expose its authored target object's state."""
+    registry = _registry()
+    raw_payload = {
+        "scopes": [
+            {
+                "scope_id": "i",
+                "label": "first",
+                "steps": [
+                    {
+                        "step_id": "derive_axis_point",
+                        "goal_type": "derive_axis_point",
+                        "target": "answer:i.axis_point",
+                        "strategy": "derive the target point",
+                        "reason": "synthetic",
+                        "reads": ["point:problem:D"],
+                        "creates": [],
+                        "produces": [
+                            {
+                                "handle": "answer:i.axis_point",
+                                "valid_scope": "i",
+                                "description": "axis point coordinate",
+                                "output_type": "Point",
+                            }
+                        ],
+                    }
+                ],
+            },
+            {
+                "scope_id": "ii_1",
+                "label": "later",
+                "steps": [
+                    {
+                        "step_id": "reuse_axis_point",
+                        "goal_type": "derive_expression",
+                        "target": "fact:ii_1:next",
+                        "strategy": "reuse the computed point state",
+                        "reason": "synthetic",
+                        "semantic_reads": [
+                            {
+                                "kind": "fact",
+                                "ref": "fact:i:D_coordinate",
+                                "value_type": "Point",
+                            }
+                        ],
+                        "creates": [],
+                        "produces": [],
+                    }
+                ],
+            },
+        ]
+    }
+
+    normalized, report = SemanticReadResolver(registry).resolve_payload(raw_payload)
+
+    assert report.errors == ()
+    assert normalized["scopes"][1]["steps"][0]["reads"] == [
+        "point:problem:D"
+    ]
+    assert report.resolutions[-1].handle == "point:problem:D"
+
+
+def test_coordinate_fact_alias_resolves_to_unique_visible_point_object() -> None:
+    """Legacy coordinate-fact reads should reach deterministic point backfill."""
+    registry = CanonicalHandleRegistry.from_problem_payload(
+        _heping_ermo_llm_problem()
+    )
+    step = _step(
+        scope_id="ii",
+        step_id="consume_midpoint_coordinate",
+        recipe_hint="broken_path_straightening_minimum_expression",
+        goal_type="derive_path_minimum_expression",
+        target="fact:ii:path_minimum_expression",
+        reads=("fact:ii:F_coordinate",),
+        produces=(
+            ProducedFact(
+                "fact:ii:path_minimum_expression",
+                "ii",
+                output_type="MinimumExpression",
+            ),
+        ),
+    )
+
+    resolved, report = HandleResolver().resolve_draft(
+        _single_scope_draft(step, scope_id="ii"),
+        registry,
+    )
+
+    assert resolved.steps[0].reads == ("point:ii:F",)
+    assert report.corrections[0].reason.startswith(
+        "fact_namespace_for_point_entity"
+    )
 
 
 def test_handle_alias_index_matches_initial_point_coordinate_fact_without_from_step() -> None:

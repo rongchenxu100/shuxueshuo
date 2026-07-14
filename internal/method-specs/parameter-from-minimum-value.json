@@ -26,5 +26,6 @@
   },
   "outputs": {
     "parameter_value": "ParameterValue"
-  }
+  },
+  "is_pure": true
 }

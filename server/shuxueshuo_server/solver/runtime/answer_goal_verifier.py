@@ -11,6 +11,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Mapping
 
+from shuxueshuo_server.solver.family.models import GoalEvidenceTag, SolverFamilySpec
 from shuxueshuo_server.solver.runtime.handle_registry import (
     CanonicalHandleRegistry,
     _handle_scope,
@@ -21,6 +22,7 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     StepIntentDraft,
     StepIntentExecutionDiagnostic,
 )
+from shuxueshuo_server.solver.utils import unique_ordered
 
 
 @dataclass(frozen=True)
@@ -34,6 +36,7 @@ class AnswerGoalVerifier:
         problem_payload: Mapping[str, Any] | None,
         handle_registry: CanonicalHandleRegistry,
         diagnostic: StepIntentExecutionDiagnostic | None = None,
+        family_spec: SolverFamilySpec | None = None,
     ) -> tuple[PlannerRetryIssue, ...]:
         """Return goal verification issues for an otherwise executable draft."""
         if draft is None or problem_payload is None:
@@ -41,7 +44,11 @@ class AnswerGoalVerifier:
         goals = _canonical_question_goals(problem_payload)
         if not goals:
             return ()
-        produced = _produced_output_types(draft)
+        accepted_step_ids = (
+            {item.step_id for item in diagnostic.accepted_prefix}
+            if diagnostic is not None and not diagnostic.ok
+            else None
+        )
         issues: list[PlannerRetryIssue] = []
         for goal in goals:
             if not bool(goal.get("required", True)):
@@ -52,12 +59,18 @@ class AnswerGoalVerifier:
             step = _producing_step(draft, goal_handle)
             if step is None:
                 continue
+            if accepted_step_ids is not None and step.step_id not in accepted_step_ids:
+                # A failed trial has not executed this answer producer yet. The
+                # first runtime blocker owns the repair window; diagnosing the
+                # unexecuted suffix would hide that earlier failure.
+                continue
             value_type = str(goal.get("value_type", "")).strip()
             if value_type == "Point":
                 issue = _point_goal_issue(
                     goal,
                     step=step,
                     handle_registry=handle_registry,
+                    diagnostic=diagnostic,
                 )
                 if issue is not None:
                     issues.append(issue)
@@ -65,10 +78,9 @@ class AnswerGoalVerifier:
                 issue = _minimum_goal_issue(
                     goal,
                     step=step,
-                    draft=draft,
-                    produced_output_types=produced,
                     handle_registry=handle_registry,
                     diagnostic=diagnostic,
+                    family_spec=family_spec,
                 )
                 if issue is not None:
                     issues.append(issue)
@@ -93,29 +105,45 @@ def _producing_step(draft: StepIntentDraft, handle: str) -> StepIntent | None:
     return None
 
 
-def _produced_output_types(draft: StepIntentDraft) -> dict[str, str]:
-    result: dict[str, str] = {}
-    for step in draft.steps:
-        for item in step.produces:
-            if item.output_type:
-                result[item.handle] = item.output_type
-    return result
-
-
 def _point_goal_issue(
     goal: Mapping[str, Any],
     *,
     step: StepIntent,
     handle_registry: CanonicalHandleRegistry,
+    diagnostic: StepIntentExecutionDiagnostic | None,
 ) -> PlannerRetryIssue | None:
     target_handle = str(goal.get("target_handle", "")).strip()
     if not target_handle or not target_handle.startswith("point:"):
         return None
-    if not _point_goal_requires_explicit_identity(
-        target_handle,
-        scope_id=step.scope_id,
-        handle_registry=handle_registry,
-    ):
+    if diagnostic is not None:
+        provenance = next(
+            (
+                item
+                for item in reversed(diagnostic.state_write_provenance)
+                if item.produced_handle == str(goal.get("handle", ""))
+            ),
+            None,
+        )
+        if provenance is None:
+            return _point_provenance_issue(
+                goal,
+                step=step,
+                target_handle=target_handle,
+                actual_object_ref=None,
+                source_step_id=None,
+                source_handles=(),
+                handle_registry=handle_registry,
+            )
+        if provenance.object_ref != target_handle:
+            return _point_provenance_issue(
+                goal,
+                step=step,
+                target_handle=target_handle,
+                actual_object_ref=provenance.object_ref,
+                source_step_id=provenance.source_step_id,
+                source_handles=provenance.source_handles,
+                handle_registry=handle_registry,
+            )
         return None
     if _step_mentions_handle(step, target_handle):
         return None
@@ -144,16 +172,72 @@ def _point_goal_issue(
     )
 
 
+def _point_provenance_issue(
+    goal: Mapping[str, Any],
+    *,
+    step: StepIntent,
+    target_handle: str,
+    actual_object_ref: str | None,
+    source_step_id: str | None,
+    source_handles: tuple[str, ...],
+    handle_registry: CanonicalHandleRegistry,
+) -> PlannerRetryIssue:
+    issue_step_id = source_step_id or step.step_id
+    code = (
+        "point_goal_source_mismatch"
+        if actual_object_ref is not None
+        else "point_goal_identity_unproven"
+    )
+    related = unique_ordered(
+        (
+            *_related_handles_for_point_goal(
+                target_handle,
+                scope_id=step.scope_id,
+                handle_registry=handle_registry,
+            ),
+            *source_handles,
+        )
+    )
+    return PlannerRetryIssue(
+        layer="goal_verification",
+        code=code,
+        step_id=issue_step_id,
+        scope_id=step.scope_id,
+        repair_target=str(goal.get("handle") or step.target),
+        message=(
+            f"Point answer requires object {target_handle}, but its state write "
+            f"provenance resolves to {actual_object_ref or 'no object identity'}."
+        ),
+        hints=(
+            "从最早写错对象身份的 producer 起重写 suffix；端点、辅助点或候选点"
+            "不能仅通过改名满足另一个目标点。",
+            "最终 Point answer 的状态必须由同一目标对象的坐标状态推导。",
+        ),
+        related_handles=related,
+    )
+
+
 def _minimum_goal_issue(
     goal: Mapping[str, Any],
     *,
     step: StepIntent,
-    draft: StepIntentDraft,
-    produced_output_types: Mapping[str, str],
     handle_registry: CanonicalHandleRegistry,
     diagnostic: StepIntentExecutionDiagnostic | None,
+    family_spec: SolverFamilySpec | None,
 ) -> PlannerRetryIssue | None:
-    if step.recipe_hint != "evaluate_expression_at_parameter":
+    if diagnostic is None or family_spec is None:
+        return None
+    expression_roles = _goal_evidence_roles(
+        family_spec,
+        "path_minimum_expression",
+    )
+    expression_handles = _goal_evidence_handles(
+        diagnostic,
+        roles=expression_roles,
+        scope_id=step.scope_id,
+        handle_registry=handle_registry,
+    )
+    if not set(step.reads) & set(expression_handles):
         return None
     path_targets = _visible_facts_by_type(
         "path_minimum_target",
@@ -162,18 +246,17 @@ def _minimum_goal_issue(
     )
     if not path_targets:
         return None
-    straightening_witnesses = _straightening_witness_handles(
-        draft,
+    straightening_witnesses = _goal_evidence_handles(
+        diagnostic,
+        roles=_goal_evidence_roles(family_spec, "path_minimum_witness"),
         scope_id=step.scope_id,
-        produced_output_types=produced_output_types,
         handle_registry=handle_registry,
-        diagnostic=diagnostic,
     )
     if not straightening_witnesses:
         return None
     if any(handle in set(step.reads) for handle in straightening_witnesses):
         return None
-    related = _unique_ordered((*path_targets, *straightening_witnesses, *step.reads))
+    related = unique_ordered((*path_targets, *straightening_witnesses, *step.reads))
     return PlannerRetryIssue(
         layer="goal_verification",
         code="minimum_goal_lineage_incomplete",
@@ -193,36 +276,38 @@ def _minimum_goal_issue(
     )
 
 
-def _straightening_witness_handles(
-    draft: StepIntentDraft,
+def _goal_evidence_roles(
+    family_spec: SolverFamilySpec,
+    tag: GoalEvidenceTag,
+) -> frozenset[str]:
+    return frozenset(
+        output.semantic_role
+        for recipe in family_spec.step_recipes
+        if recipe.execution is not None
+        for output in recipe.execution.output_aliases
+        if tag in output.goal_evidence_tags
+    )
+
+
+def _goal_evidence_handles(
+    diagnostic: StepIntentExecutionDiagnostic,
     *,
+    roles: frozenset[str],
     scope_id: str,
-    produced_output_types: Mapping[str, str],
     handle_registry: CanonicalHandleRegistry,
-    diagnostic: StepIntentExecutionDiagnostic | None,
 ) -> tuple[str, ...]:
-    handles: list[str] = []
-    for handle, output_type in produced_output_types.items():
-        if output_type == "StraighteningCandidate" and _is_visible(
-            handle,
+    if not roles:
+        return ()
+    return unique_ordered(
+        item.produced_handle
+        for item in diagnostic.state_write_provenance
+        if item.identity_role in roles
+        and _is_visible(
+            item.produced_handle,
             scope_id=scope_id,
             handle_registry=handle_registry,
-        ):
-            handles.append(handle)
-        elif (
-            output_type == "Point"
-            and _semantic_name(handle).startswith("path_minimum_point_")
-            and _is_visible(handle, scope_id=scope_id, handle_registry=handle_registry)
-        ):
-            handles.append(handle)
-    if diagnostic is not None:
-        for insight in diagnostic.planner_insights:
-            if insight.output_type == "StraighteningMinimum":
-                handles.append(insight.produced_handle)
-                minimum_points = insight.facts.get("minimum_points")
-                if isinstance(minimum_points, list):
-                    handles.extend(str(item) for item in minimum_points if item)
-    return _unique_ordered(handles)
+        )
+    )
 
 
 def _visible_facts_by_type(
@@ -264,29 +349,7 @@ def _related_handles_for_point_goal(
                         item for item in value
                         if isinstance(item, str) and _looks_like_handle(item)
                     )
-    return _unique_ordered(related)
-
-
-def _point_goal_requires_explicit_identity(
-    target_handle: str,
-    *,
-    scope_id: str,
-    handle_registry: CanonicalHandleRegistry,
-) -> bool:
-    payload = handle_registry.entity_payloads.get(target_handle, {})
-    definition = str(payload.get("definition", "")).strip()
-    if definition == "point_on_segment":
-        return True
-    for fact_handle, fact_payload in handle_registry.fact_payloads.items():
-        if not _is_visible(
-            fact_handle,
-            scope_id=scope_id,
-            handle_registry=handle_registry,
-        ):
-            continue
-        if fact_payload.get("point") == target_handle and fact_payload.get("type") == "segment_membership":
-            return True
-    return False
+    return unique_ordered(related)
 
 
 def _step_mentions_handle(step: StepIntent, handle: str) -> bool:
@@ -320,23 +383,5 @@ def _is_visible(
         return False
 
 
-def _semantic_name(handle: str) -> str:
-    if handle.startswith("answer:"):
-        return handle.rsplit(".", 1)[-1]
-    parts = handle.split(":")
-    return parts[-1] if parts else handle
-
-
 def _looks_like_handle(value: str) -> bool:
     return value.startswith(("point:", "line:", "segment:", "ray:", "fact:", "answer:"))
-
-
-def _unique_ordered(items: tuple[str, ...] | list[str]) -> tuple[str, ...]:
-    seen: set[str] = set()
-    result: list[str] = []
-    for item in items:
-        if item in seen:
-            continue
-        seen.add(item)
-        result.append(item)
-    return tuple(result)

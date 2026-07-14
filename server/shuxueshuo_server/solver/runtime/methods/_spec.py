@@ -35,6 +35,11 @@ class MethodSpecSource:
     visual: MethodVisualSpec | None = None
     description: str = ""
     summary: str = ""
+    constraint_analyzer: str | None = None
+    plan_transformer: str | None = None
+    # This source type is reserved for runtime/stateless methods. Stateful
+    # implementations must opt out so liveness analysis cannot delete them.
+    is_pure: bool = True
 
     @property
     def method_id(self) -> str:
@@ -50,6 +55,7 @@ class MethodSpecSource:
             "solves": list(self.solves),
             "inputs": self.inputs,
             "outputs": self.outputs,
+            "is_pure": self.is_pure,
         }
         if self.preconditions:
             payload["preconditions"] = list(self.preconditions)
@@ -65,6 +71,10 @@ class MethodSpecSource:
             payload["explanation"] = _json_ready_explanation(self.explanation)
         if self.visual is not None:
             payload["visual"] = _json_ready_visual(self.visual)
+        if self.constraint_analyzer is not None:
+            payload["constraint_analyzer"] = self.constraint_analyzer
+        if self.plan_transformer is not None:
+            payload["plan_transformer"] = self.plan_transformer
         return payload
 
 

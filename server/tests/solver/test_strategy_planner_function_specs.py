@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import replace
 import json
 from pathlib import Path
 from typing import Any
@@ -13,6 +14,7 @@ from shuxueshuo_server.solver.family.models import (
 )
 from shuxueshuo_server.solver.fixtures import load_problem_ir
 from shuxueshuo_server.solver.runtime.context import ContextBuilder
+from shuxueshuo_server.solver.runtime.answer_goal_verifier import AnswerGoalVerifier
 from shuxueshuo_server.solver.runtime.function_specs import (
     GENERIC_FUNCTION_ADAPTERS,
     GENERIC_FUNCTION_BINDING_RULES,
@@ -22,6 +24,7 @@ from shuxueshuo_server.solver.runtime.function_specs import (
     function_spec_from_method,
     function_catalog_payload,
 )
+from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.projection import problem_to_llm_payload
 from shuxueshuo_server.solver.runtime.strategy_planner import (
     CanonicalHandleRegistry,
@@ -32,6 +35,16 @@ from shuxueshuo_server.solver.runtime.strategy_planner import (
     StepIntentValidator,
     StrategyDraftValidationError,
     build_strategy_probe_inputs,
+)
+from shuxueshuo_server.solver.runtime.state_dependency_graph import (
+    drop_dead_pure_function_steps,
+)
+from shuxueshuo_server.solver.runtime.strategy_repair_guidance import (
+    RepairGuidanceResolver,
+)
+from shuxueshuo_server.solver.runtime.strategy_models import (
+    StepIntentDraft,
+    StepIntentScope,
 )
 
 
@@ -93,6 +106,208 @@ def test_function_spec_registry_derives_generic_methods_from_contracts() -> None
             "method_spec",
         }
         json.dumps(spec.to_payload(), ensure_ascii=False, sort_keys=True)
+
+
+def test_function_spec_registry_models_non_adapter_point_identity() -> None:
+    problem = load_problem_ir(str(RECORDED_FIXTURES[4][0]))
+    inputs = build_strategy_probe_inputs(problem)
+    registry = FunctionSpecRegistry.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
+    )
+
+    square = registry.require("square_adjacent_vertex_from_side")
+    assert square.adapter is None
+    assert square.returns[0].identity_policy == "target_object"
+    assert square.returns[0].identity_arg == "target"
+
+    candidates = registry.require("point_candidates_from_curve_point_condition")
+    assert candidates.adapter is None
+
+    axis_parameterized = registry.require("quadratic_axis_parameterized_point")
+    returns = {item.output_key: item for item in axis_parameterized.returns}
+    assert returns["point"].write_mode == "create"
+    assert returns["parameter"].runtime_type == "Symbol"
+    assert returns["parameter"].identity_policy == "derived_role"
+
+    locus_minimum = registry.require("line_locus_minimum_point")
+    assert locus_minimum.returns[0].write_mode == "transition"
+    assert candidates.returns[0].runtime_type == "PointList"
+    assert candidates.returns[0].identity_policy == "preserve_input_object"
+    assert candidates.returns[0].identity_arg == "target_point"
+
+
+def test_recorded_point_answers_have_verified_function_or_macro_identity() -> None:
+    for problem_path, step_intents_path in RECORDED_FIXTURES:
+        problem = load_problem_ir(str(problem_path))
+        inputs = build_strategy_probe_inputs(problem)
+        problem_payload = problem_to_llm_payload(problem)
+        handles = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+        draft = StepIntentValidator().validate_json(
+            step_intents_path.read_text(encoding="utf-8"),
+            question_goals=inputs.question_goals,
+            handle_registry=handles,
+            family_spec=inputs.family_spec,
+        )
+        _output, diagnostic, effective = RecipeTrialExecutor().diagnose(
+            draft,
+            family_spec=inputs.family_spec,
+            method_specs=inputs.method_specs,
+            handle_registry=handles,
+            context=ContextBuilder().build(problem),
+            question_goals=inputs.question_goals,
+        )
+
+        assert diagnostic.ok, diagnostic.to_payload()
+        issues = AnswerGoalVerifier().verify(
+            effective,
+            problem_payload=problem_payload,
+            handle_registry=handles,
+            diagnostic=diagnostic,
+            family_spec=inputs.family_spec,
+        )
+        assert issues == (), [item.to_payload() for item in issues]
+
+
+def test_quadratic_constraint_analyzer_declarations_are_consistent() -> None:
+    problem = load_problem_ir(str(RECORDED_FIXTURES[0][0]))
+    inputs = build_strategy_probe_inputs(problem)
+    registry = FunctionSpecRegistry.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
+    )
+
+    function = registry.require("quadratic_from_constraints")
+    contract = next(
+        item
+        for item in inputs.family_spec.capability_contracts
+        if item.capability_id == "quadratic_from_constraints"
+    )
+    assert inputs.method_specs.require(
+        "quadratic_from_constraints"
+    ).constraint_analyzer == "quadratic_coefficients"
+    assert contract.constraint_analyzer == "quadratic_coefficients"
+    assert function.adapter is not None
+    assert function.adapter.constraint_analyzer == "quadratic_coefficients"
+
+
+def test_state_dependency_graph_drops_only_unreachable_pure_function_step() -> None:
+    problem = load_problem_ir(str(RECORDED_FIXTURES[0][0]))
+    inputs = build_strategy_probe_inputs(problem)
+    unused = StepIntent(
+        step_id="derive_unused_curve",
+        scope_id="ii_1",
+        recipe_hint="quadratic_from_constraints",
+        goal_type="derive_parabola",
+        target="fact:ii:unused_curve",
+        strategy="derive an unused intermediate curve",
+        reads=("function:problem:parabola",),
+        produces=(
+            ProducedFact(
+                "fact:ii:unused_curve",
+                "ii",
+                output_type="Parabola",
+            ),
+        ),
+    )
+    terminal = StepIntent(
+        step_id="produce_terminal_state",
+        scope_id="ii_1",
+        recipe_hint=None,
+        goal_type="derive_parameter",
+        target="answer:ii_1.parabola",
+        strategy="produce the externally observable state",
+        reads=("function:problem:parabola",),
+        produces=(
+            ProducedFact(
+                "answer:ii_1.parabola",
+                "ii_1",
+                output_type="Parabola",
+            ),
+        ),
+    )
+    draft = StepIntentDraft(
+        scopes=(
+            StepIntentScope(
+                scope_id="ii_1",
+                label="subquestion",
+                steps=(unused, terminal),
+            ),
+        ),
+    )
+
+    pruned, actions = drop_dead_pure_function_steps(
+        draft,
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+    )
+
+    assert [step.step_id for step in pruned.steps] == ["produce_terminal_state"]
+    assert [action.action for action in actions] == [
+        "drop_dead_pure_function_step"
+    ]
+
+
+def test_state_dependency_graph_keeps_explicitly_non_pure_function_step() -> None:
+    problem = load_problem_ir(str(RECORDED_FIXTURES[0][0]))
+    inputs = build_strategy_probe_inputs(problem)
+    method_id = "quadratic_from_constraints"
+    method_specs = MethodSpecRegistry(
+        {
+            **inputs.method_specs.specs,
+            method_id: replace(
+                inputs.method_specs.require(method_id),
+                is_pure=False,
+            ),
+        }
+    )
+    side_effecting = StepIntent(
+        step_id="record_external_state",
+        scope_id="ii_1",
+        recipe_hint=method_id,
+        goal_type="derive_parabola",
+        target="fact:ii:external_state",
+        strategy="record state with an explicitly non-pure function",
+        reads=("function:problem:parabola",),
+        produces=(
+            ProducedFact(
+                "fact:ii:external_state",
+                "ii",
+                output_type="Parabola",
+            ),
+        ),
+    )
+    terminal = replace(
+        side_effecting,
+        step_id="produce_terminal_state",
+        recipe_hint=None,
+        target="answer:ii_1.parabola",
+        produces=(
+            ProducedFact(
+                "answer:ii_1.parabola",
+                "ii_1",
+                output_type="Parabola",
+            ),
+        ),
+    )
+    draft = StepIntentDraft(
+        scopes=(
+            StepIntentScope(
+                scope_id="ii_1",
+                label="subquestion",
+                steps=(side_effecting, terminal),
+            ),
+        ),
+    )
+
+    pruned, actions = drop_dead_pure_function_steps(
+        draft,
+        family_spec=inputs.family_spec,
+        method_specs=method_specs,
+    )
+
+    assert pruned == draft
+    assert actions == ()
 
 
 def test_generic_function_method_ids_are_derived_from_binding_rules() -> None:
@@ -274,6 +489,109 @@ def test_recorded_fixtures_compile_generic_methods_without_function_failures() -
         assert diagnostic.ok, _diagnostic_payload(diagnostic)
         assert diagnostic.function_binding_events
         assert_no_function_adapter_failures(diagnostic.function_binding_events)
+
+
+def test_function_adapter_does_not_bind_unread_visible_expression() -> None:
+    """A globally visible state cannot satisfy a Function slot_read implicitly."""
+    problem_path, step_intents_path = RECORDED_FIXTURES[4]
+    problem = load_problem_ir(str(problem_path))
+    inputs = build_strategy_probe_inputs(problem)
+    problem_payload = problem_to_llm_payload(problem)
+    handle_registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    draft = StepIntentValidator().validate_json(
+        step_intents_path.read_text(encoding="utf-8"),
+        question_goals=inputs.question_goals,
+        handle_registry=handle_registry,
+        family_spec=inputs.family_spec,
+    )
+    draft = StepIntentDraft(
+        scopes=tuple(
+            replace(
+                scope,
+                steps=tuple(
+                    replace(
+                        step,
+                        reads=tuple(
+                            handle
+                            for handle in step.reads
+                            if "path_minimum_expression" not in handle
+                        ),
+                    )
+                    if step.step_id == "derive_parameter_c"
+                    else step
+                    for step in scope.steps
+                ),
+            )
+            for scope in draft.scopes
+        )
+    )
+
+    _output, diagnostic, _effective = RecipeTrialExecutor().diagnose(
+        draft,
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=handle_registry,
+        context=ContextBuilder().build(problem),
+        question_goals=inputs.question_goals,
+    )
+
+    assert not diagnostic.ok
+    assert diagnostic.first_blocker is not None
+    assert diagnostic.first_blocker.step_id == "derive_parameter_c"
+    assert diagnostic.first_blocker.code == "function.arg_not_read"
+
+
+def test_repair_guidance_only_returns_unique_applicable_contract_candidate() -> None:
+    problem = load_problem_ir(str(RECORDED_FIXTURES[4][0]))
+    inputs = build_strategy_probe_inputs(problem)
+    registry = CanonicalHandleRegistry.from_problem_payload(
+        problem_to_llm_payload(problem)
+    )
+    point_handle = "fact:ii:moving_coordinate"
+    producer = StepIntent(
+        step_id="produce_moving_point",
+        scope_id="ii",
+        recipe_hint=None,
+        goal_type="derive_point",
+        target=point_handle,
+        strategy="produce a moving point",
+        produces=(ProducedFact(point_handle, "ii", output_type="Point"),),
+    )
+    repair = StepIntent(
+        step_id="repair_missing_state",
+        scope_id="ii",
+        recipe_hint=None,
+        goal_type="derive_state",
+        target="fact:ii:missing_state",
+        strategy="repair one missing state",
+        reads=(point_handle,),
+        produces=(
+            ProducedFact("fact:ii:missing_state", "ii", output_type="Line"),
+        ),
+    )
+    draft = StepIntentDraft(
+        scopes=(StepIntentScope("ii", "question", (producer, repair)),)
+    )
+    resolver = RepairGuidanceResolver(
+        inputs.family_spec,
+        inputs.method_specs,
+        registry,
+    )
+
+    line = resolver.resolve(
+        missing_runtime_type="Line",
+        step=repair,
+        draft=draft,
+    )
+    point = resolver.resolve(
+        missing_runtime_type="Point",
+        step=repair,
+        draft=draft,
+    )
+
+    assert line is not None
+    assert line.capability_id == "parameterized_point_locus_line"
+    assert point is None
 
 
 def _diagnostic_payload(value: Any) -> dict[str, Any]:

@@ -158,6 +158,11 @@ class MethodSpec:
     repair_hints: tuple[dict[str, Any], ...] = ()
     explanation: MethodExplanationSpec | None = None
     visual: MethodVisualSpec | None = None
+    constraint_analyzer: str | None = None
+    plan_transformer: str | None = None
+    # Missing/legacy specs are conservative. Code-owned stateless methods
+    # declare purity explicitly through MethodSpecSource.
+    is_pure: bool = False
 
 
 @dataclass

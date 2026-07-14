@@ -27,6 +27,7 @@
   "outputs": {
     "candidates": "PointList"
   },
+  "is_pure": true,
   "preconditions": [
     "target_point 与 curve_point 只共享一个待定参数",
     "parabola 已代入当前问已知条件"

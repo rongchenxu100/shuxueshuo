@@ -29,6 +29,7 @@
   "outputs": {
     "candidates": "PointList"
   },
+  "is_pure": true,
   "preconditions": [
     "anchor.coordinate is known, can be symbolic",
     "reference.coordinate is known, can be symbolic",

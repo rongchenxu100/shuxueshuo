@@ -27,6 +27,7 @@
   "outputs": {
     "parameter_value": "ParameterValue"
   },
+  "is_pure": true,
   "preconditions": [
     "expression 已由前序 method 推导得到"
   ],

@@ -63,6 +63,9 @@ class CanonicalRuntimeBindingIndex:
         self.question_goals = {f"answer:{goal.id}": goal for goal in question_goals}
         self.declarations: dict[str, Any] = {}
         self.applied_fills: list[StepIntentAppliedFill] = []
+        # Accepted Function/Macro writes. Binding selectors use this ledger to
+        # preserve Symbol/Object identity instead of inferring it from names.
+        self.state_write_provenance: list[Any] = []
         self._register_initial_handles()
 
     @classmethod

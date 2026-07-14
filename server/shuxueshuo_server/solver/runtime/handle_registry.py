@@ -63,6 +63,7 @@ class CanonicalHandleRegistry:
     scope_parents: dict[str, str | None] = field(default_factory=dict)
     fact_types: dict[str, str] = field(default_factory=dict)
     answer_value_types: dict[str, str] = field(default_factory=dict)
+    answer_target_handles: dict[str, str] = field(default_factory=dict)
     answer_aliases: dict[str, str] = field(default_factory=dict)
     handle_aliases: dict[str, str] = field(default_factory=dict)
     handle_valid_scopes: dict[str, str] = field(default_factory=dict)
@@ -76,7 +77,13 @@ class CanonicalHandleRegistry:
         scope_ids, scope_parents = _scope_ids_from_payload(payload)
         entity_handles, entity_valid_scopes, entity_payloads = _entity_handles_from_payload(payload, scope_ids)
         fact_handles, fact_types, fact_valid_scopes, fact_payloads = _fact_handles_from_payload(payload, scope_ids)
-        answer_handles, answer_value_types, answer_aliases, answer_valid_scopes = _answer_handles_from_payload(
+        (
+            answer_handles,
+            answer_value_types,
+            answer_aliases,
+            answer_valid_scopes,
+            answer_target_handles,
+        ) = _answer_handles_from_payload(
             payload,
             scope_ids,
         )
@@ -95,6 +102,7 @@ class CanonicalHandleRegistry:
             scope_parents=scope_parents,
             fact_types=fact_types,
             answer_value_types=answer_value_types,
+            answer_target_handles=answer_target_handles,
             answer_aliases=answer_aliases,
             handle_aliases=handle_aliases,
             handle_valid_scopes=handle_valid_scopes,
@@ -1015,12 +1023,19 @@ def _fact_handles_from_payload(
 def _answer_handles_from_payload(
     payload: dict[str, Any],
     scope_ids: set[str],
-) -> tuple[set[str], dict[str, str], dict[str, str], dict[str, str]]:
+) -> tuple[
+    set[str],
+    dict[str, str],
+    dict[str, str],
+    dict[str, str],
+    dict[str, str],
+]:
     """读取并校验 question_goals[].handle，同时保存答案值类型。"""
     handles: set[str] = set()
     value_types: dict[str, str] = {}
     aliases: dict[str, str] = {}
     valid_scopes: dict[str, str] = {}
+    target_handles: dict[str, str] = {}
     for index, item in enumerate(payload["question_goals"]):
         if not isinstance(item, dict):
             raise StrategyDraftValidationError(
@@ -1052,12 +1067,15 @@ def _answer_handles_from_payload(
         value_type = item.get("value_type")
         if isinstance(value_type, str) and value_type.strip():
             value_types[handle] = value_type.strip()
+        target_handle = item.get("target_handle")
+        if isinstance(target_handle, str) and target_handle.strip():
+            target_handles[handle] = target_handle.strip()
         answer_key = item.get("answer_key")
         if isinstance(answer_key, str) and answer_key.strip():
             _add_answer_alias(aliases, handles, f"answer:{scope_id}.{answer_key.strip()}", handle)
             _add_answer_alias(aliases, handles, f"answer:{scope_id}_{answer_key.strip()}", handle)
         valid_scopes[handle] = valid_scope
-    return handles, value_types, aliases, valid_scopes
+    return handles, value_types, aliases, valid_scopes, target_handles
 
 
 def _handle_aliases_from_payload(

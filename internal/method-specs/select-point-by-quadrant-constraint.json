@@ -41,6 +41,7 @@
   "outputs": {
     "selected_point": "Point"
   },
+  "is_pure": true,
   "preconditions": [
     "candidates 至少包含一个点",
     "quadrant 必须给出明确象限",

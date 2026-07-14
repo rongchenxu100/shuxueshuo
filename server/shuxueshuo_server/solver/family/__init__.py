@@ -11,6 +11,7 @@ from shuxueshuo_server.solver.family.models import (
     ConditionPattern,
     CapabilityPackRegistry,
     CapabilityPackSpec,
+    GoalEvidenceTag,
     CapabilityScopePolicy,
     FamilyMatchRule,
     FamilyRegistry,
@@ -21,6 +22,7 @@ from shuxueshuo_server.solver.family.models import (
     RecipeExecutionSpec,
     SolverFamilySpec,
     StateSlotPattern,
+    StateWriteMode,
     StepRecipeSpec,
     expand_family_spec,
 )
@@ -55,6 +57,7 @@ __all__ = [
     "CapabilityCardinality",
     "CapabilityPackRegistry",
     "CapabilityPackSpec",
+    "GoalEvidenceTag",
     "CapabilityScopePolicy",
     "ConditionPattern",
     "FamilyMatchRule",
@@ -70,6 +73,7 @@ __all__ = [
     "RecipeExecutionSpec",
     "SolverFamilySpec",
     "StateSlotPattern",
+    "StateWriteMode",
     "StepRecipeSpec",
     "expand_family_spec",
 ]

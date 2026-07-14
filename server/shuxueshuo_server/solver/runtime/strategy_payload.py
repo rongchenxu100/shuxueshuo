@@ -32,6 +32,9 @@ from shuxueshuo_server.solver.runtime.capability_contracts import (
 from shuxueshuo_server.solver.runtime.function_specs import (
     function_catalog_payload,
 )
+from shuxueshuo_server.solver.runtime.macro_specs import (
+    macro_catalog_payload,
+)
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.planner import PlannerInputs
 from shuxueshuo_server.solver.runtime.projection import problem_to_llm_payload
@@ -154,6 +157,10 @@ class StrategyPayloadBuilder:
                 inputs.family_spec,
                 inputs.method_specs,
             ),
+            "macro_catalog": macro_catalog_payload(
+                inputs.family_spec,
+                inputs.method_specs,
+            ),
             "recipe_catalog": _recipe_catalog_payload(inputs.family_spec),
             "few_shot_examples": self._few_shot_examples(inputs, problem_payload),
             "previous_attempt_state": _previous_attempt_state(previous_attempts),
@@ -202,15 +209,10 @@ def _previous_attempt_state(previous_attempts: list[Any]) -> dict[str, Any]:
     latest_retry_state = None
     if latest_retry_state_full is not None:
         latest_retry_state = _prompt_retry_state(latest_retry_state_full)
-        latest_stable_runtime = _stable_runtime_from_retry_state(
-            latest_retry_state_full,
-            retry_attempt=latest_retry_attempt,
-            prompt_retry_state=latest_retry_state,
-        )
-        latest_semantic_failure = _semantic_failure_from_retry_state(
-            latest_retry_state_full,
-            retry_attempt=latest_retry_attempt,
-        )
+        # Compatibility mirrors remain in debug attempt payloads. Once a formal
+        # retry state exists they must not compete for LLM attention.
+        latest_stable_runtime = None
+        latest_semantic_failure = None
     else:
         latest_stable_runtime = _latest_stable_runtime_attempt(previous_attempts)
         latest_semantic_failure = _latest_semantic_failure_attempt(previous_attempts)
@@ -254,18 +256,12 @@ def _prompt_attempt_from_retry_state(
     payload: dict[str, Any] = {
         "attempt": item.get("attempt", retry_state.get("attempt")),
         "status": "failed",
-        "errors": _short_errors(item.get("errors")),
         "repair_suffix_start": retry_state.get("repair_suffix_start"),
         "preserve_policy": retry_state.get("preserve_policy"),
         "stable_prefix_step_ids": _stable_prefix_step_ids(retry_state),
         "primary_issue": _first_issue(retry_state),
         "retry_state_summary": prompt_state,
     }
-    repair_instruction = retry_state.get("repair_instruction") or item.get(
-        "repair_instruction"
-    )
-    if isinstance(repair_instruction, str) and repair_instruction:
-        payload["repair_instruction"] = repair_instruction
     context_ref = item.get("planner_state_context_ref")
     if isinstance(context_ref, dict):
         payload["planner_state_context_ref"] = _select_attempt_fields(
@@ -740,6 +736,7 @@ def write_strategy_debug_artifacts(
         "family_spec",
         "method_catalog",
         "function_catalog",
+        "macro_catalog",
         "recipe_catalog",
         "few_shot_examples",
         "previous_attempt_state",
@@ -754,6 +751,10 @@ def write_strategy_debug_artifacts(
     _write_json(
         target / "function-catalog.json",
         payload.get("function_catalog"),
+    )
+    _write_json(
+        target / "macro-catalog.json",
+        payload.get("macro_catalog"),
     )
     context_catalog = (
         planner_state_context.semantic_read_catalog_payload()
@@ -862,6 +863,7 @@ def write_strategy_debug_artifacts(
             resolution_report,
         )
     function_binding_report: list[dict[str, Any]] | None = None
+    macro_binding_report: list[dict[str, Any]] | None = None
     if execution_diagnostic is not None:
         _write_json(
             target / "execution-diagnostic.json",
@@ -870,10 +872,17 @@ def write_strategy_debug_artifacts(
         function_binding_report = _function_binding_report_payload(
             execution_diagnostic
         )
+        macro_binding_report = _macro_binding_report_payload(
+            execution_diagnostic
+        )
     if function_binding_report is None and retry_payload is not None:
         trial_report = _retry_state_replay_report(retry_payload, "trial_execution")
         if trial_report is not None:
             function_binding_report = _function_binding_report_payload(trial_report)
+    if macro_binding_report is None and retry_payload is not None:
+        trial_report = _retry_state_replay_report(retry_payload, "trial_execution")
+        if trial_report is not None:
+            macro_binding_report = _macro_binding_report_payload(trial_report)
     _write_json(
         target / "function-binding-report.json",
         function_binding_report,
@@ -888,6 +897,10 @@ def write_strategy_debug_artifacts(
             if function_binding_report is not None
             else None
         ),
+    )
+    _write_json(
+        target / "macro-binding-report.json",
+        macro_binding_report,
     )
     if llm_metadata is not None:
         _write_json(target / "llm-call.json", llm_metadata)
@@ -904,6 +917,7 @@ def _clear_previous_debug_artifacts(target: Path) -> None:
         "output.schema.json",
         "semantic-read-catalog.json",
         "function-catalog.json",
+        "macro-catalog.json",
         "context-semantic-read-catalog.json",
         "semantic-read-resolution-report.json",
         "context-semantic-read-resolution-report.json",
@@ -921,6 +935,8 @@ def _clear_previous_debug_artifacts(target: Path) -> None:
         "function-binding-report.json",
         "function-adapter-failures.json",
         "function-adapter-fallbacks.json",
+        "macro-binding-report.json",
+        "macro-transform-report.json",
         "planner-retry-state.json",
         "planner-state-context.json",
         "context-retry-memory.json",
@@ -1001,6 +1017,17 @@ def _function_binding_report_payload(value: Any) -> list[dict[str, Any]] | None:
     events = getattr(value, "function_binding_events", None)
     if events is None and isinstance(value, dict):
         events = value.get("function_binding_events")
+    if events is None:
+        return None
+    payload = _to_jsonable(events)
+    return payload if isinstance(payload, list) else None
+
+
+def _macro_binding_report_payload(value: Any) -> list[dict[str, Any]] | None:
+    """Return MacroSpec adapter binding events from a diagnostic payload."""
+    events = getattr(value, "macro_binding_events", None)
+    if events is None and isinstance(value, dict):
+        events = value.get("macro_binding_events")
     if events is None:
         return None
     payload = _to_jsonable(events)

@@ -28,6 +28,7 @@
     "distance": "MinimumExpression",
     "evaluated_distance": "MinimumExpression"
   },
+  "is_pure": true,
   "explanation": {
     "role_schema": {
       "p1": "第一个点或线段端点。",

@@ -23,6 +23,7 @@
   "outputs": {
     "line": "Line"
   },
+  "is_pure": true,
   "preconditions": [
     "point 的两个坐标最多含一个公共参数，且关于该参数为一次式"
   ],

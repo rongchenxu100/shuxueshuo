@@ -59,6 +59,7 @@
     "secondary_value": "ParameterValue",
     "parabola": "Parabola"
   },
+  "is_pure": true,
   "preconditions": [
     "candidates 来自已验证的几何构造",
     "primary_constraint 是单参数约束"

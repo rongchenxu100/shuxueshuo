@@ -16,6 +16,10 @@ from shuxueshuo_server.solver.family.models import (
     StepRecipeSpec,
 )
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
+from shuxueshuo_server.solver.state_semantics import (
+    object_kind_for_runtime_type,
+    state_kind_for_runtime_type,
+)
 from shuxueshuo_server.solver.utils import unique_ordered
 
 
@@ -69,6 +73,7 @@ def project_method_contract(method_spec: MethodSpec) -> CapabilityContractSpec:
             slot_reads=slot_reads,
             notes=("projected_no_outputs_declared",),
             complete=True,
+            constraint_analyzer=method_spec.constraint_analyzer,
         )
     return CapabilityContractSpec(
         capability_id=method_spec.method_id,
@@ -80,6 +85,7 @@ def project_method_contract(method_spec: MethodSpec) -> CapabilityContractSpec:
             _output_slot_pattern(output_type)
             for output_type in method_spec.outputs.values()
         ),
+        constraint_analyzer=method_spec.constraint_analyzer,
     )
 
 
@@ -88,7 +94,8 @@ def project_recipe_contract(recipe: StepRecipeSpec) -> CapabilityContractSpec:
     output_types: list[str] = []
     execution = recipe.execution
     if execution is not None:
-        for _output_key, output_type in execution.output_aliases:
+        for output in execution.output_aliases:
+            output_type = output.runtime_type
             if output_type not in output_types:
                 output_types.append(output_type)
     return CapabilityContractSpec(
@@ -170,53 +177,24 @@ def _input_slot_pattern(input_type: str) -> StateSlotPattern | None:
     if not runtime_types:
         return None
     return StateSlotPattern(
-        state_kind=_state_kind_for_runtime_type(runtime_types[0]),
+        state_kind=state_kind_for_runtime_type(runtime_types[0]),
         runtime_type="|".join(runtime_types),
-        object_kind=_object_kind_for_runtime_type(runtime_types[0]),
+        object_kind=object_kind_for_runtime_type(runtime_types[0]),
         required=True,
     )
 
 
 def _output_slot_pattern(output_type: str) -> StateSlotPattern:
     return StateSlotPattern(
-        state_kind=_state_kind_for_runtime_type(output_type),
+        state_kind=state_kind_for_runtime_type(output_type),
         runtime_type=output_type,
-        object_kind=_object_kind_for_runtime_type(output_type),
+        object_kind=object_kind_for_runtime_type(output_type),
+        write_mode=("create" if output_type in {"Point", "PointList"} else "value"),
     )
 
 
 def _split_runtime_types(input_type: str) -> tuple[str, ...]:
     return tuple(part.strip() for part in input_type.split("|") if part.strip())
-
-
-def _state_kind_for_runtime_type(runtime_type: str) -> str:
-    if runtime_type in {"Parabola", "Expression", "MinimumExpression", "Equation"}:
-        return "expression"
-    if runtime_type in {"Point", "PointList"}:
-        return "coordinate"
-    if runtime_type == "Line":
-        return "locus"
-    if runtime_type == "Coefficients":
-        return "coefficients"
-    if runtime_type == "PathTransformation":
-        return "transformation"
-    if runtime_type == "StraighteningCandidate":
-        return "candidate"
-    if runtime_type == "ParameterValue":
-        return "value"
-    return runtime_type[:1].lower() + runtime_type[1:]
-
-
-def _object_kind_for_runtime_type(runtime_type: str) -> str | None:
-    if runtime_type in {"Parabola", "Function"}:
-        return "function"
-    if runtime_type in {"Point", "PointList"}:
-        return "point"
-    if runtime_type == "Line":
-        return "line"
-    if runtime_type == "ParameterValue":
-        return "symbol"
-    return None
 
 
 __all__ = [

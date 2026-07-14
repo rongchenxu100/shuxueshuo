@@ -24,6 +24,7 @@
     "minimum_point_1": "Point",
     "minimum_point_2": "Point"
   },
+  "is_pure": true,
   "preconditions": [
     "candidates 至少包含一个候选",
     "候选包含 complexity_score"

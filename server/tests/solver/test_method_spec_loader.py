@@ -290,6 +290,34 @@ def test_accepts_known_output_union_type() -> None:
     assert spec.outputs["value"] == "Expression|MinimumExpression"
 
 
+def test_method_purity_is_explicit_and_legacy_specs_are_conservative() -> None:
+    raw = {
+        "method_id": "synthetic_method",
+        "title": "Synthetic",
+        "solves": ["derive_expression"],
+        "inputs": {"x": {"type": "Expression"}},
+        "outputs": {"value": "Expression"},
+    }
+
+    assert parse_method_spec(raw).is_pure is False
+    assert parse_method_spec({**raw, "is_pure": True}).is_pure is True
+    with pytest.raises(ValueError, match="is_pure must be a boolean"):
+        parse_method_spec({**raw, "is_pure": "yes"})
+
+    assert all(
+        spec.is_pure
+        for spec in MethodSpecRegistry.load_from_code().specs.values()
+    )
+
+
+def test_point_parameter_substitution_is_declared_by_method_spec() -> None:
+    spec = MethodSpecRegistry.load_from_code().require(
+        "evaluate_point_at_parameter"
+    )
+
+    assert spec.plan_transformer == "substitute_all_point_parameters"
+
+
 def test_rejects_unknown_output_union_member() -> None:
     with pytest.raises(ValueError, match="unknown output type"):
         parse_method_spec(

@@ -259,6 +259,7 @@ class SemanticReadResolver:
                         normalized_step,
                         scope_id,
                         step_id,
+                        registry=self.registry,
                         scope_index=scope_index,
                         step_index=step_index,
                     )
@@ -940,6 +941,7 @@ def _dynamic_items_from_raw_step(
     scope_id: str,
     step_id: str,
     *,
+    registry: CanonicalHandleRegistry,
     scope_index: int,
     step_index: int,
 ) -> tuple[SemanticReadCatalogItem, ...]:
@@ -983,7 +985,68 @@ def _dynamic_items_from_raw_step(
                 description=produced.description,
             )
         )
+        items.extend(
+            _answer_target_state_aliases(
+                produced,
+                step_id=step_id,
+                registry=registry,
+            )
+        )
     return tuple(items)
+
+
+def _answer_target_state_aliases(
+    produced: ProducedFact,
+    *,
+    step_id: str,
+    registry: CanonicalHandleRegistry,
+) -> tuple[SemanticReadCatalogItem, ...]:
+    """Project a Point answer onto its authored target object's state slot."""
+    if not produced.handle.startswith("answer:"):
+        return ()
+    if produced.output_type not in {"Point", "PointList"}:
+        return ()
+    target_handle = registry.answer_target_handles.get(produced.handle)
+    if target_handle is None or not target_handle.startswith("point:"):
+        return ()
+    point_name = _handle_name(target_handle)
+    target_scope = _handle_scope(target_handle)
+    valid_scope = registry.handle_valid_scopes.get(target_handle, target_scope)
+    coordinate_ref = f"{point_name}_coordinate"
+    return (
+        SemanticReadCatalogItem(
+            handle=target_handle,
+            kind="point",
+            ref=point_name,
+            scope=target_scope,
+            valid_scope=valid_scope,
+            value_type=produced.output_type,
+            source_step_id=step_id,
+            description=produced.description,
+        ),
+        SemanticReadCatalogItem(
+            handle=target_handle,
+            kind="fact",
+            ref=coordinate_ref,
+            scope=produced.valid_scope,
+            valid_scope=valid_scope,
+            value_type=produced.output_type,
+            source_step_id=step_id,
+            description=produced.description,
+            prompt_visible=False,
+        ),
+        SemanticReadCatalogItem(
+            handle=target_handle,
+            kind="fact",
+            ref=f"fact:{produced.valid_scope}:{coordinate_ref}",
+            scope=produced.valid_scope,
+            valid_scope=valid_scope,
+            value_type=produced.output_type,
+            source_step_id=step_id,
+            description=produced.description,
+            prompt_visible=False,
+        ),
+    )
 
 
 def _created_entities_from_raw_step(

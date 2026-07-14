@@ -650,6 +650,75 @@ class StepIntentFunctionBindingEvent:
 
 
 @dataclass(frozen=True)
+class StepIntentMacroBindingEvent:
+    """MacroSpec adapter validation result for one recipe attempt."""
+
+    step_id: str
+    scope_id: str
+    recipe_id: str
+    macro_id: str
+    status: Literal["success", "failure"]
+    errors: tuple[str, ...] = ()
+
+    def to_payload(self) -> dict[str, Any]:
+        payload: dict[str, Any] = {
+            "step_id": self.step_id,
+            "scope_id": self.scope_id,
+            "recipe_id": self.recipe_id,
+            "macro_id": self.macro_id,
+            "status": self.status,
+        }
+        if self.errors:
+            payload["errors"] = list(self.errors)
+        return payload
+
+
+@dataclass(frozen=True)
+class StateWriteProvenance:
+    """Object/state identity carried by a FunctionSpec or MacroSpec write."""
+
+    step_id: str
+    scope_id: str
+    capability_id: str
+    produced_handle: str
+    output_key: str
+    runtime_type: str
+    identity_policy: Literal[
+        "preserve_input_object",
+        "target_object",
+        "derived_role",
+        "value_only",
+    ]
+    identity_role: str
+    object_ref: str | None = None
+    source_handles: tuple[str, ...] = ()
+    source_step_id: str | None = None
+    state_slot_id: str | None = None
+    write_mode: Literal["create", "transition", "value"] = "value"
+    previous_write_step_id: str | None = None
+    free_symbol_names: tuple[str, ...] = ()
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            "step_id": self.step_id,
+            "scope_id": self.scope_id,
+            "capability_id": self.capability_id,
+            "produced_handle": self.produced_handle,
+            "output_key": self.output_key,
+            "runtime_type": self.runtime_type,
+            "identity_policy": self.identity_policy,
+            "identity_role": self.identity_role,
+            "object_ref": self.object_ref,
+            "source_handles": list(self.source_handles),
+            "source_step_id": self.source_step_id,
+            "state_slot_id": self.state_slot_id,
+            "write_mode": self.write_mode,
+            "previous_write_step_id": self.previous_write_step_id,
+            "free_symbol_names": list(self.free_symbol_names),
+        }
+
+
+@dataclass(frozen=True)
 class StepIntentExecutionBlocker:
     """StepIntent 执行诊断中的首个 runtime 阻塞点。"""
 
@@ -713,6 +782,8 @@ class StepIntentExecutionDiagnostic:
     planner_insights: tuple[StepIntentPlannerInsight, ...] = ()
     preflight_issues: tuple[StepIntentPreflightIssue, ...] = ()
     function_binding_events: tuple[StepIntentFunctionBindingEvent, ...] = ()
+    macro_binding_events: tuple[StepIntentMacroBindingEvent, ...] = ()
+    state_write_provenance: tuple[StateWriteProvenance, ...] = ()
     blockers: tuple[StepIntentExecutionBlocker, ...] = ()
     skipped_steps: tuple[StepIntentSkippedStep, ...] = ()
     candidate_errors: tuple[str, ...] = ()
@@ -740,6 +811,12 @@ class StepIntentExecutionDiagnostic:
             ],
             "function_binding_events": [
                 item.to_payload() for item in self.function_binding_events
+            ],
+            "macro_binding_events": [
+                item.to_payload() for item in self.macro_binding_events
+            ],
+            "state_write_provenance": [
+                item.to_payload() for item in self.state_write_provenance
             ],
             "blockers": [item.to_payload() for item in self.blockers],
             "skipped_steps": [item.to_payload() for item in self.skipped_steps],

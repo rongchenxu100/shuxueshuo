@@ -35,6 +35,7 @@
   "outputs": {
     "angle_equality": "AngleEquality"
   },
+  "is_pure": true,
   "preconditions": [
     "condition 是两个角之和等于 45° 的角和事实",
     "x_axis_point 与 reference_x_axis_point 在以 origin 为原点的水平轴上",

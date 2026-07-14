@@ -183,15 +183,15 @@ class StepIntentNormalizer:
                     )
             normalized_scopes.append(replace(scope, steps=tuple(context.previous_steps)))
 
-        normalized_draft, dedupe_actions = _dedupe_duplicate_produced_handles(
+        normalized_draft = _apply_final_handle_rewrites(
             StepIntentDraft(scopes=tuple(normalized_scopes)),
+            context.handle_rewrites,
+        )
+        normalized_draft, dedupe_actions = _dedupe_duplicate_produced_handles(
+            normalized_draft,
             handle_registry=handle_registry,
         )
         actions.extend(dedupe_actions)
-        normalized_draft = _apply_final_handle_rewrites(
-            normalized_draft,
-            context.handle_rewrites,
-        )
 
         return (
             normalized_draft,

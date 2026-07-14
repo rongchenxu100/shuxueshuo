@@ -377,8 +377,10 @@ def merge_previous_accepted_prefix(
             handle_registry=handle_registry,
             inputs=inputs,
         )
-        if merged is not None:
-            return merged
+        # A formal PlannerRetryState is authoritative even when its policy is
+        # ``none``. Falling through to the legacy diagnostic in that case can
+        # resurrect an obsolete accepted suffix beside the model's replacement.
+        return merged if merged is not None else draft
     return _merge_legacy_attempt_prefix(
         draft,
         previous=previous,

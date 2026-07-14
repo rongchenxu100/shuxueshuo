@@ -58,6 +58,7 @@
     "minimum_value": "MinimumExpression",
     "dynamic_point": "Point"
   },
+  "is_pure": true,
   "preconditions": [
     "已经完成加权路径到普通折线的辅助点转化",
     "path_transformation.scale/geometry 必须来自受支持的 weighted_axis_path_triangle_transform",

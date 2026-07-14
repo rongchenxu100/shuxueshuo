@@ -57,6 +57,14 @@ Catalog：只有两张 catalog 都没有对应能力时才允许 null。null 表
 
 {{ payload.recipe_catalog | pretty_json }}
 
+## Macro Catalog
+
+这些是 recipe 的 typed state-transformer 视图，用来理解每个 recipe 会读取/写出哪些语义状态。
+不要输出 MacroSpec、internal call、runtime path 或 input slot schema；仍然只在 `recipe_hint`
+中填写对应的 `recipe_id`。
+
+{{ payload.macro_catalog | pretty_json }}
+
 ## Method Catalog
 
 如果某一步是单 method 就能清楚表达的动作，可以把该 method_id 填入 `recipe_hint`。
@@ -98,15 +106,7 @@ Catalog：只有两张 catalog 都没有对应能力时才允许 null。null 表
   - 先让前序 step 产生 `details.missing_prerequisites[]` 中列出的状态，再让目标 step 读取这些状态；
   - `details.method_guidance.items` 为空时，不代表没有方法，而是系统不能确定唯一方法；
     请从当前 Recipe/Method Catalog 中自行选择能产生缺失状态的能力，不要照抄固定链条。
-- `latest_stable_runtime` 是最近一次已经进入 runtime compile + dry-run 的稳定版本。
-  这是兼容旧字段，内容会从 `latest_retry_state.baseline_draft` 和 replay reports 派生；
-  若两者同时存在，以 `latest_retry_state` 为准。
-- `latest_semantic_failure` 是最近一次 `semantic_reads` 解析失败。它只表示本轮读入引用需要修复；
-  不应覆盖更早的 `latest_stable_runtime`。若其中有
-  `semantic_read_resolution.partially_resolved_payload`，请保留已解析成功的 canonical `reads`，
-  只根据 `semantic_read_resolution.errors` 修复剩余 `semantic_reads`。
-- 如果 retry state 和 semantic failure 同时存在，优先保留 `latest_retry_state.baseline_draft`
-  的 scope/step 结构和 stable prefix，再把 semantic failure 指出的读入项修好。
+- 当 `latest_retry_state` 存在时，其他兼容状态不会进入本 prompt；只按这一份正式状态修复。
 
 {{ payload.previous_attempt_state | pretty_json }}
 

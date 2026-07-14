@@ -36,6 +36,7 @@
   "outputs": {
     "point": "Point"
   },
+  "is_pure": true,
   "preconditions": [
     "line_p1 与 line_p2 不能形成竖直线",
     "已知交点必须在直线和抛物线上"

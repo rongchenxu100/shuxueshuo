@@ -454,6 +454,20 @@ def _point_output_ref_selector(
     index.ensure_point_declaration(handle, definition="method_output_point")
     return index.point_ref_path_for(handle)
 
+
+def _point_transition_target_selector(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+    local_outputs: Mapping[str, str],
+) -> str:
+    """Bind a PointRef|Point target without treating an existing Point as duplicate."""
+    handle = _point_output_handle(step, index)
+    binding = index.binding_for(handle)
+    if binding.value_type == "Point":
+        return index.path_for(handle, expected_type="PointRef|Point")
+    index.ensure_point_declaration(handle, definition="method_transition_point")
+    return index.path_for(handle, expected_type="PointRef|Point")
+
 def _translated_point_selector(role: str) -> BindingSelectorFn:
     """创建平移点 method 的 source/target selector。"""
 
@@ -573,6 +587,59 @@ def _parameter_symbol_selector(
 ) -> str:
     """读取参数符号。"""
     return index.parameter_symbol_path()
+
+
+def _parameter_symbol_from_reads_or_expression_selector(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+    local_outputs: Mapping[str, str],
+) -> str:
+    """Bind the unique Symbol identity read by, or free in, the input expression."""
+    explicit = [
+        binding.path
+        for handle in step.reads
+        if (binding := index.bindings.get(handle)) is not None
+        and binding.value_type == "Symbol"
+    ]
+    explicit = _unique_ordered(explicit)
+    if len(explicit) == 1:
+        return explicit[0]
+    if len(explicit) > 1:
+        raise StrategyDraftValidationError(
+            "function.arg_ambiguous: parameter Symbol has multiple explicit reads"
+        )
+    expression_path = _path_for_readable_type(index, step, "MinimumExpression")
+    expression = index.context.read_path(
+        expression_path,
+        from_scope_id=step.scope_id,
+        expected_type="MinimumExpression",
+    ).value
+    free_symbols = set(getattr(expression, "free_symbols", set()))
+    candidates: list[str] = []
+    for binding in index.bindings.values():
+        if binding.value_type != "Symbol":
+            continue
+        try:
+            symbol = index.context.read_path(
+                binding.path,
+                from_scope_id=step.scope_id,
+                expected_type="Symbol",
+            ).value
+        except (KeyError, PermissionError, TypeError, ValueError):
+            continue
+        if symbol in free_symbols:
+            candidates.append(binding.path)
+    candidates = _unique_ordered(candidates)
+    if len(candidates) == 1:
+        return candidates[0]
+    if not candidates:
+        raise StrategyDraftValidationError(
+            "function.return_identity_unresolved: "
+            "no visible Symbol StateSlot matches the expression free symbols"
+        )
+    raise StrategyDraftValidationError(
+        "function.arg_ambiguous: parameter Symbol matches multiple free symbols"
+    )
 
 def _parameter_constraint_selector(
     step: StepIntent,
@@ -940,10 +1007,40 @@ def _parameter_value_if_read(
         parameter_value = _unique_visible_parameter_value_handle(step, index)
     if parameter_value is None:
         return {}
+    parameter_path = _parameter_symbol_path_for_value(parameter_value, index)
     return {
-        "parameter": index.parameter_symbol_path(),
+        "parameter": parameter_path,
         "parameter_value": index.path_for(parameter_value, expected_type="ParameterValue"),
     }
+
+
+def _parameter_symbol_path_for_value(
+    parameter_value_handle: str,
+    index: CanonicalRuntimeBindingIndex,
+) -> str:
+    """Resolve ParameterValue to its input Symbol through write provenance."""
+    provenance = next(
+        (
+            item
+            for item in reversed(index.state_write_provenance)
+            if item.produced_handle == parameter_value_handle
+            and item.runtime_type == "ParameterValue"
+        ),
+        None,
+    )
+    if provenance is None or provenance.object_ref is None:
+        return index.parameter_symbol_path()
+    symbol_bindings = [
+        binding
+        for handle, binding in index.bindings.items()
+        if handle == provenance.object_ref and binding.value_type == "Symbol"
+    ]
+    if len(symbol_bindings) == 1:
+        return symbol_bindings[0].path
+    raise StrategyDraftValidationError(
+        "function.return_identity_unresolved: "
+        f"parameter_value={parameter_value_handle}, symbol={provenance.object_ref}"
+    )
 
 
 def _unique_visible_parameter_value_handle(
@@ -1030,6 +1127,7 @@ DEFAULT_BINDING_SELECTORS: dict[str, BindingSelectorFn] = {
     "square:side_end_ref": _square_side_end_ref_selector,
     "quadratic_coefficients": _constant_selector("$problem.symbol_lists.quadratic_coefficients"),
     "point_output_ref": _point_output_ref_selector,
+    "point_transition_target": _point_transition_target_selector,
     "translated_point:source": _translated_point_selector("source"),
     "translated_point:target": _translated_point_selector("target"),
     "read_type:Coefficients": _read_type_selector("Coefficients"),
@@ -1056,6 +1154,9 @@ DEFAULT_BINDING_SELECTORS: dict[str, BindingSelectorFn] = {
     "length_reference_segment:p1": _length_reference_segment_selector("p1"),
     "length_reference_segment:p2": _length_reference_segment_selector("p2"),
     "parameter_symbol": _parameter_symbol_selector,
+    "parameter_symbol_from_reads_or_expression": (
+        _parameter_symbol_from_reads_or_expression_selector
+    ),
     "parameter_constraint": _parameter_constraint_selector,
     "dynamic_symbol": _dynamic_symbol_selector,
     "dynamic_constraint": _dynamic_constraint_selector,

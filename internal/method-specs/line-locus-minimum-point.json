@@ -35,6 +35,7 @@
   "outputs": {
     "point": "Point"
   },
+  "is_pure": true,
   "preconditions": [
     "最短线段与 moving_locus 不平行"
   ],

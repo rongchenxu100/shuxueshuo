@@ -16,10 +16,12 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     StepIntentDraft,
     StepIntentExecutionDiagnostic,
     StepIntentScope,
+    StateWriteProvenance,
 )
 from shuxueshuo_server.solver.runtime.strategy_retry_state import (
     build_planner_retry_state,
 )
+from shuxueshuo_server.solver.runtime.strategy_planner import build_strategy_probe_inputs
 from shuxueshuo_server.solver.runtime.strategy_validator import StepIntentValidator
 
 
@@ -33,6 +35,25 @@ NANKAI_RECORDED = (
 
 def test_goal_verifier_flags_path_minimum_answer_without_witness_chain() -> None:
     problem_payload, registry = _nankai_problem_payload_and_registry()
+    inputs = build_strategy_probe_inputs(load_problem_ir(NANKAI_FIXTURE))
+    evidence_outputs = tuple(
+        output
+        for recipe in inputs.family_spec.step_recipes
+        if recipe.execution is not None
+        for output in recipe.execution.output_aliases
+    )
+    witness_role = next(
+        output.semantic_role
+        for output in evidence_outputs
+        if "path_minimum_witness" in output.goal_evidence_tags
+        and output.runtime_type == "StraighteningCandidate"
+    )
+    expression_role = next(
+        output.semantic_role
+        for output in evidence_outputs
+        if "path_minimum_expression" in output.goal_evidence_tags
+        and output.required
+    )
     draft = StepIntentDraft(
         scopes=(
             StepIntentScope(
@@ -99,6 +120,32 @@ def test_goal_verifier_flags_path_minimum_answer_without_witness_chain() -> None
         draft,
         problem_payload=problem_payload,
         handle_registry=registry,
+        family_spec=inputs.family_spec,
+        diagnostic=StepIntentExecutionDiagnostic(
+            ok=True,
+            state_write_provenance=(
+                StateWriteProvenance(
+                    step_id="straighten_path",
+                    scope_id="ii_1",
+                    capability_id="broken_path_straightening_and_select",
+                    produced_handle="fact:ii:straightened_candidate",
+                    output_key="selected_candidate",
+                    runtime_type="StraighteningCandidate",
+                    identity_policy="value_only",
+                    identity_role=witness_role,
+                ),
+                StateWriteProvenance(
+                    step_id="compute_path_expression",
+                    scope_id="ii_1",
+                    capability_id="path_minimum_by_straightened_distance",
+                    produced_handle="fact:ii:path_minimum_expression",
+                    output_key="distance",
+                    runtime_type="MinimumExpression",
+                    identity_policy="value_only",
+                    identity_role=expression_role,
+                ),
+            ),
+        ),
     )
 
     issue = _issue_by_code(issues, "minimum_goal_lineage_incomplete")
@@ -169,6 +216,102 @@ def test_goal_verifier_accepts_recorded_nankai_goal_witnesses() -> None:
         draft,
         problem_payload=problem_payload,
         handle_registry=registry,
+    )
+
+    assert issues == ()
+
+
+def test_point_goal_verifier_rejects_derived_role_renamed_as_target() -> None:
+    problem_payload, registry = _nankai_problem_payload_and_registry()
+    answer_step = StepIntent(
+        scope_id="ii_2",
+        step_id="evaluate_target_point",
+        recipe_hint="evaluate_point_at_parameter",
+        goal_type="evaluate_point_at_parameter",
+        target="answer:ii_2.intersection",
+        strategy="evaluate a prior point state",
+        reads=("fact:ii:unrelated_endpoint", "point:ii:G"),
+        produces=(
+            ProducedFact(
+                "answer:ii_2.intersection",
+                "ii_2",
+                output_type="Point",
+            ),
+        ),
+    )
+    draft = StepIntentDraft(
+        scopes=(
+            StepIntentScope(
+                scope_id="ii_2",
+                label="第（Ⅱ）②问",
+                steps=(answer_step,),
+            ),
+        ),
+    )
+    diagnostic = StepIntentExecutionDiagnostic(
+        ok=True,
+        state_write_provenance=(
+            StateWriteProvenance(
+                step_id="evaluate_target_point",
+                scope_id="ii_2",
+                capability_id="evaluate_point_at_parameter",
+                produced_handle="answer:ii_2.intersection",
+                output_key="evaluated_point",
+                runtime_type="Point",
+                identity_policy="preserve_input_object",
+                identity_role="evaluated_point",
+                object_ref="role:path_endpoint@ii",
+                source_handles=("fact:ii:unrelated_endpoint",),
+                source_step_id="derive_unrelated_endpoint",
+            ),
+        ),
+    )
+
+    issues = AnswerGoalVerifier().verify(
+        draft,
+        problem_payload=problem_payload,
+        handle_registry=registry,
+        diagnostic=diagnostic,
+    )
+
+    issue = _issue_by_code(issues, "point_goal_source_mismatch")
+    assert issue.step_id == "derive_unrelated_endpoint"
+    assert "point:ii:G" in issue.related_handles
+
+
+def test_goal_verifier_does_not_diagnose_unexecuted_answer_suffix() -> None:
+    problem_payload, registry = _nankai_problem_payload_and_registry()
+    answer_step = StepIntent(
+        scope_id="ii_2",
+        step_id="evaluate_target_point",
+        recipe_hint="evaluate_point_at_parameter",
+        goal_type="evaluate_point_at_parameter",
+        target="answer:ii_2.intersection",
+        strategy="evaluate a target point after an earlier runtime step",
+        reads=("fact:ii:unrelated_endpoint", "point:ii:G"),
+        produces=(
+            ProducedFact(
+                "answer:ii_2.intersection",
+                "ii_2",
+                output_type="Point",
+            ),
+        ),
+    )
+    draft = StepIntentDraft(
+        scopes=(
+            StepIntentScope(
+                scope_id="ii_2",
+                label="第（Ⅱ）②问",
+                steps=(answer_step,),
+            ),
+        ),
+    )
+
+    issues = AnswerGoalVerifier().verify(
+        draft,
+        problem_payload=problem_payload,
+        handle_registry=registry,
+        diagnostic=StepIntentExecutionDiagnostic(ok=False, accepted_prefix=()),
     )
 
     assert issues == ()

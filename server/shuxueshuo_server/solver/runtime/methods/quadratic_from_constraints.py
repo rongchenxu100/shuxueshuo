@@ -6,10 +6,80 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+from typing import Literal
+
 from shuxueshuo_server.solver.contracts import MethodExplanationSpec
 
 from ._common import *
 from ._spec import MethodSpecSource
+
+
+QuadraticConstraintStatus = Literal[
+    "determined",
+    "single_free",
+    "underdetermined",
+    "ambiguous",
+]
+
+
+@dataclass(frozen=True)
+class QuadraticConstraintAnalysis:
+    """Deterministic coefficient-solution shape shared by adapter and runtime."""
+
+    status: QuadraticConstraintStatus
+    free_parameters: tuple[sp.Symbol, ...] = ()
+    branch_count: int = 0
+
+
+def analyze_quadratic_constraints(
+    inputs: dict[str, Any],
+) -> QuadraticConstraintAnalysis:
+    """Classify coefficient constraints without opting into parameterization."""
+    quadratic = inputs["quadratic"]
+    x = inputs["x"]
+    coefficients = list(inputs["all_coefficients"])
+    known = dict(inputs.get("known_coefficients", {}))
+    substitution = _parameter_substitution(inputs)
+    points = _collect_curve_points(inputs, substitution)
+    equations = _collect_extra_equations(inputs, known, substitution)
+    equations.extend(
+        sp.Eq(quadratic.subs(known).subs(x, point[0]), point[1])
+        for point in points
+    )
+    unknowns = [symbol for symbol in coefficients if symbol not in known]
+    if not unknowns:
+        return QuadraticConstraintAnalysis("determined", branch_count=1)
+    if not equations:
+        return QuadraticConstraintAnalysis(
+            "single_free" if len(unknowns) == 1 else "underdetermined",
+            free_parameters=tuple(unknowns),
+            branch_count=1,
+        )
+    branches = sp.solve(equations, unknowns, dict=True)
+    if len(branches) != 1:
+        return QuadraticConstraintAnalysis(
+            "ambiguous",
+            branch_count=len(branches),
+        )
+    branch = branches[0]
+    free = set(symbol for symbol in unknowns if symbol not in branch)
+    for value in branch.values():
+        free.update(symbol for symbol in value.free_symbols if symbol in unknowns)
+    if not free:
+        return QuadraticConstraintAnalysis("determined", branch_count=1)
+    ordered = tuple(symbol for symbol in unknowns if symbol in free)
+    if len(ordered) == 1:
+        return QuadraticConstraintAnalysis(
+            "single_free",
+            free_parameters=ordered,
+            branch_count=1,
+        )
+    return QuadraticConstraintAnalysis(
+        "underdetermined",
+        free_parameters=ordered,
+        branch_count=1,
+    )
 
 
 class QuadraticFromConstraintsMethod:
@@ -259,6 +329,7 @@ SPEC = MethodSpecSource(
         "输出抛物线满足已知系数、曲线点和额外方程约束",
         "输出 coefficients/parabola 表示当前问已知约束下的最简函数表达式",
     ),
+    constraint_analyzer="quadratic_coefficients",
     explanation=MethodExplanationSpec(
         role_schema={
             "constraints": "用于确定当前问二次函数的系数约束。",

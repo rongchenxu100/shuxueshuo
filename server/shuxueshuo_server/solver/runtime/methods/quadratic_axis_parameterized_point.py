@@ -28,7 +28,10 @@ class QuadraticAxisParameterizedPointMethod:
 
         return StatelessMethodResult(
             method_id=self.method_id,
-            outputs={"point": TypedValue("Point", point, source=self.method_id)},
+            outputs={
+                "point": TypedValue("Point", point, source=self.method_id),
+                "parameter": TypedValue("Symbol", parameter, source=self.method_id),
+            },
             checks=[
                 _check(
                     "axis_x_derivative_zero",
@@ -68,7 +71,7 @@ SPEC = MethodSpecSource(
         "x": {"type": "Symbol", "required": True},
         "target": {"type": "PointRef", "required": True},
     },
-    outputs={"point": "Point"},
+    outputs={"point": "Point", "parameter": "Symbol"},
     preconditions=("parabola 必须是关于 x 的二次函数", "target 是题设中位于该对称轴上的点"),
     postconditions=("输出点的横坐标等于抛物线对称轴横坐标，纵坐标为待定参数",),
     explanation=MethodExplanationSpec(

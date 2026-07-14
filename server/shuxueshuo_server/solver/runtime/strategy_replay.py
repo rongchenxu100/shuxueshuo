@@ -6,6 +6,9 @@ from dataclasses import dataclass, replace
 from typing import Any
 
 from shuxueshuo_server.solver.runtime.answer_goal_verifier import AnswerGoalVerifier
+from shuxueshuo_server.solver.runtime.canonical_draft_finalizer import (
+    CanonicalDraftFinalizer,
+)
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
 from shuxueshuo_server.solver.runtime.planner_state_context import (
     PlannerStateContext,
@@ -36,7 +39,11 @@ from shuxueshuo_server.solver.runtime.strategy_normalizer import StepIntentNorma
 from shuxueshuo_server.solver.runtime.strategy_output_types import (
     canonicalize_produced_output_types,
 )
+from shuxueshuo_server.solver.runtime.state_dependency_graph import (
+    drop_dead_pure_function_steps,
+)
 from shuxueshuo_server.solver.runtime.strategy_repair_feedback import RepairFeedbackBuilder
+from shuxueshuo_server.solver.runtime.strategy_repair_guidance import RepairGuidanceResolver
 from shuxueshuo_server.solver.runtime.strategy_resolver import StepIntentCandidateResolver
 from shuxueshuo_server.solver.runtime.strategy_retry_state import build_planner_retry_state
 from shuxueshuo_server.solver.runtime.strategy_validator import StepIntentValidator
@@ -52,6 +59,7 @@ class PlannerRetryReplayResult:
     validation_report: StepIntentValidationReport | None = None
     normalized_draft: StepIntentDraft | None = None
     normalization_report: StepIntentNormalizationReport | None = None
+    finalization_report: dict[str, Any] | None = None
     resolution_report: ExecutablePlanResolutionReport | None = None
     effective_draft: StepIntentDraft | None = None
     diagnostic: StepIntentExecutionDiagnostic | None = None
@@ -81,6 +89,7 @@ class PlannerRetryReplayResult:
                 if self.normalization_report is not None
                 else None
             ),
+            "finalization_report": self.finalization_report,
             "resolution_report": (
                 self.resolution_report.to_payload()
                 if self.resolution_report is not None
@@ -221,6 +230,21 @@ class PlannerRetryReplayService:
                 normalization_report,
                 output_type_actions,
             )
+            normalized, dead_step_actions = drop_dead_pure_function_steps(
+                normalized,
+                family_spec=inputs.family_spec,
+                method_specs=inputs.method_specs,
+            )
+            normalization_report = _append_normalization_actions(
+                normalization_report,
+                dead_step_actions,
+            )
+            normalized, finalization_report = CanonicalDraftFinalizer().finalize(
+                normalized,
+                family_spec=inputs.family_spec,
+                question_goals=inputs.question_goals,
+                handle_registry=handle_registry,
+            )
         except Exception as exc:
             replay_errors = errors or (str(exc),)
             retry_state = build_planner_retry_state(
@@ -260,6 +284,13 @@ class PlannerRetryReplayService:
             context=context,
             question_goals=inputs.question_goals,
         )
+        blocker = diagnostic.first_blocker
+        if blocker is not None and not blocker.retryable:
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: "
+                f"code={blocker.code}, step={blocker.step_id}, "
+                f"message={blocker.message}"
+            )
         context_problem_payload, _context_warnings = _problem_payload_for_context(
             inputs,
             problem_payload,
@@ -269,6 +300,7 @@ class PlannerRetryReplayService:
             problem_payload=context_problem_payload,
             handle_registry=handle_registry,
             diagnostic=diagnostic,
+            family_spec=inputs.family_spec,
         )
         retry_state = build_planner_retry_state(
             attempt=attempt,
@@ -280,6 +312,11 @@ class PlannerRetryReplayService:
             diagnostic=diagnostic,
             handle_registry=handle_registry,
             goal_verification_issues=goal_verification_issues,
+            guidance_resolver=RepairGuidanceResolver(
+                inputs.family_spec,
+                inputs.method_specs,
+                handle_registry,
+            ),
         )
         replay = PlannerRetryReplayResult(
             attempt=attempt,
@@ -288,6 +325,7 @@ class PlannerRetryReplayService:
             validation_report=validation_report,
             normalized_draft=normalized,
             normalization_report=normalization_report,
+            finalization_report=finalization_report.to_payload(),
             resolution_report=resolution_report,
             effective_draft=effective_draft,
             diagnostic=diagnostic,
@@ -311,6 +349,7 @@ class PlannerRetryReplayService:
         validation_report: StepIntentValidationReport | None = None,
         normalized_draft: StepIntentDraft | None = None,
         normalization_report: StepIntentNormalizationReport | None = None,
+        finalization_report: dict[str, Any] | None = None,
         resolution_report: ExecutablePlanResolutionReport | None = None,
         effective_draft: StepIntentDraft | None = None,
         diagnostic: StepIntentExecutionDiagnostic | None = None,
@@ -340,6 +379,7 @@ class PlannerRetryReplayService:
             validation_report=validation_report,
             normalized_draft=normalized_draft,
             normalization_report=normalization_report,
+            finalization_report=finalization_report,
             resolution_report=resolution_report,
             effective_draft=effective_draft,
             diagnostic=diagnostic,

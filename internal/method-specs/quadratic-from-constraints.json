@@ -68,6 +68,7 @@
     "coefficients": "Coefficients",
     "parabola": "Parabola"
   },
+  "is_pure": true,
   "preconditions": [
     "输入约束必须能唯一确定除 free_parameter/free_parameters 外的缺失系数",
     "若作为独立化简步骤，化简后应完全确定系数，或只保留一个由后续条件/目标明确需要的自由参数",
@@ -98,5 +99,6 @@
     "role_binding_strategy": "role_name_registry",
     "role_binder_id": "quadratic_from_constraints",
     "student_nav_title_template": "{parabola_title_action}解析式"
-  }
+  },
+  "constraint_analyzer": "quadratic_coefficients"
 }

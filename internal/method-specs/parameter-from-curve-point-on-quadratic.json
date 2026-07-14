@@ -33,6 +33,7 @@
     "point": "Point",
     "parabola": "Parabola"
   },
+  "is_pure": true,
   "preconditions": [
     "quadratic 与 point 必须只共享同一个待求参数",
     "点代入抛物线后，在参数约束下必须唯一确定参数值"

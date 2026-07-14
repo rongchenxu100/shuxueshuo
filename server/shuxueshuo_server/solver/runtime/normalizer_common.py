@@ -537,7 +537,8 @@ def _recipe_output_types(family_spec: SolverFamilySpec) -> dict[str, tuple[str, 
             continue
         result[recipe.recipe_id] = tuple(
             output_type
-            for _alias, output_type in recipe.execution.output_aliases
+            for output in recipe.execution.output_aliases
+            for output_type in (output.runtime_type,)
         )
     return result
 

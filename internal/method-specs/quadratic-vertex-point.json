@@ -23,6 +23,7 @@
   "outputs": {
     "point": "Point"
   },
+  "is_pure": true,
   "preconditions": [
     "parabola 必须是关于 x 的二次函数"
   ],

@@ -19,6 +19,7 @@
   "outputs": {
     "point": "Point"
   },
+  "is_pure": true,
   "preconditions": [
     "target.definition 包含 vector 或 dx/dy 平移信息"
   ],

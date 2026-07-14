@@ -46,6 +46,7 @@
   "outputs": {
     "candidates": "StraighteningCandidateList"
   },
+  "is_pure": true,
   "preconditions": [
     "path_transformation.transformed_path 是由两条线段组成的单动点折线",
     "提供 moving_locus，或同时提供 moving_point_membership、line_point_1 和 line_point_2",

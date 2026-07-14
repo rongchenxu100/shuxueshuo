@@ -31,6 +31,8 @@ from shuxueshuo_server.solver.family.models import (
     CapabilityContractSpec,
     MethodBindingRuleSpec,
     SolverFamilySpec,
+    StateIdentityPolicy,
+    StateWriteMode,
 )
 from shuxueshuo_server.solver.runtime.capability_contracts import (
     effective_contract_by_id,
@@ -40,6 +42,10 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     StepIntent,
     StepIntentFunctionBindingEvent,
     StrategyDraftValidationError,
+)
+from shuxueshuo_server.solver.state_semantics import (
+    object_kind_for_runtime_type,
+    state_kind_for_runtime_type,
 )
 from shuxueshuo_server.solver.utils import unique_ordered
 
@@ -91,6 +97,10 @@ class FunctionReturnSpec:
     object_kind: str | None = None
     required: bool = True
     output_key: str | None = None
+    semantic_role: str | None = None
+    identity_policy: StateIdentityPolicy = "value_only"
+    identity_arg: str | None = None
+    write_mode: StateWriteMode = "value"
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -103,6 +113,12 @@ class FunctionReturnSpec:
             payload["object_kind"] = self.object_kind
         if self.output_key is not None:
             payload["output_key"] = self.output_key
+        if self.semantic_role is not None:
+            payload["semantic_role"] = self.semantic_role
+        payload["identity_policy"] = self.identity_policy
+        if self.identity_arg is not None:
+            payload["identity_arg"] = self.identity_arg
+        payload["write_mode"] = self.write_mode
         return payload
 
 
@@ -129,12 +145,14 @@ class FunctionAdapterSpec:
     adapter_id: str
     input_bindings: tuple[FunctionInputBindingSpec, ...] = ()
     expansion_selectors: tuple[str, ...] = ()
+    constraint_analyzer: str | None = None
 
     def to_payload(self) -> dict[str, Any]:
         return {
             "adapter_id": self.adapter_id,
             "input_bindings": [item.to_payload() for item in self.input_bindings],
             "expansion_selectors": list(self.expansion_selectors),
+            "constraint_analyzer": self.constraint_analyzer,
         }
 
 
@@ -150,6 +168,7 @@ class FunctionSpec:
     adapter: FunctionAdapterSpec | None = None
     source: FunctionSpecSource = "method_spec"
     notes: tuple[str, ...] = ()
+    is_pure: bool = False
 
     def to_payload(self, *, include_adapter: bool = True) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -160,6 +179,7 @@ class FunctionSpec:
             "returns": [item.to_payload() for item in self.returns],
             "source": self.source,
             "notes": list(self.notes),
+            "is_pure": self.is_pure,
         }
         if include_adapter and self.adapter is not None:
             payload["adapter"] = self.adapter.to_payload()
@@ -197,17 +217,21 @@ class FunctionSpecRegistry:
         contracts = effective_contract_by_id(family_spec, method_specs)
         specs: dict[str, FunctionSpec] = {}
         for method_id in family_spec.method_ids:
-            if method_id not in GENERIC_FUNCTION_METHOD_IDS:
-                continue
             try:
                 method_spec = method_specs.require(method_id)
             except KeyError:
                 continue
             contract = contracts.get(method_id)
+            adapter = GENERIC_FUNCTION_ADAPTERS.get(method_id)
+            _validate_constraint_analyzer_consistency(
+                method_spec,
+                contract=contract,
+                adapter=adapter,
+            )
             specs[method_id] = function_spec_from_method(
                 method_spec,
                 contract=contract,
-                adapter=GENERIC_FUNCTION_ADAPTERS.get(method_id),
+                adapter=adapter,
             )
         return cls(specs)
 
@@ -227,7 +251,14 @@ class FunctionSpecRegistry:
         )
 
     def to_prompt_payload(self) -> dict[str, Any]:
-        items = [spec.to_prompt_payload() for spec in self.specs.values()]
+        # FunctionSpec is also the typed identity/provenance facade for direct
+        # family methods that have not migrated to FunctionAdapter yet. Keep
+        # prompt exposure stable until those methods have an executable adapter.
+        items = [
+            spec.to_prompt_payload()
+            for spec in self.specs.values()
+            if spec.adapter is not None
+        ]
         return {
             "source": "function_spec_facade",
             "items": items,
@@ -292,6 +323,17 @@ class FunctionAdapterRegistry:
                         f"selector={binding.selector}"
                     )
                 continue
+            if _selector_requires_declared_read(binding.selector) and not _path_is_declared_read(
+                value,
+                step=step,
+                index=index,
+                local_outputs=local_outputs,
+            ):
+                raise StrategyDraftValidationError(
+                    "function.arg_not_read: "
+                    f"method={method_id}, arg={binding.input_name}, "
+                    f"selector={binding.selector}"
+                )
             inputs[binding.input_name] = value
         if expansion_selectors_override is not None:
             expansions = expansion_selectors_override
@@ -300,7 +342,31 @@ class FunctionAdapterRegistry:
         else:
             expansions = ()
         for selector in expansions:
-            inputs.update(self._expand(selector, step, index, local_outputs))
+            expanded = self._expand(selector, step, index, local_outputs)
+            for input_name, path in expanded.items():
+                if (
+                    input_name in {"parameter", "x", "all_coefficients"}
+                    or selector in _DECLARATIVE_EXPANSIONS
+                ):
+                    continue
+                if not _path_is_declared_read(
+                    path,
+                    step=step,
+                    index=index,
+                    local_outputs=local_outputs,
+                ):
+                    raise StrategyDraftValidationError(
+                        "function.arg_not_read: "
+                        f"method={method_id}, arg={input_name}, expansion={selector}"
+                    )
+            inputs.update(expanded)
+        if adapter.constraint_analyzer is not None:
+            inputs = _apply_constraint_analyzer(
+                adapter.constraint_analyzer,
+                inputs=inputs,
+                step=step,
+                index=index,
+            )
         return inputs
 
     def _select(
@@ -332,6 +398,33 @@ class FunctionAdapterRegistry:
         return fn(step, index, local_outputs)
 
 
+def _selector_requires_declared_read(selector: str) -> bool:
+    return selector.startswith("read_type:") or selector.startswith("fact:")
+
+
+_DECLARATIVE_EXPANSIONS = frozenset(
+    {
+        "known_coefficients_if_read",
+        "curve_point_if_read",
+        "curve_points_if_parameterized",
+    }
+)
+
+
+def _path_is_declared_read(
+    path: str,
+    *,
+    step: StepIntent,
+    index: Any,
+    local_outputs: Mapping[str, str],
+) -> bool:
+    if path in local_outputs.values():
+        return True
+    return any(
+        getattr(index.bindings.get(handle), "path", None) == path
+        for handle in step.reads
+    )
+
 def function_spec_from_method(
     method_spec: MethodSpec,
     *,
@@ -353,26 +446,104 @@ def function_spec_from_method(
         _arg_spec_from_method_input(name, input_spec)
         for name, input_spec in method_spec.inputs.items()
     )
-    returns = tuple(
-        FunctionReturnSpec(
-            name=output_name,
-            output_key=output_name,
-            runtime_type=output_type,
-            state_kind=_state_kind_for_runtime_type(output_type),
-            object_kind=_object_kind_for_runtime_type(output_type),
+    returns: list[FunctionReturnSpec] = []
+    for output_name, output_type in method_spec.outputs.items():
+        identity_policy, identity_arg = _function_return_identity(
+            method_spec,
+            output_type=output_type,
         )
-        for output_name, output_type in method_spec.outputs.items()
-    )
+        write_mode = _function_return_write_mode(
+            contract,
+            output_type=output_type,
+        )
+        returns.append(
+            FunctionReturnSpec(
+                name=output_name,
+                output_key=output_name,
+                runtime_type=output_type,
+                state_kind=state_kind_for_runtime_type(output_type),
+                object_kind=object_kind_for_runtime_type(output_type),
+                semantic_role=output_name,
+                identity_policy=identity_policy,
+                identity_arg=identity_arg,
+                write_mode=write_mode,
+            )
+        )
     return FunctionSpec(
         function_id=method_spec.method_id,
         method_id=method_spec.method_id,
         goal_types=method_spec.solves,
         args=args,
-        returns=returns,
+        returns=tuple(returns),
         adapter=adapter,
         source=source,
+        is_pure=method_spec.is_pure,
         notes=tuple(unique_ordered(notes)),
     )
+
+
+def _function_return_identity(
+    method_spec: MethodSpec,
+    *,
+    output_type: str,
+) -> tuple[StateIdentityPolicy, str | None]:
+    if output_type == "ParameterValue" and "parameter" in method_spec.inputs:
+        return "preserve_input_object", "parameter"
+    if output_type == "Symbol":
+        target = method_spec.inputs.get("target")
+        if target is not None and "PointRef" in _split_runtime_types(str(target.type)):
+            return "derived_role", "target"
+    if output_type not in {"Point", "PointList"}:
+        return "value_only", None
+    target = method_spec.inputs.get("target")
+    if target is not None and "PointRef" in _split_runtime_types(str(target.type)):
+        return "target_object", "target"
+    for input_name in ("target_point", "point"):
+        point = method_spec.inputs.get(input_name)
+        if point is not None and "Point" in _split_runtime_types(str(point.type)):
+            return "preserve_input_object", input_name
+    return "derived_role", None
+
+
+def _function_return_write_mode(
+    contract: CapabilityContractSpec | None,
+    *,
+    output_type: str,
+) -> StateWriteMode:
+    """Project the authoritative write mode when one contract write is unique."""
+    if contract is not None:
+        matches = [
+            item.write_mode
+            for item in contract.slot_writes
+            if item.runtime_type == output_type
+        ]
+        if len(matches) == 1:
+            return matches[0]
+    return "create" if output_type in {"Point", "PointList"} else "value"
+
+
+def _validate_constraint_analyzer_consistency(
+    method_spec: MethodSpec,
+    *,
+    contract: CapabilityContractSpec | None,
+    adapter: FunctionAdapterSpec | None,
+) -> None:
+    """Keep applicability analysis declarative across the three facades."""
+    if contract is not None and contract.execution_status != "executable":
+        return
+    declarations = (
+        method_spec.constraint_analyzer,
+        contract.constraint_analyzer if contract is not None else None,
+        adapter.constraint_analyzer if adapter is not None else None,
+    )
+    active = tuple(item for item in declarations if item is not None)
+    if not active:
+        return
+    if len(active) != len(declarations) or len(set(active)) != 1:
+        raise ValueError(
+            "constraint analyzer declaration mismatch: "
+            f"method={method_spec.method_id}, declarations={declarations}"
+        )
 
 
 def _contract_return_notes(
@@ -450,11 +621,11 @@ def _arg_spec_from_method_input(name: str, input_spec: Any) -> FunctionArgSpec:
         runtime_type=runtime_type,
         required=bool(getattr(input_spec, "required", True)),
         state_kind=(
-            _state_kind_for_runtime_type(primary_type)
+            state_kind_for_runtime_type(primary_type)
             if kind in {"slot_read", "condition_read"}
             else None
         ),
-        object_kind=_object_kind_for_runtime_type(primary_type),
+        object_kind=object_kind_for_runtime_type(primary_type),
     )
 
 
@@ -499,36 +670,6 @@ def _split_runtime_types(runtime_type: str) -> tuple[str, ...]:
     return tuple(part.strip() for part in runtime_type.split("|") if part.strip())
 
 
-def _state_kind_for_runtime_type(runtime_type: str) -> str:
-    if runtime_type in {"Parabola", "Expression", "MinimumExpression", "Equation"}:
-        return "expression"
-    if runtime_type in {"Point", "PointList"}:
-        return "coordinate"
-    if runtime_type == "Line":
-        return "locus"
-    if runtime_type == "Coefficients":
-        return "coefficients"
-    if runtime_type == "PathTransformation":
-        return "transformation"
-    if runtime_type == "StraighteningCandidate":
-        return "candidate"
-    if runtime_type == "ParameterValue":
-        return "value"
-    return runtime_type[:1].lower() + runtime_type[1:]
-
-
-def _object_kind_for_runtime_type(runtime_type: str) -> str | None:
-    if runtime_type in {"Parabola", "Function"}:
-        return "function"
-    if runtime_type in {"Point", "PointList"}:
-        return "point"
-    if runtime_type == "Line":
-        return "line"
-    if runtime_type == "ParameterValue":
-        return "symbol"
-    return None
-
-
 def function_adapter_from_binding_rule(
     rule: MethodBindingRuleSpec,
 ) -> FunctionAdapterSpec:
@@ -551,6 +692,86 @@ def function_adapter_from_binding_rule(
         adapter_id=rule.method_id,
         input_bindings=tuple(input_bindings),
         expansion_selectors=rule.expansion_selectors,
+        constraint_analyzer=rule.constraint_analyzer,
+    )
+
+
+def _apply_constraint_analyzer(
+    analyzer_id: str,
+    *,
+    inputs: dict[str, str],
+    step: StepIntent,
+    index: Any,
+) -> dict[str, str]:
+    analyzer = _CONSTRAINT_ANALYZERS.get(analyzer_id)
+    if analyzer is None:
+        raise StrategyDraftValidationError(
+            f"function.constraint_analyzer_missing: {analyzer_id}"
+        )
+    return analyzer(inputs, step, index)
+
+
+ConstraintAnalyzer = Callable[
+    [dict[str, str], StepIntent, Any],
+    dict[str, str],
+]
+
+
+def _analyze_quadratic_coefficient_inputs(
+    inputs: dict[str, str],
+    step: StepIntent,
+    index: Any,
+) -> dict[str, str]:
+    if "free_parameter" in inputs or "free_parameters" in inputs:
+        return inputs
+    from shuxueshuo_server.solver.runtime.methods.quadratic_from_constraints import (
+        analyze_quadratic_constraints,
+    )
+
+    runtime_inputs: dict[str, Any] = {}
+    for name, path in inputs.items():
+        try:
+            runtime_inputs[name] = index.context.read_path(
+                path,
+                from_scope_id=step.scope_id,
+            ).value
+        except KeyError:
+            # A binding-only/preflight caller may register a future runtime
+            # path without materializing its value. Inference is then unsafe;
+            # leave the strict method invocation unchanged.
+            return inputs
+    analysis = analyze_quadratic_constraints(runtime_inputs)
+    if analysis.status == "determined":
+        return inputs
+    if analysis.status == "single_free" and len(analysis.free_parameters) == 1:
+        symbol = analysis.free_parameters[0]
+        symbol_path = _visible_symbol_path(symbol.name, step=step, index=index)
+        return {**inputs, "free_parameter": symbol_path}
+    if analysis.status == "underdetermined":
+        names = ",".join(symbol.name for symbol in analysis.free_parameters)
+        raise StrategyDraftValidationError(
+            "function.constraints_underdetermined: "
+            f"step={step.step_id}, free_parameters={names or 'multiple'}"
+        )
+    raise StrategyDraftValidationError(
+        "function.constraints_ambiguous: "
+        f"step={step.step_id}, branch_count={analysis.branch_count}"
+    )
+
+
+_CONSTRAINT_ANALYZERS: dict[str, ConstraintAnalyzer] = {
+    "quadratic_coefficients": _analyze_quadratic_coefficient_inputs,
+}
+
+
+def _visible_symbol_path(name: str, *, step: StepIntent, index: Any) -> str:
+    for scope_id in reversed(index.handle_registry.ancestor_scopes(step.scope_id)):
+        handle = f"symbol:{scope_id}:{name}"
+        if handle in index.bindings:
+            return index.path_for(handle, expected_type="Symbol")
+    raise StrategyDraftValidationError(
+        "function.arg_missing: "
+        f"method=quadratic_from_constraints, arg=free_parameter, symbol={name}"
     )
 
 

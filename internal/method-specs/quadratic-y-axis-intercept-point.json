@@ -23,6 +23,7 @@
   "outputs": {
     "point": "Point"
   },
+  "is_pure": true,
   "preconditions": [
     "quadratic 是关于 x 的函数表达式，可以含未定系数"
   ],

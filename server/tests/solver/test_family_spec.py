@@ -578,6 +578,30 @@ def test_prompt_direct_method_catalog_has_binding_rules_and_contracts_for_real_f
         )
 
 
+def test_single_method_recipes_have_runtime_binding_rules_for_real_families() -> None:
+    """A visible single-method recipe must compile in every expanded family."""
+    for fixture in (
+        NANKAI_FIXTURE,
+        HEXI_FIXTURE,
+        HEPING_FIXTURE,
+        HEPING_ERMO_FIXTURE,
+    ):
+        inputs = build_strategy_probe_inputs(load_problem_ir(fixture))
+        binding_rule_ids = {
+            rule.method_id for rule in inputs.family_spec.method_binding_rules
+        }
+        missing = {
+            method_id
+            for recipe in inputs.family_spec.step_recipes
+            if recipe.execution is not None
+            and recipe.execution.execution_strategy == "single_method"
+            for method_id in recipe.execution.method_sequence
+            if method_id not in binding_rule_ids
+        }
+
+        assert not missing, (inputs.family_spec.family_id, sorted(missing))
+
+
 def test_prompt_direct_method_catalog_hides_catalog_only_contracts() -> None:
     problem = load_problem_ir(NANKAI_FIXTURE)
     inputs = build_strategy_probe_inputs(problem)

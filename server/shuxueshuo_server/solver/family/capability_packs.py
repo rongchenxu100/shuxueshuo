@@ -9,8 +9,12 @@ from shuxueshuo_server.solver.family.models import (
     CapabilityPackRegistry,
     CapabilityPackSpec,
     ConditionPattern,
+    MethodBindingRuleSpec,
+    MethodInputBindingSpec,
     RecipeExecutionSpec,
+    recipe_output_alias,
     StateSlotPattern,
+    StateWriteMode,
     StepRecipeSpec,
 )
 from shuxueshuo_server.solver.family.common_binding_rules import (
@@ -37,6 +41,7 @@ def _slot(
     object_kind: str | None = None,
     cardinality: CapabilityCardinality = "one",
     required: bool | None = None,
+    write_mode: StateWriteMode | None = None,
 ) -> StateSlotPattern:
     resolved_required = (
         runtime_type not in TRANSIENT_OUTPUT_TYPES
@@ -49,6 +54,11 @@ def _slot(
         object_kind=object_kind,
         cardinality=cardinality,
         required=resolved_required,
+        write_mode=(
+            write_mode
+            if write_mode is not None
+            else ("create" if runtime_type in {"Point", "PointList"} else "value")
+        ),
     )
 
 
@@ -74,6 +84,7 @@ def _method_contract(
     condition_writes: tuple[ConditionPattern, ...] = (),
     execution_status: CapabilityExecutionStatus = "executable",
     exposes_to_llm: bool = True,
+    constraint_analyzer: str | None = None,
 ) -> CapabilityContractSpec:
     return CapabilityContractSpec(
         capability_id=capability_id,
@@ -84,6 +95,7 @@ def _method_contract(
         slot_writes=slot_writes,
         condition_writes=condition_writes,
         exposes_to_llm=exposes_to_llm,
+        constraint_analyzer=constraint_analyzer,
     )
 
 
@@ -126,6 +138,7 @@ QUADRATIC_CORE_CONTRACTS = (
             _slot("expression", "Parabola", object_kind="function"),
             _slot("coefficients", "Coefficients", object_kind="function"),
         ),
+        constraint_analyzer="quadratic_coefficients",
     ),
     _method_contract(
         "quadratic_vertex_point",
@@ -239,7 +252,13 @@ RIGHT_ANGLE_EQUAL_LENGTH_CONSTRUCT_AND_SELECT = StepRecipeSpec(
             ),
         ),
         output_aliases=(
-            ("select_point_by_quadrant_constraint.selected_point", "Point"),
+            recipe_output_alias(
+                "select_point_by_quadrant_constraint.selected_point",
+                "Point",
+                "selected_target_point",
+                identity_policy="target_object",
+                identity_arg="target",
+            ),
         ),
     ),
 )
@@ -259,7 +278,11 @@ TWO_MOVING_POINTS_PATH_REDUCTION = StepRecipeSpec(
         method_sequence=("two_moving_points_path_reduction",),
         execution_strategy="single_method",
         output_aliases=(
-            ("two_moving_points_path_reduction.path_transformation", "PathTransformation"),
+            recipe_output_alias(
+                "two_moving_points_path_reduction.path_transformation",
+                "PathTransformation",
+                "path_transformation",
+            ),
         ),
     ),
     priority="preferred",
@@ -292,8 +315,39 @@ BROKEN_PATH_STRAIGHTENING_AND_SELECT = StepRecipeSpec(
             ),
         ),
         output_aliases=(
-            ("select_straightening_candidate.selected_candidate", "StraighteningCandidate"),
-            ("select_straightening_candidate.auxiliary_point", "Point"),
+            recipe_output_alias(
+                "select_straightening_candidate.selected_candidate",
+                "StraighteningCandidate",
+                "straightened_scheme",
+                goal_evidence_tags=("path_minimum_witness",),
+            ),
+            recipe_output_alias(
+                "select_straightening_candidate.auxiliary_point",
+                "Point",
+                "straightening_auxiliary_point",
+                required=False,
+                cardinality="optional",
+                identity_policy="derived_role",
+                goal_evidence_tags=("path_minimum_witness",),
+            ),
+            recipe_output_alias(
+                "select_straightening_candidate.minimum_point_1",
+                "Point",
+                "path_minimum_point_1",
+                required=False,
+                cardinality="optional",
+                identity_policy="derived_role",
+                goal_evidence_tags=("path_minimum_witness",),
+            ),
+            recipe_output_alias(
+                "select_straightening_candidate.minimum_point_2",
+                "Point",
+                "path_minimum_point_2",
+                required=False,
+                cardinality="optional",
+                identity_policy="derived_role",
+                goal_evidence_tags=("path_minimum_witness",),
+            ),
         ),
     ),
     priority="preferred",
@@ -313,8 +367,20 @@ PATH_MINIMUM_BY_STRAIGHTENED_DISTANCE = StepRecipeSpec(
         method_sequence=("distance_between_points",),
         execution_strategy="straightened_distance_minimum",
         output_aliases=(
-            ("distance_between_points.distance", "MinimumExpression"),
-            ("distance_between_points.evaluated_distance", "MinimumExpression"),
+            recipe_output_alias(
+                "distance_between_points.distance",
+                "MinimumExpression",
+                "path_minimum_expression",
+                goal_evidence_tags=("path_minimum_expression",),
+            ),
+            recipe_output_alias(
+                "distance_between_points.evaluated_distance",
+                "MinimumExpression",
+                "evaluated_path_minimum_expression",
+                required=False,
+                cardinality="optional",
+                goal_evidence_tags=("path_minimum_expression",),
+            ),
         ),
     ),
     priority="preferred",
@@ -343,10 +409,38 @@ BROKEN_PATH_STRAIGHTENING_MINIMUM_EXPRESSION = StepRecipeSpec(
         execution_strategy="broken_path_straightening_minimum_expression",
         creates=("point",),
         output_aliases=(
-            ("select_straightening_candidate.minimum_point_1", "Point"),
-            ("select_straightening_candidate.minimum_point_2", "Point"),
-            ("distance_between_points.distance", "MinimumExpression"),
-            ("distance_between_points.evaluated_distance", "MinimumExpression"),
+            recipe_output_alias(
+                "select_straightening_candidate.minimum_point_1",
+                "Point",
+                "path_minimum_point_1",
+                required=False,
+                cardinality="optional",
+                identity_policy="derived_role",
+                goal_evidence_tags=("path_minimum_witness",),
+            ),
+            recipe_output_alias(
+                "select_straightening_candidate.minimum_point_2",
+                "Point",
+                "path_minimum_point_2",
+                required=False,
+                cardinality="optional",
+                identity_policy="derived_role",
+                goal_evidence_tags=("path_minimum_witness",),
+            ),
+            recipe_output_alias(
+                "distance_between_points.distance",
+                "MinimumExpression",
+                "path_minimum_expression",
+                goal_evidence_tags=("path_minimum_expression",),
+            ),
+            recipe_output_alias(
+                "distance_between_points.evaluated_distance",
+                "MinimumExpression",
+                "evaluated_path_minimum_expression",
+                required=False,
+                cardinality="optional",
+                goal_evidence_tags=("path_minimum_expression",),
+            ),
         ),
     ),
     priority="preferred",
@@ -369,8 +463,20 @@ EQUAL_LENGTH_RAY_PATH_REDUCTION = StepRecipeSpec(
         execution_strategy="equal_length_ray_path_reduction",
         creates=("point",),
         output_aliases=(
-            ("distance_between_points.distance", "MinimumExpression"),
-            ("distance_between_points.evaluated_distance", "MinimumExpression"),
+            recipe_output_alias(
+                "distance_between_points.distance",
+                "MinimumExpression",
+                "path_minimum_expression",
+                goal_evidence_tags=("path_minimum_expression",),
+            ),
+            recipe_output_alias(
+                "distance_between_points.evaluated_distance",
+                "MinimumExpression",
+                "evaluated_path_minimum_expression",
+                required=False,
+                cardinality="optional",
+                goal_evidence_tags=("path_minimum_expression",),
+            ),
         ),
     ),
     priority="preferred",
@@ -483,6 +589,41 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
                 ),
             ),
         ),
+        method_binding_rules=(
+            MethodBindingRuleSpec(
+                method_id="two_moving_points_path_reduction",
+                input_bindings=(
+                    MethodInputBindingSpec(
+                        "original_path",
+                        "fact:path_minimum_target:Condition",
+                    ),
+                    MethodInputBindingSpec(
+                        "first_moving_membership",
+                        "path_reduction:first_membership",
+                    ),
+                    MethodInputBindingSpec(
+                        "second_moving_membership",
+                        "path_reduction:second_membership",
+                    ),
+                    MethodInputBindingSpec(
+                        "binding_relation",
+                        "path_reduction:relation",
+                    ),
+                    MethodInputBindingSpec(
+                        "first_segment_start",
+                        "path_reduction:first_segment_start",
+                    ),
+                    MethodInputBindingSpec(
+                        "joint_point",
+                        "path_reduction:joint_point",
+                    ),
+                    MethodInputBindingSpec(
+                        "second_segment_end",
+                        "path_reduction:second_segment_end",
+                    ),
+                ),
+            ),
+        ),
     ),
     CapabilityPackSpec(
         pack_id="right_angle_equal_length_core",
@@ -575,7 +716,20 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
             _method_contract(
                 "quadratic_axis_parameterized_point",
                 slot_reads=(_slot("expression", "Parabola", object_kind="function"),),
-                slot_writes=(_slot("coordinate", "Point", object_kind="point"),),
+                slot_writes=(
+                    _slot(
+                        "coordinate",
+                        "Point",
+                        object_kind="point",
+                        write_mode="create",
+                    ),
+                    _slot(
+                        "parameter",
+                        "Symbol",
+                        object_kind="symbol",
+                        write_mode="value",
+                    ),
+                ),
             ),
             _method_contract(
                 "square_adjacent_vertex_from_side",
@@ -595,7 +749,14 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
             _method_contract(
                 "line_locus_minimum_point",
                 slot_reads=(_slot("locus", "Line", object_kind="line"),),
-                slot_writes=(_slot("coordinate", "Point", object_kind="point"),),
+                slot_writes=(
+                    _slot(
+                        "coordinate",
+                        "Point",
+                        object_kind="point",
+                        write_mode="transition",
+                    ),
+                ),
             ),
         ),
     ),

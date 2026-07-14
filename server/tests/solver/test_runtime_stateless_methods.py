@@ -50,6 +50,9 @@ from shuxueshuo_server.solver.runtime.methods import (
     WeightedAxisPathTriangleTransformMethod,
 )
 from shuxueshuo_server.solver.runtime.models import PointRef
+from shuxueshuo_server.solver.runtime.methods.quadratic_from_constraints import (
+    analyze_quadratic_constraints,
+)
 
 
 def test_quadratic_axis_from_relation_method() -> None:
@@ -140,6 +143,8 @@ def test_quadratic_axis_parameterized_point_method() -> None:
     point = result.outputs["point"].value
     assert point[0] == -1
     assert point[1].name == "_axis_param_E"
+    assert result.outputs["parameter"].type == "Symbol"
+    assert result.outputs["parameter"].value is point[1]
     assert all(check.ok for check in result.checks)
 
 
@@ -343,6 +348,39 @@ def test_quadratic_from_constraints_rejects_incomplete_solution() -> None:
             },
             kernel,
         )
+
+
+def test_quadratic_constraint_analysis_classifies_solution_shape() -> None:
+    x, alpha, beta, gamma = sp.symbols("x alpha beta gamma")
+    quadratic = alpha * x**2 + beta * x + gamma
+    base = {
+        "quadratic": quadratic,
+        "x": x,
+        "all_coefficients": [alpha, beta, gamma],
+    }
+
+    single_free = analyze_quadratic_constraints(
+        {
+            **base,
+            "known_coefficients": {alpha: 1},
+            "curve_point": sp.Point(0, 2),
+        }
+    )
+    underdetermined = analyze_quadratic_constraints(base)
+    ambiguous = analyze_quadratic_constraints(
+        {
+            **base,
+            "known_coefficients": {alpha: 1, gamma: 0},
+            "extra_equation": sp.Eq(beta**2, 1),
+        }
+    )
+
+    assert single_free.status == "single_free"
+    assert single_free.free_parameters == (beta,)
+    assert underdetermined.status == "underdetermined"
+    assert underdetermined.free_parameters == (alpha, beta, gamma)
+    assert ambiguous.status == "ambiguous"
+    assert ambiguous.branch_count == 2
 
 
 def test_quadratic_from_constraints_rejects_multiple_solutions() -> None:

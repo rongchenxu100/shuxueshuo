@@ -258,6 +258,32 @@ class StepIntentValidator:
         )
 
 
+def validate_canonical_draft(
+    draft: StepIntentDraft,
+    *,
+    question_goals: list[QuestionGoal] | tuple[QuestionGoal, ...] = (),
+    handle_registry: CanonicalHandleRegistry,
+    family_spec: SolverFamilySpec | None = None,
+) -> tuple[StepIntentDraft, StepIntentValidationReport]:
+    """Validate an internal draft without re-applying the raw LLM JSON schema."""
+    if question_goals:
+        _validate_step_scope_targets(draft, question_goals)
+    resolved, handle_resolution = HandleResolver().resolve_draft(
+        draft,
+        handle_registry,
+    )
+    _validate_step_handles(resolved, handle_registry)
+    validator = StepIntentValidator()
+    report = validator.report(
+        resolved,
+        question_goals=question_goals,
+        family_spec=family_spec,
+        handle_registry=handle_registry,
+        handle_resolution=handle_resolution,
+    )
+    return resolved, report
+
+
 def _semantic_read_error_summary(report: SemanticReadResolutionReport) -> str:
     details = "; ".join(
         error.message

@@ -115,6 +115,69 @@ def test_planner_state_context_scope_graph_and_valid_scope_are_explicit() -> Non
     assert coefficient_relation.valid_scope == "problem"
 
 
+def test_context_records_internal_symbol_and_ordered_point_transitions() -> None:
+    """Companion Symbols and same-object Point transitions become Context memory."""
+    root = Path(__file__).resolve().parents[3]
+    problem = load_problem_ir(
+        str(root / "internal/solver-fixtures/tj-2026-heping-ermo-25.json")
+    )
+    inputs = build_strategy_probe_inputs(problem)
+    payload = problem_to_llm_payload(problem)
+    registry = CanonicalHandleRegistry.from_problem_payload(payload)
+    raw = (
+        root
+        / "internal/solver-fixtures/tj-2026-heping-ermo-25.executable-step-intents.json"
+    ).read_text(encoding="utf-8")
+    draft = StepIntentValidator().validate_json(
+        raw,
+        question_goals=inputs.question_goals,
+        handle_registry=registry,
+        family_spec=inputs.family_spec,
+    )
+    output, diagnostic, effective = RecipeTrialExecutor().diagnose(
+        draft,
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=registry,
+        context=ContextBuilder().build(problem),
+        question_goals=inputs.question_goals,
+    )
+    assert output is not None
+    assert diagnostic.ok
+
+    replay = PlannerRetryReplayService().replay_from_artifacts(
+        attempt=1,
+        errors=(),
+        raw_draft=draft,
+        normalized_draft=effective,
+        effective_draft=effective,
+        diagnostic=diagnostic,
+        output=output,
+        inputs=inputs,
+        handle_registry=registry,
+        problem_payload=payload,
+    )
+    context = replay.planner_state_context
+    assert context is not None
+    symbol_slots = [
+        item for item in context.state.state_slots
+        if item.runtime_type == "Symbol" and item.produced_by is not None
+    ]
+    assert symbol_slots
+    catalog = context.semantic_read_catalog()
+    assert any(
+        item.kind == "symbol"
+        and item.source_step_id == symbol_slots[0].produced_by
+        for item in catalog
+    )
+    transitioned = [
+        item for item in context.state.state_slots
+        if any(version.write_mode == "transition" for version in item.write_history)
+    ]
+    assert transitioned
+    assert any(len(item.write_history) >= 2 for item in transitioned)
+
+
 def test_context_semantic_catalog_preserves_hidden_aliases_for_scoped_entity_refs() -> None:
     """Scope-qualified prompt refs should keep hidden short-ref aliases."""
     registry = CanonicalHandleRegistry(

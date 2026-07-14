@@ -24,6 +24,7 @@
     "evaluated_expression": "Expression",
     "evaluated_minimum_expression": "MinimumExpression"
   },
+  "is_pure": true,
   "preconditions": [
     "expression 可以包含 parameter"
   ],

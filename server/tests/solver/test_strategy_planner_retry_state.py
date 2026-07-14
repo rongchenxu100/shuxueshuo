@@ -22,6 +22,9 @@ from shuxueshuo_server.solver.runtime.planner_retry_projection import (  # noqa:
 from shuxueshuo_server.solver.runtime.strategy_replay import (  # noqa: E402
     PlannerRetryReplayService,
 )
+from shuxueshuo_server.solver.runtime.strategy_models import (  # noqa: E402
+    StateWriteProvenance,
+)
 
 
 def test_strategy_payload_builder_indexes_stable_and_semantic_attempt_state() -> None:
@@ -129,7 +132,7 @@ def test_strategy_payload_builder_indexes_stable_and_semantic_attempt_state() ->
 
 
 def test_strategy_payload_builder_indexes_planner_retry_state() -> None:
-    """正式 retry state 应进入 prompt，并派生旧 latest_stable_runtime 镜像。"""
+    """正式 retry state 应成为 prompt 唯一状态，不再携带兼容镜像。"""
     retry_state = {
         "attempt": 3,
         "baseline_draft": {
@@ -186,16 +189,8 @@ def test_strategy_payload_builder_indexes_planner_retry_state() -> None:
     assert state["latest_retry_state"]["baseline_draft"] == retry_state["baseline_draft"]
     assert state["latest_retry_state"]["stable_prefix"] == retry_state["stable_prefix"]
     assert "replay_reports" not in state["latest_retry_state"]
-    assert state["latest_stable_runtime"]["attempt"] == 3
-    assert "replay_reports" not in state["latest_stable_runtime"]["planner_retry_state"]
-    assert state["latest_stable_runtime"]["effective_draft"] == retry_state["baseline_draft"]
-    assert state["latest_stable_runtime"]["diagnostic"]["ok"] is False
-    assert state["latest_stable_runtime"]["diagnostic"]["accepted_prefix"] == [
-        {"step_id": "derive_axis_point", "scope_id": "i"}
-    ]
-    assert state["latest_stable_runtime"]["diagnostic"]["blockers"] == [
-        {"step_id": "derive_N_coordinate", "scope_id": "ii_1"}
-    ]
+    assert state["latest_stable_runtime"] is None
+    assert state["latest_semantic_failure"] is None
 
 
 def test_strategy_payload_builder_compresses_previous_attempts_for_prompt() -> None:
@@ -429,17 +424,8 @@ def test_strategy_payload_builder_derives_semantic_failure_from_retry_state() ->
     assert state["latest_retry_state"]["baseline_draft"] == retry_state["baseline_draft"]
     assert state["latest_retry_state"]["issues"] == retry_state["issues"]
     assert "replay_reports" not in state["latest_retry_state"]
-    assert state["latest_semantic_failure"]["attempt"] == 2
-    assert state["latest_semantic_failure"]["errors"] == ["new semantic failure"]
-    assert state["latest_semantic_failure"]["validation_errors"] == [
-        "semantic_read_unknown:new"
-    ]
-    assert (
-        state["latest_semantic_failure"]["semantic_read_resolution"]["errors"][0][
-            "message"
-        ]
-        == "new semantic failure"
-    )
+    assert state["latest_semantic_failure"] is None
+    assert state["latest_stable_runtime"] is None
 
 
 def test_planner_retry_state_builds_semantic_read_issue() -> None:
@@ -1101,8 +1087,8 @@ def test_planner_retry_state_builds_sanitized_answer_check_issue() -> None:
     assert "expected" not in serialized.lower()
 
 
-def test_planner_retry_state_builds_unresolved_answer_check_with_path_hints() -> None:
-    """answer unresolved 应进入 answer_check，并复用路径最值 insight 给出下一步。"""
+def test_planner_retry_state_locates_unresolved_symbol_producer() -> None:
+    """answer unresolved 应沿 provenance 定位最早 Symbol producer。"""
     diagnostic = StepIntentExecutionDiagnostic(
         ok=True,
         accepted_prefix=(
@@ -1140,6 +1126,20 @@ def test_planner_retry_state_builds_unresolved_answer_check_with_path_hints() ->
                 repair_note="use line_locus_minimum_point",
             ),
         ),
+        state_write_provenance=(
+            StateWriteProvenance(
+                step_id="parameterize_target_point",
+                scope_id="ii",
+                capability_id="quadratic_axis_parameterized_point",
+                produced_handle="symbol:ii:target_axis_parameter",
+                output_key="parameter",
+                runtime_type="Symbol",
+                identity_policy="derived_role",
+                identity_role="parameter",
+                object_ref="symbol:ii:target_axis_parameter",
+                free_symbol_names=("_axis_param_E",),
+            ),
+        ),
     )
 
     state = build_planner_retry_state(
@@ -1159,9 +1159,10 @@ def test_planner_retry_state_builds_unresolved_answer_check_with_path_hints() ->
     assert payload["stable_prefix"] == []
     assert issue["layer"] == "answer_check"
     assert issue["code"] == "answer_unresolved"
+    assert issue["step_id"] == "parameterize_target_point"
     assert issue["related_handles"] == ["answer:ii.E"]
-    assert "line_locus_minimum_point" in hint_text
-    assert "path_minimum_point_1" in hint_text
+    assert "line_locus_minimum_point" not in hint_text
+    assert issue["details"]["unresolved_symbols"] == ["_axis_param_E"]
     assert "expected" not in json.dumps(payload, ensure_ascii=False).lower()
 
 
@@ -1250,6 +1251,64 @@ def test_merge_previous_accepted_prefix_prefers_planner_retry_state() -> None:
         "derive_axis_point",
         "derive_suffix",
     ]
+
+
+def test_formal_retry_state_none_never_falls_back_to_legacy_prefix() -> None:
+    """Formal retry memory owns the merge decision even when it preserves nothing."""
+    inputs = replace(_nankai_inputs(), question_goals=())
+    registry = _registry()
+    current = _single_scope_draft(
+        _step(
+            scope_id="i",
+            step_id="replacement_suffix",
+            recipe_hint=None,
+            goal_type="derive_point",
+            target="fact:i:replacement",
+            produces=(
+                ProducedFact("fact:i:replacement", "i", "本轮 suffix", output_type="Point"),
+            ),
+        ),
+        scope_id="i",
+    )
+    legacy_effective = _single_scope_draft(
+        _step(
+            scope_id="i",
+            step_id="obsolete_prefix",
+            recipe_hint=None,
+            goal_type="derive_point",
+            target="fact:i:obsolete",
+            produces=(
+                ProducedFact("fact:i:obsolete", "i", "旧前缀", output_type="Point"),
+            ),
+        ),
+        scope_id="i",
+    ).to_payload()
+    legacy_effective["scopes"][0]["steps"][0]["reason"] = "测试 reason"
+    previous_attempt = {
+        "planner_retry_state": {
+            "attempt": 1,
+            "baseline_draft": legacy_effective,
+            "stable_prefix": [],
+            "repair_suffix_start": None,
+            "issues": [],
+            "preserve_policy": "none",
+            "repair_instruction": "replace suffix",
+            "replay_reports": {},
+        },
+        "effective_draft": legacy_effective,
+        "diagnostic": {
+            "accepted_prefix": [{"step_id": "obsolete_prefix", "scope_id": "i"}]
+        },
+    }
+
+    merged = _merge_previous_accepted_prefix(
+        current,
+        previous_attempts=[previous_attempt],
+        handle_registry=registry,
+        inputs=inputs,
+    )
+
+    assert merged == current
 
 
 def test_merge_previous_accepted_prefix_prefers_context_derived_retry_state() -> None:

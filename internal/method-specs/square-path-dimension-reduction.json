@@ -28,6 +28,7 @@
   "outputs": {
     "path_transformation": "PathTransformation"
   },
+  "is_pure": true,
   "preconditions": [
     "path_condition.path 是三段路径",
     "midpoint_condition 指向正方形一边的中点",

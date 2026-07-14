@@ -126,12 +126,8 @@ def test_recorded_executable_step_intents_are_method_or_recipe_grained() -> None
     assert hints_by_step["compute_ii_1_minimum"] == "distance_between_points"
 
 
-def test_execution_feedback_reports_structured_missing_midpoint_state() -> None:
-    """缺少中点坐标状态时，测试侧只回传结构化执行错误。
-
-    生产 retry 的修复建议来自 PlannerRetryState / RepairFeedbackBuilder；
-    opt-in 测试不能额外注入南开专用“教练文本”。
-    """
+def test_missing_midpoint_step_is_recovered_from_structured_definition() -> None:
+    """缺少显式中点 step 时，代码应由 midpoint definition 确定性补齐。"""
     step_intent_payload = json.loads(
         RECORDED_NANKAI_EXECUTABLE_STEP_INTENTS.read_text(encoding="utf-8")
     )
@@ -143,12 +139,13 @@ def test_execution_feedback_reports_structured_missing_midpoint_state() -> None:
         expected,
     )
 
-    assert result.status == "failed"
-    assert "execution_failed: unknown_read_handle:fact:ii:F_coordinate_expr" in failures
-    joined = "\n".join(failures)
-    assert "later path-minimum steps read" not in joined
-    assert "fact:problem:D_coordinate" not in joined
-    assert "fact:ii:F_midpoint_of_DN" not in joined
+    assert result.status == "ok", result.errors
+    assert failures == []
+    report = captured["normalization_report"]
+    assert any(
+        action.action == "insert_midpoint_coordinate_backfill_step"
+        for action in report.actions
+    )
 
 
 def test_runtime_feedback_payload_populates_latest_stable_runtime_state() -> None:
@@ -207,15 +204,7 @@ def test_runtime_feedback_payload_populates_latest_stable_runtime_state() -> Non
     assert latest_retry_state["stable_prefix"]
     assert latest_retry_state["issues"][0]["layer"] == "trial_execution"
     assert latest_retry_state["baseline_draft"]["scopes"]
-    assert latest_runtime is not None
-    assert latest_runtime["attempt"] == 1
-    assert latest_runtime["planner_retry_state"]["attempt"] == 1
-    assert latest_runtime["diagnostic"]["blockers"]
-    assert latest_runtime["repair_summary"]["current_blocker"]["step_id"] == (
-        "compute_G_coordinate"
-    )
-    assert latest_runtime["effective_draft"]["scopes"]
-    assert "repair_summary" in latest_runtime
+    assert latest_runtime is None
 
 
 def test_recorded_strategy_step_intents_allow_descriptive_auxiliary_point_name() -> None:

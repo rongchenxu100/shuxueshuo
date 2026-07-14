@@ -39,6 +39,7 @@
   "outputs": {
     "parameter_value": "ParameterValue"
   },
+  "is_pure": true,
   "preconditions": [
     "condition.value 表示绝对长度平方，或 condition.type=segment_length_relation 且提供 reference_p1/reference_p2"
   ],

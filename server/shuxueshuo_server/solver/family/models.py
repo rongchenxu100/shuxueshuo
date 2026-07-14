@@ -11,8 +11,81 @@ from dataclasses import dataclass, field
 from typing import Literal
 
 from shuxueshuo_server.solver.problem_models import ProblemIR
+from shuxueshuo_server.solver.state_semantics import state_kind_for_runtime_type
 from shuxueshuo_server.solver.utils import unique_ordered
 
+StateIdentityPolicy = Literal[
+    "preserve_input_object",
+    "target_object",
+    "derived_role",
+    "value_only",
+]
+StateWriteMode = Literal["create", "transition", "value"]
+GoalEvidenceTag = Literal[
+    "path_minimum_witness",
+    "path_minimum_expression",
+]
+
+
+@dataclass(frozen=True)
+class RecipeOutputAliasSpec:
+    """One recipe output role and its state/object identity contract."""
+
+    output_key: str
+    runtime_type: str
+    semantic_role: str
+    state_kind: str
+    required: bool = True
+    cardinality: Literal["one", "optional", "many"] = "one"
+    identity_policy: StateIdentityPolicy = "value_only"
+    identity_arg: str | None = None
+    write_mode: StateWriteMode = "value"
+    goal_evidence_tags: tuple[GoalEvidenceTag, ...] = ()
+
+    def to_payload(self) -> dict[str, object]:
+        return {
+            "output_key": self.output_key,
+            "runtime_type": self.runtime_type,
+            "semantic_role": self.semantic_role,
+            "state_kind": self.state_kind,
+            "required": self.required,
+            "cardinality": self.cardinality,
+            "identity_policy": self.identity_policy,
+            "identity_arg": self.identity_arg,
+            "write_mode": self.write_mode,
+            "goal_evidence_tags": list(self.goal_evidence_tags),
+        }
+
+
+def recipe_output_alias(
+    output_key: str,
+    runtime_type: str,
+    semantic_role: str,
+    *,
+    required: bool = True,
+    cardinality: Literal["one", "optional", "many"] = "one",
+    identity_policy: StateIdentityPolicy = "value_only",
+    identity_arg: str | None = None,
+    write_mode: StateWriteMode | None = None,
+    goal_evidence_tags: tuple[GoalEvidenceTag, ...] = (),
+) -> RecipeOutputAliasSpec:
+    """Build a structured recipe return without duplicating state-kind rules."""
+    return RecipeOutputAliasSpec(
+        output_key=output_key,
+        runtime_type=runtime_type,
+        semantic_role=semantic_role,
+        state_kind=state_kind_for_runtime_type(runtime_type),
+        required=required,
+        cardinality=cardinality,
+        identity_policy=identity_policy,
+        identity_arg=identity_arg,
+        write_mode=(
+            write_mode
+            if write_mode is not None
+            else ("create" if runtime_type in {"Point", "PointList"} else "value")
+        ),
+        goal_evidence_tags=goal_evidence_tags,
+    )
 
 @dataclass(frozen=True)
 class RecipeExecutionSpec:
@@ -31,7 +104,7 @@ class RecipeExecutionSpec:
     creates: tuple[str, ...] = ()
     input_aliases: tuple[tuple[str, str], ...] = ()
     intermediate_wiring: tuple[tuple[str, str], ...] = ()
-    output_aliases: tuple[tuple[str, str], ...] = ()
+    output_aliases: tuple[RecipeOutputAliasSpec, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -94,6 +167,7 @@ class MethodBindingRuleSpec:
     prep_invocations: tuple[MethodPrepInvocationSpec, ...] = ()
     always_emit_outputs: tuple[str, ...] = ()
     companion_outputs: tuple[MethodCompanionOutputSpec, ...] = ()
+    constraint_analyzer: str | None = None
 
 
 @dataclass(frozen=True)
@@ -138,6 +212,7 @@ class StateSlotPattern:
     scope_policy: CapabilityScopePolicy = "current_or_visible"
     cardinality: CapabilityCardinality = "one"
     required: bool = True
+    write_mode: StateWriteMode = "value"
 
     def to_payload(self) -> dict[str, object]:
         payload: dict[str, object] = {
@@ -146,6 +221,7 @@ class StateSlotPattern:
             "scope_policy": self.scope_policy,
             "cardinality": self.cardinality,
             "required": self.required,
+            "write_mode": self.write_mode,
         }
         if self.object_kind is not None:
             payload["object_kind"] = self.object_kind
@@ -193,6 +269,7 @@ class CapabilityContractSpec:
     exposes_to_llm: bool = True
     notes: tuple[str, ...] = ()
     complete: bool | None = None
+    constraint_analyzer: str | None = None
 
     @property
     def is_complete(self) -> bool:
@@ -214,6 +291,7 @@ class CapabilityContractSpec:
             "exposes_to_llm": self.exposes_to_llm,
             "notes": list(self.notes),
             "complete": self.is_complete,
+            "constraint_analyzer": self.constraint_analyzer,
         }
 
 

@@ -61,6 +61,7 @@ SPEC = MethodSpecSource(
         "parameter_value": {"type": "ParameterValue", "required": True},
     },
     outputs={"evaluated_point": "Point"},
+    plan_transformer="substitute_all_point_parameters",
     preconditions=("point 坐标可以包含 parameter",),
     postconditions=("输出点坐标不再含 parameter",),
     explanation=MethodExplanationSpec(
@@ -99,10 +100,10 @@ SPEC = MethodSpecSource(
         {
             "code": "final_point_requires_square_recovery",
             "applies_to": ("method:evaluate_point_at_parameter",),
-            "message": "最终答案点不能直接参数代入；应先求最短状态 moving point，再用正方形关系恢复。",
+            "message": "最终答案点不能由当前参数代入直接得到；缺少从极值状态动点恢复目标点的几何状态转移。",
             "next_actions": (
-                "先用 `line_locus_minimum_point` 读取动点轨迹、`fact:<scope>:path_minimum_point_1/2` 和参数值，求最短状态 moving point。",
-                "再用 `square_adjacent_vertex_from_side` 读取正方形条件、已知边端点和该 moving point，恢复最终答案点。",
+                "先产生极值状态 moving point，再读取题设几何条件把该状态转移到最终目标点。",
+                "从当前 catalog 中选择返回角色、对象身份和 scope 均满足这些缺失状态的能力。",
             ),
             "do_not": (
                 "不要用 `evaluate_point_at_parameter` 直接 produces 最终 Point answer。",

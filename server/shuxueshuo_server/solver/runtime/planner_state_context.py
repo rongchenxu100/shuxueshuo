@@ -15,6 +15,7 @@ from typing import Any, Literal, Protocol, cast, get_args
 
 from shuxueshuo_server.solver.runtime.capability_contracts import contract_payloads
 from shuxueshuo_server.solver.runtime.function_specs import function_spec_payloads
+from shuxueshuo_server.solver.runtime.macro_specs import macro_spec_payloads
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
 from shuxueshuo_server.solver.runtime.output_type_inference import (
     FACT_TYPE_TO_OUTPUT_TYPE,
@@ -33,6 +34,7 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     StepIntent,
     StepIntentDraft,
 )
+from shuxueshuo_server.solver.state_semantics import state_kind_for_runtime_type
 from shuxueshuo_server.solver.utils import unique_ordered as _unique_ordered
 
 ContextSource = Literal["problem", "derived", "answer", "temporary"]
@@ -160,6 +162,26 @@ class Condition:
 
 
 @dataclass(frozen=True)
+class StateWriteVersion:
+    """One ordered write to a semantic StateSlot."""
+
+    step_id: str
+    produced_handle: str
+    capability_id: str
+    write_mode: str
+    previous_write_step_id: str | None = None
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            "step_id": self.step_id,
+            "produced_handle": self.produced_handle,
+            "capability_id": self.capability_id,
+            "write_mode": self.write_mode,
+            "previous_write_step_id": self.previous_write_step_id,
+        }
+
+
+@dataclass(frozen=True)
 class StateSlot:
     """A typed semantic state attached to a math object or produced fact."""
 
@@ -174,6 +196,7 @@ class StateSlot:
     valid_scope: str | None = None
     runtime_path: str | None = None
     status: StateStatus = "planned"
+    write_history: tuple[StateWriteVersion, ...] = ()
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -188,6 +211,7 @@ class StateSlot:
             "valid_scope": self.valid_scope,
             "runtime_path": self.runtime_path,
             "status": self.status,
+            "write_history": [item.to_payload() for item in self.write_history],
         }
 
 
@@ -391,6 +415,8 @@ class PlannerState:
     context_events: tuple[ContextEvent, ...] = ()
     capability_contracts: tuple[dict[str, Any], ...] = ()
     function_specs: tuple[dict[str, Any], ...] = ()
+    macro_specs: tuple[dict[str, Any], ...] = ()
+    state_write_provenance: tuple[dict[str, Any], ...] = ()
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -410,6 +436,10 @@ class PlannerState:
             "context_events": [item.to_payload() for item in self.context_events],
             "capability_contracts": [dict(item) for item in self.capability_contracts],
             "function_specs": [dict(item) for item in self.function_specs],
+            "macro_specs": [dict(item) for item in self.macro_specs],
+            "state_write_provenance": [
+                dict(item) for item in self.state_write_provenance
+            ],
         }
 
 
@@ -480,6 +510,8 @@ class _MutableState:
     context_events: list[ContextEvent] = field(default_factory=list)
     capability_contracts: list[dict[str, Any]] = field(default_factory=list)
     function_specs: list[dict[str, Any]] = field(default_factory=list)
+    macro_specs: list[dict[str, Any]] = field(default_factory=list)
+    state_write_provenance: list[dict[str, Any]] = field(default_factory=list)
 
     def freeze(self) -> PlannerStateContext:
         return PlannerStateContext(
@@ -503,6 +535,8 @@ class _MutableState:
                 context_events=tuple(self.context_events),
                 capability_contracts=tuple(self.capability_contracts),
                 function_specs=tuple(self.function_specs),
+                macro_specs=tuple(self.macro_specs),
+                state_write_provenance=tuple(self.state_write_provenance),
             ),
         )
 
@@ -607,6 +641,7 @@ class PlannerStateContextBuilder:
                 replay.effective_draft or normalized_draft
             ),
         )
+        cls._observe_state_write_provenance(state, replay.diagnostic)
         cls._observe_replay_layer_events(state, replay)
         cls._observe_retry_issues(state, replay.retry_state)
         state.retry_memory = _retry_memory_from_retry_state(
@@ -677,6 +712,9 @@ class PlannerStateContextBuilder:
             ),
             function_specs=list(
                 function_spec_payloads(inputs.family_spec, inputs.method_specs)
+            ),
+            macro_specs=list(
+                macro_spec_payloads(inputs.family_spec, inputs.method_specs)
             ),
         )
 
@@ -914,6 +952,19 @@ class PlannerStateContextBuilder:
                     ),
                 )
             )
+
+    @staticmethod
+    def _observe_state_write_provenance(
+        state: _MutableState,
+        diagnostic: Any | None,
+    ) -> None:
+        if diagnostic is None:
+            return
+        for item in getattr(diagnostic, "state_write_provenance", ()) or ():
+            if hasattr(item, "to_payload"):
+                payload = item.to_payload()
+                state.state_write_provenance.append(payload)
+                _apply_state_write_provenance(state, payload)
 
     @staticmethod
     def _observe_retry_issues(
@@ -1395,6 +1446,7 @@ def _ensure_produced_slot(
         produced_by=produced_by,
         valid_scope=item.valid_scope,
         status=status,
+        write_history=(existing.write_history if existing else ()),
     )
     state.state_slots[slot_id] = slot
     for alias in aliases:
@@ -1428,6 +1480,7 @@ def _merge_alias(
         valid_scope=slot.valid_scope,
         runtime_path=slot.runtime_path,
         status=slot.status,
+        write_history=slot.write_history,
     )
     state.alias_index.by_handle[alias] = slot_id
 
@@ -1462,6 +1515,84 @@ def _state_id_for_handle(
     )
     state.alias_index.by_handle[handle] = slot_id
     return slot_id
+
+
+def _apply_state_write_provenance(
+    state: _MutableState,
+    payload: dict[str, Any],
+) -> None:
+    """Reconcile Function/Macro identity writes into the semantic slot ledger."""
+    slot_id = payload.get("state_slot_id")
+    object_ref = payload.get("object_ref")
+    produced_handle = payload.get("produced_handle")
+    runtime_type = payload.get("runtime_type")
+    if not all(isinstance(item, str) and item for item in (slot_id, object_ref, produced_handle, runtime_type)):
+        return
+    old_slot_id = state.alias_index.by_handle.get(produced_handle)
+    old_slot = state.state_slots.get(old_slot_id) if old_slot_id is not None else None
+    current = state.state_slots.get(slot_id)
+    histories = [
+        *((old_slot.write_history if old_slot is not None else ())),
+        *((current.write_history if current is not None else ())),
+    ]
+    version = StateWriteVersion(
+        step_id=str(payload.get("step_id") or ""),
+        produced_handle=produced_handle,
+        capability_id=str(payload.get("capability_id") or ""),
+        write_mode=str(payload.get("write_mode") or "value"),
+        previous_write_step_id=(
+            str(payload["previous_write_step_id"])
+            if payload.get("previous_write_step_id") is not None
+            else None
+        ),
+    )
+    if version not in histories:
+        histories.append(version)
+    aliases = tuple(
+        _unique_ordered(
+            [
+                *((old_slot.aliases if old_slot is not None else ())),
+                *((current.aliases if current is not None else ())),
+                produced_handle,
+            ]
+        )
+    )
+    scope_id = str(payload.get("scope_id") or _scope_from_handle(produced_handle) or "problem")
+    slot = StateSlot(
+        slot_id=slot_id,
+        object_ref=object_ref,
+        state_kind=_state_kind_from_handle(produced_handle, runtime_type),
+        scope_id=scope_id,
+        runtime_type=runtime_type,
+        canonical_handle=produced_handle,
+        aliases=aliases,
+        produced_by=version.step_id,
+        valid_scope=(
+            old_slot.valid_scope
+            if old_slot is not None
+            else (current.valid_scope if current is not None else scope_id)
+        ),
+        runtime_path=(
+            old_slot.runtime_path
+            if old_slot is not None
+            else (current.runtime_path if current is not None else None)
+        ),
+        status="verified",
+        write_history=tuple(histories),
+    )
+    if old_slot_id is not None and old_slot_id != slot_id:
+        state.state_slots.pop(old_slot_id, None)
+    state.state_slots[slot_id] = slot
+    for alias in aliases:
+        state.alias_index.by_handle[alias] = slot_id
+    ref = _semantic_ref(produced_handle)
+    refs = [
+        item
+        for item in state.alias_index.by_semantic_ref.get(ref, ())
+        if item != old_slot_id
+    ]
+    refs.append(slot_id)
+    state.alias_index.by_semantic_ref[ref] = tuple(_unique_ordered(refs))
 
 
 def _produced_is_condition(
@@ -1538,28 +1669,14 @@ def _object_ref_for_handle(handle: str, runtime_type: str, scope_id: str) -> str
     if runtime_type == "ParameterValue":
         param_name = name.split("_", 1)[0] if "_" in name else name
         return f"symbol:{param_name}"
+    if runtime_type == "Symbol":
+        return handle if handle.startswith("symbol:") else f"symbol:{scope_id}:{name}"
     return f"fact:{name}@{scope_id}"
 
 
 def _state_kind_from_handle(handle: str, runtime_type: str) -> str:
-    if handle.startswith("answer:"):
-        return "answer"
-    name = _semantic_ref(handle).lower()
-    if runtime_type == "Point":
-        return "coordinate"
-    if runtime_type == "Parabola":
-        return "expression"
-    if runtime_type == "Coefficients":
-        return "coefficients"
-    if runtime_type == "ParameterValue":
-        return "value"
-    if runtime_type == "MinimumExpression":
-        return "minimum_expression"
-    if runtime_type == "Line":
-        return "line"
-    if "value" in name:
-        return "value"
-    return "expression"
+    """Project handle state through the canonical runtime-type semantics."""
+    return state_kind_for_runtime_type(runtime_type)
 
 
 def _best_rewrite_target(
@@ -1695,7 +1812,11 @@ def _semantic_read_catalog_from_context(
         handle = slot.canonical_handle
         if handle is None:
             continue
-        kind = "answer" if handle.startswith("answer:") else "fact"
+        kind = (
+            "answer"
+            if handle.startswith("answer:")
+            else ("symbol" if slot.runtime_type == "Symbol" else "fact")
+        )
         ref = handle.removeprefix("answer:") if kind == "answer" else _semantic_ref(handle)
         items.append(
             SemanticReadCatalogItem(
@@ -1786,5 +1907,6 @@ __all__ = [
     "StableStep",
     "StateRewriteEvent",
     "StateSlot",
+    "StateWriteVersion",
     "StepState",
 ]
