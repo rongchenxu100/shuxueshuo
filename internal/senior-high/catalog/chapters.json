@@ -1,0 +1,72 @@
+{
+  "version": 1,
+  "chapters": [
+    {
+      "id": "functions",
+      "label": "函数",
+      "symbol": "f(x)",
+      "order": 10,
+      "sections": []
+    },
+    {
+      "id": "sequences",
+      "label": "数列",
+      "symbol": "Σ",
+      "order": 20,
+      "sections": []
+    },
+    {
+      "id": "trigonometry",
+      "label": "三角函数",
+      "symbol": "sin",
+      "order": 30,
+      "sections": []
+    },
+    {
+      "id": "vectors",
+      "label": "平面向量",
+      "symbol": "→",
+      "order": 40,
+      "sections": []
+    },
+    {
+      "id": "solid-geometry",
+      "label": "立体几何",
+      "symbol": "◇",
+      "order": 50,
+      "sections": []
+    },
+    {
+      "id": "analytic-geometry",
+      "label": "解析几何",
+      "symbol": "◯",
+      "order": 60,
+      "sections": []
+    },
+    {
+      "id": "derivative",
+      "label": "导数",
+      "symbol": "d/dx",
+      "order": 70,
+      "sections": [
+        {
+          "id": "derivative-concepts-and-calculation",
+          "label": "基本概念和运算",
+          "order": 10
+        },
+        {
+          "id": "derivative-applications",
+          "label": "导数应用",
+          "order": 20
+        }
+      ]
+    },
+    {
+      "id": "probability-statistics",
+      "label": "概率统计",
+      "symbol": "P",
+      "order": 80,
+      "sections": []
+    }
+  ]
+}

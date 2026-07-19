@@ -417,9 +417,8 @@
           esc(step.title) +
           '">' +
           diagramMarkupFor(index, activeT, localVars) +
-          '</svg></div><div class="legend">' +
-          legendHtml +
-          "</div>" +
+          '</svg></div>' +
+          (step.hideLegend ? "" : '<div class="legend">' + legendHtml + "</div>") +
           animationButton +
           tools +
           localControls +
@@ -525,11 +524,11 @@
       });
     }
 
-    function updateStepDiagram(index, value) {
+    function updateStepDiagram(index, value, allowFixedState) {
       const step = STEPS[index];
       const sid = step[policyStepKey];
       const policy = POLICIES[sid];
-      if (!policy || !policy.movable) return;
+      if (!policy || (!policy.movable && !allowFixedState)) return;
       const nextT = clamp(Number(value), policy.range[0], policy.range[1]);
       const card = document.querySelector('.lesson-step-card[data-step-index="' + index + '"]');
       const svgEl = card ? card.querySelector("svg") : null;
@@ -1000,7 +999,7 @@
       const target = event.target.closest("[data-mini-t]");
       if (!target) return;
       const card = target.closest(".lesson-step-card");
-      updateStepDiagram(Number(card && card.dataset.stepIndex), target.dataset.miniT);
+      updateStepDiagram(Number(card && card.dataset.stepIndex), target.dataset.miniT, true);
     });
     stepCards.addEventListener("keydown", function (event) {
       if (event.key !== "Enter" && event.key !== " ") return;
@@ -1008,7 +1007,7 @@
       if (!target) return;
       event.preventDefault();
       const card = target.closest(".lesson-step-card");
-      updateStepDiagram(Number(card && card.dataset.stepIndex), target.dataset.miniT);
+      updateStepDiagram(Number(card && card.dataset.stepIndex), target.dataset.miniT, true);
     });
     if (problemToggle && problemCard) {
       problemToggle.addEventListener("click", function () {

@@ -1,0 +1,131 @@
+{
+  "$schema": "../../schemas/calculus-decorations.schema.json",
+  "_comment": "2022 全国甲卷文科第 20 题：公切线与导数求参数范围",
+  "layers": {
+    "curvesGrid": {
+      "elements": [
+        { "type": "grid", "panelId": "curves" }
+      ]
+    },
+    "parameterGrid": {
+      "stepStartsWith": ["q2"],
+      "elements": [
+        { "type": "grid", "panelId": "parameter" }
+      ]
+    },
+    "baseFunctions": {
+      "elements": [
+        { "type": "functionCurve", "functionId": "f", "color": "#2563eb" },
+        { "type": "functionCurve", "functionId": "g", "color": "#0f766e" },
+        { "type": "functionLabel", "functionId": "f", "xExpr": "1.42", "text": "y=f(x)=x³−x", "color": "#2563eb", "dx": -92, "dy": -10 },
+        { "type": "functionLabel", "functionId": "g", "xExpr": "-1.45", "text": "y=g(x)=x²+a", "color": "#0f766e", "dx": 8, "dy": -10 }
+      ]
+    },
+    "tangentFromF": {
+      "stepIds": ["q1s1"],
+      "elements": [
+        { "type": "tangentLine", "tangentId": "tangentF", "color": "#dc2626" },
+        { "type": "functionPoint", "pointId": "P", "label": "P(x₁,f(x₁))", "color": "#2563eb", "dx": 9, "dy": 18 }
+      ]
+    },
+    "tangentFromG": {
+      "stepIds": ["q1s2"],
+      "elements": [
+        { "type": "tangentLine", "tangentId": "tangentG", "color": "#7c3aed" },
+        { "type": "functionPoint", "pointId": "Q", "label": "Q(x₂,g(x₂))", "color": "#7c3aed", "dx": 9, "dy": -12 }
+      ]
+    },
+    "matchedTangentState": {
+      "stepIds": ["q1s3"],
+      "elements": [
+        { "type": "tangentLine", "tangentId": "tangentF", "color": "#dc2626" },
+        { "type": "tangentLine", "tangentId": "tangentG", "color": "#7c3aed", "dash": "7 5" },
+        { "type": "functionPoint", "pointId": "P", "label": "P(x₁,f(x₁))", "color": "#2563eb", "dx": 9, "dy": 18 },
+        { "type": "functionPoint", "pointId": "Q", "label": "Q(x₂,g(x₂))", "color": "#7c3aed", "dx": 9, "dy": -12 }
+      ]
+    },
+    "givenTangentState": {
+      "stepIds": ["q1s4"],
+      "elements": [
+        { "type": "tangentLine", "tangentId": "tangentF", "color": "#dc2626" },
+        { "type": "tangentLine", "tangentId": "tangentG", "color": "#7c3aed", "dash": "7 5" },
+        { "type": "functionPoint", "pointId": "P", "label": "P(−1,0)", "color": "#2563eb", "dx": 9, "dy": 18 },
+        { "type": "functionPoint", "pointId": "Q", "label": "Q(1,4)", "color": "#7c3aed", "dx": 9, "dy": -12 }
+      ]
+    },
+    "rangeTangentState": {
+      "stepIds": ["q2s1", "q2s2", "q2s3", "q2s4"],
+      "elements": [
+        { "type": "tangentLine", "tangentId": "tangentF", "color": "#dc2626" },
+        { "type": "tangentLine", "tangentId": "tangentG", "color": "#7c3aed", "dash": "7 5" },
+        { "type": "functionPoint", "pointId": "P", "label": "P", "color": "#2563eb" },
+        { "type": "functionPoint", "pointId": "Q", "label": "Q", "color": "#7c3aed" }
+      ]
+    },
+    "parameterFunction": {
+      "stepStartsWith": ["q2"],
+      "elements": [
+        { "type": "functionCurve", "functionId": "h", "color": "#7c3aed" }
+      ]
+    },
+    "parameterCurrentPoint": {
+      "stepIds": ["q2s1"],
+      "elements": [
+        { "type": "functionPoint", "pointId": "R", "label": "当前值", "color": "#0f766e" }
+      ]
+    }
+  },
+  "steps": {
+    "q1s1": {},
+    "q1s2": {},
+    "q1s3": {
+      "add": [
+        { "type": "guideLine", "panelId": "curves", "orientation": "vertical", "valueExpr": "x1", "color": "#2563eb" },
+        { "type": "guideLine", "panelId": "curves", "orientation": "vertical", "valueExpr": "x2", "color": "#7c3aed" }
+      ]
+    },
+    "q1s4": {},
+    "q2s1": {
+      "add": [
+        { "type": "functionLabel", "functionId": "h", "xExpr": "1.45", "text": "h(x₁)", "color": "#7c3aed" }
+      ]
+    },
+    "q2s2": {
+      "visiblePanels": ["parameter"],
+      "panelViewports": {
+        "parameter": { "x": 0.06, "y": 0.04, "width": 0.88, "height": 0.92 }
+      },
+      "add": [
+        { "type": "criticalPoint", "functionId": "h", "xExpr": "-1/3", "label": "x₁=−1/3", "color": "#7c3aed", "dx": -34, "dy": -12 },
+        { "type": "criticalPoint", "functionId": "h", "xExpr": "0", "label": "x₁=0", "color": "#f59e0b", "dx": 8, "dy": -10 },
+        { "type": "criticalPoint", "functionId": "h", "xExpr": "1", "label": "x₁=1", "color": "#059669", "dx": 8, "dy": 18 },
+        { "type": "functionPoint", "pointId": "R", "showLabel": false, "r": 8, "color": "#0f766e" }
+      ]
+    },
+    "q2s3": {
+      "visiblePanels": ["parameter"],
+      "panelViewports": {
+        "parameter": { "x": 0.06, "y": 0.04, "width": 0.88, "height": 0.92 }
+      },
+      "add": [
+        { "type": "signBand", "functionId": "h", "roots": ["-1/3", "0", "1"] },
+        { "type": "criticalPoint", "functionId": "h", "xExpr": "-1/3", "label": "-1/3", "color": "#7c3aed", "dx": -12, "dy": -12 },
+        { "type": "criticalPoint", "functionId": "h", "xExpr": "0", "label": "0", "color": "#f59e0b", "dx": 8, "dy": -10 },
+        { "type": "criticalPoint", "functionId": "h", "xExpr": "1", "label": "1", "color": "#059669", "dx": 8, "dy": 18 }
+      ]
+    },
+    "q2s4": {
+      "visiblePanels": ["parameter"],
+      "panelViewports": {
+        "parameter": { "x": 0.06, "y": 0.04, "width": 0.88, "height": 0.92 }
+      },
+      "add": [
+        { "type": "rangeBand", "panelId": "parameter", "minExpr": "-1" },
+        { "type": "guideLine", "panelId": "parameter", "orientation": "horizontal", "valueExpr": "-1", "color": "#059669" },
+        { "type": "criticalPoint", "functionId": "h", "xExpr": "-1/3", "label": "h(−1/3)=5/27", "color": "#7c3aed", "dx": -104, "dy": -18 },
+        { "type": "criticalPoint", "functionId": "h", "xExpr": "0", "label": "h(0)=1/4", "color": "#f59e0b", "dx": 12, "dy": -18 },
+        { "type": "criticalPoint", "functionId": "h", "xExpr": "1", "label": "h(1)=−1", "color": "#059669", "dx": 8, "dy": 18 }
+      ]
+    }
+  }
+}

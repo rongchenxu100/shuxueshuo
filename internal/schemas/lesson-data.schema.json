@@ -14,6 +14,8 @@
         "pageTitle":       { "type": "string" },
         "pageDescription": { "type": "string" },
         "breadcrumbTitle": { "type": "string" },
+        "breadcrumbLabel": { "type": "string", "description": "题页顶部返回题库入口的文字，默认题库导航" },
+        "breadcrumbPath":  { "type": "string", "description": "相对仓库根目录的题库页面路径，默认 site/nav/index.html" },
         "classification": {
           "type": "object",
           "description": "知识库分类：pattern 是主题型标签，methods 是本题使用的解题方法 ID 列表",
@@ -129,6 +131,7 @@
           "t":       { "type": "number" },
           "derive":  { "type": "array" },
           "box":     { "type": "array", "items": { "type": "string" } },
+          "hideLegend": { "type": "boolean" },
           "localControls": {
             "type": "object",
             "properties": {

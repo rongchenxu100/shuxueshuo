@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-labelledby="title desc">
+  <title id="title">导数与公切线题目图像</title>
+  <desc id="desc">三次函数、抛物线和它们的公切线示意图</desc>
+  <rect width="640" height="400" fill="#f7faf9"/>
+  <g stroke="#dbe4e5" stroke-width="1">
+    <path d="M56 64H606M56 124H606M56 184H606M56 244H606M56 304H606M116 40V344M216 40V344M316 40V344M416 40V344M516 40V344"/>
+  </g>
+  <g stroke="#87989c" stroke-width="1.5">
+    <path d="M56 244H606"/>
+    <path d="M316 40V344"/>
+  </g>
+  <path d="M70 332C144 126 224 218 316 244C402 269 480 287 594 64" fill="none" stroke="#2563eb" stroke-width="5" stroke-linecap="round"/>
+  <path d="M70 76C180 173 274 212 360 220C449 228 516 184 594 92" fill="none" stroke="#0f766e" stroke-width="5" stroke-linecap="round"/>
+  <path d="M70 307L594 79" fill="none" stroke="#e05263" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="202" cy="250" r="8" fill="#fff" stroke="#2563eb" stroke-width="4"/>
+  <circle cx="508" cy="116" r="8" fill="#fff" stroke="#0f766e" stroke-width="4"/>
+  <g font-family="PingFang SC, Microsoft YaHei, sans-serif" font-size="18" font-weight="700">
+    <text x="384" y="300" fill="#2563eb">y=f(x)=x³−x</text>
+    <text x="88" y="92" fill="#0f766e">y=g(x)=x²+a</text>
+    <text x="388" y="160" fill="#c63f52">公切线</text>
+    <text x="183" y="239" fill="#2563eb">P</text>
+    <text x="520" y="111" fill="#0f766e">Q</text>
+  </g>
+</svg>
