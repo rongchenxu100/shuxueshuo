@@ -5,6 +5,8 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field
 from typing import Any
 
+from .presentation import StudentScopeReference, StudentStepPlacement
+
 
 @dataclass(frozen=True)
 class TeachingTraceEntry:
@@ -44,6 +46,8 @@ class ExplanationSnapshot:
     effective_steps: tuple[dict[str, Any], ...]
     teaching_trace: tuple[TeachingTraceEntry, ...]
     fact_index: dict[str, dict[str, Any]]
+    student_step_placements: tuple[StudentStepPlacement, ...] = ()
+    student_scope_references: tuple[StudentScopeReference, ...] = ()
     planner_insights: tuple[dict[str, Any], ...] = ()
     answers: dict[str, Any] = field(default_factory=dict)
     checks: tuple[dict[str, Any], ...] = ()
@@ -56,6 +60,12 @@ class ExplanationSnapshot:
             "effective_steps": list(self.effective_steps),
             "teaching_trace": [entry.to_payload() for entry in self.teaching_trace],
             "fact_index": self.fact_index,
+            "student_step_placements": [
+                item.to_payload() for item in self.student_step_placements
+            ],
+            "student_scope_references": [
+                item.to_payload() for item in self.student_scope_references
+            ],
             "planner_insights": list(self.planner_insights),
             "answers": self.answers,
             "checks": list(self.checks),
@@ -79,6 +89,8 @@ class LessonCandidateGroup:
     teaching_focus: str | None = None
     preferred_method_ids: tuple[str, ...] = ()
     forbid_merge_with_sibling_substeps: bool = True
+    presentation_scope_id: str | None = None
+    required_reference_lines: tuple[str, ...] = ()
 
     @property
     def step_id(self) -> str:
@@ -92,7 +104,7 @@ class LessonCandidateGroup:
 
     @property
     def scope_id(self) -> str:
-        return str(self.step["scope_id"])
+        return self.presentation_scope_id or str(self.step["scope_id"])
 
     @property
     def capability_id(self) -> str:

@@ -48,6 +48,10 @@ SPEC = MethodSpecSource(
     method_cls=ParameterFromMinimumValueMethod,
     title='由最小值反求参数',
     summary='输入: 最小值表达式与给定最小值条件；输出: 参数值。',
+    do_not_use_when=(
+        "输入表达式不具有最小值语义，或题面给出的只是普通表达式取值条件。",
+        "尚未得到可代入的最小值表达式。",
+    ),
     solves=('derive_parameter_from_minimum_value',),
     inputs={
     "minimum_expression": {

@@ -91,19 +91,19 @@ SPEC = MethodSpecSource(
     inputs={
     "anchor": {
         "type": "Point",
-        "role": "right_angle_vertex",
+        "role": "anchor",
         "required": True,
         "description": "直角顶点，例如南开题中的 D。"
     },
     "reference": {
         "type": "Point",
-        "role": "known_leg_endpoint",
+        "role": "reference",
         "required": True,
         "description": "已知直角边的另一个端点，例如南开题中的 M。"
     },
     "target": {
         "type": "PointRef",
-        "role": "unknown_leg_endpoint",
+        "role": "target",
         "required": True,
         "description": "待求坐标的点引用，例如南开题中的 N。"
     }

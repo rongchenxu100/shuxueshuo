@@ -55,6 +55,12 @@ class AngleSumEqualAngleCandidatesMethod:
         equality = {
             "left_angle": f"{origin_name}{x_axis_name}{target_name}",
             "right_angle": reference,
+            "left_angle_points": [
+                origin_name,
+                x_axis_name,
+                target_name,
+            ],
+            "right_angle_points": list(reference),
             "shared_angle": shared,
             "reference_angle": f"{shared[0]}{shared[1]}{origin_name}",
             "source": condition.get("description") or condition.get("source") or "angle_sum",

@@ -24,6 +24,10 @@ from shuxueshuo_server.solver.runtime.llm_clients import (
     LLMClientConfigurationError,
     LLMPlannerClient,
 )
+from shuxueshuo_server.solver.runtime.functional_few_shots import (
+    FunctionalFewShotSelectionMode,
+    resolve_functional_few_shot_selection_mode,
+)
 
 if TYPE_CHECKING:
     from shuxueshuo_server.solver.runtime.orchestrator import PlannerProvider
@@ -62,6 +66,7 @@ class SolverRuntimeConfig:
     max_llm_attempts: int = 3
     llm_debug_dir: str | None = None
     allow_same_problem_few_shot: bool = True
+    functional_few_shot_mode: FunctionalFewShotSelectionMode | None = None
 
     def __post_init__(self) -> None:
         """校验直接构造配置时的基础约束。"""
@@ -69,6 +74,18 @@ class SolverRuntimeConfig:
             raise SolverRuntimeConfigError(
                 "max_llm_attempts must be a positive integer"
             )
+        try:
+            resolved_few_shot_mode = resolve_functional_few_shot_selection_mode(
+                self.functional_few_shot_mode,
+                allow_same_problem=self.allow_same_problem_few_shot,
+            )
+        except ValueError as exc:
+            raise SolverRuntimeConfigError(str(exc)) from exc
+        object.__setattr__(
+            self,
+            "functional_few_shot_mode",
+            resolved_few_shot_mode,
+        )
 
     @classmethod
     def from_sources(
@@ -80,6 +97,7 @@ class SolverRuntimeConfig:
         max_llm_attempts: str | int | None = None,
         llm_debug_dir: str | None = None,
         allow_same_problem_few_shot: bool | str | None = None,
+        functional_few_shot_mode: str | None = None,
         env_file: Path | str | None = None,
     ) -> "SolverRuntimeConfig":
         """从 ``server/.env``、环境变量和 CLI 覆盖值构造配置。
@@ -110,6 +128,29 @@ class SolverRuntimeConfig:
             allowed={"recorded", "deepseek", "doubao"},
             name="llm-provider",
         )
+        resolved_allow_same_problem = _resolve_bool(
+            cli_value=allow_same_problem_few_shot,
+            env_value=values.get("SOLVER_ALLOW_SAME_PROBLEM_FEW_SHOT"),
+            default=True,
+            name="allow-same-problem-few-shot",
+        )
+        raw_functional_mode = _clean(
+            cli_value_or_env(
+                functional_few_shot_mode,
+                values.get("SOLVER_FUNCTIONAL_FEW_SHOT_MODE"),
+            )
+        )
+        resolved_functional_mode = (
+            _resolve_choice(
+                cli_value=raw_functional_mode,
+                env_value=None,
+                default="new_problem",
+                allowed={"strict_test", "new_problem"},
+                name="functional-few-shot-mode",
+            )
+            if raw_functional_mode is not None
+            else None
+        )
         return cls(
             planner_mode=resolved_mode,  # type: ignore[arg-type]
             llm_provider=resolved_provider,  # type: ignore[arg-type]
@@ -132,12 +173,8 @@ class SolverRuntimeConfig:
             llm_debug_dir=_clean(
                 cli_value_or_env(llm_debug_dir, values.get("SOLVER_LLM_DEBUG_DIR"))
             ),
-            allow_same_problem_few_shot=_resolve_bool(
-                cli_value=allow_same_problem_few_shot,
-                env_value=values.get("SOLVER_ALLOW_SAME_PROBLEM_FEW_SHOT"),
-                default=True,
-                name="allow-same-problem-few-shot",
-            ),
+            allow_same_problem_few_shot=resolved_allow_same_problem,
+            functional_few_shot_mode=resolved_functional_mode,  # type: ignore[arg-type]
         )
 
     def build_planner_providers(self) -> dict[str, "PlannerProvider"]:
@@ -162,6 +199,7 @@ class SolverRuntimeConfig:
             return strategy_planner_provider(
                 mode="recorded",
                 allow_same_problem_few_shot=self.allow_same_problem_few_shot,
+                functional_few_shot_mode=self.functional_few_shot_mode,
             )
         if self.llm_provider == "deepseek":
             from shuxueshuo_server.solver.runtime.strategy_runtime_planner import (
@@ -172,6 +210,7 @@ class SolverRuntimeConfig:
                 mode="deepseek",
                 client=self.build_llm_client(),
                 allow_same_problem_few_shot=self.allow_same_problem_few_shot,
+                functional_few_shot_mode=self.functional_few_shot_mode,
             )
         raise SolverRuntimeConfigError(
             f"--planner strategy does not support --llm-provider {self.llm_provider!r}"
@@ -316,6 +355,7 @@ __all__ = [
     "DEFAULT_DOUBAO_MODEL",
     "LLMClientConfigurationError",
     "LLMProviderName",
+    "FunctionalFewShotSelectionMode",
     "PlannerMode",
     "SolverRuntimeConfig",
     "SolverRuntimeConfigError",

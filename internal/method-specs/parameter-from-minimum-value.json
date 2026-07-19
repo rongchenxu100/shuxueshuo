@@ -27,5 +27,9 @@
   "outputs": {
     "parameter_value": "ParameterValue"
   },
-  "is_pure": true
+  "is_pure": true,
+  "do_not_use_when": [
+    "输入表达式不具有最小值语义，或题面给出的只是普通表达式取值条件。",
+    "尚未得到可代入的最小值表达式。"
+  ]
 }

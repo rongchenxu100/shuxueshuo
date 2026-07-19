@@ -1,0 +1,101 @@
+{
+  "format": "functional_plan/v1",
+  "scopes": [
+    {
+      "scope_id": "example",
+      "label": "机制示例",
+      "calls": [
+        {
+          "call_id": "derive_parametric_curve",
+          "capability_id": "quadratic_from_constraints",
+          "args": {
+            "known_coefficients": {
+              "ref": "known_coefficient",
+              "kind": "fact"
+            },
+            "curve_point": {
+              "ref": "anchor_point",
+              "kind": "point"
+            },
+            "free_parameters": {
+              "ref": "parameter",
+              "kind": "symbol"
+            }
+          },
+          "return_bindings": {},
+          "strategy": "代入已知系数和曲线点得到单参数函数。",
+          "reason": "候选点将在同一含参曲线上筛选。"
+        },
+        {
+          "call_id": "derive_reference_point",
+          "capability_id": "quadratic_y_axis_intercept_point",
+          "args": {
+            "quadratic": {
+              "from_call": "derive_parametric_curve",
+              "return": "parabola"
+            }
+          },
+          "return_bindings": {
+            "point": {
+              "ref": "reference_point",
+              "kind": "point"
+            }
+          },
+          "strategy": "由函数求一个几何参考点。",
+          "reason": "几何构造需要参考点坐标。"
+        },
+        {
+          "call_id": "derive_point_candidates",
+          "capability_id": "right_angle_equal_length_candidates",
+          "args": {
+            "right_angle_equal_length": {
+              "ref": "construction_relation",
+              "kind": "fact"
+            },
+            "target": {
+              "ref": "target_point",
+              "kind": "point"
+            }
+          },
+          "return_bindings": {},
+          "strategy": "由直角等长关系生成目标点候选集合。",
+          "reason": "先生成候选集合，再使用曲线条件筛选。"
+        },
+        {
+          "call_id": "select_curve_candidate",
+          "capability_id": "curve_candidate_parameter_solve",
+          "args": {
+            "candidates": {
+              "from_call": "derive_point_candidates",
+              "return": "candidates"
+            },
+            "parabola": {
+              "from_call": "derive_parametric_curve",
+              "return": "parabola"
+            },
+            "target_point": {
+              "ref": "target_point",
+              "kind": "point"
+            },
+            "point_on_curve": {
+              "ref": "curve_membership",
+              "kind": "fact"
+            },
+            "symbol_constraint": {
+              "ref": "parameter_constraint",
+              "kind": "fact"
+            }
+          },
+          "return_bindings": {
+            "selected_curve_point": {
+              "ref": "point_answer",
+              "kind": "answer"
+            }
+          },
+          "strategy": "用曲线条件和参数范围筛选候选点。",
+          "reason": "将唯一满足全部条件的候选绑定答案。"
+        }
+      ]
+    }
+  ]
+}

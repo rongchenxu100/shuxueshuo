@@ -340,7 +340,21 @@
         "valid_scope": "ii",
         "description": "DE=sqrt(2)*NG",
         "left": "DE",
-        "right": "sqrt(2)*NG"
+        "right": "sqrt(2)*NG",
+        "left_term": {
+          "scale": "1",
+          "segment": [
+            "point:problem:D",
+            "point:ii:E"
+          ]
+        },
+        "right_term": {
+          "scale": "sqrt(2)",
+          "segment": [
+            "point:ii:N",
+            "point:ii:G"
+          ]
+        }
       },
       {
         "handle": "fact:ii:F_midpoint_of_DN",
@@ -360,7 +374,17 @@
         "scope_id": "ii",
         "valid_scope": "ii",
         "description": "EG+FG 路径最值目标",
-        "path": "EG+FG"
+        "path": "EG+FG",
+        "terms": [
+          [
+            "point:ii:E",
+            "point:ii:G"
+          ],
+          [
+            "point:ii:F",
+            "point:ii:G"
+          ]
+        ]
       },
       {
         "handle": "fact:ii_1:MN_length_squared_eq_10",

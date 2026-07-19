@@ -76,31 +76,31 @@ SPEC = MethodSpecSource(
     inputs={
     "candidates": {
         "type": "PointList",
-        "role": "candidate_points",
+        "role": "candidates",
         "required": True,
         "description": "上一步得到的候选点列表。"
     },
     "target": {
         "type": "PointRef",
-        "role": "target_point",
+        "role": "target",
         "required": True,
         "description": "待筛选的目标点引用。"
     },
     "quadrant": {
         "type": "OrientationHint",
-        "role": "region_condition",
+        "role": "orientation",
         "required": True,
         "description": "目标点所在象限，例如第四象限。"
     },
     "parameter": {
         "type": "Symbol",
-        "role": "dynamic_parameter",
+        "role": "parameter",
         "required": True,
         "description": "候选点中出现的动态参数，例如 m。"
     },
     "parameter_constraint": {
         "type": "Constraint",
-        "role": "parameter_domain",
+        "role": "parameter_constraint",
         "required": True,
         "description": "参数范围约束，例如 m > 2。"
     }

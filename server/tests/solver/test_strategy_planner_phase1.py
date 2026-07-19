@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 
+from shuxueshuo_server.solver.contracts import MethodInputSpec
 from shuxueshuo_server.solver.runtime import recipe_compiler as recipe_compiler_module
 from shuxueshuo_server.solver.runtime import strategy_payload as strategy_payload_module
 from shuxueshuo_server.solver.family import (
@@ -92,12 +93,18 @@ from shuxueshuo_server.solver.runtime.recipe_compiler import (
     PrepInvocationBuilder,
     _RecipePlanCompiler,
     _candidate_error_for_exception,
+    _execution_blocker_code,
+    _execution_blocker_details,
     _method_outputs_for_step,
     _minimum_expression_target_path,
     _promote_outputs_for_step,
     _target_path_for_produced,
 )
-from shuxueshuo_server.solver.runtime.binding_rules import _parameter_value_handle, _point_output_handle
+from shuxueshuo_server.solver.runtime.binding_rules import (
+    _parameter_value_handle,
+    _point_output_handle,
+    _straightening_minimum_point_selector,
+)
 from shuxueshuo_server.solver.runtime.strategy_resolver import (
     _available_direction_point_repair_capabilities,
     _reads_curve_point,
@@ -105,7 +112,10 @@ from shuxueshuo_server.solver.runtime.strategy_resolver import (
     build_executable_capabilities,
 )
 from shuxueshuo_server.solver.runtime.strategy_normalizer import NormalizationRuleResult
-from shuxueshuo_server.solver.runtime.strategy_models import StepIntentScope
+from shuxueshuo_server.solver.runtime.strategy_models import (
+    StateWriteProvenance,
+    StepIntentScope,
+)
 from shuxueshuo_server.solver.runtime.strategy_models import ExecutableCapabilitySpec
 from shuxueshuo_server.solver.runtime.handle_registry import (
     _handle_name as _canonical_handle_name,
@@ -1283,8 +1293,8 @@ def test_parameter_value_binding_skips_structural_symbol_value_fact() -> None:
     assert inputs["parameter_value"] == "$question.ii.outputs.m"
 
 
-def test_parameter_value_binding_uses_unique_visible_parameter_value_when_not_read() -> None:
-    """若当前 scope 已有唯一参数值，LLM 未显式 reads 时也可传给支持代入的 method。"""
+def test_parameter_value_binding_does_not_scan_unread_visible_state() -> None:
+    """Expansion 遵守 read-closed；上层 reconciler 负责确定性补充 reads。"""
     problem = _heping_ermo_problem()
     index = CanonicalRuntimeBindingIndex.from_context(
         ContextBuilder().build(problem),
@@ -1320,8 +1330,7 @@ def test_parameter_value_binding_uses_unique_visible_parameter_value_when_not_re
 
     inputs = rules.bind("square_adjacent_vertex_from_side", step, index)
 
-    assert inputs["parameter"] == "$problem.symbols.c"
-    assert inputs["parameter_value"] == "$question.ii.outputs.c"
+    assert inputs == {}
 
 
 def test_line_locus_minimum_point_uses_visible_straightening_endpoints_when_not_read() -> None:
@@ -1355,6 +1364,38 @@ def test_line_locus_minimum_point_uses_visible_straightening_endpoints_when_not_
 
     assert output is not None
     assert diagnostic.ok is True
+
+
+def test_straightening_endpoint_selector_deduplicates_state_object_aliases() -> None:
+    problem = _heping_ermo_problem()
+    index = CanonicalRuntimeBindingIndex.from_context(
+        ContextBuilder().build(problem),
+        handle_registry=CanonicalHandleRegistry.from_problem_payload(
+            _heping_ermo_llm_problem()
+        ),
+        question_goals=extract_question_goals(problem),
+    )
+    state_handle = "fact:ii:sample_path_minimum_point_1"
+    object_handle = "point:ii:sample_path_minimum_point_1"
+    runtime_path = "$question.ii.outputs.sample_path_minimum_point_1"
+    index.register(state_handle, runtime_path, "Point", source="test")
+    index.register(object_handle, runtime_path, "Point", source="test")
+    step = _step(
+        scope_id="ii",
+        step_id="consume_straightening_endpoint",
+        recipe_hint="line_locus_minimum_point",
+        goal_type="derive_line_locus_minimum_point",
+        target="point:ii:E",
+        reads=(state_handle, object_handle),
+    )
+
+    selected = _straightening_minimum_point_selector("p1")(
+        step,
+        index,
+        {},
+    )
+
+    assert selected == runtime_path
 
 
 def test_line_locus_minimum_point_accepts_prior_computed_point_as_target() -> None:
@@ -1712,8 +1753,8 @@ def test_strategy_prompt_renderer_contains_core_sections() -> None:
     assert "不创建辅助点或新轨迹" in prompt.user
     assert "path_minimum_by_straightened_distance" not in prompt.system
     assert "不要把多个 recipe 的职责混在同一个 step" in prompt.user
-    assert "普通路径最值按 recipe 独立拆分" in prompt.user
-    assert "单独求最小值表达式" in prompt.user
+    assert "普通路径最值按阶段独立推导" in prompt.user
+    assert "根据拉直后的端点距离求最小值表达式" in prompt.user
     assert "先定值，再代入" in prompt.user
     assert "不能定值但能降复杂度时先化简" in prompt.user
     assert "parabola_coefficients_expr" in prompt.user
@@ -6719,6 +6760,84 @@ def test_quadratic_binding_prefers_explicit_coordinate_fact_over_same_name_point
     assert inputs["curve_point"] == "$question.ii.points.A"
 
 
+def test_quadratic_constraint_analyzer_materializes_point_refs_as_points() -> None:
+    problem = load_problem_ir(HEPING_ERMO_FIXTURE)
+    index = CanonicalRuntimeBindingIndex.from_context(
+        ContextBuilder().build(problem),
+        handle_registry=CanonicalHandleRegistry.from_problem_payload(
+            problem_to_llm_payload(problem)
+        ),
+        question_goals=extract_question_goals(problem),
+    )
+    rules = MethodBindingRuleRegistry.from_family_spec(
+        QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY
+    )
+    step = _step(
+        scope_id="ii",
+        step_id="derive_parabola_from_symbolic_points",
+        recipe_hint="quadratic_from_constraints",
+        goal_type="derive_parabola",
+        target="fact:ii:parabola_expression",
+        reads=(
+            "function:problem:parabola",
+            "fact:ii:A_coordinate_value",
+            "point:problem:C",
+        ),
+        produces=(
+            ProducedFact(
+                "fact:ii:parabola_expression",
+                "ii",
+                "第（Ⅱ）问含参数 c 的抛物线",
+                output_type="Parabola",
+            ),
+        ),
+    )
+
+    inputs = rules.bind("quadratic_from_constraints", step, index)
+
+    assert inputs["p1"] == "$problem.points.C"
+    assert inputs["p2"] == "$question.ii.points.A"
+
+
+def test_quadratic_binding_restores_explicit_free_coefficient_from_reads() -> None:
+    """Functional Symbol refs preserve the requested quadratic parameter basis."""
+    index = CanonicalRuntimeBindingIndex.from_context(
+        _runtime_context(),
+        handle_registry=_registry(),
+        question_goals=_question_goals(),
+    )
+    rules = MethodBindingRuleRegistry.from_family_spec(
+        _nankai_inputs().family_spec
+    )
+    step = _step(
+        scope_id="ii",
+        step_id="derive_parameterized_parabola",
+        recipe_hint="quadratic_from_constraints",
+        goal_type="derive_parabola",
+        target="fact:ii:parameterized_parabola",
+        reads=(
+            "function:problem:parabola",
+            "fact:problem:coefficient_relation",
+            "fact:ii:M_coordinate_expr",
+            "point:ii:M",
+            "symbol:problem:a",
+            "symbol:problem:m",
+        ),
+        produces=(
+            ProducedFact(
+                "fact:ii:parameterized_parabola",
+                "ii",
+                "保留显式自由系数的抛物线",
+                output_type="Parabola",
+            ),
+        ),
+    )
+
+    inputs = rules.bind("quadratic_from_constraints", step, index)
+
+    assert inputs["free_parameter"] == "$problem.symbols.a"
+
+
 def test_promote_outputs_prefers_answer_target_over_reusable_fact_alias() -> None:
     """同一 Parabola output 同时服务答案和 fact alias 时，应优先写入答案目标。"""
     problem = load_problem_ir(HEPING_FIXTURE)
@@ -7448,6 +7567,55 @@ def test_method_outputs_for_step_rejects_unknown_declared_output() -> None:
             index,
             rules,
         )
+
+
+def test_method_outputs_for_step_selects_union_input_output_variant() -> None:
+    """无显式 produces 时，dry-run 只请求 union 输入对应的输出变体。"""
+    index = CanonicalRuntimeBindingIndex.from_context(
+        _runtime_context(),
+        handle_registry=_registry(),
+        question_goals=_question_goals(),
+    )
+    expression_path = "$question.ii.outputs.minimum_expression"
+    index.register(
+        "fact:ii:minimum_expression",
+        expression_path,
+        "MinimumExpression",
+        source="test",
+    )
+    rules = MethodBindingRuleRegistry.from_family_spec(_nankai_inputs().family_spec)
+    step = _step(
+        scope_id="ii",
+        step_id="evaluate_minimum_expression",
+        recipe_hint="evaluate_expression_at_parameter",
+        goal_type="evaluate_expression_at_parameter",
+        target="verify minimum expression",
+    )
+
+    outputs = _method_outputs_for_step(
+        "evaluate_expression_at_parameter",
+        step,
+        {
+            "evaluated_expression": "Expression",
+            "evaluated_minimum_expression": "MinimumExpression",
+        },
+        index,
+        rules,
+        input_bindings={"expression": expression_path},
+        input_specs={
+            "expression": MethodInputSpec(
+                "expression",
+                "Expression|MinimumExpression",
+            )
+        },
+    )
+
+    assert outputs == {
+        "evaluated_minimum_expression": (
+            "$step.evaluate_minimum_expression.temp."
+            "evaluated_minimum_expression"
+        )
+    }
 
 
 def test_method_binding_registry_covers_family_selectors() -> None:
@@ -8522,6 +8690,70 @@ def test_straightening_endpoint_insight_requires_exact_minimum_point_names() -> 
     assert all(insight.output_type != "StraighteningMinimum" for insight in insights)
 
 
+def test_straightening_endpoint_reads_use_provenance_role_for_call_scoped_handles() -> None:
+    """Functional call handles keep their call id; endpoint roles come from provenance."""
+    problem = _nankai_problem()
+    registry = _registry()
+    index = CanonicalRuntimeBindingIndex.from_context(
+        ContextBuilder().build(problem),
+        handle_registry=registry,
+        question_goals=_nankai_inputs().question_goals,
+    )
+    point_1 = "fact:ii_1:straighten_path_path_minimum_point_1"
+    point_2 = "fact:ii_1:straighten_path_path_minimum_point_2"
+    index.register(
+        point_1,
+        "$subquestion.ii_1.outputs.straighten_path_path_minimum_point_1",
+        "Point",
+        source="step:straighten_path",
+    )
+    index.register(
+        point_2,
+        "$subquestion.ii_1.outputs.straighten_path_path_minimum_point_2",
+        "Point",
+        source="step:straighten_path",
+    )
+    index.state_write_provenance.extend(
+        (
+            StateWriteProvenance(
+                step_id="straighten_path",
+                scope_id="ii_1",
+                capability_id="broken_path_straightening_and_select",
+                produced_handle=point_1,
+                output_key="minimum_point_1",
+                runtime_type="Point",
+                identity_policy="derived_role",
+                identity_role="path_minimum_point_1",
+            ),
+            StateWriteProvenance(
+                step_id="straighten_path",
+                scope_id="ii_1",
+                capability_id="broken_path_straightening_and_select",
+                produced_handle=point_2,
+                output_key="minimum_point_2",
+                runtime_type="Point",
+                identity_policy="derived_role",
+                identity_role="path_minimum_point_2",
+            ),
+        )
+    )
+    step = _step(
+        scope_id="ii_1",
+        step_id="compute_minimum",
+        recipe_hint="path_minimum_by_straightened_distance",
+        goal_type="derive_minimum_value",
+        target="answer:ii_1.min_value",
+        reads=(point_1, point_2, "point:problem:D", "point:ii:M"),
+    )
+
+    endpoints = recipe_compiler_module._straightening_endpoint_handles_from_reads(
+        step,
+        index,
+    )
+
+    assert endpoints == (point_1, point_2)
+
+
 def test_broken_path_minimum_reuses_prior_point_state_when_reads_omit_fixed_points() -> None:
     """LLM 只读降维路径和轨迹时，应复用前序点坐标状态，不重新 prepare 覆盖。"""
     problem = _heping_ermo_problem()
@@ -8590,6 +8822,48 @@ def test_parameter_value_handle_accepts_bound_parameter_values_fact() -> None:
     assert _parameter_value_handle(step, index) == "fact:ii:parameter_values"
 
 
+def test_point_transition_fact_uses_writable_state_path_for_locked_object() -> None:
+    """Point transition 保留对象身份，但不覆盖题面锁定坐标。"""
+    index = CanonicalRuntimeBindingIndex.from_context(
+        ContextBuilder().build(_heping_ermo_problem()),
+        handle_registry=CanonicalHandleRegistry.from_problem_payload(
+            _heping_ermo_llm_problem()
+        ),
+        question_goals=extract_question_goals(_heping_ermo_problem()),
+    )
+    produced = ProducedFact(
+        "fact:ii:A_evaluated_point",
+        "ii",
+        "A after parameter substitution",
+        output_type="Point",
+    )
+    step = _step(
+        scope_id="ii",
+        step_id="evaluate_A_coordinate",
+        recipe_hint="evaluate_point_at_parameter",
+        goal_type="evaluate_point_at_parameter",
+        target="point:ii:A",
+        reads=("fact:ii:A_coordinate_value", "point:ii:A"),
+        produces=(produced,),
+    )
+
+    target = _target_path_for_produced(
+        produced,
+        "Point",
+        index,
+        step,
+        point_transition=True,
+    )
+    index.context.ensure_step_scope("evaluate_A_coordinate", "ii")
+
+    assert target == "$question.ii.outputs.A_evaluated_point"
+    assert index.context.can_write_path(
+        target,
+        from_scope_id="evaluate_A_coordinate",
+        allow_ancestor_write=True,
+    )
+
+
 def test_final_point_recovery_blocker_uses_specific_repair_instruction() -> None:
     """误用 evaluate_point_at_parameter 直接收尾时，应提示先求 moving point 再恢复答案点。"""
     registry = CanonicalHandleRegistry.from_problem_payload(_heping_ermo_llm_problem())
@@ -8639,6 +8913,20 @@ def test_final_point_recovery_blocker_uses_specific_repair_instruction() -> None
     assert "极值状态 moving point" in instruction
     assert "状态转移到最终目标点" in instruction
     assert "line_locus_minimum_point" not in instruction
+
+
+def test_curve_condition_missing_point_state_has_typed_blocker_details() -> None:
+    errors = [
+        "point_candidates_from_curve_point_condition: "
+        "curve_condition_target_point_not_found: point=E, step=derive_candidates"
+    ]
+
+    assert _execution_blocker_code(errors) == "function.arg_state_unavailable"
+    assert _execution_blocker_details(errors) == {
+        "error_code": "function.arg_state_unavailable",
+        "arg": "target_point",
+        "unresolved_point_ref": "E",
+    }
 
 
 def test_recipe_trial_keeps_accepted_prefix_when_later_candidate_resolution_fails() -> None:

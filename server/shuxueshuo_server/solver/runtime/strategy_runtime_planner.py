@@ -15,6 +15,10 @@ from typing import Any, Literal
 from shuxueshuo_server.solver.problem_models import ProblemIR
 from shuxueshuo_server.solver.runtime._paths import repo_root
 from shuxueshuo_server.solver.runtime.context import RuntimeContext
+from shuxueshuo_server.solver.runtime.functional_plan import PlannerOutputFormat
+from shuxueshuo_server.solver.runtime.functional_few_shots import (
+    FunctionalFewShotSelectionMode,
+)
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
 from shuxueshuo_server.solver.runtime.llm_clients import LLMPlannerClient
 from shuxueshuo_server.solver.runtime.models import PlannerOutput
@@ -72,6 +76,7 @@ class StrategyPlannerArtifacts:
     execution_diagnostic: StepIntentExecutionDiagnostic | None = None
     retry_replay_result: PlannerRetryReplayResult | None = None
     output: PlannerOutput | None = None
+    candidate_format: PlannerOutputFormat = "step_intent"
 
 
 class StrategyPlanner:
@@ -92,6 +97,7 @@ class StrategyPlanner:
         payload_builder: StrategyPayloadBuilder | None = None,
         prompt_renderer: StrategyPromptRenderer | None = None,
         recorded_fixture_dir: Path | str | None = None,
+        output_format: PlannerOutputFormat = "step_intent",
     ) -> None:
         self.context = context
         self.mode = mode
@@ -100,6 +106,7 @@ class StrategyPlanner:
         self.payload_builder = payload_builder or StrategyPayloadBuilder()
         self.prompt_renderer = prompt_renderer or StrategyPromptRenderer()
         self.recorded_fixture_dir = Path(recorded_fixture_dir) if recorded_fixture_dir else _default_recorded_fixture_dir()
+        self.output_format = output_format
         self.artifacts = StrategyPlannerArtifacts()
 
     @property
@@ -161,11 +168,27 @@ class StrategyPlanner:
         """生成 PlannerOutput，但不执行 method、不收集答案。"""
         problem_payload = self.projection.to_llm_problem_payload()
         handle_registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+        replay_result: PlannerRetryReplayResult | None = None
         if self.mode == "recorded":
+            if self.output_format != "step_intent":
+                raise StrategyDraftValidationError(
+                    "recorded mode only supports step_intent; FunctionalPlan is "
+                    "a separate strict opt-in LLM protocol"
+                )
             draft = self._recorded_draft(inputs, handle_registry)
             raw_response = json.dumps(draft.to_payload(), ensure_ascii=False)
             payload: dict[str, Any] | None = None
             prompt: StrategyPrompt | None = None
+        elif self.mode == "deepseek" and self.output_format == "functional_plan":
+            payload, prompt, raw_response, replay_result = (
+                self._deepseek_functional_replay(
+                    inputs,
+                    problem_payload=problem_payload,
+                    handle_registry=handle_registry,
+                )
+            )
+            draft = replay_result.raw_draft
+            validation_report = replay_result.functional_validation_report
         elif self.mode == "deepseek":
             payload, prompt, raw_response, draft, validation_report = self._deepseek_draft(
                 inputs,
@@ -185,17 +208,24 @@ class StrategyPlanner:
             planner_inputs=inputs,
             draft=draft,
             validation_report=validation_report,
+            retry_replay_result=replay_result,
+            candidate_format=self.output_format,
         )
-        replay_result = PlannerRetryReplayService().replay_draft(
-            draft,
-            inputs=inputs,
-            handle_registry=handle_registry,
-            context=self.context,
-            attempt=0,
-            errors=(),
-            validation_report=validation_report,
-            problem_payload=problem_payload,
-        )
+        if replay_result is None:
+            if draft is None:
+                raise StrategyDraftValidationError(
+                    "strategy planner did not produce a candidate draft"
+                )
+            replay_result = PlannerRetryReplayService().replay_draft(
+                draft,
+                inputs=inputs,
+                handle_registry=handle_registry,
+                context=self.context,
+                attempt=0,
+                errors=(),
+                validation_report=validation_report,
+                problem_payload=problem_payload,
+            )
         output = replay_result.output
         goal_issue = _goal_verification_issue(replay_result)
         if goal_issue is not None:
@@ -265,9 +295,20 @@ class StrategyPlanner:
         errors: list[str],
     ) -> dict[str, Any] | None:
         """生成下一轮 previous_attempts 可携带的 repair context。"""
+        replay = self.artifacts.retry_replay_result
+        if (
+            replay is not None
+            and replay.retry_state is not None
+            and replay.retry_state.candidate_format == "functional_plan"
+        ):
+            return self._with_functional_few_shot_selection(
+                repair_attempt_payload_from_replay(replay)
+            )
         if _goal_verification_issue(self.artifacts.retry_replay_result) is not None:
-            return repair_attempt_payload_from_replay(
-                self.artifacts.retry_replay_result
+            return self._with_functional_few_shot_selection(
+                repair_attempt_payload_from_replay(
+                    self.artifacts.retry_replay_result
+                )
             )
         effective = self.last_effective_draft
         diagnostic = self.last_execution_diagnostic
@@ -312,7 +353,26 @@ class StrategyPlanner:
             diagnostic=diagnostic,
             output=self.artifacts.output,
         )
-        return repair_attempt_payload_from_replay(replay_result)
+        return self._with_functional_few_shot_selection(
+            repair_attempt_payload_from_replay(replay_result)
+        )
+
+    def _with_functional_few_shot_selection(
+        self,
+        payload: dict[str, Any] | None,
+    ) -> dict[str, Any] | None:
+        """Carry the internal selection across retries without prompting it."""
+        if payload is None or self.output_format != "functional_plan":
+            return payload
+        planner_payload = self.artifacts.payload
+        selection = (
+            planner_payload.get("functional_few_shot_selection")
+            if isinstance(planner_payload, dict)
+            else None
+        )
+        if isinstance(selection, dict):
+            payload["functional_few_shot_selection"] = dict(selection)
+        return payload
 
     def _recorded_draft(
         self,
@@ -388,6 +448,63 @@ class StrategyPlanner:
             )
         return payload, prompt, raw_response, draft, validation_report
 
+    def _deepseek_functional_replay(
+        self,
+        inputs: PlannerInputs,
+        *,
+        problem_payload: dict[str, Any],
+        handle_registry: CanonicalHandleRegistry,
+    ) -> tuple[
+        dict[str, Any],
+        StrategyPrompt,
+        str,
+        PlannerRetryReplayResult,
+    ]:
+        """Call the strict FunctionalPlan protocol and replay its projection."""
+        if self.client is None:
+            raise StrategyDraftValidationError("deepseek strategy planner requires client")
+        planner_state_context = initial_planner_state_context(
+            inputs,
+            problem_payload=problem_payload,
+            handle_registry=handle_registry,
+        )
+        payload = self.payload_builder.build(
+            inputs,
+            problem_payload=problem_payload,
+            planner_state_context=planner_state_context,
+            output_format="functional_plan",
+        )
+        prompt = self.prompt_renderer.render(payload)
+        raw_response = self.client.complete(
+            {
+                "messages": prompt.messages,
+                "family_id": inputs.family_spec.family_id,
+                "problem_id": inputs.problem_id,
+                "planner_output_format": "functional_plan",
+                "planner_payload": payload,
+            }
+        )
+        # Capture the complete LLM boundary before deterministic replay. A
+        # projection invariant may fail before replay can return a report, but
+        # the prompt, payload, and raw FunctionalPlan must still be debuggable.
+        self.artifacts = StrategyPlannerArtifacts(
+            payload=payload,
+            prompt=prompt,
+            raw_response=raw_response,
+            planner_inputs=inputs,
+            candidate_format="functional_plan",
+        )
+        replay = PlannerRetryReplayService().replay_functional_raw_json(
+            raw_response,
+            inputs=inputs,
+            handle_registry=handle_registry,
+            context=self.context,
+            attempt=len(inputs.previous_errors),
+            errors=(),
+            problem_payload=problem_payload,
+        )
+        return payload, prompt, raw_response, replay
+
     def _capture(
         self,
         *,
@@ -395,12 +512,12 @@ class StrategyPlanner:
         prompt: StrategyPrompt | None,
         raw_response: str,
         planner_inputs: PlannerInputs,
-        draft: StepIntentDraft,
+        draft: StepIntentDraft | None,
         validation_report: object | None,
         effective_draft: StepIntentDraft | None,
-        normalized_draft: StepIntentDraft,
-        normalization_report: object,
-        resolution_report: object,
+        normalized_draft: StepIntentDraft | None,
+        normalization_report: object | None,
+        resolution_report: object | None,
         execution_diagnostic: StepIntentExecutionDiagnostic | None,
         retry_replay_result: PlannerRetryReplayResult | None,
         output: PlannerOutput | None,
@@ -420,6 +537,7 @@ class StrategyPlanner:
             execution_diagnostic=execution_diagnostic,
             retry_replay_result=retry_replay_result,
             output=output,
+            candidate_format=self.output_format,
         )
 
 
@@ -429,13 +547,16 @@ def strategy_planner_provider(
     client: LLMPlannerClient | None = None,
     recorded_fixture_dir: Path | str | None = None,
     allow_same_problem_few_shot: bool = True,
+    functional_few_shot_mode: FunctionalFewShotSelectionMode | None = None,
+    output_format: PlannerOutputFormat = "step_intent",
 ) -> "Callable[[RuntimeContext], StrategyPlanner]":
     """构造 Orchestrator 可用的单一 Strategy provider。"""
     from collections.abc import Callable
 
     def provider(context: RuntimeContext) -> StrategyPlanner:
         payload_builder = StrategyPayloadBuilder(
-            allow_same_problem_few_shot=allow_same_problem_few_shot
+            allow_same_problem_few_shot=allow_same_problem_few_shot,
+            functional_few_shot_mode=functional_few_shot_mode,
         )
         return StrategyPlanner(
             context,
@@ -443,6 +564,7 @@ def strategy_planner_provider(
             client=client,
             payload_builder=payload_builder,
             recorded_fixture_dir=recorded_fixture_dir,
+            output_format=output_format,
         )
 
     return provider
@@ -470,6 +592,16 @@ def _planner_failure_message(
     retry_state = replay_result.retry_state
     if retry_state is not None:
         for issue in retry_state.issues:
+            if issue.layer in {
+                "functional_validation",
+                "functional_elaboration",
+                "functional_reconciliation",
+            }:
+                location = f" call={issue.step_id}" if issue.step_id else ""
+                return (
+                    "strategy_functional_plan_failed: "
+                    f"{issue.code}{location}: {issue.message}"
+                )
             if issue.layer == "candidate_resolution":
                 location = f" step={issue.step_id}" if issue.step_id else ""
                 return (

@@ -1,0 +1,52 @@
+{
+  "format": "functional_plan/v1",
+  "scopes": [
+    {
+      "scope_id": "example",
+      "label": "机制示例",
+      "calls": [
+        {
+          "call_id": "derive_curve",
+          "capability_id": "quadratic_from_constraints",
+          "args": {
+            "known_coefficients": [
+              {
+                "ref": "coefficient_a",
+                "kind": "fact"
+              },
+              {
+                "ref": "coefficient_b",
+                "kind": "fact"
+              },
+              {
+                "ref": "coefficient_c",
+                "kind": "fact"
+              }
+            ]
+          },
+          "return_bindings": {},
+          "strategy": "代入已知系数确定二次函数。",
+          "reason": "顶点坐标依赖已确定的函数状态。"
+        },
+        {
+          "call_id": "derive_vertex",
+          "capability_id": "quadratic_vertex_point",
+          "args": {
+            "parabola": {
+              "from_call": "derive_curve",
+              "return": "parabola"
+            }
+          },
+          "return_bindings": {
+            "point": {
+              "ref": "vertex_answer",
+              "kind": "answer"
+            }
+          },
+          "strategy": "由函数解析式求顶点坐标。",
+          "reason": "该返回值绑定目标点答案。"
+        }
+      ]
+    }
+  ]
+}

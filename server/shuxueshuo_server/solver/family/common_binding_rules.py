@@ -20,6 +20,7 @@ def quadratic_from_constraints_rule() -> MethodBindingRuleSpec:
         ),
         expansion_selectors=(
             "known_coefficients_if_read",
+            "free_quadratic_parameter_if_read",
             "curve_point_if_read",
             "parameter_value_if_read",
         ),
@@ -145,18 +146,36 @@ def parameter_from_curve_point_on_quadratic_rule() -> MethodBindingRuleSpec:
             MethodInputBindingSpec("quadratic", "read_type:Parabola"),
             MethodInputBindingSpec("x", "symbol:x"),
             MethodInputBindingSpec("point", "read_type:Point"),
-            MethodInputBindingSpec("parameter", "parameter_symbol"),
-            MethodInputBindingSpec("parameter_constraint", "parameter_constraint", required=False),
+            MethodInputBindingSpec("parameter", "parameter_symbol_from_reads"),
+            MethodInputBindingSpec("quadratic_template", "quadratic_template"),
+            MethodInputBindingSpec(
+                "parameter_constraint",
+                "parameter_constraint",
+                required=False,
+            ),
+            MethodInputBindingSpec(
+                "known_parameter",
+                "known_parameter_symbol_from_reads",
+                required=False,
+            ),
+            MethodInputBindingSpec(
+                "known_parameter_value",
+                "known_parameter_value_from_reads",
+                required=False,
+            ),
         ),
     )
 
 
 def evaluate_expression_at_parameter_rule() -> MethodBindingRuleSpec:
-    """Bind an expression/minimum expression and a resolved parameter value."""
+    """Bind a substitutable symbolic state and a resolved parameter value."""
     return MethodBindingRuleSpec(
         method_id="evaluate_expression_at_parameter",
         input_bindings=(
-            MethodInputBindingSpec("expression", "read_type:Expression|MinimumExpression"),
+            MethodInputBindingSpec(
+                "expression",
+                "read_type:Expression|MinimumExpression|Parabola",
+            ),
             MethodInputBindingSpec("parameter", "parameter_symbol"),
         ),
         expansion_selectors=("parameter_value_if_read",),

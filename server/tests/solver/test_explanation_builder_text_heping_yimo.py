@@ -25,7 +25,13 @@ from shuxueshuo_server.solver.explanation.few_shots import (
     validate_lesson_few_shot_entry,
 )
 from shuxueshuo_server.solver.explanation.llm import build_lesson_planner_payload
-from shuxueshuo_server.solver.explanation.models import LessonCandidateGroup, LessonStep, TeachingTraceEntry
+from shuxueshuo_server.solver.explanation.models import (
+    ExplanationSnapshot,
+    LessonCandidateGroup,
+    LessonStep,
+    TeachingTraceEntry,
+)
+from shuxueshuo_server.solver.explanation.presentation import StudentScopeReference
 from shuxueshuo_server.solver.explanation.role_binders import RoleBinderRegistry, RoleBindingError
 from shuxueshuo_server.solver.explanation.role_binders import methods as method_role_binder_methods
 from shuxueshuo_server.solver.explanation.role_binders import recipes as recipe_role_binder_recipes
@@ -87,6 +93,69 @@ def _lesson_group(
         },
         (),
     )
+
+
+def test_required_cross_scope_reference_is_restored_when_llm_omits_it() -> None:
+    source_step = {
+        "step_id": "derive_D",
+        "scope_id": "problem",
+        "recipe_hint": "quadratic_axis_from_relation",
+        "produces": [{"handle": "answer:i.axis_point"}],
+    }
+    snapshot = ExplanationSnapshot(
+        problem_id="synthetic",
+        family_id="SyntheticFamily",
+        problem={
+            "scopes": [
+                {"scope_id": "problem", "label": "整题", "parent": None},
+                {"scope_id": "i", "label": "第（Ⅰ）问", "parent": "problem"},
+                {"scope_id": "ii", "label": "第（Ⅱ）问", "parent": "problem"},
+            ],
+            "question_goals": [
+                {
+                    "handle": "answer:i.axis_point",
+                    "scope_id": "i",
+                    "value_type": "Point",
+                    "target_handle": "point:problem:D",
+                }
+            ],
+        },
+        effective_steps=(source_step,),
+        teaching_trace=(),
+        fact_index={},
+    )
+    reference = StudentScopeReference(
+        source_step_id="derive_D",
+        target_step_id="consume_D",
+        source_scope_id="i",
+        target_scope_id="ii",
+        semantic_roles=("axis_point",),
+    )
+    line = explanation_builder._student_reference_line(reference, snapshot)
+    group = LessonCandidateGroup(
+        step={
+            "step_id": "consume_D",
+            "scope_id": "problem",
+            "recipe_hint": "distance_between_points",
+        },
+        traces=(),
+        presentation_scope_id="ii",
+        required_reference_lines=(line,),
+    )
+
+    lesson_step = explanation_builder._lesson_step_from_source_groups(
+        (group,),
+        {
+            "title": "继续计算",
+            "goal": "使用前面得到的状态。",
+            "derive": [("所以", "完成当前计算")],
+            "box": [],
+        },
+    )
+
+    assert line == "由第（Ⅰ）问已得点 D，继续计算。"
+    assert lesson_step.scope_id == "ii"
+    assert lesson_step.derive[0] == ("由", "第（Ⅰ）问已得点 D，继续计算")
 
 
 def test_explanation_scope_roots_keep_later_roman_questions_distinct() -> None:

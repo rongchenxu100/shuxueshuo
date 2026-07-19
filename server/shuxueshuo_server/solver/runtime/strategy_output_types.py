@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import replace
-from typing import Any
+from typing import Any, Mapping
 
 from shuxueshuo_server.solver.family.models import SolverFamilySpec
 from shuxueshuo_server.solver.runtime.capability_contracts import (
@@ -33,6 +33,7 @@ def canonicalize_produced_output_types(
     family_spec: SolverFamilySpec,
     method_specs: MethodSpecRegistry,
     handle_registry: CanonicalHandleRegistry,
+    authoritative_types_by_handle: Mapping[str, str] | None = None,
 ) -> tuple[StepIntentDraft, tuple[StepIntentNormalizationAction, ...]]:
     """Fill/overwrite produces.output_type when code can infer it uniquely.
 
@@ -52,12 +53,18 @@ def canonicalize_produced_output_types(
         for step in scope.steps:
             produces: list[ProducedFact] = []
             for produced in step.produces:
-                inferred = _authoritative_output_type(
-                    produced,
-                    recipe_hint=step.recipe_hint,
-                    capabilities_by_id=capabilities,
-                    handle_registry=handle_registry,
+                inferred = (
+                    authoritative_types_by_handle.get(produced.handle)
+                    if authoritative_types_by_handle is not None
+                    else None
                 )
+                if inferred is None:
+                    inferred = _authoritative_output_type(
+                        produced,
+                        recipe_hint=step.recipe_hint,
+                        capabilities_by_id=capabilities,
+                        handle_registry=handle_registry,
+                    )
                 if (
                     inferred is None
                     or produced.output_type == inferred

@@ -590,6 +590,9 @@ def _trial_issues(
             hints.append(
                 f"可用候选 `{guidance.capability_id}` 已通过当前 contract applicability 预检。"
             )
+        details = dict(blocker.details or {})
+        if guidance is not None:
+            details["method_guidance"] = guidance.to_payload()
         issues.append(PlannerRetryIssue(
             layer="trial_execution",
             code=blocker.code,
@@ -603,11 +606,7 @@ def _trial_issues(
                 if blocker.missing_runtime_type is not None
                 else ()
             ),
-            details=(
-                {"method_guidance": guidance.to_payload()}
-                if guidance is not None
-                else None
-            ),
+            details=details or None,
         ))
     if issues:
         return issues

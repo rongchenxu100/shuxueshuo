@@ -1,0 +1,55 @@
+{
+  "example_id": "quadratic_constraints_vertex",
+  "source_problem_id": "synthetic-quadratic-core-reference",
+  "pack_ids": [
+    "quadratic_core"
+  ],
+  "capability_ids": [
+    "quadratic_from_constraints",
+    "quadratic_vertex_point"
+  ],
+  "answer_value_types": [
+    "Point"
+  ],
+  "source_call_ids": [
+    "derive_curve",
+    "derive_vertex"
+  ],
+  "selection_role": "fallback",
+  "conditions": [
+    {
+      "ref": "coefficient_a",
+      "kind": "fact",
+      "description": "一个已知二次函数系数"
+    },
+    {
+      "ref": "coefficient_b",
+      "kind": "fact",
+      "description": "另一个已知二次函数系数"
+    },
+    {
+      "ref": "coefficient_c",
+      "kind": "fact",
+      "description": "剩余已知二次函数系数"
+    },
+    {
+      "ref": "vertex_answer",
+      "kind": "answer",
+      "description": "需要返回的顶点坐标"
+    }
+  ],
+  "neutralization_map": {
+    "call_ids": {
+      "derive_curve": "derive_curve",
+      "derive_vertex": "derive_vertex"
+    },
+    "semantic_refs": {
+      "coefficient_a": "coefficient_a",
+      "coefficient_b": "coefficient_b",
+      "coefficient_c": "coefficient_c",
+      "vertex_answer": "vertex_answer"
+    },
+    "text_replacements": {}
+  },
+  "neutralized": true
+}

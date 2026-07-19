@@ -246,6 +246,7 @@ def build_lesson_planner_payload(
             "不要只按大问/小问整体分组；较长小问通常需要拆成多个讲解步骤。",
             "若 merge_suggestions 给出 candidate_group_ids，可以按建议合并这些简单连续步骤；仍必须保留所有 source_step_ids/capability_ids 的事实边界。",
             "若 candidate_group 提供 teaching_expansion_draft，优先使用该草稿，不要根据 method_id 自己猜证明。",
+            "若 candidate_group 提供 required_references，它们是代码确认的跨问复用关系；可润色但不要重新计算这些结论。",
             "可以把一个 executable recipe 拆成多个 LessonIR steps，但 source_step_ids 必须仍来自 candidate_groups。",
             "teaching_expansion_draft 中 explanation_only_label=true 的辅助点只用于讲解，不是新的 StepIntent creates。",
             "示例讲解只用于学习标题、derive 标签、步骤粒度和讲解风格；不要复制示例题的点名、数值、答案或 source_step_ids。",
@@ -597,6 +598,8 @@ def _group_payload(group: LessonCandidateGroup, snapshot: ExplanationSnapshot) -
         "trace_refs": list(group.trace_refs),
         "trace_summaries": _trace_summaries(group, snapshot),
     }
+    if group.required_reference_lines:
+        payload["required_references"] = list(group.required_reference_lines)
     payload.update(explanation_payload_for_group(group, snapshot))
     return payload
 

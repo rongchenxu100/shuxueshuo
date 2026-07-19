@@ -1,5 +1,8 @@
 # 函数式 Method/Recipe 编排架构设计
 
+新增或修改 Capability 时，请以 `docs/capability-authoring-guide.md` 的创建规范和
+PR Checklist 为准；本文主要解释架构背景和演进方向。
+
 ## Summary
 
 当前 Method Solver 已经具备一部分函数式基础：method 基本是无状态计算单元，`InvocationExecutor` 是统一副作用边界，`RuntimeContext` 负责保存事实、临时值和 promote 结果。
@@ -354,7 +357,6 @@ FunctionalPlan(
             capability_id="quadratic_from_constraints",
             args={...},
             returns={...},
-            goal_type="derive_parabola",
         ),
     ),
 )
@@ -714,7 +716,7 @@ Function/macro signature 比 method_id 列表更长。
 | LLM 的 args 使用什么格式？ | Prompt catalog 中的 semantic ref：`ref + kind + value_type? + from_step?` | 降低 scope/namespace 格式错误；准确率需要 Phase 1 回归统计验证 |
 | FunctionalPlan 替代还是扩展 StepIntent？ | 先作为 StepIntent 的可选字段（兼容层） | 允许新旧格式并存，渐进迁移 |
 | FunctionSpec 从 MethodSpec 派生还是手写？ | 自动派生 + 手写语义 input name 映射 | 减少漂移风险 |
-| goal_type 是否保留？ | 保留在 call 上 | Explanation/Visual 层需要 |
+| goal_type 是否保留？ | 不进入 LLM call；由 capability 唯一派生 | Explanation/Visual 仍可从执行 trace 读取派生后的 goal type，避免 LLM 重复 capability metadata |
 | recipe_hint 长期是否改名？ | 可改为 `capability_call`，但非优先事项 | Phase 1 使用 semantic_reads 不需要改名 |
 | 为什么不用 hint 语义做 binding？ | 不可行 | 关键词匹配无法泛化，本质是二次 NLP |
 

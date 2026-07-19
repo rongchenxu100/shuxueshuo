@@ -340,7 +340,21 @@
         "valid_scope": "b",
         "description": "TP=sqrt(2)*VR",
         "left": "TP",
-        "right": "sqrt(2)*VR"
+        "right": "sqrt(2)*VR",
+        "left_term": {
+          "scale": "1",
+          "segment": [
+            "point:problem:T",
+            "point:b:P"
+          ]
+        },
+        "right_term": {
+          "scale": "sqrt(2)",
+          "segment": [
+            "point:b:V",
+            "point:b:R"
+          ]
+        }
       },
       {
         "handle": "fact:b:path_minimum_target",
@@ -348,7 +362,17 @@
         "scope_id": "b",
         "valid_scope": "b",
         "description": "PR+WR 路径最值目标",
-        "path": "PR+WR"
+        "path": "PR+WR",
+        "terms": [
+          [
+            "point:b:P",
+            "point:b:R"
+          ],
+          [
+            "point:b:W",
+            "point:b:R"
+          ]
+        ]
       },
       {
         "handle": "fact:b_1:UV_length_squared_eq_10",

@@ -1,0 +1,84 @@
+{
+  "example_id": "weighted_path_transform",
+  "source_problem_id": "tj-2026-hexi-yimo-25",
+  "family_id": "QuadraticWeightedPathMinimumSolver",
+  "pack_ids": [
+    "weighted_path_transform_core",
+    "parameter_solving_core"
+  ],
+  "capability_ids": [
+    "weighted_axis_path_triangle_transform",
+    "linked_broken_path_minimum_expression",
+    "parameter_from_expression_value"
+  ],
+  "answer_value_types": [
+    "ParameterValue"
+  ],
+  "source_call_ids": [
+    "transform_weighted_path_iii",
+    "derive_weighted_minimum_iii",
+    "solve_parameter_iii"
+  ],
+  "conditions": [
+    {
+      "ref": "minimum_condition",
+      "kind": "fact",
+      "description": "包含加权路径和给定最小值的条件"
+    },
+    {
+      "ref": "fixed_point",
+      "kind": "point",
+      "description": "路径中的固定点"
+    },
+    {
+      "ref": "moving_point",
+      "kind": "point",
+      "description": "轴或射线上的动点"
+    },
+    {
+      "ref": "curve_point",
+      "kind": "point",
+      "description": "曲线上的参数化点"
+    },
+    {
+      "ref": "dynamic_constraint",
+      "kind": "fact",
+      "description": "动点参数的范围条件"
+    },
+    {
+      "ref": "parameter",
+      "kind": "symbol",
+      "description": "最终需要求出的主参数"
+    },
+    {
+      "ref": "parameter_answer",
+      "kind": "answer",
+      "description": "主参数的答案目标"
+    }
+  ],
+  "neutralization_map": {
+    "call_ids": {
+      "transform_weighted_path_iii": "transform_weighted_path",
+      "derive_weighted_minimum_iii": "derive_minimum_expression",
+      "solve_parameter_iii": "solve_parameter"
+    },
+    "semantic_refs": {
+      "path_minimum_value_given": "minimum_condition",
+      "A": "fixed_point",
+      "N": "moving_point",
+      "M": "curve_point",
+      "n_gt_0": "dynamic_constraint",
+      "b": "parameter",
+      "iii_b": "parameter_answer"
+    },
+    "text_replacements": {
+      "用辅助直角三角形把加权路径转为普通折线路径。": "用辅助直角三角形把加权路径转为普通折线。",
+      "几何转化先产生等价路径和辅助点轨迹。": "先产生等价路径和辅助点轨迹。",
+      "拉直转化后的联动折线，得到关于主参数的最小值表达式。": "拉直联动折线得到关于主参数的最小值表达式。",
+      "题设给定最小值只能在表达式建立后用于反求参数。": "最小值条件在表达式建立后用于反求参数。",
+      "令最小值表达式等于题设值并按参数范围取解。": "令最小值表达式等于给定值并按范围取解。",
+      "该参数值是本问唯一必答结果。": "将求得的参数值绑定答案目标。"
+    }
+  },
+  "neutralized": true
+}

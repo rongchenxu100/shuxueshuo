@@ -41,9 +41,10 @@ class RecipeOutputAliasSpec:
     identity_arg: str | None = None
     write_mode: StateWriteMode = "value"
     goal_evidence_tags: tuple[GoalEvidenceTag, ...] = ()
+    description: str = ""
 
     def to_payload(self) -> dict[str, object]:
-        return {
+        payload: dict[str, object] = {
             "output_key": self.output_key,
             "runtime_type": self.runtime_type,
             "semantic_role": self.semantic_role,
@@ -55,6 +56,9 @@ class RecipeOutputAliasSpec:
             "write_mode": self.write_mode,
             "goal_evidence_tags": list(self.goal_evidence_tags),
         }
+        if self.description:
+            payload["description"] = self.description
+        return payload
 
 
 def recipe_output_alias(
@@ -68,6 +72,7 @@ def recipe_output_alias(
     identity_arg: str | None = None,
     write_mode: StateWriteMode | None = None,
     goal_evidence_tags: tuple[GoalEvidenceTag, ...] = (),
+    description: str = "",
 ) -> RecipeOutputAliasSpec:
     """Build a structured recipe return without duplicating state-kind rules."""
     return RecipeOutputAliasSpec(
@@ -85,6 +90,7 @@ def recipe_output_alias(
             else ("create" if runtime_type in {"Point", "PointList"} else "value")
         ),
         goal_evidence_tags=goal_evidence_tags,
+        description=description,
     )
 
 @dataclass(frozen=True)
@@ -189,12 +195,24 @@ class StepRecipeSpec:
     # 首版只支持 preferred / None。preferred 用来告诉 LLM：这类题优先选择这个
     # 标准路径，尤其用于路径最值，避免模型默认走参数化求导。
     priority: str | None = None
+    do_not_use_when: tuple[str, ...] = ()
 
 
 CapabilityExecutionStatus = Literal["executable", "catalog_only", "internal"]
 CapabilityContractSource = Literal["explicit", "projected"]
 CapabilityScopePolicy = Literal["current", "current_or_visible", "problem", "same_as_target"]
 CapabilityCardinality = Literal["one", "optional", "many"]
+CapabilityDependencyPolicy = Literal["explicit_args", "context_closure"]
+CapabilityContextResolver = Literal[
+    "condition_object_roles",
+    "path_reduction_roles",
+]
+CONDITION_OBJECT_ROLES_RESOLVER: CapabilityContextResolver = (
+    "condition_object_roles"
+)
+PATH_REDUCTION_ROLES_RESOLVER: CapabilityContextResolver = (
+    "path_reduction_roles"
+)
 
 
 @dataclass(frozen=True)
@@ -209,10 +227,14 @@ class StateSlotPattern:
     runtime_type: str
     object_kind: str | None = None
     object_ref: str | None = None
+    semantic_role: str | None = None
+    output_key: str | None = None
     scope_policy: CapabilityScopePolicy = "current_or_visible"
     cardinality: CapabilityCardinality = "one"
     required: bool = True
     write_mode: StateWriteMode = "value"
+    description: str = ""
+    provides_semantic_roles: tuple[str, ...] = ()
 
     def to_payload(self) -> dict[str, object]:
         payload: dict[str, object] = {
@@ -227,6 +249,16 @@ class StateSlotPattern:
             payload["object_kind"] = self.object_kind
         if self.object_ref is not None:
             payload["object_ref"] = self.object_ref
+        if self.semantic_role is not None:
+            payload["semantic_role"] = self.semantic_role
+        if self.output_key is not None:
+            payload["output_key"] = self.output_key
+        if self.description:
+            payload["description"] = self.description
+        if self.provides_semantic_roles:
+            payload["provides_semantic_roles"] = list(
+                self.provides_semantic_roles
+            )
         return payload
 
 
@@ -239,15 +271,19 @@ class ConditionPattern:
     scope_policy: CapabilityScopePolicy = "current_or_visible"
     cardinality: CapabilityCardinality = "one"
     required: bool = True
+    description: str = ""
 
     def to_payload(self) -> dict[str, object]:
-        return {
+        payload: dict[str, object] = {
             "condition_kind": self.condition_kind,
             "runtime_type": self.runtime_type,
             "scope_policy": self.scope_policy,
             "cardinality": self.cardinality,
             "required": self.required,
         }
+        if self.description:
+            payload["description"] = self.description
+        return payload
 
 
 @dataclass(frozen=True)
@@ -270,6 +306,8 @@ class CapabilityContractSpec:
     notes: tuple[str, ...] = ()
     complete: bool | None = None
     constraint_analyzer: str | None = None
+    dependency_policy: CapabilityDependencyPolicy = "explicit_args"
+    context_resolvers: tuple[CapabilityContextResolver, ...] = ()
 
     @property
     def is_complete(self) -> bool:
@@ -292,6 +330,8 @@ class CapabilityContractSpec:
             "notes": list(self.notes),
             "complete": self.is_complete,
             "constraint_analyzer": self.constraint_analyzer,
+            "dependency_policy": self.dependency_policy,
+            "context_resolvers": list(self.context_resolvers),
         }
 
 

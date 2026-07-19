@@ -6,7 +6,10 @@ from dataclasses import dataclass, field, replace
 import re
 from typing import Protocol
 
-from shuxueshuo_server.solver.family.models import SolverFamilySpec
+from shuxueshuo_server.solver.family.models import (
+    CapabilityContextResolver,
+    SolverFamilySpec,
+)
 from shuxueshuo_server.solver.question_goals import QuestionGoal
 from shuxueshuo_server.solver.runtime.handle_registry import (
     _semantic_name,
@@ -68,6 +71,10 @@ class NormalizationRuleContext:
     question_goal_map: dict[str, QuestionGoal]
     recipe_output_types: dict[str, tuple[str, ...]]
     recipe_required_creates: dict[str, tuple[str, ...]] = field(default_factory=dict)
+    context_resolvers_by_capability: dict[
+        str,
+        tuple[CapabilityContextResolver, ...],
+    ] = field(default_factory=dict)
     handle_rewrites: dict[str, str] = field(default_factory=dict)
     previous_steps: list[StepIntent] = field(default_factory=list)
     published_outputs: list["_PublishedOutput"] = field(default_factory=list)

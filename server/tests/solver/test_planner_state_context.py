@@ -70,10 +70,28 @@ def test_planner_state_context_initial_snapshot_is_json_serializable() -> None:
     assert payload["state"]["alias_index"]["by_handle"]["point:problem:D"].startswith(
         "point:D@problem"
     )
+    m_coordinate_slots = [
+        item
+        for item in ctx.state.state_slots
+        if item.object_ref == "point:ii:M" and item.runtime_type == "Point"
+    ]
+    assert any(
+        item.free_symbol_refs == ("symbol:problem:m",)
+        for item in m_coordinate_slots
+    )
     assert any(
         item["kind"] == "coefficient_relation"
         for item in payload["state"]["conditions"]
     )
+    right_angle = next(
+        item
+        for item in payload["state"]["conditions"]
+        if item["kind"] == "right_angle_equal_length"
+    )
+    assert right_angle["object_roles"] == {
+        "anchor": ["point:problem:D"],
+        "endpoint": ["point:ii:M", "point:ii:N"],
+    }
     contract_ids = {
         item["capability_id"]
         for item in payload["state"]["capability_contracts"]
@@ -701,3 +719,68 @@ def test_context_retry_projection_keeps_replay_layer_issue() -> None:
     assert retry_state.issues[0].code == "error"
     assert retry_state.issues[0].message == "synthetic replay failure"
     assert retry_state.selected_repair_layer == "replay"
+
+
+def test_functional_context_projection_keeps_all_graph_issues_outside_stable_calls() -> None:
+    """A runtime-accepted StepIntent prefix cannot recover invalid Functional calls."""
+    context = PlannerStateContext(
+        manifest=ContextManifest(
+            context_id="ctx_functional_graph_issues",
+            context_type="planner",
+            schema_version="planner-state-context/v1",
+            parent_context_id=None,
+            dependency_context_ids=(),
+            problem_id="problem",
+            family_id="family",
+            family_spec_hash="family-hash",
+            capability_pack_hash="pack-hash",
+        ),
+        state=PlannerState(
+            problem_ir={},
+            expanded_family_spec={},
+            scope_graph=ScopeGraph(scope_ids=("problem",), scope_parents={}),
+            stable_prefix=(
+                StableStep(step_id="stable_call", normalized_payload={}),
+                StableStep(step_id="invalid_call_a", normalized_payload={}),
+                StableStep(step_id="invalid_call_b", normalized_payload={}),
+            ),
+            retry_memory=RetryMemory(
+                attempt=1,
+                candidate_format="functional_plan",
+                stable_candidate_calls=(
+                    {
+                        "scope_id": "problem",
+                        "call": {"call_id": "stable_call"},
+                    },
+                ),
+                repair_call_ids=("invalid_call_a", "invalid_call_b"),
+                repair_suffix_start={"call_id": "invalid_call_a"},
+                issues=(
+                    {
+                        "layer": "goal_verification",
+                        "code": "answer_unresolved_symbol_state",
+                        "step_id": "invalid_call_a",
+                        "scope_id": "problem",
+                        "message": "first independent graph issue",
+                    },
+                    {
+                        "layer": "goal_verification",
+                        "code": "point_goal_source_mismatch",
+                        "step_id": "invalid_call_b",
+                        "scope_id": "problem",
+                        "message": "second independent graph issue",
+                    },
+                ),
+            ),
+        ),
+    )
+
+    retry_state = PlannerRetryStateProjector.from_context(context)
+
+    assert retry_state is not None
+    assert {issue.step_id for issue in retry_state.issues} == {
+        "invalid_call_a",
+        "invalid_call_b",
+    }
+    assert retry_state.recovered_issues == ()
+    assert retry_state.preserve_policy == "preserve_graph"

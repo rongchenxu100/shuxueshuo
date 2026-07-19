@@ -1,5 +1,8 @@
 # Family Capability Pack 升级方案
 
+新增或修改 Capability Pack、Function 或 Macro 时，请同时遵守
+`docs/capability-authoring-guide.md`。
+
 ## Summary
 
 当前 `SolverFamilySpec` 同时承担了两类职责：

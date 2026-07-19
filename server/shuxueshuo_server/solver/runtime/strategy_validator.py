@@ -35,6 +35,7 @@ from shuxueshuo_server.solver.runtime.semantic_reads import (
 from shuxueshuo_server.solver.runtime.strategy_models import (
     CreatedEntity,
     HandleResolutionReport,
+    ProjectedStateWrite,
     ProducedFact,
     RecipeAlignmentReport,
     STEP_INTENT_OUTPUT_TYPES,
@@ -76,6 +77,10 @@ class StepIntentValidator:
         handle_registry: CanonicalHandleRegistry | None = None,
         family_spec: SolverFamilySpec | None = None,
         planner_state_context: ContextSemanticReadSource | None = None,
+        partial_candidate: bool = False,
+        allow_shared_derivation_scopes: bool = False,
+        allow_internal_output_types: bool = False,
+        projected_state_writes: tuple[ProjectedStateWrite, ...] = (),
     ) -> StepIntentDraft:
         """解析并校验 LLM 原始 JSON 字符串。"""
         self.last_handle_resolution_report = None
@@ -88,6 +93,10 @@ class StepIntentValidator:
             handle_registry=handle_registry,
             family_spec=family_spec,
             planner_state_context=planner_state_context,
+            partial_candidate=partial_candidate,
+            allow_shared_derivation_scopes=allow_shared_derivation_scopes,
+            allow_internal_output_types=allow_internal_output_types,
+            projected_state_writes=projected_state_writes,
         )
 
     def validate_json_with_report(
@@ -98,6 +107,10 @@ class StepIntentValidator:
         handle_registry: CanonicalHandleRegistry | None = None,
         family_spec: SolverFamilySpec | None = None,
         planner_state_context: ContextSemanticReadSource | None = None,
+        partial_candidate: bool = False,
+        allow_shared_derivation_scopes: bool = False,
+        allow_internal_output_types: bool = False,
+        projected_state_writes: tuple[ProjectedStateWrite, ...] = (),
     ) -> tuple[StepIntentDraft | None, StepIntentValidationReport]:
         """校验并返回报告；集成测试用它把失败原因写入 debug artifact。"""
         try:
@@ -107,6 +120,10 @@ class StepIntentValidator:
                 handle_registry=handle_registry,
                 family_spec=family_spec,
                 planner_state_context=planner_state_context,
+                partial_candidate=partial_candidate,
+                allow_shared_derivation_scopes=allow_shared_derivation_scopes,
+                allow_internal_output_types=allow_internal_output_types,
+                projected_state_writes=projected_state_writes,
             )
         except StrategyDraftValidationError as exc:
             return None, StepIntentValidationReport(
@@ -134,6 +151,10 @@ class StepIntentValidator:
         handle_registry: CanonicalHandleRegistry | None = None,
         family_spec: SolverFamilySpec | None = None,
         planner_state_context: ContextSemanticReadSource | None = None,
+        partial_candidate: bool = False,
+        allow_shared_derivation_scopes: bool = False,
+        allow_internal_output_types: bool = False,
+        projected_state_writes: tuple[ProjectedStateWrite, ...] = (),
     ) -> StepIntentDraft:
         """校验已解析 JSON 对象，并转成 StepIntentDraft。"""
         self.last_handle_resolution_report = None
@@ -180,7 +201,11 @@ class StepIntentValidator:
                 raise StrategyDraftValidationError("scopes must be a non-empty list")
         scopes: list[StepIntentScope] = []
         for scope_index, raw_scope in enumerate(raw_scopes):
-            scope = _parse_scope(raw_scope, scope_index=scope_index)
+            scope = _parse_scope(
+                raw_scope,
+                scope_index=scope_index,
+                allow_internal_output_types=allow_internal_output_types,
+            )
             seen_step_ids: set[str] = set()
             for step in scope.steps:
                 if step.step_id in seen_step_ids:
@@ -190,7 +215,7 @@ class StepIntentValidator:
                 seen_step_ids.add(step.step_id)
             scopes.append(scope)
         draft = StepIntentDraft(scopes=tuple(scopes))
-        if question_goals:
+        if question_goals and not allow_shared_derivation_scopes:
             _validate_step_scope_targets(draft, question_goals)
         if handle_registry is not None:
             draft, handle_resolution = HandleResolver().resolve_draft(
@@ -198,7 +223,11 @@ class StepIntentValidator:
                 handle_registry,
             )
             self.last_handle_resolution_report = handle_resolution
-            _validate_step_handles(draft, handle_registry)
+            _validate_step_handles(
+                draft,
+                handle_registry,
+                projected_state_writes=projected_state_writes,
+            )
         report = self.report(
             draft,
             question_goals=question_goals,
@@ -208,7 +237,7 @@ class StepIntentValidator:
             semantic_read_resolution=self.last_semantic_read_resolution_report,
             raw_output_normalization=self.last_raw_output_normalization_report,
         )
-        if report.missing_goals:
+        if report.missing_goals and not partial_candidate:
             raise StrategyDraftValidationError(
                 "missing required answer handles: "
                 + ", ".join(report.missing_goals)
@@ -264,15 +293,21 @@ def validate_canonical_draft(
     question_goals: list[QuestionGoal] | tuple[QuestionGoal, ...] = (),
     handle_registry: CanonicalHandleRegistry,
     family_spec: SolverFamilySpec | None = None,
+    allow_shared_derivation_scopes: bool = False,
+    projected_state_writes: tuple[ProjectedStateWrite, ...] = (),
 ) -> tuple[StepIntentDraft, StepIntentValidationReport]:
     """Validate an internal draft without re-applying the raw LLM JSON schema."""
-    if question_goals:
+    if question_goals and not allow_shared_derivation_scopes:
         _validate_step_scope_targets(draft, question_goals)
     resolved, handle_resolution = HandleResolver().resolve_draft(
         draft,
         handle_registry,
     )
-    _validate_step_handles(resolved, handle_registry)
+    _validate_step_handles(
+        resolved,
+        handle_registry,
+        projected_state_writes=projected_state_writes,
+    )
     validator = StepIntentValidator()
     report = validator.report(
         resolved,
@@ -358,7 +393,12 @@ _FORBIDDEN_KEYS = {
 }
 
 
-def _parse_scope(raw_scope: object, *, scope_index: int) -> StepIntentScope:
+def _parse_scope(
+    raw_scope: object,
+    *,
+    scope_index: int,
+    allow_internal_output_types: bool = False,
+) -> StepIntentScope:
     """解析一个 question/subquestion scope 分组。"""
     if not isinstance(raw_scope, dict):
         raise StrategyDraftValidationError(f"scopes[{scope_index}] must be an object")
@@ -381,7 +421,13 @@ def _parse_scope(raw_scope: object, *, scope_index: int) -> StepIntentScope:
             f"scopes[{scope_index}].steps must be a non-empty list"
         )
     steps = tuple(
-        _parse_step(raw_step, scope_id=scope_id, scope_index=scope_index, step_index=step_index)
+        _parse_step(
+            raw_step,
+            scope_id=scope_id,
+            scope_index=scope_index,
+            step_index=step_index,
+            allow_internal_output_types=allow_internal_output_types,
+        )
         for step_index, raw_step in enumerate(raw_steps)
     )
     return StepIntentScope(scope_id=scope_id, label=label, steps=steps)
@@ -408,6 +454,7 @@ def _parse_step(
     scope_id: str,
     scope_index: int,
     step_index: int,
+    allow_internal_output_types: bool = False,
 ) -> StepIntent:
     """解析单个 step 对象并做字段级校验。"""
     if not isinstance(raw_step, dict):
@@ -463,7 +510,14 @@ def _parse_step(
         strategy=_required_string(raw_step, "strategy", scope_index=scope_index, step_index=step_index),
         reads=tuple(_reads_list(raw_step, scope_index=scope_index, step_index=step_index)),
         creates=tuple(_creates_list(raw_step, scope_index=scope_index, step_index=step_index)),
-        produces=tuple(_produces_list(raw_step, scope_index=scope_index, step_index=step_index)),
+        produces=tuple(
+            _produces_list(
+                raw_step,
+                scope_index=scope_index,
+                step_index=step_index,
+                allow_internal_output_types=allow_internal_output_types,
+            )
+        ),
         reason=_required_string(raw_step, "reason", scope_index=scope_index, step_index=step_index),
     )
 
@@ -630,6 +684,7 @@ def _produces_list(
     *,
     scope_index: int,
     step_index: int,
+    allow_internal_output_types: bool = False,
 ) -> list[ProducedFact]:
     """读取 produces 对象数组。"""
     value = raw_step.get("produces")
@@ -686,6 +741,7 @@ def _produces_list(
                     scope_index=scope_index,
                     step_index=step_index,
                     item_index=item_index,
+                    allow_internal_output_types=allow_internal_output_types,
                 ),
             )
         )
@@ -716,6 +772,7 @@ def _optional_output_type(
     scope_index: int,
     step_index: int,
     item_index: int,
+    allow_internal_output_types: bool = False,
 ) -> str | None:
     """读取 produces.output_type；未提供时保持兼容。"""
     if "output_type" not in raw_output or raw_output.get("output_type") is None:
@@ -726,7 +783,12 @@ def _optional_output_type(
             f"scopes[{scope_index}].steps[{step_index}].produces[{item_index}].output_type must be a string"
         )
     output_type = value.strip()
-    if output_type not in STEP_INTENT_OUTPUT_TYPES:
+    allowed_types = (
+        {*STEP_INTENT_OUTPUT_TYPES, "Symbol"}
+        if allow_internal_output_types
+        else set(STEP_INTENT_OUTPUT_TYPES)
+    )
+    if output_type not in allowed_types:
         raise StrategyDraftValidationError(
             f"scopes[{scope_index}].steps[{step_index}].produces[{item_index}].output_type unsupported: {output_type}"
         )
@@ -763,6 +825,8 @@ def _reject_forbidden_payload(value: Any, *, path: str = "$") -> None:
 def _validate_step_handles(
     draft: StepIntentDraft,
     registry: CanonicalHandleRegistry,
+    *,
+    projected_state_writes: tuple[ProjectedStateWrite, ...] = (),
 ) -> None:
     """校验 reads/creates/produces 是否遵守 canonical handle 数据流。
 
@@ -773,7 +837,14 @@ def _validate_step_handles(
     handle_valid_scopes = dict(registry.handle_valid_scopes)
     created_handles: set[str] = set()
     produced_handles: set[str] = set()
-    produced_signatures: dict[str, list[tuple[str, str, str]]] = {}
+    produced_signatures: dict[
+        str,
+        list[tuple[str, str, str, ProjectedStateWrite | None]],
+    ] = {}
+    state_write_by_output = {
+        (item.step_id, item.produced_handle): item
+        for item in projected_state_writes
+    }
     for step in draft.steps:
         registry.validate_scope(step.scope_id, context=f"step {step.step_id}")
         for handle in step.reads:
@@ -801,6 +872,7 @@ def _validate_step_handles(
                 handle_valid_scopes=handle_valid_scopes,
                 produced_handles=produced_handles,
                 produced_signatures=produced_signatures,
+                state_write_by_output=state_write_by_output,
                 step=step,
                 step_id=step.step_id,
             )
@@ -887,7 +959,11 @@ def _validate_produced_fact(
     available: set[str],
     handle_valid_scopes: dict[str, str],
     produced_handles: set[str],
-    produced_signatures: dict[str, tuple[str, str, str]],
+    produced_signatures: dict[
+        str,
+        list[tuple[str, str, str, ProjectedStateWrite | None]],
+    ],
+    state_write_by_output: dict[tuple[str, str], ProjectedStateWrite],
     step: StepIntent,
     step_id: str,
 ) -> None:
@@ -944,6 +1020,7 @@ def _validate_produced_fact(
         step=step,
         registry=registry,
         produced_signatures=produced_signatures,
+        state_write_by_output=state_write_by_output,
     )
 
 
@@ -952,7 +1029,11 @@ def _validate_produced_semantic_signature(
     *,
     step: StepIntent,
     registry: CanonicalHandleRegistry,
-    produced_signatures: dict[str, list[tuple[str, str, str]]],
+    produced_signatures: dict[
+        str,
+        list[tuple[str, str, str, ProjectedStateWrite | None]],
+    ],
+    state_write_by_output: dict[tuple[str, str], ProjectedStateWrite],
 ) -> None:
     """用语义签名提前发现同一结论的重复/倒序推导。
 
@@ -963,11 +1044,31 @@ def _validate_produced_semantic_signature(
     signature = _produced_fact_signature(item, step=step, registry=registry)
     if signature is None:
         return
+    current_write = state_write_by_output.get((step.step_id, item.handle))
     previous_items = produced_signatures.setdefault(signature, [])
     if not previous_items:
-        previous_items.append((item.valid_scope, step.step_id, item.handle))
+        previous_items.append(
+            (item.valid_scope, step.step_id, item.handle, current_write)
+        )
         return
-    for previous_scope, previous_step_id, previous_handle in previous_items:
+    if _is_valid_projected_state_transition(
+        step,
+        current_write=current_write,
+        previous_items=previous_items,
+    ):
+        previous_items.append(
+            (item.valid_scope, step.step_id, item.handle, current_write)
+        )
+        return
+    if _is_distinct_projected_state_derivation(
+        current_write=current_write,
+        previous_items=previous_items,
+    ):
+        previous_items.append(
+            (item.valid_scope, step.step_id, item.handle, current_write)
+        )
+        return
+    for previous_scope, previous_step_id, previous_handle, _previous_write in previous_items:
         previous_is_visible_from_current = previous_scope in registry.ancestor_scopes(item.valid_scope)
         current_is_visible_from_previous = item.valid_scope in registry.ancestor_scopes(previous_scope)
         if item.valid_scope != previous_scope and current_is_visible_from_previous:
@@ -1002,7 +1103,63 @@ def _validate_produced_semantic_signature(
                 "read it together with their parameter facts"
             )
     # sibling scope 的同名参数值可能代表不同取值，不能在这里猜测合并。
-    previous_items.append((item.valid_scope, step.step_id, item.handle))
+    previous_items.append(
+        (item.valid_scope, step.step_id, item.handle, current_write)
+    )
+
+
+def _is_valid_projected_state_transition(
+    step: StepIntent,
+    *,
+    current_write: ProjectedStateWrite | None,
+    previous_items: list[
+        tuple[str, str, str, ProjectedStateWrite | None]
+    ],
+) -> bool:
+    """Accept a typed transition only when it consumes the latest slot version."""
+    if current_write is None or current_write.write_mode != "transition":
+        return False
+    previous = next(
+        (
+            item
+            for item in reversed(previous_items)
+            if item[3] is not None
+            and item[3].state_slot_id == current_write.state_slot_id
+        ),
+        None,
+    )
+    if previous is None:
+        return False
+    _previous_scope, _previous_step_id, previous_handle, previous_write = previous
+    assert previous_write is not None
+    return (
+        previous_handle in step.reads
+        and previous_write.state_slot_id in current_write.source_state_slot_ids
+    )
+
+
+def _is_distinct_projected_state_derivation(
+    *,
+    current_write: ProjectedStateWrite | None,
+    previous_items: list[
+        tuple[str, str, str, ProjectedStateWrite | None]
+    ],
+) -> bool:
+    """Allow same-role values only when Context proves different inputs."""
+    if current_write is None or not current_write.source_state_slot_ids:
+        return False
+    current_sources = frozenset(current_write.source_state_slot_ids)
+    previous_writes = tuple(
+        item[3] for item in previous_items if item[3] is not None
+    )
+    if not previous_writes:
+        return False
+    return all(
+        previous.state_slot_id != current_write.state_slot_id
+        and bool(previous.source_state_slot_ids)
+        and frozenset(previous.source_state_slot_ids) != current_sources
+        for previous in previous_writes
+    )
 
 
 def _are_sibling_scopes(
@@ -1157,6 +1314,11 @@ def _point_name_from_coordinate_semantic_name(name: str) -> str | None:
 def _is_common_minimum_expression_name(name: str) -> bool:
     """判断语义名是否表示可复用的路径最小值表达式，而非单段距离。"""
     lowered = name.lower()
+    if any(
+        token in lowered
+        for token in ("evaluated", "substituted", "resolved")
+    ):
+        return False
     return any(
         token in lowered
         for token in ("path_minimum", "minimum_expr", "minimum_expression", "min_value")

@@ -1,0 +1,68 @@
+{
+  "example_id": "right_angle_equal_length_construction",
+  "source_problem_id": "tj-2026-nankai-yimo-25",
+  "family_id": "QuadraticPathMinimumSolver",
+  "pack_ids": [
+    "right_angle_equal_length_core",
+    "quadratic_core"
+  ],
+  "capability_ids": [
+    "right_angle_equal_length_construct_and_select",
+    "quadratic_from_constraints"
+  ],
+  "answer_value_types": [
+    "Parabola"
+  ],
+  "source_call_ids": [
+    "ii_construct_N",
+    "ii_derive_parabola"
+  ],
+  "selection_role": "supporting",
+  "conditions": [
+    {
+      "ref": "construction_relation",
+      "kind": "fact",
+      "description": "直角且等长的构造条件"
+    },
+    {
+      "ref": "constructed_point",
+      "kind": "point",
+      "description": "由构造条件确定的目标点"
+    },
+    {
+      "ref": "coefficient_relation",
+      "kind": "fact",
+      "description": "二次函数系数关系"
+    },
+    {
+      "ref": "known_curve_point",
+      "kind": "point",
+      "description": "已知的曲线点"
+    },
+    {
+      "ref": "curve",
+      "kind": "function",
+      "description": "需要更新状态的二次函数对象"
+    }
+  ],
+  "neutralization_map": {
+    "call_ids": {
+      "ii_construct_N": "construct_target_point",
+      "ii_derive_parabola": "derive_curve_from_points"
+    },
+    "semantic_refs": {
+      "right_angle_equal_length_MDN": "construction_relation",
+      "N": "constructed_point",
+      "coefficient_relation": "coefficient_relation",
+      "M": "known_curve_point",
+      "parabola": "curve"
+    },
+    "text_replacements": {
+      "利用直角、等长和象限条件确定点 N 的含参坐标。": "利用直角、等长和方向条件确定目标点。",
+      "建立两个子问共同使用的点 N 状态。": "建立后续调用共同使用的构造点状态。",
+      "利用 M、N 在抛物线上及系数关系，建立关于参数 m 的抛物线。": "利用已知点、构造点和系数关系确定含参函数。",
+      "两个子问只需在该共享抛物线状态上代入各自求得的 m。": "后续调用只需在共享函数状态上代入各自求得的参数。"
+    }
+  },
+  "neutralized": true
+}

@@ -20,9 +20,17 @@ from shuxueshuo_server.solver.family.models import (
     StateWriteMode,
 )
 from shuxueshuo_server.solver.problem_models import QuestionGoal
-from shuxueshuo_server.solver.state_semantics import state_kind_for_runtime_type
+from shuxueshuo_server.solver.state_semantics import (
+    dependent_role_object_ref,
+    derived_role_object_ref,
+    split_runtime_types,
+    state_kind_for_runtime_type,
+)
 from shuxueshuo_server.solver.runtime.auxiliary_points import fresh_auxiliary_point_handle
 from shuxueshuo_server.solver.runtime.context import ContextBuilder, RuntimeContext
+from shuxueshuo_server.solver.runtime.condition_roles import (
+    resolve_read_closed_right_angle_inputs,
+)
 from shuxueshuo_server.solver.runtime._planner_helpers import single_invocation_step
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.macro_specs import (
@@ -41,6 +49,13 @@ from shuxueshuo_server.solver.runtime.models import (
     StepGoal,
     StepPlan,
 )
+from shuxueshuo_server.solver.runtime.output_type_inference import (
+    produced_semantic_role,
+)
+from shuxueshuo_server.solver.runtime.path_term_parsing import (
+    PathTermParseError,
+    parse_path_terms,
+)
 from shuxueshuo_server.solver.runtime.handle_registry import (
     CanonicalHandleRegistry,
     _handle_name,
@@ -49,6 +64,7 @@ from shuxueshuo_server.solver.runtime.handle_registry import (
 )
 from shuxueshuo_server.solver.runtime.strategy_models import (
     CreatedEntity,
+    ProjectedStateWrite,
     ProducedFact,
     StepIntent,
     StepIntentAcceptedStep,
@@ -102,13 +118,17 @@ from shuxueshuo_server.solver.runtime.binding_rules import (
     _length_endpoint_handles,
     _other_endpoint_handle,
     _payload_handle,
-    _right_angle_roles,
     _segment_endpoints_from_entity_payload,
     _straightening_point_roles,
     _weighted_auxiliary_point_handle_for_step,
+    parameter_substitution_pairs_from_reads,
 )
 from shuxueshuo_server.solver.runtime.canonical_draft_finalizer import (
     CanonicalDraftFinalizer,
+)
+from shuxueshuo_server.solver.runtime.scalar_result_closure import (
+    ScalarResultClosureRegistry,
+    close_scalar_plan_output,
 )
 
 RecipeCompileStrategyFn = Callable[
@@ -268,6 +288,8 @@ class RecipeTrialExecutor:
         handle_registry: CanonicalHandleRegistry,
         context: RuntimeContext,
         question_goals: list[QuestionGoal] | tuple[QuestionGoal, ...],
+        preserve_call_graph: bool = False,
+        projected_state_writes: tuple[ProjectedStateWrite, ...] = (),
     ) -> PlannerOutput:
         """根据 StepIntent 生成 PlannerOutput。"""
         output, diagnostic, _effective_draft = self.diagnose(
@@ -277,6 +299,8 @@ class RecipeTrialExecutor:
             handle_registry=handle_registry,
             context=context,
             question_goals=question_goals,
+            preserve_call_graph=preserve_call_graph,
+            projected_state_writes=projected_state_writes,
         )
         if output is not None:
             return output
@@ -301,19 +325,25 @@ class RecipeTrialExecutor:
         context: RuntimeContext,
         question_goals: list[QuestionGoal] | tuple[QuestionGoal, ...],
         _allow_dead_step_recompile: bool = True,
+        allow_shared_derivation_scopes: bool = False,
+        preserve_call_graph: bool = False,
+        projected_state_writes: tuple[ProjectedStateWrite, ...] = (),
     ) -> tuple[PlannerOutput | None, StepIntentExecutionDiagnostic, StepIntentDraft]:
         """编译 StepIntent，并返回 effective draft 的执行诊断。"""
-        draft, _normalization_report = StepIntentNormalizer().normalize(
-            draft,
-            family_spec=family_spec,
-            question_goals=question_goals,
-            handle_registry=handle_registry,
-        )
+        if not preserve_call_graph:
+            draft, _normalization_report = StepIntentNormalizer().normalize(
+                draft,
+                family_spec=family_spec,
+                question_goals=question_goals,
+                handle_registry=handle_registry,
+            )
         draft, _finalization_report = CanonicalDraftFinalizer().finalize(
             draft,
             family_spec=family_spec,
             question_goals=question_goals,
             handle_registry=handle_registry,
+            allow_shared_derivation_scopes=allow_shared_derivation_scopes,
+            projected_state_writes=projected_state_writes,
         )
         resolution_report = StepIntentCandidateResolver().resolve(
             draft,
@@ -347,6 +377,7 @@ class RecipeTrialExecutor:
                 handle_registry=handle_registry,
             ),
             function_specs=function_specs,
+            projected_state_writes=projected_state_writes,
             recipe_compilers=self.recipe_compilers,
         )
         output, diagnostic, effective_draft = compiler.diagnose(draft)
@@ -360,7 +391,7 @@ class RecipeTrialExecutor:
         CanonicalDraftFinalizer().validate_state_write_provenance(
             diagnostic.state_write_provenance
         )
-        if output is not None:
+        if output is not None and not preserve_call_graph:
             pruned, _dead_step_actions = drop_dead_pure_function_steps(
                 effective_draft,
                 family_spec=family_spec,
@@ -390,6 +421,9 @@ class RecipeTrialExecutor:
                     context=context,
                     question_goals=question_goals,
                     _allow_dead_step_recompile=False,
+                    allow_shared_derivation_scopes=allow_shared_derivation_scopes,
+                    preserve_call_graph=preserve_call_graph,
+                    projected_state_writes=projected_state_writes,
                 )
         return output, diagnostic, effective_draft
 
@@ -407,6 +441,7 @@ class _RecipePlanCompiler:
         binding_rules: MethodBindingRuleRegistry,
         macro_adapters: MacroAdapterRegistry,
         function_specs: FunctionSpecRegistry,
+        projected_state_writes: tuple[ProjectedStateWrite, ...],
         recipe_compilers: Mapping[str, RecipeCompileStrategyFn],
     ) -> None:
         self.context = context
@@ -417,6 +452,8 @@ class _RecipePlanCompiler:
         self.binding_rules = binding_rules
         self.macro_adapters = macro_adapters
         self.function_specs = function_specs
+        self.projected_state_writes = tuple(projected_state_writes)
+        self.scalar_closures = ScalarResultClosureRegistry(function_specs)
         self.recipe_compilers = dict(recipe_compilers)
         self.macro_binding_events: list[StepIntentMacroBindingEvent] = []
         self.state_write_provenance: list[StateWriteProvenance] = []
@@ -476,6 +513,7 @@ class _RecipePlanCompiler:
                     capability_errors=tuple(candidate_errors),
                     capability_id=_execution_blocker_capability_id(candidate_errors),
                     missing_runtime_type=_execution_blocker_missing_runtime_type(candidate_errors),
+                    details=_execution_blocker_details(candidate_errors),
                     retryable=_execution_blocker_code(candidate_errors) != "missing_binding_rule",
                 )
                 skipped = tuple(
@@ -581,6 +619,7 @@ class _RecipePlanCompiler:
                 ),
                 capability_id=_execution_blocker_capability_id(candidate_errors),
                 missing_runtime_type=_execution_blocker_missing_runtime_type(candidate_errors),
+                details=_execution_blocker_details(candidate_errors),
                 retryable=_execution_blocker_code(candidate_errors) != "missing_binding_rule",
             )
             skipped = tuple(
@@ -639,16 +678,104 @@ class _RecipePlanCompiler:
         """按 recipe 或 method capability 编译单个 StepIntent。"""
         recipe = self.recipe_specs.get(capability_id)
         if recipe is not None:
-            return self._compile_recipe(step, recipe)
-        return self._compile_method(step, capability_id)
+            compiled = self._compile_recipe(step, recipe)
+        else:
+            compiled = self._compile_method(step, capability_id)
+        return self._apply_declared_scalar_closures(
+            compiled,
+            step=step,
+            capability_id=capability_id,
+        )
+
+    def _apply_declared_scalar_closures(
+        self,
+        compiled: _CompiledStep,
+        *,
+        step: StepIntent,
+        capability_id: str,
+    ) -> _CompiledStep:
+        """Close dual-form scalar answers using explicitly read parameter states."""
+        writes = tuple(
+            item
+            for item in self.projected_state_writes
+            if item.step_id == step.step_id
+            and item.expected_result_form == "closed_value"
+        )
+        if not writes:
+            return compiled
+        parameter_pairs = parameter_substitution_pairs_from_reads(step, self.index)
+        if not parameter_pairs:
+            return compiled
+        plan = compiled.plan
+        for write in writes:
+            result = self._scalar_return_spec(
+                capability_id,
+                write.return_name,
+            )
+            if result is None or result.scalar_result_form is None:
+                continue
+            if "closed_value" not in result.scalar_result_form.possible_forms:
+                continue
+            registration = next(
+                (
+                    item
+                    for item in compiled.registrations
+                    if item.handle == write.produced_handle
+                ),
+                None,
+            )
+            if registration is None:
+                raise StrategyDraftValidationError(
+                    "planner_configuration_error: scalar return registration "
+                    f"missing: step={step.step_id}, return={write.return_name}, "
+                    f"handle={write.produced_handle}"
+                )
+            plan = close_scalar_plan_output(
+                plan,
+                target_path=registration.path,
+                runtime_type=registration.value_type,
+                parameter_pairs=parameter_pairs,
+                registry=self.scalar_closures,
+                return_name=write.return_name or result.name,
+            )
+        return replace(compiled, plan=plan)
+
+    def _scalar_return_spec(
+        self,
+        capability_id: str,
+        return_name: str | None,
+    ) -> FunctionReturnSpec | MacroReturnSpec | None:
+        if return_name is None:
+            return None
+        function = self.function_specs.get(capability_id)
+        if function is not None:
+            return next(
+                (item for item in function.returns if item.name == return_name),
+                None,
+            )
+        macro = self.macro_adapters.specs.get(capability_id)
+        if macro is None:
+            return None
+        return next(
+            (item for item in macro.returns if item.name == return_name),
+            None,
+        )
 
     def _compile_recipe(self, step: StepIntent, recipe: FamilyRecipeExecutionSpec) -> _CompiledStep:
         """编译 recipe。"""
         macro_adapters = getattr(self, "macro_adapters", None)
+        declared_evidence_roles: tuple[str, ...] = ()
         return_bindings: tuple[tuple[ProducedFact, MacroReturnSpec], ...] = ()
         if macro_adapters is not None:
             try:
                 macro = macro_adapters.validate(recipe.recipe_id, step)
+                declared_evidence_roles = tuple(
+                    _unique_ordered(
+                        item.semantic_role or item.name
+                        for item in macro.returns
+                        if item.goal_evidence_tags
+                    )
+                )
                 return_bindings = macro_adapters.return_bindings(
                     recipe.recipe_id,
                     step,
@@ -686,6 +813,7 @@ class _RecipePlanCompiler:
                 step,
                 recipe_id=recipe.recipe_id,
                 bindings=return_bindings,
+                declared_evidence_roles=declared_evidence_roles,
                 index=self.index,
                 prior=tuple(self.state_write_provenance),
             ),
@@ -714,6 +842,8 @@ class _RecipePlanCompiler:
             spec.outputs,
             self.index,
             self.binding_rules,
+            input_bindings=inputs,
+            input_specs=spec.inputs,
         )
         main_promote = _promote_outputs_for_step(
             step,
@@ -722,6 +852,9 @@ class _RecipePlanCompiler:
             spec.outputs,
             self.index,
             self.binding_rules,
+            point_transition=_function_writes_point_transition(
+                self.function_specs.get(method_id)
+            ),
         )
         promote = {**(prep.promote or {}), **main_promote}
         plan = single_invocation_step(
@@ -804,18 +937,24 @@ class _RecipePlanCompiler:
 
     def _compile_right_angle_recipe(self, step: StepIntent) -> _CompiledStep:
         """编译“直角等腰候选 + 约束筛选” recipe。"""
-        anchor, reference, target = _right_angle_roles(step, self.index)
+        inputs = resolve_read_closed_right_angle_inputs(step, self.index)
         candidates = _temp(step.step_id, "candidates")
         selected = _temp(step.step_id, "selected_point")
-        target_path = self.index.path_for(target, expected_type="PointRef")
+        target_path = self.index.path_for(inputs.target, expected_type="PointRef")
         invocations = [
             MethodInvocation(
                 invocation_id=f"{step.step_id}.right_angle_equal_length_candidates",
                 method_id="right_angle_equal_length_candidates",
                 scope=step.step_id,
                 inputs={
-                    "anchor": self.index.path_for(anchor, expected_type="Point"),
-                    "reference": self.index.path_for(reference, expected_type="Point"),
+                    "anchor": self.index.path_for(
+                        inputs.anchor,
+                        expected_type="Point",
+                    ),
+                    "reference": self.index.path_for(
+                        inputs.reference,
+                        expected_type="Point",
+                    ),
                     "target": target_path,
                 },
                 outputs={"candidates": candidates},
@@ -828,11 +967,17 @@ class _RecipePlanCompiler:
                     "candidates": candidates,
                     "target": target_path,
                     "quadrant": self.index.path_for(
-                        self.index.fact_handle_by_type("orientation_constraint", step=step),
+                        inputs.orientation,
                         expected_type="OrientationHint",
                     ),
-                    "parameter": self.index.parameter_symbol_path(),
-                    "parameter_constraint": self.index.parameter_constraint_path(),
+                    "parameter": self.index.path_for(
+                        inputs.parameter,
+                        expected_type="Symbol",
+                    ),
+                    "parameter_constraint": self.index.path_for(
+                        inputs.parameter_constraint,
+                        expected_type="Constraint",
+                    ),
                 },
                 outputs={"selected_point": selected},
             ),
@@ -843,9 +988,9 @@ class _RecipePlanCompiler:
                 goal_id=f"{step.goal_type}:{step.step_id}",
                 type=step.goal_type,
                 target_path=target_path,
-                scope_id=_handle_scope(target),
+                scope_id=_handle_scope(inputs.target),
             ),
-            scope=_handle_scope(target),
+            scope=_handle_scope(inputs.target),
             invocations=invocations,
             expected_outputs=[target_path],
             promote_outputs={selected: target_path},
@@ -874,10 +1019,82 @@ class _RecipePlanCompiler:
         auxiliary = _temp(step.step_id, "auxiliary_point")
         minimum_point_1 = _temp(step.step_id, "minimum_point_1")
         minimum_point_2 = _temp(step.step_id, "minimum_point_2")
-        moving_membership = _moving_membership_for_straightening(step, self.index)
-        fixed_1, fixed_2, line_1, line_2 = _straightening_point_roles(step, self.index)
+        path_transformation = _path_for_first_type(
+            self.index,
+            step,
+            "PathTransformation",
+        )
+        straightening_inputs: dict[str, str] = {
+            "path_transformation": path_transformation
+        }
+        structured_roles = _structured_straightening_roles_from_transformation(
+            path_transformation,
+            step=step,
+            index=self.index,
+        )
+        transformation_fixed = _fixed_endpoints_from_transformation(
+            path_transformation,
+            step=step,
+            index=self.index,
+        )
+        moving_locus = _path_for_readable_type_or_none(self.index, step, "Line")
+        if structured_roles is not None:
+            fixed_1, fixed_2, moving_membership, line_1, line_2 = (
+                structured_roles
+            )
+            straightening_inputs.update(
+                {
+                    "moving_point_membership": self.index.path_for(
+                        moving_membership,
+                        expected_type="Condition",
+                    ),
+                    "line_point_1": self.index.path_for(
+                        line_1,
+                        expected_type="Point",
+                    ),
+                    "line_point_2": self.index.path_for(
+                        line_2,
+                        expected_type="Point",
+                    ),
+                }
+            )
+        elif moving_locus is not None:
+            fixed_1, fixed_2 = (
+                transformation_fixed
+                or _straightening_minimum_fixed_points(step, self.index)
+            )
+            straightening_inputs["moving_locus"] = moving_locus
+        else:
+            _require_straightening_locus_evidence(step, self.index)
+            moving_membership = _moving_membership_for_straightening(step, self.index)
+            role_fixed_1, role_fixed_2, line_1, line_2 = (
+                _straightening_point_roles(step, self.index)
+            )
+            fixed_1, fixed_2 = role_fixed_1, role_fixed_2
+            straightening_inputs.update(
+                {
+                    "moving_point_membership": self.index.path_for(
+                        moving_membership,
+                        expected_type="Condition",
+                    ),
+                    "line_point_1": self.index.path_for(
+                        line_1,
+                        expected_type="Point",
+                    ),
+                    "line_point_2": self.index.path_for(
+                        line_2,
+                        expected_type="Point",
+                    ),
+                }
+            )
         fixed_1_path, fixed_1_prep = _point_value_path_or_prepare(fixed_1, step, self.index)
         fixed_2_path, fixed_2_prep = _point_value_path_or_prepare(fixed_2, step, self.index)
+        straightening_inputs.update(
+            {
+                "fixed_point_1": fixed_1_path,
+                "fixed_point_2": fixed_2_path,
+            }
+        )
         prep_invocations = [*fixed_1_prep[0], *fixed_2_prep[0]]
         prep_promote = {**fixed_1_prep[1], **fixed_2_prep[1]}
         invocations = [
@@ -886,14 +1103,7 @@ class _RecipePlanCompiler:
                 invocation_id=f"{step.step_id}.broken_path_straightening_candidates",
                 method_id="broken_path_straightening_candidates",
                 scope=step.step_id,
-                inputs={
-                    "path_transformation": _path_for_first_type(self.index, step, "PathTransformation"),
-                    "moving_point_membership": self.index.path_for(moving_membership, expected_type="Condition"),
-                    "fixed_point_1": fixed_1_path,
-                    "fixed_point_2": fixed_2_path,
-                    "line_point_1": self.index.path_for(line_1, expected_type="Point"),
-                    "line_point_2": self.index.path_for(line_2, expected_type="Point"),
-                },
+                inputs=straightening_inputs,
                 outputs={"candidates": candidates},
             ),
             MethodInvocation(
@@ -916,7 +1126,7 @@ class _RecipePlanCompiler:
         promote = {
             **prep_promote,
             candidates: _scoped_output_path(self.index.context, step.scope_id, "straightening_candidates"),
-            selected: _scoped_output_path(self.index.context, step.scope_id, "straightening_candidate"),
+            selected: _straightening_candidate_target_path(step, self.index),
             auxiliary: auxiliary_path,
             minimum_point_1: endpoint_point_1,
             minimum_point_2: endpoint_point_2,
@@ -947,7 +1157,7 @@ class _RecipePlanCompiler:
                     )
                 )
             elif output_type == "Point":
-                semantic = _semantic_name(item.handle)
+                semantic = produced_semantic_role(item)
                 if semantic == STRAIGHTENING_ENDPOINT_POINT_1:
                     registrations.append(
                         RuntimeHandleBinding(
@@ -1024,6 +1234,10 @@ class _RecipePlanCompiler:
                     "x": self.index.path_for("symbol:problem:x", expected_type="Symbol"),
                     "point": selected_candidate,
                     "parameter": primary_symbol,
+                    "quadratic_template": self.index.path_for(
+                        "function:problem:parabola",
+                        expected_type="Expression",
+                    ),
                     "parameter_constraint": primary_constraint,
                 },
                 outputs={
@@ -1200,12 +1414,51 @@ class _RecipePlanCompiler:
 
     def _compile_broken_path_straightening_minimum_expression_recipe(self, step: StepIntent) -> _CompiledStep:
         """编译“折线拉直候选 + 选择方案 + 计算最小值表达式” recipe。"""
-        fixed_1, fixed_2 = _straightening_minimum_fixed_points(step, self.index)
+        path_transformation = _path_for_readable_type(
+            self.index,
+            step,
+            "PathTransformation",
+        )
         straightening_inputs: dict[str, str] = {}
+        structured_roles = _structured_straightening_roles_from_transformation(
+            path_transformation,
+            step=step,
+            index=self.index,
+        )
+        transformation_fixed = _fixed_endpoints_from_transformation(
+            path_transformation,
+            step=step,
+            index=self.index,
+        )
         moving_locus = _path_for_readable_type_or_none(self.index, step, "Line")
-        if moving_locus is not None:
+        if structured_roles is not None:
+            fixed_1, fixed_2, moving_membership, line_1, line_2 = (
+                structured_roles
+            )
+            straightening_inputs.update(
+                {
+                    "moving_point_membership": self.index.path_for(
+                        moving_membership,
+                        expected_type="Condition",
+                    ),
+                    "line_point_1": self.index.path_for(
+                        line_1,
+                        expected_type="Point",
+                    ),
+                    "line_point_2": self.index.path_for(
+                        line_2,
+                        expected_type="Point",
+                    ),
+                }
+            )
+        elif moving_locus is not None:
+            fixed_1, fixed_2 = (
+                transformation_fixed
+                or _straightening_minimum_fixed_points(step, self.index)
+            )
             straightening_inputs["moving_locus"] = moving_locus
         else:
+            _require_straightening_locus_evidence(step, self.index)
             moving_membership = _moving_membership_for_straightening(step, self.index)
             role_fixed_1, role_fixed_2, line_1, line_2 = _straightening_point_roles(step, self.index)
             fixed_1, fixed_2 = role_fixed_1, role_fixed_2
@@ -1252,7 +1505,7 @@ class _RecipePlanCompiler:
                 method_id="broken_path_straightening_candidates",
                 scope=step.step_id,
                 inputs={
-                    "path_transformation": _path_for_readable_type(self.index, step, "PathTransformation"),
+                    "path_transformation": path_transformation,
                     "fixed_point_1": fixed_1_path,
                     "fixed_point_2": fixed_2_path,
                     **straightening_inputs,
@@ -1289,7 +1542,7 @@ class _RecipePlanCompiler:
         promote = {
             **prep_promote,
             candidates: _scoped_output_path(self.index.context, step.scope_id, "straightening_candidates"),
-            selected: _scoped_output_path(self.index.context, step.scope_id, "straightening_candidate"),
+            selected: _straightening_candidate_target_path(step, self.index),
             auxiliary: auxiliary_path,
             minimum_point_1: endpoint_point_1,
             minimum_point_2: endpoint_point_2,
@@ -1316,7 +1569,7 @@ class _RecipePlanCompiler:
                     RuntimeHandleBinding(item.handle, target_path, "MinimumExpression", f"step:{step.step_id}")
                 )
             elif output_type == "Point":
-                semantic = _semantic_name(item.handle)
+                semantic = produced_semantic_role(item)
                 if "point_1" in semantic:
                     registrations.append(
                         RuntimeHandleBinding(
@@ -1503,7 +1756,9 @@ class PlannerInsightExtractorRegistry:
             for produced in step.produces
             if (
                 _produced_output_type(produced, index.handle_registry) == "Point"
-                and is_straightening_endpoint_name(_semantic_name(produced.handle))
+                and is_straightening_endpoint_name(
+                    produced_semantic_role(produced)
+                )
             )
         ]
         endpoint_handles = _unique_ordered(endpoint_handles)
@@ -1588,24 +1843,41 @@ def _draft_with_steps(
     steps: list[StepIntent] | tuple[StepIntent, ...],
 ) -> StepIntentDraft:
     """用已执行/补位后的 flat steps 重建 scoped effective draft。"""
-    grouped: dict[str, list[StepIntent]] = {scope.scope_id: [] for scope in draft.scopes}
-    for step in steps:
-        grouped.setdefault(step.scope_id, []).append(step)
-    scopes = [
-        replace(scope, steps=tuple(grouped.get(scope.scope_id, ())))
+    metadata_by_step_id = {
+        step.step_id: (scope.scope_id, scope.label)
         for scope in draft.scopes
-    ]
-    known_scope_ids = {scope.scope_id for scope in draft.scopes}
-    for scope_id, scope_steps in grouped.items():
-        if scope_id in known_scope_ids:
-            continue
-        scopes.append(
-            StepIntentScope(
-                scope_id=scope_id,
-                label=f"scope {scope_id}",
-                steps=tuple(scope_steps),
-            )
+        for step in scope.steps
+    }
+    fallback_labels: dict[str, str] = {}
+    for scope in draft.scopes:
+        fallback_labels.setdefault(scope.scope_id, scope.label)
+
+    scopes: list[StepIntentScope] = []
+    for step in steps:
+        _original_scope, label = metadata_by_step_id.get(
+            step.step_id,
+            (
+                step.scope_id,
+                fallback_labels.get(step.scope_id, f"scope {step.scope_id}"),
+            ),
         )
+        if (
+            scopes
+            and scopes[-1].scope_id == step.scope_id
+            and scopes[-1].label == label
+        ):
+            scopes[-1] = replace(
+                scopes[-1],
+                steps=(*scopes[-1].steps, step),
+            )
+        else:
+            scopes.append(
+                StepIntentScope(
+                    scope_id=step.scope_id,
+                    label=label,
+                    steps=(step,),
+                )
+            )
     return StepIntentDraft(scopes=tuple(scopes))
 
 
@@ -2070,34 +2342,31 @@ def _path_target_terms(
     index: CanonicalRuntimeBindingIndex,
     context: str,
 ) -> list[tuple[str, str]]:
-    """把 ``OM+BN`` 或结构化 path terms 转成 point handle 对。"""
-    value = payload.get("path")
-    if isinstance(value, list):
-        terms: list[tuple[str, str]] = []
-        for idx, item in enumerate(value):
-            if (
-                isinstance(item, list)
-                and len(item) == 2
-                and all(isinstance(handle, str) for handle in item)
-            ):
-                terms.append((item[0], item[1]))
-                continue
-            raise StrategyDraftValidationError(
-                f"path_minimum_target_term_invalid: {context}[{idx}]"
-            )
-        return terms
-    if isinstance(value, str):
-        terms = []
-        for token in re.findall(r"[A-Za-z]{2}", value):
-            terms.append(
-                (
-                    index.point_handle_by_name(token[0], step=step),
-                    index.point_handle_by_name(token[1], step=step),
-                )
-            )
-        if terms:
-            return terms
-    raise StrategyDraftValidationError(f"path_minimum_target_path_missing: {context}")
+    """Resolve structured or legacy path terms through the shared parser."""
+
+    point_names = _unique_ordered(
+        handle.rsplit(":", 1)[-1]
+        for handle in index.entity_handles("point", step=step)
+    )
+    try:
+        terms = parse_path_terms(
+            payload,
+            point_names=point_names,
+            resolve_point=lambda name: index.point_handle_by_name(
+                name,
+                step=step,
+            ),
+        )
+    except (PathTermParseError, StrategyDraftValidationError) as exc:
+        code = (
+            exc.code
+            if isinstance(exc, PathTermParseError)
+            else "path_terms.point_unresolved"
+        )
+        raise StrategyDraftValidationError(
+            f"{code}: {context}: {exc}"
+        ) from exc
+    return [(item.start, item.end) for item in terms]
 
 
 def _generated_equal_length_auxiliary_point_path(
@@ -2161,6 +2430,30 @@ def _straightening_endpoint_target_paths(
     )
 
 
+def _straightening_candidate_target_path(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> str:
+    """Publish a selected candidate at its declared semantic scope."""
+
+    for produced in step.produces:
+        if (
+            _produced_output_type(produced, index.handle_registry)
+            == "StraighteningCandidate"
+        ):
+            return _target_path_for_produced(
+                produced,
+                "StraighteningCandidate",
+                index,
+                step,
+            )
+    return _scoped_output_path(
+        index.context,
+        step.scope_id,
+        "straightening_candidate",
+    )
+
+
 def _straightening_endpoint_target_path(
     step: StepIntent,
     index: CanonicalRuntimeBindingIndex,
@@ -2170,7 +2463,7 @@ def _straightening_endpoint_target_path(
     for produced in step.produces:
         if (
             _produced_output_type(produced, index.handle_registry) == "Point"
-            and _semantic_name(produced.handle) == semantic_name
+            and produced_semantic_role(produced) == semantic_name
         ):
             return _target_path_for_produced(produced, "Point", index, step)
     return _scoped_output_path(index.context, step.scope_id, semantic_name)
@@ -2183,11 +2476,24 @@ def _straightening_endpoint_handles_from_reads(
     """从 step reads 中读取前序拉直 recipe 暴露的 endpoint facts。"""
     candidates: list[tuple[str, str]] = []
     for handle in step.reads:
-        semantic_name = _semantic_name(handle)
         binding = index.bindings.get(handle)
         if binding is None or binding.value_type != "Point":
             continue
-        candidates.append((semantic_name, handle))
+        provenance = next(
+            (
+                item
+                for item in reversed(index.state_write_provenance)
+                if item.produced_handle == handle
+                and item.runtime_type == "Point"
+            ),
+            None,
+        )
+        semantic_role = (
+            provenance.identity_role
+            if provenance is not None and provenance.identity_role is not None
+            else _semantic_name(handle)
+        )
+        candidates.append((semantic_role, handle))
     return collect_straightening_endpoint_handles(candidates)
 
 
@@ -2202,7 +2508,15 @@ def _straightening_minimum_fixed_points(
             try:
                 _point_value_path_for_step(handle, step, index)
             except StrategyDraftValidationError:
-                continue
+                try:
+                    # Functional projection preserves macro argument order in
+                    # reads. A declared endpoint may still be a PointRef whose
+                    # coordinate has a deterministic prep invocation (axis,
+                    # intercept, midpoint, etc.); endpoint discovery must not
+                    # discard it before the compile stage can apply that prep.
+                    _point_value_path_or_prepare(handle, step, index)
+                except StrategyDraftValidationError:
+                    continue
             candidates.append(handle)
             continue
         point_handle = _point_handle_from_point_state_fact(handle, step, index)
@@ -2216,6 +2530,123 @@ def _straightening_minimum_fixed_points(
             f"broken_path_straightening_minimum_requires_two_fixed_points: {step.step_id}"
         )
     return unique[0], unique[1]
+
+
+def _fixed_endpoints_from_transformation(
+    transformation_path: str,
+    *,
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> tuple[str, str] | None:
+    try:
+        payload = index.context.read_path(
+            transformation_path,
+            from_scope_id=step.scope_id,
+            expected_type="PathTransformation",
+        ).value
+    except Exception:
+        return None
+    if not isinstance(payload, Mapping):
+        return None
+    refs = payload.get("fixed_endpoint_refs")
+    if (
+        isinstance(refs, list)
+        and len(refs) == 2
+        and all(isinstance(item, str) and item.startswith("point:") for item in refs)
+    ):
+        return refs[0], refs[1]
+    names = payload.get("fixed_point_names")
+    if (
+        isinstance(names, (list, tuple))
+        and len(names) == 2
+        and all(isinstance(item, str) for item in names)
+    ):
+        return (
+            index.point_handle_by_name(names[0], step=step),
+            index.point_handle_by_name(names[1], step=step),
+        )
+    return None
+
+
+def _structured_straightening_roles_from_transformation(
+    transformation_path: str,
+    *,
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> tuple[str, str, str, str, str] | None:
+    """Resolve downstream roles only from a structured PathTransformation."""
+
+    try:
+        payload = index.context.read_path(
+            transformation_path,
+            from_scope_id=step.scope_id,
+            expected_type="PathTransformation",
+        ).value
+    except Exception:
+        return None
+    if not isinstance(payload, Mapping):
+        return None
+    fixed = payload.get("fixed_endpoint_refs")
+    moving_membership = payload.get("moving_locus_condition_ref")
+    line_endpoints = payload.get("moving_locus_endpoint_refs")
+    if not (
+        isinstance(fixed, list)
+        and len(fixed) == 2
+        and all(isinstance(item, str) and item.startswith("point:") for item in fixed)
+        and isinstance(moving_membership, str)
+        and moving_membership.startswith("fact:")
+        and isinstance(line_endpoints, list)
+        and len(line_endpoints) == 2
+        and all(
+            isinstance(item, str) and item.startswith("point:")
+            for item in line_endpoints
+        )
+    ):
+        return None
+    # Validate that every referenced object/condition belongs to the canonical
+    # registry. No fallback search is allowed once the transformation declares
+    # a complete role set.
+    for handle in (*fixed, *line_endpoints):
+        index.binding_for(handle)
+    if index.fact_types.get(moving_membership) != "segment_membership":
+        raise StrategyDraftValidationError(
+            "path_transformation_moving_locus_invalid: "
+            f"{moving_membership}"
+        )
+    index.binding_for(moving_membership)
+    return (
+        fixed[0],
+        fixed[1],
+        moving_membership,
+        line_endpoints[0],
+        line_endpoints[1],
+    )
+
+
+def _require_straightening_locus_evidence(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> None:
+    """Require an explicit locus or legacy structured membership evidence.
+
+    FunctionalPlan exposes the moving locus as a typed ``Line`` argument. Older
+    StepIntent fixtures may still describe the same state through a structured
+    segment membership/relation condition, so that representation remains a
+    supported compatibility input. The compiler must not let the legacy lookup
+    leak a misleading ``fact_handle_not_found`` error when neither exists.
+    """
+    try:
+        index.fact_handle_by_type("segment_membership", step=step)
+        index.fact_handle_by_type("segment_relation", step=step)
+    except StrategyDraftValidationError:
+        pass
+    else:
+        return
+    raise StrategyDraftValidationError(
+        "macro.arg_missing: "
+        f"recipe={step.recipe_hint or step.step_id}, "
+        "arg=moving_locus, expected=Line or segment_membership Condition"
+    )
 
 
 def _point_handle_from_point_state_fact(
@@ -2478,6 +2909,9 @@ def _method_outputs_for_step(
     spec_outputs: dict[str, str],
     index: CanonicalRuntimeBindingIndex,
     binding_rules: MethodBindingRuleRegistry,
+    *,
+    input_bindings: Mapping[str, str] | None = None,
+    input_specs: Mapping[str, Any] | None = None,
 ) -> dict[str, str]:
     """为 invocation 生成输出路径，避免声明 method 不会实际返回的可选输出。"""
     output_names: list[str] = []
@@ -2497,8 +2931,67 @@ def _method_outputs_for_step(
                 spec_outputs,
             )
     if not output_names:
-        output_names = list(spec_outputs)
+        output_names = _active_polymorphic_output_names(
+            spec_outputs,
+            input_bindings=input_bindings or {},
+            input_specs=input_specs or {},
+            index=index,
+        )
     return {name: _temp(step.step_id, name) for name in _unique_ordered(output_names)}
+
+
+def _active_polymorphic_output_names(
+    spec_outputs: Mapping[str, str],
+    *,
+    input_bindings: Mapping[str, str],
+    input_specs: Mapping[str, Any],
+    index: CanonicalRuntimeBindingIndex,
+) -> list[str]:
+    """Select the output variant matching a union-typed runtime input.
+
+    Some pure methods preserve an input's semantic runtime type and therefore
+    declare one output key per variant. When a Functional call does not
+    materialize an optional return, the compiler still needs one temporary
+    output for dry-run execution; requesting every declared variant would ask
+    the method for outputs it intentionally does not emit.
+    """
+    variant_outputs: set[str] = set()
+    active_outputs: set[str] = set()
+    for input_name, input_spec in input_specs.items():
+        accepted_types = set(
+            split_runtime_types(str(getattr(input_spec, "type", "")))
+        )
+        matching_outputs = {
+            output_name
+            for output_name, output_type in spec_outputs.items()
+            if output_type in accepted_types
+        }
+        if len(matching_outputs) <= 1:
+            continue
+        path = input_bindings.get(input_name)
+        if path is None:
+            continue
+        actual_types = {
+            binding.value_type
+            for binding in index.bindings.values()
+            if binding.path == path
+        }
+        matching_active = {
+            output_name
+            for output_name in matching_outputs
+            if spec_outputs[output_name] in actual_types
+        }
+        if not matching_active:
+            continue
+        variant_outputs.update(matching_outputs)
+        active_outputs.update(matching_active)
+    if not variant_outputs or not active_outputs:
+        return list(spec_outputs)
+    return [
+        output_name
+        for output_name in spec_outputs
+        if output_name not in variant_outputs or output_name in active_outputs
+    ]
 
 
 def _append_declared_output_name(
@@ -2552,15 +3045,27 @@ def _promote_outputs_for_step(
     output_types: dict[str, str],
     index: CanonicalRuntimeBindingIndex,
     binding_rules: MethodBindingRuleRegistry,
+    *,
+    point_transition: bool = False,
 ) -> dict[str, str]:
     """根据 produces/answer 自动生成 promote_outputs。"""
     promote: dict[str, str] = {}
     source_to_produced: dict[str, list[ProducedFact]] = {}
+    point_transition = point_transition or _binding_rule_writes_point_transition(
+        method_id,
+        binding_rules,
+    )
     for produced in step.produces:
         output_name = _output_key_for_produced(method_id, produced, output_types, step, index)
         if output_name is None or output_name not in outputs:
             continue
-        target = _target_path_for_produced(produced, output_types[output_name], index, step)
+        target = _target_path_for_produced(
+            produced,
+            output_types[output_name],
+            index,
+            step,
+            point_transition=point_transition,
+        )
         _ensure_declaration_for_promote_target(target, output_types[output_name], index)
         source = outputs[output_name]
         source_to_produced.setdefault(source, []).append(produced)
@@ -2580,6 +3085,28 @@ def _promote_outputs_for_step(
         first_key, first_path = next(iter(outputs.items()))
         promote[first_path] = _scoped_output_path(index.context, step.scope_id, first_key)
     return promote
+
+
+def _binding_rule_writes_point_transition(
+    method_id: str,
+    binding_rules: MethodBindingRuleRegistry,
+) -> bool:
+    rule = binding_rules.rule_for(method_id)
+    if rule is None:
+        return False
+    return any(
+        binding.selector == "point_transition_target"
+        for binding in rule.input_bindings
+    )
+
+
+def _function_writes_point_transition(function: Any | None) -> bool:
+    if function is None:
+        return False
+    return any(
+        item.runtime_type == "Point" and item.write_mode == "transition"
+        for item in function.returns
+    )
 
 def _validate_no_ambiguous_multi_produced_output_aliases(
     step: StepIntent,
@@ -2762,9 +3289,11 @@ def _axis_parameter_symbol_handle(
     index: CanonicalRuntimeBindingIndex,
 ) -> str:
     point_handle = _point_output_handle(step, index)
-    return (
-        f"symbol:{_handle_scope(point_handle)}:"
-        f"{_handle_name(point_handle)}_axis_parameter"
+    return dependent_role_object_ref(
+        source_object_ref=point_handle,
+        semantic_role="axis_parameter",
+        scope_id=_handle_scope(point_handle),
+        runtime_type="Symbol",
     )
 
 def _produced_registrations(
@@ -2796,6 +3325,7 @@ def _macro_write_provenance(
     *,
     recipe_id: str,
     bindings: tuple[tuple[ProducedFact, MacroReturnSpec], ...],
+    declared_evidence_roles: tuple[str, ...],
     index: CanonicalRuntimeBindingIndex,
     prior: tuple[StateWriteProvenance, ...],
 ) -> tuple[StateWriteProvenance, ...]:
@@ -2808,6 +3338,7 @@ def _macro_write_provenance(
             runtime_type=return_spec.runtime_type,
             identity_policy=return_spec.identity_policy,
             identity_role=return_spec.semantic_role or return_spec.name,
+            evidence_roles=declared_evidence_roles,
             identity_arg=return_spec.identity_arg,
             write_mode=return_spec.write_mode,
             input_path=None,
@@ -2871,6 +3402,7 @@ def _function_write_provenance(
                 runtime_type=return_spec.runtime_type,
                 identity_policy=return_spec.identity_policy,
                 identity_role=return_spec.semantic_role or return_spec.name,
+                evidence_roles=(),
                 identity_arg=return_spec.identity_arg,
                 write_mode=return_spec.write_mode,
                 input_path=input_path,
@@ -2899,6 +3431,7 @@ def _state_write_provenance(
     runtime_type: str,
     identity_policy: StateIdentityPolicy,
     identity_role: str,
+    evidence_roles: tuple[str, ...],
     identity_arg: str | None,
     write_mode: StateWriteMode,
     input_path: str | None,
@@ -2915,16 +3448,28 @@ def _state_write_provenance(
         object_ref = (
             produced_handle
             if runtime_type == "Symbol"
-            else f"role:{identity_role}@{step.scope_id}"
+            else derived_role_object_ref(
+                call_id=step.step_id,
+                semantic_role=identity_role,
+                scope_id=step.scope_id,
+                runtime_type=runtime_type,
+            )
         )
     elif identity_policy == "preserve_input_object":
         object_ref = (
+            _point_handle_for_path(input_path, index)
+            if runtime_type == "Point"
+            else None
+        ) or (
             source.object_ref
             if source is not None
             else (
                 source_handle
                 if isinstance(source_handle, str) and source_handle.startswith("symbol:")
-                else _point_entity_for_state(source_handle, step, index)
+                else (
+                    _point_entity_for_state(source_handle, step, index)
+                    or _point_entity_for_state(produced_handle, step, index)
+                )
             )
         )
     elif identity_policy == "target_object":
@@ -2950,8 +3495,13 @@ def _state_write_provenance(
         None,
     )
     effective_write_mode: StateWriteMode = write_mode
+    if write_mode == "transition" and previous_write is None and object_ref is not None:
+        # Initial ProblemIR states are not represented in the prior write
+        # provenance ledger. The first derived value starts that ledger; later
+        # writes to the same object/state must still be explicit transitions.
+        effective_write_mode = "create"
     if (
-        write_mode == "create"
+        effective_write_mode == "create"
         and identity_policy == "target_object"
         and previous_write is not None
     ):
@@ -2979,6 +3529,7 @@ def _state_write_provenance(
         runtime_type=runtime_type,
         identity_policy=identity_policy,
         identity_role=identity_role,
+        evidence_roles=evidence_roles,
         object_ref=object_ref,
         source_handles=tuple(_unique_ordered(source_handles)),
         source_step_id=source.step_id if source is not None else None,
@@ -3136,8 +3687,8 @@ def _expand_point_parameter_substitutions(
         ]
         raise StrategyDraftValidationError(
             "function.unresolved_symbol_inputs: "
-            f"step={step.step_id}, symbols={','.join(map(str, missing))}, "
-            f"semantic_refs={','.join(refs)}"
+            f"step={step.step_id}, symbols={'|'.join(map(str, missing))}, "
+            f"semantic_refs={'|'.join(refs)}"
         )
     ordered = [by_symbol[symbol] for symbol in sorted(free_symbols, key=str)]
     if not ordered:
@@ -3431,6 +3982,8 @@ def _target_path_for_produced(
     output_type: str,
     index: CanonicalRuntimeBindingIndex,
     step: StepIntent,
+    *,
+    point_transition: bool = False,
 ) -> str:
     """把 produces handle 映射到 runtime promote target path。"""
     if produced.handle.startswith("answer:"):
@@ -3443,6 +3996,20 @@ def _target_path_for_produced(
             answer_key = _answer_semantic_name(produced.handle) or goal.answer_key
             return _scoped_output_path(index.context, produced.valid_scope, answer_key)
         return index.path_for(produced.handle)
+    if (
+        output_type == "Point"
+        and point_transition
+        and produced.handle.startswith("fact:")
+    ):
+        # A transition advances a Point's coordinate state without mutating
+        # the ProblemIR object declaration. Explicit coordinates are locked
+        # input evidence, so the new value lives in a writable state path and
+        # remains tied to the same object through StateWriteProvenance.
+        return _scoped_output_path(
+            index.context,
+            produced.valid_scope,
+            _semantic_name(produced.handle),
+        )
     fact_type = index.fact_types.get(produced.handle)
     semantic_name = _semantic_name(produced.handle)
     if fact_type == "point_coordinate" or _is_point_coordinate_semantic_name(semantic_name):
@@ -3458,6 +4025,11 @@ def _target_path_for_produced(
             return _scoped_output_path(index.context, produced.valid_scope, semantic_name)
         if _handle_scope(point_handle) != produced.valid_scope:
             return _scoped_output_path(index.context, produced.valid_scope, semantic_name)
+        if point_transition:
+            return index.path_for(
+                point_handle,
+                expected_type="PointRef|Point",
+            )
         return index.point_ref_path_for(point_handle)
     if output_type == "PointList":
         return _scoped_output_path(index.context, produced.valid_scope, semantic_name)
@@ -3622,6 +4194,7 @@ def _execution_blocker_code(candidate_errors: list[str]) -> str:
     """把候选执行错误压成稳定短错误码。"""
     text = "\n".join(candidate_errors)
     for code in (
+        "function.arg_applicability",
         "function.arg_not_read",
         "function.return_identity_mismatch",
         "function.return_identity_unresolved",
@@ -3640,6 +4213,15 @@ def _execution_blocker_code(candidate_errors: list[str]) -> str:
         return "missing_required_runtime_fact"
     if "line_parabola_line_points_not_found" in text:
         return "missing_line_parabola_inputs"
+    if "parameterized point locus requires exactly one free parameter" in text:
+        return "function.arg_applicability"
+    if (
+        "curve_condition_target_point_not_found" in text
+        or "curve_condition_curve_point_not_found" in text
+    ):
+        return "function.arg_state_unavailable"
+    if re.search(r"\bpoint\s+[A-Za-z][A-Za-z0-9_]*\s+is unresolved\b", text):
+        return "function.arg_state_unavailable"
     if "binding_not_found" in text:
         return "binding_not_found"
     if "binding_type_mismatch" in text:
@@ -3681,6 +4263,84 @@ def _execution_blocker_missing_runtime_type(candidate_errors: list[str]) -> str 
         if value:
             return value
     return None
+
+
+def _execution_blocker_details(
+    candidate_errors: list[str],
+) -> dict[str, Any] | None:
+    """Extract fields from typed capability errors at the compiler boundary."""
+    for error in candidate_errors:
+        if "parameterized point locus requires exactly one free parameter" in error:
+            return {
+                "error_code": "function.arg_applicability",
+                "arg": "point",
+                "requirement": "exactly_one_free_symbol",
+            }
+        curve_point_match = re.search(
+            r"curve_condition_(?P<role>target|curve)_point_not_found:\s*"
+            r"point=(?P<point>[A-Za-z][A-Za-z0-9_]*)",
+            error,
+        )
+        if curve_point_match is not None:
+            return {
+                "error_code": "function.arg_state_unavailable",
+                "arg": f"{curve_point_match.group('role')}_point",
+                "unresolved_point_ref": curve_point_match.group("point"),
+            }
+        point_match = re.search(
+            r"\bpoint\s+(?P<point>[A-Za-z][A-Za-z0-9_]*)\s+is unresolved\b",
+            error,
+        )
+        if point_match is not None:
+            return {
+                "error_code": "function.arg_state_unavailable",
+                "unresolved_point_ref": point_match.group("point"),
+            }
+        marker = "function.unresolved_symbol_inputs:"
+        if marker in error:
+            fields = _typed_error_fields(error.split(marker, 1)[1])
+            return {
+                "error_code": "function.unresolved_symbol_inputs",
+                "arg": "parameter_value",
+                "missing_symbol_names": _split_typed_error_list(
+                    fields.get("symbols")
+                ),
+                # These handles are internal evidence consumed by the
+                # Functional retry projector. They are replaced by call-level
+                # semantic sources before anything reaches the LLM prompt.
+                "missing_symbol_handles": _split_typed_error_list(
+                    fields.get("semantic_refs")
+                ),
+            }
+        for error_code in ("macro.arg_missing", "function.arg_missing"):
+            marker = f"{error_code}:"
+            if marker not in error:
+                continue
+            fields = _typed_error_fields(error.split(marker, 1)[1])
+            argument = fields.get("arg")
+            if argument is not None:
+                return {
+                    "error_code": error_code,
+                    "arg": argument,
+                }
+    return None
+
+
+def _typed_error_fields(payload: str) -> dict[str, str]:
+    fields: dict[str, str] = {}
+    for part in payload.split(","):
+        key, separator, value = part.strip().partition("=")
+        if separator and key and value:
+            fields[key] = value.strip()
+    return fields
+
+
+def _split_typed_error_list(value: str | None) -> list[str]:
+    if not value:
+        return []
+    return [item for item in value.split("|") if item] if "|" in value else [
+        item for item in value.split(",") if item
+    ]
 
 
 def _candidate_warnings_for_report(report: StepIntentResolutionStepReport | None) -> list[str]:

@@ -154,10 +154,14 @@ def test_path_family_recipes_include_execution_specs() -> None:
         "select_point_by_quadrant_constraint",
     )
     assert right_angle.execution.execution_strategy == "right_angle_construct_select"
+    assert right_angle.do_not_use_when
+    assert any("单个条件" in item for item in right_angle.do_not_use_when)
 
     straightening = recipes["broken_path_straightening_and_select"]
     assert straightening.execution is not None
     assert straightening.execution.execution_strategy == "straightening_candidates_select"
+    assert straightening.do_not_use_when
+    assert any("原路径动点坐标" in item for item in straightening.do_not_use_when)
 
 
 def test_path_family_binding_rules_are_declared_in_spec() -> None:
@@ -210,6 +214,7 @@ def test_capability_pack_expansion_deduplicates_methods_and_overrides_recipes() 
             recipe_id="shared_recipe",
             method_sequence=("method_a",),
         ),
+        do_not_use_when=("base misuse",),
     )
     local_recipe = StepRecipeSpec(
         recipe_id="shared_recipe",
@@ -221,6 +226,7 @@ def test_capability_pack_expansion_deduplicates_methods_and_overrides_recipes() 
             recipe_id="shared_recipe",
             method_sequence=("method_local",),
         ),
+        do_not_use_when=("local misuse",),
     )
     mechanism_recipe = StepRecipeSpec(
         recipe_id="mechanism_recipe",
@@ -272,6 +278,7 @@ def test_capability_pack_expansion_deduplicates_methods_and_overrides_recipes() 
         "mechanism_recipe",
     ]
     assert expanded.step_recipes[0].title == "local recipe"
+    assert expanded.step_recipes[0].do_not_use_when == ("local misuse",)
     assert expanded.strategy_principles == (
         "base note",
         "shared note",

@@ -2,7 +2,7 @@
   "method_id": "parameter_from_curve_point_on_quadratic",
   "title": "由曲线点反求参数并代回抛物线",
   "description": "由含参抛物线和含参曲线点反求参数。",
-  "summary": "输入: 含一个参数的抛物线、由同一参数表示的曲线点和参数约束；输出: 参数值、代回后的点坐标和抛物线。",
+  "summary": "已有当前抛物线和曲线上一点；先代入已知参数值，再用曲线点方程唯一确定目标参数。若方程直接确定另一二次函数系数，代码会沿当前系数表达式闭包到目标参数，并更新点和抛物线。",
   "solves": [
     "derive_parameter_from_curve_point_on_quadratic"
   ],
@@ -26,6 +26,18 @@
     "parameter_constraint": {
       "type": "Constraint",
       "required": false
+    },
+    "known_parameter": {
+      "type": "Symbol",
+      "required": false
+    },
+    "known_parameter_value": {
+      "type": "ParameterValue",
+      "required": false
+    },
+    "quadratic_template": {
+      "type": "Expression",
+      "required": false
     }
   },
   "outputs": {
@@ -35,8 +47,12 @@
   },
   "is_pure": true,
   "preconditions": [
-    "quadratic 与 point 必须只共享同一个待求参数",
+    "应用已知参数值后，曲线点方程必须直接唯一确定目标参数，或唯一确定可映射到目标参数的二次函数系数",
     "点代入抛物线后，在参数约束下必须唯一确定参数值"
+  ],
+  "do_not_use_when": [
+    "代入当前已知参数值后仍有两个及以上未确定参数，且无法由当前二次函数系数表达式唯一闭包到目标参数。",
+    "需要先推导曲线表达式或点坐标，而不是利用已有曲线点条件反求参数。"
   ],
   "postconditions": [
     "输出 point 是代入参数后的坐标",

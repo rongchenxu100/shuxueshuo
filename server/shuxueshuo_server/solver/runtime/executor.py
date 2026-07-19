@@ -34,6 +34,7 @@ from shuxueshuo_server.solver.runtime.models import (
     StepPlan,
     runtime_type_matches,
 )
+from shuxueshuo_server.solver.state_semantics import split_runtime_types
 
 
 class DeclarationValidator:
@@ -356,8 +357,8 @@ def _method_input_value(
     """
     if (
         (input_name == "target" or input_name.endswith("_ref"))
-        and "PointRef" in {part.strip() for part in input_type.split("|")}
-        and "Point" in {part.strip() for part in input_type.split("|")}
+        and "PointRef" in split_runtime_types(input_type)
+        and "Point" in split_runtime_types(input_type)
         and typed_value.type == "Point"
     ):
         point_ref = _point_ref_from_point_value_path(raw_path)

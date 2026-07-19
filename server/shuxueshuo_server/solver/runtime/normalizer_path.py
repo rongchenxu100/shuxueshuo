@@ -13,6 +13,9 @@ from shuxueshuo_server.solver.runtime.handle_registry import (
     _semantic_name,
     CanonicalHandleRegistry,
 )
+from shuxueshuo_server.solver.runtime.output_type_inference import (
+    produced_semantic_role,
+)
 from shuxueshuo_server.solver.runtime.strategy_models import (
     CreatedEntity,
     ProducedFact,
@@ -1085,7 +1088,17 @@ def _ensure_broken_path_minimum_endpoint_produces(
         "broken_path_straightening_and_select",
     }:
         return step, []
-    existing_handles = {item.handle for item in step.produces}
+    existing_roles = {
+        role
+        for item in step.produces
+        if _produced_output_type(item, handle_registry) == "Point"
+        for role in (
+            STRAIGHTENING_ENDPOINT_POINT_1,
+            STRAIGHTENING_ENDPOINT_POINT_2,
+        )
+        if produced_semantic_role(item) == role
+        or produced_semantic_role(item).endswith(f"_{role}")
+    }
     output_scope = _straightening_endpoint_output_scope(
         step,
         handle_registry=handle_registry,
@@ -1094,7 +1107,7 @@ def _ensure_broken_path_minimum_endpoint_produces(
     point_2 = _minimum_point_fact(output_scope, STRAIGHTENING_ENDPOINT_POINT_2, "拉直后最短线段的第二个端点")
     additions = tuple(
         item for item in (point_1, point_2)
-        if item.handle not in existing_handles
+        if _semantic_name(item.handle) not in existing_roles
     )
     if not additions:
         return step, []
@@ -1112,7 +1125,6 @@ def _ensure_broken_path_minimum_endpoint_produces(
             )
         ],
     )
-
 def _straightening_endpoint_output_scope(
     step: StepIntent,
     *,

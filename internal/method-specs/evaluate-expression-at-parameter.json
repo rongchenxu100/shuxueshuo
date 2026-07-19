@@ -2,13 +2,13 @@
   "method_id": "evaluate_expression_at_parameter",
   "title": "代入参数化简表达式",
   "description": "把表达式中的参数替换为已求出的参数值。",
-  "summary": "输入: 表达式或最小值表达式、参数符号和参数值；输出: 代入参数后的同类型表达式。",
+  "summary": "输入: 表达式、最小值表达式或抛物线状态，以及参数符号和参数值；输出: 代入参数后的同类型状态。代入一个参数不保证其他自由参数也已闭合；最终结果形态由剩余自由符号决定。",
   "solves": [
     "evaluate_expression_at_parameter"
   ],
   "inputs": {
     "expression": {
-      "type": "Expression|MinimumExpression",
+      "type": "Expression|MinimumExpression|Parabola",
       "required": true
     },
     "parameter": {
@@ -22,9 +22,28 @@
   },
   "outputs": {
     "evaluated_expression": "Expression",
-    "evaluated_minimum_expression": "MinimumExpression"
+    "evaluated_minimum_expression": "MinimumExpression",
+    "evaluated_parabola": "Parabola"
   },
   "is_pure": true,
+  "scalar_result_forms": {
+    "evaluated_expression": {
+      "possible_forms": [
+        "open_expression",
+        "closed_value"
+      ],
+      "description": "代入后仍含未确定参数时为 open_expression；不存在自由参数时为 closed_value。",
+      "closure_policy": "no_free_symbols"
+    },
+    "evaluated_minimum_expression": {
+      "possible_forms": [
+        "open_expression",
+        "closed_value"
+      ],
+      "description": "代入后仍含未确定参数时为 open_expression；不存在自由参数时为 closed_value，可直接作为数值答案。",
+      "closure_policy": "no_free_symbols"
+    }
+  },
   "preconditions": [
     "expression 可以包含 parameter"
   ],

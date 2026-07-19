@@ -7,6 +7,8 @@ RuntimeOrchestrator 匹配 family，并给 Planner 提供题型级参考，不�
 from __future__ import annotations
 
 from shuxueshuo_server.solver.family.models import (
+    CapabilityContractSpec,
+    ConditionPattern,
     FamilyMatchRule,
     MethodCompanionOutputSpec,
     MethodBindingRuleSpec,
@@ -15,17 +17,13 @@ from shuxueshuo_server.solver.family.models import (
     RecipeExecutionSpec,
     recipe_output_alias,
     SolverFamilySpec,
+    StateSlotPattern,
     StepRecipeSpec,
     expand_family_spec,
 )
 from shuxueshuo_server.solver.family.capability_packs import (
     DEFAULT_CAPABILITY_PACK_REGISTRY,
 )
-from shuxueshuo_server.solver.family.common_binding_rules import (
-    parameter_from_curve_point_on_quadratic_rule,
-)
-
-
 _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
     family_id="QuadraticWeightedPathMinimumSolver",
     match=FamilyMatchRule(
@@ -98,8 +96,7 @@ _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                         "parameter_from_curve_point_on_quadratic.point",
                         "Point",
                         "selected_curve_point",
-                        identity_policy="preserve_input_object",
-                        identity_arg="point",
+                        identity_policy="target_object",
                     ),
                     recipe_output_alias(
                         "parameter_from_curve_point_on_quadratic.parameter_value",
@@ -115,6 +112,46 @@ _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                         required=False,
                         cardinality="optional",
                     ),
+                ),
+            ),
+        ),
+    ),
+    capability_contracts=(
+        CapabilityContractSpec(
+            capability_id="curve_candidate_parameter_solve",
+            kind="recipe",
+            slot_reads=(
+                StateSlotPattern(
+                    "candidate",
+                    "PointList",
+                    object_kind="point",
+                    semantic_role="candidates",
+                ),
+                StateSlotPattern(
+                    "expression",
+                    "Parabola",
+                    object_kind="function",
+                    semantic_role="parabola",
+                ),
+                StateSlotPattern(
+                    "coordinate",
+                    "Point",
+                    object_kind="point",
+                    semantic_role="target_point",
+                ),
+            ),
+            condition_reads=(
+                ConditionPattern("point_on_curve", required=False),
+                ConditionPattern("symbol_constraint", required=False),
+            ),
+            slot_writes=(
+                StateSlotPattern(
+                    "coordinate",
+                    "Point",
+                    object_kind="point",
+                    semantic_role="selected_curve_point",
+                    output_key="parameter_from_curve_point_on_quadratic.point",
+                    write_mode="create",
                 ),
             ),
         ),
@@ -179,7 +216,6 @@ _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 MethodInputBindingSpec("target", "right_angle:target"),
             ),
         ),
-        parameter_from_curve_point_on_quadratic_rule(),
         MethodBindingRuleSpec(
             method_id="parameter_from_segment_length",
             input_bindings=(

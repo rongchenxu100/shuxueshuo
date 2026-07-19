@@ -47,6 +47,9 @@ def analyze_quadratic_constraints(
         sp.Eq(quadratic.subs(known).subs(x, point[0]), point[1])
         for point in points
     )
+    equations, contradictory = _normalize_constraint_equations(equations)
+    if contradictory:
+        return QuadraticConstraintAnalysis("ambiguous", branch_count=0)
     unknowns = [symbol for symbol in coefficients if symbol not in known]
     if not unknowns:
         return QuadraticConstraintAnalysis("determined", branch_count=1)
@@ -123,6 +126,9 @@ class QuadraticFromConstraintsMethod:
             sp.Eq(quadratic.subs(known).subs(x, point[0]), point[1])
             for point in points
         )
+        equations, contradictory = _normalize_constraint_equations(equations)
+        if contradictory:
+            raise ValueError("已知系数与约束条件矛盾")
 
         unknowns = [
             symbol
@@ -218,7 +224,7 @@ def _collect_extra_equations(
     inputs: dict[str, Any],
     known: dict[sp.Symbol, sp.Expr],
     substitution: dict[sp.Symbol, sp.Expr],
-) -> list[sp.Equality]:
+) -> list[Any]:
     """收集可选额外方程，例如系数关系。"""
     equations: list[sp.Equality] = []
     relation = inputs.get("coefficient_relation")
@@ -234,6 +240,27 @@ def _collect_extra_equations(
         )
         for equation in equations
     ]
+
+
+def _normalize_constraint_equations(
+    equations: list[Any],
+) -> tuple[list[sp.Equality], bool]:
+    """Remove tautologies and surface contradictions before solve/check.
+
+    SymPy eagerly reduces ``Eq(expr, expr)`` to ``BooleanTrue`` and impossible
+    equalities to ``BooleanFalse``. Neither value has ``lhs``/``rhs`` and they
+    are not runtime equations; treating them here keeps analyzer and execution
+    on the same deterministic constraint set.
+    """
+
+    normalized: list[sp.Equality] = []
+    for equation in equations:
+        if equation is sp.S.true:
+            continue
+        if equation is sp.S.false:
+            return normalized, True
+        normalized.append(equation)
+    return normalized, False
 
 
 def _build_checks(
@@ -295,6 +322,10 @@ SPEC = MethodSpecSource(
         "输入: 二次函数表达式、已知系数、系数关系、曲线点或参数条件；"
         "输出: 当前问最简系数与抛物线解析式；"
         "使用原则: 只在能完全确定系数，或能化简到一个后续条件/目标会用到的未知量时单独成步。"
+    ),
+    do_not_use_when=(
+        "当前目标所需的同一抛物线状态已经由前序调用完整确定，无需用相同约束重复求解。",
+        "现有约束仍有多个自由参数，且无法唯一选择一个会被后续条件或答案目标消费的参数。",
     ),
     description=(
         "由已知系数、曲线点、系数关系和额外方程求当前问需要的最简抛物线。"

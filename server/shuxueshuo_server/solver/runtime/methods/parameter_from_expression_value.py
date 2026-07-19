@@ -67,6 +67,10 @@ SPEC = MethodSpecSource(
     method_cls=ParameterFromExpressionValueMethod,
     title="由表达式取值反求参数",
     summary="输入: 已推导表达式与给定值条件；输出: 参数值。使用原则: 当几何或代数步骤已经给出含参数表达式，而题设给出该表达式的取值时使用。",
+    do_not_use_when=(
+        "尚未得到可代入的含参表达式，或题面没有给出该表达式对应的取值条件。",
+        "目标是完成路径转化或推导最小值表达式，而不是由一个已知表达式取值反求参数。",
+    ),
     solves=("derive_parameter_from_expression_value",),
     inputs={
         "expression": {"type": "MinimumExpression", "required": True},

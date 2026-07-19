@@ -1,0 +1,100 @@
+{
+  "example_id": "square_path_reduction",
+  "source_problem_id": "tj-2026-heping-ermo-25",
+  "family_id": "QuadraticSquareReflectionPathMinimumSolver",
+  "pack_ids": [
+    "square_path_reduction_core",
+    "quadratic_core"
+  ],
+  "capability_ids": [
+    "quadratic_from_constraints",
+    "square_path_dimension_reduction",
+    "quadratic_axis_parameterized_point",
+    "square_adjacent_vertex_from_side",
+    "parameterized_point_locus_line"
+  ],
+  "answer_value_types": [
+    "Point"
+  ],
+  "source_call_ids": [
+    "derive_parametric_parabola_ii",
+    "reduce_square_path_ii",
+    "parameterize_axis_point_E_ii",
+    "derive_square_vertex_G_ii",
+    "derive_locus_G_ii"
+  ],
+  "conditions": [
+    {
+      "ref": "known_curve_point",
+      "kind": "point",
+      "description": "用于化简函数的已知曲线点"
+    },
+    {
+      "ref": "parameter",
+      "kind": "symbol",
+      "description": "函数中保留的主参数"
+    },
+    {
+      "ref": "path_goal",
+      "kind": "fact",
+      "description": "正方形结构中的多段路径目标"
+    },
+    {
+      "ref": "square_relation",
+      "kind": "fact",
+      "description": "正方形顶点与方向条件"
+    },
+    {
+      "ref": "midpoint_relation",
+      "kind": "fact",
+      "description": "边中点条件"
+    },
+    {
+      "ref": "center_relation",
+      "kind": "fact",
+      "description": "正方形中心条件"
+    },
+    {
+      "ref": "axis_point",
+      "kind": "point",
+      "description": "对称轴上的参数化点"
+    },
+    {
+      "ref": "moving_vertex",
+      "kind": "point",
+      "description": "由正方形边构造的动点"
+    }
+  ],
+  "neutralization_map": {
+    "call_ids": {
+      "derive_parametric_parabola_ii": "derive_parametric_curve",
+      "reduce_square_path_ii": "reduce_square_path",
+      "parameterize_axis_point_E_ii": "parameterize_axis_point",
+      "derive_square_vertex_G_ii": "derive_adjacent_vertex",
+      "derive_locus_G_ii": "derive_moving_locus"
+    },
+    "semantic_refs": {
+      "ii.A": "known_curve_point",
+      "c": "parameter",
+      "path_minimum_target": "path_goal",
+      "square_AEKG": "square_relation",
+      "F_midpoint_of_AE": "midpoint_relation",
+      "H_square_diagonal_intersection": "center_relation",
+      "ii.E": "axis_point",
+      "ii.G": "moving_vertex"
+    },
+    "text_replacements": {
+      "代入横轴交点条件，把函数化成只含主参数的形式。": "代入曲线点条件，把函数化成单参数形式。",
+      "后续轴点、正方形顶点和最值表达式都依赖该函数。": "后续轴点和正方形构造依赖该函数。",
+      "利用正方形中点和中心关系把三段路径降为单动点折线。": "利用中点和中心关系把多段路径降为单动点折线。",
+      "折线拉直前先确定等价路径结构。": "先确定等价路径结构。",
+      "把对称轴上的目标点表示为单参数点。": "把轴上点表示为单参数点。",
+      "正方形顶点坐标和最终恢复都需要该对象身份。": "相邻顶点构造需要该对象状态。",
+      "由正方形边构造参数化顶点。": "由正方形一边构造相邻顶点。",
+      "路径最值中的动点正是该顶点。": "该顶点是后续轨迹中的动点。",
+      "消去点坐标中的线性参数得到轨迹直线。": "消去线性参数得到动点轨迹。",
+      "将军饮马最短状态必须同时落在该轨迹上。": "后续最短状态必须落在该轨迹上。"
+    }
+  },
+  "neutralized": true
+}

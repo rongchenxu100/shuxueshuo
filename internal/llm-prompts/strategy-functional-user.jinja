@@ -1,0 +1,67 @@
+请使用以下结构化信息完成题目，并以 FunctionalPlan JSON 表示完整解法。
+
+## ProblemIR
+
+{{ payload.problem_ir | pretty_json }}
+
+## Strategy Principles
+
+{{ payload.strategy_principles | pretty_json }}
+
+## Functional Capability Catalog
+
+每项 capability 的 `title/use_when` 说明它适用的数学目标和前置状态。
+若当前任务命中任一 `do_not_use_when`，不要选择该 capability；应改选其他能力或先补齐前置状态。
+`args.name` 是调用时使用的参数名，`accepts/required/cardinality` 描述允许的输入。
+参数或返回值带有 `desc` 时，必须按该语义角色理解，不能只凭类型猜测用途。
+`returns.name` 才能用于 CallResultRef.return 或 return_bindings 的 key；
+`binding` 说明该结果能否绑定答案或已有对象。
+仅当 return 展示 `possible_forms` 时，才可在 call 的 `return_expectations` 中写预期：
+保留未定参数供后续求解用 `open_expression`，准备直接绑定数值答案用 `closed_value`。
+`desc` 会说明两种形态的边界；代码仍会按实际自由符号验证。
+
+{{ payload.functional_capability_catalog | pretty_json }}
+
+{% if payload.few_shot_examples %}
+## Functional Few-shot
+
+示例只用于学习 call 粒度与数据依赖，不得复制示例中的对象名、答案或调用数量。
+
+{% for example in payload.few_shot_examples %}
+{% if example.get("annotation") %}
+### 机制说明
+
+- 用途：{{ example.annotation.purpose }}
+- 适用条件：{{ example.annotation.use_when }}
+- 关键思路：{{ example.annotation.key_idea }}
+- 不适用情况：
+{% for item in example.annotation.do_not_use_when %}
+  - {{ item }}
+{% endfor %}
+{% endif %}
+### FunctionalPlan 示例
+
+{{ example | functional_few_shot_plan | pretty_json }}
+{% endfor %}
+{% endif %}
+
+## Previous Attempt State
+
+`latest_retry_state` 是唯一 retry 记忆源。每个 issue 是一张 call-level repair ticket；
+保留 `stable_candidate_calls`，修复 `repair_call_ids`。这里不使用线性 step prefix 或
+compatibility mirror。
+
+{{ payload.previous_attempt_state | pretty_json }}
+
+## Output Requirements
+
+- 覆盖 ProblemIR 中所有 `required: true` 的 answer goals。
+- 将 call 放在它直接服务的小问 scope 下；可被多个小问复用的计算无需移动到父问，系统会决定执行位置和发布范围。
+- 已有 call 返回后，后续任何 scope 都应优先通过 CallResultRef 引用；不要因 scope 改变而重复提交相同 capability 和相同输入。
+- 若前序返回就是某个 required answer 对应的对象状态，把 answer 绑定在该唯一 producer 上；不要另建“读取/复制/再次求解”call。
+- 题面对象直接使用 ProblemIR 的 `semantic_ref` 构造 SemanticRef，前序结果用 CallResultRef。
+- 只显式绑定最终 answer 或已有对象状态；其余中间状态交给代码分配。
+- `binding=internal_only` 的 return 只能供后续 call 引用，不能绑定 answer 或已有对象。
+- `binding=same_object_as:<arg>` 不改变对象身份；internal-only 来源经过求值后仍不是题面目标对象。
+- 只有 catalog return 声明 `possible_forms` 时才填写 `return_expectations`；它是意图提示，不是计算结果。
+- 输出必须严格符合 `functional_plan/v1`。

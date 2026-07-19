@@ -2,7 +2,7 @@
   "method_id": "distance_between_points",
   "title": "计算两点距离",
   "description": "计算两点距离，并可选代入参数值得到具体距离。",
-  "summary": "输入: 两点及可选参数值；输出: 两点距离或代入参数后的距离。",
+  "summary": "输入两点及可选参数值，输出两点距离。端点仍含未定参数时结果是开放表达式；所有参数已确定时结果是可直接使用的闭合值。代入一个参数不保证其他参数也已闭合。",
   "solves": [
     "derive_distance_between_points"
   ],
@@ -29,6 +29,24 @@
     "evaluated_distance": "MinimumExpression"
   },
   "is_pure": true,
+  "scalar_result_forms": {
+    "distance": {
+      "possible_forms": [
+        "open_expression",
+        "closed_value"
+      ],
+      "description": "端点仍含未确定参数时为 open_expression；不存在自由参数时为 closed_value，可直接作为数值答案。",
+      "closure_policy": "no_free_symbols"
+    },
+    "evaluated_distance": {
+      "possible_forms": [
+        "open_expression",
+        "closed_value"
+      ],
+      "description": "代入指定参数后若仍含其他未确定参数则为 open_expression；不存在自由参数时为 closed_value。",
+      "closure_policy": "no_free_symbols"
+    }
+  },
   "explanation": {
     "role_schema": {
       "p1": "第一个点或线段端点。",

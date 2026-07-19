@@ -23,6 +23,7 @@ from shuxueshuo_server.solver.contracts import (
     StatelessMethodResult,
     TypedValue,
 )
+from shuxueshuo_server.solver.state_semantics import split_runtime_types
 
 
 ScopeType = Literal["problem", "question", "subquestion", "step"]
@@ -37,9 +38,8 @@ def runtime_type_matches(expected_type: str, actual_type: str) -> bool:
     """
     if "|" in expected_type:
         return any(
-            runtime_type_matches(item.strip(), actual_type)
-            for item in expected_type.split("|")
-            if item.strip()
+            runtime_type_matches(item, actual_type)
+            for item in split_runtime_types(expected_type)
         )
     if expected_type == actual_type:
         return True

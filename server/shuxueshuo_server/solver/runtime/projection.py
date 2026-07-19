@@ -15,6 +15,7 @@ from typing import Any, Mapping
 from shuxueshuo_server.solver.problem_models import ProblemIR, QuestionGoal
 from shuxueshuo_server.solver.question_goals import extract_question_goals
 from shuxueshuo_server.solver.runtime.models import ContextPath
+from shuxueshuo_server.solver.state_semantics import is_object_handle
 
 
 _CANONICAL_PAYLOAD_KEY = "_canonical_problem_payload"
@@ -387,10 +388,18 @@ def _runtime_relations(
     """从 canonical facts/entities 派生 ContextInventory/ContextBuilder 兼容 relations。"""
 
     relations: list[dict[str, Any]] = []
+    entities_by_handle = {
+        str(item.get("handle")): item
+        for item in entities
+        if isinstance(item.get("handle"), str)
+    }
     for fact in facts:
         if not isinstance(fact, Mapping):
             continue
-        relation = _relation_from_fact(fact)
+        relation = _relation_from_fact(
+            fact,
+            entities_by_handle=entities_by_handle,
+        )
         if relation is not None:
             relations.append(relation)
     for entity in entities:
@@ -409,7 +418,11 @@ def _runtime_relations(
     return relations
 
 
-def _relation_from_fact(fact: Mapping[str, Any]) -> dict[str, Any] | None:
+def _relation_from_fact(
+    fact: Mapping[str, Any],
+    *,
+    entities_by_handle: Mapping[str, Mapping[str, Any]] | None = None,
+) -> dict[str, Any] | None:
     """把常见题设 fact 转成旧 relation 结构。"""
 
     fact_type = str(fact.get("type", ""))
@@ -436,19 +449,32 @@ def _relation_from_fact(fact: Mapping[str, Any]) -> dict[str, Any] | None:
             "scope": scope,
         }
     if fact_type == "segment_membership":
+        segment_ref = str(fact.get("segment", ""))
+        segment_payload = (entities_by_handle or {}).get(segment_ref, {})
         return {
             "type": "segment_membership",
             "point": _handle_name(str(fact.get("point", ""))),
-            "segment": _handle_name(str(fact.get("segment", ""))),
+            "segment": _handle_name(segment_ref),
+            "condition_ref": str(fact.get("handle", "")),
+            "point_ref": str(fact.get("point", "")),
+            "segment_ref": segment_ref,
+            "segment_endpoint_refs": list(
+                segment_payload.get("endpoints", ())
+            ),
             "scope": scope,
         }
     if fact_type == "segment_relation":
-        return {
+        relation = {
             "type": "segment_relation",
             "left": str(fact.get("left", "")),
             "right": str(fact.get("right", "")),
+            "condition_ref": str(fact.get("handle", "")),
             "scope": scope,
         }
+        for key in ("left_term", "right_term"):
+            if key in fact:
+                relation[key] = deepcopy(fact[key])
+        return relation
     if fact_type == "right_angle_equal_length":
         relation = {key: deepcopy(value) for key, value in fact.items() if key not in {"handle", "valid_scope", "description", "source"}}
         relation["scope"] = scope
@@ -492,6 +518,12 @@ def _runtime_path_problem(
             "type": path_type,
             "scope": str(fact.get("scope_id", "problem")),
             "path": str(path),
+            "condition_ref": str(fact.get("handle", "")),
+            **(
+                {"terms": deepcopy(fact["terms"])}
+                if isinstance(fact.get("terms"), list)
+                else {}
+            ),
             **({"value": str(value)} if value else {}),
         }
     return None
@@ -1055,7 +1087,7 @@ def _runtime_definition_value(value: Any) -> Any:
     """把 runtime PointRef definition 中的 canonical handles 压成旧短名。"""
 
     if isinstance(value, str):
-        if re.match(r"^(point|line|segment|ray|function|symbol|angle|circle|polygon):", value):
+        if is_object_handle(value):
             return _handle_name(value)
         return value
     if isinstance(value, list):

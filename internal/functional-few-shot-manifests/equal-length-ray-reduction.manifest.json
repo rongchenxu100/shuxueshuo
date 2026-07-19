@@ -1,0 +1,79 @@
+{
+  "example_id": "equal_length_ray_reduction",
+  "source_problem_id": "tj-2026-heping-yimo-25",
+  "family_id": "QuadraticEqualLengthRayPathMinimumSolver",
+  "pack_ids": [
+    "equal_length_ray_reduction_core",
+    "parameter_solving_core"
+  ],
+  "capability_ids": [
+    "equal_length_ray_path_reduction",
+    "parameter_from_expression_value"
+  ],
+  "answer_value_types": [
+    "ParameterValue"
+  ],
+  "source_call_ids": [
+    "reduce_equal_length_ray_path_ii",
+    "solve_parameter_from_minimum_ii"
+  ],
+  "conditions": [
+    {
+      "ref": "path_goal",
+      "kind": "fact",
+      "description": "两动点距离和的最值目标"
+    },
+    {
+      "ref": "equal_length_relation",
+      "kind": "fact",
+      "description": "连接两个动点状态的等长关系"
+    },
+    {
+      "ref": "segment_membership",
+      "kind": "fact",
+      "description": "一个动点在线段上的条件"
+    },
+    {
+      "ref": "ray_membership",
+      "kind": "fact",
+      "description": "另一个动点在射线上的条件"
+    },
+    {
+      "ref": "minimum_value",
+      "kind": "fact",
+      "description": "题面给定的最小值条件"
+    },
+    {
+      "ref": "parameter",
+      "kind": "symbol",
+      "description": "需要反求的函数参数"
+    },
+    {
+      "ref": "parameter_answer",
+      "kind": "answer",
+      "description": "参数答案目标"
+    }
+  ],
+  "neutralization_map": {
+    "call_ids": {
+      "reduce_equal_length_ray_path_ii": "reduce_equal_length_path",
+      "solve_parameter_from_minimum_ii": "solve_parameter"
+    },
+    "semantic_refs": {
+      "path_minimum_target": "path_goal",
+      "CN_eq_CM": "equal_length_relation",
+      "M_on_segment_BC": "segment_membership",
+      "N_on_ray_CD": "ray_membership",
+      "path_minimum_value_given": "minimum_value",
+      "a": "parameter",
+      "ii_a": "parameter_answer"
+    },
+    "text_replacements": {
+      "用等长关系把双动点距离和降维成单距离最值。": "用等长关系把双动点路径降维成单距离最值。",
+      "该机制直接产生关于主参数的最小值表达式。": "该机制产生关于主参数的最小值表达式。",
+      "令最小值表达式等于题设值并按参数范围取解。": "令最小值表达式等于给定值并按范围取解。",
+      "求得的主参数是本问答案。": "将求得的主参数绑定答案目标。"
+    }
+  },
+  "neutralized": true
+}

@@ -1,0 +1,260 @@
+{
+  "format": "functional_plan/v1",
+  "scopes": [
+    {
+      "scope_id": "i",
+      "label": "第（Ⅰ）问",
+      "calls": [
+        {
+          "call_id": "derive_parabola_i",
+          "capability_id": "quadratic_from_constraints",
+          "args": {
+            "known_coefficients": {
+              "ref": "b_value",
+              "kind": "fact"
+            },
+            "curve_point": {
+              "ref": "A",
+              "kind": "point"
+            }
+          },
+          "return_bindings": {},
+          "strategy": "代入本问参数和已知曲线点确定抛物线。",
+          "reason": "顶点计算需要完整函数状态。"
+        },
+        {
+          "call_id": "derive_vertex_i",
+          "capability_id": "quadratic_vertex_point",
+          "args": {
+            "parabola": {
+              "from_call": "derive_parabola_i",
+              "return": "parabola"
+            }
+          },
+          "return_bindings": {
+            "point": {
+              "ref": "i_P",
+              "kind": "answer"
+            }
+          },
+          "strategy": "由抛物线解析式求顶点。",
+          "reason": "该点坐标是本问答案。"
+        }
+      ]
+    },
+    {
+      "scope_id": "ii",
+      "label": "第（Ⅱ）问公共推导",
+      "calls": [
+        {
+          "call_id": "derive_parametric_parabola_ii",
+          "capability_id": "quadratic_from_constraints",
+          "args": {
+            "curve_point": {
+              "ref": "A",
+              "kind": "point"
+            },
+            "free_parameters": {
+              "ref": "b",
+              "kind": "symbol"
+            }
+          },
+          "return_bindings": {},
+          "strategy": "把已知曲线点代入题设函数，保留主参数。",
+          "reason": "两个小问都需要同一含参抛物线状态。"
+        },
+        {
+          "call_id": "derive_curve_point_D_ii",
+          "capability_id": "point_on_parabola_at_x",
+          "args": {
+            "parabola": {
+              "from_call": "derive_parametric_parabola_ii",
+              "return": "parabola"
+            }
+          },
+          "return_bindings": {
+            "point": {
+              "ref": "D",
+              "kind": "point"
+            }
+          },
+          "strategy": "将题面给定的横坐标代入含参抛物线。",
+          "reason": "长度关系和后续路径最值都需要该点坐标。"
+        },
+        {
+          "call_id": "derive_x_intercept_B_ii",
+          "capability_id": "quadratic_x_axis_intercept_point",
+          "args": {
+            "quadratic": {
+              "from_call": "derive_parametric_parabola_ii",
+              "return": "parabola"
+            },
+            "known_point": {
+              "ref": "A",
+              "kind": "point"
+            }
+          },
+          "return_bindings": {
+            "point": {
+              "ref": "B",
+              "kind": "point"
+            }
+          },
+          "strategy": "求横轴上的另一个曲线交点。",
+          "reason": "线段比例条件包含该交点。"
+        },
+        {
+          "call_id": "derive_y_intercept_C_ii",
+          "capability_id": "quadratic_y_axis_intercept_point",
+          "args": {
+            "quadratic": {
+              "from_call": "derive_parametric_parabola_ii",
+              "return": "parabola"
+            }
+          },
+          "return_bindings": {
+            "point": {
+              "ref": "C",
+              "kind": "point"
+            }
+          },
+          "strategy": "令横坐标为零得到纵轴交点。",
+          "reason": "线段比例条件还需要纵轴交点。"
+        }
+      ]
+    },
+    {
+      "scope_id": "ii_1",
+      "label": "第（Ⅱ）①问",
+      "calls": [
+        {
+          "call_id": "solve_parameter_from_segment_relation_ii",
+          "capability_id": "parameter_from_segment_length",
+          "args": {
+            "p1": {
+              "ref": "A",
+              "kind": "point"
+            },
+            "p2": {
+              "from_call": "derive_curve_point_D_ii",
+              "return": "point"
+            },
+            "reference_p1": {
+              "from_call": "derive_x_intercept_B_ii",
+              "return": "point"
+            },
+            "reference_p2": {
+              "from_call": "derive_y_intercept_C_ii",
+              "return": "point"
+            },
+            "length_squared": {
+              "ref": "AD_eq_2BC",
+              "kind": "fact"
+            }
+          },
+          "return_bindings": {
+            "parameter_value": {
+              "ref": "ii_1_b",
+              "kind": "answer"
+            }
+          },
+          "strategy": "把两条线段的比例关系转为距离平方方程。",
+          "reason": "解出的主参数是本小问答案。"
+        }
+      ]
+    },
+    {
+      "scope_id": "ii_2",
+      "label": "第（Ⅱ）②问",
+      "calls": [
+        {
+          "call_id": "transform_weighted_path_ii",
+          "capability_id": "weighted_axis_path_triangle_transform",
+          "args": {
+            "minimum_value": {
+              "ref": "path_minimum_value_given",
+              "kind": "fact"
+            },
+            "fixed_point": {
+              "ref": "A",
+              "kind": "point"
+            },
+            "moving_point": {
+              "ref": "M",
+              "kind": "point"
+            }
+          },
+          "return_bindings": {},
+          "strategy": "用辅助直角三角形把加权路径转成普通折线路径。",
+          "reason": "转化后才能用几何最短距离建立参数表达式。"
+        },
+        {
+          "call_id": "derive_weighted_minimum_ii",
+          "capability_id": "linked_broken_path_minimum_expression",
+          "args": {
+            "path_transformation": {
+              "from_call": "transform_weighted_path_ii",
+              "return": "path_transformation"
+            },
+            "auxiliary_locus": {
+              "from_call": "transform_weighted_path_ii",
+              "return": "auxiliary_locus"
+            },
+            "fixed_point": {
+              "ref": "A",
+              "kind": "point"
+            },
+            "curve_point": {
+              "from_call": "derive_curve_point_D_ii",
+              "return": "point"
+            },
+            "moving_point": {
+              "ref": "M",
+              "kind": "point"
+            },
+            "auxiliary_point": {
+              "from_call": "transform_weighted_path_ii",
+              "return": "auxiliary_point"
+            },
+            "dynamic_constraint": {
+              "ref": "m_gt_0",
+              "kind": "fact"
+            }
+          },
+          "return_bindings": {},
+          "return_expectations": {
+            "minimum_expression": "open_expression"
+          },
+          "strategy": "拉直联动折线得到只含主参数的最小值表达式。",
+          "reason": "题设给定的最小值将在下一调用中用于反求参数。"
+        },
+        {
+          "call_id": "solve_parameter_from_minimum_ii",
+          "capability_id": "parameter_from_expression_value",
+          "args": {
+            "expression": {
+              "from_call": "derive_weighted_minimum_ii",
+              "return": "minimum_expression"
+            },
+            "minimum_value": {
+              "ref": "path_minimum_value_given",
+              "kind": "fact"
+            },
+            "parameter": {
+              "ref": "b",
+              "kind": "symbol"
+            }
+          },
+          "return_bindings": {
+            "parameter_value": {
+              "ref": "ii_2_b",
+              "kind": "answer"
+            }
+          },
+          "strategy": "令最小值表达式等于题设值并按参数范围取解。",
+          "reason": "该参数值是本小问答案。"
+        }
+      ]
+    }
+  ]
+}

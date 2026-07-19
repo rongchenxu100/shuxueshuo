@@ -90,6 +90,39 @@ class ProducedFact:
 
 
 @dataclass(frozen=True)
+class ProjectedStateWrite:
+    """Internal state-write metadata carried beside a StepIntent projection.
+
+    Functional reconciliation knows whether a return creates a state or
+    transitions an existing StateSlot.  StepIntent intentionally does not
+    expose that compiler detail, so this immutable sidecar preserves it across
+    validation without extending the LLM-facing wire format.
+    """
+
+    step_id: str
+    produced_handle: str
+    state_slot_id: str
+    write_mode: Literal["create", "transition", "value"]
+    source_state_slot_ids: tuple[str, ...] = ()
+    return_name: str | None = None
+    expected_result_form: Literal["open_expression", "closed_value"] | None = None
+
+    def to_payload(self) -> dict[str, Any]:
+        payload: dict[str, Any] = {
+            "step_id": self.step_id,
+            "produced_handle": self.produced_handle,
+            "state_slot_id": self.state_slot_id,
+            "write_mode": self.write_mode,
+            "source_state_slot_ids": list(self.source_state_slot_ids),
+        }
+        if self.return_name is not None:
+            payload["return_name"] = self.return_name
+        if self.expected_result_form is not None:
+            payload["expected_result_form"] = self.expected_result_form
+        return payload
+
+
+@dataclass(frozen=True)
 class SemanticRef:
     """LLM-facing semantic read reference.
 
@@ -690,6 +723,7 @@ class StateWriteProvenance:
         "value_only",
     ]
     identity_role: str
+    evidence_roles: tuple[str, ...] = ()
     object_ref: str | None = None
     source_handles: tuple[str, ...] = ()
     source_step_id: str | None = None
@@ -708,6 +742,7 @@ class StateWriteProvenance:
             "runtime_type": self.runtime_type,
             "identity_policy": self.identity_policy,
             "identity_role": self.identity_role,
+            "evidence_roles": list(self.evidence_roles),
             "object_ref": self.object_ref,
             "source_handles": list(self.source_handles),
             "source_step_id": self.source_step_id,
@@ -730,6 +765,7 @@ class StepIntentExecutionBlocker:
     capability_errors: tuple[str, ...] = ()
     capability_id: str | None = None
     missing_runtime_type: str | None = None
+    details: dict[str, Any] | None = None
     retryable: bool = True
 
     def to_payload(self) -> dict[str, Any]:
@@ -747,6 +783,8 @@ class StepIntentExecutionBlocker:
             payload["capability_id"] = self.capability_id
         if self.missing_runtime_type is not None:
             payload["missing_runtime_type"] = self.missing_runtime_type
+        if self.details is not None:
+            payload["details"] = self.details
         return payload
 
 
@@ -826,6 +864,9 @@ class StepIntentExecutionDiagnostic:
 
 PlannerRetryLayer = Literal[
     "replay",
+    "functional_validation",
+    "functional_elaboration",
+    "functional_reconciliation",
     "semantic_reads",
     "handle_resolution",
     "validation",
@@ -836,8 +877,11 @@ PlannerRetryLayer = Literal[
     "answer_check",
 ]
 
+PlannerOutputFormat = Literal["step_intent", "functional_plan"]
+
 PlannerRetryPreservePolicy = Literal[
     "preserve_all",
+    "preserve_graph",
     "preserve_prefix",
     "preserve_step",
     "preserve_handles",
@@ -845,6 +889,9 @@ PlannerRetryPreservePolicy = Literal[
 ]
 
 PlannerReplayDepth = Literal[
+    "functional_validation",
+    "functional_elaboration",
+    "functional_reconciliation",
     "semantic_reads",
     "handle_resolution",
     "validation",
@@ -906,6 +953,11 @@ class PlannerRetryState:
     replay_timeline: tuple[dict[str, Any], ...] = ()
     replay_reports: dict[str, Any] | None = None
     source_context_id: str | None = None
+    candidate_format: PlannerOutputFormat = "step_intent"
+    baseline_candidate: dict[str, Any] | None = None
+    stable_candidate_prefix: tuple[dict[str, Any], ...] = ()
+    stable_candidate_calls: tuple[dict[str, Any], ...] = ()
+    repair_call_ids: tuple[str, ...] = ()
 
     def to_payload(self) -> dict[str, Any]:
         """转成 ``previous_attempts`` 和 prompt 可携带的安全 JSON。"""
@@ -924,6 +976,11 @@ class PlannerRetryState:
             "selected_repair_layer": self.selected_repair_layer,
             "replay_timeline": list(self.replay_timeline),
             "replay_reports": self.replay_reports or {},
+            "candidate_format": self.candidate_format,
+            "baseline_candidate": self.baseline_candidate,
+            "stable_candidate_prefix": list(self.stable_candidate_prefix),
+            "stable_candidate_calls": list(self.stable_candidate_calls),
+            "repair_call_ids": list(self.repair_call_ids),
         }
         if self.source_context_id is not None:
             payload["source"] = "planner_state_context"

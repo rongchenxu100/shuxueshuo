@@ -234,6 +234,16 @@ def semantic_name_from_handle(handle: str) -> str:
     return parts[-1] if parts else handle
 
 
+def produced_semantic_role(produced: ProducedFact) -> str:
+    """Return the declared output role, falling back to handle semantics."""
+    marker = " return "
+    if marker in produced.description:
+        role = produced.description.rsplit(marker, 1)[-1].strip()
+        if role:
+            return role
+    return semantic_name_from_handle(produced.handle)
+
+
 def is_parameter_value_semantic_name(name: str) -> bool:
     """Return whether a semantic name clearly denotes a parameter value."""
     if name in {"m_value", "a_value", "b_value", "c_value", "parameter_value"}:

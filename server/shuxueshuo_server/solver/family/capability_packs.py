@@ -3,14 +3,18 @@
 from __future__ import annotations
 
 from shuxueshuo_server.solver.family.models import (
+    CapabilityContextResolver,
     CapabilityContractSpec,
     CapabilityCardinality,
+    CapabilityDependencyPolicy,
     CapabilityExecutionStatus,
     CapabilityPackRegistry,
     CapabilityPackSpec,
+    CONDITION_OBJECT_ROLES_RESOLVER,
     ConditionPattern,
     MethodBindingRuleSpec,
     MethodInputBindingSpec,
+    PATH_REDUCTION_ROLES_RESOLVER,
     RecipeExecutionSpec,
     recipe_output_alias,
     StateSlotPattern,
@@ -24,6 +28,7 @@ from shuxueshuo_server.solver.family.common_binding_rules import (
     line_intersection_point_rule,
     line_parabola_second_intersection_point_rule,
     midpoint_point_rule,
+    parameter_from_curve_point_on_quadratic_rule,
     parameter_from_expression_value_rule,
     quadratic_from_constraints_rule,
     quadratic_vertex_point_rule,
@@ -34,14 +39,35 @@ from shuxueshuo_server.solver.family.common_binding_rules import (
 from shuxueshuo_server.solver.output_type_policy import TRANSIENT_OUTPUT_TYPES
 
 
+RIGHT_ANGLE_EQUAL_LENGTH_DO_NOT_USE_WHEN = (
+    "只有直角或等长中的单个条件，无法确定构造点所需的完整对象角色和约束。",
+)
+TWO_MOVING_POINTS_REDUCTION_DO_NOT_USE_WHEN = (
+    "目标是直接求路径最小值、最小值表达式或极值点坐标；本能力只产生后续路径处理所需的等价变换。",
+)
+BROKEN_PATH_SELECT_DO_NOT_USE_WHEN = (
+    "目标是直接得到最小值表达式、最小值或原路径动点坐标；本能力只选择拉直方案及其内部端点。",
+)
+STRAIGHTENED_DISTANCE_DO_NOT_USE_WHEN = (
+    "尚未得到两个确定的拉直端点，或仍需完成路径降维、反射构造与候选选择。",
+)
+BROKEN_PATH_MINIMUM_EXPRESSION_DO_NOT_USE_WHEN = (
+    "目标是求原路径动点或极值点坐标；返回的 Point 只是拉直线段内部端点，不能绑定为 Point 答案或题面已有对象。",
+)
+
+
 def _slot(
     state_kind: str,
     runtime_type: str,
     *,
     object_kind: str | None = None,
+    semantic_role: str | None = None,
+    output_key: str | None = None,
     cardinality: CapabilityCardinality = "one",
     required: bool | None = None,
     write_mode: StateWriteMode | None = None,
+    description: str = "",
+    provides_semantic_roles: tuple[str, ...] = (),
 ) -> StateSlotPattern:
     resolved_required = (
         runtime_type not in TRANSIENT_OUTPUT_TYPES
@@ -52,6 +78,8 @@ def _slot(
         state_kind=state_kind,
         runtime_type=runtime_type,
         object_kind=object_kind,
+        semantic_role=semantic_role,
+        output_key=output_key,
         cardinality=cardinality,
         required=resolved_required,
         write_mode=(
@@ -59,6 +87,8 @@ def _slot(
             if write_mode is not None
             else ("create" if runtime_type in {"Point", "PointList"} else "value")
         ),
+        description=description,
+        provides_semantic_roles=provides_semantic_roles,
     )
 
 
@@ -67,11 +97,32 @@ def _condition(
     *,
     runtime_type: str = "Condition",
     required: bool = True,
+    description: str = "",
 ) -> ConditionPattern:
     return ConditionPattern(
         condition_kind=condition_kind,
         runtime_type=runtime_type,
         required=required,
+        description=description,
+    )
+
+
+def _straightening_fixed_endpoint_reads() -> tuple[StateSlotPattern, ...]:
+    return (
+        _slot(
+            "coordinate",
+            "Point",
+            object_kind="point",
+            semantic_role="fixed_endpoint_1",
+            required=True,
+        ),
+        _slot(
+            "coordinate",
+            "Point",
+            object_kind="point",
+            semantic_role="fixed_endpoint_2",
+            required=True,
+        ),
     )
 
 
@@ -85,6 +136,8 @@ def _method_contract(
     execution_status: CapabilityExecutionStatus = "executable",
     exposes_to_llm: bool = True,
     constraint_analyzer: str | None = None,
+    dependency_policy: CapabilityDependencyPolicy = "explicit_args",
+    context_resolvers: tuple[CapabilityContextResolver, ...] = (),
 ) -> CapabilityContractSpec:
     return CapabilityContractSpec(
         capability_id=capability_id,
@@ -96,6 +149,8 @@ def _method_contract(
         condition_writes=condition_writes,
         exposes_to_llm=exposes_to_llm,
         constraint_analyzer=constraint_analyzer,
+        dependency_policy=dependency_policy,
+        context_resolvers=context_resolvers,
     )
 
 
@@ -108,6 +163,8 @@ def _recipe_contract(
     condition_writes: tuple[ConditionPattern, ...] = (),
     execution_status: CapabilityExecutionStatus = "executable",
     exposes_to_llm: bool = True,
+    dependency_policy: CapabilityDependencyPolicy = "explicit_args",
+    context_resolvers: tuple[CapabilityContextResolver, ...] = (),
 ) -> CapabilityContractSpec:
     return CapabilityContractSpec(
         capability_id=capability_id,
@@ -118,6 +175,8 @@ def _recipe_contract(
         slot_writes=slot_writes,
         condition_writes=condition_writes,
         exposes_to_llm=exposes_to_llm,
+        dependency_policy=dependency_policy,
+        context_resolvers=context_resolvers,
     )
 
 
@@ -125,7 +184,14 @@ QUADRATIC_CORE_CONTRACTS = (
     _method_contract(
         "quadratic_axis_from_relation",
         condition_reads=(_condition("coefficient_relation", runtime_type="Equation"),),
-        slot_writes=(_slot("coordinate", "Point", object_kind="point"),),
+        slot_writes=(
+            _slot(
+                "coordinate",
+                "Point",
+                object_kind="point",
+                semantic_role="axis_point",
+            ),
+        ),
     ),
     _method_contract(
         "quadratic_from_constraints",
@@ -143,18 +209,51 @@ QUADRATIC_CORE_CONTRACTS = (
     _method_contract(
         "quadratic_vertex_point",
         slot_reads=(_slot("expression", "Parabola", object_kind="function"),),
-        slot_writes=(_slot("coordinate", "Point", object_kind="point"),),
+        slot_writes=(
+            _slot(
+                "coordinate",
+                "Point",
+                object_kind="point",
+                semantic_role="vertex",
+            ),
+        ),
     ),
     _method_contract(
         "quadratic_x_axis_intercept_point",
         slot_reads=(_slot("expression", "Parabola", object_kind="function"),),
         condition_reads=(_condition("x_axis_known_point", required=False),),
-        slot_writes=(_slot("coordinate", "Point", object_kind="point"),),
+        slot_writes=(
+            _slot(
+                "coordinate",
+                "Point",
+                object_kind="point",
+                semantic_role="x_axis_intercept",
+            ),
+        ),
     ),
     _method_contract(
         "quadratic_y_axis_intercept_point",
         slot_reads=(_slot("expression", "Parabola", object_kind="function"),),
-        slot_writes=(_slot("coordinate", "Point", object_kind="point"),),
+        slot_writes=(
+            _slot(
+                "coordinate",
+                "Point",
+                object_kind="point",
+                semantic_role="y_axis_intercept",
+            ),
+        ),
+    ),
+    _method_contract(
+        "quadratic_axis_x_intercept_point",
+        slot_reads=(_slot("expression", "Parabola", object_kind="function"),),
+        slot_writes=(
+            _slot(
+                "coordinate",
+                "Point",
+                object_kind="point",
+                semantic_role="axis_x_intercept",
+            ),
+        ),
     ),
     _method_contract(
         "line_parabola_second_intersection_point",
@@ -175,20 +274,119 @@ PARAMETER_SOLVING_CONTRACTS = (
         slot_writes=(_slot("value", "ParameterValue", object_kind="symbol"),),
     ),
     _method_contract(
+        "parameter_from_segment_length",
+        slot_reads=(
+            _slot("coordinate", "Point", object_kind="point"),
+            _slot("coordinate", "Point", object_kind="point"),
+        ),
+        condition_reads=(_condition("length_squared"),),
+        slot_writes=(_slot("value", "ParameterValue", object_kind="symbol"),),
+    ),
+    _method_contract(
+        "parameter_from_minimum_value",
+        slot_reads=(_slot("expression", "MinimumExpression"),),
+        condition_reads=(_condition("minimum_value"),),
+        slot_writes=(_slot("value", "ParameterValue", object_kind="symbol"),),
+    ),
+    _method_contract(
+        "parameter_from_curve_point_on_quadratic",
+        slot_reads=(
+            _slot("expression", "Parabola", object_kind="function"),
+            _slot("coordinate", "Point", object_kind="point"),
+        ),
+        condition_reads=(_condition("parameter_constraint", required=False),),
+        slot_writes=(
+            _slot(
+                "value",
+                "ParameterValue",
+                object_kind="symbol",
+                description=(
+                    "曲线点条件唯一确定的目标 Symbol 值；若条件先确定另一二次函数"
+                    "系数，代码会沿当前系数表达式闭包到所绑定的目标 Symbol。"
+                ),
+            ),
+            _slot(
+                "coordinate",
+                "Point",
+                object_kind="point",
+                required=False,
+                write_mode="transition",
+                description="代入本次求得参数后的同一曲线点状态。",
+            ),
+            _slot(
+                "expression",
+                "Parabola",
+                object_kind="function",
+                required=False,
+                write_mode="transition",
+                description="代入当前所有已知参数后的同一抛物线状态。",
+            ),
+        ),
+    ),
+    _method_contract(
         "evaluate_expression_at_parameter",
         slot_reads=(
             _slot("expression", "Expression"),
+            _slot("expression", "MinimumExpression"),
+            _slot(
+                "expression",
+                "Parabola",
+                object_kind="function",
+                description="需要代入已知参数值的当前符号表达式状态。",
+            ),
             _slot("value", "ParameterValue", object_kind="symbol"),
         ),
-        slot_writes=(_slot("expression", "Expression"),),
+        slot_writes=(
+            _slot(
+                "expression",
+                "Expression",
+                output_key="evaluated_expression",
+                required=False,
+                cardinality="optional",
+            ),
+            _slot(
+                "expression",
+                "MinimumExpression",
+                output_key="evaluated_minimum_expression",
+                required=False,
+                cardinality="optional",
+            ),
+            _slot(
+                "expression",
+                "Parabola",
+                object_kind="function",
+                output_key="evaluated_parabola",
+                required=False,
+                cardinality="optional",
+                description="代入参数后的同一抛物线状态。",
+            ),
+        ),
     ),
     _method_contract(
         "evaluate_point_at_parameter",
         slot_reads=(
-            _slot("coordinate", "Point", object_kind="point"),
-            _slot("value", "ParameterValue", object_kind="symbol"),
+            _slot(
+                "coordinate",
+                "Point",
+                object_kind="point",
+                description="同一对象当前已有的含参坐标状态。",
+            ),
+            _slot(
+                "value",
+                "ParameterValue",
+                object_kind="symbol",
+                description="用于消去点坐标中自由符号的已求参数值。",
+            ),
         ),
-        slot_writes=(_slot("coordinate", "Point", object_kind="point"),),
+        slot_writes=(
+            _slot(
+                "coordinate",
+                "Point",
+                object_kind="point",
+                write_mode="transition",
+                description="代入参数后的同一 Point 坐标状态，不产生新的几何对象。",
+            ),
+        ),
     ),
 )
 
@@ -200,8 +398,17 @@ COORDINATE_GEOMETRY_CONTRACTS = (
             _slot("coordinate", "Point", object_kind="point"),
         ),
         slot_writes=(
-            _slot("expression", "MinimumExpression"),
-            _slot("expression", "Expression", required=False),
+            _slot(
+                "expression",
+                "MinimumExpression",
+                output_key="distance",
+            ),
+            _slot(
+                "expression",
+                "MinimumExpression",
+                output_key="evaluated_distance",
+                required=False,
+            ),
         ),
     ),
     _method_contract(
@@ -261,6 +468,7 @@ RIGHT_ANGLE_EQUAL_LENGTH_CONSTRUCT_AND_SELECT = StepRecipeSpec(
             ),
         ),
     ),
+    do_not_use_when=RIGHT_ANGLE_EQUAL_LENGTH_DO_NOT_USE_WHEN,
 )
 
 TWO_MOVING_POINTS_PATH_REDUCTION = StepRecipeSpec(
@@ -286,6 +494,7 @@ TWO_MOVING_POINTS_PATH_REDUCTION = StepRecipeSpec(
         ),
     ),
     priority="preferred",
+    do_not_use_when=TWO_MOVING_POINTS_REDUCTION_DO_NOT_USE_WHEN,
 )
 
 BROKEN_PATH_STRAIGHTENING_AND_SELECT = StepRecipeSpec(
@@ -338,6 +547,10 @@ BROKEN_PATH_STRAIGHTENING_AND_SELECT = StepRecipeSpec(
                 cardinality="optional",
                 identity_policy="derived_role",
                 goal_evidence_tags=("path_minimum_witness",),
+                description=(
+                    "选中拉直方案后，由反射构造得到的辅助端点；"
+                    "仅供距离计算，不是原路径上的动点、极值点或答案点。"
+                ),
             ),
             recipe_output_alias(
                 "select_straightening_candidate.minimum_point_2",
@@ -347,10 +560,15 @@ BROKEN_PATH_STRAIGHTENING_AND_SELECT = StepRecipeSpec(
                 cardinality="optional",
                 identity_policy="derived_role",
                 goal_evidence_tags=("path_minimum_witness",),
+                description=(
+                    "选中拉直方案后，与反射端点组成最短线段的另一固定端点；"
+                    "仅供距离计算，不是原路径上的动点、极值点或答案点。"
+                ),
             ),
         ),
     ),
     priority="preferred",
+    do_not_use_when=BROKEN_PATH_SELECT_DO_NOT_USE_WHEN,
 )
 
 PATH_MINIMUM_BY_STRAIGHTENED_DISTANCE = StepRecipeSpec(
@@ -384,6 +602,7 @@ PATH_MINIMUM_BY_STRAIGHTENED_DISTANCE = StepRecipeSpec(
         ),
     ),
     priority="preferred",
+    do_not_use_when=STRAIGHTENED_DISTANCE_DO_NOT_USE_WHEN,
 )
 
 BROKEN_PATH_STRAIGHTENING_MINIMUM_EXPRESSION = StepRecipeSpec(
@@ -392,7 +611,8 @@ BROKEN_PATH_STRAIGHTENING_MINIMUM_EXPRESSION = StepRecipeSpec(
     title="折线拉直并求最小值表达式",
     description=(
         "对单动点两段折线路径，生成将军饮马拉直候选，选择最适合计算的方案，"
-        "再计算对应两端点距离得到最小值表达式。"
+        "再计算对应两端点距离。端点仍含未定参数时输出开放表达式；端点全部确定时"
+        "输出闭合值。"
     ),
     method_ids=(
         "broken_path_straightening_candidates",
@@ -417,6 +637,10 @@ BROKEN_PATH_STRAIGHTENING_MINIMUM_EXPRESSION = StepRecipeSpec(
                 cardinality="optional",
                 identity_policy="derived_role",
                 goal_evidence_tags=("path_minimum_witness",),
+                description=(
+                    "选中拉直方案后，由反射构造得到的辅助端点；"
+                    "仅供距离计算，不是原路径上的动点、极值点或答案点。"
+                ),
             ),
             recipe_output_alias(
                 "select_straightening_candidate.minimum_point_2",
@@ -426,12 +650,20 @@ BROKEN_PATH_STRAIGHTENING_MINIMUM_EXPRESSION = StepRecipeSpec(
                 cardinality="optional",
                 identity_policy="derived_role",
                 goal_evidence_tags=("path_minimum_witness",),
+                description=(
+                    "选中拉直方案后，与反射端点组成最短线段的另一固定端点；"
+                    "仅供距离计算，不是原路径上的动点、极值点或答案点。"
+                ),
             ),
             recipe_output_alias(
                 "distance_between_points.distance",
                 "MinimumExpression",
                 "path_minimum_expression",
                 goal_evidence_tags=("path_minimum_expression",),
+                description=(
+                    "两个拉直端点之间的距离表达式，即原折线路径的最小值表达式；"
+                    "含未定参数时供后续参数求解，不含自由参数时可直接绑定数值答案。"
+                ),
             ),
             recipe_output_alias(
                 "distance_between_points.evaluated_distance",
@@ -444,6 +676,7 @@ BROKEN_PATH_STRAIGHTENING_MINIMUM_EXPRESSION = StepRecipeSpec(
         ),
     ),
     priority="preferred",
+    do_not_use_when=BROKEN_PATH_MINIMUM_EXPRESSION_DO_NOT_USE_WHEN,
 )
 
 EQUAL_LENGTH_RAY_PATH_REDUCTION = StepRecipeSpec(
@@ -454,7 +687,8 @@ EQUAL_LENGTH_RAY_PATH_REDUCTION = StepRecipeSpec(
         "当一个动点在线段上、另一个动点在射线上，且二者满足同端点等长关系时，"
         "把原来的两动点线段距离和转化为一个固定点到内部构造辅助点的单距离"
         "最小值表达式。辅助点由系统在 recipe 内部创建，LLM 不需要在 creates 中"
-        "声明辅助点，也不要拆成单独的 equal_length_ray_point step。"
+        "声明辅助点，也不要拆成单独调用。结果含未定参数时为开放表达式，全部参数"
+        "确定时为闭合值。"
     ),
     method_ids=("equal_length_ray_point", "distance_between_points"),
     execution=RecipeExecutionSpec(
@@ -519,6 +753,7 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
         ),
         contracts=PARAMETER_SOLVING_CONTRACTS,
         method_binding_rules=(
+            parameter_from_curve_point_on_quadratic_rule(),
             parameter_from_expression_value_rule(),
             evaluate_expression_at_parameter_rule(),
             evaluate_point_at_parameter_rule(),
@@ -563,10 +798,32 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
                 "two_moving_points_path_reduction",
                 condition_reads=(_condition("path_minimum_target"),),
                 slot_writes=(_slot("transformation", "PathTransformation"),),
+                dependency_policy="context_closure",
+                context_resolvers=(PATH_REDUCTION_ROLES_RESOLVER,),
             ),
             _recipe_contract(
                 "broken_path_straightening_and_select",
-                condition_reads=(_condition("path_minimum_target"),),
+                slot_reads=(
+                    _slot(
+                        "transformation",
+                        "PathTransformation",
+                        semantic_role="path_transformation",
+                        description=(
+                            "前序调用已证明的路径等价变换，例如把双动点路径"
+                            "降为单动点折线路径。"
+                        ),
+                        provides_semantic_roles=("moving_locus",),
+                    ),
+                    _slot(
+                        "locus",
+                        "Line",
+                        object_kind="line",
+                        semantic_role="moving_locus",
+                        required=False,
+                        cardinality="optional",
+                        description="动点所在的已求出轨迹；路径变换已包含轨迹时可省略。",
+                    ),
+                ),
                 slot_writes=(
                     _slot("candidate", "StraighteningCandidate"),
                     _slot("coordinate", "Point", object_kind="point", required=False),
@@ -575,14 +832,46 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
             _recipe_contract(
                 "path_minimum_by_straightened_distance",
                 slot_reads=(
-                    _slot("coordinate", "Point", object_kind="point"),
-                    _slot("coordinate", "Point", object_kind="point"),
+                    _slot(
+                        "coordinate",
+                        "Point",
+                        object_kind="point",
+                        semantic_role="endpoint_1",
+                        required=True,
+                    ),
+                    _slot(
+                        "coordinate",
+                        "Point",
+                        object_kind="point",
+                        semantic_role="endpoint_2",
+                        required=True,
+                    ),
                 ),
                 slot_writes=(_slot("expression", "MinimumExpression"),),
             ),
             _recipe_contract(
                 "broken_path_straightening_minimum_expression",
-                condition_reads=(_condition("path_minimum_target"),),
+                slot_reads=(
+                    _slot(
+                        "transformation",
+                        "PathTransformation",
+                        semantic_role="path_transformation",
+                        description=(
+                            "前序调用已证明的路径等价变换，例如把双动点路径"
+                            "降为单动点折线路径。"
+                        ),
+                        provides_semantic_roles=("moving_locus",),
+                    ),
+                    _slot(
+                        "locus",
+                        "Line",
+                        object_kind="line",
+                        semantic_role="moving_locus",
+                        required=False,
+                        cardinality="optional",
+                        description="动点所在的已求出轨迹；路径变换已包含轨迹时可省略。",
+                    ),
+                ),
                 slot_writes=(
                     _slot("coordinate", "Point", object_kind="point", cardinality="many"),
                     _slot("expression", "MinimumExpression"),
@@ -638,11 +927,13 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
                 "right_angle_equal_length_construct_and_select",
                 condition_reads=(_condition("right_angle_equal_length"),),
                 slot_writes=(_slot("coordinate", "Point", object_kind="point"),),
+                context_resolvers=(CONDITION_OBJECT_ROLES_RESOLVER,),
             ),
             _method_contract(
                 "right_angle_equal_length_candidates",
                 condition_reads=(_condition("right_angle_equal_length"),),
                 slot_writes=(_slot("candidate", "PointList", object_kind="point"),),
+                context_resolvers=(CONDITION_OBJECT_ROLES_RESOLVER,),
             ),
         ),
     ),
@@ -656,7 +947,7 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
         contracts=(
             _method_contract(
                 "weighted_axis_path_triangle_transform",
-                condition_reads=(_condition("weighted_path_relation"),),
+                condition_reads=(_condition("minimum_value"),),
                 slot_writes=(
                     _slot("coordinate", "Point", object_kind="point"),
                     _slot("locus", "Line", object_kind="line"),
@@ -683,7 +974,12 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
         contracts=(
             _recipe_contract(
                 "equal_length_ray_path_reduction",
-                condition_reads=(_condition("equal_length_ray"),),
+                condition_reads=(
+                    _condition("path_minimum_target"),
+                    _condition("equal_length_condition"),
+                    _condition("point_on_segment"),
+                    _condition("point_on_ray"),
+                ),
                 slot_writes=(_slot("expression", "MinimumExpression"),),
             ),
             _method_contract(
@@ -710,6 +1006,8 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
                 condition_reads=(
                     _condition("path_minimum_target"),
                     _condition("square"),
+                    _condition("midpoint_definition"),
+                    _condition("square_center"),
                 ),
                 slot_writes=(_slot("transformation", "PathTransformation"),),
             ),
@@ -721,12 +1019,16 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
                         "coordinate",
                         "Point",
                         object_kind="point",
+                        semantic_role="axis_point",
+                        output_key="point",
                         write_mode="create",
                     ),
                     _slot(
                         "parameter",
                         "Symbol",
                         object_kind="symbol",
+                        semantic_role="axis_parameter",
+                        output_key="parameter",
                         write_mode="value",
                     ),
                 ),
@@ -734,7 +1036,15 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
             _method_contract(
                 "square_adjacent_vertex_from_side",
                 condition_reads=(_condition("square"),),
-                slot_writes=(_slot("coordinate", "Point", object_kind="point"),),
+                slot_writes=(
+                    _slot(
+                        "coordinate",
+                        "Point",
+                        object_kind="point",
+                        semantic_role="square_adjacent_vertex",
+                        output_key="point",
+                    ),
+                ),
             ),
             _method_contract(
                 "point_candidates_from_curve_point_condition",

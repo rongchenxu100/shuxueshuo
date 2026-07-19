@@ -16,6 +16,10 @@ from shuxueshuo_server.solver.runtime.macro_specs import (
     assert_no_macro_adapter_failures,
     macro_catalog_payload,
 )
+from shuxueshuo_server.solver.family.models import (
+    CONDITION_OBJECT_ROLES_RESOLVER,
+    PATH_REDUCTION_ROLES_RESOLVER,
+)
 from shuxueshuo_server.solver.runtime.projection import problem_to_llm_payload
 from shuxueshuo_server.solver.runtime.strategy_planner import (
     CanonicalHandleRegistry,
@@ -59,6 +63,22 @@ RECORDED_FIXTURES = (
 )
 
 
+def test_macro_context_closure_resolvers_come_from_contracts() -> None:
+    problem = load_problem_ir(str(RECORDED_FIXTURES[0][0]))
+    inputs = build_strategy_probe_inputs(problem)
+    registry = MacroSpecRegistry.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
+    )
+
+    assert registry.require(
+        "right_angle_equal_length_construct_and_select"
+    ).context_resolvers == (CONDITION_OBJECT_ROLES_RESOLVER,)
+    assert registry.require(
+        "two_moving_points_path_reduction"
+    ).context_resolvers == (PATH_REDUCTION_ROLES_RESOLVER,)
+
+
 def test_macro_spec_registry_derives_executable_recipes_from_contracts() -> None:
     problem = load_problem_ir(str(RECORDED_FIXTURES[0][0]))
     inputs = build_strategy_probe_inputs(problem)
@@ -100,6 +120,38 @@ def test_path_minimum_goal_evidence_is_projected_from_recipe_outputs() -> None:
     }
 
     assert tags >= {"path_minimum_witness", "path_minimum_expression"}
+
+
+def test_macro_scalar_result_forms_are_projected_from_internal_functions() -> None:
+    problem = load_problem_ir(str(RECORDED_FIXTURES[0][0]))
+    inputs = build_strategy_probe_inputs(problem)
+    registry = MacroSpecRegistry.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
+    )
+
+    macro = registry.require("broken_path_straightening_minimum_expression")
+    returns = {item.name: item for item in macro.returns}
+    assert returns["path_minimum_expression"].scalar_result_form is not None
+    assert returns[
+        "path_minimum_expression"
+    ].scalar_result_form.possible_forms == (
+        "open_expression",
+        "closed_value",
+    )
+    assert returns["path_minimum_point_1"].scalar_result_form is None
+
+
+def test_shareable_macro_purity_is_derived_from_internal_functions() -> None:
+    problem = load_problem_ir(str(RECORDED_FIXTURES[0][0]))
+    inputs = build_strategy_probe_inputs(problem)
+    registry = MacroSpecRegistry.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
+    )
+
+    assert registry.require("right_angle_equal_length_construct_and_select").is_pure
+    assert registry.require("two_moving_points_path_reduction").is_pure
 
 
 def test_macro_catalog_prompt_payload_hides_runtime_wiring_details() -> None:
@@ -220,6 +272,56 @@ def test_macro_rejects_point_output_without_declared_identity_role() -> None:
             "broken_path_straightening_minimum_expression",
             step,
         )
+
+
+def test_macro_exact_return_metadata_disambiguates_prefixed_roles() -> None:
+    problem = load_problem_ir(str(RECORDED_FIXTURES[0][0]))
+    inputs = build_strategy_probe_inputs(problem)
+    handles = CanonicalHandleRegistry.from_problem_payload(
+        problem_to_llm_payload(problem)
+    )
+    registry = MacroAdapterRegistry(
+        MacroSpecRegistry.from_family_spec(inputs.family_spec, inputs.method_specs),
+        handle_registry=handles,
+    )
+    step = StepIntent(
+        step_id="derive_and_evaluate_path_state",
+        scope_id="ii_1",
+        goal_type="derive_path_minimum_expression",
+        target="fact:ii_1:evaluated_path_minimum_expression",
+        recipe_hint="broken_path_straightening_minimum_expression",
+        strategy="derive both declared minimum-expression views",
+        reads=(
+            "point:ii:E",
+            "point:ii:F",
+            "fact:ii:path_minimum_target",
+        ),
+        produces=(
+            ProducedFact(
+                "fact:ii_1:path_minimum_expression",
+                "ii_1",
+                description=(
+                    "broken_path_straightening_minimum_expression "
+                    "return path_minimum_expression"
+                ),
+                output_type="MinimumExpression",
+            ),
+            ProducedFact(
+                "fact:ii_1:evaluated_path_minimum_expression",
+                "ii_1",
+                description=(
+                    "broken_path_straightening_minimum_expression "
+                    "return evaluated_path_minimum_expression"
+                ),
+                output_type="MinimumExpression",
+            ),
+        ),
+    )
+
+    registry.validate(
+        "broken_path_straightening_minimum_expression",
+        step,
+    )
 
 
 def test_recorded_fixtures_compile_recipe_steps_without_macro_failures() -> None:

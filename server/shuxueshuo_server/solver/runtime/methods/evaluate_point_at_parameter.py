@@ -54,6 +54,9 @@ SPEC = MethodSpecSource(
     method_cls=EvaluatePointAtParameterMethod,
     title="代入参数求点坐标",
     summary="Given 含参点坐标、参数符号和参数值, derive 代入参数后的点坐标。",
+    do_not_use_when=(
+        "目标是构造另一个几何点；本能力只把参数值代入同一 Point 的已有坐标状态，不改变对象身份。",
+    ),
     solves=("evaluate_point_at_parameter",),
     inputs={
         "point": {"type": "Point", "required": True},
@@ -62,6 +65,7 @@ SPEC = MethodSpecSource(
     },
     outputs={"evaluated_point": "Point"},
     plan_transformer="substitute_all_point_parameters",
+    reconciliation_validators=("companion_symbol_coverage",),
     preconditions=("point 坐标可以包含 parameter",),
     postconditions=("输出点坐标不再含 parameter",),
     explanation=MethodExplanationSpec(

@@ -936,9 +936,9 @@ FunctionSpec(quadratic_from_constraints)
 - LLM 选择 macro 后，不需要输出 midpoint / locus / endpoint selection 等内部 utility step。
 - compiler 不再静默插入大量 family-specific backfill；这些动作有 macro contract 和 debug provenance。
 
-### Phase 7: FunctionalPlan Opt-In
+### Phase 7: FunctionalPlan Strict Opt-In
 
-目标是在 Context / Pack Contract / FunctionSpec / MacroSpec 成熟后，让 LLM 可选输出 FunctionalPlan。
+目标是在 Context / Pack Contract / FunctionSpec / MacroSpec 成熟后，让 LLM 以独立、严格的协议输出 FunctionalPlan。默认 StepIntent 链路继续存在于迁移期，但单次 planner session 只能选择一种协议；FunctionalPlan 失败不得静默切回 StepIntent。
 
 定位：
 
@@ -952,18 +952,77 @@ FunctionalPlan = LLM 对 PlannerStateContext 的 candidate update IR
 FunctionalPlan = 新 runtime truth
 ```
 
-实现内容：
+执行路径：
 
-- 新增 FunctionalPlan schema，但仍允许 StepIntent。
-- FunctionalPlan call 的 args / returns 都引用 Context StateSlot / SemanticRef。
-- Context Reconciler 先验证 FunctionalPlan，再合并成 `PlannerStateContext vNext`。
-- Runtime 继续消费 Context projection 出来的 StepPlan / MethodInvocation。
+```text
+Raw FunctionalPlan
+  -> wire validation / deterministic surface repair
+  -> deterministic elaboration
+  -> Context reconciliation
+  -> canonical StepIntentDraft projection
+  -> existing replay / normalizer / compiler / runtime
+```
+
+实现边界：
+
+- `PlannerOutputFormat` 明确选择 `step_intent` 或 `functional_plan`，同一响应不得混用。
+- FunctionalPlan call 的显式参数只引用 Context SemanticRef 或前序 `CallResultRef`。
+- canonical handle、output type、valid scope、creates/produces 和中间 StateSlot 都由代码生成。
+- Runtime 继续消费 canonical StepIntent / StepPlan / MethodInvocation；FunctionalPlan 不是 runtime truth。
+- retry 耗尽时返回 Functional 失败，不切换协议。
+
+### Phase 7b: Deterministic Elaboration and Graph Retry
+
+Phase 7b 的目标是让 FunctionalPlan 真正成为 LLM 友好的语义层，而不是 MethodSpec 参数的 JSON 转写。
+
+LLM 负责：
+
+- 选择 capability；
+- 提供题面语义证据；
+- 连接前序 call return；
+- 绑定最终 answer 或已有对象状态；
+- 给出 strategy / reason。
+
+代码负责：
+
+- 将 `Coefficients / PointList / SymbolList` 降维为 item-level many args 并确定性聚合；
+- 在 object / StateSlot / Condition 多视图中按 arg contract 选取正确状态；
+- 补全 auto/mechanical args、Symbol identity、scope、output type 和中间 return allocation；
+- 按 return identity policy 和 write mode 生成 canonical state write；
+- 一轮收集独立根因，并将依赖失败 call 标记为 `blocked_by_dependency`。
+
+安全的 wire-level deterministic repair 只处理不携带数学语义的表示问题：
+
+- 整个响应只有一个 JSON Markdown fence 时，移除 fence；不从解释性 prose 中抽取 JSON。
+- `return_bindings[role] = {}` 等价于“不显式绑定该 return”，由后续 `CallResultRef` 触发自动落槽。
+- 这些修复不得选择 capability、增加数学 call 或改变 answer destination。
+
+Partial reconciliation 的边界：
+
+- 独立 valid calls 可以投影为 partial canonical draft，并进入同一 runtime replay，用于验证 stable call graph。
+- partial runtime 即使可执行，也只能生成 diagnostic / provenance / stable graph，绝不能产生可提交的 `PlannerOutput`。
+- required answer producer 失败时保留 producer 根因，不额外制造 goal-unbound 噪音；但任何 functional issue 未清零前，整份 candidate 都不能成功。
+
+Retry 以稳定调用子图为单位：
+
+- `stable_candidate_calls` 保存 elaboration、reconciliation 和其投影 runtime trial 全部通过的 calls。
+- `repair_call_ids` 指向独立根因 calls；依赖它们的 calls 不进入稳定集合。
+- `preserve_graph` 按 call id 恢复完整 capability、args、return bindings、strategy 和 reason。
+- Functional prompt 只展示 call-level repair tickets，不展示 StepIntent `baseline_draft`、线性 stable prefix 或 canonical handle。
+
+无需 expected answer 的终态验证：
+
+- Point answer 通过 `StateWriteProvenance.object_ref` 验证目标对象身份。
+- 最终 answer 若仍含自由 Symbol，且同身份、可见、更早的 `ParameterValue` 已存在，则报 `answer_unresolved_symbol_state`；合法的参数化答案在没有可用 ParameterValue 时不误报。
+- answer/goal verification issue 必须回映到原 Functional call，参与 graph retry；expected answer 只保留在 opt-in 测试最终断言。
 
 成功信号：
 
 - Function/Macro 输出相比 StepIntent 更短、更稳定。
-- retry 修改的是 suffix candidate update，不会覆盖 stable prefix。
-- FunctionalPlan 失败能回落到 StepIntent projection 或给出同构 retry issue。
+- deterministic representation/configuration error 不消耗 LLM retry。
+- retry 修改失败调用子图，不覆盖独立 verified calls。
+- semantic object/state/condition 视图、容器聚合和 Symbol identity 不再由 LLM 精确编码。
+- 五道真实题 Functional opt-in 在最多三轮内达到 StepIntent oracle 的正确性；之后才进入默认协议切换和旧 opt-in 删除阶段。
 
 ### Phase 8: Cross-Domain Context Graph
 

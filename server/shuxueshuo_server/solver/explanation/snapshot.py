@@ -13,6 +13,7 @@ from shuxueshuo_server.solver.runtime.models import PlanExecutionResult, Planner
 from shuxueshuo_server.solver.runtime.projection import RuntimeProjection
 
 from .models import ExplanationSnapshot, TeachingTraceEntry
+from .presentation import StudentNarrativePlacementProjector
 
 
 class ExplanationSnapshotError(RuntimeError):
@@ -36,6 +37,14 @@ class ExplanationSnapshotBuilder:
             step.to_payload(include_scope_id=True)
             for step in effective_draft.steps
         )
+        replay = getattr(planner_artifacts, "retry_replay_result", None)
+        functional_reconciliation = getattr(replay, "functional_reconciliation", None)
+        narrative = StudentNarrativePlacementProjector().project(
+            effective_steps=effective_steps,
+            problem=problem_payload,
+            functional_reconciliation=functional_reconciliation,
+            raw_functional_plan=getattr(replay, "functional_plan", None),
+        )
         step_capabilities = {
             step.step_id: step.recipe_hint or step.goal_type
             for step in effective_draft.steps
@@ -54,6 +63,8 @@ class ExplanationSnapshotBuilder:
                 artifacts.context,
                 effective_draft.steps,
             ),
+            student_step_placements=narrative.placements,
+            student_scope_references=narrative.references,
             planner_insights=_planner_insights(planner_artifacts),
             answers=_clean_value(result.answers, artifacts.context),
             checks=tuple(_check_payload(check) for check in result.checks),

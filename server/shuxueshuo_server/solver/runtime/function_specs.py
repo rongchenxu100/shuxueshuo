@@ -11,7 +11,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Callable, Literal, Mapping
 
-from shuxueshuo_server.solver.contracts import MethodSpec
+from shuxueshuo_server.solver.contracts import MethodSpec, ScalarResultFormSpec
 from shuxueshuo_server.solver.family.common_binding_rules import (
     distance_between_points_rule,
     evaluate_expression_at_parameter_rule,
@@ -28,6 +28,7 @@ from shuxueshuo_server.solver.family.common_binding_rules import (
     translated_point_rule,
 )
 from shuxueshuo_server.solver.family.models import (
+    CapabilityDependencyPolicy,
     CapabilityContractSpec,
     MethodBindingRuleSpec,
     SolverFamilySpec,
@@ -45,6 +46,7 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
 )
 from shuxueshuo_server.solver.state_semantics import (
     object_kind_for_runtime_type,
+    split_runtime_types,
     state_kind_for_runtime_type,
 )
 from shuxueshuo_server.solver.utils import unique_ordered
@@ -69,6 +71,8 @@ class FunctionArgSpec:
     state_kind: str | None = None
     object_kind: str | None = None
     method_input: str | None = None
+    description: str = ""
+    provides_semantic_roles: tuple[str, ...] = ()
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -84,6 +88,12 @@ class FunctionArgSpec:
             payload["object_kind"] = self.object_kind
         if self.method_input is not None:
             payload["method_input"] = self.method_input
+        if self.description:
+            payload["description"] = self.description
+        if self.provides_semantic_roles:
+            payload["provides_semantic_roles"] = list(
+                self.provides_semantic_roles
+            )
         return payload
 
 
@@ -101,6 +111,8 @@ class FunctionReturnSpec:
     identity_policy: StateIdentityPolicy = "value_only"
     identity_arg: str | None = None
     write_mode: StateWriteMode = "value"
+    description: str = ""
+    scalar_result_form: ScalarResultFormSpec | None = None
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -119,6 +131,10 @@ class FunctionReturnSpec:
         if self.identity_arg is not None:
             payload["identity_arg"] = self.identity_arg
         payload["write_mode"] = self.write_mode
+        if self.description:
+            payload["description"] = self.description
+        if self.scalar_result_form is not None:
+            payload["scalar_result_form"] = self.scalar_result_form.to_payload()
         return payload
 
 
@@ -169,6 +185,9 @@ class FunctionSpec:
     source: FunctionSpecSource = "method_spec"
     notes: tuple[str, ...] = ()
     is_pure: bool = False
+    plan_transformer: str | None = None
+    reconciliation_validators: tuple[str, ...] = ()
+    dependency_policy: CapabilityDependencyPolicy = "explicit_args"
 
     def to_payload(self, *, include_adapter: bool = True) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -180,6 +199,9 @@ class FunctionSpec:
             "source": self.source,
             "notes": list(self.notes),
             "is_pure": self.is_pure,
+            "plan_transformer": self.plan_transformer,
+            "reconciliation_validators": list(self.reconciliation_validators),
+            "dependency_policy": self.dependency_policy,
         }
         if include_adapter and self.adapter is not None:
             payload["adapter"] = self.adapter.to_payload()
@@ -405,6 +427,7 @@ def _selector_requires_declared_read(selector: str) -> bool:
 _DECLARATIVE_EXPANSIONS = frozenset(
     {
         "known_coefficients_if_read",
+        "free_quadratic_parameter_if_read",
         "curve_point_if_read",
         "curve_points_if_parameterized",
     }
@@ -443,14 +466,20 @@ def function_spec_from_method(
         notes.extend(contract.notes)
         notes.extend(_contract_return_notes(contract, method_spec.outputs))
     args = tuple(
-        _arg_spec_from_method_input(name, input_spec)
+        _arg_spec_from_method_input(name, input_spec, contract=contract)
         for name, input_spec in method_spec.inputs.items()
     )
     returns: list[FunctionReturnSpec] = []
     for output_name, output_type in method_spec.outputs.items():
+        contract_write = _function_return_contract_write(
+            contract,
+            output_name=output_name,
+            output_type=output_type,
+        )
         identity_policy, identity_arg = _function_return_identity(
             method_spec,
             output_type=output_type,
+            adapter=adapter,
         )
         write_mode = _function_return_write_mode(
             contract,
@@ -461,12 +490,36 @@ def function_spec_from_method(
                 name=output_name,
                 output_key=output_name,
                 runtime_type=output_type,
-                state_kind=state_kind_for_runtime_type(output_type),
-                object_kind=object_kind_for_runtime_type(output_type),
-                semantic_role=output_name,
+                state_kind=(
+                    contract_write.state_kind
+                    if contract_write is not None
+                    else state_kind_for_runtime_type(output_type)
+                ),
+                object_kind=(
+                    contract_write.object_kind
+                    if contract_write is not None
+                    else object_kind_for_runtime_type(output_type)
+                ),
+                required=_function_return_required(
+                    contract,
+                    output_name=output_name,
+                    output_type=output_type,
+                    output_count=len(method_spec.outputs),
+                ),
+                semantic_role=_function_return_semantic_role(
+                    contract,
+                    output_name=output_name,
+                    output_type=output_type,
+                ),
                 identity_policy=identity_policy,
                 identity_arg=identity_arg,
                 write_mode=write_mode,
+                description=(
+                    contract_write.description
+                    if contract_write is not None
+                    else ""
+                ),
+                scalar_result_form=method_spec.scalar_result_forms.get(output_name),
             )
         )
     return FunctionSpec(
@@ -478,29 +531,138 @@ def function_spec_from_method(
         adapter=adapter,
         source=source,
         is_pure=method_spec.is_pure,
+        plan_transformer=method_spec.plan_transformer,
+        reconciliation_validators=method_spec.reconciliation_validators,
+        dependency_policy=(
+            contract.dependency_policy
+            if contract is not None
+            else "explicit_args"
+        ),
         notes=tuple(unique_ordered(notes)),
     )
+
+
+def _function_return_contract_write(
+    contract: CapabilityContractSpec | None,
+    *,
+    output_name: str,
+    output_type: str,
+) -> Any | None:
+    if contract is None:
+        return None
+    keyed = [
+        item
+        for item in contract.slot_writes
+        if item.output_key == output_name
+    ]
+    if len(keyed) == 1:
+        return keyed[0]
+    typed = [
+        item
+        for item in contract.slot_writes
+        if item.output_key is None and item.runtime_type == output_type
+    ]
+    return typed[0] if len(typed) == 1 else None
+
+
+def _function_return_required(
+    contract: CapabilityContractSpec | None,
+    *,
+    output_name: str,
+    output_type: str,
+    output_count: int,
+) -> bool:
+    if output_count == 1:
+        return True
+    if contract is None:
+        return True
+    keyed = [
+        item
+        for item in contract.slot_writes
+        if item.output_key == output_name
+    ]
+    if len(keyed) == 1:
+        return keyed[0].required
+    typed = [
+        item
+        for item in contract.slot_writes
+        if item.output_key is None and item.runtime_type == output_type
+    ]
+    if len(typed) == 1:
+        return typed[0].required
+    return True
+
+
+def _function_return_semantic_role(
+    contract: CapabilityContractSpec | None,
+    *,
+    output_name: str,
+    output_type: str,
+) -> str:
+    """Project an explicit contract role without inventing facade metadata."""
+    if contract is None:
+        return output_name
+    keyed = [
+        item.semantic_role
+        for item in contract.slot_writes
+        if item.output_key == output_name and item.semantic_role
+    ]
+    if len(keyed) == 1:
+        return keyed[0]
+    typed = [
+        item.semantic_role
+        for item in contract.slot_writes
+        if item.output_key is None
+        and item.runtime_type == output_type
+        and item.semantic_role
+    ]
+    if len(typed) == 1:
+        return typed[0]
+    return output_name
 
 
 def _function_return_identity(
     method_spec: MethodSpec,
     *,
     output_type: str,
+    adapter: FunctionAdapterSpec | None,
 ) -> tuple[StateIdentityPolicy, str | None]:
     if output_type == "ParameterValue" and "parameter" in method_spec.inputs:
         return "preserve_input_object", "parameter"
     if output_type == "Symbol":
         target = method_spec.inputs.get("target")
-        if target is not None and "PointRef" in _split_runtime_types(str(target.type)):
+        if target is not None and "PointRef" in split_runtime_types(str(target.type)):
             return "derived_role", "target"
+    output_object_kind = object_kind_for_runtime_type(output_type)
+    if output_object_kind == "function" and adapter is not None:
+        function_inputs = [
+            binding.input_name
+            for binding in adapter.input_bindings
+            if binding.selector.startswith("function:")
+        ]
+        if len(function_inputs) == 1:
+            return "preserve_input_object", function_inputs[0]
+    if output_object_kind is not None and output_object_kind != "point":
+        identity_inputs = [
+            input_name
+            for input_name, input_spec in method_spec.inputs.items()
+            if output_type in split_runtime_types(str(input_spec.type))
+            or {
+                object_kind_for_runtime_type(runtime_type)
+                for runtime_type in split_runtime_types(str(input_spec.type))
+            }
+            == {output_object_kind}
+        ]
+        if len(identity_inputs) == 1:
+            return "preserve_input_object", identity_inputs[0]
     if output_type not in {"Point", "PointList"}:
         return "value_only", None
     target = method_spec.inputs.get("target")
-    if target is not None and "PointRef" in _split_runtime_types(str(target.type)):
+    if target is not None and "PointRef" in split_runtime_types(str(target.type)):
         return "target_object", "target"
     for input_name in ("target_point", "point"):
         point = method_spec.inputs.get(input_name)
-        if point is not None and "Point" in _split_runtime_types(str(point.type)):
+        if point is not None and "Point" in split_runtime_types(str(point.type)):
             return "preserve_input_object", input_name
     return "derived_role", None
 
@@ -609,11 +771,22 @@ def assert_no_function_adapter_failures(
         )
 
 
-def _arg_spec_from_method_input(name: str, input_spec: Any) -> FunctionArgSpec:
+def _arg_spec_from_method_input(
+    name: str,
+    input_spec: Any,
+    *,
+    contract: CapabilityContractSpec | None,
+) -> FunctionArgSpec:
     runtime_type = str(input_spec.type)
-    runtime_types = _split_runtime_types(runtime_type)
+    runtime_types = split_runtime_types(runtime_type)
     primary_type = runtime_types[0] if runtime_types else runtime_type
     kind = _arg_kind(runtime_types)
+    contract_slot = _function_arg_contract_slot(
+        contract,
+        name=name,
+        runtime_type=runtime_type,
+        kind=kind,
+    )
     return FunctionArgSpec(
         name=name,
         method_input=name,
@@ -626,7 +799,65 @@ def _arg_spec_from_method_input(name: str, input_spec: Any) -> FunctionArgSpec:
             else None
         ),
         object_kind=object_kind_for_runtime_type(primary_type),
+        description=_function_arg_contract_description(
+            contract,
+            name=name,
+            runtime_type=runtime_type,
+            kind=kind,
+        ),
+        provides_semantic_roles=(
+            contract_slot.provides_semantic_roles
+            if contract_slot is not None
+            else ()
+        ),
     )
+
+
+def _function_arg_contract_slot(
+    contract: CapabilityContractSpec | None,
+    *,
+    name: str,
+    runtime_type: str,
+    kind: FunctionArgKind,
+) -> Any | None:
+    if contract is None or kind != "slot_read":
+        return None
+    named = [item for item in contract.slot_reads if item.semantic_role == name]
+    if len(named) == 1:
+        return named[0]
+    accepted_types = set(split_runtime_types(runtime_type))
+    typed = [
+        item for item in contract.slot_reads if item.runtime_type in accepted_types
+    ]
+    return typed[0] if len(typed) == 1 else None
+
+
+def _function_arg_contract_description(
+    contract: CapabilityContractSpec | None,
+    *,
+    name: str,
+    runtime_type: str,
+    kind: FunctionArgKind,
+) -> str:
+    if contract is None:
+        return ""
+    if kind not in {"condition_read", "slot_read"}:
+        return ""
+    conditions = tuple(contract.condition_reads)
+    slots = tuple(contract.slot_reads)
+    named_conditions = [item for item in conditions if item.condition_kind == name]
+    if len(named_conditions) == 1:
+        return named_conditions[0].description
+    named_slots = [item for item in slots if item.semantic_role == name]
+    if len(named_slots) == 1:
+        return named_slots[0].description
+    accepted_types = set(split_runtime_types(runtime_type))
+    typed_descriptions = [
+        item.description
+        for item in (*conditions, *slots)
+        if item.runtime_type in accepted_types and item.description
+    ]
+    return typed_descriptions[0] if len(typed_descriptions) == 1 else ""
 
 
 def _arg_prompt_payload(arg: FunctionArgSpec) -> dict[str, Any]:
@@ -664,10 +895,6 @@ def _arg_kind(runtime_types: tuple[str, ...]) -> FunctionArgKind:
     if "Condition" in runtime_types or "Constraint" in runtime_types:
         return "condition_read"
     return "slot_read"
-
-
-def _split_runtime_types(runtime_type: str) -> tuple[str, ...]:
-    return tuple(part.strip() for part in runtime_type.split("|") if part.strip())
 
 
 def function_adapter_from_binding_rule(
@@ -731,9 +958,17 @@ def _analyze_quadratic_coefficient_inputs(
     runtime_inputs: dict[str, Any] = {}
     for name, path in inputs.items():
         try:
+            # RuntimeContext can deterministically materialize a PointRef when
+            # a numeric Point input is requested. The analyzer must use the
+            # same typed-read semantics as InvocationExecutor; otherwise a
+            # valid curve point reaches SymPy as an unsubscriptable PointRef.
+            expected_type = (
+                "Point" if name in {"curve_point", "p1", "p2"} else None
+            )
             runtime_inputs[name] = index.context.read_path(
                 path,
                 from_scope_id=step.scope_id,
+                expected_type=expected_type,
             ).value
         except KeyError:
             # A binding-only/preflight caller may register a future runtime

@@ -10,6 +10,7 @@ from shuxueshuo_server.solver.runtime.function_specs import FunctionSpecRegistry
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.strategy_models import StepIntent, StepIntentDraft
+from shuxueshuo_server.solver.state_semantics import split_runtime_types
 
 
 @dataclass(frozen=True)
@@ -129,7 +130,7 @@ def _args_are_available(
 
 
 def _split_types(value: str) -> set[str]:
-    return {item.strip() for item in value.split("|") if item.strip()}
+    return set(split_runtime_types(value))
 
 
 __all__ = ["RepairGuidanceResolver", "RepairMethodGuidance"]

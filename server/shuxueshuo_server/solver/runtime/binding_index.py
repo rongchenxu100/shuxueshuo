@@ -135,19 +135,65 @@ class CanonicalRuntimeBindingIndex:
         binding = self.binding_for(handle)
         if binding.value_type == "PointRef":
             return binding.path
+        value = None
         try:
             path = ContextPath.parse(binding.path)
             value = self.context.get_scope(path.scope_id).container(path.container)[path.key]
-        except Exception as exc:
-            raise StrategyDraftValidationError(f"point_ref_path_not_found: {handle}") from exc
-        if value.type == "PointRef":
+        except Exception:
+            pass
+        if value is not None and value.type == "PointRef":
             return binding.path
+        # A computed coordinate may become the canonical binding for a point,
+        # while the original object identity is still present in the scope's
+        # points container. Object-oriented methods need that PointRef rather
+        # than the latest coordinate StateSlot.
+        try:
+            kind, scope_id, name = _require_scoped_handle(handle)
+            if kind != "point":
+                raise ValueError(handle)
+            original_path = _runtime_path_for_scope(
+                self.context,
+                scope_id,
+                "points",
+                name,
+            )
+            path = ContextPath.parse(original_path)
+            original = self.context.get_scope(path.scope_id).container(
+                path.container
+            )[path.key]
+            if original.type == "PointRef":
+                return original_path
+        except Exception:
+            pass
         raise StrategyDraftValidationError(
             "duplicate_point_coordinate_fact: "
             f"handle={handle} is already a computed Point at {binding.path}; "
             "do not call a construction/midpoint method with this point as an unresolved target. "
             "Read the existing coordinate fact instead."
         )
+
+    def point_identity_path_for(self, handle: str) -> str:
+        """Return a point object path without treating a coordinate as a target.
+
+        Inputs typed as ``PointRef|Point`` and named ``*_ref`` are converted by
+        InvocationExecutor from a points-container coordinate back to PointRef.
+        This is appropriate for identity metadata such as an already known
+        square side, but deliberately separate from construction targets where
+        an existing Point must still trigger the duplicate-write guard.
+        """
+        binding = self.binding_for(handle)
+        try:
+            path = ContextPath.parse(binding.path)
+        except Exception as exc:
+            raise StrategyDraftValidationError(
+                f"point_identity_path_not_found: {handle}"
+            ) from exc
+        if (
+            binding.value_type in {"Point", "PointRef"}
+            and path.container == "points"
+        ):
+            return binding.path
+        return self.point_ref_path_for(handle)
 
     def binding_for(self, handle: str) -> RuntimeHandleBinding:
         """返回绑定对象。"""

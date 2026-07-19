@@ -11,7 +11,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Literal, Mapping
 
+from shuxueshuo_server.solver.contracts import ScalarResultFormSpec
 from shuxueshuo_server.solver.family.models import (
+    CapabilityContextResolver,
+    CapabilityDependencyPolicy,
     CapabilityContractSpec,
     ConditionPattern,
     GoalEvidenceTag,
@@ -29,12 +32,18 @@ from shuxueshuo_server.solver.runtime.capability_contracts import (
 from shuxueshuo_server.solver.runtime.function_specs import FunctionSpecRegistry
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
+from shuxueshuo_server.solver.runtime.output_type_inference import (
+    produced_semantic_role,
+)
 from shuxueshuo_server.solver.runtime.strategy_models import (
     ProducedFact,
     StepIntent,
     StrategyDraftValidationError,
 )
-from shuxueshuo_server.solver.state_semantics import object_kind_for_runtime_type
+from shuxueshuo_server.solver.state_semantics import (
+    object_kind_for_runtime_type,
+    split_runtime_types,
+)
 from shuxueshuo_server.solver.utils import unique_ordered
 
 MacroArgKind = Literal["slot_read", "condition_read", "point_ref", "object_ref", "auto"]
@@ -55,6 +64,9 @@ class MacroArgSpec:
     state_kind: str | None = None
     condition_kind: str | None = None
     object_kind: str | None = None
+    semantic_role: str | None = None
+    description: str = ""
+    provides_semantic_roles: tuple[str, ...] = ()
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -70,6 +82,14 @@ class MacroArgSpec:
             payload["condition_kind"] = self.condition_kind
         if self.object_kind is not None:
             payload["object_kind"] = self.object_kind
+        if self.semantic_role is not None:
+            payload["semantic_role"] = self.semantic_role
+        if self.description:
+            payload["description"] = self.description
+        if self.provides_semantic_roles:
+            payload["provides_semantic_roles"] = list(
+                self.provides_semantic_roles
+            )
         return payload
 
 
@@ -91,6 +111,8 @@ class MacroReturnSpec:
     identity_arg: str | None = None
     write_mode: StateWriteMode = "value"
     goal_evidence_tags: tuple[GoalEvidenceTag, ...] = ()
+    description: str = ""
+    scalar_result_form: ScalarResultFormSpec | None = None
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -115,6 +137,10 @@ class MacroReturnSpec:
             payload["identity_arg"] = self.identity_arg
         payload["write_mode"] = self.write_mode
         payload["goal_evidence_tags"] = list(self.goal_evidence_tags)
+        if self.description:
+            payload["description"] = self.description
+        if self.scalar_result_form is not None:
+            payload["scalar_result_form"] = self.scalar_result_form.to_payload()
         return payload
 
 
@@ -170,6 +196,9 @@ class MacroSpec:
     internal_calls: tuple[MacroInternalCallSpec, ...]
     adapter: MacroAdapterSpec
     source: MacroSpecSource = "recipe_execution"
+    is_pure: bool = False
+    dependency_policy: CapabilityDependencyPolicy = "explicit_args"
+    context_resolvers: tuple[CapabilityContextResolver, ...] = ()
     notes: tuple[str, ...] = ()
 
     def to_payload(self, *, include_adapter: bool = True) -> dict[str, Any]:
@@ -181,6 +210,9 @@ class MacroSpec:
             "returns": [item.to_payload() for item in self.returns],
             "internal_calls": [item.to_payload() for item in self.internal_calls],
             "source": self.source,
+            "is_pure": self.is_pure,
+            "dependency_policy": self.dependency_policy,
+            "context_resolvers": list(self.context_resolvers),
             "notes": list(self.notes),
         }
         if include_adapter:
@@ -317,7 +349,7 @@ def macro_spec_from_recipe(
         )
         notes.extend(contract.notes)
     args = _args_from_contract(contract)
-    returns = _returns_from_contract(contract, execution)
+    returns = _returns_from_contract(contract, execution, function_specs)
     notes.extend(_contract_mismatch_notes(contract, execution))
     return MacroSpec(
         macro_id=recipe.recipe_id,
@@ -335,7 +367,34 @@ def macro_spec_from_recipe(
             output_aliases=execution.output_aliases,
         ),
         source=source,
+        is_pure=_macro_is_pure(execution, function_specs),
+        dependency_policy=(
+            contract.dependency_policy
+            if contract is not None
+            else "explicit_args"
+        ),
+        context_resolvers=(
+            contract.context_resolvers if contract is not None else ()
+        ),
         notes=tuple(unique_ordered(notes)),
+    )
+
+
+def _macro_is_pure(
+    execution: RecipeExecutionSpec,
+    function_specs: FunctionSpecRegistry,
+) -> bool:
+    """Derive macro purity from its executable graph and declared effects."""
+    if execution.creates:
+        return False
+    functions = tuple(
+        function_specs.get(method_id) for method_id in execution.method_sequence
+    )
+    if not functions or any(item is None or not item.is_pure for item in functions):
+        return False
+    return not any(
+        output.runtime_type == "Condition"
+        for output in execution.output_aliases
     )
 
 
@@ -407,6 +466,9 @@ def _slot_arg(slot: StateSlotPattern, index: int) -> MacroArgSpec:
         cardinality=slot.cardinality,
         state_kind=slot.state_kind,
         object_kind=slot.object_kind,
+        semantic_role=slot.semantic_role,
+        description=slot.description,
+        provides_semantic_roles=slot.provides_semantic_roles,
     )
 
 
@@ -418,20 +480,23 @@ def _condition_arg(condition: ConditionPattern, index: int) -> MacroArgSpec:
         required=condition.required,
         cardinality=condition.cardinality,
         condition_kind=condition.condition_kind,
+        description=condition.description,
     )
 
 
 def _returns_from_contract(
     contract: CapabilityContractSpec | None,
     execution: RecipeExecutionSpec,
+    function_specs: FunctionSpecRegistry,
 ) -> tuple[MacroReturnSpec, ...]:
     # RecipeExecutionSpec is the sole return-role source. The contract is used
     # below for consistency diagnostics, never to collapse execution outputs.
-    return tuple(_returns_from_output_aliases(execution))
+    return tuple(_returns_from_output_aliases(execution, function_specs))
 
 
 def _returns_from_output_aliases(
     execution: RecipeExecutionSpec,
+    function_specs: FunctionSpecRegistry,
 ) -> tuple[MacroReturnSpec, ...]:
     returns: list[MacroReturnSpec] = []
     for output in execution.output_aliases:
@@ -450,9 +515,50 @@ def _returns_from_output_aliases(
                 identity_arg=output.identity_arg,
                 write_mode=output.write_mode,
                 goal_evidence_tags=output.goal_evidence_tags,
+                description=output.description,
+                scalar_result_form=_macro_scalar_result_form(
+                    output,
+                    execution=execution,
+                    function_specs=function_specs,
+                ),
             )
         )
     return tuple(returns)
+
+
+def _macro_scalar_result_form(
+    output: RecipeOutputAliasSpec,
+    *,
+    execution: RecipeExecutionSpec,
+    function_specs: FunctionSpecRegistry,
+) -> ScalarResultFormSpec | None:
+    """Project result-form metadata from the unique internal Function return."""
+    explicit_method: str | None = None
+    output_name = output.output_key
+    if "." in output.output_key:
+        explicit_method, output_name = output.output_key.rsplit(".", 1)
+    method_ids = (
+        (explicit_method,)
+        if explicit_method is not None
+        else execution.method_sequence
+    )
+    candidates: list[ScalarResultFormSpec] = []
+    for method_id in method_ids:
+        function = function_specs.get(method_id)
+        if function is None:
+            continue
+        for result in function.returns:
+            if result.name != output_name and result.output_key != output_name:
+                continue
+            if result.scalar_result_form is not None:
+                candidates.append(result.scalar_result_form)
+    unique = tuple(dict.fromkeys(candidates))
+    if len(unique) > 1:
+        raise ValueError(
+            "planner_configuration_error: ambiguous macro scalar result form: "
+            f"{execution.recipe_id}.{output.semantic_role}"
+        )
+    return unique[0] if unique else None
 
 
 def _internal_calls(
@@ -549,7 +655,7 @@ def _match_macro_returns(
         )
         role_matches = [
             item for item in compatible
-            if _semantic_role_matches(produced.handle, item.semantic_role)
+            if _semantic_role_matches(produced, item.semantic_role)
         ]
         candidates = role_matches or _identity_compatible_returns(
             compatible,
@@ -559,7 +665,7 @@ def _match_macro_returns(
         if not candidates:
             same_role = [
                 item for item in spec.returns
-                if _semantic_role_matches(produced.handle, item.semantic_role)
+                if _semantic_role_matches(produced, item.semantic_role)
             ]
             code = "macro.return_type_mismatch" if same_role else "macro.return_unresolved"
             errors.append(
@@ -618,11 +724,16 @@ def _identity_compatible_returns(
     return result
 
 
-def _semantic_role_matches(handle: str, semantic_role: str | None) -> bool:
+def _semantic_role_matches(
+    produced: ProducedFact,
+    semantic_role: str | None,
+) -> bool:
     if not semantic_role:
         return False
-    name = handle.rsplit(":", 1)[-1].rsplit(".", 1)[-1].lower()
+    name = produced_semantic_role(produced).lower()
     role = semantic_role.lower()
+    if " return " in produced.description:
+        return name == role
     return name == role or name.endswith(f"_{role}") or role.endswith(f"_{name}")
 
 
@@ -652,7 +763,7 @@ def _first_output_alias_for_type(
 
 
 def _runtime_type_covered(runtime_type: str, candidates: set[str | None]) -> bool:
-    parts = {part.strip() for part in runtime_type.split("|") if part.strip()}
+    parts = set(split_runtime_types(runtime_type))
     return bool(parts & {candidate for candidate in candidates if candidate})
 
 

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import replace
 from importlib import util
 from pathlib import Path
 
@@ -20,6 +21,90 @@ from shuxueshuo_server.solver.runtime.normalizer_core import (  # noqa: E402
     DEFAULT_NORMALIZATION_RULES,
     _validate_normalization_rule_order,
 )
+
+
+def test_condition_role_closure_surfaces_malformed_declared_condition() -> None:
+    relation = "fact:ii:right_angle_equal_length_MDN"
+    registry = _registry()
+    payloads = dict(registry.fact_payloads)
+    payloads[relation] = {
+        **payloads[relation],
+        "angle": ["point:ii:M", "point:problem:D"],
+    }
+    malformed_registry = replace(registry, fact_payloads=payloads)
+    macro_step = _step(
+        scope_id="ii",
+        step_id="construct_from_malformed_condition",
+        recipe_hint="right_angle_equal_length_construct_and_select",
+        goal_type="derive_constructed_point",
+        target="point:ii:N",
+        reads=(relation,),
+    )
+
+    with pytest.raises(
+        StrategyDraftValidationError,
+        match="condition.roles_invalid",
+    ):
+        StepIntentNormalizer().normalize(
+            _single_scope_draft(macro_step, scope_id="ii"),
+            family_spec=_nankai_inputs().family_spec,
+            question_goals=_question_goals(),
+            handle_registry=malformed_registry,
+        )
+
+    direct_method_step = replace(
+        macro_step,
+        recipe_hint="right_angle_equal_length_candidates",
+    )
+    with pytest.raises(
+        StrategyDraftValidationError,
+        match="condition.roles_invalid",
+    ):
+        StepIntentNormalizer().normalize(
+            _single_scope_draft(direct_method_step, scope_id="ii"),
+            family_spec=_nankai_inputs().family_spec,
+            question_goals=_question_goals(),
+            handle_registry=malformed_registry,
+        )
+
+
+def test_condition_role_closure_is_idempotent_after_target_read_is_added() -> None:
+    relation = "fact:ii:right_angle_equal_length_MDN"
+    step = _step(
+        scope_id="ii",
+        step_id="construct_from_condition",
+        recipe_hint="right_angle_equal_length_construct_and_select",
+        goal_type="derive_constructed_point",
+        target="point:ii:N",
+        reads=(relation,),
+        produces=(
+            ProducedFact(
+                "fact:ii:N_coordinate_expr",
+                "ii",
+                "constructed point coordinate",
+                output_type="Point",
+            ),
+        ),
+    )
+    inputs = _nankai_inputs()
+    registry = _registry()
+    normalizer = StepIntentNormalizer()
+
+    first, _first_report = normalizer.normalize(
+        _single_scope_draft(step, scope_id="ii"),
+        family_spec=inputs.family_spec,
+        question_goals=inputs.question_goals,
+        handle_registry=registry,
+    )
+    second, second_report = normalizer.normalize(
+        first,
+        family_spec=inputs.family_spec,
+        question_goals=inputs.question_goals,
+        handle_registry=registry,
+    )
+
+    assert second.to_payload() == first.to_payload()
+    assert second_report.actions == ()
 
 
 def test_step_intent_normalizer_accepts_injected_rule() -> None:
@@ -1857,6 +1942,7 @@ def test_normalizer_splits_multi_point_parameter_evaluation_step() -> None:
         "fact:ii_1:N_coordinate"
     )
     assert [action.action for action in report.actions] == [
+        "complete_condition_role_read",
         "split_multi_point_evaluation_step",
         "split_multi_point_evaluation_step",
     ]

@@ -22,6 +22,7 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     StepIntentDraft,
     StepIntentExecutionDiagnostic,
 )
+from shuxueshuo_server.solver.state_semantics import is_object_handle
 from shuxueshuo_server.solver.utils import unique_ordered
 
 
@@ -64,6 +65,16 @@ class AnswerGoalVerifier:
                 # first runtime blocker owns the repair window; diagnosing the
                 # unexecuted suffix would hide that earlier failure.
                 continue
+            unresolved_symbol_issue = _unresolved_answer_symbol_issue(
+                goal,
+                step=step,
+                draft=draft,
+                handle_registry=handle_registry,
+                diagnostic=diagnostic,
+            )
+            if unresolved_symbol_issue is not None:
+                issues.append(unresolved_symbol_issue)
+                continue
             value_type = str(goal.get("value_type", "")).strip()
             if value_type == "Point":
                 issue = _point_goal_issue(
@@ -85,6 +96,119 @@ class AnswerGoalVerifier:
                 if issue is not None:
                     issues.append(issue)
         return tuple(issues)
+
+
+def _unresolved_answer_symbol_issue(
+    goal: Mapping[str, Any],
+    *,
+    step: StepIntent,
+    draft: StepIntentDraft,
+    handle_registry: CanonicalHandleRegistry,
+    diagnostic: StepIntentExecutionDiagnostic | None,
+) -> PlannerRetryIssue | None:
+    """Reject a symbolic final value when matching substitutions already exist.
+
+    A final answer may legitimately depend on a free symbol. It becomes a
+    planner error only when an earlier, visible ``ParameterValue`` state for
+    that same Symbol identity already exists: in that case the answer producer
+    failed to consume available state rather than intentionally returning a
+    parameterized result.
+    """
+    if diagnostic is None:
+        return None
+    goal_handle = str(goal.get("handle", "")).strip()
+    answer_write = next(
+        (
+            item
+            for item in reversed(diagnostic.state_write_provenance)
+            if item.produced_handle == goal_handle
+        ),
+        None,
+    )
+    if answer_write is None or not answer_write.free_symbol_names:
+        return None
+
+    step_positions = {
+        current.step_id: index
+        for index, current in enumerate(draft.steps)
+    }
+    answer_position = step_positions.get(step.step_id)
+    if answer_position is None:
+        return None
+
+    free_symbols = set(answer_write.free_symbol_names)
+    available: list[tuple[str, str, str]] = []
+    for item in diagnostic.state_write_provenance:
+        if item.runtime_type != "ParameterValue":
+            continue
+        symbol_name = _symbol_name_from_object_ref(item.object_ref)
+        if symbol_name is None or symbol_name not in free_symbols:
+            continue
+        producer_position = step_positions.get(item.step_id)
+        if producer_position is None or producer_position >= answer_position:
+            continue
+        if not _provenance_write_is_visible(
+            item.produced_handle,
+            producer_scope_id=item.scope_id,
+            consumer_scope_id=step.scope_id,
+            handle_registry=handle_registry,
+        ):
+            continue
+        available.append((symbol_name, item.produced_handle, item.object_ref or ""))
+
+    if not available:
+        return None
+    available_symbols = unique_ordered(item[0] for item in available)
+    available_handles = unique_ordered(item[1] for item in available)
+    symbol_refs = unique_ordered(item[2] for item in available if item[2])
+    return PlannerRetryIssue(
+        layer="goal_verification",
+        code="answer_unresolved_symbol_state",
+        step_id=step.step_id,
+        scope_id=step.scope_id,
+        repair_target=goal_handle or step.target,
+        message=(
+            f"{step.step_id} writes the final answer with unresolved symbols "
+            f"{', '.join(available_symbols)}, even though matching visible "
+            "ParameterValue states were produced earlier."
+        ),
+        hints=(
+            "最终 answer 不应直接绑定仍含自由参数的中间状态；请让 answer producer 消费已存在的参数值状态。",
+            "保持现有参数求值 call，并从该 answer producer 起修复数据连接或增加确定性代入 call。",
+        ),
+        related_handles=unique_ordered(
+            (goal_handle, *symbol_refs, *available_handles)
+        ),
+        details={
+            "unresolved_symbols": list(answer_write.free_symbol_names),
+            "available_parameter_symbols": list(available_symbols),
+            "available_parameter_states": list(available_handles),
+        },
+    )
+
+
+def _symbol_name_from_object_ref(object_ref: str | None) -> str | None:
+    if object_ref is None or not object_ref.startswith("symbol:"):
+        return None
+    name = object_ref.rsplit(":", 1)[-1].strip()
+    return name or None
+
+
+def _provenance_write_is_visible(
+    produced_handle: str,
+    *,
+    producer_scope_id: str,
+    consumer_scope_id: str,
+    handle_registry: CanonicalHandleRegistry,
+) -> bool:
+    valid_scope = (
+        handle_registry.handle_valid_scopes.get(produced_handle)
+        or producer_scope_id
+    )
+    try:
+        return valid_scope in handle_registry.ancestor_scopes(consumer_scope_id)
+    except Exception:
+        return False
 
 
 def _canonical_question_goals(
@@ -231,13 +355,11 @@ def _minimum_goal_issue(
         family_spec,
         "path_minimum_expression",
     )
-    expression_handles = _goal_evidence_handles(
-        diagnostic,
-        roles=expression_roles,
-        scope_id=step.scope_id,
-        handle_registry=handle_registry,
+    witness_roles = _goal_evidence_roles(
+        family_spec,
+        "path_minimum_witness",
     )
-    if not set(step.reads) & set(expression_handles):
+    if not expression_roles or not witness_roles:
         return None
     path_targets = _visible_facts_by_type(
         "path_minimum_target",
@@ -246,9 +368,81 @@ def _minimum_goal_issue(
     )
     if not path_targets:
         return None
+    goal_handle = str(goal.get("handle", ""))
+    answer_write = next(
+        (
+            item
+            for item in reversed(diagnostic.state_write_provenance)
+            if item.produced_handle == goal_handle
+        ),
+        None,
+    )
+    if answer_write is not None:
+        lineage = _state_write_lineage(
+            answer_write,
+            diagnostic=diagnostic,
+        )
+        lineage_roles = {
+            role
+            for item in lineage
+            for role in (item.identity_role, *item.evidence_roles)
+        }
+        lineage_handles = unique_ordered(
+            handle
+            for item in lineage
+            for handle in (item.produced_handle, *item.source_handles)
+        )
+        has_expression = bool(lineage_roles & expression_roles)
+        has_witness = bool(lineage_roles & witness_roles)
+        has_path_target = bool(set(lineage_handles) & set(path_targets))
+        if not has_expression:
+            return _minimum_goal_provenance_issue(
+                goal,
+                step=step,
+                code="minimum_goal_source_unproven",
+                message=(
+                    f"{step.step_id} writes a path-minimum answer from states "
+                    "whose provenance does not contain a declared "
+                    "path_minimum_expression role."
+                ),
+                path_targets=path_targets,
+                lineage_handles=lineage_handles,
+                missing_roles=tuple(sorted(expression_roles)),
+            )
+        if not has_witness or not has_path_target:
+            missing_role_items = (
+                list(sorted(witness_roles)) if not has_witness else []
+            )
+            if not has_path_target:
+                missing_role_items.append("path_minimum_target")
+            return _minimum_goal_provenance_issue(
+                goal,
+                step=step,
+                code="minimum_goal_lineage_incomplete",
+                message=(
+                    f"{step.step_id} writes a path-minimum answer, but its "
+                    "provenance dependency graph does not contain the required "
+                    "path target and straightening witnesses."
+                ),
+                path_targets=path_targets,
+                lineage_handles=lineage_handles,
+                missing_roles=tuple(missing_role_items),
+            )
+        return None
+
+    # Compatibility fallback for diagnostics recorded before answer-write
+    # provenance was available.
+    expression_handles = _goal_evidence_handles(
+        diagnostic,
+        roles=expression_roles,
+        scope_id=step.scope_id,
+        handle_registry=handle_registry,
+    )
+    if not set(step.reads) & set(expression_handles):
+        return None
     straightening_witnesses = _goal_evidence_handles(
         diagnostic,
-        roles=_goal_evidence_roles(family_spec, "path_minimum_witness"),
+        roles=witness_roles,
         scope_id=step.scope_id,
         handle_registry=handle_registry,
     )
@@ -273,6 +467,68 @@ def _minimum_goal_issue(
             "请从该 step 起重写 suffix；不要只把一个 MinimumExpression 当普通表达式代入。",
         ),
         related_handles=related,
+    )
+
+
+def _state_write_lineage(
+    root: Any,
+    *,
+    diagnostic: StepIntentExecutionDiagnostic,
+) -> tuple[Any, ...]:
+    """Return the provenance subgraph that actually contributes to ``root``."""
+    by_handle = {
+        item.produced_handle: item
+        for item in diagnostic.state_write_provenance
+    }
+    by_step: dict[str, list[Any]] = {}
+    for item in diagnostic.state_write_provenance:
+        by_step.setdefault(item.step_id, []).append(item)
+    result: list[Any] = []
+    seen: set[tuple[str, str, str]] = set()
+    pending = [root]
+    while pending:
+        item = pending.pop()
+        key = (item.step_id, item.produced_handle, item.output_key)
+        if key in seen:
+            continue
+        seen.add(key)
+        result.append(item)
+        pending.extend(by_step.get(item.step_id, ()))
+        pending.extend(
+            producer
+            for handle in item.source_handles
+            if (producer := by_handle.get(handle)) is not None
+        )
+    return tuple(result)
+
+
+def _minimum_goal_provenance_issue(
+    goal: Mapping[str, Any],
+    *,
+    step: StepIntent,
+    code: str,
+    message: str,
+    path_targets: tuple[str, ...],
+    lineage_handles: tuple[str, ...],
+    missing_roles: tuple[str, ...],
+) -> PlannerRetryIssue:
+    return PlannerRetryIssue(
+        layer="goal_verification",
+        code=code,
+        step_id=step.step_id,
+        scope_id=step.scope_id,
+        repair_target=str(goal.get("handle") or step.target),
+        message=message,
+        hints=(
+            "最终路径最值 answer 必须消费 contract 标注的 path-minimum expression，而不是旁路普通距离或独立表达式。",
+            "独立执行但未进入 answer provenance 子图的拉直步骤不构成证明；请修复 call result 数据连接。",
+        ),
+        related_handles=unique_ordered(
+            (*path_targets, *lineage_handles)
+        ),
+        details={
+            "missing_semantic_roles": list(missing_roles),
+        },
     )
 
 
@@ -384,4 +640,4 @@ def _is_visible(
 
 
 def _looks_like_handle(value: str) -> bool:
-    return value.startswith(("point:", "line:", "segment:", "ray:", "fact:", "answer:"))
+    return is_object_handle(value) or value.startswith(("fact:", "answer:"))

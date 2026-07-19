@@ -1,0 +1,314 @@
+{
+  "format": "functional_plan/v1",
+  "scopes": [
+    {
+      "scope_id": "i",
+      "label": "第（Ⅰ）问",
+      "calls": [
+        {
+          "call_id": "i_derive_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "args": {
+            "coefficient_relation": {
+              "kind": "fact",
+              "ref": "coefficient_relation"
+            },
+            "known_coefficients": [
+              {
+                "kind": "fact",
+                "ref": "a_value"
+              },
+              {
+                "kind": "fact",
+                "ref": "c_value"
+              }
+            ]
+          },
+          "return_bindings": {
+            "parabola": {
+              "kind": "answer",
+              "ref": "i.parabola"
+            }
+          },
+          "strategy": "代入已知系数并利用系数关系确定二次函数解析式。",
+          "reason": "得到第（Ⅰ）问的抛物线。"
+        },
+        {
+          "call_id": "i_derive_D",
+          "capability_id": "quadratic_axis_from_relation",
+          "args": {
+            "coefficient_relation": {
+              "kind": "fact",
+              "ref": "coefficient_relation"
+            }
+          },
+          "return_bindings": {
+            "axis_point": {
+              "kind": "answer",
+              "ref": "i.axis_point"
+            }
+          },
+          "strategy": "由系数关系确定对称轴与 x 轴的交点。",
+          "reason": "得到后续几何构造共用的点 D。"
+        }
+      ]
+    },
+    {
+      "scope_id": "ii",
+      "label": "第（Ⅱ）问共享状态",
+      "calls": [
+        {
+          "call_id": "ii_construct_N",
+          "capability_id": "right_angle_equal_length_construct_and_select",
+          "args": {
+            "right_angle_equal_length": {
+              "kind": "fact",
+              "ref": "right_angle_equal_length_MDN"
+            }
+          },
+          "return_bindings": {
+            "selected_target_point": {
+              "kind": "point",
+              "ref": "N"
+            }
+          },
+          "strategy": "利用直角、等长和象限条件确定点 N 的含参坐标。",
+          "reason": "建立两个子问共同使用的点 N 状态。"
+        },
+        {
+          "call_id": "ii_derive_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "args": {
+            "coefficient_relation": {
+              "kind": "fact",
+              "ref": "coefficient_relation"
+            },
+            "curve_points": [
+              {
+                "kind": "point",
+                "ref": "M"
+              },
+              {
+                "kind": "point",
+                "ref": "N"
+              }
+            ]
+          },
+          "return_bindings": {
+            "parabola": {
+              "kind": "function",
+              "ref": "parabola"
+            }
+          },
+          "strategy": "利用 M、N 在抛物线上及系数关系，建立关于参数 m 的抛物线。",
+          "reason": "两个子问只需在该共享抛物线状态上代入各自求得的 m。"
+        },
+        {
+          "call_id": "ii_reduce_path",
+          "capability_id": "two_moving_points_path_reduction",
+          "args": {
+            "path_minimum_target": {
+              "kind": "fact",
+              "ref": "path_minimum_target"
+            }
+          },
+          "return_bindings": {},
+          "strategy": "利用线段位置关系和长度关系，把双动点路径化为单动点折线路径。",
+          "reason": "建立两个子问共同使用的路径等价变换。"
+        },
+        {
+          "call_id": "ii_derive_path_model",
+          "capability_id": "broken_path_straightening_minimum_expression",
+          "args": {
+            "path_transformation": {
+              "from_call": "ii_reduce_path",
+              "return": "path_transformation"
+            }
+          },
+          "return_bindings": {},
+          "return_expectations": {
+            "path_minimum_expression": "open_expression"
+          },
+          "strategy": "将折线路径拉直，得到含参最小值表达式。",
+          "reason": "最小值表达式供两个子问求值或反求参数。"
+        }
+      ]
+    },
+    {
+      "scope_id": "ii_1",
+      "label": "第（Ⅱ）①问",
+      "calls": [
+        {
+          "call_id": "ii_1_solve_m",
+          "capability_id": "parameter_from_segment_length",
+          "args": {
+            "length_squared": {
+              "kind": "fact",
+              "ref": "MN_length_squared_eq_10"
+            },
+            "p1": {
+              "kind": "point",
+              "ref": "M"
+            },
+            "p2": {
+              "kind": "point",
+              "ref": "N"
+            }
+          },
+          "return_bindings": {
+            "parameter_value": {
+              "kind": "symbol",
+              "ref": "m"
+            }
+          },
+          "strategy": "由 MN 的长度条件求参数 m。",
+          "reason": "得到本小问确定抛物线和路径最小值所需的参数值。"
+        },
+        {
+          "call_id": "ii_1_specialize_parabola",
+          "capability_id": "evaluate_expression_at_parameter",
+          "args": {
+            "expression": {
+              "from_call": "ii_derive_parabola",
+              "return": "parabola"
+            },
+            "parameter_value": {
+              "from_call": "ii_1_solve_m",
+              "return": "parameter_value"
+            }
+          },
+          "return_bindings": {
+            "evaluated_parabola": {
+              "kind": "answer",
+              "ref": "ii_1.parabola"
+            }
+          },
+          "strategy": "把本小问求得的 m 代入共享含参抛物线。",
+          "reason": "得到第（Ⅱ）①问的抛物线解析式。"
+        },
+        {
+          "call_id": "ii_1_evaluate_minimum",
+          "capability_id": "evaluate_expression_at_parameter",
+          "args": {
+            "expression": {
+              "from_call": "ii_derive_path_model",
+              "return": "path_minimum_expression"
+            },
+            "parameter_value": {
+              "from_call": "ii_1_solve_m",
+              "return": "parameter_value"
+            }
+          },
+          "return_bindings": {
+            "evaluated_minimum_expression": {
+              "kind": "answer",
+              "ref": "ii_1.minimum_value"
+            }
+          },
+          "return_expectations": {
+            "evaluated_minimum_expression": "closed_value"
+          },
+          "strategy": "把参数值代入共享的路径最小值表达式。",
+          "reason": "得到第（Ⅱ）①问中路径的最小值。"
+        }
+      ]
+    },
+    {
+      "scope_id": "ii_2",
+      "label": "第（Ⅱ）②问",
+      "calls": [
+        {
+          "call_id": "ii_2_solve_m",
+          "capability_id": "parameter_from_minimum_value",
+          "args": {
+            "minimum_expression": {
+              "from_call": "ii_derive_path_model",
+              "return": "path_minimum_expression"
+            },
+            "minimum_value": {
+              "kind": "fact",
+              "ref": "path_minimum_value_given"
+            }
+          },
+          "return_bindings": {
+            "parameter_value": {
+              "kind": "symbol",
+              "ref": "m"
+            }
+          },
+          "strategy": "由给定最小值和共享最小值表达式反求参数 m。",
+          "reason": "得到确定抛物线和极值点所需的参数值。"
+        },
+        {
+          "call_id": "ii_2_specialize_parabola",
+          "capability_id": "evaluate_expression_at_parameter",
+          "args": {
+            "expression": {
+              "from_call": "ii_derive_parabola",
+              "return": "parabola"
+            },
+            "parameter_value": {
+              "from_call": "ii_2_solve_m",
+              "return": "parameter_value"
+            }
+          },
+          "return_bindings": {
+            "evaluated_parabola": {
+              "kind": "answer",
+              "ref": "ii_2.parabola"
+            }
+          },
+          "strategy": "把本小问求得的 m 代入共享含参抛物线。",
+          "reason": "得到第（Ⅱ）②问的抛物线解析式。"
+        },
+        {
+          "call_id": "ii_select_straightening",
+          "capability_id": "broken_path_straightening_and_select",
+          "args": {
+            "path_transformation": {
+              "from_call": "ii_reduce_path",
+              "return": "path_transformation"
+            }
+          },
+          "return_bindings": {},
+          "strategy": "选择可用于恢复极值点的拉直方案及其辅助端点。",
+          "reason": "由拉直直线与原动点轨迹的交点恢复 G。"
+        },
+        {
+          "call_id": "ii_2_derive_G",
+          "capability_id": "line_intersection_point",
+          "args": {
+            "line1_p1": {
+              "from_call": "ii_select_straightening",
+              "return": "path_minimum_point_1"
+            },
+            "line1_p2": {
+              "from_call": "ii_select_straightening",
+              "return": "path_minimum_point_2"
+            },
+            "line2_p1": {
+              "kind": "point",
+              "ref": "M"
+            },
+            "line2_p2": {
+              "kind": "point",
+              "ref": "N"
+            },
+            "parameter_value": {
+              "from_call": "ii_2_solve_m",
+              "return": "parameter_value"
+            }
+          },
+          "return_bindings": {
+            "intersection": {
+              "kind": "answer",
+              "ref": "ii_2.intersection"
+            }
+          },
+          "strategy": "求拉直方案确定的辅助直线与 MN 所在直线的交点。",
+          "reason": "该交点才是原路径取得最小值时的点 G。"
+        }
+      ]
+    }
+  ]
+}

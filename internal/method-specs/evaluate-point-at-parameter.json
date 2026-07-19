@@ -27,6 +27,9 @@
   "preconditions": [
     "point 坐标可以包含 parameter"
   ],
+  "do_not_use_when": [
+    "目标是构造另一个几何点；本能力只把参数值代入同一 Point 的已有坐标状态，不改变对象身份。"
+  ],
   "postconditions": [
     "输出点坐标不再含 parameter"
   ],
@@ -85,5 +88,8 @@
     "timeline_templates": [],
     "role_binder_id": "evaluate_point_at_parameter"
   },
-  "plan_transformer": "substitute_all_point_parameters"
+  "plan_transformer": "substitute_all_point_parameters",
+  "reconciliation_validators": [
+    "companion_symbol_coverage"
+  ]
 }

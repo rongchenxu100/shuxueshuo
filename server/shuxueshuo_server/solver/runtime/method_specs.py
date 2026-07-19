@@ -18,7 +18,9 @@ from shuxueshuo_server.solver.contracts import (
     MethodInputSpec,
     MethodSpec,
     MethodVisualSpec,
+    ScalarResultFormSpec,
 )
+from shuxueshuo_server.solver.state_semantics import split_runtime_types
 
 
 class MethodSpecRegistry:
@@ -95,6 +97,10 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
         raise ValueError("MethodSpec.solves must be a non-empty list")
     inputs = _parse_inputs(raw["inputs"])
     outputs = _parse_outputs(raw["outputs"])
+    scalar_result_forms = _parse_scalar_result_forms(
+        raw.get("scalar_result_forms", {}),
+        output_names=set(outputs),
+    )
     is_pure = raw.get("is_pure", False)
     if not isinstance(is_pure, bool):
         raise ValueError("MethodSpec.is_pure must be a boolean")
@@ -104,7 +110,9 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
         solves=tuple(str(item) for item in raw["solves"]),
         inputs=inputs,
         outputs=outputs,
+        scalar_result_forms=scalar_result_forms,
         summary=str(raw.get("summary", "")),
+        do_not_use_when=_parse_do_not_use_when(raw.get("do_not_use_when", ())),
         preconditions=tuple(str(item) for item in raw.get("preconditions", [])),
         postconditions=tuple(str(item) for item in raw.get("postconditions", [])),
         trace_template=tuple(str(item) for item in raw.get("trace_template", [])),
@@ -121,8 +129,46 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
             if raw.get("plan_transformer") is not None
             else None
         ),
+        reconciliation_validators=_parse_identifier_list(
+            raw.get("reconciliation_validators", ()),
+            field_name="MethodSpec.reconciliation_validators",
+        ),
         is_pure=is_pure,
     )
+
+
+def _parse_do_not_use_when(raw: object) -> tuple[str, ...]:
+    if raw in (None, ()):
+        return ()
+    if not isinstance(raw, list | tuple):
+        raise ValueError("MethodSpec.do_not_use_when must be a list")
+    result: list[str] = []
+    for item in raw:
+        value = str(item).strip()
+        if not value:
+            raise ValueError("MethodSpec.do_not_use_when items must be non-empty")
+        if value not in result:
+            result.append(value)
+    return tuple(result)
+
+
+def _parse_identifier_list(
+    raw: object,
+    *,
+    field_name: str,
+) -> tuple[str, ...]:
+    if raw in (None, ()):
+        return ()
+    if not isinstance(raw, list | tuple):
+        raise ValueError(f"{field_name} must be a list")
+    result: list[str] = []
+    for item in raw:
+        value = str(item).strip()
+        if not value:
+            raise ValueError(f"{field_name} items must be non-empty")
+        if value not in result:
+            result.append(value)
+    return tuple(result)
 
 
 def _parse_inputs(raw_inputs: object) -> dict[str, MethodInputSpec]:
@@ -167,6 +213,52 @@ def _parse_outputs(raw_outputs: object) -> dict[str, str]:
             raise ValueError(f"unknown output type for {name}: {output_type}")
         outputs[str(name)] = output_type
     return outputs
+
+
+def _parse_scalar_result_forms(
+    raw_specs: object,
+    *,
+    output_names: set[str],
+) -> dict[str, ScalarResultFormSpec]:
+    if raw_specs in (None, {}):
+        return {}
+    if not isinstance(raw_specs, dict):
+        raise ValueError("MethodSpec.scalar_result_forms must be an object")
+    unknown = sorted(set(str(name) for name in raw_specs) - output_names)
+    if unknown:
+        raise ValueError(
+            "MethodSpec.scalar_result_forms references unknown outputs: "
+            + ", ".join(unknown)
+        )
+    result: dict[str, ScalarResultFormSpec] = {}
+    allowed_forms = {"open_expression", "closed_value"}
+    for name, raw in raw_specs.items():
+        if not isinstance(raw, dict):
+            raise ValueError(f"invalid scalar result form spec for {name}")
+        possible = raw.get("possible_forms")
+        if not isinstance(possible, list) or not possible:
+            raise ValueError(
+                f"scalar result form possible_forms must be non-empty for {name}"
+            )
+        forms = tuple(dict.fromkeys(str(item) for item in possible))
+        if set(forms) - allowed_forms:
+            raise ValueError(f"unknown scalar result form for {name}: {forms}")
+        description = str(raw.get("description", "")).strip()
+        if not description:
+            raise ValueError(
+                f"scalar result form description must be non-empty for {name}"
+            )
+        closure_policy = str(raw.get("closure_policy", "no_free_symbols"))
+        if closure_policy != "no_free_symbols":
+            raise ValueError(
+                f"unknown scalar result closure policy for {name}: {closure_policy}"
+            )
+        result[str(name)] = ScalarResultFormSpec(
+            possible_forms=forms,  # type: ignore[arg-type]
+            description=description,
+            closure_policy="no_free_symbols",
+        )
+    return result
 
 
 def _parse_repair_hints(raw_hints: object) -> tuple[dict[str, Any], ...]:
@@ -289,5 +381,9 @@ def _type_expression_is_known(type_expr: str) -> bool:
         return True
     if "|" not in type_expr:
         return False
-    parts = [part.strip() for part in type_expr.split("|")]
-    return bool(parts) and all(part in _KNOWN_TYPES for part in parts)
+    parts = split_runtime_types(type_expr)
+    return (
+        bool(parts)
+        and len(parts) == len(type_expr.split("|"))
+        and all(part in _KNOWN_TYPES for part in parts)
+    )

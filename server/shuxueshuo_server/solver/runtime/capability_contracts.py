@@ -18,6 +18,7 @@ from shuxueshuo_server.solver.family.models import (
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.state_semantics import (
     object_kind_for_runtime_type,
+    split_runtime_types,
     state_kind_for_runtime_type,
 )
 from shuxueshuo_server.solver.utils import unique_ordered
@@ -169,7 +170,7 @@ def _input_slot_pattern(input_type: str) -> StateSlotPattern | None:
     Keeping them out of projected slot reads prevents Context matching from
     treating invocation handles as semantic state dependencies.
     """
-    runtime_types = _split_runtime_types(input_type)
+    runtime_types = split_runtime_types(input_type)
     if "Condition" in runtime_types:
         return None
     if "Symbol" in runtime_types or "PointRef" in runtime_types:
@@ -191,10 +192,6 @@ def _output_slot_pattern(output_type: str) -> StateSlotPattern:
         object_kind=object_kind_for_runtime_type(output_type),
         write_mode=("create" if output_type in {"Point", "PointList"} else "value"),
     )
-
-
-def _split_runtime_types(input_type: str) -> tuple[str, ...]:
-    return tuple(part.strip() for part in input_type.split("|") if part.strip())
 
 
 __all__ = [

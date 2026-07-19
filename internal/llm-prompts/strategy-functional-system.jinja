@@ -1,0 +1,38 @@
+请使用给定的数学能力完成题目，构造覆盖所有必答目标的完整、正确解法。
+先确定数学路线和调用依赖，再只输出一个 FunctionalPlan JSON object 作为解法表示。
+
+必须遵守：
+
+1. 只输出 JSON，不要 Markdown 或额外说明；`format` 必须为 `functional_plan/v1`。
+2. `capability_id` 只能从 Functional Capability Catalog 选择，不要猜测未展示的能力。
+   先按 `use_when` 匹配当前目标和已有状态；命中 `do_not_use_when` 时改选其他能力或先补前置调用。
+3. 题面输入直接使用 ProblemIR 中的 `semantic_ref`：
+   `{ "ref": "...", "kind": "...", "value_type": "..."? }`。
+   entity 的 `kind` 使用其 `entity_type`，fact 使用 `fact`，question goal 使用 `answer`。
+   `value_type` 通常可以省略。只能使用 ProblemIR 已给出的 `semantic_ref`，不要发明其他引用。
+4. 读取当前计划中更早 call 的返回值时，使用
+   `{ "from_call": "earlier_call_id", "return": "declared_return_name" }`。
+   不允许 forward reference 或循环依赖。前序 call 的结果可以被后续不同 scope 的 call 引用；
+   不要仅因为进入了另一个小问，就用相同 capability 和相同输入重复计算同一对象状态。
+5. `args` 只填写 capability catalog 展示的参数。required arg 必须提供，cardinality 必须匹配。
+6. `return_bindings` 只绑定最终 answer 或题面中的已有对象/状态：
+   - `binding=internal_only` 的 return 不能绑定，只能由后续 call 通过 CallResultRef 消费；
+   - `binding=same_object_as:<arg>` 的 return 保持指定输入对象的身份；
+   - `binding=answer_or_existing_object` 的 return 可以绑定类型和身份兼容的外部目标。
+   后续需要使用的普通中间结果不要绑定，直接通过 CallResultRef 连接。
+7. 只有 return 展示 `possible_forms` 时，才可在 `return_expectations` 中标记结果形态：
+   - 有意保留未确定参数供后续求解时写 `open_expression`；
+   - 准备直接绑定数值答案时写 `closed_value`。
+   这是预期标记，代码会根据实际自由符号验证；固定形态 return 不得填写。
+8. 每个 required answer 必须恰好绑定一次，且返回类型和对象身份必须匹配。
+   如果某个较早 call 已经得到该 answer 对应的同一对象状态，应直接在这个唯一 producer
+   的 `return_bindings` 中绑定 answer；后续小问通过 CallResultRef 复用它，不要新增一次计算来绑定答案。
+9. `call_id` 在整个计划中唯一，使用稳定、语义化的 snake_case 名称。调用顺序就是依赖顺序。
+10. 一个 call 只表达一个 catalog capability。每个数学步骤都必须由所选 capability 支持。
+11. retry 时以 `latest_retry_state.baseline_candidate` 为候选解法，保持
+    `stable_candidate_calls` 不变，只修复 `repair_call_ids` 及依赖它们的调用，
+    并重新输出完整 FunctionalPlan。
+
+JSON Schema:
+
+{{ output_json_schema | pretty_json }}

@@ -7,6 +7,9 @@ from typing import Any, cast, get_args
 from shuxueshuo_server.solver.runtime.planner_state_context import (
     PlannerStateContext,
 )
+from shuxueshuo_server.solver.runtime.functional_plan_retry import (
+    functional_repair_instruction,
+)
 from shuxueshuo_server.solver.runtime.strategy_models import (
     PlannerRetryIssue,
     PlannerRetryLayer,
@@ -50,6 +53,7 @@ class PlannerRetryStateProjector:
         raw_stable_prefix = tuple(
             item.to_payload() for item in context.state.stable_prefix
         )
+        is_functional = memory.candidate_format == "functional_plan"
         primary_blocker = _primary_blocker(memory.replay_reports)
         repair_suffix_start = (
             memory.repair_suffix_start
@@ -59,7 +63,11 @@ class PlannerRetryStateProjector:
         issues, recovered_issues = _active_and_recovered_issues(
             raw_issues,
             raw_recovered_issues,
-            stable_prefix=raw_stable_prefix,
+            # Runtime may execute a Functional call whose answer provenance is
+            # still invalid. Functional retry owns a verified call graph, so a
+            # linear StepIntent prefix must never mark another graph issue as
+            # recovered.
+            stable_prefix=(() if is_functional else raw_stable_prefix),
             repair_suffix_start=repair_suffix_start,
             primary_blocker=primary_blocker,
         )
@@ -77,11 +85,18 @@ class PlannerRetryStateProjector:
         # prefix facts. Preserve policy is therefore recomputed from the active
         # issues and current stable prefix rather than copied from memory.
         stable_prefix = () if has_answer_check else raw_stable_prefix
-        preserve_policy: PlannerRetryPreservePolicy = (
-            "none" if has_answer_check else (
-                "preserve_prefix" if stable_prefix else "none"
+        if is_functional:
+            preserve_policy: PlannerRetryPreservePolicy = (
+                "preserve_graph"
+                if memory.stable_candidate_calls and not has_answer_check
+                else "none"
             )
-        )
+        else:
+            preserve_policy = (
+                "none" if has_answer_check else (
+                    "preserve_prefix" if stable_prefix else "none"
+                )
+            )
         issues = tuple(with_preserve_policy(issue, preserve_policy) for issue in issues)
         recovered_issues = tuple(
             with_preserve_policy(issue, preserve_policy)
@@ -100,17 +115,34 @@ class PlannerRetryStateProjector:
             issues=issues,
             recovered_issues=recovered_issues,
             preserve_policy=preserve_policy,
-            repair_instruction=retry_instruction(
-                issues=issues,
-                recovered_issues=recovered_issues,
-                preserve_policy=preserve_policy,
-                has_stable_prefix=bool(stable_prefix),
+            repair_instruction=(
+                functional_repair_instruction(
+                    stable_candidate_calls=memory.stable_candidate_calls,
+                    repair_call_ids=memory.repair_call_ids,
+                    issue_count=len(issues),
+                )
+                if is_functional
+                else retry_instruction(
+                    issues=issues,
+                    recovered_issues=recovered_issues,
+                    preserve_policy=preserve_policy,
+                    has_stable_prefix=bool(stable_prefix),
+                )
             ),
             replay_depth=memory.replay_depth,
             selected_repair_layer=issues[0].layer,
             replay_timeline=memory.replay_timeline,
             replay_reports=memory.replay_reports or {},
             source_context_id=context.manifest.context_id,
+            candidate_format=(
+                "functional_plan"
+                if memory.candidate_format == "functional_plan"
+                else "step_intent"
+            ),
+            baseline_candidate=memory.baseline_candidate,
+            stable_candidate_prefix=memory.stable_candidate_prefix,
+            stable_candidate_calls=memory.stable_candidate_calls,
+            repair_call_ids=memory.repair_call_ids,
         )
 
 

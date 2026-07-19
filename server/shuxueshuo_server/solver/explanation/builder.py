@@ -16,6 +16,7 @@ from shuxueshuo_server.solver.runtime.recipes import RecipeSpecRegistry
 from shuxueshuo_server.solver.student_display import student_math_display
 
 from .models import ExplanationSnapshot, LessonCandidateGroup, LessonIR, LessonSection, LessonStep, TeachingTraceEntry
+from .presentation import StudentScopeReference
 from .target_labels import (
     target_point_label_for_group as _target_point_label_for_group,
     target_point_labels_from_groups_and_pieces as _target_point_labels_for_groups,
@@ -377,13 +378,125 @@ def _build_lesson_groups(snapshot: ExplanationSnapshot) -> list[LessonCandidateG
     traces_by_step: dict[str, list[TeachingTraceEntry]] = defaultdict(list)
     for entry in snapshot.teaching_trace:
         traces_by_step[entry.source_step_id].append(entry)
+    steps_by_id = {
+        str(step["step_id"]): step for step in snapshot.effective_steps
+    }
+    placement_by_step = {
+        item.step_id: item for item in snapshot.student_step_placements
+    }
+    references_by_step: dict[str, list[Any]] = defaultdict(list)
+    for reference in snapshot.student_scope_references:
+        references_by_step[reference.target_step_id].append(reference)
+    ordered_step_ids = [
+        item.step_id
+        for item in snapshot.student_step_placements
+        if item.step_id in steps_by_id
+    ]
+    ordered_step_ids.extend(
+        step_id for step_id in steps_by_id if step_id not in ordered_step_ids
+    )
     groups = []
-    for step in snapshot.effective_steps:
+    for step_id in ordered_step_ids:
+        step = steps_by_id[step_id]
         traces = tuple(traces_by_step.get(str(step["step_id"]), ()))
         if traces and all(entry.hidden_reason for entry in traces):
             continue
-        groups.extend(_split_lesson_group(LessonCandidateGroup(step, traces)))
+        placement = placement_by_step.get(step_id)
+        groups.extend(
+            _split_lesson_group(
+                LessonCandidateGroup(
+                    step,
+                    traces,
+                    presentation_scope_id=(
+                        placement.presentation_scope_id
+                        if placement is not None
+                        else str(step.get("scope_id") or "problem")
+                    ),
+                    required_reference_lines=tuple(
+                        _student_reference_line(reference, snapshot)
+                        for reference in references_by_step.get(step_id, ())
+                    ),
+                )
+            )
+        )
     return groups
+
+
+def _student_reference_line(
+    reference: StudentScopeReference,
+    snapshot: ExplanationSnapshot,
+) -> str:
+    scope_label = next(
+        (
+            str(item.get("label"))
+            for item in snapshot.problem.get("scopes", ())
+            if isinstance(item, dict)
+            and str(item.get("scope_id")) == reference.source_scope_id
+            and item.get("label")
+        ),
+        _section_title(reference.source_scope_id),
+    )
+    source_step = next(
+        (
+            step
+            for step in snapshot.effective_steps
+            if str(step.get("step_id")) == reference.source_step_id
+        ),
+        None,
+    )
+    subject = _reference_subject(source_step, snapshot)
+    return f"由{scope_label}已得{subject}，继续计算。"
+
+
+def _reference_subject(
+    source_step: dict[str, Any] | None,
+    snapshot: ExplanationSnapshot,
+) -> str:
+    if source_step is None:
+        return "相关结论"
+    answer_handles = {
+        str(item.get("handle") or "")
+        for item in source_step.get("produces", ())
+        if isinstance(item, dict)
+        and str(item.get("handle") or "").startswith("answer:")
+    }
+    for goal in snapshot.problem.get("question_goals", ()):
+        if not isinstance(goal, dict):
+            continue
+        goal_handle = str(goal.get("handle") or goal.get("semantic_ref") or "")
+        if goal_handle not in answer_handles:
+            continue
+        target_handle = str(
+            goal.get("target_handle") or goal.get("target_ref") or ""
+        ).strip()
+        target = target_handle.rsplit(":", 1)[-1] if target_handle else ""
+        if target and str(goal.get("value_type") or "") == "Point":
+            return f"点 {target}"
+        return "该问结论"
+    return "相关结论"
+
+
+def _with_required_reference_items(
+    items: tuple[tuple[str, str], ...],
+    source_groups: tuple[LessonCandidateGroup, ...] | list[LessonCandidateGroup],
+) -> tuple[tuple[str, str], ...]:
+    lines = tuple(
+        dict.fromkeys(
+            line
+            for group in source_groups
+            for line in group.required_reference_lines
+            if line
+        )
+    )
+    if not lines:
+        return items
+    existing = " ".join(text for _, text in items)
+    required = tuple(
+        ("由", line.removeprefix("由").rstrip("。"))
+        for line in lines
+        if line.rstrip("。") not in existing
+    )
+    return (*required, *items)
 
 
 def _deterministic_lesson_group_clusters(
@@ -453,8 +566,12 @@ def _split_lesson_group(group: LessonCandidateGroup) -> tuple[LessonCandidateGro
             teaching_focus=substep.focus,
             preferred_method_ids=substep.preferred_method_ids,
             forbid_merge_with_sibling_substeps=substep.forbid_merge_with_sibling_substeps,
+            presentation_scope_id=group.presentation_scope_id,
+            required_reference_lines=(
+                group.required_reference_lines if index == 0 else ()
+            ),
         )
-        for substep in substeps
+        for index, substep in enumerate(substeps)
     )
 
 
@@ -492,7 +609,10 @@ def _lesson_step_from_source_groups(
         title=title,
         goal=_student_goal_text(text.get("goal"), source_groups[0].step.get("target")),
         nav_title=nav_title,
-        derive=_derive_items(text.get("derive", ())),
+        derive=_with_required_reference_items(
+            _derive_items(text.get("derive", ())),
+            source_groups,
+        ),
         box=tuple(str(item) for item in text.get("box", ()) if str(item)),
         gaps=tuple(str(item) for item in text.get("gaps", ()) if str(item)),
         teaching_substep_ids=tuple(
@@ -914,7 +1034,10 @@ def validate_lesson_draft(
         title = _student_title_for_source_groups(source_groups, text)
         nav_title = _student_nav_title_for_source_groups(source_groups, text, title)
         derive_items = _filter_redundant_derive_items(
-            _derive_items(text.get("derive", ())),
+            _with_required_reference_items(
+                _derive_items(text.get("derive", ())),
+                source_groups,
+            ),
             source_groups,
         )
         lesson_step = LessonStep(

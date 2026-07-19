@@ -1,0 +1,101 @@
+{
+  "example_id": "curve_candidate_parameter_solve",
+  "source_problem_id": "tj-2026-hexi-yimo-25",
+  "family_id": "QuadraticWeightedPathMinimumSolver",
+  "pack_ids": [
+    "quadratic_core",
+    "right_angle_equal_length_core"
+  ],
+  "capability_ids": [
+    "quadratic_from_constraints",
+    "quadratic_y_axis_intercept_point",
+    "right_angle_equal_length_candidates",
+    "curve_candidate_parameter_solve"
+  ],
+  "answer_value_types": [
+    "Point"
+  ],
+  "source_call_ids": [
+    "derive_parametric_parabola_ii",
+    "derive_y_intercept_ii",
+    "derive_right_angle_candidates_ii",
+    "select_curve_candidate_ii"
+  ],
+  "conditions": [
+    {
+      "ref": "known_coefficient",
+      "kind": "fact",
+      "description": "当前问给定的函数系数"
+    },
+    {
+      "ref": "anchor_point",
+      "kind": "point",
+      "description": "已知曲线点和几何构造锚点"
+    },
+    {
+      "ref": "parameter",
+      "kind": "symbol",
+      "description": "含参函数中的主参数"
+    },
+    {
+      "ref": "reference_point",
+      "kind": "point",
+      "description": "由函数得到的几何参考点"
+    },
+    {
+      "ref": "target_point",
+      "kind": "point",
+      "description": "需要从候选集合中筛选的目标点"
+    },
+    {
+      "ref": "construction_relation",
+      "kind": "fact",
+      "description": "明确构造对象角色的完整几何关系"
+    },
+    {
+      "ref": "curve_membership",
+      "kind": "fact",
+      "description": "目标点在曲线上的条件"
+    },
+    {
+      "ref": "parameter_constraint",
+      "kind": "fact",
+      "description": "参数取值范围"
+    },
+    {
+      "ref": "point_answer",
+      "kind": "answer",
+      "description": "目标点坐标答案"
+    }
+  ],
+  "neutralization_map": {
+    "call_ids": {
+      "derive_parametric_parabola_ii": "derive_parametric_curve",
+      "derive_y_intercept_ii": "derive_reference_point",
+      "derive_right_angle_candidates_ii": "derive_point_candidates",
+      "select_curve_candidate_ii": "select_curve_candidate"
+    },
+    "semantic_refs": {
+      "a_value": "known_coefficient",
+      "A": "anchor_point",
+      "b": "parameter",
+      "C": "reference_point",
+      "D": "target_point",
+      "right_angle_equal_length_CAD": "construction_relation",
+      "D_on_parabola": "curve_membership",
+      "b_gt_0": "parameter_constraint",
+      "ii_D": "point_answer"
+    },
+    "text_replacements": {
+      "代入已知系数和曲线点，把抛物线化为单参数形式。": "代入已知系数和曲线点得到单参数函数。",
+      "几何候选点需要在同一含参曲线上筛选。": "候选点将在同一含参曲线上筛选。",
+      "求当前抛物线与纵轴的交点。": "由函数求一个几何参考点。",
+      "直角等长构造需要已知端点坐标。": "几何构造需要参考点坐标。",
+      "围绕直角顶点旋转已知端点得到两个候选点。": "由直角等长关系生成目标点候选集合。",
+      "几何关系先确定候选集合，不提前猜测曲线分支。": "先生成候选集合，再使用曲线条件筛选。",
+      "用曲线条件和参数范围筛选候选点并反求参数。": "用曲线条件和参数范围筛选候选点。",
+      "只有同时满足几何构造与曲线约束的候选能作为答案。": "将唯一满足全部条件的候选绑定答案。"
+    }
+  },
+  "neutralized": true
+}

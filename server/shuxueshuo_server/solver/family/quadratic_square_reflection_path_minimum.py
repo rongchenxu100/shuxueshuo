@@ -24,6 +24,7 @@ from shuxueshuo_server.solver.family.models import (
     expand_family_spec,
 )
 from shuxueshuo_server.solver.family.capability_packs import (
+    BROKEN_PATH_MINIMUM_EXPRESSION_DO_NOT_USE_WHEN,
     DEFAULT_CAPABILITY_PACK_REGISTRY,
 )
 
@@ -100,7 +101,8 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             title="折线拉直并求最小值表达式",
             description=(
                 "对单动点两段折线路径，生成将军饮马拉直候选，选择最适合计算的方案，"
-                "再计算对应两端点距离得到最小值表达式。"
+                "再计算对应两端点距离。端点仍含未定参数时输出开放表达式；端点全部"
+                "确定时输出闭合值。"
             ),
             method_ids=(
                 "broken_path_straightening_candidates",
@@ -124,6 +126,10 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                         cardinality="optional",
                         identity_policy="derived_role",
                         goal_evidence_tags=("path_minimum_witness",),
+                        description=(
+                            "选中拉直方案后，由反射构造得到的辅助端点；"
+                            "仅供距离计算，不是原路径上的动点、极值点或答案点。"
+                        ),
                     ),
                     recipe_output_alias(
                         "select_straightening_candidate.minimum_point_2",
@@ -133,12 +139,20 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                         cardinality="optional",
                         identity_policy="derived_role",
                         goal_evidence_tags=("path_minimum_witness",),
+                        description=(
+                            "选中拉直方案后，与反射端点组成最短线段的另一固定端点；"
+                            "仅供距离计算，不是原路径上的动点、极值点或答案点。"
+                        ),
                     ),
                     recipe_output_alias(
                         "distance_between_points.distance",
                         "MinimumExpression",
                         "path_minimum_expression",
                         goal_evidence_tags=("path_minimum_expression",),
+                        description=(
+                            "拉直端点之间的距离；含未定参数时供后续求参，不含自由"
+                            "参数时可直接作为数值结果。"
+                        ),
                     ),
                     recipe_output_alias(
                         "distance_between_points.evaluated_distance",
@@ -151,6 +165,7 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 ),
             ),
             priority="preferred",
+            do_not_use_when=BROKEN_PATH_MINIMUM_EXPRESSION_DO_NOT_USE_WHEN,
         ),
     ),
     method_binding_rules=(

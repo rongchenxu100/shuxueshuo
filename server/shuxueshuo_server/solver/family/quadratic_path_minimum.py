@@ -18,7 +18,11 @@ from shuxueshuo_server.solver.family.models import (
     expand_family_spec,
 )
 from shuxueshuo_server.solver.family.capability_packs import (
+    BROKEN_PATH_SELECT_DO_NOT_USE_WHEN,
     DEFAULT_CAPABILITY_PACK_REGISTRY,
+    RIGHT_ANGLE_EQUAL_LENGTH_DO_NOT_USE_WHEN,
+    STRAIGHTENED_DISTANCE_DO_NOT_USE_WHEN,
+    TWO_MOVING_POINTS_REDUCTION_DO_NOT_USE_WHEN,
 )
 
 
@@ -46,7 +50,7 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         "能先确定未知参数时，优先先求参数再代入后续表达式。",
         "每一步优先消去已确定的信息：若当前问条件已能确定参数数值，先求参数再代入；若参数暂不能定值，但代入已知系数、已知点或系数关系能减少未知量，则可以先化简表达式。",
         "路径最值先做路径转化，再做折线拉直或等价最短路径处理。",
-        "普通路径最值按 recipe 独立拆分：先 two_moving_points_path_reduction 降维，再 broken_path_straightening_and_select 选择拉直方案，最后 path_minimum_by_straightened_distance 单独求最小值表达式。",
+        "普通路径最值按阶段独立推导：先把两动点路径降为单动点路径，再选择合适的折线拉直方案，最后根据拉直后的端点距离求最小值表达式。",
         "最短路径对应点通常来自约束轨迹与拉直线段的交点。",
     ),
     base_packs=(
@@ -103,6 +107,7 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                     ),
                 ),
             ),
+            do_not_use_when=RIGHT_ANGLE_EQUAL_LENGTH_DO_NOT_USE_WHEN,
         ),
         StepRecipeSpec(
             recipe_id="two_moving_points_path_reduction",
@@ -127,6 +132,7 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 ),
             ),
             priority="preferred",
+            do_not_use_when=TWO_MOVING_POINTS_REDUCTION_DO_NOT_USE_WHEN,
         ),
         StepRecipeSpec(
             recipe_id="broken_path_straightening_and_select",
@@ -175,6 +181,10 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                         cardinality="optional",
                         identity_policy="derived_role",
                         goal_evidence_tags=("path_minimum_witness",),
+                        description=(
+                            "选中拉直方案后，由反射构造得到的辅助端点；"
+                            "仅供距离计算，不是原路径上的动点、极值点或答案点。"
+                        ),
                     ),
                     recipe_output_alias(
                         "select_straightening_candidate.minimum_point_2",
@@ -184,10 +194,15 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                         cardinality="optional",
                         identity_policy="derived_role",
                         goal_evidence_tags=("path_minimum_witness",),
+                        description=(
+                            "选中拉直方案后，与反射端点组成最短线段的另一固定端点；"
+                            "仅供距离计算，不是原路径上的动点、极值点或答案点。"
+                        ),
                     ),
                 ),
             ),
             priority="preferred",
+            do_not_use_when=BROKEN_PATH_SELECT_DO_NOT_USE_WHEN,
         ),
         StepRecipeSpec(
             recipe_id="path_minimum_by_straightened_distance",
@@ -220,6 +235,7 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 ),
             ),
             priority="preferred",
+            do_not_use_when=STRAIGHTENED_DISTANCE_DO_NOT_USE_WHEN,
         ),
     ),
     method_binding_rules=(
@@ -242,6 +258,7 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             ),
             expansion_selectors=(
                 "known_coefficients_if_read",
+                "free_quadratic_parameter_if_read",
                 "parameter_value_if_read",
                 "curve_point_if_read",
                 "curve_points_if_parameterized",

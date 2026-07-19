@@ -1,0 +1,50 @@
+{
+  "format": "functional_plan/v1",
+  "annotation": {
+    "purpose": "双动点路径降维与折线拉直。",
+    "use_when": "目标路径包含两个相互关联的动点距离项，且题设关系足以证明它们可等价转化为单动点路径。",
+    "key_idea": "先建立显式路径等价变换，再消费该变换得到折线拉直后的最小值表达式。",
+    "do_not_use_when": [
+      "原路径已经是单动点路径。",
+      "题设缺少证明路径等价变换所需的关系。",
+      "需要把路径降维的输出直接作为最小值、极值点或最终答案。"
+    ]
+  },
+  "scopes": [
+    {
+      "scope_id": "example",
+      "label": "机制示例",
+      "calls": [
+        {
+          "call_id": "reduce_path",
+          "capability_id": "two_moving_points_path_reduction",
+          "args": {
+            "path_minimum_target": {
+              "kind": "fact",
+              "ref": "path_goal"
+            }
+          },
+          "return_bindings": {},
+          "strategy": "利用题设关系把双动点路径化为单动点折线路径。",
+          "reason": "建立后续计算共同使用的路径等价变换。"
+        },
+        {
+          "call_id": "derive_path_model",
+          "capability_id": "broken_path_straightening_minimum_expression",
+          "args": {
+            "path_transformation": {
+              "from_call": "reduce_path",
+              "return": "path_transformation"
+            }
+          },
+          "return_bindings": {},
+          "return_expectations": {
+            "path_minimum_expression": "open_expression"
+          },
+          "strategy": "将折线路径拉直，得到最小值表达式。",
+          "reason": "最小值表达式供后续求值或反求参数。"
+        }
+      ]
+    }
+  ]
+}

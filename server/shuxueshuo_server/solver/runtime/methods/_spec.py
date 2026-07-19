@@ -11,7 +11,11 @@ from dataclasses import dataclass, field
 from typing import Any
 import inspect
 
-from shuxueshuo_server.solver.contracts import MethodExplanationSpec, MethodVisualSpec
+from shuxueshuo_server.solver.contracts import (
+    MethodExplanationSpec,
+    MethodVisualSpec,
+    ScalarResultFormSpec,
+)
 
 
 @dataclass(frozen=True)
@@ -27,6 +31,7 @@ class MethodSpecSource:
     solves: tuple[str, ...]
     inputs: dict[str, dict[str, Any]]
     outputs: dict[str, str]
+    scalar_result_forms: dict[str, ScalarResultFormSpec] = field(default_factory=dict)
     preconditions: tuple[str, ...] = ()
     postconditions: tuple[str, ...] = ()
     trace_template: tuple[str, ...] = ()
@@ -35,8 +40,10 @@ class MethodSpecSource:
     visual: MethodVisualSpec | None = None
     description: str = ""
     summary: str = ""
+    do_not_use_when: tuple[str, ...] = ()
     constraint_analyzer: str | None = None
     plan_transformer: str | None = None
+    reconciliation_validators: tuple[str, ...] = ()
     # This source type is reserved for runtime/stateless methods. Stateful
     # implementations must opt out so liveness analysis cannot delete them.
     is_pure: bool = True
@@ -57,8 +64,15 @@ class MethodSpecSource:
             "outputs": self.outputs,
             "is_pure": self.is_pure,
         }
+        if self.scalar_result_forms:
+            payload["scalar_result_forms"] = {
+                name: spec.to_payload()
+                for name, spec in self.scalar_result_forms.items()
+            }
         if self.preconditions:
             payload["preconditions"] = list(self.preconditions)
+        if self.do_not_use_when:
+            payload["do_not_use_when"] = list(self.do_not_use_when)
         if self.postconditions:
             payload["postconditions"] = list(self.postconditions)
         if self.trace_template:
@@ -75,6 +89,10 @@ class MethodSpecSource:
             payload["constraint_analyzer"] = self.constraint_analyzer
         if self.plan_transformer is not None:
             payload["plan_transformer"] = self.plan_transformer
+        if self.reconciliation_validators:
+            payload["reconciliation_validators"] = list(
+                self.reconciliation_validators
+            )
         return payload
 
 

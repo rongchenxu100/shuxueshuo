@@ -64,6 +64,29 @@ def test_loads_quadratic_from_constraints_spec() -> None:
     assert spec.inputs["free_parameters"].type == "SymbolList"
     assert spec.outputs["coefficients"] == "Coefficients"
     assert spec.outputs["parabola"] == "Parabola"
+    assert any("重复求解" in item for item in spec.do_not_use_when)
+
+
+def test_method_spec_usage_guidance_round_trips_and_validates() -> None:
+    payload = next(
+        item
+        for item in method_spec_payloads()
+        if item["method_id"] == "evaluate_point_at_parameter"
+    )
+
+    spec = parse_method_spec(payload)
+
+    assert spec.do_not_use_when == tuple(payload["do_not_use_when"])
+    duplicated = dict(payload)
+    duplicated["do_not_use_when"] = ["avoid this", "avoid this"]
+    assert parse_method_spec(duplicated).do_not_use_when == ("avoid this",)
+    malformed = dict(payload)
+    malformed["do_not_use_when"] = [""]
+    with pytest.raises(
+        ValueError,
+        match="do_not_use_when items must be non-empty",
+    ):
+        parse_method_spec(malformed)
 
 
 def test_loads_quadratic_candidate_filter_spec() -> None:
@@ -154,6 +177,30 @@ def test_searches_spec_by_goal_type() -> None:
     matches = registry.for_goal("derive_right_angle_equal_length_candidates")
 
     assert [spec.method_id for spec in matches] == ["right_angle_equal_length_candidates"]
+
+
+def test_scalar_result_form_specs_round_trip_from_code() -> None:
+    registry = MethodSpecRegistry.load_from_code()
+
+    distance = registry.require("distance_between_points")
+    assert set(distance.scalar_result_forms) == {
+        "distance",
+        "evaluated_distance",
+    }
+    assert distance.scalar_result_forms["distance"].possible_forms == (
+        "open_expression",
+        "closed_value",
+    )
+    assert distance.scalar_result_forms["distance"].closure_policy == (
+        "no_free_symbols"
+    )
+
+    evaluate = registry.require("evaluate_expression_at_parameter")
+    assert set(evaluate.scalar_result_forms) == {
+        "evaluated_expression",
+        "evaluated_minimum_expression",
+    }
+    assert "evaluated_parabola" not in evaluate.scalar_result_forms
 
 
 def test_generated_json_specs_match_code_source() -> None:
@@ -316,6 +363,27 @@ def test_point_parameter_substitution_is_declared_by_method_spec() -> None:
     )
 
     assert spec.plan_transformer == "substitute_all_point_parameters"
+    assert spec.reconciliation_validators == ("companion_symbol_coverage",)
+
+
+def test_reconciliation_validator_declarations_are_normalized() -> None:
+    raw = {
+        "method_id": "synthetic_method",
+        "title": "Synthetic",
+        "solves": ["derive_expression"],
+        "inputs": {"x": {"type": "Expression"}},
+        "outputs": {"value": "Expression"},
+        "reconciliation_validators": ["identity_check", "identity_check"],
+    }
+
+    assert parse_method_spec(raw).reconciliation_validators == (
+        "identity_check",
+    )
+    with pytest.raises(
+        ValueError,
+        match="reconciliation_validators must be a list",
+    ):
+        parse_method_spec({**raw, "reconciliation_validators": "identity_check"})
 
 
 def test_rejects_unknown_output_union_member() -> None:

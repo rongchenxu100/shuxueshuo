@@ -9,6 +9,7 @@ from __future__ import annotations
 from dataclasses import asdict
 import json
 from pathlib import Path
+import re
 from typing import Any, Callable, Protocol
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
@@ -32,6 +33,20 @@ from shuxueshuo_server.solver.runtime.capability_contracts import (
 from shuxueshuo_server.solver.runtime.function_specs import (
     function_catalog_payload,
 )
+from shuxueshuo_server.solver.runtime.functional_plan import (
+    FUNCTIONAL_PLAN_JSON_SCHEMA,
+    FunctionalCapabilityCatalog,
+    PlannerOutputFormat,
+)
+from shuxueshuo_server.solver.runtime.functional_plan_elaboration import (
+    FunctionalSemanticIndex,
+)
+from shuxueshuo_server.solver.runtime.functional_few_shots import (
+    FunctionalFewShotSelectionMode,
+    FunctionalFewShotSelectionRecord,
+    select_functional_few_shot,
+    split_functional_few_shot_asset,
+)
 from shuxueshuo_server.solver.runtime.macro_specs import (
     macro_catalog_payload,
 )
@@ -39,6 +54,10 @@ from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.planner import PlannerInputs
 from shuxueshuo_server.solver.runtime.projection import problem_to_llm_payload
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
+from shuxueshuo_server.solver.runtime.handle_alias_index import (
+    SEMANTIC_READ_KINDS,
+    looks_like_canonical_ref,
+)
 from shuxueshuo_server.solver.runtime.planner_state_context import (
     initial_planner_state_context,
 )
@@ -94,13 +113,29 @@ class StrategyPayloadBuilder:
         self,
         *,
         few_shot_examples: list[dict[str, Any]] | None = None,
+        functional_few_shot_examples: list[dict[str, Any]] | None = None,
         few_shot_dir: Path | str | None = None,
+        functional_few_shot_dir: Path | str | None = None,
+        functional_plan_fixture_dir: Path | str | None = None,
         allow_same_problem_few_shot: bool = True,
+        functional_few_shot_mode: FunctionalFewShotSelectionMode | None = None,
         problem_payload: dict[str, Any] | None = None,
     ) -> None:
         self.few_shot_examples = few_shot_examples
+        self.functional_few_shot_examples = functional_few_shot_examples
         self.few_shot_dir = Path(few_shot_dir) if few_shot_dir is not None else None
+        self.functional_few_shot_dir = (
+            Path(functional_few_shot_dir)
+            if functional_few_shot_dir is not None
+            else None
+        )
+        self.functional_plan_fixture_dir = (
+            Path(functional_plan_fixture_dir)
+            if functional_plan_fixture_dir is not None
+            else None
+        )
         self.allow_same_problem_few_shot = allow_same_problem_few_shot
+        self.functional_few_shot_mode = functional_few_shot_mode
         self.problem_payload = problem_payload
 
     def build(
@@ -109,6 +144,7 @@ class StrategyPayloadBuilder:
         *,
         problem_payload: dict[str, Any] | None = None,
         planner_state_context: ContextSemanticReadSource | None = None,
+        output_format: PlannerOutputFormat = "step_intent",
     ) -> dict[str, Any]:
         """生成 prompt payload；每个顶层字段都对应一个可独立 fake 的来源。"""
         problem_payload = problem_payload or self.problem_payload
@@ -138,6 +174,42 @@ class StrategyPayloadBuilder:
                 handle_registry=handle_registry,
             )
         previous_attempts = list(inputs.previous_errors)
+        if output_format == "functional_plan":
+            semantic_index = FunctionalSemanticIndex.from_context(
+                planner_state_context,
+                handle_registry=handle_registry,
+            )
+            functional_catalog = FunctionalCapabilityCatalog.from_family_spec(
+                inputs.family_spec,
+                inputs.method_specs,
+            ).contextualized(semantic_index)
+            few_shot_examples, few_shot_selection = (
+                self._functional_few_shot_examples(
+                    inputs,
+                    functional_catalog=functional_catalog,
+                )
+            )
+            return {
+                "planner_output_format": "functional_plan",
+                "problem_id": inputs.problem_id,
+                "family_id": inputs.family_spec.family_id,
+                "problem_ir": _functional_problem_ir_payload(
+                    problem_payload,
+                    planner_state_context,
+                ),
+                "strategy_principles": list(
+                    inputs.family_spec.strategy_principles
+                ),
+                "functional_capability_catalog": (
+                    functional_catalog.to_prompt_payload()
+                ),
+                "few_shot_examples": few_shot_examples,
+                "functional_few_shot_selection": few_shot_selection,
+                "previous_attempt_state": _functional_previous_attempt_state(
+                    previous_attempts
+                ),
+                "output_json_schema": FUNCTIONAL_PLAN_JSON_SCHEMA,
+            }
         return {
             "problem_id": inputs.problem_id,
             "family_id": inputs.family_spec.family_id,
@@ -192,6 +264,38 @@ class StrategyPayloadBuilder:
             return selected
         return _default_few_shot_examples(inputs.family_spec.family_id)
 
+    def _functional_few_shot_examples(
+        self,
+        inputs: PlannerInputs,
+        *,
+        functional_catalog: FunctionalCapabilityCatalog,
+    ) -> tuple[list[dict[str, Any]], dict[str, Any] | None]:
+        """Select one neutral mechanism graph supported by this Context."""
+        if self.functional_few_shot_examples is not None:
+            return self.functional_few_shot_examples, None
+        locked_selection = _latest_functional_few_shot_selection(
+            list(inputs.previous_errors)
+        )
+        result = select_functional_few_shot(
+            capability_ids=functional_catalog.items,
+            base_pack_ids=inputs.family_spec.base_packs,
+            mechanism_pack_ids=inputs.family_spec.mechanism_packs,
+            answer_value_types=(
+                goal.value_type
+                for goal in inputs.question_goals
+                if goal.required
+            ),
+            family_id=inputs.family_spec.family_id,
+            problem_id=inputs.problem_id,
+            allow_same_problem=self.allow_same_problem_few_shot,
+            mode=self.functional_few_shot_mode,
+            locked_selection=locked_selection,
+            top_k=1,
+            few_shot_dir=self.functional_few_shot_dir,
+            fixture_dir=self.functional_plan_fixture_dir,
+        )
+        return list(result.examples), result.selection.to_payload()
+
 
 def _previous_attempt_state(previous_attempts: list[Any]) -> dict[str, Any]:
     """为 prompt 提供上一轮失败历史的稳定索引。
@@ -221,6 +325,178 @@ def _previous_attempt_state(previous_attempts: list[Any]) -> dict[str, Any]:
         "latest_retry_state": latest_retry_state,
         "latest_stable_runtime": latest_stable_runtime,
         "latest_semantic_failure": latest_semantic_failure,
+    }
+
+
+def _functional_previous_attempt_state(
+    previous_attempts: list[Any],
+) -> dict[str, Any]:
+    """Project only formal call-level retry memory into the Functional prompt."""
+    latest_attempt = _latest_retry_state_attempt_payload(previous_attempts)
+    retry_state = (
+        retry_state_from_attempt(latest_attempt)
+        if latest_attempt is not None
+        else None
+    )
+    if (
+        not isinstance(retry_state, dict)
+        or retry_state.get("candidate_format") != "functional_plan"
+    ):
+        return {"attempt_count": len(previous_attempts), "latest_retry_state": None}
+    selected = _select_attempt_fields(
+        retry_state,
+        (
+            "attempt",
+            "candidate_format",
+            "baseline_candidate",
+            "stable_candidate_calls",
+            "repair_call_ids",
+            "repair_suffix_start",
+            "issues",
+            "recovered_issues",
+            "preserve_policy",
+            "repair_instruction",
+            "replay_depth",
+            "selected_repair_layer",
+            "source",
+            "source_context_id",
+        ),
+    )
+    selected["issues"] = _functional_issue_tickets(selected.get("issues"))
+    selected["recovered_issues"] = _functional_issue_tickets(
+        selected.get("recovered_issues")
+    )
+    repair_start = selected.get("repair_suffix_start")
+    if isinstance(repair_start, dict):
+        selected["repair_suffix_start"] = {
+            key: value
+            for key, value in repair_start.items()
+            if key in {"call_id", "scope_id"}
+        }
+    return {
+        "attempt_count": len(previous_attempts),
+        "latest_retry_state": selected,
+    }
+
+
+def _latest_functional_few_shot_selection(
+    previous_attempts: list[Any],
+) -> FunctionalFewShotSelectionRecord | None:
+    """Restore the first attempt's internal selection without prompting it."""
+    for attempt in reversed(previous_attempts):
+        if not isinstance(attempt, dict):
+            continue
+        payload = attempt.get("functional_few_shot_selection")
+        if payload is None:
+            continue
+        return FunctionalFewShotSelectionRecord.from_payload(payload)
+    return None
+
+
+def _functional_issue_tickets(value: Any) -> list[dict[str, Any]]:
+    if not isinstance(value, list):
+        return []
+    tickets: list[dict[str, Any]] = []
+    for item in value:
+        if not isinstance(item, dict):
+            continue
+        ticket = {
+            key: child
+            for key, child in item.items()
+            if key not in {"step_id", "repair_target", "preserve_policy"}
+        }
+        if isinstance(item.get("step_id"), str):
+            ticket["call_id"] = item["step_id"]
+        tickets.append(_sanitize_functional_ticket_value(ticket))
+    return tickets
+
+
+def _sanitize_functional_ticket_value(value: Any) -> Any:
+    """Project runtime handles in retry diagnostics back to short semantic refs."""
+    if isinstance(value, dict):
+        return {
+            key: _sanitize_functional_ticket_value(child)
+            for key, child in value.items()
+        }
+    if isinstance(value, list):
+        return [_sanitize_functional_ticket_value(child) for child in value]
+    if isinstance(value, str):
+        if looks_like_canonical_ref(
+            value,
+            allowed_kinds=SEMANTIC_READ_KINDS,
+        ):
+            return value.rsplit(":", 1)[-1]
+        return _FUNCTIONAL_INTERNAL_REF_RE.sub(
+            _functional_internal_ref_replacement,
+            value,
+        )
+    return value
+
+
+_FUNCTIONAL_INTERNAL_REF_RE = re.compile(
+    r"\b(?:point|line|segment|ray|function|symbol|angle|circle|polygon|fact|"
+    r"answer|role):[A-Za-z0-9_@:-]+(?:\.[A-Za-z0-9_@:-]+)*"
+)
+
+_FUNCTIONAL_PROMPT_METADATA_KEYS = {
+    "display",
+    "pattern",
+    "problem_id",
+    "problem_type",
+    "purpose",
+    "title",
+}
+
+
+def _functional_internal_ref_replacement(match: re.Match[str]) -> str:
+    value = match.group(0)
+    if value.startswith("role:"):
+        return value.removeprefix("role:").split("@", 1)[0]
+    return value.rsplit(":", 1)[-1]
+
+
+def _functional_problem_ir_payload(
+    problem_payload: dict[str, Any],
+    planner_state_context: ContextSemanticReadSource,
+) -> dict[str, Any]:
+    """Project ProblemIR to short semantic refs for the Functional protocol."""
+    ref_by_handle = {
+        item.handle: item.ref
+        for item in planner_state_context.semantic_read_catalog()
+        if item.prompt_visible
+    }
+
+    def project(value: Any) -> Any:
+        if isinstance(value, dict):
+            result: dict[str, Any] = {}
+            for key, item in value.items():
+                projected_key = (
+                    "semantic_ref" if key == "handle"
+                    else "target_ref" if key == "target_handle"
+                    else key
+                )
+                result[projected_key] = project(item)
+            return result
+        if isinstance(value, list):
+            return [project(item) for item in value]
+        if isinstance(value, str):
+            semantic_ref = ref_by_handle.get(value)
+            if semantic_ref is not None:
+                return semantic_ref
+            if looks_like_canonical_ref(
+                value,
+                allowed_kinds=SEMANTIC_READ_KINDS,
+            ):
+                return value.rsplit(":", 1)[-1]
+        return value
+
+    projected = project(problem_payload)
+    if not isinstance(projected, dict):
+        return {}
+    return {
+        key: value
+        for key, value in projected.items()
+        if key not in _FUNCTIONAL_PROMPT_METADATA_KEYS
     }
 
 
@@ -668,14 +944,36 @@ class StrategyPromptRenderer:
             lstrip_blocks=True,
         )
         self.env.filters["pretty_json"] = _pretty_json
+        self.env.filters["functional_few_shot_plan"] = (
+            _functional_few_shot_plan
+        )
 
     def render(self, payload: dict[str, Any]) -> StrategyPrompt:
         """把分来源 payload 渲染成 Chat messages。"""
-        system = self.env.get_template("strategy-system.jinja").render(
-            output_json_schema=STEP_INTENT_JSON_SCHEMA,
+        functional = payload.get("planner_output_format") == "functional_plan"
+        system_template = (
+            "strategy-functional-system.jinja"
+            if functional
+            else "strategy-system.jinja"
         )
-        user = self.env.get_template("strategy-user.jinja").render(payload=payload)
+        user_template = (
+            "strategy-functional-user.jinja"
+            if functional
+            else "strategy-user.jinja"
+        )
+        schema = (
+            FUNCTIONAL_PLAN_JSON_SCHEMA if functional else STEP_INTENT_JSON_SCHEMA
+        )
+        system = self.env.get_template(system_template).render(
+            output_json_schema=schema,
+        )
+        user = self.env.get_template(user_template).render(payload=payload)
         return StrategyPrompt(system=system.strip(), user=user.strip())
+
+
+def _functional_few_shot_plan(value: object) -> dict[str, Any]:
+    _annotation, plan = split_functional_few_shot_asset(value)
+    return plan
 
 def build_strategy_probe_inputs(
     problem: ProblemIR,
@@ -713,7 +1011,7 @@ def write_strategy_debug_artifacts(
     prompt: StrategyPrompt,
     raw_response: str,
     draft: StepIntentDraft | None,
-    report: StepIntentValidationReport,
+    report: Any | None,
     normalization_report: StepIntentNormalizationReport | None = None,
     resolution_report: ExecutablePlanResolutionReport | None = None,
     execution_diagnostic: StepIntentExecutionDiagnostic | None = None,
@@ -721,6 +1019,8 @@ def write_strategy_debug_artifacts(
     planner_retry_state: Any | None = None,
     planner_state_context: PlannerStateContextDebugSource | None = None,
     llm_metadata: dict[str, Any] | None = None,
+    functional_plan: Any | None = None,
+    functional_reconciliation: Any | None = None,
 ) -> None:
     """把 DeepSeek probe 的输入输出按来源落盘，方便人工 review prompt。"""
     target = Path(debug_dir)
@@ -728,26 +1028,38 @@ def write_strategy_debug_artifacts(
     _clear_previous_debug_artifacts(target)
     (target / "prompt.system.md").write_text(prompt.system, encoding="utf-8")
     (target / "prompt.user.md").write_text(prompt.user, encoding="utf-8")
-    source_keys = [
-        "problem_ir",
-        "semantic_read_catalog",
-        "naming_conventions",
-        "prompt_flags",
-        "family_spec",
-        "method_catalog",
-        "function_catalog",
-        "macro_catalog",
-        "recipe_catalog",
-        "few_shot_examples",
-        "previous_attempt_state",
-        "previous_attempts",
-    ]
+    source_keys = (
+        [
+            "problem_ir",
+            "strategy_principles",
+            "functional_capability_catalog",
+            "few_shot_examples",
+            "functional_few_shot_selection",
+            "previous_attempt_state",
+        ]
+        if payload.get("planner_output_format") == "functional_plan"
+        else [
+            "problem_ir",
+            "semantic_read_catalog",
+            "naming_conventions",
+            "prompt_flags",
+            "family_spec",
+            "method_catalog",
+            "function_catalog",
+            "macro_catalog",
+            "recipe_catalog",
+            "few_shot_examples",
+            "previous_attempt_state",
+            "previous_attempts",
+        ]
+    )
     for key in source_keys:
         _write_json(target / f"payload.{key}.json", payload.get(key))
-    _write_json(
-        target / "semantic-read-catalog.json",
-        payload.get("semantic_read_catalog"),
-    )
+    if payload.get("planner_output_format") != "functional_plan":
+        _write_json(
+            target / "semantic-read-catalog.json",
+            payload.get("semantic_read_catalog"),
+        )
     _write_json(
         target / "function-catalog.json",
         payload.get("function_catalog"),
@@ -755,6 +1067,36 @@ def write_strategy_debug_artifacts(
     _write_json(
         target / "macro-catalog.json",
         payload.get("macro_catalog"),
+    )
+    _write_json(
+        target / "functional-plan.json",
+        _to_jsonable(functional_plan),
+    )
+    context_payload = _planner_state_context_payload(planner_state_context)
+    functional_reconciliation_payload = _to_jsonable(functional_reconciliation)
+    context_state = (
+        context_payload.get("state")
+        if isinstance(context_payload, dict)
+        else None
+    )
+    if isinstance(functional_reconciliation_payload, dict) and isinstance(
+        context_state,
+        dict,
+    ):
+        functional_reconciliation_payload = {
+            **functional_reconciliation_payload,
+            "student_step_placements": context_state.get(
+                "student_step_placements",
+                [],
+            ),
+            "student_scope_references": context_state.get(
+                "student_scope_references",
+                [],
+            ),
+        }
+    _write_json(
+        target / "functional-reconciliation-report.json",
+        functional_reconciliation_payload,
     )
     context_catalog = (
         planner_state_context.semantic_read_catalog_payload()
@@ -783,7 +1125,6 @@ def write_strategy_debug_artifacts(
         target / "replay-reports.json",
         retry_payload.get("replay_reports") if retry_payload else None,
     )
-    context_payload = _planner_state_context_payload(planner_state_context)
     _write_json(target / "planner-state-context.json", context_payload)
     context_retry_memory = _context_retry_memory_payload(context_payload)
     # ``context-retry-memory`` is the context-owned source snapshot;
@@ -819,14 +1160,20 @@ def write_strategy_debug_artifacts(
             else None
         ),
     )
-    _write_json(target / "output.schema.json", STEP_INTENT_JSON_SCHEMA)
+    _write_json(
+        target / "output.schema.json",
+        payload.get("output_json_schema", STEP_INTENT_JSON_SCHEMA),
+    )
     (target / "raw-response.txt").write_text(raw_response, encoding="utf-8")
     _write_json(
         target / "parsed-step-intents.json",
         draft.to_payload() if draft else None,
     )
-    _write_json(target / "validation-report.json", report.to_payload())
-    if report.raw_output_normalization is not None:
+    _write_json(target / "validation-report.json", _to_jsonable(report))
+    if (
+        isinstance(report, StepIntentValidationReport)
+        and report.raw_output_normalization is not None
+    ):
         _write_json(
             target / "raw-output-normalization-report.json",
             report.raw_output_normalization,
@@ -842,9 +1189,15 @@ def write_strategy_debug_artifacts(
             target / "effective-step-intents.json",
             effective_draft.to_payload(),
         )
-    if report.handle_resolution is not None:
+    if (
+        isinstance(report, StepIntentValidationReport)
+        and report.handle_resolution is not None
+    ):
         _write_json(target / "handle-resolution-report.json", report.handle_resolution)
-    if report.semantic_read_resolution is not None:
+    if (
+        isinstance(report, StepIntentValidationReport)
+        and report.semantic_read_resolution is not None
+    ):
         _write_json(
             target / "semantic-read-resolution-report.json",
             report.semantic_read_resolution,
@@ -855,7 +1208,10 @@ def write_strategy_debug_artifacts(
                 report.semantic_read_resolution
             ),
         )
-    if report.recipe_alignment is not None:
+    if (
+        isinstance(report, StepIntentValidationReport)
+        and report.recipe_alignment is not None
+    ):
         _write_json(target / "recipe-alignment.json", report.recipe_alignment)
     if resolution_report is not None:
         _write_json(
@@ -937,6 +1293,8 @@ def _clear_previous_debug_artifacts(target: Path) -> None:
         "function-adapter-fallbacks.json",
         "macro-binding-report.json",
         "macro-transform-report.json",
+        "functional-plan.json",
+        "functional-reconciliation-report.json",
         "planner-retry-state.json",
         "planner-state-context.json",
         "context-retry-memory.json",

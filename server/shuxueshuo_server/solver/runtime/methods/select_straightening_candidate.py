@@ -34,6 +34,7 @@ class SelectStraighteningCandidateMethod:
         if len(scores) > 1 and scores[0][0] == scores[1][0]:
             raise ValueError("straightening candidate selection is ambiguous")
         selected = dict(scores[0][2])
+        selected["auxiliary_point_name"] = target.name
         point: Point = selected["reflected_point"]
         minimum_point_1, minimum_point_2 = selected["minimum_endpoints"]
         score_text = "；".join(

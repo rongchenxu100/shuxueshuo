@@ -10,19 +10,15 @@ from __future__ import annotations
 import re
 from typing import Any, Callable, Iterable
 
-ENTITY_KIND_ORDER = (
-    "point",
-    "line",
-    "segment",
-    "ray",
-    "function",
-    "symbol",
-    "angle",
-    "circle",
-    "polygon",
+from shuxueshuo_server.solver.state_semantics import (
+    OBJECT_SEMANTIC_KIND_ORDER,
+    OBJECT_SEMANTIC_KINDS,
 )
+
+# Compatibility aliases. Object-kind ownership lives in state_semantics.
+ENTITY_KIND_ORDER = OBJECT_SEMANTIC_KIND_ORDER
 SEMANTIC_READ_KIND_ORDER = (*ENTITY_KIND_ORDER, "fact", "answer")
-ENTITY_KINDS = frozenset(ENTITY_KIND_ORDER)
+ENTITY_KINDS = OBJECT_SEMANTIC_KINDS
 SEMANTIC_READ_KINDS = frozenset(SEMANTIC_READ_KIND_ORDER)
 NON_CANONICAL_PREFIXES = (
     "relation:",

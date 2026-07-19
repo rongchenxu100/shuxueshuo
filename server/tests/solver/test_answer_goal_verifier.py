@@ -155,6 +155,189 @@ def test_goal_verifier_flags_path_minimum_answer_without_witness_chain() -> None
     assert "fact:ii:straightened_candidate" in issue.related_handles
 
 
+def test_goal_verifier_accepts_macro_declared_optional_witness_roles() -> None:
+    problem_payload, registry = _nankai_problem_payload_and_registry()
+    inputs = build_strategy_probe_inputs(load_problem_ir(NANKAI_FIXTURE))
+    expression_role = next(
+        output.semantic_role
+        for recipe in inputs.family_spec.step_recipes
+        if recipe.execution is not None
+        for output in recipe.execution.output_aliases
+        if "path_minimum_expression" in output.goal_evidence_tags
+    )
+    witness_roles = tuple(
+        dict.fromkeys(
+            output.semantic_role
+            for recipe in inputs.family_spec.step_recipes
+            if recipe.execution is not None
+            for output in recipe.execution.output_aliases
+            if "path_minimum_witness" in output.goal_evidence_tags
+        )
+    )
+    expression_handle = "fact:ii_1:path_minimum_expression"
+    answer_handle = "answer:ii_1.minimum_value"
+    answer_step = StepIntent(
+        scope_id="ii_1",
+        step_id="evaluate_minimum",
+        recipe_hint="evaluate_expression_at_parameter",
+        goal_type="evaluate_expression_at_parameter",
+        target=answer_handle,
+        strategy="evaluate the macro expression",
+        reads=(expression_handle, "fact:ii_1:m_value"),
+        produces=(
+            ProducedFact(
+                answer_handle,
+                "ii_1",
+                output_type="MinimumExpression",
+            ),
+        ),
+    )
+    draft = StepIntentDraft(
+        scopes=(
+            StepIntentScope(
+                scope_id="ii_1",
+                label="第（Ⅱ）①问",
+                steps=(answer_step,),
+            ),
+        ),
+    )
+    diagnostic = StepIntentExecutionDiagnostic(
+        ok=True,
+        state_write_provenance=(
+            StateWriteProvenance(
+                step_id="straighten_path",
+                scope_id="ii_1",
+                capability_id="broken_path_straightening_minimum_expression",
+                produced_handle=expression_handle,
+                output_key="path_minimum_expression",
+                runtime_type="MinimumExpression",
+                identity_policy="value_only",
+                identity_role=expression_role,
+                evidence_roles=witness_roles,
+                source_handles=("fact:ii:path_minimum_target",),
+            ),
+            StateWriteProvenance(
+                step_id="evaluate_minimum",
+                scope_id="ii_1",
+                capability_id="evaluate_expression_at_parameter",
+                produced_handle=answer_handle,
+                output_key="evaluated_minimum_expression",
+                runtime_type="MinimumExpression",
+                identity_policy="value_only",
+                identity_role="evaluated_minimum_expression",
+                source_handles=(expression_handle, "fact:ii_1:m_value"),
+            ),
+        ),
+    )
+
+    issues = AnswerGoalVerifier().verify(
+        draft,
+        problem_payload=problem_payload,
+        handle_registry=registry,
+        family_spec=inputs.family_spec,
+        diagnostic=diagnostic,
+    )
+
+    assert not any(
+        issue.code in {
+            "minimum_goal_source_unproven",
+            "minimum_goal_lineage_incomplete",
+        }
+        for issue in issues
+    )
+
+
+def test_goal_verifier_rejects_unrelated_distance_as_path_minimum_answer() -> None:
+    problem_payload, registry = _nankai_problem_payload_and_registry()
+    inputs = build_strategy_probe_inputs(load_problem_ir(NANKAI_FIXTURE))
+    witness_role = next(
+        output.semantic_role
+        for recipe in inputs.family_spec.step_recipes
+        if recipe.execution is not None
+        for output in recipe.execution.output_aliases
+        if "path_minimum_witness" in output.goal_evidence_tags
+    )
+    answer_step = StepIntent(
+        scope_id="ii_1",
+        step_id="evaluate_unrelated_distance",
+        recipe_hint="evaluate_expression_at_parameter",
+        goal_type="evaluate_expression_at_parameter",
+        target="answer:ii_1.minimum_value",
+        strategy="evaluate an ordinary distance",
+        reads=("fact:ii_1:ordinary_distance", "fact:ii_1:m_value"),
+        produces=(
+            ProducedFact(
+                "answer:ii_1.minimum_value",
+                "ii_1",
+                output_type="MinimumExpression",
+            ),
+        ),
+    )
+    draft = StepIntentDraft(
+        scopes=(
+            StepIntentScope(
+                scope_id="ii_1",
+                label="第（Ⅱ）①问",
+                steps=(answer_step,),
+            ),
+        ),
+    )
+    diagnostic = StepIntentExecutionDiagnostic(
+        ok=True,
+        state_write_provenance=(
+            StateWriteProvenance(
+                step_id="unused_straightening",
+                scope_id="ii_1",
+                capability_id="broken_path_straightening_and_select",
+                produced_handle="fact:ii_1:unused_witness",
+                output_key="selected_candidate",
+                runtime_type="StraighteningCandidate",
+                identity_policy="value_only",
+                identity_role=witness_role,
+                source_handles=("fact:ii:path_minimum_target",),
+            ),
+            StateWriteProvenance(
+                step_id="ordinary_distance",
+                scope_id="ii_1",
+                capability_id="distance_between_points",
+                produced_handle="fact:ii_1:ordinary_distance",
+                output_key="distance",
+                runtime_type="MinimumExpression",
+                identity_policy="value_only",
+                identity_role="distance",
+                source_handles=("point:problem:D", "point:ii:N"),
+            ),
+            StateWriteProvenance(
+                step_id="evaluate_unrelated_distance",
+                scope_id="ii_1",
+                capability_id="evaluate_expression_at_parameter",
+                produced_handle="answer:ii_1.minimum_value",
+                output_key="evaluated_minimum_expression",
+                runtime_type="MinimumExpression",
+                identity_policy="value_only",
+                identity_role="evaluated_minimum_expression",
+                source_handles=(
+                    "fact:ii_1:ordinary_distance",
+                    "fact:ii_1:m_value",
+                ),
+            ),
+        ),
+    )
+
+    issues = AnswerGoalVerifier().verify(
+        draft,
+        problem_payload=problem_payload,
+        handle_registry=registry,
+        diagnostic=diagnostic,
+        family_spec=inputs.family_spec,
+    )
+
+    issue = _issue_by_code(issues, "minimum_goal_source_unproven")
+    assert issue.step_id == "evaluate_unrelated_distance"
+    assert "fact:ii_1:ordinary_distance" in issue.related_handles
+    assert "fact:ii_1:unused_witness" not in issue.related_handles
+
+
 def test_goal_verifier_flags_point_answer_without_target_identity() -> None:
     problem_payload, registry = _nankai_problem_payload_and_registry()
     draft = StepIntentDraft(
@@ -315,6 +498,228 @@ def test_goal_verifier_does_not_diagnose_unexecuted_answer_suffix() -> None:
     )
 
     assert issues == ()
+
+
+def test_goal_verifier_flags_answer_that_skips_visible_parameter_value() -> None:
+    problem_payload, registry = _nankai_problem_payload_and_registry()
+    parameter_step = StepIntent(
+        scope_id="ii_1",
+        step_id="solve_parameter",
+        recipe_hint="parameter_from_expression_value",
+        goal_type="solve_parameter",
+        target="fact:ii_1:m_value",
+        strategy="solve a parameter value",
+        produces=(
+            ProducedFact(
+                "fact:ii_1:m_value",
+                "ii_1",
+                output_type="ParameterValue",
+            ),
+        ),
+    )
+    answer_step = StepIntent(
+        scope_id="ii_1",
+        step_id="write_symbolic_minimum",
+        recipe_hint="broken_path_straightening_minimum_expression",
+        goal_type="derive_minimum_value",
+        target="answer:ii_1.minimum_value",
+        strategy="write a still-symbolic minimum expression",
+        produces=(
+            ProducedFact(
+                "answer:ii_1.minimum_value",
+                "ii_1",
+                output_type="MinimumExpression",
+            ),
+        ),
+    )
+    draft = StepIntentDraft(
+        scopes=(
+            StepIntentScope(
+                scope_id="ii_1",
+                label="第（Ⅱ）①问",
+                steps=(parameter_step, answer_step),
+            ),
+        ),
+    )
+    diagnostic = StepIntentExecutionDiagnostic(
+        ok=True,
+        state_write_provenance=(
+            StateWriteProvenance(
+                step_id="solve_parameter",
+                scope_id="ii_1",
+                capability_id="parameter_from_expression_value",
+                produced_handle="fact:ii_1:m_value",
+                output_key="parameter_value",
+                runtime_type="ParameterValue",
+                identity_policy="preserve_input_object",
+                identity_role="parameter_value",
+                object_ref="symbol:problem:m",
+            ),
+            StateWriteProvenance(
+                step_id="write_symbolic_minimum",
+                scope_id="ii_1",
+                capability_id="broken_path_straightening_minimum_expression",
+                produced_handle="answer:ii_1.minimum_value",
+                output_key="path_minimum_expression",
+                runtime_type="MinimumExpression",
+                identity_policy="value_only",
+                identity_role="path_minimum_expression",
+                free_symbol_names=("m",),
+            ),
+        ),
+    )
+
+    issues = AnswerGoalVerifier().verify(
+        draft,
+        problem_payload=problem_payload,
+        handle_registry=registry,
+        diagnostic=diagnostic,
+    )
+
+    issue = _issue_by_code(issues, "answer_unresolved_symbol_state")
+    assert issue.step_id == "write_symbolic_minimum"
+    assert issue.details == {
+        "unresolved_symbols": ["m"],
+        "available_parameter_symbols": ["m"],
+        "available_parameter_states": ["fact:ii_1:m_value"],
+    }
+    assert "symbol:problem:m" in issue.related_handles
+
+
+def test_goal_verifier_allows_parameterized_answer_without_available_value() -> None:
+    problem_payload, registry = _nankai_problem_payload_and_registry()
+    answer_step = StepIntent(
+        scope_id="ii_1",
+        step_id="write_parameterized_minimum",
+        recipe_hint="broken_path_straightening_minimum_expression",
+        goal_type="derive_minimum_value",
+        target="answer:ii_1.minimum_value",
+        strategy="write a parameterized minimum expression",
+        produces=(
+            ProducedFact(
+                "answer:ii_1.minimum_value",
+                "ii_1",
+                output_type="MinimumExpression",
+            ),
+        ),
+    )
+    draft = StepIntentDraft(
+        scopes=(
+            StepIntentScope(
+                scope_id="ii_1",
+                label="第（Ⅱ）①问",
+                steps=(answer_step,),
+            ),
+        ),
+    )
+
+    issues = AnswerGoalVerifier().verify(
+        draft,
+        problem_payload=problem_payload,
+        handle_registry=registry,
+        diagnostic=StepIntentExecutionDiagnostic(
+            ok=True,
+            state_write_provenance=(
+                StateWriteProvenance(
+                    step_id="write_parameterized_minimum",
+                    scope_id="ii_1",
+                    capability_id="broken_path_straightening_minimum_expression",
+                    produced_handle="answer:ii_1.minimum_value",
+                    output_key="path_minimum_expression",
+                    runtime_type="MinimumExpression",
+                    identity_policy="value_only",
+                    identity_role="path_minimum_expression",
+                    free_symbol_names=("m",),
+                ),
+            ),
+        ),
+    )
+
+    assert not any(issue.code == "answer_unresolved_symbol_state" for issue in issues)
+
+
+def test_goal_verifier_ignores_parameter_value_from_sibling_scope() -> None:
+    problem_payload, registry = _nankai_problem_payload_and_registry()
+    sibling_parameter_step = StepIntent(
+        scope_id="ii_2",
+        step_id="solve_parameter_in_sibling",
+        recipe_hint="parameter_from_expression_value",
+        goal_type="solve_parameter",
+        target="fact:ii_2:m_value",
+        strategy="solve a sibling parameter value",
+        produces=(
+            ProducedFact(
+                "fact:ii_2:m_value",
+                "ii_2",
+                output_type="ParameterValue",
+            ),
+        ),
+    )
+    answer_step = StepIntent(
+        scope_id="ii_1",
+        step_id="write_parameterized_minimum",
+        recipe_hint="broken_path_straightening_minimum_expression",
+        goal_type="derive_minimum_value",
+        target="answer:ii_1.minimum_value",
+        strategy="write a parameterized minimum expression",
+        produces=(
+            ProducedFact(
+                "answer:ii_1.minimum_value",
+                "ii_1",
+                output_type="MinimumExpression",
+            ),
+        ),
+    )
+    draft = StepIntentDraft(
+        scopes=(
+            StepIntentScope(
+                scope_id="ii_2",
+                label="第（Ⅱ）②问",
+                steps=(sibling_parameter_step,),
+            ),
+            StepIntentScope(
+                scope_id="ii_1",
+                label="第（Ⅱ）①问",
+                steps=(answer_step,),
+            ),
+        ),
+    )
+    diagnostic = StepIntentExecutionDiagnostic(
+        ok=True,
+        state_write_provenance=(
+            StateWriteProvenance(
+                step_id="solve_parameter_in_sibling",
+                scope_id="ii_2",
+                capability_id="parameter_from_expression_value",
+                produced_handle="fact:ii_2:m_value",
+                output_key="parameter_value",
+                runtime_type="ParameterValue",
+                identity_policy="preserve_input_object",
+                identity_role="parameter_value",
+                object_ref="symbol:problem:m",
+            ),
+            StateWriteProvenance(
+                step_id="write_parameterized_minimum",
+                scope_id="ii_1",
+                capability_id="broken_path_straightening_minimum_expression",
+                produced_handle="answer:ii_1.minimum_value",
+                output_key="path_minimum_expression",
+                runtime_type="MinimumExpression",
+                identity_policy="value_only",
+                identity_role="path_minimum_expression",
+                free_symbol_names=("m",),
+            ),
+        ),
+    )
+
+    issues = AnswerGoalVerifier().verify(
+        draft,
+        problem_payload=problem_payload,
+        handle_registry=registry,
+        diagnostic=diagnostic,
+    )
+
+    assert not any(issue.code == "answer_unresolved_symbol_state" for issue in issues)
 
 
 def test_goal_verification_retry_state_truncates_prefix_before_issue_step() -> None:

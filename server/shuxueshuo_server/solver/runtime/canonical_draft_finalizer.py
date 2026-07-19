@@ -18,6 +18,7 @@ from shuxueshuo_server.solver.runtime.handle_registry import (
     HandleResolver,
 )
 from shuxueshuo_server.solver.runtime.strategy_models import (
+    ProjectedStateWrite,
     StepIntentDraft,
     StrategyDraftValidationError,
 )
@@ -52,6 +53,8 @@ class CanonicalDraftFinalizer:
         family_spec: SolverFamilySpec,
         question_goals: list[QuestionGoal] | tuple[QuestionGoal, ...],
         handle_registry: CanonicalHandleRegistry,
+        allow_shared_derivation_scopes: bool = False,
+        projected_state_writes: tuple[ProjectedStateWrite, ...] = (),
     ) -> tuple[StepIntentDraft, CanonicalDraftFinalizationReport]:
         before = draft.to_payload()
         issues: tuple[str, ...] = ()
@@ -61,6 +64,8 @@ class CanonicalDraftFinalizer:
                 question_goals=question_goals,
                 handle_registry=handle_registry,
                 family_spec=family_spec,
+                allow_shared_derivation_scopes=allow_shared_derivation_scopes,
+                projected_state_writes=projected_state_writes,
             )
             resolution = validation_report.handle_resolution
         except StrategyDraftValidationError as exc:

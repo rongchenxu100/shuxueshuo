@@ -8,6 +8,9 @@ from typing import Callable, Protocol
 from shuxueshuo_server.solver.family.models import SolverFamilySpec
 from shuxueshuo_server.solver.question_goals import QuestionGoal
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
+from shuxueshuo_server.solver.runtime.context_closure import (
+    validate_context_closure_resolvers,
+)
 from shuxueshuo_server.solver.runtime.normalizer_binding import (
     _CommonScopeOutputPromotionRule,
     _FactHandleValidScopeRule,
@@ -22,6 +25,10 @@ from shuxueshuo_server.solver.runtime.normalizer_common import (
     NormalizationRuleContext,
     _recipe_output_types,
     _recipe_required_creates,
+)
+from shuxueshuo_server.solver.runtime.normalizer_conditions import (
+    _ConditionRoleReadClosureRule,
+    _PathReductionReadClosureRule,
 )
 from shuxueshuo_server.solver.runtime.normalizer_path import (
     _BrokenPathMinimumEndpointProducesRule,
@@ -142,6 +149,13 @@ class StepIntentNormalizer:
         question_goal_map = {f"answer:{goal.id}": goal for goal in question_goals}
         recipe_output_types = _recipe_output_types(family_spec)
         recipe_required_creates = _recipe_required_creates(family_spec)
+        context_resolvers_by_capability = {}
+        for contract in family_spec.capability_contracts:
+            validate_context_closure_resolvers(contract.context_resolvers)
+            if contract.context_resolvers:
+                context_resolvers_by_capability[contract.capability_id] = (
+                    contract.context_resolvers
+                )
         actions: list[StepIntentNormalizationAction] = []
         warnings: list[str] = []
         normalized_scopes: list[StepIntentScope] = []
@@ -150,6 +164,7 @@ class StepIntentNormalizer:
             question_goal_map=question_goal_map,
             recipe_output_types=recipe_output_types,
             recipe_required_creates=recipe_required_creates,
+            context_resolvers_by_capability=context_resolvers_by_capability,
             normalized_scopes=normalized_scopes,
         )
 
@@ -325,6 +340,8 @@ DEFAULT_NORMALIZATION_RULES: tuple[NormalizationRule, ...] = (
     _ParameterSolverOutputAliasRule(),
     _MultiPointEvaluationSplitRule(),
     _CandidatePointFactsRule(),
+    _ConditionRoleReadClosureRule(),
+    _PathReductionReadClosureRule(),
     _WeightedAuxiliaryLocusTypeRule(),
     _BrokenPathMinimumEndpointProducesRule(),
     _PathTransformationBackfillRule(),

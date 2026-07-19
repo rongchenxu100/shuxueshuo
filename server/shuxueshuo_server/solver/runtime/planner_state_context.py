@@ -11,9 +11,14 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field, replace
 import hashlib
 import json
-from typing import Any, Literal, Protocol, cast, get_args
+from typing import Any, Literal, Mapping, Protocol, cast, get_args
 
 from shuxueshuo_server.solver.runtime.capability_contracts import contract_payloads
+from shuxueshuo_server.solver.runtime.condition_roles import (
+    ConditionObjectRoles,
+    ConditionRoleResolutionError,
+    ConditionRoleResolver,
+)
 from shuxueshuo_server.solver.runtime.function_specs import function_spec_payloads
 from shuxueshuo_server.solver.runtime.macro_specs import macro_spec_payloads
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
@@ -23,18 +28,32 @@ from shuxueshuo_server.solver.runtime.output_type_inference import (
     semantic_name_from_handle,
     semantic_name_to_runtime_type,
 )
+from shuxueshuo_server.solver.runtime.object_dependencies import (
+    expand_object_dependencies as _expand_object_dependencies,
+    structured_object_refs as _structured_object_refs,
+)
 from shuxueshuo_server.solver.runtime.semantic_reads import SemanticReadCatalogItem
+from shuxueshuo_server.solver.runtime.symbol_dependencies import (
+    structured_free_symbol_refs,
+    symbol_handles_by_name,
+    symbol_refs_from_names,
+)
 from shuxueshuo_server.solver.runtime.planner import PlannerInputs
 from shuxueshuo_server.solver.runtime.strategy_models import (
     CreatedEntity,
     PlannerReplayDepth,
+    PlannerOutputFormat,
     PlannerRetryLayer,
     PlannerRetryPreservePolicy,
     ProducedFact,
     StepIntent,
     StepIntentDraft,
 )
-from shuxueshuo_server.solver.state_semantics import state_kind_for_runtime_type
+from shuxueshuo_server.solver.state_semantics import (
+    is_object_handle,
+    is_object_semantic_kind,
+    state_kind_for_runtime_type,
+)
 from shuxueshuo_server.solver.utils import unique_ordered as _unique_ordered
 
 ContextSource = Literal["problem", "derived", "answer", "temporary"]
@@ -57,6 +76,9 @@ ContextEventName = Literal[
     "trial_diagnosed",
     "answer_checked",
     "retry_projected",
+    "functional_plan_received",
+    "functional_call_reconciled",
+    "functional_plan_projected",
 ]
 
 
@@ -144,6 +166,7 @@ class Condition:
     scope_id: str
     canonical_handle: str | None
     subject_ids: tuple[str, ...] = ()
+    object_roles: ConditionObjectRoles = ()
     value_type: str | None = None
     source_step_id: str | None = None
     valid_scope: str | None = None
@@ -155,6 +178,10 @@ class Condition:
             "scope_id": self.scope_id,
             "canonical_handle": self.canonical_handle,
             "subject_ids": list(self.subject_ids),
+            "object_roles": {
+                role: list(object_refs)
+                for role, object_refs in self.object_roles
+            },
             "value_type": self.value_type,
             "source_step_id": self.source_step_id,
             "valid_scope": self.valid_scope,
@@ -197,6 +224,9 @@ class StateSlot:
     runtime_path: str | None = None
     status: StateStatus = "planned"
     write_history: tuple[StateWriteVersion, ...] = ()
+    dependency_object_refs: tuple[str, ...] = ()
+    free_symbol_refs: tuple[str, ...] = ()
+    source_state_slot_ids: tuple[str, ...] = ()
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -212,6 +242,9 @@ class StateSlot:
             "runtime_path": self.runtime_path,
             "status": self.status,
             "write_history": [item.to_payload() for item in self.write_history],
+            "dependency_object_refs": list(self.dependency_object_refs),
+            "free_symbol_refs": list(self.free_symbol_refs),
+            "source_state_slot_ids": list(self.source_state_slot_ids),
         }
 
 
@@ -302,6 +335,11 @@ class RetryMemory:
     replay_reports: dict[str, Any] | None = None
     issues: tuple[dict[str, Any], ...] = ()
     recovered_issues: tuple[dict[str, Any], ...] = ()
+    candidate_format: PlannerOutputFormat = "step_intent"
+    baseline_candidate: dict[str, Any] | None = None
+    stable_candidate_prefix: tuple[dict[str, Any], ...] = ()
+    stable_candidate_calls: tuple[dict[str, Any], ...] = ()
+    repair_call_ids: tuple[str, ...] = ()
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -316,6 +354,15 @@ class RetryMemory:
             "replay_reports": self.replay_reports or {},
             "issues": [dict(item) for item in self.issues],
             "recovered_issues": [dict(item) for item in self.recovered_issues],
+            "candidate_format": self.candidate_format,
+            "baseline_candidate": self.baseline_candidate,
+            "stable_candidate_prefix": [
+                dict(item) for item in self.stable_candidate_prefix
+            ],
+            "stable_candidate_calls": [
+                dict(item) for item in self.stable_candidate_calls
+            ],
+            "repair_call_ids": list(self.repair_call_ids),
         }
 
 
@@ -417,6 +464,14 @@ class PlannerState:
     function_specs: tuple[dict[str, Any], ...] = ()
     macro_specs: tuple[dict[str, Any], ...] = ()
     state_write_provenance: tuple[dict[str, Any], ...] = ()
+    candidate_format: PlannerOutputFormat = "step_intent"
+    # Audit input and canonical candidate are deliberately stored separately.
+    raw_functional_plan_snapshot: dict[str, Any] | None = None
+    functional_plan_snapshot: dict[str, Any] | None = None
+    functional_call_timeline: tuple[dict[str, Any], ...] = ()
+    functional_projection_map: tuple[dict[str, Any], ...] = ()
+    student_step_placements: tuple[dict[str, Any], ...] = ()
+    student_scope_references: tuple[dict[str, Any], ...] = ()
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -439,6 +494,21 @@ class PlannerState:
             "macro_specs": [dict(item) for item in self.macro_specs],
             "state_write_provenance": [
                 dict(item) for item in self.state_write_provenance
+            ],
+            "candidate_format": self.candidate_format,
+            "raw_functional_plan_snapshot": self.raw_functional_plan_snapshot,
+            "functional_plan_snapshot": self.functional_plan_snapshot,
+            "functional_call_timeline": [
+                dict(item) for item in self.functional_call_timeline
+            ],
+            "functional_projection_map": [
+                dict(item) for item in self.functional_projection_map
+            ],
+            "student_step_placements": [
+                dict(item) for item in self.student_step_placements
+            ],
+            "student_scope_references": [
+                dict(item) for item in self.student_scope_references
             ],
         }
 
@@ -512,6 +582,13 @@ class _MutableState:
     function_specs: list[dict[str, Any]] = field(default_factory=list)
     macro_specs: list[dict[str, Any]] = field(default_factory=list)
     state_write_provenance: list[dict[str, Any]] = field(default_factory=list)
+    candidate_format: PlannerOutputFormat = "step_intent"
+    raw_functional_plan_snapshot: dict[str, Any] | None = None
+    functional_plan_snapshot: dict[str, Any] | None = None
+    functional_call_timeline: list[dict[str, Any]] = field(default_factory=list)
+    functional_projection_map: list[dict[str, Any]] = field(default_factory=list)
+    student_step_placements: list[dict[str, Any]] = field(default_factory=list)
+    student_scope_references: list[dict[str, Any]] = field(default_factory=list)
 
     def freeze(self) -> PlannerStateContext:
         return PlannerStateContext(
@@ -537,6 +614,13 @@ class _MutableState:
                 function_specs=tuple(self.function_specs),
                 macro_specs=tuple(self.macro_specs),
                 state_write_provenance=tuple(self.state_write_provenance),
+                candidate_format=self.candidate_format,
+                raw_functional_plan_snapshot=self.raw_functional_plan_snapshot,
+                functional_plan_snapshot=self.functional_plan_snapshot,
+                functional_call_timeline=tuple(self.functional_call_timeline),
+                functional_projection_map=tuple(self.functional_projection_map),
+                student_step_placements=tuple(self.student_step_placements),
+                student_scope_references=tuple(self.student_scope_references),
             ),
         )
 
@@ -553,6 +637,8 @@ class PlannerRetryReplaySnapshot(Protocol):
     effective_draft: StepIntentDraft | None
     diagnostic: object | None
     retry_state: object | None
+    functional_plan: object | None
+    functional_reconciliation: object | None
 
 
 class PlannerStateContextBuilder:
@@ -597,6 +683,7 @@ class PlannerStateContextBuilder:
         )
         state.issues.extend(dict(item) for item in context_warnings)
         state.draft_snapshots = _draft_snapshots_from_replay(replay)
+        cls._observe_functional_candidate(state, replay)
         state.context_events.append(
             _context_event(
                 "llm_attempt_received",
@@ -648,6 +735,19 @@ class PlannerStateContextBuilder:
             replay.retry_state,
             attempt=replay.attempt,
         )
+        if (
+            state.candidate_format != "functional_plan"
+            and state.retry_memory.candidate_format == "functional_plan"
+        ):
+            state.candidate_format = "functional_plan"
+            state.functional_plan_snapshot = state.retry_memory.baseline_candidate
+            state.context_events.append(
+                _context_event(
+                    "functional_plan_received",
+                    attempt=replay.attempt,
+                    ok=False,
+                )
+            )
         if replay.retry_state is not None:
             state.context_events.append(
                 _context_event(
@@ -659,6 +759,100 @@ class PlannerStateContextBuilder:
         for error in replay.errors or ():
             state.issues.append({"layer": "replay", "code": "error", "message": str(error)})
         return state.freeze()
+
+    @staticmethod
+    def _observe_functional_candidate(
+        state: _MutableState,
+        replay: PlannerRetryReplaySnapshot,
+    ) -> None:
+        plan = getattr(replay, "functional_plan", None)
+        reconciliation = getattr(replay, "functional_reconciliation", None)
+        if plan is None:
+            return
+        state.candidate_format = "functional_plan"
+        state.raw_functional_plan_snapshot = plan.to_payload()
+        effective_plan = (
+            getattr(reconciliation, "effective_plan", None)
+            if reconciliation is not None
+            else None
+        )
+        state.functional_plan_snapshot = (
+            effective_plan.to_payload()
+            if effective_plan is not None
+            else state.raw_functional_plan_snapshot
+        )
+        state.context_events.append(
+            _context_event(
+                "functional_plan_received",
+                attempt=replay.attempt,
+                ok=True,
+            )
+        )
+        if reconciliation is None:
+            return
+        placements = {
+            item.canonical_call_id: item
+            for item in getattr(reconciliation, "call_placements", ())
+        }
+        state.functional_call_timeline.extend(
+            {
+                **item.to_payload(),
+                "placement": (
+                    placements[item.call_id].to_payload()
+                    if item.call_id in placements
+                    else None
+                ),
+            }
+            for item in getattr(reconciliation, "calls", ())
+        )
+        state.functional_projection_map.extend(
+            item.to_payload()
+            for item in getattr(reconciliation, "projection_map", ())
+        )
+        effective_draft = getattr(replay, "effective_draft", None) or getattr(
+            reconciliation,
+            "projected_draft",
+            None,
+        )
+        if effective_draft is not None:
+            # Local import keeps the runtime state model independent from the
+            # explanation package at module-import time.
+            from shuxueshuo_server.solver.explanation.presentation import (
+                StudentNarrativePlacementProjector,
+            )
+
+            narrative = StudentNarrativePlacementProjector().project(
+                effective_steps=tuple(
+                    step.to_payload(include_scope_id=True)
+                    for step in effective_draft.steps
+                ),
+                problem=state.problem_ir,
+                functional_reconciliation=reconciliation,
+                raw_functional_plan=plan,
+            )
+            state.student_step_placements.extend(
+                item.to_payload() for item in narrative.placements
+            )
+            state.student_scope_references.extend(
+                item.to_payload() for item in narrative.references
+            )
+        for issue in getattr(reconciliation, "issues", ()):
+            state.issues.append(issue.to_payload())
+        state.context_events.append(
+            _context_event(
+                "functional_call_reconciled",
+                attempt=replay.attempt,
+                ok=not bool(getattr(reconciliation, "issues", ())),
+            )
+        )
+        if getattr(reconciliation, "projected_draft", None) is not None:
+            state.context_events.append(
+                _context_event(
+                    "functional_plan_projected",
+                    attempt=replay.attempt,
+                    ok=True,
+                )
+            )
 
     @staticmethod
     def _initial_mutable_state(
@@ -697,6 +891,10 @@ class PlannerStateContextBuilder:
             slot.slot_id: slot
             for slot in _initial_state_slots_from_registry(handle_registry)
         }
+        state_slots = _enrich_initial_state_slots(
+            state_slots,
+            problem_payload=problem_payload,
+        )
         alias_index = _build_alias_index(math_objects, conditions, state_slots.values())
         return _MutableState(
             manifest=manifest,
@@ -1068,12 +1266,30 @@ def _retry_memory_from_retry_state(
             for item in payload.get("recovered_issues", ())
             if isinstance(item, dict)
         ),
+        candidate_format=_planner_output_format(payload.get("candidate_format")),
+        baseline_candidate=_dict_or_none(payload.get("baseline_candidate")),
+        stable_candidate_prefix=tuple(
+            dict(item)
+            for item in payload.get("stable_candidate_prefix", ())
+            if isinstance(item, dict)
+        ),
+        stable_candidate_calls=tuple(
+            dict(item)
+            for item in payload.get("stable_candidate_calls", ())
+            if isinstance(item, dict)
+        ),
+        repair_call_ids=tuple(
+            item
+            for item in payload.get("repair_call_ids", ())
+            if isinstance(item, str)
+        ),
     )
 
 
 _PLANNER_REPLAY_DEPTHS = frozenset(get_args(PlannerReplayDepth))
 _PLANNER_RETRY_LAYERS = frozenset(get_args(PlannerRetryLayer))
 _PLANNER_PRESERVE_POLICIES = frozenset(get_args(PlannerRetryPreservePolicy))
+_PLANNER_OUTPUT_FORMATS = frozenset(get_args(PlannerOutputFormat))
 
 
 def _planner_replay_depth(value: object) -> PlannerReplayDepth | None:
@@ -1086,6 +1302,12 @@ def _planner_retry_layer(value: object) -> PlannerRetryLayer | None:
     if isinstance(value, str) and value in _PLANNER_RETRY_LAYERS:
         return cast(PlannerRetryLayer, value)
     return None
+
+
+def _planner_output_format(value: object) -> PlannerOutputFormat:
+    if isinstance(value, str) and value in _PLANNER_OUTPUT_FORMATS:
+        return cast(PlannerOutputFormat, value)
+    return "step_intent"
 
 
 def _planner_preserve_policy(value: object) -> PlannerRetryPreservePolicy:
@@ -1182,12 +1404,17 @@ def _conditions_from_registry(
         if _fact_type_is_state_slot(fact_type):
             continue
         scope_id = _scope_from_handle(handle) or registry.handle_valid_scopes.get(handle, "problem")
+        object_roles = _condition_object_roles(
+            fact_type,
+            registry.fact_payloads.get(handle, {}),
+        )
         result.append(
             Condition(
                 condition_id=f"condition:{_semantic_ref(handle)}@{scope_id}",
                 kind=fact_type,
                 scope_id=scope_id,
                 canonical_handle=handle,
+                object_roles=object_roles,
                 value_type=fact_type,
                 valid_scope=registry.handle_valid_scopes.get(handle),
             )
@@ -1241,6 +1468,59 @@ def _initial_state_slots_from_registry(
                 valid_scope=scope_id,
                 status="given",
             )
+        )
+    return result
+
+
+def _enrich_initial_state_slots(
+    slots: dict[str, StateSlot],
+    *,
+    problem_payload: dict[str, Any],
+) -> dict[str, StateSlot]:
+    facts = {
+        item.get("handle"): item
+        for item in problem_payload.get("facts", ())
+        if isinstance(item, dict) and isinstance(item.get("handle"), str)
+    }
+    entity_dependencies = {
+        item["handle"]: tuple(dict.fromkeys(_structured_object_refs(item)))
+        for item in problem_payload.get("entities", ())
+        if isinstance(item, dict) and isinstance(item.get("handle"), str)
+    }
+    entity_payloads = {
+        item["handle"]: item
+        for item in problem_payload.get("entities", ())
+        if isinstance(item, dict) and isinstance(item.get("handle"), str)
+    }
+    symbol_handles = symbol_handles_by_name(entity_payloads)
+    result: dict[str, StateSlot] = {}
+    for slot_id, slot in slots.items():
+        payload = facts.get(slot.canonical_handle)
+        if payload is None:
+            result[slot_id] = slot
+            continue
+        dependencies = tuple(
+            dict.fromkeys(
+                _expand_object_dependencies(
+                    _structured_object_refs(payload),
+                    entity_dependencies,
+                )
+            )
+        )
+        subject = payload.get("subject")
+        object_ref = (
+            subject
+            if isinstance(subject, str) and is_object_handle(subject)
+            else slot.object_ref
+        )
+        result[slot_id] = replace(
+            slot,
+            object_ref=object_ref,
+            dependency_object_refs=dependencies,
+            free_symbol_refs=structured_free_symbol_refs(
+                payload,
+                symbol_handles=symbol_handles,
+            ),
         )
     return result
 
@@ -1398,6 +1678,10 @@ def _ensure_produced_condition(
         kind=value_type,
         scope_id=scope_id,
         canonical_handle=item.handle,
+        object_roles=_condition_object_roles(
+            value_type,
+            handle_registry.fact_payloads.get(item.handle, {}),
+        ),
         value_type=value_type,
         source_step_id=produced_by,
         valid_scope=item.valid_scope,
@@ -1408,6 +1692,18 @@ def _ensure_produced_condition(
     refs.append(condition_id)
     state.alias_index.by_semantic_ref[ref] = tuple(_unique_ordered(refs))
     return condition
+
+
+def _condition_object_roles(
+    condition_kind: str,
+    payload: Mapping[str, Any],
+) -> ConditionObjectRoles:
+    try:
+        return ConditionRoleResolver.object_roles(condition_kind, payload)
+    except ConditionRoleResolutionError:
+        # Keep malformed facts visible in the Context. A consumer that requires
+        # structured roles will emit the typed role-resolution error.
+        return ()
 
 
 def _ensure_produced_slot(
@@ -1447,6 +1743,13 @@ def _ensure_produced_slot(
         valid_scope=item.valid_scope,
         status=status,
         write_history=(existing.write_history if existing else ()),
+        dependency_object_refs=(
+            existing.dependency_object_refs if existing else ()
+        ),
+        free_symbol_refs=(existing.free_symbol_refs if existing else ()),
+        source_state_slot_ids=(
+            existing.source_state_slot_ids if existing else ()
+        ),
     )
     state.state_slots[slot_id] = slot
     for alias in aliases:
@@ -1481,6 +1784,9 @@ def _merge_alias(
         runtime_path=slot.runtime_path,
         status=slot.status,
         write_history=slot.write_history,
+        dependency_object_refs=slot.dependency_object_refs,
+        free_symbol_refs=slot.free_symbol_refs,
+        source_state_slot_ids=slot.source_state_slot_ids,
     )
     state.alias_index.by_handle[alias] = slot_id
 
@@ -1558,6 +1864,15 @@ def _apply_state_write_provenance(
         )
     )
     scope_id = str(payload.get("scope_id") or _scope_from_handle(produced_handle) or "problem")
+    entity_payloads = {
+        item["handle"]: item
+        for item in state.problem_ir.get("entities", ())
+        if isinstance(item, dict) and isinstance(item.get("handle"), str)
+    }
+    runtime_free_symbol_refs = symbol_refs_from_names(
+        tuple(str(item) for item in payload.get("free_symbol_names", ())),
+        entity_payloads=entity_payloads,
+    )
     slot = StateSlot(
         slot_id=slot_id,
         object_ref=object_ref,
@@ -1579,6 +1894,21 @@ def _apply_state_write_provenance(
         ),
         status="verified",
         write_history=tuple(histories),
+        dependency_object_refs=(
+            old_slot.dependency_object_refs
+            if old_slot is not None
+            else (
+                current.dependency_object_refs if current is not None else ()
+            )
+        ),
+        free_symbol_refs=runtime_free_symbol_refs,
+        source_state_slot_ids=(
+            old_slot.source_state_slot_ids
+            if old_slot is not None
+            else (
+                current.source_state_slot_ids if current is not None else ()
+            )
+        ),
     )
     if old_slot_id is not None and old_slot_id != slot_id:
         state.state_slots.pop(old_slot_id, None)
@@ -1737,7 +2067,9 @@ def _split_entity_handle(handle: str) -> tuple[str, str, str]:
 
 def _scope_from_handle(handle: str) -> str | None:
     parts = handle.split(":", 2)
-    if len(parts) == 3 and parts[0] in {"point", "line", "segment", "ray", "function", "symbol", "angle", "circle", "polygon", "fact"}:
+    if len(parts) == 3 and (
+        is_object_semantic_kind(parts[0]) or parts[0] == "fact"
+    ):
         return parts[1]
     return None
 

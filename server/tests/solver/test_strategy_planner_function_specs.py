@@ -24,6 +24,9 @@ from shuxueshuo_server.solver.runtime.function_specs import (
     function_spec_from_method,
     function_catalog_payload,
 )
+from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
+    FunctionalCapabilityCatalog,
+)
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.projection import problem_to_llm_payload
 from shuxueshuo_server.solver.runtime.strategy_planner import (
@@ -189,6 +192,60 @@ def test_quadratic_constraint_analyzer_declarations_are_consistent() -> None:
     assert contract.constraint_analyzer == "quadratic_coefficients"
     assert function.adapter is not None
     assert function.adapter.constraint_analyzer == "quadratic_coefficients"
+
+
+def test_curve_point_parameter_function_declares_state_transitions() -> None:
+    problem = load_problem_ir(str(RECORDED_FIXTURES[0][0]))
+    inputs = build_strategy_probe_inputs(problem)
+    function = FunctionSpecRegistry.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
+    ).require("parameter_from_curve_point_on_quadratic")
+    returns = {item.output_key: item for item in function.returns}
+
+    assert returns["parameter_value"].write_mode == "value"
+    assert returns["point"].write_mode == "transition"
+    assert returns["parabola"].write_mode == "transition"
+
+
+def test_functional_capability_projects_runtime_behavior_metadata() -> None:
+    problem = load_problem_ir(str(RECORDED_FIXTURES[-1][0]))
+    inputs = build_strategy_probe_inputs(problem)
+    capability = FunctionalCapabilityCatalog.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
+    ).get("evaluate_point_at_parameter")
+
+    assert capability is not None
+    assert capability.is_pure
+    assert capability.dependency_policy == "explicit_args"
+    assert capability.reconciliation_validators == (
+        "companion_symbol_coverage",
+    )
+
+
+def test_unknown_functional_reconciliation_validator_fails_preflight() -> None:
+    problem = load_problem_ir(str(RECORDED_FIXTURES[-1][0]))
+    inputs = build_strategy_probe_inputs(problem)
+    method_id = "evaluate_point_at_parameter"
+    method_specs = MethodSpecRegistry(
+        {
+            **inputs.method_specs.specs,
+            method_id: replace(
+                inputs.method_specs.require(method_id),
+                reconciliation_validators=("missing_validator",),
+            ),
+        }
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="functional reconciliation validator missing: missing_validator",
+    ):
+        FunctionalCapabilityCatalog.from_family_spec(
+            inputs.family_spec,
+            method_specs,
+        )
 
 
 def test_state_dependency_graph_drops_only_unreachable_pure_function_step() -> None:
