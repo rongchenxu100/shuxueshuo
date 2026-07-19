@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="数学说高中题库：按函数、数列、导数等知识章节整理可视化、可交互的高中数学题目。"
+    />
+    <title>高中题库 | 数学说</title>
+    <meta property="og:title" content="高中题库 | 数学说" />
+    <meta
+      property="og:description"
+      content="按知识章节学习高中数学题目，通过函数图像、动态参数和同步步骤理解解题过程。"
+    />
+    <meta property="og:image" content="../assets/images/share-default.png" />
+    <meta property="og:type" content="website" />
+    <link rel="stylesheet" href="../assets/css/site.css" />
+    <link rel="stylesheet" href="../assets/css/senior-high-library.css" />
+  </head>
+  <body class="site-shell library-page senior-library-page">
+    <a class="skip-link" href="#senior-library">跳到高中题库</a>
+
+    <header class="library-header">
+      <nav class="home-v2-nav library-nav" aria-label="站内导航">
+        <a class="home-v2-brand" href="../index.html" aria-label="数学说首页">
+          <span class="home-v2-brand-mark" aria-hidden="true"></span>
+          <span>数学说</span>
+        </a>
+        <div class="home-v2-nav-links">
+          <a href="../index.html">首页</a>
+          <a href="../nav/index.html">初中题库</a>
+          <a href="./index.html" aria-current="page">高中题库</a>
+          <a href="../index.html#about">关于我们</a>
+        </div>
+      </nav>
+    </header>
+
+    <main class="senior-library-shell" id="senior-library">
+      <aside class="senior-library-sidebar" aria-label="知识章节">
+        <div class="senior-library-sidebar-inner">
+          <p class="senior-library-sidebar-label">知识章节</p>
+          <nav id="chapter-nav" class="senior-library-chapters" aria-label="高中数学章节"></nav>
+        </div>
+      </aside>
+
+      <section class="senior-library-content" aria-live="polite">
+        <div class="senior-library-toolbar">
+          <div class="senior-library-heading">
+            <h1 id="catalog-title">全部题目</h1>
+            <span id="catalog-count">0 道</span>
+          </div>
+          <div class="senior-library-filters" aria-label="题目筛选">
+            <label>
+              <span class="sr-only">难度</span>
+              <select id="difficulty-filter" aria-label="按难度筛选">
+                <option value="all">全部难度</option>
+                <option value="1">难度 1</option>
+                <option value="2">难度 2</option>
+                <option value="3">难度 3</option>
+                <option value="4">难度 4</option>
+                <option value="5">难度 5</option>
+              </select>
+            </label>
+            <label>
+              <span class="sr-only">来源</span>
+              <select id="source-filter" aria-label="按来源筛选">
+                <option value="all">全部来源</option>
+              </select>
+            </label>
+            <label>
+              <span class="sr-only">排序</span>
+              <select id="sort-filter" aria-label="题目排序">
+                <option value="updated-desc">最近更新</option>
+                <option value="year-desc">考试年份</option>
+                <option value="difficulty-desc">难度优先</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <div id="section-tabs" class="senior-library-sections" aria-label="题目类型" hidden></div>
+        <div id="problem-grid" class="senior-library-grid"></div>
+        <nav id="pagination" class="senior-library-pagination" aria-label="题目分页" hidden></nav>
+      </section>
+    </main>
+
+    <script src="../assets/js/baidu-stats.js"></script>
+    <script src="../assets/js/senior-high-catalog-data.js"></script>
+    <script src="../assets/js/senior-high-library-model.js"></script>
+    <script src="../assets/js/senior-high-library.js"></script>
+  </body>
+</html>

@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://shuxueshuo.local/schemas/calculus-decorations.schema.json",
+  "title": "CalculusDecorations",
+  "type": "object",
+  "required": ["layers", "steps"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "_comment": { "type": "string" },
+    "layers": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/$defs/layer" }
+    },
+    "steps": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/$defs/step" }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "layer": {
+      "type": "object",
+      "required": ["elements"],
+      "properties": {
+        "section": { "type": "string" },
+        "sectionNot": { "type": "string" },
+        "stepStartsWith": { "type": "array", "items": { "type": "string" } },
+        "stepIds": { "type": "array", "items": { "type": "string" } },
+        "elements": { "type": "array", "items": { "$ref": "#/$defs/decoration" } }
+      },
+      "additionalProperties": false
+    },
+    "step": {
+      "type": "object",
+      "properties": {
+        "hideLayers": { "type": "array", "items": { "type": "string" } },
+        "visiblePanels": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+        "panelViewports": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/viewport" }
+        },
+        "panelDomains": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/domain" }
+        },
+        "add": { "type": "array", "items": { "$ref": "#/$defs/decoration" } }
+      },
+      "additionalProperties": false
+    },
+    "viewport": {
+      "type": "object",
+      "required": ["x", "y", "width", "height"],
+      "properties": {
+        "x": { "type": "number", "minimum": 0, "maximum": 1 },
+        "y": { "type": "number", "minimum": 0, "maximum": 1 },
+        "width": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 },
+        "height": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "domain": {
+      "type": "object",
+      "required": ["minX", "maxX", "minY", "maxY"],
+      "properties": {
+        "minX": { "type": "number" },
+        "maxX": { "type": "number" },
+        "minY": { "type": "number" },
+        "maxY": { "type": "number" }
+      },
+      "additionalProperties": false
+    },
+    "decoration": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "enum": [
+            "grid",
+            "functionCurve",
+            "functionPoint",
+            "tangentLine",
+            "line",
+            "guideLine",
+            "criticalPoint",
+            "intervalHighlight",
+            "signBand",
+            "rangeBand",
+            "functionLabel"
+          ]
+        },
+        "panelId": { "type": "string" },
+        "functionId": { "type": "string" },
+        "pointId": { "type": "string" },
+        "tangentId": { "type": "string" },
+        "lineId": { "type": "string" },
+        "orientation": { "enum": ["vertical", "horizontal"] },
+        "valueExpr": { "type": "string" },
+        "xExpr": { "type": "string" },
+        "fromExpr": { "type": "string" },
+        "toExpr": { "type": "string" },
+        "minExpr": { "type": "string" },
+        "maxExpr": { "type": "string" },
+        "roots": { "type": "array", "items": { "type": "string" } },
+        "label": { "type": "string" },
+        "text": { "type": "string" },
+        "color": { "type": "string" },
+        "fill": { "type": "string" },
+        "width": { "type": "number" },
+        "dash": { "type": "string" },
+        "r": { "type": "number" },
+        "dx": { "type": "number" },
+        "dy": { "type": "number" },
+        "samples": { "type": "integer", "minimum": 16, "maximum": 1000 },
+        "showLabel": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,182 @@
+{
+  "$schema": "../../../schemas/lesson-data.schema.json",
+  "meta": {
+    "id": "cn-2022-gaokao-jia-wen-20",
+    "outputPath": "site/problems/senior-high/cn/20/cn-2022-gaokao-jia-wen-20.html",
+    "pageTitle": "2022 年全国甲卷文科第 20 题（导数与公切线）",
+    "pageDescription": "分别写出两条曲线在各自切点处的切线方程，由同一直线的斜率和截距相等求出参数，再利用导数求 a 的取值范围。",
+    "breadcrumbTitle": "2022 全国甲卷文科第 20 题",
+    "breadcrumbLabel": "高中题库",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "classification": {
+      "pattern": "common-tangent",
+      "methods": [
+        "tangent-line-at-point",
+        "common-tangent-parameterization",
+        "eliminate-contact-parameter",
+        "derivative-sign-analysis",
+        "global-extremum-comparison",
+        "endpoint-and-infinity-check"
+      ]
+    }
+  },
+  "problem": {
+    "summary": "第 20 题（2022 全国甲卷文科）导数综合：三次函数与参数抛物线拥有公切线，求参数值及取值范围。",
+    "lines": [
+      { "text": "（20）（本题共 12 分）已知函数 f(x)＝x³－x，g(x)＝x²＋a，曲线 y＝f(x) 在点 (x₁,f(x₁)) 处的切线也是曲线 y＝g(x) 的切线。" },
+      { "text": "（1）若 x₁＝－1，求 a；", "answerId": "answerI", "answer": "a＝3" },
+      { "text": "（2）求 a 的取值范围。", "answerId": "answerII", "answer": "a∈[－1,+∞)" }
+    ]
+  },
+  "ui": {
+    "legend": [
+      { "colorVar": "paper", "label": "函数 f" },
+      { "colorVar": "overlap", "label": "函数 g / 当前参数点" },
+      { "colorVar": "fold", "label": "两条切线（重合后为公切线）" }
+    ],
+    "sliderLabel": "第一切点横坐标 x₁",
+    "paramLabelPrefix": "x₁＝",
+    "goToProblemMode": "smooth",
+    "groupTitles": {
+      "第（1）问": "（1）给定切点求 a",
+      "第（2）问": "（2）求 a 的范围"
+    }
+  },
+  "steps": [
+    {
+      "id": "q1s1",
+      "section": "第（1）问",
+      "title": "第1步：求曲线 y=f(x) 在点 P(x₁,f(x₁)) 处的切线方程",
+      "t": -1,
+      "derive": [
+        ["∵", "f(x)＝x³－x，f′(x)＝3x²－1"],
+        ["∴", "点 P 处的切线斜率 k₁＝f′(x₁)＝3x₁²－1"],
+        ["∴", "y－(x₁³－x₁)＝(3x₁²－1)(x－x₁)"],
+        ["∴", "l_f：y＝(3x₁²－1)x－2x₁³"]
+      ],
+      "box": ["先只处理曲线 f：切点坐标和导数共同确定第一条切线"]
+    },
+    {
+      "id": "q1s2",
+      "section": "第（1）问",
+      "title": "第2步：求曲线 y=g(x) 在点 Q(x₂,g(x₂)) 处的切线方程",
+      "t": -1,
+      "derive": [
+        ["设", "曲线 g 的切点为 Q(x₂,g(x₂))"],
+        ["∵", "g(x)＝x²＋a，g′(x)＝2x"],
+        ["∴", "点 Q 处的切线斜率 k₂＝g′(x₂)＝2x₂"],
+        ["∴", "y－(x₂²＋a)＝2x₂(x－x₂)"],
+        ["∴", "l_g：y＝2x₂x＋a－x₂²"]
+      ],
+      "box": ["x₂ 是曲线 g 上切点的横坐标，不要求它等于 x₁"]
+    },
+    {
+      "id": "q1s3",
+      "section": "第（1）问",
+      "title": "第3步：由同一直线联立系数",
+      "t": -1,
+      "derive": [
+        ["∵", "l_f 与 l_g 表示同一条直线"],
+        ["∴", "3x₁²－1＝2x₂，且－2x₁³＝a－x₂²"],
+        ["∴", "x₂＝(3x₁²－1)/2"],
+        ["∴", "a＝x₂²－2x₁³＝(3x₁²－1)²/4－2x₁³"],
+        ["∴", "a＝(9x₁⁴－8x₁³－6x₁²＋1)/4"]
+      ],
+      "box": ["比较同一直线的一次项系数和常数项", "得到 a 关于 x₁ 的表达式"]
+    },
+    {
+      "id": "q1s4",
+      "section": "第（1）问",
+      "title": "第4步：代入 x₁＝－1 求 a",
+      "t": -1,
+      "derive": [
+        ["∵", "x₁＝－1"],
+        ["∴", "x₂＝(3×1－1)/2＝1"],
+        ["∴", "a＝1²－2(－1)³＝3"],
+        ["且", "两条切线都化为 y＝2x＋2"]
+      ],
+      "box": ["a＝3"]
+    },
+    {
+      "id": "q2s1",
+      "section": "第（2）问",
+      "title": "第1步：构造辅助函数 h(x₁)",
+      "t": -0.4,
+      "derive": [
+        ["∵", "a＝(9x₁⁴－8x₁³－6x₁²＋1)/4，x₁∈R"],
+        ["令", "h(x₁)＝(9x₁⁴－8x₁³－6x₁²＋1)/4，则 a＝h(x₁)"],
+        ["∴", "a 的取值范围就是函数 h(x₁) 的值域"]
+      ],
+      "box": ["先完成问题转化：求 a 的范围 → 求 h(x₁) 的值域"]
+    },
+    {
+      "id": "q2s2",
+      "section": "第（2）问",
+      "title": "第2步：求导并确定临界点",
+      "t": -0.3333333333,
+      "hideLegend": true,
+      "derive": [
+        ["∵", "h(x₁)＝(9x₁⁴－8x₁³－6x₁²＋1)/4"],
+        ["∴", "h′(x₁)＝9x₁³－6x₁²－3x₁"],
+        ["∴", "h′(x₁)＝3x₁(3x₁＋1)(x₁－1)"],
+        ["令", "h′(x₁)＝0"],
+        ["∴", "x₁＝－1/3，0，1"]
+      ],
+      "box": ["三个临界点把实数范围分成四个区间"],
+      "minis": [
+        { "title": "x₁＝－1/3", "caption": "左侧局部极小状态。", "t": -0.3333333333 },
+        { "title": "x₁＝0", "caption": "局部极大状态。", "t": 0 },
+        { "title": "x₁＝1", "caption": "全局最小状态。", "t": 1 }
+      ]
+    },
+    {
+      "id": "q2s3",
+      "section": "第（2）问",
+      "title": "第3步：判断导数符号与单调性",
+      "t": 0,
+      "hideLegend": true,
+      "derive": [
+        ["∵", "h′(x₁)＝3x₁(3x₁＋1)(x₁－1)"],
+        ["∴", "h′(x₁) 在四个区间的符号依次为－，＋，－，＋"],
+        ["∴", "h 在 (－∞,－1/3) 和 (0,1) 上单调递减"],
+        ["∴", "h 在 (－1/3,0) 和 (1,＋∞) 上单调递增"]
+      ],
+      "box": ["先由导数符号确定增减，再进入极值比较"]
+    },
+    {
+      "id": "q2s4",
+      "section": "第（2）问",
+      "title": "第4步：比较极值并求 a 的取值范围",
+      "t": 1,
+      "hideLegend": true,
+      "derive": [
+        ["∵", "h(－1/3)＝5/27，h(0)＝1/4，h(1)＝－1"],
+        ["又", "当 x₁→±∞ 时，h(x₁)→＋∞"],
+        ["且", "h(x₁) 是定义在 R 上的连续函数"],
+        ["∴", "h 的全局最小值为－1，在 x₁＝1 处取得"],
+        ["∴", "a∈[－1,＋∞)"]
+      ],
+      "box": ["a∈[－1,＋∞)", "值域结论来自单调性、临界值和无穷趋势"]
+    }
+  ],
+  "policies": {
+    "q1s1": { "movable": true, "range": [-1.2, 1.3], "step": 0.01 },
+    "q1s2": { "movable": true, "range": [-1.2, 1.3], "step": 0.01 },
+    "q1s3": { "movable": true, "range": [-1.2, 1.3], "step": 0.01 },
+    "q1s4": { "movable": false, "range": [-1, -1] },
+    "q2s1": { "movable": true, "range": [-1.2, 1.3], "step": 0.01 },
+    "q2s2": { "movable": false, "range": [-0.3333333333, 1] },
+    "q2s3": { "movable": false, "range": [0, 0] },
+    "q2s4": { "movable": false, "range": [1, 1] }
+  },
+  "stepLabels": {
+    "q1s1": "1 求 f 在 P 处的切线",
+    "q1s2": "2 求 g 在 Q 处的切线",
+    "q1s3": "3 联立同一直线",
+    "q1s4": "4 代入求 a",
+    "q2s1": "1 构造 h(x₁)",
+    "q2s2": "2 求导找临界点",
+    "q2s3": "3 判断单调性",
+    "q2s4": "4 求 a 的范围"
+  }
+}

@@ -1,13 +1,13 @@
 # shuxueshuo
 
-中考数学可视化题库网站。
+中学数学可视化题库网站。
 
 这个仓库同时承载两部分内容：
 
 - `site/`：对外静态网站，包含首页、导航页与题目页
 - `internal/`：内部内容生产系统，包含原题图片、Codex skills、模板与接题规范
 
-项目目标是把各地中考真题，以及一模、二模中的典型题，制作成交互式网页，让学生不只是“看答案”，而是能够通过动点、旋转、折叠等操作真正理解题目的变化过程和解题逻辑。
+项目目标是把中考、高考及阶段性考试中的典型题制作成交互式网页，让学生不只是“看答案”，而是能通过图形、函数与参数联动理解变化过程和解题逻辑。
 
 ## 当前结构
 
@@ -15,6 +15,7 @@
 .
 ├── internal/
 │   ├── docs/
+│   ├── senior-high/       # 高中题目、知识库、schema 与原图
 │   ├── skills/
 │   ├── source-images/
 │   └── templates/
@@ -75,6 +76,7 @@
 `internal/` 用来沉淀题目接入与批量生产能力，不会直接暴露到网站导航中。
 
 - `internal/source-images/`：原题图片素材库，按 `problem-id` 对齐
+- `internal/senior-high/`：独立的高中内容空间，按知识章节生成高中题库目录
 - `internal/skills/`：不同题型与接题流程的 Codex skills
 - `internal/templates/`：题目页模板和示例输入输出
 - `internal/docs/`：命名规则、索引规则、接题流程
@@ -91,8 +93,25 @@ python3 -m http.server 8000
 
 - `http://localhost:8000/site/`
 - `http://localhost:8000/site/nav/`
+- `http://localhost:8000/site/senior-high/`
 
 为了方便前期直接双击打开 HTML 文件，导航页也内置了一个与 JSON 同步的前端兜底数据文件。
+
+## 高中导数题
+
+高中导数题使用 `derivative-lesson` skill 和独立的 calculus 规格，内容保存在 `internal/senior-high/`，共享现有题页模板与基础运行时。第一个样例的校验、编译和访问方式为：
+
+```bash
+node tools/validate-calculus-spec.mjs internal/senior-high/lesson-specs/cn-2022-gaokao-jia-wen-20
+node tools/build-calculus-page.mjs internal/senior-high/lesson-specs/cn-2022-gaokao-jia-wen-20
+node tools/build-senior-high-library.mjs
+```
+
+- 输出：`site/problems/senior-high/cn/20/cn-2022-gaokao-jia-wen-20.html`
+- 高中题库：`site/senior-high/index.html`
+- 目录源数据：`internal/senior-high/catalog/`
+- 本地访问：`http://localhost:8000/site/problems/senior-high/cn/20/cn-2022-gaokao-jia-wen-20.html`
+- Skill 注册：`bash tools/setup-skills.sh`
 
 ## 下一步建议
 

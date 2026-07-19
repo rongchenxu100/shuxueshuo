@@ -53,6 +53,12 @@ function assetPrefixForOutput(outPath) {
   return normalized.startsWith(".") ? normalized : "./" + normalized;
 }
 
+function hrefForOutput(outPath, targetPath) {
+  const rel = path.relative(path.dirname(outPath), path.resolve(repoRoot, targetPath));
+  const normalized = toBrowserPath(rel || ".");
+  return normalized.startsWith(".") ? normalized : "./" + normalized;
+}
+
 /**
  * 把 problem.lines 数组编译成 HTML 字符串。
  * 支持四种行类型：普通文字行 / 带答案chip行 / 粗体小标题行 / 原题图形组。
@@ -149,6 +155,11 @@ const geometrySpecTag = `<script type="application/json" id="geometrySpec">${JSO
 
 const outPath = path.resolve(repoRoot, meta.outputPath);
 const assetPrefix = assetPrefixForOutput(outPath);
+const homeHref = hrefForOutput(outPath, "site/index.html");
+const libraryHref = hrefForOutput(
+  outPath,
+  meta.breadcrumbPath ?? "site/nav/index.html",
+);
 
 const geometryScript = [
   geometrySpecTag,
@@ -178,6 +189,9 @@ const html = replaceAll(template, {
   "{{PAGE_TITLE}}": meta.pageTitle,
   "{{PAGE_DESCRIPTION}}": meta.pageDescription ?? "",
   "{{BREADCRUMB_TITLE}}": meta.breadcrumbTitle ?? meta.pageTitle,
+  "{{HOME_HREF}}": homeHref,
+  "{{LIBRARY_HREF}}": libraryHref,
+  "{{LIBRARY_LABEL}}": meta.breadcrumbLabel ?? "题库导航",
   "{{ASSET_PREFIX}}": assetPrefix,
   "{{PROBLEM_SUMMARY}}": problem.summary ?? "",
   "{{PROBLEM_FULL_HTML}}": problemFullHtml,

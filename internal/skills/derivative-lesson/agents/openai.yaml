@@ -1,0 +1,4 @@
+interface:
+  display_name: "高中导数互动课"
+  short_description: "把高中导数题编译为可视化交互课程网页并完成校验发布"
+  default_prompt: "Use $derivative-lesson to turn this high-school calculus problem into a compiled interactive lesson page."

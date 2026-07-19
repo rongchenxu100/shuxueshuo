@@ -1,0 +1,68 @@
+{
+  "$schema": "../../schemas/calculus-spec.schema.json",
+  "version": 1,
+  "id": "cn-2022-gaokao-jia-wen-20",
+  "parameter": {
+    "name": "x1",
+    "initial": -1
+  },
+  "bindings": [
+    { "name": "slopeF", "expr": "3*x1^2-1" },
+    { "name": "x2", "expr": "slopeF/2" },
+    { "name": "a", "expr": "x2^2-2*x1^3" }
+  ],
+  "panels": [
+    {
+      "id": "curves",
+      "title": "函数曲线与公切线",
+      "xLabel": "x",
+      "yLabel": "y",
+      "viewport": { "x": 0.015, "y": 0.04, "width": 0.61, "height": 0.92 },
+      "domain": { "minX": -2.2, "maxX": 2.2, "minY": -9, "maxY": 11 }
+    },
+    {
+      "id": "parameter",
+      "title": "辅助函数 a＝h(x₁)",
+      "xLabel": "x₁",
+      "yLabel": "a",
+      "viewport": { "x": 0.64, "y": 0.04, "width": 0.345, "height": 0.92 },
+      "domain": { "minX": -1.3, "maxX": 1.7, "minY": -1.5, "maxY": 9 }
+    }
+  ],
+  "functions": [
+    {
+      "id": "f",
+      "panelId": "curves",
+      "variable": "x",
+      "expr": "x^3-x",
+      "derivativeExpr": "3*x^2-1",
+      "domain": [{ "min": -2.2, "max": 2.2 }]
+    },
+    {
+      "id": "g",
+      "panelId": "curves",
+      "variable": "x",
+      "expr": "x^2+a",
+      "derivativeExpr": "2*x",
+      "domain": [{ "min": -2.2, "max": 2.2 }]
+    },
+    {
+      "id": "h",
+      "panelId": "parameter",
+      "variable": "u",
+      "expr": "((3*u^2-1)^2)/4-2*u^3",
+      "derivativeExpr": "3*u*(3*u+1)*(u-1)",
+      "domain": [{ "min": -1.3, "max": 1.7 }]
+    }
+  ],
+  "functionPoints": [
+    { "id": "P", "functionId": "f", "xExpr": "x1" },
+    { "id": "Q", "functionId": "g", "xExpr": "x2" },
+    { "id": "R", "functionId": "h", "xExpr": "x1" }
+  ],
+  "tangentLines": [
+    { "id": "tangentF", "functionId": "f", "atExpr": "x1" },
+    { "id": "tangentG", "functionId": "g", "atExpr": "x2" }
+  ],
+  "lines": []
+}

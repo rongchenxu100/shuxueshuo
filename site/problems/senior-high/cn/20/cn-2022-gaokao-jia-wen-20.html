@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2022 年全国甲卷文科第 20 题（导数与公切线） | 数学说</title>
+  <meta name="description" content="分别写出两条曲线在各自切点处的切线方程，由同一直线的斜率和截距相等求出参数，再利用导数求 a 的取值范围。" />
+  <meta property="og:title" content="2022 年全国甲卷文科第 20 题（导数与公切线） | 数学说" />
+  <meta property="og:description" content="分别写出两条曲线在各自切点处的切线方程，由同一直线的斜率和截距相等求出参数，再利用导数求 a 的取值范围。" />
+  <meta property="og:image" content="../../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../../senior-high/index.html">高中题库</a>
+    <span class="lesson-title">2022 全国甲卷文科第 20 题</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <div class="problem-summary">
+            <div class="problem-summary-text">第 20 题（2022 全国甲卷文科）导数综合：三次函数与参数抛物线拥有公切线，求参数值及取值范围。</div>
+            <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          </div>
+          <div class="problem-full">
+            <div class="problem-line"><span>（20）（本题共 12 分）已知函数 f(x)＝x³－x，g(x)＝x²＋a，曲线 y＝f(x) 在点 (x₁,f(x₁)) 处的切线也是曲线 y＝g(x) 的切线。</span></div>
+<div class="problem-line"><span>（1）若 x₁＝－1，求 a；</span><span class="answer-chip" id="answerI">a＝3</span></div>
+<div class="problem-line"><span>（2）求 a 的取值范围。</span><span class="answer-chip" id="answerII">a∈[－1,+∞)</span></div>
+          </div>
+        </section>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../../assets/js/lesson-page-runtime.js"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"q1s1","section":"第（1）问","title":"第1步：求曲线 y=f(x) 在点 P(x₁,f(x₁)) 处的切线方程","t":-1,"derive":[["∵","f(x)＝x³－x，f′(x)＝3x²－1"],["∴","点 P 处的切线斜率 k₁＝f′(x₁)＝3x₁²－1"],["∴","y－(x₁³－x₁)＝(3x₁²－1)(x－x₁)"],["∴","l_f：y＝(3x₁²－1)x－2x₁³"]],"box":["先只处理曲线 f：切点坐标和导数共同确定第一条切线"]},{"id":"q1s2","section":"第（1）问","title":"第2步：求曲线 y=g(x) 在点 Q(x₂,g(x₂)) 处的切线方程","t":-1,"derive":[["设","曲线 g 的切点为 Q(x₂,g(x₂))"],["∵","g(x)＝x²＋a，g′(x)＝2x"],["∴","点 Q 处的切线斜率 k₂＝g′(x₂)＝2x₂"],["∴","y－(x₂²＋a)＝2x₂(x－x₂)"],["∴","l_g：y＝2x₂x＋a－x₂²"]],"box":["x₂ 是曲线 g 上切点的横坐标，不要求它等于 x₁"]},{"id":"q1s3","section":"第（1）问","title":"第3步：由同一直线联立系数","t":-1,"derive":[["∵","l_f 与 l_g 表示同一条直线"],["∴","3x₁²－1＝2x₂，且－2x₁³＝a－x₂²"],["∴","x₂＝(3x₁²－1)/2"],["∴","a＝x₂²－2x₁³＝(3x₁²－1)²/4－2x₁³"],["∴","a＝(9x₁⁴－8x₁³－6x₁²＋1)/4"]],"box":["比较同一直线的一次项系数和常数项","得到 a 关于 x₁ 的表达式"]},{"id":"q1s4","section":"第（1）问","title":"第4步：代入 x₁＝－1 求 a","t":-1,"derive":[["∵","x₁＝－1"],["∴","x₂＝(3×1－1)/2＝1"],["∴","a＝1²－2(－1)³＝3"],["且","两条切线都化为 y＝2x＋2"]],"box":["a＝3"]},{"id":"q2s1","section":"第（2）问","title":"第1步：构造辅助函数 h(x₁)","t":-0.4,"derive":[["∵","a＝(9x₁⁴－8x₁³－6x₁²＋1)/4，x₁∈R"],["令","h(x₁)＝(9x₁⁴－8x₁³－6x₁²＋1)/4，则 a＝h(x₁)"],["∴","a 的取值范围就是函数 h(x₁) 的值域"]],"box":["先完成问题转化：求 a 的范围 → 求 h(x₁) 的值域"]},{"id":"q2s2","section":"第（2）问","title":"第2步：求导并确定临界点","t":-0.3333333333,"hideLegend":true,"derive":[["∵","h(x₁)＝(9x₁⁴－8x₁³－6x₁²＋1)/4"],["∴","h′(x₁)＝9x₁³－6x₁²－3x₁"],["∴","h′(x₁)＝3x₁(3x₁＋1)(x₁－1)"],["令","h′(x₁)＝0"],["∴","x₁＝－1/3，0，1"]],"box":["三个临界点把实数范围分成四个区间"],"minis":[{"title":"x₁＝－1/3","caption":"左侧局部极小状态。","t":-0.3333333333},{"title":"x₁＝0","caption":"局部极大状态。","t":0},{"title":"x₁＝1","caption":"全局最小状态。","t":1}]},{"id":"q2s3","section":"第（2）问","title":"第3步：判断导数符号与单调性","t":0,"hideLegend":true,"derive":[["∵","h′(x₁)＝3x₁(3x₁＋1)(x₁－1)"],["∴","h′(x₁) 在四个区间的符号依次为－，＋，－，＋"],["∴","h 在 (－∞,－1/3) 和 (0,1) 上单调递减"],["∴","h 在 (－1/3,0) 和 (1,＋∞) 上单调递增"]],"box":["先由导数符号确定增减，再进入极值比较"]},{"id":"q2s4","section":"第（2）问","title":"第4步：比较极值并求 a 的取值范围","t":1,"hideLegend":true,"derive":[["∵","h(－1/3)＝5/27，h(0)＝1/4，h(1)＝－1"],["又","当 x₁→±∞ 时，h(x₁)→＋∞"],["且","h(x₁) 是定义在 R 上的连续函数"],["∴","h 的全局最小值为－1，在 x₁＝1 处取得"],["∴","a∈[－1,＋∞)"]],"box":["a∈[－1,＋∞)","值域结论来自单调性、临界值和无穷趋势"]}];
+    var STEP_LABELS = {"q1s1":"1 求 f 在 P 处的切线","q1s2":"2 求 g 在 Q 处的切线","q1s3":"3 联立同一直线","q1s4":"4 代入求 a","q2s1":"1 构造 h(x₁)","q2s2":"2 求导找临界点","q2s3":"3 判断单调性","q2s4":"4 求 a 的范围"};
+    var POLICIES   = {"q1s1":{"movable":true,"range":[-1.2,1.3],"step":0.01},"q1s2":{"movable":true,"range":[-1.2,1.3],"step":0.01},"q1s3":{"movable":true,"range":[-1.2,1.3],"step":0.01},"q1s4":{"movable":false,"range":[-1,-1]},"q2s1":{"movable":true,"range":[-1.2,1.3],"step":0.01},"q2s2":{"movable":false,"range":[-0.3333333333,1]},"q2s3":{"movable":false,"range":[0,0]},"q2s4":{"movable":false,"range":[1,1]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script type="application/json" id="calculusSpec">{"$schema":"../../schemas/calculus-spec.schema.json","version":1,"id":"cn-2022-gaokao-jia-wen-20","parameter":{"name":"x1","initial":-1},"bindings":[{"name":"slopeF","expr":"3*x1^2-1"},{"name":"x2","expr":"slopeF/2"},{"name":"a","expr":"x2^2-2*x1^3"}],"panels":[{"id":"curves","title":"函数曲线与公切线","xLabel":"x","yLabel":"y","viewport":{"x":0.015,"y":0.04,"width":0.61,"height":0.92},"domain":{"minX":-2.2,"maxX":2.2,"minY":-9,"maxY":11}},{"id":"parameter","title":"辅助函数 a＝h(x₁)","xLabel":"x₁","yLabel":"a","viewport":{"x":0.64,"y":0.04,"width":0.345,"height":0.92},"domain":{"minX":-1.3,"maxX":1.7,"minY":-1.5,"maxY":9}}],"functions":[{"id":"f","panelId":"curves","variable":"x","expr":"x^3-x","derivativeExpr":"3*x^2-1","domain":[{"min":-2.2,"max":2.2}]},{"id":"g","panelId":"curves","variable":"x","expr":"x^2+a","derivativeExpr":"2*x","domain":[{"min":-2.2,"max":2.2}]},{"id":"h","panelId":"parameter","variable":"u","expr":"((3*u^2-1)^2)/4-2*u^3","derivativeExpr":"3*u*(3*u+1)*(u-1)","domain":[{"min":-1.3,"max":1.7}]}],"functionPoints":[{"id":"P","functionId":"f","xExpr":"x1"},{"id":"Q","functionId":"g","xExpr":"x2"},{"id":"R","functionId":"h","xExpr":"x1"}],"tangentLines":[{"id":"tangentF","functionId":"f","atExpr":"x1"},{"id":"tangentG","functionId":"g","atExpr":"x2"}],"lines":[]}</script>
+<script src="../../../../assets/js/math-expression-engine.js"></script>
+<script src="../../../../assets/js/calculus-lesson-from-spec.js"></script>
+
+<script>
+  const __CALCULUS_SPEC__ = JSON.parse(document.getElementById('calculusSpec').textContent);
+  const __CALCULUS_DECORATIONS__ = {"$schema":"../../schemas/calculus-decorations.schema.json","_comment":"2022 全国甲卷文科第 20 题：公切线与导数求参数范围","layers":{"curvesGrid":{"elements":[{"type":"grid","panelId":"curves"}]},"parameterGrid":{"stepStartsWith":["q2"],"elements":[{"type":"grid","panelId":"parameter"}]},"baseFunctions":{"elements":[{"type":"functionCurve","functionId":"f","color":"#2563eb"},{"type":"functionCurve","functionId":"g","color":"#0f766e"},{"type":"functionLabel","functionId":"f","xExpr":"1.42","text":"y=f(x)=x³−x","color":"#2563eb","dx":-92,"dy":-10},{"type":"functionLabel","functionId":"g","xExpr":"-1.45","text":"y=g(x)=x²+a","color":"#0f766e","dx":8,"dy":-10}]},"tangentFromF":{"stepIds":["q1s1"],"elements":[{"type":"tangentLine","tangentId":"tangentF","color":"#dc2626"},{"type":"functionPoint","pointId":"P","label":"P(x₁,f(x₁))","color":"#2563eb","dx":9,"dy":18}]},"tangentFromG":{"stepIds":["q1s2"],"elements":[{"type":"tangentLine","tangentId":"tangentG","color":"#7c3aed"},{"type":"functionPoint","pointId":"Q","label":"Q(x₂,g(x₂))","color":"#7c3aed","dx":9,"dy":-12}]},"matchedTangentState":{"stepIds":["q1s3"],"elements":[{"type":"tangentLine","tangentId":"tangentF","color":"#dc2626"},{"type":"tangentLine","tangentId":"tangentG","color":"#7c3aed","dash":"7 5"},{"type":"functionPoint","pointId":"P","label":"P(x₁,f(x₁))","color":"#2563eb","dx":9,"dy":18},{"type":"functionPoint","pointId":"Q","label":"Q(x₂,g(x₂))","color":"#7c3aed","dx":9,"dy":-12}]},"givenTangentState":{"stepIds":["q1s4"],"elements":[{"type":"tangentLine","tangentId":"tangentF","color":"#dc2626"},{"type":"tangentLine","tangentId":"tangentG","color":"#7c3aed","dash":"7 5"},{"type":"functionPoint","pointId":"P","label":"P(−1,0)","color":"#2563eb","dx":9,"dy":18},{"type":"functionPoint","pointId":"Q","label":"Q(1,4)","color":"#7c3aed","dx":9,"dy":-12}]},"rangeTangentState":{"stepIds":["q2s1","q2s2","q2s3","q2s4"],"elements":[{"type":"tangentLine","tangentId":"tangentF","color":"#dc2626"},{"type":"tangentLine","tangentId":"tangentG","color":"#7c3aed","dash":"7 5"},{"type":"functionPoint","pointId":"P","label":"P","color":"#2563eb"},{"type":"functionPoint","pointId":"Q","label":"Q","color":"#7c3aed"}]},"parameterFunction":{"stepStartsWith":["q2"],"elements":[{"type":"functionCurve","functionId":"h","color":"#7c3aed"}]},"parameterCurrentPoint":{"stepIds":["q2s1"],"elements":[{"type":"functionPoint","pointId":"R","label":"当前值","color":"#0f766e"}]}},"steps":{"q1s1":{},"q1s2":{},"q1s3":{"add":[{"type":"guideLine","panelId":"curves","orientation":"vertical","valueExpr":"x1","color":"#2563eb"},{"type":"guideLine","panelId":"curves","orientation":"vertical","valueExpr":"x2","color":"#7c3aed"}]},"q1s4":{},"q2s1":{"add":[{"type":"functionLabel","functionId":"h","xExpr":"1.45","text":"h(x₁)","color":"#7c3aed"}]},"q2s2":{"visiblePanels":["parameter"],"panelViewports":{"parameter":{"x":0.06,"y":0.04,"width":0.88,"height":0.92}},"add":[{"type":"criticalPoint","functionId":"h","xExpr":"-1/3","label":"x₁=−1/3","color":"#7c3aed","dx":-34,"dy":-12},{"type":"criticalPoint","functionId":"h","xExpr":"0","label":"x₁=0","color":"#f59e0b","dx":8,"dy":-10},{"type":"criticalPoint","functionId":"h","xExpr":"1","label":"x₁=1","color":"#059669","dx":8,"dy":18},{"type":"functionPoint","pointId":"R","showLabel":false,"r":8,"color":"#0f766e"}]},"q2s3":{"visiblePanels":["parameter"],"panelViewports":{"parameter":{"x":0.06,"y":0.04,"width":0.88,"height":0.92}},"add":[{"type":"signBand","functionId":"h","roots":["-1/3","0","1"]},{"type":"criticalPoint","functionId":"h","xExpr":"-1/3","label":"-1/3","color":"#7c3aed","dx":-12,"dy":-12},{"type":"criticalPoint","functionId":"h","xExpr":"0","label":"0","color":"#f59e0b","dx":8,"dy":-10},{"type":"criticalPoint","functionId":"h","xExpr":"1","label":"1","color":"#059669","dx":8,"dy":18}]},"q2s4":{"visiblePanels":["parameter"],"panelViewports":{"parameter":{"x":0.06,"y":0.04,"width":0.88,"height":0.92}},"add":[{"type":"rangeBand","panelId":"parameter","minExpr":"-1"},{"type":"guideLine","panelId":"parameter","orientation":"horizontal","valueExpr":"-1","color":"#059669"},{"type":"criticalPoint","functionId":"h","xExpr":"-1/3","label":"h(−1/3)=5/27","color":"#7c3aed","dx":-104,"dy":-18},{"type":"criticalPoint","functionId":"h","xExpr":"0","label":"h(0)=1/4","color":"#f59e0b","dx":12,"dy":-18},{"type":"criticalPoint","functionId":"h","xExpr":"1","label":"h(1)=−1","color":"#059669","dx":8,"dy":18}]}}};
+  const renderer = CalculusLessonFromSpec.createSpecRenderer(__CALCULUS_SPEC__, __CALCULUS_DECORATIONS__, STEPS, POLICIES);
+  function groupTitle(section) {
+    const map = {"第（1）问":"（1）给定切点求 a","第（2）问":"（2）求 a 的范围"};
+    return map[section] || section;
+  }
+  var diagramMarkupFor = renderer.diagramMarkupFor;
+  var diagramMarkupForFrame = renderer.diagramMarkupForFrame;
+  var drawMini = renderer.drawMini;
+  var __LESSON_LEGEND_HTML__ = "<span><i class=\"sw\" style=\"background:var(--paper)\"></i>函数 f</span><span><i class=\"sw\" style=\"background:var(--overlap)\"></i>函数 g / 当前参数点</span><span><i class=\"sw\" style=\"background:var(--fold)\"></i>两条切线（重合后为公切线）</span>";
+  var __AFTER_RENDER_ALL_STEPS__ = renderer.renderOriginalFigures;
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      diagramMarkupForFrame: typeof diagramMarkupForFrame === "function" ? diagramMarkupForFrame : undefined,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "第一切点横坐标 x₁",
+      paramLabelPrefix: "x₁＝",
+      goToProblemMode: "smooth"
+    });
+  </script>
+</body>
+</html>

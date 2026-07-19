@@ -1,0 +1,148 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://shuxueshuo.local/schemas/calculus-spec.schema.json",
+  "title": "CalculusSpec",
+  "type": "object",
+  "required": ["version", "id", "parameter", "panels", "functions"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "type": "integer", "minimum": 1 },
+    "id": { "type": "string" },
+    "parameter": {
+      "type": "object",
+      "required": ["name", "initial"],
+      "properties": {
+        "name": { "type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_]*$" },
+        "initial": { "type": "number" }
+      },
+      "additionalProperties": false
+    },
+    "bindings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "expr"],
+        "properties": {
+          "name": { "type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_]*$" },
+          "expr": { "type": "string", "minLength": 1 }
+        },
+        "additionalProperties": false
+      }
+    },
+    "panels": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "viewport", "domain"],
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "xLabel": { "type": "string" },
+          "yLabel": { "type": "string" },
+          "viewport": {
+            "type": "object",
+            "required": ["x", "y", "width", "height"],
+            "properties": {
+              "x": { "type": "number", "minimum": 0, "maximum": 1 },
+              "y": { "type": "number", "minimum": 0, "maximum": 1 },
+              "width": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 },
+              "height": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 }
+            },
+            "additionalProperties": false
+          },
+          "domain": { "$ref": "#/$defs/domain" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "functions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "panelId", "variable", "expr"],
+        "properties": {
+          "id": { "type": "string" },
+          "panelId": { "type": "string" },
+          "variable": { "type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_]*$" },
+          "expr": { "type": "string", "minLength": 1 },
+          "derivativeExpr": { "type": "string", "minLength": 1 },
+          "domain": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "$ref": "#/$defs/interval" }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "functionPoints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "functionId", "xExpr"],
+        "properties": {
+          "id": { "type": "string" },
+          "panelId": { "type": "string" },
+          "functionId": { "type": "string" },
+          "xExpr": { "type": "string", "minLength": 1 }
+        },
+        "additionalProperties": false
+      }
+    },
+    "tangentLines": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "functionId", "atExpr"],
+        "properties": {
+          "id": { "type": "string" },
+          "panelId": { "type": "string" },
+          "functionId": { "type": "string" },
+          "atExpr": { "type": "string", "minLength": 1 }
+        },
+        "additionalProperties": false
+      }
+    },
+    "lines": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "panelId", "slopeExpr", "interceptExpr"],
+        "properties": {
+          "id": { "type": "string" },
+          "panelId": { "type": "string" },
+          "slopeExpr": { "type": "string", "minLength": 1 },
+          "interceptExpr": { "type": "string", "minLength": 1 }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "domain": {
+      "type": "object",
+      "required": ["minX", "maxX", "minY", "maxY"],
+      "properties": {
+        "minX": { "type": "number" },
+        "maxX": { "type": "number" },
+        "minY": { "type": "number" },
+        "maxY": { "type": "number" }
+      },
+      "additionalProperties": false
+    },
+    "interval": {
+      "type": "object",
+      "required": ["min", "max"],
+      "properties": {
+        "min": { "type": "number" },
+        "max": { "type": "number" },
+        "openMin": { "type": "boolean" },
+        "openMax": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    }
+  }
+}
