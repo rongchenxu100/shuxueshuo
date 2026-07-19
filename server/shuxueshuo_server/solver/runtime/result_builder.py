@@ -47,6 +47,12 @@ class ResultBuilder:
                     ) from exc
                 continue
             value = typed_value.value
+            try:
+                _validate_resolved_answer_value(goal, typed_value)
+            except ResultBuilderError:
+                if goal.required:
+                    raise
+                continue
             if typed_value.type == "PointList":
                 value = _sorted_point_list(value)
             answers.setdefault(goal.question_id, {})[goal.answer_key] = context.to_answer_value(value)
@@ -105,3 +111,47 @@ def _expr_sort_key(value: Any) -> tuple[int, float | str]:
         except TypeError:
             pass
     return (1, sp.sstr(expr))
+
+
+def _validate_resolved_answer_value(
+    goal: QuestionGoal,
+    typed_value: TypedValue,
+) -> None:
+    """Required scalar/point answers must be fully determined before reporting ok."""
+    if goal.value_type not in {"Point", "PointList", "ParameterValue"}:
+        return
+    symbols = _free_symbol_names(typed_value.value)
+    if not symbols:
+        return
+    symbol_text = ",".join(symbols)
+    raise ResultBuilderError(
+        "answer_unresolved: "
+        f"goal={goal.id}; "
+        f"answer_key={goal.answer_key}; "
+        f"value_type={goal.value_type}; "
+        f"unresolved_symbols={symbol_text}"
+    )
+
+
+def _free_symbol_names(value: Any) -> tuple[str, ...]:
+    """Collect free SymPy symbols from nested answer values."""
+    symbols: set[str] = set()
+
+    def visit(item: Any) -> None:
+        if isinstance(item, dict):
+            for key, child in item.items():
+                visit(key)
+                visit(child)
+            return
+        if isinstance(item, (list, tuple, set)):
+            for child in item:
+                visit(child)
+            return
+        try:
+            expr = sp.sympify(item)
+        except (TypeError, ValueError, sp.SympifyError):
+            return
+        symbols.update(symbol.name for symbol in expr.free_symbols)
+
+    visit(value)
+    return tuple(sorted(symbols))

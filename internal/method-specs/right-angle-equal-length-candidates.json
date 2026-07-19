@@ -9,19 +9,19 @@
   "inputs": {
     "anchor": {
       "type": "Point",
-      "role": "right_angle_vertex",
+      "role": "anchor",
       "required": true,
       "description": "直角顶点，例如南开题中的 D。"
     },
     "reference": {
       "type": "Point",
-      "role": "known_leg_endpoint",
+      "role": "reference",
       "required": true,
       "description": "已知直角边的另一个端点，例如南开题中的 M。"
     },
     "target": {
       "type": "PointRef",
-      "role": "unknown_leg_endpoint",
+      "role": "target",
       "required": true,
       "description": "待求坐标的点引用，例如南开题中的 N。"
     }
@@ -29,6 +29,7 @@
   "outputs": {
     "candidates": "PointList"
   },
+  "is_pure": true,
   "preconditions": [
     "anchor.coordinate is known, can be symbolic",
     "reference.coordinate is known, can be symbolic",

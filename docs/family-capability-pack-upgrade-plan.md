@@ -1,5 +1,8 @@
 # Family Capability Pack 升级方案
 
+新增或修改 Capability Pack、Function 或 Macro 时，请同时遵守
+`docs/capability-authoring-guide.md`。
+
 ## Summary
 
 当前 `SolverFamilySpec` 同时承担了两类职责：
@@ -21,6 +24,16 @@ Global Method Registry
 ```
 
 Family 不再“拥有”所有 method，而是声明本题型需要暴露哪些能力包，以及本题型最关键的几何转化机制。
+
+本方案仍以当前 StepIntent / CandidateResolver / TrialExecutor 链路为主，不直接迁移到函数式编排。若后续引入函数式 Method/Recipe 编排，Capability Pack 应自然演进为 typed capability module：
+
+```text
+method_ids -> functions
+step_recipes -> macros
+method_binding_rules -> adapters / argument_resolvers
+```
+
+因此 Pack 重构要避免把 binding rules 设计成永久中心。短期 Pack 先解决 family 瘦身和候选池治理；长期它也应能承载 FunctionSpec、MacroSpec 和语义参数 adapter。
 
 ## Current Problem
 
@@ -100,12 +113,34 @@ CapabilityPackSpec(
 )
 ```
 
+首版字段沿用当前 runtime 语义，方便无风险迁移。为后续函数式编排预留的长期命名如下：
+
+```python
+CapabilityPackSpec(
+    pack_id="quadratic_core",
+    kind="base",
+    functions=(...),  # method_ids 的 planner-facing 形态
+    macros=(...),     # step_recipes 的 typed macro 形态
+    adapters=(...),   # method_binding_rules 的语义参数解析形态
+    strategy_notes=(...),
+)
+```
+
+Phase 1-4 不要求实现这些长期字段；实现时可以继续使用 `method_ids / step_recipes / method_binding_rules`。但新增设计和命名应尽量让这组映射成立，避免未来从 pack 到 function/macro catalog 时再次重构。
+
 其中：
 
 - `method_ids`：该 pack 暴露的原子能力。
 - `step_recipes`：该 pack 暴露的标准动作。
 - `method_binding_rules`：该 pack 语境下的默认/补充绑定规则，包含 input selector、expansion selector、companion output、prep invocation 等完整配置。
 - `strategy_notes`：可选，给 prompt 合并使用的 pack 级策略提示。
+
+长期对应关系：
+
+- `method_ids` 对应 typed function 暴露边界。
+- `step_recipes` 对应 typed macro 暴露边界。
+- `method_binding_rules` 对应 semantic adapter / argument resolver。它们仍负责把 planner 语义参数编译到 runtime slot，但不应承担数学路线选择。
+- `strategy_notes` 继续作为 pack 级策略提示。
 
 同一个 method 可以被多个 pack 引用，但展开 family 时只注册一次。
 
@@ -311,6 +346,17 @@ LLM 建议使用哪个 recipe/method。
 代码将其作为强 hint，但不是最终裁决。
 ```
 
+### semantic_reads
+
+`semantic_reads` 是函数式编排路线中可提前插入的兼容实验：LLM 不写完整 `type:scope:name` canonical handle，而写 prompt catalog 中展示的 `ref + kind + value_type? + from_step?`，再由 resolver 精确还原成当前 `reads`。
+
+它和 Capability Pack 的关系：
+
+- Pack 决定当前 family 暴露哪些能力和哪些 canonical semantic catalog 项应进入 prompt。
+- `semantic_reads` 只替代 LLM 手写 canonical handle，不改变 pack 展开、method binding、CandidateResolver 或 TrialExecutor。
+- `semantic_reads` 不应混入 Pack Phase 1a/1b 的完成条件；它可以在 Pack 1a 后作为独立实验插入。
+- 旧 `reads` 格式必须继续兼容，直到 recorded fixtures 和真实 LLM 输出稳定迁移。
+
 ## Candidate Resolution
 
 未来 method 变多后，不能让 LLM 在全局 method 池里精确选择，也不能完全不给 LLM 能力菜单。
@@ -333,6 +379,8 @@ LLM 建议使用哪个 recipe/method。
 5. family preferred recipe 优先。
 6. strategy / target 文本只作为低置信度补充信号。
 
+若启用 `semantic_reads`，CandidateResolver 仍消费归一化后的 canonical `reads`；`semantic_reads -> reads` 是进入 validator/resolver 前的兼容解析步骤，不改变候选排序语义。
+
 限制：
 
 - 单 step top-k 控制在 3 到 5。
@@ -344,6 +392,7 @@ LLM 建议使用哪个 recipe/method。
 Prompt 影响：
 
 - Phase 1 保持当前 prompt 形态：`method_catalog` 和 `recipe_catalog` 仍展开为扁平列表，避免一次性改变 DeepSeek 输出分布。
+- 若单独试验 `semantic_reads`，prompt 可以额外展示当前题可引用的 semantic catalog；这属于兼容实验，不改变 pack catalog 的扁平/分组策略。
 - Phase 3 开始可以按 pack 分组展示 catalog，例如“通用二次函数能力”“正方形路径降维能力”“加权路径转化能力”。
 - 分组展示时，mechanism pack 应排在 base pack 前面，帮助 LLM 优先注意本题型最关键的几何机制。
 - 即使 prompt 分组，resolver 的候选池仍来自 pack 展开后的结构化 capability，不靠 prompt 文本分组做执行判断。
@@ -446,6 +495,15 @@ Phase 1 不改 `EntityStateResolver`。
 - Family 展开后的 catalog 与当前 family 直接声明的 catalog 必须一致。
 - 现有测试必须全部通过。
 
+### Optional Interlude: semantic_reads 兼容实验
+
+该步骤来自函数式编排路线，可在 Phase 1a 后插入，也可推迟到 Phase 2 后。它不是 Capability Pack 重构的硬前置条件。
+
+- 新增 `SemanticRef` / `SemanticReadResolver`，将 LLM 的 `semantic_reads` 精确解析为当前 canonical `reads`。
+- Prompt 额外展示当前题的 semantic catalog，但 `method_catalog / recipe_catalog` 保持现状。
+- 不改变 produces schema，不删除 legacy handle resolver，不替代 binding rules。
+- 用 recorded 南开、河西、西青、和平一模、和平二模验证解析结果与旧 `reads` 等价，并记录 `unknown_read_handle`、alias 修正和 repair loop 是否下降。
+
 ### Phase 1b: Binding rules 迁入 pack
 
 - 将通用 method binding 迁到 method default binding 或 base pack。
@@ -460,6 +518,7 @@ Phase 1 不改 `EntityStateResolver`。
 - 给 MethodSpec 增加 `solves / output_types / input_fact_types / domain_tags`。
 - 给 RecipeExecutionSpec 增加或补齐 output type metadata。
 - 删除 resolver 中平行维护的 hard-coded output type override。
+- 为后续 FunctionSpec facade 预留 metadata 来源；Phase 2 仍不要求 LLM 输出 typed function call。
 
 ### Phase 3: CandidateResolver 改为 pack-aware
 
@@ -473,6 +532,7 @@ Phase 1 不改 `EntityStateResolver`。
 - family 只保留 base packs、mechanism packs、preferred recipes、strategy principles、少量 binding override。
 - 新题接入时优先判断是否只是新增 mechanism pack / recipe，而不是新增完整 family。
 - 若需要把 `recipe_hint` 改名为 `capability_hint`，放到 Phase 4 之后作为独立 schema migration，不和 pack 重构混在一起。
+- 若函数式编排验证通过，Phase 4 之后再单独推进 FunctionSpec / MacroSpec / FunctionalPlan，不与 pack 重构混在同一迁移批次。
 
 ## Test Plan
 
@@ -482,6 +542,7 @@ Phase 1 不改 `EntityStateResolver`。
 - Family override 测试：family override 可以覆盖 pack binding，并在 debug/config report 中记录。
 - Prompt 测试：catalog 内容不丢失，且 family strategy 仍进入 prompt。
 - Prompt 分组测试：Phase 3 若启用 pack 分组展示，mechanism pack 排在 base pack 前；Phase 1 保持当前扁平 prompt 不变。
+- semantic_reads 兼容测试（若启用）：semantic ref 解析出的 canonical reads 与 recorded 旧 reads 完全一致；歧义时返回候选列表，不做启发式猜测。
 - Resolver 测试：hint 命中、hint 为空、hint 错误、top-k fallback 都能稳定工作。
 - Binding override 测试：family override 优先于 pack override，pack override 优先于 method default。
 - EntityStateResolver 回归测试：pack 化后实体状态补位行为不变。
@@ -499,3 +560,4 @@ Phase 1 不改 `EntityStateResolver`。
 - `recipe_hint` 字段短期保留；长期若迁移为 `capability_hint`，必须独立完成 schema alias 兼容与 fixture 迁移。
 - Method / recipe 的真实可执行边界仍由 TrialExecutor 和 runtime checks 验证。
 - 能力包是配置组织方式，不改变 canonical ProblemIR、StepIntent schema 或 runtime execution semantics。
+- 函数式编排是后续上层表达方式；Pack 重构只为它预留 `functions / macros / adapters` 的自然落点，不把 FunctionalPlan 作为本方案交付物。

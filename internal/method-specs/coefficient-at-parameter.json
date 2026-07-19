@@ -27,6 +27,7 @@
   "outputs": {
     "coefficient_value": "ParameterValue"
   },
+  "is_pure": true,
   "preconditions": [
     "coefficients 中包含目标 coefficient 或 coefficient 本身就是 parameter"
   ],

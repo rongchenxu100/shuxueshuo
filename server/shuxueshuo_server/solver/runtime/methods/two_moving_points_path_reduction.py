@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from typing import Any, Mapping
+
 from ._common import *
 from ._spec import MethodSpecSource
 
@@ -90,6 +92,12 @@ class TwoMovingPointsPathReductionMethod:
             "replacement_moving_point": second_moving_name,
             "creates_auxiliary_point": False,
             "reason": str(binding_relation.get("description", "")),
+            **_structured_transformation_metadata(
+                original_path=original_path,
+                first_membership=first_membership,
+                second_membership=second_membership,
+                binding_relation=binding_relation,
+            ),
         }
         return StatelessMethodResult(
             method_id=self.method_id,
@@ -182,3 +190,129 @@ SPEC = MethodSpecSource(
     postconditions=('原路径中的两动点线段被替换为题面已有固定点到第二动点的等长线段',),
     trace_template=(),
 )
+
+
+def _structured_transformation_metadata(
+    *,
+    original_path: Mapping[str, Any],
+    first_membership: Mapping[str, Any],
+    second_membership: Mapping[str, Any],
+    binding_relation: Mapping[str, Any],
+) -> dict[str, Any]:
+    original_terms = _canonical_path_terms(original_path.get("terms"))
+    first_moving = _canonical_point_ref(first_membership.get("point_ref"))
+    second_moving = _canonical_point_ref(second_membership.get("point_ref"))
+    relation_terms = tuple(
+        item
+        for item in (
+            _canonical_scaled_term(binding_relation.get("left_term")),
+            _canonical_scaled_term(binding_relation.get("right_term")),
+        )
+        if item is not None
+    )
+    if (
+        len(original_terms) != 2
+        or first_moving is None
+        or second_moving is None
+        or len(relation_terms) != 2
+    ):
+        return {}
+    first_relation = next(
+        (
+            item
+            for item in relation_terms
+            if first_moving in item["segment"]
+        ),
+        None,
+    )
+    if first_relation is None:
+        return {}
+    first_fixed = next(
+        endpoint
+        for endpoint in first_relation["segment"]
+        if endpoint != first_moving
+    )
+    replaced_index = next(
+        (
+            index
+            for index, segment in enumerate(original_terms)
+            if set(segment) == {first_moving, second_moving}
+        ),
+        None,
+    )
+    if replaced_index is None:
+        return {}
+    transformed_terms = list(original_terms)
+    transformed_terms[replaced_index] = (first_fixed, second_moving)
+    fixed_endpoints = tuple(
+        segment[0] if segment[1] == second_moving else segment[1]
+        for segment in transformed_terms
+        if second_moving in segment
+    )
+    if len(fixed_endpoints) != 2:
+        return {}
+    source_conditions = tuple(
+        item
+        for item in (
+            original_path.get("condition_ref"),
+            first_membership.get("condition_ref"),
+            second_membership.get("condition_ref"),
+            binding_relation.get("condition_ref"),
+        )
+        if isinstance(item, str) and item.startswith("fact:")
+    )
+    moving_locus_endpoints = _canonical_path_terms(
+        [second_membership.get("segment_endpoint_refs")]
+    )
+    return {
+        "original_terms": [list(item) for item in original_terms],
+        "transformed_terms": [list(item) for item in transformed_terms],
+        "moving_point_ref": second_moving,
+        "fixed_endpoint_refs": list(fixed_endpoints),
+        "moving_locus_condition_ref": second_membership.get("condition_ref"),
+        "moving_locus_segment_ref": second_membership.get("segment_ref"),
+        "moving_locus_endpoint_refs": (
+            list(moving_locus_endpoints[0])
+            if moving_locus_endpoints
+            else []
+        ),
+        "equality_witnesses": [
+            {
+                "left_segment": [first_moving, second_moving],
+                "right_segment": [first_fixed, second_moving],
+                "source_condition_refs": list(source_conditions),
+            }
+        ],
+        "source_condition_refs": list(source_conditions),
+    }
+
+
+def _canonical_scaled_term(value: Any) -> dict[str, Any] | None:
+    if not isinstance(value, Mapping):
+        return None
+    segment = _canonical_path_terms([value.get("segment")])
+    if not segment:
+        return None
+    return {
+        "scale": str(value.get("scale", "1")),
+        "segment": segment[0],
+    }
+
+
+def _canonical_path_terms(value: Any) -> tuple[tuple[str, str], ...]:
+    if not isinstance(value, list):
+        return ()
+    result: list[tuple[str, str]] = []
+    for item in value:
+        if (
+            not isinstance(item, (list, tuple))
+            or len(item) != 2
+            or not all(_canonical_point_ref(child) for child in item)
+        ):
+            return ()
+        result.append((str(item[0]), str(item[1])))
+    return tuple(result)
+
+
+def _canonical_point_ref(value: Any) -> str | None:
+    return value if isinstance(value, str) and value.startswith("point:") else None

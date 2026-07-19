@@ -1,0 +1,98 @@
+{
+  "format": "functional_plan/v1",
+  "scopes": [
+    {
+      "scope_id": "example",
+      "label": "机制示例",
+      "calls": [
+        {
+          "call_id": "transform_weighted_path",
+          "capability_id": "weighted_axis_path_triangle_transform",
+          "args": {
+            "minimum_value": {
+              "ref": "minimum_condition",
+              "kind": "fact"
+            },
+            "fixed_point": {
+              "ref": "fixed_point",
+              "kind": "point"
+            },
+            "moving_point": {
+              "ref": "moving_point",
+              "kind": "point"
+            }
+          },
+          "return_bindings": {},
+          "strategy": "用辅助直角三角形把加权路径转为普通折线。",
+          "reason": "先产生等价路径和辅助点轨迹。"
+        },
+        {
+          "call_id": "derive_minimum_expression",
+          "capability_id": "linked_broken_path_minimum_expression",
+          "args": {
+            "path_transformation": {
+              "from_call": "transform_weighted_path",
+              "return": "path_transformation"
+            },
+            "auxiliary_locus": {
+              "from_call": "transform_weighted_path",
+              "return": "auxiliary_locus"
+            },
+            "fixed_point": {
+              "ref": "fixed_point",
+              "kind": "point"
+            },
+            "curve_point": {
+              "ref": "curve_point",
+              "kind": "point"
+            },
+            "moving_point": {
+              "ref": "moving_point",
+              "kind": "point"
+            },
+            "auxiliary_point": {
+              "from_call": "transform_weighted_path",
+              "return": "auxiliary_point"
+            },
+            "dynamic_constraint": {
+              "ref": "dynamic_constraint",
+              "kind": "fact"
+            }
+          },
+          "return_bindings": {},
+          "return_expectations": {
+            "minimum_expression": "open_expression"
+          },
+          "strategy": "拉直联动折线得到关于主参数的最小值表达式。",
+          "reason": "最小值条件在表达式建立后用于反求参数。"
+        },
+        {
+          "call_id": "solve_parameter",
+          "capability_id": "parameter_from_expression_value",
+          "args": {
+            "expression": {
+              "from_call": "derive_minimum_expression",
+              "return": "minimum_expression"
+            },
+            "minimum_value": {
+              "ref": "minimum_condition",
+              "kind": "fact"
+            },
+            "parameter": {
+              "ref": "parameter",
+              "kind": "symbol"
+            }
+          },
+          "return_bindings": {
+            "parameter_value": {
+              "ref": "parameter_answer",
+              "kind": "answer"
+            }
+          },
+          "strategy": "令最小值表达式等于给定值并按范围取解。",
+          "reason": "将求得的参数值绑定答案目标。"
+        }
+      ]
+    }
+  ]
+}

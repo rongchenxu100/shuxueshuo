@@ -25,6 +25,7 @@ from shuxueshuo_server.solver.runtime.quadratic_path_planner import (
 
 
 NANKAI_FIXTURE = "../internal/solver-fixtures/tj-2026-nankai-yimo-25.json"
+HEPING_FIXTURE = "../internal/solver-fixtures/tj-2026-heping-yimo-25.json"
 
 
 @pytest.fixture()
@@ -301,6 +302,29 @@ class TestContextBuilderNankaiPoints:
         ).value
 
         assert ref.scope_id == "problem"
+
+
+class TestContextBuilderHepingPoints:
+    """和平一模 fixture 的点作用域。"""
+
+    def test_canonical_subquestion_point_scope_preserves_target_constraints(
+        self,
+        kernel: SympyKernel,
+    ) -> None:
+        """子问专属 PointRef 应保留在 canonical scope，避免丢失定义约束。"""
+        context = ContextBuilder(kernel).build(load_problem_ir(HEPING_FIXTURE))
+
+        e_ref = context.read_path(
+            "$subquestion.i_2.points.E",
+            from_scope_id="i_2",
+            expected_type="PointRef",
+        ).value
+
+        assert isinstance(e_ref, PointRef)
+        assert e_ref.scope_id == "i_2"
+        assert e_ref.definition["definition"] == "point_on_curve_with_x_coordinate"
+        assert e_ref.definition["x_range"] == ["-1", "0"]
+        assert "E" not in context.get_scope("i").container("points")
 
 
 class TestContextBuilderUsesInjectedKernel:

@@ -38,5 +38,6 @@
   },
   "outputs": {
     "intersection": "Point"
-  }
+  },
+  "is_pure": true
 }

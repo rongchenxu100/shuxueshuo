@@ -16,17 +16,45 @@ from shuxueshuo_server.solver.family.models import (
     MethodPrepInvocationSpec,
     RecipeExecutionSpec as FamilyRecipeExecutionSpec,
     SolverFamilySpec,
+    StateIdentityPolicy,
+    StateWriteMode,
 )
 from shuxueshuo_server.solver.problem_models import QuestionGoal
+from shuxueshuo_server.solver.state_semantics import (
+    dependent_role_object_ref,
+    derived_role_object_ref,
+    split_runtime_types,
+    state_kind_for_runtime_type,
+)
+from shuxueshuo_server.solver.runtime.auxiliary_points import fresh_auxiliary_point_handle
 from shuxueshuo_server.solver.runtime.context import ContextBuilder, RuntimeContext
+from shuxueshuo_server.solver.runtime.condition_roles import (
+    resolve_read_closed_right_angle_inputs,
+)
 from shuxueshuo_server.solver.runtime._planner_helpers import single_invocation_step
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
+from shuxueshuo_server.solver.runtime.macro_specs import (
+    MacroAdapterRegistry,
+    MacroReturnSpec,
+    MacroSpecRegistry,
+)
+from shuxueshuo_server.solver.runtime.function_specs import (
+    FunctionReturnSpec,
+    FunctionSpecRegistry,
+)
 from shuxueshuo_server.solver.runtime.models import (
     ContextPath,
     MethodInvocation,
     PlannerOutput,
     StepGoal,
     StepPlan,
+)
+from shuxueshuo_server.solver.runtime.output_type_inference import (
+    produced_semantic_role,
+)
+from shuxueshuo_server.solver.runtime.path_term_parsing import (
+    PathTermParseError,
+    parse_path_terms,
 )
 from shuxueshuo_server.solver.runtime.handle_registry import (
     CanonicalHandleRegistry,
@@ -35,18 +63,33 @@ from shuxueshuo_server.solver.runtime.handle_registry import (
     _semantic_name,
 )
 from shuxueshuo_server.solver.runtime.strategy_models import (
+    CreatedEntity,
+    ProjectedStateWrite,
     ProducedFact,
     StepIntent,
     StepIntentAcceptedStep,
     StepIntentDraft,
     StepIntentExecutionBlocker,
     StepIntentExecutionDiagnostic,
+    StepIntentMacroBindingEvent,
     StepIntentPlannerInsight,
+    StepIntentResolutionStepReport,
+    StepIntentScope,
     StepIntentSkippedStep,
+    StateWriteProvenance,
     StrategyDraftValidationError,
     answer_output_type_compatible,
 )
+from shuxueshuo_server.solver.runtime.straightening_metadata import (
+    STRAIGHTENING_ENDPOINT_POINT_1,
+    STRAIGHTENING_ENDPOINT_POINT_2,
+    collect_straightening_endpoint_handles,
+    is_straightening_endpoint_name,
+)
 from shuxueshuo_server.solver.runtime.strategy_normalizer import StepIntentNormalizer
+from shuxueshuo_server.solver.runtime.state_dependency_graph import (
+    drop_dead_pure_function_steps,
+)
 from shuxueshuo_server.solver.runtime.strategy_preflight import StepIntentPreflightAnalyzer
 from shuxueshuo_server.solver.runtime.strategy_resolver import (
     StepIntentCandidateResolver,
@@ -66,7 +109,6 @@ from shuxueshuo_server.solver.runtime.binding_rules import (
     _answer_scope_from_step,
     _created_point_handle,
     _curve_candidate_target_handle,
-    _first_pointref_handle,
     _moving_membership_for_straightening,
     _parameter_value_handle,
     _path_for_first_type,
@@ -76,10 +118,17 @@ from shuxueshuo_server.solver.runtime.binding_rules import (
     _length_endpoint_handles,
     _other_endpoint_handle,
     _payload_handle,
-    _right_angle_roles,
     _segment_endpoints_from_entity_payload,
     _straightening_point_roles,
     _weighted_auxiliary_point_handle_for_step,
+    parameter_substitution_pairs_from_reads,
+)
+from shuxueshuo_server.solver.runtime.canonical_draft_finalizer import (
+    CanonicalDraftFinalizer,
+)
+from shuxueshuo_server.solver.runtime.scalar_result_closure import (
+    ScalarResultClosureRegistry,
+    close_scalar_plan_output,
 )
 
 RecipeCompileStrategyFn = Callable[
@@ -95,6 +144,7 @@ class _CompiledStep:
     plan: StepPlan
     declarations: tuple[Any, ...] = ()
     registrations: tuple[RuntimeHandleBinding, ...] = ()
+    state_write_provenance: tuple[StateWriteProvenance, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -238,6 +288,8 @@ class RecipeTrialExecutor:
         handle_registry: CanonicalHandleRegistry,
         context: RuntimeContext,
         question_goals: list[QuestionGoal] | tuple[QuestionGoal, ...],
+        preserve_call_graph: bool = False,
+        projected_state_writes: tuple[ProjectedStateWrite, ...] = (),
     ) -> PlannerOutput:
         """根据 StepIntent 生成 PlannerOutput。"""
         output, diagnostic, _effective_draft = self.diagnose(
@@ -247,6 +299,8 @@ class RecipeTrialExecutor:
             handle_registry=handle_registry,
             context=context,
             question_goals=question_goals,
+            preserve_call_graph=preserve_call_graph,
+            projected_state_writes=projected_state_writes,
         )
         if output is not None:
             return output
@@ -270,13 +324,26 @@ class RecipeTrialExecutor:
         handle_registry: CanonicalHandleRegistry,
         context: RuntimeContext,
         question_goals: list[QuestionGoal] | tuple[QuestionGoal, ...],
+        _allow_dead_step_recompile: bool = True,
+        allow_shared_derivation_scopes: bool = False,
+        preserve_call_graph: bool = False,
+        projected_state_writes: tuple[ProjectedStateWrite, ...] = (),
     ) -> tuple[PlannerOutput | None, StepIntentExecutionDiagnostic, StepIntentDraft]:
         """编译 StepIntent，并返回 effective draft 的执行诊断。"""
-        draft, _normalization_report = StepIntentNormalizer().normalize(
+        if not preserve_call_graph:
+            draft, _normalization_report = StepIntentNormalizer().normalize(
+                draft,
+                family_spec=family_spec,
+                question_goals=question_goals,
+                handle_registry=handle_registry,
+            )
+        draft, _finalization_report = CanonicalDraftFinalizer().finalize(
             draft,
             family_spec=family_spec,
             question_goals=question_goals,
             handle_registry=handle_registry,
+            allow_shared_derivation_scopes=allow_shared_derivation_scopes,
+            projected_state_writes=projected_state_writes,
         )
         resolution_report = StepIntentCandidateResolver().resolve(
             draft,
@@ -296,6 +363,8 @@ class RecipeTrialExecutor:
         )
         recipe_specs = self.recipe_specs or RecipeExecutionSpecRegistry.from_family_spec(family_spec)
         binding_rules = self.binding_rules or MethodBindingRuleRegistry.from_family_spec(family_spec)
+        macro_specs = MacroSpecRegistry.from_family_spec(family_spec, method_specs)
+        function_specs = FunctionSpecRegistry.from_family_spec(family_spec, method_specs)
         compiler = _RecipePlanCompiler(
             context=context,
             index=index,
@@ -303,11 +372,60 @@ class RecipeTrialExecutor:
             method_specs=method_specs,
             recipe_specs=recipe_specs,
             binding_rules=binding_rules,
+            macro_adapters=MacroAdapterRegistry(
+                macro_specs,
+                handle_registry=handle_registry,
+            ),
+            function_specs=function_specs,
+            projected_state_writes=projected_state_writes,
             recipe_compilers=self.recipe_compilers,
         )
-        output, diagnostic = compiler.diagnose(draft)
-        diagnostic = replace(diagnostic, preflight_issues=preflight_issues)
-        return output, diagnostic, draft
+        output, diagnostic, effective_draft = compiler.diagnose(draft)
+        diagnostic = replace(
+            diagnostic,
+            preflight_issues=preflight_issues,
+            function_binding_events=tuple(binding_rules.function_binding_events),
+            macro_binding_events=tuple(compiler.macro_binding_events),
+            state_write_provenance=tuple(compiler.state_write_provenance),
+        )
+        CanonicalDraftFinalizer().validate_state_write_provenance(
+            diagnostic.state_write_provenance
+        )
+        if output is not None and not preserve_call_graph:
+            pruned, _dead_step_actions = drop_dead_pure_function_steps(
+                effective_draft,
+                family_spec=family_spec,
+                method_specs=method_specs,
+                implicit_dependencies_by_step=_runtime_dependencies_by_step(
+                    effective_draft,
+                    output,
+                    compiler.index,
+                ),
+                semantic_root_handles=_planner_insight_root_handles(diagnostic),
+            )
+            if pruned.to_payload() != effective_draft.to_payload():
+                if not _allow_dead_step_recompile:
+                    raise StrategyDraftValidationError(
+                        "dead_pure_function_pruning_did_not_converge"
+                    )
+                # Recompile the smaller canonical draft so replay and runtime
+                # consume exactly the same plans and diagnostics. The graph
+                # drops all currently dead pure steps together, so one pass
+                # must be sufficient; the guard prevents accidental recursion
+                # if that invariant changes.
+                return self.diagnose(
+                    pruned,
+                    family_spec=family_spec,
+                    method_specs=method_specs,
+                    handle_registry=handle_registry,
+                    context=context,
+                    question_goals=question_goals,
+                    _allow_dead_step_recompile=False,
+                    allow_shared_derivation_scopes=allow_shared_derivation_scopes,
+                    preserve_call_graph=preserve_call_graph,
+                    projected_state_writes=projected_state_writes,
+                )
+        return output, diagnostic, effective_draft
 
 class _RecipePlanCompiler:
     """StepIntent -> StepPlan 的通用编译器。"""
@@ -321,6 +439,9 @@ class _RecipePlanCompiler:
         method_specs: MethodSpecRegistry,
         recipe_specs: RecipeExecutionSpecRegistry,
         binding_rules: MethodBindingRuleRegistry,
+        macro_adapters: MacroAdapterRegistry,
+        function_specs: FunctionSpecRegistry,
+        projected_state_writes: tuple[ProjectedStateWrite, ...],
         recipe_compilers: Mapping[str, RecipeCompileStrategyFn],
     ) -> None:
         self.context = context
@@ -329,7 +450,14 @@ class _RecipePlanCompiler:
         self.method_specs = method_specs
         self.recipe_specs = recipe_specs
         self.binding_rules = binding_rules
+        self.macro_adapters = macro_adapters
+        self.function_specs = function_specs
+        self.projected_state_writes = tuple(projected_state_writes)
+        self.scalar_closures = ScalarResultClosureRegistry(function_specs)
         self.recipe_compilers = dict(recipe_compilers)
+        self.macro_binding_events: list[StepIntentMacroBindingEvent] = []
+        self.state_write_provenance: list[StateWriteProvenance] = []
+        self.index.state_write_provenance = self.state_write_provenance
         self.step_reports = {
             report.step_id: report for report in resolution_report.step_reports
         }
@@ -340,7 +468,7 @@ class _RecipePlanCompiler:
 
     def compile(self, draft: StepIntentDraft) -> PlannerOutput:
         """按 LLM 输出顺序编译并 dry-run prefix。"""
-        output, diagnostic = self.diagnose(draft)
+        output, diagnostic, _effective_draft = self.diagnose(draft)
         if output is not None:
             return output
         blocker = diagnostic.first_blocker
@@ -357,7 +485,7 @@ class _RecipePlanCompiler:
     def diagnose(
         self,
         draft: StepIntentDraft,
-    ) -> tuple[PlannerOutput | None, StepIntentExecutionDiagnostic]:
+    ) -> tuple[PlannerOutput | None, StepIntentExecutionDiagnostic, StepIntentDraft]:
         """按顺序编译并记录 accepted prefix 与首个 runtime blocker。"""
         plans: list[StepPlan] = []
         declarations: list[Any] = []
@@ -365,7 +493,9 @@ class _RecipePlanCompiler:
         accepted: list[StepIntentAcceptedStep] = []
         planner_insights: list[StepIntentPlannerInsight] = []
         steps = list(draft.steps)
-        for index, step in enumerate(steps):
+        index = 0
+        while index < len(steps):
+            step = steps[index]
             candidate_errors: list[str] = []
             capability_ids = self._capability_ids_for_step(step)
             if not capability_ids:
@@ -373,6 +503,7 @@ class _RecipePlanCompiler:
                 candidate_errors = list(report.errors) if report is not None else [
                     "no_executable_candidate"
                 ]
+                candidate_errors.extend(_candidate_warnings_for_report(report))
                 blocker = StepIntentExecutionBlocker(
                     step_id=step.step_id,
                     scope_id=step.scope_id,
@@ -382,6 +513,8 @@ class _RecipePlanCompiler:
                     capability_errors=tuple(candidate_errors),
                     capability_id=_execution_blocker_capability_id(candidate_errors),
                     missing_runtime_type=_execution_blocker_missing_runtime_type(candidate_errors),
+                    details=_execution_blocker_details(candidate_errors),
+                    retryable=_execution_blocker_code(candidate_errors) != "missing_binding_rule",
                 )
                 skipped = tuple(
                     StepIntentSkippedStep(
@@ -391,16 +524,21 @@ class _RecipePlanCompiler:
                     )
                     for later in steps[index + 1:]
                 )
-                return None, StepIntentExecutionDiagnostic(
-                    ok=False,
-                    accepted_prefix=tuple(accepted),
-                    applied_fills=tuple(self.index.applied_fills),
-                    planner_insights=tuple(planner_insights),
-                    preflight_issues=(),
-                    blockers=(blocker,),
-                    skipped_steps=skipped,
-                    candidate_errors=tuple(candidate_errors),
+                return (
+                    None,
+                    StepIntentExecutionDiagnostic(
+                        ok=False,
+                        accepted_prefix=tuple(accepted),
+                        applied_fills=tuple(self.index.applied_fills),
+                        planner_insights=tuple(planner_insights),
+                        preflight_issues=(),
+                        blockers=(blocker,),
+                        skipped_steps=skipped,
+                        candidate_errors=tuple(candidate_errors),
+                    ),
+                    _draft_with_steps(draft, steps),
                 )
+            accepted_current_step = False
             for capability_id in capability_ids:
                 try:
                     compiled = self._compile_with_capability(step, capability_id)
@@ -409,10 +547,24 @@ class _RecipePlanCompiler:
                         continue
                     trial_declarations = _unique_declarations([*declarations, *compiled.declarations])
                     trial_context = self._dry_run_prefix(trial_declarations, [*plans, compiled.plan])
+                    compiled = replace(
+                        compiled,
+                        state_write_provenance=_enrich_write_provenance_runtime_symbols(
+                            compiled.state_write_provenance,
+                            registrations=compiled.registrations,
+                            context=trial_context,
+                        ),
+                    )
+                    # Binding selectors and constraint analyzers for later
+                    # steps must observe the accepted prefix's runtime state.
+                    self.index.context = trial_context
                     declarations = trial_declarations
                     plans.append(compiled.plan)
                     seen_plan_keys.add(key)
                     self._apply_registrations(compiled)
+                    self.state_write_provenance.extend(
+                        compiled.state_write_provenance
+                    )
                     planner_insights.extend(
                         PlannerInsightExtractorRegistry().extract(
                             step=step,
@@ -435,6 +587,7 @@ class _RecipePlanCompiler:
                             ),
                         )
                     )
+                    accepted_current_step = True
                     break
                 except Exception as exc:
                     candidate_errors.append(
@@ -446,26 +599,40 @@ class _RecipePlanCompiler:
                             handle_registry=self.index.handle_registry,
                         )
                     )
-            else:
-                blocker = StepIntentExecutionBlocker(
-                    step_id=step.step_id,
-                    scope_id=step.scope_id,
-                    stage="recipe_trial",
-                    code=_execution_blocker_code(candidate_errors),
-                    message=_execution_blocker_message(step.step_id, candidate_errors),
-                    capability_errors=tuple(candidate_errors),
-                    capability_id=_execution_blocker_capability_id(candidate_errors),
-                    missing_runtime_type=_execution_blocker_missing_runtime_type(candidate_errors),
-                )
-                skipped = tuple(
-                    StepIntentSkippedStep(
-                        step_id=later.step_id,
-                        scope_id=later.scope_id,
-                        reason=f"skipped_due_to_prefix_blocker:{step.step_id}",
+            if accepted_current_step:
+                index += 1
+                continue
+
+            blocker = StepIntentExecutionBlocker(
+                step_id=step.step_id,
+                scope_id=step.scope_id,
+                stage="recipe_trial",
+                code=_execution_blocker_code(candidate_errors),
+                message=_execution_blocker_message(step.step_id, candidate_errors),
+                capability_errors=tuple(
+                    _unique_ordered(
+                        [
+                            *candidate_errors,
+                            *self._candidate_warnings_for_step(step),
+                        ]
                     )
-                    for later in steps[index + 1:]
+                ),
+                capability_id=_execution_blocker_capability_id(candidate_errors),
+                missing_runtime_type=_execution_blocker_missing_runtime_type(candidate_errors),
+                details=_execution_blocker_details(candidate_errors),
+                retryable=_execution_blocker_code(candidate_errors) != "missing_binding_rule",
+            )
+            skipped = tuple(
+                StepIntentSkippedStep(
+                    step_id=later.step_id,
+                    scope_id=later.scope_id,
+                    reason=f"skipped_due_to_prefix_blocker:{step.step_id}",
                 )
-                return None, StepIntentExecutionDiagnostic(
+                for later in steps[index + 1:]
+            )
+            return (
+                None,
+                StepIntentExecutionDiagnostic(
                     ok=False,
                     accepted_prefix=tuple(accepted),
                     applied_fills=tuple(self.index.applied_fills),
@@ -473,16 +640,22 @@ class _RecipePlanCompiler:
                     preflight_issues=(),
                     blockers=(blocker,),
                     skipped_steps=skipped,
-                )
-        return PlannerOutput(
-            context_declarations=declarations,
-            step_plans=plans,
-        ), StepIntentExecutionDiagnostic(
-            ok=True,
-            accepted_prefix=tuple(accepted),
-            applied_fills=tuple(self.index.applied_fills),
-            planner_insights=tuple(planner_insights),
-            preflight_issues=(),
+                ),
+                _draft_with_steps(draft, steps),
+            )
+        return (
+            PlannerOutput(
+                context_declarations=declarations,
+                step_plans=plans,
+            ),
+            StepIntentExecutionDiagnostic(
+                ok=True,
+                accepted_prefix=tuple(accepted),
+                applied_fills=tuple(self.index.applied_fills),
+                planner_insights=tuple(planner_insights),
+                preflight_issues=(),
+            ),
+            _draft_with_steps(draft, steps),
         )
 
     def _capability_ids_for_step(self, step: StepIntent) -> list[str]:
@@ -497,21 +670,154 @@ class _RecipePlanCompiler:
             candidates.extend(candidate.capability_id for candidate in report.candidates if candidate.ok)
         return _unique_ordered(candidates)
 
+    def _candidate_warnings_for_step(self, step: StepIntent) -> list[str]:
+        """返回 resolver 生成的 LLM-facing warning，供 runtime blocker 兼容携带。"""
+        return _candidate_warnings_for_report(self.step_reports.get(step.step_id))
+
     def _compile_with_capability(self, step: StepIntent, capability_id: str) -> _CompiledStep:
         """按 recipe 或 method capability 编译单个 StepIntent。"""
         recipe = self.recipe_specs.get(capability_id)
         if recipe is not None:
-            return self._compile_recipe(step, recipe)
-        return self._compile_method(step, capability_id)
+            compiled = self._compile_recipe(step, recipe)
+        else:
+            compiled = self._compile_method(step, capability_id)
+        return self._apply_declared_scalar_closures(
+            compiled,
+            step=step,
+            capability_id=capability_id,
+        )
+
+    def _apply_declared_scalar_closures(
+        self,
+        compiled: _CompiledStep,
+        *,
+        step: StepIntent,
+        capability_id: str,
+    ) -> _CompiledStep:
+        """Close dual-form scalar answers using explicitly read parameter states."""
+        writes = tuple(
+            item
+            for item in self.projected_state_writes
+            if item.step_id == step.step_id
+            and item.expected_result_form == "closed_value"
+        )
+        if not writes:
+            return compiled
+        parameter_pairs = parameter_substitution_pairs_from_reads(step, self.index)
+        if not parameter_pairs:
+            return compiled
+        plan = compiled.plan
+        for write in writes:
+            result = self._scalar_return_spec(
+                capability_id,
+                write.return_name,
+            )
+            if result is None or result.scalar_result_form is None:
+                continue
+            if "closed_value" not in result.scalar_result_form.possible_forms:
+                continue
+            registration = next(
+                (
+                    item
+                    for item in compiled.registrations
+                    if item.handle == write.produced_handle
+                ),
+                None,
+            )
+            if registration is None:
+                raise StrategyDraftValidationError(
+                    "planner_configuration_error: scalar return registration "
+                    f"missing: step={step.step_id}, return={write.return_name}, "
+                    f"handle={write.produced_handle}"
+                )
+            plan = close_scalar_plan_output(
+                plan,
+                target_path=registration.path,
+                runtime_type=registration.value_type,
+                parameter_pairs=parameter_pairs,
+                registry=self.scalar_closures,
+                return_name=write.return_name or result.name,
+            )
+        return replace(compiled, plan=plan)
+
+    def _scalar_return_spec(
+        self,
+        capability_id: str,
+        return_name: str | None,
+    ) -> FunctionReturnSpec | MacroReturnSpec | None:
+        if return_name is None:
+            return None
+        function = self.function_specs.get(capability_id)
+        if function is not None:
+            return next(
+                (item for item in function.returns if item.name == return_name),
+                None,
+            )
+        macro = self.macro_adapters.specs.get(capability_id)
+        if macro is None:
+            return None
+        return next(
+            (item for item in macro.returns if item.name == return_name),
+            None,
+        )
 
     def _compile_recipe(self, step: StepIntent, recipe: FamilyRecipeExecutionSpec) -> _CompiledStep:
         """编译 recipe。"""
+        macro_adapters = getattr(self, "macro_adapters", None)
+        declared_evidence_roles: tuple[str, ...] = ()
+        return_bindings: tuple[tuple[ProducedFact, MacroReturnSpec], ...] = ()
+        if macro_adapters is not None:
+            try:
+                macro = macro_adapters.validate(recipe.recipe_id, step)
+                declared_evidence_roles = tuple(
+                    _unique_ordered(
+                        item.semantic_role or item.name
+                        for item in macro.returns
+                        if item.goal_evidence_tags
+                    )
+                )
+                return_bindings = macro_adapters.return_bindings(
+                    recipe.recipe_id,
+                    step,
+                )
+                self.macro_binding_events.append(
+                    StepIntentMacroBindingEvent(
+                        step_id=step.step_id,
+                        scope_id=step.scope_id,
+                        recipe_id=recipe.recipe_id,
+                        macro_id=macro.macro_id,
+                        status="success",
+                    )
+                )
+            except StrategyDraftValidationError as exc:
+                self.macro_binding_events.append(
+                    StepIntentMacroBindingEvent(
+                        step_id=step.step_id,
+                        scope_id=step.scope_id,
+                        recipe_id=recipe.recipe_id,
+                        macro_id=recipe.recipe_id,
+                        status="failure",
+                        errors=(str(exc),),
+                    )
+                )
+                raise
         fn = self.recipe_compilers.get(recipe.execution_strategy)
         if fn is None:
             raise StrategyDraftValidationError(
                 f"recipe_execution_strategy_missing: {recipe.recipe_id}:{recipe.execution_strategy}"
             )
-        return fn(self, step, recipe)
+        compiled = fn(self, step, recipe)
+        return replace(
+            compiled,
+            state_write_provenance=_macro_write_provenance(
+                step,
+                recipe_id=recipe.recipe_id,
+                bindings=return_bindings,
+                declared_evidence_roles=declared_evidence_roles,
+                index=self.index,
+                prior=tuple(self.state_write_provenance),
+            ),
+        )
 
     def _compile_method(self, step: StepIntent, method_id: str) -> _CompiledStep:
         """编译单 method step。"""
@@ -536,6 +842,8 @@ class _RecipePlanCompiler:
             spec.outputs,
             self.index,
             self.binding_rules,
+            input_bindings=inputs,
+            input_specs=spec.inputs,
         )
         main_promote = _promote_outputs_for_step(
             step,
@@ -544,6 +852,9 @@ class _RecipePlanCompiler:
             spec.outputs,
             self.index,
             self.binding_rules,
+            point_transition=_function_writes_point_transition(
+                self.function_specs.get(method_id)
+            ),
         )
         promote = {**(prep.promote or {}), **main_promote}
         plan = single_invocation_step(
@@ -556,6 +867,13 @@ class _RecipePlanCompiler:
             goal_type=step.goal_type,
             target_path=next(iter(main_promote.values())),
         )
+        if spec.plan_transformer is not None:
+            plan = _apply_method_plan_transformer(
+                spec.plan_transformer,
+                plan=plan,
+                step=step,
+                index=self.index,
+            )
         if prep.invocations:
             plan = StepPlan(
                 step_id=plan.step_id,
@@ -565,17 +883,17 @@ class _RecipePlanCompiler:
                 expected_outputs=plan.expected_outputs,
                 promote_outputs=plan.promote_outputs,
             )
+        produced_registrations = _produced_registrations(
+            step,
+            method_id,
+            promote,
+            self.index,
+        )
         registrations = [
             RuntimeHandleBinding(handle, path, spec.outputs[output_name], f"step:{step.step_id}")
-            for handle, output_name, path in _produced_registrations(
-                step,
-                method_id,
-                promote,
-                self.index,
-            )
+            for handle, output_name, path in produced_registrations
         ]
-        registrations.extend(
-            _companion_registrations_for_step(
+        companion_registrations = _companion_registrations_for_step(
                 step,
                 method_id,
                 outputs,
@@ -584,7 +902,7 @@ class _RecipePlanCompiler:
                 self.index,
                 self.binding_rules,
             )
-        )
+        registrations.extend(companion_registrations)
         for created in step.creates:
             binding = self.index.bindings.get(created.handle)
             if created.entity_type == "point" and binding is not None and binding.path in promote.values():
@@ -601,22 +919,42 @@ class _RecipePlanCompiler:
             for key, declaration in self.index.declarations.items()
             if key not in declaration_keys_before
         )
-        return _CompiledStep(plan=plan, declarations=declarations, registrations=tuple(registrations))
+        return _CompiledStep(
+            plan=plan,
+            declarations=declarations,
+            registrations=tuple(registrations),
+            state_write_provenance=_function_write_provenance(
+                step,
+                method_id=method_id,
+                plan=plan,
+                registrations=produced_registrations,
+                companion_registrations=companion_registrations,
+                function_specs=self.function_specs,
+                index=self.index,
+                prior=tuple(self.state_write_provenance),
+            ),
+        )
 
     def _compile_right_angle_recipe(self, step: StepIntent) -> _CompiledStep:
         """编译“直角等腰候选 + 约束筛选” recipe。"""
-        anchor, reference, target = _right_angle_roles(step, self.index)
+        inputs = resolve_read_closed_right_angle_inputs(step, self.index)
         candidates = _temp(step.step_id, "candidates")
         selected = _temp(step.step_id, "selected_point")
-        target_path = self.index.path_for(target, expected_type="PointRef")
+        target_path = self.index.path_for(inputs.target, expected_type="PointRef")
         invocations = [
             MethodInvocation(
                 invocation_id=f"{step.step_id}.right_angle_equal_length_candidates",
                 method_id="right_angle_equal_length_candidates",
                 scope=step.step_id,
                 inputs={
-                    "anchor": self.index.path_for(anchor, expected_type="Point"),
-                    "reference": self.index.path_for(reference, expected_type="Point"),
+                    "anchor": self.index.path_for(
+                        inputs.anchor,
+                        expected_type="Point",
+                    ),
+                    "reference": self.index.path_for(
+                        inputs.reference,
+                        expected_type="Point",
+                    ),
                     "target": target_path,
                 },
                 outputs={"candidates": candidates},
@@ -629,11 +967,17 @@ class _RecipePlanCompiler:
                     "candidates": candidates,
                     "target": target_path,
                     "quadrant": self.index.path_for(
-                        self.index.fact_handle_by_type("orientation_constraint", step=step),
+                        inputs.orientation,
                         expected_type="OrientationHint",
                     ),
-                    "parameter": self.index.parameter_symbol_path(),
-                    "parameter_constraint": self.index.parameter_constraint_path(),
+                    "parameter": self.index.path_for(
+                        inputs.parameter,
+                        expected_type="Symbol",
+                    ),
+                    "parameter_constraint": self.index.path_for(
+                        inputs.parameter_constraint,
+                        expected_type="Constraint",
+                    ),
                 },
                 outputs={"selected_point": selected},
             ),
@@ -644,9 +988,9 @@ class _RecipePlanCompiler:
                 goal_id=f"{step.goal_type}:{step.step_id}",
                 type=step.goal_type,
                 target_path=target_path,
-                scope_id=_handle_scope(target),
+                scope_id=_handle_scope(inputs.target),
             ),
-            scope=_handle_scope(target),
+            scope=_handle_scope(inputs.target),
             invocations=invocations,
             expected_outputs=[target_path],
             promote_outputs={selected: target_path},
@@ -666,25 +1010,100 @@ class _RecipePlanCompiler:
             declarations.append(self.index.declarations[auxiliary_handle.handle])
             auxiliary_path = self.index.path_for(auxiliary_handle.handle, expected_type="PointRef")
         else:
-            auxiliary_path = self.index.path_for(_first_pointref_handle(step, self.index), expected_type="PointRef")
+            auxiliary_handle = _auto_created_recipe_point(step, self.index)
+            self.index.register_created_entity(auxiliary_handle)
+            declarations.append(self.index.declarations[auxiliary_handle.handle])
+            auxiliary_path = self.index.path_for(auxiliary_handle.handle, expected_type="PointRef")
         candidates = _temp(step.step_id, "candidates")
         selected = _temp(step.step_id, "selected_candidate")
         auxiliary = _temp(step.step_id, "auxiliary_point")
-        moving_membership = _moving_membership_for_straightening(step, self.index)
-        fixed_1, fixed_2, line_1, line_2 = _straightening_point_roles(step, self.index)
+        minimum_point_1 = _temp(step.step_id, "minimum_point_1")
+        minimum_point_2 = _temp(step.step_id, "minimum_point_2")
+        path_transformation = _path_for_first_type(
+            self.index,
+            step,
+            "PathTransformation",
+        )
+        straightening_inputs: dict[str, str] = {
+            "path_transformation": path_transformation
+        }
+        structured_roles = _structured_straightening_roles_from_transformation(
+            path_transformation,
+            step=step,
+            index=self.index,
+        )
+        transformation_fixed = _fixed_endpoints_from_transformation(
+            path_transformation,
+            step=step,
+            index=self.index,
+        )
+        moving_locus = _path_for_readable_type_or_none(self.index, step, "Line")
+        if structured_roles is not None:
+            fixed_1, fixed_2, moving_membership, line_1, line_2 = (
+                structured_roles
+            )
+            straightening_inputs.update(
+                {
+                    "moving_point_membership": self.index.path_for(
+                        moving_membership,
+                        expected_type="Condition",
+                    ),
+                    "line_point_1": self.index.path_for(
+                        line_1,
+                        expected_type="Point",
+                    ),
+                    "line_point_2": self.index.path_for(
+                        line_2,
+                        expected_type="Point",
+                    ),
+                }
+            )
+        elif moving_locus is not None:
+            fixed_1, fixed_2 = (
+                transformation_fixed
+                or _straightening_minimum_fixed_points(step, self.index)
+            )
+            straightening_inputs["moving_locus"] = moving_locus
+        else:
+            _require_straightening_locus_evidence(step, self.index)
+            moving_membership = _moving_membership_for_straightening(step, self.index)
+            role_fixed_1, role_fixed_2, line_1, line_2 = (
+                _straightening_point_roles(step, self.index)
+            )
+            fixed_1, fixed_2 = role_fixed_1, role_fixed_2
+            straightening_inputs.update(
+                {
+                    "moving_point_membership": self.index.path_for(
+                        moving_membership,
+                        expected_type="Condition",
+                    ),
+                    "line_point_1": self.index.path_for(
+                        line_1,
+                        expected_type="Point",
+                    ),
+                    "line_point_2": self.index.path_for(
+                        line_2,
+                        expected_type="Point",
+                    ),
+                }
+            )
+        fixed_1_path, fixed_1_prep = _point_value_path_or_prepare(fixed_1, step, self.index)
+        fixed_2_path, fixed_2_prep = _point_value_path_or_prepare(fixed_2, step, self.index)
+        straightening_inputs.update(
+            {
+                "fixed_point_1": fixed_1_path,
+                "fixed_point_2": fixed_2_path,
+            }
+        )
+        prep_invocations = [*fixed_1_prep[0], *fixed_2_prep[0]]
+        prep_promote = {**fixed_1_prep[1], **fixed_2_prep[1]}
         invocations = [
+            *prep_invocations,
             MethodInvocation(
                 invocation_id=f"{step.step_id}.broken_path_straightening_candidates",
                 method_id="broken_path_straightening_candidates",
                 scope=step.step_id,
-                inputs={
-                    "path_transformation": _path_for_first_type(self.index, step, "PathTransformation"),
-                    "moving_point_membership": self.index.path_for(moving_membership, expected_type="Condition"),
-                    "fixed_point_1": self.index.path_for(fixed_1, expected_type="Point"),
-                    "fixed_point_2": self.index.path_for(fixed_2, expected_type="Point"),
-                    "line_point_1": self.index.path_for(line_1, expected_type="Point"),
-                    "line_point_2": self.index.path_for(line_2, expected_type="Point"),
-                },
+                inputs=straightening_inputs,
                 outputs={"candidates": candidates},
             ),
             MethodInvocation(
@@ -692,13 +1111,25 @@ class _RecipePlanCompiler:
                 method_id="select_straightening_candidate",
                 scope=step.step_id,
                 inputs={"candidates": candidates, "target": auxiliary_path},
-                outputs={"selected_candidate": selected, "auxiliary_point": auxiliary},
+                outputs={
+                    "selected_candidate": selected,
+                    "auxiliary_point": auxiliary,
+                    "minimum_point_1": minimum_point_1,
+                    "minimum_point_2": minimum_point_2,
+                },
             ),
         ]
+        endpoint_point_1, endpoint_point_2 = _straightening_endpoint_target_paths(
+            step,
+            self.index,
+        )
         promote = {
+            **prep_promote,
             candidates: _scoped_output_path(self.index.context, step.scope_id, "straightening_candidates"),
-            selected: _scoped_output_path(self.index.context, step.scope_id, "straightening_candidate"),
+            selected: _straightening_candidate_target_path(step, self.index),
             auxiliary: auxiliary_path,
+            minimum_point_1: endpoint_point_1,
+            minimum_point_2: endpoint_point_2,
         }
         plan = StepPlan(
             step_id=step.step_id,
@@ -713,10 +1144,38 @@ class _RecipePlanCompiler:
             expected_outputs=list(promote.values()),
             promote_outputs=promote,
         )
-        registrations = [
-            RuntimeHandleBinding(item.handle, promote[selected], "StraighteningCandidate", f"step:{step.step_id}")
-            for item in step.produces
-        ]
+        registrations: list[RuntimeHandleBinding] = []
+        for item in step.produces:
+            output_type = _produced_output_type(item, self.index.handle_registry)
+            if output_type == "StraighteningCandidate":
+                registrations.append(
+                    RuntimeHandleBinding(
+                        item.handle,
+                        promote[selected],
+                        "StraighteningCandidate",
+                        f"step:{step.step_id}",
+                    )
+                )
+            elif output_type == "Point":
+                semantic = produced_semantic_role(item)
+                if semantic == STRAIGHTENING_ENDPOINT_POINT_1:
+                    registrations.append(
+                        RuntimeHandleBinding(
+                            item.handle,
+                            endpoint_point_1,
+                            "Point",
+                            f"step:{step.step_id}",
+                        )
+                    )
+                elif semantic == STRAIGHTENING_ENDPOINT_POINT_2:
+                    registrations.append(
+                        RuntimeHandleBinding(
+                            item.handle,
+                            endpoint_point_2,
+                            "Point",
+                            f"step:{step.step_id}",
+                        )
+                    )
         if auxiliary_handle is not None:
             registrations.append(
                 RuntimeHandleBinding(auxiliary_handle.handle, auxiliary_path, "Point", f"step:{step.step_id}")
@@ -775,6 +1234,10 @@ class _RecipePlanCompiler:
                     "x": self.index.path_for("symbol:problem:x", expected_type="Symbol"),
                     "point": selected_candidate,
                     "parameter": primary_symbol,
+                    "quadratic_template": self.index.path_for(
+                        "function:problem:parabola",
+                        expected_type="Expression",
+                    ),
                     "parameter_constraint": primary_constraint,
                 },
                 outputs={
@@ -896,9 +1359,119 @@ class _RecipePlanCompiler:
             registrations=registrations,
         )
 
+    def _compile_straightened_distance_minimum_recipe(self, step: StepIntent) -> _CompiledStep:
+        """编译“已拉直方案 -> 端点距离最值” recipe。
+
+        split recipe 路径中，前序 ``broken_path_straightening_and_select`` 已经确定
+        最短线段端点；这里优先消费这些 endpoint metadata，避免继续让 LLM
+        通过普通 point reads 猜测距离两端。
+        """
+        endpoints = _straightening_endpoint_handles_from_reads(step, self.index)
+        if endpoints is None:
+            return self._compile_method(step, "distance_between_points")
+        point_1, point_2 = endpoints
+        output_name = "evaluated_distance" if _parameter_value_handle(step, self.index) else "distance"
+        distance = _temp(step.step_id, output_name)
+        target_path = _minimum_expression_target_path(step, self.index)
+        inputs = {
+            "p1": self.index.path_for(point_1, expected_type="Point"),
+            "p2": self.index.path_for(point_2, expected_type="Point"),
+        }
+        parameter_handle = _parameter_value_handle(step, self.index)
+        if parameter_handle is not None:
+            inputs["parameter"] = self.index.parameter_symbol_path()
+            inputs["parameter_value"] = self.index.path_for(
+                parameter_handle,
+                expected_type="ParameterValue",
+            )
+        plan = StepPlan(
+            step_id=step.step_id,
+            goal=StepGoal(
+                goal_id=f"{step.goal_type}:{step.step_id}",
+                type=step.goal_type,
+                target_path=target_path,
+                scope_id=step.scope_id,
+            ),
+            scope=step.scope_id,
+            invocations=[
+                MethodInvocation(
+                    invocation_id=f"{step.step_id}.distance_between_points",
+                    method_id="distance_between_points",
+                    scope=step.step_id,
+                    inputs=inputs,
+                    outputs={output_name: distance},
+                )
+            ],
+            expected_outputs=[target_path],
+            promote_outputs={distance: target_path},
+        )
+        registrations = tuple(
+            RuntimeHandleBinding(item.handle, target_path, "MinimumExpression", f"step:{step.step_id}")
+            for item in step.produces
+            if _produced_output_type(item, self.index.handle_registry) == "MinimumExpression"
+        )
+        return _CompiledStep(plan=plan, registrations=registrations)
+
     def _compile_broken_path_straightening_minimum_expression_recipe(self, step: StepIntent) -> _CompiledStep:
         """编译“折线拉直候选 + 选择方案 + 计算最小值表达式” recipe。"""
-        fixed_1, fixed_2 = _straightening_minimum_fixed_points(step, self.index)
+        path_transformation = _path_for_readable_type(
+            self.index,
+            step,
+            "PathTransformation",
+        )
+        straightening_inputs: dict[str, str] = {}
+        structured_roles = _structured_straightening_roles_from_transformation(
+            path_transformation,
+            step=step,
+            index=self.index,
+        )
+        transformation_fixed = _fixed_endpoints_from_transformation(
+            path_transformation,
+            step=step,
+            index=self.index,
+        )
+        moving_locus = _path_for_readable_type_or_none(self.index, step, "Line")
+        if structured_roles is not None:
+            fixed_1, fixed_2, moving_membership, line_1, line_2 = (
+                structured_roles
+            )
+            straightening_inputs.update(
+                {
+                    "moving_point_membership": self.index.path_for(
+                        moving_membership,
+                        expected_type="Condition",
+                    ),
+                    "line_point_1": self.index.path_for(
+                        line_1,
+                        expected_type="Point",
+                    ),
+                    "line_point_2": self.index.path_for(
+                        line_2,
+                        expected_type="Point",
+                    ),
+                }
+            )
+        elif moving_locus is not None:
+            fixed_1, fixed_2 = (
+                transformation_fixed
+                or _straightening_minimum_fixed_points(step, self.index)
+            )
+            straightening_inputs["moving_locus"] = moving_locus
+        else:
+            _require_straightening_locus_evidence(step, self.index)
+            moving_membership = _moving_membership_for_straightening(step, self.index)
+            role_fixed_1, role_fixed_2, line_1, line_2 = _straightening_point_roles(step, self.index)
+            fixed_1, fixed_2 = role_fixed_1, role_fixed_2
+            straightening_inputs.update(
+                {
+                    "moving_point_membership": self.index.path_for(
+                        moving_membership,
+                        expected_type="Condition",
+                    ),
+                    "line_point_1": self.index.path_for(line_1, expected_type="Point"),
+                    "line_point_2": self.index.path_for(line_2, expected_type="Point"),
+                }
+            )
         fixed_1_path, fixed_1_prep = _point_value_path_or_prepare(fixed_1, step, self.index)
         fixed_2_path, fixed_2_prep = _point_value_path_or_prepare(fixed_2, step, self.index)
         candidates = _temp(step.step_id, "candidates")
@@ -908,12 +1481,21 @@ class _RecipePlanCompiler:
         minimum_point_2 = _temp(step.step_id, "minimum_point_2")
         distance = _temp(step.step_id, "distance")
         target_path = _minimum_expression_target_path(step, self.index)
-        auxiliary_path = _generated_straightening_auxiliary_point_path(step, self.index)
-        declaration = _point_declaration_for_path(
-            self.index.context,
-            auxiliary_path,
-            definition="straightening_auxiliary_point",
-        )
+        declarations = []
+        auxiliary_handle = _created_point_handle(step)
+        if auxiliary_handle is not None:
+            self.index.register_created_entity(auxiliary_handle)
+            declarations.append(self.index.declarations[auxiliary_handle.handle])
+            auxiliary_path = self.index.path_for(auxiliary_handle.handle, expected_type="PointRef")
+        else:
+            auxiliary_path = _generated_straightening_auxiliary_point_path(step, self.index)
+            declarations.append(
+                _point_declaration_for_path(
+                    self.index.context,
+                    auxiliary_path,
+                    definition="straightening_auxiliary_point",
+                )
+            )
         prep_invocations = [*fixed_1_prep[0], *fixed_2_prep[0]]
         prep_promote = {**fixed_1_prep[1], **fixed_2_prep[1]}
         invocations = [
@@ -923,10 +1505,10 @@ class _RecipePlanCompiler:
                 method_id="broken_path_straightening_candidates",
                 scope=step.step_id,
                 inputs={
-                    "path_transformation": _path_for_readable_type(self.index, step, "PathTransformation"),
-                    "moving_locus": _path_for_readable_type(self.index, step, "Line"),
+                    "path_transformation": path_transformation,
                     "fixed_point_1": fixed_1_path,
                     "fixed_point_2": fixed_2_path,
+                    **straightening_inputs,
                 },
                 outputs={"candidates": candidates},
             ),
@@ -953,13 +1535,17 @@ class _RecipePlanCompiler:
                 outputs={"distance": distance},
             ),
         ]
+        endpoint_point_1, endpoint_point_2 = _straightening_endpoint_target_paths(
+            step,
+            self.index,
+        )
         promote = {
             **prep_promote,
             candidates: _scoped_output_path(self.index.context, step.scope_id, "straightening_candidates"),
-            selected: _scoped_output_path(self.index.context, step.scope_id, "straightening_candidate"),
+            selected: _straightening_candidate_target_path(step, self.index),
             auxiliary: auxiliary_path,
-            minimum_point_1: _scoped_output_path(self.index.context, step.scope_id, "minimum_point_1"),
-            minimum_point_2: _scoped_output_path(self.index.context, step.scope_id, "minimum_point_2"),
+            minimum_point_1: endpoint_point_1,
+            minimum_point_2: endpoint_point_2,
             distance: target_path,
         }
         plan = StepPlan(
@@ -983,7 +1569,7 @@ class _RecipePlanCompiler:
                     RuntimeHandleBinding(item.handle, target_path, "MinimumExpression", f"step:{step.step_id}")
                 )
             elif output_type == "Point":
-                semantic = _semantic_name(item.handle)
+                semantic = produced_semantic_role(item)
                 if "point_1" in semantic:
                     registrations.append(
                         RuntimeHandleBinding(
@@ -1002,7 +1588,7 @@ class _RecipePlanCompiler:
                             f"step:{step.step_id}",
                         )
                     )
-        return _CompiledStep(plan=plan, declarations=(declaration,), registrations=registrations)
+        return _CompiledStep(plan=plan, declarations=tuple(declarations), registrations=registrations)
 
     def _apply_registrations(self, compiled: _CompiledStep) -> None:
         """把已通过 dry-run 的输出 alias 写回 index。"""
@@ -1163,16 +1749,15 @@ class PlannerInsightExtractorRegistry:
     ) -> list[StepIntentPlannerInsight]:
         """抽取通用将军饮马 recipe 暴露的最短线段端点。"""
         method_ids = {invocation.method_id for invocation in compiled.plan.invocations}
-        if not {"select_straightening_candidate", "distance_between_points"} <= method_ids:
+        if "select_straightening_candidate" not in method_ids:
             return []
         endpoint_handles = [
             produced.handle
             for produced in step.produces
             if (
                 _produced_output_type(produced, index.handle_registry) == "Point"
-                and (
-                    "point_1" in _semantic_name(produced.handle)
-                    or "point_2" in _semantic_name(produced.handle)
+                and is_straightening_endpoint_name(
+                    produced_semantic_role(produced)
                 )
             )
         ]
@@ -1192,11 +1777,15 @@ class PlannerInsightExtractorRegistry:
                 output_type="StraighteningMinimum",
                 facts={
                     "minimum_points": endpoint_handles,
-                    "next_method": "line_locus_minimum_point",
+                    "required_state_roles": (
+                        "moving_point_locus",
+                        "straightening_endpoint_1",
+                        "straightening_endpoint_2",
+                    ),
                 },
                 repair_note=(
                     "将军饮马 recipe 已给出拉直后最短线段端点；后续若要求最短状态动点，"
-                    "应读取这些端点和动点轨迹，使用 line_locus_minimum_point，再由几何关系恢复最终答案点。"
+                    "应读取这些端点和动点轨迹，产生该动点的极值状态，再由几何关系恢复最终答案点。"
                 ),
             )
         ]
@@ -1247,6 +1836,139 @@ def _recommended_locus_step_for_moving_point(
         "recommended_produces": f"fact:{step.scope_id}:{point_name}_locus_line",
         "before_capability": "broken_path_straightening_minimum_expression",
     }
+
+
+def _draft_with_steps(
+    draft: StepIntentDraft,
+    steps: list[StepIntent] | tuple[StepIntent, ...],
+) -> StepIntentDraft:
+    """用已执行/补位后的 flat steps 重建 scoped effective draft。"""
+    metadata_by_step_id = {
+        step.step_id: (scope.scope_id, scope.label)
+        for scope in draft.scopes
+        for step in scope.steps
+    }
+    fallback_labels: dict[str, str] = {}
+    for scope in draft.scopes:
+        fallback_labels.setdefault(scope.scope_id, scope.label)
+
+    scopes: list[StepIntentScope] = []
+    for step in steps:
+        _original_scope, label = metadata_by_step_id.get(
+            step.step_id,
+            (
+                step.scope_id,
+                fallback_labels.get(step.scope_id, f"scope {step.scope_id}"),
+            ),
+        )
+        if (
+            scopes
+            and scopes[-1].scope_id == step.scope_id
+            and scopes[-1].label == label
+        ):
+            scopes[-1] = replace(
+                scopes[-1],
+                steps=(*scopes[-1].steps, step),
+            )
+        else:
+            scopes.append(
+                StepIntentScope(
+                    scope_id=step.scope_id,
+                    label=label,
+                    steps=(step,),
+                )
+            )
+    return StepIntentDraft(scopes=tuple(scopes))
+
+
+def _runtime_dependencies_by_step(
+    draft: StepIntentDraft,
+    output: PlannerOutput,
+    index: CanonicalRuntimeBindingIndex,
+) -> dict[str, tuple[str, ...]]:
+    """Project actual invocation paths back to the steps that produced them."""
+    producer_by_path: dict[str, str] = {}
+    for step in draft.steps:
+        for produced in step.produces:
+            binding = index.bindings.get(produced.handle)
+            if binding is not None:
+                producer_by_path[binding.path] = step.step_id
+
+    dependencies: dict[str, tuple[str, ...]] = {}
+    for plan in output.step_plans:
+        producer_ids: list[str] = []
+        for invocation in plan.invocations:
+            for path in _nested_runtime_paths(invocation.inputs):
+                producer_id = producer_by_path.get(path)
+                if producer_id is not None and producer_id != plan.step_id:
+                    producer_ids.append(producer_id)
+        dependencies[plan.step_id] = tuple(_unique_ordered(producer_ids))
+    return dependencies
+
+
+def _nested_runtime_paths(value: Any) -> tuple[str, ...]:
+    """Collect ContextPath strings from an invocation input payload."""
+    if isinstance(value, str):
+        return (value,) if value.startswith("$") else ()
+    if isinstance(value, Mapping):
+        return tuple(
+            path
+            for item in value.values()
+            for path in _nested_runtime_paths(item)
+        )
+    if isinstance(value, (list, tuple)):
+        return tuple(
+            path
+            for item in value
+            for path in _nested_runtime_paths(item)
+        )
+    return ()
+
+
+def _planner_insight_root_handles(
+    diagnostic: StepIntentExecutionDiagnostic,
+) -> tuple[str, ...]:
+    """Keep produced state referenced by deterministic planner insights live."""
+    handles: list[str] = []
+    for insight in diagnostic.planner_insights:
+        handles.extend(_canonical_handles_in_value(insight.facts))
+    return tuple(_unique_ordered(handles))
+
+
+def _canonical_handles_in_value(value: Any) -> tuple[str, ...]:
+    if isinstance(value, str):
+        return (
+            (value,)
+            if value.startswith(
+                (
+                    "answer:",
+                    "fact:",
+                    "point:",
+                    "line:",
+                    "segment:",
+                    "ray:",
+                    "function:",
+                    "symbol:",
+                    "angle:",
+                    "circle:",
+                    "polygon:",
+                )
+            )
+            else ()
+        )
+    if isinstance(value, Mapping):
+        return tuple(
+            handle
+            for item in value.values()
+            for handle in _canonical_handles_in_value(item)
+        )
+    if isinstance(value, (list, tuple)):
+        return tuple(
+            handle
+            for item in value
+            for handle in _canonical_handles_in_value(item)
+        )
+    return ()
 
 
 def _parameterized_point_state_name(semantic_name: str) -> str | None:
@@ -1338,6 +2060,15 @@ def _compile_equal_length_ray_path_reduction_recipe(
     return compiler._compile_equal_length_ray_path_reduction_recipe(step)
 
 
+def _compile_straightened_distance_minimum_recipe(
+    compiler: _RecipePlanCompiler,
+    step: StepIntent,
+    recipe: FamilyRecipeExecutionSpec,
+) -> _CompiledStep:
+    """编译 split 将军饮马后续的端点距离最值 recipe。"""
+    return compiler._compile_straightened_distance_minimum_recipe(step)
+
+
 def _compile_broken_path_straightening_minimum_expression_recipe(
     compiler: _RecipePlanCompiler,
     step: StepIntent,
@@ -1353,6 +2084,7 @@ DEFAULT_RECIPE_COMPILERS: dict[str, RecipeCompileStrategyFn] = {
     "curve_candidate_parameter_solve": _compile_curve_candidate_parameter_solve_recipe,
     "straightening_candidates_select": _compile_straightening_candidates_select_recipe,
     "equal_length_ray_path_reduction": _compile_equal_length_ray_path_reduction_recipe,
+    "straightened_distance_minimum": _compile_straightened_distance_minimum_recipe,
     "broken_path_straightening_minimum_expression": _compile_broken_path_straightening_minimum_expression_recipe,
 }
 
@@ -1487,7 +2219,10 @@ def _point_value_path_or_prepare(
     try:
         return _point_value_path_for_step(point_handle, step, index), ((), {})
     except StrategyDraftValidationError:
-        if _point_definition(point_handle, index) != "axis_x_intercept":
+        definition = _point_definition(point_handle, index)
+        if definition == "midpoint":
+            return _prepare_midpoint_point_value(point_handle, step, index)
+        if definition != "axis_x_intercept":
             raise
         point_name = _handle_name(point_handle)
         output_path = _temp(step.step_id, f"prepared_{point_name}_coordinate")
@@ -1504,6 +2239,45 @@ def _point_value_path_or_prepare(
             outputs={"axis_point": output_path},
         )
         return output_path, ((invocation,), {output_path: promote_path})
+
+
+def _prepare_midpoint_point_value(
+    point_handle: str,
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> tuple[str, tuple[tuple[MethodInvocation, ...], dict[str, str]]]:
+    """为 midpoint definition 点生成 recipe 内部 midpoint_point prep。"""
+    payload = index.entity_payload(point_handle)
+    raw_endpoints = payload.get("of")
+    if not (
+        isinstance(raw_endpoints, list)
+        and len(raw_endpoints) == 2
+        and all(isinstance(item, str) for item in raw_endpoints)
+    ):
+        raise StrategyDraftValidationError(f"midpoint_definition_endpoints_missing: {point_handle}")
+    p1_path, p1_prep = _point_value_path_or_prepare(raw_endpoints[0], step, index)
+    p2_path, p2_prep = _point_value_path_or_prepare(raw_endpoints[1], step, index)
+    point_name = _handle_name(point_handle)
+    output_path = _temp(step.step_id, f"prepared_{point_name}_coordinate")
+    promote_path = _scoped_output_path(index.context, step.scope_id, f"{point_name}_coordinate")
+    invocation = MethodInvocation(
+        invocation_id=f"{step.step_id}.prepare_{point_name}_midpoint_coordinate",
+        method_id="midpoint_point",
+        scope=step.step_id,
+        inputs={
+            "p1": p1_path,
+            "p2": p2_path,
+            "target": index.point_ref_path_for(point_handle),
+        },
+        outputs={"midpoint": output_path},
+    )
+    return (
+        output_path,
+        (
+            (*p1_prep[0], *p2_prep[0], invocation),
+            {**p1_prep[1], **p2_prep[1], output_path: promote_path},
+        ),
+    )
 
 
 def _point_definition(point_handle: str, index: CanonicalRuntimeBindingIndex) -> str | None:
@@ -1568,34 +2342,31 @@ def _path_target_terms(
     index: CanonicalRuntimeBindingIndex,
     context: str,
 ) -> list[tuple[str, str]]:
-    """把 ``OM+BN`` 或结构化 path terms 转成 point handle 对。"""
-    value = payload.get("path")
-    if isinstance(value, list):
-        terms: list[tuple[str, str]] = []
-        for idx, item in enumerate(value):
-            if (
-                isinstance(item, list)
-                and len(item) == 2
-                and all(isinstance(handle, str) for handle in item)
-            ):
-                terms.append((item[0], item[1]))
-                continue
-            raise StrategyDraftValidationError(
-                f"path_minimum_target_term_invalid: {context}[{idx}]"
-            )
-        return terms
-    if isinstance(value, str):
-        terms = []
-        for token in re.findall(r"[A-Za-z]{2}", value):
-            terms.append(
-                (
-                    index.point_handle_by_name(token[0], step=step),
-                    index.point_handle_by_name(token[1], step=step),
-                )
-            )
-        if terms:
-            return terms
-    raise StrategyDraftValidationError(f"path_minimum_target_path_missing: {context}")
+    """Resolve structured or legacy path terms through the shared parser."""
+
+    point_names = _unique_ordered(
+        handle.rsplit(":", 1)[-1]
+        for handle in index.entity_handles("point", step=step)
+    )
+    try:
+        terms = parse_path_terms(
+            payload,
+            point_names=point_names,
+            resolve_point=lambda name: index.point_handle_by_name(
+                name,
+                step=step,
+            ),
+        )
+    except (PathTermParseError, StrategyDraftValidationError) as exc:
+        code = (
+            exc.code
+            if isinstance(exc, PathTermParseError)
+            else "path_terms.point_unresolved"
+        )
+        raise StrategyDraftValidationError(
+            f"{code}: {context}: {exc}"
+        ) from exc
+    return [(item.start, item.end) for item in terms]
 
 
 def _generated_equal_length_auxiliary_point_path(
@@ -1631,12 +2402,99 @@ def _minimum_expression_target_path(
     index: CanonicalRuntimeBindingIndex,
 ) -> str:
     """读取 recipe 产出的 MinimumExpression target path。"""
-    for produced in step.produces:
-        if _produced_output_type(produced, index.handle_registry) == "MinimumExpression":
+    candidates = tuple(
+        produced for produced in step.produces
+        if _produced_output_type(produced, index.handle_registry) == "MinimumExpression"
+    )
+    for produced in candidates:
+        if step.target.startswith("answer:") and produced.handle == step.target:
             return _target_path_for_produced(produced, "MinimumExpression", index, step)
+    for produced in candidates:
+        if produced.handle.startswith("answer:"):
+            return _target_path_for_produced(produced, "MinimumExpression", index, step)
+    if candidates:
+        return _target_path_for_produced(candidates[0], "MinimumExpression", index, step)
     raise StrategyDraftValidationError(
         f"equal_length_ray_path_reduction_requires_minimum_expression: {step.step_id}"
     )
+
+
+def _straightening_endpoint_target_paths(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> tuple[str, str]:
+    """返回 split 拉直 recipe 推广的最短线段端点路径。"""
+    return (
+        _straightening_endpoint_target_path(step, index, STRAIGHTENING_ENDPOINT_POINT_1),
+        _straightening_endpoint_target_path(step, index, STRAIGHTENING_ENDPOINT_POINT_2),
+    )
+
+
+def _straightening_candidate_target_path(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> str:
+    """Publish a selected candidate at its declared semantic scope."""
+
+    for produced in step.produces:
+        if (
+            _produced_output_type(produced, index.handle_registry)
+            == "StraighteningCandidate"
+        ):
+            return _target_path_for_produced(
+                produced,
+                "StraighteningCandidate",
+                index,
+                step,
+            )
+    return _scoped_output_path(
+        index.context,
+        step.scope_id,
+        "straightening_candidate",
+    )
+
+
+def _straightening_endpoint_target_path(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+    semantic_name: str,
+) -> str:
+    """优先使用 step 显式 produced endpoint fact 的 valid_scope。"""
+    for produced in step.produces:
+        if (
+            _produced_output_type(produced, index.handle_registry) == "Point"
+            and produced_semantic_role(produced) == semantic_name
+        ):
+            return _target_path_for_produced(produced, "Point", index, step)
+    return _scoped_output_path(index.context, step.scope_id, semantic_name)
+
+
+def _straightening_endpoint_handles_from_reads(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> tuple[str, str] | None:
+    """从 step reads 中读取前序拉直 recipe 暴露的 endpoint facts。"""
+    candidates: list[tuple[str, str]] = []
+    for handle in step.reads:
+        binding = index.bindings.get(handle)
+        if binding is None or binding.value_type != "Point":
+            continue
+        provenance = next(
+            (
+                item
+                for item in reversed(index.state_write_provenance)
+                if item.produced_handle == handle
+                and item.runtime_type == "Point"
+            ),
+            None,
+        )
+        semantic_role = (
+            provenance.identity_role
+            if provenance is not None and provenance.identity_role is not None
+            else _semantic_name(handle)
+        )
+        candidates.append((semantic_role, handle))
+    return collect_straightening_endpoint_handles(candidates)
 
 
 def _straightening_minimum_fixed_points(
@@ -1650,7 +2508,15 @@ def _straightening_minimum_fixed_points(
             try:
                 _point_value_path_for_step(handle, step, index)
             except StrategyDraftValidationError:
-                continue
+                try:
+                    # Functional projection preserves macro argument order in
+                    # reads. A declared endpoint may still be a PointRef whose
+                    # coordinate has a deterministic prep invocation (axis,
+                    # intercept, midpoint, etc.); endpoint discovery must not
+                    # discard it before the compile stage can apply that prep.
+                    _point_value_path_or_prepare(handle, step, index)
+                except StrategyDraftValidationError:
+                    continue
             candidates.append(handle)
             continue
         point_handle = _point_handle_from_point_state_fact(handle, step, index)
@@ -1664,6 +2530,123 @@ def _straightening_minimum_fixed_points(
             f"broken_path_straightening_minimum_requires_two_fixed_points: {step.step_id}"
         )
     return unique[0], unique[1]
+
+
+def _fixed_endpoints_from_transformation(
+    transformation_path: str,
+    *,
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> tuple[str, str] | None:
+    try:
+        payload = index.context.read_path(
+            transformation_path,
+            from_scope_id=step.scope_id,
+            expected_type="PathTransformation",
+        ).value
+    except Exception:
+        return None
+    if not isinstance(payload, Mapping):
+        return None
+    refs = payload.get("fixed_endpoint_refs")
+    if (
+        isinstance(refs, list)
+        and len(refs) == 2
+        and all(isinstance(item, str) and item.startswith("point:") for item in refs)
+    ):
+        return refs[0], refs[1]
+    names = payload.get("fixed_point_names")
+    if (
+        isinstance(names, (list, tuple))
+        and len(names) == 2
+        and all(isinstance(item, str) for item in names)
+    ):
+        return (
+            index.point_handle_by_name(names[0], step=step),
+            index.point_handle_by_name(names[1], step=step),
+        )
+    return None
+
+
+def _structured_straightening_roles_from_transformation(
+    transformation_path: str,
+    *,
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> tuple[str, str, str, str, str] | None:
+    """Resolve downstream roles only from a structured PathTransformation."""
+
+    try:
+        payload = index.context.read_path(
+            transformation_path,
+            from_scope_id=step.scope_id,
+            expected_type="PathTransformation",
+        ).value
+    except Exception:
+        return None
+    if not isinstance(payload, Mapping):
+        return None
+    fixed = payload.get("fixed_endpoint_refs")
+    moving_membership = payload.get("moving_locus_condition_ref")
+    line_endpoints = payload.get("moving_locus_endpoint_refs")
+    if not (
+        isinstance(fixed, list)
+        and len(fixed) == 2
+        and all(isinstance(item, str) and item.startswith("point:") for item in fixed)
+        and isinstance(moving_membership, str)
+        and moving_membership.startswith("fact:")
+        and isinstance(line_endpoints, list)
+        and len(line_endpoints) == 2
+        and all(
+            isinstance(item, str) and item.startswith("point:")
+            for item in line_endpoints
+        )
+    ):
+        return None
+    # Validate that every referenced object/condition belongs to the canonical
+    # registry. No fallback search is allowed once the transformation declares
+    # a complete role set.
+    for handle in (*fixed, *line_endpoints):
+        index.binding_for(handle)
+    if index.fact_types.get(moving_membership) != "segment_membership":
+        raise StrategyDraftValidationError(
+            "path_transformation_moving_locus_invalid: "
+            f"{moving_membership}"
+        )
+    index.binding_for(moving_membership)
+    return (
+        fixed[0],
+        fixed[1],
+        moving_membership,
+        line_endpoints[0],
+        line_endpoints[1],
+    )
+
+
+def _require_straightening_locus_evidence(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> None:
+    """Require an explicit locus or legacy structured membership evidence.
+
+    FunctionalPlan exposes the moving locus as a typed ``Line`` argument. Older
+    StepIntent fixtures may still describe the same state through a structured
+    segment membership/relation condition, so that representation remains a
+    supported compatibility input. The compiler must not let the legacy lookup
+    leak a misleading ``fact_handle_not_found`` error when neither exists.
+    """
+    try:
+        index.fact_handle_by_type("segment_membership", step=step)
+        index.fact_handle_by_type("segment_relation", step=step)
+    except StrategyDraftValidationError:
+        pass
+    else:
+        return
+    raise StrategyDraftValidationError(
+        "macro.arg_missing: "
+        f"recipe={step.recipe_hint or step.step_id}, "
+        "arg=moving_locus, expected=Line or segment_membership Condition"
+    )
 
 
 def _point_handle_from_point_state_fact(
@@ -1828,6 +2811,40 @@ def _unique_declarations(declarations: list[Any]) -> list[Any]:
         result.append(declaration)
     return result
 
+def _auto_created_recipe_point(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> CreatedEntity:
+    """Defensive fallback for recipe-required auxiliary PointRef targets."""
+    scope_id = _auto_created_recipe_point_scope(step)
+    handle = fresh_auxiliary_point_handle(
+        scope_id,
+        (
+            set(index.bindings)
+            | set(index.declarations)
+            | set(index.handle_registry.entity_handles)
+        ),
+    )
+    if handle is not None:
+        return CreatedEntity(
+            handle=handle,
+            entity_type="point",
+            valid_scope=scope_id,
+            description=f"{step.recipe_hint or step.step_id} 自动创建的辅助点",
+        )
+    raise StrategyDraftValidationError(
+        f"auxiliary_point_handle_exhausted: {step.step_id}"
+    )
+
+def _auto_created_recipe_point_scope(step: StepIntent) -> str:
+    """Match auto-created helper visibility to the recipe's public output scope."""
+    for item in step.produces:
+        if item.handle.startswith("answer:"):
+            continue
+        if item.valid_scope:
+            return item.valid_scope
+    return step.scope_id
+
 def _temp(step_id: str, output_key: str) -> str:
     """生成 step 临时输出路径。"""
     return f"$step.{step_id}.temp.{output_key}"
@@ -1892,6 +2909,9 @@ def _method_outputs_for_step(
     spec_outputs: dict[str, str],
     index: CanonicalRuntimeBindingIndex,
     binding_rules: MethodBindingRuleRegistry,
+    *,
+    input_bindings: Mapping[str, str] | None = None,
+    input_specs: Mapping[str, Any] | None = None,
 ) -> dict[str, str]:
     """为 invocation 生成输出路径，避免声明 method 不会实际返回的可选输出。"""
     output_names: list[str] = []
@@ -1911,8 +2931,67 @@ def _method_outputs_for_step(
                 spec_outputs,
             )
     if not output_names:
-        output_names = list(spec_outputs)
+        output_names = _active_polymorphic_output_names(
+            spec_outputs,
+            input_bindings=input_bindings or {},
+            input_specs=input_specs or {},
+            index=index,
+        )
     return {name: _temp(step.step_id, name) for name in _unique_ordered(output_names)}
+
+
+def _active_polymorphic_output_names(
+    spec_outputs: Mapping[str, str],
+    *,
+    input_bindings: Mapping[str, str],
+    input_specs: Mapping[str, Any],
+    index: CanonicalRuntimeBindingIndex,
+) -> list[str]:
+    """Select the output variant matching a union-typed runtime input.
+
+    Some pure methods preserve an input's semantic runtime type and therefore
+    declare one output key per variant. When a Functional call does not
+    materialize an optional return, the compiler still needs one temporary
+    output for dry-run execution; requesting every declared variant would ask
+    the method for outputs it intentionally does not emit.
+    """
+    variant_outputs: set[str] = set()
+    active_outputs: set[str] = set()
+    for input_name, input_spec in input_specs.items():
+        accepted_types = set(
+            split_runtime_types(str(getattr(input_spec, "type", "")))
+        )
+        matching_outputs = {
+            output_name
+            for output_name, output_type in spec_outputs.items()
+            if output_type in accepted_types
+        }
+        if len(matching_outputs) <= 1:
+            continue
+        path = input_bindings.get(input_name)
+        if path is None:
+            continue
+        actual_types = {
+            binding.value_type
+            for binding in index.bindings.values()
+            if binding.path == path
+        }
+        matching_active = {
+            output_name
+            for output_name in matching_outputs
+            if spec_outputs[output_name] in actual_types
+        }
+        if not matching_active:
+            continue
+        variant_outputs.update(matching_outputs)
+        active_outputs.update(matching_active)
+    if not variant_outputs or not active_outputs:
+        return list(spec_outputs)
+    return [
+        output_name
+        for output_name in spec_outputs
+        if output_name not in variant_outputs or output_name in active_outputs
+    ]
 
 
 def _append_declared_output_name(
@@ -1966,26 +3045,110 @@ def _promote_outputs_for_step(
     output_types: dict[str, str],
     index: CanonicalRuntimeBindingIndex,
     binding_rules: MethodBindingRuleRegistry,
+    *,
+    point_transition: bool = False,
 ) -> dict[str, str]:
     """根据 produces/answer 自动生成 promote_outputs。"""
     promote: dict[str, str] = {}
+    source_to_produced: dict[str, list[ProducedFact]] = {}
+    point_transition = point_transition or _binding_rule_writes_point_transition(
+        method_id,
+        binding_rules,
+    )
     for produced in step.produces:
         output_name = _output_key_for_produced(method_id, produced, output_types, step, index)
         if output_name is None or output_name not in outputs:
             continue
-        target = _target_path_for_produced(produced, output_types[output_name], index, step)
+        target = _target_path_for_produced(
+            produced,
+            output_types[output_name],
+            index,
+            step,
+            point_transition=point_transition,
+        )
         _ensure_declaration_for_promote_target(target, output_types[output_name], index)
         source = outputs[output_name]
+        source_to_produced.setdefault(source, []).append(produced)
         # 同一个 method output 可能同时服务最终答案和可复用 fact alias。
         # promote 只能写一个目标，因此优先落到 answer target；普通 fact 后续注册到
         # 同一条 runtime path，避免 answer 被 alias 覆盖后 ResultBuilder 找不到答案。
         if source not in promote or produced.handle.startswith("answer:"):
             promote[source] = target
+    _validate_no_ambiguous_multi_produced_output_aliases(
+        step,
+        method_id,
+        source_to_produced,
+        index,
+    )
     _add_companion_promotes(step, method_id, outputs, promote, output_types, index, binding_rules)
     if not promote and outputs:
         first_key, first_path = next(iter(outputs.items()))
         promote[first_path] = _scoped_output_path(index.context, step.scope_id, first_key)
     return promote
+
+
+def _binding_rule_writes_point_transition(
+    method_id: str,
+    binding_rules: MethodBindingRuleRegistry,
+) -> bool:
+    rule = binding_rules.rule_for(method_id)
+    if rule is None:
+        return False
+    return any(
+        binding.selector == "point_transition_target"
+        for binding in rule.input_bindings
+    )
+
+
+def _function_writes_point_transition(function: Any | None) -> bool:
+    if function is None:
+        return False
+    return any(
+        item.runtime_type == "Point" and item.write_mode == "transition"
+        for item in function.returns
+    )
+
+def _validate_no_ambiguous_multi_produced_output_aliases(
+    step: StepIntent,
+    method_id: str,
+    source_to_produced: Mapping[str, list[ProducedFact]],
+    index: CanonicalRuntimeBindingIndex,
+) -> None:
+    """防止 single method output 被多个不同语义 fact 静默共用。
+
+    answer + fact alias 是合法的：同一个 runtime output 可同时作为答案与后续
+    可复用 fact。两个非 answer fact 若语义名不同，则表示 LLM 把多次函数调用
+    合并成了一个 StepIntent，必须在 normalizer 或 retry 中拆开。
+    """
+    for source, produced_items in source_to_produced.items():
+        if len(produced_items) < 2:
+            continue
+        non_answer_items = [
+            item for item in produced_items
+            if not item.handle.startswith("answer:")
+        ]
+        if len(non_answer_items) < 2:
+            continue
+        identities = {
+            _produced_output_alias_identity(item, index)
+            for item in non_answer_items
+        }
+        if len(identities) <= 1:
+            continue
+        output_key = source.rsplit(".", 1)[-1]
+        handles = ",".join(item.handle for item in non_answer_items)
+        raise StrategyDraftValidationError(
+            "ambiguous_multi_produced_single_output:"
+            f"step={step.step_id},method={method_id},output={output_key},handles={handles}"
+        )
+
+def _produced_output_alias_identity(
+    produced: ProducedFact,
+    index: CanonicalRuntimeBindingIndex,
+) -> str:
+    """用于判断多个 produced fact 是否只是同一状态的 alias。"""
+    output_type = _produced_output_type(produced, index.handle_registry)
+    return f"{output_type}:{_semantic_name(produced.handle)}"
 
 def _add_companion_promotes(
     step: StepIntent,
@@ -2060,6 +3223,14 @@ def _companion_target_path(
     if selector == "weighted_path_auxiliary_point":
         auxiliary_handle = _weighted_auxiliary_point_handle_for_step(step, index)
         return index.path_for(auxiliary_handle, expected_type="PointRef")
+    if selector == "axis_parameter_symbol":
+        handle = _axis_parameter_symbol_handle(step, index)
+        return _runtime_path_for_scope(
+            index.context,
+            _handle_scope(handle),
+            "symbols",
+            _handle_name(handle),
+        )
     raise StrategyDraftValidationError(f"companion_target_selector_missing: {selector}")
 
 
@@ -2094,6 +3265,8 @@ def _companion_registration_handle(
         return f"runtime:{step.step_id}:{key}"
     if selector == "weighted_path_auxiliary_point":
         return _weighted_auxiliary_point_handle_for_step(step, index)
+    if selector == "axis_parameter_symbol":
+        return _axis_parameter_symbol_handle(step, index)
     raise StrategyDraftValidationError(f"companion_registration_selector_missing: {selector}")
 
 
@@ -2109,6 +3282,19 @@ def _companion_output_type(
         raise StrategyDraftValidationError(
             f"companion_output_missing: {method_id}.{companion.output_name}"
         ) from exc
+
+
+def _axis_parameter_symbol_handle(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> str:
+    point_handle = _point_output_handle(step, index)
+    return dependent_role_object_ref(
+        source_object_ref=point_handle,
+        semantic_role="axis_parameter",
+        scope_id=_handle_scope(point_handle),
+        runtime_type="Symbol",
+    )
 
 def _produced_registrations(
     step: StepIntent,
@@ -2132,6 +3318,526 @@ def _produced_registrations(
         if source in promote:
             result.append((produced.handle, output_key, promote[source]))
     return result
+
+
+def _macro_write_provenance(
+    step: StepIntent,
+    *,
+    recipe_id: str,
+    bindings: tuple[tuple[ProducedFact, MacroReturnSpec], ...],
+    declared_evidence_roles: tuple[str, ...],
+    index: CanonicalRuntimeBindingIndex,
+    prior: tuple[StateWriteProvenance, ...],
+) -> tuple[StateWriteProvenance, ...]:
+    return tuple(
+        _state_write_provenance(
+            step,
+            capability_id=recipe_id,
+            produced_handle=produced.handle,
+            output_key=return_spec.output_key or return_spec.name,
+            runtime_type=return_spec.runtime_type,
+            identity_policy=return_spec.identity_policy,
+            identity_role=return_spec.semantic_role or return_spec.name,
+            evidence_roles=declared_evidence_roles,
+            identity_arg=return_spec.identity_arg,
+            write_mode=return_spec.write_mode,
+            input_path=None,
+            index=index,
+            prior=prior,
+        )
+        for produced, return_spec in bindings
+    )
+
+
+def _function_write_provenance(
+    step: StepIntent,
+    *,
+    method_id: str,
+    plan: StepPlan,
+    registrations: list[tuple[str, str, str]],
+    companion_registrations: list[RuntimeHandleBinding],
+    function_specs: FunctionSpecRegistry,
+    index: CanonicalRuntimeBindingIndex,
+    prior: tuple[StateWriteProvenance, ...],
+) -> tuple[StateWriteProvenance, ...]:
+    function = function_specs.get(method_id)
+    if function is None:
+        return ()
+    returns = {
+        item.output_key: item
+        for item in function.returns
+        if item.output_key is not None
+    }
+    invocation = next(
+        (
+            item
+            for item in reversed(plan.invocations)
+            if item.method_id == method_id
+        ),
+        None,
+    )
+    result: list[StateWriteProvenance] = []
+    all_registrations = [
+        *registrations,
+        *(
+            (item.handle, _output_key_for_companion_path(item.path, plan), item.path)
+            for item in companion_registrations
+        ),
+    ]
+    for produced_handle, output_key, _path in all_registrations:
+        return_spec = returns.get(output_key)
+        if return_spec is None:
+            continue
+        input_path = (
+            invocation.inputs.get(return_spec.identity_arg)
+            if invocation is not None and return_spec.identity_arg is not None
+            else None
+        )
+        result.append(
+            _state_write_provenance(
+                step,
+                capability_id=method_id,
+                produced_handle=produced_handle,
+                output_key=output_key,
+                runtime_type=return_spec.runtime_type,
+                identity_policy=return_spec.identity_policy,
+                identity_role=return_spec.semantic_role or return_spec.name,
+                evidence_roles=(),
+                identity_arg=return_spec.identity_arg,
+                write_mode=return_spec.write_mode,
+                input_path=input_path,
+                index=index,
+                prior=prior,
+            )
+        )
+    return tuple(result)
+
+
+def _output_key_for_companion_path(path: str, plan: StepPlan) -> str:
+    for source, target in plan.promote_outputs.items():
+        if target == path:
+            return ContextPath.parse(source).key
+    raise StrategyDraftValidationError(
+        f"companion_output_source_not_found: path={path}, step={plan.step_id}"
+    )
+
+
+def _state_write_provenance(
+    step: StepIntent,
+    *,
+    capability_id: str,
+    produced_handle: str,
+    output_key: str,
+    runtime_type: str,
+    identity_policy: StateIdentityPolicy,
+    identity_role: str,
+    evidence_roles: tuple[str, ...],
+    identity_arg: str | None,
+    write_mode: StateWriteMode,
+    input_path: str | None,
+    index: CanonicalRuntimeBindingIndex,
+    prior: tuple[StateWriteProvenance, ...],
+) -> StateWriteProvenance:
+    del identity_arg
+    source_handle = _source_handle_for_path(input_path, index, prior)
+    source = next(
+        (item for item in reversed(prior) if item.produced_handle == source_handle),
+        None,
+    )
+    if identity_policy == "derived_role":
+        object_ref = (
+            produced_handle
+            if runtime_type == "Symbol"
+            else derived_role_object_ref(
+                call_id=step.step_id,
+                semantic_role=identity_role,
+                scope_id=step.scope_id,
+                runtime_type=runtime_type,
+            )
+        )
+    elif identity_policy == "preserve_input_object":
+        object_ref = (
+            _point_handle_for_path(input_path, index)
+            if runtime_type == "Point"
+            else None
+        ) or (
+            source.object_ref
+            if source is not None
+            else (
+                source_handle
+                if isinstance(source_handle, str) and source_handle.startswith("symbol:")
+                else (
+                    _point_entity_for_state(source_handle, step, index)
+                    or _point_entity_for_state(produced_handle, step, index)
+                )
+            )
+        )
+    elif identity_policy == "target_object":
+        object_ref = (
+            _point_handle_for_path(input_path, index)
+            or _point_entity_for_state(produced_handle, step, index)
+        )
+    else:
+        object_ref = None
+    source_handles = tuple(
+        handle
+        for handle in (source_handle, *step.reads)
+        if isinstance(handle, str) and handle
+    )
+    previous_write = next(
+        (
+            item
+            for item in reversed(prior)
+            if item.object_ref is not None and item.object_ref == object_ref
+            and item.runtime_type == runtime_type
+            and item.scope_id == step.scope_id
+        ),
+        None,
+    )
+    effective_write_mode: StateWriteMode = write_mode
+    if write_mode == "transition" and previous_write is None and object_ref is not None:
+        # Initial ProblemIR states are not represented in the prior write
+        # provenance ledger. The first derived value starts that ledger; later
+        # writes to the same object/state must still be explicit transitions.
+        effective_write_mode = "create"
+    if (
+        effective_write_mode == "create"
+        and identity_policy == "target_object"
+        and previous_write is not None
+    ):
+        effective_write_mode = "transition"
+    if effective_write_mode == "transition":
+        _validate_state_transition(
+            step,
+            object_ref=object_ref,
+            previous_write=previous_write,
+            prior=prior,
+            index=index,
+        )
+    state_kind = state_kind_for_runtime_type(runtime_type)
+    state_slot_id = (
+        f"{object_ref}.{state_kind}@{step.scope_id}:{runtime_type}"
+        if object_ref is not None
+        else None
+    )
+    return StateWriteProvenance(
+        step_id=step.step_id,
+        scope_id=step.scope_id,
+        capability_id=capability_id,
+        produced_handle=produced_handle,
+        output_key=output_key,
+        runtime_type=runtime_type,
+        identity_policy=identity_policy,
+        identity_role=identity_role,
+        evidence_roles=evidence_roles,
+        object_ref=object_ref,
+        source_handles=tuple(_unique_ordered(source_handles)),
+        source_step_id=source.step_id if source is not None else None,
+        state_slot_id=state_slot_id,
+        write_mode=effective_write_mode,
+        previous_write_step_id=(
+            previous_write.step_id if previous_write is not None else None
+        ),
+    )
+
+
+def _enrich_write_provenance_runtime_symbols(
+    provenance: tuple[StateWriteProvenance, ...],
+    *,
+    registrations: tuple[RuntimeHandleBinding, ...],
+    context: RuntimeContext,
+) -> tuple[StateWriteProvenance, ...]:
+    paths = {item.handle: item.path for item in registrations}
+    result: list[StateWriteProvenance] = []
+    for item in provenance:
+        path = paths.get(item.produced_handle)
+        free_symbols: set[Any] = set()
+        if path is not None:
+            try:
+                value = context.read_path(
+                    path,
+                    from_scope_id=item.scope_id,
+                    expected_type=item.runtime_type,
+                ).value
+                if item.runtime_type == "Symbol":
+                    free_symbols.add(value)
+                elif item.runtime_type == "Point":
+                    for coordinate in value:
+                        free_symbols.update(getattr(coordinate, "free_symbols", set()))
+                else:
+                    free_symbols.update(getattr(value, "free_symbols", set()))
+            except (KeyError, PermissionError, TypeError, ValueError):
+                pass
+        result.append(
+            replace(
+                item,
+                free_symbol_names=tuple(sorted(map(str, free_symbols))),
+            )
+        )
+    return tuple(result)
+
+
+def _validate_state_transition(
+    step: StepIntent,
+    *,
+    object_ref: str | None,
+    previous_write: StateWriteProvenance | None,
+    prior: tuple[StateWriteProvenance, ...],
+    index: CanonicalRuntimeBindingIndex,
+) -> None:
+    if object_ref is None or previous_write is None:
+        raise StrategyDraftValidationError(
+            "function.transition_source_missing: "
+            f"step={step.step_id}, object_ref={object_ref or 'unknown'}"
+        )
+    if not index.context.is_visible(step.scope_id, previous_write.scope_id):
+        raise StrategyDraftValidationError(
+            "function.transition_scope_invisible: "
+            f"step={step.step_id}, previous_step={previous_write.step_id}"
+        )
+    by_handle = {item.produced_handle: item for item in prior}
+    pending = list(step.reads)
+    visited: set[str] = set()
+    while pending:
+        handle = pending.pop()
+        if handle in visited:
+            continue
+        visited.add(handle)
+        if handle == previous_write.produced_handle:
+            return
+        source = by_handle.get(handle)
+        if source is None:
+            continue
+        if source.step_id == previous_write.step_id:
+            return
+        pending.extend(source.source_handles)
+    raise StrategyDraftValidationError(
+        "function.transition_dependency_missing: "
+        f"step={step.step_id}, object_ref={object_ref}, "
+        f"previous_step={previous_write.step_id}"
+    )
+
+
+def _expand_point_parameter_substitutions(
+    plan: StepPlan,
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> StepPlan:
+    """Compile one evaluate-point StepIntent into identity-safe substitutions."""
+    if len(plan.invocations) != 1:
+        return plan
+    base = plan.invocations[0]
+    point_path = base.inputs.get("point")
+    if point_path is None:
+        return plan
+    try:
+        point = index.context.read_path(
+            point_path,
+            from_scope_id=step.scope_id,
+            expected_type="Point",
+        ).value
+    except (KeyError, PermissionError, TypeError, ValueError) as exc:
+        raise StrategyDraftValidationError(
+            f"function.arg_missing: method=evaluate_point_at_parameter, arg=point, reason={exc}"
+        ) from exc
+    free_symbols = {
+        symbol
+        for coordinate in point
+        for symbol in getattr(coordinate, "free_symbols", set())
+    }
+    substitutions: list[tuple[Any, str, str, str]] = []
+    for handle in step.reads:
+        binding = index.bindings.get(handle)
+        if binding is None or binding.value_type != "ParameterValue":
+            continue
+        provenance = next(
+            (
+                item
+                for item in reversed(index.state_write_provenance)
+                if item.produced_handle == handle
+                and item.runtime_type == "ParameterValue"
+            ),
+            None,
+        )
+        if provenance is None or provenance.object_ref is None:
+            continue
+        symbol_binding = index.bindings.get(provenance.object_ref)
+        if symbol_binding is None or symbol_binding.value_type != "Symbol":
+            raise StrategyDraftValidationError(
+                "function.return_identity_unresolved: "
+                f"parameter_value={handle}, symbol={provenance.object_ref}"
+            )
+        symbol = index.context.read_path(
+            symbol_binding.path,
+            from_scope_id=step.scope_id,
+            expected_type="Symbol",
+        ).value
+        substitutions.append((symbol, symbol_binding.path, binding.path, handle))
+    by_symbol = {item[0]: item for item in substitutions}
+    missing = sorted(
+        (symbol for symbol in free_symbols if symbol not in by_symbol),
+        key=str,
+    )
+    if missing:
+        refs = [
+            handle
+            for handle, binding in index.bindings.items()
+            if binding.value_type == "Symbol"
+            and _runtime_symbol_for_binding(binding.path, step, index) in missing
+        ]
+        raise StrategyDraftValidationError(
+            "function.unresolved_symbol_inputs: "
+            f"step={step.step_id}, symbols={'|'.join(map(str, missing))}, "
+            f"semantic_refs={'|'.join(refs)}"
+        )
+    ordered = [by_symbol[symbol] for symbol in sorted(free_symbols, key=str)]
+    if not ordered:
+        return plan
+    final_output = base.outputs["evaluated_point"]
+    current_point = point_path
+    invocations: list[MethodInvocation] = []
+    for index_number, (_symbol, symbol_path, value_path, _handle) in enumerate(ordered):
+        output_path = (
+            final_output
+            if index_number == len(ordered) - 1
+            else _temp(step.step_id, f"evaluated_point_{index_number + 1}")
+        )
+        invocations.append(
+            MethodInvocation(
+                invocation_id=f"{step.step_id}.evaluate_point_at_parameter.{index_number + 1}",
+                method_id="evaluate_point_at_parameter",
+                scope=base.scope,
+                inputs={
+                    "point": current_point,
+                    "parameter": symbol_path,
+                    "parameter_value": value_path,
+                },
+                outputs={"evaluated_point": output_path},
+            )
+        )
+        current_point = output_path
+    return StepPlan(
+        step_id=plan.step_id,
+        goal=plan.goal,
+        scope=plan.scope,
+        invocations=invocations,
+        expected_outputs=plan.expected_outputs,
+        promote_outputs=plan.promote_outputs,
+    )
+
+
+MethodPlanTransformer = Callable[
+    [StepPlan, StepIntent, CanonicalRuntimeBindingIndex],
+    StepPlan,
+]
+
+_METHOD_PLAN_TRANSFORMERS: dict[str, MethodPlanTransformer] = {
+    "substitute_all_point_parameters": _expand_point_parameter_substitutions,
+}
+
+
+def _apply_method_plan_transformer(
+    transformer_id: str,
+    *,
+    plan: StepPlan,
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> StepPlan:
+    transformer = _METHOD_PLAN_TRANSFORMERS.get(transformer_id)
+    if transformer is None:
+        raise StrategyDraftValidationError(
+            f"method.plan_transformer_missing: {transformer_id}"
+        )
+    return transformer(plan, step, index)
+
+
+def _runtime_symbol_for_binding(
+    path: str,
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> Any | None:
+    try:
+        return index.context.read_path(
+            path,
+            from_scope_id=step.scope_id,
+            expected_type="Symbol",
+        ).value
+    except (KeyError, PermissionError, TypeError, ValueError):
+        return None
+
+
+def _source_handle_for_path(
+    path: str | None,
+    index: CanonicalRuntimeBindingIndex,
+    prior: tuple[StateWriteProvenance, ...],
+) -> str | None:
+    if path is None:
+        return None
+    handles = [
+        handle
+        for handle, binding in index.bindings.items()
+        if binding.path == path
+    ]
+    prior_handles = {item.produced_handle for item in prior}
+    for handle in reversed(handles):
+        if handle in prior_handles:
+            return handle
+    for handle in reversed(handles):
+        if handle.startswith("fact:"):
+            return handle
+    return handles[-1] if handles else None
+
+
+def _point_handle_for_path(
+    path: str | None,
+    index: CanonicalRuntimeBindingIndex,
+) -> str | None:
+    if path is None:
+        return None
+    handles = [
+        handle
+        for handle, binding in index.bindings.items()
+        if binding.path == path and handle.startswith("point:")
+    ]
+    return handles[-1] if len(handles) == 1 else None
+
+
+def _point_entity_for_state(
+    state_handle: str | None,
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> str | None:
+    candidates = [
+        handle
+        for handle in step.reads
+        if handle.startswith("point:")
+    ]
+    if state_handle:
+        name = _provenance_semantic_name(state_handle).lower()
+        matching = [
+            handle
+            for handle in candidates
+            if _provenance_semantic_name(handle).lower() in name.split("_")
+        ]
+        if len(matching) == 1:
+            return matching[0]
+        state_name = name.split("_", 1)[0]
+        registry_matches = [
+            handle
+            for handle in index.handle_registry.entity_handles
+            if handle.startswith("point:")
+            and _provenance_semantic_name(handle).lower() == state_name
+            and _handle_scope(handle) in index.handle_registry.ancestor_scopes(step.scope_id)
+        ]
+        if len(registry_matches) == 1:
+            return registry_matches[0]
+    return candidates[0] if len(candidates) == 1 else None
+
+
+def _provenance_semantic_name(handle: str) -> str:
+    if handle.startswith("answer:"):
+        return handle.split(":", 1)[1].rsplit(".", 1)[-1]
+    return _semantic_name(handle)
 
 def _output_key_from_promote_source(
     step_id: str,
@@ -2276,6 +3982,8 @@ def _target_path_for_produced(
     output_type: str,
     index: CanonicalRuntimeBindingIndex,
     step: StepIntent,
+    *,
+    point_transition: bool = False,
 ) -> str:
     """把 produces handle 映射到 runtime promote target path。"""
     if produced.handle.startswith("answer:"):
@@ -2288,6 +3996,20 @@ def _target_path_for_produced(
             answer_key = _answer_semantic_name(produced.handle) or goal.answer_key
             return _scoped_output_path(index.context, produced.valid_scope, answer_key)
         return index.path_for(produced.handle)
+    if (
+        output_type == "Point"
+        and point_transition
+        and produced.handle.startswith("fact:")
+    ):
+        # A transition advances a Point's coordinate state without mutating
+        # the ProblemIR object declaration. Explicit coordinates are locked
+        # input evidence, so the new value lives in a writable state path and
+        # remains tied to the same object through StateWriteProvenance.
+        return _scoped_output_path(
+            index.context,
+            produced.valid_scope,
+            _semantic_name(produced.handle),
+        )
     fact_type = index.fact_types.get(produced.handle)
     semantic_name = _semantic_name(produced.handle)
     if fact_type == "point_coordinate" or _is_point_coordinate_semantic_name(semantic_name):
@@ -2303,6 +4025,11 @@ def _target_path_for_produced(
             return _scoped_output_path(index.context, produced.valid_scope, semantic_name)
         if _handle_scope(point_handle) != produced.valid_scope:
             return _scoped_output_path(index.context, produced.valid_scope, semantic_name)
+        if point_transition:
+            return index.path_for(
+                point_handle,
+                expected_type="PointRef|Point",
+            )
         return index.point_ref_path_for(point_handle)
     if output_type == "PointList":
         return _scoped_output_path(index.context, produced.valid_scope, semantic_name)
@@ -2335,7 +4062,9 @@ def _is_point_coordinate_semantic_name(name: str) -> bool:
     """判断 produced semantic name 是否表示某点坐标 fact。"""
     return bool(
         re.fullmatch(
-            r"[A-Za-z][A-Za-z0-9]*(?:_param)?_(?:coord|coordinate)(?:_[A-Za-z0-9_]+)?",
+            r"[A-Za-z][A-Za-z0-9]*_"
+            r"(?:(?:param|parametric|parameterized)_(?:coord|coordinate)"
+            r"|(?:coord|coordinate))(?:_[A-Za-z0-9_]+)?",
             name,
             flags=re.IGNORECASE,
         )
@@ -2353,7 +4082,9 @@ def _point_name_from_point_state_semantic(name: str) -> str | None:
         point = match.group("point")
         return point[:1].upper() + point[1:]
     match = re.fullmatch(
-        r"(?P<point>[A-Za-z][A-Za-z0-9]*)(?:_param)?_(?:coord|coordinate)(?:_[A-Za-z0-9_]+)?",
+        r"(?P<point>[A-Za-z][A-Za-z0-9]*)_"
+        r"(?:(?:param|parametric|parameterized)_(?:coord|coordinate)"
+        r"|(?:coord|coordinate))(?:_[A-Za-z0-9_]+)?",
         name,
         flags=re.IGNORECASE,
     )
@@ -2462,12 +4193,35 @@ def _method_output_union(
 def _execution_blocker_code(candidate_errors: list[str]) -> str:
     """把候选执行错误压成稳定短错误码。"""
     text = "\n".join(candidate_errors)
+    for code in (
+        "function.arg_applicability",
+        "function.arg_not_read",
+        "function.return_identity_mismatch",
+        "function.return_identity_unresolved",
+        "function.unresolved_symbol_inputs",
+        "function.transition_source_missing",
+        "function.transition_scope_invisible",
+        "function.transition_dependency_missing",
+    ):
+        if code in text:
+            return code
+    if "unsupported_direction_point_utility" in text:
+        return "unsupported_direction_point_utility"
     if "final_point_requires_square_recovery" in text:
         return "final_point_requires_square_recovery"
     if "missing_required_runtime_fact" in text:
         return "missing_required_runtime_fact"
     if "line_parabola_line_points_not_found" in text:
         return "missing_line_parabola_inputs"
+    if "parameterized point locus requires exactly one free parameter" in text:
+        return "function.arg_applicability"
+    if (
+        "curve_condition_target_point_not_found" in text
+        or "curve_condition_curve_point_not_found" in text
+    ):
+        return "function.arg_state_unavailable"
+    if re.search(r"\bpoint\s+[A-Za-z][A-Za-z0-9_]*\s+is unresolved\b", text):
+        return "function.arg_state_unavailable"
     if "binding_not_found" in text:
         return "binding_not_found"
     if "binding_type_mismatch" in text:
@@ -2509,6 +4263,91 @@ def _execution_blocker_missing_runtime_type(candidate_errors: list[str]) -> str 
         if value:
             return value
     return None
+
+
+def _execution_blocker_details(
+    candidate_errors: list[str],
+) -> dict[str, Any] | None:
+    """Extract fields from typed capability errors at the compiler boundary."""
+    for error in candidate_errors:
+        if "parameterized point locus requires exactly one free parameter" in error:
+            return {
+                "error_code": "function.arg_applicability",
+                "arg": "point",
+                "requirement": "exactly_one_free_symbol",
+            }
+        curve_point_match = re.search(
+            r"curve_condition_(?P<role>target|curve)_point_not_found:\s*"
+            r"point=(?P<point>[A-Za-z][A-Za-z0-9_]*)",
+            error,
+        )
+        if curve_point_match is not None:
+            return {
+                "error_code": "function.arg_state_unavailable",
+                "arg": f"{curve_point_match.group('role')}_point",
+                "unresolved_point_ref": curve_point_match.group("point"),
+            }
+        point_match = re.search(
+            r"\bpoint\s+(?P<point>[A-Za-z][A-Za-z0-9_]*)\s+is unresolved\b",
+            error,
+        )
+        if point_match is not None:
+            return {
+                "error_code": "function.arg_state_unavailable",
+                "unresolved_point_ref": point_match.group("point"),
+            }
+        marker = "function.unresolved_symbol_inputs:"
+        if marker in error:
+            fields = _typed_error_fields(error.split(marker, 1)[1])
+            return {
+                "error_code": "function.unresolved_symbol_inputs",
+                "arg": "parameter_value",
+                "missing_symbol_names": _split_typed_error_list(
+                    fields.get("symbols")
+                ),
+                # These handles are internal evidence consumed by the
+                # Functional retry projector. They are replaced by call-level
+                # semantic sources before anything reaches the LLM prompt.
+                "missing_symbol_handles": _split_typed_error_list(
+                    fields.get("semantic_refs")
+                ),
+            }
+        for error_code in ("macro.arg_missing", "function.arg_missing"):
+            marker = f"{error_code}:"
+            if marker not in error:
+                continue
+            fields = _typed_error_fields(error.split(marker, 1)[1])
+            argument = fields.get("arg")
+            if argument is not None:
+                return {
+                    "error_code": error_code,
+                    "arg": argument,
+                }
+    return None
+
+
+def _typed_error_fields(payload: str) -> dict[str, str]:
+    fields: dict[str, str] = {}
+    for part in payload.split(","):
+        key, separator, value = part.strip().partition("=")
+        if separator and key and value:
+            fields[key] = value.strip()
+    return fields
+
+
+def _split_typed_error_list(value: str | None) -> list[str]:
+    if not value:
+        return []
+    return [item for item in value.split("|") if item] if "|" in value else [
+        item for item in value.split(",") if item
+    ]
+
+
+def _candidate_warnings_for_report(report: StepIntentResolutionStepReport | None) -> list[str]:
+    """把 resolver warnings 安全带到 runtime diagnostic。"""
+    if report is None:
+        return []
+    return [f"candidate_warning:{warning}" for warning in report.warnings]
 
 
 def _candidate_error_for_exception(

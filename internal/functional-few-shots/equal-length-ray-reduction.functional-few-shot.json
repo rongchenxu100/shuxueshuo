@@ -1,0 +1,65 @@
+{
+  "format": "functional_plan/v1",
+  "scopes": [
+    {
+      "scope_id": "example",
+      "label": "机制示例",
+      "calls": [
+        {
+          "call_id": "reduce_equal_length_path",
+          "capability_id": "equal_length_ray_path_reduction",
+          "args": {
+            "path_minimum_target": {
+              "ref": "path_goal",
+              "kind": "fact"
+            },
+            "equal_length_condition": {
+              "ref": "equal_length_relation",
+              "kind": "fact"
+            },
+            "point_on_segment": {
+              "ref": "segment_membership",
+              "kind": "fact"
+            },
+            "point_on_ray": {
+              "ref": "ray_membership",
+              "kind": "fact"
+            }
+          },
+          "return_bindings": {},
+          "return_expectations": {
+            "path_minimum_expression": "open_expression"
+          },
+          "strategy": "用等长关系把双动点路径降维成单距离最值。",
+          "reason": "该机制产生关于主参数的最小值表达式。"
+        },
+        {
+          "call_id": "solve_parameter",
+          "capability_id": "parameter_from_expression_value",
+          "args": {
+            "expression": {
+              "from_call": "reduce_equal_length_path",
+              "return": "path_minimum_expression"
+            },
+            "minimum_value": {
+              "ref": "minimum_value",
+              "kind": "fact"
+            },
+            "parameter": {
+              "ref": "parameter",
+              "kind": "symbol"
+            }
+          },
+          "return_bindings": {
+            "parameter_value": {
+              "ref": "parameter_answer",
+              "kind": "answer"
+            }
+          },
+          "strategy": "令最小值表达式等于给定值并按范围取解。",
+          "reason": "将求得的主参数绑定答案目标。"
+        }
+      ]
+    }
+  ]
+}

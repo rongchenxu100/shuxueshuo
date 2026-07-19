@@ -26,5 +26,6 @@
   },
   "outputs": {
     "point": "Point"
-  }
+  },
+  "is_pure": true
 }

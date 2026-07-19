@@ -10,11 +10,48 @@ def scope_root(scope_id: str | None) -> str:
     if not scope_id:
         return "problem"
     text = str(scope_id)
-    if text.startswith("ii"):
-        return "ii"
-    if text.startswith("i"):
-        return "i"
-    return text.split("_", 1)[0]
+    return text.split("_", 1)[0] or "problem"
+
+
+def axis_parameter_point_id(label: str, scope_id: str | None) -> str:
+    """Stable visual-only id for a point with an unresolved axis parameter."""
+    safe_scope = "".join(
+        char if char.isalnum() else "_"
+        for char in str(scope_id or "problem")
+    ).strip("_")
+    return f"{label}_axis_{safe_scope or 'problem'}"
+
+
+def axis_parameter_candidate_point_id(label: str, scope_id: str | None, index: int) -> str:
+    """Stable visual-only id for one resolved candidate of an axis-parameter point."""
+    base = axis_parameter_point_id(label, scope_id)
+    return f"{base}_candidate_{max(1, int(index))}"
+
+
+def square_projection_point_id(
+    base_label: str,
+    point_label: str,
+    scope_id: str | None,
+) -> str:
+    """Stable visual-only id for a square coordinate proof helper point."""
+    safe_scope = "".join(
+        char if char.isalnum() else "_"
+        for char in str(scope_id or "problem")
+    ).strip("_")
+    safe_base = "".join(char for char in str(base_label) if char.isalnum()) or "base"
+    safe_point = "".join(char for char in str(point_label) if char.isalnum()) or "point"
+    return f"{safe_base}{safe_point}_proj_{safe_scope or 'problem'}"
+
+
+def locus_line_endpoint_id(label: str, scope_id: str | None, side: str) -> str:
+    """Stable visual-only id for a generated locus line endpoint."""
+    safe_scope = "".join(
+        char if char.isalnum() else "_"
+        for char in str(scope_id or "problem")
+    ).strip("_")
+    safe_label = "".join(char for char in str(label) if char.isalnum()) or "locus"
+    safe_side = "start" if str(side) == "start" else "end"
+    return f"{safe_label}_locus_{safe_scope or 'problem'}_{safe_side}"
 
 
 @dataclass(frozen=True)

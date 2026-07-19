@@ -13,12 +13,17 @@ from shuxueshuo_server.solver.family.models import (
     MethodInputBindingSpec,
     MethodPrepInvocationSpec,
     RecipeExecutionSpec,
+    recipe_output_alias,
     SolverFamilySpec,
     StepRecipeSpec,
+    expand_family_spec,
+)
+from shuxueshuo_server.solver.family.capability_packs import (
+    DEFAULT_CAPABILITY_PACK_REGISTRY,
 )
 
 
-QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = SolverFamilySpec(
+_QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = SolverFamilySpec(
     family_id="QuadraticEqualLengthRayPathMinimumSolver",
     match=FamilyMatchRule(
         patterns=("path-minimum",),
@@ -47,6 +52,12 @@ QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         "不要单独 produces M_coordinate_expr、N_coordinate_expr、OM_distance_expr、BN_distance_expr 这类参数化/分段距离 utility fact；这些不是初中生优先的解题步骤，也不是本 family 的可执行标准路线。",
         "不要把含参系数缓存、纯文字全等说明或最终讲解段落作为独立 produces；这些可以放在 strategy/reason 中。",
     ),
+    base_packs=(
+        "quadratic_core",
+        "parameter_solving_core",
+        "coordinate_geometry_core",
+    ),
+    mechanism_packs=("equal_length_ray_reduction_core",),
     method_ids=(
         "quadratic_from_constraints",
         "quadratic_y_axis_intercept_point",
@@ -77,8 +88,20 @@ QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 execution_strategy="equal_length_ray_path_reduction",
                 creates=("point",),
                 output_aliases=(
-                    ("distance_between_points.distance", "MinimumExpression"),
-                    ("distance_between_points.evaluated_distance", "MinimumExpression"),
+                    recipe_output_alias(
+                        "distance_between_points.distance",
+                        "MinimumExpression",
+                        "path_minimum_expression",
+                        goal_evidence_tags=("path_minimum_expression",),
+                    ),
+                    recipe_output_alias(
+                        "distance_between_points.evaluated_distance",
+                        "MinimumExpression",
+                        "evaluated_path_minimum_expression",
+                        required=False,
+                        cardinality="optional",
+                        goal_evidence_tags=("path_minimum_expression",),
+                    ),
                 ),
             ),
             priority="preferred",
@@ -143,13 +166,6 @@ QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             ),
         ),
         MethodBindingRuleSpec(
-            method_id="translated_point",
-            input_bindings=(
-                MethodInputBindingSpec("source", "translated_point:source"),
-                MethodInputBindingSpec("target", "translated_point:target"),
-            ),
-        ),
-        MethodBindingRuleSpec(
             method_id="angle_sum_equal_angle_candidates",
             input_bindings=(
                 MethodInputBindingSpec("condition", "angle_sum:condition"),
@@ -172,17 +188,6 @@ QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             ),
         ),
         MethodBindingRuleSpec(
-            method_id="line_parabola_second_intersection_point",
-            input_bindings=(
-                MethodInputBindingSpec("parabola", "read_type:Parabola"),
-                MethodInputBindingSpec("x", "symbol:x"),
-                MethodInputBindingSpec("line_p1", "line_parabola:line_p1"),
-                MethodInputBindingSpec("line_p2", "line_parabola:line_p2"),
-                MethodInputBindingSpec("known_point", "line_parabola:known_point"),
-                MethodInputBindingSpec("target", "line_parabola:target"),
-            ),
-        ),
-        MethodBindingRuleSpec(
             method_id="equal_length_ray_point",
             input_bindings=(
                 MethodInputBindingSpec("anchor", "equal_length_ray:anchor"),
@@ -191,22 +196,10 @@ QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 MethodInputBindingSpec("target", "equal_length_ray:target"),
             ),
         ),
-        MethodBindingRuleSpec(
-            method_id="distance_between_points",
-            input_bindings=(
-                MethodInputBindingSpec("p1", "distance:p1"),
-                MethodInputBindingSpec("p2", "distance:p2"),
-            ),
-            expansion_selectors=("distance_parameter_value_if_read",),
-        ),
-        MethodBindingRuleSpec(
-            method_id="parameter_from_expression_value",
-            input_bindings=(
-                MethodInputBindingSpec("expression", "read_type:MinimumExpression"),
-                MethodInputBindingSpec("condition", "fact:minimum_value:Condition"),
-                MethodInputBindingSpec("parameter", "parameter_symbol"),
-                MethodInputBindingSpec("constraint", "parameter_constraint", required=False),
-            ),
-        ),
     ),
+)
+
+QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = expand_family_spec(
+    _QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY,
+    DEFAULT_CAPABILITY_PACK_REGISTRY,
 )

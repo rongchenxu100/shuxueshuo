@@ -79,6 +79,7 @@ def test_heping_ermo_strategy_payload_contains_text_faithful_problem_ir() -> Non
     assert "quadratic_axis_parameterized_point" in method_ids
     assert "square_adjacent_vertex_from_side" in method_ids
     assert "point_candidates_from_curve_point_condition" in method_ids
+    assert "midpoint_point" in method_ids
     old_coarse_method_id = "square_axis_side_curve_point" + "_candidates"
     assert old_coarse_method_id not in method_ids
     old_coarse_recipe_id = "axis_square_vertex_curve_point" + "_candidates"

@@ -5,6 +5,14 @@ family 包只承载题型级 spec 和 registry，不执行求解。通用 Runtim
 """
 
 from shuxueshuo_server.solver.family.models import (
+    CapabilityCardinality,
+    CapabilityContractSource,
+    CapabilityContractSpec,
+    ConditionPattern,
+    CapabilityPackRegistry,
+    CapabilityPackSpec,
+    GoalEvidenceTag,
+    CapabilityScopePolicy,
     FamilyMatchRule,
     FamilyRegistry,
     MethodBindingRuleSpec,
@@ -13,7 +21,13 @@ from shuxueshuo_server.solver.family.models import (
     MethodPrepInvocationSpec,
     RecipeExecutionSpec,
     SolverFamilySpec,
+    StateSlotPattern,
+    StateWriteMode,
     StepRecipeSpec,
+    expand_family_spec,
+)
+from shuxueshuo_server.solver.family.capability_packs import (
+    DEFAULT_CAPABILITY_PACK_REGISTRY,
 )
 from shuxueshuo_server.solver.family.quadratic_path_minimum import (
     QUADRATIC_PATH_MINIMUM_FAMILY,
@@ -37,6 +51,15 @@ DEFAULT_FAMILY_REGISTRY = FamilyRegistry((
 
 __all__ = [
     "DEFAULT_FAMILY_REGISTRY",
+    "DEFAULT_CAPABILITY_PACK_REGISTRY",
+    "CapabilityContractSpec",
+    "CapabilityContractSource",
+    "CapabilityCardinality",
+    "CapabilityPackRegistry",
+    "CapabilityPackSpec",
+    "GoalEvidenceTag",
+    "CapabilityScopePolicy",
+    "ConditionPattern",
     "FamilyMatchRule",
     "FamilyRegistry",
     "MethodBindingRuleSpec",
@@ -49,5 +72,8 @@ __all__ = [
     "QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY",
     "RecipeExecutionSpec",
     "SolverFamilySpec",
+    "StateSlotPattern",
+    "StateWriteMode",
     "StepRecipeSpec",
+    "expand_family_spec",
 ]

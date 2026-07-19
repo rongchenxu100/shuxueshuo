@@ -73,6 +73,8 @@ class BrokenPathStraighteningCandidatesMethod:
                 line_point_2=line_point_2,
             ),
         ]
+        for candidate in candidates:
+            _attach_structured_candidate_roles(candidate, transformation)
         checks: list[CheckResult] = []
         for candidate in candidates:
             moving_point = _generic_point_on_line(line_point_1, line_point_2)
@@ -211,3 +213,53 @@ def _line_point(line: dict[str, Any], key: str) -> Point:
     if not isinstance(raw, tuple) or len(raw) != 2:
         raise ValueError(f"moving_locus requires 2D {key}")
     return (sp.simplify(raw[0]), sp.simplify(raw[1]))
+
+
+def _attach_structured_candidate_roles(
+    candidate: dict[str, Any],
+    transformation: dict[str, Any],
+) -> None:
+    """Carry canonical path roles into the selected-candidate state."""
+
+    fixed_refs = transformation.get("fixed_endpoint_refs")
+    moving_ref = transformation.get("moving_point_ref")
+    locus_refs = transformation.get("moving_locus_endpoint_refs")
+    if not (
+        isinstance(fixed_refs, list)
+        and len(fixed_refs) == 2
+        and all(_canonical_point_ref(item) for item in fixed_refs)
+        and _canonical_point_ref(moving_ref)
+        and isinstance(locus_refs, list)
+        and len(locus_refs) == 2
+        and all(_canonical_point_ref(item) for item in locus_refs)
+    ):
+        return
+    fixed_by_name = {
+        str(item).rsplit(":", 1)[-1]: str(item)
+        for item in fixed_refs
+    }
+    source_ref = fixed_by_name.get(str(candidate.get("reflect_source", "")))
+    other_ref = fixed_by_name.get(str(candidate.get("other_fixed_point", "")))
+    if source_ref is None or other_ref is None:
+        return
+    candidate.update(
+        {
+            "reflect_source_ref": source_ref,
+            "other_fixed_point_ref": other_ref,
+            "moving_point_ref": moving_ref,
+            "moving_locus_condition_ref": transformation.get(
+                "moving_locus_condition_ref"
+            ),
+            "moving_locus_segment_ref": transformation.get(
+                "moving_locus_segment_ref"
+            ),
+            "moving_locus_endpoint_refs": list(locus_refs),
+            "source_path_transformation_refs": list(
+                transformation.get("source_condition_refs", ())
+            ),
+        }
+    )
+
+
+def _canonical_point_ref(value: Any) -> bool:
+    return isinstance(value, str) and value.startswith("point:")

@@ -6,7 +6,10 @@
 
 from __future__ import annotations
 
-from shuxueshuo_server.solver.contracts import MethodExplanationSpec
+from shuxueshuo_server.solver.contracts import (
+    MethodExplanationSpec,
+    ScalarResultFormSpec,
+)
 
 from ._common import *
 from ._spec import MethodSpecSource
@@ -49,7 +52,10 @@ class DistanceBetweenPointsMethod:
 SPEC = MethodSpecSource(
     method_cls=DistanceBetweenPointsMethod,
     title='计算两点距离',
-    summary='输入: 两点及可选参数值；输出: 两点距离或代入参数后的距离。',
+    summary=(
+        "输入两点及可选参数值，输出两点距离。端点仍含未定参数时结果是开放表达式；"
+        "所有参数已确定时结果是可直接使用的闭合值。代入一个参数不保证其他参数也已闭合。"
+    ),
     solves=('derive_distance_between_points',),
     inputs={
     "p1": {
@@ -73,6 +79,22 @@ SPEC = MethodSpecSource(
     "distance": "MinimumExpression",
     "evaluated_distance": "MinimumExpression"
 },
+    scalar_result_forms={
+        "distance": ScalarResultFormSpec(
+            possible_forms=("open_expression", "closed_value"),
+            description=(
+                "端点仍含未确定参数时为 open_expression；不存在自由参数时为 "
+                "closed_value，可直接作为数值答案。"
+            ),
+        ),
+        "evaluated_distance": ScalarResultFormSpec(
+            possible_forms=("open_expression", "closed_value"),
+            description=(
+                "代入指定参数后若仍含其他未确定参数则为 open_expression；不存在自由参数时为 "
+                "closed_value。"
+            ),
+        ),
+    },
     preconditions=(),
     postconditions=(),
     trace_template=(),

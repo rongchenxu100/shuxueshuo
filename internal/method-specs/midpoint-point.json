@@ -22,5 +22,6 @@
   },
   "outputs": {
     "midpoint": "Point"
-  }
+  },
+  "is_pure": true
 }

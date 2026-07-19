@@ -27,6 +27,7 @@
   "outputs": {
     "axis_point": "Point"
   },
+  "is_pure": true,
   "preconditions": [
     "coefficient_relation 必须包含二次项系数 a 和一次项系数 b",
     "coefficient_relation 解出 b 后，-b/(2a) 不能再依赖 a 或 b；也就是关系必须能确定 b/a 的比值"

@@ -19,6 +19,7 @@
   "outputs": {
     "point": "Point"
   },
+  "is_pure": true,
   "preconditions": [
     "target.definition 包含 vector 或 dx/dy 平移信息"
   ],
@@ -33,7 +34,6 @@
     },
     "student_goal_template": "根据题设平移关系，由源点坐标求目标点坐标。",
     "student_title_template": "由平移关系求点坐标",
-    "student_nav_title_template": "",
     "student_title_templates_by_goal": {},
     "derive_templates": [],
     "box_templates": [],

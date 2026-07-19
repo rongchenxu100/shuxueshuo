@@ -46,6 +46,7 @@
   "outputs": {
     "path_transformation": "PathTransformation"
   },
+  "is_pure": true,
   "preconditions": [
     "两个动点分别位于两条有公共端点的线段上",
     "binding_relation 将第一个动点到已有固定端点的距离与第二个动点到固定端点的距离绑定",

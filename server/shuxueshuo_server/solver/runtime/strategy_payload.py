@@ -9,7 +9,8 @@ from __future__ import annotations
 from dataclasses import asdict
 import json
 from pathlib import Path
-from typing import Any, Callable
+import re
+from typing import Any, Callable, Protocol
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
@@ -19,15 +20,51 @@ from shuxueshuo_server.solver.family import (
     QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY,
     QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY,
 )
+from shuxueshuo_server.solver.family.models import SolverFamilySpec
 from shuxueshuo_server.solver.problem_models import ProblemIR
 from shuxueshuo_server.solver.question_goals import extract_question_goals
 from shuxueshuo_server.solver.runtime._paths import repo_root
 from shuxueshuo_server.solver.runtime.context import ContextBuilder
 from shuxueshuo_server.solver.runtime.context_inventory import ContextInventory
+from shuxueshuo_server.solver.runtime.capability_contracts import (
+    contract_is_prompt_executable,
+    effective_contract_by_id,
+)
+from shuxueshuo_server.solver.runtime.function_specs import (
+    function_catalog_payload,
+)
+from shuxueshuo_server.solver.runtime.functional_plan import (
+    FUNCTIONAL_PLAN_JSON_SCHEMA,
+    FunctionalCapabilityCatalog,
+    PlannerOutputFormat,
+)
+from shuxueshuo_server.solver.runtime.functional_plan_elaboration import (
+    FunctionalSemanticIndex,
+)
+from shuxueshuo_server.solver.runtime.functional_few_shots import (
+    FunctionalFewShotSelectionMode,
+    FunctionalFewShotSelectionRecord,
+    select_functional_few_shot,
+    split_functional_few_shot_asset,
+)
+from shuxueshuo_server.solver.runtime.macro_specs import (
+    macro_catalog_payload,
+)
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.planner import PlannerInputs
 from shuxueshuo_server.solver.runtime.projection import problem_to_llm_payload
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
+from shuxueshuo_server.solver.runtime.handle_alias_index import (
+    SEMANTIC_READ_KINDS,
+    looks_like_canonical_ref,
+)
+from shuxueshuo_server.solver.runtime.planner_state_context import (
+    initial_planner_state_context,
+)
+from shuxueshuo_server.solver.runtime.semantic_reads import (
+    ContextSemanticReadSource,
+    build_semantic_read_catalog_payload,
+)
 from shuxueshuo_server.solver.runtime.strategy_few_shots import (
     goal_types_from_scopes,
     query_goal_types_from_problem,
@@ -45,6 +82,24 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
 from shuxueshuo_server.solver.runtime.strategy_resolver import (
     _method_capability_summary,
 )
+from shuxueshuo_server.solver.runtime.strategy_retry_state import (
+    retry_state_from_attempt,
+)
+
+
+class PlannerStateContextDebugSource(ContextSemanticReadSource, Protocol):
+    """Planner context projection used by debug artifact writing."""
+
+    def to_payload(self) -> dict[str, Any]:
+        """Return full context snapshot payload."""
+
+    @property
+    def rewrite_ledger_payload(self) -> list[dict[str, str]]:
+        """Return state rewrite ledger payload."""
+
+    @property
+    def events_payload(self) -> list[dict[str, Any]]:
+        """Return context event payload."""
 
 class StrategyPayloadBuilder:
     """把 PlannerInputs 压缩成 LLM 可读的 probe payload。
@@ -58,13 +113,29 @@ class StrategyPayloadBuilder:
         self,
         *,
         few_shot_examples: list[dict[str, Any]] | None = None,
+        functional_few_shot_examples: list[dict[str, Any]] | None = None,
         few_shot_dir: Path | str | None = None,
+        functional_few_shot_dir: Path | str | None = None,
+        functional_plan_fixture_dir: Path | str | None = None,
         allow_same_problem_few_shot: bool = True,
+        functional_few_shot_mode: FunctionalFewShotSelectionMode | None = None,
         problem_payload: dict[str, Any] | None = None,
     ) -> None:
         self.few_shot_examples = few_shot_examples
+        self.functional_few_shot_examples = functional_few_shot_examples
         self.few_shot_dir = Path(few_shot_dir) if few_shot_dir is not None else None
+        self.functional_few_shot_dir = (
+            Path(functional_few_shot_dir)
+            if functional_few_shot_dir is not None
+            else None
+        )
+        self.functional_plan_fixture_dir = (
+            Path(functional_plan_fixture_dir)
+            if functional_plan_fixture_dir is not None
+            else None
+        )
         self.allow_same_problem_few_shot = allow_same_problem_few_shot
+        self.functional_few_shot_mode = functional_few_shot_mode
         self.problem_payload = problem_payload
 
     def build(
@@ -72,6 +143,8 @@ class StrategyPayloadBuilder:
         inputs: PlannerInputs,
         *,
         problem_payload: dict[str, Any] | None = None,
+        planner_state_context: ContextSemanticReadSource | None = None,
+        output_format: PlannerOutputFormat = "step_intent",
     ) -> dict[str, Any]:
         """生成 prompt payload；每个顶层字段都对应一个可独立 fake 的来源。"""
         problem_payload = problem_payload or self.problem_payload
@@ -86,22 +159,84 @@ class StrategyPayloadBuilder:
         method_ids = inputs.family_spec.method_ids or tuple(
             sorted(inputs.method_specs.specs)
         )
+        prompt_method_ids = _prompt_exposed_direct_method_ids(
+            inputs.family_spec,
+            method_ids,
+            inputs.method_specs,
+        )
         # 显式传入的 LLM ProblemIR 是 prompt 的唯一题目事实源。这里在 payload 边界
         # 校验，避免旧 solver fixture 的 relations/target_path 等字段混入 LLM 链路。
-        CanonicalHandleRegistry.from_problem_payload(problem_payload)
+        handle_registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+        if planner_state_context is None:
+            planner_state_context = initial_planner_state_context(
+                inputs,
+                problem_payload=problem_payload,
+                handle_registry=handle_registry,
+            )
+        previous_attempts = list(inputs.previous_errors)
+        if output_format == "functional_plan":
+            semantic_index = FunctionalSemanticIndex.from_context(
+                planner_state_context,
+                handle_registry=handle_registry,
+            )
+            functional_catalog = FunctionalCapabilityCatalog.from_family_spec(
+                inputs.family_spec,
+                inputs.method_specs,
+            ).contextualized(semantic_index)
+            few_shot_examples, few_shot_selection = (
+                self._functional_few_shot_examples(
+                    inputs,
+                    functional_catalog=functional_catalog,
+                )
+            )
+            return {
+                "planner_output_format": "functional_plan",
+                "problem_id": inputs.problem_id,
+                "family_id": inputs.family_spec.family_id,
+                "problem_ir": _functional_problem_ir_payload(
+                    problem_payload,
+                    planner_state_context,
+                ),
+                "strategy_principles": list(
+                    inputs.family_spec.strategy_principles
+                ),
+                "functional_capability_catalog": (
+                    functional_catalog.to_prompt_payload()
+                ),
+                "few_shot_examples": few_shot_examples,
+                "functional_few_shot_selection": few_shot_selection,
+                "previous_attempt_state": _functional_previous_attempt_state(
+                    previous_attempts
+                ),
+                "output_json_schema": FUNCTIONAL_PLAN_JSON_SCHEMA,
+            }
         return {
             "problem_id": inputs.problem_id,
             "family_id": inputs.family_spec.family_id,
             "problem_ir": dict(problem_payload),
+            "semantic_read_catalog": build_semantic_read_catalog_payload(
+                handle_registry,
+                planner_state_context=planner_state_context,
+            ),
             "naming_conventions": _naming_conventions_payload(),
+            "prompt_flags": _prompt_flags(inputs.family_spec),
             "family_spec": _family_spec_payload(inputs.family_spec),
             "method_catalog": _method_catalog_payload(
                 inputs.method_specs,
-                method_ids,
+                prompt_method_ids,
+            ),
+            "function_catalog": function_catalog_payload(
+                inputs.family_spec,
+                inputs.method_specs,
+            ),
+            "macro_catalog": macro_catalog_payload(
+                inputs.family_spec,
+                inputs.method_specs,
             ),
             "recipe_catalog": _recipe_catalog_payload(inputs.family_spec),
             "few_shot_examples": self._few_shot_examples(inputs, problem_payload),
-            "previous_attempts": list(inputs.previous_errors),
+            "previous_attempt_state": _previous_attempt_state(previous_attempts),
+            "previous_attempts": _prompt_previous_attempts(previous_attempts),
             "output_json_schema": STEP_INTENT_JSON_SCHEMA,
         }
 
@@ -129,6 +264,672 @@ class StrategyPayloadBuilder:
             return selected
         return _default_few_shot_examples(inputs.family_spec.family_id)
 
+    def _functional_few_shot_examples(
+        self,
+        inputs: PlannerInputs,
+        *,
+        functional_catalog: FunctionalCapabilityCatalog,
+    ) -> tuple[list[dict[str, Any]], dict[str, Any] | None]:
+        """Select one neutral mechanism graph supported by this Context."""
+        if self.functional_few_shot_examples is not None:
+            return self.functional_few_shot_examples, None
+        locked_selection = _latest_functional_few_shot_selection(
+            list(inputs.previous_errors)
+        )
+        result = select_functional_few_shot(
+            capability_ids=functional_catalog.items,
+            base_pack_ids=inputs.family_spec.base_packs,
+            mechanism_pack_ids=inputs.family_spec.mechanism_packs,
+            answer_value_types=(
+                goal.value_type
+                for goal in inputs.question_goals
+                if goal.required
+            ),
+            family_id=inputs.family_spec.family_id,
+            problem_id=inputs.problem_id,
+            allow_same_problem=self.allow_same_problem_few_shot,
+            mode=self.functional_few_shot_mode,
+            locked_selection=locked_selection,
+            top_k=1,
+            few_shot_dir=self.functional_few_shot_dir,
+            fixture_dir=self.functional_plan_fixture_dir,
+        )
+        return list(result.examples), result.selection.to_payload()
+
+
+def _previous_attempt_state(previous_attempts: list[Any]) -> dict[str, Any]:
+    """为 prompt 提供上一轮失败历史的稳定索引。
+
+    内部 ``PlannerInputs.previous_errors`` 继续保留完整历史；prompt 只接收
+    LLM 真正需要的稳定前缀、修复窗口和 active issues，避免 replay/context
+    debug 大包稀释修复工单。
+    """
+    latest_retry_attempt = _latest_retry_state_attempt_payload(previous_attempts)
+    latest_retry_state_full = (
+        retry_state_from_attempt(latest_retry_attempt)
+        if latest_retry_attempt is not None
+        else None
+    )
+    latest_retry_state = None
+    if latest_retry_state_full is not None:
+        latest_retry_state = _prompt_retry_state(latest_retry_state_full)
+        # Compatibility mirrors remain in debug attempt payloads. Once a formal
+        # retry state exists they must not compete for LLM attention.
+        latest_stable_runtime = None
+        latest_semantic_failure = None
+    else:
+        latest_stable_runtime = _latest_stable_runtime_attempt(previous_attempts)
+        latest_semantic_failure = _latest_semantic_failure_attempt(previous_attempts)
+    return {
+        "attempt_count": len(previous_attempts),
+        "latest_retry_state": latest_retry_state,
+        "latest_stable_runtime": latest_stable_runtime,
+        "latest_semantic_failure": latest_semantic_failure,
+    }
+
+
+def _functional_previous_attempt_state(
+    previous_attempts: list[Any],
+) -> dict[str, Any]:
+    """Project only formal call-level retry memory into the Functional prompt."""
+    latest_attempt = _latest_retry_state_attempt_payload(previous_attempts)
+    retry_state = (
+        retry_state_from_attempt(latest_attempt)
+        if latest_attempt is not None
+        else None
+    )
+    if (
+        not isinstance(retry_state, dict)
+        or retry_state.get("candidate_format") != "functional_plan"
+    ):
+        return {"attempt_count": len(previous_attempts), "latest_retry_state": None}
+    selected = _select_attempt_fields(
+        retry_state,
+        (
+            "attempt",
+            "candidate_format",
+            "baseline_candidate",
+            "stable_candidate_calls",
+            "repair_call_ids",
+            "repair_suffix_start",
+            "issues",
+            "recovered_issues",
+            "preserve_policy",
+            "repair_instruction",
+            "replay_depth",
+            "selected_repair_layer",
+            "source",
+            "source_context_id",
+        ),
+    )
+    selected["issues"] = _functional_issue_tickets(selected.get("issues"))
+    selected["recovered_issues"] = _functional_issue_tickets(
+        selected.get("recovered_issues")
+    )
+    repair_start = selected.get("repair_suffix_start")
+    if isinstance(repair_start, dict):
+        selected["repair_suffix_start"] = {
+            key: value
+            for key, value in repair_start.items()
+            if key in {"call_id", "scope_id"}
+        }
+    return {
+        "attempt_count": len(previous_attempts),
+        "latest_retry_state": selected,
+    }
+
+
+def _latest_functional_few_shot_selection(
+    previous_attempts: list[Any],
+) -> FunctionalFewShotSelectionRecord | None:
+    """Restore the first attempt's internal selection without prompting it."""
+    for attempt in reversed(previous_attempts):
+        if not isinstance(attempt, dict):
+            continue
+        payload = attempt.get("functional_few_shot_selection")
+        if payload is None:
+            continue
+        return FunctionalFewShotSelectionRecord.from_payload(payload)
+    return None
+
+
+def _functional_issue_tickets(value: Any) -> list[dict[str, Any]]:
+    if not isinstance(value, list):
+        return []
+    tickets: list[dict[str, Any]] = []
+    for item in value:
+        if not isinstance(item, dict):
+            continue
+        ticket = {
+            key: child
+            for key, child in item.items()
+            if key not in {"step_id", "repair_target", "preserve_policy"}
+        }
+        if isinstance(item.get("step_id"), str):
+            ticket["call_id"] = item["step_id"]
+        tickets.append(_sanitize_functional_ticket_value(ticket))
+    return tickets
+
+
+def _sanitize_functional_ticket_value(value: Any) -> Any:
+    """Project runtime handles in retry diagnostics back to short semantic refs."""
+    if isinstance(value, dict):
+        return {
+            key: _sanitize_functional_ticket_value(child)
+            for key, child in value.items()
+        }
+    if isinstance(value, list):
+        return [_sanitize_functional_ticket_value(child) for child in value]
+    if isinstance(value, str):
+        if looks_like_canonical_ref(
+            value,
+            allowed_kinds=SEMANTIC_READ_KINDS,
+        ):
+            return value.rsplit(":", 1)[-1]
+        return _FUNCTIONAL_INTERNAL_REF_RE.sub(
+            _functional_internal_ref_replacement,
+            value,
+        )
+    return value
+
+
+_FUNCTIONAL_INTERNAL_REF_RE = re.compile(
+    r"\b(?:point|line|segment|ray|function|symbol|angle|circle|polygon|fact|"
+    r"answer|role):[A-Za-z0-9_@:-]+(?:\.[A-Za-z0-9_@:-]+)*"
+)
+
+_FUNCTIONAL_PROMPT_METADATA_KEYS = {
+    "display",
+    "pattern",
+    "problem_id",
+    "problem_type",
+    "purpose",
+    "title",
+}
+
+
+def _functional_internal_ref_replacement(match: re.Match[str]) -> str:
+    value = match.group(0)
+    if value.startswith("role:"):
+        return value.removeprefix("role:").split("@", 1)[0]
+    return value.rsplit(":", 1)[-1]
+
+
+def _functional_problem_ir_payload(
+    problem_payload: dict[str, Any],
+    planner_state_context: ContextSemanticReadSource,
+) -> dict[str, Any]:
+    """Project ProblemIR to short semantic refs for the Functional protocol."""
+    ref_by_handle = {
+        item.handle: item.ref
+        for item in planner_state_context.semantic_read_catalog()
+        if item.prompt_visible
+    }
+
+    def project(value: Any) -> Any:
+        if isinstance(value, dict):
+            result: dict[str, Any] = {}
+            for key, item in value.items():
+                projected_key = (
+                    "semantic_ref" if key == "handle"
+                    else "target_ref" if key == "target_handle"
+                    else key
+                )
+                result[projected_key] = project(item)
+            return result
+        if isinstance(value, list):
+            return [project(item) for item in value]
+        if isinstance(value, str):
+            semantic_ref = ref_by_handle.get(value)
+            if semantic_ref is not None:
+                return semantic_ref
+            if looks_like_canonical_ref(
+                value,
+                allowed_kinds=SEMANTIC_READ_KINDS,
+            ):
+                return value.rsplit(":", 1)[-1]
+        return value
+
+    projected = project(problem_payload)
+    if not isinstance(projected, dict):
+        return {}
+    return {
+        key: value
+        for key, value in projected.items()
+        if key not in _FUNCTIONAL_PROMPT_METADATA_KEYS
+    }
+
+
+def _prompt_previous_attempts(previous_attempts: list[Any]) -> list[dict[str, Any]]:
+    """Return a compact LLM-facing view of previous attempts.
+
+    Full attempt payloads can carry context snapshots, replay reports, diagnostics,
+    and effective drafts for deterministic code paths. Those are useful internally
+    but too noisy for the model. The prompt view keeps a repair ticket summary only.
+    """
+    result: list[dict[str, Any]] = []
+    for item in previous_attempts:
+        if not isinstance(item, dict):
+            result.append({"summary": str(item)})
+            continue
+        retry_state = retry_state_from_attempt(item)
+        if retry_state is not None:
+            result.append(_prompt_attempt_from_retry_state(item, retry_state))
+            continue
+        result.append(_prompt_legacy_attempt(item))
+    return result
+
+
+def _prompt_attempt_from_retry_state(
+    item: dict[str, Any],
+    retry_state: dict[str, Any],
+) -> dict[str, Any]:
+    prompt_state = _prompt_retry_state(
+        retry_state,
+        include_baseline=False,
+        include_stable_prefix=False,
+    )
+    payload: dict[str, Any] = {
+        "attempt": item.get("attempt", retry_state.get("attempt")),
+        "status": "failed",
+        "repair_suffix_start": retry_state.get("repair_suffix_start"),
+        "preserve_policy": retry_state.get("preserve_policy"),
+        "stable_prefix_step_ids": _stable_prefix_step_ids(retry_state),
+        "primary_issue": _first_issue(retry_state),
+        "retry_state_summary": prompt_state,
+    }
+    context_ref = item.get("planner_state_context_ref")
+    if isinstance(context_ref, dict):
+        payload["planner_state_context_ref"] = _select_attempt_fields(
+            context_ref,
+            ("context_id", "parent_context_id", "schema_version"),
+        )
+    return payload
+
+
+def _prompt_legacy_attempt(item: dict[str, Any]) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "attempt": item.get("attempt"),
+        "status": "failed",
+        "errors": _short_errors(item.get("errors")),
+    }
+    repair_instruction = item.get("repair_instruction")
+    if isinstance(repair_instruction, str) and repair_instruction:
+        payload["repair_instruction"] = repair_instruction
+    repair_summary = item.get("repair_summary")
+    if isinstance(repair_summary, dict):
+        payload["repair_summary"] = _prompt_repair_summary(repair_summary)
+    diagnostic = item.get("diagnostic")
+    if isinstance(diagnostic, dict):
+        payload["diagnostic_summary"] = _prompt_diagnostic_summary(diagnostic)
+    semantic_report = _semantic_read_resolution_from_attempt(item)
+    if semantic_report and semantic_report.get("errors"):
+        payload["semantic_read_errors"] = semantic_report.get("errors")
+    return payload
+
+
+def _prompt_retry_state(
+    retry_state: dict[str, Any],
+    *,
+    include_baseline: bool = True,
+    include_stable_prefix: bool = True,
+) -> dict[str, Any]:
+    payload = _select_attempt_fields(
+        retry_state,
+        (
+            "attempt",
+            "repair_suffix_start",
+            "issues",
+            "recovered_issues",
+            "preserve_policy",
+            "repair_instruction",
+            "replay_depth",
+            "selected_repair_layer",
+            "source",
+            "source_context_id",
+        ),
+    )
+    if include_baseline:
+        payload["baseline_draft"] = retry_state.get("baseline_draft")
+    if include_stable_prefix:
+        payload["stable_prefix"] = retry_state.get("stable_prefix", [])
+    else:
+        payload["stable_prefix_step_ids"] = _stable_prefix_step_ids(retry_state)
+    timeline = retry_state.get("replay_timeline")
+    if isinstance(timeline, list):
+        payload["replay_timeline"] = [
+            _select_attempt_fields(item, ("layer", "status", "code"))
+            for item in timeline
+            if isinstance(item, dict)
+        ]
+    return payload
+
+
+def _prompt_repair_summary(summary: dict[str, Any]) -> dict[str, Any]:
+    return _select_attempt_fields(
+        summary,
+        (
+            "current_blocker",
+            "frozen_prefix",
+            "next_actions",
+            "do_not",
+            "already_handled",
+            "warnings",
+        ),
+    )
+
+
+def _prompt_diagnostic_summary(diagnostic: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "ok": diagnostic.get("ok"),
+        "accepted_prefix": [
+            _select_attempt_fields(item, ("step_id", "scope_id", "capability_id"))
+            for item in diagnostic.get("accepted_prefix", [])
+            if isinstance(item, dict)
+        ],
+        "blockers": [
+            _select_attempt_fields(
+                item,
+                (
+                    "step_id",
+                    "scope_id",
+                    "stage",
+                    "code",
+                    "message",
+                    "capability_id",
+                    "missing_runtime_type",
+                    "retryable",
+                ),
+            )
+            for item in diagnostic.get("blockers", [])
+            if isinstance(item, dict)
+        ],
+        "preflight_issues": [
+            _select_attempt_fields(
+                item,
+                ("step_id", "scope_id", "category", "code", "message", "repair"),
+            )
+            for item in diagnostic.get("preflight_issues", [])
+            if isinstance(item, dict)
+        ],
+    }
+
+
+def _stable_prefix_step_ids(retry_state: dict[str, Any]) -> list[str]:
+    result: list[str] = []
+    stable_prefix = retry_state.get("stable_prefix")
+    if not isinstance(stable_prefix, list):
+        return result
+    for item in stable_prefix:
+        if not isinstance(item, dict):
+            continue
+        step_id = item.get("step_id")
+        if isinstance(step_id, str) and step_id:
+            result.append(step_id)
+            continue
+        step = item.get("step")
+        if isinstance(step, dict) and isinstance(step.get("step_id"), str):
+            result.append(step["step_id"])
+    return result
+
+
+def _first_issue(retry_state: dict[str, Any]) -> dict[str, Any] | None:
+    issues = retry_state.get("issues")
+    if not isinstance(issues, list):
+        return None
+    for issue in issues:
+        if isinstance(issue, dict):
+            return _select_attempt_fields(
+                issue,
+                (
+                    "layer",
+                    "code",
+                    "step_id",
+                    "scope_id",
+                    "repair_target",
+                    "preserve_policy",
+                    "message",
+                    "hints",
+                    "related_handles",
+                    "details",
+                ),
+            )
+    return None
+
+
+def _short_errors(value: Any, *, limit: int = 3) -> list[str]:
+    if not isinstance(value, (list, tuple)):
+        return []
+    return [str(item) for item in value[:limit]]
+
+
+def _latest_retry_state_attempt(
+    previous_attempts: list[Any],
+) -> dict[str, Any] | None:
+    """返回最近一个正式 PlannerRetryState payload。"""
+    attempt = _latest_retry_state_attempt_payload(previous_attempts)
+    return retry_state_from_attempt(attempt) if attempt is not None else None
+
+
+def _latest_retry_state_attempt_payload(
+    previous_attempts: list[Any],
+) -> dict[str, Any] | None:
+    """返回最近一个携带正式 PlannerRetryState 的 attempt payload。"""
+    for item in reversed(previous_attempts):
+        if not isinstance(item, dict):
+            continue
+        if retry_state_from_attempt(item) is not None:
+            return item
+    return None
+
+
+def _latest_stable_runtime_attempt(
+    previous_attempts: list[Any],
+) -> dict[str, Any] | None:
+    """返回最近一个包含 effective draft 和 diagnostic 的 runtime 修复上下文。"""
+    for item in reversed(previous_attempts):
+        if not isinstance(item, dict):
+            continue
+        if not (
+            isinstance(item.get("effective_draft"), dict)
+            and isinstance(item.get("diagnostic"), dict)
+        ):
+            continue
+        payload = _select_attempt_fields(
+            item,
+            (
+                "attempt",
+                "repair_summary",
+                "effective_draft",
+                "diagnostic",
+                "repair_instruction",
+                "errors",
+            ),
+        )
+        state = retry_state_from_attempt(item)
+        if state is not None:
+            payload["planner_retry_state"] = state
+            if state.get("baseline_draft") is not None:
+                payload["effective_draft"] = state["baseline_draft"]
+            if state.get("repair_instruction") is not None:
+                payload["repair_instruction"] = state["repair_instruction"]
+        diagnostic = payload.get("diagnostic")
+        if isinstance(diagnostic, dict):
+            payload["diagnostic"] = _prompt_diagnostic_summary(diagnostic)
+        return payload
+    return None
+
+
+def _stable_runtime_from_retry_state(
+    retry_state: dict[str, Any],
+    *,
+    retry_attempt: dict[str, Any] | None = None,
+    prompt_retry_state: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """从正式 PlannerRetryState 派生旧 latest_stable_runtime 兼容镜像。"""
+    attempt_repair_summary = (
+        retry_attempt.get("repair_summary")
+        if isinstance(retry_attempt, dict)
+        else None
+    )
+    attempt_errors = (
+        retry_attempt.get("errors")
+        if isinstance(retry_attempt, dict)
+        else None
+    )
+    return {
+        "attempt": retry_state.get("attempt"),
+        "repair_summary": attempt_repair_summary,
+        "effective_draft": retry_state.get("baseline_draft"),
+        "diagnostic": _prompt_diagnostic_summary(trial_report)
+        if isinstance(
+            (trial_report := _retry_state_replay_report(retry_state, "trial_execution")),
+            dict,
+        )
+        else None,
+        "repair_instruction": retry_state.get("repair_instruction"),
+        "errors": (
+            attempt_errors
+            if isinstance(attempt_errors, list)
+            else _retry_state_issue_messages(retry_state)
+        ),
+        "planner_retry_state": prompt_retry_state or _prompt_retry_state(retry_state),
+    }
+
+
+def _semantic_failure_from_retry_state(
+    retry_state: dict[str, Any],
+    *,
+    retry_attempt: dict[str, Any] | None = None,
+) -> dict[str, Any] | None:
+    """从正式 PlannerRetryState 派生旧 latest_semantic_failure 兼容镜像。"""
+    semantic_issues = [
+        issue for issue in retry_state.get("issues", [])
+        if isinstance(issue, dict) and issue.get("layer") == "semantic_reads"
+    ]
+    if not semantic_issues:
+        return None
+    attempt_errors = (
+        retry_attempt.get("errors")
+        if isinstance(retry_attempt, dict)
+        else None
+    )
+    payload: dict[str, Any] = {
+        "attempt": retry_state.get("attempt"),
+        "errors": (
+            attempt_errors
+            if isinstance(attempt_errors, list)
+            else _retry_state_issue_messages(retry_state, layer="semantic_reads")
+        ),
+    }
+    if isinstance(retry_attempt, dict) and retry_attempt.get("raw_preview") is not None:
+        payload["raw_preview"] = retry_attempt["raw_preview"]
+    validation_report = _retry_state_replay_report(retry_state, "validation")
+    if isinstance(validation_report, dict):
+        validation_errors = validation_report.get("errors")
+        if isinstance(validation_errors, list):
+            payload["validation_errors"] = validation_errors
+        semantic_report = validation_report.get("semantic_read_resolution")
+        if isinstance(semantic_report, dict):
+            payload["semantic_read_resolution"] = semantic_report
+            return payload
+    payload["semantic_read_resolution"] = {
+        "ok": False,
+        "errors": semantic_issues,
+    }
+    return payload
+
+
+def _latest_semantic_failure_attempt(
+    previous_attempts: list[Any],
+) -> dict[str, Any] | None:
+    """返回最近一个 semantic_reads 解析失败上下文。"""
+    for item in reversed(previous_attempts):
+        if not isinstance(item, dict):
+            continue
+        semantic_report = _semantic_read_resolution_from_attempt(item)
+        if not semantic_report or not semantic_report.get("errors"):
+            continue
+        payload = _select_attempt_fields(
+            item,
+            (
+                "attempt",
+                "errors",
+                "raw_preview",
+            ),
+        )
+        validation_report = _validation_report_payload(item)
+        if isinstance(validation_report, dict) and "errors" in validation_report:
+            payload["validation_errors"] = validation_report["errors"]
+        payload["semantic_read_resolution"] = semantic_report
+        return payload
+    return None
+
+
+def _retry_state_replay_report(
+    retry_state: dict[str, Any],
+    layer: str,
+) -> dict[str, Any] | None:
+    reports = retry_state.get("replay_reports")
+    if not isinstance(reports, dict):
+        return None
+    report = reports.get(layer)
+    return report if isinstance(report, dict) else None
+
+
+def _retry_state_issue_messages(
+    retry_state: dict[str, Any],
+    *,
+    layer: str | None = None,
+) -> list[str]:
+    messages: list[str] = []
+    for issue in retry_state.get("issues", []):
+        if not isinstance(issue, dict):
+            continue
+        if layer is not None and issue.get("layer") != layer:
+            continue
+        message = issue.get("message")
+        if isinstance(message, str) and message:
+            messages.append(message)
+    return messages
+
+
+def _select_attempt_fields(
+    item: dict[str, Any],
+    fields: tuple[str, ...],
+) -> dict[str, Any]:
+    """复制 attempt 中存在且非空的 prompt 相关字段。"""
+    return {
+        field: item[field]
+        for field in fields
+        if field in item and item[field] is not None
+    }
+
+
+def _semantic_read_resolution_from_attempt(
+    item: dict[str, Any],
+) -> dict[str, Any] | None:
+    """从 previous attempt payload 中取 semantic read report。"""
+    validation_report = _validation_report_payload(item)
+    if not isinstance(validation_report, dict):
+        return None
+    semantic_report = validation_report.get("semantic_read_resolution")
+    if isinstance(semantic_report, dict):
+        return semantic_report
+    return None
+
+
+def _validation_report_payload(item: dict[str, Any]) -> dict[str, Any] | None:
+    """兼容 dict 或少量测试中可能传入的 report 对象。"""
+    validation_report = item.get("validation_report")
+    if isinstance(validation_report, dict):
+        return validation_report
+    if hasattr(validation_report, "to_payload"):
+        payload = validation_report.to_payload()
+        if isinstance(payload, dict):
+            return payload
+    return None
+
 
 class StrategyPromptRenderer:
     """渲染 Strategy Planner 的 system/user prompt。"""
@@ -143,14 +944,36 @@ class StrategyPromptRenderer:
             lstrip_blocks=True,
         )
         self.env.filters["pretty_json"] = _pretty_json
+        self.env.filters["functional_few_shot_plan"] = (
+            _functional_few_shot_plan
+        )
 
     def render(self, payload: dict[str, Any]) -> StrategyPrompt:
         """把分来源 payload 渲染成 Chat messages。"""
-        system = self.env.get_template("strategy-system.jinja").render(
-            output_json_schema=STEP_INTENT_JSON_SCHEMA,
+        functional = payload.get("planner_output_format") == "functional_plan"
+        system_template = (
+            "strategy-functional-system.jinja"
+            if functional
+            else "strategy-system.jinja"
         )
-        user = self.env.get_template("strategy-user.jinja").render(payload=payload)
+        user_template = (
+            "strategy-functional-user.jinja"
+            if functional
+            else "strategy-user.jinja"
+        )
+        schema = (
+            FUNCTIONAL_PLAN_JSON_SCHEMA if functional else STEP_INTENT_JSON_SCHEMA
+        )
+        system = self.env.get_template(system_template).render(
+            output_json_schema=schema,
+        )
+        user = self.env.get_template(user_template).render(payload=payload)
         return StrategyPrompt(system=system.strip(), user=user.strip())
+
+
+def _functional_few_shot_plan(value: object) -> dict[str, Any]:
+    _annotation, plan = split_functional_few_shot_asset(value)
+    return plan
 
 def build_strategy_probe_inputs(
     problem: ProblemIR,
@@ -188,12 +1011,16 @@ def write_strategy_debug_artifacts(
     prompt: StrategyPrompt,
     raw_response: str,
     draft: StepIntentDraft | None,
-    report: StepIntentValidationReport,
+    report: Any | None,
     normalization_report: StepIntentNormalizationReport | None = None,
     resolution_report: ExecutablePlanResolutionReport | None = None,
     execution_diagnostic: StepIntentExecutionDiagnostic | None = None,
     effective_draft: StepIntentDraft | None = None,
+    planner_retry_state: Any | None = None,
+    planner_state_context: PlannerStateContextDebugSource | None = None,
     llm_metadata: dict[str, Any] | None = None,
+    functional_plan: Any | None = None,
+    functional_reconciliation: Any | None = None,
 ) -> None:
     """把 DeepSeek probe 的输入输出按来源落盘，方便人工 review prompt。"""
     target = Path(debug_dir)
@@ -201,24 +1028,156 @@ def write_strategy_debug_artifacts(
     _clear_previous_debug_artifacts(target)
     (target / "prompt.system.md").write_text(prompt.system, encoding="utf-8")
     (target / "prompt.user.md").write_text(prompt.user, encoding="utf-8")
-    source_keys = [
-        "problem_ir",
-        "naming_conventions",
-        "family_spec",
-        "method_catalog",
-        "recipe_catalog",
-        "few_shot_examples",
-        "previous_attempts",
-    ]
+    source_keys = (
+        [
+            "problem_ir",
+            "strategy_principles",
+            "functional_capability_catalog",
+            "few_shot_examples",
+            "functional_few_shot_selection",
+            "previous_attempt_state",
+        ]
+        if payload.get("planner_output_format") == "functional_plan"
+        else [
+            "problem_ir",
+            "semantic_read_catalog",
+            "naming_conventions",
+            "prompt_flags",
+            "family_spec",
+            "method_catalog",
+            "function_catalog",
+            "macro_catalog",
+            "recipe_catalog",
+            "few_shot_examples",
+            "previous_attempt_state",
+            "previous_attempts",
+        ]
+    )
     for key in source_keys:
         _write_json(target / f"payload.{key}.json", payload.get(key))
-    _write_json(target / "output.schema.json", STEP_INTENT_JSON_SCHEMA)
+    if payload.get("planner_output_format") != "functional_plan":
+        _write_json(
+            target / "semantic-read-catalog.json",
+            payload.get("semantic_read_catalog"),
+        )
+    _write_json(
+        target / "function-catalog.json",
+        payload.get("function_catalog"),
+    )
+    _write_json(
+        target / "macro-catalog.json",
+        payload.get("macro_catalog"),
+    )
+    _write_json(
+        target / "functional-plan.json",
+        _to_jsonable(functional_plan),
+    )
+    context_payload = _planner_state_context_payload(planner_state_context)
+    functional_reconciliation_payload = _to_jsonable(functional_reconciliation)
+    context_state = (
+        context_payload.get("state")
+        if isinstance(context_payload, dict)
+        else None
+    )
+    if isinstance(functional_reconciliation_payload, dict) and isinstance(
+        context_state,
+        dict,
+    ):
+        functional_reconciliation_payload = {
+            **functional_reconciliation_payload,
+            "student_step_placements": context_state.get(
+                "student_step_placements",
+                [],
+            ),
+            "student_scope_references": context_state.get(
+                "student_scope_references",
+                [],
+            ),
+        }
+    _write_json(
+        target / "functional-reconciliation-report.json",
+        functional_reconciliation_payload,
+    )
+    context_catalog = (
+        planner_state_context.semantic_read_catalog_payload()
+        if planner_state_context is not None
+        else None
+    )
+    _write_json(
+        target / "context-semantic-read-catalog.json",
+        context_catalog,
+    )
+    retry_payload = _retry_state_payload(planner_retry_state)
+    _write_json(target / "planner-retry-state.json", retry_payload)
+    _write_json(
+        target / "baseline-draft.json",
+        retry_payload.get("baseline_draft") if retry_payload else None,
+    )
+    _write_json(
+        target / "stable-prefix.json",
+        retry_payload.get("stable_prefix") if retry_payload else None,
+    )
+    _write_json(
+        target / "repair-suffix.json",
+        retry_payload.get("repair_suffix_start") if retry_payload else None,
+    )
+    _write_json(
+        target / "replay-reports.json",
+        retry_payload.get("replay_reports") if retry_payload else None,
+    )
+    _write_json(target / "planner-state-context.json", context_payload)
+    context_retry_memory = _context_retry_memory_payload(context_payload)
+    # ``context-retry-memory`` is the context-owned source snapshot;
+    # ``context-derived-retry-state`` is the LLM/debug compatibility projection
+    # generated from that context plus the live stable prefix.
+    _write_json(target / "context-retry-memory.json", context_retry_memory)
+    _write_json(target / "context-derived-retry-state.json", retry_payload)
+    _write_json(
+        target / "context-baseline-draft.json",
+        (
+            context_retry_memory.get("baseline_draft")
+            if context_retry_memory is not None
+            else None
+        ),
+    )
+    _write_json(
+        target / "context-stable-prefix.json",
+        _context_stable_prefix_payload(context_payload),
+    )
+    _write_json(
+        target / "state-rewrite-ledger.json",
+        (
+            planner_state_context.rewrite_ledger_payload
+            if planner_state_context is not None
+            else None
+        ),
+    )
+    _write_json(
+        target / "context-events.json",
+        (
+            planner_state_context.events_payload
+            if planner_state_context is not None
+            else None
+        ),
+    )
+    _write_json(
+        target / "output.schema.json",
+        payload.get("output_json_schema", STEP_INTENT_JSON_SCHEMA),
+    )
     (target / "raw-response.txt").write_text(raw_response, encoding="utf-8")
     _write_json(
         target / "parsed-step-intents.json",
         draft.to_payload() if draft else None,
     )
-    _write_json(target / "validation-report.json", report.to_payload())
+    _write_json(target / "validation-report.json", _to_jsonable(report))
+    if (
+        isinstance(report, StepIntentValidationReport)
+        and report.raw_output_normalization is not None
+    ):
+        _write_json(
+            target / "raw-output-normalization-report.json",
+            report.raw_output_normalization,
+        )
     if normalization_report is not None:
         _write_json(target / "normalization-report.json", normalization_report)
         _write_json(
@@ -230,20 +1189,75 @@ def write_strategy_debug_artifacts(
             target / "effective-step-intents.json",
             effective_draft.to_payload(),
         )
-    if report.handle_resolution is not None:
+    if (
+        isinstance(report, StepIntentValidationReport)
+        and report.handle_resolution is not None
+    ):
         _write_json(target / "handle-resolution-report.json", report.handle_resolution)
-    if report.recipe_alignment is not None:
+    if (
+        isinstance(report, StepIntentValidationReport)
+        and report.semantic_read_resolution is not None
+    ):
+        _write_json(
+            target / "semantic-read-resolution-report.json",
+            report.semantic_read_resolution,
+        )
+        _write_json(
+            target / "context-semantic-read-resolution-report.json",
+            _context_semantic_read_resolution_payload(
+                report.semantic_read_resolution
+            ),
+        )
+    if (
+        isinstance(report, StepIntentValidationReport)
+        and report.recipe_alignment is not None
+    ):
         _write_json(target / "recipe-alignment.json", report.recipe_alignment)
     if resolution_report is not None:
         _write_json(
             target / "candidate-resolution-report.json",
             resolution_report,
         )
+    function_binding_report: list[dict[str, Any]] | None = None
+    macro_binding_report: list[dict[str, Any]] | None = None
     if execution_diagnostic is not None:
         _write_json(
             target / "execution-diagnostic.json",
             execution_diagnostic,
         )
+        function_binding_report = _function_binding_report_payload(
+            execution_diagnostic
+        )
+        macro_binding_report = _macro_binding_report_payload(
+            execution_diagnostic
+        )
+    if function_binding_report is None and retry_payload is not None:
+        trial_report = _retry_state_replay_report(retry_payload, "trial_execution")
+        if trial_report is not None:
+            function_binding_report = _function_binding_report_payload(trial_report)
+    if macro_binding_report is None and retry_payload is not None:
+        trial_report = _retry_state_replay_report(retry_payload, "trial_execution")
+        if trial_report is not None:
+            macro_binding_report = _macro_binding_report_payload(trial_report)
+    _write_json(
+        target / "function-binding-report.json",
+        function_binding_report,
+    )
+    _write_json(
+        target / "function-adapter-failures.json",
+        (
+            [
+                item for item in function_binding_report
+                if item.get("status") == "failure"
+            ]
+            if function_binding_report is not None
+            else None
+        ),
+    )
+    _write_json(
+        target / "macro-binding-report.json",
+        macro_binding_report,
+    )
     if llm_metadata is not None:
         _write_json(target / "llm-call.json", llm_metadata)
 
@@ -257,9 +1271,16 @@ def _clear_previous_debug_artifacts(target: Path) -> None:
         "prompt.system.md",
         "prompt.user.md",
         "output.schema.json",
+        "semantic-read-catalog.json",
+        "function-catalog.json",
+        "macro-catalog.json",
+        "context-semantic-read-catalog.json",
+        "semantic-read-resolution-report.json",
+        "context-semantic-read-resolution-report.json",
         "raw-response.txt",
         "parsed-step-intents.json",
         "validation-report.json",
+        "raw-output-normalization-report.json",
         "normalization-report.json",
         "normalized-step-intents.json",
         "handle-resolution-report.json",
@@ -267,11 +1288,109 @@ def _clear_previous_debug_artifacts(target: Path) -> None:
         "candidate-resolution-report.json",
         "effective-step-intents.json",
         "execution-diagnostic.json",
+        "function-binding-report.json",
+        "function-adapter-failures.json",
+        "function-adapter-fallbacks.json",
+        "macro-binding-report.json",
+        "macro-transform-report.json",
+        "functional-plan.json",
+        "functional-reconciliation-report.json",
+        "planner-retry-state.json",
+        "planner-state-context.json",
+        "context-retry-memory.json",
+        "context-derived-retry-state.json",
+        "context-baseline-draft.json",
+        "context-stable-prefix.json",
+        "state-rewrite-ledger.json",
+        "context-events.json",
+        "baseline-draft.json",
+        "stable-prefix.json",
+        "repair-suffix.json",
+        "replay-reports.json",
         "llm-call.json",
     ):
         path = target / name
         if path.exists():
             path.unlink()
+
+
+def _retry_state_payload(value: Any | None) -> dict[str, Any] | None:
+    """兼容 dataclass 或 dict 形态的 PlannerRetryState。"""
+    if value is None:
+        return None
+    payload = _to_jsonable(value)
+    return payload if isinstance(payload, dict) else None
+
+
+def _planner_state_context_payload(value: Any | None) -> dict[str, Any] | None:
+    """兼容 dataclass 或 dict 形态的 PlannerStateContext。"""
+    if value is None:
+        return None
+    if hasattr(value, "to_payload"):
+        payload = value.to_payload()
+        return payload if isinstance(payload, dict) else None
+    if isinstance(value, dict):
+        return value
+    return None
+
+
+def _context_retry_memory_payload(
+    context_payload: dict[str, Any] | None,
+) -> dict[str, Any] | None:
+    if not isinstance(context_payload, dict):
+        return None
+    state = context_payload.get("state")
+    if not isinstance(state, dict):
+        return None
+    retry_memory = state.get("retry_memory")
+    return retry_memory if isinstance(retry_memory, dict) else None
+
+
+def _context_stable_prefix_payload(
+    context_payload: dict[str, Any] | None,
+) -> list[dict[str, Any]] | None:
+    if not isinstance(context_payload, dict):
+        return None
+    state = context_payload.get("state")
+    if not isinstance(state, dict):
+        return None
+    stable_prefix = state.get("stable_prefix")
+    return stable_prefix if isinstance(stable_prefix, list) else None
+
+
+def _context_semantic_read_resolution_payload(value: Any) -> dict[str, Any]:
+    """Mark the context-specific debug file as a compatibility mirror."""
+    return {
+        "mirror_of": "semantic-read-resolution-report.json",
+        "note": (
+            "Phase 3 uses the same SemanticReadResolutionReport object; "
+            "context-specific fields live inside each resolution item."
+        ),
+        "report": value,
+    }
+
+
+def _function_binding_report_payload(value: Any) -> list[dict[str, Any]] | None:
+    """Return FunctionSpec adapter binding events from a diagnostic payload."""
+    events = getattr(value, "function_binding_events", None)
+    if events is None and isinstance(value, dict):
+        events = value.get("function_binding_events")
+    if events is None:
+        return None
+    payload = _to_jsonable(events)
+    return payload if isinstance(payload, list) else None
+
+
+def _macro_binding_report_payload(value: Any) -> list[dict[str, Any]] | None:
+    """Return MacroSpec adapter binding events from a diagnostic payload."""
+    events = getattr(value, "macro_binding_events", None)
+    if events is None and isinstance(value, dict):
+        events = value.get("macro_binding_events")
+    if events is None:
+        return None
+    payload = _to_jsonable(events)
+    return payload if isinstance(payload, list) else None
+
 
 def _family_spec_payload(family: SolverFamilySpec) -> dict[str, Any]:
     """把 FamilySpec 中的题型策略字段压成 prompt payload。"""
@@ -313,6 +1432,28 @@ def _method_catalog_payload(
         "methods": methods,
         "missing_method_ids": missing,
     }
+
+
+def _prompt_exposed_direct_method_ids(
+    family: SolverFamilySpec,
+    method_ids: tuple[str, ...],
+    method_specs: MethodSpecRegistry,
+) -> tuple[str, ...]:
+    """Only expose direct methods with executable contracts and binding rules.
+
+    Pack expansion may bring extra method_ids for recipe internals or future
+    family additions. The LLM-facing direct Method Catalog should stay aligned
+    with executable binding rules and contract status so a copied method_id can
+    actually run.
+    """
+    binding_rule_ids = {rule.method_id for rule in family.method_binding_rules}
+    contracts_by_id = effective_contract_by_id(family, method_specs)
+    return tuple(
+        method_id
+        for method_id in method_ids
+        if method_id in binding_rule_ids
+        and contract_is_prompt_executable(contracts_by_id.get(method_id))
+    )
 
 
 def _recipe_catalog_payload(family: SolverFamilySpec) -> dict[str, Any]:
@@ -866,3 +2007,27 @@ def _naming_conventions_payload() -> dict[str, Any]:
                 f"strategy naming conventions contain forbidden runtime/test token: {token}"
             )
     return payload
+
+
+def _prompt_flags(family_spec: SolverFamilySpec) -> dict[str, bool]:
+    """Return coarse prompt feature flags derived from the effective family catalog."""
+    recipe_text = " ".join(
+        " ".join((
+            recipe.recipe_id,
+            recipe.goal_type,
+            recipe.title,
+            recipe.description,
+            *recipe.method_ids,
+        ))
+        for recipe in family_spec.step_recipes
+    ).lower()
+    method_text = " ".join(family_spec.method_ids).lower()
+    goal_text = " ".join(family_spec.common_goal_types).lower()
+    combined = " ".join((recipe_text, method_text, goal_text))
+    return {
+        "supports_path_minimum": (
+            "path_minimum" in combined
+            or "straighten_broken_path" in combined
+            or "broken_path" in combined
+        ),
+    }

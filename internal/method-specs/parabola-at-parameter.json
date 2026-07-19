@@ -22,5 +22,6 @@
   },
   "outputs": {
     "parabola": "Parabola"
-  }
+  },
+  "is_pure": true
 }

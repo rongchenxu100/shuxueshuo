@@ -18,8 +18,14 @@ from shuxueshuo_server.solver.family.models import (
     MethodInputBindingSpec,
     MethodPrepInvocationSpec,
     RecipeExecutionSpec,
+    recipe_output_alias,
     SolverFamilySpec,
     StepRecipeSpec,
+    expand_family_spec,
+)
+from shuxueshuo_server.solver.family.capability_packs import (
+    BROKEN_PATH_MINIMUM_EXPRESSION_DO_NOT_USE_WHEN,
+    DEFAULT_CAPABILITY_PACK_REGISTRY,
 )
 
 _PARABOLA_PREP = (
@@ -39,7 +45,7 @@ _PARABOLA_PREP = (
 )
 
 
-QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
+_QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
     family_id="QuadraticSquareReflectionPathMinimumSolver",
     match=FamilyMatchRule(
         patterns=("path-minimum",),
@@ -67,6 +73,13 @@ QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         "最终答案若是正方形中的某个顶点，应优先由已定值的相邻顶点和正方形关系恢复，不要使用针对单题的闭式公式。",
         "网页讲解可以把若干 method 合并成一段说明；这里输出的 steps 必须尽量对应 catalog 中已有 method/recipe。",
     ),
+    base_packs=(
+        "quadratic_core",
+        "parameter_solving_core",
+        "coordinate_geometry_core",
+        "broken_path_minimum_core",
+    ),
+    mechanism_packs=("square_path_reduction_core",),
     method_ids=(
         "quadratic_from_constraints",
         "quadratic_vertex_point",
@@ -88,7 +101,8 @@ QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             title="折线拉直并求最小值表达式",
             description=(
                 "对单动点两段折线路径，生成将军饮马拉直候选，选择最适合计算的方案，"
-                "再计算对应两端点距离得到最小值表达式。"
+                "再计算对应两端点距离。端点仍含未定参数时输出开放表达式；端点全部"
+                "确定时输出闭合值。"
             ),
             method_ids=(
                 "broken_path_straightening_candidates",
@@ -104,13 +118,54 @@ QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 ),
                 execution_strategy="broken_path_straightening_minimum_expression",
                 output_aliases=(
-                    ("select_straightening_candidate.minimum_point_1", "Point"),
-                    ("select_straightening_candidate.minimum_point_2", "Point"),
-                    ("distance_between_points.distance", "MinimumExpression"),
-                    ("distance_between_points.evaluated_distance", "MinimumExpression"),
+                    recipe_output_alias(
+                        "select_straightening_candidate.minimum_point_1",
+                        "Point",
+                        "path_minimum_point_1",
+                        required=False,
+                        cardinality="optional",
+                        identity_policy="derived_role",
+                        goal_evidence_tags=("path_minimum_witness",),
+                        description=(
+                            "选中拉直方案后，由反射构造得到的辅助端点；"
+                            "仅供距离计算，不是原路径上的动点、极值点或答案点。"
+                        ),
+                    ),
+                    recipe_output_alias(
+                        "select_straightening_candidate.minimum_point_2",
+                        "Point",
+                        "path_minimum_point_2",
+                        required=False,
+                        cardinality="optional",
+                        identity_policy="derived_role",
+                        goal_evidence_tags=("path_minimum_witness",),
+                        description=(
+                            "选中拉直方案后，与反射端点组成最短线段的另一固定端点；"
+                            "仅供距离计算，不是原路径上的动点、极值点或答案点。"
+                        ),
+                    ),
+                    recipe_output_alias(
+                        "distance_between_points.distance",
+                        "MinimumExpression",
+                        "path_minimum_expression",
+                        goal_evidence_tags=("path_minimum_expression",),
+                        description=(
+                            "拉直端点之间的距离；含未定参数时供后续求参，不含自由"
+                            "参数时可直接作为数值结果。"
+                        ),
+                    ),
+                    recipe_output_alias(
+                        "distance_between_points.evaluated_distance",
+                        "MinimumExpression",
+                        "evaluated_path_minimum_expression",
+                        required=False,
+                        cardinality="optional",
+                        goal_evidence_tags=("path_minimum_expression",),
+                    ),
                 ),
             ),
             priority="preferred",
+            do_not_use_when=BROKEN_PATH_MINIMUM_EXPRESSION_DO_NOT_USE_WHEN,
         ),
     ),
     method_binding_rules=(
@@ -178,6 +233,13 @@ QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 MethodInputBindingSpec("target", "point_output_ref"),
             ),
             prep_invocations=_PARABOLA_PREP,
+            companion_outputs=(
+                MethodCompanionOutputSpec(
+                    output_name="parameter",
+                    target_selector="axis_parameter_symbol",
+                    registration_selector="axis_parameter_symbol",
+                ),
+            ),
         ),
         MethodBindingRuleSpec(
             method_id="square_adjacent_vertex_from_side",
@@ -185,7 +247,9 @@ QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 MethodInputBindingSpec("side_start", "square:side_start"),
                 MethodInputBindingSpec("side_end", "square:side_end"),
                 MethodInputBindingSpec("square_condition", "fact:square:Condition"),
-                MethodInputBindingSpec("target", "point_output_ref"),
+                MethodInputBindingSpec("target", "point_transition_target"),
+                MethodInputBindingSpec("side_start_ref", "square:side_start_ref", required=False),
+                MethodInputBindingSpec("side_end_ref", "square:side_end_ref", required=False),
                 MethodInputBindingSpec("parameter", "parameter_symbol", required=False),
                 MethodInputBindingSpec("parameter_constraint", "parameter_constraint", required=False),
             ),
@@ -208,38 +272,19 @@ QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             ),
         ),
         MethodBindingRuleSpec(
-            method_id="evaluate_point_at_parameter",
-            input_bindings=(
-                MethodInputBindingSpec("point", "read_type:Point"),
-            ),
-            expansion_selectors=("parameter_value_if_read",),
-        ),
-        MethodBindingRuleSpec(
             method_id="line_locus_minimum_point",
             input_bindings=(
                 MethodInputBindingSpec("moving_locus", "read_type:Line"),
                 MethodInputBindingSpec("minimum_point_1", "straightening_minimum:p1"),
                 MethodInputBindingSpec("minimum_point_2", "straightening_minimum:p2"),
-                MethodInputBindingSpec("target", "point_output_ref"),
+                MethodInputBindingSpec("target", "point_transition_target"),
             ),
             expansion_selectors=("parameter_value_if_read",),
         ),
-        MethodBindingRuleSpec(
-            method_id="distance_between_points",
-            input_bindings=(
-                MethodInputBindingSpec("p1", "distance:p1"),
-                MethodInputBindingSpec("p2", "distance:p2"),
-            ),
-            expansion_selectors=("distance_parameter_value_if_read",),
-        ),
-        MethodBindingRuleSpec(
-            method_id="parameter_from_expression_value",
-            input_bindings=(
-                MethodInputBindingSpec("expression", "read_type:MinimumExpression"),
-                MethodInputBindingSpec("condition", "fact:minimum_value:Condition"),
-                MethodInputBindingSpec("parameter", "parameter_symbol"),
-                MethodInputBindingSpec("constraint", "parameter_constraint", required=False),
-            ),
-        ),
     ),
+)
+
+QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = expand_family_spec(
+    _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY,
+    DEFAULT_CAPABILITY_PACK_REGISTRY,
 )

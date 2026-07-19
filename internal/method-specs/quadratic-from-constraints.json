@@ -68,10 +68,15 @@
     "coefficients": "Coefficients",
     "parabola": "Parabola"
   },
+  "is_pure": true,
   "preconditions": [
     "输入约束必须能唯一确定除 free_parameter/free_parameters 外的缺失系数",
     "若作为独立化简步骤，化简后应完全确定系数，或只保留一个由后续条件/目标明确需要的自由参数",
     "当多个自由参数都可表达同一函数时，应由 Planner 结合后续条件选择参数；不能唯一判断时不要提前缓存含参系数"
+  ],
+  "do_not_use_when": [
+    "当前目标所需的同一抛物线状态已经由前序调用完整确定，无需用相同约束重复求解。",
+    "现有约束仍有多个自由参数，且无法唯一选择一个会被后续条件或答案目标消费的参数。"
   ],
   "postconditions": [
     "输出抛物线满足已知系数、曲线点和额外方程约束",
@@ -80,18 +85,24 @@
   "explanation": {
     "role_schema": {
       "constraints": "用于确定当前问二次函数的系数约束。",
-      "result_parabola": "由约束得到的当前问抛物线解析式。"
+      "result_parabola": "由约束得到的当前问抛物线解析式。",
+      "parabola_title_action": "标题动词；完全确定时为求，含后续参数时为化简。",
+      "completed_square_suffix": "配方形式补充说明；没有配方形式时为空。"
     },
     "student_goal_template": "代入当前问给出的约束，确定二次函数解析式。",
-    "student_title_template": "代入已知点求抛物线解析式",
-    "student_nav_title_template": "",
-    "student_title_templates_by_goal": {
-      "derive_parametric_parabola": "用参数表示抛物线解析式"
-    },
-    "derive_templates": [],
-    "box_templates": [],
+    "student_title_template": "{parabola_title_action}函数解析式",
+    "student_title_templates_by_goal": {},
+    "derive_templates": [
+      "∵{constraints}",
+      "∴y＝{result_parabola}{completed_square_suffix}"
+    ],
+    "box_templates": [
+      "y＝{result_parabola}"
+    ],
     "explanation_level": "template",
     "role_binding_strategy": "role_name_registry",
-    "role_binder_id": "generic_trace"
-  }
+    "role_binder_id": "quadratic_from_constraints",
+    "student_nav_title_template": "{parabola_title_action}解析式"
+  },
+  "constraint_analyzer": "quadratic_coefficients"
 }

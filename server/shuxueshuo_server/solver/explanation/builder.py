@@ -9,11 +9,18 @@ import json
 import re
 from typing import Any, Protocol
 
+import sympy as sp
+
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.recipes import RecipeSpecRegistry
 from shuxueshuo_server.solver.student_display import student_math_display
 
 from .models import ExplanationSnapshot, LessonCandidateGroup, LessonIR, LessonSection, LessonStep, TeachingTraceEntry
+from .presentation import StudentScopeReference
+from .target_labels import (
+    target_point_label_for_group as _target_point_label_for_group,
+    target_point_labels_from_groups_and_pieces as _target_point_labels_for_groups,
+)
 from .teaching_expansion import explanation_payload_for_group
 
 
@@ -99,6 +106,106 @@ class LessonDraftPlanner(Protocol):
         ...
 
 
+@dataclass(frozen=True)
+class LessonMergeRule:
+    """相邻 capability 合并规则的唯一事实源。"""
+
+    rule_id: str
+    sequence: tuple[str, ...]
+    title_hint: str
+    nav_title_hint: str
+    reason: str
+
+
+@dataclass(frozen=True)
+class DuplicateLessonStepMergeRule:
+    """同一 recipe 连续产出重复讲解步骤时的合并规则。"""
+
+    capability_ids: tuple[str, ...]
+    title: str
+    nav_title: str
+
+
+LESSON_MERGE_RULES: tuple[LessonMergeRule, ...] = (
+    LessonMergeRule(
+        rule_id="simple_quadratic_foundation",
+        sequence=(
+            "quadratic_from_constraints",
+            "quadratic_vertex_point",
+            "quadratic_x_axis_intercept_point",
+        ),
+        title_hint="代入已知条件，求解析式、顶点和 x 轴交点",
+        nav_title_hint="求解析式、顶点和交点",
+        reason="同一小问内的二次函数基础信息计算较短，合并后更符合学生阅读粒度。",
+    ),
+    LessonMergeRule(
+        rule_id="quadratic_foundation_axis_point",
+        sequence=(
+            "quadratic_from_constraints",
+            "quadratic_axis_x_intercept_point",
+        ),
+        title_hint="化简函数解析式，求对称轴与X轴交点",
+        nav_title_hint="化简解析式求交点",
+        reason="对称轴与 x 轴交点是由当前抛物线直接读出的短结论，通常应和解析式步骤合并。",
+    ),
+    LessonMergeRule(
+        rule_id="axis_parameter_square_adjacent_locus",
+        sequence=(
+            "quadratic_axis_parameterized_point",
+            "square_adjacent_vertex_from_side",
+            "parameterized_point_locus_line",
+        ),
+        title_hint="正方形求顶点轨迹",
+        nav_title_hint="正方形求顶点轨迹",
+        reason="设参数点、用正方形表示相邻顶点、读出该点轨迹直线是连续的短推导，合并后学生更容易看出参数如何消去。",
+    ),
+    LessonMergeRule(
+        rule_id="axis_parameter_square_adjacent",
+        sequence=(
+            "quadratic_axis_parameterized_point",
+            "square_adjacent_vertex_from_side",
+        ),
+        title_hint="设对称轴上的参数点，并由正方形边求相邻顶点",
+        nav_title_hint="参数点与正方形顶点",
+        reason="设参数点本身较短，通常应和紧随其后的正方形相邻顶点表达合并。",
+    ),
+    LessonMergeRule(
+        rule_id="parameter_value_point_evaluation_minimum_point",
+        sequence=(
+            "parameter_from_expression_value",
+            "evaluate_point_at_parameter",
+            "line_locus_minimum_point",
+        ),
+        title_hint="由最小值反求参数，并求点坐标",
+        nav_title_hint="反求参数求点",
+        reason="反求参数、代入含参点、再由轨迹确定最短状态动点是同一个最值收束动作，合并后标题需要点明求出的点。",
+    ),
+    LessonMergeRule(
+        rule_id="parameter_value_point_evaluation",
+        sequence=(
+            "parameter_from_expression_value",
+            "evaluate_point_at_parameter",
+        ),
+        title_hint="由表达式取值反求参数，并求点坐标",
+        nav_title_hint="反求参数求点",
+        reason="表达式取值反求参数后紧接代入含参点坐标，通常应作为同一学生步骤。",
+    ),
+)
+
+
+DUPLICATE_LESSON_STEP_MERGE_RULES: tuple[DuplicateLessonStepMergeRule, ...] = (
+    DuplicateLessonStepMergeRule(
+        capability_ids=("broken_path_straightening_minimum_expression",),
+        title="将军饮马计算最小值表达式",
+        nav_title="将军饮马算最小值",
+    ),
+)
+
+_DUPLICATE_LESSON_STEP_MERGE_RULE_BY_CAPABILITIES = {
+    rule.capability_ids: rule for rule in DUPLICATE_LESSON_STEP_MERGE_RULES
+}
+
+
 class DeterministicLessonTextPlanner:
     """CI 默认文本 planner：不调用 LLM，直接使用 verified trace。"""
 
@@ -116,21 +223,22 @@ class DeterministicLessonTextPlanner:
             for item in (draft.get("box", ()) if isinstance(draft, dict) else ())
             if str(item)
         )
-        if isinstance(draft, dict) and group.teaching_substep_id:
-            proof = [
-                ("说明", str(item))
-                for item in draft.get("proof_draft", ())
-                if str(item)
-            ]
+        if isinstance(draft, dict):
+            proof = _proof_draft_derive_items(draft.get("proof_draft", ()))
             if proof:
                 return {
-                    "title": group.teaching_substep_title or _short_title(step),
-                    "nav_title": group.teaching_substep_nav_title,
+                    "title": group.teaching_substep_title
+                    or str(draft.get("student_title") or "")
+                    or _short_title(step),
+                    "nav_title": group.teaching_substep_nav_title
+                    or str(draft.get("student_nav_title") or "")
+                    or _nav_title_for_recipe(str(step.get("recipe_hint") or "")),
                     "goal": str(draft.get("student_intent_draft") or group.teaching_focus or ""),
                     "derive": proof,
                     "box": draft_boxes or _produced_boxes(step),
                 }
         title = group.teaching_substep_title or _short_title(step)
+        nav_title = group.teaching_substep_nav_title or _nav_title_for_recipe(str(step.get("recipe_hint") or ""))
         goal = str(step.get("strategy") or step.get("goal_type") or "推进当前解题步骤")
         derive = []
         if step.get("reason"):
@@ -142,6 +250,7 @@ class DeterministicLessonTextPlanner:
             derive.append(("执行", f"使用 {methods} 得到当前结论"))
         return {
             "title": title,
+            "nav_title": nav_title,
             "goal": goal,
             "derive": derive,
             "box": draft_boxes or _produced_boxes(step),
@@ -173,36 +282,44 @@ class ExplanationBuilder:
             except Exception:
                 # LLM 讲解失败不影响 EB1：回退到 deterministic skeleton。
                 pass
+        group_clusters = _deterministic_lesson_group_clusters(groups)
         steps = []
         rendered_answer_boxes: set[str] = set()
-        for index, group in enumerate(groups):
-            fallback = DeterministicLessonTextPlanner().plan_text(
-                group=group,
-                snapshot=snapshot,
-            )
-            try:
-                planned = self.text_planner.plan_text(group=group, snapshot=snapshot)
-                text = _validate_text_output(planned, snapshot)
-            except Exception:
-                text = fallback
-                text.setdefault("gaps", []).append("lesson_text_planner_fallback")
-            step_answer_boxes = _answer_boxes_for_step(group.step, snapshot.answers)
-            if group.teaching_substep_id and text.get("box"):
+        for index, source_groups in enumerate(group_clusters):
+            if len(source_groups) == 1:
+                group = source_groups[0]
+                fallback = DeterministicLessonTextPlanner().plan_text(
+                    group=group,
+                    snapshot=snapshot,
+                )
+                try:
+                    planned = self.text_planner.plan_text(group=group, snapshot=snapshot)
+                    text = _validate_text_output(planned, snapshot)
+                except Exception:
+                    text = fallback
+                    text.setdefault("gaps", []).append("lesson_text_planner_fallback")
+            else:
+                text = _deterministic_merged_text(source_groups, snapshot)
+            step_answer_boxes = _answer_boxes_for_groups(source_groups, snapshot.answers)
+            if len(source_groups) == 1 and source_groups[0].teaching_substep_id and text.get("box"):
                 step_answer_boxes = ()
             if step_answer_boxes:
-                text["box"] = _merge_boxes(text.get("box", ()), step_answer_boxes)
-                rendered_answer_boxes.update(step_answer_boxes)
-            rendered_answer_boxes.update(
-                item for item in _answer_boxes(snapshot.answers)
-                if item in tuple(str(box) for box in text.get("box", ()))
-            )
-            if index == len(groups) - 1:
-                missing_answers = tuple(
-                    item for item in _answer_boxes(snapshot.answers)
-                    if item not in rendered_answer_boxes
+                text["box"] = _merge_answer_boxes(
+                    text.get("box", ()),
+                    step_answer_boxes,
+                    snapshot.answers,
                 )
-                text["box"] = _merge_boxes(text.get("box", ()), missing_answers)
-            steps.append(_lesson_step_from_group(group, text))
+            rendered_answer_boxes.update(
+                _rendered_answer_box_fingerprints(text.get("box", ()), snapshot.answers)
+            )
+            if index == len(group_clusters) - 1:
+                missing_answers = _missing_answer_boxes(snapshot.answers, rendered_answer_boxes)
+                text["box"] = _merge_answer_boxes(
+                    text.get("box", ()),
+                    missing_answers,
+                    snapshot.answers,
+                )
+            steps.append(_lesson_step_from_source_groups(source_groups, text))
         lesson = LessonIR(
             problem_id=snapshot.problem_id,
             family_id=snapshot.family_id,
@@ -211,6 +328,24 @@ class ExplanationBuilder:
         )
         LessonIRValidator().validate(lesson, snapshot)
         return lesson
+
+
+def _proof_draft_derive_items(raw: Any) -> list[tuple[str, str]]:
+    items: list[tuple[str, str]] = []
+    if not isinstance(raw, tuple | list):
+        return items
+    for item in raw:
+        text = str(item).strip()
+        if not text:
+            continue
+        match = re.match(r"^(作|设|∵|∴)\s*(.*)$", text)
+        if match:
+            label, body = match.groups()
+            if body.strip():
+                items.append((label, body.strip()))
+            continue
+        items.append(("说明", text))
+    return items
 
 
 class LessonIRValidator:
@@ -243,13 +378,170 @@ def _build_lesson_groups(snapshot: ExplanationSnapshot) -> list[LessonCandidateG
     traces_by_step: dict[str, list[TeachingTraceEntry]] = defaultdict(list)
     for entry in snapshot.teaching_trace:
         traces_by_step[entry.source_step_id].append(entry)
+    steps_by_id = {
+        str(step["step_id"]): step for step in snapshot.effective_steps
+    }
+    placement_by_step = {
+        item.step_id: item for item in snapshot.student_step_placements
+    }
+    references_by_step: dict[str, list[Any]] = defaultdict(list)
+    for reference in snapshot.student_scope_references:
+        references_by_step[reference.target_step_id].append(reference)
+    ordered_step_ids = [
+        item.step_id
+        for item in snapshot.student_step_placements
+        if item.step_id in steps_by_id
+    ]
+    ordered_step_ids.extend(
+        step_id for step_id in steps_by_id if step_id not in ordered_step_ids
+    )
     groups = []
-    for step in snapshot.effective_steps:
+    for step_id in ordered_step_ids:
+        step = steps_by_id[step_id]
         traces = tuple(traces_by_step.get(str(step["step_id"]), ()))
         if traces and all(entry.hidden_reason for entry in traces):
             continue
-        groups.extend(_split_lesson_group(LessonCandidateGroup(step, traces)))
+        placement = placement_by_step.get(step_id)
+        groups.extend(
+            _split_lesson_group(
+                LessonCandidateGroup(
+                    step,
+                    traces,
+                    presentation_scope_id=(
+                        placement.presentation_scope_id
+                        if placement is not None
+                        else str(step.get("scope_id") or "problem")
+                    ),
+                    required_reference_lines=tuple(
+                        _student_reference_line(reference, snapshot)
+                        for reference in references_by_step.get(step_id, ())
+                    ),
+                )
+            )
+        )
     return groups
+
+
+def _student_reference_line(
+    reference: StudentScopeReference,
+    snapshot: ExplanationSnapshot,
+) -> str:
+    scope_label = next(
+        (
+            str(item.get("label"))
+            for item in snapshot.problem.get("scopes", ())
+            if isinstance(item, dict)
+            and str(item.get("scope_id")) == reference.source_scope_id
+            and item.get("label")
+        ),
+        _section_title(reference.source_scope_id),
+    )
+    source_step = next(
+        (
+            step
+            for step in snapshot.effective_steps
+            if str(step.get("step_id")) == reference.source_step_id
+        ),
+        None,
+    )
+    subject = _reference_subject(source_step, snapshot)
+    return f"由{scope_label}已得{subject}，继续计算。"
+
+
+def _reference_subject(
+    source_step: dict[str, Any] | None,
+    snapshot: ExplanationSnapshot,
+) -> str:
+    if source_step is None:
+        return "相关结论"
+    answer_handles = {
+        str(item.get("handle") or "")
+        for item in source_step.get("produces", ())
+        if isinstance(item, dict)
+        and str(item.get("handle") or "").startswith("answer:")
+    }
+    for goal in snapshot.problem.get("question_goals", ()):
+        if not isinstance(goal, dict):
+            continue
+        goal_handle = str(goal.get("handle") or goal.get("semantic_ref") or "")
+        if goal_handle not in answer_handles:
+            continue
+        target_handle = str(
+            goal.get("target_handle") or goal.get("target_ref") or ""
+        ).strip()
+        target = target_handle.rsplit(":", 1)[-1] if target_handle else ""
+        if target and str(goal.get("value_type") or "") == "Point":
+            return f"点 {target}"
+        return "该问结论"
+    return "相关结论"
+
+
+def _with_required_reference_items(
+    items: tuple[tuple[str, str], ...],
+    source_groups: tuple[LessonCandidateGroup, ...] | list[LessonCandidateGroup],
+) -> tuple[tuple[str, str], ...]:
+    lines = tuple(
+        dict.fromkeys(
+            line
+            for group in source_groups
+            for line in group.required_reference_lines
+            if line
+        )
+    )
+    if not lines:
+        return items
+    existing = " ".join(text for _, text in items)
+    required = tuple(
+        ("由", line.removeprefix("由").rstrip("。"))
+        for line in lines
+        if line.rstrip("。") not in existing
+    )
+    return (*required, *items)
+
+
+def _deterministic_lesson_group_clusters(
+    groups: tuple[LessonCandidateGroup, ...],
+) -> tuple[tuple[LessonCandidateGroup, ...], ...]:
+    clusters: list[tuple[LessonCandidateGroup, ...]] = []
+    index = 0
+    while index < len(groups):
+        _, cluster = lesson_merge_cluster_at(groups, index)
+        if cluster:
+            clusters.append(cluster)
+            index += len(cluster)
+            continue
+        clusters.append((groups[index],))
+        index += 1
+    return tuple(clusters)
+
+
+def lesson_merge_cluster_at(
+    groups: tuple[LessonCandidateGroup, ...],
+    start: int,
+) -> tuple[LessonMergeRule | None, tuple[LessonCandidateGroup, ...]]:
+    for rule in LESSON_MERGE_RULES:
+        selected = _capability_sequence_cluster(groups, start, rule.sequence)
+        if selected:
+            return rule, selected
+    return None, ()
+
+
+def _capability_sequence_cluster(
+    groups: tuple[LessonCandidateGroup, ...],
+    start: int,
+    sequence: tuple[str, ...],
+) -> tuple[LessonCandidateGroup, ...]:
+    end = start + len(sequence)
+    if end > len(groups):
+        return ()
+    selected = groups[start:end]
+    if tuple(group.capability_id for group in selected) != sequence:
+        return ()
+    if any(group.teaching_substep_id for group in selected):
+        return ()
+    if len({group.scope_id for group in selected}) != 1:
+        return ()
+    return tuple(selected)
 
 
 def _split_lesson_group(group: LessonCandidateGroup) -> tuple[LessonCandidateGroup, ...]:
@@ -274,8 +566,12 @@ def _split_lesson_group(group: LessonCandidateGroup) -> tuple[LessonCandidateGro
             teaching_focus=substep.focus,
             preferred_method_ids=substep.preferred_method_ids,
             forbid_merge_with_sibling_substeps=substep.forbid_merge_with_sibling_substeps,
+            presentation_scope_id=group.presentation_scope_id,
+            required_reference_lines=(
+                group.required_reference_lines if index == 0 else ()
+            ),
         )
-        for substep in substeps
+        for index, substep in enumerate(substeps)
     )
 
 
@@ -289,24 +585,340 @@ def _recipe_registry_for_builder() -> RecipeSpecRegistry:
 
 
 def _lesson_step_from_group(group: LessonCandidateGroup, text: dict[str, Any]) -> LessonStep:
-    title = _student_title_for_group(group, text)
-    nav_title = _student_nav_title_for_group(group, text, title)
+    return _lesson_step_from_source_groups((group,), text)
+
+
+def _lesson_step_from_source_groups(
+    source_groups: tuple[LessonCandidateGroup, ...],
+    text: dict[str, Any],
+) -> LessonStep:
+    source_groups_list = list(source_groups)
+    title = _student_title_for_source_groups(source_groups_list, text)
+    nav_title = _student_nav_title_for_source_groups(source_groups_list, text, title)
+    step_id = _lesson_step_id_for_source_groups(source_groups)
     return LessonStep(
-        id=f"explain_{group.candidate_group_id.replace('.', '_')}",
-        scope_id=group.scope_id,
-        source_step_ids=(group.step_id,),
-        capability_ids=(group.capability_id,),
-        trace_refs=group.trace_refs,
+        id=step_id,
+        scope_id=source_groups[0].scope_id,
+        source_step_ids=tuple(dict.fromkeys(group.step_id for group in source_groups)),
+        capability_ids=tuple(dict.fromkeys(group.capability_id for group in source_groups)),
+        trace_refs=tuple(
+            trace_id
+            for group in source_groups
+            for trace_id in group.trace_refs
+        ),
         title=title,
-        goal=str(text.get("goal") or group.step.get("target") or ""),
+        goal=_student_goal_text(text.get("goal"), source_groups[0].step.get("target")),
         nav_title=nav_title,
-        derive=_derive_items(text.get("derive", ())),
+        derive=_with_required_reference_items(
+            _derive_items(text.get("derive", ())),
+            source_groups,
+        ),
         box=tuple(str(item) for item in text.get("box", ()) if str(item)),
         gaps=tuple(str(item) for item in text.get("gaps", ()) if str(item)),
-        teaching_substep_ids=(
-            (group.teaching_substep_id,) if group.teaching_substep_id else ()
+        teaching_substep_ids=tuple(
+            dict.fromkeys(
+                group.teaching_substep_id
+                for group in source_groups
+                if group.teaching_substep_id
+            )
         ),
     )
+
+
+def _lesson_step_id_for_source_groups(
+    source_groups: tuple[LessonCandidateGroup, ...],
+) -> str:
+    if len(source_groups) == 1:
+        return f"explain_{source_groups[0].candidate_group_id.replace('.', '_')}"
+    rule = _lesson_merge_rule_for_groups(source_groups)
+    if rule is not None and rule.rule_id == "simple_quadratic_foundation":
+        return f"explain_{source_groups[0].step_id}_foundation"
+    joined = "_".join(group.candidate_group_id.replace(".", "_") for group in source_groups)
+    return f"explain_{joined}"
+
+
+def _lesson_merge_rule_for_groups(
+    groups: tuple[LessonCandidateGroup, ...],
+) -> LessonMergeRule | None:
+    capabilities = tuple(group.capability_id for group in groups)
+    return _lesson_merge_rule_for_capabilities(capabilities)
+
+
+def _lesson_merge_rule_for_capabilities(
+    capabilities: tuple[str, ...],
+) -> LessonMergeRule | None:
+    for rule in LESSON_MERGE_RULES:
+        if capabilities == rule.sequence:
+            return rule
+    return None
+
+
+def _deterministic_merged_text(
+    source_groups: tuple[LessonCandidateGroup, ...],
+    snapshot: ExplanationSnapshot,
+) -> dict[str, Any]:
+    rule = _lesson_merge_rule_for_groups(source_groups)
+    if rule is not None:
+        builder = _DETERMINISTIC_MERGE_TEXT_BUILDERS.get(rule.rule_id)
+        if builder is not None:
+            return builder(source_groups, snapshot)
+    fallback = DeterministicLessonTextPlanner().plan_text(
+        group=source_groups[0],
+        snapshot=snapshot,
+    )
+    return fallback
+
+
+def _deterministic_simple_quadratic_foundation_text(
+    source_groups: tuple[LessonCandidateGroup, ...],
+    snapshot: ExplanationSnapshot,
+) -> dict[str, Any]:
+    pieces = [
+        DeterministicLessonTextPlanner().plan_text(group=group, snapshot=snapshot)
+        for group in source_groups
+    ]
+    derive: list[tuple[str, str]] = []
+    for piece in pieces:
+        derive.extend(_derive_items(piece.get("derive", ())))
+    boxes = tuple(str(item) for item in pieces[0].get("box", ()) if str(item))
+    return {
+        "title": "代入已知条件，求解析式、顶点和 x 轴交点",
+        "nav_title": "求解析式、顶点和交点",
+        "goal": "先确定当前抛物线，再读出顶点并求与 x 轴的交点。",
+        "derive": tuple(derive),
+        "box": boxes,
+    }
+
+
+def _deterministic_quadratic_foundation_axis_point_text(
+    source_groups: tuple[LessonCandidateGroup, ...],
+    snapshot: ExplanationSnapshot,
+) -> dict[str, Any]:
+    pieces = [
+        DeterministicLessonTextPlanner().plan_text(group=group, snapshot=snapshot)
+        for group in source_groups
+    ]
+    derive: list[tuple[str, str]] = []
+    boxes: list[str] = []
+    for piece in pieces:
+        derive.extend(_derive_items(piece.get("derive", ())))
+        boxes.extend(str(item) for item in piece.get("box", ()) if str(item))
+    prefix_title = str(pieces[0].get("title") or "求函数解析式")
+    prefix_nav = str(pieces[0].get("nav_title") or "求解析式")
+    axis_label = _target_point_label_for_group(source_groups[1])
+    axis_title = f"求对称轴与X轴交点{axis_label}" if axis_label else "求对称轴与X轴交点"
+    nav_title = f"{prefix_nav}求{axis_label}" if axis_label else f"{prefix_nav}和对称轴交点"
+    return {
+        "title": f"{prefix_title}，{axis_title}",
+        "nav_title": nav_title,
+        "goal": "先确定当前抛物线，再求对称轴与 x 轴的交点。",
+        "derive": tuple(derive),
+        "box": tuple(dict.fromkeys(boxes)),
+    }
+
+
+def _deterministic_axis_parameter_square_adjacent_locus_text(
+    source_groups: tuple[LessonCandidateGroup, ...],
+    snapshot: ExplanationSnapshot,
+) -> dict[str, Any]:
+    pieces = [
+        DeterministicLessonTextPlanner().plan_text(group=group, snapshot=snapshot)
+        for group in source_groups[:2]
+    ]
+    derive: list[tuple[str, str]] = []
+    boxes: list[str] = []
+    for piece in pieces:
+        derive.extend(_derive_items(piece.get("derive", ())))
+        boxes.extend(str(item) for item in piece.get("box", ()) if str(item))
+    line_display = _locus_line_display_for_group(source_groups[2], snapshot)
+    point_label = _locus_point_label_for_group(source_groups[2])
+    if line_display and point_label:
+        derive.append(("∴", f"{point_label} 始终在直线 {line_display} 上"))
+        boxes.append(line_display)
+    else:
+        fallback_piece = DeterministicLessonTextPlanner().plan_text(
+            group=source_groups[2],
+            snapshot=snapshot,
+        )
+        derive.extend(_derive_items(fallback_piece.get("derive", ())))
+        boxes.extend(str(item) for item in fallback_piece.get("box", ()) if str(item))
+        pieces.append(fallback_piece)
+    target_label = (
+        point_label
+        or _target_point_label_for_group(source_groups[1])
+        or _last_target_point_label_for_groups(source_groups, pieces)
+    )
+    title = f"正方形求顶点{target_label}轨迹" if target_label else "正方形求顶点轨迹"
+    return {
+        "title": title,
+        "nav_title": title,
+        "goal": "先用参数表示对称轴上的点，再由正方形关系表示顶点，并确定该顶点的轨迹直线。",
+        "derive": tuple(derive),
+        "box": tuple(dict.fromkeys(boxes)),
+    }
+
+
+def _deterministic_axis_parameter_square_adjacent_text(
+    source_groups: tuple[LessonCandidateGroup, ...],
+    snapshot: ExplanationSnapshot,
+) -> dict[str, Any]:
+    pieces = [
+        DeterministicLessonTextPlanner().plan_text(group=group, snapshot=snapshot)
+        for group in source_groups
+    ]
+    derive: list[tuple[str, str]] = []
+    boxes: list[str] = []
+    for piece in pieces:
+        derive.extend(_derive_items(piece.get("derive", ())))
+        boxes.extend(str(item) for item in piece.get("box", ()) if str(item))
+    square_piece = _piece_for_capability(source_groups, pieces, "square_adjacent_vertex_from_side")
+    title = str(square_piece.get("title") or "由正方形边求相邻顶点")
+    nav_title = str(square_piece.get("nav_title") or _nav_title_from_title(title))
+    return {
+        "title": title,
+        "nav_title": nav_title,
+        "goal": "先用参数表示对称轴上的点，再利用正方形相邻边关系表示另一个顶点。",
+        "derive": tuple(derive),
+        "box": tuple(dict.fromkeys(boxes)),
+    }
+
+
+def _deterministic_parameter_value_point_evaluation_minimum_point_text(
+    source_groups: tuple[LessonCandidateGroup, ...],
+    snapshot: ExplanationSnapshot,
+) -> dict[str, Any]:
+    pieces = [
+        DeterministicLessonTextPlanner().plan_text(group=group, snapshot=snapshot)
+        for group in source_groups
+    ]
+    derive: list[tuple[str, str]] = []
+    boxes: list[str] = []
+    for piece in pieces:
+        derive.extend(_derive_items(piece.get("derive", ())))
+        boxes.extend(str(item) for item in piece.get("box", ()) if str(item))
+    labels = _target_point_labels_for_groups(source_groups, pieces)
+    labels_text = "、".join(labels)
+    title = f"由最小值反求参数，并求{labels_text}坐标" if labels_text else "由最小值反求参数，并求点坐标"
+    nav_title = f"反求参数求{labels_text}" if labels_text else "反求参数求点"
+    return {
+        "title": title,
+        "nav_title": nav_title,
+        "goal": "先由最小值条件反求参数，再把参数代入含参点坐标，并确定最短状态下的动点。",
+        "derive": tuple(derive),
+        "box": _dedupe_visible_texts(boxes),
+    }
+
+
+def _deterministic_parameter_value_point_evaluation_text(
+    source_groups: tuple[LessonCandidateGroup, ...],
+    snapshot: ExplanationSnapshot,
+) -> dict[str, Any]:
+    pieces = [
+        DeterministicLessonTextPlanner().plan_text(group=group, snapshot=snapshot)
+        for group in source_groups
+    ]
+    derive: list[tuple[str, str]] = []
+    boxes: list[str] = []
+    for piece in pieces:
+        derive.extend(_derive_items(piece.get("derive", ())))
+        boxes.extend(str(item) for item in piece.get("box", ()) if str(item))
+    labels = _target_point_labels_for_groups(source_groups, pieces)
+    labels_text = "、".join(labels)
+    return {
+        "title": f"由表达式取值反求参数，并求{labels_text}坐标" if labels_text else "由表达式取值反求参数，并代入求点坐标",
+        "nav_title": f"反求参数求{labels_text}" if labels_text else "反求参数并代入",
+        "goal": "先由表达式取值条件反求参数，再把参数代入含参点坐标。",
+        "derive": tuple(derive),
+        "box": _dedupe_visible_texts(boxes),
+    }
+
+
+_DETERMINISTIC_MERGE_TEXT_BUILDERS = {
+    "simple_quadratic_foundation": _deterministic_simple_quadratic_foundation_text,
+    "quadratic_foundation_axis_point": _deterministic_quadratic_foundation_axis_point_text,
+    "axis_parameter_square_adjacent_locus": _deterministic_axis_parameter_square_adjacent_locus_text,
+    "axis_parameter_square_adjacent": _deterministic_axis_parameter_square_adjacent_text,
+    "parameter_value_point_evaluation_minimum_point": _deterministic_parameter_value_point_evaluation_minimum_point_text,
+    "parameter_value_point_evaluation": _deterministic_parameter_value_point_evaluation_text,
+}
+
+
+def _piece_for_capability(
+    groups: tuple[LessonCandidateGroup, ...],
+    pieces: list[dict[str, Any]],
+    capability_id: str,
+) -> dict[str, Any]:
+    for group, piece in zip(groups, pieces, strict=False):
+        if group.capability_id == capability_id:
+            return piece
+    return pieces[-1] if pieces else {}
+
+
+def _locus_line_display_for_group(
+    group: LessonCandidateGroup,
+    snapshot: ExplanationSnapshot,
+) -> str:
+    for handle, fact in snapshot.fact_index.items():
+        if not str(handle).startswith("runtime:"):
+            continue
+        if not isinstance(fact, dict) or fact.get("type") != "Line":
+            continue
+        if str(fact.get("scope_id") or "") != str(group.step_id):
+            continue
+        line = fact.get("value")
+        if isinstance(line, dict):
+            return _line_equation_display(line)
+    return ""
+
+
+def _line_equation_display(line: dict[str, Any]) -> str:
+    equation = str(line.get("equation") or "")
+    if "=" not in equation:
+        return student_math_display(equation, fullwidth_operators=True)
+    left, right = equation.split("=", 1)
+    try:
+        expr = sp.factor(sp.sympify(right.strip(), locals={"sqrt": sp.sqrt, "Abs": sp.Abs, "abs": sp.Abs}))
+        right_text = student_math_display(str(expr), fullwidth_operators=True)
+    except Exception:
+        right_text = student_math_display(right.strip(), fullwidth_operators=True)
+    return f"{left.strip()}＝{right_text}"
+
+
+def _locus_point_label_for_group(group: LessonCandidateGroup) -> str:
+    for handle in group.step.get("reads", ()):
+        if not isinstance(handle, str) or not handle.startswith("fact:"):
+            continue
+        name = handle.rsplit(":", 1)[-1]
+        for suffix in ("_parametric_coordinate", "_parameterized_point", "_coordinate"):
+            if name.endswith(suffix):
+                name = name[: -len(suffix)]
+                break
+        if re.fullmatch(r"[A-Z][A-Za-z0-9_]*", name):
+            return name
+    target = str(group.step.get("target") or "").rsplit(":", 1)[-1]
+    for suffix in ("_locus_line", "_line", "_locus"):
+        if target.endswith(suffix):
+            target = target[: -len(suffix)]
+            break
+    return target if re.fullmatch(r"[A-Z][A-Za-z0-9_]*", target) else ""
+
+
+def _last_target_point_label_for_groups(
+    groups: tuple[LessonCandidateGroup, ...],
+    pieces: list[dict[str, Any]],
+) -> str:
+    labels = _target_point_labels_for_groups(groups, pieces)
+    return labels[-1] if labels else ""
+
+
+def _answer_boxes_for_groups(
+    source_groups: tuple[LessonCandidateGroup, ...],
+    answers: dict[str, Any],
+) -> tuple[str, ...]:
+    boxes: list[str] = []
+    for group in source_groups:
+        boxes.extend(_answer_boxes_for_step(group.step, answers))
+    return tuple(dict.fromkeys(boxes))
 
 
 def _lesson_from_llm_draft(
@@ -345,6 +957,7 @@ def validate_lesson_draft(
         groups_by_source[group.step_id].append(group)
     lesson_steps: list[LessonStep] = []
     used_candidate_ids: set[str] = set()
+    rendered_answer_boxes: set[str] = set()
     accepted_steps: list[dict[str, Any]] = []
     warnings: list[dict[str, Any]] = []
     for index, raw_step in enumerate(raw_steps, start=1):
@@ -409,12 +1022,22 @@ def validate_lesson_draft(
                 accepted_steps=accepted_steps,
                 warnings=warnings,
             )
+        rendered_answer_boxes.update(
+            _rendered_answer_box_fingerprints(text.get("box", ()), snapshot.answers)
+        )
         if index == len(raw_steps):
-            text["box"] = _merge_boxes(text.get("box", ()), _answer_boxes(snapshot.answers))
+            text["box"] = _merge_answer_boxes(
+                text.get("box", ()),
+                _missing_answer_boxes(snapshot.answers, rendered_answer_boxes),
+                snapshot.answers,
+            )
         title = _student_title_for_source_groups(source_groups, text)
         nav_title = _student_nav_title_for_source_groups(source_groups, text, title)
         derive_items = _filter_redundant_derive_items(
-            _derive_items(text.get("derive", ())),
+            _with_required_reference_items(
+                _derive_items(text.get("derive", ())),
+                source_groups,
+            ),
             source_groups,
         )
         lesson_step = LessonStep(
@@ -428,7 +1051,7 @@ def validate_lesson_draft(
                 for trace_id in group.trace_refs
             ),
             title=title,
-            goal=str(text.get("goal") or source_groups[0].step.get("target") or ""),
+            goal=_student_goal_text(text.get("goal"), source_groups[0].step.get("target")),
             nav_title=nav_title,
             derive=derive_items,
             box=tuple(str(item) for item in text.get("box", ()) if str(item)),
@@ -464,6 +1087,7 @@ def validate_lesson_draft(
             warnings=warnings,
             partial_steps=lesson_steps,
         )
+    lesson_steps = _merge_adjacent_lesson_steps(lesson_steps)
     lesson = LessonIR(
         problem_id=snapshot.problem_id,
         family_id=snapshot.family_id,
@@ -488,6 +1112,290 @@ def validate_lesson_draft(
             blockers=(),
             warnings=tuple(_dedupe_warnings(warnings)),
         ),
+    )
+
+
+def _merge_adjacent_lesson_steps(
+    steps: list[LessonStep],
+) -> list[LessonStep]:
+    previous: list[LessonStep] | None = None
+    current = list(steps)
+    while previous != current:
+        previous = current
+        current = _merge_adjacent_duplicate_recipe_steps(current)
+        current = _merge_adjacent_capability_sequence_steps(current)
+    return current
+
+
+def _merge_adjacent_duplicate_recipe_steps(
+    steps: list[LessonStep],
+) -> list[LessonStep]:
+    merged: list[LessonStep] = []
+    index = 0
+    while index < len(steps):
+        current = steps[index]
+        duplicates = [current]
+        cursor = index + 1
+        while cursor < len(steps) and _should_merge_duplicate_recipe_steps(current, steps[cursor]):
+            duplicates.append(steps[cursor])
+            cursor += 1
+        if len(duplicates) == 1:
+            merged.append(current)
+        else:
+            merged.append(_merge_duplicate_recipe_steps(duplicates))
+        index = cursor
+    return merged
+
+
+def _should_merge_duplicate_recipe_steps(left: LessonStep, right: LessonStep) -> bool:
+    if left.scope_id != right.scope_id:
+        return False
+    if left.source_step_ids != right.source_step_ids:
+        return False
+    if left.capability_ids != right.capability_ids:
+        return False
+    if left.teaching_substep_ids or right.teaching_substep_ids:
+        return False
+    return _duplicate_lesson_step_merge_rule(left) is not None
+
+
+def _duplicate_lesson_step_merge_rule(step: LessonStep) -> DuplicateLessonStepMergeRule | None:
+    return _DUPLICATE_LESSON_STEP_MERGE_RULE_BY_CAPABILITIES.get(step.capability_ids)
+
+
+def _merge_adjacent_capability_sequence_steps(
+    steps: list[LessonStep],
+) -> list[LessonStep]:
+    merged: list[LessonStep] = []
+    index = 0
+    while index < len(steps):
+        rule, selected = _lesson_step_merge_rule_at(steps, index)
+        if rule is not None and selected:
+            merged.append(_merge_lesson_steps_for_rule(rule, selected))
+            index += len(selected)
+            continue
+        merged.append(steps[index])
+        index += 1
+    return merged
+
+
+def _lesson_step_merge_rule_at(
+    steps: list[LessonStep],
+    start: int,
+) -> tuple[LessonMergeRule | None, list[LessonStep]]:
+    for rule in LESSON_MERGE_RULES:
+        selected = _adjacent_steps_for_capability_sequence(steps, start, rule.sequence)
+        if selected:
+            return rule, selected
+    return None, []
+
+
+def _adjacent_steps_for_capability_sequence(
+    steps: list[LessonStep],
+    start: int,
+    sequence: tuple[str, ...],
+) -> list[LessonStep]:
+    selected: list[LessonStep] = []
+    capabilities: list[str] = []
+    scope_id = steps[start].scope_id if start < len(steps) else ""
+    for cursor in range(start, len(steps)):
+        step = steps[cursor]
+        if step.scope_id != scope_id or step.teaching_substep_ids:
+            return []
+        selected.append(step)
+        capabilities.extend(step.capability_ids)
+        if len(capabilities) >= len(sequence):
+            break
+    if len(selected) <= 1 or tuple(capabilities) != sequence:
+        return []
+    return selected
+
+
+def _merge_lesson_steps_for_rule(rule: LessonMergeRule, steps: list[LessonStep]) -> LessonStep:
+    builder = _LESSON_STEP_MERGE_BUILDERS[rule.rule_id]
+    return builder(steps)
+
+
+def _merge_simple_quadratic_foundation_steps(steps: list[LessonStep]) -> LessonStep:
+    return _merge_lesson_step_sequence(
+        steps,
+        title="代入已知条件，求解析式、顶点和 x 轴交点",
+        nav_title="求解析式、顶点和交点",
+    )
+
+
+def _merge_quadratic_foundation_axis_point_steps(steps: list[LessonStep]) -> LessonStep:
+    first = steps[0]
+    prefix_title = first.title or "求函数解析式"
+    prefix_nav = first.nav_title or _nav_title_from_title(prefix_title) or "求解析式"
+    axis_label = _last_point_label_from_lesson_steps([steps[-1]])
+    axis_title = f"求对称轴与X轴交点{axis_label}" if axis_label else "求对称轴与X轴交点"
+    nav_title = f"{prefix_nav}求{axis_label}" if axis_label else f"{prefix_nav}和对称轴交点"
+    return _merge_lesson_step_sequence(
+        steps,
+        title=f"{prefix_title}，{axis_title}",
+        nav_title=nav_title,
+    )
+
+
+def _merge_axis_square_steps(steps: list[LessonStep]) -> LessonStep:
+    square_step = steps[-1]
+    title = square_step.title or "由正方形边求相邻顶点"
+    nav_title = square_step.nav_title or _nav_title_from_title(title)
+    return _merge_lesson_step_sequence(
+        steps,
+        title=title,
+        nav_title=nav_title,
+    )
+
+
+def _merge_axis_square_locus_steps(steps: list[LessonStep]) -> LessonStep:
+    label = _axis_square_locus_target_label_from_lesson_steps(steps)
+    title = f"正方形求顶点{label}轨迹" if label else "正方形求顶点轨迹"
+    return _merge_lesson_step_sequence(
+        steps,
+        title=title,
+        nav_title=title,
+    )
+
+
+def _merge_parameter_point_evaluation_steps(steps: list[LessonStep]) -> LessonStep:
+    labels = _point_labels_from_lesson_steps(steps)
+    labels_text = "、".join(labels)
+    return _merge_lesson_step_sequence(
+        steps,
+        title=f"由表达式取值反求参数，并求{labels_text}坐标" if labels_text else "由表达式取值反求参数，并代入求点坐标",
+        nav_title=f"反求参数求{labels_text}" if labels_text else "反求参数并代入",
+    )
+
+
+def _merge_parameter_point_minimum_steps(steps: list[LessonStep]) -> LessonStep:
+    labels = _point_labels_from_lesson_steps(steps)
+    labels_text = "、".join(labels)
+    return _merge_lesson_step_sequence(
+        steps,
+        title=f"由最小值反求参数，并求{labels_text}坐标" if labels_text else "由最小值反求参数，并求点坐标",
+        nav_title=f"反求参数求{labels_text}" if labels_text else "反求参数求点",
+    )
+
+
+_LESSON_STEP_MERGE_BUILDERS = {
+    "simple_quadratic_foundation": _merge_simple_quadratic_foundation_steps,
+    "quadratic_foundation_axis_point": _merge_quadratic_foundation_axis_point_steps,
+    "axis_parameter_square_adjacent_locus": _merge_axis_square_locus_steps,
+    "axis_parameter_square_adjacent": _merge_axis_square_steps,
+    "parameter_value_point_evaluation_minimum_point": _merge_parameter_point_minimum_steps,
+    "parameter_value_point_evaluation": _merge_parameter_point_evaluation_steps,
+}
+
+
+def _merge_lesson_step_sequence(
+    steps: list[LessonStep],
+    *,
+    title: str,
+    nav_title: str,
+) -> LessonStep:
+    first = steps[0]
+    derive: list[tuple[str, str]] = []
+    box: list[str] = []
+    gaps: list[str] = []
+    trace_refs: list[str] = []
+    source_step_ids: list[str] = []
+    capability_ids: list[str] = []
+    teaching_substep_ids: list[str] = []
+    for step in steps:
+        derive.extend(step.derive)
+        box.extend(step.box)
+        gaps.extend(step.gaps)
+        trace_refs.extend(step.trace_refs)
+        source_step_ids.extend(step.source_step_ids)
+        capability_ids.extend(step.capability_ids)
+        teaching_substep_ids.extend(step.teaching_substep_ids)
+    return LessonStep(
+        id=first.id,
+        scope_id=first.scope_id,
+        source_step_ids=tuple(dict.fromkeys(source_step_ids)),
+        capability_ids=tuple(dict.fromkeys(capability_ids)),
+        trace_refs=tuple(dict.fromkeys(trace_refs)),
+        title=title,
+        goal=first.goal,
+        nav_title=nav_title,
+        derive=tuple(dict.fromkeys(derive)),
+        box=tuple(_dedupe_visible_texts(box)),
+        gaps=tuple(dict.fromkeys(item for item in gaps if str(item))),
+        teaching_substep_ids=tuple(dict.fromkeys(teaching_substep_ids)),
+    )
+
+
+def _point_labels_from_lesson_steps(steps: list[LessonStep]) -> tuple[str, ...]:
+    labels: list[str] = []
+    for step in steps:
+        labels.extend(_point_labels_from_texts((*step.box, step.title, step.nav_title or "")))
+    return tuple(dict.fromkeys(label for label in labels if label))
+
+
+def _axis_square_locus_target_label_from_lesson_steps(steps: list[LessonStep]) -> str:
+    for step in reversed(steps):
+        label = _locus_label_from_texts((*step.box, step.title, step.nav_title or ""))
+        if label:
+            return label
+    return _last_point_label_from_lesson_steps(steps)
+
+
+def _last_point_label_from_lesson_steps(steps: list[LessonStep]) -> str:
+    labels = _point_labels_from_lesson_steps(steps)
+    return labels[-1] if labels else ""
+
+
+def _locus_label_from_texts(texts: tuple[str, ...]) -> str:
+    for text in texts:
+        raw = str(text)
+        for match in re.finditer(r"(?:点|顶点|动点)?([A-Z][A-Za-z0-9_′]*)\s*(?:的)?轨迹", raw):
+            return match.group(1)
+        for match in re.finditer(r"([A-Z][A-Za-z0-9_′]*)\s*始终在", raw):
+            return match.group(1)
+    return ""
+
+
+def _point_labels_from_texts(texts: tuple[str, ...]) -> list[str]:
+    labels: list[str] = []
+    for text in texts:
+        for match in re.finditer(r"([A-Z])(?:′)?[（(]", str(text)):
+            label = match.group(1)
+            if label not in labels:
+                labels.append(label)
+        for match in re.finditer(r"(?:点|顶点|动点)([A-Z])", str(text)):
+            label = match.group(1)
+            if label not in labels:
+                labels.append(label)
+    return labels
+
+
+def _merge_duplicate_recipe_steps(steps: list[LessonStep]) -> LessonStep:
+    first = steps[0]
+    rule = _duplicate_lesson_step_merge_rule(first)
+    derive: list[tuple[str, str]] = []
+    box: list[str] = []
+    gaps: list[str] = []
+    trace_refs: list[str] = []
+    for step in steps:
+        derive.extend(step.derive)
+        box.extend(step.box)
+        gaps.extend(step.gaps)
+        trace_refs.extend(step.trace_refs)
+    return LessonStep(
+        id=first.id,
+        scope_id=first.scope_id,
+        source_step_ids=first.source_step_ids,
+        capability_ids=first.capability_ids,
+        trace_refs=tuple(dict.fromkeys(trace_refs)),
+        title=rule.title if rule is not None else first.title,
+        goal=first.goal,
+        nav_title=rule.nav_title if rule is not None else first.nav_title,
+        derive=tuple(dict.fromkeys(derive)),
+        box=tuple(dict.fromkeys(item for item in box if str(item))),
+        gaps=tuple(dict.fromkeys(item for item in gaps if str(item))),
+        teaching_substep_ids=(),
     )
 
 
@@ -692,6 +1600,9 @@ def _student_nav_title_for_group(
             fallback=group.teaching_substep_nav_title,
             required_terms=group.teaching_substep_nav_title_required_terms,
         )
+    spec_nav_title = _nav_title_for_recipe(str(group.step.get("recipe_hint") or ""))
+    if spec_nav_title:
+        return candidate or spec_nav_title
     return candidate or _nav_title_from_title(title)
 
 
@@ -723,6 +1634,10 @@ def _student_nav_title_for_source_groups(
             fallback=group.teaching_substep_nav_title,
             required_terms=group.teaching_substep_nav_title_required_terms,
         )
+    if len(source_groups) == 1:
+        spec_nav_title = _nav_title_for_recipe(str(source_groups[0].step.get("recipe_hint") or ""))
+        if spec_nav_title:
+            return candidate or spec_nav_title
     return candidate or _nav_title_from_title(title)
 
 
@@ -757,7 +1672,7 @@ def _validate_text_output(raw: dict[str, Any], snapshot: ExplanationSnapshot) ->
         "nav_title": str(raw.get("nav_title") or _nav_title_from_title(str(raw.get("title", "")))),
         "goal": str(raw.get("goal", "")),
         "derive": _derive_items(raw.get("derive", ())),
-        "box": tuple(str(item) for item in raw.get("box", ()) if str(item)),
+        "box": tuple(_normalize_visible_text_spacing(str(item)) for item in raw.get("box", ()) if str(item)),
         "gaps": tuple(str(item) for item in raw.get("gaps", ()) if str(item)),
     }
     unknown_handles = _handle_refs(payload) - _allowed_handles(snapshot)
@@ -825,11 +1740,20 @@ _COLLINEARITY_STATEMENT_RE = re.compile(
 def _split_derive_item(label: str, text: str) -> list[tuple[str, str]]:
     """把“依据，所以结论”这类混写拆成独立 derive items。"""
     label = _normalize_derive_label(label)
-    text = _normalize_intercept_angle_reference(_strip_sentence(text))
+    text = _normalize_visible_text_spacing(_normalize_intercept_angle_reference(_strip_sentence(text)))
     if not text:
         return []
+    leading_variable_split = _split_on_leading_variable_definition(text)
+    if leading_variable_split is not None:
+        return leading_variable_split
+    standalone_variable = _standalone_variable_definition(text)
+    if label in {"∵", "作", "说明"} and standalone_variable:
+        return [("设", standalone_variable)]
     split = _split_on_conclusion_marker(text)
     if split is None:
+        variable_split = _split_on_variable_definition_marker(label, text)
+        if variable_split is not None:
+            return variable_split
         derived_split = _split_on_derived_result_marker(label, text)
         if derived_split is not None:
             cause, result = derived_split
@@ -899,8 +1823,48 @@ def _split_on_derived_result_marker(label: str, text: str) -> tuple[str, str] | 
     return cause, result
 
 
+def _split_on_variable_definition_marker(label: str, text: str) -> list[tuple[str, str]] | None:
+    match = re.search(r"(?:，|,|；|;)\s*(?:令|设)\s*([^，,；;。]+)$", text)
+    if match is None:
+        return None
+    previous = _strip_sentence(text[: match.start()])
+    definition = _strip_sentence(match.group(1))
+    if not previous or not definition or not re.search(r"=|＝", definition):
+        return None
+    if re.search(r"(?:得|则)", definition):
+        return None
+    return [(_label_for_unsplit(label, previous), previous), ("设", definition)]
+
+
+def _split_on_leading_variable_definition(text: str) -> list[tuple[str, str]] | None:
+    match = re.match(r"^(?:令|设)\s*([^，,；;。]+?)\s*(?:，|,|；|;)\s*(?:得|则)?\s*(.+)$", text)
+    if match is None:
+        return None
+    definition = _strip_sentence(match.group(1))
+    result = _strip_sentence(match.group(2))
+    if not definition or not result or not re.search(r"=|＝", definition):
+        return None
+    if not _looks_like_derived_result(result):
+        return None
+    return [("设", definition), ("∴", result)]
+
+
+def _standalone_variable_definition(text: str) -> str:
+    match = re.match(r"^(?:令|设)\s*(.+)$", text)
+    if match is None:
+        return ""
+    definition = _strip_sentence(match.group(1))
+    if not definition or not re.search(r"=|＝", definition):
+        return ""
+    return definition
+
+
+def _normalize_visible_text_spacing(text: str) -> str:
+    return re.sub(r"(?<=[A-Za-z0-9√)）])或(?=[A-Za-z(（])", " 或 ", text)
+
+
 def _looks_like_derived_result(text: str) -> bool:
-    return bool(re.search(r"=|→|⇒|坐标|解析式|表达式|[a-zA-Z]\s*[）)]", text))
+    return bool(re.search(r"=|＝|→|⇒|坐标|解析式|表达式|[a-zA-Z]\s*[）)]", text))
 
 
 def _normalize_derive_label(label: str) -> str:
@@ -989,13 +1953,45 @@ def _title_from_explanation_spec(explanation: Any, goal: str) -> str:
         return ""
     by_goal = getattr(explanation, "student_title_templates_by_goal", None) or {}
     if goal and isinstance(by_goal, dict) and by_goal.get(goal):
-        return str(by_goal[goal])
-    return str(getattr(explanation, "student_title_template", "") or "")
+        return _safe_unbound_template_literal(by_goal[goal])
+    return _safe_unbound_template_literal(
+        getattr(explanation, "student_title_template", "")
+    )
+
+
+def _nav_title_for_recipe(recipe: str) -> str:
+    method_spec = _method_spec(recipe)
+    if method_spec is not None:
+        return _nav_title_from_explanation_spec(method_spec.explanation)
+    recipe_spec = _recipe_spec_registry().get(recipe)
+    if recipe_spec is not None:
+        return _nav_title_from_explanation_spec(recipe_spec.explanation)
+    return ""
+
+
+def _nav_title_from_explanation_spec(explanation: Any) -> str:
+    if explanation is None:
+        return ""
+    return _safe_unbound_template_literal(
+        getattr(explanation, "student_nav_title_template", "")
+    )
+
+
+def _safe_unbound_template_literal(template: Any) -> str:
+    text = str(template or "").strip()
+    if "{" in text or "}" in text:
+        return ""
+    return text
 
 
 @lru_cache(maxsize=1)
 def _method_spec_registry() -> MethodSpecRegistry:
     return MethodSpecRegistry.load_from_code()
+
+
+@lru_cache(maxsize=1)
+def _recipe_spec_registry() -> RecipeSpecRegistry:
+    return RecipeSpecRegistry.load_from_code()
 
 
 def _method_spec(method_id: str):
@@ -1036,6 +2032,18 @@ def _title_from_handle(handle: str) -> str:
     return name or "讲解步骤"
 
 
+def _student_goal_text(raw_goal: Any, fallback_target: Any) -> str:
+    goal = str(raw_goal or "")
+    if goal and not _handle_refs(goal):
+        return goal
+    target = str(fallback_target or "")
+    if target.startswith("answer:"):
+        return "写出当前问答案"
+    if target.startswith(("fact:", "runtime:", "point:")):
+        return "得到当前步骤结论"
+    return _title_from_handle(target) if target else ""
+
+
 def _nav_title_from_title(title: str) -> str:
     """从正文标题派生短导航标题；LLM/fixture 可显式覆盖。"""
     title = re.sub(r"^第\s*\d+\s*步[:：]\s*", "", str(title)).strip()
@@ -1057,14 +2065,91 @@ def _produced_boxes(step: dict[str, Any]) -> tuple[str, ...]:
     return tuple(boxes)
 
 
-def _answer_boxes(answers: dict[str, Any]) -> tuple[str, ...]:
-    boxes = []
+def _answer_box_entries(answers: dict[str, Any]) -> tuple[tuple[str, str, Any, str], ...]:
+    entries: list[tuple[str, str, Any, str]] = []
     for scope_id, values in answers.items():
         if not isinstance(values, dict):
             continue
         for key, value in values.items():
-            boxes.append(_student_answer_box(str(key), value))
+            key_text = str(key)
+            entries.append((str(scope_id), key_text, value, _student_answer_box(key_text, value)))
+    return tuple(entries)
+
+
+def _answer_boxes(answers: dict[str, Any]) -> tuple[str, ...]:
+    boxes = []
+    for _, _, _, box in _answer_box_entries(answers):
+        boxes.append(box)
     return tuple(boxes)
+
+
+def _answer_box_fingerprint(box: str) -> str:
+    return str(box)
+
+
+def _missing_answer_boxes(
+    answers: dict[str, Any],
+    rendered_fingerprints: set[str],
+) -> tuple[str, ...]:
+    return tuple(
+        box
+        for _, _, _, box in _answer_box_entries(answers)
+        if _answer_box_fingerprint(box) not in rendered_fingerprints
+    )
+
+
+def _rendered_answer_box_fingerprints(raw: Any, answers: dict[str, Any]) -> set[str]:
+    if not isinstance(raw, tuple | list):
+        return set()
+    visible_boxes = tuple(str(item) for item in raw if str(item))
+    normalized_visible_boxes = tuple(_normalize_visible_math(item) for item in visible_boxes)
+    rendered: set[str] = set()
+    for _, key, value, box in _answer_box_entries(answers):
+        if _is_point_answer_value(key, value):
+            candidates = tuple(
+                dict.fromkeys(
+                    _normalize_visible_math(candidate)
+                    for candidate in _student_answer_candidates(key, value)
+                    if str(candidate)
+                )
+            )
+            boxes_to_scan = normalized_visible_boxes
+        else:
+            candidates = (box,)
+            boxes_to_scan = visible_boxes
+        if any(
+            _answer_candidate_matches_box(candidate, visible_box)
+            for visible_box in boxes_to_scan
+            for candidate in candidates
+        ):
+            rendered.add(_answer_box_fingerprint(box))
+    return rendered
+
+
+def _answer_candidate_matches_box(candidate: str, visible_box: str) -> bool:
+    if not candidate:
+        return False
+    if candidate == visible_box:
+        return True
+    if len(candidate) < 3:
+        return False
+    start = 0
+    while True:
+        index = visible_box.find(candidate, start)
+        if index < 0:
+            return False
+        before = visible_box[index - 1] if index > 0 else ""
+        after_index = index + len(candidate)
+        after = visible_box[after_index] if after_index < len(visible_box) else ""
+        if _answer_match_boundary(before) and _answer_match_boundary(after):
+            return True
+        start = index + 1
+
+
+def _answer_match_boundary(char: str) -> bool:
+    if not char:
+        return True
+    return not (char.isalnum() or char in "_²³√/+-")
 
 
 def _answer_boxes_for_step(step: dict[str, Any], answers: dict[str, Any]) -> tuple[str, ...]:
@@ -1112,6 +2197,9 @@ def _answer_text(value: Any) -> str:
 def _student_answer_box(key: str, value: Any) -> str:
     if key == "parabola":
         return f"y={_display_math_expr(value)}"
+    if _is_answer_point_list(value):
+        rendered = "或".join(_student_point_answer_box(key, point) for point in _sorted_answer_points(value))
+        return rendered
     if isinstance(value, list):
         rendered = ",".join(_display_math_expr(item) for item in value)
         if re.fullmatch(r"[A-Z][A-Za-z0-9_]*", key):
@@ -1122,16 +2210,107 @@ def _student_answer_box(key: str, value: Any) -> str:
     return _display_math_expr(value)
 
 
+def _student_point_answer_box(key: str, value: Any) -> str:
+    rendered = ",".join(_display_math_expr(item) for item in value)
+    if re.fullmatch(r"[A-Z][A-Za-z0-9_]*", key):
+        return f"{key}({rendered})"
+    return f"({rendered})"
+
+
+def _is_point_answer_value(key: str, value: Any) -> bool:
+    return _is_answer_point_list(value) or (
+        isinstance(value, list | tuple)
+        and len(value) == 2
+        and re.fullmatch(r"[A-Z][A-Za-z0-9_]*", key) is not None
+    )
+
+
+def _sorted_answer_points(value: Any) -> list[Any]:
+    points = [item for item in value if isinstance(item, list | tuple) and len(item) == 2]
+    try:
+        import sympy as sp
+
+        return sorted(
+            points,
+            key=lambda item: tuple(float(sp.N(sp.sympify(str(coord)))) for coord in reversed(item)),
+            reverse=True,
+        )
+    except Exception:
+        return points
+
+
+def _is_answer_point_list(value: Any) -> bool:
+    return (
+        isinstance(value, list | tuple)
+        and bool(value)
+        and all(isinstance(item, list | tuple) and len(item) == 2 for item in value)
+    )
+
+
 def _display_math_expr(value: Any) -> str:
     return student_math_display(_answer_text(value), simplify_sympy=False)
 
 
-def _merge_boxes(raw: Any, extra: tuple[str, ...]) -> tuple[str, ...]:
-    boxes = [str(item) for item in raw if str(item)] if isinstance(raw, tuple | list) else []
+def _merge_boxes(
+    raw: Any,
+    extra: tuple[str, ...],
+    *,
+    dedupe_math_equivalent: bool = True,
+) -> tuple[str, ...]:
+    boxes = _dedupe_visible_texts(raw) if dedupe_math_equivalent else _dedupe_exact_texts(raw)
     for item in extra:
-        if item not in boxes:
-            boxes.append(item)
+        normalized = _normalize_visible_math(item)
+        if item in boxes:
+            continue
+        if dedupe_math_equivalent and any(_normalize_visible_math(box) == normalized for box in boxes):
+            continue
+        boxes.append(item)
     return tuple(boxes)
+
+
+def _merge_answer_boxes(raw: Any, extra: tuple[str, ...], answers: dict[str, Any]) -> tuple[str, ...]:
+    boxes = _dedupe_exact_texts(raw)
+    point_answer_fingerprints = {
+        _normalize_visible_math(box)
+        for _, key, value, box in _answer_box_entries(answers)
+        if _is_point_answer_value(key, value)
+    }
+    for item in extra:
+        if item in boxes:
+            continue
+        normalized = _normalize_visible_math(item)
+        if normalized in point_answer_fingerprints and any(
+            _normalize_visible_math(box) == normalized for box in boxes
+        ):
+            continue
+        boxes.append(item)
+    return tuple(boxes)
+
+
+def _dedupe_exact_texts(raw: Any) -> list[str]:
+    boxes: list[str] = []
+    if not isinstance(raw, tuple | list):
+        return boxes
+    for item in raw:
+        text = str(item)
+        if text and text not in boxes:
+            boxes.append(text)
+    return boxes
+
+
+def _dedupe_visible_texts(raw: Any) -> list[str]:
+    boxes: list[str] = []
+    if not isinstance(raw, tuple | list):
+        return boxes
+    for item in raw:
+        text = str(item)
+        if not text:
+            continue
+        normalized = _normalize_visible_math(text)
+        if any(_normalize_visible_math(box) == normalized for box in boxes):
+            continue
+        boxes.append(text)
+    return boxes
 
 
 def _assert_answers_present(lesson: LessonIR, answers: dict[str, Any]) -> None:
@@ -1142,7 +2321,10 @@ def _assert_answers_present(lesson: LessonIR, answers: dict[str, Any]) -> None:
             continue
         for key, value in values.items():
             candidates = _student_answer_candidates(str(key), value)
-            if candidates and not any(_normalize_visible_math(candidate) in text for candidate in candidates):
+            if candidates and not any(
+                _answer_candidate_matches_box(_normalize_visible_math(candidate), text)
+                for candidate in candidates
+            ):
                 missing.append(_student_answer_box(str(key), value))
     if missing:
         raise LessonIRValidationError(f"answer values missing from LessonIR: {missing}")
@@ -1158,14 +2340,21 @@ def _student_answer_candidates(key: str, value: Any) -> tuple[str, ...]:
 
 
 def _normalize_visible_math(text: str) -> str:
-    return (
+    normalized = (
         str(text)
         .replace(" ", "")
+        .replace("　", "")
         .replace("，", ",")
+        .replace("＝", "=")
+        .replace("＋", "+")
+        .replace("－", "-")
         .replace("−", "-")
+        .replace("（", "(")
+        .replace("）", ")")
         .replace("**2", "²")
         .replace("*", "")
     )
+    return re.sub(r"√\(([A-Za-z0-9]+)\)", r"√\1", normalized)
 
 
 _MACHINE_BOX_RE = re.compile(r"\b[a-z]+(?:_[0-9]+)?\.[A-Za-z_][A-Za-z0-9_]*\s*=")

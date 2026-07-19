@@ -7,7 +7,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Literal
+
+from shuxueshuo_server.solver.runtime.handle_alias_index import SEMANTIC_READ_KIND_ORDER
 
 STEP_INTENT_OUTPUT_TYPES: tuple[str, ...] = (
     "AngleEquality",
@@ -84,6 +86,65 @@ class ProducedFact:
         }
         if self.output_type is not None:
             payload["output_type"] = self.output_type
+        return payload
+
+
+@dataclass(frozen=True)
+class ProjectedStateWrite:
+    """Internal state-write metadata carried beside a StepIntent projection.
+
+    Functional reconciliation knows whether a return creates a state or
+    transitions an existing StateSlot.  StepIntent intentionally does not
+    expose that compiler detail, so this immutable sidecar preserves it across
+    validation without extending the LLM-facing wire format.
+    """
+
+    step_id: str
+    produced_handle: str
+    state_slot_id: str
+    write_mode: Literal["create", "transition", "value"]
+    source_state_slot_ids: tuple[str, ...] = ()
+    return_name: str | None = None
+    expected_result_form: Literal["open_expression", "closed_value"] | None = None
+
+    def to_payload(self) -> dict[str, Any]:
+        payload: dict[str, Any] = {
+            "step_id": self.step_id,
+            "produced_handle": self.produced_handle,
+            "state_slot_id": self.state_slot_id,
+            "write_mode": self.write_mode,
+            "source_state_slot_ids": list(self.source_state_slot_ids),
+        }
+        if self.return_name is not None:
+            payload["return_name"] = self.return_name
+        if self.expected_result_form is not None:
+            payload["expected_result_form"] = self.expected_result_form
+        return payload
+
+
+@dataclass(frozen=True)
+class SemanticRef:
+    """LLM-facing semantic read reference.
+
+    ``SemanticRef`` is only accepted at the raw JSON boundary. It is resolved to
+    canonical ``StepIntent.reads`` before runtime validation and execution.
+    """
+
+    ref: str
+    kind: str
+    value_type: str | None = None
+    from_step: str | None = None
+
+    def to_payload(self) -> dict[str, str]:
+        """转成 JSON 友好的 dict。"""
+        payload = {
+            "ref": self.ref,
+            "kind": self.kind,
+        }
+        if self.value_type is not None:
+            payload["value_type"] = self.value_type
+        if self.from_step is not None:
+            payload["from_step"] = self.from_step
         return payload
 
 
@@ -277,6 +338,133 @@ class HandleResolutionReport:
 
 
 @dataclass(frozen=True)
+class SemanticReadResolution:
+    """一次 semantic read 到 canonical handle 的解析结果。"""
+
+    step_id: str
+    scope_id: str
+    semantic_ref: SemanticRef
+    handle: str
+    candidate_count: int
+    overrode_legacy_reads: bool = False
+    inferred_from_step: str | None = None
+    state_slot_id: str | None = None
+    condition_id: str | None = None
+    source_context_id: str | None = None
+
+    def to_payload(self) -> dict[str, Any]:
+        """转成 JSON 友好结构。"""
+        payload: dict[str, Any] = {
+            "step_id": self.step_id,
+            "scope_id": self.scope_id,
+            "semantic_ref": self.semantic_ref.to_payload(),
+            "handle": self.handle,
+            "candidate_count": self.candidate_count,
+            "overrode_legacy_reads": self.overrode_legacy_reads,
+        }
+        if self.inferred_from_step is not None:
+            payload["inferred_from_step"] = self.inferred_from_step
+        if self.state_slot_id is not None:
+            payload["state_slot_id"] = self.state_slot_id
+        if self.condition_id is not None:
+            payload["condition_id"] = self.condition_id
+        if self.source_context_id is not None:
+            payload["source_context_id"] = self.source_context_id
+        return payload
+
+
+@dataclass(frozen=True)
+class SemanticReadResolutionError:
+    """一次 semantic read 解析失败的结构化错误。"""
+
+    step_id: str
+    scope_id: str
+    code: str
+    message: str
+    semantic_ref: SemanticRef | None = None
+
+    def to_payload(self) -> dict[str, Any]:
+        """转成 JSON 友好结构。"""
+        payload: dict[str, Any] = {
+            "step_id": self.step_id,
+            "scope_id": self.scope_id,
+            "code": self.code,
+            "message": self.message,
+        }
+        if self.semantic_ref is not None:
+            payload["semantic_ref"] = self.semantic_ref.to_payload()
+        return payload
+
+
+@dataclass(frozen=True)
+class SemanticReadFallback:
+    """Semantic read 失败后采用同 step legacy reads 的一次回退。"""
+
+    step_id: str
+    scope_id: str
+    reason: str
+    reads: tuple[str, ...]
+    semantic_errors: tuple[SemanticReadResolutionError, ...] = ()
+
+    def to_payload(self) -> dict[str, Any]:
+        """转成 JSON 友好结构。"""
+        return {
+            "step_id": self.step_id,
+            "scope_id": self.scope_id,
+            "reason": self.reason,
+            "reads": list(self.reads),
+            "semantic_errors": [
+                error.to_payload()
+                for error in self.semantic_errors
+            ],
+        }
+
+
+@dataclass(frozen=True)
+class SemanticReadResolutionReport:
+    """SemanticReadResolver 的解析摘要。"""
+
+    resolutions: tuple[SemanticReadResolution, ...] = ()
+    errors: tuple[SemanticReadResolutionError, ...] = ()
+    fallbacks: tuple[SemanticReadFallback, ...] = ()
+    warnings: tuple[str, ...] = ()
+    partially_resolved_payload: dict[str, Any] | None = None
+
+    @property
+    def changed(self) -> bool:
+        """是否实际解析过任意 semantic read。"""
+        return bool(self.resolutions or self.errors or self.fallbacks or self.warnings)
+
+    @property
+    def ok(self) -> bool:
+        """是否没有 semantic read 解析错误。"""
+        return not self.errors
+
+    def to_payload(self) -> dict[str, Any]:
+        """转成 JSON 友好结构。"""
+        payload: dict[str, Any] = {
+            "changed": self.changed,
+            "ok": self.ok,
+            "resolutions": [
+                resolution.to_payload()
+                for resolution in self.resolutions
+            ],
+            "errors": [
+                error.to_payload()
+                for error in self.errors
+            ],
+            "fallbacks": [
+                fallback.to_payload()
+                for fallback in self.fallbacks
+            ],
+            "warnings": list(self.warnings),
+        }
+        if self.partially_resolved_payload is not None:
+            payload["partially_resolved_payload"] = self.partially_resolved_payload
+        return payload
+
+
+@dataclass(frozen=True)
 class StepIntentNormalizationAction:
     """StepIntentNormalizer 对草稿做的一次确定性整理。
 
@@ -333,6 +521,8 @@ class StepIntentValidationReport:
     missing_goals: tuple[str, ...] = ()
     recipe_alignment: RecipeAlignmentReport | None = None
     handle_resolution: HandleResolutionReport | None = None
+    semantic_read_resolution: SemanticReadResolutionReport | None = None
+    raw_output_normalization: dict[str, Any] | None = None
 
     def to_payload(self) -> dict[str, Any]:
         """转成 JSON 友好结构。"""
@@ -347,6 +537,12 @@ class StepIntentValidationReport:
             payload["recipe_alignment"] = self.recipe_alignment.to_payload()
         if self.handle_resolution is not None:
             payload["handle_resolution"] = self.handle_resolution.to_payload()
+        if self.semantic_read_resolution is not None:
+            payload["semantic_read_resolution"] = (
+                self.semantic_read_resolution.to_payload()
+            )
+        if self.raw_output_normalization is not None:
+            payload["raw_output_normalization"] = self.raw_output_normalization
         return payload
 
 
@@ -457,6 +653,107 @@ class StepIntentPreflightIssue:
 
 
 @dataclass(frozen=True)
+class StepIntentFunctionBindingEvent:
+    """FunctionSpec adapter binding result for one method attempt.
+
+    The payload is debug-safe: it exposes function ids, method ids, status, and
+    typed error codes, but never RuntimeContext paths.  ``failure`` means the
+    migrated FunctionSpec adapter did not bind and execution stops at that
+    structured error.
+    """
+
+    step_id: str
+    scope_id: str
+    method_id: str
+    function_id: str
+    status: Literal["success", "failure"]
+    errors: tuple[str, ...] = ()
+
+    def to_payload(self) -> dict[str, Any]:
+        payload: dict[str, Any] = {
+            "step_id": self.step_id,
+            "scope_id": self.scope_id,
+            "method_id": self.method_id,
+            "function_id": self.function_id,
+            "status": self.status,
+        }
+        if self.errors:
+            payload["errors"] = list(self.errors)
+        return payload
+
+
+@dataclass(frozen=True)
+class StepIntentMacroBindingEvent:
+    """MacroSpec adapter validation result for one recipe attempt."""
+
+    step_id: str
+    scope_id: str
+    recipe_id: str
+    macro_id: str
+    status: Literal["success", "failure"]
+    errors: tuple[str, ...] = ()
+
+    def to_payload(self) -> dict[str, Any]:
+        payload: dict[str, Any] = {
+            "step_id": self.step_id,
+            "scope_id": self.scope_id,
+            "recipe_id": self.recipe_id,
+            "macro_id": self.macro_id,
+            "status": self.status,
+        }
+        if self.errors:
+            payload["errors"] = list(self.errors)
+        return payload
+
+
+@dataclass(frozen=True)
+class StateWriteProvenance:
+    """Object/state identity carried by a FunctionSpec or MacroSpec write."""
+
+    step_id: str
+    scope_id: str
+    capability_id: str
+    produced_handle: str
+    output_key: str
+    runtime_type: str
+    identity_policy: Literal[
+        "preserve_input_object",
+        "target_object",
+        "derived_role",
+        "value_only",
+    ]
+    identity_role: str
+    evidence_roles: tuple[str, ...] = ()
+    object_ref: str | None = None
+    source_handles: tuple[str, ...] = ()
+    source_step_id: str | None = None
+    state_slot_id: str | None = None
+    write_mode: Literal["create", "transition", "value"] = "value"
+    previous_write_step_id: str | None = None
+    free_symbol_names: tuple[str, ...] = ()
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            "step_id": self.step_id,
+            "scope_id": self.scope_id,
+            "capability_id": self.capability_id,
+            "produced_handle": self.produced_handle,
+            "output_key": self.output_key,
+            "runtime_type": self.runtime_type,
+            "identity_policy": self.identity_policy,
+            "identity_role": self.identity_role,
+            "evidence_roles": list(self.evidence_roles),
+            "object_ref": self.object_ref,
+            "source_handles": list(self.source_handles),
+            "source_step_id": self.source_step_id,
+            "state_slot_id": self.state_slot_id,
+            "write_mode": self.write_mode,
+            "previous_write_step_id": self.previous_write_step_id,
+            "free_symbol_names": list(self.free_symbol_names),
+        }
+
+
+@dataclass(frozen=True)
 class StepIntentExecutionBlocker:
     """StepIntent 执行诊断中的首个 runtime 阻塞点。"""
 
@@ -468,6 +765,7 @@ class StepIntentExecutionBlocker:
     capability_errors: tuple[str, ...] = ()
     capability_id: str | None = None
     missing_runtime_type: str | None = None
+    details: dict[str, Any] | None = None
     retryable: bool = True
 
     def to_payload(self) -> dict[str, Any]:
@@ -485,6 +783,8 @@ class StepIntentExecutionBlocker:
             payload["capability_id"] = self.capability_id
         if self.missing_runtime_type is not None:
             payload["missing_runtime_type"] = self.missing_runtime_type
+        if self.details is not None:
+            payload["details"] = self.details
         return payload
 
 
@@ -519,6 +819,9 @@ class StepIntentExecutionDiagnostic:
     applied_fills: tuple[StepIntentAppliedFill, ...] = ()
     planner_insights: tuple[StepIntentPlannerInsight, ...] = ()
     preflight_issues: tuple[StepIntentPreflightIssue, ...] = ()
+    function_binding_events: tuple[StepIntentFunctionBindingEvent, ...] = ()
+    macro_binding_events: tuple[StepIntentMacroBindingEvent, ...] = ()
+    state_write_provenance: tuple[StateWriteProvenance, ...] = ()
     blockers: tuple[StepIntentExecutionBlocker, ...] = ()
     skipped_steps: tuple[StepIntentSkippedStep, ...] = ()
     candidate_errors: tuple[str, ...] = ()
@@ -544,10 +847,145 @@ class StepIntentExecutionDiagnostic:
             "preflight_issues": [
                 item.to_payload() for item in self.preflight_issues
             ],
+            "function_binding_events": [
+                item.to_payload() for item in self.function_binding_events
+            ],
+            "macro_binding_events": [
+                item.to_payload() for item in self.macro_binding_events
+            ],
+            "state_write_provenance": [
+                item.to_payload() for item in self.state_write_provenance
+            ],
             "blockers": [item.to_payload() for item in self.blockers],
             "skipped_steps": [item.to_payload() for item in self.skipped_steps],
             "candidate_errors": list(self.candidate_errors),
         }
+
+
+PlannerRetryLayer = Literal[
+    "replay",
+    "functional_validation",
+    "functional_elaboration",
+    "functional_reconciliation",
+    "semantic_reads",
+    "handle_resolution",
+    "validation",
+    "normalization",
+    "candidate_resolution",
+    "trial_execution",
+    "goal_verification",
+    "answer_check",
+]
+
+PlannerOutputFormat = Literal["step_intent", "functional_plan"]
+
+PlannerRetryPreservePolicy = Literal[
+    "preserve_all",
+    "preserve_graph",
+    "preserve_prefix",
+    "preserve_step",
+    "preserve_handles",
+    "none",
+]
+
+PlannerReplayDepth = Literal[
+    "functional_validation",
+    "functional_elaboration",
+    "functional_reconciliation",
+    "semantic_reads",
+    "handle_resolution",
+    "validation",
+    "normalization",
+    "candidate_resolution",
+    "trial_execution",
+    "goal_verification",
+    "answer_check",
+]
+
+
+@dataclass(frozen=True)
+class PlannerRetryIssue:
+    """LLM retry 的统一错误 envelope。"""
+
+    layer: PlannerRetryLayer
+    code: str
+    step_id: str | None = None
+    scope_id: str | None = None
+    repair_target: str = "suffix"
+    preserve_policy: PlannerRetryPreservePolicy = "preserve_prefix"
+    message: str = ""
+    hints: tuple[str, ...] = ()
+    related_handles: tuple[str, ...] = ()
+    details: dict[str, Any] | None = None
+
+    def to_payload(self) -> dict[str, Any]:
+        """转成 prompt/debug JSON。"""
+        payload: dict[str, Any] = {
+            "layer": self.layer,
+            "code": self.code,
+            "step_id": self.step_id,
+            "scope_id": self.scope_id,
+            "repair_target": self.repair_target,
+            "preserve_policy": self.preserve_policy,
+            "message": self.message,
+            "hints": list(self.hints),
+            "related_handles": list(self.related_handles),
+        }
+        if self.details is not None:
+            payload["details"] = self.details
+        return payload
+
+
+@dataclass(frozen=True)
+class PlannerRetryState:
+    """Planner retry 的正式稳定状态。"""
+
+    attempt: int
+    baseline_draft: dict[str, Any] | None
+    stable_prefix: tuple[dict[str, Any], ...] = ()
+    repair_suffix_start: dict[str, str | None] | None = None
+    issues: tuple[PlannerRetryIssue, ...] = ()
+    recovered_issues: tuple[PlannerRetryIssue, ...] = ()
+    preserve_policy: PlannerRetryPreservePolicy = "none"
+    repair_instruction: str = ""
+    replay_depth: PlannerReplayDepth | None = None
+    selected_repair_layer: PlannerRetryLayer | None = None
+    replay_timeline: tuple[dict[str, Any], ...] = ()
+    replay_reports: dict[str, Any] | None = None
+    source_context_id: str | None = None
+    candidate_format: PlannerOutputFormat = "step_intent"
+    baseline_candidate: dict[str, Any] | None = None
+    stable_candidate_prefix: tuple[dict[str, Any], ...] = ()
+    stable_candidate_calls: tuple[dict[str, Any], ...] = ()
+    repair_call_ids: tuple[str, ...] = ()
+
+    def to_payload(self) -> dict[str, Any]:
+        """转成 ``previous_attempts`` 和 prompt 可携带的安全 JSON。"""
+        payload = {
+            "attempt": self.attempt,
+            "baseline_draft": self.baseline_draft,
+            "stable_prefix": list(self.stable_prefix),
+            "repair_suffix_start": self.repair_suffix_start,
+            "issues": [issue.to_payload() for issue in self.issues],
+            "recovered_issues": [
+                issue.to_payload() for issue in self.recovered_issues
+            ],
+            "preserve_policy": self.preserve_policy,
+            "repair_instruction": self.repair_instruction,
+            "replay_depth": self.replay_depth,
+            "selected_repair_layer": self.selected_repair_layer,
+            "replay_timeline": list(self.replay_timeline),
+            "replay_reports": self.replay_reports or {},
+            "candidate_format": self.candidate_format,
+            "baseline_candidate": self.baseline_candidate,
+            "stable_candidate_prefix": list(self.stable_candidate_prefix),
+            "stable_candidate_calls": list(self.stable_candidate_calls),
+            "repair_call_ids": list(self.repair_call_ids),
+        }
+        if self.source_context_id is not None:
+            payload["source"] = "planner_state_context"
+            payload["source_context_id"] = self.source_context_id
+        return payload
 
 
 @dataclass(frozen=True)
@@ -559,6 +997,7 @@ class StepIntentRepairAttempt:
     diagnostic: StepIntentExecutionDiagnostic | None
     repair_instruction: str
     repair_summary: dict[str, Any] | None = None
+    planner_retry_state: PlannerRetryState | None = None
     errors: tuple[str, ...] = ()
 
     def to_payload(self) -> dict[str, Any]:
@@ -567,6 +1006,11 @@ class StepIntentRepairAttempt:
             "attempt": self.attempt,
             "effective_draft": self.effective_draft,
             "repair_summary": self.repair_summary,
+            "planner_retry_state": (
+                self.planner_retry_state.to_payload()
+                if self.planner_retry_state is not None
+                else None
+            ),
             "repair_instruction": self.repair_instruction,
             "errors": list(self.errors),
         }
@@ -594,10 +1038,12 @@ class ExecutableCapabilitySpec:
     preferred: bool = False
     title: str = ""
     description: str = ""
+    execution_status: str = "executable"
+    contract: dict[str, Any] | None = None
 
     def to_payload(self) -> dict[str, Any]:
         """转成 debug JSON。"""
-        return {
+        payload = {
             "capability_id": self.capability_id,
             "kind": self.kind,
             "goal_type": self.goal_type,
@@ -608,7 +1054,11 @@ class ExecutableCapabilitySpec:
             "preferred": self.preferred,
             "title": self.title,
             "description": self.description,
+            "execution_status": self.execution_status,
         }
+        if self.contract is not None:
+            payload["contract"] = self.contract
+        return payload
 
 
 @dataclass(frozen=True)
@@ -722,14 +1172,24 @@ STEP_INTENT_JSON_SCHEMA: dict[str, Any] = {
                         "items": {
                             "type": "object",
                             "additionalProperties": False,
+                            "anyOf": [
+                                {"required": ["reads"]},
+                                {"required": ["semantic_reads"]},
+                            ],
+                            "allOf": [
+                                {
+                                    "anyOf": [
+                                        {"required": ["creates"]},
+                                        {"required": ["produces"]},
+                                        {"required": ["outputs"]},
+                                    ],
+                                },
+                            ],
                             "required": [
                                 "step_id",
                                 "goal_type",
                                 "target",
                                 "strategy",
-                                "reads",
-                                "creates",
-                                "produces",
                                 "reason",
                             ],
                             "properties": {
@@ -752,8 +1212,35 @@ STEP_INTENT_JSON_SCHEMA: dict[str, Any] = {
                                 },
                                 "reads": {
                                     "type": "array",
-                                    "description": "本步读取的 canonical Entity/Fact/answer handle",
+                                    "description": "Legacy fallback: 本步读取的 canonical Entity/Fact/answer handle；semantic_reads 解析成功时优先，若 semantic_reads 失败且 reads 全部可见有效，系统可回退到 reads",
                                     "items": {"type": "string"},
+                                },
+                                "semantic_reads": {
+                                    "type": "array",
+                                    "description": "推荐字段：读入引用；ref 可写 semantic_read_catalog 短 ref 或 canonical handle，系统会解析为 canonical reads",
+                                    "items": {
+                                        "type": "object",
+                                        "additionalProperties": False,
+                                        "required": ["ref", "kind"],
+                                        "properties": {
+                                            "ref": {
+                                                "type": "string",
+                                                "description": "semantic_read_catalog 中的 ref、前序产物语义名，或 ProblemIR/前序产物的 canonical handle",
+                                            },
+                                            "kind": {
+                                                "type": "string",
+                                                "enum": list(SEMANTIC_READ_KIND_ORDER),
+                                            },
+                                            "value_type": {
+                                                "type": ["string", "null"],
+                                                "description": "可选 disambiguation：fact type、answer value_type 或前序 produces.output_type",
+                                            },
+                                            "from_step": {
+                                                "type": ["string", "null"],
+                                                "description": "读取前序 step 的 creates/produces 时建议填写；若省略，系统只在唯一可见 exact match 时自动推断；读取题面初始对象时不要填",
+                                            },
+                                        },
+                                    },
                                 },
                                 "creates": {
                                     "type": "array",
@@ -813,6 +1300,40 @@ STEP_INTENT_JSON_SCHEMA: dict[str, Any] = {
                                                 "type": ["string", "null"],
                                                 "enum": [*STEP_INTENT_OUTPUT_TYPES, None],
                                                 "description": "可选：本 produces 对应的 runtime 输出类型；能确定时请显式填写，减少系统从自然语言猜测",
+                                            },
+                                        },
+                                    },
+                                },
+                                "outputs": {
+                                    "type": "array",
+                                    "description": "兼容输入层：可用统一 outputs[] 描述 creates/produces，系统会在校验前分拣成 canonical creates/produces；StepIntent 输出仍只保留 creates/produces",
+                                    "items": {
+                                        "type": "object",
+                                        "additionalProperties": False,
+                                        "required": [
+                                            "handle",
+                                            "valid_scope",
+                                            "description",
+                                        ],
+                                        "properties": {
+                                            "handle": {
+                                                "type": "string",
+                                                "description": "entity/fact/answer handle",
+                                            },
+                                            "entity_type": {
+                                                "type": ["string", "null"],
+                                                "description": "当 handle 是新 entity 时可填；缺省时系统从 handle 前缀推导",
+                                            },
+                                            "valid_scope": {
+                                                "type": "string",
+                                            },
+                                            "description": {
+                                                "type": "string",
+                                            },
+                                            "output_type": {
+                                                "type": ["string", "null"],
+                                                "enum": [*STEP_INTENT_OUTPUT_TYPES, None],
+                                                "description": "当输出是 fact/answer 时的可选类型 hint；系统会用 contract/handle 继续校准",
                                             },
                                         },
                                     },

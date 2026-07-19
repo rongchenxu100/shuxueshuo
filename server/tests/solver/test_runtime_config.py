@@ -18,6 +18,8 @@ ENV_KEYS = [
     "SOLVER_LLM_MODEL",
     "SOLVER_LLM_MAX_ATTEMPTS",
     "SOLVER_LLM_DEBUG_DIR",
+    "SOLVER_ALLOW_SAME_PROBLEM_FEW_SHOT",
+    "SOLVER_FUNCTIONAL_FEW_SHOT_MODE",
     "DEEPSEEK_API_KEY",
     "DEEPSEEK_BASE_URL",
     "DEEPSEEK_MODEL",
@@ -44,6 +46,55 @@ def test_runtime_config_defaults_to_strategy_recorded(tmp_path) -> None:
     assert config.deepseek_model == DEFAULT_DEEPSEEK_MODEL
     assert config.max_llm_attempts == 3
     assert config.llm_debug_dir is None
+    assert config.functional_few_shot_mode == "new_problem"
+
+
+def test_runtime_config_maps_legacy_few_shot_boolean_to_functional_mode(
+    tmp_path,
+) -> None:
+    config = SolverRuntimeConfig.from_sources(
+        allow_same_problem_few_shot=False,
+        env_file=tmp_path / ".env",
+    )
+
+    assert config.allow_same_problem_few_shot is False
+    assert config.functional_few_shot_mode == "strict_test"
+
+
+def test_explicit_functional_few_shot_mode_wins_over_legacy_boolean(
+    tmp_path,
+) -> None:
+    config = SolverRuntimeConfig.from_sources(
+        allow_same_problem_few_shot=False,
+        functional_few_shot_mode="new_problem",
+        env_file=tmp_path / ".env",
+    )
+
+    assert config.functional_few_shot_mode == "new_problem"
+
+
+def test_runtime_config_reads_functional_few_shot_mode_from_env(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    monkeypatch.setenv("SOLVER_FUNCTIONAL_FEW_SHOT_MODE", "strict_test")
+
+    config = SolverRuntimeConfig.from_sources(env_file=tmp_path / ".env")
+
+    assert config.functional_few_shot_mode == "strict_test"
+
+
+def test_runtime_config_rejects_invalid_functional_few_shot_mode(
+    tmp_path,
+) -> None:
+    with pytest.raises(
+        SolverRuntimeConfigError,
+        match="functional-few-shot-mode",
+    ):
+        SolverRuntimeConfig.from_sources(
+            functional_few_shot_mode="adaptive",
+            env_file=tmp_path / ".env",
+        )
 
 
 def test_runtime_config_cli_overrides_env_file(tmp_path) -> None:

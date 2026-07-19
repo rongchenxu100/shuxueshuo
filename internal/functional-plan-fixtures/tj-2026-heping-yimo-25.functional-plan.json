@@ -1,0 +1,286 @@
+{
+  "format": "functional_plan/v1",
+  "scopes": [
+    {
+      "scope_id": "i_1",
+      "label": "第（Ⅰ）①问",
+      "calls": [
+        {
+          "call_id": "derive_y_intercept_C_i",
+          "capability_id": "quadratic_y_axis_intercept_point",
+          "args": {
+            "quadratic": {
+              "ref": "parabola",
+              "kind": "function"
+            }
+          },
+          "return_bindings": {
+            "point": {
+              "ref": "C",
+              "kind": "point"
+            }
+          },
+          "strategy": "令横坐标为零求题设抛物线的纵轴交点。",
+          "reason": "该基础点坐标供平移、角关系和路径条件复用。"
+        },
+        {
+          "call_id": "derive_translated_D_i",
+          "capability_id": "translated_point",
+          "args": {
+            "source": {
+              "from_call": "derive_y_intercept_C_i",
+              "return": "point"
+            }
+          },
+          "return_bindings": {
+            "point": {
+              "ref": "D",
+              "kind": "point"
+            }
+          },
+          "strategy": "按题面平移定义由源点得到目标点。",
+          "reason": "目标点在曲线上的条件用于确定函数系数。"
+        },
+        {
+          "call_id": "derive_parabola_i",
+          "capability_id": "quadratic_from_constraints",
+          "args": {
+            "curve_points": [
+              {
+                "ref": "A",
+                "kind": "point"
+              },
+              {
+                "from_call": "derive_translated_D_i",
+                "return": "point"
+              }
+            ]
+          },
+          "return_bindings": {
+            "parabola": {
+              "ref": "i_1_parabola",
+              "kind": "answer"
+            }
+          },
+          "strategy": "把两个已知曲线点代入题设函数求完整解析式。",
+          "reason": "该函数既是本问答案，也是下一小问求交点的基础状态。"
+        }
+      ]
+    },
+    {
+      "scope_id": "i_2",
+      "label": "第（Ⅰ）②问",
+      "calls": [
+        {
+          "call_id": "derive_x_intercept_B_i",
+          "capability_id": "quadratic_x_axis_intercept_point",
+          "args": {
+            "quadratic": {
+              "from_call": "derive_parabola_i",
+              "return": "parabola"
+            },
+            "known_point": {
+              "ref": "A",
+              "kind": "point"
+            }
+          },
+          "return_bindings": {
+            "point": {
+              "ref": "B",
+              "kind": "point"
+            }
+          },
+          "strategy": "求横轴上的另一个曲线交点。",
+          "reason": "该点与目标点共同确定后续直线。"
+        },
+        {
+          "call_id": "derive_equal_angle_i",
+          "capability_id": "angle_sum_equal_angle_candidates",
+          "args": {
+            "condition": {
+              "ref": "angle_sum_CBE_ACO_45",
+              "kind": "fact"
+            },
+            "x_axis_point": {
+              "ref": "B",
+              "kind": "point"
+            },
+            "y_axis_point": {
+              "ref": "C",
+              "kind": "point"
+            },
+            "reference_x_axis_point": {
+              "ref": "A",
+              "kind": "point"
+            },
+            "origin": {
+              "ref": "O",
+              "kind": "point"
+            }
+          },
+          "return_bindings": {},
+          "strategy": "把角和条件化为可直接使用的等锐角关系。",
+          "reason": "先保留几何角关系，再由正切比求轴上截点。"
+        },
+        {
+          "call_id": "derive_axis_intercept_F_i",
+          "capability_id": "axis_intercept_from_equal_acute_angles",
+          "args": {
+            "angle_equality": {
+              "from_call": "derive_equal_angle_i",
+              "return": "angle_equality"
+            },
+            "x_axis_point": {
+              "from_call": "derive_x_intercept_B_i",
+              "return": "point"
+            },
+            "y_axis_point": {
+              "from_call": "derive_y_intercept_C_i",
+              "return": "point"
+            },
+            "reference_x_axis_point": {
+              "ref": "A",
+              "kind": "point"
+            },
+            "origin": {
+              "ref": "O",
+              "kind": "point"
+            }
+          },
+          "return_bindings": {},
+          "strategy": "利用等锐角对应的正切比求纵轴截点。",
+          "reason": "该点与已知横轴点确定目标直线。"
+        },
+        {
+          "call_id": "derive_curve_intersection_E_i",
+          "capability_id": "line_parabola_second_intersection_point",
+          "args": {
+            "parabola": {
+              "from_call": "derive_parabola_i",
+              "return": "parabola"
+            },
+            "line_p1": {
+              "from_call": "derive_x_intercept_B_i",
+              "return": "point"
+            },
+            "line_p2": {
+              "from_call": "derive_axis_intercept_F_i",
+              "return": "point"
+            },
+            "known_point": {
+              "from_call": "derive_x_intercept_B_i",
+              "return": "point"
+            }
+          },
+          "return_bindings": {
+            "point": {
+              "ref": "i_2_E",
+              "kind": "answer"
+            }
+          },
+          "strategy": "联立目标直线与抛物线并排除已知交点。",
+          "reason": "另一个曲线交点就是本问目标点。"
+        }
+      ]
+    },
+    {
+      "scope_id": "ii",
+      "label": "第（Ⅱ）问",
+      "calls": [
+        {
+          "call_id": "derive_parametric_parabola_ii",
+          "capability_id": "quadratic_from_constraints",
+          "args": {
+            "curve_point": {
+              "ref": "A",
+              "kind": "point"
+            },
+            "free_parameters": {
+              "ref": "a",
+              "kind": "symbol"
+            }
+          },
+          "return_bindings": {},
+          "strategy": "由已知曲线点把函数化为单参数形式。",
+          "reason": "路径最值表达式最终只应保留待求主参数。"
+        },
+        {
+          "call_id": "derive_x_intercept_B_ii",
+          "capability_id": "quadratic_x_axis_intercept_point",
+          "args": {
+            "quadratic": {
+              "from_call": "derive_parametric_parabola_ii",
+              "return": "parabola"
+            },
+            "known_point": {
+              "ref": "A",
+              "kind": "point"
+            }
+          },
+          "return_bindings": {
+            "point": {
+              "ref": "B",
+              "kind": "point"
+            }
+          },
+          "strategy": "求含参抛物线的另一个横轴交点。",
+          "reason": "等长射线路径降维需要该端点坐标。"
+        },
+        {
+          "call_id": "reduce_equal_length_ray_path_ii",
+          "capability_id": "equal_length_ray_path_reduction",
+          "args": {
+            "path_minimum_target": {
+              "ref": "path_minimum_target",
+              "kind": "fact"
+            },
+            "equal_length_condition": {
+              "ref": "CN_eq_CM",
+              "kind": "fact"
+            },
+            "point_on_segment": {
+              "ref": "M_on_segment_BC",
+              "kind": "fact"
+            },
+            "point_on_ray": {
+              "ref": "N_on_ray_CD",
+              "kind": "fact"
+            }
+          },
+          "return_bindings": {},
+          "return_expectations": {
+            "path_minimum_expression": "open_expression"
+          },
+          "strategy": "用等长关系把双动点距离和降维成单距离最值。",
+          "reason": "该机制直接产生关于主参数的最小值表达式。"
+        },
+        {
+          "call_id": "solve_parameter_from_minimum_ii",
+          "capability_id": "parameter_from_expression_value",
+          "args": {
+            "expression": {
+              "from_call": "reduce_equal_length_ray_path_ii",
+              "return": "path_minimum_expression"
+            },
+            "minimum_value": {
+              "ref": "path_minimum_value_given",
+              "kind": "fact"
+            },
+            "parameter": {
+              "ref": "a",
+              "kind": "symbol"
+            }
+          },
+          "return_bindings": {
+            "parameter_value": {
+              "ref": "ii_a",
+              "kind": "answer"
+            }
+          },
+          "strategy": "令最小值表达式等于题设值并按参数范围取解。",
+          "reason": "求得的主参数是本问答案。"
+        }
+      ]
+    }
+  ]
+}

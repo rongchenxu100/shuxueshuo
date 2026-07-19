@@ -69,10 +69,136 @@ class EqualLengthRayPathReductionRoleBinder:
         return _equal_length_ray_path_reduction_draft(recipe_spec.explanation, group, snapshot)
 
 
+class BrokenPathStraighteningMinimumRoleBinder:
+    """Binder for one-moving-point broken-path straightening recipes."""
+
+    def bind(
+        self,
+        *,
+        recipe_spec: RecipeSpec,
+        group: LessonCandidateGroup,
+        snapshot: ExplanationSnapshot,
+    ) -> dict[str, Any]:
+        return _broken_path_straightening_minimum_draft(
+            recipe_spec.explanation,
+            group,
+            snapshot,
+        )
+
+
 def recipe_role_binders() -> dict[str, RecipeRoleBinder]:
     return {
         "generic_recipe": GenericRecipeRoleBinder(),
         "equal_length_ray_path_reduction": EqualLengthRayPathReductionRoleBinder(),
+        "broken_path_straightening_minimum_expression": BrokenPathStraighteningMinimumRoleBinder(),
+    }
+
+
+def _broken_path_straightening_minimum_draft(
+    explanation: RecipeExplanationSpec | None,
+    group: LessonCandidateGroup,
+    snapshot: ExplanationSnapshot,
+) -> dict[str, Any]:
+    assert explanation is not None
+    selected = _selected_straightening_candidate(group, snapshot)
+    if not selected:
+        return GenericRecipeRoleBinder().bind(
+            recipe_spec=RecipeSpec(
+                recipe_id="broken_path_straightening_minimum_expression",
+                title="将军饮马折线最值",
+                summary="",
+                method_sequence=(),
+                execution_strategy="",
+                outputs={},
+                explanation=explanation,
+            ),
+            group=group,
+            snapshot=snapshot,
+        )
+
+    source = str(selected.get("reflect_source") or "")
+    reflected = _student_point_label(str(selected.get("reflected_point_name") or ""))
+    moving = str(selected.get("moving_point") or "")
+    other = str(selected.get("other_fixed_point") or "")
+    transformed_path = _student_path_label(str(selected.get("transformed_path") or ""))
+    straightened_path = _student_path_label(str(selected.get("straightened_path") or ""))
+    segment_equality = _student_path_label(str(selected.get("segment_equality") or ""))
+    minimum_segment = _student_path_label(str(selected.get("minimum_segment") or ""))
+    moving_locus = _student_line_label(str(selected.get("moving_line") or ""))
+    reflected_pair = _point_pair_from_value(selected.get("reflected_point"))
+    reflected_text = _point_text(reflected, reflected_pair) if reflected_pair else ""
+    minimum_expression = _minimum_expression_from_distance_trace(group) or _minimum_expression_from_fact(
+        group,
+        snapshot,
+    )
+    minimum_display = _student_expr(minimum_expression, fullwidth_operators=True) if minimum_expression else ""
+    distance_formula = _straightening_distance_formula(
+        selected,
+        minimum_segment=minimum_segment,
+        minimum_display=minimum_display,
+    )
+    roles: dict[str, Any] = {
+        "moving_point": moving,
+        "moving_locus": moving_locus,
+        "source_point": source,
+        "reflected_point": reflected,
+        "other_fixed_point": other,
+        "transformed_path": transformed_path,
+        "straightened_path": straightened_path,
+        "segment_equality": segment_equality,
+        "straightened_segment": minimum_segment,
+        "minimum_expression": minimum_display,
+    }
+    if reflected_text:
+        roles["reflected_point_coordinate"] = reflected_text
+    if distance_formula:
+        roles["distance_formula"] = distance_formula
+
+    proof_templates: list[str] = [
+        "∵由上一步，{transformed_path} 是等价后的单动点折线。",
+        "∵{moving_point} 在直线 {moving_locus} 上运动。",
+        "作 {source_point} 关于 {moving_locus} 的对称点 {reflected_point}。",
+    ]
+    if reflected_text:
+        proof_templates.append("∴{reflected_point_coordinate}。")
+    proof_templates.extend(
+        [
+            "∴{segment_equality}。",
+            "∴{transformed_path}={straightened_path}。",
+            "∴当 {reflected_point}、{moving_point}、{other_fixed_point} 共线时，路径取得最小值 {straightened_segment}。",
+        ]
+    )
+    if distance_formula:
+        proof_templates.append("∴{distance_formula}。")
+    elif minimum_display:
+        proof_templates.append("∴{straightened_segment}={minimum_expression}。")
+
+    proof = [format_template(template, roles) for template in proof_templates]
+    box: list[str] = []
+    if reflected_text:
+        box.append(reflected_text)
+    if distance_formula:
+        box.append(distance_formula)
+    elif minimum_display:
+        box.append(format_template("路径最小值＝{minimum_expression}", roles))
+
+    return {
+        "confidence": "complete",
+        "bound_roles": roles,
+        "unbound_roles": [],
+        "student_intent_draft": format_template(
+            explanation.student_intent_template,
+            roles,
+        ),
+        "proof_draft": proof,
+        "box": box,
+        "recommended_lesson_splits": list(explanation.recommended_lesson_splits),
+        "llm_can_complete": list(explanation.allowed_llm_completion),
+        "llm_must_not_invent": generic_must_not_invent()
+        + [
+            "不得改变选中的对称点、最短线段端点或最小值表达式。",
+            "不得把未选中的拉直候选写成最终方案。",
+        ],
     }
 
 
@@ -279,6 +405,113 @@ def _entities_by_handle(snapshot: ExplanationSnapshot) -> dict[str, dict[str, An
 
 def _first_fact(facts: list[dict[str, Any]], fact_type: str) -> dict[str, Any] | None:
     return next((fact for fact in facts if fact.get("type") == fact_type), None)
+
+
+def _selected_straightening_candidate(
+    group: LessonCandidateGroup,
+    snapshot: ExplanationSnapshot,
+) -> dict[str, Any]:
+    scored: list[tuple[int, dict[str, Any]]] = []
+    for item in snapshot.fact_index.values():
+        if not isinstance(item, dict):
+            continue
+        if item.get("type") != "StraighteningCandidate":
+            continue
+        if item.get("source") != "select_straightening_candidate":
+            continue
+        value = item.get("value")
+        if not isinstance(value, dict):
+            continue
+        scope_id = str(item.get("scope_id") or "")
+        score = 1
+        if scope_id == group.step_id:
+            score += 4
+        if scope_id == group.scope_id:
+            score += 3
+        if _scope_root(scope_id) == _scope_root(group.scope_id):
+            score += 1
+        scored.append((score, value))
+    if not scored:
+        return {}
+    scored.sort(key=lambda pair: pair[0], reverse=True)
+    return scored[0][1]
+
+
+def _scope_root(scope_id: str | None) -> str:
+    if not scope_id:
+        return "problem"
+    text = str(scope_id)
+    return text.split("_", 1)[0] or "problem"
+
+
+def _student_point_label(label: str) -> str:
+    return str(label).replace("_prime", "′")
+
+
+def _student_path_label(text: str) -> str:
+    return _student_point_label(str(text)).replace(" ", "")
+
+
+def _student_line_label(text: str) -> str:
+    raw = str(text).strip()
+    if raw.startswith("y="):
+        expr = _sympify(raw.split("=", 1)[1])
+        if expr is not None:
+            return f"y＝{_student_expr(sp.factor(expr), fullwidth_operators=True, simplify_sympy=False)}"
+    return _student_path_label(raw).replace("=", "＝")
+
+
+def _minimum_expression_from_fact(
+    group: LessonCandidateGroup,
+    snapshot: ExplanationSnapshot,
+) -> str:
+    scored: list[tuple[int, str]] = []
+    for item in snapshot.fact_index.values():
+        if not isinstance(item, dict) or item.get("type") != "MinimumExpression":
+            continue
+        if item.get("source") != "distance_between_points":
+            continue
+        value = str(item.get("value") or "")
+        if not value:
+            continue
+        scope_id = str(item.get("scope_id") or "")
+        score = 1
+        if scope_id == group.step_id:
+            score += 4
+        if scope_id == group.scope_id:
+            score += 3
+        if _scope_root(scope_id) == _scope_root(group.scope_id):
+            score += 1
+        scored.append((score, value))
+    if not scored:
+        return ""
+    scored.sort(key=lambda pair: pair[0], reverse=True)
+    return scored[0][1]
+
+
+def _straightening_distance_formula(
+    selected: dict[str, Any],
+    *,
+    minimum_segment: str,
+    minimum_display: str,
+) -> str:
+    endpoints = selected.get("minimum_endpoints")
+    if not isinstance(endpoints, list | tuple) or len(endpoints) != 2:
+        return f"{minimum_segment}＝{minimum_display}" if minimum_segment and minimum_display else ""
+    p1 = _point_pair_from_value(endpoints[0])
+    p2 = _point_pair_from_value(endpoints[1])
+    if p1 is None or p2 is None:
+        return f"{minimum_segment}＝{minimum_display}" if minimum_segment and minimum_display else ""
+    dx = sp.simplify(p2[0] - p1[0])
+    dy = sp.simplify(p2[1] - p1[1])
+    distance = minimum_display
+    if not distance:
+        distance = _student_expr(sp.sqrt(dx**2 + dy**2), fullwidth_operators=True)
+    return (
+        f"{minimum_segment}＝"
+        f"√(({_student_expr(sp.factor(dx), fullwidth_operators=True, simplify_sympy=False)})²"
+        f"＋({_student_expr(sp.factor(dy), fullwidth_operators=True, simplify_sympy=False)})²)＝{distance}"
+    )
 
 
 def _segment_reference_point(segment_entity: dict[str, Any], anchor: str) -> str:

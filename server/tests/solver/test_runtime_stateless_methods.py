@@ -50,6 +50,12 @@ from shuxueshuo_server.solver.runtime.methods import (
     WeightedAxisPathTriangleTransformMethod,
 )
 from shuxueshuo_server.solver.runtime.models import PointRef
+from shuxueshuo_server.solver.runtime.symbolic_target_closure import (
+    solve_target_symbol_closure,
+)
+from shuxueshuo_server.solver.runtime.methods.quadratic_from_constraints import (
+    analyze_quadratic_constraints,
+)
 
 
 def test_quadratic_axis_from_relation_method() -> None:
@@ -69,6 +75,38 @@ def test_quadratic_axis_from_relation_method() -> None:
 
     assert result.outputs["axis_point"].value == (1, 0)
     assert all(check.ok for check in result.checks)
+
+
+def test_target_symbol_closure_solves_joint_system_before_classifying() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["x", "y"])
+    x, y = symbols["x"], symbols["y"]
+
+    result = solve_target_symbol_closure(
+        [sp.Eq(x + y, 3), sp.Eq(x - y, 1)],
+        target=x,
+        kernel=kernel,
+    )
+
+    assert result.status == "unique"
+    assert result.target_value == 2
+    assert result.substitution == {x: 2, y: 1}
+
+
+def test_target_symbol_closure_accepts_unique_target_across_auxiliary_branches() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["x", "y"])
+    x, y = symbols["x"], symbols["y"]
+
+    result = solve_target_symbol_closure(
+        [sp.Eq(x, 2), sp.Eq(y**2, 1)],
+        target=x,
+        kernel=kernel,
+    )
+
+    assert result.status == "unique"
+    assert result.target_value == 2
+    assert result.substitution == {x: 2}
 
 
 def test_quadratic_axis_from_relation_rejects_ac_relation() -> None:
@@ -124,6 +162,27 @@ def test_quadratic_from_constraints_with_known_coefficients_and_relation() -> No
     assert sp.simplify(result.outputs["parabola"].value - (2 * x**2 - 4 * x - 5)) == 0
 
 
+def test_quadratic_from_constraints_ignores_tautological_curve_point() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["x", "b", "c"])
+    x, b, c = symbols["x"], symbols["b"], symbols["c"]
+
+    result = QuadraticFromConstraintsMethod().run(
+        {
+            "quadratic": -x**2 + b * x + c,
+            "x": x,
+            "all_coefficients": [b],
+            "p1": (0, c),
+            "p2": (-c, 0),
+        },
+        kernel,
+    )
+
+    expected = -x**2 + (1 - c) * x + c
+    assert sp.simplify(result.outputs["parabola"].value - expected) == 0
+    assert all(check.ok for check in result.checks)
+
+
 def test_quadratic_axis_parameterized_point_method() -> None:
     kernel = SympyKernel()
     x = kernel.symbols(["x"])["x"]
@@ -140,6 +199,8 @@ def test_quadratic_axis_parameterized_point_method() -> None:
     point = result.outputs["point"].value
     assert point[0] == -1
     assert point[1].name == "_axis_param_E"
+    assert result.outputs["parameter"].type == "Symbol"
+    assert result.outputs["parameter"].value is point[1]
     assert all(check.ok for check in result.checks)
 
 
@@ -343,6 +404,39 @@ def test_quadratic_from_constraints_rejects_incomplete_solution() -> None:
             },
             kernel,
         )
+
+
+def test_quadratic_constraint_analysis_classifies_solution_shape() -> None:
+    x, alpha, beta, gamma = sp.symbols("x alpha beta gamma")
+    quadratic = alpha * x**2 + beta * x + gamma
+    base = {
+        "quadratic": quadratic,
+        "x": x,
+        "all_coefficients": [alpha, beta, gamma],
+    }
+
+    single_free = analyze_quadratic_constraints(
+        {
+            **base,
+            "known_coefficients": {alpha: 1},
+            "curve_point": sp.Point(0, 2),
+        }
+    )
+    underdetermined = analyze_quadratic_constraints(base)
+    ambiguous = analyze_quadratic_constraints(
+        {
+            **base,
+            "known_coefficients": {alpha: 1, gamma: 0},
+            "extra_equation": sp.Eq(beta**2, 1),
+        }
+    )
+
+    assert single_free.status == "single_free"
+    assert single_free.free_parameters == (beta,)
+    assert underdetermined.status == "underdetermined"
+    assert underdetermined.free_parameters == (alpha, beta, gamma)
+    assert ambiguous.status == "ambiguous"
+    assert ambiguous.branch_count == 2
 
 
 def test_quadratic_from_constraints_rejects_multiple_solutions() -> None:
@@ -649,6 +743,117 @@ def test_parameter_from_curve_point_on_quadratic_method() -> None:
     assert all(check.ok for check in result.checks)
 
 
+def test_parameter_from_curve_point_specializes_known_symbol_before_solving() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["x", "u", "v"])
+    x, u, v = symbols["x"], symbols["u"], symbols["v"]
+
+    result = ParameterFromCurvePointOnQuadraticMethod().run(
+        {
+            "quadratic": u * x**2 - 2 * u * x + 1 - u * v**2 + 2 * u * v,
+            "x": x,
+            "point": (sp.Integer(2), sp.Integer(-2)),
+            "parameter": u,
+            "parameter_constraint": {"operator": ">", "value": 0},
+            "known_parameter": v,
+            "known_parameter_value": sp.Integer(3),
+        },
+        kernel,
+    )
+
+    assert result.outputs["parameter_value"].value == 1
+    assert result.outputs["point"].value == (sp.Integer(2), sp.Integer(-2))
+    assert sp.expand(result.outputs["parabola"].value) == x**2 - 2 * x - 2
+
+
+def test_parameter_from_curve_point_closes_residual_coefficient_to_target() -> None:
+    """A uniquely solved residual coefficient may map back to the bound target."""
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["x", "a", "b", "c"])
+    x, a, b, c = (symbols[name] for name in ("x", "a", "b", "c"))
+    parabola_in_c = (1 - c) * x**2 / 3 - 2 * (1 - c) * x / 3 + c
+
+    result = ParameterFromCurvePointOnQuadraticMethod().run(
+        {
+            "quadratic": parabola_in_c,
+            "x": x,
+            "point": (sp.Integer(2), sp.Integer(-2)),
+            "parameter": a,
+            "quadratic_template": a * x**2 + b * x + c,
+        },
+        kernel,
+    )
+
+    assert result.outputs["parameter_value"].value == 1
+    assert result.outputs["point"].value == (sp.Integer(2), sp.Integer(-2))
+    assert sp.expand(result.outputs["parabola"].value) == x**2 - 2 * x - 2
+
+
+def test_parameter_closure_uses_quadratic_template_coefficient_sign() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["x", "a", "b", "c", "q"])
+    x, a, b, c, q = (symbols[name] for name in ("x", "a", "b", "c", "q"))
+
+    result = ParameterFromCurvePointOnQuadraticMethod().run(
+        {
+            "quadratic": x**2 - q * x,
+            "quadratic_template": a * x**2 - b * x + c,
+            "x": x,
+            "point": (sp.Integer(1), sp.Integer(0)),
+            "parameter": b,
+        },
+        kernel,
+    )
+
+    assert result.outputs["parameter_value"].value == 1
+    assert sp.expand(result.outputs["parabola"].value) == x**2 - x
+
+
+def test_parameter_from_curve_point_rejects_multiple_unresolved_symbols() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["x", "u", "v"])
+    x, u, v = symbols["x"], symbols["u"], symbols["v"]
+
+    with pytest.raises(ValueError, match="function.constraints_underdetermined"):
+        ParameterFromCurvePointOnQuadraticMethod().run(
+            {
+                "quadratic": u * x**2 - 2 * u * x + 1 - u * v**2 + 2 * u * v,
+                "x": x,
+                "point": (sp.Integer(2), sp.Integer(-2)),
+                "parameter": u,
+                "parameter_constraint": {"operator": ">", "value": 0},
+            },
+            kernel,
+        )
+
+
+def test_parameter_from_curve_point_reports_actual_residual_symbol() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["x", "u", "v", "w"])
+    x, u, v, w = (
+        symbols["x"],
+        symbols["u"],
+        symbols["v"],
+        symbols["w"],
+    )
+
+    with pytest.raises(
+        ValueError,
+        match=r"function.parameter_identity_mismatch: target=w, residual_symbols=u",
+    ):
+        ParameterFromCurvePointOnQuadraticMethod().run(
+            {
+                "quadratic": u * x**2 - 2 * u * x + 1 - u * v**2 + 2 * u * v,
+                "x": x,
+                "point": (sp.Integer(2), sp.Integer(-2)),
+                "parameter": w,
+                "known_parameter": v,
+                "known_parameter_value": sp.Integer(3),
+            },
+            kernel,
+        )
+
+
 def test_select_point_by_quadrant_constraint_uses_explicit_m_greater_than_2() -> None:
     kernel = SympyKernel()
     m = kernel.symbols(["m"])["m"]
@@ -870,19 +1075,49 @@ def test_two_moving_points_path_reduction_method() -> None:
 
     result = TwoMovingPointsPathReductionMethod().run(
         {
-            "original_path": {"path": "EG+FG"},
+            "original_path": {
+                "path": "EG+FG",
+                "condition_ref": "fact:ii:path_minimum_target",
+                "terms": [
+                    ["point:ii:E", "point:ii:G"],
+                    ["point:ii:F", "point:ii:G"],
+                ],
+            },
             "first_moving_membership": {
                 "point": "E",
                 "segment": ["D", "M"],
+                "condition_ref": "fact:ii:segment_E_on_DM",
+                "point_ref": "point:ii:E",
+                "segment_ref": "segment:ii:DM",
+                "segment_endpoint_refs": [
+                    "point:problem:D",
+                    "point:ii:M",
+                ],
             },
             "second_moving_membership": {
                 "point": "G",
                 "segment": ["M", "N"],
+                "condition_ref": "fact:ii:segment_G_on_MN",
+                "point_ref": "point:ii:G",
+                "segment_ref": "segment:ii:MN",
+                "segment_endpoint_refs": [
+                    "point:ii:M",
+                    "point:ii:N",
+                ],
             },
             "binding_relation": {
                 "left": "DE",
                 "right": "sqrt(2)*NG",
                 "description": "DE=√2·NG",
+                "condition_ref": "fact:ii:segment_DE_eq_sqrt2_NG",
+                "left_term": {
+                    "scale": "1",
+                    "segment": ["point:problem:D", "point:ii:E"],
+                },
+                "right_term": {
+                    "scale": "sqrt(2)",
+                    "segment": ["point:ii:N", "point:ii:G"],
+                },
             },
             "first_segment_start": (sp.Integer(1), sp.Integer(0)),
             "joint_point": (m, sp.Integer(1)),
@@ -899,6 +1134,28 @@ def test_two_moving_points_path_reduction_method() -> None:
     assert transformation["replacement_fixed_endpoint"] == "D"
     assert transformation["replacement_moving_point"] == "G"
     assert transformation["creates_auxiliary_point"] is False
+    assert transformation["transformed_terms"] == [
+        ["point:problem:D", "point:ii:G"],
+        ["point:ii:F", "point:ii:G"],
+    ]
+    assert transformation["moving_point_ref"] == "point:ii:G"
+    assert transformation["fixed_endpoint_refs"] == [
+        "point:problem:D",
+        "point:ii:F",
+    ]
+    assert transformation["moving_locus_condition_ref"] == (
+        "fact:ii:segment_G_on_MN"
+    )
+    assert transformation["moving_locus_endpoint_refs"] == [
+        "point:ii:M",
+        "point:ii:N",
+    ]
+    assert transformation["source_condition_refs"] == [
+        "fact:ii:path_minimum_target",
+        "fact:ii:segment_E_on_DM",
+        "fact:ii:segment_G_on_MN",
+        "fact:ii:segment_DE_eq_sqrt2_NG",
+    ]
     assert all(check.ok for check in result.checks)
 
 
@@ -1336,6 +1593,49 @@ def test_evaluate_expression_at_parameter_method() -> None:
 
     assert result.outputs["evaluated_expression"].type == "Expression"
     assert result.outputs["evaluated_expression"].value == 2 * x + 4
+    assert "evaluated_minimum_expression" not in result.outputs
+    assert all(check.ok for check in result.checks)
+
+
+def test_evaluate_expression_at_parameter_preserves_minimum_expression_type() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["b", "x"])
+    b, x = symbols["b"], symbols["x"]
+
+    result = EvaluateExpressionAtParameterMethod().run(
+        {
+            "expression": b * x + b**2,
+            "parameter": b,
+            "parameter_value": sp.Integer(2),
+            "__input_types__": {"expression": "MinimumExpression"},
+        },
+        kernel,
+    )
+
+    assert "evaluated_expression" not in result.outputs
+    assert result.outputs["evaluated_minimum_expression"].type == "MinimumExpression"
+    assert result.outputs["evaluated_minimum_expression"].value == 2 * x + 4
+    assert all(check.ok for check in result.checks)
+
+
+def test_evaluate_expression_at_parameter_preserves_parabola_type() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["m", "x"])
+    m, x = symbols["m"], symbols["x"]
+
+    result = EvaluateExpressionAtParameterMethod().run(
+        {
+            "expression": m * x**2 + x,
+            "parameter": m,
+            "parameter_value": sp.Integer(2),
+            "__input_types__": {"expression": "Parabola"},
+        },
+        kernel,
+    )
+
+    assert tuple(result.outputs) == ("evaluated_parabola",)
+    assert result.outputs["evaluated_parabola"].type == "Parabola"
+    assert sp.expand(result.outputs["evaluated_parabola"].value) == 2 * x**2 + x
     assert all(check.ok for check in result.checks)
 
 
@@ -1378,3 +1678,24 @@ def test_line_locus_minimum_point_method() -> None:
     assert result.outputs["point"].type == "Point"
     assert result.outputs["point"].value == (sp.Rational(-7, 2), sp.Integer(-3))
     assert all(check.ok for check in result.checks)
+
+
+def test_line_locus_minimum_point_requires_named_target_ref() -> None:
+    """method 层不应从 locus payload 兜底点名；PointRef 恢复由 executor 负责。"""
+    kernel = SympyKernel()
+
+    with pytest.raises(ValueError, match="target must be a PointRef"):
+        LineLocusMinimumPointMethod().run(
+            {
+                "moving_locus": {
+                    "kind": "line",
+                    "point_name": "G",
+                    "start_point": (sp.Integer(0), sp.Integer(-3)),
+                    "direction": (sp.Integer(1), sp.Integer(0)),
+                },
+                "minimum_point_1": (sp.Integer(-5), sp.Integer(0)),
+                "minimum_point_2": (sp.Rational(-7, 2), sp.Integer(-3)),
+                "target": (sp.Integer(0), sp.Integer(-3)),
+            },
+            kernel,
+        )

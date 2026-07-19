@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from shuxueshuo_server.solver.contracts import MethodExplanationSpec, MethodVisualSpec
+
 from ._common import *
 from ._spec import MethodSpecSource
 
@@ -343,9 +345,9 @@ SPEC = MethodSpecSource(
         "side_start": {"type": "Point", "required": True},
         "side_end": {"type": "Point", "required": True},
         "square_condition": {"type": "Condition", "required": True},
-        "target": {"type": "PointRef", "required": True},
-        "side_start_ref": {"type": "PointRef", "required": False},
-        "side_end_ref": {"type": "PointRef", "required": False},
+        "target": {"type": "PointRef|Point", "required": True},
+        "side_start_ref": {"type": "PointRef|Point", "required": False},
+        "side_end_ref": {"type": "PointRef|Point", "required": False},
         "parameter": {"type": "Symbol", "required": False},
         "parameter_value": {"type": "ParameterValue", "required": False},
         "parameter_constraint": {"type": "Constraint", "required": False},
@@ -353,6 +355,56 @@ SPEC = MethodSpecSource(
     outputs={"point": "Point"},
     preconditions=("square_condition 包含 ordered vertices 和可判定的 orientation；若 orientation 依赖参数符号，可提供参数范围约束",),
     postconditions=("输出顶点与给定边构成垂直等长的正方形相邻边",),
+    explanation=MethodExplanationSpec(
+        role_schema={
+            "target_label": "学生可见的目标顶点点名。",
+            "projection_construction": "为目标顶点作坐标辅助线的构造说明。",
+            "square_name": "学生可见的正方形名称。",
+            "side_equal_statement": "正方形相邻边相等的结论。",
+            "square_right_angle_statement": "正方形公共顶点处的直角结论。",
+            "projection_right_angles": "坐标辅助线形成的直角关系。",
+            "matching_angle_statement": "对应的非直角锐角关系。",
+            "triangle_congruence": "学生可见的全等直角三角形。",
+            "length_correspondence": "全等后对应的坐标长度关系。",
+            "target_position_condition": "用于选择目标点的方位条件。",
+            "target_point": "学生可见的目标顶点坐标。",
+        },
+        student_goal_template="利用正方形相邻边垂直且等长，求相邻顶点坐标。",
+        student_title_template="由正方形求相邻顶点{target_label}",
+        student_nav_title_template="正方形求顶点{target_label}",
+        derive_templates=(
+            "作{projection_construction}",
+            "∵四边形 {square_name} 是正方形",
+            "∴{side_equal_statement}，{square_right_angle_statement}",
+            "∵{projection_right_angles}",
+            "∴{matching_angle_statement}",
+            "∴{triangle_congruence}",
+            "∴{length_correspondence}",
+            "∵{target_position_condition}",
+            "∴{target_point}",
+        ),
+        box_templates=("{target_point}",),
+        role_binder_id="square_adjacent_vertex_from_side",
+    ),
+    visual=MethodVisualSpec(
+        role_schema={
+            "square_vertices": "正方形条件给出的有序顶点。",
+            "known_side": "该方法使用的已知边。",
+            "target_vertex": "该方法求出的相邻正方形顶点。",
+            "coordinate_triangles": "展示旋转后坐标差关系的直角三角形辅助图形。",
+        },
+        role_binder_id="square_adjacent_vertex_from_side",
+        scene_templates=(
+            {
+                "component": "SquareAdjacentVertexMarker",
+                "persistence": "carry_forward",
+                "fill": "rgba(14, 165, 233, 0.12)",
+                "color": "#0284c7",
+                "edge_color": "#0f766e",
+                "target_color": "#b45309",
+            },
+        ),
+    ),
     repair_hints=(
         {
             "code": "square_side_end_not_found",

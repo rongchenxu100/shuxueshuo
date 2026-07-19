@@ -15,6 +15,8 @@ method，再把 method output 写回 RuntimeContext。
 
 from __future__ import annotations
 
+import re
+
 from shuxueshuo_server.solver.math_kernel import SympyKernel
 from shuxueshuo_server.solver.runtime.context import RuntimeContext
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
@@ -32,6 +34,7 @@ from shuxueshuo_server.solver.runtime.models import (
     StepPlan,
     runtime_type_matches,
 )
+from shuxueshuo_server.solver.state_semantics import split_runtime_types
 
 
 class DeclarationValidator:
@@ -280,6 +283,7 @@ class InvocationExecutor:
                 target,
                 value,
                 from_scope_id=plan.step_id,
+                allow_overwrite=True,
                 allow_ancestor_write=True,
             )
         return step_result
@@ -307,16 +311,26 @@ class InvocationExecutor:
         spec = self.specs.require(invocation.method_id)
         method = self.methods.require(invocation.method_id)
         inputs = {}
+        input_types = {}
         for input_name, input_spec in spec.inputs.items():
             raw_path = invocation.inputs.get(input_name)
             if raw_path is None:
                 continue
             # read_path 会同时做 scope 可见性校验和 expected_type 校验。
-            inputs[input_name] = context.read_path(
+            typed_value = context.read_path(
                 raw_path,
                 from_scope_id=invocation.scope,
                 expected_type=input_spec.type,
-            ).value
+            )
+            input_types[input_name] = typed_value.type
+            inputs[input_name] = _method_input_value(
+                input_name=input_name,
+                input_type=input_spec.type,
+                raw_path=raw_path,
+                typed_value=typed_value,
+            )
+        if input_types:
+            inputs["__input_types__"] = input_types
         result = method.run(inputs, self.kernel)
         for output_name, raw_path in invocation.outputs.items():
             # 输出先写入 step scope；如需成为上层 fact，必须走 promote_outputs。
@@ -326,3 +340,59 @@ class InvocationExecutor:
                 from_scope_id=invocation.scope,
             )
         return result
+
+
+def _method_input_value(
+    *,
+    input_name: str,
+    input_type: str,
+    raw_path: str,
+    typed_value,
+):
+    """把 RuntimeContext value 转成无状态 method 期望的 Python 输入。
+
+    ``PointRef|Point`` 主要用于 target/``*_ref`` 槽位：点实体可能已经在前序步骤中被
+    写成 Point，但 method 仍只需要该点的学生可见名称。此时从 points path
+    派生一个 PointRef，比要求 LLM 重新声明同名点更稳定。
+    """
+    if (
+        (input_name == "target" or input_name.endswith("_ref"))
+        and "PointRef" in split_runtime_types(input_type)
+        and "Point" in split_runtime_types(input_type)
+        and typed_value.type == "Point"
+    ):
+        point_ref = _point_ref_from_point_value_path(raw_path)
+        if point_ref is not None:
+            return point_ref
+    return typed_value.value
+
+
+def _point_ref_from_point_value_path(raw_path: str) -> PointRef | None:
+    """从 Point runtime path 恢复学生可见点名。"""
+    path = ContextPath.parse(raw_path)
+    name = path.key if path.container == "points" else None
+    if name is None:
+        name = _point_name_from_runtime_key(path.key)
+    if name is None and path.scope_type == "step":
+        name = _point_name_from_runtime_key(path.scope_id)
+    if name is None:
+        return None
+    return PointRef(
+        name=name,
+        path=raw_path,
+        scope_id=path.scope_id,
+    )
+
+
+def _point_name_from_runtime_key(value: str) -> str | None:
+    """从 G_coordinate / optimal_G_coordinate / derive_G_coordinate 等 key 取点名。"""
+    patterns = (
+        r"optimal_(?P<name>[A-Z][A-Za-z0-9_]*?)_coordinate(?:_expr|_value)?",
+        r"(?P<name>[A-Z][A-Za-z0-9_]*?)_(?:parametric_coordinate|numeric_coordinate|coordinate_expr|coordinate_value|coordinate|point_at_minimum)",
+        r"(?:derive|compute|evaluate)_(?:optimal_|minimum_)?(?P<name>[A-Z][A-Za-z0-9_]*?)_(?:parametric_coordinate|numeric_coordinate|coordinate_expr|coordinate_value|coordinate|point)",
+    )
+    for pattern in patterns:
+        match = re.fullmatch(pattern, value)
+        if match:
+            return match.group("name")
+    return None

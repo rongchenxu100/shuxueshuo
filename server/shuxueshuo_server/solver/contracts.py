@@ -15,6 +15,8 @@ import sympy as sp
 
 CheckStatus = Literal["passed", "failed"]
 Point = tuple[sp.Expr, sp.Expr]
+FunctionalResultForm = Literal["open_expression", "closed_value"]
+ScalarResultClosurePolicy = Literal["no_free_symbols"]
 
 
 @dataclass
@@ -80,6 +82,26 @@ class MethodInputSpec:
     type: str
     role: str = ""
     required: bool = True
+
+
+@dataclass(frozen=True)
+class ScalarResultFormSpec:
+    """LLM-facing shape metadata for scalar outputs with symbolic/closed forms.
+
+    This is an intent and catalog contract. Runtime remains authoritative and
+    determines the actual form from the produced value's free symbols.
+    """
+
+    possible_forms: tuple[FunctionalResultForm, ...]
+    description: str
+    closure_policy: ScalarResultClosurePolicy = "no_free_symbols"
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            "possible_forms": list(self.possible_forms),
+            "description": self.description,
+            "closure_policy": self.closure_policy,
+        }
 
 
 @dataclass(frozen=True)
@@ -151,13 +173,21 @@ class MethodSpec:
     solves: tuple[str, ...]
     inputs: dict[str, MethodInputSpec]
     outputs: dict[str, str]
+    scalar_result_forms: dict[str, ScalarResultFormSpec] = field(default_factory=dict)
     summary: str = ""
+    do_not_use_when: tuple[str, ...] = ()
     preconditions: tuple[str, ...] = ()
     postconditions: tuple[str, ...] = ()
     trace_template: tuple[str, ...] = ()
     repair_hints: tuple[dict[str, Any], ...] = ()
     explanation: MethodExplanationSpec | None = None
     visual: MethodVisualSpec | None = None
+    constraint_analyzer: str | None = None
+    plan_transformer: str | None = None
+    reconciliation_validators: tuple[str, ...] = ()
+    # Missing/legacy specs are conservative. Code-owned stateless methods
+    # declare purity explicitly through MethodSpecSource.
+    is_pure: bool = False
 
 
 @dataclass

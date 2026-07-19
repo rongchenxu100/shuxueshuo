@@ -1,0 +1,280 @@
+{
+  "format": "functional_plan/v1",
+  "scopes": [
+    {
+      "scope_id": "i",
+      "label": "第（Ⅰ）问",
+      "calls": [
+        {
+          "call_id": "derive_parabola_i",
+          "capability_id": "quadratic_from_constraints",
+          "args": {
+            "known_coefficients": [
+              {
+                "ref": "a_value",
+                "kind": "fact"
+              },
+              {
+                "ref": "b_value",
+                "kind": "fact"
+              },
+              {
+                "ref": "c_value",
+                "kind": "fact"
+              }
+            ]
+          },
+          "return_bindings": {},
+          "strategy": "代入本问给定的三个系数确定抛物线。",
+          "reason": "顶点坐标需要先有确定的抛物线状态。"
+        },
+        {
+          "call_id": "derive_vertex_i",
+          "capability_id": "quadratic_vertex_point",
+          "args": {
+            "parabola": {
+              "from_call": "derive_parabola_i",
+              "return": "parabola"
+            }
+          },
+          "return_bindings": {
+            "point": {
+              "ref": "i_P",
+              "kind": "answer"
+            }
+          },
+          "strategy": "由抛物线解析式求顶点坐标。",
+          "reason": "该返回值直接覆盖本问点坐标答案。"
+        }
+      ]
+    },
+    {
+      "scope_id": "ii",
+      "label": "第（Ⅱ）问",
+      "calls": [
+        {
+          "call_id": "derive_parametric_parabola_ii",
+          "capability_id": "quadratic_from_constraints",
+          "args": {
+            "known_coefficients": {
+              "ref": "a_value",
+              "kind": "fact"
+            },
+            "curve_point": {
+              "ref": "A",
+              "kind": "point"
+            },
+            "free_parameters": {
+              "ref": "b",
+              "kind": "symbol"
+            }
+          },
+          "return_bindings": {},
+          "strategy": "代入已知系数和曲线点，把抛物线化为单参数形式。",
+          "reason": "几何候选点需要在同一含参曲线上筛选。"
+        },
+        {
+          "call_id": "derive_y_intercept_ii",
+          "capability_id": "quadratic_y_axis_intercept_point",
+          "args": {
+            "quadratic": {
+              "from_call": "derive_parametric_parabola_ii",
+              "return": "parabola"
+            }
+          },
+          "return_bindings": {
+            "point": {
+              "ref": "C",
+              "kind": "point"
+            }
+          },
+          "strategy": "求当前抛物线与纵轴的交点。",
+          "reason": "直角等长构造需要已知端点坐标。"
+        },
+        {
+          "call_id": "derive_right_angle_candidates_ii",
+          "capability_id": "right_angle_equal_length_candidates",
+          "args": {
+            "right_angle_equal_length": {
+              "ref": "right_angle_equal_length_CAD",
+              "kind": "fact"
+            },
+            "target": {
+              "ref": "D",
+              "kind": "point"
+            }
+          },
+          "return_bindings": {},
+          "strategy": "围绕直角顶点旋转已知端点得到两个候选点。",
+          "reason": "几何关系先确定候选集合，不提前猜测曲线分支。"
+        },
+        {
+          "call_id": "select_curve_candidate_ii",
+          "capability_id": "curve_candidate_parameter_solve",
+          "args": {
+            "candidates": {
+              "from_call": "derive_right_angle_candidates_ii",
+              "return": "candidates"
+            },
+            "parabola": {
+              "from_call": "derive_parametric_parabola_ii",
+              "return": "parabola"
+            },
+            "target_point": {
+              "ref": "D",
+              "kind": "point"
+            },
+            "point_on_curve": {
+              "ref": "D_on_parabola",
+              "kind": "fact"
+            },
+            "symbol_constraint": {
+              "ref": "b_gt_0",
+              "kind": "fact"
+            }
+          },
+          "return_bindings": {
+            "selected_curve_point": {
+              "ref": "ii_D",
+              "kind": "answer"
+            }
+          },
+          "strategy": "用曲线条件和参数范围筛选候选点并反求参数。",
+          "reason": "只有同时满足几何构造与曲线约束的候选能作为答案。"
+        }
+      ]
+    },
+    {
+      "scope_id": "iii",
+      "label": "第（Ⅲ）问",
+      "calls": [
+        {
+          "call_id": "derive_parametric_parabola_iii",
+          "capability_id": "quadratic_from_constraints",
+          "args": {
+            "known_coefficients": {
+              "ref": "a_value",
+              "kind": "fact"
+            },
+            "curve_point": {
+              "ref": "A",
+              "kind": "point"
+            },
+            "free_parameters": {
+              "ref": "b",
+              "kind": "symbol"
+            }
+          },
+          "return_bindings": {},
+          "strategy": "由已知系数和曲线点得到当前问含参抛物线。",
+          "reason": "后续曲线点坐标和最值表达式依赖该函数状态。"
+        },
+        {
+          "call_id": "derive_curve_point_iii",
+          "capability_id": "point_on_parabola_at_x",
+          "args": {
+            "parabola": {
+              "from_call": "derive_parametric_parabola_iii",
+              "return": "parabola"
+            }
+          },
+          "return_bindings": {
+            "point": {
+              "ref": "M",
+              "kind": "point"
+            }
+          },
+          "strategy": "将题面给定的横坐标代入当前抛物线。",
+          "reason": "加权路径转化需要曲线动点的坐标状态。"
+        },
+        {
+          "call_id": "transform_weighted_path_iii",
+          "capability_id": "weighted_axis_path_triangle_transform",
+          "args": {
+            "minimum_value": {
+              "ref": "path_minimum_value_given",
+              "kind": "fact"
+            },
+            "fixed_point": {
+              "ref": "A",
+              "kind": "point"
+            },
+            "moving_point": {
+              "ref": "N",
+              "kind": "point"
+            }
+          },
+          "return_bindings": {},
+          "strategy": "用辅助直角三角形把加权路径转为普通折线路径。",
+          "reason": "几何转化先产生等价路径和辅助点轨迹。"
+        },
+        {
+          "call_id": "derive_weighted_minimum_iii",
+          "capability_id": "linked_broken_path_minimum_expression",
+          "args": {
+            "path_transformation": {
+              "from_call": "transform_weighted_path_iii",
+              "return": "path_transformation"
+            },
+            "auxiliary_locus": {
+              "from_call": "transform_weighted_path_iii",
+              "return": "auxiliary_locus"
+            },
+            "fixed_point": {
+              "ref": "A",
+              "kind": "point"
+            },
+            "curve_point": {
+              "ref": "M",
+              "kind": "point"
+            },
+            "moving_point": {
+              "ref": "N",
+              "kind": "point"
+            },
+            "auxiliary_point": {
+              "from_call": "transform_weighted_path_iii",
+              "return": "auxiliary_point"
+            },
+            "dynamic_constraint": {
+              "ref": "n_gt_0",
+              "kind": "fact"
+            }
+          },
+          "return_bindings": {},
+          "return_expectations": {
+            "minimum_expression": "open_expression"
+          },
+          "strategy": "拉直转化后的联动折线，得到关于主参数的最小值表达式。",
+          "reason": "题设给定最小值只能在表达式建立后用于反求参数。"
+        },
+        {
+          "call_id": "solve_parameter_iii",
+          "capability_id": "parameter_from_expression_value",
+          "args": {
+            "expression": {
+              "from_call": "derive_weighted_minimum_iii",
+              "return": "minimum_expression"
+            },
+            "minimum_value": {
+              "ref": "path_minimum_value_given",
+              "kind": "fact"
+            },
+            "parameter": {
+              "ref": "b",
+              "kind": "symbol"
+            }
+          },
+          "return_bindings": {
+            "parameter_value": {
+              "ref": "iii_b",
+              "kind": "answer"
+            }
+          },
+          "strategy": "令最小值表达式等于题设值并按参数范围取解。",
+          "reason": "该参数值是本问唯一必答结果。"
+        }
+      ]
+    }
+  ]
+}

@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from shuxueshuo_server.solver.contracts import ScalarResultFormSpec
+
 from ._common import *
 from ._spec import MethodSpecSource
 
@@ -534,7 +536,7 @@ MINIMUM_EXPRESSION_SPEC = MethodSpecSource(
     summary=(
         "输入: 已完成的加权辅助三角形转化、曲线点和动点表达式；输出: 关于参数的几何最小值表达式。"
         "使用边界: 支持 sqrt(2)/45° 与 2/30° 两类 weighted transform。"
-        "使用原则: 本 method 只求表达式，不反求参数；给定最小值反求参数应交给 parameter_from_expression_value。"
+        "使用原则: 本 method 只求表达式，不反求参数；若输入已经不含自由参数，结果会自然闭合为具体值。"
     ),
     solves=("derive_linked_broken_path_minimum_expression",),
     inputs={
@@ -553,6 +555,22 @@ MINIMUM_EXPRESSION_SPEC = MethodSpecSource(
         "minimum_expression": "MinimumExpression",
         "dynamic_parameter_expression": "Expression",
         "dynamic_point_expression": "Point",
+    },
+    scalar_result_forms={
+        "minimum_expression": ScalarResultFormSpec(
+            possible_forms=("open_expression", "closed_value"),
+            description=(
+                "路径状态仍含未确定参数时为 open_expression；全部输入已确定时为 "
+                "closed_value。"
+            ),
+        ),
+        "dynamic_parameter_expression": ScalarResultFormSpec(
+            possible_forms=("open_expression", "closed_value"),
+            description=(
+                "联动参数仍依赖未确定参数时为 open_expression；不存在自由参数时为 "
+                "closed_value。"
+            ),
+        ),
     },
     preconditions=(
         "已经完成加权路径到普通折线的辅助点转化",

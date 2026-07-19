@@ -29,6 +29,7 @@ def student_math_display(
     text = re.sub(r"Abs\(([^()]+)\)", r"|\1|", text)
     text = text.replace("**3", "³").replace("**2", "²")
     text = text.replace("sqrt", "√")
+    text = re.sub(r"√\(([A-Za-z0-9]+)\)", r"√\1", text)
     text = text.replace("*", "")
     if fullwidth_operators:
         text = text.replace("+", "＋").replace("-", "－")

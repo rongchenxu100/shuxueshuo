@@ -12,12 +12,21 @@ from shuxueshuo_server.solver.family.models import (
     MethodBindingRuleSpec,
     MethodInputBindingSpec,
     RecipeExecutionSpec,
+    recipe_output_alias,
     SolverFamilySpec,
     StepRecipeSpec,
+    expand_family_spec,
+)
+from shuxueshuo_server.solver.family.capability_packs import (
+    BROKEN_PATH_SELECT_DO_NOT_USE_WHEN,
+    DEFAULT_CAPABILITY_PACK_REGISTRY,
+    RIGHT_ANGLE_EQUAL_LENGTH_DO_NOT_USE_WHEN,
+    STRAIGHTENED_DISTANCE_DO_NOT_USE_WHEN,
+    TWO_MOVING_POINTS_REDUCTION_DO_NOT_USE_WHEN,
 )
 
 
-QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
+_QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
     family_id="QuadraticPathMinimumSolver",
     match=FamilyMatchRule(
         patterns=("path-minimum",),
@@ -41,9 +50,16 @@ QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         "能先确定未知参数时，优先先求参数再代入后续表达式。",
         "每一步优先消去已确定的信息：若当前问条件已能确定参数数值，先求参数再代入；若参数暂不能定值，但代入已知系数、已知点或系数关系能减少未知量，则可以先化简表达式。",
         "路径最值先做路径转化，再做折线拉直或等价最短路径处理。",
-        "普通路径最值按 recipe 独立拆分：先 two_moving_points_path_reduction 降维，再 broken_path_straightening_and_select 选择拉直方案，最后 path_minimum_by_straightened_distance 单独求最小值表达式。",
+        "普通路径最值按阶段独立推导：先把两动点路径降为单动点路径，再选择合适的折线拉直方案，最后根据拉直后的端点距离求最小值表达式。",
         "最短路径对应点通常来自约束轨迹与拉直线段的交点。",
     ),
+    base_packs=(
+        "quadratic_core",
+        "parameter_solving_core",
+        "coordinate_geometry_core",
+        "broken_path_minimum_core",
+    ),
+    mechanism_packs=("right_angle_equal_length_core",),
     method_ids=(
         "quadratic_axis_from_relation",
         "quadratic_from_constraints",
@@ -82,9 +98,16 @@ QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                     ("right_angle_equal_length_candidates.candidates", "select_point_by_quadrant_constraint.candidates"),
                 ),
                 output_aliases=(
-                    ("select_point_by_quadrant_constraint.selected_point", "Point"),
+                    recipe_output_alias(
+                        "select_point_by_quadrant_constraint.selected_point",
+                        "Point",
+                        "selected_target_point",
+                        identity_policy="target_object",
+                        identity_arg="target",
+                    ),
                 ),
             ),
+            do_not_use_when=RIGHT_ANGLE_EQUAL_LENGTH_DO_NOT_USE_WHEN,
         ),
         StepRecipeSpec(
             recipe_id="two_moving_points_path_reduction",
@@ -101,10 +124,15 @@ QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 method_sequence=("two_moving_points_path_reduction",),
                 execution_strategy="single_method",
                 output_aliases=(
-                    ("two_moving_points_path_reduction.path_transformation", "PathTransformation"),
+                    recipe_output_alias(
+                        "two_moving_points_path_reduction.path_transformation",
+                        "PathTransformation",
+                        "path_transformation",
+                    ),
                 ),
             ),
             priority="preferred",
+            do_not_use_when=TWO_MOVING_POINTS_REDUCTION_DO_NOT_USE_WHEN,
         ),
         StepRecipeSpec(
             recipe_id="broken_path_straightening_and_select",
@@ -130,11 +158,51 @@ QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                     ("broken_path_straightening_candidates.candidates", "select_straightening_candidate.candidates"),
                 ),
                 output_aliases=(
-                    ("select_straightening_candidate.selected_candidate", "StraighteningCandidate"),
-                    ("select_straightening_candidate.auxiliary_point", "Point"),
+                    recipe_output_alias(
+                        "select_straightening_candidate.selected_candidate",
+                        "StraighteningCandidate",
+                        "straightened_scheme",
+                        goal_evidence_tags=("path_minimum_witness",),
+                    ),
+                    recipe_output_alias(
+                        "select_straightening_candidate.auxiliary_point",
+                        "Point",
+                        "straightening_auxiliary_point",
+                        required=False,
+                        cardinality="optional",
+                        identity_policy="derived_role",
+                        goal_evidence_tags=("path_minimum_witness",),
+                    ),
+                    recipe_output_alias(
+                        "select_straightening_candidate.minimum_point_1",
+                        "Point",
+                        "path_minimum_point_1",
+                        required=False,
+                        cardinality="optional",
+                        identity_policy="derived_role",
+                        goal_evidence_tags=("path_minimum_witness",),
+                        description=(
+                            "选中拉直方案后，由反射构造得到的辅助端点；"
+                            "仅供距离计算，不是原路径上的动点、极值点或答案点。"
+                        ),
+                    ),
+                    recipe_output_alias(
+                        "select_straightening_candidate.minimum_point_2",
+                        "Point",
+                        "path_minimum_point_2",
+                        required=False,
+                        cardinality="optional",
+                        identity_policy="derived_role",
+                        goal_evidence_tags=("path_minimum_witness",),
+                        description=(
+                            "选中拉直方案后，与反射端点组成最短线段的另一固定端点；"
+                            "仅供距离计算，不是原路径上的动点、极值点或答案点。"
+                        ),
+                    ),
                 ),
             ),
             priority="preferred",
+            do_not_use_when=BROKEN_PATH_SELECT_DO_NOT_USE_WHEN,
         ),
         StepRecipeSpec(
             recipe_id="path_minimum_by_straightened_distance",
@@ -148,13 +216,26 @@ QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             execution=RecipeExecutionSpec(
                 recipe_id="path_minimum_by_straightened_distance",
                 method_sequence=("distance_between_points",),
-                execution_strategy="single_method",
+                execution_strategy="straightened_distance_minimum",
                 output_aliases=(
-                    ("distance_between_points.distance", "MinimumExpression"),
-                    ("distance_between_points.evaluated_distance", "MinimumExpression"),
+                    recipe_output_alias(
+                        "distance_between_points.distance",
+                        "MinimumExpression",
+                        "path_minimum_expression",
+                        goal_evidence_tags=("path_minimum_expression",),
+                    ),
+                    recipe_output_alias(
+                        "distance_between_points.evaluated_distance",
+                        "MinimumExpression",
+                        "evaluated_path_minimum_expression",
+                        required=False,
+                        cardinality="optional",
+                        goal_evidence_tags=("path_minimum_expression",),
+                    ),
                 ),
             ),
             priority="preferred",
+            do_not_use_when=STRAIGHTENED_DISTANCE_DO_NOT_USE_WHEN,
         ),
     ),
     method_binding_rules=(
@@ -177,7 +258,9 @@ QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             ),
             expansion_selectors=(
                 "known_coefficients_if_read",
+                "free_quadratic_parameter_if_read",
                 "parameter_value_if_read",
+                "curve_point_if_read",
                 "curve_points_if_parameterized",
             ),
             always_emit_outputs=("coefficients",),
@@ -187,14 +270,6 @@ QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                     "answer_scope_output:coefficients",
                     "runtime_step_output:coefficients",
                 ),
-            ),
-        ),
-        MethodBindingRuleSpec(
-            method_id="midpoint_point",
-            input_bindings=(
-                MethodInputBindingSpec("p1", "midpoint:p1"),
-                MethodInputBindingSpec("p2", "midpoint:p2"),
-                MethodInputBindingSpec("target", "midpoint:target"),
             ),
         ),
         MethodBindingRuleSpec(
@@ -216,37 +291,6 @@ QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 MethodInputBindingSpec("constraint", "parameter_constraint"),
             ),
         ),
-        MethodBindingRuleSpec(
-            method_id="two_moving_points_path_reduction",
-            input_bindings=(
-                MethodInputBindingSpec("original_path", "fact:path_minimum_target:Condition"),
-                MethodInputBindingSpec("first_moving_membership", "path_reduction:first_membership"),
-                MethodInputBindingSpec("second_moving_membership", "path_reduction:second_membership"),
-                MethodInputBindingSpec("binding_relation", "path_reduction:relation"),
-                MethodInputBindingSpec("first_segment_start", "path_reduction:first_segment_start"),
-                MethodInputBindingSpec("joint_point", "path_reduction:joint_point"),
-                MethodInputBindingSpec("second_segment_end", "path_reduction:second_segment_end"),
-            ),
-        ),
-        MethodBindingRuleSpec(
-            method_id="distance_between_points",
-            input_bindings=(
-                MethodInputBindingSpec("p1", "distance:p1"),
-                MethodInputBindingSpec("p2", "distance:p2"),
-            ),
-            expansion_selectors=("distance_parameter_value_if_read",),
-        ),
-        MethodBindingRuleSpec(
-            method_id="line_intersection_point",
-            input_bindings=(
-                MethodInputBindingSpec("line1_p1", "intersection:line1_p1"),
-                MethodInputBindingSpec("line1_p2", "intersection:line1_p2"),
-                MethodInputBindingSpec("line2_p1", "intersection:line2_p1"),
-                MethodInputBindingSpec("line2_p2", "intersection:line2_p2"),
-                MethodInputBindingSpec("target", "intersection:target"),
-            ),
-            expansion_selectors=("intersection_parameter_value_if_read",),
-        ),
     ),
     # 临时兼容硬门控：当前 V1.5 deterministic planner 只实现 canonical 南开 25。
     # 退出条件：
@@ -254,4 +298,9 @@ QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
     # 2. planner 不再依赖 D/M/N/F/G、i/ii/ii_1/ii_2 等 canonical 命名；
     # 3. 去掉门控后，alt-label 同构题能通过，其他 family 题仍不会误路由。
     enabled_problem_ids=("tj-2026-nankai-yimo-25",),
+)
+
+QUADRATIC_PATH_MINIMUM_FAMILY = expand_family_spec(
+    _QUADRATIC_PATH_MINIMUM_FAMILY,
+    DEFAULT_CAPABILITY_PACK_REGISTRY,
 )

@@ -8,9 +8,90 @@ Phase 4 后，FamilySpec 只作为 RuntimeOrchestrator 和 Planner 的题型上�
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import Literal
 
 from shuxueshuo_server.solver.problem_models import ProblemIR
+from shuxueshuo_server.solver.state_semantics import state_kind_for_runtime_type
+from shuxueshuo_server.solver.utils import unique_ordered
 
+StateIdentityPolicy = Literal[
+    "preserve_input_object",
+    "target_object",
+    "derived_role",
+    "value_only",
+]
+StateWriteMode = Literal["create", "transition", "value"]
+GoalEvidenceTag = Literal[
+    "path_minimum_witness",
+    "path_minimum_expression",
+]
+
+
+@dataclass(frozen=True)
+class RecipeOutputAliasSpec:
+    """One recipe output role and its state/object identity contract."""
+
+    output_key: str
+    runtime_type: str
+    semantic_role: str
+    state_kind: str
+    required: bool = True
+    cardinality: Literal["one", "optional", "many"] = "one"
+    identity_policy: StateIdentityPolicy = "value_only"
+    identity_arg: str | None = None
+    write_mode: StateWriteMode = "value"
+    goal_evidence_tags: tuple[GoalEvidenceTag, ...] = ()
+    description: str = ""
+
+    def to_payload(self) -> dict[str, object]:
+        payload: dict[str, object] = {
+            "output_key": self.output_key,
+            "runtime_type": self.runtime_type,
+            "semantic_role": self.semantic_role,
+            "state_kind": self.state_kind,
+            "required": self.required,
+            "cardinality": self.cardinality,
+            "identity_policy": self.identity_policy,
+            "identity_arg": self.identity_arg,
+            "write_mode": self.write_mode,
+            "goal_evidence_tags": list(self.goal_evidence_tags),
+        }
+        if self.description:
+            payload["description"] = self.description
+        return payload
+
+
+def recipe_output_alias(
+    output_key: str,
+    runtime_type: str,
+    semantic_role: str,
+    *,
+    required: bool = True,
+    cardinality: Literal["one", "optional", "many"] = "one",
+    identity_policy: StateIdentityPolicy = "value_only",
+    identity_arg: str | None = None,
+    write_mode: StateWriteMode | None = None,
+    goal_evidence_tags: tuple[GoalEvidenceTag, ...] = (),
+    description: str = "",
+) -> RecipeOutputAliasSpec:
+    """Build a structured recipe return without duplicating state-kind rules."""
+    return RecipeOutputAliasSpec(
+        output_key=output_key,
+        runtime_type=runtime_type,
+        semantic_role=semantic_role,
+        state_kind=state_kind_for_runtime_type(runtime_type),
+        required=required,
+        cardinality=cardinality,
+        identity_policy=identity_policy,
+        identity_arg=identity_arg,
+        write_mode=(
+            write_mode
+            if write_mode is not None
+            else ("create" if runtime_type in {"Point", "PointList"} else "value")
+        ),
+        goal_evidence_tags=goal_evidence_tags,
+        description=description,
+    )
 
 @dataclass(frozen=True)
 class RecipeExecutionSpec:
@@ -29,7 +110,7 @@ class RecipeExecutionSpec:
     creates: tuple[str, ...] = ()
     input_aliases: tuple[tuple[str, str], ...] = ()
     intermediate_wiring: tuple[tuple[str, str], ...] = ()
-    output_aliases: tuple[tuple[str, str], ...] = ()
+    output_aliases: tuple[RecipeOutputAliasSpec, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -92,6 +173,7 @@ class MethodBindingRuleSpec:
     prep_invocations: tuple[MethodPrepInvocationSpec, ...] = ()
     always_emit_outputs: tuple[str, ...] = ()
     companion_outputs: tuple[MethodCompanionOutputSpec, ...] = ()
+    constraint_analyzer: str | None = None
 
 
 @dataclass(frozen=True)
@@ -113,6 +195,185 @@ class StepRecipeSpec:
     # 首版只支持 preferred / None。preferred 用来告诉 LLM：这类题优先选择这个
     # 标准路径，尤其用于路径最值，避免模型默认走参数化求导。
     priority: str | None = None
+    do_not_use_when: tuple[str, ...] = ()
+
+
+CapabilityExecutionStatus = Literal["executable", "catalog_only", "internal"]
+CapabilityContractSource = Literal["explicit", "projected"]
+CapabilityScopePolicy = Literal["current", "current_or_visible", "problem", "same_as_target"]
+CapabilityCardinality = Literal["one", "optional", "many"]
+CapabilityDependencyPolicy = Literal["explicit_args", "context_closure"]
+CapabilityContextResolver = Literal[
+    "condition_object_roles",
+    "path_reduction_roles",
+]
+CONDITION_OBJECT_ROLES_RESOLVER: CapabilityContextResolver = (
+    "condition_object_roles"
+)
+PATH_REDUCTION_ROLES_RESOLVER: CapabilityContextResolver = (
+    "path_reduction_roles"
+)
+
+
+@dataclass(frozen=True)
+class StateSlotPattern:
+    """Capability contract pattern for semantic state values.
+
+    Patterns intentionally describe object/state semantics instead of canonical
+    handles. Canonical handles remain projection metadata owned by the runtime.
+    """
+
+    state_kind: str
+    runtime_type: str
+    object_kind: str | None = None
+    object_ref: str | None = None
+    semantic_role: str | None = None
+    output_key: str | None = None
+    scope_policy: CapabilityScopePolicy = "current_or_visible"
+    cardinality: CapabilityCardinality = "one"
+    required: bool = True
+    write_mode: StateWriteMode = "value"
+    description: str = ""
+    provides_semantic_roles: tuple[str, ...] = ()
+
+    def to_payload(self) -> dict[str, object]:
+        payload: dict[str, object] = {
+            "state_kind": self.state_kind,
+            "runtime_type": self.runtime_type,
+            "scope_policy": self.scope_policy,
+            "cardinality": self.cardinality,
+            "required": self.required,
+            "write_mode": self.write_mode,
+        }
+        if self.object_kind is not None:
+            payload["object_kind"] = self.object_kind
+        if self.object_ref is not None:
+            payload["object_ref"] = self.object_ref
+        if self.semantic_role is not None:
+            payload["semantic_role"] = self.semantic_role
+        if self.output_key is not None:
+            payload["output_key"] = self.output_key
+        if self.description:
+            payload["description"] = self.description
+        if self.provides_semantic_roles:
+            payload["provides_semantic_roles"] = list(
+                self.provides_semantic_roles
+            )
+        return payload
+
+
+@dataclass(frozen=True)
+class ConditionPattern:
+    """Capability contract pattern for condition/fact prerequisites or writes."""
+
+    condition_kind: str
+    runtime_type: str = "Condition"
+    scope_policy: CapabilityScopePolicy = "current_or_visible"
+    cardinality: CapabilityCardinality = "one"
+    required: bool = True
+    description: str = ""
+
+    def to_payload(self) -> dict[str, object]:
+        payload: dict[str, object] = {
+            "condition_kind": self.condition_kind,
+            "runtime_type": self.runtime_type,
+            "scope_policy": self.scope_policy,
+            "cardinality": self.cardinality,
+            "required": self.required,
+        }
+        if self.description:
+            payload["description"] = self.description
+        return payload
+
+
+@dataclass(frozen=True)
+class CapabilityContractSpec:
+    """Declarative semantic contract for a method or recipe capability.
+
+    Contract specs are a prompt/context/preflight declaration layer. Runtime
+    execution still uses existing method specs, recipe specs, and binding rules.
+    """
+
+    capability_id: str
+    kind: str = "method"
+    execution_status: CapabilityExecutionStatus = "executable"
+    source: CapabilityContractSource = "explicit"
+    slot_reads: tuple[StateSlotPattern, ...] = ()
+    condition_reads: tuple[ConditionPattern, ...] = ()
+    slot_writes: tuple[StateSlotPattern, ...] = ()
+    condition_writes: tuple[ConditionPattern, ...] = ()
+    exposes_to_llm: bool = True
+    notes: tuple[str, ...] = ()
+    complete: bool | None = None
+    constraint_analyzer: str | None = None
+    dependency_policy: CapabilityDependencyPolicy = "explicit_args"
+    context_resolvers: tuple[CapabilityContextResolver, ...] = ()
+
+    @property
+    def is_complete(self) -> bool:
+        """Whether the contract declares an externally visible state effect."""
+        if self.complete is not None:
+            return self.complete
+        return bool(self.slot_writes or self.condition_writes)
+
+    def to_payload(self) -> dict[str, object]:
+        return {
+            "capability_id": self.capability_id,
+            "kind": self.kind,
+            "execution_status": self.execution_status,
+            "source": self.source,
+            "slot_reads": [item.to_payload() for item in self.slot_reads],
+            "condition_reads": [item.to_payload() for item in self.condition_reads],
+            "slot_writes": [item.to_payload() for item in self.slot_writes],
+            "condition_writes": [item.to_payload() for item in self.condition_writes],
+            "exposes_to_llm": self.exposes_to_llm,
+            "notes": list(self.notes),
+            "complete": self.is_complete,
+            "constraint_analyzer": self.constraint_analyzer,
+            "dependency_policy": self.dependency_policy,
+            "context_resolvers": list(self.context_resolvers),
+        }
+
+
+@dataclass(frozen=True)
+class CapabilityPackSpec:
+    """一组可复用 method / recipe 能力。
+
+    Phase 2 starts moving reusable capability contracts and generic binding
+    rules into packs. Family-level declarations remain as local additions or
+    overrides.
+    """
+
+    pack_id: str
+    kind: str
+    method_ids: tuple[str, ...] = ()
+    step_recipes: tuple[StepRecipeSpec, ...] = ()
+    strategy_notes: tuple[str, ...] = ()
+    contracts: tuple[CapabilityContractSpec, ...] = ()
+    method_binding_rules: tuple[MethodBindingRuleSpec, ...] = ()
+
+
+@dataclass(frozen=True)
+class CapabilityPackRegistry:
+    """内存中的 CapabilityPackSpec 注册表。"""
+
+    packs: tuple[CapabilityPackSpec, ...]
+    _by_id: dict[str, CapabilityPackSpec] = field(init=False, repr=False, compare=False)
+
+    def __post_init__(self) -> None:
+        by_id: dict[str, CapabilityPackSpec] = {}
+        for pack in self.packs:
+            if pack.pack_id in by_id:
+                raise ValueError(f"duplicate capability pack: {pack.pack_id}")
+            by_id[pack.pack_id] = pack
+        object.__setattr__(self, "_by_id", by_id)
+
+    def require(self, pack_id: str) -> CapabilityPackSpec:
+        """按 pack_id 读取 pack；不存在时给出稳定错误。"""
+        try:
+            return self._by_id[pack_id]
+        except KeyError as exc:
+            raise ValueError(f"unknown capability pack: {pack_id}") from exc
 
 
 @dataclass(frozen=True)
@@ -146,6 +407,8 @@ class SolverFamilySpec:
     match: FamilyMatchRule
     common_goal_types: tuple[str, ...] = ()
     strategy_principles: tuple[str, ...] = ()
+    base_packs: tuple[str, ...] = ()
+    mechanism_packs: tuple[str, ...] = ()
     # Intent Planner 用这个 allowlist 控制 prompt 中可见的 method 集合。它只是
     # family 给 planner 的能力边界，不表示 family 指定某个 planner 或固定步骤。
     method_ids: tuple[str, ...] = ()
@@ -155,6 +418,10 @@ class SolverFamilySpec:
     # Method binding 规则也是 family 级能力边界的一部分：LLM 只输出 canonical
     # handles，runtime 通过这些规则把 handles 映射成 method input slots。
     method_binding_rules: tuple[MethodBindingRuleSpec, ...] = ()
+    # Capability contracts are the semantic declaration layer consumed by
+    # prompt gates, preflight, context snapshots, and future functional
+    # orchestration. They do not replace runtime execution in Phase 2.
+    capability_contracts: tuple[CapabilityContractSpec, ...] = ()
     enabled_problem_ids: tuple[str, ...] = field(default_factory=tuple)
 
     def supports(self, problem: ProblemIR) -> bool:
@@ -172,6 +439,160 @@ class SolverFamilySpec:
         if self.enabled_problem_ids and problem.problem_id not in self.enabled_problem_ids:
             return False
         return True
+
+
+def expand_family_spec(
+    family: SolverFamilySpec,
+    packs: CapabilityPackRegistry,
+) -> SolverFamilySpec:
+    """把 family 声明的 packs 展开成 runtime 仍可直接消费的 SolverFamilySpec。
+
+    合并顺序固定为 base packs -> mechanism packs -> family local additions。
+    ``method_ids`` 稳定去重；``step_recipes`` 按 recipe_id 去重，family local recipe
+    可以覆盖 pack recipe；pack-level binding rules and contracts are merged as
+    defaults, while family local declarations can override them. Pack-to-pack
+    conflicts for the same method binding or capability contract are rejected.
+    """
+
+    selected_packs = tuple(
+        packs.require(pack_id)
+        for pack_id in (*family.base_packs, *family.mechanism_packs)
+    )
+    method_ids = unique_ordered((
+        *[
+            method_id
+            for pack in selected_packs
+            for method_id in pack.method_ids
+        ],
+        *family.method_ids,
+    ))
+    recipes = _merge_step_recipes(
+        *(
+            recipe
+            for pack in selected_packs
+            for recipe in pack.step_recipes
+        ),
+        *family.step_recipes,
+    )
+    strategy_principles = unique_ordered((
+        *[
+            note
+            for pack in selected_packs
+            for note in pack.strategy_notes
+        ],
+        *family.strategy_principles,
+    ))
+    method_binding_rules = _merge_method_binding_rules(
+        *(
+            rule
+            for pack in selected_packs
+            for rule in pack.method_binding_rules
+        ),
+        family_rules=family.method_binding_rules,
+    )
+    capability_contracts = _merge_capability_contracts(
+        *(
+            contract
+            for pack in selected_packs
+            for contract in pack.contracts
+        ),
+        family_contracts=family.capability_contracts,
+    )
+    return SolverFamilySpec(
+        family_id=family.family_id,
+        match=family.match,
+        common_goal_types=family.common_goal_types,
+        strategy_principles=strategy_principles,
+        base_packs=family.base_packs,
+        mechanism_packs=family.mechanism_packs,
+        method_ids=method_ids,
+        step_recipes=recipes,
+        method_binding_rules=method_binding_rules,
+        capability_contracts=capability_contracts,
+        enabled_problem_ids=family.enabled_problem_ids,
+    )
+
+
+def _merge_step_recipes(*recipes: StepRecipeSpec) -> tuple[StepRecipeSpec, ...]:
+    """按 recipe_id 稳定合并，后出现的 recipe 覆盖同 id 的内容。"""
+    index_by_id: dict[str, int] = {}
+    result: list[StepRecipeSpec] = []
+    for recipe in recipes:
+        existing = index_by_id.get(recipe.recipe_id)
+        if existing is None:
+            index_by_id[recipe.recipe_id] = len(result)
+            result.append(recipe)
+        else:
+            result[existing] = recipe
+    return tuple(result)
+
+
+def _merge_method_binding_rules(
+    *pack_rules: MethodBindingRuleSpec,
+    family_rules: tuple[MethodBindingRuleSpec, ...],
+) -> tuple[MethodBindingRuleSpec, ...]:
+    """Merge pack default binding rules with family local overrides."""
+    index_by_id: dict[str, int] = {}
+    result: list[MethodBindingRuleSpec] = []
+    for rule in pack_rules:
+        existing = index_by_id.get(rule.method_id)
+        if existing is None:
+            index_by_id[rule.method_id] = len(result)
+            result.append(rule)
+            continue
+        if not _method_binding_rules_equivalent(result[existing], rule):
+            raise ValueError(
+                f"conflicting capability pack binding rule: {rule.method_id}"
+            )
+    for rule in family_rules:
+        existing = index_by_id.get(rule.method_id)
+        if existing is None:
+            index_by_id[rule.method_id] = len(result)
+            result.append(rule)
+        else:
+            result[existing] = rule
+    return tuple(result)
+
+
+def _method_binding_rules_equivalent(
+    left: MethodBindingRuleSpec,
+    right: MethodBindingRuleSpec,
+) -> bool:
+    """Return whether two pack binding declarations are the same contract.
+
+    This intentionally uses dataclass value equality today: selector tuple order
+    remains part of the declaration because prep and expansion order may affect
+    deterministic binding behavior. Keeping the comparison named makes that
+    policy explicit and gives us one place to relax order sensitivity later.
+    """
+    return left == right
+
+
+def _merge_capability_contracts(
+    *pack_contracts: CapabilityContractSpec,
+    family_contracts: tuple[CapabilityContractSpec, ...],
+) -> tuple[CapabilityContractSpec, ...]:
+    """Merge pack default capability contracts with family local overrides."""
+    index_by_id: dict[str, int] = {}
+    result: list[CapabilityContractSpec] = []
+    for contract in pack_contracts:
+        existing = index_by_id.get(contract.capability_id)
+        if existing is None:
+            index_by_id[contract.capability_id] = len(result)
+            result.append(contract)
+            continue
+        if result[existing] != contract:
+            raise ValueError(
+                f"conflicting capability pack contract: {contract.capability_id}"
+            )
+    for contract in family_contracts:
+        existing = index_by_id.get(contract.capability_id)
+        if existing is None:
+            index_by_id[contract.capability_id] = len(result)
+            result.append(contract)
+        else:
+            result[existing] = contract
+    return tuple(result)
 
 
 @dataclass(frozen=True)

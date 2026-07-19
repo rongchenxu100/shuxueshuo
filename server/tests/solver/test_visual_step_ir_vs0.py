@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import inspect
 import json
 from pathlib import Path
 import subprocess
@@ -21,7 +22,9 @@ from shuxueshuo_server.solver.visual import (
     reverse_compile,
     resolved_steps_with_carry_forward,
 )
+from shuxueshuo_server.solver.visual import scene_accumulator
 from shuxueshuo_server.solver.visual.models import visual_step_ir_from_payload
+from shuxueshuo_server.solver.visual.palette import COLOR_ACCENT, COLOR_MUTED, COLOR_RESULT, COLOR_TEXT
 from shuxueshuo_server.solver.visual.registry import low_level_for_visual_type
 
 
@@ -162,6 +165,17 @@ def test_scene_accumulator_carries_decays_overrides_and_drops_step_only_items() 
         }
     ]
     assert resolved[2].scene["add"] == []
+
+
+def test_scene_accumulator_priority_uses_palette_constants() -> None:
+    assert scene_accumulator._current_item_priority({"color": COLOR_ACCENT}) == 90
+    assert scene_accumulator._current_item_priority({"color": COLOR_RESULT}) == 90
+    assert scene_accumulator._current_item_priority({"color": COLOR_TEXT}) == 50
+    assert scene_accumulator._current_item_priority({"color": COLOR_MUTED}) == 50
+
+    source = inspect.getsource(scene_accumulator._current_item_priority)
+    assert "#dc2626" not in source
+    assert "#b45309" not in source
 
 
 def test_forward_compile_accumulates_only_when_scene_model_requests_it() -> None:

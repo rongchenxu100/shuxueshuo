@@ -167,6 +167,24 @@ def default_component_registry() -> ComponentTypeSpecRegistry:
                 required_roles=("vertices",),
                 optional_roles=("fill", "color"),
             ),
+            ComponentTypeSpec(
+                visual_type="SquareAdjacentVertexMarker",
+                compiles_to=("outlineRegion", "coloredLine", "point", "coordinateLabel", "rightAngle"),
+                required_roles=("vertices",),
+                optional_roles=("target", "target_display", "vertex_displays", "coordinate_triangles"),
+            ),
+            ComponentTypeSpec(
+                visual_type="SquarePathDimensionMarker",
+                compiles_to=("outlineRegion", "coloredLine", "point", "rightAngle"),
+                required_roles=("square_outline", "triangles", "segments"),
+                optional_roles=("relations", "point_labels"),
+            ),
+            ComponentTypeSpec(
+                visual_type="LocusLineMarker",
+                compiles_to=("dashedLine", "coordinateLabel"),
+                required_roles=("from", "to"),
+                optional_roles=("label", "label_anchor", "label_dx", "label_dy"),
+            ),
         ]
     )
     return ComponentTypeSpecRegistry(tuple(specs))

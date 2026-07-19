@@ -23,6 +23,7 @@
   "outputs": {
     "point": "Point"
   },
+  "is_pure": true,
   "preconditions": [
     "target.definition.x 或 target.definition.x_coordinate 必须存在"
   ],

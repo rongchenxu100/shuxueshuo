@@ -37,6 +37,7 @@
     "rejected_candidates": "PointList",
     "selected_candidate": "Point"
   },
+  "is_pure": true,
   "preconditions": [
     "parabola 已代入当前问能确定的已知条件",
     "candidates 来自几何构造"

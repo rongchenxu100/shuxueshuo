@@ -23,10 +23,47 @@
   "outputs": {
     "point": "Point"
   },
+  "is_pure": true,
   "preconditions": [
     "parabola 必须是关于 x 的二次函数"
   ],
   "postconditions": [
     "输出点是该二次函数顶点"
-  ]
+  ],
+  "explanation": {
+    "role_schema": {
+      "parabola_vertex_form": "抛物线配方后的顶点式。",
+      "vertex_point": "由顶点式读出的顶点坐标。"
+    },
+    "student_goal_template": "把二次函数整理成顶点式，读出顶点坐标。",
+    "student_title_template": "求二次函数顶点",
+    "student_title_templates_by_goal": {},
+    "derive_templates": [
+      "∵{parabola_vertex_form}",
+      "∴{vertex_point}"
+    ],
+    "box_templates": [],
+    "explanation_level": "template",
+    "role_binding_strategy": "role_name_registry",
+    "role_binder_id": "quadratic_vertex_point"
+  },
+  "visual": {
+    "role_schema": {
+      "parabola": "当前抛物线。",
+      "vertex_point": "顶点。",
+      "axis": "对称轴。"
+    },
+    "scene_templates": [
+      {
+        "component": "QuadraticVertexMarker",
+        "axis_color": "#64748b",
+        "vertex_color": "#b45309",
+        "persistence": "carry_forward",
+        "vertex_persistence": "step_only"
+      }
+    ],
+    "annotation_templates": [],
+    "timeline_templates": [],
+    "role_binder_id": "generic_visual"
+  }
 }

@@ -27,6 +27,7 @@
   "outputs": {
     "point": "Point"
   },
+  "is_pure": true,
   "preconditions": [
     "anchor 与 ray_point 必须确定一条非零射线方向"
   ],

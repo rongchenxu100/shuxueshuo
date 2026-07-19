@@ -1,0 +1,110 @@
+{
+  "format": "functional_plan/v1",
+  "scopes": [
+    {
+      "scope_id": "example",
+      "label": "机制示例",
+      "calls": [
+        {
+          "call_id": "derive_parametric_curve",
+          "capability_id": "quadratic_from_constraints",
+          "args": {
+            "curve_point": {
+              "ref": "known_curve_point",
+              "kind": "point"
+            },
+            "free_parameters": {
+              "ref": "parameter",
+              "kind": "symbol"
+            }
+          },
+          "return_bindings": {},
+          "strategy": "代入曲线点条件，把函数化成单参数形式。",
+          "reason": "后续轴点和正方形构造依赖该函数。"
+        },
+        {
+          "call_id": "reduce_square_path",
+          "capability_id": "square_path_dimension_reduction",
+          "args": {
+            "path_minimum_target": {
+              "ref": "path_goal",
+              "kind": "fact"
+            },
+            "square": {
+              "ref": "square_relation",
+              "kind": "fact"
+            },
+            "midpoint_definition": {
+              "ref": "midpoint_relation",
+              "kind": "fact"
+            },
+            "square_center": {
+              "ref": "center_relation",
+              "kind": "fact"
+            }
+          },
+          "return_bindings": {},
+          "strategy": "利用中点和中心关系把多段路径降为单动点折线。",
+          "reason": "先确定等价路径结构。"
+        },
+        {
+          "call_id": "parameterize_axis_point",
+          "capability_id": "quadratic_axis_parameterized_point",
+          "args": {
+            "parabola": {
+              "from_call": "derive_parametric_curve",
+              "return": "parabola"
+            }
+          },
+          "return_bindings": {
+            "point": {
+              "ref": "axis_point",
+              "kind": "point"
+            }
+          },
+          "strategy": "把轴上点表示为单参数点。",
+          "reason": "相邻顶点构造需要该对象状态。"
+        },
+        {
+          "call_id": "derive_adjacent_vertex",
+          "capability_id": "square_adjacent_vertex_from_side",
+          "args": {
+            "side_start": {
+              "ref": "known_curve_point",
+              "kind": "point"
+            },
+            "side_end": {
+              "from_call": "parameterize_axis_point",
+              "return": "point"
+            },
+            "square": {
+              "ref": "square_relation",
+              "kind": "fact"
+            }
+          },
+          "return_bindings": {
+            "point": {
+              "ref": "moving_vertex",
+              "kind": "point"
+            }
+          },
+          "strategy": "由正方形一边构造相邻顶点。",
+          "reason": "该顶点是后续轨迹中的动点。"
+        },
+        {
+          "call_id": "derive_moving_locus",
+          "capability_id": "parameterized_point_locus_line",
+          "args": {
+            "point": {
+              "from_call": "derive_adjacent_vertex",
+              "return": "point"
+            }
+          },
+          "return_bindings": {},
+          "strategy": "消去线性参数得到动点轨迹。",
+          "reason": "后续最短状态必须落在该轨迹上。"
+        }
+      ]
+    }
+  ]
+}

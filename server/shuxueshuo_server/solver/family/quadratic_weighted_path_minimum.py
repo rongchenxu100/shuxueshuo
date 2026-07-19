@@ -7,18 +7,24 @@ RuntimeOrchestrator 匹配 family，并给 Planner 提供题型级参考，不�
 from __future__ import annotations
 
 from shuxueshuo_server.solver.family.models import (
+    CapabilityContractSpec,
+    ConditionPattern,
     FamilyMatchRule,
     MethodCompanionOutputSpec,
     MethodBindingRuleSpec,
     MethodInputBindingSpec,
     MethodPrepInvocationSpec,
     RecipeExecutionSpec,
+    recipe_output_alias,
     SolverFamilySpec,
+    StateSlotPattern,
     StepRecipeSpec,
+    expand_family_spec,
 )
-
-
-QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
+from shuxueshuo_server.solver.family.capability_packs import (
+    DEFAULT_CAPABILITY_PACK_REGISTRY,
+)
+_QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
     family_id="QuadraticWeightedPathMinimumSolver",
     match=FamilyMatchRule(
         patterns=("weighted-path-minimum",),
@@ -37,6 +43,15 @@ QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         "几何构造点先列候选；若候选点还需落在含参曲线上，再用候选曲线点求参 recipe 筛选并反求参数。",
         "加权路径最值优先寻找几何转化：用辅助直角三角形把加权段转成同倍率折线，再用折线拉直或等价最短路径处理。",
         "加权路径最值按可执行颗粒拆成：weighted_axis_path_triangle_transform 做几何转化，linked_broken_path_minimum_expression 求最小值表达式，parameter_from_expression_value 由给定值反求参数；不要把三步合成一个 utility step。",
+    ),
+    base_packs=(
+        "quadratic_core",
+        "parameter_solving_core",
+        "coordinate_geometry_core",
+    ),
+    mechanism_packs=(
+        "right_angle_equal_length_core",
+        "weighted_path_transform_core",
     ),
     method_ids=(
         "quadratic_from_constraints",
@@ -77,9 +92,66 @@ QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                     ("filter_point_candidates_by_quadratic_curve.selected_candidate", "parameter_from_curve_point_on_quadratic.point"),
                 ),
                 output_aliases=(
-                    ("parameter_from_curve_point_on_quadratic.point", "Point"),
-                    ("parameter_from_curve_point_on_quadratic.parameter_value", "ParameterValue"),
-                    ("parameter_from_curve_point_on_quadratic.parabola", "Parabola"),
+                    recipe_output_alias(
+                        "parameter_from_curve_point_on_quadratic.point",
+                        "Point",
+                        "selected_curve_point",
+                        identity_policy="target_object",
+                    ),
+                    recipe_output_alias(
+                        "parameter_from_curve_point_on_quadratic.parameter_value",
+                        "ParameterValue",
+                        "parameter_value",
+                        required=False,
+                        cardinality="optional",
+                    ),
+                    recipe_output_alias(
+                        "parameter_from_curve_point_on_quadratic.parabola",
+                        "Parabola",
+                        "solved_parabola",
+                        required=False,
+                        cardinality="optional",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    capability_contracts=(
+        CapabilityContractSpec(
+            capability_id="curve_candidate_parameter_solve",
+            kind="recipe",
+            slot_reads=(
+                StateSlotPattern(
+                    "candidate",
+                    "PointList",
+                    object_kind="point",
+                    semantic_role="candidates",
+                ),
+                StateSlotPattern(
+                    "expression",
+                    "Parabola",
+                    object_kind="function",
+                    semantic_role="parabola",
+                ),
+                StateSlotPattern(
+                    "coordinate",
+                    "Point",
+                    object_kind="point",
+                    semantic_role="target_point",
+                ),
+            ),
+            condition_reads=(
+                ConditionPattern("point_on_curve", required=False),
+                ConditionPattern("symbol_constraint", required=False),
+            ),
+            slot_writes=(
+                StateSlotPattern(
+                    "coordinate",
+                    "Point",
+                    object_kind="point",
+                    semantic_role="selected_curve_point",
+                    output_key="parameter_from_curve_point_on_quadratic.point",
+                    write_mode="create",
                 ),
             ),
         ),
@@ -129,23 +201,6 @@ QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             ),
         ),
         MethodBindingRuleSpec(
-            method_id="quadratic_y_axis_intercept_point",
-            input_bindings=(
-                MethodInputBindingSpec("quadratic", "read_type:Parabola"),
-                MethodInputBindingSpec("x", "symbol:x"),
-                MethodInputBindingSpec("target", "point_output_ref"),
-            ),
-        ),
-        MethodBindingRuleSpec(
-            method_id="quadratic_x_axis_intercept_point",
-            input_bindings=(
-                MethodInputBindingSpec("quadratic", "read_type:Parabola"),
-                MethodInputBindingSpec("x", "symbol:x"),
-                MethodInputBindingSpec("target", "point_output_ref"),
-                MethodInputBindingSpec("known_point", "x_axis_known_point", required=False),
-            ),
-        ),
-        MethodBindingRuleSpec(
             method_id="point_on_parabola_at_x",
             input_bindings=(
                 MethodInputBindingSpec("parabola", "read_type:Parabola"),
@@ -160,24 +215,6 @@ QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 MethodInputBindingSpec("reference", "right_angle:reference"),
                 MethodInputBindingSpec("target", "right_angle:target"),
             ),
-        ),
-        MethodBindingRuleSpec(
-            method_id="parameter_from_curve_point_on_quadratic",
-            input_bindings=(
-                MethodInputBindingSpec("quadratic", "read_type:Parabola"),
-                MethodInputBindingSpec("x", "symbol:x"),
-                MethodInputBindingSpec("point", "read_type:Point"),
-                MethodInputBindingSpec("parameter", "parameter_symbol"),
-                MethodInputBindingSpec("parameter_constraint", "parameter_constraint", required=False),
-            ),
-        ),
-        MethodBindingRuleSpec(
-            method_id="evaluate_expression_at_parameter",
-            input_bindings=(
-                MethodInputBindingSpec("expression", "read_type:Expression"),
-                MethodInputBindingSpec("parameter", "parameter_symbol"),
-            ),
-            expansion_selectors=("parameter_value_if_read",),
         ),
         MethodBindingRuleSpec(
             method_id="parameter_from_segment_length",
@@ -229,14 +266,10 @@ QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 MethodInputBindingSpec("dynamic_constraint", "dynamic_constraint"),
             ),
         ),
-        MethodBindingRuleSpec(
-            method_id="parameter_from_expression_value",
-            input_bindings=(
-                MethodInputBindingSpec("expression", "read_type:MinimumExpression"),
-                MethodInputBindingSpec("condition", "fact:minimum_value:Condition"),
-                MethodInputBindingSpec("parameter", "parameter_symbol"),
-                MethodInputBindingSpec("constraint", "parameter_constraint", required=False),
-            ),
-        ),
     ),
+)
+
+QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = expand_family_spec(
+    _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
+    DEFAULT_CAPABILITY_PACK_REGISTRY,
 )

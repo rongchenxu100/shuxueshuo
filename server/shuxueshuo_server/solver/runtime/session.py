@@ -162,6 +162,10 @@ def structured_error_from_exception(
 def _error_code(stage: str, exc: Exception) -> str:
     """根据阶段和异常文本生成稳定的错误码。"""
     message = str(exc).lower()
+    if message.startswith("answer_unresolved:"):
+        return "answer_unresolved"
+    if message.startswith("answer_mismatch:"):
+        return "answer_mismatch"
     if "invalid json" in message:
         return "invalid_json"
     if "missing required" in message:

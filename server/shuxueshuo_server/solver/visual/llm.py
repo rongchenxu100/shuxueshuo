@@ -428,9 +428,61 @@ def _filter_safe_append_add(items: list[dict[str, Any]]) -> list[dict[str, Any]]
             continue
         if item.get("persistence") not in (None, "step_only"):
             raise VisualOptimizationError("LLM visual patches cannot create carry_forward objects")
-        item = dict(item)
-        safe.append(item)
+        safe.append(_normalize_safe_append_item(item))
     return safe
+
+
+def _normalize_safe_append_item(item: dict[str, Any]) -> dict[str, Any]:
+    """Normalize LLM visual intent before compiler/schema validation.
+
+    The optimizer may describe a visible guide as a dashed Segment.  In our
+    schema, unlabeled segments are measurement markers, while visible guide
+    lines are ColoredLine/DashedLine.  Keep the visual intent, but do not let
+    the LLM pick low-level renderer metadata or emit schema-only fields.
+    """
+    out = dict(item)
+    component = str(out.get("component") or "")
+    if component:
+        out.pop("metadata", None)
+    _normalize_line_endpoint_pair(out, component)
+    _normalize_scene_item_ref_strings(out)
+    dashed = out.pop("dashed", None)
+    if component == "Segment" and not (out.get("label") or out.get("text")):
+        out["component"] = "DashedLine" if _truthy(dashed) else "ColoredLine"
+    elif dashed is not None and component != "DashedLine":
+        raise VisualOptimizationError("LLM visual patches cannot set dashed; use DashedLine")
+    return out
+
+
+def _normalize_line_endpoint_pair(item: dict[str, Any], component: str) -> None:
+    if component not in {"Segment", "ColoredLine", "DashedLine"}:
+        return
+    at = item.get("at")
+    if not isinstance(at, (list, tuple)) or len(at) != 2:
+        return
+    item.pop("at", None)
+    item.setdefault("from", at[0])
+    item.setdefault("to", at[1])
+
+
+def _normalize_scene_item_ref_strings(item: dict[str, Any]) -> None:
+    for key in ("at", "from", "to", "source", "target", "vertex", "rayA", "rayB", "curveId"):
+        value = item.get(key)
+        if isinstance(value, str):
+            item[key] = _normalize_geometry_ref_string(value)
+
+
+def _normalize_geometry_ref_string(value: str) -> str:
+    prefix, sep, rest = value.partition(":")
+    if sep and prefix in {"point", "curve"} and rest:
+        return rest
+    return value
+
+
+def _truthy(value: Any) -> bool:
+    if isinstance(value, str):
+        return value.strip().lower() in {"1", "true", "yes", "y"}
+    return bool(value)
 
 
 def _assert_visual_patch_safe(visual_ir: VisualStepIR) -> None:

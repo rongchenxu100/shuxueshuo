@@ -1,0 +1,67 @@
+{
+  "format": "functional_plan/v1",
+  "annotation": {
+    "purpose": "由完整几何构造关系确定目标点，并把该点用于后续函数约束。",
+    "use_when": "题设同时给出直角、等长、对象角色和方向或象限等筛选条件，且构造点需要作为后续曲线上的已知点。",
+    "key_idea": "先根据完整几何关系生成并筛选目标点，保持其题面对象身份，再将该点作为曲线约束传给后续调用。",
+    "do_not_use_when": [
+      "题设只有角度条件或只有等长条件。",
+      "题设缺少角色点或必要的筛选条件。",
+      "需要由该构造能力直接求抛物线、参数或路径最值。"
+    ]
+  },
+  "scopes": [
+    {
+      "scope_id": "example",
+      "label": "机制示例",
+      "calls": [
+        {
+          "call_id": "construct_target_point",
+          "capability_id": "right_angle_equal_length_construct_and_select",
+          "args": {
+            "right_angle_equal_length": {
+              "kind": "fact",
+              "ref": "construction_relation"
+            }
+          },
+          "return_bindings": {
+            "selected_target_point": {
+              "kind": "point",
+              "ref": "constructed_point"
+            }
+          },
+          "strategy": "利用直角、等长和方向条件确定目标点。",
+          "reason": "建立后续调用共同使用的构造点状态。"
+        },
+        {
+          "call_id": "derive_curve_from_points",
+          "capability_id": "quadratic_from_constraints",
+          "args": {
+            "coefficient_relation": {
+              "kind": "fact",
+              "ref": "coefficient_relation"
+            },
+            "curve_points": [
+              {
+                "kind": "point",
+                "ref": "known_curve_point"
+              },
+              {
+                "kind": "point",
+                "ref": "constructed_point"
+              }
+            ]
+          },
+          "return_bindings": {
+            "parabola": {
+              "kind": "function",
+              "ref": "curve"
+            }
+          },
+          "strategy": "利用已知点、构造点和系数关系确定含参函数。",
+          "reason": "后续调用只需在共享函数状态上代入各自求得的参数。"
+        }
+      ]
+    }
+  ]
+}

@@ -6,13 +6,13 @@
       "derive_parabola_i1",
       "parameterize_axis_point_E",
       "construct_square_vertex_G",
-      "compute_path_minimum_expression",
+      "compute_minimum_expression",
       "recover_final_point_E"
     ],
     "bad_examples": [
       "step_1",
-      "quadratic_from_constraints",
-      "broken_path_straightening_minimum_expression"
+      "some_method_id",
+      "some_recipe_minimum_expression"
     ],
     "rules": [
       "Do not use a recipe_id or method_id directly as step_id.",
@@ -44,7 +44,7 @@
       "fact:i:A_coordinate",
       "fact:i_2:E_parametric_coordinate",
       "fact:ii:G_locus_line",
-      "fact:ii:path_minimum_expression",
+      "fact:ii:minimum_expression",
       "fact:ii:optimal_G_coordinate",
       "fact:ii:c_value",
       "fact:ii:E_candidates"
@@ -54,7 +54,7 @@
       "For a function state, prefer parabola_expression for a solved or simplified parabola.",
       "For parameters, prefer <symbol>_value, for example m_value or c_value.",
       "For candidate lists, use plural candidates and output_type PointList.",
-      "For path minimum expressions, prefer path_minimum_expression and output_type MinimumExpression."
+      "For minimum or extremum expressions, prefer minimum_expression and output_type MinimumExpression."
     ]
   },
   "state_suffixes": {
@@ -71,11 +71,9 @@
     "parameter_states": [
       "<symbol>_value"
     ],
-    "path_states": [
-      "path_transformation",
-      "path_minimum_expression",
-      "path_minimum_point_1",
-      "path_minimum_point_2"
+    "minimum_states": [
+      "minimum_expression",
+      "minimum_point"
     ],
     "set_states": [
       "candidates"
@@ -100,7 +98,7 @@
   "bad_patterns": [
     "Do not use free abbreviations such as coords2, exprs, minmum, tmp, calc_result.",
     "Do not produce fact:*:parabola_coefficients when a later step needs a Parabola; produce or read fact:*:parabola_expression instead.",
-    "Do not produce sibling-scope duplicates for the same entity state, such as fact:ii_1:F_coordinate and fact:ii_2:F_coordinate_expr for the same point.",
+    "Do not produce sibling-scope duplicates for the same entity state, such as fact:child_1:shared_point_coordinate and fact:child_2:shared_point_coordinate_expr for the same parent-scope point.",
     "Do not encode numeric answers in handle names.",
     "Do not invent relation:* or condition:* namespaces."
   ]

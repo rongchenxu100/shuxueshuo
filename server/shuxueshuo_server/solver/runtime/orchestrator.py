@@ -432,7 +432,13 @@ def _is_rich_repair_context(payload: object) -> bool:
     """判断 previous_attempt 是否包含 effective draft + diagnostic。"""
     if not isinstance(payload, dict):
         return False
-    return isinstance(payload.get("effective_draft"), dict) and isinstance(payload.get("diagnostic"), dict)
+    return (
+        isinstance(payload.get("planner_retry_state"), dict)
+        or (
+            isinstance(payload.get("effective_draft"), dict)
+            and isinstance(payload.get("diagnostic"), dict)
+        )
+    )
 
 
 def _has_rich_repair_context(items: list[object]) -> bool:
@@ -524,11 +530,63 @@ def _write_debug_attempt(
                 "planner_payload": payload,
             },
         )
+        (debug_dir / f"{prefix}.prompt.system.md").write_text(
+            str(getattr(prompt, "system", "")),
+            encoding="utf-8",
+        )
+        (debug_dir / f"{prefix}.prompt.user.md").write_text(
+            str(getattr(prompt, "user", "")),
+            encoding="utf-8",
+        )
+    if isinstance(payload, dict):
+        for key, value in payload.items():
+            _write_json(
+                debug_dir / f"{prefix}.payload.{key}.json",
+                value,
+            )
     raw_response = getattr(planner, "last_raw_response", None)
     if raw_response is not None:
         (debug_dir / f"{prefix}.raw-response.txt").write_text(
             str(raw_response),
             encoding="utf-8",
+        )
+        candidate_format = getattr(
+            getattr(planner, "artifacts", None),
+            "candidate_format",
+            None,
+        )
+        if candidate_format == "functional_plan":
+            try:
+                functional_payload = json.loads(str(raw_response))
+            except json.JSONDecodeError:
+                functional_payload = {"raw_response": str(raw_response)}
+            _write_json(
+                debug_dir / f"{prefix}.functional-plan.json",
+                functional_payload,
+            )
+    client = getattr(planner, "client", None)
+    if client is not None:
+        _write_json(
+            debug_dir / f"{prefix}.llm-metadata.json",
+            {
+                "provider": getattr(
+                    client,
+                    "provider_name",
+                    client.__class__.__name__,
+                ),
+                "request_model": getattr(client, "model", None),
+                "response_model": getattr(
+                    client,
+                    "last_response_model",
+                    None,
+                ),
+                "usage": getattr(client, "last_usage", None),
+                "candidate_format": getattr(
+                    getattr(planner, "artifacts", None),
+                    "candidate_format",
+                    None,
+                ),
+            },
         )
     raw_draft = getattr(planner, "last_raw_draft", None)
     if raw_draft is not None:
@@ -554,6 +612,51 @@ def _write_debug_attempt(
             debug_dir / f"{prefix}.execution-diagnostic.json",
             _safe_json(diagnostic),
         )
+    replay = getattr(
+        getattr(planner, "artifacts", None),
+        "retry_replay_result",
+        None,
+    )
+    if replay is not None:
+        replay_artifacts = {
+            "functional-validation-report": getattr(
+                replay,
+                "functional_validation_report",
+                None,
+            ),
+            "functional-reconciliation-report": getattr(
+                replay,
+                "functional_reconciliation",
+                None,
+            ),
+            "normalization-report": getattr(
+                replay,
+                "normalization_report",
+                None,
+            ),
+            "resolution-report": getattr(
+                replay,
+                "resolution_report",
+                None,
+            ),
+            "planner-retry-state": getattr(replay, "retry_state", None),
+            "planner-state-context": getattr(
+                replay,
+                "planner_state_context",
+                None,
+            ),
+        }
+        for artifact_name, artifact_payload in replay_artifacts.items():
+            if artifact_payload is not None:
+                if (
+                    artifact_name == "functional-reconciliation-report"
+                    and hasattr(artifact_payload, "to_payload")
+                ):
+                    artifact_payload = artifact_payload.to_payload()
+                _write_json(
+                    debug_dir / f"{prefix}.{artifact_name}.json",
+                    _safe_json(artifact_payload),
+                )
     repair_payload = _planner_repair_attempt_payload(
         planner,
         attempt_index,

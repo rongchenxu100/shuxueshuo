@@ -6,11 +6,12 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-import re
 from typing import Any
 
 from shuxueshuo_server.solver.family.models import SolverFamilySpec
+from shuxueshuo_server.solver.runtime.capability_contracts import (
+    effective_contract_by_id,
+)
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.handle_registry import (
     CanonicalHandleRegistry,
@@ -24,8 +25,14 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     StepIntentDraft,
     StepIntentResolutionCandidate,
     StepIntentResolutionStepReport,
-    answer_output_type_compatible,
 )
+from shuxueshuo_server.solver.runtime.output_type_inference import (
+    OutputTypeInference,
+    output_type_from_text,
+    produced_output_type,
+    produced_output_type_inference,
+)
+from shuxueshuo_server.solver.runtime.strategy_repair_feedback import RepairHintRegistry
 
 class StepIntentCandidateResolver:
     """把 StepIntent 解析成 recipe/method 可执行候选。
@@ -46,6 +53,10 @@ class StepIntentCandidateResolver:
         """返回每个 StepIntent 的候选解析报告。"""
         capabilities = build_executable_capabilities(family_spec, method_specs)
         by_id = {capability.capability_id: capability for capability in capabilities}
+        binding_rule_ids = {
+            rule.method_id
+            for rule in family_spec.method_binding_rules
+        }
         step_reports: list[StepIntentResolutionStepReport] = []
         errors: list[str] = []
 
@@ -55,6 +66,7 @@ class StepIntentCandidateResolver:
                 capabilities=capabilities,
                 capabilities_by_id=by_id,
                 handle_registry=handle_registry,
+                binding_rule_ids=binding_rule_ids,
             )
             step_reports.append(report)
             errors.extend(
@@ -80,7 +92,9 @@ def build_executable_capabilities(
     简单并集；因此这个类型边界必须和 recipe 执行规格放在同一事实源里。
     """
     capabilities: list[ExecutableCapabilitySpec] = []
+    contracts_by_id = effective_contract_by_id(family_spec, method_specs)
     for recipe in family_spec.step_recipes:
+        contract = contracts_by_id.get(recipe.recipe_id)
         output_types = _recipe_output_types(recipe)
         if not output_types:
             output_types = _method_output_union(recipe.method_ids, method_specs)
@@ -96,6 +110,10 @@ def build_executable_capabilities(
                 preferred=recipe.priority == "preferred",
                 title=recipe.title,
                 description=recipe.description,
+                execution_status=(
+                    contract.execution_status if contract is not None else "executable"
+                ),
+                contract=contract.to_payload() if contract is not None else None,
             )
         )
     for method_id in family_spec.method_ids:
@@ -103,6 +121,7 @@ def build_executable_capabilities(
             spec = method_specs.require(method_id)
         except KeyError:
             continue
+        contract = contracts_by_id.get(spec.method_id)
         method_output_types = tuple(_unique_ordered(spec.outputs.values()))
         capabilities.append(
             ExecutableCapabilitySpec(
@@ -116,6 +135,10 @@ def build_executable_capabilities(
                 preferred=False,
                 title=spec.title,
                 description=_method_capability_summary(spec),
+                execution_status=(
+                    contract.execution_status if contract is not None else "executable"
+                ),
+                contract=contract.to_payload() if contract is not None else None,
             )
         )
     return tuple(capabilities)
@@ -128,7 +151,7 @@ def _recipe_output_types(recipe: Any) -> tuple[str, ...]:
         return ()
     return tuple(
         _unique_ordered(
-            output_type for _output_key, output_type in execution.output_aliases
+            output.runtime_type for output in execution.output_aliases
         )
     )
 
@@ -167,6 +190,7 @@ def _resolve_step_intent_candidates(
     capabilities: tuple[ExecutableCapabilitySpec, ...],
     capabilities_by_id: dict[str, ExecutableCapabilitySpec],
     handle_registry: CanonicalHandleRegistry,
+    binding_rule_ids: set[str],
 ) -> StepIntentResolutionStepReport:
     """解析单个 step 的候选能力。"""
     produced_inferences: list[_OutputTypeInference] = []
@@ -203,6 +227,7 @@ def _resolve_step_intent_candidates(
             capability,
             produced_types=produced_types,
             handle_registry=handle_registry,
+            binding_rule_ids=binding_rule_ids,
         )
         for capability in candidate_caps
     )
@@ -224,6 +249,7 @@ def _resolve_step_intent_candidates(
                 capabilities_by_id=capabilities_by_id,
             )
             if shape_error_text:
+                warnings.append(shape_error_text)
                 candidate_error_text = "; ".join(
                     item for item in (candidate_error_text, shape_error_text) if item
                 )
@@ -285,7 +311,141 @@ def _unsupported_step_shape_hint(
             "unsupported_path_transformation_without_recipe: no catalog capability can produce "
             "PathTransformation; choose a listed recipe/method or leave this as a gap."
         )
+    if step.recipe_hint is None and _has_non_executable_direction_output_type(step):
+        suggestions = _available_direction_point_repair_capabilities(capabilities_by_id)
+        suffix = (
+            f" available_related_capabilities={list(suggestions)}."
+            if suggestions
+            else ""
+        )
+        return (
+            "unsupported_direction_point_utility: recipe_hint=null output cannot "
+            "encode direction/slope/tangent helper state. Delete this utility step "
+            "and choose a catalog recipe/method that directly derives the needed geometry "
+            "state; if a later step needs a line, produce/read concrete states such as an "
+            "angle equality, intercept point, or line-curve intersection target instead."
+            + suffix
+        )
     return None
+
+
+_NON_EXECUTABLE_DIRECTION_OUTPUT_TYPES = frozenset((
+    "Direction",
+    "LineDirection",
+    "Slope",
+    "Tangent",
+    "TangentRatio",
+    "Tan",
+    "Scalar",
+    "Ratio",
+))
+
+def _has_non_executable_direction_output_type(step: StepIntent) -> bool:
+    """识别 LLM 显式声明的方向/斜率/正切类非 catalog 输出类型。"""
+    return any(
+        (produced.output_type or "").strip() in _NON_EXECUTABLE_DIRECTION_OUTPUT_TYPES
+        for produced in step.produces
+    )
+
+
+def _available_direction_point_repair_capabilities(
+    capabilities_by_id: dict[str, ExecutableCapabilitySpec],
+    *,
+    hint_registry: RepairHintRegistry | None = None,
+) -> tuple[str, ...]:
+    """返回当前 catalog 中与方向/角度/直线状态最相关的能力 id。"""
+    registry = hint_registry or RepairHintRegistry.default()
+    hinted = tuple(
+        capability_id
+        for capability_id in registry.related_capabilities_for_code(
+            "unsupported_direction_point_utility"
+        )
+        if capability_id in capabilities_by_id
+    )
+    if hinted:
+        return hinted
+    scored = [
+        (score, index, capability.capability_id)
+        for index, capability in enumerate(capabilities_by_id.values())
+        if (score := _direction_point_repair_capability_score(capability)) > 0
+    ]
+    scored.sort(key=lambda item: (-item[0], item[1], item[2]))
+    return tuple(capability_id for _score, _index, capability_id in scored[:6])
+
+
+_DIRECTION_POINT_REPAIR_KEYWORDS = (
+    "angle",
+    "line",
+    "intersection",
+    "intersect",
+    "locus",
+    "direction",
+    "slope",
+    "tangent",
+    "tan",
+    "角",
+    "直线",
+    "交点",
+    "相交",
+    "轨迹",
+    "方向",
+    "斜率",
+    "正切",
+)
+
+_DIRECTION_POINT_REPAIR_OUTPUT_TYPES = frozenset((
+    "AngleEquality",
+    "Line",
+    "Point",
+    "PointList",
+    "PointRef",
+))
+
+
+def _direction_point_repair_capability_score(
+    capability: ExecutableCapabilitySpec,
+) -> int:
+    """根据 catalog metadata 判断 capability 是否适合修复方向辅助点。"""
+    output_types = set(capability.output_types)
+    if not output_types.intersection(_DIRECTION_POINT_REPAIR_OUTPUT_TYPES):
+        return 0
+    text = _capability_search_text(capability)
+    hits = {
+        keyword
+        for keyword in _DIRECTION_POINT_REPAIR_KEYWORDS
+        if keyword in text
+    }
+    if not hits:
+        return 0
+    score = len(hits)
+    if "AngleEquality" in output_types:
+        score += 8
+    if "Line" in output_types:
+        score += 7
+    if "PointList" in output_types:
+        score += 4
+    if "Point" in output_types or "PointRef" in output_types:
+        score += 3
+    if capability.kind == "recipe":
+        score += 2
+    if capability.preferred:
+        score += 2
+    return score
+
+
+def _capability_search_text(capability: ExecutableCapabilitySpec) -> str:
+    """汇总 capability metadata，供保守关键词匹配使用。"""
+    return "\n".join(
+        (
+            capability.capability_id,
+            capability.goal_type,
+            *capability.goal_aliases,
+            *capability.method_ids,
+            *capability.output_types,
+            capability.title,
+            capability.description,
+        )
+    ).lower()
 
 
 def _candidate_error_summary(
@@ -396,6 +556,8 @@ def _output_type_search_allowed(
         return False
     if set(produced_types) == {"Point"} and not step.recipe_hint:
         return False
+    if set(produced_types) == {"Expression"} and not step.recipe_hint:
+        return False
     return True
 
 
@@ -405,6 +567,7 @@ def _evaluate_step_candidate(
     *,
     produced_types: tuple[str, ...],
     handle_registry: CanonicalHandleRegistry,
+    binding_rule_ids: set[str],
 ) -> StepIntentResolutionCandidate:
     """判断某个候选是否覆盖该 step 的产物边界。"""
     errors: list[str] = []
@@ -425,6 +588,11 @@ def _evaluate_step_candidate(
         errors.append(
             "capability_does_not_create_entities:"
             f"creates={[item.handle for item in step.creates]}"
+        )
+    if capability.kind == "method" and capability.capability_id not in binding_rule_ids:
+        errors.append(
+            "method_binding_rule_missing:"
+            f"{capability.capability_id}"
         )
     errors.extend(
         _valid_scope_errors_for_candidate(
@@ -447,6 +615,11 @@ def _evaluate_step_candidate(
         score += 30
     if "output_types" in matched_by:
         score += 40
+        # Phase 1a packs can expose broader methods that happen to include the
+        # requested output type. For null-hint automatic selection, prefer the
+        # capability whose public output boundary has fewer extra types.
+        extra_output_count = len(set(capability.output_types) - set(produced_types))
+        score += max(0, 10 - extra_output_count)
     if capability.preferred:
         score += 10
     if capability.kind == "recipe":
@@ -502,6 +675,19 @@ def _applicability_errors_for_candidate(
                 "or explicitly create the target point before line_parabola_second_intersection_point"
             )
         return tuple(errors)
+    if capability_id == "parameter_from_curve_point_on_quadratic":
+        errors: list[str] = []
+        if not _reads_parabola(step, handle_registry):
+            errors.append(
+                "capability_read_signature_mismatch:"
+                "parameter_from_curve_point_on_quadratic missing Parabola read"
+            )
+        if not _reads_curve_point(step, handle_registry):
+            errors.append(
+                "capability_read_signature_mismatch:"
+                "parameter_from_curve_point_on_quadratic missing curve point read"
+            )
+        return tuple(errors)
     return ()
 
 
@@ -550,10 +736,14 @@ def _reads_parabola(
 ) -> bool:
     """判断 reads 是否包含已解抛物线，而不是裸 coefficients 缓存。"""
     for handle in step.reads:
-        if handle.startswith("answer:") and handle_registry.answer_value_types.get(handle) == "Parabola":
-            return True
+        if handle.startswith("answer:"):
+            if handle_registry.answer_value_types.get(handle) == "Parabola":
+                return True
+            continue
         if handle_registry.fact_types.get(handle, "") == "parabola":
             return True
+        if not handle.startswith("fact:"):
+            continue
         semantic = _semantic_name(handle).lower()
         if "parabola" in semantic and "coefficient" not in semantic:
             return True
@@ -591,6 +781,20 @@ def _reads_curve_target_point(
         if _handle_name(handle) in target_names:
             return True
         if handle not in handle_registry.entity_handles and not target_names:
+            return True
+    return False
+
+
+def _reads_curve_point(
+    step: StepIntent,
+    handle_registry: CanonicalHandleRegistry,
+) -> bool:
+    """判断 reads 是否显式包含可代入曲线的点或曲线点条件。"""
+    for handle in step.reads:
+        fact_type = handle_registry.fact_types.get(handle, "")
+        if fact_type in {"point_on_curve", "point_coordinate"}:
+            return True
+        if handle.startswith("point:"):
             return True
     return False
 
@@ -636,8 +840,8 @@ def _parameter_capability_from_reads(
         and _reads_given_minimum_value(step, handle_registry)
     ):
         return (
-            capabilities_by_id.get("parameter_from_expression_value")
-            or capabilities_by_id.get("parameter_from_minimum_value")
+            capabilities_by_id.get("parameter_from_minimum_value")
+            or capabilities_by_id.get("parameter_from_expression_value")
         )
     return None
 
@@ -850,134 +1054,10 @@ def _candidate_by_id(
             return candidate
     return None
 
-@dataclass(frozen=True)
-class _OutputTypeInference:
-    """StepIntent 产物类型推断结果。
-
-    ``source`` 用来区分高置信度的 canonical handle/fact 类型和低置信度的自然语言
-    description。后续若要根据 capability hint 修正，只允许修正低置信度结果。
-    """
-
-    output_type: str | None
-    source: str
-
-
-def _produced_output_type(
-    produced: ProducedFact,
-    registry: CanonicalHandleRegistry,
-) -> str | None:
-    """根据 answer value_type、fact type 和语义名推断产物类型。"""
-    return _produced_output_type_inference(produced, registry).output_type
-
-
-def _produced_output_type_inference(
-    produced: ProducedFact,
-    registry: CanonicalHandleRegistry,
-) -> _OutputTypeInference:
-    """返回产物类型和来源，避免 description 文本覆盖 canonical handle。"""
-    if produced.handle.startswith("answer:"):
-        if produced.handle in registry.answer_value_types:
-            expected_type = registry.answer_value_types[produced.handle]
-            if (
-                produced.output_type is not None
-                and produced.output_type != expected_type
-                and answer_output_type_compatible(expected_type, produced.output_type)
-            ):
-                return _OutputTypeInference(produced.output_type, "explicit_output_type")
-            return _OutputTypeInference(
-                expected_type,
-                "answer_value_type",
-            )
-        if produced.output_type is not None:
-            return _OutputTypeInference(produced.output_type, "explicit_output_type")
-        return _output_type_inference_from_text(produced.handle, produced.description)
-    if produced.handle in registry.fact_types:
-        fact_type = registry.fact_types[produced.handle]
-        if fact_type in _FACT_TYPE_TO_OUTPUT_TYPE:
-            return _OutputTypeInference(
-                _FACT_TYPE_TO_OUTPUT_TYPE[fact_type],
-                "fact_type",
-            )
-    if produced.output_type is not None:
-        return _OutputTypeInference(produced.output_type, "explicit_output_type")
-    return _output_type_inference_from_text(produced.handle, produced.description)
-
-
-def _output_type_from_text(handle: str, description: str) -> str | None:
-    """从 handle semantic_name 和说明中推断 method/recipe 输出类型。"""
-    return _output_type_inference_from_text(handle, description).output_type
-
-
-def _output_type_inference_from_text(handle: str, description: str) -> _OutputTypeInference:
-    """从 handle 和说明推断类型，优先相信 handle semantic name。
-
-    DeepSeek 常会写“由最小值条件反求参数 m”，如果先看 description 里的“最小值”，
-    ``fact:*:m_value`` 会被误判成 ``MinimumExpression``。这里先看 canonical
-    semantic name，再把自然语言作为最后兜底。
-    """
-    text = f"{handle}\n{description}".lower()
-    name = handle.split(":", 2)[-1].lower()
-    if (
-        ("angle_" in name and "_eq_" in name)
-        or "equal_angle" in name
-        or "angle_equality" in name
-    ):
-        return _OutputTypeInference("AngleEquality", "semantic_name")
-    if "relation" in name or "equation" in name:
-        return _OutputTypeInference("Equation", "semantic_name")
-    if _is_parameter_value_semantic_name(name):
-        return _OutputTypeInference("ParameterValue", "semantic_name")
-    if any(value in name for value in ("candidate", "candidates", "候选")):
-        return _OutputTypeInference("PointList", "semantic_name")
-    if any(value in name for value in ("coord", "coordinate", "intersection", "axis_point", "point")):
-        return _OutputTypeInference("Point", "semantic_name")
-    if "intercept" in name:
-        return _OutputTypeInference("Point", "semantic_name")
-    if any(value in name for value in ("locus", "ray", "line")):
-        return _OutputTypeInference("Line", "semantic_name")
-    if any(value in name for value in ("coefficient", "coefficients")):
-        return _OutputTypeInference("Coefficients", "semantic_name")
-    if any(value in name for value in ("minimum", "min_value", "path_minimum")):
-        return _OutputTypeInference("MinimumExpression", "semantic_name")
-    if any(value in name for value in ("distance", "expr", "expression")):
-        return _OutputTypeInference("Expression", "semantic_name")
-    if any(value in name for value in ("straightened", "straightening", "choice")):
-        return _OutputTypeInference("StraighteningCandidate", "semantic_name")
-    if any(value in name for value in ("path", "equivalence", "reduction")):
-        return _OutputTypeInference("PathTransformation", "semantic_name")
-    if any(value in text for value in ("parabola", "抛物线", "解析式")):
-        return _OutputTypeInference("Parabola", "description")
-    if any(value in text for value in ("straightened", "straightening", "choice", "拉直", "方案")):
-        return _OutputTypeInference("StraighteningCandidate", "description")
-    if any(value in text for value in ("path", "equivalence", "reduction", "路径", "等价", "降维")):
-        return _OutputTypeInference("PathTransformation", "description")
-    if any(value in text for value in ("locus", "ray", "line", "轨迹", "射线", "直线")):
-        return _OutputTypeInference("Line", "description")
-    if any(value in name for value in ("coord", "coordinate", "intersection", "axis_point", "point")):
-        return _OutputTypeInference("Point", "semantic_name")
-    if any(value in text for value in ("坐标", "交点")):
-        return _OutputTypeInference("Point", "description")
-    if any(value in text for value in ("minimum", "min_value", "最小值")):
-        return _OutputTypeInference("MinimumExpression", "description")
-    if any(value in text for value in ("distance", "距离", "表达式", "expression")):
-        return _OutputTypeInference("Expression", "description")
-    if "关系" in text:
-        return _OutputTypeInference("Equation", "description")
-    return _OutputTypeInference(None, "unknown")
-
-
-def _is_parameter_value_semantic_name(name: str) -> bool:
-    """判断 semantic name 是否明确表示参数/系数取值。
-
-    不能用 ``"m_value" in name``，因为 ``minimum_value`` 中也会出现相似片段。
-    """
-    if name in {"m_value", "a_value", "b_value", "c_value", "parameter_value"}:
-        return True
-    if re.fullmatch(r"parameter_[a-z][a-z0-9]*", name):
-        return True
-    return bool(
-        re.fullmatch(r"(?:parameter_)?[a-z][a-z0-9]*_(?:parameter_)?value", name)
-    )
+_OutputTypeInference = OutputTypeInference
+_produced_output_type = produced_output_type
+_produced_output_type_inference = produced_output_type_inference
+_output_type_from_text = output_type_from_text
 
 
 def _maybe_correct_output_types_from_hint(
@@ -1016,27 +1096,6 @@ def _maybe_correct_output_types_from_hint(
         )
     return output_types, []
 
-
-_FACT_TYPE_TO_OUTPUT_TYPE: dict[str, str] = {
-    "coefficients": "Coefficients",
-    "expression": "Expression",
-    "minimum_expression": "MinimumExpression",
-    "minimum_value_expression": "MinimumExpression",
-    "parabola": "Parabola",
-    "point_coordinate": "Point",
-    "symbol_value": "ParameterValue",
-    "coefficient_relation": "Equation",
-    "length_squared": "Condition",
-    "segment_length_relation": "Condition",
-    "minimum_value": "MinimumExpression",
-    "point_candidates": "PointList",
-    "path_minimum_target": "Condition",
-    "right_angle_equal_length": "Condition",
-    "segment_membership": "Condition",
-    "segment_relation": "Condition",
-    "midpoint_definition": "Condition",
-    "orientation_constraint": "OrientationHint",
-}
 
 def _method_capability_summary(spec: Any) -> str:
     """生成给 LLM 看的 method 能力短句。

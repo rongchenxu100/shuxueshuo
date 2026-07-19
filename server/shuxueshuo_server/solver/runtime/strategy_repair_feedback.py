@@ -24,6 +24,7 @@ class RepairHintSpec:
     next_actions: tuple[str, ...] = ()
     do_not: tuple[str, ...] = ()
     already_handled: tuple[str, ...] = ()
+    related_capabilities: tuple[str, ...] = ()
     applies_to: tuple[str, ...] = ("generic",)
     source: str = "default"
 
@@ -36,6 +37,9 @@ class RepairHintSpec:
             next_actions=tuple(str(item) for item in payload.get("next_actions", ())),
             do_not=tuple(str(item) for item in payload.get("do_not", ())),
             already_handled=tuple(str(item) for item in payload.get("already_handled", ())),
+            related_capabilities=tuple(
+                str(item) for item in payload.get("related_capabilities", ())
+            ),
             applies_to=tuple(str(item) for item in payload.get("applies_to", ("generic",))),
             source=str(payload.get("source", "method_spec")),
         )
@@ -66,6 +70,7 @@ class RepairHintRegistry:
                             next_actions=hint.next_actions,
                             do_not=hint.do_not,
                             already_handled=hint.already_handled,
+                            related_capabilities=hint.related_capabilities,
                             applies_to=(f"method:{spec.method_id}",),
                             source=hint.source,
                         )
@@ -119,6 +124,20 @@ class RepairHintRegistry:
         if blocker.code == hint.code:
             score += 5
         return score
+
+    def related_capabilities_for_code(self, code: str) -> tuple[str, ...]:
+        """Return related capability ids declared by repair hints for an error code."""
+        result: list[str] = []
+        seen: set[str] = set()
+        for hint in self.hints:
+            if hint.code != code:
+                continue
+            for capability_id in hint.related_capabilities:
+                if capability_id in seen:
+                    continue
+                seen.add(capability_id)
+                result.append(capability_id)
+        return tuple(result)
 
 
 @dataclass(frozen=True)
@@ -211,7 +230,7 @@ def _planner_state_from_insights(
                 "source_step": insight.step_id,
                 "produced_handle": insight.produced_handle,
                 "minimum_points": points,
-                "next_method": insight.facts.get("next_method"),
+                "required_state_roles": insight.facts.get("required_state_roles", ()),
                 "repair_note": insight.repair_note,
             }
             continue
@@ -414,6 +433,18 @@ def _unique_ordered(items: list[str]) -> list[str]:
 
 _DEFAULT_REPAIR_HINTS: tuple[RepairHintSpec, ...] = (
     RepairHintSpec(
+        code="midpoint_definition_not_read",
+        message="midpoint_point 缺少 midpoint_definition read；square_center 不是中点定义。",
+        next_actions=(
+            "若目标是求中点坐标，读取对应 `fact:<scope>:<target>_midpoint_of_<p1><p2>` midpoint_definition。",
+            "若当前读取的是 square_center / 正方形中心结构，应让 `square_path_dimension_reduction` 消费它，而不是交给 midpoint_point。",
+        ),
+        do_not=(
+            "不要把 square_center fact 当成 midpoint_definition 传给 midpoint_point。",
+        ),
+        applies_to=("method:midpoint_point",),
+    ),
+    RepairHintSpec(
         code="binding_type_not_found",
         message="将军饮马 recipe 缺少动点轨迹 Line；应先根据降维后的 moving point 求轨迹线。",
         next_actions=(
@@ -436,6 +467,18 @@ _DEFAULT_REPAIR_HINTS: tuple[RepairHintSpec, ...] = (
         applies_to=("generic",),
     ),
     RepairHintSpec(
+        code="unsupported_produced_handle_type",
+        message="该 step 产生了裸 tan/slope 等中间 scalar fact；这些不是可执行 catalog 输出。",
+        next_actions=(
+            "删除单独计算 tan/slope 的 utility steps；角度和斜率推理写进后续 step 的 strategy/reason。",
+            "若题面给出两角之和等于定角，直接使用 `angle_sum_equal_angle_candidates` 推出等角关系，再用 `axis_intercept_from_equal_acute_angles` 求对应轴截点。",
+        ),
+        do_not=(
+            "不要 produces `fact:*:tan_*`、`fact:*:slope_*` 或没有 catalog 输出类型的裸 scalar 中间 fact。",
+        ),
+        applies_to=("generic",),
+    ),
+    RepairHintSpec(
         code="no_typed_outputs_for_step",
         message="该 step 产物不是任何 catalog capability 的输出；应删除自由 utility step 或改用已有 method/recipe。",
         next_actions=(
@@ -443,6 +486,25 @@ _DEFAULT_REPAIR_HINTS: tuple[RepairHintSpec, ...] = (
         ),
         do_not=(
             "不要输出 method/recipe catalog 外的自由 segment、Equation 或 utility fact step。",
+        ),
+        applies_to=("generic",),
+    ),
+    RepairHintSpec(
+        code="unsupported_direction_point_utility",
+        message="该 step 用 recipe_hint=null 的方向/斜率/正切产物承载辅助状态；这不是可执行 catalog 边界。",
+        next_actions=(
+            "删除该方向/斜率/正切 utility step；选择 catalog 中能直接表达几何状态的 recipe/method。",
+            "若后续需要确定一条直线，先用 catalog 能力产生可读的角关系、截点、轨迹线或线-曲线交点状态，而不是自造方向辅助点。",
+        ),
+        do_not=(
+            "不要用 `recipe_hint: null` 且 `output_type: Direction/Slope/Tangent` 的 step 表示裸辅助状态。",
+            "不要把裸斜率/正切 scalar fact 或方向 helper point 当作可执行中间结论。",
+        ),
+        related_capabilities=(
+            "angle_sum_equal_angle_candidates",
+            "axis_intercept_from_equal_acute_angles",
+            "line_parabola_second_intersection_point",
+            "parameterized_point_locus_line",
         ),
         applies_to=("generic",),
     ),

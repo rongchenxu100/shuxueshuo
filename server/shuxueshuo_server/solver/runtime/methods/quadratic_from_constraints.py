@@ -6,10 +6,83 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+from typing import Literal
+
 from shuxueshuo_server.solver.contracts import MethodExplanationSpec
 
 from ._common import *
 from ._spec import MethodSpecSource
+
+
+QuadraticConstraintStatus = Literal[
+    "determined",
+    "single_free",
+    "underdetermined",
+    "ambiguous",
+]
+
+
+@dataclass(frozen=True)
+class QuadraticConstraintAnalysis:
+    """Deterministic coefficient-solution shape shared by adapter and runtime."""
+
+    status: QuadraticConstraintStatus
+    free_parameters: tuple[sp.Symbol, ...] = ()
+    branch_count: int = 0
+
+
+def analyze_quadratic_constraints(
+    inputs: dict[str, Any],
+) -> QuadraticConstraintAnalysis:
+    """Classify coefficient constraints without opting into parameterization."""
+    quadratic = inputs["quadratic"]
+    x = inputs["x"]
+    coefficients = list(inputs["all_coefficients"])
+    known = dict(inputs.get("known_coefficients", {}))
+    substitution = _parameter_substitution(inputs)
+    points = _collect_curve_points(inputs, substitution)
+    equations = _collect_extra_equations(inputs, known, substitution)
+    equations.extend(
+        sp.Eq(quadratic.subs(known).subs(x, point[0]), point[1])
+        for point in points
+    )
+    equations, contradictory = _normalize_constraint_equations(equations)
+    if contradictory:
+        return QuadraticConstraintAnalysis("ambiguous", branch_count=0)
+    unknowns = [symbol for symbol in coefficients if symbol not in known]
+    if not unknowns:
+        return QuadraticConstraintAnalysis("determined", branch_count=1)
+    if not equations:
+        return QuadraticConstraintAnalysis(
+            "single_free" if len(unknowns) == 1 else "underdetermined",
+            free_parameters=tuple(unknowns),
+            branch_count=1,
+        )
+    branches = sp.solve(equations, unknowns, dict=True)
+    if len(branches) != 1:
+        return QuadraticConstraintAnalysis(
+            "ambiguous",
+            branch_count=len(branches),
+        )
+    branch = branches[0]
+    free = set(symbol for symbol in unknowns if symbol not in branch)
+    for value in branch.values():
+        free.update(symbol for symbol in value.free_symbols if symbol in unknowns)
+    if not free:
+        return QuadraticConstraintAnalysis("determined", branch_count=1)
+    ordered = tuple(symbol for symbol in unknowns if symbol in free)
+    if len(ordered) == 1:
+        return QuadraticConstraintAnalysis(
+            "single_free",
+            free_parameters=ordered,
+            branch_count=1,
+        )
+    return QuadraticConstraintAnalysis(
+        "underdetermined",
+        free_parameters=ordered,
+        branch_count=1,
+    )
 
 
 class QuadraticFromConstraintsMethod:
@@ -53,6 +126,9 @@ class QuadraticFromConstraintsMethod:
             sp.Eq(quadratic.subs(known).subs(x, point[0]), point[1])
             for point in points
         )
+        equations, contradictory = _normalize_constraint_equations(equations)
+        if contradictory:
+            raise ValueError("已知系数与约束条件矛盾")
 
         unknowns = [
             symbol
@@ -148,7 +224,7 @@ def _collect_extra_equations(
     inputs: dict[str, Any],
     known: dict[sp.Symbol, sp.Expr],
     substitution: dict[sp.Symbol, sp.Expr],
-) -> list[sp.Equality]:
+) -> list[Any]:
     """收集可选额外方程，例如系数关系。"""
     equations: list[sp.Equality] = []
     relation = inputs.get("coefficient_relation")
@@ -164,6 +240,27 @@ def _collect_extra_equations(
         )
         for equation in equations
     ]
+
+
+def _normalize_constraint_equations(
+    equations: list[Any],
+) -> tuple[list[sp.Equality], bool]:
+    """Remove tautologies and surface contradictions before solve/check.
+
+    SymPy eagerly reduces ``Eq(expr, expr)`` to ``BooleanTrue`` and impossible
+    equalities to ``BooleanFalse``. Neither value has ``lhs``/``rhs`` and they
+    are not runtime equations; treating them here keeps analyzer and execution
+    on the same deterministic constraint set.
+    """
+
+    normalized: list[sp.Equality] = []
+    for equation in equations:
+        if equation is sp.S.true:
+            continue
+        if equation is sp.S.false:
+            return normalized, True
+        normalized.append(equation)
+    return normalized, False
 
 
 def _build_checks(
@@ -226,6 +323,10 @@ SPEC = MethodSpecSource(
         "输出: 当前问最简系数与抛物线解析式；"
         "使用原则: 只在能完全确定系数，或能化简到一个后续条件/目标会用到的未知量时单独成步。"
     ),
+    do_not_use_when=(
+        "当前目标所需的同一抛物线状态已经由前序调用完整确定，无需用相同约束重复求解。",
+        "现有约束仍有多个自由参数，且无法唯一选择一个会被后续条件或答案目标消费的参数。",
+    ),
     description=(
         "由已知系数、曲线点、系数关系和额外方程求当前问需要的最简抛物线。"
         "它适合在代入后能把 a,b,c 完全确定，或至少化简到只剩一个上下文有用的"
@@ -259,15 +360,22 @@ SPEC = MethodSpecSource(
         "输出抛物线满足已知系数、曲线点和额外方程约束",
         "输出 coefficients/parabola 表示当前问已知约束下的最简函数表达式",
     ),
+    constraint_analyzer="quadratic_coefficients",
     explanation=MethodExplanationSpec(
         role_schema={
             "constraints": "用于确定当前问二次函数的系数约束。",
             "result_parabola": "由约束得到的当前问抛物线解析式。",
+            "parabola_title_action": "标题动词；完全确定时为求，含后续参数时为化简。",
+            "completed_square_suffix": "配方形式补充说明；没有配方形式时为空。",
         },
         student_goal_template="代入当前问给出的约束，确定二次函数解析式。",
-        student_title_template="代入已知点求抛物线解析式",
-        student_title_templates_by_goal={
-            "derive_parametric_parabola": "用参数表示抛物线解析式",
-        },
+        student_title_template="{parabola_title_action}函数解析式",
+        student_nav_title_template="{parabola_title_action}解析式",
+        derive_templates=(
+            "∵{constraints}",
+            "∴y＝{result_parabola}{completed_square_suffix}",
+        ),
+        box_templates=("y＝{result_parabola}",),
+        role_binder_id="quadratic_from_constraints",
     ),
 )

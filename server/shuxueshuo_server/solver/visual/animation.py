@@ -11,14 +11,18 @@ from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.recipes import RecipeSpecRegistry
 
 from .models import JsonObject
+from .palette import (
+    COLOR_ACCENT,
+    COLOR_CONGRUENT_REGION_FILL,
+    COLOR_CONGRUENT_REGION_STROKE,
+    COLOR_CONSTRAINT,
+    COLOR_MUTED,
+    COLOR_PATH,
+    COLOR_RESULT_REGION_FILL_EMPHASIS,
+    COLOR_RESULT_REGION_STROKE_SOFT,
+    COLOR_RESULT,
+)
 from .role_binders import VisualRoleBindings
-
-
-COLOR_ACCENT = "#dc2626"
-COLOR_CONSTRAINT = "#0f766e"
-COLOR_MUTED = "#64748b"
-COLOR_PATH = "#7c3aed"
-COLOR_RESULT = "#b45309"
 
 
 @dataclass(frozen=True)
@@ -521,8 +525,8 @@ def _congruent_marker(marker: JsonObject) -> JsonObject:
         "triangles": [
             dict(item) for item in marker.get("triangles") or () if isinstance(item, dict)
         ],
-        "fill": "rgba(14, 165, 233, 0.14)",
-        "color": "rgba(14, 165, 233, 0.42)",
+        "fill": COLOR_CONGRUENT_REGION_FILL,
+        "color": COLOR_CONGRUENT_REGION_STROKE,
     }
 
 
@@ -551,8 +555,8 @@ def _path_minimum_triangle(marker: JsonObject) -> JsonObject:
     return {
         "component": "OutlineRegion",
         "vertices": [item for item in vertices if item],
-        "fill": "rgba(180, 83, 9, 0.12)",
-        "color": "rgba(180, 83, 9, 0.34)",
+        "fill": COLOR_RESULT_REGION_FILL_EMPHASIS,
+        "color": COLOR_RESULT_REGION_STROKE_SOFT,
         "metadata": {"low_level_type": "outlineRegion"},
     }
 

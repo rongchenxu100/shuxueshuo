@@ -157,6 +157,22 @@ Treat the first blocker as the execution boundary, not as the whole diagnosis. U
 
 The repair loop is stateless chat-wise. If a round fails, preserve rich repair context: previous raw/effective StepIntent draft, accepted prefix, applied fills, blockers, skipped steps, and repair instructions. A validation-only failure must not erase a previous rich execution diagnostic.
 
+### Compressed Step Repair Policy
+
+Do not keep adding automatic chain-splitting normalizers for mathematically compressed LLM steps. This pattern is open-ended: each new problem can compress a different proof/action sequence, and hard-coding those decompositions turns generic runtime code into hidden golden paths.
+
+When a draft step is mathematically plausible but runtime cannot verify it because it compresses multiple actions, prefer structured retry feedback:
+
+- preserve the accepted/stable prefix;
+- identify the blocker step and target write state;
+- list the available states read by that step;
+- list missing prerequisite states, such as solved curve state, angle relation state, line-defining state, target point reference, path transformation state, or parameter value state;
+- ask the LLM to expand the suffix into executable StepIntent steps that produce/read those states.
+
+Only include method/capability candidates in the feedback when a deterministic contract check proves a unique executable producer for a missing state. If uniqueness is not proven, leave `method_guidance.items` empty and let the LLM choose from the current Recipe/Method Catalog.
+
+Do not encode fixed method chains such as `method A -> method B -> method C` in generic normalizers, compilers, prompt text, or test-specific hints. The code should diagnose and constrain; the LLM should reorganize the solving steps.
+
 ### Code-Side Absorption Rules
 
 Absorb deterministic, structure-preserving deviations in code:
@@ -168,7 +184,7 @@ Absorb deterministic, structure-preserving deviations in code:
 - If a method has verified companion outputs, register them as readable runtime aliases even when the LLM does not explicitly produce every companion fact.
 - If an existing method can safely prepare a missing prerequisite object, use declarative prep rules and expose only semantic StepIntent facts to the LLM, not runtime paths.
 
-Do not absorb true mathematical gaps. Missing construction, missing relation, wrong family strategy, or an unsupported transformation should become repair feedback or a new reusable method/recipe.
+Do not absorb true mathematical gaps. Missing construction, missing relation, wrong family strategy, unsupported transformation, or over-compressed multi-action reasoning should become repair feedback or a new reusable method/recipe, not an implicit solver-side chain split.
 
 ### Planner Insight And Repair Feedback
 

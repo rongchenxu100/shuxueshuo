@@ -84,6 +84,7 @@ def test_weighted_path_fixture_uses_path_problem_instead_of_solver_config() -> N
         "type": "weighted_path_minimum",
         "scope": "iii",
         "path": "sqrt(2)*MN+AN",
+        "condition_ref": "fact:iii:path_minimum_target",
         "value": "21/4",
     }
 

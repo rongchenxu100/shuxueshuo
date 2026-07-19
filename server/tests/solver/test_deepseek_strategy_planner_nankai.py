@@ -23,19 +23,23 @@ from shuxueshuo_server.solver import load_expected_answers
 from shuxueshuo_server.solver.family import QUADRATIC_PATH_MINIMUM_FAMILY
 from shuxueshuo_server.solver.fixtures import load_problem_ir
 from shuxueshuo_server.solver.runtime.config import SolverRuntimeConfig
+from shuxueshuo_server.solver.runtime.context import ContextBuilder
 from shuxueshuo_server.solver.runtime.orchestrator import RuntimeOrchestrator
 from shuxueshuo_server.solver.runtime.projection import problem_to_llm_payload
 from shuxueshuo_server.solver.runtime.strategy_planner import (
     CanonicalHandleRegistry,
+    PlannerRetryReplayService,
     RecipeTrialExecutor,
     StepIntentValidator,
     StepIntentDraft,
     StepIntentValidationReport,
     StepIntentCandidateResolver,
     StepIntentNormalizer,
+    StrategyDraftValidationError,
     StrategyPayloadBuilder,
     StrategyPromptRenderer,
     build_strategy_probe_inputs,
+    repair_attempt_payload_from_replay,
     write_strategy_debug_artifacts,
 )
 
@@ -59,12 +63,6 @@ DEFAULT_DEBUG_DIR = (
     / "strategy-planner-deepseek-nankai"
 )
 MAX_DEEPSEEK_ATTEMPTS = int(os.getenv("DEEPSEEK_STRATEGY_PLANNER_MAX_ATTEMPTS", "3"))
-EXPECTED_RECIPE_IDS = {
-    "right_angle_equal_length_construct_and_select",
-    "two_moving_points_path_reduction",
-    "broken_path_straightening_and_select",
-    "path_minimum_by_straightened_distance",
-}
 
 
 def test_recorded_strategy_step_intents_gate_code_solved_nankai_result(
@@ -128,27 +126,85 @@ def test_recorded_executable_step_intents_are_method_or_recipe_grained() -> None
     assert hints_by_step["compute_ii_1_minimum"] == "distance_between_points"
 
 
-def test_execution_feedback_reports_missing_midpoint_step() -> None:
-    """缺少 F 中点求解 step 时，应生成可回传给 LLM 的执行反馈。
-
-    这个测试模拟真实 DeepSeek 失败形态：后续路径最值步骤读取了 F 的坐标，
-    但 StepIntent 里没有 ``midpoint_point``。此时策略层的 JSON 可能看起来
-    合法，但 runtime 不能执行，loop 必须把缺失能力反馈回下一轮。
-    """
+def test_missing_midpoint_step_is_recovered_from_structured_definition() -> None:
+    """缺少显式中点 step 时，代码应由 midpoint definition 确定性补齐。"""
     step_intent_payload = json.loads(
         RECORDED_NANKAI_EXECUTABLE_STEP_INTENTS.read_text(encoding="utf-8")
     )
     broken_payload = _without_recipe_hint(step_intent_payload, "midpoint_point")
     expected = load_expected_answers(NANKAI_EXPECTED)
 
-    failures, result, _captured = _execution_failures_from_step_intent_payload(
+    failures, result, captured = _execution_failures_from_step_intent_payload(
+        broken_payload,
+        expected,
+    )
+
+    assert result.status == "ok", result.errors
+    assert failures == []
+    report = captured["normalization_report"]
+    assert any(
+        action.action == "insert_midpoint_coordinate_backfill_step"
+        for action in report.actions
+    )
+
+
+def test_runtime_feedback_payload_populates_latest_stable_runtime_state() -> None:
+    """runtime blocker 应进入 rich previous_attempt_state，供下一轮增量修复。"""
+    step_intent_payload = json.loads(
+        RECORDED_NANKAI_EXECUTABLE_STEP_INTENTS.read_text(encoding="utf-8")
+    )
+    broken_payload = _replace_step_read(
+        step_intent_payload,
+        step_id="compute_G_coordinate",
+        old="fact:ii_2:m_value",
+        new="fact:ii_1:m_value",
+    )
+    expected = load_expected_answers(NANKAI_EXPECTED)
+
+    failures, result, captured = _execution_failures_from_step_intent_payload(
         broken_payload,
         expected,
     )
 
     assert result.status == "failed"
-    assert any("missing_capability: midpoint_point" in failure for failure in failures)
-    assert any("fact:ii:F_coordinate_expr" in failure for failure in failures)
+    assert captured["execution_diagnostic"].ok is False
+    assert captured["execution_diagnostic"].first_blocker.step_id == (
+        "compute_G_coordinate"
+    )
+    assert captured["effective_draft"].to_payload()["scopes"]
+
+    replay = PlannerRetryReplayService().replay_from_artifacts(
+        attempt=1,
+        errors=tuple(failures),
+        validation_report=StepIntentValidationReport(ok=True),
+        normalized_draft=captured["draft"],
+        normalization_report=captured["normalization_report"],
+        resolution_report=captured["resolution_report"],
+        effective_draft=captured["effective_draft"],
+        diagnostic=captured["execution_diagnostic"],
+    )
+    retry_attempt = repair_attempt_payload_from_replay(replay)
+    assert retry_attempt is not None
+    problem = load_problem_ir(NANKAI_FIXTURE)
+    llm_problem = problem_to_llm_payload(problem)
+    retry_inputs = replace(
+        build_strategy_probe_inputs(problem),
+        previous_errors=[retry_attempt],
+    )
+    payload = StrategyPayloadBuilder().build(
+        retry_inputs,
+        problem_payload=llm_problem,
+    )
+    latest_runtime = payload["previous_attempt_state"]["latest_stable_runtime"]
+    latest_retry_state = payload["previous_attempt_state"]["latest_retry_state"]
+
+    assert latest_retry_state is not None
+    assert latest_retry_state["attempt"] == 1
+    assert latest_retry_state["preserve_policy"] == "preserve_prefix"
+    assert latest_retry_state["stable_prefix"]
+    assert latest_retry_state["issues"][0]["layer"] == "trial_execution"
+    assert latest_retry_state["baseline_draft"]["scopes"]
+    assert latest_runtime is None
 
 
 def test_recorded_strategy_step_intents_allow_descriptive_auxiliary_point_name() -> None:
@@ -169,53 +225,8 @@ def test_recorded_strategy_step_intents_allow_descriptive_auxiliary_point_name()
     )
 
 
-def test_execution_feedback_summarizes_missing_distance_points() -> None:
-    """距离端点缺失时，previous_attempts 应得到短错误码和补充建议。"""
-    error = (
-        "recipe_trial_step_failed: step=compute_minimum_expr, "
-        "errors=['path_minimum_by_straightened_distance: "
-        "distance_points_not_found: compute_minimum_expr']"
-    )
-
-    assert _short_execution_error(error) == (
-        "execution_failed: recipe_trial_step_failed:compute_minimum_expr"
-    )
-    hints = _execution_error_hints(error)
-    assert any("missing_required_runtime_fact: distance_points" in hint for hint in hints)
-
-
-def test_execution_feedback_summarizes_duplicate_fact_scope_errors() -> None:
-    """重复 fact / valid_scope 错误应压成 LLM 能直接修复的提示。"""
-    error = (
-        "recipe_trial_step_failed: step=derive_F, errors=['midpoint_point: "
-        "duplicate_point_coordinate_fact: signature=point_coordinate:F'] "
-        "common_fact_after_narrow_fact invalid_valid_scope"
-    )
-
-    hints = _execution_error_hints(error)
-
-    assert any("duplicate_point_coordinate_fact" in hint for hint in hints)
-    assert any("common_fact_after_narrow_fact" in hint for hint in hints)
-    assert any("invalid_valid_scope" in hint for hint in hints)
-
-
-def test_execution_feedback_summarizes_missing_shared_point_fact() -> None:
-    """最终 answer 可复用但未产出公共 fact 时，应给出具体 repair 提示。"""
-    error = (
-        "recipe_trial_step_failed: step=derive_D_coordinate_ii, errors=["
-        "'quadratic_axis_from_relation: duplicate_point_coordinate_fact: "
-        "handle=point:problem:D is already a computed Point at $question.i.points.D']"
-    )
-
-    hints = _execution_error_hints(error)
-
-    assert any("shared_point_coordinate_fact_missing" in hint for hint in hints)
-    assert any("answer:i.axis_point" in hint for hint in hints)
-    assert any("fact:problem:D_coordinate" in hint for hint in hints)
-
-
-def test_execution_feedback_summarizes_missing_minimum_expression() -> None:
-    """缺少公共最小值表达式时，应提示不要读取 sibling 的最终答案。"""
+def test_execution_feedback_keeps_runtime_errors_structured() -> None:
+    """测试侧 retry errors 只保留结构化错误码，不注入题目专用教练文本。"""
     error = (
         "recipe_trial_step_failed: step=solve_m_from_minimum, errors=["
         "'parameter_from_minimum_value: missing_required_runtime_fact: minimum_expression; "
@@ -225,27 +236,6 @@ def test_execution_feedback_summarizes_missing_minimum_expression() -> None:
     assert _short_execution_error(error) == (
         "execution_failed: recipe_trial_step_failed:solve_m_from_minimum"
     )
-    hints = _execution_error_hints(error)
-    assert any("missing_required_runtime_fact: minimum_expression" in hint for hint in hints)
-    assert any("sibling_scope_output_not_visible" in hint for hint in hints)
-    assert any("fact:ii:path_minimum_expression" in hint for hint in hints)
-
-
-def test_execution_feedback_summarizes_utility_symbolic_coefficients_step() -> None:
-    """公共含参系数缓存 step 漏到 runtime 时，也应反馈可修复提示。"""
-    error = (
-        "recipe_trial_step_failed: step=derive_coefficients_from_points, errors=["
-        "'quadratic_from_constraints: 约束不足以确定系数: b, c']"
-    )
-
-    hints = _execution_error_hints(error)
-
-    assert any(
-        "utility_symbolic_coefficients_step_not_allowed" in hint
-        for hint in hints
-    )
-    assert any("parameter_from_segment_length" in hint for hint in hints)
-    assert any("fact:ii:parabola_coefficients_expr" in hint for hint in hints)
 
 
 def _replace_string_values(value, old: str, new: str):
@@ -271,6 +261,27 @@ def _without_recipe_hint(payload: dict, recipe_hint: str) -> dict:
             for step in scope.get("steps", [])
             if step.get("recipe_hint") != recipe_hint
         ]
+    return cloned
+
+
+def _replace_step_read(
+    payload: dict,
+    *,
+    step_id: str,
+    old: str,
+    new: str,
+) -> dict:
+    """只替换指定 step 的一个 read handle，保持 fixture 其他部分不变。"""
+    cloned = deepcopy(payload)
+    replaced = False
+    for scope in cloned.get("scopes", []):
+        for step in scope.get("steps", []):
+            if step.get("step_id") != step_id:
+                continue
+            reads = step.get("reads", [])
+            step["reads"] = [new if item == old else item for item in reads]
+            replaced = replaced or old in reads
+    assert replaced, f"{step_id} did not read {old}"
     return cloned
 
 
@@ -306,15 +317,32 @@ def _solve_nankai_from_step_intent_payload(step_intent_payload: dict):
                 captured["draft"] = draft
                 captured["normalization_report"] = normalization_report
                 captured["resolution_report"] = resolution_report
-                _assert_strategy_attempt_can_gate_runtime(resolution_report)
-                planner_output = RecipeTrialExecutor().compile(
-                    draft,
-                    family_spec=inputs.family_spec,
-                    method_specs=inputs.method_specs,
-                    handle_registry=handle_registry,
-                    context=context,
-                    question_goals=inputs.question_goals,
+                planner_output, execution_diagnostic, effective_draft = (
+                    RecipeTrialExecutor().diagnose(
+                        draft,
+                        family_spec=inputs.family_spec,
+                        method_specs=inputs.method_specs,
+                        handle_registry=handle_registry,
+                        context=context,
+                        question_goals=inputs.question_goals,
+                    )
                 )
+                captured["execution_diagnostic"] = execution_diagnostic
+                captured["effective_draft"] = effective_draft
+                if planner_output is None:
+                    blocker = execution_diagnostic.first_blocker
+                    if blocker is not None:
+                        raise StrategyDraftValidationError(
+                            f"recipe_trial_step_failed: step={blocker.step_id}, "
+                            f"errors={list(blocker.capability_errors)}"
+                        )
+                    raise StrategyDraftValidationError(
+                        "recipe_trial_candidate_resolution_failed: "
+                        + json.dumps(
+                            execution_diagnostic.candidate_errors,
+                            ensure_ascii=False,
+                        )
+                    )
                 captured["planner_output"] = planner_output
                 return planner_output
 
@@ -400,125 +428,21 @@ def _execution_failures_from_step_intent_payload(
 def _solver_result_failures(result, expected: dict, captured: dict) -> list[str]:
     """把 runtime 执行结果压缩成 LLM repair 能理解的错误。
 
-    这里刻意使用 StepIntent 的语义语言，比如 missing_capability 和 canonical
-    handle，而不是 Python traceback 或 ContextPath。下一轮 LLM 看到这些错误后，
-    应补齐对应推导步骤。
+    这里刻意使用 StepIntent 的语义语言和 canonical handle，而不是 Python
+    traceback 或 ContextPath。具体 repair guidance 由生产
+    PlannerRetryState/RepairFeedbackBuilder 生成，测试侧不注入黄金路径提示。
     """
     failures: list[str] = []
-    failures.extend(_runtime_gate_failures(captured.get("resolution_report")))
     if result.status != "ok":
         failures.append(f"solver_status: {result.status}")
     for error in result.errors:
         failures.append(_short_execution_error(str(error)))
-        failures.extend(_execution_error_hints(str(error)))
     for check in result.checks:
         if not check.ok:
             failures.append(f"check_failed: {check.name}")
     if result.status == "ok":
         failures.extend(_answer_mismatch_failures(result.answers, expected))
     return _dedupe(failures)
-
-
-def _execution_error_hints(error: str) -> list[str]:
-    """把底层错误翻译成更接近 StepIntent 的修复建议。"""
-    hints: list[str] = []
-    if "missing_required_runtime_fact: minimum_expression" in error:
-        hints.extend(
-            [
-                "missing_required_runtime_fact: minimum_expression",
-                (
-                    "add_or_read_common_minimum_expression_fact before parameter_from_minimum_value; "
-                    "ii_2 cannot read ii_1.minimum_value. The path minimum step should produce "
-                    "a parent-scope MinimumExpression fact such as fact:ii:path_minimum_expression, "
-                    "and solve_m_from_minimum should read that fact plus fact:ii_2:path_minimum_value_given."
-                ),
-            ]
-        )
-    if "ii_1.outputs.min_value" in error or "$subquestion.ii_1.outputs.min_value" in error:
-        hints.append(
-            "sibling_scope_output_not_visible: ii_1.minimum_value; do not use a sibling final "
-            "answer as the minimum expression for ii_2."
-        )
-    if "fact:ii:F_coordinate_expr" in error:
-        hints.extend(
-            [
-                "missing_capability: midpoint_point",
-                (
-                    "missing_required_runtime_fact: fact:ii:F_coordinate_expr; "
-                    "later path-minimum steps read point:ii:F / fact:ii:F_midpoint_of_DN, "
-                    "but no midpoint_point step produced F's coordinate. Add a step before "
-                    "path reduction that reads point:problem:D, fact:problem:D_coordinate, "
-                    "point:ii:N, fact:ii:N_coordinate_expr and fact:ii:F_midpoint_of_DN, "
-                    "then produces fact:ii:F_coordinate_expr."
-                ),
-            ]
-        )
-    if "expected PointRef, got Point" in error:
-        hints.append(
-            "capability_input_type_mismatch: a construction recipe/method expected an "
-            "unresolved target PointRef, but the referenced point has already become a "
-            "computed Point. Do not call right_angle_equal_length_construct_and_select "
-            "again just to substitute a parameter value. If a previous step has already "
-            "produced a coordinate-expression fact for that point, later steps should read "
-            "that fact plus the parameter value; only use midpoint/parameter/quadratic/"
-            "distance methods for the next mathematical action."
-        )
-    if "duplicate_point_coordinate_fact" in error:
-        hints.append(
-            "duplicate_point_coordinate_fact: the plan tries to derive an entity coordinate "
-            "or equivalent fact more than once. Remove the later duplicate step and let later "
-            "steps read the existing fact."
-        )
-        if "point:problem:D" in error or "derive_D_coordinate" in error or "D_coordinate" in error:
-            hints.append(
-                "shared_point_coordinate_fact_missing: if the first axis-point step already "
-                "produces answer:i.axis_point, it should also produces the reusable public "
-                "fact fact:problem:D_coordinate in the same step. Later ii steps should read "
-                "fact:problem:D_coordinate and must not derive D again."
-            )
-    if "common_fact_after_narrow_fact" in error:
-        hints.append(
-            "common_fact_after_narrow_fact: a narrow subquestion fact was produced before a "
-            "broader reusable fact for the same conclusion. Produce the broader common fact "
-            "first with the correct valid_scope, then let subquestions read it."
-        )
-    if "invalid_valid_scope" in error:
-        hints.append(
-            "invalid_valid_scope: a produced fact claims a broader valid_scope than its reads "
-            "support. If it reads child-only facts, shrink valid_scope; if it should be common, "
-            "derive it from parent-scope facts only."
-        )
-    if "output_type_not_supported" in error:
-        hints.append(
-            "capability_output_type_mismatch: recipe_hint and produces do not match. "
-            "Keep one step aligned to one recipe/method, or change produces to the "
-            "fact/answer type supported by that capability."
-        )
-    if "quadratic_from_constraints" in error and "约束不足以确定系数" in error:
-        hints.append(
-            "utility_symbolic_coefficients_step_not_allowed: remove the shared "
-            "parameterized coefficients step. First solve the current subquestion "
-            "parameter with parameter_from_segment_length or parameter_from_minimum_value, "
-            "then use quadratic_from_constraints to produce answer:ii_1.parabola or "
-            "answer:ii_2.parabola directly. Do not produces fact:ii:parabola_coefficients_expr "
-            "or fact:ii:coefficients_in_m as an executable step."
-        )
-    if "x_axis_intercept cannot uniquely determine" in error:
-        hints.append(
-            "missing_resolved_parabola_read_before_x_axis_intercept: before calling "
-            "quadratic_x_axis_intercept_point, read the already solved Parabola handle "
-            "from a previous quadratic_from_constraints step, such as answer:*.parabola "
-            "or fact:*:parabola_expression. Do not read only parabola_coefficients or "
-            "coefficients cache facts."
-        )
-    if "distance_points_not_found" in error:
-        hints.append(
-            "missing_required_runtime_fact: distance_points; distance/minimum step needs "
-            "a readable auxiliary or straightening point plus the other computed endpoint "
-            "point, usually midpoint F with its coordinate fact. Add the missing reads or "
-            "ensure earlier straightening/midpoint steps produce those handles."
-        )
-    return hints
 
 
 def _short_execution_error(error: str) -> str:
@@ -593,6 +517,27 @@ def _reset_debug_dir(path: Path) -> None:
     path.mkdir(parents=True, exist_ok=True)
 
 
+def _semantic_read_count_from_raw(raw: str) -> int:
+    """Best-effort count for DeepSeek raw semantic_reads usage."""
+    try:
+        payload = json.loads(raw)
+    except json.JSONDecodeError:
+        return 0
+    if not isinstance(payload, dict):
+        return 0
+    count = 0
+    for scope in payload.get("scopes", []):
+        if not isinstance(scope, dict):
+            continue
+        for step in scope.get("steps", []):
+            if not isinstance(step, dict):
+                continue
+            semantic_reads = step.get("semantic_reads")
+            if isinstance(semantic_reads, list):
+                count += len(semantic_reads)
+    return count
+
+
 @pytest.mark.skipif(
     not RUN_DEEPSEEK_STRATEGY_PLANNER,
     reason="set RUN_LLM_INTEGRATION=1 RUN_DEEPSEEK_STRATEGY_PLANNER=1 to call DeepSeek",
@@ -612,6 +557,7 @@ def test_deepseek_strategy_planner_outputs_valid_step_intents_and_solves_nankai(
     inputs = build_strategy_probe_inputs(problem)
     llm_problem = problem_to_llm_payload(problem)
     handle_registry = CanonicalHandleRegistry.from_problem_payload(llm_problem)
+    runtime_context = ContextBuilder().build(problem)
     debug_dir = Path(
         os.getenv("STRATEGY_PLANNER_DEBUG_DIR")
         or config.llm_debug_dir
@@ -642,7 +588,35 @@ def test_deepseek_strategy_planner_outputs_valid_step_intents_and_solves_nankai(
             attempt_inputs,
             problem_payload=llm_problem,
         )
+        latest_rich_attempt = next(
+            (
+                item
+                for item in reversed(previous_attempts)
+                if isinstance(item.get("planner_retry_state"), dict)
+                or (
+                    isinstance(item.get("effective_draft"), dict)
+                    and isinstance(item.get("diagnostic"), dict)
+                )
+            ),
+            None,
+        )
+        if latest_rich_attempt is not None:
+            latest_retry_state = payload["previous_attempt_state"][
+                "latest_retry_state"
+            ]
+            latest_runtime = payload["previous_attempt_state"][
+                "latest_stable_runtime"
+            ]
+            if isinstance(latest_rich_attempt.get("planner_retry_state"), dict):
+                assert latest_retry_state is not None
+                assert latest_retry_state["attempt"] == latest_rich_attempt["attempt"]
+            else:
+                assert latest_runtime is not None
+                assert latest_runtime["attempt"] == latest_rich_attempt["attempt"]
         prompt = StrategyPromptRenderer().render(payload)
+        assert payload["semantic_read_catalog"]["item_count"] > 0
+        assert "Semantic Read Catalog" in prompt.user
+        assert "semantic_reads" in prompt.system + prompt.user
         raw = client.complete(
             {
                 "messages": prompt.messages,
@@ -651,30 +625,19 @@ def test_deepseek_strategy_planner_outputs_valid_step_intents_and_solves_nankai(
                 "planner_payload": payload,
             }
         )
-        draft, report = StepIntentValidator().validate_json_with_report(
+        replay = PlannerRetryReplayService().replay_raw_json(
             raw,
-            question_goals=inputs.question_goals,
+            inputs=attempt_inputs,
             handle_registry=handle_registry,
-            family_spec=inputs.family_spec,
+            context=runtime_context,
+            attempt=attempt,
+            problem_payload=llm_problem,
         )
-        normalization_report = None
-        if draft is not None:
-            draft, normalization_report = StepIntentNormalizer().normalize(
-                draft,
-                family_spec=inputs.family_spec,
-                question_goals=inputs.question_goals,
-                handle_registry=handle_registry,
-            )
-        resolution_report = (
-            StepIntentCandidateResolver().resolve(
-                draft,
-                family_spec=inputs.family_spec,
-                method_specs=inputs.method_specs,
-                handle_registry=handle_registry,
-            )
-            if draft is not None
-            else None
-        )
+        draft = replay.normalized_draft
+        report = replay.validation_report
+        assert report is not None
+        normalization_report = replay.normalization_report
+        resolution_report = replay.resolution_report
         failures = _strategy_acceptance_failures(draft, report, resolution_report)
         execution_failures: list[str] = []
         solver_result = None
@@ -687,6 +650,30 @@ def test_deepseek_strategy_planner_outputs_valid_step_intents_and_solves_nankai(
                 )
             )
             failures.extend(execution_failures)
+        diagnostic = (
+            solver_captured.get("execution_diagnostic")
+            if solver_captured is not None
+            else replay.diagnostic
+        )
+        effective_draft = (
+            solver_captured.get("effective_draft")
+            if solver_captured is not None
+            else replay.effective_draft
+        )
+        current_replay = PlannerRetryReplayService().replay_from_artifacts(
+            attempt=attempt,
+            errors=tuple(failures),
+            raw_draft=replay.raw_draft,
+            validation_report=report,
+            normalized_draft=draft,
+            normalization_report=normalization_report,
+            resolution_report=resolution_report,
+            effective_draft=effective_draft,
+            diagnostic=diagnostic,
+            goal_verification_issues=replay.goal_verification_issues,
+            output=replay.output,
+            planner_state_context=replay.planner_state_context,
+        )
         metadata = {
             "provider": "deepseek",
             "configured_model": configured_model,
@@ -704,12 +691,17 @@ def test_deepseek_strategy_planner_outputs_valid_step_intents_and_solves_nankai(
             report=report,
             normalization_report=normalization_report,
             resolution_report=resolution_report,
+            execution_diagnostic=diagnostic,
+            effective_draft=effective_draft,
+            planner_retry_state=current_replay.retry_state,
+            planner_state_context=current_replay.planner_state_context,
             llm_metadata=metadata,
         )
         _write_execution_debug_artifacts(
             debug_dir / f"attempt-{attempt}",
             result=solver_result,
             execution_failures=execution_failures,
+            solver_captured=solver_captured,
         )
         attempt_summary = {
             "attempt": attempt,
@@ -723,6 +715,18 @@ def test_deepseek_strategy_planner_outputs_valid_step_intents_and_solves_nankai(
                 if resolution_report is not None
                 else None
             ),
+            "semantic_read_count": _semantic_read_count_from_raw(raw),
+            "semantic_read_resolution_report": (
+                report.semantic_read_resolution.to_payload()
+                if report.semantic_read_resolution is not None
+                else None
+            ),
+            "planner_retry_state": (
+                current_replay.retry_state.to_payload()
+                if current_replay.retry_state is not None
+                else None
+            ),
+            "previous_attempt_state": payload["previous_attempt_state"],
             "response_model": metadata["response_model"],
             "usage": metadata["usage"],
             "raw_preview": raw[:1200],
@@ -742,10 +746,10 @@ def test_deepseek_strategy_planner_outputs_valid_step_intents_and_solves_nankai(
         final_captured = solver_captured
         if not failures:
             break
-        previous_attempts.append(
+        retry_attempt = repair_attempt_payload_from_replay(current_replay)
+        assert retry_attempt is not None
+        retry_attempt.update(
             {
-                "attempt": attempt,
-                "errors": failures,
                 "execution_failures": execution_failures,
                 "validation_report": report.to_payload(),
                 "candidate_resolution_report": (
@@ -761,11 +765,14 @@ def test_deepseek_strategy_planner_outputs_valid_step_intents_and_solves_nankai(
                 "raw_preview": raw[:2000],
             }
         )
+        previous_attempts.append(retry_attempt)
 
     assert final_payload is not None
     assert final_prompt is not None
     assert final_report is not None
     assert final_metadata is not None
+    assert final_payload["semantic_read_catalog"]["item_count"] > 0
+    assert "Semantic Read Catalog" in final_prompt.user
     write_strategy_debug_artifacts(
         debug_dir,
         payload=final_payload,
@@ -775,6 +782,21 @@ def test_deepseek_strategy_planner_outputs_valid_step_intents_and_solves_nankai(
         report=final_report,
         normalization_report=final_normalization_report,
         resolution_report=final_resolution_report,
+        execution_diagnostic=(
+            final_captured.get("execution_diagnostic")
+            if final_captured is not None
+            else None
+        ),
+        effective_draft=(
+            final_captured.get("effective_draft")
+            if final_captured is not None
+            else None
+        ),
+        planner_retry_state=(
+            attempt_summaries[-1].get("planner_retry_state")
+            if attempt_summaries
+            else None
+        ),
         llm_metadata={
             **final_metadata,
             "attempt_summaries": attempt_summaries,
@@ -784,11 +806,18 @@ def test_deepseek_strategy_planner_outputs_valid_step_intents_and_solves_nankai(
         debug_dir,
         result=final_result,
         execution_failures=final_failures,
+        solver_captured=final_captured,
     )
     (debug_dir / "loop-summary.json").write_text(
         json.dumps(attempt_summaries, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
+    assert (debug_dir / "semantic-read-catalog.json").exists()
+    assert (debug_dir / "planner-retry-state.json").exists()
+    assert (debug_dir / "baseline-draft.json").exists()
+    assert (debug_dir / "stable-prefix.json").exists()
+    assert (debug_dir / "repair-suffix.json").exists()
+    assert (debug_dir / "replay-reports.json").exists()
 
     raw_preview = final_raw[:1200].replace("\n", "\\n")
     print(
@@ -824,69 +853,44 @@ def test_deepseek_strategy_planner_outputs_valid_step_intents_and_solves_nankai(
     )
 
 
-def _assert_strategy_attempt_can_gate_runtime(resolution_report) -> None:
-    """确认 StepIntent 已经覆盖南开 runtime 需要的关键能力。"""
-    failures = _runtime_gate_failures(resolution_report)
-    if failures:
-        raise AssertionError("; ".join(failures))
-
-
-def _runtime_gate_failures(resolution_report) -> list[str]:
-    """返回 Strategy 结果进入 runtime 前缺失的关键能力。
-
-    这些错误会被喂回 DeepSeek。尤其是 ``midpoint_point``：策略层可能只在
-    reads 中引用 F，却没有给出求 F 坐标的 step；runtime 必须明确指出需要补
-    一个中点求解动作。
-    """
-    if resolution_report is None:
-        return ["candidate_resolution_report_missing"]
-    failures: list[str] = []
-    if not resolution_report.ok:
-        failures.append(
-            "executable_resolution_errors:"
-            + json.dumps(resolution_report.errors, ensure_ascii=False, sort_keys=True)
-        )
-    selected = {
-        report.selected_capability_id
-        for report in resolution_report.step_reports
-        if report.selected_capability_id
-    }
-    required = {
-        "quadratic_axis_from_relation",
-        "quadratic_from_constraints",
-        "right_angle_equal_length_construct_and_select",
-        "midpoint_point",
-        "two_moving_points_path_reduction",
-        "broken_path_straightening_and_select",
-        "parameter_from_segment_length",
-        "parameter_from_minimum_value",
-        "line_intersection_point",
-    }
-    missing = sorted(required - selected)
-    failures.extend(f"missing_capability: {capability}" for capability in missing)
-    if "midpoint_point" in missing:
-        failures.append(
-            "missing_required_runtime_fact: fact:ii:F_coordinate_expr; "
-            "later path-minimum steps read point:ii:F / fact:ii:F_midpoint_of_DN, "
-            "but no midpoint_point step produced F's coordinate. Add a step before "
-            "path reduction that reads point:problem:D, fact:problem:D_coordinate, "
-            "point:ii:N, fact:ii:N_coordinate_expr and fact:ii:F_midpoint_of_DN, "
-            "then produces fact:ii:F_coordinate_expr."
-        )
-    return failures
-
-
 def _write_execution_debug_artifacts(
     target_dir: Path,
     *,
     result,
     execution_failures: list[str],
+    solver_captured: dict | None = None,
 ) -> None:
     """给每轮 attempt 额外写 runtime 执行结果，便于看 LLM loop 为什么没过。"""
     target_dir.mkdir(parents=True, exist_ok=True)
     if result is not None:
         (target_dir / "solver-result.json").write_text(
             json.dumps(result.to_dict(), ensure_ascii=False, indent=2, sort_keys=True)
+            + "\n",
+            encoding="utf-8",
+        )
+    diagnostic = (
+        solver_captured.get("execution_diagnostic") if solver_captured else None
+    )
+    if diagnostic is not None:
+        (target_dir / "execution-diagnostic.json").write_text(
+            json.dumps(
+                diagnostic.to_payload(),
+                ensure_ascii=False,
+                indent=2,
+                sort_keys=True,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+    effective_draft = solver_captured.get("effective_draft") if solver_captured else None
+    if effective_draft is not None:
+        (target_dir / "effective-step-intents.json").write_text(
+            json.dumps(
+                effective_draft.to_payload(),
+                ensure_ascii=False,
+                indent=2,
+                sort_keys=True,
+            )
             + "\n",
             encoding="utf-8",
         )
@@ -927,7 +931,7 @@ def _strategy_acceptance_failures(
     report: StepIntentValidationReport,
     resolution_report,
 ) -> list[str]:
-    """把 validator report 和 recipe alignment 转成可回传给 LLM 的错误列表。"""
+    """只把 schema/handle/candidate 真失败转成可回传给 LLM 的错误列表。"""
     failures: list[str] = []
     if not report.ok:
         failures.extend(report.errors or ("validation_report_not_ok",))
@@ -935,33 +939,6 @@ def _strategy_acceptance_failures(
         return failures
     if draft is None:
         return ["draft_missing_after_validation"]
-    if len(draft.steps) < 3:
-        failures.append(f"too_few_steps:{len(draft.steps)}")
-    alignment = report.recipe_alignment
-    if alignment is None:
-        failures.append("recipe_alignment_missing")
-        return failures
-    selected_capabilities = _selected_capability_ids(resolution_report)
-    missing_recipes = sorted(
-        EXPECTED_RECIPE_IDS
-        - (set(alignment.matched_recipes) | selected_capabilities)
-    )
-    if missing_recipes:
-        failures.append("missing_expected_recipes:" + ",".join(missing_recipes))
-    avoid_hits = _blocking_avoid_pattern_hits(
-        alignment.avoid_pattern_hits,
-        resolution_report,
-    )
-    if avoid_hits:
-        failures.append(
-            "avoid_pattern_hits:"
-            + json.dumps(avoid_hits, ensure_ascii=False, sort_keys=True)
-        )
-    if alignment.capability_errors:
-        failures.append(
-            "capability_errors:"
-            + json.dumps(alignment.capability_errors, ensure_ascii=False, sort_keys=True)
-        )
     if resolution_report is None:
         failures.append("candidate_resolution_report_missing")
         return failures
@@ -971,32 +948,3 @@ def _strategy_acceptance_failures(
             + json.dumps(resolution_report.errors, ensure_ascii=False, sort_keys=True)
         )
     return failures
-
-
-def _selected_capability_ids(resolution_report) -> set[str]:
-    """返回 resolver 已确定可尝试执行的 capability id。"""
-    if resolution_report is None:
-        return set()
-    return {
-        report.selected_capability_id
-        for report in resolution_report.step_reports
-        if report.selected_capability_id
-    }
-
-
-def _blocking_avoid_pattern_hits(
-    hits,
-    resolution_report,
-) -> list[dict[str, str]]:
-    """过滤掉已由 path recipe 承接的命名类 avoid warning。"""
-    if resolution_report is None:
-        return list(hits)
-    selected_by_step = {
-        report.step_id: report.selected_capability_id
-        for report in resolution_report.step_reports
-    }
-    return [
-        hit
-        for hit in hits
-        if selected_by_step.get(hit.get("step_id")) not in EXPECTED_RECIPE_IDS
-    ]
