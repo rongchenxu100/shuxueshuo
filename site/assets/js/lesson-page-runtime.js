@@ -87,6 +87,12 @@
       fmt = createFmtFromLandmarks(config.paramLandmarks, config.paramLandmarkEpsilon, config.paramPrecision);
     }
 
+    function paramLabelFor(index, value, localVars) {
+      const baseLabel = paramPrefix + fmt(value);
+      if (typeof config.paramLabelFormatter !== "function") return baseLabel;
+      return String(config.paramLabelFormatter(index, value, localVars, baseLabel));
+    }
+
     const stepCards = document.getElementById("stepCards");
     const stepNav = document.getElementById("stepNav");
     const mobileStepNav = document.getElementById("mobileStepNav");
@@ -325,6 +331,25 @@
       );
     }
 
+    function renderFormulaText(value) {
+      const source = String(value != null ? value : "");
+      const exponentPattern = /e\^\(([^()]*)\)/g;
+      let cursor = 0;
+      let markup = "";
+      let match;
+
+      while ((match = exponentPattern.exec(source)) !== null) {
+        markup += esc(source.slice(cursor, match.index));
+        markup +=
+          '<span class="derive-inline-power">e<sup>' +
+          esc(match[1]) +
+          "</sup></span>";
+        cursor = match.index + match[0].length;
+      }
+
+      return markup + esc(source.slice(cursor));
+    }
+
     function renderDeriveLine(pair) {
       if (!Array.isArray(pair) || pair.length < 2) return "";
       const ref = pair[2];
@@ -342,7 +367,7 @@
         '<div class="derive-line"><strong>' +
         esc(String(pair[0] != null ? pair[0] : "")) +
         "</strong>" +
-        esc(String(pair[1] != null ? pair[1] : "")) +
+        renderFormulaText(pair[1]) +
         refMarkup +
         "</div>"
       );
@@ -389,7 +414,7 @@
             '<span class="step-t-value" data-step-t-label="' +
             index +
             '">' +
-            esc(paramPrefix + fmt(activeT)) +
+            esc(paramLabelFor(index, activeT, localVars)) +
             "</span></div>" +
             '<div class="step-local-note">' +
             esc(policy.reason || "") +
@@ -535,7 +560,7 @@
       const labelEl = card ? card.querySelector('[data-step-t-label="' + index + '"]') : null;
       const rangeEl = card ? card.querySelector('[data-step-range="' + index + '"]') : null;
       if (svgEl) svgEl.innerHTML = diagramMarkupFor(index, nextT, localVarsByStep[index]);
-      if (labelEl) labelEl.textContent = paramPrefix + fmt(nextT);
+      if (labelEl) labelEl.textContent = paramLabelFor(index, nextT, localVarsByStep[index]);
       if (rangeEl && Number(rangeEl.value) !== nextT) rangeEl.value = String(nextT);
       syncMiniActiveClasses(card, nextT);
     }

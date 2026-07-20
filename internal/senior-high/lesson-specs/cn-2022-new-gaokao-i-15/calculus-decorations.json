@@ -1,0 +1,45 @@
+{
+  "$schema": "../../schemas/calculus-decorations.schema.json",
+  "_comment": "2022 新高考 I 卷第 15 题：过原点切线条数与参数范围",
+  "layers": {
+    "grid": {
+      "elements": [{ "type": "grid", "panelId": "curves" }]
+    },
+    "functionCurve": {
+      "elements": [
+        { "type": "functionCurve", "functionId": "f", "color": "#2563eb" },
+        { "type": "functionLabel", "functionId": "f", "xExpr": "0.7", "text": "y=f(x)=(x+a)eˣ", "color": "#2563eb", "dx": 8, "dy": -12 }
+      ]
+    }
+  },
+  "steps": {
+    "s1": {
+      "add": [
+        { "type": "tangentLine", "tangentId": "tangent0", "color": "#dc2626" },
+        { "type": "functionPoint", "pointId": "P0", "label": "P(x₀,f(x₀))", "color": "#2563eb", "dx": 10, "dy": -12 }
+      ]
+    },
+    "s2": {
+      "add": [
+        { "type": "tangentLine", "tangentId": "tangent0", "color": "#dc2626" },
+        { "type": "functionPoint", "pointId": "P0", "label": "P(x₀,f(x₀))", "color": "#2563eb", "dx": 10, "dy": -12 }
+      ]
+    },
+    "s3": {
+      "add": [
+        { "type": "tangentLine", "tangentId": "tangent0", "color": "#dc2626" },
+        { "type": "tangentLine", "tangentId": "tangent1", "color": "#0f766e", "dash": "7 5" },
+        { "type": "functionPoint", "pointId": "P0", "label": "P₀", "color": "#dc2626", "dx": 8, "dy": -12 },
+        { "type": "functionPoint", "pointId": "P1", "label": "P₁", "color": "#0f766e", "dx": 8, "dy": 18 }
+      ]
+    },
+    "s4": {
+      "add": [
+        { "type": "tangentLine", "tangentId": "tangent0", "color": "#dc2626" },
+        { "type": "tangentLine", "tangentId": "tangent1", "color": "#0f766e", "dash": "7 5" },
+        { "type": "functionPoint", "pointId": "P0", "label": "P₀", "color": "#dc2626", "dx": 8, "dy": -12 },
+        { "type": "functionPoint", "pointId": "P1", "label": "P₁", "color": "#0f766e", "dx": 8, "dy": 18 }
+      ]
+    }
+  }
+}

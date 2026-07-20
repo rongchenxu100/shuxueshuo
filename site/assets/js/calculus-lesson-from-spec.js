@@ -420,7 +420,10 @@
       diagramMarkupFor: diagramMarkupFor,
       diagramMarkupForFrame: diagramMarkupForFrame,
       drawMini: drawMini,
-      renderOriginalFigures: renderOriginalFigures
+      renderOriginalFigures: renderOriginalFigures,
+      resolveStateFor: function (parameterValue, localVars) {
+        return resolveState(spec, parameterValue, localVars);
+      }
     };
   }
 

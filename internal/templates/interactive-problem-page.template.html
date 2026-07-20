@@ -78,6 +78,8 @@
     var POLICIES   = {{POLICIES_JSON}};
     /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
     var __LESSON_LEGEND_HTML__ = "";
+    /** 滑块主参数与派生参数的联动文案格式化器 */
+    var __LESSON_PARAM_LABEL_FORMATTER__;
     /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
     var __AFTER_RENDER_ALL_STEPS__;
     // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
@@ -100,6 +102,7 @@
       legendHtml: __LESSON_LEGEND_HTML__,
       sliderLabel: "P 点 · t＝OP",
       paramLabelPrefix: "t=",
+      paramLabelFormatter: typeof __LESSON_PARAM_LABEL_FORMATTER__ === "function" ? __LESSON_PARAM_LABEL_FORMATTER__ : undefined,
       goToProblemMode: "doubleScroll"
     });
   </script>

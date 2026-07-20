@@ -26,9 +26,12 @@ function loadModel() {
 
 test("validates the real senior-high catalog and its published assets", () => {
   const catalog = validateCatalog(chapterSource, problemSource, repoRoot);
-  assert.equal(catalog.problems.length, 1);
-  assert.equal(catalog.problems[0].chapterId, "derivative");
-  assert.equal(catalog.problems[0].sectionId, "derivative-concepts-and-calculation");
+  assert.equal(catalog.problems.length, 2);
+  assert.ok(catalog.problems.every((problem) => problem.chapterId === "derivative"));
+  assert.deepEqual(
+    catalog.problems.map((problem) => problem.sectionId).sort(),
+    ["derivative-applications", "derivative-concepts-and-calculation"],
+  );
   const derivative = catalog.chapters.find((chapter) => chapter.id === "derivative");
   assert.deepEqual(
     derivative.sections.map((section) => section.label),
@@ -63,7 +66,16 @@ test("filters the derivative type without treating tags as classifications", () 
     chapter: "derivative",
     section: "common-tangent",
   });
-  assert.equal(tagAsSection.length, 1, "invalid section falls back to all sections");
+  assert.equal(tagAsSection.length, 2, "invalid section falls back to all sections");
+
+  const applications = model.filterProblems(catalog, {
+    chapter: "derivative",
+    section: "derivative-applications",
+  });
+  assert.deepEqual(
+    Array.from(applications, (problem) => problem.id),
+    ["cn-2022-new-gaokao-i-15"],
+  );
 });
 
 test("normalizes URL state and paginates eight items per page", () => {
