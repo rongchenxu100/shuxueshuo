@@ -102,6 +102,39 @@
       "thumbnail": "assets/images/problem-thumbnails/cn-2022-gaokao-jia-wen-20.svg",
       "status": "published",
       "interactive": true
+    },
+    {
+      "id": "cn-2022-new-gaokao-i-15",
+      "title": "2022 年新高考 I 卷第 15 题：过原点的切线",
+      "chapterId": "derivative",
+      "sectionId": "derivative-applications",
+      "knowledgePointIds": [
+        "tangent-equation",
+        "tangent-through-fixed-point",
+        "tangent-count",
+        "quadratic-discriminant",
+        "parameter-range"
+      ],
+      "tags": [
+        "切线方程",
+        "过定点切线",
+        "切线条数",
+        "判别式",
+        "参数取值范围"
+      ],
+      "difficulty": 3,
+      "source": {
+        "year": 2022,
+        "region": "全国",
+        "examLabel": "新高考 I 卷",
+        "questionNumber": "15",
+        "score": 5
+      },
+      "updatedAt": "2026-07-20T00:00:00+08:00",
+      "path": "problems/senior-high/cn/15/cn-2022-new-gaokao-i-15.html",
+      "thumbnail": "assets/images/problem-thumbnails/cn-2022-new-gaokao-i-15.svg",
+      "status": "published",
+      "interactive": true
     }
   ]
 }

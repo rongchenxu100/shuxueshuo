@@ -103,6 +103,7 @@ const template = fs.readFileSync(templatePath, "utf8");
 const meta = lessonData.meta ?? {};
 const problem = lessonData.problem ?? {};
 const ui = lessonData.ui ?? {};
+const linkedParameter = ui.linkedParameter;
 if (!meta.outputPath) die("lesson-data.json 缺少 meta.outputPath");
 if (!meta.pageTitle) die("lesson-data.json 缺少 meta.pageTitle");
 if (!Array.isArray(problem.lines)) die("lesson-data.json 缺少 problem.lines");
@@ -133,6 +134,15 @@ const injectedScript = [
   "  var diagramMarkupForFrame = renderer.diagramMarkupForFrame;",
   "  var drawMini = renderer.drawMini;",
   "  var __LESSON_LEGEND_HTML__ = " + JSON.stringify(buildLegendHtml(ui.legend ?? [])) + ";",
+  linkedParameter
+    ? "  __LESSON_PARAM_LABEL_FORMATTER__ = function (_index, value, localVars, baseLabel) {\n" +
+      "    const state = renderer.resolveStateFor(value, localVars);\n" +
+      "    const linkedValue = state.env[" + JSON.stringify(linkedParameter.name) + "];\n" +
+      "    if (!Number.isFinite(linkedValue)) return baseLabel;\n" +
+      "    const rounded = Number(linkedValue.toFixed(" + Number(linkedParameter.precision ?? 2) + "));\n" +
+      "    return baseLabel + '　' + " + JSON.stringify(linkedParameter.label) + " + rounded;\n" +
+      "  };"
+    : "",
   "  var __AFTER_RENDER_ALL_STEPS__ = renderer.renderOriginalFigures;",
   "</script>",
 ].join("\n");

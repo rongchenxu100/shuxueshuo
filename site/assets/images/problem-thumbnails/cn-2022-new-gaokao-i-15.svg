@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" role="img" aria-labelledby="title desc">
+  <title id="title">过原点的两条切线</title>
+  <desc id="desc">含参指数函数曲线、两个切点和两条经过原点的切线</desc>
+  <rect width="320" height="200" fill="#f8fafc"/>
+  <g stroke="#e2e8f0" stroke-width="1">
+    <path d="M24 40H304M24 80H304M24 120H304M24 160H304"/>
+    <path d="M64 16V184M112 16V184M160 16V184M208 16V184M256 16V184"/>
+  </g>
+  <path d="M24 140H304M136 16V184" stroke="#94a3b8" stroke-width="1.4"/>
+  <path d="M30 157C70 154 101 147 126 136C153 123 175 103 194 79C214 53 238 33 294 23" fill="none" stroke="#2563eb" stroke-width="3.2" stroke-linecap="round"/>
+  <path d="M34 174L284 34" fill="none" stroke="#dc2626" stroke-width="2.6"/>
+  <path d="M42 101L294 170" fill="none" stroke="#0f766e" stroke-width="2.6" stroke-dasharray="7 5"/>
+  <circle cx="136" cy="140" r="4.5" fill="#fff" stroke="#334155" stroke-width="2"/>
+  <circle cx="94" cy="140" r="5" fill="#fff" stroke="#dc2626" stroke-width="2.5"/>
+  <circle cx="205" cy="79" r="5" fill="#fff" stroke="#0f766e" stroke-width="2.5"/>
+  <text x="143" y="155" fill="#475569" font-size="12" font-family="sans-serif">O</text>
+  <text x="74" y="132" fill="#dc2626" font-size="12" font-weight="700" font-family="sans-serif">P₀</text>
+  <text x="213" y="74" fill="#0f766e" font-size="12" font-weight="700" font-family="sans-serif">P₁</text>
+  <text x="205" y="24" fill="#2563eb" font-size="12" font-weight="700" font-family="sans-serif">y=(x+a)eˣ</text>
+</svg>

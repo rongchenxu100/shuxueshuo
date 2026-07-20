@@ -758,6 +758,16 @@ svg {
   margin-right: 8px;
 }
 
+.derive-inline-power {
+  white-space: nowrap;
+}
+
+.derive-inline-power sup {
+  font-size: 0.72em;
+  line-height: 0;
+  vertical-align: 0.55em;
+}
+
 .derive-ref {
   margin-left: 10px;
   border: 1px solid rgba(37, 99, 235, 0.22);

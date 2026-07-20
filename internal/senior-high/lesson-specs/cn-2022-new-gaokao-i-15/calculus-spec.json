@@ -1,0 +1,42 @@
+{
+  "$schema": "../../schemas/calculus-spec.schema.json",
+  "version": 1,
+  "id": "cn-2022-new-gaokao-i-15",
+  "parameter": {
+    "name": "x0",
+    "initial": -1
+  },
+  "bindings": [
+    { "name": "a", "expr": "x0^2/(1-x0)" },
+    { "name": "x1", "expr": "x0/(x0-1)" }
+  ],
+  "panels": [
+    {
+      "id": "curves",
+      "title": "函数曲线与过原点切线",
+      "xLabel": "x",
+      "yLabel": "y",
+      "viewport": { "x": 0.06, "y": 0.04, "width": 0.88, "height": 0.92 },
+      "domain": { "minX": -3, "maxX": 1.55, "minY": -1.5, "maxY": 10 }
+    }
+  ],
+  "functions": [
+    {
+      "id": "f",
+      "panelId": "curves",
+      "variable": "x",
+      "expr": "(x+a)*exp(x)",
+      "derivativeExpr": "(x+a+1)*exp(x)",
+      "domain": [{ "min": -3, "max": 1.55 }]
+    }
+  ],
+  "functionPoints": [
+    { "id": "P0", "functionId": "f", "xExpr": "x0" },
+    { "id": "P1", "functionId": "f", "xExpr": "x1" }
+  ],
+  "tangentLines": [
+    { "id": "tangent0", "functionId": "f", "atExpr": "x0" },
+    { "id": "tangent1", "functionId": "f", "atExpr": "x1" }
+  ],
+  "lines": []
+}

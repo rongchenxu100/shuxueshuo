@@ -115,6 +115,17 @@
         },
         "sliderLabel":      { "type": "string" },
         "paramLabelPrefix": { "type": "string" },
+        "linkedParameter": {
+          "type": "object",
+          "description": "滑块旁同步显示的派生参数，例如 x₀ 改变时联动显示 a",
+          "required": ["name", "label"],
+          "properties": {
+            "name": { "type": "string" },
+            "label": { "type": "string" },
+            "precision": { "type": "integer", "minimum": 0, "maximum": 8 }
+          },
+          "additionalProperties": false
+        },
         "goToProblemMode":  { "type": "string", "enum": ["doubleScroll", "smooth"] },
         "groupTitles":      { "type": "object", "additionalProperties": { "type": "string" } }
       }

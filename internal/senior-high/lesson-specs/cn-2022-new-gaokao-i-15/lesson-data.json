@@ -1,0 +1,119 @@
+{
+  "$schema": "../../../schemas/lesson-data.schema.json",
+  "meta": {
+    "id": "cn-2022-new-gaokao-i-15",
+    "outputPath": "site/problems/senior-high/cn/15/cn-2022-new-gaokao-i-15.html",
+    "pageTitle": "2022 年新高考 I 卷第 15 题（过原点的切线）",
+    "pageDescription": "由切点写切线方程，利用切线过原点建立关于切点横坐标的二次方程，再由判别式确定两条切线对应的参数范围。",
+    "breadcrumbTitle": "2022 新高考 I 卷第 15 题",
+    "breadcrumbLabel": "高中题库",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "classification": {
+      "pattern": "tangent-line",
+      "methods": [
+        "derivative-rule-application",
+        "tangent-line-at-point",
+        "tangent-through-fixed-point",
+        "root-count-parameter-range",
+        "quadratic-discriminant"
+      ]
+    }
+  },
+  "problem": {
+    "summary": "第 15 题（2022 新高考 I 卷）导数应用：含参指数函数有两条过原点切线，求参数范围。",
+    "lines": [
+      {
+        "text": "（2022 新高考 I 卷，第 15 题，5 分）若曲线 y＝(x＋a)eˣ 有两条过坐标原点的切线，则 a 的取值范围是______。",
+        "answerId": "answerI",
+        "answer": "a∈(－∞,－4)∪(0,+∞)"
+      }
+    ]
+  },
+  "ui": {
+    "legend": [
+      { "colorVar": "paper", "label": "函数 f" },
+      { "colorVar": "fold", "label": "第一条切线 / 第一个切点" },
+      { "colorVar": "overlap", "label": "第二条切线 / 第二个切点" }
+    ],
+    "sliderLabel": "切点横坐标 x₀",
+    "paramLabelPrefix": "x₀＝",
+    "linkedParameter": {
+      "name": "a",
+      "label": "a＝",
+      "precision": 2
+    },
+    "goToProblemMode": "smooth",
+    "groupTitles": {
+      "解题过程": "过原点切线的参数范围"
+    }
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "解题过程",
+      "title": "第1步：求曲线 y=f(x) 在点 P(x₀,f(x₀)) 处的切线方程",
+      "t": -1,
+      "derive": [
+        ["设", "f(x)＝(x＋a)eˣ，切点为 P(x₀,f(x₀))"],
+        ["∵", "f′(x)＝(x＋a＋1)eˣ"],
+        ["∴", "点 P 处的切线斜率 k＝(x₀＋a＋1)e^(x₀)"],
+        ["∴", "y－(x₀＋a)e^(x₀)＝(x₀＋a＋1)e^(x₀)(x－x₀)"]
+      ],
+      "box": ["切点坐标与该点导数共同确定切线", "滑块仅展示 x₀∈[－2,0.7] 内的代表性状态"]
+    },
+    {
+      "id": "s2",
+      "section": "解题过程",
+      "title": "第2步：利用切线过原点建立关于 x₀ 的方程",
+      "t": -1,
+      "derive": [
+        ["∵", "原点 O(0,0) 在切线上"],
+        ["∴", "－(x₀＋a)e^(x₀)＝－x₀(x₀＋a＋1)e^(x₀)"],
+        ["∵", "e^(x₀)＞0"],
+        ["∴", "x₀²＋ax₀－a＝0"]
+      ],
+      "box": ["方程的每一个实根 x₀，都对应一个过原点的切点"]
+    },
+    {
+      "id": "s3",
+      "section": "解题过程",
+      "title": "第3步：把两条切线转化为二次方程有两个不同实根",
+      "t": -1,
+      "hideLegend": true,
+      "derive": [
+        ["∵", "曲线有两条过原点的切线"],
+        ["∴", "x₀²＋ax₀－a＝0 有两个不同实根"],
+        ["∵", "Δ＝a²－4×1×(－a)＝a²＋4a"],
+        ["∴", "Δ＞0"]
+      ],
+      "box": ["两个不同实根对应两个不同切点，从而得到两条切线"]
+    },
+    {
+      "id": "s4",
+      "section": "解题过程",
+      "title": "第4步：解参数不等式并检查边界",
+      "t": -1,
+      "hideLegend": true,
+      "derive": [
+        ["∵", "a²＋4a＞0"],
+        ["∴", "a(a＋4)＞0"],
+        ["∴", "a＜－4 或 a＞0"],
+        ["且", "a＝－4、0 时均只有一个重根，只产生一条切线"],
+        ["∴", "a∈(－∞,－4)∪(0,+∞)"]
+      ],
+      "box": ["a∈(－∞,－4)∪(0,+∞)", "两个边界值都不能取"]
+    }
+  ],
+  "policies": {
+    "s1": { "movable": true, "range": [-2, 0.7], "step": 0.01 },
+    "s2": { "movable": true, "range": [-2, 0.7], "step": 0.01 },
+    "s3": { "movable": false, "range": [-1, -1] },
+    "s4": { "movable": false, "range": [-1, -1] }
+  },
+  "stepLabels": {
+    "s1": "1 求切点处的切线",
+    "s2": "2 代入原点建方程",
+    "s3": "3 转化为两个实根",
+    "s4": "4 解不等式求范围"
+  }
+}
