@@ -32,10 +32,10 @@ class FunctionalCallLivenessResult:
 class FunctionalCallLivenessAnalyzer:
     """Remove only unobservable, side-effect-free FunctionSpec calls.
 
-    Reconciliation has already selected concrete StateSlot versions, so the
-    dependency graph includes both explicit CallResultRef edges and implicit
-    object-state reads. Invalid/blocked calls and explicitly bound writes are
-    roots; their prerequisites are never removed.
+    The dependency graph includes both explicit CallResultRef edges and
+    implicit object-state reads. Invalid/blocked pure calls are removable when
+    their entire subgraph is unobservable; this prevents an unused speculative
+    branch from blocking an otherwise complete plan.
     """
 
     def analyze(
@@ -47,16 +47,18 @@ class FunctionalCallLivenessAnalyzer:
         dependency_graph: Mapping[str, tuple[str, ...]],
         catalog: FunctionalCapabilityCatalog,
         protected_call_ids: Sequence[str] = (),
+        drop_invalid_calls: bool = True,
     ) -> FunctionalCallLivenessResult:
         reconciled_by_id = {item.call_id: item for item in reconciled}
-        valid_call_ids = {
-            item.call_id for item in call_reports if item.status == "valid"
-        }
+        statuses = {item.call_id: item.status for item in call_reports}
         candidates = {
             call.call_id
             for call in plan.calls
-            if call.call_id in valid_call_ids
-            and _is_dead_call_candidate(
+            if (
+                drop_invalid_calls
+                or statuses.get(call.call_id) == "valid"
+            )
+            if _is_dead_call_candidate(
                 call,
                 reconciliation=reconciled_by_id.get(call.call_id),
                 catalog=catalog,
@@ -111,7 +113,11 @@ class FunctionalCallLivenessAnalyzer:
         repairs = tuple(
             FunctionalDeterministicRepair(
                 call_id,
-                "drop_dead_pure_function_call",
+                (
+                    "drop_dead_pure_function_call"
+                    if statuses.get(call_id) == "valid"
+                    else "drop_dead_invalid_call"
+                ),
                 calls_by_id[call_id].capability_id,
                 "unconsumed_state_writes",
             )
@@ -144,7 +150,7 @@ def _is_dead_call_candidate(
     reconciliation: FunctionalCallReconciliation | None,
     catalog: FunctionalCapabilityCatalog,
 ) -> bool:
-    if reconciliation is None or call.return_bindings:
+    if call.return_bindings:
         return False
     capability = catalog.get(call.capability_id)
     if (
@@ -153,7 +159,9 @@ def _is_dead_call_candidate(
         or not capability.is_pure
     ):
         return False
-    if any(item.handle.startswith("answer:") for item in reconciliation.returns):
+    if reconciliation is not None and any(
+        item.handle.startswith("answer:") for item in reconciliation.returns
+    ):
         return False
     return not any(item.runtime_type == "Condition" for item in capability.returns)
 

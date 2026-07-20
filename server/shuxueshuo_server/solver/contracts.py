@@ -185,6 +185,7 @@ class MethodSpec:
     constraint_analyzer: str | None = None
     plan_transformer: str | None = None
     reconciliation_validators: tuple[str, ...] = ()
+    distinct_arg_groups: tuple[tuple[str, ...], ...] = ()
     # Missing/legacy specs are conservative. Code-owned stateless methods
     # declare purity explicitly through MethodSpecSource.
     is_pure: bool = False

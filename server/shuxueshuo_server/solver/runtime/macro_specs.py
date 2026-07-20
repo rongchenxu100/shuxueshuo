@@ -113,6 +113,7 @@ class MacroReturnSpec:
     goal_evidence_tags: tuple[GoalEvidenceTag, ...] = ()
     description: str = ""
     scalar_result_form: ScalarResultFormSpec | None = None
+    equivalent_to: str | None = None
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -141,6 +142,8 @@ class MacroReturnSpec:
             payload["description"] = self.description
         if self.scalar_result_form is not None:
             payload["scalar_result_form"] = self.scalar_result_form.to_payload()
+        if self.equivalent_to is not None:
+            payload["equivalent_to"] = self.equivalent_to
         return payload
 
 
@@ -521,6 +524,7 @@ def _returns_from_output_aliases(
                     execution=execution,
                     function_specs=function_specs,
                 ),
+                equivalent_to=output.equivalent_to,
             )
         )
     return tuple(returns)

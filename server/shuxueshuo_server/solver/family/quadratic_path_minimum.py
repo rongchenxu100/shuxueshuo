@@ -172,6 +172,11 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                         cardinality="optional",
                         identity_policy="derived_role",
                         goal_evidence_tags=("path_minimum_witness",),
+                        equivalent_to="path_minimum_point_1",
+                        description=(
+                            "选中候选的反射辅助点，与 path_minimum_point_1 是同一"
+                            "几何状态；不能把二者作为一条直线的两个不同端点。"
+                        ),
                     ),
                     recipe_output_alias(
                         "select_straightening_candidate.minimum_point_1",

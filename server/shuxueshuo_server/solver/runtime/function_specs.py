@@ -187,6 +187,7 @@ class FunctionSpec:
     is_pure: bool = False
     plan_transformer: str | None = None
     reconciliation_validators: tuple[str, ...] = ()
+    distinct_arg_groups: tuple[tuple[str, ...], ...] = ()
     dependency_policy: CapabilityDependencyPolicy = "explicit_args"
 
     def to_payload(self, *, include_adapter: bool = True) -> dict[str, Any]:
@@ -201,6 +202,9 @@ class FunctionSpec:
             "is_pure": self.is_pure,
             "plan_transformer": self.plan_transformer,
             "reconciliation_validators": list(self.reconciliation_validators),
+            "distinct_arg_groups": [
+                list(group) for group in self.distinct_arg_groups
+            ],
             "dependency_policy": self.dependency_policy,
         }
         if include_adapter and self.adapter is not None:
@@ -315,6 +319,8 @@ class FunctionAdapterRegistry:
         include_expansion_selectors: bool = True,
         expansion_selectors_override: tuple[str, ...] | None = None,
         input_bindings_override: tuple[Any, ...] | None = None,
+        exact_inputs: Mapping[str, str] | None = None,
+        apply_constraint_analyzer: bool = True,
     ) -> dict[str, str]:
         local_outputs = local_outputs or {}
         adapter = self.adapters.get(method_id)
@@ -322,11 +328,13 @@ class FunctionAdapterRegistry:
             raise StrategyDraftValidationError(
                 f"function.adapter_missing: method={method_id}"
             )
-        inputs: dict[str, str] = {}
+        inputs: dict[str, str] = dict(exact_inputs or {})
         for binding in _effective_input_bindings(
             adapter,
             input_bindings_override=input_bindings_override,
         ):
+            if binding.input_name in inputs:
+                continue
             try:
                 value = self._select(binding.selector, step, index, local_outputs)
             except StrategyDraftValidationError as exc:
@@ -381,8 +389,9 @@ class FunctionAdapterRegistry:
                         "function.arg_not_read: "
                         f"method={method_id}, arg={input_name}, expansion={selector}"
                     )
-            inputs.update(expanded)
-        if adapter.constraint_analyzer is not None:
+            for input_name, path in expanded.items():
+                inputs.setdefault(input_name, path)
+        if apply_constraint_analyzer and adapter.constraint_analyzer is not None:
             inputs = _apply_constraint_analyzer(
                 adapter.constraint_analyzer,
                 inputs=inputs,
@@ -483,7 +492,10 @@ def function_spec_from_method(
         )
         write_mode = _function_return_write_mode(
             contract,
+            method_spec=method_spec,
             output_type=output_type,
+            identity_policy=identity_policy,
+            identity_arg=identity_arg,
         )
         returns.append(
             FunctionReturnSpec(
@@ -533,6 +545,7 @@ def function_spec_from_method(
         is_pure=method_spec.is_pure,
         plan_transformer=method_spec.plan_transformer,
         reconciliation_validators=method_spec.reconciliation_validators,
+        distinct_arg_groups=method_spec.distinct_arg_groups,
         dependency_policy=(
             contract.dependency_policy
             if contract is not None
@@ -670,9 +683,19 @@ def _function_return_identity(
 def _function_return_write_mode(
     contract: CapabilityContractSpec | None,
     *,
+    method_spec: MethodSpec,
     output_type: str,
+    identity_policy: StateIdentityPolicy,
+    identity_arg: str | None,
 ) -> StateWriteMode:
-    """Project the authoritative write mode when one contract write is unique."""
+    """Project write semantics, including same-object state transitions."""
+    if identity_policy == "preserve_input_object" and identity_arg is not None:
+        identity_input = method_spec.inputs.get(identity_arg)
+        if (
+            identity_input is not None
+            and output_type in split_runtime_types(str(identity_input.type))
+        ):
+            return "transition"
     if contract is not None:
         matches = [
             item.write_mode
@@ -949,8 +972,6 @@ def _analyze_quadratic_coefficient_inputs(
     step: StepIntent,
     index: Any,
 ) -> dict[str, str]:
-    if "free_parameter" in inputs or "free_parameters" in inputs:
-        return inputs
     from shuxueshuo_server.solver.runtime.methods.quadratic_from_constraints import (
         analyze_quadratic_constraints,
     )
@@ -975,23 +996,69 @@ def _analyze_quadratic_coefficient_inputs(
             # path without materializing its value. Inference is then unsafe;
             # leave the strict method invocation unchanged.
             return inputs
-    analysis = analyze_quadratic_constraints(runtime_inputs)
+    declared_free_parameters = _declared_free_parameters(runtime_inputs)
+    coefficient_symbols = set(runtime_inputs.get("all_coefficients", ()))
+    preferred_free_parameters = tuple(
+        symbol
+        for symbol in runtime_inputs.get("all_coefficients", ())
+        if symbol in declared_free_parameters and symbol in coefficient_symbols
+    )
+    analysis = analyze_quadratic_constraints(
+        {
+            name: value
+            for name, value in runtime_inputs.items()
+            if name not in {"free_parameter", "free_parameters"}
+        },
+        preferred_free_parameters=preferred_free_parameters,
+    )
     if analysis.status == "determined":
-        return inputs
+        return {
+            name: path
+            for name, path in inputs.items()
+            if name not in {"free_parameter", "free_parameters"}
+        }
     if analysis.status == "single_free" and len(analysis.free_parameters) == 1:
         symbol = analysis.free_parameters[0]
         symbol_path = _visible_symbol_path(symbol.name, step=step, index=index)
-        return {**inputs, "free_parameter": symbol_path}
+        return {
+            **{
+                name: path
+                for name, path in inputs.items()
+                if name not in {"free_parameter", "free_parameters"}
+            },
+            "free_parameter": symbol_path,
+        }
     if analysis.status == "underdetermined":
+        authoritative = set(analysis.free_parameters)
+        if authoritative and declared_free_parameters == authoritative:
+            return inputs
         names = ",".join(symbol.name for symbol in analysis.free_parameters)
+        declared = ",".join(
+            symbol.name
+            for symbol in sorted(declared_free_parameters, key=lambda item: item.name)
+        )
         raise StrategyDraftValidationError(
             "function.constraints_underdetermined: "
-            f"step={step.step_id}, free_parameters={names or 'multiple'}"
+            f"step={step.step_id}, free_parameters={names or 'multiple'}, "
+            f"declared_free_parameters={declared or 'none'}"
         )
     raise StrategyDraftValidationError(
         "function.constraints_ambiguous: "
         f"step={step.step_id}, branch_count={analysis.branch_count}"
     )
+
+
+def _declared_free_parameters(runtime_inputs: Mapping[str, Any]) -> set[Any]:
+    result: set[Any] = set()
+    single = runtime_inputs.get("free_parameter")
+    if single is not None:
+        result.add(single)
+    many = runtime_inputs.get("free_parameters")
+    if isinstance(many, (list, tuple, set, frozenset)):
+        result.update(many)
+    elif many is not None:
+        result.add(many)
+    return result
 
 
 _CONSTRAINT_ANALYZERS: dict[str, ConstraintAnalyzer] = {

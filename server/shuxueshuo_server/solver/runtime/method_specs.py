@@ -133,6 +133,10 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
             raw.get("reconciliation_validators", ()),
             field_name="MethodSpec.reconciliation_validators",
         ),
+        distinct_arg_groups=_parse_distinct_arg_groups(
+            raw.get("distinct_arg_groups", ()),
+            input_names=frozenset(inputs),
+        ),
         is_pure=is_pure,
     )
 
@@ -150,6 +154,42 @@ def _parse_do_not_use_when(raw: object) -> tuple[str, ...]:
         if value not in result:
             result.append(value)
     return tuple(result)
+
+
+def _parse_distinct_arg_groups(
+    raw: object,
+    *,
+    input_names: frozenset[str],
+) -> tuple[tuple[str, ...], ...]:
+    """Parse declarative groups whose resolved object identities must differ."""
+    if raw in (None, ()):
+        return ()
+    if not isinstance(raw, list | tuple):
+        raise ValueError("MethodSpec.distinct_arg_groups must be a list")
+    groups: list[tuple[str, ...]] = []
+    for item in raw:
+        if not isinstance(item, list | tuple):
+            raise ValueError(
+                "MethodSpec.distinct_arg_groups items must be lists"
+            )
+        group = tuple(str(name).strip() for name in item)
+        if len(group) < 2 or any(not name for name in group):
+            raise ValueError(
+                "MethodSpec.distinct_arg_groups items require at least two names"
+            )
+        if len(set(group)) != len(group):
+            raise ValueError(
+                "MethodSpec.distinct_arg_groups cannot repeat an argument"
+            )
+        unknown = tuple(name for name in group if name not in input_names)
+        if unknown:
+            raise ValueError(
+                "MethodSpec.distinct_arg_groups references unknown inputs: "
+                + ", ".join(unknown)
+            )
+        if group not in groups:
+            groups.append(group)
+    return tuple(groups)
 
 
 def _parse_identifier_list(

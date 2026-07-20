@@ -3,9 +3,11 @@ from __future__ import annotations
 from dataclasses import replace
 import json
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 import pytest
+import sympy as sp
 
 from shuxueshuo_server.solver.contracts import MethodInputSpec, MethodSpec
 from shuxueshuo_server.solver.family.models import (
@@ -28,7 +30,11 @@ from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
 )
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
+from shuxueshuo_server.solver.runtime.methods.quadratic_from_constraints import (
+    analyze_quadratic_constraints,
+)
 from shuxueshuo_server.solver.runtime.projection import problem_to_llm_payload
+from shuxueshuo_server.solver.runtime.recipe_compiler import _preserved_object_ref
 from shuxueshuo_server.solver.runtime.strategy_planner import (
     CanonicalHandleRegistry,
     MethodBindingRuleRegistry,
@@ -194,6 +200,38 @@ def test_quadratic_constraint_analyzer_declarations_are_consistent() -> None:
     assert function.adapter.constraint_analyzer == "quadratic_coefficients"
 
 
+def test_quadratic_constraint_analyzer_preserves_only_valid_parameterization_basis() -> None:
+    x, a, b, c, m = sp.symbols("x a b c m")
+    base = {
+        "quadratic": a * x**2 + b * x + c,
+        "x": x,
+        "all_coefficients": (a, b, c),
+        "coefficient_relation": sp.Eq(2 * a + b, 0),
+        "p1": (m, 1),
+        "p2": (2, 1 - m),
+    }
+
+    invalid = analyze_quadratic_constraints(
+        base,
+        preferred_free_parameters=(a,),
+    )
+    valid = analyze_quadratic_constraints(
+        {
+            "quadratic": a * x**2 + b * x + c,
+            "x": x,
+            "all_coefficients": (a, b, c),
+            "known_coefficients": {a: 2},
+            "p1": (-1, 0),
+        },
+        preferred_free_parameters=(b,),
+    )
+
+    assert invalid.status == "determined"
+    assert invalid.free_parameters == ()
+    assert valid.status == "single_free"
+    assert valid.free_parameters == (b,)
+
+
 def test_curve_point_parameter_function_declares_state_transitions() -> None:
     problem = load_problem_ir(str(RECORDED_FIXTURES[0][0]))
     inputs = build_strategy_probe_inputs(problem)
@@ -206,6 +244,55 @@ def test_curve_point_parameter_function_declares_state_transitions() -> None:
     assert returns["parameter_value"].write_mode == "value"
     assert returns["point"].write_mode == "transition"
     assert returns["parabola"].write_mode == "transition"
+
+
+def test_expression_evaluation_preserves_same_parabola_as_transition() -> None:
+    problem = load_problem_ir(str(RECORDED_FIXTURES[0][0]))
+    inputs = build_strategy_probe_inputs(problem)
+    function = FunctionSpecRegistry.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
+    ).require("evaluate_expression_at_parameter")
+    result = next(
+        item
+        for item in function.returns
+        if item.output_key == "evaluated_parabola"
+    )
+
+    assert result.identity_policy == "preserve_input_object"
+    assert result.identity_arg == "expression"
+    assert result.write_mode == "transition"
+
+
+def test_preserved_state_identity_filters_objects_by_runtime_type() -> None:
+    path = "$problem.functions.parabola"
+    index = SimpleNamespace(
+        bindings={
+            "point:ii:M": SimpleNamespace(path=path),
+            "function:problem:parabola": SimpleNamespace(path=path),
+        }
+    )
+    step = StepIntent(
+        scope_id="ii_1",
+        step_id="specialize_curve",
+        recipe_hint="evaluate_expression_at_parameter",
+        goal_type="derive_parabola",
+        target="answer:ii_1.parabola",
+        strategy="substitute one known parameter",
+        reads=("point:ii:M",),
+    )
+
+    object_ref = _preserved_object_ref(
+        runtime_type="Parabola",
+        input_path=path,
+        source_handle="fact:ii:parametric_parabola",
+        source=None,
+        produced_handle="answer:ii_1.parabola",
+        step=step,
+        index=index,
+    )
+
+    assert object_ref == "function:problem:parabola"
 
 
 def test_functional_capability_projects_runtime_behavior_metadata() -> None:

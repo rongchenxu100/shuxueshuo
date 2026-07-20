@@ -42,6 +42,7 @@ class RecipeOutputAliasSpec:
     write_mode: StateWriteMode = "value"
     goal_evidence_tags: tuple[GoalEvidenceTag, ...] = ()
     description: str = ""
+    equivalent_to: str | None = None
 
     def to_payload(self) -> dict[str, object]:
         payload: dict[str, object] = {
@@ -58,6 +59,8 @@ class RecipeOutputAliasSpec:
         }
         if self.description:
             payload["description"] = self.description
+        if self.equivalent_to is not None:
+            payload["equivalent_to"] = self.equivalent_to
         return payload
 
 
@@ -73,6 +76,7 @@ def recipe_output_alias(
     write_mode: StateWriteMode | None = None,
     goal_evidence_tags: tuple[GoalEvidenceTag, ...] = (),
     description: str = "",
+    equivalent_to: str | None = None,
 ) -> RecipeOutputAliasSpec:
     """Build a structured recipe return without duplicating state-kind rules."""
     return RecipeOutputAliasSpec(
@@ -91,6 +95,7 @@ def recipe_output_alias(
         ),
         goal_evidence_tags=goal_evidence_tags,
         description=description,
+        equivalent_to=equivalent_to,
     )
 
 @dataclass(frozen=True)

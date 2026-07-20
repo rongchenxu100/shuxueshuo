@@ -118,6 +118,27 @@ def is_object_handle(value: object) -> bool:
     return object_semantic_kind_for_handle(value) is not None
 
 
+def object_ref_matches_runtime_type(
+    object_ref: object,
+    runtime_type: str,
+) -> bool:
+    """Return whether an object identity can own the declared runtime state.
+
+    Preserved state writes must keep the identity of the matching math object.
+    In particular, a Point mentioned by an expression cannot become the owner
+    of a Parabola state merely because both values share a runtime path.
+    """
+    actual_kind = object_semantic_kind_for_handle(object_ref)
+    if actual_kind is None:
+        return False
+    expected_kinds = {
+        object_kind
+        for member in split_runtime_types(runtime_type)
+        if (object_kind := object_kind_for_runtime_type(member)) is not None
+    }
+    return actual_kind in expected_kinds
+
+
 def derived_role_object_ref(
     *,
     call_id: str,
@@ -178,6 +199,7 @@ __all__ = [
     "is_object_semantic_kind",
     "object_semantic_kind_for_handle",
     "object_kind_for_runtime_type",
+    "object_ref_matches_runtime_type",
     "runtime_type_for_object_semantic_kind",
     "split_runtime_types",
     "state_kind_for_runtime_type",

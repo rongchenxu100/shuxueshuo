@@ -387,6 +387,17 @@ def _merge_equivalent_object_calls(
                     issues.append(
                         _return_expectation_conflict_issue(previous, call)
                     )
+                    if previous is not None:
+                        call_aliases[call.call_id] = previous.call_id
+                        repairs.append(
+                            FunctionalDeterministicRepair(
+                                call.call_id,
+                                "isolate_conflicting_equivalent_call",
+                                call.call_id,
+                                previous.call_id,
+                            )
+                        )
+                        continue
                 else:
                     _replace_located_call(
                         replace(
@@ -428,6 +439,16 @@ def _merge_equivalent_object_calls(
                         issues.append(
                             _return_expectation_conflict_issue(previous, call)
                         )
+                        call_aliases[call.call_id] = previous.call_id
+                        repairs.append(
+                            FunctionalDeterministicRepair(
+                                call.call_id,
+                                "isolate_conflicting_equivalent_call",
+                                call.call_id,
+                                previous.call_id,
+                            )
+                        )
+                        continue
                     else:
                         calls[previous_index] = replace(
                             previous,
@@ -472,6 +493,17 @@ def _merge_equivalent_object_calls(
                     issues.append(
                         _return_expectation_conflict_issue(previous, call)
                     )
+                    if previous is not None:
+                        call_aliases[call.call_id] = previous.call_id
+                        repairs.append(
+                            FunctionalDeterministicRepair(
+                                call.call_id,
+                                "isolate_conflicting_equivalent_call",
+                                call.call_id,
+                                previous.call_id,
+                            )
+                        )
+                        continue
                 else:
                     _replace_located_call(
                         replace(

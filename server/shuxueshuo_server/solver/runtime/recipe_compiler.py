@@ -23,6 +23,8 @@ from shuxueshuo_server.solver.problem_models import QuestionGoal
 from shuxueshuo_server.solver.state_semantics import (
     dependent_role_object_ref,
     derived_role_object_ref,
+    object_kind_for_runtime_type,
+    object_ref_matches_runtime_type,
     split_runtime_types,
     state_kind_for_runtime_type,
 )
@@ -52,6 +54,9 @@ from shuxueshuo_server.solver.runtime.models import (
 from shuxueshuo_server.solver.runtime.output_type_inference import (
     produced_semantic_role,
 )
+from shuxueshuo_server.solver.runtime.runtime_type_compatibility import (
+    runtime_type_compatible,
+)
 from shuxueshuo_server.solver.runtime.path_term_parsing import (
     PathTermParseError,
     parse_path_terms,
@@ -64,6 +69,7 @@ from shuxueshuo_server.solver.runtime.handle_registry import (
 )
 from shuxueshuo_server.solver.runtime.strategy_models import (
     CreatedEntity,
+    ProjectedFunctionArgBinding,
     ProjectedStateWrite,
     ProducedFact,
     StepIntent,
@@ -197,6 +203,7 @@ class PrepInvocationBuilder:
                         self.index,
                         include_expansion_selectors=prep.include_expansion_selectors,
                         expansion_selectors_override=prep.expansion_selectors,
+                        apply_constraint_analyzer=False,
                     ),
                     outputs=outputs,
                 )
@@ -290,6 +297,9 @@ class RecipeTrialExecutor:
         question_goals: list[QuestionGoal] | tuple[QuestionGoal, ...],
         preserve_call_graph: bool = False,
         projected_state_writes: tuple[ProjectedStateWrite, ...] = (),
+        projected_function_arg_bindings: tuple[
+            ProjectedFunctionArgBinding, ...
+        ] = (),
     ) -> PlannerOutput:
         """根据 StepIntent 生成 PlannerOutput。"""
         output, diagnostic, _effective_draft = self.diagnose(
@@ -301,6 +311,7 @@ class RecipeTrialExecutor:
             question_goals=question_goals,
             preserve_call_graph=preserve_call_graph,
             projected_state_writes=projected_state_writes,
+            projected_function_arg_bindings=projected_function_arg_bindings,
         )
         if output is not None:
             return output
@@ -328,6 +339,9 @@ class RecipeTrialExecutor:
         allow_shared_derivation_scopes: bool = False,
         preserve_call_graph: bool = False,
         projected_state_writes: tuple[ProjectedStateWrite, ...] = (),
+        projected_function_arg_bindings: tuple[
+            ProjectedFunctionArgBinding, ...
+        ] = (),
     ) -> tuple[PlannerOutput | None, StepIntentExecutionDiagnostic, StepIntentDraft]:
         """编译 StepIntent，并返回 effective draft 的执行诊断。"""
         if not preserve_call_graph:
@@ -378,6 +392,7 @@ class RecipeTrialExecutor:
             ),
             function_specs=function_specs,
             projected_state_writes=projected_state_writes,
+            projected_function_arg_bindings=projected_function_arg_bindings,
             recipe_compilers=self.recipe_compilers,
         )
         output, diagnostic, effective_draft = compiler.diagnose(draft)
@@ -424,6 +439,9 @@ class RecipeTrialExecutor:
                     allow_shared_derivation_scopes=allow_shared_derivation_scopes,
                     preserve_call_graph=preserve_call_graph,
                     projected_state_writes=projected_state_writes,
+                    projected_function_arg_bindings=(
+                        projected_function_arg_bindings
+                    ),
                 )
         return output, diagnostic, effective_draft
 
@@ -442,6 +460,9 @@ class _RecipePlanCompiler:
         macro_adapters: MacroAdapterRegistry,
         function_specs: FunctionSpecRegistry,
         projected_state_writes: tuple[ProjectedStateWrite, ...],
+        projected_function_arg_bindings: tuple[
+            ProjectedFunctionArgBinding, ...
+        ],
         recipe_compilers: Mapping[str, RecipeCompileStrategyFn],
     ) -> None:
         self.context = context
@@ -453,6 +474,9 @@ class _RecipePlanCompiler:
         self.macro_adapters = macro_adapters
         self.function_specs = function_specs
         self.projected_state_writes = tuple(projected_state_writes)
+        self.projected_function_arg_bindings = tuple(
+            projected_function_arg_bindings
+        )
         self.scalar_closures = ScalarResultClosureRegistry(function_specs)
         self.recipe_compilers = dict(recipe_compilers)
         self.macro_binding_events: list[StepIntentMacroBindingEvent] = []
@@ -807,6 +831,11 @@ class _RecipePlanCompiler:
                 f"recipe_execution_strategy_missing: {recipe.recipe_id}:{recipe.execution_strategy}"
             )
         compiled = fn(self, step, recipe)
+        compiled = _with_macro_return_registrations(
+            compiled,
+            step=step,
+            bindings=return_bindings,
+        )
         return replace(
             compiled,
             state_write_provenance=_macro_write_provenance(
@@ -835,6 +864,7 @@ class _RecipePlanCompiler:
             step,
             self.index,
             local_outputs=prep.local_outputs or {},
+            exact_inputs=self._projected_exact_function_inputs(step, spec),
         )
         outputs = _method_outputs_for_step(
             method_id,
@@ -934,6 +964,44 @@ class _RecipePlanCompiler:
                 prior=tuple(self.state_write_provenance),
             ),
         )
+
+    def _projected_exact_function_inputs(
+        self,
+        step: StepIntent,
+        spec: Any,
+    ) -> dict[str, str]:
+        """Restore named Functional args hidden by the StepIntent bridge.
+
+        Aggregate semantic args continue through their declared adapter
+        primitive. A one-to-one method input must use the exact StateSlot
+        selected by reconciliation instead of being inferred from read order.
+        """
+        function = self.function_specs.get(spec.method_id)
+        if function is None or function.adapter is None:
+            # Mechanism-specific methods still own role-aware selectors. Their
+            # Functional facade is not yet a complete compile adapter, so raw
+            # arg names must not bypass condition/object-role reconciliation.
+            return {}
+        grouped: dict[str, list[ProjectedFunctionArgBinding]] = {}
+        for item in self.projected_function_arg_bindings:
+            if item.step_id == step.step_id and item.arg_name in spec.inputs:
+                grouped.setdefault(item.arg_name, []).append(item)
+        result: dict[str, str] = {}
+        for input_name, items in grouped.items():
+            if len(items) != 1:
+                continue
+            item = items[0]
+            expected_type = spec.inputs[input_name].type
+            if item.runtime_type is None or not runtime_type_compatible(
+                expected_type,
+                item.runtime_type,
+            ):
+                continue
+            result[input_name] = self.index.path_for(
+                item.source_handle,
+                expected_type=expected_type,
+            )
+        return result
 
     def _compile_right_angle_recipe(self, step: StepIntent) -> _CompiledStep:
         """编译“直角等腰候选 + 约束筛选” recipe。"""
@@ -2009,6 +2077,71 @@ def _path_transformation_repair_note(facts: Mapping[str, Any]) -> str:
             )
     parts.append("最终答案若不是该 moving point，需要再用对应几何关系从极值状态动点恢复。")
     return "；".join(parts)
+
+
+def _with_macro_return_registrations(
+    compiled: _CompiledStep,
+    *,
+    step: StepIntent,
+    bindings: tuple[tuple[ProducedFact, MacroReturnSpec], ...],
+) -> _CompiledStep:
+    """Register every projected Macro return from its declared output alias.
+
+    Recipe strategies may still register convenience aliases, but the
+    MacroSpec output graph is authoritative for StepIntent-produced handles.
+    A projected return without one promoted runtime output is a compiler/spec
+    invariant failure and must never be sent back to the LLM as a retry issue.
+    """
+
+    registrations = {item.handle: item for item in compiled.registrations}
+    for produced, return_spec in bindings:
+        output_key = return_spec.output_key
+        if output_key is None or "." not in output_key:
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: macro return output key missing: "
+                f"step={step.step_id}, return={return_spec.name}"
+            )
+        method_id, output_name = output_key.rsplit(".", 1)
+        output_paths = tuple(
+            invocation.outputs[output_name]
+            for invocation in compiled.plan.invocations
+            if invocation.method_id == method_id
+            and output_name in invocation.outputs
+        )
+        if len(output_paths) != 1:
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: macro return runtime output "
+                "must resolve uniquely: "
+                f"step={step.step_id}, return={return_spec.name}, "
+                f"output_key={output_key}, matches={len(output_paths)}"
+            )
+        runtime_path = compiled.plan.promote_outputs.get(output_paths[0])
+        if runtime_path is None:
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: macro return promotion missing: "
+                f"step={step.step_id}, return={return_spec.name}, "
+                f"output_key={output_key}"
+            )
+        projected = RuntimeHandleBinding(
+            produced.handle,
+            runtime_path,
+            return_spec.runtime_type,
+            f"step:{step.step_id}",
+        )
+        existing = registrations.get(produced.handle)
+        if existing is not None and (
+            existing.path != projected.path
+            or existing.value_type != projected.value_type
+        ):
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: macro return registration "
+                "conflicts with recipe compiler: "
+                f"step={step.step_id}, return={return_spec.name}, "
+                f"existing={existing.path}:{existing.value_type}, "
+                f"projected={projected.path}:{projected.value_type}"
+            )
+        registrations[produced.handle] = projected
+    return replace(compiled, registrations=tuple(registrations.values()))
 
 
 def _compile_single_method_recipe(
@@ -3456,21 +3589,14 @@ def _state_write_provenance(
             )
         )
     elif identity_policy == "preserve_input_object":
-        object_ref = (
-            _point_handle_for_path(input_path, index)
-            if runtime_type == "Point"
-            else None
-        ) or (
-            source.object_ref
-            if source is not None
-            else (
-                source_handle
-                if isinstance(source_handle, str) and source_handle.startswith("symbol:")
-                else (
-                    _point_entity_for_state(source_handle, step, index)
-                    or _point_entity_for_state(produced_handle, step, index)
-                )
-            )
+        object_ref = _preserved_object_ref(
+            runtime_type=runtime_type,
+            input_path=input_path,
+            source_handle=source_handle,
+            source=source,
+            produced_handle=produced_handle,
+            step=step,
+            index=index,
         )
     elif identity_policy == "target_object":
         object_ref = (
@@ -3800,6 +3926,51 @@ def _point_handle_for_path(
         if binding.path == path and handle.startswith("point:")
     ]
     return handles[-1] if len(handles) == 1 else None
+
+
+def _object_handle_for_path(
+    path: str | None,
+    runtime_type: str,
+    index: CanonicalRuntimeBindingIndex,
+) -> str | None:
+    if path is None:
+        return None
+    handles = [
+        handle
+        for handle, binding in index.bindings.items()
+        if binding.path == path
+        and object_ref_matches_runtime_type(handle, runtime_type)
+    ]
+    return handles[-1] if len(handles) == 1 else None
+
+
+def _preserved_object_ref(
+    *,
+    runtime_type: str,
+    input_path: str | None,
+    source_handle: str | None,
+    source: StateWriteProvenance | None,
+    produced_handle: str,
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> str | None:
+    """Resolve preserved identity without crossing math-object kinds."""
+    if source is not None and object_ref_matches_runtime_type(
+        source.object_ref,
+        runtime_type,
+    ):
+        return source.object_ref
+    path_object = _object_handle_for_path(input_path, runtime_type, index)
+    if path_object is not None:
+        return path_object
+    if object_ref_matches_runtime_type(source_handle, runtime_type):
+        return source_handle
+    if object_kind_for_runtime_type(runtime_type) == "point":
+        return (
+            _point_entity_for_state(source_handle, step, index)
+            or _point_entity_for_state(produced_handle, step, index)
+        )
+    return None
 
 
 def _point_entity_for_state(

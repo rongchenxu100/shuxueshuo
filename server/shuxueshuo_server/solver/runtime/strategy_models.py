@@ -40,6 +40,16 @@ def answer_output_type_compatible(expected_type: str | None, actual_type: str | 
     return expected_type == "Point" and actual_type == "PointList"
 
 
+def answer_value_type_requires_closed_scalar(value_type: str | None) -> bool:
+    """Whether an answer type can never retain a symbolic independent variable.
+
+    Function-like answers may legitimately contain their declared variable.
+    Every other scalar answer is expected to be closed, allowing FunctionalPlan
+    to infer ``closed_value`` without asking the LLM to repeat that fact.
+    """
+    return value_type not in {None, "Expression", "Equation", "Function", "Parabola"}
+
+
 @dataclass(frozen=True)
 class CreatedEntity:
     """StepIntent 在推导过程中声明的新实体。
@@ -119,6 +129,35 @@ class ProjectedStateWrite:
             payload["return_name"] = self.return_name
         if self.expected_result_form is not None:
             payload["expected_result_form"] = self.expected_result_form
+        return payload
+
+
+@dataclass(frozen=True)
+class ProjectedFunctionArgBinding:
+    """Exact FunctionalPlan argument identity carried beside StepIntent.
+
+    Functional reconciliation has already resolved named arguments to current
+    canonical state handles.  StepIntent intentionally keeps only a flat
+    ``reads`` list, so this sidecar prevents the compatibility compiler from
+    discarding those roles and inferring them again from read order.
+    """
+
+    step_id: str
+    arg_name: str
+    source_handle: str
+    runtime_type: str | None = None
+    state_slot_id: str | None = None
+
+    def to_payload(self) -> dict[str, Any]:
+        payload: dict[str, Any] = {
+            "step_id": self.step_id,
+            "arg_name": self.arg_name,
+            "source_handle": self.source_handle,
+        }
+        if self.runtime_type is not None:
+            payload["runtime_type"] = self.runtime_type
+        if self.state_slot_id is not None:
+            payload["state_slot_id"] = self.state_slot_id
         return payload
 
 

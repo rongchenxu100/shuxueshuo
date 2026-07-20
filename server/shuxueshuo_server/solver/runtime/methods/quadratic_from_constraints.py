@@ -34,6 +34,8 @@ class QuadraticConstraintAnalysis:
 
 def analyze_quadratic_constraints(
     inputs: dict[str, Any],
+    *,
+    preferred_free_parameters: tuple[sp.Symbol, ...] = (),
 ) -> QuadraticConstraintAnalysis:
     """Classify coefficient constraints without opting into parameterization."""
     quadratic = inputs["quadratic"]
@@ -53,6 +55,19 @@ def analyze_quadratic_constraints(
     unknowns = [symbol for symbol in coefficients if symbol not in known]
     if not unknowns:
         return QuadraticConstraintAnalysis("determined", branch_count=1)
+    preferred = tuple(
+        symbol
+        for symbol in unknowns
+        if symbol in set(preferred_free_parameters)
+    )
+    if preferred:
+        preferred_analysis = _analyze_preferred_free_parameters(
+            equations,
+            unknowns=unknowns,
+            preferred=preferred,
+        )
+        if preferred_analysis is not None:
+            return preferred_analysis
     if not equations:
         return QuadraticConstraintAnalysis(
             "single_free" if len(unknowns) == 1 else "underdetermined",
@@ -81,6 +96,42 @@ def analyze_quadratic_constraints(
     return QuadraticConstraintAnalysis(
         "underdetermined",
         free_parameters=ordered,
+        branch_count=1,
+    )
+
+
+def _analyze_preferred_free_parameters(
+    equations: list[sp.Equality],
+    *,
+    unknowns: list[sp.Symbol],
+    preferred: tuple[sp.Symbol, ...],
+) -> QuadraticConstraintAnalysis | None:
+    """Validate an explicit parameterization basis without choosing its name.
+
+    Equivalent systems often admit several free coefficients. A downstream
+    graph may intentionally consume one of them, so a valid explicit basis is
+    preserved instead of being replaced by SymPy's arbitrary solve ordering.
+    """
+    solve_symbols = [symbol for symbol in unknowns if symbol not in preferred]
+    if not solve_symbols:
+        if equations:
+            return None
+    else:
+        branches = sp.solve(equations, solve_symbols, dict=True)
+        if len(branches) != 1 or any(
+            symbol not in branches[0] for symbol in solve_symbols
+        ):
+            return None
+        branch = branches[0]
+        if any(
+            sp.simplify(equation.lhs.subs(branch) - equation.rhs.subs(branch))
+            != 0
+            for equation in equations
+        ):
+            return None
+    return QuadraticConstraintAnalysis(
+        "single_free" if len(preferred) == 1 else "underdetermined",
+        free_parameters=preferred,
         branch_count=1,
     )
 

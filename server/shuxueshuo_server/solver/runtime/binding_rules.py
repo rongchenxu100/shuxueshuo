@@ -110,6 +110,8 @@ class MethodBindingRuleRegistry:
         local_outputs: dict[str, str] | None = None,
         include_expansion_selectors: bool = True,
         expansion_selectors_override: tuple[str, ...] | None = None,
+        exact_inputs: Mapping[str, str] | None = None,
+        apply_constraint_analyzer: bool = True,
     ) -> dict[str, str]:
         """返回 method invocation inputs。"""
         local_outputs = local_outputs or {}
@@ -137,6 +139,8 @@ class MethodBindingRuleRegistry:
                         if rule is not None
                         else None
                     ),
+                    exact_inputs=exact_inputs,
+                    apply_constraint_analyzer=apply_constraint_analyzer,
                 )
                 self.function_binding_events.append(
                     StepIntentFunctionBindingEvent(
@@ -162,8 +166,10 @@ class MethodBindingRuleRegistry:
                 raise
         if rule is None:
             raise StrategyDraftValidationError(f"method_binding_rule_missing: {method_id}")
-        inputs: dict[str, str] = {}
+        inputs: dict[str, str] = dict(exact_inputs or {})
         for binding in rule.input_bindings:
+            if binding.input_name in inputs:
+                continue
             try:
                 value = self._select(binding.selector, step, index, local_outputs=local_outputs)
             except StrategyDraftValidationError:
@@ -179,9 +185,13 @@ class MethodBindingRuleRegistry:
         else:
             expansion_selectors = ()
         for selector in expansion_selectors:
-            inputs.update(
-                self._expand(selector, step, index, local_outputs=local_outputs)
-            )
+            for input_name, path in self._expand(
+                selector,
+                step,
+                index,
+                local_outputs=local_outputs,
+            ).items():
+                inputs.setdefault(input_name, path)
         return inputs
 
     def rule_for(self, method_id: str) -> MethodBindingRuleSpec | None:

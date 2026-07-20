@@ -8,6 +8,7 @@ Run explicitly:
 
 from __future__ import annotations
 
+import json
 import os
 from pathlib import Path
 import shutil
@@ -35,12 +36,16 @@ MAX_ATTEMPTS = int(os.getenv("DEEPSEEK_STRATEGY_PLANNER_MAX_ATTEMPTS", "3"))
 REPO_ROOT = Path(__file__).resolve().parents[3]
 FIXTURE = REPO_ROOT / "internal" / "solver-fixtures" / "tj-2026-nankai-yimo-25.json"
 EXPECTED = Path("tests/solver/expected/tj-2026-nankai-yimo-25.expected.json")
-DEBUG_DIR = (
+DEFAULT_DEBUG_DIR = (
     REPO_ROOT
     / "internal"
     / "solver-runs"
     / "strategy-planner-deepseek-functional-nankai"
 )
+DEBUG_DIR = Path(
+    os.getenv("DEEPSEEK_FUNCTIONAL_PLANNER_DEBUG_DIR", str(DEFAULT_DEBUG_DIR))
+).expanduser().resolve()
+SAMPLE_ID = os.getenv("DEEPSEEK_FUNCTIONAL_PLANNER_SAMPLE_ID", "single")
 
 
 @pytest.mark.skipif(
@@ -71,6 +76,16 @@ def test_deepseek_functional_plan_solves_nankai_without_protocol_fallback() -> N
     )
 
     result = orchestrator.solve(problem)
+    _write_sample_result(
+        DEBUG_DIR,
+        sample_id=SAMPLE_ID,
+        result=result,
+        attempt_count=(
+            len(orchestrator.last_session.attempts)
+            if orchestrator.last_session is not None
+            else 0
+        ),
+    )
 
     assert result.status == "ok", result.errors
     assert all(check.ok for check in result.checks)
@@ -120,8 +135,35 @@ def test_deepseek_functional_plan_solves_nankai_without_protocol_fallback() -> N
 def _reset_debug_dir(path: Path) -> None:
     if path.exists():
         for child in path.iterdir():
+            if path == DEFAULT_DEBUG_DIR and child.name == "batches":
+                continue
             if child.is_dir():
                 shutil.rmtree(child)
             else:
                 child.unlink()
     path.mkdir(parents=True, exist_ok=True)
+
+
+def _write_sample_result(
+    path: Path,
+    *,
+    sample_id: str,
+    result: object,
+    attempt_count: int,
+) -> None:
+    payload = {
+        "sample_id": sample_id,
+        "status": getattr(result, "status", None),
+        "attempt_count": attempt_count,
+        "answers": getattr(result, "answers", {}),
+        "errors": getattr(result, "errors", []),
+        "checks": [
+            {"ok": getattr(check, "ok", False), "message": str(check)}
+            for check in getattr(result, "checks", [])
+        ],
+    }
+    path.mkdir(parents=True, exist_ok=True)
+    (path / "sample-result.json").write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2, default=str),
+        encoding="utf-8",
+    )

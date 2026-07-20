@@ -44,6 +44,7 @@ class MethodSpecSource:
     constraint_analyzer: str | None = None
     plan_transformer: str | None = None
     reconciliation_validators: tuple[str, ...] = ()
+    distinct_arg_groups: tuple[tuple[str, ...], ...] = ()
     # This source type is reserved for runtime/stateless methods. Stateful
     # implementations must opt out so liveness analysis cannot delete them.
     is_pure: bool = True
@@ -93,6 +94,10 @@ class MethodSpecSource:
             payload["reconciliation_validators"] = list(
                 self.reconciliation_validators
             )
+        if self.distinct_arg_groups:
+            payload["distinct_arg_groups"] = [
+                list(group) for group in self.distinct_arg_groups
+            ]
         return payload
 
 

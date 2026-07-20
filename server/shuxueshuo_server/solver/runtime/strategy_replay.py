@@ -56,6 +56,7 @@ from shuxueshuo_server.solver.runtime.strategy_draft_merge import (
 from shuxueshuo_server.solver.runtime.strategy_models import (
     ExecutablePlanResolutionReport,
     PlannerOutputFormat,
+    ProjectedFunctionArgBinding,
     ProjectedStateWrite,
     PlannerRetryState,
     PlannerRetryIssue,
@@ -256,6 +257,10 @@ class PlannerRetryReplayService:
             attempt=attempt,
             previous_attempts=inputs.previous_errors,
         )
+        functional_catalog = FunctionalCapabilityCatalog.from_family_spec(
+            inputs.family_spec,
+            inputs.method_specs,
+        )
         reconciliation = FunctionalPlanReconciler().reconcile(
             plan,
             planner_state_context=planner_state_context,
@@ -271,6 +276,12 @@ class PlannerRetryReplayService:
         }
         projected_state_writes = _functional_projected_state_writes(
             reconciliation
+        )
+        projected_function_arg_bindings = (
+            _functional_projected_arg_bindings(
+                reconciliation,
+                catalog=functional_catalog,
+            )
         )
         projected_candidate = (
             reconciliation.projected_draft
@@ -360,6 +371,7 @@ class PlannerRetryReplayService:
             allow_shared_derivation_scopes=True,
             candidate_format="functional_plan",
             projected_state_writes=projected_state_writes,
+            projected_function_arg_bindings=projected_function_arg_bindings,
         )
         result_form_events, result_form_issues = verify_functional_result_forms(
             reconciliation.plan,
@@ -426,6 +438,9 @@ class PlannerRetryReplayService:
                 problem_payload=problem_payload,
                 authoritative_output_types=authoritative_output_types,
                 projected_state_writes=projected_state_writes,
+                projected_function_arg_bindings=(
+                    projected_function_arg_bindings
+                ),
             )
             if needs_retry
             else set()
@@ -439,10 +454,7 @@ class PlannerRetryReplayService:
             reconciliation=reconciliation,
             diagnostic=base.diagnostic,
             verified_call_ids=verified_call_ids,
-            functional_catalog=FunctionalCapabilityCatalog.from_family_spec(
-                inputs.family_spec,
-                inputs.method_specs,
-            ).contextualized(
+            functional_catalog=functional_catalog.contextualized(
                 FunctionalSemanticIndex.from_context(
                     planner_state_context,
                     handle_registry=handle_registry,
@@ -484,6 +496,9 @@ class PlannerRetryReplayService:
         problem_payload: dict[str, Any] | None,
         authoritative_output_types: dict[str, str],
         projected_state_writes: tuple[ProjectedStateWrite, ...],
+        projected_function_arg_bindings: tuple[
+            ProjectedFunctionArgBinding, ...
+        ],
     ) -> set[str]:
         if projected_draft is None:
             return set()
@@ -531,6 +546,9 @@ class PlannerRetryReplayService:
                     allow_shared_derivation_scopes=True,
                     candidate_format="functional_plan",
                     projected_state_writes=projected_state_writes,
+                    projected_function_arg_bindings=(
+                        projected_function_arg_bindings
+                    ),
                 )
             except StrategyDraftValidationError:
                 continue
@@ -627,6 +645,9 @@ class PlannerRetryReplayService:
         allow_shared_derivation_scopes: bool = False,
         candidate_format: PlannerOutputFormat = "step_intent",
         projected_state_writes: tuple[ProjectedStateWrite, ...] = (),
+        projected_function_arg_bindings: tuple[
+            ProjectedFunctionArgBinding, ...
+        ] = (),
     ) -> PlannerRetryReplayResult:
         """从已通过 validation 的 draft 开始 replay。"""
         raw_draft = draft
@@ -732,6 +753,7 @@ class PlannerRetryReplayService:
             allow_shared_derivation_scopes=allow_shared_derivation_scopes,
             preserve_call_graph=(candidate_format == "functional_plan"),
             projected_state_writes=projected_state_writes,
+            projected_function_arg_bindings=projected_function_arg_bindings,
         )
         blocker = diagnostic.first_blocker
         if blocker is not None and not blocker.retryable:
@@ -788,7 +810,7 @@ class PlannerRetryReplayService:
             diagnostic=diagnostic,
             goal_verification_issues=goal_verification_issues,
             retry_state=retry_state,
-            output=output,
+            output=None if goal_verification_issues else output,
         )
         return _with_planner_state_context(
             replay,
@@ -905,6 +927,49 @@ def _functional_projected_state_writes(
                 )
             )
     return tuple(result)
+
+
+def _functional_projected_arg_bindings(
+    reconciliation: FunctionalPlanReconciliationResult,
+    *,
+    catalog: FunctionalCapabilityCatalog,
+) -> tuple[ProjectedFunctionArgBinding, ...]:
+    """Preserve only LLM-selected public args across the StepIntent bridge.
+
+    Reconciliation also contains auto, mechanical and context-closure args.
+    Those remain owned by their declared compiler primitives and must not leak
+    into this exact-binding sidecar. Optional public args are retained when the
+    wire plan explicitly supplied them.
+    """
+    calls_by_id = {call.call_id: call for call in reconciliation.plan.calls}
+    selected_args_by_call: dict[str, frozenset[str]] = {}
+    for call in reconciliation.calls:
+        wire_call = calls_by_id.get(call.call_id)
+        capability = catalog.get(call.capability_id)
+        if wire_call is None or capability is None:
+            selected_args_by_call[call.call_id] = frozenset()
+            continue
+        public_args = {
+            arg.name
+            for arg in capability.args
+            if arg.llm_mode in {"explicit", "optional"}
+        }
+        selected_args_by_call[call.call_id] = frozenset(
+            public_args & set(wire_call.args)
+        )
+    return tuple(
+        ProjectedFunctionArgBinding(
+            step_id=call.call_id,
+            arg_name=arg_name,
+            source_handle=value.handle,
+            runtime_type=value.runtime_type,
+            state_slot_id=value.state_slot_id,
+        )
+        for call in reconciliation.calls
+        for arg_name, values in call.resolved_args.items()
+        if arg_name in selected_args_by_call.get(call.call_id, ())
+        for value in values
+    )
 
 
 def repair_attempt_payload_from_replay(
@@ -1048,7 +1113,10 @@ def _functional_projection_retry_state(
         for scope in reconciliation.plan.scopes
         for call in scope.calls
     }
-    issues: list[FunctionalPlanIssue] = []
+    # Projection errors are secondary bridge diagnostics. Preserve the
+    # reconciliation root causes that made a partial projection necessary so
+    # retry does not collapse into a generic duplicate/validation message.
+    issues: list[FunctionalPlanIssue] = list(reconciliation.issues)
     for message in validation_report.errors:
         matched = sorted(
             (

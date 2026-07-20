@@ -22,6 +22,7 @@ from shuxueshuo_server.solver.state_semantics import (
     derived_role_object_ref,
     is_object_handle,
     is_object_semantic_kind,
+    object_ref_matches_runtime_type,
 )
 
 FunctionalCapabilityKind = Literal["function", "macro"]
@@ -231,6 +232,7 @@ class FunctionalCapabilityReturn:
     description: str = ""
     possible_forms: tuple[FunctionalResultForm, ...] = ()
     result_form_description: str = ""
+    equivalent_to: str | None = None
 
     def to_prompt_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -250,6 +252,8 @@ class FunctionalCapabilityReturn:
             payload["desc"] = description
         if self.possible_forms:
             payload["possible_forms"] = list(self.possible_forms)
+        if self.equivalent_to is not None:
+            payload["same_state_as"] = self.equivalent_to
         return payload
 
 
@@ -281,6 +285,10 @@ class FunctionalCapability:
     is_pure: bool
     dependency_policy: CapabilityDependencyPolicy
     reconciliation_validators: tuple[str, ...] = field(default=(), repr=False)
+    distinct_arg_groups: tuple[tuple[str, ...], ...] = field(
+        default=(),
+        repr=False,
+    )
     context_resolvers: tuple[CapabilityContextResolver, ...] = field(
         default=(),
         repr=False,
@@ -608,18 +616,28 @@ class CanonicalStateHandleFactory:
         if return_spec.identity_policy == "preserve_input_object":
             values = resolved_args.get(return_spec.identity_arg or "", ())
             if values:
-                return values[0].object_ref or _entity_handle_or_none(
+                object_ref = values[0].object_ref or _entity_handle_or_none(
                     values[0].handle
                 )
+                if object_ref_matches_runtime_type(
+                    object_ref,
+                    return_spec.runtime_type,
+                ):
+                    return object_ref
         if (
             return_spec.identity_policy == "target_object"
             and return_spec.identity_arg
         ):
             values = resolved_args.get(return_spec.identity_arg, ())
             if values:
-                return values[0].object_ref or _entity_handle_or_none(
+                object_ref = values[0].object_ref or _entity_handle_or_none(
                     values[0].handle
                 )
+                if object_ref_matches_runtime_type(
+                    object_ref,
+                    return_spec.runtime_type,
+                ):
+                    return object_ref
         if binding is not None:
             if binding.kind == "answer":
                 return handle_registry.answer_target_handles.get(binding.handle)
@@ -656,7 +674,11 @@ class CanonicalStateHandleFactory:
         ):
             return derived_role_object_ref(
                 call_id=call_id,
-                semantic_role=return_spec.semantic_role or return_spec.name,
+                semantic_role=(
+                    return_spec.equivalent_to
+                    or return_spec.semantic_role
+                    or return_spec.name
+                ),
                 scope_id=valid_scope,
                 runtime_type=return_spec.runtime_type,
             )

@@ -34,7 +34,14 @@ def functional_reconciliation_issues(
     scope_id: str,
 ) -> tuple[FunctionalPlanIssue, ...]:
     """Run every validator declared by the capability's source spec."""
-    issues: list[FunctionalPlanIssue] = []
+    issues: list[FunctionalPlanIssue] = list(
+        _distinct_argument_identity_issues(
+            capability,
+            resolved_args,
+            call_id=call_id,
+            scope_id=scope_id,
+        )
+    )
     for validator_id in capability.reconciliation_validators:
         validator = _RECONCILIATION_VALIDATORS.get(validator_id)
         if validator is None:
@@ -49,6 +56,60 @@ def functional_reconciliation_issues(
                 produced,
                 call_id,
                 scope_id,
+            )
+        )
+    return tuple(issues)
+
+
+def _distinct_argument_identity_issues(
+    capability: FunctionalCapability,
+    resolved_args: Mapping[str, tuple[ResolvedFunctionalValue, ...]],
+    *,
+    call_id: str,
+    scope_id: str,
+) -> tuple[FunctionalPlanIssue, ...]:
+    """Reject declared argument groups that resolve to the same state identity."""
+    issues: list[FunctionalPlanIssue] = []
+    for group in capability.distinct_arg_groups:
+        identities: dict[str, list[str]] = {}
+        bindings: list[dict[str, str | None]] = []
+        for arg_name in group:
+            values = resolved_args.get(arg_name, ())
+            if len(values) != 1:
+                continue
+            value = values[0]
+            identity = value.object_ref or value.state_slot_id or value.handle
+            identities.setdefault(identity, []).append(arg_name)
+            bindings.append(
+                {
+                    "arg": arg_name,
+                    "object_ref": value.object_ref,
+                    "state_slot_id": value.state_slot_id,
+                    "source_call_id": value.source_call_id,
+                    "return": value.return_name,
+                }
+            )
+        duplicates = tuple(
+            names for names in identities.values() if len(names) > 1
+        )
+        if not duplicates:
+            continue
+        issues.append(
+            FunctionalPlanIssue(
+                layer="functional_reconciliation",
+                code="functional.arg_distinctness_violation",
+                message=(
+                    f"call {call_id} requires distinct semantic states for "
+                    + ", ".join(group)
+                ),
+                call_id=call_id,
+                scope_id=scope_id,
+                details={
+                    "arg_group": list(group),
+                    "duplicate_args": [list(item) for item in duplicates],
+                    "current_bindings": bindings,
+                    "unchanged_binding_rejected": True,
+                },
             )
         )
     return tuple(issues)

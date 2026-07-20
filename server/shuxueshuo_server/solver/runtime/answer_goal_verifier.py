@@ -28,7 +28,12 @@ from shuxueshuo_server.solver.utils import unique_ordered
 
 @dataclass(frozen=True)
 class AnswerGoalVerifier:
-    """Verify that final answer steps carry enough goal evidence."""
+    """Verify that final answer steps carry enough goal evidence.
+
+    A free symbol is valid only when the ProblemIR answer contract declares it
+    as an independent function variable. An earlier ParameterValue state can
+    improve repair guidance, but it never makes an undeclared free symbol valid.
+    """
 
     def verify(
         self,
@@ -69,6 +74,7 @@ class AnswerGoalVerifier:
                 goal,
                 step=step,
                 draft=draft,
+                problem_payload=problem_payload,
                 handle_registry=handle_registry,
                 diagnostic=diagnostic,
             )
@@ -103,17 +109,11 @@ def _unresolved_answer_symbol_issue(
     *,
     step: StepIntent,
     draft: StepIntentDraft,
+    problem_payload: Mapping[str, Any],
     handle_registry: CanonicalHandleRegistry,
     diagnostic: StepIntentExecutionDiagnostic | None,
 ) -> PlannerRetryIssue | None:
-    """Reject a symbolic final value when matching substitutions already exist.
-
-    A final answer may legitimately depend on a free symbol. It becomes a
-    planner error only when an earlier, visible ``ParameterValue`` state for
-    that same Symbol identity already exists: in that case the answer producer
-    failed to consume available state rather than intentionally returning a
-    parameterized result.
-    """
+    """Reject final answers that retain non-contractual free symbols."""
     if diagnostic is None:
         return None
     goal_handle = str(goal.get("handle", "")).strip()
@@ -136,7 +136,17 @@ def _unresolved_answer_symbol_issue(
     if answer_position is None:
         return None
 
-    free_symbols = set(answer_write.free_symbol_names)
+    allowed_symbols = set(
+        _allowed_answer_free_symbols(goal, problem_payload=problem_payload)
+    )
+    unresolved_symbols = tuple(
+        name
+        for name in answer_write.free_symbol_names
+        if name not in allowed_symbols
+    )
+    if not unresolved_symbols:
+        return None
+    free_symbols = set(unresolved_symbols)
     available: list[tuple[str, str, str]] = []
     for item in diagnostic.state_write_provenance:
         if item.runtime_type != "ParameterValue":
@@ -156,8 +166,6 @@ def _unresolved_answer_symbol_issue(
             continue
         available.append((symbol_name, item.produced_handle, item.object_ref or ""))
 
-    if not available:
-        return None
     available_symbols = unique_ordered(item[0] for item in available)
     available_handles = unique_ordered(item[1] for item in available)
     symbol_refs = unique_ordered(item[2] for item in available if item[2])
@@ -169,21 +177,58 @@ def _unresolved_answer_symbol_issue(
         repair_target=goal_handle or step.target,
         message=(
             f"{step.step_id} writes the final answer with unresolved symbols "
-            f"{', '.join(available_symbols)}, even though matching visible "
-            "ParameterValue states were produced earlier."
+            f"{', '.join(unresolved_symbols)}. "
+            + (
+                "Matching visible ParameterValue states were produced earlier."
+                if available
+                else "No visible ParameterValue state closes those symbols."
+            )
         ),
         hints=(
-            "最终 answer 不应直接绑定仍含自由参数的中间状态；请让 answer producer 消费已存在的参数值状态。",
-            "保持现有参数求值 call，并从该 answer producer 起修复数据连接或增加确定性代入 call。",
+            (
+                "最终 answer 不应直接绑定仍含自由参数的中间状态；"
+                "请让 answer producer 消费已存在的参数值状态。"
+                if available
+                else "最终 answer 仍含未确定参数；请先由题设条件确定该参数，"
+                "再让 answer producer 消费其值状态。"
+            ),
+            "函数类答案只允许保留 ProblemIR 明确声明的函数自变量，"
+            "不能保留未定系数或动态参数。",
         ),
         related_handles=unique_ordered(
             (goal_handle, *symbol_refs, *available_handles)
         ),
         details={
-            "unresolved_symbols": list(answer_write.free_symbol_names),
+            "unresolved_symbols": list(unresolved_symbols),
+            "allowed_free_symbols": sorted(allowed_symbols),
             "available_parameter_symbols": list(available_symbols),
             "available_parameter_states": list(available_handles),
         },
+    )
+
+
+def _allowed_answer_free_symbols(
+    goal: Mapping[str, Any],
+    *,
+    problem_payload: Mapping[str, Any],
+) -> tuple[str, ...]:
+    """Return ProblemIR-declared independent variables allowed by the goal."""
+    if str(goal.get("value_type", "")).strip() not in {
+        "Expression",
+        "Equation",
+        "Function",
+        "Parabola",
+    }:
+        return ()
+    entities = problem_payload.get("entities")
+    if not isinstance(entities, list):
+        return ()
+    return unique_ordered(
+        str(item.get("name") or str(item.get("handle", "")).rsplit(":", 1)[-1])
+        for item in entities
+        if isinstance(item, Mapping)
+        and item.get("entity_type") == "symbol"
+        and item.get("role") == "function_variable"
     )
 
 

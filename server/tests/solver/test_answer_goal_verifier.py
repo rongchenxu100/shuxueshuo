@@ -580,13 +580,14 @@ def test_goal_verifier_flags_answer_that_skips_visible_parameter_value() -> None
     assert issue.step_id == "write_symbolic_minimum"
     assert issue.details == {
         "unresolved_symbols": ["m"],
+        "allowed_free_symbols": [],
         "available_parameter_symbols": ["m"],
         "available_parameter_states": ["fact:ii_1:m_value"],
     }
     assert "symbol:problem:m" in issue.related_handles
 
 
-def test_goal_verifier_allows_parameterized_answer_without_available_value() -> None:
+def test_goal_verifier_rejects_parameterized_answer_without_available_value() -> None:
     problem_payload, registry = _nankai_problem_payload_and_registry()
     answer_step = StepIntent(
         scope_id="ii_1",
@@ -635,10 +636,16 @@ def test_goal_verifier_allows_parameterized_answer_without_available_value() -> 
         ),
     )
 
-    assert not any(issue.code == "answer_unresolved_symbol_state" for issue in issues)
+    issue = _issue_by_code(issues, "answer_unresolved_symbol_state")
+    assert issue.details == {
+        "unresolved_symbols": ["m"],
+        "allowed_free_symbols": [],
+        "available_parameter_symbols": [],
+        "available_parameter_states": [],
+    }
 
 
-def test_goal_verifier_ignores_parameter_value_from_sibling_scope() -> None:
+def test_goal_verifier_rejects_symbol_not_closed_in_answer_scope() -> None:
     problem_payload, registry = _nankai_problem_payload_and_registry()
     sibling_parameter_step = StepIntent(
         scope_id="ii_2",
@@ -719,7 +726,58 @@ def test_goal_verifier_ignores_parameter_value_from_sibling_scope() -> None:
         diagnostic=diagnostic,
     )
 
-    assert not any(issue.code == "answer_unresolved_symbol_state" for issue in issues)
+    issue = _issue_by_code(issues, "answer_unresolved_symbol_state")
+    assert issue.details["unresolved_symbols"] == ["m"]
+    assert issue.details["available_parameter_states"] == []
+
+
+def test_goal_verifier_allows_function_variable_but_rejects_free_coefficient() -> None:
+    problem_payload, registry = _nankai_problem_payload_and_registry()
+    answer_step = StepIntent(
+        scope_id="i",
+        step_id="write_incomplete_parabola",
+        recipe_hint="quadratic_from_constraints",
+        goal_type="derive_parabola",
+        target="answer:i.parabola",
+        strategy="write a parabola with one unresolved coefficient",
+        produces=(
+            ProducedFact(
+                "answer:i.parabola",
+                "i",
+                output_type="Parabola",
+            ),
+        ),
+    )
+    draft = StepIntentDraft(
+        scopes=(StepIntentScope("i", "第（Ⅰ）问", (answer_step,)),)
+    )
+    diagnostic = StepIntentExecutionDiagnostic(
+        ok=True,
+        state_write_provenance=(
+            StateWriteProvenance(
+                step_id=answer_step.step_id,
+                scope_id="i",
+                capability_id="quadratic_from_constraints",
+                produced_handle="answer:i.parabola",
+                output_key="parabola",
+                runtime_type="Parabola",
+                identity_policy="preserve_input_object",
+                identity_role="parabola",
+                free_symbol_names=("c", "x"),
+            ),
+        ),
+    )
+
+    issues = AnswerGoalVerifier().verify(
+        draft,
+        problem_payload=problem_payload,
+        handle_registry=registry,
+        diagnostic=diagnostic,
+    )
+
+    issue = _issue_by_code(issues, "answer_unresolved_symbol_state")
+    assert issue.details["unresolved_symbols"] == ["c"]
+    assert issue.details["allowed_free_symbols"] == ["x"]
 
 
 def test_goal_verification_retry_state_truncates_prefix_before_issue_step() -> None:

@@ -235,8 +235,8 @@ class FunctionalCallPlacementService:
                         call,
                     )
                 )
-                continue
-            transferred_return_expectations[previous_id] = merged_expectations
+            else:
+                transferred_return_expectations[previous_id] = merged_expectations
             aliases[call.call_id] = previous_id
             aliases = _canonical_aliases(aliases)
             groups.setdefault(previous_id, (previous_id,))
@@ -246,7 +246,11 @@ class FunctionalCallPlacementService:
             repairs.append(
                 FunctionalDeterministicRepair(
                     call.call_id,
-                    "merge_resolved_equivalent_call",
+                    (
+                        "isolate_conflicting_equivalent_call"
+                        if merged_expectations is None
+                        else "merge_resolved_equivalent_call"
+                    ),
                     call.call_id,
                     previous_id,
                 )
@@ -341,9 +345,8 @@ class FunctionalCallPlacementService:
                         call,
                     )
                 )
-                state_producers[signature] = call.call_id
-                continue
-            if answer_bindings:
+                answer_bindings = {}
+            elif answer_bindings:
                 transferred_return_bindings.setdefault(previous_id, {}).update(
                     answer_bindings
                 )
@@ -352,7 +355,8 @@ class FunctionalCallPlacementService:
                     item,
                     answer_bindings=answer_bindings,
                 )
-            transferred_return_expectations[previous_id] = merged_expectations
+            if merged_expectations is not None:
+                transferred_return_expectations[previous_id] = merged_expectations
             aliases[call.call_id] = previous_id
             aliases = _canonical_aliases(aliases)
             groups.setdefault(previous_id, (previous_id,))
@@ -368,9 +372,13 @@ class FunctionalCallPlacementService:
                 FunctionalDeterministicRepair(
                     call.call_id,
                     (
-                        "reuse_existing_state_for_answer"
-                        if answer_bindings
-                        else "merge_redundant_existing_state_call"
+                        "isolate_conflicting_equivalent_call"
+                        if merged_expectations is None
+                        else (
+                            "reuse_existing_state_for_answer"
+                            if answer_bindings
+                            else "merge_redundant_existing_state_call"
+                        )
                     ),
                     call.call_id,
                     previous_id,

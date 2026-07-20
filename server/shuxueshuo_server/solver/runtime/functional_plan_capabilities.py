@@ -420,6 +420,7 @@ def _function_capability(
         is_pure=spec.is_pure,
         dependency_policy=spec.dependency_policy,
         reconciliation_validators=spec.reconciliation_validators,
+        distinct_arg_groups=spec.distinct_arg_groups,
         context_resolvers=context_resolvers,
         context_arg_bindings=_context_arg_bindings(
             spec.adapter.input_bindings if spec.adapter is not None else (),
@@ -778,6 +779,7 @@ def _function_return(item: FunctionReturnSpec) -> FunctionalCapabilityReturn:
             if item.scalar_result_form is not None
             else ""
         ),
+        None,
     )
 
 
@@ -849,6 +851,7 @@ def _macro_return(item: MacroReturnSpec) -> FunctionalCapabilityReturn:
             if item.scalar_result_form is not None
             else ""
         ),
+        item.equivalent_to,
     )
 
 

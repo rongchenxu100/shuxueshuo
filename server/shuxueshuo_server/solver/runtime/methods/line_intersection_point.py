@@ -89,4 +89,8 @@ SPEC = MethodSpecSource(
     preconditions=(),
     postconditions=(),
     trace_template=(),
+    distinct_arg_groups=(
+        ("line1_p1", "line1_p2"),
+        ("line2_p1", "line2_p2"),
+    ),
 )
