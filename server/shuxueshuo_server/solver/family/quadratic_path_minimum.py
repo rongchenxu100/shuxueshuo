@@ -14,6 +14,7 @@ from shuxueshuo_server.solver.family.models import (
     RecipeExecutionSpec,
     recipe_output_alias,
     SolverFamilySpec,
+    StateObjectRoleProjectionSpec,
     StepRecipeSpec,
     expand_family_spec,
 )
@@ -128,6 +129,12 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                         "two_moving_points_path_reduction.path_transformation",
                         "PathTransformation",
                         "path_transformation",
+                        description=(
+                            "包含降维后的动点、两个固定端点，以及由题面线段"
+                            "归属条件提供的动点轨迹证据；后续路径拉直可据此"
+                            "省略 moving_locus。"
+                        ),
+                        provides_semantic_roles=("moving_locus",),
                     ),
                 ),
             ),
@@ -190,6 +197,13 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                             "选中拉直方案后，由反射构造得到的辅助端点；"
                             "仅供距离计算，不是原路径上的动点、极值点或答案点。"
                         ),
+                        object_role_projections=(
+                            StateObjectRoleProjectionSpec(
+                                role="moving_object",
+                                source_arg="path_transformation",
+                                source_object_role="moving_object",
+                            ),
+                        ),
                     ),
                     recipe_output_alias(
                         "select_straightening_candidate.minimum_point_2",
@@ -203,44 +217,18 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                             "选中拉直方案后，与反射端点组成最短线段的另一固定端点；"
                             "仅供距离计算，不是原路径上的动点、极值点或答案点。"
                         ),
+                        object_role_projections=(
+                            StateObjectRoleProjectionSpec(
+                                role="moving_object",
+                                source_arg="path_transformation",
+                                source_object_role="moving_object",
+                            ),
+                        ),
                     ),
                 ),
             ),
             priority="preferred",
             do_not_use_when=BROKEN_PATH_SELECT_DO_NOT_USE_WHEN,
-        ),
-        StepRecipeSpec(
-            recipe_id="path_minimum_by_straightened_distance",
-            goal_type="derive_minimum_value",
-            title="拉直后距离求最小值",
-            description=(
-                "在折线已经拉直或等价路径已经确定后，单独用端点间距离或垂线距离"
-                "求路径最小值表达式；不要并入折线拉直步骤。"
-            ),
-            method_ids=("distance_between_points",),
-            execution=RecipeExecutionSpec(
-                recipe_id="path_minimum_by_straightened_distance",
-                method_sequence=("distance_between_points",),
-                execution_strategy="straightened_distance_minimum",
-                output_aliases=(
-                    recipe_output_alias(
-                        "distance_between_points.distance",
-                        "MinimumExpression",
-                        "path_minimum_expression",
-                        goal_evidence_tags=("path_minimum_expression",),
-                    ),
-                    recipe_output_alias(
-                        "distance_between_points.evaluated_distance",
-                        "MinimumExpression",
-                        "evaluated_path_minimum_expression",
-                        required=False,
-                        cardinality="optional",
-                        goal_evidence_tags=("path_minimum_expression",),
-                    ),
-                ),
-            ),
-            priority="preferred",
-            do_not_use_when=STRAIGHTENED_DISTANCE_DO_NOT_USE_WHEN,
         ),
     ),
     method_binding_rules=(

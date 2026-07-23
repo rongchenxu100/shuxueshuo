@@ -15,9 +15,9 @@
       "derive_parabola",
       "derive_constructed_point",
       "reduce_path_expression",
-      "straighten_broken_path",
-      "derive_minimum_value",
+      "derive_path_minimum_expression",
       "derive_parameter",
+      "derive_minimum_value",
       "derive_extremal_point"
     ]
   },
@@ -162,19 +162,25 @@
             "target": "fact:ii:path_transformation"
           },
           {
-            "creates": [
-              {
-                "description": "折线拉直所需辅助点，如对称点。具体类型由方案决定。",
-                "entity_type": "point",
-                "handle": "point:ii:Aux",
-                "valid_scope": "ii"
-              }
-            ],
-            "goal_type": "straighten_broken_path",
+            "creates": [],
+            "goal_type": "derive_path_minimum_expression",
             "produces": [
               {
-                "description": "选定的折线拉直方案，包括辅助点位置和路径等价关系。后续全ii可用。",
-                "handle": "fact:ii:straightened_scheme",
+                "description": "EG+FG的最小值（含参数m），后续全ii可用。",
+                "handle": "fact:ii:minimum_value_expr",
+                "output_type": "MinimumExpression",
+                "valid_scope": "ii"
+              },
+              {
+                "description": "拉直后最短线段的第一个端点。",
+                "handle": "fact:ii:path_minimum_point_1",
+                "output_type": "Point",
+                "valid_scope": "ii"
+              },
+              {
+                "description": "拉直后最短线段的第二个端点。",
+                "handle": "fact:ii:path_minimum_point_2",
+                "output_type": "Point",
                 "valid_scope": "ii"
               }
             ],
@@ -185,36 +191,14 @@
               "point:ii:E",
               "point:ii:G",
               "point:ii:F",
-              "fact:ii:F_coordinate_expr"
-            ],
-            "reason": "将折线通过对称变换拉直成线段，使最小值转化为直线距离。",
-            "recipe_hint": "broken_path_straightening_and_select",
-            "step_id": "straighten_broken_path",
-            "strategy": "对降维后的单动点折线路径构造拉直候选方案（如将军饮马），选择最方便计算的方案，并创建辅助点（如对称点）用于后续计算。",
-            "target": "fact:ii:straightened_scheme"
-          },
-          {
-            "creates": [],
-            "goal_type": "derive_minimum_value",
-            "produces": [
-              {
-                "description": "EG+FG的最小值（含参数m），后续全ii可用。",
-                "handle": "fact:ii:minimum_value_expr",
-                "valid_scope": "ii"
-              }
-            ],
-            "reads": [
-              "fact:ii:straightened_scheme",
-              "point:ii:Aux",
-              "point:ii:F",
               "fact:ii:F_coordinate_expr",
               "point:problem:D",
               "fact:problem:D_coordinate"
             ],
-            "reason": "拉直后路径长度为两端点距离，代入坐标得到含m的表达式。",
-            "recipe_hint": "path_minimum_by_straightened_distance",
-            "step_id": "compute_minimum_expr",
-            "strategy": "在拉直方案确定后，利用端点间距离公式求出EG+FG的最小值表达式（含参数m）。",
+            "reason": "公开组合能力一次完成折线拉直，并发布最小值表达式与后续可复用的两个端点。",
+            "recipe_hint": "broken_path_straightening_minimum_expression",
+            "step_id": "derive_path_minimum_model",
+            "strategy": "对降维后的单动点折线路径完成拉直，计算端点距离并得到含参数m的最小值表达式。",
             "target": "fact:ii:minimum_value_expr"
           },
           {
@@ -280,16 +264,12 @@
             ],
             "reads": [
               "fact:ii:minimum_value_expr",
-              "fact:ii:straightened_scheme",
-              "point:ii:Aux",
-              "point:ii:F",
-              "fact:ii:F_coordinate_expr",
               "fact:ii_1:m_value"
             ],
-            "reason": "拉直后的最短路径已经转化为Aux与F之间的距离，再代入m具体数值即可得到第（Ⅱ）①问答案。",
-            "recipe_hint": "distance_between_points",
+            "reason": "共享的最小值表达式已经建立，代入m的具体数值即可得到第（Ⅱ）①问答案。",
+            "recipe_hint": "evaluate_expression_at_parameter",
             "step_id": "compute_ii_1_minimum",
-            "strategy": "把已求得的m值代入拉直端点距离，显式计算EG+FG的具体最小值。",
+            "strategy": "把已求得的m值代入路径最小值表达式，计算EG+FG的具体最小值。",
             "target": "answer:ii_1.minimum_value"
           }
         ]
@@ -357,8 +337,8 @@
               }
             ],
             "reads": [
-              "fact:ii:straightened_scheme",
-              "point:ii:Aux",
+              "fact:ii:path_minimum_point_1",
+              "fact:ii:path_minimum_point_2",
               "point:ii:G",
               "fact:ii:segment_G_on_MN",
               "segment:ii:MN",

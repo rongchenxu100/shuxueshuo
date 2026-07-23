@@ -124,6 +124,18 @@ class CanonicalDraftFinalizer:
                     f"slot={slot_id}, expected={previous.step_id}, "
                     f"actual={getattr(item, 'previous_write_step_id', None)}"
                 )
+            if getattr(item, "transition_kind", None) == "dependency_refinement":
+                previous_symbols = set(
+                    getattr(previous, "free_symbol_names", ())
+                )
+                current_symbols = set(getattr(item, "free_symbol_names", ()))
+                if not current_symbols < previous_symbols:
+                    raise StrategyDraftValidationError(
+                        "state_transition_not_dependency_refinement: "
+                        f"slot={slot_id}, previous_symbols="
+                        f"{sorted(previous_symbols)}, current_symbols="
+                        f"{sorted(current_symbols)}"
+                    )
             latest_by_slot[slot_id] = item
 
 

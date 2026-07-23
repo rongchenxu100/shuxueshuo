@@ -56,6 +56,28 @@ class FilterPointCandidatesByQuadraticCurveMethod:
         if len(kept) == 1:
             outputs["selected_candidate"] = TypedValue("Point", kept[0], source=self.method_id)
 
+        selection_check = (
+            _check(
+                "candidate_selection_unique",
+                True,
+                "曲线条件与参数约束唯一确定候选点",
+            )
+            if len(kept) == 1
+            else _check(
+                (
+                    "candidate_selection_unresolved"
+                    if not kept
+                    else "candidate_selection_ambiguous"
+                ),
+                False,
+                (
+                    "没有候选点满足曲线条件与参数约束"
+                    if not kept
+                    else "曲线条件与参数约束仍保留多个候选点"
+                ),
+            )
+        )
+
         return StatelessMethodResult(
             method_id=self.method_id,
             outputs=outputs,
@@ -66,6 +88,7 @@ class FilterPointCandidatesByQuadraticCurveMethod:
                     len(kept) + len(rejected) == len(candidates),
                     "所有候选点都已完成曲线条件验证",
                 ),
+                selection_check,
             ],
             trace_fragments=[
                 _step(

@@ -7,7 +7,9 @@ import re
 from shuxueshuo_server.solver.runtime.output_type_inference import (
     FACT_TYPE_TO_OUTPUT_TYPE,
 )
-from shuxueshuo_server.solver.state_semantics import split_runtime_types
+from shuxueshuo_server.solver.runtime.runtime_type_declarations import (
+    split_runtime_types,
+)
 
 
 def normalize_runtime_type(value: str) -> str:

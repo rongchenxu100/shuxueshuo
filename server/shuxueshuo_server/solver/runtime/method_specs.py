@@ -11,16 +11,20 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from shuxueshuo_server.solver.contracts import (
     MethodExplanationSpec,
     MethodInputSpec,
     MethodSpec,
     MethodVisualSpec,
+    PlanTransformerScope,
     ScalarResultFormSpec,
 )
-from shuxueshuo_server.solver.state_semantics import split_runtime_types
+from shuxueshuo_server.solver.runtime.runtime_type_declarations import (
+    runtime_type_union_is_well_formed,
+    split_runtime_types,
+)
 
 
 class MethodSpecRegistry:
@@ -104,6 +108,9 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
     is_pure = raw.get("is_pure", False)
     if not isinstance(is_pure, bool):
         raise ValueError("MethodSpec.is_pure must be a boolean")
+    plan_transformer_scope = _parse_plan_transformer_scope(
+        raw.get("plan_transformer_scope", "single_invocation")
+    )
     return MethodSpec(
         method_id=str(raw["method_id"]),
         title=str(raw["title"]),
@@ -129,6 +136,7 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
             if raw.get("plan_transformer") is not None
             else None
         ),
+        plan_transformer_scope=plan_transformer_scope,
         reconciliation_validators=_parse_identifier_list(
             raw.get("reconciliation_validators", ()),
             field_name="MethodSpec.reconciliation_validators",
@@ -139,6 +147,15 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
         ),
         is_pure=is_pure,
     )
+
+
+def _parse_plan_transformer_scope(raw: object) -> PlanTransformerScope:
+    if raw not in {"single_invocation", "all_invocations"}:
+        raise ValueError(
+            "MethodSpec.plan_transformer_scope must be "
+            "'single_invocation' or 'all_invocations'"
+        )
+    return cast(PlanTransformerScope, raw)
 
 
 def _parse_do_not_use_when(raw: object) -> tuple[str, ...]:
@@ -225,10 +242,12 @@ def _parse_inputs(raw_inputs: object) -> dict[str, MethodInputSpec]:
             input_type = raw
             role = ""
             required = True
+            functional_exposed = True
         elif isinstance(raw, dict):
             input_type = str(raw.get("type", ""))
             role = str(raw.get("role", ""))
             required = bool(raw.get("required", True))
+            functional_exposed = bool(raw.get("functional_exposed", True))
         else:
             raise ValueError(f"invalid input spec for {name}")
         if not _input_type_is_known(input_type):
@@ -238,6 +257,7 @@ def _parse_inputs(raw_inputs: object) -> dict[str, MethodInputSpec]:
             type=input_type,
             role=role,
             required=required,
+            functional_exposed=functional_exposed,
         )
     return inputs
 
@@ -271,7 +291,12 @@ def _parse_scalar_result_forms(
             + ", ".join(unknown)
         )
     result: dict[str, ScalarResultFormSpec] = {}
-    allowed_forms = {"open_expression", "closed_value"}
+    allowed_forms = {
+        "open_expression",
+        "closed_value",
+        "open_state",
+        "closed_state",
+    }
     for name, raw in raw_specs.items():
         if not isinstance(raw, dict):
             raise ValueError(f"invalid scalar result form spec for {name}")
@@ -293,10 +318,39 @@ def _parse_scalar_result_forms(
             raise ValueError(
                 f"unknown scalar result closure policy for {name}: {closure_policy}"
             )
+        ignored_symbol_input_args = raw.get("ignored_symbol_input_args", ())
+        if not isinstance(ignored_symbol_input_args, (list, tuple)):
+            raise ValueError(
+                "scalar result form ignored_symbol_input_args must be a list "
+                f"for {name}"
+            )
+        max_independent_free_parameters = raw.get(
+            "max_independent_free_parameters"
+        )
+        if (
+            max_independent_free_parameters is not None
+            and (
+                not isinstance(max_independent_free_parameters, int)
+                or isinstance(max_independent_free_parameters, bool)
+                or max_independent_free_parameters < 0
+            )
+        ):
+            raise ValueError(
+                "scalar result form max_independent_free_parameters must be "
+                f"a non-negative integer for {name}"
+            )
         result[str(name)] = ScalarResultFormSpec(
             possible_forms=forms,  # type: ignore[arg-type]
             description=description,
             closure_policy="no_free_symbols",
+            ignored_symbol_input_args=tuple(
+                str(item)
+                for item in ignored_symbol_input_args
+                if str(item)
+            ),
+            max_independent_free_parameters=(
+                max_independent_free_parameters
+            ),
         )
     return result
 
@@ -424,6 +478,6 @@ def _type_expression_is_known(type_expr: str) -> bool:
     parts = split_runtime_types(type_expr)
     return (
         bool(parts)
-        and len(parts) == len(type_expr.split("|"))
+        and runtime_type_union_is_well_formed(type_expr)
         and all(part in _KNOWN_TYPES for part in parts)
     )

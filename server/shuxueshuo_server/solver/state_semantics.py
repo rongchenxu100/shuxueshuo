@@ -7,7 +7,166 @@ individual facade or compiler modules.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 import re
+from typing import Any, Iterable, Mapping
+
+from shuxueshuo_server.solver.runtime.runtime_type_declarations import (
+    split_runtime_types,
+)
+
+@dataclass(frozen=True)
+class StateObjectRoleBinding:
+    """One named object identity carried by a semantic state."""
+
+    role: str
+    object_refs: tuple[str, ...] = ()
+    source_state_slot_ids: tuple[str, ...] = ()
+
+    def to_payload(self) -> dict[str, object]:
+        return {
+            "role": self.role,
+            "object_refs": list(self.object_refs),
+            "source_state_slot_ids": list(self.source_state_slot_ids),
+        }
+
+
+@dataclass(frozen=True)
+class StateSemanticLineage:
+    """Stable semantic identity metadata propagated across state writes."""
+
+    semantic_roles: tuple[str, ...] = ()
+    evidence_tags: tuple[str, ...] = ()
+    object_roles: tuple[StateObjectRoleBinding, ...] = ()
+    source_state_slot_ids: tuple[str, ...] = ()
+
+    def to_payload(self) -> dict[str, object]:
+        return {
+            "semantic_roles": list(self.semantic_roles),
+            "evidence_tags": list(self.evidence_tags),
+            "object_roles": [item.to_payload() for item in self.object_roles],
+            "source_state_slot_ids": list(self.source_state_slot_ids),
+        }
+
+
+def state_semantic_lineage(
+    *,
+    semantic_roles: Iterable[str] = (),
+    evidence_tags: Iterable[str] = (),
+    object_roles: Iterable[StateObjectRoleBinding] = (),
+    source_state_slot_ids: Iterable[str] = (),
+) -> StateSemanticLineage:
+    """Build normalized lineage without making callers own deduplication."""
+    roles_by_name: dict[str, StateObjectRoleBinding] = {}
+    for item in object_roles:
+        current = roles_by_name.get(item.role)
+        roles_by_name[item.role] = StateObjectRoleBinding(
+            role=item.role,
+            object_refs=_unique_strings(
+                (
+                    *((current.object_refs if current is not None else ())),
+                    *item.object_refs,
+                )
+            ),
+            source_state_slot_ids=_unique_strings(
+                (
+                    *((
+                        current.source_state_slot_ids
+                        if current is not None
+                        else ()
+                    )),
+                    *item.source_state_slot_ids,
+                )
+            ),
+        )
+    return StateSemanticLineage(
+        semantic_roles=_unique_strings(semantic_roles),
+        evidence_tags=_unique_strings(evidence_tags),
+        object_roles=tuple(roles_by_name.values()),
+        source_state_slot_ids=_unique_strings(source_state_slot_ids),
+    )
+
+
+def merge_state_semantic_lineages(
+    *items: StateSemanticLineage,
+    semantic_roles: Iterable[str] = (),
+    evidence_tags: Iterable[str] = (),
+    object_roles: Iterable[StateObjectRoleBinding] = (),
+    source_state_slot_ids: Iterable[str] = (),
+) -> StateSemanticLineage:
+    """Merge source lineage with roles declared by the current write."""
+    return state_semantic_lineage(
+        semantic_roles=(
+            *(role for item in items for role in item.semantic_roles),
+            *semantic_roles,
+        ),
+        evidence_tags=(
+            *(tag for item in items for tag in item.evidence_tags),
+            *evidence_tags,
+        ),
+        object_roles=(
+            *(binding for item in items for binding in item.object_roles),
+            *object_roles,
+        ),
+        source_state_slot_ids=(
+            *(
+                slot_id
+                for item in items
+                for slot_id in item.source_state_slot_ids
+            ),
+            *source_state_slot_ids,
+        ),
+    )
+
+
+def state_object_refs_for_role(
+    lineage: StateSemanticLineage,
+    role: str,
+) -> tuple[str, ...]:
+    """Return canonical object refs carried under one structured role."""
+    return _unique_strings(
+        object_ref
+        for item in lineage.object_roles
+        if item.role == role
+        for object_ref in item.object_refs
+    )
+
+
+def state_semantic_lineage_from_payload(
+    payload: object,
+) -> StateSemanticLineage:
+    """Parse persisted lineage at the untrusted debug/context boundary."""
+    if not isinstance(payload, Mapping):
+        return StateSemanticLineage()
+    object_roles: list[StateObjectRoleBinding] = []
+    raw_object_roles = payload.get("object_roles", ())
+    if isinstance(raw_object_roles, Iterable) and not isinstance(
+        raw_object_roles,
+        (str, bytes, Mapping),
+    ):
+        for item in raw_object_roles:
+            if not isinstance(item, Mapping):
+                continue
+            role = item.get("role")
+            if not isinstance(role, str) or not role:
+                continue
+            object_roles.append(
+                StateObjectRoleBinding(
+                    role=role,
+                    object_refs=_string_items(item.get("object_refs")),
+                    source_state_slot_ids=_string_items(
+                        item.get("source_state_slot_ids")
+                    ),
+                )
+            )
+    return state_semantic_lineage(
+        semantic_roles=_string_items(payload.get("semantic_roles")),
+        evidence_tags=_string_items(payload.get("evidence_tags")),
+        object_roles=object_roles,
+        source_state_slot_ids=_string_items(
+            payload.get("source_state_slot_ids")
+        ),
+    )
 
 
 OBJECT_SEMANTIC_KIND_ORDER = (
@@ -74,11 +233,6 @@ _RUNTIME_TYPE_BY_OBJECT_SEMANTIC_KIND: dict[str, str] = {
     "circle": "Circle",
     "polygon": "Polygon",
 }
-
-
-def split_runtime_types(runtime_type: str) -> tuple[str, ...]:
-    """Split one runtime union using the canonical declaration grammar."""
-    return tuple(part.strip() for part in runtime_type.split("|") if part.strip())
 
 
 def state_kind_for_runtime_type(runtime_type: str) -> str:
@@ -190,9 +344,24 @@ def _safe_identity_token(value: str) -> str:
     return token or "state"
 
 
+def _unique_strings(values: Iterable[str]) -> tuple[str, ...]:
+    return tuple(dict.fromkeys(value for value in values if value))
+
+
+def _string_items(value: Any) -> tuple[str, ...]:
+    if not isinstance(value, Iterable) or isinstance(
+        value,
+        (str, bytes, Mapping),
+    ):
+        return ()
+    return _unique_strings(item for item in value if isinstance(item, str))
+
+
 __all__ = [
     "OBJECT_SEMANTIC_KIND_ORDER",
     "OBJECT_SEMANTIC_KINDS",
+    "StateObjectRoleBinding",
+    "StateSemanticLineage",
     "dependent_role_object_ref",
     "derived_role_object_ref",
     "is_object_handle",
@@ -201,6 +370,10 @@ __all__ = [
     "object_kind_for_runtime_type",
     "object_ref_matches_runtime_type",
     "runtime_type_for_object_semantic_kind",
+    "merge_state_semantic_lineages",
     "split_runtime_types",
+    "state_object_refs_for_role",
     "state_kind_for_runtime_type",
+    "state_semantic_lineage",
+    "state_semantic_lineage_from_payload",
 ]

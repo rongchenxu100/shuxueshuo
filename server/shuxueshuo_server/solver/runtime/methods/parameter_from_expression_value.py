@@ -70,6 +70,7 @@ SPEC = MethodSpecSource(
     do_not_use_when=(
         "尚未得到可代入的含参表达式，或题面没有给出该表达式对应的取值条件。",
         "目标是完成路径转化或推导最小值表达式，而不是由一个已知表达式取值反求参数。",
+        "表达式仍含两个或更多相互独立的未知 Symbol；中学生解法应先利用显式关系或已知参数值化为单一未知量。",
     ),
     solves=("derive_parameter_from_expression_value",),
     inputs={
@@ -79,6 +80,8 @@ SPEC = MethodSpecSource(
         "constraint": {"type": "Constraint", "required": False},
     },
     outputs={"parameter_value": "ParameterValue"},
+    plan_transformer="validate_student_single_degree_of_freedom",
+    plan_transformer_scope="all_invocations",
     preconditions=("expression 已由前序 method 推导得到",),
     postconditions=("输出参数值满足表达式取值条件",),
     explanation=MethodExplanationSpec(

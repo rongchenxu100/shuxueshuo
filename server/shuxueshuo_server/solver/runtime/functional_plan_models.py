@@ -10,6 +10,10 @@ from shuxueshuo_server.solver.contracts import FunctionalResultForm
 from shuxueshuo_server.solver.family.models import (
     CapabilityContextResolver,
     CapabilityDependencyPolicy,
+    CapabilityStateClosurePolicy,
+    StateIdentityConstraintSpec,
+    StateLineageClosureSpec,
+    StateObjectRoleProjectionSpec,
 )
 from shuxueshuo_server.solver.runtime.condition_roles import ConditionObjectRoles
 from shuxueshuo_server.solver.runtime.function_specs import FunctionSpec
@@ -18,6 +22,7 @@ from shuxueshuo_server.solver.runtime.macro_specs import MacroSpec
 from shuxueshuo_server.solver.runtime.semantic_reads import SemanticReadCatalogItem
 from shuxueshuo_server.solver.runtime.strategy_models import SemanticRef, StepIntentDraft
 from shuxueshuo_server.solver.state_semantics import (
+    StateSemanticLineage,
     dependent_role_object_ref,
     derived_role_object_ref,
     is_object_handle,
@@ -148,6 +153,7 @@ class FunctionalPlanIssue:
 class FunctionalPlanValidationReport:
     issues: tuple[FunctionalPlanIssue, ...] = ()
     partially_parsed_payload: dict[str, Any] | None = None
+    deterministic_repairs: tuple[dict[str, Any], ...] = ()
 
     @property
     def ok(self) -> bool:
@@ -158,6 +164,9 @@ class FunctionalPlanValidationReport:
             "ok": self.ok,
             "issues": [item.to_payload() for item in self.issues],
             "partially_parsed_payload": self.partially_parsed_payload,
+            "deterministic_repairs": [
+                dict(item) for item in self.deterministic_repairs
+            ],
         }
 
 
@@ -176,9 +185,11 @@ class FunctionalCapabilityArg:
     requires_materialized_state: bool = False
     aggregation: FunctionalAggregation = "none"
     runtime_input: str | None = None
+    aliases: tuple[str, ...] = ()
     deterministic_resolver: str | None = None
     description: str = ""
     provides_semantic_roles: tuple[str, ...] = ()
+    input_closure_policy: CapabilityStateClosurePolicy = "any"
 
     def to_prompt_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -201,6 +212,12 @@ class FunctionalCapabilityArg:
             payload["requires_computed_value"] = True
         if self.description:
             payload["desc"] = self.description
+        if self.input_closure_policy == "closed_only":
+            payload["accepted_forms"] = ["closed_state"]
+            payload["max_independent_free_parameters"] = 0
+        elif self.input_closure_policy == "closed_or_single_free":
+            payload["accepted_forms"] = ["closed_state", "open_state"]
+            payload["max_independent_free_parameters"] = 1
         return payload
 
 
@@ -233,6 +250,11 @@ class FunctionalCapabilityReturn:
     possible_forms: tuple[FunctionalResultForm, ...] = ()
     result_form_description: str = ""
     equivalent_to: str | None = None
+    provides_semantic_roles: tuple[str, ...] = ()
+    evidence_tags: tuple[str, ...] = ()
+    object_role_projections: tuple[StateObjectRoleProjectionSpec, ...] = ()
+    lineage_closures: tuple[StateLineageClosureSpec, ...] = ()
+    max_independent_free_parameters: int | None = None
 
     def to_prompt_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -252,9 +274,31 @@ class FunctionalCapabilityReturn:
             payload["desc"] = description
         if self.possible_forms:
             payload["possible_forms"] = list(self.possible_forms)
+        if self.max_independent_free_parameters is not None:
+            payload["max_independent_free_parameters"] = (
+                self.max_independent_free_parameters
+            )
         if self.equivalent_to is not None:
             payload["same_state_as"] = self.equivalent_to
+        if self.provides_semantic_roles:
+            payload["provides"] = list(self.provides_semantic_roles)
         return payload
+
+
+@dataclass(frozen=True)
+class FunctionalInputClosureRequirement:
+    """LLM-facing conditionally required semantic input contract."""
+
+    semantic_role: str
+    provider_arg_roles: tuple[str, ...]
+    cardinality: str
+    description: str
+
+    def to_prompt_payload(self) -> dict[str, Any]:
+        return {
+            "role": self.semantic_role,
+            "requirement": self.description,
+        }
 
 
 @dataclass(frozen=True)
@@ -302,6 +346,13 @@ class FunctionalCapability:
         default=(),
         repr=False,
     )
+    input_closure_requirements: tuple[
+        FunctionalInputClosureRequirement, ...
+    ] = ()
+    identity_constraints: tuple[StateIdentityConstraintSpec, ...] = field(
+        default=(),
+        repr=False,
+    )
 
     @property
     def goal_type(self) -> str:
@@ -313,6 +364,13 @@ class FunctionalCapability:
             )
         return self.goal_types[0]
 
+    def declared_arg_runtime_type(self, name: str) -> str | None:
+        """Return the typed Function/Macro arg hidden behind a wire adapter."""
+        for arg in self.source.args:
+            if arg.name == name:
+                return arg.runtime_type
+        return None
+
     def to_prompt_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
             "capability_id": self.capability_id,
@@ -323,6 +381,27 @@ class FunctionalCapability:
         }
         if self.do_not_use_when:
             payload["do_not_use_when"] = list(self.do_not_use_when)
+        requirements = [
+            item.to_prompt_payload()
+            for item in self.input_closure_requirements
+        ]
+        requirements.extend(
+            {"requirement": item.description}
+            for item in self.identity_constraints
+            if item.description
+        )
+        exposed_arg_names = {item.name for item in self.args}
+        requirements.extend(
+            {
+                "requirement": (
+                    f"{'、'.join(group)} 必须引用彼此不同的语义状态。"
+                )
+            }
+            for group in self.distinct_arg_groups
+            if len(group) > 1 and set(group) <= exposed_arg_names
+        )
+        if requirements:
+            payload["input_requirements"] = requirements
         return payload
 
 
@@ -351,6 +430,10 @@ class ResolvedFunctionalValue:
     dependency_object_refs: tuple[str, ...] = ()
     free_symbol_refs: tuple[str, ...] = ()
     source_state_slot_ids: tuple[str, ...] = ()
+    provides_semantic_roles: tuple[str, ...] = ()
+    lineage: StateSemanticLineage = StateSemanticLineage()
+    materialized_runtime_type: str | None = None
+    supporting_handles: tuple[str, ...] = ()
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -369,6 +452,10 @@ class ResolvedFunctionalValue:
             "dependency_object_refs": list(self.dependency_object_refs),
             "free_symbol_refs": list(self.free_symbol_refs),
             "source_state_slot_ids": list(self.source_state_slot_ids),
+            "provides_semantic_roles": list(self.provides_semantic_roles),
+            "lineage": self.lineage.to_payload(),
+            "materialized_runtime_type": self.materialized_runtime_type,
+            "supporting_handles": list(self.supporting_handles),
         }
 
 
@@ -387,6 +474,10 @@ class FunctionalReturnAllocation:
     dependency_object_refs: tuple[str, ...] = ()
     free_symbol_refs: tuple[str, ...] = ()
     source_state_slot_ids: tuple[str, ...] = ()
+    transition_kind: Literal["direct", "dependency_refinement"] | None = None
+    previous_write_step_id: str | None = None
+    provides_semantic_roles: tuple[str, ...] = ()
+    lineage: StateSemanticLineage = StateSemanticLineage()
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -403,6 +494,10 @@ class FunctionalReturnAllocation:
             "dependency_object_refs": list(self.dependency_object_refs),
             "free_symbol_refs": list(self.free_symbol_refs),
             "source_state_slot_ids": list(self.source_state_slot_ids),
+            "transition_kind": self.transition_kind,
+            "previous_write_step_id": self.previous_write_step_id,
+            "provides_semantic_roles": list(self.provides_semantic_roles),
+            "lineage": self.lineage.to_payload(),
         }
 
 

@@ -9,7 +9,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Literal
 
+from shuxueshuo_server.solver.contracts import FunctionalResultForm
 from shuxueshuo_server.solver.runtime.handle_alias_index import SEMANTIC_READ_KIND_ORDER
+from shuxueshuo_server.solver.state_semantics import StateSemanticLineage
 
 STEP_INTENT_OUTPUT_TYPES: tuple[str, ...] = (
     "AngleEquality",
@@ -38,6 +40,23 @@ def answer_output_type_compatible(expected_type: str | None, actual_type: str | 
     if expected_type == actual_type:
         return True
     return expected_type == "Point" and actual_type == "PointList"
+
+
+def functional_answer_output_type_compatible(
+    expected_type: str | None,
+    actual_type: str | None,
+) -> bool:
+    """Use strict answer cardinality at the FunctionalPlan boundary.
+
+    Functional returns declare their exact scalar/container type. A candidate
+    collection must be narrowed by another call before it can bind a singular
+    answer. The older StepIntent helper intentionally retains its compatibility.
+    """
+    return (
+        expected_type is None
+        or actual_type is None
+        or expected_type == actual_type
+    )
 
 
 def answer_value_type_requires_closed_scalar(value_type: str | None) -> bool:
@@ -114,8 +133,12 @@ class ProjectedStateWrite:
     state_slot_id: str
     write_mode: Literal["create", "transition", "value"]
     source_state_slot_ids: tuple[str, ...] = ()
+    dependency_object_refs: tuple[str, ...] = ()
     return_name: str | None = None
-    expected_result_form: Literal["open_expression", "closed_value"] | None = None
+    expected_result_form: FunctionalResultForm | None = None
+    transition_kind: Literal["direct", "dependency_refinement"] | None = None
+    previous_write_step_id: str | None = None
+    lineage: StateSemanticLineage = StateSemanticLineage()
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -124,11 +147,17 @@ class ProjectedStateWrite:
             "state_slot_id": self.state_slot_id,
             "write_mode": self.write_mode,
             "source_state_slot_ids": list(self.source_state_slot_ids),
+            "dependency_object_refs": list(self.dependency_object_refs),
         }
         if self.return_name is not None:
             payload["return_name"] = self.return_name
         if self.expected_result_form is not None:
             payload["expected_result_form"] = self.expected_result_form
+        if self.transition_kind is not None:
+            payload["transition_kind"] = self.transition_kind
+        if self.previous_write_step_id is not None:
+            payload["previous_write_step_id"] = self.previous_write_step_id
+        payload["lineage"] = self.lineage.to_payload()
         return payload
 
 
@@ -147,6 +176,7 @@ class ProjectedFunctionArgBinding:
     source_handle: str
     runtime_type: str | None = None
     state_slot_id: str | None = None
+    object_ref: str | None = None
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -158,6 +188,8 @@ class ProjectedFunctionArgBinding:
             payload["runtime_type"] = self.runtime_type
         if self.state_slot_id is not None:
             payload["state_slot_id"] = self.state_slot_id
+        if self.object_ref is not None:
+            payload["object_ref"] = self.object_ref
         return payload
 
 
@@ -692,6 +724,22 @@ class StepIntentPreflightIssue:
 
 
 @dataclass(frozen=True)
+class FunctionArgBindingRepair:
+    """Analyzer-selected canonical sources for one Functional argument."""
+
+    arg_name: str
+    source_handles: tuple[str, ...]
+    reason: str
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            "arg_name": self.arg_name,
+            "source_handles": list(self.source_handles),
+            "reason": self.reason,
+        }
+
+
+@dataclass(frozen=True)
 class StepIntentFunctionBindingEvent:
     """FunctionSpec adapter binding result for one method attempt.
 
@@ -707,6 +755,7 @@ class StepIntentFunctionBindingEvent:
     function_id: str
     status: Literal["success", "failure"]
     errors: tuple[str, ...] = ()
+    arg_repairs: tuple[FunctionArgBindingRepair, ...] = ()
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -718,6 +767,10 @@ class StepIntentFunctionBindingEvent:
         }
         if self.errors:
             payload["errors"] = list(self.errors)
+        if self.arg_repairs:
+            payload["arg_repairs"] = [
+                item.to_payload() for item in self.arg_repairs
+            ]
         return payload
 
 
@@ -770,6 +823,11 @@ class StateWriteProvenance:
     write_mode: Literal["create", "transition", "value"] = "value"
     previous_write_step_id: str | None = None
     free_symbol_names: tuple[str, ...] = ()
+    closure_ignored_symbol_names: tuple[str, ...] = ()
+    transition_kind: Literal["direct", "dependency_refinement"] | None = None
+    dependency_object_refs: tuple[str, ...] = ()
+    source_state_slot_ids: tuple[str, ...] = ()
+    lineage: StateSemanticLineage = StateSemanticLineage()
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -789,6 +847,13 @@ class StateWriteProvenance:
             "write_mode": self.write_mode,
             "previous_write_step_id": self.previous_write_step_id,
             "free_symbol_names": list(self.free_symbol_names),
+            "closure_ignored_symbol_names": list(
+                self.closure_ignored_symbol_names
+            ),
+            "transition_kind": self.transition_kind,
+            "dependency_object_refs": list(self.dependency_object_refs),
+            "source_state_slot_ids": list(self.source_state_slot_ids),
+            "lineage": self.lineage.to_payload(),
         }
 
 

@@ -16,10 +16,10 @@ from shuxueshuo_server.solver.family.models import (
     MethodBindingRuleSpec,
     MethodCompanionOutputSpec,
     MethodInputBindingSpec,
-    MethodPrepInvocationSpec,
     RecipeExecutionSpec,
     recipe_output_alias,
     SolverFamilySpec,
+    StateObjectRoleProjectionSpec,
     StepRecipeSpec,
     expand_family_spec,
 )
@@ -27,21 +27,8 @@ from shuxueshuo_server.solver.family.capability_packs import (
     BROKEN_PATH_MINIMUM_EXPRESSION_DO_NOT_USE_WHEN,
     DEFAULT_CAPABILITY_PACK_REGISTRY,
 )
-
-_PARABOLA_PREP = (
-    MethodPrepInvocationSpec(
-        trigger_selector="missing_readable_type_with_quadratic_source:Parabola",
-        method_id="quadratic_from_constraints",
-        output_aliases=(
-            ("coefficients", "__local_only__"),
-            ("parabola", "__local_only__"),
-        ),
-        local_output_aliases=(
-            ("type:Coefficients", "coefficients"),
-            ("type:Parabola", "parabola"),
-        ),
-        expansion_selectors=("known_coefficients_if_read",),
-    ),
+from shuxueshuo_server.solver.family.common_binding_rules import (
+    QUADRATIC_STATE_PREP_INVOCATIONS,
 )
 
 
@@ -102,7 +89,8 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             description=(
                 "对单动点两段折线路径，生成将军饮马拉直候选，选择最适合计算的方案，"
                 "再计算对应两端点距离。端点仍含未定参数时输出开放表达式；端点全部"
-                "确定时输出闭合值。"
+                "确定时输出闭合值。本能力不猜测动点轨迹：PathTransformation 未携带"
+                "轨迹依据时，必须显式提供同一动点的 Line 轨迹。"
             ),
             method_ids=(
                 "broken_path_straightening_candidates",
@@ -130,6 +118,13 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                             "选中拉直方案后，由反射构造得到的辅助端点；"
                             "仅供距离计算，不是原路径上的动点、极值点或答案点。"
                         ),
+                        object_role_projections=(
+                            StateObjectRoleProjectionSpec(
+                                role="moving_object",
+                                source_arg="path_transformation",
+                                source_object_role="moving_object",
+                            ),
+                        ),
                     ),
                     recipe_output_alias(
                         "select_straightening_candidate.minimum_point_2",
@@ -142,6 +137,13 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                         description=(
                             "选中拉直方案后，与反射端点组成最短线段的另一固定端点；"
                             "仅供距离计算，不是原路径上的动点、极值点或答案点。"
+                        ),
+                        object_role_projections=(
+                            StateObjectRoleProjectionSpec(
+                                role="moving_object",
+                                source_arg="path_transformation",
+                                source_object_role="moving_object",
+                            ),
                         ),
                     ),
                     recipe_output_alias(
@@ -190,31 +192,13 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             ),
         ),
         MethodBindingRuleSpec(
-            method_id="quadratic_vertex_point",
-            input_bindings=(
-                MethodInputBindingSpec("parabola", "read_type:Parabola"),
-                MethodInputBindingSpec("x", "symbol:x"),
-                MethodInputBindingSpec("target", "point_output_ref"),
-            ),
-            prep_invocations=_PARABOLA_PREP,
-        ),
-        MethodBindingRuleSpec(
-            method_id="quadratic_x_axis_intercept_point",
-            input_bindings=(
-                MethodInputBindingSpec("quadratic", "read_type:Parabola"),
-                MethodInputBindingSpec("x", "symbol:x"),
-                MethodInputBindingSpec("target", "point_output_ref"),
-                MethodInputBindingSpec("known_point", "x_axis_known_point", required=False),
-            ),
-            prep_invocations=_PARABOLA_PREP,
-        ),
-        MethodBindingRuleSpec(
             method_id="quadratic_axis_x_intercept_point",
             input_bindings=(
                 MethodInputBindingSpec("parabola", "read_type:Parabola"),
                 MethodInputBindingSpec("x", "symbol:x"),
                 MethodInputBindingSpec("target", "point_output_ref"),
             ),
+            prep_invocations=QUADRATIC_STATE_PREP_INVOCATIONS,
         ),
         MethodBindingRuleSpec(
             method_id="square_path_dimension_reduction",
@@ -232,7 +216,7 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 MethodInputBindingSpec("x", "symbol:x"),
                 MethodInputBindingSpec("target", "point_output_ref"),
             ),
-            prep_invocations=_PARABOLA_PREP,
+            prep_invocations=QUADRATIC_STATE_PREP_INVOCATIONS,
             companion_outputs=(
                 MethodCompanionOutputSpec(
                     output_name="parameter",
@@ -263,7 +247,7 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 MethodInputBindingSpec("parabola", "read_type:Parabola"),
                 MethodInputBindingSpec("x", "symbol:x"),
             ),
-            prep_invocations=_PARABOLA_PREP,
+            prep_invocations=QUADRATIC_STATE_PREP_INVOCATIONS,
         ),
         MethodBindingRuleSpec(
             method_id="parameterized_point_locus_line",

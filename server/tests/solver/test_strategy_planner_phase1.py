@@ -22,6 +22,9 @@ from shuxueshuo_server.solver.family.models import (
     MethodPrepInvocationSpec,
     RecipeExecutionSpec,
 )
+from shuxueshuo_server.solver.family.common_binding_rules import (
+    QUADRATIC_STATE_PREP_INVOCATIONS,
+)
 from shuxueshuo_server.solver.fixtures import load_problem_ir
 from shuxueshuo_server.solver.problem_models import ProblemIR, QuestionGoal
 from shuxueshuo_server.solver.question_goals import extract_question_goals
@@ -1636,9 +1639,10 @@ def test_recipe_catalog_is_family_recipe_summary() -> None:
     assert {
         "right_angle_equal_length_construct_and_select",
         "two_moving_points_path_reduction",
-        "broken_path_straightening_and_select",
+        "broken_path_straightening_minimum_expression",
         "path_minimum_by_straightened_distance",
     }.issubset(recipe_ids)
+    assert "broken_path_straightening_and_select" not in recipe_ids
     path_recipe = next(
         recipe for recipe in recipes
         if recipe["recipe_id"] == "two_moving_points_path_reduction"
@@ -1748,7 +1752,8 @@ def test_strategy_prompt_renderer_contains_core_sections() -> None:
     assert "axis_intercept_from_equal_acute_angles" not in prompt.system
     assert "不能包含 `?`、`??`、`unknown`、`todo`" in prompt.user
     assert "two_moving_points_path_reduction" in prompt.user
-    assert "broken_path_straightening_and_select" in prompt.user
+    assert "broken_path_straightening_minimum_expression" in prompt.user
+    assert "broken_path_straightening_and_select" not in prompt.user
     assert "path_minimum_by_straightened_distance" in prompt.user
     assert "不创建辅助点或新轨迹" in prompt.user
     assert "path_minimum_by_straightened_distance" not in prompt.system
@@ -2017,7 +2022,8 @@ def test_other_families_keep_generic_fallback_few_shot(tmp_path: Path) -> None:
 
     assert payload["few_shot_examples"][0]["problem_id"] == "fallback-QuadraticPathMinimumSolver"
     assert "two_moving_points_path_reduction" in serialized
-    assert "broken_path_straightening_and_select" in serialized
+    assert "broken_path_straightening_minimum_expression" in serialized
+    assert "broken_path_straightening_and_select" not in serialized
     assert "equal_length_ray_point" not in serialized
 
 
@@ -6103,20 +6109,7 @@ def test_method_binding_registry_loads_prep_invocations_from_family_spec() -> No
     rule = rules.rule_for("quadratic_vertex_point")
 
     assert rule is not None
-    assert rule.prep_invocations == (
-        MethodPrepInvocationSpec(
-            trigger_selector="missing_readable_type:Parabola",
-            method_id="quadratic_from_constraints",
-            output_aliases=(
-                ("coefficients", "prepared_coefficients"),
-                ("parabola", "prepared_parabola"),
-            ),
-            local_output_aliases=(
-                ("type:Coefficients", "coefficients"),
-                ("type:Parabola", "parabola"),
-            ),
-        ),
-    )
+    assert rule.prep_invocations == QUADRATIC_STATE_PREP_INVOCATIONS
 
 
 def test_equal_length_family_x_axis_intercept_has_parabola_prep_rule() -> None:
@@ -6127,20 +6120,7 @@ def test_equal_length_family_x_axis_intercept_has_parabola_prep_rule() -> None:
     rule = rules.rule_for("quadratic_x_axis_intercept_point")
 
     assert rule is not None
-    assert rule.prep_invocations == (
-        MethodPrepInvocationSpec(
-            trigger_selector="missing_readable_type:Parabola",
-            method_id="quadratic_from_constraints",
-            output_aliases=(
-                ("coefficients", "prepared_coefficients"),
-                ("parabola", "prepared_parabola"),
-            ),
-            local_output_aliases=(
-                ("type:Coefficients", "coefficients"),
-                ("type:Parabola", "parabola"),
-            ),
-        ),
-    )
+    assert rule.prep_invocations == QUADRATIC_STATE_PREP_INVOCATIONS
 
 
 def test_square_family_parabola_methods_have_source_guarded_prep_rules() -> None:
@@ -6155,21 +6135,7 @@ def test_square_family_parabola_methods_have_source_guarded_prep_rules() -> None
     ):
         rule = rules.rule_for(method_id)
         assert rule is not None
-        assert rule.prep_invocations == (
-            MethodPrepInvocationSpec(
-                trigger_selector="missing_readable_type_with_quadratic_source:Parabola",
-                method_id="quadratic_from_constraints",
-                output_aliases=(
-                    ("coefficients", "__local_only__"),
-                    ("parabola", "__local_only__"),
-                ),
-                local_output_aliases=(
-                    ("type:Coefficients", "coefficients"),
-                    ("type:Parabola", "parabola"),
-                ),
-                expansion_selectors=("known_coefficients_if_read",),
-            ),
-        )
+        assert rule.prep_invocations == QUADRATIC_STATE_PREP_INVOCATIONS
 
 
 def test_prep_invocation_builder_generates_declared_local_outputs() -> None:
@@ -6189,6 +6155,7 @@ def test_prep_invocation_builder_generates_declared_local_outputs() -> None:
         recipe_hint="quadratic_vertex_point",
         goal_type="derive_vertex_point",
         target="answer:i.P",
+        reads=("function:problem:parabola",),
     )
 
     result = PrepInvocationBuilder(binding_rules=rules, index=index).build(
@@ -6201,16 +6168,13 @@ def test_prep_invocation_builder_generates_declared_local_outputs() -> None:
     assert invocation.method_id == "quadratic_from_constraints"
     assert invocation.invocation_id == "derive_vertex_i.prepare_quadratic_from_constraints"
     assert invocation.outputs == {
-        "coefficients": "$step.derive_vertex_i.temp.prepared_coefficients",
-        "parabola": "$step.derive_vertex_i.temp.prepared_parabola",
+        "coefficients": "$step.derive_vertex_i.temp.coefficients",
+        "parabola": "$step.derive_vertex_i.temp.parabola",
     }
-    assert result.promote == {
-        "$step.derive_vertex_i.temp.prepared_coefficients": "$question.i.outputs.prepared_coefficients",
-        "$step.derive_vertex_i.temp.prepared_parabola": "$question.i.outputs.prepared_parabola",
-    }
+    assert result.promote == {}
     assert result.local_outputs == {
-        "type:Coefficients": "$step.derive_vertex_i.temp.prepared_coefficients",
-        "type:Parabola": "$step.derive_vertex_i.temp.prepared_parabola",
+        "type:Coefficients": "$step.derive_vertex_i.temp.coefficients",
+        "type:Parabola": "$step.derive_vertex_i.temp.parabola",
     }
 
 
@@ -6418,11 +6382,12 @@ def test_x_axis_intercept_prep_generates_parabola_when_missing() -> None:
     invocation = result.invocations[0]
     assert invocation.method_id == "quadratic_from_constraints"
     assert invocation.outputs == {
-        "coefficients": "$step.derive_B_coordinate_expr_for_ii.temp.prepared_coefficients",
-        "parabola": "$step.derive_B_coordinate_expr_for_ii.temp.prepared_parabola",
+        "coefficients": "$step.derive_B_coordinate_expr_for_ii.temp.coefficients",
+        "parabola": "$step.derive_B_coordinate_expr_for_ii.temp.parabola",
     }
+    assert result.promote == {}
     assert result.local_outputs["type:Parabola"] == (
-        "$step.derive_B_coordinate_expr_for_ii.temp.prepared_parabola"
+        "$step.derive_B_coordinate_expr_for_ii.temp.parabola"
     )
 
 

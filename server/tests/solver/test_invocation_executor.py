@@ -142,6 +142,54 @@ def test_executor_recovers_point_ref_from_computed_point_output_path() -> None:
     assert written.value == (sp.Integer(2), sp.Integer(0))
 
 
+def test_executor_reports_missing_conditional_method_output() -> None:
+    context = ContextBuilder().build(load_problem_ir(HEXI_FIXTURE))
+    specs = MethodSpecRegistry.load_from_code()
+    x = context.symbols["x"]
+    b = context.symbols["b"]
+    outputs = context.get_scope("ii").container("outputs")
+    outputs["ambiguous_candidates"] = TypedValue(
+        "PointList",
+        [(sp.Integer(0), sp.Integer(1)), (sp.Integer(1), sp.Integer(2))],
+        source="test",
+    )
+    outputs["parametric_parabola"] = TypedValue(
+        "Parabola",
+        x**2 + b,
+        source="test",
+    )
+    outputs["positive_parameter"] = TypedValue(
+        "Constraint",
+        {"operator": ">", "value": sp.Integer(0)},
+        source="test",
+    )
+    invocation = MethodInvocation(
+        invocation_id="filter_candidates.filter",
+        method_id="filter_point_candidates_by_quadratic_curve",
+        scope="ii",
+        inputs={
+            "candidates": "$question.ii.outputs.ambiguous_candidates",
+            "target": "$question.ii.points.D",
+            "parabola": "$question.ii.outputs.parametric_parabola",
+            "x": "$problem.symbols.x",
+            "parameter": "$problem.symbols.b",
+            "parameter_constraint": "$question.ii.outputs.positive_parameter",
+        },
+        outputs={
+            "selected_candidate": "$question.ii.outputs.selected_candidate"
+        },
+    )
+
+    with pytest.raises(
+        ValueError,
+        match=(
+            "method_output_unavailable:.*selected_candidate.*"
+            "candidate_selection_ambiguous"
+        ),
+    ):
+        InvocationExecutor(specs).execute_invocation(context, invocation)
+
+
 def test_promote_outputs_can_update_unlocked_existing_point_state() -> None:
     """promote 可把同一对象从参数化 Point 更新为已代入 Point。"""
     context = ContextBuilder().build(load_problem_ir(NANKAI_FIXTURE))

@@ -157,3 +157,39 @@ def test_finalizer_accepts_ordered_transition_and_rejects_second_create() -> Non
         match="duplicate_state_slot_writer",
     ):
         finalizer.validate_state_write_provenance((first, second_create))
+
+
+def test_finalizer_dependency_refinement_requires_runtime_symbol_reduction() -> None:
+    first = StateWriteProvenance(
+        step_id="derive_open_state",
+        scope_id="question",
+        capability_id="derive_state",
+        produced_handle="fact:question:open_coordinate",
+        output_key="point",
+        runtime_type="Point",
+        identity_policy="target_object",
+        identity_role="point",
+        object_ref="point:question:target",
+        state_slot_id="point:question:target.coordinate@question:Point",
+        write_mode="create",
+        free_symbol_names=("p",),
+    )
+    refined = replace(
+        first,
+        step_id="derive_closed_state",
+        produced_handle="fact:question:closed_coordinate",
+        write_mode="transition",
+        previous_write_step_id=first.step_id,
+        transition_kind="dependency_refinement",
+        free_symbol_names=(),
+    )
+
+    finalizer = CanonicalDraftFinalizer()
+    finalizer.validate_state_write_provenance((first, refined))
+
+    not_refined = replace(refined, free_symbol_names=("p",))
+    with pytest.raises(
+        StrategyDraftValidationError,
+        match="state_transition_not_dependency_refinement",
+    ):
+        finalizer.validate_state_write_provenance((first, not_refined))

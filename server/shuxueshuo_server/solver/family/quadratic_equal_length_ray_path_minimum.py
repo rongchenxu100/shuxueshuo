@@ -11,7 +11,6 @@ from shuxueshuo_server.solver.family.models import (
     MethodBindingRuleSpec,
     MethodCompanionOutputSpec,
     MethodInputBindingSpec,
-    MethodPrepInvocationSpec,
     RecipeExecutionSpec,
     recipe_output_alias,
     SolverFamilySpec,
@@ -132,37 +131,6 @@ _QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                     "answer_scope_output:coefficients",
                     "runtime_step_output:coefficients",
                 ),
-            ),
-        ),
-        MethodBindingRuleSpec(
-            method_id="quadratic_x_axis_intercept_point",
-            input_bindings=(
-                MethodInputBindingSpec("quadratic", "read_type:Parabola"),
-                MethodInputBindingSpec("x", "symbol:x"),
-                MethodInputBindingSpec("target", "point_output_ref"),
-                MethodInputBindingSpec("known_point", "x_axis_known_point", required=False),
-            ),
-            prep_invocations=(
-                MethodPrepInvocationSpec(
-                    trigger_selector="missing_readable_type:Parabola",
-                    method_id="quadratic_from_constraints",
-                    output_aliases=(
-                        ("coefficients", "prepared_coefficients"),
-                        ("parabola", "prepared_parabola"),
-                    ),
-                    local_output_aliases=(
-                        ("type:Coefficients", "coefficients"),
-                        ("type:Parabola", "parabola"),
-                    ),
-                ),
-            ),
-        ),
-        MethodBindingRuleSpec(
-            method_id="quadratic_y_axis_intercept_point",
-            input_bindings=(
-                MethodInputBindingSpec("quadratic", "function:parabola"),
-                MethodInputBindingSpec("x", "symbol:x"),
-                MethodInputBindingSpec("target", "point_output_ref"),
             ),
         ),
         MethodBindingRuleSpec(

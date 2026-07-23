@@ -6,9 +6,11 @@
 
 from __future__ import annotations
 
-from shuxueshuo_server.solver.runtime.symbolic_target_closure import (
-    TargetSymbolClosureResult,
-    solve_target_symbol_closure,
+from shuxueshuo_server.solver.runtime.quadratic_constraint_solver import (
+    QuadraticConstraintSolveRequest,
+    QuadraticConstraintSolveResult,
+    solve_quadratic_constraint_system,
+    value_satisfies_constraint,
 )
 
 from ._common import *
@@ -22,9 +24,8 @@ class ParameterFromCurvePointOnQuadraticMethod:
     抛物线，且某个点坐标也由同一个参数表达。把该点代入抛物线即可解出参数，
     再把参数代回点和抛物线。
 
-    典型例子是河西第（Ⅱ）问：已知当前问抛物线
-    ``y=2*x**2-b*x-b-2``，几何候选已经筛成 ``D=(b+1,1)``，代入曲线得到
-    ``b=-1+sqrt(2)``，从而得到 ``D=(sqrt(2),1)`` 和最终抛物线。
+    例如，已知当前抛物线 ``y=2*x**2-b*x-b-2``，几何候选已经筛成
+    ``P=(b+1,1)``，代入曲线可解出 ``b``，再同步更新点坐标和最终抛物线。
     """
 
     method_id = "parameter_from_curve_point_on_quadratic"
@@ -52,27 +53,55 @@ class ParameterFromCurvePointOnQuadraticMethod:
         )
         specialized_quadratic = sp.expand(quadratic.subs(known_substitution))
         specialized_point = _subs_point(point, known_substitution)
-        residual = sp.simplify(
-            specialized_quadratic.subs(x, specialized_point[0])
-            - specialized_point[1]
-        )
-        closure = solve_target_symbol_closure(
-            [sp.Eq(residual, 0)],
+        target_expression = _quadratic_coefficient_expression(
+            specialized_quadratic,
+            x=x,
             target=parameter,
-            target_expression=_quadratic_coefficient_expression(
-                specialized_quadratic,
-                x=x,
-                target=parameter,
-                quadratic_template=quadratic_template,
+            quadratic_template=quadratic_template,
+        )
+        if (
+            parameter not in specialized_quadratic.free_symbols
+            and parameter not in set().union(
+                *(sp.sympify(value).free_symbols for value in specialized_point)
+            )
+            and target_expression is None
+        ):
+            residual_symbols = sorted(
+                (
+                    specialized_quadratic.free_symbols
+                    | set().union(
+                        *(sp.sympify(value).free_symbols for value in specialized_point)
+                    )
+                )
+                - {x},
+                key=lambda item: item.name,
+            )
+            residual_names = ", ".join(item.name for item in residual_symbols) or "<none>"
+            raise ValueError(
+                "function.parameter_identity_mismatch: "
+                f"target={parameter.name}, residual_symbols={residual_names}; "
+                "the bounded call has no deterministic mapping to the target Symbol"
+            )
+        result = solve_quadratic_constraint_system(
+            QuadraticConstraintSolveRequest(
+                base_expression=specialized_quadratic,
+                independent_symbol=x,
+                coefficient_symbols=tuple(
+                    sorted(
+                        specialized_quadratic.free_symbols - {x},
+                        key=lambda item: item.name,
+                    )
+                ),
+                curve_points=(specialized_point,),
+                target_symbol=parameter,
+                target_expression=target_expression,
+                parameter_constraint=constraint,
             ),
             kernel=kernel,
-            accept_target=lambda value: _value_satisfies_constraint(
-                value,
-                constraint,
-            ),
         )
         parameter_value, substitution = _resolved_target_value(
-            closure,
+            result,
+            target=parameter,
             constraint=constraint,
         )
         resolved_point = _subs_point(specialized_point, substitution)
@@ -88,7 +117,7 @@ class ParameterFromCurvePointOnQuadraticMethod:
             checks=[
                 _check(
                     "parameter_constraint_satisfied",
-                    _value_satisfies_constraint(parameter_value, constraint),
+                    value_satisfies_constraint(parameter_value, constraint),
                     f"{parameter.name} 满足题设参数约束",
                 ),
                 _check(
@@ -149,55 +178,35 @@ def _quadratic_coefficient_expression(
 
 
 def _resolved_target_value(
-    closure: TargetSymbolClosureResult,
+    result: QuadraticConstraintSolveResult,
     *,
+    target: sp.Symbol,
     constraint: dict[str, sp.Expr | str] | None,
 ) -> tuple[sp.Expr, dict[sp.Symbol, sp.Expr]]:
     residual_names = ", ".join(
-        symbol.name for symbol in closure.residual_symbols
+        symbol.name for symbol in result.free_symbols
     ) or "<none>"
-    if closure.status == "identity_unresolved":
-        raise ValueError(
-            "function.parameter_identity_mismatch: "
-            f"target={closure.target.name}, residual_symbols={residual_names}; "
-            "the bounded call has no deterministic mapping to the target Symbol"
-        )
-    if closure.status == "underdetermined":
+    if result.status == "underdetermined":
         raise ValueError(
             "function.constraints_underdetermined: "
-            f"target={closure.target.name}, residual_symbols={residual_names}"
+            f"target={target.name}, residual_symbols={residual_names}"
         )
-    if closure.status == "ambiguous":
+    if result.status == "ambiguous":
         raise ValueError(
             "function.constraints_ambiguous: "
-            f"target={closure.target.name}, branch_count={closure.branch_count}"
+            f"target={target.name}, branch_count={result.branch_count}"
         )
-    if closure.status == "inconsistent" or closure.target_value is None:
+    if result.status == "inconsistent" or result.target_value is None:
         raise ValueError(
             "function.constraints_inconsistent: curve-point equation has no solution"
         )
-    if not _value_satisfies_constraint(closure.target_value, constraint):
+    if not value_satisfies_constraint(result.target_value, constraint):
         raise ValueError(
             "function.constraints_inconsistent: target value violates its constraint"
         )
-    substitution = closure.substitution
-    substitution[closure.target] = closure.target_value
-    return closure.target_value, substitution
-
-
-def _value_satisfies_constraint(
-    value: sp.Expr,
-    constraint: dict[str, sp.Expr | str] | None,
-) -> bool:
-    """校验当前轻量 Constraint 结构；首版主要支持 ``>``。"""
-    if constraint is None:
-        return True
-    if str(constraint.get("operator", "")) != ">":
-        return True
-    try:
-        return bool(sp.simplify(value - sp.sympify(constraint["value"])) > 0)
-    except TypeError:
-        return False
+    substitution = dict(result.coefficient_substitution)
+    substitution[target] = result.target_value
+    return result.target_value, substitution
 
 
 SPEC = MethodSpecSource(

@@ -246,6 +246,40 @@ def test_curve_point_parameter_function_declares_state_transitions() -> None:
     assert returns["parabola"].write_mode == "transition"
 
 
+def test_functional_catalog_hides_legacy_curve_parameter_primitive() -> None:
+    problem = load_problem_ir(str(RECORDED_FIXTURES[4][0]))
+    inputs = build_strategy_probe_inputs(problem)
+    functions = FunctionSpecRegistry.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
+    )
+    catalog = FunctionalCapabilityCatalog.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
+    )
+
+    assert functions.require("parameter_from_curve_point_on_quadratic")
+    assert "parameter_from_curve_point_on_quadratic" not in catalog.items
+    unified = catalog.items["quadratic_from_constraints"]
+    assert {item.name for item in unified.args} >= {
+        "known_coefficients",
+        "coefficient_relation",
+        "extra_equation",
+        "curve_point",
+        "curve_points",
+        "parameter_value",
+        "free_parameters",
+        "target_parameter",
+    }
+    assert {item.name for item in unified.args}.isdisjoint({"p1", "p2"})
+    parameter_return = next(
+        item for item in unified.returns if item.name == "parameter_value"
+    )
+    assert not parameter_return.required
+    assert parameter_return.identity_arg == "target_parameter"
+    assert parameter_return.possible_forms == ("open_state", "closed_state")
+
+
 def test_expression_evaluation_preserves_same_parabola_as_transition() -> None:
     problem = load_problem_ir(str(RECORDED_FIXTURES[0][0]))
     inputs = build_strategy_probe_inputs(problem)

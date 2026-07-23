@@ -968,6 +968,12 @@ def _validate_produced_fact(
     step_id: str,
 ) -> None:
     """校验 produces[] 只能产生新 fact 或题面 question goal 对应 answer。"""
+    current_write = state_write_by_output.get((step.step_id, item.handle))
+    is_declared_transition = (
+        current_write is not None
+        and current_write.write_mode == "transition"
+        and current_write.previous_write_step_id is not None
+    )
     registry.validate_scope(item.valid_scope, context=f"step {step_id}.produces[{item.handle}]")
     if item.handle.startswith("answer:"):
         if item.handle not in registry.answer_handles:
@@ -1003,11 +1009,15 @@ def _validate_produced_fact(
         raise StrategyDraftValidationError(
             f"invalid_produce_handle: step={step_id}, handle={item.handle}; expected fact:* or answer:*"
         )
-    if item.handle in produced_handles:
+    if item.handle in produced_handles and not is_declared_transition:
         raise StrategyDraftValidationError(
             f"duplicate_produced_handle: step={step_id}, handle={item.handle}"
         )
-    if item.handle in available and not item.handle.startswith("answer:"):
+    if (
+        item.handle in available
+        and not item.handle.startswith("answer:")
+        and not is_declared_transition
+    ):
         raise StrategyDraftValidationError(
             f"produce_overwrites_available_handle: step={step_id}, handle={item.handle}"
         )
@@ -1132,6 +1142,13 @@ def _is_valid_projected_state_transition(
         return False
     _previous_scope, _previous_step_id, previous_handle, previous_write = previous
     assert previous_write is not None
+    if current_write.transition_kind == "dependency_refinement":
+        return current_write.previous_write_step_id == _previous_step_id
+    if current_write.previous_write_step_id == _previous_step_id:
+        # FunctionalPlan auto arguments are intentionally omitted from the
+        # projected StepIntent reads. The typed sidecar still proves that the
+        # current write consumes this exact StateSlot version.
+        return previous_write.state_slot_id in current_write.source_state_slot_ids
     return (
         previous_handle in step.reads
         and previous_write.state_slot_id in current_write.source_state_slot_ids
@@ -1665,13 +1682,6 @@ def _capability_alignment_errors(
             code="method_mixes_non_parameter_outputs",
             message="parameter_from_segment_length should only produce parameter fact",
         )
-        if _produces_answer(step):
-            errors.append(_capability_error(
-                step,
-                hint,
-                "method_outputs_answer",
-                "parameter method should not produce final answer directly",
-            ))
         return errors
 
     if hint == "parameter_from_minimum_value":
@@ -1684,13 +1694,6 @@ def _capability_alignment_errors(
             code="method_mixes_non_parameter_outputs",
             message="parameter_from_minimum_value should only produce parameter fact",
         )
-        if _produces_answer(step):
-            errors.append(_capability_error(
-                step,
-                hint,
-                "method_outputs_answer",
-                "parameter method should not produce final answer directly",
-            ))
         return errors
 
     if hint == "quadratic_from_constraints":

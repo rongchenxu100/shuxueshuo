@@ -13,11 +13,17 @@
 每项 capability 的 `title/use_when` 说明它适用的数学目标和前置状态。
 若当前任务命中任一 `do_not_use_when`，不要选择该 capability；应改选其他能力或先补齐前置状态。
 `args.name` 是调用时使用的参数名，`accepts/required/cardinality` 描述允许的输入。
+`input_requirements` 描述条件性必需输入：上游结果不包含所需语义角色时，必须显式填写对应 arg。
+`returns.provides` 表示该结果已携带、可供下游直接消费的语义证据；只有明确列出的角色才可
+用于满足 `input_requirements`，不要因两个结果类型相同就假定它们携带相同证据。
 参数或返回值带有 `desc` 时，必须按该语义角色理解，不能只凭类型猜测用途。
 `returns.name` 才能用于 CallResultRef.return 或 return_bindings 的 key；
 `binding` 说明该结果能否绑定答案或已有对象。
 仅当 return 展示 `possible_forms` 时，才可在 call 的 `return_expectations` 中写预期：
-保留未定参数供后续求解用 `open_expression`，准备直接绑定数值答案用 `closed_value`。
+保留未定参数供后续求解用 `open_expression`，准备直接绑定数值答案用 `closed_value`；
+对象状态仍含自由符号用 `open_state`，完全确定用 `closed_state`。
+若 arg/return 展示 `accepted_forms` 或 `max_independent_free_parameters`，选择输入和规划
+输出时必须遵守该边界；`return_expectations` 只是预期标记，不能把欠定状态强行声明为可用。
 `desc` 会说明两种形态的边界；代码仍会按实际自由符号验证。
 
 {{ payload.functional_capability_catalog | pretty_json }}
@@ -64,4 +70,6 @@ compatibility mirror。
 - `binding=internal_only` 的 return 只能供后续 call 引用，不能绑定 answer 或已有对象。
 - `binding=same_object_as:<arg>` 不改变对象身份；internal-only 来源经过求值后仍不是题面目标对象。
 - 只有 catalog return 声明 `possible_forms` 时才填写 `return_expectations`；它是意图提示，不是计算结果。
+- 遵守 catalog 中输入/输出的独立参数预算。函数模板可由代码确定性物化为 closed 或
+  single-free 状态；超过预算时应先补充数学约束，而不是修改 expectation。
 - 输出必须严格符合 `functional_plan/v1`。

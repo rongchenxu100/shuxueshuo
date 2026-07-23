@@ -122,7 +122,7 @@ def test_path_minimum_goal_evidence_is_projected_from_recipe_outputs() -> None:
     assert tags >= {"path_minimum_witness", "path_minimum_expression"}
 
 
-def test_macro_scalar_result_forms_are_projected_from_internal_functions() -> None:
+def test_macro_result_forms_are_projected_from_internal_functions() -> None:
     problem = load_problem_ir(str(RECORDED_FIXTURES[0][0]))
     inputs = build_strategy_probe_inputs(problem)
     registry = MacroSpecRegistry.from_family_spec(
@@ -139,7 +139,13 @@ def test_macro_scalar_result_forms_are_projected_from_internal_functions() -> No
         "open_expression",
         "closed_value",
     )
-    assert returns["path_minimum_point_1"].scalar_result_form is None
+    assert returns["path_minimum_point_1"].scalar_result_form is not None
+    assert returns[
+        "path_minimum_point_1"
+    ].scalar_result_form.possible_forms == (
+        "open_state",
+        "closed_state",
+    )
 
 
 def test_shareable_macro_purity_is_derived_from_internal_functions() -> None:
@@ -152,6 +158,7 @@ def test_shareable_macro_purity_is_derived_from_internal_functions() -> None:
 
     assert registry.require("right_angle_equal_length_construct_and_select").is_pure
     assert registry.require("two_moving_points_path_reduction").is_pure
+    assert registry.require("broken_path_straightening_and_select").exposes_to_llm is False
 
 
 def test_macro_catalog_prompt_payload_hides_runtime_wiring_details() -> None:
@@ -161,6 +168,9 @@ def test_macro_catalog_prompt_payload_hides_runtime_wiring_details() -> None:
     catalog = macro_catalog_payload(inputs.family_spec, inputs.method_specs)
 
     assert catalog["item_count"] > 0
+    macro_ids = {item["macro_id"] for item in catalog["items"]}
+    assert "broken_path_straightening_minimum_expression" in macro_ids
+    assert "broken_path_straightening_and_select" not in macro_ids
     encoded = json.dumps(catalog, ensure_ascii=False)
     assert "runtime_path" not in encoded
     assert "ContextPath" not in encoded

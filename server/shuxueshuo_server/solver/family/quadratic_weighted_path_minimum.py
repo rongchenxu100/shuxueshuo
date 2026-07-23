@@ -13,7 +13,6 @@ from shuxueshuo_server.solver.family.models import (
     MethodCompanionOutputSpec,
     MethodBindingRuleSpec,
     MethodInputBindingSpec,
-    MethodPrepInvocationSpec,
     RecipeExecutionSpec,
     recipe_output_alias,
     SolverFamilySpec,
@@ -157,57 +156,6 @@ _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         ),
     ),
     method_binding_rules=(
-        MethodBindingRuleSpec(
-            method_id="quadratic_from_constraints",
-            input_bindings=(
-                MethodInputBindingSpec("quadratic", "function:parabola"),
-                MethodInputBindingSpec("x", "symbol:x"),
-                MethodInputBindingSpec("all_coefficients", "quadratic_coefficients"),
-                MethodInputBindingSpec("free_parameter", "symbol:b", required=False),
-            ),
-            expansion_selectors=(
-                "known_coefficients_if_read",
-                "curve_point_if_read",
-            ),
-            always_emit_outputs=("coefficients",),
-            companion_outputs=(
-                MethodCompanionOutputSpec(
-                    "coefficients",
-                    "answer_scope_output:coefficients",
-                    "runtime_step_output:coefficients",
-                ),
-            ),
-        ),
-        MethodBindingRuleSpec(
-            method_id="quadratic_vertex_point",
-            input_bindings=(
-                MethodInputBindingSpec("parabola", "read_type:Parabola"),
-                MethodInputBindingSpec("x", "symbol:x"),
-                MethodInputBindingSpec("target", "point_output_ref"),
-            ),
-            prep_invocations=(
-                MethodPrepInvocationSpec(
-                    trigger_selector="missing_readable_type:Parabola",
-                    method_id="quadratic_from_constraints",
-                    output_aliases=(
-                        ("coefficients", "prepared_coefficients"),
-                        ("parabola", "prepared_parabola"),
-                    ),
-                    local_output_aliases=(
-                        ("type:Coefficients", "coefficients"),
-                        ("type:Parabola", "parabola"),
-                    ),
-                ),
-            ),
-        ),
-        MethodBindingRuleSpec(
-            method_id="point_on_parabola_at_x",
-            input_bindings=(
-                MethodInputBindingSpec("parabola", "read_type:Parabola"),
-                MethodInputBindingSpec("x", "symbol:x"),
-                MethodInputBindingSpec("target", "point_output_ref"),
-            ),
-        ),
         MethodBindingRuleSpec(
             method_id="right_angle_equal_length_candidates",
             input_bindings=(

@@ -43,6 +43,7 @@ def solve_target_symbol_closure(
     kernel: SympyKernel,
     target_expression: sp.Expr | None = None,
     accept_target: Callable[[sp.Expr], bool] | None = None,
+    preserve_symbols: Sequence[sp.Symbol] = (),
 ) -> TargetSymbolClosureResult:
     """Solve only the equation-local symbols needed to determine ``target``.
 
@@ -66,11 +67,20 @@ def solve_target_symbol_closure(
             residual_symbols=residual_symbols,
         )
 
+    preserved = set(preserve_symbols)
+    if target in preserved:
+        return TargetSymbolClosureResult(
+            "underdetermined",
+            target,
+            residual_symbols=residual_symbols,
+        )
     if target in residual_symbols:
         # Solve the bounded system before deciding whether the requested
         # Symbol is underdetermined. Auxiliary unknowns may be jointly
         # determined, or may remain free while the target itself is unique.
-        solve_symbols = residual_symbols
+        solve_symbols = tuple(
+            symbol for symbol in residual_symbols if symbol not in preserved
+        )
     else:
         if target_expression is None:
             return TargetSymbolClosureResult(
@@ -87,7 +97,9 @@ def solve_target_symbol_closure(
                     (*residual_symbols, *expression_dependencies)
                 ),
             )
-        solve_symbols = residual_symbols
+        solve_symbols = tuple(
+            symbol for symbol in residual_symbols if symbol not in preserved
+        )
 
     if not solve_symbols:
         if target_expression is None or target_expression.free_symbols:
@@ -125,7 +137,7 @@ def solve_target_symbol_closure(
             target_value = sp.simplify(target_expression.subs(substitution))
         else:
             continue
-        if target_value.free_symbols:
+        if not target_value.free_symbols.issubset(preserved):
             continue
         if accept_target is not None and not accept_target(target_value):
             continue

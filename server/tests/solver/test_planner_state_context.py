@@ -194,6 +194,16 @@ def test_context_records_internal_symbol_and_ordered_point_transitions() -> None
     ]
     assert transitioned
     assert any(len(item.write_history) >= 2 for item in transitioned)
+    assert all(
+        "lineage" in version.to_payload()
+        for item in transitioned
+        for version in item.write_history
+    )
+    assert any(
+        version.lineage.semantic_roles
+        for item in transitioned
+        for version in item.write_history
+    )
 
 
 def test_context_semantic_catalog_preserves_hidden_aliases_for_scoped_entity_refs() -> None:

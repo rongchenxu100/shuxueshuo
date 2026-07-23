@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 import re
 from typing import Any
@@ -15,6 +16,7 @@ from shuxueshuo_server.solver.runtime.context import RuntimeContext
 from shuxueshuo_server.solver.runtime.models import (
     ContextDeclaration,
     ContextPath,
+    TypedValue,
     runtime_type_matches,
 )
 from shuxueshuo_server.solver.runtime.handle_registry import (
@@ -40,6 +42,7 @@ class RuntimeHandleBinding:
     path: str
     value_type: str
     source: str
+    output_key: str | None = None
 
 class CanonicalRuntimeBindingIndex:
     """把 LLM canonical handle 映射到 runtime ContextPath。
@@ -622,14 +625,68 @@ class CanonicalRuntimeBindingIndex:
             self.register(handle, point_binding.path, "Point", source="fact")
             self.register(point_handle, point_binding.path, "Point", source="fact")
         elif fact_type == "symbol_value":
-            # 题设直接给出的 a=2、c=-5 会在 RuntimeContext 中合并存为
-            # coefficients.known。具体单个系数值由 method 从该结构化容器读取。
+            self._register_symbol_value_fact(handle, scope_id=scope_id)
+
+    def _register_symbol_value_fact(self, handle: str, *, scope_id: str) -> None:
+        """Expose one stated Symbol value without losing its aggregate view.
+
+        ``coefficients.known`` remains the source for a ``Coefficients``
+        aggregate input.  A semantic ref such as ``b_value`` denotes one
+        Symbol state, however, so direct ``ParameterValue`` args need a scalar
+        ContextPath instead of being pointed at the whole mapping.
+        """
+        payload = self.fact_payload(handle)
+        subject = str(payload.get("subject", "")).strip()
+        symbol_name = _handle_name(subject) if subject else ""
+        scope = self.context.get_scope(scope_id)
+        known = scope.container("coefficients").get("known")
+        value: Any | None = None
+        symbol = self.context.symbols.get(symbol_name)
+        if (
+            known is not None
+            and isinstance(known.value, Mapping)
+            and symbol is not None
+        ):
+            value = known.value.get(symbol)
+        if value is None and payload.get("value") is not None:
+            value = self.context.kernel.expr(
+                str(payload["value"]),
+                self.context.symbols,
+            )
+        if value is None or not symbol_name:
+            # Some schema/classification callers intentionally provide only a
+            # fact type. Keep the historical aggregate view available there;
+            # an executable Functional scalar read will later surface the
+            # reconciled/runtime type drift as a configuration error.
             self.register(
                 handle,
-                _runtime_path_for_scope(self.context, scope_id, "coefficients", "known"),
+                _runtime_path_for_scope(
+                    self.context,
+                    scope_id,
+                    "coefficients",
+                    "known",
+                ),
                 "Coefficients",
                 source="fact",
             )
+            return
+        scope.container("parameter_values")[symbol_name] = TypedValue(
+            "ParameterValue",
+            value,
+            locked=True,
+            source=f"fact:{handle}",
+        )
+        self.register(
+            handle,
+            _runtime_path_for_scope(
+                self.context,
+                scope_id,
+                "parameter_values",
+                symbol_name,
+            ),
+            "ParameterValue",
+            source="fact",
+        )
 
     def _register_answer_point_entity(self, answer_handle: str, goal: QuestionGoal) -> None:
         """若 answer 指向某个点，同时把同名 point entity 绑定到该 target path。"""

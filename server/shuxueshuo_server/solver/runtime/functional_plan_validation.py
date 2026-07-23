@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import re
-from typing import Any, Mapping, Sequence
+from typing import Any, Mapping, Sequence, cast
 
 from shuxueshuo_server.solver.contracts import FunctionalResultForm
 from shuxueshuo_server.solver.problem_models import QuestionGoal
@@ -59,6 +59,7 @@ class FunctionalPlanValidator:
         question_goals: Sequence[QuestionGoal],
     ) -> tuple[FunctionalPlan | None, FunctionalPlanValidationReport]:
         issues: list[FunctionalPlanIssue] = []
+        deterministic_repairs: list[dict[str, Any]] = []
         if not isinstance(payload, dict):
             issues.append(
                 _issue(
@@ -156,7 +157,14 @@ class FunctionalPlanValidator:
                 continue
             calls: list[FunctionalCall] = []
             for call_index, raw_call in enumerate(raw_calls):
-                call = _parse_call(raw_call, scope_id, call_index, issues)
+                call = _parse_call(
+                    raw_call,
+                    scope_id,
+                    call_index,
+                    issues,
+                    deterministic_repairs,
+                    handle_registry=handle_registry,
+                )
                 if call is None:
                     continue
                 if call.call_id in seen_calls:
@@ -180,6 +188,7 @@ class FunctionalPlanValidator:
             FunctionalPlanValidationReport(
                 tuple(issues),
                 plan.to_payload() if plan is not None else dict(payload),
+                tuple(deterministic_repairs),
             ),
         )
 
@@ -323,7 +332,8 @@ FUNCTIONAL_PLAN_JSON_SCHEMA: dict[str, Any] = {
                                     "description": (
                                         "仅用于 return 声明 possible_forms 的结果。"
                                         "有意保留未定参数时写 open_expression；准备直接绑定"
-                                        "数值答案时写 closed_value。该字段只是预期，代码会"
+                                        "数值答案时写 closed_value；对象状态仍含自由符号时写"
+                                        "open_state，已完全确定时写 closed_state。该字段只是预期，代码会"
                                         "按实际自由符号验证。"
                                     ),
                                     "additionalProperties": {
@@ -331,6 +341,8 @@ FUNCTIONAL_PLAN_JSON_SCHEMA: dict[str, Any] = {
                                         "enum": [
                                             "open_expression",
                                             "closed_value",
+                                            "open_state",
+                                            "closed_state",
                                         ],
                                     },
                                 },
@@ -360,6 +372,9 @@ def _parse_call(
     scope_id: str,
     call_index: int,
     issues: list[FunctionalPlanIssue],
+    deterministic_repairs: list[dict[str, Any]],
+    *,
+    handle_registry: CanonicalHandleRegistry,
 ) -> FunctionalCall | None:
     if not isinstance(value, dict):
         issues.append(
@@ -391,6 +406,26 @@ def _parse_call(
     capability_id = _text(value.get("capability_id"))
     strategy = _text(value.get("strategy"))
     reason = _text(value.get("reason"))
+    if call_id is not None and strategy is None and reason is not None:
+        strategy = reason
+        deterministic_repairs.append(
+            {
+                "call_id": call_id,
+                "action": "fill_missing_call_text",
+                "from": "strategy=empty",
+                "to": "strategy=reason",
+            }
+        )
+    if call_id is not None and reason is None and strategy is not None:
+        reason = strategy
+        deterministic_repairs.append(
+            {
+                "call_id": call_id,
+                "action": "fill_missing_call_text",
+                "from": "reason=empty",
+                "to": "reason=strategy",
+            }
+        )
     if not all((call_id, capability_id, strategy, reason)):
         issues.append(
             _issue(
@@ -445,18 +480,52 @@ def _parse_call(
             continue
         raw_values = raw_ref if isinstance(raw_ref, list) else [raw_ref]
         parsed: list[FunctionalRef] = []
+        dropped_null = False
         for item in raw_values:
-            ref = _parse_functional_ref(item, call_id, scope_id, issues)
+            if item is None:
+                dropped_null = True
+                continue
+            ref = _parse_functional_ref(
+                item,
+                call_id,
+                scope_id,
+                issues,
+                deterministic_repairs,
+                handle_registry=handle_registry,
+            )
             if ref is not None:
                 parsed.append(ref)
-        args[name] = tuple(parsed)
+        if dropped_null:
+            deterministic_repairs.append(
+                {
+                    "call_id": call_id,
+                    "action": "drop_null_functional_arg",
+                    "arg": name,
+                    "from": "null",
+                    "to": "omitted" if not parsed else "non_null_items",
+                }
+            )
+        if parsed:
+            args[name] = tuple(parsed)
     bindings: dict[str, SemanticRef] = {}
     for name, raw_ref in raw_bindings.items():
-        ref = _parse_semantic_ref(raw_ref, call_id, scope_id, issues)
+        ref = _parse_semantic_ref(
+            raw_ref,
+            call_id,
+            scope_id,
+            issues,
+            deterministic_repairs,
+            handle_registry=handle_registry,
+        )
         if ref is not None:
             bindings[str(name)] = ref
     expectations: dict[str, FunctionalResultForm] = {}
-    allowed_forms = {"open_expression", "closed_value"}
+    allowed_forms = {
+        "open_expression",
+        "closed_value",
+        "open_state",
+        "closed_state",
+    }
     for name, raw_form in raw_expectations.items():
         if not isinstance(name, str) or not name or raw_form not in allowed_forms:
             issues.append(
@@ -465,14 +534,14 @@ def _parse_call(
                     "functional.return_expectation_value",
                     (
                         "return expectations require a non-empty return name and "
-                        "open_expression or closed_value"
+                        "open_expression, closed_value, open_state or closed_state"
                     ),
                     call_id=call_id,
                     scope_id=scope_id,
                 )
             )
             continue
-        expectations[name] = raw_form  # type: ignore[assignment]
+        expectations[name] = cast(FunctionalResultForm, raw_form)
     return FunctionalCall(
         call_id,
         capability_id,
@@ -489,6 +558,9 @@ def _parse_functional_ref(
     call_id: str,
     scope_id: str,
     issues: list[FunctionalPlanIssue],
+    deterministic_repairs: list[dict[str, Any]],
+    *,
+    handle_registry: CanonicalHandleRegistry,
 ) -> FunctionalRef | None:
     if isinstance(value, dict) and ("from_call" in value or "return" in value):
         if set(value) != {"from_call", "return"}:
@@ -516,7 +588,14 @@ def _parse_functional_ref(
             )
         )
         return None
-    return _parse_semantic_ref(value, call_id, scope_id, issues)
+    return _parse_semantic_ref(
+        value,
+        call_id,
+        scope_id,
+        issues,
+        deterministic_repairs,
+        handle_registry=handle_registry,
+    )
 
 
 def _parse_semantic_ref(
@@ -524,6 +603,9 @@ def _parse_semantic_ref(
     call_id: str,
     scope_id: str,
     issues: list[FunctionalPlanIssue],
+    deterministic_repairs: list[dict[str, Any]],
+    *,
+    handle_registry: CanonicalHandleRegistry,
 ) -> SemanticRef | None:
     if not isinstance(value, dict):
         issues.append(
@@ -550,6 +632,22 @@ def _parse_semantic_ref(
     ref = _text(value.get("ref"))
     kind = _text(value.get("kind"))
     value_type = _text(value.get("value_type"))
+    if ref is not None and kind == "entity":
+        normalized_kind = _unique_entity_kind_for_ref(
+            ref,
+            scope_id=scope_id,
+            handle_registry=handle_registry,
+        )
+        if normalized_kind is not None:
+            deterministic_repairs.append(
+                {
+                    "call_id": call_id,
+                    "action": "normalize_unique_entity_kind",
+                    "from": f"entity:{ref}",
+                    "to": f"{normalized_kind}:{ref}",
+                }
+            )
+            kind = normalized_kind
     if ref is None or kind is None or kind not in SEMANTIC_READ_KINDS:
         issues.append(
             _issue(
@@ -573,6 +671,38 @@ def _parse_semantic_ref(
         )
         return None
     return SemanticRef(ref, kind, value_type=value_type)
+
+
+def _unique_entity_kind_for_ref(
+    ref: str,
+    *,
+    scope_id: str,
+    handle_registry: CanonicalHandleRegistry,
+) -> str | None:
+    """Resolve the generic ``entity`` label only when identity is exact.
+
+    This is a wire representation repair, not a semantic guess: the short ref
+    must identify one visible ProblemIR entity kind in the current scope chain.
+    """
+
+    visible_scopes = set(handle_registry.ancestor_scopes(scope_id))
+    kinds = {
+        str(payload.get("entity_type", "")).strip()
+        for handle, payload in handle_registry.entity_payloads.items()
+        if str(payload.get("scope_id", "")) in visible_scopes
+        and ref
+        in {
+            str(payload.get("semantic_ref", "")),
+            str(payload.get("name", "")),
+            (
+                f"{payload.get('scope_id')}."
+                f"{payload.get('semantic_ref') or payload.get('name')}"
+            ),
+        }
+        and handle in handle_registry.entity_handles
+    }
+    kinds.discard("")
+    return next(iter(kinds)) if len(kinds) == 1 else None
 
 
 

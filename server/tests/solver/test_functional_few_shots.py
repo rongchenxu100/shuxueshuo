@@ -55,6 +55,41 @@ PROBLEM_IDS = (
 )
 
 
+def test_five_problem_catalogs_project_supported_result_form_domains() -> None:
+    expected_object_forms = {
+        "Point": ("open_state", "closed_state"),
+        "Parabola": ("open_state", "closed_state"),
+    }
+    scalar_forms = ("open_expression", "closed_value")
+
+    for problem_id in PROBLEM_IDS:
+        problem = load_problem_ir(PROBLEM_DIR / f"{problem_id}.json")
+        inputs = build_strategy_probe_inputs(problem)
+        catalog = FunctionalCapabilityCatalog.from_family_spec(
+            inputs.family_spec,
+            inputs.method_specs,
+        )
+        for capability in catalog.items.values():
+            for result in capability.returns:
+                if result.runtime_type in expected_object_forms:
+                    assert result.possible_forms == expected_object_forms[
+                        result.runtime_type
+                    ], (capability.capability_id, result.name)
+                elif (
+                    result.runtime_type == "ParameterValue"
+                    and result.possible_forms
+                ):
+                    assert result.possible_forms == (
+                        "open_state",
+                        "closed_state",
+                    ), (capability.capability_id, result.name)
+                elif result.possible_forms:
+                    assert result.possible_forms == scalar_forms, (
+                        capability.capability_id,
+                        result.name,
+                    )
+
+
 class _FixtureFunctionalClient:
     def __init__(self, payload: dict[str, Any]) -> None:
         self.payload = payload
@@ -91,6 +126,27 @@ def test_complete_functional_plan_fixture_replays_to_expected_answers(
     assert result.answers == expected
     assert client.request is not None
     assert client.request["planner_output_format"] == "functional_plan"
+    success = orchestrator.last_success_artifacts
+    assert success is not None
+    artifacts = success.planner.artifacts
+    replay = artifacts.retry_replay_result
+    assert artifacts.candidate_format == "functional_plan"
+    assert replay is not None
+    assert replay.functional_plan is not None
+    assert replay.functional_reconciliation is not None
+    assert replay.functional_reconciliation.ok
+    assert replay.functional_reconciliation.projection_map
+    assert replay.planner_state_context is not None
+    assert not [
+        event
+        for event in replay.diagnostic.function_binding_events
+        if event.status == "failure"
+    ]
+    assert not [
+        event
+        for event in replay.diagnostic.macro_binding_events
+        if event.status == "failure"
+    ]
 
 
 def test_complete_functional_plan_assets_are_wire_safe_and_catalog_supported() -> None:
@@ -417,6 +473,8 @@ def test_nankai_core_annotation_is_rendered_before_strict_plan() -> None:
     assert "### 机制说明" in prompt
     assert "双动点路径降维与折线拉直" in prompt
     assert "先建立显式路径等价变换" in prompt
+    assert "本例的变换已携带动点轨迹证据" in prompt
+    assert "必须另行求出并传入动点轨迹" in prompt
     assert "### FunctionalPlan 示例" in prompt
     assert '"format": "functional_plan/v1"' in prompt
     assert '"annotation"' not in prompt

@@ -111,6 +111,7 @@ class MethodBindingRuleRegistry:
         include_expansion_selectors: bool = True,
         expansion_selectors_override: tuple[str, ...] | None = None,
         exact_inputs: Mapping[str, str] | None = None,
+        distinct_arg_groups: tuple[tuple[str, ...], ...] = (),
         apply_constraint_analyzer: bool = True,
     ) -> dict[str, str]:
         """返回 method invocation inputs。"""
@@ -140,6 +141,7 @@ class MethodBindingRuleRegistry:
                         else None
                     ),
                     exact_inputs=exact_inputs,
+                    distinct_arg_groups=distinct_arg_groups,
                     apply_constraint_analyzer=apply_constraint_analyzer,
                 )
                 self.function_binding_events.append(
@@ -149,6 +151,9 @@ class MethodBindingRuleRegistry:
                         method_id=method_id,
                         function_id=adapter.adapter_id,
                         status="success",
+                        arg_repairs=(
+                            self.function_adapters.last_arg_repairs
+                        ),
                     )
                 )
                 return inputs
@@ -364,7 +369,19 @@ def _function_parabola_selector(
     index: CanonicalRuntimeBindingIndex,
     local_outputs: Mapping[str, str],
 ) -> str:
-    """读取 problem scope 下的二次函数表达式。"""
+    """Prefer an explicitly read Parabola state, then use the IR template.
+
+    The runtime index already contains paths reserved for the current step's
+    outputs. Scanning every visible binding here can therefore select the
+    Parabola that this invocation has not produced yet. Functional
+    reconciliation puts a prior materialized state in ``reads`` when this is
+    a refinement call, so the read list is the authoritative continuation
+    signal.
+    """
+    for handle in step.reads:
+        binding = index.bindings.get(handle)
+        if binding is not None and binding.value_type == "Parabola":
+            return binding.path
     return index.path_for("function:problem:parabola", expected_type="Expression")
 
 def _square_side_start_selector(

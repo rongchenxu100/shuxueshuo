@@ -18,10 +18,12 @@ from shuxueshuo_server.solver.runtime.function_specs import (
     FunctionSpecRegistry,
 )
 from shuxueshuo_server.solver.runtime.models import MethodInvocation, StepPlan
+from shuxueshuo_server.solver.runtime.runtime_type_declarations import (
+    split_runtime_types,
+)
 from shuxueshuo_server.solver.runtime.strategy_models import (
     StrategyDraftValidationError,
 )
-from shuxueshuo_server.solver.state_semantics import split_runtime_types
 
 
 @dataclass(frozen=True)

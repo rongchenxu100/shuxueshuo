@@ -42,8 +42,54 @@ def _right_angle_equal_length_roles(
     )
 
 
+def _square_roles(payload: Mapping[str, Any]) -> ConditionObjectRoles:
+    vertices = payload.get("vertices")
+    if (
+        not isinstance(vertices, list)
+        or len(vertices) != 4
+        or not all(_is_point_handle(item) for item in vertices)
+    ):
+        raise ConditionRoleResolutionError(
+            "condition.roles_invalid",
+            "square requires four ordered Point vertices",
+            details={"field": "vertices"},
+        )
+    refs = tuple(str(item) for item in vertices)
+    return (
+        ("vertex_1", (refs[0],)),
+        ("vertex_2", (refs[1],)),
+        ("vertex_3", (refs[2],)),
+        ("vertex_4", (refs[3],)),
+        ("vertex", refs),
+    )
+
+
+def _midpoint_definition_roles(
+    payload: Mapping[str, Any],
+) -> ConditionObjectRoles:
+    midpoint = payload.get("point")
+    endpoints = payload.get("of")
+    if (
+        not _is_point_handle(midpoint)
+        or not isinstance(endpoints, list)
+        or len(endpoints) != 2
+        or not all(_is_point_handle(item) for item in endpoints)
+    ):
+        raise ConditionRoleResolutionError(
+            "condition.roles_invalid",
+            "midpoint_definition requires one midpoint and two Point endpoints",
+            details={"fields": ["point", "of"]},
+        )
+    return (
+        ("midpoint", (str(midpoint),)),
+        ("endpoint", tuple(str(item) for item in endpoints)),
+    )
+
+
 _CONDITION_ROLE_EXTRACTORS: Mapping[str, ConditionRoleExtractor] = {
+    "midpoint_definition": _midpoint_definition_roles,
     "right_angle_equal_length": _right_angle_equal_length_roles,
+    "square": _square_roles,
 }
 
 

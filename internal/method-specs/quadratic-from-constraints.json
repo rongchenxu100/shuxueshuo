@@ -1,8 +1,8 @@
 {
   "method_id": "quadratic_from_constraints",
   "title": "由二次函数约束求抛物线",
-  "description": "由已知系数、曲线点、系数关系和额外方程求当前问需要的最简抛物线。它适合在代入后能把 a,b,c 完全确定，或至少化简到只剩一个上下文有用的未知参数时使用；若 b、c 等多个参数都可作为自由参数，应结合后续长度、最值、曲线点或答案目标选择保留哪个参数，无法判断时应等待更多约束。",
-  "summary": "输入: 二次函数表达式、已知系数、系数关系、曲线点或参数条件；输出: 当前问最简系数与抛物线解析式；使用原则: 只在能完全确定系数，或能化简到一个后续条件/目标会用到的未知量时单独成步。",
+  "description": "由题面模板建立，或继续化简当前同一对象的抛物线状态。通过已知系数、曲线点、系数关系和额外方程求当前问需要的最简抛物线。它适合在代入后能把 a,b,c 完全确定，或至少化简到只剩一个上下文有用的未知参数时使用；若 b、c 等多个参数都可作为自由参数，应结合后续长度、最值、曲线点或答案目标选择保留哪个参数，无法判断时应等待更多约束。",
+  "summary": "从题面函数模板建立抛物线，或在当前同一抛物线状态上追加已知系数、系数关系、曲线点和参数值；输出当前约束下最简的系数与抛物线。指定 target_parameter 时还可输出该系数关于 free_parameters 的开放或闭合状态。使用原则：建立曲线和继续追加约束都使用这一能力；多个已知系数使用 known_coefficients，单个运行参数代入才使用 parameter_value。",
   "solves": [
     "derive_quadratic_from_constraints"
   ],
@@ -41,11 +41,13 @@
     },
     "p1": {
       "type": "Point",
-      "required": false
+      "required": false,
+      "functional_exposed": false
     },
     "p2": {
       "type": "Point",
-      "required": false
+      "required": false,
+      "functional_exposed": false
     },
     "free_parameter": {
       "type": "Symbol",
@@ -62,13 +64,29 @@
     "parameter_value": {
       "type": "ParameterValue",
       "required": false
+    },
+    "target_parameter": {
+      "type": "Symbol",
+      "required": false,
+      "role": "本轮希望明确求出的二次函数系数"
     }
   },
   "outputs": {
     "coefficients": "Coefficients",
-    "parabola": "Parabola"
+    "parabola": "Parabola",
+    "parameter_value": "ParameterValue"
   },
   "is_pure": true,
+  "scalar_result_forms": {
+    "parameter_value": {
+      "possible_forms": [
+        "open_state",
+        "closed_state"
+      ],
+      "description": "目标系数仍依赖明确保留的参数时为 open_state；不存在自由符号时为 closed_state。",
+      "closure_policy": "no_free_symbols"
+    }
+  },
   "preconditions": [
     "输入约束必须能唯一确定除 free_parameter/free_parameters 外的缺失系数",
     "若作为独立化简步骤，化简后应完全确定系数，或只保留一个由后续条件/目标明确需要的自由参数",
@@ -76,7 +94,9 @@
   ],
   "do_not_use_when": [
     "当前目标所需的同一抛物线状态已经由前序调用完整确定，无需用相同约束重复求解。",
-    "现有约束仍有多个自由参数，且无法唯一选择一个会被后续条件或答案目标消费的参数。"
+    "现有约束仍有多个自由参数，且无法唯一选择一个会被后续条件或答案目标消费的参数。",
+    "不要把参数范围或不等式放入 extra_equation；它只接受用于求系数的等式。",
+    "不要把同一个 Symbol 同时声明为 free_parameters 和 target_parameter。"
   ],
   "postconditions": [
     "输出抛物线满足已知系数、曲线点和额外方程约束",
@@ -104,5 +124,15 @@
     "role_binder_id": "quadratic_from_constraints",
     "student_nav_title_template": "{parabola_title_action}解析式"
   },
-  "constraint_analyzer": "quadratic_coefficients"
+  "constraint_analyzer": "quadratic_coefficients",
+  "distinct_arg_groups": [
+    [
+      "free_parameter",
+      "target_parameter"
+    ],
+    [
+      "free_parameters",
+      "target_parameter"
+    ]
+  ]
 }

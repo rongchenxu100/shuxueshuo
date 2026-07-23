@@ -33,6 +33,10 @@ class ExpansionSelectorSemantics:
 
 
 _EXACT_SELECTOR_SEMANTICS: dict[str, SelectorSemantics] = {
+    "function:parabola": SelectorSemantics(
+        mechanical=True,
+        requires_materialized_state=True,
+    ),
     "quadratic_coefficients": SelectorSemantics(mechanical=True),
     "point_output_ref": SelectorSemantics(mechanical=True),
     "point_transition_target": SelectorSemantics(mechanical=True),

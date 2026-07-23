@@ -31,6 +31,9 @@ NANKAI_RECORDED = (
     REPO_ROOT
     / "internal/solver-fixtures/tj-2026-nankai-yimo-25.executable-step-intents.json"
 )
+HEPING_ERMO_FIXTURE = (
+    REPO_ROOT / "internal/solver-fixtures/tj-2026-heping-ermo-25.json"
+)
 
 
 def test_goal_verifier_flags_path_minimum_answer_without_witness_chain() -> None:
@@ -729,6 +732,145 @@ def test_goal_verifier_rejects_symbol_not_closed_in_answer_scope() -> None:
     issue = _issue_by_code(issues, "answer_unresolved_symbol_state")
     assert issue.details["unresolved_symbols"] == ["m"]
     assert issue.details["available_parameter_states"] == []
+
+
+def test_goal_verifier_describes_companion_symbol_identity_mismatch() -> None:
+    problem = load_problem_ir(HEPING_ERMO_FIXTURE)
+    problem_payload = problem_to_llm_payload(problem)
+    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    parameterized_point = StepIntent(
+        scope_id="ii",
+        step_id="parameterize_E",
+        recipe_hint="quadratic_axis_parameterized_point",
+        goal_type="parameterize_point_on_quadratic_axis",
+        target="fact:ii:E_coordinate",
+        strategy="parameterize E",
+        produces=(
+            ProducedFact(
+                "fact:ii:E_coordinate",
+                "ii",
+                output_type="Point",
+            ),
+        ),
+    )
+    solve_coefficient = StepIntent(
+        scope_id="ii",
+        step_id="solve_c",
+        recipe_hint="parameter_from_expression_value",
+        goal_type="derive_parameter",
+        target="fact:ii:c_value",
+        strategy="solve c",
+        produces=(
+            ProducedFact(
+                "fact:ii:c_value",
+                "ii",
+                output_type="ParameterValue",
+            ),
+        ),
+    )
+    answer = StepIntent(
+        scope_id="ii",
+        step_id="evaluate_E",
+        recipe_hint="evaluate_point_at_parameter",
+        goal_type="evaluate_point",
+        target="answer:ii.E",
+        strategy="incorrectly substitute c into E",
+        reads=("fact:ii:E_coordinate", "fact:ii:c_value"),
+        produces=(
+            ProducedFact(
+                "answer:ii.E",
+                "ii",
+                output_type="Point",
+            ),
+        ),
+    )
+    draft = StepIntentDraft(
+        scopes=(
+            StepIntentScope(
+                "ii",
+                "第（Ⅱ）问",
+                (parameterized_point, solve_coefficient, answer),
+            ),
+        ),
+    )
+    diagnostic = StepIntentExecutionDiagnostic(
+        ok=True,
+        state_write_provenance=(
+            StateWriteProvenance(
+                step_id="parameterize_E",
+                scope_id="ii",
+                capability_id="quadratic_axis_parameterized_point",
+                produced_handle="symbol:ii:E_axis_parameter",
+                output_key="parameter",
+                runtime_type="Symbol",
+                identity_policy="derived_role",
+                identity_role="axis_parameter",
+                object_ref="symbol:ii:E_axis_parameter",
+                source_handles=("point:ii:E",),
+                free_symbol_names=("_axis_param_E",),
+            ),
+            StateWriteProvenance(
+                step_id="solve_c",
+                scope_id="ii",
+                capability_id="parameter_from_expression_value",
+                produced_handle="fact:ii:c_value",
+                output_key="parameter_value",
+                runtime_type="ParameterValue",
+                identity_policy="preserve_input_object",
+                identity_role="parameter_value",
+                object_ref="symbol:problem:c",
+            ),
+            StateWriteProvenance(
+                step_id="evaluate_E",
+                scope_id="ii",
+                capability_id="evaluate_point_at_parameter",
+                produced_handle="answer:ii.E",
+                output_key="evaluated_point",
+                runtime_type="Point",
+                identity_policy="preserve_input_object",
+                identity_role="evaluated_point",
+                object_ref="point:ii:E",
+                source_handles=(
+                    "fact:ii:E_coordinate",
+                    "fact:ii:c_value",
+                ),
+                free_symbol_names=("_axis_param_E",),
+            ),
+        ),
+    )
+
+    issues = AnswerGoalVerifier().verify(
+        draft,
+        problem_payload=problem_payload,
+        handle_registry=registry,
+        diagnostic=diagnostic,
+    )
+
+    issue = _issue_by_code(issues, "answer_unresolved_symbol_state")
+    assert "点 E 的未定坐标参数" in issue.message
+    assert "参数值 c 属于其他 Symbol" in issue.message
+    assert issue.details["unresolved_symbol_states"] == [
+        {
+            "runtime_symbol": "_axis_param_E",
+            "semantic_role": "axis_parameter",
+            "description": "点 E 的未定坐标参数",
+            "object_ref": "symbol:ii:E_axis_parameter",
+            "semantic_ref": "E_axis_parameter",
+            "source_object_ref": "point:ii:E",
+        }
+    ]
+    assert issue.details["incompatible_parameter_states"] == [
+        {
+            "parameter": "c",
+            "state": "fact:ii:c_value",
+            "object_ref": "symbol:problem:c",
+            "reason": "symbol_identity_mismatch",
+        }
+    ]
+    assert any(
+        "不能因为它是唯一可见参数值就强行代入" in hint
+        for hint in issue.hints
+    )
 
 
 def test_goal_verifier_allows_function_variable_but_rejects_free_coefficient() -> None:

@@ -337,8 +337,12 @@ SPEC = MethodSpecSource(
     method_cls=SquareAdjacentVertexFromSideMethod,
     title="由正方形边求相邻顶点",
     summary=(
-        "Given 正方形一边两个端点、顶点顺序和方向条件, derive 指定相邻顶点的坐标表达式。"
-        "该 method 只做 90° 旋转构造，不负责把顶点代入曲线求参数。"
+        "由正方形一条已知边的两个已计算端点、顶点顺序和方向条件，求指定相邻"
+        "顶点的坐标表达式。该能力只做 90° 旋转构造，不负责把顶点代入曲线求参数。"
+    ),
+    do_not_use_when=(
+        "已知边任一端点只有对象引用而没有坐标状态。",
+        "目标是求当前边端点本身，而不是由这条边旋转得到的相邻顶点。",
     ),
     solves=("derive_square_adjacent_vertex_from_side",),
     inputs={

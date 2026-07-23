@@ -9,7 +9,9 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 import json
 import re
-from typing import Any, Callable, Mapping
+from typing import Any, Callable, Literal, Mapping
+
+import sympy as sp
 
 from shuxueshuo_server.solver.family.models import (
     MethodCompanionOutputSpec,
@@ -20,12 +22,15 @@ from shuxueshuo_server.solver.family.models import (
     StateWriteMode,
 )
 from shuxueshuo_server.solver.problem_models import QuestionGoal
+from shuxueshuo_server.solver.contracts import PlanTransformerScope
 from shuxueshuo_server.solver.state_semantics import (
+    StateSemanticLineage,
     dependent_role_object_ref,
     derived_role_object_ref,
+    merge_state_semantic_lineages,
     object_kind_for_runtime_type,
     object_ref_matches_runtime_type,
-    split_runtime_types,
+    state_object_refs_for_role,
     state_kind_for_runtime_type,
 )
 from shuxueshuo_server.solver.runtime.auxiliary_points import fresh_auxiliary_point_handle
@@ -56,6 +61,9 @@ from shuxueshuo_server.solver.runtime.output_type_inference import (
 )
 from shuxueshuo_server.solver.runtime.runtime_type_compatibility import (
     runtime_type_compatible,
+)
+from shuxueshuo_server.solver.runtime.runtime_type_declarations import (
+    split_runtime_types,
 )
 from shuxueshuo_server.solver.runtime.path_term_parsing import (
     PathTermParseError,
@@ -95,6 +103,10 @@ from shuxueshuo_server.solver.runtime.straightening_metadata import (
 from shuxueshuo_server.solver.runtime.strategy_normalizer import StepIntentNormalizer
 from shuxueshuo_server.solver.runtime.state_dependency_graph import (
     drop_dead_pure_function_steps,
+)
+from shuxueshuo_server.solver.runtime.student_symbolic_complexity import (
+    analyze_student_symbolic_complexity,
+    runtime_free_symbol_names,
 )
 from shuxueshuo_server.solver.runtime.strategy_preflight import StepIntentPreflightAnalyzer
 from shuxueshuo_server.solver.runtime.strategy_resolver import (
@@ -266,6 +278,49 @@ class RecipeExecutionSpecRegistry:
     def get(self, recipe_id: str) -> FamilyRecipeExecutionSpec | None:
         """按 recipe_id 读取执行规格。"""
         return self.specs.get(recipe_id)
+
+
+def _projected_recipe_method_arg_bindings(
+    execution: FamilyRecipeExecutionSpec,
+    *,
+    step_id: str,
+    method_id: str,
+    projected_bindings: tuple[ProjectedFunctionArgBinding, ...],
+) -> dict[str, ProjectedFunctionArgBinding]:
+    """Project declared macro arg aliases onto one internal method call."""
+    binding_by_arg: dict[str, list[ProjectedFunctionArgBinding]] = {}
+    for item in projected_bindings:
+        if item.step_id == step_id:
+            binding_by_arg.setdefault(item.arg_name, []).append(item)
+    if not binding_by_arg:
+        return {}
+    result: dict[str, ProjectedFunctionArgBinding] = {}
+    for macro_arg, target in execution.input_aliases:
+        target_method, separator, input_name = target.partition(".")
+        if not separator or not target_method or not input_name:
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: invalid recipe input alias: "
+                f"{execution.recipe_id}.{macro_arg}->{target}"
+            )
+        if target_method != method_id:
+            continue
+        items = binding_by_arg.get(macro_arg, ())
+        if not items:
+            # Optional macro arguments do not need a projected sidecar entry.
+            # Required method inputs are checked by the compiler/plan validator.
+            continue
+        if len(items) != 1:
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: projected recipe argument must "
+                f"resolve once: {execution.recipe_id}.{macro_arg}"
+            )
+        if input_name in result:
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: duplicate recipe input alias: "
+                f"{execution.recipe_id}.{target}"
+            )
+        result[input_name] = items[0]
+    return result
 
 class RecipeTrialExecutor:
     """把 StepIntentDraft 编译成可执行 PlannerOutput。
@@ -535,10 +590,16 @@ class _RecipePlanCompiler:
                     code=_execution_blocker_code(candidate_errors),
                     message=_execution_blocker_message(step.step_id, candidate_errors),
                     capability_errors=tuple(candidate_errors),
-                    capability_id=_execution_blocker_capability_id(candidate_errors),
-                    missing_runtime_type=_execution_blocker_missing_runtime_type(candidate_errors),
+                    capability_id=_execution_blocker_capability_id(
+                        candidate_errors
+                    ),
+                    missing_runtime_type=_execution_blocker_missing_runtime_type(
+                        candidate_errors
+                    ),
                     details=_execution_blocker_details(candidate_errors),
-                    retryable=_execution_blocker_code(candidate_errors) != "missing_binding_rule",
+                    retryable=_execution_blocker_retryable(
+                        _execution_blocker_code(candidate_errors)
+                    ),
                 )
                 skipped = tuple(
                     StepIntentSkippedStep(
@@ -569,8 +630,13 @@ class _RecipePlanCompiler:
                     key = f"{compiled.plan.step_id}:{compiled.plan.goal.target_path}"
                     if key in seen_plan_keys:
                         continue
-                    trial_declarations = _unique_declarations([*declarations, *compiled.declarations])
-                    trial_context = self._dry_run_prefix(trial_declarations, [*plans, compiled.plan])
+                    trial_declarations = _unique_declarations(
+                        [*declarations, *compiled.declarations]
+                    )
+                    trial_context = self._dry_run_prefix(
+                        trial_declarations,
+                        [*plans, compiled.plan],
+                    )
                     compiled = replace(
                         compiled,
                         state_write_provenance=_enrich_write_provenance_runtime_symbols(
@@ -644,7 +710,9 @@ class _RecipePlanCompiler:
                 capability_id=_execution_blocker_capability_id(candidate_errors),
                 missing_runtime_type=_execution_blocker_missing_runtime_type(candidate_errors),
                 details=_execution_blocker_details(candidate_errors),
-                retryable=_execution_blocker_code(candidate_errors) != "missing_binding_rule",
+                retryable=_execution_blocker_retryable(
+                    _execution_blocker_code(candidate_errors)
+                ),
             )
             skipped = tuple(
                 StepIntentSkippedStep(
@@ -845,6 +913,7 @@ class _RecipePlanCompiler:
                 declared_evidence_roles=declared_evidence_roles,
                 index=self.index,
                 prior=tuple(self.state_write_provenance),
+                projected_state_writes=self.projected_state_writes,
             ),
         )
 
@@ -865,6 +934,7 @@ class _RecipePlanCompiler:
             self.index,
             local_outputs=prep.local_outputs or {},
             exact_inputs=self._projected_exact_function_inputs(step, spec),
+            distinct_arg_groups=spec.distinct_arg_groups,
         )
         outputs = _method_outputs_for_step(
             method_id,
@@ -897,9 +967,13 @@ class _RecipePlanCompiler:
             goal_type=step.goal_type,
             target_path=next(iter(main_promote.values())),
         )
-        if spec.plan_transformer is not None:
+        if (
+            spec.plan_transformer is not None
+            and spec.plan_transformer_scope == "single_invocation"
+        ):
             plan = _apply_method_plan_transformer(
                 spec.plan_transformer,
+                transformer_scope=spec.plan_transformer_scope,
                 plan=plan,
                 step=step,
                 index=self.index,
@@ -912,6 +986,17 @@ class _RecipePlanCompiler:
                 invocations=[*prep.invocations, *plan.invocations],
                 expected_outputs=plan.expected_outputs,
                 promote_outputs=plan.promote_outputs,
+            )
+        if (
+            spec.plan_transformer is not None
+            and spec.plan_transformer_scope == "all_invocations"
+        ):
+            plan = _apply_method_plan_transformer(
+                spec.plan_transformer,
+                transformer_scope=spec.plan_transformer_scope,
+                plan=plan,
+                step=step,
+                index=self.index,
             )
         produced_registrations = _produced_registrations(
             step,
@@ -962,6 +1047,7 @@ class _RecipePlanCompiler:
                 function_specs=self.function_specs,
                 index=self.index,
                 prior=tuple(self.state_write_provenance),
+                projected_state_writes=self.projected_state_writes,
             ),
         )
 
@@ -987,19 +1073,190 @@ class _RecipePlanCompiler:
             if item.step_id == step.step_id and item.arg_name in spec.inputs:
                 grouped.setdefault(item.arg_name, []).append(item)
         result: dict[str, str] = {}
+        aggregate_lowerings = {
+            item.source_input: item.item_inputs
+            for item in function.adapter.aggregate_input_bindings
+        }
         for input_name, items in grouped.items():
-            if len(items) != 1:
+            item_inputs = aggregate_lowerings.get(input_name, ())
+            if item_inputs:
+                if len(items) > len(item_inputs):
+                    raise StrategyDraftValidationError(
+                        "planner_configuration_error: functional aggregate "
+                        "lowering capacity exceeded: "
+                        f"method={spec.method_id}, arg={input_name}, "
+                        f"items={len(items)}, capacity={len(item_inputs)}"
+                    )
+                for item_input, item in zip(item_inputs, items, strict=False):
+                    item_spec = spec.inputs.get(item_input)
+                    if (
+                        item_spec is None
+                        or item.runtime_type is None
+                        or not runtime_type_compatible(
+                            item_spec.type,
+                            item.runtime_type,
+                        )
+                    ):
+                        raise StrategyDraftValidationError(
+                            "planner_configuration_error: invalid functional "
+                            "aggregate lowering: "
+                            f"method={spec.method_id}, arg={input_name}, "
+                            f"item_input={item_input}"
+                        )
+                    result[item_input] = self._projected_input_path(
+                        item,
+                        expected_type=item_spec.type,
+                    )
                 continue
-            item = items[0]
             expected_type = spec.inputs[input_name].type
-            if item.runtime_type is None or not runtime_type_compatible(
-                expected_type,
-                item.runtime_type,
+            singular_name = input_name[:-1] if input_name.endswith("s") else ""
+            singular_spec = spec.inputs.get(singular_name)
+            if (
+                len(items) == 1
+                and singular_spec is not None
+                and items[0].runtime_type is not None
+                and runtime_type_compatible(
+                    singular_spec.type,
+                    items[0].runtime_type,
+                )
             ):
+                result[singular_name] = self._projected_input_path(
+                    items[0],
+                    expected_type=singular_spec.type,
+                )
                 continue
-            result[input_name] = self.index.path_for(
+            if len(items) == 1:
+                item = items[0]
+                if item.runtime_type is not None and runtime_type_compatible(
+                    expected_type,
+                    item.runtime_type,
+                ):
+                    result[input_name] = self._projected_input_path(
+                        item,
+                        expected_type=expected_type,
+                    )
+                    continue
+            aggregate_path = self._projected_aggregate_input(
+                step,
+                input_name=input_name,
+                expected_type=expected_type,
+                items=items,
+            )
+            if aggregate_path is not None:
+                result[input_name] = aggregate_path
+        return result
+
+    def _projected_input_path(
+        self,
+        item: ProjectedFunctionArgBinding,
+        *,
+        expected_type: str,
+    ) -> str:
+        """Resolve an exact sidecar binding and surface cross-layer drift."""
+        try:
+            return self.index.path_for(
                 item.source_handle,
                 expected_type=expected_type,
+            )
+        except StrategyDraftValidationError as exc:
+            if (
+                "binding_type_mismatch" in str(exc)
+                and item.runtime_type is not None
+                and runtime_type_compatible(expected_type, item.runtime_type)
+            ):
+                actual = self.index.bindings.get(item.source_handle)
+                actual_type = actual.value_type if actual is not None else "missing"
+                raise StrategyDraftValidationError(
+                    "planner_configuration_error: functional projected argument "
+                    "runtime type drift: "
+                    f"arg={item.arg_name}, handle={item.source_handle}, "
+                    f"reconciled={item.runtime_type}, runtime={actual_type}"
+                ) from exc
+            raise
+
+    def _projected_aggregate_input(
+        self,
+        step: StepIntent,
+        *,
+        input_name: str,
+        expected_type: str,
+        items: list[ProjectedFunctionArgBinding],
+    ) -> str | None:
+        item_type = {
+            "SymbolList": "Symbol",
+            "PointList": "Point",
+            "Coefficients": "ParameterValue",
+        }.get(expected_type)
+        if item_type is None or not items:
+            return None
+        if any(
+            item.runtime_type is None
+            or not runtime_type_compatible(item_type, item.runtime_type)
+            for item in items
+        ):
+            return None
+        source_paths = _unique_ordered(
+            binding.path
+            for item in items
+            if (binding := self.index.bindings.get(item.source_handle)) is not None
+        )
+        if len(source_paths) == 1:
+            try:
+                existing = self.index.context.read_path(
+                    source_paths[0],
+                    from_scope_id=step.scope_id,
+                    expected_type=expected_type,
+                )
+            except (KeyError, PermissionError, TypeError, ValueError):
+                pass
+            else:
+                if existing.type == expected_type:
+                    return source_paths[0]
+        # Reconciliation may select several scalar states for one public
+        # aggregate arg. Do not materialize a transient container in the
+        # compiler's dry-run Context: execution rebuilds RuntimeContext and
+        # that path would disappear. Existing container states are safe;
+        # otherwise the declaration-owned expansion selector performs the
+        # aggregation from canonical reads.
+        return None
+
+    def _projected_exact_recipe_inputs(
+        self,
+        step: StepIntent,
+        method_id: str,
+    ) -> dict[str, str]:
+        """Compile declared macro input aliases from reconciliation sidecar."""
+        if step.recipe_hint is None:
+            return {}
+        execution = self.recipe_specs.get(step.recipe_hint)
+        if execution is None or not execution.input_aliases:
+            return {}
+        bindings = _projected_recipe_method_arg_bindings(
+            execution,
+            step_id=step.step_id,
+            method_id=method_id,
+            projected_bindings=self.projected_function_arg_bindings,
+        )
+        method_spec = self.method_specs.require(method_id)
+        result: dict[str, str] = {}
+        for input_name, item in bindings.items():
+            input_spec = method_spec.inputs.get(input_name)
+            if input_spec is None:
+                raise StrategyDraftValidationError(
+                    "planner_configuration_error: recipe input alias targets "
+                    f"unknown input: {step.recipe_hint}.{method_id}.{input_name}"
+                )
+            if item.runtime_type is None or not runtime_type_compatible(
+                input_spec.type,
+                item.runtime_type,
+            ):
+                raise StrategyDraftValidationError(
+                    "planner_configuration_error: recipe input alias type "
+                    f"mismatch: {step.recipe_hint}.{input_name}"
+                )
+            result[input_name] = self.index.path_for(
+                item.source_handle,
+                expected_type=input_spec.type,
             )
         return result
 
@@ -1434,17 +1691,27 @@ class _RecipePlanCompiler:
         最短线段端点；这里优先消费这些 endpoint metadata，避免继续让 LLM
         通过普通 point reads 猜测距离两端。
         """
-        endpoints = _straightening_endpoint_handles_from_reads(step, self.index)
-        if endpoints is None:
-            return self._compile_method(step, "distance_between_points")
-        point_1, point_2 = endpoints
+        inputs = self._projected_exact_recipe_inputs(
+            step,
+            "distance_between_points",
+        )
+        if inputs and not {"p1", "p2"}.issubset(inputs):
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: straightened distance macro "
+                "requires projected p1 and p2"
+            )
+        if not inputs:
+            endpoints = _straightening_endpoint_handles_from_reads(step, self.index)
+            if endpoints is None:
+                return self._compile_method(step, "distance_between_points")
+            point_1, point_2 = endpoints
+            inputs = {
+                "p1": self.index.path_for(point_1, expected_type="Point"),
+                "p2": self.index.path_for(point_2, expected_type="Point"),
+            }
         output_name = "evaluated_distance" if _parameter_value_handle(step, self.index) else "distance"
         distance = _temp(step.step_id, output_name)
         target_path = _minimum_expression_target_path(step, self.index)
-        inputs = {
-            "p1": self.index.path_for(point_1, expected_type="Point"),
-            "p2": self.index.path_for(point_2, expected_type="Point"),
-        }
         parameter_handle = _parameter_value_handle(step, self.index)
         if parameter_handle is not None:
             inputs["parameter"] = self.index.parameter_symbol_path()
@@ -2996,10 +3263,23 @@ def _prep_trigger_matches(
     if selector.startswith("missing_readable_type_with_quadratic_source:"):
         value_type = selector.split(":", 1)[1]
         return (
-            _path_for_readable_type_or_none(index, step, value_type) is None
+            not _step_declares_runtime_type(step, index, value_type)
             and _step_has_quadratic_source_reads(step, index)
         )
     raise StrategyDraftValidationError(f"prep_trigger_selector_missing: {selector}")
+
+
+def _step_declares_runtime_type(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+    value_type: str,
+) -> bool:
+    """Match the read-closed Function adapter boundary used by the main call."""
+    return any(
+        (binding := index.bindings.get(handle)) is not None
+        and binding.value_type == value_type
+        for handle in step.reads
+    )
 
 
 def _step_has_quadratic_source_reads(
@@ -3007,16 +3287,11 @@ def _step_has_quadratic_source_reads(
     index: CanonicalRuntimeBindingIndex,
 ) -> bool:
     """判断 step 是否具备临时构造 Parabola 的题设来源。"""
-    has_function = any(handle.startswith("function:") for handle in step.reads)
-    if not has_function:
-        return False
-    source_fact_types = {
-        "symbol_value",
-        "coefficient_relation",
-        "point_on_curve",
-        "point_coordinate",
-    }
-    return any(index.handle_registry.fact_types.get(handle) in source_fact_types for handle in step.reads)
+    # The Function template itself is a sufficient source. The shared
+    # quadratic constraint analyzer decides whether it is closed, single-free,
+    # or underdetermined; duplicating that symbolic check in this trigger would
+    # make prep applicability drift from runtime behavior.
+    return any(handle.startswith("function:") for handle in step.reads)
 
 
 def _prep_outputs(
@@ -3159,6 +3434,7 @@ def _output_key_for_produced(
         "Parabola": ("parabola",),
         "Coefficients": ("coefficients",),
         "ParameterValue": ("parameter_value",),
+        "Symbol": ("parameter", "symbol"),
         "MinimumExpression": ("minimum_expression", "distance", "evaluated_distance", "minimum_value"),
         "PathTransformation": ("path_transformation",),
         "StraighteningCandidate": ("selected_candidate",),
@@ -3335,6 +3611,7 @@ def _companion_registrations_for_step(
                 promote[source],
                 output_type,
                 f"step:{step.step_id}",
+                companion.output_name,
             )
         )
     return result
@@ -3461,6 +3738,7 @@ def _macro_write_provenance(
     declared_evidence_roles: tuple[str, ...],
     index: CanonicalRuntimeBindingIndex,
     prior: tuple[StateWriteProvenance, ...],
+    projected_state_writes: tuple[ProjectedStateWrite, ...],
 ) -> tuple[StateWriteProvenance, ...]:
     return tuple(
         _state_write_provenance(
@@ -3477,6 +3755,11 @@ def _macro_write_provenance(
             input_path=None,
             index=index,
             prior=prior,
+            projected_write=_projected_state_write(
+                step.step_id,
+                produced.handle,
+                projected_state_writes,
+            ),
         )
         for produced, return_spec in bindings
     )
@@ -3492,6 +3775,7 @@ def _function_write_provenance(
     function_specs: FunctionSpecRegistry,
     index: CanonicalRuntimeBindingIndex,
     prior: tuple[StateWriteProvenance, ...],
+    projected_state_writes: tuple[ProjectedStateWrite, ...],
 ) -> tuple[StateWriteProvenance, ...]:
     function = function_specs.get(method_id)
     if function is None:
@@ -3513,7 +3797,11 @@ def _function_write_provenance(
     all_registrations = [
         *registrations,
         *(
-            (item.handle, _output_key_for_companion_path(item.path, plan), item.path)
+            (
+                item.handle,
+                item.output_key or _output_key_for_companion_path(item.path, plan),
+                item.path,
+            )
             for item in companion_registrations
         ),
     ]
@@ -3521,6 +3809,23 @@ def _function_write_provenance(
         return_spec = returns.get(output_key)
         if return_spec is None:
             continue
+        projected_write = _projected_state_write(
+            step.step_id,
+            produced_handle,
+            projected_state_writes,
+        )
+        if (
+            projected_write is not None
+            and projected_write.return_name is not None
+            and projected_write.return_name
+            not in {return_spec.name, return_spec.output_key}
+        ):
+            raise StrategyDraftValidationError(
+                "planner.contract_runtime_identity_drift: "
+                f"step={step.step_id}, handle={produced_handle}, "
+                f"projected_return={projected_write.return_name}, "
+                f"compiled_output={output_key}"
+            )
         input_path = (
             invocation.inputs.get(return_spec.identity_arg)
             if invocation is not None and return_spec.identity_arg is not None
@@ -3541,6 +3846,15 @@ def _function_write_provenance(
                 input_path=input_path,
                 index=index,
                 prior=prior,
+                projected_write=projected_write,
+                closure_ignored_symbol_names=(
+                    _result_form_ignored_symbol_names(
+                        return_spec,
+                        invocation=invocation,
+                        index=index,
+                        scope_id=step.scope_id,
+                    )
+                ),
             )
         )
     return tuple(result)
@@ -3570,6 +3884,8 @@ def _state_write_provenance(
     input_path: str | None,
     index: CanonicalRuntimeBindingIndex,
     prior: tuple[StateWriteProvenance, ...],
+    projected_write: ProjectedStateWrite | None,
+    closure_ignored_symbol_names: tuple[str, ...] = (),
 ) -> StateWriteProvenance:
     del identity_arg
     source_handle = _source_handle_for_path(input_path, index, prior)
@@ -3620,7 +3936,9 @@ def _state_write_provenance(
         ),
         None,
     )
-    effective_write_mode: StateWriteMode = write_mode
+    effective_write_mode: StateWriteMode = (
+        projected_write.write_mode if projected_write is not None else write_mode
+    )
     if write_mode == "transition" and previous_write is None and object_ref is not None:
         # Initial ProblemIR states are not represented in the prior write
         # provenance ledger. The first derived value starts that ledger; later
@@ -3639,12 +3957,30 @@ def _state_write_provenance(
             previous_write=previous_write,
             prior=prior,
             index=index,
+            transition_kind=(
+                projected_write.transition_kind
+                if projected_write is not None
+                else None
+            ),
+            projected_previous_write_step_id=(
+                projected_write.previous_write_step_id
+                if projected_write is not None
+                else None
+            ),
         )
     state_kind = state_kind_for_runtime_type(runtime_type)
     state_slot_id = (
         f"{object_ref}.{state_kind}@{step.scope_id}:{runtime_type}"
         if object_ref is not None
         else None
+    )
+    lineage = _compiled_state_lineage(
+        identity_policy=identity_policy,
+        write_mode=write_mode,
+        identity_role=identity_role,
+        evidence_roles=evidence_roles,
+        source=source,
+        projected_write=projected_write,
     )
     return StateWriteProvenance(
         step_id=step.step_id,
@@ -3664,7 +4000,79 @@ def _state_write_provenance(
         previous_write_step_id=(
             previous_write.step_id if previous_write is not None else None
         ),
+        closure_ignored_symbol_names=tuple(
+            _unique_ordered(
+                (
+                    *(source.closure_ignored_symbol_names if source else ()),
+                    *closure_ignored_symbol_names,
+                )
+            )
+        ),
+        transition_kind=(
+            projected_write.transition_kind
+            if projected_write is not None
+            else None
+        ),
+        dependency_object_refs=(
+            projected_write.dependency_object_refs
+            if projected_write is not None
+            else ()
+        ),
+        source_state_slot_ids=(
+            projected_write.source_state_slot_ids
+            if projected_write is not None
+            else lineage.source_state_slot_ids
+        ),
+        lineage=lineage,
     )
+
+
+def _compiled_state_lineage(
+    *,
+    identity_policy: StateIdentityPolicy,
+    write_mode: StateWriteMode,
+    identity_role: str,
+    evidence_roles: tuple[str, ...],
+    source: StateWriteProvenance | None,
+    projected_write: ProjectedStateWrite | None,
+) -> StateSemanticLineage:
+    if projected_write is not None:
+        return projected_write.lineage
+    inherited = (
+        (source.lineage,)
+        if identity_policy == "preserve_input_object"
+        and write_mode == "transition"
+        and source is not None
+        else ()
+    )
+    return merge_state_semantic_lineages(
+        *inherited,
+        semantic_roles=(identity_role,),
+        evidence_tags=evidence_roles,
+        source_state_slot_ids=(
+            (source.state_slot_id,)
+            if source is not None and source.state_slot_id is not None
+            else ()
+        ),
+    )
+
+
+def _projected_state_write(
+    step_id: str,
+    produced_handle: str,
+    projected_state_writes: tuple[ProjectedStateWrite, ...],
+) -> ProjectedStateWrite | None:
+    matches = tuple(
+        item
+        for item in projected_state_writes
+        if item.step_id == step_id and item.produced_handle == produced_handle
+    )
+    if len(matches) > 1:
+        raise StrategyDraftValidationError(
+            "planner_configuration_error: duplicate projected state write: "
+            f"step={step_id}, handle={produced_handle}"
+        )
+    return matches[0] if matches else None
 
 
 def _enrich_write_provenance_runtime_symbols(
@@ -3685,6 +4093,7 @@ def _enrich_write_provenance_runtime_symbols(
                     from_scope_id=item.scope_id,
                     expected_type=item.runtime_type,
                 ).value
+                _validate_runtime_lineage_payload(item, value)
                 if item.runtime_type == "Symbol":
                     free_symbols.add(value)
                 elif item.runtime_type == "Point":
@@ -3692,15 +4101,80 @@ def _enrich_write_provenance_runtime_symbols(
                         free_symbols.update(getattr(coordinate, "free_symbols", set()))
                 else:
                     free_symbols.update(getattr(value, "free_symbols", set()))
+            except StrategyDraftValidationError:
+                raise
             except (KeyError, PermissionError, TypeError, ValueError):
                 pass
         result.append(
             replace(
                 item,
-                free_symbol_names=tuple(sorted(map(str, free_symbols))),
+                free_symbol_names=tuple(
+                    sorted(
+                        set(map(str, free_symbols))
+                        - set(item.closure_ignored_symbol_names)
+                    )
+                ),
             )
         )
     return tuple(result)
+
+
+def _result_form_ignored_symbol_names(
+    return_spec: FunctionReturnSpec,
+    *,
+    invocation: MethodInvocation | None,
+    index: CanonicalRuntimeBindingIndex,
+    scope_id: str,
+) -> tuple[str, ...]:
+    """Resolve structural variables excluded from result closure checks.
+
+    The declaration names method inputs, not concrete symbols. This keeps the
+    closure rule reusable for any independent variable name while provenance
+    records the actual symbol used by this invocation.
+    """
+    form = return_spec.scalar_result_form
+    if form is None or invocation is None:
+        return ()
+    names: list[str] = []
+    for input_name in form.ignored_symbol_input_args:
+        path = invocation.inputs.get(input_name)
+        if path is None:
+            continue
+        try:
+            value = index.context.read_path(
+                path,
+                from_scope_id=scope_id,
+            ).value
+        except (KeyError, PermissionError, TypeError, ValueError):
+            continue
+        if isinstance(value, sp.Symbol):
+            names.append(str(value))
+    return tuple(_unique_ordered(names))
+
+
+def _validate_runtime_lineage_payload(
+    provenance: StateWriteProvenance,
+    value: Any,
+) -> None:
+    """Detect contract/runtime identity drift for structured state payloads."""
+    if provenance.runtime_type != "PathTransformation" or not isinstance(
+        value,
+        dict,
+    ):
+        return
+    expected = state_object_refs_for_role(
+        provenance.lineage,
+        "moving_object",
+    )
+    actual = value.get("moving_point_ref")
+    if not expected:
+        return
+    if not isinstance(actual, str) or actual not in expected:
+        raise StrategyDraftValidationError(
+            "planner.contract_runtime_identity_drift: "
+            f"step={provenance.step_id}, role=moving_object, "
+            f"expected={','.join(expected)}, actual={actual or 'missing'}"
+        )
 
 
 def _validate_state_transition(
@@ -3710,6 +4184,8 @@ def _validate_state_transition(
     previous_write: StateWriteProvenance | None,
     prior: tuple[StateWriteProvenance, ...],
     index: CanonicalRuntimeBindingIndex,
+    transition_kind: Literal["direct", "dependency_refinement"] | None,
+    projected_previous_write_step_id: str | None,
 ) -> None:
     if object_ref is None or previous_write is None:
         raise StrategyDraftValidationError(
@@ -3721,6 +4197,18 @@ def _validate_state_transition(
             "function.transition_scope_invisible: "
             f"step={step.step_id}, previous_step={previous_write.step_id}"
         )
+    if transition_kind == "dependency_refinement":
+        if projected_previous_write_step_id != previous_write.step_id:
+            raise StrategyDraftValidationError(
+                "function.transition_previous_write_mismatch: "
+                f"step={step.step_id}, expected={previous_write.step_id}, "
+                f"actual={projected_previous_write_step_id}"
+            )
+        return
+    if projected_previous_write_step_id == previous_write.step_id:
+        # FunctionalPlan auto arguments do not become public StepIntent reads;
+        # reconciliation's typed transition sidecar is the dependency proof.
+        return
     by_handle = {item.produced_handle: item for item in prior}
     pending = list(step.reads)
     visited: set[str] = set()
@@ -3749,7 +4237,12 @@ def _expand_point_parameter_substitutions(
     step: StepIntent,
     index: CanonicalRuntimeBindingIndex,
 ) -> StepPlan:
-    """Compile one evaluate-point StepIntent into identity-safe substitutions."""
+    """Compile every read, identity-matching Point substitution.
+
+    A call may close one Symbol while leaving other Point coordinates
+    parameterized. Student-facing consumers apply their own symbolic
+    complexity policy instead of narrowing this runtime state transition.
+    """
     if len(plan.invocations) != 1:
         return plan
     base = plan.invocations[0]
@@ -3800,25 +4293,17 @@ def _expand_point_parameter_substitutions(
         ).value
         substitutions.append((symbol, symbol_binding.path, binding.path, handle))
     by_symbol = {item[0]: item for item in substitutions}
-    missing = sorted(
-        (symbol for symbol in free_symbols if symbol not in by_symbol),
+    ordered_symbols = sorted(
+        (symbol for symbol in free_symbols if symbol in by_symbol),
         key=str,
     )
-    if missing:
-        refs = [
-            handle
-            for handle, binding in index.bindings.items()
-            if binding.value_type == "Symbol"
-            and _runtime_symbol_for_binding(binding.path, step, index) in missing
-        ]
+    if not ordered_symbols:
         raise StrategyDraftValidationError(
-            "function.unresolved_symbol_inputs: "
-            f"step={step.step_id}, symbols={'|'.join(map(str, missing))}, "
-            f"semantic_refs={'|'.join(refs)}"
+            "functional.arg_identity_mismatch: "
+            f"step={step.step_id}, no read ParameterValue matches the Point's "
+            "unresolved Symbol identities"
         )
-    ordered = [by_symbol[symbol] for symbol in sorted(free_symbols, key=str)]
-    if not ordered:
-        return plan
+    ordered = [by_symbol[symbol] for symbol in ordered_symbols]
     final_output = base.outputs["evaluated_point"]
     current_point = point_path
     invocations: list[MethodInvocation] = []
@@ -3852,19 +4337,89 @@ def _expand_point_parameter_substitutions(
     )
 
 
+def _validate_student_single_degree_of_freedom(
+    plan: StepPlan,
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+    transformer_scope: PlanTransformerScope = "single_invocation",
+) -> StepPlan:
+    """Require an actual symbolic input to contain at most one unknown.
+
+    Reconciliation dependency metadata is intentionally not used here: it is
+    conservative and may retain symbols that an upstream runtime calculation
+    has already eliminated. The compiled invocation's current typed values are
+    the authority for this student-facing complexity check.
+    """
+    if transformer_scope == "single_invocation":
+        if len(plan.invocations) != 1:
+            return plan
+        invocations = plan.invocations[:1]
+    else:
+        invocations = plan.invocations
+    symbolic_types = {"Expression", "MinimumExpression", "Point", "Parabola"}
+    free_symbol_names: list[str] = []
+    target_symbol_names: list[str] = []
+    for invocation in invocations:
+        for path in invocation.inputs.values():
+            try:
+                value = index.context.read_path(
+                    path,
+                    from_scope_id=step.scope_id,
+                )
+            except (KeyError, PermissionError, TypeError, ValueError):
+                continue
+            if value.type == "Symbol":
+                target_symbol_names.append(str(value.value))
+            elif value.type in symbolic_types:
+                free_symbol_names.extend(runtime_free_symbol_names(value.value))
+    analysis = analyze_student_symbolic_complexity(
+        free_symbol_names,
+        target_symbol_ref=(
+            target_symbol_names[0] if len(set(target_symbol_names)) == 1 else None
+        ),
+    )
+    if analysis.student_ready:
+        return plan
+    raise StrategyDraftValidationError(
+        "function.student_symbolic_complexity_exceeded: "
+        f"step={step.step_id}, target={analysis.target_symbol_ref}, "
+        f"symbols={'|'.join(analysis.residual_symbol_refs)}, "
+        "maximum_student_degrees_of_freedom=1"
+    )
+
+
 MethodPlanTransformer = Callable[
-    [StepPlan, StepIntent, CanonicalRuntimeBindingIndex],
+    [
+        StepPlan,
+        StepIntent,
+        CanonicalRuntimeBindingIndex,
+        PlanTransformerScope,
+    ],
     StepPlan,
 ]
 
+
+def _substitute_point_parameters_transformer(
+    plan: StepPlan,
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+    _transformer_scope: PlanTransformerScope,
+) -> StepPlan:
+    return _expand_point_parameter_substitutions(plan, step, index)
+
 _METHOD_PLAN_TRANSFORMERS: dict[str, MethodPlanTransformer] = {
-    "substitute_all_point_parameters": _expand_point_parameter_substitutions,
+    "substitute_all_point_parameters": _substitute_point_parameters_transformer,
+    "substitute_read_point_parameters": _substitute_point_parameters_transformer,
+    "validate_student_single_degree_of_freedom": (
+        _validate_student_single_degree_of_freedom
+    ),
 }
 
 
 def _apply_method_plan_transformer(
     transformer_id: str,
     *,
+    transformer_scope: PlanTransformerScope,
     plan: StepPlan,
     step: StepIntent,
     index: CanonicalRuntimeBindingIndex,
@@ -3874,7 +4429,7 @@ def _apply_method_plan_transformer(
         raise StrategyDraftValidationError(
             f"method.plan_transformer_missing: {transformer_id}"
         )
-    return transformer(plan, step, index)
+    return transformer(plan, step, index, transformer_scope)
 
 
 def _runtime_symbol_for_binding(
@@ -4083,8 +4638,14 @@ def _structured_output_key_from_produced(
     fact_type = index.fact_types.get(produced.handle)
     semantic_name = _semantic_name(produced.handle) if produced.handle.startswith("fact:") else ""
     output_type = _produced_output_type(produced, index.handle_registry)
-    if _is_parameter_output_semantic_name(semantic_name) or fact_type == "parameter_value":
+    if (
+        output_type == "ParameterValue"
+        or _is_parameter_output_semantic_name(semantic_name)
+        or fact_type == "parameter_value"
+    ):
         return _first_candidate(candidates, "parameter_value")
+    if output_type == "Symbol":
+        return _first_candidate(candidates, semantic_name, "parameter", "symbol")
     if semantic_name in {"parabola", "parabola_expr", "parabola_expression"} or output_type == "Parabola":
         return _first_candidate(candidates, "parabola")
     if output_type == "Coefficients":
@@ -4364,6 +4925,8 @@ def _method_output_union(
 def _execution_blocker_code(candidate_errors: list[str]) -> str:
     """把候选执行错误压成稳定短错误码。"""
     text = "\n".join(candidate_errors)
+    if "planner_configuration_error" in text:
+        return "planner_configuration_error"
     for code in (
         "function.arg_applicability",
         "function.arg_not_read",
@@ -4406,6 +4969,11 @@ def _execution_blocker_code(candidate_errors: list[str]) -> str:
     if not candidate_errors:
         return "no_trial_candidate"
     return "recipe_trial_step_failed"
+
+
+def _execution_blocker_retryable(code: str) -> bool:
+    """Configuration and missing binding defects cannot be repaired by LLM."""
+    return code not in {"missing_binding_rule", "planner_configuration_error"}
 
 
 def _execution_blocker_message(step_id: str, candidate_errors: list[str]) -> str:
@@ -4507,6 +5075,7 @@ def _typed_error_fields(payload: str) -> dict[str, str]:
 
 
 def _split_typed_error_list(value: str | None) -> list[str]:
+    """Parse diagnostic list fields; this is not runtime-type union grammar."""
     if not value:
         return []
     return [item for item in value.split("|") if item] if "|" in value else [
