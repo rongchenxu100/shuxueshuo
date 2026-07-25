@@ -3,6 +3,7 @@
 import fs from "fs";
 import path from "path";
 import { normalizeLessonSpec } from "./lib/lesson-normalizer.mjs";
+import { buildKeyPointsHtml, renderInlineMathText } from "./lib/lesson-html.mjs";
 
 function die(message) {
   console.error(message);
@@ -39,9 +40,9 @@ function buildProblemHtml(lines) {
       return `<div class="problem-line"><strong>${esc(line.heading)}</strong></div>`;
     }
     if (line.answerId != null) {
-      return `<div class="problem-line"><span>${esc(line.text)}</span><span class="answer-chip" id="${esc(line.answerId)}">${esc(line.answer)}</span></div>`;
+      return `<div class="problem-line"><span>${renderInlineMathText(line.text)}</span><span class="answer-chip" id="${esc(line.answerId)}">${renderInlineMathText(line.answer)}</span></div>`;
     }
-    return `<div class="problem-line"><span>${esc(line.text ?? "")}</span></div>`;
+    return `<div class="problem-line"><span>${renderInlineMathText(line.text ?? "")}</span></div>`;
   }).join("\n");
 }
 
@@ -155,8 +156,9 @@ const html = replaceAll(template, {
   "{{LIBRARY_HREF}}": libraryHref,
   "{{LIBRARY_LABEL}}": meta.breadcrumbLabel ?? "题库导航",
   "{{ASSET_PREFIX}}": assetPrefix,
-  "{{PROBLEM_SUMMARY}}": problem.summary ?? "",
+  "{{PROBLEM_SUMMARY}}": renderInlineMathText(problem.summary ?? ""),
   "{{PROBLEM_FULL_HTML}}": buildProblemHtml(problem.lines),
+  "{{PROBLEM_KEY_POINTS_HTML}}": buildKeyPointsHtml(problem.keyPoints),
   "{{STEPS_JSON}}": JSON.stringify(lessonData.steps ?? []),
   "{{POLICIES_JSON}}": JSON.stringify(lessonData.policies ?? {}),
   "{{STEP_LABELS_JSON}}": JSON.stringify(lessonData.stepLabels ?? {}),

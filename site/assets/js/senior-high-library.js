@@ -8,16 +8,20 @@
     chapterNav: document.querySelector("#chapter-nav"),
     title: document.querySelector("#catalog-title"),
     count: document.querySelector("#catalog-count"),
+    filters: document.querySelector(".senior-library-filters"),
     sectionTabs: document.querySelector("#section-tabs"),
     difficulty: document.querySelector("#difficulty-filter"),
     source: document.querySelector("#source-filter"),
     sort: document.querySelector("#sort-filter"),
     grid: document.querySelector("#problem-grid"),
+    worksheet: document.querySelector("#worksheet-view"),
     pagination: document.querySelector("#pagination"),
   };
 
   let catalog = null;
   let state = { ...model.DEFAULT_STATE };
+  const expandedChapters = new Set();
+  const collapsedChapters = new Set();
 
   function escapeHtml(value) {
     return String(value ?? "")
@@ -52,10 +56,21 @@
     return getChapter(chapterId)?.sections.find((section) => section.id === sectionId);
   }
 
+  function getCollection(collectionId) {
+    return (catalog.collections || []).find((collection) => collection.id === collectionId);
+  }
+
+  function collectionCountForChapter(chapterId) {
+    return (catalog.collections || [])
+      .filter((collection) => chapterId === "all" || collection.chapterId === chapterId)
+      .reduce((total, collection) => total + model.collectionProblemCount(collection), 0);
+  }
+
   function countChapter(chapterId) {
-    return model.publishedProblems(catalog).filter((problem) => (
+    const standaloneCount = model.publishedProblems(catalog).filter((problem) => (
       chapterId === "all" || problem.chapterId === chapterId
     )).length;
+    return standaloneCount + collectionCountForChapter(chapterId);
   }
 
   function countSection(chapterId, sectionId) {
@@ -66,35 +81,72 @@
 
   function renderChapters() {
     const chapters = [
-      { id: "all", label: "全部题目", symbol: "∴" },
+      { id: "all", label: "全部题目" },
       ...catalog.chapters,
     ];
     elements.chapterNav.innerHTML = chapters.map((chapter) => {
-      const active = state.chapter === chapter.id;
+      const sections = chapter.sections || [];
+      const worksheetSections = sections.filter((section) => section.presentation === "worksheet");
+      const hasChildren = worksheetSections.length > 0;
+      const active = state.chapter === chapter.id && state.section === "all";
+      const parentActive = state.chapter === chapter.id && state.section !== "all";
+      const expanded = hasChildren
+        && !collapsedChapters.has(chapter.id)
+        && (expandedChapters.has(chapter.id) || state.chapter === chapter.id);
       return `
-        <button
-          class="senior-library-chapter${active ? " is-active" : ""}"
-          type="button"
-          data-chapter="${escapeHtml(chapter.id)}"
-          ${active ? 'aria-current="page"' : ""}
-        >
-          <span class="senior-library-chapter-symbol" aria-hidden="true">${escapeHtml(chapter.symbol || "·")}</span>
-          <span class="senior-library-chapter-name">${escapeHtml(chapter.label)}</span>
-          <span class="senior-library-chapter-count">${countChapter(chapter.id)}</span>
-        </button>
+        <div class="senior-library-chapter-group">
+          <button
+            class="senior-library-chapter${active ? " is-active" : ""}${parentActive ? " is-parent-active" : ""}"
+            type="button"
+            data-chapter="${escapeHtml(chapter.id)}"
+            ${active ? 'aria-current="page"' : ""}
+            ${hasChildren ? `aria-expanded="${expanded}"` : ""}
+          >
+            <span
+              class="senior-library-chapter-chevron${hasChildren ? "" : " is-empty"}"
+              ${hasChildren ? "data-chapter-toggle" : ""}
+              aria-hidden="true"
+            >${expanded ? "⌄" : "›"}</span>
+            <span class="senior-library-chapter-name">${escapeHtml(chapter.label)}</span>
+            <span class="senior-library-chapter-count">${countChapter(chapter.id)}</span>
+          </button>
+          ${hasChildren && expanded ? `
+            <div class="senior-library-subchapters">
+              ${worksheetSections.map((section) => {
+                const collection = getCollection(section.collectionId);
+                const selected = state.chapter === chapter.id && state.section === section.id;
+                return `
+                  <button
+                    class="senior-library-subchapter${selected ? " is-active" : ""}"
+                    type="button"
+                    data-subchapter="${escapeHtml(section.id)}"
+                    data-parent-chapter="${escapeHtml(chapter.id)}"
+                    ${selected ? 'aria-current="page"' : ""}
+                  >
+                    <span>${escapeHtml(collection?.title || section.label)}</span>
+                    <span>${model.collectionProblemCount(collection)}</span>
+                  </button>
+                `;
+              }).join("")}
+            </div>
+          ` : ""}
+        </div>
       `;
     }).join("");
   }
 
   function renderSections() {
     const chapter = getChapter(state.chapter);
-    if (!chapter || chapter.sections.length === 0) {
+    const cardSections = (chapter?.sections || []).filter(
+      (section) => (section.presentation ?? "cards") === "cards",
+    );
+    if (!chapter || cardSections.length === 0) {
       elements.sectionTabs.hidden = true;
       elements.sectionTabs.innerHTML = "";
       return;
     }
 
-    const sections = chapter.sections;
+    const sections = cardSections;
     elements.sectionTabs.hidden = false;
     elements.sectionTabs.innerHTML = sections.map((section) => {
       const active = state.section === section.id;
@@ -113,7 +165,7 @@
 
   function renderSourceOptions() {
     const sources = [...new Set(
-      model.publishedProblems(catalog).map((problem) => problem.source.region),
+      model.publishedProblems(catalog).map((problem) => problem.source?.region).filter(Boolean),
     )].sort((left, right) => left.localeCompare(right, "zh-Hans-CN"));
     elements.source.innerHTML = [
       '<option value="all">全部来源</option>',
@@ -182,6 +234,117 @@
     `;
   }
 
+  function collectionHref(collection) {
+    const url = new URL(window.location.href);
+    url.search = model.stateToSearch({
+      ...model.DEFAULT_STATE,
+      chapter: collection.chapterId,
+      section: collection.sectionId,
+    });
+    return url.href;
+  }
+
+  function renderCollectionEntry(collection) {
+    return `
+      <a
+        class="senior-library-collection-entry"
+        href="${escapeHtml(collectionHref(collection))}"
+        data-collection="${escapeHtml(collection.id)}"
+      >
+        <div>
+          <p>章节练习</p>
+          <h2>${escapeHtml(collection.title)}</h2>
+          <span>按教材顺序展开 ${model.collectionProblemCount(collection)} 道原题</span>
+        </div>
+        <span class="senior-library-collection-action">开始练习&nbsp;→</span>
+      </a>
+    `;
+  }
+
+  function renderWorksheetLine(line, problem, lineIndex) {
+    if (line.figures) {
+      const figureLayoutClass = line.figures.length === 1
+        ? " is-single"
+        : " is-multiple";
+      const figures = line.figures.map((figure) => {
+        const originalFigure = (problem.originalFigures || []).find(
+          (candidate) => candidate.id === figure.id,
+        );
+        if (!originalFigure) return "";
+        return `
+          <figure class="senior-worksheet-figure">
+            ${figure.title ? `<figcaption>${escapeHtml(figure.title)}</figcaption>` : ""}
+            <svg
+              id="worksheet-figure-${escapeHtml(originalFigure.renderId)}"
+              viewBox="0 0 720 500"
+              role="img"
+              aria-label="${escapeHtml(figure.ariaLabel || line.ariaLabel || "原题图形")}"
+              data-worksheet-figure="${escapeHtml(originalFigure.renderId)}"
+            ></svg>
+            ${figure.caption ? `<p>${escapeHtml(figure.caption)}</p>` : ""}
+          </figure>
+        `;
+      }).join("");
+      return `<div class="senior-worksheet-figures${figureLayoutClass}">${figures}</div>`;
+    }
+    const source = lineIndex === 0 && problem.source
+      ? `<span class="senior-worksheet-source">（${escapeHtml(problem.source)}）</span>`
+      : "";
+    return `<div class="senior-worksheet-line">${source}${line.html || escapeHtml(line.text)}</div>`;
+  }
+
+  function renderWorksheetProblem(problem) {
+    return `
+      <article class="senior-worksheet-problem" id="worksheet-problem-${problem.number}">
+        <div class="senior-worksheet-problem-number" aria-hidden="true">${problem.number}.</div>
+        <div class="senior-worksheet-problem-body">
+          ${problem.problem.lines.map((line, index) => (
+            renderWorksheetLine(line, problem, index)
+          )).join("")}
+          <a
+            class="senior-worksheet-solution-link"
+            href="${publicAssetUrl(problem.solutionPath)}"
+            target="_blank"
+            rel="noopener noreferrer"
+          >查看解析&nbsp;↗</a>
+        </div>
+      </article>
+    `;
+  }
+
+  function renderWorksheet(collection) {
+    elements.worksheet.innerHTML = collection.groups.map((group) => `
+      <section class="senior-worksheet-group" aria-labelledby="worksheet-group-${escapeHtml(group.id)}">
+        <div class="senior-worksheet-group-heading">
+          <h2 id="worksheet-group-${escapeHtml(group.id)}">${escapeHtml(group.label)}</h2>
+          <span>${group.problems.length} 题</span>
+        </div>
+        ${group.problems.map(renderWorksheetProblem).join("")}
+      </section>
+    `).join("");
+    renderWorksheetFigures(collection);
+  }
+
+  function renderWorksheetFigures(collection) {
+    if (!window.FunctionLessonFromSpec) return;
+    collection.groups.flatMap((group) => group.problems).forEach((problem) => {
+      if (!problem.figureSpec || problem.originalFigures.length === 0) return;
+      const renderer = window.FunctionLessonFromSpec.createSpecRenderer(
+        problem.figureSpec,
+        { steps: {} },
+        [{ id: "worksheet", title: "原题图形" }],
+        {},
+        { W: 720, H: 500 },
+      );
+      problem.originalFigures.forEach((figure) => {
+        const element = document.getElementById(`worksheet-figure-${figure.renderId}`);
+        if (element) {
+          element.innerHTML = renderer.originalFigureMarkupFor(figure.renderId);
+        }
+      });
+    });
+  }
+
   function renderEmpty() {
     return `
       <div class="senior-library-empty">
@@ -216,6 +379,27 @@
 
   function render() {
     state = model.normalizeState(catalog, state);
+    if (state.chapter !== "all") {
+      expandedChapters.add(state.chapter);
+    }
+    const worksheetCollection = model.collectionForState(catalog, state);
+    renderChapters();
+
+    if (worksheetCollection) {
+      elements.title.textContent = worksheetCollection.title;
+      elements.count.textContent = `共 ${model.collectionProblemCount(worksheetCollection)} 题`;
+      elements.filters.hidden = true;
+      elements.sectionTabs.hidden = true;
+      elements.sectionTabs.innerHTML = "";
+      elements.grid.hidden = true;
+      elements.grid.innerHTML = "";
+      elements.pagination.hidden = true;
+      elements.pagination.innerHTML = "";
+      elements.worksheet.hidden = false;
+      renderWorksheet(worksheetCollection);
+      return;
+    }
+
     const results = model.filterProblems(catalog, state);
     const pageInfo = model.paginate(results, state.page);
     if (pageInfo.page !== state.page) {
@@ -224,15 +408,30 @@
     }
 
     const chapter = getChapter(state.chapter);
+    const overviewCollections = (catalog.collections || []).filter((collection) => (
+      state.section === "all"
+      && state.difficulty === "all"
+      && state.source === "all"
+      && (state.chapter === "all" || collection.chapterId === state.chapter)
+    ));
+    const collectionProblemCount = overviewCollections.reduce(
+      (total, collection) => total + model.collectionProblemCount(collection),
+      0,
+    );
     elements.title.textContent = chapter?.label || "全部题目";
-    elements.count.textContent = `${results.length} 道`;
+    elements.count.textContent = `${results.length + collectionProblemCount} 道`;
+    elements.filters.hidden = false;
     elements.difficulty.value = state.difficulty;
     elements.sort.value = state.sort;
     renderSourceOptions();
-    renderChapters();
     renderSections();
-    elements.grid.innerHTML = pageInfo.items.length
-      ? pageInfo.items.map(renderProblem).join("")
+    elements.worksheet.hidden = true;
+    elements.worksheet.innerHTML = "";
+    elements.grid.hidden = false;
+    const overviewMarkup = overviewCollections.map(renderCollectionEntry);
+    const problemMarkup = pageInfo.items.map(renderProblem);
+    elements.grid.innerHTML = overviewMarkup.length || problemMarkup.length
+      ? [...overviewMarkup, ...problemMarkup].join("")
       : renderEmpty();
     renderPagination(pageInfo);
   }
@@ -248,10 +447,46 @@
 
   document.addEventListener("click", (event) => {
     const chapterButton = event.target.closest("[data-chapter]");
+    const subchapterButton = event.target.closest("[data-subchapter]");
+    const collectionLink = event.target.closest("[data-collection]");
+    const chapterToggle = event.target.closest("[data-chapter-toggle]");
     const sectionButton = event.target.closest("[data-section]");
     const pageButton = event.target.closest("[data-page]");
-    if (chapterButton) {
-      setState({ chapter: chapterButton.dataset.chapter, section: "all", page: 1 });
+    if (collectionLink) {
+      event.preventDefault();
+      const collection = getCollection(collectionLink.dataset.collection);
+      if (collection) {
+        expandedChapters.add(collection.chapterId);
+        collapsedChapters.delete(collection.chapterId);
+        setState({ chapter: collection.chapterId, section: collection.sectionId, page: 1 });
+      }
+    } else if (subchapterButton) {
+      expandedChapters.add(subchapterButton.dataset.parentChapter);
+      collapsedChapters.delete(subchapterButton.dataset.parentChapter);
+      setState({
+        chapter: subchapterButton.dataset.parentChapter,
+        section: subchapterButton.dataset.subchapter,
+        page: 1,
+      });
+    } else if (chapterToggle) {
+      const chapterId = chapterButton.dataset.chapter;
+      if (chapterButton.getAttribute("aria-expanded") === "true") {
+        expandedChapters.delete(chapterId);
+        collapsedChapters.add(chapterId);
+      } else {
+        collapsedChapters.delete(chapterId);
+        expandedChapters.add(chapterId);
+      }
+      renderChapters();
+    } else if (chapterButton) {
+      const chapterId = chapterButton.dataset.chapter;
+      if (chapterId !== "all" && getChapter(chapterId)?.sections.some(
+        (section) => section.presentation === "worksheet",
+      )) {
+        expandedChapters.add(chapterId);
+        collapsedChapters.delete(chapterId);
+      }
+      setState({ chapter: chapterId, section: "all", page: 1 });
     } else if (sectionButton) {
       setState({ section: sectionButton.dataset.section, page: 1 });
     } else if (pageButton && !pageButton.disabled) {

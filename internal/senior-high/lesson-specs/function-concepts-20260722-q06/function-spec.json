@@ -1,0 +1,82 @@
+{
+  "$schema": "../../schemas/function-spec.schema.json",
+  "version": 1,
+  "id": "function-concepts-20260722-q06",
+  "parameter": { "name": "x", "initial": 20 },
+  "bindings": [
+    { "name": "otherSide", "expr": "40-x" },
+    { "name": "area", "expr": "x*(40-x)" }
+  ],
+  "panels": [
+    {
+      "id": "original-context",
+      "kind": "contextGeometry",
+      "title": "原题示意图",
+      "viewport": { "x": 0.08, "y": 0.08, "width": 0.84, "height": 0.84 },
+      "geometry": {
+        "points": [
+          { "id": "oa", "x": 0.12, "y": 0.82 },
+          { "id": "ob", "x": 0.80, "y": 0.82 },
+          { "id": "oc", "x": 0.46, "y": 0.12 },
+          { "id": "od", "x": 0.29, "y": 0.82 },
+          { "id": "oe", "x": 0.63, "y": 0.82 },
+          { "id": "of", "x": 0.63, "y": 0.47 },
+          { "id": "og", "x": 0.29, "y": 0.47 },
+          { "id": "obase-left", "x": 0.12, "y": 0.93 },
+          { "id": "obase-right", "x": 0.80, "y": 0.93 },
+          { "id": "oheight-top", "x": 0.90, "y": 0.12 },
+          { "id": "oheight-bottom", "x": 0.90, "y": 0.82 }
+        ],
+        "polygons": [
+          { "id": "original-triangle", "pointIds": ["oa", "ob", "oc"] },
+          { "id": "original-lawn", "pointIds": ["od", "oe", "of", "og"] }
+        ],
+        "dimensions": [
+          { "id": "original-x", "startPointId": "og", "endPointId": "of", "label": "x m", "labelDy": -18 },
+          { "id": "original-base", "startPointId": "obase-left", "endPointId": "obase-right", "label": "40 m" },
+          { "id": "original-height", "startPointId": "oheight-top", "endPointId": "oheight-bottom", "label": "40 m", "labelDx": 32 }
+        ]
+      }
+    },
+    {
+      "id": "context",
+      "kind": "contextGeometry",
+      "title": "三角形空地与内接矩形草坪",
+      "viewport": { "x": 0.08, "y": 0.08, "width": 0.84, "height": 0.84 },
+      "geometry": {
+        "points": [
+          { "id": "a", "x": 0.08, "y": 0.90, "label": "A" },
+          { "id": "b", "x": 0.92, "y": 0.90, "label": "B" },
+          { "id": "c", "x": 0.50, "y": 0.08, "label": "C" },
+          { "id": "d", "xExpr": "0.5-0.42*x/40", "y": 0.90 },
+          { "id": "e", "xExpr": "0.5+0.42*x/40", "y": 0.90 },
+          { "id": "f", "xExpr": "0.5+0.42*x/40", "yExpr": "0.08+0.82*x/40", "label": "F" },
+          { "id": "g", "xExpr": "0.5-0.42*x/40", "yExpr": "0.08+0.82*x/40", "label": "G" },
+          { "id": "h", "x": 0.50, "yExpr": "0.08+0.82*x/40", "label": "H", "labelDx": 9, "labelDy": 20 },
+          { "id": "k", "x": 0.50, "y": 0.90, "label": "K" }
+        ],
+        "polygons": [
+          { "id": "triangle", "pointIds": ["a", "b", "c"], "label": "底边 40 m，高 40 m" },
+          { "id": "lawn", "pointIds": ["d", "e", "f", "g"] }
+        ],
+        "dimensions": [
+          { "id": "top-length", "startPointId": "g", "endPointId": "f", "label": "GF=x", "labelDy": -18 },
+          { "id": "upper-height", "startPointId": "c", "endPointId": "h", "label": "CH=h", "dashed": true, "labelDx": 30 },
+          { "id": "lower-height", "startPointId": "h", "endPointId": "k", "label": "HK=40−x", "dashed": true, "labelDx": 42 }
+        ]
+      }
+    },
+    {
+      "id": "area-graph",
+      "kind": "functionGraph",
+      "title": "草坪面积 S=x(40−x)",
+      "viewport": { "x": 0.04, "y": 0.05, "width": 0.92, "height": 0.90 },
+      "domain": { "minX": -5, "maxX": 45, "minY": -50, "maxY": 450 },
+      "gridStepX": 5,
+      "gridStepY": 50,
+      "function": { "variable": "x", "expr": "x*(40-x)", "label": "S=x(40−x)", "intervals": [{ "min": -5, "max": 45 }] },
+      "studyIntervals": [{ "min": 0, "max": 40, "openMin": true, "openMax": true, "minLabel": "0", "maxLabel": "40" }],
+      "range": [{ "min": 336, "max": 400 }]
+    }
+  ]
+}

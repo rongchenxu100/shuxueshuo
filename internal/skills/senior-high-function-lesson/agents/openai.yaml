@@ -1,0 +1,4 @@
+interface:
+  display_name: "高中函数互动课"
+  short_description: "把高中函数概念题编译为可视化交互课程网页并完成分类校验"
+  default_prompt: "Use $senior-high-function-lesson to turn this high-school function problem into a compiled interactive lesson page."

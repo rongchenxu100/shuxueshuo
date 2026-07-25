@@ -1,0 +1,31 @@
+{
+  "$schema": "../../../schemas/lesson-data.schema.json",
+  "meta": {
+    "id": "function-concepts-20260722-q05",
+    "outputPath": "site/problems/senior-high/functions/function-concepts-and-representation/function-concepts-20260722-q05.html",
+    "pageTitle": "函数的定义域：根式与分母约束",
+    "pageDescription": "逐项列出根式和分母约束，在数轴上取交集。",
+    "breadcrumbTitle": "函数概念第 5 题",
+    "breadcrumbLabel": "高中题库",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "classification": { "pattern": "function-concepts-and-representation", "methods": ["radical-domain", "denominator-nonzero", "constraint-intersection"] },
+    "curriculum": {
+      "chapterLabel": "第三章 函数的概念与性质",
+      "sectionLabel": "3.1 函数的概念及其表示",
+      "subsectionLabel": "3.1.1 函数的概念",
+      "groupId": "function-domain",
+      "groupLabel": "函数的定义域"
+    }
+  },
+  "problem": {
+    "source": "教材基础过关练",
+    "lines": [{ "text": "函数 \\(f(x)=\\frac{\\sqrt{3x+11}}{x}\\) 的定义域为______。", "answerId": "answerI", "answer": "\\([-\\frac{11}{3},0)∪(0,+∞)\\)" }]
+  },
+  "ui": { "legend": [], "sliderLabel": "约束", "paramLabelPrefix": "", "goToProblemMode": "smooth", "groupTitles": { "求定义域": "逐项列出并合并约束" } },
+  "steps": [
+    { "id": "s1", "section": "求定义域", "title": "第1步：分别列出根式与分母的约束", "t": 0, "showDiagram": false, "derive": [["根式有意义", "\\(3x+11≥0\\)，∴ \\(x≥-\\frac{11}{3}\\)"], ["分母不为零", "\\(x≠0\\)"]], "box": ["先分别列条件，不遗漏分母不为零"] },
+    { "id": "s2", "section": "求定义域", "title": "第2步：在数轴上合并两个约束", "t": 0, "derive": [["同时满足", "\\(x≥-\\frac{11}{3}\\) 且 \\(x≠0\\)"], ["∴", "定义域为 \\([-\\frac{11}{3},0)∪(0,+∞)\\)"]], "box": ["-11/3 可以取，画实心点", "0 不可以取，画空心点"] }
+  ],
+  "policies": { "s1": { "movable": false, "range": [0,0] }, "s2": { "movable": false, "range": [0,0] } },
+  "stepLabels": { "s1": "1 列出两个约束", "s2": "2 数轴合并约束" }
+}

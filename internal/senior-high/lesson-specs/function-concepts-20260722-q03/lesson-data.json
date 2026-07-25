@@ -1,0 +1,40 @@
+{
+  "$schema": "../../../schemas/lesson-data.schema.json",
+  "meta": {
+    "id": "function-concepts-20260722-q03",
+    "outputPath": "site/problems/senior-high/functions/function-concepts-and-representation/function-concepts-20260722-q03.html",
+    "pageTitle": "函数的概念：由关系图判断函数",
+    "pageDescription": "用唯一对应和值域子集两个条件判断关系图能否表示函数。",
+    "breadcrumbTitle": "函数概念第 3 题",
+    "breadcrumbLabel": "高中题库",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "classification": { "pattern": "function-concepts-and-representation", "methods": ["vertical-line-test", "domain-coverage", "range-check"] },
+    "curriculum": { "chapterLabel": "第三章 函数的概念与性质", "sectionLabel": "3.1 函数的概念及其表示", "subsectionLabel": "3.1.1 函数的概念", "groupId": "function-concept", "groupLabel": "函数的概念" }
+  },
+  "problem": {
+    "source": "2026 江西抚州期中",
+    "keyPoints": { "title": "解题要点", "lead": "判断关系图是否表示从 M 到 N 的函数，需要同时满足：", "items": ["对任意 x∈M，都有且只有一个确定的 y 与之对应；", "所有函数值都属于 N，即实际值域 \\(R_f\\subseteq N\\)。"] },
+    "lines": [
+      { "text": "设集合 M={x|0≤x≤2}，N={y|0≤y≤2}。在下面的 4 个图形中，能表示集合 M 到集合 N 的函数关系的是。" },
+      {
+        "ariaLabel": "原题图①至图④",
+        "figures": [
+          { "id": "relation-1", "title": "①", "ariaLabel": "图①：从原点到点（1，2）的线段" },
+          { "id": "relation-2", "title": "②", "ariaLabel": "图②：从点（0，2）到点（2，0）的线段" },
+          { "id": "relation-3", "title": "③", "ariaLabel": "图③：从原点到点（2，1）的线段" },
+          { "id": "relation-4", "title": "④", "ariaLabel": "图④：从点（0，1）分别连到点（2，0）和点（2，2）" }
+        ]
+      },
+      { "text": "A. ①②③④　　B. ①②③　　C. ②③　　D. ②④", "answerId": "answerI", "answer": "答案：C" }
+    ]
+  },
+  "ui": { "legend": [{ "colorVar": "fold", "label": "竖线检验" }], "sliderLabel": "移动竖线 x", "paramLabelPrefix": "x＝", "goToProblemMode": "smooth", "groupTitles": { "逐图检查": "按两个必要条件逐图检查" } },
+  "steps": [
+    { "id": "s1", "section": "逐图检查", "title": "第1步：检查图①", "t": 1.5, "derive": [["条件一", "对任意 \\(x∈M\\)，都应有且只有一个确定的 y 与之对应"], ["取", "\\(x=\\frac{3}{2}∈M\\)，竖线与图①没有交点，条件一不成立"], ["条件二", "纵坐标的取值范围 \\(R_{①}=[0,2]\\subseteq N=[0,2]\\)"], ["∴", "虽然条件二成立，但条件一不成立，图①不符合要求"]], "box": ["两个必要条件必须同时成立"] },
+    { "id": "s2", "section": "逐图检查", "title": "第2步：检查图②", "t": 1, "derive": [["条件一", "任取 \\(x∈[0,2]\\)，竖线与图②恰有一个交点"], ["条件二", "实际值域 \\(R_{②}=[0,2]\\subseteq N=[0,2]\\)"], ["∴", "图②可以表示从 M 到 N 的函数"]], "box": ["每个输入都有唯一输出，且所有输出都属于 N"] },
+    { "id": "s3", "section": "逐图检查", "title": "第3步：检查图③", "t": 1, "derive": [["条件一", "任取 \\(x∈[0,2]\\)，图③中的 y 唯一确定"], ["条件二", "实际值域 \\(R_{③}=[0,1]\\subseteq N=[0,2]\\)"], ["∴", "图③也符合要求"]], "box": ["实际值域不必等于 N，只需是 N 的子集"] },
+    { "id": "s4", "section": "逐图检查", "title": "第4步：检查图④并作答", "t": 1, "derive": [["条件一", "对任意 \\(x∈M\\)，y 都必须唯一确定"], ["取", "\\(x=1\\)，竖线与图④有两个交点，条件一不成立"], ["条件二", "纵坐标的取值范围 \\(R_{④}=[0,2]\\subseteq N=[0,2]\\)"], ["∴", "虽然条件二成立，但条件一不成立，图④不符合要求"], ["综上", "符合要求的是图②、图③，故选 C"]], "box": ["按原图顺序逐项检查，可以避免遗漏选项"] }
+  ],
+  "policies": { "s1": { "movable": true, "range": [0,2], "step": 0.01 }, "s2": { "movable": true, "range": [0,2], "step": 0.01 }, "s3": { "movable": true, "range": [0,2], "step": 0.01 }, "s4": { "movable": true, "range": [0,2], "step": 0.01 } },
+  "stepLabels": { "s1": "1 检查图①", "s2": "2 检查图②", "s3": "3 检查图③", "s4": "4 检查图④并作答" }
+}

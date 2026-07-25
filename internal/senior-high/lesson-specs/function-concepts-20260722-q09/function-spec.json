@@ -1,0 +1,17 @@
+{
+  "$schema": "../../schemas/function-spec.schema.json",
+  "version": 1,
+  "id": "function-concepts-20260722-q09",
+  "panels": [
+    {
+      "id": "substitution-table",
+      "kind": "valueTable",
+      "title": "用特殊值直接求 f(0)",
+      "viewport": { "x": 0.06, "y": 0.14, "width": 0.88, "height": 0.72 },
+      "columns": ["赋值", "代入函数关系式", "结论"],
+      "rows": [
+        { "id": "direct-substitution", "cells": ["x=1，y=0", "2f(1)=f(1)f(0)", "f(1)≠0，所以 f(0)=2"] }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "../../schemas/function-spec.schema.json",
+  "version": 1,
+  "id": "function-concepts-20260722-q05",
+  "panels": [
+    {
+      "id": "number-line",
+      "kind": "numberLine",
+      "title": "在数轴上合并约束",
+      "viewport": { "x": 0.08, "y": 0.18, "width": 0.84, "height": 0.64 },
+      "axis": { "min": -5, "max": 4, "label": "x" },
+      "intervals": [
+        { "id": "final-left", "min": -3.6666666667, "max": 0, "openMin": false, "openMax": true, "label": "[-\\frac{11}{3},0)", "color": "#0f766e" },
+        { "id": "final-right", "min": 0, "max": 4, "openMin": true, "openMax": true, "extendsMax": true, "label": "(0,+∞)", "color": "#0f766e" }
+      ],
+      "excludedPoints": [{ "id": "zero", "value": 0, "label": "0 不可取" }]
+    }
+  ]
+}

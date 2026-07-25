@@ -2,6 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { renderInlineMathText } from "./lib/lesson-html.mjs";
 
 const currentFile = fileURLToPath(import.meta.url);
 const repoRoot = path.resolve(path.dirname(currentFile), "..");
@@ -55,6 +56,13 @@ export function validateCatalog(chapterSource, problemSource, root = repoRoot) {
       if (!Number.isFinite(section.order)) {
         throw new Error(`section ${section.id}.order 必须是数字`);
       }
+      const presentation = section.presentation ?? "cards";
+      if (!new Set(["cards", "worksheet"]).has(presentation)) {
+        throw new Error(`section ${section.id}.presentation 无效`);
+      }
+      if (presentation === "worksheet") {
+        requireText(section.collectionId, `section ${section.id}.collectionId`);
+      }
       if (sectionIds.has(section.id)) {
         throw new Error(`section ID 跨章节重复: ${section.id}`);
       }
@@ -93,6 +101,18 @@ export function validateCatalog(chapterSource, problemSource, root = repoRoot) {
     if (!new Set(["draft", "published"]).has(problem.status)) {
       throw new Error(`problem ${problem.id}.status 无效`);
     }
+    if (problem.curriculum != null) {
+      const curriculum = problem.curriculum;
+      for (const field of [
+        "chapterLabel",
+        "sectionLabel",
+        "subsectionLabel",
+        "groupId",
+        "groupLabel",
+      ]) {
+        requireText(curriculum[field], `problem ${problem.id}.curriculum.${field}`);
+      }
+    }
     if (paths.has(problem.path)) {
       throw new Error(`problem path 重复: ${problem.path}`);
     }
@@ -115,13 +135,183 @@ export function validateCatalog(chapterSource, problemSource, root = repoRoot) {
   };
 }
 
+function sanitizeProblemLines(lines, lessonId) {
+  if (!Array.isArray(lines) || lines.length === 0) {
+    throw new Error(`lesson ${lessonId} 缺少原题 lines`);
+  }
+  return lines.map((line) => {
+    if (line.figures != null) {
+      if (!Array.isArray(line.figures) || line.figures.length === 0) {
+        throw new Error(`lesson ${lessonId} 原题图形为空`);
+      }
+      return {
+        ariaLabel: line.ariaLabel ?? "",
+        figures: line.figures.map((figure) => ({
+          id: figure.id,
+          title: figure.title ?? "",
+          ariaLabel: figure.ariaLabel ?? "",
+          caption: figure.caption ?? "",
+        })),
+      };
+    }
+    const text = String(line.text ?? line.heading ?? "");
+    return {
+      text,
+      html: renderInlineMathText(text),
+    };
+  });
+}
+
+function buildCollectionProblem(root, lessonId, number, group) {
+  requireText(lessonId, `collection ${group.id}.lessonId`);
+  const lessonDir = path.join(root, "internal/senior-high/lesson-specs", lessonId);
+  const lessonPath = path.join(lessonDir, "lesson-data.json");
+  const specPath = path.join(lessonDir, "function-spec.json");
+  for (const requiredPath of [lessonPath, specPath]) {
+    if (!fs.existsSync(requiredPath)) {
+      throw new Error(`collection lesson 缺少文件: ${path.relative(root, requiredPath)}`);
+    }
+  }
+
+  const lesson = readJson(lessonPath);
+  const spec = readJson(specPath);
+  const curriculum = lesson.meta?.curriculum ?? lesson.curriculum;
+  if (curriculum?.groupId !== group.id) {
+    throw new Error(
+      `lesson ${lessonId} 题组不匹配: ${curriculum?.groupId ?? "missing"} != ${group.id}`,
+    );
+  }
+
+  const outputPath = lesson.meta?.outputPath;
+  requireText(outputPath, `lesson ${lessonId}.meta.outputPath`);
+  const siteRoot = path.join(root, "site");
+  const absoluteOutputPath = path.resolve(root, outputPath);
+  const relativeOutputPath = path.relative(siteRoot, absoluteOutputPath);
+  if (
+    relativeOutputPath.startsWith("..")
+    || path.isAbsolute(relativeOutputPath)
+    || path.extname(relativeOutputPath) !== ".html"
+  ) {
+    throw new Error(`lesson ${lessonId} 的 outputPath 必须指向 site 下的 HTML`);
+  }
+  const solutionPath = relativeOutputPath.split(path.sep).join("/");
+  if (!fs.existsSync(path.join(root, "site", solutionPath))) {
+    throw new Error(`lesson ${lessonId} 缺少解析页面: site/${solutionPath}`);
+  }
+
+  const lines = sanitizeProblemLines(lesson.problem?.lines, lessonId);
+  const referencedFigures = lines.flatMap((line) => line.figures ?? []);
+  const panelsById = new Map((spec.panels ?? []).map((panel) => [panel.id, panel]));
+  const originalFigures = referencedFigures.map((figure) => {
+    const panel = panelsById.get(figure.id);
+    if (!panel) {
+      throw new Error(`lesson ${lessonId} 原题图形引用未知 panel: ${figure.id}`);
+    }
+    return {
+      id: figure.id,
+      renderId: `${lessonId}--${figure.id}`,
+    };
+  });
+  const figureSpec = originalFigures.length === 0
+    ? null
+    : {
+        ...spec,
+        panels: originalFigures.map(({ id, renderId }) => ({
+          ...structuredClone(panelsById.get(id)),
+          id: renderId,
+        })),
+      };
+
+  return {
+    id: lessonId,
+    number,
+    source: lesson.problem?.source || undefined,
+    problem: { lines },
+    originalFigures,
+    figureSpec,
+    solutionPath,
+    groupId: group.id,
+    groupLabel: group.label,
+  };
+}
+
+export function validateCollections(catalog, collectionSource, root = repoRoot) {
+  const collections = collectionSource?.collections;
+  if (!Array.isArray(collections)) {
+    throw new Error("聚合题单源文件必须包含 collections 数组");
+  }
+  requireUnique(collections, (item) => item.id, "collection");
+  const lessons = new Set();
+
+  return collections.map((collection) => {
+    requireText(collection.title, `collection ${collection.id}.title`);
+    if (!new Set(["draft", "published"]).has(collection.status)) {
+      throw new Error(`collection ${collection.id}.status 无效`);
+    }
+    const chapter = catalog.chapters.find((item) => item.id === collection.chapterId);
+    const section = chapter?.sections.find((item) => item.id === collection.sectionId);
+    if (!chapter || !section) {
+      throw new Error(`collection ${collection.id} 引用未知章节`);
+    }
+    if (section.presentation !== "worksheet" || section.collectionId !== collection.id) {
+      throw new Error(`collection ${collection.id} 未与 worksheet section 正确绑定`);
+    }
+    if (!Array.isArray(collection.groups) || collection.groups.length === 0) {
+      throw new Error(`collection ${collection.id} 缺少 groups`);
+    }
+    requireUnique(collection.groups, (item) => item.id, `collection ${collection.id} group`);
+
+    let number = 0;
+    const groups = collection.groups.map((group) => {
+      requireText(group.label, `collection ${collection.id} group ${group.id}.label`);
+      if (!Array.isArray(group.lessonIds) || group.lessonIds.length === 0) {
+        throw new Error(`collection ${collection.id} group ${group.id} 缺少 lessonIds`);
+      }
+      const problems = group.lessonIds.map((lessonId) => {
+        if (lessons.has(lessonId)) {
+          throw new Error(`collection lesson 重复: ${lessonId}`);
+        }
+        lessons.add(lessonId);
+        number += 1;
+        return buildCollectionProblem(root, lessonId, number, group);
+      });
+      return { id: group.id, label: group.label, problems };
+    });
+
+    if (collection.id === "function-concepts") {
+      const sizes = groups.map((group) => group.problems.length).join("/");
+      if (number !== 11 || sizes !== "3/3/5") {
+        throw new Error(`function-concepts 必须包含 11 题并按 3/3/5 分组`);
+      }
+    }
+
+    return {
+      id: collection.id,
+      chapterId: collection.chapterId,
+      sectionId: collection.sectionId,
+      title: collection.title,
+      status: collection.status,
+      problemCount: number,
+      groups,
+    };
+  });
+}
+
 export function buildCatalog(root = repoRoot) {
   const catalogDir = path.join(root, "internal/senior-high/catalog");
-  const catalog = validateCatalog(
+  const baseCatalog = validateCatalog(
     readJson(path.join(catalogDir, "chapters.json")),
     readJson(path.join(catalogDir, "problems.json")),
     root,
   );
+  const catalog = {
+    ...baseCatalog,
+    collections: validateCollections(
+      baseCatalog,
+      readJson(path.join(catalogDir, "collections.json")),
+      root,
+    ),
+  };
   const json = `${JSON.stringify(catalog, null, 2)}\n`;
   const dataPath = path.join(root, "site/data/senior-high-catalog.json");
   const fallbackPath = path.join(root, "site/assets/js/senior-high-catalog-data.js");

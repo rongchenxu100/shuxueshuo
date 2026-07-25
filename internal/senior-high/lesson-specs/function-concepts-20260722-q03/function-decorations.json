@@ -1,0 +1,10 @@
+{
+  "$schema": "../../schemas/function-decorations.schema.json",
+  "version": 1,
+  "steps": {
+    "s1": { "visiblePanels": ["relation-1"], "visibleElementIds": ["r1"], "showVerticalTest": true },
+    "s2": { "visiblePanels": ["relation-2"], "visibleElementIds": ["r2"], "showVerticalTest": true },
+    "s3": { "visiblePanels": ["relation-3"], "visibleElementIds": ["r3"], "showVerticalTest": true },
+    "s4": { "visiblePanels": ["relation-4"], "visibleElementIds": ["r4a", "r4b"], "showVerticalTest": true }
+  }
+}

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>函数值域：判断值域为正实数集的函数 | 数学说</title>
+  <meta name="description" content="逐项比较四个基本函数能够取得的函数值范围。" />
+  <meta property="og:title" content="函数值域：判断值域为正实数集的函数 | 数学说" />
+  <meta property="og:description" content="逐项比较四个基本函数能够取得的函数值范围。" />
+  <meta property="og:image" content="../../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../../senior-high/index.html">高中题库</a>
+    <span class="lesson-title">函数概念第 7 题</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          <div class="problem-full">
+            <div class="problem-line"><span><span class="problem-source-inline">（2026 北京八一学校月考）</span>下列函数中，值域为 <span class="inline-math">(0,+∞)</span> 的是：</span></div>
+<div class="problem-line"><span>A. <span class="inline-math">y=x+<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">x</span></span></span>　B. <span class="inline-math">y=x<sup>2</sup>+x+1</span>　C. <span class="inline-math">y=<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">x<sup>2</sup>+1</span></span></span>　D. <span class="inline-math">y=<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator"><span class="math-radical"><span class="math-radical-symbol">√</span><span class="math-radicand">x</span></span></span></span></span></span><span class="answer-chip" id="answerI">答案：D</span></div>
+          </div>
+        </section>
+
+        <aside class="lesson-key-points" aria-label="解题要点"><div class="lesson-key-points-title">解题要点</div><div class="lesson-key-points-content"><p class="lesson-key-points-lead">判断值域是否恰为给定集合，要同时确认：</p><ol><li>函数值不会超出目标集合；</li><li>目标集合中的每一个值都能够由定义域内某个输入取得；</li><li>根据函数结构选择求值域方法：基本不等式、配方法、分母范围或基本函数性质。</li></ol></div></aside>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../../assets/js/lesson-page-runtime.js"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"s1","section":"逐项判断","title":"第1步：用基本不等式求选项 A 的值域","t":1,"derive":[["基本不等式","若 \\(a>0，b>0\\)，则 \\(a+b≥2\\sqrt{ab}\\)"],["当 x>0","令 \\(a=x，b=\\frac{1}{x}\\)，则 \\(a>0，b>0\\)，且 \\(ab=x·\\frac{1}{x}=1\\)"],["代入化简","\\(x+\\frac{1}{x}≥2\\sqrt{x·\\frac{1}{x}}=2\\sqrt{1}=2\\)"],["取等条件","\\(x=\\frac{1}{x}\\)，即 \\(x^2=1\\)；结合 \\(x>0\\)，得 \\(x=1\\)"],["当 x<0","令 \\(u=-x>0\\)，则 \\(x+\\frac{1}{x}=-(u+\\frac{1}{u})≤-2\\)，当且仅当 \\(x=-1\\) 取等"],["∴","值域为 \\((−∞,−2]∪[2,+∞)\\)，不是 \\((0,+∞)\\)"]],"box":["使用基本不等式前先确认两项均为正；自变量可正可负时，需要分类讨论"]},{"id":"s2","section":"逐项判断","title":"第2步：用配方法求选项 B 的值域","t":1,"derive":[["配方","\\(x^2+x+1=(x+\\frac{1}{2})^2+\\frac{3}{4}≥\\frac{3}{4}\\)"],["取等","当 \\(x=-\\frac{1}{2}\\) 时取得最小值 \\(\\frac{3}{4}\\)"],["∴","值域为 \\([\\frac{3}{4},+∞)\\)，不是 \\((0,+∞)\\)"]],"box":["函数恒为正，不代表它能取得每一个正实数"]},{"id":"s3","section":"逐项判断","title":"第3步：由分母范围求选项 C 的值域","t":1,"derive":[["∵","\\(x^2≥0\\)，所以 \\(x^2+1≥1\\)"],["∴","\\(0<\\frac{1}{x^2+1}≤1\\)，且 \\(x=0\\) 时取到 1"],["值域","\\((0,1]\\)，不是 \\((0,+∞)\\)"]],"box":["分母没有上界，所以函数值可以无限接近 0，但不能等于 0"]},{"id":"s4","section":"逐项判断","title":"第4步：由基本函数性质判断选项 D","t":1,"derive":[["定义域","\\(x>0\\)，所以 \\(y=\\frac{1}{\\sqrt{x}}>0\\)"],["任取正数","对任意 \\(y_0>0\\)，取 \\(x=\\frac{1}{y_0^2}>0\\)，就有 \\(\\frac{1}{\\sqrt{x}}=y_0\\)"],["∴","每一个正实数都能取得，值域为 \\((0,+∞)\\)，答案为 D"]],"box":["拖动 x 可以核对变化趋势，值域结论仍由定义域和代数关系确定"]}];
+    var STEP_LABELS = {"s1":"1 A：基本不等式","s2":"2 B：配方法","s3":"3 C：分母范围","s4":"4 D：基本函数性质"};
+    var POLICIES   = {"s1":{"movable":false,"range":[1,1]},"s2":{"movable":false,"range":[1,1]},"s3":{"movable":false,"range":[1,1]},"s4":{"movable":true,"range":[0.05,4],"step":0.01}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 滑块主参数与派生参数的联动文案格式化器 */
+    var __LESSON_PARAM_LABEL_FORMATTER__;
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script type="application/json" id="functionSpec">{"$schema":"../../schemas/function-spec.schema.json","version":1,"id":"function-concepts-20260722-q07","parameter":{"name":"x","initial":1},"panels":[{"id":"candidate-graph","kind":"functionGraph","title":"比较四个候选函数能够取得的函数值","viewport":{"x":0.03,"y":0.04,"width":0.94,"height":0.92},"domain":{"minX":-4,"maxX":4,"minY":-4,"maxY":6},"functions":[{"id":"A","variable":"x","expr":"x+1/x","label":"A　y=x+\\frac{1}{x}","intervals":[{"min":-4,"max":-0.08},{"min":0.08,"max":4}]},{"id":"B","variable":"x","expr":"x^2+x+1","label":"B　y=x^2+x+1","intervals":[{"min":-4,"max":4}]},{"id":"C","variable":"x","expr":"1/(x^2+1)","label":"C　y=\\frac{1}{x^2+1}","intervals":[{"min":-4,"max":4}]},{"id":"D","variable":"x","expr":"1/sqrt(x)","label":"D　y=\\frac{1}{\\sqrt{x}}","intervals":[{"min":0.02,"max":4}],"range":[{"min":0,"max":6,"openMin":true,"extendsMax":true}]}]}]}</script>
+<script src="../../../../assets/js/math-expression-engine.js"></script>
+<script src="../../../../assets/js/function-lesson-from-spec.js"></script>
+
+<script>
+  const __FUNCTION_SPEC__ = JSON.parse(document.getElementById('functionSpec').textContent);
+  const __FUNCTION_DECORATIONS__ = {"$schema":"../../schemas/function-decorations.schema.json","version":1,"steps":{"s1":{"visiblePanels":["candidate-graph"],"activeCandidateId":"A"},"s2":{"visiblePanels":["candidate-graph"],"activeCandidateId":"B"},"s3":{"visiblePanels":["candidate-graph"],"activeCandidateId":"C"},"s4":{"visiblePanels":["candidate-graph"],"activeCandidateId":"D","showProjection":true,"showRange":true}}};
+  const renderer = FunctionLessonFromSpec.createSpecRenderer(__FUNCTION_SPEC__, __FUNCTION_DECORATIONS__, STEPS, POLICIES);
+  function groupTitle(section) {
+    const map = {"逐项判断":"比较每个候选函数的值域"};
+    return Object.prototype.hasOwnProperty.call(map, section) ? map[section] : section;
+  }
+  var diagramMarkupFor = renderer.diagramMarkupFor;
+  var diagramMarkupForFrame = renderer.diagramMarkupForFrame;
+  var drawMini = renderer.drawMini;
+  var __LESSON_LEGEND_HTML__ = "<span><i class=\"sw\" style=\"background:var(--paper)\"></i>当前候选函数</span><span><i class=\"sw\" style=\"background:var(--overlap)\"></i>正函数值范围</span>";
+
+  var __AFTER_RENDER_ALL_STEPS__ = renderer.renderOriginalFigures;
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      diagramMarkupForFrame: typeof diagramMarkupForFrame === "function" ? diagramMarkupForFrame : undefined,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "输入 x",
+      paramLabelPrefix: "x＝",
+      paramLabelFormatter: typeof __LESSON_PARAM_LABEL_FORMATTER__ === "function" ? __LESSON_PARAM_LABEL_FORMATTER__ : undefined,
+      goToProblemMode: "smooth"
+    });
+  </script>
+</body>
+</html>

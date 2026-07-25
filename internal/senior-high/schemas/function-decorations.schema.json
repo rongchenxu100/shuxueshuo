@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://shuxueshuo.local/schemas/function-decorations.schema.json",
+  "title": "FunctionDecorations",
+  "type": "object",
+  "required": ["version", "steps"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "type": "integer", "minimum": 1 },
+    "_comment": { "type": "string" },
+    "steps": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "visiblePanels": { "type": "array", "items": { "type": "string" } },
+          "activeCandidateId": { "type": "string" },
+          "visibleElementIds": { "type": "array", "items": { "type": "string" } },
+          "highlightElementIds": { "type": "array", "items": { "type": "string" } },
+          "showProjection": { "type": "boolean" },
+          "showVerticalTest": { "type": "boolean" },
+          "highlightStudyInterval": { "type": "boolean" },
+          "showDomain": { "type": "boolean" },
+          "showRange": { "type": "boolean" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

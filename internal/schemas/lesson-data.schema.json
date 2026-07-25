@@ -28,14 +28,44 @@
             }
           },
           "additionalProperties": false
+        },
+        "curriculum": {
+          "type": "object",
+          "description": "高中教材路径与题组元数据；不代替题库 chapter/section 分类",
+          "required": ["chapterLabel", "sectionLabel", "subsectionLabel", "groupId", "groupLabel"],
+          "properties": {
+            "chapterLabel": { "type": "string" },
+            "sectionLabel": { "type": "string" },
+            "subsectionLabel": { "type": "string" },
+            "groupId": { "type": "string" },
+            "groupLabel": { "type": "string" }
+          },
+          "additionalProperties": false
         }
       }
     },
     "problem": {
       "type": "object",
-      "required": ["summary", "lines"],
+      "required": ["lines"],
       "properties": {
         "summary": { "type": "string", "description": "一行摘要，显示在题目卡片折叠状态" },
+        "source": { "type": "string", "description": "原题中印刷的考试、学校或教材来源" },
+        "keyPoints": {
+          "type": "object",
+          "description": "可选的解题要点提示，编译后显示在题目与步骤之间；仅用于概括方法框架，不提前给出答案",
+          "required": ["title", "items"],
+          "properties": {
+            "title": { "type": "string" },
+            "lead": { "type": "string" },
+            "items": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 4,
+              "items": { "type": "string", "minLength": 1, "description": "允许使用 \\(R_f\\subseteq B\\)、\\(y=\\frac{2x}{3}\\)、\\(\\sqrt{3x+11}\\) 形式的安全行内数学标记" }
+            }
+          },
+          "additionalProperties": false
+        },
         "lines": {
           "type": "array",
           "description": "题目内容列表，由编译脚本拼成 HTML，不要内联 HTML 标签",
@@ -142,6 +172,7 @@
           "t":       { "type": "number" },
           "derive":  { "type": "array" },
           "box":     { "type": "array", "items": { "type": "string" } },
+          "showDiagram": { "type": "boolean", "description": "设为 false 时该步骤只显示文字推导，不生成空白图形区域" },
           "hideLegend": { "type": "boolean" },
           "localControls": {
             "type": "object",

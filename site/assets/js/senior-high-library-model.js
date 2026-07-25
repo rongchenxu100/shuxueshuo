@@ -19,6 +19,22 @@
     return (catalog?.problems || []).filter((problem) => problem.status === "published");
   }
 
+  function collectionForState(catalog, inputState) {
+    const state = normalizeState(catalog, inputState);
+    if (state.chapter === "all" || state.section === "all") return null;
+    const chapter = (catalog?.chapters || []).find((item) => item.id === state.chapter);
+    const section = chapter?.sections.find((item) => item.id === state.section);
+    if (section?.presentation !== "worksheet" || !section.collectionId) return null;
+    return (catalog?.collections || []).find((item) => item.id === section.collectionId) ?? null;
+  }
+
+  function collectionProblemCount(collection) {
+    return (collection?.groups || []).reduce(
+      (total, group) => total + (group.problems || []).length,
+      0,
+    );
+  }
+
   function sourceValues(catalog) {
     return new Set(publishedProblems(catalog).map((problem) => problem.source.region));
   }
@@ -93,6 +109,8 @@
 
   return {
     DEFAULT_STATE,
+    collectionForState,
+    collectionProblemCount,
     filterProblems,
     normalizeState,
     paginate,

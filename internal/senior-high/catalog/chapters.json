@@ -6,7 +6,15 @@
       "label": "函数",
       "symbol": "f(x)",
       "order": 10,
-      "sections": []
+      "sections": [
+        {
+          "id": "function-concepts-and-representation",
+          "label": "函数的概念及其表示",
+          "order": 10,
+          "presentation": "worksheet",
+          "collectionId": "function-concepts"
+        }
+      ]
     },
     {
       "id": "sequences",

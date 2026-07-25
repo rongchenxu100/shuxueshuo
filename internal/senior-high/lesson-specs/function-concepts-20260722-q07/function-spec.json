@@ -1,0 +1,21 @@
+{
+  "$schema": "../../schemas/function-spec.schema.json",
+  "version": 1,
+  "id": "function-concepts-20260722-q07",
+  "parameter": { "name": "x", "initial": 1 },
+  "panels": [
+    {
+      "id": "candidate-graph",
+      "kind": "functionGraph",
+      "title": "比较四个候选函数能够取得的函数值",
+      "viewport": { "x": 0.03, "y": 0.04, "width": 0.94, "height": 0.92 },
+      "domain": { "minX": -4, "maxX": 4, "minY": -4, "maxY": 6 },
+      "functions": [
+        { "id": "A", "variable": "x", "expr": "x+1/x", "label": "A　y=x+\\frac{1}{x}", "intervals": [{ "min": -4, "max": -0.08 }, { "min": 0.08, "max": 4 }] },
+        { "id": "B", "variable": "x", "expr": "x^2+x+1", "label": "B　y=x^2+x+1", "intervals": [{ "min": -4, "max": 4 }] },
+        { "id": "C", "variable": "x", "expr": "1/(x^2+1)", "label": "C　y=\\frac{1}{x^2+1}", "intervals": [{ "min": -4, "max": 4 }] },
+        { "id": "D", "variable": "x", "expr": "1/sqrt(x)", "label": "D　y=\\frac{1}{\\sqrt{x}}", "intervals": [{ "min": 0.02, "max": 4 }], "range": [{ "min": 0, "max": 6, "openMin": true, "extendsMax": true }] }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "$schema": "../../schemas/function-decorations.schema.json",
+  "version": 1,
+  "_comment": "图中只展示完整函数曲线、定义域 A 内的有效片段和唯一对应检验；值域判断留在推导文本中",
+  "steps": {
+    "s1": {
+      "visiblePanels": ["candidate-graph"],
+      "activeCandidateId": "A",
+      "highlightStudyInterval": true,
+      "showProjection": true,
+      "showVerticalTest": true
+    },
+    "s2": {
+      "visiblePanels": ["candidate-graph"],
+      "activeCandidateId": "B",
+      "highlightStudyInterval": true,
+      "showProjection": true,
+      "showVerticalTest": true
+    },
+    "s3": {
+      "visiblePanels": ["candidate-graph"],
+      "activeCandidateId": "C",
+      "highlightStudyInterval": true,
+      "showProjection": true,
+      "showVerticalTest": true
+    },
+    "s4": {
+      "visiblePanels": ["candidate-graph"],
+      "activeCandidateId": "D",
+      "highlightStudyInterval": true,
+      "showProjection": true,
+      "showVerticalTest": true
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "../../schemas/function-spec.schema.json",
+  "version": 1,
+  "id": "function-concepts-20260722-q08",
+  "panels": [
+    {
+      "id": "value-table",
+      "kind": "valueTable",
+      "title": "逐个代入有限定义域中的三个输入",
+      "viewport": { "x": 0.10, "y": 0.14, "width": 0.80, "height": 0.72 },
+      "columns": ["输入 n", "代入 G(n)=2n+1", "输出 G(n)"],
+      "rows": [
+        { "id": "row-1", "cells": ["1", "2×1+1", "3"] },
+        { "id": "row-2", "cells": ["2", "2×2+1", "5"] },
+        { "id": "row-3", "cells": ["3", "2×3+1", "7"] }
+      ]
+    }
+  ]
+}

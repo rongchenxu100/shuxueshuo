@@ -23,14 +23,13 @@
     <div class="lesson-layout">
       <div class="lesson-flow">
         <section class="card problem" id="problemCard">
-          <div class="problem-summary">
-            <div class="problem-summary-text">{{PROBLEM_SUMMARY}}</div>
-            <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
-          </div>
+          <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
           <div class="problem-full">
             {{PROBLEM_FULL_HTML}}
           </div>
         </section>
+
+        {{PROBLEM_KEY_POINTS_HTML}}
 
         <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
       </div>

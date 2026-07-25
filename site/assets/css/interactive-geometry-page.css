@@ -280,6 +280,7 @@ body {
 }
 
 .problem {
+  position: relative;
   padding: 14px 16px;
   display: grid;
   gap: 8px;
@@ -299,8 +300,18 @@ body {
   color: #0f172a;
 }
 
+.problem-lead {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-weight: 700;
+  color: #0f172a;
+}
+
 .problem-toggle {
-  flex: 0 0 auto;
+  position: absolute;
+  z-index: 2;
+  top: 12px;
+  right: 16px;
   background: linear-gradient(135deg, #0f766e, #14b8a6);
   font-size: 12px;
   padding: 7px 12px;
@@ -316,8 +327,121 @@ body {
   gap: 8px;
 }
 
-.problem.collapsed .problem-full {
+.problem-full > .problem-line:first-child {
+  padding-right: 118px;
+}
+
+.problem-source-inline {
+  color: #64748b;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.problem.collapsed .problem-full > :not(.problem-line:first-child) {
   display: none;
+}
+
+.problem.collapsed .problem-full > .problem-line:first-child {
+  display: flex;
+}
+
+.problem.collapsed {
+  min-height: 0;
+}
+
+.lesson-key-points {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  gap: 14px;
+  padding: 12px 14px;
+  border-left: 3px solid var(--accent);
+  border-radius: 8px;
+  background: rgba(15, 118, 110, 0.07);
+  color: #334155;
+}
+
+.lesson-key-points-title {
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.lesson-key-points-content {
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.lesson-key-points-lead,
+.lesson-key-points-content ol {
+  margin: 0;
+}
+
+.lesson-key-points-content ol {
+  padding-left: 20px;
+}
+
+.lesson-key-points-content li + li {
+  margin-top: 2px;
+}
+
+.inline-math {
+  white-space: nowrap;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.04em;
+}
+
+.inline-math sub {
+  font-size: 0.72em;
+  line-height: 0;
+}
+
+.inline-math sup {
+  font-size: 0.72em;
+  line-height: 0;
+  vertical-align: 0.55em;
+}
+
+.math-fraction {
+  display: inline-grid;
+  grid-template-rows: auto auto;
+  align-items: stretch;
+  justify-items: stretch;
+  min-width: 1.15em;
+  margin: 0 0.08em;
+  vertical-align: middle;
+  text-align: center;
+  line-height: 1;
+}
+
+.math-numerator {
+  padding: 0 0.12em 0.06em;
+  border-bottom: 1.2px solid currentColor;
+}
+
+.math-denominator {
+  padding: 0.05em 0.12em 0;
+}
+
+.math-radical {
+  display: inline-flex;
+  align-items: flex-start;
+  vertical-align: -0.12em;
+}
+
+.math-radical-symbol {
+  margin-right: -0.05em;
+  font-size: 1.18em;
+  line-height: 1;
+}
+
+.math-radicand {
+  margin-top: 0.06em;
+  padding: 0 0.08em 0 0.1em;
+  border-top: 1.2px solid currentColor;
+  line-height: 1.05;
 }
 
 .problem-line {
@@ -689,9 +813,9 @@ svg {
 
 .step-dot {
   min-width: 62px;
-  height: 28px;
+  min-height: 28px;
   border-radius: 999px;
-  padding: 0 10px;
+  padding: 4px 10px;
   display: inline-grid;
   place-items: center;
   background: #e2e8f0;
@@ -699,6 +823,11 @@ svg {
   border: 1px solid rgba(71, 85, 105, 0.18);
   font-size: 12px;
   white-space: nowrap;
+}
+
+.step-dot .math-fraction,
+.step-card-title h2 .math-fraction {
+  font-size: 0.86em;
 }
 
 .step-dot.done {
@@ -1107,6 +1236,15 @@ button:disabled {
   background: rgba(255, 255, 255, 0.58);
 }
 
+.step-card-body-text-only {
+  display: block;
+}
+
+.step-card-body-text-only .step-card-panel {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
 .step-local-tools {
   display: grid;
   gap: 8px;
@@ -1314,6 +1452,12 @@ button:disabled {
 @media (max-width: 860px) {
   body {
     padding-bottom: 96px;
+  }
+
+  .lesson-key-points {
+    grid-template-columns: 1fr;
+    gap: 4px;
+    padding: 11px 12px;
   }
 
   .lesson-layout {

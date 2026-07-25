@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://shuxueshuo.local/schemas/function-import-batch.schema.json",
+  "title": "SeniorHighFunctionImportBatch",
+  "type": "object",
+  "required": ["version", "batchId", "sourceImage", "curriculum", "items"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "type": "integer", "minimum": 1 },
+    "batchId": { "type": "string" },
+    "sourceImage": { "type": "string" },
+    "curriculum": {
+      "type": "object",
+      "required": ["chapterLabel", "sectionLabel", "subsectionLabel"],
+      "properties": {
+        "chapterLabel": { "type": "string" },
+        "sectionLabel": { "type": "string" },
+        "subsectionLabel": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "items": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["questionNumber", "problemId", "sourceLabel", "crop", "printedText", "handwritingHint", "confidence", "chapterId", "sectionId", "groupId", "groupLabel", "knowledgeTags", "status"],
+        "properties": {
+          "questionNumber": { "type": "integer", "minimum": 1 },
+          "problemId": { "type": "string" },
+          "sourceLabel": { "type": "string" },
+          "crop": {
+            "type": "object",
+            "required": ["x", "y", "width", "height"],
+            "properties": {
+              "x": { "type": "number", "minimum": 0, "maximum": 1 },
+              "y": { "type": "number", "minimum": 0, "maximum": 1 },
+              "width": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 },
+              "height": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 }
+            },
+            "additionalProperties": false
+          },
+          "printedText": { "type": "string" },
+          "handwritingHint": { "type": "string" },
+          "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+          "chapterId": { "type": "string" },
+          "sectionId": { "type": "string" },
+          "groupId": { "type": "string", "enum": ["function-concept", "function-domain", "function-value-and-range"] },
+          "groupLabel": { "type": "string" },
+          "knowledgeTags": { "type": "array", "items": { "type": "string" } },
+          "status": { "type": "string", "enum": ["needs_review", "ready", "published"] }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,10 @@
+{
+  "$schema": "../../schemas/function-decorations.schema.json",
+  "version": 1,
+  "steps": {
+    "s1": { "visiblePanels": [] },
+    "s2": { "visiblePanels": [] },
+    "s3": { "visiblePanels": [] },
+    "s4": { "visiblePanels": ["graph"], "showDomain": true, "showRange": true, "showProjection": true }
+  }
+}

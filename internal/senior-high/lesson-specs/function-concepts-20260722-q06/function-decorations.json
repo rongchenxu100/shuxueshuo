@@ -1,0 +1,8 @@
+{
+  "$schema": "../../schemas/function-decorations.schema.json",
+  "version": 1,
+  "steps": {
+    "s1": { "visiblePanels": ["context"] },
+    "s2": { "visiblePanels": ["area-graph"], "highlightStudyInterval": true, "showDomain": true, "showRange": true }
+  }
+}

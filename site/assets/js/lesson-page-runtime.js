@@ -15,6 +15,129 @@
       .replaceAll(">", "&gt;");
   }
 
+  function readMathGroup(source, start) {
+    if (source[start] !== "{") return null;
+    let depth = 0;
+    for (let index = start; index < source.length; index += 1) {
+      if (source[index] === "{") depth += 1;
+      if (source[index] === "}") depth -= 1;
+      if (depth === 0) return { content: source.slice(start + 1, index), end: index + 1 };
+    }
+    return null;
+  }
+
+  function renderMathExpression(value) {
+    const source = String(value != null ? value : "");
+    let markup = "";
+    let cursor = 0;
+    while (cursor < source.length) {
+      if (source.startsWith("\\frac", cursor)) {
+        const numerator = readMathGroup(source, cursor + 5);
+        const denominator = numerator && readMathGroup(source, numerator.end);
+        if (numerator && denominator) {
+          markup += '<span class="math-fraction"><span class="math-numerator">' + renderMathExpression(numerator.content) + '</span><span class="math-denominator">' + renderMathExpression(denominator.content) + "</span></span>";
+          cursor = denominator.end;
+          continue;
+        }
+      }
+      if (source.startsWith("\\sqrt", cursor)) {
+        const radicand = readMathGroup(source, cursor + 5);
+        if (radicand) {
+          markup += '<span class="math-radical"><span class="math-radical-symbol">√</span><span class="math-radicand">' + renderMathExpression(radicand.content) + "</span></span>";
+          cursor = radicand.end;
+          continue;
+        }
+      }
+      if (source.startsWith("\\nsubseteq", cursor)) {
+        markup += "⊄";
+        cursor += "\\nsubseteq".length;
+        continue;
+      }
+      if (source.startsWith("\\subseteq", cursor)) {
+        markup += "⊆";
+        cursor += "\\subseteq".length;
+        continue;
+      }
+      if (source[cursor] === "_") {
+        const group = readMathGroup(source, cursor + 1);
+        if (group) {
+          markup += "<sub>" + renderMathExpression(group.content) + "</sub>";
+          cursor = group.end;
+          continue;
+        }
+        if (/[A-Za-z0-9]/.test(source[cursor + 1] || "")) {
+          markup += "<sub>" + esc(source[cursor + 1]) + "</sub>";
+          cursor += 2;
+          continue;
+        }
+      }
+      if (source[cursor] === "^") {
+        const group = readMathGroup(source, cursor + 1);
+        if (group) {
+          markup += "<sup>" + renderMathExpression(group.content) + "</sup>";
+          cursor = group.end;
+          continue;
+        }
+        if (source[cursor + 1] === "(") {
+          const closingIndex = source.indexOf(")", cursor + 2);
+          if (closingIndex >= 0) {
+            markup += "<sup>" + renderMathExpression(source.slice(cursor + 2, closingIndex)) + "</sup>";
+            cursor = closingIndex + 1;
+            continue;
+          }
+        }
+        const exponent = source.slice(cursor + 1).match(/^[+-]?(?:\d+(?:\.\d+)?|[A-Za-z])/);
+        if (exponent) {
+          markup += "<sup>" + esc(exponent[0]) + "</sup>";
+          cursor += exponent[0].length + 1;
+          continue;
+        }
+      }
+      markup += esc(source[cursor]);
+      cursor += 1;
+    }
+    return markup;
+  }
+
+  function renderExponentText(value) {
+    const source = String(value != null ? value : "");
+    const exponentPattern = /e\^\(([^()]*)\)/g;
+    let cursor = 0;
+    let markup = "";
+    let match;
+
+    while ((match = exponentPattern.exec(source)) !== null) {
+      markup += esc(source.slice(cursor, match.index));
+      markup +=
+        '<span class="derive-inline-power">e<sup>' +
+        esc(match[1]) +
+        "</sup></span>";
+      cursor = match.index + match[0].length;
+    }
+
+    return markup + esc(source.slice(cursor));
+  }
+
+  function renderFormulaText(value) {
+    const source = String(value != null ? value : "");
+    const inlineMathPattern = /\\\((.*?)\\\)/g;
+    let cursor = 0;
+    let markup = "";
+    let match;
+
+    while ((match = inlineMathPattern.exec(source)) !== null) {
+      markup += renderExponentText(source.slice(cursor, match.index));
+      markup += '<span class="inline-math">' + renderMathExpression(match[1]) + "</span>";
+      cursor = match.index + match[0].length;
+    }
+
+    return markup + renderExponentText(source.slice(cursor));
+  }
+
+  function stepHasDiagram(step) {
+    return !step || step.showDiagram !== false;
+  }
+
   function clamp(v, min, max) {
     return Math.max(min, Math.min(max, v));
   }
@@ -153,16 +276,16 @@
                   '" title="' +
                   esc(step.title) +
                   '">' +
-                  esc(STEP_LABELS[step[policyStepKey]]) +
+                  renderFormulaText(STEP_LABELS[step[policyStepKey]]) +
                   "</button>";
                 return localIndex === 0 ? dot : '<span class="step-connector"></span>' + dot;
               })
               .join("");
             const title = (groupTitle || defaultGroupTitle)(group.section);
             return (
-              '<div class="step-group"><div class="step-group-title">' +
-              esc(title) +
-              '</div><div class="step-dots">' +
+              '<div class="step-group">' +
+              (title ? '<div class="step-group-title">' + esc(title) + "</div>" : "") +
+              '<div class="step-dots">' +
               dots +
               "</div></div>"
             );
@@ -179,7 +302,7 @@
       if (mobileStepCount)
         mobileStepCount.textContent =
           STEPS[stepIndex].section + " · 步骤 " + (stepIndex + 1) + " / " + STEPS.length;
-      if (mobileStepName) mobileStepName.textContent = STEP_LABELS[STEPS[stepIndex][policyStepKey]];
+      if (mobileStepName) mobileStepName.innerHTML = renderFormulaText(STEP_LABELS[STEPS[stepIndex][policyStepKey]]);
     }
 
     function renderMinisMarkup(step, activeT) {
@@ -198,7 +321,7 @@
             (rangeAttr ? ' data-mini-range="' + rangeAttr + '"' : "") +
             (openLeftAttr ? ' data-mini-open-left="' + openLeftAttr + '"' : "") +
             ">" +
-            esc(item.title) +
+            renderFormulaText(item.title) +
             "</button>"
           );
         })
@@ -219,11 +342,11 @@
             (rangeAttr ? ' data-mini-range="' + rangeAttr + '"' : "") +
             (openLeftAttr ? ' data-mini-open-left="' + openLeftAttr + '"' : "") +
             "><h3>" +
-            esc(item.title) +
+            renderFormulaText(item.title) +
             "</h3>" +
             drawMini(item.t, item, step) +
             "<p>" +
-            esc(item.caption) +
+            renderFormulaText(item.caption) +
             "</p></div>"
           );
         })
@@ -331,25 +454,6 @@
       );
     }
 
-    function renderFormulaText(value) {
-      const source = String(value != null ? value : "");
-      const exponentPattern = /e\^\(([^()]*)\)/g;
-      let cursor = 0;
-      let markup = "";
-      let match;
-
-      while ((match = exponentPattern.exec(source)) !== null) {
-        markup += esc(source.slice(cursor, match.index));
-        markup +=
-          '<span class="derive-inline-power">e<sup>' +
-          esc(match[1]) +
-          "</sup></span>";
-        cursor = match.index + match[0].length;
-      }
-
-      return markup + esc(source.slice(cursor));
-    }
-
     function renderDeriveLine(pair) {
       if (!Array.isArray(pair) || pair.length < 2) return "";
       const ref = pair[2];
@@ -420,6 +524,24 @@
             esc(policy.reason || "") +
             "</div></div>"
           : "";
+        const hasDiagram = stepHasDiagram(step);
+        const diagram = hasDiagram
+          ? '<div class="step-card-diagram"><div class="svg-wrap"><svg viewBox="0 0 ' +
+            viewBoxW +
+            " " +
+            viewBoxH +
+            '" aria-label="' +
+            esc(step.title) +
+            '">' +
+            diagramMarkupFor(index, activeT, localVars) +
+            '</svg></div>' +
+            (step.hideLegend ? "" : '<div class="legend">' + legendHtml + "</div>") +
+            animationButton +
+            tools +
+            localControls +
+            minis +
+            '</div>'
+          : "";
         return (
           '<article class="card lesson-step-card" id="step-' +
           esc(String(sid)) +
@@ -429,26 +551,16 @@
           '<div class="step-card-head"><div class="step-card-title"><div class="step-section">' +
           esc(step.section) +
           "</div><h2>" +
-          esc(step.title) +
+          renderFormulaText(step.title) +
           '</h2></div><div class="step-card-index">' +
           (index + 1) +
           "/" +
           STEPS.length +
-          '</div></div><div class="step-card-body"><div class="step-card-diagram"><div class="svg-wrap"><svg viewBox="0 0 ' +
-          viewBoxW +
-          " " +
-          viewBoxH +
-          '" aria-label="' +
-          esc(step.title) +
+          '</div></div><div class="step-card-body' +
+          (hasDiagram ? "" : " step-card-body-text-only") +
           '">' +
-          diagramMarkupFor(index, activeT, localVars) +
-          '</svg></div>' +
-          (step.hideLegend ? "" : '<div class="legend">' + legendHtml + "</div>") +
-          animationButton +
-          tools +
-          localControls +
-          minis +
-          '</div><div class="step-card-panel"><div class="derive-list">' +
+          diagram +
+          '<div class="step-card-panel"><div class="derive-list">' +
           derive +
           "</div></div></div></article>"
         );
@@ -1066,6 +1178,8 @@
     clamp,
     defaultFmt,
     createFmtFromLandmarks,
-    isMiniItemActive
+    isMiniItemActive,
+    renderFormulaText,
+    stepHasDiagram
   };
 })(window);
