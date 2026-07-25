@@ -1,0 +1,28 @@
+{
+  "$schema": "../../../schemas/lesson-data.schema.json",
+  "meta": {
+    "id": "function-concepts-20260722-q07",
+    "outputPath": "site/problems/senior-high/functions/function-concepts-and-representation/function-concepts-20260722-q07.html",
+    "pageTitle": "函数值域：判断值域为正实数集的函数",
+    "pageDescription": "逐项比较四个基本函数能够取得的函数值范围。",
+    "breadcrumbTitle": "函数概念第 7 题",
+    "breadcrumbLabel": "高中题库",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "classification": { "pattern": "function-concepts-and-representation", "methods": ["range-comparison", "basic-functions", "limit-trend"] },
+    "curriculum": { "chapterLabel": "第三章 函数的概念与性质", "sectionLabel": "3.1 函数的概念及其表示", "subsectionLabel": "3.1.1 函数的概念", "groupId": "function-value-and-range", "groupLabel": "函数值及函数的值域" }
+  },
+  "problem": {
+    "source": "2026 北京八一学校月考",
+    "keyPoints": { "title": "解题要点", "lead": "判断值域是否恰为给定集合，要同时确认：", "items": ["函数值不会超出目标集合；", "目标集合中的每一个值都能够由定义域内某个输入取得；", "根据函数结构选择求值域方法：基本不等式、配方法、分母范围或基本函数性质。"] },
+    "lines": [{ "text": "下列函数中，值域为 \\((0,+∞)\\) 的是：" }, { "text": "A. \\(y=x+\\frac{1}{x}\\)　B. \\(y=x^2+x+1\\)　C. \\(y=\\frac{1}{x^2+1}\\)　D. \\(y=\\frac{1}{\\sqrt{x}}\\)", "answerId": "answerI", "answer": "答案：D" }]
+  },
+  "ui": { "legend": [{ "colorVar": "paper", "label": "当前候选函数" }, { "colorVar": "overlap", "label": "正函数值范围" }], "sliderLabel": "输入 x", "paramLabelPrefix": "x＝", "goToProblemMode": "smooth", "groupTitles": { "逐项判断": "比较每个候选函数的值域" } },
+  "steps": [
+    { "id": "s1", "section": "逐项判断", "title": "第1步：用基本不等式求选项 A 的值域", "t": 1, "derive": [["基本不等式", "若 \\(a>0，b>0\\)，则 \\(a+b≥2\\sqrt{ab}\\)"], ["当 x>0", "令 \\(a=x，b=\\frac{1}{x}\\)，则 \\(a>0，b>0\\)，且 \\(ab=x·\\frac{1}{x}=1\\)"], ["代入化简", "\\(x+\\frac{1}{x}≥2\\sqrt{x·\\frac{1}{x}}=2\\sqrt{1}=2\\)"], ["取等条件", "\\(x=\\frac{1}{x}\\)，即 \\(x^2=1\\)；结合 \\(x>0\\)，得 \\(x=1\\)"], ["当 x<0", "令 \\(u=-x>0\\)，则 \\(x+\\frac{1}{x}=-(u+\\frac{1}{u})≤-2\\)，当且仅当 \\(x=-1\\) 取等"], ["∴", "值域为 \\((−∞,−2]∪[2,+∞)\\)，不是 \\((0,+∞)\\)"]], "box": ["使用基本不等式前先确认两项均为正；自变量可正可负时，需要分类讨论"] },
+    { "id": "s2", "section": "逐项判断", "title": "第2步：用配方法求选项 B 的值域", "t": 1, "derive": [["配方", "\\(x^2+x+1=(x+\\frac{1}{2})^2+\\frac{3}{4}≥\\frac{3}{4}\\)"], ["取等", "当 \\(x=-\\frac{1}{2}\\) 时取得最小值 \\(\\frac{3}{4}\\)"], ["∴", "值域为 \\([\\frac{3}{4},+∞)\\)，不是 \\((0,+∞)\\)"]], "box": ["函数恒为正，不代表它能取得每一个正实数"] },
+    { "id": "s3", "section": "逐项判断", "title": "第3步：由分母范围求选项 C 的值域", "t": 1, "derive": [["∵", "\\(x^2≥0\\)，所以 \\(x^2+1≥1\\)"], ["∴", "\\(0<\\frac{1}{x^2+1}≤1\\)，且 \\(x=0\\) 时取到 1"], ["值域", "\\((0,1]\\)，不是 \\((0,+∞)\\)"]], "box": ["分母没有上界，所以函数值可以无限接近 0，但不能等于 0"] },
+    { "id": "s4", "section": "逐项判断", "title": "第4步：由基本函数性质判断选项 D", "t": 1, "derive": [["定义域", "\\(x>0\\)，所以 \\(y=\\frac{1}{\\sqrt{x}}>0\\)"], ["任取正数", "对任意 \\(y_0>0\\)，取 \\(x=\\frac{1}{y_0^2}>0\\)，就有 \\(\\frac{1}{\\sqrt{x}}=y_0\\)"], ["∴", "每一个正实数都能取得，值域为 \\((0,+∞)\\)，答案为 D"]], "box": ["拖动 x 可以核对变化趋势，值域结论仍由定义域和代数关系确定"] }
+  ],
+  "policies": { "s1": { "movable": false, "range": [1,1] }, "s2": { "movable": false, "range": [1,1] }, "s3": { "movable": false, "range": [1,1] }, "s4": { "movable": true, "range": [0.05,4], "step": 0.01 } },
+  "stepLabels": { "s1": "1 A：基本不等式", "s2": "2 B：配方法", "s3": "3 C：分母范围", "s4": "4 D：基本函数性质" }
+}

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>函数值域：分式函数在闭区间上的值域 | 数学说</title>
+  <meta name="description" content="分离常数后逐层变换区间，确定分式函数的值域。" />
+  <meta property="og:title" content="函数值域：分式函数在闭区间上的值域 | 数学说" />
+  <meta property="og:description" content="分离常数后逐层变换区间，确定分式函数的值域。" />
+  <meta property="og:image" content="../../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../../senior-high/index.html">高中题库</a>
+    <span class="lesson-title">函数概念第 11 题</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          <div class="problem-full">
+            <div class="problem-line"><span><span class="problem-source-inline">（2026 河南名校期中大联考）</span>函数 <span class="inline-math">f(x)=<span class="math-fraction"><span class="math-numerator">x-1</span><span class="math-denominator">1+x</span></span></span> 在区间 <span class="inline-math">[<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">2</span></span>,2]</span> 上的值域为______。</span><span class="answer-chip" id="answerI"><span class="inline-math">[-<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">3</span></span>,<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">3</span></span>]</span></span></div>
+          </div>
+        </section>
+
+        <aside class="lesson-key-points" aria-label="方法技巧"><div class="lesson-key-points-title">方法技巧</div><div class="lesson-key-points-content"><p class="lesson-key-points-lead">对于形如 <span class="inline-math">y=<span class="math-fraction"><span class="math-numerator">ax+b</span><span class="math-denominator">cx+d</span></span></span>（<span class="inline-math">c≠0</span>，<span class="inline-math">cx+d≠0</span>）的分式函数：</p><ol><li>可用分离常数法化为 <span class="inline-math">y=<span class="math-fraction"><span class="math-numerator">a</span><span class="math-denominator">c</span></span>+<span class="math-fraction"><span class="math-numerator">bc-ad</span><span class="math-denominator">c(cx+d)</span></span></span>；</li><li>再利用反比例函数的性质，或从分母范围开始逐层变换区间，求出函数值域。</li></ol></div></aside>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../../assets/js/lesson-page-runtime.js"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"s1","section":"求值域","title":"第1步：分离常数，找出反比例结构","t":1.25,"showDiagram":false,"derive":[["∵","\\(x-1=(x+1)-2\\)"],["∴","\\(f(x)=\\frac{x-1}{x+1}=\\frac{(x+1)-2}{x+1}=1-\\frac{2}{x+1}\\)"]],"box":["先把分式改写成“常数 + 反比例式”"]},{"id":"s2","section":"求值域","title":"第2步：确定分母 x+1 的取值范围","t":1.25,"showDiagram":false,"derive":[["∵","\\(\\frac{1}{2}≤x≤2\\)"],["∴","\\(\\frac{3}{2}≤x+1≤3\\)"]],"box":["区间整体加 1，两个端点都能取到"]},{"id":"s3","section":"求值域","title":"第3步：确定 \\(-\\frac{2}{x+1}\\) 的取值范围","t":1.25,"showDiagram":false,"derive":[["取倒数","\\(\\frac{1}{3}≤\\frac{1}{x+1}≤\\frac{2}{3}\\)"],["乘以 -2","\\(-\\frac{4}{3}≤-\\frac{2}{x+1}≤-\\frac{2}{3}\\)"]],"box":["取倒数会交换端点；乘负数要改变不等号方向"]},{"id":"s4","section":"求值域","title":"第4步：加上常数，确定函数值域","t":1.25,"derive":[["两边加 1","\\(-\\frac{1}{3}≤1-\\frac{2}{x+1}≤\\frac{1}{3}\\)"],["即","\\(-\\frac{1}{3}≤f(x)≤\\frac{1}{3}\\)"],["∴","函数的值域为 \\([-\\frac{1}{3},\\frac{1}{3}]\\)"]],"box":["两个端点都能取到，使用闭区间"]}];
+    var STEP_LABELS = {"s1":"1 分离常数，找出反比例结构","s2":"2 确定分母 x+1 的范围","s3":"3 确定 \\(-\\frac{2}{x+1}\\) 的范围","s4":"4 加上常数，确定函数值域"};
+    var POLICIES   = {"s1":{"movable":false,"range":[1.25,1.25]},"s2":{"movable":false,"range":[1.25,1.25]},"s3":{"movable":false,"range":[1.25,1.25]},"s4":{"movable":true,"range":[0.5,2],"step":0.01}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 滑块主参数与派生参数的联动文案格式化器 */
+    var __LESSON_PARAM_LABEL_FORMATTER__;
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script type="application/json" id="functionSpec">{"$schema":"../../schemas/function-spec.schema.json","version":1,"id":"function-concepts-20260722-q11","parameter":{"name":"x","initial":1.25},"bindings":[{"name":"fValue","expr":"(x-1)/(1+x)"}],"panels":[{"id":"graph","kind":"functionGraph","title":"输入 x 与函数值 f(x) 的对应","viewport":{"x":0.04,"y":0.05,"width":0.92,"height":0.9},"domain":{"minX":-0.2,"maxX":2.7,"minY":-0.65,"maxY":0.65},"function":{"variable":"x","expr":"(x-1)/(1+x)","label":"y=f(x)=\\frac{x-1}{1+x}","intervals":[{"min":-0.2,"max":2.7}]},"studyIntervals":[{"min":0.5,"max":2,"minLabel":"\\frac{1}{2}","maxLabel":"2"}],"range":[{"min":-0.3333333333,"max":0.3333333333}]}]}</script>
+<script src="../../../../assets/js/math-expression-engine.js"></script>
+<script src="../../../../assets/js/function-lesson-from-spec.js"></script>
+
+<script>
+  const __FUNCTION_SPEC__ = JSON.parse(document.getElementById('functionSpec').textContent);
+  const __FUNCTION_DECORATIONS__ = {"$schema":"../../schemas/function-decorations.schema.json","version":1,"steps":{"s1":{"visiblePanels":[]},"s2":{"visiblePanels":[]},"s3":{"visiblePanels":[]},"s4":{"visiblePanels":["graph"],"showDomain":true,"showRange":true,"showProjection":true}}};
+  const renderer = FunctionLessonFromSpec.createSpecRenderer(__FUNCTION_SPEC__, __FUNCTION_DECORATIONS__, STEPS, POLICIES);
+  function groupTitle(section) {
+    const map = {"求值域":"分离常数并逐层变换区间"};
+    return Object.prototype.hasOwnProperty.call(map, section) ? map[section] : section;
+  }
+  var diagramMarkupFor = renderer.diagramMarkupFor;
+  var diagramMarkupForFrame = renderer.diagramMarkupForFrame;
+  var drawMini = renderer.drawMini;
+  var __LESSON_LEGEND_HTML__ = "<span><i class=\"sw\" style=\"background:var(--paper)\"></i>函数 y=f(x)</span><span><i class=\"sw\" style=\"background:var(--overlap)\"></i>定义域与值域</span>";
+  __LESSON_PARAM_LABEL_FORMATTER__ = function (_index, value, localVars, baseLabel) {
+    const state = renderer.resolveStateFor(value, localVars);
+    const linkedValue = state.env["fValue"];
+    if (!Number.isFinite(linkedValue)) return baseLabel;
+    const rounded = Number(linkedValue.toFixed(3));
+    return baseLabel + '　' + "f(x)＝" + rounded;
+  };
+  var __AFTER_RENDER_ALL_STEPS__ = renderer.renderOriginalFigures;
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      diagramMarkupForFrame: typeof diagramMarkupForFrame === "function" ? diagramMarkupForFrame : undefined,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "输入 x",
+      paramLabelPrefix: "x＝",
+      paramLabelFormatter: typeof __LESSON_PARAM_LABEL_FORMATTER__ === "function" ? __LESSON_PARAM_LABEL_FORMATTER__ : undefined,
+      goToProblemMode: "smooth"
+    });
+  </script>
+</body>
+</html>

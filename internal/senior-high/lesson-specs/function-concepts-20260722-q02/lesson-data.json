@@ -1,0 +1,34 @@
+{
+  "$schema": "../../../schemas/lesson-data.schema.json",
+  "meta": {
+    "id": "function-concepts-20260722-q02",
+    "outputPath": "site/problems/senior-high/functions/function-concepts-and-representation/function-concepts-20260722-q02.html",
+    "pageTitle": "函数的概念：判断同一函数",
+    "pageDescription": "从定义域和对应关系两个方面判断两个函数是否为同一函数。",
+    "breadcrumbTitle": "函数概念第 2 题",
+    "breadcrumbLabel": "高中题库",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "classification": { "pattern": "function-concepts-and-representation", "methods": ["same-function", "domain-comparison", "rule-comparison"] },
+    "curriculum": { "chapterLabel": "第三章 函数的概念与性质", "sectionLabel": "3.1 函数的概念及其表示", "subsectionLabel": "3.1.1 函数的概念", "groupId": "function-concept", "groupLabel": "函数的概念" }
+  },
+  "problem": {
+    "source": "教材习题改编",
+    "keyPoints": { "title": "解题要点", "lead": "判断两个函数是否相同，必须同时检查：", "items": ["定义域是否完全相同；", "在相同定义域内，对应关系是否相同。自变量字母不同不影响函数相同。"] },
+    "lines": [
+      { "text": "下列各组函数表示同一个函数的是：" },
+      { "text": "A. \\(f(x)=\\sqrt{-2x^3}\\)，\\(g(x)=x\\sqrt{-2x}\\)" },
+      { "text": "B. \\(f(x)=x\\)，\\(g(x)=\\frac{x^2}{x}\\)" },
+      { "text": "C. \\(f(x)=x^2-2x-1\\)，\\(g(t)=t^2-2t-1\\)" },
+      { "text": "D. \\(f(x)=\\sqrt{x-1}\\sqrt{x+1}\\)，\\(g(x)=\\sqrt{(x+1)(x-1)}\\)", "answerId": "answerI", "answer": "答案：C" }
+    ]
+  },
+  "ui": { "legend": [], "sliderLabel": "", "paramLabelPrefix": "", "goToProblemMode": "smooth", "groupTitles": { "逐项判断": "先比较定义域，再比较对应关系" } },
+  "steps": [
+    { "id": "s1", "section": "逐项判断", "title": "第1步：选项 A 的对应关系不同", "t": 0, "showDiagram": false, "derive": [["定义域", "\\(f(x)\\) 与 \\(g(x)\\) 的定义域均为 \\((−∞,0]\\)"], ["f(x)", "\\(f(x)=\\sqrt{-2x^3}=|x|\\sqrt{-2x}=-x\\sqrt{-2x}\\)"], ["g(x)", "\\(g(x)=x\\sqrt{-2x}\\)"], ["比较", "当 \\(x<0\\) 时，\\(f(x)=-g(x)\\)，对应关系不同"]], "box": ["定义域相同，还要继续比较对应关系"] },
+    { "id": "s2", "section": "逐项判断", "title": "第2步：选项 B 的定义域不同", "t": 0, "showDiagram": false, "derive": [["f(x)", "\\(f(x)=x\\) 的定义域为 R"], ["g(x)", "\\(g(x)=\\frac{x^2}{x}\\) 的定义域为 \\(R−{0}\\)"], ["比较", "\\(f(x)\\) 与 \\(g(x)\\) 的定义域不同"]], "box": ["约分不能补回原式没有定义的点"] },
+    { "id": "s3", "section": "逐项判断", "title": "第3步：选项 C 的定义域和对应关系都相同", "t": 0, "showDiagram": false, "derive": [["统一记号", "把 \\(g(t)\\) 的自变量统一记为 x"], ["定义域", "\\(f(x)\\) 与 \\(g(x)\\) 的定义域均为 R"], ["对应关系", "\\(f(x)=g(x)=x^2-2x-1\\)"], ["∴", "选项 C 表示同一个函数"]], "box": ["x、t 只是自变量的名称，不影响函数本身"] },
+    { "id": "s4", "section": "逐项判断", "title": "第4步：选项 D 的定义域不同并作答", "t": 0, "showDiagram": false, "derive": [["f(x)", "由 \\(x-1≥0\\) 且 \\(x+1≥0\\)，定义域为 \\([1,+∞)\\)"], ["g(x)", "由 \\(x^2-1≥0\\)，定义域为 \\((−∞,−1]∪[1,+∞)\\)"], ["比较", "\\(f(x)\\) 与 \\(g(x)\\) 的定义域不同；综上答案为 C"]], "box": ["根式乘法公式必须先满足每个根式各自有意义"] }
+  ],
+  "policies": { "s1": { "movable": false, "range": [0,0] }, "s2": { "movable": false, "range": [0,0] }, "s3": { "movable": false, "range": [0,0] }, "s4": { "movable": false, "range": [0,0] } },
+  "stepLabels": { "s1": "1 A 的对应关系不同", "s2": "2 B 的定义域不同", "s3": "3 C 表示同一函数", "s4": "4 检查 D 并作答" }
+}

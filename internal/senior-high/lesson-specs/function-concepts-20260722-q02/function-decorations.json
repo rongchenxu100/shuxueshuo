@@ -1,0 +1,10 @@
+{
+  "$schema": "../../schemas/function-decorations.schema.json",
+  "version": 1,
+  "steps": {
+    "s1": { "visiblePanels": ["domain-compare"], "visibleElementIds": ["a-f", "a-g"], "highlightElementIds": ["a-f", "a-g"] },
+    "s2": { "visiblePanels": ["domain-compare"], "visibleElementIds": ["b-f", "b-g-left", "b-g-right", "b-zero"], "highlightElementIds": ["b-zero"] },
+    "s3": { "visiblePanels": ["domain-compare"], "visibleElementIds": ["c-f", "c-g"], "highlightElementIds": ["c-f", "c-g"] },
+    "s4": { "visiblePanels": ["domain-compare"], "visibleElementIds": ["d-f", "d-g-left", "d-g-right"], "highlightElementIds": ["d-g-left"] }
+  }
+}

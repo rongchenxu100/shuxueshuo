@@ -1,0 +1,7 @@
+{
+  "$schema": "../../schemas/function-decorations.schema.json",
+  "version": 1,
+  "steps": {
+    "s1": { "visiblePanels": ["value-table"], "visibleElementIds": ["row-1", "row-2", "row-3"], "highlightElementIds": ["row-1", "row-2", "row-3"] }
+  }
+}

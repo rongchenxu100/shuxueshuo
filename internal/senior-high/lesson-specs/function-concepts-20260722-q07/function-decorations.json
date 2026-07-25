@@ -1,0 +1,10 @@
+{
+  "$schema": "../../schemas/function-decorations.schema.json",
+  "version": 1,
+  "steps": {
+    "s1": { "visiblePanels": ["candidate-graph"], "activeCandidateId": "A" },
+    "s2": { "visiblePanels": ["candidate-graph"], "activeCandidateId": "B" },
+    "s3": { "visiblePanels": ["candidate-graph"], "activeCandidateId": "C" },
+    "s4": { "visiblePanels": ["candidate-graph"], "activeCandidateId": "D", "showProjection": true, "showRange": true }
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "$schema": "../../../schemas/lesson-data.schema.json",
+  "meta": {
+    "id": "function-concepts-20260722-q09",
+    "outputPath": "site/problems/senior-high/functions/function-concepts-and-representation/function-concepts-20260722-q09.html",
+    "pageTitle": "函数值：由函数方程求特殊值",
+    "pageDescription": "使用抽象函数赋值法，同时令 x=1、y=0 求出函数的特殊值。",
+    "breadcrumbTitle": "函数概念第 9 题",
+    "breadcrumbLabel": "高中题库",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "classification": { "pattern": "function-concepts-and-representation", "methods": ["functional-equation-value", "special-value-substitution", "nonzero-cancellation"] },
+    "curriculum": { "chapterLabel": "第三章 函数的概念与性质", "sectionLabel": "3.1 函数的概念及其表示", "subsectionLabel": "3.1.1 函数的概念", "groupId": "function-value-and-range", "groupLabel": "函数值及函数的值域" }
+  },
+  "problem": {
+    "source": "2026 山东淄博实验中学月考",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "抽象函数赋值法：函数没有给出具体解析式，只给出函数关系式，并要求特殊函数值时，通过给自变量赋特殊值直接求解。",
+      "items": [
+        "围绕目标选择 0、1、相等或互为相反数等特殊值，使函数自变量合并、消去或变成目标值；",
+        "尽量同时用上题目给出的已知函数值，减少中间步骤；",
+        "约去函数值前，必须先确认它不为 0。"
+      ]
+    },
+    "lines": [{ "text": "已知函数 f(x) 的定义域为 R，且 f(x+y)+f(x−y)=f(x)f(y)，f(1)=−1，则 f(0)=______。", "answerId": "answerI", "answer": "2" }]
+  },
+  "ui": { "legend": [], "sliderLabel": "代入状态", "paramLabelPrefix": "", "goToProblemMode": "smooth", "groupTitles": { "抽象函数赋值法": "选择特殊值，直接得到目标函数值" } },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "抽象函数赋值法",
+      "title": "第1步：赋值 x=1，y=0 求 f(0)",
+      "t": 0,
+      "derive": [
+        ["原式", "\\(f(x+y)+f(x-y)=f(x)f(y)\\)"],
+        ["赋值", "令 \\(x=1，y=0\\)，使 \\(x+y=x-y=1\\)，并使右侧出现目标值 \\(f(0)\\)"],
+        ["代入", "\\(f(1)+f(1)=f(1)f(0)\\)，即 \\(2f(1)=f(1)f(0)\\)"],
+        ["∵", "\\(f(1)=-1≠0\\)"],
+        ["∴", "两边除以 \\(f(1)\\)，得到 \\(f(0)=2\\)"]
+      ],
+      "box": ["答案：2", "特殊值的选择要同时服务于目标函数值和已知条件"]
+    }
+  ],
+  "policies": { "s1": { "movable": false, "range": [0,0] } },
+  "stepLabels": { "s1": "1 赋值 x=1，y=0" }
+}

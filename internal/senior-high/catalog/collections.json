@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "collections": [
+    {
+      "id": "function-concepts",
+      "chapterId": "functions",
+      "sectionId": "function-concepts-and-representation",
+      "title": "函数的概念",
+      "status": "published",
+      "groups": [
+        {
+          "id": "function-concept",
+          "label": "函数概念",
+          "lessonIds": [
+            "function-concepts-20260722-q01",
+            "function-concepts-20260722-q02",
+            "function-concepts-20260722-q03"
+          ]
+        },
+        {
+          "id": "function-domain",
+          "label": "函数定义域",
+          "lessonIds": [
+            "function-concepts-20260722-q04",
+            "function-concepts-20260722-q05",
+            "function-concepts-20260722-q06"
+          ]
+        },
+        {
+          "id": "function-value-and-range",
+          "label": "函数值域",
+          "lessonIds": [
+            "function-concepts-20260722-q07",
+            "function-concepts-20260722-q08",
+            "function-concepts-20260722-q09",
+            "function-concepts-20260722-q10",
+            "function-concepts-20260722-q11"
+          ]
+        }
+      ]
+    }
+  ]
+}

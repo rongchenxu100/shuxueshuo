@@ -1,0 +1,24 @@
+{
+  "$schema": "../../schemas/function-spec.schema.json",
+  "version": 1,
+  "id": "function-concepts-20260722-q11",
+  "parameter": { "name": "x", "initial": 1.25 },
+  "bindings": [{ "name": "fValue", "expr": "(x-1)/(1+x)" }],
+  "panels": [
+    {
+      "id": "graph",
+      "kind": "functionGraph",
+      "title": "输入 x 与函数值 f(x) 的对应",
+      "viewport": { "x": 0.04, "y": 0.05, "width": 0.92, "height": 0.90 },
+      "domain": { "minX": -0.2, "maxX": 2.7, "minY": -0.65, "maxY": 0.65 },
+      "function": {
+        "variable": "x",
+        "expr": "(x-1)/(1+x)",
+        "label": "y=f(x)=\\frac{x-1}{1+x}",
+        "intervals": [{ "min": -0.2, "max": 2.7 }]
+      },
+      "studyIntervals": [{ "min": 0.5, "max": 2, "minLabel": "\\frac{1}{2}", "maxLabel": "2" }],
+      "range": [{ "min": -0.3333333333, "max": 0.3333333333 }]
+    }
+  ]
+}

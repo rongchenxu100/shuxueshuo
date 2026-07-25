@@ -1,0 +1,22 @@
+{
+  "$schema": "../../schemas/function-spec.schema.json",
+  "version": 1,
+  "id": "function-concepts-20260722-q10",
+  "parameter": { "name": "t", "initial": 0 },
+  "bindings": [{ "name": "gValue", "expr": "-2*t^2-t+4" }],
+  "panels": [
+    {
+      "id": "quadratic-graph",
+      "kind": "functionGraph",
+      "title": "完整二次函数图像与 t≥0 的研究部分",
+      "viewport": { "x": 0.04, "y": 0.05, "width": 0.92, "height": 0.90 },
+      "domain": { "minX": -3, "maxX": 2.5, "minY": -13, "maxY": 6 },
+      "function": { "variable": "t", "expr": "-2*t^2-t+4", "label": "y=g(t)=−2t²−t+4", "intervals": [{ "min": -3, "max": 2.5 }] },
+      "referenceLines": [
+        { "id": "symmetry-axis", "orientation": "vertical", "value": -0.25, "label": "对称轴　t=−\\frac{1}{4}", "color": "#f59e0b" }
+      ],
+      "studyIntervals": [{ "min": 0, "max": 2.5, "extendsMax": true, "minLabel": "0", "maxLabel": "+∞" }],
+      "range": [{ "min": -13, "max": 4, "extendsMin": true, "maxLabel": "4" }]
+    }
+  ]
+}

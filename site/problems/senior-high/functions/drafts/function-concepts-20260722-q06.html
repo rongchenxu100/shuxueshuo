@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>函数模型：三角形空地中的矩形草坪 | 数学说</title>
+  <meta name="description" content="由相似三角形建立矩形草坪的面积函数，并求满足面积条件时自变量的取值范围。" />
+  <meta property="og:title" content="函数模型：三角形空地中的矩形草坪 | 数学说" />
+  <meta property="og:description" content="由相似三角形建立矩形草坪的面积函数，并求满足面积条件时自变量的取值范围。" />
+  <meta property="og:image" content="../../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../../senior-high/index.html">高中题库</a>
+    <span class="lesson-title">函数概念第 6 题</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          <div class="problem-full">
+            <div class="problem-line"><span><span class="problem-source-inline">（2026 四川成都实验外月考）</span>某小区有一块底边和该底边上的高均为 40 m 的锐角三角形空地，计划在空地内种植一边长为 x m 的矩形草坪。求草坪面积 S 关于 x 的函数关系；若面积不小于 336 m²，求 x 的取值范围。</span><span class="answer-chip" id="answerI">S=−x²+40x（0&lt;x&lt;40）；12≤x≤28</span></div>
+<div class="problem-original-figures" aria-label="原题中的三角形空地和矩形草坪示意图">
+  <figure class="problem-figure">
+    <svg id="original-context" viewBox="0 0 1080 760" role="img" aria-label="底边和高均为 40 米的三角形内接一边长为 x 米的矩形"></svg>
+  </figure>
+</div>
+          </div>
+        </section>
+
+        <aside class="lesson-key-points" aria-label="解题要点"><div class="lesson-key-points-title">解题要点</div><div class="lesson-key-points-content"><p class="lesson-key-points-lead">实际问题中的函数建模要依次完成：</p><ol><li>用几何关系把矩形的另一边表示成 x 的式子；</li><li>写出函数关系后补上符合长度实际意义的定义域；</li><li>把面积要求转化为不等式并与实际定义域取交集。</li></ol></div></aside>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../../assets/js/lesson-page-runtime.js"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"s1","section":"求解","title":"第1步：由相似三角形确定矩形的长和宽","t":20,"derive":[["设","矩形的长为 \\(x\\) m，即 \\(GF=x\\)；上方小三角形的高为 \\(h\\) m，即 \\(CH=h\\)"],["∵","上方小三角形 \\(△CGF\\) 与原三角形 \\(△CAB\\) 相似，且原三角形的底边 \\(AB=40\\)、高 \\(CK=40\\)"],["∴","\\(\\frac{GF}{AB}=\\frac{CH}{CK}\\)，即 \\(\\frac{x}{40}=\\frac{h}{40}\\)"],["∴","\\(h=x\\)"],["∴","矩形的宽 \\(HK=CK-CH=40-x\\)，\\(0<x<40\\)"]],"box":["拖动矩形长 x，观察长增大时宽 40−x 如何减小"]},{"id":"s2","section":"求解","title":"第2步：建立面积函数并求 x 的范围","t":20,"derive":[["∵","\\(S=x(40-x)=-x^2+40x\\)，\\(0<x<40\\)"],["∵","\\(S≥336\\)"],["∴","\\(-x^2+40x≥336\\)"],["∴","\\(x^2-40x+336≤0\\)"],["∴","\\((x-12)(x-28)≤0\\)"],["∴","\\(12≤x≤28\\)"]],"box":["面积问题先建立函数，再把面积条件转化为二次不等式"]}];
+    var STEP_LABELS = {"s1":"1 由相似三角形确定长和宽","s2":"2 建立面积函数并求范围"};
+    var POLICIES   = {"s1":{"movable":true,"range":[1,39],"step":0.1},"s2":{"movable":false,"range":[20,20]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 滑块主参数与派生参数的联动文案格式化器 */
+    var __LESSON_PARAM_LABEL_FORMATTER__;
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script type="application/json" id="functionSpec">{"$schema":"../../schemas/function-spec.schema.json","version":1,"id":"function-concepts-20260722-q06","parameter":{"name":"x","initial":20},"bindings":[{"name":"otherSide","expr":"40-x"},{"name":"area","expr":"x*(40-x)"}],"panels":[{"id":"original-context","kind":"contextGeometry","title":"原题示意图","viewport":{"x":0.08,"y":0.08,"width":0.84,"height":0.84},"geometry":{"points":[{"id":"oa","x":0.12,"y":0.82},{"id":"ob","x":0.8,"y":0.82},{"id":"oc","x":0.46,"y":0.12},{"id":"od","x":0.29,"y":0.82},{"id":"oe","x":0.63,"y":0.82},{"id":"of","x":0.63,"y":0.47},{"id":"og","x":0.29,"y":0.47},{"id":"obase-left","x":0.12,"y":0.93},{"id":"obase-right","x":0.8,"y":0.93},{"id":"oheight-top","x":0.9,"y":0.12},{"id":"oheight-bottom","x":0.9,"y":0.82}],"polygons":[{"id":"original-triangle","pointIds":["oa","ob","oc"]},{"id":"original-lawn","pointIds":["od","oe","of","og"]}],"dimensions":[{"id":"original-x","startPointId":"og","endPointId":"of","label":"x m","labelDy":-18},{"id":"original-base","startPointId":"obase-left","endPointId":"obase-right","label":"40 m"},{"id":"original-height","startPointId":"oheight-top","endPointId":"oheight-bottom","label":"40 m","labelDx":32}]}},{"id":"context","kind":"contextGeometry","title":"三角形空地与内接矩形草坪","viewport":{"x":0.08,"y":0.08,"width":0.84,"height":0.84},"geometry":{"points":[{"id":"a","x":0.08,"y":0.9,"label":"A"},{"id":"b","x":0.92,"y":0.9,"label":"B"},{"id":"c","x":0.5,"y":0.08,"label":"C"},{"id":"d","xExpr":"0.5-0.42*x/40","y":0.9},{"id":"e","xExpr":"0.5+0.42*x/40","y":0.9},{"id":"f","xExpr":"0.5+0.42*x/40","yExpr":"0.08+0.82*x/40","label":"F"},{"id":"g","xExpr":"0.5-0.42*x/40","yExpr":"0.08+0.82*x/40","label":"G"},{"id":"h","x":0.5,"yExpr":"0.08+0.82*x/40","label":"H","labelDx":9,"labelDy":20},{"id":"k","x":0.5,"y":0.9,"label":"K"}],"polygons":[{"id":"triangle","pointIds":["a","b","c"],"label":"底边 40 m，高 40 m"},{"id":"lawn","pointIds":["d","e","f","g"]}],"dimensions":[{"id":"top-length","startPointId":"g","endPointId":"f","label":"GF=x","labelDy":-18},{"id":"upper-height","startPointId":"c","endPointId":"h","label":"CH=h","dashed":true,"labelDx":30},{"id":"lower-height","startPointId":"h","endPointId":"k","label":"HK=40−x","dashed":true,"labelDx":42}]}},{"id":"area-graph","kind":"functionGraph","title":"草坪面积 S=x(40−x)","viewport":{"x":0.04,"y":0.05,"width":0.92,"height":0.9},"domain":{"minX":-5,"maxX":45,"minY":-50,"maxY":450},"gridStepX":5,"gridStepY":50,"function":{"variable":"x","expr":"x*(40-x)","label":"S=x(40−x)","intervals":[{"min":-5,"max":45}]},"studyIntervals":[{"min":0,"max":40,"openMin":true,"openMax":true,"minLabel":"0","maxLabel":"40"}],"range":[{"min":336,"max":400}]}]}</script>
+<script src="../../../../assets/js/math-expression-engine.js"></script>
+<script src="../../../../assets/js/function-lesson-from-spec.js"></script>
+
+<script>
+  const __FUNCTION_SPEC__ = JSON.parse(document.getElementById('functionSpec').textContent);
+  const __FUNCTION_DECORATIONS__ = {"$schema":"../../schemas/function-decorations.schema.json","version":1,"steps":{"s1":{"visiblePanels":["context"]},"s2":{"visiblePanels":["area-graph"],"highlightStudyInterval":true,"showDomain":true,"showRange":true}}};
+  const renderer = FunctionLessonFromSpec.createSpecRenderer(__FUNCTION_SPEC__, __FUNCTION_DECORATIONS__, STEPS, POLICIES);
+  function groupTitle(section) {
+    const map = {"求解":""};
+    return Object.prototype.hasOwnProperty.call(map, section) ? map[section] : section;
+  }
+  var diagramMarkupFor = renderer.diagramMarkupFor;
+  var diagramMarkupForFrame = renderer.diagramMarkupForFrame;
+  var drawMini = renderer.drawMini;
+  var __LESSON_LEGEND_HTML__ = "<span><i class=\"sw\" style=\"background:var(--overlap)\"></i>实际可取的 x</span><span><i class=\"sw\" style=\"background:var(--paper)\"></i>面积不小于 336</span>";
+  __LESSON_PARAM_LABEL_FORMATTER__ = function (_index, value, localVars, baseLabel) {
+    const state = renderer.resolveStateFor(value, localVars);
+    const linkedValue = state.env["otherSide"];
+    if (!Number.isFinite(linkedValue)) return baseLabel;
+    const rounded = Number(linkedValue.toFixed(1));
+    return baseLabel + '　' + "宽＝" + rounded;
+  };
+  var __AFTER_RENDER_ALL_STEPS__ = renderer.renderOriginalFigures;
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      diagramMarkupForFrame: typeof diagramMarkupForFrame === "function" ? diagramMarkupForFrame : undefined,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "矩形长 x",
+      paramLabelPrefix: "x＝",
+      paramLabelFormatter: typeof __LESSON_PARAM_LABEL_FORMATTER__ === "function" ? __LESSON_PARAM_LABEL_FORMATTER__ : undefined,
+      goToProblemMode: "smooth"
+    });
+  </script>
+</body>
+</html>

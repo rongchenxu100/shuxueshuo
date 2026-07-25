@@ -1,0 +1,61 @@
+{
+  "$schema": "../../../schemas/lesson-data.schema.json",
+  "meta": {
+    "id": "function-concepts-20260722-q06",
+    "outputPath": "site/problems/senior-high/functions/function-concepts-and-representation/function-concepts-20260722-q06.html",
+    "pageTitle": "函数模型：三角形空地中的矩形草坪",
+    "pageDescription": "由相似三角形建立矩形草坪的面积函数，并求满足面积条件时自变量的取值范围。",
+    "breadcrumbTitle": "函数概念第 6 题",
+    "breadcrumbLabel": "高中题库",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "classification": { "pattern": "function-concepts-and-representation", "methods": ["context-domain", "similar-triangles", "quadratic-model", "quadratic-inequality"] },
+    "curriculum": { "chapterLabel": "第三章 函数的概念与性质", "sectionLabel": "3.1 函数的概念及其表示", "subsectionLabel": "3.1.1 函数的概念", "groupId": "function-domain", "groupLabel": "函数的定义域" }
+  },
+  "problem": {
+    "source": "2026 四川成都实验外月考",
+    "keyPoints": { "title": "解题要点", "lead": "实际问题中的函数建模要依次完成：", "items": ["用几何关系把矩形的另一边表示成 x 的式子；", "写出函数关系后补上符合长度实际意义的定义域；", "把面积要求转化为不等式并与实际定义域取交集。"] },
+    "lines": [
+      { "text": "某小区有一块底边和该底边上的高均为 40 m 的锐角三角形空地，计划在空地内种植一边长为 x m 的矩形草坪。求草坪面积 S 关于 x 的函数关系；若面积不小于 336 m²，求 x 的取值范围。", "answerId": "answerI", "answer": "S=−x²+40x（0<x<40）；12≤x≤28" },
+      {
+        "ariaLabel": "原题中的三角形空地和矩形草坪示意图",
+        "figures": [
+          { "id": "original-context", "ariaLabel": "底边和高均为 40 米的三角形内接一边长为 x 米的矩形" }
+        ]
+      }
+    ]
+  },
+  "ui": { "legend": [{ "colorVar": "overlap", "label": "实际可取的 x" }, { "colorVar": "paper", "label": "面积不小于 336" }], "sliderLabel": "矩形长 x", "paramLabelPrefix": "x＝", "linkedParameter": { "name": "otherSide", "label": "宽＝", "precision": 1 }, "goToProblemMode": "smooth", "groupTitles": { "求解": "" } },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "求解",
+      "title": "第1步：由相似三角形确定矩形的长和宽",
+      "t": 20,
+      "derive": [
+        ["设", "矩形的长为 \\(x\\) m，即 \\(GF=x\\)；上方小三角形的高为 \\(h\\) m，即 \\(CH=h\\)"],
+        ["∵", "上方小三角形 \\(△CGF\\) 与原三角形 \\(△CAB\\) 相似，且原三角形的底边 \\(AB=40\\)、高 \\(CK=40\\)"],
+        ["∴", "\\(\\frac{GF}{AB}=\\frac{CH}{CK}\\)，即 \\(\\frac{x}{40}=\\frac{h}{40}\\)"],
+        ["∴", "\\(h=x\\)"],
+        ["∴", "矩形的宽 \\(HK=CK-CH=40-x\\)，\\(0<x<40\\)"]
+      ],
+      "box": ["拖动矩形长 x，观察长增大时宽 40−x 如何减小"]
+    },
+    {
+      "id": "s2",
+      "section": "求解",
+      "title": "第2步：建立面积函数并求 x 的范围",
+      "t": 20,
+      "derive": [
+        ["∵", "\\(S=x(40-x)=-x^2+40x\\)，\\(0<x<40\\)"],
+        ["∵", "\\(S≥336\\)"],
+        ["∴", "\\(-x^2+40x≥336\\)"],
+        ["∴", "\\(x^2-40x+336≤0\\)"],
+        ["∴", "\\((x-12)(x-28)≤0\\)"],
+        ["∴", "\\(12≤x≤28\\)"]
+      ],
+      "box": ["面积问题先建立函数，再把面积条件转化为二次不等式"]
+    }
+  ],
+  "policies": { "s1": { "movable": true, "range": [1,39], "step": 0.1 }, "s2": { "movable": false, "range": [20,20] } },
+  "stepLabels": { "s1": "1 由相似三角形确定长和宽", "s2": "2 建立面积函数并求范围" }
+}

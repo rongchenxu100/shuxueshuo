@@ -33,6 +33,7 @@
 - `{{BREADCRUMB_TITLE}}`：顶部面包屑标题。
 - `{{PROBLEM_SUMMARY}}`：折叠状态下的一行题目摘要。
 - `{{PROBLEM_FULL_HTML}}`：完整题目 HTML，含必要答案 chip。
+- `{{PROBLEM_KEY_POINTS_HTML}}`：可选的解题要点提示；没有数据时由编译器替换为空字符串。
 - `{{STEPS_JSON}}`：步骤数组。
 - `{{STEP_LABELS_JSON}}`：步骤短标签映射。
 - `{{POLICIES_JSON}}`：每步交互策略映射。

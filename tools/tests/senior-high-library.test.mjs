@@ -4,7 +4,10 @@ import path from "node:path";
 import test from "node:test";
 import vm from "node:vm";
 
-import { validateCatalog } from "../build-senior-high-library.mjs";
+import {
+  validateCatalog,
+  validateCollections,
+} from "../build-senior-high-library.mjs";
 import { repoRoot } from "./calculus-test-helpers.mjs";
 
 const chapterSource = JSON.parse(
@@ -12,6 +15,9 @@ const chapterSource = JSON.parse(
 );
 const problemSource = JSON.parse(
   fs.readFileSync(path.join(repoRoot, "internal/senior-high/catalog/problems.json"), "utf8"),
+);
+const collectionSource = JSON.parse(
+  fs.readFileSync(path.join(repoRoot, "internal/senior-high/catalog/collections.json"), "utf8"),
 );
 
 function loadModel() {
@@ -37,6 +43,63 @@ test("validates the real senior-high catalog and its published assets", () => {
     derivative.sections.map((section) => section.label),
     ["基本概念和运算", "导数应用"],
   );
+  const functions = catalog.chapters.find((chapter) => chapter.id === "functions");
+  assert.deepEqual(
+    functions.sections.map((section) => section.label),
+    ["函数的概念及其表示"],
+  );
+  assert.equal(functions.sections[0].presentation, "worksheet");
+  assert.equal(functions.sections[0].collectionId, "function-concepts");
+});
+
+test("builds the function worksheet from eleven lesson sources without answers", () => {
+  const catalog = validateCatalog(chapterSource, problemSource, repoRoot);
+  const collections = validateCollections(catalog, collectionSource, repoRoot);
+  assert.equal(collections.length, 1);
+  const [collection] = collections;
+  assert.equal(collection.title, "函数的概念");
+  assert.equal(collection.problemCount, 11);
+  assert.deepEqual(
+    collection.groups.map((group) => [group.label, group.problems.length]),
+    [["函数概念", 3], ["函数定义域", 3], ["函数值域", 5]],
+  );
+  assert.deepEqual(
+    collection.groups.flatMap((group) => group.problems.map((problem) => problem.number)),
+    Array.from({ length: 11 }, (_, index) => index + 1),
+  );
+
+  const serialized = JSON.stringify(collection);
+  assert.doesNotMatch(serialized, /"answer"/);
+  assert.doesNotMatch(serialized, /keyPoints/);
+  assert.ok(collection.groups.flatMap((group) => group.problems).every(
+    (problem) => problem.solutionPath.endsWith(`${problem.id}.html`),
+  ));
+  assert.equal(collection.status, "published");
+  assert.ok(collection.groups.flatMap((group) => group.problems).every(
+    (problem) => problem.solutionPath.startsWith(
+      "problems/senior-high/functions/function-concepts-and-representation/",
+    ),
+  ));
+});
+
+test("worksheet carries the two textbook figures through namespaced specs", () => {
+  const catalog = validateCatalog(chapterSource, problemSource, repoRoot);
+  const [collection] = validateCollections(catalog, collectionSource, repoRoot);
+  const problems = collection.groups.flatMap((group) => group.problems);
+  const q03 = problems.find((problem) => problem.number === 3);
+  const q06 = problems.find((problem) => problem.number === 6);
+
+  assert.equal(q03.originalFigures.length, 4);
+  assert.equal(q06.originalFigures.length, 1);
+  for (const problem of [q03, q06]) {
+    assert.deepEqual(
+      problem.figureSpec.panels.map((panel) => panel.id),
+      problem.originalFigures.map((figure) => figure.renderId),
+    );
+    assert.ok(problem.originalFigures.every(
+      (figure) => figure.renderId.startsWith(`${problem.id}--`),
+    ));
+  }
 });
 
 test("rejects unknown sections, duplicate IDs and missing published files", () => {
@@ -91,6 +154,24 @@ test("normalizes URL state and paginates eight items per page", () => {
   assert.equal(page.items.length, 1);
   assert.equal(page.pageCount, 3);
   assert.equal(page.page, 3);
+});
+
+test("resolves worksheet state without changing the card catalog filters", () => {
+  const model = loadModel();
+  const base = validateCatalog(chapterSource, problemSource, repoRoot);
+  const catalog = {
+    ...base,
+    collections: validateCollections(base, collectionSource, repoRoot),
+  };
+  const worksheetState = model.parseSearch(
+    catalog,
+    "?chapter=functions&section=function-concepts-and-representation",
+  );
+  const collection = model.collectionForState(catalog, worksheetState);
+  assert.equal(collection.id, "function-concepts");
+  assert.equal(model.collectionProblemCount(collection), 11);
+  assert.equal(model.filterProblems(catalog, worksheetState).length, 0);
+  assert.equal(model.collectionForState(catalog, { chapter: "derivative" }), null);
 });
 
 test("sorts and filters future catalog entries without changing classification", () => {

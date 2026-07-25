@@ -1,0 +1,113 @@
+{
+  "$schema": "../../../schemas/lesson-data.schema.json",
+  "meta": {
+    "id": "function-concepts-20260722-q01",
+    "outputPath": "site/problems/senior-high/functions/function-concepts-and-representation/function-concepts-20260722-q01.html",
+    "pageTitle": "函数的概念：判断从 A 到 B 的函数",
+    "pageDescription": "通过函数图像检查唯一对应，并把实际值域与目标集合 B 比较。",
+    "breadcrumbTitle": "函数概念第 1 题",
+    "breadcrumbLabel": "高中题库",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "classification": {
+      "pattern": "function-concepts-and-representation",
+      "methods": ["vertical-line-test", "range-subset-check"]
+    },
+    "curriculum": {
+      "chapterLabel": "第三章 函数的概念与性质",
+      "sectionLabel": "3.1 函数的概念及其表示",
+      "subsectionLabel": "3.1.1 函数的概念",
+      "groupId": "function-concept",
+      "groupLabel": "函数的概念"
+    }
+  },
+  "problem": {
+    "source": "2026 江苏苏州实验中学期中",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "判断是否为从 A 到 B 的函数，需要同时满足：",
+      "items": [
+        "对任意 x∈A，都有且只有一个确定的 y 与之对应；",
+        "所有函数值都属于 B，即实际值域 \\(R_f\\subseteq B\\)。"
+      ]
+    },
+    "lines": [
+      { "text": "集合 A={x|0≤x≤4}，B={y|0≤y≤2}，下列不能表示从 A 到 B 的函数的是：" },
+      { "text": "A. \\(y=\\frac{x}{2}\\)　　B. \\(y=\\frac{x}{3}\\)　　C. \\(y=\\frac{2x}{3}\\)　　D. \\(y=\\sqrt{x}\\)", "answerId": "answerI", "answer": "答案：C" }
+    ]
+  },
+  "ui": {
+    "legend": [
+      { "colorVar": "paper", "label": "完整函数图像" },
+      { "colorVar": "overlap", "label": "定义域 A 内的函数片段" },
+      { "colorVar": "fold", "label": "当前输入 x" }
+    ],
+    "sliderLabel": "检查输入 x",
+    "paramLabelPrefix": "x＝",
+    "goToProblemMode": "smooth",
+    "groupTitles": { "逐项检查": "按两个必要条件检查四个选项" }
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "逐项检查",
+      "title": "第1步：用唯一对应和值域子集检查选项 A",
+      "t": 2,
+      "derive": [
+        ["条件一", "任取 x∈[0,4]，竖线与 \\(y=\\frac{x}{2}\\) 的图像只有一个交点"],
+        ["条件二", "x∈[0,4] 时，实际值域 \\(R_A=[0,2]\\subseteq B\\)"],
+        ["∴", "选项 A 可以表示从 A 到 B 的函数"]
+      ],
+      "box": ["拖动 x：每个输入只得到一个函数值", "实际值域必须是 B 的子集"]
+    },
+    {
+      "id": "s2",
+      "section": "逐项检查",
+      "title": "第2步：用唯一对应和值域子集检查选项 B",
+      "t": 2,
+      "derive": [
+        ["条件一", "任取 x∈[0,4]，\\(y=\\frac{x}{3}\\) 唯一确定"],
+        ["条件二", "实际值域 \\(R_B=[0,\\frac{4}{3}]\\subseteq B=[0,2]\\)"],
+        ["∴", "选项 B 符合要求"]
+      ],
+      "box": ["实际值域不必等于 B，只需包含于 B"]
+    },
+    {
+      "id": "s3",
+      "section": "逐项检查",
+      "title": "第3步：选项 C 在值域条件上失败",
+      "t": 4,
+      "derive": [
+        ["条件一", "每个 x∈[0,4] 都有唯一的 \\(y=\\frac{2x}{3}\\)"],
+        ["但", "实际值域 \\(R_C=[0,\\frac{8}{3}]\\)"],
+        ["∵", "\\(\\frac{8}{3}>2\\)，所以 \\(R_C\\nsubseteq B\\)"],
+        ["∴", "选项 C 不能表示从 A 到 B 的函数"]
+      ],
+      "box": ["C 不是违反唯一对应，而是函数值超出了 B"]
+    },
+    {
+      "id": "s4",
+      "section": "逐项检查",
+      "title": "第4步：检查选项 D 并作出结论",
+      "t": 2,
+      "derive": [
+        ["条件一", "任取 x∈[0,4]，\\(\\sqrt{x}\\) 唯一确定"],
+        ["条件二", "实际值域 \\(R_D=[0,2]\\subseteq B\\)"],
+        ["∴", "选项 D 符合要求"],
+        ["综上", "不能表示从 A 到 B 的函数的是 C"]
+      ],
+      "box": ["答案：C", "两个条件必须同时满足"]
+    }
+  ],
+  "policies": {
+    "s1": { "movable": true, "range": [0,4], "step": 0.01 },
+    "s2": { "movable": true, "range": [0,4], "step": 0.01 },
+    "s3": { "movable": true, "range": [0,4], "step": 0.01 },
+    "s4": { "movable": true, "range": [0,4], "step": 0.01 }
+  },
+  "stepLabels": {
+    "s1": "1 检查 A 的两个条件",
+    "s2": "2 检查 B 的两个条件",
+    "s3": "3 C 的值域越界",
+    "s4": "4 检查 D 并作答"
+  }
+}

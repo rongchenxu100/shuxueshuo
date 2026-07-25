@@ -1,0 +1,26 @@
+{
+  "$schema": "../../../schemas/lesson-data.schema.json",
+  "meta": {
+    "id": "function-concepts-20260722-q04",
+    "outputPath": "site/problems/senior-high/functions/function-concepts-and-representation/function-concepts-20260722-q04.html",
+    "pageTitle": "函数的定义域：零次幂与根式分母",
+    "pageDescription": "分别列出零次幂和根式分母约束，再在数轴上取交集。",
+    "breadcrumbTitle": "函数概念第 4 题",
+    "breadcrumbLabel": "高中题库",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "classification": { "pattern": "function-concepts-and-representation", "methods": ["zero-power-domain", "radical-denominator", "constraint-intersection"] },
+    "curriculum": { "chapterLabel": "第三章 函数的概念与性质", "sectionLabel": "3.1 函数的概念及其表示", "subsectionLabel": "3.1.1 函数的概念", "groupId": "function-domain", "groupLabel": "函数的定义域" }
+  },
+  "problem": {
+    "source": "2026 河北沧州期末",
+    "keyPoints": { "title": "解题要点", "lead": "复合表达式的定义域要同时满足每一部分有意义：", "items": ["零次幂的底数不能为 0；", "偶次根式位于分母时，被开方数必须严格大于 0。"] },
+    "lines": [{ "text": "函数 \\(f(x)=\\frac{(2x-1)^0}{\\sqrt{2-x}}\\) 的定义域为______。", "answerId": "answerI", "answer": "\\((−∞,\\frac{1}{2})∪(\\frac{1}{2},2)\\)" }]
+  },
+  "ui": { "legend": [], "sliderLabel": "约束", "paramLabelPrefix": "", "goToProblemMode": "smooth", "groupTitles": { "求定义域": "列出约束并取交集" } },
+  "steps": [
+    { "id": "s1", "section": "求定义域", "title": "第1步：分别列出两个有意义条件", "t": 0, "showDiagram": false, "derive": [["零次幂", "\\(2x-1≠0\\)，∴ \\(x≠\\frac{1}{2}\\)"], ["根式在分母", "\\(2-x>0\\)，∴ \\(x<2\\)"]], "box": ["分母中的偶次根式不能等于 0"] },
+    { "id": "s2", "section": "求定义域", "title": "第2步：在数轴上合并两个约束", "t": 0, "derive": [["同时满足", "\\(x<2\\) 且 \\(x≠\\frac{1}{2}\\)"], ["∴", "定义域为 \\((−∞,\\frac{1}{2})∪(\\frac{1}{2},2)\\)"]], "box": ["1/2 与 2 都不能取，均画空心点"] }
+  ],
+  "policies": { "s1": { "movable": false, "range": [0,0] }, "s2": { "movable": false, "range": [0,0] } },
+  "stepLabels": { "s1": "1 列出两个约束", "s2": "2 数轴合并约束" }
+}

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>函数值域：二次函数在半无限区间上的值域 | 数学说</title>
+  <meta name="description" content="判断顶点与研究区间的位置，在 t≥0 上确定单调性和值域。" />
+  <meta property="og:title" content="函数值域：二次函数在半无限区间上的值域 | 数学说" />
+  <meta property="og:description" content="判断顶点与研究区间的位置，在 t≥0 上确定单调性和值域。" />
+  <meta property="og:image" content="../../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../../senior-high/index.html">高中题库</a>
+    <span class="lesson-title">函数概念第 10 题</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          <div class="problem-full">
+            <div class="problem-line"><span><span class="problem-source-inline">（2026 四川巴中第三中学期中）</span>函数 <span class="inline-math">g(t)=-2t<sup>2</sup>-t+4</span> 在 <span class="inline-math">[0,+∞)</span> 上的值域为______。</span><span class="answer-chip" id="answerI"><span class="inline-math">(−∞,4]</span></span></div>
+          </div>
+        </section>
+
+        <aside class="lesson-key-points" aria-label="解题要点"><div class="lesson-key-points-title">解题要点</div><div class="lesson-key-points-content"><p class="lesson-key-points-lead">二次函数在指定区间上的值域，关键不是只看顶点，而是：</p><ol><li>先判断对称轴与题设区间的相对位置；</li><li>确定函数在题设区间上的单调性，再检查可取端点和无穷趋势。</li></ol></div></aside>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../../assets/js/lesson-page-runtime.js"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"s1","section":"求值域","title":"第1步：结合二次函数图像确定值域","t":0,"derive":[["配方","\\(g(t)=-2(t+\\frac{1}{4})^2+\\frac{33}{8}\\)，对称轴为 \\(t=-\\frac{1}{4}\\)"],["区间位置","对称轴位于研究区间 \\([0,+∞)\\) 左侧，所以函数在该区间上单调递减"],["最大值","\\(g(0)=4\\)，因此最大值为 4"],["向右趋势","当 \\(t→+∞\\) 时，\\(g(t)→−∞\\)"],["∴","函数的值域为 \\((−∞,4]\\)"]],"box":["图中只强调 t≥0 的抛物线部分；拖动 t 可观察函数值从 4 开始持续减小"]}];
+    var STEP_LABELS = {"s1":"1 结合二次函数图像求值域"};
+    var POLICIES   = {"s1":{"movable":true,"range":[0,2.5],"step":0.01}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 滑块主参数与派生参数的联动文案格式化器 */
+    var __LESSON_PARAM_LABEL_FORMATTER__;
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script type="application/json" id="functionSpec">{"$schema":"../../schemas/function-spec.schema.json","version":1,"id":"function-concepts-20260722-q10","parameter":{"name":"t","initial":0},"bindings":[{"name":"gValue","expr":"-2*t^2-t+4"}],"panels":[{"id":"quadratic-graph","kind":"functionGraph","title":"完整二次函数图像与 t≥0 的研究部分","viewport":{"x":0.04,"y":0.05,"width":0.92,"height":0.9},"domain":{"minX":-3,"maxX":2.5,"minY":-13,"maxY":6},"function":{"variable":"t","expr":"-2*t^2-t+4","label":"y=g(t)=−2t²−t+4","intervals":[{"min":-3,"max":2.5}]},"referenceLines":[{"id":"symmetry-axis","orientation":"vertical","value":-0.25,"label":"对称轴　t=−\\frac{1}{4}","color":"#f59e0b"}],"studyIntervals":[{"min":0,"max":2.5,"extendsMax":true,"minLabel":"0","maxLabel":"+∞"}],"range":[{"min":-13,"max":4,"extendsMin":true,"maxLabel":"4"}]}]}</script>
+<script src="../../../../assets/js/math-expression-engine.js"></script>
+<script src="../../../../assets/js/function-lesson-from-spec.js"></script>
+
+<script>
+  const __FUNCTION_SPEC__ = JSON.parse(document.getElementById('functionSpec').textContent);
+  const __FUNCTION_DECORATIONS__ = {"$schema":"../../schemas/function-decorations.schema.json","version":1,"steps":{"s1":{"visiblePanels":["quadratic-graph"],"highlightStudyInterval":true,"showDomain":true,"showRange":true,"showProjection":true}}};
+  const renderer = FunctionLessonFromSpec.createSpecRenderer(__FUNCTION_SPEC__, __FUNCTION_DECORATIONS__, STEPS, POLICIES);
+  function groupTitle(section) {
+    const map = {"求值域":"结合二次函数图像确定值域"};
+    return Object.prototype.hasOwnProperty.call(map, section) ? map[section] : section;
+  }
+  var diagramMarkupFor = renderer.diagramMarkupFor;
+  var diagramMarkupForFrame = renderer.diagramMarkupForFrame;
+  var drawMini = renderer.drawMini;
+  var __LESSON_LEGEND_HTML__ = "<span><i class=\"sw\" style=\"background:var(--paper)\"></i>完整抛物线</span><span><i class=\"sw\" style=\"background:var(--overlap)\"></i>t≥0 的研究部分</span>";
+  __LESSON_PARAM_LABEL_FORMATTER__ = function (_index, value, localVars, baseLabel) {
+    const state = renderer.resolveStateFor(value, localVars);
+    const linkedValue = state.env["gValue"];
+    if (!Number.isFinite(linkedValue)) return baseLabel;
+    const rounded = Number(linkedValue.toFixed(2));
+    return baseLabel + '　' + "g(t)＝" + rounded;
+  };
+  var __AFTER_RENDER_ALL_STEPS__ = renderer.renderOriginalFigures;
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      diagramMarkupForFrame: typeof diagramMarkupForFrame === "function" ? diagramMarkupForFrame : undefined,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "输入 t",
+      paramLabelPrefix: "t＝",
+      paramLabelFormatter: typeof __LESSON_PARAM_LABEL_FORMATTER__ === "function" ? __LESSON_PARAM_LABEL_FORMATTER__ : undefined,
+      goToProblemMode: "smooth"
+    });
+  </script>
+</body>
+</html>

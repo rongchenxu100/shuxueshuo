@@ -1,0 +1,53 @@
+{
+  "$schema": "../../../schemas/lesson-data.schema.json",
+  "meta": {
+    "id": "function-concepts-20260722-q11",
+    "outputPath": "site/problems/senior-high/functions/function-concepts-and-representation/function-concepts-20260722-q11.html",
+    "pageTitle": "函数值域：分式函数在闭区间上的值域",
+    "pageDescription": "分离常数后逐层变换区间，确定分式函数的值域。",
+    "breadcrumbTitle": "函数概念第 11 题",
+    "breadcrumbLabel": "高中题库",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "classification": { "pattern": "function-concepts-and-representation", "methods": ["constant-separation", "reciprocal-interval", "inequality-transform"] },
+    "curriculum": {
+      "chapterLabel": "第三章 函数的概念与性质",
+      "sectionLabel": "3.1 函数的概念及其表示",
+      "subsectionLabel": "3.1.1 函数的概念",
+      "groupId": "function-value-and-range",
+      "groupLabel": "函数值及函数的值域"
+    }
+  },
+  "problem": {
+    "source": "2026 河南名校期中大联考",
+    "keyPoints": {
+      "title": "方法技巧",
+      "lead": "对于形如 \\(y=\\frac{ax+b}{cx+d}\\)（\\(c≠0\\)，\\(cx+d≠0\\)）的分式函数：",
+      "items": [
+        "可用分离常数法化为 \\(y=\\frac{a}{c}+\\frac{bc-ad}{c(cx+d)}\\)；",
+        "再利用反比例函数的性质，或从分母范围开始逐层变换区间，求出函数值域。"
+      ]
+    },
+    "lines": [{ "text": "函数 \\(f(x)=\\frac{x-1}{1+x}\\) 在区间 \\([\\frac{1}{2},2]\\) 上的值域为______。", "answerId": "answerI", "answer": "\\([-\\frac{1}{3},\\frac{1}{3}]\\)" }]
+  },
+  "ui": {
+    "legend": [{ "colorVar": "paper", "label": "函数 y=f(x)" }, { "colorVar": "overlap", "label": "定义域与值域" }],
+    "sliderLabel": "输入 x",
+    "paramLabelPrefix": "x＝",
+    "linkedParameter": { "name": "fValue", "label": "f(x)＝", "precision": 3 },
+    "goToProblemMode": "smooth",
+    "groupTitles": { "求值域": "分离常数并逐层变换区间" }
+  },
+  "steps": [
+    { "id": "s1", "section": "求值域", "title": "第1步：分离常数，找出反比例结构", "t": 1.25, "showDiagram": false, "derive": [["∵", "\\(x-1=(x+1)-2\\)"], ["∴", "\\(f(x)=\\frac{x-1}{x+1}=\\frac{(x+1)-2}{x+1}=1-\\frac{2}{x+1}\\)"]], "box": ["先把分式改写成“常数 + 反比例式”"] },
+    { "id": "s2", "section": "求值域", "title": "第2步：确定分母 x+1 的取值范围", "t": 1.25, "showDiagram": false, "derive": [["∵", "\\(\\frac{1}{2}≤x≤2\\)"], ["∴", "\\(\\frac{3}{2}≤x+1≤3\\)"]], "box": ["区间整体加 1，两个端点都能取到"] },
+    { "id": "s3", "section": "求值域", "title": "第3步：确定 \\(-\\frac{2}{x+1}\\) 的取值范围", "t": 1.25, "showDiagram": false, "derive": [["取倒数", "\\(\\frac{1}{3}≤\\frac{1}{x+1}≤\\frac{2}{3}\\)"], ["乘以 -2", "\\(-\\frac{4}{3}≤-\\frac{2}{x+1}≤-\\frac{2}{3}\\)"]], "box": ["取倒数会交换端点；乘负数要改变不等号方向"] },
+    { "id": "s4", "section": "求值域", "title": "第4步：加上常数，确定函数值域", "t": 1.25, "derive": [["两边加 1", "\\(-\\frac{1}{3}≤1-\\frac{2}{x+1}≤\\frac{1}{3}\\)"], ["即", "\\(-\\frac{1}{3}≤f(x)≤\\frac{1}{3}\\)"], ["∴", "函数的值域为 \\([-\\frac{1}{3},\\frac{1}{3}]\\)"]], "box": ["两个端点都能取到，使用闭区间"] }
+  ],
+  "policies": {
+    "s1": { "movable": false, "range": [1.25,1.25] },
+    "s2": { "movable": false, "range": [1.25,1.25] },
+    "s3": { "movable": false, "range": [1.25,1.25] },
+    "s4": { "movable": true, "range": [0.5,2], "step": 0.01 }
+  },
+  "stepLabels": { "s1": "1 分离常数，找出反比例结构", "s2": "2 确定分母 x+1 的范围", "s3": "3 确定 \\(-\\frac{2}{x+1}\\) 的范围", "s4": "4 加上常数，确定函数值域" }
+}

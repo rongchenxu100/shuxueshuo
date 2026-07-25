@@ -1,0 +1,8 @@
+{
+  "$schema": "../../schemas/function-decorations.schema.json",
+  "version": 1,
+  "steps": {
+    "s1": { "visiblePanels": [], "visibleElementIds": [], "highlightElementIds": [] },
+    "s2": { "visiblePanels": ["number-line"], "visibleElementIds": ["final-left", "final-right", "zero"], "highlightElementIds": ["final-left", "final-right", "zero"] }
+  }
+}

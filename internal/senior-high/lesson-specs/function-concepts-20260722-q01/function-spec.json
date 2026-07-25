@@ -1,0 +1,22 @@
+{
+  "$schema": "../../schemas/function-spec.schema.json",
+  "version": 1,
+  "id": "function-concepts-20260722-q01",
+  "parameter": { "name": "x", "initial": 2 },
+  "panels": [
+    {
+      "id": "candidate-graph",
+      "kind": "functionGraph",
+      "title": "完整函数图像与定义域 A=[0,4] 内的有效片段",
+      "viewport": { "x": 0.03, "y": 0.04, "width": 0.94, "height": 0.92 },
+      "domain": { "minX": -1, "maxX": 5, "minY": -1, "maxY": 3.6 },
+      "studyIntervals": [{ "min": 0, "max": 4 }],
+      "functions": [
+        { "id": "A", "variable": "x", "expr": "x/2", "label": "A　y=\\frac{x}{2}", "intervals": [{ "min": -1, "max": 5 }], "range": [{ "min": 0, "max": 2 }] },
+        { "id": "B", "variable": "x", "expr": "x/3", "label": "B　y=\\frac{x}{3}", "intervals": [{ "min": -1, "max": 5 }], "range": [{ "min": 0, "max": 1.3333333333 }] },
+        { "id": "C", "variable": "x", "expr": "2*x/3", "label": "C　y=\\frac{2x}{3}", "intervals": [{ "min": -1, "max": 5 }], "range": [{ "min": 0, "max": 2.6666666667 }] },
+        { "id": "D", "variable": "x", "expr": "sqrt(x)", "label": "D　y=√x", "intervals": [{ "min": 0, "max": 5 }], "range": [{ "min": 0, "max": 2 }] }
+      ]
+    }
+  ]
+}

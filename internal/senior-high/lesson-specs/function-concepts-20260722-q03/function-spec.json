@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/function-spec.schema.json",
+  "version": 1,
+  "id": "function-concepts-20260722-q03",
+  "parameter": { "name": "x", "initial": 1 },
+  "panels": [
+    { "id": "relation-1", "kind": "relationPlot", "title": "图①", "viewport": { "x": 0.08, "y": 0.08, "width": 0.84, "height": 0.84 }, "domain": { "minX": 0, "maxX": 2, "minY": 0, "maxY": 2 }, "axisPadding": { "minX": 0.12, "maxX": 0.4, "minY": 0.12, "maxY": 0.4 }, "guidePoints": [{ "x": 1, "y": 2 }], "segments": [{ "id": "r1", "x1": 0, "y1": 0, "x2": 1, "y2": 2 }] },
+    { "id": "relation-2", "kind": "relationPlot", "title": "图②", "viewport": { "x": 0.08, "y": 0.08, "width": 0.84, "height": 0.84 }, "domain": { "minX": 0, "maxX": 2, "minY": 0, "maxY": 2 }, "axisPadding": { "minX": 0.12, "maxX": 0.4, "minY": 0.12, "maxY": 0.4 }, "segments": [{ "id": "r2", "x1": 0, "y1": 2, "x2": 2, "y2": 0 }] },
+    { "id": "relation-3", "kind": "relationPlot", "title": "图③", "viewport": { "x": 0.08, "y": 0.08, "width": 0.84, "height": 0.84 }, "domain": { "minX": 0, "maxX": 2, "minY": 0, "maxY": 2 }, "axisPadding": { "minX": 0.12, "maxX": 0.4, "minY": 0.12, "maxY": 0.4 }, "guidePoints": [{ "x": 2, "y": 1 }], "segments": [{ "id": "r3", "x1": 0, "y1": 0, "x2": 2, "y2": 1 }] },
+    { "id": "relation-4", "kind": "relationPlot", "title": "图④", "viewport": { "x": 0.08, "y": 0.08, "width": 0.84, "height": 0.84 }, "domain": { "minX": 0, "maxX": 2, "minY": 0, "maxY": 2 }, "axisPadding": { "minX": 0.12, "maxX": 0.4, "minY": 0.12, "maxY": 0.4 }, "guidePoints": [{ "x": 2, "y": 2 }], "segments": [{ "id": "r4a", "x1": 0, "y1": 1, "x2": 2, "y2": 0 }, { "id": "r4b", "x1": 0, "y1": 1, "x2": 2, "y2": 2 }] }
+  ]
+}

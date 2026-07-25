@@ -1,0 +1,19 @@
+{
+  "$schema": "../../schemas/function-spec.schema.json",
+  "version": 1,
+  "id": "function-concepts-20260722-q04",
+  "panels": [
+    {
+      "id": "number-line",
+      "kind": "numberLine",
+      "title": "在数轴上合并零次幂与根式分母约束",
+      "viewport": { "x": 0.08, "y": 0.18, "width": 0.84, "height": 0.64 },
+      "axis": { "min": -4, "max": 3, "label": "x" },
+      "intervals": [
+        { "id": "final-left", "min": -4, "max": 0.5, "extendsMin": true, "openMax": true, "label": "(−∞,\\frac{1}{2})", "color": "#0f766e" },
+        { "id": "final-right", "min": 0.5, "max": 2, "openMin": true, "openMax": true, "label": "(\\frac{1}{2},2)", "color": "#0f766e" }
+      ],
+      "excludedPoints": [{ "id": "half", "value": 0.5, "label": "\\frac{1}{2} 不可取" }, { "id": "two", "value": 2, "label": "2 不可取" }]
+    }
+  ]
+}
