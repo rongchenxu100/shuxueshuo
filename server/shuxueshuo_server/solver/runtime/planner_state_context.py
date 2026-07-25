@@ -50,8 +50,13 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     StepIntentDraft,
 )
 from shuxueshuo_server.solver.state_semantics import (
+    StateObjectRoleBinding,
+    StateSemanticLineage,
     is_object_handle,
     is_object_semantic_kind,
+    merge_state_semantic_lineages,
+    state_semantic_lineage,
+    state_semantic_lineage_from_payload,
     state_kind_for_runtime_type,
 )
 from shuxueshuo_server.solver.utils import unique_ordered as _unique_ordered
@@ -197,6 +202,7 @@ class StateWriteVersion:
     capability_id: str
     write_mode: str
     previous_write_step_id: str | None = None
+    lineage: StateSemanticLineage = StateSemanticLineage()
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -205,6 +211,7 @@ class StateWriteVersion:
             "capability_id": self.capability_id,
             "write_mode": self.write_mode,
             "previous_write_step_id": self.previous_write_step_id,
+            "lineage": self.lineage.to_payload(),
         }
 
 
@@ -227,6 +234,7 @@ class StateSlot:
     dependency_object_refs: tuple[str, ...] = ()
     free_symbol_refs: tuple[str, ...] = ()
     source_state_slot_ids: tuple[str, ...] = ()
+    lineage: StateSemanticLineage = StateSemanticLineage()
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -245,6 +253,7 @@ class StateSlot:
             "dependency_object_refs": list(self.dependency_object_refs),
             "free_symbol_refs": list(self.free_symbol_refs),
             "source_state_slot_ids": list(self.source_state_slot_ids),
+            "lineage": self.lineage.to_payload(),
         }
 
 
@@ -1447,6 +1456,9 @@ def _initial_state_slots_from_registry(
                 aliases=tuple(_aliases_for_handle(handle, registry)),
                 valid_scope=registry.handle_valid_scopes.get(handle),
                 status="given",
+                lineage=state_semantic_lineage(
+                    semantic_roles=(_semantic_ref(handle),),
+                ),
             )
         )
     for handle in sorted(registry.answer_handles):
@@ -1467,6 +1479,9 @@ def _initial_state_slots_from_registry(
                 aliases=tuple(_aliases_for_handle(handle, registry)),
                 valid_scope=scope_id,
                 status="given",
+                lineage=state_semantic_lineage(
+                    semantic_roles=(_semantic_ref(handle),),
+                ),
             )
         )
     return result
@@ -1520,6 +1535,19 @@ def _enrich_initial_state_slots(
             free_symbol_refs=structured_free_symbol_refs(
                 payload,
                 symbol_handles=symbol_handles,
+            ),
+            lineage=merge_state_semantic_lineages(
+                slot.lineage,
+                object_roles=(
+                    StateObjectRoleBinding(
+                        role="subject",
+                        object_refs=(object_ref,),
+                        source_state_slot_ids=(slot.slot_id,),
+                    ),
+                )
+                if isinstance(object_ref, str) and is_object_handle(object_ref)
+                else (),
+                source_state_slot_ids=(slot.slot_id,),
             ),
         )
     return result
@@ -1750,6 +1778,13 @@ def _ensure_produced_slot(
         source_state_slot_ids=(
             existing.source_state_slot_ids if existing else ()
         ),
+        lineage=(
+            existing.lineage
+            if existing is not None
+            else state_semantic_lineage(
+                semantic_roles=(_semantic_ref(item.handle),),
+            )
+        ),
     )
     state.state_slots[slot_id] = slot
     for alias in aliases:
@@ -1787,6 +1822,7 @@ def _merge_alias(
         dependency_object_refs=slot.dependency_object_refs,
         free_symbol_refs=slot.free_symbol_refs,
         source_state_slot_ids=slot.source_state_slot_ids,
+        lineage=slot.lineage,
     )
     state.alias_index.by_handle[alias] = slot_id
 
@@ -1817,6 +1853,9 @@ def _state_id_for_handle(
             aliases=(handle,),
             produced_by=produced_by or None,
             valid_scope=_scope_from_handle(handle),
+            lineage=state_semantic_lineage(
+                semantic_roles=(_semantic_ref(handle),),
+            ),
         ),
     )
     state.alias_index.by_handle[handle] = slot_id
@@ -1837,6 +1876,9 @@ def _apply_state_write_provenance(
     old_slot_id = state.alias_index.by_handle.get(produced_handle)
     old_slot = state.state_slots.get(old_slot_id) if old_slot_id is not None else None
     current = state.state_slots.get(slot_id)
+    observed_lineage = state_semantic_lineage_from_payload(
+        payload.get("lineage")
+    )
     histories = [
         *((old_slot.write_history if old_slot is not None else ())),
         *((current.write_history if current is not None else ())),
@@ -1851,6 +1893,7 @@ def _apply_state_write_provenance(
             if payload.get("previous_write_step_id") is not None
             else None
         ),
+        lineage=observed_lineage,
     )
     if version not in histories:
         histories.append(version)
@@ -1872,6 +1915,11 @@ def _apply_state_write_provenance(
     runtime_free_symbol_refs = symbol_refs_from_names(
         tuple(str(item) for item in payload.get("free_symbol_names", ())),
         entity_payloads=entity_payloads,
+    )
+    lineage = merge_state_semantic_lineages(
+        *((old_slot.lineage,) if old_slot is not None else ()),
+        *((current.lineage,) if current is not None else ()),
+        observed_lineage,
     )
     slot = StateSlot(
         slot_id=slot_id,
@@ -1895,20 +1943,60 @@ def _apply_state_write_provenance(
         status="verified",
         write_history=tuple(histories),
         dependency_object_refs=(
-            old_slot.dependency_object_refs
-            if old_slot is not None
-            else (
-                current.dependency_object_refs if current is not None else ()
+            tuple(
+                _unique_ordered(
+                    (
+                        *((
+                            old_slot.dependency_object_refs
+                            if old_slot is not None
+                            else ()
+                        )),
+                        *((
+                            current.dependency_object_refs
+                            if current is not None
+                            else ()
+                        )),
+                        *(
+                            str(item)
+                            for item in payload.get(
+                                "dependency_object_refs",
+                                (),
+                            )
+                            if isinstance(item, str)
+                        ),
+                    )
+                )
             )
         ),
         free_symbol_refs=runtime_free_symbol_refs,
         source_state_slot_ids=(
-            old_slot.source_state_slot_ids
-            if old_slot is not None
-            else (
-                current.source_state_slot_ids if current is not None else ()
+            tuple(
+                _unique_ordered(
+                    (
+                        *((
+                            old_slot.source_state_slot_ids
+                            if old_slot is not None
+                            else ()
+                        )),
+                        *((
+                            current.source_state_slot_ids
+                            if current is not None
+                            else ()
+                        )),
+                        *(
+                            str(item)
+                            for item in payload.get(
+                                "source_state_slot_ids",
+                                (),
+                            )
+                            if isinstance(item, str)
+                        ),
+                        *lineage.source_state_slot_ids,
+                    )
+                )
             )
         ),
+        lineage=lineage,
     )
     if old_slot_id is not None and old_slot_id != slot_id:
         state.state_slots.pop(old_slot_id, None)

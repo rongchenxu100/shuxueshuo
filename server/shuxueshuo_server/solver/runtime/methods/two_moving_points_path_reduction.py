@@ -28,8 +28,8 @@ class TwoMovingPointsPathReductionMethod:
     语义边界：
 
     - 它不创建辅助点，也不构造新轨迹；
-    - 替换后的固定点必须来自题面已有点，例如南开题中 ``EG`` 替换为 ``DG``；
-    - 河西 ``sqrt(2)*MN+AN`` 那类需要新辅助点/新射线的加权路径，应使用
+    - 替换后的固定点必须来自题面已有点；
+    - ``sqrt(2)*MN+AN`` 这类需要新辅助点或新射线的加权路径，应使用
       ``weighted_axis_path_triangle_transform``，不是本 method。
     """
 

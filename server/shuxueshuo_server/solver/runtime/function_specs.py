@@ -11,7 +11,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Callable, Literal, Mapping
 
-from shuxueshuo_server.solver.contracts import MethodSpec, ScalarResultFormSpec
+from shuxueshuo_server.solver.contracts import (
+    MethodSpec,
+    PlanTransformerScope,
+    ScalarResultFormSpec,
+    default_result_form_spec,
+)
 from shuxueshuo_server.solver.family.common_binding_rules import (
     distance_between_points_rule,
     evaluate_expression_at_parameter_rule,
@@ -28,25 +33,33 @@ from shuxueshuo_server.solver.family.common_binding_rules import (
     translated_point_rule,
 )
 from shuxueshuo_server.solver.family.models import (
+    CapabilityInputClosureRequirement,
     CapabilityDependencyPolicy,
     CapabilityContractSpec,
+    CapabilityStateClosurePolicy,
     MethodBindingRuleSpec,
     SolverFamilySpec,
+    StateIdentityConstraintSpec,
     StateIdentityPolicy,
+    StateLineageClosureSpec,
+    StateObjectRoleProjectionSpec,
     StateWriteMode,
 )
 from shuxueshuo_server.solver.runtime.capability_contracts import (
     effective_contract_by_id,
 )
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
+from shuxueshuo_server.solver.runtime.runtime_type_declarations import (
+    split_runtime_types,
+)
 from shuxueshuo_server.solver.runtime.strategy_models import (
+    FunctionArgBindingRepair,
     StepIntent,
     StepIntentFunctionBindingEvent,
     StrategyDraftValidationError,
 )
 from shuxueshuo_server.solver.state_semantics import (
     object_kind_for_runtime_type,
-    split_runtime_types,
     state_kind_for_runtime_type,
 )
 from shuxueshuo_server.solver.utils import unique_ordered
@@ -73,6 +86,7 @@ class FunctionArgSpec:
     method_input: str | None = None
     description: str = ""
     provides_semantic_roles: tuple[str, ...] = ()
+    input_closure_policy: CapabilityStateClosurePolicy = "any"
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -94,6 +108,8 @@ class FunctionArgSpec:
             payload["provides_semantic_roles"] = list(
                 self.provides_semantic_roles
             )
+        if self.input_closure_policy != "any":
+            payload["input_closure_policy"] = self.input_closure_policy
         return payload
 
 
@@ -113,6 +129,9 @@ class FunctionReturnSpec:
     write_mode: StateWriteMode = "value"
     description: str = ""
     scalar_result_form: ScalarResultFormSpec | None = None
+    provides_semantic_roles: tuple[str, ...] = ()
+    object_role_projections: tuple[StateObjectRoleProjectionSpec, ...] = ()
+    lineage_closures: tuple[StateLineageClosureSpec, ...] = ()
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -135,6 +154,18 @@ class FunctionReturnSpec:
             payload["description"] = self.description
         if self.scalar_result_form is not None:
             payload["scalar_result_form"] = self.scalar_result_form.to_payload()
+        if self.provides_semantic_roles:
+            payload["provides_semantic_roles"] = list(
+                self.provides_semantic_roles
+            )
+        if self.object_role_projections:
+            payload["object_role_projections"] = [
+                item.to_payload() for item in self.object_role_projections
+            ]
+        if self.lineage_closures:
+            payload["lineage_closures"] = [
+                item.to_payload() for item in self.lineage_closures
+            ]
         return payload
 
 
@@ -155,11 +186,26 @@ class FunctionInputBindingSpec:
 
 
 @dataclass(frozen=True)
+class FunctionAggregateInputBindingSpec:
+    """Compile one reconciled many-arg into fixed scalar method inputs."""
+
+    source_input: str
+    item_inputs: tuple[str, ...]
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            "source_input": self.source_input,
+            "item_inputs": list(self.item_inputs),
+        }
+
+
+@dataclass(frozen=True)
 class FunctionAdapterSpec:
     """Runtime adapter for compiling a FunctionSpec to MethodInvocation inputs."""
 
     adapter_id: str
     input_bindings: tuple[FunctionInputBindingSpec, ...] = ()
+    aggregate_input_bindings: tuple[FunctionAggregateInputBindingSpec, ...] = ()
     expansion_selectors: tuple[str, ...] = ()
     constraint_analyzer: str | None = None
 
@@ -167,6 +213,9 @@ class FunctionAdapterSpec:
         return {
             "adapter_id": self.adapter_id,
             "input_bindings": [item.to_payload() for item in self.input_bindings],
+            "aggregate_input_bindings": [
+                item.to_payload() for item in self.aggregate_input_bindings
+            ],
             "expansion_selectors": list(self.expansion_selectors),
             "constraint_analyzer": self.constraint_analyzer,
         }
@@ -186,9 +235,14 @@ class FunctionSpec:
     notes: tuple[str, ...] = ()
     is_pure: bool = False
     plan_transformer: str | None = None
+    plan_transformer_scope: PlanTransformerScope = "single_invocation"
     reconciliation_validators: tuple[str, ...] = ()
     distinct_arg_groups: tuple[tuple[str, ...], ...] = ()
     dependency_policy: CapabilityDependencyPolicy = "explicit_args"
+    input_closure_requirements: tuple[
+        CapabilityInputClosureRequirement, ...
+    ] = ()
+    identity_constraints: tuple[StateIdentityConstraintSpec, ...] = ()
 
     def to_payload(self, *, include_adapter: bool = True) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -201,11 +255,18 @@ class FunctionSpec:
             "notes": list(self.notes),
             "is_pure": self.is_pure,
             "plan_transformer": self.plan_transformer,
+            "plan_transformer_scope": self.plan_transformer_scope,
             "reconciliation_validators": list(self.reconciliation_validators),
             "distinct_arg_groups": [
                 list(group) for group in self.distinct_arg_groups
             ],
             "dependency_policy": self.dependency_policy,
+            "input_closure_requirements": [
+                item.to_payload() for item in self.input_closure_requirements
+            ],
+            "identity_constraints": [
+                item.to_payload() for item in self.identity_constraints
+            ],
         }
         if include_adapter and self.adapter is not None:
             payload["adapter"] = self.adapter.to_payload()
@@ -305,6 +366,7 @@ class FunctionAdapterRegistry:
         self.selectors = dict(selectors)
         self.expansion_selectors = dict(expansion_selectors)
         self.adapters = dict(adapters or GENERIC_FUNCTION_ADAPTERS)
+        self.last_arg_repairs: tuple[FunctionArgBindingRepair, ...] = ()
 
     def rule_for(self, method_id: str) -> FunctionAdapterSpec | None:
         return self.adapters.get(method_id)
@@ -320,9 +382,11 @@ class FunctionAdapterRegistry:
         expansion_selectors_override: tuple[str, ...] | None = None,
         input_bindings_override: tuple[Any, ...] | None = None,
         exact_inputs: Mapping[str, str] | None = None,
+        distinct_arg_groups: tuple[tuple[str, ...], ...] = (),
         apply_constraint_analyzer: bool = True,
     ) -> dict[str, str]:
         local_outputs = local_outputs or {}
+        self.last_arg_repairs = ()
         adapter = self.adapters.get(method_id)
         if adapter is None:
             raise StrategyDraftValidationError(
@@ -351,6 +415,19 @@ class FunctionAdapterRegistry:
                         "function.arg_missing: "
                         f"method={method_id}, arg={binding.input_name}, "
                         f"selector={binding.selector}"
+                    )
+                continue
+            if _expansion_conflicts_with_exact_arg(
+                binding.input_name,
+                value,
+                exact_inputs=exact_inputs,
+                distinct_arg_groups=distinct_arg_groups,
+            ):
+                if binding.required:
+                    raise StrategyDraftValidationError(
+                        "planner_configuration_error: required selector conflicts "
+                        "with explicit Functional argument identity: "
+                        f"method={method_id}, arg={binding.input_name}"
                     )
                 continue
             if _selector_requires_declared_read(binding.selector) and not _path_is_declared_read(
@@ -390,14 +467,23 @@ class FunctionAdapterRegistry:
                         f"method={method_id}, arg={input_name}, expansion={selector}"
                     )
             for input_name, path in expanded.items():
+                if _expansion_conflicts_with_exact_arg(
+                    input_name,
+                    path,
+                    exact_inputs=exact_inputs,
+                    distinct_arg_groups=distinct_arg_groups,
+                ):
+                    continue
                 inputs.setdefault(input_name, path)
         if apply_constraint_analyzer and adapter.constraint_analyzer is not None:
-            inputs = _apply_constraint_analyzer(
+            analyzed = _apply_constraint_analyzer(
                 adapter.constraint_analyzer,
                 inputs=inputs,
                 step=step,
                 index=index,
             )
+            inputs = analyzed.inputs
+            self.last_arg_repairs = analyzed.arg_repairs
         return inputs
 
     def _select(
@@ -427,6 +513,27 @@ class FunctionAdapterRegistry:
                 f"function.adapter_expansion_missing: {selector}"
             )
         return fn(step, index, local_outputs)
+
+
+def _expansion_conflicts_with_exact_arg(
+    input_name: str,
+    path: str,
+    *,
+    exact_inputs: Mapping[str, str] | None,
+    distinct_arg_groups: tuple[tuple[str, ...], ...],
+) -> bool:
+    """Keep heuristic expansion from reassigning an explicit arg identity."""
+    if not exact_inputs:
+        return False
+    for group in distinct_arg_groups:
+        if input_name not in group:
+            continue
+        if any(
+            peer != input_name and exact_inputs.get(peer) == path
+            for peer in group
+        ):
+            return True
+    return False
 
 
 def _selector_requires_declared_read(selector: str) -> bool:
@@ -531,7 +638,30 @@ def function_spec_from_method(
                     if contract_write is not None
                     else ""
                 ),
-                scalar_result_form=method_spec.scalar_result_forms.get(output_name),
+                scalar_result_form=(
+                    method_spec.scalar_result_forms.get(output_name)
+                    or (
+                        contract_write.result_form
+                        if contract_write is not None
+                        else None
+                    )
+                    or default_result_form_spec(output_type)
+                ),
+                provides_semantic_roles=(
+                    contract_write.provides_semantic_roles
+                    if contract_write is not None
+                    else ()
+                ),
+                object_role_projections=(
+                    contract_write.object_role_projections
+                    if contract_write is not None
+                    else ()
+                ),
+                lineage_closures=(
+                    contract_write.lineage_closures
+                    if contract_write is not None
+                    else ()
+                ),
             )
         )
     return FunctionSpec(
@@ -544,12 +674,21 @@ def function_spec_from_method(
         source=source,
         is_pure=method_spec.is_pure,
         plan_transformer=method_spec.plan_transformer,
+        plan_transformer_scope=method_spec.plan_transformer_scope,
         reconciliation_validators=method_spec.reconciliation_validators,
         distinct_arg_groups=method_spec.distinct_arg_groups,
         dependency_policy=(
             contract.dependency_policy
             if contract is not None
             else "explicit_args"
+        ),
+        input_closure_requirements=(
+            contract.input_closure_requirements
+            if contract is not None
+            else ()
+        ),
+        identity_constraints=(
+            contract.identity_constraints if contract is not None else ()
         ),
         notes=tuple(unique_ordered(notes)),
     )
@@ -640,8 +779,10 @@ def _function_return_identity(
     output_type: str,
     adapter: FunctionAdapterSpec | None,
 ) -> tuple[StateIdentityPolicy, str | None]:
-    if output_type == "ParameterValue" and "parameter" in method_spec.inputs:
-        return "preserve_input_object", "parameter"
+    if output_type == "ParameterValue":
+        for input_name in ("target_parameter", "parameter"):
+            if input_name in method_spec.inputs:
+                return "preserve_input_object", input_name
     if output_type == "Symbol":
         target = method_spec.inputs.get("target")
         if target is not None and "PointRef" in split_runtime_types(str(target.type)):
@@ -810,6 +951,8 @@ def _arg_spec_from_method_input(
         runtime_type=runtime_type,
         kind=kind,
     )
+    if kind == "symbol" and contract_slot is not None:
+        kind = "slot_read"
     return FunctionArgSpec(
         name=name,
         method_input=name,
@@ -833,6 +976,11 @@ def _arg_spec_from_method_input(
             if contract_slot is not None
             else ()
         ),
+        input_closure_policy=(
+            contract_slot.input_closure_policy
+            if contract_slot is not None
+            else "any"
+        ),
     )
 
 
@@ -843,11 +991,13 @@ def _function_arg_contract_slot(
     runtime_type: str,
     kind: FunctionArgKind,
 ) -> Any | None:
-    if contract is None or kind != "slot_read":
+    if contract is None or kind not in {"slot_read", "symbol"}:
         return None
     named = [item for item in contract.slot_reads if item.semantic_role == name]
     if len(named) == 1:
         return named[0]
+    if kind == "symbol":
+        return None
     accepted_types = set(split_runtime_types(runtime_type))
     typed = [
         item for item in contract.slot_reads if item.runtime_type in accepted_types
@@ -864,7 +1014,7 @@ def _function_arg_contract_description(
 ) -> str:
     if contract is None:
         return ""
-    if kind not in {"condition_read", "slot_read"}:
+    if kind not in {"condition_read", "slot_read", "symbol"}:
         return ""
     conditions = tuple(contract.condition_reads)
     slots = tuple(contract.slot_reads)
@@ -938,9 +1088,17 @@ def function_adapter_from_binding_rule(
         )
         for item in rule.input_bindings
     )
+    aggregate_input_bindings = tuple(
+        FunctionAggregateInputBindingSpec(
+            source_input=item.source_input,
+            item_inputs=item.item_inputs,
+        )
+        for item in rule.aggregate_input_bindings
+    )
     return FunctionAdapterSpec(
         adapter_id=rule.method_id,
         input_bindings=tuple(input_bindings),
+        aggregate_input_bindings=aggregate_input_bindings,
         expansion_selectors=rule.expansion_selectors,
         constraint_analyzer=rule.constraint_analyzer,
     )
@@ -952,7 +1110,7 @@ def _apply_constraint_analyzer(
     inputs: dict[str, str],
     step: StepIntent,
     index: Any,
-) -> dict[str, str]:
+) -> ConstraintAnalyzerResult:
     analyzer = _CONSTRAINT_ANALYZERS.get(analyzer_id)
     if analyzer is None:
         raise StrategyDraftValidationError(
@@ -961,9 +1119,15 @@ def _apply_constraint_analyzer(
     return analyzer(inputs, step, index)
 
 
+@dataclass(frozen=True)
+class ConstraintAnalyzerResult:
+    inputs: dict[str, str]
+    arg_repairs: tuple[FunctionArgBindingRepair, ...] = ()
+
+
 ConstraintAnalyzer = Callable[
     [dict[str, str], StepIntent, Any],
-    dict[str, str],
+    ConstraintAnalyzerResult,
 ]
 
 
@@ -971,7 +1135,7 @@ def _analyze_quadratic_coefficient_inputs(
     inputs: dict[str, str],
     step: StepIntent,
     index: Any,
-) -> dict[str, str]:
+) -> ConstraintAnalyzerResult:
     from shuxueshuo_server.solver.runtime.methods.quadratic_from_constraints import (
         analyze_quadratic_constraints,
     )
@@ -995,13 +1159,30 @@ def _analyze_quadratic_coefficient_inputs(
             # A binding-only/preflight caller may register a future runtime
             # path without materializing its value. Inference is then unsafe;
             # leave the strict method invocation unchanged.
-            return inputs
+            return ConstraintAnalyzerResult(inputs)
     declared_free_parameters = _declared_free_parameters(runtime_inputs)
-    coefficient_symbols = set(runtime_inputs.get("all_coefficients", ()))
+    requested_free_parameter_handles = _read_quadratic_coefficient_handles(
+        step,
+        index=index,
+    )
+    target_parameter = runtime_inputs.get("target_parameter")
+    if target_parameter is not None:
+        if target_parameter in declared_free_parameters:
+            raise StrategyDraftValidationError(
+                "function.constraints_underdetermined: "
+                f"step={step.step_id}, target_parameter="
+                f"{getattr(target_parameter, 'name', target_parameter)}, "
+                "target_parameter_must_not_be_preserved"
+            )
+        # Targeted closure is authoritative in the shared runtime solver. Keep
+        # the explicit free basis intact instead of letting the older
+        # coefficient-shape analyzer discard contextual dependency Symbols.
+        return ConstraintAnalyzerResult(inputs)
     preferred_free_parameters = tuple(
-        symbol
-        for symbol in runtime_inputs.get("all_coefficients", ())
-        if symbol in declared_free_parameters and symbol in coefficient_symbols
+        sorted(
+            declared_free_parameters,
+            key=lambda symbol: getattr(symbol, "name", str(symbol)),
+        )
     )
     analysis = analyze_quadratic_constraints(
         {
@@ -1012,15 +1193,26 @@ def _analyze_quadratic_coefficient_inputs(
         preferred_free_parameters=preferred_free_parameters,
     )
     if analysis.status == "determined":
-        return {
+        normalized = {
             name: path
             for name, path in inputs.items()
             if name not in {"free_parameter", "free_parameters"}
         }
+        return ConstraintAnalyzerResult(
+            normalized,
+            _free_parameter_basis_repairs(
+                requested_free_parameter_handles,
+                selected_handles=(),
+            ),
+        )
     if analysis.status == "single_free" and len(analysis.free_parameters) == 1:
         symbol = analysis.free_parameters[0]
-        symbol_path = _visible_symbol_path(symbol.name, step=step, index=index)
-        return {
+        symbol_handle, symbol_path = _visible_symbol_binding(
+            symbol.name,
+            step=step,
+            index=index,
+        )
+        normalized = {
             **{
                 name: path
                 for name, path in inputs.items()
@@ -1028,10 +1220,17 @@ def _analyze_quadratic_coefficient_inputs(
             },
             "free_parameter": symbol_path,
         }
+        return ConstraintAnalyzerResult(
+            normalized,
+            _free_parameter_basis_repairs(
+                requested_free_parameter_handles,
+                selected_handles=(symbol_handle,),
+            ),
+        )
     if analysis.status == "underdetermined":
         authoritative = set(analysis.free_parameters)
         if authoritative and declared_free_parameters == authoritative:
-            return inputs
+            return ConstraintAnalyzerResult(inputs)
         names = ",".join(symbol.name for symbol in analysis.free_parameters)
         declared = ",".join(
             symbol.name
@@ -1066,15 +1265,68 @@ _CONSTRAINT_ANALYZERS: dict[str, ConstraintAnalyzer] = {
 }
 
 
-def _visible_symbol_path(name: str, *, step: StepIntent, index: Any) -> str:
+def _visible_symbol_binding(
+    name: str,
+    *,
+    step: StepIntent,
+    index: Any,
+) -> tuple[str, str]:
     for scope_id in reversed(index.handle_registry.ancestor_scopes(step.scope_id)):
         handle = f"symbol:{scope_id}:{name}"
         if handle in index.bindings:
-            return index.path_for(handle, expected_type="Symbol")
+            return handle, index.path_for(handle, expected_type="Symbol")
     raise StrategyDraftValidationError(
         "function.arg_missing: "
         f"method=quadratic_from_constraints, arg=free_parameter, symbol={name}"
     )
+
+
+def _free_parameter_basis_repairs(
+    requested_handles: tuple[str, ...],
+    *,
+    selected_handles: tuple[str, ...],
+) -> tuple[FunctionArgBindingRepair, ...]:
+    if set(requested_handles) == set(selected_handles):
+        return ()
+    return (
+        FunctionArgBindingRepair(
+            arg_name="free_parameters",
+            source_handles=selected_handles,
+            reason="normalize_constraint_free_parameter_basis",
+        ),
+    )
+
+
+def _read_quadratic_coefficient_handles(
+    step: StepIntent,
+    *,
+    index: Any,
+) -> tuple[str, ...]:
+    """Return explicit Symbol reads that belong to the quadratic basis."""
+
+    coefficients = set(
+        index.context.read_path(
+            "$problem.symbol_lists.quadratic_coefficients",
+            from_scope_id=step.scope_id,
+            expected_type="SymbolList",
+        ).value
+    )
+    handles: list[str] = []
+    for handle in step.reads:
+        binding = index.bindings.get(handle)
+        if binding is None or binding.value_type != "Symbol":
+            continue
+        try:
+            symbol = index.context.read_path(
+                binding.path,
+                from_scope_id=step.scope_id,
+                expected_type="Symbol",
+            ).value
+        except (KeyError, PermissionError, TypeError, ValueError):
+            continue
+        if symbol in coefficients:
+            handles.append(handle)
+    return unique_ordered(handles)
 
 
 def _effective_input_bindings(

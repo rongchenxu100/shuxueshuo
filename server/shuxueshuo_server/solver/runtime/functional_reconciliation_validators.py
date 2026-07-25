@@ -71,26 +71,26 @@ def _distinct_argument_identity_issues(
     """Reject declared argument groups that resolve to the same state identity."""
     issues: list[FunctionalPlanIssue] = []
     for group in capability.distinct_arg_groups:
-        identities: dict[str, list[str]] = {}
+        identities: dict[str, set[str]] = {}
         bindings: list[dict[str, str | None]] = []
         for arg_name in group:
             values = resolved_args.get(arg_name, ())
-            if len(values) != 1:
-                continue
-            value = values[0]
-            identity = value.object_ref or value.state_slot_id or value.handle
-            identities.setdefault(identity, []).append(arg_name)
-            bindings.append(
-                {
-                    "arg": arg_name,
-                    "object_ref": value.object_ref,
-                    "state_slot_id": value.state_slot_id,
-                    "source_call_id": value.source_call_id,
-                    "return": value.return_name,
-                }
-            )
+            for value in values:
+                identity = value.object_ref or value.state_slot_id or value.handle
+                identities.setdefault(identity, set()).add(arg_name)
+                bindings.append(
+                    {
+                        "arg": arg_name,
+                        "object_ref": value.object_ref,
+                        "state_slot_id": value.state_slot_id,
+                        "source_call_id": value.source_call_id,
+                        "return": value.return_name,
+                    }
+                )
         duplicates = tuple(
-            names for names in identities.values() if len(names) > 1
+            tuple(sorted(names))
+            for names in identities.values()
+            if len(names) > 1
         )
         if not duplicates:
             continue
@@ -138,7 +138,7 @@ def _companion_symbol_coverage(
     call_id: str,
     scope_id: str,
 ) -> tuple[FunctionalPlanIssue, ...]:
-    """Require values for every Symbol companion of a parameterized Point."""
+    """Require at least one identity-matching value for a parameterized Point."""
     parameter_args = [
         item
         for item in capability.args
@@ -192,7 +192,8 @@ def _companion_symbol_coverage(
                         "value_type": "Symbol",
                     },
                 )
-    if required_object_refs <= parameter_object_refs:
+    matching_object_refs = required_object_refs & parameter_object_refs
+    if not required_object_refs or matching_object_refs:
         return ()
     argument = parameter_args[0]
     current_bindings = [
@@ -211,8 +212,8 @@ def _companion_symbol_coverage(
             code="functional.arg_identity_mismatch",
             message=(
                 f"call {call_id} cannot run with its current bindings: "
-                f"argument {argument.name} does not provide a value for every "
-                "Symbol identity required by its parameterized Point input"
+                f"argument {argument.name} does not provide a value for any "
+                "Symbol identity in its parameterized Point input"
             ),
             call_id=call_id,
             scope_id=scope_id,
@@ -229,8 +230,8 @@ def _companion_symbol_coverage(
                     {
                         "action": "add_missing_state_producer",
                         "requirement": (
-                            "produce a ParameterValue for each missing Symbol "
-                            "identity before this call"
+                            "produce a ParameterValue for at least one unresolved "
+                            "Symbol identity before this call"
                         ),
                     },
                     {

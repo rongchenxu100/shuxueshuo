@@ -6,10 +6,17 @@ import json
 import re
 from typing import Any, Mapping, Sequence
 
+from shuxueshuo_server.solver.runtime.handle_registry import (
+    CanonicalHandleRegistry,
+)
+from shuxueshuo_server.solver.state_semantics import is_object_semantic_kind
+
 def prepare_functional_plan_raw_response(
     raw_response: str,
     *,
     previous_attempts: Sequence[Any],
+    handle_registry: CanonicalHandleRegistry | None = None,
+    shareable_capability_ids: frozenset[str] | set[str] = frozenset(),
 ) -> str:
     """Apply only formal FunctionalPlan retry memory to a new candidate.
 
@@ -29,7 +36,12 @@ def prepare_functional_plan_raw_response(
     retry_state = latest_functional_retry_state(previous_attempts)
     if retry_state is None:
         return json.dumps(candidate, ensure_ascii=False)
-    merged = _overlay_functional_retry_state(candidate, retry_state)
+    merged = _overlay_functional_retry_state(
+        candidate,
+        retry_state,
+        handle_registry=handle_registry,
+        shareable_capability_ids=shareable_capability_ids,
+    )
     return json.dumps(merged, ensure_ascii=False)
 
 
@@ -141,6 +153,9 @@ def latest_functional_retry_state(
 def _overlay_functional_retry_state(
     candidate: dict[str, Any],
     retry_state: dict[str, Any],
+    *,
+    handle_registry: CanonicalHandleRegistry | None,
+    shareable_capability_ids: frozenset[str] | set[str],
 ) -> dict[str, Any]:
     policy = retry_state.get("preserve_policy", "none")
     baseline = retry_state.get("baseline_candidate")
@@ -154,6 +169,8 @@ def _overlay_functional_retry_state(
             candidate,
             stable if isinstance(stable, list) else [],
             baseline=baseline,
+            handle_registry=handle_registry,
+            shareable_capability_ids=shareable_capability_ids,
         )
     if policy == "preserve_prefix":
         stable = retry_state.get("stable_candidate_prefix")
@@ -161,6 +178,8 @@ def _overlay_functional_retry_state(
             candidate,
             stable if isinstance(stable, list) else [],
             baseline=baseline,
+            handle_registry=handle_registry,
+            shareable_capability_ids=shareable_capability_ids,
         )
     if policy == "preserve_handles":
         return _overlay_functional_call_fields(
@@ -240,6 +259,8 @@ def _overlay_stable_functional_calls(
     stable: list[Any],
     *,
     baseline: dict[str, Any],
+    handle_registry: CanonicalHandleRegistry | None,
+    shareable_capability_ids: frozenset[str] | set[str],
 ) -> dict[str, Any]:
     stable_by_id: dict[str, tuple[str, dict[str, Any]]] = {}
     for entry in stable:
@@ -306,8 +327,48 @@ def _overlay_stable_functional_calls(
             del calls[index]
         present.add(stable_call_id)
 
-    if renamed_call_ids:
-        _rewrite_functional_call_result_refs(result, renamed_call_ids)
+    # A repaired candidate may intentionally replace a stable producer while
+    # retaining the same pure capability and canonical object destination.
+    # Prefer the current candidate, suppress the stale producer, and redirect
+    # restored stable consumers to the repaired call. Full reconciliation and
+    # finalization still validate its new inputs and state version.
+    if handle_registry is not None and shareable_capability_ids:
+        candidate_calls = tuple(
+            (scope_id, call)
+            for scope_id, scope in by_scope.items()
+            for call in scope.get("calls", ())
+            if isinstance(call, dict)
+        )
+        for stable_call_id, (scope_id, stable_call) in stable_by_id.items():
+            if stable_call_id in present:
+                continue
+            capability_id = stable_call.get("capability_id")
+            if capability_id not in shareable_capability_ids:
+                continue
+            destinations = _functional_call_object_destinations(
+                stable_call,
+                scope_id=scope_id,
+                handle_registry=handle_registry,
+            )
+            if not destinations:
+                continue
+            matches = tuple(
+                call
+                for candidate_scope, call in candidate_calls
+                if call.get("capability_id") == capability_id
+                and _functional_call_object_destinations(
+                    call,
+                    scope_id=candidate_scope,
+                    handle_registry=handle_registry,
+                ) == destinations
+            )
+            if len(matches) != 1:
+                continue
+            candidate_call_id = matches[0].get("call_id")
+            if not isinstance(candidate_call_id, str):
+                continue
+            present.add(stable_call_id)
+            renamed_call_ids[stable_call_id] = candidate_call_id
 
     baseline_labels = {
         scope.get("scope_id"): scope.get("label")
@@ -329,7 +390,61 @@ def _overlay_stable_functional_calls(
         calls = scope.get("calls")
         if isinstance(calls, list):
             calls.insert(0, call)
+    if renamed_call_ids:
+        _rewrite_functional_call_result_refs(result, renamed_call_ids)
     return result
+
+
+def _functional_call_object_destinations(
+    call: Mapping[str, Any],
+    *,
+    scope_id: str,
+    handle_registry: CanonicalHandleRegistry,
+) -> frozenset[str]:
+    bindings = call.get("return_bindings")
+    if not isinstance(bindings, Mapping):
+        return frozenset()
+    return frozenset(
+        object_ref
+        for binding in bindings.values()
+        if isinstance(binding, Mapping)
+        if (
+            object_ref := _functional_binding_object_ref(
+                binding,
+                scope_id=scope_id,
+                handle_registry=handle_registry,
+            )
+        ) is not None
+    )
+
+
+def _functional_binding_object_ref(
+    binding: Mapping[str, Any],
+    *,
+    scope_id: str,
+    handle_registry: CanonicalHandleRegistry,
+) -> str | None:
+    kind = binding.get("kind")
+    ref = binding.get("ref")
+    if not isinstance(kind, str) or not isinstance(ref, str):
+        return None
+    if kind == "answer":
+        answer_handle = ref if ref.startswith("answer:") else f"answer:{ref}"
+        return handle_registry.answer_target_handles.get(answer_handle)
+    if not is_object_semantic_kind(kind):
+        return None
+    if ref in handle_registry.entity_handles:
+        return ref
+    if "." in ref:
+        ref_scope, name = ref.rsplit(".", 1)
+        candidate = f"{kind}:{ref_scope}:{name}"
+        return candidate if candidate in handle_registry.entity_handles else None
+    candidates = tuple(
+        f"{kind}:{visible_scope}:{ref}"
+        for visible_scope in handle_registry.ancestor_scopes(scope_id)
+        if f"{kind}:{visible_scope}:{ref}" in handle_registry.entity_handles
+    )
+    return candidates[0] if len(candidates) == 1 else None
 
 
 def _functional_call_semantic_key(call: Mapping[str, Any]) -> str | None:

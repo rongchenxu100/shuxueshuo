@@ -16,11 +16,14 @@ from shuxueshuo_server.solver.family.models import (
     CapabilityContextResolver,
     CapabilityDependencyPolicy,
     CapabilityContractSpec,
+    CapabilityInputClosureRequirement,
     ConditionPattern,
     GoalEvidenceTag,
     RecipeExecutionSpec,
     RecipeOutputAliasSpec,
     StateIdentityPolicy,
+    StateIdentityConstraintSpec,
+    StateObjectRoleProjectionSpec,
     StateWriteMode,
     SolverFamilySpec,
     StateSlotPattern,
@@ -35,6 +38,9 @@ from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.output_type_inference import (
     produced_semantic_role,
 )
+from shuxueshuo_server.solver.runtime.runtime_type_declarations import (
+    split_runtime_types,
+)
 from shuxueshuo_server.solver.runtime.strategy_models import (
     ProducedFact,
     StepIntent,
@@ -42,7 +48,6 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
 )
 from shuxueshuo_server.solver.state_semantics import (
     object_kind_for_runtime_type,
-    split_runtime_types,
 )
 from shuxueshuo_server.solver.utils import unique_ordered
 
@@ -114,6 +119,8 @@ class MacroReturnSpec:
     description: str = ""
     scalar_result_form: ScalarResultFormSpec | None = None
     equivalent_to: str | None = None
+    provides_semantic_roles: tuple[str, ...] = ()
+    object_role_projections: tuple[StateObjectRoleProjectionSpec, ...] = ()
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -144,6 +151,14 @@ class MacroReturnSpec:
             payload["scalar_result_form"] = self.scalar_result_form.to_payload()
         if self.equivalent_to is not None:
             payload["equivalent_to"] = self.equivalent_to
+        if self.provides_semantic_roles:
+            payload["provides_semantic_roles"] = list(
+                self.provides_semantic_roles
+            )
+        if self.object_role_projections:
+            payload["object_role_projections"] = [
+                item.to_payload() for item in self.object_role_projections
+            ]
         return payload
 
 
@@ -199,9 +214,14 @@ class MacroSpec:
     internal_calls: tuple[MacroInternalCallSpec, ...]
     adapter: MacroAdapterSpec
     source: MacroSpecSource = "recipe_execution"
+    exposes_to_llm: bool = True
     is_pure: bool = False
     dependency_policy: CapabilityDependencyPolicy = "explicit_args"
     context_resolvers: tuple[CapabilityContextResolver, ...] = ()
+    input_closure_requirements: tuple[
+        CapabilityInputClosureRequirement, ...
+    ] = ()
+    identity_constraints: tuple[StateIdentityConstraintSpec, ...] = ()
     notes: tuple[str, ...] = ()
 
     def to_payload(self, *, include_adapter: bool = True) -> dict[str, Any]:
@@ -213,9 +233,16 @@ class MacroSpec:
             "returns": [item.to_payload() for item in self.returns],
             "internal_calls": [item.to_payload() for item in self.internal_calls],
             "source": self.source,
+            "exposes_to_llm": self.exposes_to_llm,
             "is_pure": self.is_pure,
             "dependency_policy": self.dependency_policy,
             "context_resolvers": list(self.context_resolvers),
+            "input_closure_requirements": [
+                item.to_payload() for item in self.input_closure_requirements
+            ],
+            "identity_constraints": [
+                item.to_payload() for item in self.identity_constraints
+            ],
             "notes": list(self.notes),
         }
         if include_adapter:
@@ -370,6 +397,9 @@ def macro_spec_from_recipe(
             output_aliases=execution.output_aliases,
         ),
         source=source,
+        exposes_to_llm=(
+            contract.exposes_to_llm if contract is not None else True
+        ),
         is_pure=_macro_is_pure(execution, function_specs),
         dependency_policy=(
             contract.dependency_policy
@@ -378,6 +408,14 @@ def macro_spec_from_recipe(
         ),
         context_resolvers=(
             contract.context_resolvers if contract is not None else ()
+        ),
+        input_closure_requirements=(
+            contract.input_closure_requirements
+            if contract is not None
+            else ()
+        ),
+        identity_constraints=(
+            contract.identity_constraints if contract is not None else ()
         ),
         notes=tuple(unique_ordered(notes)),
     )
@@ -525,6 +563,8 @@ def _returns_from_output_aliases(
                     function_specs=function_specs,
                 ),
                 equivalent_to=output.equivalent_to,
+                provides_semantic_roles=output.provides_semantic_roles,
+                object_role_projections=output.object_role_projections,
             )
         )
     return tuple(returns)
@@ -750,7 +790,7 @@ def _contract_errors(spec: MacroSpec) -> tuple[str, ...]:
 
 
 def _macro_is_prompt_executable(spec: MacroSpec) -> bool:
-    return bool(spec.returns) and not any(
+    return spec.exposes_to_llm and bool(spec.returns) and not any(
         note.startswith("macro_contract_mismatch:required:")
         for note in spec.notes
     )

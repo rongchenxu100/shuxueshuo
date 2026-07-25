@@ -34,7 +34,9 @@ from shuxueshuo_server.solver.runtime.models import (
     StepPlan,
     runtime_type_matches,
 )
-from shuxueshuo_server.solver.state_semantics import split_runtime_types
+from shuxueshuo_server.solver.runtime.runtime_type_declarations import (
+    split_runtime_types,
+)
 
 
 class DeclarationValidator:
@@ -332,6 +334,21 @@ class InvocationExecutor:
         if input_types:
             inputs["__input_types__"] = input_types
         result = method.run(inputs, self.kernel)
+        missing_outputs = tuple(
+            output_name
+            for output_name in invocation.outputs
+            if output_name not in result.outputs
+        )
+        if missing_outputs:
+            failed_checks = tuple(
+                check.name for check in result.checks if not check.ok
+            )
+            raise ValueError(
+                "method_output_unavailable: "
+                f"method={invocation.method_id}, "
+                f"outputs={','.join(missing_outputs)}, "
+                f"failed_checks={','.join(failed_checks) or 'none'}"
+            )
         for output_name, raw_path in invocation.outputs.items():
             # 输出先写入 step scope；如需成为上层 fact，必须走 promote_outputs。
             context.write_path(

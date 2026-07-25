@@ -2,7 +2,7 @@
   "method_id": "quadratic_y_axis_intercept_point",
   "title": "求二次函数与 y 轴交点",
   "description": "由二次函数解析式求与 y 轴的交点。",
-  "summary": "输入: 抛物线表达式，可含未定系数；输出: x=0 时的 y 轴交点，坐标可保留参数。",
+  "summary": "输入二次函数表达式；输出 x=0 时的 y 轴交点。原函数可以含其它未定系数，但输出坐标至多保留一个独立参数。",
   "solves": [
     "derive_quadratic_y_axis_intercept_point"
   ],
@@ -24,8 +24,19 @@
     "point": "Point"
   },
   "is_pure": true,
+  "scalar_result_forms": {
+    "point": {
+      "possible_forms": [
+        "open_state",
+        "closed_state"
+      ],
+      "description": "截距仍含一个未定参数时为 open_state；不存在自由参数时为 closed_state。",
+      "closure_policy": "no_free_symbols",
+      "max_independent_free_parameters": 1
+    }
+  },
   "preconditions": [
-    "quadratic 是关于 x 的函数表达式，可以含未定系数"
+    "quadratic 是关于 x 的函数表达式"
   ],
   "postconditions": [
     "输出点横坐标为 0 且在曲线上；若输入含参数，输出坐标保留参数表达式"

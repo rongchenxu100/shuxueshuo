@@ -14,6 +14,7 @@ import inspect
 from shuxueshuo_server.solver.contracts import (
     MethodExplanationSpec,
     MethodVisualSpec,
+    PlanTransformerScope,
     ScalarResultFormSpec,
 )
 
@@ -43,6 +44,7 @@ class MethodSpecSource:
     do_not_use_when: tuple[str, ...] = ()
     constraint_analyzer: str | None = None
     plan_transformer: str | None = None
+    plan_transformer_scope: PlanTransformerScope = "single_invocation"
     reconciliation_validators: tuple[str, ...] = ()
     distinct_arg_groups: tuple[tuple[str, ...], ...] = ()
     # This source type is reserved for runtime/stateless methods. Stateful
@@ -90,6 +92,7 @@ class MethodSpecSource:
             payload["constraint_analyzer"] = self.constraint_analyzer
         if self.plan_transformer is not None:
             payload["plan_transformer"] = self.plan_transformer
+            payload["plan_transformer_scope"] = self.plan_transformer_scope
         if self.reconciliation_validators:
             payload["reconciliation_validators"] = list(
                 self.reconciliation_validators

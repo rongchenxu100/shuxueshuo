@@ -6,6 +6,12 @@ from dataclasses import dataclass, replace
 import json
 from typing import Any, Mapping, Sequence
 
+import sympy as sp
+
+from shuxueshuo_server.solver.family.models import (
+    CapabilityStateClosurePolicy,
+)
+
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
 )
@@ -28,6 +34,11 @@ from shuxueshuo_server.solver.runtime.handle_alias_index import (
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
 from shuxueshuo_server.solver.runtime.planner_state_context import (
     PlannerStateContext,
+)
+from shuxueshuo_server.solver.state_semantics import (
+    StateObjectRoleBinding,
+    StateSemanticLineage,
+    state_semantic_lineage,
 )
 from shuxueshuo_server.solver.runtime.object_dependencies import (
     expand_object_dependencies as _expand_object_dependencies,
@@ -75,6 +86,8 @@ class FunctionalSemanticView:
     dependency_object_refs: tuple[str, ...] = ()
     free_symbol_refs: tuple[str, ...] = ()
     source_state_slot_ids: tuple[str, ...] = ()
+    provides_semantic_roles: tuple[str, ...] = ()
+    lineage: StateSemanticLineage = StateSemanticLineage()
 
     def to_prompt_payload(self) -> dict[str, Any]:
         return {
@@ -82,6 +95,17 @@ class FunctionalSemanticView:
             "kind": self.kind,
             "value_type": self.runtime_type,
         }
+
+
+@dataclass(frozen=True)
+class FunctionalStateMaterialization:
+    """Proof that an object template can become one typed runtime state."""
+
+    status: str
+    source: FunctionalSemanticView | None = None
+    target_runtime_type: str | None = None
+    supporting_handles: tuple[str, ...] = ()
+    free_symbol_refs: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -177,25 +201,21 @@ class FunctionalPlanElaborator:
                     repairs=repairs,
                 )
                 arg_specs = {item.name: item for item in capability.args}
-                auto_arg_names = {item.name for item in capability.auto_args}
                 alias_to_name = {
-                    item.runtime_input: item.name
+                    alias: item.name
                     for item in capability.args
-                    if item.runtime_input and item.runtime_input != item.name
+                    for alias in (
+                        *item.aliases,
+                        *(
+                            (item.runtime_input,)
+                            if item.runtime_input and item.runtime_input != item.name
+                            else ()
+                        ),
+                    )
                 }
                 normalized_args: dict[str, tuple[Any, ...]] = {}
                 for raw_name, values in call.args.items():
                     name = alias_to_name.get(raw_name, raw_name)
-                    if raw_name in auto_arg_names and name == raw_name:
-                        repairs.append(
-                            FunctionalDeterministicRepair(
-                                call.call_id,
-                                "drop_supplied_auto_arg",
-                                raw_name,
-                                "resolved_by_capability_adapter",
-                            )
-                        )
-                        continue
                     if name != raw_name:
                         repairs.append(
                             FunctionalDeterministicRepair(
@@ -305,14 +325,16 @@ def _drop_fixed_form_return_expectations(
     capability: Any,
     repairs: list[FunctionalDeterministicRepair],
 ) -> FunctionalCall:
-    """Remove an intent hint that cannot affect a fixed-form return."""
+    """Remove result-form hints unsupported by the declared return contract."""
     if not call.return_expectations:
         return call
     return_specs = {item.name: item for item in capability.returns}
     expectations = dict(call.return_expectations)
     for return_name, expectation in tuple(expectations.items()):
         return_spec = return_specs.get(return_name)
-        if return_spec is None or return_spec.possible_forms:
+        if return_spec is None:
+            continue
+        if expectation in return_spec.possible_forms:
             continue
         expectations.pop(return_name)
         repairs.append(
@@ -854,9 +876,13 @@ class FunctionalSemanticIndex:
         views: Sequence[FunctionalSemanticView],
         *,
         handle_registry: CanonicalHandleRegistry,
+        entity_payloads: Mapping[str, Mapping[str, Any]] | None = None,
+        fact_payloads: Mapping[str, Mapping[str, Any]] | None = None,
     ) -> None:
         self.views = tuple(views)
         self.handle_registry = handle_registry
+        self.entity_payloads = dict(entity_payloads or {})
+        self.fact_payloads = dict(fact_payloads or {})
 
     @classmethod
     def from_context(
@@ -907,6 +933,7 @@ class FunctionalSemanticIndex:
                         dependency_object_refs=slot.dependency_object_refs,
                         free_symbol_refs=slot.free_symbol_refs,
                         source_state_slot_ids=(slot.slot_id,),
+                        lineage=slot.lineage,
                     )
                 )
             if item.kind == "fact":
@@ -962,6 +989,20 @@ class FunctionalSemanticIndex:
                         ),
                         dependency_object_refs=fact_dependencies,
                         free_symbol_refs=fact_free_symbol_refs,
+                        lineage=state_semantic_lineage(
+                            semantic_roles=(fact_type,),
+                            object_roles=(
+                                StateObjectRoleBinding(
+                                    role=role,
+                                    object_refs=object_refs,
+                                )
+                                for role, object_refs in (
+                                    condition.object_roles
+                                    if condition is not None
+                                    else ()
+                                )
+                            ),
+                        ),
                     )
                 )
                 value_runtime_type = normalize_runtime_type(fact_type)
@@ -980,6 +1021,9 @@ class FunctionalSemanticIndex:
                             ),
                             dependency_object_refs=fact_dependencies,
                             free_symbol_refs=fact_free_symbol_refs,
+                            lineage=state_semantic_lineage(
+                                semantic_roles=(item.ref,),
+                            ),
                         )
                     )
             payload = entity_payloads.get(item.handle)
@@ -1011,6 +1055,9 @@ class FunctionalSemanticIndex:
                         object_ref=item.handle,
                         dependency_object_refs=dependencies,
                         free_symbol_refs=free_symbol_refs,
+                        lineage=state_semantic_lineage(
+                            semantic_roles=(item.ref,),
+                        ),
                     )
                 )
                 for object_slot in slots_by_object.get(item.handle, ()):
@@ -1028,6 +1075,7 @@ class FunctionalSemanticIndex:
                             ),
                             free_symbol_refs=object_slot.free_symbol_refs,
                             source_state_slot_ids=(object_slot.slot_id,),
+                            lineage=object_slot.lineage,
                         )
                     )
         entity_views = tuple(
@@ -1058,7 +1106,157 @@ class FunctionalSemanticIndex:
                         ),
                     )
                 )
-        return cls(_unique_views(views), handle_registry=handle_registry)
+        return cls(
+            _unique_views(views),
+            handle_registry=handle_registry,
+            entity_payloads=entity_payloads,
+            fact_payloads=fact_payloads,
+        )
+
+    def materialize_function_state(
+        self,
+        ref: SemanticRef,
+        *,
+        scope_id: str,
+        target_runtime_type: str,
+        closure_policy: CapabilityStateClosurePolicy,
+    ) -> FunctionalStateMaterialization:
+        """Prove a Function template can satisfy a typed symbolic state read."""
+        if target_runtime_type != "Parabola" or closure_policy == "any":
+            return FunctionalStateMaterialization("not_applicable")
+        candidates = tuple(
+            item
+            for item in self.views
+            if item.ref == ref.ref
+            and item.kind == ref.kind
+            and item.runtime_type == "Function"
+            and visible_from_valid_scope(
+                item.valid_scope,
+                scope_id=scope_id,
+                registry=self.handle_registry,
+            )
+        )
+        identities = {item.handle for item in candidates}
+        if len(identities) != 1:
+            return FunctionalStateMaterialization(
+                "ambiguous" if candidates else "not_applicable"
+            )
+        source = candidates[0]
+        payload = self.entity_payloads.get(source.handle, {})
+        expression_text = payload.get("expression")
+        if not isinstance(expression_text, str) or not expression_text.strip():
+            return FunctionalStateMaterialization("not_applicable")
+        try:
+            expression = sp.sympify(expression_text)
+        except (TypeError, ValueError, sp.SympifyError):
+            return FunctionalStateMaterialization("not_applicable")
+
+        function_variables = {
+            str(item.get("name") or item.get("semantic_ref"))
+            for item in self.entity_payloads.values()
+            if item.get("entity_type") == "symbol"
+            and item.get("role") == "function_variable"
+        }
+        substitutions: dict[sp.Symbol, sp.Expr] = {}
+        supporting_handles: list[str] = []
+        for symbol in sorted(expression.free_symbols, key=lambda item: item.name):
+            if symbol.name in function_variables:
+                continue
+            selected = self._visible_symbol_value(
+                symbol.name,
+                scope_id=scope_id,
+            )
+            if selected is None:
+                continue
+            handle, value = selected
+            substitutions[symbol] = value
+            supporting_handles.append(handle)
+        materialized = expression
+        for _ in range(len(substitutions) + 1):
+            updated = sp.simplify(materialized.subs(substitutions))
+            if updated == materialized:
+                break
+            materialized = updated
+        residual = tuple(
+            sorted(
+                (
+                    symbol
+                    for symbol in materialized.free_symbols
+                    if symbol.name not in function_variables
+                ),
+                key=lambda item: item.name,
+            )
+        )
+        max_free = 0 if closure_policy == "closed_only" else 1
+        if len(residual) > max_free:
+            return FunctionalStateMaterialization(
+                "underdetermined",
+                source=source,
+                target_runtime_type=target_runtime_type,
+                supporting_handles=tuple(supporting_handles),
+                free_symbol_refs=tuple(
+                    _symbol_handle_for_name(
+                        symbol.name,
+                        entity_payloads=self.entity_payloads,
+                    )
+                    for symbol in residual
+                ),
+            )
+        free_symbol_refs = tuple(
+            _symbol_handle_for_name(
+                symbol.name,
+                entity_payloads=self.entity_payloads,
+            )
+            for symbol in residual
+        )
+        return FunctionalStateMaterialization(
+            "determined" if not residual else "single_free",
+            source=source,
+            target_runtime_type=target_runtime_type,
+            supporting_handles=tuple(
+                dict.fromkeys((*supporting_handles, *free_symbol_refs))
+            ),
+            free_symbol_refs=free_symbol_refs,
+        )
+
+    def _visible_symbol_value(
+        self,
+        symbol_name: str,
+        *,
+        scope_id: str,
+    ) -> tuple[str, sp.Expr] | None:
+        ancestors = self.handle_registry.ancestor_scopes(scope_id)
+        candidates: list[tuple[int, str, sp.Expr]] = []
+        for handle, payload in self.fact_payloads.items():
+            if payload.get("type") != "symbol_value":
+                continue
+            subject = str(payload.get("subject") or "").rsplit(":", 1)[-1]
+            if subject != symbol_name:
+                continue
+            valid_scope = str(
+                payload.get("valid_scope") or payload.get("scope_id") or "problem"
+            )
+            if not visible_from_valid_scope(
+                valid_scope,
+                scope_id=scope_id,
+                registry=self.handle_registry,
+            ):
+                continue
+            try:
+                value = sp.sympify(payload.get("value"))
+                rank = ancestors.index(valid_scope)
+            except (TypeError, ValueError, sp.SympifyError):
+                continue
+            candidates.append((rank, handle, value))
+        if not candidates:
+            return None
+        nearest_rank = min(item[0] for item in candidates)
+        nearest = [item for item in candidates if item[0] == nearest_rank]
+        values = {sp.srepr(item[2]) for item in nearest}
+        if len(values) != 1:
+            return None
+        _, handle, value = nearest[0]
+        return handle, value
 
     def resolve(
         self,
@@ -1314,6 +1512,17 @@ def _entity_runtime_type(payload: Mapping[str, Any]) -> str:
         "circle": "Circle",
         "polygon": "Polygon",
     }.get(entity_type, entity_type.title())
+
+
+def _symbol_handle_for_name(
+    name: str,
+    *,
+    entity_payloads: Mapping[str, Mapping[str, Any]],
+) -> str:
+    return _symbol_handles_by_name(entity_payloads).get(
+        name,
+        f"symbol:problem:{name}",
+    )
 
 
 def _primary_value_object_ref(

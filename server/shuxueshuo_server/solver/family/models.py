@@ -10,6 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Literal
 
+from shuxueshuo_server.solver.contracts import ScalarResultFormSpec
 from shuxueshuo_server.solver.problem_models import ProblemIR
 from shuxueshuo_server.solver.state_semantics import state_kind_for_runtime_type
 from shuxueshuo_server.solver.utils import unique_ordered
@@ -25,6 +26,79 @@ GoalEvidenceTag = Literal[
     "path_minimum_witness",
     "path_minimum_expression",
 ]
+StateIdentityRelation = Literal["same_object"]
+StateIdentityConstraintApplicability = Literal[
+    "required",
+    "when_all_present",
+]
+
+
+@dataclass(frozen=True)
+class StateObjectRoleProjectionSpec:
+    """Project one output object role from a resolved capability argument."""
+
+    role: str
+    source_arg: str
+    source_object_role: str | None = None
+
+    def to_payload(self) -> dict[str, object]:
+        payload: dict[str, object] = {
+            "role": self.role,
+            "source_arg": self.source_arg,
+        }
+        if self.source_object_role is not None:
+            payload["source_object_role"] = self.source_object_role
+        return payload
+
+
+@dataclass(frozen=True)
+class StateLineageClosureSpec:
+    """Conditionally promote semantic evidence from a closed set of inputs."""
+
+    source_args: tuple[str, ...]
+    required_semantic_roles: tuple[str, ...] = ()
+    required_evidence_tags: tuple[str, ...] = ()
+    shared_object_role: str | None = None
+    require_same_source_call: bool = False
+    add_semantic_roles: tuple[str, ...] = ()
+    add_evidence_tags: tuple[str, ...] = ()
+
+    def to_payload(self) -> dict[str, object]:
+        payload: dict[str, object] = {
+            "source_args": list(self.source_args),
+            "required_semantic_roles": list(self.required_semantic_roles),
+            "required_evidence_tags": list(self.required_evidence_tags),
+            "add_semantic_roles": list(self.add_semantic_roles),
+            "add_evidence_tags": list(self.add_evidence_tags),
+        }
+        if self.shared_object_role is not None:
+            payload["shared_object_role"] = self.shared_object_role
+        if self.require_same_source_call:
+            payload["require_same_source_call"] = True
+        return payload
+
+
+@dataclass(frozen=True)
+class StateIdentityConstraintSpec:
+    """A declarative equality constraint over argument/return object roles."""
+
+    left: str
+    right: str
+    relation: StateIdentityRelation = "same_object"
+    description: str = ""
+    applicability: StateIdentityConstraintApplicability = "required"
+
+    def to_payload(self) -> dict[str, object]:
+        payload: dict[str, object] = {
+            "left": self.left,
+            "right": self.right,
+            "relation": self.relation,
+        }
+        if self.applicability != "required":
+            payload["applicability"] = self.applicability
+        if self.description:
+            payload["description"] = self.description
+        return payload
 
 
 @dataclass(frozen=True)
@@ -43,6 +117,8 @@ class RecipeOutputAliasSpec:
     goal_evidence_tags: tuple[GoalEvidenceTag, ...] = ()
     description: str = ""
     equivalent_to: str | None = None
+    provides_semantic_roles: tuple[str, ...] = ()
+    object_role_projections: tuple[StateObjectRoleProjectionSpec, ...] = ()
 
     def to_payload(self) -> dict[str, object]:
         payload: dict[str, object] = {
@@ -61,6 +137,14 @@ class RecipeOutputAliasSpec:
             payload["description"] = self.description
         if self.equivalent_to is not None:
             payload["equivalent_to"] = self.equivalent_to
+        if self.provides_semantic_roles:
+            payload["provides_semantic_roles"] = list(
+                self.provides_semantic_roles
+            )
+        if self.object_role_projections:
+            payload["object_role_projections"] = [
+                item.to_payload() for item in self.object_role_projections
+            ]
         return payload
 
 
@@ -77,6 +161,8 @@ def recipe_output_alias(
     goal_evidence_tags: tuple[GoalEvidenceTag, ...] = (),
     description: str = "",
     equivalent_to: str | None = None,
+    provides_semantic_roles: tuple[str, ...] = (),
+    object_role_projections: tuple[StateObjectRoleProjectionSpec, ...] = (),
 ) -> RecipeOutputAliasSpec:
     """Build a structured recipe return without duplicating state-kind rules."""
     return RecipeOutputAliasSpec(
@@ -96,6 +182,8 @@ def recipe_output_alias(
         goal_evidence_tags=goal_evidence_tags,
         description=description,
         equivalent_to=equivalent_to,
+        provides_semantic_roles=provides_semantic_roles,
+        object_role_projections=object_role_projections,
     )
 
 @dataclass(frozen=True)
@@ -113,6 +201,10 @@ class RecipeExecutionSpec:
     # 它不是题号模板名，也不应该包含 D/M/N/F/G 这类具体点名。
     execution_strategy: str = "single_method"
     creates: tuple[str, ...] = ()
+    # ``(macro_arg, "method_id.input_name")`` mappings preserve an explicit
+    # Functional macro argument when the recipe is compiled into its internal
+    # method call. Custom compiler strategies must consume these aliases before
+    # considering legacy read-based selectors.
     input_aliases: tuple[tuple[str, str], ...] = ()
     intermediate_wiring: tuple[tuple[str, str], ...] = ()
     output_aliases: tuple[RecipeOutputAliasSpec, ...] = ()
@@ -130,6 +222,19 @@ class MethodInputBindingSpec:
     input_name: str
     selector: str
     required: bool = True
+
+
+@dataclass(frozen=True)
+class MethodAggregateInputBindingSpec:
+    """Lower one public aggregate argument into declared scalar inputs.
+
+    FunctionalPlan exposes item-level values instead of runtime containers.
+    This declaration preserves the exact reconciled item identities when a
+    legacy method accepts a fixed number of scalar compatibility inputs.
+    """
+
+    source_input: str
+    item_inputs: tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -174,6 +279,7 @@ class MethodBindingRuleSpec:
 
     method_id: str
     input_bindings: tuple[MethodInputBindingSpec, ...] = ()
+    aggregate_input_bindings: tuple[MethodAggregateInputBindingSpec, ...] = ()
     expansion_selectors: tuple[str, ...] = ()
     prep_invocations: tuple[MethodPrepInvocationSpec, ...] = ()
     always_emit_outputs: tuple[str, ...] = ()
@@ -208,6 +314,11 @@ CapabilityContractSource = Literal["explicit", "projected"]
 CapabilityScopePolicy = Literal["current", "current_or_visible", "problem", "same_as_target"]
 CapabilityCardinality = Literal["one", "optional", "many"]
 CapabilityDependencyPolicy = Literal["explicit_args", "context_closure"]
+CapabilityStateClosurePolicy = Literal[
+    "any",
+    "closed_only",
+    "closed_or_single_free",
+]
 CapabilityContextResolver = Literal[
     "condition_object_roles",
     "path_reduction_roles",
@@ -240,6 +351,10 @@ class StateSlotPattern:
     write_mode: StateWriteMode = "value"
     description: str = ""
     provides_semantic_roles: tuple[str, ...] = ()
+    result_form: ScalarResultFormSpec | None = None
+    object_role_projections: tuple[StateObjectRoleProjectionSpec, ...] = ()
+    lineage_closures: tuple[StateLineageClosureSpec, ...] = ()
+    input_closure_policy: CapabilityStateClosurePolicy = "any"
 
     def to_payload(self) -> dict[str, object]:
         payload: dict[str, object] = {
@@ -264,6 +379,18 @@ class StateSlotPattern:
             payload["provides_semantic_roles"] = list(
                 self.provides_semantic_roles
             )
+        if self.result_form is not None:
+            payload["result_form"] = self.result_form.to_payload()
+        if self.object_role_projections:
+            payload["object_role_projections"] = [
+                item.to_payload() for item in self.object_role_projections
+            ]
+        if self.lineage_closures:
+            payload["lineage_closures"] = [
+                item.to_payload() for item in self.lineage_closures
+            ]
+        if self.input_closure_policy != "any":
+            payload["input_closure_policy"] = self.input_closure_policy
         return payload
 
 
@@ -292,6 +419,31 @@ class ConditionPattern:
 
 
 @dataclass(frozen=True)
+class CapabilityInputClosureRequirement:
+    """A conditionally required semantic input.
+
+    The role may be supplied explicitly, embedded in one of the declared
+    provider arguments, or recovered from uniquely linked provenance. Merely
+    having a compatible value somewhere in Context never satisfies it.
+    """
+
+    semantic_role: str
+    provider_arg_roles: tuple[str, ...] = ()
+    cardinality: CapabilityCardinality = "one"
+    description: str = ""
+
+    def to_payload(self) -> dict[str, object]:
+        payload: dict[str, object] = {
+            "semantic_role": self.semantic_role,
+            "provider_arg_roles": list(self.provider_arg_roles),
+            "cardinality": self.cardinality,
+        }
+        if self.description:
+            payload["description"] = self.description
+        return payload
+
+
+@dataclass(frozen=True)
 class CapabilityContractSpec:
     """Declarative semantic contract for a method or recipe capability.
 
@@ -313,6 +465,10 @@ class CapabilityContractSpec:
     constraint_analyzer: str | None = None
     dependency_policy: CapabilityDependencyPolicy = "explicit_args"
     context_resolvers: tuple[CapabilityContextResolver, ...] = ()
+    input_closure_requirements: tuple[
+        CapabilityInputClosureRequirement, ...
+    ] = ()
+    identity_constraints: tuple[StateIdentityConstraintSpec, ...] = ()
 
     @property
     def is_complete(self) -> bool:
@@ -337,6 +493,12 @@ class CapabilityContractSpec:
             "constraint_analyzer": self.constraint_analyzer,
             "dependency_policy": self.dependency_policy,
             "context_resolvers": list(self.context_resolvers),
+            "input_closure_requirements": [
+                item.to_payload() for item in self.input_closure_requirements
+            ],
+            "identity_constraints": [
+                item.to_payload() for item in self.identity_constraints
+            ],
         }
 
 

@@ -13,9 +13,9 @@ from ._spec import MethodSpecSource
 class SelectCurvePointCandidateAndSolveCoefficientsMethod:
     """从几何候选点中选择能落在抛物线上的点，并同步求系数。
 
-    典型场景是河西第（Ⅱ）问：直角等长关系先给出 D 的两个候选坐标；再用
-    A、D 都在当前问抛物线上和 b>0，筛掉不符合题设的候选，并得到 b、c 与抛物线。
-    如果上一步已经把 A 点条件吸收到含参抛物线中，本 method 也可以只把候选 D
+    典型场景是：几何关系先给出目标点的多个候选坐标；再用已知点、目标点都在
+    当前抛物线上以及参数范围，筛掉不符合题设的候选，并同步得到系数与抛物线。
+    如果上一步已经把已知点条件吸收到含参抛物线中，本 method 也可以只把目标点
     代回当前抛物线，再通过 ``coefficient_dependencies`` 补齐其他系数。
     """
 
@@ -118,8 +118,8 @@ def _merge_coefficient_values(
 ) -> dict[sp.Symbol, sp.Expr]:
     """合并已知系数、依赖系数和本次解出的参数值。
 
-    例如河西第（Ⅱ）问第一步得到 ``a=2, c=-b-2``，本步骤由 D 候选解出
-    ``b=-1+sqrt(2)`` 后，需要同步得到 ``c=-1-sqrt(2)``。
+    例如前序步骤得到 ``a=2, c=-b-2``，本步骤由候选点解出一个 ``b`` 值后，
+    需要同步代回得到对应的 ``c``。
     """
     values: dict[sp.Symbol, sp.Expr] = {}
     for symbol, value in {**known, **dependencies}.items():

@@ -3,9 +3,33 @@
 from __future__ import annotations
 
 from shuxueshuo_server.solver.family.models import (
+    MethodAggregateInputBindingSpec,
     MethodBindingRuleSpec,
     MethodCompanionOutputSpec,
     MethodInputBindingSpec,
+    MethodPrepInvocationSpec,
+)
+
+
+QUADRATIC_STATE_PREP_INVOCATIONS = (
+    MethodPrepInvocationSpec(
+        trigger_selector=(
+            "missing_readable_type_with_quadratic_source:Parabola"
+        ),
+        method_id="quadratic_from_constraints",
+        output_aliases=(
+            ("coefficients", "__local_only__"),
+            ("parabola", "__local_only__"),
+        ),
+        local_output_aliases=(
+            ("type:Coefficients", "coefficients"),
+            ("type:Parabola", "parabola"),
+        ),
+        expansion_selectors=(
+            "known_coefficients_if_read",
+            "free_quadratic_parameter_if_read",
+        ),
+    ),
 )
 
 
@@ -17,6 +41,9 @@ def quadratic_from_constraints_rule() -> MethodBindingRuleSpec:
             MethodInputBindingSpec("quadratic", "function:parabola"),
             MethodInputBindingSpec("x", "symbol:x"),
             MethodInputBindingSpec("all_coefficients", "quadratic_coefficients"),
+        ),
+        aggregate_input_bindings=(
+            MethodAggregateInputBindingSpec("curve_points", ("p1", "p2")),
         ),
         expansion_selectors=(
             "known_coefficients_if_read",
@@ -45,6 +72,7 @@ def quadratic_vertex_point_rule() -> MethodBindingRuleSpec:
             MethodInputBindingSpec("x", "symbol:x"),
             MethodInputBindingSpec("target", "point_output_ref"),
         ),
+        prep_invocations=QUADRATIC_STATE_PREP_INVOCATIONS,
     )
 
 
@@ -58,6 +86,7 @@ def quadratic_x_axis_intercept_point_rule() -> MethodBindingRuleSpec:
             MethodInputBindingSpec("target", "point_output_ref"),
             MethodInputBindingSpec("known_point", "x_axis_known_point", required=False),
         ),
+        prep_invocations=QUADRATIC_STATE_PREP_INVOCATIONS,
     )
 
 
@@ -66,10 +95,23 @@ def quadratic_y_axis_intercept_point_rule() -> MethodBindingRuleSpec:
     return MethodBindingRuleSpec(
         method_id="quadratic_y_axis_intercept_point",
         input_bindings=(
-            MethodInputBindingSpec("quadratic", "read_type:Parabola"),
+            MethodInputBindingSpec("quadratic", "function:parabola"),
             MethodInputBindingSpec("x", "symbol:x"),
             MethodInputBindingSpec("target", "point_output_ref"),
         ),
+    )
+
+
+def point_on_parabola_at_x_rule() -> MethodBindingRuleSpec:
+    """Bind a closed or single-free parabola to a point at a known x value."""
+    return MethodBindingRuleSpec(
+        method_id="point_on_parabola_at_x",
+        input_bindings=(
+            MethodInputBindingSpec("parabola", "read_type:Parabola"),
+            MethodInputBindingSpec("x", "symbol:x"),
+            MethodInputBindingSpec("target", "point_output_ref"),
+        ),
+        prep_invocations=QUADRATIC_STATE_PREP_INVOCATIONS,
     )
 
 
@@ -85,6 +127,7 @@ def line_parabola_second_intersection_point_rule() -> MethodBindingRuleSpec:
             MethodInputBindingSpec("known_point", "line_parabola:known_point"),
             MethodInputBindingSpec("target", "line_parabola:target"),
         ),
+        prep_invocations=QUADRATIC_STATE_PREP_INVOCATIONS,
     )
 
 

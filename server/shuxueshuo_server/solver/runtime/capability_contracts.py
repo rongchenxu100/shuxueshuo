@@ -16,9 +16,11 @@ from shuxueshuo_server.solver.family.models import (
     StepRecipeSpec,
 )
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
+from shuxueshuo_server.solver.runtime.runtime_type_declarations import (
+    split_runtime_types,
+)
 from shuxueshuo_server.solver.state_semantics import (
     object_kind_for_runtime_type,
-    split_runtime_types,
     state_kind_for_runtime_type,
 )
 from shuxueshuo_server.solver.utils import unique_ordered

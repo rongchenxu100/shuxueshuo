@@ -337,6 +337,19 @@ def test_accepts_known_output_union_type() -> None:
     assert spec.outputs["value"] == "Expression|MinimumExpression"
 
 
+def test_rejects_runtime_union_with_empty_member() -> None:
+    with pytest.raises(ValueError, match="unknown input type"):
+        parse_method_spec(
+            {
+                "method_id": "broken_union",
+                "title": "Broken Union",
+                "solves": ["derive_expression"],
+                "inputs": {"x": {"type": "Expression||MinimumExpression"}},
+                "outputs": {"value": "Expression"},
+            }
+        )
+
+
 def test_method_purity_is_explicit_and_legacy_specs_are_conservative() -> None:
     raw = {
         "method_id": "synthetic_method",
@@ -362,8 +375,26 @@ def test_point_parameter_substitution_is_declared_by_method_spec() -> None:
         "evaluate_point_at_parameter"
     )
 
-    assert spec.plan_transformer == "substitute_all_point_parameters"
+    assert spec.plan_transformer == "substitute_read_point_parameters"
+    assert spec.plan_transformer_scope == "single_invocation"
     assert spec.reconciliation_validators == ("companion_symbol_coverage",)
+
+
+@pytest.mark.parametrize(
+    "method_id",
+    (
+        "parameter_from_expression_value",
+        "parameter_from_minimum_value",
+    ),
+)
+def test_student_parameter_solver_declares_runtime_complexity_gate(
+    method_id: str,
+) -> None:
+    spec = MethodSpecRegistry.load_from_code().require(method_id)
+
+    assert spec.plan_transformer == "validate_student_single_degree_of_freedom"
+    assert spec.plan_transformer_scope == "all_invocations"
+    assert spec.reconciliation_validators == ()
 
 
 def test_reconciliation_validator_declarations_are_normalized() -> None:
@@ -384,6 +415,20 @@ def test_reconciliation_validator_declarations_are_normalized() -> None:
         match="reconciliation_validators must be a list",
     ):
         parse_method_spec({**raw, "reconciliation_validators": "identity_check"})
+
+
+def test_plan_transformer_scope_rejects_unknown_value() -> None:
+    raw = {
+        "method_id": "synthetic_method",
+        "title": "Synthetic",
+        "solves": ["derive_expression"],
+        "inputs": {"x": {"type": "Expression"}},
+        "outputs": {"value": "Expression"},
+        "plan_transformer_scope": "some_invocations",
+    }
+
+    with pytest.raises(ValueError, match="plan_transformer_scope"):
+        parse_method_spec(raw)
 
 
 def test_rejects_unknown_output_union_member() -> None:

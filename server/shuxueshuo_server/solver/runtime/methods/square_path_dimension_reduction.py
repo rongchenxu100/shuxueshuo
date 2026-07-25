@@ -54,6 +54,7 @@ class SquarePathDimensionReductionMethod:
             "original_path": path,
             "transformed_path": transformed_path,
             "moving_point_name": moving_vertex,
+            "moving_point_ref": vertices[3],
             "fixed_point_names": (side_start, other_fixed),
             "roles": {
                 "square_vertices": (side_start, side_end, _handle_name(vertices[2]), moving_vertex),
@@ -146,7 +147,9 @@ SPEC = MethodSpecSource(
         "Given 正方形边、中点、中心和三段路径条件, derive 等价的单动点两段折线路径。"
         "该 method 只做正方形结构下的路径降维，不负责拉直求最值；输出的 "
         "PathTransformation 会揭示后续真实 moving_point 与 fixed_points，"
-        "planner 不应在执行前猜测降维后的动点。"
+        "planner 不应在执行前猜测降维后的动点。当前实现仅适用于三段路径中"
+        "前两段可由正方形中心、中点和斜边中线关系合并为一条正方形边的结构；"
+        "其它正方形路径转换应使用独立能力或扩展后的声明式变换规则。"
     ),
     solves=("reduce_square_path_dimension", "derive_path_transformation"),
     inputs={
@@ -160,6 +163,7 @@ SPEC = MethodSpecSource(
         "path_condition.path 是三段路径",
         "midpoint_condition 指向正方形一边的中点",
         "square_center_condition 指向该正方形中心或对角线交点",
+        "中点到另一固定点的半边关系已有直角三角形斜边中线依据",
     ),
     postconditions=(
         "输出 transformed_path 是两段共享同一动点的折线路径",

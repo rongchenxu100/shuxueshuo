@@ -51,6 +51,7 @@ SPEC = MethodSpecSource(
     do_not_use_when=(
         "输入表达式不具有最小值语义，或题面给出的只是普通表达式取值条件。",
         "尚未得到可代入的最小值表达式。",
+        "最小值表达式仍含两个或更多相互独立的未知 Symbol；应先化为单一未知量。",
     ),
     solves=('derive_parameter_from_minimum_value',),
     inputs={
@@ -74,6 +75,8 @@ SPEC = MethodSpecSource(
     outputs={
     "parameter_value": "ParameterValue"
 },
+    plan_transformer="validate_student_single_degree_of_freedom",
+    plan_transformer_scope="all_invocations",
     preconditions=(),
     postconditions=(),
     trace_template=(),

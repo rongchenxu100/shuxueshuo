@@ -63,7 +63,8 @@ SPEC = MethodSpecSource(
     title="构造对称轴参数化点",
     summary=(
         "Given 已解抛物线和目标 PointRef, derive 该点在抛物线对称轴上的参数化坐标。"
-        "适用于后续再由几何或曲线条件求参数的步骤。"
+        "适用于后续再由几何或曲线条件求参数的步骤。输出参数是绑定到该 Point 的"
+        "新坐标参数，默认不等于抛物线系数或其他可见参数。"
     ),
     solves=("parameterize_point_on_quadratic_axis",),
     inputs={
@@ -73,7 +74,13 @@ SPEC = MethodSpecSource(
     },
     outputs={"point": "Point", "parameter": "Symbol"},
     preconditions=("parabola 必须是关于 x 的二次函数", "target 是题设中位于该对称轴上的点"),
-    postconditions=("输出点的横坐标等于抛物线对称轴横坐标，纵坐标为待定参数",),
+    postconditions=(
+        "输出点的横坐标等于抛物线对称轴横坐标，纵坐标为绑定到该点的待定参数",
+    ),
+    do_not_use_when=(
+        "只有某个抛物线系数或其他 Symbol 的值，却没有条件证明它就是目标点的"
+        "坐标参数；不同 Symbol identity 的参数值不能互相代入。",
+    ),
     explanation=MethodExplanationSpec(
         role_schema={
             "target": "对称轴上的目标点。",

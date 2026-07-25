@@ -13,6 +13,10 @@ from shuxueshuo_server.solver.runtime.runtime_type_compatibility import (
     normalize_runtime_type,
     runtime_type_compatible,
 )
+from shuxueshuo_server.solver.runtime.runtime_type_declarations import (
+    runtime_type_union_is_well_formed,
+    split_runtime_types,
+)
 
 
 @pytest.mark.parametrize(
@@ -55,3 +59,10 @@ def test_catalog_accepts_condition_return_for_constraint_argument() -> None:
 
     assert _return_satisfies_arg(result, arg)
     assert normalize_runtime_type("point_coordinate") == "Point"
+
+
+def test_runtime_type_union_grammar_has_one_canonical_parser() -> None:
+    assert split_runtime_types(" PointRef | Point ") == ("PointRef", "Point")
+    assert runtime_type_union_is_well_formed("PointRef | Point")
+    assert not runtime_type_union_is_well_formed("PointRef||Point")
+    assert not runtime_type_union_is_well_formed("|Point")

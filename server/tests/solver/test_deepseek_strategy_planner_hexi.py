@@ -89,7 +89,7 @@ def test_hexi_strategy_payload_contains_weighted_capability_catalog() -> None:
     assert "linked_broken_path_minimum_expression" in method_ids
     assert "parameter_from_expression_value" in method_ids
     assert "evaluate_expression_at_parameter" in method_ids
-    assert "parameter_from_curve_point_on_quadratic" in method_ids
+    assert "parameter_from_curve_point_on_quadratic" not in method_ids
     assert "linked_broken_path_geometric_minimum" not in method_ids
     assert "select_curve_point_candidate_and_solve_coefficients" not in method_ids
     assert "curve_candidate_parameter_solve" in recipe_ids

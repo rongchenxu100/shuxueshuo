@@ -8,6 +8,7 @@ from typing import Any, Mapping, Protocol, Sequence
 from shuxueshuo_server.solver.contracts import MethodSpec
 from shuxueshuo_server.solver.family.models import (
     CapabilityContextResolver,
+    CapabilityInputClosureRequirement,
     SolverFamilySpec,
     StepRecipeSpec,
 )
@@ -19,6 +20,7 @@ from shuxueshuo_server.solver.runtime.function_specs import (
     function_adapter_from_binding_rule,
 )
 from shuxueshuo_server.solver.runtime.capability_contracts import (
+    contract_is_prompt_executable,
     effective_contract_by_id,
 )
 from shuxueshuo_server.solver.runtime.binding_selector_semantics import (
@@ -36,9 +38,13 @@ from shuxueshuo_server.solver.runtime.functional_plan_models import (
     FunctionalCapabilityArg,
     FunctionalCapabilityReturn,
     FunctionalContextArgBinding,
+    FunctionalInputClosureRequirement,
 )
 from shuxueshuo_server.solver.runtime.functional_reconciliation_validators import (
     validate_reconciliation_validator_ids,
+)
+from shuxueshuo_server.solver.runtime.state_identity_constraints import (
+    validate_state_identity_constraint_specs,
 )
 from shuxueshuo_server.solver.runtime.macro_specs import (
     MacroArgSpec,
@@ -50,8 +56,10 @@ from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.runtime_type_compatibility import (
     runtime_type_compatible,
 )
-from shuxueshuo_server.solver.state_semantics import (
+from shuxueshuo_server.solver.runtime.runtime_type_declarations import (
     split_runtime_types,
+)
+from shuxueshuo_server.solver.state_semantics import (
     state_kind_for_runtime_type,
 )
 
@@ -95,11 +103,14 @@ class FunctionalCapabilityCatalog:
             rule.method_id: rule
             for rule in family_spec.method_binding_rules
         }
+        function_arg_aliases = _function_arg_aliases(family_spec.step_recipes)
         for spec in functions.specs.values():
             # A recipe with the same public id owns the call boundary. Its
             # underlying method remains an internal macro call, so the catalog
             # still has one unambiguous capability kind.
             if spec.function_id in macro_ids:
+                continue
+            if not contract_is_prompt_executable(contracts.get(spec.method_id)):
                 continue
             if spec.adapter is None and spec.method_id in family_binding_rules:
                 spec = replace(
@@ -121,9 +132,12 @@ class FunctionalCapabilityCatalog:
                     spec,
                     method_spec=method_specs.require(spec.method_id),
                     contract=contracts.get(spec.method_id),
+                    arg_aliases=function_arg_aliases.get(spec.method_id, {}),
                 ),
             )
         for spec in macros.specs.values():
+            if not contract_is_prompt_executable(contracts.get(spec.recipe_id)):
+                continue
             if any(note.startswith("macro_contract_mismatch:required:") for note in spec.notes):
                 raise ValueError(
                     "planner_configuration_error: incomplete macro contract: "
@@ -202,6 +216,15 @@ class FunctionalCapabilityCatalog:
                     semantic_catalog.auto_selector_is_satisfiable(selector)
                     for selector in capability.context_preflight_selectors
                 )
+                and all(
+                    _input_requirement_is_satisfiable(
+                        capability,
+                        requirement,
+                        semantic_catalog=semantic_catalog,
+                        available_returns=available_returns,
+                    )
+                    for requirement in capability.input_closure_requirements
+                )
             ]
             if not added:
                 break
@@ -228,6 +251,11 @@ class FunctionalCapabilityCatalog:
                 )
             public_args = {item.name for item in capability.args}
             auto_args = {item.name for item in capability.auto_args}
+            semantic_args: dict[str, list[FunctionalCapabilityArg]] = {}
+            for item in capability.args:
+                semantic_args.setdefault(
+                    item.semantic_role or item.name, []
+                ).append(item)
             for arg in capability.args:
                 if arg.aggregation not in _SUPPORTED_AGGREGATIONS:
                     raise ValueError(
@@ -246,6 +274,36 @@ class FunctionalCapabilityCatalog:
                         f"source missing: {capability.capability_id}."
                         f"{result.name}->{result.identity_arg}"
                     )
+            for requirement in capability.input_closure_requirements:
+                targets = semantic_args.get(requirement.semantic_role, ())
+                if len(targets) != 1:
+                    raise ValueError(
+                        "planner_configuration_error: input closure target "
+                        f"must identify one arg: {capability.capability_id}."
+                        f"{requirement.semantic_role}"
+                    )
+                if requirement.cardinality != "one":
+                    raise ValueError(
+                        "planner_configuration_error: unsupported input closure "
+                        f"cardinality: {capability.capability_id}."
+                        f"{requirement.semantic_role}={requirement.cardinality}"
+                    )
+                if not requirement.description.strip():
+                    raise ValueError(
+                        "planner_configuration_error: input closure requirement "
+                        f"needs LLM guidance: {capability.capability_id}."
+                        f"{requirement.semantic_role}"
+                    )
+                for provider_role in requirement.provider_arg_roles:
+                    providers = semantic_args.get(provider_role, ())
+                    if len(providers) != 1 or requirement.semantic_role not in (
+                        providers[0].provides_semantic_roles
+                    ):
+                        raise ValueError(
+                            "planner_configuration_error: input closure provider "
+                            f"role is not declared: {capability.capability_id}."
+                            f"{provider_role}->{requirement.semantic_role}"
+                        )
             for resolver_id in capability.context_resolvers:
                 if not any(
                     item.resolver_id == resolver_id
@@ -279,6 +337,7 @@ def _function_capability(
     *,
     method_spec: MethodSpec,
     contract: Any | None,
+    arg_aliases: Mapping[str, tuple[str, ...]],
 ) -> FunctionalCapability:
     context_resolvers = tuple(
         getattr(contract, "context_resolvers", ())
@@ -293,12 +352,16 @@ def _function_capability(
     public_source_args = tuple(
         item
         for item in spec.args
+        if method_spec.inputs[item.name].functional_exposed
         if (
             item.kind in {"slot_read", "condition_read"}
-            and not _selector_is_mechanical(
-                binding_by_input.get(item.name).selector
-                if binding_by_input.get(item.name) is not None
-                else None
+            and (
+                _contract_declares_named_slot(contract, item.name)
+                or not _selector_is_mechanical(
+                    binding_by_input.get(item.name).selector
+                    if binding_by_input.get(item.name) is not None
+                    else None
+                )
             )
         )
         or (
@@ -359,9 +422,11 @@ def _function_capability(
                 accepted_condition_kinds=_selector_condition_kinds(
                     binding.selector if binding is not None else None
                 ),
-                requires_materialized_state=_selector_requires_state(
-                    binding.selector if binding is not None else None
+                requires_materialized_state=_arg_requires_materialized_state(
+                    item,
+                    binding.selector if binding is not None else None,
                 ),
+                aliases=arg_aliases.get(item.name, ()),
             )
         )
     represented_condition_kinds = {
@@ -401,13 +466,17 @@ def _function_capability(
         if (binding := binding_by_input.get(item.name)) is not None
     )
     returns = tuple(_function_return(item) for item in spec.returns)
+    returns = _normalize_object_role_projection_args(
+        returns,
+        public_args,
+    )
     returns = _optionalize_polymorphic_returns(public_args, returns)
     use_when, do_not_use_when = _usage_guidance(
         method_spec.summary or method_spec.title,
         method_spec.do_not_use_when,
         capability_id=spec.function_id,
     )
-    return FunctionalCapability(
+    capability = FunctionalCapability(
         capability_id=spec.function_id,
         kind="function",
         goal_types=spec.goal_types,
@@ -430,11 +499,53 @@ def _function_capability(
         context_preflight_selectors=_context_preflight_selectors(
             binding.selector for binding in binding_by_input.values()
         ),
+        input_closure_requirements=_input_closure_requirements(
+            spec.input_closure_requirements
+        ),
+        identity_constraints=spec.identity_constraints,
+    )
+    _validate_identity_contract(capability)
+    return capability
+
+
+def _contract_declares_named_slot(contract: Any | None, name: str) -> bool:
+    if contract is None:
+        return False
+    return any(
+        item.semantic_role == name
+        for item in getattr(contract, "slot_reads", ())
     )
 
 
 def _selector_is_mechanical(selector: str | None) -> bool:
     return selector_semantics(selector).mechanical
+
+
+def _normalize_object_role_projection_args(
+    returns: tuple[FunctionalCapabilityReturn, ...],
+    args: Sequence[FunctionalCapabilityArg],
+) -> tuple[FunctionalCapabilityReturn, ...]:
+    names_by_runtime_input = {
+        item.runtime_input: item.name
+        for item in args
+        if item.runtime_input is not None
+    }
+    return tuple(
+        replace(
+            returned,
+            object_role_projections=tuple(
+                replace(
+                    projection,
+                    source_arg=names_by_runtime_input.get(
+                        projection.source_arg,
+                        projection.source_arg,
+                    ),
+                )
+                for projection in returned.object_role_projections
+            ),
+        )
+        for returned in returns
+    )
 
 
 def _selector_semantic_roles(selector: str | None) -> tuple[str, ...]:
@@ -447,6 +558,27 @@ def _selector_condition_kinds(selector: str | None) -> tuple[str, ...]:
 
 def _selector_requires_state(selector: str | None) -> bool:
     return selector_semantics(selector).requires_materialized_state
+
+
+def _arg_requires_materialized_state(
+    item: FunctionArgSpec,
+    selector: str | None,
+) -> bool:
+    """Distinguish local Function projections from full-state consumers.
+
+    A Function object already carries its expression template. An unrestricted
+    ``Expression`` input can therefore evaluate a local projection such as
+    ``f(0)`` without solving every coefficient first. Full ``Parabola``
+    consumers retain the selector's materialized-state requirement.
+    """
+    if (
+        selector is not None
+        and selector.startswith("function:")
+        and item.input_closure_policy == "any"
+        and "Expression" in split_runtime_types(item.runtime_type)
+    ):
+        return False
+    return _selector_requires_state(selector)
 
 
 def _context_preflight_selectors(
@@ -524,7 +656,7 @@ def _macro_capability(
         recipe.do_not_use_when,
         capability_id=spec.macro_id,
     )
-    return FunctionalCapability(
+    capability = FunctionalCapability(
         capability_id=spec.macro_id,
         kind="macro",
         goal_types=spec.goal_types,
@@ -543,6 +675,92 @@ def _macro_capability(
             family_binding_rules=family_binding_rules,
             method_specs=method_specs,
         ),
+        input_closure_requirements=_input_closure_requirements(
+            spec.input_closure_requirements
+        ),
+        identity_constraints=spec.identity_constraints,
+    )
+    _validate_identity_contract(capability)
+    return capability
+
+
+def _validate_identity_contract(capability: FunctionalCapability) -> None:
+    arg_names = tuple(
+        dict.fromkeys(
+            (
+                *(item.name for item in capability.args),
+                *(item.arg_name for item in capability.context_arg_bindings),
+                *(item.name for item in capability.auto_args),
+            )
+        )
+    )
+    known_args = set(arg_names)
+    for returned in capability.returns:
+        for projection in returned.object_role_projections:
+            if projection.source_arg not in known_args:
+                raise ValueError(
+                    "planner_configuration_error: object-role projection "
+                    "references unknown arg: "
+                    f"{capability.capability_id}.{projection.source_arg}"
+                )
+        for closure in returned.lineage_closures:
+            missing = set(closure.source_args) - known_args
+            if not closure.source_args or missing:
+                raise ValueError(
+                    "planner_configuration_error: lineage closure references "
+                    "unknown args: "
+                    f"{capability.capability_id}.{returned.name}="
+                    f"{','.join(sorted(missing)) or 'none'}"
+                )
+    validate_state_identity_constraint_specs(
+        capability.identity_constraints,
+        arg_names=arg_names,
+        return_names=tuple(item.name for item in capability.returns),
+    )
+
+
+def _input_closure_requirements(
+    items: Sequence[CapabilityInputClosureRequirement],
+) -> tuple[FunctionalInputClosureRequirement, ...]:
+    return tuple(
+        FunctionalInputClosureRequirement(
+            semantic_role=item.semantic_role,
+            provider_arg_roles=item.provider_arg_roles,
+            cardinality=item.cardinality,
+            description=item.description,
+        )
+        for item in items
+    )
+
+
+def _input_requirement_is_satisfiable(
+    capability: FunctionalCapability,
+    requirement: FunctionalInputClosureRequirement,
+    *,
+    semantic_catalog: FunctionalSemanticCatalog,
+    available_returns: Sequence[FunctionalCapabilityReturn],
+) -> bool:
+    args_by_role = {
+        item.semantic_role or item.name: item for item in capability.args
+    }
+    target = args_by_role[requirement.semantic_role]
+    if semantic_catalog.has_compatible_view(
+        accepted_types=target.accepted_item_types or (target.runtime_type,),
+        accepted_condition_kinds=target.accepted_condition_kinds,
+        accepted_semantic_roles=target.accepted_semantic_roles,
+        requires_materialized_state=target.requires_materialized_state,
+    ) or any(
+        _return_satisfies_arg(result, target)
+        for result in available_returns
+    ):
+        return True
+    return any(
+        requirement.semantic_role in result.provides_semantic_roles
+        and any(
+            _return_satisfies_arg(result, args_by_role[provider_role])
+            for provider_role in requirement.provider_arg_roles
+        )
+        for result in available_returns
     )
 
 
@@ -647,6 +865,7 @@ def _function_arg(
     accepted_semantic_roles: tuple[str, ...] = (),
     accepted_condition_kinds: tuple[str, ...] = (),
     requires_materialized_state: bool = False,
+    aliases: tuple[str, ...] = (),
 ) -> FunctionalCapabilityArg:
     accepted_item_types, cardinality, aggregation = _lower_runtime_container(
         item.runtime_type,
@@ -686,10 +905,48 @@ def _function_arg(
         requires_materialized_state=requires_materialized_state,
         aggregation=aggregation,
         runtime_input=item.method_input or item.name,
+        aliases=aliases,
         deterministic_resolver=deterministic_resolver,
         description=item.description,
         provides_semantic_roles=item.provides_semantic_roles,
+        input_closure_policy=item.input_closure_policy,
     )
+
+
+def _function_arg_aliases(
+    recipes: Sequence[StepRecipeSpec],
+) -> dict[str, dict[str, tuple[str, ...]]]:
+    """Project recipe input aliases onto their underlying public functions."""
+    collected: dict[tuple[str, str], list[str]] = {}
+    alias_targets: dict[tuple[str, str], str] = {}
+    for recipe in recipes:
+        execution = recipe.execution
+        if execution is None:
+            continue
+        for alias, target in execution.input_aliases:
+            method_id, separator, input_name = target.partition(".")
+            if not separator or not method_id or not input_name:
+                raise ValueError(
+                    "planner_configuration_error: invalid recipe input alias: "
+                    f"{recipe.recipe_id}.{alias}->{target}"
+                )
+            previous_target = alias_targets.setdefault(
+                (method_id, alias),
+                input_name,
+            )
+            if previous_target != input_name:
+                raise ValueError(
+                    "planner_configuration_error: conflicting functional arg "
+                    f"alias: {method_id}.{alias} -> "
+                    f"{previous_target}/{input_name}"
+                )
+            values = collected.setdefault((method_id, input_name), [])
+            if alias != input_name and alias not in values:
+                values.append(alias)
+    result: dict[str, dict[str, tuple[str, ...]]] = {}
+    for (method_id, input_name), aliases in collected.items():
+        result.setdefault(method_id, {})[input_name] = tuple(aliases)
+    return result
 
 
 def _macro_arg(item: MacroArgSpec) -> FunctionalCapabilityArg:
@@ -780,6 +1037,15 @@ def _function_return(item: FunctionReturnSpec) -> FunctionalCapabilityReturn:
             else ""
         ),
         None,
+        item.provides_semantic_roles,
+        (),
+        item.object_role_projections,
+        item.lineage_closures,
+        (
+            item.scalar_result_form.max_independent_free_parameters
+            if item.scalar_result_form is not None
+            else None
+        ),
     )
 
 
@@ -852,6 +1118,15 @@ def _macro_return(item: MacroReturnSpec) -> FunctionalCapabilityReturn:
             else ""
         ),
         item.equivalent_to,
+        item.provides_semantic_roles,
+        tuple(item.goal_evidence_tags),
+        item.object_role_projections,
+        (),
+        (
+            item.scalar_result_form.max_independent_free_parameters
+            if item.scalar_result_form is not None
+            else None
+        ),
     )
 
 

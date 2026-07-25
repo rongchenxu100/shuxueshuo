@@ -146,13 +146,27 @@ def _unresolved_answer_symbol_issue(
     )
     if not unresolved_symbols:
         return None
+    symbol_states = _unresolved_symbol_states(
+        unresolved_symbols,
+        provenance=diagnostic.state_write_provenance,
+    )
+    expected_object_refs = {
+        runtime_symbol: {
+            str(item["object_ref"])
+            for item in symbol_states
+            if item["runtime_symbol"] == runtime_symbol
+            and item.get("object_ref")
+        }
+        for runtime_symbol in unresolved_symbols
+    }
     free_symbols = set(unresolved_symbols)
     available: list[tuple[str, str, str]] = []
+    incompatible: list[dict[str, str]] = []
     for item in diagnostic.state_write_provenance:
         if item.runtime_type != "ParameterValue":
             continue
         symbol_name = _symbol_name_from_object_ref(item.object_ref)
-        if symbol_name is None or symbol_name not in free_symbols:
+        if symbol_name is None:
             continue
         producer_position = step_positions.get(item.step_id)
         if producer_position is None or producer_position >= answer_position:
@@ -164,11 +178,56 @@ def _unresolved_answer_symbol_issue(
             handle_registry=handle_registry,
         ):
             continue
-        available.append((symbol_name, item.produced_handle, item.object_ref or ""))
+        matching_runtime_symbols = tuple(
+            runtime_symbol
+            for runtime_symbol in unresolved_symbols
+            if (
+                item.object_ref in expected_object_refs[runtime_symbol]
+                if expected_object_refs[runtime_symbol]
+                else symbol_name == runtime_symbol
+            )
+        )
+        if matching_runtime_symbols:
+            available.extend(
+                (
+                    runtime_symbol,
+                    item.produced_handle,
+                    item.object_ref or "",
+                )
+                for runtime_symbol in matching_runtime_symbols
+            )
+            continue
+        if item.produced_handle in answer_write.source_handles:
+            incompatible.append(
+                {
+                    "parameter": symbol_name,
+                    "state": item.produced_handle,
+                    "object_ref": item.object_ref or "",
+                    "reason": "symbol_identity_mismatch",
+                }
+            )
 
     available_symbols = unique_ordered(item[0] for item in available)
     available_handles = unique_ordered(item[1] for item in available)
     symbol_refs = unique_ordered(item[2] for item in available if item[2])
+    unresolved_descriptions = unique_ordered(
+        str(item["description"]) for item in symbol_states
+    )
+    unresolved_display = (
+        "、".join(unresolved_descriptions)
+        if unresolved_descriptions
+        else "、".join(unresolved_symbols)
+    )
+    incompatible_parameters = unique_ordered(
+        item["parameter"] for item in incompatible
+    )
+    identity_hints = (
+        (
+            f"当前传入的参数值 {'、'.join(incompatible_parameters)} "
+            f"与 {unresolved_display} 的 Symbol identity 不同；"
+            "不能因为它是唯一可见参数值就强行代入。"
+        ),
+    ) if incompatible_parameters else ()
     return PlannerRetryIssue(
         layer="goal_verification",
         code="answer_unresolved_symbol_state",
@@ -176,12 +235,17 @@ def _unresolved_answer_symbol_issue(
         scope_id=step.scope_id,
         repair_target=goal_handle or step.target,
         message=(
-            f"{step.step_id} writes the final answer with unresolved symbols "
-            f"{', '.join(unresolved_symbols)}. "
+            f"{step.step_id} 写入的最终答案仍含 {unresolved_display}。"
             + (
-                "Matching visible ParameterValue states were produced earlier."
+                "前序步骤已经产生同一 Symbol identity 的 ParameterValue。"
                 if available
-                else "No visible ParameterValue state closes those symbols."
+                else (
+                    "当前消费的参数值 "
+                    f"{'、'.join(incompatible_parameters)} 属于其他 Symbol，"
+                    "不能闭合该状态。"
+                    if incompatible_parameters
+                    else "当前没有可见的同身份 ParameterValue 能闭合该状态。"
+                )
             )
         ),
         hints=(
@@ -192,6 +256,7 @@ def _unresolved_answer_symbol_issue(
                 else "最终 answer 仍含未确定参数；请先由题设条件确定该参数，"
                 "再让 answer producer 消费其值状态。"
             ),
+            *identity_hints,
             "函数类答案只允许保留 ProblemIR 明确声明的函数自变量，"
             "不能保留未定系数或动态参数。",
         ),
@@ -203,8 +268,75 @@ def _unresolved_answer_symbol_issue(
             "allowed_free_symbols": sorted(allowed_symbols),
             "available_parameter_symbols": list(available_symbols),
             "available_parameter_states": list(available_handles),
+            **(
+                {"unresolved_symbol_states": symbol_states}
+                if symbol_states
+                else {}
+            ),
+            **(
+                {"incompatible_parameter_states": incompatible}
+                if incompatible
+                else {}
+            ),
         },
     )
+
+
+def _unresolved_symbol_states(
+    runtime_symbols: tuple[str, ...],
+    *,
+    provenance: tuple[Any, ...],
+) -> list[dict[str, str]]:
+    """Project runtime symbols through companion-state semantic identity."""
+    result: list[dict[str, str]] = []
+    seen: set[tuple[str, str]] = set()
+    for runtime_symbol in runtime_symbols:
+        for item in provenance:
+            if (
+                item.runtime_type != "Symbol"
+                or runtime_symbol not in item.free_symbol_names
+                or item.identity_role != "axis_parameter"
+            ):
+                continue
+            object_ref = (
+                item.object_ref
+                if _symbol_name_from_object_ref(item.object_ref) is not None
+                else None
+            )
+            source_point = next(
+                (
+                    handle
+                    for handle in item.source_handles
+                    if handle.startswith("point:")
+                ),
+                None,
+            )
+            key = (runtime_symbol, object_ref or "")
+            if key in seen:
+                continue
+            seen.add(key)
+            point_name = (
+                source_point.rsplit(":", 1)[-1]
+                if source_point is not None
+                else ""
+            )
+            description = (
+                f"点 {point_name} 的未定坐标参数"
+                if point_name
+                else "目标点的未定坐标参数"
+            )
+            state = {
+                "runtime_symbol": runtime_symbol,
+                "semantic_role": item.identity_role,
+                "description": description,
+            }
+            if object_ref is not None:
+                state["object_ref"] = object_ref
+                state["semantic_ref"] = object_ref.rsplit(":", 1)[-1]
+            if source_point is not None:
+                state["source_object_ref"] = source_point
+            result.append(state)
+    return result
 
 
 def _allowed_answer_free_symbols(

@@ -2,7 +2,7 @@
   "method_id": "line_locus_minimum_point",
   "title": "由最短线段和轨迹求动点",
   "description": "求最短线段与动点轨迹直线的交点。",
-  "summary": "Given 动点轨迹直线和拉直后的最短线段两端点, derive 最短状态下的动点坐标。",
+  "summary": "将当前路径动点的轨迹直线与拉直后的最短线段相交，求该动点在最短状态下的坐标。轨迹、两个内部端点和返回点必须属于同一条路径变换的动点身份。",
   "solves": [
     "derive_line_locus_minimum_point"
   ],
@@ -38,6 +38,10 @@
   "is_pure": true,
   "preconditions": [
     "最短线段与 moving_locus 不平行"
+  ],
+  "do_not_use_when": [
+    "moving_locus 不是 Line，或轨迹属于另一个几何对象。",
+    "目标是与路径动点相关的另一个几何点；本能力只返回路径动点自身的最短状态。"
   ],
   "postconditions": [
     "输出点同时位于最短线段和 moving_locus 上"

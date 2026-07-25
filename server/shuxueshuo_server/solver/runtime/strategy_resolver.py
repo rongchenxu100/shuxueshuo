@@ -618,7 +618,9 @@ def _evaluate_step_candidate(
         # Phase 1a packs can expose broader methods that happen to include the
         # requested output type. For null-hint automatic selection, prefer the
         # capability whose public output boundary has fewer extra types.
-        extra_output_count = len(set(capability.output_types) - set(produced_types))
+        extra_output_count = len(
+            set(_required_output_types(capability)) - set(produced_types)
+        )
         score += max(0, 10 - extra_output_count)
     if capability.preferred:
         score += 10
@@ -632,6 +634,31 @@ def _evaluate_step_candidate(
         output_types=capability.output_types,
         errors=tuple(errors),
     )
+
+
+def _required_output_types(
+    capability: ExecutableCapabilitySpec,
+) -> tuple[str, ...]:
+    """Return the contract's required writes for candidate specificity.
+
+    Optional outputs must remain available for type coverage, but they should
+    not make a method look less specific when a StepIntent only asks for its
+    required result.
+    """
+    contract = capability.contract
+    if not isinstance(contract, dict):
+        return capability.output_types
+    writes = contract.get("slot_writes")
+    if not isinstance(writes, list):
+        return capability.output_types
+    required = tuple(
+        item["runtime_type"]
+        for item in writes
+        if isinstance(item, dict)
+        and item.get("required", True)
+        and isinstance(item.get("runtime_type"), str)
+    )
+    return tuple(_unique_ordered(required)) or capability.output_types
 
 
 def _applicability_errors_for_candidate(

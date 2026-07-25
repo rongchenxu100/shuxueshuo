@@ -38,6 +38,7 @@ from shuxueshuo_server.solver.runtime.functional_symbol_flow import (
     return_free_symbol_refs,
 )
 from shuxueshuo_server.solver.runtime.handle_alias_index import (
+    parse_scoped_non_answer_handle,
     visible_from_valid_scope,
 )
 from shuxueshuo_server.solver.runtime.handle_registry import (
@@ -418,7 +419,7 @@ class FunctionalCallPlacementService:
                 for call_id, members in groups.items()
             },
         )
-        provisional_execution_scopes: dict[str, str] = {}
+        requested_execution_scopes: dict[str, str] = {}
         answer_scope_by_ref = {
             goal.id: goal.question_id
             for goal in question_goals
@@ -436,25 +437,31 @@ class FunctionalCallPlacementService:
                 if binding.kind == "answer"
                 and binding.ref in answer_scope_by_ref
             )
+            answer_target_scopes = _answer_target_object_scopes(
+                call,
+                handle_registry=handle_registry,
+            )
             proposed = _call_execution_scope(
                 declared_scopes=member_scopes,
                 destination_scopes=destinations,
                 answer_scopes=answer_destinations,
+                answer_target_scopes=answer_target_scopes,
                 registry=handle_registry,
             )
-            item = canonical_reconciled.get(call.call_id)
-            if item is not None and _inputs_visible_at_scope(
-                item.resolved_args.values(),
-                proposed,
-                aliases=aliases,
-                execution_scopes=provisional_execution_scopes,
-                registry=handle_registry,
-            ):
-                provisional_execution_scopes[call.call_id] = proposed
-            else:
-                provisional_execution_scopes[call.call_id] = source_scopes[
-                    call.call_id
-                ]
+            requested_execution_scopes[call.call_id] = proposed
+
+        provisional_execution_scopes = _close_execution_scope_dependencies(
+            canonical_plan,
+            reconciled=canonical_reconciled,
+            dependency_graph=canonical_dependencies,
+            requested_scopes=requested_execution_scopes,
+            declared_scopes={
+                call_id: source_scopes[call_id]
+                for call_id in canonical_calls
+            },
+            aliases=aliases,
+            registry=handle_registry,
+        )
 
         return_scopes: dict[str, dict[str, str]] = {}
         for call in canonical_plan.calls:
@@ -985,6 +992,77 @@ def _inputs_visible_at_scope(
     return True
 
 
+def _close_execution_scope_dependencies(
+    plan: FunctionalPlan,
+    *,
+    reconciled: Mapping[str, FunctionalCallReconciliation],
+    dependency_graph: Mapping[str, tuple[str, ...]],
+    requested_scopes: Mapping[str, str],
+    declared_scopes: Mapping[str, str],
+    aliases: Mapping[str, str],
+    registry: CanonicalHandleRegistry,
+) -> dict[str, str]:
+    """Solve producer/consumer placement as a dependency-closure fixed point.
+
+    A consumer may request an ancestor scope because sibling questions share
+    it. The requested scope first propagates backwards through the complete
+    producer graph. Once that fixed point is known, calls whose external
+    inputs are not visible there fall back to their declared scope; that
+    fallback then propagates forward to dependent consumers.
+    """
+
+    result = dict(requested_scopes)
+    calls = {call.call_id: call for call in plan.calls}
+    max_rounds = max(1, len(calls) * 2)
+    # Move the entire producer closure before checking visibility. Checking a
+    # partial closure creates an order-dependent deadlock: a producer cannot
+    # move until its own producer moves, but that upstream producer is never
+    # considered after the immediate move is rejected.
+    for _ in range(max_rounds):
+        changed = False
+        for call in plan.calls:
+            for dependency_id in dependency_graph.get(call.call_id, ()):
+                dependency_call = calls.get(dependency_id)
+                if dependency_call is None:
+                    continue
+                if _has_answer_binding(dependency_call):
+                    continue
+                proposed = _least_common_scope(
+                    (result[dependency_id], result[call.call_id]),
+                    registry,
+                )
+                if proposed == result[dependency_id]:
+                    continue
+                result[dependency_id] = proposed
+                changed = True
+        if not changed:
+            break
+
+    # Reject unsafe hoists after the closure is complete. Repeating in reverse
+    # topological order lets a producer fallback force each dependent consumer
+    # back to a readable scope as well.
+    for _ in range(max_rounds):
+        changed = False
+        for call in reversed(plan.calls):
+            item = reconciled.get(call.call_id)
+            if item is None or _inputs_visible_at_scope(
+                item.resolved_args.values(),
+                result[call.call_id],
+                aliases=aliases,
+                execution_scopes=result,
+                registry=registry,
+            ):
+                continue
+            declared = declared_scopes[call.call_id]
+            if result[call.call_id] == declared:
+                continue
+            result[call.call_id] = declared
+            changed = True
+        if not changed:
+            break
+    return result
+
+
 def _reallocate_calls(
     plan: FunctionalPlan,
     *,
@@ -1097,6 +1175,8 @@ def _rewrite_resolved_value(
         dependency_object_refs=allocation.dependency_object_refs,
         free_symbol_refs=allocation.free_symbol_refs,
         source_state_slot_ids=allocation.source_state_slot_ids,
+        provides_semantic_roles=allocation.provides_semantic_roles,
+        lineage=allocation.lineage,
     )
 
 
@@ -1169,15 +1249,56 @@ def _call_execution_scope(
     declared_scopes: Sequence[str],
     destination_scopes: Sequence[str],
     answer_scopes: Sequence[str],
+    answer_target_scopes: Sequence[str],
     registry: CanonicalHandleRegistry,
 ) -> str:
-    # Execution placement is a graph property. Answer ownership is handled by
-    # the independent student narrative projection and must not pin a shared
-    # canonical computation to one child question.
+    # A child-scoped answer object is a real write destination, not merely a
+    # narrative owner. If every declared/consumer scope is compatible with
+    # that destination, execute there so the runtime can materialize it. An
+    # answer backed by a shared problem object does not pin execution.
+    if answer_target_scopes:
+        target_scope = _least_common_scope(answer_target_scopes, registry)
+        declared_are_ancestors = all(
+            scope in registry.ancestor_scopes(target_scope)
+            for scope in declared_scopes
+        )
+        consumers_can_read = all(
+            target_scope in registry.ancestor_scopes(scope)
+            for scope in destination_scopes
+        )
+        answers_are_descendants = all(
+            target_scope in registry.ancestor_scopes(scope)
+            for scope in answer_scopes
+        )
+        if declared_are_ancestors and consumers_can_read and answers_are_descendants:
+            return target_scope
     return _least_common_scope(
         (*declared_scopes, *destination_scopes, *answer_scopes),
         registry,
     )
+
+
+def _answer_target_object_scopes(
+    call: FunctionalCall,
+    *,
+    handle_registry: CanonicalHandleRegistry,
+) -> tuple[str, ...]:
+    """Return child/local scopes that physically own answer-bound objects."""
+
+    scopes: list[str] = []
+    for binding in call.return_bindings.values():
+        if binding.kind != "answer":
+            continue
+        target = handle_registry.answer_target_handles.get(
+            f"answer:{binding.ref}"
+        )
+        parsed = parse_scoped_non_answer_handle(target) if target else None
+        if parsed is None:
+            continue
+        _kind, target_scope, _name = parsed
+        if target_scope != "problem":
+            scopes.append(target_scope)
+    return tuple(dict.fromkeys(scopes))
 
 
 def _relocate_ref(value: str, scope_id: str) -> str:

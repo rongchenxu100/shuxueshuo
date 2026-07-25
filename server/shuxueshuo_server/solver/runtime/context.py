@@ -527,6 +527,13 @@ class ContextBuilder:
                     locked=True,
                     source=f"question:{scope.scope_id}",
                 )
+                for symbol, value in known.items():
+                    scope.container("parameter_values")[symbol.name] = TypedValue(
+                        "ParameterValue",
+                        value,
+                        locked=True,
+                        source=f"question:{scope.scope_id}",
+                    )
             all_coefficients = context.problem_scope.container("symbol_lists").get("quadratic_coefficients")
             if all_coefficients is not None:
                 # 每一问的“未定二次项系数”由题设已知系数确定。例如河西第（Ⅱ）问

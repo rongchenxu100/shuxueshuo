@@ -15,8 +15,8 @@ from ._spec import MethodSpecSource
 class LinkedBrokenPathGeometricMinimumMethod:
     """用“将军饮马”的折线最短思想处理带联动辅助点的路径最值。
 
-    南开题里的 ``broken_path_straightening_candidates`` 是标准反射型将军饮马；
-    河西题第（Ⅲ）问不是简单反射，而是先构造 Q，使 ``AN`` 变成同倍率下的
+    标准 ``broken_path_straightening_candidates`` 处理反射型将军饮马；本
+    method 处理另一类联动辅助点：先构造 Q，把一个加权线段转成同倍率的
     ``QN``，再研究 ``MN+QN``。这里封装的是这个“联动点 Q”版本：
 
     - Q 随 N 在一条固定 45° 射线上运动；
@@ -169,7 +169,7 @@ class LinkedBrokenPathMinimumExpressionMethod:
     该 method 是 ``linked_broken_path_geometric_minimum`` 的薄版本：它完成学生
     解法中的“点到辅助点轨迹的垂线距离”这一步，输出关于主参数的最小值表达式。
     题设给定最小值后，再交给 ``parameter_from_expression_value`` 解参数。这样
-    Strategy Planner 看到的是更可复用的细粒度能力，而不是河西题专属大 recipe。
+    Strategy Planner 看到的是可复用的细粒度能力，而不是某道题专属的大 recipe。
     """
 
     method_id = "linked_broken_path_minimum_expression"
@@ -355,8 +355,8 @@ def _point_to_locus_distance(
     """计算点到辅助点运动轨迹所在直线的距离。
 
     用点到直线距离公式 ``|cross(point-start, direction)| / |direction|``。
-    对河西题这类一次表达式，结合 ``b>0`` 可以把 Abs 化掉，得到学生解法里的
-    线性最小值表达式。
+    对一次表达式，结合参数正负约束可以把 Abs 化掉，得到学生解法里的线性
+    最小值表达式。
     """
     dx, dy = direction
     cross = sp.simplify((point[0] - start[0]) * dy - (point[1] - start[1]) * dx)

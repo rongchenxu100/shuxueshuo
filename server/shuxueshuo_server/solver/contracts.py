@@ -15,8 +15,14 @@ import sympy as sp
 
 CheckStatus = Literal["passed", "failed"]
 Point = tuple[sp.Expr, sp.Expr]
-FunctionalResultForm = Literal["open_expression", "closed_value"]
+FunctionalResultForm = Literal[
+    "open_expression",
+    "closed_value",
+    "open_state",
+    "closed_state",
+]
 ScalarResultClosurePolicy = Literal["no_free_symbols"]
+PlanTransformerScope = Literal["single_invocation", "all_invocations"]
 
 
 @dataclass
@@ -82,11 +88,12 @@ class MethodInputSpec:
     type: str
     role: str = ""
     required: bool = True
+    functional_exposed: bool = True
 
 
 @dataclass(frozen=True)
 class ScalarResultFormSpec:
-    """LLM-facing shape metadata for scalar outputs with symbolic/closed forms.
+    """LLM-facing closure metadata for symbolic scalar or object outputs.
 
     This is an intent and catalog contract. Runtime remains authoritative and
     determines the actual form from the produced value's free symbols.
@@ -95,13 +102,56 @@ class ScalarResultFormSpec:
     possible_forms: tuple[FunctionalResultForm, ...]
     description: str
     closure_policy: ScalarResultClosurePolicy = "no_free_symbols"
+    ignored_symbol_input_args: tuple[str, ...] = ()
+    max_independent_free_parameters: int | None = None
 
     def to_payload(self) -> dict[str, Any]:
-        return {
+        payload: dict[str, Any] = {
             "possible_forms": list(self.possible_forms),
             "description": self.description,
             "closure_policy": self.closure_policy,
         }
+        if self.ignored_symbol_input_args:
+            payload["ignored_symbol_input_args"] = list(
+                self.ignored_symbol_input_args
+            )
+        if self.max_independent_free_parameters is not None:
+            payload["max_independent_free_parameters"] = (
+                self.max_independent_free_parameters
+            )
+        return payload
+
+
+_OPEN_OR_CLOSED_POINT_STATE = ScalarResultFormSpec(
+    possible_forms=("open_state", "closed_state"),
+    description=(
+        "坐标仍含未确定符号时为 open_state；不存在自由符号时为 "
+        "closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。"
+    ),
+)
+
+_OPEN_OR_CLOSED_PARABOLA_STATE = ScalarResultFormSpec(
+    possible_forms=("open_state", "closed_state"),
+    description=(
+        "抛物线状态仍含未确定系数或参数时为 open_state；不存在自由符号时为 "
+        "closed_state。代码以 runtime 表达式的自由符号为准。"
+    ),
+    ignored_symbol_input_args=("x",),
+)
+
+
+def default_result_form_spec(runtime_type: str) -> ScalarResultFormSpec | None:
+    """Return type-level result-form semantics shared by every capability.
+
+    A Point is a coordinate state and may be symbolic or fully evaluated
+    regardless of which method produced it. Keeping this rule at the runtime
+    type boundary avoids per-method result-form patches.
+    """
+    if runtime_type == "Point":
+        return _OPEN_OR_CLOSED_POINT_STATE
+    if runtime_type == "Parabola":
+        return _OPEN_OR_CLOSED_PARABOLA_STATE
+    return None
 
 
 @dataclass(frozen=True)
@@ -184,6 +234,7 @@ class MethodSpec:
     visual: MethodVisualSpec | None = None
     constraint_analyzer: str | None = None
     plan_transformer: str | None = None
+    plan_transformer_scope: PlanTransformerScope = "single_invocation"
     reconciliation_validators: tuple[str, ...] = ()
     distinct_arg_groups: tuple[tuple[str, ...], ...] = ()
     # Missing/legacy specs are conservative. Code-owned stateless methods

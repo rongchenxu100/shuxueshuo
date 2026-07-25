@@ -496,6 +496,52 @@ def test_quadratic_from_constraints_keeps_free_parameter() -> None:
     assert sp.simplify(result.outputs["parabola"].value - (x**2 - b * x - b - 1)) == 0
 
 
+def test_quadratic_from_constraints_solves_open_target_coefficient() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["x", "b", "c"])
+    x, b, c = (symbols[name] for name in ("x", "b", "c"))
+
+    result = QuadraticFromConstraintsMethod().run(
+        {
+            "quadratic": -x**2 + b * x + c,
+            "x": x,
+            "all_coefficients": [b],
+            "curve_point": (-c, 0),
+            "free_parameter": c,
+            "target_parameter": b,
+        },
+        kernel,
+    )
+
+    assert sp.simplify(result.outputs["parameter_value"].value - (1 - c)) == 0
+    assert sp.simplify(
+        result.outputs["parabola"].value
+        - (-x**2 + (1 - c) * x + c)
+    ) == 0
+
+
+def test_quadratic_from_constraints_rejects_preserved_target() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["x", "b", "c"])
+    x, b, c = (symbols[name] for name in ("x", "b", "c"))
+
+    with pytest.raises(
+        ValueError,
+        match=r"function.constraints_underdetermined:.*target=b",
+    ):
+        QuadraticFromConstraintsMethod().run(
+            {
+                "quadratic": -x**2 + b * x + c,
+                "x": x,
+                "all_coefficients": [b],
+                "curve_point": (-c, 0),
+                "free_parameter": b,
+                "target_parameter": b,
+            },
+            kernel,
+        )
+
+
 def test_quadratic_from_constraints_substitutes_a_and_curve_point() -> None:
     kernel = SympyKernel()
     symbols = kernel.symbols(["x", "a", "b", "c"])
@@ -713,6 +759,11 @@ def test_filter_point_candidates_by_quadratic_curve_keeps_all_valid_candidates()
 
     assert result.outputs["filtered_candidates"].value == [(sp.Integer(0), sp.Integer(1)), (sp.Integer(1), sp.Integer(2))]
     assert result.outputs["rejected_candidates"].value == []
+    assert "selected_candidate" not in result.outputs
+    assert any(
+        check.name == "candidate_selection_ambiguous" and not check.ok
+        for check in result.checks
+    )
 
 
 def test_parameter_from_curve_point_on_quadratic_method() -> None:
@@ -924,6 +975,31 @@ def test_quadratic_from_constraints_with_curve_points_and_relation() -> None:
 
     assert all(check.ok for check in result.checks)
     assert a in result.outputs["coefficients"].value
+
+
+def test_quadratic_from_constraints_refines_materialized_parameterized_state() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["x", "a", "b", "c", "m"])
+    x, a, b, c, m = (symbols[name] for name in ("x", "a", "b", "c", "m"))
+    current_parabola = x**2 / (m - 2) - 2 * x / (m - 2) + 1 - m
+    inputs = {
+        "quadratic": current_parabola,
+        "x": x,
+        "p1": (sp.Integer(3), sp.Integer(1)),
+        "p2": (sp.Integer(2), sp.Integer(-2)),
+        "coefficient_relation": sp.Eq(2 * a + b, 0),
+        "all_coefficients": [a, b, c],
+        "parameter": m,
+        "parameter_value": sp.Integer(3),
+    }
+
+    analysis = analyze_quadratic_constraints(inputs)
+    result = QuadraticFromConstraintsMethod().run(inputs, kernel)
+
+    assert analysis.status == "determined"
+    assert result.outputs["coefficients"].value == {a: 1, b: -2, c: -2}
+    assert sp.expand(result.outputs["parabola"].value) == x**2 - 2 * x - 2
+    assert all(check.ok for check in result.checks)
 
 
 def test_parameter_from_segment_length_method() -> None:
@@ -1641,11 +1717,13 @@ def test_evaluate_expression_at_parameter_preserves_parabola_type() -> None:
 
 def test_evaluate_point_at_parameter_method() -> None:
     kernel = SympyKernel()
-    c = kernel.symbols(["c"])["c"]
+    symbols = kernel.symbols(["c", "t"])
+    c = symbols["c"]
+    t = symbols["t"]
 
     result = EvaluatePointAtParameterMethod().run(
         {
-            "point": (-c, sp.Integer(0)),
+            "point": (-c + t, c - t),
             "parameter": c,
             "parameter_value": sp.Integer(5),
         },
@@ -1653,7 +1731,7 @@ def test_evaluate_point_at_parameter_method() -> None:
     )
 
     assert result.outputs["evaluated_point"].type == "Point"
-    assert result.outputs["evaluated_point"].value == (sp.Integer(-5), sp.Integer(0))
+    assert result.outputs["evaluated_point"].value == (t - 5, 5 - t)
     assert all(check.ok for check in result.checks)
 
 

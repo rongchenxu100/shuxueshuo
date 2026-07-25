@@ -2,7 +2,7 @@
   "method_id": "quadratic_x_axis_intercept_point",
   "title": "求二次函数与 x 轴交点",
   "description": "由二次函数解析式求与 x 轴的交点。",
-  "summary": "输入: 抛物线表达式、变量和目标 PointRef，可带已知交点或目标左右侧声明；输出: x 轴交点，坐标可保留参数。",
+  "summary": "从当前抛物线求指定的 x 轴交点，坐标可以保留参数。known_point 仅表示另一个已经求出坐标的 x 轴交点；未知时应省略，不能填写当前目标点。",
   "solves": [
     "derive_quadratic_x_axis_intercept_point"
   ],
@@ -30,6 +30,10 @@
   "is_pure": true,
   "preconditions": [
     "quadratic 是关于 x 的函数表达式，可以含未定系数"
+  ],
+  "do_not_use_when": [
+    "不要把当前正在求解的目标交点同时作为 known_point。",
+    "只有 PointRef 或点名、尚无坐标状态的点不能作为 known_point。"
   ],
   "postconditions": [
     "输出点纵坐标为 0 且在曲线上；若给定 known_point，则输出另一个 x 轴交点；若目标 PointRef 声明 side=left/right，则输出对应左右交点"

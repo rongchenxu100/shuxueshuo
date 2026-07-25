@@ -23,7 +23,9 @@ from shuxueshuo_server.solver.contracts import (
     StatelessMethodResult,
     TypedValue,
 )
-from shuxueshuo_server.solver.state_semantics import split_runtime_types
+from shuxueshuo_server.solver.runtime.runtime_type_declarations import (
+    split_runtime_types,
+)
 
 
 ScopeType = Literal["problem", "question", "subquestion", "step"]

@@ -10,7 +10,7 @@ from dataclasses import asdict
 import json
 from pathlib import Path
 import re
-from typing import Any, Callable, Protocol
+from typing import Any, Callable, Mapping, Protocol
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
@@ -233,7 +233,10 @@ class StrategyPayloadBuilder:
                 inputs.family_spec,
                 inputs.method_specs,
             ),
-            "recipe_catalog": _recipe_catalog_payload(inputs.family_spec),
+            "recipe_catalog": _recipe_catalog_payload(
+                inputs.family_spec,
+                inputs.method_specs,
+            ),
             "few_shot_examples": self._few_shot_examples(inputs, problem_payload),
             "previous_attempt_state": _previous_attempt_state(previous_attempts),
             "previous_attempts": _prompt_previous_attempts(previous_attempts),
@@ -396,6 +399,7 @@ def _latest_functional_few_shot_selection(
 def _functional_issue_tickets(value: Any) -> list[dict[str, Any]]:
     if not isinstance(value, list):
         return []
+    symbol_labels = _functional_issue_symbol_labels(value)
     tickets: list[dict[str, Any]] = []
     for item in value:
         if not isinstance(item, dict):
@@ -407,20 +411,73 @@ def _functional_issue_tickets(value: Any) -> list[dict[str, Any]]:
         }
         if isinstance(item.get("step_id"), str):
             ticket["call_id"] = item["step_id"]
-        tickets.append(_sanitize_functional_ticket_value(ticket))
+        tickets.append(
+            _sanitize_functional_ticket_value(
+                ticket,
+                symbol_labels=symbol_labels,
+            )
+        )
     return tickets
 
 
-def _sanitize_functional_ticket_value(value: Any) -> Any:
+def _functional_issue_symbol_labels(
+    issues: list[Any],
+) -> dict[str, str]:
+    """Collect prompt-safe labels emitted by the semantic state ledger."""
+    result: dict[str, str] = {}
+    for issue in issues:
+        if not isinstance(issue, dict):
+            continue
+        details = issue.get("details")
+        if not isinstance(details, dict):
+            continue
+        states = details.get("unresolved_symbol_states")
+        if not isinstance(states, list):
+            continue
+        for state in states:
+            if not isinstance(state, dict):
+                continue
+            runtime_symbol = state.get("runtime_symbol")
+            description = state.get("description")
+            if (
+                isinstance(runtime_symbol, str)
+                and runtime_symbol
+                and isinstance(description, str)
+                and description
+            ):
+                result[runtime_symbol] = description
+    return result
+
+
+def _sanitize_functional_ticket_value(
+    value: Any,
+    *,
+    symbol_labels: Mapping[str, str] | None = None,
+) -> Any:
     """Project runtime handles in retry diagnostics back to short semantic refs."""
     if isinstance(value, dict):
         return {
-            key: _sanitize_functional_ticket_value(child)
+            key: _sanitize_functional_ticket_value(
+                child,
+                symbol_labels=symbol_labels,
+            )
             for key, child in value.items()
         }
     if isinstance(value, list):
-        return [_sanitize_functional_ticket_value(child) for child in value]
+        return [
+            _sanitize_functional_ticket_value(
+                child,
+                symbol_labels=symbol_labels,
+            )
+            for child in value
+        ]
     if isinstance(value, str):
+        for runtime_symbol, label in sorted(
+            (symbol_labels or {}).items(),
+            key=lambda item: len(item[0]),
+            reverse=True,
+        ):
+            value = value.replace(runtime_symbol, label)
         if looks_like_canonical_ref(
             value,
             allowed_kinds=SEMANTIC_READ_KINDS,
@@ -1456,12 +1513,12 @@ def _prompt_exposed_direct_method_ids(
     )
 
 
-def _recipe_catalog_payload(family: SolverFamilySpec) -> dict[str, Any]:
-    """生成当前 family 的 recipe 菜单摘要。
-
-    这里完整输出 family 配置的 recipe，不做题内 top-k。LLM 需要看到的是“这类题
-    推荐有哪些标准动作”，具体某一步最终能否执行由后续 resolver/trial 验算。
-    """
+def _recipe_catalog_payload(
+    family: SolverFamilySpec,
+    method_specs: MethodSpecRegistry,
+) -> dict[str, Any]:
+    """生成当前 family 中允许 LLM 直接选择的 recipe 菜单摘要。"""
+    contracts = effective_contract_by_id(family, method_specs)
     return {
         "recipes": [
             {
@@ -1473,6 +1530,7 @@ def _recipe_catalog_payload(family: SolverFamilySpec) -> dict[str, Any]:
                 **({"priority": recipe.priority} if recipe.priority else {}),
             }
             for recipe in family.step_recipes
+            if contract_is_prompt_executable(contracts.get(recipe.recipe_id))
         ]
     }
 
@@ -1552,42 +1610,14 @@ def _generic_fallback_few_shot(family_id: str) -> dict[str, Any]:
                     ),
                 },
                 {
-                    "step_id": "straighten_reduced_path",
-                    "recipe_hint": "broken_path_straightening_and_select",
-                    "goal_type": "straighten_broken_path",
-                    "target": "fact:demo:straightened_path_choice",
-                    "strategy": "对等价折线路径构造拉直候选，并选择最方便计算的拉直方案。",
+                    "step_id": "derive_straightened_minimum",
+                    "recipe_hint": "broken_path_straightening_minimum_expression",
+                    "goal_type": "derive_path_minimum_expression",
+                    "target": "fact:demo:path_minimum_value_expr",
+                    "strategy": "对等价折线路径完成拉直，并计算拉直端点之间的最小距离表达式。",
                     "reads": [
                         "fact:demo:single_moving_path_equivalence",
                         "segment:demo:motion_segment",
-                    ],
-                    "creates": [
-                        {
-                            "handle": "point:demo:Aux",
-                            "entity_type": "point",
-                            "valid_scope": "demo",
-                            "description": "用于折线拉直的辅助点",
-                        }
-                    ],
-                    "produces": [
-                        {
-                            "handle": "fact:demo:straightened_path_choice",
-                            "valid_scope": "demo",
-                            "description": "已经选定可计算的折线拉直方案",
-                            "output_type": "StraighteningCandidate",
-                        }
-                    ],
-                    "reason": "单动点折线最短路径通常通过拉直处理。",
-                },
-                {
-                    "step_id": "compute_straightened_minimum",
-                    "recipe_hint": "path_minimum_by_straightened_distance",
-                    "goal_type": "derive_minimum_value",
-                    "target": "fact:demo:path_minimum_value_expr",
-                    "strategy": "在拉直方案确定后，用对应端点间距离得到路径最小值表达式。",
-                    "reads": [
-                        "fact:demo:straightened_path_choice",
-                        "point:demo:Aux",
                     ],
                     "creates": [],
                     "produces": [
@@ -1596,9 +1626,21 @@ def _generic_fallback_few_shot(family_id: str) -> dict[str, Any]:
                             "valid_scope": "demo",
                             "description": "路径最小值表达式",
                             "output_type": "MinimumExpression",
-                        }
+                        },
+                        {
+                            "handle": "fact:demo:path_minimum_point_1",
+                            "valid_scope": "demo",
+                            "description": "拉直后最短线段的第一个端点",
+                            "output_type": "Point",
+                        },
+                        {
+                            "handle": "fact:demo:path_minimum_point_2",
+                            "valid_scope": "demo",
+                            "description": "拉直后最短线段的第二个端点",
+                            "output_type": "Point",
+                        },
                     ],
-                    "reason": "拉直后的最短路径转化为端点间距离。",
+                    "reason": "公开组合能力同时给出最小值表达式和后续可复用的拉直端点。",
                 },
             ],
         },

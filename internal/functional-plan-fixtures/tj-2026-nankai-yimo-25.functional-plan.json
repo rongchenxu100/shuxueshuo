@@ -262,28 +262,15 @@
           "reason": "得到第（Ⅱ）②问的抛物线解析式。"
         },
         {
-          "call_id": "ii_select_straightening",
-          "capability_id": "broken_path_straightening_and_select",
-          "args": {
-            "path_transformation": {
-              "from_call": "ii_reduce_path",
-              "return": "path_transformation"
-            }
-          },
-          "return_bindings": {},
-          "strategy": "选择可用于恢复极值点的拉直方案及其辅助端点。",
-          "reason": "由拉直直线与原动点轨迹的交点恢复 G。"
-        },
-        {
           "call_id": "ii_2_derive_G",
           "capability_id": "line_intersection_point",
           "args": {
             "line1_p1": {
-              "from_call": "ii_select_straightening",
+              "from_call": "ii_derive_path_model",
               "return": "path_minimum_point_1"
             },
             "line1_p2": {
-              "from_call": "ii_select_straightening",
+              "from_call": "ii_derive_path_model",
               "return": "path_minimum_point_2"
             },
             "line2_p1": {

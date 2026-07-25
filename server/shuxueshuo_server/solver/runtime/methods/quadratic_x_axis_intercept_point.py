@@ -140,7 +140,14 @@ def _is_positive(value: sp.Expr) -> bool:
 SPEC = MethodSpecSource(
     method_cls=QuadraticXAxisInterceptPointMethod,
     title="求二次函数与 x 轴交点",
-    summary="输入: 抛物线表达式、变量和目标 PointRef，可带已知交点或目标左右侧声明；输出: x 轴交点，坐标可保留参数。",
+    summary=(
+        "从当前抛物线求指定的 x 轴交点，坐标可以保留参数。known_point 仅表示"
+        "另一个已经求出坐标的 x 轴交点；未知时应省略，不能填写当前目标点。"
+    ),
+    do_not_use_when=(
+        "不要把当前正在求解的目标交点同时作为 known_point。",
+        "只有 PointRef 或点名、尚无坐标状态的点不能作为 known_point。",
+    ),
     solves=("derive_quadratic_x_axis_intercept_point",),
     inputs={
         "quadratic": {"type": "Parabola", "required": True},
