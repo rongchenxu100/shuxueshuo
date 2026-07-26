@@ -37,9 +37,11 @@
    的 `return_bindings` 中绑定 answer；后续小问通过 CallResultRef 复用它，不要新增一次计算来绑定答案。
 9. `call_id` 在整个计划中唯一，使用稳定、语义化的 snake_case 名称。调用顺序就是依赖顺序。
 10. 一个 call 只表达一个 catalog capability。每个数学步骤都必须由所选 capability 支持。
-11. retry 时以 `latest_retry_state.baseline_candidate` 为候选解法，保持
-    `stable_candidate_calls` 不变，只修复 `repair_call_ids` 及依赖它们的调用，
-    并重新输出完整 FunctionalPlan。
+11. retry 时以 `latest_retry_state.baseline_candidate` 为候选解法。
+    `locked_call_ids` 对应的调用已经完成答案目标证明，不要修改；
+    `runtime_verified` 是可编辑的局部执行结果，其中 `repair_required` 调用仍需修复；
+    issue 通过 `actual_result_refs` 引用这些实际结果。只修复 `repair_call_ids`
+    及依赖调用，并重新输出完整 FunctionalPlan。
 
 JSON Schema:
 

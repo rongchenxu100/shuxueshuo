@@ -104,6 +104,24 @@
           "reason": "两个子问只需在该共享抛物线状态上代入各自求得的 m。"
         },
         {
+          "call_id": "ii_compute_F",
+          "capability_id": "midpoint_point",
+          "args": {
+            "midpoint_definition": {
+              "kind": "fact",
+              "ref": "F_midpoint_of_DN"
+            }
+          },
+          "return_bindings": {
+            "midpoint": {
+              "kind": "point",
+              "ref": "F"
+            }
+          },
+          "strategy": "由中点定义计算路径变换所需固定端点的坐标。",
+          "reason": "路径变换发布的固定端点角色必须引用已计算的 Point 状态。"
+        },
+        {
           "call_id": "ii_reduce_path",
           "capability_id": "two_moving_points_path_reduction",
           "args": {
@@ -267,11 +285,11 @@
           "args": {
             "line1_p1": {
               "from_call": "ii_derive_path_model",
-              "return": "path_minimum_point_1"
+              "return": "straightened_endpoint_1"
             },
             "line1_p2": {
               "from_call": "ii_derive_path_model",
-              "return": "path_minimum_point_2"
+              "return": "straightened_endpoint_2"
             },
             "line2_p1": {
               "kind": "point",

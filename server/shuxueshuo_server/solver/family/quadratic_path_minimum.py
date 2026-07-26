@@ -22,8 +22,11 @@ from shuxueshuo_server.solver.family.capability_packs import (
     BROKEN_PATH_SELECT_DO_NOT_USE_WHEN,
     DEFAULT_CAPABILITY_PACK_REGISTRY,
     RIGHT_ANGLE_EQUAL_LENGTH_DO_NOT_USE_WHEN,
+    STRAIGHTENED_ENDPOINT_RESULT_FORM,
     STRAIGHTENED_DISTANCE_DO_NOT_USE_WHEN,
+    TWO_MOVING_POINTS_PATH_REDUCTION_DESCRIPTION,
     TWO_MOVING_POINTS_REDUCTION_DO_NOT_USE_WHEN,
+    TWO_MOVING_PATH_TRANSFORMATION_OBJECT_ROLES,
 )
 
 
@@ -114,11 +117,7 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             recipe_id="two_moving_points_path_reduction",
             goal_type="reduce_path_expression",
             title="两动点路径降维：已有固定点替换",
-            description=(
-                "利用线段比例、共线或绑定关系，把原路径中的两动点线段替换为"
-                "题面已有固定点到动点的等长线段，从而转化为单动点折线路径；"
-                "本 recipe 不创建辅助点或辅助轨迹。"
-            ),
+            description=TWO_MOVING_POINTS_PATH_REDUCTION_DESCRIPTION,
             method_ids=("two_moving_points_path_reduction",),
             execution=RecipeExecutionSpec(
                 recipe_id="two_moving_points_path_reduction",
@@ -135,6 +134,9 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                             "省略 moving_locus。"
                         ),
                         provides_semantic_roles=("moving_locus",),
+                        object_role_projections=(
+                            TWO_MOVING_PATH_TRANSFORMATION_OBJECT_ROLES
+                        ),
                     ),
                 ),
             ),
@@ -169,7 +171,10 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                         "select_straightening_candidate.selected_candidate",
                         "StraighteningCandidate",
                         "straightened_scheme",
-                        goal_evidence_tags=("path_minimum_witness",),
+                        goal_evidence_tags=(
+                            "path_minimum_witness",
+                            "path_minimum_extremal_point",
+                        ),
                     ),
                     recipe_output_alias(
                         "select_straightening_candidate.auxiliary_point",
@@ -179,23 +184,24 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                         cardinality="optional",
                         identity_policy="derived_role",
                         goal_evidence_tags=("path_minimum_witness",),
-                        equivalent_to="path_minimum_point_1",
+                        equivalent_to="straightened_endpoint_1",
                         description=(
-                            "选中候选的反射辅助点，与 path_minimum_point_1 是同一"
+                            "选中候选的反射辅助点，与 straightened_endpoint_1 是同一"
                             "几何状态；不能把二者作为一条直线的两个不同端点。"
                         ),
                     ),
                     recipe_output_alias(
                         "select_straightening_candidate.minimum_point_1",
                         "Point",
-                        "path_minimum_point_1",
+                        "straightened_endpoint_1",
                         required=False,
                         cardinality="optional",
                         identity_policy="derived_role",
                         goal_evidence_tags=("path_minimum_witness",),
+                        result_form=STRAIGHTENED_ENDPOINT_RESULT_FORM,
                         description=(
-                            "选中拉直方案后，由反射构造得到的辅助端点；"
-                            "仅供距离计算，不是原路径上的动点、极值点或答案点。"
+                            "拉直后最短等价线段的第一个端点，通常是由反射构造"
+                            "得到的辅助点；它不是原路径动点、极值点或答案点。"
                         ),
                         object_role_projections=(
                             StateObjectRoleProjectionSpec(
@@ -208,14 +214,15 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                     recipe_output_alias(
                         "select_straightening_candidate.minimum_point_2",
                         "Point",
-                        "path_minimum_point_2",
+                        "straightened_endpoint_2",
                         required=False,
                         cardinality="optional",
                         identity_policy="derived_role",
                         goal_evidence_tags=("path_minimum_witness",),
+                        result_form=STRAIGHTENED_ENDPOINT_RESULT_FORM,
                         description=(
-                            "选中拉直方案后，与反射端点组成最短线段的另一固定端点；"
-                            "仅供距离计算，不是原路径上的动点、极值点或答案点。"
+                            "拉直后最短等价线段的第二个端点，通常是未被反射的"
+                            "另一固定端点；它不是原路径动点、极值点或答案点。"
                         ),
                         object_role_projections=(
                             StateObjectRoleProjectionSpec(
@@ -246,7 +253,11 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             input_bindings=(
                 MethodInputBindingSpec("quadratic", "function:parabola"),
                 MethodInputBindingSpec("x", "symbol:x"),
-                MethodInputBindingSpec("coefficient_relation", "fact:coefficient_relation:Equation"),
+                MethodInputBindingSpec(
+                    "coefficient_relation",
+                    "fact:coefficient_relation:Equation",
+                    required=False,
+                ),
                 MethodInputBindingSpec("all_coefficients", "quadratic_coefficients"),
             ),
             expansion_selectors=(
@@ -270,7 +281,12 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             input_bindings=(
                 MethodInputBindingSpec("p1", "length_segment:p1"),
                 MethodInputBindingSpec("p2", "length_segment:p2"),
-                MethodInputBindingSpec("parameter", "parameter_symbol"),
+                MethodInputBindingSpec(
+                    "parameter",
+                    "parameter_symbol",
+                    functional_authority="wire",
+                    functional_resolver="unique_parameter_symbol",
+                ),
                 MethodInputBindingSpec("condition", "fact:length_squared:Condition"),
                 MethodInputBindingSpec("constraint", "parameter_constraint"),
             ),
@@ -280,16 +296,19 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             input_bindings=(
                 MethodInputBindingSpec("minimum_expression", "read_type:MinimumExpression"),
                 MethodInputBindingSpec("condition", "fact:minimum_value:Condition"),
-                MethodInputBindingSpec("parameter", "parameter_symbol"),
+                MethodInputBindingSpec(
+                    "parameter",
+                    "parameter_symbol",
+                    functional_authority="wire",
+                    functional_resolver="unique_parameter_symbol",
+                ),
                 MethodInputBindingSpec("constraint", "parameter_constraint"),
             ),
         ),
     ),
     # 临时兼容硬门控：当前 V1.5 deterministic planner 只实现 canonical 南开 25。
-    # 退出条件：
-    # 1. 至少两道同 family 的完整 E2E fixture 通过；
-    # 2. planner 不再依赖 D/M/N/F/G、i/ii/ii_1/ii_2 等 canonical 命名；
-    # 3. 去掉门控后，alt-label 同构题能通过，其他 family 题仍不会误路由。
+    # 由 docs/functional-planner-next-stage-roadmap.md 的 Track D0 统一退场；
+    # Track A parity 完成只会启动该里程碑，不会单独触发删除。
     enabled_problem_ids=("tj-2026-nankai-yimo-25",),
 )
 

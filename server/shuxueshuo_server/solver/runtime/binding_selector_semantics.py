@@ -23,6 +23,7 @@ class SelectorSemantics:
     context_prerequisites: tuple[str, ...] = ()
     prerequisite_condition_kind: str | None = None
     semantic_evidence_resolver: str | None = None
+    owns_identity_binding: bool = False
 
 
 @dataclass(frozen=True)
@@ -30,6 +31,7 @@ class ExpansionSelectorSemantics:
     """Deterministic Functional arg resolvers supplied by an expansion selector."""
 
     arg_resolvers: tuple[tuple[str, str], ...] = ()
+    suppressed_by_args: tuple[str, ...] = ()
 
 
 _EXACT_SELECTOR_SEMANTICS: dict[str, SelectorSemantics] = {
@@ -40,6 +42,14 @@ _EXACT_SELECTOR_SEMANTICS: dict[str, SelectorSemantics] = {
     "quadratic_coefficients": SelectorSemantics(mechanical=True),
     "point_output_ref": SelectorSemantics(mechanical=True),
     "point_transition_target": SelectorSemantics(mechanical=True),
+    "equal_length_ray:target": SelectorSemantics(
+        mechanical=True,
+        owns_identity_binding=True,
+    ),
+    "translated_point:target": SelectorSemantics(
+        mechanical=True,
+        owns_identity_binding=True,
+    ),
     "parameter_symbol": SelectorSemantics(mechanical=True),
     "parameter_symbol_from_reads": SelectorSemantics(mechanical=True),
     "parameter_symbol_from_reads_or_expression": SelectorSemantics(
@@ -49,7 +59,23 @@ _EXACT_SELECTOR_SEMANTICS: dict[str, SelectorSemantics] = {
     "known_parameter_symbol_from_reads": SelectorSemantics(mechanical=True),
     "known_parameter_value_from_reads": SelectorSemantics(mechanical=True),
     "parameter_constraint": SelectorSemantics(mechanical=True),
-    "angle_sum:target": SelectorSemantics(mechanical=True),
+    "dynamic_constraint": SelectorSemantics(
+        condition_kinds=("symbol_constraint",),
+    ),
+    "angle_sum:x_axis_point": SelectorSemantics(mechanical=True),
+    "angle_sum:y_axis_point": SelectorSemantics(mechanical=True),
+    "angle_sum:reference_x_axis_point": SelectorSemantics(mechanical=True),
+    "angle_sum:origin": SelectorSemantics(mechanical=True),
+    "angle_sum:target": SelectorSemantics(
+        mechanical=True,
+        owns_identity_binding=True,
+    ),
+    "angle_equality:x_axis_point": SelectorSemantics(mechanical=True),
+    "angle_equality:y_axis_point": SelectorSemantics(mechanical=True),
+    "angle_equality:reference_x_axis_point": SelectorSemantics(
+        mechanical=True
+    ),
+    "angle_equality:origin": SelectorSemantics(mechanical=True),
     "angle_equality:target": SelectorSemantics(mechanical=True),
     "fact:length_condition:Condition": SelectorSemantics(
         condition_kinds=("length_squared", "segment_length_relation"),
@@ -63,13 +89,19 @@ _EXACT_SELECTOR_SEMANTICS: dict[str, SelectorSemantics] = {
         requires_materialized_state=True
     ),
     "straightening_minimum:p1": SelectorSemantics(
-        semantic_roles=("path_minimum_point_1",),
+        semantic_roles=("straightened_endpoint_1",),
         requires_materialized_state=True,
     ),
     "straightening_minimum:p2": SelectorSemantics(
-        semantic_roles=("path_minimum_point_2",),
+        semantic_roles=("straightened_endpoint_2",),
         requires_materialized_state=True,
     ),
+    "weighted_path:moving_point_ref": SelectorSemantics(mechanical=True),
+    "weighted_path:linked_fixed_endpoint_ref": SelectorSemantics(
+        mechanical=True
+    ),
+    "square_path:fixed_endpoint_1_ref": SelectorSemantics(mechanical=True),
+    "square_path:fixed_endpoint_2_ref": SelectorSemantics(mechanical=True),
 }
 
 _PREFIX_SELECTOR_SEMANTICS: tuple[tuple[str, SelectorSemantics], ...] = (
@@ -113,13 +145,19 @@ _PREFIX_SELECTOR_SEMANTICS: tuple[tuple[str, SelectorSemantics], ...] = (
 
 _EXPANSION_SELECTOR_SEMANTICS: dict[str, ExpansionSelectorSemantics] = {
     "parameter_value_if_read": ExpansionSelectorSemantics(
-        (("parameter_value", "unique_related_state"),)
+        (("parameter_value", "unique_related_state"),),
     ),
     "distance_parameter_value_if_read": ExpansionSelectorSemantics(
-        (("parameter_value", "unique_related_state"),)
+        (("parameter_value", "unique_related_state"),),
     ),
     "intersection_parameter_value_if_read": ExpansionSelectorSemantics(
-        (("parameter_value", "unique_related_state"),)
+        (("parameter_value", "unique_related_state"),),
+    ),
+    "curve_point_if_read": ExpansionSelectorSemantics(
+        suppressed_by_args=("curve_points",),
+    ),
+    "curve_points_if_parameterized": ExpansionSelectorSemantics(
+        suppressed_by_args=("curve_points",),
     ),
 }
 
@@ -186,6 +224,10 @@ def selector_semantics(selector: str | None) -> SelectorSemantics:
                 ),
                 None,
             )
+        ),
+        owns_identity_binding=(
+            exact.owns_identity_binding
+            or any(item.owns_identity_binding for item in prefixes)
         ),
     )
 

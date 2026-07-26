@@ -18,6 +18,7 @@ from shuxueshuo_server.solver.explanation.presentation import (
     StudentNarrativePlacementProjector,
 )
 from shuxueshuo_server.solver.runtime import strategy_replay as strategy_replay_module
+from shuxueshuo_server.solver.runtime import strategy_payload as strategy_payload_module
 from shuxueshuo_server.solver.runtime import (
     functional_plan_reconciliation as functional_reconciliation_module,
 )
@@ -31,6 +32,15 @@ from shuxueshuo_server.solver.runtime.canonical_draft_finalizer import (
 )
 from shuxueshuo_server.solver.runtime.binding_index import (
     CanonicalRuntimeBindingIndex,
+    RuntimeHandleBinding,
+)
+from shuxueshuo_server.solver.runtime.binding_rules import (
+    DEFAULT_BINDING_SELECTORS,
+    MethodBindingRuleRegistry,
+)
+from shuxueshuo_server.solver.runtime.answer_goal_verifier import (
+    AnswerGoalVerificationItem,
+    AnswerGoalVerificationReport,
 )
 from shuxueshuo_server.solver.runtime.functional_plan import (
     FUNCTIONAL_PLAN_JSON_SCHEMA,
@@ -44,8 +54,10 @@ from shuxueshuo_server.solver.runtime.functional_plan_elaboration import (
     FunctionalSemanticIndex,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_models import (
+    CallResultRef,
     FunctionalCall,
     FunctionalCallReconciliation,
+    FunctionalCallReport,
     FunctionalPlan,
     FunctionalPlanReconciliationResult,
     FunctionalResultFormEvent,
@@ -53,8 +65,13 @@ from shuxueshuo_server.solver.runtime.functional_plan_models import (
     FunctionalScope,
     ResolvedFunctionalValue,
 )
+from shuxueshuo_server.solver.runtime.functional_plan_liveness import (
+    FunctionalCallLivenessAnalyzer,
+)
 from shuxueshuo_server.solver.runtime.functional_plan_reconciliation import (
+    _infer_symbolic_target_args_from_consumers,
     _projected_creates,
+    _values_share_lineage_source_call,
 )
 from shuxueshuo_server.solver.runtime.functional_result_forms import (
     canonicalize_verified_result_forms,
@@ -64,8 +81,12 @@ from shuxueshuo_server.solver.runtime.functional_result_forms import (
 from shuxueshuo_server.solver.runtime.functional_state_refinement import (
     refine_functional_object_states,
 )
+from shuxueshuo_server.solver.runtime.entity_state_resolver import (
+    EntityStateResolver,
+)
 from shuxueshuo_server.solver.runtime.functional_symbol_flow import (
     infer_unique_target_symbol_ref,
+    return_free_symbol_refs,
 )
 from shuxueshuo_server.solver.runtime.functional_reconciliation_validators import (
     functional_reconciliation_issues,
@@ -75,11 +96,17 @@ from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegi
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.planner_state_context import (
     PlannerStateContextBuilder,
+    StateSlot,
     initial_planner_state_context,
 )
 from shuxueshuo_server.solver.runtime.projection import problem_to_llm_payload
+from shuxueshuo_server.solver.runtime.session import PlannerExecutionError
 from shuxueshuo_server.solver.runtime.recipe_compiler import (
     RecipeTrialExecutor,
+    _RecipePlanCompiler,
+    _point_value_path_for_step,
+    _promote_outputs_for_step,
+    _projected_midpoint_state_is_stale,
     _validate_student_single_degree_of_freedom,
     _projected_recipe_method_arg_bindings,
     _validate_runtime_lineage_payload,
@@ -113,9 +140,11 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     PlannerRetryState,
     ProducedFact,
     ProjectedFunctionArgBinding,
+    ProjectedStateDependency,
     ProjectedStateWrite,
     SemanticRef,
     StateWriteProvenance,
+    StepIntentRuntimeResult,
     StepIntent,
     StepIntentDraft,
     StepIntentExecutionDiagnostic,
@@ -137,6 +166,12 @@ NANKAI_FIXTURE = (
 )
 HEPING_FIXTURE = (
     REPO_ROOT / "internal" / "solver-fixtures" / "tj-2026-heping-yimo-25.json"
+)
+HEPING_FUNCTIONAL_PLAN = (
+    REPO_ROOT
+    / "internal"
+    / "functional-plan-fixtures"
+    / "tj-2026-heping-yimo-25.functional-plan.json"
 )
 HEPING_ERMO_FIXTURE = (
     REPO_ROOT / "internal" / "solver-fixtures" / "tj-2026-heping-ermo-25.json"
@@ -362,6 +397,56 @@ def test_functional_wire_drops_null_arguments_deterministically() -> None:
     ]
 
 
+def test_functional_wire_drops_null_return_expectations_deterministically() -> None:
+    payload = _axis_plan_payload()
+    payload["scopes"][0]["calls"][0]["return_expectations"] = {
+        "axis_point": None,
+    }
+
+    plan, report = FunctionalPlanValidator().validate_payload_with_report(
+        payload,
+        handle_registry=_registry(),
+        question_goals=_base_inputs().question_goals,
+    )
+
+    assert report.ok and plan is not None
+    assert plan.calls[0].return_expectations == {}
+    assert report.deterministic_repairs == (
+        {
+            "call_id": "derive_axis_point",
+            "action": "drop_null_return_expectation",
+            "return": "axis_point",
+            "from": "null",
+            "to": "omitted",
+        },
+    )
+
+
+def test_functional_wire_drops_internal_binding_metadata_expectation() -> None:
+    payload = _axis_plan_payload()
+    payload["scopes"][0]["calls"][0]["return_expectations"] = {
+        "parameter": "internal_only",
+    }
+
+    plan, report = FunctionalPlanValidator().validate_payload_with_report(
+        payload,
+        handle_registry=_registry(),
+        question_goals=_base_inputs().question_goals,
+    )
+
+    assert report.ok and plan is not None
+    assert plan.calls[0].return_expectations == {}
+    assert report.deterministic_repairs == (
+        {
+            "call_id": "derive_axis_point",
+            "action": "drop_return_binding_metadata_expectation",
+            "return": "parameter",
+            "from": "internal_only",
+            "to": "omitted",
+        },
+    )
+
+
 def test_functional_wire_normalizes_unique_generic_entity_kind() -> None:
     payload = {
         "format": "functional_plan/v1",
@@ -481,11 +566,11 @@ def test_straightened_distance_recipe_compiles_reconciled_endpoints() -> None:
             "args": {
                 "endpoint_1": {
                     "from_call": "ii_derive_path_model",
-                    "return": "path_minimum_point_1",
+                    "return": "straightened_endpoint_1",
                 },
                 "endpoint_2": {
                     "from_call": "ii_derive_path_model",
-                    "return": "path_minimum_point_2",
+                    "return": "straightened_endpoint_2",
                 },
             },
             "return_bindings": {},
@@ -517,6 +602,29 @@ def test_straightened_distance_recipe_compiles_reconciled_endpoints() -> None:
     )
 
     assert replay.output is not None, replay.errors
+    assert replay.diagnostic is not None
+    assert replay.diagnostic.runtime_results, replay.diagnostic
+    distance_result = next(
+        item
+        for item in replay.diagnostic.runtime_results
+        if item.step_id == "distance_of_selected_endpoints"
+    )
+    assert distance_result.output_key == "distance_between_points.distance"
+    assert distance_result.runtime_type == "MinimumExpression"
+    assert distance_result.value is not None
+    assert "$" not in json.dumps(
+        distance_result.to_payload(),
+        ensure_ascii=False,
+    )
+    captured_types = {
+        item.runtime_type for item in replay.diagnostic.runtime_results
+    }
+    assert {
+        "Point",
+        "Parabola",
+        "ParameterValue",
+        "PathTransformation",
+    } <= captured_types
     invocation = next(
         invocation
         for step_plan in replay.output.step_plans
@@ -528,6 +636,239 @@ def test_straightened_distance_recipe_compiles_reconciled_endpoints() -> None:
     assert "ii_derive_path_model" in invocation.inputs["p2"]
     assert invocation.inputs["p1"] != "$problem.points.D"
     assert invocation.inputs["p2"] != "$question.ii.points.M"
+
+
+def test_straightened_distance_recipe_emits_base_and_evaluated_returns() -> None:
+    inputs = _base_inputs()
+    payload = json.loads(NANKAI_FUNCTIONAL_PLAN.read_text(encoding="utf-8"))
+    scope = next(item for item in payload["scopes"] if item["scope_id"] == "ii_1")
+    solve_index = next(
+        index
+        for index, call in enumerate(scope["calls"])
+        if call["call_id"] == "ii_1_solve_m"
+    )
+    scope["calls"] = [
+        call
+        for call in scope["calls"]
+        if call["call_id"] != "ii_1_evaluate_minimum"
+    ]
+    scope["calls"].insert(
+        solve_index + 1,
+        {
+            "call_id": "evaluate_selected_endpoint_distance",
+            "capability_id": "path_minimum_by_straightened_distance",
+            "args": {
+                "endpoint_1": {
+                    "from_call": "ii_derive_path_model",
+                    "return": "straightened_endpoint_1",
+                },
+                "endpoint_2": {
+                    "from_call": "ii_derive_path_model",
+                    "return": "straightened_endpoint_2",
+                },
+                "parameter_value": {
+                    "from_call": "ii_1_solve_m",
+                    "return": "parameter_value",
+                },
+            },
+            "return_bindings": {
+                "evaluated_path_minimum_expression": {
+                    "kind": "answer",
+                    "ref": "ii_1.minimum_value",
+                }
+            },
+            "return_expectations": {
+                "path_minimum_expression": "open_expression",
+                "evaluated_path_minimum_expression": "closed_value",
+            },
+            "strategy": "Measure the endpoints before and after substitution.",
+            "reason": "Both states are declared Macro returns.",
+        },
+    )
+    plan, validation = _validate(payload, inputs)
+    assert validation.ok and plan is not None
+
+    replay = PlannerRetryReplayService().replay_functional_plan(
+        plan,
+        inputs=inputs,
+        handle_registry=_registry(),
+        context=ContextBuilder().build(_problem()),
+        attempt=1,
+        problem_payload=_problem_payload(),
+        validation_report=validation,
+    )
+
+    assert replay.output is not None, replay.errors
+    invocation = next(
+        invocation
+        for step_plan in replay.output.step_plans
+        if step_plan.step_id == "evaluate_selected_endpoint_distance"
+        for invocation in step_plan.invocations
+    )
+    assert set(invocation.outputs) == {"distance", "evaluated_distance"}
+    step_plan = next(
+        item
+        for item in replay.output.step_plans
+        if item.step_id == "evaluate_selected_endpoint_distance"
+    )
+    assert invocation.outputs["distance"] in step_plan.promote_outputs
+    assert "$subquestion.ii_1.outputs.min_value" in (
+        step_plan.promote_outputs.values()
+    )
+
+
+def test_direct_distance_keeps_projected_base_return_for_closed_points() -> None:
+    inputs = _base_inputs()
+    payload = json.loads(NANKAI_FUNCTIONAL_PLAN.read_text(encoding="utf-8"))
+    scope = next(item for item in payload["scopes"] if item["scope_id"] == "ii_1")
+    scope["calls"] = [
+        call
+        for call in scope["calls"]
+        if call["call_id"] != "ii_1_evaluate_minimum"
+    ]
+    scope["calls"].extend(
+        [
+            {
+                "call_id": "evaluate_first_endpoint",
+                "capability_id": "evaluate_point_at_parameter",
+                "args": {
+                    "point": {
+                        "from_call": "ii_derive_path_model",
+                        "return": "straightened_endpoint_1",
+                    },
+                    "parameter_value": {
+                        "from_call": "ii_1_solve_m",
+                        "return": "parameter_value",
+                    },
+                },
+                "return_bindings": {},
+                "strategy": "close the first endpoint",
+                "reason": "prepare a numerical distance",
+            },
+            {
+                "call_id": "evaluate_second_endpoint",
+                "capability_id": "evaluate_point_at_parameter",
+                "args": {
+                    "point": {
+                        "from_call": "ii_derive_path_model",
+                        "return": "straightened_endpoint_2",
+                    },
+                    "parameter_value": {
+                        "from_call": "ii_1_solve_m",
+                        "return": "parameter_value",
+                    },
+                },
+                "return_bindings": {},
+                "strategy": "close the second endpoint",
+                "reason": "prepare a numerical distance",
+            },
+            {
+                "call_id": "measure_closed_endpoints",
+                "capability_id": "distance_between_points",
+                "args": {
+                    "p1": {
+                        "from_call": "evaluate_first_endpoint",
+                        "return": "evaluated_point",
+                    },
+                    "p2": {
+                        "from_call": "evaluate_second_endpoint",
+                        "return": "evaluated_point",
+                    },
+                },
+                "return_bindings": {
+                    "distance": {
+                        "kind": "answer",
+                        "ref": "ii_1.minimum_value",
+                    }
+                },
+                "return_expectations": {"distance": "closed_value"},
+                "strategy": "measure the closed endpoints",
+                "reason": "their distance is the required minimum",
+            },
+        ]
+    )
+    plan, validation = _validate(payload, inputs)
+    assert validation.ok and plan is not None
+
+    replay = PlannerRetryReplayService().replay_functional_plan(
+        plan,
+        inputs=inputs,
+        handle_registry=_registry(),
+        context=ContextBuilder().build(_problem()),
+        attempt=1,
+        problem_payload=_problem_payload(),
+        validation_report=validation,
+    )
+
+    assert replay.output is not None, replay.errors
+    invocation = next(
+        invocation
+        for step_plan in replay.output.step_plans
+        if step_plan.step_id == "measure_closed_endpoints"
+        for invocation in step_plan.invocations
+    )
+    assert set(invocation.outputs) == {"distance"}
+    assert "parameter_value" not in invocation.inputs
+    assert not any(
+        item["action"] == "auto_fill_optional_arg"
+        and item["call_id"] == "measure_closed_endpoints"
+        and "parameter_value" in item["after"]
+        for item in replay.functional_reconciliation.elaboration[
+            "deterministic_repairs"
+        ]
+    )
+
+
+def test_macro_parabola_return_inherits_internal_closure_exclusions() -> None:
+    inputs, registry, _context_value, payload = _hexi_case()
+    call = next(
+        call
+        for scope in payload["scopes"]
+        for call in scope["calls"]
+        if call["call_id"] == "select_curve_candidate_ii"
+    )
+    call["return_bindings"]["solved_parabola"] = {
+        "ref": "parabola",
+        "kind": "function",
+    }
+    call["return_expectations"] = {
+        "selected_curve_point": "closed_state",
+        "solved_parabola": "closed_state",
+    }
+    problem = load_problem_ir(HEXI_FIXTURE)
+    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
+        payload,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+    assert validation.ok and plan is not None
+
+    replay = PlannerRetryReplayService().replay_functional_plan(
+        plan,
+        inputs=inputs,
+        handle_registry=registry,
+        context=ContextBuilder().build(problem),
+        attempt=1,
+        problem_payload=problem_to_llm_payload(problem),
+        validation_report=validation,
+    )
+
+    assert replay.output is not None, replay.errors
+    write = next(
+        item
+        for item in replay.diagnostic.state_write_provenance
+        if item.step_id == "select_curve_candidate_ii"
+        and item.runtime_type == "Parabola"
+    )
+    assert write.closure_ignored_symbol_names == ("x",)
+    event = next(
+        item
+        for item in replay.functional_reconciliation.result_form_events
+        if item.call_id == "select_curve_candidate_ii"
+        and item.return_name == "solved_parabola"
+    )
+    assert event.status == "matched"
+    assert event.actual_form == "closed_state"
 
 
 def test_direct_distance_aliases_preserve_path_minimum_lineage() -> None:
@@ -547,11 +888,11 @@ def test_direct_distance_aliases_preserve_path_minimum_lineage() -> None:
             "args": {
                 "endpoint_1": {
                     "from_call": "ii_derive_path_model",
-                    "return": "path_minimum_point_1",
+                    "return": "straightened_endpoint_1",
                 },
                 "endpoint_2": {
                     "from_call": "ii_derive_path_model",
-                    "return": "path_minimum_point_2",
+                    "return": "straightened_endpoint_2",
                 },
             },
             "return_bindings": {},
@@ -595,7 +936,7 @@ def test_direct_distance_aliases_preserve_path_minimum_lineage() -> None:
     )
 
 
-def test_point_list_return_cannot_bind_singular_point_object() -> None:
+def test_internal_point_list_binding_is_dropped_before_reconciliation() -> None:
     inputs, registry, context, payload = _hexi_case()
     candidate_call = next(
         call
@@ -622,15 +963,63 @@ def test_point_list_return_cannot_bind_singular_point_object() -> None:
         question_goals=inputs.question_goals,
     )
 
-    assert "functional.return_cardinality_mismatch" in {
-        item.code for item in result.issues
-    }
+    assert result.ok, [item.to_payload() for item in result.issues]
+    effective = next(
+        item
+        for item in result.plan.calls
+        if item.call_id == "derive_right_angle_candidates_ii"
+    )
+    assert effective.return_bindings == {}
     report = next(
         item
         for item in result.call_reports
         if item.call_id == "derive_right_angle_candidates_ii"
     )
-    assert report.status == "invalid"
+    assert report.status == "valid"
+    assert {
+        "call_id": "derive_right_angle_candidates_ii",
+        "action": "drop_internal_only_return_binding",
+        "from": "candidates:point:D",
+        "to": "derive_right_angle_candidates_ii.candidates",
+    } in result.elaboration["deterministic_repairs"]
+
+
+def test_context_role_conflict_is_typed_retry_issue() -> None:
+    inputs, registry, context, payload = _hexi_case()
+    candidate_call = next(
+        call
+        for scope in payload["scopes"]
+        for call in scope["calls"]
+        if call["call_id"] == "derive_right_angle_candidates_ii"
+    )
+    candidate_call["args"]["target"] = {"ref": "A", "kind": "point"}
+    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
+        payload,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+    assert validation.ok and plan is not None
+
+    result = FunctionalPlanReconciler().reconcile(
+        plan,
+        planner_state_context=context,
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+
+    issue = next(
+        item
+        for item in result.issues
+        if item.code == "functional.context_resolver_conflict"
+    )
+    assert issue.call_id == "derive_right_angle_candidates_ii"
+    assert issue.details == {
+        "arg": "target",
+        "wire_object_refs": ["point:problem:A"],
+        "resolved_object_refs": ["point:ii:D"],
+    }
 
 
 def test_free_parameter_basis_follows_unique_downstream_symbol_constraint() -> None:
@@ -671,6 +1060,406 @@ def test_free_parameter_basis_follows_unique_downstream_symbol_constraint() -> N
         == "align_free_parameter_basis_with_downstream_constraint"
         and item["call_id"] == "derive_parametric_parabola_ii"
         for item in result.elaboration["deterministic_repairs"]
+    )
+
+
+def test_multiple_explicit_free_parameters_follow_unique_downstream_constraint() -> None:
+    inputs, registry, context, payload = _hexi_case()
+    producer = next(
+        call
+        for scope in payload["scopes"]
+        for call in scope["calls"]
+        if call["call_id"] == "derive_parametric_parabola_ii"
+    )
+    producer["args"]["free_parameters"] = [
+        {"kind": "symbol", "ref": "b"},
+        {"kind": "symbol", "ref": "c"},
+    ]
+    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
+        payload,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+    assert validation.ok and plan is not None
+
+    result = FunctionalPlanReconciler().reconcile(
+        plan,
+        planner_state_context=context,
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+
+    repaired = next(
+        call
+        for call in result.plan.calls
+        if call.call_id == "derive_parametric_parabola_ii"
+    )
+    assert repaired.args["free_parameters"] == (
+        SemanticRef(ref="b", kind="symbol"),
+    )
+    assert any(
+        item["action"]
+        == "align_free_parameter_basis_with_downstream_constraint"
+        and item["from"] == "b,c"
+        and item["to"] == "b"
+        for item in result.elaboration["deterministic_repairs"]
+    )
+
+
+def test_curve_candidate_recipe_does_not_steal_omitted_symbol_constraint() -> None:
+    inputs, registry, _context, payload = _hexi_case()
+    select_call = next(
+        call
+        for scope in payload["scopes"]
+        for call in scope["calls"]
+        if call["call_id"] == "select_curve_candidate_ii"
+    )
+    select_call["args"].pop("symbol_constraint")
+    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
+        payload,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+    assert validation.ok and plan is not None
+
+    replay = PlannerRetryReplayService().replay_functional_plan(
+        plan,
+        inputs=inputs,
+        handle_registry=registry,
+        context=ContextBuilder().build(load_problem_ir(HEXI_FIXTURE)),
+        attempt=1,
+        problem_payload=problem_to_llm_payload(load_problem_ir(HEXI_FIXTURE)),
+        validation_report=validation,
+    )
+
+    assert replay.output is None
+    assert replay.diagnostic is not None
+    blocker = next(
+        item
+        for item in replay.diagnostic.blockers
+        if item.step_id == "select_curve_candidate_ii"
+    )
+    assert blocker.code == "functional.candidate_selection_constraint_required"
+    assert blocker.details is not None
+    assert blocker.details["arg"] == "symbol_constraint"
+
+
+def test_free_parameter_suppresses_same_symbol_value_auto_fill() -> None:
+    problem = load_problem_ir(HEPING_FIXTURE)
+    inputs = replace(build_strategy_probe_inputs(problem), question_goals=[])
+    problem_payload = problem_to_llm_payload(problem)
+    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    payload = {
+        "format": "functional_plan/v1",
+        "scopes": [
+            {
+                "scope_id": "ii",
+                "label": "ii",
+                "calls": [
+                    {
+                        "call_id": "keep_parameter_open",
+                        "capability_id": "quadratic_from_constraints",
+                        "args": {
+                            "curve_points": {
+                                "kind": "point",
+                                "ref": "A",
+                            },
+                            "free_parameters": {
+                                "kind": "symbol",
+                                "ref": "a",
+                            },
+                        },
+                        "return_bindings": {},
+                        "return_expectations": {
+                            "parabola": "open_state",
+                        },
+                        "strategy": "retain one independent coefficient",
+                        "reason": "solve it from a later condition",
+                    }
+                ],
+            }
+        ],
+    }
+    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
+        payload,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+    assert validation.ok and plan is not None
+
+    context = initial_planner_state_context(
+        inputs,
+        problem_payload=problem_payload,
+        handle_registry=registry,
+    )
+    context = replace(
+        context,
+        state=replace(
+            context.state,
+            state_slots=(
+                *context.state.state_slots,
+                StateSlot(
+                    slot_id="symbol:problem:a.value@problem:ParameterValue",
+                    object_ref="symbol:problem:a",
+                    state_kind="value",
+                    scope_id="problem",
+                    runtime_type="ParameterValue",
+                    canonical_handle="fact:problem:a_value",
+                    aliases=("a",),
+                    valid_scope="problem",
+                    status="materialized",
+                ),
+            ),
+        ),
+    )
+    result = FunctionalPlanReconciler().reconcile(
+        plan,
+        planner_state_context=context,
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+
+    assert result.ok, [item.to_payload() for item in result.issues]
+    call = result.calls[0]
+    assert "parameter_value" not in call.resolved_args
+    assert "fact:problem:a_value" not in result.projected_draft.steps[0].reads
+    assert any(
+        item["action"] == "suppress_value_for_preserved_symbol"
+        for item in result.elaboration["deterministic_repairs"]
+    )
+
+
+def test_free_parameter_basis_follows_transitive_symbol_consumer() -> None:
+    problem = load_problem_ir(HEXI_FIXTURE)
+    inputs, registry, context, payload = _hexi_case()
+    producer = next(
+        call
+        for scope in payload["scopes"]
+        for call in scope["calls"]
+        if call["call_id"] == "derive_parametric_parabola_iii"
+    )
+    producer["args"].pop("free_parameters")
+    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
+        payload,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+    assert validation.ok and plan is not None
+
+    result = FunctionalPlanReconciler().reconcile(
+        plan,
+        planner_state_context=context,
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+
+    assert result.ok, [item.to_payload() for item in result.issues]
+    repaired = next(
+        call
+        for call in result.plan.calls
+        if call.call_id == "derive_parametric_parabola_iii"
+    )
+    assert repaired.args["free_parameters"] == (
+        SemanticRef(ref="b", kind="symbol"),
+    )
+    assert any(
+        item["action"]
+        == "align_free_parameter_basis_with_downstream_constraint"
+        and item["call_id"] == producer["call_id"]
+        for item in result.elaboration["deterministic_repairs"]
+    )
+
+    replay = PlannerRetryReplayService().replay_functional_plan(
+        plan,
+        inputs=inputs,
+        handle_registry=registry,
+        context=ContextBuilder().build(problem),
+        attempt=1,
+        problem_payload=problem_to_llm_payload(problem),
+        validation_report=validation,
+    )
+    assert replay.output is not None, replay.errors
+    assert replay.diagnostic is not None and replay.diagnostic.ok
+
+
+def test_explicit_condition_target_removes_identity_ambiguity_not_missing_state() -> None:
+    inputs, registry, context, payload = _hexi_case()
+    scope = next(item for item in payload["scopes"] if item["scope_id"] == "ii")
+    scope["calls"] = [
+        call
+        for call in scope["calls"]
+        if call["call_id"] != "derive_y_intercept_ii"
+    ]
+    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
+        payload,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+    assert validation.ok and plan is not None
+
+    result = FunctionalPlanReconciler().reconcile(
+        plan,
+        planner_state_context=context,
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+
+    issue_codes = {item.code for item in result.issues}
+    assert "functional.condition.target_ambiguous" not in issue_codes
+    assert "functional.condition_role_state_unavailable" in issue_codes
+
+
+def test_point_binding_uses_latest_projected_version_by_graph_order() -> None:
+    problem = _problem()
+    registry = _registry()
+    index = CanonicalRuntimeBindingIndex.from_context(
+        ContextBuilder().build(problem),
+        handle_registry=registry,
+        question_goals=(),
+    )
+    initial_handle = "fact:ii:N_coordinate"
+    closed_handle = "fact:ii_2:N_closed_coordinate"
+    initial_slot = "point:ii:N.coordinate@ii"
+    closed_slot = "point:ii:N.coordinate@ii_2"
+    writes = (
+        ProjectedStateWrite(
+            step_id="derive_N",
+            produced_handle=initial_handle,
+            state_slot_id=initial_slot,
+            write_mode="create",
+            runtime_type="Point",
+            object_ref="point:ii:N",
+        ),
+        ProjectedStateWrite(
+            step_id="close_N",
+            produced_handle=closed_handle,
+            state_slot_id=closed_slot,
+            write_mode="transition",
+            runtime_type="Point",
+            object_ref="point:ii:N",
+            source_state_slot_ids=(initial_slot,),
+        ),
+        ProjectedStateWrite(
+            step_id="consume_N",
+            produced_handle="fact:ii_2:distance",
+            state_slot_id="functional:ii_2:distance",
+            write_mode="value",
+            runtime_type="Distance",
+        ),
+    )
+    index.register_projected_state_writes(writes)
+    index.register(
+        initial_handle,
+        "$question.ii.outputs.N_coordinate",
+        "Point",
+        source="test",
+    )
+    index.register(
+        closed_handle,
+        "$subquestion.ii_2.outputs.N_closed_coordinate",
+        "Point",
+        source="test",
+    )
+    step = StepIntent(
+        step_id="consume_N",
+        scope_id="ii_2",
+        recipe_hint="distance_between_points",
+        goal_type="derive_distance",
+        target="fact:ii_2:distance",
+        strategy="read the latest point state",
+        # The older state intentionally appears last. Graph order remains
+        # authoritative over incidental reads ordering.
+        reads=(closed_handle, initial_handle, "point:ii:N"),
+        produces=(
+            ProducedFact(
+                "fact:ii_2:distance",
+                "ii_2",
+                output_type="Distance",
+            ),
+        ),
+    )
+
+    assert _point_value_path_for_step("point:ii:N", step, index) == (
+        "$subquestion.ii_2.outputs.N_closed_coordinate"
+    )
+
+
+def test_midpoint_state_becomes_stale_when_endpoint_version_advances() -> None:
+    index = CanonicalRuntimeBindingIndex.from_context(
+        ContextBuilder().build(_problem()),
+        handle_registry=_registry(),
+        question_goals=(),
+    )
+    initial_n_slot = "point:ii:N.coordinate@ii"
+    writes = (
+        ProjectedStateWrite(
+            step_id="derive_N",
+            produced_handle="fact:ii:N_coordinate",
+            state_slot_id=initial_n_slot,
+            write_mode="create",
+            runtime_type="Point",
+            object_ref="point:ii:N",
+        ),
+        ProjectedStateWrite(
+            step_id="derive_F",
+            produced_handle="fact:ii:F_coordinate",
+            state_slot_id="point:ii:F.coordinate@ii",
+            write_mode="create",
+            runtime_type="Point",
+            object_ref="point:ii:F",
+            source_state_slot_ids=(initial_n_slot,),
+        ),
+        ProjectedStateWrite(
+            step_id="close_N",
+            produced_handle="fact:ii_2:N_closed_coordinate",
+            state_slot_id="point:ii:N.coordinate@ii_2",
+            write_mode="transition",
+            runtime_type="Point",
+            object_ref="point:ii:N",
+            source_state_slot_ids=(initial_n_slot,),
+        ),
+        ProjectedStateWrite(
+            step_id="consume_F",
+            produced_handle="fact:ii_2:minimum",
+            state_slot_id="functional:ii_2:minimum",
+            write_mode="value",
+            runtime_type="MinimumExpression",
+        ),
+    )
+    index.register_projected_state_writes(writes)
+    step = StepIntent(
+        step_id="consume_F",
+        scope_id="ii_2",
+        recipe_hint="broken_path_straightening_minimum_expression",
+        goal_type="derive_minimum",
+        target="fact:ii_2:minimum",
+        strategy="recompute derived states from the latest endpoint",
+        reads=(
+            "fact:ii_2:N_closed_coordinate",
+            "fact:ii:N_coordinate",
+            "point:ii:F",
+        ),
+        produces=(
+            ProducedFact(
+                "fact:ii_2:minimum",
+                "ii_2",
+                output_type="MinimumExpression",
+            ),
+        ),
+    )
+
+    assert _projected_midpoint_state_is_stale(
+        "point:ii:F",
+        step,
+        index,
     )
 
 
@@ -726,6 +1515,11 @@ def test_unified_quadratic_constraint_call_publishes_open_target_symbol() -> Non
     )
     assert parameter_return.object_ref == "symbol:problem:b"
     assert parameter_return.state_slot_id == "symbol:problem:b.value@ii"
+    assert parameter_return.free_symbol_refs == ("symbol:problem:c",)
+    parabola_return = next(
+        item for item in refined.returns if item.return_name == "parabola"
+    )
+    assert parabola_return.free_symbol_refs == ("symbol:problem:c",)
     catalog = FunctionalCapabilityCatalog.from_family_spec(
         inputs.family_spec,
         inputs.method_specs,
@@ -740,6 +1534,14 @@ def test_unified_quadratic_constraint_call_publishes_open_target_symbol() -> Non
         if item.step_id == "derive_parametric_parabola_ii"
         and item.arg_name in {"free_parameters", "target_parameter"}
     ]
+    assert {
+        item.binding_authority for item in sidecar
+    } <= {"wire"}
+    assert not {
+        item.arg_name
+        for item in sidecar
+        if item.step_id == "derive_parametric_parabola_ii"
+    } & {"quadratic", "x", "all_coefficients"}
     assert {(item.arg_name, item.source_handle) for item in matching_sidecar} == {
         ("free_parameters", "symbol:problem:c"),
         ("target_parameter", "symbol:problem:b"),
@@ -770,6 +1572,13 @@ def test_unified_quadratic_constraint_call_publishes_open_target_symbol() -> Non
     )
     assert parabola_write.closure_ignored_symbol_names == ("x",)
     assert parabola_write.free_symbol_names == ("c",)
+    assert len(parabola_write.lineage.symbol_closures) == 1
+    closure = parabola_write.lineage.symbol_closures[0]
+    assert closure.target_object_ref == "symbol:problem:b"
+    assert closure.dependency_object_refs == ("symbol:problem:c",)
+    assert closure.expression == "1 - c"
+    assert parameter_write.state_slot_id in closure.source_state_slot_ids
+    assert parameter_write.produced_handle in closure.source_handles
     assert replay.planner_state_context is not None
     parameter_slot = next(
         item
@@ -966,7 +1775,7 @@ def test_explicit_target_parameter_is_not_reinferred_as_free_parameter() -> None
     assert "free_parameters" not in invocation.inputs
 
 
-def test_constraint_analyzer_writes_normalized_free_basis_back_to_plan() -> None:
+def test_downstream_symbol_constraint_writes_single_free_basis_to_plan() -> None:
     inputs, payload, registry, _context_value = _heping_ermo_case()
     call = next(
         call
@@ -1010,11 +1819,16 @@ def test_constraint_analyzer_writes_normalized_free_basis_back_to_plan() -> None
         if item.step_id == "derive_parametric_parabola_ii"
     )
     assert binding_event.arg_repairs, binding_event
-    assert "free_parameters" not in normalized.args
-    assert binding_event.arg_repairs[0].source_handles == ()
+    assert normalized.args["free_parameters"] == (
+        SemanticRef(ref="c", kind="symbol"),
+    )
+    assert binding_event.arg_repairs[0].source_handles == (
+        "symbol:problem:c",
+    )
     assert replay.functional_reconciliation is not None
     assert any(
-        item["action"] == "normalize_constraint_free_parameter_basis"
+        item["action"]
+        == "align_free_parameter_basis_with_downstream_constraint"
         and item["call_id"] == "derive_parametric_parabola_ii"
         for item in replay.functional_reconciliation.elaboration[
             "deterministic_repairs"
@@ -1125,7 +1939,7 @@ def _path_transformation_ref(call_id: str = "reduce_path") -> dict:
 
 def _path_reduction_prerequisite_calls(
     prefix: str = "path_setup",
-) -> tuple[dict, dict]:
+) -> tuple[dict, ...]:
     return (
         {
             "call_id": f"{prefix}_derive_axis",
@@ -1153,12 +1967,30 @@ def _path_reduction_prerequisite_calls(
             "strategy": "construct the second track endpoint",
             "reason": "materialize the point state required by path reduction",
         },
+        {
+            "call_id": f"{prefix}_derive_midpoint",
+            "capability_id": "midpoint_point",
+            "args": {
+                "midpoint_definition": {
+                    "ref": "F_midpoint_of_DN",
+                    "kind": "fact",
+                }
+            },
+            "return_bindings": {
+                "midpoint": {
+                    "ref": "F",
+                    "kind": "point",
+                }
+            },
+            "strategy": "derive the transformed fixed endpoint",
+            "reason": "materialize the exact endpoint state used by path reduction",
+        },
     )
 
 
 def _path_reduction_setup_calls(
     call_id: str = "reduce_path",
-) -> tuple[dict, dict, dict]:
+) -> tuple[dict, ...]:
     return (
         *_path_reduction_prerequisite_calls(call_id),
         _path_reduction_call(call_id),
@@ -1227,8 +2059,8 @@ def test_functional_schema_and_catalog_are_prompt_safe() -> None:
     assert {
         "straightened_scheme",
         "straightening_auxiliary_point",
-        "path_minimum_point_1",
-        "path_minimum_point_2",
+        "straightened_endpoint_1",
+        "straightened_endpoint_2",
         "path_minimum_expression",
         "evaluated_path_minimum_expression",
     } == {item.name for item in path_macro.returns}
@@ -1237,7 +2069,7 @@ def test_functional_schema_and_catalog_are_prompt_safe() -> None:
         for item in path_macro.returns
         if item.name == "straightening_auxiliary_point"
     )
-    assert auxiliary.equivalent_to == "path_minimum_point_1"
+    assert auxiliary.equivalent_to == "straightened_endpoint_1"
     path_result = next(
         item for item in path_macro.returns
         if item.name == "path_minimum_expression"
@@ -1268,6 +2100,11 @@ def test_functional_schema_and_catalog_are_prompt_safe() -> None:
     assert "单个需要代入" in quadratic_args["parameter_value"]["desc"]
     assert "不等式" in quadratic_args["extra_equation"]["desc"]
     assert "有意保留" in quadratic_args["free_parameters"]["desc"]
+    assert "一次放入 known_coefficients" in quadratic.use_when
+    assert any(
+        "不要逐个调用 evaluate_expression_at_parameter" in item
+        for item in quadratic.do_not_use_when
+    )
     assert any(
         "free_parameters、target_parameter" in item["requirement"]
         and "彼此不同" in item["requirement"]
@@ -1278,6 +2115,34 @@ def test_functional_schema_and_catalog_are_prompt_safe() -> None:
     )
     assert parabola_result.possible_forms == ("open_state", "closed_state")
     assert "未确定系数或参数" in parabola_result.result_form_description
+    evaluate_expression = catalog.get("evaluate_expression_at_parameter")
+    assert evaluate_expression is not None
+    evaluate_prompt = evaluate_expression.to_prompt_payload()
+    assert "输入类型决定唯一 return" in evaluate_prompt["use_when"]
+    assert any(
+        "Function 模板" in item
+        and "quadratic_from_constraints" in item
+        for item in evaluate_prompt["do_not_use_when"]
+    )
+    assert any(
+        "不会同时产生" in item or "同时产生" in item
+        for item in evaluate_prompt["do_not_use_when"]
+    )
+    evaluate_args = {
+        item["name"]: item for item in evaluate_prompt["args"]
+    }
+    assert "Function 模板不是已经得到的 Parabola" in (
+        evaluate_args["expression"]["desc"]
+    )
+    evaluate_returns = {
+        item["name"]: item for item in evaluate_prompt["returns"]
+    }
+    assert "仅当输入是 Expression" in (
+        evaluate_returns["evaluated_expression"]["desc"]
+    )
+    assert "仅当输入已经是 Parabola" in (
+        evaluate_returns["evaluated_parabola"]["desc"]
+    )
     axis = next(
         item
         for item in capabilities
@@ -1340,16 +2205,22 @@ def test_functional_schema_and_catalog_are_prompt_safe() -> None:
     )
     straightening_args = {item["name"]: item for item in straightening["args"]}
     assert any(
-        "原路径动点或极值点坐标" in item
+        "straightened_endpoint_1" in item
+        and "Point 答案" in item
+        for item in straightening["do_not_use_when"]
+    )
+    assert any(
+        "evaluated_path_minimum_expression" in item
+        and "内部拉直端点" in item
         for item in straightening["do_not_use_when"]
     )
     assert "路径等价变换" in straightening_args["path_transformation"]["desc"]
     straightening_returns = {
         item["name"]: item for item in straightening["returns"]
     }
-    for role in ("path_minimum_point_1", "path_minimum_point_2"):
+    for role in ("straightened_endpoint_1", "straightened_endpoint_2"):
         assert straightening_returns[role]["binding"] == "internal_only"
-        assert "不是原路径上的动点、极值点或答案点" in (
+        assert "不是原路径动点、极值点或答案点" in (
             straightening_returns[role]["desc"]
         )
     assert "最小值表达式" in (
@@ -1371,6 +2242,27 @@ def test_functional_schema_and_catalog_are_prompt_safe() -> None:
         "目标交点" in item and "known_point" in item
         for item in x_intercept["do_not_use_when"]
     )
+    point_at_x = next(
+        item
+        for item in capabilities
+        if item["capability_id"] == "point_on_parabola_at_x"
+    )
+    assert "结构化 definition.x" in point_at_x["use_when"]
+    assert "strategy/reason" in point_at_x["use_when"]
+    assert "return" in point_at_x["use_when"]
+    assert any(
+        "多个有坐标的候选点" in item
+        for item in point_at_x["do_not_use_when"]
+    )
+    assert any(
+        "仅知道点在抛物线上" in item
+        and "strategy/reason" in item
+        for item in point_at_x["do_not_use_when"]
+    )
+    assert "必须已经在题面结构化定义中直接给出" in (
+        point_at_x["returns"][0]["desc"]
+    )
+    assert "同一个 Point 对象" in point_at_x["returns"][0]["desc"]
     evaluate_point = next(
         item
         for item in capabilities
@@ -1405,6 +2297,69 @@ def test_heping_ermo_functional_catalog_explains_stateful_geometry_args() -> Non
     square_args = {item["name"]: item for item in square_vertex["args"]}
     assert "已经求出坐标" in square_args["side_start"]["desc"]
     assert "不能只填写尚未计算坐标" in square_args["side_end"]["desc"]
+    assert "分别绑定 V3、V4" in square_vertex["returns"][0]["desc"]
+    assert any(
+        "return_bindings.point" in item
+        for item in square_vertex["do_not_use_when"]
+    )
+    assert "return_bindings.point" in square_vertex["use_when"]
+    assert "顶点顺序" in square_vertex["use_when"]
+
+
+def test_compiler_owned_point_target_is_not_projected_as_state_read() -> None:
+    inputs, payload, registry, context = _heping_ermo_case()
+    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
+        payload,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+    assert validation.ok and plan is not None
+    result = FunctionalPlanReconciler().reconcile(
+        plan,
+        planner_state_context=context,
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+    assert result.ok
+    catalog = FunctionalCapabilityCatalog.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
+    )
+    dependencies = (
+        strategy_replay_module._functional_projected_state_dependencies(
+            result,
+            catalog=catalog,
+        )
+    )
+    square_call_ids = {
+        call.call_id
+        for call in result.calls
+        if call.capability_id == "square_adjacent_vertex_from_side"
+    }
+
+    assert square_call_ids
+    assert not any(
+        dependency.step_id in square_call_ids
+        and dependency.arg_name == "target"
+        for dependency in dependencies
+    )
+    projected_by_id = {
+        step.step_id: step for step in result.projected_draft.steps
+    }
+    for call in result.calls:
+        if call.call_id not in square_call_ids:
+            continue
+        for allocation in call.returns:
+            if (
+                allocation.write_mode == "create"
+                and allocation.object_ref is not None
+            ):
+                assert (
+                    allocation.object_ref
+                    not in projected_by_id[call.call_id].reads
+                )
 
 
 def test_functional_return_expectation_rejects_unknown_return() -> None:
@@ -1490,12 +2445,14 @@ def test_wrong_result_form_domain_is_dropped_deterministically() -> None:
     effective_call = next(
         call for call in result.plan.calls if call.call_id == "derive_axis_point"
     )
-    assert effective_call.return_expectations == {}
+    assert effective_call.return_expectations == {
+        "axis_point": "closed_state"
+    }
     assert {
         "call_id": "derive_axis_point",
-        "action": "drop_fixed_form_return_expectation",
-        "from": "axis_point:closed_value",
-        "to": "fixed_result_form",
+        "action": "normalize_answer_result_form",
+        "from": "axis_point=closed_value",
+        "to": "closed_state",
     } in result.elaboration["deterministic_repairs"]
 
 
@@ -1546,8 +2503,8 @@ def test_consumed_open_expression_answer_binding_is_dropped_for_closed_producer(
     assert effective.return_expectations["path_minimum_expression"] == (
         "open_expression"
     )
-    assert effective.return_expectations["path_minimum_point_1"] == "open_state"
-    assert effective.return_expectations["path_minimum_point_2"] == "open_state"
+    assert effective.return_expectations["straightened_endpoint_1"] == "open_state"
+    assert effective.return_expectations["straightened_endpoint_2"] == "open_state"
     assert {
         "call_id": "ii_derive_path_model",
         "action": "drop_intermediate_open_expression_answer_binding",
@@ -1556,7 +2513,7 @@ def test_consumed_open_expression_answer_binding_is_dropped_for_closed_producer(
     } in result.elaboration["deterministic_repairs"]
 
 
-def test_open_expression_answer_binding_without_closed_producer_still_fails() -> None:
+def test_open_expression_answer_binding_is_normalized_for_runtime_verification() -> None:
     inputs = _base_inputs()
     payload = json.loads(NANKAI_FUNCTIONAL_PLAN.read_text(encoding="utf-8"))
     source = next(
@@ -1590,9 +2547,21 @@ def test_open_expression_answer_binding_without_closed_producer_still_fails() ->
         question_goals=inputs.question_goals,
     )
 
-    assert "functional.return_expectation_answer_conflict" in {
+    assert "functional.return_expectation_answer_conflict" not in {
         item.code for item in result.issues
     }
+    effective = next(
+        item for item in result.plan.calls if item.call_id == "ii_derive_path_model"
+    )
+    assert effective.return_expectations["path_minimum_expression"] == (
+        "closed_value"
+    )
+    assert {
+        "call_id": "ii_derive_path_model",
+        "action": "normalize_answer_result_form",
+        "from": "path_minimum_expression=open_expression",
+        "to": "closed_value",
+    } in result.elaboration["deterministic_repairs"]
 
 
 def test_consumed_open_point_answer_binding_becomes_existing_object_state() -> None:
@@ -1880,6 +2849,109 @@ def test_redundant_incompatible_optional_arg_is_dropped_by_contract_role() -> No
     )
 
 
+def test_elaborator_renames_unknown_arg_to_unique_compatible_required_arg() -> None:
+    inputs, payload, registry, context = _heping_ermo_case()
+    call = next(
+        item
+        for scope in payload["scopes"]
+        for item in scope["calls"]
+        if item["call_id"] == "derive_x_intercept_A_i"
+    )
+    call["args"]["parabola"] = call["args"].pop("quadratic")
+    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
+        payload,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+    assert validation.ok and plan is not None
+    catalog = FunctionalCapabilityCatalog.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
+    )
+
+    first = FunctionalPlanElaborator().elaborate(
+        plan,
+        catalog=catalog,
+        semantic_index=FunctionalSemanticIndex.from_context(
+            context,
+            handle_registry=registry,
+        ),
+    )
+
+    assert first.ok
+    elaborated = next(
+        item
+        for item in first.plan.calls
+        if item.call_id == "derive_x_intercept_A_i"
+    )
+    assert "parabola" not in elaborated.args
+    assert elaborated.args["quadratic"] == (
+        CallResultRef("derive_parabola_i", "parabola"),
+    )
+    assert any(
+        item.call_id == elaborated.call_id
+        and item.action == "rename_unique_type_compatible_required_arg"
+        and item.from_value == "parabola"
+        and item.to_value == "quadratic"
+        for item in first.deterministic_repairs
+    )
+
+    second = FunctionalPlanElaborator().elaborate(
+        first.plan,
+        catalog=catalog,
+        semantic_index=FunctionalSemanticIndex.from_context(
+            context,
+            handle_registry=registry,
+        ),
+    )
+    assert second.plan.to_payload() == first.plan.to_payload()
+    assert second.deterministic_repairs == ()
+
+
+def test_elaborator_does_not_guess_between_compatible_required_args() -> None:
+    inputs = replace(_base_inputs(), question_goals=[])
+    plan = FunctionalPlan(
+        scopes=(
+            FunctionalScope(
+                "ii_1",
+                "ii_1",
+                (
+                    FunctionalCall(
+                        call_id="ambiguous_distance",
+                        capability_id="distance_between_points",
+                        args={
+                            "endpoint": (
+                                SemanticRef(ref="M", kind="point"),
+                            )
+                        },
+                        return_bindings={},
+                        strategy="compute a distance",
+                        reason="exercise ambiguous representation repair",
+                    ),
+                ),
+            ),
+        ),
+    )
+
+    result = FunctionalPlanElaborator().elaborate(
+        plan,
+        catalog=FunctionalCapabilityCatalog.from_family_spec(
+            inputs.family_spec,
+            inputs.method_specs,
+        ),
+        semantic_index=FunctionalSemanticIndex.from_context(
+            _context(inputs),
+            handle_registry=_registry(),
+        ),
+    )
+
+    assert result.plan.calls[0].args == plan.calls[0].args
+    assert not any(
+        item.action == "rename_unique_type_compatible_required_arg"
+        for item in result.deterministic_repairs
+    )
+
+
 def test_context_closure_calls_wait_for_resolved_state_versions_before_merge() -> None:
     inputs = _base_inputs()
 
@@ -2001,6 +3073,84 @@ def test_runtime_verifies_functional_scalar_result_form_from_free_symbols(
     assert len(issues) == issue_count
     if issues:
         assert issues[0].code == "functional.return_form_mismatch"
+
+
+def test_closed_internal_return_expectation_blocks_open_runtime_state() -> None:
+    """A closed expectation cannot hide a still-open internal state."""
+    inputs, _payload, _registry, _context_value = _heping_ermo_case()
+    catalog = FunctionalCapabilityCatalog.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
+    )
+    call = FunctionalCall(
+        call_id="straighten_path",
+        capability_id="broken_path_straightening_minimum_expression",
+        args={},
+        return_bindings={},
+        strategy="derive internal endpoints",
+        reason="exercise advisory internal result forms",
+        return_expectations={"straightened_endpoint_2": "closed_state"},
+    )
+    plan = FunctionalPlan(
+        scopes=(FunctionalScope("part", "part", (call,)),),
+    )
+    allocation = FunctionalReturnAllocation(
+        call_id=call.call_id,
+        return_name="straightened_endpoint_2",
+        handle="fact:part:internal_endpoint",
+        runtime_type="Point",
+        valid_scope="part",
+        state_slot_id="point:part:endpoint.coordinate@part",
+        object_ref="point:part:endpoint",
+        identity_policy="derived_role",
+        write_mode="create",
+    )
+    reconciliation = FunctionalPlanReconciliationResult(
+        plan=plan,
+        calls=(
+            FunctionalCallReconciliation(
+                call_id=call.call_id,
+                scope_id="part",
+                capability_id=call.capability_id,
+                resolved_args={},
+                returns=(allocation,),
+            ),
+        ),
+    )
+    diagnostic = StepIntentExecutionDiagnostic(
+        ok=True,
+        state_write_provenance=(
+            StateWriteProvenance(
+                step_id=call.call_id,
+                scope_id="part",
+                capability_id=call.capability_id,
+                produced_handle=allocation.handle,
+                output_key="straightened_endpoint_2",
+                runtime_type="Point",
+                object_ref=allocation.object_ref,
+                identity_policy="derived_role",
+                identity_role="straightened_endpoint_2",
+                write_mode="create",
+                free_symbol_names=("c",),
+            ),
+        ),
+    )
+
+    events, issues = verify_functional_result_forms(
+        plan,
+        reconciliation,
+        diagnostic,
+        catalog=catalog,
+    )
+    canonical = canonicalize_verified_result_forms(plan, events)
+
+    assert [item.code for item in issues] == [
+        "functional.return_form_mismatch"
+    ]
+    assert events[0].status == "mismatch"
+    assert canonical.calls[0].return_expectations == {
+        "straightened_endpoint_2": "closed_state"
+    }
 
 
 def test_runtime_closed_form_updates_canonical_functional_plan() -> None:
@@ -2361,6 +3511,9 @@ def test_object_state_refinement_infers_forms_and_transition() -> None:
         "write_mode": "create",
         "source_state_slot_ids": ("function:part:curve.expression@part",),
         "dependency_object_refs": ("function:part:curve",),
+        "lineage": state_semantic_lineage(
+            semantic_roles=("axis_x_intercept",),
+        ),
     }
     open_allocation = FunctionalReturnAllocation(
         call_id=open_call.call_id,
@@ -2370,10 +3523,7 @@ def test_object_state_refinement_infers_forms_and_transition() -> None:
     )
     closed_shared = {
         **shared,
-        "source_state_slot_ids": (
-            "function:part:curve.expression@part",
-            "point:part:target.coordinate@part",
-        ),
+        "source_state_slot_ids": ("function:part:curve.expression@part",),
     }
     closed_allocation = FunctionalReturnAllocation(
         call_id=closed_call.call_id,
@@ -2413,6 +3563,93 @@ def test_object_state_refinement_infers_forms_and_transition() -> None:
     assert refined.write_mode == "transition"
     assert refined.transition_kind == "dependency_refinement"
     assert refined.previous_write_step_id == open_call.call_id
+    assert "point:part:target.coordinate@part" in refined.source_state_slot_ids
+
+
+def test_return_symbol_flow_uses_current_states_over_relation_history() -> None:
+    symbol_ref = "symbol:part:t"
+    relation = ResolvedFunctionalValue(
+        handle="fact:part:midpoint_definition",
+        runtime_type="Condition",
+        valid_scope="part",
+        condition_id="condition:midpoint@part",
+        object_roles=(
+            ("midpoint", ("point:part:midpoint",)),
+            ("endpoint", ("point:part:left", "point:part:right")),
+        ),
+        free_symbol_refs=(symbol_ref,),
+    )
+    left = ResolvedFunctionalValue(
+        handle="fact:part:left_coordinate",
+        runtime_type="Point",
+        valid_scope="part",
+        state_slot_id="point:part:left.coordinate@part",
+        object_ref="point:part:left",
+    )
+    right = ResolvedFunctionalValue(
+        handle="fact:part:right_coordinate",
+        runtime_type="Point",
+        valid_scope="part",
+        state_slot_id="point:part:right.coordinate@part",
+        object_ref="point:part:right",
+    )
+
+    assert return_free_symbol_refs(
+        "Point",
+        {
+            "midpoint_definition": (relation,),
+            "p1": (left,),
+            "p2": (right,),
+        },
+        object_ref="point:part:midpoint",
+    ) == ()
+
+    open_right = replace(right, free_symbol_refs=(symbol_ref,))
+    assert return_free_symbol_refs(
+        "Point",
+        {
+            "midpoint_definition": (relation,),
+            "p1": (left,),
+            "p2": (open_right,),
+        },
+        object_ref="point:part:midpoint",
+    ) == (symbol_ref,)
+
+    equation = replace(relation, object_roles=())
+    assert return_free_symbol_refs(
+        "Parabola",
+        {"coefficient_relation": (equation,)},
+        object_ref="function:part:curve",
+    ) == (symbol_ref,)
+
+
+def test_return_symbol_flow_can_ignore_scalar_only_parameter_inputs() -> None:
+    symbol_ref = "symbol:part:m"
+    endpoint = ResolvedFunctionalValue(
+        handle="fact:part:straightened_endpoint",
+        runtime_type="Point",
+        valid_scope="part",
+        state_slot_id="point:part:endpoint.coordinate@part",
+        object_ref="point:part:endpoint",
+        free_symbol_refs=(symbol_ref,),
+    )
+    parameter_value = ResolvedFunctionalValue(
+        handle="fact:part:m_value",
+        runtime_type="ParameterValue",
+        valid_scope="part",
+        state_slot_id="symbol:part:m.value@part",
+        object_ref=symbol_ref,
+    )
+
+    assert return_free_symbol_refs(
+        "Point",
+        {
+            "path_transformation": (endpoint,),
+            "parameter_value": (parameter_value,),
+        },
+        object_ref="point:part:endpoint",
+        ignored_input_args=("parameter_value",),
+    ) == (symbol_ref,)
 
 
 def test_object_state_refinement_accepts_direct_constraint_transition() -> None:
@@ -2473,7 +3710,19 @@ def test_object_state_refinement_accepts_direct_constraint_transition() -> None:
             call_id="append_constraint",
             scope_id="part",
             capability_id="quadratic_from_constraints",
-            resolved_args={},
+            resolved_args={
+                "quadratic": (
+                    ResolvedFunctionalValue(
+                        handle="fact:part:initial_curve",
+                        runtime_type="Parabola",
+                        valid_scope="part",
+                        state_slot_id=slot_id,
+                        source_call_id="initial_state",
+                        return_name="parabola",
+                        object_ref="function:part:curve",
+                    ),
+                ),
+            },
             returns=(
                 FunctionalReturnAllocation(
                     call_id="append_constraint",
@@ -2502,6 +3751,158 @@ def test_object_state_refinement_accepts_direct_constraint_transition() -> None:
         repair.action == "promote_state_write_to_direct_transition"
         for repair in result.repairs
     )
+
+
+def test_object_state_refinement_reuses_immutable_symbol_identity() -> None:
+    inputs = build_strategy_probe_inputs(load_problem_ir(HEPING_ERMO_FIXTURE))
+    catalog = FunctionalCapabilityCatalog.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
+    )
+    capability_id = "quadratic_axis_parameterized_point"
+    calls = tuple(
+        FunctionalCall(
+            call_id=call_id,
+            capability_id=capability_id,
+            args={},
+            return_bindings={},
+            strategy="publish the same internal parameter identity",
+            reason="synthetic immutable identity reuse",
+        )
+        for call_id in ("parameterize_open", "parameterize_closed")
+    )
+    plan = FunctionalPlan(
+        scopes=(FunctionalScope("part", "part", calls),),
+    )
+    slot_id = "symbol:part:axis_parameter.parameter@part"
+    common = {
+        "return_name": "parameter",
+        "runtime_type": "Symbol",
+        "valid_scope": "part",
+        "state_slot_id": slot_id,
+        "object_ref": "symbol:part:axis_parameter",
+        "identity_policy": "derived_role",
+        "write_mode": "value",
+        "free_symbol_refs": ("symbol:part:axis_parameter",),
+        "dependency_object_refs": ("point:part:target",),
+        "lineage": state_semantic_lineage(
+            semantic_roles=("axis_parameter",),
+        ),
+    }
+    reconciled = tuple(
+        FunctionalCallReconciliation(
+            call_id=call.call_id,
+            scope_id="part",
+            capability_id=capability_id,
+            resolved_args={},
+            returns=(
+                FunctionalReturnAllocation(
+                    call_id=call.call_id,
+                    handle=f"fact:part:{call.call_id}_axis_parameter",
+                    source_state_slot_ids=(
+                        f"function:part:curve_{index}.expression@part",
+                    ),
+                    **common,
+                ),
+            ),
+        )
+        for index, call in enumerate(calls)
+    )
+
+    result = refine_functional_object_states(
+        plan,
+        reconciled=reconciled,
+        catalog=catalog,
+    )
+
+    refined = result.calls[1].returns[0]
+    assert refined.write_mode == "transition"
+    assert refined.transition_kind == "direct"
+    assert refined.previous_write_step_id == "parameterize_open"
+    assert slot_id in refined.source_state_slot_ids
+
+
+def test_object_state_refinement_does_not_close_a_new_companion_symbol() -> None:
+    inputs = build_strategy_probe_inputs(load_problem_ir(HEPING_ERMO_FIXTURE))
+    catalog = FunctionalCapabilityCatalog.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
+    )
+    capability_id = "quadratic_axis_parameterized_point"
+    calls = tuple(
+        FunctionalCall(
+            call_id=call_id,
+            capability_id=capability_id,
+            args={},
+            return_bindings={},
+            strategy="parameterize the same object again",
+            reason="synthetic companion-symbol guard",
+        )
+        for call_id in ("parameterize_open", "parameterize_again")
+    )
+    plan = FunctionalPlan(
+        scopes=(FunctionalScope("part", "part", calls),),
+    )
+    point_slot = "point:part:target.coordinate@part"
+    symbol_slot = "symbol:part:axis_parameter.parameter@part"
+    reconciled = tuple(
+        FunctionalCallReconciliation(
+            call_id=call.call_id,
+            scope_id="part",
+            capability_id=capability_id,
+            resolved_args={},
+            returns=(
+                FunctionalReturnAllocation(
+                    call_id=call.call_id,
+                    return_name="point",
+                    handle=f"fact:part:{call.call_id}_coordinate",
+                    runtime_type="Point",
+                    valid_scope="part",
+                    state_slot_id=point_slot,
+                    object_ref="point:part:target",
+                    identity_policy="target_object",
+                    write_mode="create",
+                    free_symbol_refs=(
+                        ("symbol:part:t",) if index == 0 else ()
+                    ),
+                    source_state_slot_ids=(
+                        f"function:part:curve_{index}.expression@part",
+                    ),
+                    dependency_object_refs=("function:part:curve",),
+                    lineage=state_semantic_lineage(
+                        semantic_roles=("axis_point",),
+                    ),
+                ),
+                FunctionalReturnAllocation(
+                    call_id=call.call_id,
+                    return_name="parameter",
+                    handle=f"fact:part:{call.call_id}_axis_parameter",
+                    runtime_type="Symbol",
+                    valid_scope="part",
+                    state_slot_id=symbol_slot,
+                    object_ref="symbol:part:axis_parameter",
+                    identity_policy="derived_role",
+                    write_mode="value",
+                    free_symbol_refs=("symbol:part:axis_parameter",),
+                    dependency_object_refs=("point:part:target",),
+                    lineage=state_semantic_lineage(
+                        semantic_roles=("axis_parameter",),
+                    ),
+                ),
+            ),
+        )
+        for index, call in enumerate(calls)
+    )
+
+    result = refine_functional_object_states(
+        plan,
+        reconciled=reconciled,
+        catalog=catalog,
+    )
+
+    point_write = result.calls[1].returns[0]
+    assert point_write.write_mode == "create"
+    assert point_write.transition_kind is None
 
 
 def test_object_state_refinement_infers_closed_state_from_symbol_identity() -> None:
@@ -3047,6 +4448,9 @@ def test_context_closure_arg_bindings_are_projected_from_declarations() -> None:
         ("first_segment_start", "first_segment_start"),
         ("joint_point", "joint_point"),
         ("second_segment_end", "second_segment_end"),
+        ("transformed_fixed_endpoint", "transformed_fixed_endpoint"),
+        ("moving_locus_endpoint_1", "moving_locus_endpoint_1"),
+        ("moving_locus_endpoint_2", "moving_locus_endpoint_2"),
     }
     assert "context_arg_bindings" not in right_angle.to_prompt_payload()
 
@@ -3054,19 +4458,19 @@ def test_context_closure_arg_bindings_are_projected_from_declarations() -> None:
 def test_derived_role_identity_is_call_scoped() -> None:
     first = derived_role_object_ref(
         call_id="derive_first_path",
-        semantic_role="path_minimum_point_1",
+        semantic_role="straightened_endpoint_1",
         scope_id="ii_2",
         runtime_type="Point",
     )
     second = derived_role_object_ref(
         call_id="derive_second_path",
-        semantic_role="path_minimum_point_1",
+        semantic_role="straightened_endpoint_1",
         scope_id="ii_2",
         runtime_type="Point",
     )
 
-    assert first == "point:ii_2:derive_first_path_path_minimum_point_1"
-    assert second == "point:ii_2:derive_second_path_path_minimum_point_1"
+    assert first == "point:ii_2:derive_first_path_straightened_endpoint_1"
+    assert second == "point:ii_2:derive_second_path_straightened_endpoint_1"
     assert first != second
 
 
@@ -3122,6 +4526,7 @@ def test_functional_catalog_lowers_containers_and_hides_auto_args() -> None:
     assert [item.semantic_role for item in straightening.args] == [
         "path_transformation",
         "moving_locus",
+        "parameter_value",
     ]
     moving_locus = next(
         item for item in straightening.args if item.semantic_role == "moving_locus"
@@ -3157,6 +4562,17 @@ def test_functional_catalog_lowers_containers_and_hides_auto_args() -> None:
 
     reduction = catalog.get("two_moving_points_path_reduction")
     assert reduction is not None
+    prompt_reduction = reduction.to_prompt_payload()
+    assert "每个固定端点都必须已有可读取的 Point 坐标状态" in (
+        prompt_reduction["use_when"]
+    )
+    assert any(
+        "仅有定义、构造或中点关系" in item
+        for item in prompt_reduction["do_not_use_when"]
+    )
+    guidance_payload = json.dumps(prompt_reduction, ensure_ascii=False)
+    assert "点 F" not in guidance_payload
+    assert "F 点" not in guidance_payload
     transformation = next(
         item
         for item in reduction.returns
@@ -3177,6 +4593,13 @@ def test_functional_catalog_lowers_containers_and_hides_auto_args() -> None:
         heping_inputs.method_specs,
     ).get("square_path_dimension_reduction")
     assert square_reduction is not None
+    square_prompt = square_reduction.to_prompt_payload()
+    assert "原目标路径恰好由三段组成" in square_prompt["use_when"]
+    assert "输出不携带动点轨迹" in square_prompt["use_when"]
+    assert any(
+        "原路径只有两段" in item
+        for item in square_prompt["do_not_use_when"]
+    )
     square_transformation = next(
         item
         for item in square_reduction.returns
@@ -3221,6 +4644,127 @@ def test_functional_catalog_lowers_containers_and_hides_auto_args() -> None:
         "midpoint_definition",
     )
     assert {item.name for item in midpoint.auto_args} == {"p1", "p2", "target"}
+
+    heping_problem = load_problem_ir(HEPING_FIXTURE)
+    heping_catalog = FunctionalCapabilityCatalog.from_family_spec(
+        build_strategy_probe_inputs(heping_problem).family_spec,
+        build_strategy_probe_inputs(heping_problem).method_specs,
+    )
+    angle_sum = heping_catalog.get("angle_sum_equal_angle_candidates")
+    assert angle_sum is not None
+    assert [item.name for item in angle_sum.args] == ["condition"]
+    assert {item.name for item in angle_sum.auto_args} == {
+        "x_axis_point",
+        "y_axis_point",
+        "reference_x_axis_point",
+        "origin",
+        "target",
+    }
+    assert "只需提供结构化角和条件" in angle_sum.use_when
+    angle_intercept = heping_catalog.get(
+        "axis_intercept_from_equal_acute_angles"
+    )
+    assert angle_intercept is not None
+    assert [item.name for item in angle_intercept.args] == [
+        "angle_equality"
+    ]
+    assert {item.name for item in angle_intercept.auto_args} == {
+        "x_axis_point",
+        "y_axis_point",
+        "reference_x_axis_point",
+        "origin",
+        "target",
+    }
+    assert "只需提供等角事实" in angle_intercept.use_when
+    ray_reduction = heping_catalog.get("equal_length_ray_path_reduction")
+    assert ray_reduction is not None
+    ray_prompt = ray_reduction.to_prompt_payload()
+    assert "一个动点在线段上、另一个动点在射线上" in (
+        ray_prompt["use_when"]
+    )
+    assert "返回 MinimumExpression" in ray_prompt["use_when"]
+    assert "PathTransformation" in ray_prompt["use_when"]
+    assert any(
+        "三段正方形路径或带权距离" in item
+        for item in ray_prompt["do_not_use_when"]
+    )
+
+    hexi_problem = load_problem_ir(HEXI_FIXTURE)
+    hexi_inputs = build_strategy_probe_inputs(hexi_problem)
+    hexi_catalog = FunctionalCapabilityCatalog.from_family_spec(
+        hexi_inputs.family_spec,
+        hexi_inputs.method_specs,
+    )
+    weighted_reduction = hexi_catalog.get("weighted_axis_path_triangle_transform")
+    assert weighted_reduction is not None
+    weighted_prompt = weighted_reduction.to_prompt_payload()
+    assert "距离和中有一项带大于 1 的权重" in (
+        weighted_prompt["use_when"]
+    )
+    assert "输出辅助点、等价的 PathTransformation 和辅助点轨迹" in (
+        weighted_prompt["use_when"]
+    )
+    assert any(
+        "原距离和没有权重" in item
+        for item in weighted_prompt["do_not_use_when"]
+    )
+    weighted_args = {
+        item["name"]: item for item in weighted_prompt["args"]
+    }
+    assert "不表示本能力会求最小值" in weighted_prompt["use_when"]
+    assert "数值最小值不由本能力计算" in (
+        weighted_args["minimum_value"]["desc"]
+    )
+    assert "不带权线段的固定端点" in weighted_args["fixed_point"]["desc"]
+    assert "共享的 x 轴动点" in weighted_args["moving_point"]["desc"]
+    weighted_returns = {
+        item["name"]: item for item in weighted_prompt["returns"]
+    }
+    assert "不是最小值表达式" in (
+        weighted_returns["path_transformation"]["desc"]
+    )
+    assert "不是原动点、极值点或 Point 答案" in (
+        weighted_returns["auxiliary_point"]["desc"]
+    )
+    assert any(
+        "直接得到最小值表达式" in item
+        for item in weighted_prompt["do_not_use_when"]
+    )
+    candidate_solve = hexi_catalog.get("curve_candidate_parameter_solve")
+    assert candidate_solve is not None
+    candidate_prompt = candidate_solve.to_prompt_payload()
+    candidate_args = {
+        item["name"]: item for item in candidate_prompt["args"]
+    }
+    assert "前序几何构造调用实际产出的候选点列表" in (
+        candidate_args["candidates"]["desc"]
+    )
+    assert "不是 candidates 的替代输入" in (
+        candidate_args["target_point"]["desc"]
+    )
+    assert any(
+        "结构化声明横坐标" in item
+        for item in candidate_prompt["do_not_use_when"]
+    )
+    assert any(
+        "materialized PointList" in item
+        for item in candidate_prompt["do_not_use_when"]
+    )
+    assert any(
+        "不要假定默认旋转方向" in item
+        for item in candidate_prompt["do_not_use_when"]
+    )
+    assert "条件性必需输入" in candidate_args["symbol_constraint"]["desc"]
+    right_angle_select = hexi_catalog.get(
+        "right_angle_equal_length_construct_and_select"
+    )
+    assert right_angle_select is not None
+    right_angle_prompt = right_angle_select.to_prompt_payload()
+    assert "直接唯一选择旋转分支" in right_angle_prompt["use_when"]
+    assert any(
+        "曲线归属和参数正负条件" in item
+        for item in right_angle_prompt["do_not_use_when"]
+    )
 
 
 def test_context_semantic_index_selects_object_state_and_condition_views() -> None:
@@ -3275,6 +4819,451 @@ def test_context_semantic_index_selects_object_state_and_condition_views() -> No
         accepted_types=("Parabola",),
     )
     assert parabola_state is None
+
+
+def test_context_semantic_index_does_not_invent_condition_for_value_fact() -> None:
+    _problem, _inputs, _payload, registry, context, _plan = _xiqing_case()
+    index = FunctionalSemanticIndex.from_context(
+        context,
+        handle_registry=registry,
+    )
+
+    point, _ = index.resolve(
+        SemanticRef("M_coordinate_expr", "fact"),
+        scope_id="ii_2",
+        accepted_types=("Point",),
+    )
+    condition, _ = index.resolve(
+        SemanticRef("M_coordinate_expr", "fact"),
+        scope_id="ii_2",
+        accepted_types=("Condition",),
+    )
+    range_condition, _ = index.resolve(
+        SemanticRef("m_gt_0", "fact"),
+        scope_id="ii_2",
+        accepted_types=("Constraint",),
+        accepted_condition_kinds=("symbol_constraint",),
+    )
+
+    assert point is not None and point.object_ref == "point:ii_2:M"
+    assert condition is None
+    assert range_condition is not None
+    assert range_condition.runtime_type == "Condition"
+
+
+def test_weighted_minimum_catalog_requires_symbol_range_constraint() -> None:
+    _problem, inputs, _payload, _registry, _context, _plan = _xiqing_case()
+    catalog = FunctionalCapabilityCatalog.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
+    )
+    capability = catalog.get("linked_broken_path_minimum_expression")
+    assert capability is not None
+    assert "parameter" not in {item.name for item in capability.args}
+    assert "dynamic_parameter" not in {
+        item.name for item in capability.args
+    }
+    assert {
+        item.name: item.binding_authority
+        for item in capability.auto_args
+        if item.name in {"parameter", "dynamic_parameter"}
+    } == {
+        "parameter": "compiler",
+        "dynamic_parameter": "compiler",
+    }
+    dynamic_constraint = next(
+        item for item in capability.args
+        if item.name == "dynamic_constraint"
+    )
+
+    assert dynamic_constraint.accepted_condition_kinds == (
+        "symbol_constraint",
+    )
+    assert "不是点坐标" in dynamic_constraint.description
+    segment_solver = catalog.get("parameter_from_segment_length")
+    assert segment_solver is not None
+    parameter = next(
+        item for item in segment_solver.args if item.name == "parameter"
+    )
+    assert parameter.llm_mode == "optional"
+    assert parameter.deterministic_resolver == "unique_parameter_symbol"
+
+
+def test_compiler_owned_primary_parameter_rejects_wire_sidecar_override() -> None:
+    """An explicit dynamic symbol must not replace the family primary symbol."""
+
+    hexi_problem = load_problem_ir(HEXI_FIXTURE)
+    hexi_inputs = build_strategy_probe_inputs(hexi_problem)
+    compiler = object.__new__(_RecipePlanCompiler)
+    compiler.function_specs = FunctionSpecRegistry.from_family_spec(
+        hexi_inputs.family_spec,
+        hexi_inputs.method_specs,
+    )
+    compiler.binding_rules = MethodBindingRuleRegistry.from_family_spec(
+        hexi_inputs.family_spec
+    )
+    compiler.projected_function_arg_bindings = (
+        ProjectedFunctionArgBinding(
+            step_id="synthetic_weighted_minimum",
+            arg_name="parameter",
+            source_handle="symbol:problem:v",
+            runtime_type="Symbol",
+            object_ref="symbol:problem:v",
+            binding_authority="wire",
+        ),
+    )
+    step = StepIntent(
+        scope_id="iii",
+        step_id="synthetic_weighted_minimum",
+        recipe_hint="linked_broken_path_minimum_expression",
+        goal_type="derive_minimum_expression",
+        target="fact:iii:minimum_expression",
+        reads=("symbol:problem:u", "symbol:problem:v"),
+        strategy="derive the weighted minimum expression",
+    )
+    spec = hexi_inputs.method_specs.require(
+        "linked_broken_path_minimum_expression"
+    )
+
+    with pytest.raises(
+        StrategyDraftValidationError,
+        match="declared_authority=compiler",
+    ):
+        compiler._projected_exact_function_inputs(step, spec)
+
+
+def test_quadratic_constraint_adapter_accepts_three_curve_points() -> None:
+    problem = load_problem_ir(HEPING_FIXTURE)
+    inputs = build_strategy_probe_inputs(problem)
+    problem_payload = problem_to_llm_payload(problem)
+    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    payload = json.loads(
+        HEPING_FUNCTIONAL_PLAN.read_text(encoding="utf-8")
+    )
+    call = next(
+        item
+        for scope in payload["scopes"]
+        for item in scope["calls"]
+        if item["call_id"] == "derive_parabola_i"
+    )
+    call["args"]["curve_points"].append(
+        {"kind": "point", "ref": "A"}
+    )
+    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
+        payload,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+    assert validation.ok and plan is not None
+
+    replay = PlannerRetryReplayService().replay_functional_plan(
+        plan,
+        inputs=inputs,
+        handle_registry=registry,
+        context=ContextBuilder().build(problem),
+        attempt=1,
+        problem_payload=problem_payload,
+        validation_report=validation,
+    )
+
+    assert replay.output is not None, replay.errors
+    invocation = next(
+        invocation
+        for step in replay.output.step_plans
+        if step.step_id == "derive_parabola_i"
+        for invocation in step.invocations
+        if invocation.method_id == "quadratic_from_constraints"
+    )
+    assert "p3" not in invocation.inputs
+    assert len(invocation.inputs["curve_points"]) == 3
+
+
+def test_hidden_mechanical_selector_alias_is_pruned_before_auto_resolution() -> None:
+    problem = load_problem_ir(HEPING_FIXTURE)
+    inputs = build_strategy_probe_inputs(problem)
+    problem_payload = problem_to_llm_payload(problem)
+    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    payload = json.loads(HEPING_FUNCTIONAL_PLAN.read_text(encoding="utf-8"))
+    call = next(
+        item
+        for scope in payload["scopes"]
+        for item in scope["calls"]
+        if item["call_id"] == "derive_parabola_i"
+    )
+    call["args"]["parabola"] = {"kind": "function", "ref": "parabola"}
+    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
+        payload,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+    assert validation.ok and plan is not None
+
+    replay = PlannerRetryReplayService().replay_functional_plan(
+        plan,
+        inputs=inputs,
+        handle_registry=registry,
+        context=ContextBuilder().build(problem),
+        attempt=1,
+        problem_payload=problem_payload,
+        validation_report=validation,
+    )
+
+    assert replay.output is not None, replay.errors
+    assert replay.functional_reconciliation is not None
+    effective_call = next(
+        item
+        for item in replay.functional_reconciliation.effective_plan.calls
+        if item.call_id == "derive_parabola_i"
+    )
+    assert "parabola" not in effective_call.args
+    assert "quadratic" not in effective_call.args
+    repairs = replay.functional_reconciliation.elaboration[
+        "deterministic_repairs"
+    ]
+    assert any(
+        item["action"] == "drop_unknown_capability_arg"
+        and item["from"] == "parabola=provided"
+        and item["to"] == "parabola=omitted"
+        for item in repairs
+    )
+
+
+def test_recomputed_translated_ray_endpoint_keeps_original_point_definition() -> None:
+    """A scoped coordinate version must still target the canonical PointRef."""
+    problem = load_problem_ir(HEPING_FIXTURE)
+    inputs = build_strategy_probe_inputs(problem)
+    problem_payload = problem_to_llm_payload(problem)
+    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    payload = json.loads(HEPING_FUNCTIONAL_PLAN.read_text(encoding="utf-8"))
+    scope = next(item for item in payload["scopes"] if item["scope_id"] == "ii")
+    reduction_index = next(
+        index
+        for index, call in enumerate(scope["calls"])
+        if call["call_id"] == "reduce_equal_length_ray_path_ii"
+    )
+    scope["calls"][reduction_index:reduction_index] = [
+        {
+            "call_id": "recompute_C_ii",
+            "capability_id": "quadratic_y_axis_intercept_point",
+            "args": {
+                "quadratic": {
+                    "from_call": "derive_parametric_parabola_ii",
+                    "return": "parabola",
+                }
+            },
+            "return_bindings": {
+                "point": {"ref": "C", "kind": "point"},
+            },
+            "strategy": "recompute a shared intercept state",
+            "reason": "exercise a newer scoped state version",
+        },
+        {
+            "call_id": "recompute_D_ii",
+            "capability_id": "translated_point",
+            "args": {
+                "source": {
+                    "from_call": "recompute_C_ii",
+                    "return": "point",
+                }
+            },
+            "return_bindings": {
+                "point": {"ref": "D", "kind": "point"},
+            },
+            "strategy": "recompute the translated ray endpoint",
+            "reason": "the target keeps its original translation definition",
+        },
+    ]
+    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
+        payload,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+    assert validation.ok and plan is not None
+
+    replay = PlannerRetryReplayService().replay_functional_plan(
+        plan,
+        inputs=inputs,
+        handle_registry=registry,
+        context=ContextBuilder().build(problem),
+        attempt=1,
+        problem_payload=problem_payload,
+        validation_report=validation,
+    )
+
+    assert replay.output is not None, (
+        replay.errors,
+        replay.diagnostic.blockers if replay.diagnostic is not None else None,
+        replay.retry_state.issues if replay.retry_state is not None else None,
+    )
+    assert replay.diagnostic is not None and replay.diagnostic.ok
+
+
+def test_angle_role_args_are_pruned_and_rebound_from_structured_facts() -> None:
+    problem = load_problem_ir(HEPING_FIXTURE)
+    inputs = build_strategy_probe_inputs(problem)
+    problem_payload = problem_to_llm_payload(problem)
+    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    payload = json.loads(HEPING_FUNCTIONAL_PLAN.read_text(encoding="utf-8"))
+    angle_call = next(
+        item
+        for scope in payload["scopes"]
+        for item in scope["calls"]
+        if item["call_id"] == "derive_equal_angle_i"
+    )
+    angle_call["args"].update(
+        {
+            "x_axis_point": {"kind": "point", "ref": "A"},
+            "y_axis_point": {"kind": "point", "ref": "B"},
+            "reference_x_axis_point": {"kind": "point", "ref": "C"},
+            "origin": {"kind": "point", "ref": "B"},
+        }
+    )
+    intercept_call = next(
+        item
+        for scope in payload["scopes"]
+        for item in scope["calls"]
+        if item["call_id"] == "derive_axis_intercept_F_i"
+    )
+    intercept_call["args"].update(
+        {
+            "x_axis_point": {"kind": "point", "ref": "A"},
+            "y_axis_point": {"kind": "point", "ref": "B"},
+            "reference_x_axis_point": {"kind": "point", "ref": "C"},
+            "origin": {"kind": "point", "ref": "B"},
+        }
+    )
+    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
+        payload,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+    assert validation.ok and plan is not None
+
+    replay = PlannerRetryReplayService().replay_functional_plan(
+        plan,
+        inputs=inputs,
+        handle_registry=registry,
+        context=ContextBuilder().build(problem),
+        attempt=1,
+        problem_payload=problem_payload,
+        validation_report=validation,
+    )
+
+    assert replay.output is not None, replay.errors
+    assert replay.functional_reconciliation is not None
+    repairs = replay.functional_reconciliation.elaboration[
+        "deterministic_repairs"
+    ]
+    dropped = {
+        (item["call_id"], item["from"])
+        for item in repairs
+        if item["action"] == "drop_unknown_capability_arg"
+    }
+    for call_id in ("derive_equal_angle_i", "derive_axis_intercept_F_i"):
+        assert {
+            (call_id, f"{name}=provided")
+            for name in (
+                "x_axis_point",
+                "y_axis_point",
+                "reference_x_axis_point",
+                "origin",
+            )
+        } <= dropped
+
+
+def test_x_axis_intercept_infers_known_point_from_target_definition() -> None:
+    problem = load_problem_ir(HEPING_FIXTURE)
+    inputs = build_strategy_probe_inputs(problem)
+    problem_payload = problem_to_llm_payload(problem)
+    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    payload = json.loads(HEPING_FUNCTIONAL_PLAN.read_text(encoding="utf-8"))
+    call = next(
+        item
+        for scope in payload["scopes"]
+        for item in scope["calls"]
+        if item["call_id"] == "derive_x_intercept_B_i"
+    )
+    call["args"].pop("known_point")
+    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
+        payload,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+    assert validation.ok and plan is not None
+
+    replay = PlannerRetryReplayService().replay_functional_plan(
+        plan,
+        inputs=inputs,
+        handle_registry=registry,
+        context=ContextBuilder().build(problem),
+        attempt=1,
+        problem_payload=problem_payload,
+        validation_report=validation,
+    )
+
+    assert replay.output is not None, replay.errors
+    invocation = next(
+        invocation
+        for step in replay.output.step_plans
+        if step.step_id == "derive_x_intercept_B_i"
+        for invocation in step.invocations
+        if invocation.method_id == "quadratic_x_axis_intercept_point"
+    )
+    assert invocation.inputs["known_point"] == "$problem.points.A"
+
+
+def test_answer_bound_object_return_keeps_canonical_state_alias() -> None:
+    problem = load_problem_ir(HEPING_FIXTURE)
+    inputs = build_strategy_probe_inputs(problem)
+    problem_payload = problem_to_llm_payload(problem)
+    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    payload = json.loads(HEPING_FUNCTIONAL_PLAN.read_text(encoding="utf-8"))
+    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
+        payload,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+    assert validation.ok and plan is not None
+
+    replay = PlannerRetryReplayService().replay_functional_plan(
+        plan,
+        inputs=inputs,
+        handle_registry=registry,
+        context=ContextBuilder().build(problem),
+        attempt=1,
+        problem_payload=problem_payload,
+        validation_report=validation,
+    )
+
+    assert replay.output is not None, replay.errors
+    assert replay.functional_reconciliation is not None
+    allocation = next(
+        output
+        for call in replay.functional_reconciliation.calls
+        if call.call_id == "derive_parabola_i"
+        for output in call.returns
+        if output.return_name == "parabola"
+    )
+    assert allocation.handle == "answer:i_1_parabola"
+    assert allocation.state_handle is not None
+    assert allocation.state_handle.startswith("fact:")
+    assert replay.effective_draft is not None
+    producer = next(
+        step
+        for step in replay.effective_draft.steps
+        if step.step_id == "derive_parabola_i"
+    )
+    consumer = next(
+        step
+        for step in replay.effective_draft.steps
+        if step.step_id == "derive_x_intercept_B_i"
+    )
+    assert {item.handle for item in producer.produces} >= {
+        allocation.handle,
+        allocation.state_handle,
+    }
+    assert allocation.state_handle in consumer.reads
+    assert allocation.handle not in consumer.reads
 
 
 def test_reconciler_selects_latest_prior_call_state_for_object_ref() -> None:
@@ -3830,10 +5819,10 @@ def test_selector_state_roles_reject_type_compatible_wrong_points() -> None:
     assert capability is not None
     args = {item.name: item for item in capability.args}
     assert args["minimum_point_1"].accepted_semantic_roles == (
-        "path_minimum_point_1",
+        "straightened_endpoint_1",
     )
     assert args["minimum_point_2"].accepted_semantic_roles == (
-        "path_minimum_point_2",
+        "straightened_endpoint_2",
     )
     assert capability.identity_constraints
     prompt_payload = capability.to_prompt_payload()
@@ -3923,11 +5912,11 @@ def test_evaluated_path_endpoints_preserve_semantic_lineage() -> None:
         {
             "call_id": f"evaluate_path_endpoint_{number}_ii",
             "capability_id": "evaluate_point_at_parameter",
-            "args": {
-                "point": {
-                    "from_call": "derive_path_minimum_ii",
-                    "return": f"path_minimum_point_{number}",
-                },
+                "args": {
+                    "point": {
+                        "from_call": "derive_path_minimum_ii",
+                        "return": f"straightened_endpoint_{number}",
+                    },
                 "parameter_value": {
                     "from_call": "solve_parameter_c_ii",
                     "return": "parameter_value",
@@ -3979,8 +5968,29 @@ def test_evaluated_path_endpoints_preserve_semantic_lineage() -> None:
         allocation = allocations[
             (f"evaluate_path_endpoint_{number}_ii", "evaluated_point")
         ]
-        assert f"path_minimum_point_{number}" in allocation.lineage.semantic_roles
+        assert (
+            f"straightened_endpoint_{number}"
+            in allocation.lineage.semantic_roles
+        )
         assert allocation.lineage.object_roles
+        assert "derive_path_minimum_ii" in allocation.lineage.source_call_ids
+
+    evaluated = tuple(
+        ResolvedFunctionalValue(
+            handle=allocation.handle,
+            runtime_type="Point",
+            valid_scope=allocation.valid_scope,
+            source_call_id=f"evaluate_path_endpoint_{number}_ii",
+            lineage=allocation.lineage,
+        )
+        for number, allocation in (
+            (number, allocations[
+                (f"evaluate_path_endpoint_{number}_ii", "evaluated_point")
+            ])
+            for number in (1, 2)
+        )
+    )
+    assert _values_share_lineage_source_call(evaluated)
 
 
 def test_path_locus_identity_mismatch_repairs_wrong_locus_subgraph() -> None:
@@ -4775,7 +6785,7 @@ def test_projector_promotes_all_returns_to_atomic_call_scope() -> None:
         ("answer", "ii_2.intersection"),
     ),
 )
-def test_reconciler_rejects_derived_role_bound_as_external_identity(
+def test_reconciler_drops_external_binding_from_internal_derived_role(
     binding_kind: str,
     binding_ref: str,
 ) -> None:
@@ -4797,7 +6807,7 @@ def test_reconciler_rejects_derived_role_bound_as_external_identity(
                             "path_transformation": _path_transformation_ref(),
                         },
                         "return_bindings": {
-                            "path_minimum_point_2": {
+                            "straightened_endpoint_2": {
                                 "ref": binding_ref,
                                 "kind": binding_kind,
                             }
@@ -4821,18 +6831,17 @@ def test_reconciler_rejects_derived_role_bound_as_external_identity(
         question_goals=inputs.question_goals,
     )
 
-    issue = next(
+    effective = next(
         item
-        for item in result.issues
-        if item.code == "functional.return_identity_mismatch"
+        for item in result.plan.calls
+        if item.call_id == "derive_path_endpoint"
     )
-    assert issue.call_id == "derive_path_endpoint"
-    assert issue.details == {
-        "return": "path_minimum_point_2",
-        "semantic_role": "path_minimum_point_2",
-        "identity_policy": "derived_role",
-        "bound_ref": binding_ref,
-    }
+    assert effective.return_bindings == {}
+    assert any(
+        item["action"] == "drop_internal_only_return_binding"
+        and item["call_id"] == "derive_path_endpoint"
+        for item in result.elaboration["deterministic_repairs"]
+    )
 
 
 def test_reconciler_infers_unique_target_objects_from_structured_problem_ir() -> None:
@@ -4913,6 +6922,93 @@ def test_reconciler_infers_unique_target_objects_from_structured_problem_ir() ->
     assert [item["action"] for item in repairs].count(
         "auto_bind_target_object"
     ) == 3
+
+
+def test_reconciler_does_not_treat_object_ref_as_materialized_target_state() -> None:
+    inputs, payload, registry, context = _heping_ermo_case()
+    scope = next(item for item in payload["scopes"] if item["scope_id"] == "i_2")
+    calls = scope["calls"]
+    square_call_index = next(
+        index
+        for index, call in enumerate(calls)
+        if call["call_id"] == "derive_square_vertex_G_i"
+    )
+    square_call = calls[square_call_index]
+    derive_other_vertex = json.loads(json.dumps(square_call))
+    derive_other_vertex["call_id"] = "derive_other_square_vertex_i"
+    derive_other_vertex["return_bindings"] = {
+        "point": {"ref": "i_2.K", "kind": "point"}
+    }
+    derive_other_vertex["strategy"] = "先求同一结构中另一个已知角色的坐标。"
+    derive_other_vertex["reason"] = "使剩余目标对象可由结构化角色唯一确定。"
+    square_call["return_bindings"] = {}
+    calls.insert(square_call_index, derive_other_vertex)
+
+    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
+        payload,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+    assert validation.ok and plan is not None
+
+    result = FunctionalPlanReconciler().reconcile(
+        plan,
+        planner_state_context=context,
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+
+    assert result.ok
+    resolved = next(
+        item
+        for item in result.calls
+        if item.call_id == "derive_square_vertex_G_i"
+    )
+    assert tuple(item.object_ref for item in resolved.returns) == (
+        "point:i_2:G",
+    )
+    assert any(
+        item["action"] == "auto_bind_target_object"
+        and item["call_id"] == "derive_square_vertex_G_i"
+        for item in result.elaboration["deterministic_repairs"]
+    )
+
+
+def test_reconciler_keeps_multiple_unmaterialized_role_targets_ambiguous() -> None:
+    inputs, payload, registry, context = _heping_ermo_case()
+    call = next(
+        call
+        for scope in payload["scopes"]
+        for call in scope["calls"]
+        if call["call_id"] == "derive_square_vertex_G_i"
+    )
+    call["return_bindings"] = {}
+
+    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
+        payload,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+    assert validation.ok and plan is not None
+
+    result = FunctionalPlanReconciler().reconcile(
+        plan,
+        planner_state_context=context,
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+
+    issue = next(
+        item
+        for item in result.issues
+        if item.call_id == "derive_square_vertex_G_i"
+        and item.code == "functional.return_identity_unresolved"
+    )
+    assert set(issue.details["compatible_refs"]) == {"i_2.G", "i_2.K"}
 
 
 def test_reconciler_propagates_unique_downstream_object_identity() -> None:
@@ -5449,7 +7545,7 @@ def test_right_angle_macro_projection_is_structured_and_read_closed() -> None:
     )
     assert step.reads == (
         "fact:ii:right_angle_equal_length_MDN",
-        "answer:i.axis_point",
+        "fact:problem:i_derive_D_axis_point",
         "point:problem:D",
         "fact:ii:M_coordinate_expr",
         "point:ii:M",
@@ -5493,6 +7589,9 @@ def test_path_reduction_projects_one_structured_state_for_downstream_macros() ->
         "first_segment_start",
         "joint_point",
         "second_segment_end",
+        "transformed_fixed_endpoint",
+        "moving_locus_endpoint_1",
+        "moving_locus_endpoint_2",
     }
     reduction_step = next(
         item
@@ -5503,6 +7602,41 @@ def test_path_reduction_projects_one_structured_state_for_downstream_macros() ->
     transformation = reduction_step.produces[0]
     assert transformation.output_type == "PathTransformation"
     assert transformation.valid_scope == "ii"
+    allocation = next(
+        item
+        for item in reduction.returns
+        if item.return_name == "path_transformation"
+    )
+    roles = {item.role: item for item in allocation.lineage.object_roles}
+    assert roles["fixed_endpoint_1"].object_refs == ("point:problem:D",)
+    assert roles["fixed_endpoint_2"].object_refs == ("point:ii:F",)
+    assert roles["fixed_endpoint_2"].source_state_slot_ids == (
+        "point:ii:F.coordinate@ii",
+    )
+    assert roles["fixed_endpoint_2"].source_handles == (
+        "fact:ii:F_coordinate",
+    )
+    assert roles["moving_locus"].object_refs == ("segment:ii:MN",)
+    catalog = FunctionalCapabilityCatalog.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
+    )
+    dependencies = (
+        strategy_replay_module._functional_projected_state_dependencies(
+            result,
+            catalog=catalog,
+        )
+    )
+    f_dependency = next(
+        item
+        for item in dependencies
+        if item.step_id == "ii_reduce_path"
+        and item.arg_name == "transformed_fixed_endpoint"
+    )
+    assert f_dependency.produced_handle == "fact:ii:F_coordinate"
+    assert f_dependency.state_slot_id == "point:ii:F.coordinate@ii"
+    assert f_dependency.source_step_id == "ii_compute_F"
+    assert f_dependency.source_return_name == "midpoint"
 
     for call_id in ("ii_derive_path_model",):
         call = next(item for item in result.calls if item.call_id == call_id)
@@ -5548,6 +7682,86 @@ def test_functional_projected_arg_sidecar_only_exports_wire_selected_args() -> N
     assert names_by_call["ii_construct_N"] == {"right_angle_equal_length"}
     assert "parameter_value" in names_by_call["ii_2_derive_G"]
     assert "parameter" not in names_by_call["ii_2_derive_G"]
+
+
+def test_path_transformation_producers_publish_distinct_role_profiles() -> None:
+    weighted_inputs, weighted_registry, weighted_context, weighted_payload = (
+        _hexi_case()
+    )
+    weighted_plan, weighted_validation = (
+        FunctionalPlanValidator().validate_payload_with_report(
+            weighted_payload,
+            handle_registry=weighted_registry,
+            question_goals=weighted_inputs.question_goals,
+        )
+    )
+    assert weighted_validation.ok and weighted_plan is not None
+    weighted = FunctionalPlanReconciler().reconcile(
+        weighted_plan,
+        planner_state_context=weighted_context,
+        family_spec=weighted_inputs.family_spec,
+        method_specs=weighted_inputs.method_specs,
+        handle_registry=weighted_registry,
+        question_goals=weighted_inputs.question_goals,
+    )
+    weighted_call = next(
+        item
+        for item in weighted.calls
+        if item.call_id == "transform_weighted_path_iii"
+    )
+    weighted_return = next(
+        item
+        for item in weighted_call.returns
+        if item.runtime_type == "PathTransformation"
+    )
+    assert {
+        item.role for item in weighted_return.lineage.object_roles
+    } == {
+        "moving_object",
+        "fixed_endpoint_1",
+        "auxiliary_object",
+    }
+
+    square_inputs, square_payload, square_registry, square_context = (
+        _heping_ermo_case()
+    )
+    square_plan, square_validation = (
+        FunctionalPlanValidator().validate_payload_with_report(
+            square_payload,
+            handle_registry=square_registry,
+            question_goals=square_inputs.question_goals,
+        )
+    )
+    assert square_validation.ok and square_plan is not None
+    square = FunctionalPlanReconciler().reconcile(
+        square_plan,
+        planner_state_context=square_context,
+        family_spec=square_inputs.family_spec,
+        method_specs=square_inputs.method_specs,
+        handle_registry=square_registry,
+        question_goals=square_inputs.question_goals,
+    )
+    square_call = next(
+        item
+        for item in square.calls
+        if item.call_id == "reduce_square_path_ii"
+    )
+    square_return = next(
+        item
+        for item in square_call.returns
+        if item.runtime_type == "PathTransformation"
+    )
+    square_roles = {
+        item.role: item for item in square_return.lineage.object_roles
+    }
+    assert set(square_roles) == {
+        "moving_object",
+        "fixed_endpoint_1",
+        "fixed_endpoint_2",
+    }
+    assert "moving_locus" not in square_roles
+    assert square_roles["fixed_endpoint_1"].state_requirement == "materialized"
+    assert square_roles["fixed_endpoint_2"].state_requirement == "materialized"
 
 
 def test_functional_compile_uses_named_sidecar_after_flat_reads_are_reordered() -> None:
@@ -5640,6 +7854,111 @@ def test_functional_compile_uses_named_sidecar_after_flat_reads_are_reordered() 
     )
     assert invocation.inputs["line2_p1"] == "$question.ii.points.N"
     assert invocation.inputs["line2_p2"] == "$question.ii.points.M"
+
+
+def test_single_dynamic_known_coefficient_lowers_to_parameter_pair() -> None:
+    """One selected coefficient value must reach the runtime method exactly."""
+
+    class FakeIndex:
+        def path_for(self, handle: str, *, expected_type: str) -> str:
+            return f"{expected_type}:{handle}"
+
+    compiler = object.__new__(_RecipePlanCompiler)
+    compiler.index = FakeIndex()
+    inputs = _heping_ermo_case()[0]
+    spec = inputs.method_specs.require(
+        "quadratic_from_constraints"
+    )
+    function = FunctionSpecRegistry.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
+    ).get("quadratic_from_constraints")
+    assert function is not None and function.adapter is not None
+    lowering = function.adapter.scalar_aggregate_lowerings[0]
+    item = ProjectedFunctionArgBinding(
+        step_id="refine_quadratic",
+        arg_name="known_coefficients",
+        source_handle="fact:part:solved_parameter",
+        runtime_type="ParameterValue",
+        object_ref="symbol:problem:c",
+    )
+    result: dict[str, str] = {}
+    selected: dict[str, ProjectedFunctionArgBinding] = {}
+
+    lowered = compiler._lower_single_parameter_value_aggregate(
+        spec,
+        lowering=lowering,
+        expected_type="Coefficients",
+        items=[item],
+        result=result,
+        selected_items=selected,
+    )
+
+    assert lowered is True
+    assert result == {
+        "parameter": "Symbol:symbol:problem:c",
+        "parameter_value": (
+            "ParameterValue:fact:part:solved_parameter"
+        ),
+    }
+    assert selected == {"parameter_value": item}
+
+
+def test_functional_mechanism_method_uses_latest_explicit_point_versions() -> None:
+    problem = load_problem_ir(HEPING_ERMO_FIXTURE)
+    inputs, payload, registry, _context = _heping_ermo_case()
+    recover_call = next(
+        call
+        for scope in payload["scopes"]
+        for call in scope["calls"]
+        if call["call_id"] == "recover_target_point_E_ii"
+    )
+    recover_call["args"]["side_start"], recover_call["args"]["side_end"] = (
+        recover_call["args"]["side_end"],
+        recover_call["args"]["side_start"],
+    )
+
+    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
+        payload,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+    assert validation.ok and plan is not None
+    replay = PlannerRetryReplayService().replay_functional_plan(
+        plan,
+        inputs=inputs,
+        handle_registry=registry,
+        context=ContextBuilder().build(problem),
+        attempt=1,
+        problem_payload=problem_to_llm_payload(problem),
+        validation_report=validation,
+    )
+
+    assert replay.output is not None, (
+        replay.errors,
+        replay.diagnostic.to_payload() if replay.diagnostic is not None else None,
+    )
+    assert replay.diagnostic is not None and replay.diagnostic.ok
+    recovery = next(
+        invocation
+        for step in replay.output.step_plans
+        if step.step_id == "recover_target_point_E_ii"
+        for invocation in step.invocations
+        if invocation.method_id == "square_adjacent_vertex_from_side"
+    )
+    assert recovery.inputs["side_start"] == "$question.ii.outputs.G_point"
+    assert recovery.inputs["side_end"] == (
+        "$question.ii.outputs.A_evaluated_point"
+    )
+    assert recovery.inputs["side_start_ref"] == "$question.ii.points.G"
+    assert recovery.inputs["side_end_ref"] == "$question.ii.object_refs.A"
+    answer_write = next(
+        item
+        for item in replay.diagnostic.state_write_provenance
+        if item.step_id == "recover_target_point_E_ii"
+        and item.produced_handle == "answer:ii.E"
+    )
+    assert answer_write.free_symbol_names == ()
 
 
 def test_nankai_student_narrative_uses_question_scopes_not_execution_scopes() -> None:
@@ -6287,13 +8606,120 @@ def test_point_identity_path_preserves_coordinate_and_object_roles() -> None:
     )
 
     assert index.point_identity_path_for("point:ii:A") == (
-        "$question.ii.points.A"
+        "$question.ii.object_refs.A"
     )
+    declaration = index.declarations["$question.ii.object_refs.A"]
+    index.context.apply_declaration(declaration)
+    object_ref = index.context.read_path(
+        declaration.path,
+        from_scope_id="ii",
+        expected_type="PointRef",
+    )
+    assert object_ref.locked
+    assert object_ref.value.name == "A"
     with pytest.raises(
         StrategyDraftValidationError,
         match="duplicate_point_coordinate_fact",
     ):
         index.point_ref_path_for("point:ii:A")
+
+
+def test_point_output_selector_uses_projected_transition_target() -> None:
+    problem = load_problem_ir(HEPING_ERMO_FIXTURE)
+    problem_payload = problem_to_llm_payload(problem)
+    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    index = CanonicalRuntimeBindingIndex.from_context(
+        ContextBuilder().build(problem),
+        handle_registry=registry,
+        question_goals=(),
+    )
+    index.register_projected_state_writes(
+        (
+            ProjectedStateWrite(
+                step_id="refine_A",
+                produced_handle="fact:ii:A_refined_coordinate",
+                state_slot_id="point:ii:A.coordinate@ii",
+                write_mode="transition",
+                runtime_type="Point",
+                object_ref="point:ii:A",
+                transition_kind="dependency_refinement",
+                previous_write_step_id="derive_A",
+            ),
+        )
+    )
+    step = StepIntent(
+        step_id="refine_A",
+        scope_id="ii",
+        recipe_hint="synthetic_point_refinement",
+        goal_type="derive_point",
+        target="point:ii:A",
+        strategy="refine the same point from a closed source state",
+        produces=(
+            ProducedFact(
+                "fact:ii:A_refined_coordinate",
+                "ii",
+                output_type="Point",
+            ),
+        ),
+    )
+
+    selected = DEFAULT_BINDING_SELECTORS["point_output_ref"](step, index, {})
+
+    assert selected == index.path_for(
+        "point:ii:A",
+        expected_type="PointRef|Point",
+    )
+
+
+def test_projected_point_transition_uses_writable_state_destination() -> None:
+    problem = load_problem_ir(HEPING_ERMO_FIXTURE)
+    problem_payload = problem_to_llm_payload(problem)
+    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    index = CanonicalRuntimeBindingIndex.from_context(
+        ContextBuilder().build(problem),
+        handle_registry=registry,
+        question_goals=(),
+    )
+    produced = ProducedFact(
+        "fact:ii:A_refined_coordinate",
+        "ii",
+        output_type="Point",
+    )
+    step = StepIntent(
+        step_id="refine_A",
+        scope_id="ii",
+        recipe_hint="synthetic_point_refinement",
+        goal_type="derive_point",
+        target="point:ii:A",
+        strategy="write a refined state without replacing the object declaration",
+        produces=(produced,),
+    )
+    write = ProjectedStateWrite(
+        step_id=step.step_id,
+        produced_handle=produced.handle,
+        state_slot_id="point:ii:A.coordinate@ii",
+        write_mode="transition",
+        runtime_type="Point",
+        object_ref="point:ii:A",
+        transition_kind="dependency_refinement",
+        previous_write_step_id="derive_A",
+    )
+
+    promote = _promote_outputs_for_step(
+        step,
+        "synthetic_point_refinement",
+        {"point": "$step.refine_A.outputs.point"},
+        {"point": "Point"},
+        index,
+        MethodBindingRuleRegistry(),
+        projected_state_writes=(write,),
+    )
+
+    assert promote == {
+        "$step.refine_A.outputs.point": (
+            "$question.ii.outputs.A_refined_coordinate"
+        )
+    }
 
 
 @pytest.mark.parametrize(
@@ -6312,41 +8738,13 @@ def test_reconciler_merges_compatible_result_expectations_only(
     payload = {
         "format": "functional_plan/v1",
         "scopes": [
-            {
-                "scope_id": "ii",
-                "label": "ii",
-                "calls": [
-                    {
-                        "call_id": "derive_axis",
-                        "capability_id": "quadratic_axis_from_relation",
-                        "args": {
-                            "coefficient_relation": {
-                                "ref": "coefficient_relation",
-                                "kind": "fact",
-                            }
-                        },
-                        "return_bindings": {},
-                        "strategy": "derive the axis point",
-                        "reason": "provide the known point state",
-                    },
-                    {
-                        "call_id": "construct_point",
-                        "capability_id": (
-                            "right_angle_equal_length_construct_and_select"
-                        ),
-                        "args": {
-                            "right_angle_equal_length": {
-                                "ref": "right_angle_equal_length_MDN",
-                                "kind": "fact",
-                            }
-                        },
-                        "return_bindings": {},
-                        "strategy": "construct the selected point",
-                        "reason": "provide its current coordinate state",
-                    },
-                    _path_reduction_call(),
-                ],
-            },
+                {
+                    "scope_id": "ii",
+                    "label": "ii",
+                    "calls": [
+                        *_path_reduction_setup_calls(),
+                    ],
+                },
             {
                 "scope_id": "ii_2",
                 "label": "ii_2",
@@ -6440,7 +8838,365 @@ def test_reconciler_merges_compatible_result_expectations_only(
     )
 
 
-def test_reconciler_collects_all_call_contract_errors() -> None:
+def test_call_placement_fingerprint_distinguishes_state_write_versions() -> None:
+    open_state = ResolvedFunctionalValue(
+        handle="fact:problem:B_parameterized_coordinate",
+        runtime_type="Point",
+        valid_scope="problem",
+        state_slot_id="point:problem:B.coordinate@problem",
+        object_ref="point:problem:B",
+    )
+    closed_state = replace(
+        open_state,
+        handle="fact:i_2:B_evaluated_coordinate",
+    )
+
+    assert functional_call_placement_module._value_fingerprint(
+        open_state,
+        aliases={},
+    ) != functional_call_placement_module._value_fingerprint(
+        closed_state,
+        aliases={},
+    )
+
+
+def test_equal_length_ray_point_allocates_referenced_call_local_object() -> None:
+    problem = load_problem_ir(HEPING_FIXTURE)
+    inputs = build_strategy_probe_inputs(problem)
+    problem_payload = problem_to_llm_payload(problem)
+    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    payload = {
+        "format": "functional_plan/v1",
+        "scopes": [
+            {
+                "scope_id": "i_2",
+                "label": "i_2",
+                "calls": [
+                    {
+                        "call_id": "construct_auxiliary",
+                        "capability_id": "equal_length_ray_point",
+                        "args": {
+                            "anchor": {"kind": "point", "ref": "A"},
+                            "reference_point": {
+                                "kind": "point",
+                                "ref": "O",
+                            },
+                            "ray_point": {"kind": "point", "ref": "O"},
+                        },
+                        "return_bindings": {},
+                        "strategy": "construct a local auxiliary point",
+                        "reason": "use it in the next call",
+                    },
+                    {
+                        "call_id": "consume_auxiliary",
+                        "capability_id": "distance_between_points",
+                        "args": {
+                            "p1": {
+                                "from_call": "construct_auxiliary",
+                                "return": "point",
+                            },
+                            "p2": {"kind": "point", "ref": "A"},
+                        },
+                        "return_bindings": {},
+                        "strategy": "consume the local point",
+                        "reason": "prove that the call result remains usable",
+                    },
+                ],
+            }
+        ],
+    }
+    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
+        payload,
+        handle_registry=registry,
+        question_goals=(),
+    )
+    assert validation.ok and plan is not None
+
+    result = FunctionalPlanReconciler().reconcile(
+        plan,
+        planner_state_context=initial_planner_state_context(
+            inputs,
+            problem_payload=problem_payload,
+            handle_registry=registry,
+        ),
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=registry,
+        question_goals=(),
+    )
+
+    assert result.ok
+    producer = next(
+        item for item in result.calls if item.call_id == "construct_auxiliary"
+    )
+    produced_point = next(
+        item for item in producer.returns if item.return_name == "point"
+    )
+    assert produced_point.object_ref == (
+        "point:i_2:construct_auxiliary_point"
+    )
+    assert any(
+        repair["action"] == "allocate_planned_target_object"
+        and repair["call_id"] == "construct_auxiliary"
+        for repair in result.elaboration["deterministic_repairs"]
+    )
+
+
+def test_relation_call_inherits_explicit_downstream_answer_object_identity() -> None:
+    problem = load_problem_ir(HEPING_FIXTURE)
+    inputs = build_strategy_probe_inputs(problem)
+    problem_payload = problem_to_llm_payload(problem)
+    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    payload = json.loads(HEPING_FUNCTIONAL_PLAN.read_text(encoding="utf-8"))
+    i_2 = next(
+        scope for scope in payload["scopes"] if scope["scope_id"] == "i_2"
+    )
+    i_2["calls"] = [
+        {
+            "call_id": "derive_angle_relation",
+            "capability_id": "angle_sum_equal_angle_candidates",
+            "args": {
+                "condition": {
+                    "kind": "fact",
+                    "ref": "angle_sum_CBE_ACO_45",
+                }
+            },
+            "return_bindings": {},
+            "strategy": "derive the reusable angle relation",
+            "reason": "feed the axis-intercept call",
+        },
+        {
+            "call_id": "derive_answer_point",
+            "capability_id": "axis_intercept_from_equal_acute_angles",
+            "args": {
+                "angle_equality": {
+                    "from_call": "derive_angle_relation",
+                    "return": "angle_equality",
+                }
+            },
+            "return_bindings": {
+                "point": {
+                    "kind": "answer",
+                    "ref": "i_2_E",
+                }
+            },
+            "return_expectations": {"point": "closed_state"},
+            "strategy": "derive the requested axis point",
+            "reason": "bind the point answer",
+        },
+    ]
+    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
+        payload,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+    assert validation.ok and plan is not None
+
+    result = FunctionalPlanReconciler().reconcile(
+        plan,
+        planner_state_context=initial_planner_state_context(
+            inputs,
+            problem_payload=problem_payload,
+            handle_registry=registry,
+        ),
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+
+    assert not any(
+        issue.code == "functional.auto_arg_identity_unresolved"
+        for issue in result.issues
+    ), [issue.to_payload() for issue in result.issues]
+    relation = next(
+        call for call in result.calls if call.call_id == "derive_angle_relation"
+    )
+    answer_call = next(
+        call for call in result.calls if call.call_id == "derive_answer_point"
+    )
+    expected_object_ref = registry.answer_target_handles["answer:i_2_E"]
+    assert relation.resolved_args["target"][0].object_ref == expected_object_ref
+    assert answer_call.returns[0].object_ref == expected_object_ref
+    assert result.projected_draft is not None
+    relation_step = next(
+        step
+        for step in result.projected_draft.steps
+        if step.step_id == "derive_angle_relation"
+    )
+    assert relation_step.target == expected_object_ref
+
+
+def test_entity_state_resolver_prefers_exact_projected_read_version() -> None:
+    old_path = "$problem.points.B"
+    closed_path = "$subquestion.i_2.facts.B_coordinate"
+    write = ProjectedStateWrite(
+        step_id="compute_B_closed",
+        produced_handle="fact:i_2:B_coordinate",
+        state_slot_id="point:problem:B.coordinate@i_2",
+        write_mode="create",
+        runtime_type="Point",
+        object_ref="point:problem:B",
+    )
+    fills: list[tuple[str, str]] = []
+    index = SimpleNamespace(
+        bindings={
+            "point:problem:B": RuntimeHandleBinding(
+                "point:problem:B",
+                old_path,
+                "Point",
+                "old_state",
+            ),
+            "fact:i_2:B_coordinate": RuntimeHandleBinding(
+                "fact:i_2:B_coordinate",
+                closed_path,
+                "Point",
+                "compute_B_closed",
+            ),
+        },
+        context=SimpleNamespace(is_visible=lambda _consumer, _producer: True),
+        latest_projected_state_write_in_handles=(
+            lambda object_ref, handles, before_step_id=None: (
+                write
+                if object_ref == "point:problem:B"
+                and "fact:i_2:B_coordinate" in handles
+                else None
+            )
+        ),
+        record_applied_fill=lambda **kwargs: fills.append(
+            (kwargs["resolved_handle"], kwargs["reason"])
+        ),
+    )
+    step = StepIntent(
+        step_id="consume_B",
+        scope_id="i_2",
+        recipe_hint="axis_intercept_from_equal_acute_angles",
+        goal_type="derive_axis_intercept",
+        target="",
+        strategy="consume the exact closed B state",
+        reads=("fact:i_2:B_coordinate",),
+    )
+
+    resolved = EntityStateResolver().resolve(
+        "point:problem:B",
+        "Point",
+        step,
+        index,
+    )
+
+    assert resolved == closed_path
+    assert fills == [
+        ("fact:i_2:B_coordinate", "exact_projected_state_version")
+    ]
+
+
+def test_compiler_binds_resolver_arg_to_exact_state_write_version() -> None:
+    compiler = object.__new__(_RecipePlanCompiler)
+    compiler.projected_state_dependencies = (
+        ProjectedStateDependency(
+            step_id="derive_angle_relation",
+            state_slot_id="point:problem:B.coordinate@problem",
+            produced_handle="fact:i_2:B_evaluated_coordinate",
+            runtime_type="Point",
+            object_ref="point:problem:B",
+            arg_name="x_axis_point",
+            source="resolver",
+        ),
+    )
+    compiler.index = SimpleNamespace(
+        path_for=lambda handle, *, expected_type: (
+            f"$exact[{handle}:{expected_type}]"
+        )
+    )
+    step = StepIntent(
+        step_id="derive_angle_relation",
+        scope_id="i_2",
+        recipe_hint="angle_sum_equal_angle_candidates",
+        goal_type="derive_angle_relation",
+        target="",
+        strategy="use the latest evaluated coordinate",
+    )
+    spec = SimpleNamespace(
+        method_id="angle_sum_equal_angle_candidates",
+        inputs={"x_axis_point": SimpleNamespace(type="Point")},
+    )
+
+    exact = compiler._projected_exact_state_dependency_inputs(
+        step,
+        spec,
+        existing={},
+    )
+
+    assert exact == {
+        "x_axis_point": (
+            "$exact[fact:i_2:B_evaluated_coordinate:Point]"
+        )
+    }
+
+
+def test_angle_sum_auto_arg_selects_latest_point_state_version() -> None:
+    problem = load_problem_ir(HEPING_FIXTURE)
+    inputs = build_strategy_probe_inputs(problem)
+    problem_payload = problem_to_llm_payload(problem)
+    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    context = initial_planner_state_context(
+        inputs,
+        problem_payload=problem_payload,
+        handle_registry=registry,
+    )
+    semantic_index = FunctionalSemanticIndex.from_context(
+        context,
+        handle_registry=registry,
+    )
+    condition = ResolvedFunctionalValue(
+        handle="fact:i_2:angle_sum_CBE_ACO_45",
+        runtime_type="Condition",
+        valid_scope="i_2",
+        condition_id="condition:angle_sum_CBE_ACO_45@i_2",
+    )
+    open_point = ResolvedFunctionalValue(
+        handle="fact:problem:B_parameterized_coordinate",
+        runtime_type="Point",
+        valid_scope="problem",
+        state_slot_id="point:problem:B.coordinate@problem",
+        source_call_id="derive_B_open",
+        return_name="point",
+        object_ref="point:problem:B",
+        free_symbol_refs=("symbol:problem:a",),
+    )
+    closed_point = replace(
+        open_point,
+        handle="fact:i_2:B_evaluated_coordinate",
+        source_call_id="evaluate_B_closed",
+        return_name="evaluated_point",
+        free_symbol_refs=(),
+    )
+
+    value, repair, issue = (
+        functional_reconciliation_module._resolve_angle_sum_auto_arg(
+            SimpleNamespace(
+                name="x_axis_point",
+                selector="angle_sum:x_axis_point",
+            ),
+            resolved_args={"condition": (condition,)},
+            produced={
+                ("derive_B_open", "point"): open_point,
+                ("evaluate_B_closed", "evaluated_point"): closed_point,
+            },
+            semantic_index=semantic_index,
+            handle_registry=registry,
+            call_id="derive_angle_relation",
+            scope_id="i_2",
+        )
+    )
+
+    assert issue is None
+    assert repair is not None
+    assert value is not None
+    assert value.handle == "fact:i_2:B_evaluated_coordinate"
+
+
+def test_reconciler_prunes_unknown_arg_and_collects_remaining_contract_errors() -> None:
     inputs = _inputs_for_goal(0)
     payload = {
         "format": "functional_plan/v1",
@@ -6488,9 +9244,18 @@ def test_reconciler_collects_all_call_contract_errors() -> None:
     )
 
     assert {item.code for item in result.issues} >= {
-        "functional.arg_unknown",
         "functional.arg_cardinality",
     }
+    assert not any(item.code == "functional.arg_unknown" for item in result.issues)
+    effective = next(
+        call for call in result.plan.calls if call.call_id == "bad_midpoint"
+    )
+    assert "invented" not in effective.args
+    assert any(
+        item["call_id"] == "bad_midpoint"
+        and item["action"] == "drop_unknown_capability_arg"
+        for item in result.elaboration["deterministic_repairs"]
+    )
 
 
 def test_reconciler_reuses_pure_object_state_across_sibling_scopes() -> None:
@@ -6609,6 +9374,105 @@ def test_reconciler_reuses_answer_producer_for_same_object_state_write() -> None
     )
 
 
+def test_reconciler_reuses_same_object_state_across_distinct_input_paths() -> None:
+    inputs, _fixture, registry, context = _heping_ermo_case()
+    inputs = replace(inputs, question_goals=[])
+    payload = {
+        "format": "functional_plan/v1",
+        "scopes": [
+            {
+                "scope_id": "i_1",
+                "label": "first question",
+                "calls": [
+                    {
+                        "call_id": "derive_existing_a",
+                        "capability_id": "quadratic_x_axis_intercept_point",
+                        "args": {
+                            "quadratic": {
+                                "ref": "parabola",
+                                "kind": "function",
+                            },
+                        },
+                        "return_bindings": {
+                            "point": {
+                                "ref": "problem.A",
+                                "kind": "point",
+                            },
+                        },
+                        "strategy": "derive the existing point coordinate",
+                        "reason": "materialize the shared object state",
+                    },
+                ],
+            },
+            {
+                "scope_id": "i_2",
+                "label": "second question",
+                "calls": [
+                    {
+                        "call_id": "materialize_parabola",
+                        "capability_id": "quadratic_from_constraints",
+                        "args": {
+                            "known_coefficients": [
+                                {"ref": "b_value", "kind": "fact"},
+                                {"ref": "c_value", "kind": "fact"},
+                            ],
+                        },
+                        "return_bindings": {},
+                        "strategy": "materialize the same function",
+                        "reason": "exercise a distinct input path",
+                    },
+                    {
+                        "call_id": "derive_existing_a_again",
+                        "capability_id": "quadratic_x_axis_intercept_point",
+                        "args": {
+                            "quadratic": {
+                                "from_call": "materialize_parabola",
+                                "return": "parabola",
+                            },
+                        },
+                        "return_bindings": {
+                            "point": {
+                                "ref": "problem.A",
+                                "kind": "point",
+                            },
+                        },
+                        "strategy": "derive the same coordinate again",
+                        "reason": "reuse the point in a sibling question",
+                    },
+                ],
+            },
+        ],
+    }
+    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
+        payload,
+        handle_registry=registry,
+        question_goals=(),
+    )
+    assert validation.ok and plan is not None
+
+    result = FunctionalPlanReconciler().reconcile(
+        plan,
+        planner_state_context=context,
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=registry,
+        question_goals=(),
+    )
+
+    assert result.ok, [item.to_payload() for item in result.issues]
+    assert result.call_aliases == {
+        "derive_existing_a_again": "derive_existing_a"
+    }
+    assert "derive_existing_a_again" not in {
+        call.call_id for call in result.plan.calls
+    }
+    assert any(
+        item["action"] == "merge_redundant_existing_state_call"
+        and item["call_id"] == "derive_existing_a_again"
+        for item in result.elaboration["deterministic_repairs"]
+    )
+
+
 def test_reconciler_transfers_later_answer_to_earliest_object_producer() -> None:
     inputs = _inputs_for_goal(0)
     answer_call = _axis_plan_payload()["scopes"][0]["calls"][0]
@@ -6663,7 +9527,10 @@ def test_reconciler_transfers_later_answer_to_earliest_object_producer() -> None
     assert len(projected) == 1
     assert projected[0].step_id == "derive_axis_point_globally"
     assert projected[0].target == "answer:i.axis_point"
-    assert projected[0].produces[0].handle == "answer:i.axis_point"
+    assert {item.handle for item in projected[0].produces} == {
+        "fact:problem:derive_axis_point_globally_axis_point",
+        "answer:i.axis_point",
+    }
     allocation = result.calls[0].returns[0]
     assert allocation.object_ref == "point:problem:D"
     assert allocation.valid_scope == "problem"
@@ -6751,6 +9618,47 @@ def test_reconciler_reports_value_type_and_scope_errors_without_guessing() -> No
     assert "functional.arg_scope_invisible" in {
         item.code for item in invisible.issues
     }
+
+
+def test_post_placement_invisible_call_result_is_retryable_plan_issue() -> None:
+    producer = FunctionalCallReconciliation(
+        call_id="produce_child_state",
+        scope_id="ii_1",
+        capability_id="synthetic_producer",
+        resolved_args={},
+        returns=(),
+    )
+    consumer = FunctionalCallReconciliation(
+        call_id="consume_from_sibling",
+        scope_id="ii_2",
+        capability_id="synthetic_consumer",
+        resolved_args={
+            "state": (
+                ResolvedFunctionalValue(
+                    handle="fact:ii_1:child_state",
+                    runtime_type="Expression",
+                    valid_scope="ii_1",
+                    state_slot_id="functional:ii_1:child_state",
+                    source_call_id="produce_child_state",
+                    return_name="expression",
+                ),
+            )
+        },
+        returns=(),
+    )
+
+    issues = functional_call_placement_module._post_placement_scope_issues(
+        (producer, consumer),
+        registry=_registry(),
+    )
+
+    assert len(issues) == 1
+    assert issues[0].code == "functional.arg_scope_invisible"
+    assert issues[0].call_id == "consume_from_sibling"
+    assert issues[0].details["repair_call_ids"] == [
+        "produce_child_state",
+        "consume_from_sibling",
+    ]
 
 
 def test_macro_call_projects_required_return_and_omits_unused_optional_returns() -> None:
@@ -6924,10 +9832,6 @@ def test_reconciler_rewrites_polymorphic_parabola_return_and_binds_answer() -> N
                                 {"ref": "M", "kind": "point"},
                                 {"ref": "N", "kind": "point"},
                             ],
-                            "coefficient_relation": {
-                                "ref": "coefficient_relation",
-                                "kind": "fact",
-                            },
                         },
                         "return_bindings": {},
                         "strategy": "derive the parameterized parabola",
@@ -7010,8 +9914,56 @@ def test_reconciler_rewrites_polymorphic_parabola_return_and_binds_answer() -> N
         if item.step_id == "evaluate_parabola"
     )
     assert [(item.handle, item.output_type) for item in step.produces] == [
-        ("answer:ii_1.parabola", "Parabola")
+        (
+            "fact:ii_1:evaluate_parabola_evaluated_parabola",
+            "Parabola",
+        ),
+        ("answer:ii_1.parabola", "Parabola"),
     ]
+
+
+def test_call_result_reports_inactive_polymorphic_return_variant() -> None:
+    producer = ResolvedFunctionalValue(
+        handle="fact:i:evaluate_expression",
+        runtime_type="Expression",
+        valid_scope="i",
+        source_call_id="evaluate_expression",
+        return_name="evaluated_expression",
+    )
+
+    value, issues = functional_reconciliation_module._resolve_functional_ref(
+        CallResultRef("evaluate_expression", "evaluated_parabola"),
+        arg_name="parabola",
+        call_id="derive_vertex",
+        scope_id="i",
+        accepted_types=("Parabola",),
+        accepted_condition_kinds=(),
+        aggregation="none",
+        semantic_index=FunctionalSemanticIndex(
+            (),
+            handle_registry=_registry(),
+        ),
+        produced={
+            ("evaluate_expression", "evaluated_parabola"): producer,
+        },
+        handle_registry=_registry(),
+        known_call_ids={"evaluate_expression", "derive_vertex"},
+        processed_call_ids={"evaluate_expression"},
+        deterministic_repairs=[],
+        input_closure_policy="any",
+    )
+
+    assert value is None
+    assert [item.code for item in issues] == [
+        "functional.return_variant_mismatch"
+    ]
+    assert issues[0].details == {
+        "arg": "parabola",
+        "accepted_item_types": ["Parabola"],
+        "actual_type": "Expression",
+        "requested_return": "evaluated_parabola",
+        "active_return": "evaluated_expression",
+    }
 
 
 def test_elaborator_reclassifies_semantic_evidence_and_is_idempotent() -> None:
@@ -7198,7 +10150,7 @@ def test_context_auto_override_must_match_unique_resolved_state() -> None:
     ]
 
 
-def test_elaborator_does_not_merge_calls_with_different_return_bindings() -> None:
+def test_elaborator_merges_calls_after_dropping_internal_return_binding() -> None:
     inputs = _inputs_for_goal(5)
     shared_args = {
         "path_transformation": _path_transformation_ref(),
@@ -7228,7 +10180,7 @@ def test_elaborator_does_not_merge_calls_with_different_return_bindings() -> Non
                         ),
                         "args": shared_args,
                         "return_bindings": {
-                            "path_minimum_point_2": {
+                            "straightened_endpoint_2": {
                                 "ref": "ii_2.intersection",
                                 "kind": "answer",
                             }
@@ -7256,18 +10208,12 @@ def test_elaborator_does_not_merge_calls_with_different_return_bindings() -> Non
         ),
     )
 
-    assert len(result.plan.calls) == 3
+    assert len(result.plan.calls) == 2
     assert result.plan.calls[1].call_id == "derive_minimum"
     assert result.plan.calls[1].return_bindings == {}
-    assert result.plan.calls[2].call_id == "bind_minimum_point"
-    assert result.plan.calls[2].return_bindings == {
-        "path_minimum_point_2": SemanticRef(
-            "ii_2.intersection",
-            "answer",
-        )
-    }
-    assert not any(
-        item.action == "merge_equivalent_capability_call"
+    assert result.call_aliases == {"bind_minimum_point": "derive_minimum"}
+    assert any(
+        item.action == "drop_internal_only_return_binding"
         and item.call_id == "bind_minimum_point"
         for item in result.deterministic_repairs
     )
@@ -7384,6 +10330,225 @@ def test_reconciler_drops_unconsumed_pure_function_call() -> None:
     assert any(
         item["action"] == "drop_dead_pure_function_call"
         and item["call_id"] == "unused_distance"
+        for item in result.elaboration["deterministic_repairs"]
+    )
+
+
+def test_liveness_drops_unconsumed_pure_object_binding() -> None:
+    inputs = _base_inputs()
+    first_object_binding = FunctionalCall(
+        call_id="first_object_state",
+        capability_id="quadratic_y_axis_intercept_point",
+        args={},
+        return_bindings={
+            "point": SemanticRef(ref="M", kind="point"),
+        },
+        strategy="derive the first object state",
+        reason="the first writer remains observable",
+    )
+    duplicate_object_binding = FunctionalCall(
+        call_id="duplicate_object_state",
+        capability_id="quadratic_y_axis_intercept_point",
+        args={},
+        return_bindings={
+            "point": SemanticRef(ref="M", kind="point"),
+        },
+        strategy="repeat the same unconsumed object state",
+        reason="exercise duplicate object-state liveness",
+    )
+    plan = FunctionalPlan(
+        scopes=(
+            FunctionalScope(
+                scope_id="i",
+                label="i",
+                calls=(first_object_binding, duplicate_object_binding),
+            ),
+        )
+    )
+    reports = tuple(
+        FunctionalCallReport(
+            call.call_id,
+            "i",
+            call.capability_id,
+            "valid",
+        )
+        for call in plan.calls
+    )
+    state_slot_id = "point:problem:M.coordinate@i:Point"
+    reconciled = tuple(
+        FunctionalCallReconciliation(
+            call_id=call.call_id,
+            scope_id="i",
+            capability_id=call.capability_id,
+            resolved_args={},
+            returns=(
+                FunctionalReturnAllocation(
+                    call_id=call.call_id,
+                    return_name="point",
+                    handle=f"fact:i:{call.call_id}_point",
+                    runtime_type="Point",
+                    valid_scope="i",
+                    state_slot_id=state_slot_id,
+                    object_ref="point:problem:M",
+                    identity_policy="target_object",
+                    write_mode="create",
+                ),
+            ),
+        )
+        for call in plan.calls
+    )
+
+    result = FunctionalCallLivenessAnalyzer().analyze(
+        plan,
+        reconciled=reconciled,
+        call_reports=reports,
+        dependency_graph={
+            "first_object_state": (),
+            "duplicate_object_state": (),
+        },
+        catalog=FunctionalCapabilityCatalog.from_family_spec(
+            inputs.family_spec,
+            inputs.method_specs,
+        ),
+    )
+
+    assert [call.call_id for call in result.plan.calls] == [
+        "first_object_state"
+    ]
+    assert result.dropped_call_ids == ("duplicate_object_state",)
+
+
+def test_reconciler_rewrites_consumed_pure_write_to_existing_object_state() -> None:
+    inputs = _base_inputs()
+    payload = json.loads(NANKAI_FUNCTIONAL_PLAN.read_text(encoding="utf-8"))
+    common_scope = next(
+        item for item in payload["scopes"] if item["scope_id"] == "ii"
+    )
+    parabola_index = next(
+        index
+        for index, call in enumerate(common_scope["calls"])
+        if call["call_id"] == "ii_derive_parabola"
+    )
+    common_scope["calls"].insert(
+        parabola_index + 1,
+        {
+            "call_id": "recompute_existing_M",
+            "capability_id": "point_on_parabola_at_x",
+            "args": {
+                "parabola": {
+                    "from_call": "ii_derive_parabola",
+                    "return": "parabola",
+                }
+            },
+            "return_bindings": {
+                "point": {
+                    "ref": "M",
+                    "kind": "point",
+                }
+            },
+            "strategy": "recompute an already materialized point",
+            "reason": "exercise initial StateSlot liveness",
+        },
+    )
+    solve_m = next(
+        call
+        for scope in payload["scopes"]
+        for call in scope["calls"]
+        if call["call_id"] == "ii_1_solve_m"
+    )
+    solve_m["args"]["p1"] = {
+        "from_call": "recompute_existing_M",
+        "return": "point",
+    }
+    plan, report = _validate(payload, inputs)
+    assert report.ok and plan is not None
+
+    result = FunctionalPlanReconciler().reconcile(
+        plan,
+        planner_state_context=_context(inputs),
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=_registry(),
+        question_goals=inputs.question_goals,
+    )
+
+    assert result.ok, [item.to_payload() for item in result.issues]
+    assert "recompute_existing_M" not in {
+        call.call_id for call in result.plan.calls
+    }
+    assert result.projected_draft is not None
+    assert "recompute_existing_M" not in {
+        step.step_id for step in result.projected_draft.steps
+    }
+    rewritten_solve_m = next(
+        call for call in result.plan.calls if call.call_id == "ii_1_solve_m"
+    )
+    assert rewritten_solve_m.args["p1"] == (
+        SemanticRef(ref="M", kind="point"),
+    )
+    assert any(
+        item["action"]
+        == "rewrite_redundant_pure_function_call_to_existing_state"
+        and item["call_id"] == "recompute_existing_M"
+        for item in result.elaboration["deterministic_repairs"]
+    )
+
+
+def test_reconciler_keeps_transition_of_existing_object_state() -> None:
+    inputs = _base_inputs()
+    payload = json.loads(NANKAI_FUNCTIONAL_PLAN.read_text(encoding="utf-8"))
+    first_subquestion = next(
+        item for item in payload["scopes"] if item["scope_id"] == "ii_1"
+    )
+    solve_index = next(
+        index
+        for index, call in enumerate(first_subquestion["calls"])
+        if call["call_id"] == "ii_1_solve_m"
+    )
+    first_subquestion["calls"].insert(
+        solve_index + 1,
+        {
+            "call_id": "specialize_existing_M",
+            "capability_id": "evaluate_point_at_parameter",
+            "args": {
+                "point": {
+                    "ref": "M",
+                    "kind": "point",
+                },
+                "parameter_value": {
+                    "from_call": "ii_1_solve_m",
+                    "return": "parameter_value",
+                },
+            },
+            "return_bindings": {
+                "evaluated_point": {
+                    "ref": "M",
+                    "kind": "point",
+                }
+            },
+            "strategy": "specialize the existing point state",
+            "reason": "a transition must not be treated as a duplicate create",
+        },
+    )
+    plan, report = _validate(payload, inputs)
+    assert report.ok and plan is not None
+
+    result = FunctionalPlanReconciler().reconcile(
+        plan,
+        planner_state_context=_context(inputs),
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=_registry(),
+        question_goals=inputs.question_goals,
+    )
+
+    assert result.ok, [item.to_payload() for item in result.issues]
+    assert "specialize_existing_M" in {
+        call.call_id for call in result.plan.calls
+    }
+    assert not any(
+        item["action"] == "drop_dead_pure_function_call"
+        and item["call_id"] == "specialize_existing_M"
         for item in result.elaboration["deterministic_repairs"]
     )
 
@@ -7607,8 +10772,12 @@ def test_reconciler_refines_latest_parabola_after_point_transitions() -> None:
         for invocation in step_plan.invocations
         if invocation.method_id == "quadratic_from_constraints"
     )
-    assert invocation.inputs["p1"].endswith("M_evaluated_point")
-    assert invocation.inputs["p2"].endswith("N_evaluated_point")
+    assert invocation.inputs["curve_points"] == (
+        "$subquestion.ii_1.outputs.M_evaluated_point",
+        "$subquestion.ii_1.outputs.N_evaluated_point",
+    )
+    assert "p1" not in invocation.inputs
+    assert "p2" not in invocation.inputs
 
 
 def test_elaborator_reuses_unbound_equivalent_call_from_ancestor_scope() -> None:
@@ -7735,6 +10904,10 @@ def test_reconciler_auto_fills_unique_related_parameter_state() -> None:
                                 {"ref": "M", "kind": "point"},
                                 {"ref": "N", "kind": "point"},
                             ],
+                            "target_parameter": {
+                                "ref": "a",
+                                "kind": "symbol",
+                            },
                         },
                         "return_bindings": {
                             "parabola": {
@@ -7766,15 +10939,152 @@ def test_reconciler_auto_fills_unique_related_parameter_state() -> None:
     parameter_values = calls["solve_numeric_parabola"].resolved_args[
         "parameter_value"
     ]
+    target_parameters = calls["solve_numeric_parabola"].resolved_args[
+        "target_parameter"
+    ]
     assert len(parameter_values) == 1
     assert parameter_values[0].object_ref == "symbol:problem:m"
     assert parameter_values[0].source_call_id == "solve_parameter"
+    assert len(target_parameters) == 1
+    assert target_parameters[0].object_ref == "symbol:problem:a"
     assert result.dependency_graph["solve_numeric_parabola"] == (
         "solve_parameter",
     )
     assert any(
         item["action"] == "auto_fill_optional_arg"
         for item in (result.elaboration or {})["deterministic_repairs"]
+    )
+
+
+def test_optional_parameter_value_requires_exact_unresolved_symbol_identity() -> None:
+    inputs, _payload, registry, context = _heping_ermo_case()
+    catalog = FunctionalCapabilityCatalog.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
+    )
+    capability = catalog.items["square_adjacent_vertex_from_side"]
+    c_ref = "symbol:problem:c"
+    b_ref = "symbol:problem:b"
+    point = ResolvedFunctionalValue(
+        handle="fact:ii:open_point",
+        runtime_type="Point",
+        valid_scope="ii",
+        state_slot_id="point:ii:E.coordinate@ii",
+        object_ref="point:ii:E",
+        free_symbol_refs=(c_ref,),
+    )
+    b_value = ResolvedFunctionalValue(
+        handle="fact:ii:b_value",
+        runtime_type="ParameterValue",
+        valid_scope="ii",
+        state_slot_id="symbol:problem:b.value@ii",
+        source_call_id="derive_b",
+        return_name="parameter_value",
+        object_ref=b_ref,
+        dependency_object_refs=(b_ref, c_ref),
+    )
+
+    additions, repairs = (
+        functional_reconciliation_module._resolve_deterministic_optional_args(
+            capability,
+            {
+                "side_start": (point,),
+                "side_end": (point,),
+            },
+            call_id="construct_square_vertex",
+            scope_id="ii",
+            produced={("derive_b", "parameter_value"): b_value},
+            semantic_index=FunctionalSemanticIndex.from_context(
+                context,
+                handle_registry=registry,
+            ),
+            handle_registry=registry,
+        )
+    )
+
+    assert "parameter_value" not in additions
+    assert not any(
+        item.action == "auto_fill_optional_arg"
+        and "parameter_value" in item.after
+        for item in repairs
+    )
+
+
+def test_symbolic_target_is_inferred_from_exact_downstream_substitution() -> None:
+    inputs = _base_inputs()
+    payload = {
+        "format": "functional_plan/v1",
+        "scopes": [
+            {
+                "scope_id": "ii_1",
+                "label": "ii_1",
+                "calls": [
+                    {
+                        "call_id": "derive_parameterized_curve",
+                        "capability_id": "quadratic_from_constraints",
+                        "args": {
+                            "coefficient_relation": {
+                                "ref": "coefficient_relation",
+                                "kind": "fact",
+                            },
+                            "curve_points": [
+                                {"ref": "M", "kind": "point"},
+                                {"ref": "N", "kind": "point"},
+                            ],
+                        },
+                        "return_bindings": {},
+                        "strategy": "derive a parameterized curve",
+                        "reason": "publish the solved coefficient state",
+                    },
+                    {
+                        "call_id": "consume_solved_coefficient",
+                        "capability_id": "evaluate_expression_at_parameter",
+                        "args": {
+                            "expression": {
+                                "from_call": "derive_parameterized_curve",
+                                "return": "parabola",
+                            },
+                            "parameter": {
+                                "ref": "a",
+                                "kind": "symbol",
+                            },
+                            "parameter_value": {
+                                "from_call": "derive_parameterized_curve",
+                                "return": "parameter_value",
+                            },
+                        },
+                        "return_bindings": {},
+                        "strategy": "consume the solved coefficient",
+                        "reason": "exercise typed target identity inference",
+                    },
+                ],
+            }
+        ],
+    }
+    plan, report = _validate(payload, inputs)
+    assert report.ok and plan is not None
+    catalog = FunctionalCapabilityCatalog.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
+    )
+
+    inferred, repairs = _infer_symbolic_target_args_from_consumers(
+        plan,
+        catalog=catalog,
+    )
+
+    producer = next(
+        call
+        for call in inferred.calls
+        if call.call_id == "derive_parameterized_curve"
+    )
+    assert producer.args["target_parameter"] == (
+        SemanticRef(ref="a", kind="symbol"),
+    )
+    assert any(
+        item.action == "infer_symbolic_target_from_consumer"
+        and item.call_id == "derive_parameterized_curve"
+        for item in repairs
     )
 
 
@@ -7963,6 +11273,168 @@ def test_reconciler_infers_parameter_identity_from_future_consumer() -> None:
     ].object_ref == "symbol:problem:m"
     assert result.dependency_graph["evaluate_point"] == (
         "solve_parameter",
+    )
+
+
+def test_reconciler_drops_unknown_compiler_owned_arg_without_identity_check() -> None:
+    inputs = replace(_base_inputs(), question_goals=[])
+    payload = {
+        "format": "functional_plan/v1",
+        "scopes": [
+            {
+                "scope_id": "ii_2",
+                "label": "ii_2",
+                "calls": [
+                    *_path_reduction_setup_calls(),
+                    {
+                        "call_id": "derive_minimum_expression",
+                        "capability_id": (
+                            "broken_path_straightening_minimum_expression"
+                        ),
+                        "args": {
+                            "path_transformation": _path_transformation_ref(),
+                        },
+                        "return_bindings": {},
+                        "strategy": "derive the path minimum expression",
+                        "reason": "produce the expression consumed next",
+                    },
+                    {
+                        "call_id": "solve_parameter",
+                        "capability_id": "parameter_from_minimum_value",
+                        "args": {
+                            "minimum_expression": {
+                                "from_call": "derive_minimum_expression",
+                                "return": "path_minimum_expression",
+                            },
+                            "minimum_value": {
+                                "ref": "path_minimum_value_given",
+                                "kind": "fact",
+                            },
+                        },
+                        "return_bindings": {},
+                        "strategy": "solve the parameter",
+                        "reason": "produce the value used by the point",
+                    },
+                    {
+                        "call_id": "evaluate_point",
+                        "capability_id": "evaluate_point_at_parameter",
+                        "args": {
+                            "point": {"ref": "M", "kind": "point"},
+                            "parameter": {"ref": "m", "kind": "symbol"},
+                            "parameter_value": {
+                                "from_call": "solve_parameter",
+                                "return": "parameter_value",
+                            },
+                        },
+                        "return_bindings": {},
+                        "strategy": "evaluate the point",
+                        "reason": "consume the solved parameter value",
+                    },
+                ],
+            }
+        ],
+    }
+    plan, report = _validate(payload, inputs)
+    assert report.ok and plan is not None
+
+    result = FunctionalPlanReconciler().reconcile(
+        plan,
+        planner_state_context=_context(inputs),
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=_registry(),
+        question_goals=inputs.question_goals,
+    )
+
+    assert result.ok, [item.to_payload() for item in result.issues]
+    effective = next(
+        call for call in result.plan.calls if call.call_id == "evaluate_point"
+    )
+    assert "parameter" not in effective.args
+    assert any(
+        item["call_id"] == "evaluate_point"
+        and item["action"] == "drop_unknown_capability_arg"
+        for item in result.elaboration["deterministic_repairs"]
+    )
+
+    mismatched_payload = json.loads(json.dumps(payload))
+    mismatched_payload["scopes"][0]["calls"][-1]["args"]["parameter"] = {
+        "ref": "a",
+        "kind": "symbol",
+    }
+    mismatched_plan, mismatched_report = _validate(
+        mismatched_payload,
+        inputs,
+    )
+    assert mismatched_report.ok and mismatched_plan is not None
+    mismatched = FunctionalPlanReconciler().reconcile(
+        mismatched_plan,
+        planner_state_context=_context(inputs),
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=_registry(),
+        question_goals=inputs.question_goals,
+    )
+    assert mismatched.ok, [item.to_payload() for item in mismatched.issues]
+    mismatched_effective = next(
+        call
+        for call in mismatched.plan.calls
+        if call.call_id == "evaluate_point"
+    )
+    assert "parameter" not in mismatched_effective.args
+    assert any(
+        item["call_id"] == "evaluate_point"
+        and item["action"] == "drop_unknown_capability_arg"
+        for item in mismatched.elaboration["deterministic_repairs"]
+    )
+
+
+def test_reconciler_drops_unknown_arg_but_still_requires_declared_args() -> None:
+    inputs = replace(_base_inputs(), question_goals=[])
+    payload = {
+        "format": "functional_plan/v1",
+        "scopes": [
+            {
+                "scope_id": "ii_2",
+                "label": "ii_2",
+                "calls": [
+                    {
+                        "call_id": "missing_midpoint_definition",
+                        "capability_id": "midpoint_point",
+                        "args": {
+                            "invented": {"ref": "A", "kind": "point"},
+                        },
+                        "return_bindings": {},
+                        "strategy": "try to construct a midpoint",
+                        "reason": "exercise contract pruning",
+                    },
+                ],
+            }
+        ],
+    }
+    plan, report = _validate(payload, inputs)
+    assert report.ok and plan is not None
+
+    result = FunctionalPlanReconciler().reconcile(
+        plan,
+        planner_state_context=_context(inputs),
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=_registry(),
+        question_goals=inputs.question_goals,
+    )
+
+    assert any(
+        item.call_id == "missing_midpoint_definition"
+        and item.code == "functional.arg_missing"
+        and item.details.get("arg") == "midpoint_definition"
+        for item in result.issues
+    )
+    assert not any(item.code == "functional.arg_unknown" for item in result.issues)
+    assert any(
+        item["call_id"] == "missing_midpoint_definition"
+        and item["action"] == "drop_unknown_capability_arg"
+        for item in result.elaboration["deterministic_repairs"]
     )
 
 
@@ -8258,7 +11730,7 @@ def test_reconciler_topologically_repairs_prior_call_forward_reference() -> None
     assert reconciled.ok, [item.to_payload() for item in reconciled.issues]
     assert reconciled.projected_draft is not None
     assert reconciled.projected_draft.steps[1].reads == (
-        "answer:i.parabola",
+        "fact:i:solve_parabola_parabola",
     )
 
     payload["scopes"][0]["calls"] = [vertex_call, quadratic_call]
@@ -8351,6 +11823,30 @@ def test_projection_validation_failure_keeps_functional_retry_memory(
                     "stable_candidate_calls": [
                         {"scope_id": "i", "call": stable_call.to_payload()}
                     ],
+                    "committed_candidate_calls": [
+                        {"scope_id": "i", "call": stable_call.to_payload()}
+                    ],
+                    "call_memory": [
+                        {
+                            "call_id": "i_derive_D",
+                            "capability_id": stable_call.capability_id,
+                            "scope_id": "i",
+                            "execution_status": "runtime_verified",
+                            "commit_status": "goal_committed",
+                            "repair_required": False,
+                            "source_attempt": 1,
+                            "results": [
+                                {
+                                    "return": "axis_point",
+                                    "type": "Point",
+                                    "semantic_ref": "D",
+                                    "value": ["1", "4"],
+                                    "actual_form": "closed_state",
+                                }
+                            ],
+                            "committed_goals": ["answer:i.D"],
+                        }
+                    ],
                 }
             }
         ],
@@ -8392,9 +11888,25 @@ def test_projection_validation_failure_keeps_functional_retry_memory(
         item["call"]["call_id"]
         for item in replay.retry_state.stable_candidate_calls
     ] == ["i_derive_D"]
-    assert replay.retry_state.repair_call_ids == ("ii_1_solve_m",)
-    assert replay.retry_state.issues[0].code == "functional.projection_invalid"
+    repair_cone = strategy_replay_module._functional_dependent_closure(
+        {"ii_1_solve_m"},
+        replay.functional_reconciliation.dependency_graph,
+    )
+    assert set(replay.retry_state.repair_call_ids) == repair_cone
+    assert replay.retry_state.issues[0].code == (
+        "duplicate_point_coordinate_fact"
+    )
     assert replay.retry_state.issues[0].step_id == "ii_1_solve_m"
+    committed_memory = next(
+        item
+        for item in replay.retry_state.call_memory
+        if item["call_id"] == "i_derive_D"
+    )
+    assert committed_memory["execution_status"] == "runtime_verified"
+    assert committed_memory["commit_status"] == "goal_committed"
+    assert committed_memory["repair_required"] is False
+    assert committed_memory["results"][0]["value"] == ["1", "4"]
+    assert "i_derive_D" not in replay.retry_state.validated_call_ids
     assert "StepIntent" not in replay.retry_state.repair_instruction
     assert replay.planner_state_context is not None
     assert (
@@ -8453,13 +11965,18 @@ def test_projection_failure_verifies_independent_current_call_graph(
     )
 
     assert replay.retry_state is not None
-    assert replay.retry_state.preserve_policy == "preserve_graph"
+    assert replay.retry_state.preserve_policy == "none"
     stable_ids = {
         item["call"]["call_id"]
         for item in replay.retry_state.stable_candidate_calls
     }
-    assert "i_derive_D" in stable_ids
+    assert not stable_ids
     assert blocker_id not in stable_ids
+    runtime_verified_ids = {
+        item["call_id"]
+        for item in replay.retry_state.runtime_verified_calls
+    }
+    assert "i_derive_D" in runtime_verified_ids
     assert replay.functional_reconciliation is not None
     dependents = {
         call_id
@@ -8469,12 +11986,16 @@ def test_projection_failure_verifies_independent_current_call_graph(
         if blocker_id in dependencies
     }
     assert dependents
-    assert dependents.isdisjoint(stable_ids)
-    assert replay.retry_state.repair_call_ids == (blocker_id,)
+    assert dependents.isdisjoint(runtime_verified_ids)
+    repair_cone = strategy_replay_module._functional_dependent_closure(
+        {blocker_id},
+        replay.functional_reconciliation.dependency_graph,
+    )
+    assert set(replay.retry_state.repair_call_ids) == repair_cone
     issue = next(
         item
         for item in replay.retry_state.issues
-        if item.code == "functional.projection_invalid"
+        if item.code == "functional.state_transition_dependency_missing"
     )
     assert issue.details is not None
     assert dependents <= set(issue.details["blocked_call_ids"])
@@ -8768,7 +12289,7 @@ def test_reconciler_rejects_equivalent_returns_as_distinct_line_endpoints() -> N
     }
     call["args"]["line1_p2"] = {
         "from_call": "ii_derive_path_model",
-        "return": "path_minimum_point_1",
+        "return": "straightened_endpoint_1",
     }
     plan, validation = _validate(payload, inputs)
     assert validation.ok and plan is not None
@@ -8839,13 +12360,16 @@ def test_functional_retry_stable_graph_excludes_runtime_blocker_and_dependents()
         inputs.family_spec,
         inputs.method_specs,
     ).contextualized(semantic_index)
+    verified_call_ids = {
+        call.call_id for call in reconciliation.plan.calls
+    } - {blocker_id, *direct_dependents}
 
     projected = strategy_replay_module._functional_runtime_retry_state(
         retry_state,
         plan=reconciliation.plan,
         reconciliation=reconciliation,
         diagnostic=None,
-        verified_call_ids={call.call_id for call in reconciliation.plan.calls},
+        verified_call_ids=verified_call_ids,
         functional_catalog=catalog,
         semantic_index=semantic_index,
     )
@@ -8857,7 +12381,161 @@ def test_functional_retry_stable_graph_excludes_runtime_blocker_and_dependents()
     assert blocker_id not in stable_ids
     assert direct_dependents.isdisjoint(stable_ids)
     assert blocker_id in projected.repair_call_ids
+    assert projected.preserve_policy == "none"
+    runtime_verified_ids = {
+        item["call_id"] for item in projected.runtime_verified_calls
+    }
+    assert blocker_id not in runtime_verified_ids
+    assert direct_dependents.isdisjoint(runtime_verified_ids)
+    assert runtime_verified_ids
+
+
+def test_functional_retry_commits_only_passed_goal_dependency_graph() -> None:
+    inputs = _base_inputs()
+    payload = json.loads(NANKAI_FUNCTIONAL_PLAN.read_text(encoding="utf-8"))
+    plan, validation = _validate(payload, inputs)
+    assert validation.ok and plan is not None
+    planner_context = _context(inputs)
+    reconciliation = FunctionalPlanReconciler().reconcile(
+        plan,
+        planner_state_context=planner_context,
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=_registry(),
+        question_goals=inputs.question_goals,
+    )
+    assert reconciliation.ok
+    producer_call_id = "i_derive_D"
+    producer_step_id = next(
+        item.step_ids[0]
+        for item in reconciliation.projection_map
+        if item.call_id == producer_call_id
+    )
+    blocker_id = "ii_reduce_path"
+    issue = PlannerRetryIssue(
+        layer="trial_execution",
+        code="synthetic_runtime_blocker",
+        step_id=blocker_id,
+        scope_id="ii",
+        message="the second question remains incomplete",
+    )
+    retry_state = PlannerRetryState(
+        attempt=1,
+        baseline_draft=None,
+        issues=(issue,),
+        candidate_format="functional_plan",
+        baseline_candidate=reconciliation.plan.to_payload(),
+    )
+    semantic_index = FunctionalSemanticIndex.from_context(
+        planner_context,
+        handle_registry=_registry(),
+    )
+    catalog = FunctionalCapabilityCatalog.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
+    ).contextualized(semantic_index)
+    unexecuted = {blocker_id}
+    changed = True
+    while changed:
+        changed = False
+        for call_id, dependencies in reconciliation.dependency_graph.items():
+            if call_id in unexecuted or not unexecuted.intersection(dependencies):
+                continue
+            unexecuted.add(call_id)
+            changed = True
+    projected = strategy_replay_module._functional_runtime_retry_state(
+        retry_state,
+        plan=reconciliation.plan,
+        reconciliation=reconciliation,
+        diagnostic=None,
+        verified_call_ids={
+            call.call_id for call in reconciliation.plan.calls
+        } - unexecuted,
+        goal_verification_report=AnswerGoalVerificationReport(
+            (
+                AnswerGoalVerificationItem(
+                    "answer:i.D",
+                    "passed",
+                    producer_step_id=producer_step_id,
+                ),
+            )
+        ),
+        attempt=1,
+        functional_catalog=catalog,
+        semantic_index=semantic_index,
+    )
+
+    assert projected is not None
+    committed_ids = {
+        item["call"]["call_id"]
+        for item in projected.committed_candidate_calls
+    }
+    expected_committed = strategy_replay_module._functional_dependency_closure(
+        producer_call_id,
+        reconciliation.dependency_graph,
+    )
+    assert committed_ids == expected_committed
+    assert projected.stable_candidate_calls == (
+        projected.committed_candidate_calls
+    )
     assert projected.preserve_policy == "preserve_graph"
+    runtime_verified_ids = {
+        item["call_id"] for item in projected.runtime_verified_calls
+    }
+    assert blocker_id not in runtime_verified_ids
+    assert runtime_verified_ids.isdisjoint(committed_ids)
+    assert all(
+        item["commit_status"] == "goal_committed"
+        and item["execution_status"] == "runtime_verified"
+        and item["repair_required"] is False
+        for item in projected.call_memory
+        if item["call_id"] in committed_ids
+    )
+
+    answer_check_retry = replace(
+        retry_state,
+        issues=(
+            PlannerRetryIssue(
+                layer="answer_check",
+                code="answer_mismatch",
+                step_id=producer_call_id,
+                scope_id="i",
+                message="external answer verification rejected this goal",
+            ),
+        ),
+    )
+    revoked = strategy_replay_module._functional_runtime_retry_state(
+        answer_check_retry,
+        plan=reconciliation.plan,
+        reconciliation=reconciliation,
+        diagnostic=None,
+        verified_call_ids={
+            call.call_id for call in reconciliation.plan.calls
+        },
+        goal_verification_report=AnswerGoalVerificationReport(
+            (
+                AnswerGoalVerificationItem(
+                    "answer:i.D",
+                    "passed",
+                    producer_step_id=producer_step_id,
+                ),
+            )
+        ),
+        attempt=1,
+        functional_catalog=catalog,
+        semantic_index=semantic_index,
+    )
+    assert revoked is not None
+    assert revoked.committed_candidate_calls == ()
+    assert revoked.preserve_policy == "none"
+    revoked_result = next(
+        item
+        for item in revoked.runtime_verified_calls
+        if item["call_id"] == producer_call_id
+    )
+    assert revoked_result["execution_status"] == "runtime_verified"
+    assert revoked_result["commit_status"] == "provisional"
+    assert revoked_result["repair_required"] is True
 
 
 def test_functional_retry_does_not_freeze_structured_upstream_repair_root() -> None:
@@ -8905,6 +12583,15 @@ def test_functional_retry_does_not_freeze_structured_upstream_repair_root() -> N
         inputs.family_spec,
         inputs.method_specs,
     ).contextualized(semantic_index)
+    upstream_call = next(
+        item
+        for item in reconciliation.calls
+        if item.call_id == upstream_root
+    )
+    upstream_return = upstream_call.returns[0]
+    produced_handle = (
+        upstream_return.state_handle or upstream_return.handle
+    )
 
     projected = strategy_replay_module._functional_runtime_retry_state(
         retry_state,
@@ -8912,6 +12599,31 @@ def test_functional_retry_does_not_freeze_structured_upstream_repair_root() -> N
         reconciliation=reconciliation,
         diagnostic=None,
         verified_call_ids={call.call_id for call in reconciliation.plan.calls},
+        verified_runtime_results=(
+            StepIntentRuntimeResult(
+                step_id=upstream_root,
+                scope_id="ii",
+                capability_id=upstream_call.capability_id,
+                produced_handle=produced_handle,
+                output_key=upstream_return.return_name,
+                runtime_type=upstream_return.runtime_type,
+                value_omitted_reason="structured_state_projected_from_lineage",
+            ),
+        ),
+        verified_state_write_provenance=(
+            StateWriteProvenance(
+                step_id=upstream_root,
+                scope_id="ii",
+                capability_id=upstream_call.capability_id,
+                produced_handle=produced_handle,
+                output_key=upstream_return.return_name,
+                runtime_type=upstream_return.runtime_type,
+                identity_policy=upstream_return.identity_policy,
+                identity_role=upstream_return.return_name,
+                object_ref=upstream_return.object_ref,
+                state_slot_id=upstream_return.state_slot_id,
+            ),
+        ),
         functional_catalog=catalog,
         semantic_index=semantic_index,
     )
@@ -8922,7 +12634,78 @@ def test_functional_retry_does_not_freeze_structured_upstream_repair_root() -> N
     }
     assert upstream_root not in stable_ids
     assert failing_consumer not in stable_ids
-    assert projected.repair_call_ids == (upstream_root, failing_consumer)
+    assert upstream_root in projected.repair_call_ids
+    assert failing_consumer in projected.repair_call_ids
+    dependent_closure = strategy_replay_module._functional_dependent_closure(
+        {upstream_root, failing_consumer},
+        reconciliation.dependency_graph,
+    )
+    assert set(projected.repair_call_ids) == dependent_closure
+    upstream_memory = next(
+        item
+        for item in projected.runtime_verified_calls
+        if item["call_id"] == upstream_root
+    )
+    assert upstream_memory["execution_status"] == "runtime_verified"
+    assert upstream_memory["commit_status"] == "provisional"
+    assert upstream_memory["repair_required"] is True
+    consumer_issue = next(
+        item for item in projected.issues if item.step_id == failing_consumer
+    )
+    assert consumer_issue.details is not None
+    assert consumer_issue.details["actual_result_refs"] == [
+        f"{upstream_root}.{upstream_return.return_name}"
+    ]
+
+    input_failure = replace(
+        retry_state,
+        issues=(replace(issue, details=None),),
+        repair_call_ids=(failing_consumer,),
+    )
+    input_projected = strategy_replay_module._functional_runtime_retry_state(
+        input_failure,
+        plan=reconciliation.plan,
+        reconciliation=reconciliation,
+        diagnostic=None,
+        verified_call_ids={call.call_id for call in reconciliation.plan.calls},
+        verified_runtime_results=(
+            StepIntentRuntimeResult(
+                step_id=upstream_root,
+                scope_id="ii",
+                capability_id=upstream_call.capability_id,
+                produced_handle=produced_handle,
+                output_key=upstream_return.return_name,
+                runtime_type=upstream_return.runtime_type,
+                value_omitted_reason="structured_state_projected_from_lineage",
+            ),
+        ),
+        verified_state_write_provenance=(
+            StateWriteProvenance(
+                step_id=upstream_root,
+                scope_id="ii",
+                capability_id=upstream_call.capability_id,
+                produced_handle=produced_handle,
+                output_key=upstream_return.return_name,
+                runtime_type=upstream_return.runtime_type,
+                identity_policy=upstream_return.identity_policy,
+                identity_role=upstream_return.return_name,
+                object_ref=upstream_return.object_ref,
+                state_slot_id=upstream_return.state_slot_id,
+            ),
+        ),
+        functional_catalog=catalog,
+        semantic_index=semantic_index,
+    )
+    assert input_projected is not None
+    nearest_issue = next(
+        item
+        for item in input_projected.issues
+        if item.step_id == failing_consumer
+    )
+    assert nearest_issue.details is not None
+    assert nearest_issue.details["actual_result_refs"] == [
+        f"{upstream_root}.{upstream_return.return_name}"
+    ]
 
 
 def test_functional_retry_preserve_graph_reconciles_renamed_stable_call() -> None:
@@ -9130,6 +12913,58 @@ def test_functional_wire_preparation_drops_only_redundant_ref_scope() -> None:
     assert repaired_call["args"]["untrusted_scope"]["scope"] == "ii"
 
 
+def test_functional_wire_preparation_groups_unambiguous_flat_scoped_calls() -> None:
+    payload = _axis_plan_payload()
+    call = payload["scopes"][0]["calls"][0]
+    flattened = {
+        "format": "functional_plan/v1",
+        "scopes": [
+            {
+                "scope_id": "i",
+                **call,
+            }
+        ],
+    }
+
+    prepared = json.loads(
+        prepare_functional_plan_raw_response(
+            json.dumps(flattened),
+            previous_attempts=[],
+        )
+    )
+
+    assert prepared == payload
+    plan, report = _validate(prepared, _inputs_for_goal(0))
+    assert report.ok and plan is not None
+
+
+def test_functional_wire_preparation_leaves_mixed_scope_shape_for_validation() -> None:
+    payload = _axis_plan_payload()
+    call = payload["scopes"][0]["calls"][0]
+    mixed = {
+        "format": "functional_plan/v1",
+        "scopes": [
+            payload["scopes"][0],
+            {
+                "scope_id": "i",
+                **call,
+            },
+        ],
+    }
+
+    prepared = json.loads(
+        prepare_functional_plan_raw_response(
+            json.dumps(mixed),
+            previous_attempts=[],
+        )
+    )
+
+    assert prepared == mixed
+    plan, report = _validate(prepared, _inputs_for_goal(0))
+    assert plan is None
+    assert not report.ok
+
+
 def test_functional_projection_may_use_internal_symbol_output_type() -> None:
     payload = {
         "scopes": [
@@ -9200,6 +13035,94 @@ def test_functional_validation_failure_still_creates_context_retry_memory() -> N
     assert replay.planner_state_context.state.candidate_format == "functional_plan"
 
 
+def test_functional_wire_failure_inherits_previous_verified_graph() -> None:
+    inputs = _inputs_for_goal(0)
+    baseline = _axis_plan_payload(strategy="verified")
+    stable_call = baseline["scopes"][0]["calls"][0]
+    inputs = replace(
+        inputs,
+        previous_errors=[
+            {
+                "context_derived_retry_state": {
+                    "candidate_format": "functional_plan",
+                    "preserve_policy": "preserve_graph",
+                    "baseline_candidate": baseline,
+                    "stable_candidate_calls": [
+                        {"scope_id": "i", "call": stable_call}
+                    ],
+                    "committed_candidate_calls": [
+                        {"scope_id": "i", "call": stable_call}
+                    ],
+                    "runtime_verified_calls": [
+                        {
+                            "call_id": "derive_curve",
+                            "capability_id": "quadratic_from_constraints",
+                            "scope_id": "i",
+                            "execution_status": "runtime_verified",
+                            "commit_status": "provisional",
+                            "repair_required": False,
+                            "source_attempt": 1,
+                        }
+                    ],
+                    "validated_call_ids": ["derive_candidate"],
+                    "call_memory": [
+                        {
+                            "call_id": "derive_axis_point",
+                            "capability_id": stable_call["capability_id"],
+                            "scope_id": "i",
+                            "execution_status": "runtime_verified",
+                            "commit_status": "goal_committed",
+                            "repair_required": False,
+                            "source_attempt": 1,
+                            "committed_goals": ["answer:i.D"],
+                        }
+                    ],
+                }
+            }
+        ],
+    )
+
+    replay = PlannerRetryReplayService().replay_functional_raw_json(
+        '{"format":"functional_plan/v1","scopes":[',
+        inputs=inputs,
+        handle_registry=_registry(),
+        context=ContextBuilder().build(_problem()),
+        attempt=2,
+        problem_payload=_problem_payload(),
+    )
+
+    assert replay.output is None
+    assert replay.retry_state is not None
+    assert replay.retry_state.candidate_format == "functional_plan"
+    assert replay.retry_state.baseline_candidate == baseline
+    assert replay.retry_state.preserve_policy == "preserve_graph"
+    assert replay.retry_state.stable_candidate_calls == (
+        {"scope_id": "i", "call": stable_call},
+    )
+    assert replay.retry_state.committed_candidate_calls == (
+        {"scope_id": "i", "call": stable_call},
+    )
+    assert replay.retry_state.runtime_verified_calls[0]["call_id"] == (
+        "derive_curve"
+    )
+    assert replay.retry_state.validated_call_ids == ("derive_candidate",)
+    assert replay.retry_state.call_memory[0]["commit_status"] == (
+        "goal_committed"
+    )
+    assert replay.planner_state_context is not None
+    memory = replay.planner_state_context.state.retry_memory
+    assert memory.baseline_candidate == baseline
+    assert memory.stable_candidate_calls == (
+        {"scope_id": "i", "call": stable_call},
+    )
+    assert memory.committed_candidate_calls == (
+        {"scope_id": "i", "call": stable_call},
+    )
+    assert memory.runtime_verified_calls[0]["call_id"] == "derive_curve"
+    assert memory.validated_call_ids == ("derive_candidate",)
+    assert memory.call_memory[0]["commit_status"] == "goal_committed"
+
+
 def test_functional_context_versions_link_across_retry_attempts() -> None:
     inputs = _inputs_for_goal(0)
     first = PlannerRetryReplayService().replay_functional_raw_json(
@@ -9247,8 +13170,11 @@ def test_functional_retry_keeps_the_first_attempt_few_shot_selection() -> None:
         ),
         output_format="functional_plan",
     )
-    with pytest.raises(StrategyDraftValidationError):
+    with pytest.raises(PlannerExecutionError) as raised:
         planner.plan(inputs)
+    assert raised.value.primary.stage == "functional_validation"
+    assert raised.value.primary.code == "functional.scopes"
+    assert raised.value.candidate_format == "functional_plan"
 
     first_payload = planner.artifacts.payload
     assert first_payload is not None
@@ -9272,16 +13198,143 @@ def test_functional_retry_keeps_the_first_attempt_few_shot_selection() -> None:
     assert first_selection["selection_tier"] not in prompt
 
 
+def test_functional_configuration_failure_crosses_typed_planner_boundary(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class Client:
+        def complete(self, payload: dict) -> str:
+            return '{"format":"functional_plan/v1","scopes":[]}'
+
+    def fail_replay(*args: Any, **kwargs: Any) -> PlannerRetryReplayResult:
+        raise StrategyDraftValidationError(
+            "planner_configuration_error: synthetic Macro projection drift"
+        )
+
+    monkeypatch.setattr(
+        PlannerRetryReplayService,
+        "replay_functional_raw_json",
+        fail_replay,
+    )
+    planner = StrategyPlanner(
+        ContextBuilder().build(_problem()),
+        mode="deepseek",
+        client=Client(),
+        payload_builder=StrategyPayloadBuilder(
+            functional_few_shot_mode="strict_test"
+        ),
+        output_format="functional_plan",
+    )
+
+    with pytest.raises(PlannerExecutionError) as raised:
+        planner.plan(_inputs_for_goal(0))
+
+    assert raised.value.primary.stage == "planner"
+    assert raised.value.primary.code == "planner_configuration_error"
+    assert raised.value.primary.retryable is False
+    assert raised.value.candidate_format == "functional_plan"
+
+
+def test_functional_projection_failure_crosses_typed_planner_boundary(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class Client:
+        def complete(self, payload: dict) -> str:
+            return '{"format":"functional_plan/v1","scopes":[]}'
+
+    def fail_replay(*args: Any, **kwargs: Any) -> PlannerRetryReplayResult:
+        raise StrategyDraftValidationError(
+            "state_transition_not_dependency_refinement: "
+            "slot=function:part:curve.expression@part"
+        )
+
+    monkeypatch.setattr(
+        PlannerRetryReplayService,
+        "replay_functional_raw_json",
+        fail_replay,
+    )
+    planner = StrategyPlanner(
+        ContextBuilder().build(_problem()),
+        mode="deepseek",
+        client=Client(),
+        payload_builder=StrategyPayloadBuilder(
+            functional_few_shot_mode="strict_test"
+        ),
+        output_format="functional_plan",
+    )
+
+    with pytest.raises(PlannerExecutionError) as raised:
+        planner.plan(_inputs_for_goal(0))
+
+    assert raised.value.primary.stage == "normalization"
+    assert (
+        raised.value.primary.code
+        == "state_transition_not_dependency_refinement"
+    )
+    assert raised.value.primary.retryable is True
+    assert raised.value.root_issues == (
+        {
+            "layer": "normalization",
+            "code": "state_transition_not_dependency_refinement",
+            "message": (
+                "state_transition_not_dependency_refinement: "
+                "slot=function:part:curve.expression@part"
+            ),
+            "preserve_policy": "none",
+        },
+    )
+    assert raised.value.candidate_format == "functional_plan"
+
+
 def test_functional_prompt_retry_state_never_exposes_step_intent_baseline() -> None:
     inputs = _inputs_for_goal(0)
+    stable_call = _axis_plan_payload()["scopes"][0]["calls"][0]
     retry_state = {
         "candidate_format": "functional_plan",
         "baseline_candidate": _axis_plan_payload(),
         "baseline_draft": {"scopes": [{"steps": []}]},
         "stable_candidate_prefix": [],
+        "stable_candidate_calls": [
+            {"scope_id": "i", "call": stable_call}
+        ],
+        "committed_candidate_calls": [
+            {"scope_id": "i", "call": stable_call}
+        ],
+        "runtime_verified_calls": [
+            {
+                "call_id": "derive_curve",
+                "capability_id": "quadratic_from_constraints",
+                "scope_id": "ii",
+                "execution_status": "runtime_verified",
+                "commit_status": "provisional",
+                "repair_required": True,
+                "source_attempt": 1,
+                "results": [
+                    {
+                        "return": "parabola",
+                        "type": "Parabola",
+                        "semantic_ref": "parabola",
+                        "actual_form": "open_state",
+                        "free_parameters": ["c"],
+                        "value": "-x**2 + (-c - 2)*x + c",
+                    }
+                ],
+            }
+        ],
+        "validated_call_ids": ["derive_candidates"],
         "stable_prefix": [{"step_id": "legacy"}],
-        "preserve_policy": "none",
-        "issues": [],
+        "preserve_policy": "preserve_graph",
+        "issues": [
+            {
+                "layer": "goal_verification",
+                "code": "functional.free_basis_mismatch",
+                "step_id": "derive_curve",
+                "message": "the provisional curve preserves the wrong symbol",
+                "details": {
+                    "actual_result_refs": ["derive_curve.parabola"],
+                    "expected_free_parameter": "b",
+                },
+            }
+        ],
     }
     inputs = replace(
         inputs,
@@ -9298,7 +13351,189 @@ def test_functional_prompt_retry_state_never_exposes_step_intent_baseline() -> N
     assert "baseline_draft" not in latest
     assert "stable_prefix" not in latest
     assert "stable_candidate_prefix" not in latest
+    assert "stable_candidate_calls" not in latest
+    assert latest["locked_call_ids"] == ["derive_axis_point"]
+    assert latest["runtime_verified"][0]["call_id"] == "derive_curve"
+    assert latest["runtime_verified"][0]["repair_required"] is True
+    assert latest["runtime_verified"][0]["results"][0] == {
+        "return": "parabola",
+        "type": "Parabola",
+        "ref": "parabola",
+        "value": "-x**2 + (-c - 2)*x + c",
+        "form": "open_state",
+        "free": ["c"],
+    }
+    assert "capability_id" not in latest["runtime_verified"][0]
+    assert "scope_id" not in latest["runtime_verified"][0]
+    assert "source_attempt" not in latest["runtime_verified"][0]
+    assert latest["validated_call_ids"] == ["derive_candidates"]
     assert all("step_id" not in item for item in latest["issues"])
+    assert latest["issues"][0]["call_id"] == "derive_curve"
+    assert latest["issues"][0]["details"]["actual_result_refs"] == [
+        "derive_curve.parabola"
+    ]
+    encoded_latest = json.dumps(latest, ensure_ascii=False)
+    assert encoded_latest.count("-x**2 + (-c - 2)*x + c") == 1
+    prompt = StrategyPromptRenderer().render(payload)
+    assert "stable_candidate_calls" not in prompt.system
+    assert "stable_candidate_calls" not in prompt.user
+    assert "locked_call_ids" in prompt.system
+    assert '"locked_call_ids"' in prompt.user
+    assert '"runtime_verified"' in prompt.user
+    assert '"free": [' in prompt.user
+    assert "StateSlot" not in json.dumps(latest, ensure_ascii=False)
+    assert "runtime path" not in json.dumps(latest, ensure_ascii=False)
+
+
+def test_functional_prompt_compacts_large_and_structured_runtime_results() -> None:
+    large_value = "x" * 900
+    compact = strategy_payload_module._compact_functional_runtime_verified(
+        [
+            {
+                "call_id": "derive_large_expression",
+                "execution_status": "runtime_verified",
+                "commit_status": "provisional",
+                "repair_required": True,
+                "results": [
+                    {
+                        "return": "expression",
+                        "type": "Expression",
+                        "semantic_ref": "minimum_expression",
+                        "value": large_value,
+                        "semantic_roles": ["path_minimum_expression"],
+                        "object_roles": {"subject": ["moving_point"]},
+                    }
+                ],
+            },
+            {
+                "call_id": "reduce_path",
+                "execution_status": "runtime_verified",
+                "commit_status": "provisional",
+                "repair_required": False,
+                "results": [
+                    {
+                        "return": "path_transformation",
+                        "type": "PathTransformation",
+                        "semantic_ref": "reduced_path",
+                        "object_roles": {
+                            "moving_object": ["G"],
+                            "fixed_endpoint_1": ["D"],
+                            "fixed_endpoint_2": ["F"],
+                        },
+                    }
+                ],
+            },
+        ],
+        issues=[],
+    )
+
+    expression = compact[0]["results"][0]
+    assert "value" not in expression
+    assert expression["value_omitted_reason"] == (
+        "value_too_large_for_prompt"
+    )
+    assert "roles" not in expression
+    assert "identity" not in expression
+    transformation = compact[1]["results"][0]
+    assert transformation["structure"]["moving_object"] == ["G"]
+    assert transformation["structure"]["moving_locus_available"] is False
+
+
+def test_verified_closed_form_is_memory_not_hard_retry_overlay() -> None:
+    inputs = _inputs_for_goal(0)
+    payload = _axis_plan_payload()
+    plan, validation = _validate(payload, inputs)
+    assert validation.ok and plan is not None
+    planner_context = _context(inputs)
+    reconciliation = FunctionalPlanReconciler().reconcile(
+        plan,
+        planner_state_context=planner_context,
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=_registry(),
+        question_goals=inputs.question_goals,
+    )
+    assert reconciliation.ok
+    open_payload = json.loads(json.dumps(payload))
+    open_payload["scopes"][0]["calls"][0]["return_expectations"] = {
+        "axis_point": "open_state"
+    }
+    open_plan, open_validation = _validate(open_payload, inputs)
+    assert open_validation.ok and open_plan is not None
+    verified_plan = canonicalize_verified_result_forms(
+        open_plan,
+        (
+            FunctionalResultFormEvent(
+                call_id="derive_axis_point",
+                scope_id="i",
+                return_name="axis_point",
+                expected_form="open_state",
+                actual_form="closed_state",
+                status="result_form_closed",
+            ),
+        ),
+    )
+    retry_state = PlannerRetryState(
+        attempt=1,
+        baseline_draft=None,
+        issues=(
+            PlannerRetryIssue(
+                layer="functional_reconciliation",
+                code="synthetic.retry",
+                message="exercise verified result-form retry projection",
+            ),
+        ),
+        candidate_format="functional_plan",
+        baseline_candidate=open_plan.to_payload(),
+    )
+    semantic_index = FunctionalSemanticIndex.from_context(
+        planner_context,
+        handle_registry=_registry(),
+    )
+    catalog = FunctionalCapabilityCatalog.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
+    ).contextualized(semantic_index)
+    projected = strategy_replay_module._functional_runtime_retry_state(
+        retry_state,
+        plan=verified_plan,
+        reconciliation=reconciliation,
+        diagnostic=None,
+        verified_call_ids={"derive_axis_point"},
+        functional_catalog=catalog,
+        semantic_index=semantic_index,
+    )
+
+    assert projected is not None
+    baseline = projected.baseline_candidate
+    assert baseline is not None
+    baseline_call = baseline["scopes"][0]["calls"][0]
+    assert baseline_call["return_expectations"] == {
+        "axis_point": "closed_state"
+    }
+    assert projected.stable_candidate_calls == ()
+    assert projected.preserve_policy == "none"
+    assert [
+        item["call_id"] for item in projected.runtime_verified_calls
+    ] == ["derive_axis_point"]
+
+    retry_candidate = json.loads(json.dumps(baseline))
+    retry_candidate["scopes"][0]["calls"][0]["return_expectations"] = {
+        "axis_point": "open_state"
+    }
+    merged = json.loads(
+        prepare_functional_plan_raw_response(
+            json.dumps(retry_candidate),
+            previous_attempts=[
+                {
+                    "context_derived_retry_state": projected.to_payload()
+                }
+            ],
+        )
+    )
+    assert merged["scopes"][0]["calls"][0]["return_expectations"] == {
+        "axis_point": "open_state"
+    }
 
 
 def test_functional_prompt_projects_retry_handles_to_semantic_refs() -> None:
@@ -9338,7 +13573,7 @@ def test_functional_prompt_projects_retry_handles_to_semantic_refs() -> None:
                                 ],
                                 "identity_message": (
                                     "point:ii:G differs from "
-                                    "role:path_minimum_point_2@ii_2"
+                                    "role:straightened_endpoint_2@ii_2"
                                 ),
                             },
                         },
@@ -9369,12 +13604,12 @@ def test_functional_prompt_projects_retry_handles_to_semantic_refs() -> None:
     assert "symbol:problem:m" not in serialized
     assert "fact:ii_1:m_value" not in serialized
     assert "point:ii:G" not in serialized
-    assert "role:path_minimum_point_2@ii_2" not in serialized
+    assert "role:straightened_endpoint_2@ii_2" not in serialized
     assert "_axis_param_E" not in serialized
     assert "点 E 的未定坐标参数" in serialized
     assert "ii_1.minimum_value" in serialized
     assert "m_value" in serialized
-    assert "path_minimum_point_2" in serialized
+    assert "straightened_endpoint_2" in serialized
 
 
 def test_fake_llm_functional_plan_compiles_through_existing_runtime() -> None:
@@ -9740,22 +13975,11 @@ def test_runtime_macro_arg_failure_becomes_typed_functional_work_order() -> None
     issue = next(
         item
         for item in replay.retry_state.issues
-        if item.step_id == "straighten_path"
+        if item.step_id == "reduce_path"
     )
     assert issue.repair_target == "functional_call"
-    assert issue.code == "functional.arg_dependency_missing"
-    assert issue.details is not None
-    assert issue.details["arg"] == "moving_locus"
-    assert issue.details["semantic_role"] == "moving_locus"
-    assert issue.details["provider_arg_roles"] == ["path_transformation"]
-    assert issue.details["accepted_item_types"] == ["Line"]
-    assert issue.details["linked_candidates"] == []
-    assert issue.details["automatic_selection"] == (
-        "only_provenance_linked_unique_candidate"
-    )
-    assert issue.details["producer_candidate"] == (
-        "parameterized_point_locus_line"
-    )
+    assert issue.code == "functional.path_transformation_state_unavailable"
+    assert "Point state" in issue.message
     assert not any(
         item.code in {
             "functional.auto_arg_unresolved",
@@ -9773,6 +13997,13 @@ def test_runtime_macro_arg_failure_becomes_typed_functional_work_order() -> None
     )
     assert solve_report.status == "blocked_by_dependency"
     assert solve_report.blocked_by == ("straighten_path",)
+    straighten_report = next(
+        item
+        for item in reconciliation.call_reports
+        if item.call_id == "straighten_path"
+    )
+    assert straighten_report.status == "blocked_by_dependency"
+    assert straighten_report.blocked_by == ("reduce_path",)
 
 
 def test_functional_debug_artifacts_reuse_projected_step_intents(tmp_path: Path) -> None:

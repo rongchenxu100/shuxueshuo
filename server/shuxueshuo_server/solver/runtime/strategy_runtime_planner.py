@@ -27,8 +27,13 @@ from shuxueshuo_server.solver.runtime.planner_state_context import (
 )
 from shuxueshuo_server.solver.runtime.planner import PlannerInputs
 from shuxueshuo_server.solver.runtime.projection import RuntimeProjection
+from shuxueshuo_server.solver.runtime.session import (
+    PlannerExecutionError,
+    StructuredSolveError,
+)
 from shuxueshuo_server.solver.runtime.strategy_models import (
     ExecutablePlanResolutionReport,
+    PlannerRetryIssue,
     StepIntentExecutionDiagnostic,
     StepIntentNormalizationReport,
     StepIntentDraft,
@@ -244,6 +249,11 @@ class StrategyPlanner:
                 retry_replay_result=replay_result,
                 output=output,
             )
+            if self.output_format == "functional_plan":
+                raise _functional_planner_execution_error(
+                    replay_result,
+                    primary_issue=goal_issue,
+                )
             raise StrategyDraftValidationError(
                 "goal_verification_failed: "
                 f"step={goal_issue.step_id}, code={goal_issue.code}"
@@ -265,6 +275,11 @@ class StrategyPlanner:
                 output=None,
             )
             blocker = replay_result.diagnostic.first_blocker if replay_result.diagnostic else None
+            if self.output_format == "functional_plan":
+                raise _functional_planner_execution_error(
+                    replay_result,
+                    blocker=blocker,
+                )
             if blocker is not None:
                 raise StrategyDraftValidationError(
                     f"recipe_trial_step_failed: step={blocker.step_id}, "
@@ -494,15 +509,18 @@ class StrategyPlanner:
             planner_inputs=inputs,
             candidate_format="functional_plan",
         )
-        replay = PlannerRetryReplayService().replay_functional_raw_json(
-            raw_response,
-            inputs=inputs,
-            handle_registry=handle_registry,
-            context=self.context,
-            attempt=len(inputs.previous_errors),
-            errors=(),
-            problem_payload=problem_payload,
-        )
+        try:
+            replay = PlannerRetryReplayService().replay_functional_raw_json(
+                raw_response,
+                inputs=inputs,
+                handle_registry=handle_registry,
+                context=self.context,
+                attempt=len(inputs.previous_errors),
+                errors=(),
+                problem_payload=problem_payload,
+            )
+        except StrategyDraftValidationError as exc:
+            raise _functional_draft_validation_error(exc) from exc
         return payload, prompt, raw_response, replay
 
     def _capture(
@@ -616,6 +634,145 @@ def _planner_failure_message(
             else (),
             ensure_ascii=False,
         )
+    )
+
+
+def _functional_planner_execution_error(
+    replay_result: PlannerRetryReplayResult,
+    *,
+    primary_issue: PlannerRetryIssue | None = None,
+    blocker: Any | None = None,
+) -> PlannerExecutionError:
+    """Preserve Functional retry diagnostics across the GenericPlanner boundary."""
+    issues = _deduplicated_retry_issues(replay_result)
+    root_payloads = tuple(issue.to_payload() for issue in issues)
+    if primary_issue is not None:
+        primary = StructuredSolveError(
+            stage=primary_issue.layer,
+            code=primary_issue.code,
+            message=primary_issue.message or _planner_failure_message(replay_result),
+            retryable=not _has_configuration_failure(
+                issues,
+                primary_code=primary_issue.code,
+            ),
+            step_id=primary_issue.step_id,
+            details={
+                "scope_id": primary_issue.scope_id,
+                "repair_target": primary_issue.repair_target,
+            },
+        )
+    elif blocker is not None:
+        primary = StructuredSolveError(
+            stage=str(blocker.stage),
+            code=str(blocker.code),
+            message=str(blocker.message),
+            retryable=bool(blocker.retryable)
+            and not _has_configuration_failure(issues),
+            step_id=blocker.step_id,
+            method_id=blocker.capability_id,
+            details=dict(blocker.details or {}),
+        )
+    elif issues:
+        issue = issues[0]
+        primary = StructuredSolveError(
+            stage=issue.layer,
+            code=issue.code,
+            message=issue.message or _planner_failure_message(replay_result),
+            retryable=not _has_configuration_failure(issues),
+            step_id=issue.step_id,
+            details={
+                "scope_id": issue.scope_id,
+                "repair_target": issue.repair_target,
+            },
+        )
+    else:
+        primary = StructuredSolveError(
+            stage="planner",
+            code="unclassified_planner_failure",
+            message=_planner_failure_message(replay_result),
+            retryable=True,
+        )
+    return PlannerExecutionError(
+        primary,
+        root_issues=root_payloads,
+        candidate_format="functional_plan",
+    )
+
+
+def _functional_draft_validation_error(
+    exc: StrategyDraftValidationError,
+) -> PlannerExecutionError:
+    """Type deterministic projection failures that escape replay reports."""
+    message = str(exc)
+    raw_code, separator, _detail = message.partition(":")
+    code = raw_code.strip() if separator else "functional_projection_failed"
+    if not code or any(
+        character not in "abcdefghijklmnopqrstuvwxyz0123456789_."
+        for character in code
+    ):
+        code = "functional_projection_failed"
+    if code == "planner_configuration_error":
+        stage = "planner"
+        retryable = False
+    elif code.startswith(
+        (
+            "state_transition_",
+            "duplicate_state_slot_writer",
+            "duplicate_point_coordinate_fact",
+        )
+    ):
+        stage = "normalization"
+        retryable = True
+    elif code.startswith(("functional.", "function.", "macro.")):
+        stage = "functional_reconciliation"
+        retryable = True
+    else:
+        stage = "validation"
+        retryable = True
+    root_issue = {
+        "layer": stage,
+        "code": code,
+        "message": message,
+        "preserve_policy": "none",
+    }
+    return PlannerExecutionError(
+        StructuredSolveError(
+            stage=stage,
+            code=code,
+            message=message,
+            retryable=retryable,
+            details={"exception_type": exc.__class__.__name__},
+        ),
+        root_issues=(root_issue,),
+        candidate_format="functional_plan",
+    )
+
+
+def _deduplicated_retry_issues(
+    replay_result: PlannerRetryReplayResult,
+) -> tuple[PlannerRetryIssue, ...]:
+    retry_state = replay_result.retry_state
+    if retry_state is None:
+        return ()
+    result: list[PlannerRetryIssue] = []
+    seen: set[tuple[str, str, str | None]] = set()
+    for issue in retry_state.issues:
+        key = (issue.layer, issue.code, issue.step_id)
+        if key in seen:
+            continue
+        seen.add(key)
+        result.append(issue)
+    return tuple(result)
+
+
+def _has_configuration_failure(
+    issues: tuple[PlannerRetryIssue, ...],
+    *,
+    primary_code: str | None = None,
+) -> bool:
+    return primary_code == "planner_configuration_error" or any(
+        issue.code == "planner_configuration_error"
+        for issue in issues
     )
 
 

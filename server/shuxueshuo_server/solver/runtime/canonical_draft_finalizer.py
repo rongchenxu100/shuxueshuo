@@ -8,20 +8,25 @@ shared by replay and runtime compilation.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Any
 
 from shuxueshuo_server.solver.family.models import SolverFamilySpec
 from shuxueshuo_server.solver.problem_models import QuestionGoal
+from shuxueshuo_server.solver.runtime.handle_alias_index import (
+    visible_from_valid_scope,
+)
 from shuxueshuo_server.solver.runtime.handle_registry import (
     CanonicalHandleRegistry,
     HandleResolver,
 )
 from shuxueshuo_server.solver.runtime.strategy_models import (
+    ProjectedStateDependency,
     ProjectedStateWrite,
     StepIntentDraft,
     StrategyDraftValidationError,
 )
+from shuxueshuo_server.solver.utils import unique_ordered
 from shuxueshuo_server.solver.runtime.strategy_validator import validate_canonical_draft
 
 
@@ -55,8 +60,15 @@ class CanonicalDraftFinalizer:
         handle_registry: CanonicalHandleRegistry,
         allow_shared_derivation_scopes: bool = False,
         projected_state_writes: tuple[ProjectedStateWrite, ...] = (),
+        projected_state_dependencies: tuple[ProjectedStateDependency, ...] = (),
     ) -> tuple[StepIntentDraft, CanonicalDraftFinalizationReport]:
         before = draft.to_payload()
+        draft = _close_projected_state_reads(
+            draft,
+            projected_state_writes=projected_state_writes,
+            projected_state_dependencies=projected_state_dependencies,
+            handle_registry=handle_registry,
+        )
         issues: tuple[str, ...] = ()
         try:
             finalized, validation_report = validate_canonical_draft(
@@ -77,6 +89,10 @@ class CanonicalDraftFinalizer:
             finalized, resolution = HandleResolver().resolve_draft(
                 draft,
                 handle_registry,
+                authoritative_produced_handles={
+                    item.produced_handle
+                    for item in projected_state_writes
+                },
             )
             issues = (str(exc),)
         return finalized, CanonicalDraftFinalizationReport(
@@ -129,7 +145,7 @@ class CanonicalDraftFinalizer:
                     getattr(previous, "free_symbol_names", ())
                 )
                 current_symbols = set(getattr(item, "free_symbol_names", ()))
-                if not current_symbols < previous_symbols:
+                if not current_symbols <= previous_symbols:
                     raise StrategyDraftValidationError(
                         "state_transition_not_dependency_refinement: "
                         f"slot={slot_id}, previous_symbols="
@@ -137,6 +153,169 @@ class CanonicalDraftFinalizer:
                         f"{sorted(current_symbols)}"
                     )
             latest_by_slot[slot_id] = item
+
+
+def _close_projected_state_reads(
+    draft: StepIntentDraft,
+    *,
+    projected_state_writes: tuple[ProjectedStateWrite, ...],
+    projected_state_dependencies: tuple[ProjectedStateDependency, ...] = (),
+    handle_registry: CanonicalHandleRegistry,
+) -> StepIntentDraft:
+    """Restore exact reconciled StateSlot dependencies before legacy binding."""
+    if not projected_state_dependencies:
+        return draft
+
+    step_index = {
+        step.step_id: index for index, step in enumerate(draft.steps)
+    }
+    writes_by_handle = {
+        write.produced_handle: write
+        for write in projected_state_writes
+        if write.step_id in step_index
+    }
+    writes_by_slot: dict[str, list[ProjectedStateWrite]] = {}
+    for write in projected_state_writes:
+        if write.step_id in step_index:
+            writes_by_slot.setdefault(write.state_slot_id, []).append(write)
+    for writes in writes_by_slot.values():
+        writes.sort(key=lambda item: step_index[item.step_id])
+    dependencies_by_step: dict[str, list[ProjectedStateDependency]] = {}
+    for dependency in projected_state_dependencies:
+        if dependency.step_id in step_index:
+            dependencies_by_step.setdefault(
+                dependency.step_id,
+                [],
+            ).append(dependency)
+    valid_scope_by_handle = {
+        produced.handle: produced.valid_scope
+        for step in draft.steps
+        for produced in step.produces
+    }
+    rewritten_steps = []
+
+    def is_visible(handle: str, scope_id: str) -> bool:
+        valid_scope = (
+            valid_scope_by_handle.get(handle)
+            or handle_registry.handle_valid_scopes.get(handle)
+        )
+        return (
+            isinstance(valid_scope, str)
+            and visible_from_valid_scope(
+                valid_scope,
+                scope_id=scope_id,
+                registry=handle_registry,
+            )
+        )
+
+    def latest_source_write(
+        state_slot_id: str,
+        *,
+        before_index: int,
+    ) -> ProjectedStateWrite | None:
+        candidates = writes_by_slot.get(state_slot_id, ())
+        return next(
+            (
+                item
+                for item in reversed(candidates)
+                if step_index[item.step_id] < before_index
+            ),
+            None,
+        )
+
+    def dependency_handles(
+        dependency: ProjectedStateDependency,
+        *,
+        consumer_index: int,
+    ) -> tuple[str, ...]:
+        result: list[str] = []
+        pending: list[tuple[ProjectedStateWrite, int]] = []
+        direct_write = writes_by_handle.get(dependency.produced_handle)
+        if direct_write is not None:
+            pending.append((direct_write, step_index[direct_write.step_id]))
+            result.append(direct_write.produced_handle)
+        else:
+            exact_source = next(
+                (
+                    item
+                    for item in projected_state_writes
+                    if dependency.source_step_id is not None
+                    and item.step_id == dependency.source_step_id
+                    and item.step_id in step_index
+                    and (
+                        dependency.source_return_name is None
+                        or item.return_name == dependency.source_return_name
+                    )
+                    and step_index[item.step_id] < consumer_index
+                ),
+                None,
+            )
+            slot_write = exact_source or latest_source_write(
+                dependency.state_slot_id,
+                before_index=consumer_index,
+            )
+            if slot_write is not None:
+                pending.append((slot_write, step_index[slot_write.step_id]))
+                result.append(slot_write.produced_handle)
+            else:
+                result.append(dependency.produced_handle)
+        visited: set[tuple[str, str]] = set()
+        while pending:
+            write, write_index = pending.pop()
+            write_key = (write.step_id, write.produced_handle)
+            if write_key in visited:
+                continue
+            visited.add(write_key)
+            for source_slot_id in write.source_state_slot_ids:
+                source = latest_source_write(
+                    source_slot_id,
+                    before_index=write_index,
+                )
+                if source is None:
+                    continue
+                result.append(source.produced_handle)
+                pending.append((source, step_index[source.step_id]))
+        return unique_ordered(result)
+
+    for step in draft.steps:
+        reads = list(step.reads)
+        for dependency in dependencies_by_step.get(step.step_id, ()):
+            for handle in dependency_handles(
+                dependency,
+                consumer_index=step_index[step.step_id],
+            ):
+                if handle in reads:
+                    continue
+                if not is_visible(handle, step.scope_id):
+                    raise StrategyDraftValidationError(
+                        "planner_configuration_error: projected StateSlot "
+                        "dependency is not visible: "
+                        f"step={step.step_id}, slot={dependency.state_slot_id}, "
+                        f"handle={handle}, scope={step.scope_id}"
+                    )
+                reads.append(handle)
+
+        rewritten = (
+            step
+            if tuple(reads) == step.reads
+            else replace(step, reads=tuple(reads))
+        )
+        rewritten_steps.append(rewritten)
+
+    rewritten_by_id = {step.step_id: step for step in rewritten_steps}
+    rewritten = StepIntentDraft(
+        scopes=tuple(
+            replace(
+                scope,
+                steps=tuple(
+                    rewritten_by_id[step.step_id]
+                    for step in scope.steps
+                ),
+            )
+            for scope in draft.scopes
+        )
+    )
+    return rewritten
 
 
 __all__ = [

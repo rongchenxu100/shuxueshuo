@@ -6,6 +6,14 @@
 
 from __future__ import annotations
 
+from shuxueshuo_server.solver.runtime.quadratic_constraint_solver import (
+    quadratic_coefficient_expression,
+    value_satisfies_constraint,
+)
+from shuxueshuo_server.solver.runtime.symbolic_target_closure import (
+    solve_target_symbol_closure,
+)
+
 from ._common import *
 from ._spec import MethodSpecSource
 
@@ -27,24 +35,40 @@ class FilterPointCandidatesByQuadraticCurveMethod:
         x = inputs["x"]
         parameter = inputs["parameter"]
         constraint = inputs.get("parameter_constraint")
+        quadratic_template = inputs.get("quadratic_template")
+        target_expression = quadratic_coefficient_expression(
+            parabola,
+            independent_symbol=x,
+            target_symbol=parameter,
+            template_expression=quadratic_template,
+        )
 
         kept: list[Point] = []
         rejected: list[Point] = []
         details: list[str] = []
         for index, candidate in enumerate(candidates, start=1):
             equation = sp.Eq(parabola.subs(x, candidate[0]), candidate[1])
-            solutions = kernel.solve_equations([equation], [parameter])
-            valid_solutions = [
-                sp.simplify(solution[parameter])
-                for solution in solutions
-                if parameter in solution and _satisfies_constraint(solution[parameter], constraint)
-            ]
-            if valid_solutions:
+            closure = solve_target_symbol_closure(
+                [equation],
+                target=parameter,
+                target_expression=target_expression,
+                accept_target=lambda value: value_satisfies_constraint(
+                    value,
+                    constraint,
+                ),
+                kernel=kernel,
+            )
+            if closure.status in {"unique", "ambiguous"}:
                 kept.append(candidate)
-                details.append(
-                    f"{target.name}{index}: {parameter.name}="
-                    + " 或 ".join(kernel.sstr(value) for value in valid_solutions)
-                )
+                if closure.target_value is not None:
+                    details.append(
+                        f"{target.name}{index}: {parameter.name}="
+                        f"{kernel.sstr(closure.target_value)}"
+                    )
+                else:
+                    details.append(
+                        f"{target.name}{index}: {parameter.name} 存在多个可行分支"
+                    )
             else:
                 rejected.append(candidate)
                 details.append(f"{target.name}{index}: 无满足 {_constraint_text(parameter, constraint, kernel)} 的解")
@@ -56,14 +80,20 @@ class FilterPointCandidatesByQuadraticCurveMethod:
         if len(kept) == 1:
             outputs["selected_candidate"] = TypedValue("Point", kept[0], source=self.method_id)
 
-        selection_check = (
-            _check(
+        if len(kept) == 1:
+            selection_check = _check(
                 "candidate_selection_unique",
                 True,
                 "曲线条件与参数约束唯一确定候选点",
             )
-            if len(kept) == 1
-            else _check(
+        elif constraint is None:
+            selection_check = _check(
+                "candidate_selection_constraint_required",
+                False,
+                "曲线条件仍保留多个分支，需要显式参数范围或符号约束",
+            )
+        else:
+            selection_check = _check(
                 (
                     "candidate_selection_unresolved"
                     if not kept
@@ -76,7 +106,6 @@ class FilterPointCandidatesByQuadraticCurveMethod:
                     else "曲线条件与参数约束仍保留多个候选点"
                 ),
             )
-        )
 
         return StatelessMethodResult(
             method_id=self.method_id,
@@ -101,24 +130,6 @@ class FilterPointCandidatesByQuadraticCurveMethod:
                 )
             ],
         )
-
-
-def _satisfies_constraint(
-    value: sp.Expr,
-    constraint: dict[str, sp.Expr | str] | None,
-) -> bool:
-    """按当前 Constraint 结构校验一元参数值。
-
-    首版只需要支持 ``>``，因此保持轻量；后续遇到区间或复合约束时再扩展。
-    """
-    if constraint is None:
-        return True
-    if str(constraint.get("operator", "")) != ">":
-        return True
-    try:
-        return bool(sp.simplify(value - sp.sympify(constraint["value"])) > 0)
-    except TypeError:
-        return False
 
 
 def _constraint_text(
@@ -146,6 +157,11 @@ SPEC = MethodSpecSource(
         "x": {"type": "Symbol", "required": True},
         "parameter": {"type": "Symbol", "required": True},
         "parameter_constraint": {"type": "Constraint", "required": False},
+        "quadratic_template": {
+            "type": "Expression",
+            "required": False,
+            "functional_exposed": False,
+        },
     },
     outputs={
         "filtered_candidates": "PointList",

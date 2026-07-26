@@ -16,9 +16,12 @@ from shuxueshuo_server.solver.family.models import (
     CapabilityContextResolver,
     CapabilityDependencyPolicy,
     CapabilityContractSpec,
+    CapabilityContextRoleBindingSpec,
     CapabilityInputClosureRequirement,
     ConditionPattern,
     GoalEvidenceTag,
+    PathTransformationConsumerSpec,
+    FunctionalReturnBindingPolicy,
     RecipeExecutionSpec,
     RecipeOutputAliasSpec,
     StateIdentityPolicy,
@@ -40,6 +43,9 @@ from shuxueshuo_server.solver.runtime.output_type_inference import (
 )
 from shuxueshuo_server.solver.runtime.runtime_type_declarations import (
     split_runtime_types,
+)
+from shuxueshuo_server.solver.runtime.straightening_metadata import (
+    canonical_straightening_endpoint_name,
 )
 from shuxueshuo_server.solver.runtime.strategy_models import (
     ProducedFact,
@@ -121,6 +127,7 @@ class MacroReturnSpec:
     equivalent_to: str | None = None
     provides_semantic_roles: tuple[str, ...] = ()
     object_role_projections: tuple[StateObjectRoleProjectionSpec, ...] = ()
+    return_binding: FunctionalReturnBindingPolicy = "auto"
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -159,6 +166,8 @@ class MacroReturnSpec:
             payload["object_role_projections"] = [
                 item.to_payload() for item in self.object_role_projections
             ]
+        if self.return_binding != "auto":
+            payload["return_binding"] = self.return_binding
         return payload
 
 
@@ -218,6 +227,8 @@ class MacroSpec:
     is_pure: bool = False
     dependency_policy: CapabilityDependencyPolicy = "explicit_args"
     context_resolvers: tuple[CapabilityContextResolver, ...] = ()
+    context_role_bindings: tuple[CapabilityContextRoleBindingSpec, ...] = ()
+    path_transformation_consumer: PathTransformationConsumerSpec | None = None
     input_closure_requirements: tuple[
         CapabilityInputClosureRequirement, ...
     ] = ()
@@ -236,6 +247,14 @@ class MacroSpec:
             "exposes_to_llm": self.exposes_to_llm,
             "is_pure": self.is_pure,
             "dependency_policy": self.dependency_policy,
+            "context_role_bindings": [
+                item.to_payload() for item in self.context_role_bindings
+            ],
+            "path_transformation_consumer": (
+                self.path_transformation_consumer.to_payload()
+                if self.path_transformation_consumer is not None
+                else None
+            ),
             "context_resolvers": list(self.context_resolvers),
             "input_closure_requirements": [
                 item.to_payload() for item in self.input_closure_requirements
@@ -409,6 +428,14 @@ def macro_spec_from_recipe(
         context_resolvers=(
             contract.context_resolvers if contract is not None else ()
         ),
+        context_role_bindings=(
+            contract.context_role_bindings if contract is not None else ()
+        ),
+        path_transformation_consumer=(
+            contract.path_transformation_consumer
+            if contract is not None
+            else None
+        ),
         input_closure_requirements=(
             contract.input_closure_requirements
             if contract is not None
@@ -565,6 +592,7 @@ def _returns_from_output_aliases(
                 equivalent_to=output.equivalent_to,
                 provides_semantic_roles=output.provides_semantic_roles,
                 object_role_projections=output.object_role_projections,
+                return_binding=output.return_binding,
             )
         )
     return tuple(returns)
@@ -577,6 +605,8 @@ def _macro_scalar_result_form(
     function_specs: FunctionSpecRegistry,
 ) -> ScalarResultFormSpec | None:
     """Project result-form metadata from the unique internal Function return."""
+    if output.result_form is not None:
+        return output.result_form
     explicit_method: str | None = None
     output_name = output.output_key
     if "." in output.output_key:
@@ -682,6 +712,7 @@ def _match_macro_returns(
     errors: list[str] = []
     bindings: list[tuple[ProducedFact, MacroReturnSpec]] = []
     matched: dict[str, int] = {}
+    matched_outputs: dict[str, list[ProducedFact]] = {}
     for produced in step.produces:
         produced_type = produced.output_type or (
             handle_registry.answer_value_types.get(produced.handle)
@@ -731,7 +762,13 @@ def _match_macro_returns(
         selected = candidates[0]
         bindings.append((produced, selected))
         matched[selected.name] = matched.get(selected.name, 0) + 1
-        if matched[selected.name] > 1 and selected.cardinality != "many":
+        selected_outputs = matched_outputs.setdefault(selected.name, [])
+        selected_outputs.append(produced)
+        if (
+            matched[selected.name] > 1
+            and selected.cardinality != "many"
+            and not _is_answer_state_alias_group(selected_outputs)
+        ):
             errors.append(
                 "macro.return_ambiguous: "
                 f"recipe={spec.recipe_id}, return={selected.name}, "
@@ -745,6 +782,17 @@ def _match_macro_returns(
                 f"runtime_type={item.runtime_type}"
             )
     return tuple(bindings), tuple(errors)
+
+
+def _is_answer_state_alias_group(outputs: list[ProducedFact]) -> bool:
+    """One answer plus one fact may name the same projected runtime return."""
+
+    return (
+        len(outputs) == 2
+        and sum(item.handle.startswith("answer:") for item in outputs) == 1
+        and sum(item.handle.startswith("fact:") for item in outputs) == 1
+        and len({item.output_type for item in outputs}) == 1
+    )
 
 
 def _identity_compatible_returns(
@@ -776,6 +824,10 @@ def _semantic_role_matches(
         return False
     name = produced_semantic_role(produced).lower()
     role = semantic_role.lower()
+    canonical_name = canonical_straightening_endpoint_name(name)
+    canonical_role = canonical_straightening_endpoint_name(role)
+    if canonical_name is not None or canonical_role is not None:
+        return canonical_name == canonical_role
     if " return " in produced.description:
         return name == role
     return name == role or name.endswith(f"_{role}") or role.endswith(f"_{name}")

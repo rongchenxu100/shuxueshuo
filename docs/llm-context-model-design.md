@@ -377,7 +377,51 @@ StateSlot(Function(parabola).parametric_expression@ii)
   runtime_path = $question.ii.outputs.parametric_parabola
 ```
 
-PlannerStateContext 不直接持有已执行的 SymPy 值，也不假装 method 已经运行；它只知道某个状态会由哪个 step 产生、类型是什么、依赖是什么、在哪个 scope 可见。
+在 method 执行前，PlannerStateContext 不会把 projected candidate 假装成已验证事实。
+method 执行后，它可以保存由实际 runtime output 归一化得到的 verified
+`StateWriteVersion`，包括对象身份、状态类型、自由符号、lineage、依赖和有效 scope；
+但它不直接持有 mutable SymPy 对象。具体运行值仍由 attempt-local RuntimeContext
+管理，Context snapshot 只保存可序列化的语义快照和 provenance。
+
+### Transactional Working Context
+
+FunctionalPlan 采用逐 call 执行后，一次 planner attempt 内需要一个临时工作状态：
+
+```text
+PlannerStateContext parent
+  -> WorkingPlannerState
+       -> attempt-local RuntimeContext clone
+       -> execute ready call
+       -> validate actual outputs
+       -> commit verified StateWriteVersion internally
+       -> resolve downstream call from latest verified state
+  -> PlannerStateContext vNext
+```
+
+`WorkingPlannerState` 不是新的持久化事实源，也不会为每个 call 创建一个外部
+Context version。它只在单次 attempt 内承担事务式状态演进：
+
+- call 成功且输出通过 type、identity、write-mode 和 provenance 校验后，才写入工作状态；
+- call 失败时不提交部分 write，其 dependents 标记为 blocked；
+- 与失败 call 无关的分支可以继续执行并进入 verified stable graph；
+- attempt 结束时，一次性组合 verified state、root issues、blocked dependents、stable
+  graph 和 execution timeline，生成唯一的 `vNext`；
+- accepted attempt 的 RuntimeContext 才能继续进入后续执行/讲解链，失败 attempt 的工作
+  runtime 不产生外部副作用。
+
+因此 Context 的状态语义分为两类：
+
+```text
+projected state
+  = contract 根据 candidate 声明的预期写入，尚未执行验证
+
+verified state
+  = runtime 实际输出经过 contract 校验后的 StateWriteVersion
+```
+
+retry、stable graph 和学生解释只能把 verified state 当作已完成事实。projected state
+仍可用于 schema、scope、identity 和配置 preflight，但不能作为具体值、自由符号或
+open/closed form 的最终权威。
 
 ## Prompt 作为 Projection
 
@@ -1024,7 +1068,47 @@ Retry 以稳定调用子图为单位：
 - semantic object/state/condition 视图、容器聚合和 Symbol identity 不再由 LLM 精确编码。
 - 五道真实题 Functional opt-in 在最多三轮内达到 StepIntent oracle 的正确性；之后才进入默认协议切换和旧 opt-in 删除阶段。
 
-### Phase 8: Cross-Domain Context Graph
+### Phase 8: Transactional Functional Interpreter
+
+Phase 8 将 FunctionalPlan 的执行从“整图静态预测所有 return state，再一次性 replay”
+迁移为“整图验证结构，按拓扑顺序执行 call，用真实结果更新 Working Context”。
+
+目标链路：
+
+```text
+Raw FunctionalPlan
+  -> wire validation
+  -> LogicalFunctionalGraph
+  -> static liveness / dependency / preliminary placement
+  -> TransactionalFunctionalInterpreter
+       -> resolve one ready call
+       -> elaborate deterministic args
+       -> compile and execute
+       -> validate actual state writes
+       -> update WorkingPlannerState
+  -> one PlannerStateContext vNext
+```
+
+实施顺序：
+
+1. 在现有 replay 旁建立 logical graph 和 Working Context shadow；
+2. 复用现有 StepIntent/StepPlan compiler，先实现逐 call transaction；
+3. stable graph 和 retry 切换到 verified call 与 StateVersion；
+4. 将 `SymbolicClosureSpec` 收缩为 runtime effect contract，具体 substitution、branch、
+   free symbols 和 result form 以实际输出为准；
+5. 达到 parity 后再进入 direct Functional compiler，最后删除 StepIntent compatibility。
+
+这一步依赖 MathObject、StateSlot allocation、placement、finalizer 和 Context/retry 已共享
+typed identity authority。它应位于 Functional parity 和 Track B 身份治理之后、direct
+compiler 与 StepIntent 退场之前。
+
+详细设计：
+
+- `docs/transactional-functional-interpreter-design.md`
+- `docs/functional-planner-next-stage-roadmap.md`
+- `docs/symbolic-target-closure-evolution-plan.md`
+
+### Phase 9: Cross-Domain Context Graph
 
 - 引入 ProblemExtractionContext、LessonExplanationContext、DiagramContext、AnimationContext 的统一版本/依赖规范。
 - 下游 artifact 可以声明依赖的 context version，并在上游改变时显式 stale/rebase。

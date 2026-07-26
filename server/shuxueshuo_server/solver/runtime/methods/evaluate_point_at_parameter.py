@@ -5,7 +5,11 @@
 
 from __future__ import annotations
 
-from shuxueshuo_server.solver.contracts import MethodExplanationSpec, MethodVisualSpec
+from shuxueshuo_server.solver.contracts import (
+    MethodExplanationSpec,
+    MethodVisualSpec,
+    TrialErrorHintSpec,
+)
 
 from ._common import *
 from ._spec import MethodSpecSource
@@ -116,5 +120,13 @@ SPEC = MethodSpecSource(
                 "不要用 `evaluate_point_at_parameter` 直接 produces 最终 Point answer。",
             ),
         },
+    ),
+    trial_error_hints=(
+        TrialErrorHintSpec(
+            error_contains="missing required input: parameter",
+            code="final_point_requires_square_recovery",
+            requires_point_answer=True,
+            requires_planner_output_types=("PathTransformation",),
+        ),
     ),
 )

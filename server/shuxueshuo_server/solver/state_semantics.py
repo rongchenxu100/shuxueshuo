@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import re
-from typing import Any, Iterable, Mapping
+from typing import Any, Iterable, Literal, Mapping
 
 from shuxueshuo_server.solver.runtime.runtime_type_declarations import (
     split_runtime_types,
@@ -22,13 +22,41 @@ class StateObjectRoleBinding:
     role: str
     object_refs: tuple[str, ...] = ()
     source_state_slot_ids: tuple[str, ...] = ()
+    source_handles: tuple[str, ...] = ()
+    state_requirement: Literal["identity_only", "materialized"] = (
+        "identity_only"
+    )
 
     def to_payload(self) -> dict[str, object]:
         return {
             "role": self.role,
             "object_refs": list(self.object_refs),
             "source_state_slot_ids": list(self.source_state_slot_ids),
+            "source_handles": list(self.source_handles),
+            "state_requirement": self.state_requirement,
         }
+
+
+@dataclass(frozen=True)
+class StateSymbolClosureBinding:
+    """One solved Symbol representation carried by an object state."""
+
+    target_object_ref: str
+    dependency_object_refs: tuple[str, ...] = ()
+    expression: str | None = None
+    source_state_slot_ids: tuple[str, ...] = ()
+    source_handles: tuple[str, ...] = ()
+
+    def to_payload(self) -> dict[str, object]:
+        payload: dict[str, object] = {
+            "target_object_ref": self.target_object_ref,
+            "dependency_object_refs": list(self.dependency_object_refs),
+            "source_state_slot_ids": list(self.source_state_slot_ids),
+            "source_handles": list(self.source_handles),
+        }
+        if self.expression is not None:
+            payload["expression"] = self.expression
+        return payload
 
 
 @dataclass(frozen=True)
@@ -38,14 +66,20 @@ class StateSemanticLineage:
     semantic_roles: tuple[str, ...] = ()
     evidence_tags: tuple[str, ...] = ()
     object_roles: tuple[StateObjectRoleBinding, ...] = ()
+    symbol_closures: tuple[StateSymbolClosureBinding, ...] = ()
     source_state_slot_ids: tuple[str, ...] = ()
+    source_call_ids: tuple[str, ...] = ()
 
     def to_payload(self) -> dict[str, object]:
         return {
             "semantic_roles": list(self.semantic_roles),
             "evidence_tags": list(self.evidence_tags),
             "object_roles": [item.to_payload() for item in self.object_roles],
+            "symbol_closures": [
+                item.to_payload() for item in self.symbol_closures
+            ],
             "source_state_slot_ids": list(self.source_state_slot_ids),
+            "source_call_ids": list(self.source_call_ids),
         }
 
 
@@ -54,7 +88,9 @@ def state_semantic_lineage(
     semantic_roles: Iterable[str] = (),
     evidence_tags: Iterable[str] = (),
     object_roles: Iterable[StateObjectRoleBinding] = (),
+    symbol_closures: Iterable[StateSymbolClosureBinding] = (),
     source_state_slot_ids: Iterable[str] = (),
+    source_call_ids: Iterable[str] = (),
 ) -> StateSemanticLineage:
     """Build normalized lineage without making callers own deduplication."""
     roles_by_name: dict[str, StateObjectRoleBinding] = {}
@@ -78,12 +114,66 @@ def state_semantic_lineage(
                     *item.source_state_slot_ids,
                 )
             ),
+            source_handles=_unique_strings(
+                (
+                    *((current.source_handles if current is not None else ())),
+                    *item.source_handles,
+                )
+            ),
+            state_requirement=(
+                "materialized"
+                if (
+                    item.state_requirement == "materialized"
+                    or (
+                        current is not None
+                        and current.state_requirement == "materialized"
+                    )
+                )
+                else "identity_only"
+            ),
+        )
+    closures_by_target: dict[str, StateSymbolClosureBinding] = {}
+    for item in symbol_closures:
+        current = closures_by_target.get(item.target_object_ref)
+        closures_by_target[item.target_object_ref] = StateSymbolClosureBinding(
+            target_object_ref=item.target_object_ref,
+            dependency_object_refs=_unique_strings(
+                (
+                    *((
+                        current.dependency_object_refs
+                        if current is not None
+                        else ()
+                    )),
+                    *item.dependency_object_refs,
+                )
+            ),
+            expression=item.expression or (
+                current.expression if current is not None else None
+            ),
+            source_state_slot_ids=_unique_strings(
+                (
+                    *((
+                        current.source_state_slot_ids
+                        if current is not None
+                        else ()
+                    )),
+                    *item.source_state_slot_ids,
+                )
+            ),
+            source_handles=_unique_strings(
+                (
+                    *((current.source_handles if current is not None else ())),
+                    *item.source_handles,
+                )
+            ),
         )
     return StateSemanticLineage(
         semantic_roles=_unique_strings(semantic_roles),
         evidence_tags=_unique_strings(evidence_tags),
         object_roles=tuple(roles_by_name.values()),
+        symbol_closures=tuple(closures_by_target.values()),
         source_state_slot_ids=_unique_strings(source_state_slot_ids),
+        source_call_ids=_unique_strings(source_call_ids),
     )
 
 
@@ -92,7 +182,9 @@ def merge_state_semantic_lineages(
     semantic_roles: Iterable[str] = (),
     evidence_tags: Iterable[str] = (),
     object_roles: Iterable[StateObjectRoleBinding] = (),
+    symbol_closures: Iterable[StateSymbolClosureBinding] = (),
     source_state_slot_ids: Iterable[str] = (),
+    source_call_ids: Iterable[str] = (),
 ) -> StateSemanticLineage:
     """Merge source lineage with roles declared by the current write."""
     return state_semantic_lineage(
@@ -108,6 +200,10 @@ def merge_state_semantic_lineages(
             *(binding for item in items for binding in item.object_roles),
             *object_roles,
         ),
+        symbol_closures=(
+            *(binding for item in items for binding in item.symbol_closures),
+            *symbol_closures,
+        ),
         source_state_slot_ids=(
             *(
                 slot_id
@@ -115,6 +211,10 @@ def merge_state_semantic_lineages(
                 for slot_id in item.source_state_slot_ids
             ),
             *source_state_slot_ids,
+        ),
+        source_call_ids=(
+            *(call_id for item in items for call_id in item.source_call_ids),
+            *source_call_ids,
         ),
     )
 
@@ -157,15 +257,53 @@ def state_semantic_lineage_from_payload(
                     source_state_slot_ids=_string_items(
                         item.get("source_state_slot_ids")
                     ),
+                    source_handles=_string_items(item.get("source_handles")),
+                    state_requirement=(
+                        "materialized"
+                        if item.get("state_requirement") == "materialized"
+                        else "identity_only"
+                    ),
+                )
+            )
+    symbol_closures: list[StateSymbolClosureBinding] = []
+    raw_symbol_closures = payload.get("symbol_closures", ())
+    if isinstance(raw_symbol_closures, Iterable) and not isinstance(
+        raw_symbol_closures,
+        (str, bytes, Mapping),
+    ):
+        for item in raw_symbol_closures:
+            if not isinstance(item, Mapping):
+                continue
+            target_object_ref = item.get("target_object_ref")
+            if not isinstance(target_object_ref, str) or not target_object_ref:
+                continue
+            expression = item.get("expression")
+            symbol_closures.append(
+                StateSymbolClosureBinding(
+                    target_object_ref=target_object_ref,
+                    dependency_object_refs=_string_items(
+                        item.get("dependency_object_refs")
+                    ),
+                    expression=(
+                        expression
+                        if isinstance(expression, str) and expression
+                        else None
+                    ),
+                    source_state_slot_ids=_string_items(
+                        item.get("source_state_slot_ids")
+                    ),
+                    source_handles=_string_items(item.get("source_handles")),
                 )
             )
     return state_semantic_lineage(
         semantic_roles=_string_items(payload.get("semantic_roles")),
         evidence_tags=_string_items(payload.get("evidence_tags")),
         object_roles=object_roles,
+        symbol_closures=symbol_closures,
         source_state_slot_ids=_string_items(
             payload.get("source_state_slot_ids")
         ),
+        source_call_ids=_string_items(payload.get("source_call_ids")),
     )
 
 
@@ -361,6 +499,7 @@ __all__ = [
     "OBJECT_SEMANTIC_KIND_ORDER",
     "OBJECT_SEMANTIC_KINDS",
     "StateObjectRoleBinding",
+    "StateSymbolClosureBinding",
     "StateSemanticLineage",
     "dependent_role_object_ref",
     "derived_role_object_ref",

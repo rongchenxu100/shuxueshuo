@@ -132,6 +132,8 @@ class ProjectedStateWrite:
     produced_handle: str
     state_slot_id: str
     write_mode: Literal["create", "transition", "value"]
+    runtime_type: str | None = None
+    object_ref: str | None = None
     source_state_slot_ids: tuple[str, ...] = ()
     dependency_object_refs: tuple[str, ...] = ()
     return_name: str | None = None
@@ -149,6 +151,10 @@ class ProjectedStateWrite:
             "source_state_slot_ids": list(self.source_state_slot_ids),
             "dependency_object_refs": list(self.dependency_object_refs),
         }
+        if self.runtime_type is not None:
+            payload["runtime_type"] = self.runtime_type
+        if self.object_ref is not None:
+            payload["object_ref"] = self.object_ref
         if self.return_name is not None:
             payload["return_name"] = self.return_name
         if self.expected_result_form is not None:
@@ -158,6 +164,40 @@ class ProjectedStateWrite:
         if self.previous_write_step_id is not None:
             payload["previous_write_step_id"] = self.previous_write_step_id
         payload["lineage"] = self.lineage.to_payload()
+        return payload
+
+
+@dataclass(frozen=True)
+class ProjectedStateDependency:
+    """Exact StateSlot dependency selected during Functional reconciliation."""
+
+    step_id: str
+    state_slot_id: str
+    produced_handle: str
+    runtime_type: str | None = None
+    object_ref: str | None = None
+    arg_name: str | None = None
+    source: Literal["wire", "resolver", "context"] = "wire"
+    source_step_id: str | None = None
+    source_return_name: str | None = None
+
+    def to_payload(self) -> dict[str, Any]:
+        payload: dict[str, Any] = {
+            "step_id": self.step_id,
+            "state_slot_id": self.state_slot_id,
+            "produced_handle": self.produced_handle,
+            "source": self.source,
+        }
+        if self.runtime_type is not None:
+            payload["runtime_type"] = self.runtime_type
+        if self.object_ref is not None:
+            payload["object_ref"] = self.object_ref
+        if self.arg_name is not None:
+            payload["arg_name"] = self.arg_name
+        if self.source_step_id is not None:
+            payload["source_step_id"] = self.source_step_id
+        if self.source_return_name is not None:
+            payload["source_return_name"] = self.source_return_name
         return payload
 
 
@@ -177,6 +217,7 @@ class ProjectedFunctionArgBinding:
     runtime_type: str | None = None
     state_slot_id: str | None = None
     object_ref: str | None = None
+    binding_authority: Literal["wire", "resolver", "compiler"] = "wire"
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -190,6 +231,7 @@ class ProjectedFunctionArgBinding:
             payload["state_slot_id"] = self.state_slot_id
         if self.object_ref is not None:
             payload["object_ref"] = self.object_ref
+        payload["binding_authority"] = self.binding_authority
         return payload
 
 
@@ -858,6 +900,35 @@ class StateWriteProvenance:
 
 
 @dataclass(frozen=True)
+class StepIntentRuntimeResult:
+    """Prompt-safe value produced by one successfully executed StepIntent."""
+
+    step_id: str
+    scope_id: str
+    capability_id: str
+    produced_handle: str
+    output_key: str
+    runtime_type: str
+    value: Any | None = None
+    value_omitted_reason: str | None = None
+
+    def to_payload(self) -> dict[str, Any]:
+        payload: dict[str, Any] = {
+            "step_id": self.step_id,
+            "scope_id": self.scope_id,
+            "capability_id": self.capability_id,
+            "produced_handle": self.produced_handle,
+            "output_key": self.output_key,
+            "runtime_type": self.runtime_type,
+        }
+        if self.value is not None:
+            payload["value"] = self.value
+        if self.value_omitted_reason is not None:
+            payload["value_omitted_reason"] = self.value_omitted_reason
+        return payload
+
+
+@dataclass(frozen=True)
 class StepIntentExecutionBlocker:
     """StepIntent 执行诊断中的首个 runtime 阻塞点。"""
 
@@ -926,6 +997,7 @@ class StepIntentExecutionDiagnostic:
     function_binding_events: tuple[StepIntentFunctionBindingEvent, ...] = ()
     macro_binding_events: tuple[StepIntentMacroBindingEvent, ...] = ()
     state_write_provenance: tuple[StateWriteProvenance, ...] = ()
+    runtime_results: tuple[StepIntentRuntimeResult, ...] = ()
     blockers: tuple[StepIntentExecutionBlocker, ...] = ()
     skipped_steps: tuple[StepIntentSkippedStep, ...] = ()
     candidate_errors: tuple[str, ...] = ()
@@ -959,6 +1031,9 @@ class StepIntentExecutionDiagnostic:
             ],
             "state_write_provenance": [
                 item.to_payload() for item in self.state_write_provenance
+            ],
+            "runtime_results": [
+                item.to_payload() for item in self.runtime_results
             ],
             "blockers": [item.to_payload() for item in self.blockers],
             "skipped_steps": [item.to_payload() for item in self.skipped_steps],
@@ -1061,6 +1136,10 @@ class PlannerRetryState:
     baseline_candidate: dict[str, Any] | None = None
     stable_candidate_prefix: tuple[dict[str, Any], ...] = ()
     stable_candidate_calls: tuple[dict[str, Any], ...] = ()
+    committed_candidate_calls: tuple[dict[str, Any], ...] = ()
+    runtime_verified_calls: tuple[dict[str, Any], ...] = ()
+    validated_call_ids: tuple[str, ...] = ()
+    call_memory: tuple[dict[str, Any], ...] = ()
     repair_call_ids: tuple[str, ...] = ()
 
     def to_payload(self) -> dict[str, Any]:
@@ -1084,6 +1163,12 @@ class PlannerRetryState:
             "baseline_candidate": self.baseline_candidate,
             "stable_candidate_prefix": list(self.stable_candidate_prefix),
             "stable_candidate_calls": list(self.stable_candidate_calls),
+            "committed_candidate_calls": list(
+                self.committed_candidate_calls
+            ),
+            "runtime_verified_calls": list(self.runtime_verified_calls),
+            "validated_call_ids": list(self.validated_call_ids),
+            "call_memory": list(self.call_memory),
             "repair_call_ids": list(self.repair_call_ids),
         }
         if self.source_context_id is not None:

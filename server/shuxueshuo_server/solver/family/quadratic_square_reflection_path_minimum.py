@@ -26,6 +26,7 @@ from shuxueshuo_server.solver.family.models import (
 from shuxueshuo_server.solver.family.capability_packs import (
     BROKEN_PATH_MINIMUM_EXPRESSION_DO_NOT_USE_WHEN,
     DEFAULT_CAPABILITY_PACK_REGISTRY,
+    STRAIGHTENED_ENDPOINT_RESULT_FORM,
 )
 from shuxueshuo_server.solver.family.common_binding_rules import (
     QUADRATIC_STATE_PREP_INVOCATIONS,
@@ -48,7 +49,7 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         "derive_extremal_point",
     ),
     strategy_principles=(
-        "每个 StepIntent 是 Method Solver 的可执行最小颗粒度，不是给学生看的合并讲解步骤。",
+        "每个 capability 调用是 Solver 的可执行最小颗粒度，不是给学生看的合并讲解步骤。",
         "先用当前问的已知系数、曲线点或参数条件确定或化简抛物线；若参数已经能求出，优先先定值再代入，避免缓存宽作用域的复杂含参系数。",
         "正方形关系优先转化为点坐标表达式：先把边端点、轴上点或动点写成含参点，再用正方形的旋转/邻顶点关系推出其它顶点坐标。",
         "当某个由正方形得到的点还满足在曲线、直线或其它轨迹上时，用“点坐标表达式代入约束”来求参数或候选点，而不是把整段推导合成一个大 step。",
@@ -109,14 +110,15 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                     recipe_output_alias(
                         "select_straightening_candidate.minimum_point_1",
                         "Point",
-                        "path_minimum_point_1",
+                        "straightened_endpoint_1",
                         required=False,
                         cardinality="optional",
                         identity_policy="derived_role",
                         goal_evidence_tags=("path_minimum_witness",),
+                        result_form=STRAIGHTENED_ENDPOINT_RESULT_FORM,
                         description=(
-                            "选中拉直方案后，由反射构造得到的辅助端点；"
-                            "仅供距离计算，不是原路径上的动点、极值点或答案点。"
+                            "拉直后最短等价线段的第一个端点，通常是由反射构造"
+                            "得到的辅助点；它不是原路径动点、极值点或答案点。"
                         ),
                         object_role_projections=(
                             StateObjectRoleProjectionSpec(
@@ -129,14 +131,15 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                     recipe_output_alias(
                         "select_straightening_candidate.minimum_point_2",
                         "Point",
-                        "path_minimum_point_2",
+                        "straightened_endpoint_2",
                         required=False,
                         cardinality="optional",
                         identity_policy="derived_role",
                         goal_evidence_tags=("path_minimum_witness",),
+                        result_form=STRAIGHTENED_ENDPOINT_RESULT_FORM,
                         description=(
-                            "选中拉直方案后，与反射端点组成最短线段的另一固定端点；"
-                            "仅供距离计算，不是原路径上的动点、极值点或答案点。"
+                            "拉直后最短等价线段的第二个端点，通常是未被反射的"
+                            "另一固定端点；它不是原路径动点、极值点或答案点。"
                         ),
                         object_role_projections=(
                             StateObjectRoleProjectionSpec(
@@ -207,6 +210,14 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 MethodInputBindingSpec("square_condition", "fact:square:Condition"),
                 MethodInputBindingSpec("midpoint_condition", "fact:midpoint_definition:Condition"),
                 MethodInputBindingSpec("square_center_condition", "fact:square_center:Condition"),
+                MethodInputBindingSpec(
+                    "fixed_endpoint_1_ref",
+                    "square_path:fixed_endpoint_1_ref",
+                ),
+                MethodInputBindingSpec(
+                    "fixed_endpoint_2_ref",
+                    "square_path:fixed_endpoint_2_ref",
+                ),
             ),
         ),
         MethodBindingRuleSpec(
@@ -234,7 +245,13 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 MethodInputBindingSpec("target", "point_transition_target"),
                 MethodInputBindingSpec("side_start_ref", "square:side_start_ref", required=False),
                 MethodInputBindingSpec("side_end_ref", "square:side_end_ref", required=False),
-                MethodInputBindingSpec("parameter", "parameter_symbol", required=False),
+                MethodInputBindingSpec(
+                    "parameter",
+                    "parameter_symbol",
+                    required=False,
+                    functional_authority="wire",
+                    functional_resolver="unique_parameter_symbol",
+                ),
                 MethodInputBindingSpec("parameter_constraint", "parameter_constraint", required=False),
             ),
             expansion_selectors=("parameter_value_if_read",),

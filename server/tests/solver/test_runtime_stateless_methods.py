@@ -306,6 +306,27 @@ def test_angle_sum_equal_angle_candidates_method_heping_geometry() -> None:
     assert all(check.ok for check in result.checks)
 
 
+def test_angle_sum_equal_angle_candidates_rejects_degenerate_axis_roles() -> None:
+    kernel = SympyKernel()
+
+    with pytest.raises(ValueError, match="angle_role_degenerate"):
+        AngleSumEqualAngleCandidatesMethod().run(
+            {
+                "condition": {
+                    "type": "angle_sum",
+                    "angle_terms": ["UVW", "XYZ"],
+                    "value": "45",
+                },
+                "x_axis_point": (sp.Integer(0), sp.Integer(0)),
+                "y_axis_point": (sp.Integer(0), sp.Integer(2)),
+                "reference_x_axis_point": (sp.Integer(-1), sp.Integer(0)),
+                "origin": (sp.Integer(0), sp.Integer(0)),
+                "target": PointRef("T", "$question.points.T"),
+            },
+            kernel,
+        )
+
+
 def test_axis_intercept_from_equal_acute_angles_method_heping_geometry() -> None:
     kernel = SympyKernel()
 
@@ -323,6 +344,26 @@ def test_axis_intercept_from_equal_acute_angles_method_heping_geometry() -> None
 
     assert result.outputs["point"].value == (0, -1)
     assert all(check.ok for check in result.checks)
+
+
+def test_axis_intercept_from_equal_acute_angles_rejects_degenerate_roles() -> None:
+    kernel = SympyKernel()
+
+    with pytest.raises(ValueError, match="angle_role_degenerate"):
+        AxisInterceptFromEqualAcuteAnglesMethod().run(
+            {
+                "angle_equality": {
+                    "left_angle": "OUT",
+                    "right_angle": "XYZ",
+                },
+                "x_axis_point": (sp.Integer(0), sp.Integer(0)),
+                "y_axis_point": (sp.Integer(0), sp.Integer(2)),
+                "reference_x_axis_point": (sp.Integer(-1), sp.Integer(0)),
+                "origin": (sp.Integer(0), sp.Integer(0)),
+                "target": PointRef("T", "$question.points.T"),
+            },
+            kernel,
+        )
 
 
 def test_translated_point_method_uses_target_definition_vector() -> None:
@@ -764,6 +805,58 @@ def test_filter_point_candidates_by_quadratic_curve_keeps_all_valid_candidates()
         check.name == "candidate_selection_ambiguous" and not check.ok
         for check in result.checks
     )
+
+
+def test_filter_point_candidates_requires_constraint_for_multiple_branches() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["x", "u"])
+    x, u = symbols["x"], symbols["u"]
+
+    result = FilterPointCandidatesByQuadraticCurveMethod().run(
+        {
+            "candidates": [
+                (sp.Integer(0), u),
+                (sp.Integer(1), u + 1),
+            ],
+            "target": PointRef("T", "$question.ii.points.T"),
+            "parabola": x + u,
+            "x": x,
+            "parameter": u,
+        },
+        kernel,
+    )
+
+    assert "selected_candidate" not in result.outputs
+    assert any(
+        check.name == "candidate_selection_constraint_required"
+        and not check.ok
+        for check in result.checks
+    )
+
+
+def test_filter_point_candidates_uses_quadratic_coefficient_closure() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["x", "u", "v"])
+    x, u, v = symbols["x"], symbols["u"], symbols["v"]
+
+    result = FilterPointCandidatesByQuadraticCurveMethod().run(
+        {
+            "candidates": [(v - 1, -1), (-v - 1, 1)],
+            "target": PointRef("T", "$question.ii.points.T"),
+            "parabola": 2 * x**2 + (v + 2) * x + v,
+            "quadratic_template": 2 * x**2 - u * x + v,
+            "x": x,
+            "parameter": u,
+            "parameter_constraint": {
+                "operator": ">",
+                "value": sp.Integer(0),
+            },
+        },
+        kernel,
+    )
+
+    assert result.outputs["selected_candidate"].value == (-v - 1, 1)
+    assert all(check.ok for check in result.checks)
 
 
 def test_parameter_from_curve_point_on_quadratic_method() -> None:
@@ -1439,6 +1532,26 @@ def test_weighted_axis_path_triangle_transform_method_supports_weight_2() -> Non
     assert all(check.ok for check in result.checks)
 
 
+def test_weighted_axis_path_triangle_transform_rejects_unregistered_weight() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["n"])
+
+    with pytest.raises(ValueError, match="geometry is not registered"):
+        WeightedAxisPathTriangleTransformMethod().run(
+            {
+                "condition": {"path": "3*MN+AN", "value": "10"},
+                "fixed_point": (-1, 0),
+                "moving_point": (symbols["n"], 0),
+                "dynamic_parameter": symbols["n"],
+                "auxiliary_point_ref": PointRef(
+                    "Q",
+                    "$question.ii.points.Q",
+                ),
+            },
+            kernel,
+        )
+
+
 def test_linked_broken_path_geometric_minimum_method() -> None:
     """河西加权路径应走几何折线拉直，而不是依赖求导。"""
     kernel = SympyKernel()
@@ -1477,6 +1590,54 @@ def test_linked_broken_path_geometric_minimum_method() -> None:
     assert result.outputs["minimum_value"].value == sp.Rational(21, 4)
     assert result.outputs["dynamic_point"].value == (sp.Rational(3, 4), 0)
     assert all(check.ok for check in result.checks)
+
+
+def test_linked_broken_path_rejects_geometry_profile_drift() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["b", "n"])
+    b, n = symbols["b"], symbols["n"]
+    transform = WeightedAxisPathTriangleTransformMethod().run(
+        {
+            "condition": {"path": "sqrt(2)*MN+AN", "value": "21/4"},
+            "fixed_point": (-1, 0),
+            "moving_point": (n, 0),
+            "dynamic_parameter": n,
+            "auxiliary_point_ref": PointRef("Q", "$question.iii.points.Q"),
+        },
+        kernel,
+    )
+    transformation = dict(
+        transform.outputs["path_transformation"].value
+    )
+    transformation["geometry_profile_id"] = "weight2_30_60"
+
+    with pytest.raises(ValueError, match="profile id does not match"):
+        LinkedBrokenPathMinimumExpressionMethod().run(
+            {
+                "path_transformation": transformation,
+                "auxiliary_locus": transform.outputs["auxiliary_locus"].value,
+                "fixed_point": (-1, 0),
+                "curve_point": (
+                    b + sp.Rational(1, 2),
+                    -b / 2 - sp.Rational(3, 4),
+                ),
+                "moving_point": (n, 0),
+                "auxiliary_point": transform.outputs[
+                    "auxiliary_point"
+                ].value,
+                "parameter": b,
+                "dynamic_parameter": n,
+                "parameter_constraint": {
+                    "operator": ">",
+                    "value": sp.Integer(0),
+                },
+                "dynamic_constraint": {
+                    "operator": ">",
+                    "value": sp.Integer(0),
+                },
+            },
+            kernel,
+        )
 
 
 def test_linked_broken_path_minimum_expression_method() -> None:

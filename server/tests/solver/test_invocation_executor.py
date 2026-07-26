@@ -142,6 +142,49 @@ def test_executor_recovers_point_ref_from_computed_point_output_path() -> None:
     assert written.value == (sp.Integer(2), sp.Integer(0))
 
 
+def test_executor_recovers_strict_point_ref_target_from_existing_point_state() -> None:
+    """同一 MathObject 已有 Point 状态时，严格 PointRef target 仍可复用其身份。"""
+    context = ContextBuilder().build(load_problem_ir(NANKAI_FIXTURE))
+    specs = MethodSpecRegistry.load_from_code()
+    x = context.symbols["x"]
+    outputs = context.get_scope("ii").container("outputs")
+    outputs["closed_parabola"] = TypedValue(
+        "Parabola",
+        x * (x - 2),
+        source="test",
+    )
+    outputs["known_intercept"] = TypedValue(
+        "Point",
+        (sp.Integer(0), sp.Integer(0)),
+        source="test",
+    )
+    outputs["B_coordinate"] = TypedValue(
+        "Point",
+        (sp.Symbol("a"), sp.Integer(0)),
+        source="test",
+    )
+    invocation = MethodInvocation(
+        invocation_id="close_existing_B.quadratic_x_axis_intercept_point",
+        method_id="quadratic_x_axis_intercept_point",
+        scope="ii",
+        inputs={
+            "quadratic": "$question.ii.outputs.closed_parabola",
+            "x": "$problem.symbols.x",
+            "target": "$question.ii.outputs.B_coordinate",
+            "known_point": "$question.ii.outputs.known_intercept",
+        },
+        outputs={"point": "$question.ii.outputs.closed_B_coordinate"},
+    )
+
+    result = InvocationExecutor(specs).execute_invocation(context, invocation)
+
+    assert result.outputs["point"].value == (
+        sp.Integer(2),
+        sp.Integer(0),
+    )
+    assert result.trace_fragments[0].goal == "确定 B 的坐标"
+
+
 def test_executor_reports_missing_conditional_method_output() -> None:
     context = ContextBuilder().build(load_problem_ir(HEXI_FIXTURE))
     specs = MethodSpecRegistry.load_from_code()

@@ -64,6 +64,11 @@ def refine_functional_object_states(
         return_specs = {result.name: result for result in capability.returns}
         expectations = dict(call.return_expectations)
         allocations: list[FunctionalReturnAllocation] = []
+        introduces_derived_symbol = any(
+            output.runtime_type == "Symbol"
+            and output.identity_policy == "derived_role"
+            for output in item.returns
+        )
         for allocation in item.returns:
             return_spec = return_specs.get(allocation.return_name)
             if return_spec is not None and {
@@ -73,6 +78,7 @@ def refine_functional_object_states(
                 inferred_form = _inferred_object_form(
                     allocation,
                     resolved_args=item.resolved_args,
+                    ignored_input_args=return_spec.result_form_ignored_input_args,
                 )
                 if (
                     inferred_form is not None
@@ -131,15 +137,29 @@ def refine_functional_object_states(
             previous = source_previous or (
                 latest_previous if not source_call_ids else None
             )
-            transition_kind = _state_transition_kind(previous, allocation)
+            transition_kind = _state_transition_kind(
+                previous,
+                allocation,
+                capability_is_pure=capability.is_pure,
+                capability_introduces_derived_symbol=introduces_derived_symbol,
+                consumes_previous_state=source_previous is not None,
+            )
             if transition_kind is not None:
                 assert previous is not None
                 previous_mode = allocation.write_mode
+                source_state_slot_ids = allocation.source_state_slot_ids
+                if previous.state_slot_id not in source_state_slot_ids:
+                    source_state_slot_ids = tuple(
+                        dict.fromkeys(
+                            (*source_state_slot_ids, previous.state_slot_id)
+                        )
+                    )
                 allocation = replace(
                     allocation,
                     write_mode="transition",
                     transition_kind=transition_kind,
                     previous_write_step_id=previous.call_id,
+                    source_state_slot_ids=source_state_slot_ids,
                 )
                 repairs.append(
                     FunctionalDeterministicRepair(
@@ -180,6 +200,7 @@ def _inferred_object_form(
     allocation: FunctionalReturnAllocation,
     *,
     resolved_args: Mapping[str, tuple[ResolvedFunctionalValue, ...]],
+    ignored_input_args: tuple[str, ...] = (),
 ) -> FunctionalResultForm | None:
     """Infer only closure forms proven by reconciliation metadata.
 
@@ -194,14 +215,16 @@ def _inferred_object_form(
         return "open_state"
     source_symbol_refs = {
         symbol_ref
-        for values in resolved_args.values()
+        for arg_name, values in resolved_args.items()
+        if arg_name not in ignored_input_args
         for value in values
         if value.runtime_type != "ParameterValue"
         for symbol_ref in value.free_symbol_refs
     }
     closed_symbol_refs = {
         object_ref
-        for values in resolved_args.values()
+        for arg_name, values in resolved_args.items()
+        if arg_name not in ignored_input_args
         for value in values
         if value.runtime_type == "ParameterValue"
         and (object_ref := value.object_ref) is not None
@@ -214,6 +237,10 @@ def _inferred_object_form(
 def _state_transition_kind(
     previous: FunctionalReturnAllocation | None,
     current: FunctionalReturnAllocation,
+    *,
+    capability_is_pure: bool,
+    capability_introduces_derived_symbol: bool,
+    consumes_previous_state: bool,
 ) -> Literal["direct", "dependency_refinement"] | None:
     if previous is None or current.write_mode not in {
         "create",
@@ -225,10 +252,13 @@ def _state_transition_kind(
         return None
     if current.runtime_type != previous.runtime_type:
         return None
-    if current.identity_policy not in {"target_object", "preserve_input_object"}:
-        return None
-    current_sources = set(current.source_state_slot_ids)
-    if previous.state_slot_id not in current_sources:
+    if (
+        current.identity_policy not in {"target_object", "preserve_input_object"}
+        and not (
+            current.runtime_type == "Symbol"
+            and current.identity_policy == "derived_role"
+        )
+    ):
         return None
     previous_dependencies = set(previous.dependency_object_refs)
     current_dependencies = set(current.dependency_object_refs)
@@ -236,9 +266,37 @@ def _state_transition_kind(
         return None
     previous_symbols = set(previous.free_symbol_refs)
     current_symbols = set(current.free_symbol_refs)
-    if current_symbols < previous_symbols:
+    if (
+        current_symbols < previous_symbols
+        and (
+            consumes_previous_state
+            or (
+                capability_is_pure
+                and not capability_introduces_derived_symbol
+                and _shares_state_semantic_role(previous, current)
+            )
+        )
+    ):
         return "dependency_refinement"
+    if (
+        capability_is_pure
+        and current.runtime_type == "Symbol"
+        and current_symbols == previous_symbols
+        and _shares_state_semantic_role(previous, current)
+    ):
+        return "direct"
+    if not consumes_previous_state:
+        return None
     return "direct"
+
+
+def _shares_state_semantic_role(
+    previous: FunctionalReturnAllocation,
+    current: FunctionalReturnAllocation,
+) -> bool:
+    previous_roles = set(previous.lineage.semantic_roles)
+    current_roles = set(current.lineage.semantic_roles)
+    return bool(previous_roles & current_roles)
 
 
 def _replace_plan_calls(

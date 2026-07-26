@@ -75,6 +75,14 @@ def test_attempt_protocol_requires_functional_format_and_locked_few_shot(
             json.dumps(few_shot),
             encoding="utf-8",
         )
+        (tmp_path / f"attempt-{attempt}.payload.planner_output_format.json").write_text(
+            json.dumps("functional_plan"),
+            encoding="utf-8",
+        )
+        (tmp_path / f"attempt-{attempt}.prompt.user.md").write_text(
+            '{"format":"functional_plan/v1","scopes":[]}',
+            encoding="utf-8",
+        )
 
     _assert_attempt_protocol(tmp_path, attempt_count=2)
 
@@ -109,3 +117,31 @@ def test_prompt_safety_distinguishes_error_codes_from_canonical_handles() -> Non
             payload,
             SimpleNamespace(user="read fact:ii:coefficient_relation"),
         )
+
+
+def test_prompt_safety_allows_call_id_equal_to_hidden_example_id() -> None:
+    payload = {
+        "planner_output_format": "functional_plan",
+        "functional_few_shot_selection": {
+            "mode": "strict_test",
+            "example_id": "broken_path_straightening",
+            "source_problem_id": "hidden_problem",
+            "family_id": "HiddenFamily",
+            "selection_tier": "cross_family",
+        },
+        "few_shot_examples": [
+            {"format": "functional_plan/v1", "scopes": []}
+        ],
+    }
+    prompt = SimpleNamespace(
+        user=(
+            '{"format":"functional_plan/v1","scopes":[{"calls":['
+            '{"call_id":"broken_path_straightening"}]}]}'
+        )
+    )
+
+    _assert_prompt_is_functional_and_safe(payload, prompt)
+
+    payload["few_shot_examples"][0]["example_id"] = "leaked"
+    with pytest.raises(AssertionError, match="retrieval fields"):
+        _assert_prompt_is_functional_and_safe(payload, prompt)

@@ -31,9 +31,17 @@ def prepare_functional_plan_raw_response(
         return raw_response
     if not isinstance(candidate, dict):
         return raw_response
+    retry_state = latest_functional_retry_state(previous_attempts)
+    candidate = _normalize_flat_scoped_calls(
+        candidate,
+        baseline=(
+            retry_state.get("baseline_candidate")
+            if isinstance(retry_state, dict)
+            else None
+        ),
+    )
     candidate = _drop_empty_return_bindings(candidate)
     candidate = _drop_redundant_semantic_ref_scopes(candidate)
-    retry_state = latest_functional_retry_state(previous_attempts)
     if retry_state is None:
         return json.dumps(candidate, ensure_ascii=False)
     merged = _overlay_functional_retry_state(
@@ -43,6 +51,95 @@ def prepare_functional_plan_raw_response(
         shareable_capability_ids=shareable_capability_ids,
     )
     return json.dumps(merged, ensure_ascii=False)
+
+
+def _normalize_flat_scoped_calls(
+    candidate: dict[str, Any],
+    *,
+    baseline: object,
+) -> dict[str, Any]:
+    """Group an unambiguous flat ``scopes`` call list by ``scope_id``.
+
+    A retry prompt used to expose the internal ``{scope_id, call}`` sidecar, so
+    an otherwise valid model response may put complete calls directly in
+    ``scopes``. Repair only the all-flat shape; mixed or incomplete structures
+    remain untouched for strict validation.
+    """
+    raw_scopes = candidate.get("scopes")
+    if (
+        not isinstance(raw_scopes, list)
+        or not raw_scopes
+        or any(not _is_flat_scoped_call(item) for item in raw_scopes)
+    ):
+        return candidate
+
+    labels = _scope_labels(baseline)
+    grouped: dict[str, dict[str, Any]] = {}
+    for item in raw_scopes:
+        scope_id = item["scope_id"]
+        scope = grouped.get(scope_id)
+        if scope is None:
+            label = item.get("label")
+            scope = {
+                "scope_id": scope_id,
+                "label": (
+                    label
+                    if isinstance(label, str) and label.strip()
+                    else labels.get(scope_id, scope_id)
+                ),
+                "calls": [],
+            }
+            grouped[scope_id] = scope
+        call = {
+            key: value
+            for key, value in item.items()
+            if key not in {"scope_id", "label"}
+        }
+        scope["calls"].append(call)
+
+    result = json.loads(json.dumps(candidate))
+    result["scopes"] = list(grouped.values())
+    return result
+
+
+def _is_flat_scoped_call(value: object) -> bool:
+    if not isinstance(value, dict) or "calls" in value:
+        return False
+    scope_id = value.get("scope_id")
+    return (
+        isinstance(scope_id, str)
+        and bool(scope_id.strip())
+        and all(
+            key in value
+            for key in (
+                "call_id",
+                "capability_id",
+                "args",
+                "return_bindings",
+                "strategy",
+                "reason",
+            )
+        )
+    )
+
+
+def _scope_labels(baseline: object) -> dict[str, str]:
+    if not isinstance(baseline, dict):
+        return {}
+    scopes = baseline.get("scopes")
+    if not isinstance(scopes, list):
+        return {}
+    return {
+        scope_id: label
+        for scope in scopes
+        if isinstance(scope, dict)
+        for scope_id, label in (
+            (scope.get("scope_id"), scope.get("label")),
+        )
+        if isinstance(scope_id, str)
+        and isinstance(label, str)
+        and bool(label.strip())
+    }
 
 
 def _strip_single_json_fence(raw_response: str) -> str:
@@ -164,7 +261,10 @@ def _overlay_functional_retry_state(
     if policy == "preserve_all":
         return baseline
     if policy == "preserve_graph":
-        stable = retry_state.get("stable_candidate_calls")
+        stable = (
+            retry_state.get("committed_candidate_calls")
+            or retry_state.get("stable_candidate_calls")
+        )
         return _overlay_stable_functional_calls(
             candidate,
             stable if isinstance(stable, list) else [],
@@ -233,7 +333,7 @@ def functional_repair_instruction(
     ]
     if stable_ids:
         parts.append(
-            "Keep these verified calls unchanged; code restores them if omitted "
+            "Keep these goal-committed calls unchanged; code restores them if omitted "
             f"or modified: {', '.join(stable_ids)}."
         )
     if repair_call_ids:
@@ -243,7 +343,7 @@ def functional_repair_instruction(
         )
     parts.append(
         "A repair may insert prerequisite calls before a root call or replace "
-        "that call's capability, but it must not modify the verified graph. "
+        "that call's capability, but it must not modify the goal-committed graph. "
         "When a ticket marks unchanged_binding_rejected, do not resubmit the "
         "same capability with the same args."
     )

@@ -19,6 +19,8 @@ from shuxueshuo_server.solver.family.models import (
 )
 from shuxueshuo_server.solver.family.capability_packs import (
     DEFAULT_CAPABILITY_PACK_REGISTRY,
+    EQUAL_LENGTH_RAY_PATH_REDUCTION_DESCRIPTION,
+    EQUAL_LENGTH_RAY_PATH_REDUCTION_DO_NOT_USE_WHEN,
 )
 
 
@@ -41,7 +43,7 @@ _QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         "derive_parameter",
     ),
     strategy_principles=(
-        "每个 StepIntent 是 Method Solver 的可执行最小颗粒度，不是给学生看的合并讲解步骤。",
+        "每个 capability 调用是 Solver 的可执行最小颗粒度，不是给学生看的合并讲解步骤。",
         "若当前问的曲线点约束足以确定二次函数，应直接求出完整抛物线；只有只读到一个曲线点约束时，才允许把抛物线化简成单参数表达式。",
         "若题面出现角和、角差或角相等条件，应先把角条件标准化为 AngleEquality，再由等锐角的正切比、相似或三角函数关系求目标点。",
         "当前可用的 angle_sum_equal_angle_candidates 只支持“角和等于 45° 且可由坐标轴参考三角形构造 45° 参考角”的子场景；不满足时应视为能力缺口或选择其它角度 method。",
@@ -74,12 +76,7 @@ _QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             recipe_id="equal_length_ray_path_reduction",
             goal_type="derive_path_minimum_expression",
             title="等长射线路径降维为单距离最值",
-            description=(
-                "当一个动点在线段上、另一个动点在射线上，且二者满足同端点等长关系时，"
-                "把原来的两动点线段距离和转化为一个固定点到内部构造辅助点的单距离"
-                "最小值表达式。辅助点由系统在 recipe 内部创建，LLM 不需要在 creates 中"
-                "声明辅助点，也不要拆成单独的 equal_length_ray_point step。"
-            ),
+            description=EQUAL_LENGTH_RAY_PATH_REDUCTION_DESCRIPTION,
             method_ids=("equal_length_ray_point", "distance_between_points"),
             execution=RecipeExecutionSpec(
                 recipe_id="equal_length_ray_path_reduction",
@@ -104,6 +101,7 @@ _QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 ),
             ),
             priority="preferred",
+            do_not_use_when=EQUAL_LENGTH_RAY_PATH_REDUCTION_DO_NOT_USE_WHEN,
         ),
     ),
     method_binding_rules=(

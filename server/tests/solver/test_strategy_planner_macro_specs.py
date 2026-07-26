@@ -7,6 +7,13 @@ import pytest
 
 from shuxueshuo_server.solver.fixtures import load_problem_ir
 from shuxueshuo_server.solver.runtime.context import ContextBuilder
+from shuxueshuo_server.solver.runtime.context_closure import (
+    context_closure_resolver_ids,
+)
+from shuxueshuo_server.solver.runtime.functional_context_closure_handlers import (
+    context_closure_handler_ids,
+    validate_context_closure_handler_registry,
+)
 from shuxueshuo_server.solver.runtime.macro_specs import (
     MacroAdapterSpec,
     MacroAdapterRegistry,
@@ -79,6 +86,12 @@ def test_macro_context_closure_resolvers_come_from_contracts() -> None:
     ).context_resolvers == (PATH_REDUCTION_ROLES_RESOLVER,)
 
 
+def test_context_closure_specs_and_handlers_are_complete() -> None:
+    validate_context_closure_handler_registry()
+
+    assert context_closure_handler_ids() == context_closure_resolver_ids()
+
+
 def test_macro_spec_registry_derives_executable_recipes_from_contracts() -> None:
     problem = load_problem_ir(str(RECORDED_FIXTURES[0][0]))
     inputs = build_strategy_probe_inputs(problem)
@@ -139,13 +152,19 @@ def test_macro_result_forms_are_projected_from_internal_functions() -> None:
         "open_expression",
         "closed_value",
     )
-    assert returns["path_minimum_point_1"].scalar_result_form is not None
+    assert returns["straightened_endpoint_1"].scalar_result_form is not None
     assert returns[
-        "path_minimum_point_1"
+        "straightened_endpoint_1"
     ].scalar_result_form.possible_forms == (
         "open_state",
         "closed_state",
     )
+    assert returns[
+        "straightened_endpoint_1"
+    ].scalar_result_form.ignored_symbol_input_args == ("parameter_value",)
+    assert returns[
+        "straightened_endpoint_2"
+    ].scalar_result_form.ignored_symbol_input_args == ("parameter_value",)
 
 
 def test_shareable_macro_purity_is_derived_from_internal_functions() -> None:

@@ -181,6 +181,23 @@ do_not_use_when=(
 
 不得从全局可见状态中选择“看起来能算”的表达式、点、参数值或条件。
 
+每个 runtime input 还必须有唯一的 Functional binding authority：
+
+| Authority | 用途 | 是否进入 FunctionalPlan wire |
+| --- | --- | --- |
+| `wire` | LLM 必须或可以选择的语义证据 | 是 |
+| `resolver` | Context 根据对象角色和 StateSlot 唯一补全 | 否 |
+| `compiler` | Symbol `x`、目标 PointRef 等机械输入 | 否 |
+
+`semantic_evidence_resolver` 只说明 resolver 如何找证据，不能单独把 arg 提升为
+LLM-facing 参数。`ProjectedFunctionArgBinding` 只保存 raw FunctionalPlan 实际提供的
+`wire` arg；resolver 和 compiler owned arg 必须留在各自的确定性 sidecar/selector
+链路。若 compiler 收到这两类输入的 wire override，应报告
+`planner_configuration_error`，不能按 reads 顺序静默覆盖。
+
+主参数、动点参数等相同 runtime type 的 Symbol 必须使用不同 semantic role。禁止使用
+“全局唯一 Symbol”越过 role 和 object identity 绑定。
+
 如果 Method 为旧 StepIntent/runtime 保留了兼容输入别名，但该别名不应成为
 FunctionalPlan 的语义参数，应在 Method input source 中声明：
 
@@ -204,6 +221,19 @@ FunctionalPlan 的语义参数，应在 Method input source 中声明：
 集合类型 return（例如 `PointList`、`SymbolList`、`Coefficients`）不能直接绑定到单个
 对象或单值答案。它必须先由后续 capability 完成筛选、拆解或唯一性证明。旧
 StepIntent 的兼容行为不能扩散到 FunctionalPlan 边界。
+
+Return 的 LLM binding policy 必须在 `StateSlotPattern` 或
+`RecipeOutputAliasSpec.return_binding` 声明：
+
+| Policy | 含义 |
+| --- | --- |
+| `auto` | 由 identity 和 answer contract 确定是否可绑定 |
+| `internal_only` | 中间集合、候选或机械状态，LLM 的绑定会被确定性删除 |
+| `external_allowed` | 可绑定 answer 或题面已有对象状态 |
+
+不要根据 `PointList`、return 名称或 capability id 在 catalog/reconciler 维护第二份
+规则。`internal_only` return 仍可被后续 `CallResultRef` 消费，只是不允许伪装成单值
+答案或题面对象。
 
 如果声明输出只在运行结果满足条件时存在，Method 必须同时返回解释缺失原因的 failed
 check，例如 `candidate_selection_unresolved` 或
@@ -307,6 +337,33 @@ primitive。新增二次函数约束形态时应扩展共享 request/result 与 
 已经从表达式中消失的系数符号重新当成 fresh unknown。显式 known coefficients 和
 ParameterValue 始终覆盖从当前多项式投影出的系数值。
 
+参数求解能力若会把求得的 target substitution 同步应用到一个或多个 companion
+returns，必须在 `MethodSpecSource` 声明 `SymbolicClosureSpec`：
+
+```python
+symbolic_closure=SymbolicClosureSpec(
+    target_arg="target_parameter",
+    equation_builder="quadratic_constraints",
+    known_substitutions=(("parameter", "parameter_value"),),
+    preserved_symbol_args=("free_parameter", "free_parameters"),
+    substitution_outputs=("coefficients", "parabola", "parameter_value"),
+)
+```
+
+适用标准不是题型或 method 名，而是 capability effect：
+
+- 本 call 明确求一个 target Symbol；
+- target 可相对于 contract 声明的 preserved Symbols 唯一，例如 `a=f(m)`；
+- 同一 substitution 必须作用于该 capability 自己的其它 returns；
+- runtime 能返回实际 target value、分支和应用 substitution 后的 typed outputs。
+
+不满足这些条件的普通构造、纯求值或没有 companion return 的能力不需要声明。
+`substitution_outputs` 只能引用同一 MethodSpec 的 outputs；题目中不存在某类输出时，
+不要声明或创建它。静态 allocation 只把 target 从这些 return 的保守 Symbol 依赖中
+移除并保留显式参数基；runtime 实际输出仍是 free symbols 和 result form 的最终权威。
+若 runtime return 仍含已声明应被消去的 target，应报告 contract/runtime drift，不得
+由 Context 静默修正。
+
 ### 4.6 输入状态闭包边界
 
 当 capability 的算法确实依赖整个对象状态，而不是只读取一个局部投影时，可在
@@ -333,6 +390,44 @@ single-free Parabola。若当前 scope 中每个系数都有唯一可见值，�
 前序 call return 在 reconciliation 时只有保守的 Symbol 依赖上界。constraint analyzer
 可能把表面上的多个符号归一化成一个自由基，因此代码应在 runtime provenance 产生后
 执行权威输入闭包校验，不能用 pre-runtime 符号并集提前拒绝。
+
+### 4.7 Trial 错误分类与有限几何域
+
+如果一个 Method 的 runtime 异常需要映射为更稳定的 typed repair code，应在
+`MethodSpecSource.trial_error_hints` 声明失败形状和通用前置条件：
+
+```python
+trial_error_hints=(
+    TrialErrorHintSpec(
+        error_contains="missing required input: parameter",
+        code="final_point_requires_square_recovery",
+        requires_point_answer=True,
+        requires_planner_output_types=("PathTransformation",),
+    ),
+)
+```
+
+compiler 只负责执行这些通用谓词，不能再按 `capability_id` 写字符串分支。
+`trial_error_hints` 用于机器可读的错误分类；面向 LLM 的数学解释仍写在
+`repair_hints` 或 capability usage guidance 中。错误匹配文本必须是 Method 自己稳定
+产生的异常片段，不能包含题号、点名或答案。
+
+如果 Method 只支持有限组已验算的几何构造，应建立共享、声明式 geometry profile
+registry，并由 producer 和所有 consumer 使用同一份 profile：
+
+```text
+profile_id
+weight_expression
+construction
+geometry
+direction
+```
+
+`MethodSpecSource.geometry_profiles` 从该 registry 投影，供生成资产、review 和
+preflight 使用；runtime 也必须从同一 registry 查找和校验，不能在 producer、
+consumer、compiler 中分别维护 `if weight == ...` 白名单。新增 profile 时必须同时
+增加构造恒等式、consumer 兼容性和拒绝未注册 profile 的测试。有限支持域是 capability
+边界，不是允许 LLM 绕过的软提示。
 
 ## 5. CapabilityContract 创建规范
 
@@ -691,7 +786,68 @@ resolved arg lineage 唯一得到对象时，reconciliation 可以反向补全 r
 该补全必须同时满足：约束直接引用该 return、arg selector 唯一解析、所有适用约束得到
 同一 object_ref。不得用类型唯一、名称相似或全局搜索代替这份证明。
 
-### 8.5 Analyzer 修复必须回写 Candidate
+### 8.5 PathTransformation 角色与状态版本
+
+`PathTransformation` 不是统一的“两固定端点折线”字典。每个 producer 必须按自身
+profile 声明它实际提供的角色，例如：
+
+- 普通折线路径：`moving_object / fixed_endpoint_1 / fixed_endpoint_2`；
+- 可内嵌轨迹的路径：再声明 `moving_locus` 及两个轨迹端点；
+- linked-auxiliary 路径：声明 `fixed_endpoint_1 / auxiliary_object`，不能伪装成
+  普通双端点折线；
+- square 路径降维若不包含轨迹，必须明确不发布 `moving_locus`。
+
+需要坐标的角色必须写成 `state_requirement="materialized"`，并把生产时刻选中的
+`StateSlot` 和 produced handle 写入 lineage。`dependency_object_refs` 只表示相关
+对象集合，不能反向推断角色或状态版本。
+
+一个 return 的角色来自输入时使用 `source_arg`；来自同一调用的另一个 return 时使用
+`source_return`：
+
+```python
+StateObjectRoleProjectionSpec(
+    role="auxiliary_object",
+    source_return="auxiliary_point",
+    state_requirement="materialized",
+)
+```
+
+consumer 使用 `PathTransformationConsumerSpec` 声明 profile 和 required roles，
+统一由 `PathTransformationStateResolver` 解析。不得读取 `fixed_point_names`、
+调用 `point_handle_by_name()`、扫描全局唯一 Point/Line，或拼
+`$question.*.object_refs.*`。runtime payload 的名称字段只用于 trace 和讲解；
+canonical refs 只用于与 Context provenance 做一致性校验。
+
+FunctionalPlan 不暴露这些内部端点参数。resolver/compiler-owned identity 参数必须
+保持 mechanical，并在 catalog preflight 中验证可解；LLM 仍只传
+`path_transformation` 或生产它所需的题面条件。
+
+#### Square fact 的角色规范化
+
+`square` fact 的 `vertices` 不是一组无序 Point，也不能由 consumer 根据点名、图形朝向
+或数组中“看起来合适”的位置重新解释。ProblemIR 建模层必须先将正方形顶点规范化为
+稳定、按环序排列的 `vertex_1 ... vertex_4` object roles。
+
+当前 `square_path_dimension_reduction` 的 role profile 进一步规定：
+
+- `vertex_1` 是该路径变换使用的固定锚点；
+- `vertex_4` 是该路径变换声明的移动对象；
+- 另一固定端点从结构化 path terms 中与 `vertex_4` 相邻的唯一线段推导；
+- `side`、`orientation`、中点和中心条件只提供额外证据，不能在 reconciler 中交换
+  `vertex_1 / vertex_4` 的身份。
+
+这是一份 ProblemIR-to-capability 的语义契约，不是“第一个点固定、第四个点移动”的
+通用正方形定理。图片旋转、顶点换名或输入采用不同起点时，ProblemIR extractor 必须
+在进入 planner 前重新排列顶点，使其满足 capability profile；reconciliation 不得按
+点名、顺/逆时针猜测或扫描当前唯一可见 Point 来补位。
+
+新增使用 square fact 的 capability 时，必须：
+
+1. 声明自己消费的 square object roles，而不是复用上述 profile 的隐含假设；
+2. 为旋转、镜像和任意点名的 synthetic ProblemIR 增加等价性测试；
+3. 对缺失或多义角色报告 typed contract/identity issue，不在 consumer 中增加题面分支。
+
+### 8.6 Analyzer 修复必须回写 Candidate
 
 需要读取真实 RuntimeContext 数值后才能完成的确定性修复，应放在声明的
 `constraint_analyzer`，不要在 reconciler 复制数学求解。例如 analyzer 把 LLM 选择的
@@ -833,13 +989,22 @@ closed，因为 method 或上游对象可能携带尚未投影的 companion Symb
 条件，才能由代码提升为 `dependency_refinement` transition：
 
 - object identity、runtime type 和 StateSlot 相同；
-- 新调用的 source StateSlots 覆盖旧调用来源；
 - dependency object refs 覆盖旧依赖；
 - projected free symbols 是旧版本的严格子集；
-- runtime 执行后，实际 free symbols 仍是旧版本的严格子集。
+- 新调用直接读取旧 StateSlot，或它是同 semantic role 的纯函数重算；
+- 纯函数重算不得同时派生新的 companion Symbol identity；
+- runtime 执行后，实际 free symbols 不得超出旧版本。相同集合仍可接受，因为上游
+  runtime 可能已经应用了本调用再次显式消费的参数关系；精确
+  `previous_write_step_id + source_state_slot_ids` 仍必须证明有序依赖。
 
-因此 `M(c) -> M(c0)` 可以成为合法状态推进；若重新计算后仍含同一自由符号，则不能
-借助 `closed_state` 标记强行覆盖，必须保留为 retry 问题。
+因此 `M(c) -> M(c0)` 可以成为合法状态推进；追加约束但暂未降低自由度也可以保留为
+同一对象的有序 refinement。若没有读取上一版本、引入了新自由符号，或只借助
+`closed_state` 标记声称闭合，则必须保留为 retry 问题。
+
+未消费的纯函数调用由调用 DAG 做 liveness 判定。`answer` binding 始终是可观察根；
+首次绑定到已有对象也保守保留。只有同一 logical StateSlot 已有更早 writer 时，后续
+对象 binding 才可作为重复写入候选；若该版本被下游调用读取，StateSlot dependency
+仍会保留 producer，否则代码可以删除这次重复计算。
 
 ### 10.4 标量闭合约束
 
@@ -946,6 +1111,30 @@ Functional catalog 只展示 LLM 做数学选择需要的信息：
 `do_not_use_when` 记录稳定出现的意图级误用。三者不能互相替代。新增说明不得改变
 semantic role、identity policy、write mode 或 output key；文案优化与执行契约修改应分别
 评审。
+
+### 12.1 Capability 误选归因原则
+
+当 LLM 选择了错误 capability，工程上首先且必须将其视为 Catalog 表达存在歧义，
+不能以“模型没有认真阅读”结案。这里的歧义不仅指措辞，还包括：
+
+- `use_when` 没有说明当前数学目标和必需前置状态；
+- `do_not_use_when` 没有覆盖与相邻 capability 的稳定混淆；
+- 同类型参数缺少 semantic role、materialized/identity-only 边界或 cardinality 说明；
+- 隐藏的 resolver/compiler 输入决定了适用性，但没有投影成 LLM 可理解的接口语义；
+- return 名称、绑定策略或状态形态让两个 capability 看起来可以互换；
+- catalog 暴露了当前 Context 中实际上无法满足的 capability；
+- few-shot 展示的调用方式与当前 catalog contract 不一致。
+
+每次误选都必须对比“被选 capability”和“本应选择 capability”，使 LLM 仅阅读
+Catalog 就能回答：
+
+1. 两者分别解决什么数学问题；
+2. 各自要求哪些已经存在的状态；
+3. 当前题面状态为什么只满足其中一个；
+4. 输出是中间状态、候选集合、对象状态还是最终答案。
+
+修复可以是 `use_when / do_not_use_when / arg desc / return desc`、contract
+投影或 catalog preflight，但不能通过题目 id、点名或固定方法链硬编码选择结果。
 
 ## 13. 错误、确定性修复与 Retry
 
@@ -1098,6 +1287,8 @@ Prompt 应描述能力契约和修复工单，不应绑定某一题的黄金路�
 
 - [ ] 每个输入都有稳定 semantic role 和 runtime type。
 - [ ] required / optional / auto 边界明确。
+- [ ] 每个输入只有一个 `wire / resolver / compiler` binding authority。
+- [ ] resolver/compiler owned 输入不会进入 wire exact-binding sidecar。
 - [ ] auto arg 有唯一 deterministic resolver。
 - [ ] aggregate arg 有注册 aggregator。
 - [ ] binding 满足 read-closed，没有全局状态偷读。
@@ -1120,6 +1311,7 @@ Prompt 应描述能力契约和修复工单，不应绑定某一题的黄金路�
 - [ ] 必须同一对象的 args/returns 已声明 identity constraints。
 - [ ] identity constraint 的 left 是待修复绑定，right 是权威身份锚点。
 - [ ] internal Point 不会被绑定成题面 Point answer。
+- [ ] internal-only return 已在 contract 声明，未靠类型或名字特判。
 - [ ] 双形态标量声明了 possible forms 和说明。
 - [ ] Point/Parabola 使用 type-level result form，不复制 per-method 配置。
 - [ ] 依赖完整对象状态的 arg 声明了合适的 input closure policy；局部投影没有被过度限制。
@@ -1140,6 +1332,8 @@ Prompt 应描述能力契约和修复工单，不应绑定某一题的黄金路�
 
 - [ ] `use_when` 非空且描述数学目标。
 - [ ] 稳定误用已用泛化 `do_not_use_when` 说明。
+- [ ] trial 异常分类由 `trial_error_hints` 声明，compiler 中没有 capability-id 特判。
+- [ ] 有限几何域由 producer/consumer 共用的 profile registry 声明，没有重复白名单。
 - [ ] catalog 不暴露 handle、runtime path、selector 或内部 return。
 - [ ] 配置错误在调用 LLM 前失败。
 - [ ] deterministic repair 有事件记录且幂等。

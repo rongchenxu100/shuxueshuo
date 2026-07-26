@@ -11,7 +11,9 @@ SPEC = RecipeSpecSource(
     summary=(
         "Given a one-moving-point broken path and a moving locus, straighten the "
         "path, select the valid straightening scheme, and compute the minimum "
-        "distance expression."
+        "distance expression. The public straightened_endpoint_1/2 returns are "
+        "the two endpoints of the equivalent straight segment, not the original "
+        "moving point or its minimizing position."
     ),
     method_sequence=(
         "broken_path_straightening_candidates",
@@ -36,6 +38,14 @@ SPEC = RecipeSpecSource(
             "transformed_path": "等价后的单动点折线路径。",
             "straightened_path": "拉直后的路径。",
             "segment_equality": "由对称得到的线段等量关系。",
+            "straightened_endpoint_1": (
+                "拉直后最短等价线段的第一个端点，通常是反射辅助点；"
+                "不是原路径动点。"
+            ),
+            "straightened_endpoint_2": (
+                "拉直后最短等价线段的第二个端点，通常是另一固定端点；"
+                "不是原路径动点。"
+            ),
             "straightened_segment": "拉直后用于计算最短距离的线段。",
             "minimum_expression": "最小值表达式。",
             "distance_formula": "最短距离或最小值的计算式。",
@@ -69,6 +79,8 @@ SPEC = RecipeSpecSource(
             "source_point": "被对称的固定端点。",
             "reflected_point": "对称得到的拉直辅助点。",
             "other_fixed_point": "拉直后线段的另一个端点。",
+            "straightened_endpoint_1": "拉直后最短等价线段的反射辅助端点。",
+            "straightened_endpoint_2": "拉直后最短等价线段的另一固定端点。",
             "minimum_segment": "拉直后用于计算最小值的线段。",
         },
         teaching_substep_templates={

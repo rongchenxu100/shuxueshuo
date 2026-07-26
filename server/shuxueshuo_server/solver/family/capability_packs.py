@@ -6,18 +6,24 @@ from shuxueshuo_server.solver.contracts import ScalarResultFormSpec
 from shuxueshuo_server.solver.family.models import (
     CapabilityContextResolver,
     CapabilityContractSpec,
+    CapabilityContextRoleBindingSpec,
     CapabilityInputClosureRequirement,
     CapabilityCardinality,
     CapabilityDependencyPolicy,
     CapabilityExecutionStatus,
+    FunctionalReturnBindingPolicy,
     CapabilityPackRegistry,
     CapabilityPackSpec,
     CapabilityStateClosurePolicy,
     CONDITION_OBJECT_ROLES_RESOLVER,
     ConditionPattern,
+    GoalEvidencePolicySpec,
     MethodBindingRuleSpec,
     MethodInputBindingSpec,
     PATH_REDUCTION_ROLES_RESOLVER,
+    PathTransformationConsumerSpec,
+    SQUARE_PATH_TRANSFORMATION_ROLES_RESOLVER,
+    WEIGHTED_PATH_TRANSFORMATION_ROLES_RESOLVER,
     RecipeExecutionSpec,
     recipe_output_alias,
     StateSlotPattern,
@@ -48,9 +54,44 @@ from shuxueshuo_server.solver.output_type_policy import TRANSIENT_OUTPUT_TYPES
 
 RIGHT_ANGLE_EQUAL_LENGTH_DO_NOT_USE_WHEN = (
     "只有直角或等长中的单个条件，无法确定构造点所需的完整对象角色和约束。",
+    (
+        "只有完整直角等长关系、曲线归属和参数正负条件，但没有明确的象限、"
+        "方向或唯一几何筛选条件；此时应先列出全部几何候选，再使用曲线和参数"
+        "条件筛选，不能假定默认旋转方向。"
+    ),
+)
+TWO_MOVING_POINTS_PATH_REDUCTION_DESCRIPTION = (
+    "仅用于原目标路径恰好由两段组成、两段涉及两个相关动点，且题设的"
+    "共线、所属、等长或定比例关系能够把其中一段替换为题面已有固定端点"
+    "到另一动点的线段；输出等价的单动点两段折线路径。"
+    "调用前，变换所需的每个固定端点都必须已有可读取的 Point 坐标状态；"
+    "定义、构造或中点 Condition 只说明对象关系，不等于已经计算出坐标。"
+    "本 recipe 不创建辅助点、补算固定端点或生成辅助轨迹。"
 )
 TWO_MOVING_POINTS_REDUCTION_DO_NOT_USE_WHEN = (
     "目标是直接求路径最小值、最小值表达式或极值点坐标；本能力只产生后续路径处理所需的等价变换。",
+    (
+        "原路径包含三段或更多线段，或必须利用正方形中点/中心、"
+        "线段与射线等长、加权距离辅助构造才能降维。"
+    ),
+    (
+        "变换所需的任一固定端点尚无可读取的 Point 坐标状态；"
+        "仅有定义、构造或中点关系时，应先得到对应对象的坐标状态。"
+    ),
+)
+EQUAL_LENGTH_RAY_PATH_REDUCTION_DESCRIPTION = (
+    "仅用于一个动点在线段上、另一个动点在射线上，并且题设给出二者相对"
+    "同一端点的等长关系。该能力在内部完成辅助点构造，把两动点距离和直接"
+    "化为一个固定点到辅助点的单距离最小值表达式；它返回 "
+    "MinimumExpression，而不是供后续普通折线拉直的 PathTransformation。"
+    "结果仍含参数时为开放表达式，不含自由参数时为闭合值。"
+)
+EQUAL_LENGTH_RAY_PATH_REDUCTION_DO_NOT_USE_WHEN = (
+    "缺少“一个点在线段、一个点在射线、相对同一端点等长”中的任一结构化条件。",
+    (
+        "原路径只是普通两段等长/比例替换、三段正方形路径或带权距离；"
+        "这些结构应使用各自的路径降维能力。"
+    ),
 )
 BROKEN_PATH_SELECT_DO_NOT_USE_WHEN = (
     "目标是直接得到最小值表达式、最小值或原路径动点坐标；本能力只选择拉直方案及其内部端点。",
@@ -59,7 +100,25 @@ STRAIGHTENED_DISTANCE_DO_NOT_USE_WHEN = (
     "尚未得到两个确定的拉直端点，或仍需完成路径降维、反射构造与候选选择。",
 )
 BROKEN_PATH_MINIMUM_EXPRESSION_DO_NOT_USE_WHEN = (
-    "目标是求原路径动点或极值点坐标；返回的 Point 只是拉直线段内部端点，不能绑定为 Point 答案或题面已有对象。",
+    (
+        "不要把 straightened_endpoint_1、straightened_endpoint_2 或 "
+        "straightening_auxiliary_point 直接绑定为原路径动点、极值点或 "
+        "Point 答案；它们只是构造最短距离表达式所使用的内部拉直端点。"
+    ),
+    (
+        "不要认为 parameter_value 会同时求值内部拉直端点；它只用于生成 "
+        "evaluated_path_minimum_expression。若后续确实需要内部端点的具体坐标，"
+        "应分别对相应 Point 状态执行参数代入。"
+    ),
+)
+STRAIGHTENED_ENDPOINT_RESULT_FORM = ScalarResultFormSpec(
+    possible_forms=("open_state", "closed_state"),
+    description=(
+        "端点坐标本身仍含未定参数时为 open_state；只有端点实际不存在自由"
+        "符号时才是 closed_state。Macro 的 parameter_value 只求值标量最小值"
+        "表达式，不改变这些 Point 返回。"
+    ),
+    ignored_symbol_input_args=("parameter_value",),
 )
 PATH_TRANSFORMATION_LOCUS_IDENTITY_CONSTRAINTS = (
     StateIdentityConstraintSpec(
@@ -71,17 +130,120 @@ PATH_TRANSFORMATION_LOCUS_IDENTITY_CONSTRAINTS = (
         applicability="when_all_present",
     ),
 )
+TWO_MOVING_PATH_TRANSFORMATION_OBJECT_ROLES = (
+    StateObjectRoleProjectionSpec(
+        role="moving_object",
+        source_arg="second_moving_membership",
+        source_object_role="moving_object",
+    ),
+    StateObjectRoleProjectionSpec(
+        role="fixed_endpoint_1",
+        source_arg="first_segment_start",
+        state_requirement="materialized",
+    ),
+    StateObjectRoleProjectionSpec(
+        role="fixed_endpoint_2",
+        source_arg="transformed_fixed_endpoint",
+        state_requirement="materialized",
+    ),
+    StateObjectRoleProjectionSpec(
+        role="moving_locus",
+        source_arg="second_moving_membership",
+        source_object_role="moving_locus",
+    ),
+    StateObjectRoleProjectionSpec(
+        role="moving_locus_endpoint_1",
+        source_arg="moving_locus_endpoint_1",
+        state_requirement="materialized",
+    ),
+    StateObjectRoleProjectionSpec(
+        role="moving_locus_endpoint_2",
+        source_arg="moving_locus_endpoint_2",
+        state_requirement="materialized",
+    ),
+)
+STANDARD_BROKEN_PATH_CONSUMER = PathTransformationConsumerSpec(
+    transformation_arg="path_transformation",
+    required_roles=(
+        "moving_object",
+        "fixed_endpoint_1",
+        "fixed_endpoint_2",
+    ),
+    profile="standard_broken_path",
+)
+LINKED_AUXILIARY_PATH_CONSUMER = PathTransformationConsumerSpec(
+    transformation_arg="path_transformation",
+    required_roles=(
+        "moving_object",
+        "fixed_endpoint_1",
+        "auxiliary_object",
+    ),
+    profile="linked_auxiliary",
+)
+LINKED_AUXILIARY_IDENTITY_CONSTRAINTS = (
+    StateIdentityConstraintSpec(
+        left="arg:moving_point.object_ref",
+        right="arg:path_transformation.object_role:moving_object",
+    ),
+    StateIdentityConstraintSpec(
+        left="arg:curve_point.object_ref",
+        right="arg:path_transformation.object_role:fixed_endpoint_1",
+    ),
+    StateIdentityConstraintSpec(
+        left="arg:auxiliary_point.object_ref",
+        right="arg:path_transformation.object_role:auxiliary_object",
+    ),
+    StateIdentityConstraintSpec(
+        left="arg:auxiliary_locus.object_role:subject",
+        right="arg:path_transformation.object_role:auxiliary_object",
+    ),
+)
 PATH_MINIMUM_DISTANCE_LINEAGE_CLOSURES = (
     StateLineageClosureSpec(
         source_args=("p1", "p2"),
         required_semantic_roles=(
-            "path_minimum_point_1",
-            "path_minimum_point_2",
+            "straightened_endpoint_1",
+            "straightened_endpoint_2",
         ),
         required_evidence_tags=("path_minimum_witness",),
         require_same_source_call=True,
         add_semantic_roles=("path_minimum_expression",),
         add_evidence_tags=("path_minimum_expression",),
+        description=(
+            "两个端点必须分别来自同一次路径拉直 witness 的两个角色；"
+            "满足后它们的距离才可作为路径最小值表达式。"
+        ),
+    ),
+)
+
+PATH_MINIMUM_INTERSECTION_LINEAGE_CLOSURES = (
+    StateLineageClosureSpec(
+        source_args=("line1_p1", "line1_p2"),
+        required_semantic_roles=(
+            "straightened_endpoint_1",
+            "straightened_endpoint_2",
+        ),
+        required_evidence_tags=("path_minimum_witness",),
+        require_same_source_call=True,
+        add_evidence_tags=("path_minimum_extremal_point",),
+        description=(
+            "用于确定路径极值点的约束直线必须由同一次拉直 witness 的"
+            "两个端点共同定义。"
+        ),
+    ),
+    StateLineageClosureSpec(
+        source_args=("line2_p1", "line2_p2"),
+        required_semantic_roles=(
+            "straightened_endpoint_1",
+            "straightened_endpoint_2",
+        ),
+        required_evidence_tags=("path_minimum_witness",),
+        require_same_source_call=True,
+        add_evidence_tags=("path_minimum_extremal_point",),
+        description=(
+            "用于确定路径极值点的约束直线必须由同一次拉直 witness 的"
+            "两个端点共同定义。"
+        ),
     ),
 )
 
@@ -102,6 +264,7 @@ def _slot(
     object_role_projections: tuple[StateObjectRoleProjectionSpec, ...] = (),
     lineage_closures: tuple[StateLineageClosureSpec, ...] = (),
     input_closure_policy: CapabilityStateClosurePolicy = "any",
+    return_binding: FunctionalReturnBindingPolicy = "auto",
 ) -> StateSlotPattern:
     resolved_required = (
         runtime_type not in TRANSIENT_OUTPUT_TYPES
@@ -127,6 +290,7 @@ def _slot(
         object_role_projections=object_role_projections,
         lineage_closures=lineage_closures,
         input_closure_policy=input_closure_policy,
+        return_binding=return_binding,
     )
 
 
@@ -191,10 +355,14 @@ def _method_contract(
     constraint_analyzer: str | None = None,
     dependency_policy: CapabilityDependencyPolicy = "explicit_args",
     context_resolvers: tuple[CapabilityContextResolver, ...] = (),
+    context_role_bindings: tuple[
+        CapabilityContextRoleBindingSpec, ...
+    ] = (),
     input_closure_requirements: tuple[
         CapabilityInputClosureRequirement, ...
     ] = (),
     identity_constraints: tuple[StateIdentityConstraintSpec, ...] = (),
+    path_transformation_consumer: PathTransformationConsumerSpec | None = None,
 ) -> CapabilityContractSpec:
     return CapabilityContractSpec(
         capability_id=capability_id,
@@ -208,8 +376,10 @@ def _method_contract(
         constraint_analyzer=constraint_analyzer,
         dependency_policy=dependency_policy,
         context_resolvers=context_resolvers,
+        context_role_bindings=context_role_bindings,
         input_closure_requirements=input_closure_requirements,
         identity_constraints=identity_constraints,
+        path_transformation_consumer=path_transformation_consumer,
     )
 
 
@@ -224,10 +394,14 @@ def _recipe_contract(
     exposes_to_llm: bool = True,
     dependency_policy: CapabilityDependencyPolicy = "explicit_args",
     context_resolvers: tuple[CapabilityContextResolver, ...] = (),
+    context_role_bindings: tuple[
+        CapabilityContextRoleBindingSpec, ...
+    ] = (),
     input_closure_requirements: tuple[
         CapabilityInputClosureRequirement, ...
     ] = (),
     identity_constraints: tuple[StateIdentityConstraintSpec, ...] = (),
+    path_transformation_consumer: PathTransformationConsumerSpec | None = None,
 ) -> CapabilityContractSpec:
     return CapabilityContractSpec(
         capability_id=capability_id,
@@ -240,8 +414,10 @@ def _recipe_contract(
         exposes_to_llm=exposes_to_llm,
         dependency_policy=dependency_policy,
         context_resolvers=context_resolvers,
+        context_role_bindings=context_role_bindings,
         input_closure_requirements=input_closure_requirements,
         identity_constraints=identity_constraints,
+        path_transformation_consumer=path_transformation_consumer,
     )
 
 
@@ -445,6 +621,12 @@ QUADRATIC_CORE_CONTRACTS = (
                 "Point",
                 object_kind="point",
                 output_key="point",
+                description=(
+                    "返回 return binding 指向的同一个 Point 对象。该已有对象必须"
+                    "已经在题面结构化定义中直接给出 x 或 x_coordinate；代码读取"
+                    "该横坐标并用抛物线计算纵坐标。坐标仍含未确定参数时为"
+                    " open_state。"
+                ),
             ),
         ),
     ),
@@ -539,7 +721,11 @@ PARAMETER_SOLVING_CONTRACTS = (
                 "expression",
                 "Parabola",
                 object_kind="function",
-                description="需要代入已知参数值的当前符号表达式状态。",
+                description=(
+                    "需要代入一个已知参数值的当前 Expression、MinimumExpression 或 "
+                    "Parabola 状态。题面 Function 模板不是已经得到的 Parabola 状态；"
+                    "输入类型会确定唯一的同类型 return。"
+                ),
             ),
             _slot("value", "ParameterValue", object_kind="symbol"),
         ),
@@ -550,6 +736,10 @@ PARAMETER_SOLVING_CONTRACTS = (
                 output_key="evaluated_expression",
                 required=False,
                 cardinality="optional",
+                description=(
+                    "仅当输入是 Expression 状态时产生；不能作为 Parabola 传给曲线"
+                    "顶点、交点或对称轴能力。"
+                ),
             ),
             _slot(
                 "expression",
@@ -557,6 +747,7 @@ PARAMETER_SOLVING_CONTRACTS = (
                 output_key="evaluated_minimum_expression",
                 required=False,
                 cardinality="optional",
+                description="仅当输入是 MinimumExpression 状态时产生。",
             ),
             _slot(
                 "expression",
@@ -566,7 +757,10 @@ PARAMETER_SOLVING_CONTRACTS = (
                 required=False,
                 cardinality="optional",
                 write_mode="transition",
-                description="代入参数后的同一抛物线状态。",
+                description=(
+                    "仅当输入已经是 Parabola 状态时产生，表示代入参数后的同一"
+                    "抛物线状态；普通 Expression 输入不会产生该 return。"
+                ),
             ),
         ),
     ),
@@ -638,7 +832,14 @@ COORDINATE_GEOMETRY_CONTRACTS = (
             _slot("coordinate", "Point", object_kind="point"),
             _slot("coordinate", "Point", object_kind="point"),
         ),
-        slot_writes=(_slot("coordinate", "Point", object_kind="point"),),
+        slot_writes=(
+            _slot(
+                "coordinate",
+                "Point",
+                object_kind="point",
+                lineage_closures=PATH_MINIMUM_INTERSECTION_LINEAGE_CLOSURES,
+            ),
+        ),
     ),
 )
 
@@ -648,8 +849,9 @@ RIGHT_ANGLE_EQUAL_LENGTH_CONSTRUCT_AND_SELECT = StepRecipeSpec(
     goal_type="derive_constructed_point",
     title="直角等腰构造并筛选点",
     description=(
-        "由直角等腰/旋转关系先列出候选点，再结合象限、参数范围或曲线条件"
-        "筛选出符合题设的点。"
+        "仅在直角等腰关系之外，还存在能够直接唯一选择旋转分支的象限、方向"
+        "或同类几何筛选条件时，生成候选并立即选出目标点。若分支只能通过"
+        "“点在曲线上”和参数正负条件确定，应使用候选生成能力后再进行曲线筛选。"
     ),
     method_ids=(
         "right_angle_equal_length_candidates",
@@ -685,11 +887,7 @@ TWO_MOVING_POINTS_PATH_REDUCTION = StepRecipeSpec(
     recipe_id="two_moving_points_path_reduction",
     goal_type="reduce_path_expression",
     title="两动点路径降维：已有固定点替换",
-    description=(
-        "利用线段比例、共线或绑定关系，把原路径中的两动点线段替换为"
-        "题面已有固定点到动点的等长线段，从而转化为单动点折线路径；"
-        "本 recipe 不创建辅助点或辅助轨迹。"
-    ),
+    description=TWO_MOVING_POINTS_PATH_REDUCTION_DESCRIPTION,
     method_ids=("two_moving_points_path_reduction",),
     execution=RecipeExecutionSpec(
         recipe_id="two_moving_points_path_reduction",
@@ -706,11 +904,7 @@ TWO_MOVING_POINTS_PATH_REDUCTION = StepRecipeSpec(
                 ),
                 provides_semantic_roles=("moving_locus",),
                 object_role_projections=(
-                    StateObjectRoleProjectionSpec(
-                        role="moving_object",
-                        source_arg="second_moving_membership",
-                        source_object_role="moving_object",
-                    ),
+                    TWO_MOVING_PATH_TRANSFORMATION_OBJECT_ROLES
                 ),
             ),
         ),
@@ -750,7 +944,10 @@ BROKEN_PATH_STRAIGHTENING_AND_SELECT = StepRecipeSpec(
                 "select_straightening_candidate.selected_candidate",
                 "StraighteningCandidate",
                 "straightened_scheme",
-                goal_evidence_tags=("path_minimum_witness",),
+                goal_evidence_tags=(
+                    "path_minimum_witness",
+                    "path_minimum_extremal_point",
+                ),
                 object_role_projections=(
                     StateObjectRoleProjectionSpec(
                         role="moving_object",
@@ -767,9 +964,9 @@ BROKEN_PATH_STRAIGHTENING_AND_SELECT = StepRecipeSpec(
                 cardinality="optional",
                 identity_policy="derived_role",
                 goal_evidence_tags=("path_minimum_witness",),
-                equivalent_to="path_minimum_point_1",
+                equivalent_to="straightened_endpoint_1",
                 description=(
-                    "选中候选的反射辅助点，与 path_minimum_point_1 是同一"
+                    "选中候选的反射辅助点，与 straightened_endpoint_1 是同一"
                     "几何状态；不能把二者作为一条直线的两个不同端点。"
                 ),
                 object_role_projections=(
@@ -783,14 +980,15 @@ BROKEN_PATH_STRAIGHTENING_AND_SELECT = StepRecipeSpec(
             recipe_output_alias(
                 "select_straightening_candidate.minimum_point_1",
                 "Point",
-                "path_minimum_point_1",
+                "straightened_endpoint_1",
                 required=False,
                 cardinality="optional",
                 identity_policy="derived_role",
                 goal_evidence_tags=("path_minimum_witness",),
+                result_form=STRAIGHTENED_ENDPOINT_RESULT_FORM,
                 description=(
-                    "选中拉直方案后，由反射构造得到的辅助端点；"
-                    "仅供距离计算，不是原路径上的动点、极值点或答案点。"
+                    "拉直后最短等价线段的第一个端点，通常是由反射构造得到的"
+                    "辅助点；它不是原路径动点、极值点或答案点。"
                 ),
                 object_role_projections=(
                     StateObjectRoleProjectionSpec(
@@ -803,14 +1001,15 @@ BROKEN_PATH_STRAIGHTENING_AND_SELECT = StepRecipeSpec(
             recipe_output_alias(
                 "select_straightening_candidate.minimum_point_2",
                 "Point",
-                "path_minimum_point_2",
+                "straightened_endpoint_2",
                 required=False,
                 cardinality="optional",
                 identity_policy="derived_role",
                 goal_evidence_tags=("path_minimum_witness",),
+                result_form=STRAIGHTENED_ENDPOINT_RESULT_FORM,
                 description=(
-                    "选中拉直方案后，与反射端点组成最短线段的另一固定端点；"
-                    "仅供距离计算，不是原路径上的动点、极值点或答案点。"
+                    "拉直后最短等价线段的第二个端点，通常是未被反射的另一"
+                    "固定端点；它不是原路径动点、极值点或答案点。"
                 ),
                 object_role_projections=(
                     StateObjectRoleProjectionSpec(
@@ -889,6 +1088,12 @@ BROKEN_PATH_STRAIGHTENING_MINIMUM_EXPRESSION = StepRecipeSpec(
         ),
         execution_strategy="broken_path_straightening_minimum_expression",
         creates=("point",),
+        input_aliases=(
+            (
+                "parameter_value",
+                "distance_between_points.parameter_value",
+            ),
+        ),
         output_aliases=(
             recipe_output_alias(
                 "select_straightening_candidate.selected_candidate",
@@ -896,7 +1101,10 @@ BROKEN_PATH_STRAIGHTENING_MINIMUM_EXPRESSION = StepRecipeSpec(
                 "straightened_scheme",
                 required=False,
                 cardinality="optional",
-                goal_evidence_tags=("path_minimum_witness",),
+                goal_evidence_tags=(
+                    "path_minimum_witness",
+                    "path_minimum_extremal_point",
+                ),
                 object_role_projections=(
                     StateObjectRoleProjectionSpec(
                         role="moving_object",
@@ -913,9 +1121,9 @@ BROKEN_PATH_STRAIGHTENING_MINIMUM_EXPRESSION = StepRecipeSpec(
                 cardinality="optional",
                 identity_policy="derived_role",
                 goal_evidence_tags=("path_minimum_witness",),
-                equivalent_to="path_minimum_point_1",
+                equivalent_to="straightened_endpoint_1",
                 description=(
-                    "选中候选的反射辅助点，与 path_minimum_point_1 是同一"
+                    "选中候选的反射辅助点，与 straightened_endpoint_1 是同一"
                     "几何状态；该名称仅作为兼容别名。"
                 ),
                 object_role_projections=(
@@ -929,14 +1137,15 @@ BROKEN_PATH_STRAIGHTENING_MINIMUM_EXPRESSION = StepRecipeSpec(
             recipe_output_alias(
                 "select_straightening_candidate.minimum_point_1",
                 "Point",
-                "path_minimum_point_1",
+                "straightened_endpoint_1",
                 required=False,
                 cardinality="optional",
                 identity_policy="derived_role",
                 goal_evidence_tags=("path_minimum_witness",),
+                result_form=STRAIGHTENED_ENDPOINT_RESULT_FORM,
                 description=(
-                    "选中拉直方案后，由反射构造得到的辅助端点；"
-                    "仅供距离计算，不是原路径上的动点、极值点或答案点。"
+                    "拉直后最短等价线段的第一个端点，通常是由反射构造得到的"
+                    "辅助点；它不是原路径动点、极值点或答案点。"
                 ),
                 object_role_projections=(
                     StateObjectRoleProjectionSpec(
@@ -949,14 +1158,15 @@ BROKEN_PATH_STRAIGHTENING_MINIMUM_EXPRESSION = StepRecipeSpec(
             recipe_output_alias(
                 "select_straightening_candidate.minimum_point_2",
                 "Point",
-                "path_minimum_point_2",
+                "straightened_endpoint_2",
                 required=False,
                 cardinality="optional",
                 identity_policy="derived_role",
                 goal_evidence_tags=("path_minimum_witness",),
+                result_form=STRAIGHTENED_ENDPOINT_RESULT_FORM,
                 description=(
-                    "选中拉直方案后，与反射端点组成最短线段的另一固定端点；"
-                    "仅供距离计算，不是原路径上的动点、极值点或答案点。"
+                    "拉直后最短等价线段的第二个端点，通常是未被反射的另一"
+                    "固定端点；它不是原路径动点、极值点或答案点。"
                 ),
                 object_role_projections=(
                     StateObjectRoleProjectionSpec(
@@ -994,13 +1204,7 @@ EQUAL_LENGTH_RAY_PATH_REDUCTION = StepRecipeSpec(
     recipe_id="equal_length_ray_path_reduction",
     goal_type="derive_path_minimum_expression",
     title="等长射线路径降维为单距离最值",
-    description=(
-        "当一个动点在线段上、另一个动点在射线上，且二者满足同端点等长关系时，"
-        "把原来的两动点线段距离和转化为一个固定点到内部构造辅助点的单距离"
-        "最小值表达式。辅助点由系统在 recipe 内部创建，LLM 不需要在 creates 中"
-        "声明辅助点，也不要拆成单独调用。结果含未定参数时为开放表达式，全部参数"
-        "确定时为闭合值。"
-    ),
+    description=EQUAL_LENGTH_RAY_PATH_REDUCTION_DESCRIPTION,
     method_ids=("equal_length_ray_point", "distance_between_points"),
     execution=RecipeExecutionSpec(
         recipe_id="equal_length_ray_path_reduction",
@@ -1025,6 +1229,7 @@ EQUAL_LENGTH_RAY_PATH_REDUCTION = StepRecipeSpec(
         ),
     ),
     priority="preferred",
+    do_not_use_when=EQUAL_LENGTH_RAY_PATH_REDUCTION_DO_NOT_USE_WHEN,
 )
 
 
@@ -1112,6 +1317,23 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
                 slot_writes=(_slot("transformation", "PathTransformation"),),
                 dependency_policy="context_closure",
                 context_resolvers=(PATH_REDUCTION_ROLES_RESOLVER,),
+                context_role_bindings=(
+                    CapabilityContextRoleBindingSpec(
+                        PATH_REDUCTION_ROLES_RESOLVER,
+                        "transformed_fixed_endpoint",
+                        "transformed_fixed_endpoint",
+                    ),
+                    CapabilityContextRoleBindingSpec(
+                        PATH_REDUCTION_ROLES_RESOLVER,
+                        "moving_locus_endpoint_1",
+                        "moving_locus_endpoint_1",
+                    ),
+                    CapabilityContextRoleBindingSpec(
+                        PATH_REDUCTION_ROLES_RESOLVER,
+                        "moving_locus_endpoint_2",
+                        "moving_locus_endpoint_2",
+                    ),
+                ),
             ),
             _recipe_contract(
                 "broken_path_straightening_and_select",
@@ -1156,6 +1378,7 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
                 identity_constraints=(
                     PATH_TRANSFORMATION_LOCUS_IDENTITY_CONSTRAINTS
                 ),
+                path_transformation_consumer=STANDARD_BROKEN_PATH_CONSUMER,
                 exposes_to_llm=False,
             ),
             _recipe_contract(
@@ -1216,6 +1439,21 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
                             "可见的任意 Line 自动选择。"
                         ),
                     ),
+                    _slot(
+                        "value",
+                        "ParameterValue",
+                        object_kind="symbol",
+                        semantic_role="parameter_value",
+                        required=False,
+                        cardinality="optional",
+                        description=(
+                            "若拉直端点仍含参数，可提供该参数的已知值，直接"
+                            "得到 evaluated_path_minimum_expression。该参数只"
+                            "求值标量表达式，不会把两个内部辅助端点改写为 "
+                            "closed_state；下游若需要端点，可继续传递原端点并"
+                            "同时提供参数值。"
+                        ),
+                    ),
                 ),
                 slot_writes=(
                     _slot("candidate", "StraighteningCandidate", required=False),
@@ -1234,6 +1472,7 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
                 identity_constraints=(
                     PATH_TRANSFORMATION_LOCUS_IDENTITY_CONSTRAINTS
                 ),
+                path_transformation_consumer=STANDARD_BROKEN_PATH_CONSUMER,
             ),
         ),
         method_binding_rules=(
@@ -1271,6 +1510,16 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
                 ),
             ),
         ),
+        goal_evidence_policies=(
+            GoalEvidencePolicySpec(
+                goal_types=("derive_line_intersection_point",),
+                value_types=("Point",),
+                required_evidence_tags=(
+                    "path_minimum_extremal_point",
+                ),
+                mechanism_pack_id="broken_path_minimum_core",
+            ),
+        ),
     ),
     CapabilityPackSpec(
         pack_id="right_angle_equal_length_core",
@@ -1290,7 +1539,14 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
             _method_contract(
                 "right_angle_equal_length_candidates",
                 condition_reads=(_condition("right_angle_equal_length"),),
-                slot_writes=(_slot("candidate", "PointList", object_kind="point"),),
+                slot_writes=(
+                    _slot(
+                        "candidate",
+                        "PointList",
+                        object_kind="point",
+                        return_binding="internal_only",
+                    ),
+                ),
                 context_resolvers=(CONDITION_OBJECT_ROLES_RESOLVER,),
             ),
         ),
@@ -1305,10 +1561,104 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
         contracts=(
             _method_contract(
                 "weighted_axis_path_triangle_transform",
-                condition_reads=(_condition("minimum_value"),),
+                slot_reads=(
+                    _slot(
+                        "coordinate",
+                        "Point",
+                        object_kind="point",
+                        semantic_role="fixed_point",
+                        description=(
+                            "原路径中不带权线段的固定端点，必须已有坐标并与 "
+                            "moving_point 同在 x 轴上。"
+                        ),
+                    ),
+                    _slot(
+                        "coordinate",
+                        "Point",
+                        object_kind="point",
+                        semantic_role="moving_point",
+                        description=(
+                            "加权线段和普通线段共享的 x 轴动点，必须已有含动点"
+                            "参数的坐标状态。"
+                        ),
+                    ),
+                ),
+                condition_reads=(
+                    _condition(
+                        "minimum_value",
+                        description=(
+                            "必须引用 type=minimum_value、同时携带原加权路径文本"
+                            "的题面已知最小值条件。不要引用只有求最值目标语义的 "
+                            "path_minimum_target；本能力只读取其中的路径结构，"
+                            "数值最小值不由本能力计算，也不会在这里消费该答案。"
+                        ),
+                    ),
+                ),
                 slot_writes=(
-                    _slot("coordinate", "Point", object_kind="point"),
-                    _slot("locus", "Line", object_kind="line"),
+                    _slot(
+                        "coordinate",
+                        "Point",
+                        object_kind="point",
+                        output_key="auxiliary_point",
+                        description=(
+                            "直角三角形构造产生的内部辅助点；供后续路径最值能力"
+                            "消费，不是原动点、极值点或 Point 答案。"
+                        ),
+                    ),
+                    _slot(
+                        "transformation",
+                        "PathTransformation",
+                        output_key="path_transformation",
+                        description=(
+                            "原加权路径到普通折线路径的结构化等价变换；它不是"
+                            "最小值表达式或最终数值。"
+                        ),
+                        object_role_projections=(
+                            StateObjectRoleProjectionSpec(
+                                role="moving_object",
+                                source_arg="moving_point",
+                                state_requirement="materialized",
+                            ),
+                            StateObjectRoleProjectionSpec(
+                                role="fixed_endpoint_1",
+                                source_arg="linked_fixed_endpoint_ref",
+                                state_requirement="materialized",
+                            ),
+                            StateObjectRoleProjectionSpec(
+                                role="auxiliary_object",
+                                source_return="auxiliary_point",
+                                state_requirement="materialized",
+                            ),
+                        ),
+                    ),
+                    _slot(
+                        "locus",
+                        "Line",
+                        object_kind="line",
+                        output_key="auxiliary_locus",
+                        description=(
+                            "辅助点随轴上动点运动形成的射线/直线轨迹，供后续 "
+                            "linked-path 最值能力使用。"
+                        ),
+                        object_role_projections=(
+                            StateObjectRoleProjectionSpec(
+                                role="subject",
+                                source_return="auxiliary_point",
+                                state_requirement="materialized",
+                            ),
+                        ),
+                    ),
+                ),
+                dependency_policy="context_closure",
+                context_resolvers=(
+                    WEIGHTED_PATH_TRANSFORMATION_ROLES_RESOLVER,
+                ),
+                context_role_bindings=(
+                    CapabilityContextRoleBindingSpec(
+                        WEIGHTED_PATH_TRANSFORMATION_ROLES_RESOLVER,
+                        "linked_fixed_endpoint",
+                        "linked_fixed_endpoint_ref",
+                    ),
                 ),
             ),
             _method_contract(
@@ -1317,7 +1667,19 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
                     _slot("transformation", "PathTransformation"),
                     _slot("locus", "Line", object_kind="line"),
                 ),
+                condition_reads=(
+                    _condition(
+                        "dynamic_constraint",
+                        runtime_type="Constraint",
+                        description=(
+                            "动点参数的取值范围条件，例如参数大于、"
+                            "小于或属于某区间；不是点坐标或点在曲线上的关系。"
+                        ),
+                    ),
+                ),
                 slot_writes=(_slot("expression", "MinimumExpression"),),
+                identity_constraints=LINKED_AUXILIARY_IDENTITY_CONSTRAINTS,
+                path_transformation_consumer=LINKED_AUXILIARY_PATH_CONSUMER,
             ),
         ),
     ),
@@ -1343,7 +1705,19 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
             _method_contract(
                 "equal_length_ray_point",
                 condition_reads=(_condition("equal_length_ray"),),
-                slot_writes=(_slot("coordinate", "Point", object_kind="point"),),
+                slot_writes=(
+                    _slot(
+                        "coordinate",
+                        "Point",
+                        object_kind="point",
+                        description=(
+                            "射线上的等长构造点。作为中间辅助点时可不绑定"
+                            "题面对象，后续调用直接引用本 call 的 point 结果；"
+                            "作为题面对象或答案时仍应显式绑定。"
+                        ),
+                        return_binding="call_local_allowed",
+                    ),
+                ),
             ),
         ),
     ),
@@ -1381,7 +1755,33 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
                                 source_arg="square_condition",
                                 source_object_role="vertex_4",
                             ),
+                            StateObjectRoleProjectionSpec(
+                                role="fixed_endpoint_1",
+                                source_arg="fixed_endpoint_1_ref",
+                                state_requirement="materialized",
+                            ),
+                            StateObjectRoleProjectionSpec(
+                                role="fixed_endpoint_2",
+                                source_arg="fixed_endpoint_2_ref",
+                                state_requirement="materialized",
+                            ),
                         ),
+                    ),
+                ),
+                dependency_policy="context_closure",
+                context_resolvers=(
+                    SQUARE_PATH_TRANSFORMATION_ROLES_RESOLVER,
+                ),
+                context_role_bindings=(
+                    CapabilityContextRoleBindingSpec(
+                        SQUARE_PATH_TRANSFORMATION_ROLES_RESOLVER,
+                        "fixed_endpoint_1",
+                        "fixed_endpoint_1_ref",
+                    ),
+                    CapabilityContextRoleBindingSpec(
+                        SQUARE_PATH_TRANSFORMATION_ROLES_RESOLVER,
+                        "fixed_endpoint_2",
+                        "fixed_endpoint_2_ref",
                     ),
                 ),
             ),
@@ -1448,6 +1848,12 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
                         object_kind="point",
                         semantic_role="square_adjacent_vertex",
                         output_key="point",
+                        description=(
+                            "必须绑定本次实际求出的正方形顶点。若有序顶点为 "
+                            "V1,V2,V3,V4，先由边 V1V2 求 V3、再由边 V2V3 "
+                            "求 V4 时，两次返回应分别绑定 V3、V4；不要把中间"
+                            "顶点和最终顶点绑定成同一对象。"
+                        ),
                     ),
                 ),
             ),

@@ -8,6 +8,8 @@ from shuxueshuo_server.solver.family.models import (
     CapabilityContextResolver,
     CONDITION_OBJECT_ROLES_RESOLVER,
     PATH_REDUCTION_ROLES_RESOLVER,
+    SQUARE_PATH_TRANSFORMATION_ROLES_RESOLVER,
+    WEIGHTED_PATH_TRANSFORMATION_ROLES_RESOLVER,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_models import (
     FunctionalContextArgBinding,
@@ -64,6 +66,12 @@ _CONTEXT_CLOSURE_RESOLVERS = {
     PATH_REDUCTION_ROLES_RESOLVER: ContextClosureResolverSpec(
         resolver_id=PATH_REDUCTION_ROLES_RESOLVER,
     ),
+    SQUARE_PATH_TRANSFORMATION_ROLES_RESOLVER: ContextClosureResolverSpec(
+        resolver_id=SQUARE_PATH_TRANSFORMATION_ROLES_RESOLVER,
+    ),
+    WEIGHTED_PATH_TRANSFORMATION_ROLES_RESOLVER: ContextClosureResolverSpec(
+        resolver_id=WEIGHTED_PATH_TRANSFORMATION_ROLES_RESOLVER,
+    ),
 }
 
 _MIDPOINT_ENDPOINT_POSITIONS = {"p1": 0, "p2": 1}
@@ -88,6 +96,12 @@ def validate_context_closure_resolvers(
         context_closure_resolver(resolver_id)
 
 
+def context_closure_resolver_ids() -> frozenset[CapabilityContextResolver]:
+    """Return the complete declarative resolver registry."""
+
+    return frozenset(_CONTEXT_CLOSURE_RESOLVERS)
+
+
 def midpoint_endpoint_position(selector: str) -> int | None:
     """Project a generic ``midpoint:<role>`` selector to endpoint position."""
     if not selector.startswith("midpoint:"):
@@ -99,8 +113,11 @@ def midpoint_endpoint_position(selector: str) -> int | None:
 __all__ = [
     "CONDITION_OBJECT_ROLES_RESOLVER",
     "PATH_REDUCTION_ROLES_RESOLVER",
+    "SQUARE_PATH_TRANSFORMATION_ROLES_RESOLVER",
+    "WEIGHTED_PATH_TRANSFORMATION_ROLES_RESOLVER",
     "ContextClosureResolverSpec",
     "context_closure_resolver",
+    "context_closure_resolver_ids",
     "midpoint_endpoint_position",
     "validate_context_closure_resolvers",
 ]

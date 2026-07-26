@@ -35,8 +35,10 @@ from shuxueshuo_server.solver.runtime.functional_plan_models import (
     _issue,
 )
 from shuxueshuo_server.solver.runtime.functional_symbol_flow import (
+    apply_symbolic_closure_effect,
     return_free_symbol_refs,
 )
+from shuxueshuo_server.solver.runtime.function_specs import FunctionSpec
 from shuxueshuo_server.solver.runtime.handle_alias_index import (
     parse_scoped_non_answer_handle,
     visible_from_valid_scope,
@@ -277,9 +279,8 @@ class FunctionalCallPlacementService:
             ):
                 continue
             signature = _resolved_object_state_signature(
-                call,
                 item,
-                aliases=aliases,
+                capability=capability,
             )
             previous_id = state_producers.get(signature)
             if previous_id is None:
@@ -311,16 +312,9 @@ class FunctionalCallPlacementService:
                 *groups.get(previous_id, (previous_id,)),
                 *groups.get(call.call_id, (call.call_id,)),
             )
-            lca = _least_common_scope(
+            if not _returns_visible_in_declared_scopes(
+                previous.returns,
                 tuple(source_scopes[item_id] for item_id in candidate_scopes),
-                handle_registry,
-            )
-            if not _inputs_shareable_at_scope(
-                (*previous.resolved_args.values(), *item.resolved_args.values()),
-                lca,
-                aliases=aliases,
-                groups=groups,
-                source_scopes=source_scopes,
                 registry=handle_registry,
             ):
                 continue
@@ -340,13 +334,13 @@ class FunctionalCallPlacementService:
                 call,
             )
             if merged_expectations is None:
-                issues.append(
-                    _return_expectation_conflict_issue(
-                        expectation_owner,
-                        call,
-                    )
-                )
-                answer_bindings = {}
+                # Distinct derivation paths that target the same MathObject may
+                # represent successive open/closed versions. Conflicting forms
+                # disprove reuse here; keep both calls so runtime provenance can
+                # verify the transition. Exact duplicate calls were already
+                # handled by the resolved-call signature above.
+                state_producers[signature] = call.call_id
+                continue
             elif answer_bindings:
                 transferred_return_bindings.setdefault(previous_id, {}).update(
                     answer_bindings
@@ -503,6 +497,12 @@ class FunctionalCallPlacementService:
             catalog=catalog,
             handle_registry=handle_registry,
             semantic_items=semantic_items,
+        )
+        issues.extend(
+            _post_placement_scope_issues(
+                final_calls,
+                registry=handle_registry,
+            )
         )
         final_by_id = {item.call_id: item for item in final_calls}
         placements = tuple(
@@ -773,33 +773,33 @@ def _return_expectation_conflict_issue(
 
 
 def _resolved_object_state_signature(
-    call: FunctionalCall,
     reconciliation: FunctionalCallReconciliation,
     *,
-    aliases: Mapping[str, str],
+    capability: FunctionalCapability,
 ) -> tuple[Any, ...]:
+    """Identify an already-materialized logical object state.
+
+    Different pure derivations may reach one authoritative MathObject state.
+    Closure and lineage remain part of the proof; the caller additionally
+    refuses reuse when the calls declare conflicting open/closed forms.
+    """
+    returns_by_name = {item.name: item for item in capability.returns}
     return (
-        call.capability_id,
-        tuple(
-            sorted(
-                (
-                    name,
-                    tuple(
-                        _value_fingerprint(value, aliases=aliases)
-                        for value in values
-                    ),
-                )
-                for name, values in reconciliation.resolved_args.items()
-            )
-        ),
         tuple(
             (
                 item.return_name,
                 item.runtime_type,
-                item.state_slot_id,
                 item.object_ref,
+                (
+                    returns_by_name[item.return_name].state_kind
+                    if item.return_name in returns_by_name
+                    else None
+                ),
                 item.identity_policy,
                 item.write_mode,
+                tuple(sorted(item.free_symbol_refs)),
+                tuple(sorted(item.lineage.semantic_roles)),
+                tuple(sorted(item.lineage.evidence_tags)),
             )
             for item in reconciliation.returns
         ),
@@ -916,9 +916,16 @@ def _value_fingerprint(
         return (
             "state_slot",
             value.state_slot_id,
+            value.handle,
             value.runtime_type,
             value.object_ref,
             value.source_state_slot_ids,
+        )
+    if value.object_ref is not None:
+        return (
+            "object_ref",
+            value.object_ref,
+            value.runtime_type,
         )
     return (
         "handle",
@@ -958,6 +965,30 @@ def _inputs_shareable_at_scope(
             ):
                 return False
     return True
+
+
+def _returns_visible_in_declared_scopes(
+    returns: Sequence[FunctionalReturnAllocation],
+    scope_ids: Sequence[str],
+    *,
+    registry: CanonicalHandleRegistry,
+) -> bool:
+    """Prove that a prior object state can replace a later recomputation.
+
+    The duplicate call will not execute, so visibility of its own inputs is
+    irrelevant. The retained state itself must already be visible everywhere
+    the duplicate was declared; otherwise aliasing would create an unreadable
+    cross-scope dependency.
+    """
+    return all(
+        visible_from_valid_scope(
+            item.valid_scope,
+            scope_id=scope_id,
+            registry=registry,
+        )
+        for item in returns
+        for scope_id in scope_ids
+    )
 
 
 def _inputs_visible_at_scope(
@@ -1119,23 +1150,45 @@ def _reallocate_calls(
             )
             if old.handle.startswith("answer:"):
                 handle = old.handle
+            state_handle = (
+                factory.handle_for(
+                    call_id=call.call_id,
+                    return_spec=spec,
+                    valid_scope=valid_scope,
+                    binding=None,
+                )
+                if old.state_handle is not None
+                else None
+            )
             state_slot_id = (
                 f"{object_ref}.{spec.state_kind}@{valid_scope}"
                 if object_ref is not None
                 else f"functional:{valid_scope}:{call.call_id}:{old.return_name}"
             )
+            inferred_free_symbol_refs = return_free_symbol_refs(
+                spec.runtime_type,
+                resolved_args,
+                object_ref=object_ref,
+                ignored_input_args=spec.result_form_ignored_input_args,
+            )
             allocation = replace(
                 old,
                 call_id=call.call_id,
                 handle=handle,
+                state_handle=state_handle,
                 valid_scope=valid_scope,
                 state_slot_id=state_slot_id,
                 object_ref=object_ref,
                 dependency_object_refs=_argument_dependencies(resolved_args),
-                free_symbol_refs=return_free_symbol_refs(
-                    spec.runtime_type,
-                    resolved_args,
-                    object_ref=object_ref,
+                free_symbol_refs=apply_symbolic_closure_effect(
+                    inferred_free_symbol_refs,
+                    return_name=spec.name,
+                    args=resolved_args,
+                    spec=(
+                        capability.source.symbolic_closure
+                        if isinstance(capability.source, FunctionSpec)
+                        else None
+                    ),
                 ),
                 source_state_slot_ids=_argument_source_slots(resolved_args),
             )
@@ -1165,7 +1218,7 @@ def _rewrite_resolved_value(
     if allocation is None:
         return replace(value, source_call_id=source)
     return ResolvedFunctionalValue(
-        handle=allocation.handle,
+        handle=allocation.state_handle or allocation.handle,
         runtime_type=allocation.runtime_type,
         valid_scope=allocation.valid_scope,
         state_slot_id=allocation.state_slot_id,
@@ -1188,6 +1241,28 @@ def _canonical_dependency_graph(
 ) -> dict[str, tuple[str, ...]]:
     result: dict[str, tuple[str, ...]] = {}
     call_ids = {call.call_id for call in plan.calls}
+    call_index = {
+        call.call_id: index
+        for index, call in enumerate(plan.calls)
+    }
+    producers_by_slot: dict[str, list[str]] = {}
+    for producer_id, item in reconciled.items():
+        for allocation in item.returns:
+            producers_by_slot.setdefault(
+                allocation.state_slot_id,
+                [],
+            ).append(producer_id)
+
+    def producer_for_slot(slot_id: str, consumer_id: str) -> str | None:
+        consumer_index = call_index[consumer_id]
+        candidates = tuple(
+            producer_id
+            for producer_id in producers_by_slot.get(slot_id, ())
+            if producer_id in call_index
+            and call_index[producer_id] < consumer_index
+        )
+        return candidates[-1] if candidates else None
+
     for call in plan.calls:
         dependencies = [
             ref.from_call
@@ -1202,6 +1277,23 @@ def _canonical_dependency_graph(
                 for values in item.resolved_args.values()
                 for value in values
                 if value.source_call_id is not None
+            )
+            dependencies.extend(
+                producer_id
+                for values in item.resolved_args.values()
+                for value in values
+                if value.source_call_id is None
+                for slot_id in (
+                    *((value.state_slot_id,) if value.state_slot_id else ()),
+                    *value.source_state_slot_ids,
+                )
+                if (
+                    producer_id := producer_for_slot(
+                        slot_id,
+                        call.call_id,
+                    )
+                )
+                is not None
             )
         result[call.call_id] = tuple(
             dict.fromkeys(
@@ -1227,6 +1319,63 @@ def _dependency_consumer_scopes(
         call_id: tuple(dict.fromkeys(scopes))
         for call_id, scopes in result.items()
     }
+
+
+def _post_placement_scope_issues(
+    calls: Sequence[FunctionalCallReconciliation],
+    *,
+    registry: CanonicalHandleRegistry,
+) -> tuple[FunctionalPlanIssue, ...]:
+    """Report explicit DAG edges that placement could not make visible.
+
+    A producer may be pinned to a child scope by one of its own inputs. In that
+    case a sibling consumer cannot safely reuse the result. This is a
+    repairable plan dependency error, not a projector configuration failure.
+    """
+
+    result: list[FunctionalPlanIssue] = []
+    seen: set[tuple[str, str, str | None]] = set()
+    for call in calls:
+        for arg_name, values in call.resolved_args.items():
+            for value in values:
+                if (
+                    value.source_call_id is None
+                    or visible_from_valid_scope(
+                        value.valid_scope,
+                        scope_id=call.scope_id,
+                        registry=registry,
+                    )
+                ):
+                    continue
+                key = (call.call_id, arg_name, value.source_call_id)
+                if key in seen:
+                    continue
+                seen.add(key)
+                result.append(
+                    _issue(
+                        "functional_reconciliation",
+                        "functional.arg_scope_invisible",
+                        (
+                            f"call result {value.source_call_id}."
+                            f"{value.return_name or 'result'} is not visible "
+                            f"from {call.scope_id}"
+                        ),
+                        call_id=call.call_id,
+                        scope_id=call.scope_id,
+                        details={
+                            "arg": arg_name,
+                            "source_call_id": value.source_call_id,
+                            "source_return": value.return_name,
+                            "producer_valid_scope": value.valid_scope,
+                            "consumer_execution_scope": call.scope_id,
+                            "repair_call_ids": [
+                                value.source_call_id,
+                                call.call_id,
+                            ],
+                        },
+                    )
+                )
+    return tuple(result)
 
 
 def _alias_groups(

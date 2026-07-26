@@ -11,6 +11,7 @@ from shuxueshuo_server.solver.family.models import (
     CapabilityContextResolver,
     CapabilityDependencyPolicy,
     CapabilityStateClosurePolicy,
+    FunctionalArgBindingAuthority,
     StateIdentityConstraintSpec,
     StateLineageClosureSpec,
     StateObjectRoleProjectionSpec,
@@ -190,6 +191,10 @@ class FunctionalCapabilityArg:
     description: str = ""
     provides_semantic_roles: tuple[str, ...] = ()
     input_closure_policy: CapabilityStateClosurePolicy = "any"
+    binding_authority: FunctionalArgBindingAuthority = field(
+        default="wire",
+        repr=False,
+    )
 
     def to_prompt_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -226,6 +231,7 @@ class FunctionalAutoArg:
     name: str
     selector: str
     required: bool
+    binding_authority: FunctionalArgBindingAuthority = "compiler"
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -255,12 +261,19 @@ class FunctionalCapabilityReturn:
     object_role_projections: tuple[StateObjectRoleProjectionSpec, ...] = ()
     lineage_closures: tuple[StateLineageClosureSpec, ...] = ()
     max_independent_free_parameters: int | None = None
+    return_binding: str = "auto"
+    result_form_ignored_input_args: tuple[str, ...] = ()
+
+    @property
+    def binding_mode(self) -> str:
+        """Return the wire-level destination policy exposed to the planner."""
+        return _prompt_return_binding(self)
 
     def to_prompt_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
             "name": self.name,
             "type": self.runtime_type,
-            "binding": _prompt_return_binding(self),
+            "binding": self.binding_mode,
         }
         if not self.required:
             payload["required"] = False
@@ -390,6 +403,12 @@ class FunctionalCapability:
             for item in self.identity_constraints
             if item.description
         )
+        requirements.extend(
+            {"requirement": closure.description}
+            for returned in self.returns
+            for closure in returned.lineage_closures
+            if closure.description
+        )
         exposed_arg_names = {item.name for item in self.args}
         requirements.extend(
             {
@@ -406,6 +425,12 @@ class FunctionalCapability:
 
 
 def _prompt_return_binding(result: FunctionalCapabilityReturn) -> str:
+    if result.return_binding == "internal_only":
+        return "internal_only"
+    if result.return_binding == "external_allowed":
+        return "answer_or_existing_object"
+    if result.return_binding == "call_local_allowed":
+        return "call_result_or_answer_or_existing_object"
     if result.identity_policy == "derived_role":
         return "internal_only"
     if result.identity_policy == "preserve_input_object":
@@ -471,6 +496,7 @@ class FunctionalReturnAllocation:
     identity_policy: str
     write_mode: str
     bound_ref: SemanticRef | None = None
+    state_handle: str | None = None
     dependency_object_refs: tuple[str, ...] = ()
     free_symbol_refs: tuple[str, ...] = ()
     source_state_slot_ids: tuple[str, ...] = ()
@@ -480,7 +506,7 @@ class FunctionalReturnAllocation:
     lineage: StateSemanticLineage = StateSemanticLineage()
 
     def to_payload(self) -> dict[str, Any]:
-        return {
+        payload = {
             "call_id": self.call_id,
             "return_name": self.return_name,
             "handle": self.handle,
@@ -499,6 +525,9 @@ class FunctionalReturnAllocation:
             "provides_semantic_roles": list(self.provides_semantic_roles),
             "lineage": self.lineage.to_payload(),
         }
+        if self.state_handle is not None:
+            payload["state_handle"] = self.state_handle
+        return payload
 
 
 @dataclass(frozen=True)

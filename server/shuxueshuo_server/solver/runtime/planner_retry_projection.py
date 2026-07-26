@@ -86,9 +86,13 @@ class PlannerRetryStateProjector:
         # issues and current stable prefix rather than copied from memory.
         stable_prefix = () if has_answer_check else raw_stable_prefix
         if is_functional:
+            committed_calls = (
+                memory.committed_candidate_calls
+                or memory.stable_candidate_calls
+            )
             preserve_policy: PlannerRetryPreservePolicy = (
                 "preserve_graph"
-                if memory.stable_candidate_calls and not has_answer_check
+                if committed_calls and not has_answer_check
                 else "none"
             )
         else:
@@ -117,7 +121,7 @@ class PlannerRetryStateProjector:
             preserve_policy=preserve_policy,
             repair_instruction=(
                 functional_repair_instruction(
-                    stable_candidate_calls=memory.stable_candidate_calls,
+                    stable_candidate_calls=committed_calls,
                     repair_call_ids=memory.repair_call_ids,
                     issue_count=len(issues),
                 )
@@ -142,6 +146,10 @@ class PlannerRetryStateProjector:
             baseline_candidate=memory.baseline_candidate,
             stable_candidate_prefix=memory.stable_candidate_prefix,
             stable_candidate_calls=memory.stable_candidate_calls,
+            committed_candidate_calls=memory.committed_candidate_calls,
+            runtime_verified_calls=memory.runtime_verified_calls,
+            validated_call_ids=memory.validated_call_ids,
+            call_memory=memory.call_memory,
             repair_call_ids=memory.repair_call_ids,
         )
 

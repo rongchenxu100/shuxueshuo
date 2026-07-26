@@ -73,8 +73,12 @@ _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             goal_type="derive_constructed_point",
             title="曲线候选点筛选并反求参数",
             description=(
-                "候选点已经由前序几何构造得到后，用当前问含参抛物线和参数约束"
-                "筛出唯一候选点，再把该含参点代入抛物线反求参数并代回抛物线。"
+                "前序几何构造已经产生一组有坐标的候选点后，用当前问含参抛物线"
+                "和参数约束筛出唯一候选点，再把该含参点代入抛物线反求参数并"
+                "代回抛物线。candidates 必须引用前序调用实际产出的 PointList，"
+                "不能把尚未求出坐标的目标 PointRef 包成单元素列表。若曲线条件"
+                "本身不能唯一排除分支，必须显式提供与抛物线参数身份一致的 "
+                "symbol_constraint；代码不会从 Context 偷选范围条件。"
             ),
             method_ids=(
                 "filter_point_candidates_by_quadratic_curve",
@@ -89,6 +93,32 @@ _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 execution_strategy="curve_candidate_parameter_solve",
                 intermediate_wiring=(
                     ("filter_point_candidates_by_quadratic_curve.selected_candidate", "parameter_from_curve_point_on_quadratic.point"),
+                ),
+                input_aliases=(
+                    (
+                        "candidates",
+                        "filter_point_candidates_by_quadratic_curve.candidates",
+                    ),
+                    (
+                        "parabola",
+                        "filter_point_candidates_by_quadratic_curve.parabola",
+                    ),
+                    (
+                        "parabola",
+                        "parameter_from_curve_point_on_quadratic.quadratic",
+                    ),
+                    (
+                        "target_point",
+                        "filter_point_candidates_by_quadratic_curve.target",
+                    ),
+                    (
+                        "symbol_constraint",
+                        "filter_point_candidates_by_quadratic_curve.parameter_constraint",
+                    ),
+                    (
+                        "symbol_constraint",
+                        "parameter_from_curve_point_on_quadratic.parameter_constraint",
+                    ),
                 ),
                 output_aliases=(
                     recipe_output_alias(
@@ -110,7 +140,19 @@ _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                         "solved_parabola",
                         required=False,
                         cardinality="optional",
+                        identity_policy="preserve_input_object",
+                        identity_arg="parabola",
+                        write_mode="transition",
                     ),
+                ),
+            ),
+            do_not_use_when=(
+                "目标点已经在题面结构化声明横坐标，只需代入抛物线求纵坐标。",
+                "当前没有前序几何构造产生的 materialized PointList 候选状态。",
+                "试图把尚未求坐标的 target_point 本身或只含该对象的列表作为 candidates。",
+                (
+                    "多个候选都可能满足曲线方程，但没有提供用于选择分支的参数"
+                    "范围或符号约束；不要假定默认旋转方向。"
                 ),
             ),
         ),
@@ -125,23 +167,44 @@ _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                     "PointList",
                     object_kind="point",
                     semantic_role="candidates",
+                    description=(
+                        "前序几何构造调用实际产出的候选点列表；每个候选都必须已有"
+                        "坐标状态。不能填写目标 PointRef，也不能填写只含目标对象的"
+                        "伪候选列表。"
+                    ),
                 ),
                 StateSlotPattern(
                     "expression",
                     "Parabola",
                     object_kind="function",
                     semantic_role="parabola",
+                    description="用于检验候选点并反求参数的当前含参抛物线状态。",
                 ),
                 StateSlotPattern(
                     "coordinate",
                     "Point",
                     object_kind="point",
                     semantic_role="target_point",
+                    description=(
+                        "候选筛选后要写入坐标的题面目标点身份；它不是 candidates "
+                        "的替代输入。"
+                    ),
                 ),
             ),
             condition_reads=(
-                ConditionPattern("point_on_curve", required=False),
-                ConditionPattern("symbol_constraint", required=False),
+                ConditionPattern(
+                    "point_on_curve",
+                    required=False,
+                    description="目标点属于该抛物线的结构化条件。",
+                ),
+                ConditionPattern(
+                    "symbol_constraint",
+                    required=False,
+                    description=(
+                        "用于排除候选分支的参数范围或符号约束。只要曲线条件"
+                        "不能唯一选出一个候选，该参数就是条件性必需输入。"
+                    ),
+                ),
             ),
             slot_writes=(
                 StateSlotPattern(
@@ -151,6 +214,10 @@ _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                     semantic_role="selected_curve_point",
                     output_key="parameter_from_curve_point_on_quadratic.point",
                     write_mode="create",
+                    description=(
+                        "从前序 PointList 中筛出的唯一候选点，并保持 target_point "
+                        "的对象身份。"
+                    ),
                 ),
             ),
         ),
@@ -171,7 +238,12 @@ _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 MethodInputBindingSpec("p2", "length_segment:p2"),
                 MethodInputBindingSpec("reference_p1", "length_reference_segment:p1", required=False),
                 MethodInputBindingSpec("reference_p2", "length_reference_segment:p2", required=False),
-                MethodInputBindingSpec("parameter", "parameter_symbol"),
+                MethodInputBindingSpec(
+                    "parameter",
+                    "parameter_symbol",
+                    functional_authority="wire",
+                    functional_resolver="unique_parameter_symbol",
+                ),
                 MethodInputBindingSpec("condition", "fact:length_condition:Condition"),
                 MethodInputBindingSpec("constraint", "parameter_constraint", required=False),
             ),
@@ -182,7 +254,19 @@ _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 MethodInputBindingSpec("condition", "weighted_path:condition"),
                 MethodInputBindingSpec("fixed_point", "weighted_path:fixed_point"),
                 MethodInputBindingSpec("moving_point", "weighted_path:moving_point"),
-                MethodInputBindingSpec("dynamic_parameter", "dynamic_symbol"),
+                MethodInputBindingSpec(
+                    "moving_point_ref",
+                    "weighted_path:moving_point_ref",
+                ),
+                MethodInputBindingSpec(
+                    "linked_fixed_endpoint_ref",
+                    "weighted_path:linked_fixed_endpoint_ref",
+                ),
+                MethodInputBindingSpec(
+                    "dynamic_parameter",
+                    "dynamic_symbol",
+                    functional_authority="compiler",
+                ),
                 MethodInputBindingSpec("auxiliary_point_ref", "weighted_path:auxiliary_point_ref"),
             ),
             always_emit_outputs=("auxiliary_point", "auxiliary_locus"),
@@ -208,8 +292,16 @@ _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                 MethodInputBindingSpec("curve_point", "weighted_path:curve_point"),
                 MethodInputBindingSpec("moving_point", "weighted_path:moving_point"),
                 MethodInputBindingSpec("auxiliary_point", "weighted_path:auxiliary_point"),
-                MethodInputBindingSpec("parameter", "parameter_symbol"),
-                MethodInputBindingSpec("dynamic_parameter", "dynamic_symbol"),
+                MethodInputBindingSpec(
+                    "parameter",
+                    "parameter_symbol",
+                    functional_authority="compiler",
+                ),
+                MethodInputBindingSpec(
+                    "dynamic_parameter",
+                    "dynamic_symbol",
+                    functional_authority="compiler",
+                ),
                 MethodInputBindingSpec("parameter_constraint", "parameter_constraint"),
                 MethodInputBindingSpec("dynamic_constraint", "dynamic_constraint"),
             ),

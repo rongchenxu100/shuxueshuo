@@ -25,6 +25,29 @@ ScalarResultClosurePolicy = Literal["no_free_symbols"]
 PlanTransformerScope = Literal["single_invocation", "all_invocations"]
 
 
+@dataclass(frozen=True)
+class TrialErrorHintSpec:
+    """Declarative mapping from one trial failure shape to a typed code."""
+
+    error_contains: str
+    code: str
+    requires_point_answer: bool = False
+    requires_planner_output_types: tuple[str, ...] = ()
+
+    def to_payload(self) -> dict[str, Any]:
+        payload: dict[str, Any] = {
+            "error_contains": self.error_contains,
+            "code": self.code,
+        }
+        if self.requires_point_answer:
+            payload["requires_point_answer"] = True
+        if self.requires_planner_output_types:
+            payload["requires_planner_output_types"] = list(
+                self.requires_planner_output_types
+            )
+        return payload
+
+
 @dataclass
 class CheckResult:
     """一次可机读验算的结果。"""
@@ -119,6 +142,41 @@ class ScalarResultFormSpec:
             payload["max_independent_free_parameters"] = (
                 self.max_independent_free_parameters
             )
+        return payload
+
+
+@dataclass(frozen=True)
+class SymbolicClosureSpec:
+    """Declarative target-Symbol solve and substitution effect contract.
+
+    The runtime solver remains authoritative for concrete values and branches.
+    This metadata lets planner layers identify the target, explicitly
+    preserved Symbol basis and returns affected by the same substitution.
+    """
+
+    target_arg: str
+    equation_builder: str
+    known_substitutions: tuple[tuple[str, str], ...] = ()
+    representation_mapper: str | None = None
+    constraint_args: tuple[str, ...] = ()
+    preserved_symbol_args: tuple[str, ...] = ()
+    substitution_outputs: tuple[str, ...] = ()
+    require_unique_target: bool = True
+
+    def to_payload(self) -> dict[str, Any]:
+        payload: dict[str, Any] = {
+            "target_arg": self.target_arg,
+            "equation_builder": self.equation_builder,
+            "known_substitutions": [
+                list(item) for item in self.known_substitutions
+            ],
+            "constraint_args": list(self.constraint_args),
+            "preserved_symbol_args": list(self.preserved_symbol_args),
+            "substitution_outputs": list(self.substitution_outputs),
+            "require_unique_target": self.require_unique_target,
+        }
+        if self.representation_mapper is not None:
+            payload["representation_mapper"] = self.representation_mapper
         return payload
 
 
@@ -230,6 +288,8 @@ class MethodSpec:
     postconditions: tuple[str, ...] = ()
     trace_template: tuple[str, ...] = ()
     repair_hints: tuple[dict[str, Any], ...] = ()
+    trial_error_hints: tuple[TrialErrorHintSpec, ...] = ()
+    geometry_profiles: tuple[dict[str, Any], ...] = ()
     explanation: MethodExplanationSpec | None = None
     visual: MethodVisualSpec | None = None
     constraint_analyzer: str | None = None
@@ -237,6 +297,7 @@ class MethodSpec:
     plan_transformer_scope: PlanTransformerScope = "single_invocation"
     reconciliation_validators: tuple[str, ...] = ()
     distinct_arg_groups: tuple[tuple[str, ...], ...] = ()
+    symbolic_closure: SymbolicClosureSpec | None = None
     # Missing/legacy specs are conservative. Code-owned stateless methods
     # declare purity explicitly through MethodSpecSource.
     is_pure: bool = False

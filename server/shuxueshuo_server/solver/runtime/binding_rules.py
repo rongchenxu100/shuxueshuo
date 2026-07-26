@@ -19,7 +19,10 @@ from shuxueshuo_server.solver.runtime.models import ContextPath
 from shuxueshuo_server.solver.runtime.path_reduction_roles import (
     resolve_read_closed_path_reduction_inputs,
 )
-from shuxueshuo_server.solver.runtime.function_specs import FunctionAdapterRegistry
+from shuxueshuo_server.solver.runtime.function_specs import (
+    FunctionAdapterRegistry,
+    identity_safe_parameter_value_expansion,
+)
 from shuxueshuo_server.solver.runtime.handle_registry import (
     _handle_name,
     _handle_scope,
@@ -190,12 +193,16 @@ class MethodBindingRuleRegistry:
         else:
             expansion_selectors = ()
         for selector in expansion_selectors:
-            for input_name, path in self._expand(
-                selector,
-                step,
-                index,
-                local_outputs=local_outputs,
-            ).items():
+            expanded = identity_safe_parameter_value_expansion(
+                self._expand(
+                    selector,
+                    step,
+                    index,
+                    local_outputs=local_outputs,
+                ),
+                existing_inputs=inputs,
+            )
+            for input_name, path in expanded.items():
                 inputs.setdefault(input_name, path)
         return inputs
 
@@ -484,6 +491,14 @@ def _point_output_ref_selector(
 ) -> str:
     """读取当前 step 目标点的 PointRef。"""
     handle = _point_output_handle(step, index)
+    if any(
+        write.step_id == step.step_id
+        and write.runtime_type == "Point"
+        and write.object_ref == handle
+        and write.write_mode == "transition"
+        for write in index.projected_state_writes
+    ):
+        return _point_transition_target_selector(step, index, local_outputs)
     index.ensure_point_declaration(handle, definition="method_output_point")
     return index.point_ref_path_for(handle)
 
@@ -510,24 +525,32 @@ def _translated_point_selector(role: str) -> BindingSelectorFn:
         local_outputs: Mapping[str, str],
     ) -> str:
         target_handle = _point_output_handle(step, index)
-        target_path = index.point_ref_path_for(target_handle)
+        target_path = index.immutable_problem_point_ref_path_for(target_handle)
         if role == "target":
             return target_path
-        try:
-            target_ref = index.context.read_path(
-                target_path,
-                from_scope_id=step.scope_id,
-                expected_type="PointRef",
-            ).value
-        except (KeyError, PermissionError, TypeError, ValueError) as exc:
-            raise StrategyDraftValidationError(
-                f"translated_point_target_ref_not_found: {target_handle}"
-            ) from exc
-        source_name = (
-            target_ref.definition.get("of")
-            or target_ref.definition.get("source")
-            or target_ref.definition.get("base")
-        )
+        target_payload = index.handle_registry.entity_payloads.get(target_handle)
+        if isinstance(target_payload, Mapping):
+            source_name = (
+                target_payload.get("of")
+                or target_payload.get("source")
+                or target_payload.get("base")
+            )
+        else:
+            try:
+                target_ref = index.context.read_path(
+                    target_path,
+                    from_scope_id=step.scope_id,
+                    expected_type="PointRef",
+                ).value
+            except (KeyError, PermissionError, TypeError, ValueError) as exc:
+                raise StrategyDraftValidationError(
+                    f"translated_point_target_ref_not_found: {target_handle}"
+                ) from exc
+            source_name = (
+                target_ref.definition.get("of")
+                or target_ref.definition.get("source")
+                or target_ref.definition.get("base")
+            )
         if not source_name:
             raise StrategyDraftValidationError(
                 f"translated_point_source_not_found: {target_handle}"
@@ -887,6 +910,24 @@ def _weighted_path_selector(role: str) -> BindingSelectorFn:
 
     return select
 
+
+def _weighted_path_identity_selector(role: str) -> BindingSelectorFn:
+    """Bind an immutable canonical PointRef for transformation metadata."""
+
+    def select(
+        step: StepIntent,
+        index: CanonicalRuntimeBindingIndex,
+        local_outputs: Mapping[str, str],
+    ) -> str:
+        fixed, moving, curve = _weighted_path_roles(step, index)
+        values = {
+            "moving_point_ref": moving,
+            "linked_fixed_endpoint_ref": curve,
+        }
+        return index.point_identity_path_for(values[role])
+
+    return select
+
 def _weighted_auxiliary_point_ref_selector(
     step: StepIntent,
     index: CanonicalRuntimeBindingIndex,
@@ -912,6 +953,57 @@ def _weighted_auxiliary_point_selector(
     """读取加权路径辅助点坐标。"""
     auxiliary = _auxiliary_point_handle_from_reads(step, index)
     return index.path_for(auxiliary, expected_type="Point")
+
+
+def _square_path_fixed_endpoint_ref_selector(
+    position: int,
+) -> BindingSelectorFn:
+    """Bind producer-owned square-path endpoint identity metadata."""
+
+    def select(
+        step: StepIntent,
+        index: CanonicalRuntimeBindingIndex,
+        local_outputs: Mapping[str, str],
+    ) -> str:
+        square_handle = index.fact_handle_by_type("square", step=step)
+        square = index.context.read_path(
+            index.path_for(square_handle, expected_type="Condition"),
+            from_scope_id=step.scope_id,
+            expected_type="Condition",
+        ).value
+        vertices = tuple(str(item) for item in square.get("vertices", ()))
+        if len(vertices) < 4:
+            raise StrategyDraftValidationError(
+                "square_path_roles_missing: ordered square vertices"
+            )
+        if position == 1:
+            handle = vertices[0]
+        else:
+            target = index.context.read_path(
+                index.path_for(
+                    index.fact_handle_by_type(
+                        "path_minimum_target",
+                        step=step,
+                    ),
+                    expected_type="Condition",
+                ),
+                from_scope_id=step.scope_id,
+                expected_type="Condition",
+            ).value
+            segments = _segments_from_path_text(str(target.get("path", "")))
+            moving_name = _semantic_name(vertices[3])
+            incident = tuple(
+                segment for segment in segments if moving_name in segment
+            )
+            if len(incident) != 1:
+                raise StrategyDraftValidationError(
+                    "square_path_roles_missing: moving segment"
+                )
+            fixed_name = _other_endpoint(incident[0], moving_name)
+            handle = index.point_handle_by_name(fixed_name, step=step)
+        return index.point_identity_path_for(handle)
+
+    return select
 
 def _path_reduction_selector(role: str) -> BindingSelectorFn:
     """创建两动点路径转化 recipe 的角色 selector。"""
@@ -1231,7 +1323,10 @@ def _parameter_symbol_path_for_value(
         None,
     )
     if provenance is None or provenance.object_ref is None:
-        return index.parameter_symbol_path()
+        raise StrategyDraftValidationError(
+            "function.return_identity_unresolved: "
+            f"parameter_value={parameter_value_handle}"
+        )
     symbol_bindings = [
         binding
         for handle, binding in index.bindings.items()
@@ -1356,8 +1451,20 @@ DEFAULT_BINDING_SELECTORS: dict[str, BindingSelectorFn] = {
     "weighted_path:fixed_point": _weighted_path_selector("fixed_point"),
     "weighted_path:moving_point": _weighted_path_selector("moving_point"),
     "weighted_path:curve_point": _weighted_path_selector("curve_point"),
+    "weighted_path:moving_point_ref": _weighted_path_identity_selector(
+        "moving_point_ref"
+    ),
+    "weighted_path:linked_fixed_endpoint_ref": _weighted_path_identity_selector(
+        "linked_fixed_endpoint_ref"
+    ),
     "weighted_path:auxiliary_point_ref": _weighted_auxiliary_point_ref_selector,
     "weighted_path:auxiliary_point": _weighted_auxiliary_point_selector,
+    "square_path:fixed_endpoint_1_ref": (
+        _square_path_fixed_endpoint_ref_selector(1)
+    ),
+    "square_path:fixed_endpoint_2_ref": (
+        _square_path_fixed_endpoint_ref_selector(2)
+    ),
     "path_reduction:first_membership": _path_reduction_selector("first_membership"),
     "path_reduction:second_membership": _path_reduction_selector("second_membership"),
     "path_reduction:relation": _path_reduction_selector("relation"),
@@ -1542,7 +1649,8 @@ def _parameter_value_handle(
     step: StepIntent,
     index: CanonicalRuntimeBindingIndex | None = None,
 ) -> str | None:
-    """从 reads 中找参数值 fact。"""
+    """Resolve one read ParameterValue without crossing Symbol identities."""
+    candidates: list[str] = []
     for handle in step.reads:
         if index is not None:
             binding = index.bindings.get(handle)
@@ -1552,7 +1660,8 @@ def _parameter_value_handle(
                 and binding.value_type == "ParameterValue"
                 and not index.is_structural_symbol_value_fact(handle)
             ):
-                return handle
+                candidates.append(handle)
+                continue
         if not (handle.startswith("fact:") and _semantic_name(handle).endswith("_value")):
             continue
         if index is not None:
@@ -1566,8 +1675,79 @@ def _parameter_value_handle(
             continue
         if index is not None and handle not in index.bindings:
             continue
-        return handle
-    return None
+        candidates.append(handle)
+    candidates = _unique_ordered(candidates)
+    if index is None:
+        return candidates[0] if candidates else None
+    point_symbols = _read_point_free_symbols(step, index)
+    if point_symbols:
+        matching = [
+            handle
+            for handle in candidates
+            if _parameter_value_symbol(
+                handle,
+                index,
+                scope_id=step.scope_id,
+            )
+            in point_symbols
+        ]
+        return matching[0] if len(matching) == 1 else None
+    return candidates[0] if len(candidates) == 1 else None
+
+
+def _read_point_free_symbols(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> set[Any]:
+    result: set[Any] = set()
+    for handle in step.reads:
+        binding = index.bindings.get(handle)
+        if binding is None or binding.value_type != "Point":
+            continue
+        try:
+            point = index.context.read_path(
+                binding.path,
+                from_scope_id=step.scope_id,
+                expected_type="Point",
+            ).value
+        except (KeyError, PermissionError, TypeError, ValueError):
+            continue
+        result.update(
+            symbol
+            for coordinate in point
+            for symbol in getattr(coordinate, "free_symbols", ())
+        )
+    return result
+
+
+def _parameter_value_symbol(
+    handle: str,
+    index: CanonicalRuntimeBindingIndex,
+    *,
+    scope_id: str,
+) -> Any | None:
+    provenance = next(
+        (
+            item
+            for item in reversed(index.state_write_provenance)
+            if item.produced_handle == handle
+            and item.runtime_type == "ParameterValue"
+        ),
+        None,
+    )
+    if provenance is None or provenance.object_ref is None:
+        return None
+    binding = index.bindings.get(provenance.object_ref)
+    if binding is None or binding.value_type != "Symbol":
+        return None
+    try:
+        return index.context.read_path(
+            binding.path,
+            from_scope_id=scope_id,
+            expected_type="Symbol",
+        ).value
+    except (KeyError, PermissionError, TypeError, ValueError):
+        return None
 
 def _path_for_first_type(
     index: CanonicalRuntimeBindingIndex,

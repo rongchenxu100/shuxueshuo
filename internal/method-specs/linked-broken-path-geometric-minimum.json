@@ -66,5 +66,31 @@
   ],
   "postconditions": [
     "输出参数值满足题设最小值和动点范围"
+  ],
+  "geometry_profiles": [
+    {
+      "profile_id": "sqrt2_right_isosceles",
+      "weight_expression": "sqrt(2)",
+      "construction": "right_isosceles_triangle",
+      "geometry": "45_45_90",
+      "title": "等腰直角三角形",
+      "angle_label": "45 度",
+      "direction": [
+        "1",
+        "1"
+      ]
+    },
+    {
+      "profile_id": "weight2_30_60",
+      "weight_expression": "2",
+      "construction": "right_triangle_30_60",
+      "geometry": "30_60_90",
+      "title": "30°/60° 直角三角形",
+      "angle_label": "30 度",
+      "direction": [
+        "3",
+        "sqrt(3)"
+      ]
+    }
   ]
 }

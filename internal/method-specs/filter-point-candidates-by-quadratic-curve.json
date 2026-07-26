@@ -30,6 +30,11 @@
     "parameter_constraint": {
       "type": "Constraint",
       "required": false
+    },
+    "quadratic_template": {
+      "type": "Expression",
+      "required": false,
+      "functional_exposed": false
     }
   },
   "outputs": {

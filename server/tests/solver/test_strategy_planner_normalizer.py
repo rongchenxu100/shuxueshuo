@@ -1696,6 +1696,19 @@ def test_normalizer_routes_parameterized_minimum_answer_to_expression_evaluator(
         "ParameterValue",
         source="test",
     )
+    index.state_write_provenance.append(
+        StateWriteProvenance(
+            step_id="derive_m_value_from_MN_length",
+            scope_id="ii_1",
+            capability_id="parameter_from_segment_length",
+            produced_handle="fact:ii_1:m_value",
+            output_key="parameter_value",
+            runtime_type="ParameterValue",
+            identity_policy="preserve_input_object",
+            identity_role="parameter_value",
+            object_ref="symbol:problem:m",
+        )
+    )
     bound = MethodBindingRuleRegistry.from_family_spec(_nankai_inputs().family_spec).bind(
         "evaluate_expression_at_parameter",
         normalized_eval,

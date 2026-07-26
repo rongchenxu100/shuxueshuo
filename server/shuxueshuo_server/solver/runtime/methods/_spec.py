@@ -16,6 +16,8 @@ from shuxueshuo_server.solver.contracts import (
     MethodVisualSpec,
     PlanTransformerScope,
     ScalarResultFormSpec,
+    SymbolicClosureSpec,
+    TrialErrorHintSpec,
 )
 
 
@@ -37,6 +39,8 @@ class MethodSpecSource:
     postconditions: tuple[str, ...] = ()
     trace_template: tuple[str, ...] = ()
     repair_hints: tuple[dict[str, Any], ...] = ()
+    trial_error_hints: tuple[TrialErrorHintSpec, ...] = ()
+    geometry_profiles: tuple[dict[str, Any], ...] = ()
     explanation: MethodExplanationSpec | None = None
     visual: MethodVisualSpec | None = None
     description: str = ""
@@ -47,6 +51,7 @@ class MethodSpecSource:
     plan_transformer_scope: PlanTransformerScope = "single_invocation"
     reconciliation_validators: tuple[str, ...] = ()
     distinct_arg_groups: tuple[tuple[str, ...], ...] = ()
+    symbolic_closure: SymbolicClosureSpec | None = None
     # This source type is reserved for runtime/stateless methods. Stateful
     # implementations must opt out so liveness analysis cannot delete them.
     is_pure: bool = True
@@ -84,6 +89,14 @@ class MethodSpecSource:
             payload["repair_hints"] = [
                 _json_ready_hint(item) for item in self.repair_hints
             ]
+        if self.trial_error_hints:
+            payload["trial_error_hints"] = [
+                item.to_payload() for item in self.trial_error_hints
+            ]
+        if self.geometry_profiles:
+            payload["geometry_profiles"] = [
+                _json_ready_hint(item) for item in self.geometry_profiles
+            ]
         if self.explanation is not None:
             payload["explanation"] = _json_ready_explanation(self.explanation)
         if self.visual is not None:
@@ -101,6 +114,8 @@ class MethodSpecSource:
             payload["distinct_arg_groups"] = [
                 list(group) for group in self.distinct_arg_groups
             ]
+        if self.symbolic_closure is not None:
+            payload["symbolic_closure"] = self.symbolic_closure.to_payload()
         return payload
 
 

@@ -1339,7 +1339,7 @@ def _visible_straightening_endpoint_handles(
     step: StepIntent,
     context: NormalizationRuleContext,
 ) -> tuple[str, str] | None:
-    """返回当前 step 可见的 path_minimum_point_1/2 fact handles。"""
+    """返回可见拉直端点；兼容旧 StepIntent 的 path_minimum_point_* 名称。"""
     candidates: list[tuple[str, str]] = []
     for previous in context.previous_steps:
         for item in previous.produces:

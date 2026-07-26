@@ -2,7 +2,7 @@
   "method_id": "weighted_axis_path_triangle_transform",
   "title": "加权路径的直角三角形转化",
   "description": "用直角三角形把加权 x 轴动点路径转化为普通折线路径。",
-  "summary": "输入: 已登记权重的加权路径、轴上动点和辅助点定义；输出: 几何转化后的等价路径与辅助点轨迹。坐标构造公式可复用于 w>1，但运动方向与三角形几何必须通过白名单登记；当前支持 sqrt(2) 的等腰直角转化和 2 的 30°/60° 直角三角形转化，其他权重暂不支持。",
+  "summary": "距离和中有一项带大于 1 的权重，且目标恰为“一个加权线段 + 一个普通线段”、两项共享同一个 x 轴动点时，用已登记的直角三角形构造把加权项改写为普通距离。公开输入中的 minimum_value 必须引用 type=minimum_value 的题面已知最小值 fact，不能引用 path_minimum_target；该 fact 在这里只负责提供原路径，不表示本能力会求最小值。本能力只输出辅助点、等价的 PathTransformation 和辅助点轨迹，后续 linked-path 最值能力再消费这些状态求最小值表达式。当前只支持权重 sqrt(2) 和 2。",
   "solves": [
     "transform_weighted_axis_path_by_triangle"
   ],
@@ -10,7 +10,7 @@
     "condition": {
       "type": "Condition",
       "required": true,
-      "description": "加权路径条件，例如 {\"path\": \"sqrt(2)*MN+AN\"}。"
+      "description": "type=minimum_value 的题面已知最小值条件，其中必须携带加权路径；path_minimum_target 不是该输入。"
     },
     "fixed_point": {
       "type": "Point",
@@ -21,6 +21,16 @@
       "type": "Point",
       "required": true,
       "description": "x 轴上的动点，例如 N(n,0)。"
+    },
+    "moving_point_ref": {
+      "type": "PointRef",
+      "required": false,
+      "description": "compiler 注入的动点对象身份。"
+    },
+    "linked_fixed_endpoint_ref": {
+      "type": "PointRef",
+      "required": false,
+      "description": "compiler 注入的联动折线路径固定端点身份。"
     },
     "dynamic_parameter": {
       "type": "Symbol",
@@ -44,7 +54,39 @@
     "加权路径的权重必须在 method 的辅助三角形几何白名单中，当前为 sqrt(2) 或 2",
     "新增权重时必须同时登记 geometry/direction 并补充 transform 与 linked minimum 验算"
   ],
+  "do_not_use_when": [
+    "原距离和没有权重，或只是普通两段等长/比例替换、正方形三段路径、线段与射线等长结构。",
+    "动点不在声明的坐标轴上，或路径权重不是当前支持的 sqrt(2) 或 2。",
+    "目标是直接得到最小值表达式、最小值或参数值；该能力只产生辅助对象、轨迹和等价路径变换。",
+    "只有 path_minimum_target 而没有携带同一路径的 minimum_value fact。"
+  ],
   "postconditions": [
     "输出 planner 指定的辅助点、路径转化说明与辅助点运动射线"
+  ],
+  "geometry_profiles": [
+    {
+      "profile_id": "sqrt2_right_isosceles",
+      "weight_expression": "sqrt(2)",
+      "construction": "right_isosceles_triangle",
+      "geometry": "45_45_90",
+      "title": "等腰直角三角形",
+      "angle_label": "45 度",
+      "direction": [
+        "1",
+        "1"
+      ]
+    },
+    {
+      "profile_id": "weight2_30_60",
+      "weight_expression": "2",
+      "construction": "right_triangle_30_60",
+      "geometry": "30_60_90",
+      "title": "30°/60° 直角三角形",
+      "angle_label": "30 度",
+      "direction": [
+        "3",
+        "sqrt(3)"
+      ]
+    }
   ]
 }

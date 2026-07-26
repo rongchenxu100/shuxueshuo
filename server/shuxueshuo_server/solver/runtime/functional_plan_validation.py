@@ -527,6 +527,28 @@ def _parse_call(
         "closed_state",
     }
     for name, raw_form in raw_expectations.items():
+        if isinstance(name, str) and name and raw_form is None:
+            deterministic_repairs.append(
+                {
+                    "call_id": call_id,
+                    "action": "drop_null_return_expectation",
+                    "return": name,
+                    "from": "null",
+                    "to": "omitted",
+                }
+            )
+            continue
+        if isinstance(name, str) and name and raw_form == "internal_only":
+            deterministic_repairs.append(
+                {
+                    "call_id": call_id,
+                    "action": "drop_return_binding_metadata_expectation",
+                    "return": name,
+                    "from": "internal_only",
+                    "to": "omitted",
+                }
+            )
+            continue
         if not isinstance(name, str) or not name or raw_form not in allowed_forms:
             issues.append(
                 _issue(

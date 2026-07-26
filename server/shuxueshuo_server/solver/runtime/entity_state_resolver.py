@@ -33,6 +33,15 @@ class EntityStateResolver:
         index: CanonicalRuntimeBindingIndex,
     ) -> str | None:
         """返回补位后的 path；没有候选返回 None，多候选抛结构化错误。"""
+        projected = self._explicit_projected_state_path(
+            handle,
+            required_type,
+            step,
+            index,
+        )
+        if projected is not None:
+            return projected
+
         direct = index.bindings.get(handle)
         if direct is not None and _binding_visible(direct.path, step, index):
             if runtime_type_matches(required_type, direct.value_type):
@@ -95,6 +104,40 @@ class EntityStateResolver:
             )
 
         return None
+
+    def _explicit_projected_state_path(
+        self,
+        object_ref: str,
+        required_type: str,
+        step: StepIntent,
+        index: CanonicalRuntimeBindingIndex,
+    ) -> str | None:
+        """Prefer the exact StateWriteVersion carried by current reads."""
+
+        if not object_ref.startswith("point:"):
+            return None
+        write = index.latest_projected_state_write_in_handles(
+            object_ref,
+            tuple(step.reads),
+            before_step_id=step.step_id,
+        )
+        if (
+            write is None
+            or write.runtime_type is None
+            or not runtime_type_matches(required_type, write.runtime_type)
+        ):
+            return None
+        binding = index.bindings.get(write.produced_handle)
+        if binding is None or not _binding_visible(binding.path, step, index):
+            return None
+        index.record_applied_fill(
+            step=step,
+            input_handle=object_ref,
+            required_type=required_type,
+            resolved_handle=write.produced_handle,
+            reason="exact_projected_state_version",
+        )
+        return binding.path
 
     def can_resolve(
         self,

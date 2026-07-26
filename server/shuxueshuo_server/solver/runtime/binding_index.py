@@ -29,6 +29,7 @@ from shuxueshuo_server.solver.runtime.handle_registry import (
 from shuxueshuo_server.solver.runtime.strategy_models import (
     CreatedEntity,
     ProducedFact,
+    ProjectedStateWrite,
     StepIntentAppliedFill,
     StepIntent,
     StrategyDraftValidationError,
@@ -69,6 +70,9 @@ class CanonicalRuntimeBindingIndex:
         # Accepted Function/Macro writes. Binding selectors use this ledger to
         # preserve Symbol/Object identity instead of inferring it from names.
         self.state_write_provenance: list[Any] = []
+        self.projected_state_writes: tuple[ProjectedStateWrite, ...] = ()
+        self._projected_write_by_handle: dict[str, ProjectedStateWrite] = {}
+        self._projected_step_order: dict[str, int] = {}
         self._register_initial_handles()
 
     @classmethod
@@ -85,6 +89,68 @@ class CanonicalRuntimeBindingIndex:
     def register(self, handle: str, path: str, value_type: str, *, source: str) -> None:
         """注册或覆盖一个 handle -> ContextPath 绑定。"""
         self.bindings[handle] = RuntimeHandleBinding(handle, path, value_type, source)
+
+    def register_projected_state_writes(
+        self,
+        writes: tuple[ProjectedStateWrite, ...],
+    ) -> None:
+        """Attach the typed Functional state ledger to runtime bindings."""
+        self.projected_state_writes = tuple(writes)
+        self._projected_write_by_handle = {
+            item.produced_handle: item for item in writes
+        }
+        self._projected_step_order = {}
+        for item in writes:
+            self._projected_step_order.setdefault(
+                item.step_id,
+                len(self._projected_step_order),
+            )
+
+    def projected_state_write_for_handle(
+        self,
+        handle: str,
+    ) -> ProjectedStateWrite | None:
+        return self._projected_write_by_handle.get(handle)
+
+    def latest_projected_state_write(
+        self,
+        object_ref: str,
+        *,
+        before_step_id: str | None = None,
+    ) -> ProjectedStateWrite | None:
+        cutoff = self._projected_step_order.get(
+            before_step_id,
+            len(self._projected_step_order),
+        )
+        candidates = [
+            item
+            for item in self.projected_state_writes
+            if item.object_ref == object_ref
+            and self._projected_step_order.get(item.step_id, cutoff) < cutoff
+        ]
+        return candidates[-1] if candidates else None
+
+    def latest_projected_state_write_in_handles(
+        self,
+        object_ref: str,
+        handles: tuple[str, ...],
+        *,
+        before_step_id: str | None = None,
+    ) -> ProjectedStateWrite | None:
+        """Select the newest visible version by graph order, not read order."""
+        handle_set = set(handles)
+        cutoff = self._projected_step_order.get(
+            before_step_id,
+            len(self._projected_step_order),
+        )
+        candidates = [
+            item
+            for item in self.projected_state_writes
+            if item.object_ref == object_ref
+            and item.produced_handle in handle_set
+            and self._projected_step_order.get(item.step_id, cutoff) < cutoff
+        ]
+        return candidates[-1] if candidates else None
 
     def record_applied_fill(
         self,
@@ -175,6 +241,64 @@ class CanonicalRuntimeBindingIndex:
             "Read the existing coordinate fact instead."
         )
 
+    def immutable_problem_point_ref_path_for(self, handle: str) -> str:
+        """Bind a ProblemIR point's original definition at an immutable path.
+
+        Use this only for methods whose behavior depends on the target's
+        structured ProblemIR definition. Ordinary construction targets retain
+        ``point_ref_path_for`` duplicate-write semantics.
+        """
+        recovered = self._recover_problem_point_ref_path(handle)
+        if recovered is not None:
+            return recovered
+        return self.point_ref_path_for(handle)
+
+    def _recover_problem_point_ref_path(self, handle: str) -> str | None:
+        """Rebuild immutable object identity after its coordinate overwrote it.
+
+        RuntimeContext intentionally stores the latest Point value at the
+        canonical object path. Object-oriented methods may still need the
+        original ProblemIR definition (translation vector, construction role,
+        and so on), so keep that definition at a separate declaration path.
+        """
+        payload = self.handle_registry.entity_payloads.get(handle)
+        if not isinstance(payload, Mapping):
+            return None
+        try:
+            kind, scope_id, name = _require_scoped_handle(handle)
+        except ValueError:
+            return None
+        if kind != "point":
+            return None
+        raw_path = _runtime_path_for_scope(
+            self.context,
+            scope_id,
+            "object_refs",
+            name,
+        )
+        definition = {
+            key: value
+            for key, value in payload.items()
+            if key
+            not in {
+                "handle",
+                "entity_type",
+                "name",
+                "scope_id",
+                "description",
+            }
+        }
+        declaration = ContextDeclaration(
+            path=raw_path,
+            type="PointRef",
+            name=name,
+            definition=definition,
+            scope_id=scope_id,
+            source="problem_identity",
+        )
+        self.declarations[declaration.path] = declaration
+        return declaration.path
+
     def point_identity_path_for(self, handle: str) -> str:
         """Return a point object path without treating a coordinate as a target.
 
@@ -195,6 +319,10 @@ class CanonicalRuntimeBindingIndex:
             binding.value_type in {"Point", "PointRef"}
             and path.container == "points"
         ):
+            if binding.value_type == "Point":
+                recovered = self._recover_problem_point_ref_path(handle)
+                if recovered is not None:
+                    return recovered
             return binding.path
         return self.point_ref_path_for(handle)
 

@@ -11,7 +11,7 @@ from ._spec import MethodSpecSource
 
 
 class PointOnParabolaAtXMethod:
-    """由目标点定义中的横坐标，在抛物线上求点坐标。"""
+    """由目标点结构化定义中的横坐标，在抛物线上求同一对象的坐标。"""
 
     method_id = "point_on_parabola_at_x"
 
@@ -51,7 +51,13 @@ class PointOnParabolaAtXMethod:
 SPEC = MethodSpecSource(
     method_cls=PointOnParabolaAtXMethod,
     title="由横坐标求抛物线上点",
-    summary="输入: 抛物线和横坐标；输出: 曲线上的点。",
+    summary=(
+        "仅在题面已把目标点的横坐标作为结构化条件直接给出、只需代入当前"
+        "抛物线求纵坐标时使用。"
+        "FunctionalPlan 只显式传入 parabola，并把 point return 绑定到该已有目标点；"
+        "代码从目标点的结构化 definition.x 或 definition.x_coordinate 读取横坐标。"
+        "strategy/reason 中自行写出的横坐标不能替代这项题面证据。"
+    ),
     solves=("derive_point_on_parabola_at_x",),
     inputs={
         "parabola": {"type": "Parabola", "required": True},
@@ -59,6 +65,13 @@ SPEC = MethodSpecSource(
         "target": {"type": "PointRef", "required": True},
     },
     outputs={"point": "Point"},
+    do_not_use_when=(
+        "目标点没有题面结构化横坐标定义时禁止使用；仅知道点在抛物线上、只有"
+        "几何关系，或只在 strategy/reason 中写出横坐标，都需要先通过其它能力"
+        "确定横坐标。",
+        "前序几何构造已经产生多个有坐标的候选点，需要继续筛选唯一候选。",
+        "需要从候选分支反求参数并把参数代回抛物线。",
+    ),
     preconditions=("target.definition.x 或 target.definition.x_coordinate 必须存在",),
     postconditions=("输出点在给定抛物线上",),
 )

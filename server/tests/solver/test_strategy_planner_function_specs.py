@@ -21,6 +21,7 @@ from shuxueshuo_server.solver.runtime.function_specs import (
     GENERIC_FUNCTION_ADAPTERS,
     GENERIC_FUNCTION_BINDING_RULES,
     GENERIC_FUNCTION_METHOD_IDS,
+    FunctionSpec,
     FunctionSpecRegistry,
     assert_no_function_adapter_failures,
     function_spec_from_method,
@@ -271,13 +272,23 @@ def test_functional_catalog_hides_legacy_curve_parameter_primitive() -> None:
         "free_parameters",
         "target_parameter",
     }
-    assert {item.name for item in unified.args}.isdisjoint({"p1", "p2"})
+    assert {item.name for item in unified.args}.isdisjoint(
+        {"p1", "p2", "p3"}
+    )
     parameter_return = next(
         item for item in unified.returns if item.name == "parameter_value"
     )
     assert not parameter_return.required
     assert parameter_return.identity_arg == "target_parameter"
     assert parameter_return.possible_forms == ("open_state", "closed_state")
+    assert isinstance(unified.source, FunctionSpec)
+    assert unified.source.symbolic_closure is not None
+    assert unified.source.symbolic_closure.target_arg == "target_parameter"
+    assert unified.source.symbolic_closure.substitution_outputs == (
+        "coefficients",
+        "parabola",
+        "parameter_value",
+    )
 
 
 def test_expression_evaluation_preserves_same_parabola_as_transition() -> None:

@@ -2,7 +2,7 @@
   "method_id": "equal_length_ray_point",
   "title": "射线上等长构造点",
   "description": "在一条射线上构造点，使它到端点的距离等于另一条已知线段。",
-  "summary": "输入: 射线端点、射线方向点、参考线段另一端和目标 PointRef；输出: 射线上满足 anchor-target = anchor-reference 的点。",
+  "summary": "当已知射线端点、射线方向点和参考线段另一端，需要在该射线上构造等长点时使用。输出满足 anchor-target = anchor-reference；若它只是后续计算的辅助点，无需绑定题面对象，直接引用本调用结果。",
   "solves": [
     "derive_equal_length_point_on_ray"
   ],
@@ -30,6 +30,10 @@
   "is_pure": true,
   "preconditions": [
     "anchor 与 ray_point 必须确定一条非零射线方向"
+  ],
+  "do_not_use_when": [
+    "只有线段长度、但没有由两个不同点确定的射线方向。",
+    "目标是求曲线交点、坐标轴截点或路径最小值，而不是先构造射线上等长点。"
   ],
   "postconditions": [
     "输出点在指定射线所在直线上，且到 anchor 的距离等于 anchor-reference"

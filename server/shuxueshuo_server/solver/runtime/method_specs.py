@@ -20,6 +20,8 @@ from shuxueshuo_server.solver.contracts import (
     MethodVisualSpec,
     PlanTransformerScope,
     ScalarResultFormSpec,
+    SymbolicClosureSpec,
+    TrialErrorHintSpec,
 )
 from shuxueshuo_server.solver.runtime.runtime_type_declarations import (
     runtime_type_union_is_well_formed,
@@ -124,6 +126,12 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
         postconditions=tuple(str(item) for item in raw.get("postconditions", [])),
         trace_template=tuple(str(item) for item in raw.get("trace_template", [])),
         repair_hints=_parse_repair_hints(raw.get("repair_hints", [])),
+        trial_error_hints=_parse_trial_error_hints(
+            raw.get("trial_error_hints", [])
+        ),
+        geometry_profiles=_parse_geometry_profiles(
+            raw.get("geometry_profiles", [])
+        ),
         explanation=_parse_explanation(raw.get("explanation")),
         visual=_parse_visual(raw.get("visual")),
         constraint_analyzer=(
@@ -144,6 +152,11 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
         distinct_arg_groups=_parse_distinct_arg_groups(
             raw.get("distinct_arg_groups", ()),
             input_names=frozenset(inputs),
+        ),
+        symbolic_closure=_parse_symbolic_closure(
+            raw.get("symbolic_closure"),
+            input_names=frozenset(inputs),
+            output_names=frozenset(outputs),
         ),
         is_pure=is_pure,
     )
@@ -226,6 +239,95 @@ def _parse_identifier_list(
         if value not in result:
             result.append(value)
     return tuple(result)
+
+
+def _parse_symbolic_closure(
+    raw: object,
+    *,
+    input_names: frozenset[str],
+    output_names: frozenset[str],
+) -> SymbolicClosureSpec | None:
+    if raw in (None, {}):
+        return None
+    if not isinstance(raw, dict):
+        raise ValueError("MethodSpec.symbolic_closure must be an object")
+    target_arg = str(raw.get("target_arg", "")).strip()
+    equation_builder = str(raw.get("equation_builder", "")).strip()
+    if not target_arg or target_arg not in input_names:
+        raise ValueError(
+            "MethodSpec.symbolic_closure.target_arg must reference an input"
+        )
+    if not equation_builder:
+        raise ValueError(
+            "MethodSpec.symbolic_closure.equation_builder must be non-empty"
+        )
+    known_raw = raw.get("known_substitutions", ())
+    if not isinstance(known_raw, list | tuple):
+        raise ValueError(
+            "MethodSpec.symbolic_closure.known_substitutions must be a list"
+        )
+    known_substitutions: list[tuple[str, str]] = []
+    for item in known_raw:
+        if not isinstance(item, list | tuple) or len(item) != 2:
+            raise ValueError(
+                "MethodSpec.symbolic_closure known substitutions must be pairs"
+            )
+        pair = (str(item[0]).strip(), str(item[1]).strip())
+        if not all(pair) or not set(pair) <= input_names:
+            raise ValueError(
+                "MethodSpec.symbolic_closure known substitution references "
+                "unknown inputs"
+            )
+        if pair not in known_substitutions:
+            known_substitutions.append(pair)
+    constraint_args = _parse_identifier_list(
+        raw.get("constraint_args", ()),
+        field_name="MethodSpec.symbolic_closure.constraint_args",
+    )
+    preserved_symbol_args = _parse_identifier_list(
+        raw.get("preserved_symbol_args", ()),
+        field_name="MethodSpec.symbolic_closure.preserved_symbol_args",
+    )
+    unknown_inputs = tuple(
+        name
+        for name in (*constraint_args, *preserved_symbol_args)
+        if name not in input_names
+    )
+    if unknown_inputs:
+        raise ValueError(
+            "MethodSpec.symbolic_closure references unknown inputs: "
+            + ", ".join(unknown_inputs)
+        )
+    substitution_outputs = _parse_identifier_list(
+        raw.get("substitution_outputs", ()),
+        field_name="MethodSpec.symbolic_closure.substitution_outputs",
+    )
+    unknown_outputs = tuple(
+        name for name in substitution_outputs if name not in output_names
+    )
+    if unknown_outputs:
+        raise ValueError(
+            "MethodSpec.symbolic_closure references unknown outputs: "
+            + ", ".join(unknown_outputs)
+        )
+    require_unique_target = raw.get("require_unique_target", True)
+    if not isinstance(require_unique_target, bool):
+        raise ValueError(
+            "MethodSpec.symbolic_closure.require_unique_target must be a boolean"
+        )
+    mapper = raw.get("representation_mapper")
+    return SymbolicClosureSpec(
+        target_arg=target_arg,
+        equation_builder=equation_builder,
+        known_substitutions=tuple(known_substitutions),
+        representation_mapper=(
+            str(mapper).strip() if mapper is not None else None
+        ),
+        constraint_args=constraint_args,
+        preserved_symbol_args=preserved_symbol_args,
+        substitution_outputs=substitution_outputs,
+        require_unique_target=require_unique_target,
+    )
 
 
 def _parse_inputs(raw_inputs: object) -> dict[str, MethodInputSpec]:
@@ -367,6 +469,91 @@ def _parse_repair_hints(raw_hints: object) -> tuple[dict[str, Any], ...]:
             raise ValueError("MethodSpec.repair_hints items must be objects")
         hints.append(dict(raw))
     return tuple(hints)
+
+
+def _parse_trial_error_hints(
+    raw_hints: object,
+) -> tuple[TrialErrorHintSpec, ...]:
+    """Parse capability-owned trial error classification rules."""
+
+    if raw_hints in (None, ()):
+        return ()
+    if not isinstance(raw_hints, list):
+        raise ValueError("MethodSpec.trial_error_hints must be a list")
+    hints: list[TrialErrorHintSpec] = []
+    for raw in raw_hints:
+        if not isinstance(raw, dict):
+            raise ValueError(
+                "MethodSpec.trial_error_hints items must be objects"
+            )
+        error_contains = str(raw.get("error_contains", "")).strip()
+        code = str(raw.get("code", "")).strip()
+        if not error_contains or not code:
+            raise ValueError(
+                "MethodSpec.trial_error_hints require non-empty "
+                "error_contains and code"
+            )
+        output_types = raw.get("requires_planner_output_types", [])
+        if not isinstance(output_types, list):
+            raise ValueError(
+                "MethodSpec.trial_error_hints."
+                "requires_planner_output_types must be a list"
+            )
+        requires_point_answer = raw.get("requires_point_answer", False)
+        if not isinstance(requires_point_answer, bool):
+            raise ValueError(
+                "MethodSpec.trial_error_hints."
+                "requires_point_answer must be a boolean"
+            )
+        normalized_output_types = tuple(
+            str(item).strip() for item in output_types
+        )
+        if any(not item for item in normalized_output_types):
+            raise ValueError(
+                "MethodSpec.trial_error_hints."
+                "requires_planner_output_types items must be non-empty"
+            )
+        hints.append(
+            TrialErrorHintSpec(
+                error_contains=error_contains,
+                code=code,
+                requires_point_answer=requires_point_answer,
+                requires_planner_output_types=normalized_output_types,
+            )
+        )
+    return tuple(hints)
+
+
+def _parse_geometry_profiles(
+    raw_profiles: object,
+) -> tuple[dict[str, Any], ...]:
+    """Parse declarative, method-owned geometry support profiles."""
+
+    if raw_profiles in (None, ()):
+        return ()
+    if not isinstance(raw_profiles, list):
+        raise ValueError("MethodSpec.geometry_profiles must be a list")
+    profiles: list[dict[str, Any]] = []
+    profile_ids: set[str] = set()
+    for raw in raw_profiles:
+        if not isinstance(raw, dict):
+            raise ValueError(
+                "MethodSpec.geometry_profiles items must be objects"
+            )
+        profile = dict(raw)
+        profile_id = str(profile.get("profile_id", "")).strip()
+        if not profile_id:
+            raise ValueError(
+                "MethodSpec.geometry_profiles require profile_id"
+            )
+        if profile_id in profile_ids:
+            raise ValueError(
+                "MethodSpec.geometry_profiles duplicate profile_id: "
+                f"{profile_id}"
+            )
+        profile_ids.add(profile_id)
+        profiles.append(profile)
+    return tuple(profiles)
 
 
 def _parse_explanation(raw: object) -> MethodExplanationSpec | None:

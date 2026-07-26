@@ -10,12 +10,22 @@ from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
 )
 from shuxueshuo_server.solver.runtime.functional_plan_elaboration import (
     FunctionalDeterministicRepair,
+    FunctionalSemanticView,
+)
+from shuxueshuo_server.solver.runtime.handle_alias_index import (
+    visible_from_valid_scope,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_models import (
     FunctionalCall,
     FunctionalCallReconciliation,
     FunctionalCallReport,
     FunctionalPlan,
+)
+from shuxueshuo_server.solver.runtime.runtime_type_compatibility import (
+    normalize_runtime_type,
+)
+from shuxueshuo_server.solver.state_semantics import (
+    state_kind_for_runtime_type,
 )
 
 
@@ -48,9 +58,17 @@ class FunctionalCallLivenessAnalyzer:
         catalog: FunctionalCapabilityCatalog,
         protected_call_ids: Sequence[str] = (),
         drop_invalid_calls: bool = True,
+        existing_state_views: Sequence[FunctionalSemanticView] = (),
+        handle_registry: object | None = None,
     ) -> FunctionalCallLivenessResult:
         reconciled_by_id = {item.call_id: item for item in reconciled}
         statuses = {item.call_id: item.status for item in call_reports}
+        redundant_object_binding_calls = _redundant_object_binding_calls(
+            plan,
+            reconciled_by_id=reconciled_by_id,
+            existing_state_views=existing_state_views,
+            handle_registry=handle_registry,
+        )
         candidates = {
             call.call_id
             for call in plan.calls
@@ -62,6 +80,9 @@ class FunctionalCallLivenessAnalyzer:
                 call,
                 reconciliation=reconciled_by_id.get(call.call_id),
                 catalog=catalog,
+                redundant_object_binding=(
+                    call.call_id in redundant_object_binding_calls
+                ),
             )
         }
         if not candidates:
@@ -149,8 +170,9 @@ def _is_dead_call_candidate(
     *,
     reconciliation: FunctionalCallReconciliation | None,
     catalog: FunctionalCapabilityCatalog,
+    redundant_object_binding: bool,
 ) -> bool:
-    if call.return_bindings:
+    if call.return_bindings and not redundant_object_binding:
         return False
     capability = catalog.get(call.capability_id)
     if (
@@ -164,6 +186,113 @@ def _is_dead_call_candidate(
     ):
         return False
     return not any(item.runtime_type == "Condition" for item in capability.returns)
+
+
+def _redundant_object_binding_calls(
+    plan: FunctionalPlan,
+    *,
+    reconciled_by_id: Mapping[str, FunctionalCallReconciliation],
+    existing_state_views: Sequence[FunctionalSemanticView],
+    handle_registry: object | None,
+) -> set[str]:
+    """Find unconsumed creates whose logical object state already exists."""
+    visible_states = [
+        (
+            _logical_state_key(
+                object_ref=item.object_ref,
+                runtime_type=item.runtime_type,
+            ),
+            item.valid_scope,
+        )
+        for item in existing_state_views
+        if item.state_slot_id is not None and item.object_ref is not None
+    ]
+    scope_by_call = {
+        call.call_id: scope.scope_id
+        for scope in plan.scopes
+        for call in scope.calls
+    }
+    redundant: set[str] = set()
+    for call in plan.calls:
+        item = reconciled_by_id.get(call.call_id)
+        object_writes = (
+            tuple(
+                result
+                for result in item.returns
+                if (
+                    result.state_slot_id
+                    and result.object_ref is not None
+                    and result.write_mode == "create"
+                )
+            )
+            if item is not None
+            else ()
+        )
+        call_scope = scope_by_call.get(call.call_id, "")
+        if (
+            object_writes
+            and call.return_bindings
+            and all(
+                binding.kind != "answer"
+                for binding in call.return_bindings.values()
+            )
+            and all(
+                any(
+                    previous_key
+                    == _logical_state_key(
+                        object_ref=result.object_ref,
+                        runtime_type=result.runtime_type,
+                    )
+                    and _state_visible_from_scope(
+                        previous_scope,
+                        call_scope=call_scope,
+                        handle_registry=handle_registry,
+                    )
+                    for previous_key, previous_scope in visible_states
+                )
+                for result in object_writes
+            )
+        ):
+            redundant.add(call.call_id)
+        visible_states.extend(
+            (
+                _logical_state_key(
+                    object_ref=result.object_ref,
+                    runtime_type=result.runtime_type,
+                ),
+                result.valid_scope,
+            )
+            for result in object_writes
+        )
+    return redundant
+
+
+def _logical_state_key(
+    *,
+    object_ref: str | None,
+    runtime_type: str,
+) -> tuple[str, str, str]:
+    normalized_type = normalize_runtime_type(runtime_type)
+    return (
+        object_ref or "",
+        state_kind_for_runtime_type(normalized_type),
+        normalized_type,
+    )
+
+
+def _state_visible_from_scope(
+    valid_scope: str,
+    *,
+    call_scope: str,
+    handle_registry: object | None,
+) -> bool:
+    if handle_registry is None:
+        return valid_scope == call_scope
+    return visible_from_valid_scope(
+        valid_scope,
+        scope_id=call_scope,
+        registry=handle_registry,
+    )
 
 
 def _dependency_closure(

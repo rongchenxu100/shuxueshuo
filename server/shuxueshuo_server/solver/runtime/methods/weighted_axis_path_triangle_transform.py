@@ -6,6 +6,11 @@
 
 from __future__ import annotations
 
+from shuxueshuo_server.solver.runtime.weighted_triangle_geometry import (
+    weighted_triangle_geometry_for_weight,
+    weighted_triangle_geometry_payloads,
+)
+
 from ._common import *
 from ._spec import MethodSpecSource
 
@@ -21,7 +26,7 @@ class WeightedAxisPathTriangleTransformMethod:
     对一般权重 ``w>1``，辅助点坐标公式可以统一写成固定端点到动点偏移的
     ``(w^2-1)/w^2`` 与 ``sqrt(w^2-1)/w^2`` 分解。但后续折线路径最值还依赖
     辅助点运动方向和三角形几何解释，所以本 method 不把任意 ``w>1`` 自动视为
-    已支持能力；只有在 ``_supported_triangle_geometry`` 中登记并补过验算的权重
+    已支持能力；只有在共享 geometry profile registry 中登记并补过验算的权重
     才会开放。当前只登记 ``sqrt(2)`` 与 ``2``。
     """
 
@@ -33,6 +38,10 @@ class WeightedAxisPathTriangleTransformMethod:
         moving_point: Point = inputs["moving_point"]
         dynamic_parameter = inputs["dynamic_parameter"]
         auxiliary_point_ref: PointRef = inputs["auxiliary_point_ref"]
+        moving_point_ref: PointRef | None = inputs.get("moving_point_ref")
+        linked_fixed_endpoint_ref: PointRef | None = inputs.get(
+            "linked_fixed_endpoint_ref"
+        )
 
         if sp.simplify(fixed_point[1]) != 0 or sp.simplify(moving_point[1]) != 0:
             raise ValueError("weighted_axis_path_triangle_transform requires points on x-axis")
@@ -41,7 +50,7 @@ class WeightedAxisPathTriangleTransformMethod:
 
         path_info = _parse_weighted_axis_path(str(condition["path"]), kernel)
         weight = path_info["weight"]
-        geometry = _supported_triangle_geometry(weight)
+        geometry = weighted_triangle_geometry_for_weight(weight)
 
         fixed_name = str(path_info["fixed_name"])
         moving_name = str(path_info["moving_name"])
@@ -57,7 +66,7 @@ class WeightedAxisPathTriangleTransformMethod:
         #   x = ax + L * (w^2 - 1) / w^2
         #   y =      L * sqrt(w^2 - 1) / w^2
         # 坐标公式对已登记的 weight 复用；direction 不从公式自动推导，而是
-        # 来自 _supported_triangle_geometry 的白名单，避免未验算 geometry 进入
+        # 来自共享 geometry profile，避免未验算 geometry 进入
         # 后续 linked broken path method。
         ax = fixed_point[0]
         n = dynamic_parameter
@@ -72,7 +81,7 @@ class WeightedAxisPathTriangleTransformMethod:
         qn_squared = kernel.distance_squared(auxiliary_point, moving_point)
         an_squared = kernel.distance_squared(fixed_point, moving_point)
         right_angle_dot = dot_from_origin(auxiliary_point, fixed_point, moving_point)
-        direction = geometry["direction"]
+        direction = geometry.direction_value
         locus_cross = sp.simplify(
             (auxiliary_point[0] - ax) * direction[1]
             - auxiliary_point[1] * direction[0]
@@ -86,27 +95,37 @@ class WeightedAxisPathTriangleTransformMethod:
             "equation": _locus_equation_text(ax, direction, kernel),
             "reason": (
                 f"{auxiliary_name} 随 {moving_name} 在由 {fixed_name} 引出的"
-                f" {geometry['angle_label']} 射线上运动。"
+                f" {geometry.angle_label} 射线上运动。"
             ),
         }
         transformation = {
             "type": "weighted_axis_triangle_transform",
             "original_path": str(condition["path"]),
             "weight": weight,
-            "construction": geometry["construction"],
+            "geometry_profile_id": geometry.profile_id,
+            "construction": geometry.construction,
             "fixed_point_name": fixed_name,
             "moving_point_name": moving_name,
             "curve_point_name": curve_name,
             "auxiliary_point_name": auxiliary_name,
+            "auxiliary_point_ref": _canonical_point_ref(auxiliary_point_ref),
             "transformed_path": transformed_path,
             "inner_path": inner_path,
             "scale": weight,
-            "geometry": geometry["geometry"],
+            "geometry": geometry.geometry,
             "reason": (
-                f"构造{geometry['title']} {fixed_name}{auxiliary_name}{moving_name}，"
+                f"构造{geometry.title} {fixed_name}{auxiliary_name}{moving_name}，"
                 f"使 {fixed_name}{moving_name}={kernel.sstr(weight)}*{auxiliary_segment}。"
             ),
         }
+        if moving_point_ref is not None:
+            transformation["moving_point_ref"] = _canonical_point_ref(
+                moving_point_ref
+            )
+        if linked_fixed_endpoint_ref is not None:
+            transformation["linked_fixed_endpoint_ref"] = _canonical_point_ref(
+                linked_fixed_endpoint_ref
+            )
 
         return StatelessMethodResult(
             method_id=self.method_id,
@@ -146,7 +165,7 @@ class WeightedAxisPathTriangleTransformMethod:
                 _check(
                     "auxiliary_point_on_fixed_ray",
                     locus_cross == 0,
-                    f"{auxiliary_name} 在由 {fixed_name} 引出的 {geometry['angle_label']} 射线上",
+                    f"{auxiliary_name} 在由 {fixed_name} 引出的 {geometry.angle_label} 射线上",
                 ),
             ],
             trace_fragments=[
@@ -155,7 +174,7 @@ class WeightedAxisPathTriangleTransformMethod:
                     "构造辅助三角形转化加权路径",
                     f"将 {condition['path']} 转化为 {transformed_path}",
                     (
-                        f"构造{geometry['title']} {fixed_name}{auxiliary_name}{moving_name}，"
+                        f"构造{geometry.title} {fixed_name}{auxiliary_name}{moving_name}，"
                         f"把加权项 {fixed_name}{moving_name} 改写成同倍率下的"
                         f" {auxiliary_segment}，从而把加权路径转成普通折线路径。"
                     ),
@@ -193,31 +212,8 @@ def _parse_weighted_axis_path(path: str, kernel: SympyKernel) -> dict[str, Any]:
     }
 
 
-def _supported_triangle_geometry(weight: sp.Expr) -> dict[str, Any]:
-    """返回当前 method 已验证的加权辅助三角形配置。
-
-    坐标公式本身对 ``w>1`` 可复用，但辅助点运动方向和后续最短路径几何需要
-    单独验证。新增权重时应在这里登记 ``geometry/direction``，并补充 transform
-    与 linked minimum 的 method 测试。
-    """
-    weight = sp.simplify(weight)
-    if sp.simplify(weight - sp.sqrt(2)) == 0:
-        return {
-            "construction": "right_isosceles_triangle",
-            "geometry": "45_45_90",
-            "title": "等腰直角三角形",
-            "angle_label": "45 度",
-            "direction": (sp.Integer(1), sp.Integer(1)),
-        }
-    if sp.simplify(weight - 2) == 0:
-        return {
-            "construction": "right_triangle_30_60",
-            "geometry": "30_60_90",
-            "title": "30°/60° 直角三角形",
-            "angle_label": "30 度",
-            "direction": (sp.Integer(3), sp.sqrt(3)),
-        }
-    raise ValueError("current triangle transform only supports sqrt(2) or 2 weight")
+def _canonical_point_ref(point_ref: PointRef) -> str:
+    return f"point:{point_ref.scope_id}:{point_ref.name}"
 
 
 def _locus_equation_text(
@@ -234,16 +230,30 @@ SPEC = MethodSpecSource(
     method_cls=WeightedAxisPathTriangleTransformMethod,
     title="加权路径的直角三角形转化",
     summary=(
-        "输入: 已登记权重的加权路径、轴上动点和辅助点定义；输出: 几何转化后的等价路径与辅助点轨迹。"
-        "坐标构造公式可复用于 w>1，但运动方向与三角形几何必须通过白名单登记；"
-        "当前支持 sqrt(2) 的等腰直角转化和 2 的 30°/60° 直角三角形转化，其他权重暂不支持。"
+        "距离和中有一项带大于 1 的权重，且目标恰为“一个加权线段 + 一个普通线段”、"
+        "两项共享同一个 x 轴动点时，"
+        "用已登记的直角三角形构造把加权项改写为普通距离。公开输入中的 "
+        "minimum_value 必须引用 type=minimum_value 的题面已知最小值 fact，"
+        "不能引用 path_minimum_target；该 fact 在这里只负责提供原路径，不表示"
+        "本能力会求最小值。本能力只"
+        "输出辅助点、等价的 PathTransformation 和辅助点轨迹，后续 linked-path "
+        "最值能力再消费这些状态求最小值表达式。当前只支持权重 sqrt(2) 和 2。"
+    ),
+    do_not_use_when=(
+        "原距离和没有权重，或只是普通两段等长/比例替换、正方形三段路径、线段与射线等长结构。",
+        "动点不在声明的坐标轴上，或路径权重不是当前支持的 sqrt(2) 或 2。",
+        "目标是直接得到最小值表达式、最小值或参数值；该能力只产生辅助对象、轨迹和等价路径变换。",
+        "只有 path_minimum_target 而没有携带同一路径的 minimum_value fact。",
     ),
     solves=("transform_weighted_axis_path_by_triangle",),
     inputs={
         "condition": {
             "type": "Condition",
             "required": True,
-            "description": "加权路径条件，例如 {\"path\": \"sqrt(2)*MN+AN\"}。",
+            "description": (
+                "type=minimum_value 的题面已知最小值条件，其中必须携带加权"
+                "路径；path_minimum_target 不是该输入。"
+            ),
         },
         "fixed_point": {
             "type": "Point",
@@ -254,6 +264,16 @@ SPEC = MethodSpecSource(
             "type": "Point",
             "required": True,
             "description": "x 轴上的动点，例如 N(n,0)。",
+        },
+        "moving_point_ref": {
+            "type": "PointRef",
+            "required": False,
+            "description": "compiler 注入的动点对象身份。",
+        },
+        "linked_fixed_endpoint_ref": {
+            "type": "PointRef",
+            "required": False,
+            "description": "compiler 注入的联动折线路径固定端点身份。",
         },
         "dynamic_parameter": {
             "type": "Symbol",
@@ -277,4 +297,5 @@ SPEC = MethodSpecSource(
         "新增权重时必须同时登记 geometry/direction 并补充 transform 与 linked minimum 验算",
     ),
     postconditions=("输出 planner 指定的辅助点、路径转化说明与辅助点运动射线",),
+    geometry_profiles=weighted_triangle_geometry_payloads(),
 )

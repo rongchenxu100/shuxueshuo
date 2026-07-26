@@ -236,7 +236,12 @@ class RuntimeContext:
         )
         self.write_path(
             declaration.path,
-            TypedValue("PointRef", point_ref, locked=False, source="planner"),
+            TypedValue(
+                "PointRef",
+                point_ref,
+                locked=(path.container == "object_refs"),
+                source=declaration.source,
+            ),
             from_scope_id=declaration.scope_id,
             allow_overwrite=True,
         )

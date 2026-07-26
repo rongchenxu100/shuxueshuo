@@ -25,8 +25,20 @@ StateWriteMode = Literal["create", "transition", "value"]
 GoalEvidenceTag = Literal[
     "path_minimum_witness",
     "path_minimum_expression",
+    "path_minimum_extremal_point",
 ]
+
+
+@dataclass(frozen=True)
+class GoalEvidencePolicySpec:
+    """Require evidence for goals served inside one mechanism boundary."""
+
+    goal_types: tuple[str, ...]
+    value_types: tuple[str, ...]
+    required_evidence_tags: tuple[GoalEvidenceTag, ...]
+    mechanism_pack_id: str | None = None
 StateIdentityRelation = Literal["same_object"]
+StateRoleRequirement = Literal["identity_only", "materialized"]
 StateIdentityConstraintApplicability = Literal[
     "required",
     "when_all_present",
@@ -35,20 +47,48 @@ StateIdentityConstraintApplicability = Literal[
 
 @dataclass(frozen=True)
 class StateObjectRoleProjectionSpec:
-    """Project one output object role from a resolved capability argument."""
+    """Project one output object role from an argument or sibling return."""
 
     role: str
-    source_arg: str
+    source_arg: str | None = None
+    source_return: str | None = None
     source_object_role: str | None = None
+    state_requirement: StateRoleRequirement = "identity_only"
+
+    def __post_init__(self) -> None:
+        if (self.source_arg is None) == (self.source_return is None):
+            raise ValueError(
+                "object-role projection requires exactly one of "
+                "source_arg or source_return"
+            )
 
     def to_payload(self) -> dict[str, object]:
-        payload: dict[str, object] = {
-            "role": self.role,
-            "source_arg": self.source_arg,
-        }
+        payload: dict[str, object] = {"role": self.role}
+        if self.source_arg is not None:
+            payload["source_arg"] = self.source_arg
+        if self.source_return is not None:
+            payload["source_return"] = self.source_return
         if self.source_object_role is not None:
             payload["source_object_role"] = self.source_object_role
+        if self.state_requirement != "identity_only":
+            payload["state_requirement"] = self.state_requirement
         return payload
+
+
+@dataclass(frozen=True)
+class CapabilityContextRoleBindingSpec:
+    """Bind a resolver role as a dependency-only capability argument."""
+
+    resolver_id: CapabilityContextResolver
+    semantic_role: str
+    arg_name: str
+
+    def to_payload(self) -> dict[str, str]:
+        return {
+            "resolver_id": self.resolver_id,
+            "semantic_role": self.semantic_role,
+            "arg_name": self.arg_name,
+        }
 
 
 @dataclass(frozen=True)
@@ -62,6 +102,7 @@ class StateLineageClosureSpec:
     require_same_source_call: bool = False
     add_semantic_roles: tuple[str, ...] = ()
     add_evidence_tags: tuple[str, ...] = ()
+    description: str = ""
 
     def to_payload(self) -> dict[str, object]:
         payload: dict[str, object] = {
@@ -75,6 +116,8 @@ class StateLineageClosureSpec:
             payload["shared_object_role"] = self.shared_object_role
         if self.require_same_source_call:
             payload["require_same_source_call"] = True
+        if self.description:
+            payload["description"] = self.description
         return payload
 
 
@@ -119,6 +162,8 @@ class RecipeOutputAliasSpec:
     equivalent_to: str | None = None
     provides_semantic_roles: tuple[str, ...] = ()
     object_role_projections: tuple[StateObjectRoleProjectionSpec, ...] = ()
+    return_binding: FunctionalReturnBindingPolicy = "auto"
+    result_form: ScalarResultFormSpec | None = None
 
     def to_payload(self) -> dict[str, object]:
         payload: dict[str, object] = {
@@ -145,6 +190,10 @@ class RecipeOutputAliasSpec:
             payload["object_role_projections"] = [
                 item.to_payload() for item in self.object_role_projections
             ]
+        if self.return_binding != "auto":
+            payload["return_binding"] = self.return_binding
+        if self.result_form is not None:
+            payload["result_form"] = self.result_form.to_payload()
         return payload
 
 
@@ -163,6 +212,8 @@ def recipe_output_alias(
     equivalent_to: str | None = None,
     provides_semantic_roles: tuple[str, ...] = (),
     object_role_projections: tuple[StateObjectRoleProjectionSpec, ...] = (),
+    return_binding: FunctionalReturnBindingPolicy = "auto",
+    result_form: ScalarResultFormSpec | None = None,
 ) -> RecipeOutputAliasSpec:
     """Build a structured recipe return without duplicating state-kind rules."""
     return RecipeOutputAliasSpec(
@@ -184,6 +235,8 @@ def recipe_output_alias(
         equivalent_to=equivalent_to,
         provides_semantic_roles=provides_semantic_roles,
         object_role_projections=object_role_projections,
+        return_binding=return_binding,
+        result_form=result_form,
     )
 
 @dataclass(frozen=True)
@@ -222,6 +275,8 @@ class MethodInputBindingSpec:
     input_name: str
     selector: str
     required: bool = True
+    functional_authority: FunctionalArgBindingAuthority | None = None
+    functional_resolver: str | None = None
 
 
 @dataclass(frozen=True)
@@ -235,6 +290,16 @@ class MethodAggregateInputBindingSpec:
 
     source_input: str
     item_inputs: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class MethodScalarAggregateLoweringSpec:
+    """Lower one item-level aggregate value through declared scalar inputs."""
+
+    source_input: str
+    item_runtime_type: str
+    identity_input: str
+    value_input: str
 
 
 @dataclass(frozen=True)
@@ -280,6 +345,9 @@ class MethodBindingRuleSpec:
     method_id: str
     input_bindings: tuple[MethodInputBindingSpec, ...] = ()
     aggregate_input_bindings: tuple[MethodAggregateInputBindingSpec, ...] = ()
+    scalar_aggregate_lowerings: tuple[
+        MethodScalarAggregateLoweringSpec, ...
+    ] = ()
     expansion_selectors: tuple[str, ...] = ()
     prep_invocations: tuple[MethodPrepInvocationSpec, ...] = ()
     always_emit_outputs: tuple[str, ...] = ()
@@ -314,6 +382,13 @@ CapabilityContractSource = Literal["explicit", "projected"]
 CapabilityScopePolicy = Literal["current", "current_or_visible", "problem", "same_as_target"]
 CapabilityCardinality = Literal["one", "optional", "many"]
 CapabilityDependencyPolicy = Literal["explicit_args", "context_closure"]
+FunctionalArgBindingAuthority = Literal["wire", "resolver", "compiler"]
+FunctionalReturnBindingPolicy = Literal[
+    "auto",
+    "internal_only",
+    "external_allowed",
+    "call_local_allowed",
+]
 CapabilityStateClosurePolicy = Literal[
     "any",
     "closed_only",
@@ -322,12 +397,20 @@ CapabilityStateClosurePolicy = Literal[
 CapabilityContextResolver = Literal[
     "condition_object_roles",
     "path_reduction_roles",
+    "square_path_transformation_roles",
+    "weighted_path_transformation_roles",
 ]
 CONDITION_OBJECT_ROLES_RESOLVER: CapabilityContextResolver = (
     "condition_object_roles"
 )
 PATH_REDUCTION_ROLES_RESOLVER: CapabilityContextResolver = (
     "path_reduction_roles"
+)
+SQUARE_PATH_TRANSFORMATION_ROLES_RESOLVER: CapabilityContextResolver = (
+    "square_path_transformation_roles"
+)
+WEIGHTED_PATH_TRANSFORMATION_ROLES_RESOLVER: CapabilityContextResolver = (
+    "weighted_path_transformation_roles"
 )
 
 
@@ -355,6 +438,7 @@ class StateSlotPattern:
     object_role_projections: tuple[StateObjectRoleProjectionSpec, ...] = ()
     lineage_closures: tuple[StateLineageClosureSpec, ...] = ()
     input_closure_policy: CapabilityStateClosurePolicy = "any"
+    return_binding: FunctionalReturnBindingPolicy = "auto"
 
     def to_payload(self) -> dict[str, object]:
         payload: dict[str, object] = {
@@ -391,6 +475,8 @@ class StateSlotPattern:
             ]
         if self.input_closure_policy != "any":
             payload["input_closure_policy"] = self.input_closure_policy
+        if self.return_binding != "auto":
+            payload["return_binding"] = self.return_binding
         return payload
 
 
@@ -444,6 +530,22 @@ class CapabilityInputClosureRequirement:
 
 
 @dataclass(frozen=True)
+class PathTransformationConsumerSpec:
+    """Declare the semantic role profile consumed from a transformation."""
+
+    transformation_arg: str
+    required_roles: tuple[str, ...]
+    profile: Literal["standard_broken_path", "linked_auxiliary"]
+
+    def to_payload(self) -> dict[str, object]:
+        return {
+            "transformation_arg": self.transformation_arg,
+            "required_roles": list(self.required_roles),
+            "profile": self.profile,
+        }
+
+
+@dataclass(frozen=True)
 class CapabilityContractSpec:
     """Declarative semantic contract for a method or recipe capability.
 
@@ -465,10 +567,12 @@ class CapabilityContractSpec:
     constraint_analyzer: str | None = None
     dependency_policy: CapabilityDependencyPolicy = "explicit_args"
     context_resolvers: tuple[CapabilityContextResolver, ...] = ()
+    context_role_bindings: tuple[CapabilityContextRoleBindingSpec, ...] = ()
     input_closure_requirements: tuple[
         CapabilityInputClosureRequirement, ...
     ] = ()
     identity_constraints: tuple[StateIdentityConstraintSpec, ...] = ()
+    path_transformation_consumer: PathTransformationConsumerSpec | None = None
 
     @property
     def is_complete(self) -> bool:
@@ -493,12 +597,20 @@ class CapabilityContractSpec:
             "constraint_analyzer": self.constraint_analyzer,
             "dependency_policy": self.dependency_policy,
             "context_resolvers": list(self.context_resolvers),
+            "context_role_bindings": [
+                item.to_payload() for item in self.context_role_bindings
+            ],
             "input_closure_requirements": [
                 item.to_payload() for item in self.input_closure_requirements
             ],
             "identity_constraints": [
                 item.to_payload() for item in self.identity_constraints
             ],
+            "path_transformation_consumer": (
+                self.path_transformation_consumer.to_payload()
+                if self.path_transformation_consumer is not None
+                else None
+            ),
         }
 
 
@@ -518,6 +630,7 @@ class CapabilityPackSpec:
     strategy_notes: tuple[str, ...] = ()
     contracts: tuple[CapabilityContractSpec, ...] = ()
     method_binding_rules: tuple[MethodBindingRuleSpec, ...] = ()
+    goal_evidence_policies: tuple[GoalEvidencePolicySpec, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -589,6 +702,7 @@ class SolverFamilySpec:
     # prompt gates, preflight, context snapshots, and future functional
     # orchestration. They do not replace runtime execution in Phase 2.
     capability_contracts: tuple[CapabilityContractSpec, ...] = ()
+    goal_evidence_policies: tuple[GoalEvidencePolicySpec, ...] = ()
     enabled_problem_ids: tuple[str, ...] = field(default_factory=tuple)
 
     def supports(self, problem: ProblemIR) -> bool:
@@ -598,8 +712,10 @@ class SolverFamilySpec:
         planner 只支持 canonical 南开 25，因此即使题型 match 命中，也必须先限制
         题号，避免 alt-label 或其他 25 题误走固定南开计划。
 
-        退出条件：至少两道同 family 的完整 E2E 题能通过，Planner 不再依赖
-        canonical 点名/分问 id，且测试证明去掉该门控后不会误路由到错误 family。
+        退出由 Functional Planner 路线图的 Track D0 控制。Track A parity 完成后，
+        还必须确认生产 family routing 已由 Functional 路径接管、legacy
+        deterministic planner 不再接收新题，并通过同 family 新题与跨 family
+        误路由测试，才能删除该字段和所有配置值。
         """
         if not self.match.matches(problem):
             return False
@@ -665,6 +781,16 @@ def expand_family_spec(
         ),
         family_contracts=family.capability_contracts,
     )
+    goal_evidence_policies = unique_ordered(
+        (
+            *(
+                policy
+                for pack in selected_packs
+                for policy in pack.goal_evidence_policies
+            ),
+            *family.goal_evidence_policies,
+        )
+    )
     return SolverFamilySpec(
         family_id=family.family_id,
         match=family.match,
@@ -676,6 +802,7 @@ def expand_family_spec(
         step_recipes=recipes,
         method_binding_rules=method_binding_rules,
         capability_contracts=capability_contracts,
+        goal_evidence_policies=goal_evidence_policies,
         enabled_problem_ids=family.enabled_problem_ids,
     )
 

@@ -72,8 +72,14 @@ SPEC = MethodSpecSource(
     method_cls=EqualLengthRayPointMethod,
     title="射线上等长构造点",
     summary=(
-        "输入: 射线端点、射线方向点、参考线段另一端和目标 PointRef；"
-        "输出: 射线上满足 anchor-target = anchor-reference 的点。"
+        "当已知射线端点、射线方向点和参考线段另一端，需要在该射线上"
+        "构造等长点时使用。输出满足 "
+        "anchor-target = anchor-reference；若它只是后续计算的辅助点，"
+        "无需绑定题面对象，直接引用本调用结果。"
+    ),
+    do_not_use_when=(
+        "只有线段长度、但没有由两个不同点确定的射线方向。",
+        "目标是求曲线交点、坐标轴截点或路径最小值，而不是先构造射线上等长点。",
     ),
     solves=("derive_equal_length_point_on_ray",),
     inputs={

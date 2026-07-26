@@ -16,6 +16,9 @@ from shuxueshuo_server.solver.deepseek_functional_batch import (
     FunctionalBatchCase,
 )
 from shuxueshuo_server.solver.fixtures import load_problem_ir
+from shuxueshuo_server.solver.functional_parity import (
+    provenance_parity_signature,
+)
 from shuxueshuo_server.solver.runtime.config import SolverRuntimeConfig
 from shuxueshuo_server.solver.runtime.orchestrator import RuntimeOrchestrator
 from shuxueshuo_server.solver.runtime.strategy_payload import (
@@ -67,6 +70,159 @@ def run_deepseek_functional_opt_in(case: FunctionalOptInCase) -> None:
         if orchestrator.last_session is not None
         else 0
     )
+    gate_checks: list[dict[str, Any]] = []
+    _record_gate(
+        gate_checks,
+        "solver_status",
+        result.status == "ok",
+        str(result.errors),
+    )
+    _record_gate(
+        gate_checks,
+        "runtime_checks",
+        all(check.ok for check in result.checks),
+        str([check for check in result.checks if not check.ok]),
+    )
+    _record_gate(
+        gate_checks,
+        "answer_semantics",
+        answer_mismatch is None,
+        answer_mismatch or "",
+    )
+    success = orchestrator.last_success_artifacts
+    _record_gate(
+        gate_checks,
+        "success_artifacts",
+        success is not None,
+        "RuntimeOrchestrator produced no success artifacts",
+    )
+    _capture_assertion_gate(
+        gate_checks,
+        "attempt_protocol",
+        lambda: _assert_attempt_protocol(
+            debug_dir,
+            attempt_count=attempt_count,
+        ),
+    )
+    if success is not None:
+        artifacts = success.planner.artifacts
+        replay = artifacts.retry_replay_result
+        if replay is not None:
+            write_strategy_debug_artifacts(
+                debug_dir,
+                payload=artifacts.payload or {},
+                prompt=artifacts.prompt,
+                raw_response=artifacts.raw_response,
+                draft=replay.raw_draft,
+                report=replay.functional_validation_report,
+                normalization_report=replay.normalization_report,
+                resolution_report=replay.resolution_report,
+                execution_diagnostic=replay.diagnostic,
+                effective_draft=replay.effective_draft,
+                planner_retry_state=replay.retry_state,
+                planner_state_context=replay.planner_state_context,
+                functional_plan=replay.functional_plan,
+                functional_reconciliation=replay.functional_reconciliation,
+                llm_metadata={
+                    "provider": "deepseek",
+                    "request_model": getattr(client, "model", None),
+                    "response_model": getattr(client, "last_response_model", None),
+                    "usage": getattr(client, "last_usage", None),
+                    "attempts": attempt_count,
+                    "candidate_format": "functional_plan",
+                },
+            )
+        _record_gate(
+            gate_checks,
+            "candidate_format",
+            artifacts.candidate_format == "functional_plan",
+            f"candidate_format={artifacts.candidate_format}",
+        )
+        _record_gate(
+            gate_checks,
+            "functional_replay",
+            replay is not None
+            and replay.functional_plan is not None
+            and replay.functional_reconciliation is not None
+            and replay.functional_reconciliation.ok
+            and bool(replay.functional_reconciliation.projection_map)
+            and replay.planner_state_context is not None,
+            "missing successful Functional replay artifacts",
+        )
+        if replay is not None and replay.retry_state is not None:
+            _record_gate(
+                gate_checks,
+                "retry_candidate_format",
+                replay.retry_state.candidate_format == "functional_plan",
+                f"candidate_format={replay.retry_state.candidate_format}",
+            )
+        selection = (artifacts.payload or {}).get(
+            "functional_few_shot_selection"
+        )
+        _record_gate(
+            gate_checks,
+            "strict_few_shot",
+            isinstance(selection, dict)
+            and selection.get("mode") == "strict_test"
+            and selection.get("source_problem_id") != case.problem_id,
+            str(selection),
+        )
+        _capture_assertion_gate(
+            gate_checks,
+            "prompt_safety",
+            lambda: _assert_prompt_is_functional_and_safe(
+                artifacts.payload or {},
+                artifacts.prompt,
+            ),
+        )
+        if replay is not None and replay.diagnostic is not None:
+            provenance = provenance_parity_signature(replay.diagnostic)
+            _record_gate(
+                gate_checks,
+                "provenance_integrity",
+                not provenance.integrity_issues,
+                "; ".join(provenance.integrity_issues),
+            )
+        required_debug_artifacts = [
+            "functional-plan.json",
+            "functional-reconciliation-report.json",
+            "effective-step-intents.json",
+            "planner-state-context.json",
+            "raw-response.txt",
+        ]
+        if replay is not None and replay.retry_state is not None:
+            required_debug_artifacts.append("planner-retry-state.json")
+        missing_artifacts = [
+            name
+            for name in required_debug_artifacts
+            if not (debug_dir / name).exists()
+        ]
+        _record_gate(
+            gate_checks,
+            "debug_artifacts",
+            not missing_artifacts,
+            f"missing={missing_artifacts}",
+        )
+        _record_gate(
+            gate_checks,
+            "llm_usage",
+            _attempt_llm_usage_is_recorded(
+                debug_dir,
+                attempt_count=attempt_count,
+            ),
+            "one or more attempts have no LLM usage artifact",
+        )
+
+    gate_failures = [
+        {
+            "stage": "test_harness",
+            "code": f"functional_gate_{item['name']}_failed",
+            "message": item["message"],
+            "retryable": False,
+        }
+        for item in gate_checks
+        if not item["ok"]
+    ]
     _write_sample_result(
         debug_dir,
         sample_id=os.getenv("DEEPSEEK_FUNCTIONAL_PLANNER_SAMPLE_ID", "single"),
@@ -74,65 +230,10 @@ def run_deepseek_functional_opt_in(case: FunctionalOptInCase) -> None:
         result=result,
         attempt_count=attempt_count,
         answer_mismatch=answer_mismatch,
+        gate_checks=gate_checks,
+        gate_failures=gate_failures,
     )
-
-    assert result.status == "ok", result.errors
-    assert all(check.ok for check in result.checks)
-    assert answer_mismatch is None, answer_mismatch
-    _assert_attempt_protocol(debug_dir, attempt_count=attempt_count)
-
-    success = orchestrator.last_success_artifacts
-    assert success is not None
-    artifacts = success.planner.artifacts
-    replay = artifacts.retry_replay_result
-    assert artifacts.candidate_format == "functional_plan"
-    assert replay is not None and replay.functional_plan is not None
-    assert replay.functional_reconciliation is not None
-    assert replay.functional_reconciliation.ok
-    assert replay.functional_reconciliation.projection_map
-    assert replay.planner_state_context is not None
-    if replay.retry_state is not None:
-        assert replay.retry_state.candidate_format == "functional_plan"
-    selection = (artifacts.payload or {}).get("functional_few_shot_selection")
-    assert isinstance(selection, dict)
-    assert selection.get("mode") == "strict_test"
-    assert selection.get("source_problem_id") != case.problem_id
-    _assert_prompt_is_functional_and_safe(artifacts.payload or {}, artifacts.prompt)
-    write_strategy_debug_artifacts(
-        debug_dir,
-        payload=artifacts.payload or {},
-        prompt=artifacts.prompt,
-        raw_response=artifacts.raw_response,
-        draft=replay.raw_draft,
-        report=replay.functional_validation_report,
-        normalization_report=replay.normalization_report,
-        resolution_report=replay.resolution_report,
-        execution_diagnostic=replay.diagnostic,
-        effective_draft=replay.effective_draft,
-        planner_retry_state=replay.retry_state,
-        planner_state_context=replay.planner_state_context,
-        functional_plan=replay.functional_plan,
-        functional_reconciliation=replay.functional_reconciliation,
-        llm_metadata={
-            "provider": "deepseek",
-            "request_model": getattr(client, "model", None),
-            "response_model": getattr(client, "last_response_model", None),
-            "usage": getattr(client, "last_usage", None),
-            "attempts": attempt_count,
-            "candidate_format": "functional_plan",
-        },
-    )
-    required_debug_artifacts = [
-        "functional-plan.json",
-        "functional-reconciliation-report.json",
-        "effective-step-intents.json",
-        "planner-state-context.json",
-        "raw-response.txt",
-    ]
-    if replay.retry_state is not None:
-        required_debug_artifacts.append("planner-retry-state.json")
-    for name in required_debug_artifacts:
-        assert (debug_dir / name).exists(), name
+    assert not gate_failures, gate_failures
 
 
 def assert_answers_semantically_equal(actual: Any, expected: Any, path: str = "answers") -> None:
@@ -176,6 +277,7 @@ def _answer_mismatch(actual: Any, expected: Any) -> str | None:
 def _assert_attempt_protocol(debug_dir: Path, *, attempt_count: int) -> None:
     selections: list[dict[str, Any]] = []
     examples: list[Any] = []
+    assert attempt_count > 0
     for attempt in range(1, attempt_count + 1):
         prefix = debug_dir / f"attempt-{attempt}"
         metadata = _read_json(prefix.with_suffix(".llm-metadata.json"))
@@ -186,18 +288,44 @@ def _assert_attempt_protocol(debug_dir: Path, *, attempt_count: int) -> None:
             prefix.with_suffix(".payload.functional_few_shot_selection.json")
         )
         assert selection.get("mode") == "strict_test"
-        selections.append(selection)
-        examples.append(
-            _read_json_value(prefix.with_suffix(".payload.few_shot_examples.json"))
+        planner_output_format = _read_json_value(
+            prefix.with_suffix(".payload.planner_output_format.json")
         )
-    assert selections
-    assert all(item == selections[0] for item in selections[1:])
-    assert all(item == examples[0] for item in examples[1:])
+        few_shot_examples = _read_json_value(
+            prefix.with_suffix(".payload.few_shot_examples.json")
+        )
+        user_prompt = prefix.with_suffix(".prompt.user.md").read_text(
+            encoding="utf-8"
+        )
+        _assert_prompt_is_functional_and_safe(
+            {
+                "planner_output_format": planner_output_format,
+                "functional_few_shot_selection": selection,
+                "few_shot_examples": few_shot_examples,
+            },
+            type("_Prompt", (), {"user": user_prompt})(),
+        )
+        selections.append(selection)
+        examples.append(few_shot_examples)
+    assert selections, "no FunctionalPlan attempts were recorded"
+    assert all(item == selections[0] for item in selections[1:]), (
+        "retry changed the locked Functional few-shot selection"
+    )
+    assert all(item == examples[0] for item in examples[1:]), (
+        "retry changed the locked Functional few-shot payload"
+    )
 
 
 def _assert_prompt_is_functional_and_safe(payload: dict[str, Any], prompt: Any) -> None:
-    assert payload.get("planner_output_format") == "functional_plan"
-    assert "expected_answers" not in json.dumps(payload, ensure_ascii=False)
+    assert payload.get("planner_output_format") == "functional_plan", (
+        "planner_output_format is not functional_plan"
+    )
+    assert "expected_answers" not in json.dumps(payload, ensure_ascii=False), (
+        "expected answers leaked into the planner payload"
+    )
+    _assert_no_few_shot_retrieval_metadata(
+        payload.get("few_shot_examples", ())
+    )
     user_prompt = str(getattr(prompt, "user", ""))
     serialized = user_prompt.lower()
     for forbidden in (
@@ -206,25 +334,67 @@ def _assert_prompt_is_functional_and_safe(payload: dict[str, Any], prompt: Any) 
         '"produces"',
         '"format": "step_intent"',
     ):
-        assert forbidden not in serialized
+        assert forbidden not in serialized, (
+            f"Functional prompt leaked forbidden token: {forbidden}"
+        )
     canonical_handle = re.compile(
         r"(?<![a-z0-9_])(?:fact|point):[a-z0-9_]+:|"
         r"(?<![a-z0-9_])answer:[a-z0-9_]+[.:]"
     )
-    assert canonical_handle.search(serialized) is None
+    assert canonical_handle.search(serialized) is None, (
+        "Functional prompt leaked a canonical handle"
+    )
     selection = payload.get("functional_few_shot_selection")
     if isinstance(selection, dict):
-        for key in ("example_id", "source_problem_id", "family_id", "selection_tier"):
+        for key in ("source_problem_id", "family_id", "selection_tier"):
             value = selection.get(key)
             if isinstance(value, str) and value:
-                # Retrieval metadata is serialized as standalone JSON values.
-                # A raw substring check incorrectly rejects an example id that
-                # is also a prefix of a legitimate capability id.
-                assert json.dumps(value, ensure_ascii=False) not in user_prompt
+                assert json.dumps(value, ensure_ascii=False) not in user_prompt, (
+                    f"Functional prompt leaked few-shot retrieval metadata: {key}"
+                )
+
+
+def _assert_no_few_shot_retrieval_metadata(value: Any) -> None:
+    """Inspect prompt-facing examples structurally, not by semantic string value."""
+    if isinstance(value, dict):
+        forbidden = {
+            "example_id",
+            "source_problem_id",
+            "family_id",
+            "selection_tier",
+        } & set(value)
+        assert not forbidden, (
+            "Functional few-shot payload leaked retrieval fields: "
+            + ", ".join(sorted(forbidden))
+        )
+        for item in value.values():
+            _assert_no_few_shot_retrieval_metadata(item)
+    elif isinstance(value, (list, tuple)):
+        for item in value:
+            _assert_no_few_shot_retrieval_metadata(item)
 
 
 def _max_attempts() -> int:
     return max(1, int(os.getenv("DEEPSEEK_STRATEGY_PLANNER_MAX_ATTEMPTS", "3")))
+
+
+def _attempt_llm_usage_is_recorded(
+    debug_dir: Path,
+    *,
+    attempt_count: int,
+) -> bool:
+    if attempt_count < 1:
+        return False
+    for attempt in range(1, attempt_count + 1):
+        metadata = _read_json(
+            debug_dir / f"attempt-{attempt}.llm-metadata.json"
+        )
+        usage = metadata.get("usage")
+        if not isinstance(usage, dict):
+            return False
+        if not any(isinstance(value, int) for value in usage.values()):
+            return False
+    return True
 
 
 def _debug_dir(case: FunctionalOptInCase) -> Path:
@@ -256,6 +426,8 @@ def _write_sample_result(
     result: object,
     attempt_count: int,
     answer_mismatch: str | None,
+    gate_checks: Sequence[dict[str, Any]],
+    gate_failures: Sequence[dict[str, Any]],
 ) -> None:
     payload = {
         "sample_id": sample_id,
@@ -271,12 +443,37 @@ def _write_sample_result(
             {"ok": getattr(check, "ok", False), "message": str(check)}
             for check in getattr(result, "checks", [])
         ],
+        "gate_checks": [dict(item) for item in gate_checks],
+        "gate_failures": [dict(item) for item in gate_failures],
+        "gates_passed": not gate_failures,
     }
     path.mkdir(parents=True, exist_ok=True)
     (path / "sample-result.json").write_text(
         json.dumps(payload, ensure_ascii=False, indent=2, default=str),
         encoding="utf-8",
     )
+
+
+def _record_gate(
+    checks: list[dict[str, Any]],
+    name: str,
+    ok: bool,
+    message: str,
+) -> None:
+    checks.append({"name": name, "ok": bool(ok), "message": message})
+
+
+def _capture_assertion_gate(
+    checks: list[dict[str, Any]],
+    name: str,
+    callback: Any,
+) -> None:
+    try:
+        callback()
+    except Exception as exc:
+        _record_gate(checks, name, False, str(exc) or exc.__class__.__name__)
+    else:
+        _record_gate(checks, name, True, "")
 
 
 def _read_json(path: Path) -> dict[str, Any]:

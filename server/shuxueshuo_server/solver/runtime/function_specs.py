@@ -15,6 +15,7 @@ from shuxueshuo_server.solver.contracts import (
     MethodSpec,
     PlanTransformerScope,
     ScalarResultFormSpec,
+    SymbolicClosureSpec,
     default_result_form_spec,
 )
 from shuxueshuo_server.solver.family.common_binding_rules import (
@@ -36,8 +37,12 @@ from shuxueshuo_server.solver.family.models import (
     CapabilityInputClosureRequirement,
     CapabilityDependencyPolicy,
     CapabilityContractSpec,
+    CapabilityContextRoleBindingSpec,
     CapabilityStateClosurePolicy,
+    FunctionalArgBindingAuthority,
+    FunctionalReturnBindingPolicy,
     MethodBindingRuleSpec,
+    PathTransformationConsumerSpec,
     SolverFamilySpec,
     StateIdentityConstraintSpec,
     StateIdentityPolicy,
@@ -132,6 +137,7 @@ class FunctionReturnSpec:
     provides_semantic_roles: tuple[str, ...] = ()
     object_role_projections: tuple[StateObjectRoleProjectionSpec, ...] = ()
     lineage_closures: tuple[StateLineageClosureSpec, ...] = ()
+    return_binding: FunctionalReturnBindingPolicy = "auto"
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -166,6 +172,8 @@ class FunctionReturnSpec:
             payload["lineage_closures"] = [
                 item.to_payload() for item in self.lineage_closures
             ]
+        if self.return_binding != "auto":
+            payload["return_binding"] = self.return_binding
         return payload
 
 
@@ -176,13 +184,20 @@ class FunctionInputBindingSpec:
     input_name: str
     selector: str
     required: bool = True
+    functional_authority: FunctionalArgBindingAuthority | None = None
+    functional_resolver: str | None = None
 
     def to_payload(self) -> dict[str, Any]:
-        return {
+        payload = {
             "input_name": self.input_name,
             "selector": self.selector,
             "required": self.required,
         }
+        if self.functional_authority is not None:
+            payload["functional_authority"] = self.functional_authority
+        if self.functional_resolver is not None:
+            payload["functional_resolver"] = self.functional_resolver
+        return payload
 
 
 @dataclass(frozen=True)
@@ -200,12 +215,31 @@ class FunctionAggregateInputBindingSpec:
 
 
 @dataclass(frozen=True)
+class FunctionScalarAggregateLoweringSpec:
+    source_input: str
+    item_runtime_type: str
+    identity_input: str
+    value_input: str
+
+    def to_payload(self) -> dict[str, object]:
+        return {
+            "source_input": self.source_input,
+            "item_runtime_type": self.item_runtime_type,
+            "identity_input": self.identity_input,
+            "value_input": self.value_input,
+        }
+
+
+@dataclass(frozen=True)
 class FunctionAdapterSpec:
     """Runtime adapter for compiling a FunctionSpec to MethodInvocation inputs."""
 
     adapter_id: str
     input_bindings: tuple[FunctionInputBindingSpec, ...] = ()
     aggregate_input_bindings: tuple[FunctionAggregateInputBindingSpec, ...] = ()
+    scalar_aggregate_lowerings: tuple[
+        FunctionScalarAggregateLoweringSpec, ...
+    ] = ()
     expansion_selectors: tuple[str, ...] = ()
     constraint_analyzer: str | None = None
 
@@ -215,6 +249,9 @@ class FunctionAdapterSpec:
             "input_bindings": [item.to_payload() for item in self.input_bindings],
             "aggregate_input_bindings": [
                 item.to_payload() for item in self.aggregate_input_bindings
+            ],
+            "scalar_aggregate_lowerings": [
+                item.to_payload() for item in self.scalar_aggregate_lowerings
             ],
             "expansion_selectors": list(self.expansion_selectors),
             "constraint_analyzer": self.constraint_analyzer,
@@ -239,10 +276,13 @@ class FunctionSpec:
     reconciliation_validators: tuple[str, ...] = ()
     distinct_arg_groups: tuple[tuple[str, ...], ...] = ()
     dependency_policy: CapabilityDependencyPolicy = "explicit_args"
+    context_role_bindings: tuple[CapabilityContextRoleBindingSpec, ...] = ()
+    path_transformation_consumer: PathTransformationConsumerSpec | None = None
     input_closure_requirements: tuple[
         CapabilityInputClosureRequirement, ...
     ] = ()
     identity_constraints: tuple[StateIdentityConstraintSpec, ...] = ()
+    symbolic_closure: SymbolicClosureSpec | None = None
 
     def to_payload(self, *, include_adapter: bool = True) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -261,12 +301,25 @@ class FunctionSpec:
                 list(group) for group in self.distinct_arg_groups
             ],
             "dependency_policy": self.dependency_policy,
+            "context_role_bindings": [
+                item.to_payload() for item in self.context_role_bindings
+            ],
+            "path_transformation_consumer": (
+                self.path_transformation_consumer.to_payload()
+                if self.path_transformation_consumer is not None
+                else None
+            ),
             "input_closure_requirements": [
                 item.to_payload() for item in self.input_closure_requirements
             ],
             "identity_constraints": [
                 item.to_payload() for item in self.identity_constraints
             ],
+            "symbolic_closure": (
+                self.symbolic_closure.to_payload()
+                if self.symbolic_closure is not None
+                else None
+            ),
         }
         if include_adapter and self.adapter is not None:
             payload["adapter"] = self.adapter.to_payload()
@@ -436,6 +489,8 @@ class FunctionAdapterRegistry:
                 index=index,
                 local_outputs=local_outputs,
             ):
+                if not binding.required:
+                    continue
                 raise StrategyDraftValidationError(
                     "function.arg_not_read: "
                     f"method={method_id}, arg={binding.input_name}, "
@@ -450,6 +505,10 @@ class FunctionAdapterRegistry:
             expansions = ()
         for selector in expansions:
             expanded = self._expand(selector, step, index, local_outputs)
+            expanded = identity_safe_parameter_value_expansion(
+                expanded,
+                existing_inputs=inputs,
+            )
             for input_name, path in expanded.items():
                 if (
                     input_name in {"parameter", "x", "all_coefficients"}
@@ -513,6 +572,35 @@ class FunctionAdapterRegistry:
                 f"function.adapter_expansion_missing: {selector}"
             )
         return fn(step, index, local_outputs)
+
+
+def identity_safe_parameter_value_expansion(
+    expanded: Mapping[str, str],
+    *,
+    existing_inputs: Mapping[str, str],
+) -> dict[str, str]:
+    """Keep an automatic ParameterValue only for the same Symbol input.
+
+    ParameterValue expansion resolves its Symbol from write provenance and
+    therefore emits the canonical runtime path for both members of the pair.
+    If another selector has already bound a different ``parameter``, retaining
+    only the value would create an invalid cross-Symbol substitution.  The
+    expansion is optional, so discard that pair and let the method preserve its
+    open symbolic state.
+    """
+    result = dict(expanded)
+    parameter_value = result.get("parameter_value")
+    expanded_parameter = result.get("parameter")
+    existing_parameter = existing_inputs.get("parameter")
+    if (
+        parameter_value is not None
+        and expanded_parameter is not None
+        and existing_parameter is not None
+        and existing_parameter != expanded_parameter
+    ):
+        result.pop("parameter", None)
+        result.pop("parameter_value", None)
+    return result
 
 
 def _expansion_conflicts_with_exact_arg(
@@ -662,6 +750,11 @@ def function_spec_from_method(
                     if contract_write is not None
                     else ()
                 ),
+                return_binding=(
+                    contract_write.return_binding
+                    if contract_write is not None
+                    else "auto"
+                ),
             )
         )
     return FunctionSpec(
@@ -682,6 +775,14 @@ def function_spec_from_method(
             if contract is not None
             else "explicit_args"
         ),
+        context_role_bindings=(
+            contract.context_role_bindings if contract is not None else ()
+        ),
+        path_transformation_consumer=(
+            contract.path_transformation_consumer
+            if contract is not None
+            else None
+        ),
         input_closure_requirements=(
             contract.input_closure_requirements
             if contract is not None
@@ -690,6 +791,7 @@ def function_spec_from_method(
         identity_constraints=(
             contract.identity_constraints if contract is not None else ()
         ),
+        symbolic_closure=method_spec.symbolic_closure,
         notes=tuple(unique_ordered(notes)),
     )
 
@@ -1085,6 +1187,8 @@ def function_adapter_from_binding_rule(
             input_name=item.input_name,
             selector=item.selector,
             required=item.required,
+            functional_authority=item.functional_authority,
+            functional_resolver=item.functional_resolver,
         )
         for item in rule.input_bindings
     )
@@ -1095,10 +1199,20 @@ def function_adapter_from_binding_rule(
         )
         for item in rule.aggregate_input_bindings
     )
+    scalar_aggregate_lowerings = tuple(
+        FunctionScalarAggregateLoweringSpec(
+            source_input=item.source_input,
+            item_runtime_type=item.item_runtime_type,
+            identity_input=item.identity_input,
+            value_input=item.value_input,
+        )
+        for item in rule.scalar_aggregate_lowerings
+    )
     return FunctionAdapterSpec(
         adapter_id=rule.method_id,
         input_bindings=tuple(input_bindings),
         aggregate_input_bindings=aggregate_input_bindings,
+        scalar_aggregate_lowerings=scalar_aggregate_lowerings,
         expansion_selectors=rule.expansion_selectors,
         constraint_analyzer=rule.constraint_analyzer,
     )
@@ -1107,7 +1221,7 @@ def function_adapter_from_binding_rule(
 def _apply_constraint_analyzer(
     analyzer_id: str,
     *,
-    inputs: dict[str, str],
+    inputs: dict[str, Any],
     step: StepIntent,
     index: Any,
 ) -> ConstraintAnalyzerResult:
@@ -1121,18 +1235,18 @@ def _apply_constraint_analyzer(
 
 @dataclass(frozen=True)
 class ConstraintAnalyzerResult:
-    inputs: dict[str, str]
+    inputs: dict[str, Any]
     arg_repairs: tuple[FunctionArgBindingRepair, ...] = ()
 
 
 ConstraintAnalyzer = Callable[
-    [dict[str, str], StepIntent, Any],
+    [dict[str, Any], StepIntent, Any],
     ConstraintAnalyzerResult,
 ]
 
 
 def _analyze_quadratic_coefficient_inputs(
-    inputs: dict[str, str],
+    inputs: dict[str, Any],
     step: StepIntent,
     index: Any,
 ) -> ConstraintAnalyzerResult:
@@ -1143,6 +1257,15 @@ def _analyze_quadratic_coefficient_inputs(
     runtime_inputs: dict[str, Any] = {}
     for name, path in inputs.items():
         try:
+            if isinstance(path, tuple):
+                runtime_inputs[name] = [
+                    index.context.read_path(
+                        item_path,
+                        from_scope_id=step.scope_id,
+                    ).value
+                    for item_path in path
+                ]
+                continue
             # RuntimeContext can deterministically materialize a PointRef when
             # a numeric Point input is requested. The analyzer must use the
             # same typed-read semantics as InvocationExecutor; otherwise a
@@ -1349,6 +1472,16 @@ def _effective_input_bindings(
             input_name=input_name,
             selector=str(getattr(binding, "selector")),
             required=bool(getattr(binding, "required", True)),
+            functional_authority=getattr(
+                binding,
+                "functional_authority",
+                None,
+            ),
+            functional_resolver=getattr(
+                binding,
+                "functional_resolver",
+                None,
+            ),
         )
     return tuple(by_name[input_name] for input_name in order)
 

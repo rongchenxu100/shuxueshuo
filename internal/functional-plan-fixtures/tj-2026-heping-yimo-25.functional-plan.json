@@ -100,22 +100,6 @@
             "condition": {
               "ref": "angle_sum_CBE_ACO_45",
               "kind": "fact"
-            },
-            "x_axis_point": {
-              "ref": "B",
-              "kind": "point"
-            },
-            "y_axis_point": {
-              "ref": "C",
-              "kind": "point"
-            },
-            "reference_x_axis_point": {
-              "ref": "A",
-              "kind": "point"
-            },
-            "origin": {
-              "ref": "O",
-              "kind": "point"
             }
           },
           "return_bindings": {},
@@ -129,22 +113,6 @@
             "angle_equality": {
               "from_call": "derive_equal_angle_i",
               "return": "angle_equality"
-            },
-            "x_axis_point": {
-              "from_call": "derive_x_intercept_B_i",
-              "return": "point"
-            },
-            "y_axis_point": {
-              "from_call": "derive_y_intercept_C_i",
-              "return": "point"
-            },
-            "reference_x_axis_point": {
-              "ref": "A",
-              "kind": "point"
-            },
-            "origin": {
-              "ref": "O",
-              "kind": "point"
             }
           },
           "return_bindings": {},

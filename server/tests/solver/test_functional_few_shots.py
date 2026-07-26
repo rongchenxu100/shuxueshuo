@@ -474,7 +474,9 @@ def test_nankai_core_annotation_is_rendered_before_strict_plan() -> None:
     assert "双动点路径降维与折线拉直" in prompt
     assert "先建立显式路径等价变换" in prompt
     assert "本例的变换已携带动点轨迹证据" in prompt
-    assert "必须另行求出并传入动点轨迹" in prompt
+    assert "必须先根据变换发布的动点身份求出同一对象的轨迹" in prompt
+    assert "变换发布的动点身份" in prompt
+    assert "不能使用最终答案对象或任意可见直线" in prompt
     assert "### FunctionalPlan 示例" in prompt
     assert '"format": "functional_plan/v1"' in prompt
     assert '"annotation"' not in prompt

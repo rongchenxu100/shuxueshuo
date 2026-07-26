@@ -9,16 +9,25 @@
 目标链路为：
 
 ```text
-FunctionalPlan typed args
+LogicalFunctionalGraph ready call
+  -> Working PlannerStateContext
   -> FunctionalBindingContext
   -> SymbolicClosureSpec
   -> Equation / Representation Adapter
   -> TargetSymbolClosureSolver
-  -> canonical method outputs
-  -> PlannerStateContext / runtime provenance
+  -> actual SymbolicClosureResult
+  -> canonical method outputs + runtime provenance
+  -> verified StateVersions in Working Context
 ```
 
 本路线不要求 LLM 输出 canonical handle、runtime path、系数容器或内部残余符号，也不允许代码通过 method id、变量名、description 或错误文本猜测数学语义。
+
+本路线不再要求 reconciliation 在执行前精确预测 closure 后的 free symbols。正式迁移
+应运行在 Transactional Functional Interpreter 内：call 执行成功后，以实际
+`SymbolicClosureResult` 和 typed output 为值权威，再更新下游可见 Context。详细执行
+架构见：
+
+- `docs/transactional-functional-interpreter-design.md`
 
 ## Why This Iteration Exists
 
@@ -76,6 +85,37 @@ parameter_from_curve_point_on_quadratic
 6. retry 和学生讲解只能看到最终错误，尚不能完整解释“目标参数如何由内部残余符号闭合”。
 
 因此当前实现应视为迁移基线，而不是最终架构。
+
+## Relationship to Transactional Execution
+
+`SymbolicClosureSpec` 是 capability effect contract，不是数学结果。它声明：
+
+- 哪个 arg 是 target Symbol；
+- 用哪些结构化输入建立方程；
+- 哪些约束参与唯一性过滤；
+-成功 substitution 必须影响哪些 returns；
+- runtime 应返回哪些 provenance。
+
+它不声明 target 的具体值、具体分支、return 的最终 free-symbol 集合，也不替 LLM
+选择数学路线。
+
+例如：
+
+```python
+SymbolicClosureSpec(
+    target_arg="target_parameter",
+    equation_builder="quadratic_constraints",
+    substitution_outputs=("parabola", "coefficients"),
+)
+```
+
+只表示“若 target 被唯一求出，同一 substitution 必须应用到这两个 capability
+returns”。runtime 可能得到 `target_value=f(m)` 和只含 `m` 的 Parabola，也可能因为
+underdetermined、ambiguous 或 inconsistent 而不产生任何 committed write。
+
+在旧整图 reconciliation 中，Spec 最多提供 conservative projected effect；projected
+state 不能成为 verified Context 或 retry stable graph 的权威。Transactional
+Interpreter 切换后，下游 call 只读取 actual runtime write。
 
 ## Design Principles
 
@@ -163,15 +203,46 @@ method 不应重复实现 `sympy.solve`、分支去重和自由符号闭合逻�
 
 不得从 RuntimeContext 全局搜索未读取的表达式、参数值或条件。
 
-### 6. 唯一目标结果才成功
+### 6. 目标必须相对声明的符号基唯一
 
 成功条件不是“SymPy 返回了一个解”，而是：
 
 - target identity 已确定；
-- 所需 residual symbols 可闭合；
+- closure contract 已明确本次必须闭合和允许保留的 Symbol identity；
 - 约束过滤后恰好一个 target value；
-- target value 不含自由符号；
+- target value 的剩余自由符号只能来自显式声明的 preserved Symbol args；
 - 同一 substitution map 能一致更新所有 companion outputs。
+
+因此两种结果都可以合法：
+
+```text
+closed target:
+  a = 2
+  residual symbols = []
+
+relative target:
+  a = f(m)
+  preserved symbols = [symbol:m]
+  residual symbols = [symbol:m]
+```
+
+如果 runtime 结果还包含未声明的 `b`，即使表达式可计算，也必须报告
+`function.target_underdetermined`。判断依据是 typed Symbol identity，不是变量名。
+
+### 7. Actual result controls closure
+
+静态阶段只验证 closure 配置是否完整，不提前承诺具体 closure：
+
+```text
+Spec expected effect
+  + actual solver substitution
+  + actual typed return values
+  -> StateWriteProvenance
+```
+
+若 Spec 声明 target substitution 会更新 `parabola`，但 runtime 返回的 Parabola
+仍包含 target Symbol，应报告 `planner.contract_runtime_symbol_drift`，而不是让
+Context 接受错误状态，也不能由 reconciliation 静默删除该 Symbol。
 
 ## Target Models
 
@@ -228,6 +299,7 @@ class SymbolicClosureSpec:
     known_substitutions: tuple[tuple[str, str], ...] = ()
     representation_mapper: str | None = None
     constraint_args: tuple[str, ...] = ()
+    preserved_symbol_args: tuple[str, ...] = ()
     substitution_outputs: tuple[str, ...] = ()
     require_unique_target: bool = True
 ```
@@ -241,11 +313,17 @@ SymbolicClosureSpec(
     known_substitutions=(("known_parameter", "known_parameter_value"),),
     representation_mapper="polynomial_coefficient_template",
     constraint_args=("parameter_constraint",),
+    preserved_symbol_args=("free_parameters",),
     substitution_outputs=("point", "parabola"),
 )
 ```
 
 声明必须来自 Python method spec，不在 JSON、binding rule 和 runtime method 中维护多份配置。
+
+`substitution_outputs` 只能引用同一 capability 自己声明的 return name。它不是题目对象
+列表：题目没有该 capability 所需 source state 时，catalog satisfiability/preflight
+应隐藏或拒绝整个 capability；optional return 未实际产生时不创建 StateVersion，也不
+应用 effect。
 
 ### Adapter Protocols
 
@@ -408,6 +486,8 @@ polynomial_coefficient_template
 - `StateWriteProvenance` 关联 closure provenance；
 - ParameterValue 的 `object_ref` 必须等于 target Symbol identity；
 - substitution outputs 使用相同 substitution map 形成 transition history；
+- committed free symbols 必须从 actual output 计算，不能使用输入符号并集作为
+  verified state；
 - retry issue 使用统一 code：
   - `function.target_identity_unresolved`
   - `function.target_underdetermined`
@@ -417,7 +497,8 @@ polynomial_coefficient_template
   - `function.representation_mapping_unresolved`
 - repair ticket 只展示 call、arg role、缺失 state 和可见兼容 refs；
 - 不把内部 residual symbol 当作 LLM 必须手动绑定的新参数；
-- explanation 可从 provenance 生成“代入已知参数、建立方程、解得目标参数、同步更新对象状态”的确定性骨架。
+- explanation 只使用 runtime 已验证的 substitution，生成“代入已知参数、建立方程、
+  解得目标参数、同步更新对象状态”的确定性骨架。
 
 ### Acceptance
 
@@ -507,15 +588,17 @@ polynomial_coefficient_template
 |---|---|
 | target 直接是唯一 residual symbol | `unique` |
 | 内部 residual 可唯一映射到 target | `unique` |
+| target value 只含声明的 preserved symbols | `unique_relative` |
 | known substitution 后 target 唯一 | `unique` |
 | 缺少 known substitution | typed missing issue |
-| 两个及以上未闭合 residual symbols | `underdetermined` |
+| 含未声明 residual symbols | `underdetermined` |
 | 多个合法 target branches | `ambiguous` |
 | 方程矛盾 | `inconsistent` |
 | target 不在方程且无 mapper | `identity_unresolved` |
 | mapper 依赖方程外未知符号 | `underdetermined` |
 | constraint 筛选到唯一分支 | `unique` |
-| target value 仍含自由符号 | failure |
+| target value 只含 declared preserved symbols | `unique_relative` |
+| target value 含其它自由符号 | failure |
 | Point/Parabola companion output | 与 target 使用同一 substitution |
 | repeated execution | 无全局状态泄漏 |
 | Functional retry overlay | typed args 与 canonical call 对齐 |
@@ -617,9 +700,14 @@ runtime/planner_state_context.py
 
 本计划是以下文档的专项落地补充：
 
+- `transactional-functional-interpreter-design.md`：定义逐 call 执行、Working
+  Context、actual write commit 和 partial verified graph；closure executor 运行在
+  ready call 的 compile/execute 阶段。
 - `llm-context-model-design.md`：`FunctionalBindingContext` 和 closure provenance 是 PlannerStateContext 的 projection/event 来源，不是新的权威 runtime state。
 - `functional-method-recipe-orchestration-design.md`：它把 typed FunctionSpec 的参数连接进一步落实到符号闭包执行边界。
 - `method-solver-architecture.md`：`RuntimeContext`、`MethodInvocation` 和 `InvocationExecutor` 的职责不变。
 - `family-capability-pack-upgrade-plan.md`：Capability Pack 负责暴露/组合能力；符号 closure spec 归属于 method capability，不归属于 family 路线偏好。
 
-本文档应在 FunctionalPlan 五题 parity 稳定后启动 Iteration 1；在此之前，当前 target closure 实现保留为验证设计边界的兼容基线。
+本文档的 typed binding 模型可在 FunctionalPlan 五题 parity 期间继续完善；正式
+closure 状态权威切换应放在 Transactional Functional Interpreter T1/T2 之后。此前
+当前 target closure 和静态 projection 只作为兼容基线与 shadow oracle。

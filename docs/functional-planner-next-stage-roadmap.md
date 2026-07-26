@@ -8,12 +8,16 @@
 
 后续工作分为四条有明确依赖关系的主线：
 
-1. **产品协议迁移**：为五道代表题建立 FunctionalPlan parity，并将 FunctionalPlan 切换为默认 planner 协议。
+1. **产品协议 parity**：为五道代表题建立 FunctionalPlan 资产、真实网络稳定性基线和迁移 oracle。
 2. **语义状态权威收敛**：让 `MathObject -> StateSlot -> StateVersion` 身份贯穿 allocation、call placement、finalizer、Context 和 retry。
-3. **执行架构收敛**：把参数求解补位收敛成声明式符号目标闭包，随后删除 StepIntent 兼容桥。
+3. **执行架构收敛**：先把整图静态状态预测改为 transactional call execution，
+   再把参数求解收敛成 runtime-grounded 声明式符号闭包，最后删除 StepIntent 兼容桥。
 4. **工作流 Context 扩展**：建立图片题目提取 Context，以及解题后 Explanation、Diagram、Animation Context。
 
 四条主线不能同时无门禁地修改主链路。每一阶段都必须先形成可重放 oracle、分层指标和退出条件，再进入下一阶段。
+
+FunctionalPlan parity 完成不等于可以立即切换默认协议。默认切换由独立的
+**Functional Default Ready** 门禁控制，并在 Track D 中实施。
 
 ## Current Baseline
 
@@ -25,20 +29,73 @@
 - FunctionalPlan 到 canonical `StepIntentDraft` 的兼容投影；
 - 现有 `RecipeTrialExecutor -> StepPlan -> MethodInvocation -> InvocationExecutor` 执行链；
 - symbolic target closure、scalar result closure、constraint analysis 等共享原语的初始实现；
-- 南开 FunctionalPlan fixture、few-shot 和真实 DeepSeek opt-in。
+- 五题 FunctionalPlan fixture、few-shot、真实 DeepSeek opt-in 和统一并发 batch runner。
 
 语义身份收敛不再只是跨阶段备注，它是下文 **Track B** 的正式实施主线。详细方案见：
 
 - `docs/math-object-state-identity-propagation-plan.md`
 
-2026-07-20 的南开并发三样本结果：
+2026-07-23 的五题 Stage 1 batch
+`batch-20260723-182620` 使用同一代码、模型和各题兼容指纹，每题并发三个样本，
+最多三轮：
 
-```text
-pass@1 = 1/3
-pass@3 = 3/3
-```
+| Case | pass@1 | pass@3 | Configuration errors |
+| --- | ---: | ---: | ---: |
+| Nankai | 2/3 | 3/3 | 0 |
+| Heping Ermo | 1/3 | 3/3 | 0 |
+| Xiqing | 3/3 | 3/3 | 0 |
+| Hexi | 3/3 | 3/3 | 0 |
+| Heping | 3/3 | 3/3 | 0 |
 
-三个样本最终答案和 runtime checks 一致。这证明 FunctionalPlan 路线已经可用，也说明第一轮稳定性、configuration preflight 和部分 capability/runtime 契约仍需继续收敛。
+本批共 `15/15` 在最多三轮内通过，五题 Stage 1 门禁已经完成。Stage 2
+要求每题累计十个兼容样本，因此当前尚未完成。
+
+2026-07-24 参数绑定回归修复后的当前 source fingerprint 为
+`d983f8db929517cbc0418ca74edbd0fcb7c99ec37d66e3cd795d1bb97624ca0d`。
+五题 batch `batch-20260724-184136` 为 `14/15`；唯一失败是和平二模三轮均未修正
+数学对象/return binding。随后同 fingerprint 的和平二模独立 batch
+`batch-20260724-190119` 为 `3/3`。因此当前代码仍有每题独立 `3/3` 的 Stage 1
+证据，但不把五题 batch 的 `14/15` 隐藏成一次 `15/15`。
+
+跨 batch 报告 `track-a-stage1-20260724/parity-summary.json` 接受了 21 个兼容样本：
+Nankai `3/3`、Heping Ermo `5/6`、Xiqing `3/3`、Hexi `6/6`、Heping `3/3`。
+所有 configuration/unclassified error 为零。该报告只用于记录当前稳定性，不满足
+Stage 2 的每题至少十样本门禁。
+
+## Roadmap Status Model
+
+路线图使用以下状态，避免把“已有基础代码”“单批测试通过”和“产品可切换”混为一谈：
+
+- `COMPLETE`：该里程碑的全部门禁和证据已经满足；
+- `IN PROGRESS`：已有实现或证据，但仍有明确未完成项；
+- `PENDING`：尚未进入主线实施；
+- `BLOCKED`：必须等待其他里程碑完成。
+
+| Milestone | Status | 已完成 | 未完成或阻塞项 |
+| --- | --- | --- | --- |
+| Track A assets | `COMPLETE` | 五题 fixture、离线 replay、真实 opt-in、strict-test few-shot、共享 batch 基座 | 无 |
+| Track A Stage 1 | `COMPLETE` | 每题 3 个样本，`15/15` 在三轮内通过，configuration error 为 0 | 无 |
+| Track A parity complete | `IN PROGRESS` | Stage 1、structured provenance parity、typed failure boundary、跨 batch 聚合已建立 | 每题 10 个兼容样本且 `pass@3 >= 90%` |
+| Track C transactional interpreter | `PENDING` | 现有 partial replay、Working RuntimeContext、typed provenance 可复用 | Track B B1-B3；C0 shadow；逐 call execution parity |
+| Functional Default Ready | `BLOCKED` | Functional 主链可 opt-in 执行 | Track A parity complete；Track B B0-B4；Track C production closure；direct compiler shadow；held-out；production observability 与回滚门禁 |
+| Track D0 product routing gate retirement | `BLOCKED` | 唯一 problem-id gate 已登记 | Track A parity complete；Functional production routing 接管该 family；legacy deterministic planner 退场 |
+| Track D default switch | `BLOCKED` | direct compiler 目标已定义 | Functional Default Ready 后才能切默认协议和删除 StepIntent 兼容链 |
+
+上述状态有意将两个判断分开：
+
+1. **Track A 是否完成**：回答五题 FunctionalPlan 是否形成稳定、可量化的迁移 oracle。
+2. **是否可以切默认协议**：回答 typed identity、held-out、生产观测和回滚能力是否足以支撑产品切换。
+
+### Immediate Next Gate
+
+当前主线先完成 Track A，而不是继续扩大五题资产范围：
+
+1. 在当前兼容指纹下每题补足到十个样本，要求至少 `9/10` 在三轮内通过；
+2. 重点观察 Heping Ermo 当前累计 `5/6` 的对象身份类 retry，不能通过固定解题链
+   或题目特判换取门禁数字；
+3. 满足以上条件后，将 Track A 标记为 `COMPLETE`。
+
+Track B B0/B1 可以并行推进，但不再作为 Track A 完成条件。
 
 ## Pack Contract Synchronization Discipline
 
@@ -79,11 +136,14 @@ ProblemIR
   -> Functional prompt projection
   -> LLM FunctionalPlan candidate
   -> deterministic elaboration
-  -> Context reconciliation
-  -> CanonicalFunctionalGraph
-  -> Function/Macro graph compiler
-  -> ExecutionPlan / MethodInvocation
-  -> InvocationExecutor
+  -> LogicalFunctionalGraph
+  -> TransactionalFunctionalInterpreter
+       -> resolve ready call from Working Context
+       -> Function/Macro compiler
+       -> ExecutionPlan / MethodInvocation
+       -> InvocationExecutor
+       -> validate and commit actual StateVersion
+  -> CanonicalFunctionalGraph + PlannerStateContext vNext
   -> runtime provenance and verified answers
 ```
 
@@ -112,6 +172,9 @@ Problem image / source
 
 为现有五道 StepIntent opt-in 题建立独立 FunctionalPlan fixture 和真实 DeepSeek opt-in，形成足够宽的迁移 oracle。
 
+Track A 本身不切换默认协议，也不删除 StepIntent。它只负责建立 FunctionalPlan
+parity 资产、稳定性证据和迁移 oracle。
+
 五题为：
 
 1. Nankai；
@@ -128,6 +191,27 @@ Problem image / source
 4. **Heping**：验证角度、直线和交点能力组合。
 
 南开作为当前迁移基线持续运行。
+
+### Current Status
+
+截至 2026-07-24：
+
+- `COMPLETE`：五份 authored FunctionalPlan fixture；
+- `COMPLETE`：五题离线 validation、reconciliation、projection 和 runtime replay；
+- `COMPLETE`：五个真实 DeepSeek Functional opt-in 薄入口和共享执行基座；
+- `COMPLETE`：strict-test few-shot、隔离 debug 目录、per-sample result 和统一 batch report；
+- `COMPLETE`：Stage 1，每题 `3/3` 在最多三轮内通过；
+- `COMPLETE`：recorded StepIntent 与 authored FunctionalPlan 的 structured provenance
+  parity oracle；
+- `COMPLETE`：typed planner failure boundary 和 layer/code/root issue 统计；
+- `COMPLETE`：按 source/model/prompt/catalog/fixture compatibility key 的跨 batch 聚合；
+- `IN PROGRESS`：Stage 2；当前兼容样本数为 Nankai 3、Heping Ermo 6、Xiqing 3、
+  Hexi 6、Heping 3，其中 Heping Ermo 当前累计 `pass@3=5/6`。
+
+Stage 2 可以选择一次性重新运行每题十个样本，也可以实现按
+`revision + model + prompt/catalog/fixture hash` 聚合多个 batch 的兼容样本。若采用后者，
+当前兼容结果可以继续累积，但每题必须达到至少十个样本；Heping Ermo 还必须把累计
+`pass@3` 提升到至少 90%，不能只选择通过的独立 batch。
 
 ### Required Assets Per Problem
 
@@ -160,23 +244,65 @@ Problem image / source
 - normalizer 根据 expected answer 改写计划；
 - 把 LLM 的数学路线错误强行修成可运行计划。
 
-### Exit Criteria
+### Track A Parity Complete Criteria
 
 - 五题离线 fixture 100% 稳定通过；
-- 五题真实 opt-in 在最多三轮内达到约定的 `pass@3` 门槛；
-- `planner_configuration_error` 不消耗 LLM retry，并在发起请求前暴露；
-- FunctionalPlan 不回退 legacy StepIntent binding；
-- Function/Macro/identity/provenance 无 compatibility fallback；
-- Track B Iteration 0-4 完成：allocation、placement、finalizer、Context 和 retry 共用同一 typed identity；
-- 同一 MathObject 的重复 writer 不再延迟到 runtime 以 `duplicate_*` 报错；
-- held-out 题没有显著退化；
-- 每个失败可归入 extraction、validation、elaboration、reconciliation、binding、runtime、goal verification 或 strategy error。
+- 同一 `revision + model + prompt/catalog/fixture hash` 下，每题至少十个真实样本；
+- 五题各自 `pass@3 >= 90%`，并记录 `pass@1`、平均轮次、token 和延迟；
+- `planner_configuration_error` 为零，且配置错误在发起 LLM 请求前暴露；
+- 每轮 candidate 保持 `candidate_format="functional_plan"`，不回退 StepIntent 协议；
+- 五题最终 answer 与 recorded oracle 一致；
+- 建立 structured provenance parity oracle，比较关键对象身份、状态写入、answer producer
+  和跨 scope 复用，而不只比较最终答案；
+- batch report 将失败稳定归入 validation、elaboration、reconciliation、binding、
+  runtime、goal verification 或 strategy error，不再只聚合为 `planner_failed`；
+- compatibility key 不一致的样本不得混入同一 parity 统计。
+
+Track B B0-B4、held-out 门禁、production observability 和默认协议切换不属于 Track A
+完成条件；它们属于下文的 Functional Default Ready 门禁。
+
+## Functional Default Readiness Gate
+
+### Purpose
+
+这是跨 Track 的产品切换门禁，用来回答“是否可以把 FunctionalPlan 设为默认协议”，
+而不是再次衡量五题 parity。
+
+### Current Status
+
+`BLOCKED`。Functional opt-in 主链和五题 Stage 1 已可用，但 typed identity authority、
+held-out 证据和生产切换能力尚未达到门禁。
+
+### Criteria
+
+- Track A 达到 `parity complete`；
+- Track B B0-B4 完成，allocation、placement、finalizer、Context 和 retry 使用同一
+  typed MathObject/StateVersion identity；
+- Track C 对生产暴露的参数能力完成声明式 closure 和 provenance 接线；
+- Track C transactional interpreter 已用真实 runtime result 更新 Working Context，
+  stable graph 不再依赖整图 projected result state；
+- 同一 MathObject 的重复 writer 在 runtime 前被合并或拒绝，不再以正常
+  `duplicate_*` retry 暴露；
+- Function/Macro/identity/provenance 主链没有 compatibility fallback；
+- 至少一组不参与日常修复决策的 held-out 题无显著退化；
+- 生产监控可以按 layer/code、模型、prompt/catalog hash 和 answer signature 观测失败；
+- 默认切换具备 canary、回滚和 StepIntent 迁移观察窗口；
+- Track D direct compiler shadow 达到其切换门槛。
+
+满足该门禁后，才在 Track D 中切换默认协议。StepIntent 删除仍需经过独立观察窗口，
+不会与默认切换在同一个提交中完成。
 
 ## Track B: MathObject Identity and State Version Authority
 
 ### Goal
 
 将 `PlannerStateContext` 中已经存在的 MathObject 身份真正提升为 allocation、placement、finalizer、retry 和 explanation 的共享权威源，逐步删除 handle 字符串、scope 前缀和 runtime path 对象身份猜测。
+
+### Current Status
+
+`IN PROGRESS`，但正式 B0-B4 门禁尚未完成。现有 Context、lineage、object identity
+constraints 和 transition history 是实施基础，不等于 allocation、placement 和 finalizer
+已经共用一个 typed identity authority。
 
 详细设计、数据模型和迁移清单见：
 
@@ -238,8 +364,9 @@ Problem image / source
 ### Stage Gates and Dependencies
 
 - **Track A 进行中**：立即实施 B0-B1，对现有五题 fixture 做 shadow 和 allocation 门禁。
-- **Track A 退出前**：必须完成 B2-B4，确保 placement、finalizer、retry 不再建立平行身份。
-- **Track C 可并行的部分**：C1/C2 可与 B0/B1 并行；C3 开始前要求 B1 完成，C4/C5 要求 B4 完成。
+- **Functional Default Ready 前**：必须完成 B2-B4，确保 placement、finalizer、retry 不再建立平行身份。
+- **Track C 可并行的部分**：C0 logical graph/event shadow 可与 B0/B1 并行；
+  C1 主链要求 B1-B3，C2 retry cutover 要求 B4。
 - **Track D 主链切换前**：B0-B4 是 hard prerequisite；B5 在 direct compiler shadow 期间完成。
 - **Track E production best-of-N 前**：stable graph 必须已使用 version identity，否则多候选比较会聚合不一致的语义状态。
 
@@ -252,33 +379,107 @@ Problem image / source
 - 五题 fixture 无身份漂移，并且 finalizer 幂等；
 - B5 结束后，生产 Functional 主链不依赖对象名称、handle 前缀或 runtime path 判断身份。
 
-## Track C: Declarative Symbolic Target Closure
+## Track C: Transactional Functional Execution and Symbolic Closure
 
 ### Goal
 
-把针对参数求解 method 的局部补位收敛成声明式、可复用的符号目标闭包系统。
+保留整份 FunctionalPlan 的静态 graph validation，但将对象状态物化改为按拓扑顺序
+逐 call 执行：
+
+```text
+LogicalFunctionalGraph
+  -> resolve ready call
+  -> execute
+  -> validate actual outputs
+  -> update Working Context
+  -> continue downstream
+```
+
+在此基础上，把参数求解 method 的局部补位收敛成 runtime-grounded、声明式、可复用的
+符号目标闭包系统。静态 spec 负责 effect contract，实际 runtime result 负责具体值、
+substitution 和 free symbols。
+
+### Architectural Decision
+
+本 Track 不放到 direct compiler 之后，原因是当前最复杂的技术债不是 StepIntent 类名，
+而是整图 reconciliation 必须在 runtime 前预测 return state。
+
+顺序固定为：
+
+```text
+Track B typed identity/allocation/placement/finalizer
+  -> Track C transactional interpreter
+  -> Track C runtime-grounded symbolic closure
+  -> Track D direct compiler
+```
+
+迁移期 interpreter 仍可把单个 call 投影成 canonical StepIntent fragment，再复用现有
+compiler/runtime。这样先解决状态权威问题，再单独替换编译桥，避免一次修改两个轴。
+
+### Current Status
+
+`PENDING` for mainline cutover。现有 partial replay、RuntimeContext dry-run、typed
+provenance、stable graph 和 symbolic target closure 是实现基础，但 production 仍采用
+“整图 reconciliation/projection 后一次性 replay”。
 
 详细设计见：
 
+- `docs/transactional-functional-interpreter-design.md`
 - `docs/symbolic-target-closure-evolution-plan.md`
 
 ### Iteration Sequence
 
-#### C1. Preserve Functional Arg Roles
+#### C0. Logical Graph and Working Context Shadow
+
+- 从现有 reconciliation 抽出不依赖 runtime result 的 `LogicalFunctionalGraph`；
+- 定义 `pending / ready / verified / failed / blocked / eliminated / aliased` call 状态；
+- 定义 attempt-local `WorkingPlannerState`；
+- 现有主链不变，shadow interpreter 重放五题 fixture 并比较 call timeline；
+- 一个 LLM attempt 仍只提交一个外部 PlannerStateContext version。
+
+依赖：Track B B1 allocation authority。C0 shadow 可在 Track A Stage 2 期间开发，但
+主链切换会改变 compatibility fingerprint。
+
+#### C1. Transactional Call Execution
+
+- 按 DAG ready frontier 逐 call resolve/elaborate/compile/execute；
+- 每个 call 读取调用时刻之前最新 verified StateVersion；
+- actual output 决定 free symbols、result form 和 optional returns；
+- 成功才写入 Working Context，失败 call 不产生部分 state；
+- 失败 call 的 dependents 标记 blocked，无关分支继续执行；
+- per-call compiler 先复用现有 StepIntent/StepPlan bridge。
+
+依赖：Track B B2 placement 和 B3 identity-aware finalizer。
+
+#### C2. Context and Retry Cutover
+
+- stable graph 直接使用 interpreter 的 verified call + StateVersion ids；
+- retry graph 使用 failed roots 和 blocked dependents；
+- overlay 后按 ComputationKey 和 dependency versions 判断能否复用；
+- 删除整图 projected result form 对 stable graph 的权威性；
+- explanation 只消费 verified canonical calls。
+
+依赖：Track B B4 Context/retry authority。
+
+#### C3. Preserve Functional Arg Roles
 
 - 建立正式 `FunctionalBindingContext`；
 - 保留 call arg role 到 compiler/runtime；
 - graph rewrite、placement、retry overlay 后重新投影 sidecar；
 - Functional 模式不再从无角色 reads 顺序猜 target Symbol。
 
-#### C2. Declarative Closure Specs
+#### C4. Runtime-grounded Closure Specs
 
 - 在 MethodSpec 中声明 `SymbolicClosureSpec`；
 - 将 equation builder、representation mapper 和 constraint filter 注册表化；
 - 建立共享 `execute_symbolic_closure(...)`；
 - preflight 在 LLM 调用前验证 adapter、arg 和 output 配置完整性。
+- spec 只声明 target、equation source、substitution effect 和 affected returns；
+- actual `SymbolicClosureResult` 决定 target value、branches、substitution 和 free symbols；
+- spec/runtime 漂移产生 `planner.contract_runtime_symbol_drift`；
+- 不再要求 static reconciliation 精确预测执行后的 free-symbol closure。
 
-#### C3. Migrate Parameter Methods
+#### C5. Migrate Parameter Methods
 
 建议迁移顺序：
 
@@ -301,16 +502,14 @@ substitution_outputs
 
 新增同类 capability 不得要求修改共享 dispatch。
 
-#### C4. Context, Retry, and Explanation
+#### C6. Strict Cleanup
 
-- closure provenance 写入 PlannerStateContext；
+- closure actual provenance 写入 PlannerStateContext；
 - ParameterValue 绑定目标 Symbol identity；
 - retry 定位 target arg、缺失 semantic state 和约束来源；
-- 不把内部 residual symbols 作为 LLM 必须绑定的新参数；
-- explanation 从 provenance 生成确定性的代入、列方程、闭包和状态更新骨架。
-
-#### C5. Strict Cleanup
-
+- explanation 从 actual provenance 生成代入、列方程、闭包和状态更新骨架；
+- 删除 return free-symbol union 作为 verified state；
+- 删除 speculative open/closed blocker 和重复 functional state refinement；
 - 删除 Functional 模式下的 `free_quadratic_parameter_if_read`；
 - 删除 method-local solve 和重复 closure helper；
 - 删除基于参数名、output handle 或错误文本的 identity 猜测；
@@ -321,10 +520,11 @@ substitution_outputs
 五题迁移和 symbolic closure 可以部分交叠：
 
 - Heping Ermo、Xiqing 用于暴露 typed Symbol 和 closure 需求；
-- C1/C2 可以在五题 parity 期间实现，但必须消费 Track B 的 typed identity；
-- C3 以后的 Symbol/ParameterValue 写入必须通过 `StateAllocationService`；
+- C0 shadow 可以在五题 parity 期间实现，但必须消费 Track B 的 typed identity；
+- C1 主链切换后必须重新建立真实样本 compatibility fingerprint；
+- C4/C5 的 Symbol/ParameterValue 写入必须通过 `StateAllocationService`；
 - 在五题 oracle 完整前不删除兼容路径；
-- 五题 parity 后完成 C3-C5 strict cleanup。
+- 五题 parity 后完成 transactional cutover、参数能力迁移和 C6 strict cleanup。
 
 ## Track D: Retire StepIntent Compatibility
 
@@ -361,7 +561,32 @@ FunctionalPlan
 
 Track D 的主链切换以 Track B 的 B0-B4 完成为前置。direct compiler 必须直接消费 typed MathObject/StateVersion，不得将已删除的 handle 字符串猜测复制进新编译器。B5 在本 Track 的 shadow 和删除旧桥阶段完成。
 
+### Current Status
+
+`BLOCKED`。当前仍由 FunctionalPlan 投影 canonical `StepIntentDraft`，direct graph compiler
+尚未成为可 shadow 对比的完整执行路径。启动默认切换前必须先满足 Functional Default
+Ready 门禁。
+
 ### Migration Steps
+
+#### D0. Product Routing Gate Retirement
+
+`QuadraticPathMinimumSolver.enabled_problem_ids` 是当前唯一的产品级 problem-id
+allowlist。它保护的是 legacy deterministic planner，不影响显式 Functional opt-in。
+Track A parity complete 后启动该清理项，但只有同时满足以下条件才删除：
+
+1. 该 family 的生产请求已由 Functional routing 接管，未知同 family 题不会再进入
+   canonical 南开 deterministic planner；
+2. legacy `quadratic_path_planner` 不再是该 family 的生产 fallback；
+3. 任意 problem id、任意点名和等价 scope label 的同 family synthetic/E2E 用例通过；
+4. 相邻 family 的负向路由测试通过；
+5. 删除 `enabled_problem_ids` 配置值后，再删除 `SolverFamilySpec` 上的字段与硬门控测试，
+   避免留下失效的产品开关。
+
+不得在 Track A 数字达标后直接清空 tuple；那会扩大 legacy planner 的输入范围，而不是
+完成 Functional 迁移。
+
+#### D1. Direct Compiler and Default Cutover
 
 1. 定义 CanonicalFunctionalGraph 的稳定 schema。
 2. 让 graph compiler 直接消费 resolved calls、typed args、return allocations、placement 和 provenance。
@@ -389,6 +614,21 @@ FunctionalPlan
 - `FunctionalPlan -> StepIntentDraft` projector；
 - StepIntent-only recorded opt-in tests。
 
+已登记的 legacy 专项债务：
+
+- `strategy_repair_feedback.py` 中按
+  `broken_path_straightening_minimum_expression` 字面量判断 blocker 的旧
+  StepIntent repair 分支，迁入声明式 `RepairHintSpec` 后删除；
+- `strategy_resolver.py` 中按 capability id 路由和按最小值 fact 名称推断输入的旧
+  StepIntent resolver；
+- `recipe_compiler.py` / `strategy_validator.py` 中 `m_value` 等参数名启发式，待
+  FunctionalBindingContext 与 Symbol identity 成为权威后删除；
+- `hexi_weighted_path_planner.py` 及 orchestrator 中的河西 deterministic planner
+  接线，待 Functional default 与回滚观察窗口完成后退役。
+
+这些代码目前位于 legacy 旁路，不能在 Track A 尾声无门禁删除；但也不得被复制到
+Functional reconciler、direct compiler 或新的 capability spec。
+
 旧 fixtures 可保留为只读 migration oracle 一段时间，但不再进入生产执行链。
 
 ### Exit Criteria
@@ -402,7 +642,14 @@ FunctionalPlan
 
 ## Track E: Best-of-N and Candidate Selection
 
-当前南开 `pass@1=1/3`、`pass@3=3/3` 说明并发候选具有明显价值，但生产环境不能依靠 expected answer 选择 winner。
+### Current Status
+
+`IN PROGRESS`。并发样本隔离、batch runner、pass@k 和兼容指纹报告已经具备；
+production winner selection、Context branch commit 和无 expected-answer 排序尚未实现。
+
+当前兼容样本中，Nankai `pass@1=2/3`，Heping Ermo 累计 `pass@1=1/6`、
+`pass@3=5/6`。这说明并发候选和 graph retry 具有明显价值，也说明生产环境不能依靠
+expected answer 或挑选成功 batch 来选择 winner。
 
 推荐先实现条件式 best-of-3：
 
@@ -423,6 +670,11 @@ Best-of-N 是可靠性放大器，不替代五题 parity、能力覆盖和 deter
 ### Goal
 
 把图片、OCR、PDF 或网页题面解析成可追溯、可校验的 ProblemIR，同时避免 extractor 学习 planner 的 capability-specific 组合概念。
+
+### Current Status
+
+`PENDING`。已有 authored ProblemIR 和设计原则，尚未建立正式
+`ProblemExtractionContext` shadow benchmark 与 gold extraction metrics。
 
 ### Primitive-First Extraction
 
@@ -473,6 +725,12 @@ Planner 不读取 OCR 过程数据，也不通过 description 文本补猜缺失
 - 达到门槛后再让 extracted ProblemIR 进入 Functional planner。
 
 ## Track G: Context Modeling After Planning
+
+### Current Status
+
+`IN PROGRESS`。现有 ExplanationSnapshot、LessonIR 和 VisualStepIR 已能消费 solver
+artifact；独立不可变的 Lesson/Diagram/Animation Context、dependency version 和
+stale/rebase 机制尚未完成。
 
 ### Context Graph
 
@@ -546,27 +804,41 @@ PlannerStateContext
 
 ### Milestone 1: Functional Parity Baseline
 
-- 建立 Heping Ermo、Xiqing、Hexi、Heping FunctionalPlan fixture 和 opt-in；
-- 建立统一并发采样基座和分层报告；
-- 在 parity 迭代中同步完成 Track B 的 B0/B1，不再为 duplicate writer 增加局部字符串补丁；
-- 固化五题 regression 与 held-out 门禁。
+**Status: `IN PROGRESS`**
+
+- `COMPLETE`：五题 FunctionalPlan fixture、离线 replay 和真实 opt-in；
+- `COMPLETE`：统一并发采样基座和 Stage 1；
+- `COMPLETE`：structured provenance parity、typed failure boundary 和跨 batch 聚合；
+- `IN PROGRESS`：每题十样本 Stage 2；
+- 完成本里程碑即表示 Track A parity complete，不表示可以切默认协议。
 
 ### Milestone 2: MathObject and State Identity Authority
+
+**Status: `IN PROGRESS`**
 
 - 完成 Track B 的 B2-B4；
 - allocation、placement、finalizer、Context 和 retry 共享 typed identity 及 StateVersion；
 - 同一 MathObject 的等价 producer 在 runtime 前合并，answer alias 和 downstream refs 转移到 canonical producer；
-- 五题 parity 达标后才能退出本里程碑。
+- 与 Track A parity、held-out 和生产门禁共同组成 Functional Default Ready。
 
-### Milestone 3: Symbolic Closure
+### Milestone 3: Transactional Functional Execution
 
+**Status: `PENDING`**
+
+- 完成 LogicalFunctionalGraph 与 Working Context shadow；
+- 按 ready frontier 逐 call 执行，actual output 更新 verified StateVersion；
+- 一个 call 失败时保留其它独立 verified subgraph；
+- stable graph 和 retry 改用 actual call state，不再依赖整图 projected result state；
 - 完成 FunctionalBindingContext；
-- 完成 SymbolicClosureSpec 和 adapter registries；
+- 将 SymbolicClosureSpec 收缩为 runtime effect contract；
 - 迁移参数求解 methods，所有 Symbol/ParameterValue 读写通过 Track B identity service；
-- 将 provenance、retry 和 explanation 接入 closure。
+- 将 actual closure provenance、retry 和 explanation 接入 Context。
 
 ### Milestone 4: Functional-Only Planner
 
+**Status: `BLOCKED`**
+
+- Transactional Functional Interpreter 已成为 Functional execution authority；
 - 定义引用 typed StateVersion 的 CanonicalFunctionalGraph；
 - 建立 direct graph compiler；
 - 双编译 shadow；
@@ -576,11 +848,15 @@ PlannerStateContext
 
 ### Milestone 5: Production Reliability
 
+**Status: `IN PROGRESS`**
+
 - 条件式 best-of-3；
 - hard filter、answer consensus 和 candidate ranking；
 - 能力 gap 聚类与 Capability Pack 扩张工作流。
 
 ### Milestone 6: Cross-Domain Contexts
+
+**Status: `PENDING`**
 
 - ProblemExtractionContext shadow mode；
 - LessonExplanationContext；
@@ -594,13 +870,15 @@ PlannerStateContext
 
 - 五题 Functional fixture/opt-in 的资产建设；
 - MathObject identity B0/B1 的 typed model、shadow comparison 和 allocation service；
+- Transactional interpreter C0 的 logical graph/event shadow；
 - ProblemExtractionContext schema 和 gold dataset；
 - reliability metrics、batch runner 和 held-out 基础设施；
-- symbolic closure C1/C2 的模型与 preflight。
+- runtime-grounded symbolic closure C3/C4 的模型与 preflight。
 
 不应并行切换：
 
 - StepIntent bridge 删除与五题 parity 建设；
+- transactional interpreter 主链切换与 direct compiler 主链切换；
 - placement/finalizer 身份权威切换与 direct compiler 主链切换；
 - direct compiler 主链切换与 runtime 大规模重构；
 - extracted ProblemIR 主链切换与 planner protocol 切换；
@@ -632,11 +910,14 @@ PlannerStateContext
 推荐的总体顺序是：
 
 ```text
-five-problem Functional parity
-  -> MathObject / StateSlot / StateVersion identity authority
-  -> declarative symbolic closure
+five-problem Functional parity complete
+  + MathObject / StateSlot / StateVersion identity authority
+  + held-out and production readiness
+  -> transactional Functional interpreter
+  -> runtime-grounded declarative symbolic closure
   -> direct Functional graph compiler
   -> string-based identity removal
+  -> Functional Default Ready
   -> FunctionalPlan default
   -> StepIntent compatibility removal
   -> production best-of-N
@@ -651,6 +932,7 @@ five-problem Functional parity
 
 - `docs/llm-planner-reliability-engineering.md`
 - `docs/math-object-state-identity-propagation-plan.md`
+- `docs/transactional-functional-interpreter-design.md`
 - `docs/symbolic-target-closure-evolution-plan.md`
 - `docs/llm-context-model-design.md`
 - `docs/functional-method-recipe-orchestration-design.md`

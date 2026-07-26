@@ -9,7 +9,7 @@ turns those cases into structured retry issues.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Mapping
+from typing import Any, Literal, Mapping
 
 from shuxueshuo_server.solver.family.models import GoalEvidenceTag, SolverFamilySpec
 from shuxueshuo_server.solver.runtime.handle_registry import (
@@ -24,6 +24,48 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
 )
 from shuxueshuo_server.solver.state_semantics import is_object_handle
 from shuxueshuo_server.solver.utils import unique_ordered
+
+
+AnswerGoalVerificationStatus = Literal[
+    "passed",
+    "failed",
+    "not_executed",
+    "unbound",
+]
+
+
+@dataclass(frozen=True)
+class AnswerGoalVerificationItem:
+    goal_handle: str
+    status: AnswerGoalVerificationStatus
+    producer_step_id: str | None = None
+    issues: tuple[PlannerRetryIssue, ...] = ()
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            "goal_handle": self.goal_handle,
+            "status": self.status,
+            "producer_step_id": self.producer_step_id,
+            "issues": [item.to_payload() for item in self.issues],
+        }
+
+
+@dataclass(frozen=True)
+class AnswerGoalVerificationReport:
+    goals: tuple[AnswerGoalVerificationItem, ...] = ()
+
+    @property
+    def issues(self) -> tuple[PlannerRetryIssue, ...]:
+        return tuple(
+            issue
+            for goal in self.goals
+            for issue in goal.issues
+        )
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            "goals": [item.to_payload() for item in self.goals],
+        }
 
 
 @dataclass(frozen=True)
@@ -45,17 +87,35 @@ class AnswerGoalVerifier:
         family_spec: SolverFamilySpec | None = None,
     ) -> tuple[PlannerRetryIssue, ...]:
         """Return goal verification issues for an otherwise executable draft."""
+        return self.verify_report(
+            draft,
+            problem_payload=problem_payload,
+            handle_registry=handle_registry,
+            diagnostic=diagnostic,
+            family_spec=family_spec,
+        ).issues
+
+    def verify_report(
+        self,
+        draft: StepIntentDraft | None,
+        *,
+        problem_payload: Mapping[str, Any] | None,
+        handle_registry: CanonicalHandleRegistry,
+        diagnostic: StepIntentExecutionDiagnostic | None = None,
+        family_spec: SolverFamilySpec | None = None,
+    ) -> AnswerGoalVerificationReport:
+        """Return per-goal status without treating unexecuted goals as passed."""
         if draft is None or problem_payload is None:
-            return ()
+            return AnswerGoalVerificationReport()
         goals = _canonical_question_goals(problem_payload)
         if not goals:
-            return ()
+            return AnswerGoalVerificationReport()
         accepted_step_ids = (
             {item.step_id for item in diagnostic.accepted_prefix}
             if diagnostic is not None and not diagnostic.ok
             else None
         )
-        issues: list[PlannerRetryIssue] = []
+        results: list[AnswerGoalVerificationItem] = []
         for goal in goals:
             if not bool(goal.get("required", True)):
                 continue
@@ -64,12 +124,23 @@ class AnswerGoalVerifier:
                 continue
             step = _producing_step(draft, goal_handle)
             if step is None:
+                results.append(
+                    AnswerGoalVerificationItem(goal_handle, "unbound")
+                )
                 continue
             if accepted_step_ids is not None and step.step_id not in accepted_step_ids:
                 # A failed trial has not executed this answer producer yet. The
                 # first runtime blocker owns the repair window; diagnosing the
                 # unexecuted suffix would hide that earlier failure.
+                results.append(
+                    AnswerGoalVerificationItem(
+                        goal_handle,
+                        "not_executed",
+                        producer_step_id=step.step_id,
+                    )
+                )
                 continue
+            goal_issues: list[PlannerRetryIssue] = []
             unresolved_symbol_issue = _unresolved_answer_symbol_issue(
                 goal,
                 step=step,
@@ -79,29 +150,38 @@ class AnswerGoalVerifier:
                 diagnostic=diagnostic,
             )
             if unresolved_symbol_issue is not None:
-                issues.append(unresolved_symbol_issue)
-                continue
-            value_type = str(goal.get("value_type", "")).strip()
-            if value_type == "Point":
-                issue = _point_goal_issue(
-                    goal,
-                    step=step,
-                    handle_registry=handle_registry,
-                    diagnostic=diagnostic,
+                goal_issues.append(unresolved_symbol_issue)
+            else:
+                value_type = str(goal.get("value_type", "")).strip()
+                if value_type == "Point":
+                    issue = _point_goal_issue(
+                        goal,
+                        step=step,
+                        handle_registry=handle_registry,
+                        diagnostic=diagnostic,
+                        family_spec=family_spec,
+                    )
+                    if issue is not None:
+                        goal_issues.append(issue)
+                elif value_type == "MinimumExpression":
+                    issue = _minimum_goal_issue(
+                        goal,
+                        step=step,
+                        handle_registry=handle_registry,
+                        diagnostic=diagnostic,
+                        family_spec=family_spec,
+                    )
+                    if issue is not None:
+                        goal_issues.append(issue)
+            results.append(
+                AnswerGoalVerificationItem(
+                    goal_handle,
+                    "failed" if goal_issues else "passed",
+                    producer_step_id=step.step_id,
+                    issues=tuple(goal_issues),
                 )
-                if issue is not None:
-                    issues.append(issue)
-            elif value_type == "MinimumExpression":
-                issue = _minimum_goal_issue(
-                    goal,
-                    step=step,
-                    handle_registry=handle_registry,
-                    diagnostic=diagnostic,
-                    family_spec=family_spec,
-                )
-                if issue is not None:
-                    issues.append(issue)
-        return tuple(issues)
+            )
+        return AnswerGoalVerificationReport(tuple(results))
 
 
 def _unresolved_answer_symbol_issue(
@@ -412,12 +492,13 @@ def _point_goal_issue(
     step: StepIntent,
     handle_registry: CanonicalHandleRegistry,
     diagnostic: StepIntentExecutionDiagnostic | None,
+    family_spec: SolverFamilySpec | None,
 ) -> PlannerRetryIssue | None:
     target_handle = str(goal.get("target_handle", "")).strip()
     if not target_handle or not target_handle.startswith("point:"):
         return None
     if diagnostic is not None:
-        provenance = next(
+        answer_provenance = next(
             (
                 item
                 for item in reversed(diagnostic.state_write_provenance)
@@ -425,7 +506,7 @@ def _point_goal_issue(
             ),
             None,
         )
-        if provenance is None:
+        if answer_provenance is None:
             return _point_provenance_issue(
                 goal,
                 step=step,
@@ -435,6 +516,10 @@ def _point_goal_issue(
                 source_handles=(),
                 handle_registry=handle_registry,
             )
+        provenance = _canonical_state_provenance(
+            answer_provenance,
+            diagnostic=diagnostic,
+        )
         if provenance.object_ref != target_handle:
             return _point_provenance_issue(
                 goal,
@@ -444,6 +529,73 @@ def _point_goal_issue(
                 source_step_id=provenance.source_step_id,
                 source_handles=provenance.source_handles,
                 handle_registry=handle_registry,
+            )
+        required_evidence_tags = _goal_required_evidence_tags(
+            goal,
+            step=step,
+            family_spec=family_spec,
+        )
+        lineage = (
+            (provenance,)
+            if provenance is not answer_provenance
+            else _state_write_lineage(
+                provenance,
+                diagnostic=diagnostic,
+            )
+        )
+        actual_evidence_tags = {
+            tag
+            for item in lineage
+            for tag in (
+                *item.evidence_roles,
+                *item.lineage.evidence_tags,
+            )
+        }
+        required_evidence_roles = {
+            tag: _goal_evidence_roles(family_spec, tag)
+            if family_spec is not None
+            else ()
+            for tag in required_evidence_tags
+        }
+        missing_evidence_tags = tuple(
+            tag
+            for tag in required_evidence_tags
+            if tag not in actual_evidence_tags
+            and not (
+                set(required_evidence_roles[tag])
+                & actual_evidence_tags
+            )
+        )
+        if missing_evidence_tags:
+            return PlannerRetryIssue(
+                layer="goal_verification",
+                code="point_goal_evidence_unproven",
+                step_id=step.step_id,
+                scope_id=step.scope_id,
+                repair_target=str(goal.get("handle") or step.target),
+                message=(
+                    f"{step.step_id} writes the correct Point object, but its "
+                    "producer does not prove the evidence required by the "
+                    f"question goal: {', '.join(missing_evidence_tags)}."
+                ),
+                hints=(
+                    "最终点不仅要有正确对象身份，还必须由题目目标要求的完整"
+                    "几何证据链推出；不要用部分端点或无关直线拼出一个可执行交点。",
+                ),
+                related_handles=unique_ordered(
+                    (
+                        target_handle,
+                        *provenance.source_handles,
+                    )
+                ),
+                details={
+                    "required_evidence_tags": list(required_evidence_tags),
+                    "required_evidence_roles": {
+                        tag: list(roles)
+                        for tag, roles in required_evidence_roles.items()
+                    },
+                    "actual_evidence_tags": sorted(actual_evidence_tags),
+                },
             )
         return None
     if _step_mentions_handle(step, target_handle):
@@ -516,6 +668,70 @@ def _point_provenance_issue(
         ),
         related_handles=related,
     )
+
+
+def _canonical_state_provenance(
+    provenance: StateWriteProvenance,
+    *,
+    diagnostic: StepIntentExecutionDiagnostic,
+) -> StateWriteProvenance:
+    """Prefer the full state write over its answer alias projection."""
+    if provenance.state_slot_id is None:
+        return provenance
+    candidates = tuple(
+        item
+        for item in diagnostic.state_write_provenance
+        if item.step_id == provenance.step_id
+        and item.state_slot_id == provenance.state_slot_id
+        and not item.produced_handle.startswith("answer:")
+    )
+    return candidates[-1] if candidates else provenance
+
+
+def _goal_required_evidence_tags(
+    goal: Mapping[str, Any],
+    *,
+    step: StepIntent,
+    family_spec: SolverFamilySpec | None,
+) -> tuple[str, ...]:
+    raw = goal.get("required_evidence_tags", ())
+    explicit = (
+        tuple(
+            item.strip()
+            for item in raw
+            if isinstance(item, str) and item.strip()
+        )
+        if isinstance(raw, (list, tuple))
+        else ()
+    )
+    policies = (
+        family_spec.goal_evidence_policies
+        if family_spec is not None
+        else ()
+    )
+    selected_packs = (
+        {
+            *family_spec.base_packs,
+            *family_spec.mechanism_packs,
+        }
+        if family_spec is not None
+        else set()
+    )
+    inferred = tuple(
+        tag
+        for policy in policies
+        if (not policy.goal_types or step.goal_type in policy.goal_types)
+        and (
+            not policy.value_types
+            or str(goal.get("value_type") or "") in policy.value_types
+        )
+        and (
+            policy.mechanism_pack_id is None
+            or policy.mechanism_pack_id in selected_packs
+        )
+        for tag in policy.required_evidence_tags
+    )
+    return unique_ordered((*explicit, *inferred))
 
 
 def _minimum_goal_issue(

@@ -187,6 +187,12 @@ class FunctionalPlanElaborator:
             str, dict[str, tuple[dict[str, Any], ...]]
         ] = {}
         aggregations: dict[str, dict[str, str]] = {}
+        declared_call_returns = {
+            (call.call_id, result.name): result
+            for call in plan.calls
+            if (capability := catalog.get(call.capability_id)) is not None
+            for result in capability.returns
+        }
         scopes: list[FunctionalScope] = []
         for scope in plan.scopes:
             calls: list[FunctionalCall] = []
@@ -196,6 +202,11 @@ class FunctionalPlanElaborator:
                     calls.append(call)
                     continue
                 call = _drop_fixed_form_return_expectations(
+                    call,
+                    capability=capability,
+                    repairs=repairs,
+                )
+                call = _drop_internal_only_return_bindings(
                     call,
                     capability=capability,
                     repairs=repairs,
@@ -237,15 +248,16 @@ class FunctionalPlanElaborator:
                         )
                         continue
                     normalized_args[name] = values
+                normalized_args = _reclassify_unique_semantic_args(
+                    normalized_args,
+                    arg_specs=arg_specs,
+                    semantic_index=semantic_index,
+                    declared_call_returns=declared_call_returns,
+                    scope_id=scope.scope_id,
+                    call_id=call.call_id,
+                    repairs=repairs,
+                )
                 if semantic_index is not None:
-                    normalized_args = _reclassify_unique_semantic_args(
-                        normalized_args,
-                        arg_specs=arg_specs,
-                        semantic_index=semantic_index,
-                        scope_id=scope.scope_id,
-                        call_id=call.call_id,
-                        repairs=repairs,
-                    )
                     normalized_args = _drop_redundant_incompatible_optional_args(
                         normalized_args,
                         arg_specs=arg_specs,
@@ -348,6 +360,40 @@ def _drop_fixed_form_return_expectations(
     if expectations == call.return_expectations:
         return call
     return replace(call, return_expectations=expectations)
+
+
+def _drop_internal_only_return_bindings(
+    call: FunctionalCall,
+    *,
+    capability: Any,
+    repairs: list[FunctionalDeterministicRepair],
+) -> FunctionalCall:
+    """Drop destinations that the return contract declares as internal state.
+
+    Internal returns remain addressable through ``CallResultRef``. An explicit
+    destination is therefore redundant and cannot carry additional semantic
+    intent, so removing it is a wire repair rather than a planner retry.
+    """
+    if not call.return_bindings:
+        return call
+    return_specs = {item.name: item for item in capability.returns}
+    bindings = dict(call.return_bindings)
+    for return_name, binding in tuple(bindings.items()):
+        return_spec = return_specs.get(return_name)
+        if return_spec is None or return_spec.binding_mode != "internal_only":
+            continue
+        bindings.pop(return_name)
+        repairs.append(
+            FunctionalDeterministicRepair(
+                call.call_id,
+                "drop_internal_only_return_binding",
+                f"{return_name}:{binding.kind}:{binding.ref}",
+                f"{call.call_id}.{return_name}",
+            )
+        )
+    if bindings == call.return_bindings:
+        return call
+    return replace(call, return_bindings=bindings)
 
 
 def _merge_equivalent_object_calls(
@@ -705,7 +751,8 @@ def _reclassify_unique_semantic_args(
     args: dict[str, tuple[Any, ...]],
     *,
     arg_specs: Mapping[str, Any],
-    semantic_index: FunctionalSemanticIndex,
+    semantic_index: FunctionalSemanticIndex | None,
+    declared_call_returns: Mapping[tuple[str, str], Any],
     scope_id: str,
     call_id: str,
     repairs: list[FunctionalDeterministicRepair],
@@ -716,16 +763,47 @@ def _reclassify_unique_semantic_args(
     for source_name, values in tuple(result.items()):
         source_spec = arg_specs.get(source_name)
         if source_spec is None:
+            target_names = [
+                name
+                for name, spec in arg_specs.items()
+                if spec.required
+                and not result.get(name)
+                and (spec.cardinality == "many" or len(values) == 1)
+                and values
+                and all(
+                    _functional_ref_satisfies_arg(
+                        value,
+                        spec,
+                        semantic_index=semantic_index,
+                        declared_call_returns=declared_call_returns,
+                        scope_id=scope_id,
+                    )
+                    for value in values
+                )
+            ]
+            if len(target_names) == 1:
+                target_name = target_names[0]
+                result[target_name] = list(values)
+                result.pop(source_name)
+                repairs.append(
+                    FunctionalDeterministicRepair(
+                        call_id,
+                        "rename_unique_type_compatible_required_arg",
+                        source_name,
+                        target_name,
+                    )
+                )
             continue
         retained: list[Any] = []
         for value in values:
-            if isinstance(value, CallResultRef) or not isinstance(value, SemanticRef):
+            if not isinstance(value, (CallResultRef, SemanticRef)):
                 retained.append(value)
                 continue
-            if _semantic_ref_satisfies_arg(
+            if _functional_ref_satisfies_arg(
                 value,
                 source_spec,
                 semantic_index=semantic_index,
+                declared_call_returns=declared_call_returns,
                 scope_id=scope_id,
             ):
                 retained.append(value)
@@ -734,10 +812,11 @@ def _reclassify_unique_semantic_args(
                 name
                 for name, spec in arg_specs.items()
                 if name != source_name
-                and _semantic_ref_satisfies_arg(
+                and _functional_ref_satisfies_arg(
                     value,
                     spec,
                     semantic_index=semantic_index,
+                    declared_call_returns=declared_call_returns,
                     scope_id=scope_id,
                 )
                 and (
@@ -769,6 +848,45 @@ def _reclassify_unique_semantic_args(
         for name, values in result.items()
         if values
     }
+
+
+def _functional_ref_satisfies_arg(
+    ref: SemanticRef | CallResultRef,
+    arg_spec: Any,
+    *,
+    semantic_index: FunctionalSemanticIndex | None,
+    declared_call_returns: Mapping[tuple[str, str], Any],
+    scope_id: str,
+) -> bool:
+    if isinstance(ref, SemanticRef):
+        return (
+            semantic_index is not None
+            and _semantic_ref_satisfies_arg(
+                ref,
+                arg_spec,
+                semantic_index=semantic_index,
+                scope_id=scope_id,
+            )
+        )
+    result = declared_call_returns.get((ref.from_call, ref.return_name))
+    if result is None:
+        return False
+    accepted_types = arg_spec.accepted_item_types or (arg_spec.runtime_type,)
+    if not any(
+        runtime_type_compatible(expected, result.runtime_type)
+        for expected in accepted_types
+    ):
+        return False
+    accepted_roles = set(arg_spec.accepted_semantic_roles)
+    if not accepted_roles:
+        return True
+    return bool(
+        accepted_roles
+        & {
+            result.semantic_role,
+            *result.provides_semantic_roles,
+        }
+    )
 
 
 def _semantic_ref_satisfies_arg(
@@ -973,38 +1091,33 @@ class FunctionalSemanticIndex:
                     )
                 )
                 fact_type = str(fact_payload.get("type") or item.value_type or "fact")
-                views.append(
-                    FunctionalSemanticView(
-                        item.ref,
-                        item.kind,
-                        item.handle,
-                        "Condition",
-                        item.valid_scope,
-                        condition_id=item.condition_id,
-                        condition_kind=fact_type,
-                        object_roles=(
-                            condition.object_roles
-                            if condition is not None
-                            else ()
-                        ),
-                        dependency_object_refs=fact_dependencies,
-                        free_symbol_refs=fact_free_symbol_refs,
-                        lineage=state_semantic_lineage(
-                            semantic_roles=(fact_type,),
-                            object_roles=(
-                                StateObjectRoleBinding(
-                                    role=role,
-                                    object_refs=object_refs,
-                                )
-                                for role, object_refs in (
-                                    condition.object_roles
-                                    if condition is not None
-                                    else ()
-                                )
+                if condition is not None:
+                    views.append(
+                        FunctionalSemanticView(
+                            item.ref,
+                            item.kind,
+                            item.handle,
+                            "Condition",
+                            item.valid_scope,
+                            condition_id=item.condition_id,
+                            condition_kind=fact_type,
+                            object_roles=condition.object_roles,
+                            dependency_object_refs=fact_dependencies,
+                            free_symbol_refs=fact_free_symbol_refs,
+                            lineage=state_semantic_lineage(
+                                semantic_roles=(fact_type,),
+                                object_roles=(
+                                    StateObjectRoleBinding(
+                                        role=role,
+                                        object_refs=object_refs,
+                                    )
+                                    for role, object_refs in (
+                                        condition.object_roles
+                                    )
+                                ),
                             ),
-                        ),
+                        )
                     )
-                )
                 value_runtime_type = normalize_runtime_type(fact_type)
                 if value_runtime_type not in {"Condition", "fact"}:
                     views.append(

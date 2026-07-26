@@ -9,6 +9,7 @@ from __future__ import annotations
 from shuxueshuo_server.solver.runtime.quadratic_constraint_solver import (
     QuadraticConstraintSolveRequest,
     QuadraticConstraintSolveResult,
+    quadratic_coefficient_expression,
     solve_quadratic_constraint_system,
     value_satisfies_constraint,
 )
@@ -53,11 +54,11 @@ class ParameterFromCurvePointOnQuadraticMethod:
         )
         specialized_quadratic = sp.expand(quadratic.subs(known_substitution))
         specialized_point = _subs_point(point, known_substitution)
-        target_expression = _quadratic_coefficient_expression(
+        target_expression = quadratic_coefficient_expression(
             specialized_quadratic,
-            x=x,
-            target=parameter,
-            quadratic_template=quadratic_template,
+            independent_symbol=x,
+            target_symbol=parameter,
+            template_expression=quadratic_template,
         )
         if (
             parameter not in specialized_quadratic.free_symbols
@@ -140,41 +141,6 @@ class ParameterFromCurvePointOnQuadraticMethod:
                 )
             ],
         )
-
-
-def _quadratic_coefficient_expression(
-    quadratic: sp.Expr,
-    *,
-    x: sp.Symbol,
-    target: sp.Symbol,
-    quadratic_template: sp.Expr | None,
-) -> sp.Expr | None:
-    """Return the current expression for a requested quadratic coefficient."""
-    if quadratic_template is None or target not in quadratic_template.free_symbols:
-        return None
-    current = sp.Poly(sp.expand(quadratic), x)
-    template = sp.Poly(sp.expand(quadratic_template), x)
-    candidates: list[sp.Expr] = []
-    for power in range(max(current.degree(), template.degree()), -1, -1):
-        template_coefficient = template.coeff_monomial(x**power)
-        if target not in template_coefficient.free_symbols:
-            continue
-        current_coefficient = current.coeff_monomial(x**power)
-        solutions = sp.solve(
-            sp.Eq(template_coefficient, current_coefficient),
-            target,
-            dict=True,
-        )
-        candidates.extend(
-            sp.simplify(solution[target])
-            for solution in solutions
-            if target in solution and target not in solution[target].free_symbols
-        )
-    unique = []
-    for candidate in candidates:
-        if not any(sp.simplify(candidate - item) == 0 for item in unique):
-            unique.append(candidate)
-    return unique[0] if len(unique) == 1 else None
 
 
 def _resolved_target_value(

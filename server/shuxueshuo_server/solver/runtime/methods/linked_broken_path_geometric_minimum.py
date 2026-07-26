@@ -7,6 +7,10 @@
 from __future__ import annotations
 
 from shuxueshuo_server.solver.contracts import ScalarResultFormSpec
+from shuxueshuo_server.solver.runtime.weighted_triangle_geometry import (
+    weighted_triangle_geometry_for_transformation,
+    weighted_triangle_geometry_payloads,
+)
 
 from ._common import *
 from ._spec import MethodSpecSource
@@ -296,13 +300,9 @@ def _supported_transformation_scale(transformation: dict[str, Any]) -> sp.Expr:
     只接受已经带有受支持 geometry 标记的转化结果，再按通用点到直线距离公式求
     最短表达式。
     """
-    scale = sp.simplify(transformation.get("scale", sp.sqrt(2)))
-    geometry = str(transformation.get("geometry", "45_45_90"))
-    if sp.simplify(scale - sp.sqrt(2)) == 0 and geometry == "45_45_90":
-        return scale
-    if sp.simplify(scale - 2) == 0 and geometry == "30_60_90":
-        return scale
-    raise ValueError("linked broken path minimum supports only sqrt(2)/45° or 2/30° weighted transforms")
+    return weighted_triangle_geometry_for_transformation(
+        transformation
+    ).weight
 
 
 def _same_point(p1: Point, p2: Point) -> bool:
@@ -527,6 +527,7 @@ SPEC = MethodSpecSource(
         "Q 随 N 在固定射线上运动",
     ),
     postconditions=("输出参数值满足题设最小值和动点范围",),
+    geometry_profiles=weighted_triangle_geometry_payloads(),
 )
 
 
@@ -578,4 +579,5 @@ MINIMUM_EXPRESSION_SPEC = MethodSpecSource(
         "辅助点沿固定射线运动",
     ),
     postconditions=("输出最小值表达式供后续反求参数",),
+    geometry_profiles=weighted_triangle_geometry_payloads(),
 )

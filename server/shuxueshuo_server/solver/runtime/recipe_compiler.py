@@ -22,9 +22,15 @@ from shuxueshuo_server.solver.family.models import (
     StateWriteMode,
 )
 from shuxueshuo_server.solver.problem_models import QuestionGoal
-from shuxueshuo_server.solver.contracts import PlanTransformerScope
+from shuxueshuo_server.solver.contracts import (
+    PlanTransformerScope,
+    PointRef,
+    TrialErrorHintSpec,
+)
 from shuxueshuo_server.solver.state_semantics import (
+    StateObjectRoleBinding,
     StateSemanticLineage,
+    StateSymbolClosureBinding,
     dependent_role_object_ref,
     derived_role_object_ref,
     merge_state_semantic_lineages,
@@ -36,6 +42,7 @@ from shuxueshuo_server.solver.state_semantics import (
 from shuxueshuo_server.solver.runtime.auxiliary_points import fresh_auxiliary_point_handle
 from shuxueshuo_server.solver.runtime.context import ContextBuilder, RuntimeContext
 from shuxueshuo_server.solver.runtime.condition_roles import (
+    ConditionRoleResolver,
     resolve_read_closed_right_angle_inputs,
 )
 from shuxueshuo_server.solver.runtime._planner_helpers import single_invocation_step
@@ -47,7 +54,12 @@ from shuxueshuo_server.solver.runtime.macro_specs import (
 )
 from shuxueshuo_server.solver.runtime.function_specs import (
     FunctionReturnSpec,
+    FunctionSpec,
     FunctionSpecRegistry,
+)
+from shuxueshuo_server.solver.runtime.binding_selector_semantics import (
+    expansion_selector_semantics,
+    selector_semantics,
 )
 from shuxueshuo_server.solver.runtime.models import (
     ContextPath,
@@ -69,6 +81,10 @@ from shuxueshuo_server.solver.runtime.path_term_parsing import (
     PathTermParseError,
     parse_path_terms,
 )
+from shuxueshuo_server.solver.runtime.path_transformation_state import (
+    PathTransformationStateResolver,
+    ResolvedPathTransformationRole,
+)
 from shuxueshuo_server.solver.runtime.handle_registry import (
     CanonicalHandleRegistry,
     _handle_name,
@@ -78,6 +94,7 @@ from shuxueshuo_server.solver.runtime.handle_registry import (
 from shuxueshuo_server.solver.runtime.strategy_models import (
     CreatedEntity,
     ProjectedFunctionArgBinding,
+    ProjectedStateDependency,
     ProjectedStateWrite,
     ProducedFact,
     StepIntent,
@@ -87,6 +104,7 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     StepIntentExecutionDiagnostic,
     StepIntentMacroBindingEvent,
     StepIntentPlannerInsight,
+    StepIntentRuntimeResult,
     StepIntentResolutionStepReport,
     StepIntentScope,
     StepIntentSkippedStep,
@@ -95,10 +113,12 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     answer_output_type_compatible,
 )
 from shuxueshuo_server.solver.runtime.straightening_metadata import (
-    STRAIGHTENING_ENDPOINT_POINT_1,
-    STRAIGHTENING_ENDPOINT_POINT_2,
+    STRAIGHTENED_ENDPOINT_1,
+    STRAIGHTENED_ENDPOINT_2,
+    canonical_straightening_endpoint_name,
     collect_straightening_endpoint_handles,
     is_straightening_endpoint_name,
+    straightening_endpoint_position,
 )
 from shuxueshuo_server.solver.runtime.strategy_normalizer import StepIntentNormalizer
 from shuxueshuo_server.solver.runtime.state_dependency_graph import (
@@ -352,6 +372,9 @@ class RecipeTrialExecutor:
         question_goals: list[QuestionGoal] | tuple[QuestionGoal, ...],
         preserve_call_graph: bool = False,
         projected_state_writes: tuple[ProjectedStateWrite, ...] = (),
+        projected_state_dependencies: tuple[
+            ProjectedStateDependency, ...
+        ] = (),
         projected_function_arg_bindings: tuple[
             ProjectedFunctionArgBinding, ...
         ] = (),
@@ -366,6 +389,7 @@ class RecipeTrialExecutor:
             question_goals=question_goals,
             preserve_call_graph=preserve_call_graph,
             projected_state_writes=projected_state_writes,
+            projected_state_dependencies=projected_state_dependencies,
             projected_function_arg_bindings=projected_function_arg_bindings,
         )
         if output is not None:
@@ -394,6 +418,9 @@ class RecipeTrialExecutor:
         allow_shared_derivation_scopes: bool = False,
         preserve_call_graph: bool = False,
         projected_state_writes: tuple[ProjectedStateWrite, ...] = (),
+        projected_state_dependencies: tuple[
+            ProjectedStateDependency, ...
+        ] = (),
         projected_function_arg_bindings: tuple[
             ProjectedFunctionArgBinding, ...
         ] = (),
@@ -413,6 +440,7 @@ class RecipeTrialExecutor:
             handle_registry=handle_registry,
             allow_shared_derivation_scopes=allow_shared_derivation_scopes,
             projected_state_writes=projected_state_writes,
+            projected_state_dependencies=projected_state_dependencies,
         )
         resolution_report = StepIntentCandidateResolver().resolve(
             draft,
@@ -430,6 +458,7 @@ class RecipeTrialExecutor:
             handle_registry=handle_registry,
             question_goals=question_goals,
         )
+        index.register_projected_state_writes(projected_state_writes)
         recipe_specs = self.recipe_specs or RecipeExecutionSpecRegistry.from_family_spec(family_spec)
         binding_rules = self.binding_rules or MethodBindingRuleRegistry.from_family_spec(family_spec)
         macro_specs = MacroSpecRegistry.from_family_spec(family_spec, method_specs)
@@ -447,6 +476,7 @@ class RecipeTrialExecutor:
             ),
             function_specs=function_specs,
             projected_state_writes=projected_state_writes,
+            projected_state_dependencies=projected_state_dependencies,
             projected_function_arg_bindings=projected_function_arg_bindings,
             recipe_compilers=self.recipe_compilers,
         )
@@ -457,6 +487,7 @@ class RecipeTrialExecutor:
             function_binding_events=tuple(binding_rules.function_binding_events),
             macro_binding_events=tuple(compiler.macro_binding_events),
             state_write_provenance=tuple(compiler.state_write_provenance),
+            runtime_results=tuple(compiler.runtime_results),
         )
         CanonicalDraftFinalizer().validate_state_write_provenance(
             diagnostic.state_write_provenance
@@ -494,6 +525,7 @@ class RecipeTrialExecutor:
                     allow_shared_derivation_scopes=allow_shared_derivation_scopes,
                     preserve_call_graph=preserve_call_graph,
                     projected_state_writes=projected_state_writes,
+                    projected_state_dependencies=projected_state_dependencies,
                     projected_function_arg_bindings=(
                         projected_function_arg_bindings
                     ),
@@ -515,6 +547,7 @@ class _RecipePlanCompiler:
         macro_adapters: MacroAdapterRegistry,
         function_specs: FunctionSpecRegistry,
         projected_state_writes: tuple[ProjectedStateWrite, ...],
+        projected_state_dependencies: tuple[ProjectedStateDependency, ...],
         projected_function_arg_bindings: tuple[
             ProjectedFunctionArgBinding, ...
         ],
@@ -529,6 +562,9 @@ class _RecipePlanCompiler:
         self.macro_adapters = macro_adapters
         self.function_specs = function_specs
         self.projected_state_writes = tuple(projected_state_writes)
+        self.projected_state_dependencies = tuple(
+            projected_state_dependencies
+        )
         self.projected_function_arg_bindings = tuple(
             projected_function_arg_bindings
         )
@@ -536,6 +572,7 @@ class _RecipePlanCompiler:
         self.recipe_compilers = dict(recipe_compilers)
         self.macro_binding_events: list[StepIntentMacroBindingEvent] = []
         self.state_write_provenance: list[StateWriteProvenance] = []
+        self.runtime_results: list[StepIntentRuntimeResult] = []
         self.index.state_write_provenance = self.state_write_provenance
         self.step_reports = {
             report.step_id: report for report in resolution_report.step_reports
@@ -655,6 +692,14 @@ class _RecipePlanCompiler:
                     self.state_write_provenance.extend(
                         compiled.state_write_provenance
                     )
+                    self.runtime_results.extend(
+                        _runtime_result_snapshots(
+                            step=step,
+                            capability_id=capability_id,
+                            compiled=compiled,
+                            context=trial_context,
+                        )
+                    )
                     planner_insights.extend(
                         PlannerInsightExtractorRegistry().extract(
                             step=step,
@@ -687,6 +732,12 @@ class _RecipePlanCompiler:
                             exc=exc,
                             planner_insights=tuple(planner_insights),
                             handle_registry=self.index.handle_registry,
+                            trial_error_hints=(
+                                self.method_specs.specs[capability_id]
+                                .trial_error_hints
+                                if capability_id in self.method_specs.specs
+                                else ()
+                            ),
                         )
                     )
             if accepted_current_step:
@@ -853,6 +904,58 @@ class _RecipePlanCompiler:
             None,
         )
 
+    def _projected_macro_method_outputs(
+        self,
+        step: StepIntent,
+        method_id: str,
+    ) -> tuple[dict[str, str], dict[str, str]]:
+        """Compile every allocated Macro return owned by one internal method."""
+        macro = self.macro_adapters.specs.get(step.recipe_hint or "")
+        if macro is None:
+            return {}, {}
+        returns = {item.name: item for item in macro.returns}
+        produced = {item.handle: item for item in step.produces}
+        selected_targets: dict[str, tuple[str, bool]] = {}
+        outputs: dict[str, str] = {}
+        for write in self.projected_state_writes:
+            if write.step_id != step.step_id or write.return_name is None:
+                continue
+            return_spec = returns.get(write.return_name)
+            if return_spec is None or return_spec.output_key is None:
+                continue
+            owner, separator, output_name = return_spec.output_key.partition(".")
+            if not separator or owner != method_id:
+                continue
+            produced_item = produced.get(write.produced_handle)
+            if produced_item is None:
+                raise StrategyDraftValidationError(
+                    "planner_configuration_error: projected Macro return has "
+                    "no StepIntent output: "
+                    f"step={step.step_id}, return={write.return_name}, "
+                    f"handle={write.produced_handle}"
+                )
+            source = outputs.setdefault(
+                output_name,
+                _temp(step.step_id, output_name),
+            )
+            target = _target_path_for_produced(
+                produced_item,
+                return_spec.runtime_type,
+                self.index,
+                step,
+            )
+            current = selected_targets.get(source)
+            is_answer = produced_item.handle.startswith("answer:")
+            if current is None or (is_answer and not current[1]):
+                selected_targets[source] = (target, is_answer)
+        return (
+            outputs,
+            {
+                source: target
+                for source, (target, _) in selected_targets.items()
+            },
+        )
+
     def _compile_recipe(self, step: StepIntent, recipe: FamilyRecipeExecutionSpec) -> _CompiledStep:
         """编译 recipe。"""
         macro_adapters = getattr(self, "macro_adapters", None)
@@ -911,6 +1014,8 @@ class _RecipePlanCompiler:
                 recipe_id=recipe.recipe_id,
                 bindings=return_bindings,
                 declared_evidence_roles=declared_evidence_roles,
+                plan=compiled.plan,
+                function_specs=self.function_specs,
                 index=self.index,
                 prior=tuple(self.state_write_provenance),
                 projected_state_writes=self.projected_state_writes,
@@ -920,6 +1025,33 @@ class _RecipePlanCompiler:
     def _compile_method(self, step: StepIntent, method_id: str) -> _CompiledStep:
         """编译单 method step。"""
         spec = self.method_specs.require(method_id)
+        function = self.function_specs.get(method_id)
+        consumer = (
+            function.path_transformation_consumer
+            if function is not None
+            else None
+        )
+        if consumer is not None:
+            transformation_path = _path_for_readable_type(
+                self.index,
+                step,
+                "PathTransformation",
+            )
+            transformation_handle = _handle_for_runtime_path(
+                self.index,
+                step,
+                transformation_path,
+                expected_type="PathTransformation",
+            )
+            PathTransformationStateResolver(
+                index=self.index,
+                projected_state_writes=self.projected_state_writes,
+                projected_state_dependencies=self.projected_state_dependencies,
+            ).resolve(
+                transformation_handle,
+                step=step,
+                required_roles=consumer.required_roles,
+            )
         declaration_keys_before = set(self.index.declarations)
         for created in step.creates:
             if created.entity_type == "point" and created.handle not in self.index.bindings:
@@ -928,12 +1060,30 @@ class _RecipePlanCompiler:
             binding_rules=self.binding_rules,
             index=self.index,
         ).build(method_id, step)
+        exact_inputs = self._projected_exact_function_inputs(step, spec)
+        exact_inputs.update(
+            self._projected_exact_state_dependency_inputs(
+                step,
+                spec,
+                existing=exact_inputs,
+            )
+        )
+        exact_inputs.update(
+            self._projected_function_return_identity_inputs(
+                step,
+                spec,
+                existing=exact_inputs,
+            )
+        )
         inputs = self.binding_rules.bind(
             method_id,
             step,
             self.index,
             local_outputs=prep.local_outputs or {},
-            exact_inputs=self._projected_exact_function_inputs(step, spec),
+            expansion_selectors_override=(
+                self._projected_expansion_selectors(step, method_id)
+            ),
+            exact_inputs=exact_inputs,
             distinct_arg_groups=spec.distinct_arg_groups,
         )
         outputs = _method_outputs_for_step(
@@ -944,6 +1094,10 @@ class _RecipePlanCompiler:
             self.binding_rules,
             input_bindings=inputs,
             input_specs=spec.inputs,
+            projected_output_keys=self._projected_function_output_keys(
+                step,
+                method_id,
+            ),
         )
         main_promote = _promote_outputs_for_step(
             step,
@@ -955,6 +1109,7 @@ class _RecipePlanCompiler:
             point_transition=_function_writes_point_transition(
                 self.function_specs.get(method_id)
             ),
+            projected_state_writes=self.projected_state_writes,
         )
         promote = {**(prep.promote or {}), **main_promote}
         plan = single_invocation_step(
@@ -1051,6 +1206,74 @@ class _RecipePlanCompiler:
             ),
         )
 
+    def _projected_function_output_keys(
+        self,
+        step: StepIntent,
+        method_id: str,
+    ) -> dict[str, str]:
+        """Map Functional return allocations to MethodSpec output keys."""
+        function = self.function_specs.get(method_id)
+        if function is None:
+            return {}
+        returns = {item.name: item for item in function.returns}
+        result: dict[str, str] = {}
+        for write in self.projected_state_writes:
+            if write.step_id != step.step_id or write.return_name is None:
+                continue
+            return_spec = returns.get(write.return_name)
+            if return_spec is None or return_spec.output_key is None:
+                continue
+            result[write.produced_handle] = return_spec.output_key
+        return result
+
+    def _projected_expansion_selectors(
+        self,
+        step: StepIntent,
+        method_id: str,
+    ) -> tuple[str, ...] | None:
+        """Keep expansion selectors inside reconciliation's chosen arg set.
+
+        A Functional projected step may read transitive provenance states that
+        were not selected as call arguments. Legacy expansion selectors must
+        not turn those inherited reads into additional runtime inputs.
+        """
+        selected_args = {
+            item.arg_name
+            for item in self.projected_function_arg_bindings
+            if item.step_id == step.step_id
+        }
+        selected_args.update(
+            item.arg_name
+            for item in self.projected_state_dependencies
+            if item.step_id == step.step_id and item.arg_name is not None
+        )
+        if not selected_args:
+            return None
+        rule = self.binding_rules.rules.get(method_id)
+        if rule is None:
+            return None
+        return tuple(
+            selector
+            for selector in rule.expansion_selectors
+            if (
+                not any(
+                    arg_name in selected_args
+                    for arg_name in expansion_selector_semantics(
+                        selector
+                    ).suppressed_by_args
+                )
+                and (
+                    not expansion_selector_semantics(selector).arg_resolvers
+                    or any(
+                        arg_name in selected_args
+                        for arg_name, _resolver in (
+                            expansion_selector_semantics(selector).arg_resolvers
+                        )
+                    )
+                )
+            )
+        )
+
     def _projected_exact_function_inputs(
         self,
         step: StepIntent,
@@ -1063,20 +1286,67 @@ class _RecipePlanCompiler:
         selected by reconciliation instead of being inferred from read order.
         """
         function = self.function_specs.get(spec.method_id)
-        if function is None or function.adapter is None:
-            # Mechanism-specific methods still own role-aware selectors. Their
-            # Functional facade is not yet a complete compile adapter, so raw
-            # arg names must not bypass condition/object-role reconciliation.
+        if function is None:
             return {}
+        # Reconciliation is authoritative for an explicitly named, type-safe
+        # one-to-one Functional arg even when the method still uses a legacy
+        # binding rule. Mechanism-level semantic args whose public names differ
+        # from runtime inputs continue through their role-aware selectors.
         grouped: dict[str, list[ProjectedFunctionArgBinding]] = {}
+        adapter_bindings = {
+            item.input_name: item
+            for item in (
+                function.adapter.input_bindings
+                if function.adapter is not None
+                else ()
+            )
+        }
+        runtime_rule = self.binding_rules.rules.get(spec.method_id)
+        if runtime_rule is not None:
+            adapter_bindings.update(
+                {
+                    item.input_name: item
+                    for item in runtime_rule.input_bindings
+                }
+            )
         for item in self.projected_function_arg_bindings:
             if item.step_id == step.step_id and item.arg_name in spec.inputs:
+                adapter_binding = adapter_bindings.get(item.arg_name)
+                declared_authority = (
+                    adapter_binding.functional_authority
+                    if adapter_binding is not None
+                    else None
+                )
+                if (
+                    item.binding_authority != "wire"
+                    or declared_authority in {"compiler", "resolver"}
+                ):
+                    raise StrategyDraftValidationError(
+                        "planner_configuration_error: compiler-owned or "
+                        "resolver-owned Functional arg reached exact binding: "
+                        f"method={spec.method_id}, arg={item.arg_name}, "
+                        f"sidecar_authority={item.binding_authority}, "
+                        f"declared_authority={declared_authority or 'wire'}"
+                    )
                 grouped.setdefault(item.arg_name, []).append(item)
         result: dict[str, str] = {}
-        aggregate_lowerings = {
-            item.source_input: item.item_inputs
-            for item in function.adapter.aggregate_input_bindings
-        }
+        aggregate_lowerings = (
+            {
+                item.source_input: item.item_inputs
+                for item in function.adapter.aggregate_input_bindings
+            }
+            if function.adapter is not None
+            else {}
+        )
+        scalar_aggregate_lowerings = (
+            {
+                item.source_input: item
+                for item in function.adapter.scalar_aggregate_lowerings
+            }
+            if function.adapter is not None
+            else {}
+        )
+        selected_items: dict[str, ProjectedFunctionArgBinding] = {}
         for input_name, items in grouped.items():
             item_inputs = aggregate_lowerings.get(input_name, ())
             if item_inputs:
@@ -1107,6 +1377,7 @@ class _RecipePlanCompiler:
                         item,
                         expected_type=item_spec.type,
                     )
+                    selected_items[item_input] = item
                 continue
             expected_type = spec.inputs[input_name].type
             singular_name = input_name[:-1] if input_name.endswith("s") else ""
@@ -1124,6 +1395,7 @@ class _RecipePlanCompiler:
                     items[0],
                     expected_type=singular_spec.type,
                 )
+                selected_items[singular_name] = items[0]
                 continue
             if len(items) == 1:
                 item = items[0]
@@ -1135,7 +1407,17 @@ class _RecipePlanCompiler:
                         item,
                         expected_type=expected_type,
                     )
+                    selected_items[input_name] = item
                     continue
+            if self._lower_single_parameter_value_aggregate(
+                spec,
+                lowering=scalar_aggregate_lowerings.get(input_name),
+                expected_type=expected_type,
+                items=items,
+                result=result,
+                selected_items=selected_items,
+            ):
+                continue
             aggregate_path = self._projected_aggregate_input(
                 step,
                 input_name=input_name,
@@ -1144,6 +1426,221 @@ class _RecipePlanCompiler:
             )
             if aggregate_path is not None:
                 result[input_name] = aggregate_path
+        self._add_projected_point_identity_companions(
+            spec,
+            result,
+            selected_items,
+        )
+        return result
+
+    def _projected_exact_state_dependency_inputs(
+        self,
+        step: StepIntent,
+        spec: Any,
+        *,
+        existing: Mapping[str, str],
+    ) -> dict[str, str]:
+        """Bind resolver-owned args to the exact reconciled state version.
+
+        Functional reconciliation may select a hidden semantic role from a
+        StateSlot that has multiple writes. StepIntent reads preserve the
+        dependency, but lose the arg name. This sidecar restores both pieces
+        without letting legacy selectors choose another version at compile
+        time.
+        """
+        grouped: dict[str, list[ProjectedStateDependency]] = {}
+        for item in self.projected_state_dependencies:
+            if (
+                item.step_id != step.step_id
+                or item.arg_name is None
+                or item.arg_name not in spec.inputs
+                or item.arg_name in existing
+                or item.source == "wire"
+            ):
+                continue
+            grouped.setdefault(item.arg_name, []).append(item)
+
+        result: dict[str, str] = {}
+        for input_name, items in grouped.items():
+            if len(items) != 1:
+                continue
+            item = items[0]
+            expected_type = spec.inputs[input_name].type
+            if all(
+                runtime_type.endswith("Ref")
+                for runtime_type in split_runtime_types(expected_type)
+            ):
+                # Object-reference inputs are compiler-owned identities. The
+                # dependency sidecar records the materialized state evidence,
+                # not a replacement for the immutable PointRef binding.
+                continue
+            if (
+                item.runtime_type is None
+                or not runtime_type_compatible(
+                    expected_type,
+                    item.runtime_type,
+                )
+            ):
+                raise StrategyDraftValidationError(
+                    "planner_configuration_error: resolved Functional state "
+                    "dependency type drift: "
+                    f"method={spec.method_id}, arg={input_name}, "
+                    f"expected={expected_type}, "
+                    f"reconciled={item.runtime_type or 'unknown'}"
+                )
+            try:
+                result[input_name] = self.index.path_for(
+                    item.produced_handle,
+                    expected_type=expected_type,
+                )
+            except StrategyDraftValidationError as exc:
+                raise StrategyDraftValidationError(
+                    "planner_configuration_error: resolved Functional state "
+                    "dependency is unavailable at compile time: "
+                    f"method={spec.method_id}, arg={input_name}, "
+                    f"handle={item.produced_handle}"
+                ) from exc
+        return result
+
+    def _lower_single_parameter_value_aggregate(
+        self,
+        spec: Any,
+        *,
+        lowering: Any | None,
+        expected_type: str,
+        items: list[ProjectedFunctionArgBinding],
+        result: dict[str, str],
+        selected_items: dict[str, ProjectedFunctionArgBinding],
+    ) -> bool:
+        """Lower one coefficient value through a method's scalar pair.
+
+        Functional catalogs expose ``Coefficients`` as item-level
+        ``ParameterValue`` reads. When exactly one dynamic value is selected,
+        a method that already declares ``parameter`` and ``parameter_value``
+        can consume it without constructing a transient aggregate Context
+        value. The lowering is driven entirely by runtime types and object
+        identity, so other methods with the same contract gain the behavior.
+        """
+        if lowering is None or len(items) != 1:
+            return False
+        item = items[0]
+        identity_spec = spec.inputs.get(lowering.identity_input)
+        value_spec = spec.inputs.get(lowering.value_input)
+        if (
+            item.runtime_type is None
+            or not runtime_type_compatible(
+                lowering.item_runtime_type,
+                item.runtime_type,
+            )
+            or item.object_ref is None
+            or not item.object_ref.startswith("symbol:")
+            or identity_spec is None
+            or value_spec is None
+            or not runtime_type_compatible(identity_spec.type, "Symbol")
+            or not runtime_type_compatible(
+                value_spec.type,
+                lowering.item_runtime_type,
+            )
+        ):
+            return False
+        result[lowering.identity_input] = self.index.path_for(
+            item.object_ref,
+            expected_type=identity_spec.type,
+        )
+        result[lowering.value_input] = self._projected_input_path(
+            item,
+            expected_type=value_spec.type,
+        )
+        selected_items[lowering.value_input] = item
+        return True
+
+    def _add_projected_point_identity_companions(
+        self,
+        spec: Any,
+        inputs: dict[str, str],
+        selected_items: Mapping[str, ProjectedFunctionArgBinding],
+    ) -> None:
+        """Keep a resolved Point value and its optional ``*_ref`` in sync."""
+        for input_name, item in selected_items.items():
+            companion_name = f"{input_name}_ref"
+            companion_spec = spec.inputs.get(companion_name)
+            if (
+                companion_spec is None
+                or companion_name in inputs
+                or item.runtime_type is None
+                or not runtime_type_compatible("Point", item.runtime_type)
+                or item.object_ref is None
+                or not item.object_ref.startswith("point:")
+                or "PointRef" not in split_runtime_types(companion_spec.type)
+            ):
+                continue
+            inputs[companion_name] = self.index.point_identity_path_for(
+                item.object_ref
+            )
+
+    def _projected_function_return_identity_inputs(
+        self,
+        step: StepIntent,
+        spec: Any,
+        *,
+        existing: Mapping[str, str],
+    ) -> dict[str, str]:
+        """Bind a Functional Point return to its proven MathObject identity.
+
+        A Point may already have a broader open state while this call writes a
+        closed or question-local version. Reconciliation owns that state
+        allocation, so the compiler must pass the existing object identity to
+        the method without treating it as a duplicate coordinate write.
+        """
+        function = self.function_specs.get(spec.method_id)
+        if function is None:
+            return {}
+        returns = {item.name: item for item in function.returns}
+        result: dict[str, str] = {}
+        for write in self.projected_state_writes:
+            if write.step_id != step.step_id or write.return_name is None:
+                continue
+            return_spec = returns.get(write.return_name)
+            identity_arg = (
+                return_spec.identity_arg if return_spec is not None else None
+            )
+            input_spec = (
+                spec.inputs.get(identity_arg)
+                if identity_arg is not None
+                else None
+            )
+            if (
+                return_spec is None
+                or return_spec.runtime_type != "Point"
+                or input_spec is None
+                or identity_arg in existing
+                or identity_arg in result
+                or "PointRef" not in split_runtime_types(input_spec.type)
+            ):
+                continue
+            adapter_binding = next(
+                (
+                    binding
+                    for binding in (
+                        function.adapter.input_bindings
+                        if function.adapter is not None
+                        else ()
+                    )
+                    if binding.input_name == identity_arg
+                ),
+                None,
+            )
+            if (
+                adapter_binding is not None
+                and selector_semantics(
+                    adapter_binding.selector
+                ).owns_identity_binding
+            ):
+                continue
+            point_handle = _point_output_handle(step, self.index)
+            result[identity_arg] = self.index.point_identity_path_for(
+                point_handle
+            )
         return result
 
     def _projected_input_path(
@@ -1181,11 +1678,10 @@ class _RecipePlanCompiler:
         input_name: str,
         expected_type: str,
         items: list[ProjectedFunctionArgBinding],
-    ) -> str | None:
+    ) -> str | tuple[str, ...] | None:
         item_type = {
             "SymbolList": "Symbol",
             "PointList": "Point",
-            "Coefficients": "ParameterValue",
         }.get(expected_type)
         if item_type is None or not items:
             return None
@@ -1195,10 +1691,12 @@ class _RecipePlanCompiler:
             for item in items
         ):
             return None
-        source_paths = _unique_ordered(
+        source_paths = tuple(
             binding.path
             for item in items
-            if (binding := self.index.bindings.get(item.source_handle)) is not None
+            if (
+                binding := self.index.bindings.get(item.source_handle)
+            ) is not None
         )
         if len(source_paths) == 1:
             try:
@@ -1212,12 +1710,8 @@ class _RecipePlanCompiler:
             else:
                 if existing.type == expected_type:
                     return source_paths[0]
-        # Reconciliation may select several scalar states for one public
-        # aggregate arg. Do not materialize a transient container in the
-        # compiler's dry-run Context: execution rebuilds RuntimeContext and
-        # that path would disappear. Existing container states are safe;
-        # otherwise the declaration-owned expansion selector performs the
-        # aggregation from canonical reads.
+        if len(source_paths) == len(items):
+            return tuple(source_paths)
         return None
 
     def _projected_exact_recipe_inputs(
@@ -1258,6 +1752,19 @@ class _RecipePlanCompiler:
                 item.source_handle,
                 expected_type=input_spec.type,
             )
+            parameter_spec = method_spec.inputs.get("parameter")
+            if (
+                input_name == "parameter_value"
+                and parameter_spec is not None
+                and "parameter" not in result
+                and item.object_ref is not None
+                and item.object_ref.startswith("symbol:")
+                and runtime_type_compatible(parameter_spec.type, "Symbol")
+            ):
+                result["parameter"] = self.index.path_for(
+                    item.object_ref,
+                    expected_type=parameter_spec.type,
+                )
         return result
 
     def _compile_right_angle_recipe(self, step: StepIntent) -> _CompiledStep:
@@ -1349,68 +1856,84 @@ class _RecipePlanCompiler:
             step,
             "PathTransformation",
         )
+        path_transformation_handle = _handle_for_runtime_path(
+            self.index,
+            step,
+            path_transformation,
+            expected_type="PathTransformation",
+        )
         straightening_inputs: dict[str, str] = {
             "path_transformation": path_transformation
         }
-        structured_roles = _structured_straightening_roles_from_transformation(
-            path_transformation,
-            step=step,
+        transformation_state = PathTransformationStateResolver(
             index=self.index,
-        )
-        transformation_fixed = _fixed_endpoints_from_transformation(
-            path_transformation,
+            projected_state_writes=self.projected_state_writes,
+            projected_state_dependencies=self.projected_state_dependencies,
+        ).resolve(
+            path_transformation_handle,
             step=step,
-            index=self.index,
+            required_roles=("fixed_endpoint_1", "fixed_endpoint_2"),
         )
+        fixed_1_role = transformation_state.require("fixed_endpoint_1")
+        fixed_2_role = transformation_state.require("fixed_endpoint_2")
+        fixed_1 = _required_path_role_state(fixed_1_role, step=step)
+        fixed_2 = _required_path_role_state(fixed_2_role, step=step)
         moving_locus = _path_for_readable_type_or_none(self.index, step, "Line")
-        if structured_roles is not None:
-            fixed_1, fixed_2, moving_membership, line_1, line_2 = (
-                structured_roles
+        role_point_preps: list[
+            tuple[tuple[MethodInvocation, ...], dict[str, str]]
+        ] = []
+        role_map = {item.role: item for item in transformation_state.roles}
+        if (
+            moving_locus is None
+            and all(
+                role in role_map
+                for role in (
+                    "moving_locus",
+                    "moving_locus_endpoint_1",
+                    "moving_locus_endpoint_2",
+                )
             )
+        ):
+            moving_membership = _required_path_role_source(
+                role_map["moving_locus"],
+                step=step,
+            )
+            line_1 = _required_path_role_state(
+                role_map["moving_locus_endpoint_1"],
+                step=step,
+            )
+            line_2 = _required_path_role_state(
+                role_map["moving_locus_endpoint_2"],
+                step=step,
+            )
+            line_1_path, line_1_prep = _point_value_path_or_prepare(
+                line_1,
+                step,
+                self.index,
+            )
+            line_2_path, line_2_prep = _point_value_path_or_prepare(
+                line_2,
+                step,
+                self.index,
+            )
+            role_point_preps.extend((line_1_prep, line_2_prep))
             straightening_inputs.update(
                 {
                     "moving_point_membership": self.index.path_for(
                         moving_membership,
                         expected_type="Condition",
                     ),
-                    "line_point_1": self.index.path_for(
-                        line_1,
-                        expected_type="Point",
-                    ),
-                    "line_point_2": self.index.path_for(
-                        line_2,
-                        expected_type="Point",
-                    ),
+                    "line_point_1": line_1_path,
+                    "line_point_2": line_2_path,
                 }
             )
         elif moving_locus is not None:
-            fixed_1, fixed_2 = (
-                transformation_fixed
-                or _straightening_minimum_fixed_points(step, self.index)
-            )
             straightening_inputs["moving_locus"] = moving_locus
         else:
-            _require_straightening_locus_evidence(step, self.index)
-            moving_membership = _moving_membership_for_straightening(step, self.index)
-            role_fixed_1, role_fixed_2, line_1, line_2 = (
-                _straightening_point_roles(step, self.index)
-            )
-            fixed_1, fixed_2 = role_fixed_1, role_fixed_2
-            straightening_inputs.update(
-                {
-                    "moving_point_membership": self.index.path_for(
-                        moving_membership,
-                        expected_type="Condition",
-                    ),
-                    "line_point_1": self.index.path_for(
-                        line_1,
-                        expected_type="Point",
-                    ),
-                    "line_point_2": self.index.path_for(
-                        line_2,
-                        expected_type="Point",
-                    ),
-                }
+            raise StrategyDraftValidationError(
+                "functional.path_transformation_role_missing: "
+                f"transformation={path_transformation_handle}, "
+                "role=moving_locus"
             )
         fixed_1_path, fixed_1_prep = _point_value_path_or_prepare(fixed_1, step, self.index)
         fixed_2_path, fixed_2_prep = _point_value_path_or_prepare(fixed_2, step, self.index)
@@ -1420,8 +1943,24 @@ class _RecipePlanCompiler:
                 "fixed_point_2": fixed_2_path,
             }
         )
-        prep_invocations = [*fixed_1_prep[0], *fixed_2_prep[0]]
-        prep_promote = {**fixed_1_prep[1], **fixed_2_prep[1]}
+        prep_invocations = [
+            *fixed_1_prep[0],
+            *fixed_2_prep[0],
+            *(
+                invocation
+                for invocations, _ in role_point_preps
+                for invocation in invocations
+            ),
+        ]
+        prep_promote = {
+            **fixed_1_prep[1],
+            **fixed_2_prep[1],
+            **{
+                source: target
+                for _, promote in role_point_preps
+                for source, target in promote.items()
+            },
+        }
         invocations = [
             *prep_invocations,
             MethodInvocation(
@@ -1483,7 +2022,7 @@ class _RecipePlanCompiler:
                 )
             elif output_type == "Point":
                 semantic = produced_semantic_role(item)
-                if semantic == STRAIGHTENING_ENDPOINT_POINT_1:
+                if straightening_endpoint_position(semantic) == 1:
                     registrations.append(
                         RuntimeHandleBinding(
                             item.handle,
@@ -1492,7 +2031,7 @@ class _RecipePlanCompiler:
                             f"step:{step.step_id}",
                         )
                     )
-                elif semantic == STRAIGHTENING_ENDPOINT_POINT_2:
+                elif straightening_endpoint_position(semantic) == 2:
                     registrations.append(
                         RuntimeHandleBinding(
                             item.handle,
@@ -1522,6 +2061,21 @@ class _RecipePlanCompiler:
         target_path = self.index.path_for(target, expected_type="PointRef")
         candidates_path = _path_for_readable_type(self.index, step, "PointList")
         parabola_path = _path_for_readable_type(self.index, step, "Parabola")
+        filter_inputs = self._projected_exact_recipe_inputs(
+            step,
+            "filter_point_candidates_by_quadratic_curve",
+        )
+        parameter_inputs = self._projected_exact_recipe_inputs(
+            step,
+            "parameter_from_curve_point_on_quadratic",
+        )
+        has_functional_input_sidecar = bool(filter_inputs or parameter_inputs)
+        candidates_path = filter_inputs.get("candidates", candidates_path)
+        target_path = filter_inputs.get("target", target_path)
+        parabola_path = filter_inputs.get(
+            "parabola",
+            parameter_inputs.get("quadratic", parabola_path),
+        )
         filtered = _temp(step.step_id, "filtered_candidates")
         rejected = _temp(step.step_id, "rejected_candidates")
         selected_candidate = _temp(step.step_id, "selected_candidate")
@@ -1529,21 +2083,49 @@ class _RecipePlanCompiler:
         parameter_value = _temp(step.step_id, "parameter_value")
         parabola = _temp(step.step_id, "parabola")
         primary_symbol = self.index.parameter_symbol_path()
-        primary_constraint = self.index.parameter_constraint_path()
+        primary_constraint = filter_inputs.get("parameter_constraint")
+        if primary_constraint is None and not has_functional_input_sidecar:
+            primary_constraint = self.index.parameter_constraint_path()
         parameter_output_key = _parameter_output_key_from_symbol_path(primary_symbol)
+        filter_invocation_inputs = {
+            "candidates": candidates_path,
+            "target": target_path,
+            "parabola": parabola_path,
+            "x": self.index.path_for("symbol:problem:x", expected_type="Symbol"),
+            "parameter": primary_symbol,
+            "quadratic_template": self.index.path_for(
+                "function:problem:parabola",
+                expected_type="Expression",
+            ),
+        }
+        parameter_invocation_inputs = {
+            "quadratic": parameter_inputs.get("quadratic", parabola_path),
+            "x": self.index.path_for("symbol:problem:x", expected_type="Symbol"),
+            "point": selected_candidate,
+            "parameter": primary_symbol,
+            "quadratic_template": self.index.path_for(
+                "function:problem:parabola",
+                expected_type="Expression",
+            ),
+        }
+        if primary_constraint is not None:
+            filter_invocation_inputs["parameter_constraint"] = primary_constraint
+        parameter_constraint = parameter_inputs.get("parameter_constraint")
+        if (
+            parameter_constraint is None
+            and not has_functional_input_sidecar
+        ):
+            parameter_constraint = primary_constraint
+        if parameter_constraint is not None:
+            parameter_invocation_inputs["parameter_constraint"] = (
+                parameter_constraint
+            )
         invocations = [
             MethodInvocation(
                 invocation_id=f"{step.step_id}.filter_point_candidates_by_quadratic_curve",
                 method_id="filter_point_candidates_by_quadratic_curve",
                 scope=step.step_id,
-                inputs={
-                    "candidates": candidates_path,
-                    "target": target_path,
-                    "parabola": parabola_path,
-                    "x": self.index.path_for("symbol:problem:x", expected_type="Symbol"),
-                    "parameter": primary_symbol,
-                    "parameter_constraint": primary_constraint,
-                },
+                inputs=filter_invocation_inputs,
                 outputs={
                     "filtered_candidates": filtered,
                     "rejected_candidates": rejected,
@@ -1554,17 +2136,7 @@ class _RecipePlanCompiler:
                 invocation_id=f"{step.step_id}.parameter_from_curve_point_on_quadratic",
                 method_id="parameter_from_curve_point_on_quadratic",
                 scope=step.step_id,
-                inputs={
-                    "quadratic": parabola_path,
-                    "x": self.index.path_for("symbol:problem:x", expected_type="Symbol"),
-                    "point": selected_candidate,
-                    "parameter": primary_symbol,
-                    "quadratic_template": self.index.path_for(
-                        "function:problem:parabola",
-                        expected_type="Expression",
-                    ),
-                    "parameter_constraint": primary_constraint,
-                },
+                inputs=parameter_invocation_inputs,
                 outputs={
                     "point": point,
                     "parameter_value": parameter_value,
@@ -1709,9 +2281,25 @@ class _RecipePlanCompiler:
                 "p1": self.index.path_for(point_1, expected_type="Point"),
                 "p2": self.index.path_for(point_2, expected_type="Point"),
             }
-        output_name = "evaluated_distance" if _parameter_value_handle(step, self.index) else "distance"
-        distance = _temp(step.step_id, output_name)
-        target_path = _minimum_expression_target_path(step, self.index)
+        outputs, promote = self._projected_macro_method_outputs(
+            step,
+            "distance_between_points",
+        )
+        projected_outputs = bool(outputs)
+        if not outputs:
+            output_name = (
+                "evaluated_distance"
+                if _parameter_value_handle(step, self.index)
+                else "distance"
+            )
+            distance = _temp(step.step_id, output_name)
+            target_path = _minimum_expression_target_path(step, self.index)
+            outputs = {output_name: distance}
+            promote = {distance: target_path}
+        else:
+            target_path = _minimum_expression_target_path(step, self.index)
+            if target_path not in promote.values():
+                target_path = next(iter(promote.values()))
         parameter_handle = _parameter_value_handle(step, self.index)
         if parameter_handle is not None:
             inputs["parameter"] = self.index.parameter_symbol_path()
@@ -1734,16 +2322,29 @@ class _RecipePlanCompiler:
                     method_id="distance_between_points",
                     scope=step.step_id,
                     inputs=inputs,
-                    outputs={output_name: distance},
+                    outputs=outputs,
                 )
             ],
-            expected_outputs=[target_path],
-            promote_outputs={distance: target_path},
+            expected_outputs=list(_unique_ordered(promote.values())),
+            promote_outputs=promote,
         )
-        registrations = tuple(
-            RuntimeHandleBinding(item.handle, target_path, "MinimumExpression", f"step:{step.step_id}")
-            for item in step.produces
-            if _produced_output_type(item, self.index.handle_registry) == "MinimumExpression"
+        registrations = (
+            ()
+            if projected_outputs
+            else tuple(
+                RuntimeHandleBinding(
+                    item.handle,
+                    target_path,
+                    "MinimumExpression",
+                    f"step:{step.step_id}",
+                )
+                for item in step.produces
+                if _produced_output_type(
+                    item,
+                    self.index.handle_registry,
+                )
+                == "MinimumExpression"
+            )
         )
         return _CompiledStep(plan=plan, registrations=registrations)
 
@@ -1754,58 +2355,86 @@ class _RecipePlanCompiler:
             step,
             "PathTransformation",
         )
-        straightening_inputs: dict[str, str] = {}
-        structured_roles = _structured_straightening_roles_from_transformation(
+        path_transformation_handle = _handle_for_runtime_path(
+            self.index,
+            step,
             path_transformation,
-            step=step,
-            index=self.index,
+            expected_type="PathTransformation",
         )
-        transformation_fixed = _fixed_endpoints_from_transformation(
-            path_transformation,
-            step=step,
+        straightening_inputs: dict[str, str] = {}
+        transformation_state = PathTransformationStateResolver(
             index=self.index,
+            projected_state_writes=self.projected_state_writes,
+            projected_state_dependencies=self.projected_state_dependencies,
+        ).resolve(
+            path_transformation_handle,
+            step=step,
+            required_roles=("fixed_endpoint_1", "fixed_endpoint_2"),
+        )
+        fixed_1 = _required_path_role_state(
+            transformation_state.require("fixed_endpoint_1"),
+            step=step,
+        )
+        fixed_2 = _required_path_role_state(
+            transformation_state.require("fixed_endpoint_2"),
+            step=step,
         )
         moving_locus = _path_for_readable_type_or_none(self.index, step, "Line")
-        if structured_roles is not None:
-            fixed_1, fixed_2, moving_membership, line_1, line_2 = (
-                structured_roles
+        role_point_preps: list[
+            tuple[tuple[MethodInvocation, ...], dict[str, str]]
+        ] = []
+        role_map = {item.role: item for item in transformation_state.roles}
+        if (
+            moving_locus is None
+            and all(
+                role in role_map
+                for role in (
+                    "moving_locus",
+                    "moving_locus_endpoint_1",
+                    "moving_locus_endpoint_2",
+                )
             )
+        ):
+            moving_membership = _required_path_role_source(
+                role_map["moving_locus"],
+                step=step,
+            )
+            line_1 = _required_path_role_state(
+                role_map["moving_locus_endpoint_1"],
+                step=step,
+            )
+            line_2 = _required_path_role_state(
+                role_map["moving_locus_endpoint_2"],
+                step=step,
+            )
+            line_1_path, line_1_prep = _point_value_path_or_prepare(
+                line_1,
+                step,
+                self.index,
+            )
+            line_2_path, line_2_prep = _point_value_path_or_prepare(
+                line_2,
+                step,
+                self.index,
+            )
+            role_point_preps.extend((line_1_prep, line_2_prep))
             straightening_inputs.update(
                 {
                     "moving_point_membership": self.index.path_for(
                         moving_membership,
                         expected_type="Condition",
                     ),
-                    "line_point_1": self.index.path_for(
-                        line_1,
-                        expected_type="Point",
-                    ),
-                    "line_point_2": self.index.path_for(
-                        line_2,
-                        expected_type="Point",
-                    ),
+                    "line_point_1": line_1_path,
+                    "line_point_2": line_2_path,
                 }
             )
         elif moving_locus is not None:
-            fixed_1, fixed_2 = (
-                transformation_fixed
-                or _straightening_minimum_fixed_points(step, self.index)
-            )
             straightening_inputs["moving_locus"] = moving_locus
         else:
-            _require_straightening_locus_evidence(step, self.index)
-            moving_membership = _moving_membership_for_straightening(step, self.index)
-            role_fixed_1, role_fixed_2, line_1, line_2 = _straightening_point_roles(step, self.index)
-            fixed_1, fixed_2 = role_fixed_1, role_fixed_2
-            straightening_inputs.update(
-                {
-                    "moving_point_membership": self.index.path_for(
-                        moving_membership,
-                        expected_type="Condition",
-                    ),
-                    "line_point_1": self.index.path_for(line_1, expected_type="Point"),
-                    "line_point_2": self.index.path_for(line_2, expected_type="Point"),
-                }
+            raise StrategyDraftValidationError(
+                "functional.path_transformation_role_missing: "
+                f"transformation={path_transformation_handle}, "
+                "role=moving_locus"
             )
         fixed_1_path, fixed_1_prep = _point_value_path_or_prepare(fixed_1, step, self.index)
         fixed_2_path, fixed_2_prep = _point_value_path_or_prepare(fixed_2, step, self.index)
@@ -1816,6 +2445,25 @@ class _RecipePlanCompiler:
         minimum_point_2 = _temp(step.step_id, "minimum_point_2")
         distance = _temp(step.step_id, "distance")
         target_path = _minimum_expression_target_path(step, self.index)
+        distance_inputs = {
+            "p1": minimum_point_1,
+            "p2": minimum_point_2,
+            **self._projected_exact_recipe_inputs(
+                step,
+                "distance_between_points",
+            ),
+        }
+        projected_distance_outputs, projected_distance_promote = (
+            self._projected_macro_method_outputs(
+                step,
+                "distance_between_points",
+            )
+        )
+        distance_outputs = (
+            projected_distance_outputs
+            if projected_distance_outputs
+            else {"distance": distance}
+        )
         declarations = []
         auxiliary_handle = _created_point_handle(step)
         if auxiliary_handle is not None:
@@ -1831,8 +2479,24 @@ class _RecipePlanCompiler:
                     definition="straightening_auxiliary_point",
                 )
             )
-        prep_invocations = [*fixed_1_prep[0], *fixed_2_prep[0]]
-        prep_promote = {**fixed_1_prep[1], **fixed_2_prep[1]}
+        prep_invocations = [
+            *fixed_1_prep[0],
+            *fixed_2_prep[0],
+            *(
+                invocation
+                for invocations, _ in role_point_preps
+                for invocation in invocations
+            ),
+        ]
+        prep_promote = {
+            **fixed_1_prep[1],
+            **fixed_2_prep[1],
+            **{
+                source: target
+                for _, promote in role_point_preps
+                for source, target in promote.items()
+            },
+        }
         invocations = [
             *prep_invocations,
             MethodInvocation(
@@ -1863,11 +2527,8 @@ class _RecipePlanCompiler:
                 invocation_id=f"{step.step_id}.distance_between_points",
                 method_id="distance_between_points",
                 scope=step.step_id,
-                inputs={
-                    "p1": minimum_point_1,
-                    "p2": minimum_point_2,
-                },
-                outputs={"distance": distance},
+                inputs=distance_inputs,
+                outputs=distance_outputs,
             ),
         ]
         endpoint_point_1, endpoint_point_2 = _straightening_endpoint_target_paths(
@@ -1881,7 +2542,11 @@ class _RecipePlanCompiler:
             auxiliary: auxiliary_path,
             minimum_point_1: endpoint_point_1,
             minimum_point_2: endpoint_point_2,
-            distance: target_path,
+            **(
+                projected_distance_promote
+                if projected_distance_outputs
+                else {distance: target_path}
+            ),
         }
         plan = StepPlan(
             step_id=step.step_id,
@@ -1897,32 +2562,41 @@ class _RecipePlanCompiler:
             promote_outputs=promote,
         )
         registrations: list[RuntimeHandleBinding] = []
-        for item in step.produces:
-            output_type = _produced_output_type(item, self.index.handle_registry)
-            if output_type == "MinimumExpression":
-                registrations.append(
-                    RuntimeHandleBinding(item.handle, target_path, "MinimumExpression", f"step:{step.step_id}")
+        if not projected_distance_outputs:
+            for item in step.produces:
+                output_type = _produced_output_type(
+                    item,
+                    self.index.handle_registry,
                 )
-            elif output_type == "Point":
-                semantic = produced_semantic_role(item)
-                if "point_1" in semantic:
+                if output_type == "MinimumExpression":
                     registrations.append(
                         RuntimeHandleBinding(
                             item.handle,
-                            promote[minimum_point_1],
-                            "Point",
+                            target_path,
+                            "MinimumExpression",
                             f"step:{step.step_id}",
                         )
                     )
-                elif "point_2" in semantic:
-                    registrations.append(
-                        RuntimeHandleBinding(
-                            item.handle,
-                            promote[minimum_point_2],
-                            "Point",
-                            f"step:{step.step_id}",
+                elif output_type == "Point":
+                    semantic = produced_semantic_role(item)
+                    if straightening_endpoint_position(semantic) == 1:
+                        registrations.append(
+                            RuntimeHandleBinding(
+                                item.handle,
+                                promote[minimum_point_1],
+                                "Point",
+                                f"step:{step.step_id}",
+                            )
                         )
-                    )
+                    elif straightening_endpoint_position(semantic) == 2:
+                        registrations.append(
+                            RuntimeHandleBinding(
+                                item.handle,
+                                promote[minimum_point_2],
+                                "Point",
+                                f"step:{step.step_id}",
+                            )
+                        )
         return _CompiledStep(plan=plan, declarations=tuple(declarations), registrations=registrations)
 
     def _apply_registrations(self, compiled: _CompiledStep) -> None:
@@ -1966,6 +2640,8 @@ class PlannerInsightExtractorRegistry:
 
     path_transformation_methods: frozenset[str] = frozenset({
         "square_path_dimension_reduction",
+        "two_moving_points_path_reduction",
+        "weighted_axis_path_triangle_transform",
     })
 
     def extract(
@@ -2024,7 +2700,13 @@ class PlannerInsightExtractorRegistry:
                 continue
             if not isinstance(payload, Mapping):
                 continue
-            facts = self._path_transformation_facts(payload, step=step, index=index)
+            facts = self._path_transformation_facts(
+                produced.handle,
+                payload,
+                step=step,
+                provenance=compiled.state_write_provenance,
+                index=index,
+            )
             if not facts:
                 continue
             insights.append(
@@ -2041,27 +2723,50 @@ class PlannerInsightExtractorRegistry:
 
     def _path_transformation_facts(
         self,
+        produced_handle: str,
         payload: Mapping[str, Any],
         *,
         step: StepIntent,
+        provenance: tuple[StateWriteProvenance, ...],
         index: CanonicalRuntimeBindingIndex,
     ) -> dict[str, Any]:
-        """把 runtime PathTransformation payload 转成 canonical handle 事实。"""
+        """Project insights from executed lineage; payload only supplies display."""
         facts: dict[str, Any] = {}
-        moving_name = payload.get("moving_point_name") or payload.get("moving_point")
-        moving_handle: str | None = None
-        if isinstance(moving_name, str):
-            moving_handle = _point_handle_for_insight(moving_name, step=step, index=index)
-            facts["moving_point"] = moving_handle or moving_name
-        fixed_names = payload.get("fixed_point_names") or payload.get("fixed_points")
-        if isinstance(fixed_names, (list, tuple)):
-            fixed_handles: list[str] = []
-            for name in fixed_names:
-                if not isinstance(name, str):
-                    continue
-                fixed_handles.append(_point_handle_for_insight(name, step=step, index=index) or name)
-            if fixed_handles:
-                facts["fixed_points"] = fixed_handles
+        executed = next(
+            (
+                item
+                for item in reversed(provenance)
+                if item.produced_handle == produced_handle
+            ),
+            None,
+        )
+        projected = index.projected_state_write_for_handle(produced_handle)
+        lineage = (
+            executed.lineage
+            if executed is not None
+            else (projected.lineage if projected is not None else None)
+        )
+        roles = (
+            {item.role: item for item in lineage.object_roles}
+            if lineage is not None
+            else {}
+        )
+        moving = roles.get("moving_object")
+        moving_handle = (
+            moving.object_refs[0]
+            if moving is not None and len(moving.object_refs) == 1
+            else None
+        )
+        if moving_handle is not None:
+            facts["moving_point"] = moving_handle
+        fixed_handles = tuple(
+            role.object_refs[0]
+            for name in ("fixed_endpoint_1", "fixed_endpoint_2")
+            for role in (roles.get(name),)
+            if role is not None and len(role.object_refs) == 1
+        )
+        if fixed_handles:
+            facts["fixed_points"] = list(fixed_handles)
         transformed_path = payload.get("transformed_path")
         if isinstance(transformed_path, str) and transformed_path:
             facts["transformed_path"] = transformed_path
@@ -2124,19 +2829,6 @@ class PlannerInsightExtractorRegistry:
                 ),
             )
         ]
-
-
-def _point_handle_for_insight(
-    name: str,
-    *,
-    step: StepIntent,
-    index: CanonicalRuntimeBindingIndex,
-) -> str | None:
-    """把 method output 中的点名映射为当前可见 canonical point handle。"""
-    try:
-        return index.point_handle_by_name(name, step=step)
-    except StrategyDraftValidationError:
-        return None
 
 
 def _recommended_locus_step_for_moving_point(
@@ -2581,7 +3273,16 @@ def _point_value_path_for_step(
     所以这里优先使用当前 step 已读入的坐标 fact。
     """
     point_name = _handle_name(point_handle)
-    for handle in step.reads:
+    projected = index.latest_projected_state_write_in_handles(
+        point_handle,
+        step.reads,
+        before_step_id=step.step_id,
+    )
+    if projected is not None and projected.runtime_type == "Point":
+        binding = index.bindings.get(projected.produced_handle)
+        if binding is not None and binding.value_type == "Point":
+            return binding.path
+    for handle in reversed(step.reads):
         if not handle.startswith("fact:"):
             continue
         if not _is_point_coordinate_semantic_name(_semantic_name(handle)):
@@ -2616,17 +3317,26 @@ def _point_value_path_or_prepare(
     index: CanonicalRuntimeBindingIndex,
 ) -> tuple[str, tuple[tuple[MethodInvocation, ...], dict[str, str]]]:
     """读取点值；必要时为可确定定义点生成当前 recipe 内部 prep invocation。"""
+    definition = _point_definition(point_handle, index)
+    if (
+        definition == "midpoint"
+        and _projected_midpoint_state_is_stale(point_handle, step, index)
+    ):
+        return _prepare_midpoint_point_value(point_handle, step, index)
     try:
         return _point_value_path_for_step(point_handle, step, index), ((), {})
     except StrategyDraftValidationError:
-        definition = _point_definition(point_handle, index)
         if definition == "midpoint":
             return _prepare_midpoint_point_value(point_handle, step, index)
         if definition != "axis_x_intercept":
             raise
         point_name = _handle_name(point_handle)
         output_path = _temp(step.step_id, f"prepared_{point_name}_coordinate")
-        promote_path = _scoped_output_path(index.context, step.scope_id, f"{point_name}_coordinate")
+        promote_path = _scoped_output_path(
+            index.context,
+            step.scope_id,
+            f"{point_name}_coordinate",
+        )
         invocation = MethodInvocation(
             invocation_id=f"{step.step_id}.prepare_{point_name}_coordinate",
             method_id="quadratic_axis_x_intercept_point",
@@ -2639,6 +3349,41 @@ def _point_value_path_or_prepare(
             outputs={"axis_point": output_path},
         )
         return output_path, ((invocation,), {output_path: promote_path})
+
+
+def _projected_midpoint_state_is_stale(
+    point_handle: str,
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> bool:
+    """Return whether a midpoint predates a point-state dependency in reads."""
+    current = index.latest_projected_state_write(
+        point_handle,
+        before_step_id=step.step_id,
+    )
+    if current is None:
+        return False
+    payload = index.entity_payload(point_handle)
+    endpoints = payload.get("of")
+    if not (
+        isinstance(endpoints, list)
+        and len(endpoints) == 2
+        and all(isinstance(item, str) for item in endpoints)
+    ):
+        return False
+    current_sources = set(current.source_state_slot_ids)
+    for endpoint in endpoints:
+        latest_read = index.latest_projected_state_write_in_handles(
+            endpoint,
+            step.reads,
+            before_step_id=step.step_id,
+        )
+        if (
+            latest_read is not None
+            and latest_read.state_slot_id not in current_sources
+        ):
+            return True
+    return False
 
 
 def _prepare_midpoint_point_value(
@@ -2667,7 +3412,7 @@ def _prepare_midpoint_point_value(
         inputs={
             "p1": p1_path,
             "p2": p2_path,
-            "target": index.point_ref_path_for(point_handle),
+            "target": index.point_identity_path_for(point_handle),
         },
         outputs={"midpoint": output_path},
     )
@@ -2825,8 +3570,8 @@ def _straightening_endpoint_target_paths(
 ) -> tuple[str, str]:
     """返回 split 拉直 recipe 推广的最短线段端点路径。"""
     return (
-        _straightening_endpoint_target_path(step, index, STRAIGHTENING_ENDPOINT_POINT_1),
-        _straightening_endpoint_target_path(step, index, STRAIGHTENING_ENDPOINT_POINT_2),
+        _straightening_endpoint_target_path(step, index, STRAIGHTENED_ENDPOINT_1),
+        _straightening_endpoint_target_path(step, index, STRAIGHTENED_ENDPOINT_2),
     )
 
 
@@ -2860,13 +3605,21 @@ def _straightening_endpoint_target_path(
     semantic_name: str,
 ) -> str:
     """优先使用 step 显式 produced endpoint fact 的 valid_scope。"""
+    canonical_name = canonical_straightening_endpoint_name(semantic_name)
     for produced in step.produces:
         if (
             _produced_output_type(produced, index.handle_registry) == "Point"
-            and produced_semantic_role(produced) == semantic_name
+            and canonical_straightening_endpoint_name(
+                produced_semantic_role(produced)
+            )
+            == canonical_name
         ):
             return _target_path_for_produced(produced, "Point", index, step)
-    return _scoped_output_path(index.context, step.scope_id, semantic_name)
+    return _scoped_output_path(
+        index.context,
+        step.scope_id,
+        canonical_name or semantic_name,
+    )
 
 
 def _straightening_endpoint_handles_from_reads(
@@ -2897,156 +3650,56 @@ def _straightening_endpoint_handles_from_reads(
     return collect_straightening_endpoint_handles(candidates)
 
 
-def _straightening_minimum_fixed_points(
-    step: StepIntent,
+def _handle_for_runtime_path(
     index: CanonicalRuntimeBindingIndex,
-) -> tuple[str, str]:
-    """从 StepIntent reads 中读取将军饮马最短距离的两个固定端点。"""
-    candidates: list[str] = []
-    for handle in step.reads:
-        if handle.startswith("point:"):
-            try:
-                _point_value_path_for_step(handle, step, index)
-            except StrategyDraftValidationError:
-                try:
-                    # Functional projection preserves macro argument order in
-                    # reads. A declared endpoint may still be a PointRef whose
-                    # coordinate has a deterministic prep invocation (axis,
-                    # intercept, midpoint, etc.); endpoint discovery must not
-                    # discard it before the compile stage can apply that prep.
-                    _point_value_path_or_prepare(handle, step, index)
-                except StrategyDraftValidationError:
-                    continue
-            candidates.append(handle)
-            continue
-        point_handle = _point_handle_from_point_state_fact(handle, step, index)
-        if point_handle is not None:
-            candidates.append(point_handle)
-    if len(_unique_ordered(candidates)) < 2:
-        candidates.extend(_square_reduced_path_fixed_points(step, index))
-    unique = _unique_ordered(candidates)
-    if len(unique) < 2:
-        raise StrategyDraftValidationError(
-            f"broken_path_straightening_minimum_requires_two_fixed_points: {step.step_id}"
+    step: StepIntent,
+    path: str,
+    *,
+    expected_type: str,
+) -> str:
+    matches = tuple(
+        handle
+        for handle in step.reads
+        if (
+            (binding := index.bindings.get(handle)) is not None
+            and binding.path == path
+            and runtime_type_compatible(binding.value_type, expected_type)
         )
-    return unique[0], unique[1]
+    )
+    if len(matches) != 1:
+        raise StrategyDraftValidationError(
+            "functional.path_transformation_state_unavailable: "
+            f"step={step.step_id}, path={path}, matches={list(matches)}"
+        )
+    return matches[0]
 
 
-def _fixed_endpoints_from_transformation(
-    transformation_path: str,
+def _required_path_role_state(
+    role: ResolvedPathTransformationRole,
     *,
     step: StepIntent,
-    index: CanonicalRuntimeBindingIndex,
-) -> tuple[str, str] | None:
-    try:
-        payload = index.context.read_path(
-            transformation_path,
-            from_scope_id=step.scope_id,
-            expected_type="PathTransformation",
-        ).value
-    except Exception:
-        return None
-    if not isinstance(payload, Mapping):
-        return None
-    refs = payload.get("fixed_endpoint_refs")
-    if (
-        isinstance(refs, list)
-        and len(refs) == 2
-        and all(isinstance(item, str) and item.startswith("point:") for item in refs)
-    ):
-        return refs[0], refs[1]
-    names = payload.get("fixed_point_names")
-    if (
-        isinstance(names, (list, tuple))
-        and len(names) == 2
-        and all(isinstance(item, str) for item in names)
-    ):
-        return (
-            index.point_handle_by_name(names[0], step=step),
-            index.point_handle_by_name(names[1], step=step),
+) -> str:
+    if role.state_handle is None:
+        raise StrategyDraftValidationError(
+            "functional.path_transformation_state_unavailable: "
+            f"step={step.step_id}, role={role.role}, "
+            f"object_ref={role.object_ref}"
         )
-    return None
+    return role.state_handle
 
 
-def _structured_straightening_roles_from_transformation(
-    transformation_path: str,
+def _required_path_role_source(
+    role: ResolvedPathTransformationRole,
     *,
     step: StepIntent,
-    index: CanonicalRuntimeBindingIndex,
-) -> tuple[str, str, str, str, str] | None:
-    """Resolve downstream roles only from a structured PathTransformation."""
-
-    try:
-        payload = index.context.read_path(
-            transformation_path,
-            from_scope_id=step.scope_id,
-            expected_type="PathTransformation",
-        ).value
-    except Exception:
-        return None
-    if not isinstance(payload, Mapping):
-        return None
-    fixed = payload.get("fixed_endpoint_refs")
-    moving_membership = payload.get("moving_locus_condition_ref")
-    line_endpoints = payload.get("moving_locus_endpoint_refs")
-    if not (
-        isinstance(fixed, list)
-        and len(fixed) == 2
-        and all(isinstance(item, str) and item.startswith("point:") for item in fixed)
-        and isinstance(moving_membership, str)
-        and moving_membership.startswith("fact:")
-        and isinstance(line_endpoints, list)
-        and len(line_endpoints) == 2
-        and all(
-            isinstance(item, str) and item.startswith("point:")
-            for item in line_endpoints
-        )
-    ):
-        return None
-    # Validate that every referenced object/condition belongs to the canonical
-    # registry. No fallback search is allowed once the transformation declares
-    # a complete role set.
-    for handle in (*fixed, *line_endpoints):
-        index.binding_for(handle)
-    if index.fact_types.get(moving_membership) != "segment_membership":
+) -> str:
+    if len(role.source_handles) != 1:
         raise StrategyDraftValidationError(
-            "path_transformation_moving_locus_invalid: "
-            f"{moving_membership}"
+            "functional.path_transformation_state_unavailable: "
+            f"step={step.step_id}, role={role.role}, "
+            f"source_count={len(role.source_handles)}"
         )
-    index.binding_for(moving_membership)
-    return (
-        fixed[0],
-        fixed[1],
-        moving_membership,
-        line_endpoints[0],
-        line_endpoints[1],
-    )
-
-
-def _require_straightening_locus_evidence(
-    step: StepIntent,
-    index: CanonicalRuntimeBindingIndex,
-) -> None:
-    """Require an explicit locus or legacy structured membership evidence.
-
-    FunctionalPlan exposes the moving locus as a typed ``Line`` argument. Older
-    StepIntent fixtures may still describe the same state through a structured
-    segment membership/relation condition, so that representation remains a
-    supported compatibility input. The compiler must not let the legacy lookup
-    leak a misleading ``fact_handle_not_found`` error when neither exists.
-    """
-    try:
-        index.fact_handle_by_type("segment_membership", step=step)
-        index.fact_handle_by_type("segment_relation", step=step)
-    except StrategyDraftValidationError:
-        pass
-    else:
-        return
-    raise StrategyDraftValidationError(
-        "macro.arg_missing: "
-        f"recipe={step.recipe_hint or step.step_id}, "
-        "arg=moving_locus, expected=Line or segment_membership Condition"
-    )
+    return role.source_handles[0]
 
 
 def _point_handle_from_point_state_fact(
@@ -3067,76 +3720,6 @@ def _point_handle_from_point_state_fact(
         return index.point_handle_by_name(point_name, step=step)
     except StrategyDraftValidationError:
         return None
-
-
-def _square_reduced_path_fixed_points(
-    step: StepIntent,
-    index: CanonicalRuntimeBindingIndex,
-) -> list[str]:
-    """从 square 降维结构 fact 推断将军饮马的两个固定端点。
-
-    该推断只依赖结构化 facts：
-    - square 的有序顶点给出降维后路径的第一个固定点；
-    - midpoint_definition、square_center 与 path_minimum_target 的 path 项共同确定
-      另一个固定点。
-    """
-    if not any(
-        index.bindings.get(handle) is not None
-        and index.bindings[handle].value_type == "PathTransformation"
-        for handle in step.reads
-    ):
-        return []
-    try:
-        square_fact = index.fact_handle_by_type("square", step=step)
-        midpoint_fact = index.fact_handle_by_type("midpoint_definition", step=step)
-        center_fact = index.fact_handle_by_type("square_center", step=step)
-        target_fact = index.fact_handle_by_type("path_minimum_target", step=step)
-    except StrategyDraftValidationError:
-        return []
-
-    square_payload = index.fact_payload(square_fact)
-    vertices = square_payload.get("vertices")
-    if not isinstance(vertices, list) or not vertices:
-        return []
-    first_fixed = str(vertices[0])
-    try:
-        midpoint = _payload_handle(index.fact_payload(midpoint_fact), "point", context=midpoint_fact)
-        center = _payload_handle(index.fact_payload(center_fact), "point", context=center_fact)
-        terms = _path_target_terms(index.fact_payload(target_fact), step=step, index=index, context=target_fact)
-    except StrategyDraftValidationError:
-        return []
-    second_fixed = _fixed_endpoint_from_center_midpoint_path(
-        terms,
-        center=center,
-        midpoint=midpoint,
-    )
-    if second_fixed is None:
-        return []
-    return [first_fixed, second_fixed]
-
-
-def _fixed_endpoint_from_center_midpoint_path(
-    terms: list[tuple[str, str]],
-    *,
-    center: str,
-    midpoint: str,
-) -> str | None:
-    """从 ``center-midpoint`` 与 ``midpoint-fixed`` 相邻路径项中找 fixed endpoint。"""
-    has_center_midpoint_term = any(
-        set(term) == {center, midpoint}
-        for term in terms
-    )
-    if not has_center_midpoint_term:
-        return None
-    candidates = [
-        _other_endpoint_handle(term, midpoint)
-        for term in terms
-        if midpoint in term and center not in term
-    ]
-    unique = _unique_ordered(candidates)
-    if len(unique) == 1:
-        return unique[0]
-    return None
 
 
 def _visible_point_state_path_for_name(
@@ -3320,11 +3903,27 @@ def _method_outputs_for_step(
     *,
     input_bindings: Mapping[str, str] | None = None,
     input_specs: Mapping[str, Any] | None = None,
+    projected_output_keys: Mapping[str, str] | None = None,
 ) -> dict[str, str]:
     """为 invocation 生成输出路径，避免声明 method 不会实际返回的可选输出。"""
     output_names: list[str] = []
+    projected_output_keys = projected_output_keys or {}
     for produced in step.produces:
-        output_name = _output_key_for_produced(method_id, produced, spec_outputs, step, index)
+        output_name = projected_output_keys.get(produced.handle)
+        if output_name is not None and output_name not in spec_outputs:
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: projected Function return "
+                f"does not map to a MethodSpec output: method={method_id}, "
+                f"handle={produced.handle}, output={output_name}"
+            )
+        if output_name is None:
+            output_name = _output_key_for_produced(
+                method_id,
+                produced,
+                spec_outputs,
+                step,
+                index,
+            )
         if output_name is not None:
             output_names.append(output_name)
     rule = binding_rules.rule_for(method_id)
@@ -3456,6 +4055,7 @@ def _promote_outputs_for_step(
     binding_rules: MethodBindingRuleRegistry,
     *,
     point_transition: bool = False,
+    projected_state_writes: tuple[ProjectedStateWrite, ...] = (),
 ) -> dict[str, str]:
     """根据 produces/answer 自动生成 promote_outputs。"""
     promote: dict[str, str] = {}
@@ -3473,15 +4073,30 @@ def _promote_outputs_for_step(
             output_types[output_name],
             index,
             step,
-            point_transition=point_transition,
+            point_transition=(
+                point_transition
+                or _produced_is_projected_point_transition(
+                    step,
+                    produced,
+                    projected_state_writes,
+                )
+            ),
         )
         _ensure_declaration_for_promote_target(target, output_types[output_name], index)
         source = outputs[output_name]
         source_to_produced.setdefault(source, []).append(produced)
         # 同一个 method output 可能同时服务最终答案和可复用 fact alias。
-        # promote 只能写一个目标，因此优先落到 answer target；普通 fact 后续注册到
-        # 同一条 runtime path，避免 answer 被 alias 覆盖后 ResultBuilder 找不到答案。
-        if source not in promote or produced.handle.startswith("answer:"):
+        # promote 只能写一个目标。通常优先 answer；若共享计算执行在 answer
+        # scope 之外，则落到 canonical fact，answer handle 注册为同一路径的 alias。
+        # 这样公共状态仍可复用，也不会让父 scope 越权写入子问题。
+        if source not in promote or (
+            produced.handle.startswith("answer:")
+            and _answer_promote_scope_is_visible_from_step(
+                target,
+                step=step,
+                index=index,
+            )
+        ):
             promote[source] = target
     _validate_no_ambiguous_multi_produced_output_aliases(
         step,
@@ -3494,6 +4109,30 @@ def _promote_outputs_for_step(
         first_key, first_path = next(iter(outputs.items()))
         promote[first_path] = _scoped_output_path(index.context, step.scope_id, first_key)
     return promote
+
+
+def _produced_is_projected_point_transition(
+    step: StepIntent,
+    produced: ProducedFact,
+    projected_state_writes: tuple[ProjectedStateWrite, ...],
+) -> bool:
+    return any(
+        write.step_id == step.step_id
+        and write.produced_handle == produced.handle
+        and write.runtime_type == "Point"
+        and write.write_mode == "transition"
+        for write in projected_state_writes
+    )
+
+
+def _answer_promote_scope_is_visible_from_step(
+    target: str,
+    *,
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> bool:
+    target_scope = ContextPath.parse(target).scope_id
+    return target_scope in index.handle_registry.ancestor_scopes(step.scope_id)
 
 
 def _binding_rule_writes_point_transition(
@@ -3736,6 +4375,8 @@ def _macro_write_provenance(
     recipe_id: str,
     bindings: tuple[tuple[ProducedFact, MacroReturnSpec], ...],
     declared_evidence_roles: tuple[str, ...],
+    plan: StepPlan,
+    function_specs: FunctionSpecRegistry,
     index: CanonicalRuntimeBindingIndex,
     prior: tuple[StateWriteProvenance, ...],
     projected_state_writes: tuple[ProjectedStateWrite, ...],
@@ -3760,8 +4401,59 @@ def _macro_write_provenance(
                 produced.handle,
                 projected_state_writes,
             ),
+            closure_ignored_symbol_names=(
+                _macro_result_form_ignored_symbol_names(
+                    return_spec,
+                    plan=plan,
+                    function_specs=function_specs,
+                    index=index,
+                    scope_id=step.scope_id,
+                )
+            ),
         )
         for produced, return_spec in bindings
+    )
+
+
+def _macro_result_form_ignored_symbol_names(
+    return_spec: MacroReturnSpec,
+    *,
+    plan: StepPlan,
+    function_specs: FunctionSpecRegistry,
+    index: CanonicalRuntimeBindingIndex,
+    scope_id: str,
+) -> tuple[str, ...]:
+    """Resolve closure exclusions from the Macro return's internal Function."""
+    output_key = return_spec.output_key
+    if output_key is None or "." not in output_key:
+        return ()
+    method_id, method_output = output_key.rsplit(".", 1)
+    function = function_specs.get(method_id)
+    if function is None:
+        return ()
+    function_return = next(
+        (
+            item
+            for item in function.returns
+            if method_output in {item.name, item.output_key}
+        ),
+        None,
+    )
+    if function_return is None:
+        return ()
+    invocation = next(
+        (
+            item
+            for item in reversed(plan.invocations)
+            if item.method_id == method_id
+        ),
+        None,
+    )
+    return _result_form_ignored_symbol_names(
+        function_return,
+        invocation=invocation,
+        index=index,
+        scope_id=scope_id,
     )
 
 
@@ -3857,7 +4549,190 @@ def _function_write_provenance(
                 ),
             )
         )
+    return _project_compiled_return_object_roles(
+        tuple(result),
+        function=function,
+        invocation=invocation,
+        scope_id=step.scope_id,
+        index=index,
+        prior=prior,
+    )
+
+
+def _project_compiled_return_object_roles(
+    provenance: tuple[StateWriteProvenance, ...],
+    *,
+    function: FunctionSpec,
+    invocation: MethodInvocation | None,
+    scope_id: str,
+    index: CanonicalRuntimeBindingIndex,
+    prior: tuple[StateWriteProvenance, ...],
+) -> tuple[StateWriteProvenance, ...]:
+    """Execute FunctionSpec object-role projections for runtime provenance."""
+
+    if invocation is None:
+        return provenance
+    returns_by_output = {
+        item.output_key: item
+        for item in function.returns
+        if item.output_key is not None
+    }
+    writes_by_output = {item.output_key: item for item in provenance}
+    args_by_name = {item.name: item for item in function.args}
+    result: list[StateWriteProvenance] = []
+    for write in provenance:
+        return_spec = returns_by_output.get(write.output_key)
+        if return_spec is None:
+            result.append(write)
+            continue
+        roles: list[StateObjectRoleBinding] = []
+        for projection in return_spec.object_role_projections:
+            source: StateWriteProvenance | None = None
+            source_handle: str | None = None
+            object_refs: tuple[str, ...] = ()
+            if projection.source_return is not None:
+                sibling_spec = next(
+                    (
+                        item
+                        for item in function.returns
+                        if item.name == projection.source_return
+                    ),
+                    None,
+                )
+                source = (
+                    writes_by_output.get(sibling_spec.output_key)
+                    if sibling_spec is not None
+                    and sibling_spec.output_key is not None
+                    else None
+                )
+            elif projection.source_arg is not None:
+                arg_spec = args_by_name.get(projection.source_arg)
+                method_input = (
+                    arg_spec.method_input or arg_spec.name
+                    if arg_spec is not None
+                    else projection.source_arg
+                )
+                input_path = invocation.inputs.get(method_input)
+                if isinstance(input_path, str):
+                    source_handle = _source_handle_for_path(
+                        input_path,
+                        index,
+                        prior,
+                    )
+                    source = next(
+                        (
+                            item
+                            for item in reversed(prior)
+                            if item.produced_handle == source_handle
+                        ),
+                        None,
+                    )
+                    if source is None and arg_spec is not None:
+                        object_ref = _object_ref_for_compiled_input(
+                            input_path,
+                            arg_spec.runtime_type,
+                            scope_id=scope_id,
+                            index=index,
+                        )
+                        object_refs = (
+                            (object_ref,) if object_ref is not None else ()
+                        )
+                    if (
+                        not object_refs
+                        and source_handle is not None
+                        and projection.source_object_role is not None
+                        and source_handle in index.fact_types
+                    ):
+                        condition_roles = ConditionRoleResolver.object_roles(
+                            index.fact_types[source_handle],
+                            index.fact_payload(source_handle),
+                        )
+                        object_refs = dict(condition_roles).get(
+                            projection.source_object_role,
+                            (),
+                        )
+            if source is not None:
+                object_refs = (
+                    state_object_refs_for_role(
+                        source.lineage,
+                        projection.source_object_role,
+                    )
+                    if projection.source_object_role is not None
+                    else ((source.object_ref,) if source.object_ref else ())
+                )
+                source_handle = source.produced_handle
+            if not object_refs:
+                continue
+            roles.append(
+                StateObjectRoleBinding(
+                    role=projection.role,
+                    object_refs=tuple(_unique_ordered(object_refs)),
+                    source_state_slot_ids=(
+                        (source.state_slot_id,)
+                        if source is not None
+                        and source.state_slot_id is not None
+                        else ()
+                    ),
+                    source_handles=(
+                        (source_handle,) if source_handle is not None else ()
+                    ),
+                    state_requirement=projection.state_requirement,
+                )
+            )
+        if not roles:
+            result.append(write)
+            continue
+        lineage = merge_state_semantic_lineages(
+            write.lineage,
+            object_roles=roles,
+            source_state_slot_ids=tuple(
+                slot_id
+                for role in roles
+                for slot_id in role.source_state_slot_ids
+            ),
+        )
+        result.append(
+            replace(
+                write,
+                lineage=lineage,
+                source_state_slot_ids=tuple(
+                    _unique_ordered(
+                        (
+                            *write.source_state_slot_ids,
+                            *lineage.source_state_slot_ids,
+                        )
+                    )
+                ),
+            )
+        )
     return tuple(result)
+
+
+def _object_ref_for_compiled_input(
+    path: str,
+    runtime_type: str,
+    *,
+    scope_id: str,
+    index: CanonicalRuntimeBindingIndex,
+) -> str | None:
+    """Recover immutable input identity before considering path aliases."""
+
+    if runtime_type == "PointRef":
+        declaration = index.declarations.get(path)
+        if declaration is not None and declaration.type == "PointRef":
+            return f"point:{declaration.scope_id}:{declaration.name}"
+        try:
+            value = index.context.read_path(
+                path,
+                from_scope_id=scope_id,
+                expected_type="PointRef",
+            ).value
+        except (KeyError, PermissionError, TypeError, ValueError):
+            pass
+        else:
+            if isinstance(value, PointRef):
+                return f"point:{value.scope_id}:{value.name}"
+    return _object_handle_for_path(path, runtime_type, index)
 
 
 def _output_key_for_companion_path(path: str, plan: StepPlan) -> str:
@@ -3921,6 +4796,12 @@ def _state_write_provenance(
         )
     else:
         object_ref = None
+    if projected_write is not None and projected_write.object_ref is not None:
+        # Functional reconciliation has already resolved the MathObject identity.
+        # Macro compilation may not expose a direct legacy input path from which
+        # the same identity can be reconstructed, so the typed sidecar is
+        # authoritative here.
+        object_ref = projected_write.object_ref
     source_handles = tuple(
         handle
         for handle in (source_handle, *step.reads)
@@ -4027,6 +4908,88 @@ def _state_write_provenance(
     )
 
 
+def _runtime_result_snapshots(
+    *,
+    step: StepIntent,
+    capability_id: str,
+    compiled: _CompiledStep,
+    context: RuntimeContext,
+) -> tuple[StepIntentRuntimeResult, ...]:
+    """Capture safe values while the accepted trial Context is still live."""
+    registrations = {item.handle: item for item in compiled.registrations}
+    results: list[StepIntentRuntimeResult] = []
+    for write in compiled.state_write_provenance:
+        binding = registrations.get(write.produced_handle)
+        if binding is None:
+            continue
+        value: Any | None = None
+        omitted: str | None = None
+        try:
+            runtime_value = context.read_path(
+                binding.path,
+                from_scope_id=step.scope_id,
+                expected_type=write.runtime_type,
+            ).value
+            value, omitted = _prompt_safe_runtime_result_value(
+                runtime_value,
+                runtime_type=write.runtime_type,
+            )
+        except Exception:
+            omitted = "runtime_value_unavailable"
+        results.append(
+            StepIntentRuntimeResult(
+                step_id=step.step_id,
+                scope_id=step.scope_id,
+                capability_id=capability_id,
+                produced_handle=write.produced_handle,
+                output_key=write.output_key,
+                runtime_type=write.runtime_type,
+                value=value,
+                value_omitted_reason=omitted,
+            )
+        )
+    return tuple(results)
+
+
+def _prompt_safe_runtime_result_value(
+    value: Any,
+    *,
+    runtime_type: str,
+) -> tuple[Any | None, str | None]:
+    """Project mathematical values without leaking runtime implementation data."""
+    if runtime_type == "PathTransformation":
+        return None, "structured_state_projected_from_lineage"
+    projected = _prompt_safe_math_value(value)
+    if projected is None:
+        return None, "unsupported_runtime_value"
+    try:
+        encoded = json.dumps(projected, ensure_ascii=False, sort_keys=True)
+    except (TypeError, ValueError):
+        return None, "unsupported_runtime_value"
+    if len(encoded) > 4096:
+        return None, "runtime_value_too_large"
+    return projected, None
+
+
+def _prompt_safe_math_value(value: Any) -> Any | None:
+    if isinstance(value, sp.Basic):
+        return str(sp.simplify(value))
+    if isinstance(value, PointRef):
+        return value.name
+    if isinstance(value, bool) or value is None:
+        return value
+    if isinstance(value, (int, float, str)):
+        return value
+    if isinstance(value, (tuple, list)):
+        projected = [_prompt_safe_math_value(item) for item in value]
+        return None if any(item is None for item in projected) else projected
+    # Runtime mappings may contain Context paths or compiler-only payloads.
+    # Semantic object roles are projected from provenance instead.
+    if isinstance(value, Mapping):
+        return None
+    return str(value) if type(value).__module__.startswith("sympy.") else None
+
+
 def _compiled_state_lineage(
     *,
     identity_policy: StateIdentityPolicy,
@@ -4082,17 +5045,41 @@ def _enrich_write_provenance_runtime_symbols(
     context: RuntimeContext,
 ) -> tuple[StateWriteProvenance, ...]:
     paths = {item.handle: item.path for item in registrations}
+    runtime_values: dict[str, Any] = {}
+    for item in provenance:
+        path = paths.get(item.produced_handle)
+        if path is None:
+            continue
+        try:
+            runtime_values[item.produced_handle] = context.read_path(
+                path,
+                from_scope_id=item.scope_id,
+                expected_type=item.runtime_type,
+            ).value
+        except (KeyError, PermissionError, TypeError, ValueError):
+            continue
+    coefficient_sources = tuple(
+        (item, runtime_values.get(item.produced_handle))
+        for item in provenance
+        if item.runtime_type == "Coefficients"
+        and isinstance(runtime_values.get(item.produced_handle), Mapping)
+    )
+    parameter_value_sources = tuple(
+        (item, runtime_values.get(item.produced_handle))
+        for item in provenance
+        if item.runtime_type == "ParameterValue"
+        and item.object_ref is not None
+        and item.produced_handle in runtime_values
+    )
     result: list[StateWriteProvenance] = []
     for item in provenance:
         path = paths.get(item.produced_handle)
         free_symbols: set[Any] = set()
+        lineage = item.lineage
         if path is not None:
             try:
-                value = context.read_path(
-                    path,
-                    from_scope_id=item.scope_id,
-                    expected_type=item.runtime_type,
-                ).value
+                value = runtime_values[item.produced_handle]
+                _enrich_runtime_lineage_payload(item, value)
                 _validate_runtime_lineage_payload(item, value)
                 if item.runtime_type == "Symbol":
                     free_symbols.add(value)
@@ -4105,6 +5092,69 @@ def _enrich_write_provenance_runtime_symbols(
                 raise
             except (KeyError, PermissionError, TypeError, ValueError):
                 pass
+        if lineage.symbol_closures:
+            closures: list[StateSymbolClosureBinding] = []
+            for closure in lineage.symbol_closures:
+                target_name = closure.target_object_ref.rsplit(":", 1)[-1]
+                matches = tuple(
+                    (source, value)
+                    for source, value in parameter_value_sources
+                    if source.object_ref == closure.target_object_ref
+                )
+                coefficient_matches = tuple(
+                    (source, value[symbol])
+                    for source, value in coefficient_sources
+                    for symbol in value
+                    if str(symbol) == target_name
+                )
+                if not matches:
+                    matches = coefficient_matches
+                if len(matches) != 1:
+                    closures.append(closure)
+                    continue
+                source, expression = matches[0]
+                dependency_refs_by_name = {
+                    item.rsplit(":", 1)[-1]: item
+                    for item in closure.dependency_object_refs
+                }
+                closures.append(
+                    StateSymbolClosureBinding(
+                        target_object_ref=closure.target_object_ref,
+                        dependency_object_refs=tuple(
+                            dependency_refs_by_name.get(
+                                str(symbol),
+                                f"symbol:problem:{symbol}",
+                            )
+                            for symbol in sorted(
+                                getattr(expression, "free_symbols", set()),
+                                key=lambda current: current.name,
+                            )
+                        ),
+                        expression=str(sp.simplify(expression)),
+                        source_state_slot_ids=tuple(
+                            _unique_ordered(
+                                (
+                                    *closure.source_state_slot_ids,
+                                    *((source.state_slot_id,)
+                                      if source.state_slot_id is not None
+                                      else ()),
+                                )
+                            )
+                        ),
+                        source_handles=tuple(
+                            _unique_ordered(
+                                (
+                                    *closure.source_handles,
+                                    source.produced_handle,
+                                )
+                            )
+                        ),
+                    )
+                )
+            lineage = merge_state_semantic_lineages(
+                lineage,
+                symbol_closures=closures,
+            )
         result.append(
             replace(
                 item,
@@ -4114,6 +5164,7 @@ def _enrich_write_provenance_runtime_symbols(
                         - set(item.closure_ignored_symbol_names)
                     )
                 ),
+                lineage=lineage,
             )
         )
     return tuple(result)
@@ -4175,6 +5226,43 @@ def _validate_runtime_lineage_payload(
             f"step={provenance.step_id}, role=moving_object, "
             f"expected={','.join(expected)}, actual={actual or 'missing'}"
         )
+
+
+def _enrich_runtime_lineage_payload(
+    provenance: StateWriteProvenance,
+    value: Any,
+) -> None:
+    """Attach canonical role refs while keeping runtime names display-only."""
+    if provenance.runtime_type != "PathTransformation" or not isinstance(
+        value,
+        dict,
+    ):
+        return
+    moving_refs = state_object_refs_for_role(
+        provenance.lineage,
+        "moving_object",
+    )
+    if "moving_point_ref" not in value and len(moving_refs) == 1:
+        value["moving_point_ref"] = moving_refs[0]
+    fixed_refs = tuple(
+        refs[0]
+        for role in ("fixed_endpoint_1", "fixed_endpoint_2")
+        if len(
+            refs := state_object_refs_for_role(
+                provenance.lineage,
+                role,
+            )
+        )
+        == 1
+    )
+    if "fixed_endpoint_refs" not in value and len(fixed_refs) == 2:
+        value["fixed_endpoint_refs"] = fixed_refs
+    auxiliary_refs = state_object_refs_for_role(
+        provenance.lineage,
+        "auxiliary_object",
+    )
+    if "auxiliary_point_ref" not in value and len(auxiliary_refs) == 1:
+        value["auxiliary_point_ref"] = auxiliary_refs[0]
 
 
 def _validate_state_transition(
@@ -4264,6 +5352,8 @@ def _expand_point_parameter_substitutions(
         for coordinate in point
         for symbol in getattr(coordinate, "free_symbols", set())
     }
+    if not free_symbols:
+        return plan
     substitutions: list[tuple[Any, str, str, str]] = []
     for handle in step.reads:
         binding = index.bindings.get(handle)
@@ -4927,6 +6017,14 @@ def _execution_blocker_code(candidate_errors: list[str]) -> str:
     text = "\n".join(candidate_errors)
     if "planner_configuration_error" in text:
         return "planner_configuration_error"
+    if (
+        "candidate_selection_constraint_required" in text
+        or (
+            "curve_candidate_parameter_solve" in text
+            and "function.constraints_ambiguous" in text
+        )
+    ):
+        return "functional.candidate_selection_constraint_required"
     for code in (
         "function.arg_applicability",
         "function.arg_not_read",
@@ -5009,6 +6107,26 @@ def _execution_blocker_details(
 ) -> dict[str, Any] | None:
     """Extract fields from typed capability errors at the compiler boundary."""
     for error in candidate_errors:
+        if (
+            "candidate_selection_constraint_required" in error
+            or (
+                "curve_candidate_parameter_solve" in error
+                and "function.constraints_ambiguous" in error
+            )
+        ):
+            return {
+                "error_code": (
+                    "functional.candidate_selection_constraint_required"
+                ),
+                "arg": "symbol_constraint",
+                "semantic_role": "symbol_constraint",
+                "accepted_condition_kinds": ["symbol_constraint"],
+                "requirement": (
+                    "provide a parameter range or sign condition when the "
+                    "curve equation alone does not select one candidate"
+                ),
+                "unchanged_binding_rejected": True,
+            }
         if "parameterized point locus requires exactly one free parameter" in error:
             return {
                 "error_code": "function.arg_applicability",
@@ -5097,16 +6215,24 @@ def _candidate_error_for_exception(
     exc: Exception,
     planner_insights: tuple[StepIntentPlannerInsight, ...],
     handle_registry: CanonicalHandleRegistry,
+    trial_error_hints: tuple[TrialErrorHintSpec, ...] = (),
 ) -> str:
     """把单个 capability trial 异常压成 LLM 可修复的候选错误。"""
     message = str(exc)
-    if (
-        capability_id == "evaluate_point_at_parameter"
-        and "missing required input: parameter" in message
-        and _step_produces_point_answer(step, handle_registry)
-        and any(insight.output_type == "PathTransformation" for insight in planner_insights)
-    ):
-        return "evaluate_point_at_parameter: final_point_requires_square_recovery"
+    for hint in trial_error_hints:
+        if hint.error_contains not in message:
+            continue
+        if (
+            hint.requires_point_answer
+            and not _step_produces_point_answer(step, handle_registry)
+        ):
+            continue
+        available_output_types = {
+            insight.output_type for insight in planner_insights
+        }
+        if not set(hint.requires_planner_output_types) <= available_output_types:
+            continue
+        return f"{capability_id}: {hint.code}"
     return f"{capability_id}: {message}"
 
 

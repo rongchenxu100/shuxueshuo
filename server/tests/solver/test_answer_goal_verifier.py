@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import replace
 import json
 from pathlib import Path
 
@@ -405,6 +406,55 @@ def test_goal_verifier_accepts_recorded_nankai_goal_witnesses() -> None:
     )
 
     assert issues == ()
+    report = AnswerGoalVerifier().verify_report(
+        draft,
+        problem_payload=problem_payload,
+        handle_registry=registry,
+    )
+    assert report.goals
+    assert {item.status for item in report.goals} == {"passed"}
+    assert all(item.producer_step_id for item in report.goals)
+
+
+def test_goal_verifier_report_distinguishes_unbound_and_not_executed() -> None:
+    problem = load_problem_ir(NANKAI_FIXTURE)
+    problem_payload = problem_to_llm_payload(problem)
+    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    raw = json.loads(NANKAI_RECORDED.read_text(encoding="utf-8"))
+    draft = StepIntentValidator().validate(
+        raw,
+        question_goals=extract_question_goals(problem),
+        handle_registry=registry,
+    )
+    producer = next(
+        step
+        for step in draft.steps
+        if any(item.handle.startswith("answer:") for item in step.produces)
+    )
+    partial = StepIntentDraft(
+        scopes=tuple(
+            replace(
+                scope,
+                steps=tuple(
+                    step
+                    for step in scope.steps
+                    if step.step_id == producer.step_id
+                ),
+            )
+            for scope in draft.scopes
+            if any(step.step_id == producer.step_id for step in scope.steps)
+        )
+    )
+    report = AnswerGoalVerifier().verify_report(
+        partial,
+        problem_payload=problem_payload,
+        handle_registry=registry,
+        diagnostic=StepIntentExecutionDiagnostic(ok=False),
+    )
+
+    statuses = {item.status for item in report.goals}
+    assert "not_executed" in statuses
+    assert "unbound" in statuses
 
 
 def test_point_goal_verifier_rejects_derived_role_renamed_as_target() -> None:
@@ -463,6 +513,90 @@ def test_point_goal_verifier_rejects_derived_role_renamed_as_target() -> None:
     issue = _issue_by_code(issues, "point_goal_source_mismatch")
     assert issue.step_id == "derive_unrelated_endpoint"
     assert "point:ii:G" in issue.related_handles
+
+
+def test_point_goal_verifier_requires_declared_provenance_evidence() -> None:
+    problem_payload, registry = _nankai_problem_payload_and_registry()
+    inputs = build_strategy_probe_inputs(load_problem_ir(NANKAI_FIXTURE))
+    goal = next(
+        item
+        for item in problem_payload["question_goals"]
+        if item["handle"] == "answer:ii_2.intersection"
+    )
+    assert "required_evidence_tags" not in goal
+    assert any(
+        policy.required_evidence_tags
+        == ("path_minimum_extremal_point",)
+        for policy in inputs.family_spec.goal_evidence_policies
+    )
+    answer_step = StepIntent(
+        scope_id="ii_2",
+        step_id="derive_target_intersection",
+        recipe_hint="line_intersection_point",
+        goal_type="derive_line_intersection_point",
+        target="answer:ii_2.intersection",
+        strategy="derive a candidate intersection",
+        reads=("point:ii:G",),
+        produces=(
+            ProducedFact(
+                "answer:ii_2.intersection",
+                "ii_2",
+                output_type="Point",
+            ),
+        ),
+    )
+    draft = StepIntentDraft(
+        scopes=(
+            StepIntentScope(
+                scope_id="ii_2",
+                label="part",
+                steps=(answer_step,),
+            ),
+        ),
+    )
+    provenance = StateWriteProvenance(
+        step_id=answer_step.step_id,
+        scope_id=answer_step.scope_id,
+        capability_id="line_intersection_point",
+        produced_handle="answer:ii_2.intersection",
+        output_key="intersection",
+        runtime_type="Point",
+        identity_policy="target_object",
+        identity_role="intersection",
+        object_ref="point:ii:G",
+    )
+
+    issues = AnswerGoalVerifier().verify(
+        draft,
+        problem_payload=problem_payload,
+        handle_registry=registry,
+        diagnostic=StepIntentExecutionDiagnostic(
+            ok=True,
+            state_write_provenance=(provenance,),
+        ),
+        family_spec=inputs.family_spec,
+    )
+
+    issue = _issue_by_code(issues, "point_goal_evidence_unproven")
+    assert issue.details["required_evidence_tags"] == [
+        "path_minimum_extremal_point"
+    ]
+    assert issue.details["actual_evidence_tags"] == []
+
+    verified = replace(
+        provenance,
+        evidence_roles=("path_minimum_extremal_point",),
+    )
+    assert AnswerGoalVerifier().verify(
+        draft,
+        problem_payload=problem_payload,
+        handle_registry=registry,
+        diagnostic=StepIntentExecutionDiagnostic(
+            ok=True,
+            state_write_provenance=(verified,),
+        ),
+        family_spec=inputs.family_spec,
+    ) == ()
 
 
 def test_goal_verifier_does_not_diagnose_unexecuted_answer_suffix() -> None:

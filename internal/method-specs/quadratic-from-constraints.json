@@ -2,7 +2,7 @@
   "method_id": "quadratic_from_constraints",
   "title": "由二次函数约束求抛物线",
   "description": "由题面模板建立，或继续化简当前同一对象的抛物线状态。通过已知系数、曲线点、系数关系和额外方程求当前问需要的最简抛物线。它适合在代入后能把 a,b,c 完全确定，或至少化简到只剩一个上下文有用的未知参数时使用；若 b、c 等多个参数都可作为自由参数，应结合后续长度、最值、曲线点或答案目标选择保留哪个参数，无法判断时应等待更多约束。",
-  "summary": "从题面函数模板建立抛物线，或在当前同一抛物线状态上追加已知系数、系数关系、曲线点和参数值；输出当前约束下最简的系数与抛物线。指定 target_parameter 时还可输出该系数关于 free_parameters 的开放或闭合状态。使用原则：建立曲线和继续追加约束都使用这一能力；多个已知系数使用 known_coefficients，单个运行参数代入才使用 parameter_value。",
+  "summary": "从题面函数模板建立抛物线，或在当前同一抛物线状态上追加已知系数、系数关系、曲线点和参数值；输出当前约束下最简的系数与抛物线。指定 target_parameter 时还可输出该系数关于 free_parameters 的开放或闭合状态。使用原则：建立曲线和继续追加约束都使用这一能力；多个已知系数使用 known_coefficients，单个运行参数代入才使用 parameter_value。题面函数模板已有多个系数值时，应把这些系数一次放入 known_coefficients，不要逐个调用表达式参数代入能力来建立抛物线。",
   "solves": [
     "derive_quadratic_from_constraints"
   ],
@@ -68,7 +68,7 @@
     "target_parameter": {
       "type": "Symbol",
       "required": false,
-      "role": "本轮希望明确求出的二次函数系数"
+      "role": "本轮希望明确求出的二次函数系数；只有提供它，parameter_value return 才具有确定的 Symbol 身份"
     }
   },
   "outputs": {
@@ -95,8 +95,10 @@
   "do_not_use_when": [
     "当前目标所需的同一抛物线状态已经由前序调用完整确定，无需用相同约束重复求解。",
     "现有约束仍有多个自由参数，且无法唯一选择一个会被后续条件或答案目标消费的参数。",
+    "要求 closed_state 时，不能遗漏当前抛物线仍含自由符号对应的 parameter_value；代码只会在 Symbol 身份唯一时确定性补全。",
     "不要把参数范围或不等式放入 extra_equation；它只接受用于求系数的等式。",
-    "不要把同一个 Symbol 同时声明为 free_parameters 和 target_parameter。"
+    "不要把同一个 Symbol 同时声明为 free_parameters 和 target_parameter。",
+    "题面 Function 模板已有多个已知系数时，不要逐个调用 evaluate_expression_at_parameter；使用 known_coefficients 一次建立当前 Parabola 状态。"
   ],
   "postconditions": [
     "输出抛物线满足已知系数、曲线点和额外方程约束",
@@ -134,5 +136,27 @@
       "free_parameters",
       "target_parameter"
     ]
-  ]
+  ],
+  "symbolic_closure": {
+    "target_arg": "target_parameter",
+    "equation_builder": "quadratic_constraints",
+    "known_substitutions": [
+      [
+        "parameter",
+        "parameter_value"
+      ]
+    ],
+    "constraint_args": [],
+    "preserved_symbol_args": [
+      "free_parameter",
+      "free_parameters"
+    ],
+    "substitution_outputs": [
+      "coefficients",
+      "parabola",
+      "parameter_value"
+    ],
+    "require_unique_target": true,
+    "representation_mapper": "polynomial_coefficient_template"
+  }
 }

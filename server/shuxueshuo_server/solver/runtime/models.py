@@ -47,6 +47,8 @@ def runtime_type_matches(expected_type: str, actual_type: str) -> bool:
         return True
     if expected_type == "Expression" and actual_type == "Parabola":
         return True
+    if {expected_type, actual_type} == {"Condition", "Constraint"}:
+        return True
     return False
 
 
@@ -100,8 +102,9 @@ class ContextPath:
 class ContextDeclaration:
     """Planner 需要运行时提前声明的上下文占位。
 
-    Phase B 首版只允许声明未解出的 ``PointRef``。它表达“后续某个 step 会求出
-    这个点”，不携带坐标、参数值或最终答案。
+    ``source="planner"`` 表达后续 step 才会求出的 PointRef，不携带坐标或答案。
+    ``source="problem_identity"`` 仅用于不可变 ``object_refs`` 容器，保存
+    ProblemIR 已有对象的结构化定义，供身份型 method 使用。
     """
 
     path: str
@@ -138,7 +141,7 @@ class MethodInvocation:
     invocation_id: str
     method_id: str
     scope: str
-    inputs: dict[str, str] = field(default_factory=dict)
+    inputs: dict[str, str | tuple[str, ...]] = field(default_factory=dict)
     outputs: dict[str, str] = field(default_factory=dict)
 
 

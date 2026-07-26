@@ -6,7 +6,17 @@ from dataclasses import dataclass, replace
 import json
 from typing import Any, Literal
 
-from shuxueshuo_server.solver.runtime.answer_goal_verifier import AnswerGoalVerifier
+from shuxueshuo_server.solver.runtime.answer_goal_verifier import (
+    AnswerGoalVerificationReport,
+    AnswerGoalVerifier,
+)
+from shuxueshuo_server.solver.runtime.binding_selector_semantics import (
+    selector_semantics,
+)
+from shuxueshuo_server.solver.runtime.functional_call_memory import (
+    attach_actual_result_refs,
+    build_functional_call_memory,
+)
 from shuxueshuo_server.solver.runtime.canonical_draft_finalizer import (
     CanonicalDraftFinalizer,
 )
@@ -59,6 +69,7 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     ExecutablePlanResolutionReport,
     PlannerOutputFormat,
     ProjectedFunctionArgBinding,
+    ProjectedStateDependency,
     ProjectedStateWrite,
     PlannerRetryState,
     PlannerRetryIssue,
@@ -101,6 +112,7 @@ class PlannerRetryReplayResult:
     effective_draft: StepIntentDraft | None = None
     diagnostic: StepIntentExecutionDiagnostic | None = None
     goal_verification_issues: tuple[Any, ...] = ()
+    goal_verification_report: AnswerGoalVerificationReport | None = None
     retry_state: PlannerRetryState | None = None
     output: Any | None = None
     planner_state_context: PlannerStateContext | None = None
@@ -149,6 +161,11 @@ class PlannerRetryReplayResult:
                 issue.to_payload()
                 for issue in self.goal_verification_issues
             ],
+            "goal_verification_report": (
+                self.goal_verification_report.to_payload()
+                if self.goal_verification_report is not None
+                else None
+            ),
             "retry_state": (
                 self.retry_state.to_payload()
                 if self.retry_state is not None
@@ -186,13 +203,29 @@ class _FunctionalProjectionRecovery:
     verified_call_ids: frozenset[str] = frozenset()
     blocked_call_ids: tuple[str, ...] = ()
     validation_reports: tuple[dict[str, Any], ...] = ()
+    runtime_results: tuple[Any, ...] = ()
+    state_write_provenance: tuple[Any, ...] = ()
 
     def to_payload(self) -> dict[str, Any]:
         return {
             "verified_call_ids": sorted(self.verified_call_ids),
             "blocked_call_ids": list(self.blocked_call_ids),
             "validation_reports": [dict(item) for item in self.validation_reports],
+            "runtime_results": [
+                item.to_payload() for item in self.runtime_results
+            ],
+            "state_write_provenance": [
+                item.to_payload() for item in self.state_write_provenance
+            ],
         }
+
+
+@dataclass(frozen=True)
+class _FunctionalGraphVerification:
+    verified_call_ids: frozenset[str] = frozenset()
+    runtime_results: tuple[Any, ...] = ()
+    state_write_provenance: tuple[Any, ...] = ()
+
 
 class PlannerRetryReplayService:
     """统一执行 StepIntent deterministic replay 并生成 retry state。"""
@@ -237,11 +270,13 @@ class PlannerRetryReplayService:
             question_goals=inputs.question_goals,
         )
         if plan is None:
-            retry_state = _functional_retry_state(
+            retry_state = _functional_validation_retry_state(
                 attempt=attempt,
                 issues=report.issues,
-                baseline_candidate=report.partially_parsed_payload,
+                partially_parsed_payload=report.partially_parsed_payload,
                 errors=errors,
+                previous_attempts=inputs.previous_errors,
+                validation_report=report,
             )
             replay = PlannerRetryReplayResult(
                 attempt=attempt,
@@ -301,12 +336,20 @@ class PlannerRetryReplayService:
             question_goals=inputs.question_goals,
         )
         authoritative_output_types = {
-            output.handle: output.runtime_type
+            handle: output.runtime_type
             for call in reconciliation.calls
             for output in call.returns
+            for handle in (
+                output.handle,
+                *((output.state_handle,) if output.state_handle is not None else ()),
+            )
         }
         projected_state_writes = _functional_projected_state_writes(
             reconciliation
+        )
+        projected_state_dependencies = _functional_projected_state_dependencies(
+            reconciliation,
+            catalog=functional_catalog,
         )
         projected_function_arg_bindings = (
             _functional_projected_arg_bindings(
@@ -377,6 +420,7 @@ class PlannerRetryReplayService:
                 planner_state_context=planner_state_context,
                 authoritative_output_types=authoritative_output_types,
                 projected_state_writes=projected_state_writes,
+                projected_state_dependencies=projected_state_dependencies,
                 projected_function_arg_bindings=projected_function_arg_bindings,
             )
             retry_state = _functional_projection_retry_state(
@@ -385,6 +429,7 @@ class PlannerRetryReplayService:
                 validation_report=step_validation,
                 previous_attempts=inputs.previous_errors,
                 recovery=recovery,
+                functional_catalog=functional_catalog,
             )
             replay = PlannerRetryReplayResult(
                 attempt=attempt,
@@ -417,6 +462,7 @@ class PlannerRetryReplayService:
             allow_shared_derivation_scopes=True,
             candidate_format="functional_plan",
             projected_state_writes=projected_state_writes,
+            projected_state_dependencies=projected_state_dependencies,
             projected_function_arg_bindings=projected_function_arg_bindings,
         )
         reconciliation = _apply_function_arg_binding_repairs(
@@ -491,7 +537,7 @@ class PlannerRetryReplayService:
             else None
         )
         needs_retry = functional_retry is not None or base.retry_state is not None
-        verified_call_ids = (
+        graph_verification = (
             self._verify_functional_call_graph(
                 reconciliation,
                 projected_draft=base.raw_draft,
@@ -502,12 +548,13 @@ class PlannerRetryReplayService:
                 problem_payload=problem_payload,
                 authoritative_output_types=authoritative_output_types,
                 projected_state_writes=projected_state_writes,
+                projected_state_dependencies=projected_state_dependencies,
                 projected_function_arg_bindings=(
                     projected_function_arg_bindings
                 ),
             )
             if needs_retry
-            else set()
+            else _FunctionalGraphVerification()
         )
         retry_state = _functional_runtime_retry_state(
             functional_retry or base.retry_state,
@@ -517,7 +564,13 @@ class PlannerRetryReplayService:
             plan=reconciliation.plan,
             reconciliation=reconciliation,
             diagnostic=base.diagnostic,
-            verified_call_ids=verified_call_ids,
+            verified_call_ids=set(graph_verification.verified_call_ids),
+            verified_runtime_results=graph_verification.runtime_results,
+            verified_state_write_provenance=(
+                graph_verification.state_write_provenance
+            ),
+            goal_verification_report=base.goal_verification_report,
+            attempt=attempt,
             functional_catalog=functional_catalog.contextualized(
                 FunctionalSemanticIndex.from_context(
                     planner_state_context,
@@ -560,12 +613,13 @@ class PlannerRetryReplayService:
         problem_payload: dict[str, Any] | None,
         authoritative_output_types: dict[str, str],
         projected_state_writes: tuple[ProjectedStateWrite, ...],
+        projected_state_dependencies: tuple[ProjectedStateDependency, ...],
         projected_function_arg_bindings: tuple[
             ProjectedFunctionArgBinding, ...
         ],
-    ) -> set[str]:
+    ) -> _FunctionalGraphVerification:
         if projected_draft is None:
-            return set()
+            return _FunctionalGraphVerification()
         valid_calls = {
             item.call_id
             for item in reconciliation.call_reports
@@ -576,6 +630,8 @@ class PlannerRetryReplayService:
             for item in reconciliation.projection_map
         }
         stable: set[str] = set()
+        runtime_results: dict[tuple[str, str], Any] = {}
+        provenance: dict[tuple[str, str], Any] = {}
         for call in reconciliation.plan.calls:
             if call.call_id not in valid_calls:
                 continue
@@ -610,6 +666,7 @@ class PlannerRetryReplayService:
                     allow_shared_derivation_scopes=True,
                     candidate_format="functional_plan",
                     projected_state_writes=projected_state_writes,
+                    projected_state_dependencies=projected_state_dependencies,
                     projected_function_arg_bindings=(
                         projected_function_arg_bindings
                     ),
@@ -627,7 +684,16 @@ class PlannerRetryReplayService:
             current_steps = set(projection.get(call.call_id, ()))
             if current_steps and current_steps <= accepted:
                 stable.add(call.call_id)
-        return stable
+                if probe.diagnostic is not None:
+                    for item in probe.diagnostic.runtime_results:
+                        runtime_results[(item.step_id, item.produced_handle)] = item
+                    for item in probe.diagnostic.state_write_provenance:
+                        provenance[(item.step_id, item.produced_handle)] = item
+        return _FunctionalGraphVerification(
+            verified_call_ids=frozenset(stable),
+            runtime_results=tuple(runtime_results.values()),
+            state_write_provenance=tuple(provenance.values()),
+        )
 
     def _recover_functional_projection_graph(
         self,
@@ -643,6 +709,7 @@ class PlannerRetryReplayService:
         planner_state_context: PlannerStateContext,
         authoritative_output_types: dict[str, str],
         projected_state_writes: tuple[ProjectedStateWrite, ...],
+        projected_state_dependencies: tuple[ProjectedStateDependency, ...],
         projected_function_arg_bindings: tuple[
             ProjectedFunctionArgBinding, ...
         ],
@@ -656,6 +723,7 @@ class PlannerRetryReplayService:
         }
         reports: list[dict[str, Any]] = []
         verified: set[str] = set()
+        verification = _FunctionalGraphVerification()
         blocked: set[str] = set()
         seen_root_sets: set[frozenset[str]] = set()
 
@@ -706,7 +774,7 @@ class PlannerRetryReplayService:
                 }
             )
             if partial_draft is not None:
-                verified = self._verify_functional_call_graph(
+                verification = self._verify_functional_call_graph(
                     reconciliation,
                     projected_draft=partial_draft,
                     inputs=inputs,
@@ -716,10 +784,12 @@ class PlannerRetryReplayService:
                     problem_payload=problem_payload,
                     authoritative_output_types=authoritative_output_types,
                     projected_state_writes=projected_state_writes,
+                    projected_state_dependencies=projected_state_dependencies,
                     projected_function_arg_bindings=(
                         projected_function_arg_bindings
                     ),
                 )
+                verified = set(verification.verified_call_ids)
                 break
 
             discovered = _functional_projection_issues(
@@ -745,6 +815,8 @@ class PlannerRetryReplayService:
             verified_call_ids=frozenset(verified),
             blocked_call_ids=blocked_dependents,
             validation_reports=tuple(reports),
+            runtime_results=verification.runtime_results,
+            state_write_provenance=verification.state_write_provenance,
         )
 
     def replay_raw_json(
@@ -827,6 +899,7 @@ class PlannerRetryReplayService:
         allow_shared_derivation_scopes: bool = False,
         candidate_format: PlannerOutputFormat = "step_intent",
         projected_state_writes: tuple[ProjectedStateWrite, ...] = (),
+        projected_state_dependencies: tuple[ProjectedStateDependency, ...] = (),
         projected_function_arg_bindings: tuple[
             ProjectedFunctionArgBinding, ...
         ] = (),
@@ -889,6 +962,7 @@ class PlannerRetryReplayService:
                 handle_registry=handle_registry,
                 allow_shared_derivation_scopes=allow_shared_derivation_scopes,
                 projected_state_writes=projected_state_writes,
+                projected_state_dependencies=projected_state_dependencies,
             )
         except Exception as exc:
             replay_errors = errors or (str(exc),)
@@ -935,6 +1009,7 @@ class PlannerRetryReplayService:
             allow_shared_derivation_scopes=allow_shared_derivation_scopes,
             preserve_call_graph=(candidate_format == "functional_plan"),
             projected_state_writes=projected_state_writes,
+            projected_state_dependencies=projected_state_dependencies,
             projected_function_arg_bindings=projected_function_arg_bindings,
         )
         blocker = diagnostic.first_blocker
@@ -948,16 +1023,21 @@ class PlannerRetryReplayService:
             inputs,
             problem_payload,
         )
-        goal_verification_issues = (
-            ()
+        goal_verification_report = (
+            None
             if partial_candidate
-            else AnswerGoalVerifier().verify(
+            else AnswerGoalVerifier().verify_report(
                 effective_draft,
                 problem_payload=context_problem_payload,
                 handle_registry=handle_registry,
                 diagnostic=diagnostic,
                 family_spec=inputs.family_spec,
             )
+        )
+        goal_verification_issues = (
+            goal_verification_report.issues
+            if goal_verification_report is not None
+            else ()
         )
         retry_state = build_planner_retry_state(
             attempt=attempt,
@@ -991,6 +1071,7 @@ class PlannerRetryReplayService:
             effective_draft=effective_draft,
             diagnostic=diagnostic,
             goal_verification_issues=goal_verification_issues,
+            goal_verification_report=goal_verification_report,
             retry_state=retry_state,
             output=None if goal_verification_issues else output,
         )
@@ -1094,9 +1175,11 @@ def _functional_projected_state_writes(
             result.append(
                 ProjectedStateWrite(
                     step_id=call.call_id,
-                    produced_handle=output.handle,
+                    produced_handle=output.state_handle or output.handle,
                     state_slot_id=output.state_slot_id,
                     write_mode=mode,
+                    runtime_type=output.runtime_type,
+                    object_ref=output.object_ref,
                     source_state_slot_ids=output.source_state_slot_ids,
                     dependency_object_refs=output.dependency_object_refs,
                     return_name=output.return_name,
@@ -1111,6 +1194,82 @@ def _functional_projected_state_writes(
                     previous_write_step_id=output.previous_write_step_id,
                     lineage=output.lineage,
                 )
+            )
+    return tuple(result)
+
+
+def _functional_projected_state_dependencies(
+    reconciliation: FunctionalPlanReconciliationResult,
+    *,
+    catalog: FunctionalCapabilityCatalog,
+) -> tuple[ProjectedStateDependency, ...]:
+    """Project exact reconciled StateSlot reads without granting bind authority."""
+
+    calls_by_id = {
+        call.call_id: call for call in reconciliation.effective_plan.calls
+    }
+    result: list[ProjectedStateDependency] = []
+    seen: set[tuple[str, str, str]] = set()
+    latest_return_by_slot: dict[str, tuple[str, str]] = {}
+    for call in reconciliation.calls:
+        functional_call = calls_by_id.get(call.call_id)
+        capability = catalog.get(call.capability_id)
+        if functional_call is None or capability is None:
+            continue
+        public_by_name = {item.name: item for item in capability.args}
+        auto_by_name = {item.name: item for item in capability.auto_args}
+        for arg_name, values in call.resolved_args.items():
+            auto_arg = auto_by_name.get(arg_name)
+            if (
+                auto_arg is not None
+                and auto_arg.binding_authority == "compiler"
+                and selector_semantics(auto_arg.selector).mechanical
+            ):
+                # Compiler-owned target/reference arguments establish identity;
+                # they are not materialized state reads.
+                continue
+            if arg_name in functional_call.args:
+                source: Literal["wire", "resolver", "context"] = "wire"
+            elif (
+                (public := public_by_name.get(arg_name)) is not None
+                and public.deterministic_resolver is not None
+            ) or (
+                (auto := auto_by_name.get(arg_name)) is not None
+                and auto.binding_authority == "resolver"
+            ):
+                source = "resolver"
+            else:
+                source = "context"
+            for value in values:
+                if value.state_slot_id is None:
+                    continue
+                source_step_id = value.source_call_id
+                source_return_name = value.return_name
+                if source_step_id is None:
+                    producer = latest_return_by_slot.get(value.state_slot_id)
+                    if producer is not None:
+                        source_step_id, source_return_name = producer
+                key = (call.call_id, value.state_slot_id, value.handle)
+                if key in seen:
+                    continue
+                seen.add(key)
+                result.append(
+                    ProjectedStateDependency(
+                        step_id=call.call_id,
+                        state_slot_id=value.state_slot_id,
+                        produced_handle=value.handle,
+                        runtime_type=value.runtime_type,
+                        object_ref=value.object_ref,
+                        arg_name=arg_name,
+                        source=source,
+                        source_step_id=source_step_id,
+                        source_return_name=source_return_name,
+                    )
+                )
+        for allocation in call.returns:
+            latest_return_by_slot[allocation.state_slot_id] = (
+                call.call_id,
+                allocation.return_name,
             )
     return tuple(result)
 
@@ -1214,7 +1373,7 @@ def _functional_projected_arg_bindings(
     *,
     catalog: FunctionalCapabilityCatalog,
 ) -> tuple[ProjectedFunctionArgBinding, ...]:
-    """Preserve LLM-selected public args and explicit auto-arg overrides.
+    """Preserve only LLM-selected public arguments.
 
     Reconciliation also contains auto, mechanical and context-closure args.
     Those remain owned by their declared compiler primitives and must not leak
@@ -1232,16 +1391,10 @@ def _functional_projected_arg_bindings(
         public_args = {
             arg.name
             for arg in capability.args
-            if arg.llm_mode in {"explicit", "optional"}
+            if arg.binding_authority == "wire"
+            and arg.name in wire_call.args
         }
-        explicit_auto_overrides = {
-            arg.name
-            for arg in capability.auto_args
-            if arg.name in wire_call.args
-        }
-        selected_args_by_call[call.call_id] = frozenset(
-            (public_args | explicit_auto_overrides) & set(wire_call.args)
-        )
+        selected_args_by_call[call.call_id] = frozenset(public_args)
     return tuple(
         ProjectedFunctionArgBinding(
             step_id=call.call_id,
@@ -1250,6 +1403,7 @@ def _functional_projected_arg_bindings(
             runtime_type=value.runtime_type,
             state_slot_id=value.state_slot_id,
             object_ref=value.object_ref,
+            binding_authority="wire",
         )
         for call in reconciliation.calls
         for arg_name, values in call.resolved_args.items()
@@ -1381,6 +1535,91 @@ def _functional_retry_state(
     )
 
 
+def _functional_validation_retry_state(
+    *,
+    attempt: int,
+    issues: tuple[Any, ...],
+    partially_parsed_payload: dict[str, Any] | None,
+    errors: tuple[str, ...],
+    previous_attempts: list[Any],
+    validation_report: FunctionalPlanValidationReport,
+) -> PlannerRetryState:
+    """Preserve verified graph memory when the new wire payload is invalid."""
+    previous = latest_functional_retry_state(previous_attempts)
+    previous_baseline = (
+        previous.get("baseline_candidate")
+        if isinstance(previous, dict)
+        else None
+    )
+    baseline_candidate = (
+        previous_baseline
+        if isinstance(previous_baseline, dict)
+        else partially_parsed_payload
+    )
+    retry_state = _functional_retry_state(
+        attempt=attempt,
+        issues=issues,
+        baseline_candidate=baseline_candidate,
+        errors=errors,
+    )
+    previous_stable = (
+        previous.get("committed_candidate_calls")
+        or previous.get("stable_candidate_calls")
+        if isinstance(previous, dict)
+        else None
+    )
+    stable_candidate_calls = tuple(
+        dict(item)
+        for item in previous_stable or ()
+        if isinstance(item, dict)
+    )
+    preserve_graph = bool(
+        stable_candidate_calls and isinstance(baseline_candidate, dict)
+    )
+    return replace(
+        retry_state,
+        stable_candidate_prefix=stable_candidate_calls,
+        stable_candidate_calls=stable_candidate_calls,
+        committed_candidate_calls=stable_candidate_calls,
+        runtime_verified_calls=tuple(
+            _normalize_call_memory_entry(dict(item))
+            for item in (
+                previous.get("runtime_verified_calls", ())
+                if isinstance(previous, dict)
+                else ()
+            )
+            if isinstance(item, dict)
+        ),
+        validated_call_ids=tuple(
+            item
+            for item in (
+                previous.get("validated_call_ids", ())
+                if isinstance(previous, dict)
+                else ()
+            )
+            if isinstance(item, str)
+        ),
+        call_memory=tuple(
+            _normalize_call_memory_entry(dict(item))
+            for item in (
+                previous.get("call_memory", ())
+                if isinstance(previous, dict)
+                else ()
+            )
+            if isinstance(item, dict)
+        ),
+        preserve_policy=("preserve_graph" if preserve_graph else "none"),
+        repair_instruction=functional_repair_instruction(
+            stable_candidate_calls=stable_candidate_calls,
+            repair_call_ids=retry_state.repair_call_ids,
+            issue_count=len(retry_state.issues),
+        ),
+        replay_reports={
+            "functional_validation": validation_report.to_payload(),
+        },
+    )
+
+
 def _functional_projection_issues(
     reconciliation: FunctionalPlanReconciliationResult,
     validation_report: StepIntentValidationReport,
@@ -1406,10 +1645,11 @@ def _functional_projection_issues(
             key=lambda item: item[0],
         )
         call_id = matched[-1][1] if matched else None
+        issue_code = _functional_projection_issue_code(message)
         issues.append(
             FunctionalPlanIssue(
                 layer="functional_reconciliation",
-                code="functional.projection_invalid",
+                code=issue_code,
                 message=message,
                 call_id=call_id,
                 scope_id=call_scopes.get(call_id) if call_id is not None else None,
@@ -1438,6 +1678,26 @@ def _functional_projection_issues(
         )
         result.setdefault(key, issue)
     return tuple(result.values())
+
+
+def _functional_projection_issue_code(message: str) -> str:
+    """Preserve actionable state-write failures across the projection bridge."""
+
+    raw_code, separator, _details = message.partition(":")
+    if not separator:
+        return "functional.projection_invalid"
+    code = raw_code.strip()
+    if code in {
+        "duplicate_produced_handle",
+        "duplicate_state_slot_writer",
+        "duplicate_state_writer",
+    }:
+        return "functional.state_transition_dependency_missing"
+    if code.startswith("state_transition_") or code == (
+        "duplicate_point_coordinate_fact"
+    ):
+        return code
+    return "functional.projection_invalid"
 
 
 def _enrich_projection_issues_with_blocked_calls(
@@ -1478,6 +1738,7 @@ def _functional_projection_retry_state(
     validation_report: StepIntentValidationReport,
     previous_attempts: list[Any],
     recovery: _FunctionalProjectionRecovery | None = None,
+    functional_catalog: FunctionalCapabilityCatalog,
 ) -> PlannerRetryState:
     """Keep Functional graph memory when its StepIntent bridge is invalid."""
     issues = (
@@ -1485,10 +1746,14 @@ def _functional_projection_retry_state(
         if recovery is not None
         else _functional_projection_issues(reconciliation, validation_report)
     )
-    repair_call_ids = _repair_call_ids_from_functional_issues(issues)
+    repair_call_ids = _ordered_functional_repair_cone(
+        _repair_call_ids_from_functional_issues(issues),
+        reconciliation=reconciliation,
+    )
     previous = latest_functional_retry_state(previous_attempts)
     previous_stable = (
-        previous.get("stable_candidate_calls", ())
+        previous.get("committed_candidate_calls")
+        or previous.get("stable_candidate_calls", ())
         if isinstance(previous, dict)
         else ()
     )
@@ -1507,13 +1772,13 @@ def _functional_projection_retry_state(
         if isinstance(call_id, str)
     }
     eligible_call_ids = set(
-        recovery.verified_call_ids if recovery is not None else ()
-    )
-    eligible_call_ids.update(
         call_id
         for call_id, previous_call in previous_stable_by_id.items()
         if call_id in current_calls
-        and current_calls[call_id][1].to_payload() == previous_call
+        and _stable_functional_call_matches(
+            current_calls[call_id][1].to_payload(),
+            previous_call,
+        )
     )
     eligible_call_ids.difference_update(repair_call_ids)
     stable_call_ids: set[str] = set()
@@ -1547,16 +1812,164 @@ def _functional_projection_retry_state(
         replay_report=replay_report,
         repair_call_ids=repair_call_ids,
     )
+    call_memory = build_functional_call_memory(
+        reconciliation,
+        catalog=functional_catalog,
+        runtime_verified_call_ids=(
+            tuple(recovery.verified_call_ids)
+            if recovery is not None
+            else ()
+        ),
+        runtime_results=(
+            recovery.runtime_results if recovery is not None else ()
+        ),
+        provenance=(
+            recovery.state_write_provenance if recovery is not None else ()
+        ),
+        goal_report=None,
+        active_issues=retry_state.issues,
+        attempt=attempt,
+        allow_goal_commit=False,
+    )
+    call_memory_payload = _projection_call_memory_payload(
+        plan=reconciliation.plan,
+        current=tuple(call_memory.to_payload()),
+        previous=(
+            previous.get("call_memory", ())
+            if isinstance(previous, dict)
+            else ()
+        ),
+        committed_call_ids=stable_call_ids,
+    )
+    retry_issues = attach_actual_result_refs(
+        retry_state.issues,
+        memory=call_memory,
+        dependency_graph=reconciliation.dependency_graph,
+    )
     return replace(
         retry_state,
         stable_candidate_prefix=stable_candidate_calls,
         stable_candidate_calls=stable_candidate_calls,
+        committed_candidate_calls=stable_candidate_calls,
+        runtime_verified_calls=tuple(
+            item.to_payload()
+            for item in call_memory.entries
+            if (
+                item.execution_status == "runtime_verified"
+                and item.commit_status != "goal_committed"
+            )
+        ),
+        validated_call_ids=tuple(
+            call_id
+            for call_id in call_memory.validated_call_ids
+            if call_id not in stable_call_ids
+        ),
+        call_memory=call_memory_payload,
+        issues=retry_issues,
         preserve_policy=("preserve_graph" if stable_candidate_calls else "none"),
         repair_instruction=functional_repair_instruction(
             stable_candidate_calls=stable_candidate_calls,
             repair_call_ids=repair_call_ids,
             issue_count=len(issues),
         ),
+    )
+
+
+def _projection_call_memory_payload(
+    *,
+    plan: FunctionalPlan,
+    current: tuple[dict[str, Any], ...],
+    previous: Any,
+    committed_call_ids: set[str],
+) -> tuple[dict[str, Any], ...]:
+    """Carry committed evidence through a projection failure.
+
+    Current provisional entries replace older provisional memory. Only a
+    previously committed call may retain its earlier result snapshots when the
+    new bridge fails before it can execute.
+    """
+    current_by_id = {
+        item["call_id"]: dict(item)
+        for item in current
+        if isinstance(item.get("call_id"), str)
+    }
+    previous_by_id = {
+        item["call_id"]: _normalize_call_memory_entry(dict(item))
+        for item in previous or ()
+        if isinstance(item, dict)
+        and isinstance(item.get("call_id"), str)
+        and (
+            item.get("commit_status") == "goal_committed"
+            or item.get("status") == "goal_committed"
+        )
+    }
+    result: list[dict[str, Any]] = []
+    for call in plan.calls:
+        call_id = call.call_id
+        if call_id in committed_call_ids:
+            carried = previous_by_id.get(call_id)
+            if carried is not None:
+                result.append(carried)
+                continue
+        item = current_by_id.get(call_id)
+        if item is not None:
+            result.append(item)
+    return tuple(result)
+
+
+def _normalize_call_memory_entry(
+    item: dict[str, Any],
+) -> dict[str, Any]:
+    """Read the one-round mutually exclusive status payload compatibly."""
+    legacy_status = item.pop("status", None)
+    if "execution_status" not in item:
+        item["execution_status"] = (
+            "runtime_verified"
+            if legacy_status in {"runtime_verified", "goal_committed"}
+            else "validated"
+        )
+    if "commit_status" not in item:
+        item["commit_status"] = (
+            "goal_committed"
+            if legacy_status == "goal_committed"
+            else "provisional"
+        )
+    item.setdefault("repair_required", False)
+    return item
+
+
+def _stable_functional_call_matches(
+    current_call: dict[str, Any],
+    previous_call: dict[str, Any],
+) -> bool:
+    """Accept deterministic result-form additions without weakening graph identity."""
+
+    current = dict(current_call)
+    previous = dict(previous_call)
+    current_expectations = current.pop("return_expectations", {})
+    previous_expectations = previous.pop("return_expectations", {})
+    if current != previous:
+        return False
+    if not isinstance(current_expectations, dict) or not isinstance(
+        previous_expectations,
+        dict,
+    ):
+        return current_expectations == previous_expectations
+    if not all(
+        current_expectations.get(return_name) == expected_form
+        for return_name, expected_form in previous_expectations.items()
+    ):
+        return False
+    current_bindings = current.get("return_bindings", {})
+    if not isinstance(current_bindings, dict):
+        return False
+    added_expectations = set(current_expectations) - set(previous_expectations)
+    return all(
+        expected_form in {"closed_value", "closed_state"}
+        and isinstance(current_bindings.get(return_name), dict)
+        and current_bindings[return_name].get("kind") == "answer"
+        for return_name, expected_form in current_expectations.items()
+        if return_name in added_expectations
     )
 
 
@@ -1568,6 +1981,10 @@ def _functional_runtime_retry_state(
     reconciliation: FunctionalPlanReconciliationResult,
     diagnostic: StepIntentExecutionDiagnostic | None,
     verified_call_ids: set[str] | None = None,
+    verified_runtime_results: tuple[Any, ...] = (),
+    verified_state_write_provenance: tuple[Any, ...] = (),
+    goal_verification_report: AnswerGoalVerificationReport | None = None,
+    attempt: int = 0,
     functional_catalog: FunctionalCapabilityCatalog,
     semantic_index: FunctionalSemanticIndex,
 ) -> PlannerRetryState | None:
@@ -1614,30 +2031,8 @@ def _functional_runtime_retry_state(
             diagnostic.blockers if diagnostic is not None else ()
         )
     )
-    stable_call_ids: set[str] = set()
-    for call in plan.calls:
-        if (
-            call.call_id not in projected_verified
-            or call.call_id in runtime_invalid_call_ids
-        ):
-            continue
-        dependencies = set(reconciliation.dependency_graph.get(call.call_id, ()))
-        if dependencies <= stable_call_ids:
-            stable_call_ids.add(call.call_id)
-    stable_candidate_calls = tuple(
-        {"scope_id": scope.scope_id, "call": call.to_payload()}
-        for scope in plan.scopes
-        for call in scope.calls
-        if call.call_id in stable_call_ids
-    )
-    actionable_runtime_issues = tuple(
-        issue
-        for issue in runtime_issues
-        if issue.step_id not in stable_call_ids
-        or issue.step_id in runtime_invalid_call_ids
-    )
     issues = _unique_retry_issues(
-        (*retry_state.issues, *actionable_runtime_issues)
+        (*retry_state.issues, *runtime_issues)
     )
     issues = _enrich_functional_retry_issues(
         issues,
@@ -1646,6 +2041,53 @@ def _functional_runtime_retry_state(
         catalog=functional_catalog,
         semantic_index=semantic_index,
     )
+    all_runtime_results = tuple(
+        {
+            (item.step_id, item.produced_handle): item
+            for item in (
+                *(diagnostic.runtime_results if diagnostic is not None else ()),
+                *verified_runtime_results,
+            )
+        }.values()
+    )
+    all_provenance = tuple(
+        {
+            (item.step_id, item.produced_handle): item
+            for item in (
+                *(
+                    diagnostic.state_write_provenance
+                    if diagnostic is not None
+                    else ()
+                ),
+                *verified_state_write_provenance,
+            )
+        }.values()
+    )
+    call_memory = build_functional_call_memory(
+        reconciliation,
+        catalog=functional_catalog,
+        runtime_verified_call_ids=tuple(projected_verified),
+        runtime_results=all_runtime_results,
+        provenance=all_provenance,
+        goal_report=goal_verification_report,
+        active_issues=issues,
+        attempt=attempt,
+        allow_goal_commit=not any(
+            issue.layer == "answer_check" for issue in issues
+        ),
+    )
+    issues = attach_actual_result_refs(
+        issues,
+        memory=call_memory,
+        dependency_graph=reconciliation.dependency_graph,
+    )
+    committed_call_ids = set(call_memory.committed_call_ids)
+    committed_candidate_calls = tuple(
+        {"scope_id": scope.scope_id, "call": call.to_payload()}
+        for scope in plan.scopes
+        for call in scope.calls
+        if call.call_id in committed_call_ids
+    )
     repair_call_ids = tuple(
         dict.fromkeys(
             (
@@ -1653,7 +2095,7 @@ def _functional_runtime_retry_state(
                 *provenance_repair_roots,
                 *(
                     issue.step_id
-                    for issue in actionable_runtime_issues
+                    for issue in issues
                     if issue.step_id is not None
                 ),
             )
@@ -1662,7 +2104,14 @@ def _functional_runtime_retry_state(
     repair_call_ids = tuple(
         call_id
         for call_id in repair_call_ids
-        if call_id not in stable_call_ids or call_id in runtime_invalid_call_ids
+        if (
+            call_id not in committed_call_ids
+            or call_id in runtime_invalid_call_ids
+        )
+    )
+    repair_call_ids = _ordered_functional_repair_cone(
+        repair_call_ids,
+        reconciliation=reconciliation,
     )
     repair_suffix_start = dict(retry_state.repair_suffix_start or {})
     if repair_suffix_start.get("step_id") is not None:
@@ -1671,14 +2120,27 @@ def _functional_runtime_retry_state(
         retry_state,
         candidate_format="functional_plan",
         baseline_candidate=plan.to_payload(),
-        stable_candidate_prefix=stable_candidate_calls,
-        stable_candidate_calls=stable_candidate_calls,
+        stable_candidate_prefix=committed_candidate_calls,
+        stable_candidate_calls=committed_candidate_calls,
+        committed_candidate_calls=committed_candidate_calls,
+        runtime_verified_calls=tuple(
+            item.to_payload()
+            for item in call_memory.entries
+            if (
+                item.execution_status == "runtime_verified"
+                and item.commit_status != "goal_committed"
+            )
+        ),
+        validated_call_ids=call_memory.validated_call_ids,
+        call_memory=tuple(call_memory.to_payload()),
         repair_call_ids=repair_call_ids,
         issues=issues,
-        preserve_policy=("preserve_graph" if stable_candidate_calls else "none"),
+        preserve_policy=(
+            "preserve_graph" if committed_candidate_calls else "none"
+        ),
         repair_suffix_start=repair_suffix_start or None,
         repair_instruction=functional_repair_instruction(
-            stable_candidate_calls=stable_candidate_calls,
+            stable_candidate_calls=committed_candidate_calls,
             repair_call_ids=repair_call_ids,
             issue_count=len(issues),
         ),
@@ -2191,6 +2653,31 @@ def _functional_dependent_closure(
             result.add(dependent)
             pending.append(dependent)
     return result
+
+
+def _ordered_functional_repair_cone(
+    root_call_ids: tuple[str, ...],
+    *,
+    reconciliation: FunctionalPlanReconciliationResult,
+) -> tuple[str, ...]:
+    """Expand repair roots to every dependent call in canonical plan order."""
+    if not root_call_ids:
+        return ()
+    root_set = set(root_call_ids)
+    known_call_ids = {call.call_id for call in reconciliation.plan.calls}
+    repair_cone = _functional_dependent_closure(
+        root_set & known_call_ids,
+        reconciliation.dependency_graph,
+    )
+    ordered = [
+        call.call_id
+        for call in reconciliation.plan.calls
+        if call.call_id in repair_cone
+    ]
+    ordered.extend(
+        call_id for call_id in root_call_ids if call_id not in known_call_ids
+    )
+    return tuple(dict.fromkeys(ordered))
 
 
 def _draft_for_step_ids(

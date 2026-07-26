@@ -35,8 +35,24 @@ class AxisInterceptFromEqualAcuteAnglesMethod:
         ob = kernel.distance(origin, x_axis_point)
         ao = kernel.distance(origin, reference_x_axis_point)
         co = kernel.distance(origin, y_axis_point)
+        if sp.simplify(ob) == 0:
+            raise ValueError(
+                "angle_role_degenerate: x_axis_point must differ from origin"
+            )
+        if sp.simplify(ao) == 0:
+            raise ValueError(
+                "angle_role_degenerate: reference_x_axis_point must differ "
+                "from origin"
+            )
         if sp.simplify(co) == 0:
-            raise ValueError("reference right triangle has zero vertical leg")
+            raise ValueError(
+                "angle_role_degenerate: y_axis_point must differ from origin"
+            )
+        if _same_point(x_axis_point, reference_x_axis_point):
+            raise ValueError(
+                "angle_role_degenerate: x_axis_point and "
+                "reference_x_axis_point must be distinct"
+            )
 
         vertical_direction = sp.simplify((y_axis_point[1] - origin[1]) / co)
         of_length = sp.simplify(ob * ao / co)
@@ -75,12 +91,26 @@ class AxisInterceptFromEqualAcuteAnglesMethod:
         )
 
 
+def _same_point(first: Point, second: Point) -> bool:
+    return all(
+        sp.simplify(left - right) == 0
+        for left, right in zip(first, second, strict=True)
+    )
+
+
 SPEC = MethodSpecSource(
     method_cls=AxisInterceptFromEqualAcuteAnglesMethod,
     title="由等锐角求轴上截点",
     summary=(
-        "输入: 等锐角事实、目标线经过的水平轴点、参考直角三角形两点、原点和目标 PointRef；"
-        "输出: 目标线与竖直轴的交点。method 只使用 tan 相等建立 OF/OB=AO/CO。"
+        "消费前序 AngleEquality，通过两个非退化直角三角形的正切比相等，"
+        "求目标直线与竖直轴的交点。只需提供等角事实；目标水平轴点、参考"
+        "水平轴点、竖直轴点和原点由代码从等角两边的点顺序恢复。"
+        "本能力计算坐标，不负责从原始角和条件重新推出 AngleEquality。"
+    ),
+    do_not_use_when=(
+        "只有原始角和条件、尚未得到 AngleEquality 时，不能直接使用本能力。",
+        "等角两边不能形成两个非退化直角三角形，或目标不是竖直轴截点。",
+        "不要手工交换目标水平轴点、参考水平轴点、竖直轴点和原点；这些机械角色由 AngleEquality 决定。",
     ),
     solves=("derive_axis_intercept_from_equal_acute_angles",),
     inputs={

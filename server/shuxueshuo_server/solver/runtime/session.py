@@ -47,6 +47,38 @@ class StructuredSolveError:
         return payload
 
 
+class PlannerExecutionError(ValueError):
+    """Carry a planner's typed failure through the generic orchestrator boundary."""
+
+    def __init__(
+        self,
+        primary: StructuredSolveError,
+        *,
+        root_issues: tuple[dict[str, Any], ...] = (),
+        candidate_format: str | None = None,
+    ) -> None:
+        details = dict(primary.details)
+        if root_issues:
+            details["root_issues"] = [dict(item) for item in root_issues]
+        if candidate_format is not None:
+            details["candidate_format"] = candidate_format
+        self.primary = StructuredSolveError(
+            stage=primary.stage,
+            code=primary.code,
+            message=primary.message,
+            retryable=primary.retryable,
+            step_id=primary.step_id,
+            method_id=primary.method_id,
+            invocation_id=primary.invocation_id,
+            path=primary.path,
+            check_name=primary.check_name,
+            details=details,
+        )
+        self.root_issues = root_issues
+        self.candidate_format = candidate_format
+        super().__init__(primary.message)
+
+
 @dataclass(frozen=True)
 class LLMCallRecord:
     """一次 LLM 调用的安全摘要。"""
@@ -150,6 +182,8 @@ def structured_error_from_exception(
     retryable: bool = True,
 ) -> StructuredSolveError:
     """把异常转成可传回 LLM 的结构化错误。"""
+    if isinstance(exc, PlannerExecutionError):
+        return exc.primary
     return StructuredSolveError(
         stage=stage,
         code=_error_code(stage, exc),

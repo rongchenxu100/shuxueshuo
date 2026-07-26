@@ -87,7 +87,7 @@ def test_selector_semantics_are_one_descriptor_per_selector_grammar() -> None:
 
     assert midpoint.mechanical
     assert midpoint.prerequisite_condition_kind == "midpoint_definition"
-    assert endpoint.semantic_roles == ("path_minimum_point_1",)
+    assert endpoint.semantic_roles == ("straightened_endpoint_1",)
     assert endpoint.requires_materialized_state
     assert intersection.context_prerequisites == (
         "fact_type:segment_relation",

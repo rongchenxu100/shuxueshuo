@@ -15,6 +15,7 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     StepIntent,
     StrategyDraftValidationError,
 )
+from shuxueshuo_server.solver.state_semantics import is_object_handle
 from shuxueshuo_server.solver.utils import unique_ordered
 
 
@@ -86,6 +87,17 @@ def _midpoint_definition_roles(
     )
 
 
+def _structured_subject_refs(
+    payload: Mapping[str, Any],
+) -> tuple[str, ...]:
+    """Project an explicit Condition subject without reading prose."""
+    raw = payload.get("subject")
+    values = raw if isinstance(raw, (list, tuple)) else (raw,)
+    return unique_ordered(
+        str(item) for item in values if is_object_handle(item)
+    )
+
+
 _CONDITION_ROLE_EXTRACTORS: Mapping[str, ConditionRoleExtractor] = {
     "midpoint_definition": _midpoint_definition_roles,
     "right_angle_equal_length": _right_angle_equal_length_roles,
@@ -154,9 +166,11 @@ class ConditionRoleResolver:
         payload: Mapping[str, Any],
     ) -> ConditionObjectRoles:
         extractor = _CONDITION_ROLE_EXTRACTORS.get(condition_kind)
-        if extractor is None:
-            return ()
-        return extractor(payload)
+        declared = extractor(payload) if extractor is not None else ()
+        subjects = _structured_subject_refs(payload)
+        if not subjects or any(role == "subject" for role, _refs in declared):
+            return declared
+        return (*declared, ("subject", subjects))
 
     @classmethod
     def resolve_constructed_point_roles(

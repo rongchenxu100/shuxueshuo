@@ -21,6 +21,12 @@ class SquarePathDimensionReductionMethod:
         square_condition: dict[str, Any] = inputs["square_condition"]
         midpoint_condition: dict[str, Any] = inputs["midpoint_condition"]
         square_center_condition: dict[str, Any] = inputs["square_center_condition"]
+        fixed_endpoint_1_ref: PointRef | None = inputs.get(
+            "fixed_endpoint_1_ref"
+        )
+        fixed_endpoint_2_ref: PointRef | None = inputs.get(
+            "fixed_endpoint_2_ref"
+        )
 
         path = str(path_condition["path"])
         segments = _parse_path_segments(path)
@@ -84,6 +90,14 @@ class SquarePathDimensionReductionMethod:
                 f"且 {square_side}={replacement_segment}，因此 {path} 转化为 {transformed_path}"
             ),
         }
+        if (
+            fixed_endpoint_1_ref is not None
+            and fixed_endpoint_2_ref is not None
+        ):
+            transformation["fixed_endpoint_refs"] = (
+                _canonical_point_ref(fixed_endpoint_1_ref),
+                _canonical_point_ref(fixed_endpoint_2_ref),
+            )
         return StatelessMethodResult(
             method_id=self.method_id,
             outputs={
@@ -125,6 +139,10 @@ def _handle_name(handle: str) -> str:
     return handle.rsplit(":", 1)[-1]
 
 
+def _canonical_point_ref(point_ref: PointRef) -> str:
+    return f"point:{point_ref.scope_id}:{point_ref.name}"
+
+
 def _find_segment(segments: list[str], p1: str, p2: str) -> str:
     wanted = {p1, p2}
     for segment in segments:
@@ -144,12 +162,15 @@ SPEC = MethodSpecSource(
     method_cls=SquarePathDimensionReductionMethod,
     title="正方形路径降维",
     summary=(
-        "Given 正方形边、中点、中心和三段路径条件, derive 等价的单动点两段折线路径。"
-        "该 method 只做正方形结构下的路径降维，不负责拉直求最值；输出的 "
-        "PathTransformation 会揭示后续真实 moving_point 与 fixed_points，"
-        "planner 不应在执行前猜测降维后的动点。当前实现仅适用于三段路径中"
-        "前两段可由正方形中心、中点和斜边中线关系合并为一条正方形边的结构；"
-        "其它正方形路径转换应使用独立能力或扩展后的声明式变换规则。"
+        "仅用于原目标路径恰好由三段组成，并且正方形边、中点、中心或对角线"
+        "交点关系能够通过斜边中线与三角形中位线把其中两段合并为一段的结构。"
+        "输出等价的单动点两段 PathTransformation，不负责拉直或求最小值；"
+        "输出不携带动点轨迹，后续必须先求 PathTransformation 声明动点的 Line。"
+    ),
+    do_not_use_when=(
+        "原路径只有两段，或不需要正方形的中点和中心关系即可完成等长/比例替换。",
+        "缺少三段路径、正方形、中点、中心或对角线交点中的必要结构化条件。",
+        "目标是处理线段与射线等长、加权距离，或已经完成降维的普通两段折线路径。",
     ),
     solves=("reduce_square_path_dimension", "derive_path_transformation"),
     inputs={
@@ -157,6 +178,8 @@ SPEC = MethodSpecSource(
         "square_condition": {"type": "Condition", "required": True},
         "midpoint_condition": {"type": "Condition", "required": True},
         "square_center_condition": {"type": "Condition", "required": True},
+        "fixed_endpoint_1_ref": {"type": "PointRef", "required": False},
+        "fixed_endpoint_2_ref": {"type": "PointRef", "required": False},
     },
     outputs={"path_transformation": "PathTransformation"},
     preconditions=(

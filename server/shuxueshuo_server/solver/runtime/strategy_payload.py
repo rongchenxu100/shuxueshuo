@@ -352,8 +352,9 @@ def _functional_previous_attempt_state(
             "attempt",
             "candidate_format",
             "baseline_candidate",
-            "stable_candidate_calls",
             "repair_call_ids",
+            "runtime_verified_calls",
+            "validated_call_ids",
             "repair_suffix_start",
             "issues",
             "recovered_issues",
@@ -364,6 +365,14 @@ def _functional_previous_attempt_state(
             "source",
             "source_context_id",
         ),
+    )
+    selected["locked_call_ids"] = _functional_locked_call_ids(
+        retry_state.get("committed_candidate_calls")
+        or retry_state.get("stable_candidate_calls")
+    )
+    selected["runtime_verified"] = _compact_functional_runtime_verified(
+        selected.pop("runtime_verified_calls", []),
+        issues=selected.get("issues"),
     )
     selected["issues"] = _functional_issue_tickets(selected.get("issues"))
     selected["recovered_issues"] = _functional_issue_tickets(
@@ -380,6 +389,146 @@ def _functional_previous_attempt_state(
         "attempt_count": len(previous_attempts),
         "latest_retry_state": selected,
     }
+
+
+def _functional_locked_call_ids(value: Any) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    return list(
+        dict.fromkeys(
+            call_id
+            for entry in value
+            if isinstance(entry, dict)
+            for call in (entry.get("call"),)
+            if isinstance(call, dict)
+            for call_id in (call.get("call_id"),)
+            if isinstance(call_id, str) and call_id
+        )
+    )
+
+
+_FUNCTIONAL_PROMPT_RESULT_VALUE_MAX_CHARS = 768
+
+
+def _compact_functional_runtime_verified(
+    value: Any,
+    *,
+    issues: Any,
+) -> list[dict[str, Any]]:
+    """Keep retry evidence useful without repeating baseline call definitions."""
+    if not isinstance(value, list):
+        return []
+    identity_calls = _functional_identity_issue_calls(issues)
+    result: list[dict[str, Any]] = []
+    for item in value:
+        if not isinstance(item, dict):
+            continue
+        call_id = item.get("call_id")
+        if not isinstance(call_id, str) or not call_id:
+            continue
+        compact: dict[str, Any] = {"call_id": call_id}
+        if bool(item.get("repair_required")):
+            compact["repair_required"] = True
+        snapshots = item.get("results")
+        if isinstance(snapshots, list):
+            compact_results = [
+                projected
+                for snapshot in snapshots
+                if isinstance(snapshot, dict)
+                for projected in (
+                    _compact_functional_result_snapshot(
+                        snapshot,
+                        include_identity=call_id in identity_calls,
+                    ),
+                )
+                if projected is not None
+            ]
+            if compact_results:
+                compact["results"] = compact_results
+        result.append(compact)
+    return result
+
+
+def _compact_functional_result_snapshot(
+    snapshot: dict[str, Any],
+    *,
+    include_identity: bool,
+) -> dict[str, Any] | None:
+    return_name = snapshot.get("return")
+    value_type = snapshot.get("type")
+    if not isinstance(return_name, str) or not isinstance(value_type, str):
+        return None
+    result: dict[str, Any] = {
+        "return": return_name,
+        "type": value_type,
+    }
+    semantic_ref = snapshot.get("semantic_ref")
+    if isinstance(semantic_ref, str) and semantic_ref:
+        result["ref"] = semantic_ref
+    if "value" in snapshot:
+        value = snapshot["value"]
+        encoded = json.dumps(value, ensure_ascii=False, sort_keys=True)
+        if len(encoded) <= _FUNCTIONAL_PROMPT_RESULT_VALUE_MAX_CHARS:
+            result["value"] = value
+        else:
+            result["value_omitted_reason"] = "value_too_large_for_prompt"
+    elif isinstance(snapshot.get("value_omitted_reason"), str):
+        result["value_omitted_reason"] = snapshot["value_omitted_reason"]
+    actual_form = snapshot.get("actual_form")
+    if isinstance(actual_form, str) and actual_form:
+        result["form"] = actual_form
+    free_parameters = snapshot.get("free_parameters")
+    if isinstance(free_parameters, list) and free_parameters:
+        result["free"] = [
+            item for item in free_parameters if isinstance(item, str)
+        ]
+    object_roles = snapshot.get("object_roles")
+    if value_type == "PathTransformation" and isinstance(object_roles, dict):
+        result["structure"] = {
+            **object_roles,
+            "moving_locus_available": "moving_locus" in object_roles,
+        }
+    elif include_identity:
+        semantic_roles = snapshot.get("semantic_roles")
+        if isinstance(semantic_roles, list) and semantic_roles:
+            result["roles"] = [
+                item for item in semantic_roles if isinstance(item, str)
+            ]
+        if isinstance(object_roles, dict) and object_roles:
+            result["identity"] = object_roles
+    return result
+
+
+def _functional_identity_issue_calls(issues: Any) -> set[str]:
+    if not isinstance(issues, list):
+        return set()
+    result: set[str] = set()
+    for issue in issues:
+        if not isinstance(issue, dict):
+            continue
+        code = str(issue.get("code", ""))
+        details = issue.get("details")
+        identity_related = (
+            "identity" in code
+            or "role" in code
+            or (
+                isinstance(details, dict)
+                and any(
+                    "identity" in str(key) or "role" in str(key)
+                    for key in details
+                )
+            )
+        )
+        if not identity_related:
+            continue
+        step_id = issue.get("step_id")
+        if isinstance(step_id, str):
+            result.add(step_id)
+        if isinstance(details, dict):
+            for ref in details.get("actual_result_refs", ()):
+                if isinstance(ref, str) and "." in ref:
+                    result.add(ref.rsplit(".", 1)[0])
+    return result
 
 
 def _latest_functional_few_shot_selection(

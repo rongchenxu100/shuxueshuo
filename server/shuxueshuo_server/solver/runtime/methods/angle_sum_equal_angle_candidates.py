@@ -45,6 +45,25 @@ class AngleSumEqualAngleCandidatesMethod:
 
         ob = kernel.distance(origin, x_axis_point)
         co = kernel.distance(origin, y_axis_point)
+        ao = kernel.distance(origin, reference_x_axis_point)
+        if sp.simplify(ob) == 0:
+            raise ValueError(
+                "angle_role_degenerate: x_axis_point must differ from origin"
+            )
+        if sp.simplify(co) == 0:
+            raise ValueError(
+                "angle_role_degenerate: y_axis_point must differ from origin"
+            )
+        if sp.simplify(ao) == 0:
+            raise ValueError(
+                "angle_role_degenerate: reference_x_axis_point must differ "
+                "from origin"
+            )
+        if _same_point(x_axis_point, reference_x_axis_point):
+            raise ValueError(
+                "angle_role_degenerate: x_axis_point and "
+                "reference_x_axis_point must be distinct"
+            )
         if sp.simplify(ob - co) != 0:
             raise ValueError("no unique 45 degree reference angle found from axis triangle")
 
@@ -110,13 +129,26 @@ def _shared_and_reference_angles(angle_terms: list[str]) -> tuple[str, str]:
     return first, second
 
 
+def _same_point(first: Point, second: Point) -> bool:
+    return all(
+        sp.simplify(left - right) == 0
+        for left, right in zip(first, second, strict=True)
+    )
+
+
 SPEC = MethodSpecSource(
     method_cls=AngleSumEqualAngleCandidatesMethod,
     title="由角和条件寻找等角",
     summary=(
-        "输入: 45° 角和条件、坐标轴上的参考点和目标 PointRef；输出: 唯一等角事实。"
-        "目标 PointRef 表示等角关系服务的目标点，应与后续消费该 AngleEquality 的点输出 step 一致。"
-        "首版支持通过另一个 45° 坐标轴角比较，消去公共角得到目标线角与参考角相等。"
+        "当题面给出两个角之和为 45°，且 angle_terms 的结构能够确定一个"
+        "非退化的坐标轴等腰直角参考三角形时，消去公共角并输出 AngleEquality。"
+        "只需提供结构化角和条件；水平轴点、竖直轴点、参考点和原点由代码从"
+        "角的顶点顺序确定。本能力只推出等角事实，不计算目标点坐标。"
+    ),
+    do_not_use_when=(
+        "角和不是 45°，或两个角的点顺序不能构成所需的坐标轴参考三角形。",
+        "不要手工交换水平轴点、竖直轴点、参考点和原点；这些机械角色由结构化 angle_terms 决定。",
+        "目标是直接求坐标时不能跳过等角事实的后续消费能力。",
     ),
     solves=("derive_equal_angle_from_angle_sum",),
     inputs={

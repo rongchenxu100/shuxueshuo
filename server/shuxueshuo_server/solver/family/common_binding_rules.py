@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 from shuxueshuo_server.solver.family.models import (
-    MethodAggregateInputBindingSpec,
     MethodBindingRuleSpec,
     MethodCompanionOutputSpec,
     MethodInputBindingSpec,
     MethodPrepInvocationSpec,
+    MethodScalarAggregateLoweringSpec,
 )
 
 
@@ -42,8 +42,13 @@ def quadratic_from_constraints_rule() -> MethodBindingRuleSpec:
             MethodInputBindingSpec("x", "symbol:x"),
             MethodInputBindingSpec("all_coefficients", "quadratic_coefficients"),
         ),
-        aggregate_input_bindings=(
-            MethodAggregateInputBindingSpec("curve_points", ("p1", "p2")),
+        scalar_aggregate_lowerings=(
+            MethodScalarAggregateLoweringSpec(
+                source_input="known_coefficients",
+                item_runtime_type="ParameterValue",
+                identity_input="parameter",
+                value_input="parameter_value",
+            ),
         ),
         expansion_selectors=(
             "known_coefficients_if_read",
@@ -219,7 +224,12 @@ def evaluate_expression_at_parameter_rule() -> MethodBindingRuleSpec:
                 "expression",
                 "read_type:Expression|MinimumExpression|Parabola",
             ),
-            MethodInputBindingSpec("parameter", "parameter_symbol"),
+            MethodInputBindingSpec(
+                "parameter",
+                "parameter_symbol",
+                functional_authority="wire",
+                functional_resolver="unique_parameter_symbol",
+            ),
         ),
         expansion_selectors=("parameter_value_if_read",),
     )
@@ -243,7 +253,12 @@ def parameter_from_expression_value_rule() -> MethodBindingRuleSpec:
         input_bindings=(
             MethodInputBindingSpec("expression", "read_type:MinimumExpression"),
             MethodInputBindingSpec("condition", "fact:minimum_value:Condition"),
-            MethodInputBindingSpec("parameter", "parameter_symbol_from_reads_or_expression"),
+            MethodInputBindingSpec(
+                "parameter",
+                "parameter_symbol_from_reads_or_expression",
+                functional_authority="wire",
+                functional_resolver="unique_parameter_symbol",
+            ),
             MethodInputBindingSpec("constraint", "parameter_constraint", required=False),
         ),
     )

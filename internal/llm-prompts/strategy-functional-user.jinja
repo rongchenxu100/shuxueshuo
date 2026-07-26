@@ -53,9 +53,16 @@
 
 ## Previous Attempt State
 
-`latest_retry_state` 是唯一 retry 记忆源。每个 issue 是一张 call-level repair ticket；
-保留 `stable_candidate_calls`，修复 `repair_call_ids`。这里不使用线性 step prefix 或
-compatibility mirror。
+`latest_retry_state` 是唯一 retry 记忆源。每个 issue 是一张 call-level repair ticket。
+`locked_call_ids` 只列出已经完成 QuestionGoal 证明、需要保持不变的调用。
+`runtime_verified` 表示调用已局部执行并给出 provisional result，可作为修复依据，
+但尚未证明能完成最终目标，可以保留、修改、替换或删除；不得把它描述为正确答案。
+其中 `repair_required: true` 表示该调用虽已执行成功，但结果或路线仍需修复；
+issue 的 `actual_result_refs` 指向这里的实际结果。
+`validated_call_ids` 只表示协议和绑定已通过，不表示已经执行或数学路线正确。
+若继续使用 `runtime_verified` 中的结果，完整计划仍须保留 producer，并用 CallResultRef
+连接下游。修复 `repair_call_ids`。
+这里不展示内部稳定图结构，也不使用线性 step prefix 或 compatibility mirror。
 
 {{ payload.previous_attempt_state | pretty_json }}
 

@@ -92,6 +92,16 @@ def test_planner_state_context_initial_snapshot_is_json_serializable() -> None:
         "anchor": ["point:problem:D"],
         "endpoint": ["point:ii:M", "point:ii:N"],
     }
+    parameter_range = next(
+        item
+        for item in payload["state"]["conditions"]
+        if item["kind"] == "symbol_constraint"
+        and item["canonical_handle"] == "fact:problem:m_gt_2"
+    )
+    assert parameter_range["subject_ids"] == ["symbol:problem:m"]
+    assert parameter_range["object_roles"] == {
+        "subject": ["symbol:problem:m"],
+    }
     contract_ids = {
         item["capability_id"]
         for item in payload["state"]["capability_contracts"]
@@ -247,6 +257,78 @@ def test_context_semantic_catalog_preserves_hidden_aliases_for_scoped_entity_ref
         ("point:i:A", "point:i:A"),
         ("point:ii:A", "point:ii:A"),
     }.issubset(hidden_refs)
+
+
+def test_context_catalog_includes_objects_referenced_only_by_structured_facts() -> None:
+    """Ordered relations should publish latent objects that the LLM may bind."""
+    registry = CanonicalHandleRegistry(
+        scope_ids=frozenset(("problem", "part")),
+        entity_handles=frozenset(
+            (
+                "point:part:A",
+                "point:part:E",
+                "point:part:G",
+            )
+        ),
+        fact_handles=frozenset(("fact:part:square_AEKG",)),
+        answer_handles=frozenset(),
+        scope_parents={"problem": None, "part": "problem"},
+        handle_valid_scopes={
+            "point:part:A": "part",
+            "point:part:E": "part",
+            "point:part:G": "part",
+            "fact:part:square_AEKG": "part",
+        },
+        fact_types={"fact:part:square_AEKG": "square"},
+        fact_payloads={
+            "fact:part:square_AEKG": {
+                "handle": "fact:part:square_AEKG",
+                "type": "square",
+                "scope_id": "part",
+                "vertices": [
+                    "point:part:A",
+                    "point:part:E",
+                    "point:part:K",
+                    "point:part:G",
+                ],
+            }
+        },
+    )
+    context = PlannerStateContextBuilder.initial_from_inputs(
+        _nankai_inputs(),
+        problem_payload={
+            "problem_id": "synthetic-structured-object",
+            "facts": [
+                {
+                    "handle": "fact:part:square_AEKG",
+                    "type": "square",
+                    "scope_id": "part",
+                    "vertices": [
+                        "point:part:A",
+                        "point:part:E",
+                        "point:part:K",
+                        "point:part:G",
+                    ],
+                }
+            ],
+        },
+        handle_registry=registry,
+    )
+
+    latent = next(
+        item
+        for item in context.state.math_objects
+        if item.canonical_handle == "point:part:K"
+    )
+    assert latent.source == "problem"
+    assert latent.scope_id == "part"
+    assert any(
+        item.prompt_visible
+        and item.kind == "point"
+        and item.ref == "K"
+        and item.handle == "point:part:K"
+        for item in context.semantic_read_catalog()
+    )
 
 
 def test_planner_state_context_records_normalizer_promotion_rewrite() -> None:

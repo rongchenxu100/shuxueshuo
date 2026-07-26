@@ -660,6 +660,64 @@ def _unsafe_step_from_payload(raw_step: dict[str, object], *, scope_id: str):
     return draft.steps[0]
 
 
+def test_parameter_signature_accepts_answer_handle_dependency() -> None:
+    """Answer handles are valid reads even though they are not scoped entity handles."""
+    draft = StepIntentValidator().validate(
+        {
+            "scopes": [
+                {
+                    "scope_id": "i_1",
+                    "label": "i_1",
+                    "steps": [
+                        {
+                            "step_id": "derive_parabola_answer",
+                            "recipe_hint": "quadratic_from_constraints",
+                            "goal_type": "derive_parabola",
+                            "target": "answer:i_1_parabola",
+                            "strategy": "先确定抛物线。",
+                            "reads": ["function:problem:parabola"],
+                            "creates": [],
+                            "produces": [
+                                {
+                                    "handle": "answer:i_1_parabola",
+                                    "valid_scope": "i_1",
+                                    "description": "抛物线答案",
+                                    "output_type": "Parabola",
+                                }
+                            ],
+                            "reason": "后续参数推导读取该答案状态。",
+                        },
+                        {
+                            "step_id": "derive_parameter_from_answer",
+                            "recipe_hint": "parameter_from_expression_value",
+                            "goal_type": "derive_parameter",
+                            "target": "fact:i_1:a_candidate",
+                            "strategy": "读取抛物线答案继续求参数。",
+                            "reads": ["answer:i_1_parabola"],
+                            "creates": [],
+                            "produces": [
+                                {
+                                    "handle": "fact:i_1:a_candidate",
+                                    "valid_scope": "i_1",
+                                    "description": "参数候选值",
+                                    "output_type": "ParameterValue",
+                                }
+                            ],
+                            "reason": "验证 answer handle 不参与 scoped semantic-name 解析。",
+                        },
+                    ],
+                }
+            ]
+        },
+        handle_registry=CanonicalHandleRegistry.from_problem_payload(
+            _heping_llm_problem()
+        ),
+        partial_candidate=True,
+    )
+
+    assert draft.steps[1].reads == ("answer:i_1_parabola",)
+
+
 def test_step_intent_validator_normalizes_string_null_recipe_hint() -> None:
     """LLM 偶尔会输出字符串 ``"null"``，应按空 recipe_hint 处理。"""
     step = _unsafe_step_from_payload(
@@ -1273,6 +1331,19 @@ def test_parameter_value_binding_skips_structural_symbol_value_fact() -> None:
     index.fact_types["fact:i:a_value"] = "symbol_value"
     index.register("fact:i:a_value", "$question.i.outputs.a_value", "ParameterValue", source="test")
     index.register("fact:ii:m_value", "$question.ii.outputs.m", "ParameterValue", source="test")
+    index.state_write_provenance.append(
+        StateWriteProvenance(
+            step_id="derive_m",
+            scope_id="ii",
+            capability_id="synthetic_parameter_solver",
+            produced_handle="fact:ii:m_value",
+            output_key="parameter_value",
+            runtime_type="ParameterValue",
+            identity_policy="preserve_input_object",
+            identity_role="parameter_value",
+            object_ref="symbol:problem:m",
+        )
+    )
     step = _step(
         scope_id="ii",
         step_id="use_parameter_value",
@@ -1334,6 +1405,61 @@ def test_parameter_value_binding_does_not_scan_unread_visible_state() -> None:
     inputs = rules.bind("square_adjacent_vertex_from_side", step, index)
 
     assert inputs == {}
+
+
+def test_parameter_value_expansion_does_not_cross_symbol_identities() -> None:
+    """An automatic value for one Symbol must not bind to another Symbol."""
+    index = CanonicalRuntimeBindingIndex.from_context(
+        _runtime_context(),
+        handle_registry=_registry(),
+        question_goals=_question_goals(),
+    )
+    value_handle = "fact:ii:b_open_value"
+    value_path = "$question.ii.outputs.b_open_value"
+    index.register(
+        value_handle,
+        value_path,
+        "ParameterValue",
+        source="step:derive_b",
+    )
+    index.state_write_provenance.append(
+        StateWriteProvenance(
+            step_id="derive_b",
+            scope_id="ii",
+            capability_id="synthetic_parameter_solver",
+            produced_handle=value_handle,
+            output_key="parameter_value",
+            runtime_type="ParameterValue",
+            identity_policy="preserve_input_object",
+            identity_role="parameter_value",
+            object_ref="symbol:problem:b",
+        )
+    )
+    step = _step(
+        scope_id="ii",
+        step_id="construct_from_c",
+        recipe_hint="square_adjacent_vertex_from_side",
+        goal_type="derive_square_adjacent_vertex",
+        target="point:ii:G",
+        reads=("symbol:problem:c", value_handle),
+    )
+    rules = MethodBindingRuleRegistry(
+        (
+            MethodBindingRuleSpec(
+                method_id="square_adjacent_vertex_from_side",
+                expansion_selectors=("parameter_value_if_read",),
+            ),
+        )
+    )
+
+    inputs = rules.bind(
+        "square_adjacent_vertex_from_side",
+        step,
+        index,
+        exact_inputs={"parameter": "$problem.symbols.c"},
+    )
+
+    assert inputs == {"parameter": "$problem.symbols.c"}
 
 
 def test_line_locus_minimum_point_uses_visible_straightening_endpoints_when_not_read() -> None:
@@ -6850,6 +6976,56 @@ def test_promote_outputs_prefers_answer_target_over_reusable_fact_alias() -> Non
     assert promote["$step.derive_parabola_i.temp.parabola"] == "$question.i.outputs.parabola"
 
 
+def test_shared_answer_computation_promotes_canonical_state_alias() -> None:
+    """A parent-scope call must not write directly into one child answer scope."""
+    problem = load_problem_ir(HEPING_FIXTURE)
+    inputs = _heping_inputs()
+    index = CanonicalRuntimeBindingIndex.from_context(
+        ContextBuilder().build(problem),
+        handle_registry=CanonicalHandleRegistry.from_problem_payload(
+            _heping_llm_problem()
+        ),
+        question_goals=inputs.question_goals,
+    )
+    rules = MethodBindingRuleRegistry.from_family_spec(inputs.family_spec)
+    step = _step(
+        scope_id="problem",
+        step_id="derive_shared_parabola",
+        recipe_hint="quadratic_from_constraints",
+        goal_type="derive_parabola",
+        target="answer:i_1_parabola",
+        produces=(
+            ProducedFact(
+                "fact:problem:derive_shared_parabola_parabola",
+                "problem",
+                "全题可复用的抛物线状态",
+                output_type="Parabola",
+            ),
+            ProducedFact(
+                "answer:i_1_parabola",
+                "problem",
+                "第（Ⅰ）问抛物线答案",
+                output_type="Parabola",
+            ),
+        ),
+    )
+
+    promote = _promote_outputs_for_step(
+        step,
+        "quadratic_from_constraints",
+        {
+            "parabola": "$step.derive_shared_parabola.temp.parabola",
+            "coefficients": "$step.derive_shared_parabola.temp.coefficients",
+        },
+        {"parabola": "Parabola", "coefficients": "Coefficients"},
+        index,
+        rules,
+    )
+
+    target = promote["$step.derive_shared_parabola.temp.parabola"]
+    assert target.startswith("$problem.outputs.")
+
+
 def test_promote_outputs_rejects_distinct_facts_sharing_single_method_output() -> None:
     """多个不同 fact 不应静默共用同一个 single-output method 结果。"""
     index = CanonicalRuntimeBindingIndex.from_context(
@@ -8551,8 +8727,8 @@ def test_path_transformation_insight_recommends_locus_step_when_moving_point_sta
     assert "parameterized_point_locus_line" in insight.repair_note
 
 
-def test_broken_path_minimum_infers_fixed_points_from_square_path_context() -> None:
-    """将军饮马 recipe 少读固定点实体时，可从降维路径结构推断端点。"""
+def test_broken_path_minimum_does_not_guess_fixed_points_from_square_context() -> None:
+    """旧 StepIntent 缺少端点状态时，不得从 square/path 名称反推端点。"""
     problem = _heping_ermo_problem()
     inputs = _heping_ermo_inputs()
     registry = CanonicalHandleRegistry.from_problem_payload(_heping_ermo_llm_problem())
@@ -8577,15 +8753,12 @@ def test_broken_path_minimum_infers_fixed_points_from_square_path_context() -> N
         question_goals=inputs.question_goals,
     )
 
-    assert output is not None
-    assert diagnostic.ok is True
+    assert output is None
+    assert diagnostic.ok is False
     assert any(
-        insight.output_type == "StraighteningMinimum"
-        and insight.facts["minimum_points"] == [
-            "fact:ii:path_minimum_point_1",
-            "fact:ii:path_minimum_point_2",
-        ]
-        for insight in diagnostic.planner_insights
+        "functional.path_transformation_state_unavailable" in message
+        for blocker in diagnostic.blockers
+        for message in blocker.capability_errors
     )
 
 
@@ -8719,8 +8892,8 @@ def test_straightening_endpoint_reads_use_provenance_role_for_call_scoped_handle
     assert endpoints == (point_1, point_2)
 
 
-def test_broken_path_minimum_reuses_prior_point_state_when_reads_omit_fixed_points() -> None:
-    """LLM 只读降维路径和轨迹时，应复用前序点坐标状态，不重新 prepare 覆盖。"""
+def test_broken_path_minimum_requires_explicit_legacy_endpoint_reads() -> None:
+    """旧 StepIntent 不得从全局 prior writes 猜 PathTransformation 端点。"""
     problem = _heping_ermo_problem()
     inputs = _heping_ermo_inputs()
     registry = CanonicalHandleRegistry.from_problem_payload(_heping_ermo_llm_problem())
@@ -8747,18 +8920,13 @@ def test_broken_path_minimum_reuses_prior_point_state_when_reads_omit_fixed_poin
         question_goals=inputs.question_goals,
     )
 
-    assert output is not None
-    assert diagnostic.ok is True
-    minimum_plan = next(
-        plan
-        for plan in output.step_plans
-        if plan.step_id == "derive_path_minimum_expr"
+    assert output is None
+    assert diagnostic.ok is False
+    assert any(
+        "functional.path_transformation_state_unavailable" in message
+        for blocker in diagnostic.blockers
+        for message in blocker.capability_errors
     )
-    assert all(
-        invocation.method_id != "quadratic_axis_x_intercept_point"
-        for invocation in minimum_plan.invocations
-    )
-    assert "$question.ii.outputs.M_coordinate" not in minimum_plan.promote_outputs.values()
 
 
 def test_parameter_value_handle_accepts_bound_parameter_values_fact() -> None:
@@ -8856,6 +9024,11 @@ def test_final_point_recovery_blocker_uses_specific_repair_instruction() -> None
         exc=ValueError("missing required input: parameter"),
         planner_insights=(insight,),
         handle_registry=registry,
+        trial_error_hints=(
+            MethodSpecRegistry.load_from_code()
+            .require("evaluate_point_at_parameter")
+            .trial_error_hints
+        ),
     )
     assert "final_point_requires_square_recovery" in error
 

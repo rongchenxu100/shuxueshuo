@@ -63,6 +63,15 @@ class FunctionalBatchCase:
         )
 
     @property
+    def recorded_step_intent_path(self) -> Path:
+        return (
+            REPO_ROOT
+            / "internal"
+            / "solver-fixtures"
+            / f"{self.problem_id}.executable-step-intents.json"
+        )
+
+    @property
     def default_debug_dir(self) -> Path:
         return (
             REPO_ROOT
@@ -87,6 +96,32 @@ FUNCTIONAL_BATCH_CASES: dict[str, FunctionalBatchCase] = {
     )
 }
 DEFAULT_TEST_PATH = FUNCTIONAL_BATCH_CASES["nankai"].test_path
+KNOWN_FAILURE_LAYERS = {
+    "replay",
+    "functional_validation",
+    "functional_elaboration",
+    "functional_reconciliation",
+    "semantic_reads",
+    "handle_resolution",
+    "validation",
+    "normalization",
+    "candidate_resolution",
+    "trial_execution",
+    "goal_verification",
+    "answer_check",
+    "context",
+    "planner",
+    "declaration_validation",
+    "execution",
+    "result_builder",
+    "answer_assertion",
+    "test_harness",
+}
+UNCLASSIFIED_FAILURE_CODES = {
+    "planner_failed",
+    "unclassified_planner_failure",
+    "unclassified_test_failure",
+}
 
 
 @dataclass(frozen=True)
@@ -99,6 +134,8 @@ class BatchSample:
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = _parser().parse_args(argv)
+    if args.aggregate_batches:
+        return _aggregate_main(args)
     if args.case == "all" and args.test_path is not None:
         raise SystemExit("--test-path can only be used with a single --case")
     batch_id = args.batch_id or datetime.now().strftime("batch-%Y%m%d-%H%M%S")
@@ -215,6 +252,145 @@ def main(argv: Sequence[str] | None = None) -> int:
     return 0 if summary["active_gate_passed"] else 1
 
 
+def _aggregate_main(args: argparse.Namespace) -> int:
+    batch_dirs = tuple(
+        Path(item).expanduser().resolve()
+        for item in args.aggregate_batches
+    )
+    report_id = args.report_id or datetime.now().strftime(
+        "parity-%Y%m%d-%H%M%S"
+    )
+    _validate_path_component(report_id, "report id")
+    output_root = Path(args.output_root).expanduser().resolve()
+    report_dir = output_root / report_id
+    if report_dir.exists():
+        raise SystemExit(f"parity report output already exists: {report_dir}")
+    try:
+        summary = aggregate_batch_summaries(batch_dirs)
+    except ValueError as exc:
+        raise SystemExit(str(exc)) from exc
+    if args.dry_run:
+        print(json.dumps(summary, ensure_ascii=False, indent=2))
+        return 0 if summary["stage2_gate_passed"] else 1
+    report_dir.mkdir(parents=True)
+    summary["report_id"] = report_id
+    summary["report_dir"] = str(report_dir)
+    _write_json(report_dir / "parity-summary.json", summary)
+    print(json.dumps(summary, ensure_ascii=False, indent=2), flush=True)
+    return 0 if summary["stage2_gate_passed"] else 1
+
+
+def aggregate_batch_summaries(
+    batch_dirs: Sequence[Path],
+) -> dict[str, Any]:
+    """Aggregate compatible sample records without mixing execution cohorts."""
+    if not batch_dirs:
+        raise ValueError("at least one batch directory is required")
+    accepted_source: dict[str, Any] | None = None
+    selected_keys: dict[str, str] = {}
+    accepted_results: list[dict[str, Any]] = []
+    rejected_cohorts: list[dict[str, Any]] = []
+    sample_keys: set[str] = set()
+    source_batches: list[str] = []
+    for batch_dir in batch_dirs:
+        summary_path = batch_dir / "batch-summary.json"
+        summary = _read_json(summary_path)
+        if not isinstance(summary, dict):
+            raise ValueError(f"invalid batch summary: {summary_path}")
+        if int(summary.get("max_attempts", 0) or 0) != 3:
+            raise ValueError(
+                f"batch must use max_attempts=3: {summary_path}"
+            )
+        batch_id = str(summary.get("batch_id") or batch_dir.name)
+        source_batches.append(batch_id)
+        source = summary.get("source_fingerprint")
+        if not isinstance(source, dict):
+            rejected_cohorts.append(
+                {
+                    "batch_id": batch_id,
+                    "reason": "missing_source_fingerprint",
+                }
+            )
+            continue
+        if accepted_source is None:
+            accepted_source = dict(source)
+        elif source != accepted_source:
+            rejected_cohorts.append(
+                {
+                    "batch_id": batch_id,
+                    "reason": "source_fingerprint_mismatch",
+                    "source_fingerprint": source,
+                }
+            )
+            continue
+        results = summary.get("samples_result")
+        if not isinstance(results, list):
+            raise ValueError(f"batch has no sample records: {summary_path}")
+        for raw_result in results:
+            if not isinstance(raw_result, dict):
+                continue
+            result = dict(raw_result)
+            case_id = str(result.get("case_id") or "")
+            sample_id = str(result.get("sample_id") or "")
+            sample_key = f"{batch_id}/{case_id}/{sample_id}"
+            if sample_key in sample_keys:
+                raise ValueError(f"duplicate parity sample: {sample_key}")
+            sample_keys.add(sample_key)
+            compatibility_key = result.get("fingerprints", {}).get(
+                "compatibility_key"
+            )
+            if not isinstance(compatibility_key, str) or not compatibility_key:
+                rejected_cohorts.append(
+                    {
+                        "sample_key": sample_key,
+                        "case_id": case_id,
+                        "reason": "missing_compatibility_key",
+                    }
+                )
+                continue
+            selected = selected_keys.setdefault(case_id, compatibility_key)
+            if compatibility_key != selected:
+                rejected_cohorts.append(
+                    {
+                        "sample_key": sample_key,
+                        "case_id": case_id,
+                        "reason": "compatibility_key_mismatch",
+                        "compatibility_key": compatibility_key,
+                        "selected_compatibility_key": selected,
+                    }
+                )
+                continue
+            result["source_batch_id"] = batch_id
+            result["sample_key"] = sample_key
+            accepted_results.append(result)
+    per_case = {
+        case_id: _case_metrics(
+            [
+                item
+                for item in accepted_results
+                if item.get("case_id") == case_id
+            ],
+            max_attempts=3,
+        )
+        for case_id in FUNCTIONAL_BATCH_CASES
+    }
+    stage2_gate_passed = (
+        not rejected_cohorts
+        and all(item["stage2_gate_passed"] for item in per_case.values())
+    )
+    return {
+        "schema_version": "functional_parity/v1",
+        "source_batches": source_batches,
+        "source_fingerprint": accepted_source,
+        "accepted_samples": len(accepted_results),
+        "rejected_cohorts": rejected_cohorts,
+        "selected_compatibility_keys": selected_keys,
+        "per_case": per_case,
+        "stage2_gate_passed": stage2_gate_passed,
+        "samples_result": accepted_results,
+    }
+
+
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Run isolated FunctionalPlan DeepSeek pytest samples.",
@@ -236,6 +412,12 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--batch-id")
     parser.add_argument("--test-path")
     parser.add_argument("--output-root", default=str(DEFAULT_OUTPUT_ROOT))
+    parser.add_argument(
+        "--aggregate-batches",
+        nargs="+",
+        help="aggregate existing batch directories without running network tests",
+    )
+    parser.add_argument("--report-id")
     parser.add_argument("--dry-run", action="store_true")
     return parser
 
@@ -337,6 +519,18 @@ def _run_sample(
                 "retryable": False,
             }
         )
+    for failure in result_payload.get("gate_failures", ()):
+        if isinstance(failure, dict):
+            errors.append(dict(failure))
+    if return_code != 0 and not errors:
+        errors.append(
+            {
+                "stage": "test_harness",
+                "code": "unclassified_test_failure",
+                "message": "pytest failed without a structured planner or gate error",
+                "retryable": False,
+            }
+        )
     llm = _llm_summary(sample.debug_dir)
     fingerprints = _sample_fingerprints(
         sample,
@@ -358,6 +552,8 @@ def _run_sample(
         "answers": answers,
         "expected_match": result_payload.get("expected_match"),
         "expected_mismatch": result_payload.get("expected_mismatch"),
+        "sample_gates_passed": result_payload.get("gates_passed"),
+        "sample_gate_checks": result_payload.get("gate_checks"),
         "first_error": errors[0] if errors else None,
         "structured_errors": errors,
         "llm": llm,
@@ -379,16 +575,31 @@ def _case_metrics(
         item["outcome"] == "passed" and item.get("attempt_count") == 1
         for item in results
     )
-    error_counts: Counter[str] = Counter()
+    successful_gate_failures = sum(
+        item["outcome"] == "passed"
+        and item.get("sample_gates_passed") is not True
+        for item in results
+    )
+    primary_counts: Counter[str] = Counter()
+    root_counts: Counter[str] = Counter()
+    layer_counts: Counter[str] = Counter()
+    code_counts: Counter[str] = Counter()
     configuration_errors = 0
+    unclassified_errors = 0
     for result in results:
         for error in result.get("structured_errors", ()):
-            stage = str(error.get("stage") or "unknown")
-            code = str(error.get("code") or "unknown")
-            error_counts[f"{stage}/{code}"] += 1
-            message = str(error.get("message") or "")
-            if code == "planner_configuration_error" or "planner_configuration_error" in message:
-                configuration_errors += 1
+            primary_stage, primary_code = _failure_key(error)
+            primary_counts[f"{primary_stage}/{primary_code}"] += 1
+            roots = _root_issues(error)
+            for root in roots:
+                stage, code = _failure_key(root)
+                root_counts[f"{stage}/{code}"] += 1
+                layer_counts[stage] += 1
+                code_counts[code] += 1
+                if code == "planner_configuration_error":
+                    configuration_errors += 1
+                if _is_unclassified_failure(stage, code):
+                    unclassified_errors += 1
     signatures = Counter(
         item["answer_signature"]
         for item in results
@@ -441,8 +652,14 @@ def _case_metrics(
         "pass_at_max_attempts": pass_rate,
         "max_attempts": max_attempts,
         "attempt_distribution": dict(sorted(attempts.items())),
-        "error_frequency": dict(sorted(error_counts.items())),
+        "error_frequency": dict(sorted(root_counts.items())),
+        "primary_error_frequency": dict(sorted(primary_counts.items())),
+        "root_issue_frequency": dict(sorted(root_counts.items())),
+        "failure_frequency_by_layer": dict(sorted(layer_counts.items())),
+        "failure_frequency_by_code": dict(sorted(code_counts.items())),
         "configuration_error_count": configuration_errors,
+        "unclassified_error_count": unclassified_errors,
+        "successful_sample_gate_failure_count": successful_gate_failures,
         "answer_signatures": dict(sorted(signatures.items())),
         "average_duration_seconds": average_duration,
         "average_attempts": average_attempts,
@@ -458,12 +675,16 @@ def _case_metrics(
         total >= 3
         and pass_rate == 1.0
         and configuration_errors == 0
+        and unclassified_errors == 0
+        and successful_gate_failures == 0
         and compatible
     )
     metrics["stage2_gate_passed"] = (
         total >= 10
         and pass_rate >= 0.9
         and configuration_errors == 0
+        and unclassified_errors == 0
+        and successful_gate_failures == 0
         and compatible
     )
     return metrics
@@ -499,11 +720,46 @@ def _structured_errors(debug_dir: Path) -> list[dict[str, Any]]:
         result.append(
             {
                 key: payload.get(key)
-                for key in ("stage", "code", "message", "retryable")
+                for key in ("stage", "code", "message", "retryable", "details")
                 if key in payload
             }
         )
     return result
+
+
+def _failure_key(error: dict[str, Any]) -> tuple[str, str]:
+    return (
+        str(error.get("layer") or error.get("stage") or "unknown"),
+        str(error.get("code") or "unknown"),
+    )
+
+
+def _root_issues(error: dict[str, Any]) -> tuple[dict[str, Any], ...]:
+    details = error.get("details")
+    raw_roots = details.get("root_issues") if isinstance(details, dict) else None
+    roots = raw_roots if isinstance(raw_roots, list) else [error]
+    result: list[dict[str, Any]] = []
+    seen: set[tuple[str, str, str | None]] = set()
+    for item in roots:
+        if not isinstance(item, dict):
+            continue
+        stage, code = _failure_key(item)
+        step_id = item.get("step_id")
+        key = (stage, code, str(step_id) if step_id is not None else None)
+        if key in seen:
+            continue
+        seen.add(key)
+        result.append(item)
+    return tuple(result) or (error,)
+
+
+def _is_unclassified_failure(stage: str, code: str) -> bool:
+    return (
+        stage not in KNOWN_FAILURE_LAYERS
+        or code in UNCLASSIFIED_FAILURE_CODES
+        or stage == "unknown"
+        or code == "unknown"
+    )
 
 
 def _llm_summary(debug_dir: Path) -> dict[str, Any]:
@@ -533,10 +789,19 @@ def _source_fingerprint() -> dict[str, Any]:
         (SERVER_ROOT / "shuxueshuo_server" / "solver").rglob("*.py")
     )
     source_paths.extend(sorted((REPO_ROOT / "internal" / "llm-prompts").glob("*.jinja")))
+    evaluation_paths = [
+        SERVER_ROOT / "tests" / "solver" / "_functional_opt_in_support.py",
+        SERVER_ROOT / "tests" / "solver" / "test_deepseek_functional_batch.py",
+    ]
+    evaluation_paths.extend(
+        SERVER_ROOT / case.test_path
+        for case in FUNCTIONAL_BATCH_CASES.values()
+    )
     return {
         "git_revision": revision,
         "worktree_dirty": dirty,
         "solver_source_sha256": _hash_files(source_paths),
+        "evaluation_source_sha256": _hash_files(evaluation_paths),
     }
 
 
@@ -554,6 +819,8 @@ def _sample_fingerprints(
     fixture_paths = (
         sample.case.problem_fixture_path,
         sample.case.functional_fixture_path,
+        sample.case.recorded_step_intent_path,
+        sample.case.expected_path,
     )
     payload = {
         **source_fingerprint,

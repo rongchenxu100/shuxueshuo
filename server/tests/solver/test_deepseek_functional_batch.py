@@ -8,6 +8,7 @@ from _functional_opt_in_support import _assert_prompt_is_functional_and_safe
 
 from shuxueshuo_server.solver.deepseek_functional_batch import (
     FUNCTIONAL_BATCH_CASES,
+    aggregate_batch_summaries,
     _answer_signature,
     _case_metrics,
     _first_structured_error,
@@ -136,6 +137,7 @@ def test_batch_summary_reads_attempt_errors_and_usage(tmp_path: Path) -> None:
         "code": "planner_failed",
         "message": "typed failure",
         "retryable": True,
+        "details": {"ignored": True},
     }
     assert _llm_summary(tmp_path) == {
         "models": ["deepseek-test"],
@@ -177,8 +179,8 @@ def test_case_metrics_compute_stage_gates_and_error_frequencies() -> None:
             3,
             errors=[
                 {
-                    "stage": "planner",
-                    "code": "planner_failed",
+                    "stage": "functional_reconciliation",
+                    "code": "functional.object_identity_mismatch",
                     "message": "strategy did not converge",
                 }
             ],
@@ -188,7 +190,10 @@ def test_case_metrics_compute_stage_gates_and_error_frequencies() -> None:
 
     assert stage2["pass_at_3"] == 0.9
     assert stage2["stage2_gate_passed"] is True
-    assert stage2["error_frequency"] == {"planner/planner_failed": 1}
+    assert stage2["error_frequency"] == {
+        "functional_reconciliation/functional.object_identity_mismatch": 1
+    }
+    assert stage2["unclassified_error_count"] == 0
 
 
 def test_configuration_or_fingerprint_drift_blocks_parity_gate() -> None:
@@ -203,8 +208,8 @@ def test_configuration_or_fingerprint_drift_blocks_parity_gate() -> None:
             errors=[
                 {
                     "stage": "planner",
-                    "code": "planner_failed",
-                    "message": "planner_configuration_error: missing adapter",
+                    "code": "planner_configuration_error",
+                    "message": "missing adapter",
                 }
             ],
         ),
@@ -215,6 +220,137 @@ def test_configuration_or_fingerprint_drift_blocks_parity_gate() -> None:
     assert metrics["compatible"] is False
     assert metrics["configuration_error_count"] == 1
     assert metrics["stage1_gate_passed"] is False
+
+
+def test_root_issues_are_deduplicated_and_unclassified_blocks_gate() -> None:
+    typed = _sample_result(
+        "sample-01",
+        "passed",
+        2,
+        errors=[
+            {
+                "stage": "functional_reconciliation",
+                "code": "functional.object_identity_mismatch",
+                "message": "primary",
+                "details": {
+                    "root_issues": [
+                        {
+                            "layer": "functional_reconciliation",
+                            "code": "functional.object_identity_mismatch",
+                            "step_id": "call",
+                        },
+                        {
+                            "layer": "functional_reconciliation",
+                            "code": "functional.object_identity_mismatch",
+                            "step_id": "call",
+                        },
+                    ]
+                },
+            }
+        ],
+    )
+    unclassified = _sample_result(
+        "sample-02",
+        "passed",
+        1,
+        errors=[
+            {
+                "stage": "planner",
+                "code": "planner_failed",
+                "message": "legacy envelope",
+            }
+        ],
+    )
+
+    metrics = _case_metrics(
+        [
+            typed,
+            unclassified,
+            _sample_result("sample-03", "passed", 1),
+        ],
+        max_attempts=3,
+    )
+
+    assert metrics["root_issue_frequency"] == {
+        "functional_reconciliation/functional.object_identity_mismatch": 1,
+        "planner/planner_failed": 1,
+    }
+    assert metrics["unclassified_error_count"] == 1
+    assert metrics["stage1_gate_passed"] is False
+
+
+def test_success_without_complete_sample_gates_blocks_parity() -> None:
+    results = [
+        _sample_result("sample-01", "passed", 1),
+        _sample_result("sample-02", "passed", 1),
+        {
+            **_sample_result("sample-03", "passed", 1),
+            "sample_gates_passed": None,
+        },
+    ]
+
+    metrics = _case_metrics(results, max_attempts=3)
+
+    assert metrics["successful_sample_gate_failure_count"] == 1
+    assert metrics["stage1_gate_passed"] is False
+
+
+def test_compatible_three_plus_seven_batches_reach_stage2(
+    tmp_path: Path,
+) -> None:
+    first = _write_batch_summary(
+        tmp_path / "batch-a",
+        batch_id="batch-a",
+        samples_per_case=3,
+        source={"git_revision": "same"},
+        sample_offset=0,
+    )
+    second = _write_batch_summary(
+        tmp_path / "batch-b",
+        batch_id="batch-b",
+        samples_per_case=7,
+        source={"git_revision": "same"},
+        sample_offset=3,
+    )
+
+    report = aggregate_batch_summaries((first, second))
+
+    assert report["stage2_gate_passed"] is True
+    assert report["accepted_samples"] == 50
+    assert report["rejected_cohorts"] == []
+    assert all(
+        item["samples"] == 10 and item["stage2_gate_passed"]
+        for item in report["per_case"].values()
+    )
+
+
+def test_aggregate_rejects_source_fingerprint_drift(tmp_path: Path) -> None:
+    first = _write_batch_summary(
+        tmp_path / "batch-a",
+        batch_id="batch-a",
+        samples_per_case=3,
+        source={"git_revision": "a"},
+        sample_offset=0,
+    )
+    second = _write_batch_summary(
+        tmp_path / "batch-b",
+        batch_id="batch-b",
+        samples_per_case=7,
+        source={"git_revision": "b"},
+        sample_offset=3,
+    )
+
+    report = aggregate_batch_summaries((first, second))
+
+    assert report["stage2_gate_passed"] is False
+    assert report["accepted_samples"] == 15
+    assert report["rejected_cohorts"] == [
+        {
+            "batch_id": "batch-b",
+            "reason": "source_fingerprint_mismatch",
+            "source_fingerprint": {"git_revision": "b"},
+        }
+    ]
 
 
 def test_file_fingerprint_ignores_isolated_sample_directory(tmp_path: Path) -> None:
@@ -252,4 +388,41 @@ def _sample_result(
             },
         },
         "fingerprints": {"compatibility_key": compatibility_key},
+        "sample_gates_passed": True,
     }
+
+
+def _write_batch_summary(
+    path: Path,
+    *,
+    batch_id: str,
+    samples_per_case: int,
+    source: dict,
+    sample_offset: int,
+) -> Path:
+    path.mkdir()
+    results = [
+        {
+            **_sample_result(
+                f"sample-{sample_offset + index:02d}",
+                "passed",
+                1,
+                compatibility_key=f"{case_id}-compatible",
+            ),
+            "case_id": case_id,
+        }
+        for case_id in FUNCTIONAL_BATCH_CASES
+        for index in range(1, samples_per_case + 1)
+    ]
+    (path / "batch-summary.json").write_text(
+        json.dumps(
+            {
+                "batch_id": batch_id,
+                "max_attempts": 3,
+                "source_fingerprint": source,
+                "samples_result": results,
+            }
+        ),
+        encoding="utf-8",
+    )
+    return path

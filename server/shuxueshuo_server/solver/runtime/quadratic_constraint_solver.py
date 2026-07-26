@@ -351,6 +351,63 @@ def value_satisfies_constraint(
         return False
 
 
+def quadratic_coefficient_expression(
+    current_expression: sp.Expr,
+    *,
+    independent_symbol: sp.Symbol,
+    target_symbol: sp.Symbol,
+    template_expression: sp.Expr | None,
+) -> sp.Expr | None:
+    """Map one template coefficient identity into the current polynomial.
+
+    A refined polynomial may no longer contain the original coefficient
+    Symbol. The template preserves that identity, while the current
+    expression contains its actual representation in the selected free basis.
+    """
+    if (
+        template_expression is None
+        or target_symbol not in template_expression.free_symbols
+    ):
+        return None
+    try:
+        current = sp.Poly(
+            sp.expand(current_expression),
+            independent_symbol,
+        )
+        template = sp.Poly(
+            sp.expand(template_expression),
+            independent_symbol,
+        )
+    except (sp.PolynomialError, TypeError, ValueError):
+        return None
+    candidates: list[sp.Expr] = []
+    for power in range(max(current.degree(), template.degree()), -1, -1):
+        template_coefficient = template.coeff_monomial(
+            independent_symbol**power
+        )
+        if target_symbol not in template_coefficient.free_symbols:
+            continue
+        current_coefficient = current.coeff_monomial(
+            independent_symbol**power
+        )
+        solutions = sp.solve(
+            sp.Eq(template_coefficient, current_coefficient),
+            target_symbol,
+            dict=True,
+        )
+        candidates.extend(
+            sp.simplify(solution[target_symbol])
+            for solution in solutions
+            if target_symbol in solution
+            and target_symbol not in solution[target_symbol].free_symbols
+        )
+    unique: list[sp.Expr] = []
+    for candidate in candidates:
+        if not any(sp.simplify(candidate - item) == 0 for item in unique):
+            unique.append(candidate)
+    return unique[0] if len(unique) == 1 else None
+
+
 def _substitute_equation(
     equation: sp.Equality,
     substitutions: dict[sp.Symbol, sp.Expr],

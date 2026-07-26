@@ -35,6 +35,18 @@ def verify_functional_result_forms(
         return (), ()
     provenance = diagnostic.state_write_provenance
     by_handle = {item.produced_handle: item for item in provenance}
+    by_call_return: dict[tuple[str, str], list[StateWriteProvenance]] = {}
+    by_call_slot: dict[tuple[str, str], list[StateWriteProvenance]] = {}
+    for item in provenance:
+        by_call_return.setdefault(
+            (item.step_id, item.output_key),
+            [],
+        ).append(item)
+        if item.state_slot_id is not None:
+            by_call_slot.setdefault(
+                (item.step_id, item.state_slot_id),
+                [],
+            ).append(item)
     available_parameters = _available_parameter_states(provenance)
     calls = {call.call_id: call for call in plan.calls}
     events: list[FunctionalResultFormEvent] = []
@@ -58,7 +70,12 @@ def verify_functional_result_forms(
             )
             if expected is None and max_free is None:
                 continue
-            write = by_handle.get(allocation.handle)
+            write = _allocation_write(
+                allocation,
+                by_handle=by_handle,
+                by_call_return=by_call_return,
+                by_call_slot=by_call_slot,
+            )
             if write is None:
                 if expected is not None:
                     events.append(
@@ -138,6 +155,36 @@ def verify_functional_result_forms(
                 )
             )
     return tuple(events), tuple(issues)
+
+
+def _allocation_write(
+    allocation,
+    *,
+    by_handle: dict[str, StateWriteProvenance],
+    by_call_return: dict[
+        tuple[str, str],
+        list[StateWriteProvenance],
+    ],
+    by_call_slot: dict[
+        tuple[str, str],
+        list[StateWriteProvenance],
+    ],
+) -> StateWriteProvenance | None:
+    """Match one logical return across its state and answer aliases."""
+    for handle in (allocation.state_handle, allocation.handle):
+        if handle is not None and handle in by_handle:
+            return by_handle[handle]
+    slot_candidates = by_call_slot.get(
+        (allocation.call_id, allocation.state_slot_id),
+        (),
+    )
+    if len(slot_candidates) == 1:
+        return slot_candidates[0]
+    candidates = by_call_return.get(
+        (allocation.call_id, allocation.return_name),
+        (),
+    )
+    return candidates[0] if len(candidates) == 1 else None
 
 
 def _return_complexity_issue(

@@ -12,6 +12,7 @@ from typing import Literal
 from shuxueshuo_server.solver.contracts import (
     MethodExplanationSpec,
     ScalarResultFormSpec,
+    SymbolicClosureSpec,
 )
 from shuxueshuo_server.solver.runtime.quadratic_constraint_solver import (
     QuadraticConstraintSolveRequest,
@@ -131,12 +132,13 @@ class QuadraticFromConstraintsMethod:
     例如 ``b``、``c`` 都能作为自由参数时，优先保留后续长度、最值、曲线点或答案
     目标会直接求解/引用的那个参数；无法从上下文唯一判断时，应推迟到更多约束出现。
 
-    V1.5 的 MethodInvocation 只能传 ContextPath，暂时不能直接构造“任意长度 facts
-    列表”，所以输入仍保留 ``curve_point/p1/p2`` 这几个固定槽位；method 内部会把
-    它们统一组装成约束方程。``free_parameter/free_parameters`` 表示本步骤允许保留
-    的自由系数，例如先把 ``a=2`` 代入，保留 ``b,c``，供后续曲线点和联立方程
-    继续约束。后续有 ContextValue 构造器后，可以收敛成真正的
-    ``curve_points`` / ``extra_equations`` / ``free_symbols`` 列表输入。
+    Functional 编译可以把任意数量的 Point ContextPath 聚合为 ``curve_points``。
+    ``curve_point/p1/p2`` 仅保留给旧 StepIntent 和 binding rule 兼容路径，method
+    内部会把两种输入统一组装成约束方程。
+    ``free_parameter/free_parameters`` 表示本步骤允许保留的自由系数，例如先把
+    ``a=2`` 代入，保留 ``b,c``，供后续曲线点和联立方程继续约束。后续有
+    ContextValue 构造器后，可以收敛成真正的 ``curve_points`` /
+    ``extra_equations`` / ``free_symbols`` 列表输入。
     """
 
     method_id = "quadratic_from_constraints"
@@ -408,13 +410,24 @@ SPEC = MethodSpecSource(
         "系数关系、曲线点和参数值；输出当前约束下最简的系数与抛物线。指定 "
         "target_parameter 时还可输出该系数关于 free_parameters 的开放或闭合状态。"
         "使用原则：建立曲线和继续追加约束都使用这一能力；多个已知系数使用 "
-        "known_coefficients，单个运行参数代入才使用 parameter_value。"
+        "known_coefficients，单个运行参数代入才使用 parameter_value。题面函数模板"
+        "已有多个系数值时，应把这些系数一次放入 known_coefficients，不要逐个调用"
+        "表达式参数代入能力来建立抛物线。"
     ),
     do_not_use_when=(
         "当前目标所需的同一抛物线状态已经由前序调用完整确定，无需用相同约束重复求解。",
         "现有约束仍有多个自由参数，且无法唯一选择一个会被后续条件或答案目标消费的参数。",
+        (
+            "要求 closed_state 时，不能遗漏当前抛物线仍含自由符号对应的 "
+            "parameter_value；代码只会在 Symbol 身份唯一时确定性补全。"
+        ),
         "不要把参数范围或不等式放入 extra_equation；它只接受用于求系数的等式。",
         "不要把同一个 Symbol 同时声明为 free_parameters 和 target_parameter。",
+        (
+            "题面 Function 模板已有多个已知系数时，不要逐个调用 "
+            "evaluate_expression_at_parameter；使用 known_coefficients 一次建立"
+            "当前 Parabola 状态。"
+        ),
     ),
     description=(
         "由题面模板建立，或继续化简当前同一对象的抛物线状态。通过已知系数、"
@@ -450,7 +463,10 @@ SPEC = MethodSpecSource(
         "target_parameter": {
             "type": "Symbol",
             "required": False,
-            "role": "本轮希望明确求出的二次函数系数",
+            "role": (
+                "本轮希望明确求出的二次函数系数；只有提供它，"
+                "parameter_value return 才具有确定的 Symbol 身份"
+            ),
         },
     },
     outputs={
@@ -481,6 +497,18 @@ SPEC = MethodSpecSource(
         ("free_parameters", "target_parameter"),
     ),
     constraint_analyzer="quadratic_coefficients",
+    symbolic_closure=SymbolicClosureSpec(
+        target_arg="target_parameter",
+        equation_builder="quadratic_constraints",
+        representation_mapper="polynomial_coefficient_template",
+        known_substitutions=(("parameter", "parameter_value"),),
+        preserved_symbol_args=("free_parameter", "free_parameters"),
+        substitution_outputs=(
+            "coefficients",
+            "parabola",
+            "parameter_value",
+        ),
+    ),
     explanation=MethodExplanationSpec(
         role_schema={
             "constraints": "用于确定当前问二次函数的系数约束。",

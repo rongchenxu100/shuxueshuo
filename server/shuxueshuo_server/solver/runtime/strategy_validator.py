@@ -221,6 +221,9 @@ class StepIntentValidator:
             draft, handle_resolution = HandleResolver().resolve_draft(
                 draft,
                 handle_registry,
+                authoritative_produced_handles={
+                    item.produced_handle for item in projected_state_writes
+                },
             )
             self.last_handle_resolution_report = handle_resolution
             _validate_step_handles(
@@ -302,6 +305,9 @@ def validate_canonical_draft(
     resolved, handle_resolution = HandleResolver().resolve_draft(
         draft,
         handle_registry,
+        authoritative_produced_handles={
+            item.produced_handle for item in projected_state_writes
+        },
     )
     _validate_step_handles(
         resolved,
@@ -1291,20 +1297,21 @@ def _parameter_value_dependency_context(
     candidates: list[str] = []
     for handle in step.reads:
         fact_type = registry.fact_types.get(handle, "")
-        semantic = _semantic_name(handle).lower()
         if handle.startswith("point:"):
             candidates.append(handle)
             continue
         if fact_type in {"point_coordinate", "point_on_curve"}:
             candidates.append(handle)
             continue
-        if handle.startswith("fact:") and (
-            "candidate" in semantic
-            or "candidates" in semantic
-            or "_cand" in semantic
-            or "候选" in semantic
-        ):
-            candidates.append(handle)
+        if handle.startswith("fact:"):
+            semantic = _semantic_name(handle).lower()
+            if (
+                "candidate" in semantic
+                or "candidates" in semantic
+                or "_cand" in semantic
+                or "候选" in semantic
+            ):
+                candidates.append(handle)
     unique = _unique_ordered(candidates)
     if not unique:
         return None

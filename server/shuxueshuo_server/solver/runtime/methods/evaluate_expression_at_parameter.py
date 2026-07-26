@@ -68,9 +68,25 @@ SPEC = MethodSpecSource(
     method_cls=EvaluateExpressionAtParameterMethod,
     title="代入参数化简表达式",
     summary=(
-        "输入: 表达式、最小值表达式或抛物线状态，以及参数符号和参数值；"
-        "输出: 代入参数后的同类型状态。代入一个参数不保证其他自由参数也已闭合；"
-        "最终结果形态由剩余自由符号决定。"
+        "对已经得到的 Expression、MinimumExpression 或 Parabola 状态代入一个"
+        "同身份参数值，并输出同类型状态。输入类型决定唯一 return：Expression "
+        "输出 evaluated_expression，MinimumExpression 输出 "
+        "evaluated_minimum_expression，Parabola 输出 evaluated_parabola。"
+        "代入一个参数不保证其他自由参数也已闭合；最终结果形态由剩余自由符号决定。"
+    ),
+    do_not_use_when=(
+        (
+            "只有 ProblemIR 中的 Function 模板、尚未得到同一函数对象的 Parabola "
+            "状态；建立抛物线应使用 quadratic_from_constraints。"
+        ),
+        (
+            "需要依次代入多个已知二次函数系数；应把这些系数值一次放入 "
+            "quadratic_from_constraints.known_coefficients。"
+        ),
+        (
+            "不要假定 evaluated_expression、evaluated_minimum_expression 和 "
+            "evaluated_parabola 会同时产生；实际 return 只由输入状态类型决定。"
+        ),
     ),
     solves=("evaluate_expression_at_parameter",),
     inputs={

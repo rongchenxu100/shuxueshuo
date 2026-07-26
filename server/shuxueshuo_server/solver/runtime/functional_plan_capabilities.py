@@ -9,6 +9,7 @@ from shuxueshuo_server.solver.contracts import MethodSpec
 from shuxueshuo_server.solver.family.models import (
     CapabilityContextResolver,
     CapabilityInputClosureRequirement,
+    FunctionalArgBindingAuthority,
     SolverFamilySpec,
     StepRecipeSpec,
 )
@@ -349,32 +350,28 @@ def _function_capability(
         item.input_name: item
         for item in (spec.adapter.input_bindings if spec.adapter is not None else ())
     }
+    authority_by_input = {
+        item.name: _functional_binding_authority(
+            binding_by_input.get(item.name),
+            contract_declares_input=_contract_declares_named_slot(
+                contract,
+                item.name,
+            ),
+            public_identity_arg=(
+                item.kind == "point_ref"
+                and (binding := binding_by_input.get(item.name)) is not None
+                and binding.selector == "right_angle:target"
+            ),
+            point_ref_arg=item.kind == "point_ref",
+            arg_kind=item.kind,
+        )
+        for item in spec.args
+    }
     public_source_args = tuple(
         item
         for item in spec.args
         if method_spec.inputs[item.name].functional_exposed
-        if (
-            item.kind in {"slot_read", "condition_read"}
-            and (
-                _contract_declares_named_slot(contract, item.name)
-                or not _selector_is_mechanical(
-                    binding_by_input.get(item.name).selector
-                    if binding_by_input.get(item.name) is not None
-                    else None
-                )
-            )
-        )
-        or (
-            item.kind == "point_ref"
-            and (binding := binding_by_input.get(item.name)) is not None
-            and binding.selector == "right_angle:target"
-        )
-        or _semantic_evidence_resolver(
-            binding_by_input.get(item.name).selector
-            if binding_by_input.get(item.name) is not None
-            else None
-        )
-        is not None
+        and authority_by_input[item.name] == "wire"
     )
     condition_patterns = tuple(
         getattr(contract, "condition_reads", ()) if contract is not None else ()
@@ -403,6 +400,8 @@ def _function_capability(
         evidence_resolver = _semantic_evidence_resolver(
             binding.selector if binding is not None else None
         )
+        if binding is not None and binding.functional_resolver is not None:
+            evidence_resolver = binding.functional_resolver
         public_args_list.append(
             _function_arg(
                 item,
@@ -427,6 +426,7 @@ def _function_capability(
                     binding.selector if binding is not None else None,
                 ),
                 aliases=arg_aliases.get(item.name, ()),
+                binding_authority="wire",
             )
         )
     represented_condition_kinds = {
@@ -459,6 +459,7 @@ def _function_capability(
             name=item.name,
             selector=binding.selector,
             required=binding.required,
+            binding_authority=authority_by_input[item.name],
         )
         for item in spec.args
         if item.name not in public_names
@@ -491,9 +492,23 @@ def _function_capability(
         reconciliation_validators=spec.reconciliation_validators,
         distinct_arg_groups=spec.distinct_arg_groups,
         context_resolvers=context_resolvers,
-        context_arg_bindings=_context_arg_bindings(
-            spec.adapter.input_bindings if spec.adapter is not None else (),
-            context_resolvers=context_resolvers,
+        context_arg_bindings=_merge_context_arg_bindings(
+            (
+                *_context_arg_bindings(
+                    spec.adapter.input_bindings
+                    if spec.adapter is not None
+                    else (),
+                    context_resolvers=context_resolvers,
+                ),
+                *(
+                    FunctionalContextArgBinding(
+                        resolver_id=item.resolver_id,
+                        semantic_role=item.semantic_role,
+                        arg_name=item.arg_name,
+                    )
+                    for item in spec.context_role_bindings
+                ),
+            )
         ),
         auto_args=auto_args,
         context_preflight_selectors=_context_preflight_selectors(
@@ -517,6 +532,34 @@ def _contract_declares_named_slot(contract: Any | None, name: str) -> bool:
     )
 
 
+def _functional_binding_authority(
+    binding: Any | None,
+    *,
+    contract_declares_input: bool,
+    public_identity_arg: bool,
+    point_ref_arg: bool,
+    arg_kind: str,
+) -> str:
+    if contract_declares_input or public_identity_arg:
+        return "wire"
+    if binding is None:
+        return (
+            "wire"
+            if arg_kind in {"slot_read", "condition_read"}
+            else "compiler"
+        )
+    if binding.functional_authority is not None:
+        return binding.functional_authority
+    semantics = selector_semantics(binding.selector)
+    if point_ref_arg and not public_identity_arg:
+        return "compiler"
+    if not semantics.mechanical:
+        return "wire"
+    if semantics.semantic_evidence_resolver is not None:
+        return "resolver"
+    return "compiler"
+
+
 def _selector_is_mechanical(selector: str | None) -> bool:
     return selector_semantics(selector).mechanical
 
@@ -536,9 +579,13 @@ def _normalize_object_role_projection_args(
             object_role_projections=tuple(
                 replace(
                     projection,
-                    source_arg=names_by_runtime_input.get(
-                        projection.source_arg,
-                        projection.source_arg,
+                    source_arg=(
+                        names_by_runtime_input.get(
+                            projection.source_arg,
+                            projection.source_arg,
+                        )
+                        if projection.source_arg is not None
+                        else None
                     ),
                 )
                 for projection in returned.object_role_projections
@@ -669,11 +716,23 @@ def _macro_capability(
         is_pure=spec.is_pure,
         dependency_policy=spec.dependency_policy,
         context_resolvers=spec.context_resolvers,
-        context_arg_bindings=_macro_context_arg_bindings(
-            spec,
-            functions=functions,
-            family_binding_rules=family_binding_rules,
-            method_specs=method_specs,
+        context_arg_bindings=_merge_context_arg_bindings(
+            (
+                *_macro_context_arg_bindings(
+                    spec,
+                    functions=functions,
+                    family_binding_rules=family_binding_rules,
+                    method_specs=method_specs,
+                ),
+                *(
+                    FunctionalContextArgBinding(
+                        resolver_id=item.resolver_id,
+                        semantic_role=item.semantic_role,
+                        arg_name=item.arg_name,
+                    )
+                    for item in spec.context_role_bindings
+                ),
+            )
         ),
         input_closure_requirements=_input_closure_requirements(
             spec.input_closure_requirements
@@ -695,13 +754,27 @@ def _validate_identity_contract(capability: FunctionalCapability) -> None:
         )
     )
     known_args = set(arg_names)
+    known_returns = {item.name for item in capability.returns}
     for returned in capability.returns:
         for projection in returned.object_role_projections:
-            if projection.source_arg not in known_args:
+            if (
+                projection.source_arg is not None
+                and projection.source_arg not in known_args
+            ):
                 raise ValueError(
                     "planner_configuration_error: object-role projection "
                     "references unknown arg: "
                     f"{capability.capability_id}.{projection.source_arg}"
+                )
+            if (
+                projection.source_return is not None
+                and projection.source_return not in known_returns
+            ):
+                raise ValueError(
+                    "planner_configuration_error: object-role projection "
+                    "references unknown return: "
+                    f"{capability.capability_id}."
+                    f"{projection.source_return}"
                 )
         for closure in returned.lineage_closures:
             missing = set(closure.source_args) - known_args
@@ -866,6 +939,7 @@ def _function_arg(
     accepted_condition_kinds: tuple[str, ...] = (),
     requires_materialized_state: bool = False,
     aliases: tuple[str, ...] = (),
+    binding_authority: FunctionalArgBindingAuthority = "wire",
 ) -> FunctionalCapabilityArg:
     accepted_item_types, cardinality, aggregation = _lower_runtime_container(
         item.runtime_type,
@@ -910,6 +984,7 @@ def _function_arg(
         description=item.description,
         provides_semantic_roles=item.provides_semantic_roles,
         input_closure_policy=item.input_closure_policy,
+        binding_authority=binding_authority,
     )
 
 
@@ -1046,6 +1121,12 @@ def _function_return(item: FunctionReturnSpec) -> FunctionalCapabilityReturn:
             if item.scalar_result_form is not None
             else None
         ),
+        item.return_binding,
+        (
+            item.scalar_result_form.ignored_symbol_input_args
+            if item.scalar_result_form is not None
+            else ()
+        ),
     )
 
 
@@ -1126,6 +1207,12 @@ def _macro_return(item: MacroReturnSpec) -> FunctionalCapabilityReturn:
             item.scalar_result_form.max_independent_free_parameters
             if item.scalar_result_form is not None
             else None
+        ),
+        item.return_binding,
+        (
+            item.scalar_result_form.ignored_symbol_input_args
+            if item.scalar_result_form is not None
+            else ()
         ),
     )
 

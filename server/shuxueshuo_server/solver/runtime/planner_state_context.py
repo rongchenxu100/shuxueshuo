@@ -348,6 +348,10 @@ class RetryMemory:
     baseline_candidate: dict[str, Any] | None = None
     stable_candidate_prefix: tuple[dict[str, Any], ...] = ()
     stable_candidate_calls: tuple[dict[str, Any], ...] = ()
+    committed_candidate_calls: tuple[dict[str, Any], ...] = ()
+    runtime_verified_calls: tuple[dict[str, Any], ...] = ()
+    validated_call_ids: tuple[str, ...] = ()
+    call_memory: tuple[dict[str, Any], ...] = ()
     repair_call_ids: tuple[str, ...] = ()
 
     def to_payload(self) -> dict[str, Any]:
@@ -371,6 +375,14 @@ class RetryMemory:
             "stable_candidate_calls": [
                 dict(item) for item in self.stable_candidate_calls
             ],
+            "committed_candidate_calls": [
+                dict(item) for item in self.committed_candidate_calls
+            ],
+            "runtime_verified_calls": [
+                dict(item) for item in self.runtime_verified_calls
+            ],
+            "validated_call_ids": list(self.validated_call_ids),
+            "call_memory": [dict(item) for item in self.call_memory],
             "repair_call_ids": list(self.repair_call_ids),
         }
 
@@ -894,7 +906,10 @@ class PlannerStateContextBuilder:
             scope_ids=tuple(sorted(handle_registry.scope_ids)),
             scope_parents=dict(handle_registry.scope_parents),
         )
-        math_objects = _math_objects_from_registry(handle_registry)
+        math_objects = _math_objects_from_registry(
+            handle_registry,
+            problem_payload=problem_payload,
+        )
         conditions = _conditions_from_registry(handle_registry)
         state_slots = {
             slot.slot_id: slot
@@ -1287,6 +1302,26 @@ def _retry_memory_from_retry_state(
             for item in payload.get("stable_candidate_calls", ())
             if isinstance(item, dict)
         ),
+        committed_candidate_calls=tuple(
+            dict(item)
+            for item in payload.get("committed_candidate_calls", ())
+            if isinstance(item, dict)
+        ),
+        runtime_verified_calls=tuple(
+            dict(item)
+            for item in payload.get("runtime_verified_calls", ())
+            if isinstance(item, dict)
+        ),
+        validated_call_ids=tuple(
+            item
+            for item in payload.get("validated_call_ids", ())
+            if isinstance(item, str)
+        ),
+        call_memory=tuple(
+            dict(item)
+            for item in payload.get("call_memory", ())
+            if isinstance(item, dict)
+        ),
         repair_call_ids=tuple(
             item
             for item in payload.get("repair_call_ids", ())
@@ -1372,8 +1407,11 @@ def initial_planner_state_context(
 
 def _math_objects_from_registry(
     registry: CanonicalHandleRegistry,
+    *,
+    problem_payload: Mapping[str, Any] | None = None,
 ) -> list[MathObject]:
     result: list[MathObject] = []
+    known_handles: set[str] = set()
     for handle in sorted(registry.entity_handles):
         kind, scope_id, name = _split_entity_handle(handle)
         result.append(
@@ -1387,6 +1425,35 @@ def _math_objects_from_registry(
                 valid_scope=registry.handle_valid_scopes.get(handle, scope_id),
             )
         )
+        known_handles.add(handle)
+    if problem_payload is not None:
+        relationship_handles = {
+            handle
+            for collection_name in ("entities", "facts")
+            for payload in problem_payload.get(collection_name, ())
+            if isinstance(payload, Mapping)
+            for handle in _structured_object_refs(payload)
+            if is_object_handle(handle)
+        }
+        for handle in sorted(relationship_handles - known_handles):
+            kind, scope_id, name = _split_entity_handle(handle)
+            if scope_id not in registry.scope_ids:
+                continue
+            result.append(
+                MathObject(
+                    object_id=f"{kind}:{name}@{scope_id}",
+                    kind=kind,
+                    scope_id=scope_id,
+                    canonical_handle=handle,
+                    semantic_refs=(name,),
+                    source="problem",
+                    valid_scope=registry.handle_valid_scopes.get(
+                        handle,
+                        scope_id,
+                    ),
+                )
+            )
+            known_handles.add(handle)
     for handle in sorted(registry.answer_handles):
         answer_id = handle.split(":", 1)[1]
         scope_id = registry.handle_valid_scopes.get(handle, "problem")
@@ -1417,12 +1484,14 @@ def _conditions_from_registry(
             fact_type,
             registry.fact_payloads.get(handle, {}),
         )
+        subject_ids = dict(object_roles).get("subject", ())
         result.append(
             Condition(
                 condition_id=f"condition:{_semantic_ref(handle)}@{scope_id}",
                 kind=fact_type,
                 scope_id=scope_id,
                 canonical_handle=handle,
+                subject_ids=subject_ids,
                 object_roles=object_roles,
                 value_type=fact_type,
                 valid_scope=registry.handle_valid_scopes.get(handle),
@@ -1701,15 +1770,17 @@ def _ensure_produced_condition(
         state.alias_index.by_handle[item.handle] = existing.condition_id
         return existing
     value_type = handle_registry.fact_types.get(item.handle) or item.output_type or runtime_type
+    object_roles = _condition_object_roles(
+        value_type,
+        handle_registry.fact_payloads.get(item.handle, {}),
+    )
     condition = Condition(
         condition_id=condition_id,
         kind=value_type,
         scope_id=scope_id,
         canonical_handle=item.handle,
-        object_roles=_condition_object_roles(
-            value_type,
-            handle_registry.fact_payloads.get(item.handle, {}),
-        ),
+        subject_ids=dict(object_roles).get("subject", ()),
+        object_roles=object_roles,
         value_type=value_type,
         source_step_id=produced_by,
         valid_scope=item.valid_scope,

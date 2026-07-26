@@ -517,6 +517,8 @@ class HandleResolver:
         self,
         draft: StepIntentDraft,
         registry: CanonicalHandleRegistry,
+        *,
+        authoritative_produced_handles: set[str] | frozenset[str] = frozenset(),
     ) -> tuple[StepIntentDraft, HandleResolutionReport]:
         """返回修正后的 draft 与修正报告。"""
         available = set(registry.initial_handles)
@@ -549,6 +551,7 @@ class HandleResolver:
                     corrected_step,
                     registry=registry,
                     handle_valid_scopes=handle_valid_scopes,
+                    authoritative_produced_handles=authoritative_produced_handles,
                 )
                 corrections.extend(scope_corrections)
                 handle_rewrites.update(produce_rewrites)
@@ -588,6 +591,7 @@ class HandleResolver:
         *,
         registry: CanonicalHandleRegistry,
         handle_valid_scopes: dict[str, str],
+        authoritative_produced_handles: set[str] | frozenset[str] = frozenset(),
     ) -> tuple[StepIntent, list[HandleCorrection], dict[str, str]]:
         """收窄被 LLM 误写成父级公共结论的 produced fact。
 
@@ -603,6 +607,12 @@ class HandleResolver:
         rewrites: dict[str, str] = {}
         for item in step.produces:
             if not item.handle.startswith("fact:"):
+                new_produces.append(item)
+                continue
+            if item.handle in authoritative_produced_handles:
+                # Functional reconciliation already proved the StateSlot
+                # publication scope. Legacy StepIntent read-scope narrowing
+                # must not create a second, narrower handle identity.
                 new_produces.append(item)
                 continue
             if step.scope_id == "problem":

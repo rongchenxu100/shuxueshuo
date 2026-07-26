@@ -68,9 +68,11 @@ class DeclarationValidator:
             raise ValueError(
                 f"declaration scope mismatch for {declaration.path}: {declaration.scope_id}"
             )
-        if path.container != "points":
+        if path.container not in {"points", "object_refs"}:
             raise PermissionError(
-                f"declaration must write points container: {declaration.path}"
+                "declaration must write points container or immutable "
+                "object_refs container: "
+                f"{declaration.path}"
             )
         if path.key != declaration.name:
             raise ValueError(
@@ -81,11 +83,20 @@ class DeclarationValidator:
             raise TypeError(
                 f"declaration {declaration.path} type must be PointRef, got {declaration.type}"
             )
-        if declaration.source != "planner":
+        expected_source = (
+            "problem_identity"
+            if path.container == "object_refs"
+            else "planner"
+        )
+        if declaration.source != expected_source:
             raise PermissionError(
-                f"declaration {declaration.path} source must be planner"
+                f"declaration {declaration.path} source must be "
+                f"{expected_source}"
             )
-        if self._contains_forbidden_value(declaration.definition):
+        if (
+            path.container == "points"
+            and self._contains_forbidden_value(declaration.definition)
+        ):
             raise ValueError(
                 f"declaration {declaration.path} must not include coordinates or answer values"
             )
@@ -93,7 +104,9 @@ class DeclarationValidator:
         if existing is None:
             return
         if existing.locked:
-            raise PermissionError(f"declaration cannot overwrite locked path: {declaration.path}")
+            raise PermissionError(
+                f"declaration cannot overwrite locked path: {declaration.path}"
+            )
         if existing.type != "PointRef":
             raise PermissionError(
                 f"declaration cannot overwrite existing non-PointRef path: {declaration.path}"
@@ -105,6 +118,11 @@ class DeclarationValidator:
             and dict(existing_ref.definition) == dict(declaration.definition)
         ):
             return
+        if path.container == "object_refs":
+            raise PermissionError(
+                f"declaration cannot overwrite immutable object ref: "
+                f"{declaration.path}"
+            )
         if (
             existing_ref.name == declaration.name
             and existing_ref.scope_id == declaration.scope_id
@@ -206,13 +224,38 @@ class PlanValidator:
                 if input_spec.required:
                     raise ValueError(f"missing required input: {input_name}")
                 continue
+            if isinstance(raw_path, tuple):
+                item_type = _aggregate_item_type(input_spec.type)
+                if item_type is None:
+                    raise TypeError(
+                        f"input {input_name} does not accept multiple ContextPaths"
+                    )
+                if not raw_path:
+                    raise ValueError(
+                        f"aggregate input {input_name} must not be empty"
+                    )
+                for item_path in raw_path:
+                    if not isinstance(item_path, str) or not item_path.startswith("$"):
+                        raise ValueError(
+                            f"input {input_name} must contain only ContextPaths"
+                        )
+                    context.read_path(
+                        item_path,
+                        from_scope_id=invocation.scope,
+                        expected_type=item_type,
+                    )
+                continue
             if not isinstance(raw_path, str) or not raw_path.startswith("$"):
                 # 这条规则防止 Planner 把坐标答案直接塞进 invocation。
                 raise ValueError(f"input {input_name} must be a ContextPath")
+            expected_type = _identity_compatible_input_type(
+                input_name,
+                input_spec.type,
+            )
             if raw_path in produced_types:
-                if not runtime_type_matches(input_spec.type, produced_types[raw_path]):
+                if not runtime_type_matches(expected_type, produced_types[raw_path]):
                     raise TypeError(
-                        f"path {raw_path} expected {input_spec.type}, got {produced_types[raw_path]}"
+                        f"path {raw_path} expected {expected_type}, got {produced_types[raw_path]}"
                     )
                 produced_path = ContextPath.parse(raw_path)
                 if produced_path.scope_id != invocation.scope:
@@ -223,7 +266,7 @@ class PlanValidator:
                 context.read_path(
                     raw_path,
                     from_scope_id=invocation.scope,
-                    expected_type=input_spec.type,
+                    expected_type=expected_type,
                 )
         unknown_outputs = sorted(set(invocation.outputs) - set(spec.outputs))
         if unknown_outputs:
@@ -318,11 +361,32 @@ class InvocationExecutor:
             raw_path = invocation.inputs.get(input_name)
             if raw_path is None:
                 continue
+            if isinstance(raw_path, tuple):
+                item_type = _aggregate_item_type(input_spec.type)
+                if item_type is None:
+                    raise TypeError(
+                        f"input {input_name} does not accept multiple ContextPaths"
+                    )
+                values = [
+                    context.read_path(
+                        item_path,
+                        from_scope_id=invocation.scope,
+                        expected_type=item_type,
+                    )
+                    for item_path in raw_path
+                ]
+                input_types[input_name] = input_spec.type
+                inputs[input_name] = [item.value for item in values]
+                continue
+            expected_type = _identity_compatible_input_type(
+                input_name,
+                input_spec.type,
+            )
             # read_path 会同时做 scope 可见性校验和 expected_type 校验。
             typed_value = context.read_path(
                 raw_path,
                 from_scope_id=invocation.scope,
-                expected_type=input_spec.type,
+                expected_type=expected_type,
             )
             input_types[input_name] = typed_value.type
             inputs[input_name] = _method_input_value(
@@ -359,6 +423,13 @@ class InvocationExecutor:
         return result
 
 
+def _aggregate_item_type(runtime_type: str) -> str | None:
+    return {
+        "PointList": "Point",
+        "SymbolList": "Symbol",
+    }.get(runtime_type)
+
+
 def _method_input_value(
     *,
     input_name: str,
@@ -375,13 +446,25 @@ def _method_input_value(
     if (
         (input_name == "target" or input_name.endswith("_ref"))
         and "PointRef" in split_runtime_types(input_type)
-        and "Point" in split_runtime_types(input_type)
         and typed_value.type == "Point"
     ):
         point_ref = _point_ref_from_point_value_path(raw_path)
         if point_ref is not None:
             return point_ref
     return typed_value.value
+
+
+def _identity_compatible_input_type(
+    input_name: str,
+    input_type: str,
+) -> str:
+    """Allow identity slots to recover PointRef from an existing Point path."""
+    if (
+        (input_name == "target" or input_name.endswith("_ref"))
+        and "PointRef" in split_runtime_types(input_type)
+    ):
+        return "PointRef|Point"
+    return input_type
 
 
 def _point_ref_from_point_value_path(raw_path: str) -> PointRef | None:

@@ -203,6 +203,24 @@ def test_scalar_result_form_specs_round_trip_from_code() -> None:
     assert "evaluated_parabola" not in evaluate.scalar_result_forms
 
 
+def test_symbolic_closure_spec_round_trips_from_code() -> None:
+    spec = MethodSpecRegistry.load_from_code().require(
+        "quadratic_from_constraints"
+    )
+
+    assert spec.symbolic_closure is not None
+    assert spec.symbolic_closure.target_arg == "target_parameter"
+    assert spec.symbolic_closure.preserved_symbol_args == (
+        "free_parameter",
+        "free_parameters",
+    )
+    assert spec.symbolic_closure.substitution_outputs == (
+        "coefficients",
+        "parabola",
+        "parameter_value",
+    )
+
+
 def test_generated_json_specs_match_code_source() -> None:
     spec_dir = Path("../internal/method-specs")
     expected = {
@@ -218,6 +236,60 @@ def test_generated_json_specs_match_code_source() -> None:
     }
 
     assert actual == expected
+
+
+def test_weighted_methods_share_declarative_geometry_profiles() -> None:
+    registry = MethodSpecRegistry.load_from_code()
+    transform = registry.require("weighted_axis_path_triangle_transform")
+    geometric = registry.require("linked_broken_path_geometric_minimum")
+    expression = registry.require(
+        "linked_broken_path_minimum_expression"
+    )
+
+    assert transform.geometry_profiles
+    assert geometric.geometry_profiles == transform.geometry_profiles
+    assert expression.geometry_profiles == transform.geometry_profiles
+    assert {
+        profile["profile_id"]
+        for profile in transform.geometry_profiles
+    } == {
+        "sqrt2_right_isosceles",
+        "weight2_30_60",
+    }
+
+
+def test_evaluate_point_trial_error_mapping_is_method_owned() -> None:
+    spec = MethodSpecRegistry.load_from_code().require(
+        "evaluate_point_at_parameter"
+    )
+
+    assert len(spec.trial_error_hints) == 1
+    hint = spec.trial_error_hints[0]
+    assert hint.error_contains == "missing required input: parameter"
+    assert hint.code == "final_point_requires_square_recovery"
+    assert hint.requires_point_answer is True
+    assert hint.requires_planner_output_types == ("PathTransformation",)
+
+
+def test_trial_error_hint_rejects_non_boolean_predicate() -> None:
+    payload = next(
+        item
+        for item in method_spec_payloads()
+        if item["method_id"] == "evaluate_point_at_parameter"
+    )
+    malformed = dict(payload)
+    malformed["trial_error_hints"] = [
+        {
+            **payload["trial_error_hints"][0],
+            "requires_point_answer": "true",
+        }
+    ]
+
+    with pytest.raises(
+        ValueError,
+        match="requires_point_answer must be a boolean",
+    ):
+        parse_method_spec(malformed)
 
 
 def test_method_explanation_placeholders_are_declared_roles() -> None:
