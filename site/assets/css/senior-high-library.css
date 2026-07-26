@@ -196,7 +196,8 @@
 }
 
 .senior-library-heading {
-  display: flex;
+  display: grid;
+  grid-template-columns: max-content max-content;
   align-items: baseline;
   gap: 12px;
   min-width: 0;
@@ -209,6 +210,7 @@
   font-size: 1.32rem;
   font-weight: 750;
   letter-spacing: 0;
+  white-space: nowrap;
 }
 
 .senior-library-heading span {
@@ -507,6 +509,44 @@
   margin: 0 auto;
 }
 
+.senior-library-collection-tabs {
+  display: flex;
+  width: fit-content;
+  margin: 2px auto 22px;
+  padding: 3px;
+  border: 1px solid var(--senior-line);
+  border-radius: 6px;
+  background: rgba(15, 54, 58, 0.045);
+}
+
+.senior-library-collection-tabs[hidden] {
+  display: none;
+}
+
+.senior-library-collection-tab {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 7px;
+  min-height: 34px;
+  padding: 7px 14px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--senior-muted);
+  cursor: pointer;
+}
+
+.senior-library-collection-tab small {
+  font-size: 0.68rem;
+}
+
+.senior-library-collection-tab.is-active {
+  background: #fff;
+  color: var(--senior-accent);
+  box-shadow: 0 1px 4px rgba(15, 54, 58, 0.12);
+  font-weight: 800;
+}
+
 .senior-worksheet-group + .senior-worksheet-group {
   margin-top: 32px;
 }
@@ -563,6 +603,38 @@
 
 .senior-worksheet-line + .senior-worksheet-line {
   margin-top: 4px;
+}
+
+.senior-worksheet-options {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: baseline;
+  gap: 6px 14px;
+  margin-top: 7px;
+  font-family: "Songti SC", "Noto Serif SC", "STSong", serif;
+  font-size: 0.94rem;
+  line-height: 1.8;
+}
+
+.senior-worksheet-options.is-stacked {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 3px;
+}
+
+.senior-worksheet-option {
+  display: inline-flex;
+  align-items: baseline;
+  min-width: 0;
+}
+
+.senior-worksheet-options:not(.is-stacked) .senior-worksheet-option {
+  white-space: nowrap;
+}
+
+.senior-worksheet-option-label {
+  flex: 0 0 auto;
+  margin-right: 5px;
 }
 
 .senior-worksheet-source {

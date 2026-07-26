@@ -2,10 +2,11 @@
   "version": 1,
   "collections": [
     {
-      "id": "function-concepts",
+      "id": "function-concepts-foundation",
       "chapterId": "functions",
       "sectionId": "function-concepts-and-representation",
-      "title": "函数的概念",
+      "title": "函数的概念 · 基础练习",
+      "label": "基础练习",
       "status": "published",
       "groups": [
         {
@@ -35,6 +36,53 @@
             "function-concepts-20260722-q09",
             "function-concepts-20260722-q10",
             "function-concepts-20260722-q11"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "function-concepts-advanced",
+      "chapterId": "functions",
+      "sectionId": "function-concepts-and-representation",
+      "title": "函数的概念 · 能力提升",
+      "label": "能力提升",
+      "status": "published",
+      "groups": [
+        {
+          "id": "function-concept",
+          "label": "函数概念",
+          "lessonIds": [
+            "function-concepts-advanced-20260726-q01",
+            "function-concepts-advanced-20260726-q02"
+          ]
+        },
+        {
+          "id": "function-domain",
+          "label": "函数定义域",
+          "lessonIds": [
+            "function-concepts-advanced-20260726-q03",
+            "function-concepts-advanced-20260726-q04",
+            "function-concepts-advanced-20260726-q05",
+            "function-concepts-advanced-20260726-q06"
+          ]
+        },
+        {
+          "id": "function-value-and-range",
+          "label": "函数值域",
+          "lessonIds": [
+            "function-concepts-advanced-20260726-q07",
+            "function-concepts-advanced-20260726-q08",
+            "function-concepts-advanced-20260726-q09",
+            "function-concepts-advanced-20260726-q10",
+            "function-concepts-advanced-20260726-q11",
+            "function-concepts-advanced-20260726-q12"
+          ]
+        },
+        {
+          "id": "function-comprehensive",
+          "label": "函数综合应用",
+          "lessonIds": [
+            "function-concepts-advanced-20260726-q13"
           ]
         }
       ]

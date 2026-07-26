@@ -1,0 +1,103 @@
+{
+  "$schema": "../../../schemas/lesson-data.schema.json",
+  "meta": {
+    "id": "function-concepts-advanced-20260726-q04",
+    "outputPath": "site/problems/senior-high/functions/function-concepts-and-representation/function-concepts-advanced-20260726-q04.html",
+    "pageTitle": "函数的概念 · 能力提升第 4 题：含参数根式函数的定义域为 R",
+    "pageDescription": "把定义域为 R 转化为二次式恒非负，分类讨论参数并使用判别式。",
+    "breadcrumbTitle": "函数概念能力提升第 4 题",
+    "breadcrumbLabel": "高中题库",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "classification": {
+      "pattern": "function-concepts-and-representation",
+      "methods": [
+        "根式定义域",
+        "恒成立",
+        "判别式",
+        "分类讨论"
+      ]
+    },
+    "curriculum": {
+      "chapterLabel": "第三章 函数的概念与性质",
+      "sectionLabel": "3.1 函数的概念及其表示",
+      "subsectionLabel": "函数的概念 · 能力提升",
+      "groupId": "function-domain",
+      "groupLabel": "函数的定义域"
+    }
+  },
+  "problem": {
+    "source": "2025 黑龙江鹤岗第一中学期中",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "偶次根式对所有实数有意义，等价于被开方二次式恒不小于 0；",
+      "items": [
+        "二次项系数可能为 0，必须先单独检查退化情形。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "已知函数 \\(f(x)=\\sqrt{ax^2-2ax+1}\\) 的定义域为 R，则实数 \\(a\\) 的取值范围是（　）　A. \\((0,1]\\)　B. \\((0,+∞)\\)　C. \\([1,+∞)\\)　D. \\([0,1]\\)",
+        "answerId": "answerI",
+        "answer": "D"
+      }
+    ]
+  },
+  "ui": {
+    "legend": [],
+    "sliderLabel": "参数",
+    "paramLabelPrefix": "",
+    "goToProblemMode": "smooth",
+    "groupTitles": {
+      "求解": ""
+    }
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "求解",
+      "title": "转化恒成立条件并分类讨论参数 a",
+      "t": 0,
+      "derive": [
+        [
+          "∵",
+          "定义域为 R"
+        ],
+        [
+          "∴",
+          "\\(ax^2-2ax+1≥0\\) 对任意 \\(x∈R\\) 恒成立"
+        ],
+        [
+          "当 a=0",
+          "被开方式恒为 1，符合要求"
+        ],
+        [
+          "当 a>0",
+          "\\(Δ=(-2a)^2-4a=4a(a-1)≤0\\)，∴ \\(0<a≤1\\)"
+        ],
+        [
+          "当 a<0",
+          "抛物线开口向下，不可能恒非负"
+        ],
+        [
+          "∴",
+          "\\(0≤a≤1\\)，选 D"
+        ]
+      ],
+      "box": [
+        "二次项系数可能为 0，必须先单独检查退化情形。"
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 转化条件并分类讨论参数 a"
+  }
+}

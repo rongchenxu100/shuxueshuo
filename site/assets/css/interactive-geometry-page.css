@@ -456,6 +456,48 @@ body {
   min-width: 0;
 }
 
+.problem-options {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: baseline;
+  gap: 8px 18px;
+  margin-top: 8px;
+  padding-right: 92px;
+}
+
+.problem-options.is-stacked {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 6px;
+}
+
+.problem-option {
+  display: inline-flex;
+  align-items: baseline;
+  min-width: 0;
+  line-height: 1.8;
+}
+
+.problem-options:not(.is-stacked) .problem-option {
+  white-space: nowrap;
+}
+
+.problem-option-label {
+  flex: 0 0 auto;
+  margin-right: 5px;
+  font-weight: 700;
+}
+
+@media (max-width: 720px) {
+  .problem-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding-right: 0;
+  }
+
+  .problem-options.is-stacked {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 .answer-chip {
   display: none;
   flex: 0 0 auto;

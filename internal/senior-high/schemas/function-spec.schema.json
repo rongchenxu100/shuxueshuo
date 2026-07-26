@@ -147,6 +147,8 @@
               "id": { "type": "string", "minLength": 1 },
               "orientation": { "enum": ["vertical", "horizontal"] },
               "value": { "type": "number" },
+              "min": { "type": "number" },
+              "max": { "type": "number" },
               "label": { "type": "string" },
               "color": { "type": "string" }
             },
@@ -155,6 +157,7 @@
         },
         "gridStepX": { "type": "number", "exclusiveMinimum": 0 },
         "gridStepY": { "type": "number", "exclusiveMinimum": 0 },
+        "showAxisTicks": { "type": "boolean" },
         "axisPadding": {
           "type": "object",
           "properties": {
@@ -271,7 +274,32 @@
               "items": {
                 "type": "object",
                 "required": ["id", "pointIds"],
-                "properties": { "id": { "type": "string" }, "pointIds": { "type": "array", "items": { "type": "string" } }, "label": { "type": "string" } },
+                "properties": {
+                  "id": { "type": "string" },
+                  "pointIds": { "type": "array", "items": { "type": "string" } },
+                  "label": { "type": "string" },
+                  "fill": { "type": "string" },
+                  "fillOpacity": { "type": "number", "minimum": 0, "maximum": 1 },
+                  "stroke": { "type": "string" },
+                  "strokeWidth": { "type": "number", "minimum": 0 }
+                },
+                "additionalProperties": false
+              }
+            },
+            "ellipses": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id", "centerPointId", "rx", "ry"],
+                "properties": {
+                  "id": { "type": "string" },
+                  "centerPointId": { "type": "string" },
+                  "rx": { "type": "number", "exclusiveMinimum": 0 },
+                  "ry": { "type": "number", "exclusiveMinimum": 0 },
+                  "fill": { "type": "string" },
+                  "stroke": { "type": "string" },
+                  "backHalfDashed": { "type": "boolean" }
+                },
                 "additionalProperties": false
               }
             }

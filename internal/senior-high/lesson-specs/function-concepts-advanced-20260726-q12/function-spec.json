@@ -1,0 +1,49 @@
+{
+  "$schema": "../../schemas/function-spec.schema.json",
+  "version": 1,
+  "id": "function-concepts-advanced-20260726-q12",
+  "panels": [
+    {
+      "id": "reasoning-table",
+      "kind": "valueTable",
+      "title": "把任意存在条件转化为值域包含关系",
+      "viewport": {
+        "x": 0.08,
+        "y": 0.12,
+        "width": 0.84,
+        "height": 0.76
+      },
+      "columns": [
+        "题设语言",
+        "集合语言",
+        "本题对应"
+      ],
+      "rows": [
+        {
+          "id": "row-1",
+          "cells": [
+            "任意 x₁",
+            "遍历 H 中每个值",
+            "H=[k−1, 3k−1]"
+          ]
+        },
+        {
+          "id": "row-2",
+          "cells": [
+            "存在 x₂",
+            "可在 J 中找到对应值",
+            "J=[1/(3k−1), 1/(k−1)]"
+          ]
+        },
+        {
+          "id": "row-3",
+          "cells": [
+            "h(x₁)=1/h(x₂)",
+            "H ⊆ J",
+            "[k−1, 3k−1] ⊆ J"
+          ]
+        }
+      ]
+    }
+  ]
+}

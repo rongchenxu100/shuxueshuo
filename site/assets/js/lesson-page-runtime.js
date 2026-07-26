@@ -138,6 +138,12 @@
     return !step || step.showDiagram !== false;
   }
 
+  function withoutStepWords(value) {
+    return String(value != null ? value : "")
+      .replace(/第\s*\d+\s*步\s*[：:]\s*/g, "")
+      .trim();
+  }
+
   function clamp(v, min, max) {
     return Math.max(min, Math.min(max, v));
   }
@@ -274,9 +280,9 @@
                   '" type="button" data-step="' +
                   index +
                   '" title="' +
-                  esc(step.title) +
+                  esc(withoutStepWords(step.title)) +
                   '">' +
-                  renderFormulaText(STEP_LABELS[step[policyStepKey]]) +
+                  renderFormulaText(withoutStepWords(STEP_LABELS[step[policyStepKey]])) +
                   "</button>";
                 return localIndex === 0 ? dot : '<span class="step-connector"></span>' + dot;
               })
@@ -302,7 +308,10 @@
       if (mobileStepCount)
         mobileStepCount.textContent =
           STEPS[stepIndex].section + " · 步骤 " + (stepIndex + 1) + " / " + STEPS.length;
-      if (mobileStepName) mobileStepName.innerHTML = renderFormulaText(STEP_LABELS[STEPS[stepIndex][policyStepKey]]);
+      if (mobileStepName)
+        mobileStepName.innerHTML = renderFormulaText(
+          withoutStepWords(STEP_LABELS[STEPS[stepIndex][policyStepKey]]),
+        );
     }
 
     function renderMinisMarkup(step, activeT) {
@@ -531,7 +540,7 @@
             " " +
             viewBoxH +
             '" aria-label="' +
-            esc(step.title) +
+            esc(withoutStepWords(step.title)) +
             '">' +
             diagramMarkupFor(index, activeT, localVars) +
             '</svg></div>' +
@@ -551,7 +560,7 @@
           '<div class="step-card-head"><div class="step-card-title"><div class="step-section">' +
           esc(step.section) +
           "</div><h2>" +
-          renderFormulaText(step.title) +
+          renderFormulaText(withoutStepWords(step.title)) +
           '</h2></div><div class="step-card-index">' +
           (index + 1) +
           "/" +
@@ -1180,6 +1189,7 @@
     createFmtFromLandmarks,
     isMiniItemActive,
     renderFormulaText,
-    stepHasDiagram
+    stepHasDiagram,
+    withoutStepWords
   };
 })(window);

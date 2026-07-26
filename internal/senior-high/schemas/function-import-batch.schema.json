@@ -3,11 +3,12 @@
   "$id": "https://shuxueshuo.local/schemas/function-import-batch.schema.json",
   "title": "SeniorHighFunctionImportBatch",
   "type": "object",
-  "required": ["version", "batchId", "sourceImage", "curriculum", "items"],
+  "required": ["version", "batchId", "collectionId", "sourceImage", "curriculum", "items"],
   "properties": {
     "$schema": { "type": "string" },
     "version": { "type": "integer", "minimum": 1 },
     "batchId": { "type": "string" },
+    "collectionId": { "type": "string" },
     "sourceImage": { "type": "string" },
     "curriculum": {
       "type": "object",
@@ -45,7 +46,7 @@
           "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
           "chapterId": { "type": "string" },
           "sectionId": { "type": "string" },
-          "groupId": { "type": "string", "enum": ["function-concept", "function-domain", "function-value-and-range"] },
+          "groupId": { "type": "string", "enum": ["function-concept", "function-domain", "function-value-and-range", "function-comprehensive"] },
           "groupLabel": { "type": "string" },
           "knowledgeTags": { "type": "array", "items": { "type": "string" } },
           "status": { "type": "string", "enum": ["needs_review", "ready", "published"] }

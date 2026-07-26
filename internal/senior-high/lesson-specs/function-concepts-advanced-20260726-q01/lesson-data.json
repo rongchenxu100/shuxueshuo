@@ -1,0 +1,90 @@
+{
+  "$schema": "../../../schemas/lesson-data.schema.json",
+  "meta": {
+    "id": "function-concepts-advanced-20260726-q01",
+    "outputPath": "site/problems/senior-high/functions/function-concepts-and-representation/function-concepts-advanced-20260726-q01.html",
+    "pageTitle": "函数的概念 · 能力提升第 1 题：定义域为 R 的函数与 y 轴交点",
+    "pageDescription": "由函数定义和 x=0 必在定义域中判断图像与 y 轴的交点个数。",
+    "breadcrumbTitle": "函数概念能力提升第 1 题",
+    "breadcrumbLabel": "高中题库",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "classification": {
+      "pattern": "function-concepts-and-representation",
+      "methods": [
+        "函数定义",
+        "定义域",
+        "y轴交点"
+      ]
+    },
+    "curriculum": {
+      "chapterLabel": "第三章 函数的概念与性质",
+      "sectionLabel": "3.1 函数的概念及其表示",
+      "subsectionLabel": "函数的概念 · 能力提升",
+      "groupId": "function-concept",
+      "groupLabel": "函数的概念"
+    }
+  },
+  "problem": {
+    "source": "2026 广东东莞期末",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "图像与 y 轴相交时横坐标只能是 0；",
+      "items": [
+        "定义域含 0，且函数对 x=0 有唯一确定的函数值。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "定义域为 R 的函数 \\(y=f(x)\\)，其图像与 \\(y\\) 轴的交点个数为（　）　A. 0　B. 1　C. 2　D. 不确定",
+        "answerId": "answerI",
+        "answer": "B"
+      }
+    ]
+  },
+  "ui": {
+    "legend": [],
+    "sliderLabel": "参数",
+    "paramLabelPrefix": "",
+    "goToProblemMode": "smooth",
+    "groupTitles": {
+      "求解": ""
+    }
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "求解",
+      "title": "第1步：由函数定义判断交点个数",
+      "t": 0,
+      "derive": [
+        [
+          "∵",
+          "函数的定义域为 R，∴ \\(0\\) 在定义域内"
+        ],
+        [
+          "∵",
+          "当 \\(x=0\\) 时，函数值 \\(f(0)\\) 唯一确定"
+        ],
+        [
+          "∴",
+          "图像与 \\(y\\) 轴有且只有一个交点 \\((0,f(0))\\)，选 B"
+        ]
+      ],
+      "box": [
+        "图像与 y 轴相交时横坐标只能是 0；"
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 第1步：由函数定义判断交点个数"
+  }
+}

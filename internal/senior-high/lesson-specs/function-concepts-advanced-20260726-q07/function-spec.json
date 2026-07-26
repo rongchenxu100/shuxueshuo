@@ -1,0 +1,75 @@
+{
+  "$schema": "../../schemas/function-spec.schema.json",
+  "version": 1,
+  "id": "function-concepts-advanced-20260726-q07",
+  "panels": [
+    {
+      "id": "function-graph",
+      "kind": "functionGraph",
+      "title": "换元后的二次函数 y=−t²+t−2",
+      "viewport": {
+        "x": 0.06,
+        "y": 0.06,
+        "width": 0.88,
+        "height": 0.88
+      },
+      "domain": {
+        "minX": -1,
+        "maxX": 3,
+        "minY": -5,
+        "maxY": 1
+      },
+      "gridStepX": 1,
+      "gridStepY": 1,
+      "showAxisTicks": true,
+      "function": {
+        "variable": "t",
+        "expr": "-t^2+t-2",
+        "label": "y=−t²+t−2",
+        "intervals": [
+          {
+            "min": -1,
+            "max": 3
+          }
+        ]
+      },
+      "studyIntervals": [
+        {
+          "min": 0,
+          "max": 2,
+          "openMin": true
+        }
+      ],
+      "range": [
+        {
+          "min": -4,
+          "max": -1.75
+        }
+      ],
+      "referenceLines": [
+        {
+          "id": "axis",
+          "orientation": "vertical",
+          "value": 0.5,
+          "min": -1.75,
+          "max": 0,
+          "label": "t=1/2"
+        }
+      ],
+      "points": [
+        {
+          "id": "vertex",
+          "x": 0.5,
+          "y": -1.75,
+          "label": "(1/2,-7/4)"
+        },
+        {
+          "id": "right",
+          "x": 2,
+          "y": -4,
+          "label": "(2,-4)"
+        }
+      ]
+    }
+  ]
+}

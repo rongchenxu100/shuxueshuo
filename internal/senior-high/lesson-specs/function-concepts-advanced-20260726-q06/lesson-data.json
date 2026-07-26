@@ -1,0 +1,91 @@
+{
+  "$schema": "../../../schemas/lesson-data.schema.json",
+  "meta": {
+    "id": "function-concepts-advanced-20260726-q06",
+    "outputPath": "site/problems/senior-high/functions/function-concepts-and-representation/function-concepts-advanced-20260726-q06.html",
+    "pageTitle": "函数的概念 · 能力提升第 6 题：由分式函数值域反求定义域",
+    "pageDescription": "通过反解 x 与 y 的关系，将给定值域逐段映回自变量集合。",
+    "breadcrumbTitle": "函数概念能力提升第 6 题",
+    "breadcrumbLabel": "高中题库",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "classification": {
+      "pattern": "function-concepts-and-representation",
+      "methods": [
+        "反求定义域",
+        "分式函数",
+        "区间变换"
+      ]
+    },
+    "curriculum": {
+      "chapterLabel": "第三章 函数的概念与性质",
+      "sectionLabel": "3.1 函数的概念及其表示",
+      "subsectionLabel": "函数的概念 · 能力提升",
+      "groupId": "function-domain",
+      "groupLabel": "函数的定义域"
+    }
+  },
+  "problem": {
+    "source": "2025 上海长宁段考",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "函数的定义域是使函数值落在给定值域内的所有自变量组成的集合；",
+      "items": [
+        "值域由多个区间组成时，分别列出函数值不等式并求解，最后将解集取并集。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "已知函数 \\(f(x)=\\frac{1}{x-1}\\) 的值域为 \\((-1,0)∪(0,+∞)\\)，则函数 \\(f(x)\\) 的定义域为______。",
+        "answerId": "answerI",
+        "answer": "(-∞,0)∪(1,+∞)"
+      }
+    ]
+  },
+  "ui": {
+    "legend": [],
+    "sliderLabel": "参数",
+    "paramLabelPrefix": "",
+    "goToProblemMode": "smooth",
+    "groupTitles": {
+      "求解": ""
+    }
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "求解",
+      "title": "分别解函数值不等式并取并集",
+      "showDiagram": false,
+      "t": 0,
+      "derive": [
+        [
+          "当 f(x)>0",
+          "\\(\\frac{1}{x-1}>0\\)，解得 \\(x>1\\)"
+        ],
+        [
+          "当 -1<f(x)<0",
+          "\\(-1<\\frac{1}{x-1}<0\\)，解得 \\(x<0\\)"
+        ],
+        [
+          "综上",
+          "定义域为 \\((-∞,0)∪(1,+∞)\\)"
+        ]
+      ],
+      "box": [
+        "分别求解两个函数值不等式，再将所得解集取并集。"
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 分别解函数值不等式并取并集"
+  }
+}

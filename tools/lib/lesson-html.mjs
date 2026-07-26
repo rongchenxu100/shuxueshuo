@@ -106,6 +106,49 @@ export function renderInlineMathText(value) {
   return markup + esc(source.slice(cursor));
 }
 
+function plainMathText(value) {
+  return String(value ?? "")
+    .replace(/\\\((.*?)\\\)/g, "$1")
+    .replace(/\\(?:frac|sqrt)\b/g, "")
+    .replace(/[{}\\]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+export function splitChoiceText(value) {
+  const source = String(value ?? "");
+  const optionPattern = /(?:^|[\s　])([A-D])\.\s*/g;
+  const matches = [];
+  let match;
+
+  while ((match = optionPattern.exec(source)) !== null) {
+    matches.push({
+      index: match.index + (match[0].length - match[0].trimStart().length),
+      label: match[1],
+      contentStart: optionPattern.lastIndex,
+    });
+  }
+
+  if (matches.length !== 4 || matches.map((item) => item.label).join("") !== "ABCD") {
+    return null;
+  }
+
+  const options = matches.map((item, index) => ({
+    label: item.label,
+    text: source.slice(
+      item.contentStart,
+      index + 1 < matches.length ? matches[index + 1].index : source.length,
+    ).trim(),
+  }));
+  const lengths = options.map((option) => plainMathText(option.text).length);
+
+  return {
+    stem: source.slice(0, matches[0].index).trim(),
+    options,
+    stacked: Math.max(...lengths) > 12 || lengths.reduce((sum, length) => sum + length, 0) > 48,
+  };
+}
+
 export function buildKeyPointsHtml(keyPoints) {
   if (!keyPoints || !Array.isArray(keyPoints.items) || keyPoints.items.length === 0) return "";
   const title = keyPoints.title || "解题要点";

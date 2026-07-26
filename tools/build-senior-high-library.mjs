@@ -61,7 +61,14 @@ export function validateCatalog(chapterSource, problemSource, root = repoRoot) {
         throw new Error(`section ${section.id}.presentation 无效`);
       }
       if (presentation === "worksheet") {
-        requireText(section.collectionId, `section ${section.id}.collectionId`);
+        requireText(section.defaultCollectionId, `section ${section.id}.defaultCollectionId`);
+        if (!Array.isArray(section.collectionIds) || section.collectionIds.length === 0) {
+          throw new Error(`section ${section.id}.collectionIds 必须是非空数组`);
+        }
+        requireUnique(section.collectionIds, (item) => item, `section ${section.id} collection`);
+        if (!section.collectionIds.includes(section.defaultCollectionId)) {
+          throw new Error(`section ${section.id}.defaultCollectionId 不在 collectionIds 中`);
+        }
       }
       if (sectionIds.has(section.id)) {
         throw new Error(`section ID 跨章节重复: ${section.id}`);
@@ -253,7 +260,10 @@ export function validateCollections(catalog, collectionSource, root = repoRoot) 
     if (!chapter || !section) {
       throw new Error(`collection ${collection.id} 引用未知章节`);
     }
-    if (section.presentation !== "worksheet" || section.collectionId !== collection.id) {
+    if (
+      section.presentation !== "worksheet"
+      || !section.collectionIds?.includes(collection.id)
+    ) {
       throw new Error(`collection ${collection.id} 未与 worksheet section 正确绑定`);
     }
     if (!Array.isArray(collection.groups) || collection.groups.length === 0) {
@@ -278,10 +288,16 @@ export function validateCollections(catalog, collectionSource, root = repoRoot) 
       return { id: group.id, label: group.label, problems };
     });
 
-    if (collection.id === "function-concepts") {
+    if (collection.id === "function-concepts-foundation") {
       const sizes = groups.map((group) => group.problems.length).join("/");
       if (number !== 11 || sizes !== "3/3/5") {
-        throw new Error(`function-concepts 必须包含 11 题并按 3/3/5 分组`);
+        throw new Error(`function-concepts-foundation 必须包含 11 题并按 3/3/5 分组`);
+      }
+    }
+    if (collection.id === "function-concepts-advanced") {
+      const sizes = groups.map((group) => group.problems.length).join("/");
+      if (number !== 13 || sizes !== "2/4/6/1") {
+        throw new Error(`function-concepts-advanced 必须包含 13 题并按 2/4/6/1 分组`);
       }
     }
 
@@ -290,6 +306,7 @@ export function validateCollections(catalog, collectionSource, root = repoRoot) 
       chapterId: collection.chapterId,
       sectionId: collection.sectionId,
       title: collection.title,
+      label: collection.label || collection.title,
       status: collection.status,
       problemCount: number,
       groups,

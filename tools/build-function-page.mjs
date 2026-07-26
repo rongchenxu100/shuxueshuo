@@ -3,7 +3,11 @@
 import fs from "fs";
 import path from "path";
 import { normalizeLessonSpec } from "./lib/lesson-normalizer.mjs";
-import { buildKeyPointsHtml, renderInlineMathText } from "./lib/lesson-html.mjs";
+import {
+  buildKeyPointsHtml,
+  renderInlineMathText,
+  splitChoiceText,
+} from "./lib/lesson-html.mjs";
 
 function die(message) {
   console.error(message);
@@ -55,6 +59,21 @@ function buildProblemLineHtml(line, source) {
   }
   if (line.heading != null) {
     return `<div class="problem-line"><strong>${sourceHtml}${esc(line.heading)}</strong></div>`;
+  }
+  const choiceGroup = splitChoiceText(line.text);
+  if (choiceGroup) {
+    const answerHtml = line.answerId != null
+      ? `<span class="answer-chip" id="${esc(line.answerId)}">${renderInlineMathText(line.answer)}</span>`
+      : "";
+    const optionsHtml = choiceGroup.options
+      .map((option) =>
+        `<div class="problem-option"><span class="problem-option-label">${option.label}.</span><span>${renderInlineMathText(option.text)}</span></div>`,
+      )
+      .join("");
+    return [
+      `<div class="problem-line"><span>${sourceHtml}${renderInlineMathText(choiceGroup.stem)}</span>${answerHtml}</div>`,
+      `<div class="problem-options${choiceGroup.stacked ? " is-stacked" : ""}">${optionsHtml}</div>`,
+    ].join("\n");
   }
   if (line.answerId != null) {
     return `<div class="problem-line"><span>${sourceHtml}${renderInlineMathText(line.text)}</span><span class="answer-chip" id="${esc(line.answerId)}">${renderInlineMathText(line.answer)}</span></div>`;
@@ -149,7 +168,7 @@ const functionTag = `<script type="application/json" id="functionSpec">${JSON.st
 const injectedScript = [
   functionTag,
   `<script src="${assetPrefix}/js/math-expression-engine.js"></script>`,
-  `<script src="${assetPrefix}/js/function-lesson-from-spec.js"></script>`,
+  `<script src="${assetPrefix}/js/function-lesson-from-spec.js?v=2"></script>`,
   "",
   "<script>",
   "  const __FUNCTION_SPEC__ = JSON.parse(document.getElementById('functionSpec').textContent);",

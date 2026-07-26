@@ -1,0 +1,102 @@
+{
+  "$schema": "../../../schemas/lesson-data.schema.json",
+  "meta": {
+    "id": "function-concepts-advanced-20260726-q07",
+    "outputPath": "site/problems/senior-high/functions/function-concepts-and-representation/function-concepts-advanced-20260726-q07.html",
+    "pageTitle": "函数的概念 · 能力提升第 7 题：根式函数换元求值域",
+    "pageDescription": "令根式为新变量，把原函数化为指定区间上的二次函数。",
+    "breadcrumbTitle": "函数概念能力提升第 7 题",
+    "breadcrumbLabel": "高中题库",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "classification": {
+      "pattern": "function-concepts-and-representation",
+      "methods": [
+        "换元法",
+        "根式函数",
+        "二次函数值域"
+      ]
+    },
+    "curriculum": {
+      "chapterLabel": "第三章 函数的概念与性质",
+      "sectionLabel": "3.1 函数的概念及其表示",
+      "subsectionLabel": "函数的概念 · 能力提升",
+      "groupId": "function-value-and-range",
+      "groupLabel": "函数值及函数的值域"
+    }
+  },
+  "problem": {
+    "source": "2026 重庆八中期中",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "本题使用换元法：把根式整体换成新变量，将原函数转化为熟悉的二次函数；",
+      "items": [
+        "换元后必须同步写出新变量的取值范围，再在该范围内求二次函数的值域。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "函数 \\(f(x)=\\sqrt{x-2}-x\\)，\\(x∈(2,6]\\) 的值域为（　）　A. \\((−∞,-\\frac{7}{4}]\\)　B. \\([-4,-\\frac{7}{4}]\\)　C. \\([-4,-2]\\)　D. \\([-4,-2)\\)",
+        "answerId": "answerI",
+        "answer": "B"
+      }
+    ]
+  },
+  "ui": {
+    "legend": [],
+    "sliderLabel": "参数",
+    "paramLabelPrefix": "",
+    "goToProblemMode": "smooth",
+    "groupTitles": {
+      "求解": ""
+    }
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "求解",
+      "title": "换元后结合二次函数图像求值域",
+      "t": 0,
+      "derive": [
+        [
+          "换元",
+          "令 \\(t=\\sqrt{x-2}\\)"
+        ],
+        [
+          "∵ 2<x≤6",
+          "\\(0<t≤2\\)，且 \\(x=t^2+2\\)"
+        ],
+        [
+          "转化",
+          "\\(f(x)=t-(t^2+2)=-(t-\\frac{1}{2})^2-\\frac{7}{4}\\)"
+        ],
+        [
+          "最大值",
+          "当 \\(t=\\frac{1}{2}\\) 时取 \\(-\\frac{7}{4}\\)"
+        ],
+        [
+          "最小值",
+          "当 \\(t=2\\) 时取 -4"
+        ],
+        [
+          "∴",
+          "值域为 \\([-4,-\\frac{7}{4}]\\)，选 B"
+        ]
+      ],
+      "box": [
+        "换元法的关键是同步确定新变量的取值范围。"
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 换元后结合二次函数图像求值域"
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "$schema": "../../schemas/function-spec.schema.json",
+  "version": 1,
+  "id": "function-concepts-advanced-20260726-q04",
+  "panels": [
+    {
+      "id": "reasoning-table",
+      "kind": "valueTable",
+      "title": "按参数是否退化分类",
+      "viewport": {
+        "x": 0.08,
+        "y": 0.12,
+        "width": 0.84,
+        "height": 0.76
+      },
+      "columns": [
+        "参数情形",
+        "恒非负条件",
+        "结论"
+      ],
+      "rows": [
+        {
+          "id": "row-1",
+          "cells": [
+            "a=0",
+            "被开方式恒为 1",
+            "成立"
+          ]
+        },
+        {
+          "id": "row-2",
+          "cells": [
+            "a>0",
+            "Δ≤0",
+            "0<a≤1"
+          ]
+        },
+        {
+          "id": "row-3",
+          "cells": [
+            "a<0",
+            "开口向下",
+            "不成立"
+          ]
+        }
+      ]
+    }
+  ]
+}

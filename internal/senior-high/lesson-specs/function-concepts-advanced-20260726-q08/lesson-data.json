@@ -1,0 +1,104 @@
+{
+  "$schema": "../../../schemas/lesson-data.schema.json",
+  "meta": {
+    "id": "function-concepts-advanced-20260726-q08",
+    "outputPath": "site/problems/senior-high/functions/function-concepts-and-representation/function-concepts-advanced-20260726-q08.html",
+    "pageTitle": "函数的概念 · 能力提升第 8 题：分式函数最大值与最小值之和",
+    "pageDescription": "把函数值作为参数，整理成关于 x 的一元二次方程，用判别式法求函数值域。",
+    "breadcrumbTitle": "函数概念能力提升第 8 题",
+    "breadcrumbLabel": "高中题库",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "classification": {
+      "pattern": "function-concepts-and-representation",
+      "methods": [
+        "分式函数",
+        "判别式法",
+        "分类讨论"
+      ]
+    },
+    "curriculum": {
+      "chapterLabel": "第三章 函数的概念与性质",
+      "sectionLabel": "3.1 函数的概念及其表示",
+      "subsectionLabel": "函数的概念 · 能力提升",
+      "groupId": "function-value-and-range",
+      "groupLabel": "函数值及函数的值域"
+    }
+  },
+  "problem": {
+    "source": "2026 广东湛江八校联考",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "分式函数求值域，可令 y=f(x)，整理成关于 x 的一元二次方程，再用判别式法；",
+      "items": [
+        "使用判别式前，要先检查二次项系数是否可能为 0；退化为一次方程的情形必须单独讨论。",
+        "只有关于 x 的方程存在实数解，相应的 y 才属于原函数的值域。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "若函数 \\(f(x)=\\frac{3x^2+x+3}{x^2+1}\\) 的最大值为 \\(a\\)，最小值为 \\(b\\)，则 \\(a+b=（　）\\)　A. 4　B. 6　C. 7　D. 8",
+        "answerId": "answerI",
+        "answer": "B"
+      }
+    ]
+  },
+  "ui": {
+    "legend": [],
+    "sliderLabel": "参数",
+    "paramLabelPrefix": "",
+    "goToProblemMode": "smooth",
+    "groupTitles": {
+      "求解": ""
+    }
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "求解",
+      "title": "用判别式法求函数值域",
+      "showDiagram": false,
+      "t": 0,
+      "derive": [
+        [
+          "令",
+          "\\(y=\\frac{3x^2+x+3}{x^2+1}\\)"
+        ],
+        [
+          "整理",
+          "\\((y-3)x^2-x+y-3=0\\)"
+        ],
+        [
+          "当 y=3",
+          "方程化为 \\(-x=0\\)，有实数解 \\(x=0\\)，∴ \\(y=3\\) 可取"
+        ],
+        [
+          "当 y≠3",
+          "方程有实数解，∴ \\(Δ=1-4(y-3)^2≥0\\)"
+        ],
+        [
+          "解得",
+          "\\(\\frac{5}{2}≤y≤\\frac{7}{2}\\)"
+        ],
+        [
+          "综上",
+          "函数值域为 \\([\\frac{5}{2},\\frac{7}{2}]\\)，∴ \\(b=\\frac{5}{2}\\)，\\(a=\\frac{7}{2}\\)，\\(a+b=6\\)，选 B"
+        ]
+      ],
+      "box": [
+        "先讨论 \\(y=3\\) 使二次项系数为 0 的退化情形，再对 \\(y≠3\\) 使用判别式。"
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 用判别式法求值域"
+  }
+}

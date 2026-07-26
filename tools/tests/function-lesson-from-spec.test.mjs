@@ -7,7 +7,7 @@ import vm from "node:vm";
 
 import { validateFunctionLesson } from "../validate-function-spec.mjs";
 import { validateFunctionBatch } from "../validate-senior-high-function-batch.mjs";
-import { renderInlineMathText } from "../lib/lesson-html.mjs";
+import { renderInlineMathText, splitChoiceText } from "../lib/lesson-html.mjs";
 import { repoRoot } from "./calculus-test-helpers.mjs";
 
 function loadRuntime() {
@@ -72,6 +72,32 @@ test("lesson text renders inline subscripts and subset relations", () => {
   assert.equal(
     renderInlineMathText("\\(2x^3+x^2+(x+1)^{2}\\)"),
     '<span class="inline-math">2x<sup>3</sup>+x<sup>2</sup>+(x+1)<sup>2</sup></span>',
+  );
+});
+
+test("function lesson choices are separated from the stem and long choices stack", () => {
+  const shortChoices = splitChoiceText(
+    "定义域为 R 的函数与 y 轴有几个交点（　）　A. 0　B. 1　C. 2　D. 不确定",
+  );
+  assert.equal(shortChoices.stem, "定义域为 R 的函数与 y 轴有几个交点（　）");
+  assert.deepEqual(shortChoices.options.map((option) => option.label), ["A", "B", "C", "D"]);
+  assert.equal(shortChoices.stacked, false);
+
+  const longChoices = splitChoiceText(
+    "下列等式可以成立的是（　）　A. \\(f(x^2)=x^3\\)　B. \\(f(x^2+1)=|x+1|\\)　C. \\(f(x^2+x)=|x|\\)　D. \\(f(|x|)=x^2+1\\)",
+  );
+  assert.equal(longChoices.options.length, 4);
+  assert.equal(longChoices.stacked, true);
+});
+
+test("step headings omit redundant step words but retain their number", () => {
+  assert.equal(
+    lessonPageRuntime.withoutStepWords("第2步：用值域端点确定 k"),
+    "用值域端点确定 k",
+  );
+  assert.equal(
+    lessonPageRuntime.withoutStepWords("2 第2步：用值域端点确定 k"),
+    "2 用值域端点确定 k",
   );
 });
 
@@ -308,6 +334,7 @@ test("renderer supports relation plots, finite tables and context geometry", () 
   const markup = renderer.diagramMarkupFor(0, 1, {});
   assert.match(markup, /关系图/);
   assert.match(markup, /G\(n\)/);
+  assert.match(markup, /font-size="18" fill="#27272a">3<\/text>/);
   assert.match(markup, /<polygon/);
   assert.doesNotMatch(markup, /NaN|Infinity|undefined/);
 });
@@ -539,6 +566,351 @@ test("batch validator enforces all 11 questions and low-confidence review gates"
   } finally {
     fs.unlinkSync(tempPath);
   }
+});
+
+test("advanced batch keeps all 13 problems in the 2/4/6/1 worksheet groups", () => {
+  const manifestPath = path.join(
+    repoRoot,
+    "internal/senior-high/import-batches/function-concepts-advanced-20260726-page-01/manifest.json",
+  );
+  const manifest = validateFunctionBatch(manifestPath);
+  assert.equal(manifest.collectionId, "function-concepts-advanced");
+  assert.equal(manifest.items.length, 13);
+  assert.deepEqual(
+    ["function-concept", "function-domain", "function-value-and-range", "function-comprehensive"]
+      .map((groupId) => manifest.items.filter((item) => item.groupId === groupId).length),
+    [2, 4, 6, 1],
+  );
+  assert.ok(manifest.items.every((item) => item.status === "published"));
+});
+
+test("advanced abstract-function lesson states uniqueness and writes explicit function values", () => {
+  const lesson = readLesson(
+    "function-concepts-advanced-20260726-q02",
+    "lesson-data.json",
+  );
+  const reasoningText = lesson.steps[0].derive
+    .map(([, content]) => content)
+    .join("\n");
+
+  assert.match(lesson.problem.keyPoints.lead, /任意一个自变量/);
+  assert.match(lesson.problem.keyPoints.lead, /唯一确定/);
+  assert.match(reasoningText, /f\(1\)=1/);
+  assert.match(reasoningText, /f\(1\)=-1/);
+  assert.match(reasoningText, /f\(2\)=2/);
+  assert.match(reasoningText, /f\(2\)=0/);
+  assert.match(reasoningText, /f\(0\)=0/);
+  assert.match(reasoningText, /f\(0\)=1/);
+  assert.match(reasoningText, /⇒/);
+  assert.match(reasoningText, /≥/);
+  assert.doesNotMatch(reasoningText, /\\Rightarrow|\\ge/);
+  assert.doesNotMatch(reasoningText, /左侧|右侧/);
+});
+
+test("advanced composite-domain lesson distinguishes the two domain directions", () => {
+  const lesson = readLesson(
+    "function-concepts-advanced-20260726-q03",
+    "lesson-data.json",
+  );
+  const spec = readLesson(
+    "function-concepts-advanced-20260726-q03",
+    "function-spec.json",
+  );
+  const keyPointText = [
+    lesson.problem.keyPoints.lead,
+    ...lesson.problem.keyPoints.items,
+  ].join("\n");
+  const reasoningText = lesson.steps
+    .flatMap((step) => step.derive.map(([, content]) => content))
+    .join("\n");
+
+  assert.match(keyPointText, /已知.*f\(x\).*定义域/);
+  assert.match(keyPointText, /已知.*f\(g\(x\)\).*定义域/);
+  assert.match(reasoningText, /u=x\+2/);
+  assert.match(reasoningText, /f\(x\).*定义域为.*\(-1,6\)/);
+  assert.match(reasoningText, /x\+1∈\(-1,6\)/);
+  assert.match(reasoningText, /x∈\(\\frac\{1\}\{3\},5\)/);
+  assert.doesNotMatch(reasoningText, /\\cap/);
+  assert.deepEqual(
+    lesson.steps.map(lessonPageRuntime.stepHasDiagram),
+    [false, true],
+  );
+  assert.deepEqual(
+    spec.panels[0].intervals.map((interval) => interval.id),
+    ["numerator-domain", "denominator-domain", "final-domain"],
+  );
+});
+
+test("advanced radical-domain lesson keeps derive labels free of raw math delimiters", () => {
+  const lesson = readLesson(
+    "function-concepts-advanced-20260726-q04",
+    "lesson-data.json",
+  );
+  const labels = lesson.steps
+    .flatMap((step) => step.derive.map(([label]) => label))
+    .join("\n");
+
+  assert.doesNotMatch(labels, /\\\(|\\\)/);
+  assert.match(labels, /当 a=0/);
+  assert.match(labels, /当 a>0/);
+  assert.match(labels, /当 a<0/);
+});
+
+test("advanced quadratic range lesson uses one ticked graph with bounded guides", () => {
+  const id = "function-concepts-advanced-20260726-q05";
+  const lesson = readLesson(id, "lesson-data.json");
+  const spec = readLesson(id, "function-spec.json");
+  const decorations = readLesson(id, "function-decorations.json");
+  const panel = spec.panels[0];
+
+  assert.equal(lesson.steps.length, 1);
+  assert.equal(panel.showAxisTicks, true);
+  assert.deepEqual(
+    panel.points.map(({ x, y }) => [x, y]),
+    [[-2, 5], [1, -4], [4, 5]],
+  );
+  assert.equal(panel.referenceLines.length, 5);
+  assert.ok(panel.referenceLines.every((line) => line.min != null && line.max != null));
+
+  const renderer = runtime.createSpecRenderer(
+    spec,
+    decorations,
+    lesson.steps,
+    lesson.policies,
+  );
+  const svg = renderer.diagramMarkupFor(0, 0, {});
+  assert.match(svg, /data-axis-tick="x"[^>]*>-4<\/text>/);
+  assert.match(svg, /data-axis-tick="x"[^>]*>5<\/text>/);
+  assert.match(svg, /data-axis-tick="y"[^>]*>-4<\/text>/);
+  assert.match(svg, /data-axis-tick="y"[^>]*>6<\/text>/);
+  assert.equal((svg.match(/data-reference-line=/g) || []).length, 5);
+  assert.doesNotMatch(svg, /data-axis-tick="x"[^>]*>-5<\/text>/);
+  assert.doesNotMatch(svg, /data-axis-tick="y"[^>]*>7<\/text>/);
+});
+
+test("advanced radical substitution lesson uses one step and full t-y axes", () => {
+  const id = "function-concepts-advanced-20260726-q07";
+  const lesson = readLesson(id, "lesson-data.json");
+  const spec = readLesson(id, "function-spec.json");
+  const decorations = readLesson(id, "function-decorations.json");
+  const panel = spec.panels[0];
+
+  assert.equal(lesson.steps.length, 1);
+  assert.match(
+    [lesson.problem.keyPoints.lead, ...lesson.problem.keyPoints.items].join("\n"),
+    /换元法/,
+  );
+  assert.equal(panel.function.variable, "t");
+  assert.equal(panel.showAxisTicks, true);
+  assert.ok(panel.domain.minX < 0 && panel.domain.maxX > 0);
+  assert.ok(panel.domain.minY < 0 && panel.domain.maxY > 0);
+  assert.deepEqual(panel.studyIntervals[0], {
+    min: 0,
+    max: 2,
+    openMin: true,
+  });
+
+  const renderer = runtime.createSpecRenderer(
+    spec,
+    decorations,
+    lesson.steps,
+    lesson.policies,
+  );
+  const svg = renderer.diagramMarkupFor(0, 0, {});
+  assert.match(svg, /data-axis-tick="x"[^>]*>-1<\/text>/);
+  assert.match(svg, /data-axis-tick="x"[^>]*>3<\/text>/);
+  assert.match(svg, /data-axis-tick="y"[^>]*>-5<\/text>/);
+  assert.match(svg, /data-axis-tick="y"[^>]*>1<\/text>/);
+  assert.match(svg, />t<\/text>/);
+  assert.match(svg, />y<\/text>/);
+  assert.equal((svg.match(/data-reference-line=/g) || []).length, 1);
+});
+
+test("advanced rational range lesson uses one-step discriminant method", () => {
+  const id = "function-concepts-advanced-20260726-q08";
+  const lesson = readLesson(id, "lesson-data.json");
+  const spec = readLesson(id, "function-spec.json");
+  const keyPoints = [
+    lesson.problem.keyPoints.lead,
+    ...lesson.problem.keyPoints.items,
+  ].join("\n");
+  const derivation = lesson.steps[0].derive.flat().join("\n");
+
+  assert.equal(lesson.steps.length, 1);
+  assert.equal(lessonPageRuntime.stepHasDiagram(lesson.steps[0]), false);
+  assert.equal(spec.panels[0].kind, "valueTable");
+  assert.match(keyPoints, /判别式法/);
+  assert.match(keyPoints, /二次项系数是否可能为 0/);
+  assert.match(derivation, /当 y=3/);
+  assert.match(derivation, /当 y≠3/);
+  assert.ok(derivation.includes("Δ=1-4(y-3)^2≥0"));
+  assert.match(derivation, /\\frac\{5\}\{2\}≤y≤\\frac\{7\}\{2\}/);
+  assert.ok(derivation.includes("a+b=6"));
+});
+
+test("advanced composite range lesson follows the textbook substitution method", () => {
+  const id = "function-concepts-advanced-20260726-q09";
+  const lesson = readLesson(id, "lesson-data.json");
+  const spec = readLesson(id, "function-spec.json");
+  const keyPoints = [
+    lesson.problem.keyPoints.lead,
+    ...lesson.problem.keyPoints.items,
+  ].join("\n");
+  const derivation = lesson.steps[0].derive.flat().join("\n");
+
+  assert.equal(lesson.steps.length, 1);
+  assert.equal(lessonPageRuntime.stepHasDiagram(lesson.steps[0]), true);
+  assert.equal(spec.panels[0].kind, "functionGraph");
+  assert.equal(spec.panels[0].function.variable, "t");
+  assert.equal(spec.panels[0].function.expr, "t^2+2*t");
+  assert.equal(spec.panels[0].showAxisTicks, true);
+  assert.ok(spec.panels[0].domain.minX < 0);
+  assert.ok(spec.panels[0].domain.maxX > 0);
+  assert.ok(spec.panels[0].domain.minY < 0);
+  assert.ok(spec.panels[0].domain.maxY > 0);
+  assert.deepEqual(spec.panels[0].studyIntervals, [
+    {
+      min: Math.SQRT2 / 2,
+      max: 1,
+    },
+  ]);
+  assert.equal(spec.panels[0].referenceLines[0].value, -1);
+  assert.equal(spec.panels[0].points.length, 2);
+  assert.match(keyPoints, /换元法/);
+  assert.match(keyPoints, /先由 f\(x\) 和 f\(x²\) 的定义域/);
+  assert.match(derivation, /1≤x≤\\sqrt\{2\}/);
+  assert.match(derivation, /t=\\frac\{1\}\{x\}/);
+  assert.match(derivation, /\\frac\{\\sqrt\{2\}\}\{2\}≤t≤1/);
+  assert.match(derivation, /g\(x\)=2t\+t\^2=\(t\+1\)\^2-1/);
+  assert.match(derivation, /\\frac\{1\}\{2\}\+\\sqrt\{2\}≤g\(x\)≤h\(1\)=3/);
+  assert.match(derivation, /选 D/);
+});
+
+test("advanced radical-sum range lesson uses one squared derivation and full axes", () => {
+  const id = "function-concepts-advanced-20260726-q10";
+  const lesson = readLesson(id, "lesson-data.json");
+  const spec = readLesson(id, "function-spec.json");
+  const panel = spec.panels[0];
+  const derivation = lesson.steps[0].derive.flat().join("\n");
+
+  assert.equal(lesson.steps.length, 1);
+  assert.equal(lessonPageRuntime.stepHasDiagram(lesson.steps[0]), true);
+  assert.equal(panel.kind, "functionGraph");
+  assert.equal(panel.showAxisTicks, true);
+  assert.ok(panel.domain.minX < 0 && panel.domain.maxX > 0);
+  assert.ok(panel.domain.minY < 0 && panel.domain.maxY > 0);
+  assert.deepEqual(panel.studyIntervals, [{ min: -1, max: 1 }]);
+  assert.match(derivation, /1-x≥0/);
+  assert.match(derivation, /1\+x≥0/);
+  assert.match(derivation, /x≤1/);
+  assert.match(derivation, /x≥-1/);
+  assert.match(derivation, /-1≤x≤1/);
+  assert.match(derivation, /y\^2=2\+2\\sqrt\{1-x\^2\}/);
+  assert.match(derivation, /0≤1-x\^2≤1/);
+  assert.match(derivation, /2≤y\^2≤4/);
+  assert.match(derivation, /y≥0/);
+  assert.match(derivation, /\\sqrt\{2\}≤y≤2/);
+  assert.match(derivation, /函数值域为.*\\sqrt\{2\}.*2/);
+});
+
+test("advanced recurrence lesson shows the first two expansions before generalizing", () => {
+  const id = "function-concepts-advanced-20260726-q11";
+  const lesson = readLesson(id, "lesson-data.json");
+  const spec = readLesson(id, "function-spec.json");
+  const derivation = JSON.stringify(lesson.steps[0].derive);
+  const rows = spec.panels[0].rows.map((row) => row.cells.join(" "));
+
+  assert.match(derivation, /f\(9\)=f\(3\)\+6=8/);
+  assert.match(derivation, /f\(15\)=f\(9\)\+6=f\(3\)\+6×2=14/);
+  assert.ok(rows.some((row) => row.includes("f(9)=f(3)+6=8")));
+  assert.ok(
+    rows.some((row) => row.includes("f(15)=f(9)+6=f(3)+6×2=14")),
+  );
+  assert.ok(
+    rows.some((row) => row.includes("f(2025)=f(3)+6×337=2024")),
+  );
+});
+
+test("advanced parameter lesson follows the textbook value-range inclusion method", () => {
+  const id = "function-concepts-advanced-20260726-q12";
+  const lesson = readLesson(id, "lesson-data.json");
+  const spec = readLesson(id, "function-spec.json");
+  const firstStep = lesson.steps[0].derive.flat().join("\n");
+  const secondStep = lesson.steps[1].derive.flat().join("\n");
+  const table = spec.panels[0].rows.map((row) => row.cells.join(" ")).join("\n");
+
+  assert.equal(lesson.steps.length, 2);
+  assert.match(firstStep, /f\(x\)≠0/);
+  assert.match(firstStep, /g\(x\)>0/);
+  assert.match(
+    firstStep,
+    /h\(x\)=\\frac\{g\(x\)\}\{f\(x\)\}=kx-k-1/,
+  );
+  assert.match(firstStep, /h\(x_1\)=\\frac\{1\}\{h\(x_2\)\}/);
+
+  assert.match(
+    secondStep,
+    /\[k-1,3k-1\]\\subseteq\[\\frac\{1\}\{3k-1\},\\frac\{1\}\{k-1\}\]/,
+  );
+  assert.match(secondStep, /\(k-1\)\(3k-1\)≥1/);
+  assert.match(secondStep, /\(k-1\)\(3k-1\)≤1/);
+  assert.match(secondStep, /\(k-1\)\(3k-1\)=1/);
+  assert.match(secondStep, /k=\\frac\{4\}\{3\}/);
+  assert.match(table, /⊆/);
+  assert.doesNotMatch(JSON.stringify(lesson), /\\\\subset(?!eq)/);
+});
+
+test("advanced cone problem renders solid front arcs and dashed hidden arcs", () => {
+  const spec = readLesson(
+    "function-concepts-advanced-20260726-q13",
+    "function-spec.json",
+  );
+  const renderer = runtime.createSpecRenderer(spec, { steps: {} }, [], {}, {
+    W: 720,
+    H: 500,
+  });
+  const svg = renderer.originalFigureMarkupFor("original-container");
+  assert.match(svg, /data-geometry-ellipse="joined-rim"/);
+  assert.match(svg, /data-geometry-ellipse="water-surface"/);
+  assert.match(
+    svg,
+    /A [\d.]+ [\d.]+ 0 0 0 [\d.]+ [\d.]+" fill="none" stroke="[^"]+" stroke-width="3" stroke-dasharray="8 6"/,
+  );
+  assert.match(
+    svg,
+    /A [\d.]+ [\d.]+ 0 0 1 [\d.]+ [\d.]+" fill="none" stroke="[^"]+" stroke-width="3"(?! stroke-dasharray)/,
+  );
+  const waterPolygons = svg.match(
+    /<polygon data-geometry-polygon="(?:upper-water|lower-water)"[^>]+>/g,
+  );
+  assert.equal(waterPolygons?.length, 2);
+  for (const polygon of waterPolygons) {
+    assert.match(polygon, /fill="#bae6fd"/);
+  }
+  assert.match(
+    svg,
+    /data-geometry-ellipse="joined-rim"[^]*?<ellipse[^>]+fill="#bae6fd"/,
+  );
+});
+
+test("advanced cone problem explains the function condition for every option", () => {
+  const lesson = readLesson(
+    "function-concepts-advanced-20260726-q13",
+    "lesson-data.json",
+  );
+  const keyPoints = JSON.stringify(lesson.problem.keyPoints);
+  const derivation = Object.fromEntries(lesson.steps[0].derive);
+
+  assert.match(keyPoints, /自变量和因变量/);
+  assert.match(keyPoints, /有且只有一个因变量值/);
+  assert.match(derivation.A, /以 \\?\(d\\?\) 为自变量/);
+  assert.match(derivation.A, /上、下两个圆锥/);
+  assert.match(derivation.A, /两个不同的水面高度/);
+  assert.match(derivation.B, /以 \\?\(t\\?\) 为自变量/);
+  assert.match(derivation.B, /截面直径.*唯一/);
+  assert.match(derivation.C, /水面高度.*唯一/);
+  assert.match(derivation.D, /以 \\?\(h\\?\) 为自变量/);
+  assert.match(derivation.D, /水平截面.*直径.*唯一/);
 });
 
 test("compiled golden pages load only the function runtime", () => {
