@@ -1,0 +1,51 @@
+{
+  "$schema": "../../schemas/function-spec.schema.json",
+  "version": 1,
+  "id": "function-concepts-advanced-20260726-q06",
+  "panels": [
+    {
+      "id": "number-line",
+      "kind": "numberLine",
+      "title": "由 y 的范围反推 x 的范围",
+      "viewport": {
+        "x": 0.08,
+        "y": 0.2,
+        "width": 0.84,
+        "height": 0.6
+      },
+      "axis": {
+        "min": -4,
+        "max": 5,
+        "label": "x"
+      },
+      "intervals": [
+        {
+          "min": -4,
+          "max": 0,
+          "extendsMin": true,
+          "openMax": true,
+          "label": "x<0"
+        },
+        {
+          "min": 1,
+          "max": 5,
+          "openMin": true,
+          "extendsMax": true,
+          "label": "x>1"
+        }
+      ],
+      "excludedPoints": [
+        {
+          "id": "zero",
+          "value": 0,
+          "label": "0"
+        },
+        {
+          "id": "one",
+          "value": 1,
+          "label": "1"
+        }
+      ]
+    }
+  ]
+}

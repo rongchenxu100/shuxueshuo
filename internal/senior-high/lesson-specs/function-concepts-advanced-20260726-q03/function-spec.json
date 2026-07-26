@@ -1,0 +1,53 @@
+{
+  "$schema": "../../schemas/function-spec.schema.json",
+  "version": 1,
+  "id": "function-concepts-advanced-20260726-q03",
+  "panels": [
+    {
+      "id": "number-line",
+      "kind": "numberLine",
+      "title": "同时满足分子与根式分母的定义域条件",
+      "viewport": {
+        "x": 0.08,
+        "y": 0.2,
+        "width": 0.84,
+        "height": 0.6
+      },
+      "axis": {
+        "min": -2,
+        "max": 6,
+        "label": "x"
+      },
+      "intervals": [
+        {
+          "id": "numerator-domain",
+          "min": -2,
+          "max": 5,
+          "openMin": true,
+          "openMax": true,
+          "label": "f(x+1) 有意义：(-2,5)",
+          "color": "#0f766e"
+        },
+        {
+          "id": "denominator-domain",
+          "min": 0.3333333333333333,
+          "max": 6,
+          "openMin": true,
+          "openMax": true,
+          "extendsMax": true,
+          "label": "根式分母：(1/3,+∞)",
+          "color": "#d97706"
+        },
+        {
+          "id": "final-domain",
+          "min": 0.3333333333333333,
+          "max": 5,
+          "openMin": true,
+          "openMax": true,
+          "label": "共同满足：(1/3,5)",
+          "color": "#7c3aed"
+        }
+      ]
+    }
+  ]
+}

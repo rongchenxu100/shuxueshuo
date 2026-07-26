@@ -1,0 +1,100 @@
+{
+  "$schema": "../../schemas/function-spec.schema.json",
+  "version": 1,
+  "id": "function-concepts-advanced-20260726-q05",
+  "panels": [
+    {
+      "id": "function-graph",
+      "kind": "functionGraph",
+      "title": "f(x)=x²-2x-3 及候选区间",
+      "viewport": {
+        "x": 0.06,
+        "y": 0.06,
+        "width": 0.88,
+        "height": 0.88
+      },
+      "domain": {
+        "minX": -4.6,
+        "maxX": 5.6,
+        "minY": -4.7,
+        "maxY": 6.7
+      },
+      "gridStepX": 1,
+      "gridStepY": 1,
+      "showAxisTicks": true,
+      "function": {
+        "variable": "x",
+        "expr": "x^2-2*x-3",
+        "label": "f(x)=(x−1)²−4",
+        "intervals": [
+          {
+            "min": -4.6,
+            "max": 5.6
+          }
+        ]
+      },
+      "referenceLines": [
+        {
+          "id": "left-to-five",
+          "orientation": "vertical",
+          "value": -2,
+          "min": 0,
+          "max": 5,
+          "color": "#64748b"
+        },
+        {
+          "id": "right-to-five",
+          "orientation": "vertical",
+          "value": 4,
+          "min": 0,
+          "max": 5,
+          "color": "#64748b"
+        },
+        {
+          "id": "five-level",
+          "orientation": "horizontal",
+          "value": 5,
+          "min": -2,
+          "max": 4,
+          "color": "#64748b"
+        },
+        {
+          "id": "vertex-axis",
+          "orientation": "vertical",
+          "value": 1,
+          "min": -4,
+          "max": 0,
+          "color": "#64748b"
+        },
+        {
+          "id": "minimum-level",
+          "orientation": "horizontal",
+          "value": -4,
+          "min": 0,
+          "max": 1,
+          "color": "#64748b"
+        }
+      ],
+      "points": [
+        {
+          "id": "left-five",
+          "x": -2,
+          "y": 5,
+          "label": "(-2,5)"
+        },
+        {
+          "id": "vertex",
+          "x": 1,
+          "y": -4,
+          "label": "(1,-4)"
+        },
+        {
+          "id": "right-five",
+          "x": 4,
+          "y": 5,
+          "label": "(4,5)"
+        }
+      ]
+    }
+  ]
+}

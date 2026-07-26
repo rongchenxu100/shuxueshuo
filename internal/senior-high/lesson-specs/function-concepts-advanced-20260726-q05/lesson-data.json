@@ -1,0 +1,103 @@
+{
+  "$schema": "../../../schemas/lesson-data.schema.json",
+  "meta": {
+    "id": "function-concepts-advanced-20260726-q05",
+    "outputPath": "site/problems/senior-high/functions/function-concepts-and-representation/function-concepts-advanced-20260726-q05.html",
+    "pageTitle": "函数的概念 · 能力提升第 5 题：由二次函数值域反推定义区间",
+    "pageDescription": "结合抛物线顶点和区间端点，判断哪些定义区间能得到指定值域。",
+    "breadcrumbTitle": "函数概念能力提升第 5 题",
+    "breadcrumbLabel": "高中题库",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "classification": {
+      "pattern": "function-concepts-and-representation",
+      "methods": [
+        "二次函数",
+        "定义区间",
+        "值域",
+        "端点"
+      ]
+    },
+    "curriculum": {
+      "chapterLabel": "第三章 函数的概念与性质",
+      "sectionLabel": "3.1 函数的概念及其表示",
+      "subsectionLabel": "函数的概念 · 能力提升",
+      "groupId": "function-domain",
+      "groupLabel": "函数的定义域"
+    }
+  },
+  "problem": {
+    "source": "2026 广东珠海期中",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "采用数形结合法，把定义区间与抛物线上的对应图像联系起来；",
+      "items": [
+        "从图像读出顶点和区间端点的函数值，再判断该区间对应的值域。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "已知函数 \\(f(x)=x^2-2x-3\\) 的定义域为 \\([a,b]\\)，值域为 \\([-4,5]\\)，则实数对 \\((a,b)\\) 不可能为（　）　A. \\((-2,4)\\)　B. \\((-2,1)\\)　C. \\((1,4)\\)　D. \\((-1,1)\\)",
+        "answerId": "answerI",
+        "answer": "D"
+      }
+    ]
+  },
+  "ui": {
+    "legend": [],
+    "sliderLabel": "参数",
+    "paramLabelPrefix": "",
+    "goToProblemMode": "smooth",
+    "groupTitles": {
+      "求解": ""
+    }
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "求解",
+      "title": "结合函数图像逐项判断定义区间",
+      "t": 0,
+      "derive": [
+        [
+          "配方",
+          "\\(f(x)=(x-1)^2-4\\)"
+        ],
+        [
+          "图像",
+          "\\(f(1)=-4\\)，\\(f(-2)=f(4)=5\\)"
+        ],
+        [
+          "A",
+          "\\([-2,4]\\) 的值域为 \\([-4,5]\\)"
+        ],
+        [
+          "B",
+          "\\([-2,1]\\) 的值域为 \\([-4,5]\\)"
+        ],
+        [
+          "C",
+          "\\([1,4]\\) 的值域为 \\([-4,5]\\)"
+        ],
+        [
+          "D",
+          "\\([-1,1]\\) 的最大值为 \\(f(-1)=0\\)，不可能得到 5，选 D"
+        ]
+      ],
+      "box": [
+        "闭区间上的最大值出现在离对称轴更远的端点。"
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 结合函数图像判断定义区间"
+  }
+}

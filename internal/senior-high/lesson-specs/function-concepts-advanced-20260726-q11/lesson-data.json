@@ -1,0 +1,103 @@
+{
+  "$schema": "../../../schemas/lesson-data.schema.json",
+  "meta": {
+    "id": "function-concepts-advanced-20260726-q11",
+    "outputPath": "site/problems/senior-high/functions/function-concepts-and-representation/function-concepts-advanced-20260726-q11.html",
+    "pageTitle": "函数的概念 · 能力提升第 11 题：函数递推关系求特殊函数值",
+    "pageDescription": "把函数方程改写为固定步长的递推关系，再计算目标自变量相差的步数。",
+    "breadcrumbTitle": "函数概念能力提升第 11 题",
+    "breadcrumbLabel": "高中题库",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "classification": {
+      "pattern": "function-concepts-and-representation",
+      "methods": [
+        "函数方程",
+        "递推",
+        "换元",
+        "特殊函数值"
+      ]
+    },
+    "curriculum": {
+      "chapterLabel": "第三章 函数的概念与性质",
+      "sectionLabel": "3.1 函数的概念及其表示",
+      "subsectionLabel": "函数的概念 · 能力提升",
+      "groupId": "function-value-and-range",
+      "groupLabel": "函数值及函数的值域"
+    }
+  },
+  "problem": {
+    "source": "2026 山东日照第一中学月考",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "含平移自变量的函数方程，可统一换元得到固定步长递推式；",
+      "items": [
+        "先检查目标自变量与已知自变量的差是否为步长的整数倍。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "已知函数 \\(f(x)\\) 的定义域为 R，若 \\(f(x-2)=f(x+4)-6\\)，\\(f(3)=2\\)，则 \\(f(2025)=______\\)。",
+        "answerId": "answerI",
+        "answer": "2024"
+      }
+    ]
+  },
+  "ui": {
+    "legend": [],
+    "sliderLabel": "参数",
+    "paramLabelPrefix": "",
+    "goToProblemMode": "smooth",
+    "groupTitles": {
+      "求解": ""
+    }
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "求解",
+      "title": "改写递推关系并计算步数",
+      "t": 0,
+      "derive": [
+        [
+          "令",
+          "\\(u=x-2\\)，则 \\(x+4=u+6\\)"
+        ],
+        [
+          "∴",
+          "\\(f(u+6)=f(u)+6\\)"
+        ],
+        [
+          "第一次递推",
+          "\\(f(9)=f(3)+6=8\\)"
+        ],
+        [
+          "第二次递推",
+          "\\(f(15)=f(9)+6=f(3)+6×2=14\\)"
+        ],
+        [
+          "∵",
+          "\\(2025=3+337×6\\)"
+        ],
+        [
+          "∴",
+          "\\(f(2025)=f(3)+337×6=2+2022=2024\\)"
+        ]
+      ],
+      "box": [
+        "含平移自变量的函数方程，可统一换元得到固定步长递推式；"
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 改写递推关系并计算步数"
+  }
+}

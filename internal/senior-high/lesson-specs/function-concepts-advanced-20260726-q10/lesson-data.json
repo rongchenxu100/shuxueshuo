@@ -1,0 +1,118 @@
+{
+  "$schema": "../../../schemas/lesson-data.schema.json",
+  "meta": {
+    "id": "function-concepts-advanced-20260726-q10",
+    "outputPath": "site/problems/senior-high/functions/function-concepts-and-representation/function-concepts-advanced-20260726-q10.html",
+    "pageTitle": "函数的概念 · 能力提升第 10 题：两个根式和的值域",
+    "pageDescription": "先确定定义域，再通过平方把根式和转化为易估计的表达式。",
+    "breadcrumbTitle": "函数概念能力提升第 10 题",
+    "breadcrumbLabel": "高中题库",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "classification": {
+      "pattern": "function-concepts-and-representation",
+      "methods": [
+        "根式函数",
+        "平方",
+        "值域"
+      ]
+    },
+    "curriculum": {
+      "chapterLabel": "第三章 函数的概念与性质",
+      "sectionLabel": "3.1 函数的概念及其表示",
+      "subsectionLabel": "函数的概念 · 能力提升",
+      "groupId": "function-value-and-range",
+      "groupLabel": "函数值及函数的值域"
+    }
+  },
+  "problem": {
+    "source": "2026 江苏百校大联考",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "根式和求值域，可先求定义域，再通过平方消去部分根式；",
+      "items": [
+        "平方后利用根式内部表达式的范围估计函数值，并注意原函数值非负。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "函数 \\(f(x)=\\sqrt{1-x}+\\sqrt{1+x}\\) 的值域是（　）　A. \\([0,2]\\)　B. \\([1,2]\\)　C. \\([\\sqrt{2},2]\\)　D. \\([2,+∞)\\)",
+        "answerId": "answerI",
+        "answer": "C"
+      }
+    ]
+  },
+  "ui": {
+    "legend": [],
+    "sliderLabel": "参数",
+    "paramLabelPrefix": "",
+    "goToProblemMode": "smooth",
+    "groupTitles": {
+      "求解": ""
+    }
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "求解",
+      "title": "平方化简并确定值域",
+      "t": 0,
+      "derive": [
+        [
+          "由根式有意义",
+          "\\(1-x≥0\\)，且 \\(1+x≥0\\)"
+        ],
+        [
+          "∴",
+          "\\(x≤1\\)，且 \\(x≥-1\\)"
+        ],
+        [
+          "∴定义域",
+          "\\(-1≤x≤1\\)"
+        ],
+        [
+          "令",
+          "\\(y=\\sqrt{1-x}+\\sqrt{1+x}\\)"
+        ],
+        [
+          "∴",
+          "\\(y^2=2+2\\sqrt{1-x^2}\\)"
+        ],
+        [
+          "∵",
+          "\\(0≤1-x^2≤1\\)"
+        ],
+        [
+          "∴",
+          "\\(0≤\\sqrt{1-x^2}≤1\\)"
+        ],
+        [
+          "∴",
+          "\\(2≤y^2≤4\\)"
+        ],
+        [
+          "又",
+          "\\(y≥0\\)"
+        ],
+        [
+          "∴",
+          "\\(\\sqrt{2}≤y≤2\\)，函数值域为 \\([\\sqrt{2},2]\\)，选 C"
+        ]
+      ],
+      "box": [
+        "定义域决定根式有意义的范围；平方化简后仍要结合 y≥0 还原函数值范围。"
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 平方化简并确定值域"
+  }
+}

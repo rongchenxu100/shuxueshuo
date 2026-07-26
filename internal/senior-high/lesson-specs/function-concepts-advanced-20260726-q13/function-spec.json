@@ -1,0 +1,154 @@
+{
+  "$schema": "../../schemas/function-spec.schema.json",
+  "version": 1,
+  "id": "function-concepts-advanced-20260726-q13",
+  "panels": [
+    {
+      "id": "original-container",
+      "kind": "contextGeometry",
+      "title": "双圆锥玻璃容器",
+      "viewport": {
+        "x": 0.2,
+        "y": 0.05,
+        "width": 0.6,
+        "height": 0.9
+      },
+      "geometry": {
+        "points": [
+          {
+            "id": "top",
+            "x": 0.5,
+            "y": 0.08,
+            "label": "上顶点"
+          },
+          {
+            "id": "left-mid",
+            "x": 0.2,
+            "y": 0.48
+          },
+          {
+            "id": "right-mid",
+            "x": 0.8,
+            "y": 0.48
+          },
+          {
+            "id": "join-center",
+            "x": 0.5,
+            "y": 0.48
+          },
+          {
+            "id": "bottom",
+            "x": 0.5,
+            "y": 0.9,
+            "label": "排水孔"
+          },
+          {
+            "id": "water-left",
+            "x": 0.34,
+            "y": 0.3
+          },
+          {
+            "id": "water-right",
+            "x": 0.66,
+            "y": 0.3
+          },
+          {
+            "id": "water-center",
+            "x": 0.5,
+            "y": 0.3
+          },
+          {
+            "id": "height-bottom",
+            "x": 0.88,
+            "y": 0.9
+          },
+          {
+            "id": "height-top",
+            "x": 0.88,
+            "y": 0.3
+          }
+        ],
+        "polygons": [
+          {
+            "id": "upper-water",
+            "pointIds": [
+              "water-left",
+              "water-right",
+              "right-mid",
+              "left-mid"
+            ],
+            "fill": "#bae6fd",
+            "stroke": "none",
+            "strokeWidth": 0
+          },
+          {
+            "id": "lower-water",
+            "pointIds": [
+              "left-mid",
+              "right-mid",
+              "bottom"
+            ],
+            "fill": "#bae6fd",
+            "stroke": "none",
+            "strokeWidth": 0
+          },
+          {
+            "id": "upper-cone",
+            "pointIds": [
+              "top",
+              "left-mid",
+              "right-mid"
+            ],
+            "fill": "none"
+          },
+          {
+            "id": "lower-cone",
+            "pointIds": [
+              "left-mid",
+              "right-mid",
+              "bottom"
+            ],
+            "fill": "none"
+          }
+        ],
+        "ellipses": [
+          {
+            "id": "joined-rim",
+            "centerPointId": "join-center",
+            "rx": 0.3,
+            "ry": 0.045,
+            "fill": "#bae6fd",
+            "stroke": "#0f766e",
+            "backHalfDashed": true
+          },
+          {
+            "id": "water-surface",
+            "centerPointId": "water-center",
+            "rx": 0.16,
+            "ry": 0.028,
+            "fill": "#bae6fd",
+            "stroke": "#0284c7",
+            "backHalfDashed": true
+          }
+        ],
+        "dimensions": [
+          {
+            "id": "diameter",
+            "startPointId": "water-left",
+            "endPointId": "water-right",
+            "label": "d",
+            "dashed": true,
+            "labelDy": -18
+          },
+          {
+            "id": "height",
+            "startPointId": "height-bottom",
+            "endPointId": "height-top",
+            "label": "h",
+            "labelDx": 28
+          }
+        ]
+      }
+    }
+  ]
+}

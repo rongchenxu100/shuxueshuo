@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/function-decorations.schema.json",
+  "version": 1,
+  "steps": {
+    "s1": {
+      "visiblePanels": [],
+      "showDomain": true,
+      "showRange": true,
+      "highlightStudyInterval": true
+    },
+    "s2": {
+      "visiblePanels": [
+        "reasoning-table"
+      ],
+      "showDomain": true,
+      "showRange": true,
+      "highlightStudyInterval": true
+    }
+  }
+}

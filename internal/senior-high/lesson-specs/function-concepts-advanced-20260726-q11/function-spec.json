@@ -1,0 +1,65 @@
+{
+  "$schema": "../../schemas/function-spec.schema.json",
+  "version": 1,
+  "id": "function-concepts-advanced-20260726-q11",
+  "panels": [
+    {
+      "id": "reasoning-table",
+      "kind": "valueTable",
+      "title": "每向右平移 6，函数值增加 6",
+      "viewport": {
+        "x": 0.08,
+        "y": 0.12,
+        "width": 0.84,
+        "height": 0.76
+      },
+      "columns": [
+        "自变量",
+        "递推次数",
+        "递推展开"
+      ],
+      "rows": [
+        {
+          "id": "row-1",
+          "cells": [
+            "3",
+            "0",
+            "f(3)=2"
+          ]
+        },
+        {
+          "id": "row-2",
+          "cells": [
+            "9",
+            "1",
+            "f(9)=f(3)+6=8"
+          ]
+        },
+        {
+          "id": "row-3",
+          "cells": [
+            "15",
+            "2",
+            "f(15)=f(9)+6=f(3)+6×2=14"
+          ]
+        },
+        {
+          "id": "row-4",
+          "cells": [
+            "…",
+            "…",
+            "…"
+          ]
+        },
+        {
+          "id": "row-5",
+          "cells": [
+            "2025",
+            "337",
+            "f(2025)=f(3)+6×337=2024"
+          ]
+        }
+      ]
+    }
+  ]
+}

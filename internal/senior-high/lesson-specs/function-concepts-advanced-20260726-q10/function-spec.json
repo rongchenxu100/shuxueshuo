@@ -1,0 +1,70 @@
+{
+  "$schema": "../../schemas/function-spec.schema.json",
+  "version": 1,
+  "id": "function-concepts-advanced-20260726-q10",
+  "panels": [
+    {
+      "id": "function-graph",
+      "kind": "functionGraph",
+      "title": "f(x)=√(1−x)+√(1+x)",
+      "viewport": {
+        "x": 0.06,
+        "y": 0.06,
+        "width": 0.88,
+        "height": 0.88
+      },
+      "domain": {
+        "minX": -2,
+        "maxX": 2,
+        "minY": -0.5,
+        "maxY": 2.5
+      },
+      "gridStepX": 1,
+      "gridStepY": 1,
+      "showAxisTicks": true,
+      "function": {
+        "variable": "x",
+        "expr": "sqrt(1-x)+sqrt(1+x)",
+        "label": "f(x)=√(1−x)+√(1+x)",
+        "intervals": [
+          {
+            "min": -1,
+            "max": 1
+          }
+        ]
+      },
+      "studyIntervals": [
+        {
+          "min": -1,
+          "max": 1
+        }
+      ],
+      "range": [
+        {
+          "min": 1.4142135623730951,
+          "max": 2
+        }
+      ],
+      "points": [
+        {
+          "id": "left",
+          "x": -1,
+          "y": 1.4142135623730951,
+          "label": "(-1,√2)"
+        },
+        {
+          "id": "top",
+          "x": 0,
+          "y": 2,
+          "label": "(0,2)"
+        },
+        {
+          "id": "right",
+          "x": 1,
+          "y": 1.4142135623730951,
+          "label": "(1,√2)"
+        }
+      ]
+    }
+  ]
+}

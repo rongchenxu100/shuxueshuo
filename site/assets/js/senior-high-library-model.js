@@ -8,6 +8,7 @@
   const DEFAULT_STATE = Object.freeze({
     chapter: "all",
     section: "all",
+    collection: "all",
     difficulty: "all",
     source: "all",
     sort: "updated-desc",
@@ -24,8 +25,8 @@
     if (state.chapter === "all" || state.section === "all") return null;
     const chapter = (catalog?.chapters || []).find((item) => item.id === state.chapter);
     const section = chapter?.sections.find((item) => item.id === state.section);
-    if (section?.presentation !== "worksheet" || !section.collectionId) return null;
-    return (catalog?.collections || []).find((item) => item.id === section.collectionId) ?? null;
+    if (section?.presentation !== "worksheet" || state.collection === "all") return null;
+    return (catalog?.collections || []).find((item) => item.id === state.collection) ?? null;
   }
 
   function collectionProblemCount(collection) {
@@ -45,6 +46,13 @@
     const selectedChapter = (catalog?.chapters || []).find((item) => item.id === chapter);
     const sectionIds = new Set((selectedChapter?.sections || []).map((section) => section.id));
     const section = chapter !== "all" && sectionIds.has(input.section) ? input.section : "all";
+    const selectedSection = selectedChapter?.sections.find((item) => item.id === section);
+    const collectionIds = new Set(selectedSection?.collectionIds || []);
+    const collection = selectedSection?.presentation === "worksheet"
+      ? (collectionIds.has(input.collection)
+        ? input.collection
+        : selectedSection.defaultCollectionId || selectedSection.collectionIds?.[0] || "all")
+      : "all";
     const difficulty = /^[1-5]$/.test(String(input.difficulty || ""))
       ? String(input.difficulty)
       : "all";
@@ -52,7 +60,7 @@
     const sort = SORTS.has(input.sort) ? input.sort : DEFAULT_STATE.sort;
     const parsedPage = Number.parseInt(input.page, 10);
     const page = Number.isInteger(parsedPage) && parsedPage > 0 ? parsedPage : 1;
-    return { chapter, section, difficulty, source, sort, page };
+    return { chapter, section, collection, difficulty, source, sort, page };
   }
 
   function parseSearch(catalog, search) {
@@ -95,7 +103,7 @@
   function stateToSearch(inputState) {
     const state = { ...DEFAULT_STATE, ...inputState };
     const params = new URLSearchParams();
-    for (const key of ["chapter", "section", "difficulty", "source", "sort"]) {
+    for (const key of ["chapter", "section", "collection", "difficulty", "source", "sort"]) {
       if (state[key] !== DEFAULT_STATE[key]) {
         params.set(key, state[key]);
       }
@@ -107,6 +115,40 @@
     return value ? `?${value}` : "";
   }
 
+  function worksheetPlainText(html) {
+    return String(html || "")
+      .replace(/<[^>]*>/g, "")
+      .replace(/&nbsp;/g, " ")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&amp;/g, "&")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function splitWorksheetOptions(html) {
+    const source = String(html || "");
+    const optionPattern = /(?:^|[\s　])([A-D])\.\s*/g;
+    const matches = Array.from(source.matchAll(optionPattern));
+    if (matches.length < 2 || matches[0][1] !== "A") return null;
+
+    const options = matches.map((match, index) => {
+      const start = match.index + match[0].length;
+      const end = index + 1 < matches.length ? matches[index + 1].index : source.length;
+      return {
+        label: match[1],
+        html: source.slice(start, end).trim(),
+      };
+    });
+    const lengths = options.map((option) => worksheetPlainText(option.html).length);
+
+    return {
+      stemHtml: source.slice(0, matches[0].index).trim(),
+      options,
+      stacked: Math.max(...lengths) > 12 || lengths.reduce((sum, length) => sum + length, 0) > 48,
+    };
+  }
+
   return {
     DEFAULT_STATE,
     collectionForState,
@@ -116,6 +158,7 @@
     paginate,
     parseSearch,
     publishedProblems,
+    splitWorksheetOptions,
     stateToSearch,
   };
 });

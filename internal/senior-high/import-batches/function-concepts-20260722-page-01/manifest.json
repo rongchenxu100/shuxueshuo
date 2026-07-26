@@ -2,6 +2,7 @@
   "$schema": "../../schemas/function-import-batch.schema.json",
   "version": 1,
   "batchId": "function-concepts-20260722-page-01",
+  "collectionId": "function-concepts-foundation",
   "sourceImage": "internal/senior-high/source-images/function-concepts-20260722-page-01/source-page.png",
   "curriculum": {
     "chapterLabel": "第三章 函数的概念与性质",

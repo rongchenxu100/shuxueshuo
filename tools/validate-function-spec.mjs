@@ -11,7 +11,12 @@ const PANEL_KINDS = new Set([
   "mapping", "relationPlot", "numberLine", "functionGraph",
   "valueTable", "constraintList", "contextGeometry",
 ]);
-const GROUP_IDS = new Set(["function-concept", "function-domain", "function-value-and-range"]);
+const GROUP_IDS = new Set([
+  "function-concept",
+  "function-domain",
+  "function-value-and-range",
+  "function-comprehensive",
+]);
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, "utf8"));

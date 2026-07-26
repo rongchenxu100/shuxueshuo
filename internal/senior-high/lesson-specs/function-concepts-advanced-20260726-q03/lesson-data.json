@@ -1,0 +1,125 @@
+{
+  "$schema": "../../../schemas/lesson-data.schema.json",
+  "meta": {
+    "id": "function-concepts-advanced-20260726-q03",
+    "outputPath": "site/problems/senior-high/functions/function-concepts-and-representation/function-concepts-advanced-20260726-q03.html",
+    "pageTitle": "函数的概念 · 能力提升第 3 题：复合自变量与根式分母的定义域",
+    "pageDescription": "先由已知函数定义域反推复合自变量范围，再与根式分母约束取交集。",
+    "breadcrumbTitle": "函数概念能力提升第 3 题",
+    "breadcrumbLabel": "高中题库",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "classification": {
+      "pattern": "function-concepts-and-representation",
+      "methods": [
+        "复合函数定义域",
+        "根式分母",
+        "约束求交"
+      ]
+    },
+    "curriculum": {
+      "chapterLabel": "第三章 函数的概念与性质",
+      "sectionLabel": "3.1 函数的概念及其表示",
+      "subsectionLabel": "函数的概念 · 能力提升",
+      "groupId": "function-domain",
+      "groupLabel": "函数的定义域"
+    }
+  },
+  "problem": {
+    "source": "2026 江苏泰州中学期中",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "对于复合函数 \\(y=f(g(x))\\)，要分清已知的是外层函数还是复合函数的定义域：",
+      "items": [
+        "若已知 \\(f(x)\\) 的定义域为集合 \\(A\\)，则 \\(f(g(x))\\) 的定义域由 \\(g(x)∈A\\) 确定；",
+        "若已知 \\(f(g(x))\\) 的定义域为集合 \\(A\\)，则 \\(f(x)\\) 的定义域是 \\(g(x)\\) 在 \\(x∈A\\) 时的取值范围；",
+        "根式位于分母时，被开方数必须严格大于 0。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "已知函数 \\(f(x+2)\\) 的定义域为 \\((-3,4)\\)，则函数 \\(g(x)=\\frac{f(x+1)}{\\sqrt{3x-1}}\\) 的定义域为（　）　A. \\((-4,3)\\)　B. \\((-2,5)\\)　C. \\((\\frac{1}{3},3)\\)　D. \\((\\frac{1}{3},5)\\)",
+        "answerId": "answerI",
+        "answer": "D"
+      }
+    ]
+  },
+  "ui": {
+    "legend": [],
+    "sliderLabel": "参数",
+    "paramLabelPrefix": "",
+    "goToProblemMode": "smooth",
+    "groupTitles": {
+      "求解": ""
+    }
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "求解",
+      "title": "第1步：由 f(x+2) 的定义域确定 f(x) 的定义域",
+      "showDiagram": false,
+      "t": 0,
+      "derive": [
+        [
+          "∵",
+          "\\(f(x+2)\\) 的定义域为 \\((-3,4)\\)，即 \\(-3<x<4\\)"
+        ],
+        [
+          "令",
+          "\\(u=x+2\\)，则 \\(-1<u<6\\)"
+        ],
+        [
+          "∴",
+          "函数 \\(f(x)\\) 的定义域为 \\((-1,6)\\)"
+        ]
+      ],
+      "box": [
+        "已知复合函数 \\(f(x+2)\\) 的定义域，先求内层式 \\(x+2\\) 的取值范围。"
+      ]
+    },
+    {
+      "id": "s2",
+      "section": "求解",
+      "title": "第2步：确定 g(x) 的定义域",
+      "showDiagram": true,
+      "t": 0,
+      "derive": [
+        [
+          "由分子",
+          "\\(x+1∈(-1,6)\\)，∴ \\(-2<x<5\\)"
+        ],
+        [
+          "由分母",
+          "\\(\\sqrt{3x-1}\\) 有意义且不为 0，∴ \\(3x-1>0\\)，即 \\(x>\\frac{1}{3}\\)"
+        ],
+        [
+          "综上",
+          "\\(x∈(-2,5)\\) 且 \\(x∈(\\frac{1}{3},+∞)\\)，∴ \\(x∈(\\frac{1}{3},5)\\)，选 D"
+        ]
+      ],
+      "box": [
+        "分子中的复合函数和根式分母必须同时有意义。"
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    },
+    "s2": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 确定 f(x) 的定义域",
+    "s2": "2 确定 g(x) 的定义域"
+  }
+}

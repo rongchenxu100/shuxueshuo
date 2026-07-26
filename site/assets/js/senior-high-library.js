@@ -10,6 +10,7 @@
     count: document.querySelector("#catalog-count"),
     filters: document.querySelector(".senior-library-filters"),
     sectionTabs: document.querySelector("#section-tabs"),
+    collectionTabs: document.querySelector("#collection-tabs"),
     difficulty: document.querySelector("#difficulty-filter"),
     source: document.querySelector("#source-filter"),
     sort: document.querySelector("#sort-filter"),
@@ -38,7 +39,7 @@
 
   async function loadCatalog() {
     try {
-      const response = await fetch("../data/senior-high-catalog.json");
+      const response = await fetch("../data/senior-high-catalog.json?v=2");
       if (!response.ok) {
         throw new Error("高中题库目录加载失败");
       }
@@ -58,6 +59,12 @@
 
   function getCollection(collectionId) {
     return (catalog.collections || []).find((collection) => collection.id === collectionId);
+  }
+
+  function getCollectionsForSection(section) {
+    return (section?.collectionIds || [])
+      .map(getCollection)
+      .filter(Boolean);
   }
 
   function collectionCountForChapter(chapterId) {
@@ -113,7 +120,7 @@
           ${hasChildren && expanded ? `
             <div class="senior-library-subchapters">
               ${worksheetSections.map((section) => {
-                const collection = getCollection(section.collectionId);
+                const collections = getCollectionsForSection(section);
                 const selected = state.chapter === chapter.id && state.section === section.id;
                 return `
                   <button
@@ -123,8 +130,8 @@
                     data-parent-chapter="${escapeHtml(chapter.id)}"
                     ${selected ? 'aria-current="page"' : ""}
                   >
-                    <span>${escapeHtml(collection?.title || section.label)}</span>
-                    <span>${model.collectionProblemCount(collection)}</span>
+                    <span>${escapeHtml(section.label.replace("及其表示", ""))}</span>
+                    <span>${collections.reduce((sum, item) => sum + model.collectionProblemCount(item), 0)}</span>
                   </button>
                 `;
               }).join("")}
@@ -240,8 +247,27 @@
       ...model.DEFAULT_STATE,
       chapter: collection.chapterId,
       section: collection.sectionId,
+      collection: collection.id,
     });
     return url.href;
+  }
+
+  function renderCollectionTabs(collection) {
+    const section = getSection(collection.chapterId, collection.sectionId);
+    const collections = getCollectionsForSection(section);
+    elements.collectionTabs.hidden = collections.length < 2;
+    elements.collectionTabs.innerHTML = collections.map((item) => `
+      <button
+        class="senior-library-collection-tab${item.id === collection.id ? " is-active" : ""}"
+        type="button"
+        data-worksheet-collection="${escapeHtml(item.id)}"
+        aria-pressed="${item.id === collection.id ? "true" : "false"}"
+        ${item.id === collection.id ? 'aria-current="page"' : ""}
+      >
+        <span>${escapeHtml(item.label || item.title)}</span>
+        <small>${model.collectionProblemCount(item)} 题</small>
+      </button>
+    `).join("");
   }
 
   function renderCollectionEntry(collection) {
@@ -290,7 +316,27 @@
     const source = lineIndex === 0 && problem.source
       ? `<span class="senior-worksheet-source">（${escapeHtml(problem.source)}）</span>`
       : "";
-    return `<div class="senior-worksheet-line">${source}${line.html || escapeHtml(line.text)}</div>`;
+    const lineHtml = line.html || escapeHtml(line.text);
+    const optionGroup = model.splitWorksheetOptions(lineHtml);
+    if (!optionGroup) {
+      return `<div class="senior-worksheet-line">${source}${lineHtml}</div>`;
+    }
+
+    const stem = optionGroup.stemHtml
+      ? `<div class="senior-worksheet-line">${source}${optionGroup.stemHtml}</div>`
+      : "";
+    const options = optionGroup.options.map((option) => `
+      <div class="senior-worksheet-option">
+        <span class="senior-worksheet-option-label">${option.label}.</span>
+        <span>${option.html}</span>
+      </div>
+    `).join("");
+    return `
+      ${stem}
+      <div class="senior-worksheet-options${optionGroup.stacked ? " is-stacked" : ""}">
+        ${options}
+      </div>
+    `;
   }
 
   function renderWorksheetProblem(problem) {
@@ -391,6 +437,7 @@
       elements.filters.hidden = true;
       elements.sectionTabs.hidden = true;
       elements.sectionTabs.innerHTML = "";
+      renderCollectionTabs(worksheetCollection);
       elements.grid.hidden = true;
       elements.grid.innerHTML = "";
       elements.pagination.hidden = true;
@@ -421,6 +468,8 @@
     elements.title.textContent = chapter?.label || "全部题目";
     elements.count.textContent = `${results.length + collectionProblemCount} 道`;
     elements.filters.hidden = false;
+    elements.collectionTabs.hidden = true;
+    elements.collectionTabs.innerHTML = "";
     elements.difficulty.value = state.difficulty;
     elements.sort.value = state.sort;
     renderSourceOptions();
@@ -449,16 +498,24 @@
     const chapterButton = event.target.closest("[data-chapter]");
     const subchapterButton = event.target.closest("[data-subchapter]");
     const collectionLink = event.target.closest("[data-collection]");
+    const worksheetCollectionButton = event.target.closest("[data-worksheet-collection]");
     const chapterToggle = event.target.closest("[data-chapter-toggle]");
     const sectionButton = event.target.closest("[data-section]");
     const pageButton = event.target.closest("[data-page]");
-    if (collectionLink) {
+    if (worksheetCollectionButton) {
+      setState({ collection: worksheetCollectionButton.dataset.worksheetCollection, page: 1 });
+    } else if (collectionLink) {
       event.preventDefault();
       const collection = getCollection(collectionLink.dataset.collection);
       if (collection) {
         expandedChapters.add(collection.chapterId);
         collapsedChapters.delete(collection.chapterId);
-        setState({ chapter: collection.chapterId, section: collection.sectionId, page: 1 });
+        setState({
+          chapter: collection.chapterId,
+          section: collection.sectionId,
+          collection: collection.id,
+          page: 1,
+        });
       }
     } else if (subchapterButton) {
       expandedChapters.add(subchapterButton.dataset.parentChapter);
@@ -466,6 +523,7 @@
       setState({
         chapter: subchapterButton.dataset.parentChapter,
         section: subchapterButton.dataset.subchapter,
+        collection: "all",
         page: 1,
       });
     } else if (chapterToggle) {
@@ -486,9 +544,9 @@
         expandedChapters.add(chapterId);
         collapsedChapters.delete(chapterId);
       }
-      setState({ chapter: chapterId, section: "all", page: 1 });
+      setState({ chapter: chapterId, section: "all", collection: "all", page: 1 });
     } else if (sectionButton) {
-      setState({ section: sectionButton.dataset.section, page: 1 });
+      setState({ section: sectionButton.dataset.section, collection: "all", page: 1 });
     } else if (pageButton && !pageButton.disabled) {
       setState({ page: Number.parseInt(pageButton.dataset.page, 10) });
     }

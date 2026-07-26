@@ -12,7 +12,11 @@
           "label": "函数的概念及其表示",
           "order": 10,
           "presentation": "worksheet",
-          "collectionId": "function-concepts"
+          "defaultCollectionId": "function-concepts-foundation",
+          "collectionIds": [
+            "function-concepts-foundation",
+            "function-concepts-advanced"
+          ]
         }
       ]
     },

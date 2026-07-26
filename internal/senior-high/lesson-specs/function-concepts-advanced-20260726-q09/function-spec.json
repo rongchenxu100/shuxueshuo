@@ -1,0 +1,74 @@
+{
+  "$schema": "../../schemas/function-spec.schema.json",
+  "version": 1,
+  "id": "function-concepts-advanced-20260726-q09",
+  "panels": [
+    {
+      "id": "function-graph",
+      "kind": "functionGraph",
+      "title": "换元后的函数 h(t)=t²+2t",
+      "viewport": {
+        "x": 0.06,
+        "y": 0.06,
+        "width": 0.88,
+        "height": 0.88
+      },
+      "domain": {
+        "minX": -4,
+        "maxX": 2,
+        "minY": -2,
+        "maxY": 9
+      },
+      "gridStepX": 1,
+      "gridStepY": 1,
+      "showAxisTicks": true,
+      "function": {
+        "variable": "t",
+        "expr": "t^2+2*t",
+        "label": "h(t)=t²+2t",
+        "intervals": [
+          {
+            "min": -4,
+            "max": 2
+          }
+        ]
+      },
+      "studyIntervals": [
+        {
+          "min": 0.7071067811865476,
+          "max": 1
+        }
+      ],
+      "range": [
+        {
+          "min": 1.9142135623730951,
+          "max": 3
+        }
+      ],
+      "referenceLines": [
+        {
+          "id": "axis",
+          "orientation": "vertical",
+          "value": -1,
+          "min": -1,
+          "max": 0,
+          "label": "t=−1"
+        }
+      ],
+      "points": [
+        {
+          "id": "left-endpoint",
+          "x": 0.7071067811865476,
+          "y": 1.9142135623730951,
+          "label": "(√2/2,1/2+√2)"
+        },
+        {
+          "id": "right-endpoint",
+          "x": 1,
+          "y": 3,
+          "label": "(1,3)"
+        }
+      ]
+    }
+  ]
+}

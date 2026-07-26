@@ -1,0 +1,62 @@
+{
+  "$schema": "../../schemas/function-spec.schema.json",
+  "version": 1,
+  "id": "function-concepts-advanced-20260726-q02",
+  "panels": [
+    {
+      "id": "reasoning-table",
+      "kind": "valueTable",
+      "title": "用成对特殊值检查同一输入是否得到同一输出",
+      "viewport": {
+        "x": 0.08,
+        "y": 0.12,
+        "width": 0.84,
+        "height": 0.76
+      },
+      "columns": [
+        "选项",
+        "取值",
+        "同一输入",
+        "函数值"
+      ],
+      "rows": [
+        {
+          "id": "row-1",
+          "cells": [
+            "A",
+            "x=1,-1",
+            "x²=1",
+            "f(1)=1，f(1)=-1"
+          ]
+        },
+        {
+          "id": "row-2",
+          "cells": [
+            "B",
+            "x=1,-1",
+            "x²+1=2",
+            "f(2)=2，f(2)=0"
+          ]
+        },
+        {
+          "id": "row-3",
+          "cells": [
+            "C",
+            "x=0,-1",
+            "x²+x=0",
+            "f(0)=0，f(0)=1"
+          ]
+        },
+        {
+          "id": "row-4",
+          "cells": [
+            "D",
+            "x 与 -x",
+            "u=|x|",
+            "f(u)=u²+1，唯一"
+          ]
+        }
+      ]
+    }
+  ]
+}

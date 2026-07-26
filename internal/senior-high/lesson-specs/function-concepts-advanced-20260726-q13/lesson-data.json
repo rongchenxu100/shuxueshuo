@@ -1,0 +1,109 @@
+{
+  "$schema": "../../../schemas/lesson-data.schema.json",
+  "meta": {
+    "id": "function-concepts-advanced-20260726-q13",
+    "outputPath": "site/problems/senior-high/functions/function-concepts-and-representation/function-concepts-advanced-20260726-q13.html",
+    "pageTitle": "函数的概念 · 能力提升第 13 题：双圆锥容器中的函数关系",
+    "pageDescription": "结合容器截面与匀速排水过程，判断变量之间是否满足唯一对应关系。",
+    "breadcrumbTitle": "函数概念能力提升第 13 题",
+    "breadcrumbLabel": "高中题库",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "classification": {
+      "pattern": "function-concepts-and-representation",
+      "methods": [
+        "函数概念",
+        "唯一对应",
+        "实际情境",
+        "圆锥"
+      ]
+    },
+    "curriculum": {
+      "chapterLabel": "第三章 函数的概念与性质",
+      "sectionLabel": "3.1 函数的概念及其表示",
+      "subsectionLabel": "函数的概念 · 能力提升",
+      "groupId": "function-comprehensive",
+      "groupLabel": "函数综合应用"
+    }
+  },
+  "problem": {
+    "source": "2026 山西大同期中",
+  "keyPoints": {
+    "title": "解题要点",
+    "lead": "判断两个变量是否构成函数关系，先明确自变量和因变量；",
+    "items": [
+      "在自变量的取值范围内，每一个确定的自变量值，都必须有且只有一个因变量值与之对应。",
+      "实际情境中，可借助过程的单向性和固定的几何结构判断对应值是否唯一。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "下图是由两个高为 H 的圆锥（去掉底面）构成的玻璃容器，装满水，其底部装有一个排水小孔。当小孔打开时，水从孔中匀速流出，在 t 时刻，水面的高度为 h，水面对应圆的直径为 d，则下列说法错误的是（　）　A. h 是 d 的函数　B. d 是 t 的函数　C. h 是 t 的函数　D. d 是 h 的函数",
+        "answerId": "answerI",
+        "answer": "A"
+      },
+      {
+        "ariaLabel": "原题中的双圆锥玻璃容器示意图",
+        "figures": [
+          {
+            "id": "original-container",
+            "ariaLabel": "两个等高圆锥组成的排水容器"
+          }
+        ]
+      }
+    ]
+  },
+  "ui": {
+    "legend": [],
+    "sliderLabel": "参数",
+    "paramLabelPrefix": "",
+    "goToProblemMode": "smooth",
+    "groupTitles": {
+      "求解": ""
+    }
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "求解",
+      "title": "第1步：逐项检查变量间是否唯一对应",
+      "t": 0,
+      "derive": [
+        [
+          "A",
+          "以 \\(d\\) 为自变量。除容器连接处的最大直径外，同一个截面直径 \\(d\\) 会在上、下两个圆锥中各出现一次，对应两个不同的水面高度 \\(h\\)。因此 \\(h\\) 不是 \\(d\\) 的函数"
+        ],
+        [
+          "B",
+          "以 \\(t\\) 为自变量。水匀速流出且排水过程单向进行，任一时刻 \\(t\\) 对应唯一的水量和水面位置，从而截面直径 \\(d\\) 唯一。因此 \\(d\\) 是 \\(t\\) 的函数"
+        ],
+        [
+          "C",
+          "以 \\(t\\) 为自变量。同一排水过程中，任一时刻 \\(t\\) 只有一个水面位置，水面高度 \\(h\\) 唯一。因此 \\(h\\) 是 \\(t\\) 的函数"
+        ],
+        [
+          "D",
+          "以 \\(h\\) 为自变量。容器形状固定，任一水面高度 \\(h\\) 确定唯一的水平截面，该截面直径 \\(d\\) 唯一。因此 \\(d\\) 是 \\(h\\) 的函数"
+        ],
+        [
+          "∴",
+          "错误的是 A"
+        ]
+      ],
+      "box": [
+        "先固定自变量，再检查因变量是否有且只有一个对应值。"
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 第1步：逐项检查变量间是否唯一对应"
+  }
+}

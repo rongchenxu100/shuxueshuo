@@ -1,0 +1,95 @@
+{
+  "$schema": "../../../schemas/lesson-data.schema.json",
+  "meta": {
+    "id": "function-concepts-advanced-20260726-q02",
+    "outputPath": "site/problems/senior-high/functions/function-concepts-and-representation/function-concepts-advanced-20260726-q02.html",
+    "pageTitle": "函数的概念 · 能力提升第 2 题：抽象函数等式的一致性",
+    "pageDescription": "利用同一自变量对应唯一函数值，逐项检查抽象函数等式是否自洽。",
+    "breadcrumbTitle": "函数概念能力提升第 2 题",
+    "breadcrumbLabel": "高中题库",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "classification": {
+      "pattern": "function-concepts-and-representation",
+      "methods": [
+        "抽象函数",
+        "唯一对应",
+        "特殊值"
+      ]
+    },
+    "curriculum": {
+      "chapterLabel": "第三章 函数的概念与性质",
+      "sectionLabel": "3.1 函数的概念及其表示",
+      "subsectionLabel": "函数的概念 · 能力提升",
+      "groupId": "function-concept",
+      "groupLabel": "函数的概念"
+    }
+  },
+  "problem": {
+    "source": "2025 河南郑州中学月考",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "函数定义：对于定义域内任意一个自变量 \\(u\\)，都有唯一确定的函数值 \\(f(u)\\)；",
+      "items": [
+        "若两个不同的 \\(x\\) 使括号内的自变量同为 \\(u\\)，等式给出的 \\(f(u)\\) 必须相同；",
+        "寻找一对特殊值并分别写出函数值，可快速检验等式是否符合函数定义。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "已知函数 \\(f(x)\\) 的定义域为 R，则下列等式可以成立的是（　）　A. \\(f(x^2)=x^3\\)　B. \\(f(x^2+1)=|x+1|\\)　C. \\(f(x^2+x)=|x|\\)　D. \\(f(|x|)=x^2+1\\)",
+        "answerId": "answerI",
+        "answer": "D"
+      }
+    ]
+  },
+  "ui": {
+    "legend": [],
+    "sliderLabel": "参数",
+    "paramLabelPrefix": "",
+    "goToProblemMode": "smooth",
+    "groupTitles": {
+      "求解": ""
+    }
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "求解",
+      "title": "第1步：用唯一对应关系检查四个等式",
+      "t": 0,
+      "derive": [
+        [
+          "A",
+          "\\(x=1\\) ⇒ \\(f(1)=1\\)；\\(x=-1\\) ⇒ \\(f(1)=-1\\)，同一个 \\(f(1)\\) 有两个值，不符合函数定义"
+        ],
+        [
+          "B",
+          "\\(x=1\\) ⇒ \\(f(2)=2\\)；\\(x=-1\\) ⇒ \\(f(2)=0\\)，同一个 \\(f(2)\\) 有两个值，不符合函数定义"
+        ],
+        [
+          "C",
+          "\\(x=0\\) ⇒ \\(f(0)=0\\)；\\(x=-1\\) ⇒ \\(f(0)=1\\)，同一个 \\(f(0)\\) 有两个值，不符合函数定义"
+        ],
+        [
+          "D",
+          "令 \\(u=|x|\\) ≥ 0，则 \\(x^2=u^2\\)，可定义 \\(f(u)=u^2+1\\)；同一个 \\(u\\) 对应唯一函数值，选 D"
+        ]
+      ],
+      "box": [
+        "对于定义域内任意一个自变量 \\(u\\)，函数值 \\(f(u)\\) 唯一确定。"
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 第1步：用唯一对应关系检查四个等式"
+  }
+}
