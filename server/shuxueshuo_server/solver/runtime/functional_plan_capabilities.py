@@ -44,6 +44,9 @@ from shuxueshuo_server.solver.runtime.functional_plan_models import (
 from shuxueshuo_server.solver.runtime.functional_reconciliation_validators import (
     validate_reconciliation_validator_ids,
 )
+from shuxueshuo_server.solver.runtime.functional_repair_feedback import (
+    validate_capability_repair_feedback_provider_ids,
+)
 from shuxueshuo_server.solver.runtime.state_identity_constraints import (
     validate_state_identity_constraint_specs,
 )
@@ -239,6 +242,10 @@ class FunctionalCapabilityCatalog:
         return FunctionalCapabilityCatalog(ready)
 
     def require_satisfiable_configuration(self) -> None:
+        validate_capability_repair_feedback_provider_ids(
+            getattr(capability.source, "repair_feedback_provider_id", None)
+            for capability in self.items.values()
+        )
         for capability in self.items.values():
             _ = capability.goal_type
             validate_reconciliation_validator_ids(
@@ -1127,6 +1134,11 @@ def _function_return(item: FunctionReturnSpec) -> FunctionalCapabilityReturn:
             if item.scalar_result_form is not None
             else ()
         ),
+        (
+            item.scalar_result_form.free_symbol_output_names
+            if item.scalar_result_form is not None
+            else ()
+        ),
     )
 
 
@@ -1211,6 +1223,11 @@ def _macro_return(item: MacroReturnSpec) -> FunctionalCapabilityReturn:
         item.return_binding,
         (
             item.scalar_result_form.ignored_symbol_input_args
+            if item.scalar_result_form is not None
+            else ()
+        ),
+        (
+            item.scalar_result_form.free_symbol_output_names
             if item.scalar_result_form is not None
             else ()
         ),

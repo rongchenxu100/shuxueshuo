@@ -147,6 +147,11 @@ SPEC = MethodSpecSource(
     do_not_use_when=(
         "不要把当前正在求解的目标交点同时作为 known_point。",
         "只有 PointRef 或点名、尚无坐标状态的点不能作为 known_point。",
+        (
+            "同一目标点已有可见含参坐标时，不要从无状态依赖的另一条抛物线"
+            "直接覆盖；应继续闭合已有点状态，或确保当前抛物线状态可证明由"
+            "前序抛物线状态闭合得到。"
+        ),
     ),
     solves=("derive_quadratic_x_axis_intercept_point",),
     inputs={

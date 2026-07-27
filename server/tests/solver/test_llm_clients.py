@@ -6,7 +6,9 @@ from typing import Any
 from shuxueshuo_server.solver.runtime.llm_clients import (
     DeepSeekPlannerClient,
     DoubaoPlannerClient,
+    LLMProviderResponseError,
 )
+import pytest
 
 
 class _FakeOpenAIClient:
@@ -129,3 +131,78 @@ def test_openai_compatible_client_wraps_legacy_payload_without_messages() -> Non
     assert messages[0]["role"] == "system"
     assert messages[1]["role"] == "user"
     assert "QuadraticPathMinimumSolver" in messages[1]["content"]
+
+
+class _SequentialOpenAIClient:
+    def __init__(self, contents: list[str | None]) -> None:
+        self.contents = list(contents)
+        self.requests: list[dict[str, Any]] = []
+        self.chat = SimpleNamespace(
+            completions=SimpleNamespace(create=self._create)
+        )
+
+    def _create(self, **kwargs: Any) -> Any:
+        self.requests.append(kwargs)
+        content = self.contents.pop(0)
+        return SimpleNamespace(
+            choices=[
+                SimpleNamespace(
+                    message=SimpleNamespace(content=content),
+                    finish_reason="length",
+                )
+            ],
+            usage=SimpleNamespace(
+                prompt_tokens=10,
+                completion_tokens=20,
+                total_tokens=30,
+            ),
+            model="provider-model-version",
+        )
+
+
+def test_reasoning_only_empty_response_retries_inside_one_provider_call() -> None:
+    fake_client = _SequentialOpenAIClient([None, '{"format":"functional_plan/v1"}'])
+    client = DeepSeekPlannerClient(
+        api_key="test-key",
+        base_url="https://api.deepseek.com",
+        model="deepseek-v4-flash",
+        client_factory=lambda **_: fake_client,
+    )
+
+    result = client.complete(
+        {"messages": [{"role": "user", "content": "return JSON"}]}
+    )
+
+    assert result == '{"format":"functional_plan/v1"}'
+    assert len(fake_client.requests) == 2
+    assert "立即输出严格 JSON" in fake_client.requests[1]["messages"][-1]["content"]
+    assert client.last_usage == {
+        "prompt_tokens": 20,
+        "completion_tokens": 40,
+        "total_tokens": 60,
+        "provider_request_count": 2,
+    }
+    assert [item["visible_content"] for item in client.last_provider_attempts] == [
+        False,
+        True,
+    ]
+
+
+def test_two_reasoning_only_empty_responses_raise_typed_provider_error() -> None:
+    fake_client = _SequentialOpenAIClient([None, ""])
+    client = DeepSeekPlannerClient(
+        api_key="test-key",
+        base_url="https://api.deepseek.com",
+        model="deepseek-v4-flash",
+        client_factory=lambda **_: fake_client,
+    )
+
+    with pytest.raises(
+        LLMProviderResponseError,
+        match="provider.reasoning_only_empty_response",
+    ):
+        client.complete(
+            {"messages": [{"role": "user", "content": "return JSON"}]}
+        )
+
+    assert len(fake_client.requests) == 2

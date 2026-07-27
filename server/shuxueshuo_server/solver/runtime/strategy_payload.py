@@ -355,7 +355,6 @@ def _functional_previous_attempt_state(
             "repair_call_ids",
             "runtime_verified_calls",
             "validated_call_ids",
-            "repair_suffix_start",
             "issues",
             "recovered_issues",
             "preserve_policy",
@@ -378,13 +377,10 @@ def _functional_previous_attempt_state(
     selected["recovered_issues"] = _functional_issue_tickets(
         selected.get("recovered_issues")
     )
-    repair_start = selected.get("repair_suffix_start")
-    if isinstance(repair_start, dict):
-        selected["repair_suffix_start"] = {
-            key: value
-            for key, value in repair_start.items()
-            if key in {"call_id", "scope_id"}
-        }
+    selected["locked_context_call_ids"] = _functional_locked_context_call_ids(
+        selected.get("issues"),
+        locked_call_ids=selected["locked_call_ids"],
+    )
     return {
         "attempt_count": len(previous_attempts),
         "latest_retry_state": selected,
@@ -403,6 +399,44 @@ def _functional_locked_call_ids(value: Any) -> list[str]:
             if isinstance(call, dict)
             for call_id in (call.get("call_id"),)
             if isinstance(call_id, str) and call_id
+        )
+    )
+
+
+def _functional_locked_context_call_ids(
+    issues: Any,
+    *,
+    locked_call_ids: list[str],
+) -> list[str]:
+    """List locked producers that remain usable as repair context."""
+    if not isinstance(issues, list):
+        return []
+    locked = set(locked_call_ids)
+    return list(
+        dict.fromkeys(
+            call_id
+            for issue in issues
+            if isinstance(issue, dict)
+            for details in (issue.get("details"),)
+            if isinstance(details, dict)
+            for call_id in (
+                *(
+                    ref.rsplit(".", 1)[0]
+                    for ref in details.get("compatible_refs", ())
+                    if isinstance(ref, str) and "." in ref
+                ),
+                *(
+                    item
+                    for item in details.get("locked_context_call_ids", ())
+                    if isinstance(item, str)
+                ),
+                *(
+                    item
+                    for item in details.get("context_call_ids", ())
+                    if isinstance(item, str)
+                ),
+            )
+            if call_id in locked
         )
     )
 
@@ -558,6 +592,23 @@ def _functional_issue_tickets(value: Any) -> list[dict[str, Any]]:
             for key, child in item.items()
             if key not in {"step_id", "repair_target", "preserve_policy"}
         }
+        details = ticket.get("details")
+        if isinstance(details, dict):
+            feedback = details.get("repair_feedback")
+            if isinstance(feedback, dict):
+                ticket["details"] = {
+                    **details,
+                    "repair_feedback": {
+                        key: child
+                        for key, child in feedback.items()
+                        if key
+                        not in {
+                            "hints",
+                            "compatible_refs",
+                            "additional_repair_call_ids",
+                        }
+                    },
+                }
         if isinstance(item.get("step_id"), str):
             ticket["call_id"] = item["step_id"]
         tickets.append(

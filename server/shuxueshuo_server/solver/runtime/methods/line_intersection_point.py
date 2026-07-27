@@ -86,6 +86,7 @@ SPEC = MethodSpecSource(
     outputs={
     "intersection": "Point"
 },
+    repair_feedback_provider_id="line_intersection_evidence",
     preconditions=(),
     postconditions=(),
     trace_template=(),

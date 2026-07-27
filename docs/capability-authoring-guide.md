@@ -412,6 +412,25 @@ compiler 只负责执行这些通用谓词，不能再按 `capability_id` 写字
 `repair_hints` 或 capability usage guidance 中。错误匹配文本必须是 Method 自己稳定
 产生的异常片段，不能包含题号、点名或答案。
 
+当静态 hint 无法根据结构化 evidence/identity 状态给出足够精确的说明时，可以在
+`MethodSpecSource.repair_feedback_provider_id` 或
+`StepRecipeSpec.repair_feedback_provider_id` 声明动态 provider。Function 使用 Method
+provider，Macro 使用公开 Recipe provider；内部 method 的 provider 不越过 Macro
+边界。
+
+provider 只接收 prompt-safe typed context，并且只能补充：
+
+- expected / actual 摘要；
+- 最多两条 hint 和两条 do-not；
+- 最多四个已验证兼容引用；
+- 通用 repair roots 的并集。
+
+provider 不能修改 issue code、retryable、错误成立性、`locked_call_ids` 或数学执行
+结果，也不能输出 expected answer、canonical handle、StateSlot、runtime path、题名和
+具体点名。未声明 provider 或 provider 返回 `None` 时，继续使用静态 hint 和通用
+ticket；provider 未注册、抛异常或返回非法结构属于
+`planner.repair_feedback_provider_failed` 配置错误，不消耗 LLM retry。
+
 如果 Method 只支持有限组已验算的几何构造，应建立共享、声明式 geometry profile
 registry，并由 producer 和所有 consumer 使用同一份 profile：
 
@@ -741,6 +760,16 @@ StateSemanticLineage
 `StateLineageClosureSpec`，不要按 method id 在 verifier 中补标签。例如两点距离只有
 在输入分别承担两个拉直端点角色、携带同一 witness，并来自同一已验证 producer 时，
 才能提升为 `path_minimum_expression`；普通两点距离仍只是 `distance`。
+
+一个 closure 同时依赖多组输入时，使用 `EvidenceInputGroupSpec` 分组声明，而不是在
+validator 中写 capability 分支。每组可以分别要求 semantic role、evidence tag、
+witness object role 和同一 witness。若一个普通对象状态没有 endpoint role，但其
+`MathObjectId` 与 witness 声明的 endpoint 对象唯一一致，只能在本次 closure
+evaluation 中按身份匹配；不能修改该对象的基础 lineage，也不能按名称或坐标相等推断。
+
+required answer 的 evidence closure 会在 trial 前执行 preflight，runtime Goal
+Verifier 仍保留最终二次审计。preflight 失败应返回缺失谓词、匹配角色、witness 和兼容
+call result，不应自动拼接固定 method 链。
 
 ### 8.4 Object Role Projection 与 Identity Constraint
 

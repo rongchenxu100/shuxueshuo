@@ -33,7 +33,8 @@
   ],
   "do_not_use_when": [
     "不要把当前正在求解的目标交点同时作为 known_point。",
-    "只有 PointRef 或点名、尚无坐标状态的点不能作为 known_point。"
+    "只有 PointRef 或点名、尚无坐标状态的点不能作为 known_point。",
+    "同一目标点已有可见含参坐标时，不要从无状态依赖的另一条抛物线直接覆盖；应继续闭合已有点状态，或确保当前抛物线状态可证明由前序抛物线状态闭合得到。"
   ],
   "postconditions": [
     "输出点纵坐标为 0 且在曲线上；若给定 known_point，则输出另一个 x 轴交点；若目标 PointRef 声明 side=left/right，则输出对应左右交点"

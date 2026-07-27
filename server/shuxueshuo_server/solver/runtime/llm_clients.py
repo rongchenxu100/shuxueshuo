@@ -28,6 +28,12 @@ class LLMClientConfigurationError(ValueError):
     """LLM provider 配置不完整时抛出的错误。"""
 
 
+class LLMProviderResponseError(ValueError):
+    """A provider consumed output tokens but returned no visible content."""
+
+    code = "provider.reasoning_only_empty_response"
+
+
 OpenAIClientFactory = Callable[..., Any]
 DEFAULT_SYSTEM_PROMPT = (
     "You are a math planning engine. Return JSON only. "
@@ -59,6 +65,10 @@ class OpenAICompatiblePlannerClient:
     request_timeout: float = 120.0
     last_usage: dict[str, Any] | None = field(default=None, init=False)
     last_response_model: str | None = field(default=None, init=False)
+    last_provider_attempts: tuple[dict[str, Any], ...] = field(
+        default=(),
+        init=False,
+    )
     system_prompt: str = DEFAULT_SYSTEM_PROMPT
 
     def __post_init__(self) -> None:
@@ -89,20 +99,62 @@ class OpenAICompatiblePlannerClient:
         planner 类型。
         """
         messages = _messages_from_payload(payload, self.system_prompt)
-        response = self._client.chat.completions.create(
-            model=self.model,
-            messages=messages,
-            temperature=self.temperature,
-            timeout=self.request_timeout,
-        )
-        self.last_usage = _usage_to_dict(getattr(response, "usage", None))
-        # 真实 provider 返回的 model 字段能帮助集成测试确认服务端实际命中的模型版本。
-        response_model = getattr(response, "model", None)
-        self.last_response_model = str(response_model) if response_model else None
-        content = response.choices[0].message.content
-        if content is None:
-            return ""
-        return str(content)
+        attempts: list[dict[str, Any]] = []
+        request_messages = list(messages)
+        for provider_attempt in range(1, 3):
+            response = self._client.chat.completions.create(
+                model=self.model,
+                messages=request_messages,
+                temperature=self.temperature,
+                timeout=self.request_timeout,
+            )
+            usage = _usage_to_dict(getattr(response, "usage", None))
+            response_model = getattr(response, "model", None)
+            content = response.choices[0].message.content
+            text = "" if content is None else str(content)
+            attempts.append(
+                {
+                    "provider_attempt": provider_attempt,
+                    "response_model": (
+                        str(response_model) if response_model else None
+                    ),
+                    "usage": usage,
+                    "finish_reason": getattr(
+                        response.choices[0],
+                        "finish_reason",
+                        None,
+                    ),
+                    "visible_content": bool(text.strip()),
+                }
+            )
+            self.last_provider_attempts = tuple(attempts)
+            self.last_usage = _sum_usage(
+                tuple(item.get("usage") for item in attempts)
+            )
+            self.last_response_model = (
+                str(response_model) if response_model else None
+            )
+            if text.strip():
+                return text
+            if not _usage_consumed_output_tokens(usage):
+                return text
+            if provider_attempt == 1:
+                request_messages = [
+                    *messages,
+                    {
+                        "role": "user",
+                        "content": (
+                            "上一响应消耗了输出 token 但没有可见内容。"
+                            "请立即输出严格 JSON，不要输出解释或 Markdown。"
+                        ),
+                    },
+                ]
+                continue
+            raise LLMProviderResponseError(
+                "provider.reasoning_only_empty_response: "
+                "two provider requests consumed output tokens without visible content"
+            )
+        raise AssertionError("provider retry loop exhausted")
 
 
 class DeepSeekPlannerClient(OpenAICompatiblePlannerClient):
@@ -166,6 +218,39 @@ def _usage_to_dict(usage: Any) -> dict[str, Any] | None:
         if hasattr(usage, key):
             result[key] = getattr(usage, key)
     return result or None
+
+
+def _usage_consumed_output_tokens(usage: dict[str, Any] | None) -> bool:
+    if not usage:
+        return False
+    completion = usage.get("completion_tokens")
+    if isinstance(completion, (int, float)) and completion > 0:
+        return True
+    details = usage.get("completion_tokens_details")
+    if isinstance(details, dict):
+        reasoning = details.get("reasoning_tokens")
+        return isinstance(reasoning, (int, float)) and reasoning > 0
+    return False
+
+
+def _sum_usage(
+    usages: tuple[dict[str, Any] | None, ...],
+) -> dict[str, Any] | None:
+    values = [item for item in usages if isinstance(item, dict)]
+    if not values:
+        return None
+    result: dict[str, Any] = {}
+    for key in ("prompt_tokens", "completion_tokens", "total_tokens"):
+        numbers = [
+            item.get(key)
+            for item in values
+            if isinstance(item.get(key), (int, float))
+        ]
+        if numbers:
+            result[key] = sum(numbers)
+    if len(values) > 1:
+        result["provider_request_count"] = len(values)
+    return result
 
 
 def _messages_from_payload(

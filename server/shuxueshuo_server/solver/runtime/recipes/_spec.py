@@ -89,6 +89,7 @@ class RecipeSpecSource:
     explanation: RecipeExplanationSpec | None = None
     visual: RecipeVisualSpec | None = None
     repair_hints: tuple[dict[str, Any], ...] = ()
+    repair_feedback_provider_id: str | None = None
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -107,6 +108,10 @@ class RecipeSpecSource:
             payload["repair_hints"] = [
                 _json_ready_hint(item) for item in self.repair_hints
             ]
+        if self.repair_feedback_provider_id is not None:
+            payload["repair_feedback_provider_id"] = (
+                self.repair_feedback_provider_id
+            )
         return payload
 
 
@@ -123,6 +128,7 @@ class RecipeSpec:
     explanation: RecipeExplanationSpec | None = None
     visual: RecipeVisualSpec | None = None
     repair_hints: tuple[dict[str, Any], ...] = ()
+    repair_feedback_provider_id: str | None = None
 
 
 def recipe_spec_from_source(source: RecipeSpecSource) -> RecipeSpec:
@@ -136,6 +142,7 @@ def recipe_spec_from_source(source: RecipeSpecSource) -> RecipeSpec:
         explanation=source.explanation,
         visual=source.visual,
         repair_hints=source.repair_hints,
+        repair_feedback_provider_id=source.repair_feedback_provider_id,
     )
 
 

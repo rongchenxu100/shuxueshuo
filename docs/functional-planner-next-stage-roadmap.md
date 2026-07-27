@@ -35,32 +35,29 @@ FunctionalPlan parity 完成不等于可以立即切换默认协议。默认切�
 
 - `docs/math-object-state-identity-propagation-plan.md`
 
-2026-07-23 的五题 Stage 1 batch
-`batch-20260723-182620` 使用同一代码、模型和各题兼容指纹，每题并发三个样本，
-最多三轮：
+2026-07-26 的 Stage 2 acceptance batch
+`stage2-acceptance-20260726-232252` 使用同一 solver source fingerprint、
+`deepseek-v4-flash` 和各题兼容指纹，每题十个样本，最多三轮：
 
 | Case | pass@1 | pass@3 | Configuration errors |
 | --- | ---: | ---: | ---: |
-| Nankai | 2/3 | 3/3 | 0 |
-| Heping Ermo | 1/3 | 3/3 | 0 |
-| Xiqing | 3/3 | 3/3 | 0 |
-| Hexi | 3/3 | 3/3 | 0 |
-| Heping | 3/3 | 3/3 | 0 |
+| Nankai | 9/10 | 10/10 | 0 |
+| Heping Ermo | 4/10 | 10/10 | 0 |
+| Xiqing | 8/10 | 10/10 | 0 |
+| Hexi | 7/10 | 10/10 | 0 |
+| Heping | 6/10 | 9/10 | 0 |
 
-本批共 `15/15` 在最多三轮内通过，五题 Stage 1 门禁已经完成。Stage 2
-要求每题累计十个兼容样本，因此当前尚未完成。
+本批共 `49/50` 在最多三轮内通过。五题分别满足 `samples >= 10`、
+`pass@3 >= 90%`、configuration error 为 0、unclassified error 为 0、
+successful-sample gate failure 为 0，并且各题只有一个 compatibility key。
+因此 Track A Stage 2 和 `parity complete` 门禁已经完成。
 
-2026-07-24 参数绑定回归修复后的当前 source fingerprint 为
-`d983f8db929517cbc0418ca74edbd0fcb7c99ec37d66e3cd795d1bb97624ca0d`。
-五题 batch `batch-20260724-184136` 为 `14/15`；唯一失败是和平二模三轮均未修正
-数学对象/return binding。随后同 fingerprint 的和平二模独立 batch
-`batch-20260724-190119` 为 `3/3`。因此当前代码仍有每题独立 `3/3` 的 Stage 1
-证据，但不把五题 batch 的 `14/15` 隐藏成一次 `15/15`。
-
-跨 batch 报告 `track-a-stage1-20260724/parity-summary.json` 接受了 21 个兼容样本：
-Nankai `3/3`、Heping Ermo `5/6`、Xiqing `3/3`、Hexi `6/6`、Heping `3/3`。
-所有 configuration/unclassified error 为零。该报告只用于记录当前稳定性，不满足
-Stage 2 的每题至少十样本门禁。
+该 acceptance cohort 的 solver source SHA-256 为
+`882d8516b1e602a46a623f53c2fe84529a6a5ce403df74ed6963bb5bb94a7cb7`，
+evaluation source SHA-256 为
+`15ed49c5c094f956ae89396388a82ca0700fefe36323a886814260bb6917c2fa`。
+后续 Track B/C 改动使用该 cohort 作为迁移基线；代码指纹改变后的日常回归不重新定义
+Track A 是否完成，但主链切换前必须重新建立相应阶段自己的真实样本门禁。
 
 ## Roadmap Status Model
 
@@ -75,7 +72,8 @@ Stage 2 的每题至少十样本门禁。
 | --- | --- | --- | --- |
 | Track A assets | `COMPLETE` | 五题 fixture、离线 replay、真实 opt-in、strict-test few-shot、共享 batch 基座 | 无 |
 | Track A Stage 1 | `COMPLETE` | 每题 3 个样本，`15/15` 在三轮内通过，configuration error 为 0 | 无 |
-| Track A parity complete | `IN PROGRESS` | Stage 1、structured provenance parity、typed failure boundary、跨 batch 聚合已建立 | 每题 10 个兼容样本且 `pass@3 >= 90%` |
+| Track A parity complete | `COMPLETE` | 五题各 10 个兼容样本，`pass@3 >= 90%`；structured provenance parity、typed failure boundary、跨 batch 聚合均已建立 | 无 |
+| Track B typed identity authority | `IN PROGRESS` | B0 typed identity foundation 与 B1 allocation authority 已完成；同对象状态 refinement 已使用输入 StateVersion 证明 | B2 placement、B3 finalizer、B4 retry authority 与 B5 string cleanup |
 | Track C transactional interpreter | `PENDING` | 现有 partial replay、Working RuntimeContext、typed provenance 可复用 | Track B B1-B3；C0 shadow；逐 call execution parity |
 | Functional Default Ready | `BLOCKED` | Functional 主链可 opt-in 执行 | Track A parity complete；Track B B0-B4；Track C production closure；direct compiler shadow；held-out；production observability 与回滚门禁 |
 | Track D0 product routing gate retirement | `BLOCKED` | 唯一 problem-id gate 已登记 | Track A parity complete；Functional production routing 接管该 family；legacy deterministic planner 退场 |
@@ -88,14 +86,24 @@ Stage 2 的每题至少十样本门禁。
 
 ### Immediate Next Gate
 
-当前主线先完成 Track A，而不是继续扩大五题资产范围：
+Track A 已完成，当前主线切换到 Track B，而不是继续围绕五题概率样本做局部补丁：
 
-1. 在当前兼容指纹下每题补足到十个样本，要求至少 `9/10` 在三轮内通过；
-2. 重点观察 Heping Ermo 当前累计 `5/6` 的对象身份类 retry，不能通过固定解题链
-   或题目特判换取门禁数字；
-3. 满足以上条件后，将 Track A 标记为 `COMPLETE`。
+1. **B2 placement authority**：让 placement 完整消费 `ComputationKey +
+   StateEffectKey`，不再维护平行的 resolved-call 字符串签名；
+2. **B3 identity-aware finalizer**：建立 logical-state/runtime-destination 双 ledger，
+   把 compiler 内部写入也映射到 typed destination；
+3. 继续用五题 authored fixture、recorded provenance parity 和 Track A acceptance
+   cohort 作为迁移 oracle；
+4. B2-B3 稳定后启动 C0 logical graph / Working Context shadow，但不切换
+   production execution authority。
 
-Track B B0/B1 可以并行推进，但不再作为 Track A 完成条件。
+Track E 的 held-out 基础设施和 ProblemExtractionContext schema 可以并行建设；默认协议
+切换、StepIntent 删除和 transactional interpreter 主链切换仍保持阻塞。
+
+截至 2026-07-27，下一项实际编码工作是 **B2**。近期为状态 refinement 增加的
+`ComputationKey` placement 签名只是过渡接线：它阻止不同输入版本的调用被错误合并，
+但 placement 仍可通过 legacy resolved-call signature、slot string 和局部 scope
+重分配建立第二套判断。因此不能将这部分工作计为 B2 完成。
 
 ## Pack Contract Synchronization Discipline
 
@@ -194,7 +202,7 @@ parity 资产、稳定性证据和迁移 oracle。
 
 ### Current Status
 
-截至 2026-07-24：
+截至 2026-07-27：
 
 - `COMPLETE`：五份 authored FunctionalPlan fixture；
 - `COMPLETE`：五题离线 validation、reconciliation、projection 和 runtime replay；
@@ -205,13 +213,14 @@ parity 资产、稳定性证据和迁移 oracle。
   parity oracle；
 - `COMPLETE`：typed planner failure boundary 和 layer/code/root issue 统计；
 - `COMPLETE`：按 source/model/prompt/catalog/fixture compatibility key 的跨 batch 聚合；
-- `IN PROGRESS`：Stage 2；当前兼容样本数为 Nankai 3、Heping Ermo 6、Xiqing 3、
-  Hexi 6、Heping 3，其中 Heping Ermo 当前累计 `pass@3=5/6`。
+- `COMPLETE`：Stage 2 acceptance batch
+  `stage2-acceptance-20260726-232252`，五题各十个兼容样本；Nankai、Heping Ermo、
+  Xiqing、Hexi 为 `10/10`，Heping 为 `9/10`，configuration/unclassified error
+  均为 0。
 
-Stage 2 可以选择一次性重新运行每题十个样本，也可以实现按
-`revision + model + prompt/catalog/fixture hash` 聚合多个 batch 的兼容样本。若采用后者，
-当前兼容结果可以继续累积，但每题必须达到至少十个样本；Heping Ermo 还必须把累计
-`pass@3` 提升到至少 90%，不能只选择通过的独立 batch。
+Track A 的真实样本资产继续作为回归 oracle 保留，但后续优化指标归属相应 Track：
+Track B 关注 identity drift 和 writer authority，Track C 关注 transactional execution
+与 runtime-grounded closure，Track E 关注 pass@1、best-of-N 和生产 winner selection。
 
 ### Required Assets Per Problem
 
@@ -270,8 +279,8 @@ Track B B0-B4、held-out 门禁、production observability 和默认协议切换
 
 ### Current Status
 
-`BLOCKED`。Functional opt-in 主链和五题 Stage 1 已可用，但 typed identity authority、
-held-out 证据和生产切换能力尚未达到门禁。
+`BLOCKED`。Track A parity 已完成，但 typed identity authority、transactional
+execution、held-out 证据和生产切换能力尚未达到门禁。
 
 ### Criteria
 
@@ -300,9 +309,25 @@ held-out 证据和生产切换能力尚未达到门禁。
 
 ### Current Status
 
-`IN PROGRESS`，但正式 B0-B4 门禁尚未完成。现有 Context、lineage、object identity
-constraints 和 transition history 是实施基础，不等于 allocation、placement 和 finalizer
-已经共用一个 typed identity authority。
+`IN PROGRESS`。B0 与 B1 已完成离线 authoritative cutover：Functional return
+allocation 统一由 typed identity service 决定，Context/debug 保存 typed version 与
+allocation audit。修复跨 scope typed transition 的 legacy compiler/finalizer 接线后，
+和平 focused smoke `batch-20260727-075152` 为 `3/3`；同一 source fingerprint 的五题
+smoke `batch-20260727-075728` 为 `12/15`，configuration error 与 unclassified error
+均为 0，失败根因中没有 allocation/identity projection drift。该概率批次不重新定义
+Track A，也不作为 B2 的通过证据。B2-B5 尚未完成，因此 placement、compiler/finalizer
+和 retry 仍保留兼容 ledger，不得据此切换默认协议。
+
+B1 完成后的加固还包括：
+
+- 同一纯 capability 重新计算同一 MathObject 时，只有当前输入 StateVersion
+  与前一计算相同或为其后代，才能判定为 dependency refinement；
+- open/closed 等结果形态本身不再足以证明 transition，缺少版本依赖时产生
+  `functional.state_transition_dependency_unproven`；
+- transition issue 会携带前后 producer，retry 可以同时放开造成错误状态链的上游；
+- placement 的兼容签名已临时加入 `ComputationKey`，避免 B2 完成前错误合并不同版本
+  输入，但 legacy placement 仍是当前 scope/call 分组的执行权威；
+- 最新离线回归为 `1292 passed, 17 skipped`，`git diff --check` 通过。
 
 详细设计、数据模型和迁移清单见：
 
@@ -323,23 +348,57 @@ constraints 和 transition history 是实施基础，不等于 allocation、plac
 
 #### B0. Typed Identity Foundation
 
+- 状态：`COMPLETE`（2026-07-27）。
 - 引入 `MathObjectId / LogicalStateKey / StateSlotId / StateVersionId / RuntimeDestinationKey / ComputationKey`；
 - 在现有模型中增加 typed identity sidecar，与旧 string id 做 shadow comparison；
-- 不改变 runtime 行为，先用五题 fixture 验证 projection 一致性。
+- 五份 authored FunctionalPlan fixture 的 object/slot/scope shadow mismatch 为零；
+- typed identity JSON round-trip 与旧 Context 缺省 sidecar 重建已覆盖。
 
 #### B1. Allocation Authority
 
+- 状态：`COMPLETE`（authoritative，2026-07-27）。
 - 实现 `StateIdentityIndex + StateAllocationService`；
 - Context 状态和 in-flight Functional return 共用同一 allocation 索引；
 - 区分 reuse、transition、isolated state 和 identity conflict；
-- 首个门禁是南开 D 在 `i / ii_1 / ii_2` 中只有一个 canonical writer。
+- 南开 D 在 `i / ii_1 / ii_2` 中只有一个 canonical writer；
+- 相同 capability 但输入 StateVersion 不同不复用，answer binding 不进入计算键；
+- legacy state refiner 只补充 previous-step metadata，改变 typed allocation 分类时
+  产生 `planner.state_projection_drift`；
+- compiler 按 `previous_version_id` 解析跨 scope transition predecessor，legacy
+  finalizer 同时校验 typed version chain 与原 StateSlot ledger；
+- 五题 authored fixture 的 typed shadow mismatch 为 0，全量 solver 回归为
+  `1292 passed, 17 skipped`；
+- 真实行为证据：focused 和平 `3/3`；五题 smoke `12/15`，系统配置/未分类错误为 0。
 
 #### B2. Placement Uses Identity Decisions
 
+- 状态：`IN PROGRESS`，当前执行项。
 - placement 使用 `ComputationKey + StateEffectKey`，不再将 answer/object return binding 差异当成两次数学计算；
 - answer alias 可以在等价 producer 合并时转移；
 - LCA 只决定 execution/valid scope，不重新创建对象状态身份；
 - downstream refs、projection map 和 provenance 统一指向 canonical call/version。
+
+实施顺序：
+
+1. 定义 placement 输入快照，只接受 B1 已分配的 call、return、typed slot/version、
+   `ComputationKey` 和 `StateEffectKey`；placement 不再自行 materialize return。
+2. 用 typed computation/effect key 建立 canonical call group，统一转移 answer alias、
+   `CallResultRef`、return allocation、dependency edge 和 provenance。
+3. 将 LCA 固定点限制为 execution/valid scope 计算；scope 提升后重定位 storage scope，
+   但保持 MathObject、LogicalStateKey、version predecessor 和 computation identity。
+4. 对 value-only/call-local return 保留隔离路径；对象状态不得回退到
+   `_resolved_call_signature`、handle prefix 或 runtime path 猜测。
+5. shadow 比较 legacy 与 typed placement；五份 authored fixture 达到零 alias、
+   scope、writer 和 visibility drift 后切换 authoritative，并删除 legacy writer 恢复。
+
+B2 完成门禁：
+
+- 同一计算因 answer/object binding 不同仍只有一个 canonical call；
+- 相同 capability 但输入 StateVersion 不同绝不合并；
+- sibling 调用提升到父 scope 后，所有 exact dependency 和 return version 均可见；
+- placement 连续运行两次结果不变，且不会恢复 B1 已消除的 writer；
+- 五题 authored fixture、recorded provenance parity、全量 solver 回归通过；
+- 以新 source fingerprint 跑五题各三个真实样本，configuration/identity drift 为零。
 
 #### B3. Identity-aware Finalizer
 
@@ -363,7 +422,7 @@ constraints 和 transition history 是实施基础，不等于 allocation、plac
 
 ### Stage Gates and Dependencies
 
-- **Track A 进行中**：立即实施 B0-B1，对现有五题 fixture 做 shadow 和 allocation 门禁。
+- **Track A 已完成**：B0-B1 已使用五题 fixture 完成 shadow 和 allocation 门禁。
 - **Functional Default Ready 前**：必须完成 B2-B4，确保 placement、finalizer、retry 不再建立平行身份。
 - **Track C 可并行的部分**：C0 logical graph/event shadow 可与 B0/B1 并行；
   C1 主链要求 B1-B3，C2 retry cutover 要求 B4。
@@ -437,8 +496,8 @@ provenance、stable graph 和 symbolic target closure 是实现基础，但 prod
 - 现有主链不变，shadow interpreter 重放五题 fixture 并比较 call timeline；
 - 一个 LLM attempt 仍只提交一个外部 PlannerStateContext version。
 
-依赖：Track B B1 allocation authority。C0 shadow 可在 Track A Stage 2 期间开发，但
-主链切换会改变 compatibility fingerprint。
+依赖：Track B B1 allocation authority。C0 shadow 可在 B0/B1 期间准备，但必须消费
+typed allocation 结果；主链切换属于后续独立门禁。
 
 #### C1. Transactional Call Execution
 
@@ -647,9 +706,11 @@ Functional reconciler、direct compiler 或新的 capability spec。
 `IN PROGRESS`。并发样本隔离、batch runner、pass@k 和兼容指纹报告已经具备；
 production winner selection、Context branch commit 和无 expected-answer 排序尚未实现。
 
-当前兼容样本中，Nankai `pass@1=2/3`，Heping Ermo 累计 `pass@1=1/6`、
-`pass@3=5/6`。这说明并发候选和 graph retry 具有明显价值，也说明生产环境不能依靠
-expected answer 或挑选成功 batch 来选择 winner。
+Stage 2 acceptance 中，Nankai、Heping Ermo、Xiqing、Hexi、Heping 的 `pass@1`
+分别为 `90% / 40% / 80% / 70% / 60%`，而 `pass@3` 分别为
+`100% / 100% / 100% / 100% / 90%`。这说明 graph retry 具有明显价值，也说明
+Heping Ermo 等复杂题仍适合后续条件式 best-of-N；生产环境不能依靠 expected answer
+选择 winner。
 
 推荐先实现条件式 best-of-3：
 
@@ -804,19 +865,22 @@ PlannerStateContext
 
 ### Milestone 1: Functional Parity Baseline
 
-**Status: `IN PROGRESS`**
+**Status: `COMPLETE`**
 
 - `COMPLETE`：五题 FunctionalPlan fixture、离线 replay 和真实 opt-in；
 - `COMPLETE`：统一并发采样基座和 Stage 1；
 - `COMPLETE`：structured provenance parity、typed failure boundary 和跨 batch 聚合；
-- `IN PROGRESS`：每题十样本 Stage 2；
-- 完成本里程碑即表示 Track A parity complete，不表示可以切默认协议。
+- `COMPLETE`：每题十样本 Stage 2，五题 `pass@3 >= 90%`；
+- 本里程碑已完成，表示 Track A parity complete，不表示可以切默认协议。
 
 ### Milestone 2: MathObject and State Identity Authority
 
 **Status: `IN PROGRESS`**
 
-- 完成 Track B 的 B2-B4；
+- `COMPLETE`：B0 typed identity foundation；
+- `COMPLETE`：B1 authoritative allocation 与版本依赖 refinement；
+- `IN PROGRESS`：B2 placement authority，当前执行项；
+- 后续完成 B3 finalizer authority 与 B4 Context/retry version authority；
 - allocation、placement、finalizer、Context 和 retry 共享 typed identity 及 StateVersion；
 - 同一 MathObject 的等价 producer 在 runtime 前合并，answer alias 和 downstream refs 转移到 canonical producer；
 - 与 Track A parity、held-out 和生产门禁共同组成 Functional Default Ready。
@@ -868,8 +932,8 @@ PlannerStateContext
 
 可以并行：
 
-- 五题 Functional fixture/opt-in 的资产建设；
-- MathObject identity B0/B1 的 typed model、shadow comparison 和 allocation service；
+- 五题 Functional fixture/opt-in 的 oracle 维护与回归；
+- Track B B2/B3 的 typed placement shadow 与 finalizer 双 ledger；
 - Transactional interpreter C0 的 logical graph/event shadow；
 - ProblemExtractionContext schema 和 gold dataset；
 - reliability metrics、batch runner 和 held-out 基础设施；

@@ -38,6 +38,8 @@ from shuxueshuo_server.solver.runtime.capability_contracts import (
 from shuxueshuo_server.solver.runtime.function_specs import FunctionSpecRegistry
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
+from shuxueshuo_server.solver.runtime.recipes._spec import RecipeSpec
+from shuxueshuo_server.solver.runtime.recipes.registry import RecipeSpecRegistry
 from shuxueshuo_server.solver.runtime.output_type_inference import (
     produced_semantic_role,
 )
@@ -233,6 +235,7 @@ class MacroSpec:
         CapabilityInputClosureRequirement, ...
     ] = ()
     identity_constraints: tuple[StateIdentityConstraintSpec, ...] = ()
+    repair_feedback_provider_id: str | None = None
     notes: tuple[str, ...] = ()
 
     def to_payload(self, *, include_adapter: bool = True) -> dict[str, Any]:
@@ -262,6 +265,7 @@ class MacroSpec:
             "identity_constraints": [
                 item.to_payload() for item in self.identity_constraints
             ],
+            "repair_feedback_provider_id": self.repair_feedback_provider_id,
             "notes": list(self.notes),
         }
         if include_adapter:
@@ -294,6 +298,7 @@ class MacroSpecRegistry:
     ) -> "MacroSpecRegistry":
         contracts = effective_contract_by_id(family_spec, method_specs)
         functions = FunctionSpecRegistry.from_family_spec(family_spec, method_specs)
+        recipe_specs = RecipeSpecRegistry.load_from_code()
         specs: dict[str, MacroSpec] = {}
         for recipe in family_spec.step_recipes:
             execution = _execution_for_recipe(recipe)
@@ -307,6 +312,7 @@ class MacroSpecRegistry:
                 execution=execution,
                 contract=contract,
                 function_specs=functions,
+                recipe_spec=recipe_specs.get(recipe.recipe_id),
             )
         return cls(specs)
 
@@ -386,6 +392,7 @@ def macro_spec_from_recipe(
     execution: RecipeExecutionSpec,
     contract: CapabilityContractSpec | None,
     function_specs: FunctionSpecRegistry,
+    recipe_spec: RecipeSpec | None = None,
 ) -> MacroSpec:
     """Project a StepRecipeSpec and RecipeExecutionSpec into a MacroSpec."""
     source: MacroSpecSource = "recipe_execution"
@@ -400,6 +407,23 @@ def macro_spec_from_recipe(
     args = _args_from_contract(contract)
     returns = _returns_from_contract(contract, execution, function_specs)
     notes.extend(_contract_mismatch_notes(contract, execution))
+    provider_ids = {
+        item
+        for item in (
+            recipe.repair_feedback_provider_id,
+            (
+                recipe_spec.repair_feedback_provider_id
+                if recipe_spec is not None
+                else None
+            ),
+        )
+        if item is not None
+    }
+    if len(provider_ids) > 1:
+        raise ValueError(
+            "planner_configuration_error: conflicting macro repair feedback "
+            f"providers for {recipe.recipe_id}"
+        )
     return MacroSpec(
         macro_id=recipe.recipe_id,
         recipe_id=recipe.recipe_id,
@@ -444,6 +468,7 @@ def macro_spec_from_recipe(
         identity_constraints=(
             contract.identity_constraints if contract is not None else ()
         ),
+        repair_feedback_provider_id=next(iter(provider_ids), None),
         notes=tuple(unique_ordered(notes)),
     )
 

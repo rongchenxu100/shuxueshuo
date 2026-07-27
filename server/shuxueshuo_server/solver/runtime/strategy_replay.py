@@ -17,6 +17,9 @@ from shuxueshuo_server.solver.runtime.functional_call_memory import (
     attach_actual_result_refs,
     build_functional_call_memory,
 )
+from shuxueshuo_server.solver.runtime.functional_repair_feedback import (
+    apply_capability_repair_feedback,
+)
 from shuxueshuo_server.solver.runtime.canonical_draft_finalizer import (
     CanonicalDraftFinalizer,
 )
@@ -373,6 +376,12 @@ class PlannerRetryReplayService:
                 errors=errors,
                 replay_report=reconciliation.to_payload(),
                 repair_call_ids=_root_repair_call_ids(reconciliation),
+            )
+            retry_state = _functional_feedback_retry_state(
+                retry_state,
+                plan=reconciliation.plan,
+                reconciliation=reconciliation,
+                catalog=functional_catalog,
             )
             replay = PlannerRetryReplayResult(
                 attempt=attempt,
@@ -1023,21 +1032,17 @@ class PlannerRetryReplayService:
             inputs,
             problem_payload,
         )
-        goal_verification_report = (
-            None
-            if partial_candidate
-            else AnswerGoalVerifier().verify_report(
-                effective_draft,
-                problem_payload=context_problem_payload,
-                handle_registry=handle_registry,
-                diagnostic=diagnostic,
-                family_spec=inputs.family_spec,
-            )
+        goal_verification_report = AnswerGoalVerifier().verify_report(
+            effective_draft,
+            problem_payload=context_problem_payload,
+            handle_registry=handle_registry,
+            diagnostic=diagnostic,
+            family_spec=inputs.family_spec,
         )
         goal_verification_issues = (
-            goal_verification_report.issues
-            if goal_verification_report is not None
-            else ()
+            ()
+            if partial_candidate
+            else goal_verification_report.issues
         )
         retry_state = build_planner_retry_state(
             attempt=attempt,
@@ -1193,6 +1198,14 @@ def _functional_projected_state_writes(
                     transition_kind=output.transition_kind,
                     previous_write_step_id=output.previous_write_step_id,
                     lineage=output.lineage,
+                    math_object_id=output.math_object_id,
+                    logical_state_key=output.logical_state_key,
+                    typed_slot_id=output.typed_slot_id,
+                    selected_version_id=output.selected_version_id,
+                    previous_version_id=output.previous_version_id,
+                    computation_key=output.computation_key,
+                    source_version_ids=output.source_version_ids,
+                    allocation_action=output.allocation_action,
                 )
             )
     return tuple(result)
@@ -1620,6 +1633,44 @@ def _functional_validation_retry_state(
     )
 
 
+def _functional_feedback_retry_state(
+    retry_state: PlannerRetryState,
+    *,
+    plan: FunctionalPlan,
+    reconciliation: FunctionalPlanReconciliationResult,
+    catalog: FunctionalCapabilityCatalog,
+) -> PlannerRetryState:
+    """Apply dynamic feedback even when no partial graph can execute."""
+    issues = apply_capability_repair_feedback(
+        retry_state.issues,
+        plan=plan,
+        reconciliation=reconciliation,
+        catalog=catalog,
+        locked_call_ids=(),
+    )
+    roots = unique_ordered(
+        (
+            *retry_state.repair_call_ids,
+            *(
+                call_id
+                for issue in issues
+                for details in (issue.details,)
+                if isinstance(details, dict)
+                for call_id in details.get("repair_call_ids", ())
+                if isinstance(call_id, str)
+            ),
+        )
+    )
+    return replace(
+        retry_state,
+        issues=issues,
+        repair_call_ids=_ordered_functional_repair_cone(
+            roots,
+            reconciliation=reconciliation,
+        ),
+    )
+
+
 def _functional_projection_issues(
     reconciliation: FunctionalPlanReconciliationResult,
     validation_report: StepIntentValidationReport,
@@ -1646,6 +1697,17 @@ def _functional_projection_issues(
         )
         call_id = matched[-1][1] if matched else None
         issue_code = _functional_projection_issue_code(message)
+        details = {
+            "projected_step_id": matched[-1][2] if matched else None,
+            "validation_error": message,
+        }
+        details.update(
+            _projection_state_conflict_details(
+                message,
+                step_to_call=step_to_call,
+                fallback_call_id=call_id,
+            )
+        )
         issues.append(
             FunctionalPlanIssue(
                 layer="functional_reconciliation",
@@ -1653,10 +1715,7 @@ def _functional_projection_issues(
                 message=message,
                 call_id=call_id,
                 scope_id=call_scopes.get(call_id) if call_id is not None else None,
-                details={
-                    "projected_step_id": matched[-1][2] if matched else None,
-                    "validation_error": message,
-                },
+                details=details,
             )
         )
     if not issues:
@@ -1680,6 +1739,86 @@ def _functional_projection_issues(
     return tuple(result.values())
 
 
+def _projection_state_conflict_details(
+    message: str,
+    *,
+    step_to_call: dict[str, str],
+    fallback_call_id: str | None,
+) -> dict[str, Any]:
+    if not (
+        message.startswith("duplicate_point_coordinate_fact:")
+        or message.startswith("state_transition_previous_write_mismatch:")
+    ):
+        return {}
+    previous_step_id = _diagnostic_field(message, "previous_step")
+    expected_step_id = _diagnostic_field(message, "expected")
+    actual_step_id = _diagnostic_field(message, "actual")
+    current_step_id = (
+        _diagnostic_field(message, "current_step")
+        or _diagnostic_field(message, "step")
+    )
+    previous_call_id = step_to_call.get(
+        previous_step_id or "",
+        previous_step_id,
+    )
+    expected_call_id = step_to_call.get(
+        expected_step_id or "",
+        expected_step_id,
+    )
+    actual_call_id = step_to_call.get(
+        actual_step_id or "",
+        actual_step_id,
+    )
+    current_call_id = step_to_call.get(
+        current_step_id or "",
+        current_step_id,
+    ) or fallback_call_id
+    if message.startswith("duplicate_point_coordinate_fact:"):
+        repair_call_ids = unique_ordered(
+            call_id
+            for call_id in (previous_call_id, current_call_id)
+            if isinstance(call_id, str) and call_id
+        )
+        return {
+            "error_code": "functional.duplicate_state_writer",
+            "conflict_kind": "divergent_state_writers",
+            "previous_writer_call_id": previous_call_id,
+            "current_writer_call_id": current_call_id,
+            "state_signature": _diagnostic_field(message, "signature"),
+            "repair_call_ids": list(repair_call_ids),
+        }
+    repair_call_ids = unique_ordered(
+        call_id
+        for call_id in (actual_call_id, current_call_id)
+        if isinstance(call_id, str) and call_id
+    )
+    context_call_ids = unique_ordered(
+        call_id
+        for call_id in (expected_call_id,)
+        if isinstance(call_id, str) and call_id
+    )
+    return {
+        "error_code": "function.transition_previous_write_mismatch",
+        "conflict_kind": "divergent_state_versions",
+        "expected_previous_call_id": expected_call_id,
+        "actual_previous_call_id": actual_call_id,
+        "consumer_call_id": current_call_id,
+        "repair_call_ids": list(repair_call_ids),
+        "context_call_ids": list(context_call_ids),
+    }
+
+
+def _diagnostic_field(message: str, name: str) -> str | None:
+    marker = f"{name}="
+    if marker not in message:
+        return None
+    value = message.split(marker, 1)[1]
+    for separator in (",", ";"):
+        value = value.split(separator, 1)[0]
+    value = value.strip()
+    return value or None
+
+
 def _functional_projection_issue_code(message: str) -> str:
     """Preserve actionable state-write failures across the projection bridge."""
 
@@ -1698,6 +1837,51 @@ def _functional_projection_issue_code(message: str) -> str:
     ):
         return code
     return "functional.projection_invalid"
+
+
+def _projection_issues_with_locked_context(
+    issues: tuple[FunctionalPlanIssue, ...],
+    *,
+    locked_call_ids: set[str],
+) -> tuple[FunctionalPlanIssue, ...]:
+    """Keep committed conflict inputs immutable unless they carry the issue."""
+
+    result: list[FunctionalPlanIssue] = []
+    for issue in issues:
+        details = dict(issue.details or {})
+        repair_call_ids = tuple(
+            call_id
+            for call_id in details.get("repair_call_ids", ())
+            if isinstance(call_id, str)
+        )
+        locked_context = unique_ordered(
+            (
+                *(
+                    call_id
+                    for call_id in details.get("context_call_ids", ())
+                    if isinstance(call_id, str)
+                    and call_id in locked_call_ids
+                ),
+                *(
+                    call_id
+                    for call_id in repair_call_ids
+                    if (
+                        call_id in locked_call_ids
+                        and call_id != issue.call_id
+                    )
+                ),
+            )
+        )
+        if repair_call_ids:
+            details["repair_call_ids"] = [
+                call_id
+                for call_id in repair_call_ids
+                if call_id not in set(locked_context)
+            ]
+        if locked_context:
+            details["context_call_ids"] = list(locked_context)
+        result.append(replace(issue, details=details))
+    return tuple(result)
 
 
 def _enrich_projection_issues_with_blocked_calls(
@@ -1746,10 +1930,6 @@ def _functional_projection_retry_state(
         if recovery is not None
         else _functional_projection_issues(reconciliation, validation_report)
     )
-    repair_call_ids = _ordered_functional_repair_cone(
-        _repair_call_ids_from_functional_issues(issues),
-        reconciliation=reconciliation,
-    )
     previous = latest_functional_retry_state(previous_attempts)
     previous_stable = (
         previous.get("committed_candidate_calls")
@@ -1771,7 +1951,7 @@ def _functional_projection_retry_state(
         for call_id in (call.get("call_id"),)
         if isinstance(call_id, str)
     }
-    eligible_call_ids = set(
+    matching_committed_call_ids = set(
         call_id
         for call_id, previous_call in previous_stable_by_id.items()
         if call_id in current_calls
@@ -1780,6 +1960,15 @@ def _functional_projection_retry_state(
             previous_call,
         )
     )
+    issues = _projection_issues_with_locked_context(
+        issues,
+        locked_call_ids=matching_committed_call_ids,
+    )
+    repair_call_ids = _ordered_functional_repair_cone(
+        _repair_call_ids_from_functional_issues(issues),
+        reconciliation=reconciliation,
+    )
+    eligible_call_ids = set(matching_committed_call_ids)
     eligible_call_ids.difference_update(repair_call_ids)
     stable_call_ids: set[str] = set()
     for call in reconciliation.plan.calls:
@@ -1845,6 +2034,13 @@ def _functional_projection_retry_state(
         retry_state.issues,
         memory=call_memory,
         dependency_graph=reconciliation.dependency_graph,
+    )
+    retry_issues = apply_capability_repair_feedback(
+        retry_issues,
+        plan=reconciliation.plan,
+        reconciliation=reconciliation,
+        catalog=functional_catalog,
+        locked_call_ids=tuple(stable_call_ids),
     )
     return replace(
         retry_state,
@@ -2010,26 +2206,9 @@ def _functional_runtime_retry_state(
         if runtime_retry_state is not None
         else retry_state.issues
     )
-    runtime_invalid_call_ids = {
-        issue.step_id
-        for issue in runtime_issues
-        if issue.step_id is not None
-    }
     provenance_repair_roots = _runtime_provenance_repair_roots(
         runtime_issues,
         diagnostic=diagnostic,
-    )
-    # Reconciliation can identify an earlier invalid producer than the call
-    # carrying the visible error (for example, a locus with the wrong object
-    # identity). Never freeze that structured repair root merely because its
-    # isolated runtime trial succeeded.
-    runtime_invalid_call_ids.update(retry_state.repair_call_ids)
-    runtime_invalid_call_ids.update(provenance_repair_roots)
-    runtime_invalid_call_ids.update(
-        blocker.step_id
-        for blocker in (
-            diagnostic.blockers if diagnostic is not None else ()
-        )
     )
     issues = _unique_retry_issues(
         (*retry_state.issues, *runtime_issues)
@@ -2082,6 +2261,13 @@ def _functional_runtime_retry_state(
         dependency_graph=reconciliation.dependency_graph,
     )
     committed_call_ids = set(call_memory.committed_call_ids)
+    issues = apply_capability_repair_feedback(
+        issues,
+        plan=plan,
+        reconciliation=reconciliation,
+        catalog=functional_catalog,
+        locked_call_ids=tuple(committed_call_ids),
+    )
     committed_candidate_calls = tuple(
         {"scope_id": scope.scope_id, "call": call.to_payload()}
         for scope in plan.scopes
@@ -2098,16 +2284,21 @@ def _functional_runtime_retry_state(
                     for issue in issues
                     if issue.step_id is not None
                 ),
+                *(
+                    call_id
+                    for issue in issues
+                    for details in (issue.details,)
+                    if isinstance(details, dict)
+                    for call_id in details.get("repair_call_ids", ())
+                    if isinstance(call_id, str)
+                ),
             )
         )
     )
     repair_call_ids = tuple(
         call_id
         for call_id in repair_call_ids
-        if (
-            call_id not in committed_call_ids
-            or call_id in runtime_invalid_call_ids
-        )
+        if call_id not in committed_call_ids
     )
     repair_call_ids = _ordered_functional_repair_cone(
         repair_call_ids,
@@ -2239,9 +2430,18 @@ def _enrich_functional_retry_issues(
         for call in scope.calls
     }
     call_order = {call.call_id: index for index, call in enumerate(plan.calls)}
+    step_to_call = {
+        step_id: item.call_id
+        for item in reconciliation.projection_map
+        for step_id in item.step_ids
+    }
     result: list[PlannerRetryIssue] = []
     for issue in issues:
-        call = calls.get(issue.step_id or "")
+        issue_call_id = step_to_call.get(
+            issue.step_id or "",
+            issue.step_id or "",
+        )
+        call = calls.get(issue_call_id)
         capability = (
             catalog.get(call.capability_id) if call is not None else None
         )
@@ -2256,6 +2456,159 @@ def _enrich_functional_retry_issues(
             ),
             None,
         )
+        error_code = details.get("error_code") or issue.code
+        if (
+            error_code == "function.transition_dependency_missing"
+            and call is not None
+        ):
+            previous_step_id = (
+                details.get("previous_writer_call_id")
+                or _diagnostic_field(issue.message, "previous_step")
+            )
+            previous_call_id = step_to_call.get(
+                previous_step_id or "",
+                previous_step_id,
+            )
+            repair_call_ids = unique_ordered(
+                call_id
+                for call_id in (previous_call_id, call.call_id)
+                if isinstance(call_id, str) and call_id in calls
+            )
+            details.update(
+                {
+                    "previous_writer_call_id": previous_call_id,
+                    "current_writer_call_id": call.call_id,
+                    "repair_call_ids": list(repair_call_ids),
+                }
+            )
+            result.append(
+                replace(
+                    issue,
+                    step_id=call.call_id,
+                    repair_target="functional_call",
+                    message=(
+                        f"call {call.call_id} writes a new state of the same "
+                        f"mathematical object as {previous_call_id}, but its "
+                        "inputs do not prove a state transition"
+                    ),
+                    details=details,
+                )
+            )
+            continue
+        if (
+            error_code == "function.transition_previous_write_mismatch"
+            and call is not None
+        ):
+            expected_step_id = details.get("expected_previous_step_id")
+            actual_step_id = details.get("actual_previous_step_id")
+            expected_call_id = step_to_call.get(
+                expected_step_id,
+                expected_step_id,
+            )
+            actual_call_id = step_to_call.get(
+                actual_step_id,
+                actual_step_id,
+            )
+            expression_values = (
+                reconciled_call.resolved_args.get("expression", ())
+                if reconciled_call is not None
+                else ()
+            )
+            state_value_type = (
+                expression_values[0].runtime_type
+                if len(expression_values) == 1
+                else None
+            )
+            repair_call_ids = unique_ordered(
+                call_id
+                for call_id in (actual_call_id, call.call_id)
+                if isinstance(call_id, str) and call_id in calls
+            )
+            context_call_ids = unique_ordered(
+                call_id
+                for call_id in (expected_call_id,)
+                if isinstance(call_id, str) and call_id in calls
+            )
+            details.update(
+                {
+                    "expected_previous_call_id": expected_call_id,
+                    "actual_previous_call_id": actual_call_id,
+                    "consumer_call_id": call.call_id,
+                    "state_value_type": state_value_type,
+                    "repair_call_ids": list(repair_call_ids),
+                    "context_call_ids": list(context_call_ids),
+                }
+            )
+            result.append(
+                replace(
+                    issue,
+                    step_id=call.call_id,
+                    repair_target="functional_call",
+                    message=(
+                        f"call {call.call_id} reads a state version produced by "
+                        f"{actual_call_id}, but its transition must continue "
+                        f"from {expected_call_id}"
+                    ),
+                    details=details,
+                )
+            )
+            continue
+        if (
+            error_code == "function.substitution_symbol_mismatch"
+            and call is not None
+        ):
+            free_symbol_names = tuple(
+                item
+                for item in details.get("free_symbol_names", ())
+                if isinstance(item, str)
+            )
+            compatible_refs = unique_ordered(
+                f"{prior.call_id}.{allocation.return_name}"
+                for prior in reconciliation.calls
+                if call_order.get(prior.call_id, -1)
+                < call_order.get(call.call_id, -1)
+                for allocation in prior.returns
+                if allocation.runtime_type == "ParameterValue"
+                and allocation.object_ref is not None
+                and allocation.object_ref.rsplit(":", 1)[-1]
+                in set(free_symbol_names)
+            )
+            current_parameter_producers = unique_ordered(
+                value.source_call_id
+                for value in (
+                    reconciled_call.resolved_args.get(
+                        "parameter_value",
+                        (),
+                    )
+                    if reconciled_call is not None
+                    else ()
+                )
+                if value.source_call_id is not None
+            )
+            details.update(
+                {
+                    "compatible_refs": list(compatible_refs),
+                    "repair_call_ids": list(
+                        unique_ordered(
+                            (*current_parameter_producers, call.call_id)
+                        )
+                    ),
+                }
+            )
+            result.append(
+                replace(
+                    issue,
+                    step_id=call.call_id,
+                    repair_target="functional_call",
+                    message=(
+                        f"call {call.call_id} cannot substitute parameter "
+                        f"{details.get('parameter_name')}: the input expression "
+                        "has a different free-Symbol identity"
+                    ),
+                    details=details,
+                )
+            )
+            continue
         if (
             argument_name is None
             and isinstance(unresolved_point_ref, str)

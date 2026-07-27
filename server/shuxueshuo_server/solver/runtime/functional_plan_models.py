@@ -21,6 +21,14 @@ from shuxueshuo_server.solver.runtime.function_specs import FunctionSpec
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
 from shuxueshuo_server.solver.runtime.macro_specs import MacroSpec
 from shuxueshuo_server.solver.runtime.semantic_reads import SemanticReadCatalogItem
+from shuxueshuo_server.solver.runtime.state_identity import (
+    ComputationKey,
+    LogicalStateKey,
+    MathObjectId,
+    StateAllocationAction,
+    StateSlotId,
+    StateVersionId,
+)
 from shuxueshuo_server.solver.runtime.strategy_models import SemanticRef, StepIntentDraft
 from shuxueshuo_server.solver.state_semantics import (
     StateSemanticLineage,
@@ -263,6 +271,7 @@ class FunctionalCapabilityReturn:
     max_independent_free_parameters: int | None = None
     return_binding: str = "auto"
     result_form_ignored_input_args: tuple[str, ...] = ()
+    free_symbol_return_names: tuple[str, ...] = ()
 
     @property
     def binding_mode(self) -> str:
@@ -459,6 +468,10 @@ class ResolvedFunctionalValue:
     lineage: StateSemanticLineage = StateSemanticLineage()
     materialized_runtime_type: str | None = None
     supporting_handles: tuple[str, ...] = ()
+    math_object_id: MathObjectId | None = None
+    logical_state_key: LogicalStateKey | None = None
+    typed_slot_id: StateSlotId | None = None
+    state_version_id: StateVersionId | None = None
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -481,6 +494,26 @@ class ResolvedFunctionalValue:
             "lineage": self.lineage.to_payload(),
             "materialized_runtime_type": self.materialized_runtime_type,
             "supporting_handles": list(self.supporting_handles),
+            "math_object_id": (
+                self.math_object_id.to_payload()
+                if self.math_object_id is not None
+                else None
+            ),
+            "logical_state_key": (
+                self.logical_state_key.to_payload()
+                if self.logical_state_key is not None
+                else None
+            ),
+            "typed_slot_id": (
+                self.typed_slot_id.to_payload()
+                if self.typed_slot_id is not None
+                else None
+            ),
+            "state_version_id": (
+                self.state_version_id.to_payload()
+                if self.state_version_id is not None
+                else None
+            ),
         }
 
 
@@ -504,6 +537,17 @@ class FunctionalReturnAllocation:
     previous_write_step_id: str | None = None
     provides_semantic_roles: tuple[str, ...] = ()
     lineage: StateSemanticLineage = StateSemanticLineage()
+    math_object_id: MathObjectId | None = None
+    logical_state_key: LogicalStateKey | None = None
+    typed_slot_id: StateSlotId | None = None
+    selected_version_id: StateVersionId | None = None
+    previous_version_id: StateVersionId | None = None
+    computation_key: ComputationKey | None = None
+    source_version_ids: tuple[StateVersionId, ...] = ()
+    allocation_action: StateAllocationAction | None = None
+    canonical_producer_call_id: str | None = None
+    allocation_reason_code: str | None = None
+    allocation_conflict_code: str | None = None
 
     def to_payload(self) -> dict[str, Any]:
         payload = {
@@ -524,6 +568,43 @@ class FunctionalReturnAllocation:
             "previous_write_step_id": self.previous_write_step_id,
             "provides_semantic_roles": list(self.provides_semantic_roles),
             "lineage": self.lineage.to_payload(),
+            "math_object_id": (
+                self.math_object_id.to_payload()
+                if self.math_object_id is not None
+                else None
+            ),
+            "logical_state_key": (
+                self.logical_state_key.to_payload()
+                if self.logical_state_key is not None
+                else None
+            ),
+            "typed_slot_id": (
+                self.typed_slot_id.to_payload()
+                if self.typed_slot_id is not None
+                else None
+            ),
+            "selected_version_id": (
+                self.selected_version_id.to_payload()
+                if self.selected_version_id is not None
+                else None
+            ),
+            "previous_version_id": (
+                self.previous_version_id.to_payload()
+                if self.previous_version_id is not None
+                else None
+            ),
+            "computation_key": (
+                self.computation_key.to_payload()
+                if self.computation_key is not None
+                else None
+            ),
+            "source_version_ids": [
+                item.to_payload() for item in self.source_version_ids
+            ],
+            "allocation_action": self.allocation_action,
+            "canonical_producer_call_id": self.canonical_producer_call_id,
+            "allocation_reason_code": self.allocation_reason_code,
+            "allocation_conflict_code": self.allocation_conflict_code,
         }
         if self.state_handle is not None:
             payload["state_handle"] = self.state_handle
@@ -658,6 +739,8 @@ class FunctionalPlanReconciliationResult:
     call_aliases: dict[str, str] = field(default_factory=dict)
     elaboration: dict[str, Any] | None = None
     result_form_events: tuple[FunctionalResultFormEvent, ...] = ()
+    state_identity_decisions: tuple[dict[str, Any], ...] = ()
+    identity_mismatches: tuple[dict[str, Any], ...] = ()
 
     @property
     def ok(self) -> bool:
@@ -688,6 +771,12 @@ class FunctionalPlanReconciliationResult:
             "elaboration": self.elaboration,
             "result_form_events": [
                 item.to_payload() for item in self.result_form_events
+            ],
+            "state_identity_decisions": [
+                dict(item) for item in self.state_identity_decisions
+            ],
+            "identity_mismatches": [
+                dict(item) for item in self.identity_mismatches
             ],
             "projected_draft": (
                 self.projected_draft.to_payload()

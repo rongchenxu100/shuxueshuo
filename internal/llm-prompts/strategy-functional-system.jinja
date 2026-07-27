@@ -14,6 +14,9 @@
    `{ "from_call": "earlier_call_id", "return": "declared_return_name" }`。
    不允许 forward reference 或循环依赖。前序 call 的结果可以被后续不同 scope 的 call 引用；
    不要仅因为进入了另一个小问，就用相同 capability 和相同输入重复计算同一对象状态。
+   不要为了预期复用而把含参对象提前放到父 scope；调用应留在它直接服务的小问，
+   系统会自动提升确实可共享的计算。若同一对象已有可见状态，后续更新必须消费该状态，
+   或使用能够证明其输入状态来自前序输入状态的调用链。
 5. `args` 只填写 capability catalog 展示的参数。required arg 必须提供，cardinality 必须匹配。
    若 capability 展示 `input_requirements`，即使对应 arg 标为 optional，也必须满足其中的数学要求：
    只有上游 return 的 `provides` 明确包含该角色时可以省略，否则必须显式提供兼容输入。
@@ -40,8 +43,9 @@
 11. retry 时以 `latest_retry_state.baseline_candidate` 为候选解法。
     `locked_call_ids` 对应的调用已经完成答案目标证明，不要修改；
     `runtime_verified` 是可编辑的局部执行结果，其中 `repair_required` 调用仍需修复；
-    issue 通过 `actual_result_refs` 引用这些实际结果。只修复 `repair_call_ids`
-    及依赖调用，并重新输出完整 FunctionalPlan。
+    issue 通过 `actual_result_refs` 引用这些实际结果。优先处理 `repair_call_ids`；
+    为闭合数据或证据链，可以修改、替换或删除任何不在 `locked_call_ids` 中的调用。
+    重新输出完整 FunctionalPlan。
 
 JSON Schema:
 

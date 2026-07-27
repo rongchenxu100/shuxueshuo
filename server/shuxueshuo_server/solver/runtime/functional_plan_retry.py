@@ -338,12 +338,12 @@ def functional_repair_instruction(
         )
     if repair_call_ids:
         parts.append(
-            "Repair these root calls and any calls blocked by them: "
+            "Prioritize these diagnostic repair roots: "
             f"{', '.join(repair_call_ids)}."
         )
     parts.append(
-        "A repair may insert prerequisite calls before a root call or replace "
-        "that call's capability, but it must not modify the goal-committed graph. "
+        "To close the data or evidence chain, the repair may insert calls and "
+        "modify, replace, or delete any call outside the goal-committed graph. "
         "When a ticket marks unchanged_binding_rejected, do not resubmit the "
         "same capability with the same args."
     )

@@ -110,12 +110,37 @@ class CanonicalDraftFinalizer:
     ) -> None:
         """Enforce single-writer semantics on the finalized StateSlot ledger."""
         latest_by_slot: dict[str, Any] = {}
+        writes_by_version: dict[Any, Any] = {}
         for item in provenance:
             slot_id = getattr(item, "state_slot_id", None)
             if not isinstance(slot_id, str) or not slot_id:
                 continue
             previous = latest_by_slot.get(slot_id)
             mode = getattr(item, "write_mode", "value")
+            previous_version_id = getattr(item, "previous_version_id", None)
+            allocation_action = getattr(item, "allocation_action", None)
+            if (
+                mode == "transition"
+                and allocation_action == "transition"
+                and previous_version_id is None
+            ):
+                raise StrategyDraftValidationError(
+                    "planner.state_projection_drift: authoritative transition "
+                    "is missing previous_version_id: "
+                    f"slot={slot_id}, step={item.step_id}"
+                )
+            typed_previous = (
+                writes_by_version.get(previous_version_id)
+                if previous_version_id is not None
+                else None
+            )
+            if mode == "transition" and previous_version_id is not None:
+                if typed_previous is None:
+                    raise StrategyDraftValidationError(
+                        "state_transition_typed_previous_missing: "
+                        f"slot={slot_id}, step={item.step_id}"
+                    )
+                previous = typed_previous
             if previous is None:
                 if mode == "transition":
                     raise StrategyDraftValidationError(
@@ -123,11 +148,25 @@ class CanonicalDraftFinalizer:
                         f"slot={slot_id}, step={item.step_id}"
                     )
                 latest_by_slot[slot_id] = item
+                selected_version_id = getattr(
+                    item,
+                    "selected_version_id",
+                    None,
+                )
+                if selected_version_id is not None:
+                    writes_by_version[selected_version_id] = item
                 continue
             if previous.step_id == item.step_id:
                 # One runtime output may be registered as both a reusable fact
                 # and an answer alias inside the same step.
                 latest_by_slot[slot_id] = item
+                selected_version_id = getattr(
+                    item,
+                    "selected_version_id",
+                    None,
+                )
+                if selected_version_id is not None:
+                    writes_by_version[selected_version_id] = item
                 continue
             if mode != "transition":
                 raise StrategyDraftValidationError(
@@ -153,6 +192,9 @@ class CanonicalDraftFinalizer:
                         f"{sorted(current_symbols)}"
                     )
             latest_by_slot[slot_id] = item
+            selected_version_id = getattr(item, "selected_version_id", None)
+            if selected_version_id is not None:
+                writes_by_version[selected_version_id] = item
 
 
 def _close_projected_state_reads(

@@ -581,6 +581,11 @@ def _write_debug_attempt(
                     None,
                 ),
                 "usage": getattr(client, "last_usage", None),
+                "provider_attempts": getattr(
+                    client,
+                    "last_provider_attempts",
+                    None,
+                ),
                 "candidate_format": getattr(
                     getattr(planner, "artifacts", None),
                     "candidate_format",

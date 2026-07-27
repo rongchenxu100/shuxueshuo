@@ -127,6 +127,7 @@ class ScalarResultFormSpec:
     closure_policy: ScalarResultClosurePolicy = "no_free_symbols"
     ignored_symbol_input_args: tuple[str, ...] = ()
     max_independent_free_parameters: int | None = None
+    free_symbol_output_names: tuple[str, ...] = ()
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -141,6 +142,10 @@ class ScalarResultFormSpec:
         if self.max_independent_free_parameters is not None:
             payload["max_independent_free_parameters"] = (
                 self.max_independent_free_parameters
+            )
+        if self.free_symbol_output_names:
+            payload["free_symbol_output_names"] = list(
+                self.free_symbol_output_names
             )
         return payload
 
@@ -289,6 +294,7 @@ class MethodSpec:
     trace_template: tuple[str, ...] = ()
     repair_hints: tuple[dict[str, Any], ...] = ()
     trial_error_hints: tuple[TrialErrorHintSpec, ...] = ()
+    repair_feedback_provider_id: str | None = None
     geometry_profiles: tuple[dict[str, Any], ...] = ()
     explanation: MethodExplanationSpec | None = None
     visual: MethodVisualSpec | None = None

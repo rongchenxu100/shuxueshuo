@@ -24,6 +24,19 @@
     "point": "Point",
     "parameter": "Symbol"
   },
+  "scalar_result_forms": {
+    "point": {
+      "possible_forms": [
+        "open_state",
+        "closed_state"
+      ],
+      "description": "坐标仍含该 Point 专属参数时为 open_state；只有该参数已由同身份 ParameterValue 消去后才是 closed_state。",
+      "closure_policy": "no_free_symbols",
+      "free_symbol_output_names": [
+        "parameter"
+      ]
+    }
+  },
   "is_pure": true,
   "preconditions": [
     "parabola 必须是关于 x 的二次函数",

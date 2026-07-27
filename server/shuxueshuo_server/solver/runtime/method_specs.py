@@ -129,6 +129,11 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
         trial_error_hints=_parse_trial_error_hints(
             raw.get("trial_error_hints", [])
         ),
+        repair_feedback_provider_id=(
+            str(raw["repair_feedback_provider_id"])
+            if raw.get("repair_feedback_provider_id") is not None
+            else None
+        ),
         geometry_profiles=_parse_geometry_profiles(
             raw.get("geometry_profiles", [])
         ),
@@ -426,6 +431,26 @@ def _parse_scalar_result_forms(
                 "scalar result form ignored_symbol_input_args must be a list "
                 f"for {name}"
             )
+        free_symbol_output_names = raw.get("free_symbol_output_names", ())
+        if not isinstance(free_symbol_output_names, (list, tuple)):
+            raise ValueError(
+                "scalar result form free_symbol_output_names must be a list "
+                f"for {name}"
+            )
+        unknown_symbol_outputs = sorted(
+            {
+                str(item)
+                for item in free_symbol_output_names
+                if str(item)
+            }
+            - output_names
+        )
+        if unknown_symbol_outputs:
+            raise ValueError(
+                "scalar result form free_symbol_output_names references "
+                f"unknown outputs for {name}: "
+                + ", ".join(unknown_symbol_outputs)
+            )
         max_independent_free_parameters = raw.get(
             "max_independent_free_parameters"
         )
@@ -452,6 +477,13 @@ def _parse_scalar_result_forms(
             ),
             max_independent_free_parameters=(
                 max_independent_free_parameters
+            ),
+            free_symbol_output_names=tuple(
+                dict.fromkeys(
+                    str(item)
+                    for item in free_symbol_output_names
+                    if str(item)
+                )
             ),
         )
     return result

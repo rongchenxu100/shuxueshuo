@@ -17,6 +17,7 @@ from shuxueshuo_server.solver.family.models import (
     CapabilityStateClosurePolicy,
     CONDITION_OBJECT_ROLES_RESOLVER,
     ConditionPattern,
+    EvidenceInputGroupSpec,
     GoalEvidencePolicySpec,
     MethodBindingRuleSpec,
     MethodInputBindingSpec,
@@ -218,33 +219,51 @@ PATH_MINIMUM_DISTANCE_LINEAGE_CLOSURES = (
 
 PATH_MINIMUM_INTERSECTION_LINEAGE_CLOSURES = (
     StateLineageClosureSpec(
-        source_args=("line1_p1", "line1_p2"),
-        required_semantic_roles=(
-            "straightened_endpoint_1",
-            "straightened_endpoint_2",
+        source_args=("line1_p1", "line1_p2", "line2_p1", "line2_p2"),
+        input_groups=(
+            EvidenceInputGroupSpec(
+                source_args=("line1_p1", "line1_p2"),
+                required_semantic_roles=(
+                    "straightened_endpoint_1",
+                    "straightened_endpoint_2",
+                ),
+                required_evidence_tags=("path_minimum_witness",),
+                witness_role_aliases=(
+                    ("straightened_endpoint_2", "fixed_endpoint_2"),
+                ),
+                require_same_witness=True,
+            ),
+            EvidenceInputGroupSpec(
+                source_args=("line2_p1", "line2_p2"),
+                required_witness_object_roles=(
+                    "moving_locus_endpoint_1",
+                    "moving_locus_endpoint_2",
+                ),
+                require_same_witness=True,
+            ),
         ),
-        required_evidence_tags=("path_minimum_witness",),
-        require_same_source_call=True,
+        output_object_role="moving_object",
         add_evidence_tags=("path_minimum_extremal_point",),
         description=(
-            "用于确定路径极值点的约束直线必须由同一次拉直 witness 的"
-            "两个端点共同定义。"
+            "极值点必须是同一次拉直 witness 的等价最短线段与其声明的"
+            "动点轨迹的交点，且返回对象必须是该 witness 的 moving object。"
         ),
     ),
-    StateLineageClosureSpec(
-        source_args=("line2_p1", "line2_p2"),
-        required_semantic_roles=(
-            "straightened_endpoint_1",
-            "straightened_endpoint_2",
-        ),
-        required_evidence_tags=("path_minimum_witness",),
-        require_same_source_call=True,
-        add_evidence_tags=("path_minimum_extremal_point",),
-        description=(
-            "用于确定路径极值点的约束直线必须由同一次拉直 witness 的"
-            "两个端点共同定义。"
-        ),
-    ),
+)
+
+STRAIGHTENING_WITNESS_OBJECT_ROLE_PROJECTIONS = tuple(
+    StateObjectRoleProjectionSpec(
+        role=role,
+        source_arg="path_transformation",
+        source_object_role=role,
+    )
+    for role in (
+        "moving_object",
+        "fixed_endpoint_1",
+        "fixed_endpoint_2",
+        "moving_locus_endpoint_1",
+        "moving_locus_endpoint_2",
+    )
 )
 
 
@@ -949,11 +968,7 @@ BROKEN_PATH_STRAIGHTENING_AND_SELECT = StepRecipeSpec(
                     "path_minimum_extremal_point",
                 ),
                 object_role_projections=(
-                    StateObjectRoleProjectionSpec(
-                        role="moving_object",
-                        source_arg="path_transformation",
-                        source_object_role="moving_object",
-                    ),
+                    STRAIGHTENING_WITNESS_OBJECT_ROLE_PROJECTIONS
                 ),
             ),
             recipe_output_alias(
@@ -970,11 +985,7 @@ BROKEN_PATH_STRAIGHTENING_AND_SELECT = StepRecipeSpec(
                     "几何状态；不能把二者作为一条直线的两个不同端点。"
                 ),
                 object_role_projections=(
-                    StateObjectRoleProjectionSpec(
-                        role="moving_object",
-                        source_arg="path_transformation",
-                        source_object_role="moving_object",
-                    ),
+                    STRAIGHTENING_WITNESS_OBJECT_ROLE_PROJECTIONS
                 ),
             ),
             recipe_output_alias(
@@ -991,11 +1002,7 @@ BROKEN_PATH_STRAIGHTENING_AND_SELECT = StepRecipeSpec(
                     "辅助点；它不是原路径动点、极值点或答案点。"
                 ),
                 object_role_projections=(
-                    StateObjectRoleProjectionSpec(
-                        role="moving_object",
-                        source_arg="path_transformation",
-                        source_object_role="moving_object",
-                    ),
+                    STRAIGHTENING_WITNESS_OBJECT_ROLE_PROJECTIONS
                 ),
             ),
             recipe_output_alias(
@@ -1012,11 +1019,7 @@ BROKEN_PATH_STRAIGHTENING_AND_SELECT = StepRecipeSpec(
                     "固定端点；它不是原路径动点、极值点或答案点。"
                 ),
                 object_role_projections=(
-                    StateObjectRoleProjectionSpec(
-                        role="moving_object",
-                        source_arg="path_transformation",
-                        source_object_role="moving_object",
-                    ),
+                    STRAIGHTENING_WITNESS_OBJECT_ROLE_PROJECTIONS
                 ),
             ),
         ),
@@ -1106,11 +1109,7 @@ BROKEN_PATH_STRAIGHTENING_MINIMUM_EXPRESSION = StepRecipeSpec(
                     "path_minimum_extremal_point",
                 ),
                 object_role_projections=(
-                    StateObjectRoleProjectionSpec(
-                        role="moving_object",
-                        source_arg="path_transformation",
-                        source_object_role="moving_object",
-                    ),
+                    STRAIGHTENING_WITNESS_OBJECT_ROLE_PROJECTIONS
                 ),
             ),
             recipe_output_alias(
@@ -1127,11 +1126,7 @@ BROKEN_PATH_STRAIGHTENING_MINIMUM_EXPRESSION = StepRecipeSpec(
                     "几何状态；该名称仅作为兼容别名。"
                 ),
                 object_role_projections=(
-                    StateObjectRoleProjectionSpec(
-                        role="moving_object",
-                        source_arg="path_transformation",
-                        source_object_role="moving_object",
-                    ),
+                    STRAIGHTENING_WITNESS_OBJECT_ROLE_PROJECTIONS
                 ),
             ),
             recipe_output_alias(
@@ -1148,11 +1143,7 @@ BROKEN_PATH_STRAIGHTENING_MINIMUM_EXPRESSION = StepRecipeSpec(
                     "辅助点；它不是原路径动点、极值点或答案点。"
                 ),
                 object_role_projections=(
-                    StateObjectRoleProjectionSpec(
-                        role="moving_object",
-                        source_arg="path_transformation",
-                        source_object_role="moving_object",
-                    ),
+                    STRAIGHTENING_WITNESS_OBJECT_ROLE_PROJECTIONS
                 ),
             ),
             recipe_output_alias(
@@ -1169,11 +1160,7 @@ BROKEN_PATH_STRAIGHTENING_MINIMUM_EXPRESSION = StepRecipeSpec(
                     "固定端点；它不是原路径动点、极值点或答案点。"
                 ),
                 object_role_projections=(
-                    StateObjectRoleProjectionSpec(
-                        role="moving_object",
-                        source_arg="path_transformation",
-                        source_object_role="moving_object",
-                    ),
+                    STRAIGHTENING_WITNESS_OBJECT_ROLE_PROJECTIONS
                 ),
             ),
             recipe_output_alias(

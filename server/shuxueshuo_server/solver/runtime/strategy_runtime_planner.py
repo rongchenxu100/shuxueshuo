@@ -19,8 +19,14 @@ from shuxueshuo_server.solver.runtime.functional_plan import PlannerOutputFormat
 from shuxueshuo_server.solver.runtime.functional_few_shots import (
     FunctionalFewShotSelectionMode,
 )
+from shuxueshuo_server.solver.runtime.functional_repair_feedback import (
+    CapabilityRepairFeedbackProviderError,
+)
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
-from shuxueshuo_server.solver.runtime.llm_clients import LLMPlannerClient
+from shuxueshuo_server.solver.runtime.llm_clients import (
+    LLMPlannerClient,
+    LLMProviderResponseError,
+)
 from shuxueshuo_server.solver.runtime.models import PlannerOutput
 from shuxueshuo_server.solver.runtime.planner_state_context import (
     initial_planner_state_context,
@@ -490,15 +496,42 @@ class StrategyPlanner:
             output_format="functional_plan",
         )
         prompt = self.prompt_renderer.render(payload)
-        raw_response = self.client.complete(
-            {
-                "messages": prompt.messages,
-                "family_id": inputs.family_spec.family_id,
-                "problem_id": inputs.problem_id,
-                "planner_output_format": "functional_plan",
-                "planner_payload": payload,
-            }
-        )
+        try:
+            raw_response = self.client.complete(
+                {
+                    "messages": prompt.messages,
+                    "family_id": inputs.family_spec.family_id,
+                    "problem_id": inputs.problem_id,
+                    "planner_output_format": "functional_plan",
+                    "planner_payload": payload,
+                }
+            )
+        except LLMProviderResponseError as exc:
+            self.artifacts = StrategyPlannerArtifacts(
+                payload=payload,
+                prompt=prompt,
+                raw_response="",
+                planner_inputs=inputs,
+                candidate_format="functional_plan",
+            )
+            raise PlannerExecutionError(
+                StructuredSolveError(
+                    stage="provider",
+                    code=exc.code,
+                    message=str(exc),
+                    retryable=False,
+                    details={
+                        "provider_attempts": list(
+                            getattr(
+                                self.client,
+                                "last_provider_attempts",
+                                (),
+                            )
+                        )
+                    },
+                ),
+                candidate_format="functional_plan",
+            ) from exc
         # Capture the complete LLM boundary before deterministic replay. A
         # projection invariant may fail before replay can return a report, but
         # the prompt, payload, and raw FunctionalPlan must still be debuggable.
@@ -521,6 +554,27 @@ class StrategyPlanner:
             )
         except StrategyDraftValidationError as exc:
             raise _functional_draft_validation_error(exc) from exc
+        except CapabilityRepairFeedbackProviderError as exc:
+            raise PlannerExecutionError(
+                StructuredSolveError(
+                    stage="planner",
+                    code=exc.code,
+                    message=str(exc),
+                    retryable=False,
+                    details={
+                        "exception_type": exc.__class__.__name__,
+                    },
+                ),
+                root_issues=(
+                    {
+                        "layer": "planner",
+                        "code": exc.code,
+                        "message": str(exc),
+                        "preserve_policy": "none",
+                    },
+                ),
+                candidate_format="functional_plan",
+            ) from exc
         return payload, prompt, raw_response, replay
 
     def _capture(

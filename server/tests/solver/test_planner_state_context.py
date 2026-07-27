@@ -121,6 +121,26 @@ def test_planner_state_context_initial_snapshot_is_json_serializable() -> None:
     )
     assert point_d["valid_scope"] == "problem"
     assert "source_step_id" not in point_d
+    assert point_d["math_object_id"] == {
+        "value": "point:problem:D",
+        "kind": "point",
+        "origin_scope_id": "problem",
+    }
+    materialized_m = next(
+        item
+        for item in m_coordinate_slots
+        if item.logical_state_key is not None
+    )
+    assert materialized_m.typed_slot_id is not None
+    assert materialized_m.latest_version_id is not None
+    assert materialized_m.latest_version_id.ordinal == 0
+    answer_slots = [
+        item
+        for item in ctx.state.state_slots
+        if item.object_ref and item.object_ref.startswith("answer:")
+    ]
+    assert answer_slots
+    assert all(item.typed_slot_id is None for item in answer_slots)
     json.dumps(payload, ensure_ascii=False)
 
 

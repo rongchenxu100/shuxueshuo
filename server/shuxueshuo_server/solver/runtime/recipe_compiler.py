@@ -4807,15 +4807,12 @@ def _state_write_provenance(
         for handle in (source_handle, *step.reads)
         if isinstance(handle, str) and handle
     )
-    previous_write = next(
-        (
-            item
-            for item in reversed(prior)
-            if item.object_ref is not None and item.object_ref == object_ref
-            and item.runtime_type == runtime_type
-            and item.scope_id == step.scope_id
-        ),
-        None,
+    previous_write = _previous_state_write(
+        prior,
+        projected_write=projected_write,
+        object_ref=object_ref,
+        runtime_type=runtime_type,
+        scope_id=step.scope_id,
     )
     effective_write_mode: StateWriteMode = (
         projected_write.write_mode if projected_write is not None else write_mode
@@ -4850,6 +4847,9 @@ def _state_write_provenance(
             ),
         )
     state_kind = state_kind_for_runtime_type(runtime_type)
+    # The compiler/runtime ledger retains its legacy destination key through
+    # B1. The typed projected slot is carried beside it and becomes the final
+    # ledger authority only in B3, when Macro internal writes are mapped too.
     state_slot_id = (
         f"{object_ref}.{state_kind}@{step.scope_id}:{runtime_type}"
         if object_ref is not None
@@ -4905,6 +4905,85 @@ def _state_write_provenance(
             else lineage.source_state_slot_ids
         ),
         lineage=lineage,
+        math_object_id=(
+            projected_write.math_object_id
+            if projected_write is not None
+            else None
+        ),
+        logical_state_key=(
+            projected_write.logical_state_key
+            if projected_write is not None
+            else None
+        ),
+        typed_slot_id=(
+            projected_write.typed_slot_id
+            if projected_write is not None
+            else None
+        ),
+        selected_version_id=(
+            projected_write.selected_version_id
+            if projected_write is not None
+            else None
+        ),
+        previous_version_id=(
+            projected_write.previous_version_id
+            if projected_write is not None
+            else None
+        ),
+        computation_key=(
+            projected_write.computation_key
+            if projected_write is not None
+            else None
+        ),
+        source_version_ids=(
+            projected_write.source_version_ids
+            if projected_write is not None
+            else ()
+        ),
+        allocation_action=(
+            projected_write.allocation_action
+            if projected_write is not None
+            else None
+        ),
+    )
+
+
+def _previous_state_write(
+    prior: tuple[StateWriteProvenance, ...],
+    *,
+    projected_write: ProjectedStateWrite | None,
+    object_ref: str | None,
+    runtime_type: str,
+    scope_id: str,
+) -> StateWriteProvenance | None:
+    """Resolve the exact typed predecessor before using legacy scope matching."""
+
+    projected_previous_version = (
+        projected_write.previous_version_id
+        if projected_write is not None
+        else None
+    )
+    if projected_previous_version is not None:
+        exact = next(
+            (
+                item
+                for item in reversed(prior)
+                if item.selected_version_id == projected_previous_version
+            ),
+            None,
+        )
+        if exact is not None:
+            return exact
+    return next(
+        (
+            item
+            for item in reversed(prior)
+            if item.object_ref is not None
+            and item.object_ref == object_ref
+            and item.runtime_type == runtime_type
+            and item.scope_id == scope_id
+        ),
+        None,
     )
 
 
@@ -6034,6 +6113,8 @@ def _execution_blocker_code(candidate_errors: list[str]) -> str:
         "function.transition_source_missing",
         "function.transition_scope_invisible",
         "function.transition_dependency_missing",
+        "function.transition_previous_write_mismatch",
+        "function.substitution_symbol_mismatch",
     ):
         if code in text:
             return code
@@ -6107,6 +6188,33 @@ def _execution_blocker_details(
 ) -> dict[str, Any] | None:
     """Extract fields from typed capability errors at the compiler boundary."""
     for error in candidate_errors:
+        transition_marker = "function.transition_previous_write_mismatch:"
+        if transition_marker in error:
+            fields = _typed_error_fields(
+                error.split(transition_marker, 1)[1]
+            )
+            return {
+                "error_code": "function.transition_previous_write_mismatch",
+                "expected_previous_step_id": fields.get("expected"),
+                "actual_previous_step_id": fields.get("actual"),
+                "requirement": "single_continuous_state_version_chain",
+            }
+        substitution_marker = "function.substitution_symbol_mismatch:"
+        if substitution_marker in error:
+            fields = _typed_error_fields(
+                error.split(substitution_marker, 1)[1]
+            )
+            free_symbols = _split_typed_error_list(
+                fields.get("free_symbols")
+            )
+            return {
+                "error_code": "function.substitution_symbol_mismatch",
+                "parameter_name": fields.get("parameter"),
+                "free_symbol_names": (
+                    [] if free_symbols == ["none"] else free_symbols
+                ),
+                "requirement": "parameter_identity_in_expression_free_symbols",
+            }
         if (
             "candidate_selection_constraint_required" in error
             or (

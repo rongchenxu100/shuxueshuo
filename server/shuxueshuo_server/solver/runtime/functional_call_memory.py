@@ -132,13 +132,17 @@ def build_functional_call_memory(
         reconciliation,
         active_issues=active_issues,
     )
+    commit_blockers = _active_issue_call_cone(
+        reconciliation,
+        active_issues=active_issues,
+    )
     verified = set(runtime_verified_call_ids)
     committed_goals = (
         _committed_goals_by_call(
             reconciliation,
             goal_report=goal_report,
             verified_call_ids=verified,
-            invalid_call_ids=repair_cone,
+            invalid_call_ids=commit_blockers,
         )
         if allow_goal_commit
         else {}
@@ -440,6 +444,35 @@ def _active_repair_cone(
     )
     changed = True
     invalid = set(roots)
+    while changed:
+        changed = False
+        for call_id, dependencies in reconciliation.dependency_graph.items():
+            if call_id in invalid or not invalid.intersection(dependencies):
+                continue
+            invalid.add(call_id)
+            changed = True
+    return invalid
+
+
+def _active_issue_call_cone(
+    reconciliation: FunctionalPlanReconciliationResult,
+    *,
+    active_issues: Sequence[PlannerRetryIssue],
+) -> set[str]:
+    """Calls proven invalid by an issue, excluding contextual repair inputs.
+
+    ``details.repair_call_ids`` may include an otherwise valid producer merely
+    because its result was connected to the failing call. Such a producer can
+    remain goal-committed and serve as immutable retry context. Only the call
+    carrying the active issue, and calls depending on it, block commitment.
+    """
+
+    invalid = {
+        item.step_id
+        for item in active_issues
+        if item.step_id is not None
+    }
+    changed = True
     while changed:
         changed = False
         for call_id, dependencies in reconciliation.dependency_graph.items():

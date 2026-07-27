@@ -38,6 +38,16 @@ from shuxueshuo_server.solver.runtime.symbol_dependencies import (
     symbol_handles_by_name,
     symbol_refs_from_names,
 )
+from shuxueshuo_server.solver.runtime.state_identity import (
+    ComputationKey,
+    LogicalStateKey,
+    MathObjectId,
+    MathObjectRegistry,
+    RuntimeDestinationKey,
+    StateIdentityFactory,
+    StateSlotId,
+    StateVersionId,
+)
 from shuxueshuo_server.solver.runtime.planner import PlannerInputs
 from shuxueshuo_server.solver.runtime.strategy_models import (
     CreatedEntity,
@@ -145,6 +155,7 @@ class MathObject:
     source: ContextSource
     valid_scope: str | None = None
     source_step_id: str | None = None
+    math_object_id: MathObjectId | None = None
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -159,6 +170,8 @@ class MathObject:
             payload["valid_scope"] = self.valid_scope
         if self.source_step_id is not None:
             payload["source_step_id"] = self.source_step_id
+        if self.math_object_id is not None:
+            payload["math_object_id"] = self.math_object_id.to_payload()
         return payload
 
 
@@ -203,6 +216,9 @@ class StateWriteVersion:
     write_mode: str
     previous_write_step_id: str | None = None
     lineage: StateSemanticLineage = StateSemanticLineage()
+    version_id: StateVersionId | None = None
+    computation_key: ComputationKey | None = None
+    source_version_ids: tuple[StateVersionId, ...] = ()
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -212,6 +228,19 @@ class StateWriteVersion:
             "write_mode": self.write_mode,
             "previous_write_step_id": self.previous_write_step_id,
             "lineage": self.lineage.to_payload(),
+            "version_id": (
+                self.version_id.to_payload()
+                if self.version_id is not None
+                else None
+            ),
+            "computation_key": (
+                self.computation_key.to_payload()
+                if self.computation_key is not None
+                else None
+            ),
+            "source_version_ids": [
+                item.to_payload() for item in self.source_version_ids
+            ],
         }
 
 
@@ -235,6 +264,10 @@ class StateSlot:
     free_symbol_refs: tuple[str, ...] = ()
     source_state_slot_ids: tuple[str, ...] = ()
     lineage: StateSemanticLineage = StateSemanticLineage()
+    logical_state_key: LogicalStateKey | None = None
+    typed_slot_id: StateSlotId | None = None
+    latest_version_id: StateVersionId | None = None
+    runtime_destination_key: RuntimeDestinationKey | None = None
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -254,6 +287,26 @@ class StateSlot:
             "free_symbol_refs": list(self.free_symbol_refs),
             "source_state_slot_ids": list(self.source_state_slot_ids),
             "lineage": self.lineage.to_payload(),
+            "logical_state_key": (
+                self.logical_state_key.to_payload()
+                if self.logical_state_key is not None
+                else None
+            ),
+            "typed_slot_id": (
+                self.typed_slot_id.to_payload()
+                if self.typed_slot_id is not None
+                else None
+            ),
+            "latest_version_id": (
+                self.latest_version_id.to_payload()
+                if self.latest_version_id is not None
+                else None
+            ),
+            "runtime_destination_key": (
+                self.runtime_destination_key.to_payload()
+                if self.runtime_destination_key is not None
+                else None
+            ),
         }
 
 
@@ -493,6 +546,8 @@ class PlannerState:
     functional_projection_map: tuple[dict[str, Any], ...] = ()
     student_step_placements: tuple[dict[str, Any], ...] = ()
     student_scope_references: tuple[dict[str, Any], ...] = ()
+    state_identity_decisions: tuple[dict[str, Any], ...] = ()
+    identity_mismatches: tuple[dict[str, Any], ...] = ()
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -530,6 +585,12 @@ class PlannerState:
             ],
             "student_scope_references": [
                 dict(item) for item in self.student_scope_references
+            ],
+            "state_identity_decisions": [
+                dict(item) for item in self.state_identity_decisions
+            ],
+            "identity_mismatches": [
+                dict(item) for item in self.identity_mismatches
             ],
         }
 
@@ -610,6 +671,8 @@ class _MutableState:
     functional_projection_map: list[dict[str, Any]] = field(default_factory=list)
     student_step_placements: list[dict[str, Any]] = field(default_factory=list)
     student_scope_references: list[dict[str, Any]] = field(default_factory=list)
+    state_identity_decisions: list[dict[str, Any]] = field(default_factory=list)
+    identity_mismatches: list[dict[str, Any]] = field(default_factory=list)
 
     def freeze(self) -> PlannerStateContext:
         return PlannerStateContext(
@@ -642,6 +705,8 @@ class _MutableState:
                 functional_projection_map=tuple(self.functional_projection_map),
                 student_step_placements=tuple(self.student_step_placements),
                 student_scope_references=tuple(self.student_scope_references),
+                state_identity_decisions=tuple(self.state_identity_decisions),
+                identity_mismatches=tuple(self.identity_mismatches),
             ),
         )
 
@@ -830,6 +895,18 @@ class PlannerStateContextBuilder:
             item.to_payload()
             for item in getattr(reconciliation, "projection_map", ())
         )
+        state.state_identity_decisions.extend(
+            dict(item)
+            for item in getattr(
+                reconciliation,
+                "state_identity_decisions",
+                (),
+            )
+        )
+        state.identity_mismatches.extend(
+            dict(item)
+            for item in getattr(reconciliation, "identity_mismatches", ())
+        )
         effective_draft = getattr(replay, "effective_draft", None) or getattr(
             reconciliation,
             "projected_draft",
@@ -918,6 +995,11 @@ class PlannerStateContextBuilder:
         state_slots = _enrich_initial_state_slots(
             state_slots,
             problem_payload=problem_payload,
+        )
+        math_objects, state_slots = _attach_typed_initial_identity(
+            math_objects,
+            state_slots,
+            handle_registry=handle_registry,
         )
         alias_index = _build_alias_index(math_objects, conditions, state_slots.values())
         return _MutableState(
@@ -1805,6 +1887,103 @@ def _condition_object_roles(
         return ()
 
 
+def _attach_typed_initial_identity(
+    math_objects: list[MathObject],
+    state_slots: dict[str, StateSlot],
+    *,
+    handle_registry: CanonicalHandleRegistry,
+) -> tuple[list[MathObject], dict[str, StateSlot]]:
+    object_registry = MathObjectRegistry.from_sources(
+        handle_registry,
+        math_objects=math_objects,
+    )
+    factory = StateIdentityFactory(object_registry)
+    typed_objects = [
+        replace(
+            item,
+            math_object_id=factory.object_id(
+                item.canonical_handle or item.object_id
+            ),
+        )
+        for item in math_objects
+    ]
+    typed_slots: dict[str, StateSlot] = {}
+    for slot_id, slot in state_slots.items():
+        if (
+            slot.object_ref is None
+            or slot.object_ref.startswith("answer:")
+        ):
+            typed_slots[slot_id] = slot
+            continue
+        logical_key = factory.logical_key(
+            object_ref=slot.object_ref,
+            state_kind=slot.state_kind,
+            runtime_type=slot.runtime_type,
+        )
+        if logical_key is None:
+            typed_slots[slot_id] = slot
+            continue
+        typed_slot_id = factory.slot_id(
+            logical_key,
+            storage_scope_id=slot.scope_id,
+        )
+        latest_version_id = StateVersionId(
+            typed_slot_id,
+            len(slot.write_history) if slot.write_history else 0,
+        )
+        typed_slots[slot_id] = replace(
+            slot,
+            logical_state_key=logical_key,
+            typed_slot_id=typed_slot_id,
+            latest_version_id=latest_version_id,
+            runtime_destination_key=RuntimeDestinationKey(
+                logical_key.object_id,
+                logical_key.state_kind,
+                logical_key.runtime_type,
+                slot.runtime_path,
+            ),
+        )
+    return typed_objects, typed_slots
+
+
+def _logical_state_key_from_payload(value: Any) -> LogicalStateKey | None:
+    if not isinstance(value, Mapping):
+        return None
+    return LogicalStateKey.from_payload(value)
+
+
+def _state_slot_id_from_payload(value: Any) -> StateSlotId | None:
+    if not isinstance(value, Mapping):
+        return None
+    return StateSlotId.from_payload(value)
+
+
+def _state_version_id_from_payload(value: Any) -> StateVersionId | None:
+    if not isinstance(value, Mapping):
+        return None
+    return StateVersionId.from_payload(value)
+
+
+def _computation_key_from_payload(value: Any) -> ComputationKey | None:
+    if not isinstance(value, Mapping):
+        return None
+    return ComputationKey.from_payload(value)
+
+
+def _source_versions_from_computation(
+    computation_key: ComputationKey | None,
+) -> tuple[StateVersionId, ...]:
+    if computation_key is None:
+        return ()
+    return tuple(
+        _unique_ordered(
+            binding.version_id
+            for binding in computation_key.arg_bindings
+            if binding.version_id is not None
+        )
+    )
+
+
 def _ensure_produced_slot(
     state: _MutableState,
     item: ProducedFact,
@@ -1856,6 +2035,20 @@ def _ensure_produced_slot(
                 semantic_roles=(_semantic_ref(item.handle),),
             )
         ),
+        logical_state_key=(
+            existing.logical_state_key if existing is not None else None
+        ),
+        typed_slot_id=(
+            existing.typed_slot_id if existing is not None else None
+        ),
+        latest_version_id=(
+            existing.latest_version_id if existing is not None else None
+        ),
+        runtime_destination_key=(
+            existing.runtime_destination_key
+            if existing is not None
+            else None
+        ),
     )
     state.state_slots[slot_id] = slot
     for alias in aliases:
@@ -1894,6 +2087,10 @@ def _merge_alias(
         free_symbol_refs=slot.free_symbol_refs,
         source_state_slot_ids=slot.source_state_slot_ids,
         lineage=slot.lineage,
+        logical_state_key=slot.logical_state_key,
+        typed_slot_id=slot.typed_slot_id,
+        latest_version_id=slot.latest_version_id,
+        runtime_destination_key=slot.runtime_destination_key,
     )
     state.alias_index.by_handle[alias] = slot_id
 
@@ -1954,6 +2151,14 @@ def _apply_state_write_provenance(
         *((old_slot.write_history if old_slot is not None else ())),
         *((current.write_history if current is not None else ())),
     ]
+    computation_key = _computation_key_from_payload(
+        payload.get("computation_key")
+    )
+    payload_source_versions = tuple(
+        parsed
+        for item in payload.get("source_version_ids", ())
+        if (parsed := _state_version_id_from_payload(item)) is not None
+    )
     version = StateWriteVersion(
         step_id=str(payload.get("step_id") or ""),
         produced_handle=produced_handle,
@@ -1965,6 +2170,14 @@ def _apply_state_write_provenance(
             else None
         ),
         lineage=observed_lineage,
+        version_id=_state_version_id_from_payload(
+            payload.get("selected_version_id")
+        ),
+        computation_key=computation_key,
+        source_version_ids=(
+            payload_source_versions
+            or _source_versions_from_computation(computation_key)
+        ),
     )
     if version not in histories:
         histories.append(version)
@@ -2068,6 +2281,31 @@ def _apply_state_write_provenance(
             )
         ),
         lineage=lineage,
+        logical_state_key=_logical_state_key_from_payload(
+            payload.get("logical_state_key")
+        ),
+        typed_slot_id=_state_slot_id_from_payload(
+            payload.get("typed_slot_id")
+        ),
+        latest_version_id=version.version_id,
+        runtime_destination_key=(
+            RuntimeDestinationKey(
+                version.version_id.slot_id.logical_key.object_id,
+                version.version_id.slot_id.logical_key.state_kind,
+                version.version_id.slot_id.logical_key.runtime_type,
+                (
+                    old_slot.runtime_path
+                    if old_slot is not None
+                    else (
+                        current.runtime_path
+                        if current is not None
+                        else None
+                    )
+                ),
+            )
+            if version.version_id is not None
+            else None
+        ),
     )
     if old_slot_id is not None and old_slot_id != slot_id:
         state.state_slots.pop(old_slot_id, None)

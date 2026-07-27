@@ -92,6 +92,35 @@ class CapabilityContextRoleBindingSpec:
 
 
 @dataclass(frozen=True)
+class EvidenceInputGroupSpec:
+    """One all-of input group required by an evidence closure."""
+
+    source_args: tuple[str, ...]
+    required_semantic_roles: tuple[str, ...] = ()
+    required_evidence_tags: tuple[str, ...] = ()
+    required_witness_object_roles: tuple[str, ...] = ()
+    witness_role_aliases: tuple[tuple[str, str], ...] = ()
+    require_same_witness: bool = False
+
+    def to_payload(self) -> dict[str, object]:
+        payload: dict[str, object] = {
+            "source_args": list(self.source_args),
+            "required_semantic_roles": list(self.required_semantic_roles),
+            "required_evidence_tags": list(self.required_evidence_tags),
+            "required_witness_object_roles": list(
+                self.required_witness_object_roles
+            ),
+        }
+        if self.witness_role_aliases:
+            payload["witness_role_aliases"] = [
+                list(item) for item in self.witness_role_aliases
+            ]
+        if self.require_same_witness:
+            payload["require_same_witness"] = True
+        return payload
+
+
+@dataclass(frozen=True)
 class StateLineageClosureSpec:
     """Conditionally promote semantic evidence from a closed set of inputs."""
 
@@ -103,6 +132,8 @@ class StateLineageClosureSpec:
     add_semantic_roles: tuple[str, ...] = ()
     add_evidence_tags: tuple[str, ...] = ()
     description: str = ""
+    input_groups: tuple[EvidenceInputGroupSpec, ...] = ()
+    output_object_role: str | None = None
 
     def to_payload(self) -> dict[str, object]:
         payload: dict[str, object] = {
@@ -118,6 +149,12 @@ class StateLineageClosureSpec:
             payload["require_same_source_call"] = True
         if self.description:
             payload["description"] = self.description
+        if self.input_groups:
+            payload["input_groups"] = [
+                item.to_payload() for item in self.input_groups
+            ]
+        if self.output_object_role is not None:
+            payload["output_object_role"] = self.output_object_role
         return payload
 
 
@@ -375,6 +412,7 @@ class StepRecipeSpec:
     # 标准路径，尤其用于路径最值，避免模型默认走参数化求导。
     priority: str | None = None
     do_not_use_when: tuple[str, ...] = ()
+    repair_feedback_provider_id: str | None = None
 
 
 CapabilityExecutionStatus = Literal["executable", "catalog_only", "internal"]

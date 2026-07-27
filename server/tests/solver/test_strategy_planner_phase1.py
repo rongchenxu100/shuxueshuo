@@ -9067,6 +9067,44 @@ def test_curve_condition_missing_point_state_has_typed_blocker_details() -> None
     }
 
 
+def test_state_transition_mismatch_has_typed_blocker_details() -> None:
+    errors = [
+        "evaluate_expression_at_parameter: "
+        "function.transition_previous_write_mismatch: "
+        "step=evaluate_state, expected=shared_state, actual=alternate_state"
+    ]
+
+    assert (
+        _execution_blocker_code(errors)
+        == "function.transition_previous_write_mismatch"
+    )
+    assert _execution_blocker_details(errors) == {
+        "error_code": "function.transition_previous_write_mismatch",
+        "expected_previous_step_id": "shared_state",
+        "actual_previous_step_id": "alternate_state",
+        "requirement": "single_continuous_state_version_chain",
+    }
+
+
+def test_substitution_symbol_mismatch_has_typed_blocker_details() -> None:
+    errors = [
+        "evaluate_expression_at_parameter: "
+        "function.substitution_symbol_mismatch: "
+        "parameter=a, free_symbols=m|n"
+    ]
+
+    assert (
+        _execution_blocker_code(errors)
+        == "function.substitution_symbol_mismatch"
+    )
+    assert _execution_blocker_details(errors) == {
+        "error_code": "function.substitution_symbol_mismatch",
+        "parameter_name": "a",
+        "free_symbol_names": ["m", "n"],
+        "requirement": "parameter_identity_in_expression_free_symbols",
+    }
+
+
 def test_recipe_trial_keeps_accepted_prefix_when_later_candidate_resolution_fails() -> None:
     """后续 step candidate 失败时，前面已可执行步骤仍应进入 accepted prefix。"""
     problem = _heping_ermo_problem()

@@ -11,6 +11,12 @@ from shuxueshuo_server.solver.runtime.canonical_draft_finalizer import (
     _close_projected_state_reads,
 )
 from shuxueshuo_server.solver.runtime.projection import problem_to_llm_payload
+from shuxueshuo_server.solver.runtime.state_identity import (
+    LogicalStateKey,
+    MathObjectId,
+    StateSlotId,
+    StateVersionId,
+)
 from shuxueshuo_server.solver.runtime.strategy_models import (
     ProducedFact,
     ProjectedStateDependency,
@@ -160,6 +166,74 @@ def test_finalizer_accepts_ordered_transition_and_rejects_second_create() -> Non
         match="duplicate_state_slot_writer",
     ):
         finalizer.validate_state_write_provenance((first, second_create))
+
+
+def test_finalizer_accepts_typed_transition_from_ancestor_storage_scope() -> None:
+    object_id = MathObjectId(
+        "function:problem:parabola",
+        "function",
+        "problem",
+    )
+    logical_key = LogicalStateKey(object_id, "expression", "Parabola")
+    parent_version = StateVersionId(
+        StateSlotId(logical_key, "problem"),
+        1,
+    )
+    child_version = StateVersionId(
+        StateSlotId(logical_key, "i"),
+        1,
+    )
+    parent = StateWriteProvenance(
+        step_id="build_parent_curve",
+        scope_id="problem",
+        capability_id="quadratic_from_constraints",
+        produced_handle="fact:problem:parabola_expression",
+        output_key="parabola",
+        runtime_type="Parabola",
+        identity_policy="preserve_input_object",
+        identity_role="parabola",
+        object_ref=object_id.value,
+        state_slot_id="function:problem:parabola.expression@problem:Parabola",
+        write_mode="create",
+        selected_version_id=parent_version,
+    )
+    child = replace(
+        parent,
+        step_id="refine_child_curve",
+        scope_id="i",
+        produced_handle="fact:i:parabola_expression",
+        state_slot_id="function:problem:parabola.expression@i:Parabola",
+        write_mode="transition",
+        previous_write_step_id=parent.step_id,
+        selected_version_id=child_version,
+        previous_version_id=parent_version,
+    )
+
+    CanonicalDraftFinalizer().validate_state_write_provenance((parent, child))
+
+
+def test_finalizer_rejects_authoritative_transition_without_previous_version() -> None:
+    transition = StateWriteProvenance(
+        step_id="refine_curve",
+        scope_id="i",
+        capability_id="quadratic_from_constraints",
+        produced_handle="fact:i:parabola_expression",
+        output_key="parabola",
+        runtime_type="Parabola",
+        identity_policy="preserve_input_object",
+        identity_role="parabola",
+        object_ref="function:problem:parabola",
+        state_slot_id="function:problem:parabola.expression@i:Parabola",
+        write_mode="transition",
+        previous_write_step_id="build_curve",
+        allocation_action="transition",
+    )
+
+    with pytest.raises(
+        StrategyDraftValidationError,
+        match="planner.state_projection_drift",
+    ):
+        CanonicalDraftFinalizer().validate_state_write_provenance((transition,))
 
 
 def test_finalizer_dependency_refinement_requires_nonexpanding_symbols() -> None:

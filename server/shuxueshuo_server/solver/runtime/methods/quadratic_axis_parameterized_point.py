@@ -5,7 +5,11 @@
 
 from __future__ import annotations
 
-from shuxueshuo_server.solver.contracts import MethodExplanationSpec, MethodVisualSpec
+from shuxueshuo_server.solver.contracts import (
+    MethodExplanationSpec,
+    MethodVisualSpec,
+    ScalarResultFormSpec,
+)
 from shuxueshuo_server.solver.math_ops import vertex_of_quadratic
 
 from ._common import *
@@ -73,6 +77,16 @@ SPEC = MethodSpecSource(
         "target": {"type": "PointRef", "required": True},
     },
     outputs={"point": "Point", "parameter": "Symbol"},
+    scalar_result_forms={
+        "point": ScalarResultFormSpec(
+            possible_forms=("open_state", "closed_state"),
+            description=(
+                "坐标仍含该 Point 专属参数时为 open_state；只有该参数已由"
+                "同身份 ParameterValue 消去后才是 closed_state。"
+            ),
+            free_symbol_output_names=("parameter",),
+        ),
+    },
     preconditions=("parabola 必须是关于 x 的二次函数", "target 是题设中位于该对称轴上的点"),
     postconditions=(
         "输出点的横坐标等于抛物线对称轴横坐标，纵坐标为绑定到该点的待定参数",

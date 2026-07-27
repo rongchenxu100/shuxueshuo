@@ -11,6 +11,14 @@ from typing import Any, Literal
 
 from shuxueshuo_server.solver.contracts import FunctionalResultForm
 from shuxueshuo_server.solver.runtime.handle_alias_index import SEMANTIC_READ_KIND_ORDER
+from shuxueshuo_server.solver.runtime.state_identity import (
+    ComputationKey,
+    LogicalStateKey,
+    MathObjectId,
+    StateAllocationAction,
+    StateSlotId,
+    StateVersionId,
+)
 from shuxueshuo_server.solver.state_semantics import StateSemanticLineage
 
 STEP_INTENT_OUTPUT_TYPES: tuple[str, ...] = (
@@ -141,6 +149,14 @@ class ProjectedStateWrite:
     transition_kind: Literal["direct", "dependency_refinement"] | None = None
     previous_write_step_id: str | None = None
     lineage: StateSemanticLineage = StateSemanticLineage()
+    math_object_id: MathObjectId | None = None
+    logical_state_key: LogicalStateKey | None = None
+    typed_slot_id: StateSlotId | None = None
+    selected_version_id: StateVersionId | None = None
+    previous_version_id: StateVersionId | None = None
+    computation_key: ComputationKey | None = None
+    source_version_ids: tuple[StateVersionId, ...] = ()
+    allocation_action: StateAllocationAction | None = None
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -164,6 +180,24 @@ class ProjectedStateWrite:
         if self.previous_write_step_id is not None:
             payload["previous_write_step_id"] = self.previous_write_step_id
         payload["lineage"] = self.lineage.to_payload()
+        if self.math_object_id is not None:
+            payload["math_object_id"] = self.math_object_id.to_payload()
+        if self.logical_state_key is not None:
+            payload["logical_state_key"] = self.logical_state_key.to_payload()
+        if self.typed_slot_id is not None:
+            payload["typed_slot_id"] = self.typed_slot_id.to_payload()
+        if self.selected_version_id is not None:
+            payload["selected_version_id"] = self.selected_version_id.to_payload()
+        if self.previous_version_id is not None:
+            payload["previous_version_id"] = self.previous_version_id.to_payload()
+        if self.computation_key is not None:
+            payload["computation_key"] = self.computation_key.to_payload()
+        if self.source_version_ids:
+            payload["source_version_ids"] = [
+                item.to_payload() for item in self.source_version_ids
+            ]
+        if self.allocation_action is not None:
+            payload["allocation_action"] = self.allocation_action
         return payload
 
 
@@ -870,6 +904,14 @@ class StateWriteProvenance:
     dependency_object_refs: tuple[str, ...] = ()
     source_state_slot_ids: tuple[str, ...] = ()
     lineage: StateSemanticLineage = StateSemanticLineage()
+    math_object_id: MathObjectId | None = None
+    logical_state_key: LogicalStateKey | None = None
+    typed_slot_id: StateSlotId | None = None
+    selected_version_id: StateVersionId | None = None
+    previous_version_id: StateVersionId | None = None
+    computation_key: ComputationKey | None = None
+    source_version_ids: tuple[StateVersionId, ...] = ()
+    allocation_action: StateAllocationAction | None = None
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -896,6 +938,40 @@ class StateWriteProvenance:
             "dependency_object_refs": list(self.dependency_object_refs),
             "source_state_slot_ids": list(self.source_state_slot_ids),
             "lineage": self.lineage.to_payload(),
+            "math_object_id": (
+                self.math_object_id.to_payload()
+                if self.math_object_id is not None
+                else None
+            ),
+            "logical_state_key": (
+                self.logical_state_key.to_payload()
+                if self.logical_state_key is not None
+                else None
+            ),
+            "typed_slot_id": (
+                self.typed_slot_id.to_payload()
+                if self.typed_slot_id is not None
+                else None
+            ),
+            "selected_version_id": (
+                self.selected_version_id.to_payload()
+                if self.selected_version_id is not None
+                else None
+            ),
+            "previous_version_id": (
+                self.previous_version_id.to_payload()
+                if self.previous_version_id is not None
+                else None
+            ),
+            "computation_key": (
+                self.computation_key.to_payload()
+                if self.computation_key is not None
+                else None
+            ),
+            "source_version_ids": [
+                item.to_payload() for item in self.source_version_ids
+            ],
+            "allocation_action": self.allocation_action,
         }
 
 

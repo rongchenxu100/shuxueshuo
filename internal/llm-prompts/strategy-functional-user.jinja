@@ -61,7 +61,9 @@
 issue 的 `actual_result_refs` 指向这里的实际结果。
 `validated_call_ids` 只表示协议和绑定已通过，不表示已经执行或数学路线正确。
 若继续使用 `runtime_verified` 中的结果，完整计划仍须保留 producer，并用 CallResultRef
-连接下游。修复 `repair_call_ids`。
+连接下游。优先修复 `repair_call_ids`；为闭合数据或证据链，可以修改、替换或删除
+任何不在 `locked_call_ids` 中的调用。`locked_context_call_ids` 中的调用不可修改，
+但可以引用其公开 return。
 这里不展示内部稳定图结构，也不使用线性 step prefix 或 compatibility mirror。
 
 {{ payload.previous_attempt_state | pretty_json }}
@@ -70,6 +72,8 @@ issue 的 `actual_result_refs` 指向这里的实际结果。
 
 - 覆盖 ProblemIR 中所有 `required: true` 的 answer goals。
 - 将 call 放在它直接服务的小问 scope 下；可被多个小问复用的计算无需移动到父问，系统会决定执行位置和发布范围。
+- 不要为了可能的跨问复用，预先在父 scope 建立仍含自由参数的对象状态；若后续要闭合同一对象，
+  应通过前序 return 继续状态链，或使用由前序输入状态确定性闭合得到的新输入。
 - 已有 call 返回后，后续任何 scope 都应优先通过 CallResultRef 引用；不要因 scope 改变而重复提交相同 capability 和相同输入。
 - 若前序返回就是某个 required answer 对应的对象状态，把 answer 绑定在该唯一 producer 上；不要另建“读取/复制/再次求解”call。
 - 题面对象直接使用 ProblemIR 的 `semantic_ref` 构造 SemanticRef，前序结果用 CallResultRef。

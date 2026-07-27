@@ -40,6 +40,7 @@ class MethodSpecSource:
     trace_template: tuple[str, ...] = ()
     repair_hints: tuple[dict[str, Any], ...] = ()
     trial_error_hints: tuple[TrialErrorHintSpec, ...] = ()
+    repair_feedback_provider_id: str | None = None
     geometry_profiles: tuple[dict[str, Any], ...] = ()
     explanation: MethodExplanationSpec | None = None
     visual: MethodVisualSpec | None = None
@@ -93,6 +94,10 @@ class MethodSpecSource:
             payload["trial_error_hints"] = [
                 item.to_payload() for item in self.trial_error_hints
             ]
+        if self.repair_feedback_provider_id is not None:
+            payload["repair_feedback_provider_id"] = (
+                self.repair_feedback_provider_id
+            )
         if self.geometry_profiles:
             payload["geometry_profiles"] = [
                 _json_ready_hint(item) for item in self.geometry_profiles

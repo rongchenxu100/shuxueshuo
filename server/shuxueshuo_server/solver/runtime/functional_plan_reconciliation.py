@@ -12,6 +12,7 @@ from shuxueshuo_server.solver.contracts import (
 )
 from shuxueshuo_server.solver.family.models import (
     CapabilityStateClosurePolicy,
+    EvidenceInputGroupSpec,
     SolverFamilySpec,
     StateIdentityConstraintSpec,
 )
@@ -56,6 +57,17 @@ from shuxueshuo_server.solver.runtime.function_specs import FunctionSpec
 from shuxueshuo_server.solver.runtime.functional_state_refinement import (
     refine_functional_object_states,
 )
+from shuxueshuo_server.solver.runtime.functional_evidence import (
+    closure_lineages as successful_closure_lineages,
+    evaluate_lineage_closure,
+)
+from shuxueshuo_server.solver.runtime.functional_state_allocation import (
+    functional_computation_key,
+    functional_source_version_ids,
+    identity_shadow_comparison,
+    project_sibling_symbol_dependencies,
+    rebase_live_state_versions,
+)
 from shuxueshuo_server.solver.runtime.functional_plan_graph import (
     least_common_scope as _least_common_scope,
     topological_scoped_calls,
@@ -88,6 +100,19 @@ from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.models import ContextPath
 from shuxueshuo_server.solver.runtime.planner_state_context import PlannerStateContext
 from shuxueshuo_server.solver.runtime.semantic_reads import SemanticReadCatalogItem
+from shuxueshuo_server.solver.runtime.state_identity import (
+    IdentityShadowComparison,
+    LogicalReturnEffect,
+    MathObjectRegistry,
+    RuntimeDestinationKey,
+    ScopeVisibilityResolver,
+    StateAllocationRequest,
+    StateAllocationService,
+    StateEffectKey,
+    StateIdentityFactory,
+    StateIdentityIndex,
+    StateIdentityMode,
+)
 from shuxueshuo_server.solver.runtime.runtime_type_compatibility import (
     normalize_runtime_type,
     runtime_type_compatible,
@@ -446,6 +471,13 @@ def _drop_redundant_existing_state_creates(
 class FunctionalPlanReconciler:
     """Resolve FunctionalPlan refs against Context and project canonical steps."""
 
+    def __init__(
+        self,
+        *,
+        state_identity_mode: StateIdentityMode = "authoritative",
+    ) -> None:
+        self.state_identity_mode = state_identity_mode
+
     def reconcile(
         self,
         plan: FunctionalPlan,
@@ -496,6 +528,23 @@ class FunctionalPlanReconciler:
             prepared.explicitly_bound_answer_refs
         )
         factory = CanonicalStateHandleFactory()
+        typed_object_registry = MathObjectRegistry.from_sources(
+            handle_registry,
+            math_objects=planner_state_context.state.math_objects,
+        )
+        typed_identity_factory = StateIdentityFactory(
+            typed_object_registry
+        )
+        typed_visibility = ScopeVisibilityResolver(handle_registry)
+        identity_index = StateIdentityIndex.from_context(
+            state_slots=planner_state_context.state.state_slots,
+            factory=typed_identity_factory,
+            visibility=typed_visibility,
+        )
+        allocation_service = StateAllocationService()
+        identity_decisions: list[dict[str, Any]] = []
+        identity_comparisons: list[IdentityShadowComparison] = []
+        preallocated_aliases: dict[str, str] = {}
         scope_by_id = {scope.scope_id: scope for scope in plan.scopes}
         for scope_id, _, call in topological_scoped_calls(plan)[0]:
             scope = scope_by_id[scope_id]
@@ -828,6 +877,7 @@ class FunctionalPlanReconciler:
                     *dynamic_dependencies,
                 )
             )
+            call_identity_index = identity_index.clone()
             call, allocations = _allocate_functional_returns(
                 call=call,
                 active_return_specs=active_return_specs,
@@ -855,6 +905,12 @@ class FunctionalPlanReconciler:
                     semantic_object_consumers=semantic_object_consumers,
                     processed_call_ids=processed_call_ids,
                     future_return_object_hints=future_return_object_hints,
+                    identity_factory=typed_identity_factory,
+                    identity_index=call_identity_index,
+                    allocation_service=allocation_service,
+                    identity_mode=self.state_identity_mode,
+                    identity_decisions=identity_decisions,
+                    identity_comparisons=identity_comparisons,
                 ),
             )
             issues.extend(
@@ -866,6 +922,109 @@ class FunctionalPlanReconciler:
                     returns=allocations,
                 )
             )
+            call_identity_comparisons = tuple(
+                item
+                for item in identity_comparisons
+                if item.call_id == call.call_id
+            )
+            non_conflict_drift = tuple(
+                item
+                for item in call_identity_comparisons
+                if not item.matches and item.typed_action != "conflict"
+            )
+            if self.state_identity_mode == "authoritative" and non_conflict_drift:
+                raise ValueError(
+                    "planner.state_projection_drift: "
+                    + " | ".join(
+                        f"{item.call_id}.{item.return_name}: "
+                        + "; ".join(item.details)
+                        for item in non_conflict_drift
+                    )
+                )
+            if (
+                self.state_identity_mode == "authoritative"
+                and len(issues) == issue_start
+            ):
+                for allocation in allocations:
+                    if allocation.allocation_action != "conflict":
+                        continue
+                    previous_version = (
+                        call_identity_index.version(
+                            allocation.previous_version_id
+                        )
+                        if allocation.previous_version_id is not None
+                        else None
+                    )
+                    previous_call_id = (
+                        allocation.previous_write_step_id
+                        or (
+                            previous_version.producer_call_id
+                            if previous_version is not None
+                            else None
+                        )
+                    )
+                    issue_code = (
+                        "functional.state_transition_dependency_unproven"
+                        if allocation.allocation_conflict_code
+                        == "state.transition_dependency_unproven"
+                        else "functional.state_allocation_conflict"
+                    )
+                    issues.append(
+                        _issue(
+                            "functional_reconciliation",
+                            issue_code,
+                            (
+                                "the same mathematical object has a visible "
+                                "state writer, but the new write is not proven "
+                                "to consume or refine that state"
+                                if issue_code
+                                == "functional.state_transition_dependency_unproven"
+                                else (
+                                    "return conflicts with an unrelated "
+                                    "visible state writer"
+                                )
+                            ),
+                            call_id=call.call_id,
+                            scope_id=scope.scope_id,
+                            details={
+                                "return": allocation.return_name,
+                                "object_ref": allocation.object_ref,
+                                "previous_writer_call_id": previous_call_id,
+                                "current_writer_call_id": call.call_id,
+                                "previous_free_symbols": list(
+                                    previous_version.free_symbol_refs
+                                    if previous_version is not None
+                                    else ()
+                                ),
+                                "current_free_symbols": list(
+                                    allocation.free_symbol_refs
+                                ),
+                                "repair_call_ids": list(
+                                    unique_ordered(
+                                        (
+                                            *(
+                                                (previous_call_id,)
+                                                if previous_call_id is not None
+                                                else ()
+                                            ),
+                                            call.call_id,
+                                        )
+                                    )
+                                ),
+                                "logical_state_key": (
+                                    allocation.logical_state_key.to_payload()
+                                    if allocation.logical_state_key is not None
+                                    else None
+                                ),
+                                "reason_code": (
+                                    allocation.allocation_reason_code
+                                ),
+                                "conflict_code": (
+                                    allocation.allocation_conflict_code
+                                ),
+                            },
+                        )
+                    )
             if len(issues) > issue_start:
                 _drop_produced_call_values(produced, call.call_id)
                 invalid_call_ids.add(call.call_id)
@@ -881,6 +1040,34 @@ class FunctionalPlanReconciler:
                     )
                 )
                 continue
+            canonical_producers = unique_ordered(
+                allocation.canonical_producer_call_id
+                for allocation in allocations
+                if allocation.allocation_action == "reuse"
+                and allocation.canonical_producer_call_id is not None
+            )
+            if (
+                allocations
+                and all(
+                    allocation.allocation_action == "reuse"
+                    for allocation in allocations
+                )
+                and len(canonical_producers) == 1
+                and not any(
+                    binding.kind == "answer"
+                    for binding in call.return_bindings.values()
+                )
+            ):
+                preallocated_aliases[call.call_id] = canonical_producers[0]
+                reconciliation_repairs.append(
+                    FunctionalDeterministicRepair(
+                        call.call_id,
+                        "merge_redundant_existing_state_call",
+                        call.call_id,
+                        canonical_producers[0],
+                    )
+                )
+            identity_index = call_identity_index
             processed_call_ids.add(call.call_id)
             reconciled.append(
                 FunctionalCallReconciliation(
@@ -925,10 +1112,15 @@ class FunctionalPlanReconciler:
             semantic_index=semantic_index,
             handle_registry=handle_registry,
             question_goals=question_goals,
+            family_spec=family_spec,
             answer_bindings=answer_bindings,
             issues=issues,
             reconciliation_repairs=reconciliation_repairs,
             placement_service=placement_service,
+            preallocated_aliases=preallocated_aliases,
+            identity_decisions=identity_decisions,
+            identity_comparisons=identity_comparisons,
+            identity_mode=self.state_identity_mode,
         )
 
 
@@ -1097,16 +1289,25 @@ class _PlacementLivenessProjectionStage:
         semantic_index: FunctionalSemanticIndex,
         handle_registry: CanonicalHandleRegistry,
         question_goals: Sequence[QuestionGoal],
+        family_spec: SolverFamilySpec,
         answer_bindings: Mapping[str, str],
         issues: list[FunctionalPlanIssue],
         reconciliation_repairs: list[FunctionalDeterministicRepair],
         placement_service: FunctionalCallPlacementService,
+        preallocated_aliases: Mapping[str, str],
+        identity_decisions: Sequence[Mapping[str, Any]],
+        identity_comparisons: Sequence[IdentityShadowComparison],
+        identity_mode: StateIdentityMode,
     ) -> FunctionalPlanReconciliationResult:
         plan = _rewrite_effective_functional_plan(
             plan,
             effective_calls=effective_calls,
             return_role_aliases=return_role_aliases,
         )
+        initial_aliases = {
+            **(elaboration.call_aliases or {}),
+            **preallocated_aliases,
+        }
         placement = placement_service.place(
             plan,
             source_plan=elaboration.raw_plan,
@@ -1116,11 +1317,12 @@ class _PlacementLivenessProjectionStage:
             handle_registry=handle_registry,
             semantic_items=semantic_items,
             question_goals=question_goals,
-            initial_aliases=elaboration.call_aliases or {},
+            initial_aliases=initial_aliases,
         )
         plan = placement.plan
         reconciled = list(placement.calls)
         call_reports = list(placement.call_reports)
+        pre_refinement_calls = tuple(reconciled)
         state_refinement = refine_functional_object_states(
             plan,
             reconciled=reconciled,
@@ -1128,6 +1330,11 @@ class _PlacementLivenessProjectionStage:
         )
         plan = state_refinement.plan
         reconciled = list(state_refinement.calls)
+        _validate_typed_allocation_refinement(
+            before=pre_refinement_calls,
+            after=reconciled,
+            mode=identity_mode,
+        )
         reconciliation_repairs.extend(state_refinement.repairs)
         issues.extend(state_refinement.issues)
         reconciliation_repairs.extend(placement.repairs)
@@ -1138,6 +1345,14 @@ class _PlacementLivenessProjectionStage:
             dependency_graph=placement.dependency_graph,
             handle_registry=handle_registry,
         )
+        evidence_issues = _functional_evidence_preflight_issues(
+            plan,
+            reconciled=tuple(reconciled),
+            catalog=catalog,
+            question_goals=question_goals,
+            family_spec=family_spec,
+        )
+        issues.extend(evidence_issues)
         reconciled, call_reports = _exclude_late_invalid_call_graph(
             reconciled,
             call_reports,
@@ -1145,6 +1360,7 @@ class _PlacementLivenessProjectionStage:
             issues=(
                 *state_refinement.issues,
                 *placement.issues,
+                *evidence_issues,
             ),
         )
         liveness = FunctionalCallLivenessAnalyzer().analyze(
@@ -1175,6 +1391,19 @@ class _PlacementLivenessProjectionStage:
         call_reports = list(liveness.call_reports)
         dependency_graph = liveness.dependency_graph
         reconciliation_repairs.extend(liveness.repairs)
+        reconciled_tuple, version_rebases = rebase_live_state_versions(
+            tuple(reconciled)
+        )
+        reconciled = list(reconciled_tuple)
+        reconciliation_repairs.extend(
+            FunctionalDeterministicRepair(
+                item.call_id,
+                "rebase_transition_after_liveness",
+                str(item.removed_previous_version_id.to_payload()),
+                str(item.selected_previous_version_id.to_payload()),
+            )
+            for item in version_rebases
+        )
         if liveness.dropped_call_ids:
             dropped_call_ids = set(liveness.dropped_call_ids)
             dropped_capabilities = {
@@ -1298,6 +1527,14 @@ class _PlacementLivenessProjectionStage:
                 call_placements=call_placements,
                 call_aliases=call_aliases,
                 elaboration=elaboration.to_payload(),
+                state_identity_decisions=tuple(
+                    dict(item) for item in identity_decisions
+                ),
+                identity_mismatches=tuple(
+                    item.to_payload()
+                    for item in identity_comparisons
+                    if not item.matches
+                ),
             )
         projected, projection_map = FunctionalPlanProjector().project(
             plan,
@@ -1319,7 +1556,55 @@ class _PlacementLivenessProjectionStage:
             call_placements=call_placements,
             call_aliases=call_aliases,
             elaboration=elaboration.to_payload(),
+            state_identity_decisions=tuple(
+                dict(item) for item in identity_decisions
+            ),
+            identity_mismatches=tuple(
+                item.to_payload()
+                for item in identity_comparisons
+                if not item.matches
+            ),
         )
+
+
+def _validate_typed_allocation_refinement(
+    *,
+    before: Sequence[FunctionalCallReconciliation],
+    after: Sequence[FunctionalCallReconciliation],
+    mode: StateIdentityMode,
+) -> None:
+    """Keep legacy refinement as metadata enrichment after the B1 cutover."""
+
+    if mode != "authoritative":
+        return
+    before_by_return = {
+        (call.call_id, allocation.return_name): allocation
+        for call in before
+        for allocation in call.returns
+    }
+    for call in after:
+        for allocation in call.returns:
+            original = before_by_return.get(
+                (call.call_id, allocation.return_name)
+            )
+            if original is None or original.allocation_action is None:
+                continue
+            expected_mode = {
+                "create": "create",
+                "isolated": "create",
+                "transition": "transition",
+                "call_local_value": "value",
+            }.get(original.allocation_action)
+            if (
+                expected_mode is not None
+                and allocation.write_mode != expected_mode
+            ):
+                raise ValueError(
+                    "planner.state_projection_drift: legacy state refinement "
+                    "changed typed allocation: "
+                    f"call={call.call_id}, return={allocation.return_name}, "
+                    f"typed={expected_mode}, refined={allocation.write_mode}"
+                )
 
 
 def _exclude_late_invalid_call_graph(
@@ -1746,6 +2031,12 @@ class _FunctionalReturnAllocationContext:
         tuple[str, str],
         tuple[str, ...],
     ]
+    identity_factory: StateIdentityFactory
+    identity_index: StateIdentityIndex
+    allocation_service: StateAllocationService
+    identity_mode: StateIdentityMode
+    identity_decisions: list[dict[str, Any]]
+    identity_comparisons: list[IdentityShadowComparison]
 
 
 def _allocate_functional_returns(
@@ -1782,6 +2073,7 @@ def _allocate_functional_returns(
         allocations=allocations,
         produced=context.produced,
         call_return_aliases=context.call_return_aliases,
+        identity_index=context.identity_index,
     )
     return call, allocations
 
@@ -1793,17 +2085,22 @@ def _project_cross_return_object_roles(
     allocations: Sequence[FunctionalReturnAllocation],
     produced: dict[tuple[str, str], ResolvedFunctionalValue],
     call_return_aliases: Mapping[str, str],
+    identity_index: StateIdentityIndex,
 ) -> list[FunctionalReturnAllocation]:
-    """Attach roles whose MathObject is produced by a sibling return."""
+    """Attach object roles and declared Symbol dependencies from siblings."""
 
+    allocations = project_sibling_symbol_dependencies(
+        tuple(return_specs),
+        tuple(allocations),
+        capability_id=call.capability_id,
+    )
     allocations_by_name = {item.return_name: item for item in allocations}
     specs_by_name = {item.name: item for item in return_specs}
     result: list[FunctionalReturnAllocation] = []
     for allocation in allocations:
+        return_spec = specs_by_name[allocation.return_name]
         projected_roles: list[StateObjectRoleBinding] = []
-        for projection in specs_by_name[
-            allocation.return_name
-        ].object_role_projections:
+        for projection in return_spec.object_role_projections:
             if projection.source_return is None:
                 continue
             source = allocations_by_name.get(projection.source_return)
@@ -1837,30 +2134,45 @@ def _project_cross_return_object_roles(
                     state_requirement=projection.state_requirement,
                 )
             )
-        if not projected_roles:
+        symbol_sources = tuple(
+            allocations_by_name[source_name]
+            for source_name in return_spec.free_symbol_return_names
+        )
+        if not projected_roles and not symbol_sources:
             result.append(allocation)
             continue
         lineage = merge_state_semantic_lineages(
             allocation.lineage,
             object_roles=projected_roles,
             source_state_slot_ids=tuple(
-                slot_id
-                for role in projected_roles
-                for slot_id in role.source_state_slot_ids
+                (
+                    *(
+                        slot_id
+                        for role in projected_roles
+                        for slot_id in role.source_state_slot_ids
+                    ),
+                    *(source.state_slot_id for source in symbol_sources),
+                )
             ),
         )
-        updated = replace(allocation, lineage=lineage)
+        updated = replace(
+            allocation,
+            lineage=lineage,
+        )
         result.append(updated)
+        if updated.selected_version_id is not None:
+            identity_index.update_version(
+                updated.selected_version_id,
+                free_symbol_refs=updated.free_symbol_refs,
+                source_version_ids=updated.source_version_ids,
+            )
         produced_value = produced[(call.call_id, allocation.return_name)]
         updated_value = replace(
             produced_value,
+            dependency_object_refs=updated.dependency_object_refs,
+            free_symbol_refs=updated.free_symbol_refs,
             lineage=lineage,
-            source_state_slot_ids=unique_ordered(
-                (
-                    *produced_value.source_state_slot_ids,
-                    *lineage.source_state_slot_ids,
-                )
-            ),
+            source_state_slot_ids=updated.source_state_slot_ids,
         )
         produced[(call.call_id, allocation.return_name)] = updated_value
         for alias_name, canonical_name in call_return_aliases.items():
@@ -1987,6 +2299,14 @@ def _allocate_single_functional_return(
             if isinstance(context.capability.source, FunctionSpec)
             else None
         ),
+        capability=context.capability,
+        identity_factory=context.identity_factory,
+        identity_index=context.identity_index,
+        allocation_service=context.allocation_service,
+        identity_mode=context.identity_mode,
+        identity_decisions=context.identity_decisions,
+        identity_comparisons=context.identity_comparisons,
+        expected_result_form=call.return_expectations.get(return_spec.name),
     )
 
 
@@ -2635,6 +2955,14 @@ def _materialize_functional_return(
     factory: CanonicalStateHandleFactory,
     produced: dict[tuple[str, str], ResolvedFunctionalValue],
     symbolic_closure: SymbolicClosureSpec | None = None,
+    capability: FunctionalCapability,
+    identity_factory: StateIdentityFactory,
+    identity_index: StateIdentityIndex,
+    allocation_service: StateAllocationService,
+    identity_mode: StateIdentityMode,
+    identity_decisions: list[dict[str, Any]],
+    identity_comparisons: list[IdentityShadowComparison],
+    expected_result_form: FunctionalResultForm | None,
 ) -> FunctionalReturnAllocation:
     """Allocate the canonical handle/slot and register every return alias."""
 
@@ -2656,8 +2984,9 @@ def _materialize_functional_return(
         and object_ref is not None
         else None
     )
-    slot_id = (
-        f"{object_ref}.{return_spec.state_kind}@{requested_scope}"
+    legacy_slot_id = (
+        f"{object_ref}.{return_spec.state_kind}@{requested_scope}:"
+        f"{return_spec.runtime_type}"
         if object_ref is not None
         else f"functional:{requested_scope}:{call.call_id}:{return_spec.name}"
     )
@@ -2666,12 +2995,126 @@ def _materialize_functional_return(
         call_id=call.call_id,
         resolved_args=resolved_args,
         symbolic_closure=symbolic_closure,
+        object_ref=object_ref,
     )
     inferred_free_symbol_refs = return_free_symbol_refs(
         return_spec.runtime_type,
         resolved_args,
         object_ref=object_ref,
         ignored_input_args=return_spec.result_form_ignored_input_args,
+    )
+    free_symbol_refs = apply_symbolic_closure_effect(
+        inferred_free_symbol_refs,
+        return_name=return_spec.name,
+        args=resolved_args,
+        spec=symbolic_closure,
+    )
+    computation_key = functional_computation_key(
+        call,
+        resolved_args=resolved_args,
+        scope_id=requested_scope,
+        identity_factory=identity_factory,
+        identity_index=identity_index,
+    )
+    math_object_id = identity_factory.object_id(object_ref)
+    logical_state_key = identity_factory.logical_key(
+        object_ref=object_ref,
+        state_kind=return_spec.state_kind,
+        runtime_type=return_spec.runtime_type,
+    )
+    state_effect_key = StateEffectKey(
+        (
+            LogicalReturnEffect(
+                return_name=(
+                    return_spec.equivalent_to
+                    or return_spec.name
+                ),
+                logical_key=logical_state_key,
+                identity_policy=return_spec.identity_policy,
+                write_mode=return_spec.write_mode,
+            ),
+        )
+    )
+    source_version_ids = functional_source_version_ids(
+        resolved_args,
+        scope_id=requested_scope,
+        identity_index=identity_index,
+    )
+    runtime_destination = (
+        RuntimeDestinationKey(
+            math_object_id,
+            return_spec.state_kind,
+            return_spec.runtime_type,
+        )
+        if math_object_id is not None
+        else None
+    )
+    allocation_request = StateAllocationRequest(
+        call_id=call.call_id,
+        capability_id=call.capability_id,
+        return_name=return_spec.name,
+        object_id=math_object_id,
+        state_kind=return_spec.state_kind,
+        runtime_type=return_spec.runtime_type,
+        storage_scope_id=requested_scope,
+        valid_scope_id=requested_scope,
+        requested_write_mode=return_spec.write_mode,
+        identity_policy=return_spec.identity_policy,
+        is_shareable=capability.is_pure,
+        computation_key=computation_key,
+        state_effect_key=state_effect_key,
+        source_version_ids=source_version_ids,
+        free_symbol_refs=free_symbol_refs,
+        runtime_destination=runtime_destination,
+        result_form=expected_result_form,
+    )
+    decision = allocation_service.allocate(
+        allocation_request,
+        identity_index,
+    )
+    identity_decisions.append(decision.to_payload())
+    typed_slot_id = decision.selected_slot_id
+    typed_slot_projection = (
+        identity_factory.legacy_slot_id(typed_slot_id)
+        if typed_slot_id is not None
+        else legacy_slot_id
+    )
+    comparison_slot_id = (
+        identity_factory.legacy_slot_id(
+            identity_factory.slot_id(
+                logical_state_key,
+                storage_scope_id=requested_scope,
+            )
+        )
+        if logical_state_key is not None
+        else legacy_slot_id
+    )
+    comparison = identity_shadow_comparison(
+        call_id=call.call_id,
+        return_name=return_spec.name,
+        legacy_object_ref=object_ref,
+        legacy_slot_id=legacy_slot_id,
+        legacy_write_mode=return_spec.write_mode,
+        typed_object_ref=(
+            decision.logical_state_key.object_id.value
+            if decision.logical_state_key is not None
+            else object_ref
+        ),
+        typed_slot_id=comparison_slot_id,
+        typed_action=decision.action,
+    )
+    identity_comparisons.append(comparison)
+    effective_write_mode = return_spec.write_mode
+    if identity_mode == "authoritative":
+        if decision.action in {"create", "isolated"}:
+            effective_write_mode = "create"
+        elif decision.action == "transition":
+            effective_write_mode = "transition"
+    slot_id = (
+        typed_slot_projection
+        if identity_mode == "authoritative"
+        and decision.action != "call_local_value"
+        else legacy_slot_id
     )
     allocation = FunctionalReturnAllocation(
         call_id=call.call_id,
@@ -2682,7 +3125,7 @@ def _materialize_functional_return(
         state_slot_id=slot_id,
         object_ref=object_ref,
         identity_policy=return_spec.identity_policy,
-        write_mode=return_spec.write_mode,
+        write_mode=effective_write_mode,
         bound_ref=bound_ref,
         state_handle=state_handle,
         dependency_object_refs=unique_ordered(
@@ -2691,16 +3134,34 @@ def _materialize_functional_return(
                 *semantic_index.dependencies_for_object(object_ref),
             )
         ),
-        free_symbol_refs=apply_symbolic_closure_effect(
-            inferred_free_symbol_refs,
-            return_name=return_spec.name,
-            args=resolved_args,
-            spec=symbolic_closure,
-        ),
+        free_symbol_refs=free_symbol_refs,
         source_state_slot_ids=_argument_source_slots(resolved_args),
         provides_semantic_roles=return_spec.provides_semantic_roles,
         lineage=lineage,
+        math_object_id=math_object_id,
+        logical_state_key=logical_state_key,
+        typed_slot_id=typed_slot_id,
+        selected_version_id=decision.selected_version_id,
+        previous_version_id=decision.previous_version_id,
+        computation_key=computation_key,
+        source_version_ids=source_version_ids,
+        allocation_action=decision.action,
+        canonical_producer_call_id=decision.canonical_producer_call_id,
+        allocation_reason_code=decision.reason_code,
+        allocation_conflict_code=decision.conflict_code,
+        transition_kind=decision.transition_kind,
+        previous_write_step_id=decision.previous_producer_call_id,
     )
+    indexed_version = allocation_service.indexed_version(
+        allocation_request,
+        decision,
+        produced_handle=state_handle or handle,
+    )
+    if indexed_version is not None:
+        identity_index.register(
+            indexed_version,
+            legacy_slot_id=slot_id,
+        )
     produced_value = ResolvedFunctionalValue(
         handle=state_handle or handle,
         runtime_type=return_spec.runtime_type,
@@ -2714,6 +3175,10 @@ def _materialize_functional_return(
         source_state_slot_ids=allocation.source_state_slot_ids,
         provides_semantic_roles=allocation.provides_semantic_roles,
         lineage=allocation.lineage,
+        math_object_id=math_object_id,
+        logical_state_key=logical_state_key,
+        typed_slot_id=typed_slot_id,
+        state_version_id=decision.selected_version_id,
     )
     produced[(call.call_id, return_spec.name)] = produced_value
     for alias_name, canonical_name in call_return_aliases.items():
@@ -2728,6 +3193,7 @@ def _functional_return_lineage(
     call_id: str,
     resolved_args: Mapping[str, tuple[ResolvedFunctionalValue, ...]],
     symbolic_closure: SymbolicClosureSpec | None,
+    object_ref: str | None,
 ) -> StateSemanticLineage:
     """Project declared roles and preserve source lineage for true transitions."""
     inherited: tuple[StateSemanticLineage, ...] = ()
@@ -2743,49 +3209,20 @@ def _functional_return_lineage(
     closure_roles: list[str] = []
     closure_evidence: list[str] = []
     for closure in return_spec.lineage_closures:
-        values = tuple(
-            value
-            for arg_name in closure.source_args
-            for value in resolved_args.get(arg_name, ())
+        evaluation = evaluate_lineage_closure(
+            closure,
+            resolved_args=resolved_args,
+            output_object_ref=object_ref,
         )
-        if len(values) != len(closure.source_args):
+        if not evaluation.passed:
             continue
-        combined_roles = {
-            canonical_straightening_endpoint_name(role) or role
-            for value in values
-            for role in value.lineage.semantic_roles
-        }
-        required_roles = {
-            canonical_straightening_endpoint_name(role) or role
-            for role in closure.required_semantic_roles
-        }
-        if not required_roles <= combined_roles:
-            continue
-        if any(
-            not set(closure.required_evidence_tags)
-            <= set(value.lineage.evidence_tags)
-            for value in values
-        ):
-            continue
-        if (
-            closure.require_same_source_call
-            and not _values_share_lineage_source_call(values)
-        ):
-            continue
-        if closure.shared_object_role is not None:
-            role_refs = tuple(
-                state_object_refs_for_role(
-                    value.lineage,
-                    closure.shared_object_role,
-                )
-                for value in values
+        closure_lineages.extend(
+            successful_closure_lineages(
+                evaluation,
+                resolved_args=resolved_args,
+                closure=closure,
             )
-            if (
-                any(len(refs) != 1 for refs in role_refs)
-                or len({refs[0] for refs in role_refs}) != 1
-            ):
-                continue
-        closure_lineages.extend(value.lineage for value in values)
+        )
         closure_roles.extend(closure.add_semantic_roles)
         closure_evidence.extend(closure.add_evidence_tags)
     return merge_state_semantic_lineages(
@@ -2809,6 +3246,191 @@ def _functional_return_lineage(
         source_state_slot_ids=_argument_source_slots(resolved_args),
         source_call_ids=(call_id,),
     )
+
+
+def _functional_evidence_preflight_issues(
+    plan: FunctionalPlan,
+    *,
+    reconciled: tuple[FunctionalCallReconciliation, ...],
+    catalog: FunctionalCapabilityCatalog,
+    question_goals: Sequence[QuestionGoal],
+    family_spec: SolverFamilySpec,
+) -> tuple[FunctionalPlanIssue, ...]:
+    """Reject an answer binding whose declared evidence closure cannot hold."""
+
+    calls_by_id = {call.call_id: call for call in plan.calls}
+    resolved_by_id = {call.call_id: call for call in reconciled}
+    goals_by_id = {goal.id: goal for goal in question_goals if goal.required}
+    selected_packs = {
+        *family_spec.base_packs,
+        *family_spec.mechanism_packs,
+    }
+    issues: list[FunctionalPlanIssue] = []
+    for resolved in reconciled:
+        call = calls_by_id.get(resolved.call_id)
+        capability = catalog.items.get(resolved.capability_id)
+        if call is None or capability is None:
+            continue
+        return_specs = {item.name: item for item in capability.returns}
+        for allocation in resolved.returns:
+            binding = allocation.bound_ref
+            if binding is None or binding.kind != "answer":
+                continue
+            goal = goals_by_id.get(binding.ref)
+            return_spec = return_specs.get(allocation.return_name)
+            if goal is None or return_spec is None:
+                continue
+            required_tags = unique_ordered(
+                tag
+                for policy in family_spec.goal_evidence_policies
+                if (
+                    not policy.goal_types
+                    or capability.goal_type in policy.goal_types
+                )
+                and (
+                    not policy.value_types
+                    or goal.value_type in policy.value_types
+                )
+                and (
+                    policy.mechanism_pack_id is None
+                    or policy.mechanism_pack_id in selected_packs
+                )
+                for tag in policy.required_evidence_tags
+            )
+            actual_tags = {
+                *allocation.lineage.semantic_roles,
+                *allocation.lineage.evidence_tags,
+                *allocation.provides_semantic_roles,
+            }
+            missing_tags = tuple(
+                tag for tag in required_tags if tag not in actual_tags
+            )
+            if not missing_tags:
+                continue
+            evaluations = tuple(
+                (
+                    closure,
+                    evaluate_lineage_closure(
+                        closure,
+                        resolved_args=resolved.resolved_args,
+                        output_object_ref=allocation.object_ref,
+                    ),
+                )
+                for closure in return_spec.lineage_closures
+                if set(closure.add_evidence_tags).intersection(missing_tags)
+            )
+            if not evaluations:
+                continue
+            closure, evaluation = min(
+                evaluations,
+                key=lambda item: (
+                    len(item[1].missing_roles)
+                    + len(item[1].missing_evidence_tags)
+                    + len(item[1].missing_object_roles),
+                    -len(item[1].matched_roles),
+                ),
+            )
+            input_producer_call_ids = unique_ordered(
+                (
+                    *(
+                        value.source_call_id
+                        for group in (
+                            closure.input_groups
+                            or (
+                                EvidenceInputGroupSpec(
+                                    source_args=closure.source_args
+                                ),
+                            )
+                        )
+                        for arg_name in group.source_args
+                        for value in resolved.resolved_args.get(arg_name, ())
+                        if value.source_call_id is not None
+                    ),
+                    resolved.call_id,
+                )
+            )
+            compatible_refs = _compatible_evidence_result_refs(
+                plan,
+                catalog=catalog,
+                witness_call_ids=evaluation.witness_call_ids,
+                missing_roles=evaluation.missing_roles,
+            )
+            context_call_ids = unique_ordered(
+                ref.rsplit(".", 1)[0]
+                for ref in compatible_refs
+                if "." in ref
+            )
+            repair_call_ids = tuple(
+                call_id
+                for call_id in input_producer_call_ids
+                if call_id not in set(context_call_ids)
+            )
+            issues.append(
+                _issue(
+                    "functional_reconciliation",
+                    "functional.evidence_closure_unproven",
+                    (
+                        f"{resolved.call_id} cannot prove the evidence required "
+                        f"by answer {goal.id}: {', '.join(missing_tags)}"
+                    ),
+                    call_id=resolved.call_id,
+                    scope_id=resolved.scope_id,
+                    details={
+                        "answer": goal.id,
+                        "return": allocation.return_name,
+                        "required_evidence_tags": list(required_tags),
+                        "actual_evidence_tags": sorted(actual_tags),
+                        "evidence_gap": evaluation.to_feedback_payload(),
+                        "compatible_refs": compatible_refs,
+                        "repair_call_ids": list(repair_call_ids),
+                        "context_call_ids": list(context_call_ids),
+                    },
+                )
+            )
+    return tuple(issues)
+
+
+def _compatible_evidence_result_refs(
+    plan: FunctionalPlan,
+    *,
+    catalog: FunctionalCapabilityCatalog,
+    witness_call_ids: tuple[str, ...],
+    missing_roles: tuple[str, ...],
+) -> list[str]:
+    """Expose declared prior-call returns without allocating optional outputs."""
+
+    calls_by_id = {call.call_id: call for call in plan.calls}
+    result: list[str] = []
+    missing = {
+        canonical_straightening_endpoint_name(role) or role
+        for role in missing_roles
+    }
+    for call_id in witness_call_ids:
+        call = calls_by_id.get(call_id)
+        capability = (
+            catalog.items.get(call.capability_id)
+            if call is not None
+            else None
+        )
+        if capability is None:
+            continue
+        for returned in capability.returns:
+            roles = {
+                returned.semantic_role,
+                returned.equivalent_to,
+                *returned.provides_semantic_roles,
+            }
+            canonical_roles = {
+                canonical_straightening_endpoint_name(role) or role
+                for role in roles
+                if role
+            }
+            if not canonical_roles.intersection(missing):
+                continue
+            result.append(f"{call_id}.{returned.name}")
+            if len(result) == 4:
+                return result
+    return result
 
 
 def _projected_symbol_closures(

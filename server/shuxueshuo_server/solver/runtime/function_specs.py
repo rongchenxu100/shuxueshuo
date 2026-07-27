@@ -274,6 +274,7 @@ class FunctionSpec:
     plan_transformer: str | None = None
     plan_transformer_scope: PlanTransformerScope = "single_invocation"
     reconciliation_validators: tuple[str, ...] = ()
+    repair_feedback_provider_id: str | None = None
     distinct_arg_groups: tuple[tuple[str, ...], ...] = ()
     dependency_policy: CapabilityDependencyPolicy = "explicit_args"
     context_role_bindings: tuple[CapabilityContextRoleBindingSpec, ...] = ()
@@ -297,6 +298,7 @@ class FunctionSpec:
             "plan_transformer": self.plan_transformer,
             "plan_transformer_scope": self.plan_transformer_scope,
             "reconciliation_validators": list(self.reconciliation_validators),
+            "repair_feedback_provider_id": self.repair_feedback_provider_id,
             "distinct_arg_groups": [
                 list(group) for group in self.distinct_arg_groups
             ],
@@ -769,6 +771,7 @@ def function_spec_from_method(
         plan_transformer=method_spec.plan_transformer,
         plan_transformer_scope=method_spec.plan_transformer_scope,
         reconciliation_validators=method_spec.reconciliation_validators,
+        repair_feedback_provider_id=method_spec.repair_feedback_provider_id,
         distinct_arg_groups=method_spec.distinct_arg_groups,
         dependency_policy=(
             contract.dependency_policy

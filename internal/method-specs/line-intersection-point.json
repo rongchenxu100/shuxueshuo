@@ -40,6 +40,7 @@
     "intersection": "Point"
   },
   "is_pure": true,
+  "repair_feedback_provider_id": "line_intersection_evidence",
   "distinct_arg_groups": [
     [
       "line1_p1",

@@ -21,6 +21,15 @@ class EvaluateExpressionAtParameterMethod:
         expression = sp.sympify(inputs["expression"])
         parameter = inputs["parameter"]
         parameter_value = sp.sympify(inputs["parameter_value"])
+        if expression.free_symbols and parameter not in expression.free_symbols:
+            free_symbols = "|".join(
+                sorted(symbol.name for symbol in expression.free_symbols)
+            )
+            raise ValueError(
+                "function.substitution_symbol_mismatch: "
+                f"parameter={parameter.name}, "
+                f"free_symbols={free_symbols or 'none'}"
+            )
         evaluated = sp.simplify(expression.subs(parameter, parameter_value))
         expression_type = inputs.get("__input_types__", {}).get("expression", "Expression")
         output_by_input_type = {
@@ -87,7 +96,16 @@ SPEC = MethodSpecSource(
             "不要假定 evaluated_expression、evaluated_minimum_expression 和 "
             "evaluated_parabola 会同时产生；实际 return 只由输入状态类型决定。"
         ),
+        (
+            "表达式不含待代入 Symbol，或 ParameterValue 属于另一个 Symbol；"
+            "例如表达式只含参数 u 时，不能用参数 v 的值关闭该表达式。"
+        ),
+        (
+            "试图通过代入无关参数改变或关闭函数状态；应先选择实际出现在该状态"
+            "自由符号集合中的参数。"
+        ),
     ),
+    repair_feedback_provider_id="expression_state_transition",
     solves=("evaluate_expression_at_parameter",),
     inputs={
         "expression": {

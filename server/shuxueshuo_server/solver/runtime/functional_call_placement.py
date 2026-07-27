@@ -38,6 +38,9 @@ from shuxueshuo_server.solver.runtime.functional_symbol_flow import (
     apply_symbolic_closure_effect,
     return_free_symbol_refs,
 )
+from shuxueshuo_server.solver.runtime.functional_state_allocation import (
+    project_sibling_symbol_dependencies,
+)
 from shuxueshuo_server.solver.runtime.function_specs import FunctionSpec
 from shuxueshuo_server.solver.runtime.handle_alias_index import (
     parse_scoped_non_answer_handle,
@@ -797,6 +800,7 @@ def _resolved_object_state_signature(
                 ),
                 item.identity_policy,
                 item.write_mode,
+                item.computation_key,
                 tuple(sorted(item.free_symbol_refs)),
                 tuple(sorted(item.lineage.semantic_roles)),
                 tuple(sorted(item.lineage.evidence_tags)),
@@ -1161,7 +1165,8 @@ def _reallocate_calls(
                 else None
             )
             state_slot_id = (
-                f"{object_ref}.{spec.state_kind}@{valid_scope}"
+                f"{object_ref}.{spec.state_kind}@{valid_scope}:"
+                f"{spec.runtime_type}"
                 if object_ref is not None
                 else f"functional:{valid_scope}:{call.call_id}:{old.return_name}"
             )
@@ -1194,6 +1199,15 @@ def _reallocate_calls(
             )
             allocations.append(allocation)
             produced[(call.call_id, old.return_name)] = allocation
+        allocations = list(
+            project_sibling_symbol_dependencies(
+                tuple(specs.values()),
+                tuple(allocations),
+                capability_id=call.capability_id,
+            )
+        )
+        for allocation in allocations:
+            produced[(call.call_id, allocation.return_name)] = allocation
         result.append(
             replace(
                 item,
@@ -1230,6 +1244,10 @@ def _rewrite_resolved_value(
         source_state_slot_ids=allocation.source_state_slot_ids,
         provides_semantic_roles=allocation.provides_semantic_roles,
         lineage=allocation.lineage,
+        math_object_id=allocation.math_object_id,
+        logical_state_key=allocation.logical_state_key,
+        typed_slot_id=allocation.typed_slot_id,
+        state_version_id=allocation.selected_version_id,
     )
 
 

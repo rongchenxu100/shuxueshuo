@@ -81,6 +81,10 @@ from shuxueshuo_server.solver.runtime.functional_result_forms import (
 from shuxueshuo_server.solver.runtime.functional_state_refinement import (
     refine_functional_object_states,
 )
+from shuxueshuo_server.solver.runtime.functional_state_allocation import (
+    project_sibling_symbol_dependencies,
+    rebase_live_state_versions,
+)
 from shuxueshuo_server.solver.runtime.entity_state_resolver import (
     EntityStateResolver,
 )
@@ -126,6 +130,14 @@ from shuxueshuo_server.solver.runtime.strategy_runtime_planner import StrategyPl
 from shuxueshuo_server.solver.runtime.scalar_result_closure import (
     ScalarResultClosureRegistry,
     close_scalar_plan_output,
+)
+from shuxueshuo_server.solver.runtime.state_identity import (
+    ArgVersionBinding,
+    ComputationKey,
+    LogicalStateKey,
+    MathObjectId,
+    StateSlotId,
+    StateVersionId,
 )
 from shuxueshuo_server.solver.runtime.student_symbolic_complexity import (
     analyze_student_symbolic_complexity,
@@ -314,6 +326,58 @@ def _hexi_case():
     )
     payload = json.loads(HEXI_FUNCTIONAL_PLAN.read_text(encoding="utf-8"))
     return inputs, registry, context, payload
+
+
+@pytest.mark.parametrize(
+    ("problem_fixture", "plan_fixture"),
+    (
+        (NANKAI_FIXTURE, NANKAI_FUNCTIONAL_PLAN),
+        (HEPING_ERMO_FIXTURE, HEPING_ERMO_FUNCTIONAL_PLAN),
+        (XIQING_FIXTURE, XIQING_FUNCTIONAL_PLAN),
+        (HEXI_FIXTURE, HEXI_FUNCTIONAL_PLAN),
+        (HEPING_FIXTURE, HEPING_FUNCTIONAL_PLAN),
+    ),
+)
+def test_authored_functional_fixtures_have_zero_typed_identity_drift(
+    problem_fixture: Path,
+    plan_fixture: Path,
+) -> None:
+    problem = load_problem_ir(problem_fixture)
+    inputs = build_strategy_probe_inputs(problem)
+    problem_payload = problem_to_llm_payload(problem)
+    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
+        json.loads(plan_fixture.read_text(encoding="utf-8")),
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+    assert validation.ok and plan is not None
+
+    result = FunctionalPlanReconciler().reconcile(
+        plan,
+        planner_state_context=initial_planner_state_context(
+            inputs,
+            problem_payload=problem_payload,
+            handle_registry=registry,
+        ),
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+
+    assert result.ok, [item.to_payload() for item in result.issues]
+    assert result.identity_mismatches == ()
+    assert result.state_identity_decisions
+    assert all(
+        allocation.logical_state_key is not None
+        and allocation.typed_slot_id is not None
+        and allocation.selected_version_id is not None
+        for call in result.calls
+        for allocation in call.returns
+        if allocation.object_ref is not None
+        and allocation.allocation_action != "reuse"
+    )
 
 
 def test_functional_wire_fills_empty_explanation_field_deterministically() -> None:
@@ -1514,7 +1578,10 @@ def test_unified_quadratic_constraint_call_publishes_open_target_symbol() -> Non
         item for item in refined.returns if item.return_name == "parameter_value"
     )
     assert parameter_return.object_ref == "symbol:problem:b"
-    assert parameter_return.state_slot_id == "symbol:problem:b.value@ii"
+    assert (
+        parameter_return.state_slot_id
+        == "symbol:problem:b.value@ii:ParameterValue"
+    )
     assert parameter_return.free_symbol_refs == ("symbol:problem:c",)
     parabola_return = next(
         item for item in refined.returns if item.return_name == "parabola"
@@ -3905,6 +3972,56 @@ def test_object_state_refinement_does_not_close_a_new_companion_symbol() -> None
     assert point_write.transition_kind is None
 
 
+def test_parameterized_object_inherits_declared_sibling_symbol_dependency() -> None:
+    inputs = build_strategy_probe_inputs(load_problem_ir(HEPING_ERMO_FIXTURE))
+    catalog = FunctionalCapabilityCatalog.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
+    )
+    capability = catalog.items["quadratic_axis_parameterized_point"]
+    point = FunctionalReturnAllocation(
+        call_id="parameterize_target",
+        return_name="point",
+        handle="fact:part:target_coordinate",
+        runtime_type="Point",
+        valid_scope="part",
+        state_slot_id="point:part:target.coordinate@part",
+        object_ref="point:part:target",
+        identity_policy="target_object",
+        write_mode="create",
+        free_symbol_refs=("symbol:problem:c",),
+    )
+    parameter = FunctionalReturnAllocation(
+        call_id="parameterize_target",
+        return_name="parameter",
+        handle="fact:part:target_axis_parameter",
+        runtime_type="Symbol",
+        valid_scope="part",
+        state_slot_id="symbol:part:target_axis_parameter.parameter@part",
+        object_ref="symbol:part:target_axis_parameter",
+        identity_policy="derived_role",
+        write_mode="value",
+    )
+
+    projected = project_sibling_symbol_dependencies(
+        capability.returns,
+        (point, parameter),
+        capability_id=capability.capability_id,
+    )
+
+    projected_point = projected[0]
+    assert projected_point.free_symbol_refs == (
+        "symbol:problem:c",
+        "symbol:part:target_axis_parameter",
+    )
+    assert projected_point.dependency_object_refs == (
+        "symbol:part:target_axis_parameter",
+    )
+    assert projected_point.source_state_slot_ids == (
+        "symbol:part:target_axis_parameter.parameter@part",
+    )
+
+
 def test_object_state_refinement_infers_closed_state_from_symbol_identity() -> None:
     inputs = build_strategy_probe_inputs(load_problem_ir(HEPING_ERMO_FIXTURE))
     catalog = FunctionalCapabilityCatalog.from_family_spec(
@@ -3984,6 +4101,167 @@ def test_object_state_refinement_infers_closed_state_from_symbol_identity() -> N
         and repair.to_value == "closed_state"
         for repair in result.repairs
     )
+
+
+def test_object_state_refinement_keeps_unsubstituted_companion_symbol_open() -> None:
+    inputs = build_strategy_probe_inputs(load_problem_ir(HEPING_ERMO_FIXTURE))
+    catalog = FunctionalCapabilityCatalog.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
+    )
+    call = FunctionalCall(
+        call_id="evaluate_target",
+        capability_id="evaluate_point_at_parameter",
+        args={},
+        return_bindings={},
+        strategy="substitute one of two independent parameters",
+        reason="synthetic partial-closure guard",
+    )
+    plan = FunctionalPlan(
+        scopes=(FunctionalScope("part", "part", (call,)),),
+    )
+    substituted_symbol = "symbol:part:u"
+    companion_symbol = "symbol:part:v"
+    source_point = ResolvedFunctionalValue(
+        handle="fact:part:target_open_coordinate",
+        runtime_type="Point",
+        valid_scope="part",
+        state_slot_id="point:part:target.coordinate@part",
+        source_call_id="derive_target",
+        return_name="point",
+        object_ref="point:part:target",
+        free_symbol_refs=(substituted_symbol, companion_symbol),
+    )
+    parameter_value = ResolvedFunctionalValue(
+        handle="fact:part:u_value",
+        runtime_type="ParameterValue",
+        valid_scope="part",
+        state_slot_id=f"{substituted_symbol}.value@part",
+        source_call_id="solve_u",
+        return_name="parameter_value",
+        object_ref=substituted_symbol,
+    )
+    allocation = FunctionalReturnAllocation(
+        call_id=call.call_id,
+        return_name="evaluated_point",
+        handle="fact:part:target_partially_evaluated_coordinate",
+        runtime_type="Point",
+        valid_scope="part",
+        state_slot_id="point:part:target.coordinate@part",
+        object_ref="point:part:target",
+        identity_policy="preserve_input_object",
+        write_mode="transition",
+        free_symbol_refs=(companion_symbol,),
+        source_state_slot_ids=(
+            "point:part:target.coordinate@part",
+            f"{substituted_symbol}.value@part",
+        ),
+    )
+
+    result = refine_functional_object_states(
+        plan,
+        reconciled=(
+            FunctionalCallReconciliation(
+                call_id=call.call_id,
+                scope_id="part",
+                capability_id=call.capability_id,
+                resolved_args={
+                    "point": (source_point,),
+                    "parameter_value": (parameter_value,),
+                },
+                returns=(allocation,),
+            ),
+        ),
+        catalog=catalog,
+    )
+
+    assert result.plan.calls[0].return_expectations == {
+        "evaluated_point": "open_state"
+    }
+    assert any(
+        repair.action == "infer_object_result_form"
+        and repair.to_value == "open_state"
+        for repair in result.repairs
+    )
+
+
+def test_liveness_rebases_transition_to_latest_surviving_version() -> None:
+    object_id = MathObjectId("point:part:target", "point", "part")
+    logical_key = LogicalStateKey(object_id, "coordinate", "Point")
+    slot_id = StateSlotId(logical_key, "part")
+    version_1 = StateVersionId(slot_id, 1)
+    removed_version_2 = StateVersionId(slot_id, 2)
+    version_3 = StateVersionId(slot_id, 3)
+    create = FunctionalReturnAllocation(
+        call_id="create_target",
+        return_name="point",
+        handle="fact:part:target_coordinate",
+        runtime_type="Point",
+        valid_scope="part",
+        state_slot_id="point:part:target.coordinate@part:Point",
+        object_ref=object_id.value,
+        identity_policy="target_object",
+        write_mode="create",
+        math_object_id=object_id,
+        logical_state_key=logical_key,
+        typed_slot_id=slot_id,
+        selected_version_id=version_1,
+    )
+    transition = FunctionalReturnAllocation(
+        call_id="close_target",
+        return_name="evaluated_point",
+        handle="fact:part:target_closed_coordinate",
+        runtime_type="Point",
+        valid_scope="part",
+        state_slot_id="point:part:target.coordinate@part:Point",
+        object_ref=object_id.value,
+        identity_policy="preserve_input_object",
+        write_mode="transition",
+        math_object_id=object_id,
+        logical_state_key=logical_key,
+        typed_slot_id=slot_id,
+        selected_version_id=version_3,
+        previous_version_id=removed_version_2,
+        previous_write_step_id="removed_refinement",
+        source_version_ids=(removed_version_2,),
+        computation_key=ComputationKey(
+            "evaluate_point_at_parameter",
+            (
+                ArgVersionBinding(
+                    arg_name="point",
+                    item_index=0,
+                    version_id=removed_version_2,
+                ),
+            ),
+        ),
+    )
+    calls = (
+        FunctionalCallReconciliation(
+            call_id="create_target",
+            scope_id="part",
+            capability_id="construct_point",
+            resolved_args={},
+            returns=(create,),
+        ),
+        FunctionalCallReconciliation(
+            call_id="close_target",
+            scope_id="part",
+            capability_id="evaluate_point_at_parameter",
+            resolved_args={},
+            returns=(transition,),
+        ),
+    )
+
+    rebased_calls, rebases = rebase_live_state_versions(calls)
+
+    updated = rebased_calls[1].returns[0]
+    assert updated.previous_version_id == version_1
+    assert updated.previous_write_step_id == "create_target"
+    assert updated.source_version_ids == (version_1,)
+    assert updated.computation_key is not None
+    assert updated.computation_key.arg_bindings[0].version_id == version_1
+    assert rebases[0].removed_previous_version_id == removed_version_2
+    assert rebases[0].selected_previous_version_id == version_1
 
 
 def test_object_state_refinement_rejects_stale_transition_branch() -> None:
@@ -7611,7 +7889,7 @@ def test_path_reduction_projects_one_structured_state_for_downstream_macros() ->
     assert roles["fixed_endpoint_1"].object_refs == ("point:problem:D",)
     assert roles["fixed_endpoint_2"].object_refs == ("point:ii:F",)
     assert roles["fixed_endpoint_2"].source_state_slot_ids == (
-        "point:ii:F.coordinate@ii",
+        "point:ii:F.coordinate@ii:Point",
     )
     assert roles["fixed_endpoint_2"].source_handles == (
         "fact:ii:F_coordinate",
@@ -7634,7 +7912,7 @@ def test_path_reduction_projects_one_structured_state_for_downstream_macros() ->
         and item.arg_name == "transformed_fixed_endpoint"
     )
     assert f_dependency.produced_handle == "fact:ii:F_coordinate"
-    assert f_dependency.state_slot_id == "point:ii:F.coordinate@ii"
+    assert f_dependency.state_slot_id == "point:ii:F.coordinate@ii:Point"
     assert f_dependency.source_step_id == "ii_compute_F"
     assert f_dependency.source_return_name == "midpoint"
 
@@ -8516,9 +8794,13 @@ def test_explicit_intersection_answer_is_not_overridden_by_unrelated_object_rela
         for issue in result.issues
         if issue.code == "functional.return_identity_mismatch"
     ]
-    intersection = result.calls[0].returns[0]
-    assert intersection.handle == "answer:ii_2.intersection"
-    assert intersection.object_ref == "point:ii:G"
+    evidence_issue = next(
+        issue
+        for issue in result.issues
+        if issue.code == "functional.evidence_closure_unproven"
+    )
+    assert evidence_issue.call_id == "derive_intersection"
+    assert evidence_issue.details["answer"] == "ii_2.intersection"
 
 
 def test_explicit_answer_producer_takes_priority_over_object_to_answer_promotion() -> None:
@@ -9374,7 +9656,7 @@ def test_reconciler_reuses_answer_producer_for_same_object_state_write() -> None
     )
 
 
-def test_reconciler_reuses_same_object_state_across_distinct_input_paths() -> None:
+def test_reconciler_keeps_same_object_writes_for_distinct_input_versions() -> None:
     inputs, _fixture, registry, context = _heping_ermo_case()
     inputs = replace(inputs, question_goals=[])
     payload = {
@@ -9460,16 +9742,25 @@ def test_reconciler_reuses_same_object_state_across_distinct_input_paths() -> No
     )
 
     assert result.ok, [item.to_payload() for item in result.issues]
-    assert result.call_aliases == {
-        "derive_existing_a_again": "derive_existing_a"
-    }
-    assert "derive_existing_a_again" not in {
+    assert result.call_aliases == {}
+    assert {
         call.call_id for call in result.plan.calls
+    } == {
+        "derive_existing_a",
+        "materialize_parabola",
+        "derive_existing_a_again",
     }
-    assert any(
-        item["action"] == "merge_redundant_existing_state_call"
-        and item["call_id"] == "derive_existing_a_again"
-        for item in result.elaboration["deterministic_repairs"]
+    writes = {
+        call.call_id: call.returns[0]
+        for call in result.calls
+        if call.call_id
+        in {"derive_existing_a", "derive_existing_a_again"}
+    }
+    assert writes["derive_existing_a"].computation_key != (
+        writes["derive_existing_a_again"].computation_key
+    )
+    assert writes["derive_existing_a"].selected_version_id != (
+        writes["derive_existing_a_again"].selected_version_id
     )
 
 
@@ -12314,6 +12605,61 @@ def test_reconciler_rejects_equivalent_returns_as_distinct_line_endpoints() -> N
     assert issue.details["unchanged_binding_rejected"] is True
 
 
+def test_evidence_preflight_preserves_completed_goal_subgraphs() -> None:
+    inputs = _base_inputs()
+    payload = json.loads(NANKAI_FUNCTIONAL_PLAN.read_text(encoding="utf-8"))
+    call = next(
+        call
+        for scope in payload["scopes"]
+        for call in scope["calls"]
+        if call["call_id"] == "ii_2_derive_G"
+    )
+    call["args"]["line1_p2"] = {
+        "from_call": "i_derive_D",
+        "return": "axis_point",
+    }
+    plan, validation = _validate(payload, inputs)
+    assert validation.ok and plan is not None
+
+    replay = PlannerRetryReplayService().replay_functional_plan(
+        plan,
+        inputs=inputs,
+        handle_registry=_registry(),
+        context=ContextBuilder().build(_problem()),
+        attempt=1,
+        problem_payload=_problem_payload(),
+        validation_report=validation,
+    )
+
+    assert replay.output is None
+    assert replay.diagnostic is not None
+    assert replay.diagnostic.runtime_results
+    assert replay.retry_state is not None
+    issue = next(
+        item
+        for item in replay.retry_state.issues
+        if item.code == "functional.evidence_closure_unproven"
+    )
+    assert issue.step_id == "ii_2_derive_G"
+    assert issue.details is not None
+    assert (
+        "ii_derive_path_model.straightened_endpoint_2"
+        in issue.details["compatible_refs"]
+    )
+    committed_call_ids = {
+        item["call"]["call_id"]
+        for item in replay.retry_state.committed_candidate_calls
+    }
+    assert {"i_derive_parabola", "i_derive_D"} <= committed_call_ids
+    assert {
+        "ii_1_solve_m",
+        "ii_1_specialize_parabola",
+        "ii_1_evaluate_minimum",
+    } <= committed_call_ids
+    assert "ii_2_derive_G" in replay.retry_state.repair_call_ids
+    assert "ii_derive_path_model" not in replay.retry_state.repair_call_ids
+
+
 def test_functional_retry_stable_graph_excludes_runtime_blocker_and_dependents() -> None:
     inputs = _base_inputs()
     payload = json.loads(NANKAI_FUNCTIONAL_PLAN.read_text(encoding="utf-8"))
@@ -12705,6 +13051,61 @@ def test_functional_retry_does_not_freeze_structured_upstream_repair_root() -> N
     assert nearest_issue.details is not None
     assert nearest_issue.details["actual_result_refs"] == [
         f"{upstream_root}.{upstream_return.return_name}"
+    ]
+
+
+def test_transition_trial_issue_includes_provisional_previous_writer() -> None:
+    inputs = _base_inputs()
+    payload = json.loads(NANKAI_FUNCTIONAL_PLAN.read_text(encoding="utf-8"))
+    plan, validation = _validate(payload, inputs)
+    assert validation.ok and plan is not None
+    planner_context = _context(inputs)
+    reconciliation = FunctionalPlanReconciler().reconcile(
+        plan,
+        planner_state_context=planner_context,
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=_registry(),
+        question_goals=inputs.question_goals,
+    )
+    assert reconciliation.ok
+    previous_writer = "i_derive_D"
+    current_writer = "ii_1_solve_m"
+    issue = PlannerRetryIssue(
+        layer="trial_execution",
+        code="function.transition_dependency_missing",
+        step_id=current_writer,
+        scope_id="ii_1",
+        message=(
+            "function.transition_dependency_missing: "
+            f"step={current_writer}, object_ref=point:problem:D, "
+            f"previous_step={previous_writer}"
+        ),
+    )
+    semantic_index = FunctionalSemanticIndex.from_context(
+        planner_context,
+        handle_registry=_registry(),
+    )
+    catalog = FunctionalCapabilityCatalog.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
+    ).contextualized(semantic_index)
+
+    enriched = strategy_replay_module._enrich_functional_retry_issues(
+        (issue,),
+        plan=plan,
+        reconciliation=reconciliation,
+        catalog=catalog,
+        semantic_index=semantic_index,
+    )
+
+    assert len(enriched) == 1
+    assert enriched[0].details is not None
+    assert enriched[0].details["previous_writer_call_id"] == previous_writer
+    assert enriched[0].details["current_writer_call_id"] == current_writer
+    assert enriched[0].details["repair_call_ids"] == [
+        previous_writer,
+        current_writer,
     ]
 
 
@@ -13332,6 +13733,7 @@ def test_functional_prompt_retry_state_never_exposes_step_intent_baseline() -> N
                 "details": {
                     "actual_result_refs": ["derive_curve.parabola"],
                     "expected_free_parameter": "b",
+                    "context_call_ids": ["derive_axis_point"],
                 },
             }
         ],
@@ -13353,6 +13755,7 @@ def test_functional_prompt_retry_state_never_exposes_step_intent_baseline() -> N
     assert "stable_candidate_prefix" not in latest
     assert "stable_candidate_calls" not in latest
     assert latest["locked_call_ids"] == ["derive_axis_point"]
+    assert latest["locked_context_call_ids"] == ["derive_axis_point"]
     assert latest["runtime_verified"][0]["call_id"] == "derive_curve"
     assert latest["runtime_verified"][0]["repair_required"] is True
     assert latest["runtime_verified"][0]["results"][0] == {
@@ -13367,6 +13770,7 @@ def test_functional_prompt_retry_state_never_exposes_step_intent_baseline() -> N
     assert "scope_id" not in latest["runtime_verified"][0]
     assert "source_attempt" not in latest["runtime_verified"][0]
     assert latest["validated_call_ids"] == ["derive_candidates"]
+    assert "repair_suffix_start" not in latest
     assert all("step_id" not in item for item in latest["issues"])
     assert latest["issues"][0]["call_id"] == "derive_curve"
     assert latest["issues"][0]["details"]["actual_result_refs"] == [
@@ -13381,6 +13785,9 @@ def test_functional_prompt_retry_state_never_exposes_step_intent_baseline() -> N
     assert '"locked_call_ids"' in prompt.user
     assert '"runtime_verified"' in prompt.user
     assert '"free": [' in prompt.user
+    assert "可以修改、替换或删除" in prompt.user
+    assert "任何不在 `locked_call_ids` 中的调用" in prompt.user
+    assert "只修复 `repair_call_ids`" not in prompt.system
     assert "StateSlot" not in json.dumps(latest, ensure_ascii=False)
     assert "runtime path" not in json.dumps(latest, ensure_ascii=False)
 
@@ -14062,6 +14469,12 @@ def test_functional_debug_artifacts_reuse_projected_step_intents(tmp_path: Path)
     assert context_payload["state"]["functional_plan_snapshot"] == (
         replay.functional_reconciliation.effective_plan.to_payload()
     )
+    assert reconciliation["state_identity_decisions"]
+    assert reconciliation["identity_mismatches"] == []
+    assert context_payload["state"]["state_identity_decisions"] == (
+        reconciliation["state_identity_decisions"]
+    )
+    assert context_payload["state"]["identity_mismatches"] == []
     assert reconciliation["student_step_placements"] == context_payload["state"][
         "student_step_placements"
     ]

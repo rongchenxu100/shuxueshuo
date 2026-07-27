@@ -1876,6 +1876,28 @@ def test_evaluate_expression_at_parameter_preserves_parabola_type() -> None:
     assert all(check.ok for check in result.checks)
 
 
+def test_evaluate_expression_rejects_unrelated_parameter_identity() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["a", "m"])
+    a, m = symbols["a"], symbols["m"]
+
+    with pytest.raises(
+        ValueError,
+        match=(
+            r"function\.substitution_symbol_mismatch: "
+            r"parameter=a, free_symbols=m"
+        ),
+    ):
+        EvaluateExpressionAtParameterMethod().run(
+            {
+                "expression": m**2 + 1,
+                "parameter": a,
+                "parameter_value": m + 2,
+            },
+            kernel,
+        )
+
+
 def test_evaluate_point_at_parameter_method() -> None:
     kernel = SympyKernel()
     symbols = kernel.symbols(["c", "t"])
