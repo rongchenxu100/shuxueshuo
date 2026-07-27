@@ -19,6 +19,7 @@ from shuxueshuo_server.solver.runtime.state_identity import (
     AmbiguousMathObjectReferenceError,
     ArgVersionBinding,
     ComputationKey,
+    FunctionalCallIdentityKey,
     IndexedStateVersion,
     LogicalReturnEffect,
     LogicalStateKey,
@@ -33,6 +34,8 @@ from shuxueshuo_server.solver.runtime.state_identity import (
     StateIdentityIndex,
     StateSlotId,
     StateVersionId,
+    StateVersionPlacementRewrite,
+    TypedCallPlacementDecision,
 )
 from shuxueshuo_server.solver.runtime.strategy_models import (
     ProjectedStateWrite,
@@ -637,3 +640,54 @@ def test_typed_identity_payloads_round_trip() -> None:
     assert LogicalStateKey.from_payload(logical_key.to_payload()) == logical_key
     assert StateSlotId.from_payload(slot_id.to_payload()) == slot_id
     assert StateVersionId.from_payload(version_id.to_payload()) == version_id
+
+
+def test_typed_placement_payloads_round_trip() -> None:
+    object_id = MathObjectId("point:problem:D", "point", "problem")
+    logical_key = LogicalStateKey(object_id, "coordinate", "Point")
+    slot_id = StateSlotId(logical_key, "problem")
+    source_version = StateVersionId(slot_id, 1)
+    target_version = StateVersionId(slot_id, 2)
+    identity_key = FunctionalCallIdentityKey(
+        ComputationKey(
+            "derive_point",
+            (
+                ArgVersionBinding(
+                    "source",
+                    0,
+                    version_id=source_version,
+                ),
+            ),
+        ),
+        StateEffectKey(
+            (
+                LogicalReturnEffect(
+                    "point",
+                    logical_key,
+                    "target_object",
+                    "transition",
+                ),
+            )
+        ),
+    )
+    decision = TypedCallPlacementDecision(
+        canonical_call_id="derive_point_i",
+        alias_call_ids=("derive_point_ii",),
+        identity_key=identity_key,
+        declared_scope_ids=("i", "ii"),
+        execution_scope_id="problem",
+        return_scope_ids={"point": "problem"},
+        version_rewrites=(
+            StateVersionPlacementRewrite(
+                source_version,
+                target_version,
+            ),
+        ),
+    )
+
+    assert FunctionalCallIdentityKey.from_payload(
+        identity_key.to_payload()
+    ) == identity_key
+    assert TypedCallPlacementDecision.from_payload(
+        decision.to_payload()
+    ) == decision

@@ -18,6 +18,7 @@ from shuxueshuo_server.solver.state_semantics import (
 )
 
 StateIdentityMode = Literal["shadow", "authoritative"]
+StatePlacementMode = Literal["shadow", "authoritative"]
 StateAllocationAction = Literal[
     "reuse",
     "create",
@@ -263,6 +264,24 @@ class LogicalReturnEffect:
             "write_mode": self.write_mode,
         }
 
+    @classmethod
+    def from_payload(
+        cls,
+        payload: Mapping[str, Any],
+    ) -> "LogicalReturnEffect":
+        return cls(
+            return_name=str(payload["return_name"]),
+            logical_key=(
+                LogicalStateKey.from_payload(
+                    _mapping(payload["logical_key"])
+                )
+                if payload.get("logical_key") is not None
+                else None
+            ),
+            identity_policy=str(payload["identity_policy"]),
+            write_mode=str(payload["write_mode"]),
+        )
+
 
 @dataclass(frozen=True, order=True)
 class StateEffectKey:
@@ -272,6 +291,127 @@ class StateEffectKey:
         return {
             "returns": [item.to_payload() for item in self.returns],
         }
+
+    @classmethod
+    def from_payload(cls, payload: Mapping[str, Any]) -> "StateEffectKey":
+        return cls(
+            tuple(
+                LogicalReturnEffect.from_payload(item)
+                for item in _mapping_items(payload.get("returns"))
+            )
+        )
+
+
+@dataclass(frozen=True, order=True)
+class FunctionalCallIdentityKey:
+    computation_key: ComputationKey
+    state_effect_key: StateEffectKey
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            "computation_key": self.computation_key.to_payload(),
+            "state_effect_key": self.state_effect_key.to_payload(),
+        }
+
+    @classmethod
+    def from_payload(
+        cls,
+        payload: Mapping[str, Any],
+    ) -> "FunctionalCallIdentityKey":
+        return cls(
+            computation_key=ComputationKey.from_payload(
+                _mapping(payload["computation_key"])
+            ),
+            state_effect_key=StateEffectKey.from_payload(
+                _mapping(payload["state_effect_key"])
+            ),
+        )
+
+
+@dataclass(frozen=True, order=True)
+class StateVersionPlacementRewrite:
+    source_version_id: StateVersionId
+    target_version_id: StateVersionId
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            "source_version_id": self.source_version_id.to_payload(),
+            "target_version_id": self.target_version_id.to_payload(),
+        }
+
+    @classmethod
+    def from_payload(
+        cls,
+        payload: Mapping[str, Any],
+    ) -> "StateVersionPlacementRewrite":
+        return cls(
+            source_version_id=StateVersionId.from_payload(
+                _mapping(payload["source_version_id"])
+            ),
+            target_version_id=StateVersionId.from_payload(
+                _mapping(payload["target_version_id"])
+            ),
+        )
+
+
+@dataclass(frozen=True)
+class TypedCallPlacementDecision:
+    canonical_call_id: str
+    alias_call_ids: tuple[str, ...]
+    identity_key: FunctionalCallIdentityKey
+    declared_scope_ids: tuple[str, ...]
+    execution_scope_id: str
+    return_scope_ids: Mapping[str, str]
+    version_rewrites: tuple[StateVersionPlacementRewrite, ...] = ()
+    reason_code: str = "typed_identity_placement"
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            "canonical_call_id": self.canonical_call_id,
+            "alias_call_ids": list(self.alias_call_ids),
+            "identity_key": self.identity_key.to_payload(),
+            "declared_scope_ids": list(self.declared_scope_ids),
+            "execution_scope_id": self.execution_scope_id,
+            "return_scope_ids": dict(self.return_scope_ids),
+            "version_rewrites": [
+                item.to_payload() for item in self.version_rewrites
+            ],
+            "reason_code": self.reason_code,
+        }
+
+    @classmethod
+    def from_payload(
+        cls,
+        payload: Mapping[str, Any],
+    ) -> "TypedCallPlacementDecision":
+        return cls(
+            canonical_call_id=str(payload["canonical_call_id"]),
+            alias_call_ids=tuple(
+                str(item) for item in payload.get("alias_call_ids", ())
+            ),
+            identity_key=FunctionalCallIdentityKey.from_payload(
+                _mapping(payload["identity_key"])
+            ),
+            declared_scope_ids=tuple(
+                str(item) for item in payload.get("declared_scope_ids", ())
+            ),
+            execution_scope_id=str(payload["execution_scope_id"]),
+            return_scope_ids={
+                str(key): str(value)
+                for key, value in _mapping(
+                    payload.get("return_scope_ids")
+                ).items()
+            },
+            version_rewrites=tuple(
+                StateVersionPlacementRewrite.from_payload(item)
+                for item in _mapping_items(
+                    payload.get("version_rewrites")
+                )
+            ),
+            reason_code=str(
+                payload.get("reason_code") or "typed_identity_placement"
+            ),
+        )
 
 
 @dataclass(frozen=True)
@@ -1300,6 +1440,7 @@ def _mapping_items(value: Any) -> tuple[Mapping[str, Any], ...]:
 __all__ = [
     "ArgVersionBinding",
     "ComputationKey",
+    "FunctionalCallIdentityKey",
     "IdentityShadowComparison",
     "IndexedStateVersion",
     "LogicalReturnEffect",
@@ -1316,6 +1457,9 @@ __all__ = [
     "StateIdentityFactory",
     "StateIdentityIndex",
     "StateIdentityMode",
+    "StatePlacementMode",
     "StateSlotId",
+    "StateVersionPlacementRewrite",
     "StateVersionId",
+    "TypedCallPlacementDecision",
 ]

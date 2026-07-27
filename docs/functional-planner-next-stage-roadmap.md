@@ -73,7 +73,7 @@ Track A 是否完成，但主链切换前必须重新建立相应阶段自己的
 | Track A assets | `COMPLETE` | 五题 fixture、离线 replay、真实 opt-in、strict-test few-shot、共享 batch 基座 | 无 |
 | Track A Stage 1 | `COMPLETE` | 每题 3 个样本，`15/15` 在三轮内通过，configuration error 为 0 | 无 |
 | Track A parity complete | `COMPLETE` | 五题各 10 个兼容样本，`pass@3 >= 90%`；structured provenance parity、typed failure boundary、跨 batch 聚合均已建立 | 无 |
-| Track B typed identity authority | `IN PROGRESS` | B0 typed identity foundation 与 B1 allocation authority 已完成；同对象状态 refinement 已使用输入 StateVersion 证明 | B2 placement、B3 finalizer、B4 retry authority 与 B5 string cleanup |
+| Track B typed identity authority | `IN PROGRESS` | B0 typed identity foundation、B1 allocation authority 与 B2 typed placement authority 已完成 | B3 finalizer、B4 retry authority 与 B5 string cleanup |
 | Track C transactional interpreter | `PENDING` | 现有 partial replay、Working RuntimeContext、typed provenance 可复用 | Track B B1-B3；C0 shadow；逐 call execution parity |
 | Functional Default Ready | `BLOCKED` | Functional 主链可 opt-in 执行 | Track A parity complete；Track B B0-B4；Track C production closure；direct compiler shadow；held-out；production observability 与回滚门禁 |
 | Track D0 product routing gate retirement | `BLOCKED` | 唯一 problem-id gate 已登记 | Track A parity complete；Functional production routing 接管该 family；legacy deterministic planner 退场 |
@@ -88,22 +88,22 @@ Track A 是否完成，但主链切换前必须重新建立相应阶段自己的
 
 Track A 已完成，当前主线切换到 Track B，而不是继续围绕五题概率样本做局部补丁：
 
-1. **B2 placement authority**：让 placement 完整消费 `ComputationKey +
-   StateEffectKey`，不再维护平行的 resolved-call 字符串签名；
-2. **B3 identity-aware finalizer**：建立 logical-state/runtime-destination 双 ledger，
+1. **B3 identity-aware finalizer**：建立 logical-state/runtime-destination 双 ledger，
    把 compiler 内部写入也映射到 typed destination；
+2. **B4 Context/retry version authority**：让 retry graph 持久化并恢复精确
+   `StateVersionId`，不再按 call/handle 猜状态；
 3. 继续用五题 authored fixture、recorded provenance parity 和 Track A acceptance
    cohort 作为迁移 oracle；
-4. B2-B3 稳定后启动 C0 logical graph / Working Context shadow，但不切换
+4. B3 稳定后启动 C0 logical graph / Working Context shadow，但不切换
    production execution authority。
 
 Track E 的 held-out 基础设施和 ProblemExtractionContext schema 可以并行建设；默认协议
 切换、StepIntent 删除和 transactional interpreter 主链切换仍保持阻塞。
 
-截至 2026-07-27，下一项实际编码工作是 **B2**。近期为状态 refinement 增加的
-`ComputationKey` placement 签名只是过渡接线：它阻止不同输入版本的调用被错误合并，
-但 placement 仍可通过 legacy resolved-call signature、slot string 和局部 scope
-重分配建立第二套判断。因此不能将这部分工作计为 B2 完成。
+截至 2026-07-27，B2 已完成 authoritative cutover。下一项实际编码工作是
+**B3 identity-aware finalizer**：placement 已不再通过 legacy resolved-call
+signature、slot string、return binding 或 runtime path 决定调用等价性，但 finalizer
+仍需把 compiler 内部写入统一映射到 typed logical-state/runtime-destination 双 ledger。
 
 ## Pack Contract Synchronization Discipline
 
@@ -309,14 +309,15 @@ execution、held-out 证据和生产切换能力尚未达到门禁。
 
 ### Current Status
 
-`IN PROGRESS`。B0 与 B1 已完成离线 authoritative cutover：Functional return
-allocation 统一由 typed identity service 决定，Context/debug 保存 typed version 与
-allocation audit。修复跨 scope typed transition 的 legacy compiler/finalizer 接线后，
-和平 focused smoke `batch-20260727-075152` 为 `3/3`；同一 source fingerprint 的五题
-smoke `batch-20260727-075728` 为 `12/15`，configuration error 与 unclassified error
-均为 0，失败根因中没有 allocation/identity projection drift。该概率批次不重新定义
-Track A，也不作为 B2 的通过证据。B2-B5 尚未完成，因此 placement、compiler/finalizer
-和 retry 仍保留兼容 ledger，不得据此切换默认协议。
+`IN PROGRESS`。B0、B1 与 B2 已完成离线 authoritative cutover：Functional return
+allocation 与 call placement 统一消费 typed identity/version，Context/debug 保存
+allocation 与 placement audit。B2 hardening 后全量 solver 回归为
+`1299 passed, 17 skipped`；
+五题真实 smoke `batch-20260727-162705` 为 `14/15`，configuration error、
+unclassified error、成功样本 gate failure、placement drift 与 identity drift 均为 0。
+唯一失败属于概率性的证据闭包/结果形态未收敛，不是 placement 配置故障。该批次不重新定义
+Track A。B3-B5 尚未完成，因此 compiler/finalizer 和 retry 仍保留兼容 ledger，
+不得据此切换默认协议。
 
 B1 完成后的加固还包括：
 
@@ -325,9 +326,11 @@ B1 完成后的加固还包括：
 - open/closed 等结果形态本身不再足以证明 transition，缺少版本依赖时产生
   `functional.state_transition_dependency_unproven`；
 - transition issue 会携带前后 producer，retry 可以同时放开造成错误状态链的上游；
-- placement 的兼容签名已临时加入 `ComputationKey`，避免 B2 完成前错误合并不同版本
-  输入，但 legacy placement 仍是当前 scope/call 分组的执行权威；
-- 最新离线回归为 `1292 passed, 17 skipped`，`git diff --check` 通过。
+- placement 已使用聚合 `ComputationKey + StateEffectKey` 作为唯一调用身份，
+  answer/object destination 不再进入数学计算键；
+- scope placement 后从干净 Context index 重放 typed allocation，并统一重写
+  selected/previous/source version 与 downstream resolved value；
+- 最新离线回归为 `1299 passed, 17 skipped`，`git diff --check` 通过。
 
 详细设计、数据模型和迁移清单见：
 
@@ -372,7 +375,7 @@ B1 完成后的加固还包括：
 
 #### B2. Placement Uses Identity Decisions
 
-- 状态：`IN PROGRESS`，当前执行项。
+- 状态：`COMPLETE`（authoritative，2026-07-27）。
 - placement 使用 `ComputationKey + StateEffectKey`，不再将 answer/object return binding 差异当成两次数学计算；
 - answer alias 可以在等价 producer 合并时转移；
 - LCA 只决定 execution/valid scope，不重新创建对象状态身份；
@@ -399,6 +402,17 @@ B2 完成门禁：
 - placement 连续运行两次结果不变，且不会恢复 B1 已消除的 writer；
 - 五题 authored fixture、recorded provenance parity、全量 solver 回归通过；
 - 以新 source fingerprint 跑五题各三个真实样本，configuration/identity drift 为零。
+
+完成证据：
+
+- authoritative 主链删除 preliminary wire placement、resolved-call/object-state
+  字符串签名和 `_reallocate_calls`；
+- 五份 authored fixture 的 placement mismatch 为 0，typed placement decision
+  写入 reconciliation report 与 PlannerStateContext；
+- 初次定向门禁 `301 passed`；binding/effect identity hardening 后全量 solver
+  `1299 passed, 17 skipped`；
+- 真实 smoke `batch-20260727-162705` 为 `14/15`，configuration、unclassified、
+  placement/identity drift 均为 0。
 
 #### B3. Identity-aware Finalizer
 
@@ -879,8 +893,9 @@ PlannerStateContext
 
 - `COMPLETE`：B0 typed identity foundation；
 - `COMPLETE`：B1 authoritative allocation 与版本依赖 refinement；
-- `IN PROGRESS`：B2 placement authority，当前执行项；
-- 后续完成 B3 finalizer authority 与 B4 Context/retry version authority；
+- `COMPLETE`：B2 typed placement authority；
+- `IN PROGRESS`：B3 finalizer authority，下一执行项；
+- 后续完成 B4 Context/retry version authority；
 - allocation、placement、finalizer、Context 和 retry 共享 typed identity 及 StateVersion；
 - 同一 MathObject 的等价 producer 在 runtime 前合并，answer alias 和 downstream refs 转移到 canonical producer；
 - 与 Track A parity、held-out 和生产门禁共同组成 Functional Default Ready。

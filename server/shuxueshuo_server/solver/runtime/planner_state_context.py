@@ -548,6 +548,8 @@ class PlannerState:
     student_scope_references: tuple[dict[str, Any], ...] = ()
     state_identity_decisions: tuple[dict[str, Any], ...] = ()
     identity_mismatches: tuple[dict[str, Any], ...] = ()
+    state_placement_decisions: tuple[dict[str, Any], ...] = ()
+    placement_mismatches: tuple[dict[str, Any], ...] = ()
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -591,6 +593,12 @@ class PlannerState:
             ],
             "identity_mismatches": [
                 dict(item) for item in self.identity_mismatches
+            ],
+            "state_placement_decisions": [
+                dict(item) for item in self.state_placement_decisions
+            ],
+            "placement_mismatches": [
+                dict(item) for item in self.placement_mismatches
             ],
         }
 
@@ -673,6 +681,8 @@ class _MutableState:
     student_scope_references: list[dict[str, Any]] = field(default_factory=list)
     state_identity_decisions: list[dict[str, Any]] = field(default_factory=list)
     identity_mismatches: list[dict[str, Any]] = field(default_factory=list)
+    state_placement_decisions: list[dict[str, Any]] = field(default_factory=list)
+    placement_mismatches: list[dict[str, Any]] = field(default_factory=list)
 
     def freeze(self) -> PlannerStateContext:
         return PlannerStateContext(
@@ -707,6 +717,10 @@ class _MutableState:
                 student_scope_references=tuple(self.student_scope_references),
                 state_identity_decisions=tuple(self.state_identity_decisions),
                 identity_mismatches=tuple(self.identity_mismatches),
+                state_placement_decisions=tuple(
+                    self.state_placement_decisions
+                ),
+                placement_mismatches=tuple(self.placement_mismatches),
             ),
         )
 
@@ -906,6 +920,18 @@ class PlannerStateContextBuilder:
         state.identity_mismatches.extend(
             dict(item)
             for item in getattr(reconciliation, "identity_mismatches", ())
+        )
+        state.state_placement_decisions.extend(
+            dict(item)
+            for item in getattr(
+                reconciliation,
+                "state_placement_decisions",
+                (),
+            )
+        )
+        state.placement_mismatches.extend(
+            dict(item)
+            for item in getattr(reconciliation, "placement_mismatches", ())
         )
         effective_draft = getattr(replay, "effective_draft", None) or getattr(
             reconciliation,

@@ -11,14 +11,12 @@ from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
 )
 from shuxueshuo_server.solver.runtime.functional_plan_elaboration import (
     FunctionalDeterministicRepair,
-    FunctionalSemanticIndex,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_graph import (
     canonical_call_aliases as _canonical_aliases,
     canonical_call_id as _canonical,
     least_common_scope as _least_common_scope,
     rewrite_call_aliases as _rewrite_call_aliases,
-    wire_inputs_are_stable as _wire_inputs_are_stable,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_models import (
     CallResultRef,
@@ -39,6 +37,8 @@ from shuxueshuo_server.solver.runtime.functional_symbol_flow import (
     return_free_symbol_refs,
 )
 from shuxueshuo_server.solver.runtime.functional_state_allocation import (
+    functional_computation_key,
+    functional_source_version_ids,
     project_sibling_symbol_dependencies,
 )
 from shuxueshuo_server.solver.runtime.function_specs import FunctionSpec
@@ -51,6 +51,22 @@ from shuxueshuo_server.solver.runtime.handle_registry import (
 )
 from shuxueshuo_server.solver.runtime.semantic_reads import (
     SemanticReadCatalogItem,
+)
+from shuxueshuo_server.solver.runtime.state_identity import (
+    ComputationKey,
+    FunctionalCallIdentityKey,
+    LogicalReturnEffect,
+    LogicalStateKey,
+    RuntimeDestinationKey,
+    StateAllocationRequest,
+    StateAllocationService,
+    StateEffectKey,
+    StateIdentityFactory,
+    StateIdentityIndex,
+    StatePlacementMode,
+    StateVersionId,
+    StateVersionPlacementRewrite,
+    TypedCallPlacementDecision,
 )
 from shuxueshuo_server.solver.runtime.strategy_models import SemanticRef
 
@@ -65,6 +81,8 @@ class FunctionalCallPlacementResult:
     aliases: dict[str, str]
     repairs: tuple[FunctionalDeterministicRepair, ...]
     issues: tuple[FunctionalPlanIssue, ...] = ()
+    typed_decisions: tuple[TypedCallPlacementDecision, ...] = ()
+    mismatches: tuple[dict[str, Any], ...] = ()
 
 
 class FunctionalCallPlacementService:
@@ -74,90 +92,6 @@ class FunctionalCallPlacementService:
     forward-only call graph. This pass is the sole owner of the final execution
     scope, return publication scope, canonical call aliases, handles and slots.
     """
-
-    def preliminary_execution_scopes(
-        self,
-        plan: FunctionalPlan,
-        *,
-        source_plan: FunctionalPlan,
-        catalog: FunctionalCapabilityCatalog,
-        semantic_index: FunctionalSemanticIndex,
-        handle_registry: CanonicalHandleRegistry,
-        default_scopes: Mapping[str, str],
-        initial_aliases: Mapping[str, str] | None = None,
-    ) -> dict[str, str]:
-        """Hoist only calls whose wire inputs are immutable and identical.
-
-        Role/auto args are resolved after this pass. Resolving them at the
-        shared ancestor prevents a child-specific latest-state view from
-        accidentally specializing an otherwise common parent computation.
-        Mutable object refs are deliberately excluded from this early proof.
-        """
-        aliases = _canonical_aliases(dict(initial_aliases or {}))
-        source_scopes = {
-            call.call_id: scope.scope_id
-            for scope in source_plan.scopes
-            for call in scope.calls
-        }
-        initial_groups = _alias_groups(
-            tuple(source_scopes),
-            aliases=aliases,
-            canonical_call_ids=tuple(call.call_id for call in plan.calls),
-        )
-        grouped: dict[tuple[Any, ...], list[FunctionalCall]] = {}
-        for call in plan.calls:
-            capability = catalog.get(call.capability_id)
-            if (
-                capability is None
-                or not _is_shareable(call, capability)
-                or not _wire_inputs_are_stable(call, capability)
-            ):
-                continue
-            grouped.setdefault(_wire_call_signature(call), []).append(call)
-        result = dict(default_scopes)
-        for calls in grouped.values():
-            member_ids = tuple(
-                dict.fromkeys(
-                    member
-                    for call in calls
-                    for member in initial_groups.get(call.call_id, (call.call_id,))
-                )
-            )
-            if len(member_ids) < 2:
-                continue
-            proposed = _least_common_scope(
-                tuple(source_scopes[call_id] for call_id in member_ids),
-                handle_registry,
-            )
-            if not all(
-                _wire_inputs_visible_at_scope(
-                    call,
-                    proposed,
-                    capability=catalog.items[call.capability_id],
-                    semantic_index=semantic_index,
-                )
-                for call in calls
-            ):
-                continue
-            for call in calls:
-                result[call.call_id] = proposed
-        for canonical, members in initial_groups.items():
-            if len(members) < 2 or canonical not in result:
-                continue
-            proposed = _least_common_scope(
-                tuple(source_scopes[call_id] for call_id in members),
-                handle_registry,
-            )
-            call = next(item for item in plan.calls if item.call_id == canonical)
-            capability = catalog.items[call.capability_id]
-            if _wire_inputs_visible_at_scope(
-                call,
-                proposed,
-                capability=capability,
-                semantic_index=semantic_index,
-            ):
-                result[canonical] = proposed
-        return result
 
     def place(
         self,
@@ -171,6 +105,10 @@ class FunctionalCallPlacementService:
         semantic_items: Sequence[SemanticReadCatalogItem],
         question_goals: Sequence[QuestionGoal],
         initial_aliases: Mapping[str, str] | None = None,
+        identity_factory: StateIdentityFactory | None = None,
+        base_identity_index: StateIdentityIndex | None = None,
+        allocation_service: StateAllocationService | None = None,
+        placement_mode: StatePlacementMode = "authoritative",
     ) -> FunctionalCallPlacementResult:
         source_calls = {call.call_id: call for call in source_plan.calls}
         source_scopes = {
@@ -186,202 +124,30 @@ class FunctionalCallPlacementService:
             aliases=aliases,
             canonical_call_ids=tuple(call_by_id),
         )
-        signatures: dict[tuple[Any, ...], str] = {}
         repairs: list[FunctionalDeterministicRepair] = []
         issues: list[FunctionalPlanIssue] = []
         transferred_return_expectations: dict[str, dict[str, str]] = {}
-
-        for call in plan.calls:
-            item = reconciled_by_id.get(call.call_id)
-            capability = catalog.get(call.capability_id)
-            if item is None or capability is None or not _is_shareable(call, capability):
-                continue
-            signature = _resolved_call_signature(call, item, aliases=aliases)
-            previous_id = signatures.get(signature)
-            if previous_id is None:
-                signatures[signature] = call.call_id
-                continue
-            previous = reconciled_by_id.get(previous_id)
-            previous_call = call_by_id.get(previous_id)
-            if previous is None or previous_call is None:
-                signatures[signature] = call.call_id
-                continue
-            candidate_scopes = (
-                *groups.get(previous_id, (previous_id,)),
-                *groups.get(call.call_id, (call.call_id,)),
-            )
-            lca = _least_common_scope(
-                tuple(source_scopes[item_id] for item_id in candidate_scopes),
-                handle_registry,
-            )
-            if not _inputs_shareable_at_scope(
-                (*previous.resolved_args.values(), *item.resolved_args.values()),
-                lca,
-                aliases=aliases,
-                groups=groups,
-                source_scopes=source_scopes,
-                registry=handle_registry,
-            ):
-                continue
-            expectation_owner = replace(
-                previous_call,
-                return_expectations=transferred_return_expectations.get(
-                    previous_id,
-                    previous_call.return_expectations,
-                ),
-            )
-            merged_expectations = _merged_return_expectations(
-                expectation_owner,
-                call,
-            )
-            if merged_expectations is None:
-                issues.append(
-                    _return_expectation_conflict_issue(
-                        expectation_owner,
-                        call,
-                    )
-                )
-            else:
-                transferred_return_expectations[previous_id] = merged_expectations
-            aliases[call.call_id] = previous_id
-            aliases = _canonical_aliases(aliases)
-            groups.setdefault(previous_id, (previous_id,))
-            groups[previous_id] = tuple(
-                dict.fromkeys((*groups[previous_id], *groups.pop(call.call_id, (call.call_id,))))
-            )
-            repairs.append(
-                FunctionalDeterministicRepair(
-                    call.call_id,
-                    (
-                        "isolate_conflicting_equivalent_call"
-                        if merged_expectations is None
-                        else "merge_resolved_equivalent_call"
-                    ),
-                    call.call_id,
-                    previous_id,
-                )
-            )
-
-        # An answer-bound call may also materialize the state of its target
-        # object. If a later pure call repeats the same computation only to
-        # bind that already-materialized object or answer, keep the first
-        # producer, transfer the answer destination to it and rewrite downstream
-        # call-result edges. Transitions and conflicting answer destinations are
-        # deliberately excluded.
-        state_producers: dict[tuple[Any, ...], str] = {}
         transferred_return_bindings: dict[str, dict[str, SemanticRef]] = {}
-        for call in plan.calls:
-            if call.call_id in aliases:
-                continue
-            item = reconciled_by_id.get(call.call_id)
-            capability = catalog.get(call.capability_id)
-            if (
-                item is None
-                or capability is None
-                or not _can_produce_reusable_object_state(call, item, capability)
-            ):
-                continue
-            signature = _resolved_object_state_signature(
-                item,
-                capability=capability,
-            )
-            previous_id = state_producers.get(signature)
-            if previous_id is None:
-                state_producers[signature] = call.call_id
-                continue
-            answer_bindings = _answer_return_bindings(call)
-            if answer_bindings:
-                previous_call = call_by_id.get(previous_id)
-                previous = reconciled_by_id.get(previous_id)
-                if (
-                    previous_call is None
-                    or previous is None
-                    or not _can_transfer_answer_bindings(
-                        previous_call,
-                        call,
-                        answer_bindings=answer_bindings,
-                        transferred=transferred_return_bindings.get(previous_id, {}),
-                    )
-                ):
-                    state_producers[signature] = call.call_id
-                    continue
-            elif not _is_redundant_existing_object_call(call):
-                continue
-            previous = reconciled_by_id.get(previous_id)
-            if previous is None:
-                state_producers[signature] = call.call_id
-                continue
-            candidate_scopes = (
-                *groups.get(previous_id, (previous_id,)),
-                *groups.get(call.call_id, (call.call_id,)),
-            )
-            if not _returns_visible_in_declared_scopes(
-                previous.returns,
-                tuple(source_scopes[item_id] for item_id in candidate_scopes),
-                registry=handle_registry,
-            ):
-                continue
-            previous_call = call_by_id.get(previous_id)
-            if previous_call is None:
-                state_producers[signature] = call.call_id
-                continue
-            expectation_owner = replace(
-                previous_call,
-                return_expectations=transferred_return_expectations.get(
-                    previous_id,
-                    previous_call.return_expectations,
-                ),
-            )
-            merged_expectations = _merged_return_expectations(
-                expectation_owner,
-                call,
-            )
-            if merged_expectations is None:
-                # Distinct derivation paths that target the same MathObject may
-                # represent successive open/closed versions. Conflicting forms
-                # disprove reuse here; keep both calls so runtime provenance can
-                # verify the transition. Exact duplicate calls were already
-                # handled by the resolved-call signature above.
-                state_producers[signature] = call.call_id
-                continue
-            elif answer_bindings:
-                transferred_return_bindings.setdefault(previous_id, {}).update(
-                    answer_bindings
-                )
-                reconciled_by_id[previous_id] = _transfer_answer_allocations(
-                    previous,
-                    item,
-                    answer_bindings=answer_bindings,
-                )
-            if merged_expectations is not None:
-                transferred_return_expectations[previous_id] = merged_expectations
-            aliases[call.call_id] = previous_id
-            aliases = _canonical_aliases(aliases)
-            groups.setdefault(previous_id, (previous_id,))
-            groups[previous_id] = tuple(
-                dict.fromkeys(
-                    (
-                        *groups[previous_id],
-                        *groups.pop(call.call_id, (call.call_id,)),
-                    )
-                )
-            )
-            repairs.append(
-                FunctionalDeterministicRepair(
-                    call.call_id,
-                    (
-                        "isolate_conflicting_equivalent_call"
-                        if merged_expectations is None
-                        else (
-                            "reuse_existing_state_for_answer"
-                            if answer_bindings
-                            else "merge_redundant_existing_state_call"
-                        )
-                    ),
-                    call.call_id,
-                    previous_id,
-                )
-            )
+        (
+            aliases,
+            groups,
+            reconciled_by_id,
+            typed_identity_keys,
+            typed_repairs,
+            typed_issues,
+            transferred_return_bindings,
+            transferred_return_expectations,
+        ) = _canonicalize_typed_calls(
+            plan,
+            source_scopes=source_scopes,
+            reconciled_by_id=reconciled_by_id,
+            catalog=catalog,
+            aliases=aliases,
+            groups=groups,
+            handle_registry=handle_registry,
+        )
+        repairs.extend(typed_repairs)
+        issues.extend(typed_issues)
 
         aliases = _canonical_aliases(aliases)
         plan = _apply_transferred_return_bindings(
@@ -491,16 +257,39 @@ class FunctionalCallPlacementService:
                 scopes_by_return[allocation.return_name] = proposed
             return_scopes[call.call_id] = scopes_by_return
 
-        final_calls = _reallocate_calls(
+        materialized_calls = _project_placed_calls(
             canonical_plan,
             reconciled=canonical_reconciled,
             aliases=aliases,
             execution_scopes=provisional_execution_scopes,
             return_scopes=return_scopes,
             catalog=catalog,
-            handle_registry=handle_registry,
             semantic_items=semantic_items,
         )
+        version_rewrites: tuple[StateVersionPlacementRewrite, ...] = ()
+        if (
+            placement_mode == "authoritative"
+            and identity_factory is not None
+            and base_identity_index is not None
+            and allocation_service is not None
+        ):
+            (
+                final_calls,
+                version_rewrites,
+                typed_finalization_issues,
+            ) = _finalize_typed_allocations(
+                canonical_plan,
+                reconciled=materialized_calls,
+                catalog=catalog,
+                execution_scopes=provisional_execution_scopes,
+                return_scopes=return_scopes,
+                identity_factory=identity_factory,
+                identity_index=base_identity_index.clone(),
+                allocation_service=allocation_service,
+            )
+            issues.extend(typed_finalization_issues)
+        else:
+            final_calls = materialized_calls
         issues.extend(
             _post_placement_scope_issues(
                 final_calls,
@@ -530,6 +319,61 @@ class FunctionalCallPlacementService:
             for call in canonical_plan.calls
             if call.call_id in final_by_id
         )
+        rewrites_by_call = _version_rewrites_by_call(
+            final_calls,
+            version_rewrites,
+        )
+        typed_decisions = tuple(
+            TypedCallPlacementDecision(
+                canonical_call_id=call.call_id,
+                alias_call_ids=tuple(
+                    item_id
+                    for item_id in groups.get(call.call_id, ())
+                    if item_id != call.call_id
+                ),
+                identity_key=(
+                    _typed_call_identity_key(
+                        final_by_id[call.call_id],
+                        capability=catalog.items[call.capability_id],
+                        aliases=aliases,
+                    )
+                    or typed_identity_keys[call.call_id]
+                ),
+                declared_scope_ids=tuple(
+                    source_scopes[item_id]
+                    for item_id in groups.get(
+                        call.call_id,
+                        (call.call_id,),
+                    )
+                ),
+                execution_scope_id=provisional_execution_scopes[
+                    call.call_id
+                ],
+                return_scope_ids=return_scopes.get(call.call_id, {}),
+                version_rewrites=rewrites_by_call.get(call.call_id, ()),
+                reason_code="typed_identity_placement",
+            )
+            for call in canonical_plan.calls
+            if call.call_id in final_by_id
+            and call.call_id in typed_identity_keys
+        )
+        placement_mismatches = _typed_placement_mismatches(
+            final_calls,
+            decisions=typed_decisions,
+            registry=handle_registry,
+        )
+        if placement_mode == "authoritative":
+            issues.extend(
+                _issue(
+                    "functional_reconciliation",
+                    "planner.state_placement_drift",
+                    item["message"],
+                    call_id=item["call_id"],
+                    scope_id=item.get("execution_scope_id"),
+                    details=item,
+                )
+                for item in placement_mismatches
+            )
         placement_by_id = {item.canonical_call_id: item for item in placements}
         for placement in placements:
             if placement.execution_scope_id != placement.declared_scope_id:
@@ -562,6 +406,8 @@ class FunctionalCallPlacementService:
             aliases=aliases,
             repairs=tuple(repairs),
             issues=tuple(issues),
+            typed_decisions=typed_decisions,
+            mismatches=placement_mismatches,
         )
 
 
@@ -569,24 +415,350 @@ def _is_shareable(
     call: FunctionalCall,
     capability: FunctionalCapability,
 ) -> bool:
-    if _has_answer_binding(call):
-        return False
     if not capability.is_pure:
         return False
     return not any(item.runtime_type == "Condition" for item in capability.returns)
 
 
-_OBJECT_BINDING_KINDS = {
-    "point",
-    "line",
-    "segment",
-    "ray",
-    "function",
-    "symbol",
-    "angle",
-    "circle",
-    "polygon",
-}
+def _canonicalize_typed_calls(
+    plan: FunctionalPlan,
+    *,
+    source_scopes: Mapping[str, str],
+    reconciled_by_id: Mapping[str, FunctionalCallReconciliation],
+    catalog: FunctionalCapabilityCatalog,
+    aliases: Mapping[str, str],
+    groups: Mapping[str, tuple[str, ...]],
+    handle_registry: CanonicalHandleRegistry,
+) -> tuple[
+    dict[str, str],
+    dict[str, tuple[str, ...]],
+    dict[str, FunctionalCallReconciliation],
+    dict[str, FunctionalCallIdentityKey],
+    tuple[FunctionalDeterministicRepair, ...],
+    tuple[FunctionalPlanIssue, ...],
+    dict[str, dict[str, SemanticRef]],
+    dict[str, dict[str, str]],
+]:
+    """Merge calls only when B1 typed computation and effects are identical."""
+
+    aliases = _canonical_aliases(dict(aliases))
+    groups = dict(groups)
+    reconciled_by_id = dict(reconciled_by_id)
+    call_by_id = {call.call_id: call for call in plan.calls}
+    owners_by_key: dict[FunctionalCallIdentityKey, list[str]] = {}
+    keys_by_call: dict[str, FunctionalCallIdentityKey] = {}
+    repairs: list[FunctionalDeterministicRepair] = []
+    issues: list[FunctionalPlanIssue] = []
+    transferred_bindings: dict[str, dict[str, SemanticRef]] = {}
+    transferred_expectations: dict[str, dict[str, str]] = {}
+
+    for call in plan.calls:
+        if call.call_id in aliases:
+            continue
+        item = reconciled_by_id.get(call.call_id)
+        capability = catalog.get(call.capability_id)
+        if item is None or capability is None:
+            continue
+        identity_key = _typed_call_identity_key(
+            item,
+            capability=capability,
+            aliases=aliases,
+        )
+        if identity_key is None:
+            continue
+        keys_by_call[call.call_id] = identity_key
+        if not _is_shareable(call, capability):
+            continue
+        owner_ids = owners_by_key.setdefault(identity_key, [])
+        if not owner_ids:
+            owner_ids.append(call.call_id)
+            continue
+        binding_conflicts: list[FunctionalCall] = []
+        merged_into_owner = False
+        for previous_id in tuple(owner_ids):
+            previous = reconciled_by_id.get(previous_id)
+            previous_call = call_by_id.get(previous_id)
+            if previous is None or previous_call is None:
+                continue
+            effective_previous_call = replace(
+                previous_call,
+                return_bindings={
+                    **previous_call.return_bindings,
+                    **transferred_bindings.get(previous_id, {}),
+                },
+            )
+            merged_bindings = _merged_return_bindings(
+                effective_previous_call,
+                call,
+                transferred={},
+            )
+            if merged_bindings is None:
+                binding_conflicts.append(effective_previous_call)
+                continue
+            candidate_members = tuple(
+                dict.fromkeys(
+                    (
+                        *groups.get(previous_id, (previous_id,)),
+                        *groups.get(call.call_id, (call.call_id,)),
+                    )
+                )
+            )
+            candidate_scope = _least_common_scope(
+                tuple(source_scopes[item_id] for item_id in candidate_members),
+                handle_registry,
+            )
+            if not _inputs_shareable_at_scope(
+                (*previous.resolved_args.values(), *item.resolved_args.values()),
+                candidate_scope,
+                aliases=aliases,
+                groups=groups,
+                source_scopes=source_scopes,
+                registry=handle_registry,
+            ):
+                continue
+
+            expectation_owner = replace(
+                previous_call,
+                return_expectations=transferred_expectations.get(
+                    previous_id,
+                    previous_call.return_expectations,
+                ),
+            )
+            merged_expectations = _merged_return_expectations(
+                expectation_owner,
+                call,
+            )
+            if merged_expectations is None:
+                issues.append(
+                    _return_expectation_conflict_issue(
+                        expectation_owner,
+                        call,
+                    )
+                )
+            else:
+                transferred_expectations[previous_id] = merged_expectations
+
+            effective_previous_bindings = (
+                effective_previous_call.return_bindings
+            )
+            changed_bindings = {
+                return_name: binding
+                for return_name, binding in merged_bindings.items()
+                if effective_previous_bindings.get(return_name) != binding
+            }
+            if changed_bindings:
+                transferred_bindings[previous_id] = merged_bindings
+                reconciled_by_id[previous_id] = _transfer_return_allocations(
+                    previous,
+                    item,
+                    transferred_bindings=changed_bindings,
+                )
+            transferred_answer = any(
+                binding.kind == "answer"
+                for binding in changed_bindings.values()
+            )
+
+            aliases[call.call_id] = previous_id
+            aliases = _canonical_aliases(aliases)
+            groups.setdefault(previous_id, (previous_id,))
+            groups[previous_id] = candidate_members
+            groups.pop(call.call_id, None)
+            repairs.append(
+                FunctionalDeterministicRepair(
+                    call.call_id,
+                    (
+                        "reuse_existing_state_for_answer"
+                        if transferred_answer
+                        else (
+                            "merge_typed_equivalent_call"
+                            if merged_expectations is not None
+                            else "merge_typed_call_with_expectation_conflict"
+                        )
+                    ),
+                    call.call_id,
+                    previous_id,
+                )
+            )
+            merged_into_owner = True
+            break
+
+        if merged_into_owner:
+            continue
+        owner_ids.append(call.call_id)
+        if binding_conflicts:
+            issues.append(
+                _return_binding_conflict_issue(
+                    tuple(binding_conflicts),
+                    call,
+                )
+            )
+
+    return (
+        aliases,
+        groups,
+        reconciled_by_id,
+        keys_by_call,
+        tuple(repairs),
+        tuple(issues),
+        transferred_bindings,
+        transferred_expectations,
+    )
+
+
+def _typed_call_identity_key(
+    reconciliation: FunctionalCallReconciliation,
+    *,
+    capability: FunctionalCapability,
+    aliases: Mapping[str, str] | None = None,
+) -> FunctionalCallIdentityKey | None:
+    computation_keys = {
+        _canonicalize_computation_key(
+            item.computation_key,
+            aliases=aliases or {},
+        )
+        for item in reconciliation.returns
+        if item.computation_key is not None
+    }
+    if len(computation_keys) != 1:
+        return None
+    state_effect_key = _state_effect_key_for_returns(
+        reconciliation.returns,
+        capability=capability,
+    )
+    if state_effect_key is None:
+        return None
+    return FunctionalCallIdentityKey(
+        computation_key=next(iter(computation_keys)),
+        state_effect_key=state_effect_key,
+    )
+
+
+def _state_effect_key_for_returns(
+    returns: Sequence[FunctionalReturnAllocation],
+    *,
+    capability: FunctionalCapability,
+    logical_keys: Mapping[str, LogicalStateKey | None] | None = None,
+) -> StateEffectKey | None:
+    """Build one call effect from the returns actually materialized."""
+
+    specs = {item.name: item for item in capability.returns}
+    effects: list[LogicalReturnEffect] = []
+    for item in returns:
+        spec = specs.get(item.return_name)
+        if spec is None:
+            return None
+        effects.append(
+            LogicalReturnEffect(
+                return_name=spec.equivalent_to or item.return_name,
+                logical_key=(
+                    logical_keys.get(item.return_name)
+                    if logical_keys is not None
+                    else item.logical_state_key
+                ),
+                identity_policy=spec.identity_policy,
+                write_mode=spec.write_mode,
+            )
+        )
+    return StateEffectKey(tuple(effects))
+
+
+def _canonicalize_computation_key(
+    key: ComputationKey | None,
+    *,
+    aliases: Mapping[str, str],
+) -> ComputationKey | None:
+    if key is None or not aliases:
+        return key
+    bindings = []
+    for binding in key.arg_bindings:
+        call_result_id = binding.call_result_id
+        if call_result_id is not None and "." in call_result_id:
+            call_id, return_name = call_result_id.split(".", 1)
+            call_result_id = (
+                f"{_canonical(call_id, aliases)}.{return_name}"
+            )
+        bindings.append(
+            replace(binding, call_result_id=call_result_id)
+        )
+    return replace(key, arg_bindings=tuple(bindings))
+
+
+def _merged_return_bindings(
+    previous: FunctionalCall,
+    duplicate: FunctionalCall,
+    *,
+    transferred: Mapping[str, SemanticRef],
+) -> dict[str, SemanticRef] | None:
+    merged = {
+        **previous.return_bindings,
+        **transferred,
+    }
+    for return_name in set(previous.return_bindings) | set(
+        duplicate.return_bindings
+    ):
+        left = merged.get(return_name)
+        right = duplicate.return_bindings.get(return_name)
+        if left is None or right is None or left == right:
+            if left is None and right is not None:
+                merged[return_name] = right
+            continue
+        if left.kind == "answer" and right.kind == "answer":
+            return None
+        if left.kind != "answer" and right.kind != "answer":
+            return None
+        if right.kind == "answer":
+            merged[return_name] = right
+    return merged
+
+
+def _return_binding_conflict_issue(
+    previous_calls: tuple[FunctionalCall, ...],
+    duplicate: FunctionalCall,
+) -> FunctionalPlanIssue:
+    conflicts = []
+    for previous in previous_calls:
+        conflicting_returns = []
+        for return_name in sorted(
+            set(previous.return_bindings) & set(duplicate.return_bindings)
+        ):
+            left = previous.return_bindings[return_name]
+            right = duplicate.return_bindings[return_name]
+            if left == right:
+                continue
+            if (
+                left.kind == "answer"
+                and right.kind != "answer"
+            ) or (
+                left.kind != "answer"
+                and right.kind == "answer"
+            ):
+                continue
+            conflicting_returns.append(
+                {
+                    "return_name": return_name,
+                    "existing": left.to_payload(),
+                    "incoming": right.to_payload(),
+                }
+            )
+        if conflicting_returns:
+            conflicts.append(
+                {
+                    "call_id": previous.call_id,
+                    "returns": conflicting_returns,
+                }
+            )
+    return _issue(
+        "functional_reconciliation",
+        "functional.return_binding_conflict",
+        (
+            f"equivalent call {duplicate.call_id} declares return destinations "
+            "that conflict with an existing typed computation cluster"
+        ),
+        call_id=duplicate.call_id,
+        details={
+            "conflicting_calls": conflicts,
+        },
+    )
 
 
 def _has_answer_binding(call: FunctionalCall) -> bool:
@@ -595,74 +767,11 @@ def _has_answer_binding(call: FunctionalCall) -> bool:
     )
 
 
-def _can_produce_reusable_object_state(
-    call: FunctionalCall,
-    reconciliation: FunctionalCallReconciliation,
-    capability: FunctionalCapability,
-) -> bool:
-    if (
-        capability.kind != "function"
-        or not capability.is_pure
-        or not reconciliation.returns
-    ):
-        return False
-    return all(
-        item.runtime_type != "Condition"
-        and item.write_mode != "transition"
-        and item.object_ref is not None
-        and bool(item.state_slot_id)
-        for item in reconciliation.returns
-    )
-
-
-def _is_redundant_existing_object_call(call: FunctionalCall) -> bool:
-    return bool(call.return_bindings) and all(
-        binding.kind in _OBJECT_BINDING_KINDS
-        for binding in call.return_bindings.values()
-    )
-
-
-def _answer_return_bindings(call: FunctionalCall) -> dict[str, SemanticRef]:
-    return {
-        name: binding
-        for name, binding in call.return_bindings.items()
-        if binding.kind == "answer"
-    }
-
-
-def _can_transfer_answer_bindings(
-    previous: FunctionalCall,
-    duplicate: FunctionalCall,
-    *,
-    answer_bindings: Mapping[str, SemanticRef],
-    transferred: Mapping[str, SemanticRef],
-) -> bool:
-    """Return whether one producer can carry the duplicate's answer binding.
-
-    One return role has one external destination in FunctionalPlan v1. Replacing
-    an existing object binding is safe because the reconciled StateSlot identity
-    has already proved that both calls write the same object state. Two distinct
-    answers for the same role stay as separate calls until the wire format gains
-    an explicit multi-destination answer projection.
-    """
-    if not answer_bindings:
-        return False
-    for return_name, answer in answer_bindings.items():
-        current = transferred.get(return_name) or previous.return_bindings.get(
-            return_name
-        )
-        if current is not None and current.kind == "answer" and current != answer:
-            return False
-        if return_name not in duplicate.return_bindings:
-            return False
-    return True
-
-
-def _transfer_answer_allocations(
+def _transfer_return_allocations(
     previous: FunctionalCallReconciliation,
     duplicate: FunctionalCallReconciliation,
     *,
-    answer_bindings: Mapping[str, SemanticRef],
+    transferred_bindings: Mapping[str, SemanticRef],
 ) -> FunctionalCallReconciliation:
     duplicate_returns = {item.return_name: item for item in duplicate.returns}
     return replace(
@@ -675,7 +784,7 @@ def _transfer_answer_allocations(
                 free_symbol_refs=item.free_symbol_refs,
                 source_state_slot_ids=item.source_state_slot_ids,
             )
-            if item.return_name in answer_bindings
+            if item.return_name in transferred_bindings
             and item.return_name in duplicate_returns
             else item
             for item in previous.returns
@@ -775,171 +884,6 @@ def _return_expectation_conflict_issue(
     )
 
 
-def _resolved_object_state_signature(
-    reconciliation: FunctionalCallReconciliation,
-    *,
-    capability: FunctionalCapability,
-) -> tuple[Any, ...]:
-    """Identify an already-materialized logical object state.
-
-    Different pure derivations may reach one authoritative MathObject state.
-    Closure and lineage remain part of the proof; the caller additionally
-    refuses reuse when the calls declare conflicting open/closed forms.
-    """
-    returns_by_name = {item.name: item for item in capability.returns}
-    return (
-        tuple(
-            (
-                item.return_name,
-                item.runtime_type,
-                item.object_ref,
-                (
-                    returns_by_name[item.return_name].state_kind
-                    if item.return_name in returns_by_name
-                    else None
-                ),
-                item.identity_policy,
-                item.write_mode,
-                item.computation_key,
-                tuple(sorted(item.free_symbol_refs)),
-                tuple(sorted(item.lineage.semantic_roles)),
-                tuple(sorted(item.lineage.evidence_tags)),
-            )
-            for item in reconciliation.returns
-        ),
-    )
-
-
-def _wire_call_signature(call: FunctionalCall) -> tuple[Any, ...]:
-    return (
-        call.capability_id,
-        tuple(
-            sorted(
-                (
-                    name,
-                    tuple(
-                        tuple(sorted(ref.to_payload().items()))
-                        for ref in refs
-                    ),
-                )
-                for name, refs in call.args.items()
-            )
-        ),
-        tuple(
-            sorted(
-                (name, tuple(sorted(binding.to_payload().items())))
-                for name, binding in call.return_bindings.items()
-            )
-        ),
-    )
-
-
-def _wire_inputs_visible_at_scope(
-    call: FunctionalCall,
-    scope_id: str,
-    *,
-    capability: Any,
-    semantic_index: FunctionalSemanticIndex,
-) -> bool:
-    args = {item.name: item for item in capability.args}
-    for name, refs in call.args.items():
-        arg = args.get(name)
-        if arg is None:
-            return False
-        for ref in refs:
-            if isinstance(ref, CallResultRef):
-                continue
-            resolved, _ = semantic_index.resolve(
-                ref,
-                scope_id=scope_id,
-                accepted_types=arg.accepted_item_types or (arg.runtime_type,),
-                accepted_condition_kinds=arg.accepted_condition_kinds,
-            )
-            if resolved is None:
-                return False
-    return True
-
-
-def _resolved_call_signature(
-    call: FunctionalCall,
-    reconciliation: FunctionalCallReconciliation,
-    *,
-    aliases: Mapping[str, str],
-) -> tuple[Any, ...]:
-    return (
-        call.capability_id,
-        tuple(
-            sorted(
-                (
-                    name,
-                    tuple(_value_fingerprint(value, aliases=aliases) for value in values),
-                )
-                for name, values in reconciliation.resolved_args.items()
-            )
-        ),
-        tuple(
-            sorted(
-                (name, binding.kind, binding.ref, binding.value_type)
-                for name, binding in call.return_bindings.items()
-            )
-        ),
-        tuple(
-            (
-                item.return_name,
-                item.runtime_type,
-                item.object_ref,
-                item.identity_policy,
-                item.write_mode,
-            )
-            for item in reconciliation.returns
-        ),
-    )
-
-
-def _value_fingerprint(
-    value: ResolvedFunctionalValue,
-    *,
-    aliases: Mapping[str, str],
-) -> tuple[Any, ...]:
-    if value.source_call_id is not None:
-        return (
-            "call_result",
-            _canonical(value.source_call_id, aliases),
-            value.return_name,
-            value.runtime_type,
-            value.object_ref,
-        )
-    if value.condition_id is not None:
-        return (
-            "condition",
-            value.condition_id,
-            value.runtime_type,
-            value.object_ref,
-        )
-    if value.state_slot_id is not None:
-        return (
-            "state_slot",
-            value.state_slot_id,
-            value.handle,
-            value.runtime_type,
-            value.object_ref,
-            value.source_state_slot_ids,
-        )
-    if value.object_ref is not None:
-        return (
-            "object_ref",
-            value.object_ref,
-            value.runtime_type,
-        )
-    return (
-        "handle",
-        value.handle,
-        value.runtime_type,
-        value.object_ref,
-        value.dependency_object_refs,
-    )
-
-
 def _inputs_shareable_at_scope(
     value_groups: Sequence[tuple[ResolvedFunctionalValue, ...]],
     scope_id: str,
@@ -969,30 +913,6 @@ def _inputs_shareable_at_scope(
             ):
                 return False
     return True
-
-
-def _returns_visible_in_declared_scopes(
-    returns: Sequence[FunctionalReturnAllocation],
-    scope_ids: Sequence[str],
-    *,
-    registry: CanonicalHandleRegistry,
-) -> bool:
-    """Prove that a prior object state can replace a later recomputation.
-
-    The duplicate call will not execute, so visibility of its own inputs is
-    irrelevant. The retained state itself must already be visible everywhere
-    the duplicate was declared; otherwise aliasing would create an unreadable
-    cross-scope dependency.
-    """
-    return all(
-        visible_from_valid_scope(
-            item.valid_scope,
-            scope_id=scope_id,
-            registry=registry,
-        )
-        for item in returns
-        for scope_id in scope_ids
-    )
 
 
 def _inputs_visible_at_scope(
@@ -1098,7 +1018,7 @@ def _close_execution_scope_dependencies(
     return result
 
 
-def _reallocate_calls(
+def _project_placed_calls(
     plan: FunctionalPlan,
     *,
     reconciled: Mapping[str, FunctionalCallReconciliation],
@@ -1106,9 +1026,10 @@ def _reallocate_calls(
     execution_scopes: Mapping[str, str],
     return_scopes: Mapping[str, Mapping[str, str]],
     catalog: FunctionalCapabilityCatalog,
-    handle_registry: CanonicalHandleRegistry,
     semantic_items: Sequence[SemanticReadCatalogItem],
 ) -> tuple[FunctionalCallReconciliation, ...]:
+    """Project final scopes to legacy handles without deciding typed identity."""
+
     semantic_by_ref = {(item.kind, item.ref): item for item in semantic_items}
     produced: dict[tuple[str, str], FunctionalReturnAllocation] = {}
     result: list[FunctionalCallReconciliation] = []
@@ -1135,17 +1056,7 @@ def _reallocate_calls(
                 if old.bound_ref is not None
                 else None
             )
-            object_ref = factory.object_ref_for(
-                call_id=call.call_id,
-                return_spec=spec,
-                valid_scope=valid_scope,
-                binding=binding,
-                resolved_args=resolved_args,
-                handle_registry=handle_registry,
-                sibling_returns=tuple(allocations),
-            )
-            if object_ref is None and old.object_ref is not None:
-                object_ref = _relocate_ref(old.object_ref, valid_scope)
+            object_ref = old.object_ref
             handle = factory.handle_for(
                 call_id=call.call_id,
                 return_spec=spec,
@@ -1219,6 +1130,382 @@ def _reallocate_calls(
     return tuple(result)
 
 
+def _finalize_typed_allocations(
+    plan: FunctionalPlan,
+    *,
+    reconciled: Sequence[FunctionalCallReconciliation],
+    catalog: FunctionalCapabilityCatalog,
+    execution_scopes: Mapping[str, str],
+    return_scopes: Mapping[str, Mapping[str, str]],
+    identity_factory: StateIdentityFactory,
+    identity_index: StateIdentityIndex,
+    allocation_service: StateAllocationService,
+) -> tuple[
+    tuple[FunctionalCallReconciliation, ...],
+    tuple[StateVersionPlacementRewrite, ...],
+    tuple[FunctionalPlanIssue, ...],
+]:
+    """Replay B1 allocation after canonicalization and final scope placement."""
+
+    reconciled_by_id = {item.call_id: item for item in reconciled}
+    produced: dict[tuple[str, str], FunctionalReturnAllocation] = {}
+    version_map: dict[StateVersionId, StateVersionId] = {}
+    rewrites: list[StateVersionPlacementRewrite] = []
+    issues: list[FunctionalPlanIssue] = []
+    result: list[FunctionalCallReconciliation] = []
+
+    for call in plan.calls:
+        item = reconciled_by_id.get(call.call_id)
+        capability = catalog.get(call.capability_id)
+        if item is None or capability is None:
+            continue
+        scope_id = execution_scopes[call.call_id]
+        resolved_args = {
+            name: tuple(
+                _rewrite_resolved_value_versions(
+                    _rewrite_resolved_value(
+                        value,
+                        produced=produced,
+                        aliases={},
+                    ),
+                    version_map,
+                )
+                for value in values
+            )
+            for name, values in item.resolved_args.items()
+        }
+        computation_key = functional_computation_key(
+            call,
+            resolved_args=resolved_args,
+            scope_id=scope_id,
+            identity_factory=identity_factory,
+            identity_index=identity_index,
+        )
+        specs = {spec.name: spec for spec in capability.returns}
+        logical_keys = {
+            old.return_name: identity_factory.logical_key(
+                object_ref=old.object_ref,
+                state_kind=specs[old.return_name].state_kind,
+                runtime_type=specs[old.return_name].runtime_type,
+            )
+            for old in item.returns
+            if old.return_name in specs
+        }
+        state_effect_key = _state_effect_key_for_returns(
+            item.returns,
+            capability=capability,
+            logical_keys=logical_keys,
+        )
+        if state_effect_key is None:
+            issues.append(
+                _issue(
+                    "functional_reconciliation",
+                    "planner.state_placement_drift",
+                    (
+                        "final typed allocation cannot rebuild the declared "
+                        f"return effect for {call.call_id}"
+                    ),
+                    call_id=call.call_id,
+                    scope_id=scope_id,
+                    details={
+                        "reason_code": "return_effect_spec_missing",
+                        "returns": [
+                            old.return_name for old in item.returns
+                        ],
+                    },
+                )
+            )
+            continue
+        source_version_ids = tuple(
+            _rewrite_version_id(version_id, version_map)
+            for version_id in functional_source_version_ids(
+                resolved_args,
+                scope_id=scope_id,
+                identity_index=identity_index,
+            )
+        )
+        allocations: list[FunctionalReturnAllocation] = []
+        for old in item.returns:
+            spec = specs.get(old.return_name)
+            if spec is None:
+                continue
+            valid_scope = return_scopes[call.call_id][old.return_name]
+            math_object_id = identity_factory.object_id(old.object_ref)
+            runtime_destination = (
+                RuntimeDestinationKey(
+                    math_object_id,
+                    spec.state_kind,
+                    spec.runtime_type,
+                )
+                if math_object_id is not None
+                else None
+            )
+            request = StateAllocationRequest(
+                call_id=call.call_id,
+                capability_id=call.capability_id,
+                return_name=old.return_name,
+                object_id=math_object_id,
+                state_kind=spec.state_kind,
+                runtime_type=spec.runtime_type,
+                storage_scope_id=valid_scope,
+                valid_scope_id=valid_scope,
+                requested_write_mode=spec.write_mode,
+                identity_policy=spec.identity_policy,
+                is_shareable=capability.is_pure,
+                computation_key=computation_key,
+                state_effect_key=state_effect_key,
+                source_version_ids=source_version_ids,
+                free_symbol_refs=old.free_symbol_refs,
+                runtime_destination=runtime_destination,
+                result_form=call.return_expectations.get(old.return_name),
+            )
+            decision = allocation_service.allocate(request, identity_index)
+            if decision.action == "conflict":
+                issues.append(
+                    _issue(
+                        "functional_reconciliation",
+                        "planner.state_placement_drift",
+                        (
+                            "typed allocation changed after call placement: "
+                            f"{call.call_id}.{old.return_name}"
+                        ),
+                        call_id=call.call_id,
+                        scope_id=scope_id,
+                        details={
+                            "return": old.return_name,
+                            "reason_code": decision.reason_code,
+                            "conflict_code": decision.conflict_code,
+                        },
+                    )
+                )
+            selected_version_id = decision.selected_version_id
+            if (
+                old.selected_version_id is not None
+                and selected_version_id is not None
+                and old.selected_version_id != selected_version_id
+            ):
+                version_map[old.selected_version_id] = selected_version_id
+                rewrites.append(
+                    StateVersionPlacementRewrite(
+                        old.selected_version_id,
+                        selected_version_id,
+                    )
+                )
+            effective_write_mode = old.write_mode
+            if decision.action in {"create", "isolated"}:
+                effective_write_mode = "create"
+            elif decision.action == "transition":
+                effective_write_mode = "transition"
+            state_slot_id = (
+                identity_factory.legacy_slot_id(decision.selected_slot_id)
+                if decision.selected_slot_id is not None
+                else old.state_slot_id
+            )
+            allocation = replace(
+                old,
+                valid_scope=valid_scope,
+                state_slot_id=state_slot_id,
+                write_mode=effective_write_mode,
+                math_object_id=math_object_id,
+                logical_state_key=decision.logical_state_key,
+                typed_slot_id=decision.selected_slot_id,
+                selected_version_id=selected_version_id,
+                previous_version_id=decision.previous_version_id,
+                computation_key=computation_key,
+                source_version_ids=source_version_ids,
+                allocation_action=decision.action,
+                canonical_producer_call_id=decision.canonical_producer_call_id,
+                allocation_reason_code=decision.reason_code,
+                allocation_conflict_code=decision.conflict_code,
+                transition_kind=decision.transition_kind,
+                previous_write_step_id=decision.previous_producer_call_id,
+            )
+            allocations.append(allocation)
+            produced[(call.call_id, old.return_name)] = allocation
+            indexed = allocation_service.indexed_version(
+                request,
+                decision,
+                produced_handle=allocation.state_handle or allocation.handle,
+            )
+            if indexed is not None:
+                identity_index.register(
+                    indexed,
+                    legacy_slot_id=state_slot_id,
+                )
+        allocations = list(
+            project_sibling_symbol_dependencies(
+                tuple(specs.values()),
+                tuple(allocations),
+                capability_id=call.capability_id,
+            )
+        )
+        for allocation in allocations:
+            produced[(call.call_id, allocation.return_name)] = allocation
+        result.append(
+            replace(
+                item,
+                scope_id=scope_id,
+                resolved_args=resolved_args,
+                returns=tuple(allocations),
+            )
+        )
+    return tuple(result), tuple(rewrites), tuple(issues)
+
+
+def _rewrite_resolved_value_versions(
+    value: ResolvedFunctionalValue,
+    rewrites: Mapping[StateVersionId, StateVersionId],
+) -> ResolvedFunctionalValue:
+    version_id = value.state_version_id
+    if version_id is None:
+        return value
+    target = _rewrite_version_id(version_id, rewrites)
+    if target == version_id:
+        return value
+    return replace(
+        value,
+        state_version_id=target,
+        typed_slot_id=target.slot_id,
+        state_slot_id=StateIdentityFactory.legacy_slot_id(target.slot_id),
+    )
+
+
+def _rewrite_version_id(
+    version_id: StateVersionId,
+    rewrites: Mapping[StateVersionId, StateVersionId],
+) -> StateVersionId:
+    seen: set[StateVersionId] = set()
+    current = version_id
+    while current in rewrites and current not in seen:
+        seen.add(current)
+        current = rewrites[current]
+    return current
+
+
+def _version_rewrites_by_call(
+    calls: Sequence[FunctionalCallReconciliation],
+    rewrites: Sequence[StateVersionPlacementRewrite],
+) -> dict[str, tuple[StateVersionPlacementRewrite, ...]]:
+    call_by_target = {
+        allocation.selected_version_id: call.call_id
+        for call in calls
+        for allocation in call.returns
+        if allocation.selected_version_id is not None
+    }
+    result: dict[str, list[StateVersionPlacementRewrite]] = {}
+    for rewrite in rewrites:
+        call_id = call_by_target.get(rewrite.target_version_id)
+        if call_id is not None:
+            result.setdefault(call_id, []).append(rewrite)
+    return {key: tuple(value) for key, value in result.items()}
+
+
+def _typed_placement_mismatches(
+    calls: Sequence[FunctionalCallReconciliation],
+    *,
+    decisions: Sequence[TypedCallPlacementDecision],
+    registry: CanonicalHandleRegistry,
+) -> tuple[dict[str, Any], ...]:
+    """Audit final allocations against their authoritative placement."""
+
+    decision_by_call = {
+        item.canonical_call_id: item for item in decisions
+    }
+    mismatches: list[dict[str, Any]] = []
+    for call in calls:
+        decision = decision_by_call.get(call.call_id)
+        if decision is None:
+            mismatches.append(
+                {
+                    "call_id": call.call_id,
+                    "reason_code": "typed_placement_decision_missing",
+                    "message": (
+                        "final canonical call has no typed placement decision"
+                    ),
+                    "execution_scope_id": call.scope_id,
+                }
+            )
+            continue
+        if call.scope_id != decision.execution_scope_id:
+            mismatches.append(
+                {
+                    "call_id": call.call_id,
+                    "reason_code": "execution_scope_drift",
+                    "message": (
+                        "final call scope differs from typed placement"
+                    ),
+                    "execution_scope_id": decision.execution_scope_id,
+                    "actual_scope_id": call.scope_id,
+                }
+            )
+        for allocation in call.returns:
+            expected_scope = decision.return_scope_ids.get(
+                allocation.return_name
+            )
+            if expected_scope != allocation.valid_scope:
+                mismatches.append(
+                    {
+                        "call_id": call.call_id,
+                        "return": allocation.return_name,
+                        "reason_code": "return_scope_drift",
+                        "message": (
+                            "final return scope differs from typed placement"
+                        ),
+                        "execution_scope_id": decision.execution_scope_id,
+                        "expected_scope_id": expected_scope,
+                        "actual_scope_id": allocation.valid_scope,
+                    }
+                )
+            if (
+                allocation.typed_slot_id is not None
+                and allocation.typed_slot_id.storage_scope_id
+                != allocation.valid_scope
+            ):
+                mismatches.append(
+                    {
+                        "call_id": call.call_id,
+                        "return": allocation.return_name,
+                        "reason_code": "slot_scope_drift",
+                        "message": (
+                            "typed StateSlot storage scope differs from "
+                            "return valid scope"
+                        ),
+                        "execution_scope_id": decision.execution_scope_id,
+                        "slot_scope_id": (
+                            allocation.typed_slot_id.storage_scope_id
+                        ),
+                        "return_scope_id": allocation.valid_scope,
+                    }
+                )
+        for arg_name, values in call.resolved_args.items():
+            for value in values:
+                if visible_from_valid_scope(
+                    value.valid_scope,
+                    scope_id=call.scope_id,
+                    registry=registry,
+                ):
+                    continue
+                mismatches.append(
+                    {
+                        "call_id": call.call_id,
+                        "arg": arg_name,
+                        "reason_code": "input_version_not_visible",
+                        "message": (
+                            "typed input StateVersion is not visible at the "
+                            "final execution scope"
+                        ),
+                        "execution_scope_id": call.scope_id,
+                        "input_valid_scope_id": value.valid_scope,
+                        "state_version_id": (
+                            value.state_version_id.to_payload()
+                            if value.state_version_id is not None
+                            else None
+                        ),
+                    }
+                )
+    return tuple(mismatches)
+
+
 def _rewrite_resolved_value(
     value: ResolvedFunctionalValue,
     *,
@@ -1263,9 +1550,14 @@ def _canonical_dependency_graph(
         call.call_id: index
         for index, call in enumerate(plan.calls)
     }
+    producers_by_version: dict[StateVersionId, str] = {}
     producers_by_slot: dict[str, list[str]] = {}
     for producer_id, item in reconciled.items():
         for allocation in item.returns:
+            if allocation.selected_version_id is not None:
+                producers_by_version[
+                    allocation.selected_version_id
+                ] = producer_id
             producers_by_slot.setdefault(
                 allocation.state_slot_id,
                 [],
@@ -1300,7 +1592,33 @@ def _canonical_dependency_graph(
                 producer_id
                 for values in item.resolved_args.values()
                 for value in values
+                if value.state_version_id is not None
+                if (
+                    producer_id := producers_by_version.get(
+                        value.state_version_id
+                    )
+                )
+                is not None
+            )
+            dependencies.extend(
+                producer_id
+                for allocation in item.returns
+                for version_id in (
+                    (allocation.previous_version_id,)
+                    if allocation.previous_version_id is not None
+                    else ()
+                )
+                if (
+                    producer_id := producers_by_version.get(version_id)
+                )
+                is not None
+            )
+            dependencies.extend(
+                producer_id
+                for values in item.resolved_args.values()
+                for value in values
                 if value.source_call_id is None
+                and value.state_version_id is None
                 for slot_id in (
                     *((value.state_slot_id,) if value.state_slot_id else ()),
                     *value.source_state_slot_ids,
@@ -1466,15 +1784,6 @@ def _answer_target_object_scopes(
         if target_scope != "problem":
             scopes.append(target_scope)
     return tuple(dict.fromkeys(scopes))
-
-
-def _relocate_ref(value: str, scope_id: str) -> str:
-    if "@" in value:
-        return value.rsplit("@", 1)[0] + f"@{scope_id}"
-    parts = value.split(":", 2)
-    if len(parts) == 3:
-        return f"{parts[0]}:{scope_id}:{parts[2]}"
-    return value
 
 
 def _argument_dependencies(

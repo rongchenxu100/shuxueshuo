@@ -353,13 +353,14 @@ def test_authored_functional_fixtures_have_zero_typed_identity_drift(
     )
     assert validation.ok and plan is not None
 
+    context = initial_planner_state_context(
+        inputs,
+        problem_payload=problem_payload,
+        handle_registry=registry,
+    )
     result = FunctionalPlanReconciler().reconcile(
         plan,
-        planner_state_context=initial_planner_state_context(
-            inputs,
-            problem_payload=problem_payload,
-            handle_registry=registry,
-        ),
+        planner_state_context=context,
         family_spec=inputs.family_spec,
         method_specs=inputs.method_specs,
         handle_registry=registry,
@@ -369,6 +370,25 @@ def test_authored_functional_fixtures_have_zero_typed_identity_drift(
     assert result.ok, [item.to_payload() for item in result.issues]
     assert result.identity_mismatches == ()
     assert result.state_identity_decisions
+    assert result.placement_mismatches == ()
+    assert result.state_placement_decisions
+    assert {
+        item["canonical_call_id"]
+        for item in result.state_placement_decisions
+    } == {call.call_id for call in result.plan.calls}
+    repeated = FunctionalPlanReconciler().reconcile(
+        plan,
+        planner_state_context=context,
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+    assert repeated.plan.to_payload() == result.plan.to_payload()
+    assert repeated.call_aliases == result.call_aliases
+    assert repeated.state_placement_decisions == (
+        result.state_placement_decisions
+    )
     assert all(
         allocation.logical_state_key is not None
         and allocation.typed_slot_id is not None
@@ -9120,25 +9140,414 @@ def test_reconciler_merges_compatible_result_expectations_only(
     )
 
 
-def test_call_placement_fingerprint_distinguishes_state_write_versions() -> None:
-    open_state = ResolvedFunctionalValue(
-        handle="fact:problem:B_parameterized_coordinate",
-        runtime_type="Point",
-        valid_scope="problem",
-        state_slot_id="point:problem:B.coordinate@problem",
-        object_ref="point:problem:B",
+def test_call_placement_identity_distinguishes_state_write_versions() -> None:
+    object_id = MathObjectId("point:problem:B", "point", "problem")
+    slot_id = StateSlotId(
+        LogicalStateKey(object_id, "coordinate", "Point"),
+        "problem",
     )
-    closed_state = replace(
-        open_state,
-        handle="fact:i_2:B_evaluated_coordinate",
+    open_key = ComputationKey(
+        "consume_point",
+        (
+            ArgVersionBinding(
+                "point",
+                0,
+                version_id=StateVersionId(slot_id, 1),
+            ),
+        ),
+    )
+    closed_key = ComputationKey(
+        "consume_point",
+        (
+            ArgVersionBinding(
+                "point",
+                0,
+                version_id=StateVersionId(slot_id, 2),
+            ),
+        ),
+    )
+    assert open_key != closed_key
+
+
+def test_typed_call_merge_unions_disjoint_return_bindings() -> None:
+    line_binding = SemanticRef(ref="guide", kind="line")
+    point_binding = SemanticRef(ref="target", kind="point")
+    previous_call = FunctionalCall(
+        call_id="first",
+        capability_id="multi_return",
+        args={},
+        return_bindings={"line": line_binding},
+        strategy="first projection",
+        reason="bind the line result",
+    )
+    duplicate_call = FunctionalCall(
+        call_id="second",
+        capability_id="multi_return",
+        args={},
+        return_bindings={"point": point_binding},
+        strategy="second projection",
+        reason="bind the point result",
     )
 
-    assert functional_call_placement_module._value_fingerprint(
-        open_state,
+    merged = functional_call_placement_module._merged_return_bindings(
+        previous_call,
+        duplicate_call,
+        transferred={},
+    )
+
+    assert merged == {
+        "line": line_binding,
+        "point": point_binding,
+    }
+    previous = FunctionalCallReconciliation(
+        call_id="first",
+        scope_id="ii",
+        capability_id="multi_return",
+        resolved_args={},
+        returns=(
+            FunctionalReturnAllocation(
+                call_id="first",
+                return_name="line",
+                handle="fact:ii:first_line",
+                runtime_type="Line",
+                valid_scope="ii",
+                state_slot_id="line:ii:guide.equation@ii:Line",
+                object_ref="line:ii:guide",
+                identity_policy="derived_role",
+                write_mode="create",
+                bound_ref=line_binding,
+            ),
+            FunctionalReturnAllocation(
+                call_id="first",
+                return_name="point",
+                handle="fact:ii:first_point",
+                runtime_type="Point",
+                valid_scope="ii",
+                state_slot_id="functional:ii:first:point",
+                object_ref=None,
+                identity_policy="derived_role",
+                write_mode="create",
+            ),
+        ),
+    )
+    duplicate = replace(
+        previous,
+        call_id="second",
+        returns=(
+            replace(previous.returns[0], call_id="second"),
+            replace(
+                previous.returns[1],
+                call_id="second",
+                handle="fact:ii:second_point",
+                state_slot_id="point:ii:target.coordinate@ii:Point",
+                object_ref="point:ii:target",
+                bound_ref=point_binding,
+            ),
+        ),
+    )
+
+    transferred = (
+        functional_call_placement_module._transfer_return_allocations(
+            previous,
+            duplicate,
+            transferred_bindings={"point": point_binding},
+        )
+    )
+
+    assert transferred.returns[0].bound_ref == line_binding
+    assert transferred.returns[1].bound_ref == point_binding
+    assert transferred.returns[1].call_id == "first"
+
+
+def test_typed_effect_key_uses_only_materialized_returns() -> None:
+    inputs = _base_inputs()
+    catalog = FunctionalCapabilityCatalog.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
+    )
+    capability = catalog.items["quadratic_from_constraints"]
+    parabola = FunctionalReturnAllocation(
+        call_id="build_curve",
+        return_name="parabola",
+        handle="fact:ii:parabola_expression",
+        runtime_type="Parabola",
+        valid_scope="ii",
+        state_slot_id="function:problem:parabola.expression@ii:Parabola",
+        object_ref="function:problem:parabola",
+        identity_policy="preserve_input_object",
+        write_mode="transition",
+        logical_state_key=LogicalStateKey(
+            MathObjectId(
+                "function:problem:parabola",
+                "function",
+                "problem",
+            ),
+            "expression",
+            "Parabola",
+        ),
+    )
+
+    merge_effect = (
+        functional_call_placement_module._state_effect_key_for_returns(
+            (parabola,),
+            capability=capability,
+        )
+    )
+    finalize_effect = (
+        functional_call_placement_module._state_effect_key_for_returns(
+            (parabola,),
+            capability=capability,
+            logical_keys={"parabola": parabola.logical_state_key},
+        )
+    )
+
+    assert merge_effect == finalize_effect
+    assert merge_effect is not None
+    assert [item.return_name for item in merge_effect.returns] == [
+        "parabola"
+    ]
+
+
+def _typed_quadratic_duplicate_graph(
+    *,
+    first_bindings: dict[str, SemanticRef] | None = None,
+    second_bindings: dict[str, SemanticRef] | None = None,
+    third_bindings: dict[str, SemanticRef] | None = None,
+    first_expectations: dict[str, str] | None = None,
+    second_expectations: dict[str, str] | None = None,
+):
+    inputs = _base_inputs()
+    catalog = FunctionalCapabilityCatalog.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
+    )
+    capability = catalog.items["quadratic_from_constraints"]
+    first_call = FunctionalCall(
+        call_id="build_curve_first",
+        capability_id=capability.capability_id,
+        args={},
+        return_bindings=first_bindings or {},
+        strategy="build the curve",
+        reason="first projection",
+        return_expectations=first_expectations or {},
+    )
+    second_call = FunctionalCall(
+        call_id="build_curve_second",
+        capability_id=capability.capability_id,
+        args={},
+        return_bindings=second_bindings or {},
+        strategy="build the same curve",
+        reason="second projection",
+        return_expectations=second_expectations or {},
+    )
+    third_call = (
+        FunctionalCall(
+            call_id="build_curve_third",
+            capability_id=capability.capability_id,
+            args={},
+            return_bindings=third_bindings,
+            strategy="build the same curve",
+            reason="third projection",
+        )
+        if third_bindings is not None
+        else None
+    )
+    computation_key = ComputationKey(capability.capability_id)
+    parabola_key = LogicalStateKey(
+        MathObjectId(
+            "function:problem:parabola",
+            "function",
+            "problem",
+        ),
+        "expression",
+        "Parabola",
+    )
+    parameter_key = LogicalStateKey(
+        MathObjectId("symbol:problem:a", "symbol", "problem"),
+        "value",
+        "ParameterValue",
+    )
+
+    def reconciled(call: FunctionalCall) -> FunctionalCallReconciliation:
+        return FunctionalCallReconciliation(
+            call_id=call.call_id,
+            scope_id="ii",
+            capability_id=call.capability_id,
+            resolved_args={},
+            returns=(
+                FunctionalReturnAllocation(
+                    call_id=call.call_id,
+                    return_name="parabola",
+                    handle=f"fact:ii:{call.call_id}_parabola",
+                    runtime_type="Parabola",
+                    valid_scope="ii",
+                    state_slot_id=(
+                        "function:problem:parabola.expression@ii:Parabola"
+                    ),
+                    object_ref="function:problem:parabola",
+                    identity_policy="preserve_input_object",
+                    write_mode="transition",
+                    bound_ref=call.return_bindings.get("parabola"),
+                    logical_state_key=parabola_key,
+                    computation_key=computation_key,
+                ),
+                FunctionalReturnAllocation(
+                    call_id=call.call_id,
+                    return_name="parameter_value",
+                    handle=f"fact:ii:{call.call_id}_parameter",
+                    runtime_type="ParameterValue",
+                    valid_scope="ii",
+                    state_slot_id=(
+                        "symbol:problem:a.value@ii:ParameterValue"
+                    ),
+                    object_ref="symbol:problem:a",
+                    identity_policy="preserve_input_object",
+                    write_mode="transition",
+                    bound_ref=call.return_bindings.get("parameter_value"),
+                    logical_state_key=parameter_key,
+                    computation_key=computation_key,
+                ),
+            ),
+        )
+
+    calls = tuple(
+        item
+        for item in (first_call, second_call, third_call)
+        if item is not None
+    )
+    plan = FunctionalPlan(
+        scopes=(
+            FunctionalScope(
+                "ii",
+                "ii",
+                calls,
+            ),
+        )
+    )
+    reconciled_by_id = {call.call_id: reconciled(call) for call in calls}
+    result = functional_call_placement_module._canonicalize_typed_calls(
+        plan,
+        source_scopes={call.call_id: "ii" for call in calls},
+        reconciled_by_id=reconciled_by_id,
+        catalog=catalog,
         aliases={},
-    ) != functional_call_placement_module._value_fingerprint(
-        closed_state,
-        aliases={},
+        groups={call.call_id: (call.call_id,) for call in calls},
+        handle_registry=_registry(),
+    )
+    return plan, result
+
+
+def test_typed_canonicalization_transfers_cross_return_object_bindings() -> None:
+    parabola_binding = SemanticRef(ref="parabola", kind="function")
+    parameter_binding = SemanticRef(ref="a", kind="symbol")
+    plan, result = _typed_quadratic_duplicate_graph(
+        first_bindings={"parabola": parabola_binding},
+        second_bindings={"parameter_value": parameter_binding},
+    )
+    (
+        aliases,
+        _groups,
+        reconciled,
+        _keys,
+        _repairs,
+        issues,
+        transferred_bindings,
+        _expectations,
+    ) = result
+
+    assert issues == ()
+    assert aliases == {"build_curve_second": "build_curve_first"}
+    assert transferred_bindings["build_curve_first"] == {
+        "parabola": parabola_binding,
+        "parameter_value": parameter_binding,
+    }
+    canonical = (
+        functional_call_placement_module._apply_transferred_return_bindings(
+            plan,
+            transferred_bindings,
+        ).calls[0]
+    )
+    assert canonical.return_bindings == transferred_bindings[
+        "build_curve_first"
+    ]
+    allocations = {
+        item.return_name: item
+        for item in reconciled["build_curve_first"].returns
+    }
+    assert allocations["parabola"].bound_ref == parabola_binding
+    assert allocations["parameter_value"].bound_ref == parameter_binding
+
+
+def test_typed_canonicalization_merges_compatible_expectations() -> None:
+    _plan, result = _typed_quadratic_duplicate_graph(
+        first_expectations={"parabola": "open_state"},
+        second_expectations={"parabola": "open_state"},
+    )
+    aliases, _, _, _, _, issues, _, expectations = result
+
+    assert aliases == {"build_curve_second": "build_curve_first"}
+    assert issues == ()
+    assert expectations["build_curve_first"] == {
+        "parabola": "open_state"
+    }
+
+
+def test_typed_canonicalization_blocks_conflicting_expectations_after_merge() -> None:
+    _plan, result = _typed_quadratic_duplicate_graph(
+        first_expectations={"parabola": "open_state"},
+        second_expectations={"parabola": "closed_state"},
+    )
+    aliases, _, _, _, repairs, issues, _, expectations = result
+
+    assert aliases == {"build_curve_second": "build_curve_first"}
+    assert expectations == {}
+    assert [item.code for item in issues] == [
+        "functional.return_expectation_conflict"
+    ]
+    assert any(
+        item.action == "merge_typed_call_with_expectation_conflict"
+        for item in repairs
+    )
+
+
+def test_typed_canonicalization_starts_new_binding_cluster_after_conflict() -> None:
+    answer_a = SemanticRef(ref="answer:a", kind="answer")
+    answer_b = SemanticRef(ref="answer:b", kind="answer")
+    _plan, result = _typed_quadratic_duplicate_graph(
+        first_bindings={"parabola": answer_a},
+        second_bindings={"parabola": answer_b},
+        third_bindings={"parabola": answer_b},
+    )
+    aliases, groups, _, _, repairs, issues, _, _ = result
+
+    assert aliases == {"build_curve_third": "build_curve_second"}
+    assert groups["build_curve_first"] == ("build_curve_first",)
+    assert groups["build_curve_second"] == (
+        "build_curve_second",
+        "build_curve_third",
+    )
+    assert [item.code for item in issues] == [
+        "functional.return_binding_conflict"
+    ]
+    assert issues[0].call_id == "build_curve_second"
+    assert issues[0].details == {
+        "conflicting_calls": [
+            {
+                "call_id": "build_curve_first",
+                "returns": [
+                    {
+                        "return_name": "parabola",
+                        "existing": answer_a.to_payload(),
+                        "incoming": answer_b.to_payload(),
+                    }
+                ],
+            }
+        ]
+    }
+    assert any(
+        item.action == "merge_typed_equivalent_call"
+        and item.call_id == "build_curve_third"
+        for item in repairs
     )
 
 
@@ -14471,10 +14880,16 @@ def test_functional_debug_artifacts_reuse_projected_step_intents(tmp_path: Path)
     )
     assert reconciliation["state_identity_decisions"]
     assert reconciliation["identity_mismatches"] == []
+    assert reconciliation["state_placement_decisions"]
+    assert reconciliation["placement_mismatches"] == []
     assert context_payload["state"]["state_identity_decisions"] == (
         reconciliation["state_identity_decisions"]
     )
     assert context_payload["state"]["identity_mismatches"] == []
+    assert context_payload["state"]["state_placement_decisions"] == (
+        reconciliation["state_placement_decisions"]
+    )
+    assert context_payload["state"]["placement_mismatches"] == []
     assert reconciliation["student_step_placements"] == context_payload["state"][
         "student_step_placements"
     ]

@@ -741,6 +741,8 @@ class FunctionalPlanReconciliationResult:
     result_form_events: tuple[FunctionalResultFormEvent, ...] = ()
     state_identity_decisions: tuple[dict[str, Any], ...] = ()
     identity_mismatches: tuple[dict[str, Any], ...] = ()
+    state_placement_decisions: tuple[dict[str, Any], ...] = ()
+    placement_mismatches: tuple[dict[str, Any], ...] = ()
 
     @property
     def ok(self) -> bool:
@@ -777,6 +779,12 @@ class FunctionalPlanReconciliationResult:
             ],
             "identity_mismatches": [
                 dict(item) for item in self.identity_mismatches
+            ],
+            "state_placement_decisions": [
+                dict(item) for item in self.state_placement_decisions
+            ],
+            "placement_mismatches": [
+                dict(item) for item in self.placement_mismatches
             ],
             "projected_draft": (
                 self.projected_draft.to_payload()

@@ -112,6 +112,7 @@ from shuxueshuo_server.solver.runtime.state_identity import (
     StateIdentityFactory,
     StateIdentityIndex,
     StateIdentityMode,
+    StatePlacementMode,
 )
 from shuxueshuo_server.solver.runtime.runtime_type_compatibility import (
     normalize_runtime_type,
@@ -276,15 +277,6 @@ class _NormalizeElaborateScopeStage:
         # reconciliation; moving a consumer before those edges exist can make
         # an otherwise valid producer result appear invisible.
         call_execution_scopes = dict(call_scopes)
-        call_execution_scopes = placement_service.preliminary_execution_scopes(
-            plan,
-            source_plan=elaboration.raw_plan,
-            catalog=catalog,
-            semantic_index=semantic_index,
-            handle_registry=handle_registry,
-            default_scopes=call_execution_scopes,
-            initial_aliases=elaboration.call_aliases or {},
-        )
         requested_scopes = {
             (call_id, return_name): _least_common_scope(
                 (call_scopes[call_id], *scopes),
@@ -475,8 +467,10 @@ class FunctionalPlanReconciler:
         self,
         *,
         state_identity_mode: StateIdentityMode = "authoritative",
+        state_placement_mode: StatePlacementMode = "authoritative",
     ) -> None:
         self.state_identity_mode = state_identity_mode
+        self.state_placement_mode = state_placement_mode
 
     def reconcile(
         self,
@@ -541,6 +535,7 @@ class FunctionalPlanReconciler:
             factory=typed_identity_factory,
             visibility=typed_visibility,
         )
+        base_identity_index = identity_index.clone()
         allocation_service = StateAllocationService()
         identity_decisions: list[dict[str, Any]] = []
         identity_comparisons: list[IdentityShadowComparison] = []
@@ -1121,6 +1116,10 @@ class FunctionalPlanReconciler:
             identity_decisions=identity_decisions,
             identity_comparisons=identity_comparisons,
             identity_mode=self.state_identity_mode,
+            identity_factory=typed_identity_factory,
+            base_identity_index=base_identity_index,
+            allocation_service=allocation_service,
+            placement_mode=self.state_placement_mode,
         )
 
 
@@ -1298,6 +1297,10 @@ class _PlacementLivenessProjectionStage:
         identity_decisions: Sequence[Mapping[str, Any]],
         identity_comparisons: Sequence[IdentityShadowComparison],
         identity_mode: StateIdentityMode,
+        identity_factory: StateIdentityFactory,
+        base_identity_index: StateIdentityIndex,
+        allocation_service: StateAllocationService,
+        placement_mode: StatePlacementMode,
     ) -> FunctionalPlanReconciliationResult:
         plan = _rewrite_effective_functional_plan(
             plan,
@@ -1318,6 +1321,10 @@ class _PlacementLivenessProjectionStage:
             semantic_items=semantic_items,
             question_goals=question_goals,
             initial_aliases=initial_aliases,
+            identity_factory=identity_factory,
+            base_identity_index=base_identity_index,
+            allocation_service=allocation_service,
+            placement_mode=placement_mode,
         )
         plan = placement.plan
         reconciled = list(placement.calls)
@@ -1535,6 +1542,10 @@ class _PlacementLivenessProjectionStage:
                     for item in identity_comparisons
                     if not item.matches
                 ),
+                state_placement_decisions=tuple(
+                    item.to_payload() for item in placement.typed_decisions
+                ),
+                placement_mismatches=placement.mismatches,
             )
         projected, projection_map = FunctionalPlanProjector().project(
             plan,
@@ -1564,6 +1575,10 @@ class _PlacementLivenessProjectionStage:
                 for item in identity_comparisons
                 if not item.matches
             ),
+            state_placement_decisions=tuple(
+                item.to_payload() for item in placement.typed_decisions
+            ),
+            placement_mismatches=placement.mismatches,
         )
 
 
