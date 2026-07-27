@@ -550,6 +550,9 @@ class PlannerState:
     identity_mismatches: tuple[dict[str, Any], ...] = ()
     state_placement_decisions: tuple[dict[str, Any], ...] = ()
     placement_mismatches: tuple[dict[str, Any], ...] = ()
+    state_finalization_decisions: tuple[dict[str, Any], ...] = ()
+    state_finalization_mismatches: tuple[dict[str, Any], ...] = ()
+    runtime_destination_decisions: tuple[dict[str, Any], ...] = ()
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -599,6 +602,15 @@ class PlannerState:
             ],
             "placement_mismatches": [
                 dict(item) for item in self.placement_mismatches
+            ],
+            "state_finalization_decisions": [
+                dict(item) for item in self.state_finalization_decisions
+            ],
+            "state_finalization_mismatches": [
+                dict(item) for item in self.state_finalization_mismatches
+            ],
+            "runtime_destination_decisions": [
+                dict(item) for item in self.runtime_destination_decisions
             ],
         }
 
@@ -683,6 +695,15 @@ class _MutableState:
     identity_mismatches: list[dict[str, Any]] = field(default_factory=list)
     state_placement_decisions: list[dict[str, Any]] = field(default_factory=list)
     placement_mismatches: list[dict[str, Any]] = field(default_factory=list)
+    state_finalization_decisions: list[dict[str, Any]] = field(
+        default_factory=list
+    )
+    state_finalization_mismatches: list[dict[str, Any]] = field(
+        default_factory=list
+    )
+    runtime_destination_decisions: list[dict[str, Any]] = field(
+        default_factory=list
+    )
 
     def freeze(self) -> PlannerStateContext:
         return PlannerStateContext(
@@ -721,6 +742,15 @@ class _MutableState:
                     self.state_placement_decisions
                 ),
                 placement_mismatches=tuple(self.placement_mismatches),
+                state_finalization_decisions=tuple(
+                    self.state_finalization_decisions
+                ),
+                state_finalization_mismatches=tuple(
+                    self.state_finalization_mismatches
+                ),
+                runtime_destination_decisions=tuple(
+                    self.runtime_destination_decisions
+                ),
             ),
         )
 
@@ -739,6 +769,20 @@ class PlannerRetryReplaySnapshot(Protocol):
     retry_state: object | None
     functional_plan: object | None
     functional_reconciliation: object | None
+
+
+def _extend_unique_payloads(
+    target: list[dict[str, Any]],
+    values: object,
+) -> None:
+    for item in values or ():
+        payload = (
+            item.to_payload()
+            if hasattr(item, "to_payload")
+            else dict(item)
+        )
+        if payload not in target:
+            target.append(payload)
 
 
 class PlannerStateContextBuilder:
@@ -784,6 +828,7 @@ class PlannerStateContextBuilder:
         state.issues.extend(dict(item) for item in context_warnings)
         state.draft_snapshots = _draft_snapshots_from_replay(replay)
         cls._observe_functional_candidate(state, replay)
+        cls._observe_state_finalization(state, replay)
         state.context_events.append(
             _context_event(
                 "llm_attempt_received",
@@ -932,6 +977,18 @@ class PlannerStateContextBuilder:
         state.placement_mismatches.extend(
             dict(item)
             for item in getattr(reconciliation, "placement_mismatches", ())
+        )
+        _extend_unique_payloads(
+            state.state_finalization_decisions,
+            getattr(reconciliation, "state_finalization_decisions", ()),
+        )
+        _extend_unique_payloads(
+            state.state_finalization_mismatches,
+            getattr(reconciliation, "state_finalization_mismatches", ()),
+        )
+        _extend_unique_payloads(
+            state.runtime_destination_decisions,
+            getattr(reconciliation, "runtime_destination_decisions", ()),
         )
         effective_draft = getattr(replay, "effective_draft", None) or getattr(
             reconciliation,
@@ -1295,6 +1352,37 @@ class PlannerStateContextBuilder:
                 payload = item.to_payload()
                 state.state_write_provenance.append(payload)
                 _apply_state_write_provenance(state, payload)
+
+    @staticmethod
+    def _observe_state_finalization(
+        state: _MutableState,
+        replay: PlannerRetryReplaySnapshot,
+    ) -> None:
+        report = getattr(replay, "finalization_report", None)
+        if isinstance(report, dict):
+            _extend_unique_payloads(
+                state.state_finalization_decisions,
+                report.get("state_finalization_decisions", ()),
+            )
+            _extend_unique_payloads(
+                state.state_finalization_mismatches,
+                report.get("state_finalization_mismatches", ()),
+            )
+        diagnostic = getattr(replay, "diagnostic", None)
+        if diagnostic is None:
+            return
+        _extend_unique_payloads(
+            state.state_finalization_decisions,
+            getattr(diagnostic, "state_finalization_decisions", ()),
+        )
+        _extend_unique_payloads(
+            state.state_finalization_mismatches,
+            getattr(diagnostic, "state_finalization_mismatches", ()),
+        )
+        _extend_unique_payloads(
+            state.runtime_destination_decisions,
+            getattr(diagnostic, "runtime_destination_decisions", ()),
+        )
 
     @staticmethod
     def _observe_retry_issues(

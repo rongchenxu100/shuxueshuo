@@ -26,6 +26,13 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     StepIntentDraft,
     StrategyDraftValidationError,
 )
+from shuxueshuo_server.solver.runtime.state_finalization import (
+    StateFinalizationResult,
+    StateFinalizationService,
+    StateFinalizerMode,
+)
+from shuxueshuo_server.solver.runtime.state_identity import IndexedStateVersion
+from shuxueshuo_server.solver.runtime.models import StepPlan
 from shuxueshuo_server.solver.utils import unique_ordered
 from shuxueshuo_server.solver.runtime.strategy_validator import validate_canonical_draft
 
@@ -38,6 +45,8 @@ class CanonicalDraftFinalizationReport:
     handle_resolution: dict[str, Any] | None = None
     step_count: int = 0
     issues: tuple[str, ...] = ()
+    state_finalization_decisions: tuple[dict[str, Any], ...] = ()
+    state_finalization_mismatches: tuple[dict[str, Any], ...] = ()
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -45,6 +54,12 @@ class CanonicalDraftFinalizationReport:
             "handle_resolution": self.handle_resolution,
             "step_count": self.step_count,
             "issues": list(self.issues),
+            "state_finalization_decisions": [
+                dict(item) for item in self.state_finalization_decisions
+            ],
+            "state_finalization_mismatches": [
+                dict(item) for item in self.state_finalization_mismatches
+            ],
         }
 
 
@@ -61,8 +76,24 @@ class CanonicalDraftFinalizer:
         allow_shared_derivation_scopes: bool = False,
         projected_state_writes: tuple[ProjectedStateWrite, ...] = (),
         projected_state_dependencies: tuple[ProjectedStateDependency, ...] = (),
+        known_state_versions: tuple[IndexedStateVersion, ...] = (),
+        state_finalizer_mode: StateFinalizerMode = "authoritative",
     ) -> tuple[StepIntentDraft, CanonicalDraftFinalizationReport]:
         before = draft.to_payload()
+        logical_finalization = StateFinalizationResult()
+        if _uses_typed_finalization(projected_state_writes):
+            logical_finalization = (
+                StateFinalizationService().finalize_logical_graph(
+                    projected_state_writes,
+                    dependencies=projected_state_dependencies,
+                    known_versions=known_state_versions,
+                    step_scopes={
+                        step.step_id: step.scope_id for step in draft.steps
+                    },
+                    handle_registry=handle_registry,
+                    mode=state_finalizer_mode,
+                )
+            )
         draft = _close_projected_state_reads(
             draft,
             projected_state_writes=projected_state_writes,
@@ -102,6 +133,35 @@ class CanonicalDraftFinalizer:
             ),
             step_count=len(finalized.steps),
             issues=issues,
+            state_finalization_decisions=tuple(
+                item.to_payload()
+                for item in logical_finalization.decisions
+            ),
+            state_finalization_mismatches=tuple(
+                item.to_payload()
+                for item in logical_finalization.mismatches
+            ),
+        )
+
+    def finalize_compiled_state_writes(
+        self,
+        *,
+        projected_state_writes: tuple[ProjectedStateWrite, ...],
+        provenance: tuple[Any, ...],
+        plans: tuple[StepPlan, ...],
+        question_goals: tuple[QuestionGoal, ...],
+        handle_registry: CanonicalHandleRegistry,
+        state_finalizer_mode: StateFinalizerMode = "authoritative",
+    ) -> StateFinalizationResult:
+        """Validate compiler outputs against B2 versions and destinations."""
+
+        return StateFinalizationService().finalize_compiled_graph(
+            projected_state_writes,
+            provenance,
+            plans,
+            question_goals=question_goals,
+            handle_registry=handle_registry,
+            mode=state_finalizer_mode,
         )
 
     def validate_state_write_provenance(
@@ -358,6 +418,16 @@ def _close_projected_state_reads(
         )
     )
     return rewritten
+
+
+def _uses_typed_finalization(
+    writes: tuple[ProjectedStateWrite, ...],
+) -> bool:
+    return any(
+        item.selected_version_id is not None
+        or item.allocation_action is not None
+        for item in writes
+    )
 
 
 __all__ = [

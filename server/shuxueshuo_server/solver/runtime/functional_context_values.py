@@ -103,6 +103,10 @@ def latest_point_state_for_object(
         source_state_slot_ids=view.source_state_slot_ids,
         provides_semantic_roles=view.provides_semantic_roles,
         lineage=view.lineage,
+        math_object_id=view.math_object_id,
+        logical_state_key=view.logical_state_key,
+        typed_slot_id=view.typed_slot_id,
+        state_version_id=view.state_version_id,
     )
 
 

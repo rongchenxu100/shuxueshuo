@@ -15,6 +15,7 @@ from shuxueshuo_server.solver.runtime.state_identity import (
     ComputationKey,
     LogicalStateKey,
     MathObjectId,
+    RuntimeDestinationKey,
     StateAllocationAction,
     StateSlotId,
     StateVersionId,
@@ -157,6 +158,8 @@ class ProjectedStateWrite:
     computation_key: ComputationKey | None = None
     source_version_ids: tuple[StateVersionId, ...] = ()
     allocation_action: StateAllocationAction | None = None
+    free_symbol_refs: tuple[str, ...] = ()
+    canonical_producer_call_id: str | None = None
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -198,6 +201,12 @@ class ProjectedStateWrite:
             ]
         if self.allocation_action is not None:
             payload["allocation_action"] = self.allocation_action
+        if self.free_symbol_refs:
+            payload["free_symbol_refs"] = list(self.free_symbol_refs)
+        if self.canonical_producer_call_id is not None:
+            payload["canonical_producer_call_id"] = (
+                self.canonical_producer_call_id
+            )
         return payload
 
 
@@ -214,6 +223,7 @@ class ProjectedStateDependency:
     source: Literal["wire", "resolver", "context"] = "wire"
     source_step_id: str | None = None
     source_return_name: str | None = None
+    state_version_id: StateVersionId | None = None
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -232,6 +242,8 @@ class ProjectedStateDependency:
             payload["source_step_id"] = self.source_step_id
         if self.source_return_name is not None:
             payload["source_return_name"] = self.source_return_name
+        if self.state_version_id is not None:
+            payload["state_version_id"] = self.state_version_id.to_payload()
         return payload
 
 
@@ -912,6 +924,8 @@ class StateWriteProvenance:
     computation_key: ComputationKey | None = None
     source_version_ids: tuple[StateVersionId, ...] = ()
     allocation_action: StateAllocationAction | None = None
+    return_name: str | None = None
+    runtime_destination_key: RuntimeDestinationKey | None = None
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -972,6 +986,12 @@ class StateWriteProvenance:
                 item.to_payload() for item in self.source_version_ids
             ],
             "allocation_action": self.allocation_action,
+            "return_name": self.return_name,
+            "runtime_destination_key": (
+                self.runtime_destination_key.to_payload()
+                if self.runtime_destination_key is not None
+                else None
+            ),
         }
 
 
@@ -1073,6 +1093,9 @@ class StepIntentExecutionDiagnostic:
     function_binding_events: tuple[StepIntentFunctionBindingEvent, ...] = ()
     macro_binding_events: tuple[StepIntentMacroBindingEvent, ...] = ()
     state_write_provenance: tuple[StateWriteProvenance, ...] = ()
+    state_finalization_decisions: tuple[dict[str, Any], ...] = ()
+    state_finalization_mismatches: tuple[dict[str, Any], ...] = ()
+    runtime_destination_decisions: tuple[dict[str, Any], ...] = ()
     runtime_results: tuple[StepIntentRuntimeResult, ...] = ()
     blockers: tuple[StepIntentExecutionBlocker, ...] = ()
     skipped_steps: tuple[StepIntentSkippedStep, ...] = ()
@@ -1107,6 +1130,15 @@ class StepIntentExecutionDiagnostic:
             ],
             "state_write_provenance": [
                 item.to_payload() for item in self.state_write_provenance
+            ],
+            "state_finalization_decisions": [
+                dict(item) for item in self.state_finalization_decisions
+            ],
+            "state_finalization_mismatches": [
+                dict(item) for item in self.state_finalization_mismatches
+            ],
+            "runtime_destination_decisions": [
+                dict(item) for item in self.runtime_destination_decisions
             ],
             "runtime_results": [
                 item.to_payload() for item in self.runtime_results

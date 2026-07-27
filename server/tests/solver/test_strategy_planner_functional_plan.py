@@ -139,6 +139,9 @@ from shuxueshuo_server.solver.runtime.state_identity import (
     StateSlotId,
     StateVersionId,
 )
+from shuxueshuo_server.solver.runtime.state_finalization import (
+    StateFinalizationService,
+)
 from shuxueshuo_server.solver.runtime.student_symbolic_complexity import (
     analyze_student_symbolic_complexity,
 )
@@ -372,6 +375,8 @@ def test_authored_functional_fixtures_have_zero_typed_identity_drift(
     assert result.state_identity_decisions
     assert result.placement_mismatches == ()
     assert result.state_placement_decisions
+    assert result.state_finalization_mismatches == ()
+    assert result.state_finalization_decisions
     assert {
         item["canonical_call_id"]
         for item in result.state_placement_decisions
@@ -389,6 +394,9 @@ def test_authored_functional_fixtures_have_zero_typed_identity_drift(
     assert repeated.state_placement_decisions == (
         result.state_placement_decisions
     )
+    assert repeated.state_finalization_decisions == (
+        result.state_finalization_decisions
+    )
     assert all(
         allocation.logical_state_key is not None
         and allocation.typed_slot_id is not None
@@ -398,6 +406,173 @@ def test_authored_functional_fixtures_have_zero_typed_identity_drift(
         if allocation.object_ref is not None
         and allocation.allocation_action != "reuse"
     )
+
+
+def test_reconciliation_finalizer_receives_exact_state_dependencies(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    problem = load_problem_ir(NANKAI_FIXTURE)
+    inputs = build_strategy_probe_inputs(problem)
+    problem_payload = problem_to_llm_payload(problem)
+    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
+        json.loads(NANKAI_FUNCTIONAL_PLAN.read_text(encoding="utf-8")),
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+    assert validation.ok and plan is not None
+    context = initial_planner_state_context(
+        inputs,
+        problem_payload=problem_payload,
+        handle_registry=registry,
+    )
+    captured_dependencies: list[ProjectedStateDependency] = []
+    captured_step_scopes: dict[str, str] = {}
+    original = StateFinalizationService.finalize_logical_graph
+
+    def capture_dependencies(
+        service: StateFinalizationService,
+        writes: Any,
+        **kwargs: Any,
+    ) -> Any:
+        captured_dependencies.extend(kwargs.get("dependencies", ()))
+        captured_step_scopes.update(kwargs.get("step_scopes", {}))
+        return original(service, writes, **kwargs)
+
+    monkeypatch.setattr(
+        StateFinalizationService,
+        "finalize_logical_graph",
+        capture_dependencies,
+    )
+
+    result = FunctionalPlanReconciler().reconcile(
+        plan,
+        planner_state_context=context,
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+
+    assert result.ok
+    assert captured_dependencies
+    assert any(
+        dependency.state_version_id is not None
+        for dependency in captured_dependencies
+    )
+    expected_execution_scopes = {
+        placement.canonical_call_id: placement.execution_scope_id
+        for placement in result.call_placements
+    }
+    assert captured_step_scopes == expected_execution_scopes
+    assert any(
+        placement.declared_scope_id != placement.execution_scope_id
+        for placement in result.call_placements
+    )
+    exact_dependency_edges = [
+        (dependency.step_id, dependency.source_step_id)
+        for dependency in captured_dependencies
+        if dependency.source_step_id is not None
+        and dependency.step_id in result.dependency_graph
+        and dependency.source_step_id in result.dependency_graph
+    ]
+    assert exact_dependency_edges
+    assert all(
+        source_step_id in result.dependency_graph[consumer_step_id]
+        for consumer_step_id, source_step_id in exact_dependency_edges
+    )
+
+
+def test_probe_dependency_graph_includes_inferred_version_producer() -> None:
+    object_id = MathObjectId("point:problem:D", "point", "problem")
+    logical_key = LogicalStateKey(object_id, "coordinate", "Point")
+    version_id = StateVersionId(
+        StateSlotId(logical_key, "problem"),
+        1,
+    )
+    transition_version_id = StateVersionId(
+        StateSlotId(logical_key, "problem"),
+        2,
+    )
+    derived_version_id = StateVersionId(
+        StateSlotId(logical_key, "problem"),
+        3,
+    )
+    graph = (
+        strategy_replay_module
+        ._functional_dependency_graph_with_projected_versions(
+            {
+                "producer": (),
+                "consumer": (),
+                "transition": (),
+                "derived": (),
+            },
+            projected_state_writes=(
+                SimpleNamespace(
+                    step_id="producer",
+                    selected_version_id=version_id,
+                    allocation_action="create",
+                    previous_version_id=None,
+                    source_version_ids=(),
+                ),
+                SimpleNamespace(
+                    step_id="transition",
+                    selected_version_id=transition_version_id,
+                    allocation_action="transition",
+                    previous_version_id=version_id,
+                    source_version_ids=(),
+                ),
+                SimpleNamespace(
+                    step_id="derived",
+                    selected_version_id=derived_version_id,
+                    allocation_action="create",
+                    previous_version_id=None,
+                    source_version_ids=(transition_version_id,),
+                ),
+            ),
+            projected_state_dependencies=(
+                ProjectedStateDependency(
+                    step_id="consumer",
+                    state_slot_id="point:problem:D.coordinate@problem:Point",
+                    produced_handle="point:problem:D",
+                    state_version_id=version_id,
+                ),
+            ),
+        )
+    )
+
+    assert graph["consumer"] == ("producer",)
+    assert graph["transition"] == ("producer",)
+    assert graph["derived"] == ("transition",)
+    assert strategy_replay_module._functional_dependency_closure(
+        "consumer",
+        graph,
+    ) == {"producer", "consumer"}
+    assert strategy_replay_module._functional_dependent_closure(
+        {"producer"},
+        graph,
+    ) == {"producer", "consumer", "transition", "derived"}
+    assert strategy_replay_module._ordered_functional_repair_cone(
+        ("producer",),
+        reconciliation=SimpleNamespace(
+            plan=SimpleNamespace(
+                calls=tuple(
+                    SimpleNamespace(call_id=call_id)
+                    for call_id in (
+                        "producer",
+                        "consumer",
+                        "transition",
+                        "derived",
+                    )
+                )
+            ),
+            dependency_graph=graph,
+        ),
+    ) == ("producer", "consumer", "transition", "derived")
+    assert strategy_replay_module._functional_topological_call_ids(
+        ("consumer", "derived", "transition", "producer"),
+        graph,
+    ) == ("producer", "consumer", "transition", "derived")
 
 
 def test_functional_wire_fills_empty_explanation_field_deterministically() -> None:
@@ -8136,13 +8311,19 @@ def test_functional_compile_uses_named_sidecar_after_flat_reads_are_reordered() 
         question_goals=inputs.question_goals,
         allow_shared_derivation_scopes=True,
         preserve_call_graph=True,
-        projected_state_writes=(
-            strategy_replay_module._functional_projected_state_writes(
-                reconciliation
-            )
-        ),
-        projected_function_arg_bindings=sidecar,
-    )
+            projected_state_writes=(
+                strategy_replay_module._functional_projected_state_writes(
+                    reconciliation
+                )
+            ),
+            projected_function_arg_bindings=sidecar,
+            known_state_versions=(
+                strategy_replay_module._functional_known_state_versions(
+                    _context(inputs),
+                    handle_registry=_registry(),
+                )
+            ),
+        )
     assert output is not None, diagnostic.to_payload()
     invocation = next(
         invocation
@@ -8152,6 +8333,114 @@ def test_functional_compile_uses_named_sidecar_after_flat_reads_are_reordered() 
     )
     assert invocation.inputs["line2_p1"] == "$question.ii.points.N"
     assert invocation.inputs["line2_p2"] == "$question.ii.points.M"
+
+
+def test_typed_destination_configuration_error_skips_capability_fallback(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    inputs = _base_inputs()
+    payload = json.loads(NANKAI_FUNCTIONAL_PLAN.read_text(encoding="utf-8"))
+    plan, validation = _validate(payload, inputs)
+    assert validation.ok and plan is not None
+    reconciliation = FunctionalPlanReconciler().reconcile(
+        plan,
+        planner_state_context=_context(inputs),
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=_registry(),
+        question_goals=inputs.question_goals,
+    )
+    assert reconciliation.ok
+    assert reconciliation.projected_draft is not None
+    finalization_calls = 0
+
+    def reject_destination(*_args: object, **_kwargs: object) -> None:
+        nonlocal finalization_calls
+        finalization_calls += 1
+        raise StrategyDraftValidationError(
+            "planner_configuration_error: "
+            "planner.contract_runtime_destination_drift: synthetic"
+        )
+
+    monkeypatch.setattr(
+        CanonicalDraftFinalizer,
+        "finalize_compiled_state_writes",
+        reject_destination,
+    )
+
+    with pytest.raises(
+        StrategyDraftValidationError,
+        match="planner.contract_runtime_destination_drift",
+    ):
+        RecipeTrialExecutor().diagnose(
+            reconciliation.projected_draft,
+            family_spec=inputs.family_spec,
+            method_specs=inputs.method_specs,
+            handle_registry=_registry(),
+            context=ContextBuilder().build(_problem()),
+            question_goals=inputs.question_goals,
+            allow_shared_derivation_scopes=True,
+            preserve_call_graph=True,
+            projected_state_writes=(
+                strategy_replay_module._functional_projected_state_writes(
+                    reconciliation
+                )
+            ),
+            projected_state_dependencies=(
+                strategy_replay_module
+                ._functional_projected_state_dependencies(
+                    reconciliation,
+                    catalog=FunctionalCapabilityCatalog.from_family_spec(
+                        inputs.family_spec,
+                        inputs.method_specs,
+                    ),
+                )
+            ),
+            known_state_versions=(
+                strategy_replay_module._functional_known_state_versions(
+                    _context(inputs),
+                    handle_registry=_registry(),
+                )
+            ),
+        )
+
+    assert finalization_calls == 1
+
+
+def test_replay_draft_propagates_typed_finalizer_configuration_error(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    inputs = _base_inputs()
+
+    def reject_logical_projection(
+        *_args: object,
+        **_kwargs: object,
+    ) -> None:
+        raise StrategyDraftValidationError(
+            "planner_configuration_error: "
+            "planner.state_finalization_drift: synthetic"
+        )
+
+    monkeypatch.setattr(
+        CanonicalDraftFinalizer,
+        "finalize",
+        reject_logical_projection,
+    )
+
+    with pytest.raises(
+        StrategyDraftValidationError,
+        match="planner.state_finalization_drift",
+    ):
+        PlannerRetryReplayService().replay_draft(
+            StepIntentDraft(scopes=()),
+            inputs=inputs,
+            handle_registry=_registry(),
+            context=ContextBuilder().build(_problem()),
+            attempt=1,
+            merge_previous_prefix=False,
+            problem_payload=_problem_payload(),
+            candidate_format="functional_plan",
+        )
 
 
 def test_single_dynamic_known_coefficient_lowers_to_parameter_pair() -> None:
@@ -10065,7 +10354,7 @@ def test_reconciler_reuses_answer_producer_for_same_object_state_write() -> None
     )
 
 
-def test_reconciler_keeps_same_object_writes_for_distinct_input_versions() -> None:
+def test_finalizer_rejects_same_object_creates_from_distinct_input_versions() -> None:
     inputs, _fixture, registry, context = _heping_ermo_case()
     inputs = replace(inputs, question_goals=[])
     payload = {
@@ -10141,36 +10430,18 @@ def test_reconciler_keeps_same_object_writes_for_distinct_input_versions() -> No
     )
     assert validation.ok and plan is not None
 
-    result = FunctionalPlanReconciler().reconcile(
-        plan,
-        planner_state_context=context,
-        family_spec=inputs.family_spec,
-        method_specs=inputs.method_specs,
-        handle_registry=registry,
-        question_goals=(),
-    )
-
-    assert result.ok, [item.to_payload() for item in result.issues]
-    assert result.call_aliases == {}
-    assert {
-        call.call_id for call in result.plan.calls
-    } == {
-        "derive_existing_a",
-        "materialize_parabola",
-        "derive_existing_a_again",
-    }
-    writes = {
-        call.call_id: call.returns[0]
-        for call in result.calls
-        if call.call_id
-        in {"derive_existing_a", "derive_existing_a_again"}
-    }
-    assert writes["derive_existing_a"].computation_key != (
-        writes["derive_existing_a_again"].computation_key
-    )
-    assert writes["derive_existing_a"].selected_version_id != (
-        writes["derive_existing_a_again"].selected_version_id
-    )
+    with pytest.raises(
+        StrategyDraftValidationError,
+        match="state.logical_duplicate_writer",
+    ):
+        FunctionalPlanReconciler().reconcile(
+            plan,
+            planner_state_context=context,
+            family_spec=inputs.family_spec,
+            method_specs=inputs.method_specs,
+            handle_registry=registry,
+            question_goals=(),
+        )
 
 
 def test_reconciler_transfers_later_answer_to_earliest_object_producer() -> None:
@@ -11971,9 +12242,12 @@ def test_reconciler_infers_parameter_identity_from_future_consumer() -> None:
     assert calls["evaluate_point"].resolved_args["parameter_value"][
         0
     ].object_ref == "symbol:problem:m"
-    assert result.dependency_graph["evaluate_point"] == (
-        "solve_parameter",
-    )
+    assert "solve_parameter" in result.dependency_graph["evaluate_point"]
+    assert {
+        "reduce_path_derive_axis",
+        "reduce_path_construct_target",
+        "reduce_path_derive_midpoint",
+    } <= set(result.dependency_graph["evaluate_point"])
 
 
 def test_reconciler_drops_unknown_compiler_owned_arg_without_identity_check() -> None:
@@ -12635,7 +12909,9 @@ def test_projection_failure_verifies_independent_current_call_graph(
         ),
     )
     original_validate = StepIntentValidator.validate_json_with_report
+    original_replay_draft = PlannerRetryReplayService.replay_draft
     validation_calls = 0
+    replay_sidecar_steps: list[tuple[set[str], set[str], set[str]]] = []
 
     def reject_full_projection_once(
         validator: StepIntentValidator,
@@ -12646,12 +12922,47 @@ def test_projection_failure_verifies_independent_current_call_graph(
         validation_calls += 1
         if validation_calls == 1:
             return None, projection_validation
+        candidate_payload = json.loads(str(args[0]))
+        candidate_step_ids = {
+            step["step_id"]
+            for scope in candidate_payload["scopes"]
+            for step in scope["steps"]
+        }
+        assert {
+            item.step_id
+            for item in kwargs.get("projected_state_writes", ())
+        } <= candidate_step_ids
         return original_validate(validator, *args, **kwargs)
+
+    def capture_replay_draft(
+        service: PlannerRetryReplayService,
+        draft: StepIntentDraft,
+        *args: object,
+        **kwargs: object,
+    ) -> PlannerRetryReplayResult:
+        draft_step_ids = {step.step_id for step in draft.steps}
+        write_step_ids = {
+            item.step_id
+            for item in kwargs.get("projected_state_writes", ())
+        }
+        dependency_step_ids = {
+            item.step_id
+            for item in kwargs.get("projected_state_dependencies", ())
+        }
+        replay_sidecar_steps.append(
+            (draft_step_ids, write_step_ids, dependency_step_ids)
+        )
+        return original_replay_draft(service, draft, *args, **kwargs)
 
     monkeypatch.setattr(
         strategy_replay_module.StepIntentValidator,
         "validate_json_with_report",
         reject_full_projection_once,
+    )
+    monkeypatch.setattr(
+        PlannerRetryReplayService,
+        "replay_draft",
+        capture_replay_draft,
     )
 
     replay = PlannerRetryReplayService().replay_functional_plan(
@@ -12703,6 +13014,79 @@ def test_projection_failure_verifies_independent_current_call_graph(
         "functional_reconciliation"
     ]["independent_graph_verification"]
     assert "i_derive_D" in verification["verified_call_ids"]
+    assert replay_sidecar_steps
+    assert all(
+        write_step_ids <= draft_step_ids
+        and dependency_step_ids <= draft_step_ids
+        for (
+            draft_step_ids,
+            write_step_ids,
+            dependency_step_ids,
+        ) in replay_sidecar_steps
+    )
+
+
+def test_projection_probe_propagates_typed_configuration_error(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    inputs = _base_inputs()
+    payload = json.loads(NANKAI_FUNCTIONAL_PLAN.read_text(encoding="utf-8"))
+    plan, functional_validation = _validate(payload, inputs)
+    assert functional_validation.ok and plan is not None
+    projection_validation = StepIntentValidationReport(
+        ok=False,
+        errors=(
+            "duplicate_state_writer: previous_step=i_derive_D, "
+            "current_step=ii_reduce_path",
+        ),
+    )
+    original_validate = StepIntentValidator.validate_json_with_report
+    validation_calls = 0
+
+    def reject_full_projection_once(
+        validator: StepIntentValidator,
+        *args: object,
+        **kwargs: object,
+    ):
+        nonlocal validation_calls
+        validation_calls += 1
+        if validation_calls == 1:
+            return None, projection_validation
+        return original_validate(validator, *args, **kwargs)
+
+    def reject_probe(
+        *_args: object,
+        **_kwargs: object,
+    ) -> PlannerRetryReplayResult:
+        raise StrategyDraftValidationError(
+            "planner_configuration_error: "
+            "planner.state_finalization_drift: probe synthetic"
+        )
+
+    monkeypatch.setattr(
+        strategy_replay_module.StepIntentValidator,
+        "validate_json_with_report",
+        reject_full_projection_once,
+    )
+    monkeypatch.setattr(
+        PlannerRetryReplayService,
+        "replay_draft",
+        reject_probe,
+    )
+
+    with pytest.raises(
+        StrategyDraftValidationError,
+        match="planner.state_finalization_drift",
+    ):
+        PlannerRetryReplayService().replay_functional_plan(
+            plan,
+            inputs=inputs,
+            handle_registry=_registry(),
+            context=ContextBuilder().build(_problem()),
+            attempt=1,
+            problem_payload=_problem_payload(),
+            validation_report=functional_validation,
+        )
 
 
 def test_projected_parabola_transition_allows_same_state_slot_update() -> None:

@@ -73,7 +73,7 @@ Track A 是否完成，但主链切换前必须重新建立相应阶段自己的
 | Track A assets | `COMPLETE` | 五题 fixture、离线 replay、真实 opt-in、strict-test few-shot、共享 batch 基座 | 无 |
 | Track A Stage 1 | `COMPLETE` | 每题 3 个样本，`15/15` 在三轮内通过，configuration error 为 0 | 无 |
 | Track A parity complete | `COMPLETE` | 五题各 10 个兼容样本，`pass@3 >= 90%`；structured provenance parity、typed failure boundary、跨 batch 聚合均已建立 | 无 |
-| Track B typed identity authority | `IN PROGRESS` | B0 typed identity foundation、B1 allocation authority 与 B2 typed placement authority 已完成 | B3 finalizer、B4 retry authority 与 B5 string cleanup |
+| Track B typed identity authority | `IN PROGRESS` | B0 typed identity foundation、B1 allocation authority、B2 typed placement authority 与 B3 identity-aware finalizer 已完成 | B4 retry authority 与 B5 string cleanup |
 | Track C transactional interpreter | `PENDING` | 现有 partial replay、Working RuntimeContext、typed provenance 可复用 | Track B B1-B3；C0 shadow；逐 call execution parity |
 | Functional Default Ready | `BLOCKED` | Functional 主链可 opt-in 执行 | Track A parity complete；Track B B0-B4；Track C production closure；direct compiler shadow；held-out；production observability 与回滚门禁 |
 | Track D0 product routing gate retirement | `BLOCKED` | 唯一 problem-id gate 已登记 | Track A parity complete；Functional production routing 接管该 family；legacy deterministic planner 退场 |
@@ -88,22 +88,21 @@ Track A 是否完成，但主链切换前必须重新建立相应阶段自己的
 
 Track A 已完成，当前主线切换到 Track B，而不是继续围绕五题概率样本做局部补丁：
 
-1. **B3 identity-aware finalizer**：建立 logical-state/runtime-destination 双 ledger，
-   把 compiler 内部写入也映射到 typed destination；
-2. **B4 Context/retry version authority**：让 retry graph 持久化并恢复精确
+1. **B4 Context/retry version authority**：让 retry graph 持久化并恢复精确
    `StateVersionId`，不再按 call/handle 猜状态；
-3. 继续用五题 authored fixture、recorded provenance parity 和 Track A acceptance
+2. 继续用五题 authored fixture、recorded provenance parity 和 Track A acceptance
    cohort 作为迁移 oracle；
-4. B3 稳定后启动 C0 logical graph / Working Context shadow，但不切换
+3. B3 已完成离线 authoritative cutover，可以启动 C0 logical graph /
+   Working Context shadow，但不切换
    production execution authority。
 
 Track E 的 held-out 基础设施和 ProblemExtractionContext schema 可以并行建设；默认协议
 切换、StepIntent 删除和 transactional interpreter 主链切换仍保持阻塞。
 
-截至 2026-07-27，B2 已完成 authoritative cutover。下一项实际编码工作是
-**B3 identity-aware finalizer**：placement 已不再通过 legacy resolved-call
-signature、slot string、return binding 或 runtime path 决定调用等价性，但 finalizer
-仍需把 compiler 内部写入统一映射到 typed logical-state/runtime-destination 双 ledger。
+截至 2026-07-27，B3 已完成离线 authoritative cutover。logical-state writer ledger
+在 compiler 前校验 B2 分配的 typed version，runtime-destination writer ledger 在
+compiler 后校验物理 projection；下一项实际编码工作是
+**B4 Context/retry version authority**。
 
 ## Pack Contract Synchronization Discipline
 
@@ -309,15 +308,17 @@ execution、held-out 证据和生产切换能力尚未达到门禁。
 
 ### Current Status
 
-`IN PROGRESS`。B0、B1 与 B2 已完成离线 authoritative cutover：Functional return
-allocation 与 call placement 统一消费 typed identity/version，Context/debug 保存
-allocation 与 placement audit。B2 hardening 后全量 solver 回归为
-`1299 passed, 17 skipped`；
-五题真实 smoke `batch-20260727-162705` 为 `14/15`，configuration error、
-unclassified error、成功样本 gate failure、placement drift 与 identity drift 均为 0。
-唯一失败属于概率性的证据闭包/结果形态未收敛，不是 placement 配置故障。该批次不重新定义
-Track A。B3-B5 尚未完成，因此 compiler/finalizer 和 retry 仍保留兼容 ledger，
-不得据此切换默认协议。
+`IN PROGRESS`。B0、B1、B2 与 B3 已完成离线 authoritative cutover：Functional
+return allocation、call placement 和 finalizer 统一消费 typed identity/version，
+Context/debug 保存 allocation、placement、logical writer 和 runtime destination
+audit。B3 authority 加固后全量 solver 回归为 `1319 passed, 17 skipped`；
+初始 B3 source fingerprint 下的五题真实 smoke `batch-20260727-175944` 为 `15/15`，
+configuration error、unclassified error 和成功样本 gate failure 均为 0，
+没有暴露 identity、placement 或 finalization configuration drift。后续 authority
+加固增加 Context/in-flight version 白名单、reconciliation exact-dependency 门禁和
+compiler 反向漂移校验；该 source fingerprint 下的真实 smoke 尚未重跑。该批次不重新
+定义 Track A。B4-B5 尚未完成，因此 retry 和部分 legacy StepIntent 路径仍保留兼容
+ledger，不得据此切换默认协议。
 
 B1 完成后的加固还包括：
 
@@ -416,10 +417,25 @@ B2 完成门禁：
 
 #### B3. Identity-aware Finalizer
 
+- 状态：`COMPLETE`（authoritative，2026-07-27）。
 - 使用 logical-state writer ledger 和 runtime-destination writer ledger 做双重校验；
-- 在 projection/runtime 之前验证 read version、transition chain、single writer 和 answer object identity；
-- finalizer 保持幂等；
-- `duplicate_point_coordinate_fact` 类冲突不再成为正常 LLM retry issue。
+- compiler 前验证 typed object/slot/version、read version、transition predecessor、
+  source visibility、single writer 和 dependency refinement；
+- compiler 后从声明 output 唯一映射 promoted runtime destination，验证 destination
+  collision、transition chain 和 answer MathObject identity；
+- object/answer/fact projection 是同一 StateVersion 的 destination alias，不形成
+  第二 writer；value-only/call-local return 不进入跨调用 logical ledger；
+- Functional semantic views、context closure resolver 和 projected dependency sidecar
+  均保留 Context ordinal-0 与 in-flight StateVersion；
+- independent-subgraph replay 同步裁剪 typed write/dependency sidecar；
+- 五份 authored fixture、recorded provenance parity 和全量 solver 回归通过，
+  finalizer direct tests覆盖 transition、future read、destination collision、
+  optional unmaterialized return 和幂等；
+- authority 加固后的离线门禁为 `1319 passed, 17 skipped`；
+- 初始 B3 source fingerprint
+  `931a6a2e5fffa65373dc2d488b90ecc1eecfea2a29586052582cba2f974912b7`
+  下的真实五题 smoke `batch-20260727-175944` 为 `15/15`，
+  configuration/unclassified error 与成功样本 gate failure 均为 0。
 
 #### B4. Context and Retry Authority
 
@@ -894,8 +910,8 @@ PlannerStateContext
 - `COMPLETE`：B0 typed identity foundation；
 - `COMPLETE`：B1 authoritative allocation 与版本依赖 refinement；
 - `COMPLETE`：B2 typed placement authority；
-- `IN PROGRESS`：B3 finalizer authority，下一执行项；
-- 后续完成 B4 Context/retry version authority；
+- `COMPLETE`：B3 identity-aware finalizer authority；
+- `IN PROGRESS`：准备 B4 Context/retry version authority；
 - allocation、placement、finalizer、Context 和 retry 共享 typed identity 及 StateVersion；
 - 同一 MathObject 的等价 producer 在 runtime 前合并，answer alias 和 downstream refs 转移到 canonical producer；
 - 与 Track A parity、held-out 和生产门禁共同组成 Functional Default Ready。

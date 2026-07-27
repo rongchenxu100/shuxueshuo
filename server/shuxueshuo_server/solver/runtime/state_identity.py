@@ -937,6 +937,15 @@ class StateIdentityIndex:
     ) -> tuple[IndexedStateVersion, ...]:
         return tuple(self._versions_by_logical.get(logical_key, ()))
 
+    def all_versions(self) -> tuple[IndexedStateVersion, ...]:
+        """Return the authoritative Context/in-flight version snapshot."""
+
+        return tuple(
+            version
+            for versions in self._versions_by_logical.values()
+            for version in versions
+        )
+
     def version(
         self,
         version_id: StateVersionId,

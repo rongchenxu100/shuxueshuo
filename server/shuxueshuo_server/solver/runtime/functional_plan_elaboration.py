@@ -35,6 +35,12 @@ from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegi
 from shuxueshuo_server.solver.runtime.planner_state_context import (
     PlannerStateContext,
 )
+from shuxueshuo_server.solver.runtime.state_identity import (
+    LogicalStateKey,
+    MathObjectId,
+    StateSlotId,
+    StateVersionId,
+)
 from shuxueshuo_server.solver.state_semantics import (
     StateObjectRoleBinding,
     StateSemanticLineage,
@@ -88,6 +94,10 @@ class FunctionalSemanticView:
     source_state_slot_ids: tuple[str, ...] = ()
     provides_semantic_roles: tuple[str, ...] = ()
     lineage: StateSemanticLineage = StateSemanticLineage()
+    math_object_id: MathObjectId | None = None
+    logical_state_key: LogicalStateKey | None = None
+    typed_slot_id: StateSlotId | None = None
+    state_version_id: StateVersionId | None = None
 
     def to_prompt_payload(self) -> dict[str, Any]:
         return {
@@ -1052,6 +1062,14 @@ class FunctionalSemanticIndex:
                         free_symbol_refs=slot.free_symbol_refs,
                         source_state_slot_ids=(slot.slot_id,),
                         lineage=slot.lineage,
+                        math_object_id=(
+                            slot.logical_state_key.object_id
+                            if slot.logical_state_key is not None
+                            else None
+                        ),
+                        logical_state_key=slot.logical_state_key,
+                        typed_slot_id=slot.typed_slot_id,
+                        state_version_id=slot.latest_version_id,
                     )
                 )
             if item.kind == "fact":
@@ -1189,6 +1207,14 @@ class FunctionalSemanticIndex:
                             free_symbol_refs=object_slot.free_symbol_refs,
                             source_state_slot_ids=(object_slot.slot_id,),
                             lineage=object_slot.lineage,
+                            math_object_id=(
+                                object_slot.logical_state_key.object_id
+                                if object_slot.logical_state_key is not None
+                                else None
+                            ),
+                            logical_state_key=object_slot.logical_state_key,
+                            typed_slot_id=object_slot.typed_slot_id,
+                            state_version_id=object_slot.latest_version_id,
                         )
                     )
         entity_views = tuple(

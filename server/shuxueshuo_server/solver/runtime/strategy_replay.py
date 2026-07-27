@@ -4,14 +4,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass, replace
 import json
-from typing import Any, Literal
+from typing import Any
 
 from shuxueshuo_server.solver.runtime.answer_goal_verifier import (
     AnswerGoalVerificationReport,
     AnswerGoalVerifier,
-)
-from shuxueshuo_server.solver.runtime.binding_selector_semantics import (
-    selector_semantics,
 )
 from shuxueshuo_server.solver.runtime.functional_call_memory import (
     attach_actual_result_refs,
@@ -96,6 +93,19 @@ from shuxueshuo_server.solver.runtime.strategy_repair_feedback import RepairFeed
 from shuxueshuo_server.solver.runtime.strategy_repair_guidance import RepairGuidanceResolver
 from shuxueshuo_server.solver.runtime.strategy_resolver import StepIntentCandidateResolver
 from shuxueshuo_server.solver.runtime.strategy_retry_state import build_planner_retry_state
+from shuxueshuo_server.solver.runtime.state_finalization import (
+    expand_functional_dependency_graph,
+    project_functional_state_dependencies,
+    project_functional_state_writes,
+)
+from shuxueshuo_server.solver.runtime.state_identity import (
+    IndexedStateVersion,
+    MathObjectRegistry,
+    ScopeVisibilityResolver,
+    StateIdentityFactory,
+    StateIdentityIndex,
+    StateVersionId,
+)
 from shuxueshuo_server.solver.runtime.strategy_validator import StepIntentValidator
 from shuxueshuo_server.solver.utils import unique_ordered
 
@@ -350,9 +360,22 @@ class PlannerRetryReplayService:
         projected_state_writes = _functional_projected_state_writes(
             reconciliation
         )
-        projected_state_dependencies = _functional_projected_state_dependencies(
-            reconciliation,
+        projected_state_dependencies = project_functional_state_dependencies(
+            reconciliation.effective_plan,
+            reconciliation.calls,
             catalog=functional_catalog,
+        )
+        reconciliation = replace(
+            reconciliation,
+            dependency_graph=expand_functional_dependency_graph(
+                reconciliation.dependency_graph,
+                projected_state_writes=projected_state_writes,
+                projected_state_dependencies=projected_state_dependencies,
+            ),
+        )
+        known_state_versions = _functional_known_state_versions(
+            planner_state_context,
+            handle_registry=handle_registry,
         )
         projected_function_arg_bindings = (
             _functional_projected_arg_bindings(
@@ -431,6 +454,7 @@ class PlannerRetryReplayService:
                 projected_state_writes=projected_state_writes,
                 projected_state_dependencies=projected_state_dependencies,
                 projected_function_arg_bindings=projected_function_arg_bindings,
+                known_state_versions=known_state_versions,
             )
             retry_state = _functional_projection_retry_state(
                 attempt=attempt,
@@ -473,6 +497,7 @@ class PlannerRetryReplayService:
             projected_state_writes=projected_state_writes,
             projected_state_dependencies=projected_state_dependencies,
             projected_function_arg_bindings=projected_function_arg_bindings,
+            known_state_versions=known_state_versions,
         )
         reconciliation = _apply_function_arg_binding_repairs(
             reconciliation,
@@ -561,6 +586,7 @@ class PlannerRetryReplayService:
                 projected_function_arg_bindings=(
                     projected_function_arg_bindings
                 ),
+                known_state_versions=known_state_versions,
             )
             if needs_retry
             else _FunctionalGraphVerification()
@@ -626,9 +652,17 @@ class PlannerRetryReplayService:
         projected_function_arg_bindings: tuple[
             ProjectedFunctionArgBinding, ...
         ],
+        known_state_versions: tuple[IndexedStateVersion, ...],
     ) -> _FunctionalGraphVerification:
         if projected_draft is None:
             return _FunctionalGraphVerification()
+        dependency_graph = (
+            _functional_dependency_graph_with_projected_versions(
+                reconciliation.dependency_graph,
+                projected_state_writes=projected_state_writes,
+                projected_state_dependencies=projected_state_dependencies,
+            )
+        )
         valid_calls = {
             item.call_id
             for item in reconciliation.call_reports
@@ -641,17 +675,24 @@ class PlannerRetryReplayService:
         stable: set[str] = set()
         runtime_results: dict[tuple[str, str], Any] = {}
         provenance: dict[tuple[str, str], Any] = {}
-        for call in reconciliation.plan.calls:
+        calls_by_id = {
+            call.call_id: call for call in reconciliation.plan.calls
+        }
+        for call_id in _functional_topological_call_ids(
+            tuple(calls_by_id),
+            dependency_graph,
+        ):
+            call = calls_by_id[call_id]
             if call.call_id not in valid_calls:
                 continue
             dependencies = set(
-                reconciliation.dependency_graph.get(call.call_id, ())
+                dependency_graph.get(call.call_id, ())
             )
             if not dependencies <= stable:
                 continue
             closure = _functional_dependency_closure(
                 call.call_id,
-                reconciliation.dependency_graph,
+                dependency_graph,
             )
             step_ids = {
                 step_id
@@ -661,6 +702,9 @@ class PlannerRetryReplayService:
             probe_draft = _draft_for_step_ids(projected_draft, step_ids)
             if not probe_draft.steps:
                 continue
+            probe_step_ids = {
+                step.step_id for step in probe_draft.steps
+            }
             try:
                 probe = self.replay_draft(
                     probe_draft,
@@ -674,13 +718,26 @@ class PlannerRetryReplayService:
                     authoritative_output_types=authoritative_output_types,
                     allow_shared_derivation_scopes=True,
                     candidate_format="functional_plan",
-                    projected_state_writes=projected_state_writes,
-                    projected_state_dependencies=projected_state_dependencies,
-                    projected_function_arg_bindings=(
-                        projected_function_arg_bindings
+                    projected_state_writes=tuple(
+                        item
+                        for item in projected_state_writes
+                        if item.step_id in probe_step_ids
                     ),
+                    projected_state_dependencies=tuple(
+                        item
+                        for item in projected_state_dependencies
+                        if item.step_id in probe_step_ids
+                    ),
+                    projected_function_arg_bindings=tuple(
+                        item
+                        for item in projected_function_arg_bindings
+                        if item.step_id in probe_step_ids
+                    ),
+                    known_state_versions=known_state_versions,
                 )
-            except StrategyDraftValidationError:
+            except StrategyDraftValidationError as exc:
+                if "planner_configuration_error" in str(exc):
+                    raise
                 continue
             accepted = {
                 item.step_id
@@ -722,6 +779,7 @@ class PlannerRetryReplayService:
         projected_function_arg_bindings: tuple[
             ProjectedFunctionArgBinding, ...
         ],
+        known_state_versions: tuple[IndexedStateVersion, ...],
     ) -> _FunctionalProjectionRecovery:
         """Verify the dependency-closed graph outside projection failures."""
         issues = list(
@@ -762,6 +820,9 @@ class PlannerRetryReplayService:
             )
             if not candidate.steps:
                 break
+            actual_candidate_step_ids = {
+                step.step_id for step in candidate.steps
+            }
             partial_draft, partial_validation = (
                 StepIntentValidator().validate_json_with_report(
                     json.dumps(candidate.to_payload(), ensure_ascii=False),
@@ -772,7 +833,11 @@ class PlannerRetryReplayService:
                     partial_candidate=True,
                     allow_shared_derivation_scopes=True,
                     allow_internal_output_types=True,
-                    projected_state_writes=projected_state_writes,
+                    projected_state_writes=tuple(
+                        item
+                        for item in projected_state_writes
+                        if item.step_id in actual_candidate_step_ids
+                    ),
                 )
             )
             reports.append(
@@ -797,6 +862,7 @@ class PlannerRetryReplayService:
                     projected_function_arg_bindings=(
                         projected_function_arg_bindings
                     ),
+                    known_state_versions=known_state_versions,
                 )
                 verified = set(verification.verified_call_ids)
                 break
@@ -912,6 +978,7 @@ class PlannerRetryReplayService:
         projected_function_arg_bindings: tuple[
             ProjectedFunctionArgBinding, ...
         ] = (),
+        known_state_versions: tuple[IndexedStateVersion, ...] = (),
     ) -> PlannerRetryReplayResult:
         """从已通过 validation 的 draft 开始 replay。"""
         raw_draft = draft
@@ -972,8 +1039,11 @@ class PlannerRetryReplayService:
                 allow_shared_derivation_scopes=allow_shared_derivation_scopes,
                 projected_state_writes=projected_state_writes,
                 projected_state_dependencies=projected_state_dependencies,
+                known_state_versions=known_state_versions,
             )
         except Exception as exc:
+            if "planner_configuration_error" in str(exc):
+                raise
             replay_errors = errors or (str(exc),)
             retry_state = build_planner_retry_state(
                 attempt=attempt,
@@ -1020,6 +1090,7 @@ class PlannerRetryReplayService:
             projected_state_writes=projected_state_writes,
             projected_state_dependencies=projected_state_dependencies,
             projected_function_arg_bindings=projected_function_arg_bindings,
+            known_state_versions=known_state_versions,
         )
         blocker = diagnostic.first_blocker
         if blocker is not None and not blocker.retryable:
@@ -1157,58 +1228,10 @@ def _functional_projected_state_writes(
     reconciliation: FunctionalPlanReconciliationResult,
 ) -> tuple[ProjectedStateWrite, ...]:
     """Project typed Function/Macro returns into StepIntent validation sidecars."""
-    calls_by_id = {
-        call.call_id: call for call in reconciliation.effective_plan.calls
-    }
-    result: list[ProjectedStateWrite] = []
-    for call in reconciliation.calls:
-        functional_call = calls_by_id.get(call.call_id)
-        for output in call.returns:
-            mode: Literal["create", "transition", "value"]
-            if output.write_mode == "create":
-                mode = "create"
-            elif output.write_mode == "transition":
-                mode = "transition"
-            elif output.write_mode == "value":
-                mode = "value"
-            else:
-                raise StrategyDraftValidationError(
-                    "planner_configuration_error: invalid functional return "
-                    f"write mode: call={call.call_id}, return={output.return_name}, "
-                    f"write_mode={output.write_mode}"
-                )
-            result.append(
-                ProjectedStateWrite(
-                    step_id=call.call_id,
-                    produced_handle=output.state_handle or output.handle,
-                    state_slot_id=output.state_slot_id,
-                    write_mode=mode,
-                    runtime_type=output.runtime_type,
-                    object_ref=output.object_ref,
-                    source_state_slot_ids=output.source_state_slot_ids,
-                    dependency_object_refs=output.dependency_object_refs,
-                    return_name=output.return_name,
-                    expected_result_form=(
-                        functional_call.return_expectations.get(
-                            output.return_name
-                        )
-                        if functional_call is not None
-                        else None
-                    ),
-                    transition_kind=output.transition_kind,
-                    previous_write_step_id=output.previous_write_step_id,
-                    lineage=output.lineage,
-                    math_object_id=output.math_object_id,
-                    logical_state_key=output.logical_state_key,
-                    typed_slot_id=output.typed_slot_id,
-                    selected_version_id=output.selected_version_id,
-                    previous_version_id=output.previous_version_id,
-                    computation_key=output.computation_key,
-                    source_version_ids=output.source_version_ids,
-                    allocation_action=output.allocation_action,
-                )
-            )
-    return tuple(result)
+    return project_functional_state_writes(
+        reconciliation.effective_plan,
+        reconciliation.calls,
+    )
 
 
 def _functional_projected_state_dependencies(
@@ -1216,75 +1239,31 @@ def _functional_projected_state_dependencies(
     *,
     catalog: FunctionalCapabilityCatalog,
 ) -> tuple[ProjectedStateDependency, ...]:
-    """Project exact reconciled StateSlot reads without granting bind authority."""
+    """Compatibility wrapper around the shared B3 dependency projector."""
 
-    calls_by_id = {
-        call.call_id: call for call in reconciliation.effective_plan.calls
-    }
-    result: list[ProjectedStateDependency] = []
-    seen: set[tuple[str, str, str]] = set()
-    latest_return_by_slot: dict[str, tuple[str, str]] = {}
-    for call in reconciliation.calls:
-        functional_call = calls_by_id.get(call.call_id)
-        capability = catalog.get(call.capability_id)
-        if functional_call is None or capability is None:
-            continue
-        public_by_name = {item.name: item for item in capability.args}
-        auto_by_name = {item.name: item for item in capability.auto_args}
-        for arg_name, values in call.resolved_args.items():
-            auto_arg = auto_by_name.get(arg_name)
-            if (
-                auto_arg is not None
-                and auto_arg.binding_authority == "compiler"
-                and selector_semantics(auto_arg.selector).mechanical
-            ):
-                # Compiler-owned target/reference arguments establish identity;
-                # they are not materialized state reads.
-                continue
-            if arg_name in functional_call.args:
-                source: Literal["wire", "resolver", "context"] = "wire"
-            elif (
-                (public := public_by_name.get(arg_name)) is not None
-                and public.deterministic_resolver is not None
-            ) or (
-                (auto := auto_by_name.get(arg_name)) is not None
-                and auto.binding_authority == "resolver"
-            ):
-                source = "resolver"
-            else:
-                source = "context"
-            for value in values:
-                if value.state_slot_id is None:
-                    continue
-                source_step_id = value.source_call_id
-                source_return_name = value.return_name
-                if source_step_id is None:
-                    producer = latest_return_by_slot.get(value.state_slot_id)
-                    if producer is not None:
-                        source_step_id, source_return_name = producer
-                key = (call.call_id, value.state_slot_id, value.handle)
-                if key in seen:
-                    continue
-                seen.add(key)
-                result.append(
-                    ProjectedStateDependency(
-                        step_id=call.call_id,
-                        state_slot_id=value.state_slot_id,
-                        produced_handle=value.handle,
-                        runtime_type=value.runtime_type,
-                        object_ref=value.object_ref,
-                        arg_name=arg_name,
-                        source=source,
-                        source_step_id=source_step_id,
-                        source_return_name=source_return_name,
-                    )
-                )
-        for allocation in call.returns:
-            latest_return_by_slot[allocation.state_slot_id] = (
-                call.call_id,
-                allocation.return_name,
-            )
-    return tuple(result)
+    return project_functional_state_dependencies(
+        reconciliation.effective_plan,
+        reconciliation.calls,
+        catalog=catalog,
+    )
+
+
+def _functional_known_state_versions(
+    context: PlannerStateContext,
+    *,
+    handle_registry: CanonicalHandleRegistry,
+) -> tuple[IndexedStateVersion, ...]:
+    registry = MathObjectRegistry.from_sources(
+        handle_registry,
+        math_objects=context.state.math_objects,
+    )
+    factory = StateIdentityFactory(registry)
+    index = StateIdentityIndex.from_context(
+        state_slots=context.state.state_slots,
+        factory=factory,
+        visibility=ScopeVisibilityResolver(handle_registry),
+    )
+    return index.all_versions()
 
 
 def _apply_function_arg_binding_repairs(
@@ -2970,6 +2949,50 @@ def _unique_retry_issues(
         key = (issue.layer, issue.code, issue.step_id, issue.scope_id, issue.message)
         result.setdefault(key, issue)
     return tuple(result.values())
+
+
+def _functional_dependency_graph_with_projected_versions(
+    dependency_graph: dict[str, tuple[str, ...]],
+    *,
+    projected_state_writes: tuple[ProjectedStateWrite, ...],
+    projected_state_dependencies: tuple[ProjectedStateDependency, ...],
+) -> dict[str, tuple[str, ...]]:
+    """Compatibility wrapper around the shared typed dependency graph."""
+
+    return expand_functional_dependency_graph(
+        dependency_graph,
+        projected_state_writes=projected_state_writes,
+        projected_state_dependencies=projected_state_dependencies,
+    )
+
+
+def _functional_topological_call_ids(
+    call_ids: tuple[str, ...],
+    dependency_graph: dict[str, tuple[str, ...]],
+) -> tuple[str, ...]:
+    original_position = {
+        call_id: index for index, call_id in enumerate(call_ids)
+    }
+    pending = set(call_ids)
+    ordered: list[str] = []
+    while pending:
+        ready = min(
+            (
+                call_id
+                for call_id in pending
+                if not (set(dependency_graph.get(call_id, ())) & pending)
+            ),
+            key=original_position.__getitem__,
+            default=None,
+        )
+        if ready is None:
+            ordered.extend(
+                sorted(pending, key=original_position.__getitem__)
+            )
+            break
+        ordered.append(ready)
+        pending.remove(ready)
+    return tuple(ordered)
 
 
 def _functional_dependency_closure(

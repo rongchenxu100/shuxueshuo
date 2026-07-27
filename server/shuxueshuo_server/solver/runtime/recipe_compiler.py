@@ -164,6 +164,7 @@ from shuxueshuo_server.solver.runtime.binding_rules import (
 from shuxueshuo_server.solver.runtime.canonical_draft_finalizer import (
     CanonicalDraftFinalizer,
 )
+from shuxueshuo_server.solver.runtime.state_identity import IndexedStateVersion
 from shuxueshuo_server.solver.runtime.scalar_result_closure import (
     ScalarResultClosureRegistry,
     close_scalar_plan_output,
@@ -378,6 +379,7 @@ class RecipeTrialExecutor:
         projected_function_arg_bindings: tuple[
             ProjectedFunctionArgBinding, ...
         ] = (),
+        known_state_versions: tuple[IndexedStateVersion, ...] = (),
     ) -> PlannerOutput:
         """根据 StepIntent 生成 PlannerOutput。"""
         output, diagnostic, _effective_draft = self.diagnose(
@@ -391,6 +393,7 @@ class RecipeTrialExecutor:
             projected_state_writes=projected_state_writes,
             projected_state_dependencies=projected_state_dependencies,
             projected_function_arg_bindings=projected_function_arg_bindings,
+            known_state_versions=known_state_versions,
         )
         if output is not None:
             return output
@@ -424,6 +427,7 @@ class RecipeTrialExecutor:
         projected_function_arg_bindings: tuple[
             ProjectedFunctionArgBinding, ...
         ] = (),
+        known_state_versions: tuple[IndexedStateVersion, ...] = (),
     ) -> tuple[PlannerOutput | None, StepIntentExecutionDiagnostic, StepIntentDraft]:
         """编译 StepIntent，并返回 effective draft 的执行诊断。"""
         if not preserve_call_graph:
@@ -441,6 +445,7 @@ class RecipeTrialExecutor:
             allow_shared_derivation_scopes=allow_shared_derivation_scopes,
             projected_state_writes=projected_state_writes,
             projected_state_dependencies=projected_state_dependencies,
+            known_state_versions=known_state_versions,
         )
         resolution_report = StepIntentCandidateResolver().resolve(
             draft,
@@ -487,11 +492,21 @@ class RecipeTrialExecutor:
             function_binding_events=tuple(binding_rules.function_binding_events),
             macro_binding_events=tuple(compiler.macro_binding_events),
             state_write_provenance=tuple(compiler.state_write_provenance),
+            state_finalization_decisions=tuple(
+                compiler.state_finalization_decisions
+            ),
+            state_finalization_mismatches=tuple(
+                compiler.state_finalization_mismatches
+            ),
+            runtime_destination_decisions=tuple(
+                compiler.runtime_destination_decisions
+            ),
             runtime_results=tuple(compiler.runtime_results),
         )
-        CanonicalDraftFinalizer().validate_state_write_provenance(
-            diagnostic.state_write_provenance
-        )
+        if not _uses_typed_projected_writes(projected_state_writes):
+            CanonicalDraftFinalizer().validate_state_write_provenance(
+                diagnostic.state_write_provenance
+            )
         if output is not None and not preserve_call_graph:
             pruned, _dead_step_actions = drop_dead_pure_function_steps(
                 effective_draft,
@@ -529,6 +544,7 @@ class RecipeTrialExecutor:
                     projected_function_arg_bindings=(
                         projected_function_arg_bindings
                     ),
+                    known_state_versions=known_state_versions,
                 )
         return output, diagnostic, effective_draft
 
@@ -572,6 +588,9 @@ class _RecipePlanCompiler:
         self.recipe_compilers = dict(recipe_compilers)
         self.macro_binding_events: list[StepIntentMacroBindingEvent] = []
         self.state_write_provenance: list[StateWriteProvenance] = []
+        self.state_finalization_decisions: list[dict[str, Any]] = []
+        self.state_finalization_mismatches: list[dict[str, Any]] = []
+        self.runtime_destination_decisions: list[dict[str, Any]] = []
         self.runtime_results: list[StepIntentRuntimeResult] = []
         self.index.state_write_provenance = self.state_write_provenance
         self.step_reports = {
@@ -667,6 +686,31 @@ class _RecipePlanCompiler:
                     key = f"{compiled.plan.step_id}:{compiled.plan.goal.target_path}"
                     if key in seen_plan_keys:
                         continue
+                    finalization = None
+                    if _uses_typed_projected_writes(
+                        self.projected_state_writes
+                    ):
+                        finalization = (
+                            CanonicalDraftFinalizer()
+                            .finalize_compiled_state_writes(
+                                projected_state_writes=(
+                                    self.projected_state_writes
+                                ),
+                                provenance=tuple(
+                                    (
+                                        *self.state_write_provenance,
+                                        *compiled.state_write_provenance,
+                                    )
+                                ),
+                                plans=tuple((*plans, compiled.plan)),
+                                question_goals=tuple(
+                                    self.index.question_goals.values()
+                                ),
+                                handle_registry=(
+                                    self.index.handle_registry
+                                ),
+                            )
+                        )
                     trial_declarations = _unique_declarations(
                         [*declarations, *compiled.declarations]
                     )
@@ -692,6 +736,19 @@ class _RecipePlanCompiler:
                     self.state_write_provenance.extend(
                         compiled.state_write_provenance
                     )
+                    if finalization is not None:
+                        self.state_finalization_decisions = [
+                            item.to_payload()
+                            for item in finalization.decisions
+                        ]
+                        self.state_finalization_mismatches = [
+                            item.to_payload()
+                            for item in finalization.mismatches
+                        ]
+                        self.runtime_destination_decisions = [
+                            item.to_payload()
+                            for item in finalization.runtime_destinations
+                        ]
                     self.runtime_results.extend(
                         _runtime_result_snapshots(
                             step=step,
@@ -724,6 +781,24 @@ class _RecipePlanCompiler:
                     )
                     accepted_current_step = True
                     break
+                except StrategyDraftValidationError as exc:
+                    if "planner_configuration_error" in str(exc):
+                        raise
+                    candidate_errors.append(
+                        _candidate_error_for_exception(
+                            step=step,
+                            capability_id=capability_id,
+                            exc=exc,
+                            planner_insights=tuple(planner_insights),
+                            handle_registry=self.index.handle_registry,
+                            trial_error_hints=(
+                                self.method_specs.specs[capability_id]
+                                .trial_error_hints
+                                if capability_id in self.method_specs.specs
+                                else ()
+                            ),
+                        )
+                    )
                 except Exception as exc:
                     candidate_errors.append(
                         _candidate_error_for_exception(
@@ -4945,6 +5020,11 @@ def _state_write_provenance(
             if projected_write is not None
             else None
         ),
+        return_name=(
+            projected_write.return_name
+            if projected_write is not None
+            else None
+        ),
     )
 
 
@@ -6153,6 +6233,16 @@ def _execution_blocker_code(candidate_errors: list[str]) -> str:
 def _execution_blocker_retryable(code: str) -> bool:
     """Configuration and missing binding defects cannot be repaired by LLM."""
     return code not in {"missing_binding_rule", "planner_configuration_error"}
+
+
+def _uses_typed_projected_writes(
+    writes: tuple[ProjectedStateWrite, ...],
+) -> bool:
+    return any(
+        item.selected_version_id is not None
+        or item.allocation_action is not None
+        for item in writes
+    )
 
 
 def _execution_blocker_message(step_id: str, candidate_errors: list[str]) -> str:

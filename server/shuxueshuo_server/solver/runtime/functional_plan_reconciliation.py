@@ -114,6 +114,14 @@ from shuxueshuo_server.solver.runtime.state_identity import (
     StateIdentityMode,
     StatePlacementMode,
 )
+from shuxueshuo_server.solver.runtime.state_finalization import (
+    StateFinalizationResult,
+    StateFinalizationService,
+    StateFinalizerMode,
+    expand_functional_dependency_graph,
+    project_functional_state_dependencies,
+    project_functional_state_writes,
+)
 from shuxueshuo_server.solver.runtime.runtime_type_compatibility import (
     normalize_runtime_type,
     runtime_type_compatible,
@@ -468,9 +476,11 @@ class FunctionalPlanReconciler:
         *,
         state_identity_mode: StateIdentityMode = "authoritative",
         state_placement_mode: StatePlacementMode = "authoritative",
+        state_finalizer_mode: StateFinalizerMode = "authoritative",
     ) -> None:
         self.state_identity_mode = state_identity_mode
         self.state_placement_mode = state_placement_mode
+        self.state_finalizer_mode = state_finalizer_mode
 
     def reconcile(
         self,
@@ -1120,6 +1130,7 @@ class FunctionalPlanReconciler:
             base_identity_index=base_identity_index,
             allocation_service=allocation_service,
             placement_mode=self.state_placement_mode,
+            state_finalizer_mode=self.state_finalizer_mode,
         )
 
 
@@ -1301,6 +1312,7 @@ class _PlacementLivenessProjectionStage:
         base_identity_index: StateIdentityIndex,
         allocation_service: StateAllocationService,
         placement_mode: StatePlacementMode,
+        state_finalizer_mode: StateFinalizerMode,
     ) -> FunctionalPlanReconciliationResult:
         plan = _rewrite_effective_functional_plan(
             plan,
@@ -1351,6 +1363,20 @@ class _PlacementLivenessProjectionStage:
             reconciled=tuple(reconciled),
             dependency_graph=placement.dependency_graph,
             handle_registry=handle_registry,
+        )
+        pre_liveness_writes = project_functional_state_writes(
+            plan,
+            tuple(reconciled),
+        )
+        pre_liveness_dependencies = project_functional_state_dependencies(
+            plan,
+            tuple(reconciled),
+            catalog=catalog,
+        )
+        dependency_graph = expand_functional_dependency_graph(
+            dependency_graph,
+            projected_state_writes=pre_liveness_writes,
+            projected_state_dependencies=pre_liveness_dependencies,
         )
         evidence_issues = _functional_evidence_preflight_issues(
             plan,
@@ -1521,6 +1547,44 @@ class _PlacementLivenessProjectionStage:
                 semantic_index=semantic_index,
             )
         )
+        projected_state_writes = project_functional_state_writes(
+            plan,
+            tuple(reconciled),
+        )
+        projected_state_dependencies = (
+            project_functional_state_dependencies(
+                plan,
+                tuple(reconciled),
+                catalog=catalog,
+            )
+        )
+        dependency_graph = expand_functional_dependency_graph(
+            dependency_graph,
+            projected_state_writes=projected_state_writes,
+            projected_state_dependencies=projected_state_dependencies,
+        )
+        logical_finalization = StateFinalizationResult()
+        if not issues:
+            execution_scope_by_call = {
+                item.canonical_call_id: item.execution_scope_id
+                for item in call_placements
+            }
+            logical_finalization = (
+                StateFinalizationService().finalize_logical_graph(
+                    projected_state_writes,
+                    dependencies=projected_state_dependencies,
+                    known_versions=base_identity_index.all_versions(),
+                    step_scopes={
+                        call.call_id: execution_scope_by_call.get(
+                            call.call_id,
+                            call.scope_id,
+                        )
+                        for call in reconciled
+                    },
+                    handle_registry=handle_registry,
+                    mode=state_finalizer_mode,
+                )
+            )
         if issues:
             return FunctionalPlanReconciliationResult(
                 plan=plan,
@@ -1546,6 +1610,14 @@ class _PlacementLivenessProjectionStage:
                     item.to_payload() for item in placement.typed_decisions
                 ),
                 placement_mismatches=placement.mismatches,
+                state_finalization_decisions=tuple(
+                    item.to_payload()
+                    for item in logical_finalization.decisions
+                ),
+                state_finalization_mismatches=tuple(
+                    item.to_payload()
+                    for item in logical_finalization.mismatches
+                ),
             )
         projected, projection_map = FunctionalPlanProjector().project(
             plan,
@@ -1579,6 +1651,14 @@ class _PlacementLivenessProjectionStage:
                 item.to_payload() for item in placement.typed_decisions
             ),
             placement_mismatches=placement.mismatches,
+            state_finalization_decisions=tuple(
+                item.to_payload()
+                for item in logical_finalization.decisions
+            ),
+            state_finalization_mismatches=tuple(
+                item.to_payload()
+                for item in logical_finalization.mismatches
+            ),
         )
 
 
@@ -4211,6 +4291,10 @@ def _resolve_functional_ref(
         source_state_slot_ids=resolved.source_state_slot_ids,
         provides_semantic_roles=resolved.provides_semantic_roles,
         lineage=resolved.lineage,
+        math_object_id=resolved.math_object_id,
+        logical_state_key=resolved.logical_state_key,
+        typed_slot_id=resolved.typed_slot_id,
+        state_version_id=resolved.state_version_id,
     )
     closure_issue = _input_state_closure_issue(
         value,
@@ -6646,6 +6730,10 @@ def _resolve_deterministic_optional_args(
                 source_state_slot_ids=view.source_state_slot_ids,
                 provides_semantic_roles=view.provides_semantic_roles,
                 lineage=view.lineage,
+                math_object_id=view.math_object_id,
+                logical_state_key=view.logical_state_key,
+                typed_slot_id=view.typed_slot_id,
+                state_version_id=view.state_version_id,
             )
             for view in semantic_index.compatible_views(
                 scope_id=scope_id,
@@ -6911,6 +6999,10 @@ def _resolve_context_auto_args(
                     source_state_slot_ids=view.source_state_slot_ids,
                     provides_semantic_roles=view.provides_semantic_roles,
                     lineage=view.lineage,
+                    math_object_id=view.math_object_id,
+                    logical_state_key=view.logical_state_key,
+                    typed_slot_id=view.typed_slot_id,
+                    state_version_id=view.state_version_id,
                 )
                 for view in semantic_index.compatible_views(
                     scope_id=scope_id,
@@ -7134,6 +7226,10 @@ def _resolve_angle_sum_auto_arg(
                 source_state_slot_ids=view.source_state_slot_ids,
                 provides_semantic_roles=view.provides_semantic_roles,
                 lineage=view.lineage,
+                math_object_id=view.math_object_id,
+                logical_state_key=view.logical_state_key,
+                typed_slot_id=view.typed_slot_id,
+                state_version_id=view.state_version_id,
             )
     if value is None:
         return (
@@ -7272,6 +7368,10 @@ def _resolve_midpoint_auto_arg(
                     selected_view.provides_semantic_roles
                 ),
                 lineage=selected_view.lineage,
+                math_object_id=selected_view.math_object_id,
+                logical_state_key=selected_view.logical_state_key,
+                typed_slot_id=selected_view.typed_slot_id,
+                state_version_id=selected_view.state_version_id,
             )
     if selected is not None:
         return (
