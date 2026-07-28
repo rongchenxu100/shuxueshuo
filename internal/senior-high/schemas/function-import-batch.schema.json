@@ -30,6 +30,12 @@
           "questionNumber": { "type": "integer", "minimum": 1 },
           "problemId": { "type": "string" },
           "sourceLabel": { "type": "string" },
+          "sourceImage": { "type": "string" },
+          "sourceImages": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string" }
+          },
           "crop": {
             "type": "object",
             "required": ["x", "y", "width", "height"],

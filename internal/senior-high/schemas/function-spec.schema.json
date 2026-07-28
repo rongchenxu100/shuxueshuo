@@ -76,6 +76,7 @@
         "xExpr": { "type": "string" },
         "yExpr": { "type": "string" },
         "label": { "type": "string" },
+        "open": { "type": "boolean" },
         "labelDx": { "type": "number" },
         "labelDy": { "type": "number" }
       },
@@ -158,6 +159,8 @@
         "gridStepX": { "type": "number", "exclusiveMinimum": 0 },
         "gridStepY": { "type": "number", "exclusiveMinimum": 0 },
         "showAxisTicks": { "type": "boolean" },
+        "renderAllFunctions": { "type": "boolean" },
+        "pointLabelFontSize": { "type": "number", "minimum": 10 },
         "axisPadding": {
           "type": "object",
           "properties": {

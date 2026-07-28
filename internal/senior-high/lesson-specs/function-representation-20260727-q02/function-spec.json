@@ -1,0 +1,36 @@
+{
+  "$schema": "../../schemas/function-spec.schema.json",
+  "version": 1,
+  "id": "function-representation-20260727-q02",
+  "parameter": { "name": "x", "initial": 0 },
+  "panels": [
+    {
+      "id": "option-a", "kind": "functionGraph", "title": "A",
+      "viewport": { "x": 0.08, "y": 0.08, "width": 0.84, "height": 0.84 },
+      "domain": { "minX": -2.8, "maxX": 2.8, "minY": -1.5, "maxY": 3.2 },
+      "gridStepX": 1, "gridStepY": 1, "showAxisTicks": true,
+      "function": { "variable": "x", "expr": "x^2-2*x", "label": "A", "intervals": [{ "min": -2.8, "max": 2.8 }] }
+    },
+    {
+      "id": "option-b", "kind": "functionGraph", "title": "B",
+      "viewport": { "x": 0.08, "y": 0.08, "width": 0.84, "height": 0.84 },
+      "domain": { "minX": -2.8, "maxX": 2.8, "minY": -1.5, "maxY": 3.2 },
+      "gridStepX": 1, "gridStepY": 1, "showAxisTicks": true,
+      "function": { "variable": "x", "expr": "x^2+2*x", "label": "B", "intervals": [{ "min": -2.8, "max": 2.8 }] }
+    },
+    {
+      "id": "option-c", "kind": "functionGraph", "title": "C",
+      "viewport": { "x": 0.08, "y": 0.08, "width": 0.84, "height": 0.84 },
+      "domain": { "minX": -2.8, "maxX": 2.8, "minY": -1.5, "maxY": 3.2 },
+      "gridStepX": 1, "gridStepY": 1, "showAxisTicks": true,
+      "function": { "variable": "x", "expr": "x^2-2*abs(x)", "label": "C", "intervals": [{ "min": -2.8, "max": 2.8 }] }
+    },
+    {
+      "id": "option-d", "kind": "functionGraph", "title": "D",
+      "viewport": { "x": 0.08, "y": 0.08, "width": 0.84, "height": 0.84 },
+      "domain": { "minX": -2.8, "maxX": 2.8, "minY": -1.5, "maxY": 3.2 },
+      "gridStepX": 1, "gridStepY": 1, "showAxisTicks": true,
+      "function": { "variable": "x", "expr": "x^2", "label": "D", "intervals": [{ "min": -2.8, "max": 2.8 }] }
+    }
+  ]
+}

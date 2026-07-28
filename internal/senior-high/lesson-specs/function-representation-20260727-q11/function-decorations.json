@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/function-decorations.schema.json",
+  "version": 1,
+  "steps": {
+    "s1": {
+      "visiblePanels": ["piecewise-graph"],
+      "visibleElementIds": ["negative-branch", "nonnegative-branch", "left-solution", "right-solution", "negative-open", "nonnegative-closed"],
+      "highlightElementIds": [],
+      "showMovingPoint": false
+    }
+  }
+}

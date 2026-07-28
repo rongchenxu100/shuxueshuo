@@ -1,0 +1,52 @@
+{
+  "$schema": "../../../schemas/lesson-data.schema.json",
+  "meta": {
+    "id": "function-representation-20260727-q01",
+    "outputPath": "site/problems/senior-high/functions/function-representation/function-representation-20260727-q01.html",
+    "pageTitle": "函数的表示法第 1 题：由函数表逐层求值",
+    "pageDescription": "按从内到外的顺序读取函数表，求复合形式中的函数值。",
+    "breadcrumbTitle": "函数表示法第 1 题",
+    "breadcrumbLabel": "高中题库",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "classification": { "pattern": "function-representation", "methods": ["substitution", "value-table"] },
+    "curriculum": {
+      "chapterLabel": "第三章 函数的概念与性质",
+      "sectionLabel": "3.1 函数的概念及其表示",
+      "subsectionLabel": "3.1.2 函数的表示法",
+      "groupId": "function-value-and-range",
+      "groupLabel": "图象法和列表法"
+    }
+  },
+  "problem": {
+    "source": "2026 陕西咸阳期中",
+    "lines": [
+      { "text": "函数 \\(y=f(x)\\) 由下表给出，则 \\(f(f(4)-2)\\) 的值为（　）" },
+      { "ariaLabel": "函数 f(x) 的列表", "figures": [{ "id": "function-table", "ariaLabel": "x 分别处于三个区间时，f(x) 分别等于 1、2、3" }] },
+      { "text": "A. 1　　B. 2　　C. 3　　D. 4", "answerId": "answerI", "answer": "B" }
+    ]
+  },
+  "ui": { "legend": [], "sliderLabel": "输入", "paramLabelPrefix": "", "goToProblemMode": "smooth", "groupTitles": { "求值": "按从内到外的顺序查表" } },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "求值",
+      "title": "先求内层输入",
+      "t": 4,
+      "derive": [["查表", "\\(4≥2\\)，所以 \\(f(4)=3\\)"], ["内层输入", "\\(f(4)-2=3-2=1\\)"]],
+      "box": ["遇到嵌套函数值，先算最内层"]
+    },
+    {
+      "id": "s2",
+      "section": "求值",
+      "title": "再查表得到最终函数值",
+      "t": 1,
+      "derive": [["查表", "\\(0<1<2\\)，所以 \\(f(1)=2\\)"], ["∴", "\\(f(f(4)-2)=2\\)，故选 B"]],
+      "box": ["内层计算结果会成为下一次查表的输入"]
+    }
+  ],
+  "policies": {
+    "s1": { "movable": false, "range": [4, 4] },
+    "s2": { "movable": false, "range": [1, 1] }
+  },
+  "stepLabels": { "s1": "1 先求内层输入", "s2": "2 再求最终函数值" }
+}

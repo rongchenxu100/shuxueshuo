@@ -1,0 +1,41 @@
+{
+  "$schema": "../../../schemas/lesson-data.schema.json",
+  "meta": {
+    "id": "function-representation-20260727-q03",
+    "outputPath": "site/problems/senior-high/functions/function-representation/function-representation-20260727-q03.html",
+    "pageTitle": "函数的表示法第 3 题：由列表归纳解析式",
+    "pageDescription": "比较有限组对应值的统一倍数关系，归纳函数解析式。",
+    "breadcrumbTitle": "函数表示法第 3 题",
+    "breadcrumbLabel": "高中题库",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "classification": { "pattern": "function-representation", "methods": ["value-table", "pattern-recognition"] },
+    "curriculum": {
+      "chapterLabel": "第三章 函数的概念与性质",
+      "sectionLabel": "3.1 函数的概念及其表示",
+      "subsectionLabel": "3.1.2 函数的表示法",
+      "groupId": "function-value-and-range",
+      "groupLabel": "图象法和列表法"
+    }
+  },
+  "problem": {
+    "source": "教材习题改编",
+    "lines": [
+      { "text": "用列表法表示 \\(f(x)\\) 如下表，则 \\(f(x)\\) 的解析式为______。" },
+      { "ariaLabel": "x 与 f(x) 的对应值表", "figures": [{ "id": "original-table", "ariaLabel": "x 为 1 到 5 时，f(x) 依次为 6、12、18、24、30" }] },
+      { "text": "填写解析式。", "answerId": "answerI", "answer": "\\(f(x)=6x\\)" }
+    ]
+  },
+  "ui": { "legend": [], "sliderLabel": "输入 x", "paramLabelPrefix": "", "goToProblemMode": "smooth", "groupTitles": { "归纳": "比较每一列的对应规律" } },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "归纳",
+      "title": "比较输入与输出的倍数关系",
+      "t": 0,
+      "derive": [["逐列比较", "\\(\\frac{6}{1}=\\frac{12}{2}=\\frac{18}{3}=\\frac{24}{4}=\\frac{30}{5}=6\\)"], ["对应规律", "每个函数值都是相应输入的 6 倍"], ["∴", "\\(f(x)=6x\\)"]],
+      "box": ["列表只能验证已列出的对应值；本题要求归纳这些数据体现的统一解析式"]
+    }
+  ],
+  "policies": { "s1": { "movable": false, "range": [0, 0] } },
+  "stepLabels": { "s1": "1 比较对应规律" }
+}

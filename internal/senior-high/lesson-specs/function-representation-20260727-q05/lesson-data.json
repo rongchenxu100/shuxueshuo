@@ -1,0 +1,48 @@
+{
+  "$schema": "../../../schemas/lesson-data.schema.json",
+  "meta": {
+    "id": "function-representation-20260727-q05",
+    "outputPath": "site/problems/senior-high/functions/function-representation/function-representation-20260727-q05.html",
+    "pageTitle": "函数的表示法第 5 题：特殊赋值求函数值",
+    "pageDescription": "利用互为倒数的两个特殊输入建立方程组，求指定函数值。",
+    "breadcrumbTitle": "函数表示法第 5 题",
+    "breadcrumbLabel": "高中题库",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "classification": { "pattern": "function-representation", "methods": ["functional-equation-value", "special-substitution"] },
+    "curriculum": {
+      "chapterLabel": "第三章 函数的概念与性质",
+      "sectionLabel": "3.1 函数的概念及其表示",
+      "subsectionLabel": "3.1.2 函数的表示法",
+      "groupId": "function-concept",
+      "groupLabel": "函数的解析式"
+    }
+  },
+  "problem": {
+    "source": "2026 山东滕州第一中学月考",
+    "keyPoints": {
+      "title": "解题要点",
+      "items": ["目标是 \\(f(\\frac{1}{4})\\)，可选取互为倒数的 \\(4\\) 与 \\(\\frac{1}{4}\\)；", "两次赋值让同一组函数值反复出现，从而可联立消元。"]
+    },
+    "lines": [
+      {
+        "text": "若函数 \\(y=f(x)\\) 满足 \\(2\\sqrt{x}f(\\frac{1}{x})-f(x)=3x\\)，则 \\(f(\\frac{1}{4})=\\)______。",
+        "answerId": "answerI",
+        "answer": "\\(\\frac{17}{4}\\)"
+      }
+    ]
+  },
+  "ui": { "legend": [], "sliderLabel": "参数", "paramLabelPrefix": "", "goToProblemMode": "smooth", "groupTitles": { "求值": "围绕目标作特殊赋值" } },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "求值",
+      "title": "取互为倒数的输入并联立",
+      "t": 0,
+      "showDiagram": false,
+      "derive": [["令 x=4", "\\(4f(\\frac{1}{4})-f(4)=12\\)"], ["令 x=1/4", "\\(f(4)-f(\\frac{1}{4})=\\frac{3}{4}\\)"], ["两式相加", "\\(3f(\\frac{1}{4})=\\frac{51}{4}\\)"], ["∴", "\\(f(\\frac{1}{4})=\\frac{17}{4}\\)"]],
+      "box": ["特殊赋值的目标是让未知函数值组成可解的方程组"]
+    }
+  ],
+  "policies": { "s1": { "movable": false, "range": [0, 0] } },
+  "stepLabels": { "s1": "1 特殊赋值并联立" }
+}

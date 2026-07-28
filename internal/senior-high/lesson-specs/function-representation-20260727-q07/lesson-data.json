@@ -1,0 +1,75 @@
+{
+  "$schema": "../../../schemas/lesson-data.schema.json",
+  "meta": {
+    "id": "function-representation-20260727-q07",
+    "outputPath": "site/problems/senior-high/functions/function-representation/function-representation-20260727-q07.html",
+    "pageTitle": "函数的表示法第 7 题：三类条件下求解析式",
+    "pageDescription": "分别使用换元、待定系数和关于相反数的联立方程求解析式。",
+    "breadcrumbTitle": "函数表示法第 7 题",
+    "breadcrumbLabel": "高中题库",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "classification": { "pattern": "function-representation", "methods": ["substitution", "undetermined-coefficients", "linear-system"] },
+    "curriculum": {
+      "chapterLabel": "第三章 函数的概念与性质",
+      "sectionLabel": "3.1 函数的概念及其表示",
+      "subsectionLabel": "3.1.2 函数的表示法",
+      "groupId": "function-concept",
+      "groupLabel": "函数的解析式"
+    }
+  },
+  "problem": {
+    "source": "2026 河南安阳第一中学月考",
+    "keyPoints": {
+      "title": "解题要点",
+      "items": ["整体输入可换元时，必须同步确定新变量的取值范围；", "已知一次函数时设 \\(f(x)=kx+b\\)，比较复合后的系数；", "同时出现 \\(f(x)\\) 与 \\(f(-x)\\) 时，用 \\(-x\\) 替换 x 后联立。"]
+    },
+    "lines": [
+      { "text": "求下列函数 \\(f(x)\\) 的解析式：" },
+      { "text": "（1）已知函数 \\(f(x)\\) 满足 \\(f(\\sqrt{x}+1)=x+2\\sqrt{x}+1\\)；" },
+      { "text": "（2）已知一次函数 \\(f(x)\\) 在 R 上满足 \\(f(f(x))=4x+6\\)；" },
+      { "text": "（3）已知函数 \\(f(x)\\) 满足 \\(2f(x)-f(-x)=x+1\\)。", "answerId": "answerI", "answer": "（1）\\(f(x)=x^2\\)（\\(x≥1\\)）；（2）\\(f(x)=2x+2\\) 或 \\(f(x)=-2x-6\\)；（3）\\(f(x)=\\frac{x}{3}+1\\)" }
+    ]
+  },
+  "ui": {
+    "legend": [],
+    "sliderLabel": "参数",
+    "paramLabelPrefix": "",
+    "goToProblemMode": "smooth",
+    "groupTitles": { "（1）": "整体换元", "（2）": "待定系数", "（3）": "相反数联立" }
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "（1）",
+      "title": "把整体输入换成新变量",
+      "t": 0,
+      "showDiagram": false,
+      "derive": [["令", "\\(t=\\sqrt{x}+1\\)，则 \\(t≥1\\)"], ["右边", "\\(x+2\\sqrt{x}+1=(\\sqrt{x}+1)^2=t^2\\)"], ["∴", "\\(f(t)=t^2\\)（\\(t≥1\\)），即 \\(f(x)=x^2\\)（\\(x≥1\\)）"]],
+      "box": ["换元后保留新变量 t 的范围"]
+    },
+    {
+      "id": "s2",
+      "section": "（2）",
+      "title": "设一次函数并比较系数",
+      "t": 0,
+      "showDiagram": false,
+      "derive": [["设", "\\(f(x)=kx+b\\)（\\(k≠0\\)）"], ["复合", "\\(f(f(x))=k(kx+b)+b=k^2x+kb+b\\)"], ["比较系数", "\\(k^2=4\\)，\\(b(k+1)=6\\)"], ["解得", "\\(k=2,b=2\\)，或 \\(k=-2,b=-6\\)"], ["∴", "\\(f(x)=2x+2\\)，或 \\(f(x)=-2x-6\\)"]],
+      "box": ["平方系数方程有两个根，两种一次函数都要保留"]
+    },
+    {
+      "id": "s3",
+      "section": "（3）",
+      "title": "用相反数替换后联立",
+      "t": 0,
+      "showDiagram": false,
+      "derive": [["原式", "\\(2f(x)-f(-x)=x+1\\)"], ["把 x 换成 −x", "\\(2f(-x)-f(x)=1-x\\)"], ["消元", "原式的 2 倍与第二式相加，得 \\(3f(x)=x+3\\)"], ["∴", "\\(f(x)=\\frac{x}{3}+1\\)"]],
+      "box": ["替换 x 为 −x，可把两个未知函数值组成线性方程组"]
+    }
+  ],
+  "policies": {
+    "s1": { "movable": false, "range": [0, 0] },
+    "s2": { "movable": false, "range": [0, 0] },
+    "s3": { "movable": false, "range": [0, 0] }
+  },
+  "stepLabels": { "s1": "（1）整体换元", "s2": "（2）待定系数", "s3": "（3）相反数联立" }
+}

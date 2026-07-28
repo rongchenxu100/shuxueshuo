@@ -9,13 +9,23 @@
       "sections": [
         {
           "id": "function-concepts-and-representation",
-          "label": "函数的概念及其表示",
+          "label": "函数的概念",
           "order": 10,
           "presentation": "worksheet",
           "defaultCollectionId": "function-concepts-foundation",
           "collectionIds": [
             "function-concepts-foundation",
             "function-concepts-advanced"
+          ]
+        },
+        {
+          "id": "function-representation",
+          "label": "函数的表示法",
+          "order": 20,
+          "presentation": "worksheet",
+          "defaultCollectionId": "function-representation-foundation",
+          "collectionIds": [
+            "function-representation-foundation"
           ]
         }
       ]
@@ -267,19 +277,23 @@
               "originalFigures": [
                 {
                   "id": "relation-1",
-                  "renderId": "function-concepts-20260722-q03--relation-1"
+                  "renderId": "function-concepts-20260722-q03--relation-1",
+                  "kind": "relationPlot"
                 },
                 {
                   "id": "relation-2",
-                  "renderId": "function-concepts-20260722-q03--relation-2"
+                  "renderId": "function-concepts-20260722-q03--relation-2",
+                  "kind": "relationPlot"
                 },
                 {
                   "id": "relation-3",
-                  "renderId": "function-concepts-20260722-q03--relation-3"
+                  "renderId": "function-concepts-20260722-q03--relation-3",
+                  "kind": "relationPlot"
                 },
                 {
                   "id": "relation-4",
-                  "renderId": "function-concepts-20260722-q03--relation-4"
+                  "renderId": "function-concepts-20260722-q03--relation-4",
+                  "kind": "relationPlot"
                 }
               ],
               "figureSpec": {
@@ -518,7 +532,8 @@
               "originalFigures": [
                 {
                   "id": "original-context",
-                  "renderId": "function-concepts-20260722-q06--original-context"
+                  "renderId": "function-concepts-20260722-q06--original-context",
+                  "kind": "contextGeometry"
                 }
               ],
               "figureSpec": {
@@ -1034,7 +1049,8 @@
               "originalFigures": [
                 {
                   "id": "original-container",
-                  "renderId": "function-concepts-advanced-20260726-q13--original-container"
+                  "renderId": "function-concepts-advanced-20260726-q13--original-container",
+                  "kind": "contextGeometry"
                 }
               ],
               "figureSpec": {
@@ -1194,6 +1210,755 @@
               "solutionPath": "problems/senior-high/functions/function-concepts-and-representation/function-concepts-advanced-20260726-q13.html",
               "groupId": "function-comprehensive",
               "groupLabel": "函数综合应用"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "function-representation-foundation",
+      "chapterId": "functions",
+      "sectionId": "function-representation",
+      "title": "函数的表示法 · 基础练习",
+      "label": "表示法基础",
+      "status": "published",
+      "problemCount": 13,
+      "groups": [
+        {
+          "id": "function-value-and-range",
+          "label": "图象法和列表法",
+          "problems": [
+            {
+              "id": "function-representation-20260727-q01",
+              "number": 1,
+              "source": "2026 陕西咸阳期中",
+              "problem": {
+                "lines": [
+                  {
+                    "text": "函数 \\(y=f(x)\\) 由下表给出，则 \\(f(f(4)-2)\\) 的值为（　）",
+                    "html": "函数 <span class=\"inline-math\">y=f(x)</span> 由下表给出，则 <span class=\"inline-math\">f(f(4)-2)</span> 的值为（　）"
+                  },
+                  {
+                    "ariaLabel": "函数 f(x) 的列表",
+                    "figures": [
+                      {
+                        "id": "function-table",
+                        "title": "",
+                        "ariaLabel": "x 分别处于三个区间时，f(x) 分别等于 1、2、3",
+                        "caption": ""
+                      }
+                    ]
+                  },
+                  {
+                    "text": "A. 1　　B. 2　　C. 3　　D. 4",
+                    "html": "A. 1　　B. 2　　C. 3　　D. 4"
+                  }
+                ]
+              },
+              "originalFigures": [
+                {
+                  "id": "function-table",
+                  "renderId": "function-representation-20260727-q01--function-table",
+                  "kind": "valueTable"
+                }
+              ],
+              "figureSpec": {
+                "$schema": "../../schemas/function-spec.schema.json",
+                "version": 1,
+                "id": "function-representation-20260727-q01",
+                "panels": [
+                  {
+                    "id": "function-representation-20260727-q01--function-table",
+                    "kind": "valueTable",
+                    "title": "函数 f(x) 的列表表示",
+                    "viewport": {
+                      "x": 0.06,
+                      "y": 0.18,
+                      "width": 0.88,
+                      "height": 0.64
+                    },
+                    "columns": [
+                      "x",
+                      "x≤0",
+                      "0<x<2",
+                      "x≥2"
+                    ],
+                    "rows": [
+                      {
+                        "id": "row-f",
+                        "cells": [
+                          "f(x)",
+                          "1",
+                          "2",
+                          "3"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              "solutionPath": "problems/senior-high/functions/function-representation/function-representation-20260727-q01.html",
+              "groupId": "function-value-and-range",
+              "groupLabel": "图象法和列表法"
+            },
+            {
+              "id": "function-representation-20260727-q02",
+              "number": 2,
+              "source": "2026 山西阳泉期末",
+              "problem": {
+                "lines": [
+                  {
+                    "text": "函数 \\(f(x)=x^2-2|x|\\) 的大致图象是（　）",
+                    "html": "函数 <span class=\"inline-math\">f(x)=x<sup>2</sup>-2|x|</span> 的大致图象是（　）"
+                  },
+                  {
+                    "ariaLabel": "四个候选函数图象",
+                    "figures": [
+                      {
+                        "id": "option-a",
+                        "title": "A",
+                        "ariaLabel": "开口向上且顶点在 x 等于 1 的抛物线",
+                        "caption": ""
+                      },
+                      {
+                        "id": "option-b",
+                        "title": "B",
+                        "ariaLabel": "开口向上且顶点在 x 等于负 1 的抛物线",
+                        "caption": ""
+                      },
+                      {
+                        "id": "option-c",
+                        "title": "C",
+                        "ariaLabel": "关于 y 轴对称并有两个最低点的 W 形图象",
+                        "caption": ""
+                      },
+                      {
+                        "id": "option-d",
+                        "title": "D",
+                        "ariaLabel": "顶点在原点的抛物线",
+                        "caption": ""
+                      }
+                    ]
+                  },
+                  {
+                    "text": "A. 图 A　　B. 图 B　　C. 图 C　　D. 图 D",
+                    "html": "A. 图 A　　B. 图 B　　C. 图 C　　D. 图 D"
+                  }
+                ]
+              },
+              "originalFigures": [
+                {
+                  "id": "option-a",
+                  "renderId": "function-representation-20260727-q02--option-a",
+                  "kind": "functionGraph"
+                },
+                {
+                  "id": "option-b",
+                  "renderId": "function-representation-20260727-q02--option-b",
+                  "kind": "functionGraph"
+                },
+                {
+                  "id": "option-c",
+                  "renderId": "function-representation-20260727-q02--option-c",
+                  "kind": "functionGraph"
+                },
+                {
+                  "id": "option-d",
+                  "renderId": "function-representation-20260727-q02--option-d",
+                  "kind": "functionGraph"
+                }
+              ],
+              "figureSpec": {
+                "$schema": "../../schemas/function-spec.schema.json",
+                "version": 1,
+                "id": "function-representation-20260727-q02",
+                "parameter": {
+                  "name": "x",
+                  "initial": 0
+                },
+                "panels": [
+                  {
+                    "id": "function-representation-20260727-q02--option-a",
+                    "kind": "functionGraph",
+                    "title": "A",
+                    "viewport": {
+                      "x": 0.08,
+                      "y": 0.08,
+                      "width": 0.84,
+                      "height": 0.84
+                    },
+                    "domain": {
+                      "minX": -2.8,
+                      "maxX": 2.8,
+                      "minY": -1.5,
+                      "maxY": 3.2
+                    },
+                    "gridStepX": 1,
+                    "gridStepY": 1,
+                    "showAxisTicks": true,
+                    "function": {
+                      "variable": "x",
+                      "expr": "x^2-2*x",
+                      "label": "A",
+                      "intervals": [
+                        {
+                          "min": -2.8,
+                          "max": 2.8
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "function-representation-20260727-q02--option-b",
+                    "kind": "functionGraph",
+                    "title": "B",
+                    "viewport": {
+                      "x": 0.08,
+                      "y": 0.08,
+                      "width": 0.84,
+                      "height": 0.84
+                    },
+                    "domain": {
+                      "minX": -2.8,
+                      "maxX": 2.8,
+                      "minY": -1.5,
+                      "maxY": 3.2
+                    },
+                    "gridStepX": 1,
+                    "gridStepY": 1,
+                    "showAxisTicks": true,
+                    "function": {
+                      "variable": "x",
+                      "expr": "x^2+2*x",
+                      "label": "B",
+                      "intervals": [
+                        {
+                          "min": -2.8,
+                          "max": 2.8
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "function-representation-20260727-q02--option-c",
+                    "kind": "functionGraph",
+                    "title": "C",
+                    "viewport": {
+                      "x": 0.08,
+                      "y": 0.08,
+                      "width": 0.84,
+                      "height": 0.84
+                    },
+                    "domain": {
+                      "minX": -2.8,
+                      "maxX": 2.8,
+                      "minY": -1.5,
+                      "maxY": 3.2
+                    },
+                    "gridStepX": 1,
+                    "gridStepY": 1,
+                    "showAxisTicks": true,
+                    "function": {
+                      "variable": "x",
+                      "expr": "x^2-2*abs(x)",
+                      "label": "C",
+                      "intervals": [
+                        {
+                          "min": -2.8,
+                          "max": 2.8
+                        }
+                      ]
+                    },
+                    "points": [
+                      {
+                        "id": "left-min",
+                        "x": -1,
+                        "y": -1,
+                        "label": "(-1,-1)"
+                      },
+                      {
+                        "id": "origin",
+                        "x": 0,
+                        "y": 0,
+                        "label": "O"
+                      },
+                      {
+                        "id": "right-min",
+                        "x": 1,
+                        "y": -1,
+                        "label": "(1,-1)"
+                      }
+                    ]
+                  },
+                  {
+                    "id": "function-representation-20260727-q02--option-d",
+                    "kind": "functionGraph",
+                    "title": "D",
+                    "viewport": {
+                      "x": 0.08,
+                      "y": 0.08,
+                      "width": 0.84,
+                      "height": 0.84
+                    },
+                    "domain": {
+                      "minX": -2.8,
+                      "maxX": 2.8,
+                      "minY": -1.5,
+                      "maxY": 3.2
+                    },
+                    "gridStepX": 1,
+                    "gridStepY": 1,
+                    "showAxisTicks": true,
+                    "function": {
+                      "variable": "x",
+                      "expr": "x^2",
+                      "label": "D",
+                      "intervals": [
+                        {
+                          "min": -2.8,
+                          "max": 2.8
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              "solutionPath": "problems/senior-high/functions/function-representation/function-representation-20260727-q02.html",
+              "groupId": "function-value-and-range",
+              "groupLabel": "图象法和列表法"
+            },
+            {
+              "id": "function-representation-20260727-q03",
+              "number": 3,
+              "source": "教材习题改编",
+              "problem": {
+                "lines": [
+                  {
+                    "text": "用列表法表示 \\(f(x)\\) 如下表，则 \\(f(x)\\) 的解析式为______。",
+                    "html": "用列表法表示 <span class=\"inline-math\">f(x)</span> 如下表，则 <span class=\"inline-math\">f(x)</span> 的解析式为______。"
+                  },
+                  {
+                    "ariaLabel": "x 与 f(x) 的对应值表",
+                    "figures": [
+                      {
+                        "id": "original-table",
+                        "title": "",
+                        "ariaLabel": "x 为 1 到 5 时，f(x) 依次为 6、12、18、24、30",
+                        "caption": ""
+                      }
+                    ]
+                  },
+                  {
+                    "text": "填写解析式。",
+                    "html": "填写解析式。"
+                  }
+                ]
+              },
+              "originalFigures": [
+                {
+                  "id": "original-table",
+                  "renderId": "function-representation-20260727-q03--original-table",
+                  "kind": "valueTable"
+                }
+              ],
+              "figureSpec": {
+                "$schema": "../../schemas/function-spec.schema.json",
+                "version": 1,
+                "id": "function-representation-20260727-q03",
+                "panels": [
+                  {
+                    "id": "function-representation-20260727-q03--original-table",
+                    "kind": "valueTable",
+                    "title": "函数 f(x) 的列表表示",
+                    "viewport": {
+                      "x": 0.05,
+                      "y": 0.18,
+                      "width": 0.9,
+                      "height": 0.64
+                    },
+                    "columns": [
+                      "x",
+                      "1",
+                      "2",
+                      "3",
+                      "4",
+                      "5"
+                    ],
+                    "rows": [
+                      {
+                        "id": "original-outputs",
+                        "cells": [
+                          "f(x)",
+                          "6",
+                          "12",
+                          "18",
+                          "24",
+                          "30"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              "solutionPath": "problems/senior-high/functions/function-representation/function-representation-20260727-q03.html",
+              "groupId": "function-value-and-range",
+              "groupLabel": "图象法和列表法"
+            }
+          ]
+        },
+        {
+          "id": "function-concept",
+          "label": "函数的解析式",
+          "problems": [
+            {
+              "id": "function-representation-20260727-q04",
+              "number": 4,
+              "source": "2026 吉林长春东北师大附中月考",
+              "problem": {
+                "lines": [
+                  {
+                    "text": "已知 \\(f(x^2+1)=x^4-1\\)，则函数 \\(f(x)\\) 的解析式为（　）　A. \\(f(x)=x^2-2x\\)　B. \\(f(x)=x^2-1\\)（\\(x≥1\\)）　C. \\(f(x)=x^2-2x+2\\)（\\(x≥1\\)）　D. \\(f(x)=x^2-2x\\)（\\(x≥1\\)）",
+                    "html": "已知 <span class=\"inline-math\">f(x<sup>2</sup>+1)=x<sup>4</sup>-1</span>，则函数 <span class=\"inline-math\">f(x)</span> 的解析式为（　）　A. <span class=\"inline-math\">f(x)=x<sup>2</sup>-2x</span>　B. <span class=\"inline-math\">f(x)=x<sup>2</sup>-1</span>（<span class=\"inline-math\">x≥1</span>）　C. <span class=\"inline-math\">f(x)=x<sup>2</sup>-2x+2</span>（<span class=\"inline-math\">x≥1</span>）　D. <span class=\"inline-math\">f(x)=x<sup>2</sup>-2x</span>（<span class=\"inline-math\">x≥1</span>）"
+                  }
+                ]
+              },
+              "originalFigures": [],
+              "figureSpec": null,
+              "solutionPath": "problems/senior-high/functions/function-representation/function-representation-20260727-q04.html",
+              "groupId": "function-concept",
+              "groupLabel": "函数的解析式"
+            },
+            {
+              "id": "function-representation-20260727-q05",
+              "number": 5,
+              "source": "2026 山东滕州第一中学月考",
+              "problem": {
+                "lines": [
+                  {
+                    "text": "若函数 \\(y=f(x)\\) 满足 \\(2\\sqrt{x}f(\\frac{1}{x})-f(x)=3x\\)，则 \\(f(\\frac{1}{4})=\\)______。",
+                    "html": "若函数 <span class=\"inline-math\">y=f(x)</span> 满足 <span class=\"inline-math\">2<span class=\"math-radical\"><span class=\"math-radical-symbol\">√</span><span class=\"math-radicand\">x</span></span>f(<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">x</span></span>)-f(x)=3x</span>，则 <span class=\"inline-math\">f(<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">4</span></span>)=</span>______。"
+                  }
+                ]
+              },
+              "originalFigures": [],
+              "figureSpec": null,
+              "solutionPath": "problems/senior-high/functions/function-representation/function-representation-20260727-q05.html",
+              "groupId": "function-concept",
+              "groupLabel": "函数的解析式"
+            },
+            {
+              "id": "function-representation-20260727-q06",
+              "number": 6,
+              "source": "2026 福建宁德期末",
+              "problem": {
+                "lines": [
+                  {
+                    "text": "已知函数 \\(f(x)\\) 满足：对任意实数 \\(x,y\\)，都有 \\(f(x+y)=f(x)+f(y)+1\\) 成立，写出函数 \\(f(x)\\) 的一个解析式：______。",
+                    "html": "已知函数 <span class=\"inline-math\">f(x)</span> 满足：对任意实数 <span class=\"inline-math\">x,y</span>，都有 <span class=\"inline-math\">f(x+y)=f(x)+f(y)+1</span> 成立，写出函数 <span class=\"inline-math\">f(x)</span> 的一个解析式：______。"
+                  }
+                ]
+              },
+              "originalFigures": [],
+              "figureSpec": null,
+              "solutionPath": "problems/senior-high/functions/function-representation/function-representation-20260727-q06.html",
+              "groupId": "function-concept",
+              "groupLabel": "函数的解析式"
+            },
+            {
+              "id": "function-representation-20260727-q07",
+              "number": 7,
+              "source": "2026 河南安阳第一中学月考",
+              "problem": {
+                "lines": [
+                  {
+                    "text": "求下列函数 \\(f(x)\\) 的解析式：",
+                    "html": "求下列函数 <span class=\"inline-math\">f(x)</span> 的解析式："
+                  },
+                  {
+                    "text": "（1）已知函数 \\(f(x)\\) 满足 \\(f(\\sqrt{x}+1)=x+2\\sqrt{x}+1\\)；",
+                    "html": "（1）已知函数 <span class=\"inline-math\">f(x)</span> 满足 <span class=\"inline-math\">f(<span class=\"math-radical\"><span class=\"math-radical-symbol\">√</span><span class=\"math-radicand\">x</span></span>+1)=x+2<span class=\"math-radical\"><span class=\"math-radical-symbol\">√</span><span class=\"math-radicand\">x</span></span>+1</span>；"
+                  },
+                  {
+                    "text": "（2）已知一次函数 \\(f(x)\\) 在 R 上满足 \\(f(f(x))=4x+6\\)；",
+                    "html": "（2）已知一次函数 <span class=\"inline-math\">f(x)</span> 在 R 上满足 <span class=\"inline-math\">f(f(x))=4x+6</span>；"
+                  },
+                  {
+                    "text": "（3）已知函数 \\(f(x)\\) 满足 \\(2f(x)-f(-x)=x+1\\)。",
+                    "html": "（3）已知函数 <span class=\"inline-math\">f(x)</span> 满足 <span class=\"inline-math\">2f(x)-f(-x)=x+1</span>。"
+                  }
+                ]
+              },
+              "originalFigures": [],
+              "figureSpec": null,
+              "solutionPath": "problems/senior-high/functions/function-representation/function-representation-20260727-q07.html",
+              "groupId": "function-concept",
+              "groupLabel": "函数的解析式"
+            }
+          ]
+        },
+        {
+          "id": "function-comprehensive",
+          "label": "分段函数与综合应用",
+          "problems": [
+            {
+              "id": "function-representation-20260727-q08",
+              "number": 8,
+              "source": "2026 重庆渝东九校期中联考",
+              "problem": {
+                "lines": [
+                  {
+                    "text": "已知二次函数 \\(f(x)\\) 满足 \\(f(0)=0\\)，\\(f(x+1)-f(x)=2x-3\\)。",
+                    "html": "已知二次函数 <span class=\"inline-math\">f(x)</span> 满足 <span class=\"inline-math\">f(0)=0</span>，<span class=\"inline-math\">f(x+1)-f(x)=2x-3</span>。"
+                  },
+                  {
+                    "text": "（1）求二次函数 \\(f(x)\\) 的解析式；",
+                    "html": "（1）求二次函数 <span class=\"inline-math\">f(x)</span> 的解析式；"
+                  },
+                  {
+                    "text": "（2）求不等式 \\(f(x)≥18-x\\) 的解集。",
+                    "html": "（2）求不等式 <span class=\"inline-math\">f(x)≥18-x</span> 的解集。"
+                  }
+                ]
+              },
+              "originalFigures": [],
+              "figureSpec": null,
+              "solutionPath": "problems/senior-high/functions/function-representation/function-representation-20260727-q08.html",
+              "groupId": "function-comprehensive",
+              "groupLabel": "分段函数与综合应用"
+            },
+            {
+              "id": "function-representation-20260727-q09",
+              "number": 9,
+              "source": "2026 安徽桐城中学期末",
+              "problem": {
+                "lines": [
+                  {
+                    "text": "为了保护水资源、提倡节约用水，某市对居民生活用水实行“阶梯水价”，计费方法如下表。",
+                    "html": "为了保护水资源、提倡节约用水，某市对居民生活用水实行“阶梯水价”，计费方法如下表。"
+                  },
+                  {
+                    "ariaLabel": "居民生活用水阶梯水价表",
+                    "figures": [
+                      {
+                        "id": "tariff-table",
+                        "title": "",
+                        "ariaLabel": "三档用水量及对应的每立方米价格",
+                        "caption": ""
+                      }
+                    ]
+                  },
+                  {
+                    "text": "若某户居民某月的用水量为 \\(x\\) m³，其缴纳的水费为 \\(y\\) 元，则以下结论正确的是（　）　A. \\(y=3x\\)（\\(0＜x≤12\\)），\\(y=6x\\)（\\(12＜x≤18\\)），\\(y=9x\\)（\\(x＞18\\)）　B. 当 \\(x=13\\) 时，\\(y=78\\)　C. 若 \\(y=48\\)，则 \\(x=14\\)　D. 若 \\(y=81\\)，则 \\(x=13.5\\)",
+                    "html": "若某户居民某月的用水量为 <span class=\"inline-math\">x</span> m³，其缴纳的水费为 <span class=\"inline-math\">y</span> 元，则以下结论正确的是（　）　A. <span class=\"inline-math\">y=3x</span>（<span class=\"inline-math\">0＜x≤12</span>），<span class=\"inline-math\">y=6x</span>（<span class=\"inline-math\">12＜x≤18</span>），<span class=\"inline-math\">y=9x</span>（<span class=\"inline-math\">x＞18</span>）　B. 当 <span class=\"inline-math\">x=13</span> 时，<span class=\"inline-math\">y=78</span>　C. 若 <span class=\"inline-math\">y=48</span>，则 <span class=\"inline-math\">x=14</span>　D. 若 <span class=\"inline-math\">y=81</span>，则 <span class=\"inline-math\">x=13.5</span>"
+                  }
+                ]
+              },
+              "originalFigures": [
+                {
+                  "id": "tariff-table",
+                  "renderId": "function-representation-20260727-q09--tariff-table",
+                  "kind": "valueTable"
+                }
+              ],
+              "figureSpec": {
+                "$schema": "../../schemas/function-spec.schema.json",
+                "version": 1,
+                "id": "function-representation-20260727-q09",
+                "parameter": {
+                  "name": "x",
+                  "initial": 14
+                },
+                "panels": [
+                  {
+                    "id": "function-representation-20260727-q09--tariff-table",
+                    "kind": "valueTable",
+                    "title": "居民生活用水阶梯水价",
+                    "viewport": {
+                      "x": 0.04,
+                      "y": 0.12,
+                      "width": 0.92,
+                      "height": 0.76
+                    },
+                    "columns": [
+                      "每户每月用水量",
+                      "水价"
+                    ],
+                    "rows": [
+                      {
+                        "id": "tier-1",
+                        "cells": [
+                          "不超过 12 m³ 的部分",
+                          "3 元/m³"
+                        ]
+                      },
+                      {
+                        "id": "tier-2",
+                        "cells": [
+                          "超过 12 m³ 但不超过 18 m³ 的部分",
+                          "6 元/m³"
+                        ]
+                      },
+                      {
+                        "id": "tier-3",
+                        "cells": [
+                          "超过 18 m³ 的部分",
+                          "9 元/m³"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              "solutionPath": "problems/senior-high/functions/function-representation/function-representation-20260727-q09.html",
+              "groupId": "function-comprehensive",
+              "groupLabel": "分段函数与综合应用"
+            },
+            {
+              "id": "function-representation-20260727-q10",
+              "number": 10,
+              "source": "2026 江苏连云港期末",
+              "problem": {
+                "lines": [
+                  {
+                    "text": "已知函数 \\(f(x)=0\\)（\\(x<0\\)），\\(f(x)=1\\)（\\(x≥0\\)），则 \\(f(f(x))=\\)（　）　A. 0　B. 1　C. 2　D. 3",
+                    "html": "已知函数 <span class=\"inline-math\">f(x)=0</span>（<span class=\"inline-math\">x&lt;0</span>），<span class=\"inline-math\">f(x)=1</span>（<span class=\"inline-math\">x≥0</span>），则 <span class=\"inline-math\">f(f(x))=</span>（　）　A. 0　B. 1　C. 2　D. 3"
+                  }
+                ]
+              },
+              "originalFigures": [],
+              "figureSpec": null,
+              "solutionPath": "problems/senior-high/functions/function-representation/function-representation-20260727-q10.html",
+              "groupId": "function-comprehensive",
+              "groupLabel": "分段函数与综合应用"
+            },
+            {
+              "id": "function-representation-20260727-q11",
+              "number": 11,
+              "source": "2026 湖南长沙长郡中学期末",
+              "problem": {
+                "lines": [
+                  {
+                    "text": "已知函数 \\(f(x)=2x+1\\)（\\(x≥0\\)），\\(f(x)=3x^2\\)（\\(x<0\\)），且 \\(f(x_0)=3\\)，则实数 \\(x_0\\) 的值为______。",
+                    "html": "已知函数 <span class=\"inline-math\">f(x)=2x+1</span>（<span class=\"inline-math\">x≥0</span>），<span class=\"inline-math\">f(x)=3x<sup>2</sup></span>（<span class=\"inline-math\">x&lt;0</span>），且 <span class=\"inline-math\">f(x<sub>0</sub>)=3</span>，则实数 <span class=\"inline-math\">x<sub>0</sub></span> 的值为______。"
+                  }
+                ]
+              },
+              "originalFigures": [],
+              "figureSpec": null,
+              "solutionPath": "problems/senior-high/functions/function-representation/function-representation-20260727-q11.html",
+              "groupId": "function-comprehensive",
+              "groupLabel": "分段函数与综合应用"
+            },
+            {
+              "id": "function-representation-20260727-q12",
+              "number": 12,
+              "source": "2026 广东深圳期中",
+              "problem": {
+                "lines": [
+                  {
+                    "text": "已知函数 \\(f(x)=\\frac{1}{x}\\)（\\(-1≤x<0\\)），\\(f(x)=x^2-2x\\)（\\(0≤x≤3\\)），\\(f(x)=-2x+9\\)（\\(3<x≤4\\)）。",
+                    "html": "已知函数 <span class=\"inline-math\">f(x)=<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">x</span></span></span>（<span class=\"inline-math\">-1≤x&lt;0</span>），<span class=\"inline-math\">f(x)=x<sup>2</sup>-2x</span>（<span class=\"inline-math\">0≤x≤3</span>），<span class=\"inline-math\">f(x)=-2x+9</span>（<span class=\"inline-math\">3&lt;x≤4</span>）。"
+                  },
+                  {
+                    "text": "（1）求 \\(f(4)\\)、\\(f(f(1))\\) 的值；",
+                    "html": "（1）求 <span class=\"inline-math\">f(4)</span>、<span class=\"inline-math\">f(f(1))</span> 的值；"
+                  },
+                  {
+                    "text": "（2）若 \\(f(a)=1\\)，求 a 的值；",
+                    "html": "（2）若 <span class=\"inline-math\">f(a)=1</span>，求 a 的值；"
+                  },
+                  {
+                    "text": "（3）在给定的坐标系中画出此函数的图象，并根据图象写出函数 \\(f(x)\\) 的值域。",
+                    "html": "（3）在给定的坐标系中画出此函数的图象，并根据图象写出函数 <span class=\"inline-math\">f(x)</span> 的值域。"
+                  },
+                  {
+                    "ariaLabel": "题目给定的空白坐标系",
+                    "figures": [
+                      {
+                        "id": "blank-grid",
+                        "title": "",
+                        "ariaLabel": "横轴从负 3 到 4、纵轴从负 3 到 4 的坐标系",
+                        "caption": ""
+                      }
+                    ]
+                  },
+                  {
+                    "text": "写出各问结果。",
+                    "html": "写出各问结果。"
+                  }
+                ]
+              },
+              "originalFigures": [
+                {
+                  "id": "blank-grid",
+                  "renderId": "function-representation-20260727-q12--blank-grid",
+                  "kind": "relationPlot"
+                }
+              ],
+              "figureSpec": {
+                "$schema": "../../schemas/function-spec.schema.json",
+                "version": 1,
+                "id": "function-representation-20260727-q12",
+                "parameter": {
+                  "name": "x",
+                  "initial": 2
+                },
+                "panels": [
+                  {
+                    "id": "function-representation-20260727-q12--blank-grid",
+                    "kind": "relationPlot",
+                    "title": "题目给定坐标系",
+                    "viewport": {
+                      "x": 0.06,
+                      "y": 0.06,
+                      "width": 0.88,
+                      "height": 0.88
+                    },
+                    "domain": {
+                      "minX": -3,
+                      "maxX": 4,
+                      "minY": -3,
+                      "maxY": 4
+                    },
+                    "axisPadding": {
+                      "minX": 0.1,
+                      "maxX": 0.1,
+                      "minY": 0.1,
+                      "maxY": 0.1
+                    },
+                    "segments": []
+                  }
+                ]
+              },
+              "solutionPath": "problems/senior-high/functions/function-representation/function-representation-20260727-q12.html",
+              "groupId": "function-comprehensive",
+              "groupLabel": "分段函数与综合应用"
+            },
+            {
+              "id": "function-representation-20260727-q13",
+              "number": 13,
+              "source": "教材习题改编",
+              "problem": {
+                "lines": [
+                  {
+                    "text": "某小组 4 位同学准备乘坐出租车去参加社会实践活动。已知全程 30 km，出租车收费标准为：起步价 11 元（乘车不超过 3 km）；行驶 3 km 后，每千米车费 2.2 元；行驶 10 km 后，每千米车费 2.8 元。",
+                    "html": "某小组 4 位同学准备乘坐出租车去参加社会实践活动。已知全程 30 km，出租车收费标准为：起步价 11 元（乘车不超过 3 km）；行驶 3 km 后，每千米车费 2.2 元；行驶 10 km 后，每千米车费 2.8 元。"
+                  },
+                  {
+                    "text": "（1）写出同学们乘车的费用 \\(f(x)\\)（单位：元）与路程 x（单位：km）的函数关系式；",
+                    "html": "（1）写出同学们乘车的费用 <span class=\"inline-math\">f(x)</span>（单位：元）与路程 x（单位：km）的函数关系式；"
+                  },
+                  {
+                    "text": "（2）比较三种方案：①一辆车行驶 30 km；②行驶 15 km 后换车，再行驶 15 km；③每行驶 10 km 后换车一次。哪一种方案最省钱？",
+                    "html": "（2）比较三种方案：①一辆车行驶 30 km；②行驶 15 km 后换车，再行驶 15 km；③每行驶 10 km 后换车一次。哪一种方案最省钱？"
+                  }
+                ]
+              },
+              "originalFigures": [],
+              "figureSpec": null,
+              "solutionPath": "problems/senior-high/functions/function-representation/function-representation-20260727-q13.html",
+              "groupId": "function-comprehensive",
+              "groupLabel": "分段函数与综合应用"
             }
           ]
         }

@@ -1,0 +1,14 @@
+{
+  "$schema": "../../schemas/function-decorations.schema.json",
+  "version": 1,
+  "steps": {
+    "s1": { "visiblePanels": [] },
+    "s2": { "visiblePanels": [] },
+    "s3": {
+      "visiblePanels": ["piecewise-graph"],
+      "visibleElementIds": ["reciprocal", "quadratic", "linear", "reciprocal-left", "quadratic-left", "quadratic-vertex", "quadratic-right", "linear-right"],
+      "highlightElementIds": ["quadratic-right"],
+      "showRange": true
+    }
+  }
+}

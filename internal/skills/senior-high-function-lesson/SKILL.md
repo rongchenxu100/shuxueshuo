@@ -35,7 +35,8 @@ node tools/validate-function-spec.mjs internal/senior-high/lesson-specs/<problem
 node tools/build-function-page.mjs internal/senior-high/lesson-specs/<problem-id>/
 ```
 
-6. Open the output with `file://` and HTTP. Publish to the canonical chapter/section path only after manual review.
+6. Open the output with `file://` and HTTP. Review every original figure in both the problem detail page and its worksheet aggregate page at 100% browser zoom. Measure rendered SVG text in CSS pixels; do not approve from the SVG `font-size` attribute or an enlarged teaching diagram alone.
+7. Publish to the canonical chapter/section path only after manual review.
 
 ## Publishing Contract
 
@@ -48,7 +49,7 @@ node tools/build-function-page.mjs internal/senior-high/lesson-specs/<problem-id
 ## Classification Contract
 
 - `chapterId` is `functions`.
-- V1 `sectionId` is `function-concepts-and-representation`.
+- V1 uses two sibling worksheet sections under `functions`: `function-concepts-and-representation` for 函数的概念, and `function-representation` for 函数的表示法.
 - Curriculum path is metadata, not a replacement for chapter/section filtering.
 - Group IDs are `function-concept`, `function-domain`, `function-value-and-range`, and, when a problem genuinely combines several strands, `function-comprehensive`.
 - Concrete methods such as `mapping-validity`, `radical-domain`, and `interval-range` are knowledge tags.
@@ -60,7 +61,7 @@ node tools/build-function-page.mjs internal/senior-high/lesson-specs/<problem-id
 
 - Put the verified source in full-width parentheses immediately before the printed problem text. Do not render it as a separate row.
 - Routine exercises should start with the printed problem itself. Do not invent a summary row such as “待复核” or “草稿”; reserve summaries for genuinely long, multi-part problems.
-- Preserve every printed diagram that is part of the problem. Reconstruct it declaratively in the problem card before adding a separate teaching diagram, and keep its axes, labels, endpoints, and relative proportions faithful to the source. Verify labels and numbers at the actual embedded size, not only in an enlarged step diagram.
+- Preserve every printed diagram that is part of the problem. Reconstruct it declaratively in the problem card before adding a separate teaching diagram, and keep its axes, labels, endpoints, and relative proportions faithful to the source. Give original figures separate detail-page and aggregate-page render profiles; verify labels and numbers at each actual embedded size, not only in an enlarged step diagram.
 - Use navigation groups only for actual numbered subquestions in the printed problem. A single question with several solution steps must remain one ungrouped step sequence; methods and phases are not question groups.
 - Keep the collapse/expand control in the problem card's top-right corner so it does not create a separate content row.
 - Collapsing the problem must retain its first printed line instead of leaving an empty card.
@@ -98,6 +99,23 @@ node tools/build-function-page.mjs internal/senior-high/lesson-specs/<problem-id
 - Full curves stay inside each function's natural domain; emphasized segments use the intersection with the problem's input set.
 - Open/closed endpoints, exclusions, finite values, and answer notation agree everywhere.
 - SVG contains no `NaN`, `Infinity`, or `undefined`.
-- Original-problem figures remain legible at their aggregate-page and problem-card sizes; axes, tick labels, variables, dimensions, and option numbers must not depend on browser zoom.
+- Original-problem figures pass the hard legibility gate in `references/function-visualization-principles.md` at both aggregate-page and problem-card sizes. Axes, tick labels, variables, dimensions, and option numbers must not depend on browser zoom.
 - Mobile layout has no page-level horizontal overflow.
 - Published catalog links resolve to canonical non-`drafts` paths; unreviewed lessons are absent from the public catalog.
+
+## 基于审校反馈的执行规则
+
+- Start from the governing mathematical definition. For function judgments, state uniqueness of output first; for `A -> B`, also verify that the actual range is a subset of `B`.
+- Use the fewest steps that match distinct cognitive actions. A one-idea problem stays one step, and navigation groups represent actual subquestions rather than editorial categories.
+- Step titles describe the action directly and do not repeat `第 1 步` or similar numbering already supplied by the runtime.
+- Add a diagram only when it supplies mathematical evidence. Do not emit blank diagram shells, repeated unchanged diagrams, or decorative graphs for a purely algebraic step.
+- Graph variables, axes, highlighted intervals, endpoints, and labels must match the derivation. Original-problem figures preserve topology, option numbering, dimensions, ticks, and readable text.
+- Visible formulas use the structured math formatter. Raw TeX delimiters or commands such as `\(`, `\Rightarrow`, `\cap`, and `\mid` must never reach the compiled page.
+- Sources appear inline before the printed stem. Published pages contain no `draft`, `待复核`, or internal-review wording.
+- Collapsing a problem keeps its first printed line visible. Worksheet pages hide answers and solution content; choices start on a separate line, and long choices use one row each.
+
+Apply the detailed rules in:
+
+- `references/function-solving-principles.md`
+- `references/function-visualization-principles.md`
+- `references/function-json-schema-guide.md`

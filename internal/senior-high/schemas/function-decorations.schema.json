@@ -17,6 +17,8 @@
           "activeCandidateId": { "type": "string" },
           "visibleElementIds": { "type": "array", "items": { "type": "string" } },
           "highlightElementIds": { "type": "array", "items": { "type": "string" } },
+          "showMovingPoint": { "type": "boolean" },
+          "fillMovingPoint": { "type": "boolean" },
           "showProjection": { "type": "boolean" },
           "showVerticalTest": { "type": "boolean" },
           "highlightStudyInterval": { "type": "boolean" },

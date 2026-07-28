@@ -46,7 +46,7 @@ test("validates the real senior-high catalog and its published assets", () => {
   const functions = catalog.chapters.find((chapter) => chapter.id === "functions");
   assert.deepEqual(
     functions.sections.map((section) => section.label),
-    ["函数的概念及其表示"],
+    ["函数的概念", "函数的表示法"],
   );
   assert.equal(functions.sections[0].presentation, "worksheet");
   assert.equal(functions.sections[0].defaultCollectionId, "function-concepts-foundation");
@@ -54,14 +54,20 @@ test("validates the real senior-high catalog and its published assets", () => {
     "function-concepts-foundation",
     "function-concepts-advanced",
   ]);
+  assert.equal(functions.sections[1].presentation, "worksheet");
+  assert.equal(functions.sections[1].defaultCollectionId, "function-representation-foundation");
+  assert.deepEqual(functions.sections[1].collectionIds, [
+    "function-representation-foundation",
+  ]);
 });
 
-test("builds foundation and advanced worksheets without answers", () => {
+test("builds concept and representation worksheets without answers", () => {
   const catalog = validateCatalog(chapterSource, problemSource, repoRoot);
   const collections = validateCollections(catalog, collectionSource, repoRoot);
-  assert.equal(collections.length, 2);
+  assert.equal(collections.length, 3);
   const foundation = collections.find((collection) => collection.id === "function-concepts-foundation");
   const advanced = collections.find((collection) => collection.id === "function-concepts-advanced");
+  const representation = collections.find((collection) => collection.id === "function-representation-foundation");
 
   assert.equal(foundation.title, "函数的概念 · 基础练习");
   assert.equal(foundation.problemCount, 11);
@@ -85,6 +91,17 @@ test("builds foundation and advanced worksheets without answers", () => {
     Array.from({ length: 13 }, (_, index) => index + 1),
   );
 
+  assert.equal(representation.title, "函数的表示法 · 基础练习");
+  assert.equal(representation.problemCount, 13);
+  assert.deepEqual(
+    representation.groups.map((group) => [group.label, group.problems.length]),
+    [["图象法和列表法", 3], ["函数的解析式", 4], ["分段函数与综合应用", 6]],
+  );
+  assert.deepEqual(
+    representation.groups.flatMap((group) => group.problems.map((problem) => problem.number)),
+    Array.from({ length: 13 }, (_, index) => index + 1),
+  );
+
   for (const collection of collections) {
     const serialized = JSON.stringify(collection);
     assert.doesNotMatch(serialized, /"answer"/);
@@ -93,9 +110,12 @@ test("builds foundation and advanced worksheets without answers", () => {
       (problem) => problem.solutionPath.endsWith(`${problem.id}.html`),
     ));
     assert.equal(collection.status, "published");
+    const expectedSectionPath = collection.id === "function-representation-foundation"
+      ? "function-representation"
+      : "function-concepts-and-representation";
     assert.ok(collection.groups.flatMap((group) => group.problems).every(
       (problem) => problem.solutionPath.startsWith(
-        "problems/senior-high/functions/function-concepts-and-representation/",
+        `problems/senior-high/functions/${expectedSectionPath}/`,
       ),
     ));
   }
@@ -120,6 +140,12 @@ test("worksheet carries the two textbook figures through namespaced specs", () =
       (figure) => figure.renderId.startsWith(`${problem.id}--`),
     ));
   }
+  assert.equal(
+    validateCollections(catalog, collectionSource, repoRoot)
+      .find((item) => item.id === "function-representation-foundation")
+      .groups[0].problems[0].originalFigures[0].kind,
+    "valueTable",
+  );
 });
 
 test("rejects unknown sections, duplicate IDs and missing published files", () => {
@@ -201,6 +227,32 @@ test("resolves worksheet state without changing the card catalog filters", () =>
   assert.equal(advanced.id, "function-concepts-advanced");
   assert.equal(model.collectionProblemCount(advanced), 13);
   assert.match(model.stateToSearch(advancedState), /collection=function-concepts-advanced/);
+
+  const representationState = model.parseSearch(
+    catalog,
+    "?chapter=functions&section=function-representation",
+  );
+  const representation = model.collectionForState(catalog, representationState);
+  assert.equal(representation.id, "function-representation-foundation");
+  assert.equal(model.collectionProblemCount(representation), 13);
+  assert.match(
+    model.stateToSearch(representationState),
+    /section=function-representation/,
+  );
+  assert.match(
+    model.stateToSearch(representationState),
+    /collection=function-representation-foundation/,
+  );
+
+  const misplacedRepresentation = model.parseSearch(
+    catalog,
+    "?chapter=functions&section=function-concepts-and-representation&collection=function-representation-foundation",
+  );
+  assert.equal(
+    misplacedRepresentation.collection,
+    "function-concepts-foundation",
+    "函数表示法集合不能再落入函数概念子目录",
+  );
 });
 
 test("splits worksheet choices away from the question stem and stacks long choices", () => {

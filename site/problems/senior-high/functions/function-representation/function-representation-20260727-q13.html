@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>函数的表示法第 13 题：出租车分段计费与方案比较 | 数学说</title>
+  <meta name="description" content="累计起步价和分段里程费，建立出租车费用函数并比较换车方案。" />
+  <meta property="og:title" content="函数的表示法第 13 题：出租车分段计费与方案比较 | 数学说" />
+  <meta property="og:description" content="累计起步价和分段里程费，建立出租车费用函数并比较换车方案。" />
+  <meta property="og:image" content="../../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css?v=2" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../../senior-high/index.html">高中题库</a>
+    <span class="lesson-title">函数表示法第 13 题</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          <div class="problem-full">
+            <div class="problem-line"><span><span class="problem-source-inline">（教材习题改编）</span>某小组 4 位同学准备乘坐出租车去参加社会实践活动。已知全程 30 km，出租车收费标准为：起步价 11 元（乘车不超过 3 km）；行驶 3 km 后，每千米车费 2.2 元；行驶 10 km 后，每千米车费 2.8 元。</span></div>
+<div class="problem-line"><span>（1）写出同学们乘车的费用 <span class="inline-math">f(x)</span>（单位：元）与路程 x（单位：km）的函数关系式；</span></div>
+<div class="problem-line"><span>（2）比较三种方案：①一辆车行驶 30 km；②行驶 15 km 后换车，再行驶 15 km；③每行驶 10 km 后换车一次。哪一种方案最省钱？</span><span class="answer-chip" id="answerI">（1）<span class="inline-math">f(x)=11</span>（<span class="inline-math">0&lt;x≤3</span>），<span class="inline-math">f(x)=2.2x+4.4</span>（<span class="inline-math">3&lt;x≤10</span>），<span class="inline-math">f(x)=2.8x-1.6</span>（<span class="inline-math">10&lt;x≤30</span>）；（2）方案③</span></div>
+          </div>
+        </section>
+
+        <aside class="lesson-key-points" aria-label="解题要点"><div class="lesson-key-points-title">解题要点</div><div class="lesson-key-points-content"><ol><li>起步价覆盖前 3 km，超过部分才按里程单价增加；</li><li>当 x=10 时先求累计费用，再建立 <span class="inline-math">10&lt;x≤30</span> 时的关系式；</li><li>换车会重新支付起步价，方案总费用是各次乘车费用之和。</li></ol></div></aside>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../../assets/js/lesson-page-runtime.js?v=2"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"s1","section":"（1）","title":"按 x 的取值范围建立费用函数","t":15,"derive":[["当 0<x≤3 时","\\(f(x)=11\\)"],["当 3<x≤10 时","\\(f(x)=11+2.2(x-3)=2.2x+4.4\\)"],["当 x=10 时","\\(f(10)=11+2.2×7=26.4\\)"],["当 10<x≤30 时","\\(f(x)=26.4+2.8(x-10)=2.8x-1.6\\)"]],"box":["分档点的累计费用保证相邻两段连续衔接"]},{"id":"s2","section":"（2）","title":"分别计算三种方案总费用","t":10,"derive":[["方案①","\\(f(30)=2.8×30-1.6=82.4\\) 元"],["方案②","\\(2f(15)=2(2.8×15-1.6)=80.8\\) 元"],["方案③","\\(3f(10)=3×26.4=79.2\\) 元"],["比较","\\(79.2<80.8<82.4\\)"],["∴","方案③最省钱"]],"box":["每次换车都重新按一次完整的费用函数计费"]}];
+    var STEP_LABELS = {"s1":"（1）建立费用函数","s2":"（2）比较乘车方案"};
+    var POLICIES   = {"s1":{"movable":true,"range":[0.1,30],"step":0.1},"s2":{"movable":false,"range":[10,10]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 滑块主参数与派生参数的联动文案格式化器 */
+    var __LESSON_PARAM_LABEL_FORMATTER__;
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script type="application/json" id="functionSpec">{"$schema":"../../schemas/function-spec.schema.json","version":1,"id":"function-representation-20260727-q13","parameter":{"name":"x","initial":15},"panels":[{"id":"fare-graph","kind":"functionGraph","title":"一次乘车费用 f(x)","viewport":{"x":0.06,"y":0.06,"width":0.88,"height":0.88},"domain":{"minX":0,"maxX":30,"minY":0,"maxY":90},"gridStepX":3,"gridStepY":11,"showAxisTicks":true,"renderAllFunctions":true,"pointLabelFontSize":20,"functions":[{"id":"fare-start","variable":"x","expr":"11","label":"0<x≤3","intervals":[{"min":0,"max":3,"openMin":true}]},{"id":"fare-middle","variable":"x","expr":"2.2*x+4.4","label":"3<x≤10","intervals":[{"min":3,"max":10,"openMin":true}]},{"id":"fare-long","variable":"x","expr":"2.8*x-1.6","label":"10<x≤30","intervals":[{"min":10,"max":30,"openMin":true}]}],"points":[{"id":"fare-3","x":3,"y":11,"label":"(3,11)","labelDx":14,"labelDy":-14},{"id":"fare-10","x":10,"y":26.4,"label":"(10,26.4)","labelDx":14,"labelDy":-14}]},{"id":"plan-table","kind":"valueTable","title":"三种乘车方案费用比较","viewport":{"x":0.04,"y":0.12,"width":0.92,"height":0.76},"columns":["方案","每段路程","单段费用","总费用"],"rows":[{"id":"plan-1","cells":["① 不换车","30 km","f(30)=82.4","82.4 元"]},{"id":"plan-2","cells":["② 分两段","15 km×2","f(15)=40.4","80.8 元"]},{"id":"plan-3","cells":["③ 分三段","10 km×3","f(10)=26.4","79.2 元"]}]}]}</script>
+<script src="../../../../assets/js/math-expression-engine.js"></script>
+<script src="../../../../assets/js/function-lesson-from-spec.js?v=8"></script>
+
+<script>
+  const __FUNCTION_SPEC__ = JSON.parse(document.getElementById('functionSpec').textContent);
+  const __FUNCTION_DECORATIONS__ = {"$schema":"../../schemas/function-decorations.schema.json","version":1,"steps":{"s1":{"visiblePanels":["fare-graph"],"visibleElementIds":["fare-start","fare-middle","fare-long","fare-3","fare-10"],"highlightElementIds":[],"fillMovingPoint":true},"s2":{"visiblePanels":["plan-table"],"visibleElementIds":["plan-1","plan-2","plan-3"],"highlightElementIds":["plan-3"]}}};
+  const renderer = FunctionLessonFromSpec.createSpecRenderer(__FUNCTION_SPEC__, __FUNCTION_DECORATIONS__, STEPS, POLICIES);
+  function groupTitle(section) {
+    const map = {"（1）":"建立分段费用函数","（2）":"比较三种方案"};
+    return Object.prototype.hasOwnProperty.call(map, section) ? map[section] : section;
+  }
+  var diagramMarkupFor = renderer.diagramMarkupFor;
+  var diagramMarkupForFrame = renderer.diagramMarkupForFrame;
+  var drawMini = renderer.drawMini;
+  var __LESSON_LEGEND_HTML__ = "<span><i class=\"sw\" style=\"background:var(--fold)\"></i>一次乘车费用</span>";
+
+  var __AFTER_RENDER_ALL_STEPS__ = renderer.renderOriginalFigures;
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      diagramMarkupForFrame: typeof diagramMarkupForFrame === "function" ? diagramMarkupForFrame : undefined,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "路程 x",
+      paramLabelPrefix: "x＝",
+      paramLabelFormatter: typeof __LESSON_PARAM_LABEL_FORMATTER__ === "function" ? __LESSON_PARAM_LABEL_FORMATTER__ : undefined,
+      goToProblemMode: "smooth"
+    });
+  </script>
+</body>
+</html>

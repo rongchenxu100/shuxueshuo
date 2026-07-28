@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>函数的表示法第 7 题：三类条件下求解析式 | 数学说</title>
+  <meta name="description" content="分别使用换元、待定系数和关于相反数的联立方程求解析式。" />
+  <meta property="og:title" content="函数的表示法第 7 题：三类条件下求解析式 | 数学说" />
+  <meta property="og:description" content="分别使用换元、待定系数和关于相反数的联立方程求解析式。" />
+  <meta property="og:image" content="../../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css?v=2" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../../senior-high/index.html">高中题库</a>
+    <span class="lesson-title">函数表示法第 7 题</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          <div class="problem-full">
+            <div class="problem-line"><span><span class="problem-source-inline">（2026 河南安阳第一中学月考）</span>求下列函数 <span class="inline-math">f(x)</span> 的解析式：</span></div>
+<div class="problem-line"><span>（1）已知函数 <span class="inline-math">f(x)</span> 满足 <span class="inline-math">f(<span class="math-radical"><span class="math-radical-symbol">√</span><span class="math-radicand">x</span></span>+1)=x+2<span class="math-radical"><span class="math-radical-symbol">√</span><span class="math-radicand">x</span></span>+1</span>；</span></div>
+<div class="problem-line"><span>（2）已知一次函数 <span class="inline-math">f(x)</span> 在 R 上满足 <span class="inline-math">f(f(x))=4x+6</span>；</span></div>
+<div class="problem-line"><span>（3）已知函数 <span class="inline-math">f(x)</span> 满足 <span class="inline-math">2f(x)-f(-x)=x+1</span>。</span><span class="answer-chip" id="answerI">（1）<span class="inline-math">f(x)=x<sup>2</sup></span>（<span class="inline-math">x≥1</span>）；（2）<span class="inline-math">f(x)=2x+2</span> 或 <span class="inline-math">f(x)=-2x-6</span>；（3）<span class="inline-math">f(x)=<span class="math-fraction"><span class="math-numerator">x</span><span class="math-denominator">3</span></span>+1</span></span></div>
+          </div>
+        </section>
+
+        <aside class="lesson-key-points" aria-label="解题要点"><div class="lesson-key-points-title">解题要点</div><div class="lesson-key-points-content"><ol><li>整体输入可换元时，必须同步确定新变量的取值范围；</li><li>已知一次函数时设 <span class="inline-math">f(x)=kx+b</span>，比较复合后的系数；</li><li>同时出现 <span class="inline-math">f(x)</span> 与 <span class="inline-math">f(-x)</span> 时，用 <span class="inline-math">-x</span> 替换 x 后联立。</li></ol></div></aside>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../../assets/js/lesson-page-runtime.js?v=2"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"s1","section":"（1）","title":"把整体输入换成新变量","t":0,"showDiagram":false,"derive":[["令","\\(t=\\sqrt{x}+1\\)，则 \\(t≥1\\)"],["右边","\\(x+2\\sqrt{x}+1=(\\sqrt{x}+1)^2=t^2\\)"],["∴","\\(f(t)=t^2\\)（\\(t≥1\\)），即 \\(f(x)=x^2\\)（\\(x≥1\\)）"]],"box":["换元后保留新变量 t 的范围"]},{"id":"s2","section":"（2）","title":"设一次函数并比较系数","t":0,"showDiagram":false,"derive":[["设","\\(f(x)=kx+b\\)（\\(k≠0\\)）"],["复合","\\(f(f(x))=k(kx+b)+b=k^2x+kb+b\\)"],["比较系数","\\(k^2=4\\)，\\(b(k+1)=6\\)"],["解得","\\(k=2,b=2\\)，或 \\(k=-2,b=-6\\)"],["∴","\\(f(x)=2x+2\\)，或 \\(f(x)=-2x-6\\)"]],"box":["平方系数方程有两个根，两种一次函数都要保留"]},{"id":"s3","section":"（3）","title":"用相反数替换后联立","t":0,"showDiagram":false,"derive":[["原式","\\(2f(x)-f(-x)=x+1\\)"],["把 x 换成 −x","\\(2f(-x)-f(x)=1-x\\)"],["消元","原式的 2 倍与第二式相加，得 \\(3f(x)=x+3\\)"],["∴","\\(f(x)=\\frac{x}{3}+1\\)"]],"box":["替换 x 为 −x，可把两个未知函数值组成线性方程组"]}];
+    var STEP_LABELS = {"s1":"（1）整体换元","s2":"（2）待定系数","s3":"（3）相反数联立"};
+    var POLICIES   = {"s1":{"movable":false,"range":[0,0]},"s2":{"movable":false,"range":[0,0]},"s3":{"movable":false,"range":[0,0]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 滑块主参数与派生参数的联动文案格式化器 */
+    var __LESSON_PARAM_LABEL_FORMATTER__;
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script type="application/json" id="functionSpec">{"$schema":"../../schemas/function-spec.schema.json","version":1,"id":"function-representation-20260727-q07","panels":[{"id":"method-list","kind":"constraintList","title":"三种解析式求法","viewport":{"x":0.08,"y":0.12,"width":0.84,"height":0.76},"constraints":[{"id":"substitute","label":"第（1）问","expression":"t=√x+1","result":"换元"},{"id":"coefficients","label":"第（2）问","expression":"f(x)=kx+b","result":"待定系数"},{"id":"system","label":"第（3）问","expression":"x 与 -x","result":"联立方程"}]}]}</script>
+<script src="../../../../assets/js/math-expression-engine.js"></script>
+<script src="../../../../assets/js/function-lesson-from-spec.js?v=3"></script>
+
+<script>
+  const __FUNCTION_SPEC__ = JSON.parse(document.getElementById('functionSpec').textContent);
+  const __FUNCTION_DECORATIONS__ = {"$schema":"../../schemas/function-decorations.schema.json","version":1,"steps":{"s1":{"visiblePanels":[]},"s2":{"visiblePanels":[]},"s3":{"visiblePanels":[]}}};
+  const renderer = FunctionLessonFromSpec.createSpecRenderer(__FUNCTION_SPEC__, __FUNCTION_DECORATIONS__, STEPS, POLICIES);
+  function groupTitle(section) {
+    const map = {"（1）":"整体换元","（2）":"待定系数","（3）":"相反数联立"};
+    return Object.prototype.hasOwnProperty.call(map, section) ? map[section] : section;
+  }
+  var diagramMarkupFor = renderer.diagramMarkupFor;
+  var diagramMarkupForFrame = renderer.diagramMarkupForFrame;
+  var drawMini = renderer.drawMini;
+  var __LESSON_LEGEND_HTML__ = "";
+
+  var __AFTER_RENDER_ALL_STEPS__ = renderer.renderOriginalFigures;
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      diagramMarkupForFrame: typeof diagramMarkupForFrame === "function" ? diagramMarkupForFrame : undefined,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "参数",
+      paramLabelPrefix: "",
+      paramLabelFormatter: typeof __LESSON_PARAM_LABEL_FORMATTER__ === "function" ? __LESSON_PARAM_LABEL_FORMATTER__ : undefined,
+      goToProblemMode: "smooth"
+    });
+  </script>
+</body>
+</html>

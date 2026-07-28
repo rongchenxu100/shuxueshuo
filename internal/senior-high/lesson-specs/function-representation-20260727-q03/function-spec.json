@@ -1,0 +1,28 @@
+{
+  "$schema": "../../schemas/function-spec.schema.json",
+  "version": 1,
+  "id": "function-representation-20260727-q03",
+  "panels": [
+    {
+      "id": "original-table",
+      "kind": "valueTable",
+      "title": "函数 f(x) 的列表表示",
+      "viewport": { "x": 0.05, "y": 0.18, "width": 0.90, "height": 0.64 },
+      "columns": ["x", "1", "2", "3", "4", "5"],
+      "rows": [
+        { "id": "original-outputs", "cells": ["f(x)", "6", "12", "18", "24", "30"] }
+      ]
+    },
+    {
+      "id": "pattern-table",
+      "kind": "valueTable",
+      "title": "由对应值寻找统一规律",
+      "viewport": { "x": 0.05, "y": 0.18, "width": 0.90, "height": 0.64 },
+      "columns": ["x", "1", "2", "3", "4", "5"],
+      "rows": [
+        { "id": "outputs", "cells": ["f(x)", "6", "12", "18", "24", "30"] },
+        { "id": "ratios", "cells": ["f(x)÷x", "6", "6", "6", "6", "6"] }
+      ]
+    }
+  ]
+}

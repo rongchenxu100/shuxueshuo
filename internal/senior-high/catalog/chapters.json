@@ -9,13 +9,23 @@
       "sections": [
         {
           "id": "function-concepts-and-representation",
-          "label": "函数的概念及其表示",
+          "label": "函数的概念",
           "order": 10,
           "presentation": "worksheet",
           "defaultCollectionId": "function-concepts-foundation",
           "collectionIds": [
             "function-concepts-foundation",
             "function-concepts-advanced"
+          ]
+        },
+        {
+          "id": "function-representation",
+          "label": "函数的表示法",
+          "order": 20,
+          "presentation": "worksheet",
+          "defaultCollectionId": "function-representation-foundation",
+          "collectionIds": [
+            "function-representation-foundation"
           ]
         }
       ]

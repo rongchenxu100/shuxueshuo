@@ -1,0 +1,41 @@
+{
+  "$schema": "../../schemas/function-spec.schema.json",
+  "version": 1,
+  "id": "function-representation-20260727-q12",
+  "parameter": { "name": "x", "initial": 2 },
+  "panels": [
+    {
+      "id": "blank-grid",
+      "kind": "relationPlot",
+      "title": "题目给定坐标系",
+      "viewport": { "x": 0.06, "y": 0.06, "width": 0.88, "height": 0.88 },
+      "domain": { "minX": -3, "maxX": 4, "minY": -3, "maxY": 4 },
+      "axisPadding": { "minX": 0.1, "maxX": 0.1, "minY": 0.1, "maxY": 0.1 },
+      "segments": []
+    },
+    {
+      "id": "piecewise-graph",
+      "kind": "functionGraph",
+      "title": "三段函数的完整图象",
+      "viewport": { "x": 0.05, "y": 0.05, "width": 0.90, "height": 0.90 },
+      "domain": { "minX": -3, "maxX": 4.5, "minY": -8, "maxY": 4.5 },
+      "gridStepX": 1,
+      "gridStepY": 1,
+      "showAxisTicks": true,
+      "renderAllFunctions": true,
+      "functions": [
+        { "id": "reciprocal", "variable": "x", "expr": "1/x", "label": "1/x，-1≤x<0", "intervals": [{ "min": -1, "max": 0, "openMax": true }] },
+        { "id": "quadratic", "variable": "x", "expr": "x^2-2*x", "label": "x²-2x，0≤x≤3", "intervals": [{ "min": 0, "max": 3 }] },
+        { "id": "linear", "variable": "x", "expr": "-2*x+9", "label": "-2x+9，3<x≤4", "intervals": [{ "min": 3, "max": 4, "openMin": true }] }
+      ],
+      "points": [
+        { "id": "reciprocal-left", "x": -1, "y": -1, "label": "(-1,-1)" },
+        { "id": "quadratic-left", "x": 0, "y": 0, "label": "(0,0)" },
+        { "id": "quadratic-vertex", "x": 1, "y": -1, "label": "(1,-1)" },
+        { "id": "quadratic-right", "x": 3, "y": 3, "label": "(3,3)" },
+        { "id": "linear-right", "x": 4, "y": 1, "label": "(4,1)" }
+      ],
+      "range": [{ "id": "full-range", "min": -8, "max": 3, "extendsMin": true, "label": "(−∞,3]" }]
+    }
+  ]
+}

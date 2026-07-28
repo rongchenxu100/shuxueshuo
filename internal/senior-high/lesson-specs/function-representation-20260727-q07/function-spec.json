@@ -1,0 +1,18 @@
+{
+  "$schema": "../../schemas/function-spec.schema.json",
+  "version": 1,
+  "id": "function-representation-20260727-q07",
+  "panels": [
+    {
+      "id": "method-list",
+      "kind": "constraintList",
+      "title": "三种解析式求法",
+      "viewport": { "x": 0.08, "y": 0.12, "width": 0.84, "height": 0.76 },
+      "constraints": [
+        { "id": "substitute", "label": "第（1）问", "expression": "t=√x+1", "result": "换元" },
+        { "id": "coefficients", "label": "第（2）问", "expression": "f(x)=kx+b", "result": "待定系数" },
+        { "id": "system", "label": "第（3）问", "expression": "x 与 -x", "result": "联立方程" }
+      ]
+    }
+  ]
+}

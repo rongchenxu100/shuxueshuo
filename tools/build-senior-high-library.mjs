@@ -217,6 +217,7 @@ function buildCollectionProblem(root, lessonId, number, group) {
     return {
       id: figure.id,
       renderId: `${lessonId}--${figure.id}`,
+      kind: panel.kind,
     };
   });
   const figureSpec = originalFigures.length === 0
@@ -298,6 +299,12 @@ export function validateCollections(catalog, collectionSource, root = repoRoot) 
       const sizes = groups.map((group) => group.problems.length).join("/");
       if (number !== 13 || sizes !== "2/4/6/1") {
         throw new Error(`function-concepts-advanced 必须包含 13 题并按 2/4/6/1 分组`);
+      }
+    }
+    if (collection.id === "function-representation-foundation") {
+      const sizes = groups.map((group) => group.problems.length).join("/");
+      if (number !== 13 || sizes !== "3/4/6") {
+        throw new Error(`function-representation-foundation 必须包含 13 题并按 3/4/6 分组`);
       }
     }
 

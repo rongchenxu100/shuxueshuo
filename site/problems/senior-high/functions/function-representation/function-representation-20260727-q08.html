@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>函数的表示法第 8 题：由差分条件确定二次函数 | 数学说</title>
+  <meta name="description" content="由二次函数的相邻差比较系数，再求二次不等式解集。" />
+  <meta property="og:title" content="函数的表示法第 8 题：由差分条件确定二次函数 | 数学说" />
+  <meta property="og:description" content="由二次函数的相邻差比较系数，再求二次不等式解集。" />
+  <meta property="og:image" content="../../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css?v=2" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../../senior-high/index.html">高中题库</a>
+    <span class="lesson-title">函数表示法第 8 题</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          <div class="problem-full">
+            <div class="problem-line"><span><span class="problem-source-inline">（2026 重庆渝东九校期中联考）</span>已知二次函数 <span class="inline-math">f(x)</span> 满足 <span class="inline-math">f(0)=0</span>，<span class="inline-math">f(x+1)-f(x)=2x-3</span>。</span></div>
+<div class="problem-line"><span>（1）求二次函数 <span class="inline-math">f(x)</span> 的解析式；</span></div>
+<div class="problem-line"><span>（2）求不等式 <span class="inline-math">f(x)≥18-x</span> 的解集。</span><span class="answer-chip" id="answerI">（1）<span class="inline-math">f(x)=x<sup>2</sup>-4x</span>；（2）<span class="inline-math">(−∞,-3]∪[6,+∞)</span></span></div>
+          </div>
+        </section>
+
+        
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../../assets/js/lesson-page-runtime.js?v=2"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"s1","section":"（1）","title":"比较差分式的系数","t":0,"showDiagram":false,"derive":[["设","\\(f(x)=ax^2+bx+c\\)（\\(a≠0\\)）"],["作差","\\(f(x+1)-f(x)=2ax+a+b\\)"],["比较系数","\\(2a=2\\)，\\(a+b=-3\\)，所以 \\(a=1,b=-4\\)"],["初值","\\(f(0)=c=0\\)"],["∴","\\(f(x)=x^2-4x\\)"]],"box":["二次函数的一阶差分是一次式，可直接比较系数"]},{"id":"s2","section":"（2）","title":"因式分解并在数轴上取区间","t":0,"derive":[["代入解析式","\\(x^2-4x≥18-x\\)"],["整理","\\(x^2-3x-18≥0\\)"],["因式分解","\\((x+3)(x-6)≥0\\)"],["∴","解集为 \\((−∞,-3]∪[6,+∞)\\)"]],"box":["开口向上的二次式在两个零点外侧非负"]}];
+    var STEP_LABELS = {"s1":"（1）确定解析式","s2":"（2）解不等式"};
+    var POLICIES   = {"s1":{"movable":false,"range":[0,0]},"s2":{"movable":false,"range":[0,0]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 滑块主参数与派生参数的联动文案格式化器 */
+    var __LESSON_PARAM_LABEL_FORMATTER__;
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script type="application/json" id="functionSpec">{"$schema":"../../schemas/function-spec.schema.json","version":1,"id":"function-representation-20260727-q08","panels":[{"id":"solution-set","kind":"numberLine","title":"二次不等式的解集","viewport":{"x":0.06,"y":0.18,"width":0.88,"height":0.64},"axis":{"min":-8,"max":11,"label":"x"},"intervals":[{"id":"left-ray","min":-8,"max":-3,"extendsMin":true,"label":"x≤-3","color":"#0f766e"},{"id":"right-ray","min":6,"max":11,"extendsMax":true,"label":"x≥6","color":"#0f766e"}]}]}</script>
+<script src="../../../../assets/js/math-expression-engine.js"></script>
+<script src="../../../../assets/js/function-lesson-from-spec.js?v=3"></script>
+
+<script>
+  const __FUNCTION_SPEC__ = JSON.parse(document.getElementById('functionSpec').textContent);
+  const __FUNCTION_DECORATIONS__ = {"$schema":"../../schemas/function-decorations.schema.json","version":1,"steps":{"s1":{"visiblePanels":[]},"s2":{"visiblePanels":["solution-set"],"visibleElementIds":["left-ray","right-ray"],"highlightElementIds":["left-ray","right-ray"]}}};
+  const renderer = FunctionLessonFromSpec.createSpecRenderer(__FUNCTION_SPEC__, __FUNCTION_DECORATIONS__, STEPS, POLICIES);
+  function groupTitle(section) {
+    const map = {"（1）":"确定解析式","（2）":"解不等式"};
+    return Object.prototype.hasOwnProperty.call(map, section) ? map[section] : section;
+  }
+  var diagramMarkupFor = renderer.diagramMarkupFor;
+  var diagramMarkupForFrame = renderer.diagramMarkupForFrame;
+  var drawMini = renderer.drawMini;
+  var __LESSON_LEGEND_HTML__ = "";
+
+  var __AFTER_RENDER_ALL_STEPS__ = renderer.renderOriginalFigures;
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      diagramMarkupForFrame: typeof diagramMarkupForFrame === "function" ? diagramMarkupForFrame : undefined,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "参数",
+      paramLabelPrefix: "",
+      paramLabelFormatter: typeof __LESSON_PARAM_LABEL_FORMATTER__ === "function" ? __LESSON_PARAM_LABEL_FORMATTER__ : undefined,
+      goToProblemMode: "smooth"
+    });
+  </script>
+</body>
+</html>
