@@ -437,6 +437,65 @@ def test_feedback_service_without_provider_uses_generic_issue_unchanged() -> Non
     assert enriched == (issue,)
 
 
+def test_closed_state_issue_uses_bounded_generic_feedback() -> None:
+    issue = PlannerRetryIssue(
+        layer="functional_reconciliation",
+        code="functional.arg_state_open",
+        step_id="consume_state",
+        message="input state remains open",
+        details={
+            "arg": "point",
+            "producer_call_id": "produce_open_state",
+            "free_symbol_refs": ["symbol:parameter"],
+            "repair_call_ids": [
+                "produce_open_state",
+                "consume_state",
+            ],
+        },
+    )
+    calls = (
+        SimpleNamespace(
+            call_id="produce_open_state",
+            capability_id="producer",
+        ),
+        SimpleNamespace(
+            call_id="consume_state",
+            capability_id="consumer",
+        ),
+    )
+    capability = SimpleNamespace(
+        capability_id="consumer",
+        kind="function",
+        source=SimpleNamespace(repair_feedback_provider_id=None),
+    )
+
+    enriched = apply_capability_repair_feedback(
+        (issue,),
+        plan=SimpleNamespace(calls=calls),
+        reconciliation=SimpleNamespace(
+            dependency_graph={
+                "produce_open_state": (),
+                "consume_state": ("produce_open_state",),
+            }
+        ),
+        catalog=SimpleNamespace(
+            get=lambda capability_id: (
+                capability if capability_id == "consumer" else None
+            )
+        ),
+        locked_call_ids=(),
+    )
+
+    feedback = enriched[0].details["repair_feedback"]
+    assert feedback["expected"]["form"] == "closed_state"
+    assert feedback["actual"]["free_parameters"] == ["symbol:parameter"]
+    assert feedback["additional_repair_call_ids"] == [
+        "produce_open_state",
+        "consume_state",
+    ]
+    assert len(enriched[0].hints) == 2
+
+
 def test_unknown_feedback_provider_fails_catalog_preflight() -> None:
     with pytest.raises(
         CapabilityRepairFeedbackProviderError,

@@ -388,6 +388,39 @@ def test_compiled_finalizer_rejects_answer_for_another_math_object() -> None:
         )
 
 
+def test_compiled_finalizer_rejects_mismatched_answer_alias_provenance() -> None:
+    state = _write(
+        "derive_wrong_answer",
+        "fact:i_2:g_candidates",
+        object_ref="point:i_2:G",
+    )
+    answer_alias = replace(
+        _provenance(state),
+        produced_handle="answer:i.axis_point",
+        math_object_id=None,
+        logical_state_key=None,
+        typed_slot_id=None,
+        selected_version_id=None,
+    )
+
+    with pytest.raises(
+        StrategyDraftValidationError,
+        match="state.answer_object_identity_mismatch",
+    ):
+        StateFinalizationService().finalize_compiled_graph(
+            (state,),
+            (answer_alias,),
+            (
+                _plan(
+                    "derive_wrong_answer",
+                    source_path="$step.derive_wrong_answer.facts.point",
+                    target_path="$question.i.answers.axis_point",
+                ),
+            ),
+            handle_registry=_registry(),
+        )
+
+
 def test_logical_finalizer_rejects_sibling_private_source_version() -> None:
     source = _write(
         "derive_private_d",

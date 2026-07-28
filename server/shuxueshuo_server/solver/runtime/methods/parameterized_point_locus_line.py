@@ -98,6 +98,8 @@ SPEC = MethodSpecSource(
     title="由参数化点求轨迹直线",
     summary=(
         "Given 单参数仿射点坐标 P(t), derive 该动点的直线轨迹。"
+        "Line 可作为 call-local 中间结果直接被后续调用引用；只有题面确实"
+        "声明了同一条 Line 对象时才绑定已有对象，不要为展示名称虚构 Line ref。"
         "适用于几何构造得到点坐标后，再把折线路径最值转化到动点所在直线的场景。"
     ),
     solves=("derive_parameterized_point_locus_line",),

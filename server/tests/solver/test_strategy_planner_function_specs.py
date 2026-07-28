@@ -540,6 +540,78 @@ def test_function_arg_kind_is_runtime_type_driven_not_method_input_name() -> Non
     assert parameter_kinds["constraint"] == "condition_read"
 
 
+def test_internal_method_outputs_are_not_functional_returns() -> None:
+    problem = load_problem_ir(str(RECORDED_FIXTURES[2][0]))
+    inputs = build_strategy_probe_inputs(problem)
+    method = inputs.method_specs.require(
+        "linked_broken_path_minimum_expression"
+    )
+    functions = FunctionSpecRegistry.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
+    )
+    catalog = FunctionalCapabilityCatalog.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
+    )
+
+    assert set(method.outputs) == {
+        "minimum_expression",
+        "dynamic_parameter_expression",
+        "dynamic_point_expression",
+    }
+    assert method.internal_outputs == (
+        "dynamic_parameter_expression",
+        "dynamic_point_expression",
+    )
+    assert tuple(
+        item.name
+        for item in functions.require(
+            "linked_broken_path_minimum_expression"
+        ).returns
+    ) == ("minimum_expression",)
+    capability = catalog.get("linked_broken_path_minimum_expression")
+    assert capability is not None
+    assert tuple(item.name for item in capability.returns) == (
+        "minimum_expression",
+    )
+
+
+def test_internal_method_output_cannot_be_a_contract_state_write() -> None:
+    method = MethodSpec(
+        method_id="synthetic_internal_output",
+        title="Synthetic",
+        solves=("derive_synthetic",),
+        inputs={},
+        outputs={
+            "public_expression": "Expression",
+            "runtime_witness": "Point",
+        },
+        internal_outputs=("runtime_witness",),
+    )
+    contract = CapabilityContractSpec(
+        capability_id=method.method_id,
+        kind="method",
+        slot_writes=(
+            StateSlotPattern(
+                "coordinate",
+                "Point",
+                output_key="runtime_witness",
+            ),
+        ),
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="internal method outputs cannot be Functional state writes",
+    ):
+        function_spec_from_method(
+            method,
+            contract=contract,
+            adapter=None,
+        )
+
+
 def test_function_spec_notes_contract_return_mismatch() -> None:
     spec = function_spec_from_method(
         MethodSpec(

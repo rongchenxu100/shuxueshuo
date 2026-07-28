@@ -26,6 +26,7 @@ GoalEvidenceTag = Literal[
     "path_minimum_witness",
     "path_minimum_expression",
     "path_minimum_extremal_point",
+    "curve_membership",
 ]
 
 
@@ -37,6 +38,7 @@ class GoalEvidencePolicySpec:
     value_types: tuple[str, ...]
     required_evidence_tags: tuple[GoalEvidenceTag, ...]
     mechanism_pack_id: str | None = None
+    producer_goal_types: tuple[str, ...] = ()
 StateIdentityRelation = Literal["same_object"]
 StateRoleRequirement = Literal["identity_only", "materialized"]
 StateIdentityConstraintApplicability = Literal[
@@ -472,6 +474,8 @@ class StateSlotPattern:
     scope_policy: CapabilityScopePolicy = "current_or_visible"
     cardinality: CapabilityCardinality = "one"
     required: bool = True
+    identity_policy: StateIdentityPolicy | None = None
+    identity_arg: str | None = None
     write_mode: StateWriteMode = "value"
     description: str = ""
     provides_semantic_roles: tuple[str, ...] = ()
@@ -494,6 +498,10 @@ class StateSlotPattern:
             payload["object_kind"] = self.object_kind
         if self.object_ref is not None:
             payload["object_ref"] = self.object_ref
+        if self.identity_policy is not None:
+            payload["identity_policy"] = self.identity_policy
+        if self.identity_arg is not None:
+            payload["identity_arg"] = self.identity_arg
         if self.semantic_role is not None:
             payload["semantic_role"] = self.semantic_role
         if self.output_key is not None:

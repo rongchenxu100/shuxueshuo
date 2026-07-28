@@ -128,6 +128,8 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
                         "two_moving_points_path_reduction.path_transformation",
                         "PathTransformation",
                         "path_transformation",
+                        identity_policy="derived_role",
+                        write_mode="create",
                         description=(
                             "包含降维后的动点、两个固定端点，以及由题面线段"
                             "归属条件提供的动点轨迹证据；后续路径拉直可据此"

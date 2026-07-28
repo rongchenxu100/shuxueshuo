@@ -17,6 +17,15 @@ from shuxueshuo_server.solver.runtime.functional_call_memory import (
 from shuxueshuo_server.solver.runtime.functional_repair_feedback import (
     apply_capability_repair_feedback,
 )
+from shuxueshuo_server.solver.runtime.functional_retry_versions import (
+    FunctionalRetryGraphCheckpoint,
+    build_functional_retry_graph_checkpoint,
+    expand_retry_dependency_graph_with_versions,
+    latest_functional_retry_graph_checkpoint,
+    validate_checkpoint_manifest,
+    verify_restored_checkpoint,
+    verify_restored_runtime_checkpoint,
+)
 from shuxueshuo_server.solver.runtime.canonical_draft_finalizer import (
     CanonicalDraftFinalizer,
 )
@@ -92,7 +101,10 @@ from shuxueshuo_server.solver.runtime.state_dependency_graph import (
 from shuxueshuo_server.solver.runtime.strategy_repair_feedback import RepairFeedbackBuilder
 from shuxueshuo_server.solver.runtime.strategy_repair_guidance import RepairGuidanceResolver
 from shuxueshuo_server.solver.runtime.strategy_resolver import StepIntentCandidateResolver
-from shuxueshuo_server.solver.runtime.strategy_retry_state import build_planner_retry_state
+from shuxueshuo_server.solver.runtime.strategy_retry_state import (
+    build_planner_retry_state,
+    retry_state_from_attempt,
+)
 from shuxueshuo_server.solver.runtime.state_finalization import (
     expand_functional_dependency_graph,
     project_functional_state_dependencies,
@@ -262,6 +274,14 @@ class PlannerRetryReplayService:
             attempt=attempt,
             previous_attempts=inputs.previous_errors,
         )
+        retry_checkpoint = latest_functional_retry_graph_checkpoint(
+            inputs.previous_errors
+        )
+        if retry_checkpoint is not None:
+            validate_checkpoint_manifest(
+                retry_checkpoint,
+                context=planner_state_context,
+            )
         raw_response = prepare_functional_plan_raw_response(
             raw_response,
             previous_attempts=inputs.previous_errors,
@@ -313,6 +333,7 @@ class PlannerRetryReplayService:
             problem_payload=problem_payload,
             planner_state_context=planner_state_context,
             validation_report=report,
+            retry_checkpoint=retry_checkpoint,
         )
 
     def replay_functional_plan(
@@ -327,6 +348,7 @@ class PlannerRetryReplayService:
         problem_payload: dict[str, Any] | None = None,
         planner_state_context: PlannerStateContext | None = None,
         validation_report: FunctionalPlanValidationReport | None = None,
+        retry_checkpoint: FunctionalRetryGraphCheckpoint | None = None,
     ) -> PlannerRetryReplayResult:
         """Reconcile FunctionalPlan, then reuse the canonical StepIntent replay."""
         planner_state_context = planner_state_context or _initial_planner_state_context(
@@ -347,7 +369,28 @@ class PlannerRetryReplayService:
             method_specs=inputs.method_specs,
             handle_registry=handle_registry,
             question_goals=inputs.question_goals,
+            pinned_canonical_call_ids=(
+                retry_checkpoint.committed_call_ids
+                if retry_checkpoint is not None
+                else ()
+            ),
+            pinned_execution_scopes=(
+                retry_checkpoint.pinned_execution_scopes
+                if retry_checkpoint is not None
+                else {}
+            ),
+            pinned_return_scopes=(
+                retry_checkpoint.pinned_return_scopes
+                if retry_checkpoint is not None
+                else {}
+            ),
         )
+        if retry_checkpoint is not None:
+            verify_restored_checkpoint(
+                retry_checkpoint,
+                reconciliation=reconciliation,
+                handle_registry=handle_registry,
+            )
         authoritative_output_types = {
             handle: output.runtime_type
             for call in reconciliation.calls
@@ -591,6 +634,16 @@ class PlannerRetryReplayService:
             if needs_retry
             else _FunctionalGraphVerification()
         )
+        if not needs_retry and retry_checkpoint is not None:
+            _verify_successful_functional_retry_checkpoint(
+                retry_checkpoint,
+                reconciliation=reconciliation,
+                diagnostic=base.diagnostic,
+                goal_verification_report=base.goal_verification_report,
+                attempt=attempt,
+                functional_catalog=functional_catalog,
+                planner_state_context=planner_state_context,
+            )
         retry_state = _functional_runtime_retry_state(
             functional_retry or base.retry_state,
             runtime_retry_state=(
@@ -616,7 +669,16 @@ class PlannerRetryReplayService:
                 planner_state_context,
                 handle_registry=handle_registry,
             ),
+            planner_state_context=planner_state_context,
+            expected_retry_checkpoint=retry_checkpoint,
         )
+        if (
+            base.output is not None
+            and not reconciliation.issues
+            and not base.goal_verification_issues
+            and not errors
+        ):
+            retry_state = None
         enriched = replace(
             base,
             retry_state=retry_state,
@@ -1444,6 +1506,11 @@ def repair_attempt_payload_from_replay(
             "schema_version": context.manifest.schema_version,
         }
         payload["context_retry_memory"] = context.state.retry_memory.to_payload()
+        checkpoint = (
+            context.state.retry_memory.functional_retry_graph_checkpoint
+        )
+        if checkpoint is not None:
+            payload["functional_retry_graph_checkpoint"] = dict(checkpoint)
         if retry_state is not None:
             payload["context_derived_retry_state"] = retry_state.to_payload()
     return payload
@@ -1555,9 +1622,15 @@ def _functional_validation_retry_state(
         errors=errors,
     )
     previous_stable = (
-        previous.get("committed_candidate_calls")
-        or previous.get("stable_candidate_calls")
+        (
+            previous.get("committed_candidate_calls")
+            or previous.get("stable_candidate_calls")
+        )
         if isinstance(previous, dict)
+        and isinstance(
+            previous.get("functional_retry_graph_checkpoint"),
+            dict,
+        )
         else None
     )
     stable_candidate_calls = tuple(
@@ -1592,7 +1665,13 @@ def _functional_validation_retry_state(
             if isinstance(item, str)
         ),
         call_memory=tuple(
-            _normalize_call_memory_entry(dict(item))
+            _normalize_call_memory_entry(
+                dict(item),
+                force_provisional=not isinstance(
+                    previous.get("functional_retry_graph_checkpoint"),
+                    dict,
+                ),
+            )
             for item in (
                 previous.get("call_memory", ())
                 if isinstance(previous, dict)
@@ -1609,6 +1688,15 @@ def _functional_validation_retry_state(
         replay_reports={
             "functional_validation": validation_report.to_payload(),
         },
+        functional_retry_graph_checkpoint=(
+            dict(previous["functional_retry_graph_checkpoint"])
+            if isinstance(previous, dict)
+            and isinstance(
+                previous.get("functional_retry_graph_checkpoint"),
+                dict,
+            )
+            else None
+        ),
     )
 
 
@@ -1910,61 +1998,25 @@ def _functional_projection_retry_state(
         else _functional_projection_issues(reconciliation, validation_report)
     )
     previous = latest_functional_retry_state(previous_attempts)
-    previous_stable = (
-        previous.get("committed_candidate_calls")
-        or previous.get("stable_candidate_calls", ())
-        if isinstance(previous, dict)
-        else ()
-    )
-    current_calls = {
-        call.call_id: (scope.scope_id, call)
-        for scope in reconciliation.plan.scopes
-        for call in scope.calls
-    }
-    previous_stable_by_id = {
-        call_id: call
-        for entry in previous_stable
-        if isinstance(entry, dict)
-        for call in (entry.get("call"),)
-        if isinstance(call, dict)
-        for call_id in (call.get("call_id"),)
-        if isinstance(call_id, str)
-    }
-    matching_committed_call_ids = set(
-        call_id
-        for call_id, previous_call in previous_stable_by_id.items()
-        if call_id in current_calls
-        and _stable_functional_call_matches(
-            current_calls[call_id][1].to_payload(),
-            previous_call,
-        )
+    checkpoint = latest_functional_retry_graph_checkpoint(previous_attempts)
+    stable_candidate_calls = _checkpoint_committed_candidate_calls(checkpoint)
+    committed_call_ids = (
+        set(checkpoint.committed_call_ids)
+        if checkpoint is not None
+        else set()
     )
     issues = _projection_issues_with_locked_context(
         issues,
-        locked_call_ids=matching_committed_call_ids,
+        locked_call_ids=committed_call_ids,
     )
     repair_call_ids = _ordered_functional_repair_cone(
         _repair_call_ids_from_functional_issues(issues),
         reconciliation=reconciliation,
     )
-    eligible_call_ids = set(matching_committed_call_ids)
-    eligible_call_ids.difference_update(repair_call_ids)
-    stable_call_ids: set[str] = set()
-    for call in reconciliation.plan.calls:
-        if call.call_id not in eligible_call_ids:
-            continue
-        dependencies = set(
-            reconciliation.dependency_graph.get(call.call_id, ())
-        )
-        if dependencies <= stable_call_ids:
-            stable_call_ids.add(call.call_id)
-    stable_candidate_calls = tuple(
-        {
-            "scope_id": current_calls[call.call_id][0],
-            "call": call.to_payload(),
-        }
-        for call in reconciliation.plan.calls
-        if call.call_id in stable_call_ids
+    repair_call_ids = tuple(
+        call_id
+        for call_id in repair_call_ids
+        if call_id not in committed_call_ids
     )
     replay_report: dict[str, Any] = {
         "reconciliation": reconciliation.to_payload(),
@@ -2007,7 +2059,7 @@ def _functional_projection_retry_state(
             if isinstance(previous, dict)
             else ()
         ),
-        committed_call_ids=stable_call_ids,
+        committed_call_ids=committed_call_ids,
     )
     retry_issues = attach_actual_result_refs(
         retry_state.issues,
@@ -2019,7 +2071,7 @@ def _functional_projection_retry_state(
         plan=reconciliation.plan,
         reconciliation=reconciliation,
         catalog=functional_catalog,
-        locked_call_ids=tuple(stable_call_ids),
+        locked_call_ids=tuple(committed_call_ids),
     )
     return replace(
         retry_state,
@@ -2037,7 +2089,7 @@ def _functional_projection_retry_state(
         validated_call_ids=tuple(
             call_id
             for call_id in call_memory.validated_call_ids
-            if call_id not in stable_call_ids
+            if call_id not in committed_call_ids
         ),
         call_memory=call_memory_payload,
         issues=retry_issues,
@@ -2046,6 +2098,9 @@ def _functional_projection_retry_state(
             stable_candidate_calls=stable_candidate_calls,
             repair_call_ids=repair_call_ids,
             issue_count=len(issues),
+        ),
+        functional_retry_graph_checkpoint=(
+            checkpoint.to_payload() if checkpoint is not None else None
         ),
     )
 
@@ -2094,6 +2149,8 @@ def _projection_call_memory_payload(
 
 def _normalize_call_memory_entry(
     item: dict[str, Any],
+    *,
+    force_provisional: bool = False,
 ) -> dict[str, Any]:
     """Read the one-round mutually exclusive status payload compatibly."""
     legacy_status = item.pop("status", None)
@@ -2109,43 +2166,11 @@ def _normalize_call_memory_entry(
             if legacy_status == "goal_committed"
             else "provisional"
         )
+    if force_provisional:
+        item["commit_status"] = "provisional"
+        item["committed_goals"] = []
     item.setdefault("repair_required", False)
     return item
-
-
-def _stable_functional_call_matches(
-    current_call: dict[str, Any],
-    previous_call: dict[str, Any],
-) -> bool:
-    """Accept deterministic result-form additions without weakening graph identity."""
-
-    current = dict(current_call)
-    previous = dict(previous_call)
-    current_expectations = current.pop("return_expectations", {})
-    previous_expectations = previous.pop("return_expectations", {})
-    if current != previous:
-        return False
-    if not isinstance(current_expectations, dict) or not isinstance(
-        previous_expectations,
-        dict,
-    ):
-        return current_expectations == previous_expectations
-    if not all(
-        current_expectations.get(return_name) == expected_form
-        for return_name, expected_form in previous_expectations.items()
-    ):
-        return False
-    current_bindings = current.get("return_bindings", {})
-    if not isinstance(current_bindings, dict):
-        return False
-    added_expectations = set(current_expectations) - set(previous_expectations)
-    return all(
-        expected_form in {"closed_value", "closed_state"}
-        and isinstance(current_bindings.get(return_name), dict)
-        and current_bindings[return_name].get("kind") == "answer"
-        for return_name, expected_form in current_expectations.items()
-        if return_name in added_expectations
-    )
 
 
 def _functional_runtime_retry_state(
@@ -2162,11 +2187,20 @@ def _functional_runtime_retry_state(
     attempt: int = 0,
     functional_catalog: FunctionalCapabilityCatalog,
     semantic_index: FunctionalSemanticIndex,
+    planner_state_context: PlannerStateContext | None = None,
+    expected_retry_checkpoint: FunctionalRetryGraphCheckpoint | None = None,
 ) -> PlannerRetryState | None:
     if retry_state is None and runtime_retry_state is None:
         return None
     retry_state = retry_state or runtime_retry_state
     assert retry_state is not None
+    reconciliation = replace(
+        reconciliation,
+        dependency_graph=expand_retry_dependency_graph_with_versions(
+            reconciliation,
+            checkpoint=expected_retry_checkpoint,
+        ),
+    )
     accepted_step_ids = {
         item.step_id
         for item in (diagnostic.accepted_prefix if diagnostic is not None else ())
@@ -2234,24 +2268,42 @@ def _functional_runtime_retry_state(
             issue.layer == "answer_check" for issue in issues
         ),
     )
+    retry_checkpoint = (
+        build_functional_retry_graph_checkpoint(
+            context=planner_state_context,
+            reconciliation=reconciliation,
+            call_memory=call_memory,
+            provenance=all_provenance,
+        )
+        if planner_state_context is not None
+        else None
+    )
+    if (
+        expected_retry_checkpoint is not None
+        and retry_checkpoint is not None
+    ):
+        verify_restored_runtime_checkpoint(
+            expected_retry_checkpoint,
+            retry_checkpoint,
+        )
     issues = attach_actual_result_refs(
         issues,
         memory=call_memory,
         dependency_graph=reconciliation.dependency_graph,
     )
-    committed_call_ids = set(call_memory.committed_call_ids)
+    committed_candidate_calls = (
+        _checkpoint_committed_candidate_calls(retry_checkpoint)
+    )
+    committed_call_ids = {
+        item["call"]["call_id"]
+        for item in committed_candidate_calls
+    }
     issues = apply_capability_repair_feedback(
         issues,
         plan=plan,
         reconciliation=reconciliation,
         catalog=functional_catalog,
         locked_call_ids=tuple(committed_call_ids),
-    )
-    committed_candidate_calls = tuple(
-        {"scope_id": scope.scope_id, "call": call.to_payload()}
-        for scope in plan.scopes
-        for call in scope.calls
-        if call.call_id in committed_call_ids
     )
     repair_call_ids = tuple(
         dict.fromkeys(
@@ -2303,6 +2355,11 @@ def _functional_runtime_retry_state(
         ),
         validated_call_ids=call_memory.validated_call_ids,
         call_memory=tuple(call_memory.to_payload()),
+        functional_retry_graph_checkpoint=(
+            retry_checkpoint.to_payload()
+            if retry_checkpoint is not None
+            else None
+        ),
         repair_call_ids=repair_call_ids,
         issues=issues,
         preserve_policy=(
@@ -2315,6 +2372,73 @@ def _functional_runtime_retry_state(
             issue_count=len(issues),
         ),
     )
+
+
+def _checkpoint_committed_candidate_calls(
+    checkpoint: FunctionalRetryGraphCheckpoint | None,
+) -> tuple[dict[str, Any], ...]:
+    if checkpoint is None:
+        return ()
+    return tuple(
+        {
+            "scope_id": committed.declared_scope_id,
+            "call": dict(committed.call_payload),
+        }
+        for committed in checkpoint.committed_calls
+    )
+
+
+def _verify_successful_functional_retry_checkpoint(
+    expected: FunctionalRetryGraphCheckpoint,
+    *,
+    reconciliation: FunctionalPlanReconciliationResult,
+    diagnostic: StepIntentExecutionDiagnostic | None,
+    goal_verification_report: AnswerGoalVerificationReport | None,
+    attempt: int,
+    functional_catalog: FunctionalCapabilityCatalog,
+    planner_state_context: PlannerStateContext,
+) -> None:
+    """Verify committed versions on a retry that completed successfully."""
+
+    accepted_step_ids = {
+        item.step_id
+        for item in (
+            diagnostic.accepted_prefix if diagnostic is not None else ()
+        )
+    }
+    runtime_verified_call_ids = tuple(
+        item.call_id
+        for item in reconciliation.projection_map
+        if item.step_ids and set(item.step_ids) <= accepted_step_ids
+    )
+    runtime_results = (
+        tuple(diagnostic.runtime_results)
+        if diagnostic is not None
+        else ()
+    )
+    provenance = (
+        tuple(diagnostic.state_write_provenance)
+        if diagnostic is not None
+        else ()
+    )
+    call_memory = build_functional_call_memory(
+        reconciliation,
+        catalog=functional_catalog,
+        runtime_verified_call_ids=runtime_verified_call_ids,
+        runtime_results=runtime_results,
+        provenance=provenance,
+        goal_report=goal_verification_report,
+        active_issues=(),
+        attempt=attempt,
+        allow_goal_commit=True,
+    )
+    actual = build_functional_retry_graph_checkpoint(
+        context=planner_state_context,
+        reconciliation=reconciliation,
+        call_memory=call_memory,
+        provenance=provenance,
+    )
+    verify_restored_runtime_checkpoint(expected, actual)
 
 
 def _runtime_provenance_repair_roots(
@@ -3146,12 +3270,67 @@ def _initial_planner_state_context(
         inputs,
         problem_payload,
     )
-    return initial_planner_state_context(
+    context = initial_planner_state_context(
         inputs,
         problem_payload=context_problem_payload,
         handle_registry=handle_registry,
         attempt=attempt,
         parent_context_id=_parent_context_id_from_attempts(previous_attempts),
+    )
+    checkpoint = latest_functional_retry_graph_checkpoint(previous_attempts)
+    if checkpoint is None:
+        legacy_retry_state = next(
+            (
+                parsed_retry_state
+                for attempt_payload in reversed(previous_attempts)
+                if isinstance(attempt_payload, dict)
+                and (
+                    parsed_retry_state := retry_state_from_attempt(
+                        attempt_payload
+                    )
+                )
+                is not None
+            ),
+            None,
+        )
+        has_legacy_committed_calls = (
+            isinstance(legacy_retry_state, dict)
+            and legacy_retry_state.get("candidate_format")
+            == "functional_plan"
+            and bool(
+                legacy_retry_state.get("committed_candidate_calls")
+                or legacy_retry_state.get("stable_candidate_calls")
+            )
+        )
+        if not has_legacy_committed_calls:
+            return context
+        return replace(
+            context,
+            state=replace(
+                context.state,
+                context_events=(
+                    *context.state.context_events,
+                    {
+                        "event": "legacy_retry_checkpoint_missing",
+                        "ok": True,
+                        "detail_count": 1,
+                        "detail": (
+                            "legacy committed calls were downgraded "
+                            "to provisional memory"
+                        ),
+                    },
+                ),
+            ),
+        )
+    return replace(
+        context,
+        state=replace(
+            context.state,
+            retry_memory=replace(
+                context.state.retry_memory,
+                functional_retry_graph_checkpoint=checkpoint.to_payload(),
+            ),
+        ),
     )
 
 

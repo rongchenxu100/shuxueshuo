@@ -54,6 +54,9 @@ from shuxueshuo_server.solver.runtime.runtime_type_compatibility import (
     normalize_runtime_type,
     runtime_type_compatible,
 )
+from shuxueshuo_server.solver.runtime.runtime_type_declarations import (
+    split_runtime_types,
+)
 from shuxueshuo_server.solver.runtime.symbol_dependencies import (
     structured_free_symbol_refs as _structured_free_symbol_refs,
     symbol_handles_by_name as _symbol_handles_by_name,
@@ -189,6 +192,7 @@ class FunctionalPlanElaborator:
         *,
         catalog: FunctionalCapabilityCatalog,
         semantic_index: FunctionalSemanticIndex | None = None,
+        pinned_canonical_call_ids: frozenset[str] = frozenset(),
     ) -> FunctionalPlanElaborationResult:
         issues: list[FunctionalPlanIssue] = []
         repairs: list[FunctionalDeterministicRepair] = []
@@ -317,6 +321,7 @@ class FunctionalPlanElaborator:
             repairs=repairs,
             issues=issues,
             semantic_index=semantic_index,
+            pinned_canonical_call_ids=pinned_canonical_call_ids,
         )
         final_call_ids = {call.call_id for call in elaborated_plan.calls}
         return FunctionalPlanElaborationResult(
@@ -413,10 +418,10 @@ def _merge_equivalent_object_calls(
     repairs: list[FunctionalDeterministicRepair],
     issues: list[FunctionalPlanIssue],
     semantic_index: FunctionalSemanticIndex | None,
+    pinned_canonical_call_ids: frozenset[str] = frozenset(),
 ) -> tuple[FunctionalPlan, dict[str, str]]:
     call_aliases: dict[str, str] = {}
     exact_calls_by_fingerprint: dict[str, str] = {}
-    ancestor_calls_by_fingerprint: dict[str, tuple[str, str]] = {}
     scope_calls: list[list[FunctionalCall]] = []
     call_locations: dict[str, tuple[int, int]] = {}
     for scope_index, scope in enumerate(plan.scopes):
@@ -434,69 +439,6 @@ def _merge_equivalent_object_calls(
                 if wire_inputs_are_stable
                 else None
             )
-            ancestor_call = (
-                ancestor_calls_by_fingerprint.get(execution_fingerprint)
-                if execution_fingerprint is not None
-                else None
-            )
-            if (
-                ancestor_call is not None
-                and not call.return_bindings
-                and semantic_index is not None
-                and ancestor_call[0] != scope.scope_id
-                and ancestor_call[0]
-                in semantic_index.handle_registry.ancestor_scopes(
-                    scope.scope_id
-                )
-            ):
-                previous = _located_call(
-                    ancestor_call[1],
-                    scope_index=scope_index,
-                    current_calls=calls,
-                    prior_scope_calls=scope_calls,
-                    locations=call_locations,
-                )
-                merged_expectations = (
-                    _merged_return_expectations(previous, call)
-                    if previous is not None
-                    else None
-                )
-                if merged_expectations is None:
-                    issues.append(
-                        _return_expectation_conflict_issue(previous, call)
-                    )
-                    if previous is not None:
-                        call_aliases[call.call_id] = previous.call_id
-                        repairs.append(
-                            FunctionalDeterministicRepair(
-                                call.call_id,
-                                "isolate_conflicting_equivalent_call",
-                                call.call_id,
-                                previous.call_id,
-                            )
-                        )
-                        continue
-                else:
-                    _replace_located_call(
-                        replace(
-                            previous,
-                            return_expectations=merged_expectations,
-                        ),
-                        scope_index=scope_index,
-                        current_calls=calls,
-                        prior_scope_calls=scope_calls,
-                        locations=call_locations,
-                    )
-                    call_aliases[call.call_id] = ancestor_call[1]
-                    repairs.append(
-                        FunctionalDeterministicRepair(
-                            call.call_id,
-                            "merge_ancestor_equivalent_call",
-                            call.call_id,
-                            ancestor_call[1],
-                        )
-                    )
-                    continue
             previous_index = (
                 execution_locations.get(execution_fingerprint)
                 if execution_fingerprint is not None
@@ -504,9 +446,26 @@ def _merge_equivalent_object_calls(
             )
             if previous_index is not None:
                 previous = calls[previous_index]
-                merged_bindings = _merged_return_bindings(
-                    previous.return_bindings,
-                    call.return_bindings,
+                merged_bindings = (
+                    _merged_return_bindings(
+                        previous.return_bindings,
+                        call.return_bindings,
+                    )
+                    if (
+                        _may_merge_into_owner(
+                            owner_call_id=previous.call_id,
+                            current_call_id=call.call_id,
+                            pinned_canonical_call_ids=pinned_canonical_call_ids,
+                        )
+                        or _may_alias_into_pinned_owner(
+                            previous,
+                            call,
+                            pinned_canonical_call_ids=(
+                                pinned_canonical_call_ids
+                            ),
+                        )
+                    )
+                    else None
                 )
                 if merged_bindings is not None:
                     merged_expectations = _merged_return_expectations(
@@ -554,18 +513,45 @@ def _merge_equivalent_object_calls(
                 if fingerprint is not None
                 else None
             )
-            if previous_call_id is not None:
-                previous = _located_call(
+            previous_location = (
+                call_locations.get(previous_call_id)
+                if previous_call_id is not None
+                else None
+            )
+            previous = (
+                _located_call(
                     previous_call_id,
                     scope_index=scope_index,
                     current_calls=calls,
                     prior_scope_calls=scope_calls,
                     locations=call_locations,
                 )
+                if (
+                    previous_call_id is not None
+                    and previous_location is not None
+                    and previous_location[0] == scope_index
+                )
+                else None
+            )
+            if (
+                previous is not None
+                and (
+                    _may_merge_into_owner(
+                        owner_call_id=previous.call_id,
+                        current_call_id=call.call_id,
+                        pinned_canonical_call_ids=pinned_canonical_call_ids,
+                    )
+                    or _may_alias_into_pinned_owner(
+                        previous,
+                        call,
+                        pinned_canonical_call_ids=(
+                            pinned_canonical_call_ids
+                        ),
+                    )
+                )
+            ):
                 merged_expectations = (
                     _merged_return_expectations(previous, call)
-                    if previous is not None
-                    else None
                 )
                 if merged_expectations is None:
                     issues.append(
@@ -607,11 +593,6 @@ def _merge_equivalent_object_calls(
                 exact_calls_by_fingerprint[fingerprint] = call.call_id
             if execution_fingerprint is not None:
                 execution_locations[execution_fingerprint] = len(calls)
-            if execution_fingerprint is not None and not call.return_bindings:
-                ancestor_calls_by_fingerprint.setdefault(
-                    execution_fingerprint,
-                    (scope.scope_id, call.call_id),
-                )
             call_locations[call.call_id] = (scope_index, len(calls))
             calls.append(call)
         scope_calls.append(calls)
@@ -652,11 +633,81 @@ def _wire_inputs_are_version_stable(
     """
     if capability.dependency_policy == "context_closure":
         return False
+    provided_runtime_inputs = {
+        arg.runtime_input or arg.name
+        for arg in capability.args
+        if arg.name in call.args
+    }
+    if any(
+        arg.required
+        and arg.name not in provided_runtime_inputs
+        and _runtime_input_requires_state_version(arg.runtime_type)
+        for arg in capability.source.args
+    ):
+        return False
     return all(
         isinstance(ref, CallResultRef)
         or (isinstance(ref, SemanticRef) and ref.kind == "fact")
         for values in call.args.values()
         for ref in values
+    )
+
+
+def _runtime_input_requires_state_version(runtime_type: str) -> bool:
+    """Return whether a hidden input can vary across object-state versions."""
+
+    return any(
+        item in {
+            "Point",
+            "PointList",
+            "Line",
+            "Segment",
+            "Ray",
+            "Angle",
+            "Circle",
+            "Polygon",
+            "Parabola",
+            "Function",
+            "Expression",
+            "MinimumExpression",
+            "ParameterValue",
+            "PathTransformation",
+        }
+        for item in split_runtime_types(runtime_type)
+    )
+
+
+def _may_merge_into_owner(
+    *,
+    owner_call_id: str,
+    current_call_id: str,
+    pinned_canonical_call_ids: frozenset[str],
+) -> bool:
+    """Keep restored canonical calls immutable during elaboration."""
+
+    return (
+        owner_call_id not in pinned_canonical_call_ids
+        and current_call_id not in pinned_canonical_call_ids
+    )
+
+
+def _may_alias_into_pinned_owner(
+    owner: FunctionalCall,
+    current: FunctionalCall,
+    *,
+    pinned_canonical_call_ids: frozenset[str],
+) -> bool:
+    """Allow an exact duplicate to alias a pinned owner without mutation."""
+
+    if (
+        owner.call_id not in pinned_canonical_call_ids
+        or current.call_id in pinned_canonical_call_ids
+        or owner.return_bindings != current.return_bindings
+    ):
+        return False
+    return (
+        _merged_return_expectations(owner, current)
+        == owner.return_expectations
     )
 
 

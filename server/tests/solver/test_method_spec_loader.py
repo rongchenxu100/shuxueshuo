@@ -155,11 +155,31 @@ def test_loads_weighted_geometric_path_specs() -> None:
     assert minimum.inputs["auxiliary_locus"].type == "Line"
     assert minimum.inputs["auxiliary_point"].type == "Point"
     assert minimum.outputs["minimum_expression"] == "MinimumExpression"
+    assert minimum.internal_outputs == (
+        "dynamic_parameter_expression",
+        "dynamic_point_expression",
+    )
     assert "parameter_value" not in minimum.outputs
     assert parameter.inputs["expression"].type == "MinimumExpression"
     assert parameter.outputs["parameter_value"] == "ParameterValue"
     assert parameter.explanation is not None
     assert parameter.explanation.student_title_template == "由表达式取值反求参数"
+
+
+def test_method_spec_internal_outputs_must_reference_declared_outputs() -> None:
+    payload = next(
+        item
+        for item in method_spec_payloads()
+        if item["method_id"] == "linked_broken_path_minimum_expression"
+    )
+    invalid = dict(payload)
+    invalid["internal_outputs"] = ["missing_output"]
+
+    with pytest.raises(
+        ValueError,
+        match="internal_outputs references unknown outputs",
+    ):
+        parse_method_spec(invalid)
 
 
 def test_y_axis_intercept_summary_allows_symbolic_coefficients() -> None:

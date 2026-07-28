@@ -11,6 +11,7 @@ from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
 )
 from shuxueshuo_server.solver.runtime.functional_plan_elaboration import (
     FunctionalDeterministicRepair,
+    _may_merge_into_owner,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_graph import (
     canonical_call_aliases as _canonical_aliases,
@@ -109,6 +110,9 @@ class FunctionalCallPlacementService:
         base_identity_index: StateIdentityIndex | None = None,
         allocation_service: StateAllocationService | None = None,
         placement_mode: StatePlacementMode = "authoritative",
+        pinned_canonical_call_ids: Sequence[str] = (),
+        pinned_execution_scopes: Mapping[str, str] | None = None,
+        pinned_return_scopes: Mapping[str, Mapping[str, str]] | None = None,
     ) -> FunctionalCallPlacementResult:
         source_calls = {call.call_id: call for call in source_plan.calls}
         source_scopes = {
@@ -117,6 +121,11 @@ class FunctionalCallPlacementService:
             for call in scope.calls
         }
         call_by_id = {call.call_id: call for call in plan.calls}
+        pinned_execution_scopes = dict(pinned_execution_scopes or {})
+        pinned_return_scopes = {
+            call_id: dict(scopes)
+            for call_id, scopes in (pinned_return_scopes or {}).items()
+        }
         reconciled_by_id = {item.call_id: item for item in reconciled}
         aliases = _canonical_aliases(dict(initial_aliases or {}))
         groups = _alias_groups(
@@ -145,6 +154,9 @@ class FunctionalCallPlacementService:
             aliases=aliases,
             groups=groups,
             handle_registry=handle_registry,
+            pinned_canonical_call_ids=frozenset(
+                pinned_canonical_call_ids
+            ),
         )
         repairs.extend(typed_repairs)
         issues.extend(typed_issues)
@@ -193,6 +205,8 @@ class FunctionalCallPlacementService:
                 source_scopes[item_id]
                 for item_id in groups.get(call.call_id, (call.call_id,))
             )
+            reconciliation = canonical_reconciled.get(call.call_id)
+            isolated_scope = _isolated_state_storage_scope(reconciliation)
             destinations = consumer_scopes.get(call.call_id, ())
             answer_destinations = tuple(
                 answer_scope_by_ref[binding.ref]
@@ -211,6 +225,13 @@ class FunctionalCallPlacementService:
                 answer_target_scopes=answer_target_scopes,
                 registry=handle_registry,
             )
+            proposed = pinned_execution_scopes.get(call.call_id, proposed)
+            if isolated_scope is not None:
+                # An isolated StateVersion is deliberately separate from a
+                # sibling-visible version of the same MathObject. The object's
+                # origin scope does not authorize publishing this version at an
+                # ancestor scope.
+                proposed = isolated_scope
             requested_execution_scopes[call.call_id] = proposed
 
         provisional_execution_scopes = _close_execution_scope_dependencies(
@@ -225,6 +246,9 @@ class FunctionalCallPlacementService:
             aliases=aliases,
             registry=handle_registry,
         )
+        for call_id, scope_id in pinned_execution_scopes.items():
+            if call_id in provisional_execution_scopes:
+                provisional_execution_scopes[call_id] = scope_id
 
         return_scopes: dict[str, dict[str, str]] = {}
         for call in canonical_plan.calls:
@@ -246,7 +270,7 @@ class FunctionalCallPlacementService:
                     ),
                     handle_registry,
                 )
-                if not _inputs_visible_at_scope(
+                if not _inputs_publishable_at_scope(
                     item.resolved_args.values(),
                     proposed,
                     aliases=aliases,
@@ -254,6 +278,15 @@ class FunctionalCallPlacementService:
                     registry=handle_registry,
                 ):
                     proposed = provisional_execution_scopes[call.call_id]
+                proposed = pinned_return_scopes.get(
+                    call.call_id,
+                    {},
+                ).get(allocation.return_name, proposed)
+                if (
+                    allocation.allocation_action == "isolated"
+                    and allocation.typed_slot_id is not None
+                ):
+                    proposed = allocation.typed_slot_id.storage_scope_id
                 scopes_by_return[allocation.return_name] = proposed
             return_scopes[call.call_id] = scopes_by_return
 
@@ -291,12 +324,11 @@ class FunctionalCallPlacementService:
             issues.extend(typed_finalization_issues)
         else:
             final_calls = materialized_calls
-        issues.extend(
-            _post_placement_scope_issues(
-                final_calls,
-                registry=handle_registry,
-            )
+        scope_issues = _post_placement_scope_issues(
+            final_calls,
+            registry=handle_registry,
         )
+        issues.extend(scope_issues)
         final_by_id = {item.call_id: item for item in final_calls}
         placements = tuple(
             FunctionalCallPlacement(
@@ -358,10 +390,13 @@ class FunctionalCallPlacementService:
             if call.call_id in final_by_id
             and call.call_id in typed_identity_keys
         )
-        placement_mismatches = _typed_placement_mismatches(
-            final_calls,
-            decisions=typed_decisions,
-            registry=handle_registry,
+        placement_mismatches = _suppress_repairable_scope_mismatches(
+            _typed_placement_mismatches(
+                final_calls,
+                decisions=typed_decisions,
+                registry=handle_registry,
+            ),
+            scope_issues=scope_issues,
         )
         if placement_mode == "authoritative":
             issues.extend(
@@ -430,6 +465,7 @@ def _canonicalize_typed_calls(
     aliases: Mapping[str, str],
     groups: Mapping[str, tuple[str, ...]],
     handle_registry: CanonicalHandleRegistry,
+    pinned_canonical_call_ids: frozenset[str] = frozenset(),
 ) -> tuple[
     dict[str, str],
     dict[str, tuple[str, ...]],
@@ -460,7 +496,16 @@ def _canonicalize_typed_calls(
             version_aliases=version_aliases,
         )
 
-    for call in plan.calls:
+    ordered_calls = tuple(
+        sorted(
+            enumerate(plan.calls),
+            key=lambda item: (
+                item[1].call_id not in pinned_canonical_call_ids,
+                item[0],
+            ),
+        )
+    )
+    for _, call in ordered_calls:
         if call.call_id in aliases:
             continue
         item = reconciled_by_id.get(call.call_id)
@@ -485,6 +530,18 @@ def _canonicalize_typed_calls(
         binding_conflicts: list[FunctionalCall] = []
         merged_into_owner = False
         for previous_id in tuple(owner_ids):
+            owner_is_pinned = previous_id in pinned_canonical_call_ids
+            owner_is_mutable = _may_merge_into_owner(
+                owner_call_id=previous_id,
+                current_call_id=call.call_id,
+                pinned_canonical_call_ids=pinned_canonical_call_ids,
+            )
+            safe_pinned_alias_candidate = (
+                owner_is_pinned
+                and call.call_id not in pinned_canonical_call_ids
+            )
+            if not owner_is_mutable and not safe_pinned_alias_candidate:
+                continue
             previous = reconciled_by_id.get(previous_id)
             previous_call = call_by_id.get(previous_id)
             if previous is None or previous_call is None:
@@ -550,7 +607,16 @@ def _canonicalize_typed_calls(
                         call,
                     )
                 )
+                if safe_pinned_alias_candidate:
+                    continue
             else:
+                if safe_pinned_alias_candidate and (
+                    merged_bindings
+                    != effective_previous_call.return_bindings
+                    or merged_expectations
+                    != expectation_owner.return_expectations
+                ):
+                    continue
                 transferred_expectations[previous_id] = merged_expectations
 
             effective_previous_bindings = (
@@ -1025,6 +1091,73 @@ def _inputs_shareable_at_scope(
                 scope_id=scope_id,
                 registry=registry,
             ):
+                if not _planned_state_publishable_at_scope(
+                    value,
+                    scope_id=scope_id,
+                    registry=registry,
+                ):
+                    return False
+    return True
+
+
+def _planned_state_publishable_at_scope(
+    value: ResolvedFunctionalValue,
+    *,
+    scope_id: str,
+    registry: CanonicalHandleRegistry,
+) -> bool:
+    """Allow typed clustering before producer return-scope placement.
+
+    Exact CallResult/StateVersion identity is already part of ComputationKey.
+    A state produced in one branch may therefore be published to an ancestor
+    when its MathObject originates there. Sibling-private MathObjects remain
+    non-shareable.
+    """
+
+    if value.source_call_id is None:
+        return False
+    object_id = value.math_object_id
+    if object_id is None and value.logical_state_key is not None:
+        object_id = value.logical_state_key.object_id
+    if object_id is None:
+        return False
+    return visible_from_valid_scope(
+        object_id.origin_scope_id,
+        scope_id=scope_id,
+        registry=registry,
+    )
+
+
+def _inputs_publishable_at_scope(
+    value_groups: Sequence[tuple[ResolvedFunctionalValue, ...]],
+    scope_id: str,
+    *,
+    aliases: Mapping[str, str],
+    execution_scopes: Mapping[str, str],
+    registry: CanonicalHandleRegistry,
+) -> bool:
+    for values in value_groups:
+        for value in values:
+            valid_scope = value.valid_scope
+            if value.source_call_id is not None:
+                source = _canonical(value.source_call_id, aliases)
+                execution_scope = execution_scopes.get(source)
+                if execution_scope is not None:
+                    valid_scope = _least_common_scope(
+                        (valid_scope, execution_scope),
+                        registry,
+                    )
+            if visible_from_valid_scope(
+                valid_scope,
+                scope_id=scope_id,
+                registry=registry,
+            ):
+                continue
+            if not _planned_state_publishable_at_scope(
+                value,
+                scope_id=scope_id,
+                registry=registry,
+            ):
                 return False
     return True
 
@@ -1281,13 +1414,10 @@ def _finalize_typed_allocations(
         scope_id = execution_scopes[call.call_id]
         resolved_args = {
             name: tuple(
-                _rewrite_resolved_value_versions(
-                    _rewrite_resolved_value(
-                        value,
-                        produced=produced,
-                        aliases={},
-                    ),
-                    version_map,
+                _rewrite_finalized_resolved_value(
+                    value,
+                    produced=produced,
+                    version_map=version_map,
                 )
                 for value in values
             )
@@ -1335,8 +1465,17 @@ def _finalize_typed_allocations(
                 )
             )
             continue
+        finalized_producer_versions = {
+            allocation.selected_version_id
+            for allocation in produced.values()
+            if allocation.selected_version_id is not None
+        }
         source_version_ids = tuple(
-            _rewrite_version_id(version_id, version_map)
+            (
+                version_id
+                if version_id in finalized_producer_versions
+                else _rewrite_version_id(version_id, version_map)
+            )
             for version_id in functional_source_version_ids(
                 resolved_args,
                 scope_id=scope_id,
@@ -1469,6 +1608,28 @@ def _finalize_typed_allocations(
             )
         )
     return tuple(result), tuple(rewrites), tuple(issues)
+
+
+def _rewrite_finalized_resolved_value(
+    value: ResolvedFunctionalValue,
+    *,
+    produced: Mapping[tuple[str, str], FunctionalReturnAllocation],
+    version_map: Mapping[StateVersionId, StateVersionId],
+) -> ResolvedFunctionalValue:
+    """Prefer the final producer allocation over provisional version rewrites."""
+
+    rewritten = _rewrite_resolved_value(
+        value,
+        produced=produced,
+        aliases={},
+    )
+    if (
+        value.source_call_id is not None
+        and value.return_name is not None
+        and (value.source_call_id, value.return_name) in produced
+    ):
+        return rewritten
+    return _rewrite_resolved_value_versions(rewritten, version_map)
 
 
 def _topological_calls(
@@ -1874,6 +2035,39 @@ def _post_placement_scope_issues(
     return tuple(result)
 
 
+def _suppress_repairable_scope_mismatches(
+    mismatches: Sequence[dict[str, Any]],
+    *,
+    scope_issues: Sequence[FunctionalPlanIssue],
+) -> tuple[dict[str, Any], ...]:
+    """Do not classify an invalid candidate edge as planner drift.
+
+    ``functional.arg_scope_invisible`` already tells the LLM how to reconnect
+    an explicit cross-scope dependency. The typed audit should still report
+    genuine placement inconsistencies, but must not turn that same repairable
+    candidate error into a non-retryable configuration failure.
+    """
+
+    repairable_inputs = {
+        (issue.call_id, issue.details.get("arg"))
+        for issue in scope_issues
+        if (
+            issue.code == "functional.arg_scope_invisible"
+            and issue.call_id is not None
+            and issue.details is not None
+        )
+    }
+    return tuple(
+        item
+        for item in mismatches
+        if not (
+            item.get("reason_code") == "input_version_not_visible"
+            and (item.get("call_id"), item.get("arg"))
+            in repairable_inputs
+        )
+    )
+
+
 def _alias_groups(
     source_call_ids: Sequence[str],
     *,
@@ -1921,6 +2115,22 @@ def _call_execution_scope(
         (*declared_scopes, *destination_scopes, *answer_scopes),
         registry,
     )
+
+
+def _isolated_state_storage_scope(
+    reconciliation: FunctionalCallReconciliation | None,
+) -> str | None:
+    """Return the sole storage boundary imposed by provisional isolation."""
+
+    if reconciliation is None:
+        return None
+    scopes = {
+        allocation.typed_slot_id.storage_scope_id
+        for allocation in reconciliation.returns
+        if allocation.allocation_action == "isolated"
+        and allocation.typed_slot_id is not None
+    }
+    return next(iter(scopes)) if len(scopes) == 1 else None
 
 
 def _answer_target_object_scopes(

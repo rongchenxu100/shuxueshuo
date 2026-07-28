@@ -53,6 +53,8 @@ def functional_call_dependencies(
 
 def topological_scoped_calls(
     plan: FunctionalPlan,
+    *,
+    dependency_graph: Mapping[str, tuple[str, ...]] | None = None,
 ) -> tuple[tuple[tuple[str, str, FunctionalCall], ...], tuple[str, ...]]:
     """Return calls in stable dependency order plus any cyclic call ids.
 
@@ -69,7 +71,11 @@ def topological_scoped_calls(
     original_position = {
         call.call_id: index for index, (_, _, call) in enumerate(scoped_calls)
     }
-    dependencies = functional_call_dependencies(plan)
+    dependencies = (
+        functional_call_dependencies(plan)
+        if dependency_graph is None
+        else dependency_graph
+    )
     pending = {call.call_id for _, _, call in scoped_calls}
     ordered_ids: list[str] = []
     while pending:

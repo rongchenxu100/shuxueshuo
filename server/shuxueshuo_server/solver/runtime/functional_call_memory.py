@@ -20,6 +20,7 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     StateWriteProvenance,
     StepIntentRuntimeResult,
 )
+from shuxueshuo_server.solver.runtime.state_identity import StateVersionId
 from shuxueshuo_server.solver.utils import unique_ordered
 
 
@@ -45,6 +46,7 @@ class FunctionalResultSnapshot:
     object_roles: dict[str, tuple[str, ...]] | None = None
     valid_scope: str | None = None
     value_omitted_reason: str | None = None
+    state_version_id: StateVersionId | None = None
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -70,6 +72,8 @@ class FunctionalResultSnapshot:
             payload["valid_scope"] = self.valid_scope
         if self.value_omitted_reason is not None:
             payload["value_omitted_reason"] = self.value_omitted_reason
+        if self.state_version_id is not None:
+            payload["state_version_id"] = self.state_version_id.to_payload()
         return payload
 
 
@@ -84,6 +88,7 @@ class FunctionalCallMemoryEntry:
     result_snapshots: tuple[FunctionalResultSnapshot, ...] = ()
     committed_goal_handles: tuple[str, ...] = ()
     source_attempt: int = 0
+    canonical_call_id: str | None = None
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -101,6 +106,8 @@ class FunctionalCallMemoryEntry:
             ]
         if self.committed_goal_handles:
             payload["committed_goals"] = list(self.committed_goal_handles)
+        if self.canonical_call_id is not None:
+            payload["canonical_call_id"] = self.canonical_call_id
         return payload
 
 
@@ -223,6 +230,7 @@ def build_functional_call_memory(
                 result_snapshots=tuple(snapshots),
                 committed_goal_handles=committed_goals.get(call.call_id, ()),
                 source_attempt=attempt,
+                canonical_call_id=call.call_id,
             )
         )
     return FunctionalCallMemory(
@@ -302,6 +310,11 @@ def attach_actual_result_refs(
             dependency_graph=dependency_graph,
             executed_call_ids=set(committed),
         )
+        details = dict(issue.details or {})
+        if issue.code == "functional.arg_scope_invisible":
+            invisible_source = details.get("source_call_id")
+            if isinstance(invisible_source, str):
+                locked_context_calls.discard(invisible_source)
         refs = tuple(
             unique_ordered(
                 f"{entry.call_id}.{snapshot.return_name}"
@@ -323,7 +336,6 @@ def attach_actual_result_refs(
         if not refs and not locked_refs:
             result.append(issue)
             continue
-        details = dict(issue.details or {})
         if refs:
             details["actual_result_refs"] = list(refs)
         if locked_refs:
@@ -426,6 +438,11 @@ def _result_snapshot(
             runtime.value_omitted_reason
             if runtime is not None
             else "runtime_value_unavailable"
+        ),
+        state_version_id=(
+            write.selected_version_id
+            if write is not None
+            else allocation.selected_version_id
         ),
     )
 

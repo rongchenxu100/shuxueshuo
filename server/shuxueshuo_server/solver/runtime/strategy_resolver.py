@@ -33,6 +33,7 @@ from shuxueshuo_server.solver.runtime.output_type_inference import (
     produced_output_type_inference,
 )
 from shuxueshuo_server.solver.runtime.strategy_repair_feedback import RepairHintRegistry
+from shuxueshuo_server.solver.state_semantics import object_kind_for_runtime_type
 
 class StepIntentCandidateResolver:
     """把 StepIntent 解析成 recipe/method 可执行候选。
@@ -158,7 +159,10 @@ def _recipe_output_types(recipe: Any) -> tuple[str, ...]:
 
 def _recipe_allows_creates(recipe_id: str, output_types: tuple[str, ...]) -> bool:
     """从 recipe 能力边界推导 creates[] 是否允许声明辅助实体。"""
-    if "Point" in output_types:
+    if any(
+        object_kind_for_runtime_type(output_type) not in {None, "function", "symbol"}
+        for output_type in output_types
+    ):
         return True
     return recipe_id in {
         "broken_path_straightening_and_select",
@@ -169,7 +173,10 @@ def _recipe_allows_creates(recipe_id: str, output_types: tuple[str, ...]) -> boo
 
 def _method_allows_creates(method_id: str, output_types: tuple[str, ...]) -> bool:
     """从 method 能力边界推导 creates[] 是否允许声明辅助实体。"""
-    if "Point" in output_types:
+    if any(
+        object_kind_for_runtime_type(output_type) not in {None, "function", "symbol"}
+        for output_type in output_types
+    ):
         return True
     return method_id in {
         "angle_sum_equal_angle_candidates",

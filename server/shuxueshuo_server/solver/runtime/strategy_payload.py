@@ -61,6 +61,9 @@ from shuxueshuo_server.solver.runtime.handle_alias_index import (
 from shuxueshuo_server.solver.runtime.planner_state_context import (
     initial_planner_state_context,
 )
+from shuxueshuo_server.solver.runtime.functional_retry_versions import (
+    FunctionalRetryGraphCheckpoint,
+)
 from shuxueshuo_server.solver.runtime.semantic_reads import (
     ContextSemanticReadSource,
     build_semantic_read_catalog_payload,
@@ -366,15 +369,44 @@ def _functional_previous_attempt_state(
             "source_context_id",
         ),
     )
-    selected["locked_call_ids"] = _functional_locked_call_ids(
-        retry_state.get("committed_candidate_calls")
-        or retry_state.get("stable_candidate_calls")
+    checkpoint_payload = retry_state.get(
+        "functional_retry_graph_checkpoint"
     )
-    selected["runtime_verified"] = _compact_functional_runtime_verified(
-        selected.pop("runtime_verified_calls", []),
-        issues=selected.get("issues"),
+    checkpoint = (
+        FunctionalRetryGraphCheckpoint.from_payload(checkpoint_payload)
+        if isinstance(checkpoint_payload, dict)
+        else None
+    )
+    has_typed_checkpoint = checkpoint is not None
+    selected["locked_call_ids"] = (
+        list(checkpoint.committed_call_ids)
+        if has_typed_checkpoint
+        else []
     )
     call_memory = selected.pop("call_memory", [])
+    runtime_verified_calls = selected.pop("runtime_verified_calls", [])
+    if not has_typed_checkpoint and isinstance(call_memory, list):
+        runtime_verified_calls = [
+            *(
+                runtime_verified_calls
+                if isinstance(runtime_verified_calls, list)
+                else []
+            ),
+            *(
+                item
+                for item in call_memory
+                if isinstance(item, dict)
+                and item.get("execution_status") == "runtime_verified"
+                and (
+                    item.get("commit_status") == "goal_committed"
+                    or item.get("status") == "goal_committed"
+                )
+            ),
+        ]
+    selected["runtime_verified"] = _compact_functional_runtime_verified(
+        runtime_verified_calls,
+        issues=selected.get("issues"),
+    )
     selected["issues"] = _functional_issue_tickets(selected.get("issues"))
     selected["recovered_issues"] = _functional_issue_tickets(
         selected.get("recovered_issues")
@@ -394,7 +426,11 @@ def _functional_previous_attempt_state(
     }
 
 
-def _functional_locked_call_ids(value: Any) -> list[str]:
+def _functional_locked_call_ids(
+    value: Any,
+    *,
+    allowed_call_ids: set[str] | None = None,
+) -> list[str]:
     if not isinstance(value, list):
         return []
     return list(
@@ -406,6 +442,10 @@ def _functional_locked_call_ids(value: Any) -> list[str]:
             if isinstance(call, dict)
             for call_id in (call.get("call_id"),)
             if isinstance(call_id, str) and call_id
+            and (
+                allowed_call_ids is None
+                or call_id in allowed_call_ids
+            )
         )
     )
 

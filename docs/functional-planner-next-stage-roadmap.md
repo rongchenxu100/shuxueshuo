@@ -73,7 +73,7 @@ Track A 是否完成，但主链切换前必须重新建立相应阶段自己的
 | Track A assets | `COMPLETE` | 五题 fixture、离线 replay、真实 opt-in、strict-test few-shot、共享 batch 基座 | 无 |
 | Track A Stage 1 | `COMPLETE` | 每题 3 个样本，`15/15` 在三轮内通过，configuration error 为 0 | 无 |
 | Track A parity complete | `COMPLETE` | 五题各 10 个兼容样本，`pass@3 >= 90%`；structured provenance parity、typed failure boundary、跨 batch 聚合均已建立 | 无 |
-| Track B typed identity authority | `IN PROGRESS` | B0 typed identity foundation、B1 allocation authority、B2 typed placement authority 与 B3 identity-aware finalizer 已完成 | B4 retry authority 与 B5 string cleanup |
+| Track B typed identity authority | `IN PROGRESS` | B0-B3 已完成；B4 retry version authority 已完成实现与离线 authoritative 门禁 | B4 真实 smoke 因 DeepSeek 余额不足待补跑；B5 string cleanup |
 | Track C transactional interpreter | `PENDING` | 现有 partial replay、Working RuntimeContext、typed provenance 可复用 | Track B B1-B3；C0 shadow；逐 call execution parity |
 | Functional Default Ready | `BLOCKED` | Functional 主链可 opt-in 执行 | Track A parity complete；Track B B0-B4；Track C production closure；direct compiler shadow；held-out；production observability 与回滚门禁 |
 | Track D0 product routing gate retirement | `BLOCKED` | 唯一 problem-id gate 已登记 | Track A parity complete；Functional production routing 接管该 family；legacy deterministic planner 退场 |
@@ -88,21 +88,23 @@ Track A 是否完成，但主链切换前必须重新建立相应阶段自己的
 
 Track A 已完成，当前主线切换到 Track B，而不是继续围绕五题概率样本做局部补丁：
 
-1. **B4 Context/retry version authority**：让 retry graph 持久化并恢复精确
-   `StateVersionId`，不再按 call/handle 猜状态；
-2. 继续用五题 authored fixture、recorded provenance parity 和 Track A acceptance
-   cohort 作为迁移 oracle；
-3. B3 已完成离线 authoritative cutover，可以启动 C0 logical graph /
-   Working Context shadow，但不切换
-   production execution authority。
+1. DeepSeek 余额恢复后补跑 B4 五题各三个真实 smoke，要求 configuration、
+   unclassified 和 retry-version drift 均为 0；
+2. **B5 string identity cleanup**：删除 Functional authoritative 路径剩余的
+   call/handle/slot 字符串恢复逻辑；
+3. 启动 C0 logical graph / Working Context shadow，但不切换 production
+   execution authority。
 
 Track E 的 held-out 基础设施和 ProblemExtractionContext schema 可以并行建设；默认协议
 切换、StepIntent 删除和 transactional interpreter 主链切换仍保持阻塞。
 
-截至 2026-07-27，B3 已完成离线 authoritative cutover。logical-state writer ledger
-在 compiler 前校验 B2 分配的 typed version，runtime-destination writer ledger 在
-compiler 后校验物理 projection；下一项实际编码工作是
-**B4 Context/retry version authority**。
+截至 2026-07-28，B4 已完成实现与离线 authoritative cutover。retry checkpoint
+持久化 canonical producer、精确 StateVersion 链、scope、result form、自由符号和
+runtime destination；只有 typed checkpoint 可以获得 hard-lock 权限。旧 Functional
+retry payload 会降级为 provisional memory。全量 solver 回归为
+`1344 passed, 17 skipped`。真实 smoke `batch-20260728-155141` 在前两个南开样本
+通过后遭遇 DeepSeek `402 Insufficient Balance`，因此只保留为外部阻塞证据，不能
+作为 B4 真实门禁通过记录。
 
 ## Pack Contract Synchronization Discipline
 
@@ -308,17 +310,18 @@ execution、held-out 证据和生产切换能力尚未达到门禁。
 
 ### Current Status
 
-`IN PROGRESS`。B0、B1、B2 与 B3 已完成离线 authoritative cutover：Functional
+`IN PROGRESS`。B0、B1、B2 与 B3 已完成离线 authoritative cutover；B4 已完成
+实现与离线 authoritative 门禁：Functional
 return allocation、call placement 和 finalizer 统一消费 typed identity/version，
-Context/debug 保存 allocation、placement、logical writer 和 runtime destination
-audit。B3 authority 加固后全量 solver 回归为 `1321 passed, 17 skipped`；
+Context/debug 保存 allocation、placement、logical writer、runtime destination 和
+retry checkpoint audit。B4 加固后全量 solver 回归为 `1344 passed, 17 skipped`；
 初始 B3 source fingerprint 下的五题真实 smoke `batch-20260727-175944` 为 `15/15`，
 configuration error、unclassified error 和成功样本 gate failure 均为 0，
 没有暴露 identity、placement 或 finalization configuration drift。后续 authority
 加固增加 Context/in-flight version 白名单、reconciliation exact-dependency 门禁和
-compiler 反向漂移校验；该 source fingerprint 下的真实 smoke 尚未重跑。该批次不重新
-定义 Track A。B4-B5 尚未完成，因此 retry 和部分 legacy StepIntent 路径仍保留兼容
-ledger，不得据此切换默认协议。
+compiler 反向漂移校验。B4 真实 smoke 首次补跑因 DeepSeek 余额不足中止，待恢复后
+重新执行。该批次不重新定义 Track A。B5 尚未完成，部分 legacy StepIntent 路径仍
+保留兼容 ledger，不得据此切换默认协议。
 
 B1 完成后的加固还包括：
 
@@ -439,10 +442,28 @@ B2 完成门禁：
 
 #### B4. Context and Retry Authority
 
-- Context snapshot 持久化 StateVersion 和 canonical producer；
-- stable graph 保存 version id，overlay 后基于 Context 重新 reconciliation；
-- retry 只恢复 canonical call，不恢复已消除 alias call；
-- explanation 使用 canonical call 和 student presentation placement，学生步骤不出现重复计算。
+- 状态：`IN PROGRESS`（实现与离线 authoritative 完成；真实 smoke 外部阻塞）。
+- 新增 typed retry checkpoint，持久化 StateVersion、canonical producer、
+  ComputationKey、StateEffectKey、previous/source chain、scope、actual form、
+  free symbols 和 runtime destination；
+- 每轮仍从 ProblemIR 建立新 RuntimeContext，checkpoint 只作为待重放版本期望，
+  不复用上一轮 runtime 数值；
+- restore 只恢复 goal-committed canonical call；runtime-verified/provisional call
+  只进入紧凑结果记忆，可以被 LLM 修改或删除；
+- B2 以 checkpoint call 作为 pinned canonical owner，重命名副本变成 alias；
+- B3 后同时校验静态 version chain 与实际 runtime form/destination；
+- repair cone 增加 previous/source StateVersion producer edge，不再只依赖 wire
+  CallResultRef；
+- 旧 Functional retry payload 无 checkpoint 时降级为 provisional memory，
+  `locked_call_ids=[]`，不再调用 legacy semantic overlay；
+- prompt 不暴露 StateVersionId、StateSlot、runtime path 或 checkpoint；
+- Context snapshot 无论成功或失败都保存 canonical producer、version predecessor、
+  state effect、scope、closure 和 destination；
+- 离线门禁：B4 定向测试、五份 authored fixture、provenance parity 与全量 solver
+  均通过，最终为 `1344 passed, 17 skipped`；
+- 真实 smoke `batch-20260728-155141`：configuration error 为 0，未出现 typed
+  drift；但大量样本因 DeepSeek `402 Insufficient Balance` 零 token 失败，需余额
+  恢复后以新 batch 补跑，不能把本批记为通过。
 
 #### B5. String Logic Removal
 
@@ -911,7 +932,8 @@ PlannerStateContext
 - `COMPLETE`：B1 authoritative allocation 与版本依赖 refinement；
 - `COMPLETE`：B2 typed placement authority；
 - `COMPLETE`：B3 identity-aware finalizer authority；
-- `IN PROGRESS`：准备 B4 Context/retry version authority；
+- `IN PROGRESS`：B4 实现与离线 authoritative 已完成，真实 smoke 因 DeepSeek
+  余额不足待补跑；
 - allocation、placement、finalizer、Context 和 retry 共享 typed identity 及 StateVersion；
 - 同一 MathObject 的等价 producer 在 runtime 前合并，answer alias 和 downstream refs 转移到 canonical producer；
 - 与 Track A parity、held-out 和生产门禁共同组成 Functional Default Ready。

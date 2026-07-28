@@ -1697,6 +1697,10 @@ def test_linked_broken_path_minimum_expression_method() -> None:
     )
 
     assert sp.simplify(result.outputs["minimum_expression"].value - (sp.Rational(3, 2) * b + sp.Rational(9, 4))) == 0
+    assert {
+        "dynamic_parameter_expression",
+        "dynamic_point_expression",
+    } <= set(result.outputs)
     assert "parameter_value" not in result.outputs
     assert all(check.ok for check in result.checks)
 

@@ -141,6 +141,7 @@ MethodSpecSource(
     solves=("...",),
     inputs={...},
     outputs={...},
+    internal_outputs=(...),  # optional runtime-only witnesses
     preconditions=(...),
     postconditions=(...),
 )
@@ -217,6 +218,21 @@ FunctionalPlan 的语义参数，应在 Method input source 中声明：
 
 每个输出必须有稳定 runtime type。多个不同语义输出必须使用不同 output key，不能用
 一个模糊的 `Point many` 代替两个角色不同的 Point。
+
+如果 Method 为 runtime check、trace 或内部几何 witness 额外返回值，而 LLM 和后续
+Functional call 不需要读取它，应在 `MethodSpecSource.internal_outputs` 中声明。
+这些输出仍属于 `StatelessMethodResult.outputs`，但不会投影到 FunctionSpec、Functional
+Catalog、return allocation、Context 状态或 retry checkpoint。
+
+`internal_outputs` 与 `return_binding="internal_only"` 不同：
+
+- `internal_outputs`：不是 Functional return，不能写 expectation、binding 或
+  `CallResultRef`；
+- `internal_only`：仍是 Functional return，可供后续 `CallResultRef` 使用，但不能绑定
+  answer 或题面对象。
+
+CapabilityContract 不得为 `internal_outputs` 声明 `slot_writes.output_key`；这属于配置
+漂移，catalog preflight 必须失败。
 
 集合类型 return（例如 `PointList`、`SymbolList`、`Coefficients`）不能直接绑定到单个
 对象或单值答案。它必须先由后续 capability 完成筛选、拆解或唯一性证明。旧
@@ -1117,7 +1133,7 @@ Functional catalog 只展示 LLM 做数学选择需要的信息：
 - RuntimeContext path；
 - binding selector；
 - StateSlot id；
-- internal-only return；
+- `MethodSpec.internal_outputs` 声明的 runtime-only output；
 - family id、problem id 或题目来源；
 - StepIntent 字段。
 

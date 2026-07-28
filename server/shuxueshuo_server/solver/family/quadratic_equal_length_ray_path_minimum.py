@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from shuxueshuo_server.solver.family.models import (
     FamilyMatchRule,
+    GoalEvidencePolicySpec,
     MethodBindingRuleSpec,
     MethodCompanionOutputSpec,
     MethodInputBindingSpec,
@@ -59,6 +60,18 @@ _QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         "coordinate_geometry_core",
     ),
     mechanism_packs=("equal_length_ray_reduction_core",),
+    goal_evidence_policies=(
+        GoalEvidencePolicySpec(
+            goal_types=(),
+            value_types=("Point",),
+            required_evidence_tags=("curve_membership",),
+            producer_goal_types=(
+                "derive_line_parabola_second_intersection",
+                "derive_curve_intersection_point",
+                "derive_point_on_parabola_at_x",
+            ),
+        ),
+    ),
     method_ids=(
         "quadratic_from_constraints",
         "quadratic_y_axis_intercept_point",

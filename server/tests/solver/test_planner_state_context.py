@@ -29,6 +29,15 @@ from shuxueshuo_server.solver.runtime.planner_state_context import (  # noqa: E4
     StableStep,
     initial_planner_state_context,
 )
+from shuxueshuo_server.solver.runtime import (  # noqa: E402
+    planner_state_context as planner_state_context_module,
+)
+from shuxueshuo_server.solver.runtime.state_identity import (  # noqa: E402
+    LogicalStateKey,
+    MathObjectId,
+    StateSlotId,
+    StateVersionId,
+)
 from shuxueshuo_server.solver.family import (  # noqa: E402
     CapabilityContractSpec,
     StateSlotPattern,
@@ -39,6 +48,7 @@ from shuxueshuo_server.solver.runtime.strategy_models import (  # noqa: E402
     StepIntentNormalizationReport,
     StepIntentValidationReport,
     StrategyPrompt,
+    StrategyDraftValidationError,
 )
 from shuxueshuo_server.solver.runtime.strategy_output_types import (  # noqa: E402
     canonicalize_produced_output_types,
@@ -49,6 +59,43 @@ from shuxueshuo_server.solver.runtime.strategy_payload import (  # noqa: E402
 from shuxueshuo_server.solver.runtime.planner_retry_projection import (  # noqa: E402
     PlannerRetryStateProjector,
 )
+
+
+@pytest.mark.parametrize(
+    "missing_field",
+    ("canonical_producer_call_id", "valid_scope_id"),
+)
+def test_typed_provenance_identity_enrichment_is_fail_closed(
+    missing_field: str,
+) -> None:
+    object_id = MathObjectId("point:problem:P", "point", "problem")
+    logical_key = LogicalStateKey(object_id, "coordinate", "Point")
+    version_id = StateVersionId(
+        StateSlotId(logical_key, "problem"),
+        1,
+    )
+    payload = {
+        "state_slot_id": "point:problem:P.coordinate@problem:Point",
+        "object_ref": "point:problem:P",
+        "produced_handle": "point:problem:P",
+        "runtime_type": "Point",
+        "selected_version_id": version_id.to_payload(),
+        "canonical_producer_call_id": "construct_P",
+        "valid_scope_id": "problem",
+    }
+    payload.pop(missing_field)
+
+    with pytest.raises(
+        StrategyDraftValidationError,
+        match=(
+            "planner.retry_version_checkpoint_invalid.*"
+            f"{missing_field}"
+        ),
+    ):
+        planner_state_context_module._apply_state_write_provenance(
+            None,
+            payload,
+        )
 from shuxueshuo_server.solver.runtime.strategy_replay import (  # noqa: E402
     PlannerRetryReplayResult,
     PlannerRetryReplayService,
@@ -833,8 +880,8 @@ def test_context_retry_projection_keeps_replay_layer_issue() -> None:
     assert retry_state.selected_repair_layer == "replay"
 
 
-def test_functional_context_projection_keeps_all_graph_issues_outside_stable_calls() -> None:
-    """A runtime-accepted StepIntent prefix cannot recover invalid Functional calls."""
+def test_legacy_functional_context_does_not_hard_lock_untyped_stable_calls() -> None:
+    """Functional calls require a typed checkpoint before graph preservation."""
     context = PlannerStateContext(
         manifest=ContextManifest(
             context_id="ctx_functional_graph_issues",
@@ -895,4 +942,5 @@ def test_functional_context_projection_keeps_all_graph_issues_outside_stable_cal
         "invalid_call_b",
     }
     assert retry_state.recovered_issues == ()
-    assert retry_state.preserve_policy == "preserve_graph"
+    assert retry_state.preserve_policy == "none"
+    assert retry_state.stable_candidate_calls == ()

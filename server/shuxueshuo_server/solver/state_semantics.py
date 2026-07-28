@@ -317,6 +317,7 @@ OBJECT_SEMANTIC_KIND_ORDER = (
     "angle",
     "circle",
     "polygon",
+    "path_transformation",
 )
 OBJECT_SEMANTIC_KINDS = frozenset(OBJECT_SEMANTIC_KIND_ORDER)
 
@@ -358,6 +359,7 @@ _OBJECT_KIND_BY_RUNTIME_TYPE: dict[str, str] = {
     "Polygon": "polygon",
     "ParameterValue": "symbol",
     "Symbol": "symbol",
+    "PathTransformation": "path_transformation",
 }
 
 _RUNTIME_TYPE_BY_OBJECT_SEMANTIC_KIND: dict[str, str] = {
@@ -367,6 +369,7 @@ _RUNTIME_TYPE_BY_OBJECT_SEMANTIC_KIND: dict[str, str] = {
     "ray": "Ray",
     "function": "Parabola|Function",
     "symbol": "Symbol",
+    "path_transformation": "PathTransformation",
     "angle": "Angle",
     "circle": "Circle",
     "polygon": "Polygon",
@@ -446,8 +449,9 @@ def derived_role_object_ref(
     """
     call = _safe_identity_token(call_id)
     role = _safe_identity_token(semantic_role)
-    if object_kind_for_runtime_type(runtime_type) == "point":
-        return f"point:{scope_id}:{call}_{role}"
+    object_kind = object_kind_for_runtime_type(runtime_type)
+    if object_kind is not None:
+        return f"{object_kind}:{scope_id}:{call}_{role}"
     return f"role:{call}:{role}@{scope_id}"
 
 

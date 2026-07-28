@@ -585,7 +585,8 @@ def _parse_functional_ref(
     handle_registry: CanonicalHandleRegistry,
 ) -> FunctionalRef | None:
     if isinstance(value, dict) and ("from_call" in value or "return" in value):
-        if set(value) != {"from_call", "return"}:
+        required_fields = {"from_call", "return"}
+        if not required_fields <= set(value):
             issues.append(
                 _issue(
                     "functional_validation",
@@ -596,6 +597,17 @@ def _parse_functional_ref(
                 )
             )
             return None
+        extra_fields = sorted(set(value) - required_fields)
+        if extra_fields:
+            deterministic_repairs.append(
+                {
+                    "call_id": call_id,
+                    "action": "drop_redundant_call_result_fields",
+                    "fields": extra_fields,
+                    "from": "presentational_metadata",
+                    "to": "omitted",
+                }
+            )
         source = _text(value.get("from_call"))
         return_name = _text(value.get("return"))
         if source and return_name:

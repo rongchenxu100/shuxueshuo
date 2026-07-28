@@ -473,6 +473,12 @@ class StateFinalizationService:
         goal_by_handle = {f"answer:{item.id}": item for item in question_goals}
 
         for item in provenance:
+            if _projection_kind(item.produced_handle) == "answer":
+                _validate_answer_provenance_identity(
+                    item,
+                    handle_registry=handle_registry,
+                    mismatches=mismatches,
+                )
             projected = projected_by_handle.get(
                 (item.step_id, item.produced_handle)
             )
@@ -601,6 +607,43 @@ class StateFinalizationService:
         if mode == "authoritative":
             result.raise_for_mismatches()
         return result
+
+
+def _validate_answer_provenance_identity(
+    provenance: StateWriteProvenance,
+    *,
+    handle_registry: CanonicalHandleRegistry,
+    mismatches: list[StateFinalizationMismatch],
+) -> None:
+    """Fail closed when an answer alias carries another MathObject."""
+
+    target_object_ref = handle_registry.answer_target_handles.get(
+        provenance.produced_handle
+    )
+    actual_object_ref = (
+        provenance.logical_state_key.object_id.value
+        if provenance.logical_state_key is not None
+        else provenance.object_ref
+    )
+    if (
+        target_object_ref is None
+        or actual_object_ref is None
+        or target_object_ref == actual_object_ref
+    ):
+        return
+    mismatches.append(
+        StateFinalizationMismatch(
+            "state.answer_object_identity_mismatch",
+            "answer provenance belongs to a different MathObject",
+            call_id=provenance.step_id,
+            return_name=provenance.return_name,
+            details={
+                "answer_handle": provenance.produced_handle,
+                "target_object_ref": target_object_ref,
+                "actual_object_ref": actual_object_ref,
+            },
+        )
+    )
 
 
 def project_functional_state_writes(

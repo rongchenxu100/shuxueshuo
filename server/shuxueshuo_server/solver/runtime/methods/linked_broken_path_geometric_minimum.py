@@ -557,6 +557,10 @@ MINIMUM_EXPRESSION_SPEC = MethodSpecSource(
         "dynamic_parameter_expression": "Expression",
         "dynamic_point_expression": "Point",
     },
+    internal_outputs=(
+        "dynamic_parameter_expression",
+        "dynamic_point_expression",
+    ),
     scalar_result_forms={
         "minimum_expression": ScalarResultFormSpec(
             possible_forms=("open_expression", "closed_value"),

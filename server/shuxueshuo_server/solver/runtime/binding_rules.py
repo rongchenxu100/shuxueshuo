@@ -1529,6 +1529,17 @@ DEFAULT_EXPANSION_SELECTORS: dict[str, ExpansionSelectorFn] = {
 
 def _point_output_handle(step: StepIntent, index: CanonicalRuntimeBindingIndex) -> str:
     """找出当前 step 要写回的点实体 handle。"""
+    projected_object_refs = _unique_ordered(
+        write.object_ref
+        for write in index.projected_state_writes
+        if write.step_id == step.step_id
+        and write.runtime_type == "Point"
+        and write.object_ref is not None
+        and write.object_ref.startswith("point:")
+    )
+    if len(projected_object_refs) == 1:
+        return projected_object_refs[0]
+
     target_handle = _point_handle_from_text(step.target, index)
     if target_handle is not None:
         return target_handle

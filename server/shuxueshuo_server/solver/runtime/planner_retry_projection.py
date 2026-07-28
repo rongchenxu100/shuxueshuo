@@ -7,6 +7,9 @@ from typing import Any, cast, get_args
 from shuxueshuo_server.solver.runtime.planner_state_context import (
     PlannerStateContext,
 )
+from shuxueshuo_server.solver.runtime.functional_retry_versions import (
+    FunctionalRetryGraphCheckpoint,
+)
 from shuxueshuo_server.solver.runtime.functional_plan_retry import (
     functional_repair_instruction,
 )
@@ -86,9 +89,12 @@ class PlannerRetryStateProjector:
         # issues and current stable prefix rather than copied from memory.
         stable_prefix = () if has_answer_check else raw_stable_prefix
         if is_functional:
-            committed_calls = (
-                memory.committed_candidate_calls
-                or memory.stable_candidate_calls
+            committed_calls = _typed_committed_candidate_calls(
+                memory.functional_retry_graph_checkpoint,
+                (
+                    memory.committed_candidate_calls
+                    or memory.stable_candidate_calls
+                ),
             )
             preserve_policy: PlannerRetryPreservePolicy = (
                 "preserve_graph"
@@ -144,14 +150,48 @@ class PlannerRetryStateProjector:
                 else "step_intent"
             ),
             baseline_candidate=memory.baseline_candidate,
-            stable_candidate_prefix=memory.stable_candidate_prefix,
-            stable_candidate_calls=memory.stable_candidate_calls,
-            committed_candidate_calls=memory.committed_candidate_calls,
+            stable_candidate_prefix=(
+                memory.stable_candidate_prefix
+                if not is_functional
+                else committed_calls
+            ),
+            stable_candidate_calls=(
+                memory.stable_candidate_calls
+                if not is_functional
+                else committed_calls
+            ),
+            committed_candidate_calls=(
+                memory.committed_candidate_calls
+                if not is_functional
+                else committed_calls
+            ),
             runtime_verified_calls=memory.runtime_verified_calls,
             validated_call_ids=memory.validated_call_ids,
             call_memory=memory.call_memory,
             repair_call_ids=memory.repair_call_ids,
+            functional_retry_graph_checkpoint=(
+                memory.functional_retry_graph_checkpoint
+            ),
         )
+
+
+def _typed_committed_candidate_calls(
+    checkpoint_payload: dict[str, Any] | None,
+    candidate_calls: tuple[dict[str, Any], ...],
+) -> tuple[dict[str, Any], ...]:
+    del candidate_calls
+    if checkpoint_payload is None:
+        return ()
+    checkpoint = FunctionalRetryGraphCheckpoint.from_payload(
+        checkpoint_payload
+    )
+    return tuple(
+        {
+            "scope_id": committed.declared_scope_id,
+            "call": dict(committed.call_payload),
+        }
+        for committed in checkpoint.committed_calls
+    )
 
 
 def _issue_from_payload(payload: dict[str, Any]) -> PlannerRetryIssue | None:

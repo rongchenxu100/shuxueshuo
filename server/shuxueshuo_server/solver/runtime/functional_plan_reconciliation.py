@@ -204,6 +204,7 @@ class _NormalizeElaborateScopeStage:
         method_specs: MethodSpecRegistry,
         handle_registry: CanonicalHandleRegistry,
         question_goals: Sequence[QuestionGoal],
+        pinned_canonical_call_ids: frozenset[str] = frozenset(),
     ) -> _PreparedFunctionalReconciliation:
         semantic_items = planner_state_context.semantic_read_catalog()
         semantic_index = FunctionalSemanticIndex.from_context(
@@ -273,6 +274,7 @@ class _NormalizeElaborateScopeStage:
             plan,
             catalog=catalog,
             semantic_index=semantic_index,
+            pinned_canonical_call_ids=pinned_canonical_call_ids,
         )
         elaboration = replace(
             elaboration,
@@ -643,6 +645,9 @@ class FunctionalPlanReconciler:
         method_specs: MethodSpecRegistry,
         handle_registry: CanonicalHandleRegistry,
         question_goals: Sequence[QuestionGoal],
+        pinned_canonical_call_ids: Sequence[str] = (),
+        pinned_execution_scopes: Mapping[str, str] | None = None,
+        pinned_return_scopes: Mapping[str, Mapping[str, str]] | None = None,
     ) -> FunctionalPlanReconciliationResult:
         prepared = _NormalizeElaborateScopeStage().run(
             plan,
@@ -651,6 +656,9 @@ class FunctionalPlanReconciler:
             method_specs=method_specs,
             handle_registry=handle_registry,
             question_goals=question_goals,
+            pinned_canonical_call_ids=frozenset(
+                pinned_canonical_call_ids
+            ),
         )
         plan = prepared.plan
         semantic_items = prepared.semantic_items
@@ -679,6 +687,13 @@ class FunctionalPlanReconciler:
         call_reports: list[FunctionalCallReport] = []
         dependency_graph = prepared.dependency_graph
         planned_target_objects = prepared.planned_target_objects
+        planned_return_expectations = {
+            (planned_call.call_id, return_name): expectation
+            for planned_call in plan.calls
+            for return_name, expectation in (
+                planned_call.return_expectations.items()
+            )
+        }
         answer_bindings: dict[str, str] = {}
         explicitly_bound_answer_refs = set(
             prepared.explicitly_bound_answer_refs
@@ -703,7 +718,10 @@ class FunctionalPlanReconciler:
         identity_comparisons: list[IdentityShadowComparison] = []
         preallocated_aliases: dict[str, str] = {}
         scope_by_id = {scope.scope_id: scope for scope in plan.scopes}
-        for scope_id, _, call in topological_scoped_calls(plan)[0]:
+        for scope_id, _, call in topological_scoped_calls(
+            plan,
+            dependency_graph=dependency_graph,
+        )[0]:
             scope = scope_by_id[scope_id]
             blockers = tuple(
                 dependency
@@ -822,6 +840,7 @@ class FunctionalPlanReconciler:
                 produced=produced,
                 semantic_index=semantic_index,
                 handle_registry=handle_registry,
+                planned_return_expectations=planned_return_expectations,
             )
             (
                 accepted_auto_args,
@@ -1283,6 +1302,12 @@ class FunctionalPlanReconciler:
             allocation_service=allocation_service,
             placement_mode=self.state_placement_mode,
             state_finalizer_mode=self.state_finalizer_mode,
+            pinned_canonical_call_ids=tuple(pinned_canonical_call_ids),
+            pinned_execution_scopes=dict(pinned_execution_scopes or {}),
+            pinned_return_scopes={
+                call_id: dict(scopes)
+                for call_id, scopes in (pinned_return_scopes or {}).items()
+            },
         )
 
 
@@ -1465,6 +1490,9 @@ class _PlacementLivenessProjectionStage:
         allocation_service: StateAllocationService,
         placement_mode: StatePlacementMode,
         state_finalizer_mode: StateFinalizerMode,
+        pinned_canonical_call_ids: tuple[str, ...],
+        pinned_execution_scopes: Mapping[str, str],
+        pinned_return_scopes: Mapping[str, Mapping[str, str]],
     ) -> FunctionalPlanReconciliationResult:
         plan = _rewrite_effective_functional_plan(
             plan,
@@ -1489,6 +1517,9 @@ class _PlacementLivenessProjectionStage:
             base_identity_index=base_identity_index,
             allocation_service=allocation_service,
             placement_mode=placement_mode,
+            pinned_canonical_call_ids=pinned_canonical_call_ids,
+            pinned_execution_scopes=pinned_execution_scopes,
+            pinned_return_scopes=pinned_return_scopes,
         )
         plan = placement.plan
         reconciled = list(placement.calls)
@@ -1510,6 +1541,12 @@ class _PlacementLivenessProjectionStage:
         issues.extend(state_refinement.issues)
         reconciliation_repairs.extend(placement.repairs)
         issues.extend(placement.issues)
+        answer_identity_issues = _answer_allocation_identity_issues(
+            reconciled,
+            catalog=catalog,
+            handle_registry=handle_registry,
+        )
+        issues.extend(answer_identity_issues)
         dependency_graph = _with_closed_scalar_dependencies(
             plan,
             reconciled=tuple(reconciled),
@@ -1545,6 +1582,7 @@ class _PlacementLivenessProjectionStage:
             issues=(
                 *state_refinement.issues,
                 *placement.issues,
+                *answer_identity_issues,
                 *evidence_issues,
             ),
         )
@@ -1591,6 +1629,18 @@ class _PlacementLivenessProjectionStage:
         )
         if liveness.dropped_call_ids:
             dropped_call_ids = set(liveness.dropped_call_ids)
+            required_answer_handles = {
+                f"answer:{goal.id}"
+                for goal in question_goals
+                if goal.required
+            }
+            answer_failure_call_ids = {
+                issue.call_id
+                for issue in issues
+                if issue.call_id is not None
+                and (issue.details or {}).get("answer_handle")
+                in required_answer_handles
+            }
             dropped_capabilities = {
                 repair.call_id: repair.from_value
                 for repair in liveness.repairs
@@ -1614,6 +1664,7 @@ class _PlacementLivenessProjectionStage:
                 issue
                 for issue in issues
                 if issue.call_id not in dropped_call_ids
+                or issue.call_id in answer_failure_call_ids
             ]
         live_call_ids = {call.call_id for call in plan.calls}
         call_placements = tuple(
@@ -1694,6 +1745,7 @@ class _PlacementLivenessProjectionStage:
                 plan,
                 reconciled=tuple(reconciled),
                 placements=call_placements,
+                dependency_graph=dependency_graph,
                 catalog=catalog,
                 semantic_items=semantic_items,
                 semantic_index=semantic_index,
@@ -1775,6 +1827,7 @@ class _PlacementLivenessProjectionStage:
             plan,
             reconciled=tuple(reconciled),
             placements=call_placements,
+            dependency_graph=dependency_graph,
             catalog=catalog,
             semantic_items=semantic_items,
             semantic_index=semantic_index,
@@ -1854,6 +1907,67 @@ def _validate_typed_allocation_refinement(
                 )
 
 
+def _answer_allocation_identity_issues(
+    reconciled: Sequence[FunctionalCallReconciliation],
+    *,
+    catalog: FunctionalCapabilityCatalog,
+    handle_registry: CanonicalHandleRegistry,
+) -> tuple[FunctionalPlanIssue, ...]:
+    """Validate answer identity after B2 has replayed typed allocations."""
+
+    result: list[FunctionalPlanIssue] = []
+    for call in reconciled:
+        capability = catalog.get(call.capability_id)
+        returns_by_name = (
+            {item.name: item for item in capability.returns}
+            if capability is not None
+            else {}
+        )
+        for allocation in call.returns:
+            if (
+                allocation.bound_ref is None
+                or allocation.bound_ref.kind != "answer"
+                or allocation.object_ref is None
+            ):
+                continue
+            target_object_ref = handle_registry.answer_target_handles.get(
+                allocation.handle
+            )
+            if (
+                target_object_ref is None
+                or target_object_ref == allocation.object_ref
+            ):
+                continue
+            return_spec = returns_by_name.get(allocation.return_name)
+            result.append(
+                _issue(
+                    "functional_reconciliation",
+                    "functional.return_answer_object_identity_mismatch",
+                    (
+                        f"return {call.capability_id}."
+                        f"{allocation.return_name} belongs to "
+                        f"{allocation.object_ref}, but {allocation.handle} "
+                        f"targets {target_object_ref}"
+                    ),
+                    call_id=call.call_id,
+                    scope_id=call.scope_id,
+                    details={
+                        "return": allocation.return_name,
+                        "answer_handle": allocation.handle,
+                        "expected_object_ref": target_object_ref,
+                        "actual_object_ref": allocation.object_ref,
+                        "identity_policy": allocation.identity_policy,
+                        "identity_arg": (
+                            return_spec.identity_arg
+                            if return_spec is not None
+                            else None
+                        ),
+                    },
+                )
+            )
+    return tuple(result)
+
+
 def _exclude_late_invalid_call_graph(
     reconciled: Sequence[FunctionalCallReconciliation],
     call_reports: Sequence[FunctionalCallReport],
@@ -1927,6 +2041,7 @@ class FunctionalPlanProjector:
         *,
         reconciled: tuple[FunctionalCallReconciliation, ...],
         placements: tuple[Any, ...],
+        dependency_graph: Mapping[str, tuple[str, ...]],
         catalog: FunctionalCapabilityCatalog,
         semantic_items: tuple[SemanticReadCatalogItem, ...],
         semantic_index: FunctionalSemanticIndex,
@@ -1952,7 +2067,10 @@ class FunctionalPlanProjector:
         projected_scopes: list[StepIntentScope] = []
         projection: list[FunctionalProjectionEntry] = []
         prior_parameter_values: dict[str, list[FunctionalReturnAllocation]] = {}
-        for declared_scope_id, scope_label, call in topological_scoped_calls(plan)[0]:
+        for declared_scope_id, scope_label, call in topological_scoped_calls(
+            plan,
+            dependency_graph=dependency_graph,
+        )[0]:
                 item = by_call.get(call.call_id)
                 if item is None:
                     continue
@@ -2154,7 +2272,11 @@ def _with_closed_scalar_dependencies(
     """Make deterministic scalar-closure inputs visible to graph passes."""
     calls = {call.call_id: call for call in plan.calls}
     ordered_calls = tuple(
-        call for _, _, call in topological_scoped_calls(plan)[0]
+        call
+        for _, _, call in topological_scoped_calls(
+            plan,
+            dependency_graph=dependency_graph,
+        )[0]
     )
     positions = {
         call.call_id: index for index, call in enumerate(ordered_calls)
@@ -2691,6 +2813,29 @@ def _resolve_allocated_return_binding(
         semantic_items=semantic_items,
         question_goals=question_goals,
     )
+    if (
+        return_spec.return_binding == "call_local_allowed"
+        and bound_ref.kind != "answer"
+        and binding_issues
+        and all(
+            item.code == "functional.return_binding_unknown"
+            for item in binding_issues
+        )
+    ):
+        reconciliation_repairs.append(
+            FunctionalDeterministicRepair(
+                call.call_id,
+                "drop_unknown_call_local_return_binding",
+                f"{bound_ref.kind}:{bound_ref.ref}",
+                return_spec.name,
+            )
+        )
+        call = _without_functional_return_binding(
+            call,
+            return_spec.name,
+        )
+        effective_calls[call.call_id] = call
+        return call, None, None
     issues.extend(binding_issues)
     if bound_item is not None and return_spec.identity_policy == "derived_role":
         issues.append(
@@ -3212,6 +3357,29 @@ def _materialize_functional_return(
 ) -> FunctionalReturnAllocation:
     """Allocate the canonical handle/slot and register every return alias."""
 
+    computation_key = functional_computation_key(
+        call,
+        resolved_args=resolved_args,
+        scope_id=requested_scope,
+        identity_factory=identity_factory,
+        identity_index=identity_index,
+    )
+    if (
+        return_spec.identity_policy == "derived_role"
+        and return_spec.identity_arg is None
+        and bound_item is None
+        and object_kind_for_runtime_type(return_spec.runtime_type)
+        == "path_transformation"
+    ):
+        object_ref = identity_factory.derived_computation_object_ref(
+            computation_key=computation_key,
+            semantic_role=(
+                return_spec.equivalent_to
+                or return_spec.semantic_role
+                or return_spec.name
+            ),
+            runtime_type=return_spec.runtime_type,
+        )
     handle = factory.handle_for(
         call_id=call.call_id,
         return_spec=return_spec,
@@ -3254,13 +3422,6 @@ def _materialize_functional_return(
         return_name=return_spec.name,
         args=resolved_args,
         spec=symbolic_closure,
-    )
-    computation_key = functional_computation_key(
-        call,
-        resolved_args=resolved_args,
-        scope_id=requested_scope,
-        identity_factory=identity_factory,
-        identity_index=identity_index,
     )
     math_object_id = identity_factory.object_id(object_ref)
     logical_state_key = identity_factory.logical_key(
@@ -5593,6 +5754,7 @@ def _semantic_object_consumer_scopes(
         for scope in plan.scopes
         for call in scope.calls
     }
+    calls_by_id = {call.call_id: call for call in plan.calls}
     producers_by_object: dict[str, list[tuple[int, str, str]]] = {}
     for call in plan.calls:
         capability = catalog.get(call.capability_id)
@@ -6125,6 +6287,15 @@ def _with_functional_return_binding(
     return replace(call, return_bindings=bindings)
 
 
+def _without_functional_return_binding(
+    call: FunctionalCall,
+    return_name: str,
+) -> FunctionalCall:
+    bindings = dict(call.return_bindings)
+    bindings.pop(return_name, None)
+    return replace(call, return_bindings=bindings)
+
+
 def _rewrite_effective_functional_plan(
     plan: FunctionalPlan,
     *,
@@ -6293,24 +6464,44 @@ def _with_hidden_condition_object_dependencies(
     order_by_id = {
         call.call_id: index for index, (_scope_id, call) in enumerate(ordered)
     }
-    producers_by_object: dict[str, list[str]] = {}
-    for (call_id, _return_name), object_refs in future_return_object_hints.items():
+    call_scopes = {
+        call.call_id: scope.scope_id
+        for scope in plan.scopes
+        for call in scope.calls
+    }
+    calls_by_id = {call.call_id: call for call in plan.calls}
+    producers_by_object: dict[str, list[tuple[str, str, str]]] = {}
+    for (call_id, return_name), object_refs in future_return_object_hints.items():
         for object_ref in object_refs:
-            producers_by_object.setdefault(object_ref, []).append(call_id)
+            producers_by_object.setdefault(object_ref, []).append(
+                (call_id, return_name, call_scopes[call_id])
+            )
 
     for scope_id, call in ordered:
         capability = catalog.get(call.capability_id)
         if capability is None:
             continue
+        produced_object_refs = frozenset(
+            object_ref
+            for (producer_call_id, _return_name), object_refs in (
+                future_return_object_hints.items()
+            )
+            if producer_call_id == call.call_id
+            for object_ref in object_refs
+        )
         hidden_dependencies: list[str] = []
         args_by_name = {item.name: item for item in capability.args}
         for arg_name, refs in call.args.items():
             arg = args_by_name.get(arg_name)
-            consumes_point_state = bool(
-                arg is not None
-                and set(arg.accepted_item_types or (arg.runtime_type,)).intersection(
-                    {"Point", "PointList"}
-                )
+            accepted_item_types = (
+                arg.accepted_item_types or (arg.runtime_type,)
+                if arg is not None
+                else ()
+            )
+            consumes_point_state = any(
+                runtime_type_compatible(expected, actual)
+                for expected in accepted_item_types
+                for actual in ("Point", "PointList")
             )
             if arg is None or not (
                 arg.requires_materialized_state or consumes_point_state
@@ -6331,39 +6522,52 @@ def _with_hidden_condition_object_dependencies(
                         scope_id=scope_id,
                     ):
                         continue
-                    prior_producers = tuple(
-                        producer
-                        for producer in producers_by_object.get(object_ref, ())
-                        if order_by_id.get(producer, -1)
-                        < order_by_id[call.call_id]
+                    producer = _select_planned_state_producer(
+                        object_ref,
+                        consumer_call=call,
+                        consumer_scope_id=scope_id,
+                        producers_by_object=producers_by_object,
+                        calls_by_id=calls_by_id,
+                        dependency_graph=result,
+                        order_by_id=order_by_id,
+                        handle_registry=semantic_index.handle_registry,
+                        allow_future=object_ref not in produced_object_refs,
                     )
-                    if prior_producers:
-                        hidden_dependencies.append(prior_producers[-1])
+                    if producer is not None:
+                        hidden_dependencies.append(producer)
         if not (capability.auto_args or capability.context_resolvers):
             result[call.call_id] = unique_ordered(
                 (*result.get(call.call_id, ()), *hidden_dependencies)
             )
             continue
-        for object_ref in _hidden_auto_arg_object_refs(
-            call,
-            scope_id=scope_id,
-            capability=capability,
-            semantic_index=semantic_index,
+        for object_ref, requires_closed_state in (
+            _hidden_auto_arg_object_requirements(
+                call,
+                scope_id=scope_id,
+                capability=capability,
+                semantic_index=semantic_index,
+            )
         ):
             if _context_has_materialized_object_state(
                 semantic_index,
                 object_ref=object_ref,
                 scope_id=scope_id,
+                requires_closed_state=requires_closed_state,
             ):
                 continue
-            prior_producers = tuple(
-                producer
-                for producer in producers_by_object.get(object_ref, ())
-                if order_by_id.get(producer, -1)
-                < order_by_id[call.call_id]
+            producer = _select_planned_state_producer(
+                object_ref,
+                consumer_call=call,
+                consumer_scope_id=scope_id,
+                producers_by_object=producers_by_object,
+                calls_by_id=calls_by_id,
+                dependency_graph=result,
+                order_by_id=order_by_id,
+                handle_registry=semantic_index.handle_registry,
+                requires_closed_state=requires_closed_state,
             )
-            if prior_producers:
-                hidden_dependencies.append(prior_producers[-1])
+            if producer is not None:
+                hidden_dependencies.append(producer)
         for refs in call.args.values():
             for ref in refs:
                 if not isinstance(ref, SemanticRef):
@@ -6377,22 +6581,26 @@ def _with_hidden_condition_object_dependencies(
                     continue
                 for _role, object_refs in condition.object_roles:
                     for object_ref in object_refs:
+                        if object_ref in produced_object_refs:
+                            continue
                         if _context_has_materialized_object_state(
                             semantic_index,
                             object_ref=object_ref,
                             scope_id=scope_id,
                         ):
                             continue
-                        prior_producers = tuple(
-                            producer
-                            for producer in producers_by_object.get(
-                                object_ref, ()
-                            )
-                            if order_by_id.get(producer, -1)
-                            < order_by_id[call.call_id]
+                        producer = _select_planned_state_producer(
+                            object_ref,
+                            consumer_call=call,
+                            consumer_scope_id=scope_id,
+                            producers_by_object=producers_by_object,
+                            calls_by_id=calls_by_id,
+                            dependency_graph=result,
+                            order_by_id=order_by_id,
+                            handle_registry=semantic_index.handle_registry,
                         )
-                        if prior_producers:
-                            hidden_dependencies.append(prior_producers[-1])
+                        if producer is not None:
+                            hidden_dependencies.append(producer)
         result[call.call_id] = unique_ordered(
             (*result.get(call.call_id, ()), *hidden_dependencies)
         )
@@ -6431,6 +6639,133 @@ def _hidden_auto_arg_object_refs(
         if object_ref is not None:
             result.append(object_ref)
     return unique_ordered(result)
+
+
+def _hidden_auto_arg_object_requirements(
+    call: FunctionalCall,
+    *,
+    scope_id: str,
+    capability: FunctionalCapability,
+    semantic_index: FunctionalSemanticIndex,
+) -> tuple[tuple[str, bool], ...]:
+    result: list[tuple[str, bool]] = []
+    for auto in capability.auto_args:
+        if not auto.selector.startswith("angle_sum:"):
+            continue
+        role = auto.selector.split(":", 1)[1]
+        if role in {"condition", "target"}:
+            continue
+        object_ref = _angle_sum_role_object_ref(
+            call,
+            role=role,
+            scope_id=scope_id,
+            semantic_index=semantic_index,
+        )
+        if object_ref is None:
+            continue
+        result.append(
+            (
+                object_ref,
+                selector_semantics(auto.selector).requires_closed_state,
+            )
+        )
+    return unique_ordered(result)
+
+
+def _select_planned_state_producer(
+    object_ref: str,
+    *,
+    consumer_call: FunctionalCall,
+    consumer_scope_id: str,
+    producers_by_object: Mapping[
+        str,
+        Sequence[tuple[str, str, str]],
+    ],
+    calls_by_id: Mapping[str, FunctionalCall],
+    dependency_graph: Mapping[str, tuple[str, ...]],
+    order_by_id: Mapping[str, int],
+    handle_registry: CanonicalHandleRegistry,
+    requires_closed_state: bool = False,
+    allow_future: bool = True,
+) -> str | None:
+    """Choose a unique planned producer without relying on wire order."""
+
+    candidates = tuple(
+        item
+        for item in producers_by_object.get(object_ref, ())
+        if item[0] != consumer_call.call_id
+        and not _dependency_reaches(
+            item[0],
+            consumer_call.call_id,
+            dependency_graph=dependency_graph,
+        )
+    )
+    if not allow_future:
+        candidates = tuple(
+            item
+            for item in candidates
+            if order_by_id.get(item[0], -1)
+            < order_by_id.get(consumer_call.call_id, -1)
+        )
+    if requires_closed_state:
+        closed = tuple(
+            item
+            for item in candidates
+            if calls_by_id[item[0]].return_expectations.get(item[1])
+            in {"closed_state", "closed_value"}
+        )
+        if closed:
+            candidates = closed
+    same_scope = tuple(
+        item for item in candidates if item[2] == consumer_scope_id
+    )
+    if len(same_scope) == 1:
+        return same_scope[0][0]
+    if same_scope:
+        candidates = same_scope
+    visible = tuple(
+        item
+        for item in candidates
+        if visible_from_valid_scope(
+            item[2],
+            scope_id=consumer_scope_id,
+            registry=handle_registry,
+        )
+    )
+    if len(visible) == 1:
+        return visible[0][0]
+    if visible:
+        candidates = visible
+    prior = tuple(
+        item
+        for item in candidates
+        if order_by_id.get(item[0], -1)
+        < order_by_id.get(consumer_call.call_id, -1)
+    )
+    if len(prior) == 1:
+        return prior[0][0]
+    if prior:
+        return max(prior, key=lambda item: order_by_id[item[0]])[0]
+    return candidates[0][0] if len(candidates) == 1 else None
+
+
+def _dependency_reaches(
+    start_call_id: str,
+    target_call_id: str,
+    *,
+    dependency_graph: Mapping[str, tuple[str, ...]],
+) -> bool:
+    pending = list(dependency_graph.get(start_call_id, ()))
+    visited: set[str] = set()
+    while pending:
+        call_id = pending.pop()
+        if call_id == target_call_id:
+            return True
+        if call_id in visited:
+            continue
+        visited.add(call_id)
+        pending.extend(dependency_graph.get(call_id, ()))
+    return False
 
 
 def _angle_sum_role_object_ref(
@@ -6514,10 +6849,12 @@ def _context_has_materialized_object_state(
     *,
     object_ref: str,
     scope_id: str,
+    requires_closed_state: bool = False,
 ) -> bool:
     return any(
         view.object_ref == object_ref
         and view.state_slot_id is not None
+        and (not requires_closed_state or not view.free_symbol_refs)
         and visible_from_valid_scope(
             view.valid_scope,
             scope_id=scope_id,
@@ -7234,6 +7571,7 @@ def _resolve_context_auto_args(
     produced: Mapping[tuple[str, str], ResolvedFunctionalValue],
     semantic_index: FunctionalSemanticIndex,
     handle_registry: CanonicalHandleRegistry,
+    planned_return_expectations: Mapping[tuple[str, str], str],
 ) -> tuple[
     dict[str, tuple[ResolvedFunctionalValue, ...]],
     tuple[FunctionalDeterministicRepair, ...],
@@ -7255,6 +7593,7 @@ def _resolve_context_auto_args(
                 handle_registry=handle_registry,
                 call_id=call_id,
                 scope_id=scope_id,
+                planned_return_expectations=planned_return_expectations,
             )
             if value is not None:
                 additions[auto.name] = (value,)
@@ -7407,6 +7746,7 @@ def _resolve_angle_sum_auto_arg(
     handle_registry: CanonicalHandleRegistry,
     call_id: str,
     scope_id: str,
+    planned_return_expectations: Mapping[tuple[str, str], str] | None = None,
 ) -> tuple[
     ResolvedFunctionalValue | None,
     FunctionalDeterministicRepair | None,
@@ -7506,6 +7846,7 @@ def _resolve_angle_sum_auto_arg(
         produced=produced,
         semantic_index=semantic_index,
         handle_registry=handle_registry,
+        allow_unique_planned_producer=True,
     )
     if value is None:
         immutable_views = tuple(
@@ -7514,6 +7855,10 @@ def _resolve_angle_sum_auto_arg(
             if view.object_ref == object_ref
             and view.runtime_type == "Point"
             and view.state_slot_id is None
+            and _problem_point_has_coordinates(
+                object_ref,
+                handle_registry=handle_registry,
+            )
             and visible_from_valid_scope(
                 view.valid_scope,
                 scope_id=scope_id,
@@ -7554,6 +7899,65 @@ def _resolve_angle_sum_auto_arg(
                 },
             ),
         )
+    if (
+        selector_semantics(auto.selector).requires_closed_state
+        and value.free_symbol_refs
+    ):
+        expectation = (
+            planned_return_expectations.get(
+                (value.source_call_id, value.return_name)
+            )
+            if planned_return_expectations is not None
+            and value.source_call_id is not None
+            and value.return_name is not None
+            else None
+        )
+        if expectation in {"closed_state", "closed_value"}:
+            return (
+                value,
+                FunctionalDeterministicRepair(
+                    call_id,
+                    "defer_closed_state_check_to_runtime",
+                    f"{auto.name}={value.handle}",
+                    (
+                        f"{auto.name}={value.handle}; "
+                        f"producer_expectation={expectation}"
+                    ),
+                ),
+                None,
+            )
+        repair_call_ids = unique_ordered(
+            (
+                *(
+                    (value.source_call_id,)
+                    if value.source_call_id is not None
+                    else ()
+                ),
+                call_id,
+            )
+        )
+        return (
+            None,
+            None,
+            _issue(
+                "functional_reconciliation",
+                "functional.arg_state_open",
+                f"angle-sum role {role} requires a closed Point state",
+                call_id=call_id,
+                scope_id=scope_id,
+                details={
+                    "arg": auto.name,
+                    "selector": auto.selector,
+                    "object_ref": object_ref,
+                    "free_symbol_refs": list(value.free_symbol_refs),
+                    "producer_call_id": value.source_call_id,
+                    "producer_return_name": value.return_name,
+                    "expected_form": "closed_state",
+                    "actual_form": "open_state",
+                    "repair_call_ids": list(repair_call_ids),
+                },
+            ),
+        )
     return (
         value,
         FunctionalDeterministicRepair(
@@ -7563,6 +7967,22 @@ def _resolve_angle_sum_auto_arg(
             f"{auto.name}={value.handle}",
         ),
         None,
+    )
+
+
+def _problem_point_has_coordinates(
+    object_ref: str,
+    *,
+    handle_registry: CanonicalHandleRegistry,
+) -> bool:
+    payload = handle_registry.entity_payloads.get(object_ref, {})
+    if payload.get("definition") == "coordinate_origin":
+        return True
+    coordinate = payload.get("coordinate")
+    return (
+        isinstance(coordinate, list | tuple)
+        and len(coordinate) == 2
+        and all(item is not None for item in coordinate)
     )
 
 

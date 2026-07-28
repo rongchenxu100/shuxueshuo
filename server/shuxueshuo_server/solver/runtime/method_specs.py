@@ -103,6 +103,18 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
         raise ValueError("MethodSpec.solves must be a non-empty list")
     inputs = _parse_inputs(raw["inputs"])
     outputs = _parse_outputs(raw["outputs"])
+    internal_outputs = _parse_identifier_list(
+        raw.get("internal_outputs", ()),
+        field_name="MethodSpec.internal_outputs",
+    )
+    unknown_internal_outputs = tuple(
+        name for name in internal_outputs if name not in outputs
+    )
+    if unknown_internal_outputs:
+        raise ValueError(
+            "MethodSpec.internal_outputs references unknown outputs: "
+            + ", ".join(unknown_internal_outputs)
+        )
     scalar_result_forms = _parse_scalar_result_forms(
         raw.get("scalar_result_forms", {}),
         output_names=set(outputs),
@@ -119,6 +131,7 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
         solves=tuple(str(item) for item in raw["solves"]),
         inputs=inputs,
         outputs=outputs,
+        internal_outputs=internal_outputs,
         scalar_result_forms=scalar_result_forms,
         summary=str(raw.get("summary", "")),
         do_not_use_when=_parse_do_not_use_when(raw.get("do_not_use_when", ())),

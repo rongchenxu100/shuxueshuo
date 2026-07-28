@@ -10,6 +10,10 @@ from shuxueshuo_server.solver.runtime.handle_registry import (
     CanonicalHandleRegistry,
 )
 from shuxueshuo_server.solver.state_semantics import is_object_semantic_kind
+from shuxueshuo_server.solver.runtime.functional_retry_versions import (
+    latest_functional_retry_graph_checkpoint,
+    restore_committed_calls,
+)
 
 def prepare_functional_plan_raw_response(
     raw_response: str,
@@ -41,16 +45,15 @@ def prepare_functional_plan_raw_response(
         ),
     )
     candidate = _drop_empty_return_bindings(candidate)
+    candidate = _drop_redundant_call_scopes(candidate)
     candidate = _drop_redundant_semantic_ref_scopes(candidate)
-    if retry_state is None:
-        return json.dumps(candidate, ensure_ascii=False)
-    merged = _overlay_functional_retry_state(
-        candidate,
-        retry_state,
-        handle_registry=handle_registry,
-        shareable_capability_ids=shareable_capability_ids,
-    )
-    return json.dumps(merged, ensure_ascii=False)
+    checkpoint = latest_functional_retry_graph_checkpoint(previous_attempts)
+    if checkpoint is not None:
+        restored = restore_committed_calls(candidate, checkpoint)
+        return json.dumps(restored, ensure_ascii=False)
+    # Legacy Functional retry payloads are readable as provisional memory, but
+    # only a typed checkpoint grants hard restore authority.
+    return json.dumps(candidate, ensure_ascii=False)
 
 
 def _normalize_flat_scoped_calls(
@@ -180,6 +183,35 @@ def _drop_empty_return_bindings(candidate: dict[str, Any]) -> dict[str, Any]:
                 for name, binding in bindings.items()
                 if binding != {}
             }
+    return result
+
+
+def _drop_redundant_call_scopes(
+    candidate: dict[str, Any],
+) -> dict[str, Any]:
+    """Drop a call-local scope copy when the enclosing scope is authoritative.
+
+    A conflicting value remains untouched so strict validation can report the
+    malformed plan instead of silently moving a mathematical call.
+    """
+
+    result = json.loads(json.dumps(candidate))
+    scopes = result.get("scopes")
+    if not isinstance(scopes, list):
+        return result
+    for scope in scopes:
+        if not isinstance(scope, dict):
+            continue
+        scope_id = scope.get("scope_id")
+        calls = scope.get("calls")
+        if not isinstance(scope_id, str) or not isinstance(calls, list):
+            continue
+        for call in calls:
+            if (
+                isinstance(call, dict)
+                and call.get("scope_id") == scope_id
+            ):
+                call.pop("scope_id", None)
     return result
 
 

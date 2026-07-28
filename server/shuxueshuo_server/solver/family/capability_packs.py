@@ -277,6 +277,8 @@ def _slot(
     output_key: str | None = None,
     cardinality: CapabilityCardinality = "one",
     required: bool | None = None,
+    identity_policy: StateIdentityPolicy | None = None,
+    identity_arg: str | None = None,
     write_mode: StateWriteMode | None = None,
     description: str = "",
     provides_semantic_roles: tuple[str, ...] = (),
@@ -299,6 +301,8 @@ def _slot(
         output_key=output_key,
         cardinality=cardinality,
         required=resolved_required,
+        identity_policy=identity_policy,
+        identity_arg=identity_arg,
         write_mode=(
             write_mode
             if write_mode is not None
@@ -647,6 +651,16 @@ QUADRATIC_CORE_CONTRACTS = (
                     "该横坐标并用抛物线计算纵坐标。坐标仍含未确定参数时为"
                     " open_state。"
                 ),
+                lineage_closures=(
+                    StateLineageClosureSpec(
+                        source_args=("parabola", "target"),
+                        add_evidence_tags=("curve_membership",),
+                        description=(
+                            "目标点的横坐标必须来自结构化定义；代入抛物线后，"
+                            "输出才获得曲线成员证据。"
+                        ),
+                    ),
+                ),
             ),
         ),
     ),
@@ -669,7 +683,30 @@ QUADRATIC_CORE_CONTRACTS = (
             _slot("coordinate", "Point", object_kind="point"),
         ),
         condition_reads=(_condition("line_relation", required=False),),
-        slot_writes=(_slot("coordinate", "Point", object_kind="point"),),
+        slot_writes=(
+            _slot(
+                "coordinate",
+                "Point",
+                object_kind="point",
+                semantic_role="curve_intersection_point",
+                provides_semantic_roles=("curve_intersection_point",),
+                lineage_closures=(
+                    StateLineageClosureSpec(
+                        source_args=(
+                            "parabola",
+                            "line_p1",
+                            "line_p2",
+                            "known_point",
+                        ),
+                        add_evidence_tags=("curve_membership",),
+                        description=(
+                            "输出由已知直线与抛物线的另一个交点推出，"
+                            "因此携带曲线成员证据。"
+                        ),
+                    ),
+                ),
+            ),
+        ),
     ),
 )
 
@@ -844,7 +881,14 @@ COORDINATE_GEOMETRY_CONTRACTS = (
         "translated_point",
         slot_reads=(_slot("coordinate", "Point", object_kind="point"),),
         condition_reads=(_condition("translation"),),
-        slot_writes=(_slot("coordinate", "Point", object_kind="point"),),
+        slot_writes=(
+            _slot(
+                "coordinate",
+                "Point",
+                object_kind="point",
+                semantic_role="translated_point",
+            ),
+        ),
     ),
     _method_contract(
         "line_intersection_point",
@@ -918,6 +962,8 @@ TWO_MOVING_POINTS_PATH_REDUCTION = StepRecipeSpec(
                 "two_moving_points_path_reduction.path_transformation",
                 "PathTransformation",
                 "path_transformation",
+                identity_policy="derived_role",
+                write_mode="create",
                 description=(
                     "包含降维后的动点、两个固定端点，以及由题面线段归属条件"
                     "提供的动点轨迹证据；后续路径拉直可据此省略 moving_locus。"
@@ -1302,7 +1348,14 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
             _recipe_contract(
                 "two_moving_points_path_reduction",
                 condition_reads=(_condition("path_minimum_target"),),
-                slot_writes=(_slot("transformation", "PathTransformation"),),
+                slot_writes=(
+                    _slot(
+                        "transformation",
+                        "PathTransformation",
+                        identity_policy="derived_role",
+                        write_mode="create",
+                    ),
+                ),
                 dependency_policy="context_closure",
                 context_resolvers=(PATH_REDUCTION_ROLES_RESOLVER,),
                 context_role_bindings=(
@@ -1597,6 +1650,8 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
                         "transformation",
                         "PathTransformation",
                         output_key="path_transformation",
+                        identity_policy="derived_role",
+                        write_mode="create",
                         description=(
                             "原加权路径到普通折线路径的结构化等价变换；它不是"
                             "最小值表达式或最终数值。"
@@ -1733,6 +1788,8 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
                     _slot(
                         "transformation",
                         "PathTransformation",
+                        identity_policy="derived_role",
+                        write_mode="create",
                         description=(
                             "包含降维后的动点和固定端点，但不包含动点轨迹证据；"
                             "后续路径拉直必须显式提供属于同一动点的 Line。"
@@ -1851,7 +1908,19 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
                     _parabola_read(semantic_role="parabola"),
                 ),
                 condition_reads=(_condition("point_on_curve"),),
-                slot_writes=(_slot("candidate", "PointList", object_kind="point"),),
+                slot_writes=(
+                    _slot(
+                        "candidate",
+                        "PointList",
+                        object_kind="point",
+                        identity_policy="preserve_input_object",
+                        identity_arg="target_point",
+                        description=(
+                            "返回 target_point 的候选列表；curve_point 只用于"
+                            "建立曲线方程，不会成为返回对象。"
+                        ),
+                    ),
+                ),
             ),
             _method_contract(
                 "parameterized_point_locus_line",
@@ -1867,6 +1936,11 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
                                 source_arg="point",
                             ),
                         ),
+                        description=(
+                            "输入 Point 的轨迹直线。作为中间结果时无需绑定"
+                            "题面已有 Line，后续调用直接引用本 call 的 line。"
+                        ),
+                        return_binding="call_local_allowed",
                     ),
                 ),
             ),

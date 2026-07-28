@@ -54,6 +54,10 @@
     "dynamic_point_expression": "Point"
   },
   "is_pure": true,
+  "internal_outputs": [
+    "dynamic_parameter_expression",
+    "dynamic_point_expression"
+  ],
   "scalar_result_forms": {
     "minimum_expression": {
       "possible_forms": [

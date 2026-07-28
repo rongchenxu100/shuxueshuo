@@ -34,6 +34,7 @@ class MethodSpecSource:
     solves: tuple[str, ...]
     inputs: dict[str, dict[str, Any]]
     outputs: dict[str, str]
+    internal_outputs: tuple[str, ...] = ()
     scalar_result_forms: dict[str, ScalarResultFormSpec] = field(default_factory=dict)
     preconditions: tuple[str, ...] = ()
     postconditions: tuple[str, ...] = ()
@@ -73,6 +74,8 @@ class MethodSpecSource:
             "outputs": self.outputs,
             "is_pure": self.is_pure,
         }
+        if self.internal_outputs:
+            payload["internal_outputs"] = list(self.internal_outputs)
         if self.scalar_result_forms:
             payload["scalar_result_forms"] = {
                 name: spec.to_payload()

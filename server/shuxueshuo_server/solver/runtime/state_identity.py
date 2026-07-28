@@ -8,12 +8,15 @@ source.
 from __future__ import annotations
 
 from dataclasses import dataclass, field, replace
+import hashlib
+import json
 from typing import Any, Iterable, Literal, Mapping, Protocol, Sequence
 
 from shuxueshuo_server.solver.runtime.handle_alias_index import (
     parse_scoped_non_answer_handle,
 )
 from shuxueshuo_server.solver.state_semantics import (
+    object_kind_for_runtime_type,
     object_semantic_kind_for_handle,
 )
 
@@ -423,6 +426,7 @@ class IndexedStateVersion:
     computation_key: ComputationKey | None = None
     state_effect_key: StateEffectKey | None = None
     free_symbol_refs: tuple[str, ...] = ()
+    previous_version_id: StateVersionId | None = None
     source_version_ids: tuple[StateVersionId, ...] = ()
     runtime_destination: RuntimeDestinationKey | None = None
     result_form: str | None = None
@@ -444,6 +448,11 @@ class IndexedStateVersion:
                 else None
             ),
             "free_symbol_refs": list(self.free_symbol_refs),
+            "previous_version_id": (
+                self.previous_version_id.to_payload()
+                if self.previous_version_id is not None
+                else None
+            ),
             "source_version_ids": [
                 item.to_payload() for item in self.source_version_ids
             ],
@@ -721,6 +730,40 @@ class StateIdentityFactory:
             object_ref
         )
 
+    def derived_computation_object_ref(
+        self,
+        *,
+        computation_key: ComputationKey,
+        semantic_role: str,
+        runtime_type: str,
+    ) -> str | None:
+        """Create one scope-independent identity for a derived pure result."""
+        object_kind = object_kind_for_runtime_type(runtime_type)
+        if object_kind is None:
+            return None
+        payload = {
+            "computation_key": computation_key.to_payload(),
+            "semantic_role": semantic_role,
+            "runtime_type": runtime_type,
+        }
+        digest = hashlib.sha256(
+            json.dumps(
+                payload,
+                ensure_ascii=True,
+                separators=(",", ":"),
+                sort_keys=True,
+            ).encode("utf-8")
+        ).hexdigest()[:24]
+        # Object identity is scope-independent; StateSlot.valid_scope remains
+        # the authority for visibility of the derived state.
+        object_ref = f"{object_kind}:problem:derived_{digest}"
+        self.objects.register_handle(
+            object_ref,
+            kind=object_kind,
+            origin_scope_id="problem",
+        )
+        return object_ref
+
     def logical_key(
         self,
         *,
@@ -829,11 +872,27 @@ class StateIdentityIndex:
                 version_id = getattr(write, "version_id", None) or (
                     StateVersionId(typed_slot, ordinal)
                 )
+                write_free_symbol_refs = getattr(
+                    write,
+                    "free_symbol_refs",
+                    None,
+                )
                 result.register(
                     IndexedStateVersion(
                         version_id=version_id,
-                        valid_scope_id=slot.valid_scope or slot.scope_id,
-                        producer_call_id=getattr(write, "step_id", None),
+                        valid_scope_id=(
+                            getattr(write, "valid_scope_id", None)
+                            or slot.valid_scope
+                            or slot.scope_id
+                        ),
+                        producer_call_id=(
+                            getattr(
+                                write,
+                                "canonical_producer_call_id",
+                                None,
+                            )
+                            or getattr(write, "step_id", None)
+                        ),
                         produced_handle=getattr(
                             write,
                             "produced_handle",
@@ -844,18 +903,36 @@ class StateIdentityIndex:
                             "computation_key",
                             None,
                         ),
+                        state_effect_key=getattr(
+                            write,
+                            "state_effect_key",
+                            None,
+                        ),
                         source_version_ids=getattr(
                             write,
                             "source_version_ids",
                             (),
                         ),
-                        free_symbol_refs=slot.free_symbol_refs,
-                        runtime_destination=RuntimeDestinationKey(
-                            logical_key.object_id,
-                            logical_key.state_kind,
-                            logical_key.runtime_type,
-                            slot.runtime_path,
+                        free_symbol_refs=(
+                            tuple(write_free_symbol_refs)
+                            if write_free_symbol_refs is not None
+                            else slot.free_symbol_refs
                         ),
+                        previous_version_id=getattr(
+                            write,
+                            "previous_version_id",
+                            None,
+                        ),
+                        runtime_destination=(
+                            getattr(write, "runtime_destination", None)
+                            or RuntimeDestinationKey(
+                                logical_key.object_id,
+                                logical_key.state_kind,
+                                logical_key.runtime_type,
+                                slot.runtime_path,
+                            )
+                        ),
+                        result_form=getattr(write, "result_form", None),
                     ),
                     legacy_slot_id=slot.slot_id,
                 )

@@ -184,6 +184,47 @@ class ExpressionStateTransitionFeedbackProvider:
         return None
 
 
+class ClosedStateRequirementFeedbackProvider:
+    """Explain an unmet closed-state contract without choosing a method."""
+
+    def build(
+        self,
+        context: CapabilityRepairFeedbackContext,
+    ) -> CapabilityRepairFeedbackContribution | None:
+        if context.issue.code != "functional.arg_state_open":
+            return None
+        details = (
+            context.issue.details
+            if isinstance(context.issue.details, Mapping)
+            else {}
+        )
+        return CapabilityRepairFeedbackContribution(
+            explanation=(
+                "当前输入对象已有状态，但该版本仍含未闭合参数，不能满足"
+                "本调用要求的 closed state。"
+            ),
+            expected={
+                "form": details.get("expected_form") or "closed_state",
+                "arg": details.get("arg"),
+            },
+            actual={
+                "form": details.get("actual_form") or "open_state",
+                "free_parameters": list(
+                    _strings(details.get("free_symbol_refs"))
+                ),
+                "producer_call_id": details.get("producer_call_id"),
+            },
+            hints=(
+                "让该输入读取一个实际闭合的 producer；若参数在稍后才确定，请在参数闭合后重新生成或求值该对象状态。",
+                "计划中声明 closed 的 producer 可以保留完整依赖交由 runtime 验证；实际仍开放时会由结果形态校验报告。",
+            ),
+            do_not=(
+                "不要只修改 return expectation 来掩盖仍存在的自由参数。",
+            ),
+            additional_repair_call_ids=context.repair_call_ids,
+        )
+
+
 class CapabilityRepairFeedbackRegistry:
     """Closed registry for capability-declared dynamic feedback providers."""
 
@@ -203,6 +244,9 @@ class CapabilityRepairFeedbackRegistry:
                 "expression_state_transition": (
                     ExpressionStateTransitionFeedbackProvider()
                 ),
+                "closed_state_requirement": (
+                    ClosedStateRequirementFeedbackProvider()
+                ),
             }
         )
 
@@ -213,6 +257,14 @@ class CapabilityRepairFeedbackRegistry:
                 f"{self.code}: unknown provider {provider_id}"
             )
         return provider
+
+    def fallback(
+        self,
+        issue: PlannerRetryIssue,
+    ) -> CapabilityRepairFeedbackProvider | None:
+        if issue.code == "functional.arg_state_open":
+            return self.require("closed_state_requirement")
+        return None
 
     @property
     def code(self) -> str:
@@ -257,13 +309,16 @@ def apply_capability_repair_feedback(
             if capability is not None
             else None
         )
-        if not provider_id:
-            result.append(issue)
-            continue
         details = dict(issue.details or {})
         context = CapabilityRepairFeedbackContext(
-            capability_id=capability.capability_id,
-            capability_kind=capability.kind,
+            capability_id=(
+                capability.capability_id
+                if capability is not None
+                else (call.capability_id if call is not None else "")
+            ),
+            capability_kind=(
+                capability.kind if capability is not None else "unknown"
+            ),
             issue=issue,
             evidence_evaluation=(
                 details.get("evidence_gap")
@@ -271,13 +326,25 @@ def apply_capability_repair_feedback(
                 else None
             ),
             compatible_refs=_strings(details.get("compatible_refs"))[:4],
-            dependency_call_ids=dependencies.get(call.call_id, ()),
+            dependency_call_ids=(
+                dependencies.get(call.call_id, ())
+                if call is not None
+                else ()
+            ),
             repair_call_ids=_strings(details.get("repair_call_ids")),
             locked_call_ids=locked,
             actual_result_refs=_strings(details.get("actual_result_refs")),
         )
         try:
-            contribution = registry.require(provider_id).build(context)
+            provider = (
+                registry.require(provider_id)
+                if provider_id
+                else registry.fallback(issue)
+            )
+            if provider is None:
+                result.append(issue)
+                continue
+            contribution = provider.build(context)
             if contribution is None:
                 result.append(issue)
                 continue
@@ -296,7 +363,7 @@ def apply_capability_repair_feedback(
         except Exception as exc:
             raise CapabilityRepairFeedbackProviderError(
                 f"{CapabilityRepairFeedbackProviderError.code}: "
-                f"{provider_id}: {exc}"
+                f"{provider_id or 'generic_fallback'}: {exc}"
             ) from exc
         details["repair_feedback"] = feedback
         additional = _strings(feedback.get("additional_repair_call_ids"))
@@ -440,6 +507,7 @@ __all__ = [
     "CapabilityRepairFeedbackProvider",
     "CapabilityRepairFeedbackProviderError",
     "CapabilityRepairFeedbackRegistry",
+    "ClosedStateRequirementFeedbackProvider",
     "ExpressionStateTransitionFeedbackProvider",
     "LineIntersectionEvidenceFeedbackProvider",
     "apply_capability_repair_feedback",

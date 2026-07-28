@@ -12,7 +12,7 @@ from ._spec import MethodSpecSource
 
 
 class PointCandidatesFromCurvePointConditionMethod:
-    """把同参数曲线点代入二次函数，反求目标点候选。"""
+    """把同参数曲线点代入二次函数，反求另一个目标点的候选。"""
 
     method_id = "point_candidates_from_curve_point_condition"
 
@@ -95,18 +95,39 @@ SPEC = MethodSpecSource(
     method_cls=PointCandidatesFromCurvePointConditionMethod,
     title="由曲线点条件求目标点候选",
     summary=(
-        "Given 目标点 P(t)、同参数曲线点 Q(t) 和已解抛物线, derive 使 Q(t) 在曲线上的 P 候选列表。"
-        "适用于几何构造先得到两个同参数点，再用其中一个点落曲线来反求目标点的场景。"
+        "Given 待返回的目标点 P(t)、仅用于施加曲线条件的点 Q(t) 和已解抛物线, "
+        "derive 使 Q(t) 在曲线上的 P 候选列表。返回对象始终是 "
+        "target_point=P，不是 curve_point=Q。适用于几何构造先得到两个"
+        "同参数点，再用 Q 落曲线来反求 P 的场景。"
     ),
     solves=("derive_point_candidates_from_curve_point_condition",),
     inputs={
-        "target_point": {"type": "Point", "required": True},
-        "curve_point": {"type": "Point", "required": True},
+        "target_point": {
+            "type": "Point",
+            "required": True,
+            "description": (
+                "需要返回候选坐标的目标 Point；candidates 保留这个对象身份。"
+            ),
+        },
+        "curve_point": {
+            "type": "Point",
+            "required": True,
+            "description": (
+                "代入 parabola 建立参数方程的 Point；只提供约束，不作为返回对象。"
+            ),
+        },
         "parabola": {"type": "Parabola", "required": True},
         "x": {"type": "Symbol", "required": True},
     },
     outputs={"candidates": "PointList"},
-    preconditions=("target_point 与 curve_point 只共享一个待定参数", "parabola 已代入当前问已知条件"),
+    preconditions=(
+        "target_point 与 curve_point 只共享一个待定参数",
+        "parabola 已代入当前问已知条件",
+        (
+            "若目标答案是 P，应令 target_point=P；"
+            "不要把曲线上的 Q 同时填写为 target_point"
+        ),
+    ),
     postconditions=("输出每个目标点候选对应的 curve_point 都在抛物线上",),
     explanation=MethodExplanationSpec(
         role_schema={

@@ -286,6 +286,7 @@ class MethodSpec:
     solves: tuple[str, ...]
     inputs: dict[str, MethodInputSpec]
     outputs: dict[str, str]
+    internal_outputs: tuple[str, ...] = ()
     scalar_result_forms: dict[str, ScalarResultFormSpec] = field(default_factory=dict)
     summary: str = ""
     do_not_use_when: tuple[str, ...] = ()

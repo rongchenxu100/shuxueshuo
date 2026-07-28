@@ -13,7 +13,10 @@ from shuxueshuo_server.solver.runtime.handle_alias_index import (
     visible_from_valid_scope,
 )
 from shuxueshuo_server.solver.runtime.strategy_models import SemanticRef
-from shuxueshuo_server.solver.state_semantics import state_object_refs_for_role
+from shuxueshuo_server.solver.state_semantics import (
+    object_kind_for_runtime_type,
+    state_object_refs_for_role,
+)
 from shuxueshuo_server.solver.utils import unique_ordered
 
 
@@ -104,6 +107,14 @@ def infer_future_return_object_hints(
                 "object_ref",
             )
             graph.add(return_node)
+            graph.attach(
+                (return_node,),
+                _structured_return_role_objects(
+                    returned,
+                    scope_id=scope_id,
+                    semantic_index=semantic_index,
+                ),
+            )
             if returned.identity_arg:
                 source_nodes, source_constants = _arg_selection(
                     call,
@@ -217,6 +228,55 @@ def infer_future_return_object_hints(
             if len(values) == 1:
                 result[(call_id, returned.name)] = values
     return result
+
+
+def _structured_return_role_objects(
+    returned: object,
+    *,
+    scope_id: str,
+    semantic_index: object,
+) -> tuple[str, ...]:
+    """Project a target identity from matching structured entity semantics.
+
+    A blocked producer still needs an object identity so hidden state
+    consumers can depend on it. Only exact return-role/entity-definition
+    matches participate; method ids, labels, descriptions and point names do
+    not.
+    """
+
+    if getattr(returned, "identity_policy", None) != "target_object":
+        return ()
+    object_kind = object_kind_for_runtime_type(
+        str(getattr(returned, "runtime_type", ""))
+    )
+    role_key = _semantic_role_key(
+        str(getattr(returned, "semantic_role", "") or "")
+    )
+    if object_kind is None or not role_key:
+        return ()
+    registry = semantic_index.handle_registry
+    candidates = tuple(
+        handle
+        for handle, payload in registry.entity_payloads.items()
+        if payload.get("entity_type") == object_kind
+        and role_key
+        == _semantic_role_key(
+            str(payload.get("definition") or payload.get("role") or "")
+        )
+        and visible_from_valid_scope(
+            registry.handle_valid_scopes.get(
+                handle,
+                str(payload.get("scope_id") or "problem"),
+            ),
+            scope_id=scope_id,
+            registry=registry,
+        )
+    )
+    return candidates if len(candidates) == 1 else ()
+
+
+def _semantic_role_key(value: str) -> str:
+    return "".join(character for character in value.lower() if character.isalnum())
 
 
 def _selector_selection(

@@ -12,6 +12,10 @@ from shuxueshuo_server.solver.runtime.functional_state_allocation import (
     functional_computation_key,
     functional_source_version_ids,
 )
+from shuxueshuo_server.solver.runtime.planner_state_context import (
+    StateSlot,
+    StateWriteVersion,
+)
 from shuxueshuo_server.solver.runtime.recipe_compiler import (
     _previous_state_write,
 )
@@ -186,6 +190,49 @@ def test_registry_reports_ambiguous_semantic_ref() -> None:
         match="planner.math_object_identity_ambiguous",
     ):
         objects.resolve("P")
+
+
+def test_context_closed_write_does_not_inherit_slot_free_symbols() -> None:
+    factory, visibility, _index = _identity()
+    logical_key = factory.logical_key(
+        object_ref="point:problem:D",
+        state_kind="coordinate",
+        runtime_type="Point",
+    )
+    assert logical_key is not None
+    typed_slot = factory.slot_id(
+        logical_key,
+        storage_scope_id="problem",
+    )
+    state_slot = StateSlot(
+        slot_id="point:problem:D.coordinate@problem:Point",
+        object_ref="point:problem:D",
+        state_kind="coordinate",
+        scope_id="problem",
+        runtime_type="Point",
+        canonical_handle="point:problem:D",
+        valid_scope="problem",
+        free_symbol_refs=("symbol:problem:m",),
+        logical_state_key=logical_key,
+        typed_slot_id=typed_slot,
+        write_history=(
+            StateWriteVersion(
+                step_id="close_D",
+                produced_handle="point:problem:D",
+                capability_id="evaluate_point_at_parameter",
+                write_mode="transition",
+                free_symbol_refs=(),
+            ),
+        ),
+    )
+
+    index = StateIdentityIndex.from_context(
+        state_slots=(state_slot,),
+        factory=factory,
+        visibility=visibility,
+    )
+
+    assert index.versions_for(logical_key)[0].free_symbol_refs == ()
 
 
 def test_logical_state_key_separates_runtime_container_types() -> None:

@@ -6085,9 +6085,33 @@ def _target_path_for_produced(
         symbol = semantic_name.split("_", 1)[0]
         return _scoped_output_path(index.context, produced.valid_scope, symbol)
     if output_type == "PathTransformation":
-        return _scoped_output_path(index.context, produced.valid_scope, "path_transformation")
+        return _scoped_output_path(
+            index.context,
+            produced.valid_scope,
+            (
+                semantic_name
+                if _has_functional_projected_write(
+                    produced,
+                    step=step,
+                    index=index,
+                )
+                else "path_transformation"
+            ),
+        )
     if output_type == "StraighteningCandidate":
-        return _scoped_output_path(index.context, produced.valid_scope, "straightening_candidate")
+        return _scoped_output_path(
+            index.context,
+            produced.valid_scope,
+            (
+                semantic_name
+                if _has_functional_projected_write(
+                    produced,
+                    step=step,
+                    index=index,
+                )
+                else "straightening_candidate"
+            ),
+        )
     if output_type == "MinimumExpression":
         key = "minimum_expression"
         if produced.handle.startswith("answer:"):
@@ -6102,6 +6126,19 @@ def _target_path_for_produced(
             return _scoped_output_path(index.context, produced.valid_scope, semantic_name)
         return _scoped_output_path(index.context, produced.valid_scope, "coefficients")
     return _scoped_output_path(index.context, produced.valid_scope, semantic_name)
+
+
+def _has_functional_projected_write(
+    produced: ProducedFact,
+    *,
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> bool:
+    return any(
+        item.step_id == step.step_id
+        and item.produced_handle == produced.handle
+        for item in index.projected_state_writes
+    )
 
 
 def _is_point_coordinate_semantic_name(name: str) -> bool:

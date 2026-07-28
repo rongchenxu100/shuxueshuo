@@ -45,6 +45,7 @@ from shuxueshuo_server.solver.runtime.state_identity import (
     MathObjectRegistry,
     RuntimeDestinationKey,
     StateIdentityFactory,
+    StateEffectKey,
     StateSlotId,
     StateVersionId,
 )
@@ -58,6 +59,7 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     ProducedFact,
     StepIntent,
     StepIntentDraft,
+    StrategyDraftValidationError,
 )
 from shuxueshuo_server.solver.state_semantics import (
     StateObjectRoleBinding,
@@ -218,7 +220,14 @@ class StateWriteVersion:
     lineage: StateSemanticLineage = StateSemanticLineage()
     version_id: StateVersionId | None = None
     computation_key: ComputationKey | None = None
+    state_effect_key: StateEffectKey | None = None
+    previous_version_id: StateVersionId | None = None
     source_version_ids: tuple[StateVersionId, ...] = ()
+    canonical_producer_call_id: str | None = None
+    valid_scope_id: str | None = None
+    free_symbol_refs: tuple[str, ...] = ()
+    result_form: str | None = None
+    runtime_destination: RuntimeDestinationKey | None = None
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -238,9 +247,28 @@ class StateWriteVersion:
                 if self.computation_key is not None
                 else None
             ),
+            "state_effect_key": (
+                self.state_effect_key.to_payload()
+                if self.state_effect_key is not None
+                else None
+            ),
+            "previous_version_id": (
+                self.previous_version_id.to_payload()
+                if self.previous_version_id is not None
+                else None
+            ),
             "source_version_ids": [
                 item.to_payload() for item in self.source_version_ids
             ],
+            "canonical_producer_call_id": self.canonical_producer_call_id,
+            "valid_scope_id": self.valid_scope_id,
+            "free_symbol_refs": list(self.free_symbol_refs),
+            "result_form": self.result_form,
+            "runtime_destination": (
+                self.runtime_destination.to_payload()
+                if self.runtime_destination is not None
+                else None
+            ),
         }
 
 
@@ -406,6 +434,7 @@ class RetryMemory:
     validated_call_ids: tuple[str, ...] = ()
     call_memory: tuple[dict[str, Any], ...] = ()
     repair_call_ids: tuple[str, ...] = ()
+    functional_retry_graph_checkpoint: dict[str, Any] | None = None
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -437,6 +466,11 @@ class RetryMemory:
             "validated_call_ids": list(self.validated_call_ids),
             "call_memory": [dict(item) for item in self.call_memory],
             "repair_call_ids": list(self.repair_call_ids),
+            "functional_retry_graph_checkpoint": (
+                dict(self.functional_retry_graph_checkpoint)
+                if self.functional_retry_graph_checkpoint is not None
+                else None
+            ),
         }
 
 
@@ -873,7 +907,12 @@ class PlannerStateContextBuilder:
                 replay.effective_draft or normalized_draft
             ),
         )
-        cls._observe_state_write_provenance(state, replay.diagnostic)
+        cls._observe_state_write_provenance(
+            state,
+            replay.diagnostic,
+            retry_state=replay.retry_state,
+            reconciliation=replay.functional_reconciliation,
+        )
         cls._observe_replay_layer_events(state, replay)
         cls._observe_retry_issues(state, replay.retry_state)
         state.retry_memory = _retry_memory_from_retry_state(
@@ -1344,14 +1383,132 @@ class PlannerStateContextBuilder:
     def _observe_state_write_provenance(
         state: _MutableState,
         diagnostic: Any | None,
+        *,
+        retry_state: Any | None = None,
+        reconciliation: Any | None = None,
     ) -> None:
         if diagnostic is None:
             return
+        checkpoint = (
+            retry_state.functional_retry_graph_checkpoint
+            if retry_state is not None
+            else None
+        )
+        checkpoint_by_version = {
+            json.dumps(
+                item["version_id"],
+                ensure_ascii=False,
+                sort_keys=True,
+            ): item
+            for item in (
+                checkpoint.get("verified_versions", ())
+                if isinstance(checkpoint, dict)
+                else ()
+            )
+            if isinstance(item, dict)
+            and isinstance(item.get("version_id"), dict)
+        }
+        call_by_step = {
+            step_id: item.call_id
+            for item in (
+                getattr(reconciliation, "projection_map", ()) or ()
+            )
+            for step_id in item.step_ids
+        }
+        allocation_by_return = {
+            (call.call_id, allocation.return_name): allocation
+            for call in (
+                getattr(reconciliation, "calls", ()) or ()
+            )
+            for allocation in call.returns
+        }
+        effect_by_call = {
+            item["canonical_call_id"]: item["identity_key"][
+                "state_effect_key"
+            ]
+            for item in (
+                getattr(
+                    reconciliation,
+                    "state_placement_decisions",
+                    (),
+                )
+                or ()
+            )
+            if isinstance(item, dict)
+            and isinstance(item.get("canonical_call_id"), str)
+            and isinstance(item.get("identity_key"), dict)
+            and isinstance(
+                item["identity_key"].get("state_effect_key"),
+                dict,
+            )
+        }
+        result_form_by_return = {
+            (item.call_id, item.return_name): item.actual_form
+            for item in (
+                getattr(reconciliation, "result_form_events", ()) or ()
+            )
+            if item.actual_form is not None
+        }
         for item in getattr(diagnostic, "state_write_provenance", ()) or ():
             if hasattr(item, "to_payload"):
                 payload = item.to_payload()
+                call_id = call_by_step.get(
+                    str(payload.get("step_id") or "")
+                )
+                return_name = payload.get("return_name")
+                allocation = (
+                    allocation_by_return.get((call_id, return_name))
+                    if isinstance(call_id, str)
+                    and isinstance(return_name, str)
+                    else None
+                )
+                version_payload = payload.get("selected_version_id")
+                checkpoint_record = (
+                    checkpoint_by_version.get(
+                        json.dumps(
+                            version_payload,
+                            ensure_ascii=False,
+                            sort_keys=True,
+                        )
+                    )
+                    if isinstance(version_payload, dict)
+                    else None
+                )
+                if checkpoint_record is not None:
+                    payload["state_effect_key"] = checkpoint_record.get(
+                        "state_effect_key"
+                    )
+                    payload["canonical_producer_call_id"] = (
+                        checkpoint_record.get(
+                            "canonical_producer_call_id"
+                        )
+                    )
+                    payload["valid_scope_id"] = checkpoint_record.get(
+                        "valid_scope_id"
+                    )
+                    payload["result_form"] = checkpoint_record.get(
+                        "result_form"
+                    )
+                    payload["runtime_destination_key"] = (
+                        checkpoint_record.get("runtime_destination")
+                    )
+                elif allocation is not None and call_id is not None:
+                    payload["state_effect_key"] = effect_by_call.get(
+                        call_id
+                    )
+                    payload["canonical_producer_call_id"] = (
+                        allocation.canonical_producer_call_id or call_id
+                    )
+                    payload["valid_scope_id"] = allocation.valid_scope
+                    payload["result_form"] = result_form_by_return.get(
+                        (call_id, return_name)
+                    )
                 state.state_write_provenance.append(payload)
-                _apply_state_write_provenance(state, payload)
+                _apply_state_write_provenance(
+                    state,
+                    payload,
+                    require_typed_authority=reconciliation is not None,
+                )
 
     @staticmethod
     def _observe_state_finalization(
@@ -1522,6 +1679,9 @@ def _retry_memory_from_retry_state(
             item
             for item in payload.get("repair_call_ids", ())
             if isinstance(item, str)
+        ),
+        functional_retry_graph_checkpoint=_dict_or_none(
+            payload.get("functional_retry_graph_checkpoint")
         ),
     )
 
@@ -2084,6 +2244,20 @@ def _computation_key_from_payload(value: Any) -> ComputationKey | None:
     return ComputationKey.from_payload(value)
 
 
+def _state_effect_key_from_payload(value: Any) -> StateEffectKey | None:
+    if not isinstance(value, Mapping):
+        return None
+    return StateEffectKey.from_payload(value)
+
+
+def _runtime_destination_key_from_payload(
+    value: Any,
+) -> RuntimeDestinationKey | None:
+    if not isinstance(value, Mapping):
+        return None
+    return RuntimeDestinationKey.from_payload(value)
+
+
 def _source_versions_from_computation(
     computation_key: ComputationKey | None,
 ) -> tuple[StateVersionId, ...]:
@@ -2247,14 +2421,44 @@ def _state_id_for_handle(
 def _apply_state_write_provenance(
     state: _MutableState,
     payload: dict[str, Any],
+    *,
+    require_typed_authority: bool = True,
 ) -> None:
     """Reconcile Function/Macro identity writes into the semantic slot ledger."""
     slot_id = payload.get("state_slot_id")
     object_ref = payload.get("object_ref")
     produced_handle = payload.get("produced_handle")
     runtime_type = payload.get("runtime_type")
-    if not all(isinstance(item, str) and item for item in (slot_id, object_ref, produced_handle, runtime_type)):
+    if not all(
+        isinstance(item, str) and item
+        for item in (slot_id, object_ref, produced_handle, runtime_type)
+    ):
         return
+    selected_version_id = _state_version_id_from_payload(
+        payload.get("selected_version_id")
+    )
+    canonical_producer_call_id = payload.get(
+        "canonical_producer_call_id"
+    )
+    valid_scope_id = payload.get("valid_scope_id")
+    if selected_version_id is not None:
+        missing_typed_identity = tuple(
+            name
+            for name, value in (
+                ("canonical_producer_call_id", canonical_producer_call_id),
+                ("valid_scope_id", valid_scope_id),
+            )
+            if not isinstance(value, str) or not value
+        )
+        if missing_typed_identity:
+            if not require_typed_authority:
+                return
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: "
+                "planner.retry_version_checkpoint_invalid: "
+                f"typed provenance for {produced_handle} is missing "
+                f"{', '.join(missing_typed_identity)}"
+            )
     old_slot_id = state.alias_index.by_handle.get(produced_handle)
     old_slot = state.state_slots.get(old_slot_id) if old_slot_id is not None else None
     current = state.state_slots.get(slot_id)
@@ -2273,6 +2477,15 @@ def _apply_state_write_provenance(
         for item in payload.get("source_version_ids", ())
         if (parsed := _state_version_id_from_payload(item)) is not None
     )
+    entity_payloads = {
+        item["handle"]: item
+        for item in state.problem_ir.get("entities", ())
+        if isinstance(item, dict) and isinstance(item.get("handle"), str)
+    }
+    runtime_free_symbol_refs = symbol_refs_from_names(
+        tuple(str(item) for item in payload.get("free_symbol_names", ())),
+        entity_payloads=entity_payloads,
+    )
     version = StateWriteVersion(
         step_id=str(payload.get("step_id") or ""),
         produced_handle=produced_handle,
@@ -2284,13 +2497,37 @@ def _apply_state_write_provenance(
             else None
         ),
         lineage=observed_lineage,
-        version_id=_state_version_id_from_payload(
-            payload.get("selected_version_id")
-        ),
+        version_id=selected_version_id,
         computation_key=computation_key,
+        state_effect_key=_state_effect_key_from_payload(
+            payload.get("state_effect_key")
+        ),
+        previous_version_id=_state_version_id_from_payload(
+            payload.get("previous_version_id")
+        ),
         source_version_ids=(
             payload_source_versions
             or _source_versions_from_computation(computation_key)
+        ),
+        canonical_producer_call_id=(
+            str(canonical_producer_call_id)
+            if isinstance(canonical_producer_call_id, str)
+            and canonical_producer_call_id
+            else None
+        ),
+        valid_scope_id=(
+            str(valid_scope_id)
+            if isinstance(valid_scope_id, str) and valid_scope_id
+            else None
+        ),
+        free_symbol_refs=runtime_free_symbol_refs,
+        result_form=(
+            str(payload["result_form"])
+            if payload.get("result_form") is not None
+            else None
+        ),
+        runtime_destination=_runtime_destination_key_from_payload(
+            payload.get("runtime_destination_key")
         ),
     )
     if version not in histories:
@@ -2305,15 +2542,6 @@ def _apply_state_write_provenance(
         )
     )
     scope_id = str(payload.get("scope_id") or _scope_from_handle(produced_handle) or "problem")
-    entity_payloads = {
-        item["handle"]: item
-        for item in state.problem_ir.get("entities", ())
-        if isinstance(item, dict) and isinstance(item.get("handle"), str)
-    }
-    runtime_free_symbol_refs = symbol_refs_from_names(
-        tuple(str(item) for item in payload.get("free_symbol_names", ())),
-        entity_payloads=entity_payloads,
-    )
     lineage = merge_state_semantic_lineages(
         *((old_slot.lineage,) if old_slot is not None else ()),
         *((current.lineage,) if current is not None else ()),
@@ -2328,15 +2556,15 @@ def _apply_state_write_provenance(
         canonical_handle=produced_handle,
         aliases=aliases,
         produced_by=version.step_id,
-        valid_scope=(
-            old_slot.valid_scope
-            if old_slot is not None
-            else (current.valid_scope if current is not None else scope_id)
-        ),
+        valid_scope=version.valid_scope_id,
         runtime_path=(
-            old_slot.runtime_path
-            if old_slot is not None
-            else (current.runtime_path if current is not None else None)
+            version.runtime_destination.runtime_path
+            if version.runtime_destination is not None
+            else (
+                old_slot.runtime_path
+                if old_slot is not None
+                else (current.runtime_path if current is not None else None)
+            )
         ),
         status="verified",
         write_history=tuple(histories),
@@ -2403,22 +2631,26 @@ def _apply_state_write_provenance(
         ),
         latest_version_id=version.version_id,
         runtime_destination_key=(
-            RuntimeDestinationKey(
-                version.version_id.slot_id.logical_key.object_id,
-                version.version_id.slot_id.logical_key.state_kind,
-                version.version_id.slot_id.logical_key.runtime_type,
-                (
-                    old_slot.runtime_path
-                    if old_slot is not None
-                    else (
-                        current.runtime_path
-                        if current is not None
-                        else None
-                    )
-                ),
+            version.runtime_destination
+            if version.runtime_destination is not None
+            else (
+                RuntimeDestinationKey(
+                    version.version_id.slot_id.logical_key.object_id,
+                    version.version_id.slot_id.logical_key.state_kind,
+                    version.version_id.slot_id.logical_key.runtime_type,
+                    (
+                        old_slot.runtime_path
+                        if old_slot is not None
+                        else (
+                            current.runtime_path
+                            if current is not None
+                            else None
+                        )
+                    ),
+                )
+                if version.version_id is not None
+                else None
             )
-            if version.version_id is not None
-            else None
         ),
     )
     if old_slot_id is not None and old_slot_id != slot_id:

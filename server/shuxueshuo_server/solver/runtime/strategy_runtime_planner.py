@@ -31,6 +31,10 @@ from shuxueshuo_server.solver.runtime.models import PlannerOutput
 from shuxueshuo_server.solver.runtime.planner_state_context import (
     initial_planner_state_context,
 )
+from shuxueshuo_server.solver.runtime.functional_retry_versions import (
+    latest_functional_retry_graph_checkpoint,
+    validate_checkpoint_manifest,
+)
 from shuxueshuo_server.solver.runtime.planner import PlannerInputs
 from shuxueshuo_server.solver.runtime.projection import RuntimeProjection
 from shuxueshuo_server.solver.runtime.session import (
@@ -489,6 +493,14 @@ class StrategyPlanner:
             problem_payload=problem_payload,
             handle_registry=handle_registry,
         )
+        retry_checkpoint = latest_functional_retry_graph_checkpoint(
+            inputs.previous_errors
+        )
+        if retry_checkpoint is not None:
+            validate_checkpoint_manifest(
+                retry_checkpoint,
+                context=planner_state_context,
+            )
         payload = self.payload_builder.build(
             inputs,
             problem_payload=problem_payload,

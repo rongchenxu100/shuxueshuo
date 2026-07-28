@@ -11,6 +11,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Literal, Mapping
 
+import sympy as sp
+
 from shuxueshuo_server.solver.family.models import GoalEvidenceTag, SolverFamilySpec
 from shuxueshuo_server.solver.runtime.handle_registry import (
     CanonicalHandleRegistry,
@@ -170,6 +172,16 @@ class AnswerGoalVerifier:
                         handle_registry=handle_registry,
                         diagnostic=diagnostic,
                         family_spec=family_spec,
+                    )
+                    if issue is not None:
+                        goal_issues.append(issue)
+                elif value_type == "ParameterValue":
+                    issue = _parameter_goal_constraint_issue(
+                        goal,
+                        step=step,
+                        problem_payload=problem_payload,
+                        handle_registry=handle_registry,
+                        diagnostic=diagnostic,
                     )
                     if issue is not None:
                         goal_issues.append(issue)
@@ -360,6 +372,175 @@ def _unresolved_answer_symbol_issue(
             ),
         },
     )
+
+
+def _parameter_goal_constraint_issue(
+    goal: Mapping[str, Any],
+    *,
+    step: StepIntent,
+    problem_payload: Mapping[str, Any],
+    handle_registry: CanonicalHandleRegistry,
+    diagnostic: StepIntentExecutionDiagnostic | None,
+) -> PlannerRetryIssue | None:
+    """Reject a closed Symbol answer that violates a structured range fact."""
+
+    if diagnostic is None:
+        return None
+    symbol_name = str(goal.get("answer_key", "")).strip()
+    if not symbol_name:
+        target_handle = str(goal.get("target_handle", "")).strip()
+        symbol_name = _symbol_name_from_object_ref(target_handle) or ""
+    if not symbol_name:
+        return None
+
+    constraints = tuple(
+        item
+        for item in problem_payload.get("facts", ())
+        if isinstance(item, Mapping)
+        and item.get("type") == "symbol_constraint"
+        and _constraint_subject_name(item) == symbol_name
+        and _constraint_visible_to_scope(
+            item,
+            scope_id=step.scope_id,
+            handle_registry=handle_registry,
+        )
+    )
+    if not constraints:
+        return None
+
+    goal_handle = str(goal.get("handle", "")).strip()
+    runtime_result = next(
+        (
+            item
+            for item in reversed(diagnostic.runtime_results)
+            if item.step_id == step.step_id
+            and item.runtime_type == "ParameterValue"
+            and (
+                item.produced_handle == goal_handle
+                or item.produced_handle == step.target
+            )
+        ),
+        None,
+    )
+    if runtime_result is None or runtime_result.value is None:
+        return None
+    try:
+        value = sp.sympify(runtime_result.value)
+    except (TypeError, ValueError, sp.SympifyError):
+        return None
+    if value.free_symbols:
+        return None
+
+    violated = tuple(
+        constraint
+        for constraint in constraints
+        if _symbol_constraint_truth(value, constraint) is False
+    )
+    if not violated:
+        return None
+
+    descriptions = unique_ordered(
+        str(item.get("description", "")).strip()
+        or (
+            f"{symbol_name} {item.get('operator', '')} "
+            f"{item.get('value', '')}"
+        ).strip()
+        for item in violated
+    )
+    constraint_refs = unique_ordered(
+        str(item.get("handle") or item.get("semantic_ref") or "").strip()
+        for item in violated
+        if str(item.get("handle") or item.get("semantic_ref") or "").strip()
+    )
+    return PlannerRetryIssue(
+        layer="goal_verification",
+        code="answer_symbol_constraint_violated",
+        step_id=step.step_id,
+        scope_id=step.scope_id,
+        repair_target=goal_handle or step.target,
+        message=(
+            f"{step.step_id} produced {symbol_name}={sp.sstr(value)}, which "
+            "violates the structured condition "
+            f"{'、'.join(descriptions)}."
+        ),
+        hints=(
+            "多分支方程必须使用题面中同一 Symbol 的范围条件筛选；"
+            "不能接受仅满足等式但违反范围条件的分支。",
+            "若先求另一个系数，请沿已建立的系数关系把目标系数条件"
+            "传递到候选分支，再重新计算最终 ParameterValue。",
+        ),
+        related_handles=unique_ordered(
+            (goal_handle, *constraint_refs)
+        ),
+        details={
+            "symbol": symbol_name,
+            "actual_value": sp.sstr(value),
+            "violated_constraints": [
+                {
+                    "semantic_ref": item.get("semantic_ref")
+                    or item.get("handle"),
+                    "operator": item.get("operator"),
+                    "value": item.get("value"),
+                    "description": item.get("description"),
+                }
+                for item in violated
+            ],
+        },
+    )
+
+
+def _constraint_subject_name(constraint: Mapping[str, Any]) -> str:
+    subject = str(constraint.get("subject", "")).strip()
+    return _symbol_name_from_object_ref(subject) or subject
+
+
+def _constraint_visible_to_scope(
+    constraint: Mapping[str, Any],
+    *,
+    scope_id: str,
+    handle_registry: CanonicalHandleRegistry,
+) -> bool:
+    valid_scope = str(
+        constraint.get("valid_scope")
+        or constraint.get("scope_id")
+        or "problem"
+    )
+    try:
+        return valid_scope in handle_registry.ancestor_scopes(scope_id)
+    except Exception:
+        return False
+
+
+def _symbol_constraint_truth(
+    value: sp.Expr,
+    constraint: Mapping[str, Any],
+) -> bool | None:
+    try:
+        boundary = sp.sympify(constraint.get("value"))
+    except (TypeError, ValueError, sp.SympifyError):
+        return None
+    operator = str(constraint.get("operator", "")).strip()
+    relations = {
+        ">": sp.Gt,
+        ">=": sp.Ge,
+        "≥": sp.Ge,
+        "<": sp.Lt,
+        "<=": sp.Le,
+        "≤": sp.Le,
+        "=": sp.Eq,
+        "==": sp.Eq,
+        "!=": sp.Ne,
+        "≠": sp.Ne,
+    }
+    relation = relations.get(operator)
+    if relation is None:
+        return None
+    result = sp.simplify(relation(value, boundary))
+    if result is sp.true:
+        return True
+    if result is sp.false:
+        return False
+    return None
 
 
 def _unresolved_symbol_states(
@@ -557,10 +738,20 @@ def _point_goal_issue(
             else ()
             for tag in required_evidence_tags
         }
+        required_evidence_goal_types = {
+            tag: _goal_evidence_producer_goal_types(
+                family_spec,
+                tag,
+            )
+            if family_spec is not None
+            else ()
+            for tag in required_evidence_tags
+        }
         missing_evidence_tags = tuple(
             tag
             for tag in required_evidence_tags
             if tag not in actual_evidence_tags
+            and step.goal_type not in required_evidence_goal_types[tag]
             and not (
                 set(required_evidence_roles[tag])
                 & actual_evidence_tags
@@ -593,6 +784,12 @@ def _point_goal_issue(
                     "required_evidence_roles": {
                         tag: list(roles)
                         for tag, roles in required_evidence_roles.items()
+                    },
+                    "required_evidence_goal_types": {
+                        tag: list(goal_types)
+                        for tag, goal_types in (
+                            required_evidence_goal_types.items()
+                        )
                     },
                     "actual_evidence_tags": sorted(actual_evidence_tags),
                 },
@@ -732,6 +929,18 @@ def _goal_required_evidence_tags(
         for tag in policy.required_evidence_tags
     )
     return unique_ordered((*explicit, *inferred))
+
+
+def _goal_evidence_producer_goal_types(
+    family_spec: SolverFamilySpec,
+    tag: str,
+) -> tuple[str, ...]:
+    return unique_ordered(
+        goal_type
+        for policy in family_spec.goal_evidence_policies
+        if tag in policy.required_evidence_tags
+        for goal_type in policy.producer_goal_types
+    )
 
 
 def _minimum_goal_issue(

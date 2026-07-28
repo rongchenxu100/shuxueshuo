@@ -16,6 +16,7 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     StepIntentAcceptedStep,
     StepIntentDraft,
     StepIntentExecutionDiagnostic,
+    StepIntentRuntimeResult,
     StepIntentScope,
     StateWriteProvenance,
 )
@@ -34,6 +35,9 @@ NANKAI_RECORDED = (
 )
 HEPING_ERMO_FIXTURE = (
     REPO_ROOT / "internal/solver-fixtures/tj-2026-heping-ermo-25.json"
+)
+HEPING_FIXTURE = (
+    REPO_ROOT / "internal/solver-fixtures/tj-2026-heping-yimo-25.json"
 )
 
 
@@ -599,6 +603,95 @@ def test_point_goal_verifier_requires_declared_provenance_evidence() -> None:
     ) == ()
 
 
+def test_curve_point_goal_rejects_auxiliary_axis_intercept_producer() -> None:
+    problem = load_problem_ir(HEPING_FIXTURE)
+    inputs = build_strategy_probe_inputs(problem)
+    problem_payload = problem_to_llm_payload(problem)
+    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    answer_step = StepIntent(
+        scope_id="i_2",
+        step_id="derive_axis_helper",
+        recipe_hint="axis_intercept_from_equal_acute_angles",
+        goal_type="derive_axis_intercept_from_equal_acute_angles",
+        target="answer:i_2_E",
+        strategy="incorrectly bind the helper intercept as the curve point",
+        produces=(
+            ProducedFact(
+                "answer:i_2_E",
+                "i_2",
+                output_type="Point",
+            ),
+        ),
+    )
+    draft = StepIntentDraft(
+        scopes=(
+            StepIntentScope(
+                scope_id="i_2",
+                label="part",
+                steps=(answer_step,),
+            ),
+        ),
+    )
+    provenance = StateWriteProvenance(
+        step_id=answer_step.step_id,
+        scope_id=answer_step.scope_id,
+        capability_id=answer_step.recipe_hint,
+        produced_handle="answer:i_2_E",
+        output_key="point",
+        runtime_type="Point",
+        identity_policy="target_object",
+        identity_role="axis_intercept",
+        object_ref="point:i_2:E",
+    )
+
+    issues = AnswerGoalVerifier().verify(
+        draft,
+        problem_payload=problem_payload,
+        handle_registry=registry,
+        diagnostic=StepIntentExecutionDiagnostic(
+            ok=True,
+            state_write_provenance=(provenance,),
+        ),
+        family_spec=inputs.family_spec,
+    )
+
+    issue = _issue_by_code(issues, "point_goal_evidence_unproven")
+    assert issue.details["required_evidence_tags"] == [
+        "curve_membership"
+    ]
+
+    valid_step = replace(
+        answer_step,
+        recipe_hint="line_parabola_second_intersection_point",
+        goal_type="derive_curve_intersection_point",
+    )
+    assert AnswerGoalVerifier().verify(
+        StepIntentDraft(
+            scopes=(
+                StepIntentScope(
+                    scope_id="i_2",
+                    label="part",
+                    steps=(valid_step,),
+                ),
+            ),
+        ),
+        problem_payload=problem_payload,
+        handle_registry=registry,
+        diagnostic=StepIntentExecutionDiagnostic(
+            ok=True,
+            state_write_provenance=(
+                replace(
+                    provenance,
+                    step_id=valid_step.step_id,
+                    capability_id=valid_step.recipe_hint,
+                    identity_role="curve_intersection_point",
+                ),
+            ),
+        ),
+        family_spec=inputs.family_spec,
+    ) == ()
+
+
 def test_goal_verifier_does_not_diagnose_unexecuted_answer_suffix() -> None:
     problem_payload, registry = _nankai_problem_payload_and_registry()
     answer_step = StepIntent(
@@ -780,6 +873,97 @@ def test_goal_verifier_rejects_parameterized_answer_without_available_value() ->
         "available_parameter_symbols": [],
         "available_parameter_states": [],
     }
+
+
+def test_goal_verifier_rejects_closed_parameter_answer_outside_symbol_constraint() -> None:
+    problem = load_problem_ir(HEPING_FIXTURE)
+    problem_payload = problem_to_llm_payload(problem)
+    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    answer_step = StepIntent(
+        scope_id="ii",
+        step_id="solve_coefficient",
+        recipe_hint="quadratic_from_constraints",
+        goal_type="solve_parameter",
+        target="answer:ii_a",
+        strategy="solve a closed coefficient value",
+        produces=(
+            ProducedFact(
+                "answer:ii_a",
+                "ii",
+                output_type="ParameterValue",
+            ),
+        ),
+    )
+    draft = StepIntentDraft(
+        scopes=(StepIntentScope("ii", "第（Ⅱ）问", (answer_step,)),)
+    )
+    provenance = StateWriteProvenance(
+        step_id=answer_step.step_id,
+        scope_id="ii",
+        capability_id="quadratic_from_constraints",
+        produced_handle="answer:ii_a",
+        output_key="parameter_value",
+        runtime_type="ParameterValue",
+        identity_policy="target_object",
+        identity_role="parameter_value",
+        object_ref="symbol:problem:a",
+    )
+
+    issues = AnswerGoalVerifier().verify(
+        draft,
+        problem_payload=problem_payload,
+        handle_registry=registry,
+        diagnostic=StepIntentExecutionDiagnostic(
+            ok=True,
+            state_write_provenance=(provenance,),
+            runtime_results=(
+                StepIntentRuntimeResult(
+                    step_id=answer_step.step_id,
+                    scope_id="ii",
+                    capability_id="quadratic_from_constraints",
+                    produced_handle="answer:ii_a",
+                    output_key="parameter_value",
+                    runtime_type="ParameterValue",
+                    value="-3/4",
+                ),
+            ),
+        ),
+    )
+
+    issue = _issue_by_code(issues, "answer_symbol_constraint_violated")
+    assert issue.details == {
+        "symbol": "a",
+        "actual_value": "-3/4",
+        "violated_constraints": [
+            {
+                "semantic_ref": "fact:problem:a_gt_0",
+                "operator": ">",
+                "value": "0",
+                "description": "a > 0",
+            }
+        ],
+    }
+
+    assert AnswerGoalVerifier().verify(
+        draft,
+        problem_payload=problem_payload,
+        handle_registry=registry,
+        diagnostic=StepIntentExecutionDiagnostic(
+            ok=True,
+            state_write_provenance=(provenance,),
+            runtime_results=(
+                StepIntentRuntimeResult(
+                    step_id=answer_step.step_id,
+                    scope_id="ii",
+                    capability_id="quadratic_from_constraints",
+                    produced_handle="answer:ii_a",
+                    output_key="parameter_value",
+                    runtime_type="ParameterValue",
+                    value="3/4",
+                ),
+            ),
+        ),
+    ) == ()
 
 
 def test_goal_verifier_rejects_symbol_not_closed_in_answer_scope() -> None:

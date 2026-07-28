@@ -17,6 +17,7 @@ from shuxueshuo_server.solver.runtime.state_identity import (
     MathObjectId,
     RuntimeDestinationKey,
     StateAllocationAction,
+    StateEffectKey,
     StateSlotId,
     StateVersionId,
 )
@@ -926,6 +927,10 @@ class StateWriteProvenance:
     allocation_action: StateAllocationAction | None = None
     return_name: str | None = None
     runtime_destination_key: RuntimeDestinationKey | None = None
+    state_effect_key: StateEffectKey | None = None
+    canonical_producer_call_id: str | None = None
+    valid_scope_id: str | None = None
+    result_form: str | None = None
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -992,6 +997,14 @@ class StateWriteProvenance:
                 if self.runtime_destination_key is not None
                 else None
             ),
+            "state_effect_key": (
+                self.state_effect_key.to_payload()
+                if self.state_effect_key is not None
+                else None
+            ),
+            "canonical_producer_call_id": self.canonical_producer_call_id,
+            "valid_scope_id": self.valid_scope_id,
+            "result_form": self.result_form,
         }
 
 
@@ -1249,6 +1262,7 @@ class PlannerRetryState:
     validated_call_ids: tuple[str, ...] = ()
     call_memory: tuple[dict[str, Any], ...] = ()
     repair_call_ids: tuple[str, ...] = ()
+    functional_retry_graph_checkpoint: dict[str, Any] | None = None
 
     def to_payload(self) -> dict[str, Any]:
         """转成 ``previous_attempts`` 和 prompt 可携带的安全 JSON。"""
@@ -1278,6 +1292,11 @@ class PlannerRetryState:
             "validated_call_ids": list(self.validated_call_ids),
             "call_memory": list(self.call_memory),
             "repair_call_ids": list(self.repair_call_ids),
+            "functional_retry_graph_checkpoint": (
+                dict(self.functional_retry_graph_checkpoint)
+                if self.functional_retry_graph_checkpoint is not None
+                else None
+            ),
         }
         if self.source_context_id is not None:
             payload["source"] = "planner_state_context"

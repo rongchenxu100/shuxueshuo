@@ -82,6 +82,32 @@ def latest_point_state_for_object(
     )
     if dynamic:
         return dynamic[-1]
+    views = tuple(
+        view
+        for view in semantic_index.compatible_views(
+            scope_id=scope_id,
+            accepted_types=("Point",),
+        )
+        if view.object_ref == object_ref and view.state_slot_id is not None
+    )
+    if views:
+        view = views[-1]
+        return ResolvedFunctionalValue(
+            handle=view.handle,
+            runtime_type=view.runtime_type,
+            valid_scope=view.valid_scope,
+            state_slot_id=view.state_slot_id,
+            object_ref=view.object_ref,
+            dependency_object_refs=view.dependency_object_refs,
+            free_symbol_refs=view.free_symbol_refs,
+            source_state_slot_ids=view.source_state_slot_ids,
+            provides_semantic_roles=view.provides_semantic_roles,
+            lineage=view.lineage,
+            math_object_id=view.math_object_id,
+            logical_state_key=view.logical_state_key,
+            typed_slot_id=view.typed_slot_id,
+            state_version_id=view.state_version_id,
+        )
     if allow_unique_planned_producer:
         planned = tuple(
             value
@@ -103,33 +129,7 @@ def latest_point_state_for_object(
             )
             if len(producer_values) == 1:
                 return producer_values[0]
-    views = tuple(
-        view
-        for view in semantic_index.compatible_views(
-            scope_id=scope_id,
-            accepted_types=("Point",),
-        )
-        if view.object_ref == object_ref and view.state_slot_id is not None
-    )
-    if not views:
-        return None
-    view = views[-1]
-    return ResolvedFunctionalValue(
-        handle=view.handle,
-        runtime_type=view.runtime_type,
-        valid_scope=view.valid_scope,
-        state_slot_id=view.state_slot_id,
-        object_ref=view.object_ref,
-        dependency_object_refs=view.dependency_object_refs,
-        free_symbol_refs=view.free_symbol_refs,
-        source_state_slot_ids=view.source_state_slot_ids,
-        provides_semantic_roles=view.provides_semantic_roles,
-        lineage=view.lineage,
-        math_object_id=view.math_object_id,
-        logical_state_key=view.logical_state_key,
-        typed_slot_id=view.typed_slot_id,
-        state_version_id=view.state_version_id,
-    )
+    return None
 
 
 __all__ = [

@@ -33,6 +33,7 @@ from shuxueshuo_server.solver.runtime.entity_state_resolver import EntityStateRe
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.models import MethodInvocation, StepGoal, StepPlan
 from shuxueshuo_server.solver.runtime.projection import problem_to_llm_payload
+from shuxueshuo_server.solver.runtime.strategy_models import ProjectedStateWrite
 from shuxueshuo_server.solver.runtime.orchestrator import _next_previous_errors
 from shuxueshuo_server.solver.runtime.strategy_planner import (
     CanonicalHandleRegistry,
@@ -6009,6 +6010,72 @@ def test_output_key_mapping_prefers_structured_path_transformation_fact_handle()
     )
 
 
+def test_structured_path_transformations_use_distinct_runtime_destinations() -> None:
+    index = CanonicalRuntimeBindingIndex.from_context(
+        _runtime_context(),
+        handle_registry=_registry(),
+        question_goals=_question_goals(),
+    )
+    open_step = _step(
+        scope_id="ii_2",
+        step_id="reduce_open_path",
+        recipe_hint="two_moving_points_path_reduction",
+        goal_type="reduce_path",
+        target="open path transformation",
+        produces=(),
+    )
+    closed_step = replace(open_step, step_id="reduce_closed_path")
+    open_handle = "fact:ii_2:reduce_open_path_path_transformation"
+    closed_handle = "fact:ii_2:reduce_closed_path_path_transformation"
+    index.register_projected_state_writes(
+        (
+            ProjectedStateWrite(
+                step_id=open_step.step_id,
+                produced_handle=open_handle,
+                state_slot_id="functional:ii_2:reduce_open_path:path",
+                write_mode="create",
+                runtime_type="PathTransformation",
+            ),
+            ProjectedStateWrite(
+                step_id=closed_step.step_id,
+                produced_handle=closed_handle,
+                state_slot_id="functional:ii_2:reduce_closed_path:path",
+                write_mode="create",
+                runtime_type="PathTransformation",
+            ),
+        )
+    )
+
+    open_target = _target_path_for_produced(
+        ProducedFact(
+            open_handle,
+            "ii_2",
+            output_type="PathTransformation",
+        ),
+        "PathTransformation",
+        index,
+        open_step,
+    )
+    closed_target = _target_path_for_produced(
+        ProducedFact(
+            closed_handle,
+            "ii_2",
+            output_type="PathTransformation",
+        ),
+        "PathTransformation",
+        index,
+        closed_step,
+    )
+
+    assert open_target != closed_target
+    assert open_target.endswith(
+        ".outputs.reduce_open_path_path_transformation"
+    )
+    assert closed_target.endswith(
+        ".outputs.reduce_closed_path_path_transformation"
+    )
+
+
 def test_recipe_execution_registry_is_built_from_family_spec() -> None:
     """Recipe 执行 registry 应从 FamilySpec 派生，不再依赖 runtime default 表。"""
     registry = RecipeExecutionSpecRegistry.from_family_spec(_nankai_inputs().family_spec)
@@ -6069,6 +6136,22 @@ def test_method_capability_allows_creates_is_data_driven() -> None:
     parameter_method = capabilities["parameter_from_expression_value"]
     assert parameter_method.output_types == ("ParameterValue",)
     assert parameter_method.allows_creates is False
+
+
+def test_path_transformation_output_can_declare_its_derived_entity() -> None:
+    inputs = _nankai_inputs()
+    capabilities = {
+        capability.capability_id: capability
+        for capability in build_executable_capabilities(
+            inputs.family_spec,
+            inputs.method_specs,
+        )
+    }
+
+    path_reduction = capabilities["two_moving_points_path_reduction"]
+
+    assert "PathTransformation" in path_reduction.output_types
+    assert path_reduction.allows_creates is True
 
 
 def test_method_capability_goal_aliases_come_from_method_solves() -> None:

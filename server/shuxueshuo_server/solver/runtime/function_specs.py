@@ -661,6 +661,7 @@ def function_spec_from_method(
     adapter: FunctionAdapterSpec | None,
 ) -> FunctionSpec:
     """Derive a FunctionSpec from runtime method and contract metadata."""
+    _validate_internal_output_contract(method_spec, contract=contract)
     source: FunctionSpecSource = "method_spec"
     notes: list[str] = []
     if contract is not None:
@@ -677,6 +678,8 @@ def function_spec_from_method(
     )
     returns: list[FunctionReturnSpec] = []
     for output_name, output_type in method_spec.outputs.items():
+        if output_name in method_spec.internal_outputs:
+            continue
         contract_write = _function_return_contract_write(
             contract,
             output_name=output_name,
@@ -686,6 +689,7 @@ def function_spec_from_method(
             method_spec,
             output_type=output_type,
             adapter=adapter,
+            contract_write=contract_write,
         )
         write_mode = _function_return_write_mode(
             contract,
@@ -799,6 +803,28 @@ def function_spec_from_method(
     )
 
 
+def _validate_internal_output_contract(
+    method_spec: MethodSpec,
+    *,
+    contract: CapabilityContractSpec | None,
+) -> None:
+    """Keep runtime-only outputs out of the Functional state contract."""
+
+    if contract is None or not method_spec.internal_outputs:
+        return
+    exposed_internal_outputs = tuple(
+        item.output_key
+        for item in contract.slot_writes
+        if item.output_key in method_spec.internal_outputs
+    )
+    if exposed_internal_outputs:
+        raise ValueError(
+            "internal method outputs cannot be Functional state writes: "
+            f"method={method_spec.method_id}, outputs="
+            + ", ".join(exposed_internal_outputs)
+        )
+
+
 def _function_return_contract_write(
     contract: CapabilityContractSpec | None,
     *,
@@ -883,7 +909,16 @@ def _function_return_identity(
     *,
     output_type: str,
     adapter: FunctionAdapterSpec | None,
+    contract_write: StateSlotPattern | None,
 ) -> tuple[StateIdentityPolicy, str | None]:
+    if (
+        contract_write is not None
+        and contract_write.identity_policy is not None
+    ):
+        return (
+            contract_write.identity_policy,
+            contract_write.identity_arg,
+        )
     if output_type == "ParameterValue":
         for input_name in ("target_parameter", "parameter"):
             if input_name in method_spec.inputs:

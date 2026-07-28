@@ -439,6 +439,7 @@
         "scope_id": "i_2",
         "answer_key": "E",
         "value_type": "PointList",
+        "target_handle": "point:i_2:E",
         "required": true,
         "description": "第（Ⅰ）②问输出点 E 的两个可能坐标"
       },

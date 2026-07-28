@@ -36,6 +36,7 @@ from shuxueshuo_server.solver.state_semantics import (
     derived_role_object_ref,
     is_object_handle,
     is_object_semantic_kind,
+    object_kind_for_runtime_type,
     object_ref_matches_runtime_type,
 )
 
@@ -903,7 +904,8 @@ class CanonicalStateHandleFactory:
                 )
         if (
             return_spec.identity_policy == "derived_role"
-            and return_spec.runtime_type == "Point"
+            and object_kind_for_runtime_type(return_spec.runtime_type)
+            is not None
         ):
             return derived_role_object_ref(
                 call_id=call_id,
