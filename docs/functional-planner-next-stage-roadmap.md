@@ -311,7 +311,7 @@ execution、held-out 证据和生产切换能力尚未达到门禁。
 `IN PROGRESS`。B0、B1、B2 与 B3 已完成离线 authoritative cutover：Functional
 return allocation、call placement 和 finalizer 统一消费 typed identity/version，
 Context/debug 保存 allocation、placement、logical writer 和 runtime destination
-audit。B3 authority 加固后全量 solver 回归为 `1319 passed, 17 skipped`；
+audit。B3 authority 加固后全量 solver 回归为 `1321 passed, 17 skipped`；
 初始 B3 source fingerprint 下的五题真实 smoke `batch-20260727-175944` 为 `15/15`，
 configuration error、unclassified error 和成功样本 gate failure 均为 0，
 没有暴露 identity、placement 或 finalization configuration drift。后续 authority
@@ -431,7 +431,7 @@ B2 完成门禁：
 - 五份 authored fixture、recorded provenance parity 和全量 solver 回归通过，
   finalizer direct tests覆盖 transition、future read、destination collision、
   optional unmaterialized return 和幂等；
-- authority 加固后的离线门禁为 `1319 passed, 17 skipped`；
+- authority 加固后的离线门禁为 `1321 passed, 17 skipped`；
 - 初始 B3 source fingerprint
   `931a6a2e5fffa65373dc2d488b90ecc1eecfea2a29586052582cba2f974912b7`
   下的真实五题 smoke `batch-20260727-175944` 为 `15/15`，

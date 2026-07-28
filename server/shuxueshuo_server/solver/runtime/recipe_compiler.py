@@ -1540,6 +1540,41 @@ class _RecipePlanCompiler:
             if len(items) != 1:
                 continue
             item = items[0]
+            if item.source_step_id is not None:
+                if item.state_version_id is None:
+                    raise StrategyDraftValidationError(
+                        "planner_configuration_error: resolved Functional "
+                        "state dependency lost its typed version: "
+                        f"method={spec.method_id}, arg={input_name}, "
+                        f"producer={item.source_step_id}"
+                    )
+                projected_sources = tuple(
+                    write
+                    for write in self.projected_state_writes
+                    if write.step_id == item.source_step_id
+                    and (
+                        item.source_return_name is None
+                        or write.return_name == item.source_return_name
+                    )
+                    and write.produced_handle == item.produced_handle
+                )
+                if len(projected_sources) != 1:
+                    raise StrategyDraftValidationError(
+                        "planner_configuration_error: resolved Functional "
+                        "state dependency has no unique projected producer: "
+                        f"method={spec.method_id}, arg={input_name}, "
+                        f"producer={item.source_step_id}"
+                    )
+                if (
+                    projected_sources[0].selected_version_id
+                    != item.state_version_id
+                ):
+                    raise StrategyDraftValidationError(
+                        "planner_configuration_error: "
+                        "planner.contract_runtime_input_version_drift: "
+                        f"method={spec.method_id}, arg={input_name}, "
+                        f"producer={item.source_step_id}"
+                    )
             expected_type = spec.inputs[input_name].type
             if all(
                 runtime_type.endswith("Ref")

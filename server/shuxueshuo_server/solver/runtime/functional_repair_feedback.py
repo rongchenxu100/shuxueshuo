@@ -306,29 +306,44 @@ def apply_capability_repair_feedback(
                 *additional,
             )
         )
+        locked_set = set(locked)
         locked_context = unique_ordered(
             (
                 *(
                     call_id
+                    for call_id in _strings(
+                        details.get("locked_context_call_ids")
+                    )
+                    if call_id in locked_set
+                ),
+                *(
+                    ref.rsplit(".", 1)[0]
+                    for ref in _strings(details.get("locked_result_refs"))
+                    if "." in ref
+                    and ref.rsplit(".", 1)[0] in locked_set
+                ),
+                *(
+                    call_id
                     for call_id in _strings(details.get("context_call_ids"))
-                    if call_id in set(locked)
+                    if call_id in locked_set
                 ),
                 *(
                     call_id
                     for call_id in requested_repairs
-                    if call_id in set(locked)
+                    if call_id in locked_set
                 ),
                 *(
                     ref.rsplit(".", 1)[0]
                     for ref in context.compatible_refs
-                    if "." in ref and ref.rsplit(".", 1)[0] in set(locked)
+                    if "." in ref
+                    and ref.rsplit(".", 1)[0] in locked_set
                 ),
             )
         )
         details["repair_call_ids"] = list(
             call_id
             for call_id in requested_repairs
-            if call_id not in set(locked)
+            if call_id not in locked_set
         )
         if locked_context:
             details["locked_context_call_ids"] = list(locked_context)

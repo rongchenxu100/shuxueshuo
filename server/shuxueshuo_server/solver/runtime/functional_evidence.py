@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
+from itertools import permutations
 from typing import Any, Mapping
 
 from shuxueshuo_server.solver.family.models import (
@@ -31,10 +32,11 @@ class EvidenceClosureEvaluation:
     witness_call_ids: tuple[str, ...] = ()
     source_call_ids: tuple[str, ...] = ()
     source_handles: tuple[str, ...] = ()
+    input_group_permutation: tuple[int, ...] = ()
     description: str = ""
 
     def to_payload(self) -> dict[str, object]:
-        return {
+        payload: dict[str, object] = {
             "passed": self.passed,
             "matched_roles": [
                 {"role": role, "handle": handle}
@@ -48,6 +50,11 @@ class EvidenceClosureEvaluation:
             "source_handles": list(self.source_handles),
             "description": self.description,
         }
+        if self.input_group_permutation:
+            payload["input_group_permutation"] = list(
+                self.input_group_permutation
+            )
+        return payload
 
     def to_feedback_payload(self) -> dict[str, object]:
         """Return the provider/LLM view without canonical state handles."""
@@ -104,11 +111,95 @@ def evaluate_lineage_closure(
         for value in witness_carriers
         for call_id in value.lineage.source_call_ids
     )
+    group_orders = (tuple(range(len(groups))),)
+    if closure.input_group_matching == "commutative" and len(groups) > 1:
+        group_orders = tuple(permutations(range(len(groups))))
+    candidates = []
+    for group_order in group_orders:
+        mapped_groups = tuple(
+            replace(group, source_args=groups[source_index].source_args)
+            for group, source_index in zip(groups, group_order, strict=True)
+        )
+        candidate = _evaluate_input_groups(
+            mapped_groups,
+            resolved_args=resolved_args,
+            witness_carriers=witness_carriers,
+        )
+        if closure.output_object_role is not None:
+            expected_refs = _witness_object_refs(
+                witness_carriers,
+                closure.output_object_role,
+            )
+            if (
+                output_object_ref is None
+                or len(expected_refs) != 1
+                or output_object_ref not in expected_refs
+            ):
+                candidate.missing_object_roles.append(
+                    closure.output_object_role
+                )
+        candidates.append((group_order, candidate))
+        if candidate.passed:
+            break
+
+    identity_order = tuple(range(len(groups)))
+    group_order, selected = min(
+        candidates,
+        key=lambda item: (
+            not item[1].passed,
+            len(item[1].missing_roles)
+            + len(item[1].missing_evidence_tags)
+            + len(item[1].missing_object_roles),
+            -len(item[1].matched_roles),
+            item[0],
+        ),
+    )
+    return EvidenceClosureEvaluation(
+        passed=selected.passed,
+        matched_roles=tuple(selected.matched_roles),
+        missing_roles=unique_ordered(selected.missing_roles),
+        missing_evidence_tags=unique_ordered(
+            selected.missing_evidence_tags
+        ),
+        missing_object_roles=unique_ordered(
+            selected.missing_object_roles
+        ),
+        witness_call_ids=witness_call_ids,
+        source_call_ids=source_call_ids,
+        source_handles=source_handles,
+        input_group_permutation=(
+            group_order if group_order != identity_order else ()
+        ),
+        description=closure.description,
+    )
+
+
+@dataclass
+class _InputGroupsEvaluation:
+    matched_roles: list[tuple[str, str]]
+    missing_roles: list[str]
+    missing_evidence_tags: list[str]
+    missing_object_roles: list[str]
+
+    @property
+    def passed(self) -> bool:
+        return not (
+            self.missing_roles
+            or self.missing_evidence_tags
+            or self.missing_object_roles
+        )
+
+
+def _evaluate_input_groups(
+    groups: tuple[EvidenceInputGroupSpec, ...],
+    *,
+    resolved_args: Mapping[str, tuple[Any, ...]],
+    witness_carriers: tuple[Any, ...],
+) -> _InputGroupsEvaluation:
     matched: list[tuple[str, str]] = []
     missing_roles: list[str] = []
     missing_tags: list[str] = []
     missing_object_roles: list[str] = []
-
     for group in groups:
         values = tuple(
             value
@@ -166,29 +257,11 @@ def evaluate_lineage_closure(
             object_roles=group.required_witness_object_roles,
         ):
             missing_tags.append("same_witness")
-
-    if closure.output_object_role is not None:
-        expected_refs = _witness_object_refs(
-            witness_carriers,
-            closure.output_object_role,
-        )
-        if (
-            output_object_ref is None
-            or len(expected_refs) != 1
-            or output_object_ref not in expected_refs
-        ):
-            missing_object_roles.append(closure.output_object_role)
-
-    return EvidenceClosureEvaluation(
-        passed=not (missing_roles or missing_tags or missing_object_roles),
-        matched_roles=tuple(matched),
-        missing_roles=unique_ordered(missing_roles),
-        missing_evidence_tags=unique_ordered(missing_tags),
-        missing_object_roles=unique_ordered(missing_object_roles),
-        witness_call_ids=witness_call_ids,
-        source_call_ids=source_call_ids,
-        source_handles=source_handles,
-        description=closure.description,
+    return _InputGroupsEvaluation(
+        matched_roles=matched,
+        missing_roles=missing_roles,
+        missing_evidence_tags=missing_tags,
+        missing_object_roles=missing_object_roles,
     )
 
 

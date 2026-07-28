@@ -251,18 +251,27 @@ def attach_actual_result_refs(
     memory: FunctionalCallMemory,
     dependency_graph: Mapping[str, tuple[str, ...]],
 ) -> tuple[PlannerRetryIssue, ...]:
-    """Link repair tickets to successful provisional results without copying values."""
-    executed = {
+    """Link repair tickets to successful results without copying values."""
+    all_executed = {
         item.call_id: item
         for item in memory.entries
         if (
             item.execution_status == "runtime_verified"
-            and item.commit_status == "provisional"
             and any(
                 snapshot.value_omitted_reason != "runtime_value_unavailable"
                 for snapshot in item.result_snapshots
             )
         )
+    }
+    provisional = {
+        call_id: item
+        for call_id, item in all_executed.items()
+        if item.commit_status == "provisional"
+    }
+    committed = {
+        call_id: item
+        for call_id, item in all_executed.items()
+        if item.commit_status == "goal_committed"
     }
     result: list[PlannerRetryIssue] = []
     for issue in issues:
@@ -276,18 +285,23 @@ def attach_actual_result_refs(
         selected_calls = {
             call_id
             for call_id in relevant_calls
-            for entry in (executed.get(call_id),)
+            for entry in (provisional.get(call_id),)
             if entry is not None and entry.repair_required
         }
         selected_calls.update(
             _nearest_executed_dependencies(
                 issue.step_id,
                 dependency_graph=dependency_graph,
-                executed_call_ids=set(executed),
+                executed_call_ids=set(provisional),
             )
         )
-        if issue.step_id in executed:
+        if issue.step_id in provisional:
             selected_calls.add(issue.step_id)
+        locked_context_calls = _nearest_executed_dependencies(
+            issue.step_id,
+            dependency_graph=dependency_graph,
+            executed_call_ids=set(committed),
+        )
         refs = tuple(
             unique_ordered(
                 f"{entry.call_id}.{snapshot.return_name}"
@@ -297,11 +311,28 @@ def attach_actual_result_refs(
                 if snapshot.value_omitted_reason != "runtime_value_unavailable"
             )
         )
-        if not refs:
+        locked_refs = tuple(
+            unique_ordered(
+                f"{entry.call_id}.{snapshot.return_name}"
+                for entry in memory.entries
+                if entry.call_id in locked_context_calls
+                for snapshot in entry.result_snapshots
+                if snapshot.value_omitted_reason != "runtime_value_unavailable"
+            )
+        )
+        if not refs and not locked_refs:
             result.append(issue)
             continue
         details = dict(issue.details or {})
-        details["actual_result_refs"] = list(refs)
+        if refs:
+            details["actual_result_refs"] = list(refs)
+        if locked_refs:
+            details["locked_result_refs"] = list(locked_refs)
+            details["locked_context_call_ids"] = list(
+                unique_ordered(
+                    ref.rsplit(".", 1)[0] for ref in locked_refs
+                )
+            )
         result.append(replace(issue, details=details))
     return tuple(result)
 

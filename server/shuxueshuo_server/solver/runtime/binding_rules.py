@@ -391,6 +391,19 @@ def _function_parabola_selector(
             return binding.path
     return index.path_for("function:problem:parabola", expected_type="Expression")
 
+
+def _quadratic_template_selector(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+    local_outputs: Mapping[str, str],
+) -> str:
+    """Read the immutable ProblemIR function template, not a refined state."""
+
+    return index.path_for(
+        "function:problem:parabola",
+        expected_type="Expression",
+    )
+
 def _square_side_start_selector(
     step: StepIntent,
     index: CanonicalRuntimeBindingIndex,
@@ -1393,7 +1406,7 @@ DEFAULT_BINDING_SELECTORS: dict[str, BindingSelectorFn] = {
     "free_parameter:b_if_single_curve_point": _free_parameter_if_single_curve_point_selector("b"),
     "free_parameter:c_if_single_curve_point": _free_parameter_if_single_curve_point_selector("c"),
     "function:parabola": _function_parabola_selector,
-    "quadratic_template": _function_parabola_selector,
+    "quadratic_template": _quadratic_template_selector,
     "square:side_start": _square_side_start_selector,
     "square:side_end": _square_side_end_selector,
     "square:side_start_ref": _square_side_start_ref_selector,

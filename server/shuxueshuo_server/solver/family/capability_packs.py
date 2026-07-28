@@ -242,6 +242,7 @@ PATH_MINIMUM_INTERSECTION_LINEAGE_CLOSURES = (
                 require_same_witness=True,
             ),
         ),
+        input_group_matching="commutative",
         output_object_role="moving_object",
         add_evidence_tags=("path_minimum_extremal_point",),
         description=(

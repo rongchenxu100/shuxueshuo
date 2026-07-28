@@ -56,6 +56,7 @@ def analyze_quadratic_constraints(
         base_expression=quadratic,
         independent_symbol=x,
         coefficient_symbols=coefficients,
+        coefficient_template=inputs.get("quadratic_template"),
         known_coefficients=known,
         curve_points=tuple(_collect_curve_points(inputs, substitution)),
         equations=tuple(
@@ -159,6 +160,7 @@ class QuadraticFromConstraintsMethod:
                 base_expression=quadratic,
                 independent_symbol=x,
                 coefficient_symbols=tuple(coefficients),
+                coefficient_template=inputs.get("quadratic_template"),
                 known_coefficients=known,
                 curve_points=tuple(points),
                 equations=tuple(equations),
@@ -447,6 +449,11 @@ SPEC = MethodSpecSource(
     solves=("derive_quadratic_from_constraints",),
     inputs={
         "quadratic": {"type": "Expression", "required": True},
+        "quadratic_template": {
+            "type": "Expression",
+            "required": False,
+            "functional_exposed": False,
+        },
         "x": {"type": "Symbol", "required": True},
         "all_coefficients": {"type": "SymbolList", "required": True},
         "known_coefficients": {"type": "Coefficients", "required": False},

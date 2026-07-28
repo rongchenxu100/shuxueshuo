@@ -93,6 +93,62 @@ def test_existing_math_object_can_satisfy_witness_endpoint_by_identity() -> None
     )
 
 
+def test_commutative_intersection_groups_accept_reversed_line_order() -> None:
+    witness_lineage = state_semantic_lineage(
+        semantic_roles=(
+            "straightened_endpoint_1",
+            "path_minimum_witness",
+        ),
+        evidence_tags=("path_minimum_witness",),
+        object_roles=(
+            StateObjectRoleBinding(
+                role="fixed_endpoint_2",
+                object_refs=("point:shared:fixed",),
+            ),
+            StateObjectRoleBinding(
+                role="moving_locus_endpoint_1",
+                object_refs=("point:shared:locus_1",),
+            ),
+            StateObjectRoleBinding(
+                role="moving_locus_endpoint_2",
+                object_refs=("point:shared:locus_2",),
+            ),
+            StateObjectRoleBinding(
+                role="moving_object",
+                object_refs=("point:shared:moving",),
+            ),
+        ),
+        source_call_ids=("straighten",),
+    )
+    evaluation = evaluate_lineage_closure(
+        PATH_MINIMUM_INTERSECTION_LINEAGE_CLOSURES[0],
+        resolved_args={
+            "line1_p1": (
+                _value("locus_1", "point:shared:locus_1"),
+            ),
+            "line1_p2": (
+                _value("locus_2", "point:shared:locus_2"),
+            ),
+            "line2_p1": (
+                _value(
+                    "endpoint_1",
+                    "point:derived:endpoint_1",
+                    lineage=witness_lineage,
+                ),
+            ),
+            "line2_p2": (
+                _value("endpoint_2", "point:shared:fixed"),
+            ),
+        },
+        output_object_ref="point:shared:moving",
+    )
+
+    assert evaluation.passed
+    assert evaluation.input_group_permutation == (1, 0)
+    assert evaluation.to_payload()["input_group_permutation"] == [1, 0]
+    assert "input_group_permutation" not in evaluation.to_feedback_payload()
+
+
 def test_same_coordinates_do_not_replace_math_object_identity() -> None:
     witness_lineage = state_semantic_lineage(
         semantic_roles=("straightened_endpoint_1",),
@@ -292,6 +348,8 @@ def test_feedback_service_preserves_issue_authority_and_locked_calls() -> None:
             },
             "compatible_refs": ["straighten.straightened_endpoint_2"],
             "repair_call_ids": ["straighten", "evaluate_endpoint", "intersect"],
+            "locked_result_refs": ["locked_from_attach.point"],
+            "locked_context_call_ids": ["locked_from_attach"],
         },
     )
     call = SimpleNamespace(
@@ -307,6 +365,10 @@ def test_feedback_service_preserves_issue_authority_and_locked_calls() -> None:
             SimpleNamespace(
                 call_id="evaluate_endpoint",
                 capability_id="evaluate_point",
+            ),
+            SimpleNamespace(
+                call_id="locked_from_attach",
+                capability_id="existing_point",
             ),
             call,
         )
@@ -332,7 +394,7 @@ def test_feedback_service_preserves_issue_authority_and_locked_calls() -> None:
         plan=plan,
         reconciliation=reconciliation,
         catalog=catalog,
-        locked_call_ids=("straighten",),
+        locked_call_ids=("straighten", "locked_from_attach"),
     )
 
     assert enriched[0].code == issue.code
@@ -341,7 +403,13 @@ def test_feedback_service_preserves_issue_authority_and_locked_calls() -> None:
         "additional_repair_call_ids"
     ] == ["evaluate_endpoint", "intersect"]
     assert "straighten" not in enriched[0].details["repair_call_ids"]
-    assert enriched[0].details["locked_context_call_ids"] == ["straighten"]
+    assert enriched[0].details["locked_context_call_ids"] == [
+        "locked_from_attach",
+        "straighten",
+    ]
+    assert enriched[0].details["locked_result_refs"] == [
+        "locked_from_attach.point"
+    ]
 
 
 def test_feedback_service_without_provider_uses_generic_issue_unchanged() -> None:

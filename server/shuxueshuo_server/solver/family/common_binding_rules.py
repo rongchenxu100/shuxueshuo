@@ -39,6 +39,11 @@ def quadratic_from_constraints_rule() -> MethodBindingRuleSpec:
         method_id="quadratic_from_constraints",
         input_bindings=(
             MethodInputBindingSpec("quadratic", "function:parabola"),
+            MethodInputBindingSpec(
+                "quadratic_template",
+                "quadratic_template",
+                required=False,
+            ),
             MethodInputBindingSpec("x", "symbol:x"),
             MethodInputBindingSpec("all_coefficients", "quadratic_coefficients"),
         ),

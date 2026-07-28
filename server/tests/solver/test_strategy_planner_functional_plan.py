@@ -68,6 +68,12 @@ from shuxueshuo_server.solver.runtime.functional_plan_models import (
 from shuxueshuo_server.solver.runtime.functional_plan_liveness import (
     FunctionalCallLivenessAnalyzer,
 )
+from shuxueshuo_server.solver.runtime.functional_call_memory import (
+    FunctionalCallMemory,
+    FunctionalCallMemoryEntry,
+    FunctionalResultSnapshot,
+    attach_actual_result_refs,
+)
 from shuxueshuo_server.solver.runtime.functional_plan_reconciliation import (
     _infer_symbolic_target_args_from_consumers,
     _projected_creates,
@@ -7484,6 +7490,181 @@ def test_reconciler_keeps_multiple_unmaterialized_role_targets_ambiguous() -> No
     assert set(issue.details["compatible_refs"]) == {"i_2.G", "i_2.K"}
 
 
+def test_reconciler_reuses_open_state_for_incomplete_parameter_transition() -> None:
+    inputs, payload, registry, context = _heping_ermo_case()
+    scope = next(item for item in payload["scopes"] if item["scope_id"] == "ii")
+    square_index = next(
+        index
+        for index, call in enumerate(scope["calls"])
+        if call["call_id"] == "derive_square_vertex_G_ii"
+    )
+    scope["calls"].insert(
+        square_index,
+        {
+            "call_id": "redundant_materialize_A",
+            "capability_id": "evaluate_point_at_parameter",
+            "args": {
+                "point": {
+                    "ref": "ii.A",
+                    "kind": "point",
+                }
+            },
+            "return_bindings": {
+                "evaluated_point": {
+                    "ref": "ii.A",
+                    "kind": "point",
+                }
+            },
+            "return_expectations": {
+                "evaluated_point": "open_state",
+            },
+            "strategy": "repeat the existing open point state",
+            "reason": "exercise incomplete transition normalization",
+        },
+    )
+    square_call = next(
+        call
+        for call in scope["calls"]
+        if call["call_id"] == "derive_square_vertex_G_ii"
+    )
+    square_call["args"]["side_start"] = {
+        "from_call": "redundant_materialize_A",
+        "return": "evaluated_point",
+    }
+    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
+        payload,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+    assert validation.ok and plan is not None
+
+    result = FunctionalPlanReconciler().reconcile(
+        plan,
+        planner_state_context=context,
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+
+    assert result.ok, [item.to_payload() for item in result.issues]
+    assert "redundant_materialize_A" not in {
+        call.call_id for call in result.plan.calls
+    }
+    canonical_square = next(
+        call
+        for call in result.plan.calls
+        if call.call_id == "derive_square_vertex_G_ii"
+    )
+    assert canonical_square.args["side_start"] == (
+        SemanticRef(ref="ii.A", kind="point"),
+    )
+    assert any(
+        item["action"] == "reuse_open_state_for_incomplete_transition"
+        and item["call_id"] == "redundant_materialize_A"
+        for item in result.elaboration["deterministic_repairs"]
+    )
+
+
+def test_reconciler_keeps_incomplete_transition_when_closed_state_is_required() -> None:
+    inputs, _payload, registry, context = _heping_ermo_case()
+    payload = {
+        "format": "functional_plan/v1",
+        "scopes": [
+            {
+                "scope_id": "ii",
+                "label": "ii",
+                "calls": [
+                    {
+                        "call_id": "close_A_without_parameter",
+                        "capability_id": "evaluate_point_at_parameter",
+                        "args": {
+                            "point": {
+                                "ref": "ii.A",
+                                "kind": "point",
+                            }
+                        },
+                        "return_bindings": {},
+                        "return_expectations": {
+                            "evaluated_point": "closed_state",
+                        },
+                        "strategy": "request a closed point state",
+                        "reason": "exercise the no-op repair boundary",
+                    }
+                ],
+            }
+        ],
+    }
+    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
+        payload,
+        handle_registry=registry,
+        question_goals=(),
+    )
+    assert validation.ok and plan is not None
+
+    result = FunctionalPlanReconciler().reconcile(
+        plan,
+        planner_state_context=context,
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=registry,
+        question_goals=(),
+    )
+
+    assert any(
+        item.call_id == "close_A_without_parameter"
+        and item.code == "functional.arg_missing"
+        for item in result.issues
+    )
+    assert all(
+        item["action"] != "reuse_open_state_for_incomplete_transition"
+        for item in result.elaboration["deterministic_repairs"]
+    )
+
+
+def test_reconciler_infers_return_identity_through_object_role_constraints() -> None:
+    inputs, payload, registry, context = _heping_ermo_case()
+    call = next(
+        call
+        for scope in payload["scopes"]
+        for call in scope["calls"]
+        if call["call_id"] == "derive_square_vertex_G_ii"
+    )
+    call["return_bindings"] = {}
+    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
+        payload,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+    assert validation.ok and plan is not None
+
+    result = FunctionalPlanReconciler().reconcile(
+        plan,
+        planner_state_context=context,
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+
+    assert result.ok, [item.to_payload() for item in result.issues]
+    canonical = next(
+        item
+        for item in result.plan.calls
+        if item.call_id == "derive_square_vertex_G_ii"
+    )
+    assert canonical.return_bindings["point"] == SemanticRef(
+        ref="ii.G",
+        kind="point",
+        value_type="Point",
+    )
+    assert any(
+        item["action"] == "propagate_downstream_object_identity"
+        and item["call_id"] == "derive_square_vertex_G_ii"
+        for item in result.elaboration["deterministic_repairs"]
+    )
+
+
 def test_reconciler_propagates_unique_downstream_object_identity() -> None:
     inputs = _base_inputs()
     payload = json.loads(NANKAI_FUNCTIONAL_PLAN.read_text(encoding="utf-8"))
@@ -10112,6 +10293,77 @@ def test_compiler_binds_resolver_arg_to_exact_state_write_version() -> None:
             "$exact[fact:i_2:B_evaluated_coordinate:Point]"
         )
     }
+
+
+def test_compiler_rejects_resolver_arg_state_version_drift() -> None:
+    object_id = MathObjectId(
+        "point:problem:target",
+        "point",
+        "problem",
+    )
+    logical_key = LogicalStateKey(object_id, "coordinate", "Point")
+    slot_id = StateSlotId(logical_key, "problem")
+    expected_version = StateVersionId(slot_id, 2)
+    stale_version = StateVersionId(slot_id, 1)
+    handle = "fact:problem:target_coordinate"
+    compiler = object.__new__(_RecipePlanCompiler)
+    compiler.projected_state_dependencies = (
+        ProjectedStateDependency(
+            step_id="consume_target",
+            state_slot_id="point:problem:target.coordinate@problem",
+            produced_handle=handle,
+            runtime_type="Point",
+            object_ref=object_id.value,
+            arg_name="point",
+            source="resolver",
+            source_step_id="close_target",
+            source_return_name="point",
+            state_version_id=expected_version,
+        ),
+    )
+    compiler.projected_state_writes = (
+        ProjectedStateWrite(
+            step_id="close_target",
+            produced_handle=handle,
+            state_slot_id="point:problem:target.coordinate@problem",
+            write_mode="transition",
+            runtime_type="Point",
+            object_ref=object_id.value,
+            return_name="point",
+            math_object_id=object_id,
+            logical_state_key=logical_key,
+            typed_slot_id=slot_id,
+            selected_version_id=stale_version,
+            allocation_action="transition",
+        ),
+    )
+    compiler.index = SimpleNamespace(
+        path_for=lambda value, *, expected_type: (
+            f"$exact[{value}:{expected_type}]"
+        )
+    )
+    step = StepIntent(
+        step_id="consume_target",
+        scope_id="ii",
+        recipe_hint="synthetic_consumer",
+        goal_type="consume_point",
+        target="",
+        strategy="consume the selected state version",
+    )
+    spec = SimpleNamespace(
+        method_id="synthetic_consumer",
+        inputs={"point": SimpleNamespace(type="Point")},
+    )
+
+    with pytest.raises(
+        StrategyDraftValidationError,
+        match="planner.contract_runtime_input_version_drift",
+    ):
+        compiler._projected_exact_state_dependency_inputs(
+            step,
+            spec,
+            existing={},
+        )
 
 
 def test_angle_sum_auto_arg_selects_latest_point_state_version() -> None:
@@ -13320,6 +13572,45 @@ def test_functional_replay_preserves_named_line_intersection_arguments() -> None
     )
 
 
+def test_functional_replay_accepts_commuted_line_intersection_groups() -> None:
+    inputs = _base_inputs()
+    payload = json.loads(NANKAI_FUNCTIONAL_PLAN.read_text(encoding="utf-8"))
+    call = next(
+        call
+        for scope in payload["scopes"]
+        for call in scope["calls"]
+        if call["call_id"] == "ii_2_derive_G"
+    )
+    line1 = (call["args"]["line1_p1"], call["args"]["line1_p2"])
+    line2 = (call["args"]["line2_p1"], call["args"]["line2_p2"])
+    call["args"]["line1_p1"], call["args"]["line1_p2"] = line2
+    call["args"]["line2_p1"], call["args"]["line2_p2"] = line1
+    plan, validation = _validate(payload, inputs)
+    assert validation.ok and plan is not None
+
+    replay = PlannerRetryReplayService().replay_functional_plan(
+        plan,
+        inputs=inputs,
+        handle_registry=_registry(),
+        context=ContextBuilder().build(_problem()),
+        attempt=1,
+        problem_payload=_problem_payload(),
+        validation_report=validation,
+    )
+
+    assert replay.output is not None, (
+        replay.retry_state.to_payload() if replay.retry_state is not None else None
+    )
+    assert replay.diagnostic is not None
+    assert replay.diagnostic.ok
+    assert replay.goal_verification_issues == ()
+    assert replay.goal_verification_report is not None
+    assert all(
+        goal.status == "passed"
+        for goal in replay.goal_verification_report.goals
+    )
+
+
 def test_functional_replay_registers_equivalent_macro_return_alias() -> None:
     inputs = _base_inputs()
     payload = json.loads(NANKAI_FUNCTIONAL_PLAN.read_text(encoding="utf-8"))
@@ -14514,6 +14805,24 @@ def test_functional_prompt_retry_state_never_exposes_step_intent_baseline() -> N
                 ],
             }
         ],
+        "call_memory": [
+            {
+                "call_id": "derive_axis_point",
+                "execution_status": "runtime_verified",
+                "commit_status": "goal_committed",
+                "repair_required": False,
+                "results": [
+                    {
+                        "return": "axis_point",
+                        "type": "Point",
+                        "semantic_ref": "axis_point",
+                        "actual_form": "closed_state",
+                        "free_parameters": [],
+                        "value": ["1", "0"],
+                    }
+                ],
+            }
+        ],
         "validated_call_ids": ["derive_candidates"],
         "stable_prefix": [{"step_id": "legacy"}],
         "preserve_policy": "preserve_graph",
@@ -14549,6 +14858,20 @@ def test_functional_prompt_retry_state_never_exposes_step_intent_baseline() -> N
     assert "stable_candidate_calls" not in latest
     assert latest["locked_call_ids"] == ["derive_axis_point"]
     assert latest["locked_context_call_ids"] == ["derive_axis_point"]
+    assert latest["locked_context_results"] == [
+        {
+            "call_id": "derive_axis_point",
+            "results": [
+                {
+                    "return": "axis_point",
+                    "type": "Point",
+                    "ref": "axis_point",
+                    "value": ["1", "0"],
+                    "form": "closed_state",
+                }
+            ],
+        }
+    ]
     assert latest["runtime_verified"][0]["call_id"] == "derive_curve"
     assert latest["runtime_verified"][0]["repair_required"] is True
     assert latest["runtime_verified"][0]["results"][0] == {
@@ -14583,6 +14906,105 @@ def test_functional_prompt_retry_state_never_exposes_step_intent_baseline() -> N
     assert "只修复 `repair_call_ids`" not in prompt.system
     assert "StateSlot" not in json.dumps(latest, ensure_ascii=False)
     assert "runtime path" not in json.dumps(latest, ensure_ascii=False)
+
+
+def test_repair_issue_references_nearest_locked_runtime_result() -> None:
+    memory = FunctionalCallMemory(
+        entries=(
+            FunctionalCallMemoryEntry(
+                call_id="locked_curve",
+                capability_id="quadratic_from_constraints",
+                scope_id="i",
+                execution_status="runtime_verified",
+                commit_status="goal_committed",
+                result_snapshots=(
+                    FunctionalResultSnapshot(
+                        return_name="parabola",
+                        value_type="Parabola",
+                        semantic_ref="curve",
+                        value="u*x**2 + (u - 3)*x - 3",
+                        actual_form="open_state",
+                        free_parameters=("u",),
+                    ),
+                ),
+            ),
+        ),
+    )
+    issue = PlannerRetryIssue(
+        layer="goal_verification",
+        code="functional.evidence_closure_unproven",
+        step_id="answer_call",
+    )
+
+    (projected,) = attach_actual_result_refs(
+        (issue,),
+        memory=memory,
+        dependency_graph={
+            "answer_call": ("intermediate_call",),
+            "intermediate_call": ("locked_curve",),
+            "locked_curve": (),
+        },
+    )
+
+    assert projected.details == {
+        "locked_result_refs": ["locked_curve.parabola"],
+        "locked_context_call_ids": ["locked_curve"],
+    }
+
+
+def test_functional_prompt_reads_locked_context_from_result_refs() -> None:
+    issues = [
+        {
+            "details": {
+                "locked_result_refs": ["locked_curve.parabola"],
+            }
+        }
+    ]
+
+    call_ids = strategy_payload_module._functional_locked_context_call_ids(
+        issues,
+        locked_call_ids=["locked_curve", "unrelated_locked_call"],
+    )
+
+    assert call_ids == ["locked_curve"]
+
+
+def test_locked_context_result_budget_prefers_ticket_result_refs() -> None:
+    call_ids = [f"locked_{index}" for index in range(1, 6)]
+    memory = [
+        {
+            "call_id": call_id,
+            "execution_status": "runtime_verified",
+            "commit_status": "goal_committed",
+            "results": [
+                {
+                    "return": "point",
+                    "type": "Point",
+                    "value": [str(index), "0"],
+                }
+            ],
+        }
+        for index, call_id in enumerate(call_ids, start=1)
+    ]
+    issues = [
+        {
+            "details": {
+                "locked_result_refs": ["locked_5.point"],
+                "locked_context_call_ids": call_ids,
+            }
+        }
+    ]
+
+    compact = strategy_payload_module._compact_functional_locked_results(
+        memory,
+        call_ids=call_ids,
+        issues=issues,
+    )
+
+    projected_ids = [item["call_id"] for item in compact]
+    assert len(projected_ids) == 4
+    assert "locked_5" in projected_ids
+    assert "locked_4" not in projected_ids
 
 
 def test_functional_prompt_compacts_large_and_structured_runtime_results() -> None:

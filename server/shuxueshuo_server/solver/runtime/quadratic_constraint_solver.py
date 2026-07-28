@@ -30,6 +30,7 @@ class QuadraticConstraintSolveRequest:
     base_expression: sp.Expr
     independent_symbol: sp.Symbol
     coefficient_symbols: tuple[sp.Symbol, ...]
+    coefficient_template: sp.Expr | None = None
     known_coefficients: dict[sp.Symbol, sp.Expr] = field(default_factory=dict)
     curve_points: tuple[Point, ...] = ()
     equations: tuple[sp.Equality, ...] = ()
@@ -223,6 +224,10 @@ def _materialized_coefficient_substitutions(
     values.  Explicit known coefficients and parameter substitutions are
     applied afterwards and remain authoritative.
     """
+    if request.coefficient_template is not None:
+        projected = _coefficient_substitutions_from_template(request)
+        if projected:
+            return projected
     if len(request.coefficient_symbols) != 3:
         return {}
     try:
@@ -251,6 +256,60 @@ def _materialized_coefficient_substitutions(
             continue
         result[symbol] = value
     return result
+
+
+def _coefficient_substitutions_from_template(
+    request: QuadraticConstraintSolveRequest,
+) -> dict[sp.Symbol, sp.Expr]:
+    """Recover eliminated coefficients from the immutable function template.
+
+    The current state may already encode a relation such as one coefficient
+    expressed through another. Compare it with the original polynomial and
+    solve only for coefficient Symbols absent from the current expression.
+    This works for partial coefficient vectors and does not rely on names or a
+    fixed ``(a, b, c)`` layout.
+    """
+
+    template = request.coefficient_template
+    if template is None:
+        return {}
+    current_symbols = set(
+        sp.sympify(request.base_expression).free_symbols
+    )
+    eliminated = tuple(
+        symbol
+        for symbol in request.coefficient_symbols
+        if symbol not in current_symbols
+    )
+    if not eliminated:
+        return {}
+    try:
+        difference = sp.Poly(
+            sp.expand(
+                template - request.base_expression
+            ),
+            request.independent_symbol,
+        )
+    except (sp.PolynomialError, TypeError, ValueError):
+        return {}
+    equations = tuple(
+        sp.Eq(coefficient, 0)
+        for coefficient in difference.all_coeffs()
+        if sp.simplify(coefficient) != 0
+    )
+    if not equations:
+        return {}
+    branches = sp.solve(equations, eliminated, dict=True)
+    if len(branches) != 1:
+        return {}
+    branch = branches[0]
+    if any(symbol not in branch for symbol in eliminated):
+        return {}
+    return {
+        symbol: sp.simplify(branch[symbol])
+        for symbol in eliminated
+        if symbol not in sp.sympify(branch[symbol]).free_symbols
+    }
 
 
 def _substitute_mapping_values(

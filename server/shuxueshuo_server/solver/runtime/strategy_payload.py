@@ -354,6 +354,7 @@ def _functional_previous_attempt_state(
             "baseline_candidate",
             "repair_call_ids",
             "runtime_verified_calls",
+            "call_memory",
             "validated_call_ids",
             "issues",
             "recovered_issues",
@@ -373,6 +374,7 @@ def _functional_previous_attempt_state(
         selected.pop("runtime_verified_calls", []),
         issues=selected.get("issues"),
     )
+    call_memory = selected.pop("call_memory", [])
     selected["issues"] = _functional_issue_tickets(selected.get("issues"))
     selected["recovered_issues"] = _functional_issue_tickets(
         selected.get("recovered_issues")
@@ -380,6 +382,11 @@ def _functional_previous_attempt_state(
     selected["locked_context_call_ids"] = _functional_locked_context_call_ids(
         selected.get("issues"),
         locked_call_ids=selected["locked_call_ids"],
+    )
+    selected["locked_context_results"] = _compact_functional_locked_results(
+        call_memory,
+        call_ids=selected["locked_context_call_ids"],
+        issues=selected.get("issues"),
     )
     return {
         "attempt_count": len(previous_attempts),
@@ -422,6 +429,11 @@ def _functional_locked_context_call_ids(
             for call_id in (
                 *(
                     ref.rsplit(".", 1)[0]
+                    for ref in details.get("locked_result_refs", ())
+                    if isinstance(ref, str) and "." in ref
+                ),
+                *(
+                    ref.rsplit(".", 1)[0]
                     for ref in details.get("compatible_refs", ())
                     if isinstance(ref, str) and "." in ref
                 ),
@@ -442,6 +454,10 @@ def _functional_locked_context_call_ids(
 
 
 _FUNCTIONAL_PROMPT_RESULT_VALUE_MAX_CHARS = 768
+# Locked results are duplicated from committed call memory solely to make an
+# active ticket actionable. Keep a small explicit prompt budget, selecting the
+# calls most directly referenced by the ticket before broader context.
+_FUNCTIONAL_LOCKED_CONTEXT_CALL_BUDGET = 4
 
 
 def _compact_functional_runtime_verified(
@@ -481,6 +497,75 @@ def _compact_functional_runtime_verified(
                 compact["results"] = compact_results
         result.append(compact)
     return result
+
+
+def _compact_functional_locked_results(
+    value: Any,
+    *,
+    call_ids: list[str],
+    issues: Any,
+) -> list[dict[str, Any]]:
+    """Project only locked results explicitly relevant to active tickets."""
+
+    if not isinstance(value, list) or not call_ids:
+        return []
+    selected = set(
+        _rank_functional_locked_context_calls(
+            call_ids,
+            issues=issues,
+        )[:_FUNCTIONAL_LOCKED_CONTEXT_CALL_BUDGET]
+    )
+    return _compact_functional_runtime_verified(
+        [
+            item
+            for item in value
+            if isinstance(item, dict)
+            and item.get("call_id") in selected
+            and (
+                item.get("commit_status") == "goal_committed"
+                or item.get("status") == "goal_committed"
+            )
+        ],
+        issues=issues,
+    )
+
+
+def _rank_functional_locked_context_calls(
+    call_ids: list[str],
+    *,
+    issues: Any,
+) -> list[str]:
+    """Order locked context by direct ticket relevance before prompt capping."""
+
+    allowed = set(call_ids)
+    ranked: list[str] = []
+    if isinstance(issues, list):
+        for detail_key, refs_are_results in (
+            ("locked_result_refs", True),
+            ("compatible_refs", True),
+            ("locked_context_call_ids", False),
+            ("context_call_ids", False),
+        ):
+            for issue in issues:
+                if not isinstance(issue, dict):
+                    continue
+                details = issue.get("details")
+                if not isinstance(details, dict):
+                    continue
+                values = details.get(detail_key, ())
+                if not isinstance(values, (list, tuple)):
+                    continue
+                for value in values:
+                    if not isinstance(value, str):
+                        continue
+                    call_id = (
+                        value.rsplit(".", 1)[0]
+                        if refs_are_results and "." in value
+                        else value
+                    )
+                    if call_id in allowed:
+                        ranked.append(call_id)
+    return list(dict.fromkeys((*ranked, *call_ids)))
 
 
 def _compact_functional_result_snapshot(

@@ -1095,6 +1095,30 @@ def test_quadratic_from_constraints_refines_materialized_parameterized_state() -
     assert all(check.ok for check in result.checks)
 
 
+def test_quadratic_from_constraints_recovers_eliminated_coefficient_from_template() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["x", "u", "v"])
+    x, u, v = (symbols[name] for name in ("x", "u", "v"))
+    template = u * x**2 + v * x - 3
+    current = u * x**2 + (u - 3) * x - 3
+    inputs = {
+        "quadratic": current,
+        "quadratic_template": template,
+        "x": x,
+        "p1": (sp.Integer(-1), sp.Integer(0)),
+        "all_coefficients": [u, v],
+        "free_parameter": u,
+    }
+
+    analysis = analyze_quadratic_constraints(inputs)
+    result = QuadraticFromConstraintsMethod().run(inputs, kernel)
+
+    assert analysis.status == "single_free"
+    assert result.outputs["coefficients"].value[v] == u - 3
+    assert sp.expand(result.outputs["parabola"].value - current) == 0
+    assert all(check.ok for check in result.checks)
+
+
 def test_parameter_from_segment_length_method() -> None:
     kernel = SympyKernel()
     m = kernel.symbols(["m"])["m"]

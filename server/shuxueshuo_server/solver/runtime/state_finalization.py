@@ -1496,13 +1496,13 @@ def _write_visible_from(
     *,
     handle_registry: CanonicalHandleRegistry,
 ) -> bool:
+    # B3 typed storage scope is authoritative. A return may also project to a
+    # global object or answer handle, but that destination must not widen the
+    # visibility of a sibling-private StateVersion.
     valid_scope = (
-        handle_registry.handle_valid_scopes.get(write.produced_handle)
-        or (
-            write.selected_version_id.slot_id.storage_scope_id
-            if write.selected_version_id is not None
-            else None
-        )
+        write.selected_version_id.slot_id.storage_scope_id
+        if write.selected_version_id is not None
+        else handle_registry.handle_valid_scopes.get(write.produced_handle)
     )
     return (
         valid_scope is not None

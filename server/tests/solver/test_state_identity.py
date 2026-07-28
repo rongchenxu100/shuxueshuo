@@ -37,6 +37,9 @@ from shuxueshuo_server.solver.runtime.state_identity import (
     StateVersionPlacementRewrite,
     TypedCallPlacementDecision,
 )
+from shuxueshuo_server.solver.runtime.state_finalization import (
+    StateFinalizationService,
+)
 from shuxueshuo_server.solver.runtime.strategy_models import (
     ProjectedStateWrite,
     StateWriteProvenance,
@@ -628,6 +631,62 @@ def test_compiler_resolves_typed_transition_predecessor_across_scopes() -> None:
     )
 
     assert selected == parent_write
+
+
+def test_logical_finalizer_keeps_sibling_isolated_state_versions_independent() -> None:
+    registry = _Registry()
+    object_id = MathObjectId(
+        "function:problem:f",
+        "function",
+        "problem",
+    )
+    logical_key = LogicalStateKey(object_id, "expression", "Parabola")
+    first_slot = StateSlotId(logical_key, "ii_1")
+    second_slot = StateSlotId(logical_key, "ii_2")
+    writes = (
+        ProjectedStateWrite(
+            step_id="build_closed_branch",
+            produced_handle="answer:ii_1.curve",
+            state_slot_id="function:problem:f.expression@ii_1",
+            write_mode="create",
+            runtime_type="Parabola",
+            object_ref=object_id.value,
+            return_name="parabola",
+            math_object_id=object_id,
+            logical_state_key=logical_key,
+            typed_slot_id=first_slot,
+            selected_version_id=StateVersionId(first_slot, 1),
+            allocation_action="create",
+        ),
+        ProjectedStateWrite(
+            step_id="build_open_branch",
+            produced_handle="function:problem:f",
+            state_slot_id="function:problem:f.expression@ii_2",
+            write_mode="create",
+            runtime_type="Parabola",
+            object_ref=object_id.value,
+            return_name="parabola",
+            math_object_id=object_id,
+            logical_state_key=logical_key,
+            typed_slot_id=second_slot,
+            selected_version_id=StateVersionId(second_slot, 1),
+            allocation_action="isolated",
+        ),
+    )
+
+    result = StateFinalizationService().finalize_logical_graph(
+        writes,
+        step_scopes={
+            "build_closed_branch": "ii_1",
+            "build_open_branch": "ii_2",
+        },
+        handle_registry=registry,
+    )
+
+    assert result.ok
+    assert {item.logical_writer_status for item in result.decisions} == {
+        "valid"
+    }
 
 
 def test_typed_identity_payloads_round_trip() -> None:

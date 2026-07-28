@@ -133,6 +133,7 @@ class StateLineageClosureSpec:
     add_evidence_tags: tuple[str, ...] = ()
     description: str = ""
     input_groups: tuple[EvidenceInputGroupSpec, ...] = ()
+    input_group_matching: Literal["ordered", "commutative"] = "ordered"
     output_object_role: str | None = None
 
     def to_payload(self) -> dict[str, object]:
@@ -153,6 +154,8 @@ class StateLineageClosureSpec:
             payload["input_groups"] = [
                 item.to_payload() for item in self.input_groups
             ]
+        if self.input_group_matching != "ordered":
+            payload["input_group_matching"] = self.input_group_matching
         if self.output_object_role is not None:
             payload["output_object_role"] = self.output_object_role
         return payload

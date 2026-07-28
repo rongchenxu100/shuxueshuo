@@ -44,6 +44,9 @@ from shuxueshuo_server.solver.runtime.functional_input_closure import (
 from shuxueshuo_server.solver.runtime.functional_plan_liveness import (
     FunctionalCallLivenessAnalyzer,
 )
+from shuxueshuo_server.solver.runtime.functional_object_identity_hints import (
+    infer_future_return_object_hints,
+)
 from shuxueshuo_server.solver.runtime.functional_reconciliation_validators import (
     functional_reconciliation_issues,
 )
@@ -244,6 +247,13 @@ class _NormalizeElaborateScopeStage:
             catalog=catalog,
             semantic_index=semantic_index,
         )
+        plan, incomplete_transition_repairs = (
+            _drop_redundant_incomplete_identity_transitions(
+                plan,
+                catalog=catalog,
+                semantic_index=semantic_index,
+            )
+        )
         plan, basis_repairs = align_free_parameter_basis_with_consumers(
             plan,
             catalog=catalog,
@@ -267,6 +277,7 @@ class _NormalizeElaborateScopeStage:
                 *ordering_repairs,
                 *return_role_repairs,
                 *existing_state_repairs,
+                *incomplete_transition_repairs,
                 *basis_repairs,
                 *target_identity_repairs,
                 *elaboration.deterministic_repairs,
@@ -462,6 +473,141 @@ def _drop_redundant_existing_state_creates(
                 if any(
                     call.call_id not in dropped for call in scope.calls
                 )
+            ),
+        ),
+        tuple(repairs),
+    )
+
+
+def _drop_redundant_incomplete_identity_transitions(
+    plan: FunctionalPlan,
+    *,
+    catalog: FunctionalCapabilityCatalog,
+    semantic_index: FunctionalSemanticIndex,
+) -> tuple[FunctionalPlan, tuple[FunctionalDeterministicRepair, ...]]:
+    """Replace a provable no-op transition with its existing input state.
+
+    This only handles an incomplete same-object transition whose sole missing
+    required input is a ParameterValue and whose requested result remains open.
+    It never invents a parameter value or claims that an open state is closed.
+    """
+
+    consumers = _call_result_consumers(plan)
+    dropped: set[str] = set()
+    replacement_refs: dict[tuple[str, str], FunctionalRef] = {}
+    repairs: list[FunctionalDeterministicRepair] = []
+    for scope in plan.scopes:
+        for call in scope.calls:
+            capability = catalog.get(call.capability_id)
+            if (
+                capability is None
+                or capability.kind != "function"
+                or not capability.is_pure
+            ):
+                continue
+            missing = tuple(
+                arg
+                for arg in capability.args
+                if arg.required and not call.args.get(arg.name)
+            )
+            if not missing or any(
+                not all(
+                    normalize_runtime_type(item) == "ParameterValue"
+                    for item in (
+                        arg.accepted_item_types or (arg.runtime_type,)
+                    )
+                )
+                for arg in missing
+            ):
+                continue
+            transitions = tuple(
+                returned
+                for returned in capability.returns
+                if returned.write_mode == "transition"
+                and returned.identity_policy == "preserve_input_object"
+                and returned.identity_arg
+            )
+            if len(transitions) != 1 or len(capability.returns) != 1:
+                continue
+            returned = transitions[0]
+            if (
+                set(call.return_bindings) - {returned.name}
+                or set(call.return_expectations) - {returned.name}
+            ):
+                continue
+            identity_refs = call.args.get(returned.identity_arg or "", ())
+            if len(identity_refs) != 1:
+                continue
+            source_ref = identity_refs[0]
+            if isinstance(source_ref, SemanticRef):
+                resolved, _candidates = semantic_index.resolve(
+                    source_ref,
+                    scope_id=scope.scope_id,
+                    accepted_types=(returned.runtime_type,),
+                )
+                if resolved is None or resolved.state_slot_id is None:
+                    continue
+            elif not isinstance(source_ref, CallResultRef):
+                continue
+            binding = call.return_bindings.get(returned.name)
+            if binding is not None and (
+                binding.kind == "answer"
+                or not isinstance(source_ref, SemanticRef)
+                or binding.ref != source_ref.ref
+                or binding.kind != source_ref.kind
+            ):
+                continue
+            expectation = call.return_expectations.get(returned.name)
+            if expectation not in {None, "open_state", "open_expression"}:
+                continue
+            consumed_returns = {
+                return_name
+                for (call_id, return_name) in consumers
+                if call_id == call.call_id
+            }
+            if consumed_returns - {returned.name}:
+                continue
+            dropped.add(call.call_id)
+            replacement_refs[(call.call_id, returned.name)] = source_ref
+            repairs.append(
+                FunctionalDeterministicRepair(
+                    call.call_id,
+                    "reuse_open_state_for_incomplete_transition",
+                    call.capability_id,
+                    (
+                        f"{returned.identity_arg}:existing_state;"
+                        "missing_parameter_value"
+                    ),
+                )
+            )
+    if not dropped:
+        return plan, ()
+
+    def rewrite(ref: FunctionalRef) -> FunctionalRef:
+        if not isinstance(ref, CallResultRef):
+            return ref
+        return replacement_refs.get((ref.from_call, ref.return_name), ref)
+
+    return (
+        replace(
+            plan,
+            scopes=tuple(
+                replace(
+                    scope,
+                    calls=tuple(
+                        replace(
+                            call,
+                            args={
+                                name: tuple(rewrite(ref) for ref in refs)
+                                for name, refs in call.args.items()
+                            },
+                        )
+                        for call in scope.calls
+                        if call.call_id not in dropped
+                    ),
+                )
+                for scope in plan.scopes
+                if any(call.call_id not in dropped for call in scope.calls)
             ),
         ),
         tuple(repairs),
@@ -6536,78 +6682,11 @@ def _future_return_object_hints(
     catalog: FunctionalCapabilityCatalog,
     semantic_index: FunctionalSemanticIndex,
 ) -> dict[tuple[str, str], tuple[str, ...]]:
-    """Propagate explicit object destinations backwards through identity calls.
-
-    Only ``preserve_input_object`` returns carry identity backwards. This makes
-    a later answer binding usable as deterministic evidence without guessing a
-    mathematical target from call text or capability names.
-    """
-
-    ordered_calls = [
-        (scope.scope_id, call)
-        for scope in plan.scopes
-        for call in scope.calls
-    ]
-    hints: dict[tuple[str, str], set[str]] = {}
-    for scope_id, call in ordered_calls:
-        capability = catalog.get(call.capability_id)
-        if capability is None:
-            continue
-        for return_spec in capability.returns:
-            binding = call.return_bindings.get(return_spec.name)
-            if binding is None:
-                continue
-            object_refs = semantic_index.object_refs_for(
-                binding,
-                scope_id=scope_id,
-            )
-            if binding.kind == "answer":
-                answer_target = (
-                    semantic_index.handle_registry.answer_target_handles.get(
-                        f"answer:{binding.ref}"
-                    )
-                )
-                if answer_target is not None:
-                    object_refs = (answer_target,)
-            if object_refs:
-                hints.setdefault(
-                    (call.call_id, return_spec.name),
-                    set(),
-                ).update(object_refs)
-
-    changed = True
-    while changed:
-        changed = False
-        for _scope_id, call in reversed(ordered_calls):
-            capability = catalog.get(call.capability_id)
-            if capability is None:
-                continue
-            for return_spec in capability.returns:
-                if (
-                    return_spec.identity_policy != "preserve_input_object"
-                    or not return_spec.identity_arg
-                ):
-                    continue
-                return_hints = hints.get(
-                    (call.call_id, return_spec.name),
-                    set(),
-                )
-                if not return_hints:
-                    continue
-                for ref in call.args.get(return_spec.identity_arg, ()):
-                    if not isinstance(ref, CallResultRef):
-                        continue
-                    target = hints.setdefault(
-                        (ref.from_call, ref.return_name),
-                        set(),
-                    )
-                    before = len(target)
-                    target.update(return_hints)
-                    changed = changed or len(target) != before
-    return {
-        key: unique_ordered(values)
-        for key, values in hints.items()
-    }
+    return infer_future_return_object_hints(
+        plan,
+        catalog=catalog,
+        semantic_index=semantic_index,
+    )
 
 
 def _consumer_semantic_dependencies(
