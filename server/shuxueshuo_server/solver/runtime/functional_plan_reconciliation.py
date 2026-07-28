@@ -37,6 +37,7 @@ from shuxueshuo_server.solver.runtime.functional_plan_elaboration import (
     FunctionalPlanElaborationResult,
     FunctionalPlanElaborator,
     FunctionalSemanticIndex,
+    FunctionalSemanticView,
 )
 from shuxueshuo_server.solver.runtime.functional_input_closure import (
     resolve_functional_input_closure,
@@ -180,7 +181,10 @@ class _PreparedFunctionalReconciliation:
     call_scopes: dict[str, str]
     call_result_consumers: dict[tuple[str, str], tuple[str, ...]]
     call_execution_scopes: dict[str, str]
-    semantic_object_consumers: dict[str, tuple[tuple[str, str], ...]]
+    semantic_object_consumers: dict[
+        tuple[str, str],
+        tuple[tuple[str, str], ...],
+    ]
     requested_scopes: dict[tuple[str, str], str]
     dependency_graph: dict[str, tuple[str, ...]]
     planned_target_objects: dict[tuple[str, str], str]
@@ -336,6 +340,8 @@ class _NormalizeElaborateScopeStage:
             semantic_object_consumers=_semantic_object_consumer_scopes(
                 plan,
                 semantic_index=semantic_index,
+                catalog=catalog,
+                future_return_object_hints=future_return_object_hints,
             ),
             requested_scopes=requested_scopes,
             dependency_graph=dependency_graph,
@@ -2266,7 +2272,10 @@ class _FunctionalReturnAllocationContext:
     reconciliation_repairs: list[FunctionalDeterministicRepair]
     answer_bindings: dict[str, str]
     factory: CanonicalStateHandleFactory
-    semantic_object_consumers: Mapping[str, tuple[tuple[str, str], ...]]
+    semantic_object_consumers: Mapping[
+        tuple[str, str],
+        tuple[tuple[str, str], ...],
+    ]
     processed_call_ids: set[str]
     future_return_object_hints: Mapping[
         tuple[str, str],
@@ -2770,7 +2779,7 @@ def _align_return_scope_with_binding(
     handle_registry: CanonicalHandleRegistry,
     issues: list[FunctionalPlanIssue],
 ) -> str:
-    """Align a value scope with its answer or existing-object destination."""
+    """Align answer scope without conflating object origin and state scope."""
 
     if bound_item is None:
         return requested_scope
@@ -2816,19 +2825,10 @@ def _align_return_scope_with_binding(
         )
         return requested_scope
 
-    destination_lca = _least_common_scope(
-        (requested_scope, bound_item.valid_scope),
-        handle_registry,
-    )
-    if (
-        destination_lca != requested_scope
-        and _inputs_visible_from_scope(
-            resolved_args,
-            destination_lca,
-            handle_registry,
-        )
-    ):
-        return destination_lca
+    # Binding to an existing MathObject establishes identity only. The object
+    # may originate at problem scope while this particular open/closed state
+    # is valid in one question branch. Structured consumers widen that state
+    # later through _publish_return_scope and B2 placement.
     return requested_scope
 
 
@@ -3113,7 +3113,10 @@ def _publish_return_scope(
     object_ref: str | None,
     resolved_args: Mapping[str, tuple[ResolvedFunctionalValue, ...]],
     question_goals: Sequence[QuestionGoal],
-    semantic_object_consumers: Mapping[str, tuple[tuple[str, str], ...]],
+    semantic_object_consumers: Mapping[
+        tuple[str, str],
+        tuple[tuple[str, str], ...],
+    ],
     processed_call_ids: set[str],
     handle_registry: CanonicalHandleRegistry,
     factory: CanonicalStateHandleFactory,
@@ -3132,6 +3135,8 @@ def _publish_return_scope(
     if (
         answer_object_scope is not None
         and answer_object_scope != requested_scope
+        and requested_scope
+        in handle_registry.ancestor_scopes(answer_object_scope)
     ):
         reconciliation_repairs.append(
             FunctionalDeterministicRepair(
@@ -3145,7 +3150,7 @@ def _publish_return_scope(
     future_consumer_scopes = tuple(
         consumer_scope
         for consumer_call_id, consumer_scope in semantic_object_consumers.get(
-            object_ref,
+            (call.call_id, object_ref),
             (),
         )
         if consumer_call_id != call.call_id
@@ -5566,9 +5571,49 @@ def _semantic_object_consumer_scopes(
     plan: FunctionalPlan,
     *,
     semantic_index: FunctionalSemanticIndex,
-) -> dict[str, tuple[tuple[str, str], ...]]:
-    """Index future object-facing reads independently of wire ref spelling."""
-    result: dict[str, list[tuple[str, str]]] = {}
+    catalog: FunctionalCapabilityCatalog,
+    future_return_object_hints: Mapping[
+        tuple[str, str],
+        tuple[str, ...],
+    ],
+) -> dict[tuple[str, str], tuple[tuple[str, str], ...]]:
+    """Assign semantic object reads to their nearest planned producer.
+
+    A semantic reference names a MathObject, not a particular state version.
+    Prefer the latest prior producer already visible in the consumer branch.
+    A producer in a sibling branch is used only when it is the sole prior
+    producer, allowing B2 to hoist that uniquely shared state. Exact
+    StateVersion dependencies remain authoritative after reconciliation.
+    """
+    call_order = {
+        call.call_id: index for index, call in enumerate(plan.calls)
+    }
+    call_scopes = {
+        call.call_id: scope.scope_id
+        for scope in plan.scopes
+        for call in scope.calls
+    }
+    producers_by_object: dict[str, list[tuple[int, str, str]]] = {}
+    for call in plan.calls:
+        capability = catalog.get(call.capability_id)
+        if capability is None:
+            continue
+        for returned in capability.returns:
+            object_refs = future_return_object_hints.get(
+                (call.call_id, returned.name),
+                (),
+            )
+            if len(object_refs) != 1:
+                continue
+            producers_by_object.setdefault(object_refs[0], []).append(
+                (
+                    call_order[call.call_id],
+                    call.call_id,
+                    call_scopes[call.call_id],
+                )
+            )
+
+    consumers_by_object: dict[str, list[tuple[str, str]]] = {}
     for scope in plan.scopes:
         for call in scope.calls:
             for refs in call.args.values():
@@ -5579,12 +5624,70 @@ def _semantic_object_consumer_scopes(
                         ref,
                         scope_id=scope.scope_id,
                     ):
-                        result.setdefault(object_ref, []).append(
+                        consumers_by_object.setdefault(object_ref, []).append(
                             (call.call_id, scope.scope_id)
                         )
+                    condition, _matches = semantic_index.resolve(
+                        ref,
+                        scope_id=scope.scope_id,
+                        accepted_types=("Condition",),
+                    )
+                    if condition is not None:
+                        for _role, object_refs in condition.object_roles:
+                            for object_ref in object_refs:
+                                consumers_by_object.setdefault(
+                                    object_ref,
+                                    [],
+                                ).append(
+                                    (call.call_id, scope.scope_id)
+                                )
+            capability = catalog.get(call.capability_id)
+            if capability is None:
+                continue
+            for object_ref in _hidden_auto_arg_object_refs(
+                call,
+                scope_id=scope.scope_id,
+                capability=capability,
+                semantic_index=semantic_index,
+            ):
+                consumers_by_object.setdefault(object_ref, []).append(
+                    (call.call_id, scope.scope_id)
+                )
+
+    result: dict[tuple[str, str], list[tuple[str, str]]] = {}
+    registry = semantic_index.handle_registry
+    for object_ref, consumers in consumers_by_object.items():
+        producers = producers_by_object.get(object_ref, ())
+        for consumer_call_id, consumer_scope in unique_ordered(consumers):
+            consumer_index = call_order[consumer_call_id]
+            prior = tuple(
+                producer
+                for producer in producers
+                if producer[0] < consumer_index
+                and producer[1] != consumer_call_id
+            )
+            visible = tuple(
+                producer
+                for producer in prior
+                if visible_from_valid_scope(
+                    producer[2],
+                    scope_id=consumer_scope,
+                    registry=registry,
+                )
+            )
+            selected = (
+                max(visible, key=lambda item: item[0])
+                if visible
+                else (prior[0] if len(prior) == 1 else None)
+            )
+            if selected is None:
+                continue
+            result.setdefault((selected[1], object_ref), []).append(
+                (consumer_call_id, consumer_scope)
+            )
     return {
-        object_ref: unique_ordered(consumers)
-        for object_ref, consumers in result.items()
+        producer_key: unique_ordered(consumers)
+        for producer_key, consumers in result.items()
     }
 
 
@@ -6241,6 +6344,26 @@ def _with_hidden_condition_object_dependencies(
                 (*result.get(call.call_id, ()), *hidden_dependencies)
             )
             continue
+        for object_ref in _hidden_auto_arg_object_refs(
+            call,
+            scope_id=scope_id,
+            capability=capability,
+            semantic_index=semantic_index,
+        ):
+            if _context_has_materialized_object_state(
+                semantic_index,
+                object_ref=object_ref,
+                scope_id=scope_id,
+            ):
+                continue
+            prior_producers = tuple(
+                producer
+                for producer in producers_by_object.get(object_ref, ())
+                if order_by_id.get(producer, -1)
+                < order_by_id[call.call_id]
+            )
+            if prior_producers:
+                hidden_dependencies.append(prior_producers[-1])
         for refs in call.args.values():
             for ref in refs:
                 if not isinstance(ref, SemanticRef):
@@ -6274,6 +6397,116 @@ def _with_hidden_condition_object_dependencies(
             (*result.get(call.call_id, ()), *hidden_dependencies)
         )
     return result
+
+
+def _hidden_auto_arg_object_refs(
+    call: FunctionalCall,
+    *,
+    scope_id: str,
+    capability: FunctionalCapability,
+    semantic_index: FunctionalSemanticIndex,
+) -> tuple[str, ...]:
+    """Project structured auto-role selectors to their MathObject inputs.
+
+    This pre-resolution projection is intentionally limited to selectors whose
+    object role is fully determined by structured ProblemIR fields. It lets
+    placement see the same hidden object dependency that the later resolver
+    will consume, without parsing descriptions or guessing from visible
+    objects.
+    """
+
+    result: list[str] = []
+    for auto in capability.auto_args:
+        if not auto.selector.startswith("angle_sum:"):
+            continue
+        role = auto.selector.split(":", 1)[1]
+        if role in {"condition", "target"}:
+            continue
+        object_ref = _angle_sum_role_object_ref(
+            call,
+            role=role,
+            scope_id=scope_id,
+            semantic_index=semantic_index,
+        )
+        if object_ref is not None:
+            result.append(object_ref)
+    return unique_ordered(result)
+
+
+def _angle_sum_role_object_ref(
+    call: FunctionalCall,
+    *,
+    role: str,
+    scope_id: str,
+    semantic_index: FunctionalSemanticIndex,
+) -> str | None:
+    conditions: list[FunctionalSemanticView] = []
+    for refs in call.args.values():
+        for ref in refs:
+            if not isinstance(ref, SemanticRef):
+                continue
+            condition, _matches = semantic_index.resolve(
+                ref,
+                scope_id=scope_id,
+                accepted_types=("Condition",),
+            )
+            if (
+                condition is not None
+                and semantic_index.handle_registry.fact_types.get(
+                    condition.handle
+                )
+                == "angle_sum"
+            ):
+                conditions.append(condition)
+    if len(conditions) != 1:
+        return None
+    payload = semantic_index.handle_registry.fact_payloads.get(
+        conditions[0].handle,
+        {},
+    )
+    terms = payload.get("angle_terms")
+    if (
+        not isinstance(terms, list | tuple)
+        or len(terms) != 2
+        or any(
+            not isinstance(term, str) or len(term) != 3
+            for term in terms
+        )
+    ):
+        return None
+    point_name = _angle_sum_role_point_name(terms, role)
+    if point_name is None:
+        return None
+    matches = tuple(
+        handle
+        for handle in semantic_index.handle_registry.entity_handles
+        if handle.startswith("point:")
+        and handle.rsplit(":", 1)[-1] == point_name
+        and visible_from_valid_scope(
+            semantic_index.handle_registry.handle_valid_scopes.get(
+                handle,
+                scope_id,
+            ),
+            scope_id=scope_id,
+            registry=semantic_index.handle_registry,
+        )
+    )
+    return matches[0] if len(matches) == 1 else None
+
+
+def _angle_sum_role_point_name(
+    terms: Sequence[str],
+    role: str,
+) -> str | None:
+    """Map one structured angle-sum role to its declared point name."""
+
+    left, right = terms
+    return {
+        "x_axis_point": left[1],
+        "y_axis_point": left[0],
+        "reference_x_axis_point": right[0],
+        "origin": right[2],
+    }.get(role)
 
 
 def _context_has_materialized_object_state(
@@ -7228,13 +7461,7 @@ def _resolve_angle_sum_auto_arg(
                 details={"arg": auto.name, "selector": auto.selector},
             ),
         )
-    left, right = terms
-    point_name = {
-        "x_axis_point": left[1],
-        "y_axis_point": left[0],
-        "reference_x_axis_point": right[0],
-        "origin": right[2],
-    }.get(role)
+    point_name = _angle_sum_role_point_name(terms, role)
     if point_name is None:
         return None, None, None
     object_refs = tuple(

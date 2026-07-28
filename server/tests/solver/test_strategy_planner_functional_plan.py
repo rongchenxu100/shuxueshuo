@@ -10,7 +10,7 @@ from typing import Any
 import pytest
 import sympy as sp
 
-from shuxueshuo_server.solver.contracts import TypedValue
+from shuxueshuo_server.solver.contracts import PointRef, TypedValue
 from shuxueshuo_server.solver.explanation.builder import ExplanationBuilder
 from shuxueshuo_server.solver.family.models import RecipeExecutionSpec
 from shuxueshuo_server.solver.explanation.models import ExplanationSnapshot
@@ -74,6 +74,9 @@ from shuxueshuo_server.solver.runtime.functional_call_memory import (
     FunctionalResultSnapshot,
     attach_actual_result_refs,
 )
+from shuxueshuo_server.solver.runtime.functional_context_values import (
+    latest_point_state_for_object,
+)
 from shuxueshuo_server.solver.runtime.functional_plan_reconciliation import (
     _infer_symbolic_target_args_from_consumers,
     _projected_creates,
@@ -101,7 +104,10 @@ from shuxueshuo_server.solver.runtime.functional_symbol_flow import (
 from shuxueshuo_server.solver.runtime.functional_reconciliation_validators import (
     functional_reconciliation_issues,
 )
-from shuxueshuo_server.solver.runtime.function_specs import FunctionSpecRegistry
+from shuxueshuo_server.solver.runtime.function_specs import (
+    FunctionSpecRegistry,
+    _analyze_quadratic_coefficient_inputs,
+)
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.planner_state_context import (
@@ -147,6 +153,7 @@ from shuxueshuo_server.solver.runtime.state_identity import (
 )
 from shuxueshuo_server.solver.runtime.state_finalization import (
     StateFinalizationService,
+    project_functional_state_dependencies,
 )
 from shuxueshuo_server.solver.runtime.student_symbolic_complexity import (
     analyze_student_symbolic_complexity,
@@ -5457,6 +5464,214 @@ def test_quadratic_constraint_adapter_accepts_three_curve_points() -> None:
     assert len(invocation.inputs["curve_points"]) == 3
 
 
+def test_quadratic_constraint_analyzer_materializes_each_aggregate_point(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from shuxueshuo_server.solver.runtime.methods import (
+        quadratic_from_constraints as quadratic_method_module,
+    )
+
+    captured: dict[str, Any] = {}
+
+    def analyze(
+        runtime_inputs: dict[str, Any],
+        **_kwargs: Any,
+    ) -> Any:
+        captured.update(runtime_inputs)
+        return SimpleNamespace(status="determined")
+
+    monkeypatch.setattr(
+        quadratic_method_module,
+        "analyze_quadratic_constraints",
+        analyze,
+    )
+
+    class _Context:
+        def read_path(
+            self,
+            path: str,
+            *,
+            from_scope_id: str,
+            expected_type: str | None = None,
+        ) -> TypedValue:
+            assert from_scope_id == "branch"
+            if path == "$problem.symbol_lists.quadratic_coefficients":
+                return TypedValue("SymbolList", ())
+            if expected_type == "Point":
+                coordinate = (sp.Integer(1), sp.Integer(2))
+                return TypedValue("Point", coordinate)
+            return TypedValue(
+                "PointRef",
+                PointRef(path, path, scope_id="branch"),
+            )
+
+    result = _analyze_quadratic_coefficient_inputs(
+        {"curve_points": ("$point.one", "$point.two")},
+        StepIntent(
+            step_id="build_curve",
+            scope_id="branch",
+            recipe_hint="quadratic_from_constraints",
+            goal_type="derive_curve",
+            target="",
+            strategy="materialize aggregate points",
+        ),
+        SimpleNamespace(
+            context=_Context(),
+            bindings={},
+        ),
+    )
+
+    assert result.inputs == {
+        "curve_points": ("$point.one", "$point.two")
+    }
+    assert captured["curve_points"] == [
+        (sp.Integer(1), sp.Integer(2)),
+        (sp.Integer(1), sp.Integer(2)),
+    ]
+
+
+def test_mechanical_auto_arg_with_state_version_projects_exact_dependency() -> None:
+    object_id = MathObjectId("point:problem:target", "point", "problem")
+    logical_key = LogicalStateKey(object_id, "coordinate", "Point")
+    slot_id = StateSlotId(logical_key, "branch")
+    version_id = StateVersionId(slot_id, 1)
+    call = FunctionalCall(
+        call_id="consume_target",
+        capability_id="synthetic_consumer",
+        args={},
+        return_bindings={},
+        strategy="consume a mechanical target role",
+        reason="verify exact dependency projection",
+    )
+    plan = FunctionalPlan(
+        scopes=(
+            FunctionalScope(
+                scope_id="branch",
+                label="branch",
+                calls=(call,),
+            ),
+        )
+    )
+    reconciliation = SimpleNamespace(
+        call_id=call.call_id,
+        capability_id=call.capability_id,
+        resolved_args={
+            "target": (
+                ResolvedFunctionalValue(
+                    handle="fact:branch:target_coordinate",
+                    runtime_type="Point",
+                    valid_scope="branch",
+                    state_slot_id="point:problem:target.coordinate@branch",
+                    object_ref=object_id.value,
+                    source_call_id="produce_target",
+                    return_name="point",
+                    math_object_id=object_id,
+                    logical_state_key=logical_key,
+                    typed_slot_id=slot_id,
+                    state_version_id=version_id,
+                ),
+            )
+        },
+        returns=(),
+    )
+    capability = SimpleNamespace(
+        args=(),
+        auto_args=(
+            SimpleNamespace(
+                name="target",
+                binding_authority="compiler",
+                selector="point_output_ref",
+            ),
+        ),
+    )
+
+    dependencies = project_functional_state_dependencies(
+        plan,
+        (reconciliation,),
+        catalog=SimpleNamespace(
+            get=lambda capability_id: (
+                capability
+                if capability_id == "synthetic_consumer"
+                else None
+            )
+        ),
+    )
+
+    assert len(dependencies) == 1
+    assert dependencies[0].arg_name == "target"
+    assert dependencies[0].state_version_id == version_id
+    assert dependencies[0].source_step_id == "produce_target"
+
+
+def test_path_transformation_consumer_uses_exact_projected_producer() -> None:
+    compiler = object.__new__(_RecipePlanCompiler)
+    compiler.projected_state_dependencies = (
+        ProjectedStateDependency(
+            step_id="consume_transform",
+            state_slot_id="functional:branch:selected_transform",
+            produced_handle="fact:branch:selected_transform",
+            runtime_type="PathTransformation",
+            arg_name="path_transformation",
+            source="wire",
+            source_step_id="produce_selected_transform",
+            source_return_name="path_transformation",
+        ),
+    )
+    compiler.index = SimpleNamespace(
+        path_for=lambda handle, *, expected_type: (
+            f"$exact[{handle}:{expected_type}]"
+        ),
+        bindings={},
+    )
+    step = StepIntent(
+        step_id="consume_transform",
+        scope_id="branch",
+        recipe_hint="broken_path_straightening_minimum_expression",
+        goal_type="derive_minimum_expression",
+        target="",
+        strategy="consume the selected transformation",
+    )
+
+    handle, path = compiler._path_transformation_input(step)
+
+    assert handle == "fact:branch:selected_transform"
+    assert path == (
+        "$exact[fact:branch:selected_transform:PathTransformation]"
+    )
+
+
+def test_typed_merge_rejects_distinct_exact_arg_producers() -> None:
+    left = {
+        "point": (
+            ResolvedFunctionalValue(
+                handle="fact:branch:left",
+                runtime_type="Point",
+                valid_scope="branch",
+                source_call_id="produce_left",
+            ),
+        )
+    }
+    right = {
+        "point": (
+            ResolvedFunctionalValue(
+                handle="fact:branch:right",
+                runtime_type="Point",
+                valid_scope="branch",
+                source_call_id="produce_right",
+            ),
+        )
+    }
+
+    assert not (
+        functional_call_placement_module
+        ._resolved_arg_producers_compatible(
+            left,
+            right,
+            aliases={},
+        )
+    )
+
+
 def test_hidden_mechanical_selector_alias_is_pruned_before_auto_resolution() -> None:
     problem = load_problem_ir(HEPING_FIXTURE)
     inputs = build_strategy_probe_inputs(problem)
@@ -5851,6 +6066,133 @@ def test_reconciler_selects_latest_prior_call_state_for_object_ref() -> None:
     }
     assert "promote_return_scope_for_object_consumers" in actions
     assert "select_latest_object_state" in actions
+
+
+def test_semantic_object_reads_prefer_branch_local_planned_producer() -> None:
+    problem = load_problem_ir(HEPING_FIXTURE)
+    inputs = replace(build_strategy_probe_inputs(problem), question_goals=[])
+    problem_payload = problem_to_llm_payload(problem)
+    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    context = initial_planner_state_context(
+        inputs,
+        problem_payload=problem_payload,
+        handle_registry=registry,
+    )
+    payload = {
+        "format": "functional_plan/v1",
+        "scopes": [
+            {
+                "scope_id": "i_1",
+                "label": "first branch",
+                "calls": [
+                    {
+                        "call_id": "first_intercept",
+                        "capability_id": "quadratic_y_axis_intercept_point",
+                        "args": {
+                            "quadratic": {
+                                "ref": "parabola",
+                                "kind": "function",
+                            }
+                        },
+                        "return_bindings": {
+                            "point": {"ref": "C", "kind": "point"}
+                        },
+                        "strategy": "derive a branch-local intercept",
+                        "reason": "provide the local source point",
+                    },
+                    {
+                        "call_id": "first_translation",
+                        "capability_id": "translated_point",
+                        "args": {
+                            "source": {"ref": "C", "kind": "point"}
+                        },
+                        "return_bindings": {
+                            "point": {"ref": "D", "kind": "point"}
+                        },
+                        "strategy": "translate the local source point",
+                        "reason": "exercise semantic state selection",
+                    },
+                ],
+            },
+            {
+                "scope_id": "ii",
+                "label": "second branch",
+                "calls": [
+                    {
+                        "call_id": "build_branch_curve",
+                        "capability_id": "quadratic_from_constraints",
+                        "args": {
+                            "curve_point": {
+                                "ref": "A",
+                                "kind": "point",
+                            },
+                            "free_parameters": {
+                                "ref": "a",
+                                "kind": "symbol",
+                            },
+                        },
+                        "return_bindings": {},
+                        "strategy": "materialize a branch-local curve",
+                        "reason": "use a distinct input state",
+                    },
+                    {
+                        "call_id": "second_intercept",
+                        "capability_id": "quadratic_y_axis_intercept_point",
+                        "args": {
+                            "quadratic": {
+                                "from_call": "build_branch_curve",
+                                "return": "parabola",
+                            }
+                        },
+                        "return_bindings": {
+                            "point": {"ref": "C", "kind": "point"}
+                        },
+                        "strategy": "derive the same object in this branch",
+                        "reason": "keep the sibling state isolated",
+                    },
+                    {
+                        "call_id": "second_translation",
+                        "capability_id": "translated_point",
+                        "args": {
+                            "source": {"ref": "C", "kind": "point"}
+                        },
+                        "return_bindings": {
+                            "point": {"ref": "D", "kind": "point"}
+                        },
+                        "strategy": "translate the second local source",
+                        "reason": "read the latest state in this branch",
+                    },
+                ],
+            },
+        ],
+    }
+    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
+        payload,
+        handle_registry=registry,
+        question_goals=(),
+    )
+    assert validation.ok and plan is not None
+
+    result = FunctionalPlanReconciler().reconcile(
+        plan,
+        planner_state_context=context,
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=registry,
+        question_goals=(),
+    )
+
+    assert result.ok, [item.to_payload() for item in result.issues]
+    assert result.state_finalization_mismatches == ()
+    calls = {item.call_id: item for item in result.calls}
+    assert calls["first_translation"].resolved_args["source"][
+        0
+    ].source_call_id == "first_intercept"
+    assert calls["second_translation"].resolved_args["source"][
+        0
+    ].source_call_id == "second_intercept"
+    assert calls["first_intercept"].returns[0].valid_scope != "problem"
+    assert calls["second_intercept"].returns[0].valid_scope == "ii"
 
 
 def test_reconciler_rejects_parameter_value_for_wrong_companion_symbol() -> None:
@@ -10021,6 +10363,297 @@ def test_typed_canonicalization_starts_new_binding_cluster_after_conflict() -> N
     )
 
 
+def test_typed_canonicalization_ignores_optional_binding_value_type() -> None:
+    untyped = SemanticRef(ref="target", kind="point")
+    typed = SemanticRef(ref="target", kind="point", value_type="Point")
+    _plan, result = _typed_quadratic_duplicate_graph(
+        first_bindings={"parabola": untyped},
+        second_bindings={"parabola": typed},
+    )
+    aliases, _, _, _, _, issues, _, _ = result
+
+    assert issues == ()
+    assert aliases == {"build_curve_second": "build_curve_first"}
+
+
+def test_typed_canonicalization_rewrites_aliased_input_versions() -> None:
+    inputs = _base_inputs()
+    catalog = FunctionalCapabilityCatalog.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
+    )
+    capability = catalog.items["quadratic_from_constraints"]
+    logical_key = LogicalStateKey(
+        MathObjectId(
+            "function:problem:parabola",
+            "function",
+            "problem",
+        ),
+        "expression",
+        "Parabola",
+    )
+    source_versions = (
+        StateVersionId(StateSlotId(logical_key, "ii_1"), 1),
+        StateVersionId(StateSlotId(logical_key, "ii_2"), 1),
+    )
+    result_versions = (
+        StateVersionId(StateSlotId(logical_key, "ii_1"), 2),
+        StateVersionId(StateSlotId(logical_key, "ii_2"), 2),
+    )
+    calls = tuple(
+        FunctionalCall(
+            call_id=call_id,
+            capability_id=capability.capability_id,
+            args={},
+            return_bindings={},
+            strategy="compute one pure state",
+            reason="exercise typed canonicalization",
+        )
+        for call_id in (
+            "source_first",
+            "source_second",
+            "consumer_first",
+            "consumer_second",
+        )
+    )
+
+    def allocation(
+        call_id: str,
+        *,
+        computation_key: ComputationKey,
+        version_id: StateVersionId,
+    ) -> FunctionalReturnAllocation:
+        return FunctionalReturnAllocation(
+            call_id=call_id,
+            return_name="parabola",
+            handle=f"fact:ii:{call_id}_parabola",
+            runtime_type="Parabola",
+            valid_scope="ii",
+            state_slot_id=(
+                "function:problem:parabola.expression@ii:Parabola"
+            ),
+            object_ref="function:problem:parabola",
+            identity_policy="preserve_input_object",
+            write_mode="transition",
+            logical_state_key=logical_key,
+            selected_version_id=version_id,
+            computation_key=computation_key,
+        )
+
+    source_key = ComputationKey(capability.capability_id)
+    reconciled = {
+        "source_first": FunctionalCallReconciliation(
+            call_id="source_first",
+            scope_id="ii",
+            capability_id=capability.capability_id,
+            resolved_args={},
+            returns=(
+                allocation(
+                    "source_first",
+                    computation_key=source_key,
+                    version_id=source_versions[0],
+                ),
+            ),
+        ),
+        "source_second": FunctionalCallReconciliation(
+            call_id="source_second",
+            scope_id="ii",
+            capability_id=capability.capability_id,
+            resolved_args={},
+            returns=(
+                allocation(
+                    "source_second",
+                    computation_key=source_key,
+                    version_id=source_versions[1],
+                ),
+            ),
+        ),
+    }
+    for index, call_id in enumerate(("consumer_first", "consumer_second")):
+        source_call_id = ("source_first", "source_second")[index]
+        computation_key = ComputationKey(
+            capability.capability_id,
+                (
+                    ArgVersionBinding(
+                        "parabola",
+                        0,
+                        version_id=source_versions[index],
+                    ),
+                ),
+        )
+        reconciled[call_id] = FunctionalCallReconciliation(
+            call_id=call_id,
+            scope_id="ii",
+            capability_id=capability.capability_id,
+            resolved_args={
+                "parabola": (
+                    ResolvedFunctionalValue(
+                        handle=f"fact:ii:{source_call_id}_parabola",
+                        runtime_type="Parabola",
+                        valid_scope="ii",
+                        source_call_id=source_call_id,
+                        state_version_id=source_versions[index],
+                    ),
+                )
+            },
+            returns=(
+                allocation(
+                    call_id,
+                    computation_key=computation_key,
+                    version_id=result_versions[index],
+                ),
+            ),
+        )
+    plan = FunctionalPlan(
+        scopes=(FunctionalScope("ii", "ii", calls),)
+    )
+
+    result = functional_call_placement_module._canonicalize_typed_calls(
+        plan,
+        source_scopes={call.call_id: "ii" for call in calls},
+        reconciled_by_id=reconciled,
+        catalog=catalog,
+        aliases={},
+        groups={call.call_id: (call.call_id,) for call in calls},
+        handle_registry=_registry(),
+    )
+    aliases, _, _, _, _, issues, _, _ = result
+
+    assert issues == ()
+    assert aliases == {
+        "source_second": "source_first",
+        "consumer_second": "consumer_first",
+    }
+
+
+def test_future_target_identity_flows_across_pure_computation_trees() -> None:
+    _problem, inputs, _payload, registry, context, _fixture = _xiqing_case()
+    payload = {
+        "format": "functional_plan/v1",
+        "scopes": [
+            {
+                "scope_id": "ii_1",
+                "label": "first branch",
+                "calls": [
+                    {
+                        "call_id": "build_curve_first",
+                        "capability_id": "quadratic_from_constraints",
+                        "args": {
+                            "curve_point": {"kind": "point", "ref": "A"},
+                            "free_parameters": {
+                                "kind": "symbol",
+                                "ref": "b",
+                            },
+                        },
+                        "return_bindings": {},
+                        "strategy": "build an open curve",
+                        "reason": "feed a target-object computation",
+                    },
+                    {
+                        "call_id": "derive_target_first",
+                        "capability_id": "point_on_parabola_at_x",
+                        "args": {
+                            "parabola": {
+                                "from_call": "build_curve_first",
+                                "return": "parabola",
+                            }
+                        },
+                        "return_bindings": {},
+                        "strategy": "compute the target point",
+                        "reason": "the sibling binds its identity",
+                    },
+                ],
+            },
+            {
+                "scope_id": "ii_2",
+                "label": "second branch",
+                "calls": [
+                    {
+                        "call_id": "build_curve_second",
+                        "capability_id": "quadratic_from_constraints",
+                        "args": {
+                            "curve_point": {"kind": "point", "ref": "A"},
+                            "free_parameters": {
+                                "kind": "symbol",
+                                "ref": "b",
+                            },
+                        },
+                        "return_bindings": {},
+                        "strategy": "build the same open curve",
+                        "reason": "exercise recursive computation identity",
+                    },
+                    {
+                        "call_id": "derive_target_second",
+                        "capability_id": "point_on_parabola_at_x",
+                        "args": {
+                            "parabola": {
+                                "from_call": "build_curve_second",
+                                "return": "parabola",
+                            }
+                        },
+                        "return_bindings": {
+                            "point": {"kind": "point", "ref": "D"}
+                        },
+                        "strategy": "compute the bound target point",
+                        "reason": "provide unique object identity evidence",
+                    },
+                ],
+            },
+        ],
+    }
+    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
+        payload,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+    assert validation.ok and plan is not None
+
+    prepared = functional_reconciliation_module._NormalizeElaborateScopeStage().run(
+        plan,
+        planner_state_context=context,
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+
+    assert prepared.future_return_object_hints[
+        ("derive_target_first", "point")
+    ] == ("point:ii:D",)
+
+
+def test_path_context_can_defer_unique_planned_point_visibility() -> None:
+    _problem, _inputs, _payload, registry, context, _fixture = _xiqing_case()
+    semantic_index = FunctionalSemanticIndex.from_context(
+        context,
+        handle_registry=registry,
+    )
+    planned = ResolvedFunctionalValue(
+        handle="fact:ii_1:target_coordinate",
+        runtime_type="Point",
+        valid_scope="ii_1",
+        object_ref="point:ii:D",
+        source_call_id="derive_target",
+    )
+    produced = {("derive_target", "point"): planned}
+
+    assert latest_point_state_for_object(
+        "point:ii:D",
+        scope_id="ii_2",
+        produced=produced,
+        semantic_index=semantic_index,
+        handle_registry=registry,
+    ) is None
+    assert latest_point_state_for_object(
+        "point:ii:D",
+        scope_id="ii_2",
+        produced=produced,
+        semantic_index=semantic_index,
+        handle_registry=registry,
+        allow_unique_planned_producer=True,
+    ) is planned
+
+
 def test_equal_length_ray_point_allocates_referenced_call_local_object() -> None:
     problem = load_problem_ir(HEPING_FIXTURE)
     inputs = build_strategy_probe_inputs(problem)
@@ -10600,13 +11233,20 @@ def test_reconciler_reuses_answer_producer_for_same_object_state_write() -> None
     }
     assert [call.call_id for call in result.plan.calls] == ["derive_axis_point"]
     assert any(
-        item["action"] == "merge_redundant_existing_state_call"
+        item["action"] == "merge_typed_equivalent_call"
         and item["call_id"] == "derive_axis_point_for_object"
         for item in result.elaboration["deterministic_repairs"]
     )
 
 
-def test_finalizer_rejects_same_object_creates_from_distinct_input_versions() -> None:
+@pytest.mark.parametrize(
+    ("second_scope", "expect_conflict"),
+    (("i", True), ("i_2", False)),
+)
+def test_finalizer_distinguishes_overlapping_and_sibling_object_states(
+    second_scope: str,
+    expect_conflict: bool,
+) -> None:
     inputs, _fixture, registry, context = _heping_ermo_case()
     inputs = replace(inputs, question_goals=[])
     payload = {
@@ -10637,8 +11277,8 @@ def test_finalizer_rejects_same_object_creates_from_distinct_input_versions() ->
                 ],
             },
             {
-                "scope_id": "i_2",
-                "label": "second question",
+                "scope_id": second_scope,
+                "label": "second state branch",
                 "calls": [
                     {
                         "call_id": "materialize_parabola",
@@ -10669,7 +11309,7 @@ def test_finalizer_rejects_same_object_creates_from_distinct_input_versions() ->
                             },
                         },
                         "strategy": "derive the same coordinate again",
-                        "reason": "reuse the point in a sibling question",
+                        "reason": "rewrite the point in an overlapping scope",
                     },
                 ],
             },
@@ -10682,18 +11322,77 @@ def test_finalizer_rejects_same_object_creates_from_distinct_input_versions() ->
     )
     assert validation.ok and plan is not None
 
-    with pytest.raises(
-        StrategyDraftValidationError,
-        match="state.logical_duplicate_writer",
-    ):
-        FunctionalPlanReconciler().reconcile(
-            plan,
-            planner_state_context=context,
-            family_spec=inputs.family_spec,
-            method_specs=inputs.method_specs,
-            handle_registry=registry,
-            question_goals=(),
-        )
+    if expect_conflict:
+        with pytest.raises(
+            StrategyDraftValidationError,
+            match="state.logical_duplicate_writer",
+        ):
+            FunctionalPlanReconciler().reconcile(
+                plan,
+                planner_state_context=context,
+                family_spec=inputs.family_spec,
+                method_specs=inputs.method_specs,
+                handle_registry=registry,
+                question_goals=(),
+            )
+        return
+
+    result = FunctionalPlanReconciler().reconcile(
+        plan,
+        planner_state_context=context,
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=registry,
+        question_goals=(),
+    )
+    assert result.ok
+    point_writes = [
+        allocation
+        for call in result.calls
+        for allocation in call.returns
+        if allocation.object_ref == "point:problem:A"
+    ]
+    assert {
+        allocation.typed_slot_id.storage_scope_id
+        for allocation in point_writes
+        if allocation.typed_slot_id is not None
+    } == {"i_1", "i_2"}
+
+
+def test_final_typed_allocation_orders_wire_consumer_after_producer() -> None:
+    producer = FunctionalCall(
+        call_id="produce_state",
+        capability_id="produce",
+        args={},
+        return_bindings={},
+        strategy="produce one state",
+        reason="supply a typed version",
+    )
+    consumer = FunctionalCall(
+        call_id="consume_state",
+        capability_id="consume",
+        args={
+            "state": (
+                CallResultRef("produce_state", "state"),
+            )
+        },
+        return_bindings={},
+        strategy="consume that state",
+        reason="exercise dependency ordering",
+    )
+
+    ordered = functional_call_placement_module._topological_calls(
+        (consumer, producer),
+        dependency_graph={
+            "consume_state": ("produce_state",),
+            "produce_state": (),
+        },
+    )
+
+    assert [call.call_id for call in ordered] == [
+        "produce_state",
+        "consume_state",
+    ]
 
 
 def test_reconciler_transfers_later_answer_to_earliest_object_producer() -> None:

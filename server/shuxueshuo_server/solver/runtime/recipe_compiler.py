@@ -1107,16 +1107,8 @@ class _RecipePlanCompiler:
             else None
         )
         if consumer is not None:
-            transformation_path = _path_for_readable_type(
-                self.index,
-                step,
-                "PathTransformation",
-            )
-            transformation_handle = _handle_for_runtime_path(
-                self.index,
-                step,
-                transformation_path,
-                expected_type="PathTransformation",
+            transformation_handle, _transformation_path = (
+                self._path_transformation_input(step)
             )
             PathTransformationStateResolver(
                 index=self.index,
@@ -1507,6 +1499,54 @@ class _RecipePlanCompiler:
             selected_items,
         )
         return result
+
+    def _path_transformation_input(
+        self,
+        step: StepIntent,
+    ) -> tuple[str, str]:
+        """Resolve a Functional transformation by producer, not shared path."""
+
+        exact = tuple(
+            item
+            for item in self.projected_state_dependencies
+            if item.step_id == step.step_id
+            and item.arg_name == "path_transformation"
+            and item.runtime_type is not None
+            and runtime_type_compatible(
+                "PathTransformation",
+                item.runtime_type,
+            )
+        )
+        if len(exact) > 1:
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: Functional "
+                "path_transformation dependency is ambiguous: "
+                f"step={step.step_id}, "
+                f"producers={[item.source_step_id for item in exact]}"
+            )
+        if exact:
+            handle = exact[0].produced_handle
+            return (
+                handle,
+                self.index.path_for(
+                    handle,
+                    expected_type="PathTransformation",
+                ),
+            )
+        path = _path_for_readable_type(
+            self.index,
+            step,
+            "PathTransformation",
+        )
+        return (
+            _handle_for_runtime_path(
+                self.index,
+                step,
+                path,
+                expected_type="PathTransformation",
+            ),
+            path,
+        )
 
     def _projected_exact_state_dependency_inputs(
         self,
@@ -1961,16 +2001,11 @@ class _RecipePlanCompiler:
         auxiliary = _temp(step.step_id, "auxiliary_point")
         minimum_point_1 = _temp(step.step_id, "minimum_point_1")
         minimum_point_2 = _temp(step.step_id, "minimum_point_2")
-        path_transformation = _path_for_first_type(
-            self.index,
-            step,
-            "PathTransformation",
-        )
-        path_transformation_handle = _handle_for_runtime_path(
-            self.index,
-            step,
+        (
+            path_transformation_handle,
             path_transformation,
-            expected_type="PathTransformation",
+        ) = self._path_transformation_input(
+            step,
         )
         straightening_inputs: dict[str, str] = {
             "path_transformation": path_transformation
@@ -2460,16 +2495,11 @@ class _RecipePlanCompiler:
 
     def _compile_broken_path_straightening_minimum_expression_recipe(self, step: StepIntent) -> _CompiledStep:
         """编译“折线拉直候选 + 选择方案 + 计算最小值表达式” recipe。"""
-        path_transformation = _path_for_readable_type(
-            self.index,
-            step,
-            "PathTransformation",
-        )
-        path_transformation_handle = _handle_for_runtime_path(
-            self.index,
-            step,
+        (
+            path_transformation_handle,
             path_transformation,
-            expected_type="PathTransformation",
+        ) = self._path_transformation_input(
+            step,
         )
         straightening_inputs: dict[str, str] = {}
         transformation_state = PathTransformationStateResolver(

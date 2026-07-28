@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
+import json
 
 from shuxueshuo_server.solver.runtime.functional_plan_models import (
     CallResultRef,
@@ -180,6 +181,30 @@ def infer_future_return_object_hints(
                 (*left_constants, *right_constants),
             )
 
+    # A target-object return keeps the same MathObject identity across state
+    # versions. Propagate that identity through recursively equivalent pure
+    # computations, while leaving exact version equivalence and call merging
+    # entirely to B2.
+    computation_fingerprints = _pure_computation_fingerprints(
+        plan,
+        catalog=catalog,
+    )
+    equivalent_returns: dict[tuple[str, str], _Node] = {}
+    for call in plan.calls:
+        capability = catalog.get(call.capability_id)
+        fingerprint = computation_fingerprints.get(call.call_id)
+        if capability is None or fingerprint is None:
+            continue
+        for returned in capability.returns:
+            if returned.identity_policy != "target_object":
+                continue
+            node = _return_node(call.call_id, returned.name, "object_ref")
+            previous = equivalent_returns.setdefault(
+                (fingerprint, returned.name),
+                node,
+            )
+            graph.union((previous, node))
+
     result: dict[tuple[str, str], tuple[str, ...]] = {}
     for call_id, call in calls.items():
         capability = catalog.get(call.capability_id)
@@ -243,6 +268,49 @@ def _arg_selection(
                 )
             )
     return unique_ordered(nodes), unique_ordered(constants)
+
+
+def _pure_computation_fingerprints(
+    plan: FunctionalPlan,
+    *,
+    catalog: object,
+) -> dict[str, str]:
+    result: dict[str, str] = {}
+    for call in plan.calls:
+        capability = catalog.get(call.capability_id)
+        if (
+            capability is None
+            or not capability.is_pure
+            or capability.dependency_policy == "context_closure"
+        ):
+            continue
+        args: dict[str, list[object]] = {}
+        for name, values in call.args.items():
+            projected: list[object] = []
+            for ref in values:
+                if isinstance(ref, CallResultRef):
+                    producer = result.get(ref.from_call)
+                    projected.append(
+                        {
+                            "producer_computation": producer,
+                            "producer_call": (
+                                None if producer is not None else ref.from_call
+                            ),
+                            "return": ref.return_name,
+                        }
+                    )
+                else:
+                    projected.append(ref.to_payload())
+            args[name] = projected
+        result[call.call_id] = json.dumps(
+            {
+                "capability_id": call.capability_id,
+                "args": args,
+            },
+            ensure_ascii=True,
+            sort_keys=True,
+        )
+    return result
 
 
 def _semantic_constants(

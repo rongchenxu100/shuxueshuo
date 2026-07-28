@@ -1261,10 +1261,14 @@ def _analyze_quadratic_coefficient_inputs(
     for name, path in inputs.items():
         try:
             if isinstance(path, tuple):
+                item_expected_type = (
+                    "Point" if name == "curve_points" else None
+                )
                 runtime_inputs[name] = [
                     index.context.read_path(
                         item_path,
                         from_scope_id=step.scope_id,
+                        expected_type=item_expected_type,
                     ).value
                     for item_path in path
                 ]

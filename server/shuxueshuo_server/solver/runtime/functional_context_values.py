@@ -67,6 +67,7 @@ def latest_point_state_for_object(
     produced: Mapping[tuple[str, str], ResolvedFunctionalValue],
     semantic_index: FunctionalSemanticIndex,
     handle_registry: CanonicalHandleRegistry,
+    allow_unique_planned_producer: bool = False,
 ) -> ResolvedFunctionalValue | None:
     dynamic = tuple(
         value
@@ -81,6 +82,27 @@ def latest_point_state_for_object(
     )
     if dynamic:
         return dynamic[-1]
+    if allow_unique_planned_producer:
+        planned = tuple(
+            value
+            for value in produced.values()
+            if value.runtime_type == "Point"
+            and value.object_ref == object_ref
+            and value.source_call_id is not None
+        )
+        producer_ids = unique_ordered(
+            value.source_call_id
+            for value in planned
+            if value.source_call_id is not None
+        )
+        if len(producer_ids) == 1:
+            producer_values = tuple(
+                value
+                for value in planned
+                if value.source_call_id == producer_ids[0]
+            )
+            if len(producer_values) == 1:
+                return producer_values[0]
     views = tuple(
         view
         for view in semantic_index.compatible_views(

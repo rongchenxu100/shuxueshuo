@@ -193,6 +193,7 @@ def resolve_path_reduction_args(
             produced=produced,
             semantic_index=semantic_index,
             handle_registry=handle_registry,
+            allow_unique_planned_producer=True,
         )
         if point is None:
             issues.append(
@@ -367,6 +368,7 @@ def resolve_square_path_transformation_args(
             produced=produced,
             semantic_index=semantic_index,
             handle_registry=handle_registry,
+            allow_unique_planned_producer=True,
         )
         if value is None:
             issues.append(
@@ -492,6 +494,7 @@ def resolve_weighted_path_transformation_args(
         produced=produced,
         semantic_index=semantic_index,
         handle_registry=handle_registry,
+        allow_unique_planned_producer=True,
     )
     if curve is None:
         return (

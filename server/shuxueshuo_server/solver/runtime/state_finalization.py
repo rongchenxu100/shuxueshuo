@@ -692,9 +692,16 @@ def project_functional_state_dependencies(
                 auto_arg is not None
                 and auto_arg.binding_authority == "compiler"
                 and selector_semantics(auto_arg.selector).mechanical
+                and all(
+                    value.state_version_id is None
+                    for value in values
+                )
             ):
                 # Compiler-owned target/reference arguments establish identity;
-                # they are not materialized state reads.
+                # they are not materialized state reads. A mechanical role
+                # that resolved to an actual StateVersion is different: the
+                # compiler must consume that exact version rather than infer a
+                # same-object state again from the flattened reads list.
                 continue
             if arg_name in functional_call.args:
                 source: Literal["wire", "resolver", "context"] = "wire"

@@ -281,6 +281,7 @@ class FunctionalCallPlacementService:
                 canonical_plan,
                 reconciled=materialized_calls,
                 catalog=catalog,
+                dependency_graph=canonical_dependencies,
                 execution_scopes=provisional_execution_scopes,
                 return_scopes=return_scopes,
                 identity_factory=identity_factory,
@@ -451,6 +452,13 @@ def _canonicalize_typed_calls(
     issues: list[FunctionalPlanIssue] = []
     transferred_bindings: dict[str, dict[str, SemanticRef]] = {}
     transferred_expectations: dict[str, dict[str, str]] = {}
+    version_aliases: dict[StateVersionId, StateVersionId] = {}
+    for duplicate_id, owner_id in aliases.items():
+        _register_return_version_aliases(
+            reconciled_by_id.get(duplicate_id),
+            reconciled_by_id.get(owner_id),
+            version_aliases=version_aliases,
+        )
 
     for call in plan.calls:
         if call.call_id in aliases:
@@ -463,6 +471,7 @@ def _canonicalize_typed_calls(
             item,
             capability=capability,
             aliases=aliases,
+            version_aliases=version_aliases,
         )
         if identity_key is None:
             continue
@@ -516,6 +525,12 @@ def _canonicalize_typed_calls(
                 registry=handle_registry,
             ):
                 continue
+            if not _resolved_arg_producers_compatible(
+                previous.resolved_args,
+                item.resolved_args,
+                aliases=aliases,
+            ):
+                continue
 
             expectation_owner = replace(
                 previous_call,
@@ -559,6 +574,11 @@ def _canonicalize_typed_calls(
             )
 
             aliases[call.call_id] = previous_id
+            _register_return_version_aliases(
+                item,
+                previous,
+                version_aliases=version_aliases,
+            )
             aliases = _canonical_aliases(aliases)
             groups.setdefault(previous_id, (previous_id,))
             groups[previous_id] = candidate_members
@@ -605,16 +625,58 @@ def _canonicalize_typed_calls(
     )
 
 
+def _resolved_arg_producers_compatible(
+    left: Mapping[str, tuple[ResolvedFunctionalValue, ...]],
+    right: Mapping[str, tuple[ResolvedFunctionalValue, ...]],
+    *,
+    aliases: Mapping[str, str],
+) -> bool:
+    """Reject a merge when exact state inputs come from distinct producers.
+
+    StateVersion identity remains the primary key. This guard catches the
+    provisional-allocation window where two sibling transitions temporarily
+    project to the same version before final placement replay. Once their
+    producers are canonical aliases they remain mergeable.
+    """
+
+    for arg_name in set(left) & set(right):
+        left_values = left[arg_name]
+        right_values = right[arg_name]
+        if len(left_values) != len(right_values):
+            return False
+        for left_value, right_value in zip(
+            left_values,
+            right_values,
+            strict=True,
+        ):
+            if (
+                left_value.source_call_id is None
+                or right_value.source_call_id is None
+            ):
+                continue
+            if _canonical(
+                left_value.source_call_id,
+                aliases,
+            ) != _canonical(
+                right_value.source_call_id,
+                aliases,
+            ):
+                return False
+    return True
+
+
 def _typed_call_identity_key(
     reconciliation: FunctionalCallReconciliation,
     *,
     capability: FunctionalCapability,
     aliases: Mapping[str, str] | None = None,
+    version_aliases: Mapping[StateVersionId, StateVersionId] | None = None,
 ) -> FunctionalCallIdentityKey | None:
     computation_keys = {
         _canonicalize_computation_key(
             item.computation_key,
             aliases=aliases or {},
+            version_aliases=version_aliases or {},
         )
         for item in reconciliation.returns
         if item.computation_key is not None
@@ -666,9 +728,11 @@ def _canonicalize_computation_key(
     key: ComputationKey | None,
     *,
     aliases: Mapping[str, str],
+    version_aliases: Mapping[StateVersionId, StateVersionId] | None = None,
 ) -> ComputationKey | None:
-    if key is None or not aliases:
+    if key is None:
         return key
+    version_aliases = version_aliases or {}
     bindings = []
     for binding in key.arg_bindings:
         call_result_id = binding.call_result_id
@@ -677,10 +741,41 @@ def _canonicalize_computation_key(
             call_result_id = (
                 f"{_canonical(call_id, aliases)}.{return_name}"
             )
+        version_id = binding.version_id
+        visited: set[StateVersionId] = set()
+        while version_id in version_aliases and version_id not in visited:
+            visited.add(version_id)
+            version_id = version_aliases[version_id]
         bindings.append(
-            replace(binding, call_result_id=call_result_id)
+            replace(
+                binding,
+                version_id=version_id,
+                call_result_id=call_result_id,
+            )
         )
     return replace(key, arg_bindings=tuple(bindings))
+
+
+def _register_return_version_aliases(
+    duplicate: FunctionalCallReconciliation | None,
+    owner: FunctionalCallReconciliation | None,
+    *,
+    version_aliases: dict[StateVersionId, StateVersionId],
+) -> None:
+    if duplicate is None or owner is None:
+        return
+    owner_returns = {item.return_name: item for item in owner.returns}
+    for item in duplicate.returns:
+        previous = owner_returns.get(item.return_name)
+        if (
+            item.selected_version_id is None
+            or previous is None
+            or previous.selected_version_id is None
+        ):
+            continue
+        version_aliases[item.selected_version_id] = (
+            previous.selected_version_id
+        )
 
 
 def _merged_return_bindings(
@@ -698,7 +793,11 @@ def _merged_return_bindings(
     ):
         left = merged.get(return_name)
         right = duplicate.return_bindings.get(return_name)
-        if left is None or right is None or left == right:
+        if (
+            left is None
+            or right is None
+            or _same_semantic_destination(left, right)
+        ):
             if left is None and right is not None:
                 merged[return_name] = right
             continue
@@ -709,6 +808,21 @@ def _merged_return_bindings(
         if right.kind == "answer":
             merged[return_name] = right
     return merged
+
+
+def _same_semantic_destination(
+    left: SemanticRef,
+    right: SemanticRef,
+) -> bool:
+    return (
+        left.kind == right.kind
+        and left.ref == right.ref
+        and (
+            left.value_type is None
+            or right.value_type is None
+            or left.value_type == right.value_type
+        )
+    )
 
 
 def _return_binding_conflict_issue(
@@ -723,7 +837,7 @@ def _return_binding_conflict_issue(
         ):
             left = previous.return_bindings[return_name]
             right = duplicate.return_bindings[return_name]
-            if left == right:
+            if _same_semantic_destination(left, right):
                 continue
             if (
                 left.kind == "answer"
@@ -1135,6 +1249,7 @@ def _finalize_typed_allocations(
     *,
     reconciled: Sequence[FunctionalCallReconciliation],
     catalog: FunctionalCapabilityCatalog,
+    dependency_graph: Mapping[str, tuple[str, ...]],
     execution_scopes: Mapping[str, str],
     return_scopes: Mapping[str, Mapping[str, str]],
     identity_factory: StateIdentityFactory,
@@ -1154,7 +1269,11 @@ def _finalize_typed_allocations(
     issues: list[FunctionalPlanIssue] = []
     result: list[FunctionalCallReconciliation] = []
 
-    for call in plan.calls:
+    ordered_calls = _topological_calls(
+        plan.calls,
+        dependency_graph=dependency_graph,
+    )
+    for call in ordered_calls:
         item = reconciled_by_id.get(call.call_id)
         capability = catalog.get(call.capability_id)
         if item is None or capability is None:
@@ -1350,6 +1469,47 @@ def _finalize_typed_allocations(
             )
         )
     return tuple(result), tuple(rewrites), tuple(issues)
+
+
+def _topological_calls(
+    calls: Sequence[FunctionalCall],
+    *,
+    dependency_graph: Mapping[str, tuple[str, ...]],
+) -> tuple[FunctionalCall, ...]:
+    """Order allocation replay by the complete typed dependency graph."""
+
+    call_by_id = {call.call_id: call for call in calls}
+    original_rank = {
+        call.call_id: index for index, call in enumerate(calls)
+    }
+    pending = set(call_by_id)
+    ordered: list[FunctionalCall] = []
+    while pending:
+        ready = min(
+            (
+                call_id
+                for call_id in pending
+                if not (
+                    set(dependency_graph.get(call_id, ())) & pending
+                )
+            ),
+            key=original_rank.__getitem__,
+            default=None,
+        )
+        if ready is None:
+            # Reconciliation reports cycles separately. Preserve a stable
+            # remainder here so final allocation stays deterministic.
+            ordered.extend(
+                call_by_id[call_id]
+                for call_id in sorted(
+                    pending,
+                    key=original_rank.__getitem__,
+                )
+            )
+            break
+        ordered.append(call_by_id[ready])
+        pending.remove(ready)
+    return tuple(ordered)
 
 
 def _rewrite_resolved_value_versions(
