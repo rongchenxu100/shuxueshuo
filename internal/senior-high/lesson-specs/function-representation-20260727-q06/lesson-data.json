@@ -1,0 +1,48 @@
+{
+  "$schema": "../../../schemas/lesson-data.schema.json",
+  "meta": {
+    "id": "function-representation-20260727-q06",
+    "outputPath": "site/problems/senior-high/functions/function-representation/function-representation-20260727-q06.html",
+    "pageTitle": "函数的表示法第 6 题：用一次函数模型构造解析式",
+    "pageDescription": "设函数为一次函数，代入函数方程并比较系数，得到一个满足条件的解析式。",
+    "breadcrumbTitle": "函数表示法第 6 题",
+    "breadcrumbLabel": "高中题库",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "classification": { "pattern": "function-representation", "methods": ["linear-function-ansatz", "coefficient-comparison", "identity-check"] },
+    "curriculum": {
+      "chapterLabel": "第三章 函数的概念与性质",
+      "sectionLabel": "3.1 函数的概念及其表示",
+      "subsectionLabel": "3.1.2 函数的表示法",
+      "groupId": "function-concept",
+      "groupLabel": "函数的解析式"
+    }
+  },
+  "problem": {
+    "source": "2026 福建宁德期末",
+    "keyPoints": {
+      "title": "解题要点",
+      "items": ["同类“写出一个解析式”的函数方程，可以先假设函数是一次函数 \\(f(x)=kx+b\\)（\\(k≠0\\)），再代入比较系数；", "若得到一族满足条件的函数，只需选取一组允许的参数，写出其中一个解析式。"]
+    },
+    "lines": [
+      {
+        "text": "已知函数 \\(f(x)\\) 满足：对任意实数 \\(x,y\\)，都有 \\(f(x+y)=f(x)+f(y)+1\\) 成立，写出函数 \\(f(x)\\) 的一个解析式：______。",
+        "answerId": "answerI",
+        "answer": "例如 \\(f(x)=x-1\\)"
+      }
+    ]
+  },
+  "ui": { "legend": [], "sliderLabel": "参数", "paramLabelPrefix": "", "goToProblemMode": "smooth", "groupTitles": { "构造": "设一次函数并比较系数" } },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "构造",
+      "title": "设一次函数并比较系数",
+      "t": 0,
+      "showDiagram": false,
+      "derive": [["设", "\\(f(x)=kx+b\\)（\\(k≠0\\)）"], ["代入", "\\(k(x+y)+b=(kx+b)+(ky+b)+1\\)"], ["比较", "恒等式两边比较常数项，得 \\(b=-1\\)"], ["取", "\\(k=1\\)，得到 \\(f(x)=x-1\\)"]],
+      "box": ["设函数形式，代入恒等式比较系数，再选取一组允许的参数"]
+    }
+  ],
+  "policies": { "s1": { "movable": false, "range": [0, 0] } },
+  "stepLabels": { "s1": "1 设一次函数并比较系数" }
+}

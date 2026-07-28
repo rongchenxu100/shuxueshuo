@@ -1,0 +1,16 @@
+{
+  "$schema": "../../schemas/function-spec.schema.json",
+  "version": 1,
+  "id": "function-representation-20260727-q04",
+  "panels": [
+    {
+      "id": "substitution-note",
+      "kind": "constraintList",
+      "title": "换元中的范围约束",
+      "viewport": { "x": 0.10, "y": 0.18, "width": 0.80, "height": 0.64 },
+      "constraints": [
+        { "id": "range", "label": "新变量", "expression": "t=x²+1", "result": "t≥1" }
+      ]
+    }
+  ]
+}

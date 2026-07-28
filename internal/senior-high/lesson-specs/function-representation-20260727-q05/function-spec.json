@@ -1,0 +1,17 @@
+{
+  "$schema": "../../schemas/function-spec.schema.json",
+  "version": 1,
+  "id": "function-representation-20260727-q05",
+  "panels": [
+    {
+      "id": "equations",
+      "kind": "constraintList",
+      "title": "互为倒数的两次赋值",
+      "viewport": { "x": 0.10, "y": 0.18, "width": 0.80, "height": 0.64 },
+      "constraints": [
+        { "id": "at-four", "label": "x=4", "expression": "4f(1/4)-f(4)=12", "result": "式①" },
+        { "id": "at-quarter", "label": "x=1/4", "expression": "f(4)-f(1/4)=3/4", "result": "式②" }
+      ]
+    }
+  ]
+}

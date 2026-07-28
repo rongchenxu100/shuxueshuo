@@ -1,0 +1,17 @@
+{
+  "$schema": "../../schemas/function-spec.schema.json",
+  "version": 1,
+  "id": "function-representation-20260727-q01",
+  "panels": [
+    {
+      "id": "function-table",
+      "kind": "valueTable",
+      "title": "函数 f(x) 的列表表示",
+      "viewport": { "x": 0.06, "y": 0.18, "width": 0.88, "height": 0.64 },
+      "columns": ["x", "x≤0", "0<x<2", "x≥2"],
+      "rows": [
+        { "id": "row-f", "cells": ["f(x)", "1", "2", "3"] }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>函数的表示法第 5 题：特殊赋值求函数值 | 数学说</title>
+  <meta name="description" content="利用互为倒数的两个特殊输入建立方程组，求指定函数值。" />
+  <meta property="og:title" content="函数的表示法第 5 题：特殊赋值求函数值 | 数学说" />
+  <meta property="og:description" content="利用互为倒数的两个特殊输入建立方程组，求指定函数值。" />
+  <meta property="og:image" content="../../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css?v=2" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../../senior-high/index.html">高中题库</a>
+    <span class="lesson-title">函数表示法第 5 题</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          <div class="problem-full">
+            <div class="problem-line"><span><span class="problem-source-inline">（2026 山东滕州第一中学月考）</span>若函数 <span class="inline-math">y=f(x)</span> 满足 <span class="inline-math">2<span class="math-radical"><span class="math-radical-symbol">√</span><span class="math-radicand">x</span></span>f(<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">x</span></span>)-f(x)=3x</span>，则 <span class="inline-math">f(<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">4</span></span>)=</span>______。</span><span class="answer-chip" id="answerI"><span class="inline-math"><span class="math-fraction"><span class="math-numerator">17</span><span class="math-denominator">4</span></span></span></span></div>
+          </div>
+        </section>
+
+        <aside class="lesson-key-points" aria-label="解题要点"><div class="lesson-key-points-title">解题要点</div><div class="lesson-key-points-content"><ol><li>目标是 <span class="inline-math">f(<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">4</span></span>)</span>，可选取互为倒数的 <span class="inline-math">4</span> 与 <span class="inline-math"><span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">4</span></span></span>；</li><li>两次赋值让同一组函数值反复出现，从而可联立消元。</li></ol></div></aside>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../../assets/js/lesson-page-runtime.js?v=2"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"s1","section":"求值","title":"取互为倒数的输入并联立","t":0,"showDiagram":false,"derive":[["令 x=4","\\(4f(\\frac{1}{4})-f(4)=12\\)"],["令 x=1/4","\\(f(4)-f(\\frac{1}{4})=\\frac{3}{4}\\)"],["两式相加","\\(3f(\\frac{1}{4})=\\frac{51}{4}\\)"],["∴","\\(f(\\frac{1}{4})=\\frac{17}{4}\\)"]],"box":["特殊赋值的目标是让未知函数值组成可解的方程组"]}];
+    var STEP_LABELS = {"s1":"1 特殊赋值并联立"};
+    var POLICIES   = {"s1":{"movable":false,"range":[0,0]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 滑块主参数与派生参数的联动文案格式化器 */
+    var __LESSON_PARAM_LABEL_FORMATTER__;
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script type="application/json" id="functionSpec">{"$schema":"../../schemas/function-spec.schema.json","version":1,"id":"function-representation-20260727-q05","panels":[{"id":"equations","kind":"constraintList","title":"互为倒数的两次赋值","viewport":{"x":0.1,"y":0.18,"width":0.8,"height":0.64},"constraints":[{"id":"at-four","label":"x=4","expression":"4f(1/4)-f(4)=12","result":"式①"},{"id":"at-quarter","label":"x=1/4","expression":"f(4)-f(1/4)=3/4","result":"式②"}]}]}</script>
+<script src="../../../../assets/js/math-expression-engine.js"></script>
+<script src="../../../../assets/js/function-lesson-from-spec.js?v=3"></script>
+
+<script>
+  const __FUNCTION_SPEC__ = JSON.parse(document.getElementById('functionSpec').textContent);
+  const __FUNCTION_DECORATIONS__ = {"$schema":"../../schemas/function-decorations.schema.json","version":1,"steps":{"s1":{"visiblePanels":[]}}};
+  const renderer = FunctionLessonFromSpec.createSpecRenderer(__FUNCTION_SPEC__, __FUNCTION_DECORATIONS__, STEPS, POLICIES);
+  function groupTitle(section) {
+    const map = {"求值":"围绕目标作特殊赋值"};
+    return Object.prototype.hasOwnProperty.call(map, section) ? map[section] : section;
+  }
+  var diagramMarkupFor = renderer.diagramMarkupFor;
+  var diagramMarkupForFrame = renderer.diagramMarkupForFrame;
+  var drawMini = renderer.drawMini;
+  var __LESSON_LEGEND_HTML__ = "";
+
+  var __AFTER_RENDER_ALL_STEPS__ = renderer.renderOriginalFigures;
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      diagramMarkupForFrame: typeof diagramMarkupForFrame === "function" ? diagramMarkupForFrame : undefined,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "参数",
+      paramLabelPrefix: "",
+      paramLabelFormatter: typeof __LESSON_PARAM_LABEL_FORMATTER__ === "function" ? __LESSON_PARAM_LABEL_FORMATTER__ : undefined,
+      goToProblemMode: "smooth"
+    });
+  </script>
+</body>
+</html>

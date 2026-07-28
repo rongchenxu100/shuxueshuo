@@ -245,13 +245,22 @@
     var out = "";
     (intervals || []).forEach(function (interval) {
       var commands = [];
+      var penDown = false;
       for (var index = 0; index <= 220; index += 1) {
         var x = interval.min + ((interval.max - interval.min) * index) / 220;
         var y;
         try { y = functionValue(definition, x, env); } catch (_error) { y = NaN; }
-        if (!Number.isFinite(y)) continue;
+        if (
+          !Number.isFinite(y)
+          || y < layout.domain.minY
+          || y > layout.domain.maxY
+        ) {
+          penDown = false;
+          continue;
+        }
         var point = layout.point(x, y);
-        commands.push((commands.length ? "L" : "M") + point.x.toFixed(2) + "," + point.y.toFixed(2));
+        commands.push((penDown ? "L" : "M") + point.x.toFixed(2) + "," + point.y.toFixed(2));
+        penDown = true;
       }
       if (commands.length) {
         out += '<path d="' + commands.join(" ") + '" fill="none" stroke="' + style.stroke + '" stroke-width="' + style.strokeWidth + '" stroke-linecap="round" opacity="' + (style.opacity || 1) + '" />';
@@ -272,12 +281,31 @@
     return intersections;
   }
 
-  function renderFunctionGraph(panel, box, decoration, state, candidateOverride) {
-    var out = panelFrame(panel, box);
+  function renderFunctionGraph(panel, box, decoration, state, candidateOverride, options) {
+    var originalFigure = options && options.originalFigure;
+    var originalFigureScale = options && options.originalFigureScale;
+    var detailOriginalFigure = originalFigure && originalFigureScale === "detail";
+    var tickFontSize = detailOriginalFigure ? 36 : (originalFigure ? 22 : 13);
+    var axisLabelFontSize = detailOriginalFigure ? 42 : (originalFigure ? 28 : 14);
+    var originFontSize = detailOriginalFigure ? 32 : (originalFigure ? 21 : 13);
+    var pointLabelFontSize = detailOriginalFigure
+      ? 28
+      : (originalFigure ? 18 : Number(panel.pointLabelFontSize || 13));
+    var axisStrokeWidth = detailOriginalFigure ? 3 : (originalFigure ? 2 : 1.4);
+    var curveStrokeWidth = detailOriginalFigure ? 8 : (originalFigure ? 5 : 4);
+    var axisColor = originalFigure ? "#64748b" : "#94a3b8";
+    var axisLabelColor = originalFigure ? "#475569" : "#64748b";
+    var out = panelFrame(panel, box, options);
     var functionDefinitions = panel.functions && panel.functions.length ? panel.functions : [panel.function];
     var activeFunctionId = candidateOverride || decoration.activeCandidateId;
     var activeFunction = functionDefinitions.find(function (definition) { return definition && definition.id === activeFunctionId; }) || functionDefinitions[0];
     if (!activeFunction) return out;
+    var renderedFunctions = panel.renderAllFunctions
+      ? functionDefinitions.filter(function (definition) {
+          return definition && elementVisible(definition.id, decoration);
+        })
+      : [activeFunction];
+    if (!renderedFunctions.length) renderedFunctions = [activeFunction];
     var layout = graphLayout(panel, box);
     var domain = layout.domain;
     var inner = layout.inner;
@@ -294,22 +322,22 @@
     }
     var axisY = toPoint(0, 0).y;
     var axisX = toPoint(0, 0).x;
-    out += '<line x1="' + inner.x + '" y1="' + axisY + '" x2="' + (inner.x + inner.width) + '" y2="' + axisY + '" stroke="#94a3b8" stroke-width="1.4" />';
-    out += '<line x1="' + axisX + '" y1="' + inner.y + '" x2="' + axisX + '" y2="' + (inner.y + inner.height) + '" stroke="#94a3b8" stroke-width="1.4" />';
+    out += '<line x1="' + inner.x + '" y1="' + axisY + '" x2="' + (inner.x + inner.width) + '" y2="' + axisY + '" stroke="' + axisColor + '" stroke-width="' + axisStrokeWidth + '" />';
+    out += '<line x1="' + axisX + '" y1="' + inner.y + '" x2="' + axisX + '" y2="' + (inner.y + inner.height) + '" stroke="' + axisColor + '" stroke-width="' + axisStrokeWidth + '" />';
     if (panel.showAxisTicks) {
       for (var xTick = Math.ceil(domain.minX); xTick <= Math.floor(domain.maxX); xTick += gridStepX) {
         if (Math.abs(xTick) < 1e-9) continue;
         var xTickPoint = toPoint(xTick, 0);
         out += '<line x1="' + xTickPoint.x + '" y1="' + (axisY - 5) + '" x2="' + xTickPoint.x + '" y2="' + (axisY + 5) + '" stroke="#64748b" />';
-        out += '<text data-axis-tick="x" x="' + xTickPoint.x + '" y="' + (axisY + 22) + '" text-anchor="middle" font-size="13" fill="#475569">' + formatNumber(xTick) + '</text>';
+        out += '<text data-axis-tick="x" x="' + xTickPoint.x + '" y="' + (axisY + tickFontSize * 1.55) + '" text-anchor="middle" font-size="' + tickFontSize + '" fill="#334155">' + formatNumber(xTick) + '</text>';
       }
       for (var yTick = Math.ceil(domain.minY); yTick <= Math.floor(domain.maxY); yTick += gridStepY) {
         if (Math.abs(yTick) < 1e-9) continue;
         var yTickPoint = toPoint(0, yTick);
         out += '<line x1="' + (axisX - 5) + '" y1="' + yTickPoint.y + '" x2="' + (axisX + 5) + '" y2="' + yTickPoint.y + '" stroke="#64748b" />';
-        out += '<text data-axis-tick="y" x="' + (axisX - 9) + '" y="' + (yTickPoint.y + 4) + '" text-anchor="end" font-size="13" fill="#475569">' + formatNumber(yTick) + '</text>';
+        out += '<text data-axis-tick="y" x="' + (axisX - 10) + '" y="' + (yTickPoint.y + tickFontSize * 0.34) + '" text-anchor="end" font-size="' + tickFontSize + '" fill="#334155">' + formatNumber(yTick) + '</text>';
       }
-      out += '<text x="' + (axisX - 9) + '" y="' + (axisY + 18) + '" text-anchor="end" font-size="13" fill="#64748b">O</text>';
+      out += '<text data-axis-origin x="' + (axisX - 10) + '" y="' + (axisY + originFontSize * 1.25) + '" text-anchor="end" font-size="' + originFontSize + '" fill="#475569">O</text>';
     }
     (panel.referenceLines || []).forEach(function (referenceLine) {
       var color = referenceLine.color || "#f59e0b";
@@ -355,38 +383,75 @@
         out += '<text x="' + (dr - 18) + '" y="' + (axisY + 30) + '" text-anchor="end" font-size="14" font-weight="700" fill="#0f766e">' + esc(di.maxLabel || "+∞") + '</text>';
       }
     }
-    var activeRange = activeFunction.range || panel.range;
+    var activeRange = panel.renderAllFunctions ? panel.range : (activeFunction.range || panel.range);
     if (decoration.showRange && activeRange && activeRange[0]) {
       var ri = activeRange[0];
       var rt = toPoint(0, ri.max).y;
       var rb = toPoint(0, ri.min).y;
       out += '<rect x="' + inner.x + '" y="' + rt + '" width="' + inner.width + '" height="' + (rb - rt) + '" fill="#ede9fe" opacity="0.35" />';
     }
-    var intervals = activeFunction.intervals || [{ min: domain.minX, max: domain.maxX }];
-    if (decoration.highlightStudyInterval && panel.studyIntervals && panel.studyIntervals.length) {
-      out += renderFunctionPaths(activeFunction, intervals, layout, state.env, {
-        stroke: "#a1a1aa",
-        strokeWidth: 2.5,
-        opacity: 0.8
-      });
-      out += renderFunctionPaths(
-        activeFunction,
-        intersectIntervals(intervals, panel.studyIntervals),
-        layout,
-        state.env,
-        { stroke: "#0f766e", strokeWidth: 5, opacity: 1 }
-      );
-    } else {
-      out += renderFunctionPaths(activeFunction, intervals, layout, state.env, {
-        stroke: "#2563eb",
-        strokeWidth: 4,
-        opacity: 1
-      });
-    }
+    renderedFunctions.forEach(function (definition) {
+      var intervals = definition.intervals || [{ min: domain.minX, max: domain.maxX }];
+      if (decoration.highlightStudyInterval && panel.studyIntervals && panel.studyIntervals.length) {
+        out += renderFunctionPaths(definition, intervals, layout, state.env, {
+          stroke: "#a1a1aa",
+          strokeWidth: 2.5,
+          opacity: 0.8
+        });
+        out += renderFunctionPaths(
+          definition,
+          intersectIntervals(intervals, panel.studyIntervals),
+          layout,
+          state.env,
+          { stroke: "#0f766e", strokeWidth: Math.max(5, curveStrokeWidth), opacity: 1 }
+        );
+      } else {
+        out += renderFunctionPaths(definition, intervals, layout, state.env, {
+          stroke: "#2563eb",
+          strokeWidth: curveStrokeWidth,
+          opacity: 1
+        });
+      }
+    });
+    var visiblePoints = (panel.points || []).filter(function (point) {
+      return elementVisible(point.id, decoration);
+    });
+    visiblePoints.forEach(function (point) {
+      var pointPosition = toPoint(point.x, point.y);
+      var pointColor = elementHighlighted(point.id, decoration) ? "#f59e0b" : "#0f766e";
+      out += '<circle cx="' + pointPosition.x + '" cy="' + pointPosition.y + '" r="7" fill="' + (point.open ? "#fff" : pointColor) + '" stroke="' + pointColor + '" stroke-width="3" />';
+      if (point.label) {
+        out += '<text x="' + (pointPosition.x + Number(point.labelDx || 10)) + '" y="' + (pointPosition.y + Number(point.labelDy || -10)) + '" font-size="' + pointLabelFontSize + '" font-weight="700" fill="' + pointColor + '">' + renderSvgMathLabel(point.label) + '</text>';
+      }
+    });
     var xValue = state.parameterValue;
-    var yValue = functionValue(activeFunction, xValue, state.env);
-    if (Number.isFinite(yValue)) {
+    var movingFunction = activeFunction;
+    var movingPointInDomain = true;
+    if (panel.renderAllFunctions) {
+      movingFunction = renderedFunctions.find(function (definition) {
+        return (definition.intervals || [{ min: domain.minX, max: domain.maxX }]).some(function (interval) {
+          var aboveMin = interval.openMin ? xValue > interval.min : xValue >= interval.min;
+          var belowMax = interval.openMax ? xValue < interval.max : xValue <= interval.max;
+          return aboveMin && belowMax;
+        });
+      }) || null;
+      movingPointInDomain = Boolean(movingFunction);
+      if (!movingFunction) {
+        movingFunction = activeFunction;
+      }
+    }
+    var yValue = functionValue(movingFunction, xValue, state.env);
+    if (
+      !originalFigure
+      && decoration.showMovingPoint !== false
+      && movingPointInDomain
+      && Number.isFinite(yValue)
+    ) {
       var moving = toPoint(xValue, yValue);
+      var matchingPoint = visiblePoints.find(function (point) {
+        return Math.abs(point.x - xValue) < 1e-9
+          && Math.abs(point.y - yValue) < 1e-9;
+      });
       if (decoration.showVerticalTest) {
         out += '<line x1="' + moving.x + '" y1="' + inner.y + '" x2="' + moving.x + '" y2="' + (inner.y + inner.height) + '" stroke="#f59e0b" stroke-width="2.5" stroke-dasharray="8 6" />';
         out += '<text x="' + (moving.x + 8) + '" y="' + (inner.y + 18) + '" font-size="13" font-weight="700" fill="#b45309">唯一交点</text>';
@@ -395,32 +460,58 @@
         out += '<line x1="' + moving.x + '" y1="' + moving.y + '" x2="' + moving.x + '" y2="' + axisY + '" stroke="#0f766e" stroke-width="2" stroke-dasharray="6 5" />';
         out += '<line x1="' + moving.x + '" y1="' + moving.y + '" x2="' + axisX + '" y2="' + moving.y + '" stroke="#7c3aed" stroke-width="2" stroke-dasharray="6 5" />';
       }
-      out += '<circle cx="' + moving.x + '" cy="' + moving.y + '" r="8" fill="#fff" stroke="#0f766e" stroke-width="4" />';
-      out += '<text x="' + (moving.x + 12) + '" y="' + (moving.y - 12) + '" font-size="15" font-weight="700" fill="#0f766e">(' + esc(formatNumber(xValue)) + ', ' + esc(formatNumber(yValue)) + ')</text>';
+      if (!matchingPoint) {
+        out += '<circle cx="' + moving.x + '" cy="' + moving.y + '" r="' + (decoration.fillMovingPoint ? 7 : 8) + '" fill="' + (decoration.fillMovingPoint ? "#0f766e" : "#fff") + '" stroke="#0f766e" stroke-width="' + (decoration.fillMovingPoint ? 3 : 4) + '" />';
+        out += '<text x="' + (moving.x + 12) + '" y="' + (moving.y - 12) + '" font-size="' + Math.max(15, pointLabelFontSize) + '" font-weight="700" fill="#0f766e">(' + esc(formatNumber(xValue)) + ', ' + esc(formatNumber(yValue)) + ')</text>';
+      }
     }
-    out += '<text x="' + (inner.x + inner.width - 4) + '" y="' + (axisY - 8) + '" text-anchor="end" font-size="14" font-style="italic" fill="#64748b">' + esc(activeFunction.variable || "x") + '</text>';
-    out += '<text x="' + (axisX + 9) + '" y="' + (inner.y + 15) + '" font-size="14" font-style="italic" fill="#64748b">y</text>';
-    out += '<text x="' + (box.x + box.width - 28) + '" y="' + (box.y + 31) + '" text-anchor="end" font-size="15" fill="#2563eb">' + renderSvgMathLabel(activeFunction.label) + '</text>';
+    out += '<text data-axis-label="x" x="' + (inner.x + inner.width - 4) + '" y="' + (axisY - 10) + '" text-anchor="end" font-size="' + axisLabelFontSize + '" font-style="italic" fill="' + axisLabelColor + '">' + esc(movingFunction.variable || "x") + '</text>';
+    out += '<text data-axis-label="y" x="' + (axisX + 10) + '" y="' + (inner.y + axisLabelFontSize * 0.9) + '" font-size="' + axisLabelFontSize + '" font-style="italic" fill="' + axisLabelColor + '">y</text>';
+    if (!originalFigure && !panel.renderAllFunctions) {
+      out += '<text x="' + (box.x + box.width - 28) + '" y="' + (box.y + 31) + '" text-anchor="end" font-size="15" fill="#2563eb">' + renderSvgMathLabel(activeFunction.label) + '</text>';
+    }
     return out;
   }
 
-  function renderValueTable(panel, box, decoration) {
-    var out = panelFrame(panel, box);
+  function renderValueTable(panel, box, decoration, options) {
+    var originalFigure = options && options.originalFigure;
+    var out = panelFrame(panel, box, options);
     var columns = panel.columns || [];
     var rows = (panel.rows || []).filter(function (row) { return elementVisible(row.id, decoration); });
-    var left = box.x + 28;
-    var top = box.y + 62;
-    var width = box.width - 56;
+    var left = box.x + (originalFigure ? 32 : 28);
+    var width = box.width - (originalFigure ? 64 : 56);
+    var rowCount = Math.max(1, rows.length + 1);
+    var rowHeight = originalFigure
+      ? Math.min(128, (box.height - 64) / rowCount)
+      : 48;
+    var top = originalFigure
+      ? box.y + (box.height - rowHeight * rowCount) / 2
+      : box.y + 62;
     var columnWidth = width / Math.max(1, columns.length);
+    function visualTextLength(cell) {
+      return Array.from(String(cell)).reduce(function (total, character) {
+        return total + (character.charCodeAt(0) > 255 ? 1 : 0.58);
+      }, 0);
+    }
+    var maxTextLength = Math.max.apply(null, columns.concat(
+      rows.flatMap(function (row) { return row.cells || []; })
+    ).map(visualTextLength));
+    var fittedFontSize = Math.floor(
+      (columnWidth - 16) / Math.max(1, maxTextLength * 0.92)
+    );
+    var originalFontSize = Math.max(14, Math.min(42, fittedFontSize));
+    var headerFontSize = originalFigure ? originalFontSize : 17;
+    var bodyFontSize = originalFigure ? originalFontSize : 18;
     columns.forEach(function (column, index) {
-      out += '<rect x="' + (left + index * columnWidth) + '" y="' + top + '" width="' + columnWidth + '" height="45" fill="#ecfdf5" stroke="#cbd5e1" />';
-      out += '<text x="' + (left + (index + 0.5) * columnWidth) + '" y="' + (top + 30) + '" text-anchor="middle" font-size="17" font-weight="700" fill="#0f766e">' + esc(column) + '</text>';
+      out += '<rect data-table-role="header" x="' + (left + index * columnWidth) + '" y="' + top + '" width="' + columnWidth + '" height="' + rowHeight + '" fill="#ecfdf5" stroke="#94a3b8" stroke-width="' + (originalFigure ? 2 : 1) + '" />';
+      out += '<text data-table-role="header" x="' + (left + (index + 0.5) * columnWidth) + '" y="' + (top + rowHeight * 0.62) + '" text-anchor="middle" font-size="' + headerFontSize + '" font-weight="700" fill="#0f766e">' + esc(column) + '</text>';
     });
     rows.forEach(function (row, rowIndex) {
       row.cells.forEach(function (cell, columnIndex) {
         var active = elementHighlighted(row.id, decoration);
-        out += '<rect x="' + (left + columnIndex * columnWidth) + '" y="' + (top + 45 + rowIndex * 50) + '" width="' + columnWidth + '" height="50" fill="' + (active ? "#fef3c7" : "#fff") + '" stroke="#e2e8f0" />';
-        out += '<text x="' + (left + (columnIndex + 0.5) * columnWidth) + '" y="' + (top + 77 + rowIndex * 50) + '" text-anchor="middle" font-size="18" fill="#27272a">' + esc(cell) + '</text>';
+        var rowTop = top + rowHeight * (rowIndex + 1);
+        out += '<rect data-table-role="body" x="' + (left + columnIndex * columnWidth) + '" y="' + rowTop + '" width="' + columnWidth + '" height="' + rowHeight + '" fill="' + (active ? "#fef3c7" : "#fff") + '" stroke="#94a3b8" stroke-width="' + (originalFigure ? 2 : 1) + '" />';
+        out += '<text data-table-role="body" x="' + (left + (columnIndex + 0.5) * columnWidth) + '" y="' + (rowTop + rowHeight * 0.62) + '" text-anchor="middle" font-size="' + bodyFontSize + '" font-weight="' + (originalFigure ? 650 : 400) + '" fill="#27272a">' + esc(cell) + '</text>';
       });
     });
     return out;
@@ -454,20 +545,20 @@
     out += '<defs><marker id="' + arrowId + '" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="' + axisColor + '" /></marker></defs>';
     out += '<line x1="' + inner.x + '" y1="' + axisY + '" x2="' + (inner.x + inner.width) + '" y2="' + axisY + '" stroke="' + axisColor + '" stroke-width="1.8" marker-end="url(#' + arrowId + ')" />';
     out += '<line x1="' + axisX + '" y1="' + (inner.y + inner.height) + '" x2="' + axisX + '" y2="' + inner.y + '" stroke="' + axisColor + '" stroke-width="1.8" marker-end="url(#' + arrowId + ')" />';
-    out += '<text x="' + (inner.x + inner.width - 2) + '" y="' + (axisY + 38) + '" text-anchor="end" font-size="' + axisLabelFontSize + '" font-style="italic" fill="' + axisColor + '">x</text>';
-    out += '<text x="' + (axisX - 15) + '" y="' + (inner.y + 30) + '" text-anchor="end" font-size="' + axisLabelFontSize + '" font-style="italic" fill="' + axisColor + '">y</text>';
+    out += '<text data-axis-label="x" x="' + (inner.x + inner.width + 12) + '" y="' + (axisY - 10) + '" text-anchor="start" font-size="' + axisLabelFontSize + '" font-style="italic" fill="' + axisColor + '">x</text>';
+    out += '<text data-axis-label="y" x="' + (axisX + 12) + '" y="' + (inner.y + axisLabelFontSize * 0.84) + '" text-anchor="start" font-size="' + axisLabelFontSize + '" font-style="italic" fill="' + axisColor + '">y</text>';
     out += '<text x="' + (axisX - 12) + '" y="' + (axisY + 34) + '" text-anchor="end" font-size="' + originFontSize + '" fill="#64748b">O</text>';
     for (var xTick = Math.ceil(panel.domain.minX); xTick <= Math.floor(panel.domain.maxX); xTick += 1) {
       if (Math.abs(xTick) < 1e-9) continue;
       var xTickPosition = layout.point(xTick, 0).x;
       out += '<line x1="' + xTickPosition + '" y1="' + (axisY - 6) + '" x2="' + xTickPosition + '" y2="' + (axisY + 6) + '" stroke="' + axisColor + '" />';
-      out += '<text x="' + xTickPosition + '" y="' + (axisY + 39) + '" text-anchor="middle" font-size="' + tickFontSize + '" fill="#475569">' + formatNumber(xTick) + '</text>';
+      out += '<text data-axis-tick="x" data-axis-value="' + formatNumber(xTick) + '" x="' + xTickPosition + '" y="' + (axisY + 39) + '" text-anchor="middle" font-size="' + tickFontSize + '" fill="#475569">' + formatNumber(xTick) + '</text>';
     }
     for (var yTick = Math.ceil(panel.domain.minY); yTick <= Math.floor(panel.domain.maxY); yTick += 1) {
       if (Math.abs(yTick) < 1e-9) continue;
       var yTickPosition = layout.point(0, yTick).y;
       out += '<line x1="' + (axisX - 6) + '" y1="' + yTickPosition + '" x2="' + (axisX + 6) + '" y2="' + yTickPosition + '" stroke="' + axisColor + '" />';
-      out += '<text x="' + (axisX - 14) + '" y="' + (yTickPosition + tickFontSize * 0.32) + '" text-anchor="end" font-size="' + tickFontSize + '" fill="#475569">' + formatNumber(yTick) + '</text>';
+      out += '<text data-axis-tick="y" data-axis-value="' + formatNumber(yTick) + '" x="' + (axisX - 14) + '" y="' + (yTickPosition + tickFontSize * 0.32) + '" text-anchor="end" font-size="' + tickFontSize + '" fill="#475569">' + formatNumber(yTick) + '</text>';
     }
     (panel.guidePoints || []).forEach(function (guidePoint) {
       var guide = layout.point(guidePoint.x, guidePoint.y);
@@ -602,8 +693,8 @@
       if (panel.kind === "mapping") return renderMapping(panel, box, decoration, state, candidateOverride);
       if (panel.kind === "numberLine") return renderNumberLine(panel, box, decoration);
       if (panel.kind === "constraintList") return renderConstraintList(panel, box, decoration);
-      if (panel.kind === "functionGraph") return renderFunctionGraph(panel, box, decoration, state, candidateOverride);
-      if (panel.kind === "valueTable") return renderValueTable(panel, box, decoration);
+      if (panel.kind === "functionGraph") return renderFunctionGraph(panel, box, decoration, state, candidateOverride, renderOptions);
+      if (panel.kind === "valueTable") return renderValueTable(panel, box, decoration, renderOptions);
       if (panel.kind === "relationPlot") return renderRelationPlot(panel, box, decoration, state, renderOptions);
       if (panel.kind === "contextGeometry") return renderContextGeometry(panel, box, state, renderOptions);
       return "";
@@ -626,13 +717,24 @@
       var panel = spec.panels.find(function (candidate) { return candidate.id === panelId; });
       if (!panel) return "";
       var state = resolveState(spec, spec.parameter && spec.parameter.initial, {});
+      var detailFunctionGraph = panel.kind === "functionGraph" && width > 900;
+      var figureWidth = detailFunctionGraph ? 720 : width;
+      var figureHeight = detailFunctionGraph
+        ? 660
+        : (panel.kind === "valueTable" && height / width > 0.6
+          ? Math.round(width / 2)
+          : height);
       return renderPanel(
         panel,
-        { x: 24, y: 18, width: width - 48, height: height - 36 },
+        { x: 24, y: 18, width: figureWidth - 48, height: figureHeight - 36 },
         { showVerticalTest: false },
         state,
         undefined,
-        { hideTitle: true, originalFigure: true }
+        {
+          hideTitle: true,
+          originalFigure: true,
+          originalFigureScale: detailFunctionGraph ? "detail" : "aggregate"
+        }
       );
     }
     function renderOriginalFigures() {
@@ -640,6 +742,11 @@
       spec.panels.forEach(function (panel) {
         var element = document.getElementById(panel.id);
         if (!element) return;
+        if (panel.kind === "valueTable" && height / width > 0.6) {
+          element.setAttribute("viewBox", "0 0 " + width + " " + Math.round(width / 2));
+        } else if (panel.kind === "functionGraph" && width > 900) {
+          element.setAttribute("viewBox", "0 0 720 660");
+        }
         element.innerHTML = originalFigureMarkupFor(panel.id);
       });
     }

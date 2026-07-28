@@ -1,0 +1,62 @@
+{
+  "$schema": "../../../schemas/lesson-data.schema.json",
+  "meta": {
+    "id": "function-representation-20260727-q13",
+    "outputPath": "site/problems/senior-high/functions/function-representation/function-representation-20260727-q13.html",
+    "pageTitle": "函数的表示法第 13 题：出租车分段计费与方案比较",
+    "pageDescription": "累计起步价和分段里程费，建立出租车费用函数并比较换车方案。",
+    "breadcrumbTitle": "函数表示法第 13 题",
+    "breadcrumbLabel": "高中题库",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "classification": { "pattern": "function-representation", "methods": ["piecewise-model", "fare-comparison"] },
+    "curriculum": {
+      "chapterLabel": "第三章 函数的概念与性质",
+      "sectionLabel": "3.1 函数的概念及其表示",
+      "subsectionLabel": "3.1.2 函数的表示法",
+      "groupId": "function-comprehensive",
+      "groupLabel": "分段函数与综合应用"
+    }
+  },
+  "problem": {
+    "source": "教材习题改编",
+    "keyPoints": {
+      "title": "解题要点",
+      "items": ["起步价覆盖前 3 km，超过部分才按里程单价增加；", "当 x=10 时先求累计费用，再建立 \\(10<x≤30\\) 时的关系式；", "换车会重新支付起步价，方案总费用是各次乘车费用之和。"]
+    },
+    "lines": [
+      { "text": "某小组 4 位同学准备乘坐出租车去参加社会实践活动。已知全程 30 km，出租车收费标准为：起步价 11 元（乘车不超过 3 km）；行驶 3 km 后，每千米车费 2.2 元；行驶 10 km 后，每千米车费 2.8 元。" },
+      { "text": "（1）写出同学们乘车的费用 \\(f(x)\\)（单位：元）与路程 x（单位：km）的函数关系式；" },
+      { "text": "（2）比较三种方案：①一辆车行驶 30 km；②行驶 15 km 后换车，再行驶 15 km；③每行驶 10 km 后换车一次。哪一种方案最省钱？", "answerId": "answerI", "answer": "（1）\\(f(x)=11\\)（\\(0<x≤3\\)），\\(f(x)=2.2x+4.4\\)（\\(3<x≤10\\)），\\(f(x)=2.8x-1.6\\)（\\(10<x≤30\\)）；（2）方案③" }
+    ]
+  },
+  "ui": {
+    "legend": [{ "colorVar": "fold", "label": "一次乘车费用" }],
+    "sliderLabel": "路程 x",
+    "paramLabelPrefix": "x＝",
+    "goToProblemMode": "smooth",
+    "groupTitles": { "（1）": "建立分段费用函数", "（2）": "比较三种方案" }
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "（1）",
+      "title": "按 x 的取值范围建立费用函数",
+      "t": 15,
+      "derive": [["当 0<x≤3 时", "\\(f(x)=11\\)"], ["当 3<x≤10 时", "\\(f(x)=11+2.2(x-3)=2.2x+4.4\\)"], ["当 x=10 时", "\\(f(10)=11+2.2×7=26.4\\)"], ["当 10<x≤30 时", "\\(f(x)=26.4+2.8(x-10)=2.8x-1.6\\)"]],
+      "box": ["分档点的累计费用保证相邻两段连续衔接"]
+    },
+    {
+      "id": "s2",
+      "section": "（2）",
+      "title": "分别计算三种方案总费用",
+      "t": 10,
+      "derive": [["方案①", "\\(f(30)=2.8×30-1.6=82.4\\) 元"], ["方案②", "\\(2f(15)=2(2.8×15-1.6)=80.8\\) 元"], ["方案③", "\\(3f(10)=3×26.4=79.2\\) 元"], ["比较", "\\(79.2<80.8<82.4\\)"], ["∴", "方案③最省钱"]],
+      "box": ["每次换车都重新按一次完整的费用函数计费"]
+    }
+  ],
+  "policies": {
+    "s1": { "movable": true, "range": [0.1, 30], "step": 0.1 },
+    "s2": { "movable": false, "range": [10, 10] }
+  },
+  "stepLabels": { "s1": "（1）建立费用函数", "s2": "（2）比较乘车方案" }
+}

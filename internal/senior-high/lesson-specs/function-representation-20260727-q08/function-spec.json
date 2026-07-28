@@ -1,0 +1,18 @@
+{
+  "$schema": "../../schemas/function-spec.schema.json",
+  "version": 1,
+  "id": "function-representation-20260727-q08",
+  "panels": [
+    {
+      "id": "solution-set",
+      "kind": "numberLine",
+      "title": "二次不等式的解集",
+      "viewport": { "x": 0.06, "y": 0.18, "width": 0.88, "height": 0.64 },
+      "axis": { "min": -8, "max": 11, "label": "x" },
+      "intervals": [
+        { "id": "left-ray", "min": -8, "max": -3, "extendsMin": true, "label": "x≤-3", "color": "#0f766e" },
+        { "id": "right-ray", "min": 6, "max": 11, "extendsMax": true, "label": "x≥6", "color": "#0f766e" }
+      ]
+    }
+  ]
+}

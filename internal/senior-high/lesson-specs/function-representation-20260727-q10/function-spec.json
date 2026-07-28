@@ -1,0 +1,18 @@
+{
+  "$schema": "../../schemas/function-spec.schema.json",
+  "version": 1,
+  "id": "function-representation-20260727-q10",
+  "panels": [
+    {
+      "id": "composition-table",
+      "kind": "valueTable",
+      "title": "分两种输入范围追踪复合函数值",
+      "viewport": { "x": 0.05, "y": 0.16, "width": 0.90, "height": 0.68 },
+      "columns": ["x 的范围", "第一次输出 f(x)", "第二次输出 f(f(x))"],
+      "rows": [
+        { "id": "negative", "cells": ["x<0", "0", "f(0)=1"] },
+        { "id": "nonnegative", "cells": ["x≥0", "1", "f(1)=1"] }
+      ]
+    }
+  ]
+}

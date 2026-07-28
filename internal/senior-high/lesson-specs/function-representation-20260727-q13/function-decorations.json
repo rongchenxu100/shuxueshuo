@@ -1,0 +1,17 @@
+{
+  "$schema": "../../schemas/function-decorations.schema.json",
+  "version": 1,
+  "steps": {
+    "s1": {
+      "visiblePanels": ["fare-graph"],
+      "visibleElementIds": ["fare-start", "fare-middle", "fare-long", "fare-3", "fare-10"],
+      "highlightElementIds": [],
+      "fillMovingPoint": true
+    },
+    "s2": {
+      "visiblePanels": ["plan-table"],
+      "visibleElementIds": ["plan-1", "plan-2", "plan-3"],
+      "highlightElementIds": ["plan-3"]
+    }
+  }
+}

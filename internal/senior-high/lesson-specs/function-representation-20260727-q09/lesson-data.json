@@ -1,0 +1,60 @@
+{
+  "$schema": "../../../schemas/lesson-data.schema.json",
+  "meta": {
+    "id": "function-representation-20260727-q09",
+    "outputPath": "site/problems/senior-high/functions/function-representation/function-representation-20260727-q09.html",
+    "pageTitle": "函数的表示法第 9 题：阶梯水价的分段函数",
+    "pageDescription": "按分档点累计前一档费用，建立连续的阶梯水价分段函数。",
+    "breadcrumbTitle": "函数表示法第 9 题",
+    "breadcrumbLabel": "高中题库",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "classification": { "pattern": "function-representation", "methods": ["piecewise-model", "tiered-pricing"] },
+    "curriculum": {
+      "chapterLabel": "第三章 函数的概念与性质",
+      "sectionLabel": "3.1 函数的概念及其表示",
+      "subsectionLabel": "3.1.2 函数的表示法",
+      "groupId": "function-comprehensive",
+      "groupLabel": "分段函数与综合应用"
+    }
+  },
+  "problem": {
+    "source": "2026 安徽桐城中学期末",
+    "keyPoints": {
+      "title": "解题要点",
+      "items": ["“超过某数的部分”按新单价计费，前面各档费用仍要累计；", "在分档点代入相邻两段，所得总费用应连续衔接。"]
+    },
+    "lines": [
+      { "text": "为了保护水资源、提倡节约用水，某市对居民生活用水实行“阶梯水价”，计费方法如下表。" },
+      { "ariaLabel": "居民生活用水阶梯水价表", "figures": [{ "id": "tariff-table", "ariaLabel": "三档用水量及对应的每立方米价格" }] },
+      {
+        "text": "若某户居民某月的用水量为 \\(x\\) m³，其缴纳的水费为 \\(y\\) 元，则以下结论正确的是（　）　A. \\(y=3x\\)（\\(0＜x≤12\\)），\\(y=6x\\)（\\(12＜x≤18\\)），\\(y=9x\\)（\\(x＞18\\)）　B. 当 \\(x=13\\) 时，\\(y=78\\)　C. 若 \\(y=48\\)，则 \\(x=14\\)　D. 若 \\(y=81\\)，则 \\(x=13.5\\)",
+        "answerId": "answerI",
+        "answer": "C"
+      }
+    ]
+  },
+  "ui": { "legend": [{ "colorVar": "fold", "label": "累计总费用" }], "sliderLabel": "用水量 x", "paramLabelPrefix": "x＝", "goToProblemMode": "smooth", "groupTitles": { "建模": "累计各档费用", "判断": "代入并检查选项" } },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "建模",
+      "title": "逐档累计建立费用函数",
+      "t": 18,
+      "derive": [["第一档", "\\(0＜x≤12\\) 时，\\(y=3x\\)"], ["第二档", "\\(12＜x≤18\\) 时，\\(y=3×12+6(x-12)=6x-36\\)"], ["第三档", "\\(x＞18\\) 时，\\(y=3×12+6×6+9(x-18)=9x-90\\)"]],
+      "box": ["单价只作用于本档新增用量，总费用必须累计"]
+    },
+    {
+      "id": "s2",
+      "section": "判断",
+      "title": "代入候选数据作判断",
+      "t": 14,
+      "derive": [["A", "第二、三档漏掉前面已产生的费用，错误"], ["B", "\\(y(13)=6×13-36=42\\)，不是 78"], ["C", "\\(6x-36=48\\)，解得 \\(x=14\\)，且 \\(12<14≤18\\)，正确"], ["D", "\\(6×13.5-36=45\\)，不是 81"], ["∴", "选 C"]],
+      "box": ["解出自变量后，还要核对它属于所用分段的范围"]
+    }
+  ],
+  "policies": {
+    "s1": { "movable": false, "range": [18, 18] },
+    "s2": { "movable": true, "range": [0, 24], "step": 0.1 }
+  },
+  "stepLabels": { "s1": "1 建立费用函数", "s2": "2 检查选项" }
+}

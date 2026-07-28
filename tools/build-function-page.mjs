@@ -168,7 +168,7 @@ const functionTag = `<script type="application/json" id="functionSpec">${JSON.st
 const injectedScript = [
   functionTag,
   `<script src="${assetPrefix}/js/math-expression-engine.js"></script>`,
-  `<script src="${assetPrefix}/js/function-lesson-from-spec.js?v=2"></script>`,
+  `<script src="${assetPrefix}/js/function-lesson-from-spec.js?v=8"></script>`,
   "",
   "<script>",
   "  const __FUNCTION_SPEC__ = JSON.parse(document.getElementById('functionSpec').textContent);",

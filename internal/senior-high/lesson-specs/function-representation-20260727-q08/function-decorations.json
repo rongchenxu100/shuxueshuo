@@ -1,0 +1,8 @@
+{
+  "$schema": "../../schemas/function-decorations.schema.json",
+  "version": 1,
+  "steps": {
+    "s1": { "visiblePanels": [] },
+    "s2": { "visiblePanels": ["solution-set"], "visibleElementIds": ["left-ray", "right-ray"], "highlightElementIds": ["left-ray", "right-ray"] }
+  }
+}

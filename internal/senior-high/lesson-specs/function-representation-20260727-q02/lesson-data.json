@@ -1,0 +1,55 @@
+{
+  "$schema": "../../../schemas/lesson-data.schema.json",
+  "meta": {
+    "id": "function-representation-20260727-q02",
+    "outputPath": "site/problems/senior-high/functions/function-representation/function-representation-20260727-q02.html",
+    "pageTitle": "函数的表示法第 2 题：由解析式选择函数图象",
+    "pageDescription": "按自变量的正负去绝对值，写成分段函数并判断图象。",
+    "breadcrumbTitle": "函数表示法第 2 题",
+    "breadcrumbLabel": "高中题库",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "classification": { "pattern": "function-representation", "methods": ["piecewise-function", "absolute-value", "graph-features"] },
+    "curriculum": {
+      "chapterLabel": "第三章 函数的概念与性质",
+      "sectionLabel": "3.1 函数的概念及其表示",
+      "subsectionLabel": "3.1.2 函数的表示法",
+      "groupId": "function-value-and-range",
+      "groupLabel": "图象法和列表法"
+    }
+  },
+  "problem": {
+    "source": "2026 山西阳泉期末",
+    "keyPoints": {
+      "title": "解题要点",
+      "items": ["按 \\(x≥0\\) 与 \\(x<0\\) 分段去掉绝对值；", "分别画出两段二次函数并在原点处拼接。"]
+    },
+    "lines": [
+      { "text": "函数 \\(f(x)=x^2-2|x|\\) 的大致图象是（　）" },
+      {
+        "ariaLabel": "四个候选函数图象",
+        "figures": [
+          { "id": "option-a", "title": "A", "ariaLabel": "开口向上且顶点在 x 等于 1 的抛物线" },
+          { "id": "option-b", "title": "B", "ariaLabel": "开口向上且顶点在 x 等于负 1 的抛物线" },
+          { "id": "option-c", "title": "C", "ariaLabel": "关于 y 轴对称并有两个最低点的 W 形图象" },
+          { "id": "option-d", "title": "D", "ariaLabel": "顶点在原点的抛物线" }
+        ]
+      },
+      { "text": "A. 图 A　　B. 图 B　　C. 图 C　　D. 图 D", "answerId": "answerI", "answer": "C" }
+    ]
+  },
+  "ui": { "legend": [], "sliderLabel": "输入 x", "paramLabelPrefix": "x＝", "goToProblemMode": "smooth", "groupTitles": { "判断": "按 x 的正负写成分段函数" } },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "判断",
+      "title": "按 x 的正负去绝对值",
+      "t": 0,
+      "derive": [["当 x≥0", "\\(|x|=x\\)，\\(f(x)=x^2-2x=(x-1)^2-1\\)"], ["当 x<0", "\\(|x|=-x\\)，\\(f(x)=x^2+2x=(x+1)^2-1\\)"], ["∴", "两段图象拼接后为图 C，故选 C"]],
+      "box": ["先按 x 的正负去绝对值，再把两段图象拼接起来"]
+    }
+  ],
+  "policies": {
+    "s1": { "movable": false, "range": [0, 0] }
+  },
+  "stepLabels": { "s1": "1 分段去绝对值并判断" }
+}

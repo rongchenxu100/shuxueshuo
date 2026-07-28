@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>函数的表示法第 9 题：阶梯水价的分段函数 | 数学说</title>
+  <meta name="description" content="按分档点累计前一档费用，建立连续的阶梯水价分段函数。" />
+  <meta property="og:title" content="函数的表示法第 9 题：阶梯水价的分段函数 | 数学说" />
+  <meta property="og:description" content="按分档点累计前一档费用，建立连续的阶梯水价分段函数。" />
+  <meta property="og:image" content="../../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css?v=2" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../../senior-high/index.html">高中题库</a>
+    <span class="lesson-title">函数表示法第 9 题</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          <div class="problem-full">
+            <div class="problem-line"><span><span class="problem-source-inline">（2026 安徽桐城中学期末）</span>为了保护水资源、提倡节约用水，某市对居民生活用水实行“阶梯水价”，计费方法如下表。</span></div>
+<div class="problem-original-figures" aria-label="居民生活用水阶梯水价表">
+  <figure class="problem-figure">
+    <svg id="tariff-table" viewBox="0 0 1080 760" role="img" aria-label="三档用水量及对应的每立方米价格"></svg>
+  </figure>
+</div>
+<div class="problem-line"><span>若某户居民某月的用水量为 <span class="inline-math">x</span> m³，其缴纳的水费为 <span class="inline-math">y</span> 元，则以下结论正确的是（　）</span><span class="answer-chip" id="answerI">C</span></div>
+<div class="problem-options is-stacked"><div class="problem-option"><span class="problem-option-label">A.</span><span><span class="inline-math">y=3x</span>（<span class="inline-math">0＜x≤12</span>），<span class="inline-math">y=6x</span>（<span class="inline-math">12＜x≤18</span>），<span class="inline-math">y=9x</span>（<span class="inline-math">x＞18</span>）</span></div><div class="problem-option"><span class="problem-option-label">B.</span><span>当 <span class="inline-math">x=13</span> 时，<span class="inline-math">y=78</span></span></div><div class="problem-option"><span class="problem-option-label">C.</span><span>若 <span class="inline-math">y=48</span>，则 <span class="inline-math">x=14</span></span></div><div class="problem-option"><span class="problem-option-label">D.</span><span>若 <span class="inline-math">y=81</span>，则 <span class="inline-math">x=13.5</span></span></div></div>
+          </div>
+        </section>
+
+        <aside class="lesson-key-points" aria-label="解题要点"><div class="lesson-key-points-title">解题要点</div><div class="lesson-key-points-content"><ol><li>“超过某数的部分”按新单价计费，前面各档费用仍要累计；</li><li>在分档点代入相邻两段，所得总费用应连续衔接。</li></ol></div></aside>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../../assets/js/lesson-page-runtime.js?v=2"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"s1","section":"建模","title":"逐档累计建立费用函数","t":18,"derive":[["第一档","\\(0＜x≤12\\) 时，\\(y=3x\\)"],["第二档","\\(12＜x≤18\\) 时，\\(y=3×12+6(x-12)=6x-36\\)"],["第三档","\\(x＞18\\) 时，\\(y=3×12+6×6+9(x-18)=9x-90\\)"]],"box":["单价只作用于本档新增用量，总费用必须累计"]},{"id":"s2","section":"判断","title":"代入候选数据作判断","t":14,"derive":[["A","第二、三档漏掉前面已产生的费用，错误"],["B","\\(y(13)=6×13-36=42\\)，不是 78"],["C","\\(6x-36=48\\)，解得 \\(x=14\\)，且 \\(12<14≤18\\)，正确"],["D","\\(6×13.5-36=45\\)，不是 81"],["∴","选 C"]],"box":["解出自变量后，还要核对它属于所用分段的范围"]}];
+    var STEP_LABELS = {"s1":"1 建立费用函数","s2":"2 检查选项"};
+    var POLICIES   = {"s1":{"movable":false,"range":[18,18]},"s2":{"movable":true,"range":[0,24],"step":0.1}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 滑块主参数与派生参数的联动文案格式化器 */
+    var __LESSON_PARAM_LABEL_FORMATTER__;
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script type="application/json" id="functionSpec">{"$schema":"../../schemas/function-spec.schema.json","version":1,"id":"function-representation-20260727-q09","parameter":{"name":"x","initial":14},"panels":[{"id":"tariff-table","kind":"valueTable","title":"居民生活用水阶梯水价","viewport":{"x":0.04,"y":0.12,"width":0.92,"height":0.76},"columns":["每户每月用水量","水价"],"rows":[{"id":"tier-1","cells":["不超过 12 m³ 的部分","3 元/m³"]},{"id":"tier-2","cells":["超过 12 m³ 但不超过 18 m³ 的部分","6 元/m³"]},{"id":"tier-3","cells":["超过 18 m³ 的部分","9 元/m³"]}]},{"id":"cost-graph","kind":"functionGraph","title":"总水费随用水量累计变化","viewport":{"x":0.06,"y":0.06,"width":0.88,"height":0.88},"domain":{"minX":0,"maxX":24,"minY":0,"maxY":130},"gridStepX":3,"gridStepY":18,"showAxisTicks":true,"renderAllFunctions":true,"pointLabelFontSize":20,"functions":[{"id":"cost-1","variable":"x","expr":"3*x","label":"0＜x≤12","intervals":[{"min":0,"max":12,"openMin":true}]},{"id":"cost-2","variable":"x","expr":"6*x-36","label":"12＜x≤18","intervals":[{"min":12,"max":18,"openMin":true}]},{"id":"cost-3","variable":"x","expr":"9*x-90","label":"x＞18","intervals":[{"min":18,"max":24,"openMin":true,"extendsMax":true}]}],"points":[{"id":"break-12","x":12,"y":36,"label":"(12,36)","labelDx":14,"labelDy":-14},{"id":"break-18","x":18,"y":72,"label":"(18,72)","labelDx":14,"labelDy":-14}]}]}</script>
+<script src="../../../../assets/js/math-expression-engine.js"></script>
+<script src="../../../../assets/js/function-lesson-from-spec.js?v=8"></script>
+
+<script>
+  const __FUNCTION_SPEC__ = JSON.parse(document.getElementById('functionSpec').textContent);
+  const __FUNCTION_DECORATIONS__ = {"$schema":"../../schemas/function-decorations.schema.json","version":1,"steps":{"s1":{"visiblePanels":["cost-graph"],"visibleElementIds":["cost-1","cost-2","cost-3","break-12","break-18"],"highlightElementIds":[],"showMovingPoint":false},"s2":{"visiblePanels":["cost-graph"],"visibleElementIds":["cost-1","cost-2","cost-3","break-12","break-18"],"highlightElementIds":[],"fillMovingPoint":true,"showProjection":true}}};
+  const renderer = FunctionLessonFromSpec.createSpecRenderer(__FUNCTION_SPEC__, __FUNCTION_DECORATIONS__, STEPS, POLICIES);
+  function groupTitle(section) {
+    const map = {"建模":"累计各档费用","判断":"代入并检查选项"};
+    return Object.prototype.hasOwnProperty.call(map, section) ? map[section] : section;
+  }
+  var diagramMarkupFor = renderer.diagramMarkupFor;
+  var diagramMarkupForFrame = renderer.diagramMarkupForFrame;
+  var drawMini = renderer.drawMini;
+  var __LESSON_LEGEND_HTML__ = "<span><i class=\"sw\" style=\"background:var(--fold)\"></i>累计总费用</span>";
+
+  var __AFTER_RENDER_ALL_STEPS__ = renderer.renderOriginalFigures;
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      diagramMarkupForFrame: typeof diagramMarkupForFrame === "function" ? diagramMarkupForFrame : undefined,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "用水量 x",
+      paramLabelPrefix: "x＝",
+      paramLabelFormatter: typeof __LESSON_PARAM_LABEL_FORMATTER__ === "function" ? __LESSON_PARAM_LABEL_FORMATTER__ : undefined,
+      goToProblemMode: "smooth"
+    });
+  </script>
+</body>
+</html>

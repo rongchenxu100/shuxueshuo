@@ -693,6 +693,10 @@
   aspect-ratio: 720 / 500;
 }
 
+.senior-worksheet-figure.is-value-table svg {
+  aspect-ratio: 720 / 280;
+}
+
 .senior-worksheet-figure p {
   margin: 5px 0 0;
   color: var(--senior-muted);

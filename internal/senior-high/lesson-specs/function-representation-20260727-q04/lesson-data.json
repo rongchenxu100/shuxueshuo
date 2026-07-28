@@ -1,0 +1,48 @@
+{
+  "$schema": "../../../schemas/lesson-data.schema.json",
+  "meta": {
+    "id": "function-representation-20260727-q04",
+    "outputPath": "site/problems/senior-high/functions/function-representation/function-representation-20260727-q04.html",
+    "pageTitle": "函数的表示法第 4 题：换元求函数解析式",
+    "pageDescription": "用新变量替换整体输入，并保留换元后函数的定义域。",
+    "breadcrumbTitle": "函数表示法第 4 题",
+    "breadcrumbLabel": "高中题库",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "classification": { "pattern": "function-representation", "methods": ["substitution", "domain-preservation"] },
+    "curriculum": {
+      "chapterLabel": "第三章 函数的概念与性质",
+      "sectionLabel": "3.1 函数的概念及其表示",
+      "subsectionLabel": "3.1.2 函数的表示法",
+      "groupId": "function-concept",
+      "groupLabel": "函数的解析式"
+    }
+  },
+  "problem": {
+    "source": "2026 吉林长春东北师大附中月考",
+    "keyPoints": {
+      "title": "解题要点",
+      "items": ["本题应用换元法：令 \\(t=x^2+1\\)，把函数的整体输入替换为新变量；", "换元后不仅要改写对应关系，还要写出新变量的取值范围。"]
+    },
+    "lines": [
+      {
+        "text": "已知 \\(f(x^2+1)=x^4-1\\)，则函数 \\(f(x)\\) 的解析式为（　）　A. \\(f(x)=x^2-2x\\)　B. \\(f(x)=x^2-1\\)（\\(x≥1\\)）　C. \\(f(x)=x^2-2x+2\\)（\\(x≥1\\)）　D. \\(f(x)=x^2-2x\\)（\\(x≥1\\)）",
+        "answerId": "answerI",
+        "answer": "D"
+      }
+    ]
+  },
+  "ui": { "legend": [], "sliderLabel": "参数", "paramLabelPrefix": "", "goToProblemMode": "smooth", "groupTitles": { "求解": "换元并保留定义域" } },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "求解",
+      "title": "整体换元并改写解析式",
+      "t": 0,
+      "showDiagram": false,
+      "derive": [["令", "\\(t=x^2+1\\)，则 \\(t≥1\\)，且 \\(x^2=t-1\\)"], ["改写", "\\(f(t)=x^4-1=(t-1)^2-1=t^2-2t\\)"], ["∴", "\\(f(x)=x^2-2x\\)（\\(x≥1\\)），故选 D"]],
+      "box": ["定义域是函数的一部分，不能在换元后漏掉"]
+    }
+  ],
+  "policies": { "s1": { "movable": false, "range": [0, 0] } },
+  "stepLabels": { "s1": "1 整体换元并改写解析式" }
+}

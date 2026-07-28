@@ -8,6 +8,7 @@ const repoRoot = path.resolve(path.dirname(currentFile), "..");
 const BATCH_CONFIGS = {
   "function-concepts-foundation": {
     count: 11,
+    sectionId: "function-concepts-and-representation",
     groups: [
       ["function-concept", [1, 2, 3]],
       ["function-domain", [4, 5, 6]],
@@ -16,11 +17,21 @@ const BATCH_CONFIGS = {
   },
   "function-concepts-advanced": {
     count: 13,
+    sectionId: "function-concepts-and-representation",
     groups: [
       ["function-concept", [1, 2]],
       ["function-domain", [3, 4, 5, 6]],
       ["function-value-and-range", [7, 8, 9, 10, 11, 12]],
       ["function-comprehensive", [13]],
+    ],
+  },
+  "function-representation-foundation": {
+    count: 13,
+    sectionId: "function-representation",
+    groups: [
+      ["function-value-and-range", [1, 2, 3]],
+      ["function-concept", [4, 5, 6, 7]],
+      ["function-comprehensive", [8, 9, 10, 11, 12, 13]],
     ],
   },
 };
@@ -44,12 +55,19 @@ export function validateFunctionBatch(manifestPath, root = repoRoot) {
   const numbers = new Set();
   const ids = new Set();
   for (const item of manifest.items ?? []) {
+    const itemSourceImages = item.sourceImages ?? [item.sourceImage ?? manifest.sourceImage];
+    for (const relativeSourcePath of itemSourceImages) {
+      const itemSourcePath = path.join(root, relativeSourcePath ?? "");
+      if (!fs.existsSync(itemSourcePath)) errors.push(`第 ${item.questionNumber} 题缺少原图: ${itemSourcePath}`);
+    }
     if (numbers.has(item.questionNumber)) errors.push(`题号重复: ${item.questionNumber}`);
     numbers.add(item.questionNumber);
     if (ids.has(item.problemId)) errors.push(`problemId 重复: ${item.problemId}`);
     ids.add(item.problemId);
     if (item.groupId !== groupByNumber.get(item.questionNumber)) errors.push(`第 ${item.questionNumber} 题题组错误`);
-    if (item.chapterId !== "functions" || item.sectionId !== "function-concepts-and-representation") errors.push(`第 ${item.questionNumber} 题分类错误`);
+    if (item.chapterId !== "functions" || item.sectionId !== config?.sectionId) {
+      errors.push(`第 ${item.questionNumber} 题分类错误`);
+    }
     if (!item.sourceLabel || !item.printedText || !Array.isArray(item.knowledgeTags) || item.knowledgeTags.length === 0) errors.push(`第 ${item.questionNumber} 题缺少来源、转录或标签`);
     if (item.confidence < 0.9 && item.status !== "needs_review") errors.push(`第 ${item.questionNumber} 题低置信度不能标记为 ${item.status}`);
     if (item.status === "published" && item.confidence < 0.95) errors.push(`第 ${item.questionNumber} 题未达到发布置信度`);

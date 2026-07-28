@@ -17,6 +17,10 @@ const GROUP_IDS = new Set([
   "function-value-and-range",
   "function-comprehensive",
 ]);
+const FUNCTION_SECTION_PATTERNS = new Set([
+  "function-concepts-and-representation",
+  "function-representation",
+]);
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, "utf8"));
@@ -153,7 +157,11 @@ export function validateFunctionLesson(inputDirectory, root = repoRoot) {
   }
 
   const classification = lesson.meta?.classification;
-  if (classification?.pattern !== "function-concepts-and-representation") errors.push("classification.pattern 应为 function-concepts-and-representation");
+  if (!FUNCTION_SECTION_PATTERNS.has(classification?.pattern)) {
+    errors.push("classification.pattern 必须是已登记的函数子目录");
+  } else if (!lesson.meta?.outputPath?.includes(`/functions/${classification.pattern}/`)) {
+    errors.push("lesson-data.meta.outputPath 与 classification.pattern 不一致");
+  }
   for (const method of classification?.methods ?? []) {
     if (typeof method !== "string" || method.length === 0) errors.push("classification.methods 存在空值");
   }

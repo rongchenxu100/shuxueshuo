@@ -1,0 +1,19 @@
+{
+  "$schema": "../../schemas/function-decorations.schema.json",
+  "version": 1,
+  "steps": {
+    "s1": {
+      "visiblePanels": ["cost-graph"],
+      "visibleElementIds": ["cost-1", "cost-2", "cost-3", "break-12", "break-18"],
+      "highlightElementIds": [],
+      "showMovingPoint": false
+    },
+    "s2": {
+      "visiblePanels": ["cost-graph"],
+      "visibleElementIds": ["cost-1", "cost-2", "cost-3", "break-12", "break-18"],
+      "highlightElementIds": [],
+      "fillMovingPoint": true,
+      "showProjection": true
+    }
+  }
+}

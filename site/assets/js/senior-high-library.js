@@ -39,7 +39,7 @@
 
   async function loadCatalog() {
     try {
-      const response = await fetch("../data/senior-high-catalog.json?v=2");
+      const response = await fetch("../data/senior-high-catalog.json?v=3");
       if (!response.ok) {
         throw new Error("高中题库目录加载失败");
       }
@@ -130,7 +130,7 @@
                     data-parent-chapter="${escapeHtml(chapter.id)}"
                     ${selected ? 'aria-current="page"' : ""}
                   >
-                    <span>${escapeHtml(section.label.replace("及其表示", ""))}</span>
+                    <span>${escapeHtml(section.label)}</span>
                     <span>${collections.reduce((sum, item) => sum + model.collectionProblemCount(item), 0)}</span>
                   </button>
                 `;
@@ -297,12 +297,16 @@
           (candidate) => candidate.id === figure.id,
         );
         if (!originalFigure) return "";
+        const figureKindClass = originalFigure.kind === "valueTable"
+          ? " is-value-table"
+          : "";
+        const figureViewHeight = originalFigure.kind === "valueTable" ? 280 : 500;
         return `
-          <figure class="senior-worksheet-figure">
+          <figure class="senior-worksheet-figure${figureKindClass}">
             ${figure.title ? `<figcaption>${escapeHtml(figure.title)}</figcaption>` : ""}
             <svg
               id="worksheet-figure-${escapeHtml(originalFigure.renderId)}"
-              viewBox="0 0 720 500"
+              viewBox="0 0 720 ${figureViewHeight}"
               role="img"
               aria-label="${escapeHtml(figure.ariaLabel || line.ariaLabel || "原题图形")}"
               data-worksheet-figure="${escapeHtml(originalFigure.renderId)}"
@@ -375,14 +379,19 @@
     if (!window.FunctionLessonFromSpec) return;
     collection.groups.flatMap((group) => group.problems).forEach((problem) => {
       if (!problem.figureSpec || problem.originalFigures.length === 0) return;
-      const renderer = window.FunctionLessonFromSpec.createSpecRenderer(
-        problem.figureSpec,
-        { steps: {} },
-        [{ id: "worksheet", title: "原题图形" }],
-        {},
-        { W: 720, H: 500 },
-      );
       problem.originalFigures.forEach((figure) => {
+        const height = figure.kind === "valueTable" ? 280 : 500;
+        const figurePanel = problem.figureSpec.panels.find(
+          (panel) => panel.id === figure.renderId,
+        );
+        if (!figurePanel) return;
+        const renderer = window.FunctionLessonFromSpec.createSpecRenderer(
+          { ...problem.figureSpec, panels: [figurePanel] },
+          { steps: {} },
+          [{ id: "worksheet", title: "原题图形" }],
+          {},
+          { W: 720, H: height },
+        );
         const element = document.getElementById(`worksheet-figure-${figure.renderId}`);
         if (element) {
           element.innerHTML = renderer.originalFigureMarkupFor(figure.renderId);

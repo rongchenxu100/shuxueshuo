@@ -1,0 +1,16 @@
+{
+  "$schema": "../../schemas/function-spec.schema.json",
+  "version": 1,
+  "id": "function-representation-20260727-q06",
+  "panels": [
+    {
+      "id": "identity-check",
+      "kind": "constraintList",
+      "title": "一次函数模型的系数比较",
+      "viewport": { "x": 0.10, "y": 0.18, "width": 0.80, "height": 0.64 },
+      "constraints": [
+        { "id": "candidate", "label": "设 f(x)=kx+b", "expression": "k(x+y)+b=kx+ky+2b+1", "result": "b=-1" }
+      ]
+    }
+  ]
+}

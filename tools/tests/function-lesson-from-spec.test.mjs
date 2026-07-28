@@ -334,7 +334,7 @@ test("renderer supports relation plots, finite tables and context geometry", () 
   const markup = renderer.diagramMarkupFor(0, 1, {});
   assert.match(markup, /关系图/);
   assert.match(markup, /G\(n\)/);
-  assert.match(markup, /font-size="18" fill="#27272a">3<\/text>/);
+  assert.match(markup, /font-size="18"[^>]*fill="#27272a">3<\/text>/);
   assert.match(markup, /<polygon/);
   assert.doesNotMatch(markup, /NaN|Infinity|undefined/);
 });
@@ -393,6 +393,75 @@ test("relation plots reuse the textbook figure for the problem and teaching step
     s3: "3 检查图③",
     s4: "4 检查图④并作答",
   });
+});
+
+test("worksheet relation axes keep names clear of terminal tick labels", () => {
+  const id = "function-representation-20260727-q12";
+  const lesson = readLesson(id, "lesson-data.json");
+  const renderer = runtime.createSpecRenderer(
+    readLesson(id, "function-spec.json"),
+    readLesson(id, "function-decorations.json"),
+    lesson.steps,
+    lesson.policies,
+  );
+  const markup = renderer.originalFigureMarkupFor("blank-grid");
+  const xLabel = markup.match(/data-axis-label="x" x="([^"]+)" y="([^"]+)"/);
+  const yLabel = markup.match(/data-axis-label="y" x="([^"]+)" y="([^"]+)"/);
+  const xTerminalTick = markup.match(/data-axis-tick="x" data-axis-value="4" x="([^"]+)" y="([^"]+)"/);
+  const yTerminalTick = markup.match(/data-axis-tick="y" data-axis-value="4" x="([^"]+)" y="([^"]+)"/);
+
+  assert.ok(xLabel && yLabel && xTerminalTick && yTerminalTick);
+  assert.ok(Number(xLabel[1]) - Number(xTerminalTick[1]) >= 18);
+  assert.ok(Number(xLabel[2]) < Number(xTerminalTick[2]));
+  assert.ok(Number(yLabel[1]) - Number(yTerminalTick[1]) >= 20);
+});
+
+test("original value table uses the fixed figure area efficiently", () => {
+  const id = "function-representation-20260727-q01";
+  const lesson = readLesson(id, "lesson-data.json");
+  const renderer = runtime.createSpecRenderer(
+    readLesson(id, "function-spec.json"),
+    readLesson(id, "function-decorations.json"),
+    lesson.steps,
+    lesson.policies,
+  );
+  const markup = renderer.originalFigureMarkupFor("function-table");
+
+  assert.doesNotMatch(markup, /函数 f\(x\) 的列表表示/);
+  assert.equal((markup.match(/data-table-role="header"/g) || []).length, 8);
+  assert.equal((markup.match(/data-table-role="body"/g) || []).length, 8);
+  assert.match(markup, /height="128"/);
+  assert.match(markup, /font-size="42"/);
+});
+
+test("graph-choice originals scale labels for detail and collection contexts", () => {
+  const id = "function-representation-20260727-q02";
+  const lesson = readLesson(id, "lesson-data.json");
+  const spec = readLesson(id, "function-spec.json");
+  const decorations = readLesson(id, "function-decorations.json");
+  const detailRenderer = runtime.createSpecRenderer(
+    spec,
+    decorations,
+    lesson.steps,
+    lesson.policies,
+  );
+  const detailMarkup = detailRenderer.originalFigureMarkupFor("option-a");
+
+  assert.match(detailMarkup, /data-axis-tick="x"[^>]*font-size="36"/);
+  assert.match(detailMarkup, /data-axis-label="x"[^>]*font-size="42"/);
+  assert.doesNotMatch(detailMarkup, />A<\/text>/);
+  assert.doesNotMatch(detailMarkup, /<circle/);
+
+  const collectionRenderer = runtime.createSpecRenderer(
+    spec,
+    decorations,
+    lesson.steps,
+    lesson.policies,
+    { W: 720, H: 500 },
+  );
+  const collectionMarkup = collectionRenderer.originalFigureMarkupFor("option-a");
+  assert.match(collectionMarkup, /data-axis-tick="x"[^>]*font-size="22"/);
+  assert.match(collectionMarkup, /data-axis-label="x"[^>]*font-size="28"/);
 });
 
 test("remaining draft lessons expose their intended visual interaction", () => {
@@ -582,6 +651,220 @@ test("advanced batch keeps all 13 problems in the 2/4/6/1 worksheet groups", () 
     [2, 4, 6, 1],
   );
   assert.ok(manifest.items.every((item) => item.status === "published"));
+});
+
+test("function-representation batch keeps all 13 problems in the 3/4/6 worksheet groups", () => {
+  const manifestPath = path.join(
+    repoRoot,
+    "internal/senior-high/import-batches/function-representation-20260727-pages-38-39/manifest.json",
+  );
+  const manifest = validateFunctionBatch(manifestPath);
+  assert.equal(manifest.collectionId, "function-representation-foundation");
+  assert.equal(manifest.items.length, 13);
+  assert.ok(manifest.items.every((item) => item.sectionId === "function-representation"));
+  assert.deepEqual(
+    ["function-value-and-range", "function-concept", "function-comprehensive"]
+      .map((groupId) => manifest.items.filter((item) => item.groupId === groupId).length),
+    [3, 4, 6],
+  );
+  assert.equal(manifest.items[8].sourceImages.length, 2);
+  assert.ok(manifest.items.every((item) => item.status === "published"));
+});
+
+test("validates and compiles all 13 function-representation lessons", () => {
+  for (const questionNumber of Array.from(
+    { length: 13 },
+    (_, index) => String(index + 1).padStart(2, "0"),
+  )) {
+    const problemId = `function-representation-20260727-q${questionNumber}`;
+    assert.doesNotThrow(() => validateFunctionLesson(path.join(
+      repoRoot,
+      "internal/senior-high/lesson-specs",
+      problemId,
+    )));
+    const htmlPath = path.join(
+      repoRoot,
+      "site/problems/senior-high/functions/function-representation",
+      `${problemId}.html`,
+    );
+    assert.equal(fs.existsSync(htmlPath), true);
+    const html = fs.readFileSync(htmlPath, "utf8");
+    assert.match(html, /FunctionLessonFromSpec\.createSpecRenderer/);
+    assert.doesNotMatch(html, /"(?:NaN|Infinity|undefined)"/);
+    assert.doesNotMatch(html, /待复核|草稿|draft/i);
+  }
+});
+
+test("function-representation pages preserve decisive visual structures", () => {
+  const graphChoice = readLesson(
+    "function-representation-20260727-q02",
+    "lesson-data.json",
+  );
+  assert.equal(
+    graphChoice.problem.lines.flatMap((line) => line.figures ?? []).length,
+    4,
+  );
+  assert.equal(graphChoice.steps.length, 1);
+  assert.match(
+    graphChoice.steps[0].derive.flat().join("\n"),
+    /x≥0[\s\S]*x<0/,
+  );
+  assert.doesNotMatch(
+    graphChoice.steps[0].derive.flat().join("\n"),
+    /对称性|零点|最低点/,
+  );
+
+  const substitution = readLesson(
+    "function-representation-20260727-q04",
+    "lesson-data.json",
+  );
+  assert.match(
+    substitution.problem.keyPoints.items.join("\n"),
+    /本题应用换元法/,
+  );
+
+  const functionalEquation = readLesson(
+    "function-representation-20260727-q06",
+    "lesson-data.json",
+  );
+  const functionalEquationKeyPoints =
+    functionalEquation.problem.keyPoints.items.join("\n");
+  const functionalEquationDerivation =
+    functionalEquation.steps[0].derive.flat().join("\n");
+  assert.match(functionalEquationKeyPoints, /假设函数是一次函数/);
+  assert.match(functionalEquationKeyPoints, /f\(x\)=kx\+b/);
+  assert.match(functionalEquationDerivation, /f\(x\)=kx\+b/);
+  assert.match(functionalEquationDerivation, /b=-1/);
+  assert.ok(
+    functionalEquationDerivation.indexOf("f(x)=kx+b")
+      < functionalEquationDerivation.indexOf("f(x)=x-1"),
+  );
+
+  const waterTariff = readLesson(
+    "function-representation-20260727-q09",
+    "function-spec.json",
+  );
+  const waterTariffLesson = readLesson(
+    "function-representation-20260727-q09",
+    "lesson-data.json",
+  );
+  const waterTariffDecorations = readLesson(
+    "function-representation-20260727-q09",
+    "function-decorations.json",
+  );
+  assert.deepEqual(
+    waterTariff.panels.find((panel) => panel.id === "cost-graph")
+      .points.map(({ x, y }) => [x, y]),
+    [[12, 36], [18, 72]],
+  );
+  assert.deepEqual(waterTariffLesson.policies.s2.range, [0, 24]);
+  assert.equal(waterTariffDecorations.steps.s1.showMovingPoint, false);
+  assert.deepEqual(waterTariffDecorations.steps.s1.highlightElementIds, []);
+  assert.deepEqual(waterTariffDecorations.steps.s2.highlightElementIds, []);
+  const waterTariffRenderer = runtime.createSpecRenderer(
+    waterTariff,
+    waterTariffDecorations,
+    waterTariffLesson.steps,
+    waterTariffLesson.policies,
+  );
+  const tariffBuildMarkup = waterTariffRenderer.diagramMarkupFor(0, 18, {});
+  const tariffCheckMarkup = waterTariffRenderer.diagramMarkupFor(1, 14, {});
+  const tariffOpenEndpointMarkup = waterTariffRenderer.diagramMarkupFor(1, 0, {});
+  assert.equal((tariffBuildMarkup.match(/\(18,72\)/g) || []).length, 1);
+  assert.doesNotMatch(tariffBuildMarkup, /\(18, 72\)/);
+  assert.doesNotMatch(tariffBuildMarkup, /#f59e0b/);
+  assert.match(tariffBuildMarkup, /font-size="20"[^>]*>\(18,72\)<\/text>/);
+  assert.equal((tariffCheckMarkup.match(/\(14, 48\)/g) || []).length, 1);
+  assert.match(tariffCheckMarkup, /font-size="20"[^>]*>\(14, 48\)<\/text>/);
+  assert.equal((tariffCheckMarkup.match(/<circle[^>]*fill="#0f766e"/g) || []).length, 3);
+  // openMin domains (0,12] must not invent a moving point at the excluded endpoint x=0
+  assert.doesNotMatch(tariffOpenEndpointMarkup, /\(0, 0\)/);
+  assert.equal((tariffOpenEndpointMarkup.match(/<circle[^>]*fill="#0f766e"/g) || []).length, 2);
+
+  const piecewise = readLesson(
+    "function-representation-20260727-q12",
+    "function-spec.json",
+  );
+  assert.deepEqual(
+    piecewise.panels.find((panel) => panel.id === "piecewise-graph")
+      .functions.map((item) => item.id),
+    ["reciprocal", "quadratic", "linear"],
+  );
+  const piecewiseLesson = readLesson(
+    "function-representation-20260727-q12",
+    "lesson-data.json",
+  );
+  const piecewiseDecorations = readLesson(
+    "function-representation-20260727-q12",
+    "function-decorations.json",
+  );
+  const piecewiseMarkup = runtime.createSpecRenderer(
+    piecewise,
+    piecewiseDecorations,
+    piecewiseLesson.steps,
+    piecewiseLesson.policies,
+  ).diagramMarkupFor(2, 2, {});
+  assert.equal(
+    (piecewiseMarkup.match(/stroke="#2563eb" stroke-width="4"/g) || []).length,
+    3,
+  );
+  const piecewiseDiscussion = piecewiseLesson.steps
+    .flatMap((step) => [step.title, ...step.derive.flat(), ...(step.box || [])])
+    .join("\n");
+  assert.doesNotMatch(piecewiseDiscussion, /第一段|第二段|第三段|每一段/);
+  assert.match(piecewiseDiscussion, /当 -1≤a<0 时/);
+  assert.match(piecewiseDiscussion, /当 0≤a≤3 时/);
+  assert.match(piecewiseDiscussion, /当 3<a≤4 时/);
+  assert.match(piecewiseDiscussion, /当 -1≤x<0 时/);
+
+  const preimageId = "function-representation-20260727-q11";
+  const preimageLesson = readLesson(preimageId, "lesson-data.json");
+  const preimageDecorations = readLesson(
+    preimageId,
+    "function-decorations.json",
+  );
+  const preimageMarkup = runtime.createSpecRenderer(
+    readLesson(preimageId, "function-spec.json"),
+    preimageDecorations,
+    preimageLesson.steps,
+    preimageLesson.policies,
+  ).diagramMarkupFor(0, 1, {});
+  assert.equal(preimageDecorations.steps.s1.showMovingPoint, false);
+  assert.deepEqual(preimageDecorations.steps.s1.highlightElementIds, []);
+  assert.match(preimageMarkup, /fill="#fff" stroke="#0f766e"[^>]*\/>/);
+  assert.doesNotMatch(preimageMarkup, />\(0,0\)<\/text>/);
+  assert.equal((preimageMarkup.match(/\(1,3\)/g) || []).length, 1);
+  assert.doesNotMatch(preimageMarkup, /\(1, 3\)/);
+  assert.doesNotMatch(preimageMarkup, /#f59e0b/);
+  assert.match(preimageMarkup, /font-size="20"[^>]*>\(1,3\)<\/text>/);
+
+  const taxiId = "function-representation-20260727-q13";
+  const taxiLesson = readLesson(taxiId, "lesson-data.json");
+  const taxiSpec = readLesson(taxiId, "function-spec.json");
+  const taxiDecorations = readLesson(taxiId, "function-decorations.json");
+  const taxiDiscussion = taxiLesson.steps[0].derive.flat().join("\n");
+  assert.match(taxiDiscussion, /当 0<x≤3 时/);
+  assert.match(taxiDiscussion, /当 3<x≤10 时/);
+  assert.match(taxiDiscussion, /当 10<x≤30 时/);
+  assert.doesNotMatch(taxiDiscussion, /不超过 3 km|3 km 后|10 km 后/);
+  assert.deepEqual(
+    taxiSpec.panels.find((panel) => panel.id === "fare-graph")
+      .points.map(({ x, y }) => [x, y]),
+    [[3, 11], [10, 26.4]],
+  );
+  assert.deepEqual(taxiDecorations.steps.s1.highlightElementIds, []);
+  assert.equal(taxiDecorations.steps.s1.fillMovingPoint, true);
+  const taxiRenderer = runtime.createSpecRenderer(
+    taxiSpec,
+    taxiDecorations,
+    taxiLesson.steps,
+    taxiLesson.policies,
+  );
+  const taxiMarkup = taxiRenderer.diagramMarkupFor(0, 15, {});
+  assert.equal((taxiMarkup.match(/\(15, 40.4\)/g) || []).length, 1);
+  assert.equal((taxiMarkup.match(/<circle[^>]*fill="#0f766e"/g) || []).length, 3);
+  assert.doesNotMatch(taxiMarkup, /#f59e0b/);
+  assert.match(taxiMarkup, /font-size="20"[^>]*>\(15, 40.4\)<\/text>/);
 });
 
 test("advanced abstract-function lesson states uniqueness and writes explicit function values", () => {

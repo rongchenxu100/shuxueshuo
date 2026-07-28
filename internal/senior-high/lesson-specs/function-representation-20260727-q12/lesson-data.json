@@ -1,0 +1,76 @@
+{
+  "$schema": "../../../schemas/lesson-data.schema.json",
+  "meta": {
+    "id": "function-representation-20260727-q12",
+    "outputPath": "site/problems/senior-high/functions/function-representation/function-representation-20260727-q12.html",
+    "pageTitle": "函数的表示法第 12 题：分段函数的函数值、原像与值域",
+    "pageDescription": "按分段代入、分类解方程，并结合完整图象求三段函数的总值域。",
+    "breadcrumbTitle": "函数表示法第 12 题",
+    "breadcrumbLabel": "高中题库",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "classification": { "pattern": "function-representation", "methods": ["piecewise-evaluation", "piecewise-equation", "graph-range"] },
+    "curriculum": {
+      "chapterLabel": "第三章 函数的概念与性质",
+      "sectionLabel": "3.1 函数的概念及其表示",
+      "subsectionLabel": "3.1.2 函数的表示法",
+      "groupId": "function-comprehensive",
+      "groupLabel": "分段函数与综合应用"
+    }
+  },
+  "problem": {
+    "source": "2026 广东深圳期中",
+    "keyPoints": {
+      "title": "解题要点",
+      "items": ["求函数值时先用输入选择分段；", "解 \\(f(a)=c\\) 时按 a 的取值范围分类求根并筛选；", "总值域是各段值域的并集，端点开闭要与定义域一致。"]
+    },
+    "lines": [
+      { "text": "已知函数 \\(f(x)=\\frac{1}{x}\\)（\\(-1≤x<0\\)），\\(f(x)=x^2-2x\\)（\\(0≤x≤3\\)），\\(f(x)=-2x+9\\)（\\(3<x≤4\\)）。" },
+      { "text": "（1）求 \\(f(4)\\)、\\(f(f(1))\\) 的值；" },
+      { "text": "（2）若 \\(f(a)=1\\)，求 a 的值；" },
+      { "text": "（3）在给定的坐标系中画出此函数的图象，并根据图象写出函数 \\(f(x)\\) 的值域。" },
+      { "ariaLabel": "题目给定的空白坐标系", "figures": [{ "id": "blank-grid", "ariaLabel": "横轴从负 3 到 4、纵轴从负 3 到 4 的坐标系" }] },
+      { "text": "写出各问结果。", "answerId": "answerI", "answer": "（1）\\(f(4)=1\\)，\\(f(f(1))=-1\\)；（2）\\(a=1+\\sqrt{2}\\) 或 \\(a=4\\)；（3）\\((−∞,3]\\)" }
+    ]
+  },
+  "ui": {
+    "legend": [{ "colorVar": "fold", "label": "分段函数图象" }],
+    "sliderLabel": "输入 x",
+    "paramLabelPrefix": "x＝",
+    "goToProblemMode": "smooth",
+    "groupTitles": { "（1）": "分段代入", "（2）": "分段求原像", "（3）": "画图并求值域" }
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "（1）",
+      "title": "按输入选择对应分段",
+      "t": 4,
+      "showDiagram": false,
+      "derive": [["输入 4", "\\(3<4≤4\\)，所以 \\(f(4)=-2×4+9=1\\)"], ["先算内层", "\\(0≤1≤3\\)，所以 \\(f(1)=1^2-2×1=-1\\)"], ["再算外层", "\\(-1≤-1<0\\)，所以 \\(f(f(1))=f(-1)=\\frac{1}{-1}=-1\\)"]],
+      "box": ["复合求值的每一次输入都要重新选择分段"]
+    },
+    {
+      "id": "s2",
+      "section": "（2）",
+      "title": "按 a 的取值范围分类求解",
+      "t": 1,
+      "showDiagram": false,
+      "derive": [["当 -1≤a<0 时", "\\(\\frac{1}{a}=1\\) 得 \\(a=1\\)，不符合 \\(-1≤a<0\\)，舍去"], ["当 0≤a≤3 时", "\\(a^2-2a=1\\) 得 \\(a=1±\\sqrt{2}\\)，只有 \\(a=1+\\sqrt{2}\\) 符合 \\(0≤a≤3\\)"], ["当 3<a≤4 时", "\\(-2a+9=1\\) 得 \\(a=4\\)，符合 \\(3<a≤4\\)"], ["∴", "\\(a=1+\\sqrt{2}\\) 或 \\(a=4\\)"]],
+      "box": ["代数方程的根只有落在当前分段范围内才有效"]
+    },
+    {
+      "id": "s3",
+      "section": "（3）",
+      "title": "合并三段图象的值域",
+      "t": 2,
+      "derive": [["当 -1≤x<0 时", "\\(y=\\frac{1}{x}\\) 的值域为 \\((−∞,-1]\\)"], ["当 0≤x≤3 时", "\\(y=(x-1)^2-1\\) 的值域为 \\([-1,3]\\)"], ["当 3<x≤4 时", "\\(y=-2x+9\\) 的值域为 \\([1,3)\\)"], ["取并集", "\\((−∞,-1]∪[-1,3]∪[1,3)=(−∞,3]\\)"]],
+      "box": ["值 3 已在 x=3 时由 y=(x-1)²-1 取得，因此总值域右端点闭合"]
+    }
+  ],
+  "policies": {
+    "s1": { "movable": false, "range": [4, 4] },
+    "s2": { "movable": false, "range": [1, 1] },
+    "s3": { "movable": true, "range": [-1, 4], "step": 0.05 }
+  },
+  "stepLabels": { "s1": "（1）分段代入", "s2": "（2）分段求原像", "s3": "（3）画图并求值域" }
+}

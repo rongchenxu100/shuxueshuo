@@ -1,0 +1,41 @@
+{
+  "$schema": "../../schemas/function-spec.schema.json",
+  "version": 1,
+  "id": "function-representation-20260727-q13",
+  "parameter": { "name": "x", "initial": 15 },
+  "panels": [
+    {
+      "id": "fare-graph",
+      "kind": "functionGraph",
+      "title": "一次乘车费用 f(x)",
+      "viewport": { "x": 0.06, "y": 0.06, "width": 0.88, "height": 0.88 },
+      "domain": { "minX": 0, "maxX": 30, "minY": 0, "maxY": 90 },
+      "gridStepX": 3,
+      "gridStepY": 11,
+      "showAxisTicks": true,
+      "renderAllFunctions": true,
+      "pointLabelFontSize": 20,
+      "functions": [
+        { "id": "fare-start", "variable": "x", "expr": "11", "label": "0<x≤3", "intervals": [{ "min": 0, "max": 3, "openMin": true }] },
+        { "id": "fare-middle", "variable": "x", "expr": "2.2*x+4.4", "label": "3<x≤10", "intervals": [{ "min": 3, "max": 10, "openMin": true }] },
+        { "id": "fare-long", "variable": "x", "expr": "2.8*x-1.6", "label": "10<x≤30", "intervals": [{ "min": 10, "max": 30, "openMin": true }] }
+      ],
+      "points": [
+        { "id": "fare-3", "x": 3, "y": 11, "label": "(3,11)", "labelDx": 14, "labelDy": -14 },
+        { "id": "fare-10", "x": 10, "y": 26.4, "label": "(10,26.4)", "labelDx": 14, "labelDy": -14 }
+      ]
+    },
+    {
+      "id": "plan-table",
+      "kind": "valueTable",
+      "title": "三种乘车方案费用比较",
+      "viewport": { "x": 0.04, "y": 0.12, "width": 0.92, "height": 0.76 },
+      "columns": ["方案", "每段路程", "单段费用", "总费用"],
+      "rows": [
+        { "id": "plan-1", "cells": ["① 不换车", "30 km", "f(30)=82.4", "82.4 元"] },
+        { "id": "plan-2", "cells": ["② 分两段", "15 km×2", "f(15)=40.4", "80.8 元"] },
+        { "id": "plan-3", "cells": ["③ 分三段", "10 km×3", "f(10)=26.4", "79.2 元"] }
+      ]
+    }
+  ]
+}

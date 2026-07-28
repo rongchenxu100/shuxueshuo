@@ -1,0 +1,41 @@
+{
+  "$schema": "../../schemas/function-spec.schema.json",
+  "version": 1,
+  "id": "function-representation-20260727-q09",
+  "parameter": { "name": "x", "initial": 14 },
+  "panels": [
+    {
+      "id": "tariff-table",
+      "kind": "valueTable",
+      "title": "居民生活用水阶梯水价",
+      "viewport": { "x": 0.04, "y": 0.12, "width": 0.92, "height": 0.76 },
+      "columns": ["每户每月用水量", "水价"],
+      "rows": [
+        { "id": "tier-1", "cells": ["不超过 12 m³ 的部分", "3 元/m³"] },
+        { "id": "tier-2", "cells": ["超过 12 m³ 但不超过 18 m³ 的部分", "6 元/m³"] },
+        { "id": "tier-3", "cells": ["超过 18 m³ 的部分", "9 元/m³"] }
+      ]
+    },
+    {
+      "id": "cost-graph",
+      "kind": "functionGraph",
+      "title": "总水费随用水量累计变化",
+      "viewport": { "x": 0.06, "y": 0.06, "width": 0.88, "height": 0.88 },
+      "domain": { "minX": 0, "maxX": 24, "minY": 0, "maxY": 130 },
+      "gridStepX": 3,
+      "gridStepY": 18,
+      "showAxisTicks": true,
+      "renderAllFunctions": true,
+      "pointLabelFontSize": 20,
+      "functions": [
+        { "id": "cost-1", "variable": "x", "expr": "3*x", "label": "0＜x≤12", "intervals": [{ "min": 0, "max": 12, "openMin": true }] },
+        { "id": "cost-2", "variable": "x", "expr": "6*x-36", "label": "12＜x≤18", "intervals": [{ "min": 12, "max": 18, "openMin": true }] },
+        { "id": "cost-3", "variable": "x", "expr": "9*x-90", "label": "x＞18", "intervals": [{ "min": 18, "max": 24, "openMin": true, "extendsMax": true }] }
+      ],
+      "points": [
+        { "id": "break-12", "x": 12, "y": 36, "label": "(12,36)", "labelDx": 14, "labelDy": -14 },
+        { "id": "break-18", "x": 18, "y": 72, "label": "(18,72)", "labelDx": 14, "labelDy": -14 }
+      ]
+    }
+  ]
+}

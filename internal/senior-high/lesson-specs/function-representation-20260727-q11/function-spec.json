@@ -1,0 +1,33 @@
+{
+  "$schema": "../../schemas/function-spec.schema.json",
+  "version": 1,
+  "id": "function-representation-20260727-q11",
+  "parameter": { "name": "x", "initial": 1 },
+  "panels": [
+    {
+      "id": "piecewise-graph",
+      "kind": "functionGraph",
+      "title": "水平线 y=3 与两段函数的交点",
+      "viewport": { "x": 0.06, "y": 0.06, "width": 0.88, "height": 0.88 },
+      "domain": { "minX": -2.2, "maxX": 2.2, "minY": -0.5, "maxY": 8 },
+      "gridStepX": 1,
+      "gridStepY": 1,
+      "showAxisTicks": true,
+      "renderAllFunctions": true,
+      "pointLabelFontSize": 20,
+      "functions": [
+        { "id": "negative-branch", "variable": "x", "expr": "3*x^2", "label": "3x²，x<0", "intervals": [{ "min": -2.2, "max": 0, "openMax": true }] },
+        { "id": "nonnegative-branch", "variable": "x", "expr": "2*x+1", "label": "2x+1，x≥0", "intervals": [{ "min": 0, "max": 2.2 }] }
+      ],
+      "referenceLines": [
+        { "id": "level-three", "orientation": "horizontal", "value": 3, "min": -2.2, "max": 2.2, "label": "y=3", "color": "#64748b" }
+      ],
+      "points": [
+        { "id": "left-solution", "x": -1, "y": 3, "label": "(-1,3)", "labelDx": 14, "labelDy": -14 },
+        { "id": "right-solution", "x": 1, "y": 3, "label": "(1,3)", "labelDx": 14, "labelDy": -14 },
+        { "id": "negative-open", "x": 0, "y": 0, "open": true },
+        { "id": "nonnegative-closed", "x": 0, "y": 1, "label": "(0,1)", "labelDx": 14, "labelDy": -14 }
+      ]
+    }
+  ]
+}
