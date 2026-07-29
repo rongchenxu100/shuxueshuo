@@ -18,6 +18,9 @@ from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
 from shuxueshuo_server.solver.runtime.functional_plan_graph import (
     rewrite_call_result_aliases as _rewrite_call_result_aliases,
 )
+from shuxueshuo_server.solver.runtime.functional_legacy_projection import (
+    FunctionalLegacyProjectionAdapter,
+)
 from shuxueshuo_server.solver.runtime.functional_plan_models import (
     CallResultRef,
     FunctionalCapability,
@@ -101,6 +104,7 @@ class FunctionalSemanticView:
     logical_state_key: LogicalStateKey | None = None
     typed_slot_id: StateSlotId | None = None
     state_version_id: StateVersionId | None = None
+    source_version_ids: tuple[StateVersionId, ...] = ()
 
     def to_prompt_payload(self) -> dict[str, Any]:
         return {
@@ -1069,8 +1073,15 @@ class FunctionalSemanticIndex:
         context: PlannerStateContext,
         *,
         handle_registry: CanonicalHandleRegistry,
+        legacy_projection_adapter: (
+            FunctionalLegacyProjectionAdapter | None
+        ) = None,
     ) -> "FunctionalSemanticIndex":
         state_slots = {item.slot_id: item for item in context.state.state_slots}
+        legacy_adapter = (
+            legacy_projection_adapter
+            or FunctionalLegacyProjectionAdapter()
+        )
         conditions = {
             item.condition_id: item for item in context.state.conditions
         }
@@ -1111,7 +1122,15 @@ class FunctionalSemanticIndex:
                         state_slot_id=slot.slot_id,
                         dependency_object_refs=slot.dependency_object_refs,
                         free_symbol_refs=slot.free_symbol_refs,
-                        source_state_slot_ids=(slot.slot_id,),
+                        source_state_slot_ids=(
+                            (
+                                legacy_adapter.state_slot_id(
+                                    slot.typed_slot_id
+                                ),
+                            )
+                            if slot.typed_slot_id is not None
+                            else (slot.slot_id,)
+                        ),
                         lineage=slot.lineage,
                         math_object_id=(
                             slot.logical_state_key.object_id
@@ -1121,6 +1140,11 @@ class FunctionalSemanticIndex:
                         logical_state_key=slot.logical_state_key,
                         typed_slot_id=slot.typed_slot_id,
                         state_version_id=slot.latest_version_id,
+                        source_version_ids=(
+                            (slot.latest_version_id,)
+                            if slot.latest_version_id is not None
+                            else ()
+                        ),
                     )
                 )
             if item.kind == "fact":
@@ -1196,6 +1220,7 @@ class FunctionalSemanticIndex:
                             item.handle,
                             value_runtime_type,
                             item.valid_scope,
+                            condition_id=item.condition_id,
                             object_ref=_primary_value_object_ref(
                                 fact_payload,
                                 value_runtime_type=value_runtime_type,
@@ -1256,7 +1281,15 @@ class FunctionalSemanticIndex:
                                 object_slot.dependency_object_refs
                             ),
                             free_symbol_refs=object_slot.free_symbol_refs,
-                            source_state_slot_ids=(object_slot.slot_id,),
+                            source_state_slot_ids=(
+                                (
+                                    legacy_adapter.state_slot_id(
+                                        object_slot.typed_slot_id
+                                    ),
+                                )
+                                if object_slot.typed_slot_id is not None
+                                else (object_slot.slot_id,)
+                            ),
                             lineage=object_slot.lineage,
                             math_object_id=(
                                 object_slot.logical_state_key.object_id
@@ -1266,6 +1299,11 @@ class FunctionalSemanticIndex:
                             logical_state_key=object_slot.logical_state_key,
                             typed_slot_id=object_slot.typed_slot_id,
                             state_version_id=object_slot.latest_version_id,
+                            source_version_ids=(
+                                (object_slot.latest_version_id,)
+                                if object_slot.latest_version_id is not None
+                                else ()
+                            ),
                         )
                     )
         entity_views = tuple(

@@ -439,6 +439,8 @@ def _prompt_return_binding(result: FunctionalCapabilityReturn) -> str:
         return "internal_only"
     if result.return_binding == "external_allowed":
         return "answer_or_existing_object"
+    if result.return_binding == "explicit_external_required":
+        return "explicit_answer_or_existing_object"
     if result.return_binding == "call_local_allowed":
         return "call_result_or_answer_or_existing_object"
     if result.identity_policy == "derived_role":
@@ -473,6 +475,7 @@ class ResolvedFunctionalValue:
     logical_state_key: LogicalStateKey | None = None
     typed_slot_id: StateSlotId | None = None
     state_version_id: StateVersionId | None = None
+    source_version_ids: tuple[StateVersionId, ...] = ()
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -515,6 +518,9 @@ class ResolvedFunctionalValue:
                 if self.state_version_id is not None
                 else None
             ),
+            "source_version_ids": [
+                item.to_payload() for item in self.source_version_ids
+            ],
         }
 
 
@@ -747,6 +753,9 @@ class FunctionalPlanReconciliationResult:
     state_finalization_decisions: tuple[dict[str, Any], ...] = ()
     state_finalization_mismatches: tuple[dict[str, Any], ...] = ()
     runtime_destination_decisions: tuple[dict[str, Any], ...] = ()
+    typed_identity_completeness: dict[str, Any] = field(default_factory=dict)
+    legacy_projection_count: int = 0
+    legacy_identity_fallback_count: int = 0
 
     @property
     def ok(self) -> bool:
@@ -799,6 +808,13 @@ class FunctionalPlanReconciliationResult:
             "runtime_destination_decisions": [
                 dict(item) for item in self.runtime_destination_decisions
             ],
+            "typed_identity_completeness": dict(
+                self.typed_identity_completeness
+            ),
+            "legacy_projection_count": self.legacy_projection_count,
+            "legacy_identity_fallback_count": (
+                self.legacy_identity_fallback_count
+            ),
             "projected_draft": (
                 self.projected_draft.to_payload()
                 if self.projected_draft is not None

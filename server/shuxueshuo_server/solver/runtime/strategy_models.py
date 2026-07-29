@@ -264,6 +264,8 @@ class ProjectedFunctionArgBinding:
     runtime_type: str | None = None
     state_slot_id: str | None = None
     object_ref: str | None = None
+    math_object_id: MathObjectId | None = None
+    state_version_id: StateVersionId | None = None
     binding_authority: Literal["wire", "resolver", "compiler"] = "wire"
 
     def to_payload(self) -> dict[str, Any]:
@@ -278,6 +280,10 @@ class ProjectedFunctionArgBinding:
             payload["state_slot_id"] = self.state_slot_id
         if self.object_ref is not None:
             payload["object_ref"] = self.object_ref
+        if self.math_object_id is not None:
+            payload["math_object_id"] = self.math_object_id.to_payload()
+        if self.state_version_id is not None:
+            payload["state_version_id"] = self.state_version_id.to_payload()
         payload["binding_authority"] = self.binding_authority
         return payload
 

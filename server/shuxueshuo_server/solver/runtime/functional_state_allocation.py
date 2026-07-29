@@ -210,20 +210,11 @@ def functional_computation_key(
     identity_factory: StateIdentityFactory,
     identity_index: StateIdentityIndex,
 ) -> ComputationKey:
+    del scope_id, identity_index
     bindings: list[ArgVersionBinding] = []
     for arg_name in sorted(resolved_args):
         for item_index, value in enumerate(resolved_args[arg_name]):
-            indexed = (
-                identity_index.latest_for_legacy_slot(
-                    value.state_slot_id,
-                    consumer_scope_id=scope_id,
-                )
-                if value.state_version_id is None
-                else None
-            )
-            version_id = value.state_version_id or (
-                indexed.version_id if indexed is not None else None
-            )
+            version_id = value.state_version_id
             object_id = value.math_object_id or identity_factory.object_id(
                 value.object_ref
             )
@@ -252,24 +243,40 @@ def functional_source_version_ids(
     scope_id: str,
     identity_index: StateIdentityIndex,
 ) -> tuple[StateVersionId, ...]:
+    del scope_id, identity_index
     versions: list[StateVersionId] = []
     for values in resolved_args.values():
         for value in values:
             if value.state_version_id is not None:
                 versions.append(value.state_version_id)
-            for state_slot_id in unique_ordered(
-                (
-                    *((value.state_slot_id,) if value.state_slot_id else ()),
-                    *value.source_state_slot_ids,
-                    *value.lineage.source_state_slot_ids,
-                )
+                continue
+            if (
+                value.source_call_id is not None
+                and value.return_name is not None
             ):
-                indexed = identity_index.latest_for_legacy_slot(
-                    state_slot_id,
-                    consumer_scope_id=scope_id,
+                # A public call-local return is a direct CallResult input. Its
+                # source versions remain provenance of the producer and must
+                # not become direct state reads of every downstream call.
+                # Structured object roles are different: a locus whose subject
+                # is Point G is also direct identity evidence for a transition
+                # that writes G. Keep only role versions whose typed object
+                # matches the role, never the role's transitive ancestors.
+                role_object_ids = {
+                    object_id
+                    for binding in value.lineage.object_roles
+                    for object_id in binding.object_ids
+                }
+                versions.extend(
+                    version_id
+                    for binding in value.lineage.object_roles
+                    for version_id in binding.source_version_ids
+                    if (
+                        version_id.slot_id.logical_key.object_id
+                        in role_object_ids
+                    )
                 )
-                if indexed is not None:
-                    versions.append(indexed.version_id)
+                continue
+            versions.extend(value.source_version_ids)
     return unique_ordered(versions)
 
 
@@ -297,7 +304,12 @@ def identity_shadow_comparison(
         )
     compatible_actions = {
         "create": {"create", "isolated", "reuse", "transition"},
-        "transition": {"create", "transition", "reuse"},
+        "transition": {
+            "call_local_value",
+            "create",
+            "transition",
+            "reuse",
+        },
         "value": {
             "call_local_value",
             "create",

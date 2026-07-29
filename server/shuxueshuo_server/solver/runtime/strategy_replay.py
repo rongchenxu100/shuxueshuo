@@ -118,6 +118,9 @@ from shuxueshuo_server.solver.runtime.state_identity import (
     StateIdentityIndex,
     StateVersionId,
 )
+from shuxueshuo_server.solver.runtime.straightening_metadata import (
+    canonical_straightening_endpoint_name,
+)
 from shuxueshuo_server.solver.runtime.strategy_validator import StepIntentValidator
 from shuxueshuo_server.solver.utils import unique_ordered
 
@@ -385,11 +388,16 @@ class PlannerRetryReplayService:
                 else {}
             ),
         )
+        # A retryable reconciliation issue can leave ``calls`` as a partial
+        # graph. Auditing committed versions against that partial view masks
+        # the actionable issue as checkpoint drift. Checkpoint structure
+        # remains fail-loud; defer only the graph comparison until complete.
         if retry_checkpoint is not None:
             verify_restored_checkpoint(
                 retry_checkpoint,
                 reconciliation=reconciliation,
                 handle_registry=handle_registry,
+                verify_reconciled_graph=reconciliation.ok,
             )
         authoritative_output_types = {
             handle: output.runtime_type
@@ -1457,6 +1465,8 @@ def _functional_projected_arg_bindings(
             runtime_type=value.runtime_type,
             state_slot_id=value.state_slot_id,
             object_ref=value.object_ref,
+            math_object_id=value.math_object_id,
+            state_version_id=value.state_version_id,
             binding_authority="wire",
         )
         for call in reconciliation.calls
@@ -2539,6 +2549,10 @@ def _enrich_functional_retry_issues(
         for step_id in item.step_ids
     }
     result: list[PlannerRetryIssue] = []
+    placements_by_call = {
+        placement.canonical_call_id: placement
+        for placement in reconciliation.call_placements
+    }
     for issue in issues:
         issue_call_id = step_to_call.get(
             issue.step_id or "",
@@ -2905,6 +2919,28 @@ def _enrich_functional_retry_issues(
             if not required_object_refs
             or allocation.object_ref in required_object_refs
         ]
+        declared_compatible_results = _declared_compatible_call_results(
+            plan=plan,
+            catalog=catalog,
+            consumer_call_id=call.call_id,
+            consumer_scope_id=call_scopes[call.call_id],
+            accepted_types=accepted_types,
+            accepted_semantic_roles=accepted_semantic_roles,
+            call_order=call_order,
+            call_scopes=call_scopes,
+            placements_by_call=placements_by_call,
+            handle_registry=semantic_index.handle_registry,
+            required_object_refs=required_object_refs,
+        )
+        compatible_results = list(
+            {
+                (item["from_call"], item["return"]): item
+                for item in (
+                    *compatible_results,
+                    *declared_compatible_results,
+                )
+            }.values()
+        )
         if compatible_results:
             details["compatible_call_results"] = compatible_results
         later_compatible_results = [
@@ -2997,6 +3033,91 @@ def _enrich_functional_retry_issues(
             )
         )
     return tuple(result)
+
+
+def _declared_compatible_call_results(
+    *,
+    plan: FunctionalPlan,
+    catalog: FunctionalCapabilityCatalog,
+    consumer_call_id: str,
+    consumer_scope_id: str,
+    accepted_types: tuple[str, ...],
+    accepted_semantic_roles: tuple[str, ...],
+    call_order: dict[str, int],
+    call_scopes: dict[str, str],
+    placements_by_call: dict[str, Any],
+    handle_registry: CanonicalHandleRegistry,
+    required_object_refs: set[str],
+) -> list[dict[str, str]]:
+    """Offer prior declared returns even when an optional return was not allocated.
+
+    A CallResultRef in the repaired plan is itself enough to request an
+    optional return. ``internal_only`` forbids destination bindings and
+    expectations, but does not forbid a downstream CallResultRef. Restrict
+    candidates to prior visible calls whose declared runtime type and semantic
+    role satisfy the consumer contract.
+    """
+
+    # A declaration alone cannot prove a required MathObject identity. In that
+    # case only an allocated return with typed object provenance is eligible.
+    if required_object_refs:
+        return []
+
+    accepted_roles = {
+        canonical_straightening_endpoint_name(role) or role
+        for role in accepted_semantic_roles
+    }
+    result: list[dict[str, str]] = []
+    for prior in plan.calls:
+        if call_order.get(prior.call_id, -1) >= call_order[consumer_call_id]:
+            continue
+        capability = catalog.get(prior.capability_id)
+        if capability is None:
+            continue
+        placement = placements_by_call.get(prior.call_id)
+        for returned in capability.returns:
+            if not any(
+                runtime_type_compatible(expected, returned.runtime_type)
+                for expected in accepted_types
+            ):
+                continue
+            return_roles = {
+                returned.name,
+                returned.semantic_role,
+                returned.equivalent_to,
+                *returned.provides_semantic_roles,
+            }
+            canonical_roles = {
+                canonical_straightening_endpoint_name(role) or role
+                for role in return_roles
+                if role
+            }
+            if accepted_roles and not accepted_roles.intersection(
+                canonical_roles
+            ):
+                continue
+            valid_scope = (
+                placement.return_scopes.get(
+                    returned.name,
+                    placement.execution_scope_id,
+                )
+                if placement is not None
+                else call_scopes.get(prior.call_id, consumer_scope_id)
+            )
+            if not visible_from_valid_scope(
+                valid_scope,
+                scope_id=consumer_scope_id,
+                registry=handle_registry,
+            ):
+                continue
+            result.append(
+                {
+                    "from_call": prior.call_id,
+                    "return": returned.name,
+                    "value_type": returned.runtime_type,
+                }
+            )
+    return result
 
 
 def _functional_current_arg_bindings(

@@ -19,6 +19,9 @@ from shuxueshuo_server.solver.runtime.functional_plan_graph import (
     least_common_scope as _least_common_scope,
     rewrite_call_aliases as _rewrite_call_aliases,
 )
+from shuxueshuo_server.solver.runtime.functional_legacy_projection import (
+    FunctionalLegacyProjectionAdapter,
+)
 from shuxueshuo_server.solver.runtime.functional_plan_models import (
     CallResultRef,
     CanonicalStateHandleFactory,
@@ -65,11 +68,13 @@ from shuxueshuo_server.solver.runtime.state_identity import (
     StateIdentityFactory,
     StateIdentityIndex,
     StatePlacementMode,
+    StateSlotId,
     StateVersionId,
     StateVersionPlacementRewrite,
     TypedCallPlacementDecision,
 )
 from shuxueshuo_server.solver.runtime.strategy_models import SemanticRef
+from shuxueshuo_server.solver.utils import unique_ordered
 
 
 @dataclass(frozen=True)
@@ -113,7 +118,14 @@ class FunctionalCallPlacementService:
         pinned_canonical_call_ids: Sequence[str] = (),
         pinned_execution_scopes: Mapping[str, str] | None = None,
         pinned_return_scopes: Mapping[str, Mapping[str, str]] | None = None,
+        legacy_projection_adapter: (
+            FunctionalLegacyProjectionAdapter | None
+        ) = None,
     ) -> FunctionalCallPlacementResult:
+        legacy_projection_adapter = (
+            legacy_projection_adapter
+            or FunctionalLegacyProjectionAdapter()
+        )
         source_calls = {call.call_id: call for call in source_plan.calls}
         source_scopes = {
             call.call_id: scope.scope_id
@@ -194,6 +206,11 @@ class FunctionalCallPlacementService:
                 for call_id, members in groups.items()
             },
         )
+        branch_private_scopes = _branch_private_state_storage_scopes(
+            canonical_reconciled,
+            consumer_scopes=consumer_scopes,
+            registry=handle_registry,
+        )
         requested_execution_scopes: dict[str, str] = {}
         answer_scope_by_ref = {
             goal.id: goal.question_id
@@ -206,7 +223,10 @@ class FunctionalCallPlacementService:
                 for item_id in groups.get(call.call_id, (call.call_id,))
             )
             reconciliation = canonical_reconciled.get(call.call_id)
-            isolated_scope = _isolated_state_storage_scope(reconciliation)
+            isolated_scope = branch_private_scopes.get(
+                call.call_id,
+                _isolated_state_storage_scope(reconciliation),
+            )
             destinations = consumer_scopes.get(call.call_id, ())
             answer_destinations = tuple(
                 answer_scope_by_ref[binding.ref]
@@ -245,11 +265,24 @@ class FunctionalCallPlacementService:
             },
             aliases=aliases,
             registry=handle_registry,
+            fixed_scopes={
+                **branch_private_scopes,
+                **pinned_execution_scopes,
+            },
         )
         for call_id, scope_id in pinned_execution_scopes.items():
             if call_id in provisional_execution_scopes:
                 provisional_execution_scopes[call_id] = scope_id
+        for call_id, scope_id in branch_private_scopes.items():
+            if call_id in provisional_execution_scopes:
+                provisional_execution_scopes[call_id] = scope_id
 
+        return_consumer_scopes = _return_consumer_scopes(
+            canonical_plan,
+            reconciled=canonical_reconciled,
+            aliases=aliases,
+            execution_scopes=provisional_execution_scopes,
+        )
         return_scopes: dict[str, dict[str, str]] = {}
         for call in canonical_plan.calls:
             item = canonical_reconciled.get(call.call_id)
@@ -257,6 +290,10 @@ class FunctionalCallPlacementService:
                 continue
             scopes_by_return: dict[str, str] = {}
             for allocation in item.returns:
+                consumers = return_consumer_scopes.get(
+                    (call.call_id, allocation.return_name),
+                    (),
+                )
                 member_allocations = tuple(
                     candidate
                     for member_id in groups.get(call.call_id, (call.call_id,))
@@ -267,10 +304,11 @@ class FunctionalCallPlacementService:
                     (
                         provisional_execution_scopes[call.call_id],
                         *(candidate.valid_scope for candidate in member_allocations),
+                        *consumers,
                     ),
                     handle_registry,
                 )
-                if not _inputs_publishable_at_scope(
+                if not consumers and not _inputs_publishable_at_scope(
                     item.resolved_args.values(),
                     proposed,
                     aliases=aliases,
@@ -282,6 +320,8 @@ class FunctionalCallPlacementService:
                     call.call_id,
                     {},
                 ).get(allocation.return_name, proposed)
+                if call.call_id in branch_private_scopes:
+                    proposed = branch_private_scopes[call.call_id]
                 if (
                     allocation.allocation_action == "isolated"
                     and allocation.typed_slot_id is not None
@@ -298,6 +338,7 @@ class FunctionalCallPlacementService:
             return_scopes=return_scopes,
             catalog=catalog,
             semantic_items=semantic_items,
+            legacy_projection_adapter=legacy_projection_adapter,
         )
         version_rewrites: tuple[StateVersionPlacementRewrite, ...] = ()
         if (
@@ -320,6 +361,7 @@ class FunctionalCallPlacementService:
                 identity_factory=identity_factory,
                 identity_index=base_identity_index.clone(),
                 allocation_service=allocation_service,
+                legacy_projection_adapter=legacy_projection_adapter,
             )
             issues.extend(typed_finalization_issues)
         else:
@@ -1203,6 +1245,7 @@ def _close_execution_scope_dependencies(
     declared_scopes: Mapping[str, str],
     aliases: Mapping[str, str],
     registry: CanonicalHandleRegistry,
+    fixed_scopes: Mapping[str, str] | None = None,
 ) -> dict[str, str]:
     """Solve producer/consumer placement as a dependency-closure fixed point.
 
@@ -1213,7 +1256,8 @@ def _close_execution_scope_dependencies(
     fallback then propagates forward to dependent consumers.
     """
 
-    result = dict(requested_scopes)
+    fixed_scopes = dict(fixed_scopes or {})
+    result = {**requested_scopes, **fixed_scopes}
     calls = {call.call_id: call for call in plan.calls}
     max_rounds = max(1, len(calls) * 2)
     # Move the entire producer closure before checking visibility. Checking a
@@ -1226,6 +1270,8 @@ def _close_execution_scope_dependencies(
             for dependency_id in dependency_graph.get(call.call_id, ()):
                 dependency_call = calls.get(dependency_id)
                 if dependency_call is None:
+                    continue
+                if dependency_id in fixed_scopes:
                     continue
                 if _has_answer_binding(dependency_call):
                     continue
@@ -1246,6 +1292,12 @@ def _close_execution_scope_dependencies(
     for _ in range(max_rounds):
         changed = False
         for call in reversed(plan.calls):
+            if call.call_id in fixed_scopes:
+                fixed_scope = fixed_scopes[call.call_id]
+                if result[call.call_id] != fixed_scope:
+                    result[call.call_id] = fixed_scope
+                    changed = True
+                continue
             item = reconciled.get(call.call_id)
             if item is None or _inputs_visible_at_scope(
                 item.resolved_args.values(),
@@ -1274,6 +1326,7 @@ def _project_placed_calls(
     return_scopes: Mapping[str, Mapping[str, str]],
     catalog: FunctionalCapabilityCatalog,
     semantic_items: Sequence[SemanticReadCatalogItem],
+    legacy_projection_adapter: FunctionalLegacyProjectionAdapter,
 ) -> tuple[FunctionalCallReconciliation, ...]:
     """Project final scopes to legacy handles without deciding typed identity."""
 
@@ -1322,12 +1375,25 @@ def _project_placed_calls(
                 if old.state_handle is not None
                 else None
             )
-            state_slot_id = (
-                f"{object_ref}.{spec.state_kind}@{valid_scope}:"
-                f"{spec.runtime_type}"
-                if object_ref is not None
-                else f"functional:{valid_scope}:{call.call_id}:{old.return_name}"
-            )
+            if old.logical_state_key is not None:
+                state_slot_id = legacy_projection_adapter.state_slot_id(
+                    StateSlotId(old.logical_state_key, valid_scope)
+                )
+            elif object_ref is not None:
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.state_identity_incomplete: "
+                    f"call={call.call_id}, return={old.return_name}, "
+                    "placed object return has no LogicalStateKey"
+                )
+            else:
+                state_slot_id = (
+                    legacy_projection_adapter.call_local_value_id(
+                        scope_id=valid_scope,
+                        call_id=call.call_id,
+                        return_name=old.return_name,
+                    )
+                )
             inferred_free_symbol_refs = return_free_symbol_refs(
                 spec.runtime_type,
                 resolved_args,
@@ -1388,6 +1454,7 @@ def _finalize_typed_allocations(
     identity_factory: StateIdentityFactory,
     identity_index: StateIdentityIndex,
     allocation_service: StateAllocationService,
+    legacy_projection_adapter: FunctionalLegacyProjectionAdapter,
 ) -> tuple[
     tuple[FunctionalCallReconciliation, ...],
     tuple[StateVersionPlacementRewrite, ...],
@@ -1418,6 +1485,7 @@ def _finalize_typed_allocations(
                     value,
                     produced=produced,
                     version_map=version_map,
+                    legacy_projection_adapter=legacy_projection_adapter,
                 )
                 for value in values
             )
@@ -1555,7 +1623,9 @@ def _finalize_typed_allocations(
             elif decision.action == "transition":
                 effective_write_mode = "transition"
             state_slot_id = (
-                identity_factory.legacy_slot_id(decision.selected_slot_id)
+                legacy_projection_adapter.state_slot_id(
+                    decision.selected_slot_id
+                )
                 if decision.selected_slot_id is not None
                 else old.state_slot_id
             )
@@ -1615,6 +1685,7 @@ def _rewrite_finalized_resolved_value(
     *,
     produced: Mapping[tuple[str, str], FunctionalReturnAllocation],
     version_map: Mapping[StateVersionId, StateVersionId],
+    legacy_projection_adapter: FunctionalLegacyProjectionAdapter,
 ) -> ResolvedFunctionalValue:
     """Prefer the final producer allocation over provisional version rewrites."""
 
@@ -1629,7 +1700,11 @@ def _rewrite_finalized_resolved_value(
         and (value.source_call_id, value.return_name) in produced
     ):
         return rewritten
-    return _rewrite_resolved_value_versions(rewritten, version_map)
+    return _rewrite_resolved_value_versions(
+        rewritten,
+        version_map,
+        legacy_projection_adapter=legacy_projection_adapter,
+    )
 
 
 def _topological_calls(
@@ -1676,6 +1751,8 @@ def _topological_calls(
 def _rewrite_resolved_value_versions(
     value: ResolvedFunctionalValue,
     rewrites: Mapping[StateVersionId, StateVersionId],
+    *,
+    legacy_projection_adapter: FunctionalLegacyProjectionAdapter,
 ) -> ResolvedFunctionalValue:
     version_id = value.state_version_id
     if version_id is None:
@@ -1687,7 +1764,7 @@ def _rewrite_resolved_value_versions(
         value,
         state_version_id=target,
         typed_slot_id=target.slot_id,
-        state_slot_id=StateIdentityFactory.legacy_slot_id(target.slot_id),
+        state_slot_id=legacy_projection_adapter.state_slot_id(target.slot_id),
     )
 
 
@@ -1856,6 +1933,7 @@ def _rewrite_resolved_value(
         logical_state_key=allocation.logical_state_key,
         typed_slot_id=allocation.typed_slot_id,
         state_version_id=allocation.selected_version_id,
+        source_version_ids=allocation.source_version_ids,
     )
 
 
@@ -1867,32 +1945,13 @@ def _canonical_dependency_graph(
 ) -> dict[str, tuple[str, ...]]:
     result: dict[str, tuple[str, ...]] = {}
     call_ids = {call.call_id for call in plan.calls}
-    call_index = {
-        call.call_id: index
-        for index, call in enumerate(plan.calls)
-    }
     producers_by_version: dict[StateVersionId, str] = {}
-    producers_by_slot: dict[str, list[str]] = {}
     for producer_id, item in reconciled.items():
         for allocation in item.returns:
             if allocation.selected_version_id is not None:
                 producers_by_version[
                     allocation.selected_version_id
                 ] = producer_id
-            producers_by_slot.setdefault(
-                allocation.state_slot_id,
-                [],
-            ).append(producer_id)
-
-    def producer_for_slot(slot_id: str, consumer_id: str) -> str | None:
-        consumer_index = call_index[consumer_id]
-        candidates = tuple(
-            producer_id
-            for producer_id in producers_by_slot.get(slot_id, ())
-            if producer_id in call_index
-            and call_index[producer_id] < consumer_index
-        )
-        return candidates[-1] if candidates else None
 
     for call in plan.calls:
         dependencies = [
@@ -1913,11 +1972,13 @@ def _canonical_dependency_graph(
                 producer_id
                 for values in item.resolved_args.values()
                 for value in values
-                if value.state_version_id is not None
+                for version_id in unique_ordered(
+                    (value.state_version_id,)
+                    if value.state_version_id is not None
+                    else value.source_version_ids
+                )
                 if (
-                    producer_id := producers_by_version.get(
-                        value.state_version_id
-                    )
+                    producer_id := producers_by_version.get(version_id)
                 )
                 is not None
             )
@@ -1931,24 +1992,6 @@ def _canonical_dependency_graph(
                 )
                 if (
                     producer_id := producers_by_version.get(version_id)
-                )
-                is not None
-            )
-            dependencies.extend(
-                producer_id
-                for values in item.resolved_args.values()
-                for value in values
-                if value.source_call_id is None
-                and value.state_version_id is None
-                for slot_id in (
-                    *((value.state_slot_id,) if value.state_slot_id else ()),
-                    *value.source_state_slot_ids,
-                )
-                if (
-                    producer_id := producer_for_slot(
-                        slot_id,
-                        call.call_id,
-                    )
                 )
                 is not None
             )
@@ -1975,6 +2018,52 @@ def _dependency_consumer_scopes(
     return {
         call_id: tuple(dict.fromkeys(scopes))
         for call_id, scopes in result.items()
+    }
+
+
+def _return_consumer_scopes(
+    plan: FunctionalPlan,
+    *,
+    reconciled: Mapping[str, FunctionalCallReconciliation],
+    aliases: Mapping[str, str],
+    execution_scopes: Mapping[str, str],
+) -> dict[tuple[str, str], tuple[str, ...]]:
+    """Collect the exact consumers of each public return.
+
+    A call may execute in a child scope because its inputs are local while a
+    proven result is intentionally reused by a later sibling. That result is
+    exported to the consumers' least common scope without hoisting the call or
+    any of its inputs.
+    """
+
+    result: dict[tuple[str, str], list[str]] = {}
+    for consumer in plan.calls:
+        consumer_scope = execution_scopes[consumer.call_id]
+        refs = [
+            ref
+            for values in consumer.args.values()
+            for ref in values
+            if isinstance(ref, CallResultRef)
+        ]
+        item = reconciled.get(consumer.call_id)
+        if item is not None:
+            refs.extend(
+                CallResultRef(
+                    from_call=value.source_call_id,
+                    return_name=value.return_name,
+                )
+                for values in item.resolved_args.values()
+                for value in values
+                if value.source_call_id is not None
+                and value.return_name is not None
+            )
+        for ref in refs:
+            producer = _canonical(ref.from_call, aliases)
+            key = (producer, ref.return_name)
+            result.setdefault(key, []).append(consumer_scope)
+    return {
+        key: tuple(dict.fromkeys(scopes))
+        for key, scopes in result.items()
     }
 
 
@@ -2131,6 +2220,69 @@ def _isolated_state_storage_scope(
         and allocation.typed_slot_id is not None
     }
     return next(iter(scopes)) if len(scopes) == 1 else None
+
+
+def _branch_private_state_storage_scopes(
+    reconciled: Mapping[str, FunctionalCallReconciliation],
+    *,
+    consumer_scopes: Mapping[str, tuple[str, ...]] | None = None,
+    registry: CanonicalHandleRegistry | None = None,
+) -> dict[str, str]:
+    """Pin every independent sibling writer, including the first create.
+
+    B1 labels the first branch writer ``create`` and later sibling writers
+    ``isolated``. Looking only for ``isolated`` leaves the first writer free to
+    hoist and can turn two valid sibling states into overlapping writers.
+    """
+
+    by_state: dict[
+        LogicalStateKey,
+        list[tuple[str, FunctionalReturnAllocation]],
+    ] = {}
+    for call_id, item in reconciled.items():
+        for allocation in item.returns:
+            if (
+                allocation.logical_state_key is None
+                or allocation.typed_slot_id is None
+                or allocation.allocation_action not in {"create", "isolated"}
+            ):
+                continue
+            by_state.setdefault(allocation.logical_state_key, []).append(
+                (call_id, allocation)
+            )
+
+    consumer_scopes = consumer_scopes or {}
+    scopes_by_call: dict[str, set[str]] = {}
+    for allocations in by_state.values():
+        storage_scopes = {
+            allocation.typed_slot_id.storage_scope_id
+            for _, allocation in allocations
+        }
+        version_ids = {
+            allocation.selected_version_id
+            for _, allocation in allocations
+            if allocation.selected_version_id is not None
+        }
+        if len(storage_scopes) <= 1 or len(version_ids) <= 1:
+            continue
+        for call_id, allocation in allocations:
+            storage_scope = allocation.typed_slot_id.storage_scope_id
+            if registry is not None:
+                storage_scope = _least_common_scope(
+                    (
+                        storage_scope,
+                        *consumer_scopes.get(call_id, ()),
+                    ),
+                    registry,
+                )
+            scopes_by_call.setdefault(call_id, set()).add(
+                storage_scope
+            )
+    return {
+        call_id: next(iter(scopes))
+        for call_id, scopes in scopes_by_call.items()
+        if len(scopes) == 1
+    }
 
 
 def _answer_target_object_scopes(

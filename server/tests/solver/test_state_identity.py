@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import ast
 from dataclasses import dataclass, replace
+import inspect
+import textwrap
 
 import pytest
 
@@ -8,13 +11,29 @@ from shuxueshuo_server.solver.runtime.functional_plan_models import (
     FunctionalCall,
     ResolvedFunctionalValue,
 )
+from shuxueshuo_server.solver.runtime.functional_plan_reconciliation import (
+    _materialize_functional_return,
+)
 from shuxueshuo_server.solver.runtime.functional_state_allocation import (
     functional_computation_key,
     functional_source_version_ids,
 )
+from shuxueshuo_server.solver.runtime.functional_call_placement import (
+    _canonical_dependency_graph,
+    _project_placed_calls,
+)
+from shuxueshuo_server.solver.runtime.functional_legacy_projection import (
+    FunctionalLegacyProjectionAdapter,
+)
+from shuxueshuo_server.solver.runtime.functional_typed_identity import (
+    FunctionalTypedIdentityValidator,
+    _legacy_sources_are_fully_typed,
+)
 from shuxueshuo_server.solver.runtime.planner_state_context import (
+    MathObject,
     StateSlot,
     StateWriteVersion,
+    _attach_typed_initial_identity,
 )
 from shuxueshuo_server.solver.runtime.recipe_compiler import (
     _previous_state_write,
@@ -43,10 +62,17 @@ from shuxueshuo_server.solver.runtime.state_identity import (
 )
 from shuxueshuo_server.solver.runtime.state_finalization import (
     StateFinalizationService,
+    project_functional_state_dependencies,
 )
 from shuxueshuo_server.solver.runtime.strategy_models import (
     ProjectedStateWrite,
     StateWriteProvenance,
+    StrategyDraftValidationError,
+)
+from shuxueshuo_server.solver.state_semantics import (
+    StateObjectRoleBinding,
+    state_semantic_lineage,
+    state_semantic_lineage_from_payload,
 )
 
 
@@ -252,7 +278,7 @@ def test_logical_state_key_separates_runtime_container_types() -> None:
     assert point != point_list
 
 
-def test_legacy_slot_projection_is_typed_and_accepts_old_alias() -> None:
+def test_legacy_slot_projection_does_not_drive_typed_index_lookup() -> None:
     factory, _visibility, index = _identity()
     logical_key = factory.logical_key(
         object_ref="point:problem:D",
@@ -261,7 +287,8 @@ def test_legacy_slot_projection_is_typed_and_accepts_old_alias() -> None:
     )
     assert logical_key is not None
     slot_id = factory.slot_id(logical_key, storage_scope_id="ii")
-    canonical = factory.legacy_slot_id(slot_id)
+    adapter = FunctionalLegacyProjectionAdapter()
+    canonical = adapter.state_slot_id(slot_id)
     old_alias = factory.legacy_slot_alias(slot_id)
     initial = IndexedStateVersion(
         StateVersionId(slot_id, 0),
@@ -272,17 +299,14 @@ def test_legacy_slot_projection_is_typed_and_accepts_old_alias() -> None:
     index.register(initial, legacy_slot_id=old_alias)
 
     assert canonical.endswith("@ii:Point")
-    assert index.latest_for_legacy_slot(
-        canonical,
-        consumer_scope_id="ii_1",
-    ) == initial
-    assert index.latest_for_legacy_slot(
-        old_alias,
+    assert old_alias.endswith("@ii")
+    assert index.latest_visible(
+        logical_key,
         consumer_scope_id="ii_1",
     ) == initial
 
 
-def test_context_to_inflight_lookup_uses_latest_typed_version() -> None:
+def test_context_to_inflight_binding_uses_explicit_typed_version() -> None:
     factory, _visibility, index = _identity()
     service = StateAllocationService()
     logical_key = factory.logical_key(
@@ -292,7 +316,7 @@ def test_context_to_inflight_lookup_uses_latest_typed_version() -> None:
     )
     assert logical_key is not None
     slot_id = factory.slot_id(logical_key, storage_scope_id="ii")
-    canonical_slot = factory.legacy_slot_id(slot_id)
+    canonical_slot = FunctionalLegacyProjectionAdapter().state_slot_id(slot_id)
     initial = IndexedStateVersion(
         StateVersionId(slot_id, 0),
         valid_scope_id="ii",
@@ -331,6 +355,10 @@ def test_context_to_inflight_lookup_uses_latest_typed_version() -> None:
         valid_scope="ii",
         state_slot_id=canonical_slot,
         object_ref="point:problem:D",
+        math_object_id=logical_key.object_id,
+        logical_state_key=logical_key,
+        typed_slot_id=slot_id,
+        state_version_id=refined.version_id,
     )
     source_versions = functional_source_version_ids(
         {"point": (resolved,)},
@@ -354,6 +382,546 @@ def test_context_to_inflight_lookup_uses_latest_typed_version() -> None:
 
     assert source_versions == (refined.version_id,)
     assert computation_key.arg_bindings[0].version_id == refined.version_id
+
+
+def test_source_versions_use_materialized_version_not_transitive_lineage() -> None:
+    factory, _visibility, index = _identity()
+    point_key = factory.logical_key(
+        object_ref="point:problem:D",
+        state_kind="coordinate",
+        runtime_type="Point",
+    )
+    assert point_key is not None
+    point_version = StateVersionId(
+        factory.slot_id(point_key, storage_scope_id="ii"),
+        0,
+    )
+    path_key = LogicalStateKey(
+        MathObjectId(
+            "path:ii:transformation",
+            "path_transformation",
+            "ii",
+        ),
+        "transformation",
+        "PathTransformation",
+    )
+    path_version = StateVersionId(StateSlotId(path_key, "ii"), 1)
+    resolved = ResolvedFunctionalValue(
+        handle="fact:ii:path_transformation",
+        runtime_type="PathTransformation",
+        valid_scope="ii",
+        state_version_id=path_version,
+        source_version_ids=(point_version,),
+    )
+
+    assert functional_source_version_ids(
+        {"path_transformation": (resolved,)},
+        scope_id="ii",
+        identity_index=index,
+    ) == (path_version,)
+
+
+def test_declared_transition_ignores_unrelated_input_versions() -> None:
+    factory, _visibility, index = _identity()
+    service = StateAllocationService()
+    point_key = factory.logical_key(
+        object_ref="point:problem:D",
+        state_kind="coordinate",
+        runtime_type="Point",
+    )
+    function_key = factory.logical_key(
+        object_ref="function:problem:f",
+        state_kind="expression",
+        runtime_type="Parabola",
+    )
+    assert point_key is not None
+    assert function_key is not None
+    point_version = IndexedStateVersion(
+        StateVersionId(
+            factory.slot_id(point_key, storage_scope_id="ii"),
+            0,
+        ),
+        valid_scope_id="ii",
+        producer_call_id="parameterize_target",
+        produced_handle=None,
+    )
+    unrelated_version = IndexedStateVersion(
+        StateVersionId(
+            factory.slot_id(function_key, storage_scope_id="ii"),
+            1,
+        ),
+        valid_scope_id="ii",
+        producer_call_id="build_curve",
+        produced_handle=None,
+    )
+    index.register(point_version)
+    index.register(unrelated_version)
+    request = _request(
+        computation_key=ComputationKey("recover_target", ()),
+        write_mode="transition",
+        source_versions=(unrelated_version.version_id,),
+    )
+
+    decision = service.allocate(request, index)
+
+    assert decision.action == "transition"
+    assert decision.previous_version_id == point_version.version_id
+    assert decision.reason_code == "declared_visible_state_transition"
+
+
+def test_authoritative_value_rejects_legacy_slot_without_version() -> None:
+    factory, _visibility, _index = _identity()
+    value = ResolvedFunctionalValue(
+        handle="fact:ii:D_refined_coordinate",
+        runtime_type="Point",
+        valid_scope="ii",
+        state_slot_id="point:problem:D.coordinate@ii:Point",
+        object_ref="point:problem:D",
+    )
+
+    with pytest.raises(
+        StrategyDraftValidationError,
+        match="planner.state_identity_incomplete",
+    ):
+        FunctionalTypedIdentityValidator().validate_resolved_args(
+            {"point": (value,)},
+            call_id="consume_refined_point",
+            identity_factory=factory,
+        )
+
+
+def test_authoritative_value_rejects_partially_typed_legacy_sources() -> None:
+    factory, _visibility, _index = _identity()
+    logical_key = factory.logical_key(
+        object_ref="point:problem:D",
+        state_kind="coordinate",
+        runtime_type="Point",
+    )
+    assert logical_key is not None
+    version_id = StateVersionId(
+        factory.slot_id(logical_key, storage_scope_id="ii"),
+        1,
+    )
+    partial = ResolvedFunctionalValue(
+        handle="fact:ii:path_transformation",
+        runtime_type="PathTransformation",
+        valid_scope="ii",
+        object_ref="point:problem:D",
+        source_state_slot_ids=("legacy-slot-1", "legacy-slot-2"),
+        source_version_ids=(version_id,),
+        lineage=state_semantic_lineage(
+            source_call_ids=("unrelated_materialized_producer",),
+        ),
+    )
+    same_call_materialized = ResolvedFunctionalValue(
+        handle="fact:ii:D_coordinate",
+        runtime_type="Point",
+        valid_scope="ii",
+        state_slot_id="legacy-slot-2",
+        object_ref="point:problem:D",
+        math_object_id=logical_key.object_id,
+        logical_state_key=logical_key,
+        typed_slot_id=version_id.slot_id,
+        state_version_id=version_id,
+    )
+
+    with pytest.raises(
+        StrategyDraftValidationError,
+        match="planner.state_dependency_version_unresolved",
+    ):
+        FunctionalTypedIdentityValidator().validate_resolved_args(
+            {"path": (partial,), "point": (same_call_materialized,)},
+            call_id="consume_path",
+            identity_factory=factory,
+        )
+
+
+def test_call_result_cannot_cover_legacy_state_dependency() -> None:
+    factory, _visibility, _index = _identity()
+    value = ResolvedFunctionalValue(
+        handle="functional:ii:derive_path:transformation",
+        runtime_type="PathTransformation",
+        valid_scope="ii",
+        object_ref="point:problem:D",
+        source_state_slot_ids=(
+            "point:problem:D.coordinate@ii:Point",
+        ),
+        lineage=state_semantic_lineage(
+            source_call_result_ids=("derive_point.point",),
+        ),
+    )
+
+    with pytest.raises(
+        StrategyDraftValidationError,
+        match="planner.state_dependency_version_unresolved",
+    ):
+        FunctionalTypedIdentityValidator().validate_resolved_args(
+            {"path": (value,)},
+            call_id="consume_path",
+            identity_factory=factory,
+        )
+
+
+def test_equal_count_wrong_version_does_not_cover_legacy_source() -> None:
+    factory, _visibility, _index = _identity()
+    function_key = factory.logical_key(
+        object_ref="function:problem:f",
+        state_kind="expression",
+        runtime_type="Parabola",
+    )
+    assert function_key is not None
+    wrong_version = StateVersionId(
+        factory.slot_id(function_key, storage_scope_id="ii"),
+        1,
+    )
+
+    assert not _legacy_sources_are_fully_typed(
+        ("point:problem:D.coordinate@ii:Point",),
+        (wrong_version,),
+    )
+
+
+def test_context_identity_hydration_rejects_missing_lineage_slot() -> None:
+    slot = StateSlot(
+        slot_id="point:D.coordinate@problem:Point",
+        object_ref="point:problem:D",
+        state_kind="coordinate",
+        scope_id="problem",
+        runtime_type="Point",
+        lineage=state_semantic_lineage(
+            source_state_slot_ids=(
+                "missing.coordinate@problem:Point",
+            ),
+        ),
+    )
+    math_object = MathObject(
+        object_id="point:D@problem",
+        kind="point",
+        scope_id="problem",
+        canonical_handle="point:problem:D",
+        semantic_refs=("D",),
+        source="problem",
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="planner.context_identity_migration_failed",
+    ):
+        _attach_typed_initial_identity(
+            [math_object],
+            {slot.slot_id: slot},
+            handle_registry=_Registry(),
+        )
+
+
+def test_authoritative_value_rejects_multiple_identity_categories() -> None:
+    factory, _visibility, _index = _identity()
+    logical_key = factory.logical_key(
+        object_ref="point:problem:D",
+        state_kind="coordinate",
+        runtime_type="Point",
+    )
+    assert logical_key is not None
+    version_id = StateVersionId(
+        factory.slot_id(logical_key, storage_scope_id="ii"),
+        1,
+    )
+    state_and_condition = ResolvedFunctionalValue(
+        handle="fact:ii:D_coordinate",
+        runtime_type="Point",
+        valid_scope="ii",
+        object_ref="point:problem:D",
+        condition_id="condition:D",
+        math_object_id=logical_key.object_id,
+        logical_state_key=logical_key,
+        typed_slot_id=version_id.slot_id,
+        state_version_id=version_id,
+    )
+    with pytest.raises(
+        StrategyDraftValidationError,
+        match="exactly one typed identity category",
+    ):
+        FunctionalTypedIdentityValidator().validate_resolved_args(
+            {"value": (state_and_condition,)},
+            call_id="consume_value",
+            identity_factory=factory,
+        )
+
+
+def test_identity_category_ignores_provenance_metadata() -> None:
+    factory, _visibility, _index = _identity()
+    logical_key = factory.logical_key(
+        object_ref="point:problem:D",
+        state_kind="coordinate",
+        runtime_type="Point",
+    )
+    assert logical_key is not None
+    value = ResolvedFunctionalValue(
+        handle="functional:ii:derive_D:point",
+        runtime_type="Point",
+        valid_scope="ii",
+        source_call_id="derive_D",
+        return_name="point",
+        object_ref="point:problem:D",
+        math_object_id=logical_key.object_id,
+    )
+
+    _, completeness = (
+        FunctionalTypedIdentityValidator().validate_resolved_args(
+            {"point": (value,)},
+            call_id="consume_D",
+            identity_factory=factory,
+        )
+    )
+
+    assert completeness.identity_only_values == 1
+    assert completeness.call_result_values == 0
+
+
+def test_materialized_identity_allows_producer_provenance() -> None:
+    factory, _visibility, _index = _identity()
+    logical_key = factory.logical_key(
+        object_ref="point:problem:D",
+        state_kind="coordinate",
+        runtime_type="Point",
+    )
+    assert logical_key is not None
+    version_id = StateVersionId(
+        factory.slot_id(logical_key, storage_scope_id="ii"),
+        1,
+    )
+    value = ResolvedFunctionalValue(
+        handle="fact:ii:D_coordinate",
+        runtime_type="Point",
+        valid_scope="ii",
+        state_slot_id="point:problem:D.coordinate@ii:Point",
+        source_call_id="derive_D",
+        return_name="point",
+        object_ref="point:problem:D",
+        math_object_id=logical_key.object_id,
+        logical_state_key=logical_key,
+        typed_slot_id=version_id.slot_id,
+        state_version_id=version_id,
+    )
+
+    _, completeness = (
+        FunctionalTypedIdentityValidator().validate_resolved_args(
+            {"point": (value,)},
+            call_id="consume_D",
+            identity_factory=factory,
+        )
+    )
+
+    assert completeness.materialized_values == 1
+    assert completeness.call_result_values == 0
+
+
+def test_typed_lineage_round_trip_preserves_role_versions() -> None:
+    factory, _visibility, _index = _identity()
+    logical_key = factory.logical_key(
+        object_ref="point:problem:D",
+        state_kind="coordinate",
+        runtime_type="Point",
+    )
+    assert logical_key is not None
+    version_id = StateVersionId(
+        factory.slot_id(logical_key, storage_scope_id="ii"),
+        1,
+    )
+    lineage = state_semantic_lineage(
+        object_roles=(
+            StateObjectRoleBinding(
+                role="fixed_endpoint",
+                object_refs=("point:problem:D",),
+                source_state_slot_ids=("legacy-slot",),
+                object_ids=(logical_key.object_id,),
+                source_version_ids=(version_id,),
+                state_requirement="materialized",
+            ),
+        ),
+        source_state_slot_ids=("legacy-slot",),
+        source_version_ids=(version_id,),
+        source_call_result_ids=("derive_value.expression",),
+    )
+
+    restored = state_semantic_lineage_from_payload(lineage.to_payload())
+
+    assert restored.source_version_ids == (version_id,)
+    assert restored.source_call_result_ids == (
+        "derive_value.expression",
+    )
+    assert restored.object_roles[0].object_ids == (logical_key.object_id,)
+    assert restored.object_roles[0].source_version_ids == (version_id,)
+
+
+def test_legacy_lineage_migration_counts_complete_fallback() -> None:
+    factory, _visibility, _index = _identity()
+    logical_key = factory.logical_key(
+        object_ref="point:problem:D",
+        state_kind="coordinate",
+        runtime_type="Point",
+    )
+    assert logical_key is not None
+    version_id = StateVersionId(
+        factory.slot_id(logical_key, storage_scope_id="ii"),
+        0,
+    )
+    adapter = FunctionalLegacyProjectionAdapter()
+    lineage = state_semantic_lineage(
+        object_roles=(
+            StateObjectRoleBinding(
+                role="subject",
+                object_refs=("point:problem:D",),
+                source_state_slot_ids=("legacy-slot",),
+                state_requirement="materialized",
+            ),
+        ),
+        source_state_slot_ids=("legacy-slot",),
+    )
+
+    migrated = adapter.migrate_lineage(
+        lineage,
+        object_ids_by_ref={"point:problem:D": logical_key.object_id},
+        versions_by_legacy_slot={"legacy-slot": version_id},
+    )
+
+    assert adapter.identity_fallback_count > 0
+    assert migrated.source_version_ids == (version_id,)
+    assert migrated.object_roles[0].object_ids == (logical_key.object_id,)
+    assert migrated.object_roles[0].source_version_ids == (version_id,)
+
+
+def test_legacy_lineage_migration_rejects_partial_source_mapping() -> None:
+    adapter = FunctionalLegacyProjectionAdapter()
+    lineage = state_semantic_lineage(
+        source_state_slot_ids=("legacy-slot-1", "legacy-slot-2"),
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="planner.context_identity_migration_failed",
+    ):
+        adapter.migrate_lineage(
+            lineage,
+            object_ids_by_ref={},
+            versions_by_legacy_slot={
+                "legacy-slot-1": StateVersionId(
+                    StateSlotId(
+                        LogicalStateKey(
+                            MathObjectId(
+                                "point:problem:D",
+                                "point",
+                                "problem",
+                            ),
+                            "coordinate",
+                            "Point",
+                        ),
+                        "ii",
+                    ),
+                    0,
+                ),
+            },
+        )
+
+
+def test_functional_authority_has_no_legacy_identity_lookup() -> None:
+    functions = (
+        functional_computation_key,
+        functional_source_version_ids,
+        _canonical_dependency_graph,
+        project_functional_state_dependencies,
+        _materialize_functional_return,
+    )
+    forbidden_calls = {
+        "latest_for_legacy_slot",
+        "legacy_slot_id",
+    }
+    for function in functions:
+        tree = ast.parse(inspect.getsource(function))
+        called_attributes = {
+            node.func.attr
+            for node in ast.walk(tree)
+            if isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+        }
+        assert not called_attributes.intersection(forbidden_calls), (
+            function.__name__,
+            called_attributes,
+        )
+    materialize_tree = ast.parse(
+        inspect.getsource(_materialize_functional_return)
+    )
+    assert not any(
+        isinstance(node, ast.JoinedStr)
+        for node in ast.walk(materialize_tree)
+    )
+    placement_projection_tree = ast.parse(
+        textwrap.dedent(inspect.getsource(_project_placed_calls))
+    )
+    assert not any(
+        isinstance(node, ast.JoinedStr)
+        and {
+            child.id
+            for child in ast.walk(node)
+            if isinstance(child, ast.Name)
+        }.intersection(
+            {"object_ref", "state_kind", "runtime_type", "valid_scope"}
+        )
+        for node in ast.walk(placement_projection_tree)
+    )
+    coverage_tree = ast.parse(
+        textwrap.dedent(
+            inspect.getsource(_legacy_sources_are_fully_typed)
+        )
+    )
+    assert not any(
+        isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Name)
+        and node.func.id == "len"
+        for node in ast.walk(coverage_tree)
+    )
+    context_hydration_tree = ast.parse(
+        textwrap.dedent(
+            inspect.getsource(_attach_typed_initial_identity)
+        )
+    )
+    assert any(
+        isinstance(node, ast.Attribute)
+        and node.attr == "migrate_lineage"
+        for node in ast.walk(context_hydration_tree)
+    )
+    complete_value_tree = ast.parse(
+        textwrap.dedent(
+            inspect.getsource(
+                FunctionalTypedIdentityValidator._complete_value
+            )
+        )
+    )
+    assert not any(
+        isinstance(node, ast.Name) and node.id == "slot_versions"
+        for node in ast.walk(complete_value_tree)
+    )
+
+
+def test_legacy_context_migration_rejects_ambiguous_object_ref() -> None:
+    factory, visibility, _index = _identity()
+    slot = StateSlot(
+        slot_id="legacy:P.coordinate@ii",
+        object_ref="P",
+        state_kind="coordinate",
+        scope_id="ii",
+        runtime_type="Point",
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="planner.context_identity_migration_failed",
+    ):
+        StateIdentityIndex.from_context(
+            state_slots=(slot,),
+            factory=factory,
+            visibility=visibility,
+        )
 
 
 def test_scope_visibility_allows_ancestors_but_not_siblings() -> None:
@@ -515,6 +1083,66 @@ def test_allocation_accepts_recomputation_from_descendant_input_versions() -> No
     assert closed_point.previous_producer_call_id == open_request.call_id
     assert closed_point.transition_kind == "dependency_refinement"
     assert closed_point.reason_code == "recomputed_from_descendant_inputs"
+
+
+def test_allocation_does_not_refine_state_from_cross_slot_descendant() -> None:
+    factory, _visibility, index = _identity()
+    service = StateAllocationService()
+    point_key = factory.logical_key(
+        object_ref="point:problem:D",
+        state_kind="coordinate",
+        runtime_type="Point",
+    )
+    assert point_key is not None
+    point_version = StateVersionId(StateSlotId(point_key, "ii"), 0)
+    index.register(
+        IndexedStateVersion(
+            point_version,
+            valid_scope_id="ii",
+            producer_call_id=None,
+            produced_handle="fact:ii:D_coordinate",
+        )
+    )
+    path_key = LogicalStateKey(
+        MathObjectId(
+            "path:ii:transformation",
+            "path_transformation",
+            "ii",
+        ),
+        "transformation",
+        "PathTransformation",
+    )
+    path_version = StateVersionId(StateSlotId(path_key, "ii"), 1)
+    index.register(
+        IndexedStateVersion(
+            path_version,
+            valid_scope_id="ii",
+            producer_call_id="build_path",
+            produced_handle="fact:ii:path_transformation",
+            source_version_ids=(point_version,),
+        )
+    )
+
+    indirect = service.allocate(
+        _request(
+            computation_key=ComputationKey("derive_point_from_path"),
+            source_versions=(path_version,),
+        ),
+        index,
+    )
+    direct = service.allocate(
+        _request(
+            computation_key=ComputationKey("derive_point_from_path"),
+            source_versions=(path_version, point_version),
+        ),
+        index,
+    )
+
+    assert indirect.action == "conflict"
+    assert indirect.reason_code != "dependency_refines_visible_state"
+    assert direct.action == "transition"
+    assert direct.previous_version_id == point_version
+    assert direct.reason_code == "dependency_refines_visible_state"
 
 
 def test_allocation_rejects_recomputation_from_unrelated_input_version() -> None:

@@ -61,6 +61,14 @@ from shuxueshuo_server.solver.runtime.function_specs import FunctionSpec
 from shuxueshuo_server.solver.runtime.functional_state_refinement import (
     refine_functional_object_states,
 )
+from shuxueshuo_server.solver.runtime.functional_legacy_projection import (
+    FunctionalLegacyProjectionAdapter,
+    legacy_state_slot_aliases,
+)
+from shuxueshuo_server.solver.runtime.functional_typed_identity import (
+    FunctionalTypedIdentityCompleteness,
+    FunctionalTypedIdentityValidator,
+)
 from shuxueshuo_server.solver.runtime.functional_evidence import (
     closure_lineages as successful_closure_lineages,
     evaluate_lineage_closure,
@@ -117,6 +125,7 @@ from shuxueshuo_server.solver.runtime.state_identity import (
     StateIdentityIndex,
     StateIdentityMode,
     StatePlacementMode,
+    StateVersionId,
 )
 from shuxueshuo_server.solver.runtime.state_finalization import (
     StateFinalizationResult,
@@ -205,11 +214,19 @@ class _NormalizeElaborateScopeStage:
         handle_registry: CanonicalHandleRegistry,
         question_goals: Sequence[QuestionGoal],
         pinned_canonical_call_ids: frozenset[str] = frozenset(),
+        legacy_projection_adapter: (
+            FunctionalLegacyProjectionAdapter | None
+        ) = None,
     ) -> _PreparedFunctionalReconciliation:
+        legacy_projection_adapter = (
+            legacy_projection_adapter
+            or FunctionalLegacyProjectionAdapter()
+        )
         semantic_items = planner_state_context.semantic_read_catalog()
         semantic_index = FunctionalSemanticIndex.from_context(
             planner_state_context,
             handle_registry=handle_registry,
+            legacy_projection_adapter=legacy_projection_adapter,
         )
         catalog = FunctionalCapabilityCatalog.from_family_spec(
             family_spec,
@@ -649,6 +666,7 @@ class FunctionalPlanReconciler:
         pinned_execution_scopes: Mapping[str, str] | None = None,
         pinned_return_scopes: Mapping[str, Mapping[str, str]] | None = None,
     ) -> FunctionalPlanReconciliationResult:
+        legacy_projection_adapter = FunctionalLegacyProjectionAdapter()
         prepared = _NormalizeElaborateScopeStage().run(
             plan,
             planner_state_context=planner_state_context,
@@ -659,6 +677,7 @@ class FunctionalPlanReconciler:
             pinned_canonical_call_ids=frozenset(
                 pinned_canonical_call_ids
             ),
+            legacy_projection_adapter=legacy_projection_adapter,
         )
         plan = prepared.plan
         semantic_items = prepared.semantic_items
@@ -714,6 +733,8 @@ class FunctionalPlanReconciler:
         )
         base_identity_index = identity_index.clone()
         allocation_service = StateAllocationService()
+        typed_identity_validator = FunctionalTypedIdentityValidator()
+        typed_identity_completeness = FunctionalTypedIdentityCompleteness()
         identity_decisions: list[dict[str, Any]] = []
         identity_comparisons: list[IdentityShadowComparison] = []
         preallocated_aliases: dict[str, str] = {}
@@ -1013,6 +1034,18 @@ class FunctionalPlanReconciler:
                     )
                 )
                 continue
+            resolved_args, call_identity_completeness = (
+                typed_identity_validator.validate_resolved_args(
+                    resolved_args,
+                    call_id=call.call_id,
+                    identity_factory=typed_identity_factory,
+                )
+            )
+            typed_identity_completeness = (
+                typed_identity_completeness.merge(
+                    call_identity_completeness
+                )
+            )
             symbol_issues, symbol_repairs = _functional_symbol_identity_issues(
                 capability,
                 call,
@@ -1087,6 +1120,7 @@ class FunctionalPlanReconciler:
                     identity_mode=self.state_identity_mode,
                     identity_decisions=identity_decisions,
                     identity_comparisons=identity_comparisons,
+                    legacy_projection_adapter=legacy_projection_adapter,
                 ),
             )
             issues.extend(
@@ -1296,6 +1330,8 @@ class FunctionalPlanReconciler:
             preallocated_aliases=preallocated_aliases,
             identity_decisions=identity_decisions,
             identity_comparisons=identity_comparisons,
+            typed_identity_completeness=typed_identity_completeness,
+            legacy_projection_adapter=legacy_projection_adapter,
             identity_mode=self.state_identity_mode,
             identity_factory=typed_identity_factory,
             base_identity_index=base_identity_index,
@@ -1484,6 +1520,8 @@ class _PlacementLivenessProjectionStage:
         preallocated_aliases: Mapping[str, str],
         identity_decisions: Sequence[Mapping[str, Any]],
         identity_comparisons: Sequence[IdentityShadowComparison],
+        typed_identity_completeness: FunctionalTypedIdentityCompleteness,
+        legacy_projection_adapter: FunctionalLegacyProjectionAdapter,
         identity_mode: StateIdentityMode,
         identity_factory: StateIdentityFactory,
         base_identity_index: StateIdentityIndex,
@@ -1520,6 +1558,7 @@ class _PlacementLivenessProjectionStage:
             pinned_canonical_call_ids=pinned_canonical_call_ids,
             pinned_execution_scopes=pinned_execution_scopes,
             pinned_return_scopes=pinned_return_scopes,
+            legacy_projection_adapter=legacy_projection_adapter,
         )
         plan = placement.plan
         reconciled = list(placement.calls)
@@ -1561,6 +1600,7 @@ class _PlacementLivenessProjectionStage:
             plan,
             tuple(reconciled),
             catalog=catalog,
+            legacy_projection_adapter=legacy_projection_adapter,
         )
         dependency_graph = expand_functional_dependency_graph(
             dependency_graph,
@@ -1760,6 +1800,7 @@ class _PlacementLivenessProjectionStage:
                 plan,
                 tuple(reconciled),
                 catalog=catalog,
+                legacy_projection_adapter=legacy_projection_adapter,
             )
         )
         dependency_graph = expand_functional_dependency_graph(
@@ -1822,6 +1863,15 @@ class _PlacementLivenessProjectionStage:
                     item.to_payload()
                     for item in logical_finalization.mismatches
                 ),
+                typed_identity_completeness=(
+                    typed_identity_completeness.to_payload()
+                ),
+                legacy_projection_count=(
+                    legacy_projection_adapter.projection_count
+                ),
+                legacy_identity_fallback_count=(
+                    legacy_projection_adapter.identity_fallback_count
+                ),
             )
         projected, projection_map = FunctionalPlanProjector().project(
             plan,
@@ -1863,6 +1913,15 @@ class _PlacementLivenessProjectionStage:
             state_finalization_mismatches=tuple(
                 item.to_payload()
                 for item in logical_finalization.mismatches
+            ),
+            typed_identity_completeness=(
+                typed_identity_completeness.to_payload()
+            ),
+            legacy_projection_count=(
+                legacy_projection_adapter.projection_count
+            ),
+            legacy_identity_fallback_count=(
+                legacy_projection_adapter.identity_fallback_count
             ),
         )
 
@@ -2409,6 +2468,7 @@ class _FunctionalReturnAllocationContext:
     identity_mode: StateIdentityMode
     identity_decisions: list[dict[str, Any]]
     identity_comparisons: list[IdentityShadowComparison]
+    legacy_projection_adapter: FunctionalLegacyProjectionAdapter
 
 
 def _allocate_functional_returns(
@@ -2501,8 +2561,26 @@ def _project_cross_return_object_roles(
                 StateObjectRoleBinding(
                     role=projection.role,
                     object_refs=unique_ordered(object_refs),
-                    source_state_slot_ids=(source.state_slot_id,),
+                    source_state_slot_ids=(
+                        (
+                            legacy_state_slot_aliases(
+                                source.selected_version_id.slot_id
+                            )[0],
+                        )
+                        if source.selected_version_id is not None
+                        else ()
+                    ),
                     source_handles=(source.state_handle or source.handle,),
+                    object_ids=(
+                        (source.math_object_id,)
+                        if source.math_object_id is not None
+                        else ()
+                    ),
+                    source_version_ids=(
+                        (source.selected_version_id,)
+                        if source.selected_version_id is not None
+                        else ()
+                    ),
                     state_requirement=projection.state_requirement,
                 )
             )
@@ -2526,10 +2604,30 @@ def _project_cross_return_object_roles(
                     *(source.state_slot_id for source in symbol_sources),
                 )
             ),
+            source_version_ids=tuple(
+                (
+                    *(
+                        version_id
+                        for role in projected_roles
+                        for version_id in role.source_version_ids
+                    ),
+                    *(
+                        source.selected_version_id
+                        for source in symbol_sources
+                        if source.selected_version_id is not None
+                    ),
+                )
+            ),
         )
         updated = replace(
             allocation,
             lineage=lineage,
+            source_version_ids=unique_ordered(
+                (
+                    *allocation.source_version_ids,
+                    *lineage.source_version_ids,
+                )
+            ),
         )
         result.append(updated)
         if updated.selected_version_id is not None:
@@ -2545,6 +2643,12 @@ def _project_cross_return_object_roles(
             free_symbol_refs=updated.free_symbol_refs,
             lineage=lineage,
             source_state_slot_ids=updated.source_state_slot_ids,
+            source_version_ids=unique_ordered(
+                (
+                    *updated.source_version_ids,
+                    *lineage.source_version_ids,
+                )
+            ),
         )
         produced[(call.call_id, allocation.return_name)] = updated_value
         for alias_name, canonical_name in call_return_aliases.items():
@@ -2678,6 +2782,7 @@ def _allocate_single_functional_return(
         identity_mode=context.identity_mode,
         identity_decisions=context.identity_decisions,
         identity_comparisons=context.identity_comparisons,
+        legacy_projection_adapter=context.legacy_projection_adapter,
         expected_result_form=call.return_expectations.get(return_spec.name),
     )
 
@@ -3075,6 +3180,40 @@ def _resolve_target_return_binding(
     future_object_hints: tuple[str, ...],
     identity_constraints: Sequence[StateIdentityConstraintSpec],
 ) -> tuple[SemanticRef | None, SemanticReadCatalogItem | None]:
+    if (
+        return_spec.return_binding == "explicit_external_required"
+        and bound_item is None
+    ):
+        issues.append(
+            _issue(
+                "functional_reconciliation",
+                "functional.return_identity_unresolved",
+                (
+                    f"return {call.capability_id}.{return_spec.name} requires "
+                    "an explicit answer or existing-object binding"
+                ),
+                call_id=call.call_id,
+                scope_id=declared_scope_id,
+                details={
+                    "return": return_spec.name,
+                    "semantic_role": return_spec.semantic_role,
+                    "binding_requirement": "explicit_answer_or_existing_object",
+                    "accepted_item_types": [return_spec.runtime_type],
+                    "compatible_refs": list(
+                        _compatible_target_object_refs(
+                            return_spec=return_spec,
+                            scope_id=resolution_scope_id,
+                            resolved_args=resolved_args,
+                            semantic_items=semantic_items,
+                            planner_state_context=planner_state_context,
+                            handle_registry=handle_registry,
+                        )
+                    ),
+                },
+            )
+        )
+        return bound_ref, bound_item
+
     contract_target = _target_item_from_object_hints(
         infer_unique_return_object_refs(
             identity_constraints,
@@ -3353,6 +3492,7 @@ def _materialize_functional_return(
     identity_mode: StateIdentityMode,
     identity_decisions: list[dict[str, Any]],
     identity_comparisons: list[IdentityShadowComparison],
+    legacy_projection_adapter: FunctionalLegacyProjectionAdapter,
     expected_result_form: FunctionalResultForm | None,
 ) -> FunctionalReturnAllocation:
     """Allocate the canonical handle/slot and register every return alias."""
@@ -3398,12 +3538,6 @@ def _materialize_functional_return(
         and object_ref is not None
         else None
     )
-    legacy_slot_id = (
-        f"{object_ref}.{return_spec.state_kind}@{requested_scope}:"
-        f"{return_spec.runtime_type}"
-        if object_ref is not None
-        else f"functional:{requested_scope}:{call.call_id}:{return_spec.name}"
-    )
     lineage = _functional_return_lineage(
         return_spec,
         call_id=call.call_id,
@@ -3428,6 +3562,20 @@ def _materialize_functional_return(
         object_ref=object_ref,
         state_kind=return_spec.state_kind,
         runtime_type=return_spec.runtime_type,
+    )
+    legacy_slot_id = (
+        legacy_projection_adapter.state_slot_id(
+            identity_factory.slot_id(
+                logical_state_key,
+                storage_scope_id=requested_scope,
+            )
+        )
+        if logical_state_key is not None
+        else legacy_projection_adapter.call_local_value_id(
+            scope_id=requested_scope,
+            call_id=call.call_id,
+            return_name=return_spec.name,
+        )
     )
     state_effect_key = StateEffectKey(
         (
@@ -3482,12 +3630,12 @@ def _materialize_functional_return(
     identity_decisions.append(decision.to_payload())
     typed_slot_id = decision.selected_slot_id
     typed_slot_projection = (
-        identity_factory.legacy_slot_id(typed_slot_id)
+        legacy_projection_adapter.state_slot_id(typed_slot_id)
         if typed_slot_id is not None
         else legacy_slot_id
     )
     comparison_slot_id = (
-        identity_factory.legacy_slot_id(
+        legacy_projection_adapter.state_slot_id(
             identity_factory.slot_id(
                 logical_state_key,
                 storage_scope_id=requested_scope,
@@ -3586,6 +3734,7 @@ def _materialize_functional_return(
         logical_state_key=logical_state_key,
         typed_slot_id=typed_slot_id,
         state_version_id=decision.selected_version_id,
+        source_version_ids=source_version_ids,
     )
     produced[(call.call_id, return_spec.name)] = produced_value
     for alias_name, canonical_name in call_return_aliases.items():
@@ -3651,7 +3800,14 @@ def _functional_return_lineage(
             symbolic_closure=symbolic_closure,
         ),
         source_state_slot_ids=_argument_source_slots(resolved_args),
-        source_call_ids=(call_id,),
+        source_version_ids=_argument_source_versions(resolved_args),
+        source_call_result_ids=_argument_source_call_results(
+            resolved_args
+        ),
+        source_call_ids=(
+            *_argument_source_calls(resolved_args),
+            call_id,
+        ),
     )
 
 
@@ -3906,11 +4062,25 @@ def _projected_return_object_roles(
         object_refs: list[str] = []
         source_slots: list[str] = []
         source_handles: list[str] = []
+        object_ids = []
+        source_versions = []
         for value in source_values:
-            source_handles.append(value.handle)
             if projection.source_object_role is None:
+                source_handles.append(value.handle)
                 if value.object_ref is not None:
                     object_refs.append(value.object_ref)
+                if value.math_object_id is not None:
+                    object_ids.append(value.math_object_id)
+                if value.state_version_id is not None:
+                    source_slots.append(
+                        legacy_state_slot_aliases(
+                            value.state_version_id.slot_id
+                        )[0]
+                    )
+                    source_versions.append(value.state_version_id)
+                else:
+                    source_slots.extend(value.source_state_slot_ids)
+                    source_versions.extend(value.source_version_ids)
             else:
                 object_refs.extend(
                     state_object_refs_for_role(
@@ -3924,10 +4094,31 @@ def _projected_return_object_roles(
                         (),
                     )
                 )
-            if value.state_slot_id is not None:
-                source_slots.append(value.state_slot_id)
-            else:
-                source_slots.extend(value.source_state_slot_ids)
+                matching_roles = tuple(
+                    role
+                    for role in value.lineage.object_roles
+                    if role.role == projection.source_object_role
+                )
+                object_ids.extend(
+                    object_id
+                    for role in matching_roles
+                    for object_id in role.object_ids
+                )
+                source_slots.extend(
+                    slot_id
+                    for role in matching_roles
+                    for slot_id in role.source_state_slot_ids
+                )
+                source_handles.extend(
+                    source_handle
+                    for role in matching_roles
+                    for source_handle in role.source_handles
+                )
+                source_versions.extend(
+                    version_id
+                    for role in matching_roles
+                    for version_id in role.source_version_ids
+                )
         if object_refs:
             result.append(
                 StateObjectRoleBinding(
@@ -3935,6 +4126,8 @@ def _projected_return_object_roles(
                     object_refs=unique_ordered(object_refs),
                     source_state_slot_ids=unique_ordered(source_slots),
                     source_handles=unique_ordered(source_handles),
+                    object_ids=unique_ordered(object_ids),
+                    source_version_ids=unique_ordered(source_versions),
                     state_requirement=projection.state_requirement,
                 )
             )
@@ -4466,6 +4659,7 @@ def _resolve_functional_ref(
                 source.runtime_type,
                 source.valid_scope,
                 object_ref=source.object_ref,
+                condition_id=source.condition_id,
                 dependency_object_refs=source.dependency_object_refs,
                 free_symbol_refs=materialization.free_symbol_refs,
                 source_state_slot_ids=source.source_state_slot_ids,
@@ -4473,6 +4667,11 @@ def _resolve_functional_ref(
                 lineage=source.lineage,
                 materialized_runtime_type=materialization.target_runtime_type,
                 supporting_handles=materialization.supporting_handles,
+                math_object_id=source.math_object_id,
+                logical_state_key=source.logical_state_key,
+                typed_slot_id=source.typed_slot_id,
+                state_version_id=source.state_version_id,
+                source_version_ids=source.source_version_ids,
             ), ()
         if materialization.status == "underdetermined":
             return None, (
@@ -4607,6 +4806,7 @@ def _resolve_functional_ref(
         logical_state_key=resolved.logical_state_key,
         typed_slot_id=resolved.typed_slot_id,
         state_version_id=resolved.state_version_id,
+        source_version_ids=resolved.source_version_ids,
     )
     closure_issue = _input_state_closure_issue(
         value,
@@ -7383,6 +7583,7 @@ def _resolve_deterministic_optional_args(
                 logical_state_key=view.logical_state_key,
                 typed_slot_id=view.typed_slot_id,
                 state_version_id=view.state_version_id,
+                source_version_ids=view.source_version_ids,
             )
             for view in semantic_index.compatible_views(
                 scope_id=scope_id,
@@ -7654,6 +7855,7 @@ def _resolve_context_auto_args(
                     logical_state_key=view.logical_state_key,
                     typed_slot_id=view.typed_slot_id,
                     state_version_id=view.state_version_id,
+                    source_version_ids=view.source_version_ids,
                 )
                 for view in semantic_index.compatible_views(
                     scope_id=scope_id,
@@ -7881,6 +8083,7 @@ def _resolve_angle_sum_auto_arg(
                 logical_state_key=view.logical_state_key,
                 typed_slot_id=view.typed_slot_id,
                 state_version_id=view.state_version_id,
+                source_version_ids=view.source_version_ids,
             )
     if value is None:
         return (
@@ -8098,6 +8301,7 @@ def _resolve_midpoint_auto_arg(
                 logical_state_key=selected_view.logical_state_key,
                 typed_slot_id=selected_view.typed_slot_id,
                 state_version_id=selected_view.state_version_id,
+                source_version_ids=selected_view.source_version_ids,
             )
     if selected is not None:
         return (
@@ -8423,7 +8627,76 @@ def _argument_source_slots(
         for value in values
         for slot_id in (
             *value.source_state_slot_ids,
-            *((value.state_slot_id,) if value.state_slot_id else ()),
+            *(
+                (
+                    legacy_state_slot_aliases(
+                        value.state_version_id.slot_id
+                    )[0],
+                )
+                if value.state_version_id is not None
+                else (
+                    ()
+                    if (
+                        value.source_call_id is not None
+                        and value.return_name is not None
+                    )
+                    else (
+                        (value.state_slot_id,)
+                        if value.state_slot_id
+                        else ()
+                    )
+                )
+            ),
+        )
+    )
+
+
+def _argument_source_versions(
+    args: Mapping[str, tuple[ResolvedFunctionalValue, ...]],
+) -> tuple[StateVersionId, ...]:
+    return unique_ordered(
+        version_id
+        for values in args.values()
+        for value in values
+        for version_id in (
+            *((value.state_version_id,) if value.state_version_id else ()),
+            *value.source_version_ids,
+        )
+    )
+
+
+def _argument_source_calls(
+    args: Mapping[str, tuple[ResolvedFunctionalValue, ...]],
+) -> tuple[str, ...]:
+    return unique_ordered(
+        source_call_id
+        for values in args.values()
+        for value in values
+        for source_call_id in (
+            *value.lineage.source_call_ids,
+            *((value.source_call_id,) if value.source_call_id else ()),
+        )
+    )
+
+
+def _argument_source_call_results(
+    args: Mapping[str, tuple[ResolvedFunctionalValue, ...]],
+) -> tuple[str, ...]:
+    return unique_ordered(
+        call_result_id
+        for values in args.values()
+        for value in values
+        for call_result_id in (
+            *value.lineage.source_call_result_ids,
+            *(
+                (
+                    f"{value.source_call_id}.{value.return_name}",
+                )
+                if value.state_version_id is None
+                and value.source_call_id is not None
+                and value.return_name is not None
+                else ()
+            ),
         )
     )
 

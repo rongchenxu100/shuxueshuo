@@ -73,7 +73,7 @@ Track A 是否完成，但主链切换前必须重新建立相应阶段自己的
 | Track A assets | `COMPLETE` | 五题 fixture、离线 replay、真实 opt-in、strict-test few-shot、共享 batch 基座 | 无 |
 | Track A Stage 1 | `COMPLETE` | 每题 3 个样本，`15/15` 在三轮内通过，configuration error 为 0 | 无 |
 | Track A parity complete | `COMPLETE` | 五题各 10 个兼容样本，`pass@3 >= 90%`；structured provenance parity、typed failure boundary、跨 batch 聚合均已建立 | 无 |
-| Track B typed identity authority | `IN PROGRESS` | B0-B3 已完成；B4 retry version authority 已完成实现与离线 authoritative 门禁 | B4 真实 smoke 因 DeepSeek 余额不足待补跑；B5 string cleanup |
+| Track B typed identity authority | `IN PROGRESS` | B0-B4 已完成；B5a Functional typed authority cleanup 已实现，等待完整门禁 | B5a 回归与真实 smoke；随后启动 C0，再实施 B5b |
 | Track C transactional interpreter | `PENDING` | 现有 partial replay、Working RuntimeContext、typed provenance 可复用 | Track B B1-B3；C0 shadow；逐 call execution parity |
 | Functional Default Ready | `BLOCKED` | Functional 主链可 opt-in 执行 | Track A parity complete；Track B B0-B4；Track C production closure；direct compiler shadow；held-out；production observability 与回滚门禁 |
 | Track D0 product routing gate retirement | `BLOCKED` | 唯一 problem-id gate 已登记 | Track A parity complete；Functional production routing 接管该 family；legacy deterministic planner 退场 |
@@ -90,10 +90,13 @@ Track A 已完成，当前主线切换到 Track B，而不是继续围绕五题�
 
 1. DeepSeek 余额恢复后补跑 B4 五题各三个真实 smoke，要求 configuration、
    unclassified 和 retry-version drift 均为 0；
-2. **B5 string identity cleanup**：删除 Functional authoritative 路径剩余的
-   call/handle/slot 字符串恢复逻辑；
+2. 完成 **B5a typed authority cleanup** 门禁：Functional allocation、
+   canonicalization、placement、finalizer 和 retry 的身份决策不得回查
+   legacy slot/handle/runtime path；
 3. 启动 C0 logical graph / Working Context shadow，但不切换 production
-   execution authority。
+   execution authority；
+4. C0 稳定后实施 B5b Context/runtime consumer migration；C1-C4 完成后再由
+   B5c 删除 StepIntent/string projection compatibility。
 
 Track E 的 held-out 基础设施和 ProblemExtractionContext schema 可以并行建设；默认协议
 切换、StepIntent 删除和 transactional interpreter 主链切换仍保持阻塞。
@@ -465,11 +468,39 @@ B2 完成门禁：
   drift；但大量样本因 DeepSeek `402 Insufficient Balance` 零 token 失败，需余额
   恢复后以新 batch 补跑，不能把本批记为通过。
 
-#### B5. String Logic Removal
+#### B5a. Functional Typed Authority Cleanup
 
-- 依次迁移 reconciliation、placement、finalizer、Context、answer verifier、normalizer 和 recipe compiler；
-- 删除 handle prefix、StateSlot 字符串拼接、semantic-name keyword 和 runtime-path identity fallback；
-- 最后与 StepIntent compatibility 退场同步删除 legacy 字符串猜测。
+- 状态：`IMPLEMENTED / VERIFYING`。
+- `ResolvedFunctionalValue`、semantic lineage、object-role binding 和
+  `ProjectedFunctionArgBinding` 携带 MathObject/StateVersion typed sidecar；
+- call resolution 后、allocation 前执行 typed identity completeness 门禁；
+  materialized state、condition、identity-only object 与 call-local return 必须
+  唯一落入一种身份类别；
+- computation key、source-version closure、placement dependency graph 和 B3 exact
+  dependency 只读取 typed version/condition/object/call-result identity；
+- `StateIdentityIndex` 已删除 legacy slot 索引和 in-flight legacy lookup；
+- `FunctionalLegacyProjectionAdapter` 只把已确定的 typed slot/version 投影成
+  StepIntent/compiler 兼容字符串，不获得 allocation、scope 或 predecessor 权威；
+- reconciliation/Context 记录 `typed_identity_completeness`、
+  `legacy_projection_count` 和 `legacy_identity_fallback_count`；authoritative
+  门禁要求 fallback count 为 0；
+- 静态 guard 禁止 authoritative identity functions 重新调用 legacy slot lookup。
+
+#### B5b. Context and Runtime Consumer Migration
+
+- 状态：`PENDING AFTER C0`。
+- 迁移 PlannerStateContext consumer、AnswerGoalVerifier、PathTransformation runtime
+  resolver、normalizer 与 runtime semantic resolver；
+- 将剩余对象比较、角色解析和 latest-state 读取改为 MathObjectId/StateVersionId；
+- 保留物理 runtime destination 和 StepIntent projection compatibility。
+
+#### B5c. StepIntent and String Projection Retirement
+
+- 状态：`PENDING AFTER C1-C4`。
+- direct compiler/transactional interpreter 成为主链后删除 StepIntent bridge；
+- 删除 canonical handle、legacy StateSlot、semantic-name keyword 和 runtime-path
+  identity compatibility；
+- B5c 完成后，生产 Functional 主链不再依赖任何字符串身份恢复。
 
 ### Stage Gates and Dependencies
 
@@ -477,7 +508,8 @@ B2 完成门禁：
 - **Functional Default Ready 前**：必须完成 B2-B4，确保 placement、finalizer、retry 不再建立平行身份。
 - **Track C 可并行的部分**：C0 logical graph/event shadow 可与 B0/B1 并行；
   C1 主链要求 B1-B3，C2 retry cutover 要求 B4。
-- **Track D 主链切换前**：B0-B4 是 hard prerequisite；B5 在 direct compiler shadow 期间完成。
+- **Track D 主链切换前**：B0-B4 与 B5a 是 hard prerequisite；B5b 在 C0 后完成，
+  B5c 与 StepIntent bridge 退场同步完成。
 - **Track E production best-of-N 前**：stable graph 必须已使用 version identity，否则多候选比较会聚合不一致的语义状态。
 
 ### Exit Criteria
@@ -487,7 +519,8 @@ B2 完成门禁：
 - finalizer 在 runtime 前捕获 logical-state 和 runtime-destination 冲突；
 - Context/retry 保存并恢复 StateVersion，不重建已删除的 alias producer；
 - 五题 fixture 无身份漂移，并且 finalizer 幂等；
-- B5 结束后，生产 Functional 主链不依赖对象名称、handle 前缀或 runtime path 判断身份。
+- B5a 后 Functional authoritative core 不依赖对象名称、handle 前缀、slot 字符串或
+  runtime path 判断身份；B5c 后兼容投影本身退出生产主链。
 
 ## Track C: Transactional Functional Execution and Symbolic Closure
 

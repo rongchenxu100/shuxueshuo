@@ -368,6 +368,13 @@ def _close_projected_state_reads(
             if write_key in visited:
                 continue
             visited.add(write_key)
+            if write.runtime_type != "PathTransformation":
+                # Ordinary object/value states are self-contained runtime
+                # reads. Their source slots are provenance, not additional
+                # inputs of every downstream consumer. PathTransformation is
+                # the compatibility exception: its legacy recipe expansion
+                # still requires the exact structured endpoint states.
+                continue
             for source_slot_id in write.source_state_slot_ids:
                 source = latest_source_write(
                     source_slot_id,

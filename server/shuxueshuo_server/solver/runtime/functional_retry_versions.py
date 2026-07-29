@@ -800,11 +800,10 @@ def verify_restored_checkpoint(
     *,
     reconciliation: Any,
     handle_registry: Any,
+    verify_reconciled_graph: bool = True,
 ) -> None:
-    """Verify that B2/B3 reproduced every committed typed version."""
+    """Verify checkpoint integrity and, when complete, its reconciled graph."""
 
-    calls = {item.call_id: item for item in reconciliation.calls}
-    placement_keys = _placement_identity_keys(reconciliation)
     expected_records = {
         (item.canonical_producer_call_id, item.return_name): item
         for item in checkpoint.verified_versions
@@ -822,7 +821,6 @@ def verify_restored_checkpoint(
         item.result_id: item
         for item in expected_result_records.values()
     }
-    restored_call_ids: dict[str, str] = {}
     for committed in checkpoint.committed_calls:
         if (
             not committed.output_version_ids
@@ -861,6 +859,14 @@ def verify_restored_checkpoint(
                     "references an unverified call result"
                 ),
             )
+
+    if not verify_reconciled_graph:
+        return
+
+    calls = {item.call_id: item for item in reconciliation.calls}
+    placement_keys = _placement_identity_keys(reconciliation)
+    restored_call_ids: dict[str, str] = {}
+    for committed in checkpoint.committed_calls:
         actual_call_id = _canonical_restored_call_id(
             committed.canonical_call_id,
             reconciliation=reconciliation,

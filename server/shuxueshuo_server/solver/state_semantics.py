@@ -9,11 +9,18 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import re
-from typing import Any, Iterable, Literal, Mapping
+from typing import TYPE_CHECKING, Any, Iterable, Literal, Mapping
 
 from shuxueshuo_server.solver.runtime.runtime_type_declarations import (
     split_runtime_types,
 )
+
+if TYPE_CHECKING:
+    from shuxueshuo_server.solver.runtime.state_identity import (
+        MathObjectId,
+        StateVersionId,
+    )
+
 
 @dataclass(frozen=True)
 class StateObjectRoleBinding:
@@ -23,6 +30,8 @@ class StateObjectRoleBinding:
     object_refs: tuple[str, ...] = ()
     source_state_slot_ids: tuple[str, ...] = ()
     source_handles: tuple[str, ...] = ()
+    object_ids: tuple[MathObjectId, ...] = ()
+    source_version_ids: tuple[StateVersionId, ...] = ()
     state_requirement: Literal["identity_only", "materialized"] = (
         "identity_only"
     )
@@ -33,6 +42,10 @@ class StateObjectRoleBinding:
             "object_refs": list(self.object_refs),
             "source_state_slot_ids": list(self.source_state_slot_ids),
             "source_handles": list(self.source_handles),
+            "object_ids": [item.to_payload() for item in self.object_ids],
+            "source_version_ids": [
+                item.to_payload() for item in self.source_version_ids
+            ],
             "state_requirement": self.state_requirement,
         }
 
@@ -68,6 +81,8 @@ class StateSemanticLineage:
     object_roles: tuple[StateObjectRoleBinding, ...] = ()
     symbol_closures: tuple[StateSymbolClosureBinding, ...] = ()
     source_state_slot_ids: tuple[str, ...] = ()
+    source_version_ids: tuple[StateVersionId, ...] = ()
+    source_call_result_ids: tuple[str, ...] = ()
     source_call_ids: tuple[str, ...] = ()
 
     def to_payload(self) -> dict[str, object]:
@@ -79,6 +94,10 @@ class StateSemanticLineage:
                 item.to_payload() for item in self.symbol_closures
             ],
             "source_state_slot_ids": list(self.source_state_slot_ids),
+            "source_version_ids": [
+                item.to_payload() for item in self.source_version_ids
+            ],
+            "source_call_result_ids": list(self.source_call_result_ids),
             "source_call_ids": list(self.source_call_ids),
         }
 
@@ -90,6 +109,8 @@ def state_semantic_lineage(
     object_roles: Iterable[StateObjectRoleBinding] = (),
     symbol_closures: Iterable[StateSymbolClosureBinding] = (),
     source_state_slot_ids: Iterable[str] = (),
+    source_version_ids: Iterable[StateVersionId] = (),
+    source_call_result_ids: Iterable[str] = (),
     source_call_ids: Iterable[str] = (),
 ) -> StateSemanticLineage:
     """Build normalized lineage without making callers own deduplication."""
@@ -118,6 +139,22 @@ def state_semantic_lineage(
                 (
                     *((current.source_handles if current is not None else ())),
                     *item.source_handles,
+                )
+            ),
+            object_ids=_unique_values(
+                (
+                    *((current.object_ids if current is not None else ())),
+                    *item.object_ids,
+                )
+            ),
+            source_version_ids=_unique_values(
+                (
+                    *((
+                        current.source_version_ids
+                        if current is not None
+                        else ()
+                    )),
+                    *item.source_version_ids,
                 )
             ),
             state_requirement=(
@@ -173,6 +210,8 @@ def state_semantic_lineage(
         object_roles=tuple(roles_by_name.values()),
         symbol_closures=tuple(closures_by_target.values()),
         source_state_slot_ids=_unique_strings(source_state_slot_ids),
+        source_version_ids=_unique_values(source_version_ids),
+        source_call_result_ids=_unique_strings(source_call_result_ids),
         source_call_ids=_unique_strings(source_call_ids),
     )
 
@@ -184,6 +223,8 @@ def merge_state_semantic_lineages(
     object_roles: Iterable[StateObjectRoleBinding] = (),
     symbol_closures: Iterable[StateSymbolClosureBinding] = (),
     source_state_slot_ids: Iterable[str] = (),
+    source_version_ids: Iterable[StateVersionId] = (),
+    source_call_result_ids: Iterable[str] = (),
     source_call_ids: Iterable[str] = (),
 ) -> StateSemanticLineage:
     """Merge source lineage with roles declared by the current write."""
@@ -212,6 +253,22 @@ def merge_state_semantic_lineages(
             ),
             *source_state_slot_ids,
         ),
+        source_version_ids=(
+            *(
+                version_id
+                for item in items
+                for version_id in item.source_version_ids
+            ),
+            *source_version_ids,
+        ),
+        source_call_result_ids=(
+            *(
+                call_result_id
+                for item in items
+                for call_result_id in item.source_call_result_ids
+            ),
+            *source_call_result_ids,
+        ),
         source_call_ids=(
             *(call_id for item in items for call_id in item.source_call_ids),
             *source_call_ids,
@@ -238,6 +295,11 @@ def state_semantic_lineage_from_payload(
     """Parse persisted lineage at the untrusted debug/context boundary."""
     if not isinstance(payload, Mapping):
         return StateSemanticLineage()
+    from shuxueshuo_server.solver.runtime.state_identity import (
+        MathObjectId,
+        StateVersionId,
+    )
+
     object_roles: list[StateObjectRoleBinding] = []
     raw_object_roles = payload.get("object_roles", ())
     if isinstance(raw_object_roles, Iterable) and not isinstance(
@@ -258,6 +320,16 @@ def state_semantic_lineage_from_payload(
                         item.get("source_state_slot_ids")
                     ),
                     source_handles=_string_items(item.get("source_handles")),
+                    object_ids=tuple(
+                        MathObjectId.from_payload(value)
+                        for value in _mapping_items(item.get("object_ids"))
+                    ),
+                    source_version_ids=tuple(
+                        StateVersionId.from_payload(value)
+                        for value in _mapping_items(
+                            item.get("source_version_ids")
+                        )
+                    ),
                     state_requirement=(
                         "materialized"
                         if item.get("state_requirement") == "materialized"
@@ -302,6 +374,13 @@ def state_semantic_lineage_from_payload(
         symbol_closures=symbol_closures,
         source_state_slot_ids=_string_items(
             payload.get("source_state_slot_ids")
+        ),
+        source_version_ids=tuple(
+            StateVersionId.from_payload(item)
+            for item in _mapping_items(payload.get("source_version_ids"))
+        ),
+        source_call_result_ids=_string_items(
+            payload.get("source_call_result_ids")
         ),
         source_call_ids=_string_items(payload.get("source_call_ids")),
     )
@@ -488,6 +567,19 @@ def _safe_identity_token(value: str) -> str:
 
 def _unique_strings(values: Iterable[str]) -> tuple[str, ...]:
     return tuple(dict.fromkeys(value for value in values if value))
+
+
+def _unique_values(values: Iterable[Any]) -> tuple[Any, ...]:
+    return tuple(dict.fromkeys(value for value in values if value is not None))
+
+
+def _mapping_items(value: Any) -> tuple[Mapping[str, Any], ...]:
+    if not isinstance(value, Iterable) or isinstance(
+        value,
+        (str, bytes, Mapping),
+    ):
+        return ()
+    return tuple(item for item in value if isinstance(item, Mapping))
 
 
 def _string_items(value: Any) -> tuple[str, ...]:

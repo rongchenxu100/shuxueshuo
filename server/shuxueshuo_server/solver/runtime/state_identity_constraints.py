@@ -13,6 +13,7 @@ from shuxueshuo_server.solver.runtime.functional_plan_models import (
     ResolvedFunctionalValue,
     _issue,
 )
+from shuxueshuo_server.solver.runtime.state_identity import MathObjectId
 from shuxueshuo_server.solver.state_semantics import (
     state_object_refs_for_role,
 )
@@ -54,6 +55,7 @@ def validate_state_identity_constraint_specs(
 @dataclass(frozen=True)
 class _IdentitySelection:
     selector: str
+    object_ids: tuple[MathObjectId, ...]
     object_refs: tuple[str, ...]
     source_call_ids: tuple[str, ...] = ()
     source_state_slot_ids: tuple[str, ...] = ()
@@ -105,8 +107,8 @@ class StateIdentityConstraintValidator:
             if (
                 left is None
                 or right is None
-                or len(left.object_refs) != 1
-                or len(right.object_refs) != 1
+                or len(left.object_ids) != 1
+                or len(right.object_ids) != 1
             ):
                 issues.append(
                     _issue(
@@ -126,7 +128,7 @@ class StateIdentityConstraintValidator:
                     )
                 )
                 continue
-            if left.object_refs[0] == right.object_refs[0]:
+            if left.object_ids[0] == right.object_ids[0]:
                 continue
             issues.append(
                 _issue(
@@ -209,9 +211,9 @@ def infer_unique_return_object_refs(
             match.group("field"),
             values,
         )
-        if len(selection.object_refs) != 1:
+        if len(selection.object_ids) != 1:
             return ()
-        inferred.append(selection.object_refs[0])
+        inferred.append(selection.object_ids[0].value)
     refs = unique_ordered(inferred)
     return refs if len(refs) == 1 else ()
 
@@ -240,15 +242,24 @@ def _selection_from_values(
 ) -> _IdentitySelection:
     role = field.split(":", 1)[1] if field.startswith("object_role:") else None
     object_refs: list[str] = []
+    object_ids: list[MathObjectId] = []
     source_call_ids: list[str] = []
     source_slots: list[str] = []
     for value in values:
         if role is None:
             if value.object_ref is not None:
                 object_refs.append(value.object_ref)
+            if value.math_object_id is not None:
+                object_ids.append(value.math_object_id)
         else:
             object_refs.extend(state_object_refs_for_role(value.lineage, role))
             object_refs.extend(dict(value.object_roles).get(role, ()))
+            object_ids.extend(
+                object_id
+                for binding in value.lineage.object_roles
+                if binding.role == role
+                for object_id in binding.object_ids
+            )
         if value.source_call_id is not None:
             source_call_ids.append(value.source_call_id)
         source_slots.extend(value.source_state_slot_ids)
@@ -256,6 +267,7 @@ def _selection_from_values(
             source_slots.append(value.state_slot_id)
     return _IdentitySelection(
         selector=selector,
+        object_ids=unique_ordered(object_ids),
         object_refs=unique_ordered(object_refs),
         source_call_ids=unique_ordered(source_call_ids),
         source_state_slot_ids=unique_ordered(source_slots),
@@ -273,8 +285,23 @@ def _selection_from_return(
         if role is not None
         else ((returned.object_ref,) if returned.object_ref is not None else ())
     )
+    object_ids = (
+        unique_ordered(
+            object_id
+            for binding in returned.lineage.object_roles
+            if binding.role == role
+            for object_id in binding.object_ids
+        )
+        if role is not None
+        else (
+            (returned.math_object_id,)
+            if returned.math_object_id is not None
+            else ()
+        )
+    )
     return _IdentitySelection(
         selector=selector,
+        object_ids=object_ids,
         object_refs=unique_ordered(object_refs),
         source_call_ids=(returned.call_id,),
         source_state_slot_ids=unique_ordered(
@@ -289,6 +316,11 @@ def _selection_payload(
 ) -> dict[str, object]:
     return {
         "selector": selector,
+        "object_ids": (
+            [item.to_payload() for item in selection.object_ids]
+            if selection
+            else []
+        ),
         "object_refs": list(selection.object_refs) if selection else [],
         "source_call_ids": list(selection.source_call_ids) if selection else [],
         "source_state_slot_ids": (

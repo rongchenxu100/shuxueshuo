@@ -785,14 +785,6 @@ class StateIdentityFactory:
         return StateSlotId(logical_key, storage_scope_id)
 
     @staticmethod
-    def legacy_slot_id(slot_id: StateSlotId) -> str:
-        return (
-            f"{slot_id.logical_key.object_id.value}."
-            f"{slot_id.logical_key.state_kind}@{slot_id.storage_scope_id}:"
-            f"{slot_id.logical_key.runtime_type}"
-        )
-
-    @staticmethod
     def legacy_slot_alias(slot_id: StateSlotId) -> str:
         """Return the pre-B1 untyped key accepted for old Context payloads."""
 
@@ -809,10 +801,6 @@ class StateIdentityIndex:
         self.visibility = visibility
         self._versions_by_logical: dict[
             LogicalStateKey,
-            list[IndexedStateVersion],
-        ] = {}
-        self._versions_by_legacy_slot: dict[
-            str,
             list[IndexedStateVersion],
         ] = {}
 
@@ -834,14 +822,27 @@ class StateIdentityIndex:
                 and slot.object_ref.startswith("answer:")
             ):
                 continue
-            logical_key = getattr(slot, "logical_state_key", None) or (
-                factory.logical_key(
-                    object_ref=slot.object_ref,
-                    state_kind=slot.state_kind,
-                    runtime_type=slot.runtime_type,
+            try:
+                logical_key = getattr(slot, "logical_state_key", None) or (
+                    factory.logical_key(
+                        object_ref=slot.object_ref,
+                        state_kind=slot.state_kind,
+                        runtime_type=slot.runtime_type,
+                    )
                 )
-            )
+            except AmbiguousMathObjectReferenceError as exc:
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.context_identity_migration_failed: "
+                    f"slot={slot.slot_id}, ref={exc.ref}"
+                ) from exc
             if logical_key is None:
+                if slot.object_ref is not None:
+                    raise ValueError(
+                        "planner_configuration_error: "
+                        "planner.context_identity_migration_failed: "
+                        f"slot={slot.slot_id} has no LogicalStateKey"
+                    )
                 continue
             typed_slot = getattr(slot, "typed_slot_id", None) or (
                 factory.slot_id(
@@ -849,6 +850,12 @@ class StateIdentityIndex:
                     storage_scope_id=slot.scope_id,
                 )
             )
+            if typed_slot.logical_key != logical_key:
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.context_identity_migration_failed: "
+                    f"slot={slot.slot_id} typed key disagrees with object state"
+                )
             history = tuple(slot.write_history)
             if not history:
                 result.register(
@@ -944,10 +951,6 @@ class StateIdentityIndex:
             key: list(items)
             for key, items in self._versions_by_logical.items()
         }
-        result._versions_by_legacy_slot = {
-            key: list(items)
-            for key, items in self._versions_by_legacy_slot.items()
-        }
         return result
 
     def register(
@@ -956,25 +959,13 @@ class StateIdentityIndex:
         *,
         legacy_slot_id: str | None = None,
     ) -> None:
+        del legacy_slot_id
         items = self._versions_by_logical.setdefault(
             version.version_id.slot_id.logical_key,
             [],
         )
         if version not in items:
             items.append(version)
-        legacy_keys = {
-            StateIdentityFactory.legacy_slot_id(version.version_id.slot_id),
-            StateIdentityFactory.legacy_slot_alias(version.version_id.slot_id),
-        }
-        if legacy_slot_id is not None:
-            legacy_keys.add(legacy_slot_id)
-        for legacy_slot_key in legacy_keys:
-            legacy = self._versions_by_legacy_slot.setdefault(
-                legacy_slot_key,
-                [],
-            )
-            if version not in legacy:
-                legacy.append(version)
 
     def update_version(
         self,
@@ -1004,9 +995,6 @@ class StateIdentityIndex:
             self._versions_by_logical[logical_key] = updated(
                 self._versions_by_logical[logical_key]
             )
-        for key, items in tuple(self._versions_by_legacy_slot.items()):
-            if any(item.version_id == version_id for item in items):
-                self._versions_by_legacy_slot[key] = updated(items)
 
     def versions_for(
         self,
@@ -1059,19 +1047,6 @@ class StateIdentityIndex:
             if version is not None:
                 pending.extend(version.source_version_ids)
         return False
-
-    def latest_for_legacy_slot(
-        self,
-        legacy_slot_id: str | None,
-        *,
-        consumer_scope_id: str,
-    ) -> IndexedStateVersion | None:
-        if legacy_slot_id is None:
-            return None
-        return self._latest_visible(
-            self._versions_by_legacy_slot.get(legacy_slot_id, ()),
-            consumer_scope_id=consumer_scope_id,
-        )
 
     def latest_visible(
         self,
@@ -1197,10 +1172,15 @@ class StateAllocationService:
             )
 
         if request.requested_write_mode == "transition":
+            same_state_source_ids = tuple(
+                version_id
+                for version_id in request.source_version_ids
+                if version_id.slot_id.logical_key == logical_key
+            )
             explicit_sources = tuple(
                 item
                 for item in all_versions
-                if item.version_id in request.source_version_ids
+                if item.version_id in same_state_source_ids
             )
             previous = max(
                 explicit_sources,
@@ -1225,9 +1205,9 @@ class StateAllocationService:
                     reason_code="first_materialized_state_from_object_identity",
                 )
             if (
-                request.source_version_ids
+                same_state_source_ids
                 and not explicit_sources
-                and previous.version_id not in request.source_version_ids
+                and previous.version_id not in same_state_source_ids
             ):
                 return self._conflict(
                     request,
@@ -1491,10 +1471,17 @@ def _computation_refines(
     for key, previous_binding in previous_bindings.items():
         current_binding = current_bindings[key]
         if previous_binding.version_id is not None:
-            if current_binding.version_id is None or not (
+            if (
+                current_binding.version_id is None
+                or (
+                    current_binding.version_id.slot_id.logical_key
+                    != previous_binding.version_id.slot_id.logical_key
+                )
+                or not (
                 index.is_same_or_descendant(
                     current_binding.version_id,
                     previous_binding.version_id,
+                )
                 )
             ):
                 return False

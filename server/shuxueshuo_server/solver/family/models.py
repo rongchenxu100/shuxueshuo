@@ -430,6 +430,7 @@ FunctionalReturnBindingPolicy = Literal[
     "auto",
     "internal_only",
     "external_allowed",
+    "explicit_external_required",
     "call_local_allowed",
 ]
 CapabilityStateClosurePolicy = Literal[

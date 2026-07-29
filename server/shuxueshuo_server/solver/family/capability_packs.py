@@ -1893,6 +1893,8 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
                         object_kind="point",
                         semantic_role="square_adjacent_vertex",
                         output_key="point",
+                        write_mode="transition",
+                        return_binding="explicit_external_required",
                         description=(
                             "必须绑定本次实际求出的正方形顶点。若有序顶点为 "
                             "V1,V2,V3,V4，先由边 V1V2 求 V3、再由边 V2V3 "

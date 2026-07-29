@@ -6082,7 +6082,28 @@ def _target_path_for_produced(
     if output_type == "Line":
         return _scoped_output_path(index.context, produced.valid_scope, semantic_name)
     if output_type == "ParameterValue":
-        symbol = semantic_name.split("_", 1)[0]
+        projected_write = _projected_state_write(
+            step.step_id,
+            produced.handle,
+            index.projected_state_writes,
+        )
+        if (
+            projected_write is not None
+            and projected_write.logical_state_key is not None
+        ):
+            object_id = projected_write.logical_state_key.object_id
+            if object_id.kind != "symbol":
+                raise StrategyDraftValidationError(
+                    "planner_configuration_error: "
+                    "planner.contract_runtime_destination_drift: "
+                    "ParameterValue state is not owned by a Symbol "
+                    f"step={step.step_id}, handle={produced.handle}, "
+                    f"object={object_id.value}"
+                )
+            symbol = _handle_name(object_id.value)
+        else:
+            # StepIntent-only compatibility has no typed state sidecar.
+            symbol = semantic_name.split("_", 1)[0]
         return _scoped_output_path(index.context, produced.valid_scope, symbol)
     if output_type == "PathTransformation":
         return _scoped_output_path(

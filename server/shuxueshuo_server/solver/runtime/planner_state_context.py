@@ -20,6 +20,10 @@ from shuxueshuo_server.solver.runtime.condition_roles import (
     ConditionRoleResolver,
 )
 from shuxueshuo_server.solver.runtime.function_specs import function_spec_payloads
+from shuxueshuo_server.solver.runtime.functional_legacy_projection import (
+    FunctionalLegacyProjectionAdapter,
+    legacy_state_slot_aliases,
+)
 from shuxueshuo_server.solver.runtime.macro_specs import macro_spec_payloads
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
 from shuxueshuo_server.solver.runtime.output_type_inference import (
@@ -587,6 +591,9 @@ class PlannerState:
     state_finalization_decisions: tuple[dict[str, Any], ...] = ()
     state_finalization_mismatches: tuple[dict[str, Any], ...] = ()
     runtime_destination_decisions: tuple[dict[str, Any], ...] = ()
+    typed_identity_completeness: dict[str, Any] = field(default_factory=dict)
+    legacy_projection_count: int = 0
+    legacy_identity_fallback_count: int = 0
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -646,6 +653,13 @@ class PlannerState:
             "runtime_destination_decisions": [
                 dict(item) for item in self.runtime_destination_decisions
             ],
+            "typed_identity_completeness": dict(
+                self.typed_identity_completeness
+            ),
+            "legacy_projection_count": self.legacy_projection_count,
+            "legacy_identity_fallback_count": (
+                self.legacy_identity_fallback_count
+            ),
         }
 
 
@@ -738,6 +752,9 @@ class _MutableState:
     runtime_destination_decisions: list[dict[str, Any]] = field(
         default_factory=list
     )
+    typed_identity_completeness: dict[str, Any] = field(default_factory=dict)
+    legacy_projection_count: int = 0
+    legacy_identity_fallback_count: int = 0
 
     def freeze(self) -> PlannerStateContext:
         return PlannerStateContext(
@@ -784,6 +801,13 @@ class _MutableState:
                 ),
                 runtime_destination_decisions=tuple(
                     self.runtime_destination_decisions
+                ),
+                typed_identity_completeness=dict(
+                    self.typed_identity_completeness
+                ),
+                legacy_projection_count=self.legacy_projection_count,
+                legacy_identity_fallback_count=(
+                    self.legacy_identity_fallback_count
                 ),
             ),
         )
@@ -1029,6 +1053,23 @@ class PlannerStateContextBuilder:
             state.runtime_destination_decisions,
             getattr(reconciliation, "runtime_destination_decisions", ()),
         )
+        state.typed_identity_completeness = dict(
+            getattr(
+                reconciliation,
+                "typed_identity_completeness",
+                {},
+            )
+        )
+        state.legacy_projection_count += int(
+            getattr(reconciliation, "legacy_projection_count", 0)
+        )
+        state.legacy_identity_fallback_count += int(
+            getattr(
+                reconciliation,
+                "legacy_identity_fallback_count",
+                0,
+            )
+        )
         effective_draft = getattr(replay, "effective_draft", None) or getattr(
             reconciliation,
             "projected_draft",
@@ -1118,7 +1159,11 @@ class PlannerStateContextBuilder:
             state_slots,
             problem_payload=problem_payload,
         )
-        math_objects, state_slots = _attach_typed_initial_identity(
+        (
+            math_objects,
+            state_slots,
+            legacy_identity_fallback_count,
+        ) = _attach_typed_initial_identity(
             math_objects,
             state_slots,
             handle_registry=handle_registry,
@@ -1133,6 +1178,9 @@ class PlannerStateContextBuilder:
             conditions=conditions,
             state_slots=state_slots,
             alias_index=alias_index,
+            legacy_identity_fallback_count=(
+                legacy_identity_fallback_count
+            ),
             capability_contracts=list(
                 contract_payloads(inputs.family_spec, inputs.method_specs)
             ),
@@ -2166,7 +2214,7 @@ def _attach_typed_initial_identity(
     state_slots: dict[str, StateSlot],
     *,
     handle_registry: CanonicalHandleRegistry,
-) -> tuple[list[MathObject], dict[str, StateSlot]]:
+) -> tuple[list[MathObject], dict[str, StateSlot], int]:
     object_registry = MathObjectRegistry.from_sources(
         handle_registry,
         math_objects=math_objects,
@@ -2217,7 +2265,75 @@ def _attach_typed_initial_identity(
                 slot.runtime_path,
             ),
         )
-    return typed_objects, typed_slots
+    versions_by_legacy_slot: dict[str, StateVersionId] = {}
+    for slot in typed_slots.values():
+        if (
+            slot.latest_version_id is None
+            or slot.typed_slot_id is None
+        ):
+            continue
+        for legacy_slot_id in (
+            slot.slot_id,
+            *legacy_state_slot_aliases(slot.typed_slot_id),
+        ):
+            existing = versions_by_legacy_slot.get(legacy_slot_id)
+            if (
+                existing is not None
+                and existing != slot.latest_version_id
+            ):
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.context_identity_migration_failed: "
+                    f"legacy state slot {legacy_slot_id} maps to "
+                    "multiple StateVersionIds"
+                )
+            versions_by_legacy_slot[legacy_slot_id] = (
+                slot.latest_version_id
+            )
+    object_candidates: dict[str, set[MathObjectId]] = {}
+    for item in typed_objects:
+        if item.math_object_id is None:
+            continue
+        for semantic_ref in (
+            item.object_id,
+            item.canonical_handle,
+            *item.semantic_refs,
+        ):
+            if semantic_ref is None:
+                continue
+            object_candidates.setdefault(semantic_ref, set()).add(
+                item.math_object_id
+            )
+    object_ids_by_ref = {
+        semantic_ref: next(iter(object_ids))
+        for semantic_ref, object_ids in object_candidates.items()
+        if len(object_ids) == 1
+    }
+    legacy_projection_adapter = FunctionalLegacyProjectionAdapter()
+    for slot_id, slot in tuple(typed_slots.items()):
+        lineage = merge_state_semantic_lineages(
+            slot.lineage,
+            source_state_slot_ids=slot.source_state_slot_ids,
+        )
+        typed_slots[slot_id] = replace(
+            slot,
+            source_state_slot_ids=(
+                legacy_projection_adapter.normalize_source_slot_ids(
+                    slot.source_state_slot_ids,
+                    versions_by_legacy_slot=versions_by_legacy_slot,
+                )
+            ),
+            lineage=legacy_projection_adapter.migrate_lineage(
+                lineage,
+                object_ids_by_ref=object_ids_by_ref,
+                versions_by_legacy_slot=versions_by_legacy_slot,
+            ),
+        )
+    return (
+        typed_objects,
+        typed_slots,
+        legacy_projection_adapter.identity_fallback_count,
+    )
 
 
 def _logical_state_key_from_payload(value: Any) -> LogicalStateKey | None:

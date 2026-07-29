@@ -473,6 +473,109 @@ def test_projected_dependency_closure_is_runtime_type_agnostic(
     assert consumer.reads == (handle,)
 
 
+def test_ordinary_state_dependency_does_not_reopen_transitive_source_reads() -> None:
+    problem = load_problem_ir(str(PROBLEM))
+    registry = CanonicalHandleRegistry.from_problem_payload(
+        problem_to_llm_payload(problem)
+    )
+    source = ProducedFact(
+        "fact:ii:private_curve",
+        "ii",
+        output_type="Parabola",
+    )
+    published = ProducedFact(
+        "fact:problem:published_point",
+        "problem",
+        output_type="Point",
+    )
+    draft = StepIntentDraft(
+        scopes=(
+            StepIntentScope(
+                scope_id="ii",
+                label="producer",
+                steps=(
+                    StepIntent(
+                        step_id="build_curve",
+                        scope_id="ii",
+                        recipe_hint="synthetic_curve",
+                        goal_type="derive_curve",
+                        target=source.handle,
+                        strategy="build a branch-private curve",
+                        produces=(source,),
+                    ),
+                    StepIntent(
+                        step_id="derive_point",
+                        scope_id="ii",
+                        recipe_hint="synthetic_point",
+                        goal_type="derive_point",
+                        target=published.handle,
+                        strategy="publish a point derived from the curve",
+                        reads=(source.handle,),
+                        produces=(published,),
+                    ),
+                ),
+            ),
+            StepIntentScope(
+                scope_id="ii_2",
+                label="consumer",
+                steps=(
+                    StepIntent(
+                        step_id="consume_point",
+                        scope_id="ii_2",
+                        recipe_hint="synthetic_consumer",
+                        goal_type="consume_point",
+                        target="",
+                        strategy="consume only the published point",
+                    ),
+                ),
+            ),
+        )
+    )
+    curve_slot = "function:problem:curve.expression@ii:Parabola"
+    point_slot = "point:problem:P.coordinate@problem:Point"
+    writes = (
+        ProjectedStateWrite(
+            step_id="build_curve",
+            produced_handle=source.handle,
+            state_slot_id=curve_slot,
+            write_mode="create",
+            runtime_type="Parabola",
+            object_ref="function:problem:curve",
+        ),
+        ProjectedStateWrite(
+            step_id="derive_point",
+            produced_handle=published.handle,
+            state_slot_id=point_slot,
+            write_mode="create",
+            runtime_type="Point",
+            object_ref="point:problem:P",
+            source_state_slot_ids=(curve_slot,),
+        ),
+    )
+    dependencies = (
+        ProjectedStateDependency(
+            step_id="consume_point",
+            state_slot_id=point_slot,
+            produced_handle=published.handle,
+            runtime_type="Point",
+            object_ref="point:problem:P",
+            source="resolver",
+        ),
+    )
+
+    closed = _close_projected_state_reads(
+        draft,
+        projected_state_writes=writes,
+        projected_state_dependencies=dependencies,
+        handle_registry=registry,
+    )
+    consumer = next(
+        item for item in closed.steps if item.step_id == "consume_point"
+    )
+
+    assert consumer.reads == (published.handle,)
+
+
 def test_functional_state_scope_remains_authoritative_for_cross_scope_reads() -> None:
     problem = load_problem_ir(str(PROBLEM))
     inputs = build_strategy_probe_inputs(problem)

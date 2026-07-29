@@ -107,6 +107,7 @@ def latest_point_state_for_object(
             logical_state_key=view.logical_state_key,
             typed_slot_id=view.typed_slot_id,
             state_version_id=view.state_version_id,
+            source_version_ids=view.source_version_ids,
         )
     if allow_unique_planned_producer:
         planned = tuple(

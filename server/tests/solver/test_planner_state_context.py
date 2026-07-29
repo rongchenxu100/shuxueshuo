@@ -113,6 +113,7 @@ def test_planner_state_context_initial_snapshot_is_json_serializable() -> None:
     payload = ctx.to_payload()
 
     assert payload["manifest"]["context_type"] == "planner"
+    assert payload["state"]["legacy_identity_fallback_count"] > 0
     assert "problem" in payload["state"]["scope_graph"]["scope_ids"]
     assert payload["state"]["alias_index"]["by_handle"]["point:problem:D"].startswith(
         "point:D@problem"

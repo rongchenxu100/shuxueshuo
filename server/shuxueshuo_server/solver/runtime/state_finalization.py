@@ -35,6 +35,7 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     StateWriteProvenance,
     StrategyDraftValidationError,
 )
+from shuxueshuo_server.solver.utils import unique_ordered
 
 StateFinalizerMode = Literal["shadow", "authoritative"]
 StateProjectionKind = Literal["object", "answer", "fact", "call_local"]
@@ -707,20 +708,31 @@ def project_functional_state_dependencies(
     reconciled_calls: Sequence[Any],
     *,
     catalog: Any,
+    legacy_projection_adapter: Any | None = None,
 ) -> tuple[ProjectedStateDependency, ...]:
     """Project every exact Functional StateVersion read for B3 validation."""
 
     calls_by_id = {call.call_id: call for call in plan.calls}
     result: list[ProjectedStateDependency] = []
-    seen: set[tuple[str, str, str]] = set()
-    latest_return_by_slot: dict[
-        str,
-        tuple[str, str, StateVersionId | None],
-    ] = {}
-    return_version_by_call_role = {
-        (call.call_id, allocation.return_name): allocation.selected_version_id
+    from shuxueshuo_server.solver.runtime.functional_legacy_projection import (
+        FunctionalLegacyProjectionAdapter,
+    )
+
+    adapter = (
+        legacy_projection_adapter
+        if legacy_projection_adapter is not None
+        else FunctionalLegacyProjectionAdapter()
+    )
+    seen: set[tuple[str, str, StateVersionId]] = set()
+    return_by_version = {
+        allocation.selected_version_id: (
+            call.call_id,
+            allocation.return_name,
+            allocation,
+        )
         for call in reconciled_calls
         for allocation in call.returns
+        if allocation.selected_version_id is not None
     }
     for call in reconciled_calls:
         functional_call = calls_by_id.get(call.call_id)
@@ -759,53 +771,64 @@ def project_functional_state_dependencies(
             else:
                 source = "context"
             for value in values:
-                if value.state_slot_id is None:
-                    continue
-                source_step_id = value.source_call_id
-                source_return_name = value.return_name
-                state_version_id = value.state_version_id
-                if source_step_id is None:
-                    producer = latest_return_by_slot.get(value.state_slot_id)
-                    if producer is not None:
-                        (
-                            source_step_id,
-                            source_return_name,
-                            producer_version_id,
-                        ) = producer
-                        state_version_id = (
-                            state_version_id or producer_version_id
-                        )
-                elif source_return_name is not None:
-                    state_version_id = (
-                        state_version_id
-                        or return_version_by_call_role.get(
-                            (source_step_id, source_return_name)
+                if value.state_version_id is not None:
+                    version_ids = (value.state_version_id,)
+                elif value.source_call_id is not None:
+                    # A call-local public return is read through its
+                    # CallResult edge. Its source_version_ids are transitive
+                    # provenance, not exact state reads of this consumer.
+                    version_ids = ()
+                else:
+                    version_ids = unique_ordered(value.source_version_ids)
+                for state_version_id in version_ids:
+                    producer = return_by_version.get(state_version_id)
+                    source_step_id = (
+                        producer[0]
+                        if producer is not None
+                        else value.source_call_id
+                    )
+                    source_return_name = (
+                        producer[1]
+                        if producer is not None
+                        else value.return_name
+                    )
+                    source_allocation = (
+                        producer[2] if producer is not None else None
+                    )
+                    state_slot_id = adapter.state_slot_id(
+                        state_version_id.slot_id
+                    )
+                    key = (call.call_id, arg_name, state_version_id)
+                    if key in seen:
+                        continue
+                    seen.add(key)
+                    result.append(
+                        ProjectedStateDependency(
+                            step_id=call.call_id,
+                            state_slot_id=state_slot_id,
+                            produced_handle=(
+                                source_allocation.state_handle
+                                or source_allocation.handle
+                                if source_allocation is not None
+                                else value.handle
+                            ),
+                            runtime_type=(
+                                source_allocation.runtime_type
+                                if source_allocation is not None
+                                else value.runtime_type
+                            ),
+                            object_ref=(
+                                source_allocation.object_ref
+                                if source_allocation is not None
+                                else value.object_ref
+                            ),
+                            arg_name=arg_name,
+                            source=source,
+                            source_step_id=source_step_id,
+                            source_return_name=source_return_name,
+                            state_version_id=state_version_id,
                         )
                     )
-                key = (call.call_id, value.state_slot_id, value.handle)
-                if key in seen:
-                    continue
-                seen.add(key)
-                result.append(
-                    ProjectedStateDependency(
-                        step_id=call.call_id,
-                        state_slot_id=value.state_slot_id,
-                        produced_handle=value.handle,
-                        runtime_type=value.runtime_type,
-                        object_ref=value.object_ref,
-                        arg_name=arg_name,
-                        source=source,
-                        source_step_id=source_step_id,
-                        source_return_name=source_return_name,
-                        state_version_id=state_version_id,
-                    )
-                )
-        for allocation in call.returns:
-            latest_return_by_slot[allocation.state_slot_id] = (
-                call.call_id,
-                allocation.return_name,
-                allocation.selected_version_id,
-            )
     return tuple(result)
 
 

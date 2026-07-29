@@ -107,6 +107,10 @@ class FunctionalPlanValidator:
                     )
                 )
                 continue
+            raw_scope = _drop_redundant_scope_call_id(
+                raw_scope,
+                deterministic_repairs=deterministic_repairs,
+            )
             _check_fields(
                 raw_scope,
                 {"scope_id", "label", "calls"},
@@ -365,6 +369,37 @@ FUNCTIONAL_PLAN_JSON_SCHEMA: dict[str, Any] = {
     },
 }
 
+
+def _drop_redundant_scope_call_id(
+    raw_scope: dict[str, Any],
+    *,
+    deterministic_repairs: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Drop a scope-level call id only when it repeats a complete scope id."""
+
+    scope_id = _text(raw_scope.get("scope_id"))
+    call_id = _text(raw_scope.get("call_id"))
+    label = _text(raw_scope.get("label"))
+    calls = raw_scope.get("calls")
+    if (
+        scope_id is None
+        or call_id != scope_id
+        or label is None
+        or not isinstance(calls, list)
+        or not calls
+    ):
+        return raw_scope
+    repaired = dict(raw_scope)
+    repaired.pop("call_id", None)
+    deterministic_repairs.append(
+        {
+            "scope_id": scope_id,
+            "action": "drop_redundant_scope_call_id",
+            "from": call_id,
+            "to": "omitted",
+        }
+    )
+    return repaired
 
 
 def _parse_call(
