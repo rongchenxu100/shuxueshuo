@@ -59,6 +59,12 @@ from shuxueshuo_server.solver.runtime.functional_result_forms import (
     verify_functional_input_closures,
     verify_functional_result_forms,
 )
+from shuxueshuo_server.solver.runtime.functional_transaction_shadow import (
+    FunctionalTransactionMode,
+    FunctionalTransactionShadowObserver,
+    FunctionalTransactionShadowReport,
+    failed_shadow_report,
+)
 from shuxueshuo_server.solver.runtime.planner_state_context import (
     PlannerStateContext,
     PlannerStateContextBuilder,
@@ -147,6 +153,9 @@ class PlannerRetryReplayResult:
     functional_plan: FunctionalPlan | None = None
     functional_validation_report: FunctionalPlanValidationReport | None = None
     functional_reconciliation: FunctionalPlanReconciliationResult | None = None
+    transactional_shadow_report: (
+        FunctionalTransactionShadowReport | None
+    ) = None
 
     def to_payload(self) -> dict[str, Any]:
         """转成 debug JSON。"""
@@ -220,6 +229,11 @@ class PlannerRetryReplayResult:
                 if self.functional_reconciliation is not None
                 else None
             ),
+            "transactional_shadow_report": (
+                self.transactional_shadow_report.to_payload()
+                if self.transactional_shadow_report is not None
+                else None
+            ),
         }
 
 
@@ -257,6 +271,13 @@ class _FunctionalGraphVerification:
 
 class PlannerRetryReplayService:
     """统一执行 StepIntent deterministic replay 并生成 retry state。"""
+
+    def __init__(
+        self,
+        *,
+        functional_transaction_mode: FunctionalTransactionMode = "legacy",
+    ) -> None:
+        self._functional_transaction_mode = functional_transaction_mode
 
     def replay_functional_raw_json(
         self,
@@ -465,8 +486,10 @@ class PlannerRetryReplayService:
                 functional_validation_report=validation_report,
                 functional_reconciliation=reconciliation,
             )
-            return _with_planner_state_context(
+            return self._finalize_functional_replay(
                 replay,
+                raw_plan=plan,
+                parent_context=planner_state_context,
                 inputs=inputs,
                 handle_registry=handle_registry,
                 problem_payload=problem_payload,
@@ -525,8 +548,10 @@ class PlannerRetryReplayService:
                 functional_validation_report=validation_report,
                 functional_reconciliation=reconciliation,
             )
-            return _with_planner_state_context(
+            return self._finalize_functional_replay(
                 replay,
+                raw_plan=plan,
+                parent_context=planner_state_context,
                 inputs=inputs,
                 handle_registry=handle_registry,
                 problem_payload=problem_payload,
@@ -699,8 +724,52 @@ class PlannerRetryReplayService:
             # candidate, even when its executable subset happens to run.
             output=(None if reconciliation.issues else base.output),
         )
-        return _with_planner_state_context(
+        return self._finalize_functional_replay(
             enriched,
+            raw_plan=plan,
+            parent_context=planner_state_context,
+            inputs=inputs,
+            handle_registry=handle_registry,
+            problem_payload=problem_payload,
+        )
+
+    def _finalize_functional_replay(
+        self,
+        replay: PlannerRetryReplayResult,
+        *,
+        raw_plan: FunctionalPlan,
+        parent_context: PlannerStateContext,
+        inputs: PlannerInputs,
+        handle_registry: CanonicalHandleRegistry,
+        problem_payload: dict[str, Any] | None,
+    ) -> PlannerRetryReplayResult:
+        if (
+            self._functional_transaction_mode == "shadow"
+            and replay.functional_reconciliation is not None
+        ):
+            try:
+                report = FunctionalTransactionShadowObserver().observe(
+                    raw_plan=raw_plan,
+                    reconciliation=replay.functional_reconciliation,
+                    diagnostic=replay.diagnostic,
+                    retry_state=replay.retry_state,
+                    goal_verification_report=(
+                        replay.goal_verification_report
+                    ),
+                    parent_context=parent_context,
+                    handle_registry=handle_registry,
+                )
+            except Exception as exc:
+                report = failed_shadow_report(
+                    raw_plan,
+                    message=f"{type(exc).__name__}: {exc}",
+                )
+            replay = replace(
+                replay,
+                transactional_shadow_report=report,
+            )
+        return _with_planner_state_context(
+            replay,
             inputs=inputs,
             handle_registry=handle_registry,
             problem_payload=problem_payload,
@@ -2295,6 +2364,7 @@ def _functional_runtime_retry_state(
         verify_restored_runtime_checkpoint(
             expected_retry_checkpoint,
             retry_checkpoint,
+            require_complete_evidence=False,
         )
     issues = attach_actual_result_refs(
         issues,

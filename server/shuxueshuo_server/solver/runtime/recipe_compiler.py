@@ -1153,6 +1153,10 @@ class _RecipePlanCompiler:
             exact_inputs=exact_inputs,
             distinct_arg_groups=spec.distinct_arg_groups,
         )
+        projected_output_keys = self._projected_function_output_keys(
+            step,
+            method_id,
+        )
         outputs = _method_outputs_for_step(
             method_id,
             step,
@@ -1161,10 +1165,7 @@ class _RecipePlanCompiler:
             self.binding_rules,
             input_bindings=inputs,
             input_specs=spec.inputs,
-            projected_output_keys=self._projected_function_output_keys(
-                step,
-                method_id,
-            ),
+            projected_output_keys=projected_output_keys,
         )
         main_promote = _promote_outputs_for_step(
             step,
@@ -1177,6 +1178,7 @@ class _RecipePlanCompiler:
                 self.function_specs.get(method_id)
             ),
             projected_state_writes=self.projected_state_writes,
+            projected_output_keys=projected_output_keys,
         )
         promote = {**(prep.promote or {}), **main_promote}
         plan = single_invocation_step(
@@ -4196,6 +4198,7 @@ def _promote_outputs_for_step(
     *,
     point_transition: bool = False,
     projected_state_writes: tuple[ProjectedStateWrite, ...] = (),
+    projected_output_keys: Mapping[str, str] | None = None,
 ) -> dict[str, str]:
     """根据 produces/answer 自动生成 promote_outputs。"""
     promote: dict[str, str] = {}
@@ -4204,8 +4207,17 @@ def _promote_outputs_for_step(
         method_id,
         binding_rules,
     )
+    projected_output_keys = projected_output_keys or {}
     for produced in step.produces:
-        output_name = _output_key_for_produced(method_id, produced, output_types, step, index)
+        output_name = projected_output_keys.get(produced.handle)
+        if output_name is None:
+            output_name = _output_key_for_produced(
+                method_id,
+                produced,
+                output_types,
+                step,
+                index,
+            )
         if output_name is None or output_name not in outputs:
             continue
         target = _target_path_for_produced(
@@ -5087,6 +5099,11 @@ def _state_write_provenance(
         ),
         return_name=(
             projected_write.return_name
+            if projected_write is not None
+            else None
+        ),
+        valid_scope_id=(
+            projected_write.valid_scope_id
             if projected_write is not None
             else None
         ),

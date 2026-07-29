@@ -206,7 +206,19 @@ def resolve_path_reduction_args(
                     ),
                     call_id=call_id,
                     scope_id=scope_id,
-                    details={"arg": arg_name, "object_ref": object_ref},
+                    details={
+                        "arg": arg_name,
+                        "object_ref": object_ref,
+                        "state_requirement": (
+                            "materialized Point state for the structured "
+                            "path role"
+                        ),
+                        "repair_guidance": (
+                            "Add or retain the producer for this structured "
+                            "endpoint before the path transformation. Do not "
+                            "substitute another visible Point by name or type."
+                        ),
+                    },
                 )
             )
         else:
@@ -381,7 +393,19 @@ def resolve_square_path_transformation_args(
                     ),
                     call_id=call_id,
                     scope_id=scope_id,
-                    details={"role": role, "object_ref": object_ref},
+                    details={
+                        "role": role,
+                        "object_ref": object_ref,
+                        "state_requirement": (
+                            "materialized Point state for the structured "
+                            "transformation role"
+                        ),
+                        "repair_guidance": (
+                            "Add or retain the producer for this structured "
+                            "endpoint before building the transformation. Do "
+                            "not replace it with an unrelated visible Point."
+                        ),
+                    },
                 )
             )
         else:
@@ -513,6 +537,15 @@ def resolve_weighted_path_transformation_args(
                     details={
                         "role": "fixed_endpoint_1",
                         "object_ref": curve_ref,
+                        "state_requirement": (
+                            "materialized Point state for the structured "
+                            "weighted-path role"
+                        ),
+                        "repair_guidance": (
+                            "Add or retain the producer for the structurally "
+                            "declared endpoint before building the weighted "
+                            "path transformation."
+                        ),
                     },
                 ),
             ),

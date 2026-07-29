@@ -1038,8 +1038,17 @@ def _direct_checkpoint_source_versions(
 def verify_restored_runtime_checkpoint(
     expected: FunctionalRetryGraphCheckpoint,
     actual: FunctionalRetryGraphCheckpoint,
+    *,
+    require_complete_evidence: bool = True,
 ) -> None:
-    """Verify runtime-grounded form and destination for restored versions."""
+    """Verify runtime-grounded form and destination for restored versions.
+
+    A retryable partial replay may execute only an independent subset of the
+    restored graph. In that case absence from ``actual`` is not evidence that a
+    committed version drifted; compare every result that was observed, while
+    the successful full-replay boundary continues to require all committed
+    results.
+    """
 
     expected_records = {
         (item.canonical_producer_call_id, item.return_name): item
@@ -1053,10 +1062,15 @@ def verify_restored_runtime_checkpoint(
     for key, expected_record in expected_records.items():
         actual_record = actual_records.get(key)
         if actual_record is None:
-            raise FunctionalRetryCheckpointError(
-                "planner.retry_state_version_drift",
-                f"runtime did not verify committed return {key[0]}.{key[1]}",
-            )
+            if require_complete_evidence:
+                raise FunctionalRetryCheckpointError(
+                    "planner.retry_state_version_drift",
+                    (
+                        "runtime did not verify committed return "
+                        f"{key[0]}.{key[1]}"
+                    ),
+                )
+            continue
         if (
             actual_record.version_id != expected_record.version_id
             or actual_record.runtime_destination
@@ -1081,10 +1095,15 @@ def verify_restored_runtime_checkpoint(
     for key, expected_result in expected_results.items():
         actual_result = actual_results.get(key)
         if actual_result is None:
-            raise FunctionalRetryCheckpointError(
-                "planner.retry_state_version_drift",
-                f"runtime did not verify committed return {key[0]}.{key[1]}",
-            )
+            if require_complete_evidence:
+                raise FunctionalRetryCheckpointError(
+                    "planner.retry_state_version_drift",
+                    (
+                        "runtime did not verify committed return "
+                        f"{key[0]}.{key[1]}"
+                    ),
+                )
+            continue
         if (
             actual_result.result_id != expected_result.result_id
             or actual_result.value_type != expected_result.value_type

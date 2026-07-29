@@ -594,6 +594,7 @@ class PlannerState:
     typed_identity_completeness: dict[str, Any] = field(default_factory=dict)
     legacy_projection_count: int = 0
     legacy_identity_fallback_count: int = 0
+    functional_transaction_shadow: dict[str, Any] | None = None
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -659,6 +660,11 @@ class PlannerState:
             "legacy_projection_count": self.legacy_projection_count,
             "legacy_identity_fallback_count": (
                 self.legacy_identity_fallback_count
+            ),
+            "functional_transaction_shadow": (
+                dict(self.functional_transaction_shadow)
+                if self.functional_transaction_shadow is not None
+                else None
             ),
         }
 
@@ -755,6 +761,7 @@ class _MutableState:
     typed_identity_completeness: dict[str, Any] = field(default_factory=dict)
     legacy_projection_count: int = 0
     legacy_identity_fallback_count: int = 0
+    functional_transaction_shadow: dict[str, Any] | None = None
 
     def freeze(self) -> PlannerStateContext:
         return PlannerStateContext(
@@ -809,6 +816,11 @@ class _MutableState:
                 legacy_identity_fallback_count=(
                     self.legacy_identity_fallback_count
                 ),
+                functional_transaction_shadow=(
+                    dict(self.functional_transaction_shadow)
+                    if self.functional_transaction_shadow is not None
+                    else None
+                ),
             ),
         )
 
@@ -827,6 +839,7 @@ class PlannerRetryReplaySnapshot(Protocol):
     retry_state: object | None
     functional_plan: object | None
     functional_reconciliation: object | None
+    transactional_shadow_report: object | None
 
 
 def _extend_unique_payloads(
@@ -886,6 +899,17 @@ class PlannerStateContextBuilder:
         state.issues.extend(dict(item) for item in context_warnings)
         state.draft_snapshots = _draft_snapshots_from_replay(replay)
         cls._observe_functional_candidate(state, replay)
+        shadow_report = getattr(
+            replay,
+            "transactional_shadow_report",
+            None,
+        )
+        if shadow_report is not None:
+            state.functional_transaction_shadow = (
+                shadow_report.to_payload()
+                if hasattr(shadow_report, "to_payload")
+                else dict(shadow_report)
+            )
         cls._observe_state_finalization(state, replay)
         state.context_events.append(
             _context_event(

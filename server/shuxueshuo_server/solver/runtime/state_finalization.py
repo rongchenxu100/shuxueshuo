@@ -698,6 +698,7 @@ def project_functional_state_writes(
                     canonical_producer_call_id=(
                         output.canonical_producer_call_id
                     ),
+                    valid_scope_id=output.valid_scope,
                 )
             )
     return tuple(result)

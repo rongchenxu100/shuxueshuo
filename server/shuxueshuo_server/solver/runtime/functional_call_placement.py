@@ -245,8 +245,12 @@ class FunctionalCallPlacementService:
                 answer_target_scopes=answer_target_scopes,
                 registry=handle_registry,
             )
-            proposed = pinned_execution_scopes.get(call.call_id, proposed)
-            if isolated_scope is not None:
+            pinned_execution_scope = pinned_execution_scopes.get(
+                call.call_id
+            )
+            if pinned_execution_scope is not None:
+                proposed = pinned_execution_scope
+            elif isolated_scope is not None:
                 # An isolated StateVersion is deliberately separate from a
                 # sibling-visible version of the same MathObject. The object's
                 # origin scope does not authorize publishing this version at an
@@ -274,7 +278,10 @@ class FunctionalCallPlacementService:
             if call_id in provisional_execution_scopes:
                 provisional_execution_scopes[call_id] = scope_id
         for call_id, scope_id in branch_private_scopes.items():
-            if call_id in provisional_execution_scopes:
+            if (
+                call_id in provisional_execution_scopes
+                and call_id not in pinned_execution_scopes
+            ):
                 provisional_execution_scopes[call_id] = scope_id
 
         return_consumer_scopes = _return_consumer_scopes(
@@ -316,13 +323,15 @@ class FunctionalCallPlacementService:
                     registry=handle_registry,
                 ):
                     proposed = provisional_execution_scopes[call.call_id]
-                proposed = pinned_return_scopes.get(
+                pinned_return_scope = pinned_return_scopes.get(
                     call.call_id,
                     {},
-                ).get(allocation.return_name, proposed)
-                if call.call_id in branch_private_scopes:
+                ).get(allocation.return_name)
+                if pinned_return_scope is not None:
+                    proposed = pinned_return_scope
+                elif call.call_id in branch_private_scopes:
                     proposed = branch_private_scopes[call.call_id]
-                if (
+                elif (
                     allocation.allocation_action == "isolated"
                     and allocation.typed_slot_id is not None
                 ):
@@ -1499,9 +1508,19 @@ def _finalize_typed_allocations(
             identity_index=identity_index,
         )
         specs = {spec.name: spec for spec in capability.returns}
+        final_object_refs = {
+            old.return_name: _finalized_return_object_ref(
+                old,
+                return_spec=specs[old.return_name],
+                computation_key=computation_key,
+                identity_factory=identity_factory,
+            )
+            for old in item.returns
+            if old.return_name in specs
+        }
         logical_keys = {
             old.return_name: identity_factory.logical_key(
-                object_ref=old.object_ref,
+                object_ref=final_object_refs[old.return_name],
                 state_kind=specs[old.return_name].state_kind,
                 runtime_type=specs[old.return_name].runtime_type,
             )
@@ -1556,21 +1575,25 @@ def _finalize_typed_allocations(
             if spec is None:
                 continue
             valid_scope = return_scopes[call.call_id][old.return_name]
-            math_object_id = identity_factory.object_id(old.object_ref)
+            object_ref = final_object_refs[old.return_name]
+            state_math_object_id = identity_factory.object_id(object_ref)
+            projection_math_object_id = (
+                state_math_object_id or old.math_object_id
+            )
             runtime_destination = (
                 RuntimeDestinationKey(
-                    math_object_id,
+                    state_math_object_id,
                     spec.state_kind,
                     spec.runtime_type,
                 )
-                if math_object_id is not None
+                if state_math_object_id is not None
                 else None
             )
             request = StateAllocationRequest(
                 call_id=call.call_id,
                 capability_id=call.capability_id,
                 return_name=old.return_name,
-                object_id=math_object_id,
+                object_id=state_math_object_id,
                 state_kind=spec.state_kind,
                 runtime_type=spec.runtime_type,
                 storage_scope_id=valid_scope,
@@ -1633,8 +1656,9 @@ def _finalize_typed_allocations(
                 old,
                 valid_scope=valid_scope,
                 state_slot_id=state_slot_id,
+                object_ref=object_ref,
                 write_mode=effective_write_mode,
-                math_object_id=math_object_id,
+                math_object_id=projection_math_object_id,
                 logical_state_key=decision.logical_state_key,
                 typed_slot_id=decision.selected_slot_id,
                 selected_version_id=selected_version_id,
@@ -1678,6 +1702,41 @@ def _finalize_typed_allocations(
             )
         )
     return tuple(result), tuple(rewrites), tuple(issues)
+
+
+def _finalized_return_object_ref(
+    allocation: FunctionalReturnAllocation,
+    *,
+    return_spec: Any,
+    computation_key: ComputationKey,
+    identity_factory: StateIdentityFactory,
+) -> str | None:
+    """Rebuild derived identity from the final placed computation.
+
+    Provisional reconciliation may later canonicalize an input producer or
+    rewrite its StateVersion. A derived MathObject must follow the final
+    ComputationKey; carrying the provisional object ref into B3 makes the same
+    committed call acquire a different identity on retry.
+    """
+
+    if (
+        return_spec.identity_policy != "derived_role"
+        or return_spec.identity_arg is not None
+        or allocation.logical_state_key is None
+    ):
+        return allocation.object_ref
+    return (
+        identity_factory.derived_computation_object_ref(
+            computation_key=computation_key,
+            semantic_role=(
+                return_spec.equivalent_to
+                or return_spec.semantic_role
+                or return_spec.name
+            ),
+            runtime_type=return_spec.runtime_type,
+        )
+        or allocation.object_ref
+    )
 
 
 def _rewrite_finalized_resolved_value(

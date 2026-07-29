@@ -156,6 +156,8 @@ from shuxueshuo_server.solver.runtime.state_identity import (
     ComputationKey,
     LogicalStateKey,
     MathObjectId,
+    MathObjectRegistry,
+    StateIdentityFactory,
     StateSlotId,
     StateVersionId,
 )
@@ -2744,6 +2746,7 @@ def test_square_vertex_requires_explicit_return_identity() -> None:
     assert issue.details["binding_requirement"] == (
         "explicit_answer_or_existing_object"
     )
+    assert "CallResultRef" in issue.details["repair_guidance"]
     assert square_call["call_id"] not in {
         call.call_id for call in result.calls
     }
@@ -2857,6 +2860,42 @@ def test_reconciler_normalizes_unknown_binding_for_single_return_capability() ->
     assert {
         "call_id": "derive_axis_point",
         "action": "normalize_unique_return_role",
+        "from": "point",
+        "to": "axis_point",
+    } in result.elaboration["deterministic_repairs"]
+
+
+def test_reconciler_merges_same_object_binding_for_single_return_capability() -> None:
+    inputs = _inputs_for_goal(0)
+    payload = _axis_plan_payload()
+    call = payload["scopes"][0]["calls"][0]
+    call["return_bindings"]["point"] = {
+        "ref": "D",
+        "kind": "point",
+    }
+    plan, validation = _validate(payload, inputs)
+    assert validation.ok and plan is not None
+
+    result = FunctionalPlanReconciler().reconcile(
+        plan,
+        planner_state_context=_context(inputs),
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=_registry(),
+        question_goals=inputs.question_goals,
+    )
+
+    assert result.ok, [item.to_payload() for item in result.issues]
+    effective_call = next(
+        item
+        for item in result.plan.calls
+        if item.call_id == "derive_axis_point"
+    )
+    assert set(effective_call.return_bindings) == {"axis_point"}
+    assert effective_call.return_bindings["axis_point"].kind == "answer"
+    assert {
+        "call_id": "derive_axis_point",
+        "action": "merge_unique_return_projection_binding",
         "from": "point",
         "to": "axis_point",
     } in result.elaboration["deterministic_repairs"]
@@ -4984,6 +5023,47 @@ def test_branch_private_scope_pins_first_create_and_later_isolated_writer() -> N
             )
         == {"build_left": "ii", "build_right": "i"}
     )
+
+
+def test_committed_scope_pin_overrides_new_branch_private_inference(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    inputs = replace(_base_inputs(), question_goals=[])
+    payload = _axis_plan_payload()
+    call = payload["scopes"][0]["calls"][0]
+    call["return_bindings"] = {
+        "axis_point": {"ref": "D", "kind": "point"}
+    }
+    plan, report = _validate(payload, inputs)
+    assert report.ok and plan is not None
+
+    monkeypatch.setattr(
+        functional_call_placement_module,
+        "_branch_private_state_storage_scopes",
+        lambda *_args, **_kwargs: {"derive_axis_point": "i"},
+    )
+    result = FunctionalPlanReconciler().reconcile(
+        plan,
+        planner_state_context=_context(inputs),
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=_registry(),
+        question_goals=(),
+        pinned_canonical_call_ids=("derive_axis_point",),
+        pinned_execution_scopes={"derive_axis_point": "problem"},
+        pinned_return_scopes={
+            "derive_axis_point": {"axis_point": "problem"}
+        },
+    )
+
+    assert result.ok, [item.to_payload() for item in result.issues]
+    placement = next(
+        item
+        for item in result.call_placements
+        if item.canonical_call_id == "derive_axis_point"
+    )
+    assert placement.execution_scope_id == "problem"
+    assert placement.return_scopes["axis_point"] == "problem"
 
 
 def test_object_form_is_not_closed_when_capability_creates_companion_symbol() -> None:
@@ -10853,6 +10933,65 @@ def test_typed_effect_key_uses_only_materialized_returns() -> None:
     ]
 
 
+def test_final_derived_identity_uses_final_computation_key() -> None:
+    objects = MathObjectRegistry()
+    factory = StateIdentityFactory(objects)
+    final_key = ComputationKey(
+        "synthetic_path_reduction",
+        (
+            ArgVersionBinding(
+                "condition",
+                0,
+                condition_id="condition:path",
+            ),
+        ),
+    )
+    provisional_refs = (
+        "path_transformation:problem:derived_provisional_a",
+        "path_transformation:problem:derived_provisional_b",
+    )
+    allocations = tuple(
+        FunctionalReturnAllocation(
+            call_id="reduce_path",
+            return_name="path_transformation",
+            handle=f"fact:ii:path_transformation_{index}",
+            runtime_type="PathTransformation",
+            valid_scope="ii",
+            state_slot_id=f"{object_ref}.transformation@ii",
+            object_ref=object_ref,
+            identity_policy="derived_role",
+            write_mode="create",
+            logical_state_key=LogicalStateKey(
+                factory.object_id(object_ref),
+                "transformation",
+                "PathTransformation",
+            ),
+        )
+        for index, object_ref in enumerate(provisional_refs)
+    )
+    return_spec = SimpleNamespace(
+        name="path_transformation",
+        runtime_type="PathTransformation",
+        semantic_role="path_transformation",
+        equivalent_to=None,
+        identity_policy="derived_role",
+        identity_arg=None,
+    )
+
+    finalized_refs = {
+        functional_call_placement_module._finalized_return_object_ref(
+            allocation,
+            return_spec=return_spec,
+            computation_key=final_key,
+            identity_factory=factory,
+        )
+        for allocation in allocations
+    }
+
+    assert len(finalized_refs) == 1
+    assert finalized_refs.isdisjoint(provisional_refs)
+
+
 def _typed_quadratic_duplicate_graph(
     *,
     first_bindings: dict[str, SemanticRef] | None = None,
@@ -12561,6 +12700,74 @@ def test_hidden_closed_state_dependency_prefers_planned_closed_producer() -> Non
     )
 
     assert graph["derive_angle_relation"] == ("derive_B_closed",)
+
+
+def test_explicit_symbol_values_do_not_depend_on_future_symbol_writes() -> None:
+    problem = load_problem_ir(HEPING_ERMO_FIXTURE)
+    inputs = build_strategy_probe_inputs(problem)
+    problem_payload = problem_to_llm_payload(problem)
+    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    context = initial_planner_state_context(
+        inputs,
+        problem_payload=problem_payload,
+        handle_registry=registry,
+    )
+    semantic_index = FunctionalSemanticIndex.from_context(
+        context,
+        handle_registry=registry,
+    )
+    catalog = FunctionalCapabilityCatalog.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
+    ).contextualized(semantic_index)
+    build_curve = FunctionalCall(
+        call_id="build_curve",
+        capability_id="quadratic_from_constraints",
+        args={
+            "known_coefficients": (
+                SemanticRef("b_value", "fact"),
+                SemanticRef("c_value", "fact"),
+            ),
+        },
+        return_bindings={},
+        strategy="materialize the fully known function",
+        reason="exercise call-time semantic authority",
+    )
+    later_b = FunctionalCall(
+        call_id="later_b",
+        capability_id="synthetic_parameter_producer",
+        args={},
+        return_bindings={},
+        strategy="produce another b state",
+        reason="must not become a backward dependency",
+    )
+    later_c = replace(later_b, call_id="later_c")
+    plan = FunctionalPlan(
+        scopes=(
+            FunctionalScope("i_1", "i_1", (build_curve,)),
+            FunctionalScope("ii", "ii", (later_b, later_c)),
+        )
+    )
+
+    graph = (
+        functional_reconciliation_module
+        ._with_hidden_condition_object_dependencies(
+            plan,
+            dependency_graph={
+                "build_curve": (),
+                "later_b": (),
+                "later_c": (),
+            },
+            catalog=catalog,
+            semantic_index=semantic_index,
+            future_return_object_hints={
+                ("later_b", "parameter_value"): ("symbol:problem:b",),
+                ("later_c", "parameter_value"): ("symbol:problem:c",),
+            },
+        )
+    )
+
+    assert graph["build_curve"] == ()
 
 
 def test_reconciler_prunes_unknown_arg_and_collects_remaining_contract_errors() -> None:
@@ -18244,6 +18451,10 @@ def test_runtime_macro_arg_failure_becomes_typed_functional_work_order() -> None
     assert issue.repair_target == "functional_call"
     assert issue.code == "functional.path_transformation_state_unavailable"
     assert "Point state" in issue.message
+    assert issue.details["state_requirement"].startswith(
+        "materialized Point state"
+    )
+    assert "structured endpoint" in issue.details["repair_guidance"]
     assert not any(
         item.code in {
             "functional.auto_arg_unresolved",

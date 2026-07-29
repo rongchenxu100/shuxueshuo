@@ -161,6 +161,7 @@ class ProjectedStateWrite:
     allocation_action: StateAllocationAction | None = None
     free_symbol_refs: tuple[str, ...] = ()
     canonical_producer_call_id: str | None = None
+    valid_scope_id: str | None = None
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -208,6 +209,8 @@ class ProjectedStateWrite:
             payload["canonical_producer_call_id"] = (
                 self.canonical_producer_call_id
             )
+        if self.valid_scope_id is not None:
+            payload["valid_scope_id"] = self.valid_scope_id
         return payload
 
 

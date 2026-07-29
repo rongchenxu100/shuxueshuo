@@ -1085,6 +1085,53 @@ def test_answer_check_runtime_verifies_revoked_committed_version() -> None:
         )
 
 
+def test_partial_runtime_checkpoint_allows_unobserved_committed_return() -> None:
+    expected = _checkpoint()
+    partial = replace(
+        expected,
+        committed_calls=(),
+        verified_versions=(),
+        verified_results=(),
+    )
+
+    verify_restored_runtime_checkpoint(
+        expected,
+        partial,
+        require_complete_evidence=False,
+    )
+
+    with pytest.raises(
+        FunctionalRetryCheckpointError,
+        match="planner.retry_state_version_drift",
+    ):
+        verify_restored_runtime_checkpoint(expected, partial)
+
+
+def test_partial_runtime_checkpoint_rejects_observed_version_drift() -> None:
+    expected = _checkpoint()
+    observed = replace(
+        expected,
+        committed_calls=(),
+        verified_versions=(
+            replace(
+                expected.verified_versions[0],
+                result_form="open_state",
+                status="runtime_verified",
+            ),
+        ),
+    )
+
+    with pytest.raises(
+        FunctionalRetryCheckpointError,
+        match="planner.retry_state_version_drift",
+    ):
+        verify_restored_runtime_checkpoint(
+            expected,
+            observed,
+            require_complete_evidence=False,
+        )
+
+
 def test_retry_dependency_graph_uses_version_edges() -> None:
     checkpoint = _checkpoint()
     version_id = checkpoint.verified_versions[0].version_id

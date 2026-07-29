@@ -29,7 +29,11 @@ from shuxueshuo_server.solver.runtime.state_identity import (
     StateSlotId,
     StateVersionId,
 )
-from shuxueshuo_server.solver.runtime.strategy_models import SemanticRef, StepIntentDraft
+from shuxueshuo_server.solver.runtime.strategy_models import (
+    ProjectedStateDependency,
+    SemanticRef,
+    StepIntentDraft,
+)
 from shuxueshuo_server.solver.state_semantics import (
     StateSemanticLineage,
     dependent_role_object_ref,
@@ -742,6 +746,9 @@ class FunctionalPlanReconciliationResult:
     partial_projected_draft: StepIntentDraft | None = None
     call_reports: tuple[FunctionalCallReport, ...] = ()
     dependency_graph: dict[str, tuple[str, ...]] = field(default_factory=dict)
+    dependency_kinds: dict[str, dict[str, str]] = field(
+        default_factory=dict
+    )
     call_placements: tuple[FunctionalCallPlacement, ...] = ()
     call_aliases: dict[str, str] = field(default_factory=dict)
     elaboration: dict[str, Any] | None = None
@@ -753,6 +760,7 @@ class FunctionalPlanReconciliationResult:
     state_finalization_decisions: tuple[dict[str, Any], ...] = ()
     state_finalization_mismatches: tuple[dict[str, Any], ...] = ()
     runtime_destination_decisions: tuple[dict[str, Any], ...] = ()
+    projected_state_dependencies: tuple[ProjectedStateDependency, ...] = ()
     typed_identity_completeness: dict[str, Any] = field(default_factory=dict)
     legacy_projection_count: int = 0
     legacy_identity_fallback_count: int = 0
@@ -778,6 +786,10 @@ class FunctionalPlanReconciliationResult:
             "call_reports": [item.to_payload() for item in self.call_reports],
             "dependency_graph": {
                 key: list(value) for key, value in self.dependency_graph.items()
+            },
+            "dependency_kinds": {
+                consumer: dict(producers)
+                for consumer, producers in self.dependency_kinds.items()
             },
             "call_placements": [
                 item.to_payload() for item in self.call_placements
@@ -807,6 +819,10 @@ class FunctionalPlanReconciliationResult:
             ],
             "runtime_destination_decisions": [
                 dict(item) for item in self.runtime_destination_decisions
+            ],
+            "projected_state_dependencies": [
+                item.to_payload()
+                for item in self.projected_state_dependencies
             ],
             "typed_identity_completeness": dict(
                 self.typed_identity_completeness
