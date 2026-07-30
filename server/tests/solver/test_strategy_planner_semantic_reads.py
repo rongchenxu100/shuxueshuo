@@ -11,6 +11,16 @@ from shuxueshuo_server.solver.runtime.planner_state_context import (
 )
 from shuxueshuo_server.solver.runtime.semantic_reads import (
     ContextSemanticReadResolver,
+    SemanticReadResolver,
+)
+from shuxueshuo_server.solver.runtime.state_identity import (
+    LogicalStateKey,
+    MathObjectId,
+    StateSlotId,
+    StateVersionId,
+)
+from shuxueshuo_server.solver.runtime.strategy_models import (
+    ProjectedStateWrite,
 )
 from shuxueshuo_server.solver.runtime.strategy_raw_outputs import (
     normalize_raw_outputs,
@@ -979,6 +989,57 @@ def test_semantic_reads_infers_missing_from_step_for_previous_produced_fact() ->
     assert resolution.inferred_from_step == "derive_axis_point"
 
 
+def test_semantic_reads_preserve_projected_produced_state_version() -> None:
+    payload = _dynamic_parent_coordinate_payload()
+    second_step = payload["scopes"][1]["steps"][0]
+    second_step["semantic_reads"] = [
+        {
+            "kind": "fact",
+            "ref": "anchor_coordinate_value",
+            "from_step": "derive_axis_point",
+        },
+    ]
+    object_id = MathObjectId(
+        "point:problem:anchor",
+        "point",
+        "problem",
+    )
+    logical_key = LogicalStateKey(object_id, "coordinate", "Point")
+    slot_id = StateSlotId(logical_key, "problem")
+    version_id = StateVersionId(slot_id, 1)
+    validator = StepIntentValidator()
+
+    draft = validator.validate_json(
+        json.dumps(payload, ensure_ascii=False),
+        handle_registry=_registry(),
+        projected_state_writes=(
+            ProjectedStateWrite(
+                step_id="derive_axis_point",
+                produced_handle="fact:problem:anchor_coordinate_value",
+                state_slot_id=(
+                    "point:problem:anchor.coordinate@problem:Point"
+                ),
+                write_mode="create",
+                runtime_type="Point",
+                object_ref=object_id.value,
+                math_object_id=object_id,
+                logical_state_key=logical_key,
+                typed_slot_id=slot_id,
+                selected_version_id=version_id,
+            ),
+        ),
+    )
+
+    assert draft.scopes[1].steps[0].reads == (
+        "fact:problem:anchor_coordinate_value",
+    )
+    report = validator.last_semantic_read_resolution_report
+    assert report is not None
+    resolution = report.resolutions[0]
+    assert resolution.math_object_id == object_id
+    assert resolution.state_version_id == version_id
+
+
 def test_semantic_reads_infers_missing_from_step_for_canonical_parent_scope_fact() -> None:
     """覆盖真实 DeepSeek：canonical dynamic fact 漏 from_step 但唯一可见时可解析。"""
     registry = CanonicalHandleRegistry(
@@ -1769,6 +1830,69 @@ def test_semantic_reads_ignores_extra_fields_and_records_warning() -> None:
         "scopes[0].steps[0].semantic_reads[0] ignored fields: description, handle, scope",
     )
     assert report.to_payload()["warnings"] == list(report.warnings)
+
+
+def test_initial_symbol_value_fact_has_typed_ordinal_zero_sidecar() -> None:
+    problem = load_problem_ir(HEXI_FIXTURE)
+    registry = CanonicalHandleRegistry.from_problem_payload(
+        problem_to_llm_payload(problem)
+    )
+
+    item = next(
+        candidate
+        for candidate in SemanticReadResolver(registry).initial_catalog()
+        if candidate.handle == "fact:ii:a_value"
+    )
+
+    assert item.math_object_id is not None
+    assert item.math_object_id.value == "symbol:problem:a"
+    assert item.state_version_id is not None
+    assert item.state_version_id.ordinal == 0
+
+
+def test_initial_point_fact_uses_structured_point_identity() -> None:
+    registry = CanonicalHandleRegistry(
+        scope_ids=frozenset(("problem",)),
+        entity_handles=frozenset(("point:problem:A",)),
+        fact_handles=frozenset(("fact:problem:A_coordinate",)),
+        answer_handles=frozenset(),
+        scope_parents={"problem": None},
+        fact_types={"fact:problem:A_coordinate": "point_coordinate"},
+        handle_valid_scopes={
+            "point:problem:A": "problem",
+            "fact:problem:A_coordinate": "problem",
+        },
+        entity_payloads={
+            "point:problem:A": {
+                "handle": "point:problem:A",
+                "entity_type": "point",
+                "scope_id": "problem",
+                "name": "A",
+            },
+        },
+        fact_payloads={
+            "fact:problem:A_coordinate": {
+                "handle": "fact:problem:A_coordinate",
+                "type": "point_coordinate",
+                "point": "point:problem:A",
+                "scope_id": "problem",
+            },
+        },
+    )
+
+    item = next(
+        candidate
+        for candidate in SemanticReadResolver(registry).initial_catalog()
+        if candidate.handle == "fact:problem:A_coordinate"
+    )
+
+    assert item.math_object_id == MathObjectId(
+        "point:problem:A",
+        "point",
+        "problem",
+    )
+    assert item.state_version_id is not None
+    assert item.state_version_id.ordinal == 0
 
 
 def test_semantic_reads_extra_scope_does_not_disambiguate() -> None:

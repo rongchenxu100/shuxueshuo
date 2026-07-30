@@ -11,6 +11,11 @@ from shuxueshuo_server.solver.runtime.binding_index import (
 from shuxueshuo_server.solver.runtime.handle_alias_index import (
     visible_from_valid_scope,
 )
+from shuxueshuo_server.solver.runtime.state_identity import (
+    MathObjectId,
+    MathObjectRegistry,
+    StateVersionId,
+)
 from shuxueshuo_server.solver.runtime.strategy_models import (
     ProjectedStateDependency,
     ProjectedStateWrite,
@@ -39,6 +44,17 @@ class ResolvedPathTransformationRole:
     source_state_slot_ids: tuple[str, ...]
     source_handles: tuple[str, ...]
     state_requirement: Literal["identity_only", "materialized"]
+    object_id: MathObjectId | None = None
+    state_version_id: StateVersionId | None = None
+    runtime_path: str | None = None
+
+    @property
+    def compatibility_object_ref(self) -> str:
+        return self.object_ref
+
+    @property
+    def compatibility_handle(self) -> str | None:
+        return self.state_handle
 
 
 @dataclass(frozen=True)
@@ -70,6 +86,12 @@ class PathTransformationStateResolver:
         self.index = index
         self.writes = tuple(projected_state_writes)
         self.dependencies = tuple(projected_state_dependencies)
+        self.consumer_identity_mode = (
+            index.functional_consumer_identity_mode
+        )
+        self.object_registry = MathObjectRegistry.from_sources(
+            index.handle_registry
+        )
         self.write_order = {
             (item.step_id, item.produced_handle): order
             for order, item in enumerate(self.writes)
@@ -86,6 +108,12 @@ class PathTransformationStateResolver:
             transformation_handle
         )
         if write is None:
+            if self.consumer_identity_mode is not None:
+                raise StrategyDraftValidationError(
+                    "planner_configuration_error: "
+                    "planner.path_transformation_role_version_unresolved: "
+                    f"transformation={transformation_handle}"
+                )
             return self._resolve_legacy(
                 transformation_handle,
                 step=step,
@@ -116,6 +144,12 @@ class PathTransformationStateResolver:
         producer: ProjectedStateWrite,
         step: StepIntent,
     ) -> ResolvedPathTransformationRole:
+        if self.consumer_identity_mode is not None:
+            return self._resolve_typed_role(
+                binding,
+                producer=producer,
+                step=step,
+            )
         if len(binding.object_refs) != 1:
             raise StrategyDraftValidationError(
                 "functional.path_transformation_role_missing: "
@@ -147,6 +181,76 @@ class PathTransformationStateResolver:
             source_state_slot_ids=binding.source_state_slot_ids,
             source_handles=binding.source_handles,
             state_requirement=binding.state_requirement,
+        )
+
+    def _resolve_typed_role(
+        self,
+        binding: StateObjectRoleBinding,
+        *,
+        producer: ProjectedStateWrite,
+        step: StepIntent,
+    ) -> ResolvedPathTransformationRole:
+        if len(binding.object_ids) != 1:
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: "
+                "planner.path_transformation_role_version_unresolved: "
+                f"transformation={producer.produced_handle}, "
+                f"role={binding.role}, object_count={len(binding.object_ids)}"
+            )
+        object_id = binding.object_ids[0]
+        object_ref = (
+            binding.object_refs[0]
+            if len(binding.object_refs) == 1
+            else object_id.value
+        )
+        if binding.state_requirement == "identity_only":
+            if binding.source_version_ids:
+                raise StrategyDraftValidationError(
+                    "planner_configuration_error: "
+                    "planner.runtime_state_binding_drift: "
+                    f"role={binding.role} is identity-only but carries versions"
+                )
+            return ResolvedPathTransformationRole(
+                role=binding.role,  # type: ignore[arg-type]
+                object_ref=object_ref,
+                state_handle=None,
+                source_state_slot_ids=binding.source_state_slot_ids,
+                source_handles=binding.source_handles,
+                state_requirement=binding.state_requirement,
+                object_id=object_id,
+            )
+        if len(binding.source_version_ids) != 1:
+            raise StrategyDraftValidationError(
+                "planner.path_transformation_role_version_unresolved: "
+                f"transformation={producer.produced_handle}, "
+                f"role={binding.role}, "
+                f"version_count={len(binding.source_version_ids)}"
+            )
+        version_id = binding.source_version_ids[0]
+        read_index = self.index.functional_state_read_index()
+        state = read_index.require_version(
+            version_id,
+            consumer_scope_id=step.scope_id,
+            consumer=f"{step.step_id}.{binding.role}",
+            require_runtime_path=True,
+        )
+        self.index.capture_functional_read_audit(read_index)
+        if state.math_object_id != object_id:
+            raise StrategyDraftValidationError(
+                "planner.contract_runtime_identity_drift: "
+                f"transformation={producer.produced_handle}, "
+                f"role={binding.role}"
+            )
+        return ResolvedPathTransformationRole(
+            role=binding.role,  # type: ignore[arg-type]
+            object_ref=object_ref,
+            state_handle=state.produced_handle,
+            source_state_slot_ids=binding.source_state_slot_ids,
+            source_handles=binding.source_handles,
+            state_requirement=binding.state_requirement,
+            object_id=object_id,
+            state_version_id=version_id,
+            runtime_path=state.runtime_path,
         )
 
     def _state_handle(
@@ -260,10 +364,20 @@ class PathTransformationStateResolver:
         by_role = {item.role: item for item in state.roles}
         moving_ref = payload.get("moving_point_ref")
         moving = by_role.get("moving_object")
+        moving_payload_id = (
+            self._payload_object_id(moving_ref)
+            if isinstance(moving_ref, str)
+            else None
+        )
         if (
             isinstance(moving_ref, str)
             and moving is not None
-            and moving_ref != moving.object_ref
+            and (
+                moving.object_id is not None
+                and moving_payload_id != moving.object_id
+                or moving.object_id is None
+                and moving_ref != moving.object_ref
+            )
         ):
             self._identity_drift(
                 state.transformation_handle,
@@ -273,19 +387,60 @@ class PathTransformationStateResolver:
             )
         fixed_refs = payload.get("fixed_endpoint_refs")
         if isinstance(fixed_refs, (list, tuple)) and len(fixed_refs) == 2:
-            expected = tuple(
-                by_role[role].object_ref
+            expected_roles = tuple(
+                by_role[role]
                 for role in ("fixed_endpoint_1", "fixed_endpoint_2")
                 if role in by_role
             )
             actual = tuple(str(item) for item in fixed_refs)
-            if len(expected) == 2 and actual != expected:
+            actual_ids = tuple(
+                self._payload_object_id(item) for item in actual
+            )
+            expected_ids = tuple(
+                item.object_id for item in expected_roles
+            )
+            matches = (
+                actual_ids == expected_ids
+                if all(item is not None for item in expected_ids)
+                else actual
+                == tuple(item.object_ref for item in expected_roles)
+            )
+            if len(expected_roles) == 2 and not matches:
                 self._identity_drift(
                     state.transformation_handle,
                     "fixed_endpoints",
-                    ",".join(expected),
+                    ",".join(
+                        item.object_ref for item in expected_roles
+                    ),
                     ",".join(actual),
                 )
+        for payload_key, role_name in (
+            ("linked_fixed_endpoint_ref", "fixed_endpoint_1"),
+            ("auxiliary_point_ref", "auxiliary_object"),
+        ):
+            payload_ref = payload.get(payload_key)
+            expected = by_role.get(role_name)
+            if not isinstance(payload_ref, str) or expected is None:
+                continue
+            payload_id = self._payload_object_id(payload_ref)
+            if (
+                expected.object_id is not None
+                and payload_id != expected.object_id
+            ):
+                self._identity_drift(
+                    state.transformation_handle,
+                    role_name,
+                    expected.object_ref,
+                    payload_ref,
+                )
+
+    def _payload_object_id(self, object_ref: str) -> MathObjectId | None:
+        """Parse a runtime payload ref once at the typed identity boundary."""
+
+        return (
+            self.object_registry.resolve(object_ref)
+            or self.object_registry.register_handle(object_ref)
+        )
 
     @staticmethod
     def _identity_drift(

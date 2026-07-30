@@ -186,9 +186,16 @@ class StepIntentValidator:
                     "semantic_reads_require_handle_registry"
                 )
             semantic_resolver = (
-                ContextSemanticReadResolver(handle_registry, planner_state_context)
+                ContextSemanticReadResolver(
+                    handle_registry,
+                    planner_state_context,
+                    projected_state_writes=projected_state_writes,
+                )
                 if planner_state_context is not None
-                else SemanticReadResolver(handle_registry)
+                else SemanticReadResolver(
+                    handle_registry,
+                    projected_state_writes=projected_state_writes,
+                )
             )
             data, semantic_report = semantic_resolver.resolve_payload(data)
             raw_scopes = data.get("scopes")

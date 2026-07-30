@@ -150,7 +150,10 @@ SPEC = MethodSpecSource(
     outputs={
     "parameter_value": "ParameterValue"
 },
-    preconditions=("condition.value 表示绝对长度平方，或 condition.type=segment_length_relation 且提供 reference_p1/reference_p2",),
+    preconditions=(
+        "p1/p2 必须是 condition 所声明线段的两个端点，顺序可以交换",
+        "condition.value 表示绝对长度平方，或 condition.type=segment_length_relation 且提供对应参照线段的 reference_p1/reference_p2",
+    ),
     postconditions=("求得参数满足长度方程；若有参数范围约束，按范围筛选唯一解",),
     trace_template=(),
 )

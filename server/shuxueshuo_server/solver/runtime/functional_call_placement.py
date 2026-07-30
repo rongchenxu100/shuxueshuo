@@ -73,7 +73,14 @@ from shuxueshuo_server.solver.runtime.state_identity import (
     StateVersionPlacementRewrite,
     TypedCallPlacementDecision,
 )
-from shuxueshuo_server.solver.runtime.strategy_models import SemanticRef
+from shuxueshuo_server.solver.runtime.strategy_models import (
+    SemanticRef,
+    StrategyDraftValidationError,
+)
+from shuxueshuo_server.solver.state_semantics import (
+    StateObjectRoleBinding,
+    state_semantic_lineage,
+)
 from shuxueshuo_server.solver.utils import unique_ordered
 
 
@@ -169,6 +176,7 @@ class FunctionalCallPlacementService:
             pinned_canonical_call_ids=frozenset(
                 pinned_canonical_call_ids
             ),
+            pinned_return_scopes=pinned_return_scopes,
         )
         repairs.extend(typed_repairs)
         issues.extend(typed_issues)
@@ -517,6 +525,9 @@ def _canonicalize_typed_calls(
     groups: Mapping[str, tuple[str, ...]],
     handle_registry: CanonicalHandleRegistry,
     pinned_canonical_call_ids: frozenset[str] = frozenset(),
+    pinned_return_scopes: (
+        Mapping[str, Mapping[str, str]] | None
+    ) = None,
 ) -> tuple[
     dict[str, str],
     dict[str, tuple[str, ...]],
@@ -529,6 +540,7 @@ def _canonicalize_typed_calls(
 ]:
     """Merge calls only when B1 typed computation and effects are identical."""
 
+    pinned_return_scopes = pinned_return_scopes or {}
     aliases = _canonical_aliases(dict(aliases))
     groups = dict(groups)
     reconciled_by_id = dict(reconciled_by_id)
@@ -620,6 +632,17 @@ def _canonicalize_typed_calls(
                     )
                 )
             )
+            if safe_pinned_alias_candidate and not (
+                _pinned_returns_visible_to_alias_members(
+                    previous_id,
+                    previous,
+                    member_call_ids=candidate_members,
+                    source_scopes=source_scopes,
+                    pinned_return_scopes=pinned_return_scopes,
+                    registry=handle_registry,
+                )
+            ):
+                continue
             candidate_scope = _least_common_scope(
                 tuple(source_scopes[item_id] for item_id in candidate_members),
                 handle_registry,
@@ -740,6 +763,36 @@ def _canonicalize_typed_calls(
         transferred_bindings,
         transferred_expectations,
     )
+
+
+def _pinned_returns_visible_to_alias_members(
+    owner_call_id: str,
+    owner: FunctionalCallReconciliation,
+    *,
+    member_call_ids: Sequence[str],
+    source_scopes: Mapping[str, str],
+    pinned_return_scopes: Mapping[str, Mapping[str, str]],
+    registry: CanonicalHandleRegistry,
+) -> bool:
+    """Require a pinned result to be readable from every aliased call scope."""
+
+    explicit_scopes = pinned_return_scopes.get(owner_call_id, {})
+    for allocation in owner.returns:
+        valid_scope = explicit_scopes.get(
+            allocation.return_name,
+            allocation.valid_scope,
+        )
+        if any(
+            member_id in source_scopes
+            and not visible_from_valid_scope(
+                valid_scope,
+                scope_id=source_scopes[member_id],
+                registry=registry,
+            )
+            for member_id in member_call_ids
+        ):
+            return False
+    return True
 
 
 def _resolved_arg_producers_compatible(
@@ -1439,6 +1492,11 @@ def _project_placed_calls(
                 capability_id=call.capability_id,
             )
         )
+        allocations = _reproject_final_return_object_roles(
+            allocations,
+            specs=specs,
+            resolved_args=resolved_args,
+        )
         for allocation in allocations:
             produced[(call.call_id, allocation.return_name)] = allocation
         result.append(
@@ -1691,6 +1749,11 @@ def _finalize_typed_allocations(
                 capability_id=call.capability_id,
             )
         )
+        allocations = _reproject_final_return_object_roles(
+            allocations,
+            specs=specs,
+            resolved_args=resolved_args,
+        )
         for allocation in allocations:
             produced[(call.call_id, allocation.return_name)] = allocation
         result.append(
@@ -1702,6 +1765,245 @@ def _finalize_typed_allocations(
             )
         )
     return tuple(result), tuple(rewrites), tuple(issues)
+
+
+def _reproject_final_return_object_roles(
+    allocations: Sequence[FunctionalReturnAllocation],
+    *,
+    specs: Mapping[str, Any],
+    resolved_args: Mapping[str, tuple[ResolvedFunctionalValue, ...]],
+) -> list[FunctionalReturnAllocation]:
+    """Bind all declared roles to B2's final StateVersion allocations."""
+
+    by_name = {item.return_name: item for item in allocations}
+    result: list[FunctionalReturnAllocation] = []
+    for allocation in allocations:
+        return_spec = specs.get(allocation.return_name)
+        projections = tuple(
+            return_spec.object_role_projections
+            if return_spec is not None
+            else ()
+        )
+        if not projections:
+            result.append(allocation)
+            continue
+
+        replaced_names = {projection.role for projection in projections}
+        replaced_roles = tuple(
+            role
+            for role in allocation.lineage.object_roles
+            if role.role in replaced_names
+        )
+        retained_roles = tuple(
+            role
+            for role in allocation.lineage.object_roles
+            if role.role not in replaced_names
+        )
+        removed_versions = {
+            version_id
+            for role in replaced_roles
+            for version_id in role.source_version_ids
+        }
+        removed_slots = {
+            slot_id
+            for role in replaced_roles
+            for slot_id in role.source_state_slot_ids
+        }
+        projected_roles: list[StateObjectRoleBinding] = []
+        for projection in projections:
+            if projection.source_return is not None:
+                source = by_name.get(projection.source_return)
+                if source is None:
+                    _raise_role_projection_incomplete(
+                        allocation,
+                        projection.role,
+                        f"source_return={projection.source_return}",
+                    )
+                if projection.source_object_role is not None:
+                    matches = tuple(
+                        StateObjectRoleBinding(
+                            role=projection.role,
+                            object_refs=role.object_refs,
+                            source_state_slot_ids=(
+                                role.source_state_slot_ids
+                            ),
+                            source_handles=role.source_handles,
+                            object_ids=role.object_ids,
+                            source_version_ids=role.source_version_ids,
+                            state_requirement=projection.state_requirement,
+                        )
+                        for role in source.lineage.object_roles
+                        if role.role == projection.source_object_role
+                    )
+                    if not matches:
+                        _raise_role_projection_incomplete(
+                            allocation,
+                            projection.role,
+                            (
+                                "source_return="
+                                f"{projection.source_return}, "
+                                "source_object_role="
+                                f"{projection.source_object_role}"
+                            ),
+                        )
+                    projected_roles.extend(matches)
+                    continue
+                projected_roles.append(
+                    _role_from_final_return(
+                        projection.role,
+                        source,
+                        state_requirement=projection.state_requirement,
+                    )
+                )
+                continue
+            if projection.source_arg is None:
+                _raise_role_projection_incomplete(
+                    allocation,
+                    projection.role,
+                    "missing source_return/source_arg declaration",
+                )
+            source_values = resolved_args.get(projection.source_arg, ())
+            if not source_values:
+                _raise_role_projection_incomplete(
+                    allocation,
+                    projection.role,
+                    f"source_arg={projection.source_arg}",
+                )
+            if projection.source_object_role is not None:
+                matches = tuple(
+                    StateObjectRoleBinding(
+                        role=projection.role,
+                        object_refs=role.object_refs,
+                        source_state_slot_ids=role.source_state_slot_ids,
+                        source_handles=role.source_handles,
+                        object_ids=role.object_ids,
+                        source_version_ids=role.source_version_ids,
+                        state_requirement=projection.state_requirement,
+                    )
+                    for value in source_values
+                    for role in value.lineage.object_roles
+                    if role.role == projection.source_object_role
+                )
+                if not matches:
+                    _raise_role_projection_incomplete(
+                        allocation,
+                        projection.role,
+                        (
+                            f"source_arg={projection.source_arg}, "
+                            "source_object_role="
+                            f"{projection.source_object_role}"
+                        ),
+                    )
+                projected_roles.extend(matches)
+                continue
+            projected_roles.extend(
+                StateObjectRoleBinding(
+                    role=projection.role,
+                    object_refs=(
+                        (value.object_ref,)
+                        if value.object_ref is not None
+                        else ()
+                    ),
+                    source_state_slot_ids=(
+                        (value.state_slot_id,)
+                        if value.state_slot_id is not None
+                        else value.source_state_slot_ids
+                    ),
+                    source_handles=(value.handle,),
+                    object_ids=(
+                        (value.math_object_id,)
+                        if value.math_object_id is not None
+                        else ()
+                    ),
+                    source_version_ids=(
+                        (value.state_version_id,)
+                        if value.state_version_id is not None
+                        else value.source_version_ids
+                    ),
+                    state_requirement=projection.state_requirement,
+                )
+                for value in source_values
+            )
+
+        lineage = state_semantic_lineage(
+            semantic_roles=allocation.lineage.semantic_roles,
+            evidence_tags=allocation.lineage.evidence_tags,
+            object_roles=(*retained_roles, *projected_roles),
+            symbol_closures=allocation.lineage.symbol_closures,
+            source_state_slot_ids=(
+                *(
+                    slot_id
+                    for slot_id in allocation.lineage.source_state_slot_ids
+                    if slot_id not in removed_slots
+                ),
+                *(
+                    slot_id
+                    for role in projected_roles
+                    for slot_id in role.source_state_slot_ids
+                ),
+            ),
+            source_version_ids=(
+                *(
+                    version_id
+                    for version_id in allocation.lineage.source_version_ids
+                    if version_id not in removed_versions
+                ),
+                *(
+                    version_id
+                    for role in projected_roles
+                    for version_id in role.source_version_ids
+                ),
+            ),
+            source_call_result_ids=(
+                allocation.lineage.source_call_result_ids
+            ),
+            source_call_ids=allocation.lineage.source_call_ids,
+        )
+        result.append(replace(allocation, lineage=lineage))
+    return result
+
+
+def _raise_role_projection_incomplete(
+    allocation: FunctionalReturnAllocation,
+    role: str,
+    source: str,
+) -> None:
+    raise StrategyDraftValidationError(
+        "planner_configuration_error: "
+        "planner.state_identity_incomplete: "
+        f"return={allocation.return_name}, role={role}, {source}"
+    )
+
+
+def _role_from_final_return(
+    role: str,
+    source: FunctionalReturnAllocation,
+    *,
+    state_requirement: str,
+) -> StateObjectRoleBinding:
+    return StateObjectRoleBinding(
+        role=role,
+        object_refs=(
+            (source.object_ref,) if source.object_ref is not None else ()
+        ),
+        source_state_slot_ids=(
+            (source.state_slot_id,)
+            if source.state_slot_id is not None
+            else ()
+        ),
+        source_handles=(source.state_handle or source.handle,),
+        object_ids=(
+            (source.math_object_id,)
+            if source.math_object_id is not None
+            else ()
+        ),
+        source_version_ids=(
+            (source.selected_version_id,)
+            if source.selected_version_id is not None
+            else ()
+        ),
+        state_requirement=state_requirement,  # type: ignore[arg-type]
+    )
 
 
 def _finalized_return_object_ref(

@@ -9,6 +9,13 @@ from typing import Any
 from shuxueshuo_server.solver.runtime.answer_goal_verifier import (
     AnswerGoalVerificationReport,
     AnswerGoalVerifier,
+    FunctionalGoalVerificationContext,
+)
+from shuxueshuo_server.solver.runtime.functional_logical_graph import (
+    LogicalFunctionalGraphBuilder,
+)
+from shuxueshuo_server.solver.runtime.functional_state_reads import (
+    FunctionalStateReadIndex,
 )
 from shuxueshuo_server.solver.runtime.functional_call_memory import (
     attach_actual_result_refs,
@@ -574,6 +581,8 @@ class PlannerRetryReplayService:
             projected_state_dependencies=projected_state_dependencies,
             projected_function_arg_bindings=projected_function_arg_bindings,
             known_state_versions=known_state_versions,
+            functional_plan=plan,
+            functional_reconciliation=reconciliation,
         )
         reconciliation = _apply_function_arg_binding_repairs(
             reconciliation,
@@ -1118,6 +1127,10 @@ class PlannerRetryReplayService:
             ProjectedFunctionArgBinding, ...
         ] = (),
         known_state_versions: tuple[IndexedStateVersion, ...] = (),
+        functional_plan: FunctionalPlan | None = None,
+        functional_reconciliation: (
+            FunctionalPlanReconciliationResult | None
+        ) = None,
     ) -> PlannerRetryReplayResult:
         """从已通过 validation 的 draft 开始 replay。"""
         raw_draft = draft
@@ -1230,6 +1243,11 @@ class PlannerRetryReplayService:
             projected_state_dependencies=projected_state_dependencies,
             projected_function_arg_bindings=projected_function_arg_bindings,
             known_state_versions=known_state_versions,
+            functional_consumer_identity_mode=(
+                "authoritative"
+                if candidate_format == "functional_plan"
+                else None
+            ),
         )
         blocker = diagnostic.first_blocker
         if blocker is not None and not blocker.retryable:
@@ -1242,13 +1260,141 @@ class PlannerRetryReplayService:
             inputs,
             problem_payload,
         )
+        functional_goal_context = None
+        if (
+            candidate_format == "functional_plan"
+            and not partial_candidate
+            and functional_reconciliation is not None
+        ):
+            state_read_index = FunctionalStateReadIndex.from_sources(
+                handle_registry=handle_registry,
+                mode="authoritative",
+                projected_state_writes=projected_state_writes,
+                projected_state_dependencies=(
+                    projected_state_dependencies
+                ),
+                state_write_provenance=(
+                    diagnostic.state_write_provenance
+                ),
+                known_state_versions=known_state_versions,
+            )
+            logical_graph = None
+            answer_version_ids = {
+                item.produced_handle: item.selected_version_id
+                for item in projected_state_writes
+                if item.produced_handle.startswith("answer:")
+                and item.selected_version_id is not None
+            }
+            if functional_plan is not None:
+                graph_result = LogicalFunctionalGraphBuilder().build(
+                    functional_plan,
+                    functional_reconciliation,
+                    handle_registry=handle_registry,
+                )
+                if not graph_result.issues:
+                    logical_graph = graph_result.graph
+                resolved_calls = {
+                    item.call_id: item
+                    for item in functional_reconciliation.calls
+                }
+                for answer_binding in (
+                    logical_graph.answer_bindings
+                    if logical_graph is not None
+                    else ()
+                ):
+                    resolved = resolved_calls.get(
+                        answer_binding.producer_call_id
+                    )
+                    returned = next(
+                        (
+                            item
+                            for item in (
+                                resolved.returns if resolved is not None else ()
+                            )
+                            if item.return_name
+                            == answer_binding.return_name
+                        ),
+                        None,
+                    )
+                    if (
+                        returned is not None
+                        and returned.selected_version_id is not None
+                    ):
+                        answer_version_ids[
+                            answer_binding.answer_handle
+                        ] = returned.selected_version_id
+            resolved_calls = {
+                item.call_id: item
+                for item in functional_reconciliation.calls
+            }
+            for call in functional_reconciliation.effective_plan.calls:
+                resolved = resolved_calls.get(call.call_id)
+                if resolved is None:
+                    continue
+                for return_name, semantic_ref in call.return_bindings.items():
+                    if semantic_ref.kind != "answer":
+                        continue
+                    returned = next(
+                        (
+                            item
+                            for item in resolved.returns
+                            if item.return_name == return_name
+                        ),
+                        None,
+                    )
+                    if (
+                        returned is not None
+                        and returned.selected_version_id is not None
+                    ):
+                        answer_version_ids[
+                            f"answer:{semantic_ref.ref}"
+                        ] = returned.selected_version_id
+            functional_goal_context = FunctionalGoalVerificationContext(
+                logical_graph=logical_graph,
+                state_read_index=state_read_index,
+                runtime_writes_by_version={
+                    item.selected_version_id: item
+                    for item in diagnostic.state_write_provenance
+                    if item.selected_version_id is not None
+                },
+                answer_version_ids=answer_version_ids,
+                verified_call_ids=frozenset(
+                    item.step_id for item in diagnostic.accepted_prefix
+                ),
+            )
         goal_verification_report = AnswerGoalVerifier().verify_report(
             effective_draft,
             problem_payload=context_problem_payload,
             handle_registry=handle_registry,
             diagnostic=diagnostic,
             family_spec=inputs.family_spec,
+            functional_context=functional_goal_context,
         )
+        if functional_goal_context is not None:
+            diagnostic = replace(
+                diagnostic,
+                runtime_consumer_decisions=tuple(
+                    (
+                        *diagnostic.runtime_consumer_decisions,
+                        *(
+                            item.to_payload()
+                            for item in functional_goal_context
+                            .state_read_index.decisions
+                        ),
+                    )
+                ),
+                runtime_consumer_mismatches=tuple(
+                    (
+                        *diagnostic.runtime_consumer_mismatches,
+                        *functional_goal_context.state_read_index.mismatches,
+                    )
+                ),
+                legacy_runtime_identity_fallback_count=(
+                    diagnostic.legacy_runtime_identity_fallback_count
+                    + functional_goal_context
+                    .state_read_index.legacy_identity_fallback_count
+                ),
+            )
         goal_verification_issues = (
             ()
             if partial_candidate
@@ -1536,6 +1682,9 @@ def _functional_projected_arg_bindings(
             object_ref=value.object_ref,
             math_object_id=value.math_object_id,
             state_version_id=value.state_version_id,
+            condition_id=value.condition_id,
+            source_call_id=value.source_call_id,
+            source_return_name=value.return_name,
             binding_authority="wire",
         )
         for call in reconciliation.calls

@@ -21,7 +21,8 @@ from shuxueshuo_server.solver.utils import unique_ordered
 
 
 _SELECTOR = re.compile(
-    r"^(?P<kind>arg|return):(?P<name>[A-Za-z_][A-Za-z0-9_]*)\."
+    r"^(?P<kind>arg|args|return):"
+    r"(?P<name>[A-Za-z_][A-Za-z0-9_]*(?:,[A-Za-z_][A-Za-z0-9_]*)*)\."
     r"(?P<field>object_ref|object_role:[A-Za-z_][A-Za-z0-9_]*)$"
 )
 
@@ -43,12 +44,18 @@ def validate_state_identity_constraint_specs(
                     "planner_configuration_error: invalid state identity "
                     f"selector: {selector}"
                 )
-            name = match.group("name")
-            known = known_args if match.group("kind") == "arg" else known_returns
-            if name not in known:
+            names = match.group("name").split(",")
+            kind = match.group("kind")
+            known = known_args if kind in {"arg", "args"} else known_returns
+            if kind != "args" and len(names) != 1:
                 raise ValueError(
                     "planner_configuration_error: state identity selector "
-                    f"references unknown {match.group('kind')}: {selector}"
+                    f"has invalid cardinality: {selector}"
+                )
+            if any(name not in known for name in names):
+                raise ValueError(
+                    "planner_configuration_error: state identity selector "
+                    f"references unknown {kind}: {selector}"
                 )
 
 
@@ -104,11 +111,10 @@ class StateIdentityConstraintValidator:
                 resolved_args=resolved_args,
                 returns_by_name=returns_by_name,
             )
-            if (
-                left is None
-                or right is None
-                or len(left.object_ids) != 1
-                or len(right.object_ids) != 1
+            if not _identity_selections_resolved(
+                constraint.relation,
+                left,
+                right,
             ):
                 issues.append(
                     _issue(
@@ -128,7 +134,12 @@ class StateIdentityConstraintValidator:
                     )
                 )
                 continue
-            if left.object_ids[0] == right.object_ids[0]:
+            assert left is not None and right is not None
+            if _identity_selections_match(
+                constraint.relation,
+                left,
+                right,
+            ):
                 continue
             issues.append(
                 _issue(
@@ -166,8 +177,12 @@ class StateIdentityConstraintValidator:
         kind = match.group("kind")
         name = match.group("name")
         field = match.group("field")
-        if kind == "arg":
-            values = resolved_args.get(name, ())
+        if kind in {"arg", "args"}:
+            values = tuple(
+                value
+                for arg_name in name.split(",")
+                for value in resolved_args.get(arg_name, ())
+            )
             return _selection_from_values(selector, field, values)
         returned = returns_by_name.get(name)
         if returned is None:
@@ -230,9 +245,47 @@ def _selector_has_value(
             "planner_configuration_error: invalid state identity selector: "
             f"{selector}"
         )
-    if match.group("kind") == "arg":
-        return bool(resolved_args.get(match.group("name")))
+    if match.group("kind") in {"arg", "args"}:
+        return all(
+            resolved_args.get(name)
+            for name in match.group("name").split(",")
+        )
     return match.group("name") in returns_by_name
+
+
+def _identity_selections_resolved(
+    relation: str,
+    left: _IdentitySelection | None,
+    right: _IdentitySelection | None,
+) -> bool:
+    if left is None or right is None:
+        return False
+    if relation == "same_object":
+        return len(left.object_ids) == len(right.object_ids) == 1
+    if relation == "same_object_set":
+        return bool(left.object_ids) and bool(right.object_ids)
+    raise ValueError(
+        "planner_configuration_error: unsupported state identity relation: "
+        f"{relation}"
+    )
+
+
+def _identity_selections_match(
+    relation: str,
+    left: _IdentitySelection,
+    right: _IdentitySelection,
+) -> bool:
+    if relation == "same_object":
+        return left.object_ids[0] == right.object_ids[0]
+    if relation == "same_object_set":
+        return (
+            len(left.object_ids) == len(right.object_ids)
+            and frozenset(left.object_ids) == frozenset(right.object_ids)
+        )
+    raise ValueError(
+        "planner_configuration_error: unsupported state identity relation: "
+        f"{relation}"
+    )
 
 
 def _selection_from_values(

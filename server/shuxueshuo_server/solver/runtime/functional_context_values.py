@@ -16,6 +16,11 @@ from shuxueshuo_server.solver.runtime.handle_alias_index import (
 from shuxueshuo_server.solver.runtime.handle_registry import (
     CanonicalHandleRegistry,
 )
+from shuxueshuo_server.solver.runtime.functional_state_reads import (
+    FunctionalStateReadIndex,
+    RuntimeStateVersionBinding,
+)
+from shuxueshuo_server.solver.runtime.state_identity import MathObjectId
 from shuxueshuo_server.solver.utils import unique_ordered
 
 
@@ -26,6 +31,18 @@ def resolved_value_object_refs(
         item.object_ref
         for item in values
         if item.object_ref is not None
+    )
+
+
+def resolved_value_object_ids(
+    values: tuple[ResolvedFunctionalValue, ...],
+) -> tuple[MathObjectId, ...]:
+    return tuple(
+        dict.fromkeys(
+            item.math_object_id
+            for item in values
+            if item.math_object_id is not None
+        )
     )
 
 
@@ -69,52 +86,145 @@ def latest_point_state_for_object(
     handle_registry: CanonicalHandleRegistry,
     allow_unique_planned_producer: bool = False,
 ) -> ResolvedFunctionalValue | None:
+    object_ids = tuple(
+        dict.fromkeys(
+            item.math_object_id
+            for item in (
+                *tuple(produced.values()),
+                *tuple(
+                    semantic_index.compatible_views(
+                        scope_id=scope_id,
+                        accepted_types=("Point",),
+                    )
+                ),
+            )
+            if item.object_ref == object_ref
+            and item.math_object_id is not None
+        )
+    )
+    if len(object_ids) != 1:
+        if object_ids:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.runtime_state_binding_drift: "
+                f"object_ref={object_ref}, typed_candidates={len(object_ids)}"
+            )
+        return None
+    object_id = object_ids[0]
     dynamic = tuple(
         value
         for value in produced.values()
         if value.runtime_type == "Point"
-        and value.object_ref == object_ref
+        and value.math_object_id == object_id
         and visible_from_valid_scope(
             value.valid_scope,
             scope_id=scope_id,
             registry=handle_registry,
         )
     )
-    if dynamic:
-        return dynamic[-1]
     views = tuple(
         view
         for view in semantic_index.compatible_views(
             scope_id=scope_id,
             accepted_types=("Point",),
         )
-        if view.object_ref == object_ref and view.state_slot_id is not None
+        if view.math_object_id == object_id
+        and view.state_version_id is not None
     )
-    if views:
-        view = views[-1]
-        return ResolvedFunctionalValue(
-            handle=view.handle,
-            runtime_type=view.runtime_type,
-            valid_scope=view.valid_scope,
-            state_slot_id=view.state_slot_id,
-            object_ref=view.object_ref,
-            dependency_object_refs=view.dependency_object_refs,
-            free_symbol_refs=view.free_symbol_refs,
-            source_state_slot_ids=view.source_state_slot_ids,
-            provides_semantic_roles=view.provides_semantic_roles,
-            lineage=view.lineage,
-            math_object_id=view.math_object_id,
-            logical_state_key=view.logical_state_key,
-            typed_slot_id=view.typed_slot_id,
-            state_version_id=view.state_version_id,
-            source_version_ids=view.source_version_ids,
+    typed_candidates: dict[object, ResolvedFunctionalValue] = {}
+    for value in dynamic:
+        if value.state_version_id is None:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.runtime_state_version_unresolved: "
+                f"object_ref={object_ref}, handle={value.handle}"
+            )
+        typed_candidates[value.state_version_id] = value
+    for view in views:
+        assert view.state_version_id is not None
+        typed_candidates.setdefault(
+            view.state_version_id,
+            ResolvedFunctionalValue(
+                handle=view.handle,
+                runtime_type=view.runtime_type,
+                valid_scope=view.valid_scope,
+                state_slot_id=view.state_slot_id,
+                object_ref=view.object_ref,
+                dependency_object_refs=view.dependency_object_refs,
+                free_symbol_refs=view.free_symbol_refs,
+                source_state_slot_ids=view.source_state_slot_ids,
+                provides_semantic_roles=view.provides_semantic_roles,
+                lineage=view.lineage,
+                math_object_id=view.math_object_id,
+                logical_state_key=view.logical_state_key,
+                typed_slot_id=view.typed_slot_id,
+                state_version_id=view.state_version_id,
+                source_version_ids=view.source_version_ids,
+            ),
         )
+    if typed_candidates:
+        read_index = FunctionalStateReadIndex(
+            handle_registry=handle_registry,
+            mode="authoritative",
+        )
+        for value in typed_candidates.values():
+            logical_state_key = (
+                value.logical_state_key
+                or (
+                    value.state_version_id.slot_id.logical_key
+                    if value.state_version_id is not None
+                    else None
+                )
+            )
+            if (
+                value.state_version_id is None
+                or logical_state_key is None
+                or value.math_object_id is None
+            ):
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.runtime_state_version_unresolved: "
+                    f"object_ref={object_ref}, handle={value.handle}"
+                )
+            read_index.register(
+                RuntimeStateVersionBinding(
+                    version_id=value.state_version_id,
+                    logical_state_key=logical_state_key,
+                    math_object_id=value.math_object_id,
+                    runtime_type=value.runtime_type or "Point",
+                    valid_scope_id=value.valid_scope,
+                    canonical_producer_call_id=value.source_call_id,
+                    runtime_path=None,
+                    produced_handle=value.handle,
+                    lineage=value.lineage,
+                    source_version_ids=value.source_version_ids,
+                    free_symbol_refs=value.free_symbol_refs,
+                )
+            )
+        logical_keys = {
+            value.logical_state_key
+            for value in typed_candidates.values()
+            if value.logical_state_key is not None
+        }
+        if len(logical_keys) != 1:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.runtime_state_binding_drift: "
+                f"object_ref={object_ref}, logical_state_count={len(logical_keys)}"
+            )
+        selected = read_index.latest_visible(
+            next(iter(logical_keys)),
+            consumer_scope_id=scope_id,
+        )
+        if selected is None:
+            return None
+        return typed_candidates[selected.version_id]
     if allow_unique_planned_producer:
         planned = tuple(
             value
             for value in produced.values()
             if value.runtime_type == "Point"
-            and value.object_ref == object_ref
+            and value.math_object_id == object_id
             and value.source_call_id is not None
         )
         producer_ids = unique_ordered(
@@ -136,5 +246,6 @@ def latest_point_state_for_object(
 __all__ = [
     "condition_value_by_handle",
     "latest_point_state_for_object",
+    "resolved_value_object_ids",
     "resolved_value_object_refs",
 ]

@@ -1213,6 +1213,7 @@ class FunctionalSemanticIndex:
                     )
                 value_runtime_type = normalize_runtime_type(fact_type)
                 if value_runtime_type not in {"Condition", "fact"}:
+                    fact_version_id = item.state_version_id
                     views.append(
                         FunctionalSemanticView(
                             item.ref,
@@ -1230,6 +1231,23 @@ class FunctionalSemanticIndex:
                             free_symbol_refs=fact_free_symbol_refs,
                             lineage=state_semantic_lineage(
                                 semantic_roles=(item.ref,),
+                            ),
+                            math_object_id=item.math_object_id,
+                            logical_state_key=(
+                                fact_version_id.slot_id.logical_key
+                                if fact_version_id is not None
+                                else None
+                            ),
+                            typed_slot_id=(
+                                fact_version_id.slot_id
+                                if fact_version_id is not None
+                                else None
+                            ),
+                            state_version_id=fact_version_id,
+                            source_version_ids=(
+                                (fact_version_id,)
+                                if fact_version_id is not None
+                                else ()
                             ),
                         )
                     )
@@ -1265,6 +1283,7 @@ class FunctionalSemanticIndex:
                         lineage=state_semantic_lineage(
                             semantic_roles=(item.ref,),
                         ),
+                        math_object_id=item.math_object_id,
                     )
                 )
                 for object_slot in slots_by_object.get(item.handle, ()):

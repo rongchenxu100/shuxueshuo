@@ -8,7 +8,7 @@ turns those cases into structured retry issues.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Any, Literal, Mapping
 
 import sympy as sp
@@ -18,11 +18,22 @@ from shuxueshuo_server.solver.runtime.handle_registry import (
     CanonicalHandleRegistry,
     _handle_scope,
 )
+from shuxueshuo_server.solver.runtime.functional_logical_graph import (
+    LogicalFunctionalGraph,
+)
+from shuxueshuo_server.solver.runtime.functional_state_reads import (
+    FunctionalStateReadIndex,
+)
+from shuxueshuo_server.solver.runtime.state_identity import (
+    MathObjectRegistry,
+    StateVersionId,
+)
 from shuxueshuo_server.solver.runtime.strategy_models import (
     PlannerRetryIssue,
     StepIntent,
     StepIntentDraft,
     StepIntentExecutionDiagnostic,
+    StrategyDraftValidationError,
 )
 from shuxueshuo_server.solver.state_semantics import is_object_handle
 from shuxueshuo_server.solver.utils import unique_ordered
@@ -34,6 +45,15 @@ AnswerGoalVerificationStatus = Literal[
     "not_executed",
     "unbound",
 ]
+
+
+@dataclass(frozen=True)
+class FunctionalGoalVerificationContext:
+    logical_graph: LogicalFunctionalGraph | None
+    state_read_index: FunctionalStateReadIndex
+    runtime_writes_by_version: Mapping[StateVersionId, Any]
+    answer_version_ids: Mapping[str, StateVersionId]
+    verified_call_ids: frozenset[str]
 
 
 @dataclass(frozen=True)
@@ -87,6 +107,7 @@ class AnswerGoalVerifier:
         handle_registry: CanonicalHandleRegistry,
         diagnostic: StepIntentExecutionDiagnostic | None = None,
         family_spec: SolverFamilySpec | None = None,
+        functional_context: FunctionalGoalVerificationContext | None = None,
     ) -> tuple[PlannerRetryIssue, ...]:
         """Return goal verification issues for an otherwise executable draft."""
         return self.verify_report(
@@ -95,6 +116,7 @@ class AnswerGoalVerifier:
             handle_registry=handle_registry,
             diagnostic=diagnostic,
             family_spec=family_spec,
+            functional_context=functional_context,
         ).issues
 
     def verify_report(
@@ -105,6 +127,7 @@ class AnswerGoalVerifier:
         handle_registry: CanonicalHandleRegistry,
         diagnostic: StepIntentExecutionDiagnostic | None = None,
         family_spec: SolverFamilySpec | None = None,
+        functional_context: FunctionalGoalVerificationContext | None = None,
     ) -> AnswerGoalVerificationReport:
         """Return per-goal status without treating unexecuted goals as passed."""
         if draft is None or problem_payload is None:
@@ -150,6 +173,7 @@ class AnswerGoalVerifier:
                 problem_payload=problem_payload,
                 handle_registry=handle_registry,
                 diagnostic=diagnostic,
+                functional_context=functional_context,
             )
             if unresolved_symbol_issue is not None:
                 goal_issues.append(unresolved_symbol_issue)
@@ -162,6 +186,7 @@ class AnswerGoalVerifier:
                         handle_registry=handle_registry,
                         diagnostic=diagnostic,
                         family_spec=family_spec,
+                        functional_context=functional_context,
                     )
                     if issue is not None:
                         goal_issues.append(issue)
@@ -172,6 +197,7 @@ class AnswerGoalVerifier:
                         handle_registry=handle_registry,
                         diagnostic=diagnostic,
                         family_spec=family_spec,
+                        functional_context=functional_context,
                     )
                     if issue is not None:
                         goal_issues.append(issue)
@@ -204,6 +230,7 @@ def _unresolved_answer_symbol_issue(
     problem_payload: Mapping[str, Any],
     handle_registry: CanonicalHandleRegistry,
     diagnostic: StepIntentExecutionDiagnostic | None,
+    functional_context: FunctionalGoalVerificationContext | None = None,
 ) -> PlannerRetryIssue | None:
     """Reject final answers that retain non-contractual free symbols."""
     if diagnostic is None:
@@ -251,19 +278,101 @@ def _unresolved_answer_symbol_issue(
         }
         for runtime_symbol in unresolved_symbols
     }
+    if functional_context is not None:
+        expected_object_ids = {
+            runtime_symbol: set(
+                _typed_runtime_symbol_object_ids(
+                    runtime_symbol,
+                    answer_write=answer_write,
+                    goal_handle=goal_handle,
+                    functional_context=functional_context,
+                    provenance=diagnostic.state_write_provenance,
+                )
+            )
+            for runtime_symbol in unresolved_symbols
+        }
+    else:
+        object_registry = MathObjectRegistry.from_sources(handle_registry)
+        expected_object_ids = {
+            runtime_symbol: {
+                object_id
+                for object_id in (
+                    object_registry.resolve(runtime_symbol),
+                    *(
+                        object_registry.resolve(ref)
+                        for ref in expected_object_refs[runtime_symbol]
+                    ),
+                )
+                if object_id is not None
+            }
+            for runtime_symbol in unresolved_symbols
+        }
+    if functional_context is not None:
+        missing_symbol_identities = tuple(
+            runtime_symbol
+            for runtime_symbol in unresolved_symbols
+            if not expected_object_ids[runtime_symbol]
+        )
+        if missing_symbol_identities:
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: "
+                "planner.state_identity_incomplete: "
+                "unresolved_symbols="
+                f"{','.join(missing_symbol_identities)}"
+            )
     free_symbols = set(unresolved_symbols)
     available: list[tuple[str, str, str]] = []
     incompatible: list[dict[str, str]] = []
     for item in diagnostic.state_write_provenance:
         if item.runtime_type != "ParameterValue":
             continue
-        symbol_name = _symbol_name_from_object_ref(item.object_ref)
-        if symbol_name is None:
-            continue
+        if functional_context is not None:
+            if item.math_object_id is None:
+                raise StrategyDraftValidationError(
+                    "planner_configuration_error: "
+                    "planner.state_identity_incomplete: "
+                    f"parameter={item.produced_handle}"
+                )
+            symbol_name = (
+                _symbol_name_from_object_ref(item.object_ref)
+                or item.math_object_id.value
+            )
+        else:
+            symbol_name = _symbol_name_from_object_ref(item.object_ref)
+            if symbol_name is None:
+                continue
         producer_position = step_positions.get(item.step_id)
         if producer_position is None or producer_position >= answer_position:
             continue
-        if not _provenance_write_is_visible(
+        if functional_context is not None:
+            if item.selected_version_id is None:
+                raise StrategyDraftValidationError(
+                    "planner_configuration_error: "
+                    "planner.runtime_state_version_unresolved: "
+                    f"parameter={item.produced_handle}"
+                )
+            parameter_state = (
+                functional_context.state_read_index.version(
+                    item.selected_version_id
+                )
+            )
+            if parameter_state is None:
+                raise StrategyDraftValidationError(
+                    "planner_configuration_error: "
+                    "planner.runtime_state_version_unresolved: "
+                    f"parameter={item.produced_handle}"
+                )
+            if not functional_context.state_read_index.visibility.is_visible(
+                parameter_state.valid_scope_id,
+                consumer_scope_id=step.scope_id,
+            ):
+                continue
+            functional_context.state_read_index.require_version(
+                item.selected_version_id,
+                consumer_scope_id=step.scope_id,
+                consumer=f"goal_symbol:{step.step_id}",
+            )
+        elif not _provenance_write_is_visible(
             item.produced_handle,
             producer_scope_id=item.scope_id,
             consumer_scope_id=step.scope_id,
@@ -274,9 +383,13 @@ def _unresolved_answer_symbol_issue(
             runtime_symbol
             for runtime_symbol in unresolved_symbols
             if (
-                item.object_ref in expected_object_refs[runtime_symbol]
-                if expected_object_refs[runtime_symbol]
-                else symbol_name == runtime_symbol
+                item.math_object_id in expected_object_ids[runtime_symbol]
+                if functional_context is not None
+                else (
+                    item.object_ref in expected_object_refs[runtime_symbol]
+                    if expected_object_refs[runtime_symbol]
+                    else symbol_name == runtime_symbol
+                )
             )
         )
         if matching_runtime_symbols:
@@ -371,6 +484,50 @@ def _unresolved_answer_symbol_issue(
                 else {}
             ),
         },
+    )
+
+
+def _typed_runtime_symbol_object_ids(
+    runtime_symbol: str,
+    *,
+    answer_write: Any,
+    goal_handle: str,
+    functional_context: FunctionalGoalVerificationContext,
+    provenance: tuple[Any, ...],
+) -> tuple[Any, ...]:
+    """Resolve one runtime Symbol through the answer's exact version lineage."""
+
+    root_version = (
+        answer_write.selected_version_id
+        or functional_context.answer_version_ids.get(goal_handle)
+    )
+    if root_version is None:
+        return ()
+    reachable: set[StateVersionId] = set()
+    pending = [root_version]
+    while pending:
+        version_id = pending.pop()
+        if version_id in reachable:
+            continue
+        binding = functional_context.state_read_index.version(version_id)
+        if binding is None:
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: "
+                "planner.runtime_state_version_unresolved: "
+                f"version={version_id.to_payload()}, "
+                f"runtime_symbol={runtime_symbol}"
+            )
+        reachable.add(version_id)
+        if binding.previous_version_id is not None:
+            pending.append(binding.previous_version_id)
+        pending.extend(binding.source_version_ids)
+    return unique_ordered(
+        item.math_object_id
+        for item in provenance
+        if item.runtime_type == "Symbol"
+        and runtime_symbol in item.free_symbol_names
+        and item.math_object_id is not None
+        and item.selected_version_id in reachable
     )
 
 
@@ -674,9 +831,10 @@ def _point_goal_issue(
     handle_registry: CanonicalHandleRegistry,
     diagnostic: StepIntentExecutionDiagnostic | None,
     family_spec: SolverFamilySpec | None,
+    functional_context: FunctionalGoalVerificationContext | None = None,
 ) -> PlannerRetryIssue | None:
     target_handle = str(goal.get("target_handle", "")).strip()
-    if not target_handle or not target_handle.startswith("point:"):
+    if not target_handle:
         return None
     if diagnostic is not None:
         answer_provenance = next(
@@ -688,6 +846,12 @@ def _point_goal_issue(
             None,
         )
         if answer_provenance is None:
+            if functional_context is not None:
+                raise StrategyDraftValidationError(
+                    "planner_configuration_error: "
+                    "planner.runtime_state_version_unresolved: "
+                    f"answer={goal.get('handle')}"
+                )
             return _point_provenance_issue(
                 goal,
                 step=step,
@@ -700,8 +864,74 @@ def _point_goal_issue(
         provenance = _canonical_state_provenance(
             answer_provenance,
             diagnostic=diagnostic,
+            functional_context=functional_context,
         )
-        if provenance.object_ref != target_handle:
+        identity_matches = provenance.object_ref == target_handle
+        if functional_context is not None:
+            answer_handle = str(goal.get("handle", ""))
+            answer_version_id = (
+                functional_context.answer_version_ids.get(answer_handle)
+            )
+            if answer_version_id is None:
+                raise StrategyDraftValidationError(
+                    "planner_configuration_error: "
+                    "planner.runtime_state_version_unresolved: "
+                    f"answer={answer_handle}"
+                )
+            if (
+                provenance.selected_version_id is not None
+                and provenance.selected_version_id != answer_version_id
+            ):
+                raise StrategyDraftValidationError(
+                    "planner_configuration_error: "
+                    "planner.runtime_state_binding_drift: "
+                    f"answer={answer_handle}, reason=version_mismatch"
+                )
+            if (
+                answer_version_id
+                not in functional_context.runtime_writes_by_version
+            ):
+                raise StrategyDraftValidationError(
+                    "planner_configuration_error: "
+                    "planner.runtime_state_version_unresolved: "
+                    f"answer={answer_handle}, reason=not_runtime_written"
+                )
+            target_object_id = MathObjectRegistry.from_sources(
+                handle_registry
+            ).resolve(target_handle)
+            if target_object_id is None:
+                raise StrategyDraftValidationError(
+                    "planner_configuration_error: "
+                    "planner.state_identity_incomplete: "
+                    f"goal_target={target_handle}"
+                )
+            answer_state = functional_context.state_read_index.require_version(
+                answer_version_id,
+                consumer_scope_id=step.scope_id,
+                consumer=f"goal:{goal.get('handle')}",
+            )
+            identity_matches = (
+                answer_state.math_object_id == target_object_id
+            )
+            if functional_context.logical_graph is not None:
+                logical_bindings = tuple(
+                    item
+                    for item in functional_context.logical_graph.answer_bindings
+                    if item.answer_handle == answer_handle
+                )
+                if len(logical_bindings) != 1:
+                    raise StrategyDraftValidationError(
+                        "planner_configuration_error: "
+                        "planner.state_identity_incomplete: "
+                        f"answer={answer_handle}, "
+                        f"binding_count={len(logical_bindings)}"
+                    )
+                identity_matches = (
+                    identity_matches
+                    and logical_bindings[0].math_object_id
+                    == target_object_id
+                )
+        if not identity_matches:
             return _point_provenance_issue(
                 goal,
                 step=step,
@@ -722,6 +952,8 @@ def _point_goal_issue(
             else _state_write_lineage(
                 provenance,
                 diagnostic=diagnostic,
+                functional_context=functional_context,
+                consumer_scope_id=step.scope_id,
             )
         )
         actual_evidence_tags = {
@@ -871,8 +1103,32 @@ def _canonical_state_provenance(
     provenance: StateWriteProvenance,
     *,
     diagnostic: StepIntentExecutionDiagnostic,
+    functional_context: FunctionalGoalVerificationContext | None = None,
 ) -> StateWriteProvenance:
     """Prefer the full state write over its answer alias projection."""
+    if functional_context is not None:
+        version_id = (
+            provenance.selected_version_id
+            or functional_context.answer_version_ids.get(
+                provenance.produced_handle
+            )
+        )
+        if version_id is None:
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: "
+                "planner.runtime_state_version_unresolved: "
+                f"write={provenance.produced_handle}"
+            )
+        canonical = functional_context.runtime_writes_by_version.get(
+            version_id
+        )
+        if canonical is None:
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: "
+                "planner.runtime_state_version_unresolved: "
+                f"version={version_id.to_payload()}, reason=no_runtime_write"
+            )
+        return canonical
     if provenance.state_slot_id is None:
         return provenance
     candidates = tuple(
@@ -950,6 +1206,7 @@ def _minimum_goal_issue(
     handle_registry: CanonicalHandleRegistry,
     diagnostic: StepIntentExecutionDiagnostic | None,
     family_spec: SolverFamilySpec | None,
+    functional_context: FunctionalGoalVerificationContext | None = None,
 ) -> PlannerRetryIssue | None:
     if diagnostic is None or family_spec is None:
         return None
@@ -980,9 +1237,28 @@ def _minimum_goal_issue(
         None,
     )
     if answer_write is not None:
+        if (
+            functional_context is not None
+            and (
+                answer_write.selected_version_id is not None
+                or answer_write.produced_handle
+                in functional_context.answer_version_ids
+            )
+        ):
+            answer_write = _canonical_state_provenance(
+                answer_write,
+                diagnostic=diagnostic,
+                functional_context=functional_context,
+            )
         lineage = _state_write_lineage(
             answer_write,
             diagnostic=diagnostic,
+            functional_context=(
+                functional_context
+                if answer_write.selected_version_id is not None
+                else None
+            ),
+            consumer_scope_id=step.scope_id,
         )
         lineage_roles = {
             role
@@ -1076,8 +1352,64 @@ def _state_write_lineage(
     root: Any,
     *,
     diagnostic: StepIntentExecutionDiagnostic,
+    functional_context: FunctionalGoalVerificationContext | None = None,
+    consumer_scope_id: str | None = None,
 ) -> tuple[Any, ...]:
     """Return the provenance subgraph that actually contributes to ``root``."""
+    if functional_context is not None:
+        by_version = {
+            item.selected_version_id: item
+            for item in diagnostic.state_write_provenance
+            if item.selected_version_id is not None
+        }
+        result: list[Any] = []
+        seen: set[StateVersionId] = set()
+        pending = [root]
+        while pending:
+            item = pending.pop()
+            version_id = item.selected_version_id
+            if version_id is None:
+                raise StrategyDraftValidationError(
+                    "planner_configuration_error: "
+                    "planner.runtime_state_version_unresolved: "
+                    f"write={item.produced_handle}"
+                )
+            if version_id in seen:
+                continue
+            seen.add(version_id)
+            result.append(item)
+            binding = functional_context.state_read_index.require_version(
+                version_id,
+                consumer_scope_id=(
+                    consumer_scope_id or item.scope_id
+                ),
+                consumer=f"goal_lineage:{item.step_id}",
+            )
+            source_versions = (
+                *binding.source_version_ids,
+                *(
+                    (binding.previous_version_id,)
+                    if binding.previous_version_id is not None
+                    else ()
+                ),
+            )
+            for source_version in source_versions:
+                producer = by_version.get(source_version)
+                if producer is not None:
+                    pending.append(producer)
+                    continue
+                if (
+                    functional_context.state_read_index.version(
+                        source_version
+                    )
+                    is None
+                ):
+                    raise StrategyDraftValidationError(
+                        "planner_configuration_error: "
+                        "planner.runtime_state_version_unresolved: "
+                        f"source={source_version.to_payload()}"
+                    )
+        return tuple(result)
     by_handle = {
         item.produced_handle: item
         for item in diagnostic.state_write_provenance

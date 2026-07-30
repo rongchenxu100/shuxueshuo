@@ -578,8 +578,9 @@ def build_functional_retry_graph_checkpoint(
                         valid_scope_id=allocation.valid_scope,
                         value_type=allocation.runtime_type,
                         result_form=snapshot.actual_form,
-                        free_symbol_refs=tuple(
-                            allocation.free_symbol_refs
+                        free_symbol_refs=_runtime_free_symbol_refs(
+                            snapshot=snapshot,
+                            write=None,
                         ),
                         status=(
                             "goal_committed"
@@ -615,7 +616,10 @@ def build_functional_retry_graph_checkpoint(
                     result_form=form_by_return.get(
                         (call_id, allocation.return_name)
                     ),
-                    free_symbol_refs=tuple(allocation.free_symbol_refs),
+                    free_symbol_refs=_runtime_free_symbol_refs(
+                        snapshot=snapshot,
+                        write=write,
+                    ),
                     runtime_destination=write.runtime_destination_key,
                     status=(
                         "goal_committed"
@@ -792,6 +796,23 @@ def build_functional_retry_graph_checkpoint(
         committed_calls=tuple(committed_calls),
         verified_versions=tuple(records),
         verified_results=tuple(result_records),
+    )
+
+
+def _runtime_free_symbol_refs(
+    *,
+    snapshot: Any | None,
+    write: Any | None,
+) -> tuple[str, ...]:
+    """Use runtime-observed closure, never the static return allocation."""
+
+    if snapshot is not None:
+        free_parameters = getattr(snapshot, "free_parameters", None)
+        if free_parameters is not None:
+            return tuple(str(item) for item in free_parameters)
+    return tuple(
+        str(item)
+        for item in (getattr(write, "free_symbol_names", ()) or ())
     )
 
 

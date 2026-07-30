@@ -39,7 +39,7 @@ class GoalEvidencePolicySpec:
     required_evidence_tags: tuple[GoalEvidenceTag, ...]
     mechanism_pack_id: str | None = None
     producer_goal_types: tuple[str, ...] = ()
-StateIdentityRelation = Literal["same_object"]
+StateIdentityRelation = Literal["same_object", "same_object_set"]
 StateRoleRequirement = Literal["identity_only", "materialized"]
 StateIdentityConstraintApplicability = Literal[
     "required",

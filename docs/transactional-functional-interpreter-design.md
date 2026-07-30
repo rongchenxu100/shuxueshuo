@@ -439,6 +439,7 @@ call id 强行冻结。
 | 本文 | Roadmap | 含义 |
 | --- | --- | --- |
 | T0 | Track C C0 | logical graph 与 Working Context shadow |
+| T0.5 | Track C C0.5 | cross-scope / StateVersion executable oracle 与生成式门禁 |
 | T1 | Track C C1 | transactional call execution |
 | T2 | Track C C2 | Context / retry authority cutover |
 | T3 | Track C C4-C6 | runtime-grounded closure 与静态预测清理 |
@@ -453,6 +454,20 @@ call id 强行冻结。
 
 依赖：Track B B1 typed allocation foundation。
 
+### T0.5. Scope/version executable model gate
+
+- 使用独立 reference model 定义 scope visibility、latest-visible、allocation、
+  placement、finalization、retry 和 typed consumer 的预期行为；
+- 有界穷举 parent/child/sibling StateVersion 图、hidden dependency、alias 和
+  retry checkpoint；
+- 分阶段比较 B1-B5b 与 C0，而不是用一套 production projection验证另一套；
+- 历史真实 LLM 暴露的状态错误先缩减成匿名 synthetic scenario；
+- generated gate 进入默认离线回归并成为 T1 的 hard prerequisite。
+
+详细设计见 `docs/cross-scope-version-executable-oracle-design.md`。
+
+依赖：Track B B1-B5b 与 T0 logical graph。
+
 ### T1. Incremental execution behind opt-in
 
 - 逐 call 使用现有 StepIntent fragment compiler；
@@ -461,7 +476,8 @@ call id 强行冻结。
 - partial subgraph 继续执行；
 - 五题 authored Functional fixture 双路径对比。
 
-依赖：Track B B2 placement 和 B3 finalizer 可消费 typed identity。
+依赖：Track B B2 placement、B3 finalizer、B5b typed consumer，以及 T0.5
+generated gate 完成。
 
 ### T2. Context and retry cutover
 

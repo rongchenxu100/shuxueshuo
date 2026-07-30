@@ -16,6 +16,7 @@ from shuxueshuo_server.solver.runtime.handle_registry import (
     _semantic_name,
 )
 from shuxueshuo_server.solver.runtime.models import ContextPath, runtime_type_matches
+from shuxueshuo_server.solver.runtime.state_identity import MathObjectRegistry
 from shuxueshuo_server.solver.runtime.strategy_models import (
     StepIntent,
     StrategyDraftValidationError,
@@ -33,6 +34,16 @@ class EntityStateResolver:
         index: CanonicalRuntimeBindingIndex,
     ) -> str | None:
         """返回补位后的 path；没有候选返回 None，多候选抛结构化错误。"""
+        if (
+            getattr(index, "functional_consumer_identity_mode", None)
+            is not None
+        ):
+            return self._resolve_typed(
+                handle,
+                required_type,
+                step,
+                index,
+            )
         projected = self._explicit_projected_state_path(
             handle,
             required_type,
@@ -104,6 +115,111 @@ class EntityStateResolver:
             )
 
         return None
+
+    def _resolve_typed(
+        self,
+        handle: str,
+        required_type: str,
+        step: StepIntent,
+        index: CanonicalRuntimeBindingIndex,
+    ) -> str | None:
+        direct = index.bindings.get(handle)
+        projected = index.projected_state_write_for_handle(handle)
+        object_registry = MathObjectRegistry.from_sources(
+            index.handle_registry
+        )
+        object_id = (
+            projected.math_object_id
+            if projected is not None
+            else object_registry.resolve(handle)
+        )
+        if object_id is None:
+            if (
+                direct is not None
+                and runtime_type_matches(required_type, direct.value_type)
+                and _binding_visible(direct.path, step, index)
+            ):
+                index.record_legacy_runtime_identity_fallback(
+                    consumer=f"{step.step_id}:{handle}",
+                    handle=handle,
+                    reason="math_object_identity_unresolved",
+                )
+                return direct.path
+            return None
+        if required_type in {"PointRef", "Symbol", "Function"}:
+            return index.runtime_path_for_object_identity(
+                object_id,
+                expected_type=required_type,
+                consumer_scope_id=step.scope_id,
+                consumer=f"{step.step_id}:{handle}",
+            )
+        read_index = index.functional_state_read_index()
+        if projected is not None and projected.selected_version_id is not None:
+            binding = read_index.require_version(
+                projected.selected_version_id,
+                consumer_scope_id=step.scope_id,
+                consumer=f"{step.step_id}:{handle}",
+                require_runtime_path=True,
+            )
+            candidates = (binding,)
+        else:
+            candidates = tuple(
+                item
+                for item in read_index.visible_versions_for_object(
+                    object_id,
+                    consumer_scope_id=step.scope_id,
+                )
+                if runtime_type_matches(required_type, item.runtime_type)
+            )
+        if not candidates:
+            if (
+                direct is not None
+                and runtime_type_matches(required_type, direct.value_type)
+                and _binding_visible(direct.path, step, index)
+            ):
+                index.record_legacy_runtime_identity_fallback(
+                    consumer=f"{step.step_id}:{handle}",
+                    handle=handle,
+                    reason="typed_state_version_unresolved",
+                )
+                return direct.path
+            return None
+        logical_keys = {item.logical_state_key for item in candidates}
+        if len(logical_keys) != 1:
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: "
+                "planner.runtime_state_binding_drift: "
+                f"handle={handle}, required_type={required_type}, "
+                "reason=ambiguous_logical_state"
+            )
+        selected = read_index.latest_visible(
+            next(iter(logical_keys)),
+            consumer_scope_id=step.scope_id,
+        )
+        if selected is None or not runtime_type_matches(
+            required_type,
+            selected.runtime_type,
+        ):
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: "
+                "planner.runtime_state_version_unresolved: "
+                f"handle={handle}, required_type={required_type}"
+            )
+        path = read_index.runtime_path_for_version(
+            selected.version_id,
+            consumer_scope_id=step.scope_id,
+            consumer=f"{step.step_id}:{handle}",
+        )
+        index.capture_functional_read_audit(read_index)
+        if selected.produced_handle is not None:
+            index.record_applied_fill(
+                step=step,
+                input_handle=handle,
+                required_type=required_type,
+                resolved_handle=selected.produced_handle,
+                reason="typed_state_version",
+            )
+        return path
 
     def _explicit_projected_state_path(
         self,

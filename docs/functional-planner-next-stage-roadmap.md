@@ -10,8 +10,9 @@
 
 1. **产品协议 parity**：为五道代表题建立 FunctionalPlan 资产、真实网络稳定性基线和迁移 oracle。
 2. **语义状态权威收敛**：让 `MathObject -> StateSlot -> StateVersion` 身份贯穿 allocation、call placement、finalizer、Context 和 retry。
-3. **执行架构收敛**：先把整图静态状态预测改为 transactional call execution，
-   再把参数求解收敛成 runtime-grounded 声明式符号闭包，最后删除 StepIntent 兼容桥。
+3. **执行架构收敛**：先用独立 executable oracle 穷举 scope/version 状态机，
+   再把整图静态状态预测改为 transactional call execution，随后把参数求解收敛成
+   runtime-grounded 声明式符号闭包，最后删除 StepIntent 兼容桥。
 4. **工作流 Context 扩展**：建立图片题目提取 Context，以及解题后 Explanation、Diagram、Animation Context。
 
 四条主线不能同时无门禁地修改主链路。每一阶段都必须先形成可重放 oracle、分层指标和退出条件，再进入下一阶段。
@@ -73,8 +74,8 @@ Track A 是否完成，但主链切换前必须重新建立相应阶段自己的
 | Track A assets | `COMPLETE` | 五题 fixture、离线 replay、真实 opt-in、strict-test few-shot、共享 batch 基座 | 无 |
 | Track A Stage 1 | `COMPLETE` | 每题 3 个样本，`15/15` 在三轮内通过，configuration error 为 0 | 无 |
 | Track A parity complete | `COMPLETE` | 五题各 10 个兼容样本，`pass@3 >= 90%`；structured provenance parity、typed failure boundary、跨 batch 聚合均已建立 | 无 |
-| Track B typed identity authority | `IN PROGRESS` | B0-B4 已完成；B5a Functional typed authority cleanup 已实现，等待完整门禁 | B5a 回归与真实 smoke；随后启动 C0，再实施 B5b |
-| Track C transactional interpreter | `PENDING` | 现有 partial replay、Working RuntimeContext、typed provenance 可复用 | Track B B1-B3；C0 shadow；逐 call execution parity |
+| Track B typed identity authority | `IN PROGRESS` | B0-B4、B5a 已完成；B5b typed consumer 实现和离线门禁已完成 | B5b 当前 source fingerprint 的真实 smoke；B5c 等待 C1-C4 完成后删除 StepIntent/string projection |
+| Track C transactional interpreter | `IN PROGRESS` | C0 logical graph 与 Working Context shadow 已实现 | C0.5 跨 scope/version executable oracle；完成后进入 C1 逐 call execution parity |
 | Functional Default Ready | `BLOCKED` | Functional 主链可 opt-in 执行 | Track A parity complete；Track B B0-B4；Track C production closure；direct compiler shadow；held-out；production observability 与回滚门禁 |
 | Track D0 product routing gate retirement | `BLOCKED` | 唯一 problem-id gate 已登记 | Track A parity complete；Functional production routing 接管该 family；legacy deterministic planner 退场 |
 | Track D default switch | `BLOCKED` | direct compiler 目标已定义 | Functional Default Ready 后才能切默认协议和删除 StepIntent 兼容链 |
@@ -86,17 +87,19 @@ Track A 是否完成，但主链切换前必须重新建立相应阶段自己的
 
 ### Immediate Next Gate
 
-Track A 已完成，当前主线切换到 Track B，而不是继续围绕五题概率样本做局部补丁：
+Track A 已完成，当前主线不再围绕五题概率样本做局部补丁：
 
-1. DeepSeek 余额恢复后补跑 B4 五题各三个真实 smoke，要求 configuration、
-   unclassified 和 retry-version drift 均为 0；
-2. 完成 **B5a typed authority cleanup** 门禁：Functional allocation、
-   canonicalization、placement、finalizer 和 retry 的身份决策不得回查
-   legacy slot/handle/runtime path；
-3. 启动 C0 logical graph / Working Context shadow，但不切换 production
-   execution authority；
-4. C0 稳定后实施 B5b Context/runtime consumer migration；C1-C4 完成后再由
-   B5c 删除 StepIntent/string projection compatibility。
+1. 完成 B5b 当前 source fingerprint 的真实 smoke，只用于确认 typed consumer
+   没有行为退化；
+2. 实施 C0.5 跨 scope/version executable oracle 与生成式门禁，以独立 reference
+   model 验证 B1-B5b 和 C0；
+3. C0.5 完成后再启动 C1，建立隔离 Working RuntimeContext 和逐 call execution
+   parity，同时保持现有 replay 为 production authority；
+4. C1-C4 完成后再由 B5c 删除 StepIntent/string projection compatibility。
+
+C0.5 的详细设计见：
+
+- `docs/cross-scope-version-executable-oracle-design.md`
 
 Track E 的 held-out 基础设施和 ProblemExtractionContext schema 可以并行建设；默认协议
 切换、StepIntent 删除和 transactional interpreter 主链切换仍保持阻塞。
@@ -488,11 +491,45 @@ B2 完成门禁：
 
 #### B5b. Context and Runtime Consumer Migration
 
-- 状态：`PENDING AFTER C0`。
-- 迁移 PlannerStateContext consumer、AnswerGoalVerifier、PathTransformation runtime
-  resolver、normalizer 与 runtime semantic resolver；
-- 将剩余对象比较、角色解析和 latest-state 读取改为 MathObjectId/StateVersionId；
-- 保留物理 runtime destination 和 StepIntent projection compatibility。
+- 状态：`IN PROGRESS`（实现与离线门禁完成，当前 revision 真实 smoke 待重跑）。
+- 新增 `FunctionalStateReadIndex`，以 `StateVersionId + LogicalStateKey +
+  MathObjectId + scope visibility` 选择状态，再将已选版本投影到物理 runtime path；
+- `PlannerStateContext` 提供 typed query facade，并记录
+  `runtime_consumer_decisions / runtime_consumer_mismatches /
+  legacy_runtime_identity_fallback_count`；
+- Functional `EntityStateResolver`、PathTransformation consumer 和 Context Point
+  state resolver 已切换到 typed identity；StepIntent 分支继续保留旧 resolver；
+- PathTransformation materialized role 精确读取 producer 声明的 source version，
+  不扫描同名 Point、StateSlot 字符串或 reads 顺序；
+- Functional AnswerGoalVerifier 通过 LogicalAnswerBinding 锚定 answer version，
+  Point identity 比较 MathObjectId，状态 evidence 沿 previous/source version 回溯；
+  value-only answer 继续使用 typed call-result lineage；
+- runtime path 仅作为已确定 StateVersion 的物理绑定；同一路径映射到不同
+  LogicalStateKey 时 fail loud；
+- authoritative 门禁要求 runtime consumer mismatch 和 legacy runtime identity
+  fallback 均为 0。
+- consumer authority 收口补充：
+  - ProblemIR 中已物化的 entity state 在 runtime load boundary 注册为 typed
+    ordinal-0 version；
+  - identity-only Entity read 不再因存在 direct handle binding 绕过 typed
+    object lookup；
+  - PathTransformation consumer 保留 role 声明的 exact version runtime path，
+    不再通过 state handle 二次绑定；
+  - latest-visible 先按 consumer scope specificity 选择，再比较同一 slot 的
+    ordinal；同层不可比 slot fail loud；
+  - semantic read resolution 携带 MathObjectId/StateVersionId sidecar；
+  - AnswerGoalVerifier 不再从裸 runtime symbol 或 `answer:` handle 前缀恢复
+    Functional identity；
+  - object-role reprojection 缺 source 时产生配置错误，不静默删除 role。
+- 2026-07-29 最新离线门禁：B5b 组合回归 `407 passed`，全量 solver
+  `1476 passed, 17 skipped`，`git diff --check` 通过；新增 fallback 事件计数
+  回归，证明 `legacy_runtime_identity_fallback_count` 不再是恒零门禁。
+- 2026-07-29 历史真实 smoke：`batch-20260729-204621` 五题各 3 个兼容样本
+  `15/15` 在三轮内通过，每题 `pass@3 = 100%`，configuration、
+  unclassified 和 successful-sample gate failure 均为 0；此前暴露的
+  value-only retry checkpoint free-symbol drift 已改为使用 runtime snapshot
+  权威。该批早于本次 consumer 收口修改，只作为历史证据；B5b 标记
+  `COMPLETE` 前须以当前 source fingerprint 重跑 5×3 smoke。
 
 #### B5c. StepIntent and String Projection Retirement
 
@@ -550,9 +587,12 @@ substitution 和 free symbols。
 顺序固定为：
 
 ```text
-Track B typed identity/allocation/placement/finalizer
-  -> Track C transactional interpreter
-  -> Track C runtime-grounded symbolic closure
+B5a typed producer authority
+  -> C0 logical graph shadow
+  -> B5b typed consumer authority
+  -> C0.5 scope/version executable model gate
+  -> C1-C4 transactional execution and runtime-grounded closure
+  -> B5c StepIntent/string projection retirement
   -> Track D direct compiler
 ```
 
@@ -568,12 +608,14 @@ provenance、stable graph 和 symbolic target closure 是实现基础，但 prod
 详细设计见：
 
 - `docs/transactional-functional-interpreter-design.md`
+- `docs/cross-scope-version-executable-oracle-design.md`
 - `docs/symbolic-target-closure-evolution-plan.md`
 
 ### Iteration Sequence
 
 #### C0. Logical Graph and Working Context Shadow
 
+- 状态：`IMPLEMENTED`。
 - 从现有 reconciliation 抽出不依赖 runtime result 的 `LogicalFunctionalGraph`；
 - 定义 `pending / ready / verified / failed / blocked / eliminated / aliased` call 状态；
 - 定义 attempt-local `WorkingPlannerState`；
@@ -582,6 +624,24 @@ provenance、stable graph 和 symbolic target closure 是实现基础，但 prod
 
 依赖：Track B B1 allocation authority。C0 shadow 可在 B0/B1 期间准备，但必须消费
 typed allocation 结果；主链切换属于后续独立门禁。
+
+#### C0.5. Cross-Scope / StateVersion Executable Oracle Gate
+
+- 状态：`PENDING`，是 C1 的 hard prerequisite；
+- 建立独立 reference scope/version state machine，不复用 production
+  allocation、placement、visibility 或 latest-state helper；
+- 有界穷举 parent/child/sibling、create/reuse/transition/isolated/conflict、
+  exact/latest read、hidden dependency、alias、answer projection 和 retry checkpoint；
+- 分别比较 B1 allocation、B2 placement、B3 finalizer、B4 retry、B5b consumer
+  与 C0 logical graph，不只比较最终 replay；
+- 将历史真实 LLM 暴露的 scope/version 问题缩减为无题名、无点名、无答案值的
+  synthetic scenario corpus；
+- 默认离线门禁至少执行 `10,000` 个确定性 scenario，并保存固定 seed和可重放
+  scenario id；
+- 新增 scope/version 修复必须先增加 synthetic scenario，真实 LLM 只做后续行为确认。
+
+依赖：B1-B5b typed authority 与 C0 logical graph。详细设计见
+`docs/cross-scope-version-executable-oracle-design.md`。
 
 #### C1. Transactional Call Execution
 
@@ -592,7 +652,8 @@ typed allocation 结果；主链切换属于后续独立门禁。
 - 失败 call 的 dependents 标记 blocked，无关分支继续执行；
 - per-call compiler 先复用现有 StepIntent/StepPlan bridge。
 
-依赖：Track B B2 placement 和 B3 identity-aware finalizer。
+依赖：Track B B2 placement、B3 identity-aware finalizer、B5b typed consumer，
+以及 C0.5 generated gate 完成。
 
 #### C2. Context and Retry Cutover
 
@@ -664,6 +725,7 @@ substitution_outputs
 
 - Heping Ermo、Xiqing 用于暴露 typed Symbol 和 closure 需求；
 - C0 shadow 可以在五题 parity 期间实现，但必须消费 Track B 的 typed identity；
+- C0.5 在 B5b 后、C1 前实施；其 synthetic gate 是 C1 的 hard prerequisite；
 - C1 主链切换后必须重新建立真实样本 compatibility fingerprint；
 - C4/C5 的 Symbol/ParameterValue 写入必须通过 `StateAllocationService`；
 - 在五题 oracle 完整前不删除兼容路径；

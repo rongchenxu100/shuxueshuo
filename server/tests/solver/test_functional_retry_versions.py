@@ -184,6 +184,7 @@ def _checkpoint_builder_inputs(
                     SimpleNamespace(
                         return_name="point",
                         actual_form="closed_state",
+                        free_parameters=(),
                     ),
                 ),
             ),
@@ -352,7 +353,7 @@ def test_committed_call_local_return_uses_typed_result_anchor() -> None:
                 return_name="angle_equality",
                 canonical_producer_call_id="make_point",
                 valid_scope="i",
-                free_symbol_refs=(),
+                free_symbol_refs=("symbol:ii:static_parameter",),
                 selected_version_id=None,
                 computation_key=verified.computation_key,
                 runtime_type="AngleEquality",
@@ -368,6 +369,7 @@ def test_committed_call_local_return_uses_typed_result_anchor() -> None:
                 SimpleNamespace(
                     return_name="angle_equality",
                     actual_form=None,
+                    free_parameters=("_axis_param_E",),
                     value_type="AngleEquality",
                     value_omitted_reason=None,
                 ),
@@ -389,7 +391,7 @@ def test_committed_call_local_return_uses_typed_result_anchor() -> None:
             valid_scope_id="i",
             value_type="AngleEquality",
             result_form=None,
-            free_symbol_refs=(),
+            free_symbol_refs=("_axis_param_E",),
             status="goal_committed",
         ),
     )

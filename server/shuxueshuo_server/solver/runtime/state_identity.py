@@ -1089,11 +1089,53 @@ class StateIdentityIndex:
                 consumer_scope_id=consumer_scope_id,
             )
         ]
-        return max(
-            visible,
-            key=lambda item: item.version_id.ordinal,
-            default=None,
+        if not visible:
+            return None
+        ancestors = self.visibility.registry.ancestor_scopes(
+            consumer_scope_id
         )
+        scope_rank = {
+            scope_id: rank for rank, scope_id in enumerate(ancestors)
+        }
+        closest_rank = min(
+            scope_rank.get(item.valid_scope_id, len(ancestors))
+            for item in visible
+        )
+        closest = tuple(
+            item
+            for item in visible
+            if scope_rank.get(item.valid_scope_id, len(ancestors))
+            == closest_rank
+        )
+        latest_by_slot: dict[StateSlotId, IndexedStateVersion] = {}
+        for item in closest:
+            previous = latest_by_slot.get(item.version_id.slot_id)
+            if (
+                previous is None
+                or item.version_id.ordinal > previous.version_id.ordinal
+            ):
+                latest_by_slot[item.version_id.slot_id] = item
+        maximal = tuple(
+            candidate
+            for candidate in latest_by_slot.values()
+            if not any(
+                other.version_id != candidate.version_id
+                and self.is_same_or_descendant(
+                    other.version_id,
+                    candidate.version_id,
+                )
+                for other in latest_by_slot.values()
+            )
+        )
+        if len(maximal) != 1:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.state_identity_incomplete: "
+                f"logical_key={visible[0].logical_state_key.to_payload()}, "
+                f"consumer_scope={consumer_scope_id}, "
+                "reason=ambiguous_latest_visible"
+            )
+        return maximal[0]
 
 
 class StateAllocationService:
@@ -1171,22 +1213,44 @@ class StateAllocationService:
                 reason_code="same_computation_and_state_effect",
             )
 
+        same_state_source_ids = tuple(
+            version_id
+            for version_id in request.source_version_ids
+            if version_id.slot_id.logical_key == logical_key
+        )
+        explicit_sources = tuple(
+            item
+            for item in all_versions
+            if item.version_id in same_state_source_ids
+        )
+        maximal_explicit_sources = tuple(
+            candidate
+            for candidate in explicit_sources
+            if not any(
+                other.version_id != candidate.version_id
+                and index.is_same_or_descendant(
+                    other.version_id,
+                    candidate.version_id,
+                )
+                for other in explicit_sources
+            )
+        )
+        if len(maximal_explicit_sources) > 1:
+            return self._conflict(
+                request,
+                logical_key,
+                requested_slot,
+                "state.transition_source_mismatch",
+                "multiple_incomparable_explicit_state_sources",
+            )
+        explicit_previous = (
+            maximal_explicit_sources[0]
+            if maximal_explicit_sources
+            else None
+        )
+
         if request.requested_write_mode == "transition":
-            same_state_source_ids = tuple(
-                version_id
-                for version_id in request.source_version_ids
-                if version_id.slot_id.logical_key == logical_key
-            )
-            explicit_sources = tuple(
-                item
-                for item in all_versions
-                if item.version_id in same_state_source_ids
-            )
-            previous = max(
-                explicit_sources,
-                key=lambda item: item.version_id.ordinal,
-                default=visible,
-            )
+            previous = explicit_previous or visible
             if previous is None:
                 version_id = StateVersionId(
                     requested_slot,
@@ -1234,6 +1298,38 @@ class StateAllocationService:
                 previous_producer_call_id=previous.producer_call_id,
                 transition_kind="direct",
                 previous_free_symbol_refs=previous.free_symbol_refs,
+                current_free_symbol_refs=request.free_symbol_refs,
+            )
+
+        if (
+            explicit_previous is not None
+            and set(request.free_symbol_refs).issubset(
+                explicit_previous.free_symbol_refs
+            )
+        ):
+            version_id = StateVersionId(
+                requested_slot,
+                index.next_ordinal(requested_slot),
+            )
+            return StateAllocationDecision(
+                action="transition",
+                call_id=request.call_id,
+                return_name=request.return_name,
+                logical_state_key=logical_key,
+                selected_slot_id=requested_slot,
+                selected_version_id=version_id,
+                previous_version_id=explicit_previous.version_id,
+                canonical_producer_call_id=request.call_id,
+                runtime_destination=request.runtime_destination,
+                reason_code=(
+                    "dependency_refines_visible_state"
+                    if visible is not None
+                    and visible.version_id == explicit_previous.version_id
+                    else "explicit_dependency_refines_state"
+                ),
+                previous_producer_call_id=explicit_previous.producer_call_id,
+                transition_kind="dependency_refinement",
+                previous_free_symbol_refs=explicit_previous.free_symbol_refs,
                 current_free_symbol_refs=request.free_symbol_refs,
             )
 

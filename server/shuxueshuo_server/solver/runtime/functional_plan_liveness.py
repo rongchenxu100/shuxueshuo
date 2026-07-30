@@ -105,7 +105,11 @@ class FunctionalCallLivenessAnalyzer:
                 dependency_graph=dependency_graph,
             )
 
-        reachable = _dependency_closure(roots, dependency_graph)
+        liveness_graph = _dependency_graph_without_unproven_predecessors(
+            reconciled=reconciled,
+            dependency_graph=dependency_graph,
+        )
+        reachable = _dependency_closure(roots, liveness_graph)
         dropped = candidates - reachable
         if not dropped:
             return _unchanged_result(
@@ -308,6 +312,57 @@ def _dependency_closure(
         reachable.add(call_id)
         pending.extend(dependency_graph.get(call_id, ()))
     return reachable
+
+
+def _dependency_graph_without_unproven_predecessors(
+    *,
+    reconciled: Sequence[FunctionalCallReconciliation],
+    dependency_graph: Mapping[str, tuple[str, ...]],
+) -> dict[str, tuple[str, ...]]:
+    """Ignore provisional predecessor edges that do not prove a transition.
+
+    Typed allocation runs before liveness, so two same-object writes may
+    temporarily form a version sequence. That sequence alone must not keep an
+    otherwise unused writer alive. A predecessor remains a liveness dependency
+    when the consumer explicitly reads its call result or version.
+    """
+
+    producer_by_version = {
+        allocation.selected_version_id: call.call_id
+        for call in reconciled
+        for allocation in call.returns
+        if allocation.selected_version_id is not None
+    }
+    direct_source_calls = {
+        call.call_id: {
+            value.source_call_id
+            for values in call.resolved_args.values()
+            for value in values
+            if value.source_call_id is not None
+        }
+        for call in reconciled
+    }
+    removable: set[tuple[str, str]] = set()
+    for call in reconciled:
+        for allocation in call.returns:
+            previous = allocation.previous_version_id
+            if previous is None or previous in allocation.source_version_ids:
+                continue
+            producer = producer_by_version.get(previous)
+            if (
+                producer is None
+                or producer in direct_source_calls.get(call.call_id, set())
+            ):
+                continue
+            removable.add((call.call_id, producer))
+    return {
+        call_id: tuple(
+            dependency
+            for dependency in dependencies
+            if (call_id, dependency) not in removable
+        )
+        for call_id, dependencies in dependency_graph.items()
+    }
 
 
 def _unchanged_result(

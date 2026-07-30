@@ -56,9 +56,79 @@ from shuxueshuo_server.solver.runtime.strategy_output_types import (  # noqa: E4
 from shuxueshuo_server.solver.runtime.strategy_payload import (  # noqa: E402
     write_strategy_debug_artifacts,
 )
+from shuxueshuo_server.solver.runtime.semantic_reads import (  # noqa: E402
+    ContextSemanticReadResolver,
+    SemanticReadCatalogItem,
+)
 from shuxueshuo_server.solver.runtime.planner_retry_projection import (  # noqa: E402
     PlannerRetryStateProjector,
 )
+
+
+def test_context_semantic_read_resolution_carries_typed_identity() -> None:
+    registry = _registry()
+    object_id = MathObjectId(
+        "point:problem:D",
+        "point",
+        "problem",
+    )
+    logical_key = LogicalStateKey(
+        object_id,
+        "coordinate",
+        "Point",
+    )
+    version_id = StateVersionId(
+        StateSlotId(logical_key, "problem"),
+        1,
+    )
+    item = SemanticReadCatalogItem(
+        handle="fact:problem:D_coordinate",
+        kind="fact",
+        ref="D_coordinate",
+        scope="problem",
+        valid_scope="problem",
+        value_type="Point",
+        math_object_id=object_id,
+        state_version_id=version_id,
+    )
+    source = type(
+        "_ContextSource",
+        (),
+        {
+            "semantic_read_catalog": lambda self: (item,),
+            "semantic_read_catalog_payload": lambda self: {},
+        },
+    )()
+    _payload, report = ContextSemanticReadResolver(
+        registry,
+        source,
+    ).resolve_payload(
+        {
+            "scopes": [
+                {
+                    "scope_id": "i",
+                    "steps": [
+                        {
+                            "step_id": "consume_D",
+                            "creates": [],
+                            "produces": [],
+                            "semantic_reads": [
+                                {
+                                    "kind": "fact",
+                                    "ref": "D_coordinate",
+                                }
+                            ],
+                        }
+                    ],
+                }
+            ]
+        }
+    )
+
+    assert report.ok
+    assert len(report.resolutions) == 1
+    assert report.resolutions[0].math_object_id == object_id
+    assert report.resolutions[0].state_version_id == version_id
 
 
 @pytest.mark.parametrize(

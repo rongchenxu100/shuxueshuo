@@ -93,6 +93,7 @@ from shuxueshuo_server.solver.runtime.functional_plan_models import (
     CanonicalStateHandleFactory,
     FunctionalAggregation,
     FunctionalCapability,
+    FunctionalCapabilityArg,
     FunctionalCall,
     FunctionalCallReport,
     FunctionalCapabilityReturn,
@@ -254,6 +255,12 @@ class _NormalizeElaborateScopeStage:
             )
             for call_id in cyclic_call_ids
         )
+        plan, semantic_return_role_repairs = (
+            _normalize_declared_return_role_aliases(
+                plan,
+                catalog=catalog,
+            )
+        )
         plan, return_role_repairs = _normalize_unique_return_roles(
             plan,
             catalog=catalog,
@@ -300,6 +307,7 @@ class _NormalizeElaborateScopeStage:
             issues=(*ordering_issues, *elaboration.issues),
             deterministic_repairs=(
                 *ordering_repairs,
+                *semantic_return_role_repairs,
                 *return_role_repairs,
                 *existing_state_repairs,
                 *incomplete_transition_repairs,
@@ -1318,6 +1326,7 @@ class FunctionalPlanReconciler:
             effective_calls=effective_calls,
             return_role_aliases=return_role_aliases,
             reconciled=reconciled,
+            produced=produced,
             call_reports=call_reports,
             catalog=catalog,
             semantic_items=semantic_items,
@@ -1508,6 +1517,7 @@ class _PlacementLivenessProjectionStage:
         effective_calls: Mapping[str, FunctionalCall],
         return_role_aliases: Mapping[tuple[str, str], str],
         reconciled: Sequence[FunctionalCallReconciliation],
+        produced: Mapping[tuple[str, str], ResolvedFunctionalValue],
         call_reports: Sequence[FunctionalCallReport],
         catalog: FunctionalCapabilityCatalog,
         semantic_items: tuple[SemanticReadCatalogItem, ...],
@@ -1539,6 +1549,19 @@ class _PlacementLivenessProjectionStage:
             effective_calls=effective_calls,
             return_role_aliases=return_role_aliases,
         )
+        (
+            reconciled,
+            wire_arg_repairs,
+            wire_arg_issues,
+        ) = _synchronize_wire_resolved_args(
+            plan,
+            reconciled=reconciled,
+            catalog=catalog,
+            semantic_index=semantic_index,
+            produced=produced,
+        )
+        reconciliation_repairs.extend(wire_arg_repairs)
+        issues.extend(wire_arg_issues)
         initial_aliases = {
             **(elaboration.call_aliases or {}),
             **preallocated_aliases,
@@ -5366,6 +5389,122 @@ def _normalize_unique_return_roles(
     return replace(plan, scopes=tuple(rewritten_scopes)), tuple(repairs)
 
 
+def _normalize_declared_return_role_aliases(
+    plan: FunctionalPlan,
+    *,
+    catalog: FunctionalCapabilityCatalog,
+) -> tuple[FunctionalPlan, tuple[FunctionalDeterministicRepair, ...]]:
+    """Normalize shared semantic-role vocabulary before contract validation.
+
+    This is intentionally stricter than fuzzy return-name matching: an alias
+    is accepted only when the shared role registry maps it to a return that the
+    selected capability actually declares. Conflicting projections remain in
+    the plan so normal contract validation can report them.
+    """
+
+    aliases: dict[tuple[str, str], str] = {}
+    repairs: list[FunctionalDeterministicRepair] = []
+    scopes: list[FunctionalScope] = []
+    for scope in plan.scopes:
+        calls: list[FunctionalCall] = []
+        for call in scope.calls:
+            capability = catalog.get(call.capability_id)
+            declared = (
+                {item.name for item in capability.returns}
+                if capability is not None
+                else set()
+            )
+            bindings = dict(call.return_bindings)
+            expectations = dict(call.return_expectations)
+            candidate_names = unique_ordered(
+                (*bindings.keys(), *expectations.keys())
+            )
+            changed = False
+            for source in candidate_names:
+                if source in declared:
+                    continue
+                canonical = canonical_straightening_endpoint_name(source)
+                if canonical is None or canonical not in declared:
+                    continue
+                source_binding = bindings.get(source)
+                canonical_binding = bindings.get(canonical)
+                source_expectation = expectations.get(source)
+                canonical_expectation = expectations.get(canonical)
+                if (
+                    source_binding is not None
+                    and canonical_binding is not None
+                    and source_binding != canonical_binding
+                ):
+                    continue
+                if (
+                    source_expectation is not None
+                    and canonical_expectation is not None
+                    and source_expectation != canonical_expectation
+                ):
+                    continue
+                if source_binding is not None:
+                    bindings[canonical] = source_binding
+                    bindings.pop(source, None)
+                if source_expectation is not None:
+                    expectations[canonical] = source_expectation
+                    expectations.pop(source, None)
+                aliases[(call.call_id, source)] = canonical
+                repairs.append(
+                    FunctionalDeterministicRepair(
+                        call.call_id,
+                        "normalize_declared_return_role_alias",
+                        source,
+                        canonical,
+                    )
+                )
+                changed = True
+            calls.append(
+                replace(
+                    call,
+                    return_bindings=bindings,
+                    return_expectations=expectations,
+                )
+                if changed
+                else call
+            )
+        scopes.append(replace(scope, calls=tuple(calls)))
+    if not aliases:
+        return plan, ()
+    return (
+        replace(
+            plan,
+            scopes=tuple(
+                replace(
+                    scope,
+                    calls=tuple(
+                        replace(
+                            call,
+                            args={
+                                name: tuple(
+                                    replace(
+                                        ref,
+                                        return_name=aliases.get(
+                                            (ref.from_call, ref.return_name),
+                                            ref.return_name,
+                                        ),
+                                    )
+                                    if isinstance(ref, CallResultRef)
+                                    else ref
+                                    for ref in refs
+                                )
+                                for name, refs in call.args.items()
+                            },
+                        )
+                        for call in scope.calls
+                    ),
+                )
+                for scope in scopes
+            ),
+        ),
+        tuple(repairs),
+    )
+
+
 def _merge_unique_return_projection_binding(
     canonical: SemanticRef,
     extra: SemanticRef,
@@ -6655,6 +6794,290 @@ def _rewrite_effective_functional_plan(
             calls.append(replace(call, args=args))
         scopes.append(replace(scope, calls=tuple(calls)))
     return replace(plan, scopes=tuple(scopes))
+
+
+def _synchronize_wire_resolved_args(
+    plan: FunctionalPlan,
+    *,
+    reconciled: Sequence[FunctionalCallReconciliation],
+    catalog: FunctionalCapabilityCatalog,
+    semantic_index: FunctionalSemanticIndex,
+    produced: (
+        Mapping[tuple[str, str], ResolvedFunctionalValue] | None
+    ) = None,
+) -> tuple[
+    list[FunctionalCallReconciliation],
+    tuple[FunctionalDeterministicRepair, ...],
+    tuple[FunctionalPlanIssue, ...],
+]:
+    """Keep typed wire bindings aligned with the final effective plan.
+
+    Deterministic plan normalization may narrow a many-valued wire argument
+    after an earlier resolution pass. Resolver/compiler-owned arguments remain
+    untouched; public wire arguments are filtered only by exact typed identity.
+    """
+
+    calls_by_id = {call.call_id: call for call in plan.calls}
+    updated: list[FunctionalCallReconciliation] = []
+    repairs: list[FunctionalDeterministicRepair] = []
+    issues: list[FunctionalPlanIssue] = []
+    for item in reconciled:
+        call = calls_by_id.get(item.call_id)
+        capability = catalog.get(item.capability_id)
+        if call is None or capability is None:
+            updated.append(item)
+            continue
+        args = dict(item.resolved_args)
+        for spec in capability.args:
+            if spec.binding_authority != "wire" or spec.name not in call.args:
+                continue
+            refs = call.args[spec.name]
+            existing = args.get(spec.name, ())
+            selected: list[ResolvedFunctionalValue] = []
+            remaining = list(existing)
+            for ref in refs:
+                matches = [
+                    candidate
+                    for candidate in remaining
+                    if _resolved_value_matches_wire_ref(
+                        candidate,
+                        ref,
+                        spec=spec,
+                        scope_id=item.scope_id,
+                        semantic_index=semantic_index,
+                        produced=produced or {},
+                    )
+                ]
+                replacement = None
+                if not matches and isinstance(ref, CallResultRef):
+                    replacement = (produced or {}).get(
+                        (ref.from_call, ref.return_name)
+                    )
+                elif not matches and isinstance(ref, SemanticRef):
+                    replacement = _resolved_wire_semantic_value(
+                        ref,
+                        spec=spec,
+                        scope_id=item.scope_id,
+                        semantic_index=semantic_index,
+                        produced=produced or {},
+                        plan=plan,
+                        consumer_call_id=item.call_id,
+                    )
+                if replacement is not None:
+                    accepted_types = (
+                        spec.accepted_item_types or (spec.runtime_type,)
+                    )
+                    if any(
+                        runtime_type_compatible(
+                            accepted,
+                            replacement.runtime_type,
+                        )
+                        for accepted in accepted_types
+                    ):
+                        matches = [replacement]
+                if len(matches) > 1:
+                    identities = {
+                        (
+                            candidate.state_version_id,
+                            candidate.condition_id,
+                            candidate.math_object_id,
+                            candidate.source_call_id,
+                            candidate.return_name,
+                            candidate.handle,
+                        )
+                        for candidate in matches
+                    }
+                    if len(identities) == 1:
+                        matches = [matches[0]]
+                if len(matches) != 1:
+                    issues.append(
+                        _issue(
+                            "functional_reconciliation",
+                            "planner.state_placement_drift",
+                            (
+                                "effective wire argument cannot be matched "
+                                "to one typed resolved value"
+                            ),
+                            call_id=item.call_id,
+                            scope_id=item.scope_id,
+                            details={
+                                "arg": spec.name,
+                                "wire_ref": ref.to_payload(),
+                                "resolved_count": len(existing),
+                                "matching_count": len(matches),
+                            },
+                        )
+                    )
+                    selected = []
+                    break
+                selected.append(matches[0])
+                if matches[0] in remaining:
+                    remaining.remove(matches[0])
+            if len(selected) != len(refs):
+                continue
+            args[spec.name] = tuple(selected)
+            repairs.append(
+                FunctionalDeterministicRepair(
+                    item.call_id,
+                    "synchronize_typed_wire_arg",
+                    f"{spec.name}:{len(existing)}_resolved_values",
+                    f"{spec.name}:{len(selected)}_wire_values",
+                )
+            )
+        updated.append(replace(item, resolved_args=args))
+    return updated, tuple(repairs), tuple(issues)
+
+
+def _resolved_wire_semantic_value(
+    ref: SemanticRef,
+    *,
+    spec: FunctionalCapabilityArg,
+    scope_id: str,
+    semantic_index: FunctionalSemanticIndex,
+    produced: Mapping[tuple[str, str], ResolvedFunctionalValue],
+    plan: FunctionalPlan,
+    consumer_call_id: str,
+) -> ResolvedFunctionalValue | None:
+    accepted_types = spec.accepted_item_types or (spec.runtime_type,)
+    view, _ = semantic_index.resolve(
+        ref,
+        scope_id=scope_id,
+        accepted_types=accepted_types,
+        accepted_condition_kinds=spec.accepted_condition_kinds,
+    )
+    if view is None:
+        return None
+    call_order = {
+        call.call_id: index for index, call in enumerate(plan.calls)
+    }
+    consumer_order = call_order.get(consumer_call_id, len(call_order))
+    produced_candidates = [
+        value
+        for value in produced.values()
+        if value.source_call_id in call_order
+        and call_order[value.source_call_id] < consumer_order
+        and any(
+            runtime_type_compatible(accepted, value.runtime_type)
+            for accepted in accepted_types
+        )
+        and visible_from_valid_scope(
+            value.valid_scope,
+            scope_id=scope_id,
+            registry=semantic_index.handle_registry,
+        )
+        and (
+            (
+                view.math_object_id is not None
+                and value.math_object_id == view.math_object_id
+            )
+            or (
+                view.state_version_id is not None
+                and value.state_version_id == view.state_version_id
+            )
+        )
+    ]
+    if produced_candidates:
+        latest_order = max(
+            call_order[value.source_call_id]
+            for value in produced_candidates
+            if value.source_call_id is not None
+        )
+        latest = {
+            (
+                value.source_call_id,
+                value.return_name,
+                value.state_version_id,
+            ): value
+            for value in produced_candidates
+            if call_order[value.source_call_id] == latest_order
+        }
+        if len(latest) == 1:
+            return next(iter(latest.values()))
+    return ResolvedFunctionalValue(
+        handle=view.handle,
+        runtime_type=view.runtime_type,
+        valid_scope=view.valid_scope,
+        state_slot_id=view.state_slot_id,
+        object_ref=view.object_ref,
+        condition_id=view.condition_id,
+        object_roles=view.object_roles,
+        dependency_object_refs=view.dependency_object_refs,
+        free_symbol_refs=view.free_symbol_refs,
+        source_state_slot_ids=view.source_state_slot_ids,
+        provides_semantic_roles=view.provides_semantic_roles,
+        lineage=view.lineage,
+        math_object_id=view.math_object_id,
+        logical_state_key=view.logical_state_key,
+        typed_slot_id=view.typed_slot_id,
+        state_version_id=view.state_version_id,
+        source_version_ids=view.source_version_ids,
+    )
+
+
+def _resolved_value_matches_wire_ref(
+    value: ResolvedFunctionalValue,
+    ref: FunctionalRef,
+    *,
+    spec: FunctionalCapabilityArg,
+    scope_id: str,
+    semantic_index: FunctionalSemanticIndex,
+    produced: Mapping[tuple[str, str], ResolvedFunctionalValue],
+) -> bool:
+    if isinstance(ref, CallResultRef):
+        if (
+            value.source_call_id != ref.from_call
+            or value.return_name != ref.return_name
+        ):
+            return False
+        expected = produced.get((ref.from_call, ref.return_name))
+        if expected is None:
+            return False
+        if (
+            expected.state_version_id is not None
+            or value.state_version_id is not None
+        ):
+            return expected.state_version_id == value.state_version_id
+        if expected.condition_id is not None or value.condition_id is not None:
+            return expected.condition_id == value.condition_id
+        if (
+            expected.math_object_id is not None
+            or value.math_object_id is not None
+        ):
+            return expected.math_object_id == value.math_object_id
+        return (
+            expected.source_call_id == value.source_call_id
+            and expected.return_name == value.return_name
+            and expected.runtime_type == value.runtime_type
+        )
+    accepted_types = spec.accepted_item_types or (spec.runtime_type,)
+    view, _ = semantic_index.resolve(
+        ref,
+        scope_id=scope_id,
+        accepted_types=accepted_types,
+        accepted_condition_kinds=spec.accepted_condition_kinds,
+    )
+    if view is None:
+        object_refs = semantic_index.object_refs_for(
+            ref,
+            scope_id=scope_id,
+        )
+        return (
+            len(object_refs) == 1
+            and value.object_ref == object_refs[0]
+        )
+    if (
+        view.state_version_id is not None
+        or value.state_version_id is not None
+    ):
+        return view.state_version_id == value.state_version_id
+    if view.condition_id is not None or value.condition_id is not None:
+        return view.condition_id == value.condition_id
+    if view.math_object_id is not None or value.math_object_id is not None:
+        return view.math_object_id == value.math_object_id
+    return (
+        view.object_ref is not None
+        and view.object_ref == value.object_ref
+    )
 
 
 def _projected_read_handles(

@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, replace
 import re
-from typing import Any, Protocol
+from typing import Any, Mapping, Protocol
 
 from shuxueshuo_server.solver.runtime.handle_alias_index import (
     COORDINATE_FACT_SUFFIXES,
@@ -24,8 +24,12 @@ from shuxueshuo_server.solver.runtime.handle_registry import (
     _parse_scoped_non_answer_handle,
     _semantic_name,
 )
+from shuxueshuo_server.solver.runtime.object_dependencies import (
+    structured_object_refs,
+)
 from shuxueshuo_server.solver.runtime.strategy_models import (
     CreatedEntity,
+    ProjectedStateWrite,
     ProducedFact,
     STEP_INTENT_OUTPUT_TYPES,
     SemanticReadResolution,
@@ -33,6 +37,19 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     SemanticReadResolutionReport,
     SemanticRef,
     StrategyDraftValidationError,
+)
+from shuxueshuo_server.solver.runtime.state_identity import (
+    LogicalStateKey,
+    MathObjectId,
+    MathObjectRegistry,
+    StateSlotId,
+    StateVersionId,
+)
+from shuxueshuo_server.solver.runtime.runtime_type_compatibility import (
+    normalize_runtime_type,
+)
+from shuxueshuo_server.solver.state_semantics import (
+    state_kind_for_runtime_type,
 )
 
 @dataclass(frozen=True)
@@ -51,6 +68,8 @@ class SemanticReadCatalogItem:
     condition_id: str | None = None
     source_context_id: str | None = None
     prompt_visible: bool = True
+    math_object_id: MathObjectId | None = None
+    state_version_id: StateVersionId | None = None
 
     def to_prompt_payload(self) -> dict[str, Any]:
         """Return the LLM-facing payload without the canonical handle."""
@@ -87,13 +106,20 @@ class ContextSemanticReadSource(Protocol):
 class SemanticReadResolver:
     """Resolve raw StepIntent ``semantic_reads`` into canonical ``reads``."""
 
-    def __init__(self, registry: CanonicalHandleRegistry) -> None:
+    def __init__(
+        self,
+        registry: CanonicalHandleRegistry,
+        *,
+        projected_state_writes: tuple[ProjectedStateWrite, ...] = (),
+    ) -> None:
         self.registry = registry
+        self.projected_state_writes = projected_state_writes
 
     def initial_catalog(self) -> tuple[SemanticReadCatalogItem, ...]:
         """Build semantic catalog items for problem-provided handles."""
         items: list[SemanticReadCatalogItem] = []
         entity_items: list[SemanticReadCatalogItem] = []
+        object_registry = MathObjectRegistry.from_sources(self.registry)
         for handle in sorted(self.registry.entity_handles):
             payload = self.registry.entity_payloads.get(handle, {})
             entity_items.append(
@@ -107,11 +133,24 @@ class SemanticReadResolver:
                         _handle_scope(handle),
                     ),
                     description=_description_from_payload(payload),
+                    math_object_id=object_registry.resolve(handle),
                 )
             )
         items.extend(_disambiguate_entity_refs(entity_items))
         for handle in sorted(self.registry.fact_handles):
             payload = self.registry.fact_payloads.get(handle, {})
+            fact_type = self.registry.fact_types.get(handle)
+            (
+                fact_object_id,
+                fact_version_id,
+                condition_id,
+            ) = _initial_fact_typed_identity(
+                handle,
+                fact_type=fact_type,
+                payload=payload,
+                registry=self.registry,
+                object_registry=object_registry,
+            )
             items.append(
                 SemanticReadCatalogItem(
                     handle=handle,
@@ -122,8 +161,11 @@ class SemanticReadResolver:
                         handle,
                         _handle_scope(handle),
                     ),
-                    value_type=self.registry.fact_types.get(handle),
+                    value_type=fact_type,
                     description=_description_from_payload(payload),
+                    condition_id=condition_id,
+                    math_object_id=fact_object_id,
+                    state_version_id=fact_version_id,
                 )
             )
         for handle in sorted(self.registry.answer_handles):
@@ -136,6 +178,12 @@ class SemanticReadResolver:
                     scope=valid_scope,
                     valid_scope=valid_scope,
                     value_type=self.registry.answer_value_types.get(handle),
+                    math_object_id=object_registry.resolve(
+                        self.registry.answer_target_handles.get(
+                            handle,
+                            handle,
+                        )
+                    ),
                 )
             )
         return tuple(items)
@@ -243,6 +291,8 @@ class SemanticReadResolver:
                                 state_slot_id=item.state_slot_id,
                                 condition_id=item.condition_id,
                                 source_context_id=item.source_context_id,
+                                math_object_id=item.math_object_id,
+                                state_version_id=item.state_version_id,
                             )
                         )
                     if step_errors:
@@ -262,6 +312,7 @@ class SemanticReadResolver:
                         registry=self.registry,
                         scope_index=scope_index,
                         step_index=step_index,
+                        projected_state_writes=self.projected_state_writes,
                     )
                 except StrategyDraftValidationError as exc:
                     errors.append(
@@ -404,8 +455,13 @@ class ContextSemanticReadResolver(SemanticReadResolver):
         self,
         registry: CanonicalHandleRegistry,
         planner_state_context: ContextSemanticReadSource,
+        *,
+        projected_state_writes: tuple[ProjectedStateWrite, ...] = (),
     ) -> None:
-        super().__init__(registry)
+        super().__init__(
+            registry,
+            projected_state_writes=projected_state_writes,
+        )
         self.planner_state_context = planner_state_context
 
     def initial_catalog(self) -> tuple[SemanticReadCatalogItem, ...]:
@@ -944,8 +1000,23 @@ def _dynamic_items_from_raw_step(
     registry: CanonicalHandleRegistry,
     scope_index: int,
     step_index: int,
+    projected_state_writes: tuple[ProjectedStateWrite, ...] = (),
 ) -> tuple[SemanticReadCatalogItem, ...]:
     items: list[SemanticReadCatalogItem] = []
+    object_registry = MathObjectRegistry.from_sources(registry)
+    writes_by_handle: dict[str, ProjectedStateWrite] = {}
+    for write in projected_state_writes:
+        if write.step_id != step_id:
+            continue
+        existing = writes_by_handle.get(write.produced_handle)
+        if existing is not None and existing != write:
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: "
+                "planner.runtime_state_binding_drift: "
+                f"step={step_id}, handle={write.produced_handle}, "
+                "reason=multiple_projected_state_writes"
+            )
+        writes_by_handle[write.produced_handle] = write
     for created in _created_entities_from_raw_step(
         raw_step,
         scope_index=scope_index,
@@ -960,6 +1031,7 @@ def _dynamic_items_from_raw_step(
                 valid_scope=created.valid_scope,
                 source_step_id=step_id,
                 description=created.description,
+                math_object_id=object_registry.resolve(created.handle),
             )
         )
     for produced in _produced_facts_from_raw_step(
@@ -967,6 +1039,7 @@ def _dynamic_items_from_raw_step(
         scope_index=scope_index,
         step_index=step_index,
     ):
+        projected_write = writes_by_handle.get(produced.handle)
         kind = "answer" if produced.handle.startswith("answer:") else "fact"
         ref = (
             produced.handle.removeprefix("answer:")
@@ -983,6 +1056,28 @@ def _dynamic_items_from_raw_step(
                 value_type=produced.output_type,
                 source_step_id=step_id,
                 description=produced.description,
+                state_slot_id=(
+                    projected_write.state_slot_id
+                    if projected_write is not None
+                    else None
+                ),
+                math_object_id=(
+                    projected_write.math_object_id
+                    if projected_write is not None
+                    else object_registry.resolve(
+                        registry.answer_target_handles.get(
+                            produced.handle,
+                            produced.handle,
+                        )
+                    )
+                    if kind == "answer"
+                    else None
+                ),
+                state_version_id=(
+                    projected_write.selected_version_id
+                    if projected_write is not None
+                    else None
+                ),
             )
         )
         items.extend(
@@ -990,9 +1085,81 @@ def _dynamic_items_from_raw_step(
                 produced,
                 step_id=step_id,
                 registry=registry,
+                projected_write=projected_write,
             )
         )
     return tuple(items)
+
+
+def _initial_fact_typed_identity(
+    handle: str,
+    *,
+    fact_type: str | None,
+    payload: Mapping[str, Any],
+    registry: CanonicalHandleRegistry,
+    object_registry: MathObjectRegistry,
+) -> tuple[MathObjectId | None, StateVersionId | None, str | None]:
+    runtime_type = normalize_runtime_type(fact_type or "fact")
+    scope_id = _handle_scope(handle)
+    if not _runtime_type_is_materialized_state(runtime_type):
+        return (
+            None,
+            None,
+            f"condition:{_semantic_name(handle)}@{scope_id}",
+        )
+    preferred_keys = {
+        "ParameterValue": ("subject", "parameter", "symbol"),
+        "Point": ("subject", "point"),
+        "Parabola": ("subject", "curve", "function"),
+        "Line": ("subject", "line"),
+        "PathTransformation": ("subject", "path_transformation"),
+    }.get(runtime_type, ("subject",))
+    candidate_refs = tuple(
+        dict.fromkeys(
+            (
+                *(
+                    candidate
+                    for key in preferred_keys
+                    if isinstance((candidate := payload.get(key)), str)
+                ),
+                *structured_object_refs(payload),
+                handle,
+            )
+        )
+    )
+    object_ids = tuple(
+        dict.fromkeys(
+            object_id
+            for candidate in candidate_refs
+            if (object_id := object_registry.resolve(candidate)) is not None
+        )
+    )
+    object_id = object_ids[0] if len(object_ids) == 1 else None
+    if object_id is None:
+        return None, None, None
+    logical_key = LogicalStateKey(
+        object_id,
+        state_kind_for_runtime_type(runtime_type),
+        runtime_type,
+    )
+    return (
+        object_id,
+        StateVersionId(
+            StateSlotId(logical_key, scope_id),
+            0,
+        ),
+        None,
+    )
+
+
+def _runtime_type_is_materialized_state(runtime_type: str) -> bool:
+    return normalize_runtime_type(runtime_type) in {
+        "Line",
+        "ParameterValue",
+        "Parabola",
+        "PathTransformation",
+        "Point",
+    }
 
 
 def _answer_target_state_aliases(
@@ -1000,6 +1167,7 @@ def _answer_target_state_aliases(
     *,
     step_id: str,
     registry: CanonicalHandleRegistry,
+    projected_write: ProjectedStateWrite | None = None,
 ) -> tuple[SemanticReadCatalogItem, ...]:
     """Project a Point answer onto its authored target object's state slot."""
     if not produced.handle.startswith("answer:"):
@@ -1023,6 +1191,23 @@ def _answer_target_state_aliases(
             value_type=produced.output_type,
             source_step_id=step_id,
             description=produced.description,
+            state_slot_id=(
+                projected_write.state_slot_id
+                if projected_write is not None
+                else None
+            ),
+            math_object_id=(
+                projected_write.math_object_id
+                if projected_write is not None
+                else MathObjectRegistry.from_sources(registry).resolve(
+                    target_handle
+                )
+            ),
+            state_version_id=(
+                projected_write.selected_version_id
+                if projected_write is not None
+                else None
+            ),
         ),
         SemanticReadCatalogItem(
             handle=target_handle,
@@ -1033,6 +1218,23 @@ def _answer_target_state_aliases(
             value_type=produced.output_type,
             source_step_id=step_id,
             description=produced.description,
+            state_slot_id=(
+                projected_write.state_slot_id
+                if projected_write is not None
+                else None
+            ),
+            math_object_id=(
+                projected_write.math_object_id
+                if projected_write is not None
+                else MathObjectRegistry.from_sources(registry).resolve(
+                    target_handle
+                )
+            ),
+            state_version_id=(
+                projected_write.selected_version_id
+                if projected_write is not None
+                else None
+            ),
             prompt_visible=False,
         ),
         SemanticReadCatalogItem(
@@ -1044,6 +1246,23 @@ def _answer_target_state_aliases(
             value_type=produced.output_type,
             source_step_id=step_id,
             description=produced.description,
+            state_slot_id=(
+                projected_write.state_slot_id
+                if projected_write is not None
+                else None
+            ),
+            math_object_id=(
+                projected_write.math_object_id
+                if projected_write is not None
+                else MathObjectRegistry.from_sources(registry).resolve(
+                    target_handle
+                )
+            ),
+            state_version_id=(
+                projected_write.selected_version_id
+                if projected_write is not None
+                else None
+            ),
             prompt_visible=False,
         ),
     )

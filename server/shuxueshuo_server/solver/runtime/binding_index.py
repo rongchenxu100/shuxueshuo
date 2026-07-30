@@ -9,7 +9,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 from dataclasses import dataclass
 import re
-from typing import Any
+from typing import Any, Literal
 
 from shuxueshuo_server.solver.problem_models import QuestionGoal
 from shuxueshuo_server.solver.runtime.context import RuntimeContext
@@ -19,6 +19,10 @@ from shuxueshuo_server.solver.runtime.models import (
     TypedValue,
     runtime_type_matches,
 )
+from shuxueshuo_server.solver.runtime.runtime_type_compatibility import (
+    runtime_type_compatible,
+    split_runtime_types,
+)
 from shuxueshuo_server.solver.runtime.handle_registry import (
     CanonicalHandleRegistry,
     _handle_name,
@@ -26,10 +30,15 @@ from shuxueshuo_server.solver.runtime.handle_registry import (
     _require_scoped_handle,
     _semantic_name,
 )
+from shuxueshuo_server.solver.runtime.state_identity import (
+    MathObjectId,
+    MathObjectRegistry,
+)
 from shuxueshuo_server.solver.runtime.strategy_models import (
     CreatedEntity,
     ProducedFact,
     ProjectedStateWrite,
+    ProjectedStateDependency,
     StepIntentAppliedFill,
     StepIntent,
     StrategyDraftValidationError,
@@ -58,6 +67,11 @@ class CanonicalRuntimeBindingIndex:
         context: RuntimeContext,
         handle_registry: CanonicalHandleRegistry,
         question_goals: list[QuestionGoal] | tuple[QuestionGoal, ...],
+        functional_consumer_identity_mode: Literal[
+            "shadow",
+            "authoritative",
+        ]
+        | None = None,
     ) -> None:
         self.context = context
         self.handle_registry = handle_registry
@@ -65,12 +79,22 @@ class CanonicalRuntimeBindingIndex:
         self.fact_types = dict(handle_registry.fact_types)
         self.answer_value_types = dict(handle_registry.answer_value_types)
         self.question_goals = {f"answer:{goal.id}": goal for goal in question_goals}
+        self.functional_consumer_identity_mode = (
+            functional_consumer_identity_mode
+        )
         self.declarations: dict[str, Any] = {}
         self.applied_fills: list[StepIntentAppliedFill] = []
         # Accepted Function/Macro writes. Binding selectors use this ledger to
         # preserve Symbol/Object identity instead of inferring it from names.
         self.state_write_provenance: list[Any] = []
         self.projected_state_writes: tuple[ProjectedStateWrite, ...] = ()
+        self.projected_state_dependencies: tuple[
+            ProjectedStateDependency, ...
+        ] = ()
+        self.known_state_versions: tuple[Any, ...] = ()
+        self.runtime_consumer_decisions: list[dict[str, Any]] = []
+        self.runtime_consumer_mismatches: list[dict[str, Any]] = []
+        self.legacy_runtime_identity_fallback_count = 0
         self._projected_write_by_handle: dict[str, ProjectedStateWrite] = {}
         self._projected_step_order: dict[str, int] = {}
         self._register_initial_handles()
@@ -82,9 +106,21 @@ class CanonicalRuntimeBindingIndex:
         *,
         handle_registry: CanonicalHandleRegistry,
         question_goals: list[QuestionGoal] | tuple[QuestionGoal, ...],
+        functional_consumer_identity_mode: Literal[
+            "shadow",
+            "authoritative",
+        ]
+        | None = None,
     ) -> "CanonicalRuntimeBindingIndex":
         """构建 handle index。"""
-        return cls(context, handle_registry, question_goals)
+        return cls(
+            context,
+            handle_registry,
+            question_goals,
+            functional_consumer_identity_mode=(
+                functional_consumer_identity_mode
+            ),
+        )
 
     def register(self, handle: str, path: str, value_type: str, *, source: str) -> None:
         """注册或覆盖一个 handle -> ContextPath 绑定。"""
@@ -93,9 +129,14 @@ class CanonicalRuntimeBindingIndex:
     def register_projected_state_writes(
         self,
         writes: tuple[ProjectedStateWrite, ...],
+        *,
+        dependencies: tuple[ProjectedStateDependency, ...] = (),
+        known_state_versions: tuple[Any, ...] = (),
     ) -> None:
         """Attach the typed Functional state ledger to runtime bindings."""
         self.projected_state_writes = tuple(writes)
+        self.projected_state_dependencies = tuple(dependencies)
+        self.known_state_versions = tuple(known_state_versions)
         self._projected_write_by_handle = {
             item.produced_handle: item for item in writes
         }
@@ -105,6 +146,414 @@ class CanonicalRuntimeBindingIndex:
                 item.step_id,
                 len(self._projected_step_order),
             )
+
+    def functional_state_read_index(self) -> Any:
+        if self.functional_consumer_identity_mode is None:
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: "
+                "planner.runtime_state_binding_drift: "
+                "Functional typed read index requested in StepIntent mode"
+            )
+        from shuxueshuo_server.solver.runtime.functional_state_reads import (
+            FunctionalStateReadIndex,
+        )
+
+        return FunctionalStateReadIndex.from_sources(
+            handle_registry=self.handle_registry,
+            mode=self.functional_consumer_identity_mode,
+            projected_state_writes=self.projected_state_writes,
+            projected_state_dependencies=(
+                self.projected_state_dependencies
+            ),
+            state_write_provenance=tuple(self.state_write_provenance),
+            runtime_bindings=self.bindings,
+            known_state_versions=self.known_state_versions,
+        )
+
+    def runtime_path_for_state_version(
+        self,
+        version_id: Any,
+        *,
+        consumer_scope_id: str,
+        consumer: str,
+    ) -> str:
+        read_index = self.functional_state_read_index()
+        path = read_index.runtime_path_for_version(
+            version_id,
+            consumer_scope_id=consumer_scope_id,
+            consumer=consumer,
+        )
+        self.capture_functional_read_audit(read_index)
+        return path
+
+    def runtime_path_for_condition_identity(
+        self,
+        condition_id: str,
+        *,
+        source_handle: str,
+        expected_type: str,
+        consumer_scope_id: str,
+        consumer: str,
+    ) -> str:
+        """Project a typed condition identity to its physical runtime path."""
+
+        if not condition_id:
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: "
+                "planner.state_identity_incomplete: "
+                f"consumer={consumer}, condition_id={condition_id!r}"
+            )
+        return self._runtime_path_for_typed_value_identity(
+            source_handle=source_handle,
+            expected_type=expected_type,
+            consumer_scope_id=consumer_scope_id,
+            consumer=consumer,
+            identity_kind="condition",
+            identity_value=condition_id,
+            source_call_id=None,
+        )
+
+    def runtime_path_for_call_result_identity(
+        self,
+        source_call_id: str,
+        source_return_name: str,
+        *,
+        source_handle: str,
+        expected_type: str,
+        consumer_scope_id: str,
+        consumer: str,
+    ) -> str:
+        """Project a typed public call result to its physical runtime path."""
+
+        if not source_call_id or not source_return_name:
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: "
+                "planner.state_identity_incomplete: "
+                f"consumer={consumer}, "
+                f"call_result={source_call_id}.{source_return_name}"
+            )
+        return self._runtime_path_for_typed_value_identity(
+            source_handle=source_handle,
+            expected_type=expected_type,
+            consumer_scope_id=consumer_scope_id,
+            consumer=consumer,
+            identity_kind="call_result",
+            identity_value=f"{source_call_id}.{source_return_name}",
+            source_call_id=source_call_id,
+        )
+
+    def _runtime_path_for_typed_value_identity(
+        self,
+        *,
+        source_handle: str,
+        expected_type: str,
+        consumer_scope_id: str,
+        consumer: str,
+        identity_kind: Literal["condition", "call_result"],
+        identity_value: str,
+        source_call_id: str | None,
+    ) -> str:
+        """Validate a typed non-state identity at the physical binding edge."""
+
+        binding = self.bindings.get(source_handle)
+        if binding is None or not runtime_type_compatible(
+            expected_type,
+            binding.value_type,
+        ):
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: "
+                "planner.runtime_state_binding_drift: "
+                f"consumer={consumer}, {identity_kind}={identity_value}, "
+                f"handle={source_handle}, expected_type={expected_type}"
+            )
+        if (
+            identity_kind == "call_result"
+            and binding.source != f"step:{source_call_id}"
+        ):
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: "
+                "planner.runtime_state_binding_drift: "
+                f"consumer={consumer}, call_result={identity_value}, "
+                f"handle={source_handle}, binding_source={binding.source}"
+            )
+        try:
+            path = ContextPath.parse(binding.path)
+        except ValueError as exc:
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: "
+                "planner.runtime_state_binding_drift: "
+                f"consumer={consumer}, {identity_kind}={identity_value}, "
+                f"path={binding.path}"
+            ) from exc
+        if path.scope_type == "step":
+            visible = (
+                identity_kind == "call_result"
+                and source_call_id == path.scope_id
+            )
+        else:
+            visible = path.scope_id in self.handle_registry.ancestor_scopes(
+                consumer_scope_id
+            )
+        if not visible:
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: "
+                "planner.runtime_state_visibility_drift: "
+                f"consumer={consumer}, {identity_kind}={identity_value}, "
+                f"path_scope={path.scope_id}"
+            )
+        decision = {
+            "consumer": consumer,
+            "action": f"typed_{identity_kind}_binding",
+            f"{identity_kind}_id": identity_value,
+            "runtime_path": binding.path,
+            "reason_code": f"typed_{identity_kind}_identity",
+        }
+        if decision not in self.runtime_consumer_decisions:
+            self.runtime_consumer_decisions.append(decision)
+        return binding.path
+
+    def runtime_path_for_object_identity(
+        self,
+        object_id: MathObjectId,
+        *,
+        expected_type: str,
+        consumer_scope_id: str,
+        consumer: str,
+    ) -> str:
+        """Project one typed object identity to its unique physical binding."""
+
+        registry = MathObjectRegistry.from_sources(self.handle_registry)
+        candidates: dict[str, tuple[RuntimeHandleBinding, str]] = {}
+        expected_types = set(split_runtime_types(expected_type))
+        canonical_binding = self.bindings.get(object_id.value)
+        if (
+            canonical_binding is not None
+            and runtime_type_compatible(
+                expected_type,
+                canonical_binding.value_type,
+            )
+            and (
+                registry.resolve(object_id.value) == object_id
+                or canonical_binding.source
+                in {
+                    "created_entity",
+                    "declaration",
+                    "typed_return_identity",
+                }
+            )
+        ):
+            try:
+                canonical_scope = ContextPath.parse(
+                    canonical_binding.path
+                ).scope_id
+            except ValueError:
+                canonical_scope = object_id.origin_scope_id
+            if canonical_scope in self.handle_registry.ancestor_scopes(
+                consumer_scope_id
+            ):
+                runtime_path = canonical_binding.path
+                if (
+                    "PointRef" in expected_types
+                    and canonical_binding.value_type == "Point"
+                ):
+                    runtime_path = (
+                        self.immutable_problem_point_ref_path_for(
+                            object_id.value
+                        )
+                    )
+                self._record_object_identity_decision(
+                    consumer=consumer,
+                    object_id=object_id,
+                    binding=canonical_binding,
+                    runtime_path=runtime_path,
+                )
+                return runtime_path
+        for handle, binding in self.bindings.items():
+            if not runtime_type_compatible(expected_type, binding.value_type):
+                continue
+            if registry.resolve(handle) != object_id:
+                continue
+            try:
+                path_scope = ContextPath.parse(binding.path).scope_id
+            except ValueError:
+                path_scope = "problem"
+            if path_scope not in self.handle_registry.ancestor_scopes(
+                consumer_scope_id
+            ):
+                continue
+            runtime_path = binding.path
+            if (
+                "PointRef" in expected_types
+                and binding.value_type == "Point"
+            ):
+                try:
+                    runtime_path = self.immutable_problem_point_ref_path_for(
+                        object_id.value
+                    )
+                except StrategyDraftValidationError:
+                    continue
+            candidates[runtime_path] = (binding, runtime_path)
+        if len(candidates) != 1:
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: "
+                "planner.runtime_state_binding_drift: "
+                f"consumer={consumer}, object={object_id.to_payload()}, "
+                f"expected_type={expected_type}, "
+                f"binding_count={len(candidates)}"
+            )
+        binding, runtime_path = next(iter(candidates.values()))
+        self._record_object_identity_decision(
+            consumer=consumer,
+            object_id=object_id,
+            binding=binding,
+            runtime_path=runtime_path,
+        )
+        return runtime_path
+
+    def runtime_path_for_return_object_identity(
+        self,
+        object_id: MathObjectId,
+        *,
+        expected_type: str,
+        consumer_scope_id: str,
+        consumer: str,
+    ) -> str:
+        """Project a return target identity, declaring a new PointRef if needed.
+
+        Ordinary object inputs must already have a typed runtime binding.
+        A Point return is different: reconciliation may allocate a new derived
+        MathObject whose identity has to exist before the method can write its
+        first coordinate state.
+        """
+        try:
+            return self.runtime_path_for_object_identity(
+                object_id,
+                expected_type=expected_type,
+                consumer_scope_id=consumer_scope_id,
+                consumer=consumer,
+            )
+        except StrategyDraftValidationError as exc:
+            if object_id.value in self.bindings:
+                raise exc
+        expected_types = set(split_runtime_types(expected_type))
+        if object_id.kind != "point" or "PointRef" not in expected_types:
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: "
+                "planner.runtime_state_binding_drift: "
+                f"consumer={consumer}, object={object_id.to_payload()}, "
+                f"expected_type={expected_type}, binding_count=0"
+            )
+        try:
+            kind, scope_id, name = _require_scoped_handle(object_id.value)
+        except ValueError as exc:
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: "
+                "planner.state_identity_incomplete: "
+                f"consumer={consumer}, object={object_id.to_payload()}"
+            ) from exc
+        if kind != "point" or scope_id != object_id.origin_scope_id:
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: "
+                "planner.state_identity_incomplete: "
+                f"consumer={consumer}, object={object_id.to_payload()}"
+            )
+        if scope_id not in self.handle_registry.ancestor_scopes(
+            consumer_scope_id
+        ):
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: "
+                "planner.runtime_state_visibility_drift: "
+                f"consumer={consumer}, object={object_id.to_payload()}"
+            )
+        path = _runtime_path_for_scope(
+            self.context,
+            scope_id,
+            "points",
+            name,
+        )
+        declaration = _point_declaration_for_path(
+            self.context,
+            path,
+            definition="functional_derived_object",
+        )
+        self.declarations[declaration.path] = declaration
+        binding = RuntimeHandleBinding(
+            object_id.value,
+            declaration.path,
+            "PointRef",
+            "typed_return_identity",
+        )
+        self.bindings[object_id.value] = binding
+        self._record_object_identity_decision(
+            consumer=consumer,
+            object_id=object_id,
+            binding=binding,
+            runtime_path=path,
+        )
+        return path
+
+    def _record_object_identity_decision(
+        self,
+        *,
+        consumer: str,
+        object_id: MathObjectId,
+        binding: RuntimeHandleBinding,
+        runtime_path: str,
+    ) -> None:
+        decision = {
+            "consumer": consumer,
+            "action": "identity_binding",
+            "version_id": None,
+            "math_object_id": object_id.to_payload(),
+            "runtime_path": runtime_path,
+            "reason_code": (
+                "typed_object_identity_point_ref_projection"
+                if runtime_path != binding.path
+                else "typed_object_identity"
+            ),
+        }
+        if decision not in self.runtime_consumer_decisions:
+            self.runtime_consumer_decisions.append(decision)
+
+    def record_legacy_runtime_identity_fallback(
+        self,
+        *,
+        consumer: str,
+        handle: str,
+        reason: str,
+    ) -> None:
+        """Count every Functional string fallback and fail in authoritative mode."""
+
+        mismatch = {
+            "code": "legacy_runtime_identity_fallback",
+            "consumer": consumer,
+            "handle": handle,
+            "reason": reason,
+        }
+        if mismatch not in self.runtime_consumer_mismatches:
+            self.runtime_consumer_mismatches.append(mismatch)
+            self.legacy_runtime_identity_fallback_count += 1
+        if self.functional_consumer_identity_mode == "authoritative":
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: "
+                "planner.runtime_state_binding_drift: "
+                f"consumer={consumer}, handle={handle}, reason={reason}"
+            )
+
+    def capture_functional_read_audit(self, read_index: Any) -> None:
+        for item in read_index.decisions:
+            payload = item.to_payload()
+            if payload not in self.runtime_consumer_decisions:
+                self.runtime_consumer_decisions.append(payload)
+        for item in read_index.mismatches:
+            payload = dict(item)
+            if payload not in self.runtime_consumer_mismatches:
+                self.runtime_consumer_mismatches.append(payload)
+        self.legacy_runtime_identity_fallback_count = sum(
+            1
+            for item in self.runtime_consumer_mismatches
+            if item.get("code") == "legacy_runtime_identity_fallback"
+        )
 
     def projected_state_write_for_handle(
         self,

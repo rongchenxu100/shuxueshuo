@@ -359,7 +359,7 @@ class StateFinalizationService:
                             write,
                         )
                     )
-            if action in {"create", "isolated"}:
+            if action == "create":
                 for prior in first_writer_by_logical.get(logical_key, ()):
                     if prior.selected_version_id == version_id:
                         continue
@@ -375,6 +375,36 @@ class StateFinalizationService:
                                 "unrelated creates overlap for one logical state",
                                 write,
                                 details={"previous_call_id": prior.step_id},
+                            )
+                        )
+                        break
+            elif action == "isolated":
+                for prior in first_writer_by_logical.get(logical_key, ()):
+                    prior_version = prior.selected_version_id
+                    if prior_version is None:
+                        continue
+                    same_slot = prior_version.slot_id == version_id.slot_id
+                    prior_scope = step_scopes.get(
+                        prior.step_id,
+                        prior.step_id,
+                    )
+                    widens_into_prior = _write_visible_from(
+                        write,
+                        prior_scope,
+                        handle_registry=handle_registry,
+                    )
+                    if same_slot or widens_into_prior:
+                        mismatches.append(
+                            _mismatch(
+                                "state.logical_duplicate_writer",
+                                (
+                                    "isolated write overlaps an earlier "
+                                    "state in the same or narrower scope"
+                                ),
+                                write,
+                                details={
+                                    "previous_call_id": prior.step_id
+                                },
                             )
                         )
                         break

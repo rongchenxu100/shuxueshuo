@@ -269,6 +269,9 @@ class ProjectedFunctionArgBinding:
     object_ref: str | None = None
     math_object_id: MathObjectId | None = None
     state_version_id: StateVersionId | None = None
+    condition_id: str | None = None
+    source_call_id: str | None = None
+    source_return_name: str | None = None
     binding_authority: Literal["wire", "resolver", "compiler"] = "wire"
 
     def to_payload(self) -> dict[str, Any]:
@@ -287,6 +290,12 @@ class ProjectedFunctionArgBinding:
             payload["math_object_id"] = self.math_object_id.to_payload()
         if self.state_version_id is not None:
             payload["state_version_id"] = self.state_version_id.to_payload()
+        if self.condition_id is not None:
+            payload["condition_id"] = self.condition_id
+        if self.source_call_id is not None:
+            payload["source_call_id"] = self.source_call_id
+        if self.source_return_name is not None:
+            payload["source_return_name"] = self.source_return_name
         payload["binding_authority"] = self.binding_authority
         return payload
 
@@ -520,6 +529,8 @@ class SemanticReadResolution:
     state_slot_id: str | None = None
     condition_id: str | None = None
     source_context_id: str | None = None
+    math_object_id: MathObjectId | None = None
+    state_version_id: StateVersionId | None = None
 
     def to_payload(self) -> dict[str, Any]:
         """转成 JSON 友好结构。"""
@@ -539,6 +550,12 @@ class SemanticReadResolution:
             payload["condition_id"] = self.condition_id
         if self.source_context_id is not None:
             payload["source_context_id"] = self.source_context_id
+        if self.math_object_id is not None:
+            payload["math_object_id"] = self.math_object_id.to_payload()
+        if self.state_version_id is not None:
+            payload["state_version_id"] = (
+                self.state_version_id.to_payload()
+            )
         return payload
 
 
@@ -1118,6 +1135,9 @@ class StepIntentExecutionDiagnostic:
     state_finalization_decisions: tuple[dict[str, Any], ...] = ()
     state_finalization_mismatches: tuple[dict[str, Any], ...] = ()
     runtime_destination_decisions: tuple[dict[str, Any], ...] = ()
+    runtime_consumer_decisions: tuple[dict[str, Any], ...] = ()
+    runtime_consumer_mismatches: tuple[dict[str, Any], ...] = ()
+    legacy_runtime_identity_fallback_count: int = 0
     runtime_results: tuple[StepIntentRuntimeResult, ...] = ()
     blockers: tuple[StepIntentExecutionBlocker, ...] = ()
     skipped_steps: tuple[StepIntentSkippedStep, ...] = ()
@@ -1162,6 +1182,15 @@ class StepIntentExecutionDiagnostic:
             "runtime_destination_decisions": [
                 dict(item) for item in self.runtime_destination_decisions
             ],
+            "runtime_consumer_decisions": [
+                dict(item) for item in self.runtime_consumer_decisions
+            ],
+            "runtime_consumer_mismatches": [
+                dict(item) for item in self.runtime_consumer_mismatches
+            ],
+            "legacy_runtime_identity_fallback_count": (
+                self.legacy_runtime_identity_fallback_count
+            ),
             "runtime_results": [
                 item.to_payload() for item in self.runtime_results
             ],

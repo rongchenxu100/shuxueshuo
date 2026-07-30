@@ -105,6 +105,76 @@ _CONDITION_ROLE_EXTRACTORS: Mapping[str, ConditionRoleExtractor] = {
 }
 
 
+def _segment_condition_roles(
+    condition_kind: str,
+    payload: Mapping[str, Any],
+    *,
+    entity_payloads: Mapping[str, Mapping[str, Any]] | None,
+) -> ConditionObjectRoles:
+    """Project segment identities and endpoints from structured entities."""
+
+    if condition_kind in {"length", "length_squared"}:
+        return _roles_for_segment_field(
+            payload,
+            field="segment",
+            segment_role="segment",
+            endpoint_role="endpoint",
+            entity_payloads=entity_payloads,
+        )
+    if condition_kind == "segment_length_relation":
+        return (
+            *_roles_for_segment_field(
+                payload,
+                field="left_segment",
+                segment_role="segment",
+                endpoint_role="endpoint",
+                entity_payloads=entity_payloads,
+            ),
+            *_roles_for_segment_field(
+                payload,
+                field="right_segment",
+                segment_role="reference_segment",
+                endpoint_role="reference_endpoint",
+                entity_payloads=entity_payloads,
+            ),
+        )
+    return ()
+
+
+def _roles_for_segment_field(
+    payload: Mapping[str, Any],
+    *,
+    field: str,
+    segment_role: str,
+    endpoint_role: str,
+    entity_payloads: Mapping[str, Mapping[str, Any]] | None,
+) -> ConditionObjectRoles:
+    segment = payload.get(field)
+    if not isinstance(segment, str) or not segment.startswith("segment:"):
+        return ()
+    result: list[tuple[str, tuple[str, ...]]] = [
+        (segment_role, (segment,))
+    ]
+    if entity_payloads is None:
+        return tuple(result)
+    entity = entity_payloads.get(segment)
+    endpoints = entity.get("endpoints") if entity is not None else None
+    if (
+        not isinstance(endpoints, list)
+        or len(endpoints) != 2
+        or not all(_is_point_handle(item) for item in endpoints)
+    ):
+        raise ConditionRoleResolutionError(
+            "condition.roles_invalid",
+            "segment condition requires a structured two-endpoint Segment",
+            details={"field": field, "segment": segment},
+        )
+    result.append(
+        (endpoint_role, tuple(str(item) for item in endpoints))
+    )
+    return tuple(result)
+
+
 class ConditionBindingIndex(Protocol):
     """Runtime binding surface required by read-closed condition compilation."""
 
@@ -164,9 +234,18 @@ class ConditionRoleResolver:
         cls,
         condition_kind: str,
         payload: Mapping[str, Any],
+        *,
+        entity_payloads: Mapping[str, Mapping[str, Any]] | None = None,
     ) -> ConditionObjectRoles:
         extractor = _CONDITION_ROLE_EXTRACTORS.get(condition_kind)
-        declared = extractor(payload) if extractor is not None else ()
+        declared = (
+            *((extractor(payload) if extractor is not None else ())),
+            *_segment_condition_roles(
+                condition_kind,
+                payload,
+                entity_payloads=entity_payloads,
+            ),
+        )
         subjects = _structured_subject_refs(payload)
         if not subjects or any(role == "subject" for role, _refs in declared):
             return declared

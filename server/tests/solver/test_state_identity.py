@@ -9,7 +9,11 @@ import pytest
 
 from shuxueshuo_server.solver.runtime.functional_plan_models import (
     FunctionalCall,
+    FunctionalReturnAllocation,
     ResolvedFunctionalValue,
+)
+from shuxueshuo_server.solver.family.models import (
+    StateObjectRoleProjectionSpec,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_reconciliation import (
     _materialize_functional_return,
@@ -21,6 +25,10 @@ from shuxueshuo_server.solver.runtime.functional_state_allocation import (
 from shuxueshuo_server.solver.runtime.functional_call_placement import (
     _canonical_dependency_graph,
     _project_placed_calls,
+    _reproject_final_return_object_roles,
+)
+from shuxueshuo_server.solver.runtime.entity_state_resolver import (
+    EntityStateResolver,
 )
 from shuxueshuo_server.solver.runtime.functional_legacy_projection import (
     FunctionalLegacyProjectionAdapter,
@@ -35,7 +43,11 @@ from shuxueshuo_server.solver.runtime.planner_state_context import (
     StateWriteVersion,
     _attach_typed_initial_identity,
 )
+from shuxueshuo_server.solver.runtime.path_transformation_state import (
+    PathTransformationStateResolver,
+)
 from shuxueshuo_server.solver.runtime.recipe_compiler import (
+    _required_path_role_point_input,
     _previous_state_write,
 )
 from shuxueshuo_server.solver.runtime.state_identity import (
@@ -903,6 +915,85 @@ def test_functional_authority_has_no_legacy_identity_lookup() -> None:
     )
 
 
+def test_functional_runtime_consumers_do_not_call_legacy_state_selectors() -> None:
+    typed_consumers = (
+        EntityStateResolver._resolve_typed,
+        PathTransformationStateResolver._resolve_typed_role,
+        _required_path_role_point_input,
+    )
+    forbidden_calls = {
+        "_legacy_explicit_state",
+        "_state_handle",
+        "latest_projected_state_write_in_handles",
+        "latest_for_legacy_slot",
+        "startswith",
+    }
+    for function in typed_consumers:
+        tree = ast.parse(textwrap.dedent(inspect.getsource(function)))
+        called = {
+            node.func.attr
+            for node in ast.walk(tree)
+            if isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+        }
+        assert not called.intersection(forbidden_calls), (
+            function.__qualname__,
+            called,
+        )
+    path_role_tree = ast.parse(
+        textwrap.dedent(
+            inspect.getsource(_required_path_role_point_input)
+        )
+    )
+    assert any(
+        isinstance(node, ast.Attribute)
+        and node.attr == "runtime_path_for_state_version"
+        for node in ast.walk(path_role_tree)
+    )
+    assert not any(
+        isinstance(node, ast.Attribute)
+        and node.attr == "path_for"
+        for node in ast.walk(path_role_tree)
+    )
+
+
+def test_final_return_role_reprojection_fails_when_source_disappears() -> None:
+    allocation = FunctionalReturnAllocation(
+        call_id="build_path",
+        return_name="path_transformation",
+        handle="fact:ii:path",
+        runtime_type="PathTransformation",
+        valid_scope="ii",
+        state_slot_id="call:build_path.path_transformation",
+        object_ref=None,
+        identity_policy="derived_role",
+        write_mode="value",
+        state_handle="fact:ii:path",
+    )
+    spec = type(
+        "_ReturnSpec",
+        (),
+        {
+            "object_role_projections": (
+                StateObjectRoleProjectionSpec(
+                    role="fixed_endpoint_1",
+                    source_return="missing_endpoint",
+                ),
+            )
+        },
+    )()
+
+    with pytest.raises(
+        StrategyDraftValidationError,
+        match="planner.state_identity_incomplete",
+    ):
+        _reproject_final_return_object_roles(
+            (allocation,),
+            specs={"path_transformation": spec},
+            resolved_args={},
+        )
+
+
 def test_legacy_context_migration_rejects_ambiguous_object_ref() -> None:
     factory, visibility, _index = _identity()
     slot = StateSlot(
@@ -1145,6 +1236,42 @@ def test_allocation_does_not_refine_state_from_cross_slot_descendant() -> None:
     assert direct.reason_code == "dependency_refines_visible_state"
 
 
+def test_allocation_refines_exact_child_version_when_publishing_to_parent() -> None:
+    _factory, _visibility, index = _identity()
+    service = StateAllocationService()
+    logical_key = LogicalStateKey(
+        MathObjectId("point:problem:D", "point", "problem"),
+        "coordinate",
+        "Point",
+    )
+    child_version = StateVersionId(
+        StateSlotId(logical_key, "ii_1"),
+        1,
+    )
+    index.register(
+        IndexedStateVersion(
+            child_version,
+            valid_scope_id="ii_1",
+            producer_call_id="build_open_point",
+            produced_handle="fact:ii_1:D_coordinate",
+            free_symbol_refs=("symbol:problem:t",),
+        )
+    )
+
+    decision = service.allocate(
+        _request(
+            computation_key=ComputationKey("close_point"),
+            storage_scope="ii",
+            source_versions=(child_version,),
+        ),
+        index,
+    )
+
+    assert decision.action == "transition"
+    assert decision.previous_version_id == child_version
+    assert decision.reason_code == "explicit_dependency_refines_state"
+
+
 def test_allocation_rejects_recomputation_from_unrelated_input_version() -> None:
     _factory, _visibility, index = _identity()
     service = StateAllocationService()
@@ -1362,6 +1489,102 @@ def test_logical_finalizer_keeps_sibling_isolated_state_versions_independent() -
     assert {item.logical_writer_status for item in result.decisions} == {
         "valid"
     }
+
+
+def test_logical_finalizer_defers_ancestor_isolated_destination_check() -> None:
+    registry = _Registry()
+    object_id = MathObjectId(
+        "function:problem:f",
+        "function",
+        "problem",
+    )
+    logical_key = LogicalStateKey(object_id, "expression", "Parabola")
+    parent_slot = StateSlotId(logical_key, "problem")
+    child_slot = StateSlotId(logical_key, "ii")
+    writes = (
+        ProjectedStateWrite(
+            step_id="build_template",
+            produced_handle="fact:problem:f_expression",
+            state_slot_id="function:problem:f.expression@problem",
+            write_mode="create",
+            runtime_type="Parabola",
+            object_ref=object_id.value,
+            return_name="parabola",
+            math_object_id=object_id,
+            logical_state_key=logical_key,
+            typed_slot_id=parent_slot,
+            selected_version_id=StateVersionId(parent_slot, 1),
+            allocation_action="create",
+        ),
+        ProjectedStateWrite(
+            step_id="build_child_specialization",
+            produced_handle="fact:ii:f_expression",
+            state_slot_id="function:problem:f.expression@ii",
+            write_mode="create",
+            runtime_type="Parabola",
+            object_ref=object_id.value,
+            return_name="parabola",
+            math_object_id=object_id,
+            logical_state_key=logical_key,
+            typed_slot_id=child_slot,
+            selected_version_id=StateVersionId(child_slot, 1),
+            allocation_action="isolated",
+        ),
+    )
+
+    result = StateFinalizationService().finalize_logical_graph(
+        writes,
+        step_scopes={
+            "build_template": "problem",
+            "build_child_specialization": "ii",
+        },
+        handle_registry=registry,
+    )
+
+    assert result.ok
+
+
+def test_logical_finalizer_rejects_isolated_writes_in_same_typed_slot() -> None:
+    registry = _Registry()
+    object_id = MathObjectId(
+        "function:problem:f",
+        "function",
+        "problem",
+    )
+    logical_key = LogicalStateKey(object_id, "expression", "Parabola")
+    slot = StateSlotId(logical_key, "ii")
+    writes = tuple(
+        ProjectedStateWrite(
+            step_id=step_id,
+            produced_handle=f"fact:ii:{step_id}",
+            state_slot_id="function:problem:f.expression@ii",
+            write_mode="create",
+            runtime_type="Parabola",
+            object_ref=object_id.value,
+            return_name="parabola",
+            math_object_id=object_id,
+            logical_state_key=logical_key,
+            typed_slot_id=slot,
+            selected_version_id=StateVersionId(slot, ordinal),
+            allocation_action="isolated",
+        )
+        for ordinal, step_id in enumerate(
+            ("build_first", "build_second"),
+            start=1,
+        )
+    )
+
+    result = StateFinalizationService().finalize_logical_graph(
+        writes,
+        step_scopes={"build_first": "ii", "build_second": "ii"},
+        handle_registry=registry,
+        mode="shadow",
+    )
+
+    assert not result.ok
+    assert {
+        item.code for item in result.mismatches
+    } == {"state.logical_duplicate_writer"}
 
 
 def test_typed_identity_payloads_round_trip() -> None:

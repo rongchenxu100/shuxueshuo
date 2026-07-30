@@ -234,6 +234,36 @@ Context 的核心价值是防止 retry 漂移：每轮只修失败子图，已�
 
 真实 LLM 输出应保留 raw response、Context、reconciliation report、effective plan 和结构化 issue，便于重放，而不是只保存最终 pass/fail。
 
+### 5.3 真实样本与生成式架构门禁分工
+
+真实 LLM 样本适合验证：
+
+- capability 说明是否清晰；
+- 模型是否能选择合理数学路线；
+- retry feedback 是否足够可操作；
+- `pass@1/pass@3`、token、延迟和错误分布。
+
+真实 LLM 不应继续承担 scope、StateVersion、alias、placement、finalizer 和 retry
+checkpoint 的主要组合测试。这些规则必须由独立于生产实现的 executable oracle 和
+确定性场景生成器覆盖。
+
+对 scope/version 类缺陷，修复顺序固定为：
+
+```text
+真实样本暴露问题
+  -> 去除题名、点名、答案值和 capability 路线
+  -> 缩减为最小 CrossScopeVersionScenario
+  -> reference model 固化预期
+  -> generated gate 复现失败
+  -> 修改 production authority
+  -> 离线门禁通过
+  -> 最后运行真实 LLM smoke
+```
+
+生产修复前必须先提交最小 synthetic scenario。真实样本用于发现新的行为分布和验证
+模型交互，不再作为证明基础状态机正确性的唯一证据。详细设计见
+`docs/cross-scope-version-executable-oracle-design.md`。
+
 ## 6. Best-of-N：概率生成，确定性过滤
 
 多候选采样是下一阶段高收益方向，但需要准确理解其边界。

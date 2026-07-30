@@ -164,7 +164,11 @@ from shuxueshuo_server.solver.runtime.binding_rules import (
 from shuxueshuo_server.solver.runtime.canonical_draft_finalizer import (
     CanonicalDraftFinalizer,
 )
-from shuxueshuo_server.solver.runtime.state_identity import IndexedStateVersion
+from shuxueshuo_server.solver.runtime.state_identity import (
+    IndexedStateVersion,
+    MathObjectId,
+    MathObjectRegistry,
+)
 from shuxueshuo_server.solver.runtime.scalar_result_closure import (
     ScalarResultClosureRegistry,
     close_scalar_plan_output,
@@ -380,6 +384,11 @@ class RecipeTrialExecutor:
             ProjectedFunctionArgBinding, ...
         ] = (),
         known_state_versions: tuple[IndexedStateVersion, ...] = (),
+        functional_consumer_identity_mode: Literal[
+            "shadow",
+            "authoritative",
+        ]
+        | None = None,
     ) -> PlannerOutput:
         """根据 StepIntent 生成 PlannerOutput。"""
         output, diagnostic, _effective_draft = self.diagnose(
@@ -394,6 +403,9 @@ class RecipeTrialExecutor:
             projected_state_dependencies=projected_state_dependencies,
             projected_function_arg_bindings=projected_function_arg_bindings,
             known_state_versions=known_state_versions,
+            functional_consumer_identity_mode=(
+                functional_consumer_identity_mode
+            ),
         )
         if output is not None:
             return output
@@ -428,6 +440,11 @@ class RecipeTrialExecutor:
             ProjectedFunctionArgBinding, ...
         ] = (),
         known_state_versions: tuple[IndexedStateVersion, ...] = (),
+        functional_consumer_identity_mode: Literal[
+            "shadow",
+            "authoritative",
+        ]
+        | None = None,
     ) -> tuple[PlannerOutput | None, StepIntentExecutionDiagnostic, StepIntentDraft]:
         """编译 StepIntent，并返回 effective draft 的执行诊断。"""
         if not preserve_call_graph:
@@ -462,8 +479,15 @@ class RecipeTrialExecutor:
             context,
             handle_registry=handle_registry,
             question_goals=question_goals,
+            functional_consumer_identity_mode=(
+                functional_consumer_identity_mode
+            ),
         )
-        index.register_projected_state_writes(projected_state_writes)
+        index.register_projected_state_writes(
+            projected_state_writes,
+            dependencies=projected_state_dependencies,
+            known_state_versions=known_state_versions,
+        )
         recipe_specs = self.recipe_specs or RecipeExecutionSpecRegistry.from_family_spec(family_spec)
         binding_rules = self.binding_rules or MethodBindingRuleRegistry.from_family_spec(family_spec)
         macro_specs = MacroSpecRegistry.from_family_spec(family_spec, method_specs)
@@ -500,6 +524,15 @@ class RecipeTrialExecutor:
             ),
             runtime_destination_decisions=tuple(
                 compiler.runtime_destination_decisions
+            ),
+            runtime_consumer_decisions=tuple(
+                compiler.index.runtime_consumer_decisions
+            ),
+            runtime_consumer_mismatches=tuple(
+                compiler.index.runtime_consumer_mismatches
+            ),
+            legacy_runtime_identity_fallback_count=(
+                compiler.index.legacy_runtime_identity_fallback_count
             ),
             runtime_results=tuple(compiler.runtime_results),
         )
@@ -1445,6 +1478,7 @@ class _RecipePlanCompiler:
                     result[item_input] = self._projected_input_path(
                         item,
                         expected_type=item_spec.type,
+                        consumer_scope_id=step.scope_id,
                     )
                     selected_items[item_input] = item
                 continue
@@ -1463,6 +1497,7 @@ class _RecipePlanCompiler:
                 result[singular_name] = self._projected_input_path(
                     items[0],
                     expected_type=singular_spec.type,
+                    consumer_scope_id=step.scope_id,
                 )
                 selected_items[singular_name] = items[0]
                 continue
@@ -1475,6 +1510,7 @@ class _RecipePlanCompiler:
                     result[input_name] = self._projected_input_path(
                         item,
                         expected_type=expected_type,
+                        consumer_scope_id=step.scope_id,
                     )
                     selected_items[input_name] = item
                     continue
@@ -1485,6 +1521,7 @@ class _RecipePlanCompiler:
                 items=items,
                 result=result,
                 selected_items=selected_items,
+                consumer_scope_id=step.scope_id,
             ):
                 continue
             aggregate_path = self._projected_aggregate_input(
@@ -1499,6 +1536,8 @@ class _RecipePlanCompiler:
             spec,
             result,
             selected_items,
+            consumer_scope_id=step.scope_id,
+            consumer_step_id=step.step_id,
         )
         return result
 
@@ -1527,13 +1566,59 @@ class _RecipePlanCompiler:
                 f"producers={[item.source_step_id for item in exact]}"
             )
         if exact:
-            handle = exact[0].produced_handle
+            dependency = exact[0]
+            handle = dependency.produced_handle
+            if dependency.state_version_id is None:
+                raise StrategyDraftValidationError(
+                    "planner_configuration_error: "
+                    "planner.runtime_state_version_unresolved: "
+                    f"step={step.step_id}, arg=path_transformation"
+                )
             return (
                 handle,
-                self.index.path_for(
-                    handle,
-                    expected_type="PathTransformation",
+                self.index.runtime_path_for_state_version(
+                    dependency.state_version_id,
+                    consumer_scope_id=step.scope_id,
+                    consumer=f"{step.step_id}.path_transformation",
                 ),
+            )
+        wire_exact = tuple(
+            item
+            for item in getattr(
+                self,
+                "projected_function_arg_bindings",
+                (),
+            )
+            if item.step_id == step.step_id
+            and item.arg_name == "path_transformation"
+            and item.runtime_type is not None
+            and runtime_type_compatible(
+                "PathTransformation",
+                item.runtime_type,
+            )
+        )
+        if len(wire_exact) > 1:
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: Functional "
+                "path_transformation wire binding is ambiguous: "
+                f"step={step.step_id}, "
+                f"sources={[item.source_call_id for item in wire_exact]}"
+            )
+        if wire_exact:
+            binding = wire_exact[0]
+            return (
+                binding.source_handle,
+                self._projected_input_path(
+                    binding,
+                    expected_type="PathTransformation",
+                    consumer_scope_id=step.scope_id,
+                ),
+            )
+        if self.index.functional_consumer_identity_mode is not None:
+            self.index.record_legacy_runtime_identity_fallback(
+                consumer=f"{step.step_id}.path_transformation",
+                handle="PathTransformation",
+                reason="path_transformation_dependency_missing",
             )
         path = _path_for_readable_type(
             self.index,
@@ -1641,10 +1726,21 @@ class _RecipePlanCompiler:
                     f"reconciled={item.runtime_type or 'unknown'}"
                 )
             try:
-                result[input_name] = self.index.path_for(
-                    item.produced_handle,
-                    expected_type=expected_type,
-                )
+                if item.state_version_id is not None:
+                    result[input_name] = (
+                        self.index.runtime_path_for_state_version(
+                            item.state_version_id,
+                            consumer_scope_id=step.scope_id,
+                            consumer=f"{step.step_id}.{input_name}",
+                        )
+                    )
+                else:
+                    raise StrategyDraftValidationError(
+                        "planner_configuration_error: "
+                        "planner.runtime_state_version_unresolved: "
+                        f"method={spec.method_id}, arg={input_name}, "
+                        f"handle={item.produced_handle}"
+                    )
             except StrategyDraftValidationError as exc:
                 raise StrategyDraftValidationError(
                     "planner_configuration_error: resolved Functional state "
@@ -1663,6 +1759,7 @@ class _RecipePlanCompiler:
         items: list[ProjectedFunctionArgBinding],
         result: dict[str, str],
         selected_items: dict[str, ProjectedFunctionArgBinding],
+        consumer_scope_id: str,
     ) -> bool:
         """Lower one coefficient value through a method's scalar pair.
 
@@ -1684,8 +1781,8 @@ class _RecipePlanCompiler:
                 lowering.item_runtime_type,
                 item.runtime_type,
             )
-            or item.object_ref is None
-            or not item.object_ref.startswith("symbol:")
+            or item.math_object_id is None
+            or item.math_object_id.kind != "symbol"
             or identity_spec is None
             or value_spec is None
             or not runtime_type_compatible(identity_spec.type, "Symbol")
@@ -1695,13 +1792,18 @@ class _RecipePlanCompiler:
             )
         ):
             return False
-        result[lowering.identity_input] = self.index.path_for(
-            item.object_ref,
-            expected_type=identity_spec.type,
+        result[lowering.identity_input] = (
+            self.index.runtime_path_for_object_identity(
+                item.math_object_id,
+                expected_type=identity_spec.type,
+                consumer_scope_id=consumer_scope_id,
+                consumer=f"{item.step_id}.{lowering.identity_input}",
+            )
         )
         result[lowering.value_input] = self._projected_input_path(
             item,
             expected_type=value_spec.type,
+            consumer_scope_id=consumer_scope_id,
         )
         selected_items[lowering.value_input] = item
         return True
@@ -1711,6 +1813,9 @@ class _RecipePlanCompiler:
         spec: Any,
         inputs: dict[str, str],
         selected_items: Mapping[str, ProjectedFunctionArgBinding],
+        *,
+        consumer_scope_id: str,
+        consumer_step_id: str,
     ) -> None:
         """Keep a resolved Point value and its optional ``*_ref`` in sync."""
         for input_name, item in selected_items.items():
@@ -1721,13 +1826,20 @@ class _RecipePlanCompiler:
                 or companion_name in inputs
                 or item.runtime_type is None
                 or not runtime_type_compatible("Point", item.runtime_type)
-                or item.object_ref is None
-                or not item.object_ref.startswith("point:")
+                or item.math_object_id is None
+                or item.math_object_id.kind != "point"
                 or "PointRef" not in split_runtime_types(companion_spec.type)
             ):
                 continue
-            inputs[companion_name] = self.index.point_identity_path_for(
-                item.object_ref
+            inputs[companion_name] = (
+                self.index.runtime_path_for_object_identity(
+                    item.math_object_id,
+                    expected_type=companion_spec.type,
+                    consumer_scope_id=consumer_scope_id,
+                    consumer=(
+                        f"{consumer_step_id}.{companion_name}"
+                    ),
+                )
             )
 
     def _projected_function_return_identity_inputs(
@@ -1789,9 +1901,19 @@ class _RecipePlanCompiler:
                 ).owns_identity_binding
             ):
                 continue
-            point_handle = _point_output_handle(step, self.index)
-            result[identity_arg] = self.index.point_identity_path_for(
-                point_handle
+            if write.math_object_id is None:
+                raise StrategyDraftValidationError(
+                    "planner_configuration_error: "
+                    "planner.state_identity_incomplete: "
+                    f"step={step.step_id}, return={write.return_name}"
+                )
+            result[identity_arg] = (
+                self.index.runtime_path_for_return_object_identity(
+                    write.math_object_id,
+                    expected_type=input_spec.type,
+                    consumer_scope_id=step.scope_id,
+                    consumer=f"{step.step_id}.{identity_arg}",
+                )
             )
         return result
 
@@ -1800,8 +1922,66 @@ class _RecipePlanCompiler:
         item: ProjectedFunctionArgBinding,
         *,
         expected_type: str,
+        consumer_scope_id: str,
     ) -> str:
         """Resolve an exact sidecar binding and surface cross-layer drift."""
+        if item.state_version_id is not None:
+            return self.index.runtime_path_for_state_version(
+                item.state_version_id,
+                consumer_scope_id=consumer_scope_id,
+                consumer=f"{item.step_id}.{item.arg_name}",
+            )
+        identity_types = {"PointRef", "Symbol", "Function"}
+        expected_types = set(split_runtime_types(expected_type))
+        materialized_object_state = (
+            item.math_object_id is not None
+            and item.runtime_type not in identity_types
+        )
+        if (
+            item.math_object_id is not None
+            and item.state_slot_id is None
+            and (
+                bool(expected_types & identity_types)
+                or item.runtime_type in identity_types
+            )
+        ):
+            return self.index.runtime_path_for_object_identity(
+                item.math_object_id,
+                expected_type=expected_type,
+                consumer_scope_id=consumer_scope_id,
+                consumer=f"{item.step_id}.{item.arg_name}",
+            )
+        if materialized_object_state:
+            self.index.record_legacy_runtime_identity_fallback(
+                consumer=f"{item.step_id}.{item.arg_name}",
+                handle=item.source_handle,
+                reason="materialized_projected_arg_missing_state_version",
+            )
+        if item.condition_id is not None:
+            return self.index.runtime_path_for_condition_identity(
+                item.condition_id,
+                source_handle=item.source_handle,
+                expected_type=expected_type,
+                consumer_scope_id=consumer_scope_id,
+                consumer=f"{item.step_id}.{item.arg_name}",
+            )
+        if (
+            item.source_call_id is not None
+            and item.source_return_name is not None
+        ):
+            return self.index.runtime_path_for_call_result_identity(
+                item.source_call_id,
+                item.source_return_name,
+                source_handle=item.source_handle,
+                expected_type=expected_type,
+                consumer_scope_id=consumer_scope_id,
+                consumer=f"{item.step_id}.{item.arg_name}",
+            )
+        self.index.record_legacy_runtime_identity_fallback(
+            consumer=f"{item.step_id}.{item.arg_name}",
+            handle=item.source_handle,
+            reason="projected_arg_missing_typed_identity",
+        )
         try:
             return self.index.path_for(
                 item.source_handle,
@@ -1900,22 +2080,27 @@ class _RecipePlanCompiler:
                     "planner_configuration_error: recipe input alias type "
                     f"mismatch: {step.recipe_hint}.{input_name}"
                 )
-            result[input_name] = self.index.path_for(
-                item.source_handle,
+            result[input_name] = self._projected_input_path(
+                item,
                 expected_type=input_spec.type,
+                consumer_scope_id=step.scope_id,
             )
             parameter_spec = method_spec.inputs.get("parameter")
             if (
                 input_name == "parameter_value"
                 and parameter_spec is not None
                 and "parameter" not in result
-                and item.object_ref is not None
-                and item.object_ref.startswith("symbol:")
+                and item.math_object_id is not None
+                and item.math_object_id.kind == "symbol"
                 and runtime_type_compatible(parameter_spec.type, "Symbol")
             ):
-                result["parameter"] = self.index.path_for(
-                    item.object_ref,
-                    expected_type=parameter_spec.type,
+                result["parameter"] = (
+                    self.index.runtime_path_for_object_identity(
+                        item.math_object_id,
+                        expected_type=parameter_spec.type,
+                        consumer_scope_id=step.scope_id,
+                        consumer=f"{step.step_id}.parameter",
+                    )
                 )
         return result
 
@@ -2023,8 +2208,16 @@ class _RecipePlanCompiler:
         )
         fixed_1_role = transformation_state.require("fixed_endpoint_1")
         fixed_2_role = transformation_state.require("fixed_endpoint_2")
-        fixed_1 = _required_path_role_state(fixed_1_role, step=step)
-        fixed_2 = _required_path_role_state(fixed_2_role, step=step)
+        fixed_1_path, fixed_1_prep = _required_path_role_point_input(
+            fixed_1_role,
+            step=step,
+            index=self.index,
+        )
+        fixed_2_path, fixed_2_prep = _required_path_role_point_input(
+            fixed_2_role,
+            step=step,
+            index=self.index,
+        )
         moving_locus = _path_for_readable_type_or_none(self.index, step, "Line")
         role_point_preps: list[
             tuple[tuple[MethodInvocation, ...], dict[str, str]]
@@ -2045,23 +2238,15 @@ class _RecipePlanCompiler:
                 role_map["moving_locus"],
                 step=step,
             )
-            line_1 = _required_path_role_state(
+            line_1_path, line_1_prep = _required_path_role_point_input(
                 role_map["moving_locus_endpoint_1"],
                 step=step,
+                index=self.index,
             )
-            line_2 = _required_path_role_state(
+            line_2_path, line_2_prep = _required_path_role_point_input(
                 role_map["moving_locus_endpoint_2"],
                 step=step,
-            )
-            line_1_path, line_1_prep = _point_value_path_or_prepare(
-                line_1,
-                step,
-                self.index,
-            )
-            line_2_path, line_2_prep = _point_value_path_or_prepare(
-                line_2,
-                step,
-                self.index,
+                index=self.index,
             )
             role_point_preps.extend((line_1_prep, line_2_prep))
             straightening_inputs.update(
@@ -2082,8 +2267,6 @@ class _RecipePlanCompiler:
                 f"transformation={path_transformation_handle}, "
                 "role=moving_locus"
             )
-        fixed_1_path, fixed_1_prep = _point_value_path_or_prepare(fixed_1, step, self.index)
-        fixed_2_path, fixed_2_prep = _point_value_path_or_prepare(fixed_2, step, self.index)
         straightening_inputs.update(
             {
                 "fixed_point_1": fixed_1_path,
@@ -2513,13 +2696,15 @@ class _RecipePlanCompiler:
             step=step,
             required_roles=("fixed_endpoint_1", "fixed_endpoint_2"),
         )
-        fixed_1 = _required_path_role_state(
+        fixed_1_path, fixed_1_prep = _required_path_role_point_input(
             transformation_state.require("fixed_endpoint_1"),
             step=step,
+            index=self.index,
         )
-        fixed_2 = _required_path_role_state(
+        fixed_2_path, fixed_2_prep = _required_path_role_point_input(
             transformation_state.require("fixed_endpoint_2"),
             step=step,
+            index=self.index,
         )
         moving_locus = _path_for_readable_type_or_none(self.index, step, "Line")
         role_point_preps: list[
@@ -2541,23 +2726,15 @@ class _RecipePlanCompiler:
                 role_map["moving_locus"],
                 step=step,
             )
-            line_1 = _required_path_role_state(
+            line_1_path, line_1_prep = _required_path_role_point_input(
                 role_map["moving_locus_endpoint_1"],
                 step=step,
+                index=self.index,
             )
-            line_2 = _required_path_role_state(
+            line_2_path, line_2_prep = _required_path_role_point_input(
                 role_map["moving_locus_endpoint_2"],
                 step=step,
-            )
-            line_1_path, line_1_prep = _point_value_path_or_prepare(
-                line_1,
-                step,
-                self.index,
-            )
-            line_2_path, line_2_prep = _point_value_path_or_prepare(
-                line_2,
-                step,
-                self.index,
+                index=self.index,
             )
             role_point_preps.extend((line_1_prep, line_2_prep))
             straightening_inputs.update(
@@ -2578,8 +2755,6 @@ class _RecipePlanCompiler:
                 f"transformation={path_transformation_handle}, "
                 "role=moving_locus"
             )
-        fixed_1_path, fixed_1_prep = _point_value_path_or_prepare(fixed_1, step, self.index)
-        fixed_2_path, fixed_2_prep = _point_value_path_or_prepare(fixed_2, step, self.index)
         candidates = _temp(step.step_id, "candidates")
         selected = _temp(step.step_id, "selected_candidate")
         auxiliary = _temp(step.step_id, "auxiliary_point")
@@ -3554,7 +3729,11 @@ def _prepare_midpoint_point_value(
         inputs={
             "p1": p1_path,
             "p2": p2_path,
-            "target": index.point_identity_path_for(point_handle),
+            "target": _midpoint_target_identity_path(
+                point_handle,
+                step=step,
+                index=index,
+            ),
         },
         outputs={"midpoint": output_path},
     )
@@ -3564,6 +3743,32 @@ def _prepare_midpoint_point_value(
             (*p1_prep[0], *p2_prep[0], invocation),
             {**p1_prep[1], **p2_prep[1], output_path: promote_path},
         ),
+    )
+
+
+def _midpoint_target_identity_path(
+    point_handle: str,
+    *,
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> str:
+    """Resolve a midpoint target without bypassing Functional typed identity."""
+
+    if index.functional_consumer_identity_mode is None:
+        return index.point_identity_path_for(point_handle)
+    object_id = _point_object_id_for_handle(point_handle, index)
+    if object_id is None:
+        index.record_legacy_runtime_identity_fallback(
+            consumer=f"{step.step_id}:midpoint_target",
+            handle=point_handle,
+            reason="midpoint_target_math_object_unresolved",
+        )
+        return index.point_identity_path_for(point_handle)
+    return index.runtime_path_for_object_identity(
+        object_id,
+        expected_type="PointRef",
+        consumer_scope_id=step.scope_id,
+        consumer=f"{step.step_id}:midpoint_target",
     )
 
 
@@ -3816,18 +4021,38 @@ def _handle_for_runtime_path(
     return matches[0]
 
 
-def _required_path_role_state(
+def _required_path_role_point_input(
     role: ResolvedPathTransformationRole,
     *,
     step: StepIntent,
-) -> str:
+    index: CanonicalRuntimeBindingIndex,
+) -> tuple[str, tuple[tuple[MethodInvocation, ...], dict[str, str]]]:
+    if index.functional_consumer_identity_mode is not None:
+        if role.state_version_id is None or role.runtime_path is None:
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: "
+                "planner.path_transformation_role_version_unresolved: "
+                f"step={step.step_id}, role={role.role}"
+            )
+        exact_path = index.runtime_path_for_state_version(
+            role.state_version_id,
+            consumer_scope_id=step.scope_id,
+            consumer=f"{step.step_id}.{role.role}",
+        )
+        if exact_path != role.runtime_path:
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: "
+                "planner.runtime_state_binding_drift: "
+                f"step={step.step_id}, role={role.role}"
+            )
+        return exact_path, ((), {})
     if role.state_handle is None:
         raise StrategyDraftValidationError(
             "functional.path_transformation_state_unavailable: "
             f"step={step.step_id}, role={role.role}, "
             f"object_ref={role.object_ref}"
         )
-    return role.state_handle
+    return _point_value_path_or_prepare(role.state_handle, step, index)
 
 
 def _required_path_role_source(
@@ -4489,13 +4714,53 @@ def _axis_parameter_symbol_handle(
     step: StepIntent,
     index: CanonicalRuntimeBindingIndex,
 ) -> str:
-    point_handle = _point_output_handle(step, index)
+    point_object_id = _point_return_object_id(step, index)
+    point_handle = (
+        point_object_id.value
+        if point_object_id is not None
+        else _point_output_handle(step, index)
+    )
     return dependent_role_object_ref(
         source_object_ref=point_handle,
         semantic_role="axis_parameter",
         scope_id=_handle_scope(point_handle),
         runtime_type="Symbol",
     )
+
+
+def _point_object_id_for_handle(
+    handle: str,
+    index: CanonicalRuntimeBindingIndex,
+) -> MathObjectId | None:
+    projected = index.projected_state_write_for_handle(handle)
+    if projected is not None and projected.math_object_id is not None:
+        return projected.math_object_id
+    return MathObjectRegistry.from_sources(
+        index.handle_registry
+    ).resolve(handle)
+
+
+def _point_return_object_id(
+    step: StepIntent,
+    index: CanonicalRuntimeBindingIndex,
+) -> MathObjectId | None:
+    candidates = {
+        write.math_object_id
+        for write in index.projected_state_writes
+        if write.step_id == step.step_id
+        and write.runtime_type == "Point"
+        and write.math_object_id is not None
+    }
+    if len(candidates) == 1:
+        return next(iter(candidates))
+    if index.functional_consumer_identity_mode == "authoritative":
+        raise StrategyDraftValidationError(
+            "planner_configuration_error: "
+            "planner.state_identity_incomplete: "
+            f"step={step.step_id}, return_type=Point, "
+            f"identity_count={len(candidates)}"
+        )
+    return None
 
 def _produced_registrations(
     step: StepIntent,

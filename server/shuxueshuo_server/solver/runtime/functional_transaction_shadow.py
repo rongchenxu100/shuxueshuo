@@ -217,6 +217,34 @@ class FunctionalTransactionShadowObserver:
             )
             for item in build.issues
         ]
+        if diagnostic is not None:
+            mismatches.extend(
+                FunctionalTransactionShadowMismatch(
+                    str(
+                        item.get(
+                            "code",
+                            "runtime_consumer_identity_mismatch",
+                        )
+                    ),
+                    (
+                        str(item["call_id"])
+                        if item.get("call_id") is not None
+                        else None
+                    ),
+                    item.get("expected", "typed runtime consumer binding"),
+                    item.get("actual", item),
+                )
+                for item in diagnostic.runtime_consumer_mismatches
+            )
+            if diagnostic.legacy_runtime_identity_fallback_count:
+                mismatches.append(
+                    FunctionalTransactionShadowMismatch(
+                        "legacy_runtime_identity_fallback",
+                        None,
+                        0,
+                        diagnostic.legacy_runtime_identity_fallback_count,
+                    )
+                )
         working = _working_state(
             graph,
             parent_context=parent_context,

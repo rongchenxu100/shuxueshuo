@@ -725,6 +725,29 @@ PARAMETER_SOLVING_CONTRACTS = (
         ),
         condition_reads=(_condition("length_squared"),),
         slot_writes=(_slot("value", "ParameterValue", object_kind="symbol"),),
+        identity_constraints=(
+            StateIdentityConstraintSpec(
+                left="args:p1,p2.object_ref",
+                right="arg:length_squared.object_role:endpoint",
+                relation="same_object_set",
+                description=(
+                    "p1、p2 必须是长度条件所声明线段的两个端点；"
+                    "端点顺序可以交换。"
+                ),
+            ),
+            StateIdentityConstraintSpec(
+                left="args:reference_p1,reference_p2.object_ref",
+                right=(
+                    "arg:length_squared.object_role:reference_endpoint"
+                ),
+                relation="same_object_set",
+                applicability="when_all_present",
+                description=(
+                    "比例长度条件的 reference_p1、reference_p2 必须是"
+                    "参照线段的两个端点；端点顺序可以交换。"
+                ),
+            ),
+        ),
     ),
     _method_contract(
         "parameter_from_minimum_value",

@@ -594,6 +594,9 @@ class PlannerState:
     typed_identity_completeness: dict[str, Any] = field(default_factory=dict)
     legacy_projection_count: int = 0
     legacy_identity_fallback_count: int = 0
+    runtime_consumer_decisions: tuple[dict[str, Any], ...] = ()
+    runtime_consumer_mismatches: tuple[dict[str, Any], ...] = ()
+    legacy_runtime_identity_fallback_count: int = 0
     functional_transaction_shadow: dict[str, Any] | None = None
 
     def to_payload(self) -> dict[str, Any]:
@@ -661,6 +664,15 @@ class PlannerState:
             "legacy_identity_fallback_count": (
                 self.legacy_identity_fallback_count
             ),
+            "runtime_consumer_decisions": [
+                dict(item) for item in self.runtime_consumer_decisions
+            ],
+            "runtime_consumer_mismatches": [
+                dict(item) for item in self.runtime_consumer_mismatches
+            ],
+            "legacy_runtime_identity_fallback_count": (
+                self.legacy_runtime_identity_fallback_count
+            ),
             "functional_transaction_shadow": (
                 dict(self.functional_transaction_shadow)
                 if self.functional_transaction_shadow is not None
@@ -716,6 +728,42 @@ class PlannerStateContext:
             "item_count": len(prompt_items),
         }
 
+    def state_read_index(
+        self,
+        handle_registry: CanonicalHandleRegistry,
+        *,
+        mode: str = "authoritative",
+    ) -> Any:
+        from shuxueshuo_server.solver.runtime.functional_state_reads import (
+            FunctionalStateReadIndex,
+        )
+
+        return FunctionalStateReadIndex.from_sources(
+            handle_registry=handle_registry,
+            mode=mode,
+            planner_state_context=self,
+        )
+
+    def version(
+        self,
+        version_id: StateVersionId,
+        *,
+        handle_registry: CanonicalHandleRegistry,
+    ) -> Any | None:
+        return self.state_read_index(handle_registry).version(version_id)
+
+    def latest_visible_state(
+        self,
+        logical_key: LogicalStateKey,
+        *,
+        scope_id: str,
+        handle_registry: CanonicalHandleRegistry,
+    ) -> Any | None:
+        return self.state_read_index(handle_registry).latest_visible(
+            logical_key,
+            consumer_scope_id=scope_id,
+        )
+
 
 @dataclass
 class _MutableState:
@@ -761,6 +809,13 @@ class _MutableState:
     typed_identity_completeness: dict[str, Any] = field(default_factory=dict)
     legacy_projection_count: int = 0
     legacy_identity_fallback_count: int = 0
+    runtime_consumer_decisions: list[dict[str, Any]] = field(
+        default_factory=list
+    )
+    runtime_consumer_mismatches: list[dict[str, Any]] = field(
+        default_factory=list
+    )
+    legacy_runtime_identity_fallback_count: int = 0
     functional_transaction_shadow: dict[str, Any] | None = None
 
     def freeze(self) -> PlannerStateContext:
@@ -815,6 +870,15 @@ class _MutableState:
                 legacy_projection_count=self.legacy_projection_count,
                 legacy_identity_fallback_count=(
                     self.legacy_identity_fallback_count
+                ),
+                runtime_consumer_decisions=tuple(
+                    self.runtime_consumer_decisions
+                ),
+                runtime_consumer_mismatches=tuple(
+                    self.runtime_consumer_mismatches
+                ),
+                legacy_runtime_identity_fallback_count=(
+                    self.legacy_runtime_identity_fallback_count
                 ),
                 functional_transaction_shadow=(
                     dict(self.functional_transaction_shadow)
@@ -1612,6 +1676,21 @@ class PlannerStateContextBuilder:
             state.runtime_destination_decisions,
             getattr(diagnostic, "runtime_destination_decisions", ()),
         )
+        _extend_unique_payloads(
+            state.runtime_consumer_decisions,
+            getattr(diagnostic, "runtime_consumer_decisions", ()),
+        )
+        _extend_unique_payloads(
+            state.runtime_consumer_mismatches,
+            getattr(diagnostic, "runtime_consumer_mismatches", ()),
+        )
+        state.legacy_runtime_identity_fallback_count += int(
+            getattr(
+                diagnostic,
+                "legacy_runtime_identity_fallback_count",
+                0,
+            )
+        )
 
     @staticmethod
     def _observe_retry_issues(
@@ -1911,6 +1990,7 @@ def _conditions_from_registry(
         object_roles = _condition_object_roles(
             fact_type,
             registry.fact_payloads.get(handle, {}),
+            entity_payloads=registry.entity_payloads,
         )
         subject_ids = dict(object_roles).get("subject", ())
         result.append(
@@ -2201,6 +2281,7 @@ def _ensure_produced_condition(
     object_roles = _condition_object_roles(
         value_type,
         handle_registry.fact_payloads.get(item.handle, {}),
+        entity_payloads=handle_registry.entity_payloads,
     )
     condition = Condition(
         condition_id=condition_id,
@@ -2224,9 +2305,15 @@ def _ensure_produced_condition(
 def _condition_object_roles(
     condition_kind: str,
     payload: Mapping[str, Any],
+    *,
+    entity_payloads: Mapping[str, Mapping[str, Any]] | None = None,
 ) -> ConditionObjectRoles:
     try:
-        return ConditionRoleResolver.object_roles(condition_kind, payload)
+        return ConditionRoleResolver.object_roles(
+            condition_kind,
+            payload,
+            entity_payloads=entity_payloads,
+        )
     except ConditionRoleResolutionError:
         # Keep malformed facts visible in the Context. A consumer that requires
         # structured roles will emit the typed role-resolution error.
@@ -2825,10 +2912,12 @@ def _produced_is_condition(
 
 
 def _fact_type_is_state_slot(fact_type: str | None) -> bool:
-    return fact_type in {
-        "point_coordinate",
-        "function_expression",
-        "parameter_value",
+    if fact_type is None:
+        return False
+    return FACT_TYPE_TO_OUTPUT_TYPE.get(fact_type, fact_type) in {
+        "Point",
+        "Parabola",
+        "ParameterValue",
     }
 
 
@@ -2991,6 +3080,7 @@ def _semantic_read_catalog_from_context(
                     valid_scope=valid_scope,
                     source_step_id=item.source_step_id,
                     source_context_id=source_context_id,
+                    math_object_id=item.math_object_id,
                 )
             )
         entity_items.append(
@@ -3002,6 +3092,7 @@ def _semantic_read_catalog_from_context(
                 valid_scope=valid_scope,
                 source_step_id=item.source_step_id,
                 source_context_id=source_context_id,
+                math_object_id=item.math_object_id,
                 prompt_visible=False,
             )
         )
@@ -3044,6 +3135,12 @@ def _semantic_read_catalog_from_context(
                 source_step_id=slot.produced_by,
                 state_slot_id=slot.slot_id,
                 source_context_id=source_context_id,
+                math_object_id=(
+                    slot.logical_state_key.object_id
+                    if slot.logical_state_key is not None
+                    else None
+                ),
+                state_version_id=slot.latest_version_id,
             )
         )
         for alias in slot.aliases:
@@ -3060,6 +3157,12 @@ def _semantic_read_catalog_from_context(
                     source_step_id=slot.produced_by,
                     state_slot_id=slot.slot_id,
                     source_context_id=source_context_id,
+                    math_object_id=(
+                        slot.logical_state_key.object_id
+                        if slot.logical_state_key is not None
+                        else None
+                    ),
+                    state_version_id=slot.latest_version_id,
                     prompt_visible=False,
                 )
             )
