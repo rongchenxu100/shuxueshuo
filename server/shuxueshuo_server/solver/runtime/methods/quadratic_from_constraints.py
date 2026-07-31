@@ -247,6 +247,22 @@ def _raise_constraint_failure(
             "function.constraints_ambiguous: "
             f"branch_count={result.branch_count}; 二次函数约束不能唯一确定缺失系数"
         )
+    if target_parameter is not None and result.target_value is None:
+        equation_symbols = {
+            symbol
+            for equation in result.equations
+            for symbol in sp.expand(equation.lhs - equation.rhs).free_symbols
+        }
+        if target_parameter not in equation_symbols:
+            names = ", ".join(
+                sorted(symbol.name for symbol in equation_symbols)
+            ) or "<none>"
+            raise ValueError(
+                "function.target_parameter_not_constrained: "
+                f"target={target_parameter.name}, "
+                f"constraint_symbols={names}; "
+                "新增曲线点或方程化简后没有约束目标系数"
+            )
     unresolved = (
         set(result.free_symbols) & coefficient_symbols
     ) - explicit_free_symbols
@@ -437,6 +453,10 @@ SPEC = MethodSpecSource(
         (
             "不读取当前函数状态，却再次写入同一函数对象；只有新增约束能够形成"
             "可证明的状态细化时，才应继续使用该能力。"
+        ),
+        (
+            "新增曲线点或方程代入后成为恒等式，或只约束其他符号，却仍指定一个"
+            "未出现在这些约束中的 target_parameter；该能力不能凭目标名称反求系数。"
         ),
     ),
     description=(

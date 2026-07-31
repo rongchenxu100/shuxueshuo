@@ -5108,6 +5108,186 @@ def test_branch_private_scope_pins_first_create_and_later_isolated_writer() -> N
     )
 
 
+def test_isolated_branch_scope_does_not_widen_for_parent_consumer() -> None:
+    object_id = MathObjectId("function:problem:curve", "function", "problem")
+    logical_key = LogicalStateKey(object_id, "expression", "Parabola")
+    closed_slot = StateSlotId(logical_key, "i")
+    open_slot = StateSlotId(logical_key, "ii")
+    reconciled = {
+        "closed_branch": SimpleNamespace(
+            returns=(
+                SimpleNamespace(
+                    logical_state_key=logical_key,
+                    typed_slot_id=closed_slot,
+                    allocation_action="create",
+                    selected_version_id=StateVersionId(closed_slot, 1),
+                ),
+            )
+        ),
+        "open_branch": SimpleNamespace(
+            returns=(
+                SimpleNamespace(
+                    logical_state_key=logical_key,
+                    typed_slot_id=open_slot,
+                    allocation_action="isolated",
+                    selected_version_id=StateVersionId(open_slot, 1),
+                ),
+            )
+        ),
+    }
+
+    scopes = (
+        functional_call_placement_module
+        ._branch_private_state_storage_scopes(
+            reconciled,
+            consumer_scopes={
+                "closed_branch": ("i",),
+                "open_branch": ("problem",),
+            },
+            registry=_registry(),
+        )
+    )
+
+    assert scopes == {
+        "closed_branch": "i",
+        "open_branch": "ii",
+    }
+
+
+def test_target_object_origin_moves_parent_declared_call_to_child_scope() -> None:
+    target = MathObjectId("point:ii:target", "point", "ii")
+    reconciliation = FunctionalCallReconciliation(
+        call_id="materialize_target",
+        scope_id="problem",
+        capability_id="synthetic_target",
+        resolved_args={},
+        returns=(
+            FunctionalReturnAllocation(
+                call_id="materialize_target",
+                return_name="point",
+                handle="point:ii:target",
+                runtime_type="Point",
+                valid_scope="problem",
+                state_slot_id="compat:target",
+                object_ref=target.value,
+                identity_policy="target_object",
+                write_mode="create",
+                math_object_id=target,
+            ),
+        ),
+    )
+
+    target_scopes = (
+        functional_call_placement_module._state_target_object_scopes(
+            reconciliation,
+            base_identity_index=None,
+        )
+    )
+    execution_scope = functional_call_placement_module._call_execution_scope(
+        declared_scopes=("problem",),
+        destination_scopes=(),
+        answer_scopes=(),
+        answer_target_scopes=(),
+        state_target_scopes=target_scopes,
+        registry=_registry(),
+    )
+
+    assert target_scopes == ("ii",)
+    assert execution_scope == "ii"
+
+
+def test_pinned_return_scope_restores_semantic_state_dependency_before_retry() -> None:
+    point_d = MathObjectId("point:problem:D", "point", "problem")
+    point_c = MathObjectId("point:problem:C", "point", "problem")
+    key_d = LogicalStateKey(point_d, "coordinate", "Point")
+    key_c = LogicalStateKey(point_c, "coordinate", "Point")
+    slot_d = StateSlotId(key_d, "problem")
+    slot_c = StateSlotId(key_c, "ii")
+    version_d = StateVersionId(slot_d, 1)
+    version_c = StateVersionId(slot_c, 1)
+    consumer = FunctionalCall(
+        call_id="consume_D",
+        capability_id="consume_point",
+        args={},
+        return_bindings={},
+        strategy="consume a materialized point",
+        reason="exercise retry ordering",
+    )
+    producer = FunctionalCall(
+        call_id="produce_D",
+        capability_id="produce_point",
+        args={},
+        return_bindings={},
+        strategy="produce the point",
+        reason="exercise retry ordering",
+    )
+    plan = FunctionalPlan(
+        scopes=(
+            FunctionalScope("i", "i", (consumer,)),
+            FunctionalScope("ii", "ii", (producer,)),
+        )
+    )
+    reconciled = {
+        "consume_D": FunctionalCallReconciliation(
+            call_id="consume_D",
+            scope_id="i",
+            capability_id="consume_point",
+            resolved_args={
+                "point": (
+                    ResolvedFunctionalValue(
+                        handle="point:problem:D",
+                        runtime_type="Point",
+                        valid_scope="i",
+                        object_ref=point_d.value,
+                        math_object_id=point_d,
+                    ),
+                )
+            },
+            returns=(),
+        ),
+        "produce_D": FunctionalCallReconciliation(
+            call_id="produce_D",
+            scope_id="ii",
+            capability_id="produce_point",
+            resolved_args={},
+            returns=(
+                FunctionalReturnAllocation(
+                    call_id="produce_D",
+                    return_name="point",
+                    handle="fact:ii:D_coordinate",
+                    runtime_type="Point",
+                    valid_scope="ii",
+                    state_slot_id="compat:D",
+                    object_ref=point_d.value,
+                    identity_policy="target_object",
+                    write_mode="create",
+                    math_object_id=point_d,
+                    logical_state_key=key_d,
+                    typed_slot_id=slot_d,
+                    selected_version_id=version_d,
+                    source_version_ids=(version_c,),
+                    allocation_action="create",
+                ),
+            ),
+        ),
+    }
+
+    dependencies = (
+        functional_call_placement_module
+        ._semantic_object_return_dependencies(
+            plan,
+            reconciled=reconciled,
+            dependency_graph={},
+            handle_registry=_registry(),
+            pinned_return_scopes={
+                "produce_D": {"point": "problem"},
+            },
+        )
+    )
+
+    assert dependencies == {"consume_D": (("produce_D", "point"),)}
+
+
 def test_committed_scope_pin_overrides_new_branch_private_inference(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -6708,6 +6888,105 @@ def test_reconciler_selects_latest_prior_call_state_for_object_ref() -> None:
     }
     assert "promote_return_scope_for_object_consumers" in actions
     assert "select_latest_object_state" in actions
+
+
+def test_reconciler_reprojects_sibling_point_semantic_read_to_exact_version() -> None:
+    problem = load_problem_ir(HEPING_FIXTURE)
+    inputs = replace(build_strategy_probe_inputs(problem), question_goals=[])
+    problem_payload = problem_to_llm_payload(problem)
+    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    context = initial_planner_state_context(
+        inputs,
+        problem_payload=problem_payload,
+        handle_registry=registry,
+    )
+    payload = {
+        "format": "functional_plan/v1",
+        "scopes": [
+            {
+                "scope_id": "i_1",
+                "label": "producer branch",
+                "calls": [
+                    {
+                        "call_id": "build_curve",
+                        "capability_id": "quadratic_from_constraints",
+                        "args": {
+                            "curve_points": [
+                                {"ref": "A", "kind": "point"},
+                            ],
+                            "free_parameters": [
+                                {"ref": "a", "kind": "symbol"},
+                            ],
+                        },
+                        "return_bindings": {},
+                        "strategy": "materialize a curve",
+                        "reason": "provide the intercept input",
+                    },
+                    {
+                        "call_id": "produce_B",
+                        "capability_id": "quadratic_x_axis_intercept_point",
+                        "args": {
+                            "quadratic": {
+                                "from_call": "build_curve",
+                                "return": "parabola",
+                            },
+                            "known_point": {
+                                "ref": "A",
+                                "kind": "point",
+                            },
+                        },
+                        "return_bindings": {
+                            "point": {"ref": "B", "kind": "point"},
+                        },
+                        "strategy": "materialize the shared point",
+                        "reason": "the sibling reads this MathObject",
+                    },
+                ],
+            },
+            {
+                "scope_id": "i_2",
+                "label": "consumer branch",
+                "calls": [
+                    {
+                        "call_id": "consume_B",
+                        "capability_id": "distance_between_points",
+                        "args": {
+                            "p1": {"ref": "B", "kind": "point"},
+                            "p2": {"ref": "A", "kind": "point"},
+                        },
+                        "return_bindings": {},
+                        "strategy": "consume the shared point state",
+                        "reason": "exercise final semantic arg reprojection",
+                    },
+                ],
+            },
+        ],
+    }
+    payload["scopes"] = list(reversed(payload["scopes"]))
+    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
+        payload,
+        handle_registry=registry,
+        question_goals=(),
+    )
+    assert validation.ok and plan is not None
+
+    result = FunctionalPlanReconciler().reconcile(
+        plan,
+        planner_state_context=context,
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=registry,
+        question_goals=(),
+    )
+
+    assert result.ok, [item.to_payload() for item in result.issues]
+    calls = {item.call_id: item for item in result.calls}
+    produced = calls["produce_B"].returns[0]
+    consumed = calls["consume_B"].resolved_args["p1"][0]
+    assert produced.valid_scope == "i"
+    assert consumed.source_call_id == "produce_B"
+    assert consumed.state_version_id == produced.selected_version_id
+    assert result.dependency_graph["consume_B"] == ("produce_B",)
 
 
 def test_semantic_object_reads_prefer_branch_local_planned_producer() -> None:
@@ -15168,7 +15447,12 @@ def test_liveness_drops_writer_kept_only_by_unproven_predecessor_edge() -> None:
         call_id="provisional_writer",
         capability_id="evaluate_point_at_parameter",
         args={},
-        return_bindings={},
+        return_bindings={
+            "evaluated_point": SemanticRef(
+                ref="part.target",
+                kind="point",
+            ),
+        },
         strategy="derive a provisional state",
         reason="exercise pre-liveness allocation",
     )

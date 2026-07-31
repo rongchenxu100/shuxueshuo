@@ -56,6 +56,9 @@ from shuxueshuo_server.solver.runtime.handle_registry import (
 from shuxueshuo_server.solver.runtime.semantic_reads import (
     SemanticReadCatalogItem,
 )
+from shuxueshuo_server.solver.runtime.runtime_type_compatibility import (
+    runtime_type_compatible,
+)
 from shuxueshuo_server.solver.runtime.state_identity import (
     ComputationKey,
     FunctionalCallIdentityKey,
@@ -207,6 +210,27 @@ class FunctionalCallPlacementService:
             canonical_reconciled,
             aliases=aliases,
         )
+        semantic_return_dependencies = (
+            _semantic_object_return_dependencies(
+                canonical_plan,
+                reconciled=canonical_reconciled,
+                dependency_graph=canonical_dependencies,
+                handle_registry=handle_registry,
+                pinned_return_scopes=pinned_return_scopes,
+            )
+        )
+        canonical_dependencies = _merge_dependency_graph(
+            canonical_dependencies,
+            {
+                consumer_id: tuple(
+                    producer_id
+                    for producer_id, _return_name in dependencies
+                )
+                for consumer_id, dependencies in (
+                    semantic_return_dependencies.items()
+                )
+            },
+        )
         consumer_scopes = _dependency_consumer_scopes(
             canonical_dependencies,
             call_scopes={
@@ -246,11 +270,16 @@ class FunctionalCallPlacementService:
                 call,
                 handle_registry=handle_registry,
             )
+            state_target_scopes = _state_target_object_scopes(
+                reconciliation,
+                base_identity_index=base_identity_index,
+            )
             proposed = _call_execution_scope(
                 declared_scopes=member_scopes,
                 destination_scopes=destinations,
                 answer_scopes=answer_destinations,
                 answer_target_scopes=answer_target_scopes,
+                state_target_scopes=state_target_scopes,
                 registry=handle_registry,
             )
             pinned_execution_scope = pinned_execution_scopes.get(
@@ -297,6 +326,7 @@ class FunctionalCallPlacementService:
             reconciled=canonical_reconciled,
             aliases=aliases,
             execution_scopes=provisional_execution_scopes,
+            semantic_return_dependencies=semantic_return_dependencies,
         )
         return_scopes: dict[str, dict[str, str]] = {}
         for call in canonical_plan.calls:
@@ -323,6 +353,27 @@ class FunctionalCallPlacementService:
                     ),
                     handle_registry,
                 )
+                state_target_scope = _allocation_target_object_scope(
+                    allocation,
+                    base_identity_index=base_identity_index,
+                )
+                if (
+                    state_target_scope is not None
+                    and all(
+                        source_scopes[member_id]
+                        in handle_registry.ancestor_scopes(state_target_scope)
+                        for member_id in groups.get(
+                            call.call_id,
+                            (call.call_id,),
+                        )
+                    )
+                ):
+                    # An ancestor-declared call that first materializes a
+                    # child-owned target must not publish that new state back
+                    # to the ancestor. A call already declared below the
+                    # object's origin keeps its narrower consumer-derived
+                    # return scope.
+                    proposed = state_target_scope
                 if not consumers and not _inputs_publishable_at_scope(
                     item.resolved_args.values(),
                     proposed,
@@ -355,7 +406,17 @@ class FunctionalCallPlacementService:
             return_scopes=return_scopes,
             catalog=catalog,
             semantic_items=semantic_items,
+            handle_registry=handle_registry,
+            dependency_graph=canonical_dependencies,
             legacy_projection_adapter=legacy_projection_adapter,
+        )
+        canonical_dependencies = _canonical_dependency_graph(
+            canonical_plan,
+            {
+                item.call_id: item
+                for item in materialized_calls
+            },
+            aliases=aliases,
         )
         version_rewrites: tuple[StateVersionPlacementRewrite, ...] = ()
         if (
@@ -1388,6 +1449,8 @@ def _project_placed_calls(
     return_scopes: Mapping[str, Mapping[str, str]],
     catalog: FunctionalCapabilityCatalog,
     semantic_items: Sequence[SemanticReadCatalogItem],
+    handle_registry: CanonicalHandleRegistry,
+    dependency_graph: Mapping[str, tuple[str, ...]],
     legacy_projection_adapter: FunctionalLegacyProjectionAdapter,
 ) -> tuple[FunctionalCallReconciliation, ...]:
     """Project final scopes to legacy handles without deciding typed identity."""
@@ -1396,14 +1459,24 @@ def _project_placed_calls(
     produced: dict[tuple[str, str], FunctionalReturnAllocation] = {}
     result: list[FunctionalCallReconciliation] = []
     factory = CanonicalStateHandleFactory()
-    for call in plan.calls:
+    for call in _topological_calls(
+        plan.calls,
+        dependency_graph=dependency_graph,
+    ):
         item = reconciled.get(call.call_id)
         capability = catalog.get(call.capability_id)
         if item is None or capability is None:
             continue
+        execution_scope = execution_scopes[call.call_id]
         resolved_args = {
             name: tuple(
-                _rewrite_resolved_value(value, produced=produced, aliases=aliases)
+                _rewrite_placed_resolved_value(
+                    value,
+                    produced=produced,
+                    aliases=aliases,
+                    consumer_scope_id=execution_scope,
+                    registry=handle_registry,
+                )
                 for value in values
             )
             for name, values in item.resolved_args.items()
@@ -2298,6 +2371,70 @@ def _rewrite_resolved_value(
     )
 
 
+def _rewrite_placed_resolved_value(
+    value: ResolvedFunctionalValue,
+    *,
+    produced: Mapping[tuple[str, str], FunctionalReturnAllocation],
+    aliases: Mapping[str, str],
+    consumer_scope_id: str,
+    registry: CanonicalHandleRegistry | None,
+) -> ResolvedFunctionalValue:
+    """Bind a semantic object read to the final visible producer version."""
+
+    rewritten = _rewrite_resolved_value(
+        value,
+        produced=produced,
+        aliases=aliases,
+    )
+    if (
+        rewritten.state_version_id is not None
+        or rewritten.source_call_id is not None
+        or rewritten.math_object_id is None
+        or rewritten.runtime_type in {"PointRef", "Symbol", "Function"}
+        or registry is None
+    ):
+        return rewritten
+    candidates = [
+        allocation
+        for allocation in produced.values()
+        if allocation.selected_version_id is not None
+        and allocation.math_object_id == rewritten.math_object_id
+        and runtime_type_compatible(
+            rewritten.runtime_type,
+            allocation.runtime_type,
+        )
+        and visible_from_valid_scope(
+            allocation.valid_scope,
+            scope_id=consumer_scope_id,
+            registry=registry,
+        )
+    ]
+    if not candidates:
+        return rewritten
+    # ``produced`` follows final topological call order. The last compatible
+    # allocation is therefore the exact state visible at this call boundary.
+    selected = candidates[-1]
+    return ResolvedFunctionalValue(
+        handle=selected.state_handle or selected.handle,
+        runtime_type=selected.runtime_type,
+        valid_scope=selected.valid_scope,
+        state_slot_id=selected.state_slot_id,
+        source_call_id=selected.call_id,
+        return_name=selected.return_name,
+        object_ref=selected.object_ref,
+        dependency_object_refs=selected.dependency_object_refs,
+        free_symbol_refs=selected.free_symbol_refs,
+        source_state_slot_ids=selected.source_state_slot_ids,
+        provides_semantic_roles=selected.provides_semantic_roles,
+        lineage=selected.lineage,
+        math_object_id=selected.math_object_id,
+        logical_state_key=selected.logical_state_key,
+        typed_slot_id=selected.typed_slot_id,
+        state_version_id=selected.selected_version_id,
+        source_version_ids=selected.source_version_ids,
+    )
+
+
 def _canonical_dependency_graph(
     plan: FunctionalPlan,
     reconciled: Mapping[str, FunctionalCallReconciliation],
@@ -2388,6 +2525,10 @@ def _return_consumer_scopes(
     reconciled: Mapping[str, FunctionalCallReconciliation],
     aliases: Mapping[str, str],
     execution_scopes: Mapping[str, str],
+    semantic_return_dependencies: Mapping[
+        str,
+        tuple[tuple[str, str], ...],
+    ] | None = None,
 ) -> dict[tuple[str, str], tuple[str, ...]]:
     """Collect the exact consumers of each public return.
 
@@ -2398,6 +2539,7 @@ def _return_consumer_scopes(
     """
 
     result: dict[tuple[str, str], list[str]] = {}
+    semantic_return_dependencies = semantic_return_dependencies or {}
     for consumer in plan.calls:
         consumer_scope = execution_scopes[consumer.call_id]
         refs = [
@@ -2422,9 +2564,256 @@ def _return_consumer_scopes(
             producer = _canonical(ref.from_call, aliases)
             key = (producer, ref.return_name)
             result.setdefault(key, []).append(consumer_scope)
+        for producer_id, return_name in semantic_return_dependencies.get(
+            consumer.call_id,
+            (),
+        ):
+            result.setdefault(
+                (producer_id, return_name),
+                [],
+            ).append(consumer_scope)
     return {
         key: tuple(dict.fromkeys(scopes))
         for key, scopes in result.items()
+    }
+
+
+def _semantic_object_return_dependencies(
+    plan: FunctionalPlan,
+    *,
+    reconciled: Mapping[str, FunctionalCallReconciliation],
+    dependency_graph: Mapping[str, tuple[str, ...]],
+    handle_registry: CanonicalHandleRegistry,
+    pinned_return_scopes: Mapping[str, Mapping[str, str]] | None = None,
+) -> dict[str, tuple[tuple[str, str], ...]]:
+    """Resolve unique materialized SemanticRef reads without wire-order bias."""
+
+    pinned_return_scopes = pinned_return_scopes or {}
+    producers = tuple(
+        (call.call_id, allocation)
+        for call in plan.calls
+        for item in (reconciled.get(call.call_id),)
+        if item is not None
+        for allocation in item.returns
+        if allocation.math_object_id is not None
+        and allocation.selected_version_id is not None
+    )
+    producer_by_version = {
+        allocation.selected_version_id: allocation
+        for _producer_id, allocation in producers
+        if allocation.selected_version_id is not None
+    }
+
+    def publishable_at_scope(
+        producer_id: str,
+        allocation: FunctionalReturnAllocation,
+        *,
+        scope_id: str,
+        visited: frozenset[object] = frozenset(),
+    ) -> bool:
+        version_id = allocation.selected_version_id
+        if version_id is not None and version_id in visited:
+            return False
+        effective_valid_scope = pinned_return_scopes.get(
+            producer_id,
+            {},
+        ).get(
+            allocation.return_name,
+            allocation.valid_scope,
+        )
+        if visible_from_valid_scope(
+            effective_valid_scope,
+            scope_id=scope_id,
+            registry=handle_registry,
+        ):
+            return True
+        if allocation.allocation_action == "isolated":
+            return False
+        next_visited = (
+            visited | {version_id}
+            if version_id is not None
+            else visited
+        )
+        for source_version_id in allocation.source_version_ids:
+            source = producer_by_version.get(source_version_id)
+            if source is not None:
+                if not publishable_at_scope(
+                    source.call_id,
+                    source,
+                    scope_id=scope_id,
+                    visited=next_visited,
+                ):
+                    return False
+                continue
+            if not visible_from_valid_scope(
+                source_version_id.slot_id.storage_scope_id,
+                scope_id=scope_id,
+                registry=handle_registry,
+            ):
+                return False
+        return True
+
+    result: dict[str, list[tuple[str, str]]] = {}
+    for consumer in plan.calls:
+        item = reconciled.get(consumer.call_id)
+        if item is None:
+            continue
+        for values in item.resolved_args.values():
+            for value in values:
+                if (
+                    value.state_version_id is not None
+                    or value.source_call_id is not None
+                    or value.math_object_id is None
+                    or value.runtime_type
+                    in {"PointRef", "Symbol", "Function"}
+                ):
+                    continue
+                ancestors = handle_registry.ancestor_scopes(
+                    item.scope_id,
+                )
+                viable_candidates = tuple(
+                    (producer_id, allocation)
+                    for producer_id, allocation in producers
+                    if producer_id != consumer.call_id
+                    and allocation.math_object_id == value.math_object_id
+                    and runtime_type_compatible(
+                        value.runtime_type,
+                        allocation.runtime_type,
+                    )
+                )
+                visible_candidates = tuple(
+                    (producer_id, allocation)
+                    for producer_id, allocation in viable_candidates
+                    if pinned_return_scopes.get(
+                        producer_id,
+                        {},
+                    ).get(
+                        allocation.return_name,
+                        allocation.valid_scope,
+                    )
+                    in ancestors
+                )
+                publishable_candidates = tuple(
+                    (producer_id, allocation)
+                    for producer_id, allocation in viable_candidates
+                    if publishable_at_scope(
+                        producer_id,
+                        allocation,
+                        scope_id=_least_common_scope(
+                            (
+                                pinned_return_scopes.get(
+                                    producer_id,
+                                    {},
+                                ).get(
+                                    allocation.return_name,
+                                    allocation.valid_scope,
+                                ),
+                                item.scope_id,
+                            ),
+                            handle_registry,
+                        ),
+                    )
+                )
+                closest_rank = min(
+                    (
+                        ancestors.index(
+                            pinned_return_scopes.get(
+                                producer_id,
+                                {},
+                            ).get(
+                                allocation.return_name,
+                                allocation.valid_scope,
+                            )
+                        )
+                        for producer_id, allocation in visible_candidates
+                    ),
+                    default=None,
+                )
+                candidates = tuple(
+                    (producer_id, allocation.return_name)
+                    for producer_id, allocation in (
+                        visible_candidates or publishable_candidates
+                    )
+                    if (
+                        not visible_candidates
+                        or (
+                            closest_rank is not None
+                            and ancestors.index(
+                                pinned_return_scopes.get(
+                                    producer_id,
+                                    {},
+                                ).get(
+                                    allocation.return_name,
+                                    allocation.valid_scope,
+                                )
+                            )
+                            == closest_rank
+                        )
+                    )
+                )
+                maximal_candidates = tuple(
+                    candidate
+                    for candidate in candidates
+                    if not any(
+                        other[0] != candidate[0]
+                        and _call_depends_on(
+                            other[0],
+                            candidate[0],
+                            dependency_graph=dependency_graph,
+                        )
+                        for other in candidates
+                    )
+                )
+                if len(maximal_candidates) != 1:
+                    continue
+                if _call_depends_on(
+                    maximal_candidates[0][0],
+                    consumer.call_id,
+                    dependency_graph=dependency_graph,
+                ):
+                    continue
+                result.setdefault(consumer.call_id, []).append(
+                    maximal_candidates[0]
+                )
+    return {
+        call_id: tuple(dict.fromkeys(dependencies))
+        for call_id, dependencies in result.items()
+    }
+
+
+def _call_depends_on(
+    call_id: str,
+    dependency_id: str,
+    *,
+    dependency_graph: Mapping[str, tuple[str, ...]],
+) -> bool:
+    pending = [call_id]
+    visited: set[str] = set()
+    while pending:
+        current = pending.pop()
+        if current == dependency_id:
+            return True
+        if current in visited:
+            continue
+        visited.add(current)
+        pending.extend(dependency_graph.get(current, ()))
+    return False
+
+
+def _merge_dependency_graph(
+    primary: Mapping[str, tuple[str, ...]],
+    additional: Mapping[str, tuple[str, ...]],
+) -> dict[str, tuple[str, ...]]:
+    return {
+        call_id: tuple(
+            dict.fromkeys(
+                (
+                    *primary.get(call_id, ()),
+                    *additional.get(call_id, ()),
+                )
+            )
+        )
+        for call_id in dict.fromkeys((*primary, *additional))
     }
 
 
@@ -2539,14 +2928,18 @@ def _call_execution_scope(
     destination_scopes: Sequence[str],
     answer_scopes: Sequence[str],
     answer_target_scopes: Sequence[str],
+    state_target_scopes: Sequence[str],
     registry: CanonicalHandleRegistry,
 ) -> str:
     # A child-scoped answer object is a real write destination, not merely a
     # narrative owner. If every declared/consumer scope is compatible with
     # that destination, execute there so the runtime can materialize it. An
     # answer backed by a shared problem object does not pin execution.
-    if answer_target_scopes:
-        target_scope = _least_common_scope(answer_target_scopes, registry)
+    target_scopes = tuple(
+        dict.fromkeys((*answer_target_scopes, *state_target_scopes))
+    )
+    if target_scopes:
+        target_scope = _least_common_scope(target_scopes, registry)
         declared_are_ancestors = all(
             scope in registry.ancestor_scopes(target_scope)
             for scope in declared_scopes
@@ -2565,6 +2958,58 @@ def _call_execution_scope(
         (*declared_scopes, *destination_scopes, *answer_scopes),
         registry,
     )
+
+
+def _state_target_object_scopes(
+    reconciliation: FunctionalCallReconciliation | None,
+    *,
+    base_identity_index: StateIdentityIndex | None,
+) -> tuple[str, ...]:
+    """Return non-root scopes required by target-object state writes.
+
+    A call declared in an ancestor may create a child-owned MathObject. The
+    typed object origin is then the lowest legal execution boundary; compiling
+    at the ancestor would leave an identity-only runtime input without a
+    visible binding.
+    """
+
+    if reconciliation is None:
+        return ()
+    return tuple(
+        dict.fromkeys(
+            scope
+            for allocation in reconciliation.returns
+            for scope in (
+                _allocation_target_object_scope(
+                    allocation,
+                    base_identity_index=base_identity_index,
+                ),
+            )
+            if scope is not None
+        )
+    )
+
+
+def _allocation_target_object_scope(
+    allocation: FunctionalReturnAllocation,
+    *,
+    base_identity_index: StateIdentityIndex | None,
+) -> str | None:
+    object_id = allocation.math_object_id
+    logical_key = allocation.logical_state_key
+    if (
+        allocation.identity_policy != "target_object"
+        or object_id is None
+        or object_id.origin_scope_id == "problem"
+    ):
+        return None
+    if (
+        base_identity_index is not None
+        and logical_key is not None
+        and base_identity_index.versions_for(logical_key)
+    ):
+        return None
+    return object_id.origin_scope_id
 
 
 def _isolated_state_storage_scope(
@@ -2628,7 +3073,10 @@ def _branch_private_state_storage_scopes(
             continue
         for call_id, allocation in allocations:
             storage_scope = allocation.typed_slot_id.storage_scope_id
-            if registry is not None:
+            if (
+                registry is not None
+                and allocation.allocation_action != "isolated"
+            ):
                 storage_scope = _least_common_scope(
                     (
                         storage_scope,

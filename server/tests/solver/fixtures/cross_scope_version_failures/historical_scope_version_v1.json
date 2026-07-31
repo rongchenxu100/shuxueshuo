@@ -1,0 +1,153 @@
+{
+  "format": "cross_scope_version_corpus/v1",
+  "generator_version": "c0.5/v6",
+  "scenarios": [
+    {
+      "name": "sibling_private_exact_visibility",
+      "source": "bounded",
+      "index": 4448,
+      "scenario_id": "csv-d1f91246de9788d3",
+      "expect_dimensions": {
+        "topology": "siblings",
+        "state_location": "siblings",
+        "read_mode": "exact"
+      }
+    },
+    {
+      "name": "parent_state_child_transition",
+      "source": "bounded",
+      "index": 2075,
+      "scenario_id": "csv-787c1ca15902dde5",
+      "expect_dimensions": {
+        "topology": "parent_child",
+        "write_mode": "transition"
+      }
+    },
+    {
+      "name": "answer_object_projection_single_writer",
+      "source": "bounded",
+      "index": 21,
+      "scenario_id": "csv-b9542dd787952050",
+      "expect_dimensions": {
+        "projection": "object+answer",
+        "relationship": "duplicate"
+      }
+    },
+    {
+      "name": "hidden_dependency_placement",
+      "source": "bounded",
+      "index": 6051,
+      "scenario_id": "csv-e71b83862887f95b",
+      "expect_dimensions": {
+        "topology": "branched",
+        "dependency_kind": "hidden_semantic_role"
+      }
+    },
+    {
+      "name": "transition_source_edge",
+      "source": "bounded",
+      "index": 6116,
+      "scenario_id": "csv-0356b708f17c1a20",
+      "expect_dimensions": {
+        "write_mode": "transition",
+        "relationship": "refinement"
+      }
+    },
+    {
+      "name": "provisional_retry_replacement",
+      "source": "bounded",
+      "index": 6001,
+      "scenario_id": "csv-8670b5d2354cff74",
+      "expect_dimensions": {
+        "retry": "provisional_replacement"
+      }
+    },
+    {
+      "name": "three_step_transition_chain",
+      "source": "expanded",
+      "seed": 17,
+      "index": 0,
+      "scenario_id": "csv-7c533bf1783a8f81",
+      "expect_dimensions": {
+        "calls": "12"
+      }
+    },
+    {
+      "name": "checkpoint_computation_identity",
+      "source": "expanded",
+      "seed": 17,
+      "index": 1,
+      "scenario_id": "csv-e5dd46254f14d10a",
+      "expect_dimensions": {
+        "retry": "committed_restore"
+      }
+    },
+    {
+      "name": "stale_call_result_version",
+      "source": "expanded",
+      "seed": 17,
+      "index": 2,
+      "scenario_id": "csv-60b65585b51abf28",
+      "expect_dimensions": {
+        "read_mode": "latest"
+      }
+    },
+    {
+      "name": "role_consumer_exact_version",
+      "source": "expanded",
+      "seed": 17,
+      "index": 3,
+      "scenario_id": "csv-f4cc1bf81aa2d5a3",
+      "expect_dimensions": {
+        "retry": "version_drift"
+      }
+    },
+    {
+      "name": "sibling_exact_read_with_initial_version",
+      "source": "handoff",
+      "index": 0,
+      "scenario_id": "csv-25b7727652112e48",
+      "expect_dimensions": {
+        "read_mode": "exact",
+        "bootstrap": "initial"
+      }
+    },
+    {
+      "name": "sibling_latest_read_without_initial_version",
+      "source": "handoff",
+      "index": 1,
+      "scenario_id": "csv-79e2757b2589a5d9",
+      "expect_dimensions": {
+        "read_mode": "latest",
+        "bootstrap": "identity_only"
+      }
+    },
+    {
+      "name": "child_target_declared_in_parent",
+      "source": "authority_regression",
+      "index": 0,
+      "scenario_id": "csv-72a69b4c47137b39",
+      "expect_dimensions": {
+        "regression": "child_target_declared_in_parent"
+      }
+    },
+    {
+      "name": "sibling_isolated_parent_projection",
+      "source": "authority_regression",
+      "index": 1,
+      "scenario_id": "csv-0acc70cf6d09eccc",
+      "expect_dimensions": {
+        "regression": "sibling_isolated_parent_projection"
+      }
+    },
+    {
+      "name": "checkpoint_wire_reorder_exact_source",
+      "source": "authority_regression",
+      "index": 2,
+      "scenario_id": "csv-1e78858f934d0715",
+      "expect_dimensions": {
+        "regression": "checkpoint_wire_reorder_exact_source"
+      }
+    }
+  ]
+}

@@ -75,7 +75,7 @@ Track A 是否完成，但主链切换前必须重新建立相应阶段自己的
 | Track A Stage 1 | `COMPLETE` | 每题 3 个样本，`15/15` 在三轮内通过，configuration error 为 0 | 无 |
 | Track A parity complete | `COMPLETE` | 五题各 10 个兼容样本，`pass@3 >= 90%`；structured provenance parity、typed failure boundary、跨 batch 聚合均已建立 | 无 |
 | Track B typed identity authority | `IN PROGRESS` | B0-B4、B5a 已完成；B5b typed consumer 实现和离线门禁已完成 | B5b 当前 source fingerprint 的真实 smoke；B5c 等待 C1-C4 完成后删除 StepIntent/string projection |
-| Track C transactional interpreter | `IN PROGRESS` | C0 logical graph 与 Working Context shadow 已实现 | C0.5 跨 scope/version executable oracle；完成后进入 C1 逐 call execution parity |
+| Track C transactional interpreter | `IN PROGRESS` | C0 logical graph 与 Working Context shadow已完成；C0.5 v5 executable oracle 门禁已完成 | C1-C4 transactional execution、commit/retry 与 production cutover |
 | Functional Default Ready | `BLOCKED` | Functional 主链可 opt-in 执行 | Track A parity complete；Track B B0-B4；Track C production closure；direct compiler shadow；held-out；production observability 与回滚门禁 |
 | Track D0 product routing gate retirement | `BLOCKED` | 唯一 problem-id gate 已登记 | Track A parity complete；Functional production routing 接管该 family；legacy deterministic planner 退场 |
 | Track D default switch | `BLOCKED` | direct compiler 目标已定义 | Functional Default Ready 后才能切默认协议和删除 StepIntent 兼容链 |
@@ -89,17 +89,36 @@ Track A 是否完成，但主链切换前必须重新建立相应阶段自己的
 
 Track A 已完成，当前主线不再围绕五题概率样本做局部补丁：
 
-1. 完成 B5b 当前 source fingerprint 的真实 smoke，只用于确认 typed consumer
-   没有行为退化；
-2. 实施 C0.5 跨 scope/version executable oracle 与生成式门禁，以独立 reference
-   model 验证 B1-B5b 和 C0；
-3. C0.5 完成后再启动 C1，建立隔离 Working RuntimeContext 和逐 call execution
-   parity，同时保持现有 replay 为 production authority；
-4. C1-C4 完成后再由 B5c 删除 StepIntent/string projection compatibility。
+1. 启动 C1 的隔离 Working RuntimeContext 和逐 call execution parity；现有
+   replay 继续作为 production authority；
+2. C1 使用完成后的 C0.5 作为 scope/version hard gate，新增状态组合缺陷必须先落
+   anonymous scenario，不再依赖真实 LLM 随机发现；
+3. C1-C4 完成后再由 B5c 删除 StepIntent/string projection compatibility。
 
 C0.5 的详细设计见：
 
 - `docs/cross-scope-version-executable-oracle-design.md`
+
+2026-07-31 的 C0.5 acceptance 证据：
+
+- `8,000` bounded combinations + `2,000` fixed-seed expanded graphs +
+  `128` semantic handoff graphs；
+- bounded cohort 在四种 topology 间均衡分配，并强制覆盖
+  `exact/latest/identity_only/call_result/none` 全部读取模式；
+- `64` 个 dead-writer/liveness scenarios；
+- adapter 按 stage reachability 做 fail-closed 比较：B1/B2/B3 始终审计；
+  B3 接受后才比较 B4 retry restore、B5b state read 和 C0 graph edge/order；
+  C0 dependent blocking 作为独立 lifecycle probe，即使 B3 拒绝也继续比较；
+- production C0 lifecycle 精确比较 runtime root failure 的 blocked dependents，
+  production liveness 精确比较 eliminated calls，B3 issue 双向比较；
+- 当前 `276` 个 runtime root failure 中有 `68` 个形成 nonempty dependent
+  blocking，其中 `17` 个与 B3 issue 交叉；清空 production blocked 集合时
+  `68/68` 均被门禁捕获；
+- parent/child `2,000` 个 bounded 场景中至少 `1,800` 个同时覆盖两层调用，
+  至少 `200` 个具有显式跨 scope dependency；
+- C0.5 v6 定向测试 `33 passed`，全量 solver
+  `1543 passed, 17 skipped`；
+- 不执行数学 method、不调用 LLM、不改变 FunctionalPlan 或 production authority。
 
 Track E 的 held-out 基础设施和 ProblemExtractionContext schema 可以并行建设；默认协议
 切换、StepIntent 删除和 transactional interpreter 主链切换仍保持阻塞。
@@ -601,9 +620,9 @@ compiler/runtime。这样先解决状态权威问题，再单独替换编译桥�
 
 ### Current Status
 
-`PENDING` for mainline cutover。现有 partial replay、RuntimeContext dry-run、typed
-provenance、stable graph 和 symbolic target closure 是实现基础，但 production 仍采用
-“整图 reconciliation/projection 后一次性 replay”。
+`IN PROGRESS`。C0 shadow 与 C0.5 executable model gate 已完成；production 仍采用
+“整图 reconciliation/projection 后一次性 replay”。下一项是 C1 transactional call
+execution shadow，现有 replay继续作为迁移期 execution authority。
 
 详细设计见：
 
@@ -627,18 +646,29 @@ typed allocation 结果；主链切换属于后续独立门禁。
 
 #### C0.5. Cross-Scope / StateVersion Executable Oracle Gate
 
-- 状态：`PENDING`，是 C1 的 hard prerequisite；
+- 状态：`COMPLETE`（2026-07-31），C1 hard prerequisite 已解除；
 - 建立独立 reference scope/version state machine，不复用 production
   allocation、placement、visibility 或 latest-state helper；
 - 有界穷举 parent/child/sibling、create/reuse/transition/isolated/conflict、
   exact/latest read、hidden dependency、alias、answer projection 和 retry checkpoint；
+- 覆盖 B1 provisional allocation 到 B2 LCA publication、exact StateVersion
+  reprojection的跨阶段 semantic handoff；
+- 独立验证 dead provisional writer 不会因未证明的 predecessor 边污染 liveness；
 - 分别比较 B1 allocation、B2 placement、B3 finalizer、B4 retry、B5b consumer
   与 C0 logical graph，不只比较最终 replay；
 - 将历史真实 LLM 暴露的 scope/version 问题缩减为无题名、无点名、无答案值的
   synthetic scenario corpus；
-- 默认离线门禁至少执行 `10,000` 个确定性 scenario，并保存固定 seed和可重放
+- 默认离线门禁至少执行 `10,000` 个确定性 scenario；bounded cohort 必须在
+  `root/parent_child/siblings/branched` 四种 topology 间均衡，并完整覆盖
+  `exact/latest/identity_only/call_result/none`，同时保存固定 seed 和可重放
   scenario id；
 - 新增 scope/version 修复必须先增加 synthetic scenario，真实 LLM 只做后续行为确认。
+
+当前证据：`8,000` topology-balanced bounded + `2,000` fixed-seed expanded +
+`128` semantic handoff + `3` authority regression scenario，另加 `64` 个使用真实
+B1 allocation 的 liveness scenario。C0.5 v6 定向测试 `33 passed`，全量 solver
+`1543 passed, 17 skipped`。production dependent blocking、eliminated lifecycle、
+B3 issue 双向比较和 parent/child 跨 scope 覆盖下限均已进入 hard gate。
 
 依赖：B1-B5b typed authority 与 C0 logical graph。详细设计见
 `docs/cross-scope-version-executable-oracle-design.md`。

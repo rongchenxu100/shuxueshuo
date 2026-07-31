@@ -38,6 +38,106 @@ C0.5 不增加新的 production authority，不执行数学 method，也不修�
 wire schema。它验证 B1-B5b 和 C0 已经声明的 scope/version 语义是否在所有受控图形下
 一致成立，为 C1 增加真正的逐 call 状态演进前提供 hard gate。
 
+## Implementation Status
+
+截至 2026-07-31，C0.5 为 `COMPLETE`。reference model、production stage
+adapters 和生成式门禁已经满足退出条件，C1 hard prerequisite 已解除：
+
+- `ReferenceScopeVersionModel` 仅依赖 Python 标准库，并由静态测试禁止导入
+  production allocation/read authority；
+- `B1AllocationAdapter`、`B2PlacementAdapter`、`B3FinalizationAdapter`、
+  `B4RetryCheckpointAdapter`、`B5bStateReadAdapter` 和
+  `C0LogicalGraphAdapter` 分阶段比较，不以最终 replay 状态代替中间门禁；
+- 默认生成 `8,000` 个 topology-balanced bounded matrix scenario、`2,000`
+  个固定 seed expanded graph、`128` 个跨阶段 semantic handoff scenario 和
+  `3` 个 authority regression scenario，总计 `10,131` 个确定性场景；
+- bounded cohort 对 `root/parent_child/siblings/branched` 各采样 `2,000`
+  场景，并强制每种 topology 都覆盖
+  `none/exact/latest/identity_only/call_result`，不再用笛卡尔积前缀截断；
+- 另有 `64` 个 dead-writer/liveness scenario；它们先调用真实 B1 allocation，
+  再从实际 previous/source version 构图，验证 provisional writer 不会仅因未证明的
+  transition predecessor 边进入存活图；
+- expanded graph 覆盖 `6-12` 个 call、多对象、跨 branch、长度 `3+` transition
+  chain、wire reorder 和 retry checkpoint；
+- handoff graph 覆盖 identity-only/bootstrap object、sibling producer、object/answer
+  projection、B1 provisional allocation、B2 LCA publication、exact StateVersion
+  reprojection，以及 B3/B5b/C0 对最终版本的共同解释；
+- 历史匿名 corpus 已登记 sibling exact visibility、parent/child transition、answer projection、
+  hidden dependency、destination chain、provisional retry、checkpoint drift、
+  stale CallResultRef、exact role version、child-owned target、sibling-isolated
+  state 和 checkpoint wire reorder 等缺陷；
+- reference truth table、metamorphic、production mutation、scenario replay 和 reducer
+  测试均已建立；
+- C0.5 v6 定向测试为 `33 passed`，全量 solver 为
+  `1543 passed, 17 skipped`；
+- comparator 按 authority reachability fail closed：B1/B2 allocation 与 placement
+  始终比较，B3 issue 双向比较；仅当 B3 接受 logical graph 后，才继续比较
+  B4 checkpoint、B5b state read 和 C0 graph edge/order；
+- C0 dependent-blocking lifecycle 是独立探针，即使 B3 同时拒绝 logical graph
+  也必须比较，不受上述 stop boundary影响；
+- `parent_child` cohort 的 `2,000` 个场景中，至少 `1,800` 个同时包含
+  `problem` 与 `ii` 调用，并要求至少 `200` 个场景具有显式跨父子 scope
+  dependency；
+- 主门禁当前确定性注入 `276` 个 runtime root failure，其中 `68` 个形成
+  nonempty dependent-blocking 集合，`17` 个同时具有 B3 issue；全部 `68`
+  个场景均使用 production `FunctionalTransactionShadowObserver` 精确比较
+  `blocked_by_dependency`，门禁下限分别为 `60` 和 `15`；
+- eliminated call 由 production liveness analyzer 独立校验；B1 仍只负责
+  provisional allocation，不被迫提前承担生命周期语义；
+- B3 issue 采用 finalizer-local category 双向比较；expected issue 缺失或
+  production issue 被静默删除都会使门禁失败；
+- semantic latest 以 scope specificity 和依赖偏序中的唯一 maximal writer 为准，
+  跨 sibling 发布必须证明完整 source-version chain 可安全提升。
+
+以上门禁只证明 C1 可以开始实现，不改变现有 production replay authority。
+
+生成失败可通过报告中的 `scenario_id` 重放：
+
+```bash
+cd server
+CROSS_SCOPE_SCENARIO_ID=<scenario-id> \
+  uv run pytest tests/solver/test_cross_scope_version_generated_gate.py -q
+```
+
+Reference model 仍只存在于 `server/tests/solver/support`，不进入 production 包、
+PlannerStateContext、prompt、retry 或 runtime execution。
+
+### 2026-07-30 Iteration
+
+最近真实批次暴露了两个原 10,000 场景矩阵没有覆盖的阶段交接问题：
+
+1. 一个 sibling scope 先为全题 MathObject 物化状态，另一个 sibling 随后通过
+   `SemanticRef` 使用它。B1 的 provisional version 可以位于 producer scope，但 B2
+   必须将 return 发布到 LCA，并把 consumer 重投影到最终精确 `StateVersionId`。
+2. 同一对象存在旧 provisional writer 和独立 final writer 时，旧 writer 不能仅因为
+   allocation 暂时生成的 predecessor 边而保持存活；只有被真实读取或被证明为合法
+   transition predecessor 时才可进入最终图。
+
+C0.5 v2 因此新增 `ModelStateRead`（`exact/latest/identity_only/call_result`）、
+semantic handoff generator 和独立 liveness adapter。Production 修复也先由匿名
+scenario 复现，再落到 placement 与 liveness authority，没有引入题名、点名或
+capability 链特判。
+
+C0.5 v3 进一步修复了生成与比较门禁本身：
+
+- bounded 生成器改为 topology 分层采样，避免前 `8,000` 条全部落在 root；
+- read mode 进入主矩阵和 coverage assertion，不再只由少量 handoff 补充；
+- B1-B5b/C0 adapter 改为精确集合和字段比较，缺失 authority 输出立即失败；
+- Functional placement 按 typed dependency 拓扑投影，consumer-before-producer
+  不再受 scope 序列化顺序影响；
+- semantic latest hidden edge 添加 cycle preflight，唯一候选也不得制造反向依赖；
+- historical corpus 记录并断言实际 dimensions，名称不能再指向 root 塌缩场景。
+
+C0.5 v6 将最新真实批次暴露的三个 authority handoff 缺口匿名化后加入 corpus：
+
+- ancestor-declared call 首次物化 child-owned target 时，execution/return scope
+  必须服从 typed object origin，不能让 identity-only runtime binding 漂移；
+- sibling 中同一 LogicalStateKey 的独立状态必须保持 `isolated` storage scope，
+  parent consumer 不能把它扩散为共同 writer；
+- retry 恢复的 committed return scope 是 B4 已验证事实；即使新 wire scope 顺序
+  改变，SemanticRef consumer 也必须重新绑定到 checkpoint 对应的精确
+  StateVersion，而不能退化为 identity-only object read。
+
 ## Problem
 
 当前系统已经分别建立：
@@ -563,6 +663,8 @@ C0.5 标记 `COMPLETE` 必须同时满足：
 - metamorphic 和 adapter mutation tests 全部通过；
 - 至少 `10,000` 个确定性 generated scenario 零 mismatch；
 - B1/B2/B3/B4/B5b/C0 均有独立 adapter 断言；
+- adapter 断言遵循 authoritative stop boundary：B3 拒绝后不解释 B4/B5b 或
+  C0 graph edge/order，但 C0 dependent blocking 仍独立审计；
 - 历史跨 scope/version failure corpus 全部通过；
 - generated failure 可由 scenario id 和 seed 稳定重放；
 - 新增 scope/version production 修复必须先增加 synthetic scenario；
@@ -572,6 +674,10 @@ C0.5 标记 `COMPLETE` 必须同时满足：
 只有 C0.5 完成后，C1 才能切入逐 call execution shadow。真实 DeepSeek smoke 留在
 C0.5 离线门禁之后运行，用于验证模型行为和 capability上下文，不再作为发现基础
 scope/version错误的主要工具。
+
+以上退出条件已于 2026-07-31 满足。后续任何 scope/version production 修复必须先增加
+或确认一个匿名 scenario/corpus regression，再运行该门禁；不得用减少生成数量规避性能
+或正确性失败。
 
 ## Assumptions
 

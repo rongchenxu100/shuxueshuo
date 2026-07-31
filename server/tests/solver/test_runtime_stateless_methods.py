@@ -583,6 +583,27 @@ def test_quadratic_from_constraints_rejects_preserved_target() -> None:
         )
 
 
+def test_quadratic_from_constraints_reports_target_absent_from_constraints() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["x", "a"])
+    x, a = symbols["x"], symbols["a"]
+
+    with pytest.raises(
+        ValueError,
+        match=r"function.target_parameter_not_constrained: target=a",
+    ):
+        QuadraticFromConstraintsMethod().run(
+            {
+                "quadratic": a * x**2 + x,
+                "x": x,
+                "all_coefficients": [a],
+                "curve_point": (sp.Integer(0), sp.Integer(0)),
+                "target_parameter": a,
+            },
+            kernel,
+        )
+
+
 def test_quadratic_from_constraints_substitutes_a_and_curve_point() -> None:
     kernel = SympyKernel()
     symbols = kernel.symbols(["x", "a", "b", "c"])
@@ -1480,6 +1501,25 @@ def test_parameter_from_expression_value_method() -> None:
 
     assert result.outputs["parameter_value"].value == 2
     assert all(check.ok for check in result.checks)
+
+
+def test_parameter_from_expression_value_rejects_absent_target_symbol() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["a", "m"])
+    a, m = symbols["a"], symbols["m"]
+
+    with pytest.raises(
+        ValueError,
+        match=r"parameter.target_absent_from_expression: target=a",
+    ):
+        ParameterFromExpressionValueMethod().run(
+            {
+                "expression": m + 1,
+                "condition": {"value": "2"},
+                "parameter": a,
+            },
+            kernel,
+        )
 
 
 def test_line_intersection_point_method() -> None:

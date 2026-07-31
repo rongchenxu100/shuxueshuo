@@ -69,6 +69,12 @@ class FunctionalCallLivenessAnalyzer:
             existing_state_views=existing_state_views,
             handle_registry=handle_registry,
         )
+        unproven_predecessor_edges = _unproven_predecessor_edges(
+            reconciled
+        )
+        unproven_predecessor_producers = {
+            producer for _consumer, producer in unproven_predecessor_edges
+        }
         candidates = {
             call.call_id
             for call in plan.calls
@@ -82,6 +88,9 @@ class FunctionalCallLivenessAnalyzer:
                 catalog=catalog,
                 redundant_object_binding=(
                     call.call_id in redundant_object_binding_calls
+                ),
+                unproven_predecessor=(
+                    call.call_id in unproven_predecessor_producers
                 ),
             )
         }
@@ -106,8 +115,8 @@ class FunctionalCallLivenessAnalyzer:
             )
 
         liveness_graph = _dependency_graph_without_unproven_predecessors(
-            reconciled=reconciled,
             dependency_graph=dependency_graph,
+            unproven_edges=unproven_predecessor_edges,
         )
         reachable = _dependency_closure(roots, liveness_graph)
         dropped = candidates - reachable
@@ -175,8 +184,11 @@ def _is_dead_call_candidate(
     reconciliation: FunctionalCallReconciliation | None,
     catalog: FunctionalCapabilityCatalog,
     redundant_object_binding: bool,
+    unproven_predecessor: bool,
 ) -> bool:
-    if call.return_bindings and not redundant_object_binding:
+    if call.return_bindings and not (
+        redundant_object_binding or unproven_predecessor
+    ):
         return False
     capability = catalog.get(call.capability_id)
     if (
@@ -316,8 +328,8 @@ def _dependency_closure(
 
 def _dependency_graph_without_unproven_predecessors(
     *,
-    reconciled: Sequence[FunctionalCallReconciliation],
     dependency_graph: Mapping[str, tuple[str, ...]],
+    unproven_edges: set[tuple[str, str]],
 ) -> dict[str, tuple[str, ...]]:
     """Ignore provisional predecessor edges that do not prove a transition.
 
@@ -327,6 +339,19 @@ def _dependency_graph_without_unproven_predecessors(
     when the consumer explicitly reads its call result or version.
     """
 
+    return {
+        call_id: tuple(
+            dependency
+            for dependency in dependencies
+            if (call_id, dependency) not in unproven_edges
+        )
+        for call_id, dependencies in dependency_graph.items()
+    }
+
+
+def _unproven_predecessor_edges(
+    reconciled: Sequence[FunctionalCallReconciliation],
+) -> set[tuple[str, str]]:
     producer_by_version = {
         allocation.selected_version_id: call.call_id
         for call in reconciled
@@ -342,7 +367,7 @@ def _dependency_graph_without_unproven_predecessors(
         }
         for call in reconciled
     }
-    removable: set[tuple[str, str]] = set()
+    result: set[tuple[str, str]] = set()
     for call in reconciled:
         for allocation in call.returns:
             previous = allocation.previous_version_id
@@ -354,15 +379,8 @@ def _dependency_graph_without_unproven_predecessors(
                 or producer in direct_source_calls.get(call.call_id, set())
             ):
                 continue
-            removable.add((call.call_id, producer))
-    return {
-        call_id: tuple(
-            dependency
-            for dependency in dependencies
-            if (call_id, dependency) not in removable
-        )
-        for call_id, dependencies in dependency_graph.items()
-    }
+            result.add((call.call_id, producer))
+    return result
 
 
 def _unchanged_result(

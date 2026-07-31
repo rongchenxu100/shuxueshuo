@@ -36,6 +36,16 @@ class ParameterFromExpressionValueMethod:
             if isinstance(constraint, dict) and constraint.get("operator") == ">"
             else None
         )
+        expression_symbols = set(getattr(expression, "free_symbols", ()))
+        if parameter not in expression_symbols:
+            names = ",".join(
+                sorted(symbol.name for symbol in expression_symbols)
+            ) or "<none>"
+            raise ValueError(
+                "parameter.target_absent_from_expression: "
+                f"target={parameter.name}, expression_free_symbols={names}; "
+                "待求参数没有出现在输入表达式中，不能由该表达式取值反求"
+            )
         candidates = kernel.solve_values(sp.Eq(expression, target), parameter)
         value = pick_by_lower_bound(candidates, lower_bound)
 
@@ -71,6 +81,7 @@ SPEC = MethodSpecSource(
         "尚未得到可代入的含参表达式，或题面没有给出该表达式对应的取值条件。",
         "目标是完成路径转化或推导最小值表达式，而不是由一个已知表达式取值反求参数。",
         "表达式仍含两个或更多相互独立的未知 Symbol；中学生解法应先利用显式关系或已知参数值化为单一未知量。",
+        "所选 parameter 没有实际出现在 expression 中；此时应改用真正含该参数的表达式，不能按其他小问的步骤机械反求。",
     ),
     solves=("derive_parameter_from_expression_value",),
     inputs={
