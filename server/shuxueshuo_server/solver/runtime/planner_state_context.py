@@ -598,6 +598,7 @@ class PlannerState:
     runtime_consumer_mismatches: tuple[dict[str, Any], ...] = ()
     legacy_runtime_identity_fallback_count: int = 0
     functional_transaction_shadow: dict[str, Any] | None = None
+    functional_transaction_execution: dict[str, Any] | None = None
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -676,6 +677,11 @@ class PlannerState:
             "functional_transaction_shadow": (
                 dict(self.functional_transaction_shadow)
                 if self.functional_transaction_shadow is not None
+                else None
+            ),
+            "functional_transaction_execution": (
+                dict(self.functional_transaction_execution)
+                if self.functional_transaction_execution is not None
                 else None
             ),
         }
@@ -817,6 +823,7 @@ class _MutableState:
     )
     legacy_runtime_identity_fallback_count: int = 0
     functional_transaction_shadow: dict[str, Any] | None = None
+    functional_transaction_execution: dict[str, Any] | None = None
 
     def freeze(self) -> PlannerStateContext:
         return PlannerStateContext(
@@ -885,6 +892,11 @@ class _MutableState:
                     if self.functional_transaction_shadow is not None
                     else None
                 ),
+                functional_transaction_execution=(
+                    dict(self.functional_transaction_execution)
+                    if self.functional_transaction_execution is not None
+                    else None
+                ),
             ),
         )
 
@@ -904,6 +916,7 @@ class PlannerRetryReplaySnapshot(Protocol):
     functional_plan: object | None
     functional_reconciliation: object | None
     transactional_shadow_report: object | None
+    transactional_execution_report: object | None
 
 
 def _extend_unique_payloads(
@@ -973,6 +986,17 @@ class PlannerStateContextBuilder:
                 shadow_report.to_payload()
                 if hasattr(shadow_report, "to_payload")
                 else dict(shadow_report)
+            )
+        execution_report = getattr(
+            replay,
+            "transactional_execution_report",
+            None,
+        )
+        if execution_report is not None:
+            state.functional_transaction_execution = (
+                execution_report.to_payload()
+                if hasattr(execution_report, "to_payload")
+                else dict(execution_report)
             )
         cls._observe_state_finalization(state, replay)
         state.context_events.append(

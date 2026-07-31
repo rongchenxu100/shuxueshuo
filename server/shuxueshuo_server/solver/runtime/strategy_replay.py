@@ -72,6 +72,11 @@ from shuxueshuo_server.solver.runtime.functional_transaction_shadow import (
     FunctionalTransactionShadowReport,
     failed_shadow_report,
 )
+from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
+    FunctionalTransactionalExecutionReport,
+    FunctionalTransactionalInterpreter,
+    failed_execution_report,
+)
 from shuxueshuo_server.solver.runtime.planner_state_context import (
     PlannerStateContext,
     PlannerStateContextBuilder,
@@ -163,6 +168,9 @@ class PlannerRetryReplayResult:
     transactional_shadow_report: (
         FunctionalTransactionShadowReport | None
     ) = None
+    transactional_execution_report: (
+        FunctionalTransactionalExecutionReport | None
+    ) = None
 
     def to_payload(self) -> dict[str, Any]:
         """转成 debug JSON。"""
@@ -239,6 +247,11 @@ class PlannerRetryReplayResult:
             "transactional_shadow_report": (
                 self.transactional_shadow_report.to_payload()
                 if self.transactional_shadow_report is not None
+                else None
+            ),
+            "transactional_execution_report": (
+                self.transactional_execution_report.to_payload()
+                if self.transactional_execution_report is not None
                 else None
             ),
         }
@@ -500,6 +513,7 @@ class PlannerRetryReplayService:
                 inputs=inputs,
                 handle_registry=handle_registry,
                 problem_payload=problem_payload,
+                runtime_context=context,
             )
         projected_draft, step_validation = StepIntentValidator().validate_json_with_report(
             json.dumps(projected_candidate.to_payload(), ensure_ascii=False),
@@ -562,6 +576,7 @@ class PlannerRetryReplayService:
                 inputs=inputs,
                 handle_registry=handle_registry,
                 problem_payload=problem_payload,
+                runtime_context=context,
             )
         base = self.replay_draft(
             projected_draft,
@@ -740,6 +755,7 @@ class PlannerRetryReplayService:
             inputs=inputs,
             handle_registry=handle_registry,
             problem_payload=problem_payload,
+            runtime_context=context,
         )
 
     def _finalize_functional_replay(
@@ -751,9 +767,10 @@ class PlannerRetryReplayService:
         inputs: PlannerInputs,
         handle_registry: CanonicalHandleRegistry,
         problem_payload: dict[str, Any] | None,
+        runtime_context: Any,
     ) -> PlannerRetryReplayResult:
         if (
-            self._functional_transaction_mode == "shadow"
+            self._functional_transaction_mode in {"shadow", "execution_shadow"}
             and replay.functional_reconciliation is not None
         ):
             try:
@@ -776,6 +793,46 @@ class PlannerRetryReplayService:
             replay = replace(
                 replay,
                 transactional_shadow_report=report,
+            )
+        if (
+            self._functional_transaction_mode == "execution_shadow"
+            and replay.functional_reconciliation is not None
+        ):
+            compiled_output = replay.output
+            if (
+                compiled_output is not None
+                and replay.diagnostic is not None
+            ):
+                try:
+                    execution_report = (
+                        FunctionalTransactionalInterpreter().execute(
+                            raw_plan=raw_plan,
+                            reconciliation=replay.functional_reconciliation,
+                            legacy_output=compiled_output,
+                            legacy_diagnostic=replay.diagnostic,
+                            runtime_context=runtime_context,
+                            parent_context=parent_context,
+                            inputs=inputs,
+                            handle_registry=handle_registry,
+                            goal_verification_report=(
+                                replay.goal_verification_report
+                            ),
+                        )
+                    )
+                except Exception as exc:
+                    execution_report = failed_execution_report(
+                        message=f"{type(exc).__name__}: {exc}",
+                    )
+            else:
+                execution_report = failed_execution_report(
+                    message=(
+                        "legacy replay did not produce a complete compiled "
+                        "PlannerOutput"
+                    ),
+                )
+            replay = replace(
+                replay,
+                transactional_execution_report=execution_report,
             )
         return _with_planner_state_context(
             replay,

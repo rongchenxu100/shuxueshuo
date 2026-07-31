@@ -1562,6 +1562,20 @@ class _PlacementLivenessProjectionStage:
         )
         reconciliation_repairs.extend(wire_arg_repairs)
         issues.extend(wire_arg_issues)
+        (
+            reconciled,
+            context_arg_repairs,
+            context_arg_issues,
+        ) = _refresh_context_auto_args_for_effective_order(
+            plan,
+            reconciled=reconciled,
+            catalog=catalog,
+            semantic_index=semantic_index,
+            produced=produced,
+            handle_registry=handle_registry,
+        )
+        reconciliation_repairs.extend(context_arg_repairs)
+        issues.extend(context_arg_issues)
         initial_aliases = {
             **(elaboration.call_aliases or {}),
             **preallocated_aliases,
@@ -6930,6 +6944,98 @@ def _synchronize_wire_resolved_args(
             )
         updated.append(replace(item, resolved_args=args))
     return updated, tuple(repairs), tuple(issues)
+
+
+def _refresh_context_auto_args_for_effective_order(
+    plan: FunctionalPlan,
+    *,
+    reconciled: Sequence[FunctionalCallReconciliation],
+    catalog: FunctionalCapabilityCatalog,
+    semantic_index: FunctionalSemanticIndex,
+    produced: Mapping[tuple[str, str], ResolvedFunctionalValue],
+    handle_registry: CanonicalHandleRegistry,
+) -> tuple[
+    list[FunctionalCallReconciliation],
+    tuple[FunctionalDeterministicRepair, ...],
+    tuple[FunctionalPlanIssue, ...],
+]:
+    """Re-resolve hidden Context selectors at their final call position.
+
+    The first reconciliation pass may run before deterministic plan rewriting
+    has established the effective call order. Context-owned selectors must not
+    retain a stale object version from that provisional pass. Replaying only
+    those selectors here gives both the legacy bridge and the transactional
+    interpreter the same call-time typed dependency.
+    """
+
+    calls_by_id = {call.call_id: call for call in plan.calls}
+    reconciled_by_id = {item.call_id: item for item in reconciled}
+    call_order = {
+        call.call_id: index for index, call in enumerate(plan.calls)
+    }
+    planned_return_expectations = {
+        (call.call_id, return_name): expectation
+        for call in plan.calls
+        for return_name, expectation in call.return_expectations.items()
+    }
+    updated_by_id: dict[str, FunctionalCallReconciliation] = {}
+    repairs: list[FunctionalDeterministicRepair] = []
+    issues: list[FunctionalPlanIssue] = []
+    for call in plan.calls:
+        item = reconciled_by_id.get(call.call_id)
+        capability = catalog.get(call.capability_id)
+        if item is None or capability is None:
+            continue
+        context_auto_names = {
+            auto.name
+            for auto in capability.auto_args
+            if _has_context_auto_resolver(auto.selector)
+            and any(
+                value.state_version_id is not None
+                for value in item.resolved_args.get(auto.name, ())
+            )
+        }
+        if not context_auto_names:
+            updated_by_id[call.call_id] = item
+            continue
+        current_order = call_order[call.call_id]
+        prior_produced = {
+            key: value
+            for key, value in produced.items()
+            if value.source_call_id in call_order
+            and call_order[value.source_call_id] < current_order
+        }
+        base_args = {
+            name: values
+            for name, values in item.resolved_args.items()
+            if name not in context_auto_names
+        }
+        additions, call_repairs, call_issues = _resolve_context_auto_args(
+            capability,
+            base_args,
+            call_id=call.call_id,
+            scope_id=item.scope_id,
+            produced=prior_produced,
+            semantic_index=semantic_index,
+            handle_registry=handle_registry,
+            planned_return_expectations=planned_return_expectations,
+        )
+        base_args.update(additions)
+        updated_by_id[call.call_id] = replace(
+            item,
+            resolved_args=base_args,
+        )
+        repairs.extend(call_repairs)
+        issues.extend(call_issues)
+    return (
+        [
+            updated_by_id.get(item.call_id, item)
+            for item in reconciled
+            if item.call_id in calls_by_id
+        ],
+        tuple(repairs),
+        tuple(issues),
+    )
 
 
 def _resolved_wire_semantic_value(

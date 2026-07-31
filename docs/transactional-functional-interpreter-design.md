@@ -476,6 +476,36 @@ call id 强行冻结。
 - partial subgraph 继续执行；
 - 五题 authored Functional fixture 双路径对比。
 
+实现状态：`EXECUTION SHADOW COMPLETE`（2026-07-31）。
+
+当前 migration bridge 将 legacy 已编译的 `PlannerOutput` 按 Functional projection
+切成单个 public call fragment。Interpreter 只执行当前 fragment，不执行 dependency
+prefix；每个 fragment 在 `RuntimeContext.fork()` 上运行并在 actual output、runtime
+checks、typed version chain 与 B3 destination finalization 全部通过后原子提交。
+每个 materialized input 在 call 执行前从 Working State 选择 exact 或
+latest-visible `StateVersionId`，再写入事务私有 snapshot path；旧 StepPlan fragment
+只读取该 snapshot，不能从 mutable object path 重新猜版本。
+该 bridge 保留 StepIntent/StepPlan 兼容边界，后续 direct compiler 可以替换 bridge
+而不改变 interpreter transaction API。
+
+`execution_shadow` 只生成并持久化审计报告。正式答案、retry、B4 checkpoint、
+ExplanationSnapshot 与外部 PlannerStateContext 数学事实仍由 legacy replay 产生，
+其 authority cutover 属于 T2/C2。
+
+Compatibility comparator 对 result form、free symbols、selected/previous/source
+version chain 做精确比较；legacy 缺字段或 closure 不同也会形成 hard mismatch。
+只有 legacy prefix blocker 之后 C1 独立分支继续 verified 属于显式允许的
+non-blocking behavior delta；未知 delta code 同样阻断 compatibility gate。
+独立分支的 call 和 writes 作为同一个 delta 分类；legacy 已拒绝完整 compiled
+output 时不运行 C1，也不复用较早的 compiled snapshot。
+
+五份 authored fixture 已零 mismatch、零 behavior delta。历史
+`batch-c1-execution-shadow-20260731` 的 15 份成功计划当前离线重放同样达到
+`15/15` 完整 legacy output、C1 零 mismatch、零 behavior delta。最终有效 call
+顺序下会重新解析 resolver/compiler-owned 的 materialized Context 参数，使 legacy
+projection 与 call-time latest resolver 消费同一 typed StateVersion。T2/C2 前置
+门禁已解除，但 production authority 仍由 legacy replay 持有，直到 T2/C2 切换。
+
 依赖：Track B B2 placement、B3 finalizer、B5b typed consumer，以及 T0.5
 generated gate 完成。
 

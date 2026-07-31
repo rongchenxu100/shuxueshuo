@@ -16,6 +16,7 @@ RuntimeContext 是 Method Solver V1.5 的“黑板”。它把一份 ``ProblemIR
 from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
+from copy import deepcopy
 import re
 from typing import Any
 
@@ -77,6 +78,20 @@ class RuntimeContext:
         self.scopes[scope.scope_id] = scope
         if scope.parent_id is not None:
             self.scopes[scope.parent_id].children.append(scope.scope_id)
+
+    def fork(self) -> "RuntimeContext":
+        """Create an isolated branch for one transactional Functional call.
+
+        ProblemIR, the kernel, and the canonical Symbol objects are read-only
+        attempt inputs and can be shared. Runtime scopes contain every mutable
+        fact, declaration, temporary output, and promoted value, so they are
+        copied as a unit. A failed call can therefore discard the branch
+        without leaking a partial invocation or Macro write.
+        """
+
+        branch = RuntimeContext(self.problem, self.kernel, self.symbols)
+        branch.scopes = deepcopy(self.scopes)
+        return branch
 
     def ensure_step_scope(self, step_id: str, parent_id: str) -> RuntimeScope:
         """确保某个 step scope 存在。

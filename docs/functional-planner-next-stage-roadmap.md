@@ -74,8 +74,8 @@ Track A 是否完成，但主链切换前必须重新建立相应阶段自己的
 | Track A assets | `COMPLETE` | 五题 fixture、离线 replay、真实 opt-in、strict-test few-shot、共享 batch 基座 | 无 |
 | Track A Stage 1 | `COMPLETE` | 每题 3 个样本，`15/15` 在三轮内通过，configuration error 为 0 | 无 |
 | Track A parity complete | `COMPLETE` | 五题各 10 个兼容样本，`pass@3 >= 90%`；structured provenance parity、typed failure boundary、跨 batch 聚合均已建立 | 无 |
-| Track B typed identity authority | `IN PROGRESS` | B0-B4、B5a 已完成；B5b typed consumer 实现和离线门禁已完成 | B5b 当前 source fingerprint 的真实 smoke；B5c 等待 C1-C4 完成后删除 StepIntent/string projection |
-| Track C transactional interpreter | `IN PROGRESS` | C0 logical graph 与 Working Context shadow已完成；C0.5 v5 executable oracle 门禁已完成 | C1-C4 transactional execution、commit/retry 与 production cutover |
+| Track B typed identity authority | `IN PROGRESS` | B0-B4、B5a/B5b 已完成；typed consumer 的真实 execution-shadow smoke 为 `15/15`，identity fallback 为 0 | B5c 等待 C2-C4 完成后删除 StepIntent/string projection |
+| Track C transactional interpreter | `IN PROGRESS` | C0 logical graph、C0.5 executable oracle 和 C1 execution-shadow compatibility gate 已完成 | C2 Context/retry cutover；C3-C4 binding/closure authority 与 production cutover |
 | Functional Default Ready | `BLOCKED` | Functional 主链可 opt-in 执行 | Track A parity complete；Track B B0-B4；Track C production closure；direct compiler shadow；held-out；production observability 与回滚门禁 |
 | Track D0 product routing gate retirement | `BLOCKED` | 唯一 problem-id gate 已登记 | Track A parity complete；Functional production routing 接管该 family；legacy deterministic planner 退场 |
 | Track D default switch | `BLOCKED` | direct compiler 目标已定义 | Functional Default Ready 后才能切默认协议和删除 StepIntent 兼容链 |
@@ -89,11 +89,11 @@ Track A 是否完成，但主链切换前必须重新建立相应阶段自己的
 
 Track A 已完成，当前主线不再围绕五题概率样本做局部补丁：
 
-1. 启动 C1 的隔离 Working RuntimeContext 和逐 call execution parity；现有
-   replay 继续作为 production authority；
-2. C1 使用完成后的 C0.5 作为 scope/version hard gate，新增状态组合缺陷必须先落
+1. 启动 C2，将 C1 的 verified/failed call、actual StateVersion 和 blocked
+   dependency graph 接入正式 Context/retry authority；
+2. C2 继续使用 C0.5 作为 scope/version hard gate，新增状态组合缺陷必须先落
    anonymous scenario，不再依赖真实 LLM 随机发现；
-3. C1-C4 完成后再由 B5c 删除 StepIntent/string projection compatibility。
+3. C2-C4 完成后再由 B5c 删除 StepIntent/string projection compatibility。
 
 C0.5 的详细设计见：
 
@@ -620,9 +620,10 @@ compiler/runtime。这样先解决状态权威问题，再单独替换编译桥�
 
 ### Current Status
 
-`IN PROGRESS`。C0 shadow 与 C0.5 executable model gate 已完成；production 仍采用
-“整图 reconciliation/projection 后一次性 replay”。下一项是 C1 transactional call
-execution shadow，现有 replay继续作为迁移期 execution authority。
+`IN PROGRESS`。C0 shadow、C0.5 executable model gate 与 C1 transactional
+execution-shadow compatibility gate 已完成；production 仍采用“整图
+reconciliation/projection 后一次性 replay”。下一步进入 C2，由现有 replay
+继续作为迁移期 execution authority，直到 C2 的 Context/retry cutover 门禁通过。
 
 详细设计见：
 
@@ -676,15 +677,45 @@ B3 issue 双向比较和 parent/child 跨 scope 覆盖下限均已进入 hard ga
 
 #### C1. Transactional Call Execution
 
-- 按 DAG ready frontier 逐 call resolve/elaborate/compile/execute；
+状态：`EXECUTION SHADOW COMPLETE`（2026-07-31）。
+默认仍为 legacy；测试和显式 opt-in 可使用 `execution_shadow`。
+
+- 按 DAG ready frontier 逐 call prepare/execute；
 - 每个 call 读取调用时刻之前最新 verified StateVersion；
 - actual output 决定 free symbols、result form 和 optional returns；
 - 成功才写入 Working Context，失败 call 不产生部分 state；
 - 失败 call 的 dependents 标记 blocked，无关分支继续执行；
-- per-call compiler 先复用现有 StepIntent/StepPlan bridge。
+- per-call bridge 先复用现有 StepIntent/StepPlan 编译产物。
+
+当前实现：
+
+- `RuntimeContext.fork()` 为每个 canonical public call 建立隔离 branch；
+- `FunctionalCallPreparationService` 在执行前从 Working State 选择 exact 或
+  call-time latest-visible `StateVersionId`，并投影到事务私有 runtime snapshot；
+- `FunctionalCallBridgeCompiler` 从 legacy 已编译的 StepIntent/StepPlan 图中只提取
+  当前 public call 的 fragment，不重放 dependency prefix；
+- Function 或 Macro 的全部 fragment 在同一 branch 中执行，runtime check、actual
+  return form/free symbols 和 B3 destination finalization 全部通过后才原子提交；
+- 失败 branch 不保留 declaration、temp、promotion 或 StateVersion，其 dependents
+  blocked，无关分支继续；
+- `execution_shadow` 同时保留 C0 observer 和 C1 execution report。两份报告均不进入
+  prompt、retry、B4 checkpoint、Explanation 或正式答案；
+- 五份 authored Functional fixture 已实现 legacy/C1 双跑零 hard mismatch、零
+  behavior delta；
+- result form、free symbols、version predecessor/source chain 任一差异均为 hard
+  mismatch，不再降级为 behavior delta；
+- 唯一非阻断 behavior delta 是 legacy prefix blocker 之后 C1 继续验证成功的独立
+  分支；未知 delta code 会使 compatibility gate 失败；
+- 对 `batch-c1-execution-shadow-20260731` 的 15 份成功计划使用当前代码离线重放时，
+  `15/15` 均有完整 legacy output，且 C1 零 mismatch、零 behavior delta；
+- resolver/compiler-owned 的 materialized Context 参数在最终有效 call 顺序下重新
+  选择 prior typed StateVersion，legacy projection 与 C1 call-time latest 不再
+  因 mutable destination 产生半新半旧读取；
+- legacy 已拒绝完整 output 时不运行 C1；legacy prefix blocker 后独立分支的 call
+  与 writes 统一归入同一个非阻断 delta，不再被二次归类为 hard mismatch。
 
 依赖：Track B B2 placement、B3 identity-aware finalizer、B5b typed consumer，
-以及 C0.5 generated gate 完成。
+以及 C0.5 generated gate 完成。C1 已解除 C2 的前置阻塞。
 
 #### C2. Context and Retry Cutover
 
@@ -1066,7 +1097,7 @@ PlannerStateContext
 
 ### Milestone 3: Transactional Functional Execution
 
-**Status: `PENDING`**
+**Status: `IN PROGRESS`**
 
 - 完成 LogicalFunctionalGraph 与 Working Context shadow；
 - 按 ready frontier 逐 call 执行，actual output 更新 verified StateVersion；

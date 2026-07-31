@@ -5587,13 +5587,7 @@ def _enrich_write_provenance_runtime_symbols(
                 value = runtime_values[item.produced_handle]
                 _enrich_runtime_lineage_payload(item, value)
                 _validate_runtime_lineage_payload(item, value)
-                if item.runtime_type == "Symbol":
-                    free_symbols.add(value)
-                elif item.runtime_type == "Point":
-                    for coordinate in value:
-                        free_symbols.update(getattr(coordinate, "free_symbols", set()))
-                else:
-                    free_symbols.update(getattr(value, "free_symbols", set()))
+                free_symbols.update(runtime_free_symbol_names(value))
             except StrategyDraftValidationError:
                 raise
             except (KeyError, PermissionError, TypeError, ValueError):
@@ -5661,13 +5655,31 @@ def _enrich_write_provenance_runtime_symbols(
                 lineage,
                 symbol_closures=closures,
             )
+        free_symbol_names = tuple(
+            sorted(
+                set(map(str, free_symbols))
+                - set(item.closure_ignored_symbol_names)
+            )
+        )
         result.append(
             replace(
                 item,
-                free_symbol_names=tuple(
-                    sorted(
-                        set(map(str, free_symbols))
-                        - set(item.closure_ignored_symbol_names)
+                free_symbol_names=free_symbol_names,
+                result_form=(
+                    item.result_form
+                    or (
+                        (
+                            "open_expression"
+                            if free_symbol_names
+                            else "closed_value"
+                        )
+                        if item.runtime_type
+                        in {"Expression", "MinimumExpression"}
+                        else (
+                            "open_state"
+                            if free_symbol_names
+                            else "closed_state"
+                        )
                     )
                 ),
                 lineage=lineage,

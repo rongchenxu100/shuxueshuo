@@ -64,6 +64,9 @@ from shuxueshuo_server.solver.runtime.strategy_replay import (
     PlannerRetryReplayService,
     repair_attempt_payload_from_replay,
 )
+from shuxueshuo_server.solver.runtime.functional_transaction_shadow import (
+    FunctionalTransactionMode,
+)
 from shuxueshuo_server.solver.runtime.strategy_validator import StepIntentValidator
 
 
@@ -113,6 +116,7 @@ class StrategyPlanner:
         prompt_renderer: StrategyPromptRenderer | None = None,
         recorded_fixture_dir: Path | str | None = None,
         output_format: PlannerOutputFormat = "step_intent",
+        functional_transaction_mode: FunctionalTransactionMode = "legacy",
     ) -> None:
         self.context = context
         self.mode = mode
@@ -122,6 +126,7 @@ class StrategyPlanner:
         self.prompt_renderer = prompt_renderer or StrategyPromptRenderer()
         self.recorded_fixture_dir = Path(recorded_fixture_dir) if recorded_fixture_dir else _default_recorded_fixture_dir()
         self.output_format = output_format
+        self.functional_transaction_mode = functional_transaction_mode
         self.artifacts = StrategyPlannerArtifacts()
 
     @property
@@ -555,7 +560,11 @@ class StrategyPlanner:
             candidate_format="functional_plan",
         )
         try:
-            replay = PlannerRetryReplayService().replay_functional_raw_json(
+            replay = PlannerRetryReplayService(
+                functional_transaction_mode=(
+                    self.functional_transaction_mode
+                ),
+            ).replay_functional_raw_json(
                 raw_response,
                 inputs=inputs,
                 handle_registry=handle_registry,
@@ -633,6 +642,7 @@ def strategy_planner_provider(
     allow_same_problem_few_shot: bool = True,
     functional_few_shot_mode: FunctionalFewShotSelectionMode | None = None,
     output_format: PlannerOutputFormat = "step_intent",
+    functional_transaction_mode: FunctionalTransactionMode = "legacy",
 ) -> "Callable[[RuntimeContext], StrategyPlanner]":
     """构造 Orchestrator 可用的单一 Strategy provider。"""
     from collections.abc import Callable
@@ -649,6 +659,7 @@ def strategy_planner_provider(
             payload_builder=payload_builder,
             recorded_fixture_dir=recorded_fixture_dir,
             output_format=output_format,
+            functional_transaction_mode=functional_transaction_mode,
         )
 
     return provider

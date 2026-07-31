@@ -58,6 +58,10 @@ def run_deepseek_functional_opt_in(case: FunctionalOptInCase) -> None:
             client=client,
             functional_few_shot_mode="strict_test",
             output_format="functional_plan",
+            functional_transaction_mode=os.getenv(
+                "FUNCTIONAL_TRANSACTION_MODE",
+                "legacy",
+            ),
         ),
         max_attempts=_max_attempts(),
         debug_dir=debug_dir,

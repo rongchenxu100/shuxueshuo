@@ -33,12 +33,18 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     StateWriteProvenance,
     StepIntentExecutionDiagnostic,
 )
+from shuxueshuo_server.solver.runtime.models import TypedValue
 from shuxueshuo_server.solver.utils import unique_ordered
 
 
-FunctionalTransactionMode = Literal["legacy", "shadow"]
+FunctionalTransactionMode = Literal[
+    "legacy",
+    "shadow",
+    "execution_shadow",
+]
 FunctionalTransactionEventKind = Literal[
     "became_ready",
+    "running",
     "verified",
     "failed",
     "blocked",
@@ -94,6 +100,9 @@ class WorkingPlannerState:
     committed_versions: dict[StateVersionId, IndexedStateVersion] = field(
         default_factory=dict
     )
+    runtime_version_values: dict[StateVersionId, TypedValue] = field(
+        default_factory=dict
+    )
     events: list[FunctionalTransactionEvent] = field(default_factory=list)
 
     def emit(
@@ -145,6 +154,70 @@ class WorkingPlannerState:
             "state_version_committed",
             version_id=version.version_id,
         )
+
+    def commit_verified_transaction(
+        self,
+        call_id: str,
+        versions: tuple[IndexedStateVersion, ...],
+        runtime_values: dict[StateVersionId, TypedValue],
+    ) -> None:
+        """Commit call status and every returned version as one state change."""
+
+        missing_values = tuple(
+            version.version_id
+            for version in versions
+            if version.version_id not in runtime_values
+        )
+        if missing_values:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.transactional_runtime_value_missing: "
+                f"versions={[item.to_payload() for item in missing_values]}"
+            )
+        next_index = self.identity_index.clone()
+        for version in versions:
+            next_index.register(version)
+        next_versions = dict(self.committed_versions)
+        next_versions.update(
+            (version.version_id, version) for version in versions
+        )
+        next_runtime_values = dict(self.runtime_version_values)
+        next_runtime_values.update(runtime_values)
+        current = self.call_states[call_id]
+        next_call_state = replace(
+            current,
+            status="verified",
+            return_version_ids=unique_ordered(
+                (
+                    *current.return_version_ids,
+                    *(version.version_id for version in versions),
+                )
+            ),
+        )
+        next_events = [
+            *self.events,
+            FunctionalTransactionEvent(
+                len(self.events),
+                call_id,
+                "verified",
+            ),
+        ]
+        commit_sequence = len(next_events)
+        next_events.extend(
+            FunctionalTransactionEvent(
+                commit_sequence + index,
+                call_id,
+                "state_version_committed",
+                version.version_id,
+            )
+            for index, version in enumerate(versions)
+        )
+
+        self.identity_index = next_index
+        self.committed_versions = next_versions
+        self.runtime_version_values = next_runtime_values
+        self.call_states[call_id] = next_call_state
+        self.events = next_events
 
 
 @dataclass(frozen=True)
@@ -245,7 +318,7 @@ class FunctionalTransactionShadowObserver:
                         diagnostic.legacy_runtime_identity_fallback_count,
                     )
                 )
-        working = _working_state(
+        working = build_working_state(
             graph,
             parent_context=parent_context,
             handle_registry=handle_registry,
@@ -389,7 +462,7 @@ def failed_shadow_report(
     )
 
 
-def _working_state(
+def build_working_state(
     graph: LogicalFunctionalGraph,
     *,
     parent_context: PlannerStateContext,
@@ -891,5 +964,6 @@ __all__ = [
     "FunctionalTransactionShadowObserver",
     "FunctionalTransactionShadowReport",
     "WorkingPlannerState",
+    "build_working_state",
     "failed_shadow_report",
 ]
