@@ -42,6 +42,9 @@ _EXACT_SELECTOR_SEMANTICS: dict[str, SelectorSemantics] = {
     ),
     "quadratic_template": SelectorSemantics(mechanical=True),
     "quadratic_coefficients": SelectorSemantics(mechanical=True),
+    "x_axis_known_point": SelectorSemantics(
+        requires_materialized_state=True,
+    ),
     "point_output_ref": SelectorSemantics(mechanical=True),
     "point_transition_target": SelectorSemantics(mechanical=True),
     "equal_length_ray:target": SelectorSemantics(

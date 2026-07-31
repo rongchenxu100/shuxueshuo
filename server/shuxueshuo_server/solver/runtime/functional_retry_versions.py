@@ -524,6 +524,10 @@ def build_functional_retry_graph_checkpoint(
         for item in call_memory.entries
         for result in item.result_snapshots
     }
+    committed_return_keys = _goal_reachable_return_keys(
+        reconciliation,
+        call_memory=call_memory,
+    )
     provenance_by_return: dict[tuple[str, str], Any] = {}
     for write in provenance:
         call_id = call_by_step.get(write.step_id)
@@ -584,7 +588,8 @@ def build_functional_retry_graph_checkpoint(
                         ),
                         status=(
                             "goal_committed"
-                            if call_id in committed_ids
+                            if (call_id, allocation.return_name)
+                            in committed_return_keys
                             else "runtime_verified"
                         ),
                     )
@@ -623,7 +628,8 @@ def build_functional_retry_graph_checkpoint(
                     runtime_destination=write.runtime_destination_key,
                     status=(
                         "goal_committed"
-                        if call_id in committed_ids
+                        if (call_id, allocation.return_name)
+                        in committed_return_keys
                         else "runtime_verified"
                     ),
                 )
@@ -672,6 +678,11 @@ def build_functional_retry_graph_checkpoint(
         output_result_records: list[FunctionalRetryResultRecord] = []
         if resolved is not None:
             for allocation in resolved.returns:
+                if (
+                    call_id,
+                    allocation.return_name,
+                ) not in committed_return_keys:
+                    continue
                 producer_call_id = (
                     allocation.canonical_producer_call_id or call_id
                 )
@@ -691,7 +702,11 @@ def build_functional_retry_graph_checkpoint(
         versioned_return_names = {
             allocation.return_name
             for allocation in (resolved.returns if resolved is not None else ())
-            if allocation.selected_version_id is not None
+            if (
+                allocation.selected_version_id is not None
+                and (call_id, allocation.return_name)
+                in committed_return_keys
+            )
         }
         materialized_return_names = {
             snapshot.return_name
@@ -723,12 +738,27 @@ def build_functional_retry_graph_checkpoint(
                 ),
             )
         declared_scope_id, call_payload = call_source
+        committed_return_names = {
+            return_name
+            for owner_call_id, return_name in committed_return_keys
+            if owner_call_id == call_id
+        }
+        checkpoint_identity_key = replace(
+            identity_key,
+            state_effect_key=StateEffectKey(
+                tuple(
+                    effect
+                    for effect in identity_key.state_effect_key.returns
+                    if effect.return_name in committed_return_names
+                )
+            ),
+        )
         committed_calls.append(
             FunctionalCommittedCallCheckpoint(
                 canonical_call_id=call_id,
                 declared_scope_id=declared_scope_id,
                 call_payload=call_payload,
-                identity_key=identity_key,
+                identity_key=checkpoint_identity_key,
                 output_version_ids=tuple(
                     item.version_id for item in output_records
                 ),
@@ -758,6 +788,11 @@ def build_functional_retry_graph_checkpoint(
         for committed in committed_calls
         for version_id in committed.output_version_ids
     }
+    committed_effect_by_version = {
+        version_id: committed.identity_key.state_effect_key
+        for committed in committed_calls
+        for version_id in committed.output_version_ids
+    }
     records = [
         replace(
             record,
@@ -766,11 +801,20 @@ def build_functional_retry_graph_checkpoint(
                 if record.version_id in committed_version_ids
                 else "runtime_verified"
             ),
+            state_effect_key=committed_effect_by_version.get(
+                record.version_id,
+                record.state_effect_key,
+            ),
         )
         for record in records
     ]
     committed_result_ids = {
         result_id
+        for committed in committed_calls
+        for result_id in committed.output_result_ids
+    }
+    committed_effect_by_result = {
+        result_id: committed.identity_key.state_effect_key
         for committed in committed_calls
         for result_id in committed.output_result_ids
     }
@@ -781,6 +825,10 @@ def build_functional_retry_graph_checkpoint(
                 "goal_committed"
                 if record.result_id in committed_result_ids
                 else "runtime_verified"
+            ),
+            state_effect_key=committed_effect_by_result.get(
+                record.result_id,
+                record.state_effect_key,
             ),
         )
         for record in result_records
@@ -797,6 +845,140 @@ def build_functional_retry_graph_checkpoint(
         verified_versions=tuple(records),
         verified_results=tuple(result_records),
     )
+
+
+def _goal_reachable_return_keys(
+    reconciliation: Any,
+    *,
+    call_memory: Any,
+) -> set[tuple[str, str]]:
+    """Return public outputs that participate in a committed answer proof.
+
+    Goal commitment is a call-graph property, while optional outputs belong to
+    a particular call. A committed producer may materialize extra returns that
+    no answer-reachable consumer reads. Those results remain useful runtime
+    diagnostics, but must not become retry version anchors.
+    """
+
+    committed_call_ids = set(call_memory.committed_call_ids)
+    committed_goal_handles = {
+        goal_handle
+        for entry in call_memory.entries
+        if entry.call_id in committed_call_ids
+        for goal_handle in entry.committed_goal_handles
+    }
+    calls_by_id = {
+        call.call_id: call for call in reconciliation.calls
+    }
+    allocations_by_key = {
+        (call.call_id, allocation.return_name): allocation
+        for call in reconciliation.calls
+        if call.call_id in committed_call_ids
+        for allocation in call.returns
+    }
+    if not call_memory.entries:
+        # The caller emits the more specific fail-closed metadata error after
+        # reachability projection.
+        return set(allocations_by_key)
+    producer_by_version = {
+        allocation.selected_version_id: key
+        for key, allocation in allocations_by_key.items()
+        if allocation.selected_version_id is not None
+    }
+    pending: list[tuple[str, str]] = []
+    has_typed_answer_binding = False
+    for key, allocation in allocations_by_key.items():
+        bound_ref = getattr(allocation, "bound_ref", None)
+        if bound_ref is not None:
+            has_typed_answer_binding = True
+        answer_handles = {
+            handle
+            for handle in (
+                getattr(allocation, "handle", None),
+                getattr(allocation, "state_handle", None),
+            )
+            if isinstance(handle, str) and handle.startswith("answer:")
+        }
+        if (
+            bound_ref is not None
+            and getattr(bound_ref, "kind", None) == "answer"
+        ):
+            ref = str(getattr(bound_ref, "ref", ""))
+            answer_handles.add(
+                ref if ref.startswith("answer:") else f"answer:{ref}"
+            )
+        if answer_handles.intersection(committed_goal_handles):
+            pending.append(key)
+
+    if not pending:
+        if has_typed_answer_binding:
+            raise FunctionalRetryCheckpointError(
+                "planner.retry_version_checkpoint_invalid",
+                "committed calls have no answer-bound return anchor",
+            )
+        # Backward-compatible synthetic/old payload path. Production
+        # FunctionalReturnAllocation always carries bound_ref.
+        return set(allocations_by_key)
+
+    reachable: set[tuple[str, str]] = set()
+    while pending:
+        key = pending.pop()
+        if key in reachable or key not in allocations_by_key:
+            continue
+        reachable.add(key)
+        call = calls_by_id.get(key[0])
+        if call is None:
+            continue
+        for values in getattr(call, "resolved_args", {}).values():
+            for value in values:
+                source_call_id = getattr(value, "source_call_id", None)
+                return_name = getattr(value, "return_name", None)
+                if (
+                    source_call_id in committed_call_ids
+                    and isinstance(return_name, str)
+                ):
+                    pending.append((source_call_id, return_name))
+                for version_id in (
+                    *(
+                        (value.state_version_id,)
+                        if getattr(value, "state_version_id", None)
+                        is not None
+                        else ()
+                    ),
+                    *getattr(value, "source_version_ids", ()),
+                ):
+                    producer = producer_by_version.get(version_id)
+                    if producer is not None:
+                        pending.append(producer)
+                for result_id in getattr(
+                    getattr(value, "lineage", None),
+                    "source_call_result_ids",
+                    (),
+                ):
+                    if "." not in result_id:
+                        continue
+                    producer_call_id, producer_return = result_id.rsplit(
+                        ".",
+                        1,
+                    )
+                    if producer_call_id in committed_call_ids:
+                        pending.append(
+                            (producer_call_id, producer_return)
+                        )
+        allocation = allocations_by_key[key]
+        for version_id in (
+            *getattr(allocation, "source_version_ids", ()),
+            *(
+                (allocation.previous_version_id,)
+                if getattr(allocation, "previous_version_id", None)
+                is not None
+                else ()
+            ),
+        ):
+            producer = producer_by_version.get(version_id)
+            if producer is not None:
+                pending.append(producer)
+    return reachable
 
 
 def _runtime_free_symbol_refs(

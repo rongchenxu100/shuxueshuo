@@ -4483,8 +4483,12 @@ def _resolve_explicit_call_args(
                 continue
             if (
                 arg.requires_materialized_state
-                and value.state_slot_id is None
-                and value.materialized_runtime_type is None
+                and value.state_version_id is None
+                and not (
+                    value.source_call_id is not None
+                    and value.return_name is not None
+                )
+                and value.condition_id is None
             ):
                 issues.append(
                     _issue(

@@ -279,6 +279,36 @@ def test_root_issues_are_deduplicated_and_unclassified_blocks_gate() -> None:
     assert metrics["stage1_gate_passed"] is False
 
 
+def test_typed_provider_failure_is_classified() -> None:
+    provider_failure = _sample_result(
+        "sample-01",
+        "failed",
+        1,
+        errors=[
+            {
+                "stage": "provider",
+                "code": "provider.reasoning_only_empty_response",
+                "message": "provider returned no visible content",
+            }
+        ],
+    )
+
+    metrics = _case_metrics(
+        [
+            provider_failure,
+            _sample_result("sample-02", "passed", 1),
+            _sample_result("sample-03", "passed", 1),
+        ],
+        max_attempts=3,
+    )
+
+    assert metrics["failure_frequency_by_layer"] == {"provider": 1}
+    assert metrics["failure_frequency_by_code"] == {
+        "provider.reasoning_only_empty_response": 1
+    }
+    assert metrics["unclassified_error_count"] == 0
+
+
 def test_success_without_complete_sample_gates_blocks_parity() -> None:
     results = [
         _sample_result("sample-01", "passed", 1),

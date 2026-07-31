@@ -139,6 +139,11 @@ def _checkpoint_builder_inputs(
         valid_scope="problem",
         free_symbol_refs=(),
         selected_version_id=verified.version_id,
+        handle="answer:i.P",
+        state_handle=None,
+        bound_ref=SimpleNamespace(kind="answer", ref="i.P"),
+        source_version_ids=(),
+        previous_version_id=None,
     )
     reconciliation = SimpleNamespace(
         plan=SimpleNamespace(
@@ -151,6 +156,7 @@ def _checkpoint_builder_inputs(
             SimpleNamespace(
                 call_id="make_point",
                 returns=(allocation,),
+                resolved_args={},
             ),
         ),
         projection_map=(
@@ -345,7 +351,26 @@ def test_committed_call_local_return_uses_typed_result_anchor() -> None:
     inputs, verified = _checkpoint_builder_inputs()
     reconciliation = inputs["reconciliation"]
     call_memory = inputs["call_memory"]
-    identity_key = _checkpoint().committed_calls[0].identity_key
+    base_identity_key = _checkpoint().committed_calls[0].identity_key
+    identity_key = FunctionalCallIdentityKey(
+        base_identity_key.computation_key,
+        StateEffectKey(
+            (
+                LogicalReturnEffect(
+                    "angle_equality",
+                    None,
+                    "value_only",
+                    "value",
+                ),
+            )
+        ),
+    )
+    reconciliation.state_placement_decisions = (
+        {
+            "canonical_call_id": "make_point",
+            "identity_key": identity_key.to_payload(),
+        },
+    )
     value_call = SimpleNamespace(
         call_id="make_point",
         returns=(
@@ -540,6 +565,119 @@ def test_checkpoint_ignores_allocated_return_without_runtime_write() -> None:
     assert tuple(
         item.return_name for item in result.verified_versions
     ) == ("point",)
+
+
+def test_checkpoint_does_not_lock_unused_optional_return() -> None:
+    inputs, verified = _checkpoint_builder_inputs()
+    reconciliation = inputs["reconciliation"]
+    call_memory = inputs["call_memory"]
+    committed = _checkpoint().committed_calls[0]
+    optional_object = MathObjectId(
+        "symbol:problem:unused",
+        "symbol",
+        "problem",
+    )
+    optional_key = LogicalStateKey(
+        optional_object,
+        "value",
+        "ParameterValue",
+    )
+    optional_version = StateVersionId(
+        StateSlotId(optional_key, "problem"),
+        1,
+    )
+    main_allocation = reconciliation.calls[0].returns[0]
+    optional_allocation = SimpleNamespace(
+        return_name="optional_parameter",
+        canonical_producer_call_id="make_point",
+        valid_scope="problem",
+        free_symbol_refs=(),
+        selected_version_id=optional_version,
+        handle="fact:i:optional_parameter",
+        state_handle=None,
+        bound_ref=None,
+        source_version_ids=(),
+        previous_version_id=None,
+    )
+    reconciliation.calls = (
+        SimpleNamespace(
+            call_id="make_point",
+            returns=(main_allocation, optional_allocation),
+            resolved_args={},
+        ),
+    )
+    expanded_effect = StateEffectKey(
+        (
+            *committed.identity_key.state_effect_key.returns,
+            LogicalReturnEffect(
+                "optional_parameter",
+                optional_key,
+                "preserve_input_object",
+                "create",
+            ),
+        )
+    )
+    reconciliation.state_placement_decisions = (
+        {
+            "canonical_call_id": "make_point",
+            "identity_key": FunctionalCallIdentityKey(
+                committed.identity_key.computation_key,
+                expanded_effect,
+            ).to_payload(),
+        },
+    )
+    call_memory.entries = (
+        SimpleNamespace(
+            call_id=call_memory.entries[0].call_id,
+            committed_goal_handles=(
+                call_memory.entries[0].committed_goal_handles
+            ),
+            result_snapshots=(
+                *call_memory.entries[0].result_snapshots,
+                SimpleNamespace(
+                    return_name="optional_parameter",
+                    actual_form="closed_state",
+                    free_parameters=(),
+                    value_omitted_reason=None,
+                ),
+            ),
+        ),
+    )
+    inputs["provenance"] = (
+        *inputs["provenance"],
+        SimpleNamespace(
+            step_id="make_point_step",
+            return_name="optional_parameter",
+            selected_version_id=optional_version,
+            logical_state_key=optional_key,
+            computation_key=verified.computation_key,
+            previous_version_id=None,
+            source_version_ids=(),
+            runtime_destination_key=RuntimeDestinationKey(
+                optional_object,
+                "value",
+                "ParameterValue",
+                "$question.symbols.unused",
+            ),
+        ),
+    )
+
+    result = build_functional_retry_graph_checkpoint(**inputs)
+
+    assert result.committed_calls[0].output_version_ids == (
+        verified.version_id,
+    )
+    assert tuple(
+        effect.return_name
+        for effect in result.committed_calls[0]
+        .identity_key.state_effect_key.returns
+    ) == ("point",)
+    optional_record = next(
+        item
+        for item in result.verified_versions
+        if item.return_name == "optional_parameter"
+    )
+    assert optional_record.status == "runtime_verified"
 
 
 @pytest.mark.parametrize(

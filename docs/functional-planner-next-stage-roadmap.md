@@ -665,9 +665,10 @@ typed allocation 结果；主链切换属于后续独立门禁。
 - 新增 scope/version 修复必须先增加 synthetic scenario，真实 LLM 只做后续行为确认。
 
 当前证据：`8,000` topology-balanced bounded + `2,000` fixed-seed expanded +
-`128` semantic handoff + `3` authority regression scenario，另加 `64` 个使用真实
-B1 allocation 的 liveness scenario。C0.5 v6 定向测试 `33 passed`，全量 solver
-`1543 passed, 17 skipped`。production dependent blocking、eliminated lifecycle、
+`128` semantic handoff + `5` authority regression scenario，另加 `64` 个使用真实
+B1 allocation 的 liveness scenario。C0.5 v7 新增 ProblemIR 初始
+ParameterValue exact read 与跨分支发布状态的传递来源隔离门禁。production
+dependent blocking、eliminated lifecycle、
 B3 issue 双向比较和 parent/child 跨 scope 覆盖下限均已进入 hard gate。
 
 依赖：B1-B5b typed authority 与 C0 logical graph。详细设计见

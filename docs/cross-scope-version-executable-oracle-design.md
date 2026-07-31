@@ -50,7 +50,7 @@ adapters 和生成式门禁已经满足退出条件，C1 hard prerequisite 已�
   `C0LogicalGraphAdapter` 分阶段比较，不以最终 replay 状态代替中间门禁；
 - 默认生成 `8,000` 个 topology-balanced bounded matrix scenario、`2,000`
   个固定 seed expanded graph、`128` 个跨阶段 semantic handoff scenario 和
-  `3` 个 authority regression scenario，总计 `10,131` 个确定性场景；
+  `5` 个 authority regression scenario，总计 `10,133` 个确定性场景；
 - bounded cohort 对 `root/parent_child/siblings/branched` 各采样 `2,000`
   场景，并强制每种 topology 都覆盖
   `none/exact/latest/identity_only/call_result`，不再用笛卡尔积前缀截断；
@@ -128,7 +128,7 @@ C0.5 v3 进一步修复了生成与比较门禁本身：
 - semantic latest hidden edge 添加 cycle preflight，唯一候选也不得制造反向依赖；
 - historical corpus 记录并断言实际 dimensions，名称不能再指向 root 塌缩场景。
 
-C0.5 v6 将最新真实批次暴露的三个 authority handoff 缺口匿名化后加入 corpus：
+C0.5 v7 继续将真实批次暴露的 authority handoff 缺口匿名化后加入 corpus：
 
 - ancestor-declared call 首次物化 child-owned target 时，execution/return scope
   必须服从 typed object origin，不能让 identity-only runtime binding 漂移；
@@ -137,6 +137,11 @@ C0.5 v6 将最新真实批次暴露的三个 authority handoff 缺口匿名化�
 - retry 恢复的 committed return scope 是 B4 已验证事实；即使新 wire scope 顺序
   改变，SemanticRef consumer 也必须重新绑定到 checkpoint 对应的精确
   StateVersion，而不能退化为 identity-only object read。
+- ProblemIR 初始 ParameterValue 是 ordinal-0 typed state；下游求值必须按精确
+  StateVersion 读取，不能要求它先由 runtime call 再写一次。
+- 跨分支发布的派生状态只携带 consumer 明确读取的 typed version；其生产过程的
+  私有传递来源仍属于 provenance，不得重新展开为 sibling consumer 的 runtime
+  read。
 
 ## Problem
 

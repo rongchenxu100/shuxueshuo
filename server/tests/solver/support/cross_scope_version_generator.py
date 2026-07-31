@@ -22,7 +22,7 @@ from support.cross_scope_version_oracle import (
 )
 
 
-GENERATOR_VERSION = "c0.5/v6"
+GENERATOR_VERSION = "c0.5/v7"
 EXPANDED_SEEDS = (17, 103, 1_009, 65_537)
 
 _TOPOLOGIES = ("root", "parent_child", "siblings", "branched")
@@ -423,7 +423,130 @@ def authority_regression_scenarios() -> tuple[CrossScopeVersionScenario, ...]:
         ),
         scenario_id="",
     )
-    return child_target, sibling_isolation, checkpoint_reorder
+    parameter_key = ModelStateKey("u", "value", "ParameterValue")
+    parameter_version = ModelVersion(
+        f"{parameter_key.token}@problem#0",
+        parameter_key,
+        "problem",
+        "problem",
+        0,
+        None,
+        runtime_destination="state/problem/u",
+    )
+    initial_parameter_exact_read = CrossScopeVersionScenario(
+        scopes=(
+            ModelScope("problem", None),
+            ModelScope("i", "problem"),
+        ),
+        objects=(ModelObject("u", "symbol", "problem"),),
+        initial_versions=(parameter_version,),
+        calls=(
+            ModelCall(
+                "evaluate_state",
+                "i",
+                "evaluate_at_parameter",
+                state_reads=(
+                    ModelStateRead(
+                        "exact",
+                        parameter_key,
+                        arg_name="parameter_value",
+                        version_id=parameter_version.version_id,
+                    ),
+                ),
+                output_state_key=None,
+                requested_write_mode="value",
+                projection="call_local",
+            ),
+        ),
+        wire_order=("evaluate_state",),
+        dimensions=(
+            ("generator", "authority_regression"),
+            ("regression", "initial_parameter_value_exact_read"),
+            ("topology", "parent_child"),
+            ("read_mode", "exact"),
+        ),
+    )
+
+    private_key = ModelStateKey("Q", "expression", "Parabola")
+    published_key = ModelStateKey("E", "coordinate", "Point")
+    published_state_exact_read = CrossScopeVersionScenario(
+        scopes=(
+            ModelScope("problem", None),
+            ModelScope("ii", "problem"),
+            ModelScope("ii_1", "ii"),
+            ModelScope("ii_2", "ii"),
+        ),
+        objects=(
+            ModelObject("Q", "function", "problem"),
+            ModelObject("E", "point", "ii"),
+        ),
+        initial_versions=(),
+        calls=(
+            ModelCall(
+                "build_private_state",
+                "ii_1",
+                "build_private_state",
+                output_state_key=private_key,
+                requested_write_mode="create",
+                storage_scope_id="ii_1",
+                valid_scope_id="ii_1",
+                runtime_destination="state/ii_1/Q",
+            ),
+            ModelCall(
+                "publish_derived_state",
+                "ii_1",
+                "publish_derived_state",
+                input_version_ids=("build_private_state",),
+                output_state_key=published_key,
+                requested_write_mode="create",
+                storage_scope_id="ii",
+                valid_scope_id="ii",
+                runtime_destination="state/ii/E",
+            ),
+            ModelCall(
+                "consume_published_state",
+                "ii_2",
+                "consume_published_state",
+                input_version_ids=("publish_derived_state",),
+                output_state_key=None,
+                requested_write_mode="value",
+                projection="call_local",
+            ),
+        ),
+        wire_order=(
+            "consume_published_state",
+            "publish_derived_state",
+            "build_private_state",
+        ),
+        dependency_edges=(
+            ModelDependency(
+                "build_private_state",
+                "publish_derived_state",
+                "hidden_semantic_role",
+                version_id="build_private_state",
+            ),
+            ModelDependency(
+                "publish_derived_state",
+                "consume_published_state",
+                "state_version",
+                version_id="publish_derived_state",
+            ),
+        ),
+        dimensions=(
+            ("generator", "authority_regression"),
+            ("regression", "published_state_exact_read_ignores_transitive_source"),
+            ("topology", "branched"),
+            ("read_mode", "exact"),
+        ),
+    )
+
+    return (
+        child_target,
+        sibling_isolation,
+        checkpoint_reorder,
+        initial_parameter_exact_read,
+        published_state_exact_read,
+    )
 
 
 def dead_writer_liveness_scenarios(

@@ -116,6 +116,7 @@ KNOWN_FAILURE_LAYERS = {
     "result_builder",
     "answer_assertion",
     "test_harness",
+    "provider",
 }
 UNCLASSIFIED_FAILURE_CODES = {
     "planner_failed",

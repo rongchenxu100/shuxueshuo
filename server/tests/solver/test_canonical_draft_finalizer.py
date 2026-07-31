@@ -576,6 +576,183 @@ def test_ordinary_state_dependency_does_not_reopen_transitive_source_reads() -> 
     assert consumer.reads == (published.handle,)
 
 
+def test_path_transformation_uses_exact_typed_sources_not_legacy_transitive_slots() -> None:
+    problem = load_problem_ir(str(PROBLEM))
+    registry = CanonicalHandleRegistry.from_problem_payload(
+        problem_to_llm_payload(problem)
+    )
+    curve = ProducedFact(
+        "fact:ii_1:private_curve",
+        "ii_1",
+        output_type="Parabola",
+    )
+    endpoint = ProducedFact(
+        "fact:ii:published_endpoint",
+        "ii",
+        output_type="Point",
+    )
+    transformation = ProducedFact(
+        "fact:ii:path_transformation",
+        "ii",
+        output_type="PathTransformation",
+    )
+    minimum = ProducedFact(
+        "fact:ii_2:path_minimum",
+        "ii_2",
+        output_type="MinimumExpression",
+    )
+    draft = StepIntentDraft(
+        scopes=(
+            StepIntentScope(
+                scope_id="ii_1",
+                label="private producer",
+                steps=(
+                    StepIntent(
+                        step_id="build_private_curve",
+                        scope_id="ii_1",
+                        recipe_hint="synthetic_curve",
+                        goal_type="derive_curve",
+                        target=curve.handle,
+                        strategy="build a branch-private curve",
+                        produces=(curve,),
+                    ),
+                    StepIntent(
+                        step_id="publish_endpoint",
+                        scope_id="ii_1",
+                        recipe_hint="synthetic_point",
+                        goal_type="derive_point",
+                        target=endpoint.handle,
+                        strategy="publish an endpoint derived from the curve",
+                        reads=(curve.handle,),
+                        produces=(endpoint,),
+                    ),
+                ),
+            ),
+            StepIntentScope(
+                scope_id="ii",
+                label="shared transformation",
+                steps=(
+                    StepIntent(
+                        step_id="reduce_path",
+                        scope_id="ii",
+                        recipe_hint="two_moving_points_path_reduction",
+                        goal_type="reduce_path",
+                        target=transformation.handle,
+                        strategy="derive a shared path transformation",
+                        reads=(endpoint.handle,),
+                        produces=(transformation,),
+                    ),
+                ),
+            ),
+            StepIntentScope(
+                scope_id="ii_2",
+                label="consumer",
+                steps=(
+                    StepIntent(
+                        step_id="consume_path",
+                        scope_id="ii_2",
+                        recipe_hint=(
+                            "broken_path_straightening_minimum_expression"
+                        ),
+                        goal_type="derive_minimum",
+                        target=minimum.handle,
+                        strategy="consume the exact transformed path state",
+                        reads=(transformation.handle,),
+                        produces=(minimum,),
+                    ),
+                ),
+            ),
+        ),
+    )
+    curve_object = MathObjectId(
+        "function:problem:parabola",
+        "function",
+        "problem",
+    )
+    curve_key = LogicalStateKey(curve_object, "expression", "Parabola")
+    curve_slot = StateSlotId(curve_key, "ii_1")
+    curve_version = StateVersionId(curve_slot, 1)
+    endpoint_object = MathObjectId(
+        "point:ii:endpoint",
+        "point",
+        "ii",
+    )
+    endpoint_key = LogicalStateKey(endpoint_object, "coordinate", "Point")
+    endpoint_slot = StateSlotId(endpoint_key, "ii")
+    endpoint_version = StateVersionId(endpoint_slot, 1)
+    writes = (
+        ProjectedStateWrite(
+            step_id="build_private_curve",
+            produced_handle=curve.handle,
+            state_slot_id="function:problem:parabola.expression@ii_1:Parabola",
+            write_mode="create",
+            runtime_type="Parabola",
+            object_ref=curve_object.value,
+            math_object_id=curve_object,
+            logical_state_key=curve_key,
+            typed_slot_id=curve_slot,
+            selected_version_id=curve_version,
+            valid_scope_id="ii_1",
+        ),
+        ProjectedStateWrite(
+            step_id="publish_endpoint",
+            produced_handle=endpoint.handle,
+            state_slot_id="point:ii:endpoint.coordinate@ii:Point",
+            write_mode="create",
+            runtime_type="Point",
+            object_ref=endpoint_object.value,
+            source_state_slot_ids=(
+                "function:problem:parabola.expression@ii_1:Parabola",
+            ),
+            source_version_ids=(curve_version,),
+            math_object_id=endpoint_object,
+            logical_state_key=endpoint_key,
+            typed_slot_id=endpoint_slot,
+            selected_version_id=endpoint_version,
+            valid_scope_id="ii",
+        ),
+        ProjectedStateWrite(
+            step_id="reduce_path",
+            produced_handle=transformation.handle,
+            state_slot_id="functional:ii:path_transformation",
+            write_mode="value",
+            runtime_type="PathTransformation",
+            # Compatibility provenance may include transitive source slots.
+            # The exact typed dependency contains only the endpoint state the
+            # transformation consumer must read.
+            source_state_slot_ids=(
+                "point:ii:endpoint.coordinate@ii:Point",
+                "function:problem:parabola.expression@ii_1:Parabola",
+            ),
+            source_version_ids=(endpoint_version,),
+            valid_scope_id="ii",
+        ),
+    )
+    dependencies = (
+        ProjectedStateDependency(
+            step_id="consume_path",
+            state_slot_id="functional:ii:path_transformation",
+            produced_handle=transformation.handle,
+            runtime_type="PathTransformation",
+            source="wire",
+            source_step_id="reduce_path",
+        ),
+    )
+
+    closed = _close_projected_state_reads(
+        draft,
+        projected_state_writes=writes,
+        projected_state_dependencies=dependencies,
+        handle_registry=registry,
+    )
+    consumer = next(
+        step for step in closed.steps if step.step_id == "consume_path"
+    )
+
+    assert endpoint.handle in consumer.reads
+    assert curve.handle not in consumer.reads
+
+
 def test_functional_state_scope_remains_authoritative_for_cross_scope_reads() -> None:
     problem = load_problem_ir(str(PROBLEM))
     inputs = build_strategy_probe_inputs(problem)

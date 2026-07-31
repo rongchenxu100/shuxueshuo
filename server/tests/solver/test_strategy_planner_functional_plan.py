@@ -2107,6 +2107,97 @@ def test_functional_replay_accepts_scalar_symbol_value_for_parabola_evaluation()
     assert "parameter_values.b" in evaluation.inputs["parameter_value"]
 
 
+def test_functional_point_evaluation_reads_initial_parameter_value_version() -> None:
+    problem, inputs, problem_payload, registry, _context, payload = _xiqing_case()
+    first_scope = next(
+        scope for scope in payload["scopes"] if scope["scope_id"] == "i"
+    )
+    first_scope["calls"] = [
+        {
+            "call_id": "build_open_parabola_i",
+            "capability_id": "quadratic_from_constraints",
+            "args": {
+                "curve_point": {"kind": "point", "ref": "A"},
+                "free_parameters": {"kind": "symbol", "ref": "b"},
+                "target_parameter": {"kind": "symbol", "ref": "c"},
+            },
+            "return_bindings": {},
+            "return_expectations": {"parabola": "open_state"},
+            "strategy": "建立保留一个系数的抛物线状态",
+            "reason": "先得到含参顶点",
+        },
+        {
+            "call_id": "derive_open_vertex_i",
+            "capability_id": "quadratic_vertex_point",
+            "args": {
+                "parabola": {
+                    "from_call": "build_open_parabola_i",
+                    "return": "parabola",
+                }
+            },
+            "return_bindings": {
+                "point": {"kind": "point", "ref": "P"}
+            },
+            "return_expectations": {"point": "open_state"},
+            "strategy": "求含参顶点",
+            "reason": "随后代入题面给出的参数值",
+        },
+        {
+            "call_id": "evaluate_vertex_i",
+            "capability_id": "evaluate_point_at_parameter",
+            "args": {
+                "point": {
+                    "from_call": "derive_open_vertex_i",
+                    "return": "point",
+                },
+                "parameter_value": {
+                    "kind": "fact",
+                    "ref": "b_value",
+                    "value_type": "ParameterValue",
+                },
+            },
+            "return_bindings": {
+                "evaluated_point": {"kind": "answer", "ref": "i_P"}
+            },
+            "return_expectations": {
+                "evaluated_point": "closed_state"
+            },
+            "strategy": "代入题面给出的参数值",
+            "reason": "闭合顶点坐标",
+        },
+    ]
+    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
+        payload,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+    assert validation.ok and plan is not None
+
+    replay = PlannerRetryReplayService().replay_functional_plan(
+        plan,
+        inputs=inputs,
+        handle_registry=registry,
+        context=ContextBuilder().build(problem),
+        attempt=1,
+        problem_payload=problem_payload,
+        validation_report=validation,
+    )
+
+    assert replay.output is not None, (
+        replay.errors,
+        replay.diagnostic.to_payload() if replay.diagnostic is not None else None,
+    )
+    assert replay.diagnostic is not None and replay.diagnostic.ok
+    evaluation = next(
+        invocation
+        for step in replay.output.step_plans
+        if step.step_id == "evaluate_vertex_i"
+        for invocation in step.invocations
+        if invocation.method_id == "evaluate_point_at_parameter"
+    )
+    assert "parameter_values.b" in evaluation.inputs["parameter_value"]
+
+
 def test_explicit_target_parameter_is_not_reinferred_as_free_parameter() -> None:
     problem, inputs, problem_payload, registry, context, payload = _xiqing_case()
     scope = next(
@@ -8212,6 +8303,99 @@ def test_selector_requires_materialized_point_state() -> None:
     args = {item.name: item for item in capability.args}
     assert args["side_start"].requires_materialized_state is True
     assert args["side_end"].requires_materialized_state is True
+
+
+def test_wire_point_ref_cannot_satisfy_materialized_point_argument() -> None:
+    inputs, _fixture, registry, context = _heping_ermo_case()
+    inputs = replace(inputs, question_goals=[])
+    payload = {
+        "format": "functional_plan/v1",
+        "scopes": [
+            {
+                "scope_id": "i_1",
+                "label": "materialized point preflight",
+                "calls": [
+                    {
+                        "call_id": "build_closed_parabola",
+                        "capability_id": "quadratic_from_constraints",
+                        "args": {
+                            "known_coefficients": [
+                                {"ref": "b_value", "kind": "fact"},
+                                {"ref": "c_value", "kind": "fact"},
+                            ]
+                        },
+                        "return_bindings": {},
+                        "strategy": "build a closed parabola",
+                        "reason": "provide the curve input",
+                    },
+                    {
+                        "call_id": "derive_other_intercept",
+                        "capability_id": (
+                            "quadratic_x_axis_intercept_point"
+                        ),
+                        "args": {
+                            "quadratic": {
+                                "from_call": "build_closed_parabola",
+                                "return": "parabola",
+                            },
+                            "known_point": {
+                                "ref": "B",
+                                "kind": "point",
+                            },
+                        },
+                        "return_bindings": {},
+                        "strategy": "derive the other intercept",
+                        "reason": "exercise materialized-state validation",
+                    },
+                ],
+            }
+        ],
+    }
+    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
+        payload,
+        handle_registry=registry,
+        question_goals=(),
+    )
+    assert validation.ok and plan is not None
+
+    result = FunctionalPlanReconciler().reconcile(
+        plan,
+        planner_state_context=context,
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=registry,
+        question_goals=(),
+    )
+
+    matching_issues = [
+        item
+        for item in result.issues
+        if item.call_id == "derive_other_intercept"
+        and item.code == "functional.arg_state_unavailable"
+    ]
+    assert matching_issues, [item.to_payload() for item in result.issues]
+    issue = matching_issues[0]
+    assert issue.details["arg"] == "known_point"
+
+    replay = PlannerRetryReplayService().replay_functional_plan(
+        plan,
+        inputs=inputs,
+        handle_registry=registry,
+        context=ContextBuilder().build(
+            load_problem_ir(HEPING_ERMO_FIXTURE)
+        ),
+        attempt=1,
+        problem_payload=problem_to_llm_payload(
+            load_problem_ir(HEPING_ERMO_FIXTURE)
+        ),
+        validation_report=validation,
+    )
+    assert replay.output is None
+    assert replay.retry_state is not None
+    assert any(
+        item.code == "functional.arg_state_unavailable"
+        for item in replay.retry_state.issues
+    )
 
     payload = {
         "format": "functional_plan/v1",

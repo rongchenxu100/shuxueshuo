@@ -5861,6 +5861,55 @@ def _expand_point_parameter_substitutions(
     if not free_symbols:
         return plan
     substitutions: list[tuple[Any, str, str, str]] = []
+    typed_parameter_versions: set[Any] = set()
+    for dependency in index.projected_state_dependencies:
+        if (
+            dependency.step_id != step.step_id
+            or dependency.runtime_type is None
+            or not runtime_type_compatible(
+                "ParameterValue",
+                dependency.runtime_type,
+            )
+            or dependency.state_version_id is None
+        ):
+            continue
+        version_id = dependency.state_version_id
+        object_id = version_id.slot_id.logical_key.object_id
+        if object_id.kind != "symbol":
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: "
+                "planner.runtime_state_binding_drift: "
+                f"step={step.step_id}, arg={dependency.arg_name or 'parameter_value'}, "
+                f"parameter_object_kind={object_id.kind}"
+            )
+        value_path = index.runtime_path_for_state_version(
+            version_id,
+            consumer_scope_id=step.scope_id,
+            consumer=(
+                f"{step.step_id}."
+                f"{dependency.arg_name or 'parameter_value'}"
+            ),
+        )
+        symbol_path = index.runtime_path_for_object_identity(
+            object_id,
+            expected_type="Symbol",
+            consumer_scope_id=step.scope_id,
+            consumer=f"{step.step_id}.parameter_symbol",
+        )
+        symbol = index.context.read_path(
+            symbol_path,
+            from_scope_id=step.scope_id,
+            expected_type="Symbol",
+        ).value
+        substitutions.append(
+            (
+                symbol,
+                symbol_path,
+                value_path,
+                dependency.produced_handle,
+            )
+        )
+        typed_parameter_versions.add(version_id)
     for handle in step.reads:
         binding = index.bindings.get(handle)
         if binding is None or binding.value_type != "ParameterValue":
@@ -5875,6 +5924,11 @@ def _expand_point_parameter_substitutions(
             None,
         )
         if provenance is None or provenance.object_ref is None:
+            continue
+        if (
+            provenance.selected_version_id is not None
+            and provenance.selected_version_id in typed_parameter_versions
+        ):
             continue
         symbol_binding = index.bindings.get(provenance.object_ref)
         if symbol_binding is None or symbol_binding.value_type != "Symbol":

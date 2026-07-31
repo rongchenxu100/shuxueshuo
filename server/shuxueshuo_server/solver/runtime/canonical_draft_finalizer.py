@@ -277,6 +277,14 @@ def _close_projected_state_reads(
         if write.step_id in step_index
     }
     writes_by_slot: dict[str, list[ProjectedStateWrite]] = {}
+    writes_by_version = {
+        write.selected_version_id: write
+        for write in projected_state_writes
+        if (
+            write.step_id in step_index
+            and write.selected_version_id is not None
+        )
+    }
     for write in projected_state_writes:
         if write.step_id in step_index:
             writes_by_slot.setdefault(write.state_slot_id, []).append(write)
@@ -375,11 +383,32 @@ def _close_projected_state_reads(
                 # the compatibility exception: its legacy recipe expansion
                 # still requires the exact structured endpoint states.
                 continue
-            for source_slot_id in write.source_state_slot_ids:
-                source = latest_source_write(
-                    source_slot_id,
-                    before_index=write_index,
+            typed_sources = tuple(
+                source
+                for version_id in write.source_version_ids
+                for source in (writes_by_version.get(version_id),)
+                if (
+                    source is not None
+                    and step_index[source.step_id] < write_index
                 )
+            )
+            sources = typed_sources
+            if not write.source_version_ids:
+                # StepIntent compatibility payloads predate typed versions.
+                # Functional authoritative writes always use exact versions;
+                # legacy slots remain a boundary-only fallback.
+                sources = tuple(
+                    source
+                    for source_slot_id in write.source_state_slot_ids
+                    for source in (
+                        latest_source_write(
+                            source_slot_id,
+                            before_index=write_index,
+                        ),
+                    )
+                    if source is not None
+                )
+            for source in sources:
                 if source is None:
                     continue
                 result.append(source.produced_handle)
