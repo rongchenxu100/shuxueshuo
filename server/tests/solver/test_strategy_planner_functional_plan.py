@@ -10206,7 +10206,7 @@ def test_path_reduction_projects_one_structured_state_for_downstream_macros() ->
         assert step.reads == (transformation.handle,)
 
 
-def test_functional_projected_arg_sidecar_only_exports_wire_selected_args() -> None:
+def test_functional_projected_arg_sidecar_exports_wire_and_resolver_ledger() -> None:
     inputs = _base_inputs()
     payload = json.loads(NANKAI_FUNCTIONAL_PLAN.read_text(encoding="utf-8"))
     plan, validation = _validate(payload, inputs)
@@ -10235,9 +10235,21 @@ def test_functional_projected_arg_sidecar_only_exports_wire_selected_args() -> N
     for binding in bindings:
         names_by_call.setdefault(binding.step_id, set()).add(binding.arg_name)
 
-    assert names_by_call["ii_construct_N"] == {"right_angle_equal_length"}
+    assert names_by_call["ii_construct_N"] == {
+        "anchor",
+        "parameter",
+        "parameter_constraint",
+        "quadrant",
+        "reference",
+        "right_angle_equal_length",
+        "target",
+    }
     assert "parameter_value" in names_by_call["ii_2_derive_G"]
     assert "parameter" not in names_by_call["ii_2_derive_G"]
+    assert {item.binding_authority for item in bindings} == {
+        "wire",
+        "resolver",
+    }
     assert all(
         binding.state_version_id is not None
         for binding in bindings

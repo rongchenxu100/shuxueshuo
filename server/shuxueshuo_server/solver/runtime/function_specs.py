@@ -206,11 +206,17 @@ class FunctionAggregateInputBindingSpec:
 
     source_input: str
     item_inputs: tuple[str, ...]
+    singleton_input: str | None = None
 
     def to_payload(self) -> dict[str, Any]:
         return {
             "source_input": self.source_input,
             "item_inputs": list(self.item_inputs),
+            **(
+                {"singleton_input": self.singleton_input}
+                if self.singleton_input is not None
+                else {}
+            ),
         }
 
 
@@ -1234,6 +1240,7 @@ def function_adapter_from_binding_rule(
         FunctionAggregateInputBindingSpec(
             source_input=item.source_input,
             item_inputs=item.item_inputs,
+            singleton_input=item.singleton_input,
         )
         for item in rule.aggregate_input_bindings
     )

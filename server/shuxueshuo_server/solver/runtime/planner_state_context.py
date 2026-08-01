@@ -606,6 +606,9 @@ class PlannerState:
     runtime_consumer_decisions: tuple[dict[str, Any], ...] = ()
     runtime_consumer_mismatches: tuple[dict[str, Any], ...] = ()
     legacy_runtime_identity_fallback_count: int = 0
+    functional_binding_decisions: tuple[dict[str, Any], ...] = ()
+    functional_binding_mismatches: tuple[dict[str, Any], ...] = ()
+    legacy_binding_role_fallback_count: int = 0
     functional_transaction_shadow: dict[str, Any] | None = None
     functional_transaction_execution: dict[str, Any] | None = None
 
@@ -682,6 +685,15 @@ class PlannerState:
             ],
             "legacy_runtime_identity_fallback_count": (
                 self.legacy_runtime_identity_fallback_count
+            ),
+            "functional_binding_decisions": [
+                dict(item) for item in self.functional_binding_decisions
+            ],
+            "functional_binding_mismatches": [
+                dict(item) for item in self.functional_binding_mismatches
+            ],
+            "legacy_binding_role_fallback_count": (
+                self.legacy_binding_role_fallback_count
             ),
             "functional_transaction_shadow": (
                 dict(self.functional_transaction_shadow)
@@ -831,6 +843,13 @@ class _MutableState:
         default_factory=list
     )
     legacy_runtime_identity_fallback_count: int = 0
+    functional_binding_decisions: list[dict[str, Any]] = field(
+        default_factory=list
+    )
+    functional_binding_mismatches: list[dict[str, Any]] = field(
+        default_factory=list
+    )
+    legacy_binding_role_fallback_count: int = 0
     functional_transaction_shadow: dict[str, Any] | None = None
     functional_transaction_execution: dict[str, Any] | None = None
 
@@ -895,6 +914,15 @@ class _MutableState:
                 ),
                 legacy_runtime_identity_fallback_count=(
                     self.legacy_runtime_identity_fallback_count
+                ),
+                functional_binding_decisions=tuple(
+                    self.functional_binding_decisions
+                ),
+                functional_binding_mismatches=tuple(
+                    self.functional_binding_mismatches
+                ),
+                legacy_binding_role_fallback_count=(
+                    self.legacy_binding_role_fallback_count
                 ),
                 functional_transaction_shadow=(
                     dict(self.functional_transaction_shadow)
@@ -1219,6 +1247,21 @@ class PlannerStateContextBuilder:
             getattr(
                 reconciliation,
                 "legacy_identity_fallback_count",
+                0,
+            )
+        )
+        _extend_unique_payloads(
+            state.functional_binding_decisions,
+            getattr(reconciliation, "functional_binding_decisions", ()),
+        )
+        _extend_unique_payloads(
+            state.functional_binding_mismatches,
+            getattr(reconciliation, "functional_binding_mismatches", ()),
+        )
+        state.legacy_binding_role_fallback_count += int(
+            getattr(
+                reconciliation,
+                "legacy_binding_role_fallback_count",
                 0,
             )
         )

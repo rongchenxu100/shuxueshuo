@@ -14,6 +14,10 @@ from shuxueshuo_server.solver.runtime.answer_goal_verifier import (
 from shuxueshuo_server.solver.runtime.functional_logical_graph import (
     LogicalFunctionalGraphBuilder,
 )
+from shuxueshuo_server.solver.runtime.functional_binding_context import (
+    FunctionalBindingContext,
+    project_functional_arg_bindings_from_context,
+)
 from shuxueshuo_server.solver.runtime.functional_state_reads import (
     FunctionalStateReadIndex,
 )
@@ -1912,47 +1916,17 @@ def _functional_projected_arg_bindings(
     *,
     catalog: FunctionalCapabilityCatalog,
 ) -> tuple[ProjectedFunctionArgBinding, ...]:
-    """Preserve only LLM-selected public arguments.
-
-    Reconciliation also contains auto, mechanical and context-closure args.
-    Those remain owned by their declared compiler primitives and must not leak
-    into this exact-binding sidecar. Optional public args are retained when the
-    wire plan explicitly supplied them.
-    """
-    calls_by_id = {call.call_id: call for call in reconciliation.plan.calls}
-    selected_args_by_call: dict[str, frozenset[str]] = {}
-    for call in reconciliation.calls:
-        wire_call = calls_by_id.get(call.call_id)
-        capability = catalog.get(call.capability_id)
-        if wire_call is None or capability is None:
-            selected_args_by_call[call.call_id] = frozenset()
-            continue
-        public_args = {
-            arg.name
-            for arg in capability.args
-            if arg.binding_authority == "wire"
-            and arg.name in wire_call.args
-        }
-        selected_args_by_call[call.call_id] = frozenset(public_args)
-    return tuple(
-        ProjectedFunctionArgBinding(
-            step_id=call.call_id,
-            arg_name=arg_name,
-            source_handle=value.handle,
-            runtime_type=value.runtime_type,
-            state_slot_id=value.state_slot_id,
-            object_ref=value.object_ref,
-            math_object_id=value.math_object_id,
-            state_version_id=value.state_version_id,
-            condition_id=value.condition_id,
-            source_call_id=value.source_call_id,
-            source_return_name=value.return_name,
-            binding_authority="wire",
+    """Project Functional inputs from the authoritative C3 ledger."""
+    del catalog
+    context = reconciliation.functional_binding_context
+    if not isinstance(context, FunctionalBindingContext):
+        raise ValueError(
+            "planner_configuration_error: "
+            "planner.functional_binding_context_incomplete"
         )
-        for call in reconciliation.calls
-        for arg_name, values in call.resolved_args.items()
-        if arg_name in selected_args_by_call.get(call.call_id, ())
-        for value in values
+    return project_functional_arg_bindings_from_context(
+        reconciliation.calls,
+        context,
     )
 
 

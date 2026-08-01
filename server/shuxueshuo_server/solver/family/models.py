@@ -332,6 +332,7 @@ class MethodAggregateInputBindingSpec:
 
     source_input: str
     item_inputs: tuple[str, ...]
+    singleton_input: str | None = None
 
 
 @dataclass(frozen=True)

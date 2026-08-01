@@ -75,7 +75,7 @@ Track A 是否完成，但主链切换前必须重新建立相应阶段自己的
 | Track A Stage 1 | `COMPLETE` | 每题 3 个样本，`15/15` 在三轮内通过，configuration error 为 0 | 无 |
 | Track A parity complete | `COMPLETE` | 五题各 10 个兼容样本，`pass@3 >= 90%`；structured provenance parity、typed failure boundary、跨 batch 聚合均已建立 | 无 |
 | Track B typed identity authority | `IN PROGRESS` | B0-B4、B5a/B5b 已完成；typed consumer 的真实 execution-shadow smoke 为 `15/15`，identity fallback 为 0 | B5c 等待 C2-C4 完成后删除 StepIntent/string projection |
-| Track C transactional interpreter | `IN PROGRESS` | C0 logical graph、C0.5 executable oracle、C1 execution shadow 与 C2 Context/retry authority 已完成 | C3 Functional arg role authority；随后 C4 runtime-grounded closure |
+| Track C transactional interpreter | `IN PROGRESS` | C0、C0.5、C1、C2 已完成；C3 binding authority 已离线实现并通过全量回归 | 运行 C3 `context_authoritative` 真实 `3×5` smoke；通过后进入 C4 runtime-grounded closure |
 | Functional Default Ready | `BLOCKED` | Functional 主链可 opt-in 执行 | Track A parity complete；Track B B0-B4；Track C production closure；direct compiler shadow；held-out；production observability 与回滚门禁 |
 | Track D0 product routing gate retirement | `BLOCKED` | 唯一 problem-id gate 已登记 | Track A parity complete；Functional production routing 接管该 family；legacy deterministic planner 退场 |
 | Track D default switch | `BLOCKED` | direct compiler 目标已定义 | Functional Default Ready 后才能切默认协议和删除 StepIntent 兼容链 |
@@ -89,9 +89,9 @@ Track A 是否完成，但主链切换前必须重新建立相应阶段自己的
 
 Track A 已完成，当前主线不再围绕五题概率样本做局部补丁：
 
-1. 实施 C3 `FunctionalBindingContext`，让 call arg role 在 graph rewrite、placement、
-   retry restore 和 compiler/runtime projection 后保持 typed authority；
-2. C3-C4 继续使用 C0.5 作为 scope/version hard gate，并保持
+1. 运行 C3 `context_authoritative` 五题各 3 个真实样本，确认 binding mismatch、
+   role fallback、configuration error 和 unclassified error 均为 0；
+2. C4 继续使用 C0.5 作为 scope/version/binding hard gate，并保持
    `context_authoritative` 五题兼容 smoke；
 3. C4 runtime-grounded closure 完成后，再由 B5c 删除
    StepIntent/string projection compatibility。
@@ -773,10 +773,57 @@ B3 issue 双向比较和 parent/child 跨 scope 覆盖下限均已进入 hard ga
 
 #### C3. Preserve Functional Arg Roles
 
-- 建立正式 `FunctionalBindingContext`；
-- 保留 call arg role 到 compiler/runtime；
-- graph rewrite、placement、retry overlay 后重新投影 sidecar；
-- Functional 模式不再从无角色 reads 顺序猜 target Symbol。
+状态：`OFFLINE IMPLEMENTED / REAL SMOKE PENDING`。
+
+- 已建立正式 `FunctionalBindingContext`，逐项保存 arg role、wire/resolver/compiler
+  authority、typed source、exact/latest/identity-only selection policy、aggregate
+  item index 和 runtime input targets；
+- reconciliation 在 B2 placement/liveness 后生成最终 binding ledger；legacy
+  Functional replay 与 C2 transactional preparation 使用同一个 projector，均从
+  ledger 生成 `ProjectedFunctionArgBinding`。旧 StepIntent-only 路径保持原逻辑；
+- B4 committed checkpoint 保存 per-call `binding_signature`。retry restore 后 role、
+  authority、StateVersion/source identity 或 runtime target 漂移会 fail loud；
+  provisional call 不获得 binding hard-lock；
+- PlannerStateContext 记录由 ledger/sidecar 逐项比较得到的 binding
+  decisions/mismatches 与 `legacy_binding_role_fallback_count`。负例删除 role/runtime
+  target 后会产生非零 mismatch/fallback，五份 authored fixture 为 0/0；
+- C3 新增 2,048 个匿名 role/authority 场景。每个场景构造生产
+  `FunctionalPlan`、catalog 与 reconciliation 输入，并调用
+  `FunctionalBindingContextBuilder`；declared scope、placement scope、StateVersion
+  ordinal、aggregate item order 和 retry call rename 均进入断言；
+- transactional compiler 另运行 post-compile consumption audit，直接比较 ledger 与实际
+  `MethodInvocation.inputs`。每个 runtime target 必须被消费，exact value path 必须出现在
+  声明的一组 method inputs 中；resolver evidence 与 compiler selector 按各自 authority
+  独立审计。它不复用 reconciliation sidecar，因此能发现 compiler/runtime mapping 漂移；
+- B4 checkpoint 在 partial graph 与 runtime verification 两个入口都要求本版本 committed
+  call 携带 binding signature；新建 checkpoint 缺失时 fail loud。载入升级前旧 payload
+  若缺 signature，则在 JSON boundary 将整组 hard-lock 降为 runtime-verified provisional
+  evidence，并记录 compatibility event，不按旧 wire identity 恢复；
+- 本轮 C3 主路径门禁为 `402 passed`，C3+C0.5 联合门禁为 `405 passed`；
+  全量 solver 为 `1619 passed, 17 skipped`；
+- 尚未运行新 source fingerprint 的真实 `context_authoritative` 五题各 3 个样本，
+  因此 C3 暂不标记 `COMPLETE`，C4 仍由该 smoke gate 阻塞。
+- 当前待验收的 `solver_source_sha256` 为
+  `c67798414f99fd6ce0cb3f78f9c9e54ebdfa11e19e905ab8abe8a40f6b7c5f05`。
+
+真实验收命令必须显式携带 C2 authority：
+
+```bash
+cd server
+RUN_LLM_INTEGRATION=1 \
+RUN_DEEPSEEK_FUNCTIONAL_PLANNER=1 \
+uv run python -m shuxueshuo_server.solver.deepseek_functional_batch \
+  --case all \
+  --samples-per-case 3 \
+  --concurrency 3 \
+  --max-attempts 3 \
+  --functional-transaction-mode context_authoritative \
+  --batch-id c3-context-authoritative-smoke
+```
+
+验收前先断言 `batch-summary.functional_transaction_mode ==
+context_authoritative`，并要求 configuration/unclassified error、binding mismatch 和
+legacy binding role fallback 全部为 0。
 
 #### C4. Runtime-grounded Closure Specs
 

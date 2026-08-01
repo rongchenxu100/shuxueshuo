@@ -29,6 +29,11 @@ from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
 from shuxueshuo_server.solver.runtime.functional_context_values import (
     latest_point_state_for_object as _latest_point_state_for_object,
 )
+from shuxueshuo_server.solver.runtime.functional_binding_context import (
+    FunctionalBindingContextBuilder,
+    audit_functional_arg_binding_projection,
+    project_functional_arg_bindings_from_context,
+)
 from shuxueshuo_server.solver.runtime.functional_context_closure_handlers import (
     resolve_context_closure_args as _resolve_context_closure_args,
 )
@@ -1879,6 +1884,19 @@ class _PlacementLivenessProjectionStage:
             projected_state_dependencies=projected_state_dependencies,
             projection_map=partial_projection_map,
         )
+        functional_binding_context = FunctionalBindingContextBuilder().build(
+            plan,
+            tuple(reconciled),
+            catalog=catalog,
+            object_registry=identity_factory.objects,
+        )
+        functional_binding_audit = audit_functional_arg_binding_projection(
+            functional_binding_context,
+            project_functional_arg_bindings_from_context(
+                tuple(reconciled),
+                functional_binding_context,
+            ),
+        )
         if issues:
             return FunctionalPlanReconciliationResult(
                 plan=plan,
@@ -1924,6 +1942,16 @@ class _PlacementLivenessProjectionStage:
                 ),
                 legacy_identity_fallback_count=(
                     legacy_projection_adapter.identity_fallback_count
+                ),
+                functional_binding_context=functional_binding_context,
+                functional_binding_decisions=(
+                    functional_binding_audit.decisions
+                ),
+                functional_binding_mismatches=(
+                    functional_binding_audit.mismatches
+                ),
+                legacy_binding_role_fallback_count=(
+                    functional_binding_audit.legacy_fallback_count
                 ),
             )
         projected, projection_map = FunctionalPlanProjector().project(
@@ -1977,6 +2005,12 @@ class _PlacementLivenessProjectionStage:
             ),
             legacy_identity_fallback_count=(
                 legacy_projection_adapter.identity_fallback_count
+            ),
+            functional_binding_context=functional_binding_context,
+            functional_binding_decisions=functional_binding_audit.decisions,
+            functional_binding_mismatches=functional_binding_audit.mismatches,
+            legacy_binding_role_fallback_count=(
+                functional_binding_audit.legacy_fallback_count
             ),
         )
 

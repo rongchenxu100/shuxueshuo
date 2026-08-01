@@ -33,6 +33,12 @@ from shuxueshuo_server.solver.runtime.functional_logical_graph import (
     LogicalFunctionalGraph,
     LogicalFunctionalGraphBuilder,
 )
+from shuxueshuo_server.solver.runtime.functional_binding_context import (
+    FunctionalArgBinding,
+    FunctionalBindingContext,
+    audit_compiled_functional_arg_consumption,
+    project_functional_arg_bindings_from_context,
+)
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
 )
@@ -50,7 +56,6 @@ from shuxueshuo_server.solver.runtime.functional_plan_models import (
     FunctionalPlan,
     FunctionalPlanReconciliationResult,
     FunctionalReturnAllocation,
-    SemanticRef,
 )
 from shuxueshuo_server.solver.runtime.functional_transaction_shadow import (
     FunctionalCallExecutionState,
@@ -92,7 +97,6 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     StepIntentRuntimeResult,
 )
 from shuxueshuo_server.solver.runtime.state_finalization import (
-    project_functional_state_dependencies,
     project_functional_state_writes,
 )
 from shuxueshuo_server.solver.runtime.student_symbolic_complexity import (
@@ -119,6 +123,15 @@ class PreparedFunctionalCall:
     reconciliation: FunctionalCallReconciliation
     required_return_names: tuple[str, ...] = ()
     state_reads: tuple["PreparedFunctionalStateRead", ...] = ()
+    arg_bindings: tuple["PreparedFunctionalArgBinding", ...] = ()
+
+
+@dataclass(frozen=True)
+class PreparedFunctionalArgBinding:
+    logical_binding: FunctionalArgBinding
+    selected_state_version_id: StateVersionId | None = None
+    snapshot_runtime_path: str | None = None
+    runtime_value: TypedValue | None = None
 
 
 @dataclass(frozen=True)
@@ -152,6 +165,7 @@ class CompiledFunctionalCall:
     plans: tuple[StepPlan, ...]
     public_returns: tuple[CompiledPublicReturn, ...]
     replay_plans: tuple[StepPlan, ...] = ()
+    binding_consumption_decisions: tuple[dict[str, Any], ...] = ()
 
 
 @dataclass(frozen=True)
@@ -240,6 +254,11 @@ class FunctionalTransactionalExecutionReport:
             ],
             "behavior_deltas": [
                 item.to_payload() for item in self.behavior_deltas
+            ],
+            "binding_consumption_decisions": [
+                dict(item)
+                for compiled in self.compiled_calls
+                for item in compiled.binding_consumption_decisions
             ],
         }
 
@@ -358,33 +377,23 @@ class FunctionalCallPreparationService:
                 "planner.transactional_capability_unavailable: "
                 f"call={call_id}, capability={reconciled.capability_id}"
             )
-        arg_specs = {item.name: item for item in capability.args}
+        binding_context = reconciliation.functional_binding_context
+        if not isinstance(binding_context, FunctionalBindingContext):
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.functional_binding_context_incomplete: "
+                f"call={call_id}"
+            )
+        logical_bindings = binding_context.for_call(call_id)
         runtime_bindings = CanonicalRuntimeBindingIndex.from_context(
             runtime_context,
             handle_registry=handle_registry,
             question_goals=inputs.question_goals,
             functional_consumer_identity_mode="authoritative",
         )
-        dependency_sources = {
-            (item.arg_name, item.state_version_id): item.source
-            for item in project_functional_state_dependencies(
-                reconciliation.plan,
-                reconciliation.calls,
-                catalog=capability_catalog,
-            )
-            if item.step_id == call_id
-            and item.arg_name is not None
-            and item.state_version_id is not None
-        }
         state_reads: list[PreparedFunctionalStateRead] = []
         snapshot_paths: dict[StateVersionId, str] = {}
         for arg_name, values in reconciled.resolved_args.items():
-            wire_refs = (
-                wire_call.args.get(arg_name, ())
-                if wire_call is not None
-                else ()
-            )
-            arg_spec = arg_specs.get(arg_name)
             for item_index, value in enumerate(values):
                 if value.state_version_id is None:
                     continue
@@ -408,22 +417,20 @@ class FunctionalCallPreparationService:
                         f"call={call_id}, arg={arg_name}, "
                         f"version={value.state_version_id.to_payload()}"
                     )
-                wire_uses_semantic_latest = any(
-                    isinstance(ref, SemanticRef) for ref in wire_refs
+                logical_binding = binding_context.binding_for(
+                    call_id,
+                    arg_name,
+                    item_index,
                 )
-                resolver_uses_latest = (
-                    (
-                        arg_spec is not None
-                        and arg_spec.binding_authority == "resolver"
+                if logical_binding is None:
+                    raise ValueError(
+                        "planner_configuration_error: "
+                        "planner.functional_binding_context_incomplete: "
+                        f"call={call_id}, arg={arg_name}[{item_index}]"
                     )
-                    or dependency_sources.get(
-                        (arg_name, value.state_version_id)
-                    )
-                    in {"resolver", "context"}
-                )
                 selection: Literal["exact", "latest"] = (
                     "latest"
-                    if wire_uses_semantic_latest or resolver_uses_latest
+                    if logical_binding.selection_policy == "latest"
                     else "exact"
                 )
                 selected = original
@@ -574,6 +581,35 @@ class FunctionalCallPreparationService:
                 and value.from_call == call_id
             )
         )
+        reads_by_key = {
+            (item.arg_name, item.item_index): item
+            for item in state_reads
+            if ".__support_" not in item.arg_name
+        }
+        prepared_bindings = tuple(
+            PreparedFunctionalArgBinding(
+                logical_binding=item,
+                selected_state_version_id=(
+                    reads_by_key[(item.key.arg_name, item.key.item_index)]
+                    .selected_version_id
+                    if (item.key.arg_name, item.key.item_index) in reads_by_key
+                    else None
+                ),
+                snapshot_runtime_path=(
+                    reads_by_key[(item.key.arg_name, item.key.item_index)]
+                    .snapshot_runtime_path
+                    if (item.key.arg_name, item.key.item_index) in reads_by_key
+                    else None
+                ),
+                runtime_value=(
+                    reads_by_key[(item.key.arg_name, item.key.item_index)]
+                    .runtime_value
+                    if (item.key.arg_name, item.key.item_index) in reads_by_key
+                    else None
+                ),
+            )
+            for item in logical_bindings
+        )
         return PreparedFunctionalCall(
             call_id=call_id,
             capability_id=reconciled.capability_id,
@@ -582,6 +618,7 @@ class FunctionalCallPreparationService:
             reconciliation=reconciled,
             required_return_names=tuple(sorted(required_return_names)),
             state_reads=tuple(state_reads),
+            arg_bindings=prepared_bindings,
         )
 
 
@@ -802,6 +839,28 @@ class FunctionalCallCompilerService:
         path_rewrites = _prepared_path_rewrites(prepared_call)
         replay_plans = (compiled.plan,)
         plans = (_rewrite_plan_input_paths(compiled.plan, path_rewrites),)
+        binding_consumption_audit = audit_compiled_functional_arg_consumption(
+            tuple(item.logical_binding for item in prepared_call.arg_bindings),
+            plans,
+            expected_runtime_paths={
+                item.logical_binding.key: (
+                    item.snapshot_runtime_path
+                    if item.logical_binding.consumption_mode == "runtime_input"
+                    else None
+                )
+                for item in prepared_call.arg_bindings
+            },
+        )
+        if binding_consumption_audit.mismatches:
+            first = binding_consumption_audit.mismatches[0]
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.functional_runtime_input_mapping_drift: "
+                f"call={prepared_call.call_id}, "
+                f"arg={first['arg_name']}[{first['item_index']}], "
+                f"target={first['runtime_target']}, "
+                f"details={first['details']}"
+            )
         writes = {
             item.return_name: item
             for item in compiled.state_write_provenance
@@ -851,6 +910,9 @@ class FunctionalCallCompilerService:
             plans=plans,
             public_returns=public_returns,
             replay_plans=replay_plans,
+            binding_consumption_decisions=(
+                binding_consumption_audit.decisions
+            ),
         )
 
 
@@ -859,44 +921,17 @@ def project_functional_arg_bindings(
     *,
     catalog: FunctionalCapabilityCatalog,
 ) -> tuple[ProjectedFunctionArgBinding, ...]:
-    """Project only LLM-selected public wire arguments for the bridge."""
-    calls_by_id = {
-        call.call_id: call for call in reconciliation.plan.calls
-    }
-    selected_args_by_call: dict[str, frozenset[str]] = {}
-    for call in reconciliation.calls:
-        wire_call = calls_by_id.get(call.call_id)
-        capability = catalog.get(call.capability_id)
-        if wire_call is None or capability is None:
-            selected_args_by_call[call.call_id] = frozenset()
-            continue
-        selected_args_by_call[call.call_id] = frozenset(
-            arg.name
-            for arg in capability.args
-            if (
-                arg.binding_authority == "wire"
-                and arg.name in wire_call.args
-            )
+    """Project C3 wire bindings into the StepIntent compatibility sidecar."""
+    del catalog
+    context = reconciliation.functional_binding_context
+    if not isinstance(context, FunctionalBindingContext):
+        raise ValueError(
+            "planner_configuration_error: "
+            "planner.functional_binding_context_incomplete"
         )
-    return tuple(
-        ProjectedFunctionArgBinding(
-            step_id=call.call_id,
-            arg_name=arg_name,
-            source_handle=value.handle,
-            runtime_type=value.runtime_type,
-            state_slot_id=value.state_slot_id,
-            object_ref=value.object_ref,
-            math_object_id=value.math_object_id,
-            state_version_id=value.state_version_id,
-            condition_id=value.condition_id,
-            source_call_id=value.source_call_id,
-            source_return_name=value.return_name,
-            binding_authority="wire",
-        )
-        for call in reconciliation.calls
-        for arg_name, values in call.resolved_args.items()
-        if arg_name in selected_args_by_call.get(call.call_id, ())
-        for value in values
+    return project_functional_arg_bindings_from_context(
+        reconciliation.calls,
+        context,
     )
 
 

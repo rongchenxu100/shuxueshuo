@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from shuxueshuo_server.solver.family.models import (
+    MethodAggregateInputBindingSpec,
     MethodBindingRuleSpec,
     MethodCompanionOutputSpec,
     MethodInputBindingSpec,
@@ -53,6 +54,13 @@ def quadratic_from_constraints_rule() -> MethodBindingRuleSpec:
                 item_runtime_type="ParameterValue",
                 identity_input="parameter",
                 value_input="parameter_value",
+            ),
+        ),
+        aggregate_input_bindings=(
+            MethodAggregateInputBindingSpec(
+                source_input="free_parameters",
+                item_inputs=(),
+                singleton_input="free_parameter",
             ),
         ),
         expansion_selectors=(

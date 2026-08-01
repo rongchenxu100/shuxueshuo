@@ -467,6 +467,8 @@ def _function_capability(
             selector=binding.selector,
             required=binding.required,
             binding_authority=authority_by_input[item.name],
+            semantic_role=getattr(item, "semantic_role", None) or item.name,
+            runtime_input=item.name,
         )
         for item in spec.args
         if item.name not in public_names
@@ -512,6 +514,7 @@ def _function_capability(
                         resolver_id=item.resolver_id,
                         semantic_role=item.semantic_role,
                         arg_name=item.arg_name,
+                        consumption_mode="resolver_evidence",
                     )
                     for item in spec.context_role_bindings
                 ),
@@ -676,6 +679,7 @@ def _contract_condition_arg(pattern: Any) -> FunctionalCapabilityArg:
         aggregation="none",
         runtime_input=None,
         description=pattern.description,
+        consumption_mode="resolver_evidence",
     )
 
 
@@ -717,7 +721,19 @@ def _macro_capability(
         title=recipe.title,
         use_when=use_when,
         do_not_use_when=do_not_use_when,
-        args=tuple(_macro_arg(item) for item in spec.args if item.kind != "auto"),
+        args=tuple(
+            replace(
+                _macro_arg(item),
+                consumption_mode=(
+                    "runtime_input"
+                    if item.name
+                    in {source for source, _target in spec.adapter.input_aliases}
+                    else "resolver_evidence"
+                ),
+            )
+            for item in spec.args
+            if item.kind != "auto"
+        ),
         returns=tuple(_macro_return(item) for item in spec.returns),
         source=spec,
         is_pure=spec.is_pure,
@@ -736,6 +752,7 @@ def _macro_capability(
                         resolver_id=item.resolver_id,
                         semantic_role=item.semantic_role,
                         arg_name=item.arg_name,
+                        consumption_mode="resolver_evidence",
                     )
                     for item in spec.context_role_bindings
                 ),

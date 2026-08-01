@@ -23,6 +23,9 @@ from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
 from shuxueshuo_server.solver.runtime.functional_logical_graph import (
     LogicalFunctionalGraphBuilder,
 )
+from shuxueshuo_server.solver.runtime.functional_binding_context import (
+    FunctionalBindingContextBuilder,
+)
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
 )
@@ -59,6 +62,7 @@ from shuxueshuo_server.solver.runtime.strategy_replay import (
 )
 from shuxueshuo_server.solver.runtime.state_identity import (
     IndexedStateVersion,
+    MathObjectRegistry,
     ScopeVisibilityResolver,
     StateAllocationService,
     StateIdentityIndex,
@@ -146,6 +150,11 @@ def test_authored_fixture_context_shadow_has_transactional_parity(
     attempt = replay.transactional_attempt_result
     assert attempt is not None
     assert attempt.execution_report.ok, attempt.to_payload()
+    binding_consumption = attempt.execution_report.to_payload()[
+        "binding_consumption_decisions"
+    ]
+    assert binding_consumption
+    assert all(item["matches"] for item in binding_consumption)
     assert attempt.compiled_output is not None
     assert not attempt.root_issues
     assert all(
@@ -1121,6 +1130,17 @@ def test_call_time_semantic_read_selects_latest_working_version() -> None:
                 ),
             ),
         }
+    )
+    hidden_reconciliation = replace(
+        hidden_reconciliation,
+        functional_binding_context=(
+            FunctionalBindingContextBuilder().build(
+                hidden_reconciliation.plan,
+                hidden_reconciliation.calls,
+                catalog=resolver_catalog,
+                object_registry=MathObjectRegistry.from_sources(registry),
+            )
+        ),
     )
     hidden_prepared = FunctionalCallPreparationService().prepare(
         call_id=call.call_id,

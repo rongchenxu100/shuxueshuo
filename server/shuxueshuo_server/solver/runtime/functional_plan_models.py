@@ -208,6 +208,7 @@ class FunctionalCapabilityArg:
         default="wire",
         repr=False,
     )
+    consumption_mode: str = field(default="runtime_input", repr=False)
 
     def to_prompt_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -245,12 +246,16 @@ class FunctionalAutoArg:
     selector: str
     required: bool
     binding_authority: FunctionalArgBindingAuthority = "compiler"
+    semantic_role: str | None = None
+    runtime_input: str | None = None
 
     def to_payload(self) -> dict[str, Any]:
         return {
             "name": self.name,
             "selector": self.selector,
             "required": self.required,
+            "semantic_role": self.semantic_role or self.name,
+            "runtime_input": self.runtime_input or self.name,
         }
 
 
@@ -335,6 +340,7 @@ class FunctionalContextArgBinding:
     resolver_id: CapabilityContextResolver
     semantic_role: str
     arg_name: str
+    consumption_mode: str = "runtime_input"
 
 
 def _joined_description(*parts: str) -> str:
@@ -772,6 +778,10 @@ class FunctionalPlanReconciliationResult:
     typed_identity_completeness: dict[str, Any] = field(default_factory=dict)
     legacy_projection_count: int = 0
     legacy_identity_fallback_count: int = 0
+    functional_binding_context: Any | None = None
+    functional_binding_decisions: tuple[dict[str, Any], ...] = ()
+    functional_binding_mismatches: tuple[dict[str, Any], ...] = ()
+    legacy_binding_role_fallback_count: int = 0
 
     @property
     def ok(self) -> bool:
@@ -838,6 +848,20 @@ class FunctionalPlanReconciliationResult:
             "legacy_projection_count": self.legacy_projection_count,
             "legacy_identity_fallback_count": (
                 self.legacy_identity_fallback_count
+            ),
+            "functional_binding_context": (
+                self.functional_binding_context.to_payload()
+                if self.functional_binding_context is not None
+                else None
+            ),
+            "functional_binding_decisions": [
+                dict(item) for item in self.functional_binding_decisions
+            ],
+            "functional_binding_mismatches": [
+                dict(item) for item in self.functional_binding_mismatches
+            ],
+            "legacy_binding_role_fallback_count": (
+                self.legacy_binding_role_fallback_count
             ),
             "projected_draft": (
                 self.projected_draft.to_payload()

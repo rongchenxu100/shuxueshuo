@@ -212,6 +212,7 @@ class FunctionalCommittedCallCheckpoint:
     output_result_ids: tuple[str, ...] = ()
     execution_scope_id: str | None = None
     return_scope_ids: tuple[tuple[str, str], ...] = ()
+    binding_signature: str | None = None
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -226,6 +227,7 @@ class FunctionalCommittedCallCheckpoint:
             "committed_goal_handles": list(self.committed_goal_handles),
             "execution_scope_id": self.execution_scope_id,
             "return_scope_ids": dict(self.return_scope_ids),
+            "binding_signature": self.binding_signature,
         }
 
     @classmethod
@@ -270,6 +272,11 @@ class FunctionalCommittedCallCheckpoint:
                     ).items()
                 )
             ),
+            binding_signature=(
+                str(payload["binding_signature"])
+                if payload.get("binding_signature") is not None
+                else None
+            ),
         )
 
 
@@ -283,6 +290,7 @@ class FunctionalRetryGraphCheckpoint:
     committed_calls: tuple[FunctionalCommittedCallCheckpoint, ...] = ()
     verified_versions: tuple[FunctionalRetryVersionRecord, ...] = ()
     verified_results: tuple[FunctionalRetryResultRecord, ...] = ()
+    compatibility_events: tuple[str, ...] = ()
 
     @property
     def committed_call_ids(self) -> tuple[str, ...]:
@@ -344,6 +352,7 @@ class FunctionalRetryGraphCheckpoint:
             "verified_results": [
                 item.to_payload() for item in self.verified_results
             ],
+            "compatibility_events": list(self.compatibility_events),
         }
 
     @classmethod
@@ -352,7 +361,7 @@ class FunctionalRetryGraphCheckpoint:
         payload: Mapping[str, Any],
     ) -> "FunctionalRetryGraphCheckpoint":
         try:
-            return cls(
+            checkpoint = cls(
                 source_context_id=str(payload["source_context_id"]),
                 problem_id=str(payload["problem_id"]),
                 family_id=str(payload["family_id"]),
@@ -376,7 +385,36 @@ class FunctionalRetryGraphCheckpoint:
                         payload.get("verified_results")
                     )
                 ),
+                compatibility_events=tuple(
+                    str(item)
+                    for item in payload.get("compatibility_events", ())
+                ),
             )
+            if any(
+                item.binding_signature is None
+                for item in checkpoint.committed_calls
+            ):
+                return replace(
+                    checkpoint,
+                    committed_calls=(),
+                    verified_versions=tuple(
+                        replace(item, status="runtime_verified")
+                        for item in checkpoint.verified_versions
+                    ),
+                    verified_results=tuple(
+                        replace(item, status="runtime_verified")
+                        for item in checkpoint.verified_results
+                    ),
+                    compatibility_events=tuple(
+                        dict.fromkeys(
+                            (
+                                *checkpoint.compatibility_events,
+                                "legacy_binding_signature_missing_downgraded",
+                            )
+                        )
+                    ),
+                )
+            return checkpoint
         except (KeyError, TypeError, ValueError) as exc:
             raise FunctionalRetryCheckpointError(
                 "planner.retry_version_checkpoint_invalid",
@@ -468,6 +506,14 @@ def preserve_committed_retry_checkpoint(
                 for item in observed.verified_results
                 if item.result_id not in committed_result_ids
             ),
+        ),
+        compatibility_events=tuple(
+            dict.fromkeys(
+                (
+                    *committed.compatibility_events,
+                    *observed.compatibility_events,
+                )
+            )
         ),
     )
 
@@ -616,6 +662,16 @@ def build_functional_retry_graph_checkpoint(
         item.canonical_call_id: item
         for item in getattr(reconciliation, "call_placements", ())
     }
+    binding_context = getattr(
+        reconciliation,
+        "functional_binding_context",
+        None,
+    )
+    if committed_ids and binding_context is None:
+        raise FunctionalRetryCheckpointError(
+            "planner.retry_binding_checkpoint_invalid",
+            "committed graph has no binding context",
+        )
     memory_by_call = {
         item.call_id: item for item in call_memory.entries
     }
@@ -873,6 +929,17 @@ def build_functional_retry_graph_checkpoint(
                 )
             ),
         )
+        if binding_context is None:
+            raise FunctionalRetryCheckpointError(
+                "planner.retry_binding_checkpoint_invalid",
+                f"committed call {call_id} has no binding context",
+            )
+        binding_signature = binding_context.signature_for_call(call_id)
+        if not binding_signature:
+            raise FunctionalRetryCheckpointError(
+                "planner.retry_binding_checkpoint_invalid",
+                f"committed call {call_id} has no binding signature",
+            )
         committed_calls.append(
             FunctionalCommittedCallCheckpoint(
                 canonical_call_id=call_id,
@@ -900,6 +967,7 @@ def build_functional_retry_graph_checkpoint(
                         else ()
                     )
                 ),
+                binding_signature=binding_signature,
             )
         )
 
@@ -1145,6 +1213,11 @@ def verify_restored_checkpoint(
         for item in expected_result_records.values()
     }
     for committed in checkpoint.committed_calls:
+        if committed.binding_signature is None:
+            raise FunctionalRetryCheckpointError(
+                "planner.retry_binding_checkpoint_invalid",
+                f"committed call {committed.canonical_call_id} has no binding signature",
+            )
         if (
             not committed.output_version_ids
             and not committed.output_result_ids
@@ -1188,6 +1261,16 @@ def verify_restored_checkpoint(
 
     calls = {item.call_id: item for item in reconciliation.calls}
     placement_keys = _placement_identity_keys(reconciliation)
+    binding_context = getattr(
+        reconciliation,
+        "functional_binding_context",
+        None,
+    )
+    if checkpoint.committed_calls and binding_context is None:
+        raise FunctionalRetryCheckpointError(
+            "planner.retry_binding_checkpoint_invalid",
+            "restored reconciliation has no binding context",
+        )
     restored_call_ids: dict[str, str] = {}
     for committed in checkpoint.committed_calls:
         actual_call_id = _canonical_restored_call_id(
@@ -1200,6 +1283,14 @@ def verify_restored_checkpoint(
             raise FunctionalRetryCheckpointError(
                 "planner.retry_canonical_producer_drift",
                 f"missing committed call {committed.canonical_call_id}",
+            )
+        actual_binding_signature = binding_context.signature_for_call(
+            actual_call_id
+        )
+        if actual_binding_signature != committed.binding_signature:
+            raise FunctionalRetryCheckpointError(
+                "planner.functional_arg_role_drift",
+                f"binding changed for {committed.canonical_call_id}",
             )
         actual_key = placement_keys.get(actual_call_id)
         if not _restored_identity_key_compatible(
@@ -1372,6 +1463,34 @@ def verify_restored_runtime_checkpoint(
     the successful full-replay boundary continues to require all committed
     results.
     """
+
+    actual_calls = {
+        item.canonical_call_id: item for item in actual.committed_calls
+    }
+    for expected_call in expected.committed_calls:
+        if expected_call.binding_signature is None:
+            raise FunctionalRetryCheckpointError(
+                "planner.retry_binding_checkpoint_invalid",
+                "committed call "
+                f"{expected_call.canonical_call_id} has no binding signature",
+            )
+        actual_call = actual_calls.get(expected_call.canonical_call_id)
+        if actual_call is None:
+            # External answer-check failure revokes commit status while the
+            # runtime-verified version remains comparable below.
+            continue
+        if actual_call.binding_signature is None:
+            raise FunctionalRetryCheckpointError(
+                "planner.retry_binding_checkpoint_invalid",
+                "restored call "
+                f"{expected_call.canonical_call_id} has no binding signature",
+            )
+        if actual_call.binding_signature != expected_call.binding_signature:
+            raise FunctionalRetryCheckpointError(
+                "planner.functional_arg_role_drift",
+                "runtime binding changed for "
+                f"{expected_call.canonical_call_id}",
+            )
 
     expected_records = {
         (item.canonical_producer_call_id, item.return_name): item

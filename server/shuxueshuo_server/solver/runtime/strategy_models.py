@@ -278,12 +278,25 @@ class ProjectedFunctionArgBinding:
     source_call_id: str | None = None
     source_return_name: str | None = None
     binding_authority: Literal["wire", "resolver", "compiler"] = "wire"
+    semantic_role: str | None = None
+    cardinality: str = "one"
+    item_index: int = 0
+    selection_policy: Literal[
+        "exact", "latest", "identity_only", "compiler"
+    ] = "exact"
+    runtime_input_targets: tuple[str, ...] = ()
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
             "step_id": self.step_id,
             "arg_name": self.arg_name,
             "source_handle": self.source_handle,
+            "binding_authority": self.binding_authority,
+            "semantic_role": self.semantic_role or self.arg_name,
+            "cardinality": self.cardinality,
+            "item_index": self.item_index,
+            "selection_policy": self.selection_policy,
+            "runtime_input_targets": list(self.runtime_input_targets),
         }
         if self.runtime_type is not None:
             payload["runtime_type"] = self.runtime_type

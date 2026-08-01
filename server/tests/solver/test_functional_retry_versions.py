@@ -102,6 +102,7 @@ def _checkpoint() -> FunctionalRetryGraphCheckpoint:
                 committed_goal_handles=("answer:i.P",),
                 execution_scope_id="problem",
                 return_scope_ids=(("point", "problem"),),
+                binding_signature="binding-v1",
             ),
         ),
         verified_versions=(
@@ -127,6 +128,12 @@ def _checkpoint() -> FunctionalRetryGraphCheckpoint:
                 status="goal_committed",
             ),
         ),
+    )
+
+
+def _binding_context(signature: str = "binding-v1") -> SimpleNamespace:
+    return SimpleNamespace(
+        signature_for_call=lambda _call_id: signature,
     )
 
 
@@ -185,6 +192,9 @@ def _checkpoint_builder_inputs(
                 execution_scope_id="problem",
                 return_scopes={"point": "problem"},
             ),
+        ),
+        functional_binding_context=SimpleNamespace(
+            signature_for_call=lambda _call_id: "binding-v1",
         ),
     )
     call_memory = SimpleNamespace(
@@ -278,6 +288,69 @@ def test_retry_checkpoint_round_trip_drops_scope_emptied_by_restore() -> None:
     assert checkpoint.pinned_return_scopes == {
         "make_point": {"point": "problem"}
     }
+
+
+def test_checkpoint_validation_requires_binding_signature_in_partial_mode() -> None:
+    checkpoint = _checkpoint()
+    invalid = replace(
+        checkpoint,
+        committed_calls=(
+            replace(checkpoint.committed_calls[0], binding_signature=None),
+        ),
+    )
+
+    with pytest.raises(
+        FunctionalRetryCheckpointError,
+        match="planner.retry_binding_checkpoint_invalid",
+    ):
+        verify_restored_checkpoint(
+            invalid,
+            reconciliation=SimpleNamespace(),
+            handle_registry=SimpleNamespace(),
+            verify_reconciled_graph=False,
+        )
+
+
+def test_legacy_checkpoint_without_binding_signature_downgrades_at_load_boundary() -> None:
+    payload = _checkpoint().to_payload()
+    payload["committed_calls"][0].pop("binding_signature")
+
+    migrated = FunctionalRetryGraphCheckpoint.from_payload(payload)
+
+    assert migrated.committed_calls == ()
+    assert {item.status for item in migrated.verified_versions} == {
+        "runtime_verified"
+    }
+    assert migrated.compatibility_events == (
+        "legacy_binding_signature_missing_downgraded",
+    )
+
+
+def test_runtime_checkpoint_requires_binding_signature_on_both_sides() -> None:
+    checkpoint = _checkpoint()
+    missing_expected = replace(
+        checkpoint,
+        committed_calls=(
+            replace(checkpoint.committed_calls[0], binding_signature=None),
+        ),
+    )
+    missing_actual = replace(
+        checkpoint,
+        committed_calls=(
+            replace(checkpoint.committed_calls[0], binding_signature=None),
+        ),
+    )
+
+    with pytest.raises(
+        FunctionalRetryCheckpointError,
+        match="planner.retry_binding_checkpoint_invalid",
+    ):
+        verify_restored_runtime_checkpoint(missing_expected, checkpoint)
+    with pytest.raises(
+        FunctionalRetryCheckpointError,
+        match="planner.retry_binding_checkpoint_invalid",
+    ):
+        verify_restored_runtime_checkpoint(checkpoint, missing_actual)
 
 
 def test_partial_observation_preserves_only_prior_committed_checkpoint() -> None:
@@ -555,9 +628,12 @@ def test_committed_call_local_return_uses_typed_result_anchor() -> None:
                     "canonical_call_id": "make_point",
                     "identity_key": identity_key.to_payload(),
                 },
+                ),
+                call_aliases={},
+                functional_binding_context=SimpleNamespace(
+                    signature_for_call=lambda _call_id: "binding-v1",
+                ),
             ),
-            call_aliases={},
-        ),
         handle_registry=SimpleNamespace(
             ancestor_scopes=lambda _scope_id: ("problem",),
         ),
@@ -634,6 +710,9 @@ def test_checkpoint_ignores_allocated_return_without_runtime_write() -> None:
                     "unused_point": "i",
                 },
             ),
+        ),
+        functional_binding_context=SimpleNamespace(
+            signature_for_call=lambda _call_id: "binding-v1",
         ),
     )
     memory_entry = SimpleNamespace(
@@ -1027,6 +1106,7 @@ def test_retry_checkpoint_reuse_keeps_wire_object_bindings_strict() -> None:
                 ).to_payload(),
             },
         ),
+        functional_binding_context=_binding_context(),
     )
 
     with pytest.raises(
@@ -1114,6 +1194,7 @@ def test_retry_checkpoint_ignores_transitive_provenance_versions() -> None:
                 "identity_key": committed.identity_key.to_payload(),
             },
         ),
+        functional_binding_context=_binding_context(),
     )
 
     verify_restored_checkpoint(
@@ -1155,6 +1236,7 @@ def test_retry_checkpoint_rejects_direct_transition_predecessor_drift() -> None:
                 "identity_key": committed.identity_key.to_payload(),
             },
         ),
+        functional_binding_context=_binding_context(),
     )
 
     with pytest.raises(
@@ -1186,6 +1268,7 @@ def test_retry_checkpoint_rejects_missing_committed_allocation() -> None:
                 "identity_key": committed.identity_key.to_payload(),
             },
         ),
+        functional_binding_context=_binding_context(),
     )
 
     with pytest.raises(
@@ -1229,6 +1312,7 @@ def test_retry_checkpoint_follows_canonical_alias_for_pinned_call() -> None:
                 "identity_key": committed.identity_key.to_payload(),
             },
         ),
+        functional_binding_context=_binding_context(),
     )
 
     verify_restored_checkpoint(
@@ -1302,6 +1386,7 @@ def test_retry_checkpoint_recomputes_resolver_object_metadata() -> None:
                 ).to_payload(),
             },
         ),
+        functional_binding_context=_binding_context(),
     )
 
     verify_restored_checkpoint(

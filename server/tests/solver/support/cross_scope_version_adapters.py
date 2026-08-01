@@ -10,6 +10,9 @@ from typing import Any, Mapping
 from shuxueshuo_server.solver.runtime.functional_call_placement import (
     FunctionalCallPlacementService,
 )
+from shuxueshuo_server.solver.runtime.functional_binding_context import (
+    FunctionalBindingContextBuilder,
+)
 from shuxueshuo_server.solver.runtime.functional_logical_graph import (
     LogicalFunctionalGraphBuilder,
 )
@@ -478,6 +481,14 @@ class B4RetryCheckpointAdapter:
             for call in placement.calls
             for allocation in call.returns
         }
+        _source_plan, _source_calls, _reports, catalog = _functional_inputs(
+            converted
+        )
+        binding_context = FunctionalBindingContextBuilder().build(
+            placement.plan,
+            placement.calls,
+            catalog=catalog,
+        )
         for requested_call_id in retry.committed_call_ids:
             call_id = placement.aliases.get(
                 requested_call_id,
@@ -523,6 +534,9 @@ class B4RetryCheckpointAdapter:
                         )
                         if placement_item is not None
                         else (("result", scope_id),)
+                    ),
+                    binding_signature=(
+                        binding_context.signature_for_call(call_id)
                     ),
                 )
             )

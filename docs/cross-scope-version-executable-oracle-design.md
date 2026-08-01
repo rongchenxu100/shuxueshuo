@@ -622,13 +622,22 @@ server/tests/solver/fixtures/cross_scope_version_failures/*.json
 定向测试覆盖 reference model 自身。Generated gate 通过 production adapters 比较 B1-B5b
 与 C0。
 
+C3（不是 C0.5 scope/version cohort）另增 2,048 个匿名 binding 场景，组合同类型参数角色、wire/resolver/compiler
+authority、latest/identity-only/compiler source、aggregate item、placement 与 retry
+rename。场景 adapter 不手工构造 ledger，而是构造生产 `FunctionalPlan`、capability
+catalog 和 reconciled values，并调用 `FunctionalBindingContextBuilder`。该 cohort 逐项
+比较 role、authority、完整 typed source、selection policy 和 runtime targets；scope、
+placement、StateVersion ordinal 与 item order 均会改变 expected outcome，call id 重命名
+则不得改变 per-call binding signature。
+
 建议命令：
 
 ```bash
 cd server
 uv run pytest \
   tests/solver/test_cross_scope_version_oracle.py \
-  tests/solver/test_cross_scope_version_generated_gate.py -q
+  tests/solver/test_cross_scope_version_generated_gate.py \
+  tests/solver/test_functional_binding_generated_gate.py -q
 ```
 
 ## Implementation Iterations

@@ -1726,13 +1726,10 @@ class _RecipePlanCompiler:
                     if adapter_binding is not None
                     else None
                 )
-                if (
-                    item.binding_authority != "wire"
-                    or declared_authority in {"compiler", "resolver"}
-                ):
+                if declared_authority == "compiler":
                     raise StrategyDraftValidationError(
-                        "planner_configuration_error: compiler-owned or "
-                        "resolver-owned Functional arg reached exact binding: "
+                        "planner_configuration_error: compiler-owned "
+                        "Functional arg reached exact binding: "
                         f"method={spec.method_id}, arg={item.arg_name}, "
                         f"sidecar_authority={item.binding_authority}, "
                         f"declared_authority={declared_authority or 'wire'}"
@@ -1741,7 +1738,7 @@ class _RecipePlanCompiler:
         result: dict[str, str] = {}
         aggregate_lowerings = (
             {
-                item.source_input: item.item_inputs
+                item.source_input: item
                 for item in function.adapter.aggregate_input_bindings
             }
             if function.adapter is not None
@@ -1757,7 +1754,40 @@ class _RecipePlanCompiler:
         )
         selected_items: dict[str, ProjectedFunctionArgBinding] = {}
         for input_name, items in grouped.items():
-            item_inputs = aggregate_lowerings.get(input_name, ())
+            aggregate_lowering = aggregate_lowerings.get(input_name)
+            if (
+                aggregate_lowering is not None
+                and len(items) == 1
+                and aggregate_lowering.singleton_input is not None
+            ):
+                singleton_input = aggregate_lowering.singleton_input
+                singleton_spec = spec.inputs.get(singleton_input)
+                if (
+                    singleton_spec is None
+                    or items[0].runtime_type is None
+                    or not runtime_type_compatible(
+                        singleton_spec.type,
+                        items[0].runtime_type,
+                    )
+                ):
+                    raise StrategyDraftValidationError(
+                        "planner_configuration_error: invalid functional "
+                        "singleton aggregate lowering: "
+                        f"method={spec.method_id}, arg={input_name}, "
+                        f"singleton_input={singleton_input}"
+                    )
+                result[singleton_input] = self._projected_input_path(
+                    items[0],
+                    expected_type=singleton_spec.type,
+                    consumer_scope_id=step.scope_id,
+                )
+                selected_items[singleton_input] = items[0]
+                continue
+            item_inputs = (
+                aggregate_lowering.item_inputs
+                if aggregate_lowering is not None
+                else ()
+            )
             if item_inputs:
                 if len(items) > len(item_inputs):
                     raise StrategyDraftValidationError(
