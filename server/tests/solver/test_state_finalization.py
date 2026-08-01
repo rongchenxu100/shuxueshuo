@@ -595,6 +595,91 @@ def test_logical_finalizer_accepts_whitelisted_context_version() -> None:
     assert transition.typed_slot_id == slot_id
 
 
+def test_dependency_refinement_compares_typed_symbol_identity() -> None:
+    _object_id, _logical_key, _slot_id, initial = _identity(ordinal=0)
+    symbol_id = MathObjectId(
+        "symbol:problem:a",
+        "symbol",
+        "problem",
+    )
+    transition = replace(
+        _write(
+            "close_d",
+            "fact:problem:d_v1",
+            ordinal=1,
+            action="transition",
+            previous_version_id=initial,
+            source_version_ids=(initial,),
+        ),
+        transition_kind="dependency_refinement",
+        free_symbol_refs=("symbol:problem:a",),
+        free_symbol_ids=(symbol_id,),
+    )
+    known = IndexedStateVersion(
+        version_id=initial,
+        valid_scope_id="problem",
+        producer_call_id=None,
+        produced_handle="point:problem:D",
+        free_symbol_refs=("a",),
+        free_symbol_ids=(symbol_id,),
+    )
+
+    result = StateFinalizationService().finalize_logical_graph(
+        (transition,),
+        known_versions=(known,),
+        step_scopes={"close_d": "problem"},
+        handle_registry=_registry(),
+    )
+
+    assert result.ok
+
+
+def test_dependency_refinement_rejects_distinct_symbol_identity() -> None:
+    _object_id, _logical_key, _slot_id, initial = _identity(ordinal=0)
+    previous_symbol = MathObjectId(
+        "symbol:problem:a",
+        "symbol",
+        "problem",
+    )
+    current_symbol = MathObjectId(
+        "symbol:ii:a",
+        "symbol",
+        "ii",
+    )
+    transition = replace(
+        _write(
+            "refine_d",
+            "fact:problem:d_v1",
+            ordinal=1,
+            action="transition",
+            previous_version_id=initial,
+            source_version_ids=(initial,),
+        ),
+        transition_kind="dependency_refinement",
+        free_symbol_refs=("a",),
+        free_symbol_ids=(current_symbol,),
+    )
+    known = IndexedStateVersion(
+        version_id=initial,
+        valid_scope_id="problem",
+        producer_call_id=None,
+        produced_handle="point:problem:D",
+        free_symbol_refs=("a",),
+        free_symbol_ids=(previous_symbol,),
+    )
+
+    with pytest.raises(
+        StrategyDraftValidationError,
+        match="dependency refinement adds free symbols",
+    ):
+        StateFinalizationService().finalize_logical_graph(
+            (transition,),
+            known_versions=(known,),
+            step_scopes={"refine_d": "problem"},
+            handle_registry=_registry(),
+        )
+
+
 def test_compiled_finalizer_rejects_unallocated_typed_provenance() -> None:
     allocated = _write("derive_d", "fact:problem:d")
     extra = replace(

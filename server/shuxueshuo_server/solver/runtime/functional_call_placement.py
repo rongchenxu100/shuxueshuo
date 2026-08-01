@@ -40,6 +40,9 @@ from shuxueshuo_server.solver.runtime.functional_symbol_flow import (
     apply_symbolic_closure_effect,
     return_free_symbol_refs,
 )
+from shuxueshuo_server.solver.runtime.functional_symbol_identity import (
+    symbol_ids_from_refs,
+)
 from shuxueshuo_server.solver.runtime.functional_state_allocation import (
     functional_computation_key,
     functional_source_version_ids,
@@ -64,6 +67,7 @@ from shuxueshuo_server.solver.runtime.state_identity import (
     FunctionalCallIdentityKey,
     LogicalReturnEffect,
     LogicalStateKey,
+    MathObjectRegistry,
     RuntimeDestinationKey,
     StateAllocationRequest,
     StateAllocationService,
@@ -286,12 +290,14 @@ class FunctionalCallPlacementService:
                 call.call_id
             )
             if pinned_execution_scope is not None:
-                proposed = pinned_execution_scope
+                proposed = _scope_at_or_above_checkpoint(
+                    proposed,
+                    checkpoint_scope=pinned_execution_scope,
+                    registry=handle_registry,
+                )
             elif isolated_scope is not None:
-                # An isolated StateVersion is deliberately separate from a
-                # sibling-visible version of the same MathObject. The object's
-                # origin scope does not authorize publishing this version at an
-                # ancestor scope.
+                # The state remains private even if a pure computation could
+                # execute at an ancestor. Its return scope is fixed below.
                 proposed = isolated_scope
             requested_execution_scopes[call.call_id] = proposed
 
@@ -308,12 +314,17 @@ class FunctionalCallPlacementService:
             registry=handle_registry,
             fixed_scopes={
                 **branch_private_scopes,
-                **pinned_execution_scopes,
             },
         )
         for call_id, scope_id in pinned_execution_scopes.items():
             if call_id in provisional_execution_scopes:
-                provisional_execution_scopes[call_id] = scope_id
+                provisional_execution_scopes[call_id] = (
+                    _scope_at_or_above_checkpoint(
+                        provisional_execution_scopes[call_id],
+                        checkpoint_scope=scope_id,
+                        registry=handle_registry,
+                    )
+                )
         for call_id, scope_id in branch_private_scopes.items():
             if (
                 call_id in provisional_execution_scopes
@@ -374,27 +385,34 @@ class FunctionalCallPlacementService:
                     # object's origin keeps its narrower consumer-derived
                     # return scope.
                     proposed = state_target_scope
-                if not consumers and not _inputs_publishable_at_scope(
+                if not _inputs_publishable_at_scope(
                     item.resolved_args.values(),
                     proposed,
                     aliases=aliases,
                     execution_scopes=provisional_execution_scopes,
                     registry=handle_registry,
                 ):
+                    # A return cannot be published above the visibility
+                    # boundary of the exact StateVersions used to compute it.
+                    # Downstream consumers do not widen those source versions.
                     proposed = provisional_execution_scopes[call.call_id]
                 pinned_return_scope = pinned_return_scopes.get(
                     call.call_id,
                     {},
                 ).get(allocation.return_name)
-                if pinned_return_scope is not None:
-                    proposed = pinned_return_scope
-                elif call.call_id in branch_private_scopes:
-                    proposed = branch_private_scopes[call.call_id]
-                elif (
+                if (
                     allocation.allocation_action == "isolated"
                     and allocation.typed_slot_id is not None
                 ):
                     proposed = allocation.typed_slot_id.storage_scope_id
+                elif pinned_return_scope is not None:
+                    proposed = _scope_at_or_above_checkpoint(
+                        proposed,
+                        checkpoint_scope=pinned_return_scope,
+                        registry=handle_registry,
+                    )
+                elif call.call_id in branch_private_scopes:
+                    proposed = branch_private_scopes[call.call_id]
                 scopes_by_return[allocation.return_name] = proposed
             return_scopes[call.call_id] = scopes_by_return
 
@@ -436,6 +454,7 @@ class FunctionalCallPlacementService:
                 dependency_graph=canonical_dependencies,
                 execution_scopes=provisional_execution_scopes,
                 return_scopes=return_scopes,
+                pinned_return_scopes=pinned_return_scopes,
                 identity_factory=identity_factory,
                 identity_index=base_identity_index.clone(),
                 allocation_service=allocation_service,
@@ -1127,6 +1146,7 @@ def _transfer_return_allocations(
                 call_id=previous.call_id,
                 dependency_object_refs=item.dependency_object_refs,
                 free_symbol_refs=item.free_symbol_refs,
+                free_symbol_ids=item.free_symbol_ids,
                 source_state_slot_ids=item.source_state_slot_ids,
             )
             if item.return_name in transferred_bindings
@@ -1318,12 +1338,10 @@ def _inputs_publishable_at_scope(
                 registry=registry,
             ):
                 continue
-            if not _planned_state_publishable_at_scope(
-                value,
-                scope_id=scope_id,
-                registry=registry,
-            ):
-                return False
+            # Producer placement has already reached its fixed point here.
+            # MathObject origin alone cannot widen an exact StateVersion that
+            # is still produced in a child branch.
+            return False
     return True
 
 
@@ -1459,6 +1477,7 @@ def _project_placed_calls(
     produced: dict[tuple[str, str], FunctionalReturnAllocation] = {}
     result: list[FunctionalCallReconciliation] = []
     factory = CanonicalStateHandleFactory()
+    object_registry = MathObjectRegistry.from_sources(handle_registry)
     for call in _topological_calls(
         plan.calls,
         dependency_graph=dependency_graph,
@@ -1556,6 +1575,13 @@ def _project_placed_calls(
                 ),
                 source_state_slot_ids=_argument_source_slots(resolved_args),
             )
+            allocation = replace(
+                allocation,
+                free_symbol_ids=symbol_ids_from_refs(
+                    allocation.free_symbol_refs,
+                    registry=object_registry,
+                ),
+            )
             allocations.append(allocation)
             produced[(call.call_id, old.return_name)] = allocation
         allocations = list(
@@ -1591,6 +1617,7 @@ def _finalize_typed_allocations(
     dependency_graph: Mapping[str, tuple[str, ...]],
     execution_scopes: Mapping[str, str],
     return_scopes: Mapping[str, Mapping[str, str]],
+    pinned_return_scopes: Mapping[str, Mapping[str, str]],
     identity_factory: StateIdentityFactory,
     identity_index: StateIdentityIndex,
     allocation_service: StateAllocationService,
@@ -1706,6 +1733,13 @@ def _finalize_typed_allocations(
             if spec is None:
                 continue
             valid_scope = return_scopes[call.call_id][old.return_name]
+            # A committed version keeps its storage identity across retry.
+            # Placement may widen only its publication scope when a new
+            # sibling consumer makes the state safely shareable.
+            storage_scope = pinned_return_scopes.get(
+                call.call_id,
+                {},
+            ).get(old.return_name, valid_scope)
             object_ref = final_object_refs[old.return_name]
             state_math_object_id = identity_factory.object_id(object_ref)
             projection_math_object_id = (
@@ -1727,7 +1761,7 @@ def _finalize_typed_allocations(
                 object_id=state_math_object_id,
                 state_kind=spec.state_kind,
                 runtime_type=spec.runtime_type,
-                storage_scope_id=valid_scope,
+                storage_scope_id=storage_scope,
                 valid_scope_id=valid_scope,
                 requested_write_mode=spec.write_mode,
                 identity_policy=spec.identity_policy,
@@ -1736,6 +1770,7 @@ def _finalize_typed_allocations(
                 state_effect_key=state_effect_key,
                 source_version_ids=source_version_ids,
                 free_symbol_refs=old.free_symbol_refs,
+                free_symbol_ids=old.free_symbol_ids,
                 runtime_destination=runtime_destination,
                 result_form=call.return_expectations.get(old.return_name),
             )
@@ -2292,6 +2327,10 @@ def _typed_placement_mismatches(
                 allocation.typed_slot_id is not None
                 and allocation.typed_slot_id.storage_scope_id
                 != allocation.valid_scope
+                and allocation.valid_scope
+                not in registry.ancestor_scopes(
+                    allocation.typed_slot_id.storage_scope_id
+                )
             ):
                 mismatches.append(
                     {
@@ -2299,7 +2338,7 @@ def _typed_placement_mismatches(
                         "return": allocation.return_name,
                         "reason_code": "slot_scope_drift",
                         "message": (
-                            "typed StateSlot storage scope differs from "
+                            "typed StateSlot cannot publish to the declared "
                             "return valid scope"
                         ),
                         "execution_scope_id": decision.execution_scope_id,
@@ -2360,6 +2399,7 @@ def _rewrite_resolved_value(
         object_ref=allocation.object_ref,
         dependency_object_refs=allocation.dependency_object_refs,
         free_symbol_refs=allocation.free_symbol_refs,
+        free_symbol_ids=allocation.free_symbol_ids,
         source_state_slot_ids=allocation.source_state_slot_ids,
         provides_semantic_roles=allocation.provides_semantic_roles,
         lineage=allocation.lineage,
@@ -2958,6 +2998,26 @@ def _call_execution_scope(
         (*declared_scopes, *destination_scopes, *answer_scopes),
         registry,
     )
+
+
+def _scope_at_or_above_checkpoint(
+    proposed_scope: str,
+    *,
+    checkpoint_scope: str,
+    registry: CanonicalHandleRegistry,
+) -> str:
+    """Keep a committed placement stable while allowing safe publication.
+
+    B4 pins the computation and version chain, not a narrower presentation
+    boundary. B2 may therefore expand execution/return visibility to an
+    ancestor when new sibling consumers require the same committed result.
+    Descendant or sibling movement would narrow/change the checkpoint and is
+    rejected by retaining the checkpoint scope.
+    """
+
+    if proposed_scope in registry.ancestor_scopes(checkpoint_scope):
+        return proposed_scope
+    return checkpoint_scope
 
 
 def _state_target_object_scopes(

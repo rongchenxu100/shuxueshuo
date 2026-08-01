@@ -83,15 +83,15 @@ class DeclarationValidator:
             raise TypeError(
                 f"declaration {declaration.path} type must be PointRef, got {declaration.type}"
             )
-        expected_source = (
-            "problem_identity"
+        allowed_sources = (
+            {"problem_identity", "typed_object_identity"}
             if path.container == "object_refs"
-            else "planner"
+            else {"planner"}
         )
-        if declaration.source != expected_source:
+        if declaration.source not in allowed_sources:
             raise PermissionError(
                 f"declaration {declaration.path} source must be "
-                f"{expected_source}"
+                f"one of {sorted(allowed_sources)}"
             )
         if (
             path.container == "points"

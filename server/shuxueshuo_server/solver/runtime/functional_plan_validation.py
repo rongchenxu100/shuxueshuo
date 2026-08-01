@@ -271,8 +271,11 @@ FUNCTIONAL_PLAN_JSON_SCHEMA: dict[str, Any] = {
                         "type": "string",
                         "minLength": 1,
                         "description": (
-                            "把调用放在它直接服务的小问 scope 下；可被多个小问"
-                            "复用的计算无需移动到父问。scope_id 必须来自 ProblemIR。"
+                            "scope_id 表示调用的数学归属，不表示物理存储位置。只服务"
+                            "一个小问的调用放在该小问；题面直接给出的公共前提可放在"
+                            "最近公共父 scope；先在一个小问中推导、后来被兄弟小问复用"
+                            "的调用仍留在原小问并通过 CallResultRef 引用。scope_id 必须"
+                            "来自 ProblemIR。"
                         ),
                     },
                     "label": {

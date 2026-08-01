@@ -495,7 +495,7 @@ def _typed_runtime_symbol_object_ids(
     functional_context: FunctionalGoalVerificationContext,
     provenance: tuple[Any, ...],
 ) -> tuple[Any, ...]:
-    """Resolve one runtime Symbol through the answer's exact version lineage."""
+    """Resolve one runtime Symbol to the answer version's typed Symbol set."""
 
     root_version = (
         answer_write.selected_version_id
@@ -503,11 +503,12 @@ def _typed_runtime_symbol_object_ids(
     )
     if root_version is None:
         return ()
-    reachable: set[StateVersionId] = set()
+    reachable_symbol_ids: set[Any] = set()
+    visited: set[StateVersionId] = set()
     pending = [root_version]
     while pending:
         version_id = pending.pop()
-        if version_id in reachable:
+        if version_id in visited:
             continue
         binding = functional_context.state_read_index.version(version_id)
         if binding is None:
@@ -517,18 +518,42 @@ def _typed_runtime_symbol_object_ids(
                 f"version={version_id.to_payload()}, "
                 f"runtime_symbol={runtime_symbol}"
             )
-        reachable.add(version_id)
+        visited.add(version_id)
+        reachable_symbol_ids.update(binding.free_symbol_ids)
+        if binding.math_object_id.kind == "symbol":
+            reachable_symbol_ids.add(binding.math_object_id)
         if binding.previous_version_id is not None:
             pending.append(binding.previous_version_id)
         pending.extend(binding.source_version_ids)
-    return unique_ordered(
-        item.math_object_id
-        for item in provenance
-        if item.runtime_type == "Symbol"
-        and runtime_symbol in item.free_symbol_names
-        and item.math_object_id is not None
-        and item.selected_version_id in reachable
+    if answer_write.free_symbol_names and not answer_write.free_symbol_ids:
+        raise StrategyDraftValidationError(
+            "planner_configuration_error: "
+            "planner.runtime_symbol_identity_unresolved: "
+            f"version={root_version.to_payload()}, "
+            f"runtime_symbol={runtime_symbol}"
+        )
+    if answer_write.free_symbol_ids:
+        matching = reachable_symbol_ids.intersection(
+            answer_write.free_symbol_ids
+        )
+        return tuple(sorted(matching))
+    if len(reachable_symbol_ids) == 1:
+        return tuple(reachable_symbol_ids)
+    registry = MathObjectRegistry.from_sources(
+        functional_context.state_read_index.handle_registry
     )
+    runtime_object_id = registry.resolve(runtime_symbol)
+    if (
+        runtime_object_id is None
+        or runtime_object_id.kind != "symbol"
+        or runtime_object_id not in reachable_symbol_ids
+    ):
+        raise StrategyDraftValidationError(
+            "planner_configuration_error: "
+            "planner.runtime_symbol_identity_unresolved: "
+            f"runtime_symbol={runtime_symbol}"
+        )
+    return (runtime_object_id,)
 
 
 def _parameter_goal_constraint_issue(

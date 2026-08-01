@@ -16,6 +16,7 @@ from shuxueshuo_server.solver.family.models import (
     CapabilityPackSpec,
     CapabilityStateClosurePolicy,
     CONDITION_OBJECT_ROLES_RESOLVER,
+    EQUAL_LENGTH_RAY_PATH_ROLES_RESOLVER,
     ConditionPattern,
     EvidenceInputGroupSpec,
     GoalEvidencePolicySpec,
@@ -1760,6 +1761,20 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
         contracts=(
             _recipe_contract(
                 "equal_length_ray_path_reduction",
+                slot_reads=tuple(
+                    _slot(
+                        "coordinate",
+                        "Point",
+                        object_kind="point",
+                        semantic_role=role,
+                    )
+                    for role in (
+                        "anchor",
+                        "reference_point",
+                        "ray_point",
+                        "fixed_point",
+                    )
+                ),
                 condition_reads=(
                     _condition("path_minimum_target"),
                     _condition("equal_length_condition"),
@@ -1767,6 +1782,21 @@ DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
                     _condition("point_on_ray"),
                 ),
                 slot_writes=(_slot("expression", "MinimumExpression"),),
+                dependency_policy="context_closure",
+                context_resolvers=(EQUAL_LENGTH_RAY_PATH_ROLES_RESOLVER,),
+                context_role_bindings=tuple(
+                    CapabilityContextRoleBindingSpec(
+                        EQUAL_LENGTH_RAY_PATH_ROLES_RESOLVER,
+                        role,
+                        role,
+                    )
+                    for role in (
+                        "anchor",
+                        "reference_point",
+                        "ray_point",
+                        "fixed_point",
+                    )
+                ),
             ),
             _method_contract(
                 "equal_length_ray_point",

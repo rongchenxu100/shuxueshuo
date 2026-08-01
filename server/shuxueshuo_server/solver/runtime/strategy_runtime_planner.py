@@ -63,6 +63,7 @@ from shuxueshuo_server.solver.runtime.strategy_replay import (
     PlannerRetryReplayResult,
     PlannerRetryReplayService,
     repair_attempt_payload_from_replay,
+    transactional_repair_attempt_payload_from_replay,
 )
 from shuxueshuo_server.solver.runtime.functional_transaction_shadow import (
     FunctionalTransactionMode,
@@ -328,6 +329,27 @@ class StrategyPlanner:
         replay = self.artifacts.retry_replay_result
         if (
             replay is not None
+            and replay.state_observation_authority == "transactional"
+            and replay.transactional_attempt_result is not None
+            and errors
+            and self.artifacts.planner_inputs is not None
+        ):
+            problem_payload = self.projection.to_llm_problem_payload()
+            handle_registry = CanonicalHandleRegistry.from_problem_payload(
+                problem_payload
+            )
+            return self._with_functional_few_shot_selection(
+                transactional_repair_attempt_payload_from_replay(
+                    replay,
+                    attempt=attempt,
+                    errors=tuple(errors),
+                    inputs=self.artifacts.planner_inputs,
+                    handle_registry=handle_registry,
+                    problem_payload=problem_payload,
+                )
+            )
+        if (
+            replay is not None
             and replay.retry_state is not None
             and replay.retry_state.candidate_format == "functional_plan"
         ):
@@ -358,7 +380,9 @@ class StrategyPlanner:
                     "problem_payload": problem_payload,
                 }
             )
-        replay_result = PlannerRetryReplayService().replay_from_artifacts(
+        replay_result = PlannerRetryReplayService(
+            functional_transaction_mode=self.functional_transaction_mode,
+        ).replay_from_artifacts(
             attempt=attempt,
             errors=tuple(errors),
             **replay_kwargs,

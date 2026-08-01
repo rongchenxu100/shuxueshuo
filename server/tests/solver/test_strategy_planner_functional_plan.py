@@ -352,6 +352,40 @@ def _reconcile_heping_ermo_payload(
     )
 
 
+def test_aggregate_return_cardinality_issue_explains_expected_binding() -> None:
+    _, payload, _, _ = _heping_ermo_case()
+    payload = json.loads(json.dumps(payload))
+    call = next(
+        call
+        for scope in payload["scopes"]
+        for call in scope["calls"]
+        if call["call_id"] == "solve_axis_point_candidates_i"
+    )
+    call["return_bindings"]["candidates"] = {
+        "ref": "i_2.E",
+        "kind": "point",
+    }
+
+    result = _reconcile_heping_ermo_payload(payload)
+
+    issue = next(
+        item
+        for item in result.issues
+        if item.code == "functional.return_cardinality_mismatch"
+    )
+    assert issue.details is not None
+    assert issue.details["expected_binding"] == {
+        "kind": "answer",
+        "value_type": "PointList",
+        "cardinality": "aggregate",
+    }
+    assert issue.details["actual_binding"]["kind"] == "point"
+    assert issue.details["actual_binding"]["ref"] == "i_2.E"
+    assert issue.details["actual_binding"]["cardinality"] == "singular"
+    assert "answer:i_2.E" in issue.details["compatible_answer_refs"]
+    assert "PointList" in issue.details["repair_guidance"]
+
+
 def _xiqing_case():
     problem = load_problem_ir(XIQING_FIXTURE)
     inputs = build_strategy_probe_inputs(problem)
@@ -1992,7 +2026,10 @@ def test_unified_quadratic_constraint_call_publishes_open_target_symbol() -> Non
         and item.runtime_type == "ParameterValue"
         and item.produced_by == "derive_parametric_parabola_ii"
     )
-    assert parameter_slot.free_symbol_refs == ("symbol:problem:c",)
+    assert parameter_slot.free_symbol_refs == ("c",)
+    assert tuple(
+        item.value for item in parameter_slot.free_symbol_ids
+    ) == ("symbol:problem:c",)
     assert parameter_slot.source_state_slot_ids
 
 
@@ -5420,6 +5457,89 @@ def test_committed_scope_pin_overrides_new_branch_private_inference(
     assert placement.return_scopes["axis_point"] == "problem"
 
 
+def test_committed_common_producer_scope_may_expand_to_sibling_lca() -> None:
+    (
+        _problem_ir,
+        inputs,
+        _problem_payload,
+        registry,
+        context,
+        payload,
+    ) = _xiqing_case()
+    scopes = {item["scope_id"]: item for item in payload["scopes"]}
+    shared_ids = {
+        "derive_parametric_parabola_ii",
+        "derive_curve_point_D_ii",
+    }
+    shared_calls = [
+        call for call in scopes["ii"]["calls"] if call["call_id"] in shared_ids
+    ]
+    scopes["ii"]["calls"] = [
+        call
+        for call in scopes["ii"]["calls"]
+        if call["call_id"] not in shared_ids
+    ]
+    scopes["ii_1"]["calls"] = [
+        *shared_calls,
+        *scopes["ii_1"]["calls"],
+    ]
+    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
+        payload,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+    assert validation.ok and plan is not None
+
+    reconciliation = FunctionalPlanReconciler().reconcile(
+        plan,
+        planner_state_context=context,
+        family_spec=inputs.family_spec,
+        method_specs=inputs.method_specs,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+        pinned_canonical_call_ids=tuple(shared_ids),
+        pinned_execution_scopes={call_id: "ii_1" for call_id in shared_ids},
+        pinned_return_scopes={
+            "derive_parametric_parabola_ii": {
+                "coefficients": "ii_1",
+                "parabola": "ii_1",
+            },
+            "derive_curve_point_D_ii": {"point": "ii_1"},
+        },
+    )
+
+    assert reconciliation.ok, [
+        item.to_payload() for item in reconciliation.issues
+    ]
+    placements = {
+        item.canonical_call_id: item
+        for item in reconciliation.call_placements
+    }
+    assert (
+        placements["derive_parametric_parabola_ii"].execution_scope_id
+        == "ii"
+    )
+    assert (
+        placements["derive_parametric_parabola_ii"].return_scopes["parabola"]
+        == "ii"
+    )
+    assert placements["derive_curve_point_D_ii"].execution_scope_id == "ii"
+    assert placements["derive_curve_point_D_ii"].return_scopes["point"] == "ii"
+    allocations = {
+        (call.call_id, allocation.return_name): allocation
+        for call in reconciliation.calls
+        for allocation in call.returns
+    }
+    parabola = allocations[("derive_parametric_parabola_ii", "parabola")]
+    point = allocations[("derive_curve_point_D_ii", "point")]
+    assert parabola.selected_version_id is not None
+    assert point.selected_version_id is not None
+    assert parabola.selected_version_id.slot_id.storage_scope_id == "ii_1"
+    assert point.selected_version_id.slot_id.storage_scope_id == "ii_1"
+    assert parabola.valid_scope == "ii"
+    assert point.valid_scope == "ii"
+
+
 def test_object_form_is_not_closed_when_capability_creates_companion_symbol() -> None:
     inputs = build_strategy_probe_inputs(load_problem_ir(HEPING_ERMO_FIXTURE))
     catalog = FunctionalCapabilityCatalog.from_family_spec(
@@ -8672,9 +8792,11 @@ def test_functional_payload_is_isolated_from_step_intent_payload() -> None:
     assert "do_not_use_when" in prompt.system
     assert "title/use_when" in prompt.user
     assert "title/description" not in prompt.user
-    assert "后续不同 scope" in prompt.system
+    assert "scope 表示调用的数学归属" in prompt.system
+    assert "最近公共父 scope" in prompt.system
+    assert "仍留在原小问" in prompt.system
     assert "同一对象状态" in prompt.system
-    assert "后续任何 scope" in prompt.user
+    assert "输入版本、自由符号或闭合状态不同" in prompt.user
     assert "不要另建“读取/复制/再次求解”call" in prompt.user
     assert "common_goal_types" not in prompt.user
     assert '"family_id"' not in prompt.user
@@ -11321,6 +11443,43 @@ def test_typed_object_identity_projects_materialized_point_to_point_ref() -> Non
     assert index.runtime_consumer_decisions[-1]["reason_code"] == (
         "typed_object_identity_point_ref_projection"
     )
+
+
+def test_typed_object_identity_projects_derived_point_for_union_input() -> None:
+    problem = load_problem_ir(HEPING_ERMO_FIXTURE)
+    problem_payload = problem_to_llm_payload(problem)
+    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    index = CanonicalRuntimeBindingIndex.from_context(
+        ContextBuilder().build(problem),
+        handle_registry=registry,
+        question_goals=(),
+        functional_consumer_identity_mode="authoritative",
+    )
+    object_id = MathObjectId(
+        "point:i_2:K",
+        "point",
+        "i_2",
+    )
+    point_path = "$question.i_2.facts.K_coordinate"
+    index.bindings[object_id.value] = RuntimeHandleBinding(
+        object_id.value,
+        point_path,
+        "Point",
+        "transactional_state_version",
+    )
+
+    selected = index.runtime_path_for_object_identity(
+        object_id,
+        expected_type="PointRef|Point",
+        consumer_scope_id="i_2",
+        consumer="construct_adjacent.side_end_ref",
+    )
+
+    assert selected == "$subquestion.i_2.object_refs.K"
+    assert index.runtime_consumer_decisions[-1]["reason_code"] == (
+        "typed_object_identity_point_ref_projection"
+    )
+    assert index.declarations[selected].source == "typed_object_identity"
 
 
 def test_point_output_selector_uses_projected_transition_target() -> None:

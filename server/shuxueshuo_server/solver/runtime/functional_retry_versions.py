@@ -10,6 +10,7 @@ from shuxueshuo_server.solver.runtime.state_identity import (
     ComputationKey,
     FunctionalCallIdentityKey,
     LogicalStateKey,
+    MathObjectId,
     RuntimeDestinationKey,
     StateEffectKey,
     StateVersionId,
@@ -47,6 +48,7 @@ class FunctionalRetryVersionRecord:
     valid_scope_id: str
     result_form: str | None
     free_symbol_refs: tuple[str, ...]
+    free_symbol_ids: tuple[MathObjectId, ...]
     runtime_destination: RuntimeDestinationKey | None
     status: FunctionalRetryVersionStatus
 
@@ -69,6 +71,9 @@ class FunctionalRetryVersionRecord:
             "valid_scope_id": self.valid_scope_id,
             "result_form": self.result_form,
             "free_symbol_refs": list(self.free_symbol_refs),
+            "free_symbol_ids": [
+                item.to_payload() for item in self.free_symbol_ids
+            ],
             "runtime_destination": (
                 self.runtime_destination.to_payload()
                 if self.runtime_destination is not None
@@ -120,6 +125,10 @@ class FunctionalRetryVersionRecord:
             ),
             free_symbol_refs=tuple(
                 str(item) for item in payload.get("free_symbol_refs", ())
+            ),
+            free_symbol_ids=tuple(
+                MathObjectId.from_payload(item)
+                for item in _mapping_items(payload.get("free_symbol_ids"))
             ),
             runtime_destination=(
                 RuntimeDestinationKey.from_payload(
@@ -395,6 +404,74 @@ def latest_functional_retry_graph_checkpoint(
     return None
 
 
+def preserve_committed_retry_checkpoint(
+    committed: FunctionalRetryGraphCheckpoint,
+    observed: FunctionalRetryGraphCheckpoint,
+) -> FunctionalRetryGraphCheckpoint:
+    """Keep prior hard locks while replacing provisional observations.
+
+    A partial legacy graph probe may provide useful runtime evidence when the
+    transactional interpreter could not start. It must not create new hard
+    locks, but it also must not erase a checkpoint produced by an earlier
+    transactional attempt.
+    """
+
+    manifest_fields = (
+        "problem_id",
+        "family_id",
+        "family_spec_hash",
+        "capability_pack_hash",
+    )
+    mismatches = tuple(
+        name
+        for name in manifest_fields
+        if getattr(committed, name) != getattr(observed, name)
+    )
+    if mismatches:
+        raise FunctionalRetryCheckpointError(
+            "planner.retry_context_incompatible",
+            "cannot preserve committed retry state across mismatched "
+            f"{', '.join(mismatches)}",
+        )
+
+    committed_versions = tuple(
+        item
+        for item in committed.verified_versions
+        if item.status == "goal_committed"
+    )
+    committed_version_ids = {
+        item.version_id for item in committed_versions
+    }
+    committed_results = tuple(
+        item
+        for item in committed.verified_results
+        if item.status == "goal_committed"
+    )
+    committed_result_ids = {
+        item.result_id for item in committed_results
+    }
+    return replace(
+        observed,
+        committed_calls=committed.committed_calls,
+        verified_versions=(
+            *committed_versions,
+            *(
+                item
+                for item in observed.verified_versions
+                if item.version_id not in committed_version_ids
+            ),
+        ),
+        verified_results=(
+            *committed_results,
+            *(
+                item
+                for item in observed.verified_results
+                if item.result_id not in committed_result_ids
+            ),
+        ),
+    )
+
+
 def validate_checkpoint_manifest(
     checkpoint: FunctionalRetryGraphCheckpoint,
     *,
@@ -444,10 +521,20 @@ def restore_committed_calls(
         and isinstance(scope.get("calls"), list)
     }
     committed_ids = set(checkpoint.committed_call_ids)
+    emptied_by_restore: set[str] = set()
     for scope in scope_by_id.values():
         calls = scope.get("calls")
         if not isinstance(calls, list):
             continue
+        had_committed_call = any(
+            (
+                call.get("call_id")
+                if isinstance(call, dict)
+                else None
+            )
+            in committed_ids
+            for call in calls
+        )
         calls[:] = [
             call
             for call in calls
@@ -458,6 +545,10 @@ def restore_committed_calls(
             )
             not in committed_ids
         ]
+        if had_committed_call and not calls:
+            scope_id = scope.get("scope_id")
+            if isinstance(scope_id, str):
+                emptied_by_restore.add(scope_id)
 
     restored_by_scope: dict[str, list[dict[str, Any]]] = {}
     for committed in checkpoint.committed_calls:
@@ -477,6 +568,20 @@ def restore_committed_calls(
     for scope_id, restored_calls in restored_by_scope.items():
         scope = scope_by_id[scope_id]
         scope["calls"][:] = [*restored_calls, *scope["calls"]]
+    # A model may move a committed call to an ancestor scope while repairing
+    # a sibling dependency. The checkpoint restores the immutable call payload
+    # at its declared scope; do not leave the now-empty wrapper behind for wire
+    # validation to reject. Unrelated model-authored empty scopes remain strict
+    # validation errors.
+    raw_scopes[:] = [
+        scope
+        for scope in raw_scopes
+        if not (
+            isinstance(scope, dict)
+            and scope.get("scope_id") in emptied_by_restore
+            and not scope.get("calls")
+        )
+    ]
     return result
 
 
@@ -602,6 +707,18 @@ def build_functional_retry_graph_checkpoint(
                 or write.computation_key is None
             ):
                 continue
+            if (
+                getattr(write, "free_symbol_names", ())
+                and not getattr(write, "free_symbol_ids", ())
+            ):
+                raise FunctionalRetryCheckpointError(
+                    "planner.retry_version_checkpoint_invalid",
+                    (
+                        f"verified return {call_id}."
+                        f"{allocation.return_name} has no typed "
+                        "free-Symbol identity"
+                    ),
+                )
             records.append(
                 FunctionalRetryVersionRecord(
                     return_name=allocation.return_name,
@@ -624,6 +741,9 @@ def build_functional_retry_graph_checkpoint(
                     free_symbol_refs=_runtime_free_symbol_refs(
                         snapshot=snapshot,
                         write=write,
+                    ),
+                    free_symbol_ids=tuple(
+                        getattr(write, "free_symbol_ids", ()) or ()
                     ),
                     runtime_destination=write.runtime_destination_key,
                     status=(
@@ -1263,6 +1383,14 @@ def verify_restored_runtime_checkpoint(
         for item in actual.verified_versions
     }
     for key, expected_record in expected_records.items():
+        if (
+            expected_record.free_symbol_refs
+            and not expected_record.free_symbol_ids
+        ):
+            raise FunctionalRetryCheckpointError(
+                "planner.retry_version_checkpoint_invalid",
+                f"checkpoint has no typed free-Symbol identity for {key[0]}.{key[1]}",
+            )
         actual_record = actual_records.get(key)
         if actual_record is None:
             if require_complete_evidence:
@@ -1279,8 +1407,8 @@ def verify_restored_runtime_checkpoint(
             or actual_record.runtime_destination
             != expected_record.runtime_destination
             or actual_record.result_form != expected_record.result_form
-            or actual_record.free_symbol_refs
-            != expected_record.free_symbol_refs
+            or actual_record.free_symbol_ids
+            != expected_record.free_symbol_ids
         ):
             raise FunctionalRetryCheckpointError(
                 "planner.retry_state_version_drift",
@@ -1558,6 +1686,7 @@ __all__ = [
     "build_functional_retry_graph_checkpoint",
     "expand_retry_dependency_graph_with_versions",
     "latest_functional_retry_graph_checkpoint",
+    "preserve_committed_retry_checkpoint",
     "restore_committed_calls",
     "validate_checkpoint_manifest",
     "verify_restored_checkpoint",

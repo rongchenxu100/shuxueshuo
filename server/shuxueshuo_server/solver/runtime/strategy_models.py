@@ -160,6 +160,7 @@ class ProjectedStateWrite:
     source_version_ids: tuple[StateVersionId, ...] = ()
     allocation_action: StateAllocationAction | None = None
     free_symbol_refs: tuple[str, ...] = ()
+    free_symbol_ids: tuple[MathObjectId, ...] = ()
     canonical_producer_call_id: str | None = None
     valid_scope_id: str | None = None
 
@@ -205,6 +206,10 @@ class ProjectedStateWrite:
             payload["allocation_action"] = self.allocation_action
         if self.free_symbol_refs:
             payload["free_symbol_refs"] = list(self.free_symbol_refs)
+        if self.free_symbol_ids:
+            payload["free_symbol_ids"] = [
+                item.to_payload() for item in self.free_symbol_ids
+            ]
         if self.canonical_producer_call_id is not None:
             payload["canonical_producer_call_id"] = (
                 self.canonical_producer_call_id
@@ -938,6 +943,7 @@ class StateWriteProvenance:
     write_mode: Literal["create", "transition", "value"] = "value"
     previous_write_step_id: str | None = None
     free_symbol_names: tuple[str, ...] = ()
+    free_symbol_ids: tuple[MathObjectId, ...] = ()
     closure_ignored_symbol_names: tuple[str, ...] = ()
     transition_kind: Literal["direct", "dependency_refinement"] | None = None
     dependency_object_refs: tuple[str, ...] = ()
@@ -976,6 +982,9 @@ class StateWriteProvenance:
             "write_mode": self.write_mode,
             "previous_write_step_id": self.previous_write_step_id,
             "free_symbol_names": list(self.free_symbol_names),
+            "free_symbol_ids": [
+                item.to_payload() for item in self.free_symbol_ids
+            ],
             "closure_ignored_symbol_names": list(
                 self.closure_ignored_symbol_names
             ),

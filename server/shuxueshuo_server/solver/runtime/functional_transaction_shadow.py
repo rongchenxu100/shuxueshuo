@@ -22,6 +22,7 @@ from shuxueshuo_server.solver.runtime.planner_state_context import (
 )
 from shuxueshuo_server.solver.runtime.state_identity import (
     IndexedStateVersion,
+    MathObjectId,
     MathObjectRegistry,
     ScopeVisibilityResolver,
     StateIdentityFactory,
@@ -41,6 +42,8 @@ FunctionalTransactionMode = Literal[
     "legacy",
     "shadow",
     "execution_shadow",
+    "context_shadow",
+    "context_authoritative",
 ]
 FunctionalTransactionEventKind = Literal[
     "became_ready",
@@ -103,6 +106,10 @@ class WorkingPlannerState:
     runtime_version_values: dict[StateVersionId, TypedValue] = field(
         default_factory=dict
     )
+    runtime_version_symbol_bindings: dict[
+        StateVersionId,
+        dict[Any, MathObjectId],
+    ] = field(default_factory=dict)
     events: list[FunctionalTransactionEvent] = field(default_factory=list)
 
     def emit(
@@ -160,6 +167,10 @@ class WorkingPlannerState:
         call_id: str,
         versions: tuple[IndexedStateVersion, ...],
         runtime_values: dict[StateVersionId, TypedValue],
+        runtime_symbol_bindings: Mapping[
+            StateVersionId,
+            Mapping[Any, MathObjectId],
+        ] | None = None,
     ) -> None:
         """Commit call status and every returned version as one state change."""
 
@@ -183,6 +194,11 @@ class WorkingPlannerState:
         )
         next_runtime_values = dict(self.runtime_version_values)
         next_runtime_values.update(runtime_values)
+        next_symbol_bindings = dict(self.runtime_version_symbol_bindings)
+        next_symbol_bindings.update(
+            (version_id, dict(bindings))
+            for version_id, bindings in (runtime_symbol_bindings or {}).items()
+        )
         current = self.call_states[call_id]
         next_call_state = replace(
             current,
@@ -216,6 +232,7 @@ class WorkingPlannerState:
         self.identity_index = next_index
         self.committed_versions = next_versions
         self.runtime_version_values = next_runtime_values
+        self.runtime_version_symbol_bindings = next_symbol_bindings
         self.call_states[call_id] = next_call_state
         self.events = next_events
 
@@ -715,6 +732,7 @@ def _commit_observed_writes(
                     computation_key=write.computation_key,
                     state_effect_key=write.state_effect_key,
                     free_symbol_refs=tuple(write.free_symbol_names),
+                    free_symbol_ids=write.free_symbol_ids,
                     previous_version_id=write.previous_version_id,
                     source_version_ids=write.source_version_ids,
                     runtime_destination=write.runtime_destination_key,

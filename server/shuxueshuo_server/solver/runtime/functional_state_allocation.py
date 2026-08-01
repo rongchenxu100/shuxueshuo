@@ -81,6 +81,16 @@ def project_sibling_symbol_dependencies(
                         *(source.object_ref for source in sources),
                     )
                 ),
+                free_symbol_ids=unique_ordered(
+                    (
+                        *allocation.free_symbol_ids,
+                        *(
+                            source.math_object_id
+                            for source in sources
+                            if source.math_object_id is not None
+                        ),
+                    )
+                ),
                 source_state_slot_ids=unique_ordered(
                     (
                         *allocation.source_state_slot_ids,

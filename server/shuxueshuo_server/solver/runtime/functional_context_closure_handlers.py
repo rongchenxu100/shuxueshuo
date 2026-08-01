@@ -8,6 +8,7 @@ from typing import Mapping
 from shuxueshuo_server.solver.family.models import CapabilityContextResolver
 from shuxueshuo_server.solver.runtime.context_closure import (
     CONDITION_OBJECT_ROLES_RESOLVER,
+    EQUAL_LENGTH_RAY_PATH_ROLES_RESOLVER,
     PATH_REDUCTION_ROLES_RESOLVER,
     SQUARE_PATH_TRANSFORMATION_ROLES_RESOLVER,
     WEIGHTED_PATH_TRANSFORMATION_ROLES_RESOLVER,
@@ -22,6 +23,7 @@ from shuxueshuo_server.solver.runtime.functional_context_values import (
     resolved_value_object_refs,
 )
 from shuxueshuo_server.solver.runtime.functional_path_context_resolvers import (
+    resolve_equal_length_ray_path_args,
     resolve_path_reduction_args,
     resolve_square_path_transformation_args,
     resolve_weighted_path_transformation_args,
@@ -49,6 +51,7 @@ _CONTEXT_CLOSURE_HANDLERS: Mapping[
     ContextClosureHandler,
 ] = {
     CONDITION_OBJECT_ROLES_RESOLVER: resolve_condition_role_args,
+    EQUAL_LENGTH_RAY_PATH_ROLES_RESOLVER: resolve_equal_length_ray_path_args,
     PATH_REDUCTION_ROLES_RESOLVER: resolve_path_reduction_args,
     SQUARE_PATH_TRANSFORMATION_ROLES_RESOLVER: (
         resolve_square_path_transformation_args

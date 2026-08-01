@@ -45,6 +45,10 @@ from shuxueshuo_server.solver.runtime.condition_roles import (
     ConditionRoleResolver,
     resolve_read_closed_right_angle_inputs,
 )
+from shuxueshuo_server.solver.runtime.equal_length_ray_roles import (
+    EqualLengthRayRoleError,
+    resolve_equal_length_ray_path_roles,
+)
 from shuxueshuo_server.solver.runtime._planner_helpers import single_invocation_step
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.macro_specs import (
@@ -76,10 +80,6 @@ from shuxueshuo_server.solver.runtime.runtime_type_compatibility import (
 )
 from shuxueshuo_server.solver.runtime.runtime_type_declarations import (
     split_runtime_types,
-)
-from shuxueshuo_server.solver.runtime.path_term_parsing import (
-    PathTermParseError,
-    parse_path_terms,
 )
 from shuxueshuo_server.solver.runtime.path_transformation_state import (
     PathTransformationStateResolver,
@@ -153,10 +153,6 @@ from shuxueshuo_server.solver.runtime.binding_rules import (
     _path_for_readable_type,
     _path_for_readable_type_or_none,
     _point_output_handle,
-    _length_endpoint_handles,
-    _other_endpoint_handle,
-    _payload_handle,
-    _segment_endpoints_from_entity_payload,
     _straightening_point_roles,
     _weighted_auxiliary_point_handle_for_step,
     parameter_substitution_pairs_from_reads,
@@ -187,6 +183,15 @@ class _CompiledStep:
     plan: StepPlan
     declarations: tuple[Any, ...] = ()
     registrations: tuple[RuntimeHandleBinding, ...] = ()
+    state_write_provenance: tuple[StateWriteProvenance, ...] = ()
+
+
+@dataclass(frozen=True)
+class ExactCompiledStep:
+    """One explicitly selected StepIntent capability compiled without trial replay."""
+
+    plan: StepPlan
+    declarations: tuple[Any, ...] = ()
     state_write_provenance: tuple[StateWriteProvenance, ...] = ()
 
 
@@ -420,6 +425,306 @@ class RecipeTrialExecutor:
             + json.dumps(diagnostic.candidate_errors, ensure_ascii=False)
         )
 
+    def compile_exact_step(
+        self,
+        step: StepIntent,
+        *,
+        capability_id: str,
+        family_spec: SolverFamilySpec,
+        method_specs: MethodSpecRegistry,
+        handle_registry: CanonicalHandleRegistry,
+        context: RuntimeContext,
+        question_goals: list[QuestionGoal] | tuple[QuestionGoal, ...],
+        projected_state_writes: tuple[ProjectedStateWrite, ...] = (),
+        available_state_writes: tuple[ProjectedStateWrite, ...] = (),
+        projected_state_dependencies: tuple[
+            ProjectedStateDependency, ...
+        ] = (),
+        available_state_dependencies: tuple[
+            ProjectedStateDependency, ...
+        ] = (),
+        projected_function_arg_bindings: tuple[
+            ProjectedFunctionArgBinding, ...
+        ] = (),
+        known_state_versions: tuple[IndexedStateVersion, ...] = (),
+        known_state_writes: tuple[StateWriteProvenance, ...] = (),
+        known_runtime_bindings: tuple[
+            tuple[str, str, str, str], ...
+        ] = (),
+    ) -> ExactCompiledStep:
+        """Compile one selected capability without candidate search or dry-run.
+
+        Transactional execution owns the RuntimeContext branch and runtime
+        validation. This method only reuses the existing StepIntent bridge to
+        produce the exact Function/Macro fragment selected by FunctionalPlan.
+        """
+        draft = StepIntentDraft(
+            scopes=(
+                StepIntentScope(
+                    step.scope_id,
+                    step.scope_id,
+                    (step,),
+                ),
+            )
+        )
+        draft, _finalization_report = CanonicalDraftFinalizer().finalize(
+            draft,
+            family_spec=family_spec,
+            question_goals=question_goals,
+            handle_registry=handle_registry,
+            allow_shared_derivation_scopes=True,
+            projected_state_writes=projected_state_writes,
+            projected_state_dependencies=projected_state_dependencies,
+            known_state_versions=known_state_versions,
+        )
+        effective_step = next(
+            (
+                item
+                for item in draft.steps
+                if item.step_id == step.step_id
+            ),
+            None,
+        )
+        if effective_step is None:
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: exact Functional call was "
+                f"eliminated before compilation: {step.step_id}"
+            )
+        transition_handles = tuple(
+            prior.produced_handle
+            for write in projected_state_writes
+            if write.previous_write_step_id is not None
+            for prior in known_state_writes
+            if (
+                prior.step_id == write.previous_write_step_id
+                and prior.selected_version_id
+                == write.previous_version_id
+            )
+        )
+        if transition_handles:
+            effective_step = replace(
+                effective_step,
+                reads=tuple(
+                    _unique_ordered(
+                        (*effective_step.reads, *transition_handles)
+                    )
+                ),
+            )
+            draft = StepIntentDraft(
+                scopes=tuple(
+                    replace(
+                        scope,
+                        steps=tuple(
+                            effective_step
+                            if item.step_id == effective_step.step_id
+                            else item
+                            for item in scope.steps
+                        ),
+                    )
+                    for scope in draft.scopes
+                )
+            )
+        resolution_report = StepIntentCandidateResolver().resolve(
+            draft,
+            family_spec=family_spec,
+            method_specs=method_specs,
+            handle_registry=handle_registry,
+        )
+        available_capabilities = {
+            item.capability_id
+            for item in resolution_report.capability_catalog
+        }
+        if capability_id not in available_capabilities:
+            raise StrategyDraftValidationError(
+                "functional.transactional_capability_unavailable: "
+                f"step={effective_step.step_id}, "
+                f"capability={capability_id}"
+            )
+        index = CanonicalRuntimeBindingIndex.from_context(
+            context,
+            handle_registry=handle_registry,
+            question_goals=question_goals,
+            functional_consumer_identity_mode="authoritative",
+        )
+        compiler_state_writes = (
+            available_state_writes or projected_state_writes
+        )
+        compiler_state_dependencies = (
+            available_state_dependencies
+            or projected_state_dependencies
+        )
+        index.register_projected_state_writes(
+            compiler_state_writes,
+            dependencies=compiler_state_dependencies,
+            known_state_versions=known_state_versions,
+        )
+        index.state_write_provenance.extend(known_state_writes)
+        for handle, path, runtime_type, source in known_runtime_bindings:
+            index.register(
+                handle,
+                path,
+                runtime_type,
+                source=source,
+            )
+        for write in known_state_writes:
+            runtime_destination = write.runtime_destination_key
+            runtime_path = (
+                runtime_destination.runtime_path
+                if runtime_destination is not None
+                else None
+            )
+            valid_scope_id = write.valid_scope_id or write.scope_id
+            if (
+                isinstance(runtime_path, str)
+                and runtime_path
+                and valid_scope_id
+                in handle_registry.ancestor_scopes(step.scope_id)
+            ):
+                object_id = write.math_object_id
+                produced_is_symbol_state_alias = (
+                    getattr(object_id, "kind", None) == "symbol"
+                    and write.produced_handle
+                    == getattr(object_id, "value", None)
+                    and write.runtime_type != "Symbol"
+                )
+                if not produced_is_symbol_state_alias:
+                    index.register(
+                        write.produced_handle,
+                        runtime_path,
+                        write.runtime_type,
+                        source=f"step:{write.step_id}",
+                    )
+                if (
+                    getattr(object_id, "kind", None) == "point"
+                    and write.runtime_type == "Point"
+                ):
+                    index.register(
+                        object_id.value,
+                        runtime_path,
+                        "Point",
+                        source=f"step:{write.step_id}",
+                    )
+        for version in known_state_versions:
+            valid_scope_id = getattr(version, "valid_scope_id", None)
+            if (
+                not isinstance(valid_scope_id, str)
+                or valid_scope_id
+                not in handle_registry.ancestor_scopes(step.scope_id)
+            ):
+                continue
+            runtime_destination = getattr(
+                version,
+                "runtime_destination",
+                None,
+            )
+            runtime_path = getattr(
+                runtime_destination,
+                "runtime_path",
+                None,
+            )
+            produced_handle = getattr(version, "produced_handle", None)
+            version_id = getattr(version, "version_id", None)
+            logical_key = getattr(
+                getattr(version_id, "slot_id", None),
+                "logical_key",
+                None,
+            )
+            runtime_type = getattr(logical_key, "runtime_type", None)
+            if (
+                isinstance(produced_handle, str)
+                and produced_handle
+                and isinstance(runtime_path, str)
+                and runtime_path
+                and isinstance(runtime_type, str)
+                and runtime_type
+            ):
+                object_id = getattr(logical_key, "object_id", None)
+                produced_is_symbol_state_alias = (
+                    getattr(object_id, "kind", None) == "symbol"
+                    and produced_handle == getattr(object_id, "value", None)
+                    and runtime_type != "Symbol"
+                )
+                producer_call_id = getattr(
+                    version,
+                    "producer_call_id",
+                    None,
+                )
+                binding_source = (
+                    f"step:{producer_call_id}"
+                    if isinstance(producer_call_id, str)
+                    and producer_call_id
+                    else "transactional_state_version"
+                )
+                if not produced_is_symbol_state_alias:
+                    index.register(
+                        produced_handle,
+                        runtime_path,
+                        runtime_type,
+                        source=binding_source,
+                    )
+                if (
+                    getattr(object_id, "kind", None) == "point"
+                    and runtime_type == "Point"
+                ):
+                    index.register(
+                        object_id.value,
+                        runtime_path,
+                        "Point",
+                        source=binding_source,
+                    )
+        recipe_specs = (
+            self.recipe_specs
+            or RecipeExecutionSpecRegistry.from_family_spec(family_spec)
+        )
+        binding_rules = (
+            self.binding_rules
+            or MethodBindingRuleRegistry.from_family_spec(family_spec)
+        )
+        macro_specs = MacroSpecRegistry.from_family_spec(
+            family_spec,
+            method_specs,
+        )
+        function_specs = FunctionSpecRegistry.from_family_spec(
+            family_spec,
+            method_specs,
+        )
+        compiler = _RecipePlanCompiler(
+            context=context,
+            index=index,
+            resolution_report=resolution_report,
+            method_specs=method_specs,
+            recipe_specs=recipe_specs,
+            binding_rules=binding_rules,
+            macro_adapters=MacroAdapterRegistry(
+                macro_specs,
+                handle_registry=handle_registry,
+            ),
+            function_specs=function_specs,
+            projected_state_writes=compiler_state_writes,
+            projected_state_dependencies=compiler_state_dependencies,
+            projected_function_arg_bindings=(
+                projected_function_arg_bindings
+            ),
+            recipe_compilers=self.recipe_compilers,
+        )
+        declaration_paths_before = set(index.declarations)
+        compiled = compiler._compile_with_capability(
+            effective_step,
+            capability_id,
+        )
+        declarations_by_path = {
+            item.path: item
+            for item in compiled.declarations
+        }
+        for path, declaration in index.declarations.items():
+            if path not in declaration_paths_before:
+                declarations_by_path.setdefault(path, declaration)
+        return ExactCompiledStep(
+            plan=compiled.plan,
+            declarations=tuple(declarations_by_path.values()),
+            state_write_provenance=compiled.state_write_provenance,
+        )
+
     def diagnose(
         self,
         draft: StepIntentDraft,
@@ -620,7 +925,9 @@ class _RecipePlanCompiler:
         self.scalar_closures = ScalarResultClosureRegistry(function_specs)
         self.recipe_compilers = dict(recipe_compilers)
         self.macro_binding_events: list[StepIntentMacroBindingEvent] = []
-        self.state_write_provenance: list[StateWriteProvenance] = []
+        self.state_write_provenance: list[StateWriteProvenance] = list(
+            index.state_write_provenance
+        )
         self.state_finalization_decisions: list[dict[str, Any]] = []
         self.state_finalization_mismatches: list[dict[str, Any]] = []
         self.runtime_destination_decisions: list[dict[str, Any]] = []
@@ -2387,10 +2694,6 @@ class _RecipePlanCompiler:
         再把唯一候选点代入抛物线反求参数。它不负责化简函数、求参考点或生成候选；
         这些上下文准备应由独立 method step 完成。
         """
-        target = _curve_candidate_target_handle(step, self.index)
-        target_path = self.index.path_for(target, expected_type="PointRef")
-        candidates_path = _path_for_readable_type(self.index, step, "PointList")
-        parabola_path = _path_for_readable_type(self.index, step, "Parabola")
         filter_inputs = self._projected_exact_recipe_inputs(
             step,
             "filter_point_candidates_by_quadratic_curve",
@@ -2400,12 +2703,29 @@ class _RecipePlanCompiler:
             "parameter_from_curve_point_on_quadratic",
         )
         has_functional_input_sidecar = bool(filter_inputs or parameter_inputs)
-        candidates_path = filter_inputs.get("candidates", candidates_path)
-        target_path = filter_inputs.get("target", target_path)
-        parabola_path = filter_inputs.get(
-            "parabola",
-            parameter_inputs.get("quadratic", parabola_path),
-        )
+        target_path = filter_inputs.get("target")
+        if target_path is None:
+            target = _curve_candidate_target_handle(step, self.index)
+            target_path = self.index.path_for(
+                target,
+                expected_type="PointRef",
+            )
+        candidates_path = filter_inputs.get("candidates")
+        if candidates_path is None:
+            candidates_path = _path_for_readable_type(
+                self.index,
+                step,
+                "PointList",
+            )
+        parabola_path = filter_inputs.get("parabola")
+        if parabola_path is None:
+            parabola_path = parameter_inputs.get("quadratic")
+        if parabola_path is None:
+            parabola_path = _path_for_readable_type(
+                self.index,
+                step,
+                "Parabola",
+            )
         filtered = _temp(step.step_id, "filtered_candidates")
         rejected = _temp(step.step_id, "rejected_candidates")
         selected_candidate = _temp(step.step_id, "selected_candidate")
@@ -3518,62 +3838,28 @@ def _equal_length_ray_path_reduction_roles(
     equal_fact = index.fact_handle_by_type("equal_length_condition", step=step)
     target_fact = index.fact_handle_by_type("path_minimum_target", step=step)
 
-    ray_payload = index.fact_payload(ray_fact)
-    segment_payload = index.fact_payload(segment_fact)
-    equal_payload = index.fact_payload(equal_fact)
-    target_payload = index.fact_payload(target_fact)
-
-    ray_dynamic_point = _payload_handle(ray_payload, "point", context=ray_fact)
-    ray_handle = _payload_handle(ray_payload, "ray", context=ray_fact)
-    ray_entity = index.entity_payload(ray_handle)
-    ray_origin = _payload_handle(ray_entity, "origin", context=ray_handle)
-    ray_through = _payload_handle(ray_entity, "through", context=ray_handle)
-
-    segment_dynamic_point = _payload_handle(segment_payload, "point", context=segment_fact)
-    segment_handle = _payload_handle(segment_payload, "segment", context=segment_fact)
-    segment_endpoints = _segment_endpoints_from_entity_payload(index, segment_handle)
-
-    left = _length_endpoint_handles(equal_payload.get("left"), step, index, context=f"{equal_fact}.left")
-    right = _length_endpoint_handles(equal_payload.get("right"), step, index, context=f"{equal_fact}.right")
-    common = set(left) & set(right)
-    if len(common) != 1:
-        raise StrategyDraftValidationError(f"equal_length_common_anchor_not_found: {equal_fact}")
-    anchor = next(iter(common))
-    if anchor != ray_origin:
-        raise StrategyDraftValidationError(
-            f"equal_length_ray_anchor_mismatch: {ray_fact}:{equal_fact}"
+    try:
+        roles = resolve_equal_length_ray_path_roles(
+            ray_payload=index.fact_payload(ray_fact),
+            segment_payload=index.fact_payload(segment_fact),
+            equal_payload=index.fact_payload(equal_fact),
+            target_payload=index.fact_payload(target_fact),
+            entity_payload=index.entity_payload,
+            visible_point_handles=index.entity_handles("point", step=step),
+            resolve_point_name=lambda name: index.point_handle_by_name(
+                name,
+                step=step,
+            ),
         )
-    if anchor not in segment_endpoints:
+    except EqualLengthRayRoleError as exc:
         raise StrategyDraftValidationError(
-            f"equal_length_segment_anchor_mismatch: {segment_fact}:{equal_fact}"
-        )
-    if ray_dynamic_point not in left and ray_dynamic_point not in right:
-        raise StrategyDraftValidationError(
-            f"equal_length_ray_dynamic_point_mismatch: {ray_fact}:{equal_fact}"
-        )
-    if segment_dynamic_point not in left and segment_dynamic_point not in right:
-        raise StrategyDraftValidationError(
-            f"equal_length_segment_dynamic_point_mismatch: {segment_fact}:{equal_fact}"
-        )
-    reference_point = _segment_reference_point(segment_endpoints, anchor, context=segment_fact)
-    fixed_point, path_reference_point = _fixed_and_reference_from_path_target(
-        target_payload,
-        segment_dynamic_point=segment_dynamic_point,
-        ray_dynamic_point=ray_dynamic_point,
-        step=step,
-        index=index,
-        context=target_fact,
-    )
-    if path_reference_point != reference_point:
-        raise StrategyDraftValidationError(
-            "equal_length_path_reference_mismatch: "
-            f"path={path_reference_point}, segment_reference={reference_point}"
-        )
+            f"{exc.code}: {step.step_id}: {exc}"
+        ) from exc
     return {
-        "anchor": anchor,
-        "ray_point": ray_through,
-        "reference_point": reference_point,
-        "fixed_point": fixed_point,
+        "anchor": roles.anchor,
+        "ray_point": roles.ray_point,
+        "reference_point": roles.reference_point,
+        "fixed_point": roles.fixed_point,
     }
 
 
@@ -3780,85 +4066,6 @@ def _point_definition(point_handle: str, index: CanonicalRuntimeBindingIndex) ->
         return None
     value = payload.get("definition")
     return str(value) if isinstance(value, str) else None
-
-
-def _segment_reference_point(
-    endpoints: tuple[str, str],
-    anchor: str,
-    *,
-    context: str,
-) -> str:
-    """返回线段中非等长公共端点的参考端点。"""
-    try:
-        return _other_endpoint_handle(endpoints, anchor)
-    except StrategyDraftValidationError as exc:
-        raise StrategyDraftValidationError(
-            f"equal_length_reference_point_not_found: {context}"
-        ) from exc
-
-
-def _fixed_and_reference_from_path_target(
-    payload: Mapping[str, Any],
-    *,
-    segment_dynamic_point: str,
-    ray_dynamic_point: str,
-    step: StepIntent,
-    index: CanonicalRuntimeBindingIndex,
-    context: str,
-) -> tuple[str, str]:
-    """从路径最值目标中找最终距离固定点和射线项参考点。"""
-    terms = _path_target_terms(payload, step=step, index=index, context=context)
-    fixed_point: str | None = None
-    reference_point: str | None = None
-    for p1, p2 in terms:
-        pair = (p1, p2)
-        if segment_dynamic_point in pair:
-            fixed_point = _other_endpoint_handle(pair, segment_dynamic_point)
-        if ray_dynamic_point in pair:
-            reference_point = _other_endpoint_handle(pair, ray_dynamic_point)
-    if fixed_point is None:
-        raise StrategyDraftValidationError(
-            f"equal_length_path_fixed_point_not_found: {context}"
-        )
-    if reference_point is None:
-        raise StrategyDraftValidationError(
-            f"equal_length_path_reference_point_not_found: {context}"
-        )
-    return fixed_point, reference_point
-
-
-def _path_target_terms(
-    payload: Mapping[str, Any],
-    *,
-    step: StepIntent,
-    index: CanonicalRuntimeBindingIndex,
-    context: str,
-) -> list[tuple[str, str]]:
-    """Resolve structured or legacy path terms through the shared parser."""
-
-    point_names = _unique_ordered(
-        handle.rsplit(":", 1)[-1]
-        for handle in index.entity_handles("point", step=step)
-    )
-    try:
-        terms = parse_path_terms(
-            payload,
-            point_names=point_names,
-            resolve_point=lambda name: index.point_handle_by_name(
-                name,
-                step=step,
-            ),
-        )
-    except (PathTermParseError, StrategyDraftValidationError) as exc:
-        code = (
-            exc.code
-            if isinstance(exc, PathTermParseError)
-            else "path_terms.point_unresolved"
-        )
-        raise StrategyDraftValidationError(
-            f"{code}: {context}: {exc}"
-        ) from exc
-    return [(item.start, item.end) for item in terms]
 
 
 def _generated_equal_length_auxiliary_point_path(
@@ -5361,6 +5568,11 @@ def _state_write_provenance(
             projected_write.allocation_action
             if projected_write is not None
             else None
+        ),
+        free_symbol_ids=(
+            projected_write.free_symbol_ids
+            if projected_write is not None
+            else ()
         ),
         return_name=(
             projected_write.return_name

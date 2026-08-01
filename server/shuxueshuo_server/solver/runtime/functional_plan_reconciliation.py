@@ -57,6 +57,9 @@ from shuxueshuo_server.solver.runtime.functional_symbol_flow import (
     infer_unique_target_symbol_ref,
     return_free_symbol_refs,
 )
+from shuxueshuo_server.solver.runtime.functional_symbol_identity import (
+    symbol_ids_from_refs,
+)
 from shuxueshuo_server.solver.runtime.function_specs import FunctionSpec
 from shuxueshuo_server.solver.runtime.functional_state_refinement import (
     refine_functional_object_states,
@@ -3616,6 +3619,10 @@ def _materialize_functional_return(
         args=resolved_args,
         spec=symbolic_closure,
     )
+    free_symbol_ids = symbol_ids_from_refs(
+        free_symbol_refs,
+        registry=identity_factory.objects,
+    )
     state_math_object_id = identity_factory.object_id(object_ref)
     math_object_id = state_math_object_id or _answer_projection_object_id(
         bound_ref,
@@ -3683,6 +3690,7 @@ def _materialize_functional_return(
         state_effect_key=state_effect_key,
         source_version_ids=source_version_ids,
         free_symbol_refs=free_symbol_refs,
+        free_symbol_ids=free_symbol_ids,
         runtime_destination=runtime_destination,
         result_form=expected_result_form,
     )
@@ -3753,6 +3761,7 @@ def _materialize_functional_return(
             )
         ),
         free_symbol_refs=free_symbol_refs,
+        free_symbol_ids=free_symbol_ids,
         source_state_slot_ids=_argument_source_slots(resolved_args),
         provides_semantic_roles=return_spec.provides_semantic_roles,
         lineage=lineage,
@@ -3790,6 +3799,7 @@ def _materialize_functional_return(
         object_ref=object_ref,
         dependency_object_refs=allocation.dependency_object_refs,
         free_symbol_refs=allocation.free_symbol_refs,
+        free_symbol_ids=allocation.free_symbol_ids,
         source_state_slot_ids=allocation.source_state_slot_ids,
         provides_semantic_roles=allocation.provides_semantic_roles,
         lineage=allocation.lineage,
@@ -5003,6 +5013,14 @@ def _resolve_return_binding(
         item.kind != "answer"
         and return_type in {"PointList", "SymbolList", "Coefficients"}
     ):
+        compatible_answers = tuple(
+            f"answer:{goal.id}"
+            for goal in question_goals
+            if functional_answer_output_type_compatible(
+                goal.value_type,
+                return_type,
+            )
+        )
         return None, (
             _issue(
                 "functional_reconciliation",
@@ -5013,6 +5031,25 @@ def _resolve_return_binding(
                 ),
                 call_id=call_id,
                 scope_id=scope_id,
+                details={
+                    "expected_binding": {
+                        "kind": "answer",
+                        "value_type": return_type,
+                        "cardinality": "aggregate",
+                    },
+                    "actual_binding": {
+                        "kind": item.kind,
+                        "ref": item.ref,
+                        "value_type": item.value_type,
+                        "cardinality": "singular",
+                    },
+                    "compatible_answer_refs": list(compatible_answers),
+                    "repair_guidance": (
+                        "Bind an aggregate return to an answer whose "
+                        f"value_type is {return_type}; do not bind it to "
+                        "one singular MathObject."
+                    ),
+                },
             ),
         )
     if (

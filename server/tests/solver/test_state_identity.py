@@ -184,6 +184,10 @@ def _request(
         ),
         source_version_ids=source_versions,
         free_symbol_refs=free_symbols,
+        free_symbol_ids=tuple(
+            MathObjectId(f"symbol:problem:{item}", "symbol", "problem")
+            for item in free_symbols
+        ),
         runtime_destination=RuntimeDestinationKey(
             object_id,
             "coordinate",
@@ -1102,6 +1106,42 @@ def test_allocation_isolates_child_state_when_freedom_increases() -> None:
 
     assert open_child.action == "isolated"
     assert open_child.previous_version_id is None
+
+
+def test_allocation_isolates_independent_closed_child_object_state() -> None:
+    _factory, _visibility, index = _identity()
+    service = StateAllocationService()
+    open_parent_request = replace(
+        _request(
+            computation_key=ComputationKey("derive_open_curve"),
+            storage_scope="ii",
+            free_symbols=("symbol:problem:a",),
+        ),
+        identity_policy="preserve_input_object",
+    )
+    open_parent = service.allocate(open_parent_request, index)
+    indexed = service.indexed_version(
+        open_parent_request,
+        open_parent,
+        produced_handle="fact:ii:open_curve",
+    )
+    assert indexed is not None
+    index.register(indexed)
+
+    closed_child = service.allocate(
+        replace(
+            _request(
+                computation_key=ComputationKey("derive_closed_curve"),
+                storage_scope="ii_1",
+            ),
+            identity_policy="preserve_input_object",
+        ),
+        index,
+    )
+
+    assert closed_child.action == "isolated"
+    assert closed_child.previous_version_id is None
+    assert closed_child.reason_code == "independent_object_state_in_child_scope"
 
 
 def test_allocation_accepts_recomputation_from_descendant_input_versions() -> None:

@@ -1,15 +1,23 @@
-"""C1 transactional execution shadow for canonical Functional calls.
+"""Transactional execution for canonical Functional calls.
 
-The legacy whole-plan replay remains authoritative. This module reuses its
-compiled StepPlans as a migration bridge, but executes each public Functional
-call in an isolated RuntimeContext branch and commits only verified calls.
+C1 keeps this interpreter as an execution shadow. C2 can promote its actual
+call results, StateVersions, goal closure, Context and retry projection to the
+Functional authority while legacy replay remains available as a comparison
+oracle.
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 from typing import Any, Callable, Literal, Mapping, Sequence
 
+import sympy as sp
+
+from shuxueshuo_server.solver.runtime.answer_goal_verifier import (
+    AnswerGoalVerificationReport,
+    AnswerGoalVerifier,
+    FunctionalGoalVerificationContext,
+)
 from shuxueshuo_server.solver.runtime.context import RuntimeContext
 from shuxueshuo_server.solver.runtime.canonical_draft_finalizer import (
     CanonicalDraftFinalizer,
@@ -27,6 +35,14 @@ from shuxueshuo_server.solver.runtime.functional_logical_graph import (
 )
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
+)
+from shuxueshuo_server.solver.runtime.functional_state_reads import (
+    FunctionalStateReadIndex,
+)
+from shuxueshuo_server.solver.runtime.functional_symbol_identity import (
+    runtime_free_symbol_ids,
+    runtime_free_symbols,
+    runtime_symbol_ids_from_names,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_models import (
     CallResultRef,
@@ -57,14 +73,21 @@ from shuxueshuo_server.solver.runtime.planner import PlannerInputs
 from shuxueshuo_server.solver.runtime.planner_state_context import (
     PlannerStateContext,
 )
+from shuxueshuo_server.solver.runtime.recipe_compiler import (
+    RecipeTrialExecutor,
+)
 from shuxueshuo_server.solver.runtime.state_identity import (
     IndexedStateVersion,
+    MathObjectId,
+    MathObjectRegistry,
     RuntimeDestinationKey,
     StateVersionId,
 )
 from shuxueshuo_server.solver.runtime.strategy_models import (
     PlannerRetryIssue,
+    ProjectedFunctionArgBinding,
     StateWriteProvenance,
+    StepIntentAcceptedStep,
     StepIntentExecutionDiagnostic,
     StepIntentRuntimeResult,
 )
@@ -79,6 +102,7 @@ from shuxueshuo_server.solver.utils import unique_ordered
 
 
 FunctionalCallTransactionStatus = Literal["verified", "failed"]
+FunctionalCallCompileMode = Literal["legacy_bridge", "exact"]
 _NON_BLOCKING_BEHAVIOR_DELTA_CODES = frozenset(
     {"transactional_independent_branch_verified"}
 )
@@ -127,6 +151,7 @@ class CompiledFunctionalCall:
     declarations: tuple[ContextDeclaration, ...]
     plans: tuple[StepPlan, ...]
     public_returns: tuple[CompiledPublicReturn, ...]
+    replay_plans: tuple[StepPlan, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -181,6 +206,16 @@ class FunctionalTransactionalExecutionReport:
         FunctionalTransactionShadowMismatch, ...
     ] = ()
     behavior_deltas: tuple[FunctionalTransactionBehaviorDelta, ...] = ()
+    compiled_calls: tuple[CompiledFunctionalCall, ...] = field(
+        default=(),
+        repr=False,
+        compare=False,
+    )
+    known_versions: tuple[IndexedStateVersion, ...] = field(
+        default=(),
+        repr=False,
+        compare=False,
+    )
 
     @property
     def ok(self) -> bool:
@@ -205,6 +240,44 @@ class FunctionalTransactionalExecutionReport:
             ],
             "behavior_deltas": [
                 item.to_payload() for item in self.behavior_deltas
+            ],
+        }
+
+
+@dataclass(frozen=True)
+class FunctionalTransactionalAttemptResult:
+    execution_report: FunctionalTransactionalExecutionReport
+    compiled_output: PlannerOutput | None
+    diagnostic: StepIntentExecutionDiagnostic
+    goal_report: AnswerGoalVerificationReport
+    verified_call_ids: frozenset[str]
+    failed_call_ids: frozenset[str]
+    blocked_call_ids: frozenset[str]
+    goal_reachable_call_ids: frozenset[str]
+    runtime_results: tuple[StepIntentRuntimeResult, ...]
+    state_writes: tuple[StateWriteProvenance, ...]
+    root_issues: tuple[PlannerRetryIssue, ...]
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            "execution_report": self.execution_report.to_payload(),
+            "compiled_output_ok": self.compiled_output is not None,
+            "diagnostic": self.diagnostic.to_payload(),
+            "goal_report": self.goal_report.to_payload(),
+            "verified_call_ids": sorted(self.verified_call_ids),
+            "failed_call_ids": sorted(self.failed_call_ids),
+            "blocked_call_ids": sorted(self.blocked_call_ids),
+            "goal_reachable_call_ids": sorted(
+                self.goal_reachable_call_ids
+            ),
+            "runtime_results": [
+                item.to_payload() for item in self.runtime_results
+            ],
+            "state_writes": [
+                item.to_payload() for item in self.state_writes
+            ],
+            "root_issues": [
+                item.to_payload() for item in self.root_issues
             ],
         }
 
@@ -611,7 +684,240 @@ class FunctionalCallBridgeCompiler:
             declarations=declarations,
             plans=plans,
             public_returns=public_returns,
+            replay_plans=tuple(
+                plans_by_id[step_id]
+                for step_id in prepared_call.step_ids
+            ),
         )
+
+
+class FunctionalCallCompilerService:
+    """Compile one canonical Functional call against the working Context."""
+
+    def __init__(
+        self,
+        *,
+        trial_executor: RecipeTrialExecutor | None = None,
+    ) -> None:
+        self._trial_executor = trial_executor or RecipeTrialExecutor()
+
+    def compile(
+        self,
+        prepared_call: PreparedFunctionalCall,
+        *,
+        reconciliation: FunctionalPlanReconciliationResult,
+        runtime_context: RuntimeContext,
+        working: WorkingPlannerState,
+        inputs: PlannerInputs,
+        handle_registry: CanonicalHandleRegistry,
+        capability_catalog: FunctionalCapabilityCatalog,
+        committed_state_writes: tuple[StateWriteProvenance, ...] = (),
+        committed_calls: tuple[CompiledFunctionalCall, ...] = (),
+    ) -> CompiledFunctionalCall:
+        projected = reconciliation.projected_draft
+        if projected is None:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.transactional_projected_draft_missing"
+            )
+        step_by_id = {item.step_id: item for item in projected.steps}
+        if len(prepared_call.step_ids) != 1:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.transactional_call_projection_ambiguous: "
+                f"call={prepared_call.call_id}, "
+                f"steps={list(prepared_call.step_ids)}"
+            )
+        step = step_by_id.get(prepared_call.step_ids[0])
+        if step is None:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.transactional_projected_step_missing: "
+                f"call={prepared_call.call_id}"
+            )
+        all_projected_writes = project_functional_state_writes(
+            reconciliation.plan,
+            reconciliation.calls,
+        )
+        projected_writes = tuple(
+            item
+            for item in all_projected_writes
+            if item.step_id == prepared_call.call_id
+        )
+        all_projected_dependencies = (
+            reconciliation.projected_state_dependencies
+        )
+        projected_dependencies = tuple(
+            item
+            for item in all_projected_dependencies
+            if item.step_id == prepared_call.call_id
+        )
+        projected_bindings = project_functional_arg_bindings(
+            reconciliation,
+            catalog=capability_catalog,
+        )
+        compiled = self._trial_executor.compile_exact_step(
+            step,
+            capability_id=prepared_call.capability_id,
+            family_spec=inputs.family_spec,
+            method_specs=inputs.method_specs,
+            handle_registry=handle_registry,
+            context=runtime_context,
+            question_goals=tuple(inputs.question_goals),
+            projected_state_writes=projected_writes,
+            available_state_writes=all_projected_writes,
+            projected_state_dependencies=projected_dependencies,
+            available_state_dependencies=all_projected_dependencies,
+            projected_function_arg_bindings=projected_bindings,
+            known_state_versions=working.identity_index.all_versions(),
+            known_state_writes=committed_state_writes,
+            # Call-local public values have no StateVersion, but downstream
+            # CallResultRef inputs still need their exact producer binding.
+            # Materialized returns are registered only from committed typed
+            # StateVersion/StateWriteProvenance so they cannot overwrite an
+            # immutable object identity (notably Symbol -> ParameterValue).
+            known_runtime_bindings=tuple(
+                (
+                    returned.expected_write.produced_handle,
+                    runtime_path,
+                    returned.expected_write.runtime_type,
+                    f"step:{call.call_id}",
+                )
+                for call in committed_calls
+                for returned in call.public_returns
+                if (
+                    returned.expected_write is not None
+                    and returned.allocation.allocation_action
+                    == "call_local_value"
+                )
+                for runtime_path in (
+                    _runtime_path_for_write(
+                        call.plans,
+                        returned.expected_write,
+                    ),
+                )
+                if runtime_path is not None
+            ),
+        )
+        path_rewrites = _prepared_path_rewrites(prepared_call)
+        replay_plans = (compiled.plan,)
+        plans = (_rewrite_plan_input_paths(compiled.plan, path_rewrites),)
+        writes = {
+            item.return_name: item
+            for item in compiled.state_write_provenance
+            if item.return_name is not None
+        }
+        capability = capability_catalog.get(prepared_call.capability_id)
+        if capability is None:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.transactional_capability_unavailable: "
+                f"call={prepared_call.call_id}, "
+                f"capability={prepared_call.capability_id}"
+            )
+        return_specs = {item.name: item for item in capability.returns}
+        public_returns = tuple(
+            CompiledPublicReturn(
+                return_name=allocation.return_name,
+                allocation=allocation,
+                expected_write=writes.get(allocation.return_name),
+                required=(
+                    return_specs[allocation.return_name].required
+                    if allocation.return_name in return_specs
+                    else True
+                )
+                or allocation.return_name
+                in prepared_call.required_return_names,
+                max_independent_free_parameters=(
+                    return_specs[
+                        allocation.return_name
+                    ].max_independent_free_parameters
+                    if allocation.return_name in return_specs
+                    else None
+                ),
+            )
+            for allocation in prepared_call.reconciliation.returns
+        )
+        referenced_paths = _plan_paths(plans)
+        declarations = tuple(
+            item
+            for item in compiled.declarations
+            if item.path in referenced_paths
+        )
+        return CompiledFunctionalCall(
+            call_id=prepared_call.call_id,
+            step_ids=prepared_call.step_ids,
+            declarations=declarations,
+            plans=plans,
+            public_returns=public_returns,
+            replay_plans=replay_plans,
+        )
+
+
+def project_functional_arg_bindings(
+    reconciliation: FunctionalPlanReconciliationResult,
+    *,
+    catalog: FunctionalCapabilityCatalog,
+) -> tuple[ProjectedFunctionArgBinding, ...]:
+    """Project only LLM-selected public wire arguments for the bridge."""
+    calls_by_id = {
+        call.call_id: call for call in reconciliation.plan.calls
+    }
+    selected_args_by_call: dict[str, frozenset[str]] = {}
+    for call in reconciliation.calls:
+        wire_call = calls_by_id.get(call.call_id)
+        capability = catalog.get(call.capability_id)
+        if wire_call is None or capability is None:
+            selected_args_by_call[call.call_id] = frozenset()
+            continue
+        selected_args_by_call[call.call_id] = frozenset(
+            arg.name
+            for arg in capability.args
+            if (
+                arg.binding_authority == "wire"
+                and arg.name in wire_call.args
+            )
+        )
+    return tuple(
+        ProjectedFunctionArgBinding(
+            step_id=call.call_id,
+            arg_name=arg_name,
+            source_handle=value.handle,
+            runtime_type=value.runtime_type,
+            state_slot_id=value.state_slot_id,
+            object_ref=value.object_ref,
+            math_object_id=value.math_object_id,
+            state_version_id=value.state_version_id,
+            condition_id=value.condition_id,
+            source_call_id=value.source_call_id,
+            source_return_name=value.return_name,
+            binding_authority="wire",
+        )
+        for call in reconciliation.calls
+        for arg_name, values in call.resolved_args.items()
+        if arg_name in selected_args_by_call.get(call.call_id, ())
+        for value in values
+    )
+
+
+def _prepared_path_rewrites(
+    prepared_call: PreparedFunctionalCall,
+) -> dict[str, str]:
+    rewrites: dict[str, str] = {}
+    for read in prepared_call.state_reads:
+        existing = rewrites.get(read.original_runtime_path)
+        if (
+            existing is not None
+            and existing != read.snapshot_runtime_path
+        ):
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.transactional_arg_path_ambiguous: "
+                f"call={prepared_call.call_id}, "
+                f"path={read.original_runtime_path}"
+            )
+        rewrites[read.original_runtime_path] = read.snapshot_runtime_path
+    return rewrites
 
 
 class FunctionalRuntimeWriteCommitter:
@@ -625,6 +931,8 @@ class FunctionalRuntimeWriteCommitter:
         branch: RuntimeContext,
         plan: FunctionalPlan,
         working: WorkingPlannerState,
+        object_registry: MathObjectRegistry,
+        runtime_symbol_bindings: Mapping[sp.Symbol, MathObjectId],
     ) -> tuple[
         tuple[StepIntentRuntimeResult, ...],
         tuple[StateWriteProvenance, ...],
@@ -712,11 +1020,27 @@ class FunctionalRuntimeWriteCommitter:
                 for item in runtime_free_symbol_names(typed.value)
                 if item not in write.closure_ignored_symbol_names
             )
+            free_symbol_ids = runtime_free_symbol_ids(
+                typed.value,
+                context=branch,
+                registry=object_registry,
+                declared_runtime_symbols=runtime_symbol_bindings,
+            )
+            ignored_symbol_ids = runtime_symbol_ids_from_names(
+                write.closure_ignored_symbol_names,
+                context=branch,
+                registry=object_registry,
+            )
+            free_symbol_ids = tuple(
+                item
+                for item in free_symbol_ids
+                if item not in ignored_symbol_ids
+            )
             expected_form = expectations.get(returned.return_name)
             actual_form = _actual_form(expected_form, free_symbols)
             if (
                 expected_form in {"closed_state", "closed_value"}
-                and free_symbols
+                and free_symbol_ids
             ):
                 issues.append(
                     _issue(
@@ -730,7 +1054,7 @@ class FunctionalRuntimeWriteCommitter:
                 continue
             if (
                 returned.max_independent_free_parameters is not None
-                and len(free_symbols)
+                and len(free_symbol_ids)
                 > returned.max_independent_free_parameters
             ):
                 issues.append(
@@ -738,7 +1062,7 @@ class FunctionalRuntimeWriteCommitter:
                         compiled.call_id,
                         "functional.return_complexity_exceeded",
                         f"return {returned.return_name} retains "
-                        f"{len(free_symbols)} free symbols; maximum is "
+                        f"{len(free_symbol_ids)} free symbols; maximum is "
                         f"{returned.max_independent_free_parameters}",
                     )
                 )
@@ -761,6 +1085,7 @@ class FunctionalRuntimeWriteCommitter:
             actual_write = replace(
                 write,
                 free_symbol_names=free_symbols,
+                free_symbol_ids=free_symbol_ids,
                 result_form=actual_form,
                 runtime_destination_key=runtime_destination,
             )
@@ -816,6 +1141,7 @@ class FunctionalRuntimeWriteCommitter:
                     computation_key=actual_write.computation_key,
                     state_effect_key=actual_write.state_effect_key,
                     free_symbol_refs=free_symbols,
+                    free_symbol_ids=free_symbol_ids,
                     previous_version_id=actual_write.previous_version_id,
                     source_version_ids=actual_write.source_version_ids,
                     runtime_destination=runtime_destination,
@@ -861,13 +1187,15 @@ class FunctionalTransactionalInterpreter:
         *,
         raw_plan: FunctionalPlan,
         reconciliation: FunctionalPlanReconciliationResult,
-        legacy_output: PlannerOutput,
-        legacy_diagnostic: StepIntentExecutionDiagnostic,
+        legacy_output: PlannerOutput | None,
+        legacy_diagnostic: StepIntentExecutionDiagnostic | None,
         runtime_context: RuntimeContext,
         parent_context: PlannerStateContext,
         inputs: PlannerInputs,
         handle_registry: CanonicalHandleRegistry,
         goal_verification_report: Any | None = None,
+        compile_mode: FunctionalCallCompileMode = "legacy_bridge",
+        compare_legacy: bool = True,
     ) -> FunctionalTransactionalExecutionReport:
         build = LogicalFunctionalGraphBuilder().build(
             raw_plan,
@@ -910,9 +1238,15 @@ class FunctionalTransactionalInterpreter:
             inputs.method_specs,
         )
         preparer = FunctionalCallPreparationService()
-        bridge = FunctionalCallBridgeCompiler()
+        legacy_bridge = FunctionalCallBridgeCompiler()
+        exact_compiler = FunctionalCallCompilerService()
         committer = FunctionalRuntimeWriteCommitter()
+        object_registry = MathObjectRegistry.from_sources(
+            handle_registry,
+            math_objects=parent_context.state.math_objects,
+        )
         results: list[FunctionalCallExecutionResult] = []
+        compiled_calls: list[CompiledFunctionalCall] = []
         for call_id in graph.canonical_order:
             state = working.call_states[call_id]
             dependency_statuses = tuple(
@@ -954,12 +1288,35 @@ class FunctionalTransactionalInterpreter:
                     handle_registry=handle_registry,
                     capability_catalog=capability_catalog,
                 )
-                compiled = bridge.compile(
-                    prepared,
-                    output=legacy_output,
-                    diagnostic=legacy_diagnostic,
-                    capability_catalog=capability_catalog,
-                )
+                if compile_mode == "exact":
+                    compiled = exact_compiler.compile(
+                        prepared,
+                        reconciliation=reconciliation,
+                        runtime_context=current_context,
+                        working=working,
+                        inputs=inputs,
+                        handle_registry=handle_registry,
+                        capability_catalog=capability_catalog,
+                        committed_state_writes=tuple(
+                            write
+                            for result in results
+                            if result.status == "verified"
+                            for write in result.state_writes
+                        ),
+                        committed_calls=tuple(compiled_calls),
+                    )
+                else:
+                    if legacy_output is None or legacy_diagnostic is None:
+                        raise ValueError(
+                            "planner_configuration_error: legacy bridge "
+                            "requires a complete PlannerOutput and diagnostic"
+                        )
+                    compiled = legacy_bridge.compile(
+                        prepared,
+                        output=legacy_output,
+                        diagnostic=legacy_diagnostic,
+                        capability_catalog=capability_catalog,
+                    )
                 branch = current_context.fork()
                 _apply_missing_declarations(branch, compiled.declarations)
                 _materialize_transaction_state_reads(
@@ -991,6 +1348,23 @@ class FunctionalTransactionalInterpreter:
                             for item in failed_checks
                         )
                     )
+                call_symbol_bindings = _declared_runtime_symbol_bindings(
+                    compiled,
+                    branch=branch,
+                )
+                effective_symbol_bindings = _merge_runtime_symbol_bindings(
+                    _merge_runtime_symbol_bindings(
+                        _context_runtime_symbol_bindings(
+                            branch,
+                            registry=object_registry,
+                        ),
+                        _prepared_runtime_symbol_bindings(
+                            prepared,
+                            working=working,
+                        ),
+                    ),
+                    call_symbol_bindings,
+                )
                 (
                     runtime_results,
                     writes,
@@ -1003,6 +1377,8 @@ class FunctionalTransactionalInterpreter:
                     branch=branch,
                     plan=reconciliation.plan,
                     working=working,
+                    object_registry=object_registry,
+                    runtime_symbol_bindings=effective_symbol_bindings,
                 )
                 if issues:
                     working.set_status(
@@ -1041,8 +1417,16 @@ class FunctionalTransactionalInterpreter:
                     call_id,
                     versions,
                     runtime_values,
+                    runtime_symbol_bindings=(
+                        _version_runtime_symbol_bindings(
+                            versions,
+                            runtime_values=runtime_values,
+                            call_bindings=effective_symbol_bindings,
+                        )
+                    ),
                 )
                 current_context = branch
+                compiled_calls.append(compiled)
                 results.append(
                     FunctionalCallExecutionResult(
                         call_id,
@@ -1077,13 +1461,16 @@ class FunctionalTransactionalInterpreter:
                     )
                 )
 
-        compatibility, deltas = _compare_with_legacy(
-            graph,
-            working=working,
-            reconciliation=reconciliation,
-            diagnostic=legacy_diagnostic,
-            call_results=tuple(results),
-        )
+        if compare_legacy and legacy_diagnostic is not None:
+            compatibility, deltas = _compare_with_legacy(
+                graph,
+                working=working,
+                reconciliation=reconciliation,
+                diagnostic=legacy_diagnostic,
+                call_results=tuple(results),
+            )
+        else:
+            compatibility, deltas = (), ()
         mismatches.extend(compatibility)
         return FunctionalTransactionalExecutionReport(
             graph=graph,
@@ -1106,6 +1493,198 @@ class FunctionalTransactionalInterpreter:
             ),
             compatibility_mismatches=tuple((*mismatches,)),
             behavior_deltas=deltas,
+            compiled_calls=tuple(compiled_calls),
+            known_versions=working.identity_index.all_versions(),
+        )
+
+    def execute_attempt(
+        self,
+        *,
+        raw_plan: FunctionalPlan,
+        reconciliation: FunctionalPlanReconciliationResult,
+        legacy_output: PlannerOutput | None,
+        legacy_diagnostic: StepIntentExecutionDiagnostic | None,
+        runtime_context: RuntimeContext,
+        parent_context: PlannerStateContext,
+        inputs: PlannerInputs,
+        handle_registry: CanonicalHandleRegistry,
+        problem_payload: Mapping[str, Any],
+        compare_legacy: bool,
+    ) -> FunctionalTransactionalAttemptResult:
+        """Execute C2 and derive goal, output and retry facts from runtime."""
+        report = self.execute(
+            raw_plan=raw_plan,
+            reconciliation=reconciliation,
+            legacy_output=legacy_output,
+            legacy_diagnostic=legacy_diagnostic,
+            runtime_context=runtime_context,
+            parent_context=parent_context,
+            inputs=inputs,
+            handle_registry=handle_registry,
+            compile_mode="exact",
+            compare_legacy=compare_legacy,
+        )
+        verified_call_ids = frozenset(
+            item.call_id
+            for item in report.call_states
+            if item.status == "verified"
+        )
+        failed_call_ids = frozenset(
+            item.call_id
+            for item in report.call_states
+            if item.status == "failed"
+        )
+        blocked_call_ids = frozenset(
+            item.call_id
+            for item in report.call_states
+            if item.status == "blocked_by_dependency"
+        )
+        runtime_results = tuple(
+            result
+            for call in report.call_results
+            if call.status == "verified"
+            for result in call.runtime_results
+        )
+        state_writes = tuple(
+            write
+            for call in report.call_results
+            if call.status == "verified"
+            for write in call.state_writes
+        )
+        diagnostic = _transactional_diagnostic(
+            report,
+            reconciliation=reconciliation,
+            runtime_results=runtime_results,
+            state_writes=state_writes,
+        )
+        projected_writes = project_functional_state_writes(
+            reconciliation.plan,
+            reconciliation.calls,
+        )
+        read_index = FunctionalStateReadIndex.from_sources(
+            handle_registry=handle_registry,
+            mode="authoritative",
+            projected_state_writes=projected_writes,
+            projected_state_dependencies=(
+                reconciliation.projected_state_dependencies
+            ),
+            state_write_provenance=state_writes,
+            known_state_versions=report.known_versions,
+        )
+        answer_version_ids = _transactional_answer_version_ids(
+            report.graph,
+            reconciliation=reconciliation,
+            committed_version_ids=frozenset(
+                item.version_id for item in report.committed_versions
+            ),
+            projected_writes=projected_writes,
+        )
+        goal_context = FunctionalGoalVerificationContext(
+            logical_graph=report.graph,
+            state_read_index=read_index,
+            runtime_writes_by_version={
+                item.selected_version_id: item
+                for item in state_writes
+                if item.selected_version_id is not None
+            },
+            answer_version_ids=answer_version_ids,
+            verified_call_ids=verified_call_ids,
+        )
+        goal_report = AnswerGoalVerifier().verify_report(
+            reconciliation.projected_draft,
+            problem_payload=problem_payload,
+            handle_registry=handle_registry,
+            diagnostic=diagnostic,
+            family_spec=inputs.family_spec,
+            functional_context=goal_context,
+        )
+        goal_reachable_call_ids = _passed_goal_reachable_calls(
+            report.graph,
+            goal_report,
+        )
+        required_goal_call_ids = _goal_dependency_closure(
+            report.graph,
+            {
+                item.producer_step_id
+                for item in goal_report.goals
+                if item.producer_step_id is not None
+            },
+        )
+        all_required_goals_passed = bool(goal_report.goals) and all(
+            item.status == "passed" for item in goal_report.goals
+        )
+        all_goal_calls_verified = (
+            goal_reachable_call_ids <= verified_call_ids
+        )
+        root_issues = _unique_issues(
+            (
+                *(
+                    issue
+                    for call in report.call_results
+                    if call.status == "failed"
+                    for issue in call.root_issues
+                    if (
+                        call.call_id in required_goal_call_ids
+                        or _configuration_issue(issue)
+                    )
+                ),
+                *goal_report.issues,
+                *(
+                    _issue(
+                        mismatch.call_id,
+                        "planner.transactional_authority_mismatch",
+                        (
+                            "transactional authority mismatch: "
+                            f"{mismatch.code}"
+                        ),
+                        details={"mismatch": mismatch.to_payload()},
+                    )
+                    for mismatch in report.compatibility_mismatches
+                ),
+            )
+        )
+        compiled_output = None
+        if (
+            all_required_goals_passed
+            and all_goal_calls_verified
+            and not report.compatibility_mismatches
+        ):
+            try:
+                compiled_output = _aggregate_transactional_output(
+                    report,
+                    goal_reachable_call_ids=goal_reachable_call_ids,
+                    reconciliation=reconciliation,
+                    state_writes=state_writes,
+                    inputs=inputs,
+                    handle_registry=handle_registry,
+                )
+            except Exception as exc:
+                root_issues = _unique_issues(
+                    (
+                        *root_issues,
+                        _issue(
+                            None,
+                            "planner.transactional_aggregate_output_failed",
+                            f"{type(exc).__name__}: {exc}",
+                        ),
+                    )
+                )
+        report = replace(
+            report,
+            goal_verification=goal_report.to_payload(),
+        )
+        return FunctionalTransactionalAttemptResult(
+            execution_report=report,
+            compiled_output=compiled_output,
+            diagnostic=diagnostic,
+            goal_report=goal_report,
+            verified_call_ids=verified_call_ids,
+            failed_call_ids=failed_call_ids,
+            blocked_call_ids=blocked_call_ids,
+            goal_reachable_call_ids=goal_reachable_call_ids,
+            runtime_results=runtime_results,
+            state_writes=state_writes,
+            root_issues=root_issues,
         )
 
 
@@ -1431,6 +2010,134 @@ def _runtime_path_for_write(
     return None
 
 
+def _declared_runtime_symbol_bindings(
+    compiled: CompiledFunctionalCall,
+    *,
+    branch: RuntimeContext,
+) -> dict[sp.Symbol, MathObjectId]:
+    """Bind method-created Symbols through declared public return identity."""
+
+    result: dict[sp.Symbol, MathObjectId] = {}
+    for returned in compiled.public_returns:
+        write = returned.expected_write
+        if (
+            write is None
+            or write.runtime_type != "Symbol"
+            or write.math_object_id is None
+        ):
+            continue
+        path = (
+            write.runtime_destination_key.runtime_path
+            if write.runtime_destination_key is not None
+            else None
+        ) or _runtime_path_for_write(compiled.plans, write)
+        if path is None:
+            continue
+        try:
+            value = branch.read_path(
+                path,
+                from_scope_id=write.scope_id,
+                expected_type="Symbol",
+            ).value
+        except (KeyError, PermissionError, TypeError, ValueError):
+            continue
+        if not isinstance(value, sp.Symbol):
+            continue
+        existing = result.get(value)
+        if existing is not None and existing != write.math_object_id:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.runtime_symbol_identity_unresolved: "
+                f"runtime_symbol={value} has multiple declared identities"
+            )
+        result[value] = write.math_object_id
+    return result
+
+
+def _merge_runtime_symbol_bindings(
+    existing: Mapping[sp.Symbol, MathObjectId],
+    incoming: Mapping[sp.Symbol, MathObjectId],
+) -> dict[sp.Symbol, MathObjectId]:
+    result = dict(existing)
+    for symbol, object_id in incoming.items():
+        previous = result.get(symbol)
+        if previous is not None and previous != object_id:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.runtime_symbol_identity_unresolved: "
+                f"runtime_symbol={symbol} has conflicting identities"
+            )
+        result[symbol] = object_id
+    return result
+
+
+def _prepared_runtime_symbol_bindings(
+    prepared: PreparedFunctionalCall,
+    *,
+    working: WorkingPlannerState,
+) -> dict[sp.Symbol, MathObjectId]:
+    result: dict[sp.Symbol, MathObjectId] = {}
+    for read in prepared.state_reads:
+        bindings = working.runtime_version_symbol_bindings.get(
+            read.selected_version_id,
+            {},
+        )
+        result = _merge_runtime_symbol_bindings(result, bindings)
+    return result
+
+
+def _context_runtime_symbol_bindings(
+    context: RuntimeContext,
+    *,
+    registry: MathObjectRegistry,
+) -> dict[sp.Symbol, MathObjectId]:
+    result: dict[sp.Symbol, MathObjectId] = {}
+    for name, symbol in context.symbols.items():
+        object_id = registry.resolve(name)
+        if object_id is None or object_id.kind != "symbol":
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.runtime_symbol_identity_unresolved: "
+                f"runtime_symbol={name}"
+            )
+        result[symbol] = object_id
+    return result
+
+
+def _version_runtime_symbol_bindings(
+    versions: Sequence[IndexedStateVersion],
+    *,
+    runtime_values: Mapping[StateVersionId, TypedValue],
+    call_bindings: Mapping[sp.Symbol, MathObjectId],
+) -> dict[StateVersionId, dict[sp.Symbol, MathObjectId]]:
+    result: dict[StateVersionId, dict[sp.Symbol, MathObjectId]] = {}
+    for version in versions:
+        value = runtime_values.get(version.version_id)
+        if value is None:
+            continue
+        symbols = runtime_free_symbols(value.value)
+        bindings = {
+            symbol: call_bindings[symbol]
+            for symbol in symbols
+            if (
+                symbol in call_bindings
+                and call_bindings[symbol] in version.free_symbol_ids
+            )
+        }
+        if set(bindings.values()) != set(version.free_symbol_ids):
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.runtime_symbol_identity_unresolved: "
+                f"version={version.version_id.to_payload()}, "
+                "expected="
+                f"{[item.to_payload() for item in version.free_symbol_ids]}, "
+                "actual="
+                f"{[item.to_payload() for item in bindings.values()]}"
+            )
+        result[version.version_id] = bindings
+    return result
+
+
 def _apply_missing_declarations(
     context: RuntimeContext,
     declarations: Sequence[ContextDeclaration],
@@ -1464,8 +2171,237 @@ def _actual_form(
     return "open_state" if free_symbols else "closed_state"
 
 
+def _transactional_diagnostic(
+    report: FunctionalTransactionalExecutionReport,
+    *,
+    reconciliation: FunctionalPlanReconciliationResult,
+    runtime_results: tuple[StepIntentRuntimeResult, ...],
+    state_writes: tuple[StateWriteProvenance, ...],
+) -> StepIntentExecutionDiagnostic:
+    calls = {item.call_id: item for item in reconciliation.calls}
+    compiled = {item.call_id: item for item in report.compiled_calls}
+    accepted = tuple(
+        StepIntentAcceptedStep(
+            step_id=call_id,
+            scope_id=calls[call_id].scope_id,
+            capability_id=calls[call_id].capability_id,
+            method_ids=tuple(
+                invocation.method_id
+                for plan in compiled[call_id].plans
+                for invocation in plan.invocations
+            ),
+            produced_handles=tuple(
+                write.produced_handle
+                for write in state_writes
+                if write.step_id == call_id
+            ),
+        )
+        for call_id in report.graph.canonical_order
+        if call_id in compiled
+        and any(
+            item.call_id == call_id and item.status == "verified"
+            for item in report.call_states
+        )
+    )
+    failed = any(
+        item.status in {"failed", "blocked_by_dependency"}
+        for item in report.call_states
+        if item.call_id in report.graph.canonical_order
+    )
+    answer_alias_writes = tuple(
+        replace(
+            source,
+            produced_handle=binding.answer_handle,
+        )
+        for binding in report.graph.answer_bindings
+        for source in (
+            next(
+                (
+                    item
+                    for item in state_writes
+                    if (
+                        item.step_id == binding.producer_call_id
+                        and item.return_name == binding.return_name
+                    )
+                ),
+                None,
+            ),
+        )
+        if source is not None
+    )
+    return StepIntentExecutionDiagnostic(
+        ok=not failed,
+        accepted_prefix=accepted,
+        state_write_provenance=(
+            *state_writes,
+            *answer_alias_writes,
+        ),
+        runtime_results=runtime_results,
+    )
+
+
+def _transactional_answer_version_ids(
+    graph: LogicalFunctionalGraph,
+    *,
+    reconciliation: FunctionalPlanReconciliationResult,
+    committed_version_ids: frozenset[StateVersionId],
+    projected_writes: Sequence[Any],
+) -> dict[str, StateVersionId]:
+    calls = {item.call_id: item for item in reconciliation.calls}
+    result = {
+        item.produced_handle: item.selected_version_id
+        for item in projected_writes
+        if (
+            item.produced_handle.startswith("answer:")
+            and item.selected_version_id in committed_version_ids
+        )
+    }
+    for binding in graph.answer_bindings:
+        call = calls.get(binding.producer_call_id)
+        allocation = next(
+            (
+                item
+                for item in (call.returns if call is not None else ())
+                if item.return_name == binding.return_name
+            ),
+            None,
+        )
+        if (
+            allocation is not None
+            and allocation.selected_version_id in committed_version_ids
+        ):
+            result[binding.answer_handle] = allocation.selected_version_id
+    return result
+
+
+def _passed_goal_reachable_calls(
+    graph: LogicalFunctionalGraph,
+    report: AnswerGoalVerificationReport,
+) -> frozenset[str]:
+    roots = {
+        item.producer_step_id
+        for item in report.goals
+        if item.status == "passed"
+        and item.producer_step_id is not None
+    }
+    return _goal_dependency_closure(graph, roots)
+
+
+def _goal_dependency_closure(
+    graph: LogicalFunctionalGraph,
+    roots: set[str],
+) -> frozenset[str]:
+    dependencies = {
+        item.call_id: frozenset(item.dependency_call_ids)
+        for item in graph.calls
+    }
+    reachable: set[str] = set()
+    stack = list(roots)
+    while stack:
+        call_id = stack.pop()
+        if call_id in reachable:
+            continue
+        reachable.add(call_id)
+        stack.extend(dependencies.get(call_id, ()))
+    return frozenset(reachable)
+
+
+def _configuration_issue(issue: PlannerRetryIssue) -> bool:
+    return (
+        issue.code.startswith("planner.")
+        or "planner_configuration_error" in issue.message
+    )
+
+
+def _aggregate_transactional_output(
+    report: FunctionalTransactionalExecutionReport,
+    *,
+    goal_reachable_call_ids: frozenset[str],
+    reconciliation: FunctionalPlanReconciliationResult,
+    state_writes: tuple[StateWriteProvenance, ...],
+    inputs: PlannerInputs,
+    handle_registry: CanonicalHandleRegistry,
+) -> PlannerOutput:
+    compiled = {
+        item.call_id: item for item in report.compiled_calls
+    }
+    declarations_by_path: dict[str, ContextDeclaration] = {}
+    plans_by_step: dict[str, StepPlan] = {}
+    for call_id in report.graph.canonical_order:
+        if call_id not in goal_reachable_call_ids:
+            continue
+        call = compiled.get(call_id)
+        if call is None:
+            raise ValueError(
+                "planner_configuration_error: verified goal call has no "
+                f"compiled fragment: {call_id}"
+            )
+        for declaration in call.declarations:
+            declarations_by_path.setdefault(
+                declaration.path,
+                declaration,
+            )
+        for plan in call.replay_plans or call.plans:
+            existing_plan = plans_by_step.get(plan.step_id)
+            if existing_plan is not None and existing_plan != plan:
+                raise ValueError(
+                    "planner_configuration_error: conflicting transactional "
+                    f"StepPlan: {plan.step_id}"
+                )
+            plans_by_step[plan.step_id] = plan
+    plans = tuple(
+        plans_by_step[step_id]
+        for call_id in report.graph.canonical_order
+        if call_id in goal_reachable_call_ids
+        for step_id in (
+            compiled[call_id].step_ids
+            if call_id in compiled
+            else ()
+        )
+        if step_id in plans_by_step
+    )
+    projected_writes = tuple(
+        item
+        for item in project_functional_state_writes(
+            reconciliation.plan,
+            reconciliation.calls,
+        )
+        if item.step_id in goal_reachable_call_ids
+    )
+    goal_writes = tuple(
+        item
+        for item in state_writes
+        if item.step_id in goal_reachable_call_ids
+    )
+    CanonicalDraftFinalizer().finalize_compiled_state_writes(
+        projected_state_writes=projected_writes,
+        provenance=goal_writes,
+        plans=plans,
+        question_goals=tuple(inputs.question_goals),
+        handle_registry=handle_registry,
+    )
+    return PlannerOutput(
+        context_declarations=list(declarations_by_path.values()),
+        step_plans=list(plans),
+    )
+
+
+def _unique_issues(
+    issues: Sequence[PlannerRetryIssue],
+) -> tuple[PlannerRetryIssue, ...]:
+    result: list[PlannerRetryIssue] = []
+    seen: set[tuple[str, str, str | None]] = set()
+    for issue in issues:
+        key = (issue.layer, issue.code, issue.step_id)
+        if key in seen:
+            continue
+        seen.add(key)
+        result.append(issue)
+    return tuple(result)
+
+
 def _issue(
-    call_id: str,
+    call_id: str | None,
     code: str,
     message: str,
     *,
@@ -1538,12 +2474,15 @@ __all__ = [
     "CompiledFunctionalCall",
     "CompiledPublicReturn",
     "FunctionalCallBridgeCompiler",
+    "FunctionalCallCompilerService",
     "FunctionalCallExecutionResult",
     "FunctionalCallPreparationService",
     "FunctionalRuntimeWriteCommitter",
     "FunctionalTransactionBehaviorDelta",
+    "FunctionalTransactionalAttemptResult",
     "FunctionalTransactionalExecutionReport",
     "FunctionalTransactionalInterpreter",
     "PreparedFunctionalCall",
     "failed_execution_report",
+    "project_functional_arg_bindings",
 ]

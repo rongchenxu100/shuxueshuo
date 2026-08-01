@@ -426,6 +426,7 @@ class IndexedStateVersion:
     computation_key: ComputationKey | None = None
     state_effect_key: StateEffectKey | None = None
     free_symbol_refs: tuple[str, ...] = ()
+    free_symbol_ids: tuple[MathObjectId, ...] = ()
     previous_version_id: StateVersionId | None = None
     source_version_ids: tuple[StateVersionId, ...] = ()
     runtime_destination: RuntimeDestinationKey | None = None
@@ -448,6 +449,9 @@ class IndexedStateVersion:
                 else None
             ),
             "free_symbol_refs": list(self.free_symbol_refs),
+            "free_symbol_ids": [
+                item.to_payload() for item in self.free_symbol_ids
+            ],
             "previous_version_id": (
                 self.previous_version_id.to_payload()
                 if self.previous_version_id is not None
@@ -482,6 +486,7 @@ class StateAllocationRequest:
     state_effect_key: StateEffectKey
     source_version_ids: tuple[StateVersionId, ...] = ()
     free_symbol_refs: tuple[str, ...] = ()
+    free_symbol_ids: tuple[MathObjectId, ...] = ()
     runtime_destination: RuntimeDestinationKey | None = None
     result_form: str | None = None
 
@@ -503,6 +508,8 @@ class StateAllocationDecision:
     transition_kind: Literal["direct", "dependency_refinement"] | None = None
     previous_free_symbol_refs: tuple[str, ...] = ()
     current_free_symbol_refs: tuple[str, ...] = ()
+    previous_free_symbol_ids: tuple[MathObjectId, ...] = ()
+    current_free_symbol_ids: tuple[MathObjectId, ...] = ()
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -545,6 +552,12 @@ class StateAllocationDecision:
             "current_free_symbol_refs": list(
                 self.current_free_symbol_refs
             ),
+            "previous_free_symbol_ids": [
+                item.to_payload() for item in self.previous_free_symbol_ids
+            ],
+            "current_free_symbol_ids": [
+                item.to_payload() for item in self.current_free_symbol_ids
+            ],
         }
 
 
@@ -858,6 +871,12 @@ class StateIdentityIndex:
                 )
             history = tuple(slot.write_history)
             if not history:
+                slot_free_symbol_ids = tuple(
+                    getattr(slot, "free_symbol_ids", ()) or ()
+                ) or _symbol_object_ids(
+                    slot.free_symbol_refs,
+                    registry=factory.objects,
+                )
                 result.register(
                     IndexedStateVersion(
                         version_id=StateVersionId(typed_slot, 0),
@@ -865,6 +884,7 @@ class StateIdentityIndex:
                         producer_call_id=None,
                         produced_handle=slot.canonical_handle,
                         free_symbol_refs=slot.free_symbol_refs,
+                        free_symbol_ids=slot_free_symbol_ids,
                         runtime_destination=RuntimeDestinationKey(
                             logical_key.object_id,
                             logical_key.state_kind,
@@ -884,6 +904,18 @@ class StateIdentityIndex:
                     "free_symbol_refs",
                     None,
                 )
+                write_free_symbol_ids = tuple(
+                    getattr(write, "free_symbol_ids", ()) or ()
+                )
+                if not write_free_symbol_ids:
+                    write_free_symbol_ids = _symbol_object_ids(
+                        (
+                            tuple(write_free_symbol_refs)
+                            if write_free_symbol_refs is not None
+                            else slot.free_symbol_refs
+                        ),
+                        registry=factory.objects,
+                    )
                 result.register(
                     IndexedStateVersion(
                         version_id=version_id,
@@ -925,6 +957,7 @@ class StateIdentityIndex:
                             if write_free_symbol_refs is not None
                             else slot.free_symbol_refs
                         ),
+                        free_symbol_ids=write_free_symbol_ids,
                         previous_version_id=getattr(
                             write,
                             "previous_version_id",
@@ -1146,6 +1179,13 @@ class StateAllocationService:
         request: StateAllocationRequest,
         index: StateIdentityIndex,
     ) -> StateAllocationDecision:
+        if request.free_symbol_refs and not request.free_symbol_ids:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.state_identity_incomplete: "
+                f"call={request.call_id}, return={request.return_name}, "
+                "missing=free_symbol_ids"
+            )
         if request.object_id is None:
             return StateAllocationDecision(
                 action="call_local_value",
@@ -1299,12 +1339,14 @@ class StateAllocationService:
                 transition_kind="direct",
                 previous_free_symbol_refs=previous.free_symbol_refs,
                 current_free_symbol_refs=request.free_symbol_refs,
+                previous_free_symbol_ids=previous.free_symbol_ids,
+                current_free_symbol_ids=request.free_symbol_ids,
             )
 
         if (
             explicit_previous is not None
-            and set(request.free_symbol_refs).issubset(
-                explicit_previous.free_symbol_refs
+            and set(request.free_symbol_ids).issubset(
+                explicit_previous.free_symbol_ids
             )
         ):
             version_id = StateVersionId(
@@ -1331,6 +1373,8 @@ class StateAllocationService:
                 transition_kind="dependency_refinement",
                 previous_free_symbol_refs=explicit_previous.free_symbol_refs,
                 current_free_symbol_refs=request.free_symbol_refs,
+                previous_free_symbol_ids=explicit_previous.free_symbol_ids,
+                current_free_symbol_ids=request.free_symbol_ids,
             )
 
         if visible is None:
@@ -1360,8 +1404,8 @@ class StateAllocationService:
 
         if (
             visible.version_id in request.source_version_ids
-            and set(request.free_symbol_refs).issubset(
-                visible.free_symbol_refs
+            and set(request.free_symbol_ids).issubset(
+                visible.free_symbol_ids
             )
         ):
             version_id = StateVersionId(
@@ -1383,12 +1427,14 @@ class StateAllocationService:
                 transition_kind="dependency_refinement",
                 previous_free_symbol_refs=visible.free_symbol_refs,
                 current_free_symbol_refs=request.free_symbol_refs,
+                previous_free_symbol_ids=visible.free_symbol_ids,
+                current_free_symbol_ids=request.free_symbol_ids,
             )
 
         if (
             request.identity_policy == "target_object"
-            and set(request.free_symbol_refs).issubset(
-                visible.free_symbol_refs
+            and set(request.free_symbol_ids).issubset(
+                visible.free_symbol_ids
             )
             and visible.state_effect_key == request.state_effect_key
             and _computation_refines(
@@ -1416,12 +1462,40 @@ class StateAllocationService:
                 transition_kind="dependency_refinement",
                 previous_free_symbol_refs=visible.free_symbol_refs,
                 current_free_symbol_refs=request.free_symbol_refs,
+                previous_free_symbol_ids=visible.free_symbol_ids,
+                current_free_symbol_ids=request.free_symbol_ids,
+            )
+
+        if (
+            request.identity_policy == "preserve_input_object"
+            and requested_slot != visible.version_id.slot_id
+            and visible.valid_scope_id
+            in index.visibility.registry.ancestor_scopes(
+                request.storage_scope_id
+            )[1:]
+            and visible.version_id not in request.source_version_ids
+        ):
+            version_id = StateVersionId(
+                requested_slot,
+                index.next_ordinal(requested_slot),
+            )
+            return StateAllocationDecision(
+                action="isolated",
+                call_id=request.call_id,
+                return_name=request.return_name,
+                logical_state_key=logical_key,
+                selected_slot_id=requested_slot,
+                selected_version_id=version_id,
+                previous_version_id=None,
+                canonical_producer_call_id=request.call_id,
+                runtime_destination=request.runtime_destination,
+                reason_code="independent_object_state_in_child_scope",
             )
 
         if (
             requested_slot != visible.version_id.slot_id
-            and not set(request.free_symbol_refs).issubset(
-                visible.free_symbol_refs
+            and not set(request.free_symbol_ids).issubset(
+                visible.free_symbol_ids
             )
         ):
             version_id = StateVersionId(
@@ -1443,7 +1517,7 @@ class StateAllocationService:
 
         if (
             requested_slot != visible.version_id.slot_id
-            and set(request.free_symbol_refs) == set(visible.free_symbol_refs)
+            and set(request.free_symbol_ids) == set(visible.free_symbol_ids)
         ):
             version_id = StateVersionId(
                 requested_slot,
@@ -1469,16 +1543,16 @@ class StateAllocationService:
             (
                 "state.transition_dependency_unproven"
                 if request.identity_policy == "target_object"
-                and set(request.free_symbol_refs).issubset(
-                    visible.free_symbol_refs
+                and set(request.free_symbol_ids).issubset(
+                    visible.free_symbol_ids
                 )
                 else "state.logical_duplicate_writer"
             ),
             (
                 "target_object_update_has_no_version_ancestry"
                 if request.identity_policy == "target_object"
-                and set(request.free_symbol_refs).issubset(
-                    visible.free_symbol_refs
+                and set(request.free_symbol_ids).issubset(
+                    visible.free_symbol_ids
                 )
                 else "visible_logical_state_has_different_computation"
             ),
@@ -1505,6 +1579,7 @@ class StateAllocationService:
             computation_key=request.computation_key,
             state_effect_key=request.state_effect_key,
             free_symbol_refs=request.free_symbol_refs,
+            free_symbol_ids=request.free_symbol_ids,
             source_version_ids=request.source_version_ids,
             runtime_destination=request.runtime_destination,
             result_form=request.result_form,
@@ -1541,6 +1616,10 @@ class StateAllocationService:
                 previous.free_symbol_refs if previous is not None else ()
             ),
             current_free_symbol_refs=request.free_symbol_refs,
+            previous_free_symbol_ids=(
+                previous.free_symbol_ids if previous is not None else ()
+            ),
+            current_free_symbol_ids=request.free_symbol_ids,
         )
 
 
@@ -1598,6 +1677,25 @@ def _mapping(value: Any) -> Mapping[str, Any]:
     if not isinstance(value, Mapping):
         raise ValueError("typed identity payload must be an object")
     return value
+
+
+def _symbol_object_ids(
+    refs: Sequence[str],
+    *,
+    registry: MathObjectRegistry,
+) -> tuple[MathObjectId, ...]:
+    result: list[MathObjectId] = []
+    for ref in refs:
+        object_id = registry.resolve(ref)
+        if object_id is None or object_id.kind != "symbol":
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.context_identity_migration_failed: "
+                f"free_symbol_ref={ref}"
+            )
+        if object_id not in result:
+            result.append(object_id)
+    return tuple(result)
 
 
 def _mapping_items(value: Any) -> tuple[Mapping[str, Any], ...]:

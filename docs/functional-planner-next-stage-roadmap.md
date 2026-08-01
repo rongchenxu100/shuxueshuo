@@ -75,7 +75,7 @@ Track A 是否完成，但主链切换前必须重新建立相应阶段自己的
 | Track A Stage 1 | `COMPLETE` | 每题 3 个样本，`15/15` 在三轮内通过，configuration error 为 0 | 无 |
 | Track A parity complete | `COMPLETE` | 五题各 10 个兼容样本，`pass@3 >= 90%`；structured provenance parity、typed failure boundary、跨 batch 聚合均已建立 | 无 |
 | Track B typed identity authority | `IN PROGRESS` | B0-B4、B5a/B5b 已完成；typed consumer 的真实 execution-shadow smoke 为 `15/15`，identity fallback 为 0 | B5c 等待 C2-C4 完成后删除 StepIntent/string projection |
-| Track C transactional interpreter | `IN PROGRESS` | C0 logical graph、C0.5 executable oracle 和 C1 execution-shadow compatibility gate 已完成 | C2 Context/retry cutover；C3-C4 binding/closure authority 与 production cutover |
+| Track C transactional interpreter | `IN PROGRESS` | C0 logical graph、C0.5 executable oracle、C1 execution shadow 与 C2 Context/retry authority 已完成 | C3 Functional arg role authority；随后 C4 runtime-grounded closure |
 | Functional Default Ready | `BLOCKED` | Functional 主链可 opt-in 执行 | Track A parity complete；Track B B0-B4；Track C production closure；direct compiler shadow；held-out；production observability 与回滚门禁 |
 | Track D0 product routing gate retirement | `BLOCKED` | 唯一 problem-id gate 已登记 | Track A parity complete；Functional production routing 接管该 family；legacy deterministic planner 退场 |
 | Track D default switch | `BLOCKED` | direct compiler 目标已定义 | Functional Default Ready 后才能切默认协议和删除 StepIntent 兼容链 |
@@ -89,11 +89,12 @@ Track A 是否完成，但主链切换前必须重新建立相应阶段自己的
 
 Track A 已完成，当前主线不再围绕五题概率样本做局部补丁：
 
-1. 启动 C2，将 C1 的 verified/failed call、actual StateVersion 和 blocked
-   dependency graph 接入正式 Context/retry authority；
-2. C2 继续使用 C0.5 作为 scope/version hard gate，新增状态组合缺陷必须先落
-   anonymous scenario，不再依赖真实 LLM 随机发现；
-3. C2-C4 完成后再由 B5c 删除 StepIntent/string projection compatibility。
+1. 实施 C3 `FunctionalBindingContext`，让 call arg role 在 graph rewrite、placement、
+   retry restore 和 compiler/runtime projection 后保持 typed authority；
+2. C3-C4 继续使用 C0.5 作为 scope/version hard gate，并保持
+   `context_authoritative` 五题兼容 smoke；
+3. C4 runtime-grounded closure 完成后，再由 B5c 删除
+   StepIntent/string projection compatibility。
 
 C0.5 的详细设计见：
 
@@ -620,10 +621,10 @@ compiler/runtime。这样先解决状态权威问题，再单独替换编译桥�
 
 ### Current Status
 
-`IN PROGRESS`。C0 shadow、C0.5 executable model gate 与 C1 transactional
-execution-shadow compatibility gate 已完成；production 仍采用“整图
-reconciliation/projection 后一次性 replay”。下一步进入 C2，由现有 replay
-继续作为迁移期 execution authority，直到 C2 的 Context/retry cutover 门禁通过。
+`IN PROGRESS`。C0 shadow、C0.5 executable model gate、C1 transactional
+execution-shadow compatibility gate 和 C2 Context/retry authority 已完成。
+Functional opt-in 可使用 `context_authoritative`；产品默认仍为 legacy。当前进入
+C3 Functional arg role authority，之后实施 C4 runtime-grounded closure。
 
 详细设计见：
 
@@ -666,11 +667,13 @@ typed allocation 结果；主链切换属于后续独立门禁。
 - 新增 scope/version 修复必须先增加 synthetic scenario，真实 LLM 只做后续行为确认。
 
 当前证据：`8,000` topology-balanced bounded + `2,000` fixed-seed expanded +
-`128` semantic handoff + `5` authority regression scenario，另加 `64` 个使用真实
+`128` semantic handoff + `6` authority regression scenario，另加 `64` 个使用真实
 B1 allocation 的 liveness scenario。C0.5 v7 新增 ProblemIR 初始
 ParameterValue exact read 与跨分支发布状态的传递来源隔离门禁。production
 dependent blocking、eliminated lifecycle、
 B3 issue 双向比较和 parent/child 跨 scope 覆盖下限均已进入 hard gate。
+第 6 个 authority regression 覆盖 committed 公共 producer 链从 sibling scope
+恢复后向共同祖先 LCA 发布，并验证 retry restore 只删除自己移空的 scope。
 
 依赖：B1-B5b typed authority 与 C0 logical graph。详细设计见
 `docs/cross-scope-version-executable-oracle-design.md`。
@@ -719,11 +722,52 @@ B3 issue 双向比较和 parent/child 跨 scope 覆盖下限均已进入 hard ga
 
 #### C2. Context and Retry Cutover
 
-- stable graph 直接使用 interpreter 的 verified call + StateVersion ids；
-- retry graph 使用 failed roots 和 blocked dependents；
-- overlay 后按 ComputationKey 和 dependency versions 判断能否复用；
-- 删除整图 projected result form 对 stable graph 的权威性；
-- explanation 只消费 verified canonical calls。
+状态：`COMPLETE`（2026-08-01）。failure-path、shadow authority parity 与真实
+`context_authoritative` acceptance 均已通过；C3 已解除前置阻塞。
+
+- 新增 `context_shadow / context_authoritative` 两种模式；前者比较 legacy 与
+  transactional authority，后者让 Functional retry、Context、goal verification
+  和成功 `PlannerOutput` 直接消费逐 call 实际结果；
+- `FunctionalCallCompilerService` 精确编译当前已选 Function/Macro，不搜索替代
+  capability、不执行 dependency prefix；legacy bridge 继续保留为迁移 oracle；
+- `FunctionalTransactionalAttemptResult` 统一携带 verified/failed/blocked calls、
+  actual runtime results、typed writes、goal closure 和 root issues；
+- stable graph 只冻结 passed QuestionGoal 的完整 canonical dependency closure，
+  checkpoint 保存其实际 `StateVersionId / ComputationKey / StateEffectKey`；
+- runtime-verified 但未 goal-committed 的结果进入精简 retry feedback，不冻结；
+  failed call 不提交 write，blocked dependent 不生成次生 root issue；
+- 成功时只聚合 required-goal reachable fragments，并在 fresh RuntimeContext
+  重新执行；alias、dead、failed、blocked 与无关分支不进入 output/Explanation；
+- external answer check 失败会撤销 goal commit，但保留实际 runtime result 和
+  version snapshot 作为 provisional retry evidence；
+- `context_authoritative` 不再使用 legacy parity 决定成功；transactional 内部
+  mismatch 会进入正式 root issue，事务入口异常产生非 retryable configuration
+  failure，禁止静默回落 legacy；
+- `context_shadow` 保留 legacy B4 checkpoint 预校验，并对账 goal、聚合 output、
+  typed Context version、retry locked/repair 集合与 checkpoint；shadow mismatch
+  只影响迁移门禁，不改变 legacy 正式结果；
+- 初始已给坐标但没有独立 coordinate fact 的 Point 现在建立 ordinal-0 typed
+  StateVersion；结构化 Macro 隐藏角色也必须进入 exact StateVersion dependency；
+- 当前 revision 的 C2 定向门禁为 `428 passed`，全量 solver 为
+  `1588 passed, 17 skipped`。C0.5 reference/generated gate 继续覆盖
+  10,000+ 个确定性场景；
+  五份 authored fixture 的 goal closure output 均已在全新 RuntimeContext 重放通过。
+- 首次 authoritative smoke `batch-20260731-170901` 为 `11/15`。其中和平暴露
+  “子 scope 精确输入借 MathObject origin 向父 scope 发布”的 B2 缺陷，河西暴露
+  legacy checkpoint 在 transactional provenance 产生前校验 runtime destination
+  的双 authority 缺陷；两项均已离线复现并修复。C0.5 新增“私有 source version
+  不得跨 sibling 发布”的 oracle 规则。和平二模和西青各一份失败来自模型输出/
+  provider 与测试协议，不属于 C2 configuration drift。
+- 上述修复改变 source fingerprint，因此该 `11/15` batch 只作为缺陷发现证据，
+  不作为 C2 acceptance cohort。
+- 最终 acceptance batch 为 `c2-context-authoritative-20260801-112214`：五题各
+  10 个兼容样本，总计 `49/50`，五题分别达到 `pass@3 >= 90%`，全部
+  `stage2_gate_passed=true`；configuration error、unclassified error 和成功样本
+  gate failure 均为 0。唯一失败是 provider 连续两次只返回 reasoning、无可见
+  content，记录为 `provider.reasoning_only_empty_response`，未进入 solver 执行。
+- acceptance 的 `solver_source_sha256` 为
+  `899d9e3cac0399e5a235de374a6a5e847b03c0f0ff09438dcdc2b2b1d7fca532`，
+  与标记 C2 COMPLETE 时的当前 solver source fingerprint 一致。
 
 依赖：Track B B4 Context/retry authority。
 

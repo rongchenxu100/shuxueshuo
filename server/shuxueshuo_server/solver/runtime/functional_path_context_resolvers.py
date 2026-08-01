@@ -8,6 +8,10 @@ from typing import Mapping
 from shuxueshuo_server.solver.runtime.context_closure import (
     ContextClosureResolverSpec,
 )
+from shuxueshuo_server.solver.runtime.equal_length_ray_roles import (
+    EqualLengthRayRoleError,
+    resolve_equal_length_ray_path_roles,
+)
 from shuxueshuo_server.solver.runtime.functional_context_values import (
     condition_value_by_handle,
     latest_point_state_for_object,
@@ -51,6 +55,200 @@ ContextClosureResolution = tuple[
     tuple[FunctionalPlanIssue, ...],
     bool,
 ]
+
+
+def resolve_equal_length_ray_path_args(
+    capability: FunctionalCapability,
+    call: FunctionalCall,
+    resolved_args: Mapping[str, tuple[ResolvedFunctionalValue, ...]],
+    resolver: ContextClosureResolverSpec,
+    *,
+    call_id: str,
+    scope_id: str,
+    produced: Mapping[tuple[str, str], ResolvedFunctionalValue],
+    semantic_index: FunctionalSemanticIndex,
+    handle_registry: CanonicalHandleRegistry,
+) -> ContextClosureResolution:
+    """Bind every materialized geometry role used by the reduction recipe."""
+
+    del call
+    if (
+        capability.kind != "macro"
+        or capability.capability_id != "equal_length_ray_path_reduction"
+    ):
+        return {}, (), (), False
+    conditions: dict[str, ResolvedFunctionalValue] = {}
+    for condition_type in (
+        "point_on_ray",
+        "point_on_segment",
+        "equal_length_condition",
+        "path_minimum_target",
+    ):
+        matches = tuple(
+            value
+            for values in resolved_args.values()
+            for value in values
+            if handle_registry.fact_types.get(value.handle) == condition_type
+        )
+        if len(matches) != 1:
+            return (
+                {},
+                (),
+                (
+                    _issue(
+                        "functional_elaboration",
+                        "functional.equal_length_ray_condition_unresolved",
+                        (
+                            "equal-length ray path reduction requires one "
+                            f"{condition_type} condition"
+                        ),
+                        call_id=call_id,
+                        scope_id=scope_id,
+                        details={
+                            "condition_type": condition_type,
+                            "match_count": len(matches),
+                        },
+                    ),
+                ),
+                False,
+            )
+        conditions[condition_type] = matches[0]
+
+    visible_points = tuple(
+        handle
+        for handle in handle_registry.entity_handles
+        if handle.startswith("point:")
+        and visible_from_valid_scope(
+            handle_registry.handle_valid_scopes.get(handle, ""),
+            scope_id=scope_id,
+            registry=handle_registry,
+        )
+    )
+
+    def resolve_point_name(name: str) -> str:
+        matches = tuple(
+            handle
+            for handle in visible_points
+            if handle_registry.entity_payloads.get(handle, {}).get("name")
+            == name
+        )
+        if len(matches) != 1:
+            raise EqualLengthRayRoleError(
+                "point_name_unresolved",
+                "structured role point name must resolve uniquely",
+                details={"name": name, "candidates": matches},
+            )
+        return matches[0]
+
+    try:
+        roles = resolve_equal_length_ray_path_roles(
+            ray_payload=handle_registry.fact_payloads[
+                conditions["point_on_ray"].handle
+            ],
+            segment_payload=handle_registry.fact_payloads[
+                conditions["point_on_segment"].handle
+            ],
+            equal_payload=handle_registry.fact_payloads[
+                conditions["equal_length_condition"].handle
+            ],
+            target_payload=handle_registry.fact_payloads[
+                conditions["path_minimum_target"].handle
+            ],
+            entity_payload=lambda handle: handle_registry.entity_payloads[
+                handle
+            ],
+            visible_point_handles=visible_points,
+            resolve_point_name=resolve_point_name,
+        )
+    except (EqualLengthRayRoleError, KeyError) as exc:
+        code = (
+            exc.code
+            if isinstance(exc, EqualLengthRayRoleError)
+            else "structured_role_payload_missing"
+        )
+        details = (
+            exc.details
+            if isinstance(exc, EqualLengthRayRoleError)
+            else {"missing_handle": str(exc)}
+        )
+        return (
+            {},
+            (),
+            (
+                _issue(
+                    "functional_elaboration",
+                    f"functional.equal_length_ray.{code}",
+                    str(exc),
+                    call_id=call_id,
+                    scope_id=scope_id,
+                    details=details,
+                ),
+            ),
+            False,
+        )
+
+    additions: dict[str, tuple[ResolvedFunctionalValue, ...]] = {}
+    issues: list[FunctionalPlanIssue] = []
+    for semantic_role, object_ref in (
+        ("anchor", roles.anchor),
+        ("reference_point", roles.reference_point),
+        ("ray_point", roles.ray_point),
+        ("fixed_point", roles.fixed_point),
+    ):
+        arg_name = resolver.arg_name(
+            semantic_role,
+            capability.context_arg_bindings,
+        )
+        point = latest_point_state_for_object(
+            object_ref,
+            scope_id=scope_id,
+            produced=produced,
+            semantic_index=semantic_index,
+            handle_registry=handle_registry,
+            allow_unique_planned_producer=True,
+        )
+        if point is None:
+            issues.append(
+                _issue(
+                    "functional_elaboration",
+                    "functional.equal_length_ray_point_state_unavailable",
+                    (
+                        "equal-length ray path reduction requires the exact "
+                        f"materialized Point state for role {semantic_role}"
+                    ),
+                    call_id=call_id,
+                    scope_id=scope_id,
+                    details={
+                        "arg": arg_name,
+                        "semantic_role": semantic_role,
+                        "object_ref": object_ref,
+                    },
+                )
+            )
+            continue
+        additions[arg_name] = (point,)
+    if issues:
+        return additions, (), tuple(issues), False
+    return (
+        additions,
+        (
+            FunctionalDeterministicRepair(
+                call_id,
+                "expand_equal_length_ray_path_roles",
+                conditions["path_minimum_target"].handle,
+                ",".join(
+                    (
+                        "anchor",
+                        "reference_point",
+                        "ray_point",
+                        "fixed_point",
+                    )
+                ),
+            ),
+        ),
+        (),
+        True,
+    )
 
 
 def resolve_path_reduction_args(
@@ -632,6 +830,7 @@ def _path_term_issue(
 
 __all__ = [
     "ContextClosureResolution",
+    "resolve_equal_length_ray_path_args",
     "resolve_path_reduction_args",
     "resolve_square_path_transformation_args",
     "resolve_weighted_path_transformation_args",

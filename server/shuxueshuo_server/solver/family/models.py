@@ -440,12 +440,16 @@ CapabilityStateClosurePolicy = Literal[
 ]
 CapabilityContextResolver = Literal[
     "condition_object_roles",
+    "equal_length_ray_path_roles",
     "path_reduction_roles",
     "square_path_transformation_roles",
     "weighted_path_transformation_roles",
 ]
 CONDITION_OBJECT_ROLES_RESOLVER: CapabilityContextResolver = (
     "condition_object_roles"
+)
+EQUAL_LENGTH_RAY_PATH_ROLES_RESOLVER: CapabilityContextResolver = (
+    "equal_length_ray_path_roles"
 )
 PATH_REDUCTION_ROLES_RESOLVER: CapabilityContextResolver = (
     "path_reduction_roles"

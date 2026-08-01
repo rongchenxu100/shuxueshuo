@@ -339,7 +339,9 @@ class CanonicalRuntimeBindingIndex:
                     "created_entity",
                     "declaration",
                     "typed_return_identity",
+                    "transactional_state_version",
                 }
+                or canonical_binding.source.startswith("step:")
             )
         ):
             try:
@@ -356,10 +358,8 @@ class CanonicalRuntimeBindingIndex:
                     "PointRef" in expected_types
                     and canonical_binding.value_type == "Point"
                 ):
-                    runtime_path = (
-                        self.immutable_problem_point_ref_path_for(
-                            object_id.value
-                        )
+                    runtime_path = self.immutable_point_identity_path_for(
+                        object_id
                     )
                 self._record_object_identity_decision(
                     consumer=consumer,
@@ -387,8 +387,8 @@ class CanonicalRuntimeBindingIndex:
                 and binding.value_type == "Point"
             ):
                 try:
-                    runtime_path = self.immutable_problem_point_ref_path_for(
-                        object_id.value
+                    runtime_path = self.immutable_point_identity_path_for(
+                        object_id
                     )
                 except StrategyDraftValidationError:
                     continue
@@ -701,6 +701,59 @@ class CanonicalRuntimeBindingIndex:
         if recovered is not None:
             return recovered
         return self.point_ref_path_for(handle)
+
+    def immutable_point_identity_path_for(
+        self,
+        object_id: MathObjectId,
+    ) -> str:
+        """Project typed Point identity without replacing its coordinate state."""
+
+        recovered = self._recover_problem_point_ref_path(object_id.value)
+        if recovered is not None:
+            return recovered
+        try:
+            kind, scope_id, name = _require_scoped_handle(object_id.value)
+        except ValueError as exc:
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: "
+                "planner.state_identity_incomplete: "
+                f"object={object_id.to_payload()}"
+            ) from exc
+        if (
+            kind != "point"
+            or object_id.kind != "point"
+            or scope_id != object_id.origin_scope_id
+        ):
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: "
+                "planner.state_identity_incomplete: "
+                f"object={object_id.to_payload()}"
+            )
+        raw_path = _runtime_path_for_scope(
+            self.context,
+            scope_id,
+            "object_refs",
+            name,
+        )
+        try:
+            existing = self.context.read_path(
+                raw_path,
+                from_scope_id=scope_id,
+                expected_type="PointRef",
+            )
+            if existing.type == "PointRef":
+                return raw_path
+        except (KeyError, PermissionError, TypeError, ValueError):
+            pass
+        self.declarations[raw_path] = ContextDeclaration(
+            path=raw_path,
+            type="PointRef",
+            name=name,
+            definition={"definition": "functional_typed_object_identity"},
+            scope_id=scope_id,
+            source="typed_object_identity",
+        )
+        return raw_path
 
     def _recover_problem_point_ref_path(self, handle: str) -> str | None:
         """Rebuild immutable object identity after its coordinate overwrote it.

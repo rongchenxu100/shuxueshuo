@@ -47,6 +47,7 @@ class RuntimeStateVersionBinding:
     previous_version_id: StateVersionId | None = None
     source_version_ids: tuple[StateVersionId, ...] = ()
     free_symbol_refs: tuple[str, ...] = ()
+    free_symbol_ids: tuple[MathObjectId, ...] = ()
     result_form: str | None = None
 
     def to_payload(self) -> dict[str, Any]:
@@ -71,6 +72,9 @@ class RuntimeStateVersionBinding:
                 item.to_payload() for item in self.source_version_ids
             ],
             "free_symbol_refs": list(self.free_symbol_refs),
+            "free_symbol_ids": [
+                item.to_payload() for item in self.free_symbol_ids
+            ],
             "result_form": self.result_form,
         }
 
@@ -555,6 +559,7 @@ class FunctionalStateReadIndex:
                         produced_handle=slot.canonical_handle,
                         lineage=slot.lineage,
                         free_symbol_refs=slot.free_symbol_refs,
+                        free_symbol_ids=slot.free_symbol_ids,
                     )
                 )
                 continue
@@ -603,6 +608,11 @@ class FunctionalStateReadIndex:
                         free_symbol_refs=getattr(
                             write,
                             "free_symbol_refs",
+                            (),
+                        ),
+                        free_symbol_ids=getattr(
+                            write,
+                            "free_symbol_ids",
                             (),
                         ),
                         result_form=getattr(write, "result_form", None),
@@ -657,6 +667,9 @@ class FunctionalStateReadIndex:
                 ),
                 free_symbol_refs=tuple(
                     getattr(version, "free_symbol_refs", ()) or ()
+                ),
+                free_symbol_ids=tuple(
+                    getattr(version, "free_symbol_ids", ()) or ()
                 ),
                 result_form=getattr(version, "result_form", None),
             )
@@ -742,6 +755,7 @@ class FunctionalStateReadIndex:
                 previous_version_id=write.previous_version_id,
                 source_version_ids=write.source_version_ids,
                 free_symbol_refs=write.free_symbol_refs,
+                free_symbol_ids=write.free_symbol_ids,
                 result_form=write.expected_result_form,
             )
         )
@@ -850,6 +864,11 @@ class FunctionalStateReadIndex:
                 f"step={write.step_id}, return={write.return_name}, missing=valid_scope",
             )
             return
+        if write.free_symbol_names and not write.free_symbol_ids:
+            self._incomplete(
+                "planner.runtime_symbol_identity_unresolved",
+                f"step={write.step_id}, return={write.return_name}",
+            )
         destination = write.runtime_destination_key
         self.register(
             RuntimeStateVersionBinding(
@@ -873,9 +892,8 @@ class FunctionalStateReadIndex:
                 lineage=write.lineage,
                 previous_version_id=write.previous_version_id,
                 source_version_ids=write.source_version_ids,
-                # Runtime provenance names are presentation data. The typed
-                # projected write or Context version remains authoritative.
-                free_symbol_refs=(),
+                free_symbol_refs=write.free_symbol_names,
+                free_symbol_ids=write.free_symbol_ids,
                 result_form=write.result_form,
             )
         )
@@ -969,6 +987,15 @@ class FunctionalStateReadIndex:
                     incoming.free_symbol_refs
                     if incoming.free_symbol_refs
                     else existing.free_symbol_refs
+                )
+            ),
+            free_symbol_ids=(
+                ()
+                if incoming.result_form in {"closed", "closed_state"}
+                else (
+                    incoming.free_symbol_ids
+                    if incoming.free_symbol_ids
+                    else existing.free_symbol_ids
                 )
             ),
             result_form=incoming.result_form or existing.result_form,

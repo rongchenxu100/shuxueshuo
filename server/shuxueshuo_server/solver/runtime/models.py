@@ -103,8 +103,9 @@ class ContextDeclaration:
     """Planner 需要运行时提前声明的上下文占位。
 
     ``source="planner"`` 表达后续 step 才会求出的 PointRef，不携带坐标或答案。
-    ``source="problem_identity"`` 仅用于不可变 ``object_refs`` 容器，保存
-    ProblemIR 已有对象的结构化定义，供身份型 method 使用。
+    ``source="problem_identity"`` 或 ``source="typed_object_identity"``
+    仅用于不可变 ``object_refs`` 容器，分别保存 ProblemIR 对象定义或由
+    ``MathObjectId`` 投影的派生对象身份，供身份型 method 使用。
     """
 
     path: str

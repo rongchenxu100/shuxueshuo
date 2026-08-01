@@ -22,7 +22,7 @@ from support.cross_scope_version_oracle import (
 )
 
 
-GENERATOR_VERSION = "c0.5/v7"
+GENERATOR_VERSION = "c0.5/v9"
 EXPANDED_SEEDS = (17, 103, 1_009, 65_537)
 
 _TOPOLOGIES = ("root", "parent_child", "siblings", "branched")
@@ -540,12 +540,160 @@ def authority_regression_scenarios() -> tuple[CrossScopeVersionScenario, ...]:
         ),
     )
 
+    shared_curve_key = ModelStateKey("SharedCurve", "expression", "Parabola")
+    shared_point_key = ModelStateKey("SharedPoint", "coordinate", "Point")
+    committed_sibling_base = CrossScopeVersionScenario(
+        scopes=(
+            ModelScope("problem", None),
+            ModelScope("ii", "problem"),
+            ModelScope("ii_1", "ii"),
+            ModelScope("ii_2", "ii"),
+        ),
+        objects=(
+            ModelObject("SharedCurve", "function", "ii"),
+            ModelObject("SharedPoint", "point", "ii"),
+        ),
+        initial_versions=(),
+        calls=(
+            ModelCall(
+                "build_shared_curve",
+                "ii_1",
+                "build_shared_curve",
+                output_state_key=shared_curve_key,
+                requested_write_mode="create",
+                storage_scope_id="ii_1",
+                valid_scope_id="ii_1",
+                runtime_destination="state/ii/SharedCurve",
+            ),
+            ModelCall(
+                "derive_shared_point",
+                "ii_1",
+                "derive_shared_point",
+                input_version_ids=("build_shared_curve",),
+                output_state_key=shared_point_key,
+                requested_write_mode="create",
+                storage_scope_id="ii_1",
+                valid_scope_id="ii_1",
+                runtime_destination="state/ii/SharedPoint",
+            ),
+            ModelCall(
+                "consume_shared_point",
+                "ii_2",
+                "consume_shared_point",
+                input_version_ids=("derive_shared_point",),
+                output_state_key=None,
+                requested_write_mode="value",
+                projection="call_local",
+            ),
+        ),
+        wire_order=(
+            "consume_shared_point",
+            "derive_shared_point",
+            "build_shared_curve",
+        ),
+        dependency_edges=(
+            ModelDependency(
+                "build_shared_curve",
+                "derive_shared_point",
+                "state_version",
+                version_id="build_shared_curve",
+            ),
+            ModelDependency(
+                "derive_shared_point",
+                "consume_shared_point",
+                "call_result",
+                version_id="derive_shared_point",
+            ),
+        ),
+        dimensions=(
+            ("generator", "authority_regression"),
+            ("regression", "committed_sibling_chain_lca_restore"),
+            ("topology", "branched"),
+            ("read_mode", "call_result"),
+            ("retry_candidate_scope", "ii"),
+        ),
+    )
+    committed_sibling_prefix = replace(
+        committed_sibling_base,
+        calls=committed_sibling_base.calls[:2],
+        wire_order=("derive_shared_point", "build_shared_curve"),
+        dependency_edges=committed_sibling_base.dependency_edges[:1],
+        scenario_id="",
+    )
+    committed_sibling_outcome = ReferenceScopeVersionModel().evaluate(
+        committed_sibling_prefix
+    )
+    committed_sibling_restore = replace(
+        committed_sibling_base,
+        retry_checkpoint=ModelRetryCheckpoint(
+            "committed_restore",
+            committed_call_ids=(
+                "build_shared_curve",
+                "derive_shared_point",
+            ),
+            committed_version_ids=tuple(
+                version_id
+                for call_id in (
+                    "build_shared_curve",
+                    "derive_shared_point",
+                )
+                for version_id in (
+                    committed_sibling_outcome.decision(
+                        call_id
+                    ).selected_version_id,
+                )
+                if version_id is not None
+            ),
+            provisional_call_ids=("consume_shared_point",),
+        ),
+        scenario_id="",
+    )
+
+    checkpoint_symbol_alias = replace(
+        checkpoint_reorder,
+        retry_checkpoint=replace(
+            checkpoint_reorder.retry_checkpoint,
+            expected_free_symbol_refs=("u",),
+            expected_free_symbol_ids=("symbol:problem:u",),
+            observed_free_symbol_refs=("symbol:problem:u",),
+            observed_free_symbol_ids=("symbol:problem:u",),
+        ),
+        dimensions=(
+            *tuple(
+                item
+                for item in checkpoint_reorder.dimensions
+                if item[0] != "regression"
+            ),
+            ("regression", "checkpoint_symbol_alias_identity"),
+        ),
+        scenario_id="",
+    )
+    checkpoint_symbol_drift = replace(
+        checkpoint_symbol_alias,
+        retry_checkpoint=replace(
+            checkpoint_symbol_alias.retry_checkpoint,
+            observed_free_symbol_ids=("symbol:problem:v",),
+        ),
+        dimensions=(
+            *tuple(
+                item
+                for item in checkpoint_symbol_alias.dimensions
+                if item[0] != "regression"
+            ),
+            ("regression", "checkpoint_symbol_identity_drift"),
+        ),
+        scenario_id="",
+    )
+
     return (
         child_target,
         sibling_isolation,
         checkpoint_reorder,
         initial_parameter_exact_read,
         published_state_exact_read,
+        committed_sibling_restore,
+        checkpoint_symbol_alias,
+        checkpoint_symbol_drift,
     )
 
 

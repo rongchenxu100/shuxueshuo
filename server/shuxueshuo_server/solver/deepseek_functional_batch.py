@@ -415,7 +415,13 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--max-attempts", type=_positive_int, default=3)
     parser.add_argument(
         "--functional-transaction-mode",
-        choices=("legacy", "shadow", "execution_shadow"),
+        choices=(
+            "legacy",
+            "shadow",
+            "execution_shadow",
+            "context_shadow",
+            "context_authoritative",
+        ),
         default="legacy",
     )
     parser.add_argument("--timeout-seconds", type=_positive_int, default=1800)

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, replace
 import json
-from typing import Any
+from typing import Any, Literal
 
 from shuxueshuo_server.solver.runtime.answer_goal_verifier import (
     AnswerGoalVerificationReport,
@@ -18,6 +18,7 @@ from shuxueshuo_server.solver.runtime.functional_state_reads import (
     FunctionalStateReadIndex,
 )
 from shuxueshuo_server.solver.runtime.functional_call_memory import (
+    FunctionalCallMemory,
     attach_actual_result_refs,
     build_functional_call_memory,
 )
@@ -29,6 +30,7 @@ from shuxueshuo_server.solver.runtime.functional_retry_versions import (
     build_functional_retry_graph_checkpoint,
     expand_retry_dependency_graph_with_versions,
     latest_functional_retry_graph_checkpoint,
+    preserve_committed_retry_checkpoint,
     validate_checkpoint_manifest,
     verify_restored_checkpoint,
     verify_restored_runtime_checkpoint,
@@ -68,11 +70,13 @@ from shuxueshuo_server.solver.runtime.functional_result_forms import (
 )
 from shuxueshuo_server.solver.runtime.functional_transaction_shadow import (
     FunctionalTransactionMode,
+    FunctionalTransactionShadowMismatch,
     FunctionalTransactionShadowObserver,
     FunctionalTransactionShadowReport,
     failed_shadow_report,
 )
 from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
+    FunctionalTransactionalAttemptResult,
     FunctionalTransactionalExecutionReport,
     FunctionalTransactionalInterpreter,
     failed_execution_report,
@@ -171,6 +175,13 @@ class PlannerRetryReplayResult:
     transactional_execution_report: (
         FunctionalTransactionalExecutionReport | None
     ) = None
+    transactional_attempt_result: (
+        FunctionalTransactionalAttemptResult | None
+    ) = None
+    state_observation_authority: Literal[
+        "legacy",
+        "transactional",
+    ] = "legacy"
 
     def to_payload(self) -> dict[str, Any]:
         """转成 debug JSON。"""
@@ -253,6 +264,14 @@ class PlannerRetryReplayResult:
                 self.transactional_execution_report.to_payload()
                 if self.transactional_execution_report is not None
                 else None
+            ),
+            "transactional_attempt_result": (
+                self.transactional_attempt_result.to_payload()
+                if self.transactional_attempt_result is not None
+                else None
+            ),
+            "state_observation_authority": (
+                self.state_observation_authority
             ),
         }
 
@@ -691,7 +710,14 @@ class PlannerRetryReplayService:
             if needs_retry
             else _FunctionalGraphVerification()
         )
-        if not needs_retry and retry_checkpoint is not None:
+        transactional_context_authority = (
+            self._functional_transaction_mode == "context_authoritative"
+        )
+        if (
+            not needs_retry
+            and retry_checkpoint is not None
+            and not transactional_context_authority
+        ):
             _verify_successful_functional_retry_checkpoint(
                 retry_checkpoint,
                 reconciliation=reconciliation,
@@ -727,7 +753,22 @@ class PlannerRetryReplayService:
                 handle_registry=handle_registry,
             ),
             planner_state_context=planner_state_context,
-            expected_retry_checkpoint=retry_checkpoint,
+            # C2 validates the restored checkpoint against exact per-call
+            # transactional provenance. Legacy bridge provenance may omit
+            # typed runtime destinations and is only a shadow oracle here.
+            expected_retry_checkpoint=(
+                None
+                if transactional_context_authority
+                else retry_checkpoint
+            ),
+            # A legacy partial-graph probe is useful evidence, but it is not a
+            # C2 transaction and therefore cannot create new goal locks.
+            allow_goal_commit=not transactional_context_authority,
+            preserve_committed_checkpoint=(
+                retry_checkpoint
+                if transactional_context_authority
+                else None
+            ),
         )
         if (
             base.output is not None
@@ -770,7 +811,13 @@ class PlannerRetryReplayService:
         runtime_context: Any,
     ) -> PlannerRetryReplayResult:
         if (
-            self._functional_transaction_mode in {"shadow", "execution_shadow"}
+            self._functional_transaction_mode
+            in {
+                "shadow",
+                "execution_shadow",
+                "context_shadow",
+                "context_authoritative",
+            }
             and replay.functional_reconciliation is not None
         ):
             try:
@@ -834,6 +881,164 @@ class PlannerRetryReplayService:
                 replay,
                 transactional_execution_report=execution_report,
             )
+        if (
+            self._functional_transaction_mode
+            in {"context_shadow", "context_authoritative"}
+            and replay.functional_reconciliation is not None
+            and not replay.functional_reconciliation.issues
+            and replay.functional_reconciliation.projected_draft is not None
+        ):
+            context_problem_payload, _warnings = _problem_payload_for_context(
+                inputs,
+                problem_payload,
+            )
+            try:
+                transactional_attempt = (
+                    FunctionalTransactionalInterpreter().execute_attempt(
+                        raw_plan=raw_plan,
+                        reconciliation=replay.functional_reconciliation,
+                        legacy_output=replay.output,
+                        legacy_diagnostic=replay.diagnostic,
+                        runtime_context=runtime_context,
+                        parent_context=parent_context,
+                        inputs=inputs,
+                        handle_registry=handle_registry,
+                        problem_payload=context_problem_payload,
+                        compare_legacy=(
+                            self._functional_transaction_mode
+                            == "context_shadow"
+                            and replay.diagnostic is not None
+                        ),
+                    )
+                )
+            except Exception as exc:
+                if (
+                    self._functional_transaction_mode
+                    == "context_authoritative"
+                ):
+                    raise StrategyDraftValidationError(
+                        "planner_configuration_error: "
+                        "planner.transactional_attempt_failed: "
+                        f"{type(exc).__name__}: {exc}"
+                    ) from exc
+                execution_report = failed_execution_report(
+                    message=f"{type(exc).__name__}: {exc}",
+                )
+                transactional_attempt = None
+            else:
+                execution_report = (
+                    transactional_attempt.execution_report
+                )
+            replay = replace(
+                replay,
+                transactional_execution_report=execution_report,
+                transactional_attempt_result=transactional_attempt,
+            )
+            if (
+                self._functional_transaction_mode == "context_shadow"
+                and transactional_attempt is not None
+            ):
+                transactional_retry_state = (
+                    _transactional_functional_retry_state(
+                        replay,
+                        attempt_result=transactional_attempt,
+                        parent_context=parent_context,
+                        inputs=inputs,
+                        handle_registry=handle_registry,
+                    )
+                )
+                transactional_effective_draft = (
+                    _draft_for_step_ids(
+                        replay.functional_reconciliation.projected_draft,
+                        set(
+                            transactional_attempt.goal_reachable_call_ids
+                        ),
+                    )
+                    if transactional_attempt.compiled_output is not None
+                    else replay.effective_draft
+                )
+                transactional_candidate = replace(
+                    replay,
+                    diagnostic=transactional_attempt.diagnostic,
+                    goal_verification_report=(
+                        transactional_attempt.goal_report
+                    ),
+                    goal_verification_issues=(
+                        transactional_attempt.goal_report.issues
+                    ),
+                    retry_state=transactional_retry_state,
+                    output=transactional_attempt.compiled_output,
+                    effective_draft=transactional_effective_draft,
+                    state_observation_authority="transactional",
+                )
+                context_mismatches = (
+                    _transactional_context_shadow_mismatches(
+                        replay,
+                        transactional_candidate,
+                        inputs=inputs,
+                        handle_registry=handle_registry,
+                        problem_payload=problem_payload,
+                    )
+                )
+                if context_mismatches:
+                    execution_report = replace(
+                        transactional_attempt.execution_report,
+                        compatibility_mismatches=(
+                            *(
+                                transactional_attempt.execution_report.
+                                compatibility_mismatches
+                            ),
+                            *context_mismatches,
+                        ),
+                    )
+                    transactional_attempt = replace(
+                        transactional_attempt,
+                        execution_report=execution_report,
+                    )
+                    replay = replace(
+                        replay,
+                        transactional_execution_report=execution_report,
+                        transactional_attempt_result=(
+                            transactional_attempt
+                        ),
+                    )
+            if (
+                self._functional_transaction_mode
+                == "context_authoritative"
+                and transactional_attempt is not None
+            ):
+                retry_state = _transactional_functional_retry_state(
+                    replay,
+                    attempt_result=transactional_attempt,
+                    parent_context=parent_context,
+                    inputs=inputs,
+                    handle_registry=handle_registry,
+                )
+                verified_step_ids = set(
+                    transactional_attempt.goal_reachable_call_ids
+                )
+                effective_draft = (
+                    _draft_for_step_ids(
+                        replay.functional_reconciliation.projected_draft,
+                        verified_step_ids,
+                    )
+                    if transactional_attempt.compiled_output is not None
+                    else replay.effective_draft
+                )
+                replay = replace(
+                    replay,
+                    diagnostic=transactional_attempt.diagnostic,
+                    goal_verification_report=(
+                        transactional_attempt.goal_report
+                    ),
+                    goal_verification_issues=(
+                        transactional_attempt.goal_report.issues
+                    ),
+                    retry_state=retry_state,
+                    output=transactional_attempt.compiled_output,
+                    effective_draft=effective_draft,
+                    state_observation_authority="transactional",
+                )
         return _with_planner_state_context(
             replay,
             inputs=inputs,
@@ -1801,6 +2006,61 @@ def repair_attempt_payload_from_replay(
     return payload
 
 
+def transactional_repair_attempt_payload_from_replay(
+    replay: PlannerRetryReplayResult,
+    *,
+    attempt: int,
+    errors: tuple[str, ...],
+    inputs: PlannerInputs,
+    handle_registry: CanonicalHandleRegistry,
+    problem_payload: dict[str, Any] | None,
+) -> dict[str, Any] | None:
+    """Reproject an external answer failure from C2 runtime evidence.
+
+    The Orchestrator performs semantic answer comparison after planner
+    execution. A failed comparison revokes goal commitment, but the call
+    results remain useful provisional evidence. Rebuilding this state through
+    legacy replay would lose the transactional version boundary.
+    """
+
+    attempt_result = replay.transactional_attempt_result
+    if (
+        replay.state_observation_authority != "transactional"
+        or attempt_result is None
+        or not errors
+    ):
+        return repair_attempt_payload_from_replay(replay)
+    parent_context = _initial_planner_state_context(
+        inputs=inputs,
+        handle_registry=handle_registry,
+        problem_payload=problem_payload,
+        attempt=attempt,
+        previous_attempts=inputs.previous_errors,
+    )
+    failed_replay = replace(
+        replay,
+        attempt=attempt,
+        errors=errors,
+        output=None,
+        retry_state=None,
+        planner_state_context=None,
+    )
+    retry_state = _transactional_functional_retry_state(
+        failed_replay,
+        attempt_result=attempt_result,
+        parent_context=parent_context,
+        inputs=inputs,
+        handle_registry=handle_registry,
+    )
+    failed_replay = _with_planner_state_context(
+        replace(failed_replay, retry_state=retry_state),
+        inputs=inputs,
+        handle_registry=handle_registry,
+        problem_payload=problem_payload,
+    )
+    return repair_attempt_payload_from_replay(failed_replay)
+
+
 def _functional_retry_state(
     *,
     attempt: int,
@@ -2474,6 +2734,8 @@ def _functional_runtime_retry_state(
     semantic_index: FunctionalSemanticIndex,
     planner_state_context: PlannerStateContext | None = None,
     expected_retry_checkpoint: FunctionalRetryGraphCheckpoint | None = None,
+    allow_goal_commit: bool = True,
+    preserve_committed_checkpoint: FunctionalRetryGraphCheckpoint | None = None,
 ) -> PlannerRetryState | None:
     if retry_state is None and runtime_retry_state is None:
         return None
@@ -2549,8 +2811,9 @@ def _functional_runtime_retry_state(
         goal_report=goal_verification_report,
         active_issues=issues,
         attempt=attempt,
-        allow_goal_commit=not any(
-            issue.layer == "answer_check" for issue in issues
+        allow_goal_commit=(
+            allow_goal_commit
+            and not any(issue.layer == "answer_check" for issue in issues)
         ),
     )
     retry_checkpoint = (
@@ -2562,6 +2825,18 @@ def _functional_runtime_retry_state(
         )
         if planner_state_context is not None
         else None
+    )
+    if (
+        preserve_committed_checkpoint is not None
+        and retry_checkpoint is not None
+    ):
+        retry_checkpoint = preserve_committed_retry_checkpoint(
+            preserve_committed_checkpoint,
+            retry_checkpoint,
+        )
+    call_memory = _with_checkpoint_commit_status(
+        call_memory,
+        checkpoint=retry_checkpoint,
     )
     if (
         expected_retry_checkpoint is not None
@@ -2637,6 +2912,7 @@ def _functional_runtime_retry_state(
             if (
                 item.execution_status == "runtime_verified"
                 and item.commit_status != "goal_committed"
+                and item.call_id not in committed_call_ids
             )
         ),
         validated_call_ids=call_memory.validated_call_ids,
@@ -2660,6 +2936,72 @@ def _functional_runtime_retry_state(
     )
 
 
+def _transactional_functional_retry_state(
+    replay: PlannerRetryReplayResult,
+    *,
+    attempt_result: FunctionalTransactionalAttemptResult,
+    parent_context: PlannerStateContext,
+    inputs: PlannerInputs,
+    handle_registry: CanonicalHandleRegistry,
+) -> PlannerRetryState | None:
+    reconciliation = replay.functional_reconciliation
+    if reconciliation is None:
+        return None
+    base_retry = build_planner_retry_state(
+        attempt=replay.attempt,
+        errors=replay.errors,
+        effective_draft=reconciliation.projected_draft,
+        normalized_draft=replay.normalized_draft,
+        validation_report=replay.validation_report,
+        normalization_report=replay.normalization_report,
+        resolution_report=replay.resolution_report,
+        diagnostic=attempt_result.diagnostic,
+        handle_registry=handle_registry,
+        goal_verification_issues=attempt_result.root_issues,
+        guidance_resolver=RepairGuidanceResolver(
+            inputs.family_spec,
+            inputs.method_specs,
+            handle_registry,
+        ),
+    )
+    if (
+        attempt_result.compiled_output is not None
+        and not replay.errors
+        and not attempt_result.root_issues
+    ):
+        return None
+    if base_retry is None:
+        return None
+    semantic_index = FunctionalSemanticIndex.from_context(
+        parent_context,
+        handle_registry=handle_registry,
+    )
+    catalog = FunctionalCapabilityCatalog.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
+    ).contextualized(semantic_index)
+    return _functional_runtime_retry_state(
+        base_retry,
+        runtime_retry_state=base_retry,
+        plan=reconciliation.plan,
+        reconciliation=reconciliation,
+        diagnostic=attempt_result.diagnostic,
+        verified_call_ids=set(attempt_result.verified_call_ids),
+        verified_runtime_results=attempt_result.runtime_results,
+        verified_state_write_provenance=attempt_result.state_writes,
+        goal_verification_report=attempt_result.goal_report,
+        attempt=replay.attempt,
+        functional_catalog=catalog,
+        semantic_index=semantic_index,
+        planner_state_context=parent_context,
+        expected_retry_checkpoint=(
+            latest_functional_retry_graph_checkpoint(
+                inputs.previous_errors
+            )
+        ),
+    )
+
+
 def _checkpoint_committed_candidate_calls(
     checkpoint: FunctionalRetryGraphCheckpoint | None,
 ) -> tuple[dict[str, Any], ...]:
@@ -2671,6 +3013,48 @@ def _checkpoint_committed_candidate_calls(
             "call": dict(committed.call_payload),
         }
         for committed in checkpoint.committed_calls
+    )
+
+
+def _with_checkpoint_commit_status(
+    memory: FunctionalCallMemory,
+    *,
+    checkpoint: FunctionalRetryGraphCheckpoint | None,
+) -> FunctionalCallMemory:
+    """Project existing typed hard locks into prompt-facing call memory."""
+
+    if checkpoint is None or not checkpoint.committed_calls:
+        return memory
+    goals_by_call = {
+        item.canonical_call_id: item.committed_goal_handles
+        for item in checkpoint.committed_calls
+    }
+    committed_ids = tuple(checkpoint.committed_call_ids)
+    committed_set = set(committed_ids)
+    return replace(
+        memory,
+        entries=tuple(
+            replace(
+                item,
+                commit_status="goal_committed",
+                committed_goal_handles=goals_by_call.get(
+                    item.call_id,
+                    item.committed_goal_handles,
+                ),
+            )
+            if (
+                item.call_id in committed_set
+                and item.execution_status == "runtime_verified"
+            )
+            else item
+            for item in memory.entries
+        ),
+        committed_call_ids=committed_ids,
+        runtime_verified_call_ids=tuple(
+            call_id
+            for call_id in memory.runtime_verified_call_ids
+            if call_id not in committed_set
+        ),
     )
 
 
@@ -3598,6 +3982,7 @@ __all__ = [
     "PlannerRetryReplayResult",
     "PlannerRetryReplayService",
     "repair_attempt_payload_from_replay",
+    "transactional_repair_attempt_payload_from_replay",
 ]
 
 
@@ -3620,6 +4005,167 @@ def _with_planner_state_context(
         planner_state_context=context,
         retry_state=projected_retry_state or replay.retry_state,
     )
+
+
+def _transactional_context_shadow_mismatches(
+    legacy_replay: PlannerRetryReplayResult,
+    transactional_replay: PlannerRetryReplayResult,
+    *,
+    inputs: PlannerInputs,
+    handle_registry: CanonicalHandleRegistry,
+    problem_payload: dict[str, Any] | None,
+) -> tuple[FunctionalTransactionShadowMismatch, ...]:
+    legacy_context = _planner_state_context_from_replay(
+        legacy_replay,
+        inputs=inputs,
+        handle_registry=handle_registry,
+        problem_payload=problem_payload,
+    )
+    transactional_context = _planner_state_context_from_replay(
+        transactional_replay,
+        inputs=inputs,
+        handle_registry=handle_registry,
+        problem_payload=problem_payload,
+    )
+    comparisons = (
+        (
+            "transactional_goal_report_drift",
+            _goal_report_signature(legacy_replay.goal_verification_report),
+            _goal_report_signature(
+                transactional_replay.goal_verification_report
+            ),
+        ),
+        (
+            "transactional_goal_output_drift",
+            _planner_output_signature(legacy_replay.output),
+            _planner_output_signature(transactional_replay.output),
+        ),
+        (
+            "transactional_context_version_drift",
+            _context_version_signature(legacy_context),
+            _context_version_signature(transactional_context),
+        ),
+        (
+            "transactional_retry_projection_drift",
+            _retry_authority_signature(legacy_replay.retry_state),
+            _retry_authority_signature(transactional_replay.retry_state),
+        ),
+        (
+            "transactional_checkpoint_drift",
+            _canonical_payload(
+                legacy_context.state.retry_memory
+                .functional_retry_graph_checkpoint
+            ),
+            _canonical_payload(
+                transactional_context.state.retry_memory
+                .functional_retry_graph_checkpoint
+            ),
+        ),
+    )
+    return tuple(
+        FunctionalTransactionShadowMismatch(
+            code,
+            None,
+            expected,
+            actual,
+        )
+        for code, expected, actual in comparisons
+        if expected != actual
+    )
+
+
+def _context_version_signature(
+    context: PlannerStateContext,
+) -> tuple[str, ...]:
+    versions: dict[str, str] = {}
+    for slot in context.state.state_slots:
+        for write in slot.write_history:
+            if write.version_id is None:
+                continue
+            version_key = _canonical_payload(write.version_id.to_payload())
+            versions[version_key] = _canonical_payload(
+                {
+                    "version_id": write.version_id.to_payload(),
+                    "previous_version_id": (
+                        write.previous_version_id.to_payload()
+                        if write.previous_version_id is not None
+                        else None
+                    ),
+                    "source_version_ids": [
+                        item.to_payload()
+                        for item in write.source_version_ids
+                    ],
+                    "canonical_producer_call_id": (
+                        write.canonical_producer_call_id
+                    ),
+                    "valid_scope_id": write.valid_scope_id,
+                    "result_form": write.result_form,
+                    "free_symbol_refs": list(write.free_symbol_refs),
+                }
+            )
+    return tuple(sorted(versions.values()))
+
+
+def _goal_report_signature(
+    report: AnswerGoalVerificationReport | None,
+) -> tuple[tuple[str, str, str | None], ...]:
+    if report is None:
+        return ()
+    return tuple(
+        sorted(
+            (
+                item.goal_handle,
+                item.status,
+                item.producer_step_id,
+            )
+            for item in report.goals
+        )
+    )
+
+
+def _planner_output_signature(output: Any | None) -> tuple[str, ...] | None:
+    if output is None:
+        return None
+    return tuple(item.step_id for item in output.step_plans)
+
+
+def _retry_authority_signature(
+    retry_state: PlannerRetryState | None,
+) -> tuple[Any, ...] | None:
+    if retry_state is None:
+        return None
+    return (
+        tuple(
+            sorted(
+                (
+                    issue.layer,
+                    issue.code,
+                    issue.step_id,
+                )
+                for issue in retry_state.issues
+            )
+        ),
+        tuple(sorted(retry_state.repair_call_ids)),
+        tuple(
+            sorted(
+                _candidate_call_id(item)
+                for item in retry_state.committed_candidate_calls
+                if _candidate_call_id(item) is not None
+            )
+        ),
+    )
+
+
+def _candidate_call_id(payload: dict[str, Any]) -> str | None:
+    call = payload.get("call")
+    if isinstance(call, dict) and isinstance(call.get("call_id"), str):
+        return call["call_id"]
+    call_id = payload.get("call_id")
+    return call_id if isinstance(call_id, str) else None
+
+
+def _canonical_payload(value: Any) -> str:
+    return json.dumps(value, sort_keys=True, separators=(",", ":"))
 
 
 def _append_normalization_actions(

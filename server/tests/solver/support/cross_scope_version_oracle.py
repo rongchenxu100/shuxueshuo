@@ -119,6 +119,10 @@ class ModelRetryCheckpoint:
     committed_version_ids: tuple[str, ...] = ()
     provisional_call_ids: tuple[str, ...] = ()
     replacement_call_ids: tuple[str, ...] = ()
+    expected_free_symbol_refs: tuple[str, ...] = ()
+    expected_free_symbol_ids: tuple[str, ...] = ()
+    observed_free_symbol_refs: tuple[str, ...] = ()
+    observed_free_symbol_ids: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -277,6 +281,26 @@ class CrossScopeVersionScenario:
                             "replacement_call_ids", ()
                         )
                     ),
+                    expected_free_symbol_refs=tuple(
+                        payload["retry_checkpoint"].get(
+                            "expected_free_symbol_refs", ()
+                        )
+                    ),
+                    expected_free_symbol_ids=tuple(
+                        payload["retry_checkpoint"].get(
+                            "expected_free_symbol_ids", ()
+                        )
+                    ),
+                    observed_free_symbol_refs=tuple(
+                        payload["retry_checkpoint"].get(
+                            "observed_free_symbol_refs", ()
+                        )
+                    ),
+                    observed_free_symbol_ids=tuple(
+                        payload["retry_checkpoint"].get(
+                            "observed_free_symbol_ids", ()
+                        )
+                    ),
                 )
                 if payload.get("retry_checkpoint")
                 else None
@@ -349,6 +373,25 @@ class ReferenceScopeVersionModel:
             item.state_key for item in scenario.initial_versions
         }
         calls = {item.call_id: item for item in scenario.calls}
+        checkpoint = scenario.retry_checkpoint
+        checkpoint_versions = (
+            {
+                call_id: version_id
+                for call_id, version_id in zip(
+                    checkpoint.committed_call_ids,
+                    checkpoint.committed_version_ids,
+                    strict=False,
+                )
+            }
+            if checkpoint is not None
+            else {}
+        )
+
+        def checkpoint_storage_scope(call_id: str) -> str | None:
+            version_id = checkpoint_versions.get(call_id)
+            if version_id is None or "@" not in version_id:
+                return None
+            return version_id.rsplit("@", 1)[-1].rsplit("#", 1)[0]
         serialized_order = self._serialized_call_order(scenario)
         wire_rank = {
             call_id: rank for rank, call_id in enumerate(serialized_order)
@@ -435,6 +478,24 @@ class ReferenceScopeVersionModel:
                         version_by_call.get(producer, producer)
                     )
             return tuple(dict.fromkeys(result))
+
+        def publishable_scope(
+            *,
+            requested_scope: str,
+            fallback_scope: str,
+            source_ids: tuple[str, ...],
+        ) -> str:
+            if all(
+                version_id in versions
+                and self.is_visible(
+                    versions[version_id].valid_scope_id,
+                    requested_scope,
+                    scopes,
+                )
+                for version_id in source_ids
+            ):
+                return requested_scope
+            return fallback_scope
 
         for call_id in order:
             call = calls[call_id]
@@ -759,7 +820,7 @@ class ReferenceScopeVersionModel:
                     )
                     owner_decision = decisions[owner]
                     selected_version_id = owner_decision.selected_version_id
-                    publication_scope = self.least_common_scope(
+                    requested_publication_scope = self.least_common_scope(
                         (
                             owner_decision.return_scope_id
                             or execution_scope,
@@ -774,6 +835,14 @@ class ReferenceScopeVersionModel:
                         ),
                         scopes,
                     )
+                    publication_scope = publishable_scope(
+                        requested_scope=requested_publication_scope,
+                        fallback_scope=(
+                            owner_decision.return_scope_id
+                            or execution_scope
+                        ),
+                        source_ids=source_ids,
+                    )
                     if (
                         selected_version_id is not None
                         and owner_decision.return_scope_id
@@ -782,14 +851,21 @@ class ReferenceScopeVersionModel:
                     ):
                         previous_selected_version_id = selected_version_id
                         selected = versions.pop(previous_selected_version_id)
+                        pinned_storage_scope = checkpoint_storage_scope(owner)
                         relocated_version_id = (
-                            f"{selected.state_key.token}"
-                            f"@{publication_scope}#{selected.ordinal}"
+                            previous_selected_version_id
+                            if pinned_storage_scope is not None
+                            else (
+                                f"{selected.state_key.token}"
+                                f"@{publication_scope}#{selected.ordinal}"
+                            )
                         )
                         selected = replace(
                             selected,
                             version_id=relocated_version_id,
-                            storage_scope_id=publication_scope,
+                            storage_scope_id=(
+                                pinned_storage_scope or publication_scope
+                            ),
                             valid_scope_id=publication_scope,
                         )
                         versions[relocated_version_id] = selected
@@ -893,6 +969,16 @@ class ReferenceScopeVersionModel:
                 object_origins=object_origins,
                 initial_state_keys=initial_state_keys,
             )
+            if not all(
+                version_id in versions
+                and self.is_visible(
+                    versions[version_id].valid_scope_id,
+                    base_execution_scope,
+                    scopes,
+                )
+                for version_id in source_ids
+            ):
+                base_execution_scope = call.declared_scope_id
             requested_execution_scope = self.least_common_scope(
                 (
                     base_execution_scope,
@@ -913,14 +999,19 @@ class ReferenceScopeVersionModel:
                 )
                 else base_execution_scope
             )
-            return_scope = self.least_common_scope(
+            requested_return_scope = self.least_common_scope(
                 (
                     call.valid_scope_id or execution_scope,
                     *dependency_consumers.get(call.call_id, ()),
                 ),
                 scopes,
             )
-            storage_scope = (
+            return_scope = publishable_scope(
+                requested_scope=requested_return_scope,
+                fallback_scope=call.valid_scope_id or execution_scope,
+                source_ids=source_ids,
+            )
+            storage_scope = checkpoint_storage_scope(call.call_id) or (
                 return_scope
                 if dependency_consumers.get(call.call_id)
                 else (call.storage_scope_id or execution_scope)
@@ -1972,6 +2063,16 @@ class ReferenceScopeVersionModel:
             for item in candidate_call_ids
             if item not in restored
         )
+        if (
+            checkpoint.expected_free_symbol_ids
+            != checkpoint.observed_free_symbol_ids
+        ):
+            return (
+                committed,
+                restored,
+                provisional,
+                ("planner.retry_state_version_drift",),
+            )
         if checkpoint.mode == "provisional_replacement":
             provisional = tuple(
                 item

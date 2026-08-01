@@ -12,10 +12,11 @@
    `value_type` 通常可以省略。只能使用 ProblemIR 已给出的 `semantic_ref`，不要发明其他引用。
 4. 读取当前计划中更早 call 的返回值时，使用
    `{ "from_call": "earlier_call_id", "return": "declared_return_name" }`。
-   不允许 forward reference 或循环依赖。前序 call 的结果可以被后续不同 scope 的 call 引用；
-   不要仅因为进入了另一个小问，就用相同 capability 和相同输入重复计算同一对象状态。
-   不要为了预期复用而把含参对象提前放到父 scope；调用应留在它直接服务的小问，
-   系统会自动提升确实可共享的计算。若同一对象已有可见状态，后续更新必须消费该状态，
+   不允许 forward reference 或循环依赖。scope 表示调用的数学归属，不表示物理执行或存储位置。
+   只服务一个小问的调用放在该小问；题面直接给出的公共前提，以及从一开始就被多个小问以
+   完全相同状态消费的计算，可以放在最近公共父 scope。若结果先在一个小问中推导、后来被兄弟
+   小问复用，调用仍留在原小问，后续使用 CallResultRef；不要仅因进入另一个小问而重复计算，
+   也不要事后移动原调用。系统会决定安全的执行位置和发布范围。若同一对象已有可见状态，后续更新必须消费该状态，
    或使用能够证明其输入状态来自前序输入状态的调用链。
 5. `args` 只填写 capability catalog 展示的参数。required arg 必须提供，cardinality 必须匹配。
    若 capability 展示 `input_requirements`，即使对应 arg 标为 optional，也必须满足其中的数学要求：

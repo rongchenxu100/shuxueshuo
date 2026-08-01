@@ -13,10 +13,16 @@ from shuxueshuo_server.solver.runtime.functional_retry_versions import (
     FunctionalRetryVersionRecord,
     build_functional_retry_graph_checkpoint,
     expand_retry_dependency_graph_with_versions,
+    preserve_committed_retry_checkpoint,
     restore_committed_calls,
     validate_checkpoint_manifest,
     verify_restored_checkpoint,
     verify_restored_runtime_checkpoint,
+)
+from shuxueshuo_server.solver.runtime.functional_call_memory import (
+    FunctionalCallMemory,
+    FunctionalCallMemoryEntry,
+    FunctionalResultSnapshot,
 )
 from shuxueshuo_server.solver.runtime.planner_retry_projection import (
     _typed_committed_candidate_calls,
@@ -26,6 +32,7 @@ from shuxueshuo_server.solver.runtime.strategy_payload import (
 )
 from shuxueshuo_server.solver.runtime.strategy_replay import (
     _checkpoint_committed_candidate_calls,
+    _with_checkpoint_commit_status,
 )
 from shuxueshuo_server.solver.runtime.state_identity import (
     ArgVersionBinding,
@@ -110,6 +117,7 @@ def _checkpoint() -> FunctionalRetryGraphCheckpoint:
                 valid_scope_id="problem",
                 result_form="closed_state",
                 free_symbol_refs=(),
+                free_symbol_ids=(),
                 runtime_destination=RuntimeDestinationKey(
                     object_id,
                     "coordinate",
@@ -225,7 +233,7 @@ def _checkpoint_builder_inputs(
     }, verified
 
 
-def test_retry_checkpoint_round_trip_and_exact_scope_restore() -> None:
+def test_retry_checkpoint_round_trip_drops_scope_emptied_by_restore() -> None:
     checkpoint = _checkpoint()
     assert FunctionalRetryGraphCheckpoint.from_payload(
         checkpoint.to_payload()
@@ -248,6 +256,7 @@ def test_retry_checkpoint_round_trip_and_exact_scope_restore() -> None:
                 ],
             },
             {"scope_id": "i", "label": "I", "calls": []},
+            {"scope_id": "ii_2", "label": "II-2", "calls": []},
         ],
     }
 
@@ -255,16 +264,128 @@ def test_retry_checkpoint_round_trip_and_exact_scope_restore() -> None:
     restored_again = restore_committed_calls(restored, checkpoint)
 
     assert restored_again == restored
-    assert restored["scopes"][0]["calls"] == []
-    assert restored["scopes"][1]["calls"] == [
+    scopes = {item["scope_id"]: item for item in restored["scopes"]}
+    assert "ii" not in scopes
+    assert scopes["i"]["calls"] == [
         checkpoint.committed_calls[0].call_payload
     ]
+    # Empty scopes unrelated to checkpoint restoration remain available to
+    # strict wire validation.
+    assert scopes["ii_2"]["calls"] == []
     assert checkpoint.pinned_execution_scopes == {
         "make_point": "problem"
     }
     assert checkpoint.pinned_return_scopes == {
         "make_point": {"point": "problem"}
     }
+
+
+def test_partial_observation_preserves_only_prior_committed_checkpoint() -> None:
+    committed = _checkpoint()
+    committed_version = committed.verified_versions[0]
+    provisional_version_id = StateVersionId(
+        committed_version.version_id.slot_id,
+        committed_version.version_id.ordinal + 1,
+    )
+    observed = replace(
+        committed,
+        source_context_id="context-2",
+        committed_calls=(),
+        verified_versions=(
+            replace(committed_version, status="runtime_verified"),
+            replace(
+                committed_version,
+                version_id=provisional_version_id,
+                status="runtime_verified",
+            ),
+        ),
+    )
+
+    merged = preserve_committed_retry_checkpoint(committed, observed)
+
+    assert merged.committed_calls == committed.committed_calls
+    assert merged.verified_versions == (
+        committed_version,
+        replace(
+            committed_version,
+            version_id=provisional_version_id,
+            status="runtime_verified",
+        ),
+    )
+
+
+def test_preserved_commit_projects_relevant_result_as_locked_context() -> None:
+    checkpoint = _checkpoint()
+    memory = FunctionalCallMemory(
+        entries=(
+            FunctionalCallMemoryEntry(
+                call_id="make_point",
+                capability_id="construct_point",
+                scope_id="i",
+                execution_status="runtime_verified",
+                result_snapshots=(
+                    FunctionalResultSnapshot(
+                        return_name="point",
+                        value_type="Point",
+                        semantic_ref="P",
+                        value={"x": 1, "y": 2},
+                        actual_form="closed_state",
+                    ),
+                ),
+            ),
+        ),
+        runtime_verified_call_ids=("make_point",),
+    )
+    projected = _with_checkpoint_commit_status(
+        memory,
+        checkpoint=checkpoint,
+    )
+    prompt_state = _functional_previous_attempt_state(
+        [
+            {
+                "context_derived_retry_state": {
+                    "attempt": 1,
+                    "candidate_format": "functional_plan",
+                    "baseline_candidate": {
+                        "schema_version": "functional_plan/v1",
+                        "scopes": [],
+                    },
+                    "functional_retry_graph_checkpoint": (
+                        checkpoint.to_payload()
+                    ),
+                    "call_memory": projected.to_payload(),
+                    "runtime_verified_calls": [],
+                    "issues": [
+                        {
+                            "layer": "functional_reconciliation",
+                            "code": "synthetic_failure",
+                            "message": "repair another call",
+                            "details": {
+                                "locked_result_refs": ["make_point.point"]
+                            },
+                        }
+                    ],
+                }
+            }
+        ]
+    )["latest_retry_state"]
+
+    assert projected.entries[0].commit_status == "goal_committed"
+    assert prompt_state["runtime_verified"] == []
+    assert prompt_state["locked_context_results"] == [
+        {
+            "call_id": "make_point",
+            "results": [
+                {
+                    "return": "point",
+                    "type": "Point",
+                    "ref": "P",
+                    "value": {"x": 1, "y": 2},
+                    "form": "closed_state",
+                }
+            ],
+        }
+    ]
 
 
 def test_typed_checkpoint_backfills_locked_call_projection() -> None:
@@ -1223,6 +1344,80 @@ def test_answer_check_runtime_verifies_revoked_committed_version() -> None:
                 ),
             ),
         )
+
+
+def test_runtime_checkpoint_compares_free_symbols_by_math_object_identity() -> None:
+    checkpoint = _checkpoint()
+    symbol_id = MathObjectId(
+        "symbol:problem:a",
+        "symbol",
+        "problem",
+    )
+    expected_record = replace(
+        checkpoint.verified_versions[0],
+        free_symbol_refs=("a",),
+        free_symbol_ids=(symbol_id,),
+    )
+    expected = replace(
+        checkpoint,
+        verified_versions=(expected_record,),
+    )
+    observed = replace(
+        expected,
+        committed_calls=(),
+        verified_versions=(
+            replace(
+                expected_record,
+                free_symbol_refs=("symbol:problem:a",),
+                status="runtime_verified",
+            ),
+        ),
+    )
+
+    verify_restored_runtime_checkpoint(expected, observed)
+
+    with pytest.raises(
+        FunctionalRetryCheckpointError,
+        match="planner.retry_state_version_drift",
+    ):
+        verify_restored_runtime_checkpoint(
+            expected,
+            replace(
+                observed,
+                verified_versions=(
+                    replace(
+                        observed.verified_versions[0],
+                        free_symbol_ids=(
+                            MathObjectId(
+                                "symbol:problem:b",
+                                "symbol",
+                                "problem",
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+        )
+
+
+def test_runtime_checkpoint_rejects_untyped_free_symbol_identity() -> None:
+    checkpoint = _checkpoint()
+    checkpoint = replace(
+        checkpoint,
+        verified_versions=(
+            replace(
+                checkpoint.verified_versions[0],
+                free_symbol_refs=("a",),
+                free_symbol_ids=(),
+            ),
+        ),
+    )
+
+    with pytest.raises(
+        FunctionalRetryCheckpointError,
+        match="planner.retry_version_checkpoint_invalid",
+    ):
+        verify_restored_runtime_checkpoint(checkpoint, checkpoint)
 
 
 def test_partial_runtime_checkpoint_allows_unobserved_committed_return() -> None:

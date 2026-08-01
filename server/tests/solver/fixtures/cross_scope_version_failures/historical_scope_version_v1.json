@@ -1,12 +1,12 @@
 {
   "format": "cross_scope_version_corpus/v1",
-  "generator_version": "c0.5/v7",
+  "generator_version": "c0.5/v9",
   "scenarios": [
     {
       "name": "sibling_private_exact_visibility",
       "source": "bounded",
       "index": 4448,
-      "scenario_id": "csv-0d3b9d3866f32c68",
+      "scenario_id": "csv-c906261d9dd68d08",
       "expect_dimensions": {
         "topology": "siblings",
         "state_location": "siblings",
@@ -17,7 +17,7 @@
       "name": "parent_state_child_transition",
       "source": "bounded",
       "index": 2075,
-      "scenario_id": "csv-996f7b191c4d2027",
+      "scenario_id": "csv-d39b0acc8f3f8ab3",
       "expect_dimensions": {
         "topology": "parent_child",
         "write_mode": "transition"
@@ -27,7 +27,7 @@
       "name": "answer_object_projection_single_writer",
       "source": "bounded",
       "index": 21,
-      "scenario_id": "csv-8438c4be9f3e6d98",
+      "scenario_id": "csv-c5ac3941baf8d3e6",
       "expect_dimensions": {
         "projection": "object+answer",
         "relationship": "duplicate"
@@ -37,7 +37,7 @@
       "name": "hidden_dependency_placement",
       "source": "bounded",
       "index": 6051,
-      "scenario_id": "csv-e9cd1f1cd22a60ff",
+      "scenario_id": "csv-26e152e392d4e720",
       "expect_dimensions": {
         "topology": "branched",
         "dependency_kind": "hidden_semantic_role"
@@ -47,7 +47,7 @@
       "name": "transition_source_edge",
       "source": "bounded",
       "index": 6116,
-      "scenario_id": "csv-d0838d948de358d7",
+      "scenario_id": "csv-c61ba52139648f38",
       "expect_dimensions": {
         "write_mode": "transition",
         "relationship": "refinement"
@@ -57,7 +57,7 @@
       "name": "provisional_retry_replacement",
       "source": "bounded",
       "index": 6001,
-      "scenario_id": "csv-26ba9105d80843b1",
+      "scenario_id": "csv-7ecb633712d4ded0",
       "expect_dimensions": {
         "retry": "provisional_replacement"
       }
@@ -67,7 +67,7 @@
       "source": "expanded",
       "seed": 17,
       "index": 0,
-      "scenario_id": "csv-2d2731c78089e068",
+      "scenario_id": "csv-b4e9bd49cdfd547c",
       "expect_dimensions": {
         "calls": "12"
       }
@@ -77,7 +77,7 @@
       "source": "expanded",
       "seed": 17,
       "index": 1,
-      "scenario_id": "csv-4f146571a5a89813",
+      "scenario_id": "csv-581154a5eae4f5e3",
       "expect_dimensions": {
         "retry": "committed_restore"
       }
@@ -87,7 +87,7 @@
       "source": "expanded",
       "seed": 17,
       "index": 2,
-      "scenario_id": "csv-15817ee192d396e1",
+      "scenario_id": "csv-d379d8f2236fc8c1",
       "expect_dimensions": {
         "read_mode": "latest"
       }
@@ -97,7 +97,7 @@
       "source": "expanded",
       "seed": 17,
       "index": 3,
-      "scenario_id": "csv-e03c0c7943791876",
+      "scenario_id": "csv-25bde4c054a7705f",
       "expect_dimensions": {
         "retry": "version_drift"
       }
@@ -144,7 +144,7 @@
       "name": "checkpoint_wire_reorder_exact_source",
       "source": "authority_regression",
       "index": 2,
-      "scenario_id": "csv-1e78858f934d0715",
+      "scenario_id": "csv-59eee5acaa4f3b7b",
       "expect_dimensions": {
         "regression": "checkpoint_wire_reorder_exact_source"
       }
@@ -165,6 +165,34 @@
       "scenario_id": "csv-fc41cacc8f960184",
       "expect_dimensions": {
         "regression": "published_state_exact_read_ignores_transitive_source"
+      }
+    },
+    {
+      "name": "committed_sibling_chain_lca_restore",
+      "source": "authority_regression",
+      "index": 5,
+      "scenario_id": "csv-7ea39a9441531cea",
+      "expect_dimensions": {
+        "regression": "committed_sibling_chain_lca_restore",
+        "retry_candidate_scope": "ii"
+      }
+    },
+    {
+      "name": "checkpoint_symbol_alias_identity",
+      "source": "authority_regression",
+      "index": 6,
+      "scenario_id": "csv-f44ae26f58f45516",
+      "expect_dimensions": {
+        "regression": "checkpoint_symbol_alias_identity"
+      }
+    },
+    {
+      "name": "checkpoint_symbol_identity_drift",
+      "source": "authority_regression",
+      "index": 7,
+      "scenario_id": "csv-61debbdd4690edf6",
+      "expect_dimensions": {
+        "regression": "checkpoint_symbol_identity_drift"
       }
     }
   ]

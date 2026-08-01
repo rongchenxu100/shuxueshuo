@@ -26,15 +26,22 @@ from shuxueshuo_server.solver.runtime.functional_logical_graph import (
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
 )
+from shuxueshuo_server.solver.runtime.functional_retry_versions import (
+    latest_functional_retry_graph_checkpoint,
+)
 from shuxueshuo_server.solver.runtime.functional_transaction_shadow import (
     FunctionalCallExecutionState,
+    FunctionalTransactionShadowMismatch,
     WorkingPlannerState,
     build_working_state,
 )
 from shuxueshuo_server.solver.runtime.handle_registry import (
     CanonicalHandleRegistry,
 )
-from shuxueshuo_server.solver.runtime.executor import InvocationExecutor
+from shuxueshuo_server.solver.runtime.executor import (
+    DeclarationValidator,
+    InvocationExecutor,
+)
 from shuxueshuo_server.solver.runtime.methods import default_stateless_registry
 from shuxueshuo_server.solver.runtime.models import Point, TypedValue
 from shuxueshuo_server.solver.runtime.planner_state_context import (
@@ -48,12 +55,17 @@ from shuxueshuo_server.solver.runtime.strategy_payload import (
 )
 from shuxueshuo_server.solver.runtime.strategy_replay import (
     PlannerRetryReplayService,
+    transactional_repair_attempt_payload_from_replay,
 )
 from shuxueshuo_server.solver.runtime.state_identity import (
     IndexedStateVersion,
     ScopeVisibilityResolver,
+    StateAllocationService,
     StateIdentityIndex,
     StateVersionId,
+)
+from shuxueshuo_server.solver.runtime.strategy_models import (
+    StrategyDraftValidationError,
 )
 
 
@@ -123,6 +135,445 @@ def test_authored_fixture_transaction_execution_has_zero_mismatch(
         ]
         assert ready < running < verified
         assert all(verified < index for index in committed)
+
+
+@pytest.mark.parametrize("case_id", tuple(FUNCTIONAL_BATCH_CASES))
+def test_authored_fixture_context_shadow_has_transactional_parity(
+    case_id: str,
+) -> None:
+    replay = _replay(case_id, mode="context_shadow")
+
+    attempt = replay.transactional_attempt_result
+    assert attempt is not None
+    assert attempt.execution_report.ok, attempt.to_payload()
+    assert attempt.compiled_output is not None
+    assert not attempt.root_issues
+    assert all(
+        item.status == "passed"
+        for item in attempt.goal_report.goals
+    )
+    assert replay.state_observation_authority == "legacy"
+    assert replay.output is not None
+
+
+@pytest.mark.parametrize("case_id", tuple(FUNCTIONAL_BATCH_CASES))
+def test_context_authoritative_goal_output_replays_in_fresh_context(
+    case_id: str,
+) -> None:
+    replay = _replay(case_id, mode="context_authoritative")
+    attempt = replay.transactional_attempt_result
+    assert attempt is not None and attempt.compiled_output is not None
+    case = FUNCTIONAL_BATCH_CASES[case_id]
+    problem = load_problem_ir(case.problem_fixture_path)
+    inputs = build_strategy_probe_inputs(problem)
+    context = ContextBuilder().build(problem)
+    output = attempt.compiled_output
+
+    DeclarationValidator().validate_declarations(
+        context,
+        output.context_declarations,
+    )
+    context.apply_declarations(output.context_declarations)
+    execution = InvocationExecutor(
+        inputs.method_specs,
+        methods=default_stateless_registry(),
+        kernel=context.kernel,
+    ).execute_plan(context, output.step_plans)
+
+    assert all(item.ok for item in execution.checks), [
+        item.to_payload() for item in execution.checks if not item.ok
+    ]
+
+
+def test_goal_closure_keeps_hidden_equal_length_ray_state_producers() -> None:
+    replay = _replay("heping", mode="context_authoritative")
+    attempt = replay.transactional_attempt_result
+
+    assert attempt is not None and attempt.compiled_output is not None
+    assert "derive_parametric_parabola_ii" in attempt.goal_reachable_call_ids
+    assert "derive_x_intercept_B_ii" in attempt.goal_reachable_call_ids
+    assert "reduce_equal_length_ray_path_ii" in attempt.goal_reachable_call_ids
+
+
+def test_sibling_question_states_do_not_publish_through_object_origin() -> None:
+    replay = _replay("heping", mode="context_authoritative")
+    reconciliation = replay.functional_reconciliation
+    assert reconciliation is not None
+    calls = {item.call_id: item for item in reconciliation.calls}
+
+    i2_point = calls["derive_x_intercept_B_i"].returns[0]
+    ii_point = calls["derive_x_intercept_B_ii"].returns[0]
+    assert i2_point.valid_scope == "i_2"
+    assert ii_point.valid_scope == "ii"
+    assert i2_point.typed_slot_id is not None
+    assert ii_point.typed_slot_id is not None
+    assert i2_point.typed_slot_id.storage_scope_id == "i_2"
+    assert ii_point.typed_slot_id.storage_scope_id == "ii"
+    assert i2_point.selected_version_id != ii_point.selected_version_id
+
+
+def test_context_authoritative_uses_transactional_output_and_context() -> None:
+    replay = _replay("nankai", mode="context_authoritative")
+
+    attempt = replay.transactional_attempt_result
+    assert attempt is not None and attempt.compiled_output is not None
+    assert replay.output == attempt.compiled_output
+    assert replay.diagnostic == attempt.diagnostic
+    assert replay.goal_verification_report == attempt.goal_report
+    assert replay.state_observation_authority == "transactional"
+    assert replay.retry_state is None
+    assert replay.planner_state_context is not None
+    assert any(
+        item.event == "state_observation_authority_selected"
+        for item in replay.planner_state_context.state.context_events
+    )
+
+
+def test_context_authoritative_mismatch_produces_retry_instead_of_dead_end(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    original_execute = FunctionalTransactionalInterpreter.execute
+
+    def execute_with_mismatch(self, **kwargs):
+        report = original_execute(self, **kwargs)
+        return replace(
+            report,
+            compatibility_mismatches=(
+                *report.compatibility_mismatches,
+                FunctionalTransactionShadowMismatch(
+                    "synthetic_transactional_drift",
+                    "i_derive_parabola",
+                    "expected",
+                    "actual",
+                ),
+            ),
+        )
+
+    monkeypatch.setattr(
+        FunctionalTransactionalInterpreter,
+        "execute",
+        execute_with_mismatch,
+    )
+
+    replay = _replay("nankai", mode="context_authoritative")
+
+    assert replay.state_observation_authority == "transactional"
+    assert replay.output is None
+    assert replay.transactional_attempt_result is not None
+    assert replay.transactional_attempt_result.root_issues
+    assert replay.retry_state is not None
+    assert any(
+        item.code == "planner.transactional_authority_mismatch"
+        for item in replay.retry_state.issues
+    )
+
+
+def test_context_authoritative_attempt_exception_fails_closed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def fail_attempt(self, **kwargs):
+        raise RuntimeError("synthetic transactional entry failure")
+
+    monkeypatch.setattr(
+        FunctionalTransactionalInterpreter,
+        "execute_attempt",
+        fail_attempt,
+    )
+
+    with pytest.raises(
+        StrategyDraftValidationError,
+        match="planner.transactional_attempt_failed",
+    ):
+        _replay("nankai", mode="context_authoritative")
+
+
+def test_context_authoritative_partial_legacy_probe_stays_provisional(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    original_allocate = StateAllocationService.allocate
+
+    def conflict_last_call(self, request, index):
+        decision = original_allocate(self, request, index)
+        if request.call_id != "ii_2_derive_G":
+            return decision
+        return replace(
+            decision,
+            action="conflict",
+            selected_slot_id=None,
+            selected_version_id=None,
+            canonical_producer_call_id=None,
+            reason_code="synthetic_partial_graph_failure",
+            conflict_code="state.logical_duplicate_writer",
+        )
+
+    monkeypatch.setattr(
+        StateAllocationService,
+        "allocate",
+        conflict_last_call,
+    )
+
+    replay = _replay("nankai", mode="context_authoritative")
+
+    assert replay.transactional_attempt_result is None
+    assert replay.retry_state is not None
+    checkpoint = latest_functional_retry_graph_checkpoint(
+        [
+            {
+                "functional_retry_graph_checkpoint": (
+                    replay.retry_state.functional_retry_graph_checkpoint
+                )
+            }
+        ]
+    )
+    assert checkpoint is not None
+    assert checkpoint.committed_calls == ()
+    assert checkpoint.verified_versions
+    assert {
+        item.status for item in checkpoint.verified_versions
+    } == {"runtime_verified"}
+    assert replay.retry_state.runtime_verified_calls
+    assert all(
+        item["commit_status"] == "provisional"
+        for item in replay.retry_state.call_memory
+        if item["execution_status"] == "runtime_verified"
+    )
+
+
+def test_context_authoritative_does_not_gate_on_legacy_parity(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    original_compare = _compare_with_legacy
+
+    def fail_if_compared(*args, **kwargs):
+        raise AssertionError("legacy comparator is not authoritative")
+
+    monkeypatch.setattr(
+        "shuxueshuo_server.solver.runtime.functional_transaction_execution."
+        "_compare_with_legacy",
+        fail_if_compared,
+    )
+    replay = _replay("nankai", mode="context_authoritative")
+    monkeypatch.setattr(
+        "shuxueshuo_server.solver.runtime.functional_transaction_execution."
+        "_compare_with_legacy",
+        original_compare,
+    )
+
+    assert replay.output is not None
+    assert replay.state_observation_authority == "transactional"
+
+
+def test_context_shadow_compares_goal_output_context_and_retry_artifacts(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    original_attempt = FunctionalTransactionalInterpreter.execute_attempt
+
+    def attempt_with_output_drift(self, **kwargs):
+        attempt = original_attempt(self, **kwargs)
+        assert attempt.compiled_output is not None
+        output = replace(
+            attempt.compiled_output,
+            step_plans=attempt.compiled_output.step_plans[:-1],
+        )
+        return replace(attempt, compiled_output=output)
+
+    monkeypatch.setattr(
+        FunctionalTransactionalInterpreter,
+        "execute_attempt",
+        attempt_with_output_drift,
+    )
+
+    replay = _replay("nankai", mode="context_shadow")
+
+    assert replay.output is not None
+    assert replay.state_observation_authority == "legacy"
+    assert replay.transactional_attempt_result is not None
+    assert any(
+        item.code == "transactional_goal_output_drift"
+        for item in (
+            replay.transactional_attempt_result.execution_report
+            .compatibility_mismatches
+        )
+    )
+
+
+def test_context_shadow_keeps_legacy_checkpoint_prevalidation(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    authoritative = _replay("nankai", mode="context_authoritative")
+    case = FUNCTIONAL_BATCH_CASES["nankai"]
+    problem = load_problem_ir(case.problem_fixture_path)
+    inputs = build_strategy_probe_inputs(problem)
+    problem_payload = problem_to_llm_payload(problem)
+    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    previous = transactional_repair_attempt_payload_from_replay(
+        authoritative,
+        attempt=2,
+        errors=("answer_mismatch: synthetic",),
+        inputs=inputs,
+        handle_registry=registry,
+        problem_payload=problem_payload,
+    )
+    assert previous is not None
+    checkpoint = latest_functional_retry_graph_checkpoint([previous])
+    assert checkpoint is not None
+    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
+        json.loads(case.functional_fixture_path.read_text(encoding="utf-8")),
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+    observed = []
+
+    def observe_checkpoint(expected, **kwargs):
+        observed.append(expected)
+
+    monkeypatch.setattr(
+        "shuxueshuo_server.solver.runtime.strategy_replay."
+        "_verify_successful_functional_retry_checkpoint",
+        observe_checkpoint,
+    )
+    PlannerRetryReplayService(
+        functional_transaction_mode="context_shadow",
+    ).replay_functional_plan(
+        plan,
+        inputs=inputs,
+        handle_registry=registry,
+        context=ContextBuilder().build(problem),
+        attempt=1,
+        problem_payload=problem_payload,
+        validation_report=validation,
+        retry_checkpoint=checkpoint,
+    )
+
+    assert len(observed) == 1
+
+
+def test_transactional_answer_check_revokes_commits_but_keeps_versions() -> None:
+    replay = _replay("nankai", mode="context_authoritative")
+    case = FUNCTIONAL_BATCH_CASES["nankai"]
+    problem = load_problem_ir(case.problem_fixture_path)
+    inputs = build_strategy_probe_inputs(problem)
+    problem_payload = problem_to_llm_payload(problem)
+    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+
+    payload = transactional_repair_attempt_payload_from_replay(
+        replay,
+        attempt=2,
+        errors=(
+            "answer_mismatch: synthetic; actual=1; expected=2",
+        ),
+        inputs=inputs,
+        handle_registry=registry,
+        problem_payload=problem_payload,
+    )
+
+    assert payload is not None
+    retry = payload["planner_retry_state"]
+    assert retry["preserve_policy"] == "none"
+    assert retry["committed_candidate_calls"] == []
+    assert any(
+        item["layer"] == "answer_check"
+        and item["code"] == "answer_mismatch"
+        for item in retry["issues"]
+    )
+    checkpoint = payload["functional_retry_graph_checkpoint"]
+    assert checkpoint["committed_calls"] == []
+    assert checkpoint["verified_versions"]
+    assert {
+        item["status"] for item in checkpoint["verified_versions"]
+    } == {"runtime_verified"}
+
+
+def test_exact_transaction_attempt_does_not_require_legacy_output() -> None:
+    legacy = _replay("nankai", mode="legacy")
+    case = FUNCTIONAL_BATCH_CASES["nankai"]
+    problem = load_problem_ir(case.problem_fixture_path)
+    inputs = build_strategy_probe_inputs(problem)
+    problem_payload = problem_to_llm_payload(problem)
+    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+
+    attempt = FunctionalTransactionalInterpreter().execute_attempt(
+        raw_plan=legacy.functional_reconciliation.plan,
+        reconciliation=legacy.functional_reconciliation,
+        legacy_output=None,
+        legacy_diagnostic=None,
+        runtime_context=ContextBuilder().build(problem),
+        parent_context=initial_planner_state_context(
+            inputs,
+            problem_payload=problem_payload,
+            handle_registry=registry,
+            attempt=1,
+        ),
+        inputs=inputs,
+        handle_registry=registry,
+        problem_payload=problem_payload,
+        compare_legacy=False,
+    )
+
+    assert attempt.compiled_output is not None
+    assert not attempt.root_issues
+    assert all(
+        item.status == "passed" for item in attempt.goal_report.goals
+    )
+
+
+def test_partial_goal_failure_keeps_independent_goal_branch_verified() -> None:
+    legacy = _replay("nankai", mode="legacy")
+    case = FUNCTIONAL_BATCH_CASES["nankai"]
+    problem = load_problem_ir(case.problem_fixture_path)
+    inputs = build_strategy_probe_inputs(problem)
+    problem_payload = problem_to_llm_payload(problem)
+    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    failed_call_id = "ii_1_evaluate_minimum"
+
+    class FailingExecutor:
+        def __init__(self, context):
+            self.delegate = InvocationExecutor(
+                inputs.method_specs,
+                methods=default_stateless_registry(),
+                kernel=context.kernel,
+            )
+
+        def execute_plan(self, context, plans):
+            if any(
+                item.step_id == failed_call_id for item in plans
+            ):
+                raise RuntimeError("synthetic goal-branch failure")
+            return self.delegate.execute_plan(context, plans)
+
+    attempt = FunctionalTransactionalInterpreter(
+        executor_factory=lambda _inputs, context: FailingExecutor(context),
+    ).execute_attempt(
+        raw_plan=legacy.functional_reconciliation.plan,
+        reconciliation=legacy.functional_reconciliation,
+        legacy_output=None,
+        legacy_diagnostic=None,
+        runtime_context=ContextBuilder().build(problem),
+        parent_context=initial_planner_state_context(
+            inputs,
+            problem_payload=problem_payload,
+            handle_registry=registry,
+            attempt=1,
+        ),
+        inputs=inputs,
+        handle_registry=registry,
+        problem_payload=problem_payload,
+        compare_legacy=False,
+    )
+    goals = {
+        item.goal_handle: item.status
+        for item in attempt.goal_report.goals
+    }
+
+    assert attempt.compiled_output is None
+    assert failed_call_id in attempt.failed_call_ids
+    assert goals["answer:ii_1.minimum_value"] == "not_executed"
+    assert goals["answer:ii_2.intersection"] == "passed"
+    assert "ii_2_derive_G" in attempt.verified_call_ids
+    assert "ii_2_derive_G" in attempt.goal_reachable_call_ids
+    assert failed_call_id not in attempt.goal_reachable_call_ids
+    assert len(attempt.root_issues) == 1
+    assert attempt.root_issues[0].step_id == failed_call_id
 
 
 def test_runtime_context_fork_discards_branch_writes() -> None:

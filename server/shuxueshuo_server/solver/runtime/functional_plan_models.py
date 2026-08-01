@@ -470,6 +470,7 @@ class ResolvedFunctionalValue:
     object_roles: ConditionObjectRoles = ()
     dependency_object_refs: tuple[str, ...] = ()
     free_symbol_refs: tuple[str, ...] = ()
+    free_symbol_ids: tuple[MathObjectId, ...] = ()
     source_state_slot_ids: tuple[str, ...] = ()
     provides_semantic_roles: tuple[str, ...] = ()
     lineage: StateSemanticLineage = StateSemanticLineage()
@@ -497,6 +498,9 @@ class ResolvedFunctionalValue:
             },
             "dependency_object_refs": list(self.dependency_object_refs),
             "free_symbol_refs": list(self.free_symbol_refs),
+            "free_symbol_ids": [
+                item.to_payload() for item in self.free_symbol_ids
+            ],
             "source_state_slot_ids": list(self.source_state_slot_ids),
             "provides_semantic_roles": list(self.provides_semantic_roles),
             "lineage": self.lineage.to_payload(),
@@ -543,6 +547,7 @@ class FunctionalReturnAllocation:
     state_handle: str | None = None
     dependency_object_refs: tuple[str, ...] = ()
     free_symbol_refs: tuple[str, ...] = ()
+    free_symbol_ids: tuple[MathObjectId, ...] = ()
     source_state_slot_ids: tuple[str, ...] = ()
     transition_kind: Literal["direct", "dependency_refinement"] | None = None
     previous_write_step_id: str | None = None
@@ -574,6 +579,9 @@ class FunctionalReturnAllocation:
             "bound_ref": self.bound_ref.to_payload() if self.bound_ref else None,
             "dependency_object_refs": list(self.dependency_object_refs),
             "free_symbol_refs": list(self.free_symbol_refs),
+            "free_symbol_ids": [
+                item.to_payload() for item in self.free_symbol_ids
+            ],
             "source_state_slot_ids": list(self.source_state_slot_ids),
             "transition_kind": self.transition_kind,
             "previous_write_step_id": self.previous_write_step_id,

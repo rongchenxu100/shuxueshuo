@@ -317,19 +317,19 @@ class StateFinalizationService:
                 and previous is not None
             ):
                 prior = _first_write(writes_by_version.get(previous, ()))
-                prior_free_symbols = (
-                    prior.free_symbol_refs
+                prior_free_symbol_ids = (
+                    prior.free_symbol_ids
                     if prior is not None
                     else (
-                        known_by_version[previous].free_symbol_refs
+                        known_by_version[previous].free_symbol_ids
                         if previous in known_by_version
                         else ()
                     )
                 )
                 if (
                     (prior is not None or previous in known_by_version)
-                    and not set(write.free_symbol_refs)
-                    <= set(prior_free_symbols)
+                    and not set(write.free_symbol_ids)
+                    <= set(prior_free_symbol_ids)
                 ):
                     mismatches.append(
                         _mismatch(
@@ -337,12 +337,14 @@ class StateFinalizationService:
                             "dependency refinement adds free symbols",
                             write,
                             details={
-                                "previous_free_symbols": list(
-                                    prior_free_symbols
-                                ),
-                                "current_free_symbols": list(
-                                    write.free_symbol_refs
-                                ),
+                                "previous_free_symbol_ids": [
+                                    item.to_payload()
+                                    for item in prior_free_symbol_ids
+                                ],
+                                "current_free_symbol_ids": [
+                                    item.to_payload()
+                                    for item in write.free_symbol_ids
+                                ],
                             },
                         )
                     )
@@ -725,6 +727,7 @@ def project_functional_state_writes(
                     source_version_ids=output.source_version_ids,
                     allocation_action=output.allocation_action,
                     free_symbol_refs=output.free_symbol_refs,
+                    free_symbol_ids=output.free_symbol_ids,
                     canonical_producer_call_id=(
                         output.canonical_producer_call_id
                     ),
@@ -977,6 +980,8 @@ def _validate_typed_write_shape(
         missing.append("selected_version_id")
     if write.allocation_action is None:
         missing.append("allocation_action")
+    if write.free_symbol_refs and not write.free_symbol_ids:
+        missing.append("free_symbol_ids")
     if missing:
         mismatches.append(
             _mismatch(
@@ -1600,13 +1605,17 @@ def _write_visible_from(
     *,
     handle_registry: CanonicalHandleRegistry,
 ) -> bool:
-    # B3 typed storage scope is authoritative. A return may also project to a
-    # global object or answer handle, but that destination must not widen the
-    # visibility of a sibling-private StateVersion.
+    # Storage scope owns version identity; valid scope owns publication.
+    # B2 may widen a committed version's valid scope after proving all source
+    # versions publishable, without changing the checkpointed StateVersionId.
     valid_scope = (
-        write.selected_version_id.slot_id.storage_scope_id
-        if write.selected_version_id is not None
-        else handle_registry.handle_valid_scopes.get(write.produced_handle)
+        write.valid_scope_id
+        or (
+            write.selected_version_id.slot_id.storage_scope_id
+            if write.selected_version_id is not None
+            else None
+        )
+        or handle_registry.handle_valid_scopes.get(write.produced_handle)
     )
     return (
         valid_scope is not None

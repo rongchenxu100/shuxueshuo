@@ -11,7 +11,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field, replace
 import hashlib
 import json
-from typing import Any, Literal, Mapping, Protocol, cast, get_args
+from typing import Any, Literal, Mapping, Protocol, Sequence, cast, get_args
 
 from shuxueshuo_server.solver.runtime.capability_contracts import contract_payloads
 from shuxueshuo_server.solver.runtime.condition_roles import (
@@ -100,6 +100,7 @@ ContextEventName = Literal[
     "functional_plan_received",
     "functional_call_reconciled",
     "functional_plan_projected",
+    "state_observation_authority_selected",
 ]
 
 
@@ -230,6 +231,7 @@ class StateWriteVersion:
     canonical_producer_call_id: str | None = None
     valid_scope_id: str | None = None
     free_symbol_refs: tuple[str, ...] = ()
+    free_symbol_ids: tuple[MathObjectId, ...] = ()
     result_form: str | None = None
     runtime_destination: RuntimeDestinationKey | None = None
 
@@ -267,6 +269,9 @@ class StateWriteVersion:
             "canonical_producer_call_id": self.canonical_producer_call_id,
             "valid_scope_id": self.valid_scope_id,
             "free_symbol_refs": list(self.free_symbol_refs),
+            "free_symbol_ids": [
+                item.to_payload() for item in self.free_symbol_ids
+            ],
             "result_form": self.result_form,
             "runtime_destination": (
                 self.runtime_destination.to_payload()
@@ -294,6 +299,7 @@ class StateSlot:
     write_history: tuple[StateWriteVersion, ...] = ()
     dependency_object_refs: tuple[str, ...] = ()
     free_symbol_refs: tuple[str, ...] = ()
+    free_symbol_ids: tuple[MathObjectId, ...] = ()
     source_state_slot_ids: tuple[str, ...] = ()
     lineage: StateSemanticLineage = StateSemanticLineage()
     logical_state_key: LogicalStateKey | None = None
@@ -317,6 +323,9 @@ class StateSlot:
             "write_history": [item.to_payload() for item in self.write_history],
             "dependency_object_refs": list(self.dependency_object_refs),
             "free_symbol_refs": list(self.free_symbol_refs),
+            "free_symbol_ids": [
+                item.to_payload() for item in self.free_symbol_ids
+            ],
             "source_state_slot_ids": list(self.source_state_slot_ids),
             "lineage": self.lineage.to_payload(),
             "logical_state_key": (
@@ -917,6 +926,8 @@ class PlannerRetryReplaySnapshot(Protocol):
     functional_reconciliation: object | None
     transactional_shadow_report: object | None
     transactional_execution_report: object | None
+    transactional_attempt_result: object | None
+    state_observation_authority: str
 
 
 def _extend_unique_payloads(
@@ -975,6 +986,35 @@ class PlannerStateContextBuilder:
         )
         state.issues.extend(dict(item) for item in context_warnings)
         state.draft_snapshots = _draft_snapshots_from_replay(replay)
+        observation_authority = getattr(
+            replay,
+            "state_observation_authority",
+            "legacy",
+        )
+        if observation_authority not in {"legacy", "transactional"}:
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: invalid state observation "
+                f"authority: {observation_authority}"
+            )
+        if (
+            observation_authority == "transactional"
+            and getattr(replay, "transactional_attempt_result", None)
+            is None
+        ):
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: transactional Context "
+                "authority has no attempt result"
+            )
+        state.context_events.append(
+            _context_event(
+                "state_observation_authority_selected",
+                attempt=replay.attempt,
+                ok=True,
+                detail_count=(
+                    1 if observation_authority == "transactional" else 0
+                ),
+            )
+        )
         cls._observe_functional_candidate(state, replay)
         shadow_report = getattr(
             replay,
@@ -2036,6 +2076,12 @@ def _initial_state_slots_from_registry(
     registry: CanonicalHandleRegistry,
 ) -> list[StateSlot]:
     result: list[StateSlot] = []
+    point_state_objects = {
+        payload.get("subject")
+        for handle, payload in registry.fact_payloads.items()
+        if registry.fact_types.get(handle) == "point_coordinate"
+        and isinstance(payload.get("subject"), str)
+    }
     for handle in sorted(registry.fact_handles):
         fact_type = registry.fact_types.get(handle)
         if not _fact_type_is_state_slot(fact_type):
@@ -2056,6 +2102,37 @@ def _initial_state_slots_from_registry(
                 canonical_handle=handle,
                 aliases=tuple(_aliases_for_handle(handle, registry)),
                 valid_scope=registry.handle_valid_scopes.get(handle),
+                status="given",
+                lineage=state_semantic_lineage(
+                    semantic_roles=(_semantic_ref(handle),),
+                ),
+            )
+        )
+    for handle in sorted(registry.entity_handles):
+        if not handle.startswith("point:") or handle in point_state_objects:
+            continue
+        payload = registry.entity_payloads.get(handle, {})
+        coordinate = payload.get("coordinate")
+        if payload.get("definition") != "coordinate_origin" and not (
+            isinstance(coordinate, list | tuple)
+            and len(coordinate) == 2
+            and all(item is not None for item in coordinate)
+        ):
+            continue
+        scope_id = registry.handle_valid_scopes.get(
+            handle,
+            _scope_from_handle(handle) or "problem",
+        )
+        result.append(
+            StateSlot(
+                slot_id=f"{handle}.coordinate@{scope_id}:Point",
+                object_ref=handle,
+                state_kind="coordinate",
+                scope_id=scope_id,
+                runtime_type="Point",
+                canonical_handle=handle,
+                aliases=tuple(_aliases_for_handle(handle, registry)),
+                valid_scope=scope_id,
                 status="given",
                 lineage=state_semantic_lineage(
                     semantic_roles=(_semantic_ref(handle),),
@@ -2399,6 +2476,10 @@ def _attach_typed_initial_identity(
                 logical_key.runtime_type,
                 slot.runtime_path,
             ),
+            free_symbol_ids=_symbol_ids_for_refs(
+                slot.free_symbol_refs,
+                registry=object_registry,
+            ),
         )
     versions_by_legacy_slot: dict[str, StateVersionId] = {}
     for slot in typed_slots.values():
@@ -2487,6 +2568,35 @@ def _state_version_id_from_payload(value: Any) -> StateVersionId | None:
     if not isinstance(value, Mapping):
         return None
     return StateVersionId.from_payload(value)
+
+
+def _math_object_ids_from_payload(value: Any) -> tuple[MathObjectId, ...]:
+    if not isinstance(value, Sequence) or isinstance(value, (str, bytes)):
+        return ()
+    return tuple(
+        MathObjectId.from_payload(item)
+        for item in value
+        if isinstance(item, Mapping)
+    )
+
+
+def _symbol_ids_for_refs(
+    refs: Sequence[str],
+    *,
+    registry: MathObjectRegistry,
+) -> tuple[MathObjectId, ...]:
+    result: list[MathObjectId] = []
+    for ref in refs:
+        object_id = registry.resolve(ref)
+        if object_id is None or object_id.kind != "symbol":
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.context_identity_migration_failed: "
+                f"free_symbol_ref={ref}"
+            )
+        if object_id not in result:
+            result.append(object_id)
+    return tuple(result)
 
 
 def _computation_key_from_payload(value: Any) -> ComputationKey | None:
@@ -2728,15 +2838,23 @@ def _apply_state_write_provenance(
         for item in payload.get("source_version_ids", ())
         if (parsed := _state_version_id_from_payload(item)) is not None
     )
-    entity_payloads = {
-        item["handle"]: item
-        for item in state.problem_ir.get("entities", ())
-        if isinstance(item, dict) and isinstance(item.get("handle"), str)
-    }
-    runtime_free_symbol_refs = symbol_refs_from_names(
-        tuple(str(item) for item in payload.get("free_symbol_names", ())),
-        entity_payloads=entity_payloads,
+    runtime_free_symbol_refs = tuple(
+        str(item) for item in payload.get("free_symbol_names", ())
     )
+    runtime_free_symbol_ids = _math_object_ids_from_payload(
+        payload.get("free_symbol_ids")
+    )
+    if (
+        require_typed_authority
+        and selected_version_id is not None
+        and runtime_free_symbol_refs
+        and not runtime_free_symbol_ids
+    ):
+        raise StrategyDraftValidationError(
+            "planner_configuration_error: "
+            "planner.runtime_symbol_identity_unresolved: "
+            f"state={produced_handle}"
+        )
     version = StateWriteVersion(
         step_id=str(payload.get("step_id") or ""),
         produced_handle=produced_handle,
@@ -2772,6 +2890,7 @@ def _apply_state_write_provenance(
             else None
         ),
         free_symbol_refs=runtime_free_symbol_refs,
+        free_symbol_ids=runtime_free_symbol_ids,
         result_form=(
             str(payload["result_form"])
             if payload.get("result_form") is not None
@@ -2846,6 +2965,7 @@ def _apply_state_write_provenance(
             )
         ),
         free_symbol_refs=runtime_free_symbol_refs,
+        free_symbol_ids=runtime_free_symbol_ids,
         source_state_slot_ids=(
             tuple(
                 _unique_ordered(

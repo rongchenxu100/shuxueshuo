@@ -511,10 +511,43 @@ generated gate 完成。
 
 ### T2. Context and retry cutover
 
-- Context retry memory 改用 interpreter 的 verified/failed call states；
-- stable graph 保存 StateVersion ids；
-- 删除整图 projected result form 对 retry 决策的权威性；
-- 保留旧 replay 作为 shadow oracle。
+实现状态：`COMPLETE`（2026-08-01）。exact execution、goal closure、
+Context/retry projection、failure-path 与 shadow authority parity 均已收口，
+C3 已解除前置阻塞。
+
+- `context_shadow` 保留 legacy 正式结果，同时比较 transactional goal、Context、
+  checkpoint、repair cone 与聚合 output；
+- `context_authoritative` 由逐 call actual provenance 生成正式 Functional Context、
+  call memory、B4 checkpoint、retry state 和 goal-reachable `PlannerOutput`；
+- stable graph 只保存 passed required-goal closure 的 canonical call 与精确
+  StateVersion chain；provisional runtime result 只进入反馈，不获得恢复权；
+- failed transaction 不提交 write；blocked dependent 进入 repair cone但不产生
+  次生 root issue；无关分支失败不阻断已完整证明的 required goals；
+- aggregate output 在 B3 destination finalizer 后交给现有 Orchestrator重新执行，
+  不复用 transaction branch 的 RuntimeContext 数值；
+- hidden materialized role 必须由 capability Context resolver投影 exact version
+  dependency，确保 goal closure裁剪不会漏掉 runtime producer；
+- legacy replay继续作为 shadow oracle，产品默认尚未切换。
+- authoritative 不使用 legacy parity 阻断 transactional success；transactional
+  内部 mismatch 必须形成正式 retry/fail，入口异常必须 fail-closed，不允许回落
+  legacy；
+- context shadow 保留 legacy checkpoint 预校验，并比较 goal、聚合 output、typed
+  Context version、retry locked/repair 集合和 checkpoint。shadow mismatch 不改变
+  legacy 正式输出，但阻断 C2 acceptance；
+- 首次 smoke `batch-20260731-170901` 为 `11/15`，并暴露两项 authority 缺陷：
+  精确 child-scope source 被错误发布到父 scope，以及 legacy checkpoint 抢在
+  transactional provenance 前校验 destination。两项均已离线修复，前者已进入
+  C0.5 的跨 sibling publication oracle；该 batch 因 source fingerprint 已变化，
+  仅保留为缺陷发现证据。
+- 当前 revision 的离线证据为 C2 定向集 `427 passed`、C0.5
+  reference/generated gate `34 passed`（10,000+ deterministic scenarios）、
+  全量 solver `1587 passed, 17 skipped`。
+- 最终 acceptance batch `c2-context-authoritative-20260801-112214` 在当前
+  solver fingerprint 上运行五题各 10 个兼容样本，结果 `49/50`；五题全部满足
+  `pass@3 >= 90%`、configuration/unclassified error 为 0、成功样本 gate failure
+  为 0。唯一失败为 provider 连续两次 reasoning-only 空响应，不属于
+  transactional Context/retry authority 漂移。T2/C2 因此完成，下一阶段进入
+  T3/C3。
 
 依赖：Track B B4 Context/retry authority。
 

@@ -240,6 +240,70 @@ def test_semantic_latest_read_is_published_and_reprojected_across_siblings() -> 
     )
 
 
+def test_child_exact_source_cannot_publish_result_to_sibling_scope() -> None:
+    key = ModelStateKey("O", "coordinate", "Point")
+    initial = ModelVersion(
+        "O.coordinate:Point@i_1#0",
+        key,
+        "i_1",
+        "i_1",
+        0,
+        None,
+        runtime_destination="state/i_1/O",
+    )
+    scenario = CrossScopeVersionScenario(
+        scopes=(
+            ModelScope("problem", None),
+            ModelScope("i", "problem"),
+            ModelScope("i_1", "i"),
+            ModelScope("i_2", "i"),
+        ),
+        objects=(ModelObject("O", "point", "problem"),),
+        initial_versions=(initial,),
+        calls=(
+            ModelCall(
+                "produce",
+                "i_1",
+                "refine_point",
+                input_version_ids=(initial.version_id,),
+                output_state_key=key,
+                requested_write_mode="transition",
+                storage_scope_id="i_1",
+                valid_scope_id="i_1",
+                answer_scope_ids=("i",),
+                projection="object+answer",
+                runtime_destination="state/i_1/O",
+            ),
+            ModelCall(
+                "consume",
+                "i_2",
+                "consume_point",
+                state_reads=(
+                    ModelStateRead(
+                        "call_result",
+                        key,
+                        source_call_id="produce",
+                    ),
+                ),
+                output_state_key=None,
+                requested_write_mode="value",
+                projection="call_local",
+            ),
+        ),
+        wire_order=("produce", "consume"),
+        dimensions=(("truth", "child_source_publication_boundary"),),
+    )
+
+    expected = ReferenceScopeVersionModel().evaluate(scenario)
+    actual = run_production_adapters(scenario)
+
+    assert expected.decision("produce").return_scope_id == "i_1"
+    assert expected.decision("consume").issue_code == (
+        "state.read_version_invisible"
+    )
+    assert compare_adapter_suite(expected, actual) == ()
+
+
 def test_reference_exact_read_does_not_upgrade_to_later_version() -> None:
     scenario = _basic_scenario()
     first = scenario.calls[0]
@@ -744,6 +808,48 @@ def test_historical_anonymous_corpus_replays() -> None:
         serialized = json.dumps(scenario.to_payload(), ensure_ascii=True)
         for forbidden in ("Nankai", "Heping", "Hexi", "Xiqing"):
             assert forbidden not in serialized
+
+
+def test_partial_checkpoint_keeps_storage_version_when_published_to_parent() -> None:
+    scenario = authority_regression_scenarios()[5]
+    expected = ReferenceScopeVersionModel().evaluate(scenario)
+    actual = run_production_adapters(scenario)
+
+    assert not compare_adapter_suite(expected, actual)
+    for call_id, version_id in (
+        (
+            "build_shared_curve",
+            "SharedCurve.expression:Parabola@ii_1#1",
+        ),
+        (
+            "derive_shared_point",
+            "SharedPoint.coordinate:Point@ii_1#1",
+        ),
+    ):
+        decision = expected.decision(call_id)
+        assert decision.execution_scope_id == "ii"
+        assert decision.return_scope_id == "ii"
+        assert decision.selected_version_id == version_id
+    assert actual.stage("B4").issue_codes == ()
+
+
+def test_checkpoint_runtime_symbol_representation_uses_typed_identity() -> None:
+    alias_scenario, drift_scenario = authority_regression_scenarios()[-2:]
+    model = ReferenceScopeVersionModel()
+
+    alias_expected = model.evaluate(alias_scenario)
+    alias_actual = run_production_adapters(alias_scenario)
+    assert alias_expected.issue_codes == ()
+    assert alias_actual.stage("B4").issue_codes == ()
+    assert compare_adapter_suite(alias_expected, alias_actual) == ()
+
+    drift_expected = model.evaluate(drift_scenario)
+    drift_actual = run_production_adapters(drift_scenario)
+    assert "planner.retry_state_version_drift" in drift_expected.issue_codes
+    assert drift_actual.stage("B4").issue_codes == (
+        "planner.retry_state_version_drift",
+    )
+    assert compare_adapter_suite(drift_expected, drift_actual) == ()
 
 
 @pytest.mark.parametrize("bad_import", ["state_identity", "functional_state_reads"])

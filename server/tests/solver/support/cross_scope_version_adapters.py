@@ -35,9 +35,11 @@ from shuxueshuo_server.solver.runtime.functional_plan_models import (
 )
 from shuxueshuo_server.solver.runtime.functional_retry_versions import (
     FunctionalCommittedCallCheckpoint,
+    FunctionalRetryCheckpointError,
     FunctionalRetryGraphCheckpoint,
     FunctionalRetryVersionRecord,
     restore_committed_calls,
+    verify_restored_runtime_checkpoint,
 )
 from shuxueshuo_server.solver.runtime.functional_state_reads import (
     FunctionalStateReadIndex,
@@ -218,6 +220,14 @@ class B1AllocationAdapter:
                     state_effect_key=effect,
                     source_version_ids=source_ids,
                     free_symbol_refs=call.free_symbols,
+                    free_symbol_ids=tuple(
+                        MathObjectId(
+                            f"symbol:problem:{item}",
+                            "symbol",
+                            "problem",
+                        )
+                        for item in call.free_symbols
+                    ),
                     runtime_destination=destination,
                 ),
                 converted.index,
@@ -242,6 +252,14 @@ class B1AllocationAdapter:
                         computation_key=computation,
                         state_effect_key=effect,
                         free_symbol_refs=call.free_symbols,
+                        free_symbol_ids=tuple(
+                            MathObjectId(
+                                f"symbol:problem:{item}",
+                                "symbol",
+                                "problem",
+                            )
+                            for item in call.free_symbols
+                        ),
                         previous_version_id=decision.previous_version_id,
                         source_version_ids=source_ids,
                         runtime_destination=destination,
@@ -296,6 +314,46 @@ class B2PlacementAdapter:
             base_identity_index=_initial_index(converted),
             allocation_service=StateAllocationService(),
             placement_mode="authoritative",
+            pinned_canonical_call_ids=(
+                tuple(
+                    call_id
+                    for call_id in (
+                        converted.scenario.retry_checkpoint.committed_call_ids
+                        if converted.scenario.retry_checkpoint is not None
+                        else ()
+                    )
+                    if _checkpoint_call_is_canonical(converted, call_id)
+                )
+            ),
+            pinned_execution_scopes={
+                call.call_id: call.declared_scope_id
+                for call in converted.scenario.calls
+                if converted.scenario.retry_checkpoint is not None
+                and call.call_id
+                in converted.scenario.retry_checkpoint.committed_call_ids
+                and _checkpoint_call_is_canonical(
+                    converted,
+                    call.call_id,
+                )
+            },
+            pinned_return_scopes={
+                call.call_id: {
+                    "result": _checkpoint_storage_scope(
+                        converted.scenario.retry_checkpoint,
+                        call.call_id,
+                    )
+                    or call.storage_scope_id
+                    or call.declared_scope_id
+                }
+                for call in converted.scenario.calls
+                if converted.scenario.retry_checkpoint is not None
+                and call.call_id
+                in converted.scenario.retry_checkpoint.committed_call_ids
+                and _checkpoint_call_is_canonical(
+                    converted,
+                    call.call_id,
+                )
+            },
         )
         values = {
             item.canonical_call_id: {
@@ -395,6 +453,8 @@ class B4RetryCheckpointAdapter:
                     "restored_call_ids": (),
                     "provisional_call_ids": (),
                     "committed_version_ids": (),
+                    "empty_scope_ids": (),
+                    "scope_restore_checked": False,
                 },
             )
         plan_calls = {
@@ -481,6 +541,7 @@ class B4RetryCheckpointAdapter:
                     valid_scope_id=allocation.valid_scope,
                     result_form=None,
                     free_symbol_refs=(),
+                    free_symbol_ids=(),
                     runtime_destination=None,
                     status="goal_committed",
                 )
@@ -494,12 +555,90 @@ class B4RetryCheckpointAdapter:
             committed_calls=tuple(committed_calls),
             verified_versions=tuple(records),
         )
+        runtime_checkpoint_issues: list[str] = []
+        if (
+            retry.expected_free_symbol_refs
+            or retry.expected_free_symbol_ids
+            or retry.observed_free_symbol_refs
+            or retry.observed_free_symbol_ids
+        ):
+            expected_records = tuple(
+                replace(
+                    item,
+                    free_symbol_refs=retry.expected_free_symbol_refs,
+                    free_symbol_ids=tuple(
+                        _symbol_object_id(value)
+                        for value in retry.expected_free_symbol_ids
+                    ),
+                )
+                for item in checkpoint.verified_versions
+            )
+            observed_records = tuple(
+                replace(
+                    item,
+                    free_symbol_refs=retry.observed_free_symbol_refs,
+                    free_symbol_ids=tuple(
+                        _symbol_object_id(value)
+                        for value in retry.observed_free_symbol_ids
+                    ),
+                    status="runtime_verified",
+                )
+                for item in expected_records
+            )
+            expected_checkpoint = replace(
+                checkpoint,
+                verified_versions=expected_records,
+            )
+            observed_checkpoint = replace(
+                expected_checkpoint,
+                committed_calls=(),
+                verified_versions=observed_records,
+            )
+            try:
+                verify_restored_runtime_checkpoint(
+                    expected_checkpoint,
+                    observed_checkpoint,
+                )
+            except FunctionalRetryCheckpointError as exc:
+                runtime_checkpoint_issues.append(exc.code)
         candidate = placement.plan.to_payload()
+        retry_candidate_scope = dict(
+            converted.scenario.dimensions
+        ).get("retry_candidate_scope")
+        if retry_candidate_scope is not None:
+            moved_calls: list[dict[str, Any]] = []
+            for scope in candidate["scopes"]:
+                retained = []
+                for call in scope["calls"]:
+                    if call["call_id"] in checkpoint.committed_call_ids:
+                        moved_calls.append(call)
+                    else:
+                        retained.append(call)
+                scope["calls"] = retained
+            target_scope = next(
+                (
+                    scope
+                    for scope in candidate["scopes"]
+                    if scope["scope_id"] == retry_candidate_scope
+                ),
+                None,
+            )
+            if target_scope is None:
+                target_scope = {
+                    "scope_id": retry_candidate_scope,
+                    "label": retry_candidate_scope,
+                    "calls": [],
+                }
+                candidate["scopes"].append(target_scope)
+            target_scope["calls"].extend(moved_calls)
         for scope in candidate["scopes"]:
             scope["calls"] = [
                 call
                 for call in scope["calls"]
-                if call["call_id"] not in checkpoint.committed_call_ids
+                if (
+                    retry_candidate_scope is not None
+                    or call["call_id"] not in checkpoint.committed_call_ids
+                )
                 and not (
                     retry.mode == "provisional_replacement"
                     and call["call_id"] in retry.replacement_call_ids
@@ -536,11 +675,18 @@ class B4RetryCheckpointAdapter:
                     for item in checkpoint.verified_versions
                     if item.status == "goal_committed"
                 ),
+                "empty_scope_ids": tuple(
+                    scope["scope_id"]
+                    for scope in restored["scopes"]
+                    if not scope["calls"]
+                ),
+                "scope_restore_checked": retry_candidate_scope is not None,
             },
             tuple(
                 dict.fromkeys(
                     (
                         *adapter_issues,
+                        *runtime_checkpoint_issues,
                         *(
                             ("planner.retry_state_version_drift",)
                             if retry.mode == "version_drift"
@@ -1073,6 +1219,18 @@ def compare_adapter_suite(
                     observed_values,
                 ),
             )
+    if (
+        b4.values.get("scope_restore_checked")
+        and b4.values.get("empty_scope_ids")
+    ):
+        return (
+            AdapterMismatch(
+                "B4",
+                "empty_scope_ids",
+                (),
+                b4.values["empty_scope_ids"],
+            ),
+        )
     expected_retry_issues = tuple(
         item
         for item in expected.issue_codes
@@ -1360,6 +1518,36 @@ def _version_token(version_id: StateVersionId | None) -> str | None:
         f"{model_key}@{version_id.slot_id.storage_scope_id}"
         f"#{version_id.ordinal}"
     )
+
+
+def _symbol_object_id(value: str) -> MathObjectId:
+    parts = value.split(":", 2)
+    if len(parts) != 3 or parts[0] != "symbol":
+        raise ValueError(f"invalid oracle Symbol identity: {value}")
+    return MathObjectId(value, "symbol", parts[1])
+
+
+def _checkpoint_storage_scope(checkpoint: Any, call_id: str) -> str | None:
+    if checkpoint is None:
+        return None
+    try:
+        index = checkpoint.committed_call_ids.index(call_id)
+        version_id = checkpoint.committed_version_ids[index]
+    except (ValueError, IndexError):
+        return None
+    scope_and_ordinal = version_id.rsplit("@", 1)[-1]
+    return scope_and_ordinal.rsplit("#", 1)[0]
+
+
+def _checkpoint_call_is_canonical(
+    converted: _ConvertedScenario,
+    call_id: str,
+) -> bool:
+    decision = converted.decisions.get(call_id)
+    return decision is not None and decision.canonical_producer_call_id in {
+        None,
+        call_id,
+    }
 
 
 def _configuration_error_code(message: str) -> str:
