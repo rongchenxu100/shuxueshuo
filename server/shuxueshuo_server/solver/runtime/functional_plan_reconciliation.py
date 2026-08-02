@@ -65,9 +65,6 @@ from shuxueshuo_server.solver.runtime.functional_symbol_identity import (
     symbol_ids_from_refs,
 )
 from shuxueshuo_server.solver.runtime.function_specs import FunctionSpec
-from shuxueshuo_server.solver.runtime.functional_state_refinement import (
-    refine_functional_object_states,
-)
 from shuxueshuo_server.solver.runtime.functional_legacy_projection import (
     FunctionalLegacyProjectionAdapter,
     legacy_state_slot_aliases,
@@ -1617,21 +1614,9 @@ class _PlacementLivenessProjectionStage:
         plan = placement.plan
         reconciled = list(placement.calls)
         call_reports = list(placement.call_reports)
-        pre_refinement_calls = tuple(reconciled)
-        state_refinement = refine_functional_object_states(
-            plan,
-            reconciled=reconciled,
-            catalog=catalog,
-        )
-        plan = state_refinement.plan
-        reconciled = list(state_refinement.calls)
-        _validate_typed_allocation_refinement(
-            before=pre_refinement_calls,
-            after=reconciled,
-            mode=identity_mode,
-        )
-        reconciliation_repairs.extend(state_refinement.repairs)
-        issues.extend(state_refinement.issues)
+        # B1 allocation and B3 finalization own state transitions. Runtime
+        # closure owns actual free Symbols and result form; reconciliation must
+        # not synthesize either from provisional return metadata.
         reconciliation_repairs.extend(placement.repairs)
         issues.extend(placement.issues)
         answer_identity_issues = _answer_allocation_identity_issues(
@@ -1674,7 +1659,6 @@ class _PlacementLivenessProjectionStage:
             call_reports,
             dependency_graph=dependency_graph,
             issues=(
-                *state_refinement.issues,
                 *placement.issues,
                 *answer_identity_issues,
                 *evidence_issues,
@@ -2032,46 +2016,6 @@ class _PlacementLivenessProjectionStage:
                 functional_binding_audit.legacy_fallback_count
             ),
         )
-
-
-def _validate_typed_allocation_refinement(
-    *,
-    before: Sequence[FunctionalCallReconciliation],
-    after: Sequence[FunctionalCallReconciliation],
-    mode: StateIdentityMode,
-) -> None:
-    """Keep legacy refinement as metadata enrichment after the B1 cutover."""
-
-    if mode != "authoritative":
-        return
-    before_by_return = {
-        (call.call_id, allocation.return_name): allocation
-        for call in before
-        for allocation in call.returns
-    }
-    for call in after:
-        for allocation in call.returns:
-            original = before_by_return.get(
-                (call.call_id, allocation.return_name)
-            )
-            if original is None or original.allocation_action is None:
-                continue
-            expected_mode = {
-                "create": "create",
-                "isolated": "create",
-                "transition": "transition",
-                "call_local_value": "value",
-            }.get(original.allocation_action)
-            if (
-                expected_mode is not None
-                and allocation.write_mode != expected_mode
-            ):
-                raise ValueError(
-                    "planner.state_projection_drift: legacy state refinement "
-                    "changed typed allocation: "
-                    f"call={call.call_id}, return={allocation.return_name}, "
-                    f"typed={expected_mode}, refined={allocation.write_mode}"
-                )
 
 
 def _answer_allocation_identity_issues(

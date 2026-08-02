@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, replace
 import json
-from typing import Any, Literal
+from typing import Any, Literal, Mapping
 
 from shuxueshuo_server.solver.runtime.answer_goal_verifier import (
     AnswerGoalVerificationReport,
@@ -2735,6 +2735,7 @@ def _functional_runtime_retry_state(
     expected_retry_checkpoint: FunctionalRetryGraphCheckpoint | None = None,
     allow_goal_commit: bool = True,
     preserve_committed_checkpoint: FunctionalRetryGraphCheckpoint | None = None,
+    observed_symbolic_closures: Mapping[str, Any] | None = None,
 ) -> PlannerRetryState | None:
     if retry_state is None and runtime_retry_state is None:
         return None
@@ -2814,6 +2815,7 @@ def _functional_runtime_retry_state(
             allow_goal_commit
             and not any(issue.layer == "answer_check" for issue in issues)
         ),
+        symbolic_closures_by_call=observed_symbolic_closures,
     )
     retry_checkpoint = (
         build_functional_retry_graph_checkpoint(
@@ -2998,6 +3000,11 @@ def _transactional_functional_retry_state(
                 inputs.previous_errors
             )
         ),
+        observed_symbolic_closures={
+            item.call_id: item.symbolic_closure
+            for item in attempt_result.execution_report.call_results
+            if item.symbolic_closure is not None
+        },
     )
 
 

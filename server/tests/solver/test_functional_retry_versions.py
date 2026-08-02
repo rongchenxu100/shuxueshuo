@@ -23,11 +23,13 @@ from shuxueshuo_server.solver.runtime.functional_call_memory import (
     FunctionalCallMemory,
     FunctionalCallMemoryEntry,
     FunctionalResultSnapshot,
+    _compact_symbolic_closure_result,
 )
 from shuxueshuo_server.solver.runtime.planner_retry_projection import (
     _typed_committed_candidate_calls,
 )
 from shuxueshuo_server.solver.runtime.strategy_payload import (
+    _compact_functional_runtime_verified,
     _functional_previous_attempt_state,
 )
 from shuxueshuo_server.solver.runtime.strategy_replay import (
@@ -45,6 +47,12 @@ from shuxueshuo_server.solver.runtime.state_identity import (
     StateEffectKey,
     StateSlotId,
     StateVersionId,
+)
+from shuxueshuo_server.solver.runtime.strategy_models import (
+    SymbolicClosureProvenance,
+)
+from shuxueshuo_server.solver.runtime.symbolic_closure_execution import (
+    SymbolicClosureExecutionResult,
 )
 
 
@@ -131,10 +139,246 @@ def _checkpoint() -> FunctionalRetryGraphCheckpoint:
     )
 
 
+def _closure_provenance(
+    *,
+    target_value: str = "1-c",
+) -> SymbolicClosureProvenance:
+    target = MathObjectId("symbol:problem:b", "symbol", "problem")
+    residual = MathObjectId("symbol:problem:c", "symbol", "problem")
+    return SymbolicClosureProvenance(
+        status="unique",
+        target_object_id=target,
+        target_value=target_value,
+        substitutions=((target, target_value),),
+        residual_symbol_ids=(residual,),
+        branch_count=1,
+        equation_builder="quadratic_constraints",
+        target_binding="target_parameter",
+        equation_sources=("curve_points",),
+        preserved_symbol_ids=(residual,),
+        affected_returns=("point",),
+    )
+
+
 def _binding_context(signature: str = "binding-v1") -> SimpleNamespace:
     return SimpleNamespace(
         signature_for_call=lambda _call_id: signature,
     )
+
+
+def test_retry_checkpoint_round_trips_symbolic_closure_provenance() -> None:
+    checkpoint = _checkpoint()
+    record = replace(
+        checkpoint.verified_versions[0],
+        symbolic_closure_provenance=_closure_provenance(),
+    )
+    checkpoint = replace(checkpoint, verified_versions=(record,))
+
+    restored = FunctionalRetryGraphCheckpoint.from_payload(
+        checkpoint.to_payload()
+    )
+
+    assert (
+        restored.verified_versions[0].symbolic_closure_provenance
+        == _closure_provenance()
+    )
+
+
+def test_runtime_checkpoint_rejects_symbolic_closure_drift() -> None:
+    checkpoint = _checkpoint()
+    expected_record = replace(
+        checkpoint.verified_versions[0],
+        symbolic_closure_provenance=_closure_provenance(),
+    )
+    expected = replace(checkpoint, verified_versions=(expected_record,))
+    actual_record = replace(
+        expected_record,
+        symbolic_closure_provenance=_closure_provenance(target_value="2-c"),
+        status="runtime_verified",
+    )
+    actual = replace(expected, verified_versions=(actual_record,))
+
+    with pytest.raises(
+        FunctionalRetryCheckpointError,
+        match="planner.retry_symbolic_closure_drift",
+    ):
+        verify_restored_runtime_checkpoint(expected, actual)
+
+
+def test_runtime_checkpoint_accepts_equivalent_symbolic_closure_forms() -> None:
+    expected_record = replace(
+        _checkpoint().verified_versions[0],
+        symbolic_closure_provenance=_closure_provenance(
+            target_value="1-c",
+        ),
+    )
+    actual_record = replace(
+        expected_record,
+        status="runtime_verified",
+        symbolic_closure_provenance=_closure_provenance(
+            target_value="-c+1",
+        ),
+    )
+    expected = replace(
+        _checkpoint(),
+        verified_versions=(expected_record,),
+    )
+    actual = replace(
+        expected,
+        committed_calls=(),
+        verified_versions=(actual_record,),
+    )
+
+    verify_restored_runtime_checkpoint(expected, actual)
+
+
+def test_runtime_checkpoint_does_not_cancel_domain_sensitive_quotient() -> None:
+    expected_record = replace(
+        _checkpoint().verified_versions[0],
+        symbolic_closure_provenance=_closure_provenance(
+            target_value="x/x",
+        ),
+    )
+    actual_record = replace(
+        expected_record,
+        status="runtime_verified",
+        symbolic_closure_provenance=_closure_provenance(
+            target_value="1",
+        ),
+    )
+    expected = replace(
+        _checkpoint(),
+        verified_versions=(expected_record,),
+    )
+    actual = replace(
+        expected,
+        committed_calls=(),
+        verified_versions=(actual_record,),
+    )
+
+    with pytest.raises(
+        FunctionalRetryCheckpointError,
+        match="planner.retry_symbolic_closure_drift",
+    ):
+        verify_restored_runtime_checkpoint(expected, actual)
+
+
+def test_shadow_closure_result_projects_read_only_retry_summary() -> None:
+    result = SymbolicClosureExecutionResult(
+        status="unique",
+        provenance=_closure_provenance(),
+    )
+
+    assert _compact_symbolic_closure_result(result) == {
+        "status": "unique",
+        "branches": 1,
+        "target": "b",
+        "value": "1-c",
+        "remaining_free": ["c"],
+        "equation_sources": ["curve_points"],
+    }
+
+
+def test_prompt_closure_summary_is_compact_and_hides_typed_identity() -> None:
+    projected = _compact_functional_runtime_verified(
+        [
+            {
+                "call_id": "solve_b",
+                "execution_status": "runtime_verified",
+                "results": [
+                    {
+                        "return": "parameter_value",
+                        "type": "ParameterValue",
+                        "value": "b=1-c",
+                        "state_version_id": {"ordinal": 1},
+                        "symbolic_closure": {
+                            "target": "b",
+                            "status": "unique",
+                            "value": "1-c",
+                            "branches": 1,
+                            "remaining_free": ["c"],
+                            "equation_sources": ["curve_point"],
+                            "internal_builder": "quadratic_constraints",
+                        },
+                    }
+                ],
+            }
+        ],
+        issues=[],
+    )
+
+    serialized = str(projected)
+    closure = projected[0]["closure"]
+    assert closure == {
+        "target": "b",
+        "status": "unique",
+        "branches": 1,
+        "remaining_free": ["c"],
+        "equation_sources": ["curve_point"],
+    }
+    assert "state_version_id" not in serialized
+    assert "internal_builder" not in serialized
+    assert "closure" not in projected[0]["results"][0]
+
+
+@pytest.mark.parametrize("closure_value", ("c", "1"))
+def test_prompt_closure_summary_does_not_use_substring_deduplication(
+    closure_value: str,
+) -> None:
+    projected = _compact_functional_runtime_verified(
+        [
+            {
+                "call_id": "solve_b",
+                "execution_status": "runtime_verified",
+                "results": [
+                    {
+                        "return": "parameter_value",
+                        "type": "ParameterValue",
+                        "value": "b=1-c",
+                        "symbolic_closure": {
+                            "target": "b",
+                            "status": "unique",
+                            "value": closure_value,
+                            "branches": 1,
+                        },
+                    }
+                ],
+            }
+        ],
+        issues=[],
+    )
+
+    assert projected[0]["closure"]["value"] == closure_value
+
+
+@pytest.mark.parametrize("parameter_value", ("a<=3", "a>=3", "a==3"))
+def test_prompt_closure_summary_does_not_parse_relations_as_assignments(
+    parameter_value: str,
+) -> None:
+    projected = _compact_functional_runtime_verified(
+        [
+            {
+                "call_id": "solve_a",
+                "execution_status": "runtime_verified",
+                "results": [
+                    {
+                        "return": "parameter_value",
+                        "type": "ParameterValue",
+                        "value": parameter_value,
+                        "symbolic_closure": {
+                            "target": "a",
+                            "status": "unique",
+                            "value": "3",
+                            "branches": 1,
+                        },
+                    }
+                ],
+            }
+        ],
+        issues=[],
+    )
+
+    assert projected[0]["closure"]["value"] == "3"
 
 
 def _checkpoint_builder_inputs(

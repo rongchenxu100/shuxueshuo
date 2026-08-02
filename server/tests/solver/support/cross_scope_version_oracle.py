@@ -7,6 +7,7 @@ disagree with production.
 
 from __future__ import annotations
 
+import ast
 from dataclasses import asdict, dataclass, replace
 import hashlib
 import json
@@ -123,6 +124,70 @@ class ModelRetryCheckpoint:
     expected_free_symbol_ids: tuple[str, ...] = ()
     observed_free_symbol_refs: tuple[str, ...] = ()
     observed_free_symbol_ids: tuple[str, ...] = ()
+    expected_closure: "ModelClosureCheckpoint | None" = None
+    observed_closure: "ModelClosureCheckpoint | None" = None
+
+
+@dataclass(frozen=True)
+class ModelClosureCheckpoint:
+    status: str = "unique"
+    target_value: str = "1"
+    branch_count: int = 1
+    equation_sources: tuple[str, ...] = ("equation",)
+    residual_symbols: tuple[str, ...] = ()
+
+    def semantic_signature(self) -> tuple[Any, ...]:
+        return (
+            self.status,
+            _model_expression_signature(self.target_value),
+            self.branch_count,
+            tuple(sorted(self.equation_sources)),
+            tuple(sorted(self.residual_symbols)),
+        )
+
+
+def _model_expression_signature(value: str) -> tuple[tuple[int, str], ...] | str:
+    """Normalize additive order without importing the production algebra."""
+    try:
+        expression = ast.parse(value, mode="eval").body
+    except (SyntaxError, ValueError):
+        return value.strip()
+
+    terms: list[tuple[int, str]] = []
+
+    def collect(node: ast.AST, sign: int = 1) -> None:
+        if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add):
+            collect(node.left, sign)
+            collect(node.right, sign)
+            return
+        if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Sub):
+            collect(node.left, sign)
+            collect(node.right, -sign)
+            return
+        if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.USub):
+            collect(node.operand, -sign)
+            return
+        if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.UAdd):
+            collect(node.operand, sign)
+            return
+        terms.append((sign, ast.dump(node, include_attributes=False)))
+
+    collect(expression)
+    return tuple(sorted(terms))
+
+
+def _closure_checkpoint_from_payload(
+    payload: Mapping[str, Any] | None,
+) -> ModelClosureCheckpoint | None:
+    if payload is None:
+        return None
+    return ModelClosureCheckpoint(
+        status=str(payload.get("status") or ""),
+        target_value=str(payload.get("target_value") or ""),
+        branch_count=int(payload.get("branch_count") or 0),
+        equation_sources=tuple(payload.get("equation_sources", ())),
+        residual_symbols=tuple(payload.get("residual_symbols", ())),
+    )
 
 
 @dataclass(frozen=True)
@@ -156,6 +221,12 @@ class CrossScopeVersionScenario:
         for call in payload.get("calls", ()):
             if not call.get("state_reads"):
                 call.pop("state_reads", None)
+        checkpoint = payload.get("retry_checkpoint")
+        if isinstance(checkpoint, dict):
+            if checkpoint.get("expected_closure") is None:
+                checkpoint.pop("expected_closure", None)
+            if checkpoint.get("observed_closure") is None:
+                checkpoint.pop("observed_closure", None)
         if not include_id:
             payload.pop("scenario_id", None)
         return payload
@@ -299,6 +370,16 @@ class CrossScopeVersionScenario:
                     observed_free_symbol_ids=tuple(
                         payload["retry_checkpoint"].get(
                             "observed_free_symbol_ids", ()
+                        )
+                    ),
+                    expected_closure=_closure_checkpoint_from_payload(
+                        payload["retry_checkpoint"].get(
+                            "expected_closure"
+                        )
+                    ),
+                    observed_closure=_closure_checkpoint_from_payload(
+                        payload["retry_checkpoint"].get(
+                            "observed_closure"
                         )
                     ),
                 )
@@ -2072,6 +2153,23 @@ class ReferenceScopeVersionModel:
                 restored,
                 provisional,
                 ("planner.retry_state_version_drift",),
+            )
+        expected_closure = checkpoint.expected_closure
+        observed_closure = checkpoint.observed_closure
+        if (
+            (expected_closure is None) != (observed_closure is None)
+            or (
+                expected_closure is not None
+                and observed_closure is not None
+                and expected_closure.semantic_signature()
+                != observed_closure.semantic_signature()
+            )
+        ):
+            return (
+                committed,
+                restored,
+                provisional,
+                ("planner.retry_symbolic_closure_drift",),
             )
         if checkpoint.mode == "provisional_replacement":
             provisional = tuple(

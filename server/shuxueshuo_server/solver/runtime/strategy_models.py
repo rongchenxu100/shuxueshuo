@@ -9,6 +9,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Literal
 
+import sympy as sp
+from sympy.parsing.sympy_parser import parse_expr
+
 from shuxueshuo_server.solver.contracts import FunctionalResultForm
 from shuxueshuo_server.solver.runtime.handle_alias_index import SEMANTIC_READ_KIND_ORDER
 from shuxueshuo_server.solver.runtime.state_identity import (
@@ -58,6 +61,109 @@ class SymbolicClosureProvenance:
     preserved_symbol_ids: tuple[MathObjectId, ...] = ()
     affected_returns: tuple[str, ...] = ()
 
+    @classmethod
+    def from_payload(
+        cls,
+        payload: dict[str, Any],
+    ) -> "SymbolicClosureProvenance":
+        target_payload = payload.get("target_object_id")
+        return cls(
+            status=str(payload.get("status") or ""),
+            target_object_id=(
+                MathObjectId.from_payload(target_payload)
+                if isinstance(target_payload, dict)
+                else None
+            ),
+            target_value=(
+                str(payload["target_value"])
+                if payload.get("target_value") is not None
+                else None
+            ),
+            substitutions=tuple(
+                (
+                    MathObjectId.from_payload(item["symbol_id"]),
+                    str(item["value"]),
+                )
+                for item in payload.get("substitutions", ())
+                if isinstance(item, dict)
+                and isinstance(item.get("symbol_id"), dict)
+                and item.get("value") is not None
+            ),
+            residual_symbol_ids=tuple(
+                MathObjectId.from_payload(item)
+                for item in payload.get("residual_symbol_ids", ())
+                if isinstance(item, dict)
+            ),
+            branch_count=int(payload.get("branch_count") or 0),
+            equation_builder=_optional_payload_string(
+                payload.get("equation_builder")
+            ),
+            representation_mapper=_optional_payload_string(
+                payload.get("representation_mapper")
+            ),
+            constraint_filter=_optional_payload_string(
+                payload.get("constraint_filter")
+            ),
+            target_binding=_optional_payload_string(
+                payload.get("target_binding")
+            ),
+            equation_sources=tuple(
+                str(item) for item in payload.get("equation_sources", ())
+            ),
+            known_substitution_sources=tuple(
+                str(item)
+                for item in payload.get("known_substitution_sources", ())
+            ),
+            preserved_symbol_ids=tuple(
+                MathObjectId.from_payload(item)
+                for item in payload.get("preserved_symbol_ids", ())
+                if isinstance(item, dict)
+            ),
+            affected_returns=tuple(
+                str(item) for item in payload.get("affected_returns", ())
+            ),
+        )
+
+    def semantic_signature(self) -> tuple[Any, ...]:
+        """Stable closure identity independent of runtime projection paths."""
+        return (
+            self.status,
+            self.target_object_id,
+            canonical_symbolic_expression(self.target_value),
+            tuple(
+                sorted(
+                    (
+                        (
+                            symbol_id,
+                            canonical_symbolic_expression(value),
+                        )
+                        for symbol_id, value in self.substitutions
+                    ),
+                    key=lambda item: _math_object_signature(item[0]),
+                )
+            ),
+            tuple(
+                sorted(
+                    self.residual_symbol_ids,
+                    key=_math_object_signature,
+                )
+            ),
+            self.branch_count,
+            self.equation_builder,
+            self.representation_mapper,
+            self.constraint_filter,
+            self.target_binding,
+            tuple(sorted(self.equation_sources)),
+            tuple(sorted(self.known_substitution_sources)),
+            tuple(
+                sorted(
+                    self.preserved_symbol_ids,
+                    key=_math_object_signature,
+                )
+            ),
+            tuple(sorted(self.affected_returns)),
+        )
+
     def to_payload(self) -> dict[str, Any]:
         return {
             "status": self.status,
@@ -91,6 +197,31 @@ class SymbolicClosureProvenance:
             ],
             "affected_returns": list(self.affected_returns),
         }
+
+
+def _optional_payload_string(value: Any) -> str | None:
+    return str(value) if value is not None else None
+
+
+def canonical_symbolic_expression(value: str | None) -> str | None:
+    """Canonicalize the supported algebraic subset without solving it.
+
+    Closure checkpoints currently cover open middle-school algebraic
+    expressions. Parsing with ``evaluate=False`` normalizes commutative term
+    order while avoiding full simplification that could erase denominator or
+    branch-domain distinctions. Piecewise, rational-domain and branch-sensitive
+    closures require a richer contract before they can use this signature.
+    """
+    if value is None:
+        return None
+    try:
+        return sp.sstr(parse_expr(value, evaluate=False)).replace(" ", "")
+    except (TypeError, ValueError, sp.SympifyError):
+        return value.strip()
+
+
+def _math_object_signature(value: MathObjectId) -> tuple[str, str, str]:
+    return (value.kind, value.origin_scope_id, value.value)
 
 
 def answer_output_type_compatible(expected_type: str | None, actual_type: str | None) -> bool:

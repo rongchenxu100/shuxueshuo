@@ -533,10 +533,49 @@ def _compact_functional_runtime_verified(
                 )
                 if projected is not None
             ]
+            closures = [
+                closure
+                for projected in compact_results
+                if isinstance(
+                    closure := projected.pop("closure", None),
+                    dict,
+                )
+            ]
+            if closures:
+                closure = closures[0]
+                closure_value = closure.get("value")
+                parameter_values = [
+                    _parameter_assignment_value(
+                        str(projected.get("value"))
+                    )
+                    for projected in compact_results
+                    if projected.get("type") == "ParameterValue"
+                    and projected.get("value") is not None
+                ]
+                if (
+                    isinstance(closure_value, str)
+                    and closure_value in parameter_values
+                ):
+                    closure.pop("value", None)
+                compact["closure"] = closure
             if compact_results:
                 compact["results"] = compact_results
         result.append(compact)
     return result
+
+
+def _parameter_assignment_value(value: str) -> str:
+    """Return the RHS only for a plain ``name=value`` assignment."""
+    stripped = value.strip()
+    if (
+        stripped.count("=") != 1
+        or any(operator in stripped for operator in ("<=", ">=", "!=", "=="))
+    ):
+        return stripped
+    name, assigned = stripped.split("=", 1)
+    if not name.strip() or not assigned.strip():
+        return stripped
+    return assigned.strip()
 
 
 def _compact_functional_locked_results(
@@ -641,6 +680,26 @@ def _compact_functional_result_snapshot(
         result["free"] = [
             item for item in free_parameters if isinstance(item, str)
         ]
+    closure = snapshot.get("symbolic_closure")
+    if isinstance(closure, dict):
+        prompt_closure = {
+            key: value
+            for key, value in closure.items()
+            if key
+            in {
+                "target",
+                "status",
+                "value",
+                "branches",
+                "remaining_free",
+                "equation_sources",
+                "constraint_used",
+            }
+        }
+        if prompt_closure.get("value") == result.get("value"):
+            prompt_closure.pop("value", None)
+        if prompt_closure:
+            result["closure"] = prompt_closure
     object_roles = snapshot.get("object_roles")
     if value_type == "PathTransformation" and isinstance(object_roles, dict):
         result["structure"] = {

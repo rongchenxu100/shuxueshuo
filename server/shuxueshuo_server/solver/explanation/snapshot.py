@@ -11,8 +11,15 @@ from shuxueshuo_server.solver.contracts import PointRef, TypedValue
 from shuxueshuo_server.solver.runtime.context import RuntimeContext
 from shuxueshuo_server.solver.runtime.models import PlanExecutionResult, PlannerOutput, StepPlan
 from shuxueshuo_server.solver.runtime.projection import RuntimeProjection
+from shuxueshuo_server.solver.runtime.strategy_models import (
+    canonical_symbolic_expression,
+)
 
-from .models import ExplanationSnapshot, TeachingTraceEntry
+from .models import (
+    ExplanationSnapshot,
+    SymbolicClosureTeachingTrace,
+    TeachingTraceEntry,
+)
 from .presentation import StudentNarrativePlacementProjector
 
 
@@ -68,6 +75,7 @@ class ExplanationSnapshotBuilder:
             planner_insights=_planner_insights(planner_artifacts),
             answers=_clean_value(result.answers, artifacts.context),
             checks=tuple(_check_payload(check) for check in result.checks),
+            symbolic_closures=_build_symbolic_closure_teaching(replay),
         )
         _assert_safe_snapshot(snapshot)
         return snapshot
@@ -117,6 +125,102 @@ def _hidden_reason(plan: StepPlan, invocation_index: int) -> str | None:
     if "prep" in text or "prepared" in text or "cache" in text:
         return "prep_or_cache"
     return None
+
+
+def _build_symbolic_closure_teaching(
+    replay: Any | None,
+) -> tuple[SymbolicClosureTeachingTrace, ...]:
+    attempt = getattr(replay, "transactional_attempt_result", None)
+    reconciliation = getattr(replay, "functional_reconciliation", None)
+    if attempt is None or reconciliation is None:
+        return ()
+    goal_calls = set(getattr(attempt, "goal_reachable_call_ids", ()))
+    call_by_step = {
+        step_id: item.call_id
+        for item in getattr(reconciliation, "projection_map", ())
+        for step_id in item.step_ids
+    }
+    grouped: dict[tuple[Any, ...], list[Any]] = {}
+    call_by_signature: dict[tuple[Any, ...], str] = {}
+    for write in getattr(attempt, "state_writes", ()):
+        provenance = getattr(
+            write,
+            "symbolic_closure_provenance",
+            None,
+        )
+        if provenance is None or provenance.status != "unique":
+            continue
+        call_id = (
+            write.canonical_producer_call_id
+            or call_by_step.get(write.step_id)
+        )
+        if call_id is None:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.symbolic_closure_explanation_projection_missing: "
+                f"step={write.step_id}, return={write.return_name}"
+            )
+        if call_id not in goal_calls:
+            continue
+        signature = provenance.semantic_signature()
+        grouped.setdefault(signature, []).append(write)
+        call_by_signature.setdefault(signature, call_id)
+    result: list[SymbolicClosureTeachingTrace] = []
+    for signature, writes in grouped.items():
+        provenance = writes[0].symbolic_closure_provenance
+        assert provenance is not None
+        target = (
+            _student_semantic_ref(provenance.target_object_id.value)
+            if provenance.target_object_id is not None
+            else "parameter"
+        )
+        result.append(
+            SymbolicClosureTeachingTrace(
+                source_call_id=call_by_signature[signature],
+                target=target,
+                target_value=canonical_symbolic_expression(
+                    provenance.target_value
+                ),
+                equation_sources=tuple(provenance.equation_sources),
+                known_substitutions=tuple(
+                    (
+                        _student_semantic_ref(symbol_id.value),
+                        value,
+                    )
+                    for symbol_id, value in provenance.substitutions
+                    if symbol_id != provenance.target_object_id
+                ),
+                constraint_summary=(
+                    "structured_constraint_applied"
+                    if provenance.constraint_filter is not None
+                    else None
+                ),
+                branch_count=provenance.branch_count,
+                residual_symbols=tuple(
+                    _student_semantic_ref(item.value)
+                    for item in provenance.residual_symbol_ids
+                ),
+                affected_returns=tuple(provenance.affected_returns),
+                state_updates=tuple(
+                    {
+                        "return": write.return_name,
+                        "type": write.runtime_type,
+                        "form": write.result_form,
+                        "free": [
+                            _student_semantic_ref(item.value)
+                            for item in write.free_symbol_ids
+                        ],
+                    }
+                    for write in writes
+                    if write.return_name is not None
+                ),
+            )
+        )
+    return tuple(result)
+
+
+def _student_semantic_ref(value: str) -> str:
+    return value.rsplit(":", 1)[-1]
 
 
 def _build_fact_index(

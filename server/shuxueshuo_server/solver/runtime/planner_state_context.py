@@ -61,9 +61,14 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     PlannerRetryLayer,
     PlannerRetryPreservePolicy,
     ProducedFact,
+    SymbolicClosureProvenance,
     StepIntent,
     StepIntentDraft,
     StrategyDraftValidationError,
+)
+from shuxueshuo_server.solver.runtime.symbolic_closure_audit import (
+    SymbolicClosureWriteAuditRecord,
+    audit_symbolic_closure_writes,
 )
 from shuxueshuo_server.solver.state_semantics import (
     StateObjectRoleBinding,
@@ -234,6 +239,7 @@ class StateWriteVersion:
     free_symbol_ids: tuple[MathObjectId, ...] = ()
     result_form: str | None = None
     runtime_destination: RuntimeDestinationKey | None = None
+    symbolic_closure_provenance: SymbolicClosureProvenance | None = None
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -276,6 +282,11 @@ class StateWriteVersion:
             "runtime_destination": (
                 self.runtime_destination.to_payload()
                 if self.runtime_destination is not None
+                else None
+            ),
+            "symbolic_closure_provenance": (
+                self.symbolic_closure_provenance.to_payload()
+                if self.symbolic_closure_provenance is not None
                 else None
             ),
         }
@@ -790,6 +801,31 @@ class PlannerStateContext:
             logical_key,
             consumer_scope_id=scope_id,
         )
+
+    @property
+    def closure_by_version(
+        self,
+    ) -> dict[StateVersionId, SymbolicClosureProvenance]:
+        """Build the closure index from canonical version history on demand."""
+        result: dict[StateVersionId, SymbolicClosureProvenance] = {}
+        for slot in self.state.state_slots:
+            for write in slot.write_history:
+                if (
+                    write.version_id is None
+                    or write.symbolic_closure_provenance is None
+                ):
+                    continue
+                if write.version_id in result:
+                    raise StrategyDraftValidationError(
+                        "planner_configuration_error: "
+                        "planner.symbolic_closure_provenance_drift: "
+                        "duplicate closure provenance for StateVersion "
+                        f"{write.version_id!r}"
+                    )
+                result[write.version_id] = (
+                    write.symbolic_closure_provenance
+                )
+        return result
 
 
 @dataclass
@@ -2887,6 +2923,12 @@ def _apply_state_write_provenance(
     runtime_free_symbol_ids = _math_object_ids_from_payload(
         payload.get("free_symbol_ids")
     )
+    closure_payload = payload.get("symbolic_closure_provenance")
+    symbolic_closure = (
+        SymbolicClosureProvenance.from_payload(dict(closure_payload))
+        if isinstance(closure_payload, Mapping)
+        else None
+    )
     if (
         require_typed_authority
         and selected_version_id is not None
@@ -2898,6 +2940,36 @@ def _apply_state_write_provenance(
             "planner.runtime_symbol_identity_unresolved: "
             f"state={produced_handle}"
         )
+    if require_typed_authority and symbolic_closure is not None:
+        object_payload = payload.get("math_object_id")
+        write_object_id = (
+            MathObjectId.from_payload(object_payload)
+            if isinstance(object_payload, Mapping)
+            else None
+        )
+        closure_issues = audit_symbolic_closure_writes(
+            (
+                SymbolicClosureWriteAuditRecord(
+                    return_name=(
+                        str(payload["return_name"])
+                        if payload.get("return_name") is not None
+                        else None
+                    ),
+                    runtime_type=runtime_type,
+                    math_object_id=write_object_id,
+                    free_symbol_ids=runtime_free_symbol_ids,
+                    provenance=symbolic_closure,
+                ),
+            ),
+            expected_provenance=symbolic_closure,
+        )
+        if closure_issues:
+            issue = closure_issues[0]
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: "
+                f"{issue.code}: state={produced_handle}, "
+                f"{issue.message}"
+            )
     version = StateWriteVersion(
         step_id=str(payload.get("step_id") or ""),
         produced_handle=produced_handle,
@@ -2942,6 +3014,7 @@ def _apply_state_write_provenance(
         runtime_destination=_runtime_destination_key_from_payload(
             payload.get("runtime_destination_key")
         ),
+        symbolic_closure_provenance=symbolic_closure,
     )
     if version not in histories:
         histories.append(version)

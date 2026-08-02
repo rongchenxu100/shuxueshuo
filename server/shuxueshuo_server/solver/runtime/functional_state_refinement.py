@@ -1,4 +1,9 @@
-"""Deterministic closure expectations and same-object state refinements."""
+"""Legacy-only deterministic state refinement compatibility.
+
+The Functional authoritative path must not call this module. Runtime closure,
+B1 allocation and B3 finalization own these decisions; the helpers remain only
+for recorded StepIntent compatibility tests until B5c removes that bridge.
+"""
 
 from __future__ import annotations
 
@@ -36,12 +41,11 @@ def refine_functional_object_states(
     reconciled: Sequence[FunctionalCallReconciliation],
     catalog: FunctionalCapabilityCatalog,
 ) -> FunctionalStateRefinementResult:
-    """Infer object closure forms and monotone writes to the same StateSlot.
+    """Infer legacy object forms and monotone writes to the same StateSlot.
 
-    An LLM expectation remains optional. The authoritative pre-runtime proof is
-    the exact Symbol and source-state lineage projected by reconciliation.
-    Runtime provenance validates the inferred transition again after SymPy has
-    produced the concrete value.
+    This compatibility helper is intentionally absent from Functional
+    authoritative reconciliation. Do not use it to restore static closure
+    authority.
     """
 
     calls_by_id = {call.call_id: call for call in plan.calls}

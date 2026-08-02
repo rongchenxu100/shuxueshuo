@@ -74,8 +74,8 @@ Track A 是否完成，但主链切换前必须重新建立相应阶段自己的
 | Track A assets | `COMPLETE` | 五题 fixture、离线 replay、真实 opt-in、strict-test few-shot、共享 batch 基座 | 无 |
 | Track A Stage 1 | `COMPLETE` | 每题 3 个样本，`15/15` 在三轮内通过，configuration error 为 0 | 无 |
 | Track A parity complete | `COMPLETE` | 五题各 10 个兼容样本，`pass@3 >= 90%`；structured provenance parity、typed failure boundary、跨 batch 聚合均已建立 | 无 |
-| Track B typed identity authority | `IN PROGRESS` | B0-B4、B5a/B5b 已完成；typed consumer 的真实 execution-shadow smoke 为 `15/15`，identity fallback 为 0 | B5c 按既定顺序等待 C6 后删除 StepIntent/string projection |
-| Track C transactional interpreter | `IN PROGRESS` | C0、C0.5、C1、C2、C3、C4、C5 已完成；C5 四个参数 method 通过 `529` 项联合门禁和真实 authoritative smoke | C6 closure provenance 消费与 strict cleanup |
+| Track B typed identity authority | `IN PROGRESS` | B0-B4、B5a/B5b 已完成；typed consumer 的真实 execution-shadow smoke 为 `15/15`，identity fallback 为 0 | B5c 删除 StepIntent/string projection compatibility |
+| Track C transactional interpreter | `COMPLETE` | C0-C6 已完成；runtime closure provenance 已接管 Context、retry、checkpoint 与 Explanation 消费 | 无 |
 | Functional Default Ready | `BLOCKED` | Functional 主链可 opt-in 执行 | Track A parity complete；Track B B0-B4；Track C production closure；direct compiler shadow；held-out；production observability 与回滚门禁 |
 | Track D0 product routing gate retirement | `BLOCKED` | 唯一 problem-id gate 已登记 | Track A parity complete；Functional production routing 接管该 family；legacy deterministic planner 退场 |
 | Track D default switch | `BLOCKED` | direct compiler 目标已定义 | Functional Default Ready 后才能切默认协议和删除 StepIntent 兼容链 |
@@ -89,9 +89,8 @@ Track A 是否完成，但主链切换前必须重新建立相应阶段自己的
 
 Track A 已完成，当前主线不再围绕五题概率样本做局部补丁：
 
-1. 实施 C6 closure provenance 的 Context/retry/explanation 消费与 strict cleanup；
-2. C6 完成后，再由 B5c 删除
-   StepIntent/string projection compatibility。
+1. 实施 B5c，删除 StepIntent/string projection compatibility；
+2. 随后进入 direct compiler shadow 与 Functional Default Ready 门禁。
 
 C0.5 的详细设计见：
 
@@ -620,11 +619,12 @@ compiler/runtime。这样先解决状态权威问题，再单独替换编译桥�
 
 ### Current Status
 
-`IN PROGRESS`。C0 shadow、C0.5 executable model gate、C1 transactional
+`COMPLETE`。C0 shadow、C0.5 executable model gate、C1 transactional
 execution-shadow compatibility gate、C2 Context/retry authority、C3 Functional arg
 role authority、C4 runtime-grounded closure authority 和 C5 parameter method migration
-已完成。Functional opt-in 可使用 `context_authoritative + authoritative closure`；产品
-默认仍为 legacy。当前进入 C6 closure provenance consumption and strict cleanup。
+以及 C6 closure provenance consumption and strict cleanup 已完成。Functional opt-in
+可使用 `context_authoritative + authoritative closure`；产品默认仍为 legacy。当前
+进入 B5c StepIntent/string projection retirement。
 
 详细设计见：
 
@@ -1007,11 +1007,56 @@ substitution_outputs
 
 #### C6. Strict Cleanup
 
+状态：`COMPLETE`（2026-08-02）。
+
+已完成：
+
+- runtime closure provenance 已进入 `StateWriteVersion`、
+  `PlannerStateContext`、B4 version checkpoint 和 prompt-safe call memory；
+- checkpoint runtime restore 对 target、value、substitution、residual、branch、
+  equation/constraint sources 和 affected returns 使用同一 semantic signature，漂移
+  fail loud；
+- closure expression signature 只覆盖开放参数下的初中代数表达式，采用不执行求解的
+  保守规范化；分式定义域、分段函数和分支敏感表达式在扩展 contract 前不纳入该等价
+  判定；
+- ParameterValue target identity、companion provenance 和 runtime residual Symbol
+  在事务 commit 与 Context hydrate 两个边界均 fail closed；
+- retry prompt 每个 call 只展示一份紧凑 closure 摘要，不暴露 typed version、
+  runtime path 或内部 builder；
+- ExplanationSnapshot 只消费 canonical、goal-reachable、runtime-verified closure，
+  按 signature 去重并投影列方程、求 target、分支筛选、代入和状态更新信息；
+- Functional authoritative reconciliation 不再运行
+  `refine_functional_object_states`；sibling return 的 Symbol union 只保留为
+  B1/B3 transition 的 provisional allocation estimate，Context、checkpoint 和 retry
+  memory 均只写 actual runtime free-symbol provenance；
+- `functional_state_refinement` 已标记为 legacy-only，仅供 B5c 前的 StepIntent
+  compatibility tests 使用，不得重新接入 Functional authoritative reconciliation；
+- `free_quadratic_parameter_if_read` 已从 Functional projected compiler selector
+  中移除，旧 StepIntent binding rule 继续作为 B5c 前兼容入口；
+- C0.5 `v10` 新增 32 个跨 scope ParameterValue closure checkpoint 场景，
+  对 target value、branch、equation source、residual Symbol、status 和 provenance
+  缺失逐项验证 `planner.retry_symbolic_closure_drift`；
+- C6 联合离线门禁 `594 passed`；全量 solver 回归
+  `1718 passed, 17 skipped`，新增 4 项 static guard 单独通过，
+  `git diff --check` 通过。
+- review hardening 进一步收紧 closure value 去重、allocated companion
+  completeness、repair cone 边界、Explanation projection fail-loud、数学等价
+  signature、Context hydrate、shadow call-memory 摘要和 B3 provenance 审计；
+  C0.5 closure checkpoint 已增加数学等价 target mutation，并由独立 reference
+  signature 与 runtime checkpoint 双向验证；最新相关定向回归 `266 passed`。
+
+真实门禁：首轮五题各 3 个样本为 `14/15`，closure 执行 32 次且 drift 为 0；
+唯一 solver configuration error 是 sibling source 的 provisional free-symbol
+传播被过早删除。恢复该预分配估计后，和平重跑中 Sample 01、03 通过，
+configuration/unclassified 和 closure drift 均为 0；Sample 02 仅因 provider 连续
+两次 reasoning-only 空响应失败，未进入 solver。该 provider-only 失败不计为 C6
+authority 缺陷。
+
 - closure actual provenance 写入 PlannerStateContext；
 - ParameterValue 绑定目标 Symbol identity；
 - retry 定位 target arg、缺失 semantic state 和约束来源；
 - explanation 从 actual provenance 生成代入、列方程、闭包和状态更新骨架；
-- 删除 return free-symbol union 作为 verified state；
+- 删除 return free-symbol union 作为 verified state，仅保留 B1/B3 provisional estimate；
 - 删除 speculative open/closed blocker 和重复 functional state refinement；
 - 删除 Functional 模式下的 `free_quadratic_parameter_if_read`；
 - 删除 method-local solve 和重复 closure helper；

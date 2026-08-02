@@ -4,6 +4,8 @@ from dataclasses import replace
 from importlib import util
 import json
 from pathlib import Path
+from types import SimpleNamespace
+from typing import Any
 
 # Transitional domain split: shared fixtures/helpers still live in
 # test_strategy_planner_phase1.py until the support module is extracted.
@@ -43,6 +45,7 @@ from shuxueshuo_server.solver.family import (  # noqa: E402
     StateSlotPattern,
 )
 from shuxueshuo_server.solver.runtime.strategy_models import (  # noqa: E402
+    SymbolicClosureProvenance,
     StepIntentAcceptedStep,
     StepIntentExecutionDiagnostic,
     StepIntentNormalizationReport,
@@ -166,6 +169,133 @@ def test_typed_provenance_identity_enrichment_is_fail_closed(
             None,
             payload,
         )
+
+
+def _symbolic_closure_write_payload(
+    *,
+    closure_target: MathObjectId | None = None,
+    status: str = "unique",
+    free_symbol_ids: tuple[MathObjectId, ...] = (),
+    residual_symbol_ids: tuple[MathObjectId, ...] = (),
+) -> dict[str, Any]:
+    target = MathObjectId("symbol:problem:a", "symbol", "problem")
+    logical_key = LogicalStateKey(target, "value", "ParameterValue")
+    slot_id = StateSlotId(logical_key, "problem")
+    version_id = StateVersionId(slot_id, 1)
+    provenance = SymbolicClosureProvenance(
+        status=status,
+        target_object_id=closure_target or target,
+        target_value="1",
+        substitutions=((closure_target or target, "1"),),
+        residual_symbol_ids=residual_symbol_ids,
+        branch_count=1 if status == "unique" else 2,
+        equation_builder="expression_equals_value",
+        target_binding="parameter",
+        affected_returns=("parameter_value",),
+    )
+    return {
+        "step_id": "solve_a",
+        "scope_id": "problem",
+        "capability_id": "parameter_from_expression_value",
+        "produced_handle": "fact:problem:a_value",
+        "output_key": "parameter_value",
+        "runtime_type": "ParameterValue",
+        "state_slot_id": "symbol:problem:a.value@problem:ParameterValue",
+        "object_ref": "symbol:problem:a",
+        "write_mode": "create",
+        "math_object_id": target.to_payload(),
+        "logical_state_key": logical_key.to_payload(),
+        "typed_slot_id": slot_id.to_payload(),
+        "selected_version_id": version_id.to_payload(),
+        "canonical_producer_call_id": "solve_a",
+        "valid_scope_id": "problem",
+        "return_name": "parameter_value",
+        "free_symbol_names": [item.value for item in free_symbol_ids],
+        "free_symbol_ids": [item.to_payload() for item in free_symbol_ids],
+        "symbolic_closure_provenance": provenance.to_payload(),
+    }
+
+
+def _mutable_nankai_state() -> Any:
+    return PlannerStateContextBuilder._initial_mutable_state(
+        _nankai_inputs(),
+        problem_payload=_nankai_llm_problem(),
+        handle_registry=_registry(),
+        attempt=1,
+        parent_context_id=None,
+    )
+
+
+def test_context_hydrate_rejects_closure_target_identity_drift() -> None:
+    other = MathObjectId("symbol:problem:b", "symbol", "problem")
+
+    with pytest.raises(
+        StrategyDraftValidationError,
+        match="planner.contract_runtime_symbol_drift",
+    ):
+        planner_state_context_module._apply_state_write_provenance(
+            _mutable_nankai_state(),
+            _symbolic_closure_write_payload(closure_target=other),
+            require_typed_authority=True,
+        )
+
+
+def test_context_hydrate_rejects_non_unique_closure_provenance() -> None:
+    with pytest.raises(
+        StrategyDraftValidationError,
+        match="planner.symbolic_closure_provenance_drift",
+    ):
+        planner_state_context_module._apply_state_write_provenance(
+            _mutable_nankai_state(),
+            _symbolic_closure_write_payload(status="ambiguous"),
+            require_typed_authority=True,
+        )
+
+
+def test_context_hydrate_rejects_closure_residual_symbol_drift() -> None:
+    residual = MathObjectId("symbol:problem:c", "symbol", "problem")
+
+    with pytest.raises(
+        StrategyDraftValidationError,
+        match="planner.symbolic_closure_provenance_drift",
+    ):
+        planner_state_context_module._apply_state_write_provenance(
+            _mutable_nankai_state(),
+            _symbolic_closure_write_payload(
+                free_symbol_ids=(residual,),
+                residual_symbol_ids=(),
+            ),
+            require_typed_authority=True,
+        )
+
+
+def test_closure_index_rejects_duplicate_state_version_records() -> None:
+    target = MathObjectId("symbol:problem:a", "symbol", "problem")
+    logical_key = LogicalStateKey(target, "value", "ParameterValue")
+    version_id = StateVersionId(StateSlotId(logical_key, "problem"), 1)
+    provenance = SymbolicClosureProvenance(
+        status="unique",
+        target_object_id=target,
+        target_value="1",
+        substitutions=((target, "1"),),
+        branch_count=1,
+        affected_returns=("parameter_value",),
+    )
+    write = SimpleNamespace(
+        version_id=version_id,
+        symbolic_closure_provenance=provenance,
+    )
+    context = SimpleNamespace(
+        state=SimpleNamespace(
+            state_slots=(SimpleNamespace(write_history=(write, write)),)
+        )
+    )
+
+    with pytest.raises(
+        StrategyDraftValidationError,
+        match="planner.symbolic_closure_provenance_drift",
+    ):
+        PlannerStateContext.closure_by_version.fget(context)
 from shuxueshuo_server.solver.runtime.strategy_replay import (  # noqa: E402
     PlannerRetryReplayResult,
     PlannerRetryReplayService,

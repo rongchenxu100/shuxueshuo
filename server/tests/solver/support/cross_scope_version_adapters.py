@@ -94,6 +94,7 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     ProjectedStateDependency,
     ProjectedStateWrite,
     SemanticRef,
+    SymbolicClosureProvenance,
     StrategyDraftValidationError,
 )
 from shuxueshuo_server.solver.state_semantics import StateSemanticLineage
@@ -101,6 +102,7 @@ from support.cross_scope_version_oracle import (
     CrossScopeVersionScenario,
     ExpectedScopeVersionOutcome,
     ModelCall,
+    ModelClosureCheckpoint,
     ModelStateKey,
 )
 
@@ -558,6 +560,13 @@ class B4RetryCheckpointAdapter:
                     free_symbol_ids=(),
                     runtime_destination=None,
                     status="goal_committed",
+                    symbolic_closure_provenance=(
+                        _model_closure_provenance(
+                            retry.expected_closure
+                        )
+                        if retry.expected_closure is not None
+                        else None
+                    ),
                 )
             )
         checkpoint = FunctionalRetryGraphCheckpoint(
@@ -611,6 +620,33 @@ class B4RetryCheckpointAdapter:
             try:
                 verify_restored_runtime_checkpoint(
                     expected_checkpoint,
+                    observed_checkpoint,
+                )
+            except FunctionalRetryCheckpointError as exc:
+                runtime_checkpoint_issues.append(exc.code)
+        if retry.expected_closure is not None:
+            observed_records = tuple(
+                replace(
+                    item,
+                    status="runtime_verified",
+                    symbolic_closure_provenance=(
+                        _model_closure_provenance(
+                            retry.observed_closure
+                        )
+                        if retry.observed_closure is not None
+                        else None
+                    ),
+                )
+                for item in checkpoint.verified_versions
+            )
+            observed_checkpoint = replace(
+                checkpoint,
+                committed_calls=(),
+                verified_versions=observed_records,
+            )
+            try:
+                verify_restored_runtime_checkpoint(
+                    checkpoint,
                     observed_checkpoint,
                 )
             except FunctionalRetryCheckpointError as exc:
@@ -1539,6 +1575,31 @@ def _symbol_object_id(value: str) -> MathObjectId:
     if len(parts) != 3 or parts[0] != "symbol":
         raise ValueError(f"invalid oracle Symbol identity: {value}")
     return MathObjectId(value, "symbol", parts[1])
+
+
+def _model_closure_provenance(
+    closure: ModelClosureCheckpoint,
+) -> SymbolicClosureProvenance:
+    target = MathObjectId("symbol:problem:p", "symbol", "problem")
+    return SymbolicClosureProvenance(
+        status=closure.status,
+        target_object_id=target,
+        target_value=closure.target_value,
+        substitutions=((target, closure.target_value),),
+        residual_symbol_ids=tuple(
+            MathObjectId(
+                f"symbol:problem:{value}",
+                "symbol",
+                "problem",
+            )
+            for value in closure.residual_symbols
+        ),
+        branch_count=closure.branch_count,
+        equation_builder="oracle_equation",
+        target_binding="parameter",
+        equation_sources=closure.equation_sources,
+        affected_returns=("result",),
+    )
 
 
 def _checkpoint_storage_scope(checkpoint: Any, call_id: str) -> str | None:

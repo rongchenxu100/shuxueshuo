@@ -146,6 +146,18 @@ def test_cross_scope_version_generated_gate() -> None:
             "parameter_from_minimum_value",
             "parameter_from_segment_length",
         }
+        assert set(coverage["closure_checkpoint"]) == {
+            "none",
+            "none_second",
+            "equivalent_target_value",
+            "target_value",
+            "branch_count",
+            "equation_source",
+            "residual_symbol",
+            "status",
+            "missing",
+        }
+        assert sum(coverage["closure_checkpoint"].values()) == 36
 
     model = ReferenceScopeVersionModel()
     started = time.monotonic()

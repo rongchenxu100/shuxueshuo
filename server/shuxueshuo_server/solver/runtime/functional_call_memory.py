@@ -47,6 +47,7 @@ class FunctionalResultSnapshot:
     valid_scope: str | None = None
     value_omitted_reason: str | None = None
     state_version_id: StateVersionId | None = None
+    symbolic_closure: dict[str, Any] | None = None
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -74,6 +75,8 @@ class FunctionalResultSnapshot:
             payload["value_omitted_reason"] = self.value_omitted_reason
         if self.state_version_id is not None:
             payload["state_version_id"] = self.state_version_id.to_payload()
+        if self.symbolic_closure is not None:
+            payload["symbolic_closure"] = dict(self.symbolic_closure)
         return payload
 
 
@@ -133,8 +136,10 @@ def build_functional_call_memory(
     active_issues: Sequence[PlannerRetryIssue],
     attempt: int,
     allow_goal_commit: bool = True,
+    symbolic_closures_by_call: Mapping[str, Any] | None = None,
 ) -> FunctionalCallMemory:
     """Classify calls and project only their declared Functional returns."""
+    symbolic_closures_by_call = symbolic_closures_by_call or {}
     repair_cone = _active_repair_cone(
         reconciliation,
         active_issues=active_issues,
@@ -217,6 +222,9 @@ def build_functional_call_memory(
                         return_spec=return_specs.get(allocation.return_name),
                         runtime=runtime,
                         write=write,
+                        symbolic_closure=symbolic_closures_by_call.get(
+                            call.call_id
+                        ),
                     )
                 )
         entries.append(
@@ -394,6 +402,7 @@ def _result_snapshot(
     return_spec: Any | None,
     runtime: StepIntentRuntimeResult | None,
     write: StateWriteProvenance | None,
+    symbolic_closure: Any | None = None,
 ) -> FunctionalResultSnapshot:
     free_symbols = tuple(
         unique_ordered(
@@ -444,7 +453,59 @@ def _result_snapshot(
             if write is not None
             else allocation.selected_version_id
         ),
+        symbolic_closure=(
+            _compact_symbolic_closure(write)
+            or _compact_symbolic_closure_result(symbolic_closure)
+        ),
     )
+
+
+def _compact_symbolic_closure(
+    write: StateWriteProvenance | None,
+) -> dict[str, Any] | None:
+    provenance = (
+        write.symbolic_closure_provenance
+        if write is not None
+        else None
+    )
+    return _compact_symbolic_closure_provenance(provenance)
+
+
+def _compact_symbolic_closure_result(
+    result: Any | None,
+) -> dict[str, Any] | None:
+    return _compact_symbolic_closure_provenance(
+        getattr(result, "provenance", None)
+    )
+
+
+def _compact_symbolic_closure_provenance(
+    provenance: Any | None,
+) -> dict[str, Any] | None:
+    if provenance is None or provenance.status != "unique":
+        return None
+    result: dict[str, Any] = {
+        "status": provenance.status,
+        "branches": provenance.branch_count,
+    }
+    if provenance.target_object_id is not None:
+        result["target"] = _short_semantic_ref(
+            provenance.target_object_id.value
+        )
+    if provenance.target_value is not None:
+        result["value"] = provenance.target_value
+    if provenance.residual_symbol_ids:
+        result["remaining_free"] = [
+            _short_semantic_ref(item.value)
+            for item in provenance.residual_symbol_ids
+        ]
+    if provenance.equation_sources:
+        result["equation_sources"] = list(
+            provenance.equation_sources[:3]
+        )
+    if provenance.constraint_filter is not None:
+        result["constraint_used"] = True
+    return result
 
 
 def _actual_form(

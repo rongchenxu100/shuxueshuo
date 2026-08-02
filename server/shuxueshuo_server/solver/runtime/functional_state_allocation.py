@@ -75,6 +75,10 @@ def project_sibling_symbol_dependencies(
                         *(source.object_ref for source in sources),
                     )
                 ),
+                # This is a provisional allocation estimate used by B1/B3 to
+                # compare transition closure. Runtime Context, checkpoint, and
+                # retry memory always replace it with observed write
+                # provenance and never treat this union as verified state.
                 free_symbol_refs=unique_ordered(
                     (
                         *allocation.free_symbol_refs,

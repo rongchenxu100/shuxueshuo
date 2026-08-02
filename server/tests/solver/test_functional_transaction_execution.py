@@ -3,6 +3,7 @@ from __future__ import annotations
 import inspect
 import json
 from dataclasses import replace
+from types import SimpleNamespace
 
 import pytest
 import sympy as sp
@@ -21,12 +22,15 @@ from shuxueshuo_server.solver.runtime.functional_plan import (
 from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
     FunctionalCallPreparationService,
     FunctionalRuntimeWriteCommitter,
+    SymbolicClosureProvenanceError,
     FunctionalTransactionBehaviorDelta,
     FunctionalTransactionalInterpreter,
     PreparedFunctionalArgBinding,
     PreparedFunctionalCall,
     _compare_with_legacy,
+    _closure_failure_details,
     _prepared_runtime_arg_object_ids,
+    _validate_symbolic_closure_write_set,
 )
 from shuxueshuo_server.solver.runtime.functional_binding_context import (
     FunctionalArgBinding,
@@ -781,6 +785,20 @@ def test_context_authoritative_commits_runtime_symbolic_closure(
         if write.return_name
         in {"coefficients", "parabola", "parameter_value"}
     )
+    assert replay.planner_state_context is not None
+    closure_by_version = replay.planner_state_context.closure_by_version
+    closure_writes = tuple(
+        write
+        for write in call_result.state_writes
+        if write.symbolic_closure_provenance is not None
+        and write.selected_version_id is not None
+    )
+    assert closure_writes
+    assert all(
+        closure_by_version[write.selected_version_id]
+        == write.symbolic_closure_provenance
+        for write in closure_writes
+    )
 
 
 def test_non_unique_symbolic_closure_rolls_back_entire_call() -> None:
@@ -849,6 +867,116 @@ def test_non_unique_symbolic_closure_rolls_back_entire_call() -> None:
     assert call_result.root_issues[0].code == (
         "function.symbolic_closure_identity_unresolved"
     )
+
+
+def test_symbolic_closure_write_set_requires_every_allocated_companion() -> None:
+    provenance = SimpleNamespace(
+        status="unique",
+        target_object_id=None,
+        residual_symbol_ids=(),
+        semantic_signature=lambda: ("unique", "b", "1-c"),
+    )
+    closure_result = SimpleNamespace(
+        provenance=provenance,
+        affected_returns=("parameter_value", "parabola"),
+    )
+    writes = (
+        SimpleNamespace(
+            return_name="parameter_value",
+            runtime_type="Expression",
+            math_object_id=None,
+            free_symbol_ids=(),
+            symbolic_closure_provenance=provenance,
+        ),
+    )
+    compiled = SimpleNamespace(
+        public_returns=(
+            SimpleNamespace(
+                return_name="parameter_value",
+                expected_write=object(),
+            ),
+            SimpleNamespace(
+                return_name="parabola",
+                expected_write=object(),
+            ),
+        )
+    )
+
+    with pytest.raises(SymbolicClosureProvenanceError) as exc_info:
+        _validate_symbolic_closure_write_set(
+            writes,
+            closure_result=closure_result,
+            compiled=compiled,
+        )
+
+    assert exc_info.value.code == "planner.symbolic_closure_provenance_missing"
+    assert "parabola" in str(exc_info.value)
+
+
+def test_symbolic_closure_write_set_allows_unallocated_optional_return() -> None:
+    provenance = SimpleNamespace(
+        status="unique",
+        target_object_id=None,
+        residual_symbol_ids=(),
+        semantic_signature=lambda: ("unique", "b", "1-c"),
+    )
+
+    _validate_symbolic_closure_write_set(
+        (),
+        closure_result=SimpleNamespace(
+            provenance=provenance,
+            affected_returns=("optional_parabola",),
+        ),
+        compiled=SimpleNamespace(public_returns=()),
+    )
+
+
+def test_symbolic_closure_repair_cone_excludes_sibling_consumers() -> None:
+    calls = (
+        SimpleNamespace(
+            call_id="source",
+            dependency_call_ids=(),
+            consumer_call_ids=("closure", "unrelated"),
+        ),
+        SimpleNamespace(
+            call_id="closure",
+            dependency_call_ids=("source",),
+            consumer_call_ids=("answer",),
+        ),
+        SimpleNamespace(
+            call_id="answer",
+            dependency_call_ids=("closure",),
+            consumer_call_ids=(),
+        ),
+        SimpleNamespace(
+            call_id="unrelated",
+            dependency_call_ids=("source",),
+            consumer_call_ids=(),
+        ),
+    )
+    result = SimpleNamespace(
+        status="underdetermined",
+        branch_count=0,
+        target_object_id=None,
+        residual_symbol_ids=(),
+        provenance=None,
+        validation_build=SimpleNamespace(
+            equation_sources=("curve_point",),
+        ),
+    )
+
+    details = _closure_failure_details(
+        result,
+        call_id="closure",
+        graph=SimpleNamespace(calls=calls),
+    )
+
+    assert set(details["repair_call_ids"]) == {
+        "source",
+        "closure",
+        "answer",
+    }
+    assert details["equation_sources"] == ["curve_point"]
 
 
 def test_authoritative_closure_rejects_wrong_method_companion_outputs(

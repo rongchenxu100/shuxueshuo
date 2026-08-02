@@ -37,6 +37,39 @@ class TeachingTraceEntry:
 
 
 @dataclass(frozen=True)
+class SymbolicClosureTeachingTrace:
+    """Student-safe projection of one committed runtime closure."""
+
+    source_call_id: str
+    target: str
+    target_value: str | None
+    equation_sources: tuple[str, ...] = ()
+    known_substitutions: tuple[tuple[str, str], ...] = ()
+    constraint_summary: str | None = None
+    branch_count: int = 0
+    residual_symbols: tuple[str, ...] = ()
+    affected_returns: tuple[str, ...] = ()
+    state_updates: tuple[dict[str, Any], ...] = ()
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            "source_call_id": self.source_call_id,
+            "target": self.target,
+            "target_value": self.target_value,
+            "equation_sources": list(self.equation_sources),
+            "known_substitutions": [
+                {"symbol": symbol, "value": value}
+                for symbol, value in self.known_substitutions
+            ],
+            "constraint_summary": self.constraint_summary,
+            "branch_count": self.branch_count,
+            "residual_symbols": list(self.residual_symbols),
+            "affected_returns": list(self.affected_returns),
+            "state_updates": [dict(item) for item in self.state_updates],
+        }
+
+
+@dataclass(frozen=True)
 class ExplanationSnapshot:
     """ExplanationBuilder 的唯一事实输入。"""
 
@@ -51,6 +84,7 @@ class ExplanationSnapshot:
     planner_insights: tuple[dict[str, Any], ...] = ()
     answers: dict[str, Any] = field(default_factory=dict)
     checks: tuple[dict[str, Any], ...] = ()
+    symbolic_closures: tuple[SymbolicClosureTeachingTrace, ...] = ()
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -69,6 +103,9 @@ class ExplanationSnapshot:
             "planner_insights": list(self.planner_insights),
             "answers": self.answers,
             "checks": list(self.checks),
+            "symbolic_closures": [
+                item.to_payload() for item in self.symbolic_closures
+            ],
         }
 
 

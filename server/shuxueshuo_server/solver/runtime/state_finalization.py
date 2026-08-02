@@ -35,6 +35,10 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     StateWriteProvenance,
     StrategyDraftValidationError,
 )
+from shuxueshuo_server.solver.runtime.symbolic_closure_audit import (
+    SymbolicClosureWriteAuditRecord,
+    audit_symbolic_closure_writes,
+)
 from shuxueshuo_server.solver.utils import unique_ordered
 
 StateFinalizerMode = Literal["shadow", "authoritative"]
@@ -503,6 +507,9 @@ class StateFinalizationService:
         }
         plans_by_step = {item.step_id: item for item in plans}
         destinations: list[CompiledStateDestination] = []
+        closure_records: list[
+            tuple[ProjectedStateWrite, StateWriteProvenance]
+        ] = []
         goal_by_handle = {f"answer:{item.id}": item for item in question_goals}
 
         for item in provenance:
@@ -548,6 +555,8 @@ class StateFinalizationService:
                     )
                 continue
             _validate_compiled_identity(projected, item, mismatches)
+            if item.symbolic_closure_provenance is not None:
+                closure_records.append((projected, item))
             version_id = projected.selected_version_id
             logical_key = projected.logical_state_key
             if version_id is None or logical_key is None:
@@ -626,6 +635,11 @@ class StateFinalizationService:
                         )
                     )
 
+        _validate_compiled_symbolic_closure_records(
+            closure_records,
+            projected_writes=tuple(projected_by_handle.values()),
+            mismatches=mismatches,
+        )
         _validate_destination_ledger(
             destinations,
             writes=projected_by_handle,
@@ -640,6 +654,62 @@ class StateFinalizationService:
         if mode == "authoritative":
             result.raise_for_mismatches()
         return result
+
+
+def _validate_compiled_symbolic_closure_records(
+    records: Sequence[tuple[ProjectedStateWrite, StateWriteProvenance]],
+    *,
+    projected_writes: Sequence[ProjectedStateWrite],
+    mismatches: list[StateFinalizationMismatch],
+) -> None:
+    """Audit closure-bearing writes without becoming a second solver."""
+    by_step: dict[
+        str,
+        list[tuple[ProjectedStateWrite, StateWriteProvenance]],
+    ] = {}
+    projected_returns_by_step: dict[str, set[str]] = {}
+    for write in projected_writes:
+        if write.return_name is not None:
+            projected_returns_by_step.setdefault(write.step_id, set()).add(
+                write.return_name
+            )
+    for projected, actual in records:
+        by_step.setdefault(projected.step_id, []).append((projected, actual))
+
+    for step_id, step_records in by_step.items():
+        first_projected, first_actual = step_records[0]
+        provenance = first_actual.symbolic_closure_provenance
+        assert provenance is not None
+        expected = set(provenance.affected_returns) & (
+            projected_returns_by_step.get(step_id, set())
+        )
+        audit_issues = audit_symbolic_closure_writes(
+            tuple(
+                SymbolicClosureWriteAuditRecord(
+                    return_name=actual.return_name,
+                    runtime_type=actual.runtime_type,
+                    math_object_id=actual.math_object_id,
+                    free_symbol_ids=actual.free_symbol_ids,
+                    provenance=actual.symbolic_closure_provenance,
+                )
+                for _projected, actual in step_records
+            ),
+            expected_provenance=provenance,
+            expected_return_names=frozenset(expected),
+        )
+        for issue in audit_issues:
+            mismatches.append(
+                _mismatch(
+                    issue.code,
+                    issue.message,
+                    first_projected,
+                    details=(
+                        dict(issue.details)
+                        if issue.details is not None
+                        else None
+                    ),
+                )
+            )
 
 
 def _validate_answer_provenance_identity(

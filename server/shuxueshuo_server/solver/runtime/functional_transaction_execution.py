@@ -107,6 +107,10 @@ from shuxueshuo_server.solver.runtime.symbolic_closure_execution import (
     substitute_symbolic_closure_output,
     validate_symbolic_closure_outputs,
 )
+from shuxueshuo_server.solver.runtime.symbolic_closure_audit import (
+    SymbolicClosureWriteAuditRecord,
+    audit_symbolic_closure_writes,
+)
 from shuxueshuo_server.solver.runtime.state_finalization import (
     project_functional_state_writes,
 )
@@ -114,6 +118,12 @@ from shuxueshuo_server.solver.runtime.student_symbolic_complexity import (
     runtime_free_symbol_names,
 )
 from shuxueshuo_server.solver.utils import unique_ordered
+
+
+class SymbolicClosureProvenanceError(RuntimeError):
+    def __init__(self, code: str, message: str) -> None:
+        self.code = code
+        super().__init__(message)
 
 
 FunctionalCallTransactionStatus = Literal["verified", "failed"]
@@ -1517,7 +1527,11 @@ class FunctionalTransactionalInterpreter:
                             "symbolic closure did not determine a unique "
                             f"target: status={closure_result.status}, "
                             f"branches={closure_result.branch_count}",
-                            details=closure_result.to_payload(),
+                            details=_closure_failure_details(
+                                closure_result,
+                                call_id=call_id,
+                                graph=graph,
+                            ),
                         )
                         working.set_status(
                             call_id,
@@ -1650,6 +1664,11 @@ class FunctionalTransactionalInterpreter:
                         )
                         for write in writes
                     )
+                    _validate_symbolic_closure_write_set(
+                        writes,
+                        closure_result=closure_result,
+                        compiled=compiled,
+                    )
                 projected_writes = tuple(
                     item
                     for item in project_functional_state_writes(
@@ -1691,7 +1710,9 @@ class FunctionalTransactionalInterpreter:
                     )
                 )
             except Exception as exc:
-                if isinstance(exc, SymbolicClosureRuntimeDriftError):
+                if isinstance(exc, SymbolicClosureProvenanceError):
+                    issue_code = exc.code
+                elif isinstance(exc, SymbolicClosureRuntimeDriftError):
                     issue_code = "planner.contract_runtime_symbol_drift"
                 elif isinstance(exc, SymbolicClosureConfigurationError):
                     issue_code = "planner.symbolic_closure_spec_invalid"
@@ -2232,6 +2253,111 @@ def _rewrite_write_input_versions(
         computation_key=computation_key,
         lineage=lineage,
     )
+
+
+def _validate_symbolic_closure_write_set(
+    writes: Sequence[StateWriteProvenance],
+    *,
+    closure_result: Any,
+    compiled: CompiledFunctionalCall,
+) -> None:
+    provenance = closure_result.provenance
+    affected = set(closure_result.affected_returns)
+    materialized = tuple(
+        write for write in writes if write.return_name in affected
+    )
+    expected_returns = affected & {
+        returned.return_name
+        for returned in compiled.public_returns
+    }
+    issues = audit_symbolic_closure_writes(
+        tuple(
+            SymbolicClosureWriteAuditRecord(
+                return_name=write.return_name,
+                runtime_type=write.runtime_type,
+                math_object_id=write.math_object_id,
+                free_symbol_ids=write.free_symbol_ids,
+                provenance=write.symbolic_closure_provenance,
+            )
+            for write in materialized
+        ),
+        expected_provenance=provenance,
+        expected_return_names=frozenset(expected_returns),
+    )
+    if issues:
+        issue = issues[0]
+        detail = (
+            f": {issue.details}"
+            if issue.details is not None
+            else ""
+        )
+        raise SymbolicClosureProvenanceError(
+            issue.code,
+            issue.message + detail,
+        )
+
+
+def _closure_failure_details(
+    result: Any,
+    *,
+    call_id: str,
+    graph: LogicalFunctionalGraph,
+) -> dict[str, Any]:
+    """Project actionable closure facts without leaking typed runtime IDs."""
+    node_by_id = {item.call_id: item for item in graph.calls}
+    repair_calls: list[str] = []
+
+    # Repair mathematical sources upstream of the failed closure.
+    pending = [call_id]
+    while pending:
+        current = pending.pop()
+        if current in repair_calls:
+            continue
+        repair_calls.append(current)
+        node = node_by_id.get(current)
+        if node is not None:
+            pending.extend(node.dependency_call_ids)
+
+    # Also unlock the failed call's own route to its answer, without walking
+    # sideways from an upstream source into unrelated consumer branches.
+    pending = list(
+        node_by_id.get(call_id).consumer_call_ids
+        if call_id in node_by_id
+        else ()
+    )
+    while pending:
+        current = pending.pop()
+        if current in repair_calls:
+            continue
+        repair_calls.append(current)
+        node = node_by_id.get(current)
+        if node is not None:
+            pending.extend(node.consumer_call_ids)
+    provenance = result.provenance
+    details: dict[str, Any] = {
+        "status": result.status,
+        "branch_count": result.branch_count,
+        "repair_call_ids": repair_calls,
+    }
+    if result.target_object_id is not None:
+        details["target"] = result.target_object_id.value.rsplit(":", 1)[-1]
+    if result.residual_symbol_ids:
+        details["remaining_free"] = [
+            item.value.rsplit(":", 1)[-1]
+            for item in result.residual_symbol_ids
+        ]
+    if provenance is not None:
+        if provenance.equation_sources:
+            details["equation_sources"] = list(
+                provenance.equation_sources[:3]
+            )
+        if provenance.constraint_filter is not None:
+            details["constraint_used"] = True
+    elif result.validation_build is not None:
+        equation_sources = result.validation_build.equation_sources
+        if equation_sources:
+            details["equation_sources"] = list(equation_sources[:3])
+    return details
 
 
 def _plan_paths(plans: Sequence[StepPlan]) -> frozenset[str]:

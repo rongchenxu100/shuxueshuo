@@ -16,6 +16,7 @@ from shuxueshuo_server.solver.runtime.state_identity import (
     StateVersionId,
 )
 from shuxueshuo_server.solver.runtime.strategy_models import (
+    SymbolicClosureProvenance,
     StrategyDraftValidationError,
 )
 
@@ -51,6 +52,7 @@ class FunctionalRetryVersionRecord:
     free_symbol_ids: tuple[MathObjectId, ...]
     runtime_destination: RuntimeDestinationKey | None
     status: FunctionalRetryVersionStatus
+    symbolic_closure_provenance: SymbolicClosureProvenance | None = None
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -80,6 +82,11 @@ class FunctionalRetryVersionRecord:
                 else None
             ),
             "status": self.status,
+            "symbolic_closure_provenance": (
+                self.symbolic_closure_provenance.to_payload()
+                if self.symbolic_closure_provenance is not None
+                else None
+            ),
         }
 
     @classmethod
@@ -138,6 +145,16 @@ class FunctionalRetryVersionRecord:
                 else None
             ),
             status=_version_status(payload.get("status")),
+            symbolic_closure_provenance=(
+                SymbolicClosureProvenance.from_payload(closure_payload)
+                if isinstance(
+                    closure_payload := payload.get(
+                        "symbolic_closure_provenance"
+                    ),
+                    dict,
+                )
+                else None
+            ),
         )
 
 
@@ -815,6 +832,11 @@ def build_functional_retry_graph_checkpoint(
                         if (call_id, allocation.return_name)
                         in committed_return_keys
                         else "runtime_verified"
+                    ),
+                    symbolic_closure_provenance=getattr(
+                        write,
+                        "symbolic_closure_provenance",
+                        None,
                     ),
                 )
             )
@@ -1555,6 +1577,14 @@ def verify_restored_runtime_checkpoint(
                 "planner.retry_state_version_drift",
                 f"runtime state changed for {key[0]}.{key[1]}",
             )
+        if not _closure_retry_compatible(
+            expected_record.symbolic_closure_provenance,
+            actual_record.symbolic_closure_provenance,
+        ):
+            raise FunctionalRetryCheckpointError(
+                "planner.retry_symbolic_closure_drift",
+                f"runtime closure changed for {key[0]}.{key[1]}",
+            )
     expected_results = {
         (item.canonical_producer_call_id, item.return_name): item
         for item in expected.verified_results
@@ -1587,6 +1617,15 @@ def verify_restored_runtime_checkpoint(
                 "planner.retry_state_version_drift",
                 f"runtime result changed for {key[0]}.{key[1]}",
             )
+
+
+def _closure_retry_compatible(
+    expected: SymbolicClosureProvenance | None,
+    actual: SymbolicClosureProvenance | None,
+) -> bool:
+    if expected is None or actual is None:
+        return expected is actual
+    return expected.semantic_signature() == actual.semantic_signature()
 
 
 def expand_retry_dependency_graph_with_versions(

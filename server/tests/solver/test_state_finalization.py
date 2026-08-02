@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import replace
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -27,6 +28,7 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     ProjectedStateWrite,
     StateWriteProvenance,
     StrategyDraftValidationError,
+    SymbolicClosureProvenance,
 )
 from shuxueshuo_server.solver.runtime.strategy_planner import (
     CanonicalHandleRegistry,
@@ -129,7 +131,7 @@ def _provenance(write: ProjectedStateWrite) -> StateWriteProvenance:
         capability_id="synthetic_point",
         produced_handle=write.produced_handle,
         output_key="point",
-        runtime_type="Point",
+        runtime_type=write.runtime_type,
         identity_policy="target_object",
         identity_role="point",
         object_ref=write.object_ref,
@@ -461,6 +463,184 @@ def test_compiled_finalizer_allows_unmaterialized_optional_return() -> None:
 
     assert result.ok
     assert result.runtime_destinations == ()
+
+
+def test_compiled_finalizer_rejects_missing_closure_companion_write() -> None:
+    point = _write("derive_curve", "fact:problem:curve_point")
+    parabola = replace(
+        _write("derive_curve", "fact:problem:curve_state"),
+        return_name="parabola",
+    )
+    target = MathObjectId("symbol:problem:a", "symbol", "problem")
+    closure = SymbolicClosureProvenance(
+        status="unique",
+        target_object_id=target,
+        target_value="1",
+        substitutions=((target, "1"),),
+        branch_count=1,
+        affected_returns=("point", "parabola"),
+    )
+    point_provenance = replace(
+        _provenance(point),
+        symbolic_closure_provenance=closure,
+    )
+
+    with pytest.raises(
+        StrategyDraftValidationError,
+        match="planner.symbolic_closure_provenance_missing",
+    ):
+        StateFinalizationService().finalize_compiled_graph(
+            (point, parabola),
+            (point_provenance,),
+            (
+                _plan(
+                    "derive_curve",
+                    source_path="$step.derive_curve.facts.point",
+                    target_path="$problem.facts.curve_point",
+                ),
+            ),
+            handle_registry=_registry(),
+        )
+
+
+def _parameter_write(
+    step_id: str = "solve_parameter",
+) -> ProjectedStateWrite:
+    object_id = MathObjectId("symbol:problem:a", "symbol", "problem")
+    logical_key = LogicalStateKey(object_id, "value", "ParameterValue")
+    slot_id = StateSlotId(logical_key, "problem")
+    return replace(
+        _write(step_id, "fact:problem:a_value"),
+        state_slot_id="symbol:problem:a.value@problem:ParameterValue",
+        runtime_type="ParameterValue",
+        object_ref=object_id.value,
+        return_name="parameter_value",
+        math_object_id=object_id,
+        logical_state_key=logical_key,
+        typed_slot_id=slot_id,
+        selected_version_id=StateVersionId(slot_id, 1),
+    )
+
+
+def _closure(
+    *,
+    status: str = "unique",
+    target: MathObjectId | None = None,
+    target_value: str = "1",
+    residuals: tuple[MathObjectId, ...] = (),
+    affected_returns: tuple[str, ...] = ("parameter_value",),
+) -> SymbolicClosureProvenance:
+    target = target or MathObjectId(
+        "symbol:problem:a", "symbol", "problem"
+    )
+    return SymbolicClosureProvenance(
+        status=status,
+        target_object_id=target,
+        target_value=target_value,
+        substitutions=((target, target_value),),
+        residual_symbol_ids=residuals,
+        branch_count=1 if status == "unique" else 2,
+        affected_returns=affected_returns,
+    )
+
+
+@pytest.mark.parametrize(
+    ("provenance_transform", "expected_code"),
+    (
+        (
+            lambda write: replace(
+                write,
+                symbolic_closure_provenance=_closure(status="ambiguous"),
+            ),
+            "planner.symbolic_closure_provenance_drift",
+        ),
+        (
+            lambda write: replace(
+                write,
+                symbolic_closure_provenance=_closure(
+                    target=MathObjectId(
+                        "symbol:problem:b", "symbol", "problem"
+                    )
+                ),
+            ),
+            "planner.contract_runtime_symbol_drift",
+        ),
+        (
+            lambda write: replace(
+                write,
+                free_symbol_ids=(
+                    MathObjectId(
+                        "symbol:problem:c", "symbol", "problem"
+                    ),
+                ),
+                symbolic_closure_provenance=_closure(),
+            ),
+            "planner.symbolic_closure_provenance_drift",
+        ),
+    ),
+)
+def test_compiled_finalizer_rejects_invalid_closure_write_invariants(
+    provenance_transform: Any,
+    expected_code: str,
+) -> None:
+    projected = _parameter_write()
+    provenance = provenance_transform(_provenance(projected))
+
+    with pytest.raises(StrategyDraftValidationError, match=expected_code):
+        StateFinalizationService().finalize_compiled_graph(
+            (projected,),
+            (provenance,),
+            (
+                _plan(
+                    projected.step_id,
+                    source_path=(
+                        f"$step.{projected.step_id}.facts.point"
+                    ),
+                    target_path="$problem.facts.a_value",
+                ),
+            ),
+            handle_registry=_registry(),
+        )
+
+
+def test_compiled_finalizer_rejects_companion_closure_signature_drift() -> None:
+    first = _write("derive_curve", "fact:problem:curve_point")
+    second = replace(
+        _write("derive_curve", "fact:problem:curve_state"),
+        return_name="parabola",
+    )
+    affected = ("point", "parabola")
+    first_provenance = replace(
+        _provenance(first),
+        symbolic_closure_provenance=_closure(
+            target_value="1-c",
+            affected_returns=affected,
+        ),
+    )
+    second_provenance = replace(
+        _provenance(second),
+        symbolic_closure_provenance=_closure(
+            target_value="2-c",
+            affected_returns=affected,
+        ),
+    )
+
+    with pytest.raises(
+        StrategyDraftValidationError,
+        match="planner.symbolic_closure_provenance_drift",
+    ):
+        StateFinalizationService().finalize_compiled_graph(
+            (first, second),
+            (first_provenance, second_provenance),
+            (
+                _plan(
+                    "derive_curve",
+                    source_path="$step.derive_curve.facts.point",
+                    target_path="$problem.facts.curve",
+                ),
+            ),
+            handle_registry=_registry(),
+        )
 
 
 def test_logical_finalizer_rejects_unknown_transition_predecessor() -> None:

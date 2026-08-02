@@ -1677,7 +1677,10 @@ class _RecipePlanCompiler:
             selector
             for selector in rule.expansion_selectors
             if (
-                not any(
+                # C3 owns the free-parameter role for Functional calls. Keep
+                # this selector only on the StepIntent compatibility path.
+                selector != "free_quadratic_parameter_if_read"
+                and not any(
                     arg_name in selected_args
                     for arg_name in expansion_selector_semantics(
                         selector

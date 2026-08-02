@@ -11,6 +11,7 @@ from typing import Callable, Iterable, Iterator
 from support.cross_scope_version_oracle import (
     CrossScopeVersionScenario,
     ModelCall,
+    ModelClosureCheckpoint,
     ModelDependency,
     ModelObject,
     ModelRetryCheckpoint,
@@ -22,7 +23,7 @@ from support.cross_scope_version_oracle import (
 )
 
 
-GENERATOR_VERSION = "c0.5/v9"
+GENERATOR_VERSION = "c0.5/v10"
 EXPANDED_SEEDS = (17, 103, 1_009, 65_537)
 
 _TOPOLOGIES = ("root", "parent_child", "siblings", "branched")
@@ -699,7 +700,7 @@ def authority_regression_scenarios() -> tuple[CrossScopeVersionScenario, ...]:
 
 
 def _parameter_value_producer_scenarios() -> tuple[CrossScopeVersionScenario, ...]:
-    """Exercise C5 ParameterValue create/projection/version/retry authority."""
+    """Exercise ParameterValue versions and C6 closure checkpoint authority."""
     capabilities = (
         "parameter_from_curve_point_on_quadratic",
         "parameter_from_expression_value",
@@ -707,7 +708,20 @@ def _parameter_value_producer_scenarios() -> tuple[CrossScopeVersionScenario, ..
         "parameter_from_segment_length",
     )
     result: list[CrossScopeVersionScenario] = []
-    for index, capability_id in enumerate(capabilities):
+    closure_mutations = (
+        "none",
+        "equivalent_target_value",
+        "target_value",
+        "branch_count",
+        "equation_source",
+        "residual_symbol",
+        "status",
+        "missing",
+        "none_second",
+    )
+    for index, (capability_id, mutation) in enumerate(
+        product(capabilities, closure_mutations)
+    ):
         key = ModelStateKey(f"parameter_{index}", "value", "ParameterValue")
         producer = ModelCall(
             "solve_parameter",
@@ -748,6 +762,7 @@ def _parameter_value_producer_scenarios() -> tuple[CrossScopeVersionScenario, ..
                 ("generator", "authority_regression"),
                 ("regression", "parameter_value_producer"),
                 ("producer_capability", capability_id),
+                ("closure_checkpoint", mutation),
                 ("topology", "branched"),
                 ("read_mode", "exact"),
                 ("retry", "committed_restore"),
@@ -755,6 +770,35 @@ def _parameter_value_producer_scenarios() -> tuple[CrossScopeVersionScenario, ..
         )
         outcome = ReferenceScopeVersionModel().evaluate(base)
         version_id = outcome.decision("solve_parameter").selected_version_id
+        expected_closure = ModelClosureCheckpoint(
+            target_value="1-c",
+            equation_sources=("curve_point",),
+            residual_symbols=("c",),
+        )
+        observed_closure = expected_closure
+        if mutation == "equivalent_target_value":
+            observed_closure = replace(observed_closure, target_value="-c+1")
+        elif mutation == "target_value":
+            observed_closure = replace(observed_closure, target_value="2-c")
+        elif mutation == "branch_count":
+            observed_closure = replace(observed_closure, branch_count=2)
+        elif mutation == "equation_source":
+            observed_closure = replace(
+                observed_closure,
+                equation_sources=("minimum_value",),
+            )
+        elif mutation == "residual_symbol":
+            observed_closure = replace(
+                observed_closure,
+                residual_symbols=("d",),
+            )
+        elif mutation == "status":
+            observed_closure = replace(
+                observed_closure,
+                status="ambiguous",
+            )
+        elif mutation == "missing":
+            observed_closure = None
         result.append(
             replace(
                 base,
@@ -765,6 +809,8 @@ def _parameter_value_producer_scenarios() -> tuple[CrossScopeVersionScenario, ..
                         (version_id,) if version_id is not None else ()
                     ),
                     provisional_call_ids=("consume_parameter",),
+                    expected_closure=expected_closure,
+                    observed_closure=observed_closure,
                 ),
                 scenario_id="",
             )

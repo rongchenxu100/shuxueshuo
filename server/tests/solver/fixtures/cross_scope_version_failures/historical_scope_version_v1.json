@@ -1,12 +1,12 @@
 {
   "format": "cross_scope_version_corpus/v1",
-  "generator_version": "c0.5/v9",
+  "generator_version": "c0.5/v10",
   "scenarios": [
     {
       "name": "sibling_private_exact_visibility",
       "source": "bounded",
       "index": 4448,
-      "scenario_id": "csv-c906261d9dd68d08",
+      "scenario_id": "csv-2ab0ee0f03615744",
       "expect_dimensions": {
         "topology": "siblings",
         "state_location": "siblings",
@@ -17,7 +17,7 @@
       "name": "parent_state_child_transition",
       "source": "bounded",
       "index": 2075,
-      "scenario_id": "csv-d39b0acc8f3f8ab3",
+      "scenario_id": "csv-1b292567e5fdc632",
       "expect_dimensions": {
         "topology": "parent_child",
         "write_mode": "transition"
@@ -27,7 +27,7 @@
       "name": "answer_object_projection_single_writer",
       "source": "bounded",
       "index": 21,
-      "scenario_id": "csv-c5ac3941baf8d3e6",
+      "scenario_id": "csv-03da7d9b6c92b6b6",
       "expect_dimensions": {
         "projection": "object+answer",
         "relationship": "duplicate"
@@ -37,7 +37,7 @@
       "name": "hidden_dependency_placement",
       "source": "bounded",
       "index": 6051,
-      "scenario_id": "csv-26e152e392d4e720",
+      "scenario_id": "csv-fce73d3bcf09d822",
       "expect_dimensions": {
         "topology": "branched",
         "dependency_kind": "hidden_semantic_role"
@@ -47,7 +47,7 @@
       "name": "transition_source_edge",
       "source": "bounded",
       "index": 6116,
-      "scenario_id": "csv-c61ba52139648f38",
+      "scenario_id": "csv-d9446a408ec8dcc9",
       "expect_dimensions": {
         "write_mode": "transition",
         "relationship": "refinement"
@@ -57,7 +57,7 @@
       "name": "provisional_retry_replacement",
       "source": "bounded",
       "index": 6001,
-      "scenario_id": "csv-7ecb633712d4ded0",
+      "scenario_id": "csv-1f56362b41c4f6ef",
       "expect_dimensions": {
         "retry": "provisional_replacement"
       }
@@ -67,7 +67,7 @@
       "source": "expanded",
       "seed": 17,
       "index": 0,
-      "scenario_id": "csv-b4e9bd49cdfd547c",
+      "scenario_id": "csv-2b148db8360feabb",
       "expect_dimensions": {
         "calls": "12"
       }
@@ -77,7 +77,7 @@
       "source": "expanded",
       "seed": 17,
       "index": 1,
-      "scenario_id": "csv-581154a5eae4f5e3",
+      "scenario_id": "csv-1e0921864558f1a6",
       "expect_dimensions": {
         "retry": "committed_restore"
       }
@@ -87,7 +87,7 @@
       "source": "expanded",
       "seed": 17,
       "index": 2,
-      "scenario_id": "csv-d379d8f2236fc8c1",
+      "scenario_id": "csv-28b53ff8e6ff12b1",
       "expect_dimensions": {
         "read_mode": "latest"
       }
@@ -97,7 +97,7 @@
       "source": "expanded",
       "seed": 17,
       "index": 3,
-      "scenario_id": "csv-25bde4c054a7705f",
+      "scenario_id": "csv-97e3d31075b8aa7b",
       "expect_dimensions": {
         "retry": "version_drift"
       }

@@ -3155,8 +3155,8 @@ def test_consumed_open_expression_answer_binding_is_dropped_for_closed_producer(
     assert effective.return_expectations["path_minimum_expression"] == (
         "open_expression"
     )
-    assert effective.return_expectations["straightened_endpoint_1"] == "open_state"
-    assert effective.return_expectations["straightened_endpoint_2"] == "open_state"
+    assert "straightened_endpoint_1" not in effective.return_expectations
+    assert "straightened_endpoint_2" not in effective.return_expectations
     assert {
         "call_id": "ii_derive_path_model",
         "action": "drop_intermediate_open_expression_answer_binding",
@@ -4678,6 +4678,9 @@ def test_parameterized_object_inherits_declared_sibling_symbol_dependency() -> N
     assert projected_point.free_symbol_refs == (
         "symbol:problem:c",
         "symbol:part:target_axis_parameter",
+    )
+    assert "symbol:part:target_axis_parameter" in (
+        projected_point.dependency_object_refs
     )
     assert projected_point.dependency_object_refs == (
         "symbol:part:target_axis_parameter",
