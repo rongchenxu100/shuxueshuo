@@ -1,0 +1,76 @@
+{
+  "meta": {
+    "id": "set-representation-enumeration-q03",
+    "outputPath": "site/problems/senior-high/sets/set-concepts-and-representation/set-representation-enumeration-q03.html",
+    "pageTitle": "辨认方程组解集的正确写法",
+    "pageDescription": "列举法专题：辨认方程组解集的正确写法。",
+    "breadcrumbTitle": "集合的表示 · 辨认方程组解集的正确写法",
+    "breadcrumbLabel": "集合的表示",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=set-concepts-and-representation&module=set-representation"
+  },
+  "problem": {
+    "source": "培训教材 · 集合的表示",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "二元方程组的解是有序数对。",
+      "items": [
+        "解集是以这个有序数对为元素的集合。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "方程组 \\(x+y=3，x-y=1\\) 的解集是：① \\(\\{2,1\\}\\)；② \\(\\{x=2,y=1\\}\\)；③ \\(\\{(2,1)\\}\\)；④ \\(\\{(1,2)\\}\\)。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "列举法",
+      "title": "确定有序数对及其外层集合",
+      "t": 0,
+      "showDiagram": false,
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "方程组为 \\(x+y=3，x-y=1\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(x=2,y=1\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "方程组的解是有序数对 \\((2,1)\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "解集为 \\(\\{(2,1)\\}\\)，选择 ③"
+        }
+      ],
+      "derive": [
+        [
+          "方程组的解",
+          "\\((2,1)\\)"
+        ],
+        [
+          "结论",
+          "解集是 \\(\\{(2,1)\\}\\)，选 ③"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 确定有序数对及其外层集合"
+  }
+}

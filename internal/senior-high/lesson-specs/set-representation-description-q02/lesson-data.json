@@ -1,0 +1,74 @@
+{
+  "meta": {
+    "id": "set-representation-description-q02",
+    "outputPath": "site/problems/senior-high/sets/set-concepts-and-representation/set-representation-description-q02.html",
+    "pageTitle": "把描述法集合改写为列举法",
+    "pageDescription": "描述法专题：把描述法集合改写为列举法。",
+    "breadcrumbTitle": "集合的表示 · 把描述法集合改写为列举法",
+    "breadcrumbLabel": "集合的表示",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=set-concepts-and-representation&module=set-representation"
+  },
+  "problem": {
+    "source": "2023 南开中学第一次月考",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "先解不等式，再与自然数集取交集。",
+      "items": []
+    },
+    "lines": [
+      {
+        "text": "用列举法表示集合 \\(A=\\{x\\mid 3x-1\\le11, x\\in\\mathbb N\\}\\)。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "描述法",
+      "title": "解条件并列举自然数",
+      "t": 0,
+      "showDiagram": false,
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "\\(3x-1\\le11\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(3x\\le12\\)，即 \\(x\\le4\\)"
+        },
+        {
+          "kind": "because",
+          "text": "\\(x\\in\\mathbb N\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(x\\in\\{0,1,2,3,4\\}\\)，所以 \\(A=\\{0,1,2,3,4\\}\\)"
+        }
+      ],
+      "derive": [
+        [
+          "\\(3x-1\\le11\\)",
+          "\\(x\\le4\\)"
+        ],
+        [
+          "\\(x\\in\\mathbb N\\)",
+          "\\(A=\\{0,1,2,3,4\\}\\)"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 解条件并列举自然数"
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "meta": {
+    "id": "set-representation-enumeration-q01",
+    "outputPath": "site/problems/senior-high/sets/set-concepts-and-representation/set-representation-enumeration-q01.html",
+    "pageTitle": "列举指定范围内的整数",
+    "pageDescription": "列举法专题：列举指定范围内的整数。",
+    "breadcrumbTitle": "集合的表示 · 列举指定范围内的整数",
+    "breadcrumbLabel": "集合的表示",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=set-concepts-and-representation&module=set-representation"
+  },
+  "problem": {
+    "source": "培训教材 · 集合的表示",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "先根据范围确定可能的整数，再用花括号逐一列出。",
+      "items": [
+        "列举时不遗漏、不重复，元素之间用逗号分隔。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "用列举法表示大于 1 且小于 6 的整数所组成的集合。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "列举法",
+      "title": "筛选并列出全部元素",
+      "t": 0,
+      "showDiagram": false,
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "\\(x\\in\\mathbb Z\\)，且 \\(1<x<6\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(x=2,3,4,5\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "所求集合为 \\(\\{2,3,4,5\\}\\)"
+        }
+      ],
+      "derive": [
+        [
+          "整数范围",
+          "\\(1<x<6\\)"
+        ],
+        [
+          "结论",
+          "\\(\\{2,3,4,5\\}\\)"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 筛选并列出全部元素"
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "meta": {
+    "id": "set-representation-description-q05",
+    "outputPath": "site/problems/senior-high/sets/set-concepts-and-representation/set-representation-description-q05.html",
+    "pageTitle": "列举有限范围内的有理数",
+    "pageDescription": "描述法专题：列举有限范围内的有理数。",
+    "breadcrumbTitle": "集合的表示 · 列举有限范围内的有理数",
+    "breadcrumbLabel": "集合的表示",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=set-concepts-and-representation&module=set-representation"
+  },
+  "problem": {
+    "source": "培训教材 · 集合的表示",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "分别列出 a、b 的有限取值，再计算所有商。",
+      "items": [
+        "集合中的相同结果只保留一次。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "用列举法表示集合 \\(\\{x\\mid x=\\frac{a}{b}, a\\in\\mathbb Z, |a|<2, b\\in\\mathbb N^*, b<3\\}\\)。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "描述法",
+      "title": "枚举参数并去重",
+      "t": 0,
+      "showDiagram": false,
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "\\(a\\in\\mathbb Z\\)，且 \\(|a|<2\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(a\\in\\{-1,0,1\\}\\)"
+        },
+        {
+          "kind": "because",
+          "text": "\\(b\\in\\mathbb N^*\\)，且 \\(b<3\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(b\\in\\{1,2\\}\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "当 \\(b=1\\) 时，\\(\\frac{a}{b}\\in\\{-1,0,1\\}\\)；当 \\(b=2\\) 时，\\(\\frac{a}{b}\\in\\{-\\frac{1}{2},0,\\frac{1}{2}\\}\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "去掉重复元素后，所求集合为 \\(\\{-1,-\\frac{1}{2},0,\\frac{1}{2},1\\}\\)"
+        }
+      ],
+      "derive": [
+        [
+          "\\(a\\in\\{-1,0,1\\},b\\in\\{1,2\\}\\)",
+          "计算所有 \\(\\frac{a}{b}\\)"
+        ],
+        [
+          "结论",
+          "\\(\\{-1,-\\frac{1}{2},0,\\frac{1}{2},1\\}\\)"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 枚举参数并去重"
+  }
+}

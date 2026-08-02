@@ -1,0 +1,60 @@
+{
+  "meta": {
+    "id": "set-practice-q03",
+    "outputPath": "site/problems/senior-high/sets/set-concepts-and-representation/set-practice-q03.html",
+    "pageTitle": "实战练习 3：由元素属于集合求参数",
+    "pageDescription": "先由元素属于集合求出参数候选值，再用集合中元素的互异性进行筛选。",
+    "breadcrumbTitle": "集合实战练习 · 第 3 题",
+    "breadcrumbLabel": "实战练习",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=set-concepts-and-representation&module=practice"
+  },
+  "problem": {
+    "source": "培训教材 · 实战演练",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "先由 \\(1\\in A\\) 求候选值，再逐一代回检查集合中元素的互异性。",
+      "items": [
+        "由于 \\(1\\ne2\\)，只需分别令另外两个代数式等于 1；",
+        "候选值必须代回原集合；若三个代数式出现重复值，就不符合题意。"
+      ]
+    },
+    "lines": [
+      {"text": "若 \\(1\\in\\{2,a^2-a-1,a^2+1\\}\\)，则 \\(a=\\)（　）。"},
+      {"text": "A. \\(0\\) 或 \\(-1\\)　　B. \\(0\\) 或 \\(1\\)　　C. \\(-1\\) 或 \\(2\\)　　D. \\(0\\) 或 \\(2\\)"}
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "分类讨论",
+      "title": "先求候选值，再检查元素互异性",
+      "t": 0,
+      "showDiagram": false,
+      "table": {
+        "caption": "候选值代回原集合逐一筛选",
+        "headers": ["元素 1 的来源", "候选值", "代回后的集合", "互异性检查", "结论"],
+        "rows": [
+          ["\\(a^2-a-1=1\\)", "\\(a=-1\\)", "\\(\\{2,1,2\\}\\)", "元素 2 重复", "舍去"],
+          ["\\(a^2-a-1=1\\)", "\\(a=2\\)", "\\(\\{2,1,5\\}\\)", "三个元素互不相同", "保留"],
+          ["\\(a^2+1=1\\)", "\\(a=0\\)", "\\(\\{2,-1,1\\}\\)", "三个元素互不相同", "保留"]
+        ]
+      },
+      "reasoning": [
+        {"kind": "because", "text": "\\(1\\in\\{2,a^2-a-1,a^2+1\\}\\)，且 \\(1\\ne2\\)"},
+        {"kind": "therefore", "text": "\\(a^2-a-1=1\\) 或 \\(a^2+1=1\\)"},
+        {"kind": "therefore", "text": "候选值为 \\(a=-1,2,0\\)"},
+        {"kind": "because", "text": "当 \\(a=-1\\) 时，三个代数式的值为 \\(2,1,2\\)，元素 2 重复"},
+        {"kind": "therefore", "text": "舍去 \\(a=-1\\)，保留 \\(a=0\\) 与 \\(a=2\\)"},
+        {"kind": "therefore", "text": "选择 D"}
+      ],
+      "derive": [
+        ["由 \\(1\\in A\\)", "得到候选值 \\(a=-1,0,2\\)"],
+        ["互异性筛选", "\\(a=-1\\) 时集合写成 \\(\\{2,1,2\\}\\)，不符合题意"],
+        ["结论", "\\(a=0\\) 或 \\(a=2\\)，选择 D"]
+      ]
+    }
+  ],
+  "policies": {"s1": {"movable": false, "range": [0, 0]}},
+  "stepLabels": {"s1": "1 求候选值并检查互异性"}
+}

@@ -25,6 +25,7 @@ Create or update a **高中函数** interactive lesson. Treat HTML as a compiled
 ## Lesson Workflow
 
 1. Read the relevant files under `references/` plus `internal/senior-high/knowledge-points/function-methods.md`.
+   When creating or revising a learning-topic aggregate, also read `internal/senior-high/knowledge-points/learning-topic-page-contract.md`.
 2. Create `01_problem.md`, `02_solution.md`, and `03_visual_steps.md`.
 3. Create `function-spec.json`, `function-decorations.json`, and `lesson-data.json` only for an interactive lesson.
 4. Choose the fewest teaching steps and interactions that expose the decisive mathematics. A direct enumeration, substitution, or algebraic deduction may need only one step; do not force a diagram or slider.
@@ -73,8 +74,13 @@ node tools/build-function-page.mjs internal/senior-high/lesson-specs/<problem-id
 - Graphs explain; algebra, monotonicity, finite enumeration, or endpoint comparison proves.
 - Keep one mathematical action per step, but do not split a short argument merely to increase the step count. For multiple-choice questions, prefer one consistently structured step per option when each option needs independent checking.
 - Use concise explanatory phrases to define symbols and identify the purpose of a calculation, then use standard mathematical notation for the derivation. Avoid both prose-heavy derivations and unexplained chains of symbols.
+- For every dependent algebraic argument, author an explicit logical chain: state the mathematical condition with `because`, transform it on the following `therefore` line, and end with the requested object or answer. Do not replace the proof with terse label-value pairs such as “范围 / 结果” or with fragments such as “∵ 解方程组 ∴ ...”. Treat `derive` rows as a compact recap, never as a substitute for the student-visible reasoning chain.
+- Use `∵` only for a known condition or established fact and `∴` only for a conclusion that follows from preceding lines. When a conclusion becomes the premise of the next transformation, start a new `because` line if that dependency would otherwise be ambiguous.
 - Typeset mathematical expressions structurally: fractions, radicals, exponents, subscripts, intervals, set relations, and units must align as mathematics rather than appear as flattened text.
+- Always write fractions with explicit braced arguments, for example `\\frac{a}{b}` and `\\frac{1}{2}`. Never use TeX shorthand such as `\\frac ab`, `\\frac12`, or `\\frac6{2-x}` because the shared parser requires two braced groups. After compilation, verify that every `.math-fraction` has non-empty numerator and denominator content in both the aggregate page and detail page.
 - Add a concise `problem.keyPoints` block when a problem has a reusable decision framework, multiple easy-to-miss conditions, or a method students should retain. Do not add it mechanically to direct-substitution or one-step exercises, and never reveal the answer in it.
+- Learning-topic assessment pages must reuse the same typed `answerSchema` and answer controls as worked examples. Do not publish a final practice page as a static list of links when students are expected to answer online. Preserve the original item order, but change a broken multiple-choice item into a written-response item when the supplied choices do not contain the complete verified answer.
+- Match explanatory visuals to the mathematical structure: use a table for a small finite case split or enumeration, a number line for interval and parameter-range conclusions, and a Venn diagram only when region inclusion, exclusion, overlap, or counting is part of the proof. Pure algebra stays text-only. Never add all three merely for visual variety.
 - Define all temporary symbols locally and retain the symbols used in the problem.
 - Keep JSON declarative and free of HTML.
 
@@ -101,6 +107,7 @@ node tools/build-function-page.mjs internal/senior-high/lesson-specs/<problem-id
 - SVG contains no `NaN`, `Infinity`, or `undefined`.
 - Original-problem figures pass the hard legibility gate in `references/function-visualization-principles.md` at both aggregate-page and problem-card sizes. Axes, tick labels, variables, dimensions, and option numbers must not depend on browser zoom.
 - Mobile layout has no page-level horizontal overflow.
+- At widths up to `720px`, render multiple-choice options in one column. Long mathematical options must never share a row or overlap adjacent choices; verify wrapping and option-card height on the aggregate page.
 - Published catalog links resolve to canonical non-`drafts` paths; unreviewed lessons are absent from the public catalog.
 
 ## 基于审校反馈的执行规则

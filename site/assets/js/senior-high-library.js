@@ -3,6 +3,13 @@
   if (!model) {
     return;
   }
+  const {
+    canonicalRational,
+    normalizeExactMathExpression,
+    parseFiniteSetValues,
+    parseRelationSequence,
+    parseVariableDomainExclusions,
+  } = model;
 
   const elements = {
     chapterNav: document.querySelector("#chapter-nav"),
@@ -16,6 +23,7 @@
     sort: document.querySelector("#sort-filter"),
     grid: document.querySelector("#problem-grid"),
     worksheet: document.querySelector("#worksheet-view"),
+    learning: document.querySelector("#learning-view"),
     pagination: document.querySelector("#pagination"),
   };
 
@@ -39,7 +47,7 @@
 
   async function loadCatalog() {
     try {
-      const response = await fetch("../data/senior-high-catalog.json?v=3");
+      const response = await fetch("../data/senior-high-catalog.json?v=11");
       if (!response.ok) {
         throw new Error("高中题库目录加载失败");
       }
@@ -61,6 +69,10 @@
     return (catalog.collections || []).find((collection) => collection.id === collectionId);
   }
 
+  function getLearningTopic(topicId) {
+    return (catalog.learningTopics || []).find((topic) => topic.id === topicId);
+  }
+
   function getCollectionsForSection(section) {
     return (section?.collectionIds || [])
       .map(getCollection)
@@ -73,17 +85,41 @@
       .reduce((total, collection) => total + model.collectionProblemCount(collection), 0);
   }
 
+  function topicProblemCount(topic) {
+    return (topic?.modules || []).reduce((total, module) => {
+      if (module.type === "knowledge") return total + (module.examples || []).length;
+      return total + (module.items || []).filter((item) => item.status === "published").length;
+    }, 0);
+  }
+
+  function learningCountForChapter(chapterId) {
+    return (catalog.learningTopics || [])
+      .filter((topic) => chapterId === "all" || topic.chapterId === chapterId)
+      .reduce((total, topic) => total + topicProblemCount(topic), 0);
+  }
+
   function countChapter(chapterId) {
     const standaloneCount = model.publishedProblems(catalog).filter((problem) => (
       chapterId === "all" || problem.chapterId === chapterId
     )).length;
-    return standaloneCount + collectionCountForChapter(chapterId);
+    return standaloneCount + collectionCountForChapter(chapterId) + learningCountForChapter(chapterId);
   }
 
   function countSection(chapterId, sectionId) {
     return model.publishedProblems(catalog).filter((problem) => (
       problem.chapterId === chapterId && (sectionId === "all" || problem.sectionId === sectionId)
     )).length;
+  }
+
+  function sectionItemCount(section) {
+    if (section.presentation === "worksheet") {
+      return getCollectionsForSection(section)
+        .reduce((sum, item) => sum + model.collectionProblemCount(item), 0);
+    }
+    if (section.presentation === "learning") {
+      return topicProblemCount(getLearningTopic(section.topicId));
+    }
+    return countSection(state.chapter, section.id);
   }
 
   function renderChapters() {
@@ -93,8 +129,10 @@
     ];
     elements.chapterNav.innerHTML = chapters.map((chapter) => {
       const sections = chapter.sections || [];
-      const worksheetSections = sections.filter((section) => section.presentation === "worksheet");
-      const hasChildren = worksheetSections.length > 0;
+      const nestedSections = sections.filter((section) => (
+        section.presentation === "worksheet" || section.presentation === "learning"
+      ));
+      const hasChildren = nestedSections.length > 0;
       const active = state.chapter === chapter.id && state.section === "all";
       const parentActive = state.chapter === chapter.id && state.section !== "all";
       const expanded = hasChildren
@@ -102,37 +140,62 @@
         && (expandedChapters.has(chapter.id) || state.chapter === chapter.id);
       return `
         <div class="senior-library-chapter-group">
-          <button
-            class="senior-library-chapter${active ? " is-active" : ""}${parentActive ? " is-parent-active" : ""}"
-            type="button"
-            data-chapter="${escapeHtml(chapter.id)}"
-            ${active ? 'aria-current="page"' : ""}
-            ${hasChildren ? `aria-expanded="${expanded}"` : ""}
-          >
-            <span
-              class="senior-library-chapter-chevron${hasChildren ? "" : " is-empty"}"
-              ${hasChildren ? "data-chapter-toggle" : ""}
-              aria-hidden="true"
-            >${expanded ? "⌄" : "›"}</span>
-            <span class="senior-library-chapter-name">${escapeHtml(chapter.label)}</span>
-            <span class="senior-library-chapter-count">${countChapter(chapter.id)}</span>
-          </button>
+          <div class="senior-library-chapter-row">
+            ${hasChildren ? `
+              <button
+                class="senior-library-chapter-toggle"
+                type="button"
+                data-chapter-toggle="${escapeHtml(chapter.id)}"
+                aria-expanded="${expanded}"
+                aria-label="${expanded ? "收起" : "展开"}${escapeHtml(chapter.label)}子目录"
+              >${expanded ? "⌄" : "›"}</button>
+            ` : '<span class="senior-library-chapter-toggle is-empty" aria-hidden="true"></span>'}
+            <button
+              class="senior-library-chapter${active ? " is-active" : ""}${parentActive ? " is-parent-active" : ""}"
+              type="button"
+              data-chapter="${escapeHtml(chapter.id)}"
+              ${active ? 'aria-current="page"' : ""}
+            >
+              <span class="senior-library-chapter-name">${escapeHtml(chapter.label)}</span>
+              <span class="senior-library-chapter-count">${countChapter(chapter.id)}</span>
+            </button>
+          </div>
           ${hasChildren && expanded ? `
             <div class="senior-library-subchapters">
-              ${worksheetSections.map((section) => {
-                const collections = getCollectionsForSection(section);
+              ${nestedSections.map((section) => {
                 const selected = state.chapter === chapter.id && state.section === section.id;
+                const topic = section.presentation === "learning"
+                  ? getLearningTopic(section.topicId)
+                  : null;
                 return `
-                  <button
-                    class="senior-library-subchapter${selected ? " is-active" : ""}"
-                    type="button"
-                    data-subchapter="${escapeHtml(section.id)}"
-                    data-parent-chapter="${escapeHtml(chapter.id)}"
-                    ${selected ? 'aria-current="page"' : ""}
-                  >
-                    <span>${escapeHtml(section.label)}</span>
-                    <span>${collections.reduce((sum, item) => sum + model.collectionProblemCount(item), 0)}</span>
-                  </button>
+                  <div class="senior-library-subchapter-group">
+                    <button
+                      class="senior-library-subchapter${selected ? " is-active" : ""}"
+                      type="button"
+                      data-subchapter="${escapeHtml(section.id)}"
+                      data-parent-chapter="${escapeHtml(chapter.id)}"
+                      ${selected && state.module === "overview" ? 'aria-current="page"' : ""}
+                    >
+                      <span>${escapeHtml(section.label)}</span>
+                      <span>${sectionItemCount(section)}</span>
+                    </button>
+                    ${selected && topic ? `
+                      <div class="senior-library-modules" aria-label="${escapeHtml(section.label)}子目录">
+                        ${topic.modules.map((module) => `
+                          <button
+                            class="senior-library-module${state.module === module.id ? " is-active" : ""}"
+                            type="button"
+                            data-learning-module="${escapeHtml(module.id)}"
+                            data-learning-topic="${escapeHtml(topic.id)}"
+                            ${state.module === module.id ? 'aria-current="page"' : ""}
+                          >
+                            <span>${escapeHtml(module.label)}</span>
+                            ${module.status === "pending" ? "<small>待补</small>" : ""}
+                          </button>
+                        `).join("")}
+                      </div>
+                    ` : ""}
+                  </div>
                 `;
               }).join("")}
             </div>
@@ -287,6 +350,24 @@
     `;
   }
 
+  function renderLearningTopicEntry(topic) {
+    const moduleCount = (topic.modules || []).length;
+    return `
+      <a
+        class="senior-library-collection-entry senior-learning-topic-entry"
+        href="${escapeHtml(topicHref(topic, "overview"))}"
+        data-learning-topic-entry="${escapeHtml(topic.id)}"
+      >
+        <div>
+          <p>学习专题</p>
+          <h2>${escapeHtml(topic.title)}</h2>
+          <span>知识导图 · ${moduleCount} 个学习模块 · ${topicProblemCount(topic)} 道已发布例题与练习</span>
+        </div>
+        <span class="senior-library-collection-action">进入专题&nbsp;→</span>
+      </a>
+    `;
+  }
+
   function renderWorksheetLine(line, problem, lineIndex) {
     if (line.figures) {
       const figureLayoutClass = line.figures.length === 1
@@ -400,6 +481,671 @@
     });
   }
 
+  function topicHref(topic, moduleId) {
+    const url = new URL(window.location.href);
+    url.search = model.stateToSearch({
+      ...model.DEFAULT_STATE,
+      chapter: topic.chapterId,
+      section: topic.sectionId,
+      module: moduleId,
+    });
+    return url.href;
+  }
+
+  function renderLearningLine(line) {
+    if (line.figureHtml) {
+      return `<div class="senior-learning-problem-figure">${line.figureHtml}</div>`;
+    }
+    const lineHtml = line.html || escapeHtml(line.text);
+    const optionGroup = model.splitWorksheetOptions(lineHtml);
+    if (!optionGroup) {
+      return `<div class="senior-learning-problem-line">${lineHtml}</div>`;
+    }
+    return `
+      ${optionGroup.stemHtml ? `<div class="senior-learning-problem-line">${optionGroup.stemHtml}</div>` : ""}
+      <div class="senior-learning-options${optionGroup.stacked ? " is-stacked" : ""}">
+        ${optionGroup.options.map((option) => `
+          <div class="senior-learning-option">
+            <span>${option.label}.</span>
+            <span>${option.html}</span>
+          </div>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  function renderLearningLessonCard(topic, lesson, meta = {}) {
+    return `
+      <article class="senior-learning-example-card">
+        <div class="senior-learning-example-heading">
+          <div>
+            <p>${escapeHtml(meta.eyebrow || "例题精讲")}</p>
+            <h3>${escapeHtml(lesson.title)}</h3>
+          </div>
+          ${meta.number ? `<span class="senior-learning-question-number">${meta.number}</span>` : ""}
+        </div>
+        ${meta.summary ? `<p class="senior-learning-example-summary">${escapeHtml(meta.summary)}</p>` : ""}
+        <div class="senior-learning-problem">
+          ${(lesson.problem?.lines || []).map(renderLearningLine).join("")}
+        </div>
+        <a
+          class="senior-learning-solution-link"
+          href="${publicAssetUrl(lesson.solutionPath)}"
+          target="_blank"
+          rel="noopener noreferrer"
+        >查看分步解析&nbsp;↗</a>
+      </article>
+    `;
+  }
+
+  function renderInteractiveProblem(example) {
+    const schema = example.answerSchema;
+    let relationSlotIndex = 0;
+    return (example.lesson.problem?.lines || []).map((line) => {
+      if (schema.type === "relation-sequence") {
+        const lineHtml = line.html || escapeHtml(line.text);
+        const inlineBlanks = lineHtml.replace(/_{3,}/g, () => {
+          relationSlotIndex += 1;
+          return `<button
+            class="senior-learning-inline-blank${relationSlotIndex === 1 ? " is-active" : ""}"
+            type="button"
+            data-relation-slot
+            data-relation-index="${relationSlotIndex - 1}"
+            aria-label="第 ${relationSlotIndex} 空，未填写"
+          ><span aria-hidden="true"></span></button>`;
+        });
+        return `<div class="senior-learning-problem-line">${inlineBlanks}</div>`;
+      }
+      if (schema.type !== "single-choice") return renderLearningLine(line);
+      const optionGroup = learningOptionGroup(example, line.html || escapeHtml(line.text));
+      if (!optionGroup) return renderLearningLine(line);
+      return optionGroup.stemHtml
+        ? `<div class="senior-learning-problem-line">${optionGroup.stemHtml}</div>`
+        : "";
+    }).join("");
+  }
+
+  function learningOptionGroup(example, lineHtml) {
+    return example.answerSchema.choiceStyle === "ordinal"
+      ? model.splitOrdinalOptions(lineHtml)
+      : model.splitWorksheetOptions(lineHtml);
+  }
+
+  function learningChoiceOptions(example) {
+    return (example.lesson.problem?.lines || []).flatMap((line) => {
+      const optionGroup = learningOptionGroup(example, line.html || escapeHtml(line.text));
+      return optionGroup?.options || [];
+    });
+  }
+
+  function mathKeyboardKeys(tokens) {
+    const definitions = {
+      x: { label: "x", insert: "x" },
+      y: { label: "y", insert: "y" },
+      a: { label: "a", insert: "a" },
+      m: { label: "m", insert: "m" },
+      real: { label: "ℝ", insert: "ℝ" },
+      in: { label: "∈", insert: "∈" },
+      "not-in": { label: "∉", insert: "∉" },
+      "not-equals": { label: "≠", insert: "≠" },
+      "set-braces": { label: "{ }", insert: "{}", cursorBack: 1 },
+      "set-minus": { label: "∖", insert: "∖" },
+      comma: { label: "，", insert: "," },
+      negative: { label: "−", insert: "-" },
+      fraction: { label: "分数", insert: "/" },
+      interval: { label: "( )", insert: "()", cursorBack: 1 },
+      brackets: { label: "[ ]", insert: "[]", cursorBack: 1 },
+      infinity: { label: "∞", insert: "∞" },
+      semicolon: { label: "；", insert: ";" },
+      pipe: { label: "|", insert: "|" },
+      equals: { label: "=", insert: "=" },
+      "greater-equal": { label: "≥", insert: "≥" },
+      union: { label: "∪", insert: "∪" },
+      caret: { label: "x²", insert: "^2" },
+    };
+    return tokens.flatMap((token) => {
+      if (token === "digits") {
+        return Array.from({ length: 10 }, (_, value) => ({
+          label: String(value),
+          insert: String(value),
+        }));
+      }
+      return definitions[token] ? [definitions[token]] : [];
+    });
+  }
+
+  function renderMathKeyboard(tokens = []) {
+    const keys = mathKeyboardKeys(tokens);
+    return `
+      <div class="senior-learning-math-keyboard" role="toolbar" aria-label="数学输入键盘">
+        ${keys.map((key) => (
+          `<button
+            type="button"
+            data-math-key
+            data-math-insert="${escapeHtml(key.insert)}"
+            ${key.cursorBack ? `data-cursor-back="${key.cursorBack}"` : ""}
+          >${["ℕ", "ℤ", "ℚ", "ℝ", "ℂ"].includes(key.label)
+            ? `<span class="math-blackboard">${escapeHtml(key.label)}</span>`
+            : escapeHtml(key.label)}</button>`
+        )).join("")}
+        <button type="button" data-math-key data-math-action="backspace" aria-label="删除前一个字符">⌫</button>
+        <button type="button" data-math-key data-math-action="clear">清空</button>
+      </div>
+    `;
+  }
+
+  function renderAnswerInteraction(example) {
+    const schema = example.answerSchema;
+    if (schema.type === "single-choice") {
+      return `
+        <div class="senior-learning-answer" data-answer-root data-answer-type="single-choice" data-expected="${escapeHtml(schema.expected)}">
+          <div class="senior-learning-choice-grid" role="group" aria-label="选择答案">
+            ${learningChoiceOptions(example).map((option) => `
+              <button
+                class="senior-learning-choice"
+                type="button"
+                data-answer-choice="${escapeHtml(option.label)}"
+                aria-pressed="false"
+              >
+                <span>${escapeHtml(option.label)}</span>
+                <span>${option.html}</span>
+              </button>
+            `).join("")}
+          </div>
+          <div class="senior-learning-answer-actions">
+            <button class="senior-learning-submit" type="button" data-answer-submit>提交答案</button>
+            <p class="senior-learning-answer-feedback" data-answer-feedback aria-live="polite"></p>
+          </div>
+        </div>
+      `;
+    }
+
+    if (schema.type === "relation-sequence") {
+      return `
+        <div
+          class="senior-learning-answer is-inline-relation"
+          data-answer-root
+          data-answer-type="relation-sequence"
+          data-expected="${escapeHtml(schema.expected.join("|"))}"
+        >
+          <input type="hidden" data-answer-field value="">
+          <div class="senior-learning-relation-toolbar" role="toolbar" aria-label="填写关系符号">
+            <span data-relation-status>选择题目中的第 1 空</span>
+            <div class="senior-learning-relation-options" role="group" aria-label="关系符号">
+              <button type="button" data-relation-key="∈">
+                <span class="senior-learning-relation-glyph" aria-hidden="true">∈</span>
+                <span>属于</span>
+              </button>
+              <button type="button" data-relation-key="∉">
+                <span class="math-notin senior-learning-relation-glyph" aria-hidden="true"><svg viewBox="0 0 18 18" focusable="false"><path d="M15 3H9C5.3 3 3 5.5 3 9s2.3 6 6 6h6M3.7 9h10.8M4.5 16L14 2"/></svg></span>
+                <span>不属于</span>
+              </button>
+            </div>
+          </div>
+          <div class="senior-learning-answer-actions">
+            <button class="senior-learning-submit" type="button" data-answer-submit>提交答案</button>
+            <p class="senior-learning-answer-feedback" data-answer-feedback aria-live="polite"></p>
+          </div>
+        </div>
+      `;
+    }
+
+    if (schema.type === "multipart-exact" && schema.layout === "per-part") {
+      return `
+        <div
+          class="senior-learning-answer is-expression is-multipart"
+          data-answer-root
+          data-answer-type="multipart-exact"
+          data-answer-layout="per-part"
+          data-expected-json="${escapeHtml(JSON.stringify(schema.expected.map((part) => part.aliases)))}"
+        >
+          <span class="senior-learning-answer-prefix is-multipart-prefix" aria-hidden="true">答：</span>
+          <div class="senior-learning-multipart-list">
+            ${schema.expected.map((part, index) => `
+              <div class="senior-learning-multipart-row" data-answer-part="${index}">
+                <div class="senior-learning-multipart-prompt">
+                  <span>${escapeHtml(part.label || `（${index + 1}）`)}</span>
+                  <span>
+                    ${part.promptHtml || escapeHtml(part.prompt || "")}
+                    ${part.note ? `
+                      <span class="senior-learning-symbol-note">
+                        <button
+                          type="button"
+                          class="senior-learning-symbol-note-button"
+                          aria-label="查看特殊符号提示"
+                          aria-describedby="learning-symbol-note-${escapeHtml(example.lesson.id)}-${index}"
+                        >i</button>
+                        <span
+                          class="senior-learning-symbol-note-popover"
+                          id="learning-symbol-note-${escapeHtml(example.lesson.id)}-${index}"
+                          role="tooltip"
+                        >${escapeHtml(part.note)}</span>
+                      </span>
+                    ` : ""}
+                  </span>
+                </div>
+                <label class="senior-learning-multipart-field">
+                  <span class="sr-only">${escapeHtml(part.label || `第 ${index + 1} 小题`)}的答案</span>
+                  <textarea
+                    rows="2"
+                    inputmode="text"
+                    autocomplete="off"
+                    data-answer-field
+                    data-answer-index="${index}"
+                    aria-label="${escapeHtml(part.label || `第 ${index + 1} 小题`)}的答案"
+                    placeholder="${escapeHtml(schema.input.placeholder)}"
+                  ></textarea>
+                </label>
+                <p class="senior-learning-part-feedback" data-answer-part-feedback aria-live="polite"></p>
+              </div>
+            `).join("")}
+          </div>
+          ${schema.input.mode === "math-expression" ? `
+            <div class="senior-learning-multipart-symbols">
+              <button
+                class="senior-learning-symbol-toggle"
+                type="button"
+                data-symbol-toggle
+                aria-expanded="false"
+                aria-label="打开数学符号面板"
+                title="数学符号"
+              >∑</button>
+            </div>
+            ${renderMathKeyboard(schema.input.keyboard)}
+          ` : ""}
+          <div class="senior-learning-answer-actions">
+            <button class="senior-learning-submit" type="button" data-answer-submit>提交全部答案</button>
+            <p class="senior-learning-answer-feedback" data-answer-feedback aria-live="polite"></p>
+          </div>
+        </div>
+      `;
+    }
+
+    if (
+      schema.type === "variable-domain"
+      || schema.type === "finite-set-values"
+      || schema.type === "integer"
+      || schema.type === "exact-expression"
+      || schema.type === "multipart-exact"
+    ) {
+      const expected = schema.type === "variable-domain"
+        ? schema.expected.excludedValues
+        : schema.type === "multipart-exact"
+          ? schema.expected.map((part) => part.aliases[0])
+        : Array.isArray(schema.expected)
+          ? schema.expected
+          : [schema.expected];
+      const rows = schema.type === "multipart-exact" ? Math.max(2, schema.expected.length) : 2;
+      return `
+        <div
+          class="senior-learning-answer is-expression"
+          data-answer-root
+          data-answer-type="${escapeHtml(schema.type)}"
+          data-expected="${escapeHtml(expected.join("|"))}"
+          ${schema.type === "multipart-exact"
+            ? `data-expected-json="${escapeHtml(JSON.stringify(schema.expected.map((part) => part.aliases)))}"`
+            : ""}
+          ${schema.variable ? `data-answer-variable="${escapeHtml(schema.variable)}"` : ""}
+        >
+          <div class="senior-learning-answer-line">
+            <span class="senior-learning-answer-prefix" aria-hidden="true">答：</span>
+            <label class="senior-learning-expression-answer">
+              <span class="sr-only">${escapeHtml(schema.input.placeholder)}</span>
+              <textarea
+                rows="${rows}"
+                inputmode="${schema.type === "integer" ? "numeric" : "text"}"
+                autocomplete="off"
+                data-answer-field
+                aria-label="${escapeHtml(schema.input.placeholder)}"
+              ></textarea>
+            </label>
+            <button
+              class="senior-learning-symbol-toggle"
+              type="button"
+              data-symbol-toggle
+              aria-expanded="false"
+              aria-label="打开数学符号面板"
+              title="数学符号"
+            >∑</button>
+          </div>
+          ${renderMathKeyboard(schema.input.keyboard)}
+          <div class="senior-learning-answer-actions">
+            <button class="senior-learning-submit" type="button" data-answer-submit>提交答案</button>
+            <p class="senior-learning-answer-feedback" data-answer-feedback aria-live="polite"></p>
+          </div>
+        </div>
+      `;
+    }
+    return "";
+  }
+
+  function renderInteractiveLearningExample(example, index) {
+    const hintId = `learning-hint-${escapeHtml(example.lesson.id)}`;
+    return `
+      <article class="senior-learning-example" id="learning-example-${escapeHtml(example.lesson.id)}">
+        <div class="senior-learning-example-title-row">
+          <span class="senior-learning-example-index">${escapeHtml(example.numberLabel || `练习 ${index + 1}`)}</span>
+          <div class="senior-learning-hint">
+            <button
+              class="senior-learning-hint-button"
+              type="button"
+              data-hint-toggle
+              aria-expanded="false"
+              aria-controls="${hintId}"
+              aria-label="查看本题提示"
+            >?</button>
+            <div class="senior-learning-hint-popover" id="${hintId}" role="tooltip">
+              ${example.hints.map((hint, hintIndex) => `
+                <p><strong>提示 ${hintIndex + 1}</strong>${escapeHtml(hint)}</p>
+              `).join("")}
+            </div>
+          </div>
+        </div>
+        <div class="senior-learning-example-problem">
+          ${renderInteractiveProblem(example)}
+        </div>
+        ${renderAnswerInteraction(example)}
+        <a
+          class="senior-learning-solution-link"
+          href="${publicAssetUrl(example.lesson.solutionPath)}"
+          target="_blank"
+          rel="noopener noreferrer"
+        >查看解析&nbsp;↗</a>
+      </article>
+    `;
+  }
+
+  function groupLearningExamples(examples) {
+    const groups = new Map();
+    examples.forEach((example, index) => {
+      const group = example.group || "例题";
+      if (!groups.has(group)) groups.set(group, []);
+      groups.get(group).push({ example, index });
+    });
+    return [...groups.entries()];
+  }
+
+  function learningGroupSlug(group) {
+    return ({
+      "列举法": "enumeration",
+      "描述法": "description",
+      "区间表示法": "interval",
+      "Venn 图法": "venn",
+    })[group] || String(group).toLowerCase().replace(/\s+/g, "-");
+  }
+
+  function renderSetMindMap(topic) {
+    const href = (moduleId) => escapeHtml(topicHref(topic, moduleId));
+    return `
+      <div class="senior-learning-map-shell">
+        <svg class="senior-learning-map-svg" viewBox="0 0 1120 640" role="group" aria-labelledby="set-map-title set-map-desc">
+          <title id="set-map-title">集合的概念和表示知识导图</title>
+          <desc id="set-map-desc">集合的概念分为集合、空集、元素及元素的确定性、互异性和无序性；元素与集合的关系分为属于和不属于；集合的表示包括列举法、描述法、区间表示法和 Venn 图法；另设实战练习入口。</desc>
+          <g class="map-root">
+            <rect x="42" y="270" width="298" height="100" rx="20"></rect>
+            <text x="191" y="313" text-anchor="middle">集合的概念</text>
+            <text x="191" y="348" text-anchor="middle">与表示</text>
+          </g>
+          <a href="${href("set-concept")}" data-learning-module="set-concept" class="map-branch-link" aria-label="进入集合的概念">
+            <g class="map-tree is-coral">
+              <path class="map-line" d="M340 320 C430 320 406 98 500 98"></path>
+              <g class="map-node map-node-primary">
+                <rect x="500" y="68" width="178" height="60" rx="13"></rect>
+                <text x="589" y="106" text-anchor="middle">集合的概念</text>
+              </g>
+              <path class="map-twig" d="M678 98 H716 M716 98 V42 H755 M716 98 V152 H755"></path>
+              <text class="map-label" x="762" y="49">集合</text>
+              <path class="map-twig" d="M817 42 H873"></path>
+              <text class="map-label" x="882" y="49">空集</text>
+              <text class="map-label" x="762" y="159">元素</text>
+              <path class="map-twig" d="M817 152 H858"></path>
+              <text class="map-label" x="866" y="159">元素性质</text>
+              <path class="map-twig" d="M968 152 H997 M997 152 V112 H1022 M997 152 H1022 M997 152 V192 H1022"></path>
+              <text class="map-leaf" x="1030" y="119">互异性</text>
+              <text class="map-leaf" x="1030" y="159">确定性</text>
+              <text class="map-leaf" x="1030" y="199">无序性</text>
+            </g>
+          </a>
+          <a href="${href("element-set-relation")}" data-learning-module="element-set-relation" class="map-branch-link" aria-label="进入元素和集合的关系">
+            <g class="map-tree is-blue">
+              <path class="map-line" d="M340 320 C416 320 426 306 500 306"></path>
+              <g class="map-node map-node-primary">
+                <rect x="500" y="276" width="250" height="60" rx="13"></rect>
+                <text x="625" y="314" text-anchor="middle">元素和集合的关系</text>
+              </g>
+              <path class="map-twig" d="M750 306 H806 M806 306 V280 H846 M806 306 V334 H846"></path>
+              <text class="map-leaf" x="855" y="287">属于</text>
+              <text class="map-leaf" x="855" y="341">不属于</text>
+            </g>
+          </a>
+          <a href="${href("set-representation")}" data-learning-module="set-representation" class="map-branch-link" aria-label="进入集合的表示">
+            <g class="map-tree is-gold">
+              <path class="map-line" d="M340 320 C424 320 420 456 500 456"></path>
+              <g class="map-node map-node-primary">
+                <rect x="500" y="426" width="178" height="60" rx="13"></rect>
+                <text x="589" y="464" text-anchor="middle">集合的表示</text>
+              </g>
+              <path class="map-twig" d="M678 456 H726 M726 456 V398 H770 M726 456 V438 H770 M726 456 V478 H770 M726 456 V518 H770"></path>
+              <text class="map-leaf" x="779" y="405">列举法</text>
+              <text class="map-leaf" x="779" y="445">描述法</text>
+              <text class="map-leaf" x="779" y="485">区间表示法</text>
+              <text class="map-leaf" x="779" y="525">Venn 图法</text>
+            </g>
+          </a>
+          <a href="${href("practice")}" data-learning-module="practice" class="map-branch-link" aria-label="进入实战练习">
+            <g class="map-tree is-green">
+              <path class="map-line" d="M340 320 C420 320 410 584 500 584"></path>
+              <g class="map-node map-node-practice">
+                <rect x="500" y="554" width="178" height="60" rx="13"></rect>
+                <text x="589" y="592" text-anchor="middle">实战练习</text>
+              </g>
+            </g>
+          </a>
+        </svg>
+        <div class="senior-learning-map-mobile" aria-label="知识导图移动端导航">
+          ${topic.mapNodes.map((node) => `
+            <a href="${escapeHtml(topicHref(topic, node.moduleId))}" data-learning-module="${escapeHtml(node.moduleId)}">
+              <strong>${escapeHtml(node.label)}</strong>
+              <span>${node.children.map(escapeHtml).join(" · ")}</span>
+            </a>
+          `).join("")}
+        </div>
+      </div>
+    `;
+  }
+
+  function renderLearningOverview(topic) {
+    return `
+      <article class="senior-learning-topic">
+        <header class="senior-learning-hero">
+          <p class="senior-learning-kicker">${escapeHtml(topic.eyebrow || "知识专题")}</p>
+          <h2>${escapeHtml(topic.title)}</h2>
+          <div class="senior-learning-intro">
+            ${topic.introductionHtml.map((line) => `<p>${line}</p>`).join("")}
+          </div>
+        </header>
+        <section class="senior-learning-section" aria-labelledby="knowledge-map-heading">
+          <div class="senior-learning-section-heading">
+            <p>KNOWLEDGE MAP</p>
+            <h2 id="knowledge-map-heading">知识导航</h2>
+          </div>
+          ${renderSetMindMap(topic)}
+        </section>
+        <section class="senior-learning-section" aria-labelledby="topic-modules-heading">
+          <div class="senior-learning-section-heading">
+            <p>LEARNING PATH</p>
+            <h2 id="topic-modules-heading">按模块学习</h2>
+          </div>
+          <div class="senior-learning-module-grid">
+            ${topic.modules.map((module, index) => `
+              <a
+                class="senior-learning-module-card${module.status === "pending" ? " is-pending" : ""}"
+                href="${escapeHtml(topicHref(topic, module.id))}"
+                data-learning-module="${escapeHtml(module.id)}"
+              >
+                <span class="senior-learning-module-index">${String(index + 1).padStart(2, "0")}</span>
+                <div>
+                  <h3>${escapeHtml(module.label)}</h3>
+                  <p>${escapeHtml(module.description)}</p>
+                </div>
+                <span class="senior-learning-module-state">${module.status === "pending" ? "待补充" : "进入学习 →"}</span>
+              </a>
+            `).join("")}
+          </div>
+        </section>
+      </article>
+    `;
+  }
+
+  function renderKnowledgeModule(topic, module) {
+    if (module.status === "pending") {
+      return `
+        <article class="senior-learning-topic">
+          <header class="senior-learning-module-hero is-pending">
+            <p class="senior-learning-kicker">知识模块 · 待补充</p>
+            <h2>${escapeHtml(module.label)}</h2>
+            <p>${escapeHtml(module.description)}</p>
+          </header>
+          <section class="senior-learning-pending-card">
+            <h3>已确认的知识结构</h3>
+            <div class="senior-learning-known-points">
+              ${(module.knownPoints || []).map((point) => `<span>${escapeHtml(point)}</span>`).join("")}
+            </div>
+            <p>当前图片未包含这一模块的核心知识与对应例题。页面暂不自行补写内容，待教材资料补齐后发布。</p>
+          </section>
+          <a class="senior-learning-back-link" href="${escapeHtml(topicHref(topic, "overview"))}" data-learning-module="overview">← 返回知识导图</a>
+        </article>
+      `;
+    }
+    const renderKnowledgeItems = (blocks) => blocks.map((block) => `
+      <article class="senior-learning-knowledge-item">
+        <h4>${escapeHtml(block.title)}</h4>
+        ${block.bodyHtml.map((line) => `<p>${line}</p>`).join("")}
+      </article>
+    `).join("");
+    const renderKnowledgeVisual = (group) => group.visual === "venn-classification"
+      ? `
+        <figure class="senior-learning-knowledge-visual set-figure is-classification">
+          <svg viewBox="0 0 600 330" role="img" aria-label="Venn 图表示四边形的简单分类">
+            <rect class="set-figure-universe" x="34" y="24" width="532" height="270" rx="4"></rect>
+            <ellipse class="set-figure-set" cx="300" cy="150" rx="190" ry="112"></ellipse>
+            <ellipse class="set-figure-set" cx="250" cy="142" rx="92" ry="72"></ellipse>
+            <ellipse class="set-figure-set" cx="350" cy="142" rx="92" ry="72"></ellipse>
+            <text x="48" y="278">四边形</text>
+            <text x="214" y="251">平行四边形</text>
+            <text x="190" y="148">菱形</text>
+            <text x="378" y="148">矩形</text>
+            <text x="270" y="148">正方形</text>
+          </svg>
+          <figcaption>Venn 图表示四边形的简单分类</figcaption>
+        </figure>
+      `
+      : "";
+    return `
+      <article class="senior-learning-topic">
+        <header class="senior-learning-module-hero">
+          <p class="senior-learning-kicker">知识模块</p>
+          <h2>${escapeHtml(module.label)}</h2>
+          <p>${escapeHtml(module.description)}</p>
+        </header>
+        <section class="senior-learning-section" aria-labelledby="core-knowledge-heading">
+          <div class="senior-learning-section-heading">
+            <p>CORE KNOWLEDGE</p>
+            <h2 id="core-knowledge-heading">核心知识</h2>
+          </div>
+          <div class="senior-learning-knowledge-groups">
+            ${(module.knowledgeGroups || []).map((group) => `
+              <article id="knowledge-${escapeHtml(group.category)}" class="senior-learning-knowledge-group is-${escapeHtml(group.category)} has-${module.knowledgeBlocks.filter(
+                (block) => block.category === group.category,
+              ).length}-items">
+                <div class="senior-learning-knowledge-group-heading">
+                  <span>${escapeHtml(group.number)}</span>
+                  <div>
+                    <p>${escapeHtml(group.eyebrow)}</p>
+                    <h3>${escapeHtml(group.title)}</h3>
+                    <a class="senior-learning-exercise-anchor" href="#exercises-${escapeHtml(group.category)}">
+                      <span>对应练习</span>
+                      <strong>${module.examples.filter((example) => learningGroupSlug(example.group) === group.category).length} 题</strong>
+                      <span aria-hidden="true">↓</span>
+                    </a>
+                  </div>
+                </div>
+                <div class="senior-learning-knowledge-items">
+                  ${renderKnowledgeItems(module.knowledgeBlocks.filter(
+                    (block) => block.category === group.category,
+                  ))}
+                </div>
+                ${renderKnowledgeVisual(group)}
+              </article>
+            `).join("")}
+          </div>
+        </section>
+        <section class="senior-learning-section" aria-labelledby="worked-examples-heading">
+          <div class="senior-learning-section-heading">
+            <h2 id="worked-examples-heading">例题精讲</h2>
+          </div>
+          <div class="senior-learning-exercise-sheet">
+            ${groupLearningExamples(module.examples).map(([group, entries]) => `
+              <section id="exercises-${escapeHtml(learningGroupSlug(group))}" class="senior-learning-example-group" aria-labelledby="learning-example-group-${escapeHtml(group)}">
+                <h3 id="learning-example-group-${escapeHtml(group)}">${escapeHtml(group)}</h3>
+                <div class="senior-learning-example-list">
+                  ${entries.map(({ example, index }) => renderInteractiveLearningExample(example, index)).join("")}
+                </div>
+                <a class="senior-learning-return-anchor" href="#knowledge-${escapeHtml(learningGroupSlug(group))}">↑ 返回对应知识点</a>
+              </section>
+            `).join("")}
+          </div>
+        </section>
+        <section class="senior-learning-summary">
+          <p>归纳总结</p>
+          <div>${module.summaryHtml}</div>
+        </section>
+      </article>
+    `;
+  }
+
+  function renderAssessmentModule(topic, module) {
+    return `
+      <article class="senior-learning-topic">
+        <header class="senior-learning-module-hero is-assessment">
+          <p class="senior-learning-kicker">综合检测</p>
+          <h2>${escapeHtml(module.label)}</h2>
+          <p>${escapeHtml(module.description)}</p>
+        </header>
+        <div class="senior-learning-example-list is-assessment">
+          ${module.items.map((item) => {
+            if (item.status === "pending") {
+              return `
+                <article class="senior-learning-example-card is-pending">
+                  <div class="senior-learning-example-heading">
+                    <div>
+                      <p>第 ${item.number} 题</p>
+                      <h3>${escapeHtml(item.title)}</h3>
+                    </div>
+                    <span class="senior-learning-question-number">${item.number}</span>
+                  </div>
+                  <p class="senior-learning-pending-note">${escapeHtml(item.note)}</p>
+                </article>
+              `;
+            }
+            return renderInteractiveLearningExample(item, item.number - 1);
+          }).join("")}
+        </div>
+      </article>
+    `;
+  }
+
+  function renderLearningTopic(topic) {
+    const module = topic.modules.find((item) => item.id === state.module);
+    if (state.module === "overview" || !module) {
+      elements.learning.innerHTML = renderLearningOverview(topic);
+      return;
+    }
+    elements.learning.innerHTML = module.type === "assessment"
+      ? renderAssessmentModule(topic, module)
+      : renderKnowledgeModule(topic, module);
+  }
+
   function renderEmpty() {
     return `
       <div class="senior-library-empty">
@@ -438,7 +1184,36 @@
       expandedChapters.add(state.chapter);
     }
     const worksheetCollection = model.collectionForState(catalog, state);
+    const learningTopic = model.learningTopicForState(catalog, state);
     renderChapters();
+
+    if (learningTopic) {
+      const activeModule = learningTopic.modules.find((item) => item.id === state.module);
+      elements.title.textContent = state.module === "overview"
+        ? learningTopic.title
+        : activeModule?.label || learningTopic.title;
+      elements.count.textContent = state.module === "overview"
+        ? "知识专题"
+        : activeModule?.status === "pending"
+          ? "待补充"
+          : activeModule?.type === "assessment"
+            ? `${activeModule.items.length} 题`
+            : `${activeModule.examples.length} 道例题`;
+      elements.filters.hidden = true;
+      elements.sectionTabs.hidden = true;
+      elements.sectionTabs.innerHTML = "";
+      elements.collectionTabs.hidden = true;
+      elements.collectionTabs.innerHTML = "";
+      elements.grid.hidden = true;
+      elements.grid.innerHTML = "";
+      elements.worksheet.hidden = true;
+      elements.worksheet.innerHTML = "";
+      elements.pagination.hidden = true;
+      elements.pagination.innerHTML = "";
+      elements.learning.hidden = false;
+      renderLearningTopic(learningTopic);
+      return;
+    }
 
     if (worksheetCollection) {
       elements.title.textContent = worksheetCollection.title;
@@ -452,6 +1227,8 @@
       elements.pagination.hidden = true;
       elements.pagination.innerHTML = "";
       elements.worksheet.hidden = false;
+      elements.learning.hidden = true;
+      elements.learning.innerHTML = "";
       renderWorksheet(worksheetCollection);
       return;
     }
@@ -470,12 +1247,22 @@
       && state.source === "all"
       && (state.chapter === "all" || collection.chapterId === state.chapter)
     ));
+    const overviewTopics = (catalog.learningTopics || []).filter((topic) => (
+      state.section === "all"
+      && state.difficulty === "all"
+      && state.source === "all"
+      && (state.chapter === "all" || topic.chapterId === state.chapter)
+    ));
     const collectionProblemCount = overviewCollections.reduce(
       (total, collection) => total + model.collectionProblemCount(collection),
       0,
     );
+    const learningProblemCount = overviewTopics.reduce(
+      (total, topic) => total + topicProblemCount(topic),
+      0,
+    );
     elements.title.textContent = chapter?.label || "全部题目";
-    elements.count.textContent = `${results.length + collectionProblemCount} 道`;
+    elements.count.textContent = `${results.length + collectionProblemCount + learningProblemCount} 道`;
     elements.filters.hidden = false;
     elements.collectionTabs.hidden = true;
     elements.collectionTabs.innerHTML = "";
@@ -485,13 +1272,286 @@
     renderSections();
     elements.worksheet.hidden = true;
     elements.worksheet.innerHTML = "";
+    elements.learning.hidden = true;
+    elements.learning.innerHTML = "";
     elements.grid.hidden = false;
-    const overviewMarkup = overviewCollections.map(renderCollectionEntry);
+    const overviewMarkup = [
+      ...overviewTopics.map(renderLearningTopicEntry),
+      ...overviewCollections.map(renderCollectionEntry),
+    ];
     const problemMarkup = pageInfo.items.map(renderProblem);
     elements.grid.innerHTML = overviewMarkup.length || problemMarkup.length
       ? [...overviewMarkup, ...problemMarkup].join("")
       : renderEmpty();
     renderPagination(pageInfo);
+  }
+
+  function answerPreviewMarkup(rawValue) {
+    const escaped = escapeHtml(String(rawValue ?? "").trim());
+    if (!escaped) return "";
+    return escaped.replace(/(-?\d+)\/(-?\d+)/g, (
+      _match,
+      numerator,
+      denominator,
+    ) => `
+      <span class="math-fraction">
+        <span class="math-numerator">${numerator}</span>
+        <span class="math-denominator">${denominator}</span>
+      </span>
+    `);
+  }
+
+  function setAnswerFeedback(root, message, status) {
+    const feedback = root.querySelector("[data-answer-feedback]");
+    feedback.textContent = message;
+    root.classList.remove("is-correct", "is-incorrect");
+    root.classList.add(status === "correct" ? "is-correct" : "is-incorrect");
+  }
+
+  function evaluateLearningAnswer(root) {
+    const answerType = root.dataset.answerType;
+    if (answerType === "single-choice") {
+      const selected = root.querySelector("[data-answer-choice].is-selected");
+      if (!selected) {
+        setAnswerFeedback(root, "请先选择一个答案。", "incorrect");
+        return;
+      }
+      const correct = selected.dataset.answerChoice === root.dataset.expected;
+      setAnswerFeedback(
+        root,
+        correct ? "回答正确。你可以继续查看解析，确认判断依据。" : "暂时不对。可以检查对象的归属标准是否明确。",
+        correct ? "correct" : "incorrect",
+      );
+      return;
+    }
+
+    const fields = [...root.querySelectorAll("[data-answer-field]")];
+    const rawValues = fields.map((field) => field.value.trim());
+    if (
+      answerType !== "relation-sequence"
+      && root.dataset.answerLayout !== "per-part"
+      && rawValues.some((value) => value === "")
+    ) {
+      setAnswerFeedback(root, "请填写完整后再提交。", "incorrect");
+      return;
+    }
+
+    if (answerType === "variable-domain" || answerType === "finite-set-values") {
+      const values = answerType === "variable-domain"
+        ? parseVariableDomainExclusions(rawValues[0], root.dataset.answerVariable || "x")
+        : parseFiniteSetValues(rawValues[0]);
+      if (!values) {
+        setAnswerFeedback(
+          root,
+          answerType === "variable-domain"
+            ? "暂时无法识别这个条件。可以使用 x、≠、∈、ℝ 和集合符号书写。"
+            : "暂时无法识别这个集合。请用逗号分隔元素，必要时加上大括号。",
+          "incorrect",
+        );
+        return;
+      }
+      const uniqueValues = new Set(values);
+      if (uniqueValues.size !== values.length) {
+        setAnswerFeedback(root, "表达式中出现了重复的值，请检查后再提交。", "incorrect");
+        return;
+      }
+      const expected = root.dataset.expected.split("|").map(canonicalRational);
+      const correct = values.length === expected.length
+        && expected.every((value) => uniqueValues.has(value));
+      setAnswerFeedback(
+        root,
+        correct
+          ? "回答正确。这个表达式与标准答案表示同一个结果。"
+          : answerType === "variable-domain"
+            ? "答案尚不完整或包含多余限制，请重新检查哪些参数会使元素相同。"
+            : "答案尚不完整或包含多余元素，请重新检查各种参数情形。",
+        correct ? "correct" : "incorrect",
+      );
+      return;
+    }
+
+    if (answerType === "relation-sequence") {
+      const slots = relationSlotsFor(root);
+      const emptyCount = slots.filter((slot) => !slot.dataset.relationValue).length;
+      if (emptyCount > 0) {
+        setAnswerFeedback(root, `还有 ${emptyCount} 个空没有填写。`, "incorrect");
+        return;
+      }
+      const values = parseRelationSequence(rawValues[0]);
+      if (!values) {
+        setAnswerFeedback(
+          root,
+          "暂时无法识别这些关系符号。请依次使用 ∈、∉，符号之间可用逗号分隔。",
+          "incorrect",
+        );
+        return;
+      }
+      const expected = root.dataset.expected.split("|");
+      const correct = values.length === expected.length
+        && expected.every((value, index) => values[index] === value);
+      setAnswerFeedback(
+        root,
+        correct
+          ? "回答正确。七个关系符号及顺序都正确。"
+          : "暂时不对。请按题号顺序重新检查每个数所属的数集。",
+        correct ? "correct" : "incorrect",
+      );
+      return;
+    }
+
+    if (answerType === "exact-expression" || answerType === "multipart-exact") {
+      if (answerType === "multipart-exact") {
+        let expectedParts = [];
+        try {
+          expectedParts = JSON.parse(root.dataset.expectedJson || "[]")
+            .map((aliases) => aliases.map(normalizeExactMathExpression));
+        } catch {
+          expectedParts = [];
+        }
+        if (root.dataset.answerLayout === "per-part") {
+          const missing = rawValues
+            .map((value, index) => (value ? null : index + 1))
+            .filter(Boolean);
+          if (missing.length > 0) {
+            root.querySelectorAll("[data-answer-part]").forEach((row, index) => {
+              row.classList.toggle("is-incomplete", missing.includes(index + 1));
+              row.classList.remove("is-correct", "is-incorrect");
+              row.querySelector("[data-answer-part-feedback]").textContent = "";
+            });
+            setAnswerFeedback(root, `还有（${missing.join("）（")}）未作答。`, "incorrect");
+            return;
+          }
+          const partResults = rawValues.map((value, index) => (
+            expectedParts[index]?.includes(normalizeExactMathExpression(value)) || false
+          ));
+          root.querySelectorAll("[data-answer-part]").forEach((row, index) => {
+            row.classList.remove("is-incomplete");
+            row.classList.toggle("is-correct", partResults[index]);
+            row.classList.toggle("is-incorrect", !partResults[index]);
+            row.querySelector("[data-answer-part-feedback]").textContent = partResults[index]
+              ? "正确"
+              : "需要修改";
+          });
+          const correctCount = partResults.filter(Boolean).length;
+          const allCorrect = correctCount === partResults.length;
+          setAnswerFeedback(
+            root,
+            allCorrect ? `${partResults.length} 个小题全部回答正确。` : `已答对 ${correctCount} 项，请修改标记出的答案。`,
+            allCorrect ? "correct" : "incorrect",
+          );
+          return;
+        }
+        const actual = normalizeExactMathExpression(rawValues[0]);
+        const actualParts = actual.split(";");
+        const correct = actualParts.length === expectedParts.length
+          && actualParts.every((value, index) => expectedParts[index].includes(value));
+        setAnswerFeedback(
+          root,
+          correct ? "回答正确。" : "暂时不对。请按小题顺序用分号分隔各个答案。",
+          correct ? "correct" : "incorrect",
+        );
+        return;
+      }
+      const actual = normalizeExactMathExpression(rawValues[0]);
+      const expected = root.dataset.expected
+        .split("|")
+        .map(normalizeExactMathExpression);
+      const correct = expected.includes(actual);
+      setAnswerFeedback(
+        root,
+        correct ? "回答正确。" : "暂时不对。请检查集合符号、元素顺序或端点是否正确。",
+        correct ? "correct" : "incorrect",
+      );
+      return;
+    }
+
+    const values = rawValues.map(canonicalRational);
+    if (values.some((value) => value == null)) {
+      setAnswerFeedback(root, "有一个值无法识别。分数可以写成 1/4 这样的形式。", "incorrect");
+      return;
+    }
+
+    if (answerType === "integer") {
+      const correct = values[0] === canonicalRational(root.dataset.expected);
+      setAnswerFeedback(
+        root,
+        correct ? "回答正确。" : "暂时不对。注意先化简相同的对象，再计算不同元素的个数。",
+        correct ? "correct" : "incorrect",
+      );
+      return;
+    }
+
+  }
+
+  function insertMathKey(input, key, cursorBack = 0) {
+    const start = input.selectionStart ?? input.value.length;
+    const end = input.selectionEnd ?? input.value.length;
+    if (key === "clear") {
+      input.value = "";
+    } else if (key === "backspace") {
+      if (start !== end) {
+        input.setRangeText("", start, end, "end");
+      } else if (start > 0) {
+        input.setRangeText("", start - 1, start, "end");
+      }
+    } else {
+      input.setRangeText(key, start, end, "end");
+      if (cursorBack > 0) {
+        const cursor = Math.max(0, input.selectionStart - cursorBack);
+        input.setSelectionRange(cursor, cursor);
+      }
+    }
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    input.focus();
+  }
+
+  function relationSlotsFor(element) {
+    return [...(element.closest(".senior-learning-example")
+      ?.querySelectorAll("[data-relation-slot]") || [])];
+  }
+
+  function activateRelationSlot(slot) {
+    const article = slot.closest(".senior-learning-example");
+    const slots = relationSlotsFor(slot);
+    slots.forEach((item) => item.classList.toggle("is-active", item === slot));
+    const status = article?.querySelector("[data-relation-status]");
+    if (status) status.textContent = `正在填写第 ${Number(slot.dataset.relationIndex) + 1} 空`;
+    slot.focus();
+  }
+
+  function syncRelationAnswer(article) {
+    const slots = [...article.querySelectorAll("[data-relation-slot]")];
+    const root = article.querySelector('[data-answer-type="relation-sequence"]');
+    const field = root?.querySelector("[data-answer-field]");
+    if (field) field.value = slots.map((slot) => slot.dataset.relationValue || "").join(",");
+    root?.classList.remove("is-correct", "is-incorrect");
+    const feedback = root?.querySelector("[data-answer-feedback]");
+    if (feedback) feedback.textContent = "";
+  }
+
+  function fillRelationSlot(slot, relation) {
+    const article = slot.closest(".senior-learning-example");
+    const slots = relationSlotsFor(slot);
+    const currentIndex = slots.indexOf(slot);
+    slot.dataset.relationValue = relation;
+    slot.innerHTML = relation === "∉"
+      ? '<span class="math-notin" role="img" aria-label="不属于"><svg viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M15 3H9C5.3 3 3 5.5 3 9s2.3 6 6 6h6M3.7 9h10.8M4.5 16L14 2"/></svg></span>'
+      : '<span aria-hidden="true">∈</span>';
+    slot.setAttribute(
+      "aria-label",
+      `第 ${currentIndex + 1} 空，已填${relation === "∉" ? "不属于" : "属于"}`,
+    );
+    syncRelationAnswer(article);
+    const next = slots.slice(currentIndex + 1).find((item) => !item.dataset.relationValue)
+      || slots.find((item) => !item.dataset.relationValue);
+    if (next) {
+      activateRelationSlot(next);
+    } else {
+      slots.forEach((item) => item.classList.remove("is-active"));
+      const status = article.querySelector("[data-relation-status]");
+      if (status) status.textContent = "七个空已填写，可逐空点击修改";
+      slot.focus();
+    }
   }
 
   function setState(patch, options = {}) {
@@ -504,15 +1564,120 @@
   }
 
   document.addEventListener("click", (event) => {
+    const hintButton = event.target.closest("[data-hint-toggle]");
+    const answerChoice = event.target.closest("[data-answer-choice]");
+    const answerSubmit = event.target.closest("[data-answer-submit]");
+    const mathKey = event.target.closest("[data-math-key]");
+    const symbolToggle = event.target.closest("[data-symbol-toggle]");
+    const relationSlot = event.target.closest("[data-relation-slot]");
+    const relationKey = event.target.closest("[data-relation-key]");
+    if (!hintButton) {
+      elements.learning.querySelectorAll(".senior-learning-hint.is-open").forEach((hint) => {
+        hint.classList.remove("is-open");
+        hint.querySelector("[data-hint-toggle]")?.setAttribute("aria-expanded", "false");
+      });
+    }
+    if (!symbolToggle && !mathKey) {
+      elements.learning.querySelectorAll(".senior-learning-math-keyboard.is-visible").forEach((keyboard) => {
+        if (keyboard.closest("[data-answer-root]")?.contains(event.target)) return;
+        keyboard.classList.remove("is-visible");
+        keyboard.closest("[data-answer-root]")
+          ?.querySelector("[data-symbol-toggle]")
+          ?.setAttribute("aria-expanded", "false");
+      });
+    }
+    if (hintButton) {
+      const expanded = hintButton.getAttribute("aria-expanded") === "true";
+      hintButton.setAttribute("aria-expanded", String(!expanded));
+      hintButton.closest(".senior-learning-hint")?.classList.toggle("is-open", !expanded);
+      return;
+    }
+    if (answerChoice) {
+      const root = answerChoice.closest("[data-answer-root]");
+      root.querySelectorAll("[data-answer-choice]").forEach((choice) => {
+        const selected = choice === answerChoice;
+        choice.classList.toggle("is-selected", selected);
+        choice.setAttribute("aria-pressed", String(selected));
+      });
+      root.classList.remove("is-correct", "is-incorrect");
+      root.querySelector("[data-answer-feedback]").textContent = "";
+      return;
+    }
+    if (relationSlot) {
+      activateRelationSlot(relationSlot);
+      return;
+    }
+    if (relationKey) {
+      const slots = relationSlotsFor(relationKey);
+      const activeSlot = slots.find((slot) => slot.classList.contains("is-active"))
+        || slots.find((slot) => !slot.dataset.relationValue);
+      if (activeSlot) fillRelationSlot(activeSlot, relationKey.dataset.relationKey);
+      return;
+    }
+    if (symbolToggle) {
+      const root = symbolToggle.closest("[data-answer-root]");
+      const keyboard = root.querySelector(".senior-learning-math-keyboard");
+      const expanded = symbolToggle.getAttribute("aria-expanded") === "true";
+      symbolToggle.setAttribute("aria-expanded", String(!expanded));
+      keyboard?.classList.toggle("is-visible", !expanded);
+      if (!expanded) {
+        (root.querySelector("[data-answer-field].is-active")
+          || root.querySelector("[data-answer-field]"))?.focus();
+      }
+      return;
+    }
+    if (answerSubmit) {
+      const root = answerSubmit.closest("[data-answer-root]");
+      root.querySelector(".senior-learning-math-keyboard")?.classList.remove("is-visible");
+      root.querySelector("[data-symbol-toggle]")?.setAttribute("aria-expanded", "false");
+      evaluateLearningAnswer(root);
+      return;
+    }
+    if (mathKey) {
+      const root = mathKey.closest("[data-answer-root]");
+      const input = root.querySelector("[data-answer-field].is-active")
+        || root.querySelector("[data-answer-field]");
+      if (input) {
+        insertMathKey(
+          input,
+          mathKey.dataset.mathAction || mathKey.dataset.mathInsert || "",
+          Number.parseInt(mathKey.dataset.cursorBack || "0", 10),
+        );
+      }
+      return;
+    }
     const chapterButton = event.target.closest("[data-chapter]");
     const subchapterButton = event.target.closest("[data-subchapter]");
     const collectionLink = event.target.closest("[data-collection]");
     const worksheetCollectionButton = event.target.closest("[data-worksheet-collection]");
+    const learningModuleLink = event.target.closest("[data-learning-module]");
+    const learningTopicEntry = event.target.closest("[data-learning-topic-entry]");
     const chapterToggle = event.target.closest("[data-chapter-toggle]");
     const sectionButton = event.target.closest("[data-section]");
     const pageButton = event.target.closest("[data-page]");
     if (worksheetCollectionButton) {
       setState({ collection: worksheetCollectionButton.dataset.worksheetCollection, page: 1 });
+    } else if (learningTopicEntry) {
+      event.preventDefault();
+      const topic = getLearningTopic(learningTopicEntry.dataset.learningTopicEntry);
+      if (topic) {
+        expandedChapters.add(topic.chapterId);
+        collapsedChapters.delete(topic.chapterId);
+        setState({
+          chapter: topic.chapterId,
+          section: topic.sectionId,
+          collection: "all",
+          module: "overview",
+          page: 1,
+        });
+      }
+    } else if (learningModuleLink) {
+      event.preventDefault();
+      setState({
+        module: learningModuleLink.dataset.learningModule,
+        collection: "all",
+        page: 1,
+      });
     } else if (collectionLink) {
       event.preventDefault();
       const collection = getCollection(collectionLink.dataset.collection);
@@ -533,11 +1698,12 @@
         chapter: subchapterButton.dataset.parentChapter,
         section: subchapterButton.dataset.subchapter,
         collection: "all",
+        module: "overview",
         page: 1,
       });
     } else if (chapterToggle) {
-      const chapterId = chapterButton.dataset.chapter;
-      if (chapterButton.getAttribute("aria-expanded") === "true") {
+      const chapterId = chapterToggle.dataset.chapterToggle;
+      if (chapterToggle.getAttribute("aria-expanded") === "true") {
         expandedChapters.delete(chapterId);
         collapsedChapters.add(chapterId);
       } else {
@@ -548,17 +1714,69 @@
     } else if (chapterButton) {
       const chapterId = chapterButton.dataset.chapter;
       if (chapterId !== "all" && getChapter(chapterId)?.sections.some(
-        (section) => section.presentation === "worksheet",
+        (section) => section.presentation === "worksheet" || section.presentation === "learning",
       )) {
         expandedChapters.add(chapterId);
         collapsedChapters.delete(chapterId);
       }
-      setState({ chapter: chapterId, section: "all", collection: "all", page: 1 });
+      setState({
+        chapter: chapterId,
+        section: "all",
+        collection: "all",
+        module: "all",
+        page: 1,
+      });
     } else if (sectionButton) {
-      setState({ section: sectionButton.dataset.section, collection: "all", page: 1 });
+      setState({
+        section: sectionButton.dataset.section,
+        collection: "all",
+        module: "all",
+        page: 1,
+      });
     } else if (pageButton && !pageButton.disabled) {
       setState({ page: Number.parseInt(pageButton.dataset.page, 10) });
     }
+  });
+
+  elements.learning.addEventListener("focusin", (event) => {
+    const field = event.target.closest("[data-answer-field]");
+    if (!field) return;
+    const root = field.closest("[data-answer-root]");
+    root.querySelectorAll("[data-answer-field]").forEach((input) => {
+      input.classList.toggle("is-active", input === field);
+    });
+    const keyboard = root.querySelector(".senior-learning-math-keyboard");
+    if (keyboard) {
+      keyboard.classList.add("is-visible");
+      root.querySelector("[data-symbol-toggle]")?.setAttribute("aria-expanded", "true");
+    }
+  });
+  elements.learning.addEventListener("input", (event) => {
+    const field = event.target.closest("[data-answer-field]");
+    if (!field) return;
+    const root = field.closest("[data-answer-root]");
+    const preview = root.querySelector("[data-answer-preview]");
+    if (preview) preview.innerHTML = answerPreviewMarkup(field.value);
+    root.classList.remove("is-correct", "is-incorrect");
+    root.querySelector("[data-answer-feedback]").textContent = "";
+  });
+  elements.learning.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+    const hint = event.target.closest(".senior-learning-hint");
+    if (hint) {
+      hint.classList.remove("is-open");
+      const button = hint.querySelector("[data-hint-toggle]");
+      button?.setAttribute("aria-expanded", "false");
+      button?.focus();
+      return;
+    }
+    const root = event.target.closest("[data-answer-root]");
+    const keyboard = root?.querySelector(".senior-learning-math-keyboard.is-visible");
+    if (!keyboard) return;
+    keyboard.classList.remove("is-visible");
+    const button = root.querySelector("[data-symbol-toggle]");
+    button?.setAttribute("aria-expanded", "false");
+    button?.focus();
   });
 
   elements.difficulty.addEventListener("change", () => {

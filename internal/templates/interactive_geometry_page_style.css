@@ -449,7 +449,8 @@ body {
   font-size: 12px;
   font-weight: 800;
   line-height: 1.4;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .answer-chip.show {
@@ -619,6 +620,19 @@ svg {
 .derive-line strong {
   color: var(--accent);
   margin-right: 8px;
+}
+
+.derive-logic-symbol {
+  display: inline-block;
+  min-width: 1.35em;
+  color: var(--accent);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.12em;
+  font-weight: 800;
+}
+
+.derive-logic-symbol.is-result {
+  margin-left: 2px;
 }
 
 .derive-ref {

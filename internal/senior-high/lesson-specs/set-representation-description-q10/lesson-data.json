@@ -1,0 +1,100 @@
+{
+  "meta": {
+    "id": "set-representation-description-q10",
+    "outputPath": "site/problems/senior-high/sets/set-concepts-and-representation/set-representation-description-q10.html",
+    "pageTitle": "按新定义运算列举集合",
+    "pageDescription": "描述法专题：按新定义运算列举集合。",
+    "breadcrumbTitle": "集合的表示 · 按新定义运算列举集合",
+    "breadcrumbLabel": "集合的表示",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=set-concepts-and-representation&module=set-representation"
+  },
+  "problem": {
+    "source": "培训教材 · 集合的表示",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "把 A、B 中元素的所有搭配代入 2a-b。",
+      "items": [
+        "结果相同的数在集合中只保留一次。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "若 \\(A=\\{1,2,3\\},B=\\{3,5\\}\\)，用列举法表示 \\(A*B=\\{2a-b\\mid a\\in A,b\\in B\\}\\)。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "描述法",
+      "title": "列出全部运算结果并去重",
+      "t": 0,
+      "showDiagram": false,
+      "table": {
+        "headers": [
+          "a",
+          "b=3 时的 2a-b",
+          "b=5 时的 2a-b"
+        ],
+        "rows": [
+          [
+            "1",
+            "-1",
+            "-3"
+          ],
+          [
+            "2",
+            "1",
+            "-1"
+          ],
+          [
+            "3",
+            "3",
+            "1"
+          ]
+        ]
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "当 \\(a=1,2,3\\)，\\(b=3,5\\) 时，需要计算全部六种 \\(2a-b\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "所得结果依次为 \\(-1,-3,1,-1,3,1\\)"
+        },
+        {
+          "kind": "because",
+          "text": "集合中的相同元素只保留一次"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(A*B=\\{-3,-1,1,3\\}\\)"
+        }
+      ],
+      "derive": [
+        [
+          "所有结果",
+          "\\(-1,-3,1,-1,3,1\\)"
+        ],
+        [
+          "结论",
+          "\\(A*B=\\{-3,-1,1,3\\}\\)"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 列出全部运算结果并去重"
+  }
+}

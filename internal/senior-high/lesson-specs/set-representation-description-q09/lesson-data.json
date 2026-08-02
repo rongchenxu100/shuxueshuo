@@ -1,0 +1,106 @@
+{
+  "meta": {
+    "id": "set-representation-description-q09",
+    "outputPath": "site/problems/senior-high/sets/set-concepts-and-representation/set-representation-description-q09.html",
+    "pageTitle": "按乘积条件统计有序数对",
+    "pageDescription": "描述法专题：按乘积条件统计有序数对。",
+    "breadcrumbTitle": "集合的表示 · 按乘积条件统计有序数对",
+    "breadcrumbLabel": "集合的表示",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=set-concepts-and-representation&module=set-representation"
+  },
+  "problem": {
+    "source": "培训教材 · 集合的表示",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "B 的元素是有序数对，(x,y) 与 (y,x) 通常不同。",
+      "items": [
+        "集合不大时枚举所有情况；集合较大时先枚举部分情况，从中发现规律后再计数。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "已知 \\(A=\\{1,2,4,5,6\\}\\)，\\(B=\\{(x,y)\\mid x\\in A,y\\in A,xy\\in A\\}\\)，求集合 B 的元素个数。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "描述法",
+      "title": "枚举所有符合条件的有序数对",
+      "t": 0,
+      "showDiagram": false,
+      "table": {
+        "headers": [
+          "x",
+          "可取的 y",
+          "个数"
+        ],
+        "rows": [
+          [
+            "1",
+            "1,2,4,5,6",
+            "5"
+          ],
+          [
+            "2",
+            "1,2",
+            "2"
+          ],
+          [
+            "4",
+            "1",
+            "1"
+          ],
+          [
+            "5",
+            "1",
+            "1"
+          ],
+          [
+            "6",
+            "1",
+            "1"
+          ]
+        ]
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "\\(B\\) 的元素是满足 \\(x,y\\in A\\) 且 \\(xy\\in A\\) 的有序数对"
+        },
+        {
+          "kind": "therefore",
+          "text": "固定 \\(x=1,2,4,5,6\\) 时，符合条件的 \\(y\\) 的个数依次为 \\(5,2,1,1,1\\)"
+        },
+        {
+          "kind": "because",
+          "text": "不同的 \\(x\\) 或 \\(y\\) 产生不同的有序数对"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(|B|=5+2+1+1+1=10\\)"
+        }
+      ],
+      "derive": [
+        [
+          "合计",
+          "\\(5+2+1+1+1=10\\)"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 枚举所有符合条件的有序数对"
+  }
+}

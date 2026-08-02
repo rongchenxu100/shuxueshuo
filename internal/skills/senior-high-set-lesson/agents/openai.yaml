@@ -1,0 +1,4 @@
+interface:
+  display_name: "高中集合互动课"
+  short_description: "构建高中集合知识专题、在线练习聚合页与数学推导详情页面"
+  default_prompt: "Use $senior-high-set-lesson to turn these high-school set materials into a structured learning topic with interactive exercises."

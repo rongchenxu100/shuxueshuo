@@ -1,0 +1,89 @@
+{
+  "meta": {
+    "id": "set-practice-q01",
+    "outputPath": "site/problems/senior-high/sets/set-concepts-and-representation/set-practice-q01.html",
+    "pageTitle": "实战练习 1：判断对象能否构成集合",
+    "pageDescription": "根据集合的确定性判断四组对象中哪一组能够构成集合。",
+    "breadcrumbTitle": "集合实战练习 · 第 1 题",
+    "breadcrumbLabel": "实战练习",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=set-concepts-and-representation&module=practice"
+  },
+  "problem": {
+    "source": "培训教材 · 实战演练",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "构成集合的对象必须具有明确的判断标准。",
+      "items": [
+        "不存在的“最大”“最小”对象不能组成题目所说的集合；",
+        "“最接近”若没有唯一对象，也不满足确定性。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "以下四组对象，能构成集合的是："
+      },
+      {
+        "text": "A. 最大的正实数　　B. 最小的整数　　C. 平方等于 1 的实数　　D. 最接近 1 的实数"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "确定性",
+      "title": "逐项检查对象能否被明确确定",
+      "t": 0,
+      "showDiagram": false,
+      "table": {
+        "caption": "四组对象的确定性检查",
+        "headers": ["选项", "能否明确确定", "判断"],
+        "rows": [
+          ["A", "正实数没有最大值", "不能构成集合"],
+          ["B", "整数没有最小值", "不能构成集合"],
+          ["C", "\\(x^2=1\\) 的实数为 \\(-1,1\\)", "能构成集合"],
+          ["D", "“最接近”没有明确唯一的判断标准", "不能构成集合"]
+        ]
+      },
+      "reasoning": [
+        {"kind": "because", "text": "构成集合的对象必须能够被明确判断"},
+        {"kind": "therefore", "text": "只有 C 中的对象由方程 \\(x^2=1\\) 明确确定为 \\(-1,1\\)"},
+        {"kind": "therefore", "text": "选择 C"}
+      ],
+      "derive": [
+        [
+          "A",
+          "正实数没有最大值"
+        ],
+        [
+          "B",
+          "整数没有最小值"
+        ],
+        [
+          "C",
+          "由 \\(x^2=1\\) 得 \\(x=\\pm1\\)，对象明确"
+        ],
+        [
+          "D",
+          "“最接近 1”没有给出排除 1 或距离条件，不能确定为题目意图中的唯一对象"
+        ],
+        [
+          "结论",
+          "选择 C"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 检查确定性"
+  }
+}

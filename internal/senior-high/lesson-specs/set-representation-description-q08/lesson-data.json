@@ -1,0 +1,91 @@
+{
+  "meta": {
+    "id": "set-representation-description-q08",
+    "outputPath": "site/problems/senior-high/sets/set-concepts-and-representation/set-representation-description-q08.html",
+    "pageTitle": "由取值范围判断集合相等",
+    "pageDescription": "描述法专题：由取值范围判断集合相等。",
+    "breadcrumbTitle": "集合的表示 · 由取值范围判断集合相等",
+    "breadcrumbLabel": "集合的表示",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=set-concepts-and-representation&module=set-representation"
+  },
+  "problem": {
+    "source": "培训教材 · 集合的表示",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "描述法集合相等既要代表元素类型相同，也要取值范围相同。",
+      "items": [
+        "D 中两个集合分别是两个函数的值域和定义域。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "下列集合中表示同一集合的是（　）。"
+      },
+      {
+        "text": "A. \\(M=\\{(3,2)\\},N=\\{(2,3)\\}\\)　B. \\(M=\\{(x,y)\\mid x+y=1\\},N=\\{y\\mid x+y=1\\}\\)　C. \\(M=\\{1,2\\},N=\\{(1,2)\\}\\)　D. \\(M=\\{y\\mid y=x^2+3\\},N=\\{x\\mid y=\\sqrt{x-3}\\}\\)"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "描述法",
+      "title": "求出两个描述集合的范围",
+      "t": 0,
+      "showDiagram": false,
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "A 中两个集合分别只含 \\((3,2)\\) 与 \\((2,3)\\)，C 中一个集合的元素是数，另一个集合的元素是有序数对"
+        },
+        {
+          "kind": "therefore",
+          "text": "A、C 中的两个集合均不相等"
+        },
+        {
+          "kind": "because",
+          "text": "B 中 \\(M\\) 的元素是有序数对，\\(N\\) 的元素是数"
+        },
+        {
+          "kind": "therefore",
+          "text": "B 中 \\(M\\ne N\\)"
+        },
+        {
+          "kind": "because",
+          "text": "D 中 \\(y=x^2+3\\)，所以 \\(M=\\{y\\mid y\\ge3\\}\\)；又因为 \\(y=\\sqrt{x-3}\\) 要求 \\(x\\ge3\\)，所以 \\(N=\\{x\\mid x\\ge3\\}\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "D 中 \\(M=N=[3,+∞)\\)，所以选择 D"
+        }
+      ],
+      "derive": [
+        [
+          "\\(y=x^2+3\\)",
+          "\\(y\\ge3\\)"
+        ],
+        [
+          "\\(y=\\sqrt{x-3}\\)",
+          "\\(x\\ge3\\)"
+        ],
+        [
+          "结论",
+          "两者均为 \\([3,+∞)\\)，选择 D"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 求出两个描述集合的范围"
+  }
+}

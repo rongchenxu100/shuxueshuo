@@ -1,0 +1,109 @@
+{
+  "meta": {
+    "id": "set-concept-example-q04",
+    "outputPath": "site/problems/senior-high/sets/set-concepts-and-representation/set-concept-example-q04.html",
+    "pageTitle": "集合元素的化简与去重",
+    "pageDescription": "化简绝对值和根式，并利用集合元素互异性判断最多元素个数。",
+    "breadcrumbTitle": "集合的概念 · 例题 4",
+    "breadcrumbLabel": "集合的概念",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=set-concepts-and-representation&module=set-concept"
+  },
+  "problem": {
+    "source": "培训教材 · 集合的概念",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "不能直接按题目中代数式的个数计算集合元素个数。",
+      "items": [
+        "对实数 \\(a\\)，有 \\(\\sqrt{a^2}=|a|\\)、\\(\\sqrt[3]{a^3}=a\\)；",
+        "化简后相同的对象只能作为一个集合元素。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "由实数 \\(a,-a,|a|,\\sqrt{a^2},\\sqrt[3]{a^3}\\) 组成的集合，最多有几个元素？"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "化简",
+      "title": "先把根式化为熟悉的形式",
+      "t": 0,
+      "showDiagram": false,
+      "table": {
+        "caption": "逐项化简",
+        "headers": [
+          "原对象",
+          "化简结果"
+        ],
+        "rows": [
+          [
+            "\\(\\sqrt{a^2}\\)",
+            "\\(|a|\\)"
+          ],
+          [
+            "\\(\\sqrt[3]{a^3}\\)",
+            "\\(a\\)"
+          ]
+        ]
+      },
+      "derive": [
+        [
+          "恒等式",
+          "\\(\\sqrt{a^2}=|a|\\)，\\(\\sqrt[3]{a^3}=a\\)"
+        ],
+        [
+          "原集合",
+          "化简后只可能出现 \\(a,-a,|a|\\)"
+        ]
+      ]
+    },
+    {
+      "id": "s2",
+      "section": "去重",
+      "title": "按 a 的符号识别重复元素",
+      "t": 0,
+      "showDiagram": false,
+      "derive": [
+        [
+          "当 \\(a>0\\)",
+          "\\(|a|=a\\)，集合为 \\(\\{a,-a\\}\\)"
+        ],
+        [
+          "当 \\(a<0\\)",
+          "\\(|a|=-a\\)，集合仍为 \\(\\{a,-a\\}\\)"
+        ],
+        [
+          "当 \\(a=0\\)",
+          "所有对象都等于 0，集合只有一个元素"
+        ],
+        [
+          "结论",
+          "最多有 2 个元素"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    },
+    "s2": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 化简根式",
+    "s2": "2 分类去重"
+  }
+}

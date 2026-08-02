@@ -1,0 +1,103 @@
+{
+  "meta": {
+    "id": "set-element-relation-example-q01",
+    "outputPath": "site/problems/senior-high/sets/set-concepts-and-representation/set-element-relation-example-q01.html",
+    "pageTitle": "用符号表示元素与集合的关系",
+    "pageDescription": "先化简元素，再用属于或不属于符号表示它与常用数集的关系。",
+    "breadcrumbTitle": "元素和集合的关系 · 例题 1",
+    "breadcrumbLabel": "元素和集合的关系",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=set-concepts-and-representation&module=element-set-relation"
+  },
+  "problem": {
+    "source": "培训教材 · 元素与集合的关系",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "判断元素与数集的关系时，先化简元素，再辨认它属于哪一类数。",
+      "items": [
+        "属于集合用符号 \\(\\in\\)，不属于集合用符号 \\(\\notin\\)；",
+        "区分自然数集 \\(\\mathbb N\\)、正整数集 \\(\\mathbb N^*\\)、整数集 \\(\\mathbb Z\\)、有理数集 \\(\\mathbb Q\\) 和实数集 \\(\\mathbb R\\)。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "用合适的符号表示下列元素与集合的关系："
+      },
+      {
+        "text": "① \\(-1\\) ___ \\(\\mathbb N\\)；② \\(|-3|\\) ___ \\(\\mathbb N^*\\)；③ \\(\\frac12\\) ___ \\(\\mathbb Z\\)；④ \\(3.14\\) ___ \\(\\mathbb Q\\)；⑤ \\(\\sqrt5\\) ___ \\(\\mathbb Q\\)；⑥ \\(-\\frac{\\sqrt2}{2}\\) ___ \\(\\mathbb R\\)；⑦ \\(\\pi\\) ___ \\(\\mathbb R\\)。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "关系符号",
+      "title": "先化简，再判断所属数集",
+      "t": 0,
+      "showDiagram": false,
+      "table": {
+        "caption": "七个元素与常用数集的关系",
+        "headers": [
+          "序号",
+          "判断依据",
+          "关系"
+        ],
+        "rows": [
+          [
+            "①",
+            "\\(-1\\) 不是自然数",
+            "\\(-1\\notin\\mathbb N\\)"
+          ],
+          [
+            "②",
+            "\\(|-3|=3\\) 是正整数",
+            "\\(|-3|\\in\\mathbb N^*\\)"
+          ],
+          [
+            "③",
+            "\\(\\frac12\\) 不是整数",
+            "\\(\\frac12\\notin\\mathbb Z\\)"
+          ],
+          [
+            "④",
+            "\\(3.14=\\frac{157}{50}\\) 是有理数",
+            "\\(3.14\\in\\mathbb Q\\)"
+          ],
+          [
+            "⑤",
+            "\\(\\sqrt5\\) 是无理数",
+            "\\(\\sqrt5\\notin\\mathbb Q\\)"
+          ],
+          [
+            "⑥",
+            "\\(-\\frac{\\sqrt2}{2}\\) 是实数",
+            "\\(-\\frac{\\sqrt2}{2}\\in\\mathbb R\\)"
+          ],
+          [
+            "⑦",
+            "\\(\\pi\\) 是实数",
+            "\\(\\pi\\in\\mathbb R\\)"
+          ]
+        ]
+      },
+      "derive": [
+        [
+          "结论",
+          "依次填 \\(\\notin,\\in,\\notin,\\in,\\notin,\\in,\\in\\)"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 判断关系"
+  }
+}

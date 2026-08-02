@@ -2,6 +2,21 @@
   "version": 1,
   "chapters": [
     {
+      "id": "sets",
+      "label": "集合",
+      "symbol": "{ }",
+      "order": 5,
+      "sections": [
+        {
+          "id": "set-concepts-and-representation",
+          "label": "集合的概念和表示",
+          "order": 10,
+          "presentation": "learning",
+          "topicId": "set-concepts-and-representation"
+        }
+      ]
+    },
+    {
       "id": "functions",
       "label": "函数",
       "symbol": "f(x)",

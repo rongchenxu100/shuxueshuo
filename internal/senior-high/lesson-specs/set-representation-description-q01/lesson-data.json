@@ -1,0 +1,136 @@
+{
+  "meta": {
+    "id": "set-representation-description-q01",
+    "outputPath": "site/problems/senior-high/sets/set-concepts-and-representation/set-representation-description-q01.html",
+    "pageTitle": "读懂描述法中代表元素的含义",
+    "pageDescription": "描述法专题：读懂描述法中代表元素的含义。",
+    "breadcrumbTitle": "集合的表示 · 读懂描述法中代表元素的含义",
+    "breadcrumbLabel": "集合的表示",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=set-concepts-and-representation&module=set-representation"
+  },
+  "problem": {
+    "source": "培训教材 · 集合的表示",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "先看竖线左侧的代表元素，再读右侧共同特征。",
+      "items": [
+        "x、y 或 (x,y) 分别表示横坐标、纵坐标或点，不能只看条件式。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "试用自然语言叙述下列集合所包含的元素："
+      },
+      {
+        "text": "（1）\\(\\{x\\in\\mathbb R\\mid x<4\\}\\)；（2）\\(\\{y\\in\\mathbb R\\mid y<4\\}\\)；（3）\\(\\{y\\in\\mathbb N\\mid y<4\\}\\)；"
+      },
+      {
+        "text": "（4）\\(\\{x\\mid y=x^2+1\\}\\)；（5）\\(\\{y\\mid y=x^2+1\\}\\)；（6）\\(\\{(x,y)\\mid y=x^2+1\\}\\)。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "描述法",
+      "title": "按代表元素分类解释",
+      "t": 0,
+      "showDiagram": false,
+      "table": {
+        "headers": [
+          "小题",
+          "代表元素",
+          "集合含义"
+        ],
+        "rows": [
+          [
+            "（1）（2）",
+            "实数",
+            "小于 4 的全体实数"
+          ],
+          [
+            "（3）",
+            "自然数",
+            "\\(\\{0,1,2,3\\}\\)"
+          ],
+          [
+            "（4）",
+            "x",
+            "抛物线横坐标的集合，即 \\(\\mathbb R\\)"
+          ],
+          [
+            "（5）",
+            "y",
+            "抛物线纵坐标的集合，即 \\([1,+∞)\\)"
+          ],
+          [
+            "（6）",
+            "(x,y)",
+            "抛物线 \\(y=x^2+1\\) 上所有点的集合"
+          ]
+        ]
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "（1）（2）的代表元素都是实数，且共同满足 \\(x<4\\) 或 \\(y<4\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "（1）（2）都表示小于 4 的全体实数"
+        },
+        {
+          "kind": "because",
+          "text": "（3）的代表元素 \\(y\\in\\mathbb N\\)，且 \\(y<4\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "（3）表示 \\(\\{0,1,2,3\\}\\)"
+        },
+        {
+          "kind": "because",
+          "text": "（4）的代表元素是 \\(x\\)，而方程 \\(y=x^2+1\\) 对任意 \\(x\\in\\mathbb R\\) 都有实数 \\(y\\) 与之对应"
+        },
+        {
+          "kind": "therefore",
+          "text": "（4）表示全体实数 \\(\\mathbb R\\)"
+        },
+        {
+          "kind": "because",
+          "text": "（5）的代表元素是 \\(y\\)，且 \\(y=x^2+1\\ge1\\)；反之每个 \\(y\\ge1\\) 都可由 \\(x=\\pm\\sqrt{y-1}\\) 取得"
+        },
+        {
+          "kind": "therefore",
+          "text": "（5）表示 \\([1,+∞)\\)"
+        },
+        {
+          "kind": "because",
+          "text": "（6）的代表元素是有序数对 \\((x,y)\\)，并满足 \\(y=x^2+1\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "（6）表示抛物线 \\(y=x^2+1\\) 上所有点组成的集合"
+        }
+      ],
+      "derive": [
+        [
+          "关键",
+          "描述法由“代表元素”和“共同特征”两部分共同决定"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 按代表元素分类解释"
+  }
+}

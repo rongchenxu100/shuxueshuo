@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>检查集合中的参数候选值 | 数学说</title>
+  <meta name="description" content="列举法专题：检查集合中的参数候选值。" />
+  <meta property="og:title" content="检查集合中的参数候选值 | 数学说" />
+  <meta property="og:description" content="列举法专题：检查集合中的参数候选值。" />
+  <meta property="og:image" content="../../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css?v=6" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../../senior-high/index.html?chapter=sets&section=set-concepts-and-representation&module=set-representation">集合的表示</a>
+    <span class="lesson-title">集合的表示 · 检查集合中的参数候选值</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          <div class="problem-full">
+            <div class="problem-line"><span>已知集合 <span class="inline-math">A={0,m,m<sup>2</sup>-2m+3}</span>，且 <span class="inline-math">3∈ A</span>，则实数 <span class="inline-math">m</span> 为（　）。</span></div>
+<div class="problem-line"><span></span><span class="answer-chip" id="answerI">答案：C</span></div>
+<div class="problem-options"><div class="problem-option"><span class="problem-option-label">A.</span><span><span class="inline-math">2</span></span></div><div class="problem-option"><span class="problem-option-label">B.</span><span><span class="inline-math">3</span></span></div><div class="problem-option"><span class="problem-option-label">C.</span><span><span class="inline-math">2</span> 或 <span class="inline-math">3</span></span></div><div class="problem-option"><span class="problem-option-label">D.</span><span><span class="inline-math">0</span> 或 <span class="inline-math">2</span> 或 <span class="inline-math">3</span></span></div></div>
+          </div>
+        </section>
+
+        <aside class="lesson-key-points" aria-label="解题要点"><div class="lesson-key-points-title">解题要点</div><div class="lesson-key-points-content"><p class="lesson-key-points-lead">3 可以等于 m，也可以等于第三个代数式。</p><ol><li>三个列出的代数式表示集合中的三个元素，候选值还必须满足元素互异性。</li></ol></div></aside>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../../assets/js/lesson-page-runtime.js?v=6"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"s1","section":"列举法","title":"分类得到候选值","t":0,"showDiagram":false,"reasoning":[{"kind":"because","text":"\\(3\\in A\\)，且集合中已有元素 \\(0\\)"},{"kind":"therefore","text":"\\(m=3\\) 或 \\(m^2-2m+3=3\\)"},{"kind":"therefore","text":"候选值为 \\(m=0,2,3\\)"}],"derive":[["\\(m=3\\)","得到候选值 \\(m=3\\)"],["\\(m^2-2m+3=3\\)","\\(m=0\\) 或 \\(m=2\\)"]]},{"id":"s2","section":"列举法","title":"检查集合中元素的互异性","t":1,"showDiagram":false,"reasoning":[{"kind":"because","text":"当 \\(m=0\\) 时，\\(A=\\{0,0,3\\}\\)，前两个元素重复"},{"kind":"therefore","text":"舍去 \\(m=0\\)"},{"kind":"therefore","text":"\\(m=2\\) 或 \\(m=3\\)，选择 C"}],"derive":[["\\(m=0\\)","\\(A=\\{0,0,3\\}\\)，前两个元素重复，舍去"],["结论","\\(m=2\\) 或 \\(m=3\\)，选择 C"]]}];
+    var STEP_LABELS = {"s1":"1 分类得到候选值","s2":"2 检查集合中元素的互异性"};
+    var POLICIES   = {"s1":{"movable":false,"range":[0,0]},"s2":{"movable":false,"range":[1,1]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 滑块主参数与派生参数的联动文案格式化器 */
+    var __LESSON_PARAM_LABEL_FORMATTER__;
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script>
+  function diagramMarkupFor() { return ''; }
+  function diagramMarkupForFrame() { return ''; }
+  function drawMini() { return ''; }
+  function groupTitle(section) { return section; }
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      diagramMarkupForFrame: typeof diagramMarkupForFrame === "function" ? diagramMarkupForFrame : undefined,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "参数",
+      paramLabelPrefix: "",
+      paramLabelFormatter: typeof __LESSON_PARAM_LABEL_FORMATTER__ === "function" ? __LESSON_PARAM_LABEL_FORMATTER__ : undefined,
+      goToProblemMode: "doubleScroll"
+    });
+  </script>
+</body>
+</html>

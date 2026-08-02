@@ -1,0 +1,121 @@
+{
+  "meta": {
+    "id": "set-representation-venn-q02",
+    "outputPath": "site/problems/senior-high/sets/set-concepts-and-representation/set-representation-venn-q02.html",
+    "pageTitle": "由离散全集读取 Venn 图阴影",
+    "pageDescription": "Venn 图法专题：由离散全集读取 Venn 图阴影。",
+    "breadcrumbTitle": "集合的表示 · 由离散全集读取 Venn 图阴影",
+    "breadcrumbLabel": "集合的表示",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=set-concepts-and-representation&module=set-representation"
+  },
+  "problem": {
+    "source": "培训教材 · 集合的表示",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "先列出 A，再从 A 中删去同时属于 B 的元素。",
+      "items": [
+        "阴影不包含交集部分。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "已知全集 \\(U=\\{0,1,2,3,4,5,6,7,8\\}\\)，\\(A=\\{x\\in\\mathbb N\\mid x<5\\}\\)，\\(B=\\{1,3,5,7,8\\}\\)。图中阴影表示 A 中不属于 B 的部分。"
+      },
+      {
+        "figure": {
+          "kind": "venn-two",
+          "shade": "A-only",
+          "ariaLabel": "阴影为 A 去掉 B 的部分"
+        }
+      },
+      {
+        "text": "A. \\(\\{0,2,4\\}\\)　B. \\(\\{2,4\\}\\)　C. \\(\\{0,4\\}\\)　D. \\(\\{2,4,6\\}\\)"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "Venn 图法",
+      "title": "计算集合差",
+      "t": 0,
+      "showDiagram": false,
+      "table": {
+        "caption": "逐个检查集合 A 中的元素是否属于 B",
+        "headers": [
+          "\\(x\\in A\\)",
+          "是否属于 \\(B\\)",
+          "是否保留在 \\(A∖B\\)"
+        ],
+        "rows": [
+          [
+            "0",
+            "否",
+            "保留"
+          ],
+          [
+            "1",
+            "是",
+            "删除"
+          ],
+          [
+            "2",
+            "否",
+            "保留"
+          ],
+          [
+            "3",
+            "是",
+            "删除"
+          ],
+          [
+            "4",
+            "否",
+            "保留"
+          ]
+        ]
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "\\(A=\\{x\\in\\mathbb N\\mid x<5\\}=\\{0,1,2,3,4\\}\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(A∩B=\\{1,3\\}\\)"
+        },
+        {
+          "kind": "because",
+          "text": "阴影在 \\(A\\) 内、\\(B\\) 外，所以阴影表示 \\(A∖B\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(A∖B=\\{0,1,2,3,4\\}∖\\{1,3\\}=\\{0,2,4\\}\\)，选择 A"
+        }
+      ],
+      "derive": [
+        [
+          "\\(A=\\{0,1,2,3,4\\}\\)",
+          "与 B 公共元素为 1,3"
+        ],
+        [
+          "\\(A∖B\\)",
+          "\\(\\{0,2,4\\}\\)，选择 A"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 计算集合差"
+  }
+}

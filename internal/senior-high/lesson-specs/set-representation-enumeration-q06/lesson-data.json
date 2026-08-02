@@ -1,0 +1,127 @@
+{
+  "meta": {
+    "id": "set-representation-enumeration-q06",
+    "outputPath": "site/problems/senior-high/sets/set-concepts-and-representation/set-representation-enumeration-q06.html",
+    "pageTitle": "利用两个列举集合相等求值",
+    "pageDescription": "列举法专题：利用两个列举集合相等求值。",
+    "breadcrumbTitle": "集合的表示 · 利用两个列举集合相等求值",
+    "breadcrumbLabel": "集合的表示",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=set-concepts-and-representation&module=set-representation"
+  },
+  "problem": {
+    "source": "培训教材 · 集合的表示",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "两个集合相等意味着元素完全相同，但排列顺序可以不同。",
+      "items": [
+        "先利用 0 必须出现在第一个集合中确定 b，再利用互异性确定 a。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "含有 3 个实数的集合可表示为 \\(\\{a,\\frac{b}{a},1\\}\\)，又可表示为 \\(\\{a^2,a+b,0\\}\\)，求 \\(a^{2019}+b^{2019}\\)。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "列举法",
+      "title": "由零元素确定参数",
+      "t": 0,
+      "showDiagram": false,
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "分式 \\(\\frac{b}{a}\\) 有意义"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(a\\ne0\\)"
+        },
+        {
+          "kind": "because",
+          "text": "两个集合相等，且右侧集合含有元素 \\(0\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(\\frac{b}{a}=0\\)，所以 \\(b=0\\)"
+        }
+      ],
+      "derive": [
+        [
+          "分式 \\(\\frac{b}{a}\\) 有意义",
+          "\\(a\\ne0\\)"
+        ],
+        [
+          "\\(0\\in\\{a,\\frac{b}{a},1\\}\\)",
+          "\\(b=0\\)"
+        ]
+      ]
+    },
+    {
+      "id": "s2",
+      "section": "列举法",
+      "title": "比较剩余元素",
+      "t": 1,
+      "showDiagram": false,
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "\\(b=0\\)，且两个集合相等"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(\\{a,0,1\\}=\\{a^2,a,0\\}\\)"
+        },
+        {
+          "kind": "because",
+          "text": "集合含有 3 个互异的实数"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(a=-1\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(a^{2019}+b^{2019}=-1\\)"
+        }
+      ],
+      "derive": [
+        [
+          "集合相等",
+          "\\(\\{a,0,1\\}=\\{a^2,a,0\\}\\)"
+        ],
+        [
+          "互异性",
+          "\\(a=-1\\)"
+        ],
+        [
+          "结论",
+          "\\(a^{2019}+b^{2019}=-1\\)"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    },
+    "s2": {
+      "movable": false,
+      "range": [
+        1,
+        1
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 由零元素确定参数",
+    "s2": "2 比较剩余元素"
+  }
+}

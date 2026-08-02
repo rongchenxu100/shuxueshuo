@@ -136,15 +136,18 @@ test("all eleven compiled function pages exist", () => {
     assert.match(html, /FunctionLessonFromSpec\.createSpecRenderer/);
     assert.doesNotMatch(html, /"(?:NaN|Infinity|undefined)"/);
     assert.doesNotMatch(html, /problem-summary-text/);
-    assert.match(
-      html,
-      new RegExp(`<span class="problem-source-inline">（${expectedSources[Number(questionNumber) - 1]}）</span>`),
-    );
+    const expectedSource = expectedSources[Number(questionNumber) - 1];
+    if (/^20\d{2}\b/.test(expectedSource)) {
+      assert.match(
+        html,
+        new RegExp(`<span class="problem-source-inline">（${expectedSource}）</span>`),
+      );
+    } else {
+      assert.doesNotMatch(html, /problem-source-inline/);
+      assert.doesNotMatch(html, new RegExp(expectedSource));
+    }
     assert.doesNotMatch(html, /class="problem-source"/);
-    assert.match(
-      html,
-      /<button id="problemToggle"[\s\S]*?<div class="problem-full">[\s\S]*?<div class="problem-line"><span><span class="problem-source-inline">/,
-    );
+    assert.match(html, /<button id="problemToggle"[\s\S]*?<div class="problem-full">/);
   }
 });
 

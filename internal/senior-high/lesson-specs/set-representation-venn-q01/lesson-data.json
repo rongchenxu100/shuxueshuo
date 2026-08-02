@@ -1,0 +1,90 @@
+{
+  "meta": {
+    "id": "set-representation-venn-q01",
+    "outputPath": "site/problems/senior-high/sets/set-concepts-and-representation/set-representation-venn-q01.html",
+    "pageTitle": "由 Venn 图阴影确定区间",
+    "pageDescription": "Venn 图法专题：由 Venn 图阴影确定区间。",
+    "breadcrumbTitle": "集合的表示 · 由 Venn 图阴影确定区间",
+    "breadcrumbLabel": "集合的表示",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=set-concepts-and-representation&module=set-representation"
+  },
+  "problem": {
+    "source": "培训教材 · 集合的表示",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "先把阴影视为 B\\A，再比较两个区间。",
+      "items": [
+        "0 不属于 B，1 属于 B 且不属于 A。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "已知全集为实数集，\\(A=\\{x\\mid1<x<2\\}\\)，\\(B=\\{x\\mid0<x\\le\\frac{3}{2}\\}\\)。图中阴影表示 B 中不属于 A 的部分，求该集合。"
+      },
+      {
+        "figure": {
+          "kind": "venn-two",
+          "shade": "B-only",
+          "ariaLabel": "阴影为 B 去掉 A 的部分"
+        }
+      },
+      {
+        "text": "A. \\([0,1]\\)　B. \\((0,1]\\)　C. \\([0,1)\\)　D. \\((0,1)\\)"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "Venn 图法",
+      "title": "把阴影翻译成集合差",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "number-line-difference",
+        "ariaLabel": "用三条数轴比较集合 A、集合 B 与集合差 B 去掉 A，得到开区间 0 到闭端点 1"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "阴影在集合 \\(B\\) 内、集合 \\(A\\) 外"
+        },
+        {
+          "kind": "therefore",
+          "text": "阴影表示 \\(B∖A\\)"
+        },
+        {
+          "kind": "because",
+          "text": "\\(A=(1,2)\\)，\\(B=(0,\\frac{3}{2}]\\)，所以 \\(A∩B=(1,\\frac{3}{2}]\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(B∖A=(0,\\frac{3}{2}]∖(1,\\frac{3}{2}]=(0,1]\\)，选择 B"
+        }
+      ],
+      "derive": [
+        [
+          "\\(B∖A\\)",
+          "\\((0,\\frac{3}{2}]∖(1,2)\\)"
+        ],
+        [
+          "结论",
+          "\\((0,1]\\)，选择 B"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 把阴影翻译成集合差"
+  }
+}

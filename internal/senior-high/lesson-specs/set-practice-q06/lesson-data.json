@@ -1,0 +1,97 @@
+{
+  "meta": {
+    "id": "set-practice-q06",
+    "outputPath": "site/problems/senior-high/sets/set-concepts-and-representation/set-practice-q06.html",
+    "pageTitle": "实战练习 6：用列举法表示点集",
+    "pageDescription": "解二元一次方程组，并把唯一有序数对写成集合。",
+    "breadcrumbTitle": "集合实战练习 · 第 6 题",
+    "breadcrumbLabel": "实战练习",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=set-concepts-and-representation&module=practice"
+  },
+  "problem": {
+    "source": "培训教材 · 实战演练",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "集合中的元素是有序数对 \\((x,y)\\)，不是两个互相独立的数。",
+      "items": [
+        "先解方程组得到唯一的 \\((x,y)\\)；",
+        "再把有序数对作为一个整体放入集合。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "集合 \\(P=\\{(x,y)\\mid x+y=1，x-y-3=0\\}\\) 可以用列举法表示为______。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "解方程组",
+      "title": "求出唯一的有序数对",
+      "t": 0,
+      "showDiagram": false,
+      "reasoning": [
+        {"kind": "because", "text": "集合中的有序数对同时满足 \\(x+y=1\\) 与 \\(x-y=3\\)"},
+        {"kind": "therefore", "text": "两式相加得 \\(2x=4\\)，所以 \\(x=2\\)"},
+        {"kind": "therefore", "text": "代入 \\(x+y=1\\)，得 \\(y=-1\\)"}
+      ],
+      "derive": [
+        [
+          "同时满足",
+          "\\(x+y=1\\)，\\(x-y=3\\)"
+        ],
+        [
+          "两式相加",
+          "\\(2x=4\\)，所以 \\(x=2\\)"
+        ],
+        [
+          "代回",
+          "\\(y=1-x=-1\\)"
+        ]
+      ]
+    },
+    {
+      "id": "s2",
+      "section": "列举法",
+      "title": "把有序数对作为集合元素",
+      "t": 0,
+      "showDiagram": false,
+      "reasoning": [
+        {"kind": "because", "text": "方程组的唯一解是有序数对 \\((2,-1)\\)"},
+        {"kind": "therefore", "text": "用列举法表示点集为 \\(P=\\{(2,-1)\\}\\)"}
+      ],
+      "derive": [
+        [
+          "唯一解",
+          "\\((x,y)=(2,-1)\\)"
+        ],
+        [
+          "结论",
+          "\\(P=\\{(2,-1)\\}\\)"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    },
+    "s2": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 解方程组",
+    "s2": "2 列举点集"
+  }
+}

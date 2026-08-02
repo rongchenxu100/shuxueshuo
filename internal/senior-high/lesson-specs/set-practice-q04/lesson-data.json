@@ -1,0 +1,123 @@
+{
+  "meta": {
+    "id": "set-practice-q04",
+    "outputPath": "site/problems/senior-high/sets/set-concepts-and-representation/set-practice-q04.html",
+    "pageTitle": "实战练习 4：用列举法表示集合",
+    "pageDescription": "把整除与正整数条件转化为正因数，列举满足条件的整数。",
+    "breadcrumbTitle": "集合实战练习 · 第 4 题",
+    "breadcrumbLabel": "实战练习",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=set-concepts-and-representation&module=practice"
+  },
+  "problem": {
+    "source": "培训教材 · 实战演练",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "把分式为正整数转化为分母是 6 的正因数。",
+      "items": [
+        "令 \\(d=5-a\\)，则 \\(d\\) 必须是 6 的正因数；",
+        "求出 \\(a=5-d\\) 后再用列举法写集合。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "已知集合 \\(M=\\left\\{a\\middle|\\frac{6}{5-a}\\in\\mathbb N^*，且a\\in\\mathbb Z\\right\\}\\)，则 \\(M\\) 等于："
+      },
+      {
+        "text": "A. \\(\\{2,3\\}\\)　　B. \\(\\{1,2,3,4\\}\\)　　C. \\(\\{1,2,3,6\\}\\)　　D. \\(\\{-1,2,3,4\\}\\)"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "等价转化",
+      "title": "列出 5-a 的所有可能值",
+      "t": 0,
+      "showDiagram": false,
+      "reasoning": [
+        {"kind": "because", "text": "\\(d=5-a\\)，且 \\(\\frac{6}{d}\\in\\mathbb N^*\\)"},
+        {"kind": "therefore", "text": "\\(d\\) 是 6 的正因数，\\(d\\in\\{1,2,3,6\\}\\)"}
+      ],
+      "derive": [
+        [
+          "令",
+          "\\(d=5-a\\)"
+        ],
+        [
+          "条件",
+          "\\(\\frac{6}{d}\\in\\mathbb N^*\\)，所以 \\(d\\) 是 6 的正因数"
+        ],
+        [
+          "枚举",
+          "\\(d\\in\\{1,2,3,6\\}\\)"
+        ]
+      ]
+    },
+    {
+      "id": "s2",
+      "section": "列举法",
+      "title": "由每个正因数求出 a",
+      "t": 0,
+      "showDiagram": false,
+      "table": {
+        "caption": "由 \\(d=5-a\\) 逐一求出 \\(a\\)",
+        "headers": [
+          "\\(d\\)",
+          "1",
+          "2",
+          "3",
+          "6"
+        ],
+        "rows": [
+          [
+            "\\(a=5-d\\)",
+            "4",
+            "3",
+            "2",
+            "-1"
+          ]
+        ]
+      },
+      "reasoning": [
+        {"kind": "because", "text": "\\(a=5-d\\)，且 \\(d\\in\\{1,2,3,6\\}\\)"},
+        {"kind": "therefore", "text": "\\(a\\in\\{4,3,2,-1\\}\\)"},
+        {"kind": "therefore", "text": "\\(M=\\{-1,2,3,4\\}\\)，选择 D"}
+      ],
+      "derive": [
+        [
+          "\\(a=5-d\\)",
+          "依次得到 \\(a=4,3,2,-1\\)"
+        ],
+        [
+          "集合",
+          "\\(M=\\{-1,2,3,4\\}\\)"
+        ],
+        [
+          "结论",
+          "选择 D"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    },
+    "s2": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 转化为正因数",
+    "s2": "2 列举集合"
+  }
+}

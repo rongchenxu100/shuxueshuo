@@ -9,6 +9,7 @@
     chapter: "all",
     section: "all",
     collection: "all",
+    module: "all",
     difficulty: "all",
     source: "all",
     sort: "updated-desc",
@@ -27,6 +28,15 @@
     const section = chapter?.sections.find((item) => item.id === state.section);
     if (section?.presentation !== "worksheet" || state.collection === "all") return null;
     return (catalog?.collections || []).find((item) => item.id === state.collection) ?? null;
+  }
+
+  function learningTopicForState(catalog, inputState) {
+    const state = normalizeState(catalog, inputState);
+    if (state.chapter === "all" || state.section === "all") return null;
+    const chapter = (catalog?.chapters || []).find((item) => item.id === state.chapter);
+    const section = chapter?.sections.find((item) => item.id === state.section);
+    if (section?.presentation !== "learning") return null;
+    return (catalog?.learningTopics || []).find((item) => item.id === section.topicId) ?? null;
   }
 
   function collectionProblemCount(collection) {
@@ -53,6 +63,13 @@
         ? input.collection
         : selectedSection.defaultCollectionId || selectedSection.collectionIds?.[0] || "all")
       : "all";
+    const learningTopic = selectedSection?.presentation === "learning"
+      ? (catalog?.learningTopics || []).find((item) => item.id === selectedSection.topicId)
+      : null;
+    const moduleIds = new Set(["overview", ...(learningTopic?.modules || []).map((item) => item.id)]);
+    const module = learningTopic
+      ? (moduleIds.has(input.module) ? input.module : "overview")
+      : "all";
     const difficulty = /^[1-5]$/.test(String(input.difficulty || ""))
       ? String(input.difficulty)
       : "all";
@@ -60,7 +77,7 @@
     const sort = SORTS.has(input.sort) ? input.sort : DEFAULT_STATE.sort;
     const parsedPage = Number.parseInt(input.page, 10);
     const page = Number.isInteger(parsedPage) && parsedPage > 0 ? parsedPage : 1;
-    return { chapter, section, collection, difficulty, source, sort, page };
+    return { chapter, section, collection, module, difficulty, source, sort, page };
   }
 
   function parseSearch(catalog, search) {
@@ -103,7 +120,7 @@
   function stateToSearch(inputState) {
     const state = { ...DEFAULT_STATE, ...inputState };
     const params = new URLSearchParams();
-    for (const key of ["chapter", "section", "collection", "difficulty", "source", "sort"]) {
+    for (const key of ["chapter", "section", "collection", "module", "difficulty", "source", "sort"]) {
       if (state[key] !== DEFAULT_STATE[key]) {
         params.set(key, state[key]);
       }
@@ -149,15 +166,149 @@
     };
   }
 
+  function splitOrdinalOptions(html) {
+    const source = String(html || "");
+    const matches = Array.from(source.matchAll(/[①②③④]/g));
+    if (matches.length < 2 || matches[0][0] !== "①") return null;
+
+    const options = matches.map((match, index) => {
+      const start = match.index + match[0].length;
+      const end = index + 1 < matches.length ? matches[index + 1].index : source.length;
+      return {
+        label: match[0],
+        html: source.slice(start, end).trim().replace(/^[；;]\s*|[；;。]\s*$/g, ""),
+      };
+    });
+    const lengths = options.map((option) => worksheetPlainText(option.html).length);
+
+    return {
+      stemHtml: source.slice(0, matches[0].index).trim(),
+      options,
+      stacked: Math.max(...lengths) > 12 || lengths.reduce((sum, length) => sum + length, 0) > 48,
+    };
+  }
+
+  function canonicalRational(rawValue) {
+    const value = String(rawValue ?? "")
+      .trim()
+      .replace(/−/g, "-")
+      .replace(/\s+/g, "");
+    const match = value.match(/^([+-]?\d+)(?:\/([+-]?\d+))?$/);
+    if (!match) return null;
+    let numerator = Number.parseInt(match[1], 10);
+    let denominator = match[2] == null ? 1 : Number.parseInt(match[2], 10);
+    if (denominator === 0) return null;
+    if (denominator < 0) {
+      numerator *= -1;
+      denominator *= -1;
+    }
+    let left = Math.abs(numerator);
+    let right = Math.abs(denominator);
+    while (right !== 0) {
+      [left, right] = [right, left % right];
+    }
+    const divisor = left || 1;
+    numerator /= divisor;
+    denominator /= divisor;
+    return denominator === 1 ? String(numerator) : `${numerator}/${denominator}`;
+  }
+
+  function normalizeMathExpression(rawValue) {
+    return String(rawValue ?? "")
+      .trim()
+      .replace(/[，；;]/g, ",")
+      .replace(/−/g, "-")
+      .replace(/!=/g, "≠")
+      .replace(/\\mathbb\{R\}/g, "ℝ")
+      .replace(/\\setminus/g, "∖")
+      .replace(/\s+/g, "");
+  }
+
+  function normalizeExactMathExpression(rawValue) {
+    const semicolonToken = "__SEMICOLON__";
+    return normalizeMathExpression(String(rawValue ?? "").replace(/[；;]/g, semicolonToken))
+      .replace(/[｛]/g, "{")
+      .replace(/[｝]/g, "}")
+      .replace(/[（]/g, "(")
+      .replace(/[）]/g, ")")
+      .replace(/[【［]/g, "[")
+      .replace(/[】］]/g, "]")
+      .replaceAll(semicolonToken, ";")
+      .replace(/\+?∞/g, "∞");
+  }
+
+  function parseFiniteSetValues(rawValue) {
+    let value = normalizeMathExpression(rawValue);
+    if (
+      (value.startsWith("{") && value.endsWith("}"))
+      || (value.startsWith("｛") && value.endsWith("｝"))
+    ) {
+      value = value.slice(1, -1);
+    }
+    if (!value) return null;
+    const parts = value.split(",").filter(Boolean);
+    if (parts.length === 0) return null;
+    const values = parts.map(canonicalRational);
+    return values.some((item) => item == null) ? null : values;
+  }
+
+  function parseVariableDomainExclusions(rawValue, variable = "x") {
+    let value = normalizeMathExpression(rawValue);
+    const escapedVariable = String(variable).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const setDifference = value.match(
+      new RegExp(`^${escapedVariable}(?:∈|in)(?:ℝ|R)(?:\\\\|∖)\\{(.+)\\}$`),
+    );
+    if (setDifference) return parseFiniteSetValues(`{${setDifference[1]}}`);
+    const notIn = value.match(
+      new RegExp(`^${escapedVariable}(?:∉|notin)\\{(.+)\\}$`),
+    );
+    if (notIn) return parseFiniteSetValues(`{${notIn[1]}}`);
+
+    value = value.replace(
+      new RegExp(`^${escapedVariable}(?:∈|in)(?:ℝ|R)(?:且|,)?`),
+      "",
+    );
+    const parts = value.split(/,|且/).filter(Boolean);
+    if (parts.length === 0) return null;
+    const values = parts.map((part, index) => {
+      const leftRelation = part.match(new RegExp(`^${escapedVariable}≠(.+)$`));
+      if (leftRelation) return canonicalRational(leftRelation[1]);
+      const rightRelation = part.match(new RegExp(`^(.+)≠${escapedVariable}$`));
+      if (rightRelation) return canonicalRational(rightRelation[1]);
+      if (index > 0) return canonicalRational(part);
+      return null;
+    });
+    return values.some((item) => item == null) ? null : values;
+  }
+
+  function parseRelationSequence(rawValue) {
+    const value = String(rawValue ?? "")
+      .trim()
+      .replace(/\\notin|notin/g, "∉")
+      .replace(/\\in|\bin\b/g, "∈");
+    const relations = value.match(/[∈∉]/g) || [];
+    const remainder = value
+      .replace(/[∈∉]/g, "")
+      .replace(/[\s,，、;；]/g, "");
+    return relations.length > 0 && remainder === "" ? relations : null;
+  }
+
   return {
     DEFAULT_STATE,
+    canonicalRational,
     collectionForState,
     collectionProblemCount,
     filterProblems,
+    learningTopicForState,
     normalizeState,
+    normalizeExactMathExpression,
+    parseFiniteSetValues,
+    parseRelationSequence,
     paginate,
     parseSearch,
+    parseVariableDomainExclusions,
     publishedProblems,
+    splitOrdinalOptions,
     splitWorksheetOptions,
     stateToSearch,
   };

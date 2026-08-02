@@ -1,0 +1,80 @@
+{
+  "meta": {
+    "id": "set-representation-venn-q03",
+    "outputPath": "site/problems/senior-high/sets/set-concepts-and-representation/set-representation-venn-q03.html",
+    "pageTitle": "用容斥原理统计两项比赛都参加的人数",
+    "pageDescription": "Venn 图法专题：用容斥原理统计两项比赛都参加的人数。",
+    "breadcrumbTitle": "集合的表示 · 用容斥原理统计两项比赛都参加的人数",
+    "breadcrumbLabel": "集合的表示",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=set-concepts-and-representation&module=set-representation"
+  },
+  "problem": {
+    "source": "2021 天津市第四十七中学秋季运动会测试",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "先用总人数减去未参赛人数，得到至少参加一项的人数。",
+      "items": [
+        "两集合容斥公式为 |A∩B|=|A|+|B|-|A∪B|。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "2021 年天津市第四十七中学秋季运动会，高一某班 41 名学生中有 10 名没有参加比赛；参加田赛的有 16 人，参加径赛的有 23 人。求田赛和径赛都参加的学生人数。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "Venn 图法",
+      "title": "代入两集合容斥公式",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "venn-two-counts",
+        "ariaLabel": "全班 41 人的 Venn 图，田赛仅参加 8 人，两项都参加 8 人，径赛仅参加 15 人，两项都未参加 10 人"
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "全班 41 人，其中 10 人两项比赛都没有参加"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(|A∪B|=41-10=31\\)"
+        },
+        {
+          "kind": "because",
+          "text": "\\(|A∪B|=|A|+|B|-|A∩B|\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(|A∩B|=16+23-31=8\\)"
+        }
+      ],
+      "derive": [
+        [
+          "至少参加一项",
+          "\\(41-10=31\\)"
+        ],
+        [
+          "都参加",
+          "\\(16+23-31=8\\) 人"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 代入两集合容斥公式"
+  }
+}

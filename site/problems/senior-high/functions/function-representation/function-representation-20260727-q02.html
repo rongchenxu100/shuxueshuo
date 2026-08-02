@@ -9,7 +9,7 @@
   <meta property="og:description" content="按自变量的正负去绝对值，写成分段函数并判断图象。" />
   <meta property="og:image" content="../../../../assets/images/share-default.png" />
   <meta property="og:type" content="article" />
-  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css?v=2" />
+  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css?v=4" />
 </head>
 <body>
   <header class="lesson-topbar" role="navigation" aria-label="页面导航">
@@ -88,7 +88,7 @@
   <script src="../../../../assets/js/baidu-stats.js"></script>
   <script src="../../../../assets/js/geometry-label-layout.js"></script>
   <script src="../../../../assets/js/interactive-lesson-ui.js"></script>
-  <script src="../../../../assets/js/lesson-page-runtime.js?v=2"></script>
+  <script src="../../../../assets/js/lesson-page-runtime.js?v=5"></script>
 
   <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
   <script>
@@ -107,7 +107,7 @@
   <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
   <script type="application/json" id="functionSpec">{"$schema":"../../schemas/function-spec.schema.json","version":1,"id":"function-representation-20260727-q02","parameter":{"name":"x","initial":0},"panels":[{"id":"option-a","kind":"functionGraph","title":"A","viewport":{"x":0.08,"y":0.08,"width":0.84,"height":0.84},"domain":{"minX":-2.8,"maxX":2.8,"minY":-1.5,"maxY":3.2},"gridStepX":1,"gridStepY":1,"showAxisTicks":true,"function":{"variable":"x","expr":"x^2-2*x","label":"A","intervals":[{"min":-2.8,"max":2.8}]}},{"id":"option-b","kind":"functionGraph","title":"B","viewport":{"x":0.08,"y":0.08,"width":0.84,"height":0.84},"domain":{"minX":-2.8,"maxX":2.8,"minY":-1.5,"maxY":3.2},"gridStepX":1,"gridStepY":1,"showAxisTicks":true,"function":{"variable":"x","expr":"x^2+2*x","label":"B","intervals":[{"min":-2.8,"max":2.8}]}},{"id":"option-c","kind":"functionGraph","title":"C","viewport":{"x":0.08,"y":0.08,"width":0.84,"height":0.84},"domain":{"minX":-2.8,"maxX":2.8,"minY":-1.5,"maxY":3.2},"gridStepX":1,"gridStepY":1,"showAxisTicks":true,"function":{"variable":"x","expr":"x^2-2*abs(x)","label":"C","intervals":[{"min":-2.8,"max":2.8}]}},{"id":"option-d","kind":"functionGraph","title":"D","viewport":{"x":0.08,"y":0.08,"width":0.84,"height":0.84},"domain":{"minX":-2.8,"maxX":2.8,"minY":-1.5,"maxY":3.2},"gridStepX":1,"gridStepY":1,"showAxisTicks":true,"function":{"variable":"x","expr":"x^2","label":"D","intervals":[{"min":-2.8,"max":2.8}]}}]}</script>
 <script src="../../../../assets/js/math-expression-engine.js"></script>
-<script src="../../../../assets/js/function-lesson-from-spec.js?v=6"></script>
+<script src="../../../../assets/js/function-lesson-from-spec.js?v=8"></script>
 
 <script>
   const __FUNCTION_SPEC__ = JSON.parse(document.getElementById('functionSpec').textContent);

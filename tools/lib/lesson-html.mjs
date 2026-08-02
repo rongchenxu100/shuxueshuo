@@ -6,6 +6,14 @@ function esc(value) {
     .replace(/"/g, "&quot;");
 }
 
+const EXAM_SOURCE_PATTERN = /(月考|期中|期末|联考|段考|质量监测|模拟|统考|调研|测试|考试|高考|会考|诊断)/;
+
+export function examSourceLabel(value) {
+  const source = String(value ?? "").trim();
+  if (!/^20\d{2}\b/.test(source) || !EXAM_SOURCE_PATTERN.test(source)) return "";
+  return source;
+}
+
 function readMathGroup(source, start) {
   if (source[start] !== "{") return null;
   let depth = 0;
@@ -19,14 +27,21 @@ function readMathGroup(source, start) {
   return null;
 }
 
+function readMathAtom(source, start) {
+  const group = readMathGroup(source, start);
+  if (group) return group;
+  if (start >= source.length) return null;
+  return { content: source[start], end: start + 1 };
+}
+
 function renderMathExpression(value) {
   const source = String(value ?? "");
   let markup = "";
   let cursor = 0;
   while (cursor < source.length) {
     if (source.startsWith("\\frac", cursor)) {
-      const numerator = readMathGroup(source, cursor + 5);
-      const denominator = numerator && readMathGroup(source, numerator.end);
+      const numerator = readMathAtom(source, cursor + 5);
+      const denominator = numerator && readMathAtom(source, numerator.end);
       if (numerator && denominator) {
         markup += '<span class="math-fraction"><span class="math-numerator">' + renderMathExpression(numerator.content) + '</span><span class="math-denominator">' + renderMathExpression(denominator.content) + "</span></span>";
         cursor = denominator.end;
@@ -34,10 +49,34 @@ function renderMathExpression(value) {
       }
     }
     if (source.startsWith("\\sqrt", cursor)) {
-      const radicand = readMathGroup(source, cursor + 5);
+      let radicandStart = cursor + 5;
+      let rootIndex = "";
+      if (source[radicandStart] === "[") {
+        const closing = source.indexOf("]", radicandStart + 1);
+        if (closing >= 0) {
+          rootIndex = source.slice(radicandStart + 1, closing);
+          radicandStart = closing + 1;
+        }
+      }
+      const radicand = readMathAtom(source, radicandStart);
       if (radicand) {
-        markup += '<span class="math-radical"><span class="math-radical-symbol">√</span><span class="math-radicand">' + renderMathExpression(radicand.content) + "</span></span>";
+        const rootSymbol = rootIndex === "3" ? "∛" : "√";
+        markup += '<span class="math-radical"><span class="math-radical-symbol">' + rootSymbol + '</span><span class="math-radicand">' + renderMathExpression(radicand.content) + "</span></span>";
         cursor = radicand.end;
+        continue;
+      }
+    }
+    if (source.startsWith("\\mathbb", cursor)) {
+      let symbolStart = cursor + 7;
+      while (/\s/.test(source[symbolStart] || "")) symbolStart += 1;
+      const group = readMathAtom(source, symbolStart);
+      if (group) {
+        const symbols = { N: "ℕ", Z: "ℤ", Q: "ℚ", R: "ℝ", C: "ℂ" };
+        const symbol = symbols[group.content];
+        markup += symbol
+          ? `<span class="math-blackboard">${symbol}</span>`
+          : esc(group.content);
+        cursor = group.end;
         continue;
       }
     }
@@ -49,6 +88,37 @@ function renderMathExpression(value) {
     if (source.startsWith("\\subseteq", cursor)) {
       markup += "⊆";
       cursor += "\\subseteq".length;
+      continue;
+    }
+    const symbolCommands = [
+      ["\\varnothing", "∅"],
+      [
+        "\\notin",
+        '<span class="math-notin" role="img" aria-label="不属于"><svg viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M15 3H9C5.3 3 3 5.5 3 9s2.3 6 6 6h6M3.7 9h10.8M4.5 16L14 2"/></svg></span>',
+      ],
+      ["\\middle|", "|"],
+      ["\\Delta", "Δ"],
+      ["\\ldots", "…"],
+      ["\\pi", "π"],
+      ["\\cdot", "·"],
+      ["\\left", ""],
+      ["\\right", ""],
+      ["\\not=", "≠"],
+      ["\\iff", "⇔"],
+      ["\\ne", "≠"],
+      ["\\le", "≤"],
+      ["\\ge", "≥"],
+      ["\\pm", "±"],
+      ["\\in", "∈"],
+      ["\\mid", "|"],
+      ["\\{", "{"],
+      ["\\}", "}"],
+      ["\\,", ""],
+    ];
+    const command = symbolCommands.find(([name]) => source.startsWith(name, cursor));
+    if (command) {
+      markup += command[1];
+      cursor += command[0].length;
       continue;
     }
     if (source[cursor] === "_") {
@@ -79,7 +149,7 @@ function renderMathExpression(value) {
           continue;
         }
       }
-      const exponent = source.slice(cursor + 1).match(/^[+-]?(?:\d+(?:\.\d+)?|[A-Za-z])/);
+      const exponent = source.slice(cursor + 1).match(/^[+-]?(?:\d+(?:\.\d+)?|[A-Za-z*])/);
       if (exponent) {
         markup += "<sup>" + esc(exponent[0]) + "</sup>";
         cursor += exponent[0].length + 1;
@@ -104,6 +174,59 @@ export function renderInlineMathText(value) {
     cursor = match.index + match[0].length;
   }
   return markup + esc(source.slice(cursor));
+}
+
+export function renderSetFigure(figure = {}) {
+  if (figure.kind === "venn-two") {
+    const shade = figure.shade === "A-only" ? "A-only" : "B-only";
+    const maskId = shade === "A-only" ? "venn-a-minus-b-mask" : "venn-b-minus-a-mask";
+    const includedCircle = shade === "A-only"
+      ? '<circle cx="213" cy="120" r="76" fill="white"/>'
+      : '<circle cx="267" cy="120" r="76" fill="white"/>';
+    const excludedCircle = shade === "A-only"
+      ? '<circle cx="267" cy="120" r="76" fill="black"/>'
+      : '<circle cx="213" cy="120" r="76" fill="black"/>';
+    return `
+      <figure class="set-figure">
+        <svg viewBox="0 0 480 250" role="img" aria-label="${esc(figure.ariaLabel || "两个集合的 Venn 图")}">
+          <defs>
+            <mask id="${maskId}" maskUnits="userSpaceOnUse" x="0" y="0" width="480" height="250">
+              <rect x="0" y="0" width="480" height="250" fill="black"/>
+              ${includedCircle}
+              ${excludedCircle}
+            </mask>
+          </defs>
+          <rect class="set-figure-universe" x="34" y="22" width="412" height="202" rx="4"/>
+          <rect class="set-figure-shade" x="0" y="0" width="480" height="250" mask="url(#${maskId})"/>
+          <circle class="set-figure-set" cx="213" cy="120" r="76"/>
+          <circle class="set-figure-set" cx="267" cy="120" r="76"/>
+          <text x="192" y="205">A</text>
+          <text x="285" y="205">B</text>
+          <text x="414" y="48">U</text>
+        </svg>
+        ${figure.caption ? `<figcaption>${esc(figure.caption)}</figcaption>` : ""}
+      </figure>
+    `;
+  }
+  if (figure.kind === "venn-classification") {
+    return `
+      <figure class="set-figure is-classification">
+        <svg viewBox="0 0 600 330" role="img" aria-label="${esc(figure.ariaLabel || "四边形分类的 Venn 图")}">
+          <rect class="set-figure-universe" x="34" y="24" width="532" height="270" rx="4"/>
+          <ellipse class="set-figure-set" cx="300" cy="150" rx="190" ry="112"/>
+          <ellipse class="set-figure-set" cx="250" cy="142" rx="92" ry="72"/>
+          <ellipse class="set-figure-set" cx="350" cy="142" rx="92" ry="72"/>
+          <text x="48" y="278">四边形</text>
+          <text x="214" y="251">平行四边形</text>
+          <text x="190" y="148">菱形</text>
+          <text x="378" y="148">矩形</text>
+          <text x="270" y="148">正方形</text>
+        </svg>
+        ${figure.caption ? `<figcaption>${esc(figure.caption)}</figcaption>` : ""}
+      </figure>
+    `;
+  }
+  return "";
 }
 
 function plainMathText(value) {
