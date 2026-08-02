@@ -189,6 +189,7 @@ class FunctionalBindingContextBuilder:
         *,
         catalog: FunctionalCapabilityCatalog,
         object_registry: MathObjectRegistry | None = None,
+        resolver_injected_arg_keys: frozenset[tuple[str, str]] = frozenset(),
     ) -> FunctionalBindingContext:
         wire_calls = {item.call_id: item for item in plan.calls}
         bindings: list[FunctionalArgBinding] = []
@@ -287,7 +288,10 @@ class FunctionalBindingContextBuilder:
                         )
                     continue
                 authored_on_wire = (
-                    wire_call is not None and arg_name in wire_call.args
+                    wire_call is not None
+                    and arg_name in wire_call.args
+                    and (call.call_id, arg_name)
+                    not in resolver_injected_arg_keys
                 )
                 if spec.binding_authority != "wire" and wire_call is not None and (
                     arg_name in wire_call.args

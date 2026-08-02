@@ -55,6 +55,12 @@ def test_symbolic_closure_counts_include_failed_attempt_artifacts(
                 "functional_transaction_execution": {
                     "symbolic_closure_execution_count": execution_count,
                     "symbolic_closure_drift_count": drift_count,
+                    "symbolic_closure_execution_by_capability": {
+                        "parameter_from_expression_value": execution_count,
+                    },
+                    "symbolic_closure_drift_by_capability": {
+                        "parameter_from_expression_value": drift_count,
+                    },
                 }
             }
         }
@@ -63,7 +69,13 @@ def test_symbolic_closure_counts_include_failed_attempt_artifacts(
             encoding="utf-8",
         )
 
-    assert _attempt_symbolic_closure_counts(tmp_path) == (3, 1, True)
+    assert _attempt_symbolic_closure_counts(tmp_path) == (
+        3,
+        1,
+        {"parameter_from_expression_value": 3},
+        {"parameter_from_expression_value": 1},
+        True,
+    )
 
 
 def test_prompt_metadata_guard_allows_capability_prefixed_by_example_id() -> None:

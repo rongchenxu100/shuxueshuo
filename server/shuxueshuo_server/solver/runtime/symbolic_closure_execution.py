@@ -74,6 +74,8 @@ class SymbolicEquationBuilder(Protocol):
         self,
         args: Mapping[str, Any],
         known_substitutions: Mapping[sp.Symbol, sp.Expr],
+        *,
+        kernel: SympyKernel,
     ) -> SymbolicEquationBuildResult: ...
 
 
@@ -119,7 +121,10 @@ class SymbolicClosureExecutionResult:
     branch_count: int = 0
     affected_returns: tuple[str, ...] = ()
     provenance: SymbolicClosureProvenance | None = None
-    runtime_validated: bool = False
+    # True means the output validator has enough runtime context to run. The
+    # outputs are only validated when validate_symbolic_closure_outputs()
+    # succeeds after materialization.
+    validation_context_attached: bool = False
     output_validator: str | None = None
     validation_args: Mapping[str, Any] | None = None
     validation_build: SymbolicEquationBuildResult | None = None
@@ -146,13 +151,36 @@ class SymbolicClosureExecutionResult:
             ],
             "branch_count": self.branch_count,
             "affected_returns": list(self.affected_returns),
-            "runtime_validated": self.runtime_validated,
+            "validation_context_attached": self.validation_context_attached,
             "provenance": (
                 self.provenance.to_payload()
                 if self.provenance is not None
                 else None
             ),
         }
+
+
+@dataclass(frozen=True)
+class SymbolicClosureMathResult:
+    """Identity-free projection of the shared closure solve."""
+
+    status: SymbolicClosureExecutionStatus
+    target: sp.Symbol | None
+    target_value: sp.Expr | None
+    substitutions: tuple[tuple[sp.Symbol, sp.Expr], ...]
+    residual_symbols: tuple[sp.Symbol, ...]
+    branch_count: int
+    build_result: SymbolicEquationBuildResult | None
+    output_validation_context: Mapping[str, Any] | None
+    known_substitution_sources: tuple[str, ...] = ()
+    preserved_symbols: tuple[sp.Symbol, ...] = ()
+    equation_sources: tuple[str, ...] = ()
+    affected_returns: tuple[str, ...] = ()
+    output_validator: str | None = None
+
+    @property
+    def substitution(self) -> dict[sp.Symbol, sp.Expr]:
+        return dict(self.substitutions)
 
 
 class _Registry:
@@ -279,6 +307,44 @@ def default_symbolic_closure_registries() -> SymbolicClosureRegistries:
             "all_coefficients": "SymbolList",
         },
     )
+    builders.register(
+        "point_on_curve",
+        _point_on_curve,
+        input_requirements={
+            "quadratic": "Parabola",
+            "x": "Symbol",
+            "point": "Point",
+            "parameter": "Symbol",
+        },
+    )
+    builders.register(
+        "expression_equals_value",
+        _expression_equals_value,
+        input_requirements={
+            "expression": "MinimumExpression",
+            "condition": "Condition",
+            "parameter": "Symbol",
+        },
+    )
+    builders.register(
+        "minimum_expression_equals_value",
+        _minimum_expression_equals_value,
+        input_requirements={
+            "minimum_expression": "MinimumExpression",
+            "condition": "Condition",
+            "parameter": "Symbol",
+        },
+    )
+    builders.register(
+        "segment_length_equals_value",
+        _segment_length_equals_value,
+        input_requirements={
+            "p1": "Point",
+            "p2": "Point",
+            "condition": "Condition",
+            "parameter": "Symbol",
+        },
+    )
     mappers = SymbolicRepresentationMapperRegistry()
     mappers.register(
         "polynomial_coefficient_template",
@@ -305,6 +371,14 @@ def default_symbolic_closure_registries() -> SymbolicClosureRegistries:
     validators.register(
         "quadratic_closure_outputs",
         _validate_quadratic_closure_outputs,
+    )
+    validators.register(
+        "parameter_value_closure_outputs",
+        _validate_parameter_value_closure_outputs,
+    )
+    validators.register(
+        "point_on_curve_closure_outputs",
+        _validate_point_on_curve_closure_outputs,
     )
     return SymbolicClosureRegistries(
         builders,
@@ -418,9 +492,77 @@ def execute_symbolic_closure(
         raise SymbolicClosureRuntimeDriftError(
             f"target binding identity drift: {spec.target_arg}"
         )
-    known: dict[sp.Symbol, sp.Expr] = {}
-    known_sources: list[str] = []
-    known_conflict = False
+    _validate_symbolic_closure_input_identities(
+        spec,
+        args=args,
+        runtime_symbol_bindings=runtime_symbol_bindings,
+        arg_object_ids=arg_object_ids or {},
+    )
+    math_result = solve_symbolic_closure_math(
+        spec,
+        args=args,
+        kernel=kernel,
+        registries=registries,
+    )
+    residual_ids = _symbol_ids(
+        math_result.residual_symbols,
+        runtime_symbol_bindings,
+    )
+    preserved_ids = _symbol_ids(
+        math_result.preserved_symbols,
+        runtime_symbol_bindings,
+    )
+    provenance = SymbolicClosureProvenance(
+        status=math_result.status,
+        target_object_id=target_object_id,
+        target_value=(
+            sp.sstr(math_result.target_value)
+            if math_result.target_value is not None
+            else None
+        ),
+        substitutions=tuple(
+            (runtime_symbol_bindings[symbol], sp.sstr(value))
+            for symbol, value in math_result.substitutions
+            if symbol in runtime_symbol_bindings
+        ),
+        residual_symbol_ids=residual_ids,
+        branch_count=math_result.branch_count,
+        equation_builder=spec.equation_builder,
+        representation_mapper=spec.representation_mapper,
+        constraint_filter=spec.constraint_filter,
+        target_binding=target_binding,
+        equation_sources=math_result.equation_sources,
+        known_substitution_sources=(
+            math_result.known_substitution_sources
+        ),
+        preserved_symbol_ids=preserved_ids,
+        affected_returns=spec.substitution_outputs,
+    )
+    return SymbolicClosureExecutionResult(
+        status=math_result.status,
+        target=math_result.target,
+        target_object_id=target_object_id,
+        target_value=math_result.target_value,
+        substitutions=math_result.substitutions,
+        residual_symbols=math_result.residual_symbols,
+        residual_symbol_ids=residual_ids,
+        branch_count=math_result.branch_count,
+        affected_returns=spec.substitution_outputs,
+        provenance=provenance,
+        validation_context_attached=True,
+        output_validator=spec.output_validator,
+        validation_args=dict(args),
+        validation_build=math_result.build_result,
+    )
+
+
+def _validate_symbolic_closure_input_identities(
+    spec: SymbolicClosureSpec,
+    *,
+    args: Mapping[str, Any],
+    runtime_symbol_bindings: Mapping[sp.Symbol, MathObjectId],
+    arg_object_ids: Mapping[str, tuple[MathObjectId, ...]],
+) -> None:
     for symbol_arg, value_arg in spec.known_substitutions:
         symbol = args.get(symbol_arg)
         value = args.get(value_arg)
@@ -436,11 +578,6 @@ def execute_symbolic_closure(
             expected_ids=(arg_object_ids or {}).get(symbol_arg, ()),
             runtime_symbol_bindings=runtime_symbol_bindings,
         )
-        known_conflict = (
-            _merge_known_substitution(known, symbol, value)
-            or known_conflict
-        )
-        known_sources.append(f"{symbol_arg}+{value_arg}")
     for mapping_arg in spec.known_mapping_args:
         raw_mapping = args.get(mapping_arg)
         if raw_mapping is None:
@@ -463,11 +600,7 @@ def execute_symbolic_closure(
                     runtime_symbol_bindings=runtime_symbol_bindings,
                 )
             )
-            known_conflict = (
-                _merge_known_substitution(known, symbol, value)
-                or known_conflict
-            )
-        expected_mapping_ids = (arg_object_ids or {}).get(mapping_arg, ())
+        expected_mapping_ids = arg_object_ids.get(mapping_arg, ())
         if expected_mapping_ids and (
             len(expected_mapping_ids) != len(actual_mapping_ids)
             or frozenset(expected_mapping_ids)
@@ -476,17 +609,9 @@ def execute_symbolic_closure(
             raise SymbolicClosureRuntimeDriftError(
                 f"known mapping identity drift: {mapping_arg}"
             )
-        known_sources.append(mapping_arg)
-    preserve_symbols = tuple(
-        dict.fromkeys(
-            symbol
-            for arg_name in spec.preserved_symbol_args
-            for symbol in _symbols_from_arg(args.get(arg_name))
-        )
-    )
     for arg_name in spec.preserved_symbol_args:
         symbols = _symbols_from_arg(args.get(arg_name))
-        expected_ids = (arg_object_ids or {}).get(arg_name, ())
+        expected_ids = arg_object_ids.get(arg_name, ())
         if expected_ids and len(expected_ids) != len(symbols):
             raise SymbolicClosureRuntimeDriftError(
                 "preserved symbol cardinality drift: "
@@ -504,104 +629,103 @@ def execute_symbolic_closure(
                 ),
                 runtime_symbol_bindings=runtime_symbol_bindings,
             )
+
+
+def solve_symbolic_closure_math(
+    spec: SymbolicClosureSpec,
+    *,
+    args: Mapping[str, Any],
+    kernel: SympyKernel,
+    registries: SymbolicClosureRegistries | None = None,
+) -> SymbolicClosureMathResult:
+    """Solve one closure without Planner identity or provenance projection."""
+    registries = registries or default_symbolic_closure_registries()
+    target = args.get(spec.target_arg)
+    if target is None:
+        return SymbolicClosureMathResult(
+            status="not_applicable",
+            target=None,
+            target_value=None,
+            substitutions=(),
+            residual_symbols=(),
+            branch_count=0,
+            build_result=None,
+            output_validation_context=dict(args),
+            affected_returns=spec.substitution_outputs,
+            output_validator=spec.output_validator,
+        )
+    if not isinstance(target, sp.Symbol):
+        raise SymbolicClosureRuntimeDriftError(
+            f"target is not a Symbol: {spec.target_arg}"
+        )
+    known, known_sources, known_conflict = _known_substitutions(
+        spec,
+        args=args,
+    )
+    preserve_symbols = tuple(
+        dict.fromkeys(
+            symbol
+            for arg_name in spec.preserved_symbol_args
+            for symbol in _symbols_from_arg(args.get(arg_name))
+        )
+    )
     constraint_values, constraint_filter = _constraint_filter_inputs(
         spec,
         args=args,
         registries=registries,
     )
     builder = registries.equation_builders.require(spec.equation_builder)
-    build = builder(args, known)
-    preclosed = dict(known)
+    build = builder(args, known, kernel=kernel)
     if known_conflict:
-        return _with_output_validation(
-            _preclosed_result(
-                spec,
-                status="inconsistent",
-                target=raw_target,
-                target_object_id=target_object_id,
-                substitutions=preclosed,
-                target_value=None,
-                runtime_symbol_bindings=runtime_symbol_bindings,
-                target_binding=target_binding,
-                known_sources=tuple(known_sources),
-                preserve_symbols=preserve_symbols,
-                equation_sources=(
-                    "known_substitution_conflict",
-                    *build.equation_sources,
-                ),
-                branch_count=0,
-            ),
+        return _math_result(
             spec,
+            status="inconsistent",
+            target=target,
+            target_value=None,
+            substitutions=known,
+            residual_symbols=preserve_symbols,
+            branch_count=0,
             args=args,
             build=build,
+            known_sources=known_sources,
+            preserve_symbols=preserve_symbols,
+            equation_sources=(
+                "known_substitution_conflict",
+                *build.equation_sources,
+            ),
         )
-    if raw_target in preclosed:
-        (
-            preclosed_status,
-            preclosed,
-            preclosed_branch_count,
-        ) = _resolve_preclosed_equations(
+    if target in known:
+        status, substitutions, branch_count = _resolve_preclosed_equations(
             build.equations,
-            substitutions=preclosed,
+            substitutions=known,
             preserve_symbols=preserve_symbols,
             solvable_symbols=build.solvable_symbols,
             kernel=kernel,
         )
-        target_value = sp.simplify(
-            preclosed[raw_target].subs(preclosed)
-        )
+        target_value = sp.simplify(substitutions[target].subs(substitutions))
         if (
-            preclosed_status != "unique"
-            or (
-                constraint_filter is not None
-                and not constraint_filter(target_value, constraint_values)
-            )
+            status == "unique"
+            and constraint_filter is not None
+            and not constraint_filter(target_value, constraint_values)
         ):
-            return _with_output_validation(
-                _preclosed_result(
-                    spec,
-                    status=(
-                        preclosed_status
-                        if preclosed_status != "unique"
-                        else "inconsistent"
-                    ),
-                    target=raw_target,
-                    target_object_id=target_object_id,
-                    substitutions=preclosed,
-                    target_value=None,
-                    runtime_symbol_bindings=runtime_symbol_bindings,
-                    target_binding=target_binding,
-                    known_sources=tuple(known_sources),
-                    preserve_symbols=preserve_symbols,
-                    equation_sources=build.equation_sources,
-                    branch_count=(
-                        preclosed_branch_count
-                        if preclosed_status != "unique"
-                        else 1
-                    ),
-                ),
-                spec,
-                args=args,
-                build=build,
-            )
-        return _with_output_validation(
-            _preclosed_result(
-                spec,
-                status="unique",
-                target=raw_target,
-                target_object_id=target_object_id,
-                substitutions=preclosed,
-                target_value=target_value,
-                runtime_symbol_bindings=runtime_symbol_bindings,
-                target_binding=target_binding,
-                known_sources=tuple(known_sources),
-                preserve_symbols=preserve_symbols,
-                equation_sources=build.equation_sources,
-                branch_count=preclosed_branch_count,
-            ),
+            status = "inconsistent"
+        return _math_result(
             spec,
+            status=status,
+            target=target,
+            target_value=(target_value if status == "unique" else None),
+            substitutions=substitutions,
+            residual_symbols=_preclosed_residual_symbols(
+                target,
+                target_value if status == "unique" else None,
+                preserve_symbols,
+            ),
+            branch_count=(branch_count if status != "inconsistent" else 0),
             args=args,
             build=build,
+            known_sources=known_sources,
+            preserve_symbols=preserve_symbols,
+            equation_sources=("known_target_value", *build.equation_sources),
         )
     mapper = (
         registries.representation_mappers.require(
@@ -612,7 +736,7 @@ def execute_symbolic_closure(
     )
     target_expression = (
         mapper(
-            target=raw_target,
+            target=target,
             args=args,
             build=build,
             known_substitutions=known,
@@ -622,7 +746,7 @@ def execute_symbolic_closure(
     )
     solved = solve_target_symbol_closure(
         build.equations,
-        target=raw_target,
+        target=target,
         target_expression=target_expression,
         kernel=kernel,
         accept_target=(
@@ -632,69 +756,145 @@ def execute_symbolic_closure(
         ),
         preserve_symbols=preserve_symbols,
     )
-    status: SymbolicClosureExecutionStatus = solved.status
-    all_substitutions = dict(known)
-    all_substitutions.update(solved.substitution)
+    substitutions = {**known, **solved.substitution}
     if solved.target_value is not None:
-        all_substitutions[raw_target] = solved.target_value
+        substitutions[target] = solved.target_value
     residual_symbols = (
         _resolved_residual_symbols(
             solved.residual_symbols,
-            all_substitutions,
+            substitutions,
         )
-        if status == "unique"
+        if solved.status == "unique"
         else solved.residual_symbols
     )
-    residual_ids = _symbol_ids(
-        residual_symbols,
-        runtime_symbol_bindings,
-    )
-    preserved_ids = _symbol_ids(
-        preserve_symbols,
-        runtime_symbol_bindings,
-    )
-    substitution_provenance = tuple(
-        (runtime_symbol_bindings[symbol], sp.sstr(value))
-        for symbol, value in all_substitutions.items()
-        if symbol in runtime_symbol_bindings
-    )
-    provenance = SymbolicClosureProvenance(
-        status=status,
-        target_object_id=target_object_id,
-        target_value=(
-            sp.sstr(solved.target_value)
-            if solved.target_value is not None
-            else None
-        ),
-        substitutions=substitution_provenance,
-        residual_symbol_ids=residual_ids,
-        branch_count=solved.branch_count,
-        equation_builder=spec.equation_builder,
-        representation_mapper=spec.representation_mapper,
-        constraint_filter=spec.constraint_filter,
-        target_binding=target_binding,
-        equation_sources=build.equation_sources,
-        known_substitution_sources=tuple(known_sources),
-        preserved_symbol_ids=preserved_ids,
-        affected_returns=spec.substitution_outputs,
-    )
-    return _with_output_validation(
-        SymbolicClosureExecutionResult(
-            status=status,
-            target=raw_target,
-            target_object_id=target_object_id,
-            target_value=solved.target_value,
-            substitutions=tuple(all_substitutions.items()),
-            residual_symbols=residual_symbols,
-            residual_symbol_ids=residual_ids,
-            branch_count=solved.branch_count,
-            affected_returns=spec.substitution_outputs,
-            provenance=provenance,
-            runtime_validated=True,
-        ),
+    return _math_result(
         spec,
+        status=solved.status,
+        target=target,
+        target_value=solved.target_value,
+        substitutions=substitutions,
+        residual_symbols=residual_symbols,
+        branch_count=solved.branch_count,
         args=args,
         build=build,
+        known_sources=known_sources,
+        preserve_symbols=preserve_symbols,
+        equation_sources=build.equation_sources,
+    )
+
+
+def _known_substitutions(
+    spec: SymbolicClosureSpec,
+    *,
+    args: Mapping[str, Any],
+) -> tuple[dict[sp.Symbol, sp.Expr], tuple[str, ...], bool]:
+    known: dict[sp.Symbol, sp.Expr] = {}
+    sources: list[str] = []
+    conflict = False
+    for symbol_arg, value_arg in spec.known_substitutions:
+        symbol = args.get(symbol_arg)
+        value = args.get(value_arg)
+        if symbol is None and value is None:
+            continue
+        if not isinstance(symbol, sp.Symbol) or value is None:
+            raise SymbolicClosureRuntimeDriftError(
+                f"incomplete known substitution: {symbol_arg}/{value_arg}"
+            )
+        conflict = _merge_known_substitution(known, symbol, value) or conflict
+        sources.append(f"{symbol_arg}+{value_arg}")
+    for mapping_arg in spec.known_mapping_args:
+        mapping = args.get(mapping_arg)
+        if mapping is None:
+            continue
+        if not isinstance(mapping, Mapping):
+            raise SymbolicClosureRuntimeDriftError(
+                f"known mapping is not a mapping: {mapping_arg}"
+            )
+        for symbol, value in mapping.items():
+            if not isinstance(symbol, sp.Symbol):
+                raise SymbolicClosureRuntimeDriftError(
+                    f"known mapping key is not Symbol: {mapping_arg}"
+                )
+            conflict = (
+                _merge_known_substitution(known, symbol, value) or conflict
+            )
+        sources.append(mapping_arg)
+    return known, tuple(sources), conflict
+
+
+def _math_result(
+    spec: SymbolicClosureSpec,
+    *,
+    status: SymbolicClosureExecutionStatus,
+    target: sp.Symbol,
+    target_value: sp.Expr | None,
+    substitutions: Mapping[sp.Symbol, sp.Expr],
+    residual_symbols: Sequence[sp.Symbol],
+    branch_count: int,
+    args: Mapping[str, Any],
+    build: SymbolicEquationBuildResult,
+    known_sources: Sequence[str],
+    preserve_symbols: Sequence[sp.Symbol],
+    equation_sources: Sequence[str],
+) -> SymbolicClosureMathResult:
+    return SymbolicClosureMathResult(
+        status=status,
+        target=target,
+        target_value=target_value,
+        substitutions=tuple(substitutions.items()),
+        residual_symbols=tuple(residual_symbols),
+        branch_count=branch_count,
+        build_result=build,
+        output_validation_context=dict(args),
+        known_substitution_sources=tuple(known_sources),
+        preserved_symbols=tuple(preserve_symbols),
+        equation_sources=tuple(dict.fromkeys(equation_sources)),
+        affected_returns=spec.substitution_outputs,
+        output_validator=spec.output_validator,
+    )
+
+
+def _preclosed_residual_symbols(
+    target: sp.Symbol,
+    target_value: sp.Expr | None,
+    preserve_symbols: Sequence[sp.Symbol],
+) -> tuple[sp.Symbol, ...]:
+    return tuple(
+        sorted(
+            {
+                *(target_value.free_symbols if target_value is not None else ()),
+                *preserve_symbols,
+            }
+            - {target},
+            key=lambda symbol: symbol.sort_key(),
+        )
+    )
+
+
+def require_unique_symbolic_closure(
+    result: SymbolicClosureMathResult,
+) -> SymbolicClosureExecutionResult:
+    if result.status == "unique" and result.target_value is not None:
+        return SymbolicClosureExecutionResult(
+            status=result.status,
+            target=result.target,
+            target_value=result.target_value,
+            substitutions=result.substitutions,
+            residual_symbols=result.residual_symbols,
+            branch_count=result.branch_count,
+            affected_returns=result.affected_returns,
+            validation_context_attached=True,
+            output_validator=result.output_validator,
+            validation_args=result.output_validation_context,
+            validation_build=result.build_result,
+        )
+    target = result.target.name if result.target is not None else "<unresolved>"
+    residual = ",".join(
+        symbol.name for symbol in result.residual_symbols
+    ) or "<none>"
+    raise ValueError(
+        f"{closure_failure_code(result.status)}: target={target}, "
+        f"residual_symbols={residual}, branch_count={result.branch_count}"
     )
 
 
@@ -807,21 +1007,6 @@ def _resolve_preclosed_equations(
     return "unique", resolved_substitutions, 1
 
 
-def _with_output_validation(
-    result: SymbolicClosureExecutionResult,
-    spec: SymbolicClosureSpec,
-    *,
-    args: Mapping[str, Any],
-    build: SymbolicEquationBuildResult,
-) -> SymbolicClosureExecutionResult:
-    return replace(
-        result,
-        output_validator=spec.output_validator,
-        validation_args=dict(args),
-        validation_build=build,
-    )
-
-
 def _constraint_filter_inputs(
     spec: SymbolicClosureSpec,
     *,
@@ -836,88 +1021,18 @@ def _constraint_filter_inputs(
         if name not in args or args[name] is None
     )
     if missing:
+        if spec.constraint_args_optional and len(missing) == len(
+            spec.constraint_args
+        ):
+            return (), registries.constraint_filters.require(
+                spec.constraint_filter
+            )
         raise SymbolicClosureRuntimeDriftError(
             "constraint filter inputs missing: " + ", ".join(missing)
         )
     return (
         tuple(args[name] for name in spec.constraint_args),
         registries.constraint_filters.require(spec.constraint_filter),
-    )
-
-
-def _preclosed_result(
-    spec: SymbolicClosureSpec,
-    *,
-    status: SymbolicClosureExecutionStatus,
-    target: sp.Symbol,
-    target_object_id: MathObjectId,
-    substitutions: Mapping[sp.Symbol, sp.Expr],
-    target_value: sp.Expr | None,
-    runtime_symbol_bindings: Mapping[sp.Symbol, MathObjectId],
-    target_binding: str | None,
-    known_sources: tuple[str, ...],
-    preserve_symbols: tuple[sp.Symbol, ...],
-    equation_sources: tuple[str, ...],
-    branch_count: int,
-) -> SymbolicClosureExecutionResult:
-    residual_symbols = tuple(
-        sorted(
-            {
-                *(
-                    target_value.free_symbols
-                    if target_value is not None
-                    else ()
-                ),
-                *preserve_symbols,
-            }
-            - {target},
-            key=lambda symbol: symbol.name,
-        )
-    )
-    residual_ids = _symbol_ids(
-        residual_symbols,
-        runtime_symbol_bindings,
-    )
-    preserved_ids = _symbol_ids(
-        preserve_symbols,
-        runtime_symbol_bindings,
-    )
-    provenance = SymbolicClosureProvenance(
-        status=status,
-        target_object_id=target_object_id,
-        target_value=(
-            sp.sstr(target_value) if target_value is not None else None
-        ),
-        substitutions=tuple(
-            (runtime_symbol_bindings[symbol], sp.sstr(value))
-            for symbol, value in substitutions.items()
-            if symbol in runtime_symbol_bindings
-        ),
-        residual_symbol_ids=residual_ids,
-        branch_count=branch_count,
-        equation_builder=spec.equation_builder,
-        representation_mapper=spec.representation_mapper,
-        constraint_filter=spec.constraint_filter,
-        target_binding=target_binding,
-        equation_sources=tuple(
-            dict.fromkeys(("known_target_value", *equation_sources))
-        ),
-        known_substitution_sources=known_sources,
-        preserved_symbol_ids=preserved_ids,
-        affected_returns=spec.substitution_outputs,
-    )
-    return SymbolicClosureExecutionResult(
-        status=status,
-        target=target,
-        target_object_id=target_object_id,
-        target_value=target_value,
-        substitutions=tuple(substitutions.items()),
-        residual_symbols=residual_symbols,
-        residual_symbol_ids=residual_ids,
-        branch_count=branch_count,
-        affected_returns=spec.substitution_outputs,
-        provenance=provenance,
-        runtime_validated=True,
     )
 
 
@@ -931,9 +1046,9 @@ def substitute_symbolic_closure_output(
 ) -> TypedValue:
     if result.status != "unique":
         return value
-    if not result.runtime_validated:
+    if not result.validation_context_attached:
         raise SymbolicClosureRuntimeDriftError(
-            "symbolic closure result was not runtime validated"
+            "symbolic closure validation context is not attached"
         )
     registries = registries or default_symbolic_closure_registries()
     adapter: Callable[[Any, Mapping[sp.Symbol, sp.Expr]], Any] = (
@@ -980,9 +1095,9 @@ def validate_symbolic_closure_outputs(
 ) -> tuple[CheckResult, ...]:
     if result.status != "unique":
         return ()
-    if not result.runtime_validated:
+    if not result.validation_context_attached:
         raise SymbolicClosureRuntimeDriftError(
-            "symbolic closure result was not runtime validated"
+            "symbolic closure validation context is not attached"
         )
     if result.output_validator is None:
         raise SymbolicClosureRuntimeDriftError(
@@ -1004,6 +1119,42 @@ def validate_symbolic_closure_outputs(
     )
 
 
+def materialize_symbolic_closure_outputs(
+    outputs: Mapping[str, TypedValue],
+    result: SymbolicClosureExecutionResult,
+    *,
+    registries: SymbolicClosureRegistries | None = None,
+) -> tuple[dict[str, TypedValue], tuple[CheckResult, ...]]:
+    """Apply one closure substitution and validate the output set atomically."""
+    if result.status != "unique":
+        raise SymbolicClosureRuntimeDriftError(
+            f"cannot materialize non-unique closure: {result.status}"
+        )
+    registries = registries or default_symbolic_closure_registries()
+    materialized = {
+        return_name: substitute_symbolic_closure_output(
+            value,
+            result,
+            return_name=return_name,
+            validate_output=False,
+            registries=registries,
+        )
+        for return_name, value in outputs.items()
+    }
+    checks = validate_symbolic_closure_outputs(
+        materialized,
+        result,
+        registries=registries,
+    )
+    failed = tuple(check.name for check in checks if not check.ok)
+    if failed:
+        raise SymbolicClosureRuntimeDriftError(
+            "closure output set does not match runtime solve: "
+            + ", ".join(failed)
+        )
+    return materialized, checks
+
+
 def closure_failure_code(status: SymbolicClosureExecutionStatus) -> str:
     return {
         "identity_unresolved": "function.symbolic_closure_identity_unresolved",
@@ -1016,7 +1167,10 @@ def closure_failure_code(status: SymbolicClosureExecutionStatus) -> str:
 def _quadratic_constraints(
     args: Mapping[str, Any],
     known_substitutions: Mapping[sp.Symbol, sp.Expr],
+    *,
+    kernel: SympyKernel,
 ) -> SymbolicEquationBuildResult:
+    del kernel
     sources: list[str] = []
     equations: list[Any] = []
     for arg_name in ("coefficient_relation", "extra_equation"):
@@ -1066,6 +1220,190 @@ def _quadratic_constraints(
     )
 
 
+def _point_on_curve(
+    args: Mapping[str, Any],
+    known_substitutions: Mapping[sp.Symbol, sp.Expr],
+    *,
+    kernel: SympyKernel,
+) -> SymbolicEquationBuildResult:
+    del kernel
+    quadratic = sp.expand(
+        sp.sympify(args["quadratic"]).subs(known_substitutions)
+    )
+    point = tuple(
+        sp.sympify(item).subs(known_substitutions)
+        for item in args["point"]
+    )
+    x = args["x"]
+    target = args["parameter"]
+    equation = sp.Eq(quadratic.subs(x, point[0]), point[1])
+    coefficient_symbols = tuple(
+        sorted(
+            (quadratic.free_symbols | set().union(
+                *(item.free_symbols for item in point)
+            ))
+            - {x},
+            key=lambda symbol: symbol.name,
+        )
+    )
+    request = QuadraticConstraintSolveRequest(
+        base_expression=quadratic,
+        independent_symbol=x,
+        coefficient_symbols=coefficient_symbols,
+        coefficient_template=args.get("quadratic_template"),
+        curve_points=(point,),
+        parameter_substitutions=dict(known_substitutions),
+        target_symbol=target,
+    )
+    system = build_quadratic_constraint_system(request)
+    equations: tuple[Any, ...] = (
+        (sp.S.false,)
+        if system.contradictory
+        else tuple(dict.fromkeys((equation, *system.equations)))
+    )
+    return SymbolicEquationBuildResult(
+        equations,
+        ("point",),
+        {
+            "quadratic": quadratic,
+            "point": point,
+            "quadratic_request": request,
+            "quadratic_system": system,
+        },
+        coefficient_symbols,
+    )
+
+
+def _expression_equals_value(
+    args: Mapping[str, Any],
+    known_substitutions: Mapping[sp.Symbol, sp.Expr],
+    *,
+    kernel: SympyKernel,
+) -> SymbolicEquationBuildResult:
+    return _value_equation(
+        args,
+        expression_arg="expression",
+        known_substitutions=known_substitutions,
+        kernel=kernel,
+    )
+
+
+def _minimum_expression_equals_value(
+    args: Mapping[str, Any],
+    known_substitutions: Mapping[sp.Symbol, sp.Expr],
+    *,
+    kernel: SympyKernel,
+) -> SymbolicEquationBuildResult:
+    return _value_equation(
+        args,
+        expression_arg="minimum_expression",
+        known_substitutions=known_substitutions,
+        kernel=kernel,
+    )
+
+
+def _value_equation(
+    args: Mapping[str, Any],
+    *,
+    expression_arg: str,
+    known_substitutions: Mapping[sp.Symbol, sp.Expr],
+    kernel: SympyKernel,
+) -> SymbolicEquationBuildResult:
+    expression = sp.sympify(args[expression_arg]).subs(known_substitutions)
+    target = _condition_expression(
+        args["condition"],
+        args=args,
+        kernel=kernel,
+    ).subs(known_substitutions)
+    parameter = args["parameter"]
+    return SymbolicEquationBuildResult(
+        (sp.Eq(expression, target),),
+        (expression_arg, "condition"),
+        {"expression": expression, "target_value": target},
+        (parameter,),
+    )
+
+
+def _segment_length_equals_value(
+    args: Mapping[str, Any],
+    known_substitutions: Mapping[sp.Symbol, sp.Expr],
+    *,
+    kernel: SympyKernel,
+) -> SymbolicEquationBuildResult:
+    p1 = tuple(sp.sympify(item).subs(known_substitutions) for item in args["p1"])
+    p2 = tuple(sp.sympify(item).subs(known_substitutions) for item in args["p2"])
+    length_sq = kernel.distance_squared(p1, p2)
+    condition = args["condition"]
+    condition_type = str(condition.get("type", ""))
+    if condition_type == "segment_length_relation" or (
+        "left_segment" in condition
+        and "right_segment" in condition
+        and "scale" in condition
+    ):
+        reference_p1 = args.get("reference_p1")
+        reference_p2 = args.get("reference_p2")
+        if reference_p1 is None or reference_p2 is None:
+            raise SymbolicClosureRuntimeDriftError(
+                "segment_length_relation requires reference_p1/reference_p2"
+            )
+        ref1 = tuple(
+            sp.sympify(item).subs(known_substitutions)
+            for item in reference_p1
+        )
+        ref2 = tuple(
+            sp.sympify(item).subs(known_substitutions)
+            for item in reference_p2
+        )
+        scale = _runtime_expression(
+            condition.get("scale", "1"),
+            args=args,
+            kernel=kernel,
+        ).subs(known_substitutions)
+        target = sp.simplify(scale**2 * kernel.distance_squared(ref1, ref2))
+        sources = ("p1", "p2", "reference_p1", "reference_p2", "condition")
+    else:
+        if "value" not in condition:
+            raise SymbolicClosureRuntimeDriftError(
+                "length condition requires value or segment_length_relation fields"
+            )
+        target = _condition_expression(
+            condition,
+            args=args,
+            kernel=kernel,
+        ).subs(known_substitutions)
+        sources = ("p1", "p2", "condition")
+    parameter = args["parameter"]
+    return SymbolicEquationBuildResult(
+        (sp.Eq(length_sq, target),),
+        sources,
+        {"length_squared": length_sq, "target_value": target},
+        (parameter,),
+    )
+
+
+def _condition_expression(
+    condition: Mapping[str, Any],
+    *,
+    args: Mapping[str, Any],
+    kernel: SympyKernel,
+) -> sp.Expr:
+    if "value" not in condition:
+        raise SymbolicClosureRuntimeDriftError(
+            "value condition requires a value"
+        )
+    return _runtime_expression(condition["value"], args=args, kernel=kernel)
+
+
+def _runtime_expression(
+    value: Any,
+    *,
+    args: Mapping[str, Any],
+    kernel: SympyKernel,
+) -> sp.Expr:
+    symbols = _runtime_symbols(args)
+    return kernel.expr(value, {symbol.name: symbol for symbol in symbols})
+
+
 def _polynomial_coefficient_template(
     *,
     target: sp.Symbol,
@@ -1096,6 +1434,28 @@ def _symbols_from_arg(value: Any) -> tuple[sp.Symbol, ...]:
     if isinstance(value, (list, tuple)):
         return tuple(item for item in value if isinstance(item, sp.Symbol))
     return ()
+
+
+def _runtime_symbols(value: Any) -> tuple[sp.Symbol, ...]:
+    collected: set[sp.Symbol] = set()
+
+    def visit(item: Any) -> None:
+        if isinstance(item, sp.Symbol):
+            collected.add(item)
+            return
+        if isinstance(item, Mapping):
+            for key, nested in item.items():
+                visit(key)
+                visit(nested)
+            return
+        if isinstance(item, (list, tuple, set, frozenset)):
+            for nested in item:
+                visit(nested)
+            return
+        collected.update(getattr(item, "free_symbols", ()))
+
+    visit(value)
+    return tuple(sorted(collected, key=lambda symbol: symbol.sort_key()))
 
 
 def _symbol_ids(
@@ -1293,6 +1653,115 @@ def _validate_quadratic_closure_outputs(
     return tuple(checks)
 
 
+def _validate_parameter_value_closure_outputs(
+    *,
+    outputs: Mapping[str, TypedValue],
+    args: Mapping[str, Any],
+    build: SymbolicEquationBuildResult,
+    result: SymbolicClosureExecutionResult,
+) -> tuple[CheckResult, ...]:
+    del args
+    target_value = result.target_value
+    parameter_value = outputs.get("parameter_value")
+    if target_value is None or parameter_value is None:
+        raise SymbolicClosureRuntimeDriftError(
+            "parameter output validation requires parameter_value"
+        )
+    return (
+        _closure_check(
+            "closure_parameter_value_matches",
+            _expressions_equivalent(parameter_value.value, target_value),
+            "参数值输出与 symbolic closure 一致",
+        ),
+        *_closure_equation_checks(build, result),
+    )
+
+
+def _validate_point_on_curve_closure_outputs(
+    *,
+    outputs: Mapping[str, TypedValue],
+    args: Mapping[str, Any],
+    build: SymbolicEquationBuildResult,
+    result: SymbolicClosureExecutionResult,
+) -> tuple[CheckResult, ...]:
+    parameter_value = outputs.get("parameter_value")
+    point = outputs.get("point")
+    parabola = outputs.get("parabola")
+    if (
+        result.target_value is None
+        or parameter_value is None
+        or point is None
+        or parabola is None
+    ):
+        raise SymbolicClosureRuntimeDriftError(
+            "point-on-curve validation requires parameter_value/point/parabola"
+        )
+    expected_point = _substitute_point(args["point"], result.substitution)
+    expected_parabola = _substitute_expression(
+        args["quadratic"],
+        result.substitution,
+    )
+    actual_point = tuple(sp.sympify(item) for item in point.value)
+    actual_parabola = sp.sympify(parabola.value)
+    x = args["x"]
+    return (
+        _closure_check(
+            "closure_parameter_value_matches",
+            _expressions_equivalent(
+                parameter_value.value,
+                result.target_value,
+            ),
+            "参数值输出与 symbolic closure 一致",
+        ),
+        _closure_check(
+            "closure_point_matches_substitution",
+            all(
+                _expressions_equivalent(actual, expected)
+                for actual, expected in zip(actual_point, expected_point)
+            ),
+            "点坐标使用同一 symbolic closure substitution",
+        ),
+        _closure_check(
+            "closure_parabola_matches_substitution",
+            _expressions_equivalent(actual_parabola, expected_parabola),
+            "抛物线使用同一 symbolic closure substitution",
+        ),
+        _closure_check(
+            "closure_resolved_point_on_parabola",
+            _expressions_equivalent(
+                actual_parabola.subs(x, actual_point[0]),
+                actual_point[1],
+            ),
+            "代入后的点在代入后的抛物线上",
+        ),
+        *_closure_equation_checks(build, result),
+    )
+
+
+def _closure_equation_checks(
+    build: SymbolicEquationBuildResult,
+    result: SymbolicClosureExecutionResult,
+) -> tuple[CheckResult, ...]:
+    checks: list[CheckResult] = []
+    for index, equation in enumerate(build.equations):
+        resolved = equation
+        if hasattr(resolved, "subs"):
+            resolved = resolved.subs(result.substitution)
+        passed = resolved is sp.S.true
+        if isinstance(resolved, sp.Equality):
+            passed = _expressions_equivalent(resolved.lhs, resolved.rhs)
+        elif resolved is sp.S.false:
+            passed = False
+        checks.append(
+            _closure_check(
+                f"closure_equation_{index}_satisfied",
+                passed,
+                "参数值满足 symbolic closure 方程",
+            )
+        )
+    return tuple(checks)
+
+
 def _closure_check(name: str, passed: bool, detail: str) -> CheckResult:
     return CheckResult(
         name=name,
@@ -1312,6 +1781,7 @@ __all__ = [
     "FunctionalSymbolicClosureMode",
     "SymbolicClosureConfigurationError",
     "SymbolicClosureExecutionResult",
+    "SymbolicClosureMathResult",
     "SymbolicClosureRegistries",
     "SymbolicClosureRuntimeDriftError",
     "SymbolicConstraintFilterRegistry",
@@ -1323,7 +1793,10 @@ __all__ = [
     "closure_failure_code",
     "default_symbolic_closure_registries",
     "execute_symbolic_closure",
+    "require_unique_symbolic_closure",
+    "solve_symbolic_closure_math",
     "substitute_symbolic_closure_output",
+    "materialize_symbolic_closure_outputs",
     "validate_symbolic_closure_outputs",
     "validate_symbolic_closure_spec",
 ]

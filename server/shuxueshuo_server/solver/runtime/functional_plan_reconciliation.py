@@ -682,6 +682,7 @@ class FunctionalPlanReconciler:
         pinned_canonical_call_ids: Sequence[str] = (),
         pinned_execution_scopes: Mapping[str, str] | None = None,
         pinned_return_scopes: Mapping[str, Mapping[str, str]] | None = None,
+        pinned_resolver_arg_names: Mapping[str, Sequence[str]] | None = None,
     ) -> FunctionalPlanReconciliationResult:
         legacy_projection_adapter = FunctionalLegacyProjectionAdapter()
         prepared = _NormalizeElaborateScopeStage().run(
@@ -1362,6 +1363,12 @@ class FunctionalPlanReconciler:
                 call_id: dict(scopes)
                 for call_id, scopes in (pinned_return_scopes or {}).items()
             },
+            pinned_resolver_arg_names={
+                call_id: tuple(arg_names)
+                for call_id, arg_names in (
+                    pinned_resolver_arg_names or {}
+                ).items()
+            },
         )
 
 
@@ -1550,6 +1557,7 @@ class _PlacementLivenessProjectionStage:
         pinned_canonical_call_ids: tuple[str, ...],
         pinned_execution_scopes: Mapping[str, str],
         pinned_return_scopes: Mapping[str, Mapping[str, str]],
+        pinned_resolver_arg_names: Mapping[str, Sequence[str]],
     ) -> FunctionalPlanReconciliationResult:
         plan = _rewrite_effective_functional_plan(
             plan,
@@ -1888,6 +1896,18 @@ class _PlacementLivenessProjectionStage:
             tuple(reconciled),
             catalog=catalog,
             object_registry=identity_factory.objects,
+            resolver_injected_arg_keys=_resolver_injected_binding_keys(
+                plan,
+                elaboration.deterministic_repairs,
+                catalog=catalog,
+            )
+            | frozenset(
+                (call_id, arg_name)
+                for call_id, arg_names in (
+                    pinned_resolver_arg_names or {}
+                ).items()
+                for arg_name in arg_names
+            ),
         )
         functional_binding_audit = audit_functional_arg_binding_projection(
             functional_binding_context,
@@ -5869,6 +5889,31 @@ def _infer_symbolic_target_args_from_consumers(
         ),
         tuple(repairs),
     )
+
+
+def _resolver_injected_binding_keys(
+    plan: FunctionalPlan,
+    repairs: Sequence[FunctionalDeterministicRepair],
+    *,
+    catalog: FunctionalCapabilityCatalog,
+) -> frozenset[tuple[str, str]]:
+    """Preserve resolver authority for deterministic semantic arg recovery."""
+    capability_by_call = {
+        call.call_id: catalog.get(call.capability_id) for call in plan.calls
+    }
+    keys: set[tuple[str, str]] = set()
+    for repair in repairs:
+        if repair.action != "infer_symbolic_target_from_consumer":
+            continue
+        capability = capability_by_call.get(repair.call_id)
+        closure = (
+            getattr(capability.source, "symbolic_closure", None)
+            if capability is not None
+            else None
+        )
+        if closure is not None:
+            keys.add((repair.call_id, closure.target_arg))
+    return frozenset(keys)
 
 
 def _drop_redundant_open_answer_bindings(

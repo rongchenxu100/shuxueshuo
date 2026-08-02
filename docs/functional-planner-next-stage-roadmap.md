@@ -75,7 +75,7 @@ Track A 是否完成，但主链切换前必须重新建立相应阶段自己的
 | Track A Stage 1 | `COMPLETE` | 每题 3 个样本，`15/15` 在三轮内通过，configuration error 为 0 | 无 |
 | Track A parity complete | `COMPLETE` | 五题各 10 个兼容样本，`pass@3 >= 90%`；structured provenance parity、typed failure boundary、跨 batch 聚合均已建立 | 无 |
 | Track B typed identity authority | `IN PROGRESS` | B0-B4、B5a/B5b 已完成；typed consumer 的真实 execution-shadow smoke 为 `15/15`，identity fallback 为 0 | B5c 按既定顺序等待 C6 后删除 StepIntent/string projection |
-| Track C transactional interpreter | `IN PROGRESS` | C0、C0.5、C1、C2、C3、C4 已完成；runtime-grounded closure 已在 `context_authoritative` 主链完成真实验收 | C5 迁移其余参数求解 method；随后由 C6 完成 closure provenance 消费与 strict cleanup |
+| Track C transactional interpreter | `IN PROGRESS` | C0、C0.5、C1、C2、C3、C4、C5 已完成；C5 四个参数 method 通过 `529` 项联合门禁和真实 authoritative smoke | C6 closure provenance 消费与 strict cleanup |
 | Functional Default Ready | `BLOCKED` | Functional 主链可 opt-in 执行 | Track A parity complete；Track B B0-B4；Track C production closure；direct compiler shadow；held-out；production observability 与回滚门禁 |
 | Track D0 product routing gate retirement | `BLOCKED` | 唯一 problem-id gate 已登记 | Track A parity complete；Functional production routing 接管该 family；legacy deterministic planner 退场 |
 | Track D default switch | `BLOCKED` | direct compiler 目标已定义 | Functional Default Ready 后才能切默认协议和删除 StepIntent 兼容链 |
@@ -89,10 +89,8 @@ Track A 是否完成，但主链切换前必须重新建立相应阶段自己的
 
 Track A 已完成，当前主线不再围绕五题概率样本做局部补丁：
 
-1. C5 按 capability effect 逐个迁移其余参数求解 method，不按题目或变量名扩展；
-2. 为每个迁移切片复用 C4 的 generated closure gate、事务回滚门禁和真实
-   `context_authoritative + authoritative closure` smoke；
-3. C6 完成 closure provenance 的 Context/retry/explanation 消费后，再由 B5c 删除
+1. 实施 C6 closure provenance 的 Context/retry/explanation 消费与 strict cleanup；
+2. C6 完成后，再由 B5c 删除
    StepIntent/string projection compatibility。
 
 C0.5 的详细设计见：
@@ -624,9 +622,9 @@ compiler/runtime。这样先解决状态权威问题，再单独替换编译桥�
 
 `IN PROGRESS`。C0 shadow、C0.5 executable model gate、C1 transactional
 execution-shadow compatibility gate、C2 Context/retry authority、C3 Functional arg
-role authority 和 C4 runtime-grounded closure authority 已完成。Functional opt-in 可使用
-`context_authoritative + authoritative closure`；产品默认仍为 legacy。当前进入 C5
-parameter method migration。
+role authority、C4 runtime-grounded closure authority 和 C5 parameter method migration
+已完成。Functional opt-in 可使用 `context_authoritative + authoritative closure`；产品
+默认仍为 legacy。当前进入 C6 closure provenance consumption and strict cleanup。
 
 详细设计见：
 
@@ -948,6 +946,43 @@ write 均为 0；任何有效计划声明 symbolic target 的样本还必须实�
 - 不再要求 static reconciliation 精确预测执行后的 free-symbol closure。
 
 #### C5. Migrate Parameter Methods
+
+状态：`COMPLETE`（2026-08-02）。
+
+2026-08-02 已完成首批四个参数 method：
+
+1. `parameter_from_curve_point_on_quadratic`；
+2. `parameter_from_expression_value`；
+3. `parameter_from_minimum_value`；
+4. `parameter_from_segment_length`。
+
+实现结果：
+
+- direct method 与 Functional typed executor 共用 identity-free
+  `solve_symbolic_closure_math`，method-local `solve_values` / first-branch 选择已删除；
+- 新增 point-on-curve、expression value、minimum value、segment length equation
+  builders，以及 ParameterValue / curve-point output-set validators；
+- optional parameter constraint 显式声明，缺省时保留多分支为 `ambiguous`，不会默认取第一个解；
+- C2 report 与 batch summary 按 capability 记录 closure execution/drift；
+- C0.5 加入四类匿名 ParameterValue create、answer projection、exact version dependency
+  和 committed retry checkpoint 场景；
+- 联合离线门禁 `529 passed`，约 3.5 分钟；除 closure、method、transaction、
+  C0.5 和 FunctionalPlan 回归外，也覆盖 `test_deepseek_functional_batch`；
+  `git diff --check` 通过。
+- 真实 `context_authoritative + authoritative closure` 五题各 5 个样本共 `23/25`
+  通过；两个失败均为未生成 FunctionalPlan 的
+  `provider.reasoning_only_empty_response`。其余可执行计划 `23/23` 最终通过，实际
+  symbolic closure 执行 `51` 次，closure drift、configuration error 和
+  unclassified error 均为 `0`。
+- 真实批次之后的 final hardening 只收紧 validation flag 语义与 segment
+  known-substitution 对称性；当前输入行为不变，并已纳入上述 `529` 项门禁。
+
+已知非阻塞问题（P2，跨 Track）：`square_path_dimension_reduction` 当前以规范化
+square role profile 的 `vertex_4` 作为 `moving_object`。这不是点名分支，当前五题
+provenance 正确，但同一正方形的循环移位/逆序表示仍依赖 ProblemIR 上游重新规范化。
+在 held-out/default-ready 前应将 moving-object authority 迁到结构化
+`path_minimum_target` role，square role 只作一致性证据，并增加循环移位、镜像和任意
+点名生成式门禁；该问题不属于参数 symbolic closure，也不阻塞 C5 完成。
 
 建议迁移顺序：
 

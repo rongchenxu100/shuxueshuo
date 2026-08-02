@@ -140,6 +140,12 @@ def test_cross_scope_version_generated_gate() -> None:
         )
         assert cross_scope_edges >= 200
         assert coverage["runtime_failure"]["producer"] >= 250
+        assert set(coverage["producer_capability"]) == {
+            "parameter_from_curve_point_on_quadratic",
+            "parameter_from_expression_value",
+            "parameter_from_minimum_value",
+            "parameter_from_segment_length",
+        }
 
     model = ReferenceScopeVersionModel()
     started = time.monotonic()

@@ -28,12 +28,37 @@
     "parameter_value": "ParameterValue"
   },
   "is_pure": true,
+  "preconditions": [
+    "parameter 必须实际参与 minimum_expression=condition.value 方程",
+    "若方程有多个分支，constraint 必须唯一筛选一个合法分支"
+  ],
   "do_not_use_when": [
     "输入表达式不具有最小值语义，或题面给出的只是普通表达式取值条件。",
     "尚未得到可代入的最小值表达式。",
     "最小值表达式仍含两个或更多相互独立的未知 Symbol；应先化为单一未知量。",
-    "当前目标只是更新函数或几何对象状态；该能力只反求最小值表达式中实际存在的单一目标参数，不代替状态更新。"
+    "当前目标只是更新函数或几何对象状态；该能力只反求最小值表达式中实际存在的单一目标参数，不代替状态更新。",
+    "最小值方程有多个合法参数分支但没有提供足以唯一筛选的结构化 constraint；不会默认选择第一个解。"
+  ],
+  "postconditions": [
+    "输出参数值满足最小值方程与声明的参数范围"
   ],
   "plan_transformer": "validate_student_single_degree_of_freedom",
-  "plan_transformer_scope": "all_invocations"
+  "plan_transformer_scope": "all_invocations",
+  "symbolic_closure": {
+    "target_arg": "parameter",
+    "equation_builder": "minimum_expression_equals_value",
+    "known_substitutions": [],
+    "known_mapping_args": [],
+    "constraint_args": [
+      "constraint"
+    ],
+    "preserved_symbol_args": [],
+    "substitution_outputs": [
+      "parameter_value"
+    ],
+    "require_unique_target": true,
+    "constraint_filter": "parameter_value_constraint",
+    "constraint_args_optional": true,
+    "output_validator": "parameter_value_closure_outputs"
+  }
 }

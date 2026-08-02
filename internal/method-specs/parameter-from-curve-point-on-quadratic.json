@@ -48,14 +48,42 @@
   "is_pure": true,
   "preconditions": [
     "应用已知参数值后，曲线点方程必须直接唯一确定目标参数，或唯一确定可映射到目标参数的二次函数系数",
-    "点代入抛物线后，在参数约束下必须唯一确定参数值"
+    "点代入抛物线后，在参数约束下必须唯一确定参数值",
+    "若存在多个代数分支，parameter_constraint 必须唯一保留其中一个；无约束时不会默认选择第一个解"
   ],
   "do_not_use_when": [
     "代入当前已知参数值后仍有两个及以上未确定参数，且无法由当前二次函数系数表达式唯一闭包到目标参数。",
-    "需要先推导曲线表达式或点坐标，而不是利用已有曲线点条件反求参数。"
+    "需要先推导曲线表达式或点坐标，而不是利用已有曲线点条件反求参数。",
+    "曲线点方程产生多个合法参数分支，但当前调用没有提供能唯一筛选分支的结构化参数约束。",
+    "目标参数没有出现在曲线点方程，也不能由 quadratic_template 中对应系数唯一映射；不要机械复制其他小问的参数反求路线。"
   ],
   "postconditions": [
     "输出 point 是代入参数后的坐标",
     "输出 parabola 是代入参数后的当前问抛物线"
-  ]
+  ],
+  "symbolic_closure": {
+    "target_arg": "parameter",
+    "equation_builder": "point_on_curve",
+    "known_substitutions": [
+      [
+        "known_parameter",
+        "known_parameter_value"
+      ]
+    ],
+    "known_mapping_args": [],
+    "constraint_args": [
+      "parameter_constraint"
+    ],
+    "preserved_symbol_args": [],
+    "substitution_outputs": [
+      "parameter_value",
+      "point",
+      "parabola"
+    ],
+    "require_unique_target": true,
+    "representation_mapper": "polynomial_coefficient_template",
+    "constraint_filter": "parameter_value_constraint",
+    "constraint_args_optional": true,
+    "output_validator": "point_on_curve_closure_outputs"
+  }
 }

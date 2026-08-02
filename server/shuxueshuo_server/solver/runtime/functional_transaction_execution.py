@@ -257,6 +257,22 @@ class FunctionalTransactionalExecutionReport:
         )
 
     @property
+    def symbolic_closure_execution_by_capability(self) -> dict[str, int]:
+        capabilities = {
+            call.call_id: call.capability_id for call in self.graph.calls
+        }
+        counts: dict[str, int] = {}
+        for item in self.call_results:
+            if (
+                item.symbolic_closure is None
+                or item.symbolic_closure.status == "not_applicable"
+            ):
+                continue
+            capability_id = capabilities.get(item.call_id, "<unknown>")
+            counts[capability_id] = counts.get(capability_id, 0) + 1
+        return dict(sorted(counts.items()))
+
+    @property
     def symbolic_closure_drift_count(self) -> int:
         return sum(
             item.code
@@ -266,6 +282,22 @@ class FunctionalTransactionalExecutionReport:
             }
             for item in self.compatibility_mismatches
         )
+
+    @property
+    def symbolic_closure_drift_by_capability(self) -> dict[str, int]:
+        capabilities = {
+            call.call_id: call.capability_id for call in self.graph.calls
+        }
+        counts: dict[str, int] = {}
+        for item in self.compatibility_mismatches:
+            if item.code not in {
+                "symbolic_closure_output_drift",
+                "symbolic_closure_output_contract_drift",
+            }:
+                continue
+            capability_id = capabilities.get(item.call_id or "", "<unknown>")
+            counts[capability_id] = counts.get(capability_id, 0) + 1
+        return dict(sorted(counts.items()))
 
     @property
     def ok(self) -> bool:
@@ -301,6 +333,12 @@ class FunctionalTransactionalExecutionReport:
             ),
             "symbolic_closure_drift_count": (
                 self.symbolic_closure_drift_count
+            ),
+            "symbolic_closure_execution_by_capability": (
+                self.symbolic_closure_execution_by_capability
+            ),
+            "symbolic_closure_drift_by_capability": (
+                self.symbolic_closure_drift_by_capability
             ),
         }
 

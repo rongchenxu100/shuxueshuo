@@ -166,6 +166,7 @@ class SymbolicClosureSpec:
     representation_mapper: str | None = None
     constraint_filter: str | None = None
     constraint_args: tuple[str, ...] = ()
+    constraint_args_optional: bool = False
     preserved_symbol_args: tuple[str, ...] = ()
     substitution_outputs: tuple[str, ...] = ()
     output_validator: str | None = None
@@ -188,6 +189,8 @@ class SymbolicClosureSpec:
             payload["representation_mapper"] = self.representation_mapper
         if self.constraint_filter is not None:
             payload["constraint_filter"] = self.constraint_filter
+        if self.constraint_args_optional:
+            payload["constraint_args_optional"] = True
         if self.output_validator is not None:
             payload["output_validator"] = self.output_validator
         return payload

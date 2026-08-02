@@ -241,7 +241,7 @@ def test_authored_fixture_transaction_execution_has_zero_mismatch(
 
 
 @pytest.mark.parametrize("case_id", tuple(FUNCTIONAL_BATCH_CASES))
-def test_authored_fixture_without_target_keeps_closure_inactive(
+def test_authored_fixture_executes_declared_symbolic_closures(
     case_id: str,
 ) -> None:
     replay = _replay(
@@ -268,8 +268,13 @@ def test_authored_fixture_without_target_keeps_closure_inactive(
     )
     report = replay.transactional_execution_report
     assert report is not None
-    assert report.symbolic_closure_execution_count == 0
+    assert report.symbolic_closure_execution_count > 0
+    assert (
+        sum(report.symbolic_closure_execution_by_capability.values())
+        == report.symbolic_closure_execution_count
+    )
     assert report.symbolic_closure_drift_count == 0
+    assert report.symbolic_closure_drift_by_capability == {}
     assert report.ok, report.to_payload()
 
 

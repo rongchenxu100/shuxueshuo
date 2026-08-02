@@ -29,13 +29,15 @@
   },
   "is_pure": true,
   "preconditions": [
-    "expression 已由前序 method 推导得到"
+    "expression 已由前序 method 推导得到，且 parameter 实际参与 expression=condition.value 方程",
+    "若方程有多个分支，constraint 必须唯一筛选一个合法分支"
   ],
   "do_not_use_when": [
     "尚未得到可代入的含参表达式，或题面没有给出该表达式对应的取值条件。",
     "目标是完成路径转化或推导最小值表达式，而不是由一个已知表达式取值反求参数。",
     "表达式仍含两个或更多相互独立的未知 Symbol；中学生解法应先利用显式关系或已知参数值化为单一未知量。",
-    "所选 parameter 没有实际出现在 expression 中；此时应改用真正含该参数的表达式，不能按其他小问的步骤机械反求。"
+    "所选 parameter 没有实际出现在 expression 中；此时应改用真正含该参数的表达式，不能按其他小问的步骤机械反求。",
+    "方程有多个合法参数分支但没有提供足以唯一筛选的结构化 constraint；该能力不会默认选择第一个解。"
   ],
   "postconditions": [
     "输出参数值满足表达式取值条件"
@@ -62,5 +64,22 @@
     "role_binder_id": "parameter_from_expression_value"
   },
   "plan_transformer": "validate_student_single_degree_of_freedom",
-  "plan_transformer_scope": "all_invocations"
+  "plan_transformer_scope": "all_invocations",
+  "symbolic_closure": {
+    "target_arg": "parameter",
+    "equation_builder": "expression_equals_value",
+    "known_substitutions": [],
+    "known_mapping_args": [],
+    "constraint_args": [
+      "constraint"
+    ],
+    "preserved_symbol_args": [],
+    "substitution_outputs": [
+      "parameter_value"
+    ],
+    "require_unique_target": true,
+    "constraint_filter": "parameter_value_constraint",
+    "constraint_args_optional": true,
+    "output_validator": "parameter_value_closure_outputs"
+  }
 }

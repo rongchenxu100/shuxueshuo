@@ -18075,6 +18075,12 @@ def test_evidence_preflight_preserves_completed_goal_subgraphs() -> None:
         for item in checkpoint["committed_calls"]
     }
     assert committed_call_ids == checkpoint_call_ids
+    solve_m_checkpoint = next(
+        item
+        for item in checkpoint["committed_calls"]
+        if item["canonical_call_id"] == "ii_1_solve_m"
+    )
+    assert "parameter" in solve_m_checkpoint["resolver_bound_arg_names"]
     assert checkpoint["verified_versions"]
     assert all(
         item["version_id"]["ordinal"] >= 1

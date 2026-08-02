@@ -213,6 +213,7 @@ class FunctionalCommittedCallCheckpoint:
     execution_scope_id: str | None = None
     return_scope_ids: tuple[tuple[str, str], ...] = ()
     binding_signature: str | None = None
+    resolver_bound_arg_names: tuple[str, ...] = ()
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -228,6 +229,9 @@ class FunctionalCommittedCallCheckpoint:
             "execution_scope_id": self.execution_scope_id,
             "return_scope_ids": dict(self.return_scope_ids),
             "binding_signature": self.binding_signature,
+            "resolver_bound_arg_names": list(
+                self.resolver_bound_arg_names
+            ),
         }
 
     @classmethod
@@ -276,6 +280,10 @@ class FunctionalCommittedCallCheckpoint:
                 str(payload["binding_signature"])
                 if payload.get("binding_signature") is not None
                 else None
+            ),
+            resolver_bound_arg_names=tuple(
+                str(item)
+                for item in payload.get("resolver_bound_arg_names", ())
             ),
         )
 
@@ -968,6 +976,20 @@ def build_functional_retry_graph_checkpoint(
                     )
                 ),
                 binding_signature=binding_signature,
+                resolver_bound_arg_names=tuple(
+                    sorted(
+                        {
+                            binding.key.arg_name
+                            for binding in getattr(
+                                binding_context,
+                                "bindings",
+                                (),
+                            )
+                            if binding.key.call_id == call_id
+                            and binding.binding_authority == "resolver"
+                        }
+                    )
+                ),
             )
         )
 

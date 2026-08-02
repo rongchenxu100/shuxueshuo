@@ -85,6 +85,8 @@ def run_deepseek_functional_opt_in(case: FunctionalOptInCase) -> None:
     (
         closure_execution_count,
         closure_drift_count,
+        closure_execution_by_capability,
+        closure_drift_by_capability,
         closure_attempt_artifacts_found,
     ) = _attempt_symbolic_closure_counts(debug_dir)
     _record_gate(
@@ -134,6 +136,12 @@ def run_deepseek_functional_opt_in(case: FunctionalOptInCase) -> None:
                 )
                 closure_drift_count = (
                     transaction_report.symbolic_closure_drift_count
+                )
+                closure_execution_by_capability = (
+                    transaction_report.symbolic_closure_execution_by_capability
+                )
+                closure_drift_by_capability = (
+                    transaction_report.symbolic_closure_drift_by_capability
                 )
             write_strategy_debug_artifacts(
                 debug_dir,
@@ -287,17 +295,21 @@ def run_deepseek_functional_opt_in(case: FunctionalOptInCase) -> None:
         gate_failures=gate_failures,
         closure_execution_count=closure_execution_count,
         closure_drift_count=closure_drift_count,
+        closure_execution_by_capability=closure_execution_by_capability,
+        closure_drift_by_capability=closure_drift_by_capability,
     )
     assert not gate_failures, gate_failures
 
 
 def _attempt_symbolic_closure_counts(
     debug_dir: Path,
-) -> tuple[int, int, bool]:
+) -> tuple[int, int, dict[str, int], dict[str, int], bool]:
     """Aggregate C4 activity from every planner attempt, including failures."""
 
     execution_count = 0
     drift_count = 0
+    execution_by_capability: dict[str, int] = {}
+    drift_by_capability: dict[str, int] = {}
     found = False
     for path in sorted(debug_dir.glob("attempt-*.planner-state-context.json")):
         try:
@@ -315,7 +327,28 @@ def _attempt_symbolic_closure_counts(
         drift_count += int(
             report.get("symbolic_closure_drift_count", 0) or 0
         )
-    return execution_count, drift_count, found
+        _merge_counts(
+            execution_by_capability,
+            report.get("symbolic_closure_execution_by_capability"),
+        )
+        _merge_counts(
+            drift_by_capability,
+            report.get("symbolic_closure_drift_by_capability"),
+        )
+    return (
+        execution_count,
+        drift_count,
+        execution_by_capability,
+        drift_by_capability,
+        found,
+    )
+
+
+def _merge_counts(target: dict[str, int], raw: object) -> None:
+    if not isinstance(raw, dict):
+        return
+    for key, value in raw.items():
+        target[str(key)] = target.get(str(key), 0) + int(value or 0)
 
 
 def _functional_replay_declares_symbolic_target(
@@ -536,6 +569,8 @@ def _write_sample_result(
     gate_failures: Sequence[dict[str, Any]],
     closure_execution_count: int,
     closure_drift_count: int,
+    closure_execution_by_capability: dict[str, int],
+    closure_drift_by_capability: dict[str, int],
 ) -> None:
     payload = {
         "sample_id": sample_id,
@@ -560,6 +595,12 @@ def _write_sample_result(
         ),
         "symbolic_closure_execution_count": closure_execution_count,
         "symbolic_closure_drift_count": closure_drift_count,
+        "symbolic_closure_execution_by_capability": dict(
+            sorted(closure_execution_by_capability.items())
+        ),
+        "symbolic_closure_drift_by_capability": dict(
+            sorted(closure_drift_by_capability.items())
+        ),
     }
     path.mkdir(parents=True, exist_ok=True)
     (path / "sample-result.json").write_text(

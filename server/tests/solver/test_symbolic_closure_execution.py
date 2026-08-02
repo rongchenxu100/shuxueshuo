@@ -11,12 +11,26 @@ from shuxueshuo_server.solver.runtime.models import TypedValue
 from shuxueshuo_server.solver.runtime.methods.quadratic_from_constraints import (
     QuadraticFromConstraintsMethod,
 )
+from shuxueshuo_server.solver.runtime.methods.parameter_from_curve_point_on_quadratic import (
+    SPEC as CURVE_POINT_PARAMETER_SPEC,
+)
+from shuxueshuo_server.solver.runtime.methods.parameter_from_expression_value import (
+    SPEC as EXPRESSION_PARAMETER_SPEC,
+)
+from shuxueshuo_server.solver.runtime.methods.parameter_from_minimum_value import (
+    SPEC as MINIMUM_PARAMETER_SPEC,
+)
+from shuxueshuo_server.solver.runtime.methods.parameter_from_segment_length import (
+    SPEC as SEGMENT_PARAMETER_SPEC,
+)
 from shuxueshuo_server.solver.runtime.state_identity import MathObjectId
 from shuxueshuo_server.solver.runtime.symbolic_closure_execution import (
     SymbolicClosureConfigurationError,
     SymbolicClosureRuntimeDriftError,
     SymbolicClosureExecutionResult,
     execute_symbolic_closure,
+    require_unique_symbolic_closure,
+    solve_symbolic_closure_math,
     substitute_symbolic_closure_output,
     validate_symbolic_closure_spec,
 )
@@ -688,7 +702,7 @@ def test_unvalidated_closure_cannot_rewrite_symbolic_output() -> None:
 
     with pytest.raises(
         SymbolicClosureRuntimeDriftError,
-        match="was not runtime validated",
+        match="validation context is not attached",
     ):
         substitute_symbolic_closure_output(
             TypedValue("Parabola", b * sp.Symbol("x")),
@@ -726,6 +740,166 @@ def test_declared_constraint_filter_requires_runtime_input() -> None:
             runtime_symbol_bindings=ids,
             kernel=kernel,
         )
+
+
+def test_optional_constraint_keeps_ambiguous_branches_until_filtered() -> None:
+    kernel = SympyKernel()
+    parameter = kernel.symbols(["m"])["m"]
+    spec = SymbolicClosureSpec(
+        target_arg="parameter",
+        equation_builder="expression_equals_value",
+        constraint_filter="parameter_value_constraint",
+        constraint_args=("constraint",),
+        constraint_args_optional=True,
+        substitution_outputs=("parameter_value",),
+        output_validator="parameter_value_closure_outputs",
+    )
+
+    ambiguous = solve_symbolic_closure_math(
+        spec,
+        args={
+            "expression": parameter**2,
+            "condition": {"value": "1"},
+            "parameter": parameter,
+        },
+        kernel=kernel,
+    )
+    filtered = solve_symbolic_closure_math(
+        spec,
+        args={
+            "expression": parameter**2,
+            "condition": {"value": "1"},
+            "parameter": parameter,
+            "constraint": {"operator": ">", "value": 0},
+        },
+        kernel=kernel,
+    )
+
+    assert ambiguous.status == "ambiguous"
+    assert ambiguous.branch_count == 2
+    assert require_unique_symbolic_closure(filtered).target_value == 1
+
+
+@pytest.mark.parametrize("relation", (False, True))
+def test_segment_length_builder_substitutes_known_condition_values(
+    relation: bool,
+) -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["m", "k"])
+    parameter, known_parameter = symbols["m"], symbols["k"]
+    spec = replace(
+        SEGMENT_PARAMETER_SPEC.symbolic_closure,
+        known_substitutions=(
+            ("known_parameter", "known_parameter_value"),
+        ),
+    )
+    assert spec is not None
+    args = {
+        "p1": (parameter, 0),
+        "p2": (0, 0),
+        "parameter": parameter,
+        "known_parameter": known_parameter,
+        "known_parameter_value": 2 if relation else 4,
+        "constraint": {"operator": ">", "value": 0},
+    }
+    if relation:
+        args.update(
+            {
+                "reference_p1": (0, 0),
+                "reference_p2": (1, 0),
+                "condition": {
+                    "type": "segment_length_relation",
+                    "left_segment": "anonymous_left",
+                    "right_segment": "anonymous_right",
+                    "scale": known_parameter,
+                },
+            }
+        )
+    else:
+        args["condition"] = {"value": known_parameter}
+
+    result = solve_symbolic_closure_math(
+        spec,
+        args=args,
+        kernel=kernel,
+    )
+
+    assert result.status == "unique"
+    assert result.target_value == 2
+    assert result.residual_symbols == ()
+
+
+@pytest.mark.parametrize(
+    ("spec", "args_factory", "expected"),
+    (
+        (
+            CURVE_POINT_PARAMETER_SPEC.symbolic_closure,
+            lambda x, m: {
+                "quadratic": x**2 + m * x,
+                "x": x,
+                "point": (1, 2),
+                "parameter": m,
+            },
+            1,
+        ),
+        (
+            EXPRESSION_PARAMETER_SPEC.symbolic_closure,
+            lambda _x, m: {
+                "expression": m + 1,
+                "condition": {"value": "5"},
+                "parameter": m,
+            },
+            4,
+        ),
+        (
+            MINIMUM_PARAMETER_SPEC.symbolic_closure,
+            lambda _x, m: {
+                "minimum_expression": m + 1,
+                "condition": {"value": "5"},
+                "parameter": m,
+            },
+            4,
+        ),
+        (
+            SEGMENT_PARAMETER_SPEC.symbolic_closure,
+            lambda _x, m: {
+                "p1": (m, 0),
+                "p2": (0, 0),
+                "condition": {"value": "4"},
+                "parameter": m,
+                "constraint": {"operator": ">", "value": 0},
+            },
+            2,
+        ),
+    ),
+)
+def test_direct_and_typed_parameter_closure_share_math_core(
+    spec,
+    args_factory,
+    expected,
+) -> None:
+    assert spec is not None
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["x", "m"])
+    x, parameter = symbols["x"], symbols["m"]
+    args = args_factory(x, parameter)
+    bindings = {
+        symbol: _symbol_id(symbol.name) for symbol in symbols.values()
+    }
+
+    direct = solve_symbolic_closure_math(spec, args=args, kernel=kernel)
+    typed = execute_symbolic_closure(
+        spec,
+        args=args,
+        target_object_id=bindings[parameter],
+        runtime_symbol_bindings=bindings,
+        kernel=kernel,
+    )
+
+    assert direct.status == typed.status == "unique"
+    assert sp.simplify(direct.target_value - expected) == 0
+    assert sp.simplify(typed.target_value - expected) == 0
+    assert direct.substitution == typed.substitution
 
 
 def test_curve_points_are_recorded_as_equation_source() -> None:

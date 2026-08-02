@@ -460,6 +460,14 @@ class PlannerRetryReplayService:
                 if retry_checkpoint is not None
                 else {}
             ),
+            pinned_resolver_arg_names=(
+                {
+                    item.canonical_call_id: item.resolver_bound_arg_names
+                    for item in retry_checkpoint.committed_calls
+                }
+                if retry_checkpoint is not None
+                else {}
+            ),
         )
         # A retryable reconciliation issue can leave ``calls`` as a partial
         # graph. Auditing committed versions against that partial view masks

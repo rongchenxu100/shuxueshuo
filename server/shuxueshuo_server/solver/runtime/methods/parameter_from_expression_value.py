@@ -6,7 +6,18 @@
 
 from __future__ import annotations
 
-from shuxueshuo_server.solver.contracts import MethodExplanationSpec
+from shuxueshuo_server.solver.contracts import (
+    MethodExplanationSpec,
+    SymbolicClosureSpec,
+)
+from shuxueshuo_server.solver.runtime.quadratic_constraint_solver import (
+    value_satisfies_constraint,
+)
+from shuxueshuo_server.solver.runtime.symbolic_closure_execution import (
+    materialize_symbolic_closure_outputs,
+    require_unique_symbolic_closure,
+    solve_symbolic_closure_math,
+)
 
 from ._common import *
 from ._spec import MethodSpecSource
@@ -31,34 +42,38 @@ class ParameterFromExpressionValueMethod:
         constraint = inputs.get("constraint")
 
         target = kernel.expr(condition["value"])
-        lower_bound = (
-            constraint["value"]
-            if isinstance(constraint, dict) and constraint.get("operator") == ">"
-            else None
-        )
-        expression_symbols = set(getattr(expression, "free_symbols", ()))
-        if parameter not in expression_symbols:
-            names = ",".join(
-                sorted(symbol.name for symbol in expression_symbols)
-            ) or "<none>"
-            raise ValueError(
-                "parameter.target_absent_from_expression: "
-                f"target={parameter.name}, expression_free_symbols={names}; "
-                "待求参数没有出现在输入表达式中，不能由该表达式取值反求"
+        closure = require_unique_symbolic_closure(
+            solve_symbolic_closure_math(
+                _SYMBOLIC_CLOSURE_SPEC,
+                args=inputs,
+                kernel=kernel,
             )
-        candidates = kernel.solve_values(sp.Eq(expression, target), parameter)
-        value = pick_by_lower_bound(candidates, lower_bound)
+        )
+        outputs, closure_checks = materialize_symbolic_closure_outputs(
+            {
+                "parameter_value": TypedValue(
+                    "ParameterValue", parameter, source=self.method_id
+                )
+            },
+            closure,
+        )
+        value = outputs["parameter_value"].value
 
         return StatelessMethodResult(
             method_id=self.method_id,
-            outputs={"parameter_value": TypedValue("ParameterValue", value, source=self.method_id)},
+            outputs=outputs,
             checks=[
-                _check("parameter_domain", satisfies_lower_bound(value, lower_bound), "参数满足定义域"),
+                _check(
+                    "parameter_domain",
+                    value_satisfies_constraint(value, constraint),
+                    "参数满足定义域",
+                ),
                 _check(
                     "expression_value_matches",
                     sp.simplify(expression.subs(parameter, value) - target) == 0,
                     "表达式取值匹配题设",
                 ),
+                *closure_checks,
             ],
             trace_fragments=[
                 _step(
@@ -73,6 +88,17 @@ class ParameterFromExpressionValueMethod:
         )
 
 
+_SYMBOLIC_CLOSURE_SPEC = SymbolicClosureSpec(
+    target_arg="parameter",
+    equation_builder="expression_equals_value",
+    constraint_filter="parameter_value_constraint",
+    constraint_args=("constraint",),
+    constraint_args_optional=True,
+    substitution_outputs=("parameter_value",),
+    output_validator="parameter_value_closure_outputs",
+)
+
+
 SPEC = MethodSpecSource(
     method_cls=ParameterFromExpressionValueMethod,
     title="由表达式取值反求参数",
@@ -82,6 +108,7 @@ SPEC = MethodSpecSource(
         "目标是完成路径转化或推导最小值表达式，而不是由一个已知表达式取值反求参数。",
         "表达式仍含两个或更多相互独立的未知 Symbol；中学生解法应先利用显式关系或已知参数值化为单一未知量。",
         "所选 parameter 没有实际出现在 expression 中；此时应改用真正含该参数的表达式，不能按其他小问的步骤机械反求。",
+        "方程有多个合法参数分支但没有提供足以唯一筛选的结构化 constraint；该能力不会默认选择第一个解。",
     ),
     solves=("derive_parameter_from_expression_value",),
     inputs={
@@ -93,7 +120,10 @@ SPEC = MethodSpecSource(
     outputs={"parameter_value": "ParameterValue"},
     plan_transformer="validate_student_single_degree_of_freedom",
     plan_transformer_scope="all_invocations",
-    preconditions=("expression 已由前序 method 推导得到",),
+    preconditions=(
+        "expression 已由前序 method 推导得到，且 parameter 实际参与 expression=condition.value 方程",
+        "若方程有多个分支，constraint 必须唯一筛选一个合法分支",
+    ),
     postconditions=("输出参数值满足表达式取值条件",),
     explanation=MethodExplanationSpec(
         role_schema={
@@ -111,4 +141,5 @@ SPEC = MethodSpecSource(
         box_templates=("{parameter}＝{parameter_value}",),
         role_binder_id="parameter_from_expression_value",
     ),
+    symbolic_closure=_SYMBOLIC_CLOSURE_SPEC,
 )

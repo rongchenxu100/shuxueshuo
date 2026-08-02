@@ -6,6 +6,16 @@
 
 from __future__ import annotations
 
+from shuxueshuo_server.solver.contracts import SymbolicClosureSpec
+from shuxueshuo_server.solver.runtime.quadratic_constraint_solver import (
+    value_satisfies_constraint,
+)
+from shuxueshuo_server.solver.runtime.symbolic_closure_execution import (
+    materialize_symbolic_closure_outputs,
+    require_unique_symbolic_closure,
+    solve_symbolic_closure_math,
+)
+
 from ._common import *
 from ._spec import MethodSpecSource
 
@@ -21,15 +31,33 @@ class ParameterFromMinimumValueMethod:
         parameter = inputs["parameter"]
         constraint = inputs.get("constraint")
         target = kernel.expr(condition["value"])
-        lower_bound = constraint["value"] if isinstance(constraint, dict) and constraint.get("operator") == ">" else None
-        candidates = kernel.solve_values(sp.Eq(expression, target), parameter)
-        value = pick_by_lower_bound(candidates, lower_bound)
+        closure = require_unique_symbolic_closure(
+            solve_symbolic_closure_math(
+                _SYMBOLIC_CLOSURE_SPEC,
+                args=inputs,
+                kernel=kernel,
+            )
+        )
+        outputs, closure_checks = materialize_symbolic_closure_outputs(
+            {
+                "parameter_value": TypedValue(
+                    "ParameterValue", parameter, source=self.method_id
+                )
+            },
+            closure,
+        )
+        value = outputs["parameter_value"].value
         return StatelessMethodResult(
             method_id=self.method_id,
-            outputs={"parameter_value": TypedValue("ParameterValue", value, source=self.method_id)},
+            outputs=outputs,
             checks=[
-                _check("minimum_parameter_domain", satisfies_lower_bound(value, lower_bound), "参数满足定义域"),
+                _check(
+                    "minimum_parameter_domain",
+                    value_satisfies_constraint(value, constraint),
+                    "参数满足定义域",
+                ),
                 _check("minimum_value_matches", sp.simplify(expression.subs(parameter, value) - target) == 0, "最小值匹配题设"),
+                *closure_checks,
             ],
             trace_fragments=[
                 _step(
@@ -44,6 +72,17 @@ class ParameterFromMinimumValueMethod:
         )
 
 
+_SYMBOLIC_CLOSURE_SPEC = SymbolicClosureSpec(
+    target_arg="parameter",
+    equation_builder="minimum_expression_equals_value",
+    constraint_filter="parameter_value_constraint",
+    constraint_args=("constraint",),
+    constraint_args_optional=True,
+    substitution_outputs=("parameter_value",),
+    output_validator="parameter_value_closure_outputs",
+)
+
+
 SPEC = MethodSpecSource(
     method_cls=ParameterFromMinimumValueMethod,
     title='由最小值反求参数',
@@ -56,6 +95,7 @@ SPEC = MethodSpecSource(
             "当前目标只是更新函数或几何对象状态；该能力只反求最小值表达式中"
             "实际存在的单一目标参数，不代替状态更新。"
         ),
+        "最小值方程有多个合法参数分支但没有提供足以唯一筛选的结构化 constraint；不会默认选择第一个解。",
     ),
     solves=('derive_parameter_from_minimum_value',),
     inputs={
@@ -81,7 +121,11 @@ SPEC = MethodSpecSource(
 },
     plan_transformer="validate_student_single_degree_of_freedom",
     plan_transformer_scope="all_invocations",
-    preconditions=(),
-    postconditions=(),
+    preconditions=(
+        "parameter 必须实际参与 minimum_expression=condition.value 方程",
+        "若方程有多个分支，constraint 必须唯一筛选一个合法分支",
+    ),
+    postconditions=("输出参数值满足最小值方程与声明的参数范围",),
     trace_template=(),
+    symbolic_closure=_SYMBOLIC_CLOSURE_SPEC,
 )

@@ -341,6 +341,11 @@ def _parse_symbolic_closure(
         raise ValueError(
             "MethodSpec.symbolic_closure.require_unique_target must be a boolean"
         )
+    constraint_args_optional = raw.get("constraint_args_optional", False)
+    if not isinstance(constraint_args_optional, bool):
+        raise ValueError(
+            "MethodSpec.symbolic_closure.constraint_args_optional must be a boolean"
+        )
     mapper = raw.get("representation_mapper")
     constraint_filter = raw.get("constraint_filter")
     output_validator = raw.get("output_validator")
@@ -358,6 +363,7 @@ def _parse_symbolic_closure(
             else None
         ),
         constraint_args=constraint_args,
+        constraint_args_optional=constraint_args_optional,
         preserved_symbol_args=preserved_symbol_args,
         substitution_outputs=substitution_outputs,
         output_validator=(

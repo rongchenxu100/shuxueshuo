@@ -6,12 +6,14 @@
 
 from __future__ import annotations
 
+from shuxueshuo_server.solver.contracts import SymbolicClosureSpec
 from shuxueshuo_server.solver.runtime.quadratic_constraint_solver import (
-    QuadraticConstraintSolveRequest,
-    QuadraticConstraintSolveResult,
-    quadratic_coefficient_expression,
-    solve_quadratic_constraint_system,
     value_satisfies_constraint,
+)
+from shuxueshuo_server.solver.runtime.symbolic_closure_execution import (
+    materialize_symbolic_closure_outputs,
+    require_unique_symbolic_closure,
+    solve_symbolic_closure_math,
 )
 
 from ._common import *
@@ -32,89 +34,41 @@ class ParameterFromCurvePointOnQuadraticMethod:
     method_id = "parameter_from_curve_point_on_quadratic"
 
     def run(self, inputs: dict[str, Any], kernel: SympyKernel) -> StatelessMethodResult:
-        quadratic = inputs["quadratic"]
         x = inputs["x"]
-        point: Point = inputs["point"]
         parameter = inputs["parameter"]
         constraint = inputs.get("parameter_constraint")
         known_parameter = inputs.get("known_parameter")
         known_parameter_value = inputs.get("known_parameter_value")
-        quadratic_template = inputs.get("quadratic_template")
-
         if (known_parameter is None) != (known_parameter_value is None):
             raise ValueError(
                 "function.arg_missing: known_parameter and "
                 "known_parameter_value must be provided together"
             )
-
-        known_substitution = (
-            {known_parameter: known_parameter_value}
-            if known_parameter is not None
-            else {}
-        )
-        specialized_quadratic = sp.expand(quadratic.subs(known_substitution))
-        specialized_point = _subs_point(point, known_substitution)
-        target_expression = quadratic_coefficient_expression(
-            specialized_quadratic,
-            independent_symbol=x,
-            target_symbol=parameter,
-            template_expression=quadratic_template,
-        )
-        if (
-            parameter not in specialized_quadratic.free_symbols
-            and parameter not in set().union(
-                *(sp.sympify(value).free_symbols for value in specialized_point)
-            )
-            and target_expression is None
-        ):
-            residual_symbols = sorted(
-                (
-                    specialized_quadratic.free_symbols
-                    | set().union(
-                        *(sp.sympify(value).free_symbols for value in specialized_point)
-                    )
-                )
-                - {x},
-                key=lambda item: item.name,
-            )
-            residual_names = ", ".join(item.name for item in residual_symbols) or "<none>"
-            raise ValueError(
-                "function.parameter_identity_mismatch: "
-                f"target={parameter.name}, residual_symbols={residual_names}; "
-                "the bounded call has no deterministic mapping to the target Symbol"
-            )
-        result = solve_quadratic_constraint_system(
-            QuadraticConstraintSolveRequest(
-                base_expression=specialized_quadratic,
-                independent_symbol=x,
-                coefficient_symbols=tuple(
-                    sorted(
-                        specialized_quadratic.free_symbols - {x},
-                        key=lambda item: item.name,
-                    )
-                ),
-                curve_points=(specialized_point,),
-                target_symbol=parameter,
-                target_expression=target_expression,
-                parameter_constraint=constraint,
-            ),
+        math_result = solve_symbolic_closure_math(
+            _SYMBOLIC_CLOSURE_SPEC,
+            args=inputs,
             kernel=kernel,
         )
-        parameter_value, substitution = _resolved_target_value(
-            result,
-            target=parameter,
-            constraint=constraint,
+        closure = require_unique_symbolic_closure(math_result)
+        outputs, closure_checks = materialize_symbolic_closure_outputs(
+            {
+                "parameter_value": TypedValue(
+                    "ParameterValue", parameter, source=self.method_id
+                ),
+                "point": TypedValue("Point", inputs["point"], source=self.method_id),
+                "parabola": TypedValue(
+                    "Parabola", inputs["quadratic"], source=self.method_id
+                ),
+            },
+            closure,
         )
-        resolved_point = _subs_point(specialized_point, substitution)
-        parabola = sp.expand(specialized_quadratic.subs(substitution))
+        parameter_value = outputs["parameter_value"].value
+        resolved_point = outputs["point"].value
+        parabola = sp.expand(outputs["parabola"].value)
 
         return StatelessMethodResult(
             method_id=self.method_id,
-            outputs={
-                "parameter_value": TypedValue("ParameterValue", parameter_value, source=self.method_id),
-                "point": TypedValue("Point", resolved_point, source=self.method_id),
-                "parabola": TypedValue("Parabola", parabola, source=self.method_id),
-            },
+            outputs=outputs,
             checks=[
                 _check(
                     "parameter_constraint_satisfied",
@@ -126,6 +80,7 @@ class ParameterFromCurvePointOnQuadraticMethod:
                     sp.simplify(parabola.subs(x, resolved_point[0]) - resolved_point[1]) == 0,
                     "代入参数后的点在抛物线上",
                 ),
+                *closure_checks,
             ],
             trace_fragments=[
                 _step(
@@ -143,36 +98,17 @@ class ParameterFromCurvePointOnQuadraticMethod:
         )
 
 
-def _resolved_target_value(
-    result: QuadraticConstraintSolveResult,
-    *,
-    target: sp.Symbol,
-    constraint: dict[str, sp.Expr | str] | None,
-) -> tuple[sp.Expr, dict[sp.Symbol, sp.Expr]]:
-    residual_names = ", ".join(
-        symbol.name for symbol in result.free_symbols
-    ) or "<none>"
-    if result.status == "underdetermined":
-        raise ValueError(
-            "function.constraints_underdetermined: "
-            f"target={target.name}, residual_symbols={residual_names}"
-        )
-    if result.status == "ambiguous":
-        raise ValueError(
-            "function.constraints_ambiguous: "
-            f"target={target.name}, branch_count={result.branch_count}"
-        )
-    if result.status == "inconsistent" or result.target_value is None:
-        raise ValueError(
-            "function.constraints_inconsistent: curve-point equation has no solution"
-        )
-    if not value_satisfies_constraint(result.target_value, constraint):
-        raise ValueError(
-            "function.constraints_inconsistent: target value violates its constraint"
-        )
-    substitution = dict(result.coefficient_substitution)
-    substitution[target] = result.target_value
-    return result.target_value, substitution
+_SYMBOLIC_CLOSURE_SPEC = SymbolicClosureSpec(
+    target_arg="parameter",
+    equation_builder="point_on_curve",
+    known_substitutions=(("known_parameter", "known_parameter_value"),),
+    representation_mapper="polynomial_coefficient_template",
+    constraint_filter="parameter_value_constraint",
+    constraint_args=("parameter_constraint",),
+    constraint_args_optional=True,
+    substitution_outputs=("parameter_value", "point", "parabola"),
+    output_validator="point_on_curve_closure_outputs",
+)
 
 
 SPEC = MethodSpecSource(
@@ -186,6 +122,8 @@ SPEC = MethodSpecSource(
     do_not_use_when=(
         "代入当前已知参数值后仍有两个及以上未确定参数，且无法由当前二次函数系数表达式唯一闭包到目标参数。",
         "需要先推导曲线表达式或点坐标，而不是利用已有曲线点条件反求参数。",
+        "曲线点方程产生多个合法参数分支，但当前调用没有提供能唯一筛选分支的结构化参数约束。",
+        "目标参数没有出现在曲线点方程，也不能由 quadratic_template 中对应系数唯一映射；不要机械复制其他小问的参数反求路线。",
     ),
     solves=("derive_parameter_from_curve_point_on_quadratic",),
     inputs={
@@ -206,9 +144,11 @@ SPEC = MethodSpecSource(
     preconditions=(
         "应用已知参数值后，曲线点方程必须直接唯一确定目标参数，或唯一确定可映射到目标参数的二次函数系数",
         "点代入抛物线后，在参数约束下必须唯一确定参数值",
+        "若存在多个代数分支，parameter_constraint 必须唯一保留其中一个；无约束时不会默认选择第一个解",
     ),
     postconditions=(
         "输出 point 是代入参数后的坐标",
         "输出 parabola 是代入参数后的当前问抛物线",
     ),
+    symbolic_closure=_SYMBOLIC_CLOSURE_SPEC,
 )

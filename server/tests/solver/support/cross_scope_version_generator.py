@@ -127,6 +127,7 @@ def generated_scenarios(
         *expanded_scenarios(expanded_count),
         *handoff_scenarios(handoff_count),
         *authority_regression_scenarios(),
+        *_parameter_value_producer_scenarios(),
     )
     ids = {item.scenario_id for item in result}
     if len(ids) != len(result):
@@ -695,6 +696,80 @@ def authority_regression_scenarios() -> tuple[CrossScopeVersionScenario, ...]:
         checkpoint_symbol_alias,
         checkpoint_symbol_drift,
     )
+
+
+def _parameter_value_producer_scenarios() -> tuple[CrossScopeVersionScenario, ...]:
+    """Exercise C5 ParameterValue create/projection/version/retry authority."""
+    capabilities = (
+        "parameter_from_curve_point_on_quadratic",
+        "parameter_from_expression_value",
+        "parameter_from_minimum_value",
+        "parameter_from_segment_length",
+    )
+    result: list[CrossScopeVersionScenario] = []
+    for index, capability_id in enumerate(capabilities):
+        key = ModelStateKey(f"parameter_{index}", "value", "ParameterValue")
+        producer = ModelCall(
+            "solve_parameter",
+            "ii_1",
+            capability_id,
+            output_state_key=key,
+            requested_write_mode="create",
+            storage_scope_id="ii",
+            valid_scope_id="ii",
+            answer_scope_ids=("ii_1",),
+            projection=("object+answer" if index % 2 == 0 else "answer"),
+            runtime_destination=f"state/ii/{key.object_id}",
+        )
+        consumer = ModelCall(
+            "consume_parameter",
+            "ii_2",
+            "evaluate_with_parameter",
+            input_version_ids=("solve_parameter",),
+            output_state_key=None,
+            requested_write_mode="value",
+            projection="call_local",
+        )
+        base = CrossScopeVersionScenario(
+            scopes=_scopes("branched"),
+            objects=(ModelObject(key.object_id, "symbol", "ii"),),
+            initial_versions=(),
+            calls=(producer, consumer),
+            wire_order=("consume_parameter", "solve_parameter"),
+            dependency_edges=(
+                ModelDependency(
+                    "solve_parameter",
+                    "consume_parameter",
+                    "state_version",
+                    version_id="solve_parameter",
+                ),
+            ),
+            dimensions=(
+                ("generator", "authority_regression"),
+                ("regression", "parameter_value_producer"),
+                ("producer_capability", capability_id),
+                ("topology", "branched"),
+                ("read_mode", "exact"),
+                ("retry", "committed_restore"),
+            ),
+        )
+        outcome = ReferenceScopeVersionModel().evaluate(base)
+        version_id = outcome.decision("solve_parameter").selected_version_id
+        result.append(
+            replace(
+                base,
+                retry_checkpoint=ModelRetryCheckpoint(
+                    "committed_restore",
+                    committed_call_ids=("solve_parameter",),
+                    committed_version_ids=(
+                        (version_id,) if version_id is not None else ()
+                    ),
+                    provisional_call_ids=("consume_parameter",),
+                ),
+                scenario_id="",
+            )
+        )
+    return tuple(result)
 
 
 def dead_writer_liveness_scenarios(

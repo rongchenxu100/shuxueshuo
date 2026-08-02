@@ -247,6 +247,14 @@ def main(argv: Sequence[str] | None = None) -> int:
             item.get("symbolic_closure_drift_count", 0)
             for item in results
         ),
+        "symbolic_closure_execution_by_capability": _sum_counter_payloads(
+            item.get("symbolic_closure_execution_by_capability", {})
+            for item in results
+        ),
+        "symbolic_closure_drift_by_capability": _sum_counter_payloads(
+            item.get("symbolic_closure_drift_by_capability", {})
+            for item in results
+        ),
         "per_case": per_case,
         "stage1_gate_passed": all(
             item["stage1_gate_passed"] for item in per_case.values()
@@ -627,6 +635,16 @@ def _run_sample(
         "symbolic_closure_drift_count": int(
             result_payload.get("symbolic_closure_drift_count", 0) or 0
         ),
+        "symbolic_closure_execution_by_capability": dict(
+            result_payload.get(
+                "symbolic_closure_execution_by_capability", {}
+            )
+            or {}
+        ),
+        "symbolic_closure_drift_by_capability": dict(
+            result_payload.get("symbolic_closure_drift_by_capability", {})
+            or {}
+        ),
         "first_error": errors[0] if errors else None,
         "structured_errors": errors,
         "llm": llm,
@@ -635,6 +653,18 @@ def _run_sample(
         "stdout_log": str(sample.debug_dir / "pytest.stdout.log"),
         "stderr_log": str(sample.debug_dir / "pytest.stderr.log"),
     }
+
+
+def _sum_counter_payloads(
+    payloads: Iterable[object],
+) -> dict[str, int]:
+    counts: dict[str, int] = {}
+    for payload in payloads:
+        if not isinstance(payload, dict):
+            continue
+        for key, value in payload.items():
+            counts[str(key)] = counts.get(str(key), 0) + int(value or 0)
+    return dict(sorted(counts.items()))
 
 
 def _case_metrics(

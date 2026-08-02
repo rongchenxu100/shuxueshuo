@@ -6969,7 +6969,7 @@ def _execution_blocker_code(candidate_errors: list[str]) -> str:
         "candidate_selection_constraint_required" in text
         or (
             "curve_candidate_parameter_solve" in text
-            and "function.constraints_ambiguous" in text
+            and _has_ambiguous_parameter_solve(text)
         )
     ):
         return "functional.candidate_selection_constraint_required"
@@ -7017,6 +7017,16 @@ def _execution_blocker_code(candidate_errors: list[str]) -> str:
     if not candidate_errors:
         return "no_trial_candidate"
     return "recipe_trial_step_failed"
+
+
+def _has_ambiguous_parameter_solve(text: str) -> bool:
+    return any(
+        code in text
+        for code in (
+            "function.constraints_ambiguous",
+            "function.symbolic_closure_ambiguous",
+        )
+    )
 
 
 def _execution_blocker_retryable(code: str) -> bool:
@@ -7098,7 +7108,7 @@ def _execution_blocker_details(
             "candidate_selection_constraint_required" in error
             or (
                 "curve_candidate_parameter_solve" in error
-                and "function.constraints_ambiguous" in error
+                and _has_ambiguous_parameter_solve(error)
             )
         ):
             return {

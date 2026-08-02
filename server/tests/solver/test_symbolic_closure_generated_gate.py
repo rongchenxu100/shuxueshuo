@@ -123,7 +123,7 @@ def test_generated_production_quadratic_symbolic_closure_gate() -> None:
             result,
         )
         assert result.target_object_id == identities[b]
-        assert result.runtime_validated
+        assert result.validation_context_attached
         if expected == "unique":
             assert result.target_value is not None
             assert b in result.substitution

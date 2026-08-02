@@ -4,6 +4,8 @@
 typed inputs 和 SympyKernel。
 """
 
+import inspect
+
 import sympy as sp
 import pytest
 
@@ -56,6 +58,25 @@ from shuxueshuo_server.solver.runtime.symbolic_target_closure import (
 from shuxueshuo_server.solver.runtime.methods.quadratic_from_constraints import (
     analyze_quadratic_constraints,
 )
+
+
+@pytest.mark.parametrize(
+    "method_cls",
+    (
+        ParameterFromCurvePointOnQuadraticMethod,
+        ParameterFromExpressionValueMethod,
+        ParameterFromMinimumValueMethod,
+        ParameterFromSegmentLengthMethod,
+    ),
+)
+def test_parameter_methods_delegate_solving_to_shared_closure_core(
+    method_cls,
+) -> None:
+    source = inspect.getsource(method_cls.run)
+
+    assert "solve_symbolic_closure_math" in source
+    assert "solve_values" not in source
+    assert "pick_by_lower_bound" not in source
 
 
 def test_quadratic_axis_from_relation_method() -> None:
@@ -997,7 +1018,10 @@ def test_parameter_from_curve_point_rejects_multiple_unresolved_symbols() -> Non
     symbols = kernel.symbols(["x", "u", "v"])
     x, u, v = symbols["x"], symbols["u"], symbols["v"]
 
-    with pytest.raises(ValueError, match="function.constraints_underdetermined"):
+    with pytest.raises(
+        ValueError,
+        match="function.symbolic_closure_underdetermined",
+    ):
         ParameterFromCurvePointOnQuadraticMethod().run(
             {
                 "quadratic": u * x**2 - 2 * u * x + 1 - u * v**2 + 2 * u * v,
@@ -1022,7 +1046,7 @@ def test_parameter_from_curve_point_reports_actual_residual_symbol() -> None:
 
     with pytest.raises(
         ValueError,
-        match=r"function.parameter_identity_mismatch: target=w, residual_symbols=u",
+        match=r"function.symbolic_closure_identity_unresolved: target=w, residual_symbols=u",
     ):
         ParameterFromCurvePointOnQuadraticMethod().run(
             {
@@ -1245,6 +1269,25 @@ def test_parameter_from_segment_length_method() -> None:
     assert result.outputs["parameter_value"].value == 3
 
 
+def test_parameter_from_segment_length_does_not_pick_first_branch() -> None:
+    kernel = SympyKernel()
+    parameter = kernel.symbols(["m"])["m"]
+
+    with pytest.raises(
+        ValueError,
+        match="function.symbolic_closure_ambiguous",
+    ):
+        ParameterFromSegmentLengthMethod().run(
+            {
+                "p1": (parameter, 0),
+                "p2": (0, 0),
+                "parameter": parameter,
+                "condition": {"value": "1"},
+            },
+            kernel,
+        )
+
+
 def test_parameter_from_segment_length_method_supports_segment_relation() -> None:
     kernel = SympyKernel()
     b = kernel.symbols(["b"])["b"]
@@ -1269,6 +1312,52 @@ def test_parameter_from_segment_length_method_supports_segment_relation() -> Non
 
     assert result.outputs["parameter_value"].value == 1
     assert all(check.ok for check in result.checks)
+
+
+def test_parameter_from_segment_length_is_endpoint_order_invariant() -> None:
+    kernel = SympyKernel()
+    m = kernel.symbols(["m"])["m"]
+    common = {
+        "parameter": m,
+        "condition": {"value": "10"},
+        "constraint": {"operator": ">", "value": sp.Integer(2)},
+    }
+
+    forward = ParameterFromSegmentLengthMethod().run(
+        {**common, "p1": (m, 1), "p2": (2, 1 - m)},
+        kernel,
+    )
+    reverse = ParameterFromSegmentLengthMethod().run(
+        {**common, "p1": (2, 1 - m), "p2": (m, 1)},
+        kernel,
+    )
+
+    assert forward.outputs["parameter_value"].value == 3
+    assert reverse.outputs["parameter_value"].value == 3
+
+
+def test_parameter_from_segment_length_relation_requires_reference_segment() -> None:
+    kernel = SympyKernel()
+    parameter = kernel.symbols(["m"])["m"]
+
+    with pytest.raises(
+        ValueError,
+        match="segment_length_relation requires reference_p1/reference_p2",
+    ):
+        ParameterFromSegmentLengthMethod().run(
+            {
+                "p1": (parameter, 0),
+                "p2": (0, 0),
+                "parameter": parameter,
+                "condition": {
+                    "type": "segment_length_relation",
+                    "left_segment": "AB",
+                    "right_segment": "CD",
+                    "scale": "2",
+                },
+            },
+            kernel,
+        )
 
 
 def test_parabola_at_parameter_method() -> None:
@@ -1597,7 +1686,7 @@ def test_parameter_from_expression_value_rejects_absent_target_symbol() -> None:
 
     with pytest.raises(
         ValueError,
-        match=r"parameter.target_absent_from_expression: target=a",
+        match=r"function.symbolic_closure_identity_unresolved: target=a",
     ):
         ParameterFromExpressionValueMethod().run(
             {
@@ -1607,6 +1696,35 @@ def test_parameter_from_expression_value_rejects_absent_target_symbol() -> None:
             },
             kernel,
         )
+
+
+def test_parameter_from_expression_value_does_not_pick_first_branch() -> None:
+    kernel = SympyKernel()
+    parameter = kernel.symbols(["m"])["m"]
+
+    with pytest.raises(
+        ValueError,
+        match=r"function.symbolic_closure_ambiguous:.*branch_count=2",
+    ):
+        ParameterFromExpressionValueMethod().run(
+            {
+                "expression": parameter**2,
+                "condition": {"value": "1"},
+                "parameter": parameter,
+            },
+            kernel,
+        )
+
+    result = ParameterFromExpressionValueMethod().run(
+        {
+            "expression": parameter**2,
+            "condition": {"value": "1"},
+            "parameter": parameter,
+            "constraint": {"operator": ">", "value": 0},
+        },
+        kernel,
+    )
+    assert result.outputs["parameter_value"].value == 1
 
 
 def test_line_intersection_point_method() -> None:
