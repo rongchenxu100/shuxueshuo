@@ -13,9 +13,6 @@ from shuxueshuo_server.solver.deepseek_functional_batch import (
 )
 from shuxueshuo_server.solver.fixtures import load_problem_ir
 from shuxueshuo_server.solver.runtime.context import ContextBuilder
-from shuxueshuo_server.solver.runtime.canonical_draft_finalizer import (
-    CanonicalDraftFinalizer,
-)
 from shuxueshuo_server.solver.runtime.functional_plan import (
     FunctionalPlanValidator,
 )
@@ -90,6 +87,9 @@ from shuxueshuo_server.solver.runtime.state_identity import (
     StateSlotId,
     StateVersionId,
 )
+from shuxueshuo_server.solver.runtime.state_finalization import (
+    StateFinalizationService,
+)
 from shuxueshuo_server.solver.runtime.strategy_models import (
     PlannerRetryIssue,
     StrategyDraftValidationError,
@@ -104,6 +104,7 @@ def _replay(
     *,
     mode: str,
     symbolic_closure_mode: str = "disabled",
+    compile_mode: str = "direct_authoritative",
 ):
     case = FUNCTIONAL_BATCH_CASES[case_id]
     problem = load_problem_ir(case.problem_fixture_path)
@@ -119,6 +120,7 @@ def _replay(
     return PlannerRetryReplayService(
         functional_transaction_mode=mode,
         functional_symbolic_closure_mode=symbolic_closure_mode,
+        functional_compile_mode=compile_mode,
     ).replay_functional_plan(
         plan,
         inputs=inputs,
@@ -381,6 +383,9 @@ def test_context_authoritative_uses_transactional_output_and_context() -> None:
     assert replay.diagnostic == attempt.diagnostic
     assert replay.goal_verification_report == attempt.goal_report
     assert replay.state_observation_authority == "transactional"
+    assert replay.functional_reconciliation is not None
+    assert replay.functional_reconciliation.projected_draft is None
+    assert attempt.execution_report.functional_compile_count > 0
     assert replay.retry_state is None
     assert replay.planner_state_context is not None
     assert any(
@@ -472,7 +477,11 @@ def test_context_authoritative_partial_legacy_probe_stays_provisional(
         conflict_last_call,
     )
 
-    replay = _replay("nankai", mode="context_authoritative")
+    replay = _replay(
+        "nankai",
+        mode="context_authoritative",
+        compile_mode="projected",
+    )
 
     assert replay.transactional_attempt_result is None
     assert replay.retry_state is not None
@@ -681,10 +690,10 @@ def test_context_authoritative_commits_runtime_symbolic_closure(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     finalized_closure_writes: list[tuple[object, ...]] = []
-    original_finalize = CanonicalDraftFinalizer.finalize_compiled_state_writes
+    original_finalize = StateFinalizationService.finalize_compiled_graph
 
     def capture_finalized_provenance(self, *args, **kwargs):
-        provenance = tuple(kwargs.get("provenance", ()))
+        provenance = tuple(args[1] if len(args) > 1 else ())
         target_writes = tuple(
             write
             for write in provenance
@@ -697,8 +706,8 @@ def test_context_authoritative_commits_runtime_symbolic_closure(
         return original_finalize(self, *args, **kwargs)
 
     monkeypatch.setattr(
-        CanonicalDraftFinalizer,
-        "finalize_compiled_state_writes",
+        StateFinalizationService,
+        "finalize_compiled_graph",
         capture_finalized_provenance,
     )
     case = FUNCTIONAL_BATCH_CASES["heping-ermo"]

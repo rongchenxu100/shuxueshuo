@@ -68,6 +68,9 @@ from shuxueshuo_server.solver.runtime.strategy_replay import (
 from shuxueshuo_server.solver.runtime.functional_transaction_shadow import (
     FunctionalTransactionMode,
 )
+from shuxueshuo_server.solver.runtime.functional_direct_compiler import (
+    FunctionalCompileMode,
+)
 from shuxueshuo_server.solver.runtime.planner_failure_classification import (
     is_planner_configuration_failure_code,
 )
@@ -127,6 +130,7 @@ class StrategyPlanner:
         functional_symbolic_closure_mode: FunctionalSymbolicClosureMode = (
             "disabled"
         ),
+        functional_compile_mode: FunctionalCompileMode = "direct_authoritative",
     ) -> None:
         self.context = context
         self.mode = mode
@@ -140,6 +144,7 @@ class StrategyPlanner:
         self.functional_symbolic_closure_mode = (
             functional_symbolic_closure_mode
         )
+        self.functional_compile_mode = functional_compile_mode
         self.artifacts = StrategyPlannerArtifacts()
 
     @property
@@ -397,6 +402,7 @@ class StrategyPlanner:
             functional_symbolic_closure_mode=(
                 self.functional_symbolic_closure_mode
             ),
+            functional_compile_mode=self.functional_compile_mode,
         ).replay_from_artifacts(
             attempt=attempt,
             errors=tuple(errors),
@@ -606,6 +612,7 @@ class StrategyPlanner:
                 functional_symbolic_closure_mode=(
                     self.functional_symbolic_closure_mode
                 ),
+                functional_compile_mode=self.functional_compile_mode,
             ).replay_functional_raw_json(
                 raw_response,
                 inputs=inputs,
@@ -688,6 +695,7 @@ def strategy_planner_provider(
     functional_symbolic_closure_mode: FunctionalSymbolicClosureMode = (
         "disabled"
     ),
+    functional_compile_mode: FunctionalCompileMode = "direct_authoritative",
 ) -> "Callable[[RuntimeContext], StrategyPlanner]":
     """构造 Orchestrator 可用的单一 Strategy provider。"""
     from collections.abc import Callable
@@ -708,6 +716,7 @@ def strategy_planner_provider(
             functional_symbolic_closure_mode=(
                 functional_symbolic_closure_mode
             ),
+            functional_compile_mode=functional_compile_mode,
         )
 
     return provider

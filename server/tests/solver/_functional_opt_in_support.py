@@ -69,6 +69,10 @@ def run_deepseek_functional_opt_in(case: FunctionalOptInCase) -> None:
                 "FUNCTIONAL_SYMBOLIC_CLOSURE_MODE",
                 "disabled",
             ),
+            functional_compile_mode=os.getenv(
+                "FUNCTIONAL_COMPILE_MODE",
+                "direct_authoritative",
+            ),
         ),
         max_attempts=_max_attempts(),
         debug_dir=debug_dir,
@@ -89,6 +93,8 @@ def run_deepseek_functional_opt_in(case: FunctionalOptInCase) -> None:
         closure_drift_by_capability,
         closure_attempt_artifacts_found,
     ) = _attempt_symbolic_closure_counts(debug_dir)
+    compile_count = 0
+    compile_drift_count = 0
     _record_gate(
         gate_checks,
         "solver_status",
@@ -143,6 +149,11 @@ def run_deepseek_functional_opt_in(case: FunctionalOptInCase) -> None:
                 closure_drift_by_capability = (
                     transaction_report.symbolic_closure_drift_by_capability
                 )
+            if transaction_report is not None:
+                compile_count = transaction_report.functional_compile_count
+                compile_drift_count = (
+                    transaction_report.functional_compile_drift_count
+                )
             write_strategy_debug_artifacts(
                 debug_dir,
                 payload=artifacts.payload or {},
@@ -177,6 +188,26 @@ def run_deepseek_functional_opt_in(case: FunctionalOptInCase) -> None:
             closure_drift_count == 0,
             f"mode={expected_closure_mode}, drift={closure_drift_count}",
         )
+        expected_compile_mode = os.getenv(
+            "FUNCTIONAL_COMPILE_MODE",
+            "direct_authoritative",
+        )
+        _record_gate(
+            gate_checks,
+            "functional_compile_drift",
+            compile_drift_count == 0,
+            f"mode={expected_compile_mode}, drift={compile_drift_count}",
+        )
+        if expected_compile_mode in {
+            "direct_shadow",
+            "direct_authoritative",
+        }:
+            _record_gate(
+                gate_checks,
+                "functional_direct_compile_executed",
+                compile_count > 0,
+                f"mode={expected_compile_mode}, count={compile_count}",
+            )
         if (
             expected_closure_mode == "authoritative"
             and replay is not None
@@ -247,10 +278,14 @@ def run_deepseek_functional_opt_in(case: FunctionalOptInCase) -> None:
         required_debug_artifacts = [
             "functional-plan.json",
             "functional-reconciliation-report.json",
-            "effective-step-intents.json",
             "planner-state-context.json",
             "raw-response.txt",
         ]
+        if os.getenv(
+            "FUNCTIONAL_COMPILE_MODE",
+            "direct_authoritative",
+        ) != "direct_authoritative":
+            required_debug_artifacts.append("effective-step-intents.json")
         if replay is not None and replay.retry_state is not None:
             required_debug_artifacts.append("planner-retry-state.json")
         missing_artifacts = [
@@ -297,6 +332,8 @@ def run_deepseek_functional_opt_in(case: FunctionalOptInCase) -> None:
         closure_drift_count=closure_drift_count,
         closure_execution_by_capability=closure_execution_by_capability,
         closure_drift_by_capability=closure_drift_by_capability,
+        compile_count=compile_count,
+        compile_drift_count=compile_drift_count,
     )
     assert not gate_failures, gate_failures
 
@@ -571,6 +608,8 @@ def _write_sample_result(
     closure_drift_count: int,
     closure_execution_by_capability: dict[str, int],
     closure_drift_by_capability: dict[str, int],
+    compile_count: int,
+    compile_drift_count: int,
 ) -> None:
     payload = {
         "sample_id": sample_id,
@@ -593,6 +632,12 @@ def _write_sample_result(
             "FUNCTIONAL_SYMBOLIC_CLOSURE_MODE",
             "disabled",
         ),
+        "functional_compile_mode": os.getenv(
+            "FUNCTIONAL_COMPILE_MODE",
+            "direct_authoritative",
+        ),
+        "functional_compile_count": compile_count,
+        "functional_compile_drift_count": compile_drift_count,
         "symbolic_closure_execution_count": closure_execution_count,
         "symbolic_closure_drift_count": closure_drift_count,
         "symbolic_closure_execution_by_capability": dict(

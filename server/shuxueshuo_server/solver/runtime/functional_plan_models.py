@@ -826,7 +826,7 @@ class FunctionalPlanReconciliationResult:
 
     @property
     def ok(self) -> bool:
-        return not self.issues and self.projected_draft is not None
+        return not self.issues and bool(self.projection_map)
 
     @property
     def effective_plan(self) -> FunctionalPlan:

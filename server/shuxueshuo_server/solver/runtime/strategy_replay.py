@@ -85,6 +85,9 @@ from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
     FunctionalTransactionalInterpreter,
     failed_execution_report,
 )
+from shuxueshuo_server.solver.runtime.functional_direct_compiler import (
+    FunctionalCompileMode,
+)
 from shuxueshuo_server.solver.runtime.symbolic_closure_execution import (
     FunctionalSymbolicClosureMode,
 )
@@ -325,11 +328,13 @@ class PlannerRetryReplayService:
         functional_symbolic_closure_mode: FunctionalSymbolicClosureMode = (
             "disabled"
         ),
+        functional_compile_mode: FunctionalCompileMode = "direct_authoritative",
     ) -> None:
         self._functional_transaction_mode = functional_transaction_mode
         self._functional_symbolic_closure_mode = (
             functional_symbolic_closure_mode
         )
+        self._functional_compile_mode = functional_compile_mode
 
     def replay_functional_raw_json(
         self,
@@ -468,6 +473,12 @@ class PlannerRetryReplayService:
                 if retry_checkpoint is not None
                 else {}
             ),
+            include_step_intent_projection=not (
+                self._functional_transaction_mode
+                == "context_authoritative"
+                and self._functional_compile_mode
+                == "direct_authoritative"
+            ),
         )
         # A retryable reconciliation issue can leave ``calls`` as a partial
         # graph. Auditing committed versions against that partial view masks
@@ -515,6 +526,49 @@ class PlannerRetryReplayService:
                 catalog=functional_catalog,
             )
         )
+        if (
+            self._functional_transaction_mode == "context_authoritative"
+            and self._functional_compile_mode == "direct_authoritative"
+        ):
+            functional_retry = (
+                _functional_retry_state(
+                    attempt=attempt,
+                    issues=reconciliation.issues,
+                    baseline_candidate=reconciliation.plan.to_payload(),
+                    errors=errors,
+                    replay_report=reconciliation.to_payload(),
+                    repair_call_ids=_root_repair_call_ids(reconciliation),
+                )
+                if reconciliation.issues
+                else None
+            )
+            if functional_retry is not None:
+                functional_retry = _functional_feedback_retry_state(
+                    functional_retry,
+                    plan=reconciliation.plan,
+                    reconciliation=reconciliation,
+                    catalog=functional_catalog,
+                )
+            replay = PlannerRetryReplayResult(
+                attempt=attempt,
+                errors=(
+                    errors
+                    or tuple(issue.message for issue in reconciliation.issues)
+                ),
+                retry_state=functional_retry,
+                functional_plan=reconciliation.plan,
+                functional_validation_report=validation_report,
+                functional_reconciliation=reconciliation,
+            )
+            return self._finalize_functional_replay(
+                replay,
+                raw_plan=plan,
+                parent_context=planner_state_context,
+                inputs=inputs,
+                handle_registry=handle_registry,
+                problem_payload=problem_payload,
+                runtime_context=context,
+            )
         projected_candidate = (
             reconciliation.projected_draft
             if reconciliation.ok
@@ -876,7 +930,10 @@ class PlannerRetryReplayService:
                         FunctionalTransactionalInterpreter(
                             symbolic_closure_mode=(
                                 self._functional_symbolic_closure_mode
-                            )
+                            ),
+                            functional_compile_mode=(
+                                self._functional_compile_mode
+                            ),
                         ).execute(
                             raw_plan=raw_plan,
                             reconciliation=replay.functional_reconciliation,
@@ -911,7 +968,11 @@ class PlannerRetryReplayService:
             in {"context_shadow", "context_authoritative"}
             and replay.functional_reconciliation is not None
             and not replay.functional_reconciliation.issues
-            and replay.functional_reconciliation.projected_draft is not None
+            and (
+                self._functional_compile_mode == "direct_authoritative"
+                or replay.functional_reconciliation.projected_draft
+                is not None
+            )
         ):
             context_problem_payload, _warnings = _problem_payload_for_context(
                 inputs,
@@ -922,7 +983,10 @@ class PlannerRetryReplayService:
                     FunctionalTransactionalInterpreter(
                         symbolic_closure_mode=(
                             self._functional_symbolic_closure_mode
-                        )
+                        ),
+                        functional_compile_mode=(
+                            self._functional_compile_mode
+                        ),
                     ).execute_attempt(
                         raw_plan=raw_plan,
                         reconciliation=replay.functional_reconciliation,
@@ -1051,7 +1115,11 @@ class PlannerRetryReplayService:
                         replay.functional_reconciliation.projected_draft,
                         verified_step_ids,
                     )
-                    if transactional_attempt.compiled_output is not None
+                    if (
+                        transactional_attempt.compiled_output is not None
+                        and replay.functional_reconciliation.projected_draft
+                        is not None
+                    )
                     else replay.effective_draft
                 )
                 replay = replace(

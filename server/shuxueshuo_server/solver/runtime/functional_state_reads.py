@@ -184,7 +184,8 @@ class FunctionalStateReadIndex:
             {"PointRef", "Symbol", "Function"}
         )
         for handle, binding in runtime_bindings.items():
-            if getattr(binding, "source", None) != "entity":
+            binding_source = getattr(binding, "source", None)
+            if binding_source not in {"entity", "fact"}:
                 continue
             runtime_type = getattr(binding, "value_type", None)
             runtime_path = getattr(binding, "path", None)
@@ -196,10 +197,11 @@ class FunctionalStateReadIndex:
                 continue
             object_id = object_registry.resolve(handle)
             if object_id is None:
-                self._incomplete(
-                    "planner.context_identity_migration_failed",
-                    f"initial_handle={handle}",
-                )
+                if binding_source == "entity":
+                    self._incomplete(
+                        "planner.context_identity_migration_failed",
+                        f"initial_handle={handle}",
+                    )
                 continue
             logical_key = LogicalStateKey(
                 object_id,

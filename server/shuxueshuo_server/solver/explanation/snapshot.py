@@ -20,7 +20,10 @@ from .models import (
     SymbolicClosureTeachingTrace,
     TeachingTraceEntry,
 )
-from .presentation import StudentNarrativePlacementProjector
+from .presentation import (
+    StudentNarrativePlacementProjector,
+    transactional_functional_steps,
+)
 
 
 class ExplanationSnapshotError(RuntimeError):
@@ -37,15 +40,25 @@ class ExplanationSnapshotBuilder:
             raise ExplanationSnapshotError("explanation snapshot requires ok SolverResult")
         planner_artifacts = getattr(artifacts.planner, "artifacts", None)
         effective_draft = getattr(planner_artifacts, "effective_draft", None)
-        if effective_draft is None:
-            raise ExplanationSnapshotError("strategy planner effective draft is required")
         problem_payload = RuntimeProjection(artifacts.problem).to_llm_problem_payload()
-        effective_steps = tuple(
-            step.to_payload(include_scope_id=True)
-            for step in effective_draft.steps
-        )
         replay = getattr(planner_artifacts, "retry_replay_result", None)
         functional_reconciliation = getattr(replay, "functional_reconciliation", None)
+        if effective_draft is not None:
+            effective_steps = tuple(
+                step.to_payload(include_scope_id=True)
+                for step in effective_draft.steps
+            )
+            effective_fact_steps: tuple[Any, ...] = effective_draft.steps
+        else:
+            effective_steps = transactional_functional_steps(
+                replay,
+                artifacts.planner_output,
+            )
+            effective_fact_steps = effective_steps
+        if not effective_steps:
+            raise ExplanationSnapshotError(
+                "strategy planner verified execution steps are required"
+            )
         narrative = StudentNarrativePlacementProjector().project(
             effective_steps=effective_steps,
             problem=problem_payload,
@@ -53,8 +66,10 @@ class ExplanationSnapshotBuilder:
             raw_functional_plan=getattr(replay, "functional_plan", None),
         )
         step_capabilities = {
-            step.step_id: step.recipe_hint or step.goal_type
-            for step in effective_draft.steps
+            str(step["step_id"]): str(
+                step.get("recipe_hint") or step.get("goal_type")
+            )
+            for step in effective_steps
         }
         snapshot = ExplanationSnapshot(
             problem_id=artifacts.problem.problem_id,
@@ -68,7 +83,7 @@ class ExplanationSnapshotBuilder:
             ),
             fact_index=_build_fact_index(
                 artifacts.context,
-                effective_draft.steps,
+                effective_fact_steps,
             ),
             student_step_placements=narrative.placements,
             student_scope_references=narrative.references,
@@ -230,13 +245,40 @@ def _build_fact_index(
     """建立讲解可用 fact index，不输出 ContextPath。"""
     index: dict[str, dict[str, Any]] = {}
     for step in effective_steps:
-        for produced in step.produces:
-            index[produced.handle] = {
-                "handle": produced.handle,
-                "scope_id": produced.valid_scope,
-                "type": produced.output_type,
-                "description": produced.description,
-                "source_step_id": step.step_id,
+        step_id = (
+            str(step.get("step_id"))
+            if isinstance(step, dict)
+            else step.step_id
+        )
+        produced_items = (
+            step.get("produces", ())
+            if isinstance(step, dict)
+            else step.produces
+        )
+        for produced in produced_items:
+            handle = (
+                str(produced.get("handle"))
+                if isinstance(produced, dict)
+                else produced.handle
+            )
+            index[handle] = {
+                "handle": handle,
+                "scope_id": (
+                    produced.get("valid_scope")
+                    if isinstance(produced, dict)
+                    else produced.valid_scope
+                ),
+                "type": (
+                    produced.get("output_type")
+                    if isinstance(produced, dict)
+                    else produced.output_type
+                ),
+                "description": (
+                    produced.get("description", "")
+                    if isinstance(produced, dict)
+                    else produced.description
+                ),
+                "source_step_id": step_id,
                 "source": "effective_step",
             }
     for scope_id, scope in sorted(context.scopes.items()):

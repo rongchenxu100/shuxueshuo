@@ -1606,10 +1606,11 @@ def write_strategy_debug_artifacts(
         payload.get("output_json_schema", STEP_INTENT_JSON_SCHEMA),
     )
     (target / "raw-response.txt").write_text(raw_response, encoding="utf-8")
-    _write_json(
-        target / "parsed-step-intents.json",
-        draft.to_payload() if draft else None,
-    )
+    if draft is not None or payload.get("planner_output_format") != "functional_plan":
+        _write_json(
+            target / "parsed-step-intents.json",
+            draft.to_payload() if draft else None,
+        )
     _write_json(target / "validation-report.json", _to_jsonable(report))
     if (
         isinstance(report, StepIntentValidationReport)

@@ -168,6 +168,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         "functional_symbolic_closure_mode": (
             args.functional_symbolic_closure_mode
         ),
+        "functional_compile_mode": args.functional_compile_mode,
         "timeout_seconds": args.timeout_seconds,
         "batch_dir": str(batch_dir),
         "test_path": args.test_path or (
@@ -212,6 +213,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 functional_symbolic_closure_mode=(
                     args.functional_symbolic_closure_mode
                 ),
+                functional_compile_mode=args.functional_compile_mode,
             ): sample
             for sample in samples
         }
@@ -253,6 +255,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         ),
         "symbolic_closure_drift_by_capability": _sum_counter_payloads(
             item.get("symbolic_closure_drift_by_capability", {})
+            for item in results
+        ),
+        "functional_compile_count": sum(
+            item.get("functional_compile_count", 0) for item in results
+        ),
+        "functional_compile_drift_count": sum(
+            item.get("functional_compile_drift_count", 0)
             for item in results
         ),
         "per_case": per_case,
@@ -473,6 +482,11 @@ def _parser() -> argparse.ArgumentParser:
         choices=("disabled", "shadow", "authoritative"),
         default="disabled",
     )
+    parser.add_argument(
+        "--functional-compile-mode",
+        choices=("projected", "direct_shadow", "direct_authoritative"),
+        default="direct_authoritative",
+    )
     parser.add_argument("--timeout-seconds", type=_positive_int, default=1800)
     parser.add_argument("--batch-id")
     parser.add_argument("--test-path")
@@ -532,6 +546,7 @@ def _run_sample(
     source_fingerprint: dict[str, Any],
     functional_transaction_mode: str,
     functional_symbolic_closure_mode: str,
+    functional_compile_mode: str,
 ) -> dict[str, Any]:
     environment = os.environ.copy()
     environment.update(
@@ -545,6 +560,7 @@ def _run_sample(
             "FUNCTIONAL_SYMBOLIC_CLOSURE_MODE": (
                 functional_symbolic_closure_mode
             ),
+            "FUNCTIONAL_COMPILE_MODE": functional_compile_mode,
             "PYTHONUNBUFFERED": "1",
         }
     )
@@ -611,6 +627,7 @@ def _run_sample(
         functional_symbolic_closure_mode=(
             functional_symbolic_closure_mode
         ),
+        functional_compile_mode=functional_compile_mode,
     )
     return {
         "case_id": sample.case.case_id,
@@ -644,6 +661,12 @@ def _run_sample(
         "symbolic_closure_drift_by_capability": dict(
             result_payload.get("symbolic_closure_drift_by_capability", {})
             or {}
+        ),
+        "functional_compile_count": int(
+            result_payload.get("functional_compile_count", 0) or 0
+        ),
+        "functional_compile_drift_count": int(
+            result_payload.get("functional_compile_drift_count", 0) or 0
         ),
         "first_error": errors[0] if errors else None,
         "structured_errors": errors,
@@ -915,6 +938,7 @@ def _sample_fingerprints(
     models: Sequence[str],
     functional_transaction_mode: str,
     functional_symbolic_closure_mode: str,
+    functional_compile_mode: str,
 ) -> dict[str, Any]:
     prompt_paths = (
         sample.debug_dir / "attempt-1.prompt.system.md",
@@ -937,6 +961,7 @@ def _sample_fingerprints(
         "functional_symbolic_closure_mode": (
             functional_symbolic_closure_mode
         ),
+        "functional_compile_mode": functional_compile_mode,
     }
     payload["compatibility_key"] = hashlib.sha256(
         json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")

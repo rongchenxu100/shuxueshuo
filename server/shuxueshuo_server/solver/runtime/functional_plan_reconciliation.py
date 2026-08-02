@@ -680,6 +680,7 @@ class FunctionalPlanReconciler:
         pinned_execution_scopes: Mapping[str, str] | None = None,
         pinned_return_scopes: Mapping[str, Mapping[str, str]] | None = None,
         pinned_resolver_arg_names: Mapping[str, Sequence[str]] | None = None,
+        include_step_intent_projection: bool = True,
     ) -> FunctionalPlanReconciliationResult:
         legacy_projection_adapter = FunctionalLegacyProjectionAdapter()
         prepared = _NormalizeElaborateScopeStage().run(
@@ -1366,6 +1367,7 @@ class FunctionalPlanReconciler:
                     pinned_resolver_arg_names or {}
                 ).items()
             },
+            include_step_intent_projection=include_step_intent_projection,
         )
 
 
@@ -1555,6 +1557,7 @@ class _PlacementLivenessProjectionStage:
         pinned_execution_scopes: Mapping[str, str],
         pinned_return_scopes: Mapping[str, Mapping[str, str]],
         pinned_resolver_arg_names: Mapping[str, Sequence[str]],
+        include_step_intent_projection: bool,
     ) -> FunctionalPlanReconciliationResult:
         plan = _rewrite_effective_functional_plan(
             plan,
@@ -1818,17 +1821,25 @@ class _PlacementLivenessProjectionStage:
                 plan=plan,
             ),
         )
-        partial_projected, partial_projection_map = (
-            FunctionalPlanProjector().project(
+        if include_step_intent_projection:
+            partial_projected, partial_projection_map = (
+                FunctionalPlanProjector().project(
+                    plan,
+                    reconciled=tuple(reconciled),
+                    placements=call_placements,
+                    dependency_graph=dependency_graph,
+                    catalog=catalog,
+                    semantic_items=semantic_items,
+                    semantic_index=semantic_index,
+                )
+            )
+        else:
+            partial_projected = None
+            partial_projection_map = _typed_projection_map(
                 plan,
                 reconciled=tuple(reconciled),
                 placements=call_placements,
-                dependency_graph=dependency_graph,
-                catalog=catalog,
-                semantic_items=semantic_items,
-                semantic_index=semantic_index,
             )
-        )
         projected_state_writes = project_functional_state_writes(
             plan,
             tuple(reconciled),
@@ -1957,15 +1968,23 @@ class _PlacementLivenessProjectionStage:
                     functional_binding_audit.legacy_fallback_count
                 ),
             )
-        projected, projection_map = FunctionalPlanProjector().project(
-            plan,
-            reconciled=tuple(reconciled),
-            placements=call_placements,
-            dependency_graph=dependency_graph,
-            catalog=catalog,
-            semantic_items=semantic_items,
-            semantic_index=semantic_index,
-        )
+        if include_step_intent_projection:
+            projected, projection_map = FunctionalPlanProjector().project(
+                plan,
+                reconciled=tuple(reconciled),
+                placements=call_placements,
+                dependency_graph=dependency_graph,
+                catalog=catalog,
+                semantic_items=semantic_items,
+                semantic_index=semantic_index,
+            )
+        else:
+            projected = None
+            projection_map = _typed_projection_map(
+                plan,
+                reconciled=tuple(reconciled),
+                placements=call_placements,
+            )
         return FunctionalPlanReconciliationResult(
             plan=plan,
             calls=tuple(reconciled),
@@ -2140,6 +2159,48 @@ def _exclude_late_invalid_call_graph(
     return (
         [item for item in reconciled if item.call_id not in excluded],
         reports,
+    )
+
+
+def _typed_projection_map(
+    plan: FunctionalPlan,
+    *,
+    reconciled: tuple[FunctionalCallReconciliation, ...],
+    placements: tuple[FunctionalCallPlacement, ...],
+) -> tuple[FunctionalProjectionEntry, ...]:
+    """Map canonical calls to StepPlan ids without constructing StepIntent."""
+    placement_by_call = {
+        item.canonical_call_id: item for item in placements
+    }
+    declared_scope_by_call = {
+        call.call_id: scope.scope_id
+        for scope in plan.scopes
+        for call in scope.calls
+    }
+    return tuple(
+        FunctionalProjectionEntry(
+            call_id=call.call_id,
+            step_ids=(call.call_id,),
+            state_slot_ids=tuple(
+                allocation.state_slot_id for allocation in call.returns
+            ),
+            canonical_call_id=call.call_id,
+            alias_call_ids=(
+                placement_by_call[call.call_id].alias_call_ids
+                if call.call_id in placement_by_call
+                else ()
+            ),
+            declared_scope_id=declared_scope_by_call.get(
+                call.call_id,
+                call.scope_id,
+            ),
+            execution_scope_id=(
+                placement_by_call[call.call_id].execution_scope_id
+                if call.call_id in placement_by_call
+                else call.scope_id
+            ),
+        )
+        for call in reconciled
     )
 
 

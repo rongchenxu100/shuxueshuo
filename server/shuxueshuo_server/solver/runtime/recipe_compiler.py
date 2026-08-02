@@ -9,7 +9,7 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 import json
 import re
-from typing import Any, Callable, Literal, Mapping
+from typing import Any, Callable, Literal, Mapping, Protocol
 
 import sympy as sp
 
@@ -355,12 +355,28 @@ def _projected_recipe_method_arg_bindings(
         result[input_name] = items[0]
     return result
 
-class RecipeTrialExecutor:
-    """把 StepIntentDraft 编译成可执行 PlannerOutput。
 
-    它按 StepIntent 选择 recipe/method capability，再通过 binding index 与 binding
-    rules 生成真正的 MethodInvocation。每接受一个候选都会对当前 prefix plan 做
-    dry-run，确保输出能被 runtime method 验算通过。
+class FunctionalCompileStepView(Protocol):
+    """Structural call input shared by projected and direct compilation."""
+
+    scope_id: str
+    step_id: str
+    recipe_hint: str
+    goal_type: str
+    target: str
+    reads: tuple[str, ...]
+    creates: tuple[Any, ...]
+    produces: tuple[Any, ...]
+    strategy: str
+    reason: str
+
+
+class RecipeTrialExecutor:
+    """Compile legacy StepIntent drafts or one exact Functional call.
+
+    The legacy entry selects candidates and dry-runs a prefix. The Functional
+    entry receives an already selected capability and compiles only its
+    structural call view.
     """
 
     def __init__(
@@ -428,9 +444,9 @@ class RecipeTrialExecutor:
             + json.dumps(diagnostic.candidate_errors, ensure_ascii=False)
         )
 
-    def compile_exact_step(
+    def compile_functional_call(
         self,
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         *,
         capability_id: str,
         family_spec: SolverFamilySpec,
@@ -438,243 +454,23 @@ class RecipeTrialExecutor:
         handle_registry: CanonicalHandleRegistry,
         context: RuntimeContext,
         question_goals: list[QuestionGoal] | tuple[QuestionGoal, ...],
-        projected_state_writes: tuple[ProjectedStateWrite, ...] = (),
-        available_state_writes: tuple[ProjectedStateWrite, ...] = (),
-        projected_state_dependencies: tuple[
-            ProjectedStateDependency, ...
-        ] = (),
-        available_state_dependencies: tuple[
-            ProjectedStateDependency, ...
-        ] = (),
-        projected_function_arg_bindings: tuple[
-            ProjectedFunctionArgBinding, ...
-        ] = (),
+        state_writes: tuple[ProjectedStateWrite, ...] = (),
+        state_dependencies: tuple[ProjectedStateDependency, ...] = (),
+        arg_bindings: tuple[ProjectedFunctionArgBinding, ...] = (),
         known_state_versions: tuple[IndexedStateVersion, ...] = (),
         known_state_writes: tuple[StateWriteProvenance, ...] = (),
         known_runtime_bindings: tuple[
             tuple[str, str, str, str], ...
         ] = (),
     ) -> ExactCompiledStep:
-        """Compile one selected capability without candidate search or dry-run.
+        """Compile a typed Functional request without a StepIntent draft.
 
-        Transactional execution owns the RuntimeContext branch and runtime
-        validation. This method only reuses the existing StepIntent bridge to
-        produce the exact Function/Macro fragment selected by FunctionalPlan.
+        ``step`` is the private compile view exposed by
+        ``FunctionalCompileRequest``.  It is intentionally accepted by
+        protocol instead of converted to ``StepIntent``: capability selection,
+        scope, argument bindings and return destinations have already been
+        fixed by B1-B5b.
         """
-        draft = StepIntentDraft(
-            scopes=(
-                StepIntentScope(
-                    step.scope_id,
-                    step.scope_id,
-                    (step,),
-                ),
-            )
-        )
-        draft, _finalization_report = CanonicalDraftFinalizer().finalize(
-            draft,
-            family_spec=family_spec,
-            question_goals=question_goals,
-            handle_registry=handle_registry,
-            allow_shared_derivation_scopes=True,
-            projected_state_writes=projected_state_writes,
-            projected_state_dependencies=projected_state_dependencies,
-            known_state_versions=known_state_versions,
-        )
-        effective_step = next(
-            (
-                item
-                for item in draft.steps
-                if item.step_id == step.step_id
-            ),
-            None,
-        )
-        if effective_step is None:
-            raise StrategyDraftValidationError(
-                "planner_configuration_error: exact Functional call was "
-                f"eliminated before compilation: {step.step_id}"
-            )
-        transition_handles = tuple(
-            prior.produced_handle
-            for write in projected_state_writes
-            if write.previous_write_step_id is not None
-            for prior in known_state_writes
-            if (
-                prior.step_id == write.previous_write_step_id
-                and prior.selected_version_id
-                == write.previous_version_id
-            )
-        )
-        if transition_handles:
-            effective_step = replace(
-                effective_step,
-                reads=tuple(
-                    _unique_ordered(
-                        (*effective_step.reads, *transition_handles)
-                    )
-                ),
-            )
-            draft = StepIntentDraft(
-                scopes=tuple(
-                    replace(
-                        scope,
-                        steps=tuple(
-                            effective_step
-                            if item.step_id == effective_step.step_id
-                            else item
-                            for item in scope.steps
-                        ),
-                    )
-                    for scope in draft.scopes
-                )
-            )
-        resolution_report = StepIntentCandidateResolver().resolve(
-            draft,
-            family_spec=family_spec,
-            method_specs=method_specs,
-            handle_registry=handle_registry,
-        )
-        available_capabilities = {
-            item.capability_id
-            for item in resolution_report.capability_catalog
-        }
-        if capability_id not in available_capabilities:
-            raise StrategyDraftValidationError(
-                "functional.transactional_capability_unavailable: "
-                f"step={effective_step.step_id}, "
-                f"capability={capability_id}"
-            )
-        index = CanonicalRuntimeBindingIndex.from_context(
-            context,
-            handle_registry=handle_registry,
-            question_goals=question_goals,
-            functional_consumer_identity_mode="authoritative",
-        )
-        compiler_state_writes = (
-            available_state_writes or projected_state_writes
-        )
-        compiler_state_dependencies = (
-            available_state_dependencies
-            or projected_state_dependencies
-        )
-        index.register_projected_state_writes(
-            compiler_state_writes,
-            dependencies=compiler_state_dependencies,
-            known_state_versions=known_state_versions,
-        )
-        index.state_write_provenance.extend(known_state_writes)
-        for handle, path, runtime_type, source in known_runtime_bindings:
-            index.register(
-                handle,
-                path,
-                runtime_type,
-                source=source,
-            )
-        for write in known_state_writes:
-            runtime_destination = write.runtime_destination_key
-            runtime_path = (
-                runtime_destination.runtime_path
-                if runtime_destination is not None
-                else None
-            )
-            valid_scope_id = write.valid_scope_id or write.scope_id
-            if (
-                isinstance(runtime_path, str)
-                and runtime_path
-                and valid_scope_id
-                in handle_registry.ancestor_scopes(step.scope_id)
-            ):
-                object_id = write.math_object_id
-                produced_is_symbol_state_alias = (
-                    getattr(object_id, "kind", None) == "symbol"
-                    and write.produced_handle
-                    == getattr(object_id, "value", None)
-                    and write.runtime_type != "Symbol"
-                )
-                if not produced_is_symbol_state_alias:
-                    index.register(
-                        write.produced_handle,
-                        runtime_path,
-                        write.runtime_type,
-                        source=f"step:{write.step_id}",
-                    )
-                if (
-                    getattr(object_id, "kind", None) == "point"
-                    and write.runtime_type == "Point"
-                ):
-                    index.register(
-                        object_id.value,
-                        runtime_path,
-                        "Point",
-                        source=f"step:{write.step_id}",
-                    )
-        for version in known_state_versions:
-            valid_scope_id = getattr(version, "valid_scope_id", None)
-            if (
-                not isinstance(valid_scope_id, str)
-                or valid_scope_id
-                not in handle_registry.ancestor_scopes(step.scope_id)
-            ):
-                continue
-            runtime_destination = getattr(
-                version,
-                "runtime_destination",
-                None,
-            )
-            runtime_path = getattr(
-                runtime_destination,
-                "runtime_path",
-                None,
-            )
-            produced_handle = getattr(version, "produced_handle", None)
-            version_id = getattr(version, "version_id", None)
-            logical_key = getattr(
-                getattr(version_id, "slot_id", None),
-                "logical_key",
-                None,
-            )
-            runtime_type = getattr(logical_key, "runtime_type", None)
-            if (
-                isinstance(produced_handle, str)
-                and produced_handle
-                and isinstance(runtime_path, str)
-                and runtime_path
-                and isinstance(runtime_type, str)
-                and runtime_type
-            ):
-                object_id = getattr(logical_key, "object_id", None)
-                produced_is_symbol_state_alias = (
-                    getattr(object_id, "kind", None) == "symbol"
-                    and produced_handle == getattr(object_id, "value", None)
-                    and runtime_type != "Symbol"
-                )
-                producer_call_id = getattr(
-                    version,
-                    "producer_call_id",
-                    None,
-                )
-                binding_source = (
-                    f"step:{producer_call_id}"
-                    if isinstance(producer_call_id, str)
-                    and producer_call_id
-                    else "transactional_state_version"
-                )
-                if not produced_is_symbol_state_alias:
-                    index.register(
-                        produced_handle,
-                        runtime_path,
-                        runtime_type,
-                        source=binding_source,
-                    )
-                if (
-                    getattr(object_id, "kind", None) == "point"
-                    and runtime_type == "Point"
-                ):
-                    index.register(
-                        object_id.value,
-                        runtime_path,
-                        "Point",
-                        source=binding_source,
-                    )
         recipe_specs = (
             self.recipe_specs
             or RecipeExecutionSpecRegistry.from_family_spec(family_spec)
@@ -691,10 +487,42 @@ class RecipeTrialExecutor:
             family_spec,
             method_specs,
         )
+        if (
+            function_specs.get(capability_id) is None
+            and macro_specs.get(capability_id) is None
+        ):
+            raise StrategyDraftValidationError(
+                "planner_configuration_error: "
+                "planner.functional_compile_contract_incomplete: "
+                f"call={step.step_id}, capability={capability_id}"
+            )
+
+        index = CanonicalRuntimeBindingIndex.from_context(
+            context,
+            handle_registry=handle_registry,
+            question_goals=question_goals,
+            functional_consumer_identity_mode="authoritative",
+        )
+        index.register_projected_state_writes(
+            state_writes,
+            dependencies=state_dependencies,
+            known_state_versions=known_state_versions,
+        )
+        index.state_write_provenance.extend(known_state_writes)
+        for handle, path, runtime_type, source in known_runtime_bindings:
+            index.register(handle, path, runtime_type, source=source)
+        _register_known_functional_runtime_bindings(
+            index,
+            step=step,
+            handle_registry=handle_registry,
+            known_state_versions=known_state_versions,
+            known_state_writes=known_state_writes,
+        )
+
         compiler = _RecipePlanCompiler(
             context=context,
             index=index,
-            resolution_report=resolution_report,
+            resolution_report=None,
             method_specs=method_specs,
             recipe_specs=recipe_specs,
             binding_rules=binding_rules,
@@ -703,25 +531,19 @@ class RecipeTrialExecutor:
                 handle_registry=handle_registry,
             ),
             function_specs=function_specs,
-            projected_state_writes=compiler_state_writes,
-            projected_state_dependencies=compiler_state_dependencies,
-            projected_function_arg_bindings=(
-                projected_function_arg_bindings
-            ),
+            projected_state_writes=state_writes,
+            projected_state_dependencies=state_dependencies,
+            projected_function_arg_bindings=arg_bindings,
             recipe_compilers=self.recipe_compilers,
         )
         declaration_paths_before = set(index.declarations)
-        compiled = compiler._compile_with_capability(
-            effective_step,
-            capability_id,
-        )
+        compiled = compiler._compile_with_capability(step, capability_id)
         declarations_by_path = {
-            item.path: item
-            for item in compiled.declarations
+            str(item.path): item for item in compiled.declarations
         }
         for path, declaration in index.declarations.items():
             if path not in declaration_paths_before:
-                declarations_by_path.setdefault(path, declaration)
+                declarations_by_path.setdefault(str(path), declaration)
         return ExactCompiledStep(
             plan=compiled.plan,
             declarations=tuple(declarations_by_path.values()),
@@ -889,6 +711,101 @@ class RecipeTrialExecutor:
                 )
         return output, diagnostic, effective_draft
 
+
+def _register_known_functional_runtime_bindings(
+    index: CanonicalRuntimeBindingIndex,
+    *,
+    step: Any,
+    handle_registry: CanonicalHandleRegistry,
+    known_state_versions: tuple[IndexedStateVersion, ...],
+    known_state_writes: tuple[StateWriteProvenance, ...],
+) -> None:
+    """Register physical paths after typed visibility has selected a version."""
+    visible_scopes = set(handle_registry.ancestor_scopes(step.scope_id))
+    for write in known_state_writes:
+        destination = write.runtime_destination_key
+        runtime_path = (
+            destination.runtime_path if destination is not None else None
+        )
+        valid_scope_id = write.valid_scope_id or write.scope_id
+        if not runtime_path or valid_scope_id not in visible_scopes:
+            continue
+        object_id = write.math_object_id
+        symbol_state_alias = (
+            getattr(object_id, "kind", None) == "symbol"
+            and write.produced_handle == getattr(object_id, "value", None)
+            and write.runtime_type != "Symbol"
+        )
+        if not symbol_state_alias:
+            index.register(
+                write.produced_handle,
+                runtime_path,
+                write.runtime_type,
+                source=f"step:{write.step_id}",
+            )
+        if (
+            getattr(object_id, "kind", None) == "point"
+            and write.runtime_type == "Point"
+        ):
+            index.register(
+                object_id.value,
+                runtime_path,
+                "Point",
+                source=f"step:{write.step_id}",
+            )
+
+    for version in known_state_versions:
+        valid_scope_id = getattr(version, "valid_scope_id", None)
+        destination = getattr(version, "runtime_destination", None)
+        runtime_path = getattr(destination, "runtime_path", None)
+        produced_handle = getattr(version, "produced_handle", None)
+        version_id = getattr(version, "version_id", None)
+        logical_key = getattr(
+            getattr(version_id, "slot_id", None),
+            "logical_key",
+            None,
+        )
+        runtime_type = getattr(logical_key, "runtime_type", None)
+        if (
+            valid_scope_id not in visible_scopes
+            or not isinstance(runtime_path, str)
+            or not runtime_path
+            or not isinstance(produced_handle, str)
+            or not produced_handle
+            or not isinstance(runtime_type, str)
+            or not runtime_type
+        ):
+            continue
+        object_id = getattr(logical_key, "object_id", None)
+        symbol_state_alias = (
+            getattr(object_id, "kind", None) == "symbol"
+            and produced_handle == getattr(object_id, "value", None)
+            and runtime_type != "Symbol"
+        )
+        producer_call_id = getattr(version, "producer_call_id", None)
+        source = (
+            f"step:{producer_call_id}"
+            if isinstance(producer_call_id, str) and producer_call_id
+            else "transactional_state_version"
+        )
+        if not symbol_state_alias:
+            index.register(
+                produced_handle,
+                runtime_path,
+                runtime_type,
+                source=source,
+            )
+        if (
+            getattr(object_id, "kind", None) == "point"
+            and runtime_type == "Point"
+        ):
+            index.register(
+                object_id.value,
+                runtime_path,
+                "Point",
+                source=source,
+            )
+
 class _RecipePlanCompiler:
     """StepIntent -> StepPlan 的通用编译器。"""
 
@@ -897,7 +814,7 @@ class _RecipePlanCompiler:
         *,
         context: RuntimeContext,
         index: CanonicalRuntimeBindingIndex,
-        resolution_report: ExecutablePlanResolutionReport,
+        resolution_report: ExecutablePlanResolutionReport | None,
         method_specs: MethodSpecRegistry,
         recipe_specs: RecipeExecutionSpecRegistry,
         binding_rules: MethodBindingRuleRegistry,
@@ -937,11 +854,20 @@ class _RecipePlanCompiler:
         self.runtime_results: list[StepIntentRuntimeResult] = []
         self.index.state_write_provenance = self.state_write_provenance
         self.step_reports = {
-            report.step_id: report for report in resolution_report.step_reports
+            report.step_id: report
+            for report in (
+                resolution_report.step_reports
+                if resolution_report is not None
+                else ()
+            )
         }
         self.allowed_capability_ids = {
             capability.capability_id
-            for capability in resolution_report.capability_catalog
+            for capability in (
+                resolution_report.capability_catalog
+                if resolution_report is not None
+                else ()
+            )
         }
 
     def compile(self, draft: StepIntentDraft) -> PlannerOutput:
@@ -1244,8 +1170,12 @@ class _RecipePlanCompiler:
         """返回 resolver 生成的 LLM-facing warning，供 runtime blocker 兼容携带。"""
         return _candidate_warnings_for_report(self.step_reports.get(step.step_id))
 
-    def _compile_with_capability(self, step: StepIntent, capability_id: str) -> _CompiledStep:
-        """按 recipe 或 method capability 编译单个 StepIntent。"""
+    def _compile_with_capability(
+        self,
+        step: FunctionalCompileStepView,
+        capability_id: str,
+    ) -> _CompiledStep:
+        """Compile one exact capability from a structural call view."""
         recipe = self.recipe_specs.get(capability_id)
         if recipe is not None:
             compiled = self._compile_recipe(step, recipe)
@@ -1261,7 +1191,7 @@ class _RecipePlanCompiler:
         self,
         compiled: _CompiledStep,
         *,
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         capability_id: str,
     ) -> _CompiledStep:
         """Close dual-form scalar answers using explicitly read parameter states."""
@@ -1383,7 +1313,11 @@ class _RecipePlanCompiler:
             },
         )
 
-    def _compile_recipe(self, step: StepIntent, recipe: FamilyRecipeExecutionSpec) -> _CompiledStep:
+    def _compile_recipe(
+        self,
+        step: FunctionalCompileStepView,
+        recipe: FamilyRecipeExecutionSpec,
+    ) -> _CompiledStep:
         """编译 recipe。"""
         macro_adapters = getattr(self, "macro_adapters", None)
         declared_evidence_roles: tuple[str, ...] = ()
@@ -1449,7 +1383,11 @@ class _RecipePlanCompiler:
             ),
         )
 
-    def _compile_method(self, step: StepIntent, method_id: str) -> _CompiledStep:
+    def _compile_method(
+        self,
+        step: FunctionalCompileStepView,
+        method_id: str,
+    ) -> _CompiledStep:
         """编译单 method step。"""
         spec = self.method_specs.require(method_id)
         function = self.function_specs.get(method_id)

@@ -8,7 +8,7 @@ turns those cases into structured retry issues.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 from typing import Any, Literal, Mapping
 
 import sympy as sp
@@ -48,12 +48,35 @@ AnswerGoalVerificationStatus = Literal[
 
 
 @dataclass(frozen=True)
+class FunctionalGoalArtifact:
+    """Minimal typed-graph projection used by legacy-shaped goal helpers."""
+
+    handle: str
+
+
+@dataclass(frozen=True)
+class FunctionalGoalProducer:
+    """Typed Functional producer view used without a StepIntent draft."""
+
+    step_id: str
+    scope_id: str
+    goal_type: str
+    target: str
+    reads: tuple[str, ...] = ()
+    creates: tuple[FunctionalGoalArtifact, ...] = ()
+    produces: tuple[FunctionalGoalArtifact, ...] = ()
+
+
+@dataclass(frozen=True)
 class FunctionalGoalVerificationContext:
     logical_graph: LogicalFunctionalGraph | None
     state_read_index: FunctionalStateReadIndex
     runtime_writes_by_version: Mapping[StateVersionId, Any]
     answer_version_ids: Mapping[str, StateVersionId]
     verified_call_ids: frozenset[str]
+    goal_producers: Mapping[str, FunctionalGoalProducer] = field(
+        default_factory=dict
+    )
 
 
 @dataclass(frozen=True)
@@ -130,7 +153,9 @@ class AnswerGoalVerifier:
         functional_context: FunctionalGoalVerificationContext | None = None,
     ) -> AnswerGoalVerificationReport:
         """Return per-goal status without treating unexecuted goals as passed."""
-        if draft is None or problem_payload is None:
+        if problem_payload is None:
+            return AnswerGoalVerificationReport()
+        if draft is None and functional_context is None:
             return AnswerGoalVerificationReport()
         goals = _canonical_question_goals(problem_payload)
         if not goals:
@@ -147,7 +172,11 @@ class AnswerGoalVerifier:
             goal_handle = str(goal.get("handle", "")).strip()
             if not goal_handle:
                 continue
-            step = _producing_step(draft, goal_handle)
+            step = (
+                _producing_step(draft, goal_handle)
+                if draft is not None
+                else functional_context.goal_producers.get(goal_handle)
+            )
             if step is None:
                 results.append(
                     AnswerGoalVerificationItem(goal_handle, "unbound")
@@ -225,8 +254,8 @@ class AnswerGoalVerifier:
 def _unresolved_answer_symbol_issue(
     goal: Mapping[str, Any],
     *,
-    step: StepIntent,
-    draft: StepIntentDraft,
+    step: StepIntent | FunctionalGoalProducer,
+    draft: StepIntentDraft | None,
     problem_payload: Mapping[str, Any],
     handle_registry: CanonicalHandleRegistry,
     diagnostic: StepIntentExecutionDiagnostic | None,
@@ -247,10 +276,22 @@ def _unresolved_answer_symbol_issue(
     if answer_write is None or not answer_write.free_symbol_names:
         return None
 
-    step_positions = {
-        current.step_id: index
-        for index, current in enumerate(draft.steps)
-    }
+    step_positions = (
+        {
+            current.step_id: index
+            for index, current in enumerate(draft.steps)
+        }
+        if draft is not None
+        else {
+            call_id: index
+            for index, call_id in enumerate(
+                functional_context.logical_graph.canonical_order
+                if functional_context is not None
+                and functional_context.logical_graph is not None
+                else ()
+            )
+        }
+    )
     answer_position = step_positions.get(step.step_id)
     if answer_position is None:
         return None
@@ -852,7 +893,7 @@ def _producing_step(draft: StepIntentDraft, handle: str) -> StepIntent | None:
 def _point_goal_issue(
     goal: Mapping[str, Any],
     *,
-    step: StepIntent,
+    step: StepIntent | FunctionalGoalProducer,
     handle_registry: CanonicalHandleRegistry,
     diagnostic: StepIntentExecutionDiagnostic | None,
     family_spec: SolverFamilySpec | None,
@@ -1227,7 +1268,7 @@ def _goal_evidence_producer_goal_types(
 def _minimum_goal_issue(
     goal: Mapping[str, Any],
     *,
-    step: StepIntent,
+    step: StepIntent | FunctionalGoalProducer,
     handle_registry: CanonicalHandleRegistry,
     diagnostic: StepIntentExecutionDiagnostic | None,
     family_spec: SolverFamilySpec | None,
@@ -1567,7 +1608,10 @@ def _related_handles_for_point_goal(
     return unique_ordered(related)
 
 
-def _step_mentions_handle(step: StepIntent, handle: str) -> bool:
+def _step_mentions_handle(
+    step: StepIntent | FunctionalGoalProducer,
+    handle: str,
+) -> bool:
     return (
         step.target == handle
         or handle in step.reads

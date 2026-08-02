@@ -1301,12 +1301,34 @@ class PlannerStateContextBuilder:
                 0,
             )
         )
-        effective_draft = getattr(replay, "effective_draft", None) or getattr(
-            reconciliation,
-            "projected_draft",
-            None,
+        observation_authority = getattr(
+            replay,
+            "state_observation_authority",
+            "legacy",
         )
+        effective_draft = getattr(replay, "effective_draft", None)
+        if effective_draft is None and observation_authority != "transactional":
+            effective_draft = getattr(
+                reconciliation,
+                "projected_draft",
+                None,
+            )
+        effective_step_payloads: tuple[dict[str, Any], ...] = ()
         if effective_draft is not None:
+            effective_step_payloads = tuple(
+                step.to_payload(include_scope_id=True)
+                for step in effective_draft.steps
+            )
+        elif observation_authority == "transactional":
+            from shuxueshuo_server.solver.explanation.presentation import (
+                transactional_functional_steps,
+            )
+
+            effective_step_payloads = transactional_functional_steps(
+                replay,
+                getattr(replay, "output", None),
+            )
+        if effective_step_payloads:
             # Local import keeps the runtime state model independent from the
             # explanation package at module-import time.
             from shuxueshuo_server.solver.explanation.presentation import (
@@ -1314,10 +1336,7 @@ class PlannerStateContextBuilder:
             )
 
             narrative = StudentNarrativePlacementProjector().project(
-                effective_steps=tuple(
-                    step.to_payload(include_scope_id=True)
-                    for step in effective_draft.steps
-                ),
+                effective_steps=effective_step_payloads,
                 problem=state.problem_ir,
                 functional_reconciliation=reconciliation,
                 raw_functional_plan=plan,
