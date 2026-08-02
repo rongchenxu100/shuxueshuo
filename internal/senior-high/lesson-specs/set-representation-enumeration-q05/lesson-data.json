@@ -1,0 +1,114 @@
+{
+  "meta": {
+    "id": "set-representation-enumeration-q05",
+    "outputPath": "site/problems/senior-high/sets/set-concepts-and-representation/set-representation-enumeration-q05.html",
+    "pageTitle": "检查集合中的参数候选值",
+    "pageDescription": "列举法专题：检查集合中的参数候选值。",
+    "breadcrumbTitle": "集合的表示 · 检查集合中的参数候选值",
+    "breadcrumbLabel": "集合的表示",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=set-concepts-and-representation&module=set-representation"
+  },
+  "problem": {
+    "source": "培训教材 · 集合的表示",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "3 可以等于 m，也可以等于第三个代数式。",
+      "items": [
+        "三个列出的代数式表示集合中的三个元素，候选值还必须满足元素互异性。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "已知集合 \\(A=\\{0,m,m^2-2m+3\\}\\)，且 \\(3\\in A\\)，则实数 \\(m\\) 为（　）。"
+      },
+      {
+        "text": "A. \\(2\\)　B. \\(3\\)　C. \\(2\\) 或 \\(3\\)　D. \\(0\\) 或 \\(2\\) 或 \\(3\\)"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "列举法",
+      "title": "分类得到候选值",
+      "t": 0,
+      "showDiagram": false,
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "\\(3\\in A\\)，且集合中已有元素 \\(0\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(m=3\\) 或 \\(m^2-2m+3=3\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "候选值为 \\(m=0,2,3\\)"
+        }
+      ],
+      "derive": [
+        [
+          "\\(m=3\\)",
+          "得到候选值 \\(m=3\\)"
+        ],
+        [
+          "\\(m^2-2m+3=3\\)",
+          "\\(m=0\\) 或 \\(m=2\\)"
+        ]
+      ]
+    },
+    {
+      "id": "s2",
+      "section": "列举法",
+      "title": "检查集合中元素的互异性",
+      "t": 1,
+      "showDiagram": false,
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "当 \\(m=0\\) 时，\\(A=\\{0,0,3\\}\\)，前两个元素重复"
+        },
+        {
+          "kind": "therefore",
+          "text": "舍去 \\(m=0\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(m=2\\) 或 \\(m=3\\)，选择 C"
+        }
+      ],
+      "derive": [
+        [
+          "\\(m=0\\)",
+          "\\(A=\\{0,0,3\\}\\)，前两个元素重复，舍去"
+        ],
+        [
+          "结论",
+          "\\(m=2\\) 或 \\(m=3\\)，选择 C"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    },
+    "s2": {
+      "movable": false,
+      "range": [
+        1,
+        1
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 分类得到候选值",
+    "s2": "2 检查集合中元素的互异性"
+  }
+}

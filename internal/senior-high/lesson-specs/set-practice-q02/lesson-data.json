@@ -1,0 +1,110 @@
+{
+  "meta": {
+    "id": "set-practice-q02",
+    "outputPath": "site/problems/senior-high/sets/set-concepts-and-representation/set-practice-q02.html",
+    "pageTitle": "实战练习 2：判断元素与数集的关系",
+    "pageDescription": "化简数值并判断属于或不属于常用数集。",
+    "breadcrumbTitle": "集合实战练习 · 第 2 题",
+    "breadcrumbLabel": "实战练习",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=set-concepts-and-representation&module=practice"
+  },
+  "problem": {
+    "source": "培训教材 · 实战演练",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "先化简数值，再检查关系符号和数集范围。",
+      "items": [
+        "\\(\\mathbb N^*\\) 表示正整数集，\\(\\mathbb Z\\) 表示整数集；",
+        "\\(\\mathbb Q\\) 表示有理数集，\\(\\mathbb R\\) 表示实数集。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "给出下列关系：① \\(|-2|\\in\\mathbb N^*\\)；② \\(0\\notin\\mathbb Z\\)；③ \\(\\sqrt{2}\\in\\mathbb Q\\)；④ \\(-\\frac{3}{2}\\in\\mathbb R\\)。其中错误的个数是："
+      },
+      {
+        "text": "A. 1　　B. 2　　C. 3　　D. 4"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "关系判断",
+      "title": "逐个判断四个关系",
+      "t": 0,
+      "showDiagram": false,
+      "table": {
+        "caption": "元素与数集的关系",
+        "headers": [
+          "序号",
+          "关系",
+          "判断"
+        ],
+        "rows": [
+          [
+            "①",
+            "\\(|-2|\\in\\mathbb N^*\\)",
+            "正确"
+          ],
+          [
+            "②",
+            "\\(0\\notin\\mathbb Z\\)",
+            "错误"
+          ],
+          [
+            "③",
+            "\\(\\sqrt{2}\\in\\mathbb Q\\)",
+            "错误"
+          ],
+          [
+            "④",
+            "\\(-\\frac{3}{2}\\in\\mathbb R\\)",
+            "正确"
+          ]
+        ]
+      },
+      "reasoning": [
+        {"kind": "because", "text": "\\(|-2|=2\\in\\mathbb N^*\\)，且 \\(-\\frac{3}{2}\\in\\mathbb R\\)"},
+        {"kind": "therefore", "text": "关系①、④正确"},
+        {"kind": "because", "text": "\\(0\\in\\mathbb Z\\)，且 \\(\\sqrt{2}\\notin\\mathbb Q\\)"},
+        {"kind": "therefore", "text": "关系②、③错误，共有 2 个错误关系，选择 B"}
+      ],
+      "derive": [
+        [
+          "①",
+          "\\(|-2|=2\\in\\mathbb N^*\\)，正确"
+        ],
+        [
+          "②",
+          "\\(0\\in\\mathbb Z\\)，所以 \\(0\\notin\\mathbb Z\\) 错误"
+        ],
+        [
+          "③",
+          "\\(\\sqrt{2}\\) 是无理数，所以 \\(\\sqrt{2}\\in\\mathbb Q\\) 错误"
+        ],
+        [
+          "④",
+          "\\(-\\frac{3}{2}\\) 是实数，正确"
+        ],
+        [
+          "结论",
+          "共有 2 个错误关系，选择 B"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 判断四个关系"
+  }
+}

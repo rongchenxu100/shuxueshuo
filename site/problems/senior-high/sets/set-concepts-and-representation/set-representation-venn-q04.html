@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>求三天售出商品种类的最小值 | 数学说</title>
+  <meta name="description" content="Venn 图法专题：求三天售出商品种类的最小值。" />
+  <meta property="og:title" content="求三天售出商品种类的最小值 | 数学说" />
+  <meta property="og:description" content="Venn 图法专题：求三天售出商品种类的最小值。" />
+  <meta property="og:image" content="../../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css?v=6" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../../senior-high/index.html?chapter=sets&section=set-concepts-and-representation&module=set-representation">集合的表示</a>
+    <span class="lesson-title">集合的表示 · 求三天售出商品种类的最小值</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          <div class="problem-full">
+            <div class="problem-line"><span>某网店连续三天售出商品的种类数分别为 19、13、18；前两天都售出的有 3 种，后两天都售出的有 4 种。</span></div>
+<div class="problem-line"><span>（1）第一天售出但第二天未售出的商品有多少种？（2）这三天售出的商品最少有多少种？</span><span class="answer-chip" id="answerI">答案：（1）<span class="inline-math">16</span>；（2）<span class="inline-math">29</span></span></div>
+          </div>
+        </section>
+
+        <aside class="lesson-key-points" aria-label="解题要点"><div class="lesson-key-points-title">解题要点</div><div class="lesson-key-points-content"><p class="lesson-key-points-lead">第一问直接计算集合差的元素个数。</p><ol><li>第二问要让第一天和第三天在第二天之外尽量重合，从而使并集最小。</li></ol></div></aside>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../../assets/js/lesson-page-runtime.js?v=6"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"s1","section":"Venn 图法","title":"计算第一天与第二天的集合差","t":0,"showDiagram":false,"visual":{"kind":"venn-day-one-two-counts","ariaLabel":"第一天与第二天的 Venn 图：第一天独有 16 种，两天都有 3 种，第二天独有 10 种"},"reasoning":[{"kind":"because","text":"第一天售出 19 种，前两天都售出的有 3 种"},{"kind":"therefore","text":"第一天独有的商品数为 \\(|D_1∖D_2|=19-3=16\\)"}],"derive":[["第一天但第二天未售出","\\(19-3=16\\) 种"]]},{"id":"s2","section":"Venn 图法","title":"以第二天为基准分区并让外部集合重合","t":1,"showDiagram":false,"visual":{"kind":"venn-min-union","ariaLabel":"先以第二天为基准分区；在第二天之外，第三天独有的 14 种全部包含在第一天独有的 16 种中，因此三天并集最小"},"reasoning":[{"kind":"because","text":"第三天售出 18 种，其中与第二天共有 4 种"},{"kind":"therefore","text":"第三天在第二天之外有 \\(|D_3∖D_2|=18-4=14\\) 种"},{"kind":"because","text":"三天售出的全部商品可分成两块：第二天的 13 种，以及第二天之外由 \\(D_1∖D_2\\) 和 \\(D_3∖D_2\\) 合成的部分"},{"kind":"therefore","text":"第二天之外需要合并一个 16 元素集合与一个 14 元素集合"},{"kind":"because","text":"两个集合的并集至少有 16 个元素；当 14 元素集合完全包含在 16 元素集合中时恰好取到 16"},{"kind":"therefore","text":"三天售出的商品最少有 \\(|D_2|+16=13+16=29\\) 种"}],"derive":[["第一天在第二天外","16 种"],["第三天在第二天外","\\(18-4=14\\) 种"],["最小并集","\\(13+16=29\\) 种"]]}];
+    var STEP_LABELS = {"s1":"1 计算第一天与第二天的集合差","s2":"2 以第二天为基准分区并让外部集合重合"};
+    var POLICIES   = {"s1":{"movable":false,"range":[0,0]},"s2":{"movable":false,"range":[1,1]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 滑块主参数与派生参数的联动文案格式化器 */
+    var __LESSON_PARAM_LABEL_FORMATTER__;
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script>
+  function diagramMarkupFor() { return ''; }
+  function diagramMarkupForFrame() { return ''; }
+  function drawMini() { return ''; }
+  function groupTitle(section) { return section; }
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      diagramMarkupForFrame: typeof diagramMarkupForFrame === "function" ? diagramMarkupForFrame : undefined,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "参数",
+      paramLabelPrefix: "",
+      paramLabelFormatter: typeof __LESSON_PARAM_LABEL_FORMATTER__ === "function" ? __LESSON_PARAM_LABEL_FORMATTER__ : undefined,
+      goToProblemMode: "doubleScroll"
+    });
+  </script>
+</body>
+</html>

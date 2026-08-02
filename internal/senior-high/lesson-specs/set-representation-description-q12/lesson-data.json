@@ -1,0 +1,131 @@
+{
+  "meta": {
+    "id": "set-representation-description-q12",
+    "outputPath": "site/problems/senior-high/sets/set-concepts-and-representation/set-representation-description-q12.html",
+    "pageTitle": "求差值封闭时有序数对的最大数量",
+    "pageDescription": "描述法专题：求差值封闭时有序数对的最大数量。",
+    "breadcrumbTitle": "集合的表示 · 求差值封闭时有序数对的最大数量",
+    "breadcrumbLabel": "集合的表示",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=set-concepts-and-representation&module=set-representation"
+  },
+  "problem": {
+    "source": "培训教材 · 集合的表示",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "由于 A 中元素都为正数，a-b∈A 必有 a>b。",
+      "items": [
+        "先将 A 中 20 个互异正数从小到大重新编号，再按每个元素前面较小元素的个数计数。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "已知集合 \\(A=\\{a_1,a_2,\\ldots,a_{20}\\}\\)，且 \\(a_k>0\\)。集合 \\(B=\\{(a,b)\\mid a\\in A,b\\in A,a-b\\in A\\}\\)，求 B 中元素至多有多少个。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "描述法",
+      "title": "从小到大排列并找计数规律",
+      "t": 0,
+      "showDiagram": false,
+      "table": {
+        "caption": "将 A 中的元素从小到大重新编号：\\(0<a_1<a_2<\\cdots<a_{20}\\)",
+        "headers": [
+          "a=aᵢ 的位置",
+          "比 aᵢ 小的元素个数",
+          "可形成的 (a,b) 个数"
+        ],
+        "rows": [
+          [
+            "a=a₁（最小）",
+            "0",
+            "0"
+          ],
+          [
+            "a=a₂",
+            "1",
+            "1"
+          ],
+          [
+            "a=a₃",
+            "2",
+            "2"
+          ],
+          [
+            "……",
+            "……",
+            "……"
+          ],
+          [
+            "a=a₂₀（最大）",
+            "19",
+            "19"
+          ]
+        ]
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "集合 \\(A\\) 由 20 个互异的正数组成"
+        },
+        {
+          "kind": "therefore",
+          "text": "可将其元素从小到大重新编号为 \\(0<a_1<a_2<\\cdots<a_{20}\\)"
+        },
+        {
+          "kind": "because",
+          "text": "\\(a-b\\in A\\)，且 \\(A\\) 中所有元素都为正数"
+        },
+        {
+          "kind": "therefore",
+          "text": "必须有 \\(a>b\\)"
+        },
+        {
+          "kind": "because",
+          "text": "当 \\(a=a_i\\) 时，它前面恰有 \\(i-1\\) 个较小元素，所以 \\(b\\) 至多有 \\(i-1\\) 种取值"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(|B|\\le0+1+2+\\cdots+19=\\frac{20×19}{2}=190\\)"
+        },
+        {
+          "kind": "because",
+          "text": "取 \\(A=\\{1,2,\\ldots,20\\}\\) 时，每一对 \\(a>b\\) 都有 \\(a-b\\in A\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "上界可以达到，所以 \\(B\\) 中元素至多有 \\(190\\) 个"
+        }
+      ],
+      "derive": [
+        [
+          "上界",
+          "\\(19+18+\\ldots+1=190\\)"
+        ],
+        [
+          "可达性",
+          "取 \\(A=\\{1,2,\\ldots,20\\}\\) 时所有正差仍在 A"
+        ],
+        [
+          "结论",
+          "至多 190 个"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 从小到大排列并找计数规律"
+  }
+}

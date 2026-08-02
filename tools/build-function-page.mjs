@@ -5,6 +5,7 @@ import path from "path";
 import { normalizeLessonSpec } from "./lib/lesson-normalizer.mjs";
 import {
   buildKeyPointsHtml,
+  examSourceLabel,
   renderInlineMathText,
   splitChoiceText,
 } from "./lib/lesson-html.mjs";
@@ -204,7 +205,7 @@ const html = replaceAll(template, {
   "{{LIBRARY_LABEL}}": meta.breadcrumbLabel ?? "题库导航",
   "{{ASSET_PREFIX}}": assetPrefix,
   "{{PROBLEM_SUMMARY_HTML}}": buildProblemSummaryHtml(problem.summary),
-  "{{PROBLEM_FULL_HTML}}": buildProblemHtml(problem.lines, problem.source),
+  "{{PROBLEM_FULL_HTML}}": buildProblemHtml(problem.lines, examSourceLabel(problem.source)),
   "{{PROBLEM_KEY_POINTS_HTML}}": buildKeyPointsHtml(problem.keyPoints),
   "{{STEPS_JSON}}": JSON.stringify(lessonData.steps ?? []),
   "{{POLICIES_JSON}}": JSON.stringify(lessonData.policies ?? {}),

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>实战练习 2：判断元素与数集的关系 | 数学说</title>
+  <meta name="description" content="化简数值并判断属于或不属于常用数集。" />
+  <meta property="og:title" content="实战练习 2：判断元素与数集的关系 | 数学说" />
+  <meta property="og:description" content="化简数值并判断属于或不属于常用数集。" />
+  <meta property="og:image" content="../../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css?v=6" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../../senior-high/index.html?chapter=sets&section=set-concepts-and-representation&module=practice">实战练习</a>
+    <span class="lesson-title">集合实战练习 · 第 2 题</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          <div class="problem-full">
+            <div class="problem-line"><span>给出下列关系：① <span class="inline-math">|-2|∈<span class="math-blackboard">ℕ</span><sup>*</sup></span>；② <span class="inline-math">0<span class="math-notin" role="img" aria-label="不属于"><svg viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M15 3H9C5.3 3 3 5.5 3 9s2.3 6 6 6h6M3.7 9h10.8M4.5 16L14 2"/></svg></span><span class="math-blackboard">ℤ</span></span>；③ <span class="inline-math"><span class="math-radical"><span class="math-radical-symbol">√</span><span class="math-radicand">2</span></span>∈<span class="math-blackboard">ℚ</span></span>；④ <span class="inline-math">-<span class="math-fraction"><span class="math-numerator">3</span><span class="math-denominator">2</span></span>∈<span class="math-blackboard">ℝ</span></span>。其中错误的个数是：</span></div>
+<div class="problem-line"><span></span><span class="answer-chip" id="answerI">答案：B</span></div>
+<div class="problem-options"><div class="problem-option"><span class="problem-option-label">A.</span><span>1</span></div><div class="problem-option"><span class="problem-option-label">B.</span><span>2</span></div><div class="problem-option"><span class="problem-option-label">C.</span><span>3</span></div><div class="problem-option"><span class="problem-option-label">D.</span><span>4</span></div></div>
+          </div>
+        </section>
+
+        <aside class="lesson-key-points" aria-label="解题要点"><div class="lesson-key-points-title">解题要点</div><div class="lesson-key-points-content"><p class="lesson-key-points-lead">先化简数值，再检查关系符号和数集范围。</p><ol><li><span class="inline-math"><span class="math-blackboard">ℕ</span><sup>*</sup></span> 表示正整数集，<span class="inline-math"><span class="math-blackboard">ℤ</span></span> 表示整数集；</li><li><span class="inline-math"><span class="math-blackboard">ℚ</span></span> 表示有理数集，<span class="inline-math"><span class="math-blackboard">ℝ</span></span> 表示实数集。</li></ol></div></aside>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../../assets/js/lesson-page-runtime.js?v=6"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"s1","section":"关系判断","title":"逐个判断四个关系","t":0,"showDiagram":false,"table":{"caption":"元素与数集的关系","headers":["序号","关系","判断"],"rows":[["①","\\(|-2|\\in\\mathbb N^*\\)","正确"],["②","\\(0\\notin\\mathbb Z\\)","错误"],["③","\\(\\sqrt{2}\\in\\mathbb Q\\)","错误"],["④","\\(-\\frac{3}{2}\\in\\mathbb R\\)","正确"]]},"reasoning":[{"kind":"because","text":"\\(|-2|=2\\in\\mathbb N^*\\)，且 \\(-\\frac{3}{2}\\in\\mathbb R\\)"},{"kind":"therefore","text":"关系①、④正确"},{"kind":"because","text":"\\(0\\in\\mathbb Z\\)，且 \\(\\sqrt{2}\\notin\\mathbb Q\\)"},{"kind":"therefore","text":"关系②、③错误，共有 2 个错误关系，选择 B"}],"derive":[["①","\\(|-2|=2\\in\\mathbb N^*\\)，正确"],["②","\\(0\\in\\mathbb Z\\)，所以 \\(0\\notin\\mathbb Z\\) 错误"],["③","\\(\\sqrt{2}\\) 是无理数，所以 \\(\\sqrt{2}\\in\\mathbb Q\\) 错误"],["④","\\(-\\frac{3}{2}\\) 是实数，正确"],["结论","共有 2 个错误关系，选择 B"]]}];
+    var STEP_LABELS = {"s1":"1 判断四个关系"};
+    var POLICIES   = {"s1":{"movable":false,"range":[0,0]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 滑块主参数与派生参数的联动文案格式化器 */
+    var __LESSON_PARAM_LABEL_FORMATTER__;
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script>
+  function diagramMarkupFor() { return ''; }
+  function diagramMarkupForFrame() { return ''; }
+  function drawMini() { return ''; }
+  function groupTitle(section) { return section; }
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      diagramMarkupForFrame: typeof diagramMarkupForFrame === "function" ? diagramMarkupForFrame : undefined,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "参数",
+      paramLabelPrefix: "",
+      paramLabelFormatter: typeof __LESSON_PARAM_LABEL_FORMATTER__ === "function" ? __LESSON_PARAM_LABEL_FORMATTER__ : undefined,
+      goToProblemMode: "doubleScroll"
+    });
+  </script>
+</body>
+</html>

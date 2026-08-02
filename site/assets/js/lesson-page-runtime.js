@@ -26,14 +26,21 @@
     return null;
   }
 
+  function readMathAtom(source, start) {
+    const group = readMathGroup(source, start);
+    if (group) return group;
+    if (start >= source.length) return null;
+    return { content: source[start], end: start + 1 };
+  }
+
   function renderMathExpression(value) {
     const source = String(value != null ? value : "");
     let markup = "";
     let cursor = 0;
     while (cursor < source.length) {
       if (source.startsWith("\\frac", cursor)) {
-        const numerator = readMathGroup(source, cursor + 5);
-        const denominator = numerator && readMathGroup(source, numerator.end);
+        const numerator = readMathAtom(source, cursor + 5);
+        const denominator = numerator && readMathAtom(source, numerator.end);
         if (numerator && denominator) {
           markup += '<span class="math-fraction"><span class="math-numerator">' + renderMathExpression(numerator.content) + '</span><span class="math-denominator">' + renderMathExpression(denominator.content) + "</span></span>";
           cursor = denominator.end;
@@ -41,10 +48,34 @@
         }
       }
       if (source.startsWith("\\sqrt", cursor)) {
-        const radicand = readMathGroup(source, cursor + 5);
+        let radicandStart = cursor + 5;
+        let rootIndex = "";
+        if (source[radicandStart] === "[") {
+          const closing = source.indexOf("]", radicandStart + 1);
+          if (closing >= 0) {
+            rootIndex = source.slice(radicandStart + 1, closing);
+            radicandStart = closing + 1;
+          }
+        }
+        const radicand = readMathAtom(source, radicandStart);
         if (radicand) {
-          markup += '<span class="math-radical"><span class="math-radical-symbol">√</span><span class="math-radicand">' + renderMathExpression(radicand.content) + "</span></span>";
+          const rootSymbol = rootIndex === "3" ? "∛" : "√";
+          markup += '<span class="math-radical"><span class="math-radical-symbol">' + rootSymbol + '</span><span class="math-radicand">' + renderMathExpression(radicand.content) + "</span></span>";
           cursor = radicand.end;
+          continue;
+        }
+      }
+      if (source.startsWith("\\mathbb", cursor)) {
+        let symbolStart = cursor + 7;
+        while (/\s/.test(source[symbolStart] || "")) symbolStart += 1;
+        const group = readMathAtom(source, symbolStart);
+        if (group) {
+          const symbols = { N: "ℕ", Z: "ℤ", Q: "ℚ", R: "ℝ", C: "ℂ" };
+          const symbol = symbols[group.content];
+          markup += symbol
+            ? '<span class="math-blackboard">' + symbol + "</span>"
+            : esc(group.content);
+          cursor = group.end;
           continue;
         }
       }
@@ -56,6 +87,39 @@
       if (source.startsWith("\\subseteq", cursor)) {
         markup += "⊆";
         cursor += "\\subseteq".length;
+        continue;
+      }
+      const symbolCommands = [
+        ["\\varnothing", "∅"],
+        [
+          "\\notin",
+          '<span class="math-notin" role="img" aria-label="不属于"><svg viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M15 3H9C5.3 3 3 5.5 3 9s2.3 6 6 6h6M3.7 9h10.8M4.5 16L14 2"/></svg></span>',
+        ],
+        ["\\middle|", "|"],
+        ["\\Delta", "Δ"],
+        ["\\ldots", "…"],
+        ["\\pi", "π"],
+        ["\\cdot", "·"],
+        ["\\left", ""],
+        ["\\right", ""],
+        ["\\not=", "≠"],
+        ["\\iff", "⇔"],
+        ["\\ne", "≠"],
+        ["\\le", "≤"],
+        ["\\ge", "≥"],
+        ["\\pm", "±"],
+        ["\\in", "∈"],
+        ["\\mid", "|"],
+        ["\\{", "{"],
+        ["\\}", "}"],
+        ["\\,", ""],
+      ];
+      const command = symbolCommands.find(function (item) {
+        return source.startsWith(item[0], cursor);
+      });
+      if (command) {
+        markup += command[1];
+        cursor += command[0].length;
         continue;
       }
       if (source[cursor] === "_") {
@@ -86,7 +150,7 @@
             continue;
           }
         }
-        const exponent = source.slice(cursor + 1).match(/^[+-]?(?:\d+(?:\.\d+)?|[A-Za-z])/);
+        const exponent = source.slice(cursor + 1).match(/^[+-]?(?:\d+(?:\.\d+)?|[A-Za-z*])/);
         if (exponent) {
           markup += "<sup>" + esc(exponent[0]) + "</sup>";
           cursor += exponent[0].length + 1;
@@ -478,12 +542,147 @@
           : "";
       return (
         '<div class="derive-line"><strong>' +
-        esc(String(pair[0] != null ? pair[0] : "")) +
+        renderFormulaText(pair[0]) +
         "</strong>" +
         renderFormulaText(pair[1]) +
         refMarkup +
         "</div>"
       );
+    }
+
+    function renderReasoningLine(item) {
+      if (!item || !item.text || !new Set(["because", "therefore"]).has(item.kind)) return "";
+      const isBecause = item.kind === "because";
+      return (
+        '<div class="derive-line is-reasoning">' +
+        '<span class="derive-logic-symbol' + (isBecause ? "" : " is-result") +
+        '" aria-label="' + (isBecause ? "因为" : "所以") + '">' +
+        (isBecause ? "∵" : "∴") +
+        "</span>" +
+        renderFormulaText(item.text) +
+        "</div>"
+      );
+    }
+
+    function renderStepTable(step) {
+      const table = step && step.table;
+      if (!table || !Array.isArray(table.headers) || !Array.isArray(table.rows)) return "";
+      return (
+        '<div class="lesson-table-wrap"><table class="lesson-reasoning-table">' +
+        (table.caption ? "<caption>" + renderFormulaText(table.caption) + "</caption>" : "") +
+        "<thead><tr>" +
+        table.headers.map(function (header) {
+          return '<th scope="col">' + renderFormulaText(header) + "</th>";
+        }).join("") +
+        "</tr></thead><tbody>" +
+        table.rows.map(function (row) {
+          return "<tr>" + row.map(function (cell, index) {
+            const tag = index === 0 ? "th" : "td";
+            const scope = index === 0 ? ' scope="row"' : "";
+            return "<" + tag + scope + ">" + renderFormulaText(cell) + "</" + tag + ">";
+          }).join("") + "</tr>";
+        }).join("") +
+        "</tbody></table></div>"
+      );
+    }
+
+    function renderStepVisual(step) {
+      const visual = step && step.visual;
+      if (!visual || !visual.kind) return "";
+      const ariaLabel = esc(visual.ariaLabel || "解题示意图");
+
+      if (visual.kind === "number-line-difference") {
+        return (
+          '<figure class="lesson-step-visual lesson-step-number-line">' +
+          '<svg viewBox="0 0 720 260" role="img" aria-label="' + ariaLabel + '">' +
+          '<g class="lesson-number-line-axis">' +
+          '<line x1="130" y1="62" x2="602" y2="62"/><path d="M602 62l-12-7v14z"/>' +
+          '<line x1="130" y1="127" x2="602" y2="127"/><path d="M602 127l-12-7v14z"/>' +
+          '<line x1="130" y1="192" x2="602" y2="192"/><path d="M602 192l-12-7v14z"/>' +
+          '</g>' +
+          '<g class="lesson-number-line-labels"><text x="62" y="68">A</text><text x="62" y="133">B</text><text x="38" y="198">B∖A</text></g>' +
+          '<g class="lesson-number-line-segment is-a"><line x1="360" y1="62" x2="550" y2="62"/><circle cx="360" cy="62" r="8"/><circle cx="550" cy="62" r="8"/></g>' +
+          '<g class="lesson-number-line-segment is-b"><line x1="170" y1="127" x2="455" y2="127"/><circle cx="170" cy="127" r="8"/><circle class="is-closed" cx="455" cy="127" r="8"/></g>' +
+          '<g class="lesson-number-line-segment is-result"><line x1="170" y1="192" x2="360" y2="192"/><circle cx="170" cy="192" r="8"/><circle class="is-closed" cx="360" cy="192" r="8"/></g>' +
+          '<g class="lesson-number-line-ticks">' +
+          '<line x1="170" y1="184" x2="170" y2="200"/><text x="170" y="232">0</text>' +
+          '<line x1="360" y1="184" x2="360" y2="200"/><text x="360" y="232">1</text>' +
+          '<line x1="455" y1="184" x2="455" y2="200"/><text x="455" y="232">3/2</text>' +
+          '<line x1="550" y1="184" x2="550" y2="200"/><text x="550" y="232">2</text>' +
+          '</g></svg><figcaption>逐行比较 A、B 与 B∖A：0 不取，1 取到，所以结果为 (0,1]。</figcaption></figure>'
+        );
+      }
+
+      if (visual.kind === "number-line-practice-parameter") {
+        return (
+          '<figure class="lesson-step-visual lesson-step-number-line lesson-step-number-line-parameter">' +
+          '<svg viewBox="0 0 720 220" role="img" aria-label="' + ariaLabel + '">' +
+          '<g class="lesson-number-line-axis">' +
+          '<line x1="92" y1="104" x2="644" y2="104"/><path d="M644 104l-12-7v14z"/>' +
+          '</g>' +
+          '<g class="lesson-number-line-segment is-result">' +
+          '<circle class="is-closed" cx="230" cy="104" r="9"/>' +
+          '<line x1="418" y1="104" x2="628" y2="104"/><circle class="is-closed" cx="418" cy="104" r="9"/>' +
+          '</g>' +
+          '<g class="lesson-number-line-ticks">' +
+          '<line x1="230" y1="92" x2="230" y2="116"/><text x="230" y="150">0</text>' +
+          '<line x1="418" y1="92" x2="418" y2="116"/><text x="418" y="150">9/8</text>' +
+          '<text class="lesson-number-line-set-label" x="360" y="42">{0} ∪ [9/8,+∞)</text>' +
+          '</g></svg><figcaption>参数集由孤立点 0 与从 9/8 开始的闭射线组成。</figcaption></figure>'
+        );
+      }
+
+      if (visual.kind === "venn-two-counts") {
+        return (
+          '<figure class="lesson-step-visual lesson-step-venn">' +
+          '<svg viewBox="0 0 720 320" role="img" aria-label="' + ariaLabel + '">' +
+          '<rect class="lesson-venn-universe" x="42" y="24" width="636" height="260" rx="12"/>' +
+          '<circle class="lesson-venn-set is-left" cx="304" cy="154" r="126"/>' +
+          '<circle class="lesson-venn-set is-right" cx="416" cy="154" r="126"/>' +
+          '<g class="lesson-venn-text">' +
+          '<text class="is-label" x="248" y="302">田赛 A</text><text class="is-label" x="414" y="302">径赛 B</text>' +
+          '<text x="244" y="164">8</text><text x="360" y="164">8</text><text x="476" y="164">15</text>' +
+          '<text class="is-outside" x="610" y="72">10</text>' +
+          '</g></svg><figcaption>先填交集 8，再得到田赛仅参加 8、径赛仅参加 15；圆外 10 人未参赛。</figcaption></figure>'
+        );
+      }
+
+      if (visual.kind === "venn-day-one-two-counts") {
+        return (
+          '<figure class="lesson-step-visual lesson-step-venn">' +
+          '<svg viewBox="0 0 720 320" role="img" aria-label="' + ariaLabel + '">' +
+          '<rect class="lesson-venn-universe" x="42" y="24" width="636" height="260" rx="12"/>' +
+          '<circle class="lesson-venn-set is-left" cx="304" cy="154" r="126"/>' +
+          '<circle class="lesson-venn-set is-right" cx="416" cy="154" r="126"/>' +
+          '<g class="lesson-venn-text">' +
+          '<text class="is-label" x="238" y="302">第一天 D₁</text><text class="is-label" x="425" y="302">第二天 D₂</text>' +
+          '<text x="244" y="164">16</text><text x="360" y="164">3</text><text x="476" y="164">10</text>' +
+          '</g></svg><figcaption>第一天的 19 种由“独有 16 种”和“两天共有 3 种”组成，所以 19−3=16。</figcaption></figure>'
+        );
+      }
+
+      if (visual.kind === "venn-min-union") {
+        return (
+          '<figure class="lesson-step-visual lesson-step-venn lesson-step-venn-min">' +
+          '<svg viewBox="0 0 720 340" role="img" aria-label="' + ariaLabel + '">' +
+          '<rect class="lesson-venn-universe" x="42" y="24" width="636" height="282" rx="12"/>' +
+          '<text class="lesson-venn-partition-title" x="360" y="54">以第二天 D₂ 为基准，分成互不重叠的两块</text>' +
+          '<line class="lesson-venn-partition-line" x1="330" y1="72" x2="330" y2="286"/>' +
+          '<ellipse class="lesson-venn-set is-day-two" cx="184" cy="178" rx="108" ry="94"/>' +
+          '<circle class="lesson-venn-set is-outside-one" cx="505" cy="184" r="112"/>' +
+          '<circle class="lesson-venn-set is-outside-three" cx="505" cy="184" r="76"/>' +
+          '<g class="lesson-venn-text">' +
+          '<text class="is-label" x="184" y="136">第二天售出的商品</text><text x="184" y="176">D₂ = 13</text>' +
+          '<text class="is-note" x="184" y="210">其中已经包含与第 1、3 天重合的商品</text>' +
+          '<text class="is-label" x="505" y="92">第二天之外</text>' +
+          '<text class="is-label" x="505" y="132">D₁∖D₂ = 16</text>' +
+          '<text class="is-label" x="505" y="190">D₃∖D₂ = 14</text>' +
+          '<text class="is-note is-emphasis" x="505" y="286">最省的摆法：14 种全部包含在 16 种中</text>' +
+          '</g></svg><figcaption>先保留第二天的 13 种；在第二天之外，14 种全部落入已有的 16 种中，不再增加新的种类，所以最少为 13+16=29。</figcaption></figure>'
+        );
+      }
+
+      return "";
     }
 
     function renderAllSteps() {
@@ -493,11 +692,18 @@
         const policy = POLICIES[sid] || { movable: false, range: [step.t, step.t], reason: "" };
         const activeT = clamp(step.t, policy.range[0], policy.range[1]);
         const localVars = localVarsForStep(index, step);
-        const derive = step.derive
-          .map(function (pair) {
-            return renderDeriveLine(pair);
+        const deriveSource = Array.isArray(step.reasoning) && step.reasoning.length
+          ? step.reasoning
+          : step.derive;
+        const derive = deriveSource
+          .map(function (item) {
+            return Array.isArray(step.reasoning) && step.reasoning.length
+              ? renderReasoningLine(item)
+              : renderDeriveLine(item);
           })
           .join("");
+        const reasoningTable = renderStepTable(step);
+        const stepVisual = renderStepVisual(step);
         const minis = renderMinisMarkup(step, activeT);
         const localControls = renderLocalControlsMarkup(step, index);
         const animationButton = renderAnimationButtonMarkup(step, index);
@@ -569,7 +775,10 @@
           (hasDiagram ? "" : " step-card-body-text-only") +
           '">' +
           diagram +
-          '<div class="step-card-panel"><div class="derive-list">' +
+          '<div class="step-card-panel">' +
+          stepVisual +
+          reasoningTable +
+          '<div class="derive-list">' +
           derive +
           "</div></div></div></article>"
         );

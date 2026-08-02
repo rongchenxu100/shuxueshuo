@@ -9,7 +9,7 @@
   <meta property="og:description" content="结合容器截面与匀速排水过程，判断变量之间是否满足唯一对应关系。" />
   <meta property="og:image" content="../../../../assets/images/share-default.png" />
   <meta property="og:type" content="article" />
-  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css?v=2" />
+  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css?v=4" />
 </head>
 <body>
   <header class="lesson-topbar" role="navigation" aria-label="页面导航">
@@ -74,7 +74,7 @@
   <script src="../../../../assets/js/baidu-stats.js"></script>
   <script src="../../../../assets/js/geometry-label-layout.js"></script>
   <script src="../../../../assets/js/interactive-lesson-ui.js"></script>
-  <script src="../../../../assets/js/lesson-page-runtime.js?v=2"></script>
+  <script src="../../../../assets/js/lesson-page-runtime.js?v=5"></script>
 
   <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
   <script>
@@ -93,7 +93,7 @@
   <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
   <script type="application/json" id="functionSpec">{"$schema":"../../schemas/function-spec.schema.json","version":1,"id":"function-concepts-advanced-20260726-q13","panels":[{"id":"original-container","kind":"contextGeometry","title":"双圆锥玻璃容器","viewport":{"x":0.2,"y":0.05,"width":0.6,"height":0.9},"geometry":{"points":[{"id":"top","x":0.5,"y":0.08,"label":"上顶点"},{"id":"left-mid","x":0.2,"y":0.48},{"id":"right-mid","x":0.8,"y":0.48},{"id":"join-center","x":0.5,"y":0.48},{"id":"bottom","x":0.5,"y":0.9,"label":"排水孔"},{"id":"water-left","x":0.34,"y":0.3},{"id":"water-right","x":0.66,"y":0.3},{"id":"water-center","x":0.5,"y":0.3},{"id":"height-bottom","x":0.88,"y":0.9},{"id":"height-top","x":0.88,"y":0.3}],"polygons":[{"id":"upper-water","pointIds":["water-left","water-right","right-mid","left-mid"],"fill":"#bae6fd","stroke":"none","strokeWidth":0},{"id":"lower-water","pointIds":["left-mid","right-mid","bottom"],"fill":"#bae6fd","stroke":"none","strokeWidth":0},{"id":"upper-cone","pointIds":["top","left-mid","right-mid"],"fill":"none"},{"id":"lower-cone","pointIds":["left-mid","right-mid","bottom"],"fill":"none"}],"ellipses":[{"id":"joined-rim","centerPointId":"join-center","rx":0.3,"ry":0.045,"fill":"#bae6fd","stroke":"#0f766e","backHalfDashed":true},{"id":"water-surface","centerPointId":"water-center","rx":0.16,"ry":0.028,"fill":"#bae6fd","stroke":"#0284c7","backHalfDashed":true}],"dimensions":[{"id":"diameter","startPointId":"water-left","endPointId":"water-right","label":"d","dashed":true,"labelDy":-18},{"id":"height","startPointId":"height-bottom","endPointId":"height-top","label":"h","labelDx":28}]}}]}</script>
 <script src="../../../../assets/js/math-expression-engine.js"></script>
-<script src="../../../../assets/js/function-lesson-from-spec.js?v=2"></script>
+<script src="../../../../assets/js/function-lesson-from-spec.js?v=8"></script>
 
 <script>
   const __FUNCTION_SPEC__ = JSON.parse(document.getElementById('functionSpec').textContent);

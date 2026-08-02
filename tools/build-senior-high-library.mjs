@@ -2,7 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { renderInlineMathText } from "./lib/lesson-html.mjs";
+import { examSourceLabel, renderInlineMathText, renderSetFigure } from "./lib/lesson-html.mjs";
 
 const currentFile = fileURLToPath(import.meta.url);
 const repoRoot = path.resolve(path.dirname(currentFile), "..");
@@ -57,7 +57,7 @@ export function validateCatalog(chapterSource, problemSource, root = repoRoot) {
         throw new Error(`section ${section.id}.order 必须是数字`);
       }
       const presentation = section.presentation ?? "cards";
-      if (!new Set(["cards", "worksheet"]).has(presentation)) {
+      if (!new Set(["cards", "worksheet", "learning"]).has(presentation)) {
         throw new Error(`section ${section.id}.presentation 无效`);
       }
       if (presentation === "worksheet") {
@@ -69,6 +69,9 @@ export function validateCatalog(chapterSource, problemSource, root = repoRoot) {
         if (!section.collectionIds.includes(section.defaultCollectionId)) {
           throw new Error(`section ${section.id}.defaultCollectionId 不在 collectionIds 中`);
         }
+      }
+      if (presentation === "learning") {
+        requireText(section.topicId, `section ${section.id}.topicId`);
       }
       if (sectionIds.has(section.id)) {
         throw new Error(`section ID 跨章节重复: ${section.id}`);
@@ -147,6 +150,14 @@ function sanitizeProblemLines(lines, lessonId) {
     throw new Error(`lesson ${lessonId} 缺少原题 lines`);
   }
   return lines.map((line) => {
+    if (line.figure != null) {
+      const figureHtml = renderSetFigure(line.figure);
+      if (!figureHtml) throw new Error(`lesson ${lessonId} 的集合图形类型无效`);
+      return {
+        figureHtml,
+        ariaLabel: line.figure.ariaLabel ?? "",
+      };
+    }
     if (line.figures != null) {
       if (!Array.isArray(line.figures) || line.figures.length === 0) {
         throw new Error(`lesson ${lessonId} 原题图形为空`);
@@ -233,7 +244,7 @@ function buildCollectionProblem(root, lessonId, number, group) {
   return {
     id: lessonId,
     number,
-    source: lesson.problem?.source || undefined,
+    source: examSourceLabel(lesson.problem?.source) || undefined,
     problem: { lines },
     originalFigures,
     figureSpec,
@@ -241,6 +252,344 @@ function buildCollectionProblem(root, lessonId, number, group) {
     groupId: group.id,
     groupLabel: group.label,
   };
+}
+
+function buildLearningLesson(root, lessonId, context) {
+  requireText(lessonId, `${context}.lessonId`);
+  const lessonPath = path.join(
+    root,
+    "internal/senior-high/lesson-specs",
+    lessonId,
+    "lesson-data.json",
+  );
+  if (!fs.existsSync(lessonPath)) {
+    throw new Error(`${context} 缺少 lesson-data: ${lessonId}`);
+  }
+  const lesson = readJson(lessonPath);
+  if (lesson.meta?.id !== lessonId) {
+    throw new Error(`${context} lesson ID 不匹配: ${lesson.meta?.id ?? "missing"} != ${lessonId}`);
+  }
+  const outputPath = lesson.meta?.outputPath;
+  requireText(outputPath, `lesson ${lessonId}.meta.outputPath`);
+  const siteRoot = path.join(root, "site");
+  const absoluteOutputPath = path.resolve(root, outputPath);
+  const relativeOutputPath = path.relative(siteRoot, absoluteOutputPath);
+  if (
+    relativeOutputPath.startsWith("..")
+    || path.isAbsolute(relativeOutputPath)
+    || path.extname(relativeOutputPath) !== ".html"
+  ) {
+    throw new Error(`lesson ${lessonId} 的 outputPath 必须指向 site 下的 HTML`);
+  }
+  const solutionPath = relativeOutputPath.split(path.sep).join("/");
+  if (!fs.existsSync(path.join(root, "site", solutionPath))) {
+    throw new Error(`lesson ${lessonId} 缺少解析页面: site/${solutionPath}`);
+  }
+  return {
+    id: lessonId,
+    title: lesson.meta?.pageTitle || lessonId,
+    source: examSourceLabel(lesson.problem?.source) || undefined,
+    problem: {
+      lines: sanitizeProblemLines(lesson.problem?.lines, lessonId),
+    },
+    solutionPath,
+  };
+}
+
+function validateLearningAnswerSchema(schema, context) {
+  if (!schema || typeof schema !== "object" || Array.isArray(schema)) {
+    throw new Error(`${context}.answerSchema 必须是对象`);
+  }
+  const supportedTypes = new Set([
+    "single-choice",
+    "variable-domain",
+    "finite-set-values",
+    "integer",
+    "relation-sequence",
+    "exact-expression",
+    "multipart-exact",
+  ]);
+  if (!supportedTypes.has(schema.type)) {
+    throw new Error(`${context}.answerSchema.type 无效`);
+  }
+  if (schema.choiceStyle != null) {
+    if (schema.type !== "single-choice" || schema.choiceStyle !== "ordinal") {
+      throw new Error(`${context}.answerSchema.choiceStyle 无效`);
+    }
+  }
+  if (schema.type === "single-choice" || schema.type === "integer") {
+    requireText(schema.expected, `${context}.answerSchema.expected`);
+  } else if (
+    schema.type === "finite-set-values"
+    || schema.type === "relation-sequence"
+    || schema.type === "exact-expression"
+  ) {
+    if (!Array.isArray(schema.expected) || schema.expected.length === 0) {
+      throw new Error(`${context}.answerSchema.expected 必须是非空数组`);
+    }
+    schema.expected.forEach((value, index) => {
+      requireText(value, `${context}.answerSchema.expected[${index}]`);
+    });
+    if (
+      schema.type === "relation-sequence"
+      && schema.expected.some((value) => !new Set(["∈", "∉"]).has(value))
+    ) {
+      throw new Error(`${context}.answerSchema.expected 只能包含 ∈ 或 ∉`);
+    }
+  } else if (schema.type === "multipart-exact") {
+    if (!Array.isArray(schema.expected) || schema.expected.length < 2) {
+      throw new Error(`${context}.answerSchema.expected 必须包含至少两个小题答案`);
+    }
+    schema.expected.forEach((part, index) => {
+      if (!Array.isArray(part.aliases) || part.aliases.length === 0) {
+        throw new Error(`${context}.answerSchema.expected[${index}].aliases 必须是非空数组`);
+      }
+      part.aliases.forEach((value, aliasIndex) => {
+        requireText(value, `${context}.answerSchema.expected[${index}].aliases[${aliasIndex}]`);
+      });
+      if (schema.layout === "per-part") {
+        requireText(part.label, `${context}.answerSchema.expected[${index}].label`);
+        requireText(part.prompt, `${context}.answerSchema.expected[${index}].prompt`);
+        if (part.note != null) {
+          requireText(part.note, `${context}.answerSchema.expected[${index}].note`);
+        }
+      }
+    });
+    if (schema.layout != null && schema.layout !== "per-part") {
+      throw new Error(`${context}.answerSchema.layout 无效`);
+    }
+  } else {
+    requireText(schema.variable, `${context}.answerSchema.variable`);
+    requireText(schema.domain, `${context}.answerSchema.domain`);
+    if (!Array.isArray(schema.expected?.excludedValues) || schema.expected.excludedValues.length === 0) {
+      throw new Error(`${context}.answerSchema.expected.excludedValues 必须是非空数组`);
+    }
+    schema.expected.excludedValues.forEach((value, index) => {
+      requireText(value, `${context}.answerSchema.expected.excludedValues[${index}]`);
+    });
+  }
+  if (schema.type !== "single-choice") {
+    const supportsTextInput = schema.type === "multipart-exact" && schema.layout === "per-part";
+    if (schema.input?.mode !== "math-expression" && !(supportsTextInput && schema.input?.mode === "text")) {
+      throw new Error(`${context}.answerSchema.input.mode 必须是 math-expression`);
+    }
+    if (schema.input.mode === "math-expression" && (!Array.isArray(schema.input.keyboard) || schema.input.keyboard.length === 0)) {
+      throw new Error(`${context}.answerSchema.input.keyboard 必须是非空数组`);
+    }
+  }
+  const normalized = structuredClone(schema);
+  if (normalized.type === "multipart-exact" && normalized.layout === "per-part") {
+    normalized.expected = normalized.expected.map((part) => ({
+      ...part,
+      promptHtml: renderInlineMathText(part.prompt),
+    }));
+  }
+  return normalized;
+}
+
+export function validateLearningTopics(catalog, topicSource, root = repoRoot) {
+  const topics = topicSource?.learningTopics;
+  if (!Array.isArray(topics)) {
+    throw new Error("学习专题源文件必须包含 learningTopics 数组");
+  }
+  requireUnique(topics, (item) => item.id, "learningTopic");
+  const usedLessons = new Set();
+
+  return topics.map((topic) => {
+    requireText(topic.title, `learningTopic ${topic.id}.title`);
+    const chapter = catalog.chapters.find((item) => item.id === topic.chapterId);
+    const section = chapter?.sections.find((item) => item.id === topic.sectionId);
+    if (!chapter || !section || section.presentation !== "learning") {
+      throw new Error(`learningTopic ${topic.id} 引用未知 learning section`);
+    }
+    if (section.topicId !== topic.id) {
+      throw new Error(`learningTopic ${topic.id} 未与 section.topicId 正确绑定`);
+    }
+    if (!Array.isArray(topic.introduction) || topic.introduction.length === 0) {
+      throw new Error(`learningTopic ${topic.id} 缺少 introduction`);
+    }
+    if (!Array.isArray(topic.mapNodes) || topic.mapNodes.length === 0) {
+      throw new Error(`learningTopic ${topic.id} 缺少 mapNodes`);
+    }
+    if (!Array.isArray(topic.modules) || topic.modules.length === 0) {
+      throw new Error(`learningTopic ${topic.id} 缺少 modules`);
+    }
+    const moduleIds = requireUnique(
+      topic.modules,
+      (item) => item.id,
+      `learningTopic ${topic.id} module`,
+    );
+    requireUnique(topic.mapNodes, (item) => item.id, `learningTopic ${topic.id} mapNode`);
+    for (const node of topic.mapNodes) {
+      requireText(node.label, `learningTopic ${topic.id} mapNode ${node.id}.label`);
+      if (!moduleIds.has(node.moduleId)) {
+        throw new Error(`mapNode ${node.id} 引用未知 module: ${node.moduleId}`);
+      }
+      if (!Array.isArray(node.children) || node.children.length === 0) {
+        throw new Error(`mapNode ${node.id} 缺少 children`);
+      }
+    }
+
+    const modules = topic.modules.map((module) => {
+      requireText(module.label, `learningTopic ${topic.id} module ${module.id}.label`);
+      if (!new Set(["knowledge", "assessment"]).has(module.type)) {
+        throw new Error(`learningTopic ${topic.id} module ${module.id}.type 无效`);
+      }
+      if (!new Set(["published", "pending"]).has(module.status)) {
+        throw new Error(`learningTopic ${topic.id} module ${module.id}.status 无效`);
+      }
+      const base = {
+        id: module.id,
+        label: module.label,
+        type: module.type,
+        status: module.status,
+        description: module.description || "",
+      };
+      if (module.status === "pending") {
+        return {
+          ...base,
+          knownPoints: module.knownPoints || [],
+        };
+      }
+      if (module.type === "knowledge") {
+        if (!Array.isArray(module.knowledgeBlocks) || module.knowledgeBlocks.length === 0) {
+          throw new Error(`module ${module.id} 缺少 knowledgeBlocks`);
+        }
+        if (!Array.isArray(module.examples) || module.examples.length === 0) {
+          throw new Error(`module ${module.id} 缺少 examples`);
+        }
+        const examples = module.examples.map((example) => {
+          if (usedLessons.has(example.lessonId)) {
+            throw new Error(`learning lesson 重复: ${example.lessonId}`);
+          }
+          usedLessons.add(example.lessonId);
+          const context = `module ${module.id} example ${example.lessonId}`;
+          requireText(example.group, `${context}.group`);
+          requireText(example.title, `${context}.title`);
+          if (!Array.isArray(example.hints) || example.hints.length === 0) {
+            throw new Error(`${context}.hints 必须是非空数组`);
+          }
+          example.hints.forEach((hint, index) => {
+            requireText(hint, `${context}.hints[${index}]`);
+          });
+          return {
+            group: example.group,
+            title: example.title,
+            numberLabel: example.numberLabel || "",
+            display: "featured",
+            hints: [...example.hints],
+            answerSchema: validateLearningAnswerSchema(example.answerSchema, context),
+            lesson: buildLearningLesson(root, example.lessonId, `module ${module.id}`),
+          };
+        });
+        return {
+          ...base,
+          knowledgeGroups: (module.knowledgeGroups || [
+            {
+              category: "concept",
+              number: "01",
+              eyebrow: "基本概念",
+              title: "集合的概念",
+            },
+            {
+              category: "property",
+              number: "02",
+              eyebrow: "元素性质",
+              title: "集合中元素的性质",
+            },
+          ]).map((group, index) => {
+            const context = `module ${module.id} knowledgeGroups[${index}]`;
+            if (!new Set([
+              "concept",
+              "property",
+              "enumeration",
+              "description",
+              "interval",
+              "venn",
+            ]).has(group.category)) {
+              throw new Error(`${context}.category 无效`);
+            }
+            requireText(group.number, `${context}.number`);
+            requireText(group.eyebrow, `${context}.eyebrow`);
+            requireText(group.title, `${context}.title`);
+            return structuredClone(group);
+          }),
+          knowledgeBlocks: module.knowledgeBlocks.map((block, index) => {
+            const context = `module ${module.id} knowledgeBlocks[${index}]`;
+            if (!new Set([
+              "concept",
+              "property",
+              "enumeration",
+              "description",
+              "interval",
+              "venn",
+            ]).has(block.category)) {
+              throw new Error(`${context}.category 无效`);
+            }
+            requireText(block.title, `${context}.title`);
+            if (!Array.isArray(block.body) || block.body.length === 0) {
+              throw new Error(`${context}.body 必须是非空数组`);
+            }
+            block.body.forEach((line, lineIndex) => {
+              requireText(line, `${context}.body[${lineIndex}]`);
+            });
+            return {
+              category: block.category,
+              title: block.title,
+              body: block.body,
+              bodyHtml: block.body.map((line) => renderInlineMathText(line)),
+            };
+          }),
+          examples,
+          summary: module.summary || "",
+          summaryHtml: renderInlineMathText(module.summary || ""),
+        };
+      }
+
+      const items = (module.items || []).map((item) => {
+        if (item.status === "pending") {
+          return {
+            number: item.number,
+            status: "pending",
+            title: item.title,
+            note: item.note,
+          };
+        }
+        if (usedLessons.has(item.lessonId)) {
+          throw new Error(`learning lesson 重复: ${item.lessonId}`);
+        }
+        usedLessons.add(item.lessonId);
+        const context = `module ${module.id} item ${item.lessonId}`;
+        if (!Array.isArray(item.hints) || item.hints.length === 0) {
+          throw new Error(`${context}.hints 必须是非空数组`);
+        }
+        item.hints.forEach((hint, index) => {
+          requireText(hint, `${context}.hints[${index}]`);
+        });
+        return {
+          number: item.number,
+          status: "published",
+          numberLabel: item.numberLabel || `第 ${item.number} 题`,
+          hints: [...item.hints],
+          answerSchema: validateLearningAnswerSchema(item.answerSchema, context),
+          lesson: buildLearningLesson(root, item.lessonId, `module ${module.id}`),
+        };
+      });
+      return { ...base, items };
+    });
+
+    return {
+      id: topic.id,
+      chapterId: topic.chapterId,
+      sectionId: topic.sectionId,
+      title: topic.title,
+      eyebrow: topic.eyebrow || "",
+      introduction: topic.introduction,
+      introductionHtml: topic.introduction.map((line) => renderInlineMathText(line)),
+      mapNodes: topic.mapNodes,
+      modules,
+    };
+  });
 }
 
 export function validateCollections(catalog, collectionSource, root = repoRoot) {
@@ -333,6 +682,11 @@ export function buildCatalog(root = repoRoot) {
     collections: validateCollections(
       baseCatalog,
       readJson(path.join(catalogDir, "collections.json")),
+      root,
+    ),
+    learningTopics: validateLearningTopics(
+      baseCatalog,
+      readJson(path.join(catalogDir, "learning-topics.json")),
       root,
     ),
   };

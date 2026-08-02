@@ -404,6 +404,70 @@ body {
   vertical-align: 0.55em;
 }
 
+.math-notin {
+  display: inline-flex;
+  width: 0.92em;
+  height: 1em;
+  vertical-align: -0.12em;
+}
+
+.math-notin svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.math-notin path {
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.55;
+}
+
+.math-blackboard {
+  font-family: "STIX Two Math", "Cambria Math", "STIXGeneral", "Noto Sans Math", serif;
+  font-style: normal;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.set-figure {
+  width: min(100%, 560px);
+  margin: 14px auto;
+  text-align: center;
+}
+
+.set-figure svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.set-figure-universe,
+.set-figure-set {
+  fill: none;
+  stroke: #173e43;
+  stroke-width: 2.2;
+}
+
+.set-figure-shade {
+  fill: rgba(15, 107, 104, 0.24);
+  stroke: none;
+}
+
+.set-figure text {
+  fill: #173e43;
+  font-family: "Songti SC", "Noto Serif SC", serif;
+  font-size: 19px;
+}
+
+.set-figure figcaption {
+  margin-top: 5px;
+  color: #667578;
+  font-size: 0.78rem;
+}
+
 .math-fraction {
   display: inline-grid;
   grid-template-rows: auto auto;
@@ -514,7 +578,7 @@ body {
   font-weight: 800;
   line-height: 1.4;
   text-align: center;
-  white-space: nowrap;
+  white-space: normal;
   overflow-wrap: anywhere;
 }
 
@@ -918,6 +982,203 @@ svg {
   gap: 8px;
 }
 
+.lesson-table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+  margin: 0 0 18px;
+  border: 1px solid rgba(15, 107, 104, 0.14);
+  border-radius: 12px;
+}
+
+.lesson-reasoning-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: rgba(255, 255, 255, 0.52);
+  font-size: 0.92rem;
+}
+
+.lesson-reasoning-table caption {
+  padding: 11px 13px;
+  background: rgba(15, 107, 104, 0.07);
+  color: #0f6b68;
+  font-weight: 800;
+  text-align: left;
+}
+
+.lesson-reasoning-table th,
+.lesson-reasoning-table td {
+  padding: 10px 13px;
+  border-top: 1px solid rgba(15, 107, 104, 0.12);
+  text-align: left;
+  vertical-align: top;
+}
+
+.lesson-reasoning-table thead th {
+  background: rgba(15, 107, 104, 0.04);
+  color: #29494c;
+  font-weight: 800;
+}
+
+.lesson-reasoning-table tbody th {
+  min-width: 8em;
+  color: #0f6b68;
+  font-weight: 750;
+}
+
+.lesson-step-visual {
+  margin: 0 0 18px;
+  padding: 12px 14px 10px;
+  border: 1px solid rgba(15, 107, 104, 0.14);
+  border-radius: 14px;
+  background: rgba(250, 253, 251, 0.84);
+  overflow: hidden;
+}
+
+.lesson-step-visual svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 330px;
+}
+
+.lesson-step-visual figcaption {
+  margin-top: 8px;
+  color: #52696c;
+  font-size: 0.84rem;
+  line-height: 1.55;
+  text-align: center;
+}
+
+.lesson-number-line-axis line,
+.lesson-number-line-ticks line {
+  stroke: #62787b;
+  stroke-width: 2;
+}
+
+.lesson-number-line-axis path {
+  fill: #62787b;
+}
+
+.lesson-number-line-labels text,
+.lesson-number-line-ticks text {
+  fill: #173e43;
+  font-family: "Songti SC", "Noto Serif SC", serif;
+  font-size: 19px;
+  text-anchor: middle;
+}
+
+.lesson-number-line-segment line {
+  stroke-width: 8;
+  stroke-linecap: round;
+}
+
+.lesson-number-line-segment circle {
+  fill: #fffdfa;
+  stroke-width: 4;
+}
+
+.lesson-number-line-segment circle.is-closed {
+  fill: currentColor;
+}
+
+.lesson-number-line-segment.is-a {
+  color: #548aa2;
+}
+
+.lesson-number-line-segment.is-b {
+  color: #d18c32;
+}
+
+.lesson-number-line-segment.is-result {
+  color: #0f766e;
+}
+
+.lesson-number-line-set-label {
+  font-size: 20px;
+  font-weight: 700;
+  fill: #0f766e;
+}
+
+.lesson-number-line-segment.is-a line,
+.lesson-number-line-segment.is-a circle,
+.lesson-number-line-segment.is-b line,
+.lesson-number-line-segment.is-b circle,
+.lesson-number-line-segment.is-result line,
+.lesson-number-line-segment.is-result circle {
+  stroke: currentColor;
+}
+
+.lesson-venn-universe {
+  fill: rgba(255, 255, 255, 0.55);
+  stroke: #173e43;
+  stroke-width: 2.4;
+}
+
+.lesson-venn-set {
+  fill: rgba(15, 118, 110, 0.1);
+  stroke: #0f6b68;
+  stroke-width: 3;
+}
+
+.lesson-venn-set.is-right,
+.lesson-venn-set.is-outside-three {
+  fill: rgba(209, 140, 50, 0.12);
+  stroke: #b87522;
+}
+
+.lesson-venn-set.is-day-two {
+  fill: rgba(84, 138, 162, 0.12);
+  stroke: #548aa2;
+}
+
+.lesson-venn-set.is-outside-one {
+  fill: rgba(15, 118, 110, 0.1);
+}
+
+.lesson-venn-text text {
+  fill: #173e43;
+  font-family: "Songti SC", "Noto Serif SC", serif;
+  font-size: 24px;
+  font-weight: 800;
+  text-anchor: middle;
+}
+
+.lesson-venn-text text.is-label {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.lesson-venn-text text.is-outside {
+  fill: #5f7073;
+  font-size: 20px;
+}
+
+.lesson-venn-partition-title {
+  fill: #173e43;
+  font-family: "Songti SC", "Noto Serif SC", serif;
+  font-size: 17px;
+  font-weight: 800;
+  text-anchor: middle;
+}
+
+.lesson-venn-partition-line {
+  stroke: rgba(23, 62, 67, 0.34);
+  stroke-width: 2;
+  stroke-dasharray: 7 7;
+}
+
+.lesson-venn-text text.is-note {
+  fill: #5f7073;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.lesson-venn-text text.is-emphasis {
+  fill: #0f6b68;
+  font-size: 15px;
+  font-weight: 800;
+}
+
 .derive-line {
   font-size: 14px;
   line-height: 1.62;
@@ -927,6 +1188,19 @@ svg {
 .derive-line strong {
   color: var(--accent);
   margin-right: 8px;
+}
+
+.derive-logic-symbol {
+  display: inline-block;
+  min-width: 1.35em;
+  color: var(--accent);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.12em;
+  font-weight: 800;
+}
+
+.derive-logic-symbol.is-result {
+  margin-left: 2px;
 }
 
 .derive-inline-power {

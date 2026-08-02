@@ -1,0 +1,88 @@
+{
+  "meta": {
+    "id": "set-element-relation-example-q02",
+    "outputPath": "site/problems/senior-high/sets/set-concepts-and-representation/set-element-relation-example-q02.html",
+    "pageTitle": "判断关于常用数集的命题",
+    "pageDescription": "根据整数、自然数及相反数的关系判断四个命题的真假。",
+    "breadcrumbTitle": "元素和集合的关系 · 例题 2",
+    "breadcrumbLabel": "元素和集合的关系",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=set-concepts-and-representation&module=element-set-relation"
+  },
+  "problem": {
+    "source": "培训教材 · 元素与集合的关系",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "判断全称命题时，要同时检查正数、负数和零这些边界情形。",
+      "items": [
+        "整数的相反数仍是整数；",
+        "判断涉及 \\(\\mathbb N\\) 的命题时，不能漏掉 \\(a=0\\) 的情形。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "下列叙述中正确的个数是：① 若 \\(-a\\in\\mathbb Z\\)，则 \\(a\\in\\mathbb Z\\)；② 若 \\(-a\\in\\mathbb N\\)，则 \\(a\\in\\mathbb N\\)；③ \\(a\\in\\mathbb Z\\)，若 \\(-a\\notin\\mathbb N\\)，则 \\(a\\in\\mathbb N\\)；④ \\(a\\in\\mathbb Z\\)，若 \\(a\\in\\mathbb N\\)，则 \\(-a\\notin\\mathbb N\\)。"
+      },
+      {
+        "text": "A. 0 个　　B. 1 个　　C. 2 个　　D. 3 个"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "关系判断",
+      "title": "逐项判断并检查零的情形",
+      "t": 0,
+      "showDiagram": false,
+      "table": {
+        "caption": "四个命题的真假",
+        "headers": [
+          "命题",
+          "判断",
+          "理由"
+        ],
+        "rows": [
+          [
+            "①",
+            "正确",
+            "整数的相反数仍是整数"
+          ],
+          [
+            "②",
+            "错误",
+            "取 \\(a=-1\\)，则 \\(-a=1\\in\\mathbb N\\)，但 \\(a\\notin\\mathbb N\\)"
+          ],
+          [
+            "③",
+            "正确",
+            "\\(-a\\notin\\mathbb N\\) 且 \\(a\\in\\mathbb Z\\)，说明 \\(-a<0\\)，故 \\(a>0\\)，所以 \\(a\\in\\mathbb N\\)"
+          ],
+          [
+            "④",
+            "错误",
+            "取 \\(a=0\\)，则 \\(a\\in\\mathbb N\\) 且 \\(-a=0\\in\\mathbb N\\)"
+          ]
+        ]
+      },
+      "derive": [
+        [
+          "结论",
+          "正确的是 ①、③，共 2 个，选择 C"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 判断命题"
+  }
+}

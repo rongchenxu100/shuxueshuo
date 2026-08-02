@@ -1,0 +1,67 @@
+{
+  "meta": {
+    "id": "set-concept-example-q02",
+    "outputPath": "site/problems/senior-high/sets/set-concepts-and-representation/set-concept-example-q02.html",
+    "pageTitle": "集合的互异性：求参数限制",
+    "pageDescription": "通过三个元素两两不相等求参数的取值限制。",
+    "breadcrumbTitle": "集合的概念 · 例题 2",
+    "breadcrumbLabel": "集合的概念",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=set-concepts-and-representation&module=set-concept"
+  },
+  "problem": {
+    "source": "培训教材 · 集合的概念",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "题目明确集合中含有三个元素，因此三个代数式必须两两不相等。",
+      "items": [
+        "分别写出三组不等关系，不要漏掉任意一对；",
+        "把导致元素相等的参数值全部排除。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "已知集合 \\(A\\) 中含有三个元素：\\(3,2-x,3x+1\\)，求实数 \\(x\\) 应满足的条件。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "互异性",
+      "title": "让三个元素两两不相等",
+      "t": 0,
+      "showDiagram": false,
+      "derive": [
+        [
+          "\\(3\\ne2-x\\)",
+          "解得 \\(x\\ne-1\\)"
+        ],
+        [
+          "\\(2-x\\ne3x+1\\)",
+          "解得 \\(x\\ne\\frac14\\)"
+        ],
+        [
+          "\\(3\\ne3x+1\\)",
+          "解得 \\(x\\ne\\frac23\\)"
+        ],
+        [
+          "结论",
+          "\\(x\\in\\mathbb R\\) 且 \\(x\\ne-1,\\frac14,\\frac23\\)"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 两两不相等"
+  }
+}

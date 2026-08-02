@@ -1,0 +1,788 @@
+{
+  "version": 1,
+  "learningTopics": [
+    {
+      "id": "set-concepts-and-representation",
+      "chapterId": "sets",
+      "sectionId": "set-concepts-and-representation",
+      "title": "集合的概念和表示",
+      "eyebrow": "第一讲",
+      "introduction": [
+        "数学常用简洁的符号表达一类确定的研究对象。把符合共同条件的对象归在一起，就得到集合；其中的每一个对象称为元素。",
+        "这一专题先认识集合与元素，再学习元素和集合的关系以及集合的表示方法，最后通过综合练习检验能否在不同情境中正确使用这些概念。"
+      ],
+      "mapNodes": [
+        {
+          "id": "set-concept",
+          "label": "集合的概念",
+          "moduleId": "set-concept",
+          "children": [
+            "集合",
+            "空集",
+            "元素",
+            "确定性",
+            "互异性",
+            "无序性"
+          ]
+        },
+        {
+          "id": "element-set-relation",
+          "label": "元素和集合的关系",
+          "moduleId": "element-set-relation",
+          "children": [
+            "属于",
+            "不属于"
+          ]
+        },
+        {
+          "id": "set-representation",
+          "label": "集合的表示",
+          "moduleId": "set-representation",
+          "children": [
+            "列举法",
+            "描述法",
+            "区间表示法",
+            "Venn 图法"
+          ]
+        },
+        {
+          "id": "practice",
+          "label": "实战练习",
+          "moduleId": "practice",
+          "children": [
+            "概念辨析",
+            "关系判断",
+            "参数与表示"
+          ]
+        }
+      ],
+      "modules": [
+        {
+          "id": "set-concept",
+          "label": "集合的概念",
+          "type": "knowledge",
+          "status": "published",
+          "description": "认识集合、元素和空集，掌握集合中元素的三种基本性质。",
+          "knowledgeBlocks": [
+            {
+              "category": "concept",
+              "title": "集合",
+              "body": [
+                "把一些元素组成的总体叫作集合，简称集。"
+              ]
+            },
+            {
+              "category": "concept",
+              "title": "元素",
+              "body": [
+                "一般地，把研究对象统称为元素。"
+              ]
+            },
+            {
+              "category": "concept",
+              "title": "空集",
+              "body": [
+                "不含任何元素的集合叫作空集，记作 \\(\\varnothing\\)。"
+              ]
+            },
+            {
+              "category": "property",
+              "title": "确定性",
+              "body": [
+                "对于给定的集合和一个确定的对象，这个对象是否属于该集合必须能够明确判断。"
+              ]
+            },
+            {
+              "category": "property",
+              "title": "互异性",
+              "body": [
+                "一个集合中的元素互不相同；相同对象重复出现时只能算作一个元素。"
+              ]
+            },
+            {
+              "category": "property",
+              "title": "无序性",
+              "body": [
+                "集合中的元素没有先后顺序。只要元素完全相同，排列顺序不同仍表示同一个集合。"
+              ]
+            }
+          ],
+          "examples": [
+            {
+              "lessonId": "set-concept-example-q01",
+              "group": "确定性",
+              "title": "集合中元素的确定性",
+              "hints": [
+                "判断每个对象是否有明确、统一的归属标准。",
+                "注意“较好”“长寿”“近似”等描述是否给出了确定界限。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "D"
+              }
+            },
+            {
+              "lessonId": "set-concept-example-q02",
+              "group": "互异性",
+              "title": "集合中元素的互异性",
+              "hints": [
+                "集合含有三个元素，意味着三个代数式必须两两不相等。",
+                "分别找出会使任意两个代数式相等的参数值，再全部排除。"
+              ],
+              "answerSchema": {
+                "type": "variable-domain",
+                "variable": "x",
+                "domain": "R",
+                "expected": {
+                  "excludedValues": [
+                    "-1",
+                    "1/4",
+                    "2/3"
+                  ]
+                },
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "写出 x 满足的条件",
+                  "keyboard": [
+                    "x",
+                    "real",
+                    "in",
+                    "not-in",
+                    "not-equals",
+                    "set-braces",
+                    "set-minus",
+                    "comma",
+                    "digits",
+                    "negative",
+                    "fraction"
+                  ]
+                }
+              }
+            },
+            {
+              "lessonId": "set-concept-example-q03",
+              "group": "互异性",
+              "title": "根集中的元素个数",
+              "hints": [
+                "先确认参数取不同值时，方程是否始终是二次方程。",
+                "分别考虑退化为一次方程以及判别式大于、等于、小于零的情形。"
+              ],
+              "answerSchema": {
+                "type": "finite-set-values",
+                "expected": [
+                  "0",
+                  "1",
+                  "2"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "写出所有可能的元素个数",
+                  "keyboard": [
+                    "digits",
+                    "set-braces",
+                    "comma"
+                  ]
+                }
+              }
+            },
+            {
+              "lessonId": "set-concept-example-q04",
+              "group": "互异性",
+              "title": "集合元素的化简与去重",
+              "hints": [
+                "先化简绝对值、平方根和立方根，再判断实际出现了几种不同的数。",
+                "分别考虑正数、负数和零，寻找能够达到的最大元素个数。"
+              ],
+              "answerSchema": {
+                "type": "integer",
+                "label": "最多有",
+                "suffix": "个元素",
+                "expected": "2",
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写答案",
+                  "keyboard": [
+                    "digits"
+                  ]
+                }
+              }
+            }
+          ],
+          "summary": "集合的定义涉及元素和集合两个基本概念。处理集合问题时，确定性帮助判断对象能否组成集合，互异性要求化简并去重，无序性说明元素的排列不会改变集合。"
+        },
+        {
+          "id": "element-set-relation",
+          "label": "元素和集合的关系",
+          "type": "knowledge",
+          "status": "published",
+          "description": "掌握属于与不属于的含义和符号，熟悉常用数集及其记号。",
+          "knowledgeGroups": [
+            {
+              "category": "concept",
+              "number": "01",
+              "eyebrow": "关系符号",
+              "title": "属于与不属于"
+            },
+            {
+              "category": "property",
+              "number": "02",
+              "eyebrow": "常用数集",
+              "title": "数集及其符号"
+            }
+          ],
+          "knowledgeBlocks": [
+            {
+              "category": "concept",
+              "title": "集合与元素的字母",
+              "body": [
+                "一般用英文大写字母 \\(A,B,C,\\ldots\\) 表示集合，用英文小写字母 \\(a,b,c,\\ldots\\) 表示元素。"
+              ]
+            },
+            {
+              "category": "concept",
+              "title": "属于",
+              "body": [
+                "如果 \\(a\\) 是集合 \\(A\\) 中的元素，就说 \\(a\\) 属于 \\(A\\)，记作 \\(a\\in A\\)。"
+              ]
+            },
+            {
+              "category": "concept",
+              "title": "不属于",
+              "body": [
+                "如果 \\(a\\) 不是集合 \\(A\\) 中的元素，就说 \\(a\\) 不属于 \\(A\\)，记作 \\(a\\notin A\\)。"
+              ]
+            },
+            {
+              "category": "property",
+              "title": "自然数集",
+              "body": [
+                "记作 \\(\\mathbb N\\)，即 \\(\\{0,1,2,3,\\ldots\\}\\)。"
+              ]
+            },
+            {
+              "category": "property",
+              "title": "正整数集",
+              "body": [
+                "记作 \\(\\mathbb N^*\\)，即 \\(\\{1,2,3,\\ldots\\}\\)。"
+              ]
+            },
+            {
+              "category": "property",
+              "title": "整数集",
+              "body": [
+                "记作 \\(\\mathbb Z\\)。"
+              ]
+            },
+            {
+              "category": "property",
+              "title": "有理数集",
+              "body": [
+                "记作 \\(\\mathbb Q\\)。"
+              ]
+            },
+            {
+              "category": "property",
+              "title": "实数集",
+              "body": [
+                "记作 \\(\\mathbb R\\)。"
+              ]
+            }
+          ],
+          "examples": [
+            {
+              "lessonId": "set-element-relation-example-q01",
+              "group": "属于与不属于",
+              "title": "用符号表示元素与集合的关系",
+              "hints": [
+                "先化简绝对值、分数或根式，再判断所得数属于哪个数集。",
+                "属于用 \\(\\in\\)，不属于用 \\(\\notin\\)。"
+              ],
+              "answerSchema": {
+                "type": "relation-sequence",
+                "expected": [
+                  "∉",
+                  "∈",
+                  "∉",
+                  "∈",
+                  "∉",
+                  "∈",
+                  "∈"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "依次写出七个关系符号",
+                  "keyboard": [
+                    "in",
+                    "not-in",
+                    "comma"
+                  ]
+                }
+              }
+            },
+            {
+              "lessonId": "set-element-relation-example-q02",
+              "group": "关系判断",
+              "title": "判断关于常用数集的命题",
+              "hints": [
+                "整数的相反数仍是整数，但自然数的相反数不一定是自然数。",
+                "检查涉及自然数的命题时，不要漏掉 \\(a=0\\)。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "C"
+              }
+            }
+          ],
+          "summary": "元素与集合之间只有属于和不属于两种关系，分别记作 \\(\\in\\) 和 \\(\\notin\\)。判断时要先化简元素，并准确掌握 \\(\\mathbb N\\)、\\(\\mathbb N^*\\)、\\(\\mathbb Z\\)、\\(\\mathbb Q\\)、\\(\\mathbb R\\) 所表示的数集。"
+        },
+        {
+          "id": "set-representation",
+          "label": "集合的表示",
+          "type": "knowledge",
+          "status": "published",
+          "description": "掌握列举法、描述法、区间表示法和 Venn 图法，并能根据对象特点选择合适的表示方式。",
+          "knowledgeGroups": [
+            {
+              "category": "enumeration",
+              "number": "01",
+              "eyebrow": "逐一写出",
+              "title": "列举法"
+            },
+            {
+              "category": "description",
+              "number": "02",
+              "eyebrow": "共同特征",
+              "title": "描述法"
+            },
+            {
+              "category": "interval",
+              "number": "03",
+              "eyebrow": "连续数集",
+              "title": "区间表示法"
+            },
+            {
+              "category": "venn",
+              "number": "04",
+              "eyebrow": "图形表达",
+              "title": "Venn 图法",
+              "visual": "venn-classification"
+            }
+          ],
+          "knowledgeBlocks": [
+            {
+              "category": "enumeration",
+              "title": "列举法",
+              "body": [
+                "把集合的所有元素一一列举出来，并用花括号“{ }”括起来。",
+                "列举时必须做到不遗漏、不重复；集合中的元素没有先后顺序。"
+              ]
+            },
+            {
+              "category": "description",
+              "title": "描述法",
+              "body": [
+                "设 \\(A\\) 是一个集合，把集合中具有共同特征 \\(P(x)\\) 的元素写成 \\(\\{x\\in A\\mid P(x)\\}\\)。",
+                "竖线左侧是代表元素及其范围，右侧是元素必须满足的共同特征。"
+              ]
+            },
+            {
+              "category": "interval",
+              "title": "有限区间",
+              "body": [
+                "\\([a,b]\\)、\\((a,b)\\)、\\([a,b)\\)、\\((a,b]\\) 分别表示闭区间、开区间、左闭右开区间和左开右闭区间。",
+                "方括号表示端点属于集合，圆括号表示端点不属于集合。"
+              ]
+            },
+            {
+              "category": "interval",
+              "title": "无穷区间",
+              "body": [
+                "\\([a,+∞)\\)、\\((a,+∞)\\)、\\((-∞,a]\\)、\\((-∞,a)\\) 用于表示一端无限延伸的实数集合。",
+                "正、负无穷不是实数，因此无穷端一律使用圆括号。"
+              ]
+            },
+            {
+              "category": "venn",
+              "title": "Venn 图",
+              "body": [
+                "用平面内一条封闭曲线的内部表示一个集合，曲线的位置关系直观反映集合之间的关系。",
+                "曲线嵌套表示集合间的包含关系，曲线相交表示两个集合存在公共元素。"
+              ]
+            }
+          ],
+          "examples": [
+            {
+              "lessonId": "set-representation-enumeration-q01",
+              "group": "列举法",
+              "numberLabel": "练习 4 · 1",
+              "title": "列举指定范围内的整数",
+              "hints": ["先确定范围内有哪些整数。", "使用花括号并用逗号分隔元素。"],
+              "answerSchema": {
+                "type": "finite-set-values",
+                "expected": ["2", "3", "4", "5"],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "写出集合",
+                  "keyboard": ["set-braces", "comma", "digits"]
+                }
+              }
+            },
+            {
+              "lessonId": "set-representation-enumeration-q02",
+              "group": "列举法",
+              "numberLabel": "练习 4 · 2",
+              "title": "用解集表示方程组的解",
+              "hints": ["方程组的解是有序数对。"],
+              "answerSchema": {"type": "single-choice", "expected": "B"}
+            },
+            {
+              "lessonId": "set-representation-enumeration-q03",
+              "group": "列举法",
+              "numberLabel": "练习 4 · 3",
+              "title": "辨认方程组解集的正确写法",
+              "hints": ["注意有序数对外还需要集合的花括号。"],
+              "answerSchema": {
+                "type": "single-choice",
+                "choiceStyle": "ordinal",
+                "expected": "③"
+              }
+            },
+            {
+              "lessonId": "set-representation-enumeration-q04",
+              "group": "列举法",
+              "numberLabel": "练习 4 · 4",
+              "title": "由元素属于集合求参数",
+              "hints": ["分类得到候选值后检查互异性。"],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": ["-3/2"],
+                "input": {"mode": "math-expression", "placeholder": "填写 a", "keyboard": ["negative", "digits", "fraction"]}
+              }
+            },
+            {
+              "lessonId": "set-representation-enumeration-q05",
+              "group": "列举法",
+              "numberLabel": "练习 4 · 5",
+              "title": "检查集合中的参数候选值",
+              "hints": ["得到候选值后，还要检查集合中三个元素的互异性。"],
+              "answerSchema": {"type": "single-choice", "expected": "C"}
+            },
+            {
+              "lessonId": "set-representation-enumeration-q06",
+              "group": "列举法",
+              "numberLabel": "练习 4 · 6",
+              "title": "利用两个列举集合相等求值",
+              "hints": ["先利用零元素确定 b。"],
+              "answerSchema": {
+                "type": "integer",
+                "expected": "-1",
+                "input": {"mode": "math-expression", "placeholder": "填写答案", "keyboard": ["negative", "digits"]}
+              }
+            },
+            {
+              "lessonId": "set-representation-description-q01",
+              "group": "描述法",
+              "numberLabel": "练习 5 · 1",
+              "title": "读懂描述法中代表元素的含义",
+              "hints": ["先看竖线左侧的代表元素。"],
+              "answerSchema": {
+                "type": "multipart-exact",
+                "layout": "per-part",
+                "expected": [
+                  {"label": "（1）", "prompt": "\\(\\{x\\in\\mathbb R\\mid x<4\\}\\)", "aliases": ["(-∞,4)", "小于4的全体实数", "小于4的实数"]},
+                  {"label": "（2）", "prompt": "\\(\\{y\\in\\mathbb R\\mid y<4\\}\\)", "aliases": ["(-∞,4)", "小于4的全体实数", "小于4的实数"]},
+                  {"label": "（3）", "prompt": "\\(\\{y\\in\\mathbb N\\mid y<4\\}\\)", "note": "ℕ 表示自然数集。", "aliases": ["{0,1,2,3}", "小于4的自然数"]},
+                  {"label": "（4）", "prompt": "\\(\\{x\\mid y=x^2+1\\}\\)", "aliases": ["ℝ", "R", "全体实数"]},
+                  {"label": "（5）", "prompt": "\\(\\{y\\mid y=x^2+1\\}\\)", "aliases": ["[1,∞)", "大于等于1的全体实数", "不小于1的全体实数"]},
+                  {"label": "（6）", "prompt": "\\(\\{(x,y)\\mid y=x^2+1\\}\\)", "aliases": ["{(x,y)|y=x^2+1}", "抛物线y=x^2+1上的所有点"]}
+                ],
+                "input": {
+                  "mode": "text",
+                  "placeholder": "用自然语言描述该集合"
+                }
+              }
+            },
+            {
+              "lessonId": "set-representation-description-q02",
+              "group": "描述法",
+              "numberLabel": "练习 6 · 1",
+              "title": "把描述法集合改写为列举法",
+              "hints": ["先解不等式，再与自然数集取交集。"],
+              "answerSchema": {
+                "type": "finite-set-values",
+                "expected": ["0", "1", "2", "3", "4"],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "写出集合 A",
+                  "keyboard": ["set-braces", "comma", "digits"]
+                }
+              }
+            },
+            {
+              "lessonId": "set-representation-description-q03",
+              "group": "描述法",
+              "numberLabel": "练习 6 · 2",
+              "title": "列举不等式中的整数解",
+              "hints": ["解双边不等式后筛选整数。"],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": ["{0,1}", "0,1"],
+                "input": {"mode": "math-expression", "placeholder": "写出集合", "keyboard": ["set-braces", "comma", "digits"]}
+              }
+            },
+            {
+              "lessonId": "set-representation-description-q04",
+              "group": "描述法",
+              "numberLabel": "练习 6 · 3（1）",
+              "title": "列举含整除条件的集合",
+              "hints": ["把分母视作 6 的整数因数。"],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": ["{-4,-1,0,1,3,4,5,8}"],
+                "input": {"mode": "math-expression", "placeholder": "写出集合", "keyboard": ["set-braces", "comma", "negative", "digits"]}
+              }
+            },
+            {
+              "lessonId": "set-representation-description-q05",
+              "group": "描述法",
+              "numberLabel": "练习 6 · 3（2）",
+              "title": "列举有限范围内的有理数",
+              "hints": ["枚举 a、b 后对结果去重。"],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": ["{-1,-1/2,0,1/2,1}"],
+                "input": {"mode": "math-expression", "placeholder": "写出集合", "keyboard": ["set-braces", "comma", "negative", "digits", "fraction"]}
+              }
+            },
+            {
+              "lessonId": "set-representation-description-q06",
+              "group": "描述法",
+              "numberLabel": "练习 6 · 3（3）",
+              "title": "列举满足条件的有序数对",
+              "hints": ["集合元素是有序数对。"],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": ["{(1,2),(2,4),(3,6)}"],
+                "input": {"mode": "math-expression", "placeholder": "写出集合", "keyboard": ["set-braces", "interval", "comma", "digits"]}
+              }
+            },
+            {
+              "lessonId": "set-representation-description-q07",
+              "group": "描述法",
+              "numberLabel": "练习 7 · 1",
+              "title": "辨析不同形式表示的集合",
+              "hints": ["集合无序，但有序数对有顺序。"],
+              "answerSchema": {"type": "single-choice", "expected": "B"}
+            },
+            {
+              "lessonId": "set-representation-description-q08",
+              "group": "描述法",
+              "numberLabel": "练习 7 · 2",
+              "title": "由取值范围判断集合相等",
+              "hints": ["比较代表元素的类型和范围。"],
+              "answerSchema": {"type": "single-choice", "expected": "D"}
+            },
+            {
+              "lessonId": "set-representation-description-q09",
+              "group": "描述法",
+              "numberLabel": "练习 8 · 1",
+              "title": "按乘积条件统计有序数对",
+              "hints": ["集合不大时枚举所有情况；集合较大时先枚举部分情况，再找规律计数。"],
+              "answerSchema": {
+                "type": "integer",
+                "expected": "10",
+                "input": {"mode": "math-expression", "placeholder": "填写个数", "keyboard": ["digits"]}
+              }
+            },
+            {
+              "lessonId": "set-representation-description-q10",
+              "group": "描述法",
+              "numberLabel": "练习 8 · 2",
+              "title": "按新定义运算列举集合",
+              "hints": ["枚举全部搭配并去重。"],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": ["{-3,-1,1,3}"],
+                "input": {"mode": "math-expression", "placeholder": "写出集合", "keyboard": ["set-braces", "comma", "negative", "digits"]}
+              }
+            },
+            {
+              "lessonId": "set-representation-description-q11",
+              "group": "描述法",
+              "numberLabel": "练习 8 · 3",
+              "title": "按差值条件统计有序数对",
+              "hints": ["条件等价于 x≥y。"],
+              "answerSchema": {
+                "type": "integer",
+                "expected": "10",
+                "input": {"mode": "math-expression", "placeholder": "填写个数", "keyboard": ["digits"]}
+              }
+            },
+            {
+              "lessonId": "set-representation-description-q12",
+              "group": "描述法",
+              "numberLabel": "练习 8 · 4",
+              "title": "求差值封闭时有序数对的最大数量",
+              "hints": ["正差要求 a>b。"],
+              "answerSchema": {
+                "type": "integer",
+                "expected": "190",
+                "input": {"mode": "math-expression", "placeholder": "填写最大个数", "keyboard": ["digits"]}
+              }
+            },
+            {
+              "lessonId": "set-representation-description-q13",
+              "group": "描述法",
+              "numberLabel": "练习 8 · 5",
+              "title": "计算新定义集合中元素之和",
+              "hints": ["先去重，再求和。"],
+              "answerSchema": {"type": "single-choice", "expected": "A"}
+            },
+            {
+              "lessonId": "set-representation-description-q14",
+              "group": "描述法",
+              "numberLabel": "练习 8 · 6",
+              "title": "研究变换封闭的有限集合",
+              "hints": ["连续施加三次变换会回到原数。"],
+              "answerSchema": {
+                "type": "multipart-exact",
+                "expected": [
+                  {"aliases": ["{-1,1/2}", "{1/2,-1}"]},
+                  {"aliases": ["否", "不可能", "no"]},
+                  {"aliases": ["{-1,-1/2,1/2,2/3,2,3}"]}
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "按（1）至（3）顺序填写，用分号分隔",
+                  "keyboard": ["set-braces", "comma", "semicolon", "negative", "digits", "fraction"]
+                }
+              }
+            },
+            {
+              "lessonId": "set-representation-interval-q01",
+              "group": "区间表示法",
+              "numberLabel": "练习 9 · 1",
+              "title": "把四个实数集合写成区间",
+              "hints": ["先求取值范围，再判断端点能否取到。", "四个小问分别填写对应区间。"],
+              "answerSchema": {
+                "type": "multipart-exact",
+                "layout": "per-part",
+                "expected": [
+                  {"label": "（1）", "prompt": "\\(\\{x\\mid |x|\\le1\\}\\)", "aliases": ["[-1,1]"]},
+                  {"label": "（2）", "prompt": "\\(\\{y\\mid y=\\sqrt{x}+2\\}\\)", "aliases": ["[2,∞)"]},
+                  {"label": "（3）", "prompt": "\\(\\{y\\mid y=-x^2+2x\\}\\)", "aliases": ["(-∞,1]"]},
+                  {"label": "（4）", "prompt": "\\(\\{y\\mid y=x^2-2x+1,x>0\\}\\)", "aliases": ["[0,∞)"]}
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写对应区间",
+                  "keyboard": ["interval", "brackets", "comma", "semicolon", "negative", "digits", "infinity"]
+                }
+              }
+            },
+            {
+              "lessonId": "set-representation-venn-q01",
+              "group": "Venn 图法",
+              "numberLabel": "练习 10 · 1",
+              "title": "由 Venn 图阴影确定区间",
+              "hints": ["阴影表示 B 中不属于 A 的部分。", "逐个判断 0 和 1 是否是端点。"],
+              "answerSchema": {"type": "single-choice", "expected": "B"}
+            },
+            {
+              "lessonId": "set-representation-venn-q02",
+              "group": "Venn 图法",
+              "numberLabel": "练习 10 · 2",
+              "title": "由离散全集读取 Venn 图阴影",
+              "hints": ["先列出 A，再去掉 A 与 B 的公共元素。"],
+              "answerSchema": {"type": "single-choice", "expected": "A"}
+            },
+            {
+              "lessonId": "set-representation-venn-q03",
+              "group": "Venn 图法",
+              "numberLabel": "练习 11 · 1",
+              "title": "统计两项比赛都参加的人数",
+              "hints": ["使用两集合容斥公式。"],
+              "answerSchema": {
+                "type": "integer",
+                "expected": "8",
+                "input": {"mode": "math-expression", "placeholder": "填写人数", "keyboard": ["digits"]}
+              }
+            },
+            {
+              "lessonId": "set-representation-venn-q04",
+              "group": "Venn 图法",
+              "numberLabel": "练习 11 · 2",
+              "title": "求三天售出商品种类的最小值",
+              "hints": ["让第一天和第三天在第二天之外尽量重合。"],
+              "answerSchema": {
+                "type": "multipart-exact",
+                "expected": [
+                  {"aliases": ["16"]},
+                  {"aliases": ["29"]}
+                ],
+                "input": {"mode": "math-expression", "placeholder": "依次填写两问答案", "keyboard": ["digits", "semicolon"]}
+              }
+            }
+          ],
+          "summary": "集合共有列举法、描述法、区间表示法和 Venn 图法四种常用表示方式。列举法适合元素较少或可以逐一确定的集合；描述法突出代表元素与共同特征；区间法专门表示连续实数集合；Venn 图法用图形直观呈现集合及其关系。"
+        },
+        {
+          "id": "practice",
+          "label": "实战练习",
+          "type": "assessment",
+          "status": "published",
+          "description": "综合判断集合的确定性、元素关系、互异性和表示方法。",
+          "items": [
+            {
+              "number": 1,
+              "lessonId": "set-practice-q01",
+              "hints": ["逐项判断描述对象的标准是否明确。"],
+              "answerSchema": {"type": "single-choice", "expected": "C"}
+            },
+            {
+              "number": 2,
+              "lessonId": "set-practice-q02",
+              "hints": ["先化简每个数，再判断它与相应数集的关系。"],
+              "answerSchema": {"type": "single-choice", "expected": "B"}
+            },
+            {
+              "number": 3,
+              "lessonId": "set-practice-q03",
+              "hints": [
+                "先分别令两个含参元素等于 1，求出候选值。",
+                "再把候选值代回集合，检查三个元素是否互不相同。"
+              ],
+              "answerSchema": {"type": "single-choice", "expected": "D"}
+            },
+            {
+              "number": 4,
+              "lessonId": "set-practice-q04",
+              "hints": ["令 d=5-a，把分式为正整数转化为 d 是 6 的正因数。"],
+              "answerSchema": {"type": "single-choice", "expected": "D"}
+            },
+            {
+              "number": 5,
+              "lessonId": "set-practice-q05",
+              "hints": ["先讨论 a=0；当 a≠0 时再使用判别式。"],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": ["a=0或a≥9/8", "0∪[9/8,+∞)", "{0}∪[9/8,+∞)", "0或a≥9/8"],
+                "input": {"mode": "math-expression", "placeholder": "填写 a 的取值范围", "keyboard": ["a", "real", "in", "equals", "greater-equal", "union", "set-braces", "brackets", "interval", "comma", "digits", "fraction", "infinity"]}
+              }
+            },
+            {
+              "number": 6,
+              "lessonId": "set-practice-q06",
+              "hints": ["先解方程组，再把有序数对作为一个整体放进集合。"],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": ["{(2,-1)}", "P={(2,-1)}"],
+                "input": {"mode": "math-expression", "placeholder": "用列举法填写集合 P", "keyboard": ["set-braces", "interval", "comma", "digits", "negative", "equals"]}
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -7,6 +7,7 @@ import vm from "node:vm";
 import {
   validateCatalog,
   validateCollections,
+  validateLearningTopics,
 } from "../build-senior-high-library.mjs";
 import { repoRoot } from "./calculus-test-helpers.mjs";
 
@@ -18,6 +19,9 @@ const problemSource = JSON.parse(
 );
 const collectionSource = JSON.parse(
   fs.readFileSync(path.join(repoRoot, "internal/senior-high/catalog/collections.json"), "utf8"),
+);
+const learningTopicSource = JSON.parse(
+  fs.readFileSync(path.join(repoRoot, "internal/senior-high/catalog/learning-topics.json"), "utf8"),
 );
 
 function loadModel() {
@@ -59,6 +63,139 @@ test("validates the real senior-high catalog and its published assets", () => {
   assert.deepEqual(functions.sections[1].collectionIds, [
     "function-representation-foundation",
   ]);
+  const sets = catalog.chapters.find((chapter) => chapter.id === "sets");
+  assert.equal(sets.sections[0].presentation, "learning");
+  assert.equal(sets.sections[0].topicId, "set-concepts-and-representation");
+});
+
+test("builds the set learning topic with three published knowledge modules", () => {
+  const catalog = validateCatalog(chapterSource, problemSource, repoRoot);
+  const topics = validateLearningTopics(catalog, learningTopicSource, repoRoot);
+  assert.equal(topics.length, 1);
+  const topic = topics[0];
+  assert.equal(topic.title, "集合的概念和表示");
+  assert.deepEqual(
+    topic.modules.map((module) => [module.id, module.type, module.status]),
+    [
+      ["set-concept", "knowledge", "published"],
+      ["element-set-relation", "knowledge", "published"],
+      ["set-representation", "knowledge", "published"],
+      ["practice", "assessment", "published"],
+    ],
+  );
+  assert.equal(topic.modules[0].examples.length, 4);
+  assert.equal(topic.modules[1].examples.length, 2);
+  assert.equal(topic.modules[2].examples.length, 25);
+  const ordinalChoice = topic.modules[2].examples.find(
+    (example) => example.lesson.id === "set-representation-enumeration-q03",
+  );
+  assert.deepEqual(
+    [ordinalChoice.answerSchema.type, ordinalChoice.answerSchema.choiceStyle, ordinalChoice.answerSchema.expected],
+    ["single-choice", "ordinal", "③"],
+  );
+  assert.deepEqual(
+    topic.modules[2].knowledgeGroups.map((group) => group.title),
+    ["列举法", "描述法", "区间表示法", "Venn 图法"],
+  );
+  assert.ok(topic.modules[2].examples.every((example) => example.display === "featured"));
+  assert.deepEqual(
+    topic.modules[2].examples
+      .filter((example) => example.answerSchema.type === "multipart-exact")
+      .map((example) => example.lesson.id),
+    [
+      "set-representation-description-q01",
+      "set-representation-description-q14",
+      "set-representation-interval-q01",
+      "set-representation-venn-q04",
+    ],
+  );
+  const naturalLanguageMultipart = topic.modules[2].examples.find(
+    (example) => example.lesson.id === "set-representation-description-q01",
+  );
+  assert.equal(naturalLanguageMultipart.answerSchema.layout, "per-part");
+  const intervalMultipart = topic.modules[2].examples.find(
+    (example) => example.lesson.id === "set-representation-interval-q01",
+  );
+  assert.equal(intervalMultipart.answerSchema.layout, "per-part");
+  assert.equal(intervalMultipart.answerSchema.expected.length, 4);
+  assert.ok(intervalMultipart.answerSchema.expected.every((part) => part.prompt));
+  assert.equal(naturalLanguageMultipart.answerSchema.input.mode, "text");
+  assert.equal(naturalLanguageMultipart.answerSchema.expected.length, 6);
+  assert.ok(naturalLanguageMultipart.answerSchema.expected.every((part) => (
+    part.label && part.promptHtml && part.aliases.length > 0
+  )));
+  assert.equal(naturalLanguageMultipart.answerSchema.expected[2].note, "ℕ 表示自然数集。");
+  assert.deepEqual(
+    topic.modules[1].knowledgeGroups.map((group) => group.title),
+    ["属于与不属于", "数集及其符号"],
+  );
+  assert.deepEqual(
+    topic.modules[1].examples.map((example) => example.answerSchema.type),
+    ["relation-sequence", "single-choice"],
+  );
+  assert.match(
+    topic.modules[1].knowledgeBlocks
+      .flatMap((block) => block.bodyHtml)
+      .join(""),
+    /class="math-notin"/,
+  );
+  assert.deepEqual(
+    topic.modules[0].knowledgeBlocks.map((block) => block.category),
+    ["concept", "concept", "concept", "property", "property", "property"],
+  );
+  assert.deepEqual(
+    topic.modules[0].examples.map((example) => example.answerSchema.type),
+    ["single-choice", "variable-domain", "finite-set-values", "integer"],
+  );
+  assert.deepEqual(
+    topic.modules[0].examples.map((example) => example.group),
+    ["确定性", "互异性", "互异性", "互异性"],
+  );
+  assert.ok(topic.modules[0].examples.every(
+    (example) => example.title && example.hints.length === 2,
+  ));
+  assert.ok(topic.modules[0].examples.slice(1).every(
+    (example) => (
+      example.answerSchema.input.mode === "math-expression"
+      && example.answerSchema.input.keyboard.length > 0
+    ),
+  ));
+  assert.deepEqual(
+    topic.modules[0].examples[1].answerSchema.expected.excludedValues,
+    ["-1", "1/4", "2/3"],
+  );
+  const model = loadModel();
+  const conceptChoiceLine = topic.modules[0].examples[0].lesson.problem.lines[1].html;
+  assert.deepEqual(
+    Array.from(model.splitWorksheetOptions(conceptChoiceLine).options, (option) => option.label),
+    ["A", "B", "C", "D"],
+  );
+  assert.deepEqual(
+    topic.modules[3].items.map((item) => [item.number, item.status]),
+    [[1, "published"], [2, "published"], [3, "published"], [4, "published"], [5, "published"], [6, "published"]],
+  );
+  assert.deepEqual(
+    topic.modules[3].items.map((item) => item.answerSchema.type),
+    ["single-choice", "single-choice", "single-choice", "single-choice", "exact-expression", "exact-expression"],
+  );
+  assert.equal(topic.modules[3].items[2].answerSchema.expected, "D");
+  assert.ok(topic.modules[3].items.every((item) => item.hints.length >= 1));
+  assert.equal(topic.modules[3].items[2].lesson.id, "set-practice-q03");
+  assert.ok(topic.modules[0].examples.every(
+    (example) => example.lesson.solutionPath.startsWith(
+      "problems/senior-high/sets/set-concepts-and-representation/",
+    ),
+  ));
+});
+
+test("rejects an unsupported learning answer schema", () => {
+  const catalog = validateCatalog(chapterSource, problemSource, repoRoot);
+  const invalidTopics = structuredClone(learningTopicSource);
+  invalidTopics.learningTopics[0].modules[0].examples[0].answerSchema.type = "free-text";
+  assert.throws(
+    () => validateLearningTopics(catalog, invalidTopics, repoRoot),
+    /answerSchema\.type 无效/,
+  );
 });
 
 test("builds concept and representation worksheets without answers", () => {
@@ -255,6 +392,36 @@ test("resolves worksheet state without changing the card catalog filters", () =>
   );
 });
 
+test("normalizes direct learning-topic URLs and preserves worksheet URLs", () => {
+  const model = loadModel();
+  const base = validateCatalog(chapterSource, problemSource, repoRoot);
+  const catalog = {
+    ...base,
+    collections: validateCollections(base, collectionSource, repoRoot),
+    learningTopics: validateLearningTopics(base, learningTopicSource, repoRoot),
+  };
+  const conceptState = model.parseSearch(
+    catalog,
+    "?chapter=sets&section=set-concepts-and-representation&module=set-concept",
+  );
+  assert.equal(conceptState.module, "set-concept");
+  assert.equal(model.learningTopicForState(catalog, conceptState).id, "set-concepts-and-representation");
+  assert.equal(model.collectionForState(catalog, conceptState), null);
+
+  const invalidModule = model.parseSearch(
+    catalog,
+    "?chapter=sets&section=set-concepts-and-representation&module=missing",
+  );
+  assert.equal(invalidModule.module, "overview");
+
+  const worksheetState = model.parseSearch(
+    catalog,
+    "?chapter=functions&section=function-representation&collection=function-representation-foundation",
+  );
+  assert.equal(worksheetState.module, "all");
+  assert.equal(model.collectionForState(catalog, worksheetState).id, "function-representation-foundation");
+});
+
 test("splits worksheet choices away from the question stem and stacks long choices", () => {
   const model = loadModel();
   const shortChoices = model.splitWorksheetOptions(
@@ -273,6 +440,122 @@ test("splits worksheet choices away from the question stem and stacks long choic
   assert.equal(longChoices.options.length, 4);
   assert.equal(longChoices.stacked, true);
   assert.match(longChoices.options[1].html, /<sup>2<\/sup>/);
+});
+
+test("splits circled-number choices into an ordinal single-choice group", () => {
+  const model = loadModel();
+  const choices = model.splitOrdinalOptions(
+    '方程组的解集是：① <span>{2,1}</span>；② <span>{x=2,y=1}</span>；③ <span>{(2,1)}</span>；④ <span>{(1,2)}</span>。',
+  );
+  assert.equal(choices.stemHtml, "方程组的解集是：");
+  assert.deepEqual(
+    Array.from(choices.options, (option) => option.label),
+    ["①", "②", "③", "④"],
+  );
+  assert.equal(choices.options[2].html, "<span>{(2,1)}</span>");
+});
+
+test("normalizes integer and fractional learning answers before comparison", () => {
+  const model = loadModel();
+  assert.equal(model.canonicalRational(" 2/4 "), "1/2");
+  assert.equal(model.canonicalRational("−2/-4"), "1/2");
+  assert.equal(model.canonicalRational("6/3"), "2");
+  assert.equal(model.canonicalRational("1/0"), null);
+  assert.equal(model.canonicalRational("sqrt(2)"), null);
+  assert.equal(
+    model.normalizeExactMathExpression("(-∞,4)；{0,1,2,3};ℝ"),
+    "(-∞,4);{0,1,2,3};ℝ",
+  );
+});
+
+test("mobile learning choices switch to a single column before phone widths", () => {
+  const css = fs.readFileSync(
+    path.join(repoRoot, "site/assets/css/senior-high-library.css"),
+    "utf8",
+  );
+  assert.match(
+    css,
+    /@media \(max-width: 720px\)[\s\S]*?\.senior-learning-choice-grid\s*\{\s*grid-template-columns:\s*minmax\(0, 1fr\)/,
+  );
+});
+
+test("parses equivalent set conditions without relying on a fixed field count", () => {
+  const model = loadModel();
+  assert.deepEqual(
+    Array.from(model.parseVariableDomainExclusions("x≠-1，x≠1/4，x≠2/3")),
+    ["-1", "1/4", "2/3"],
+  );
+  assert.deepEqual(
+    Array.from(model.parseVariableDomainExclusions("x∈ℝ∖{-1,2/3,1/4}")),
+    ["-1", "2/3", "1/4"],
+  );
+  assert.deepEqual(
+    Array.from(model.parseVariableDomainExclusions("x∉{-1,1/4,2/3}")),
+    ["-1", "1/4", "2/3"],
+  );
+  assert.equal(model.parseVariableDomainExclusions("x=-1"), null);
+  assert.deepEqual(
+    Array.from(model.parseFiniteSetValues("{2,0,1}")),
+    ["2", "0", "1"],
+  );
+  assert.deepEqual(
+    Array.from(model.parseFiniteSetValues("0，1，2")),
+    ["0", "1", "2"],
+  );
+  assert.deepEqual(
+    Array.from(model.parseRelationSequence("∉，∈，∉，∈，∉，∈，∈")),
+    ["∉", "∈", "∉", "∈", "∉", "∈", "∈"],
+  );
+  assert.deepEqual(
+    Array.from(model.parseRelationSequence("\\notin,\\in,\\notin")),
+    ["∉", "∈", "∉"],
+  );
+  assert.equal(model.parseRelationSequence("∈，不属于"), null);
+});
+
+test("relation-sequence exercises render answer slots inside the problem text", () => {
+  const runtime = fs.readFileSync(
+    path.join(repoRoot, "site/assets/js/senior-high-library.js"),
+    "utf8",
+  );
+  assert.match(runtime, /data-relation-slot/);
+  assert.match(runtime, /data-relation-key="∈"/);
+  assert.match(runtime, /data-relation-key="∉"/);
+  assert.doesNotMatch(
+    runtime,
+    /schema\.type === "relation-sequence"[\s\S]{0,300}<textarea/,
+  );
+});
+
+test("multipart natural-language exercises render one field per subquestion", () => {
+  const runtime = fs.readFileSync(
+    path.join(repoRoot, "site/assets/js/senior-high-library.js"),
+    "utf8",
+  );
+  assert.match(runtime, /schema\.type === "multipart-exact" && schema\.layout === "per-part"/);
+  assert.match(runtime, /class="senior-learning-multipart-row"/);
+  assert.match(runtime, /data-answer-index="\$\{index\}"/);
+  assert.match(runtime, /提交全部答案/);
+  assert.match(runtime, /还有（\$\{missing\.join\("）（"\)\}）未作答/);
+  assert.match(runtime, /class="senior-learning-symbol-note-button"/);
+  assert.match(runtime, /aria-describedby="learning-symbol-note-/);
+  assert.match(runtime, /schema\.input\.mode === "math-expression"/);
+  assert.match(runtime, /partResults\.length.*个小题全部回答正确/);
+});
+
+test("learning page keeps compact exercise anchors and the shared back-to-top control", () => {
+  const runtime = fs.readFileSync(
+    path.join(repoRoot, "site/assets/js/senior-high-library.js"),
+    "utf8",
+  );
+  const page = fs.readFileSync(
+    path.join(repoRoot, "site/senior-high/index.html"),
+    "utf8",
+  );
+  assert.match(runtime, /<span>对应练习<\/span>/);
+  assert.doesNotMatch(runtime, /去做对应练习/);
+  assert.match(page, /class="back-to-top"/);
+  assert.match(page, /assets\/js\/home\.js/);
 });
 
 test("sorts and filters future catalog entries without changing classification", () => {

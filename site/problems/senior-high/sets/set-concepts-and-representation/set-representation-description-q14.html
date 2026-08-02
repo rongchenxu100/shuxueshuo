@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>研究变换封闭的有限集合 | 数学说</title>
+  <meta name="description" content="描述法专题：研究变换封闭的有限集合。" />
+  <meta property="og:title" content="研究变换封闭的有限集合 | 数学说" />
+  <meta property="og:description" content="描述法专题：研究变换封闭的有限集合。" />
+  <meta property="og:image" content="../../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css?v=6" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../../senior-high/index.html?chapter=sets&section=set-concepts-and-representation&module=set-representation">集合的表示</a>
+    <span class="lesson-title">集合的表示 · 研究变换封闭的有限集合</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          <div class="problem-full">
+            <div class="problem-line"><span>设集合 A 由实数组成，并满足：若 <span class="inline-math">x∈ A</span>（<span class="inline-math">x≠0,1</span>），则 <span class="inline-math"><span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">1-x</span></span>∈ A</span>。</span></div>
+<div class="problem-line"><span>（1）若 <span class="inline-math">2∈ A</span>，证明 A 中还有另外两个元素；（2）A 是否可能为双元素集合；（3）若 A 中元素不超过 8 个，元素和为 <span class="inline-math"><span class="math-fraction"><span class="math-numerator">14</span><span class="math-denominator">3</span></span></span>，且某个元素的平方等于所有元素的积，求 A。</span><span class="answer-chip" id="answerI">答案：（1）<span class="inline-math">{-1,1/2}</span>；（2）<span class="inline-math">否</span>；（3）<span class="inline-math">{-1,-1/2,1/2,2/3,2,3}</span></span></div>
+          </div>
+        </section>
+
+        <aside class="lesson-key-points" aria-label="解题要点"><div class="lesson-key-points-title">解题要点</div><div class="lesson-key-points-content"><p class="lesson-key-points-lead">连续施加变换 f(x)=1/(1-x)，第三次会回到 x。</p><ol><li>每 3 个数构成一个循环组；有限集合由若干个这样的三元素循环组组成。</li></ol></div></aside>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../../assets/js/lesson-page-runtime.js?v=6"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"s1","section":"描述法","title":"列表观察三步循环","t":0,"showDiagram":false,"table":{"headers":["施加变换的次数","得到的数"],"rows":[["0","\\(x\\)"],["1","\\(f(x)=\\frac{1}{1-x}\\)"],["2","\\(f^2(x)=\\frac{x-1}{x}\\)"],["3","\\(f^3(x)=x\\)"]]},"reasoning":[{"kind":"because","text":"令 \\(f(x)=\\frac{1}{1-x}\\)，集合 \\(A\\) 对变换 \\(f\\) 封闭"},{"kind":"therefore","text":"若 \\(x\\in A\\)，则 \\(f(x)=\\frac{1}{1-x}\\in A\\)，且 \\(f^2(x)=\\frac{x-1}{x}\\in A\\)"},{"kind":"because","text":"\\(f^3(x)=x\\)，且方程 \\(f(x)=x\\) 在实数范围内无解"},{"kind":"therefore","text":"\\(x,f(x),f^2(x)\\) 是 3 个不同的数，并且每 3 个数构成一个循环组"},{"kind":"because","text":"取 \\(x=2\\)"},{"kind":"therefore","text":"\\(f(2)=-1\\)，\\(f(-1)=\\frac{1}{2}\\)，所以 \\(A\\) 中还有 \\(-1,\\frac{1}{2}\\)"},{"kind":"because","text":"有限集合中的元素按每 3 个数一个循环组出现"},{"kind":"therefore","text":"\\(|A|\\) 是 3 的倍数，因此 \\(A\\) 不可能是双元素集合"}],"derive":[["\\(f(x)=\\frac{1}{1-x}\\)","\\(f^2(x)=\\frac{x-1}{x}\\)"],["\\(f^3(x)\\)","\\(x\\)"],["结论","每 3 个数构成一个循环组"]]},{"id":"s2","section":"描述法","title":"列表确定两个循环组","t":1,"showDiagram":false,"table":{"headers":["循环组","三个元素","元素和","元素积"],"rows":[["包含 2 的循环组","\\(\\{2,-1,\\frac{1}{2}\\}\\)","\\(\\frac{3}{2}\\)","-1"],["另一个循环组","\\(\\{-\\frac{1}{2},\\frac{2}{3},3\\}\\)","\\(\\frac{19}{6}\\)","-1"],["合并","6 个元素","\\(\\frac{14}{3}\\)","1"]]},"reasoning":[{"kind":"because","text":"每个三元素循环组的元素之积为 \\(-1\\)，而题设说某个元素的平方等于 \\(A\\) 中所有元素的积"},{"kind":"therefore","text":"循环组的个数必须为偶数；又因为 \\(|A|\\le8\\)，所以 \\(A\\) 恰含 2 个循环组，共 6 个元素"},{"kind":"because","text":"此时所有元素的积为 \\(1\\)，故题设中的那个元素满足 \\(u^2=1\\)"},{"kind":"therefore","text":"\\(u=-1\\)，包含 \\(-1\\) 的循环组为 \\(\\{-1,\\frac{1}{2},2\\}\\)"},{"kind":"because","text":"第一个循环组的元素和为 \\(\\frac{3}{2}\\)，而 \\(A\\) 中所有元素的和为 \\(\\frac{14}{3}\\)"},{"kind":"therefore","text":"第二个循环组的元素和为 \\(\\frac{14}{3}-\\frac{3}{2}=\\frac{19}{6}\\)"},{"kind":"because","text":"任一循环组可写成 \\(p=x,q=\\frac{1}{1-x},r=\\frac{x-1}{x}\\)，直接通分可得 \\(pqr=-1\\)，且 \\((p+q+r)-(pq+qr+rp)=3\\)"},{"kind":"therefore","text":"设第二个循环组的三个元素为 \\(p,q,r\\)，则 \\(pq+qr+rp=p+q+r-3\\)"},{"kind":"therefore","text":"\\(p+q+r=\\frac{19}{6}\\)，\\(pq+qr+rp=\\frac{1}{6}\\)，\\(pqr=-1\\)"},{"kind":"because","text":"以 \\(p,q,r\\) 为根的三次方程为 \\(t^3-\\frac{19}{6}t^2+\\frac{1}{6}t+1=0\\)"},{"kind":"therefore","text":"\\(6t^3-19t^2+t+6=(t-3)(2t+1)(3t-2)=0\\)"},{"kind":"therefore","text":"\\(t=3,-\\frac{1}{2},\\frac{2}{3}\\)，所以第二个循环组是 \\(\\{-\\frac{1}{2},\\frac{2}{3},3\\}\\)"},{"kind":"therefore","text":"\\(A=\\{-1,-\\frac{1}{2},\\frac{1}{2},\\frac{2}{3},2,3\\}\\)"}],"derive":[["含 2 的循环组","\\(\\{2,-1,\\frac{1}{2}\\}\\)"],["第二个循环组","\\(\\{-\\frac{1}{2},\\frac{2}{3},3\\}\\)"],["结论","\\(A=\\{-1,-\\frac{1}{2},\\frac{1}{2},\\frac{2}{3},2,3\\}\\)"]]}];
+    var STEP_LABELS = {"s1":"1 列表观察三步循环","s2":"2 列表确定两个循环组"};
+    var POLICIES   = {"s1":{"movable":false,"range":[0,0]},"s2":{"movable":false,"range":[1,1]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 滑块主参数与派生参数的联动文案格式化器 */
+    var __LESSON_PARAM_LABEL_FORMATTER__;
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script>
+  function diagramMarkupFor() { return ''; }
+  function diagramMarkupForFrame() { return ''; }
+  function drawMini() { return ''; }
+  function groupTitle(section) { return section; }
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      diagramMarkupForFrame: typeof diagramMarkupForFrame === "function" ? diagramMarkupForFrame : undefined,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "参数",
+      paramLabelPrefix: "",
+      paramLabelFormatter: typeof __LESSON_PARAM_LABEL_FORMATTER__ === "function" ? __LESSON_PARAM_LABEL_FORMATTER__ : undefined,
+      goToProblemMode: "doubleScroll"
+    });
+  </script>
+</body>
+</html>

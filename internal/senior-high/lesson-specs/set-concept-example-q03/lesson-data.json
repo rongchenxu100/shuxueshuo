@@ -1,0 +1,117 @@
+{
+  "meta": {
+    "id": "set-concept-example-q03",
+    "outputPath": "site/problems/senior-high/sets/set-concepts-and-representation/set-concept-example-q03.html",
+    "pageTitle": "方程根集可能含有几个元素",
+    "pageDescription": "先讨论二次项系数为零，再用判别式判断根集元素个数。",
+    "breadcrumbTitle": "集合的概念 · 例题 3",
+    "breadcrumbLabel": "集合的概念",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=set-concepts-and-representation&module=set-concept"
+  },
+  "problem": {
+    "source": "培训教材 · 集合的概念",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "含参数的二次方程不一定始终是二次方程。",
+      "items": [
+        "先讨论 \\(a=0\\) 时方程退化为一次方程；",
+        "当 \\(a\\ne0\\) 时，再根据判别式判断实根个数。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "已知方程 \\(ax^2-2x+1=0\\)，由方程的实根构成的集合中，可能有几个元素？"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "分类讨论",
+      "title": "先处理退化的一次方程",
+      "t": 0,
+      "showDiagram": false,
+      "derive": [
+        [
+          "当 \\(a=0\\)",
+          "方程化为 \\(-2x+1=0\\)，有一个实根，根集有 1 个元素"
+        ]
+      ]
+    },
+    {
+      "id": "s2",
+      "section": "分类讨论",
+      "title": "再用判别式判断二次方程",
+      "t": 0,
+      "showDiagram": false,
+      "table": {
+        "caption": "\\(a\\ne0\\) 时按判别式分类",
+        "headers": [
+          "参数条件",
+          "实根情况",
+          "根集元素个数"
+        ],
+        "rows": [
+          [
+            "\\(a<1\\)",
+            "两个不同实根",
+            "2"
+          ],
+          [
+            "\\(a=1\\)",
+            "两个相等实根",
+            "1"
+          ],
+          [
+            "\\(a>1\\)",
+            "没有实根",
+            "0"
+          ]
+        ]
+      },
+      "derive": [
+        [
+          "当 \\(a\\ne0\\)",
+          "\\(\\Delta=(-2)^2-4a=4-4a\\)"
+        ],
+        [
+          "\\(a<1\\)",
+          "在 \\(a\\ne0\\) 的前提下有两个不同实根，根集有 2 个元素"
+        ],
+        [
+          "\\(a=1\\)",
+          "有两个相等实根，集合去重后只有 1 个元素"
+        ],
+        [
+          "\\(a>1\\)",
+          "没有实根，根集为空集，有 0 个元素"
+        ],
+        [
+          "结论",
+          "根集可能有 \\(0,1,2\\) 个元素"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    },
+    "s2": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 讨论 a=0",
+    "s2": "2 讨论 a≠0"
+  }
+}

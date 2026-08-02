@@ -1,0 +1,102 @@
+{
+  "meta": {
+    "id": "set-practice-q05",
+    "outputPath": "site/problems/senior-high/sets/set-concepts-and-representation/set-practice-q05.html",
+    "pageTitle": "实战练习 5：根集至多含一个元素",
+    "pageDescription": "讨论二次项系数为零与非零两种情况，求根集至多含一个元素时的参数范围。",
+    "breadcrumbTitle": "集合实战练习 · 第 5 题",
+    "breadcrumbLabel": "实战练习",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=set-concepts-and-representation&module=practice"
+  },
+  "problem": {
+    "source": "培训教材 · 实战演练",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "“至多一个元素”包括一个元素和空集。",
+      "items": [
+        "先单独检查 \\(a=0\\) 时的一次方程；",
+        "当 \\(a\\ne0\\) 时，根集至多一个元素等价于判别式不大于零。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "已知集合 \\(A=\\{x\\mid ax^2-3x+2=0\\}\\) 至多有一个元素，则 \\(a\\) 的取值范围是______。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "退化情形",
+      "title": "先检查 a=0",
+      "t": 0,
+      "showDiagram": false,
+      "reasoning": [
+        {"kind": "because", "text": "当 \\(a=0\\) 时，原方程化为 \\(-3x+2=0\\)"},
+        {"kind": "therefore", "text": "方程只有一个实根 \\(x=\\frac{2}{3}\\)，所以 \\(a=0\\) 符合题意"}
+      ],
+      "derive": [
+        [
+          "当 \\(a=0\\)",
+          "方程为 \\(-3x+2=0\\)，只有一个实根"
+        ],
+        [
+          "所以",
+          "\\(a=0\\) 满足集合至多有一个元素"
+        ]
+      ]
+    },
+    {
+      "id": "s2",
+      "section": "二次方程",
+      "title": "当 a≠0 时使用判别式",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "number-line-practice-parameter",
+        "ariaLabel": "数轴上标出孤立点 0 和从九分之八开始向右的闭射线"
+      },
+      "reasoning": [
+        {"kind": "because", "text": "当 \\(a\\ne0\\) 时，原方程是关于 \\(x\\) 的二次方程"},
+        {"kind": "therefore", "text": "根集至多有一个元素，当且仅当 \\(\\Delta=9-8a\\le0\\)"},
+        {"kind": "therefore", "text": "\\(a\\ge\\frac{9}{8}\\)"},
+        {"kind": "therefore", "text": "结合 \\(a=0\\)，取值范围为 \\(\\{0\\}∪[\\frac{9}{8},+∞)\\)"}
+      ],
+      "derive": [
+        [
+          "判别式",
+          "\\(\\Delta=(-3)^2-4a\\cdot2=9-8a\\)"
+        ],
+        [
+          "至多一根",
+          "\\(\\Delta\\le0\\)，所以 \\(a\\ge\\frac{9}{8}\\)"
+        ],
+        [
+          "结论",
+          "\\(a=0\\) 或 \\(a\\ge\\frac{9}{8}\\)"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    },
+    "s2": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 讨论 a=0",
+    "s2": "2 讨论 a≠0"
+  }
+}

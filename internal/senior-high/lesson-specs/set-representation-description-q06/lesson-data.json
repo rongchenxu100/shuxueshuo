@@ -1,0 +1,80 @@
+{
+  "meta": {
+    "id": "set-representation-description-q06",
+    "outputPath": "site/problems/senior-high/sets/set-concepts-and-representation/set-representation-description-q06.html",
+    "pageTitle": "列举满足条件的有序数对",
+    "pageDescription": "描述法专题：列举满足条件的有序数对。",
+    "breadcrumbTitle": "集合的表示 · 列举满足条件的有序数对",
+    "breadcrumbLabel": "集合的表示",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=set-concepts-and-representation&module=set-representation"
+  },
+  "problem": {
+    "source": "培训教材 · 集合的表示",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "代表元素是有序数对 (x,y)，不能只列出 x 或 y。",
+      "items": [
+        "按 x=1,2,3 依次计算对应的 y。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "用列举法表示集合 \\(\\{(x,y)\\mid y=2x, x\\in\\mathbb N, 1\\le x<4\\}\\)。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "描述法",
+      "title": "逐个生成有序数对",
+      "t": 0,
+      "showDiagram": false,
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "\\(x\\in\\mathbb N\\)，且 \\(1\\le x<4\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(x=1,2,3\\)"
+        },
+        {
+          "kind": "because",
+          "text": "\\(y=2x\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "对应的有序数对依次为 \\((1,2),(2,4),(3,6)\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "所求集合为 \\(\\{(1,2),(2,4),(3,6)\\}\\)"
+        }
+      ],
+      "derive": [
+        [
+          "\\(x=1,2,3\\)",
+          "\\(y=2,4,6\\)"
+        ],
+        [
+          "结论",
+          "\\(\\{(1,2),(2,4),(3,6)\\}\\)"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 逐个生成有序数对"
+  }
+}
