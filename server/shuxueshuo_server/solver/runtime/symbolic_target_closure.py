@@ -89,7 +89,9 @@ def solve_target_symbol_closure(
                 residual_symbols=residual_symbols,
             )
         expression_dependencies = set(target_expression.free_symbols)
-        if not expression_dependencies.issubset(set(residual_symbols)):
+        if not expression_dependencies.issubset(
+            set(residual_symbols) | preserved
+        ):
             return TargetSymbolClosureResult(
                 "underdetermined",
                 target,
@@ -97,21 +99,39 @@ def solve_target_symbol_closure(
                     (*residual_symbols, *expression_dependencies)
                 ),
             )
+        residual_symbols = _ordered_symbols(
+            (*residual_symbols, *expression_dependencies)
+        )
         solve_symbols = tuple(
             symbol for symbol in residual_symbols if symbol not in preserved
         )
 
     if not solve_symbols:
-        if target_expression is None or target_expression.free_symbols:
+        if target_expression is None:
             return TargetSymbolClosureResult(
                 "underdetermined",
                 target,
                 residual_symbols=residual_symbols,
             )
+        target_value = sp.simplify(target_expression)
+        if not target_value.free_symbols.issubset(preserved):
+            return TargetSymbolClosureResult(
+                "underdetermined",
+                target,
+                residual_symbols=residual_symbols,
+            )
+        if accept_target is not None and not accept_target(target_value):
+            return TargetSymbolClosureResult(
+                "underdetermined",
+                target,
+                residual_symbols=residual_symbols,
+                branch_count=1,
+            )
         return TargetSymbolClosureResult(
             "unique",
             target,
-            target_value=sp.simplify(target_expression),
+            target_value=target_value,
+            residual_symbols=residual_symbols,
             branch_count=1,
         )
 

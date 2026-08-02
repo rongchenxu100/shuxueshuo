@@ -162,10 +162,13 @@ class SymbolicClosureSpec:
     target_arg: str
     equation_builder: str
     known_substitutions: tuple[tuple[str, str], ...] = ()
+    known_mapping_args: tuple[str, ...] = ()
     representation_mapper: str | None = None
+    constraint_filter: str | None = None
     constraint_args: tuple[str, ...] = ()
     preserved_symbol_args: tuple[str, ...] = ()
     substitution_outputs: tuple[str, ...] = ()
+    output_validator: str | None = None
     require_unique_target: bool = True
 
     def to_payload(self) -> dict[str, Any]:
@@ -175,6 +178,7 @@ class SymbolicClosureSpec:
             "known_substitutions": [
                 list(item) for item in self.known_substitutions
             ],
+            "known_mapping_args": list(self.known_mapping_args),
             "constraint_args": list(self.constraint_args),
             "preserved_symbol_args": list(self.preserved_symbol_args),
             "substitution_outputs": list(self.substitution_outputs),
@@ -182,6 +186,10 @@ class SymbolicClosureSpec:
         }
         if self.representation_mapper is not None:
             payload["representation_mapper"] = self.representation_mapper
+        if self.constraint_filter is not None:
+            payload["constraint_filter"] = self.constraint_filter
+        if self.output_validator is not None:
+            payload["output_validator"] = self.output_validator
         return payload
 
 

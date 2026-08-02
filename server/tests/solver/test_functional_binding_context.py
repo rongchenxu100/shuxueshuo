@@ -44,14 +44,17 @@ from shuxueshuo_server.solver.runtime.strategy_payload import (
 )
 
 
-def _reconcile(case_id: str):
+def _reconcile(case_id: str, payload: dict | None = None):
     case = FUNCTIONAL_BATCH_CASES[case_id]
     problem = load_problem_ir(case.problem_fixture_path)
     inputs = build_strategy_probe_inputs(problem)
     problem_payload = problem_to_llm_payload(problem)
     registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    payload = payload or json.loads(
+        case.functional_fixture_path.read_text(encoding="utf-8")
+    )
     plan, validation = FunctionalPlanValidator().validate_payload_with_report(
-        json.loads(case.functional_fixture_path.read_text(encoding="utf-8")),
+        payload,
         handle_registry=registry,
         question_goals=inputs.question_goals,
     )
@@ -234,6 +237,93 @@ def test_post_compile_binding_audit_checks_actual_target_and_source_path() -> No
     assert "runtime_target_not_consumed" in missing_target.mismatches[0][
         "details"
     ]
+
+    optional_missing = audit_compiled_functional_arg_consumption(
+        (
+            replace(
+                binding,
+                runtime_input_targets=("method.missing",),
+                consumption_mode="compiler_selector",
+                runtime_input_required=False,
+            ),
+        ),
+        (plan,),
+        expected_runtime_paths={binding.key: None},
+    )
+    assert not optional_missing.mismatches
+    assert optional_missing.decisions[0]["matches"] is True
+    assert optional_missing.decisions[0]["actual_runtime_paths"] == []
+
+    required_compiler_missing = audit_compiled_functional_arg_consumption(
+        (
+            replace(
+                binding,
+                runtime_input_targets=("method.missing",),
+                consumption_mode="compiler_selector",
+                runtime_input_required=True,
+            ),
+        ),
+        (plan,),
+        expected_runtime_paths={binding.key: None},
+    )
+    assert required_compiler_missing.mismatches[0]["details"] == [
+        "runtime_target_not_consumed"
+    ]
+
+
+def test_optional_compiler_selector_requiredness_comes_from_contract() -> None:
+    result, _catalog = _reconcile("heping-ermo")
+    context = result.functional_binding_context
+    assert context is not None
+
+    bindings = tuple(
+        item
+        for item in context.bindings
+        if item.key.arg_name == "parameter_constraint"
+        and item.binding_authority == "compiler"
+    )
+
+    assert bindings
+    assert all(item.runtime_input_required is False for item in bindings)
+
+
+def test_curve_points_use_declared_scalar_lowering_targets() -> None:
+    result, _catalog = _reconcile("nankai")
+    context = result.functional_binding_context
+    assert context is not None
+
+    bindings = tuple(
+        item
+        for item in context.for_call("ii_derive_parabola")
+        if item.key.arg_name == "curve_points"
+    )
+
+    assert [item.runtime_input_targets for item in bindings] == [
+        ("curve_points",),
+        ("curve_points",),
+    ]
+
+    case = FUNCTIONAL_BATCH_CASES["heping"]
+    payload = json.loads(
+        case.functional_fixture_path.read_text(encoding="utf-8")
+    )
+    call = next(
+        item
+        for scope in payload["scopes"]
+        for item in scope["calls"]
+        if item["call_id"] == "derive_parabola_i"
+    )
+    call["args"]["curve_points"] = call["args"]["curve_points"][:1]
+    singleton, _catalog = _reconcile("heping", payload)
+    singleton_context = singleton.functional_binding_context
+    assert singleton_context is not None
+    singleton_binding = singleton_context.binding_for(
+        "derive_parabola_i",
+        "curve_points",
+        0,
+    )
+    assert singleton_binding is not None
+    assert singleton_binding.runtime_input_targets == ("curve_point",)
 
 
 def test_semantic_latest_and_call_result_exact_are_part_of_binding() -> None:

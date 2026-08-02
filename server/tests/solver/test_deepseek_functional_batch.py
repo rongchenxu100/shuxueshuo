@@ -4,10 +4,15 @@ import json
 from pathlib import Path
 from types import SimpleNamespace
 
-from _functional_opt_in_support import _assert_prompt_is_functional_and_safe
+from _functional_opt_in_support import (
+    _attempt_symbolic_closure_counts,
+    _assert_prompt_is_functional_and_safe,
+    _functional_replay_declares_symbolic_target,
+)
 
 from shuxueshuo_server.solver.deepseek_functional_batch import (
     FUNCTIONAL_BATCH_CASES,
+    _apply_symbolic_closure_activity_gate,
     aggregate_batch_summaries,
     _answer_signature,
     _case_metrics,
@@ -16,6 +21,49 @@ from shuxueshuo_server.solver.deepseek_functional_batch import (
     _llm_summary,
     main,
 )
+
+
+def test_authoritative_batch_requires_active_symbolic_closure() -> None:
+    summary = {
+        "functional_symbolic_closure_mode": "authoritative",
+        "symbolic_closure_execution_count": 0,
+        "active_gate_passed": True,
+    }
+
+    _apply_symbolic_closure_activity_gate(summary)
+
+    assert summary["symbolic_closure_activity_gate_required"] is True
+    assert summary["symbolic_closure_activity_gate_passed"] is False
+    assert summary["active_gate_passed"] is False
+
+    summary["symbolic_closure_execution_count"] = 1
+    summary["active_gate_passed"] = True
+    _apply_symbolic_closure_activity_gate(summary)
+    assert summary["symbolic_closure_activity_gate_passed"] is True
+    assert summary["active_gate_passed"] is True
+
+
+def test_symbolic_closure_counts_include_failed_attempt_artifacts(
+    tmp_path: Path,
+) -> None:
+    for attempt, execution_count, drift_count in (
+        (1, 2, 0),
+        (2, 1, 1),
+    ):
+        payload = {
+            "state": {
+                "functional_transaction_execution": {
+                    "symbolic_closure_execution_count": execution_count,
+                    "symbolic_closure_drift_count": drift_count,
+                }
+            }
+        }
+        (tmp_path / f"attempt-{attempt}.planner-state-context.json").write_text(
+            json.dumps(payload),
+            encoding="utf-8",
+        )
+
+    assert _attempt_symbolic_closure_counts(tmp_path) == (3, 1, True)
 
 
 def test_prompt_metadata_guard_allows_capability_prefixed_by_example_id() -> None:
@@ -124,6 +172,72 @@ def test_batch_dry_run_records_transaction_shadow_mode(
 
     payload = json.loads(capsys.readouterr().out)
     assert payload["functional_transaction_mode"] == "execution_shadow"
+
+
+def test_batch_dry_run_records_symbolic_closure_mode(
+    tmp_path: Path,
+    capsys,
+) -> None:
+    assert main(
+        [
+            "--samples",
+            "1",
+            "--batch-id",
+            "batch-c4",
+            "--output-root",
+            str(tmp_path),
+            "--functional-transaction-mode",
+            "context_authoritative",
+            "--functional-symbolic-closure-mode",
+            "authoritative",
+            "--dry-run",
+        ]
+    ) == 0
+
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["functional_transaction_mode"] == "context_authoritative"
+    assert payload["functional_symbolic_closure_mode"] == "authoritative"
+
+
+def test_symbolic_closure_smoke_gate_only_requires_declared_target(
+    monkeypatch,
+) -> None:
+    closure = SimpleNamespace(target_arg="target_parameter")
+    capability = SimpleNamespace(source=SimpleNamespace(symbolic_closure=closure))
+    catalog = SimpleNamespace(get=lambda capability_id: capability)
+    monkeypatch.setattr(
+        "_functional_opt_in_support."
+        "FunctionalCapabilityCatalog.from_family_spec",
+        lambda family_spec, method_specs: catalog,
+    )
+    inputs = SimpleNamespace(family_spec=object(), method_specs=object())
+
+    active = SimpleNamespace(
+        functional_reconciliation=SimpleNamespace(
+            calls=(
+                SimpleNamespace(
+                    capability_id="quadratic_from_constraints",
+                    resolved_args={"target_parameter": object()},
+                ),
+            )
+        )
+    )
+    inactive = SimpleNamespace(
+        functional_reconciliation=SimpleNamespace(
+            calls=(
+                SimpleNamespace(
+                    capability_id="quadratic_from_constraints",
+                    resolved_args={"target_parameter": None},
+                ),
+            )
+        )
+    )
+
+    assert _functional_replay_declares_symbolic_target(active, inputs=inputs)
+    assert not _functional_replay_declares_symbolic_target(
+        inactive,
+        inputs=inputs,
+    )
 
 
 def test_batch_summary_reads_attempt_errors_and_usage(tmp_path: Path) -> None:
@@ -241,6 +355,30 @@ def test_configuration_or_fingerprint_drift_blocks_parity_gate() -> None:
 
     assert metrics["compatible"] is False
     assert metrics["configuration_error_count"] == 1
+    assert metrics["stage1_gate_passed"] is False
+
+
+def test_typed_transactional_configuration_error_blocks_parity_gate() -> None:
+    results = [
+        _sample_result(
+            "sample-01",
+            "failed",
+            2,
+            errors=[
+                {
+                    "stage": "planner",
+                    "code": "planner.transactional_configuration_error",
+                    "message": "typed binding drift",
+                    "retryable": False,
+                }
+            ],
+        )
+    ]
+
+    metrics = _case_metrics(results, max_attempts=3)
+
+    assert metrics["configuration_error_count"] == 1
+    assert metrics["compatible"] is True
     assert metrics["stage1_gate_passed"] is False
 
 

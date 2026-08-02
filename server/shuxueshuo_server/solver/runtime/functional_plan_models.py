@@ -294,6 +294,8 @@ class FunctionalCapabilityReturn:
             "type": self.runtime_type,
             "binding": self.binding_mode,
         }
+        if _is_aggregate_return_type(self.runtime_type):
+            payload["value_cardinality"] = "aggregate"
         if not self.required:
             payload["required"] = False
         if self.cardinality != "one":
@@ -301,6 +303,7 @@ class FunctionalCapabilityReturn:
         description = _joined_description(
             self.description,
             self.result_form_description,
+            _aggregate_return_binding_description(self),
         )
         if description:
             payload["desc"] = description
@@ -456,12 +459,50 @@ def _prompt_return_binding(result: FunctionalCapabilityReturn) -> str:
     if result.identity_policy == "derived_role":
         return "internal_only"
     if result.identity_policy == "preserve_input_object":
+        if _is_aggregate_return_type(result.runtime_type):
+            return (
+                f"aggregate_elements_same_object_as:{result.identity_arg}"
+                if result.identity_arg
+                else "aggregate_elements_same_input_object"
+            )
         return (
             f"same_object_as:{result.identity_arg}"
             if result.identity_arg
             else "same_input_object"
         )
     return "answer_or_existing_object"
+
+
+def _is_aggregate_return_type(runtime_type: str) -> bool:
+    return runtime_type in {"Coefficients", "PointList", "SymbolList"}
+
+
+def _aggregate_return_binding_description(
+    result: FunctionalCapabilityReturn,
+) -> str:
+    if not _is_aggregate_return_type(result.runtime_type):
+        return ""
+    identity_note = (
+        f"列表元素保持 {result.identity_arg} 的对象身份；"
+        if (
+            result.identity_policy == "preserve_input_object"
+            and result.identity_arg
+        )
+        else ""
+    )
+    if result.return_binding == "internal_only" or (
+        result.identity_policy == "derived_role"
+    ):
+        return (
+            f"返回值是一个整体的 {result.runtime_type} 聚合值，不是单个对象。"
+            f"{identity_note}该 return 是 internal_only，不能设置 return binding。"
+        )
+    return (
+        f"返回值是一个整体的 {result.runtime_type} 聚合值，不是单个对象。"
+        f"{identity_note}若绑定 required answer，必须使用 answer 类型的 binding 且 "
+        f"value_type={result.runtime_type}；不得绑定为单个对象。"
+    )
+
 
 @dataclass(frozen=True)
 class ResolvedFunctionalValue:

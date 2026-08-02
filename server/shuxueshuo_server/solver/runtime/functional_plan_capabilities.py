@@ -47,6 +47,9 @@ from shuxueshuo_server.solver.runtime.functional_reconciliation_validators impor
 from shuxueshuo_server.solver.runtime.functional_repair_feedback import (
     validate_capability_repair_feedback_provider_ids,
 )
+from shuxueshuo_server.solver.runtime.symbolic_closure_execution import (
+    validate_symbolic_closure_spec,
+)
 from shuxueshuo_server.solver.runtime.state_identity_constraints import (
     validate_state_identity_constraint_specs,
 )
@@ -248,6 +251,23 @@ class FunctionalCapabilityCatalog:
         )
         for capability in self.items.values():
             _ = capability.goal_type
+            symbolic_closure = getattr(
+                capability.source,
+                "symbolic_closure",
+                None,
+            )
+            if symbolic_closure is not None:
+                validate_symbolic_closure_spec(
+                    symbolic_closure,
+                    input_types={
+                        item.name: item.runtime_type
+                        for item in capability.source.args
+                    },
+                    output_types={
+                        item.name: item.runtime_type
+                        for item in capability.source.returns
+                    },
+                )
             validate_reconciliation_validator_ids(
                 capability.reconciliation_validators
             )

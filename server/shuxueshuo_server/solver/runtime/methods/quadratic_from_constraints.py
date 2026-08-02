@@ -190,6 +190,8 @@ class QuadraticFromConstraintsMethod:
                 if symbol in coefficients
             },
         }
+        if target_parameter is not None and result.target_value is not None:
+            values[target_parameter] = sp.simplify(result.target_value)
         parabola = result.parabola
         checks = _build_checks(
             kernel,
@@ -247,6 +249,24 @@ def _raise_constraint_failure(
             "function.constraints_ambiguous: "
             f"branch_count={result.branch_count}; 二次函数约束不能唯一确定缺失系数"
         )
+    if target_parameter is not None and result.target_value is not None:
+        unexpected_target_dependencies = (
+            set(sp.sympify(result.target_value).free_symbols)
+            - explicit_free_symbols
+        )
+        if unexpected_target_dependencies:
+            names = ", ".join(
+                sorted(
+                    symbol.name
+                    for symbol in unexpected_target_dependencies
+                )
+            )
+            raise ValueError(
+                "function.constraints_underdetermined: "
+                f"target={target_parameter.name}, "
+                f"undeclared_dependencies={names}; "
+                "目标参数依赖未声明的自由符号"
+            )
     if target_parameter is not None and result.target_value is None:
         equation_symbols = {
             symbol
@@ -537,12 +557,14 @@ SPEC = MethodSpecSource(
         equation_builder="quadratic_constraints",
         representation_mapper="polynomial_coefficient_template",
         known_substitutions=(("parameter", "parameter_value"),),
+        known_mapping_args=("known_coefficients",),
         preserved_symbol_args=("free_parameter", "free_parameters"),
         substitution_outputs=(
             "coefficients",
             "parabola",
             "parameter_value",
         ),
+        output_validator="quadratic_closure_outputs",
     ),
     explanation=MethodExplanationSpec(
         role_schema={

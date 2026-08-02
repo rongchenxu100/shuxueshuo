@@ -386,6 +386,31 @@ def test_aggregate_return_cardinality_issue_explains_expected_binding() -> None:
     assert "PointList" in issue.details["repair_guidance"]
 
 
+def test_aggregate_return_catalog_separates_element_identity_from_binding() -> None:
+    inputs, _, _, _ = _heping_ermo_case()
+    catalog = FunctionalCapabilityCatalog.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
+    )
+    capability = catalog.get("point_candidates_from_curve_point_condition")
+    assert capability is not None
+
+    result = next(
+        item
+        for item in capability.to_prompt_payload()["returns"]
+        if item["name"] == "candidates"
+    )
+
+    assert result["type"] == "PointList"
+    assert result["value_cardinality"] == "aggregate"
+    assert result["binding"] == (
+        "aggregate_elements_same_object_as:target_point"
+    )
+    assert "answer 类型的 binding" in result["desc"]
+    assert "value_type=PointList" in result["desc"]
+    assert "不是单个对象" in result["desc"]
+
+
 def _xiqing_case():
     problem = load_problem_ir(XIQING_FIXTURE)
     inputs = build_strategy_probe_inputs(problem)
@@ -1954,11 +1979,25 @@ def test_unified_quadratic_constraint_call_publishes_open_target_symbol() -> Non
         parameter_return.state_slot_id
         == "symbol:problem:b.value@ii:ParameterValue"
     )
-    assert parameter_return.free_symbol_refs == ("symbol:problem:c",)
+    # Reconciliation keeps closure effects conservative. The runtime closure
+    # executor is authoritative for the solved value's residual symbols.
+    assert parameter_return.free_symbol_refs == ()
+    assert parameter_return.lineage.symbol_closures
+    assert (
+        parameter_return.lineage.symbol_closures[0].target_object_ref
+        == "symbol:problem:b"
+    )
+    assert (
+        parameter_return.lineage.symbol_closures[0].dependency_object_refs
+        == ("symbol:problem:c",)
+    )
     parabola_return = next(
         item for item in refined.returns if item.return_name == "parabola"
     )
-    assert parabola_return.free_symbol_refs == ("symbol:problem:c",)
+    assert parabola_return.free_symbol_refs == (
+        "symbol:problem:c",
+        "symbol:problem:b",
+    )
     catalog = FunctionalCapabilityCatalog.from_family_spec(
         inputs.family_spec,
         inputs.method_specs,
@@ -1975,7 +2014,7 @@ def test_unified_quadratic_constraint_call_publishes_open_target_symbol() -> Non
     ]
     assert {
         item.binding_authority for item in sidecar
-    } <= {"wire"}
+    } <= {"wire", "resolver"}
     assert not {
         item.arg_name
         for item in sidecar

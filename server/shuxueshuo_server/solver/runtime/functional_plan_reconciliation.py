@@ -57,7 +57,6 @@ from shuxueshuo_server.solver.runtime.functional_reconciliation_validators impor
     functional_reconciliation_issues,
 )
 from shuxueshuo_server.solver.runtime.functional_symbol_flow import (
-    apply_symbolic_closure_effect,
     align_free_parameter_basis_with_consumers,
     infer_unique_target_symbol_ref,
     return_free_symbol_refs,
@@ -3641,17 +3640,11 @@ def _materialize_functional_return(
         symbolic_closure=symbolic_closure,
         object_ref=object_ref,
     )
-    inferred_free_symbol_refs = return_free_symbol_refs(
+    free_symbol_refs = return_free_symbol_refs(
         return_spec.runtime_type,
         resolved_args,
         object_ref=object_ref,
         ignored_input_args=return_spec.result_form_ignored_input_args,
-    )
-    free_symbol_refs = apply_symbolic_closure_effect(
-        inferred_free_symbol_refs,
-        return_name=return_spec.name,
-        args=resolved_args,
-        spec=symbolic_closure,
     )
     free_symbol_ids = symbol_ids_from_refs(
         free_symbol_refs,

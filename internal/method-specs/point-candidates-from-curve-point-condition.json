@@ -2,7 +2,7 @@
   "method_id": "point_candidates_from_curve_point_condition",
   "title": "由曲线点条件求目标点候选",
   "description": "把同参数曲线点代入二次函数，反求另一个目标点的候选。",
-  "summary": "Given 待返回的目标点 P(t)、仅用于施加曲线条件的点 Q(t) 和已解抛物线, derive 使 Q(t) 在曲线上的 P 候选列表。返回对象始终是 target_point=P，不是 curve_point=Q。适用于几何构造先得到两个同参数点，再用 Q 落曲线来反求 P 的场景。",
+  "summary": "Given 待返回的目标点 P(t)、仅用于施加曲线条件的点 Q(t) 和已解抛物线, derive 使 Q(t) 在曲线上的 P 候选列表。返回值是一个整体的 PointList；列表中的每个候选保持 target_point=P 的对象身份，curve_point=Q 只提供约束。PointList 不能绑定为单个 Point。适用于几何构造先得到两个同参数点，再用 Q 落曲线来反求 P 的场景。",
   "solves": [
     "derive_point_candidates_from_curve_point_condition"
   ],
@@ -10,7 +10,7 @@
     "target_point": {
       "type": "Point",
       "required": true,
-      "description": "需要返回候选坐标的目标 Point；candidates 保留这个对象身份。"
+      "description": "需要返回候选坐标的目标 Point；candidates 列表中的每个候选保持这个对象身份，但 candidates 本身仍是 PointList。"
     },
     "curve_point": {
       "type": "Point",

@@ -39,6 +39,60 @@ STEP_INTENT_OUTPUT_TYPES: tuple[str, ...] = (
 )
 
 
+@dataclass(frozen=True)
+class SymbolicClosureProvenance:
+    """Runtime-grounded target solve and substitution evidence."""
+
+    status: str
+    target_object_id: MathObjectId | None = None
+    target_value: str | None = None
+    substitutions: tuple[tuple[MathObjectId, str], ...] = ()
+    residual_symbol_ids: tuple[MathObjectId, ...] = ()
+    branch_count: int = 0
+    equation_builder: str | None = None
+    representation_mapper: str | None = None
+    constraint_filter: str | None = None
+    target_binding: str | None = None
+    equation_sources: tuple[str, ...] = ()
+    known_substitution_sources: tuple[str, ...] = ()
+    preserved_symbol_ids: tuple[MathObjectId, ...] = ()
+    affected_returns: tuple[str, ...] = ()
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            "status": self.status,
+            "target_object_id": (
+                self.target_object_id.to_payload()
+                if self.target_object_id is not None
+                else None
+            ),
+            "target_value": self.target_value,
+            "substitutions": [
+                {
+                    "symbol_id": symbol_id.to_payload(),
+                    "value": value,
+                }
+                for symbol_id, value in self.substitutions
+            ],
+            "residual_symbol_ids": [
+                item.to_payload() for item in self.residual_symbol_ids
+            ],
+            "branch_count": self.branch_count,
+            "equation_builder": self.equation_builder,
+            "representation_mapper": self.representation_mapper,
+            "constraint_filter": self.constraint_filter,
+            "target_binding": self.target_binding,
+            "equation_sources": list(self.equation_sources),
+            "known_substitution_sources": list(
+                self.known_substitution_sources
+            ),
+            "preserved_symbol_ids": [
+                item.to_payload() for item in self.preserved_symbol_ids
+            ],
+            "affected_returns": list(self.affected_returns),
+        }
+
+
 def answer_output_type_compatible(expected_type: str | None, actual_type: str | None) -> bool:
     """判断 StepIntent answer 产物类型能否满足 QuestionGoal 类型。
 
@@ -976,6 +1030,7 @@ class StateWriteProvenance:
     canonical_producer_call_id: str | None = None
     valid_scope_id: str | None = None
     result_form: str | None = None
+    symbolic_closure_provenance: SymbolicClosureProvenance | None = None
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -1053,6 +1108,11 @@ class StateWriteProvenance:
             "canonical_producer_call_id": self.canonical_producer_call_id,
             "valid_scope_id": self.valid_scope_id,
             "result_form": self.result_form,
+            "symbolic_closure_provenance": (
+                self.symbolic_closure_provenance.to_payload()
+                if self.symbolic_closure_provenance is not None
+                else None
+            ),
         }
 
 

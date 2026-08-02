@@ -160,6 +160,9 @@ from shuxueshuo_server.solver.runtime.binding_rules import (
 from shuxueshuo_server.solver.runtime.canonical_draft_finalizer import (
     CanonicalDraftFinalizer,
 )
+from shuxueshuo_server.solver.runtime.functional_symbol_identity import (
+    runtime_free_symbol_ids,
+)
 from shuxueshuo_server.solver.runtime.state_identity import (
     IndexedStateVersion,
     MathObjectId,
@@ -1062,8 +1065,17 @@ class _RecipePlanCompiler:
                         compiled,
                         state_write_provenance=_enrich_write_provenance_runtime_symbols(
                             compiled.state_write_provenance,
-                            registrations=compiled.registrations,
+                            registrations=tuple(
+                                (
+                                    *self.index.bindings.values(),
+                                    *compiled.registrations,
+                                )
+                            ),
                             context=trial_context,
+                            handle_registry=self.index.handle_registry,
+                            known_provenance=tuple(
+                                self.state_write_provenance
+                            ),
                         ),
                     )
                     # Binding selectors and constraint analyzers for later
@@ -5791,6 +5803,8 @@ def _enrich_write_provenance_runtime_symbols(
     *,
     registrations: tuple[RuntimeHandleBinding, ...],
     context: RuntimeContext,
+    handle_registry: CanonicalHandleRegistry,
+    known_provenance: tuple[StateWriteProvenance, ...] = (),
 ) -> tuple[StateWriteProvenance, ...]:
     paths = {item.handle: item.path for item in registrations}
     runtime_values: dict[str, Any] = {}
@@ -5820,6 +5834,56 @@ def _enrich_write_provenance_runtime_symbols(
         and item.produced_handle in runtime_values
     )
     result: list[StateWriteProvenance] = []
+    object_registry = MathObjectRegistry.from_sources(handle_registry)
+    declared_runtime_symbols: dict[sp.Symbol, MathObjectId] = {}
+    for binding in registrations:
+        if binding.value_type != "Symbol":
+            continue
+        try:
+            runtime_symbol = context.read_path(
+                binding.path,
+                from_scope_id=ContextPath.parse(binding.path).scope_id,
+                expected_type="Symbol",
+            ).value
+        except (KeyError, PermissionError, TypeError, ValueError):
+            continue
+        object_id = object_registry.resolve(binding.handle)
+        if isinstance(runtime_symbol, sp.Symbol) and object_id is not None:
+            if object_id.kind == "symbol":
+                declared_runtime_symbols[runtime_symbol] = object_id
+    for source in (*known_provenance, *provenance):
+        path = paths.get(source.produced_handle)
+        if path is None or source.runtime_type != "Symbol":
+            continue
+        try:
+            runtime_symbol = context.read_path(
+                path,
+                from_scope_id=source.scope_id,
+                expected_type="Symbol",
+            ).value
+        except (KeyError, PermissionError, TypeError, ValueError):
+            continue
+        object_id = source.math_object_id
+        if object_id is None and source.object_ref is not None:
+            object_id = (
+                object_registry.resolve(source.object_ref)
+                or object_registry.register_handle(source.object_ref)
+            )
+        if isinstance(runtime_symbol, sp.Symbol) and object_id is not None:
+            if object_id.kind == "symbol":
+                declared_runtime_symbols[runtime_symbol] = object_id
+    for source in provenance:
+        value = runtime_values.get(source.produced_handle)
+        if not isinstance(value, sp.Symbol):
+            continue
+        object_id = source.math_object_id
+        if object_id is None and source.object_ref is not None:
+            object_id = (
+                object_registry.resolve(source.object_ref)
+                or object_registry.register_handle(source.object_ref)
+            )
+        if object_id is not None and object_id.kind == "symbol":
+            declared_runtime_symbols[value] = object_id
     for item in provenance:
         path = paths.get(item.produced_handle)
         free_symbols: set[Any] = set()
@@ -5903,10 +5967,22 @@ def _enrich_write_provenance_runtime_symbols(
                 - set(item.closure_ignored_symbol_names)
             )
         )
+        free_symbol_ids = (
+            runtime_free_symbol_ids(
+                runtime_values[item.produced_handle],
+                context=context,
+                registry=object_registry,
+                declared_runtime_symbols=declared_runtime_symbols,
+                ignored_symbol_names=item.closure_ignored_symbol_names,
+            )
+            if item.produced_handle in runtime_values
+            else ()
+        )
         result.append(
             replace(
                 item,
                 free_symbol_names=free_symbol_names,
+                free_symbol_ids=free_symbol_ids,
                 result_form=(
                     item.result_form
                     or (

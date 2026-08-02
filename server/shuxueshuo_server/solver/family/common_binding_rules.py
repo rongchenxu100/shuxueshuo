@@ -58,6 +58,11 @@ def quadratic_from_constraints_rule() -> MethodBindingRuleSpec:
         ),
         aggregate_input_bindings=(
             MethodAggregateInputBindingSpec(
+                source_input="curve_points",
+                item_inputs=(),
+                singleton_input="curve_point",
+            ),
+            MethodAggregateInputBindingSpec(
                 source_input="free_parameters",
                 item_inputs=(),
                 singleton_input="free_parameter",

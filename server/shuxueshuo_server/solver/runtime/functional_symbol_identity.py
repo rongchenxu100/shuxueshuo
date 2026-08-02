@@ -41,11 +41,17 @@ def runtime_free_symbol_ids(
     context: RuntimeContext,
     registry: MathObjectRegistry,
     declared_runtime_symbols: Mapping[sp.Symbol, MathObjectId] | None = None,
+    ignored_symbol_names: Sequence[str] = (),
 ) -> tuple[MathObjectId, ...]:
     """Resolve actual SymPy Symbols through RuntimeContext object identity."""
 
+    ignored = frozenset(ignored_symbol_names)
     return _runtime_symbol_ids(
-        runtime_free_symbols(value),
+        tuple(
+            symbol
+            for symbol in runtime_free_symbols(value)
+            if symbol.name not in ignored and str(symbol) not in ignored
+        ),
         context=context,
         registry=registry,
         declared_runtime_symbols=declared_runtime_symbols or {},

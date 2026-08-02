@@ -5,26 +5,37 @@ import json
 from dataclasses import replace
 
 import pytest
+import sympy as sp
 
 from shuxueshuo_server.solver.deepseek_functional_batch import (
     FUNCTIONAL_BATCH_CASES,
 )
 from shuxueshuo_server.solver.fixtures import load_problem_ir
 from shuxueshuo_server.solver.runtime.context import ContextBuilder
+from shuxueshuo_server.solver.runtime.canonical_draft_finalizer import (
+    CanonicalDraftFinalizer,
+)
 from shuxueshuo_server.solver.runtime.functional_plan import (
     FunctionalPlanValidator,
 )
 from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
     FunctionalCallPreparationService,
+    FunctionalRuntimeWriteCommitter,
     FunctionalTransactionBehaviorDelta,
     FunctionalTransactionalInterpreter,
+    PreparedFunctionalArgBinding,
+    PreparedFunctionalCall,
     _compare_with_legacy,
+    _prepared_runtime_arg_object_ids,
+)
+from shuxueshuo_server.solver.runtime.functional_binding_context import (
+    FunctionalArgBinding,
+    FunctionalArgBindingKey,
+    FunctionalArgSourceIdentity,
+    FunctionalBindingContextBuilder,
 )
 from shuxueshuo_server.solver.runtime.functional_logical_graph import (
     LogicalFunctionalGraphBuilder,
-)
-from shuxueshuo_server.solver.runtime.functional_binding_context import (
-    FunctionalBindingContextBuilder,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
@@ -32,6 +43,7 @@ from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
 from shuxueshuo_server.solver.runtime.functional_retry_versions import (
     latest_functional_retry_graph_checkpoint,
 )
+from shuxueshuo_server.solver.runtime.result_builder import ResultBuilder
 from shuxueshuo_server.solver.runtime.functional_transaction_shadow import (
     FunctionalCallExecutionState,
     FunctionalTransactionShadowMismatch,
@@ -46,6 +58,9 @@ from shuxueshuo_server.solver.runtime.executor import (
     InvocationExecutor,
 )
 from shuxueshuo_server.solver.runtime.methods import default_stateless_registry
+from shuxueshuo_server.solver.runtime.methods.quadratic_from_constraints import (
+    QuadraticFromConstraintsMethod,
+)
 from shuxueshuo_server.solver.runtime.models import Point, TypedValue
 from shuxueshuo_server.solver.runtime.planner_state_context import (
     initial_planner_state_context,
@@ -62,18 +77,30 @@ from shuxueshuo_server.solver.runtime.strategy_replay import (
 )
 from shuxueshuo_server.solver.runtime.state_identity import (
     IndexedStateVersion,
+    LogicalStateKey,
+    MathObjectId,
     MathObjectRegistry,
     ScopeVisibilityResolver,
     StateAllocationService,
     StateIdentityIndex,
+    StateSlotId,
     StateVersionId,
 )
 from shuxueshuo_server.solver.runtime.strategy_models import (
+    PlannerRetryIssue,
     StrategyDraftValidationError,
+)
+from shuxueshuo_server.solver.runtime.symbolic_closure_execution import (
+    execute_symbolic_closure,
 )
 
 
-def _replay(case_id: str, *, mode: str):
+def _replay(
+    case_id: str,
+    *,
+    mode: str,
+    symbolic_closure_mode: str = "disabled",
+):
     case = FUNCTIONAL_BATCH_CASES[case_id]
     problem = load_problem_ir(case.problem_fixture_path)
     inputs = build_strategy_probe_inputs(problem)
@@ -87,6 +114,7 @@ def _replay(case_id: str, *, mode: str):
     assert validation.ok and plan is not None
     return PlannerRetryReplayService(
         functional_transaction_mode=mode,
+        functional_symbolic_closure_mode=symbolic_closure_mode,
     ).replay_functional_plan(
         plan,
         inputs=inputs,
@@ -98,6 +126,70 @@ def _replay(case_id: str, *, mode: str):
     )
 
 
+def _active_symbolic_closure_plan():
+    case = FUNCTIONAL_BATCH_CASES["heping-ermo"]
+    problem = load_problem_ir(case.problem_fixture_path)
+    inputs = build_strategy_probe_inputs(problem)
+    problem_payload = problem_to_llm_payload(problem)
+    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    payload = json.loads(
+        case.functional_fixture_path.read_text(encoding="utf-8")
+    )
+    target_call = next(
+        call
+        for scope in payload["scopes"]
+        for call in scope["calls"]
+        if call["call_id"] == "derive_parametric_parabola_ii"
+    )
+    target_call["args"]["target_parameter"] = {
+        "kind": "symbol",
+        "ref": "b",
+    }
+    target_call["return_bindings"]["parameter_value"] = {
+        "kind": "symbol",
+        "ref": "b",
+    }
+    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
+        payload,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+    assert validation.ok and plan is not None
+    return problem, inputs, problem_payload, registry, plan, validation
+
+
+def _active_singleton_mapping_closure_plan():
+    case = FUNCTIONAL_BATCH_CASES["hexi"]
+    problem = load_problem_ir(case.problem_fixture_path)
+    inputs = build_strategy_probe_inputs(problem)
+    problem_payload = problem_to_llm_payload(problem)
+    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    payload = json.loads(
+        case.functional_fixture_path.read_text(encoding="utf-8")
+    )
+    target_call = next(
+        call
+        for scope in payload["scopes"]
+        for call in scope["calls"]
+        if call["call_id"] == "derive_parametric_parabola_ii"
+    )
+    target_call["args"]["target_parameter"] = {
+        "kind": "symbol",
+        "ref": "c",
+    }
+    target_call["return_bindings"]["parameter_value"] = {
+        "kind": "symbol",
+        "ref": "c",
+    }
+    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
+        payload,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+    assert validation.ok and plan is not None
+    return problem, inputs, problem_payload, registry, plan, validation
+
+
 @pytest.mark.parametrize("case_id", tuple(FUNCTIONAL_BATCH_CASES))
 def test_authored_fixture_transaction_execution_has_zero_mismatch(
     case_id: str,
@@ -107,7 +199,14 @@ def test_authored_fixture_transaction_execution_has_zero_mismatch(
     assert replay.output is not None
     assert replay.transactional_shadow_report is not None
     report = replay.transactional_execution_report
-    assert report is not None
+    assert report is not None, (
+        [
+            item.to_payload()
+            for item in (replay.functional_reconciliation.issues or ())
+        ]
+        if replay.functional_reconciliation is not None
+        else replay.errors
+    )
     assert report.ok, report.to_payload()
     assert not report.compatibility_mismatches
     assert not report.behavior_deltas
@@ -139,6 +238,39 @@ def test_authored_fixture_transaction_execution_has_zero_mismatch(
         ]
         assert ready < running < verified
         assert all(verified < index for index in committed)
+
+
+@pytest.mark.parametrize("case_id", tuple(FUNCTIONAL_BATCH_CASES))
+def test_authored_fixture_without_target_keeps_closure_inactive(
+    case_id: str,
+) -> None:
+    replay = _replay(
+        case_id,
+        mode="context_authoritative",
+        symbolic_closure_mode="authoritative",
+    )
+
+    assert replay.output is not None, (
+        [
+            (
+                item.call_id,
+                item.status,
+                [
+                    (issue.code, issue.message)
+                    for issue in item.root_issues
+                ],
+            )
+            for item in replay.transactional_execution_report.call_results
+            if item.status != "verified"
+        ]
+        if replay.transactional_execution_report is not None
+        else replay.errors
+    )
+    report = replay.transactional_execution_report
+    assert report is not None
+    assert report.symbolic_closure_execution_count == 0
+    assert report.symbolic_closure_drift_count == 0
+    assert report.ok, report.to_payload()
 
 
 @pytest.mark.parametrize("case_id", tuple(FUNCTIONAL_BATCH_CASES))
@@ -192,6 +324,16 @@ def test_context_authoritative_goal_output_replays_in_fresh_context(
     assert all(item.ok for item in execution.checks), [
         item.to_payload() for item in execution.checks if not item.ok
     ]
+    answers = ResultBuilder().build(
+        context,
+        execution,
+        list(inputs.question_goals),
+    )
+    assert all(
+        goal.answer_key in answers.get(goal.question_id, {})
+        for goal in inputs.question_goals
+        if goal.required
+    )
 
 
 def test_goal_closure_keeps_hidden_equal_length_ray_state_producers() -> None:
@@ -523,6 +665,484 @@ def test_exact_transaction_attempt_does_not_require_legacy_output() -> None:
     assert not attempt.root_issues
     assert all(
         item.status == "passed" for item in attempt.goal_report.goals
+    )
+
+
+def test_context_authoritative_commits_runtime_symbolic_closure(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    finalized_closure_writes: list[tuple[object, ...]] = []
+    original_finalize = CanonicalDraftFinalizer.finalize_compiled_state_writes
+
+    def capture_finalized_provenance(self, *args, **kwargs):
+        provenance = tuple(kwargs.get("provenance", ()))
+        target_writes = tuple(
+            write
+            for write in provenance
+            if write.step_id == "derive_parametric_parabola_ii"
+            and write.return_name
+            in {"coefficients", "parabola", "parameter_value"}
+        )
+        if target_writes:
+            finalized_closure_writes.append(target_writes)
+        return original_finalize(self, *args, **kwargs)
+
+    monkeypatch.setattr(
+        CanonicalDraftFinalizer,
+        "finalize_compiled_state_writes",
+        capture_finalized_provenance,
+    )
+    case = FUNCTIONAL_BATCH_CASES["heping-ermo"]
+    problem = load_problem_ir(case.problem_fixture_path)
+    inputs = build_strategy_probe_inputs(problem)
+    problem_payload = problem_to_llm_payload(problem)
+    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    payload = json.loads(
+        case.functional_fixture_path.read_text(encoding="utf-8")
+    )
+    target_call = next(
+        call
+        for scope in payload["scopes"]
+        for call in scope["calls"]
+        if call["call_id"] == "derive_parametric_parabola_ii"
+    )
+    target_call["args"]["target_parameter"] = {
+        "kind": "symbol",
+        "ref": "b",
+    }
+    target_call["return_bindings"]["parameter_value"] = {
+        "kind": "symbol",
+        "ref": "b",
+    }
+    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
+        payload,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+    assert validation.ok and plan is not None
+
+    replay = PlannerRetryReplayService(
+        functional_transaction_mode="context_authoritative",
+        functional_symbolic_closure_mode="authoritative",
+    ).replay_functional_plan(
+        plan,
+        inputs=inputs,
+        handle_registry=registry,
+        context=ContextBuilder().build(problem),
+        attempt=1,
+        problem_payload=problem_payload,
+        validation_report=validation,
+    )
+
+    assert replay.output is not None, (
+        [
+            (
+                item.call_id,
+                item.status,
+                [
+                    (issue.code, issue.message)
+                    for issue in item.root_issues
+                ],
+            )
+            for item in replay.transactional_execution_report.call_results
+            if item.status != "verified"
+        ]
+        if replay.transactional_execution_report is not None
+        else replay.errors
+    )
+    report = replay.transactional_execution_report
+    assert report is not None
+    assert report.symbolic_closure_execution_count >= 1
+    assert report.symbolic_closure_drift_count == 0
+    call_result = next(
+        item
+        for item in report.call_results
+        if item.call_id == "derive_parametric_parabola_ii"
+    )
+    assert call_result.status == "verified"
+    assert call_result.symbolic_closure is not None
+    assert call_result.symbolic_closure.status == "unique"
+    assert finalized_closure_writes
+    assert any(
+        all(
+            write.symbolic_closure_provenance is not None
+            for write in writes
+        )
+        for writes in finalized_closure_writes
+    )
+    assert all(
+        write.symbolic_closure_provenance is not None
+        for write in call_result.state_writes
+        if write.return_name
+        in {"coefficients", "parabola", "parameter_value"}
+    )
+
+
+def test_non_unique_symbolic_closure_rolls_back_entire_call() -> None:
+    case = FUNCTIONAL_BATCH_CASES["heping-ermo"]
+    problem = load_problem_ir(case.problem_fixture_path)
+    inputs = build_strategy_probe_inputs(problem)
+    problem_payload = problem_to_llm_payload(problem)
+    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    payload = json.loads(
+        case.functional_fixture_path.read_text(encoding="utf-8")
+    )
+    target_call = next(
+        call
+        for scope in payload["scopes"]
+        for call in scope["calls"]
+        if call["call_id"] == "derive_parametric_parabola_ii"
+    )
+    target_call["args"]["target_parameter"] = {
+        "kind": "symbol",
+        "ref": "b",
+    }
+    target_call["args"].pop("curve_point")
+    target_call["return_bindings"]["parameter_value"] = {
+        "kind": "symbol",
+        "ref": "b",
+    }
+    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
+        payload,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+    assert validation.ok and plan is not None
+
+    replay = PlannerRetryReplayService(
+        functional_transaction_mode="context_authoritative",
+        functional_symbolic_closure_mode="authoritative",
+    ).replay_functional_plan(
+        plan,
+        inputs=inputs,
+        handle_registry=registry,
+        context=ContextBuilder().build(problem),
+        attempt=1,
+        problem_payload=problem_payload,
+        validation_report=validation,
+    )
+
+    report = replay.transactional_execution_report
+    assert report is not None, (
+        [
+            item.to_payload()
+            for item in replay.functional_reconciliation.issues
+        ]
+        if replay.functional_reconciliation is not None
+        else replay.errors
+    )
+    call_result = next(
+        item
+        for item in report.call_results
+        if item.call_id == "derive_parametric_parabola_ii"
+    )
+    assert call_result.status == "failed"
+    assert call_result.symbolic_closure is not None
+    assert call_result.symbolic_closure.status == "identity_unresolved"
+    assert call_result.state_writes == ()
+    assert call_result.committed_versions == ()
+    assert call_result.root_issues[0].code == (
+        "function.symbolic_closure_identity_unresolved"
+    )
+
+
+def test_authoritative_closure_rejects_wrong_method_companion_outputs(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    original_run = QuadraticFromConstraintsMethod.run
+
+    def wrong_companion_outputs(self, inputs, kernel):
+        result = original_run(self, inputs, kernel)
+        target = inputs.get("target_parameter")
+        if target is None:
+            return result
+        outputs = dict(result.outputs)
+        coefficients = dict(outputs["coefficients"].value)
+        coefficients[sp.Symbol("_wrong_companion")] = sp.Integer(99)
+        outputs["coefficients"] = TypedValue(
+            "Coefficients",
+            coefficients,
+            source=result.method_id,
+        )
+        return replace(result, outputs=outputs)
+
+    monkeypatch.setattr(
+        QuadraticFromConstraintsMethod,
+        "run",
+        wrong_companion_outputs,
+    )
+
+    case = FUNCTIONAL_BATCH_CASES["heping-ermo"]
+    problem = load_problem_ir(case.problem_fixture_path)
+    inputs = build_strategy_probe_inputs(problem)
+    problem_payload = problem_to_llm_payload(problem)
+    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    payload = json.loads(
+        case.functional_fixture_path.read_text(encoding="utf-8")
+    )
+    target_call = next(
+        call
+        for scope in payload["scopes"]
+        for call in scope["calls"]
+        if call["call_id"] == "derive_parametric_parabola_ii"
+    )
+    target_call["args"]["target_parameter"] = {
+        "kind": "symbol",
+        "ref": "b",
+    }
+    target_call["return_bindings"]["parameter_value"] = {
+        "kind": "symbol",
+        "ref": "b",
+    }
+    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
+        payload,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+    assert validation.ok and plan is not None
+
+    replay = PlannerRetryReplayService(
+        functional_transaction_mode="context_authoritative",
+        functional_symbolic_closure_mode="authoritative",
+    ).replay_functional_plan(
+        plan,
+        inputs=inputs,
+        handle_registry=registry,
+        context=ContextBuilder().build(problem),
+        attempt=1,
+        problem_payload=problem_payload,
+        validation_report=validation,
+    )
+
+    report = replay.transactional_execution_report
+    assert report is not None
+    call_result = next(
+        item
+        for item in report.call_results
+        if item.call_id == "derive_parametric_parabola_ii"
+    )
+    assert call_result.status == "failed"
+    assert call_result.state_writes == ()
+    assert call_result.committed_versions == ()
+    assert call_result.root_issues[0].code == (
+        "planner.contract_runtime_symbol_drift"
+    ), call_result.root_issues
+
+    monkeypatch.setattr(
+        QuadraticFromConstraintsMethod,
+        "run",
+        original_run,
+    )
+    monkeypatch.setattr(
+        "shuxueshuo_server.solver.runtime.functional_transaction_execution."
+        "_symbolic_values_equivalent",
+        lambda _left, _right: False,
+    )
+    shadow = PlannerRetryReplayService(
+        functional_transaction_mode="execution_shadow",
+        functional_symbolic_closure_mode="shadow",
+    ).replay_functional_plan(
+        plan,
+        inputs=inputs,
+        handle_registry=registry,
+        context=ContextBuilder().build(problem),
+        attempt=1,
+        problem_payload=problem_payload,
+        validation_report=validation,
+    )
+    shadow_report = shadow.transactional_execution_report
+    assert shadow_report is not None
+    assert shadow_report.symbolic_closure_execution_count >= 1
+    assert shadow_report.symbolic_closure_drift_count >= 1
+    shadow_call = next(
+        item
+        for item in shadow_report.call_results
+        if item.call_id == "derive_parametric_parabola_ii"
+    )
+    assert shadow_call.status == "verified"
+    assert shadow_call.symbolic_closure is not None
+    assert shadow_call.symbolic_closure.status == "unique"
+    assert all(
+        write.symbolic_closure_provenance is None
+        for write in shadow_call.state_writes
+    )
+
+
+def test_commit_payload_issue_does_not_stamp_closure_provenance(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    original_commit = FunctionalRuntimeWriteCommitter.commit_payload
+
+    def commit_with_issue(self, compiled, **kwargs):
+        payload = original_commit(self, compiled, **kwargs)
+        if compiled.call_id != "derive_parametric_parabola_ii":
+            return payload
+        return (
+            *payload[:-1],
+            (
+                PlannerRetryIssue(
+                    layer="trial_execution",
+                    code="synthetic.commit_issue",
+                    step_id=compiled.call_id,
+                    message="synthetic commit failure",
+                ),
+            ),
+        )
+
+    monkeypatch.setattr(
+        FunctionalRuntimeWriteCommitter,
+        "commit_payload",
+        commit_with_issue,
+    )
+    (
+        problem,
+        inputs,
+        problem_payload,
+        registry,
+        plan,
+        validation,
+    ) = _active_symbolic_closure_plan()
+
+    replay = PlannerRetryReplayService(
+        functional_transaction_mode="context_authoritative",
+        functional_symbolic_closure_mode="authoritative",
+    ).replay_functional_plan(
+        plan,
+        inputs=inputs,
+        handle_registry=registry,
+        context=ContextBuilder().build(problem),
+        attempt=1,
+        problem_payload=problem_payload,
+        validation_report=validation,
+    )
+
+    report = replay.transactional_execution_report
+    assert report is not None
+    call_result = next(
+        item
+        for item in report.call_results
+        if item.call_id == "derive_parametric_parabola_ii"
+    )
+    assert call_result.status == "failed"
+    assert call_result.state_writes
+    assert call_result.committed_versions == ()
+    assert all(
+        write.symbolic_closure_provenance is None
+        for write in call_result.state_writes
+    )
+
+
+def test_singleton_mapping_keeps_public_arg_symbol_identity() -> None:
+    object_id = MathObjectId("a", "symbol", "problem")
+    logical_key = LogicalStateKey(
+        object_id,
+        "value",
+        "ParameterValue",
+    )
+    version_id = StateVersionId(
+        StateSlotId(logical_key, "problem"),
+        1,
+    )
+    logical_binding = FunctionalArgBinding(
+        key=FunctionalArgBindingKey(
+            "build_curve",
+            "known_coefficients",
+            0,
+        ),
+        capability_id="quadratic_from_constraints",
+        semantic_role="known_coefficients",
+        binding_authority="wire",
+        cardinality="many",
+        runtime_type="ParameterValue",
+        source=FunctionalArgSourceIdentity(
+            kind="state_version",
+            state_version_id=version_id,
+        ),
+        selection_policy="exact",
+        consumption_mode="runtime_input",
+        runtime_input_targets=("parameter", "parameter_value"),
+    )
+    prepared = PreparedFunctionalCall(
+        call_id="build_curve",
+        capability_id="quadratic_from_constraints",
+        step_ids=("build_curve",),
+        dependency_call_ids=(),
+        reconciliation=None,  # type: ignore[arg-type]
+        arg_bindings=(
+            PreparedFunctionalArgBinding(
+                logical_binding,
+                selected_state_version_id=version_id,
+            ),
+        ),
+    )
+
+    identities = _prepared_runtime_arg_object_ids(
+        prepared,
+        runtime_args={
+            "known_coefficients": {sp.Symbol("a"): sp.Integer(2)},
+            "parameter": sp.Symbol("a"),
+            "parameter_value": sp.Integer(2),
+        },
+    )
+
+    assert identities["known_coefficients"] == (object_id,)
+    assert identities["parameter"] == (object_id,)
+    assert identities["parameter_value"] == (object_id,)
+
+
+def test_hexi_singleton_known_mapping_reaches_closure_with_typed_identity(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    observed: list[dict[str, tuple[MathObjectId, ...]]] = []
+
+    def capture_identity(*args, **kwargs):
+        runtime_args = kwargs.get("args", {})
+        if (
+            kwargs.get("target_binding") == "target_parameter"
+            and isinstance(runtime_args.get("known_coefficients"), dict)
+            and len(runtime_args["known_coefficients"]) == 1
+        ):
+            observed.append(dict(kwargs.get("arg_object_ids", {})))
+        return execute_symbolic_closure(*args, **kwargs)
+
+    monkeypatch.setattr(
+        "shuxueshuo_server.solver.runtime.functional_transaction_execution."
+        "execute_symbolic_closure",
+        capture_identity,
+    )
+    (
+        problem,
+        inputs,
+        problem_payload,
+        registry,
+        plan,
+        validation,
+    ) = _active_singleton_mapping_closure_plan()
+
+    replay = PlannerRetryReplayService(
+        functional_transaction_mode="context_authoritative",
+        functional_symbolic_closure_mode="authoritative",
+    ).replay_functional_plan(
+        plan,
+        inputs=inputs,
+        handle_registry=registry,
+        context=ContextBuilder().build(problem),
+        attempt=1,
+        problem_payload=problem_payload,
+        validation_report=validation,
+    )
+
+    report = replay.transactional_execution_report
+    assert report is not None
+    call_result = next(
+        item
+        for item in report.call_results
+        if item.call_id == "derive_parametric_parabola_ii"
+    )
+    assert call_result.status == "verified", call_result.root_issues
+    assert observed
+    assert observed[0]["known_coefficients"] == (
+        MathObjectId("symbol:problem:a", "symbol", "problem"),
     )
 
 

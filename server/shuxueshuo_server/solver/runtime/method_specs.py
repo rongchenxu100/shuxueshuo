@@ -298,6 +298,10 @@ def _parse_symbolic_closure(
             )
         if pair not in known_substitutions:
             known_substitutions.append(pair)
+    known_mapping_args = _parse_identifier_list(
+        raw.get("known_mapping_args", ()),
+        field_name="MethodSpec.symbolic_closure.known_mapping_args",
+    )
     constraint_args = _parse_identifier_list(
         raw.get("constraint_args", ()),
         field_name="MethodSpec.symbolic_closure.constraint_args",
@@ -308,7 +312,11 @@ def _parse_symbolic_closure(
     )
     unknown_inputs = tuple(
         name
-        for name in (*constraint_args, *preserved_symbol_args)
+        for name in (
+            *known_mapping_args,
+            *constraint_args,
+            *preserved_symbol_args,
+        )
         if name not in input_names
     )
     if unknown_inputs:
@@ -334,16 +342,29 @@ def _parse_symbolic_closure(
             "MethodSpec.symbolic_closure.require_unique_target must be a boolean"
         )
     mapper = raw.get("representation_mapper")
+    constraint_filter = raw.get("constraint_filter")
+    output_validator = raw.get("output_validator")
     return SymbolicClosureSpec(
         target_arg=target_arg,
         equation_builder=equation_builder,
         known_substitutions=tuple(known_substitutions),
+        known_mapping_args=known_mapping_args,
         representation_mapper=(
             str(mapper).strip() if mapper is not None else None
+        ),
+        constraint_filter=(
+            str(constraint_filter).strip()
+            if constraint_filter is not None
+            else None
         ),
         constraint_args=constraint_args,
         preserved_symbol_args=preserved_symbol_args,
         substitution_outputs=substitution_outputs,
+        output_validator=(
+            str(output_validator).strip()
+            if output_validator is not None
+            else None
+        ),
         require_unique_target=require_unique_target,
     )
 

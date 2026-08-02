@@ -338,6 +338,30 @@ def test_trial_blocker_is_primary_and_configuration_root_disables_retry() -> Non
     assert error.details["root_issues"] == [configuration.to_payload()]
 
 
+def test_transactional_configuration_issue_disables_llm_retry() -> None:
+    configuration = PlannerRetryIssue(
+        layer="planner",
+        code="planner.transactional_configuration_error",
+        step_id="compile_call",
+        message="runtime binding ledger drift",
+    )
+    replay = PlannerRetryReplayResult(
+        attempt=1,
+        retry_state=PlannerRetryState(
+            attempt=1,
+            baseline_draft=None,
+            issues=(configuration,),
+            candidate_format="functional_plan",
+        ),
+    )
+
+    exc = _functional_planner_execution_error(replay)
+    error = structured_error_from_exception(stage="planner", exc=exc)
+
+    assert error.code == "planner.transactional_configuration_error"
+    assert error.retryable is False
+
+
 def _answer_write(*, step_id: str) -> StateWriteProvenance:
     return StateWriteProvenance(
         step_id=step_id,

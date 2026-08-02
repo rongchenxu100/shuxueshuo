@@ -20,6 +20,9 @@ from shuxueshuo_server.solver.functional_parity import (
     provenance_parity_signature,
 )
 from shuxueshuo_server.solver.runtime.config import SolverRuntimeConfig
+from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
+    FunctionalCapabilityCatalog,
+)
 from shuxueshuo_server.solver.runtime.orchestrator import RuntimeOrchestrator
 from shuxueshuo_server.solver.runtime.strategy_payload import (
     write_strategy_debug_artifacts,
@@ -62,6 +65,10 @@ def run_deepseek_functional_opt_in(case: FunctionalOptInCase) -> None:
                 "FUNCTIONAL_TRANSACTION_MODE",
                 "legacy",
             ),
+            functional_symbolic_closure_mode=os.getenv(
+                "FUNCTIONAL_SYMBOLIC_CLOSURE_MODE",
+                "disabled",
+            ),
         ),
         max_attempts=_max_attempts(),
         debug_dir=debug_dir,
@@ -75,6 +82,11 @@ def run_deepseek_functional_opt_in(case: FunctionalOptInCase) -> None:
         else 0
     )
     gate_checks: list[dict[str, Any]] = []
+    (
+        closure_execution_count,
+        closure_drift_count,
+        closure_attempt_artifacts_found,
+    ) = _attempt_symbolic_closure_counts(debug_dir)
     _record_gate(
         gate_checks,
         "solver_status",
@@ -112,6 +124,17 @@ def run_deepseek_functional_opt_in(case: FunctionalOptInCase) -> None:
         artifacts = success.planner.artifacts
         replay = artifacts.retry_replay_result
         if replay is not None:
+            transaction_report = replay.transactional_execution_report
+            if (
+                transaction_report is not None
+                and not closure_attempt_artifacts_found
+            ):
+                closure_execution_count = (
+                    transaction_report.symbolic_closure_execution_count
+                )
+                closure_drift_count = (
+                    transaction_report.symbolic_closure_drift_count
+                )
             write_strategy_debug_artifacts(
                 debug_dir,
                 payload=artifacts.payload or {},
@@ -135,6 +158,32 @@ def run_deepseek_functional_opt_in(case: FunctionalOptInCase) -> None:
                     "attempts": attempt_count,
                     "candidate_format": "functional_plan",
                 },
+            )
+        expected_closure_mode = os.getenv(
+            "FUNCTIONAL_SYMBOLIC_CLOSURE_MODE",
+            "disabled",
+        )
+        _record_gate(
+            gate_checks,
+            "symbolic_closure_drift",
+            closure_drift_count == 0,
+            f"mode={expected_closure_mode}, drift={closure_drift_count}",
+        )
+        if (
+            expected_closure_mode == "authoritative"
+            and replay is not None
+            and artifacts.planner_inputs is not None
+            and _functional_replay_declares_symbolic_target(
+                replay,
+                inputs=artifacts.planner_inputs,
+            )
+        ):
+            _record_gate(
+                gate_checks,
+                "symbolic_closure_executed",
+                closure_execution_count > 0,
+                "authoritative FunctionalPlan declared a symbolic target "
+                f"but execution_count={closure_execution_count}",
             )
         _record_gate(
             gate_checks,
@@ -236,8 +285,61 @@ def run_deepseek_functional_opt_in(case: FunctionalOptInCase) -> None:
         answer_mismatch=answer_mismatch,
         gate_checks=gate_checks,
         gate_failures=gate_failures,
+        closure_execution_count=closure_execution_count,
+        closure_drift_count=closure_drift_count,
     )
     assert not gate_failures, gate_failures
+
+
+def _attempt_symbolic_closure_counts(
+    debug_dir: Path,
+) -> tuple[int, int, bool]:
+    """Aggregate C4 activity from every planner attempt, including failures."""
+
+    execution_count = 0
+    drift_count = 0
+    found = False
+    for path in sorted(debug_dir.glob("attempt-*.planner-state-context.json")):
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        state = payload.get("state", payload)
+        report = state.get("functional_transaction_execution")
+        if not isinstance(report, dict):
+            continue
+        found = True
+        execution_count += int(
+            report.get("symbolic_closure_execution_count", 0) or 0
+        )
+        drift_count += int(
+            report.get("symbolic_closure_drift_count", 0) or 0
+        )
+    return execution_count, drift_count, found
+
+
+def _functional_replay_declares_symbolic_target(
+    replay: Any,
+    *,
+    inputs: Any,
+) -> bool:
+    reconciliation = replay.functional_reconciliation
+    if reconciliation is None:
+        return False
+    catalog = FunctionalCapabilityCatalog.from_family_spec(
+        inputs.family_spec,
+        inputs.method_specs,
+    )
+    for call in reconciliation.calls:
+        capability = catalog.get(call.capability_id)
+        spec = (
+            getattr(capability.source, "symbolic_closure", None)
+            if capability is not None
+            else None
+        )
+        if spec is not None and call.resolved_args.get(spec.target_arg):
+            return True
+    return False
 
 
 def assert_answers_semantically_equal(actual: Any, expected: Any, path: str = "answers") -> None:
@@ -432,6 +534,8 @@ def _write_sample_result(
     answer_mismatch: str | None,
     gate_checks: Sequence[dict[str, Any]],
     gate_failures: Sequence[dict[str, Any]],
+    closure_execution_count: int,
+    closure_drift_count: int,
 ) -> None:
     payload = {
         "sample_id": sample_id,
@@ -450,6 +554,12 @@ def _write_sample_result(
         "gate_checks": [dict(item) for item in gate_checks],
         "gate_failures": [dict(item) for item in gate_failures],
         "gates_passed": not gate_failures,
+        "functional_symbolic_closure_mode": os.getenv(
+            "FUNCTIONAL_SYMBOLIC_CLOSURE_MODE",
+            "disabled",
+        ),
+        "symbolic_closure_execution_count": closure_execution_count,
+        "symbolic_closure_drift_count": closure_drift_count,
     }
     path.mkdir(parents=True, exist_ok=True)
     (path / "sample-result.json").write_text(

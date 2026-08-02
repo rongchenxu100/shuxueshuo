@@ -131,6 +131,7 @@ class FunctionalArgBinding:
     selection_policy: FunctionalArgSelectionPolicy
     consumption_mode: FunctionalArgConsumptionMode
     runtime_input_targets: tuple[str, ...]
+    runtime_input_required: bool = True
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -144,6 +145,7 @@ class FunctionalArgBinding:
             "selection_policy": self.selection_policy,
             "consumption_mode": self.consumption_mode,
             "runtime_input_targets": list(self.runtime_input_targets),
+            "runtime_input_required": self.runtime_input_required,
         }
 
 
@@ -237,6 +239,7 @@ class FunctionalBindingContextBuilder:
                                 runtime_input_targets=(
                                     auto_spec.runtime_input or arg_name,
                                 ),
+                                runtime_input_required=auto_spec.required,
                             )
                         )
                         continue
@@ -361,6 +364,7 @@ class FunctionalBindingContextBuilder:
                         runtime_input_targets=(
                             auto_arg.runtime_input or auto_arg.name,
                         ),
+                        runtime_input_required=auto_arg.required,
                     )
                 )
         ordered = tuple(sorted(bindings, key=lambda item: item.key))
@@ -414,6 +418,9 @@ class FunctionalBindingContextBuilder:
             selection_policy=selection,
             consumption_mode=consumption_mode,
             runtime_input_targets=runtime_targets,
+            # Once a public/resolver value has been selected, the compiler
+            # must consume it even when the public argument was optional.
+            runtime_input_required=True,
         )
 
 
@@ -741,7 +748,7 @@ def audit_compiled_functional_arg_consumption(
         for target_index, target in enumerate(binding.runtime_input_targets):
             candidates = candidates_by_target[target]
             details: list[str] = []
-            if not candidates:
+            if not candidates and binding.runtime_input_required:
                 details.append("runtime_target_not_consumed")
             actual_paths = tuple(
                 dict.fromkeys(
@@ -759,6 +766,7 @@ def audit_compiled_functional_arg_consumption(
                 "semantic_role": binding.semantic_role,
                 "binding_authority": binding.binding_authority,
                 "consumption_mode": binding.consumption_mode,
+                "runtime_input_required": binding.runtime_input_required,
                 "runtime_target": target,
                 "expected_runtime_path": expected_path,
                 "actual_runtime_paths": list(actual_paths),

@@ -85,6 +85,9 @@ from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
     FunctionalTransactionalInterpreter,
     failed_execution_report,
 )
+from shuxueshuo_server.solver.runtime.symbolic_closure_execution import (
+    FunctionalSymbolicClosureMode,
+)
 from shuxueshuo_server.solver.runtime.planner_state_context import (
     PlannerStateContext,
     PlannerStateContextBuilder,
@@ -319,8 +322,14 @@ class PlannerRetryReplayService:
         self,
         *,
         functional_transaction_mode: FunctionalTransactionMode = "legacy",
+        functional_symbolic_closure_mode: FunctionalSymbolicClosureMode = (
+            "disabled"
+        ),
     ) -> None:
         self._functional_transaction_mode = functional_transaction_mode
+        self._functional_symbolic_closure_mode = (
+            functional_symbolic_closure_mode
+        )
 
     def replay_functional_raw_json(
         self,
@@ -856,7 +865,11 @@ class PlannerRetryReplayService:
             ):
                 try:
                     execution_report = (
-                        FunctionalTransactionalInterpreter().execute(
+                        FunctionalTransactionalInterpreter(
+                            symbolic_closure_mode=(
+                                self._functional_symbolic_closure_mode
+                            )
+                        ).execute(
                             raw_plan=raw_plan,
                             reconciliation=replay.functional_reconciliation,
                             legacy_output=compiled_output,
@@ -898,7 +911,11 @@ class PlannerRetryReplayService:
             )
             try:
                 transactional_attempt = (
-                    FunctionalTransactionalInterpreter().execute_attempt(
+                    FunctionalTransactionalInterpreter(
+                        symbolic_closure_mode=(
+                            self._functional_symbolic_closure_mode
+                        )
+                    ).execute_attempt(
                         raw_plan=raw_plan,
                         reconciliation=replay.functional_reconciliation,
                         legacy_output=replay.output,

@@ -81,6 +81,8 @@ issue 的 `actual_result_refs` 指向这里的实际结果。
 - 只显式绑定最终 answer 或已有对象状态；其余中间状态交给代码分配。
 - `binding=internal_only` 的 return 只能供后续 call 引用，不能绑定 answer 或已有对象。
 - `binding=same_object_as:<arg>` 不改变对象身份；internal-only 来源经过求值后仍不是题面目标对象。
+- `binding=aggregate_elements_same_object_as:<arg>` 只说明聚合元素对应 `<arg>`；return 本身仍是
+  catalog 声明的列表/聚合类型。绑定答案时使用 `kind=answer` 和该聚合 `value_type`，不要绑定为单个 Point/Symbol。
 - 只有 catalog return 声明 `possible_forms` 时才填写 `return_expectations`；它是意图提示，不是计算结果。
 - 遵守 catalog 中输入/输出的独立参数预算。函数模板可由代码确定性物化为 closed 或
   single-free 状态；超过预算时应先补充数学约束，而不是修改 expectation。

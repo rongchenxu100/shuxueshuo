@@ -361,8 +361,11 @@ symbolic_closure=SymbolicClosureSpec(
     target_arg="target_parameter",
     equation_builder="quadratic_constraints",
     known_substitutions=(("parameter", "parameter_value"),),
+    known_mapping_args=("known_coefficients",),
+    representation_mapper="polynomial_coefficient_template",
     preserved_symbol_args=("free_parameter", "free_parameters"),
     substitution_outputs=("coefficients", "parabola", "parameter_value"),
+    output_validator="quadratic_closure_outputs",
 )
 ```
 
@@ -375,10 +378,50 @@ symbolic_closure=SymbolicClosureSpec(
 
 不满足这些条件的普通构造、纯求值或没有 companion return 的能力不需要声明。
 `substitution_outputs` 只能引用同一 MethodSpec 的 outputs；题目中不存在某类输出时，
-不要声明或创建它。静态 allocation 只把 target 从这些 return 的保守 Symbol 依赖中
-移除并保留显式参数基；runtime 实际输出仍是 free symbols 和 result form 的最终权威。
-若 runtime return 仍含已声明应被消去的 target，应报告 contract/runtime drift，不得
-由 Context 静默修正。
+不要声明或创建它。静态 allocation 只保留 contract 中声明的保守 Symbol 依赖，
+不提前删除 target 或预测 substitution 后的参数基；runtime closure 后的实际输出才是
+free symbols 和 result form 的唯一权威。
+`known_mapping_args` 声明“Symbol -> value”形式的已知映射输入，不允许 shared executor
+按 capability 或参数名硬编码扫描。target 已经出现在此映射中时仍必须建立并验证完整
+方程组；preclosed 只省略再次求解 target，不省略一致性审计。
+不同 explicit known source 对同一 `MathObjectId` 给出不同值时没有覆盖优先级，必须统一
+判为 inconsistent；method、closure 与 provenance 必须消费同一合并结果。每个实际
+runtime mapping key 的 Symbol 都必须与 C3 binding ledger 提供的 per-symbol
+`MathObjectId` 精确对齐。
+这一规则同时覆盖单个 fact 被 compiler 降为 scalar inputs 的情况：binding projector 必须
+把同一个 `MathObjectId` 投影到本次 invocation 实际存在的 public mapping/runtime input
+键；不得因为 aggregate 只有一项而跳过 identity 审计，也不得为 invocation 中不存在的
+aggregate 键伪造 cardinality requirement。
+
+`representation_mapper` 不是 closure 专属补丁。若 target 只通过 template 映射存在，
+runtime method 与 closure executor 必须调用同一个 domain projector；template 只代入显式
+known/ParameterValue，不能先代入从 current state 恢复出的 target relation 而抹掉 target。
+如果已物化状态把 target 确定性表示为 preserved basis 的开放表达式，例如
+`b=1-c`，即使当前没有额外方程，也属于 unique open closure；不得因为 preserved Symbol
+没有出现在 equation residual 中而改判 underdetermined。
+显式 known 与已物化 relation 不一致时，必须把二者的等价要求加入同一约束系统：若
+非 preserved unknown 可唯一调和则继续求解，例如 `b=1-c, b=5` 推出 `c=-4`；若冲突
+只能通过改写 preserved basis 才能消除，则 method 必须拒绝，不能输出与 parabola 不一致
+的 coefficients。target expression 中出现未声明 preserved 的自由符号也必须判为
+underdetermined。
+preclosed target 也必须化简这些残余方程。残余方程只含 preserved Symbols 时，不能把
+它们当作可继续求解的未知量来证明 target 一致，应判 inconsistent；残余方程含非
+preserved unknown 且存在唯一解时，才可把该解并入同一 closure substitution。
+
+只要声明了 `substitution_outputs`，就必须声明集合级 `output_validator`。通用 substitution
+adapter 只负责改写表示，validator 必须重新证明每个 companion return 编码了同一 target，
+并验证 returns 之间及其与原始方程、曲线点的关系。若 return 已被 method 错误闭成常数，
+`.subs` 即使成为 no-op 也不能通过；若 return 仍含已声明应被消去的 target，或改写后不再
+满足约束，应报告 contract/runtime drift 并回滚整个 call，不得由 Context 静默修正。
+authoritative transaction 在 output validator 与 commit-payload 校验通过后、B3 finalizer
+之前把 closure provenance 装饰到受影响的 writes，使 B3 能审计该证据。B3 或原子提交失败
+时这些 writes 不得进入 verified result 或 StateVersion history。
+
+`constraint_args` 非空时必须同时声明已注册的 `constraint_filter`；filter 只过滤共享
+solver 已得到的候选分支，不能自行搜索 Context 或建立新方程。target、known
+substitution 和 preserved Symbol 的身份均来自 C3 `FunctionalBindingContext`，并按
+compiler 声明的 runtime input target 核对 `MathObjectId`。不要比较 SymPy 符号名、
+canonical ref、handle 或 runtime path。
 
 ### 4.6 输入状态闭包边界
 

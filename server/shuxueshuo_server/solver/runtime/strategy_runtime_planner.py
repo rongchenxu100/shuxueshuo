@@ -68,6 +68,12 @@ from shuxueshuo_server.solver.runtime.strategy_replay import (
 from shuxueshuo_server.solver.runtime.functional_transaction_shadow import (
     FunctionalTransactionMode,
 )
+from shuxueshuo_server.solver.runtime.planner_failure_classification import (
+    is_planner_configuration_failure_code,
+)
+from shuxueshuo_server.solver.runtime.symbolic_closure_execution import (
+    FunctionalSymbolicClosureMode,
+)
 from shuxueshuo_server.solver.runtime.strategy_validator import StepIntentValidator
 
 
@@ -118,6 +124,9 @@ class StrategyPlanner:
         recorded_fixture_dir: Path | str | None = None,
         output_format: PlannerOutputFormat = "step_intent",
         functional_transaction_mode: FunctionalTransactionMode = "legacy",
+        functional_symbolic_closure_mode: FunctionalSymbolicClosureMode = (
+            "disabled"
+        ),
     ) -> None:
         self.context = context
         self.mode = mode
@@ -128,6 +137,9 @@ class StrategyPlanner:
         self.recorded_fixture_dir = Path(recorded_fixture_dir) if recorded_fixture_dir else _default_recorded_fixture_dir()
         self.output_format = output_format
         self.functional_transaction_mode = functional_transaction_mode
+        self.functional_symbolic_closure_mode = (
+            functional_symbolic_closure_mode
+        )
         self.artifacts = StrategyPlannerArtifacts()
 
     @property
@@ -382,6 +394,9 @@ class StrategyPlanner:
             )
         replay_result = PlannerRetryReplayService(
             functional_transaction_mode=self.functional_transaction_mode,
+            functional_symbolic_closure_mode=(
+                self.functional_symbolic_closure_mode
+            ),
         ).replay_from_artifacts(
             attempt=attempt,
             errors=tuple(errors),
@@ -588,6 +603,9 @@ class StrategyPlanner:
                 functional_transaction_mode=(
                     self.functional_transaction_mode
                 ),
+                functional_symbolic_closure_mode=(
+                    self.functional_symbolic_closure_mode
+                ),
             ).replay_functional_raw_json(
                 raw_response,
                 inputs=inputs,
@@ -667,6 +685,9 @@ def strategy_planner_provider(
     functional_few_shot_mode: FunctionalFewShotSelectionMode | None = None,
     output_format: PlannerOutputFormat = "step_intent",
     functional_transaction_mode: FunctionalTransactionMode = "legacy",
+    functional_symbolic_closure_mode: FunctionalSymbolicClosureMode = (
+        "disabled"
+    ),
 ) -> "Callable[[RuntimeContext], StrategyPlanner]":
     """构造 Orchestrator 可用的单一 Strategy provider。"""
     from collections.abc import Callable
@@ -684,6 +705,9 @@ def strategy_planner_provider(
             recorded_fixture_dir=recorded_fixture_dir,
             output_format=output_format,
             functional_transaction_mode=functional_transaction_mode,
+            functional_symbolic_closure_mode=(
+                functional_symbolic_closure_mode
+            ),
         )
 
     return provider
@@ -871,9 +895,8 @@ def _has_configuration_failure(
     *,
     primary_code: str | None = None,
 ) -> bool:
-    return primary_code == "planner_configuration_error" or any(
-        issue.code == "planner_configuration_error"
-        for issue in issues
+    return is_planner_configuration_failure_code(primary_code) or any(
+        is_planner_configuration_failure_code(issue.code) for issue in issues
     )
 
 

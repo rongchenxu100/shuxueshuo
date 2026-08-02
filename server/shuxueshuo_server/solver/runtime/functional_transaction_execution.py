@@ -48,7 +48,6 @@ from shuxueshuo_server.solver.runtime.functional_state_reads import (
 from shuxueshuo_server.solver.runtime.functional_symbol_identity import (
     runtime_free_symbol_ids,
     runtime_free_symbols,
-    runtime_symbol_ids_from_names,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_models import (
     CallResultRef,
@@ -70,7 +69,9 @@ from shuxueshuo_server.solver.runtime.handle_registry import (
 from shuxueshuo_server.solver.runtime.methods import default_stateless_registry
 from shuxueshuo_server.solver.runtime.models import (
     ContextDeclaration,
+    MethodInvocation,
     PlannerOutput,
+    StepGoal,
     StepPlan,
     TypedValue,
 )
@@ -95,6 +96,16 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     StepIntentAcceptedStep,
     StepIntentExecutionDiagnostic,
     StepIntentRuntimeResult,
+)
+from shuxueshuo_server.solver.runtime.symbolic_closure_execution import (
+    FunctionalSymbolicClosureMode,
+    SymbolicClosureConfigurationError,
+    SymbolicClosureExecutionResult,
+    SymbolicClosureRuntimeDriftError,
+    closure_failure_code,
+    execute_symbolic_closure,
+    substitute_symbolic_closure_output,
+    validate_symbolic_closure_outputs,
 )
 from shuxueshuo_server.solver.runtime.state_finalization import (
     project_functional_state_writes,
@@ -177,6 +188,7 @@ class FunctionalCallExecutionResult:
     committed_versions: tuple[IndexedStateVersion, ...] = ()
     checks: tuple[Any, ...] = ()
     root_issues: tuple[PlannerRetryIssue, ...] = ()
+    symbolic_closure: SymbolicClosureExecutionResult | None = None
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -191,6 +203,11 @@ class FunctionalCallExecutionResult:
             ],
             "checks": [_payload(item) for item in self.checks],
             "root_issues": [item.to_payload() for item in self.root_issues],
+            "symbolic_closure": (
+                self.symbolic_closure.to_payload()
+                if self.symbolic_closure is not None
+                else None
+            ),
         }
 
 
@@ -232,6 +249,25 @@ class FunctionalTransactionalExecutionReport:
     )
 
     @property
+    def symbolic_closure_execution_count(self) -> int:
+        return sum(
+            item.symbolic_closure is not None
+            and item.symbolic_closure.status != "not_applicable"
+            for item in self.call_results
+        )
+
+    @property
+    def symbolic_closure_drift_count(self) -> int:
+        return sum(
+            item.code
+            in {
+                "symbolic_closure_output_drift",
+                "symbolic_closure_output_contract_drift",
+            }
+            for item in self.compatibility_mismatches
+        )
+
+    @property
     def ok(self) -> bool:
         return not self.compatibility_mismatches and all(
             item.code in _NON_BLOCKING_BEHAVIOR_DELTA_CODES
@@ -260,6 +296,12 @@ class FunctionalTransactionalExecutionReport:
                 for compiled in self.compiled_calls
                 for item in compiled.binding_consumption_decisions
             ],
+            "symbolic_closure_execution_count": (
+                self.symbolic_closure_execution_count
+            ),
+            "symbolic_closure_drift_count": (
+                self.symbolic_closure_drift_count
+            ),
         }
 
 
@@ -1060,16 +1102,7 @@ class FunctionalRuntimeWriteCommitter:
                 context=branch,
                 registry=object_registry,
                 declared_runtime_symbols=runtime_symbol_bindings,
-            )
-            ignored_symbol_ids = runtime_symbol_ids_from_names(
-                write.closure_ignored_symbol_names,
-                context=branch,
-                registry=object_registry,
-            )
-            free_symbol_ids = tuple(
-                item
-                for item in free_symbol_ids
-                if item not in ignored_symbol_ids
+                ignored_symbol_names=write.closure_ignored_symbol_names,
             )
             expected_form = expectations.get(returned.return_name)
             actual_form = _actual_form(expected_form, free_symbols)
@@ -1212,10 +1245,12 @@ class FunctionalTransactionalInterpreter:
             Any,
         ]
         | None = None,
+        symbolic_closure_mode: FunctionalSymbolicClosureMode = "disabled",
     ) -> None:
         self._executor_factory = (
             executor_factory or _default_executor_factory
         )
+        self._symbolic_closure_mode = symbolic_closure_mode
 
     def execute(
         self,
@@ -1312,6 +1347,7 @@ class FunctionalTransactionalInterpreter:
             working.emit(call_id, "became_ready")
             working.set_status(call_id, "running")
             working.emit(call_id, "running")
+            closure_result: SymbolicClosureExecutionResult | None = None
             try:
                 prepared = preparer.prepare(
                     call_id=call_id,
@@ -1354,6 +1390,8 @@ class FunctionalTransactionalInterpreter:
                     )
                 branch = current_context.fork()
                 _apply_missing_declarations(branch, compiled.declarations)
+                for plan in compiled.plans:
+                    branch.ensure_step_scope(plan.step_id, plan.scope)
                 _materialize_transaction_state_reads(
                     branch,
                     prepared.state_reads,
@@ -1366,23 +1404,102 @@ class FunctionalTransactionalInterpreter:
                     ),
                 )
                 executor = self._executor_factory(inputs, branch)
+                capability = capability_catalog.get(
+                    prepared.capability_id
+                )
+                symbolic_spec = (
+                    getattr(capability.source, "symbolic_closure", None)
+                    if capability is not None
+                    else None
+                )
+                if (
+                    self._symbolic_closure_mode != "disabled"
+                    and symbolic_spec is not None
+                ):
+                    invocation = _symbolic_closure_invocation(
+                        compiled,
+                        method_id=getattr(
+                            capability.source,
+                            "method_id",
+                            None,
+                        ),
+                    )
+                    closure_args = executor.resolve_inputs(
+                        branch,
+                        invocation,
+                    )
+                    pre_execution_symbol_bindings = (
+                        _merge_runtime_symbol_bindings(
+                            _context_runtime_symbol_bindings(
+                                branch,
+                                registry=object_registry,
+                            ),
+                            _prepared_runtime_symbol_bindings(
+                                prepared,
+                                working=working,
+                            ),
+                        )
+                    )
+                    target_binding = _prepared_binding(
+                        prepared,
+                        symbolic_spec.target_arg,
+                    )
+                    closure_result = execute_symbolic_closure(
+                        symbolic_spec,
+                        args=closure_args,
+                        target_object_id=(
+                            _binding_math_object_id(target_binding)
+                            if target_binding is not None
+                            else None
+                        ),
+                        runtime_symbol_bindings=(
+                            pre_execution_symbol_bindings
+                        ),
+                        kernel=branch.kernel,
+                        target_binding=(
+                            target_binding.logical_binding.semantic_role
+                            if target_binding is not None
+                            else None
+                        ),
+                        arg_object_ids=(
+                            _prepared_runtime_arg_object_ids(
+                                prepared,
+                                runtime_args=closure_args,
+                            )
+                        ),
+                    )
+                    if (
+                        self._symbolic_closure_mode == "authoritative"
+                        and closure_result.status
+                        not in {"not_applicable", "unique"}
+                    ):
+                        issue = _issue(
+                            call_id,
+                            closure_failure_code(closure_result.status),
+                            "symbolic closure did not determine a unique "
+                            f"target: status={closure_result.status}, "
+                            f"branches={closure_result.branch_count}",
+                            details=closure_result.to_payload(),
+                        )
+                        working.set_status(
+                            call_id,
+                            "failed",
+                            issue_codes=(issue.code,),
+                        )
+                        working.emit(call_id, "failed")
+                        results.append(
+                            FunctionalCallExecutionResult(
+                                call_id,
+                                "failed",
+                                root_issues=(issue,),
+                                symbolic_closure=closure_result,
+                            )
+                        )
+                        continue
                 execution = executor.execute_plan(
                     branch,
                     list(compiled.plans),
                 )
-                failed_checks = tuple(
-                    item
-                    for item in execution.checks
-                    if not bool(getattr(item, "ok", False))
-                )
-                if failed_checks:
-                    raise RuntimeError(
-                        "transactional runtime checks failed: "
-                        + ", ".join(
-                            str(getattr(item, "name", item))
-                            for item in failed_checks
-                        )
-                    )
                 call_symbol_bindings = _declared_runtime_symbol_bindings(
                     compiled,
                     branch=branch,
@@ -1400,6 +1517,49 @@ class FunctionalTransactionalInterpreter:
                     ),
                     call_symbol_bindings,
                 )
+                if (
+                    closure_result is not None
+                    and closure_result.status == "unique"
+                ):
+                    closure_mismatches = _apply_symbolic_closure_returns(
+                        compiled,
+                        branch=branch,
+                        result=closure_result,
+                        mode=self._symbolic_closure_mode,
+                    )
+                    mismatches.extend(closure_mismatches)
+                    if self._symbolic_closure_mode == "authoritative":
+                        closure_checks = (
+                            _validate_compiled_symbolic_closure_returns(
+                                compiled,
+                                branch=branch,
+                                result=closure_result,
+                            )
+                        )
+                        failed_closure_checks = tuple(
+                            item.name
+                            for item in closure_checks
+                            if not item.ok
+                        )
+                        if failed_closure_checks:
+                            raise SymbolicClosureRuntimeDriftError(
+                                "rewritten outputs violate closure: "
+                                + ", ".join(failed_closure_checks)
+                            )
+                        execution.checks.extend(closure_checks)
+                failed_checks = tuple(
+                    item
+                    for item in execution.checks
+                    if not bool(getattr(item, "ok", False))
+                )
+                if failed_checks:
+                    raise RuntimeError(
+                        "transactional runtime checks failed: "
+                        + ", ".join(
+                            str(getattr(item, "name", item))
+                            for item in failed_checks
+                        )
+                    )
                 (
                     runtime_results,
                     writes,
@@ -1430,9 +1590,28 @@ class FunctionalTransactionalInterpreter:
                             state_writes=writes,
                             checks=tuple(execution.checks),
                             root_issues=issues,
+                            symbolic_closure=closure_result,
                         )
                     )
                     continue
+                if (
+                    self._symbolic_closure_mode == "authoritative"
+                    and closure_result is not None
+                    and closure_result.status == "unique"
+                    and closure_result.provenance is not None
+                ):
+                    writes = tuple(
+                        replace(
+                            write,
+                            symbolic_closure_provenance=(
+                                closure_result.provenance
+                                if write.return_name
+                                in closure_result.affected_returns
+                                else write.symbolic_closure_provenance
+                            ),
+                        )
+                        for write in writes
+                    )
                 projected_writes = tuple(
                     item
                     for item in project_functional_state_writes(
@@ -1470,16 +1649,21 @@ class FunctionalTransactionalInterpreter:
                         state_writes=writes,
                         committed_versions=versions,
                         checks=tuple(execution.checks),
+                        symbolic_closure=closure_result,
                     )
                 )
             except Exception as exc:
+                if isinstance(exc, SymbolicClosureRuntimeDriftError):
+                    issue_code = "planner.contract_runtime_symbol_drift"
+                elif isinstance(exc, SymbolicClosureConfigurationError):
+                    issue_code = "planner.symbolic_closure_spec_invalid"
+                elif "planner_configuration_error" in str(exc):
+                    issue_code = "planner.transactional_configuration_error"
+                else:
+                    issue_code = "functional.transactional_call_failed"
                 issue = _issue(
                     call_id,
-                    (
-                        "planner.transactional_configuration_error"
-                        if "planner_configuration_error" in str(exc)
-                        else "functional.transactional_call_failed"
-                    ),
+                    issue_code,
                     f"{type(exc).__name__}: {exc}",
                 )
                 working.set_status(
@@ -1493,6 +1677,7 @@ class FunctionalTransactionalInterpreter:
                         call_id,
                         "failed",
                         root_issues=(issue,),
+                        symbolic_closure=closure_result,
                     )
                 )
 
@@ -2121,6 +2306,244 @@ def _prepared_runtime_symbol_bindings(
     return result
 
 
+def _prepared_binding(
+    prepared: PreparedFunctionalCall,
+    arg_name: str,
+) -> PreparedFunctionalArgBinding | None:
+    matches = tuple(
+        item
+        for item in prepared.arg_bindings
+        if item.logical_binding.key.arg_name == arg_name
+    )
+    if len(matches) > 1:
+        raise ValueError(
+            "planner_configuration_error: "
+            "planner.functional_binding_context_incomplete: "
+            f"call={prepared.call_id}, arg={arg_name}, cardinality=many"
+        )
+    return matches[0] if matches else None
+
+
+def _binding_math_object_id(
+    binding: PreparedFunctionalArgBinding,
+) -> MathObjectId | None:
+    if binding.selected_state_version_id is not None:
+        return (
+            binding.selected_state_version_id.slot_id.logical_key.object_id
+        )
+    source = binding.logical_binding.source
+    if source.math_object_id is not None:
+        return source.math_object_id
+    if source.state_version_id is not None:
+        return source.state_version_id.slot_id.logical_key.object_id
+    return None
+
+
+def _prepared_runtime_arg_object_ids(
+    prepared: PreparedFunctionalCall,
+    *,
+    runtime_args: Mapping[str, Any],
+) -> dict[str, tuple[MathObjectId, ...]]:
+    result: dict[str, list[tuple[int, MathObjectId]]] = {}
+    for item in prepared.arg_bindings:
+        object_id = _binding_math_object_id(item)
+        if object_id is None:
+            continue
+        targets = tuple(
+            dict.fromkeys(
+                (
+                    item.logical_binding.key.arg_name,
+                    *item.logical_binding.runtime_input_targets,
+                )
+            )
+        )
+        for target in targets:
+            if target not in runtime_args:
+                continue
+            result.setdefault(target, []).append(
+                (item.logical_binding.key.item_index, object_id)
+            )
+    return {
+        target: tuple(
+            object_id
+            for _index, object_id in sorted(
+                values,
+                key=lambda pair: pair[0],
+            )
+        )
+        for target, values in result.items()
+    }
+
+
+def _symbolic_closure_invocation(
+    compiled: CompiledFunctionalCall,
+    *,
+    method_id: str | None,
+) -> MethodInvocation:
+    matches = tuple(
+        invocation
+        for plan in compiled.plans
+        for invocation in plan.invocations
+        if method_id is None or invocation.method_id == method_id
+    )
+    if len(matches) != 1:
+        raise ValueError(
+            "planner_configuration_error: "
+            "planner.symbolic_closure_spec_invalid: "
+            f"call={compiled.call_id}, method={method_id}, "
+            f"invocation_count={len(matches)}"
+        )
+    return matches[0]
+
+
+def _apply_symbolic_closure_returns(
+    compiled: CompiledFunctionalCall,
+    *,
+    branch: RuntimeContext,
+    result: SymbolicClosureExecutionResult,
+    mode: FunctionalSymbolicClosureMode,
+) -> tuple[FunctionalTransactionShadowMismatch, ...]:
+    mismatches: list[FunctionalTransactionShadowMismatch] = []
+    for returned in compiled.public_returns:
+        if returned.return_name not in result.affected_returns:
+            continue
+        write = returned.expected_write
+        if write is None:
+            continue
+        path = (
+            write.runtime_destination_key.runtime_path
+            if write.runtime_destination_key is not None
+            else None
+        ) or _runtime_path_for_write(compiled.plans, write)
+        if path is None:
+            raise SymbolicClosureRuntimeDriftError(
+                f"return path missing: {returned.return_name}"
+            )
+        try:
+            current = branch.read_path(
+                path,
+                from_scope_id=write.scope_id,
+                expected_type=write.runtime_type,
+            )
+        except (KeyError, PermissionError, TypeError):
+            if returned.required:
+                raise
+            continue
+        normalized = substitute_symbolic_closure_output(
+            current,
+            result,
+            return_name=returned.return_name,
+            validate_output=False,
+        )
+        closure_checks = validate_symbolic_closure_outputs(
+            {returned.return_name: normalized},
+            result,
+        )
+        failed_closure_checks = tuple(
+            item.name for item in closure_checks if not item.ok
+        )
+        if failed_closure_checks:
+            mismatch = FunctionalTransactionShadowMismatch(
+                "symbolic_closure_output_contract_drift",
+                compiled.call_id,
+                {
+                    "return_name": returned.return_name,
+                    "checks": [],
+                },
+                {
+                    "return_name": returned.return_name,
+                    "checks": list(failed_closure_checks),
+                },
+            )
+            if mode == "shadow":
+                mismatches.append(mismatch)
+                continue
+            if mode == "authoritative":
+                raise SymbolicClosureRuntimeDriftError(
+                    "companion output does not match closure: "
+                    + ", ".join(failed_closure_checks)
+                )
+        if not _symbolic_values_equivalent(
+            current.value,
+            normalized.value,
+        ):
+            mismatch = FunctionalTransactionShadowMismatch(
+                "symbolic_closure_output_drift",
+                compiled.call_id,
+                {
+                    "return_name": returned.return_name,
+                    "value": _payload(normalized.value),
+                },
+                {
+                    "return_name": returned.return_name,
+                    "value": _payload(current.value),
+                },
+            )
+            if mode == "shadow":
+                mismatches.append(mismatch)
+            elif mode == "authoritative":
+                branch.write_path(
+                    path,
+                    normalized,
+                    from_scope_id=write.scope_id,
+                    allow_overwrite=True,
+                )
+    return tuple(mismatches)
+
+
+def _validate_compiled_symbolic_closure_returns(
+    compiled: CompiledFunctionalCall,
+    *,
+    branch: RuntimeContext,
+    result: SymbolicClosureExecutionResult,
+) -> tuple[Any, ...]:
+    outputs: dict[str, TypedValue] = {}
+    for returned in compiled.public_returns:
+        if returned.return_name not in result.affected_returns:
+            continue
+        write = returned.expected_write
+        if write is None:
+            continue
+        path = (
+            write.runtime_destination_key.runtime_path
+            if write.runtime_destination_key is not None
+            else None
+        ) or _runtime_path_for_write(compiled.plans, write)
+        if path is None:
+            raise SymbolicClosureRuntimeDriftError(
+                f"return path missing: {returned.return_name}"
+            )
+        try:
+            outputs[returned.return_name] = branch.read_path(
+                path,
+                from_scope_id=write.scope_id,
+                expected_type=write.runtime_type,
+            )
+        except (KeyError, PermissionError, TypeError):
+            if returned.required:
+                raise
+    return validate_symbolic_closure_outputs(outputs, result)
+
+
+def _symbolic_values_equivalent(left: Any, right: Any) -> bool:
+    if isinstance(left, Mapping) and isinstance(right, Mapping):
+        if set(left) != set(right):
+            return False
+        return all(
+            _symbolic_values_equivalent(left[key], right[key])
+            for key in left
+        )
+    if isinstance(left, (tuple, list)) and isinstance(right, (tuple, list)):
+        return len(left) == len(right) and all(
+            _symbolic_values_equivalent(a, b)
+            for a, b in zip(left, right, strict=True)
+        )
+    try:
+        return sp.simplify(sp.sympify(left) - sp.sympify(right)) == 0
+    except (TypeError, ValueError, sp.SympifyError):
+        return left == right
+
+
 def _context_runtime_symbol_bindings(
     context: RuntimeContext,
     *,
@@ -2395,6 +2818,15 @@ def _aggregate_transactional_output(
         )
         if step_id in plans_by_step
     )
+    plans = (
+        *plans,
+        *_transactional_answer_projection_plans(
+            report,
+            compiled=compiled,
+            goal_reachable_call_ids=goal_reachable_call_ids,
+            question_goals=tuple(inputs.question_goals),
+        ),
+    )
     projected_writes = tuple(
         item
         for item in project_functional_state_writes(
@@ -2419,6 +2851,85 @@ def _aggregate_transactional_output(
         context_declarations=list(declarations_by_path.values()),
         step_plans=list(plans),
     )
+
+
+def _transactional_answer_projection_plans(
+    report: FunctionalTransactionalExecutionReport,
+    *,
+    compiled: Mapping[str, CompiledFunctionalCall],
+    goal_reachable_call_ids: frozenset[str],
+    question_goals: tuple[Any, ...],
+) -> tuple[StepPlan, ...]:
+    """Project a committed state to every required QuestionGoal destination.
+
+    A public return may be both a reusable object state and an answer.  The
+    bridge can physically promote a method output only once, so calls hoisted
+    above an answer scope publish the canonical object path first.  These
+    invocation-free plans copy that already committed value into the answer
+    scope without introducing another mathematical writer.
+    """
+
+    goals_by_handle = {
+        f"answer:{goal.id}": goal for goal in question_goals
+    }
+    result: list[StepPlan] = []
+    seen_targets: set[str] = set()
+    for binding in report.graph.answer_bindings:
+        if binding.producer_call_id not in goal_reachable_call_ids:
+            continue
+        goal = goals_by_handle.get(binding.answer_handle)
+        call = compiled.get(binding.producer_call_id)
+        if goal is None or call is None:
+            raise ValueError(
+                "planner_configuration_error: transactional answer "
+                f"projection unresolved: {binding.answer_handle}"
+            )
+        returned = next(
+            (
+                item
+                for item in call.public_returns
+                if item.return_name == binding.return_name
+            ),
+            None,
+        )
+        if returned is None or returned.expected_write is None:
+            raise ValueError(
+                "planner_configuration_error: transactional answer return "
+                f"unresolved: {binding.answer_handle}"
+            )
+        source_path = _runtime_path_for_write(
+            call.replay_plans or call.plans,
+            returned.expected_write,
+        )
+        if source_path is None:
+            raise ValueError(
+                "planner_configuration_error: transactional answer source "
+                f"unresolved: {binding.answer_handle}"
+            )
+        target_path = goal.target_path
+        if source_path == target_path or target_path in seen_targets:
+            continue
+        seen_targets.add(target_path)
+        step_id = (
+            f"{binding.producer_call_id}__answer_projection__{goal.id}"
+            .replace(":", "_")
+        )
+        result.append(
+            StepPlan(
+                step_id=step_id,
+                goal=StepGoal(
+                    goal_id=f"functional_answer_projection:{goal.id}",
+                    type="functional_answer_projection",
+                    target_path=target_path,
+                    scope_id=goal.question_id,
+                ),
+                scope=goal.question_id,
+                invocations=[],
+                expected_outputs=[target_path],
+                promote_outputs={source_path: target_path},
+            )
+        )
+    return tuple(result)
 
 
 def _unique_issues(

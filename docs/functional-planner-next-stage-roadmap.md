@@ -74,8 +74,8 @@ Track A 是否完成，但主链切换前必须重新建立相应阶段自己的
 | Track A assets | `COMPLETE` | 五题 fixture、离线 replay、真实 opt-in、strict-test few-shot、共享 batch 基座 | 无 |
 | Track A Stage 1 | `COMPLETE` | 每题 3 个样本，`15/15` 在三轮内通过，configuration error 为 0 | 无 |
 | Track A parity complete | `COMPLETE` | 五题各 10 个兼容样本，`pass@3 >= 90%`；structured provenance parity、typed failure boundary、跨 batch 聚合均已建立 | 无 |
-| Track B typed identity authority | `IN PROGRESS` | B0-B4、B5a/B5b 已完成；typed consumer 的真实 execution-shadow smoke 为 `15/15`，identity fallback 为 0 | B5c 等待 C2-C4 完成后删除 StepIntent/string projection |
-| Track C transactional interpreter | `IN PROGRESS` | C0、C0.5、C1、C2 已完成；C3 binding authority 已离线实现并通过全量回归 | 运行 C3 `context_authoritative` 真实 `3×5` smoke；通过后进入 C4 runtime-grounded closure |
+| Track B typed identity authority | `IN PROGRESS` | B0-B4、B5a/B5b 已完成；typed consumer 的真实 execution-shadow smoke 为 `15/15`，identity fallback 为 0 | B5c 按既定顺序等待 C6 后删除 StepIntent/string projection |
+| Track C transactional interpreter | `IN PROGRESS` | C0、C0.5、C1、C2、C3、C4 已完成；runtime-grounded closure 已在 `context_authoritative` 主链完成真实验收 | C5 迁移其余参数求解 method；随后由 C6 完成 closure provenance 消费与 strict cleanup |
 | Functional Default Ready | `BLOCKED` | Functional 主链可 opt-in 执行 | Track A parity complete；Track B B0-B4；Track C production closure；direct compiler shadow；held-out；production observability 与回滚门禁 |
 | Track D0 product routing gate retirement | `BLOCKED` | 唯一 problem-id gate 已登记 | Track A parity complete；Functional production routing 接管该 family；legacy deterministic planner 退场 |
 | Track D default switch | `BLOCKED` | direct compiler 目标已定义 | Functional Default Ready 后才能切默认协议和删除 StepIntent 兼容链 |
@@ -89,11 +89,10 @@ Track A 是否完成，但主链切换前必须重新建立相应阶段自己的
 
 Track A 已完成，当前主线不再围绕五题概率样本做局部补丁：
 
-1. 运行 C3 `context_authoritative` 五题各 3 个真实样本，确认 binding mismatch、
-   role fallback、configuration error 和 unclassified error 均为 0；
-2. C4 继续使用 C0.5 作为 scope/version/binding hard gate，并保持
-   `context_authoritative` 五题兼容 smoke；
-3. C4 runtime-grounded closure 完成后，再由 B5c 删除
+1. C5 按 capability effect 逐个迁移其余参数求解 method，不按题目或变量名扩展；
+2. 为每个迁移切片复用 C4 的 generated closure gate、事务回滚门禁和真实
+   `context_authoritative + authoritative closure` smoke；
+3. C6 完成 closure provenance 的 Context/retry/explanation 消费后，再由 B5c 删除
    StepIntent/string projection compatibility。
 
 C0.5 的详细设计见：
@@ -553,7 +552,7 @@ B2 完成门禁：
 
 #### B5c. StepIntent and String Projection Retirement
 
-- 状态：`PENDING AFTER C1-C4`。
+- 状态：`PENDING AFTER C6`。
 - direct compiler/transactional interpreter 成为主链后删除 StepIntent bridge；
 - 删除 canonical handle、legacy StateSlot、semantic-name keyword 和 runtime-path
   identity compatibility；
@@ -612,6 +611,8 @@ B5a typed producer authority
   -> B5b typed consumer authority
   -> C0.5 scope/version executable model gate
   -> C1-C4 transactional execution and runtime-grounded closure
+  -> C5 parameter method migration
+  -> C6 closure provenance consumption and strict cleanup
   -> B5c StepIntent/string projection retirement
   -> Track D direct compiler
 ```
@@ -622,9 +623,10 @@ compiler/runtime。这样先解决状态权威问题，再单独替换编译桥�
 ### Current Status
 
 `IN PROGRESS`。C0 shadow、C0.5 executable model gate、C1 transactional
-execution-shadow compatibility gate 和 C2 Context/retry authority 已完成。
-Functional opt-in 可使用 `context_authoritative`；产品默认仍为 legacy。当前进入
-C3 Functional arg role authority，之后实施 C4 runtime-grounded closure。
+execution-shadow compatibility gate、C2 Context/retry authority、C3 Functional arg
+role authority 和 C4 runtime-grounded closure authority 已完成。Functional opt-in 可使用
+`context_authoritative + authoritative closure`；产品默认仍为 legacy。当前进入 C5
+parameter method migration。
 
 详细设计见：
 
@@ -773,7 +775,7 @@ B3 issue 双向比较和 parent/child 跨 scope 覆盖下限均已进入 hard ga
 
 #### C3. Preserve Functional Arg Roles
 
-状态：`OFFLINE IMPLEMENTED / REAL SMOKE PENDING`。
+状态：`COMPLETE`。
 
 - 已建立正式 `FunctionalBindingContext`，逐项保存 arg role、wire/resolver/compiler
   authority、typed source、exact/latest/identity-only selection policy、aggregate
@@ -801,10 +803,12 @@ B3 issue 双向比较和 parent/child 跨 scope 覆盖下限均已进入 hard ga
   evidence，并记录 compatibility event，不按旧 wire identity 恢复；
 - 本轮 C3 主路径门禁为 `402 passed`，C3+C0.5 联合门禁为 `405 passed`；
   全量 solver 为 `1619 passed, 17 skipped`；
-- 尚未运行新 source fingerprint 的真实 `context_authoritative` 五题各 3 个样本，
-  因此 C3 暂不标记 `COMPLETE`，C4 仍由该 smoke gate 阻塞。
-- 当前待验收的 `solver_source_sha256` 为
-  `c67798414f99fd6ce0cb3f78f9c9e54ebdfa11e19e905ab8abe8a40f6b7c5f05`。
+- C3 acceptance batch 为 `c2-context-authoritative-20260801-140724`：五题各
+  10 个样本，总计 `48/50`，五题均满足 Stage 2 的 `pass@3 >= 90%`；
+  configuration error、unclassified error 和成功样本 gate failure 均为 0。
+  两个失败均不是 binding authority/configuration drift。
+- acceptance 的 solver source SHA-256 为
+  `03c7781fdf875f254a12e48eea09091d54e4855742602eb55041e1d6438e0726`。
 
 真实验收命令必须显式携带 C2 authority：
 
@@ -827,10 +831,117 @@ legacy binding role fallback 全部为 0。
 
 #### C4. Runtime-grounded Closure Specs
 
-- 在 MethodSpec 中声明 `SymbolicClosureSpec`；
-- 将 equation builder、representation mapper 和 constraint filter 注册表化；
-- 建立共享 `execute_symbolic_closure(...)`；
-- preflight 在 LLM 调用前验证 adapter、arg 和 output 配置完整性。
+状态：`COMPLETE`。
+
+- `SymbolicClosureSpec` 已声明 target、known substitutions、known mapping inputs、
+  representation mapper、constraint filter、preserved Symbol basis、substitution outputs
+  和集合级 output validator；
+- equation builder、representation mapper、constraint filter 与按 runtime type 分派的
+  output substitution adapter 已注册表化；
+- C2 单 call 事务在 method 执行前运行共享 `execute_symbolic_closure(...)`，在 method
+  返回后统一校验/应用 substitution，再按实际 runtime value 计算 free symbols 与 form；
+- target、known substitution 与 preserved Symbol 全部按 C3 binding ledger 的
+  `MathObjectId` 校验；runtime path、符号裸名和 canonical ref 不参与身份判断；
+- catalog preflight 在调用 LLM 前验证 adapter、arg、类型、output 和唯一目标策略；
+  配置缺失 fail loud，不消耗 retry；
+- 首个真实切片为 `quadratic_from_constraints`。它与共享 closure executor 使用同一个
+  normalized quadratic constraint system builder，不按 method id dispatch；
+- `disabled / shadow / authoritative` 三种内部模式已接入 C2、planner provider、batch
+  CLI、fingerprint 和 summary；事务报告记录 execution/drift count；
+- unique closure 的 provenance 在 authoritative output rewrite、集合级校验和
+  commit-payload 校验通过后、B3 destination finalizer 之前写入受影响的
+  `StateWriteProvenance`，因此 B3 可以审计 closure 证据；只有 B3 和原子 version commit
+  随后均成功，这些 writes 才进入 verified result。shadow 只记录 closure result/drift，
+  commit-payload 失败诊断中的 provisional writes 也不携带 closure provenance。非唯一
+  closure 产生 typed retry issue 并回滚整个 call，不提交幽灵 StateVersion；
+- target 已由 `known_coefficients` 或 typed known substitution 给出时，shared executor
+  仍建立完整方程并检查一致性；preclosed 只避免重复求解，不会把冲突约束误判为
+  `unique`，也不会把合法 determined call 改判为 `identity_unresolved`；
+- method 与 shared closure 通过同一个 quadratic target-expression projector 消费 template
+  representation；target 即使不在 `all_coefficients` 中，也能得到相同 target value 和
+  coefficients output，不再出现 closure unique、method unconstrained 的 dual path；
+- 已物化开放状态中的确定性 target expression 只要其自由符号完全属于 preserved basis，
+  即作为 unique open closure；空 equation set 不再把 `b=1-c` 误判为 underdetermined；
+- materialized coefficient relation 与 explicit known/ParameterValue 同时进入一致性方程；
+  可由非 preserved unknown 调和时继续求解，否则 method 在 disabled/shadow 路径也直接
+  inconsistent。preclosed target 的残余方程只含 preserved basis 时不能被忽略或反向求解
+  preserved Symbols，统一判 inconsistent；含非 preserved unknown 且唯一可解时将该解
+  合并进 closure substitution。target value 依赖未声明 preserved Symbol 时统一
+  underdetermined；
+- typed ParameterValue 与 `known_mapping_args` 对同一 Symbol 给出不同值时统一判
+  inconsistent，不按参数收集顺序覆盖；实际 runtime mapping 的每个 Symbol key 都与
+  C3 per-symbol `MathObjectId` 核对。单 fact lowering 与多 fact aggregate 使用同一规则，
+  并且只为本次 invocation 实际存在的 runtime arg 建立 cardinality/identity expectation；
+- constraint filter 缺少任一声明输入时 fail loud；`curve_points` 会进入 equation source
+  provenance；只有 `unique` 且 runtime-validated 的 closure 才能改写 outputs 或写入
+  closure provenance；
+- output substitution 后会按 contract validator 重新验证每个 companion return、returns
+  之间的一致性及完整 quadratic constraint system。错误常数和错误开放表达式即使
+  `.subs` 为 no-op 或得到 closed form，也会产生 runtime symbol drift 并回滚整个事务；
+- preclosed result 的 residual basis 包含 preserved Symbols；集合级 validator failure 直接
+  分类为 `planner.contract_runtime_symbol_drift`，不再降级为普通 transactional failure；
+- reconciliation 不再执行静态 symbolic substitution。它只保留 contract 与保守
+  free-symbol 状态；actual residual Symbol basis 在 runtime substitution 后按
+  `MathObjectId` 生成；
+- 2,048 个确定性场景直接运行生产 `quadratic_constraints`、representation mapper 和
+  constraint filter；显式 target 的 transactional test 保证 execution count 非零。
+  五份 authored fixture 没有 `target_parameter`，只验证 `not_applicable` 不误触发，
+  不作为 active closure 覆盖；真实 smoke 在 authoritative 且有效计划声明 target 时，
+  额外要求单样本 symbolic closure execution count 大于 0；batch summary 还要求全批
+  execution count 大于 0，否则直接令 active gate 失败，避免 LLM 全部省略 target 后
+  drift=0 空转绿。本轮 C4、
+  C3 binding、C0.5 scope/version 与 FunctionalPlan 联合门禁为 `504 passed`。
+- 全量 solver 回归为 `1665 passed, 17 skipped`；recorded StepIntent 中没有 B5
+  sidecar 的派生 Symbol 只允许在 legacy runtime migration 边界依据 producer
+  provenance 补建身份，不允许按裸符号名补位。
+
+2026-08-02 的真实 acceptance 证据：
+
+- batch：`c2-c4-smoke-20260802-104230`；配置为五题各 5 个样本，
+  `functional_transaction_mode=context_authoritative`、
+  `functional_symbolic_closure_mode=authoritative`；
+- 总计 `24/25` 通过。唯一失败为 `heping-ermo/sample-03` 的
+  `provider.reasoning_only_empty_response`：两次 provider 请求均消耗 reasoning token
+  但没有可见 JSON，未进入 FunctionalPlan、事务执行或 symbolic closure，不属于 C4
+  solver/configuration 缺陷；
+- symbolic closure 实际执行 `8` 次，覆盖 `b=1-c`、`c=b+1` 和 `b=a-3` 等开放
+  target closure；所有执行均为 runtime-validated `unique`，drift 为 `0`，batch activity
+  gate 通过；
+- configuration error、unclassified error、成功样本 gate failure、transaction
+  compatibility mismatch 和 behavior delta 均为 `0`；所有成功样本通过 answer、runtime、
+  provenance 与 protocol gate；
+- acceptance solver source SHA-256 为
+  `ae2001b7887dcfd52c887ca0bf41944e2737e1e0f9f98c95b4636967f65f1714`，
+  evaluation source SHA-256 为
+  `2ec3a3f56f3c79b21271623eb636b71dc1fda3632277dbecb33f701c221863c8`。
+
+当前仍未完成：
+
+- 其余参数求解 method 的迁移，属于 C5；
+- closure provenance 的完整 Context/retry/explanation 消费，属于 C6。
+
+后续复验命令：
+
+```bash
+cd server
+RUN_LLM_INTEGRATION=1 \
+RUN_DEEPSEEK_FUNCTIONAL_PLANNER=1 \
+uv run python -m shuxueshuo_server.solver.deepseek_functional_batch \
+  --case all \
+  --samples-per-case 3 \
+  --concurrency 3 \
+  --max-attempts 3 \
+  --functional-transaction-mode context_authoritative \
+  --functional-symbolic-closure-mode authoritative \
+  --batch-id c4-context-authoritative-smoke
+```
+
+复验时必须断言 summary 中 transaction/closure mode 均为 authoritative，且
+configuration/unclassified error、symbolic closure drift 和 failed transaction ghost
+write 均为 0；任何有效计划声明 symbolic target 的样本还必须实际执行至少一次 closure。
+
+设计边界保持不变：
+
 - spec 只声明 target、equation source、substitution effect 和 affected returns；
 - actual `SymbolicClosureResult` 决定 target value、branches、substitution 和 free symbols；
 - spec/runtime 漂移产生 `planner.contract_runtime_symbol_drift`；

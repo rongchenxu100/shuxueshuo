@@ -51,7 +51,7 @@ LLM 的目标参数身份：a
 
 ## Current Baseline
 
-当前代码已经具备一个可复用原语：
+当前代码已经具备两个分层原语：
 
 ```text
 server/shuxueshuo_server/solver/runtime/symbolic_target_closure.py
@@ -65,7 +65,18 @@ server/shuxueshuo_server/solver/runtime/symbolic_target_closure.py
 - 使用统一 `SympyKernel`；
 - 返回实际 residual symbols、branch count 和 substitution。
 
-首个接入 method 是：
+Transactional Functional 主链还提供：
+
+```text
+server/shuxueshuo_server/solver/runtime/symbolic_closure_execution.py
+```
+
+它已实现 adapter registries、catalog preflight、C3 typed Symbol identity 校验、
+runtime output substitution、typed failure 和 `StateWriteProvenance` closure evidence。
+首个 authoritative 切片是 `quadratic_from_constraints`；其 method 与 closure executor
+共用 normalized quadratic constraint system builder。
+
+早期 target solver 的首个接入 method 是：
 
 ```text
 parameter_from_curve_point_on_quadratic
@@ -73,18 +84,30 @@ parameter_from_curve_point_on_quadratic
 
 它已经能够处理“曲线表达式内部系数与 LLM 绑定目标参数不完全同名，但结构关系可唯一映射”的情况。
 
-### 当前仍是兼容补丁的部分
+### 当前迁移边界
 
 以下部分尚未泛化：
 
-1. FunctionalPlan 的 typed arg role 在投影成 `StepIntent.reads` 后丢失。
-2. 编译器仍通过 `free_quadratic_parameter_if_read` 从无角色 reads 中恢复一个自由系数。
-3. 二次函数系数到目标参数的映射仍由具体 method 组装。
-4. 其他参数求解 method 尚未统一使用 target closure。
-5. closure 的方程来源、约束来源、representation mapper 和 output substitution 尚未进入声明式 spec。
-6. retry 和学生讲解只能看到最终错误，尚不能完整解释“目标参数如何由内部残余符号闭合”。
+1. C3 已保留 Functional arg role 和 binding authority；旧 StepIntent-only 读取仍等待
+   B5c 退场。
+2. `quadratic_from_constraints` 已使用声明式 closure spec；其他参数求解 method 尚未
+   统一迁移，属于 C5。
+3. closure provenance 已进入 transaction report/write sidecar，但 retry、正式 Context
+   和学生讲解尚未完整消费，属于 C6。
 
-因此当前实现应视为迁移基线，而不是最终架构。
+Closure provenance 只代表已经提交的 authoritative effect：output rewrite、集合级
+validator、B3 destination finalization 与 atomic version commit 必须全部成功。shadow
+执行只保存 closure result 和 drift；失败事务即使保留 provisional write 诊断，也不得给
+这些 write 盖 closure provenance。`known_mapping_args` 的 identity 检查覆盖 aggregate
+与 singleton lowering，但按实际 runtime mapping 的每个 Symbol key 对照 C3 per-symbol
+`MathObjectId`，并且只针对本次 invocation 实际存在的参数键建立期望。已物化状态提供的
+target expression 若只依赖 preserved basis，即使没有额外 equation，也属于 unique open
+closure。
+Materialized coefficient relation 与 explicit known 不使用覆盖语义；二者共同形成一致性
+方程。共享 solver 可以求解非 preserved unknown 来调和关系，但不得提交与当前 parabola
+冲突的 coefficients，也不得接受依赖未声明 preserved Symbol 的 target value。
+
+因此 C4 是可执行基础设施与首个 vertical slice，不代表全部参数 method 已迁移。
 
 ## Relationship to Transactional Execution
 
@@ -244,6 +267,10 @@ Spec expected effect
 仍包含 target Symbol，应报告 `planner.contract_runtime_symbol_drift`，而不是让
 Context 接受错误状态，也不能由 reconciliation 静默删除该 Symbol。
 
+`residual_symbol_ids` 表示 substitution 后实际仍存在的 Symbol identity，不是求解前
+方程中出现过的全部符号。已求出的 target 必须从 residual basis 消失；target value
+依赖的 preserved Symbol 则继续保留。
+
 ## Target Models
 
 ### FunctionalBindingContext
@@ -297,10 +324,13 @@ class SymbolicClosureSpec:
     target_arg: str
     equation_builder: str
     known_substitutions: tuple[tuple[str, str], ...] = ()
+    known_mapping_args: tuple[str, ...] = ()
     representation_mapper: str | None = None
+    constraint_filter: str | None = None
     constraint_args: tuple[str, ...] = ()
     preserved_symbol_args: tuple[str, ...] = ()
     substitution_outputs: tuple[str, ...] = ()
+    output_validator: str | None = None
     require_unique_target: bool = True
 ```
 
@@ -311,10 +341,13 @@ SymbolicClosureSpec(
     target_arg="parameter",
     equation_builder="point_on_curve",
     known_substitutions=(("known_parameter", "known_parameter_value"),),
+    known_mapping_args=("known_coefficients",),
     representation_mapper="polynomial_coefficient_template",
+    constraint_filter="parameter_value_constraint",
     constraint_args=("parameter_constraint",),
     preserved_symbol_args=("free_parameters",),
     substitution_outputs=("point", "parabola"),
+    output_validator="point_on_curve_closure_outputs",
 )
 ```
 
@@ -324,6 +357,23 @@ SymbolicClosureSpec(
 列表：题目没有该 capability 所需 source state 时，catalog satisfiability/preflight
 应隐藏或拒绝整个 capability；optional return 未实际产生时不创建 StateVersion，也不
 应用 effect。
+
+`known_mapping_args` 是声明式的 Symbol-value 映射来源。即使 target 已由该映射给出，
+executor 仍须运行 equation builder 并验证所有约束，不能把 preclosed 当作一致性捷径。
+typed known substitution 与 mapping 对同一 Symbol 给出不同值时必须判 inconsistent，不允许
+通过遍历顺序决定赢家。mapping keys 必须与 C3 提供的 aggregate `MathObjectId` 集合一致。
+preclosed target 留下的残余方程必须继续归约：只含 preserved Symbols 的非恒等方程表示
+当前 target 与受保护参数基冲突，应判 inconsistent；只有非 preserved unknown 存在唯一解
+时，才把该解并入 closure substitution。
+声明 `substitution_outputs` 时必须同时声明 `output_validator`；adapter 的 `.subs` 只负责
+表示改写，validator 负责验证 target 值、returns 间一致性以及改写后的完整方程系统。
+authoritative transaction 在 rewrite、集合 validator 和 commit-payload 校验通过后先把
+closure provenance 投影到 writes，再交给 B3 finalizer；B3 或原子提交失败时，这些 writes
+不得成为 verified provenance 或 Context 中的 StateVersion。
+
+representation mapper 的 domain projector 必须由 shared solver 和 runtime method 共同
+调用。对 quadratic template，current expression 可以包含 materialized target relation，
+但 template 只能代入显式 known values；否则 target identity 会在投影前被错误消去。
 
 ### Adapter Protocols
 
@@ -710,4 +760,6 @@ runtime/planner_state_context.py
 
 本文档的 typed binding 模型可在 FunctionalPlan 五题 parity 期间继续完善；正式
 closure 状态权威切换应放在 Transactional Functional Interpreter T1/T2 之后。此前
-当前 target closure 和静态 projection 只作为兼容基线与 shadow oracle。
+静态 projection 只保留 contract 与保守依赖，不执行 target substitution；shared
+runtime closure executor 才能产生实际 substitution、residual basis 与 closure
+provenance。

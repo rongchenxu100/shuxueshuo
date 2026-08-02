@@ -5,7 +5,6 @@ from __future__ import annotations
 from dataclasses import replace
 from typing import Mapping
 
-from shuxueshuo_server.solver.contracts import SymbolicClosureSpec
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
 )
@@ -120,54 +119,6 @@ def return_free_symbol_refs(
         if value.runtime_type == "ParameterValue" and value.object_ref is not None
     }
     return tuple(item for item in inherited if item not in solved)
-
-
-def apply_symbolic_closure_effect(
-    inferred_refs: tuple[str, ...],
-    *,
-    return_name: str,
-    args: Mapping[str, tuple[ResolvedFunctionalValue, ...]],
-    spec: SymbolicClosureSpec | None,
-) -> tuple[str, ...]:
-    """Project a declared target substitution onto one pre-runtime return.
-
-    This is deliberately conservative compatibility metadata. Runtime output
-    remains authoritative and replaces the estimate in write provenance.
-    """
-    if spec is None or return_name not in spec.substitution_outputs:
-        return inferred_refs
-    target_refs = _symbol_arg_refs(args, (spec.target_arg,))
-    if len(target_refs) != 1:
-        return inferred_refs
-    preserved_refs = _symbol_arg_refs(args, spec.preserved_symbol_args)
-    target_ref = target_refs[0]
-    return unique_ordered(
-        (
-            *(item for item in inferred_refs if item != target_ref),
-            *preserved_refs,
-        )
-    )
-
-
-def _symbol_arg_refs(
-    args: Mapping[str, tuple[ResolvedFunctionalValue, ...]],
-    arg_names: tuple[str, ...],
-) -> tuple[str, ...]:
-    return unique_ordered(
-        object_ref
-        for arg_name in arg_names
-        for value in args.get(arg_name, ())
-        for object_ref in (
-            (
-                value.object_ref,
-            )
-            if value.runtime_type == "Symbol" and value.object_ref is not None
-            else value.free_symbol_refs
-            if value.runtime_type == "SymbolList"
-            else ()
-        )
-        if object_ref.startswith("symbol:")
-    )
 
 
 def _condition_symbols_are_covered(
@@ -429,7 +380,6 @@ def _semantic_symbol_ref(
 
 
 __all__ = [
-    "apply_symbolic_closure_effect",
     "align_free_parameter_basis_with_consumers",
     "infer_unique_target_symbol_ref",
     "return_free_symbol_refs",

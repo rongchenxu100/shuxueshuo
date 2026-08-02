@@ -53,41 +53,95 @@ class QuadraticConstraintSolveResult:
     equations: tuple[sp.Equality, ...] = ()
 
 
-def solve_quadratic_constraint_system(
+@dataclass(frozen=True)
+class QuadraticConstraintSystem:
+    expression: sp.Expr
+    substitutions: dict[sp.Symbol, sp.Expr]
+    curve_points: tuple[Point, ...]
+    equations: tuple[sp.Equality, ...]
+    contradictory: bool = False
+
+
+def build_quadratic_constraint_system(
     request: QuadraticConstraintSolveRequest,
-    *,
-    kernel: SympyKernel,
-) -> QuadraticConstraintSolveResult:
-    """Solve or refine a quadratic while preserving an explicit free basis."""
+) -> QuadraticConstraintSystem:
+    """Build the normalized equation system shared by runtime consumers."""
+
+    parameter_substitutions = dict(request.parameter_substitutions)
+    known_coefficients = _substitute_mapping_values(
+        request.known_coefficients,
+        parameter_substitutions,
+    )
+    explicit_conflict = _substitution_mappings_conflict(
+        known_coefficients,
+        parameter_substitutions,
+    )
+    materialized_coefficients = _substitute_mapping_values(
+        _materialized_coefficient_substitutions(request),
+        parameter_substitutions,
+    )
+    explicit_coefficients = {
+        **known_coefficients,
+        **parameter_substitutions,
+    }
+    materialized_consistency = tuple(
+        sp.Eq(materialized_value, explicit_coefficients[symbol])
+        for symbol, materialized_value in materialized_coefficients.items()
+        if symbol in explicit_coefficients
+        and sp.simplify(
+            materialized_value - explicit_coefficients[symbol]
+        )
+        != 0
+    )
     substitutions = {
-        **_substitute_mapping_values(
-            _materialized_coefficient_substitutions(request),
-            request.parameter_substitutions,
-        ),
-        **_substitute_mapping_values(
-            request.known_coefficients,
-            request.parameter_substitutions,
-        ),
-        **request.parameter_substitutions,
+        **materialized_coefficients,
+        **known_coefficients,
+        **parameter_substitutions,
     }
     expression = sp.expand(request.base_expression.subs(substitutions))
     points = tuple(
         (
-            sp.simplify(sp.sympify(point[0]).subs(request.parameter_substitutions)),
-            sp.simplify(sp.sympify(point[1]).subs(request.parameter_substitutions)),
+            sp.simplify(
+                sp.sympify(point[0]).subs(request.parameter_substitutions)
+            ),
+            sp.simplify(
+                sp.sympify(point[1]).subs(request.parameter_substitutions)
+            ),
         )
         for point in request.curve_points
     )
     equations = [
         _substitute_equation(equation, substitutions)
-        for equation in request.equations
+        for equation in (
+            *request.equations,
+            *materialized_consistency,
+        )
     ]
     equations.extend(
         sp.Eq(expression.subs(request.independent_symbol, point[0]), point[1])
         for point in points
     )
     normalized, contradictory = _normalize_equations(equations)
-    if contradictory:
+    return QuadraticConstraintSystem(
+        expression=expression,
+        substitutions=substitutions,
+        curve_points=points,
+        equations=tuple(normalized),
+        contradictory=contradictory or explicit_conflict,
+    )
+
+
+def solve_quadratic_constraint_system(
+    request: QuadraticConstraintSolveRequest,
+    *,
+    kernel: SympyKernel,
+) -> QuadraticConstraintSolveResult:
+    """Solve or refine a quadratic while preserving an explicit free basis."""
+    system = build_quadratic_constraint_system(request)
+    substitutions = system.substitutions
+    expression = system.expression
+    normalized = list(system.equations)
+    if system.contradictory:
         return QuadraticConstraintSolveResult(
             "inconsistent",
             equations=tuple(normalized),
@@ -109,11 +163,18 @@ def solve_quadratic_constraint_system(
         request.target_symbol is not None
         and request.target_symbol not in substitutions
     ):
+        target_expression = request.target_expression
+        if target_expression is None:
+            target_expression = quadratic_target_expression(
+                request,
+                system=system,
+            )
         targeted = _solve_target(
             request,
             expression=expression,
             equations=normalized,
             substitutions=substitutions,
+            target_expression=target_expression,
             kernel=kernel,
         )
         if targeted is not None:
@@ -194,6 +255,20 @@ def solve_quadratic_constraint_system(
         if request.target_symbol is not None
         else None
     )
+    target_dependencies = (
+        set(sp.sympify(target_value).free_symbols)
+        if target_value is not None
+        else set()
+    )
+    unexpected_target_dependencies = target_dependencies - set(preserve)
+    if unexpected_target_dependencies:
+        free = tuple(
+            sorted(
+                set(free) | unexpected_target_dependencies,
+                key=lambda item: item.name,
+            )
+        )
+        status = "underdetermined"
     dependencies = _dependency_symbols(
         parabola,
         substitutions.values(),
@@ -324,12 +399,27 @@ def _substitute_mapping_values(
     }
 
 
+def _substitution_mappings_conflict(
+    left: dict[sp.Symbol, sp.Expr],
+    right: dict[sp.Symbol, sp.Expr],
+) -> bool:
+    return any(
+        symbol in right
+        and sp.simplify(
+            sp.sympify(value) - sp.sympify(right[symbol])
+        )
+        != 0
+        for symbol, value in left.items()
+    )
+
+
 def _solve_target(
     request: QuadraticConstraintSolveRequest,
     *,
     expression: sp.Expr,
     equations: list[sp.Equality],
     substitutions: dict[sp.Symbol, sp.Expr],
+    target_expression: sp.Expr | None,
     kernel: SympyKernel,
 ) -> QuadraticConstraintSolveResult | None:
     target = request.target_symbol
@@ -338,7 +428,7 @@ def _solve_target(
     closure = solve_target_symbol_closure(
         equations,
         target=target,
-        target_expression=request.target_expression,
+        target_expression=target_expression,
         kernel=kernel,
         accept_target=lambda value: value_satisfies_constraint(
             value,
@@ -392,6 +482,38 @@ def _solve_target(
         ),
         branch_count=closure.branch_count,
         equations=tuple(equations),
+    )
+
+
+def quadratic_target_expression(
+    request: QuadraticConstraintSolveRequest,
+    *,
+    system: QuadraticConstraintSystem | None = None,
+) -> sp.Expr | None:
+    """Project a target coefficient through the current quadratic state."""
+
+    target = request.target_symbol
+    if target is None:
+        return None
+    system = system or build_quadratic_constraint_system(request)
+    template = request.coefficient_template
+    parameter_substitutions = dict(request.parameter_substitutions)
+    explicit_substitutions = {
+        **_substitute_mapping_values(
+            request.known_coefficients,
+            parameter_substitutions,
+        ),
+        **parameter_substitutions,
+    }
+    return quadratic_coefficient_expression(
+        system.expression,
+        independent_symbol=request.independent_symbol,
+        target_symbol=target,
+        template_expression=(
+            sp.sympify(template).subs(explicit_substitutions)
+            if template is not None
+            else None
+        ),
     )
 
 

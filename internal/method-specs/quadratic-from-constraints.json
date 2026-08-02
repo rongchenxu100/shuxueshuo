@@ -154,6 +154,9 @@
         "parameter_value"
       ]
     ],
+    "known_mapping_args": [
+      "known_coefficients"
+    ],
     "constraint_args": [],
     "preserved_symbol_args": [
       "free_parameter",
@@ -165,6 +168,7 @@
       "parameter_value"
     ],
     "require_unique_target": true,
-    "representation_mapper": "polynomial_coefficient_template"
+    "representation_mapper": "polynomial_coefficient_template",
+    "output_validator": "quadratic_closure_outputs"
   }
 }

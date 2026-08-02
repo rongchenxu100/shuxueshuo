@@ -37,7 +37,6 @@ from shuxueshuo_server.solver.runtime.functional_plan_models import (
     _issue,
 )
 from shuxueshuo_server.solver.runtime.functional_symbol_flow import (
-    apply_symbolic_closure_effect,
     return_free_symbol_refs,
 )
 from shuxueshuo_server.solver.runtime.functional_symbol_identity import (
@@ -1548,12 +1547,6 @@ def _project_placed_calls(
                         return_name=old.return_name,
                     )
                 )
-            inferred_free_symbol_refs = return_free_symbol_refs(
-                spec.runtime_type,
-                resolved_args,
-                object_ref=object_ref,
-                ignored_input_args=spec.result_form_ignored_input_args,
-            )
             allocation = replace(
                 old,
                 call_id=call.call_id,
@@ -1563,14 +1556,12 @@ def _project_placed_calls(
                 state_slot_id=state_slot_id,
                 object_ref=object_ref,
                 dependency_object_refs=_argument_dependencies(resolved_args),
-                free_symbol_refs=apply_symbolic_closure_effect(
-                    inferred_free_symbol_refs,
-                    return_name=spec.name,
-                    args=resolved_args,
-                    spec=(
-                        capability.source.symbolic_closure
-                        if isinstance(capability.source, FunctionSpec)
-                        else None
+                free_symbol_refs=return_free_symbol_refs(
+                    spec.runtime_type,
+                    resolved_args,
+                    object_ref=object_ref,
+                    ignored_input_args=(
+                        spec.result_form_ignored_input_args
                     ),
                 ),
                 source_state_slot_ids=_argument_source_slots(resolved_args),

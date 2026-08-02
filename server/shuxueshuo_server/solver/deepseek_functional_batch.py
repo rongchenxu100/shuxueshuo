@@ -16,6 +16,10 @@ import sys
 import time
 from typing import Any, Iterable, Sequence
 
+from shuxueshuo_server.solver.runtime.planner_failure_classification import (
+    is_planner_configuration_failure_code,
+)
+
 
 SERVER_ROOT = Path(__file__).resolve().parents[2]
 REPO_ROOT = SERVER_ROOT.parent
@@ -161,6 +165,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         "concurrency": min(args.concurrency, len(samples)),
         "max_attempts": args.max_attempts,
         "functional_transaction_mode": args.functional_transaction_mode,
+        "functional_symbolic_closure_mode": (
+            args.functional_symbolic_closure_mode
+        ),
         "timeout_seconds": args.timeout_seconds,
         "batch_dir": str(batch_dir),
         "test_path": args.test_path or (
@@ -202,6 +209,9 @@ def main(argv: Sequence[str] | None = None) -> int:
                 functional_transaction_mode=(
                     args.functional_transaction_mode
                 ),
+                functional_symbolic_closure_mode=(
+                    args.functional_symbolic_closure_mode
+                ),
             ): sample
             for sample in samples
         }
@@ -229,6 +239,14 @@ def main(argv: Sequence[str] | None = None) -> int:
         "finished_at": datetime.now().astimezone().isoformat(),
         "passed": sum(item["outcome"] == "passed" for item in results),
         "failed": sum(item["outcome"] != "passed" for item in results),
+        "symbolic_closure_execution_count": sum(
+            item.get("symbolic_closure_execution_count", 0)
+            for item in results
+        ),
+        "symbolic_closure_drift_count": sum(
+            item.get("symbolic_closure_drift_count", 0)
+            for item in results
+        ),
         "per_case": per_case,
         "stage1_gate_passed": all(
             item["stage1_gate_passed"] for item in per_case.values()
@@ -252,9 +270,27 @@ def main(argv: Sequence[str] | None = None) -> int:
             and item["compatible"]
             for item in per_case.values()
         )
+    _apply_symbolic_closure_activity_gate(summary)
     _write_json(batch_dir / "batch-summary.json", summary)
     print(json.dumps(summary, ensure_ascii=False, indent=2), flush=True)
     return 0 if summary["active_gate_passed"] else 1
+
+
+def _apply_symbolic_closure_activity_gate(
+    summary: dict[str, Any],
+) -> None:
+    required = (
+        summary.get("functional_symbolic_closure_mode") == "authoritative"
+    )
+    passed = (
+        not required
+        or int(summary.get("symbolic_closure_execution_count", 0) or 0) > 0
+    )
+    summary["symbolic_closure_activity_gate_required"] = required
+    summary["symbolic_closure_activity_gate_passed"] = passed
+    summary["active_gate_passed"] = bool(
+        summary.get("active_gate_passed")
+    ) and passed
 
 
 def _aggregate_main(args: argparse.Namespace) -> int:
@@ -424,6 +460,11 @@ def _parser() -> argparse.ArgumentParser:
         ),
         default="legacy",
     )
+    parser.add_argument(
+        "--functional-symbolic-closure-mode",
+        choices=("disabled", "shadow", "authoritative"),
+        default="disabled",
+    )
     parser.add_argument("--timeout-seconds", type=_positive_int, default=1800)
     parser.add_argument("--batch-id")
     parser.add_argument("--test-path")
@@ -482,6 +523,7 @@ def _run_sample(
     timeout_seconds: int,
     source_fingerprint: dict[str, Any],
     functional_transaction_mode: str,
+    functional_symbolic_closure_mode: str,
 ) -> dict[str, Any]:
     environment = os.environ.copy()
     environment.update(
@@ -492,6 +534,9 @@ def _run_sample(
             "DEEPSEEK_FUNCTIONAL_PLANNER_DEBUG_DIR": str(sample.debug_dir),
             "DEEPSEEK_FUNCTIONAL_PLANNER_SAMPLE_ID": sample.sample_id,
             "FUNCTIONAL_TRANSACTION_MODE": functional_transaction_mode,
+            "FUNCTIONAL_SYMBOLIC_CLOSURE_MODE": (
+                functional_symbolic_closure_mode
+            ),
             "PYTHONUNBUFFERED": "1",
         }
     )
@@ -555,6 +600,9 @@ def _run_sample(
         source_fingerprint=source_fingerprint,
         models=llm["models"],
         functional_transaction_mode=functional_transaction_mode,
+        functional_symbolic_closure_mode=(
+            functional_symbolic_closure_mode
+        ),
     )
     return {
         "case_id": sample.case.case_id,
@@ -573,6 +621,12 @@ def _run_sample(
         "expected_mismatch": result_payload.get("expected_mismatch"),
         "sample_gates_passed": result_payload.get("gates_passed"),
         "sample_gate_checks": result_payload.get("gate_checks"),
+        "symbolic_closure_execution_count": int(
+            result_payload.get("symbolic_closure_execution_count", 0) or 0
+        ),
+        "symbolic_closure_drift_count": int(
+            result_payload.get("symbolic_closure_drift_count", 0) or 0
+        ),
         "first_error": errors[0] if errors else None,
         "structured_errors": errors,
         "llm": llm,
@@ -615,7 +669,7 @@ def _case_metrics(
                 root_counts[f"{stage}/{code}"] += 1
                 layer_counts[stage] += 1
                 code_counts[code] += 1
-                if code == "planner_configuration_error":
+                if is_planner_configuration_failure_code(code):
                     configuration_errors += 1
                 if _is_unclassified_failure(stage, code):
                     unclassified_errors += 1
@@ -830,6 +884,7 @@ def _sample_fingerprints(
     source_fingerprint: dict[str, Any],
     models: Sequence[str],
     functional_transaction_mode: str,
+    functional_symbolic_closure_mode: str,
 ) -> dict[str, Any]:
     prompt_paths = (
         sample.debug_dir / "attempt-1.prompt.system.md",
@@ -849,6 +904,9 @@ def _sample_fingerprints(
         "fixture_sha256": _hash_files(fixture_paths),
         "models": list(models),
         "functional_transaction_mode": functional_transaction_mode,
+        "functional_symbolic_closure_mode": (
+            functional_symbolic_closure_mode
+        ),
     }
     payload["compatibility_key"] = hashlib.sha256(
         json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")

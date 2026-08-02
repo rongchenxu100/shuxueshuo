@@ -109,6 +109,24 @@ def test_target_symbol_closure_accepts_unique_target_across_auxiliary_branches()
     assert result.substitution == {x: 2}
 
 
+def test_target_symbol_closure_accepts_materialized_open_target_expression() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["b", "c"])
+    b, c = symbols["b"], symbols["c"]
+
+    result = solve_target_symbol_closure(
+        [],
+        target=b,
+        target_expression=1 - c,
+        preserve_symbols=(c,),
+        kernel=kernel,
+    )
+
+    assert result.status == "unique"
+    assert sp.simplify(result.target_value - (1 - c)) == 0
+    assert result.residual_symbols == (c,)
+
+
 def test_quadratic_axis_from_relation_rejects_ac_relation() -> None:
     kernel = SympyKernel()
     symbols = kernel.symbols(["a", "b", "c"])
@@ -1114,6 +1132,75 @@ def test_quadratic_from_constraints_refines_materialized_parameterized_state() -
     assert result.outputs["coefficients"].value == {a: 1, b: -2, c: -2}
     assert sp.expand(result.outputs["parabola"].value) == x**2 - 2 * x - 2
     assert all(check.ok for check in result.checks)
+
+
+def test_quadratic_from_constraints_rejects_known_materialized_conflict() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["x", "a", "b", "c"])
+    x, a, b, c = (
+        symbols[name] for name in ("x", "a", "b", "c")
+    )
+
+    with pytest.raises(ValueError, match="constraints_inconsistent"):
+        QuadraticFromConstraintsMethod().run(
+            {
+                "quadratic": a * x**2 + (1 - c) * x + c,
+                "quadratic_template": a * x**2 + b * x + c,
+                "x": x,
+                "all_coefficients": [a, b, c],
+                "known_coefficients": {a: 1, b: 5},
+                "free_parameter": c,
+            },
+            kernel,
+        )
+
+
+def test_quadratic_from_constraints_reconciles_materialized_known_relation() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["x", "a", "b", "c"])
+    x, a, b, c = (
+        symbols[name] for name in ("x", "a", "b", "c")
+    )
+
+    result = QuadraticFromConstraintsMethod().run(
+        {
+            "quadratic": a * x**2 + (1 - c) * x + c,
+            "quadratic_template": a * x**2 + b * x + c,
+            "x": x,
+            "all_coefficients": [a, b, c],
+            "known_coefficients": {a: 1, b: 5},
+        },
+        kernel,
+    )
+
+    assert result.outputs["coefficients"].value == {a: 1, b: 5, c: -4}
+    assert sp.expand(result.outputs["parabola"].value) == x**2 + 5 * x - 4
+    assert all(check.ok for check in result.checks)
+
+
+def test_quadratic_target_rejects_undeclared_materialized_dependency() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["x", "a", "b", "c", "d"])
+    x, a, b, c, d = (
+        symbols[name] for name in ("x", "a", "b", "c", "d")
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="constraints_underdetermined.*undeclared_dependencies=d",
+    ):
+        QuadraticFromConstraintsMethod().run(
+            {
+                "quadratic": a * x**2 + (1 - d) * x + c,
+                "quadratic_template": a * x**2 + b * x + c,
+                "x": x,
+                "all_coefficients": [a, b, c],
+                "known_coefficients": {a: 1},
+                "free_parameter": c,
+                "target_parameter": b,
+            },
+            kernel,
+        )
 
 
 def test_quadratic_from_constraints_recovers_eliminated_coefficient_from_template() -> None:
