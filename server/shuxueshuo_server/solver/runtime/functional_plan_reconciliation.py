@@ -1,4 +1,4 @@
-"""Context reconciliation and canonical StepIntent projection for FunctionalPlan."""
+"""Typed Context reconciliation for FunctionalPlan."""
 
 from __future__ import annotations
 
@@ -32,7 +32,7 @@ from shuxueshuo_server.solver.runtime.functional_context_values import (
 from shuxueshuo_server.solver.runtime.functional_binding_context import (
     FunctionalBindingContextBuilder,
     audit_functional_arg_binding_projection,
-    project_functional_arg_bindings_from_context,
+    build_functional_runtime_arg_bindings_from_context,
 )
 from shuxueshuo_server.solver.runtime.functional_context_closure_handlers import (
     resolve_context_closure_args as _resolve_context_closure_args,
@@ -65,8 +65,9 @@ from shuxueshuo_server.solver.runtime.functional_symbol_identity import (
     symbol_ids_from_refs,
 )
 from shuxueshuo_server.solver.runtime.function_specs import FunctionSpec
-from shuxueshuo_server.solver.runtime.functional_legacy_projection import (
-    FunctionalLegacyProjectionAdapter,
+from shuxueshuo_server.solver.runtime.functional_debug_aliases import (
+    functional_call_local_debug_alias,
+    functional_state_slot_debug_alias,
     legacy_state_slot_aliases,
 )
 from shuxueshuo_server.solver.runtime.functional_typed_identity import (
@@ -101,11 +102,11 @@ from shuxueshuo_server.solver.runtime.functional_plan_models import (
     FunctionalCall,
     FunctionalCallReport,
     FunctionalCapabilityReturn,
+    FunctionalCallExecutionEntry,
     FunctionalCallReconciliation,
     FunctionalPlan,
     FunctionalPlanIssue,
     FunctionalPlanReconciliationResult,
-    FunctionalProjectionEntry,
     FunctionalRef,
     FunctionalReturnAllocation,
     ResolvedFunctionalValue,
@@ -138,8 +139,8 @@ from shuxueshuo_server.solver.runtime.state_finalization import (
     StateFinalizationService,
     StateFinalizerMode,
     expand_functional_dependency_graph,
-    project_functional_state_dependencies,
-    project_functional_state_writes,
+    build_functional_state_dependencies,
+    build_functional_state_write_manifest,
 )
 from shuxueshuo_server.solver.runtime.runtime_type_compatibility import (
     normalize_runtime_type,
@@ -152,12 +153,7 @@ from shuxueshuo_server.solver.runtime.straightening_metadata import (
     canonical_straightening_endpoint_name,
 )
 from shuxueshuo_server.solver.runtime.strategy_models import (
-    CreatedEntity,
-    ProducedFact,
     SemanticRef,
-    StepIntent,
-    StepIntentDraft,
-    StepIntentScope,
     answer_value_type_requires_closed_scalar,
     functional_answer_output_type_compatible,
 )
@@ -220,19 +216,11 @@ class _NormalizeElaborateScopeStage:
         handle_registry: CanonicalHandleRegistry,
         question_goals: Sequence[QuestionGoal],
         pinned_canonical_call_ids: frozenset[str] = frozenset(),
-        legacy_projection_adapter: (
-            FunctionalLegacyProjectionAdapter | None
-        ) = None,
     ) -> _PreparedFunctionalReconciliation:
-        legacy_projection_adapter = (
-            legacy_projection_adapter
-            or FunctionalLegacyProjectionAdapter()
-        )
         semantic_items = planner_state_context.semantic_read_catalog()
         semantic_index = FunctionalSemanticIndex.from_context(
             planner_state_context,
             handle_registry=handle_registry,
-            legacy_projection_adapter=legacy_projection_adapter,
         )
         catalog = FunctionalCapabilityCatalog.from_family_spec(
             family_spec,
@@ -680,9 +668,7 @@ class FunctionalPlanReconciler:
         pinned_execution_scopes: Mapping[str, str] | None = None,
         pinned_return_scopes: Mapping[str, Mapping[str, str]] | None = None,
         pinned_resolver_arg_names: Mapping[str, Sequence[str]] | None = None,
-        include_step_intent_projection: bool = True,
     ) -> FunctionalPlanReconciliationResult:
-        legacy_projection_adapter = FunctionalLegacyProjectionAdapter()
         prepared = _NormalizeElaborateScopeStage().run(
             plan,
             planner_state_context=planner_state_context,
@@ -693,7 +679,6 @@ class FunctionalPlanReconciler:
             pinned_canonical_call_ids=frozenset(
                 pinned_canonical_call_ids
             ),
-            legacy_projection_adapter=legacy_projection_adapter,
         )
         plan = prepared.plan
         semantic_items = prepared.semantic_items
@@ -1136,7 +1121,6 @@ class FunctionalPlanReconciler:
                     identity_mode=self.state_identity_mode,
                     identity_decisions=identity_decisions,
                     identity_comparisons=identity_comparisons,
-                    legacy_projection_adapter=legacy_projection_adapter,
                 ),
             )
             issues.extend(
@@ -1348,7 +1332,6 @@ class FunctionalPlanReconciler:
             identity_decisions=identity_decisions,
             identity_comparisons=identity_comparisons,
             typed_identity_completeness=typed_identity_completeness,
-            legacy_projection_adapter=legacy_projection_adapter,
             identity_mode=self.state_identity_mode,
             identity_factory=typed_identity_factory,
             base_identity_index=base_identity_index,
@@ -1367,7 +1350,6 @@ class FunctionalPlanReconciler:
                     pinned_resolver_arg_names or {}
                 ).items()
             },
-            include_step_intent_projection=include_step_intent_projection,
         )
 
 
@@ -1546,7 +1528,6 @@ class _PlacementLivenessProjectionStage:
         identity_decisions: Sequence[Mapping[str, Any]],
         identity_comparisons: Sequence[IdentityShadowComparison],
         typed_identity_completeness: FunctionalTypedIdentityCompleteness,
-        legacy_projection_adapter: FunctionalLegacyProjectionAdapter,
         identity_mode: StateIdentityMode,
         identity_factory: StateIdentityFactory,
         base_identity_index: StateIdentityIndex,
@@ -1557,7 +1538,6 @@ class _PlacementLivenessProjectionStage:
         pinned_execution_scopes: Mapping[str, str],
         pinned_return_scopes: Mapping[str, Mapping[str, str]],
         pinned_resolver_arg_names: Mapping[str, Sequence[str]],
-        include_step_intent_projection: bool,
     ) -> FunctionalPlanReconciliationResult:
         plan = _rewrite_effective_functional_plan(
             plan,
@@ -1612,7 +1592,6 @@ class _PlacementLivenessProjectionStage:
             pinned_canonical_call_ids=pinned_canonical_call_ids,
             pinned_execution_scopes=pinned_execution_scopes,
             pinned_return_scopes=pinned_return_scopes,
-            legacy_projection_adapter=legacy_projection_adapter,
         )
         plan = placement.plan
         reconciled = list(placement.calls)
@@ -1634,15 +1613,14 @@ class _PlacementLivenessProjectionStage:
             dependency_graph=placement.dependency_graph,
             handle_registry=handle_registry,
         )
-        pre_liveness_writes = project_functional_state_writes(
+        pre_liveness_writes = build_functional_state_write_manifest(
             plan,
             tuple(reconciled),
         )
-        pre_liveness_dependencies = project_functional_state_dependencies(
+        pre_liveness_dependencies = build_functional_state_dependencies(
             plan,
             tuple(reconciled),
             catalog=catalog,
-            legacy_projection_adapter=legacy_projection_adapter,
         )
         dependency_graph = expand_functional_dependency_graph(
             dependency_graph,
@@ -1821,35 +1799,15 @@ class _PlacementLivenessProjectionStage:
                 plan=plan,
             ),
         )
-        if include_step_intent_projection:
-            partial_projected, partial_projection_map = (
-                FunctionalPlanProjector().project(
-                    plan,
-                    reconciled=tuple(reconciled),
-                    placements=call_placements,
-                    dependency_graph=dependency_graph,
-                    catalog=catalog,
-                    semantic_items=semantic_items,
-                    semantic_index=semantic_index,
-                )
-            )
-        else:
-            partial_projected = None
-            partial_projection_map = _typed_projection_map(
-                plan,
-                reconciled=tuple(reconciled),
-                placements=call_placements,
-            )
-        projected_state_writes = project_functional_state_writes(
+        projected_state_writes = build_functional_state_write_manifest(
             plan,
             tuple(reconciled),
         )
         projected_state_dependencies = (
-            project_functional_state_dependencies(
+            build_functional_state_dependencies(
                 plan,
                 tuple(reconciled),
                 catalog=catalog,
-                legacy_projection_adapter=legacy_projection_adapter,
             )
         )
         dependency_graph = expand_functional_dependency_graph(
@@ -1884,7 +1842,6 @@ class _PlacementLivenessProjectionStage:
             tuple(reconciled),
             dependency_graph=dependency_graph,
             projected_state_dependencies=projected_state_dependencies,
-            projection_map=partial_projection_map,
         )
         functional_binding_context = FunctionalBindingContextBuilder().build(
             plan,
@@ -1906,19 +1863,23 @@ class _PlacementLivenessProjectionStage:
         )
         functional_binding_audit = audit_functional_arg_binding_projection(
             functional_binding_context,
-            project_functional_arg_bindings_from_context(
+            build_functional_runtime_arg_bindings_from_context(
                 tuple(reconciled),
                 functional_binding_context,
             ),
+        )
+        execution_entries = _functional_execution_entries(
+            plan,
+            reconciled=tuple(reconciled),
+            placements=call_placements,
         )
         if issues:
             return FunctionalPlanReconciliationResult(
                 plan=plan,
                 calls=tuple(reconciled),
                 issues=tuple(issues),
-                projection_map=partial_projection_map,
+                execution_entries=execution_entries,
                 context_delta=_context_delta(reconciled),
-                partial_projected_draft=partial_projected,
                 call_reports=tuple(call_reports),
                 dependency_graph=dependency_graph,
                 dependency_kinds=dependency_kinds,
@@ -1945,18 +1906,13 @@ class _PlacementLivenessProjectionStage:
                     item.to_payload()
                     for item in logical_finalization.mismatches
                 ),
-                projected_state_dependencies=(
+                state_dependencies=(
                     projected_state_dependencies
                 ),
                 typed_identity_completeness=(
                     typed_identity_completeness.to_payload()
                 ),
-                legacy_projection_count=(
-                    legacy_projection_adapter.projection_count
-                ),
-                legacy_identity_fallback_count=(
-                    legacy_projection_adapter.identity_fallback_count
-                ),
+                legacy_identity_fallback_count=0,
                 functional_binding_context=functional_binding_context,
                 functional_binding_decisions=(
                     functional_binding_audit.decisions
@@ -1968,30 +1924,11 @@ class _PlacementLivenessProjectionStage:
                     functional_binding_audit.legacy_fallback_count
                 ),
             )
-        if include_step_intent_projection:
-            projected, projection_map = FunctionalPlanProjector().project(
-                plan,
-                reconciled=tuple(reconciled),
-                placements=call_placements,
-                dependency_graph=dependency_graph,
-                catalog=catalog,
-                semantic_items=semantic_items,
-                semantic_index=semantic_index,
-            )
-        else:
-            projected = None
-            projection_map = _typed_projection_map(
-                plan,
-                reconciled=tuple(reconciled),
-                placements=call_placements,
-            )
         return FunctionalPlanReconciliationResult(
             plan=plan,
             calls=tuple(reconciled),
-            projection_map=projection_map,
+            execution_entries=execution_entries,
             context_delta=_context_delta(reconciled),
-            projected_draft=projected,
-            partial_projected_draft=projected,
             call_reports=tuple(call_reports),
             dependency_graph=dependency_graph,
             dependency_kinds=dependency_kinds,
@@ -2018,16 +1955,11 @@ class _PlacementLivenessProjectionStage:
                 item.to_payload()
                 for item in logical_finalization.mismatches
             ),
-            projected_state_dependencies=projected_state_dependencies,
+            state_dependencies=projected_state_dependencies,
             typed_identity_completeness=(
                 typed_identity_completeness.to_payload()
             ),
-            legacy_projection_count=(
-                legacy_projection_adapter.projection_count
-            ),
-            legacy_identity_fallback_count=(
-                legacy_projection_adapter.identity_fallback_count
-            ),
+            legacy_identity_fallback_count=0,
             functional_binding_context=functional_binding_context,
             functional_binding_decisions=functional_binding_audit.decisions,
             functional_binding_mismatches=functional_binding_audit.mismatches,
@@ -2162,13 +2094,14 @@ def _exclude_late_invalid_call_graph(
     )
 
 
-def _typed_projection_map(
+
+def _functional_execution_entries(
     plan: FunctionalPlan,
     *,
     reconciled: tuple[FunctionalCallReconciliation, ...],
     placements: tuple[FunctionalCallPlacement, ...],
-) -> tuple[FunctionalProjectionEntry, ...]:
-    """Map canonical calls to StepPlan ids without constructing StepIntent."""
+) -> tuple[FunctionalCallExecutionEntry, ...]:
+    """Build the typed call-to-execution ledger without StepIntent data."""
     placement_by_call = {
         item.canonical_call_id: item for item in placements
     }
@@ -2178,12 +2111,8 @@ def _typed_projection_map(
         for call in scope.calls
     }
     return tuple(
-        FunctionalProjectionEntry(
+        FunctionalCallExecutionEntry(
             call_id=call.call_id,
-            step_ids=(call.call_id,),
-            state_slot_ids=tuple(
-                allocation.state_slot_id for allocation in call.returns
-            ),
             canonical_call_id=call.call_id,
             alias_call_ids=(
                 placement_by_call[call.call_id].alias_call_ids
@@ -2204,234 +2133,6 @@ def _typed_projection_map(
     )
 
 
-class FunctionalPlanProjector:
-    """Project reconciled calls to the existing canonical StepIntentDraft."""
-
-    def project(
-        self,
-        plan: FunctionalPlan,
-        *,
-        reconciled: tuple[FunctionalCallReconciliation, ...],
-        placements: tuple[Any, ...],
-        dependency_graph: Mapping[str, tuple[str, ...]],
-        catalog: FunctionalCapabilityCatalog,
-        semantic_items: tuple[SemanticReadCatalogItem, ...],
-        semantic_index: FunctionalSemanticIndex,
-    ) -> tuple[StepIntentDraft, tuple[FunctionalProjectionEntry, ...]]:
-        by_call = {item.call_id: item for item in reconciled}
-        placement_by_call = {
-            item.canonical_call_id: item for item in placements
-        }
-        semantic_by_ref = {(item.kind, item.ref): item for item in semantic_items}
-        # Only ProblemIR declarations and earlier projected creates make an
-        # object available to StepIntent validation. Semantic catalog entries
-        # may mention a future role object (for example a square vertex) before
-        # that object's first coordinate producer; those mentions are identity
-        # evidence, not materialized entity declarations.
-        known_handles = set(
-            semantic_index.handle_registry.initial_handles
-        )
-        return_by_state_slot = {
-            allocation.state_slot_id: allocation
-            for call in reconciled
-            for allocation in call.returns
-        }
-        projected_scopes: list[StepIntentScope] = []
-        projection: list[FunctionalProjectionEntry] = []
-        prior_parameter_values: dict[str, list[FunctionalReturnAllocation]] = {}
-        for declared_scope_id, scope_label, call in topological_scoped_calls(
-            plan,
-            dependency_graph=dependency_graph,
-        )[0]:
-                item = by_call.get(call.call_id)
-                if item is None:
-                    continue
-                capability = catalog.items[call.capability_id]
-                placement = placement_by_call.get(call.call_id)
-                execution_scope = (
-                    placement.execution_scope_id
-                    if placement is not None
-                    else item.scope_id
-                )
-                reads = [
-                    handle
-                    for values in item.resolved_args.values()
-                    for value in values
-                    for handle in _projected_read_handles(
-                        value,
-                        scope_id=declared_scope_id,
-                        handle_registry=semantic_index.handle_registry,
-                    )
-                ]
-                reads.extend(
-                    allocation.state_handle or allocation.handle
-                    for values in item.resolved_args.values()
-                    for value in values
-                    for state_slot_id in value.source_state_slot_ids
-                    if (
-                        allocation := return_by_state_slot.get(state_slot_id)
-                    ) is not None
-                    and allocation.runtime_type == "ParameterValue"
-                )
-                if not item.reads_closed:
-                    reads.extend(
-                        _source_condition_handles(
-                            item.resolved_args,
-                            reconciled_by_call=by_call,
-                        )
-                    )
-                if capability.kind == "macro" and not item.reads_closed:
-                    dependency_scope = (
-                        item.returns[0].valid_scope
-                        if item.returns
-                        else declared_scope_id
-                    )
-                    reads.extend(
-                        handle
-                        for values in item.resolved_args.values()
-                        for value in values
-                        for handle in semantic_index.dependency_read_handles(
-                            value.dependency_object_refs,
-                            scope_id=dependency_scope,
-                        )
-                    )
-                allocations_by_name = {
-                    allocation.return_name: allocation
-                    for allocation in item.returns
-                }
-                for return_name, binding in call.return_bindings.items():
-                    allocation = allocations_by_name.get(return_name)
-                    if (
-                        allocation is None
-                        or allocation.write_mode != "transition"
-                    ):
-                        # A create/value return needs the destination identity,
-                        # not a pre-existing materialized state read. The
-                        # compiler receives that PointRef/Object identity from
-                        # the return-allocation sidecar.
-                        continue
-                    semantic = semantic_by_ref.get((binding.kind, binding.ref))
-                    if semantic is not None and semantic.kind != "answer":
-                        reads.append(semantic.handle)
-                reads.extend(
-                    _closed_scalar_parameter_reads(
-                        call,
-                        item=item,
-                        prior_parameter_values=prior_parameter_values,
-                        scope_id=execution_scope,
-                        handle_registry=semantic_index.handle_registry,
-                    )
-                )
-                produces = tuple(
-                    produced
-                    for allocation in item.returns
-                    for produced in _projected_return_outputs(
-                        allocation,
-                        capability_id=call.capability_id,
-                    )
-                )
-                target = _projected_step_target(
-                    capability=capability,
-                    resolved_args=item.resolved_args,
-                    allocations=item.returns,
-                    produces=produces,
-                )
-                creates = _projected_creates(
-                    item.returns,
-                    resolved_args=item.resolved_args,
-                    known_handles=known_handles,
-                    capability_id=capability.capability_id,
-                )
-                step = StepIntent(
-                    scope_id=execution_scope,
-                    step_id=call.call_id,
-                    recipe_hint=call.capability_id,
-                    goal_type=capability.goal_type,
-                    target=target,
-                    strategy=call.strategy,
-                    reads=tuple(unique_ordered(reads)),
-                    creates=creates,
-                    produces=produces,
-                    reason=call.reason,
-                )
-                known_handles.update(created.handle for created in creates)
-                # StepIntentDraft is an ordered compatibility projection of the
-                # Functional call graph. Group only adjacent calls that share an
-                # execution scope; collecting every scope into one global bucket
-                # can move a producer behind its consumer when calls alternate
-                # between parent and child scopes.
-                if (
-                    projected_scopes
-                    and projected_scopes[-1].scope_id == execution_scope
-                ):
-                    previous_scope = projected_scopes[-1]
-                    projected_scopes[-1] = replace(
-                        previous_scope,
-                        steps=(*previous_scope.steps, step),
-                    )
-                else:
-                    projected_scopes.append(
-                        StepIntentScope(
-                            execution_scope,
-                            scope_label,
-                            (step,),
-                        )
-                    )
-                projection.append(
-                    FunctionalProjectionEntry(
-                        call_id=call.call_id,
-                        step_ids=(call.call_id,),
-                        state_slot_ids=tuple(
-                            allocation.state_slot_id for allocation in item.returns
-                        ),
-                        canonical_call_id=call.call_id,
-                        alias_call_ids=(
-                            placement.alias_call_ids
-                            if placement is not None
-                            else ()
-                        ),
-                        declared_scope_id=declared_scope_id,
-                        execution_scope_id=execution_scope,
-                    )
-                )
-                for allocation in item.returns:
-                    if (
-                        allocation.runtime_type == "ParameterValue"
-                        and allocation.object_ref is not None
-                    ):
-                        prior_parameter_values.setdefault(
-                            allocation.object_ref,
-                            [],
-                        ).append(allocation)
-        return StepIntentDraft(tuple(projected_scopes)), tuple(projection)
-
-
-def _projected_return_outputs(
-    allocation: FunctionalReturnAllocation,
-    *,
-    capability_id: str,
-) -> tuple[ProducedFact, ...]:
-    """Project one runtime value to its canonical state and optional answer alias."""
-
-    description = (
-        f"{capability_id} return {allocation.return_name}"
-    )
-    handles = unique_ordered(
-        (
-            allocation.state_handle,
-            allocation.handle,
-        )
-    )
-    return tuple(
-        ProducedFact(
-            handle=handle,
-            valid_scope=allocation.valid_scope,
-            description=description,
-            output_type=allocation.runtime_type,
-        )
-        for handle in handles
-        if handle is not None
-    )
 
 
 def _with_closed_scalar_dependencies(
@@ -2503,47 +2204,6 @@ def _with_closed_scalar_dependencies(
     return result
 
 
-def _closed_scalar_parameter_reads(
-    call: FunctionalCall,
-    *,
-    item: FunctionalCallReconciliation,
-    prior_parameter_values: Mapping[
-        str,
-        Sequence[FunctionalReturnAllocation],
-    ],
-    scope_id: str,
-    handle_registry: CanonicalHandleRegistry,
-) -> tuple[str, ...]:
-    """Close a scalar with uniquely available values for its free Symbols.
-
-    This is capability-agnostic: result-form metadata states the intended
-    closure, return provenance states the remaining Symbol identities, and the
-    timeline supplies candidate ParameterValue states. Ambiguous or missing
-    values are left untouched so normal retry diagnostics retain the choice.
-    """
-    allocations = {allocation.return_name: allocation for allocation in item.returns}
-    reads: list[str] = []
-    for return_name, expectation in call.return_expectations.items():
-        if expectation != "closed_value":
-            continue
-        allocation = allocations.get(return_name)
-        if allocation is None:
-            continue
-        for symbol_ref in allocation.free_symbol_refs:
-            candidates = tuple(
-                candidate
-                for candidate in prior_parameter_values.get(symbol_ref, ())
-                if visible_from_valid_scope(
-                    candidate.valid_scope,
-                    scope_id=scope_id,
-                    registry=handle_registry,
-                )
-            )
-            if len(candidates) == 1:
-                reads.append(candidates[0].handle)
-    return unique_ordered(reads)
-
-
 @dataclass(frozen=True)
 class _FunctionalReturnAllocationContext:
     capability: FunctionalCapability
@@ -2581,7 +2241,6 @@ class _FunctionalReturnAllocationContext:
     identity_mode: StateIdentityMode
     identity_decisions: list[dict[str, Any]]
     identity_comparisons: list[IdentityShadowComparison]
-    legacy_projection_adapter: FunctionalLegacyProjectionAdapter
 
 
 def _allocate_functional_returns(
@@ -2895,7 +2554,6 @@ def _allocate_single_functional_return(
         identity_mode=context.identity_mode,
         identity_decisions=context.identity_decisions,
         identity_comparisons=context.identity_comparisons,
-        legacy_projection_adapter=context.legacy_projection_adapter,
         expected_result_form=call.return_expectations.get(return_spec.name),
         question_goals=context.question_goals,
     )
@@ -3611,7 +3269,6 @@ def _materialize_functional_return(
     identity_mode: StateIdentityMode,
     identity_decisions: list[dict[str, Any]],
     identity_comparisons: list[IdentityShadowComparison],
-    legacy_projection_adapter: FunctionalLegacyProjectionAdapter,
     expected_result_form: FunctionalResultForm | None,
     question_goals: Sequence[QuestionGoal],
 ) -> FunctionalReturnAllocation:
@@ -3686,14 +3343,14 @@ def _materialize_functional_return(
         runtime_type=return_spec.runtime_type,
     )
     legacy_slot_id = (
-        legacy_projection_adapter.state_slot_id(
+        functional_state_slot_debug_alias(
             identity_factory.slot_id(
                 logical_state_key,
                 storage_scope_id=requested_scope,
             )
         )
         if logical_state_key is not None
-        else legacy_projection_adapter.call_local_value_id(
+        else functional_call_local_debug_alias(
             scope_id=requested_scope,
             call_id=call.call_id,
             return_name=return_spec.name,
@@ -3753,12 +3410,12 @@ def _materialize_functional_return(
     identity_decisions.append(decision.to_payload())
     typed_slot_id = decision.selected_slot_id
     typed_slot_projection = (
-        legacy_projection_adapter.state_slot_id(typed_slot_id)
+        functional_state_slot_debug_alias(typed_slot_id)
         if typed_slot_id is not None
         else legacy_slot_id
     )
     comparison_slot_id = (
-        legacy_projection_adapter.state_slot_id(
+        functional_state_slot_debug_alias(
             identity_factory.slot_id(
                 logical_state_key,
                 storage_scope_id=requested_scope,
@@ -6571,110 +6228,6 @@ def _broadest_shareable_ancestor_scope(
     return best_scope
 
 
-def _projected_creates(
-    allocations: tuple[FunctionalReturnAllocation, ...],
-    *,
-    resolved_args: Mapping[str, tuple[ResolvedFunctionalValue, ...]],
-    known_handles: set[str],
-    capability_id: str,
-) -> tuple[CreatedEntity, ...]:
-    result: list[CreatedEntity] = []
-    for values in resolved_args.values():
-        for value in values:
-            entity_type = (
-                object_semantic_kind_for_handle(value.object_ref)
-                or object_kind_for_runtime_type(value.runtime_type)
-            )
-            if (
-                not value.runtime_type.endswith("Ref")
-                or value.object_ref is None
-                or value.object_ref in known_handles
-                or entity_type is None
-            ):
-                continue
-            result.append(
-                CreatedEntity(
-                    handle=value.object_ref,
-                    entity_type=entity_type,
-                    valid_scope=value.valid_scope,
-                    description=(
-                        f"{capability_id} planned target object"
-                    ),
-                )
-            )
-    for item in allocations:
-        entity_type = (
-            object_semantic_kind_for_handle(item.object_ref)
-            or object_kind_for_runtime_type(item.runtime_type)
-        )
-        if (
-            item.write_mode != "create"
-            or item.object_ref is None
-            or item.object_ref in known_handles
-            or entity_type is None
-        ):
-            continue
-        result.append(
-            CreatedEntity(
-                handle=item.object_ref,
-                entity_type=entity_type,
-                valid_scope=item.valid_scope,
-                description=(
-                    f"{capability_id} generated object for {item.return_name}"
-                ),
-            )
-        )
-    return tuple(
-        {
-            item.handle: item
-            for item in result
-        }.values()
-    )
-
-
-def _projected_step_target(
-    *,
-    capability: FunctionalCapability,
-    resolved_args: Mapping[str, tuple[ResolvedFunctionalValue, ...]],
-    allocations: tuple[FunctionalReturnAllocation, ...],
-    produces: tuple[ProducedFact, ...],
-) -> str:
-    answer_target = next(
-        (
-            allocation.handle
-            for allocation in allocations
-            if allocation.handle.startswith("answer:")
-        ),
-        None,
-    )
-    if answer_target is not None:
-        return answer_target
-
-    identity_targets = unique_ordered(
-        value.object_ref
-        for auto in capability.auto_args
-        if selector_semantics(auto.selector).owns_identity_binding
-        for value in resolved_args.get(auto.name, ())
-        if value.object_ref is not None
-        and object_semantic_kind_for_handle(value.object_ref) == "point"
-    )
-    if len(identity_targets) == 1:
-        return identity_targets[0]
-
-    if capability.kind == "macro" and produces:
-        return produces[0].handle
-    object_target = next(
-        (
-            allocation.object_ref
-            for allocation in allocations
-            if allocation.object_ref is not None
-        ),
-        None,
-    )
-    if object_target is not None:
-        return object_target
-    return produces[0].handle if produces else capability.goal_type
-
 
 def _active_return_specs(
     capability: FunctionalCapability,
@@ -7413,7 +6966,6 @@ def _functional_dependency_kinds(
     *,
     dependency_graph: Mapping[str, tuple[str, ...]],
     projected_state_dependencies: Sequence[Any],
-    projection_map: Sequence[FunctionalProjectionEntry],
 ) -> dict[str, dict[str, str]]:
     """Preserve the typed origin of every authoritative dependency edge."""
 
@@ -7432,11 +6984,6 @@ def _functional_dependency_kinds(
         for call in calls
         for returned in call.returns
         if returned.selected_version_id is not None
-    }
-    step_to_call = {
-        step_id: item.call_id
-        for item in projection_map
-        for step_id in item.step_ids
     }
     for call in calls:
         for values in call.resolved_args.values():
@@ -7470,15 +7017,9 @@ def _functional_dependency_kinds(
                         producer
                     ] = "state_version"
     for dependency in projected_state_dependencies:
-        consumer = step_to_call.get(
-            dependency.step_id,
-            dependency.step_id,
-        )
+        consumer = dependency.step_id
         producer = (
-            step_to_call.get(
-                dependency.source_step_id,
-                dependency.source_step_id,
-            )
+            dependency.source_step_id
             if dependency.source_step_id is not None
             else None
         )
@@ -8174,7 +7715,7 @@ def _required_identity_auto_arg_issues(
     scope_id: str,
     has_downstream_consumer: bool,
 ) -> tuple[FunctionalPlanIssue, ...]:
-    """Reject unresolved compiler targets before StepIntent projection."""
+    """Reject unresolved compiler targets before direct compilation."""
 
     return tuple(
         _issue(

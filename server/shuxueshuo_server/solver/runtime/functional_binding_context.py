@@ -525,7 +525,7 @@ def call_binding_signatures(
     return {call_id: context.signature_for_call(call_id) for call_id in call_ids}
 
 
-def project_functional_arg_bindings_from_context(
+def build_functional_runtime_arg_bindings_from_context(
     calls: tuple[FunctionalCallReconciliation, ...],
     context: FunctionalBindingContext,
 ) -> tuple[ProjectedFunctionArgBinding, ...]:
@@ -684,8 +684,18 @@ def audit_compiled_functional_arg_consumption(
         list[tuple[str, tuple[str, ...]]],
     ] = {}
     inputs_by_name: dict[str, list[tuple[str, tuple[str, ...]]]] = {}
+    source_paths_by_output: dict[str, tuple[str, ...]] = {}
     for plan in plans:
         for invocation in plan.invocations:
+            invocation_sources = tuple(
+                dict.fromkeys(
+                    path
+                    for value in invocation.inputs.values()
+                    for path in _runtime_input_paths(value)
+                )
+            )
+            for output_path in invocation.outputs.values():
+                source_paths_by_output[output_path] = invocation_sources
             for input_name, value in invocation.inputs.items():
                 item = (
                     invocation.invocation_id,
@@ -744,7 +754,14 @@ def audit_compiled_functional_arg_consumption(
         source_path_matched = (
             expected_path is None
             or any(
-                expected_path in paths
+                any(
+                    _runtime_path_descends_from(
+                        path,
+                        expected_path,
+                        source_paths_by_output,
+                    )
+                    for path in paths
+                )
                 for candidates in candidates_by_target.values()
                 for _invocation_id, paths in candidates
             )
@@ -824,3 +841,23 @@ def _runtime_input_paths(value: Any) -> tuple[str, ...]:
     if isinstance(value, tuple):
         return tuple(item for item in value if isinstance(item, str))
     return ()
+
+
+def _runtime_path_descends_from(
+    path: str,
+    expected_source: str,
+    source_paths_by_output: Mapping[str, tuple[str, ...]],
+) -> bool:
+    """Trace a compiler-owned temporary back to the selected typed input."""
+
+    pending = [path]
+    visited: set[str] = set()
+    while pending:
+        current = pending.pop()
+        if current == expected_source:
+            return True
+        if current in visited:
+            continue
+        visited.add(current)
+        pending.extend(source_paths_by_output.get(current, ()))
+    return False

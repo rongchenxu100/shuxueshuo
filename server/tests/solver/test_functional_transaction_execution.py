@@ -20,11 +20,9 @@ from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
     FunctionalCallPreparationService,
     FunctionalRuntimeWriteCommitter,
     SymbolicClosureProvenanceError,
-    FunctionalTransactionBehaviorDelta,
     FunctionalTransactionalInterpreter,
     PreparedFunctionalArgBinding,
     PreparedFunctionalCall,
-    _compare_with_legacy,
     _closure_failure_details,
     _prepared_runtime_arg_object_ids,
     _validate_symbolic_closure_write_set,
@@ -104,7 +102,6 @@ def _replay(
     *,
     mode: str,
     symbolic_closure_mode: str = "disabled",
-    compile_mode: str = "direct_authoritative",
 ):
     case = FUNCTIONAL_BATCH_CASES[case_id]
     problem = load_problem_ir(case.problem_fixture_path)
@@ -120,7 +117,6 @@ def _replay(
     return PlannerRetryReplayService(
         functional_transaction_mode=mode,
         functional_symbolic_closure_mode=symbolic_closure_mode,
-        functional_compile_mode=compile_mode,
     ).replay_functional_plan(
         plan,
         inputs=inputs,
@@ -197,10 +193,10 @@ def _active_singleton_mapping_closure_plan():
 
 
 @pytest.mark.parametrize("case_id", tuple(FUNCTIONAL_BATCH_CASES))
-def test_authored_fixture_transaction_execution_has_zero_mismatch(
+def test_authored_fixture_direct_transaction_execution_is_authoritative(
     case_id: str,
 ) -> None:
-    replay = _replay(case_id, mode="execution_shadow")
+    replay = _replay(case_id, mode="context_authoritative")
 
     assert replay.output is not None
     assert replay.transactional_shadow_report is not None
@@ -215,7 +211,7 @@ def test_authored_fixture_transaction_execution_has_zero_mismatch(
     )
     assert report.ok, report.to_payload()
     assert not report.compatibility_mismatches
-    assert not report.behavior_deltas
+
     assert all(
         item.status == "verified"
         for item in report.call_states
@@ -244,6 +240,23 @@ def test_authored_fixture_transaction_execution_has_zero_mismatch(
         ]
         assert ready < running < verified
         assert all(verified < index for index in committed)
+
+
+def test_shadow_mode_is_graph_observation_only() -> None:
+    replay = _replay("nankai", mode="shadow")
+
+    assert replay.output is None
+    assert replay.transactional_shadow_report is not None
+    assert replay.transactional_shadow_report.graph.calls
+    assert replay.transactional_execution_report is None
+    assert replay.transactional_attempt_result is None
+
+
+def test_retired_transaction_modes_fail_loud() -> None:
+    with pytest.raises(ValueError, match="unsupported Functional transaction"):
+        PlannerRetryReplayService(
+            functional_transaction_mode="execution_shadow",  # type: ignore[arg-type]
+        )
 
 
 @pytest.mark.parametrize("case_id", tuple(FUNCTIONAL_BATCH_CASES))
@@ -282,30 +295,6 @@ def test_authored_fixture_executes_declared_symbolic_closures(
     assert report.symbolic_closure_drift_count == 0
     assert report.symbolic_closure_drift_by_capability == {}
     assert report.ok, report.to_payload()
-
-
-@pytest.mark.parametrize("case_id", tuple(FUNCTIONAL_BATCH_CASES))
-def test_authored_fixture_context_shadow_has_transactional_parity(
-    case_id: str,
-) -> None:
-    replay = _replay(case_id, mode="context_shadow")
-
-    attempt = replay.transactional_attempt_result
-    assert attempt is not None
-    assert attempt.execution_report.ok, attempt.to_payload()
-    binding_consumption = attempt.execution_report.to_payload()[
-        "binding_consumption_decisions"
-    ]
-    assert binding_consumption
-    assert all(item["matches"] for item in binding_consumption)
-    assert attempt.compiled_output is not None
-    assert not attempt.root_issues
-    assert all(
-        item.status == "passed"
-        for item in attempt.goal_report.goals
-    )
-    assert replay.state_observation_authority == "legacy"
-    assert replay.output is not None
 
 
 @pytest.mark.parametrize("case_id", tuple(FUNCTIONAL_BATCH_CASES))
@@ -384,7 +373,9 @@ def test_context_authoritative_uses_transactional_output_and_context() -> None:
     assert replay.goal_verification_report == attempt.goal_report
     assert replay.state_observation_authority == "transactional"
     assert replay.functional_reconciliation is not None
-    assert replay.functional_reconciliation.projected_draft is None
+    reconciliation_payload = replay.functional_reconciliation.to_payload()
+    assert "projected_draft" not in reconciliation_payload
+    assert "projection_map" not in reconciliation_payload
     assert attempt.execution_report.functional_compile_count > 0
     assert replay.retry_state is None
     assert replay.planner_state_context is not None
@@ -452,7 +443,7 @@ def test_context_authoritative_attempt_exception_fails_closed(
         _replay("nankai", mode="context_authoritative")
 
 
-def test_context_authoritative_partial_legacy_probe_stays_provisional(
+def test_context_authoritative_preflight_failure_creates_no_runtime_evidence(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     original_allocate = StateAllocationService.allocate
@@ -480,7 +471,6 @@ def test_context_authoritative_partial_legacy_probe_stays_provisional(
     replay = _replay(
         "nankai",
         mode="context_authoritative",
-        compile_mode="projected",
     )
 
     assert replay.transactional_attempt_result is None
@@ -494,127 +484,8 @@ def test_context_authoritative_partial_legacy_probe_stays_provisional(
             }
         ]
     )
-    assert checkpoint is not None
-    assert checkpoint.committed_calls == ()
-    assert checkpoint.verified_versions
-    assert {
-        item.status for item in checkpoint.verified_versions
-    } == {"runtime_verified"}
-    assert replay.retry_state.runtime_verified_calls
-    assert all(
-        item["commit_status"] == "provisional"
-        for item in replay.retry_state.call_memory
-        if item["execution_status"] == "runtime_verified"
-    )
-
-
-def test_context_authoritative_does_not_gate_on_legacy_parity(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    original_compare = _compare_with_legacy
-
-    def fail_if_compared(*args, **kwargs):
-        raise AssertionError("legacy comparator is not authoritative")
-
-    monkeypatch.setattr(
-        "shuxueshuo_server.solver.runtime.functional_transaction_execution."
-        "_compare_with_legacy",
-        fail_if_compared,
-    )
-    replay = _replay("nankai", mode="context_authoritative")
-    monkeypatch.setattr(
-        "shuxueshuo_server.solver.runtime.functional_transaction_execution."
-        "_compare_with_legacy",
-        original_compare,
-    )
-
-    assert replay.output is not None
-    assert replay.state_observation_authority == "transactional"
-
-
-def test_context_shadow_compares_goal_output_context_and_retry_artifacts(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    original_attempt = FunctionalTransactionalInterpreter.execute_attempt
-
-    def attempt_with_output_drift(self, **kwargs):
-        attempt = original_attempt(self, **kwargs)
-        assert attempt.compiled_output is not None
-        output = replace(
-            attempt.compiled_output,
-            step_plans=attempt.compiled_output.step_plans[:-1],
-        )
-        return replace(attempt, compiled_output=output)
-
-    monkeypatch.setattr(
-        FunctionalTransactionalInterpreter,
-        "execute_attempt",
-        attempt_with_output_drift,
-    )
-
-    replay = _replay("nankai", mode="context_shadow")
-
-    assert replay.output is not None
-    assert replay.state_observation_authority == "legacy"
-    assert replay.transactional_attempt_result is not None
-    assert any(
-        item.code == "transactional_goal_output_drift"
-        for item in (
-            replay.transactional_attempt_result.execution_report
-            .compatibility_mismatches
-        )
-    )
-
-
-def test_context_shadow_keeps_legacy_checkpoint_prevalidation(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    authoritative = _replay("nankai", mode="context_authoritative")
-    case = FUNCTIONAL_BATCH_CASES["nankai"]
-    problem = load_problem_ir(case.problem_fixture_path)
-    inputs = build_strategy_probe_inputs(problem)
-    problem_payload = problem_to_llm_payload(problem)
-    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
-    previous = transactional_repair_attempt_payload_from_replay(
-        authoritative,
-        attempt=2,
-        errors=("answer_mismatch: synthetic",),
-        inputs=inputs,
-        handle_registry=registry,
-        problem_payload=problem_payload,
-    )
-    assert previous is not None
-    checkpoint = latest_functional_retry_graph_checkpoint([previous])
-    assert checkpoint is not None
-    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
-        json.loads(case.functional_fixture_path.read_text(encoding="utf-8")),
-        handle_registry=registry,
-        question_goals=inputs.question_goals,
-    )
-    observed = []
-
-    def observe_checkpoint(expected, **kwargs):
-        observed.append(expected)
-
-    monkeypatch.setattr(
-        "shuxueshuo_server.solver.runtime.strategy_replay."
-        "_verify_successful_functional_retry_checkpoint",
-        observe_checkpoint,
-    )
-    PlannerRetryReplayService(
-        functional_transaction_mode="context_shadow",
-    ).replay_functional_plan(
-        plan,
-        inputs=inputs,
-        handle_registry=registry,
-        context=ContextBuilder().build(problem),
-        attempt=1,
-        problem_payload=problem_payload,
-        validation_report=validation,
-        retry_checkpoint=checkpoint,
-    )
-
-    assert len(observed) == 1
+    assert checkpoint is None
+    assert not replay.retry_state.runtime_verified_calls
 
 
 def test_transactional_answer_check_revokes_commits_but_keeps_versions() -> None:
@@ -637,6 +508,9 @@ def test_transactional_answer_check_revokes_commits_but_keeps_versions() -> None
     )
 
     assert payload is not None
+    assert payload["candidate_format"] == "functional_plan"
+    assert "FunctionalPlan" in payload["repair_instruction"]
+    assert "StepIntent" not in payload["repair_instruction"]
     retry = payload["planner_retry_state"]
     assert retry["preserve_policy"] == "none"
     assert retry["committed_candidate_calls"] == []
@@ -654,7 +528,7 @@ def test_transactional_answer_check_revokes_commits_but_keeps_versions() -> None
 
 
 def test_exact_transaction_attempt_does_not_require_legacy_output() -> None:
-    legacy = _replay("nankai", mode="legacy")
+    legacy = _replay("nankai", mode="context_authoritative")
     case = FUNCTIONAL_BATCH_CASES["nankai"]
     problem = load_problem_ir(case.problem_fixture_path)
     inputs = build_strategy_probe_inputs(problem)
@@ -664,8 +538,6 @@ def test_exact_transaction_attempt_does_not_require_legacy_output() -> None:
     attempt = FunctionalTransactionalInterpreter().execute_attempt(
         raw_plan=legacy.functional_reconciliation.plan,
         reconciliation=legacy.functional_reconciliation,
-        legacy_output=None,
-        legacy_diagnostic=None,
         runtime_context=ContextBuilder().build(problem),
         parent_context=initial_planner_state_context(
             inputs,
@@ -676,7 +548,6 @@ def test_exact_transaction_attempt_does_not_require_legacy_output() -> None:
         inputs=inputs,
         handle_registry=registry,
         problem_payload=problem_payload,
-        compare_legacy=False,
     )
 
     assert attempt.compiled_output is not None
@@ -1070,46 +941,6 @@ def test_authoritative_closure_rejects_wrong_method_companion_outputs(
         "planner.contract_runtime_symbol_drift"
     ), call_result.root_issues
 
-    monkeypatch.setattr(
-        QuadraticFromConstraintsMethod,
-        "run",
-        original_run,
-    )
-    monkeypatch.setattr(
-        "shuxueshuo_server.solver.runtime.functional_transaction_execution."
-        "_symbolic_values_equivalent",
-        lambda _left, _right: False,
-    )
-    shadow = PlannerRetryReplayService(
-        functional_transaction_mode="execution_shadow",
-        functional_symbolic_closure_mode="shadow",
-    ).replay_functional_plan(
-        plan,
-        inputs=inputs,
-        handle_registry=registry,
-        context=ContextBuilder().build(problem),
-        attempt=1,
-        problem_payload=problem_payload,
-        validation_report=validation,
-    )
-    shadow_report = shadow.transactional_execution_report
-    assert shadow_report is not None
-    assert shadow_report.symbolic_closure_execution_count >= 1
-    assert shadow_report.symbolic_closure_drift_count >= 1
-    shadow_call = next(
-        item
-        for item in shadow_report.call_results
-        if item.call_id == "derive_parametric_parabola_ii"
-    )
-    assert shadow_call.status == "verified"
-    assert shadow_call.symbolic_closure is not None
-    assert shadow_call.symbolic_closure.status == "unique"
-    assert all(
-        write.symbolic_closure_provenance is None
-        for write in shadow_call.state_writes
-    )
-
-
 def test_commit_payload_issue_does_not_stamp_closure_provenance(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -1209,6 +1040,7 @@ def test_singleton_mapping_keeps_public_arg_symbol_identity() -> None:
         capability_id="quadratic_from_constraints",
         step_ids=("build_curve",),
         dependency_call_ids=(),
+        execution_scope_id="problem",
         reconciliation=None,  # type: ignore[arg-type]
         arg_bindings=(
             PreparedFunctionalArgBinding(
@@ -1289,7 +1121,7 @@ def test_hexi_singleton_known_mapping_reaches_closure_with_typed_identity(
 
 
 def test_partial_goal_failure_keeps_independent_goal_branch_verified() -> None:
-    legacy = _replay("nankai", mode="legacy")
+    legacy = _replay("nankai", mode="context_authoritative")
     case = FUNCTIONAL_BATCH_CASES["nankai"]
     problem = load_problem_ir(case.problem_fixture_path)
     inputs = build_strategy_probe_inputs(problem)
@@ -1317,8 +1149,6 @@ def test_partial_goal_failure_keeps_independent_goal_branch_verified() -> None:
     ).execute_attempt(
         raw_plan=legacy.functional_reconciliation.plan,
         reconciliation=legacy.functional_reconciliation,
-        legacy_output=None,
-        legacy_diagnostic=None,
         runtime_context=ContextBuilder().build(problem),
         parent_context=initial_planner_state_context(
             inputs,
@@ -1329,7 +1159,6 @@ def test_partial_goal_failure_keeps_independent_goal_branch_verified() -> None:
         inputs=inputs,
         handle_registry=registry,
         problem_payload=problem_payload,
-        compare_legacy=False,
     )
     goals = {
         item.goal_handle: item.status
@@ -1366,34 +1195,6 @@ def test_runtime_context_fork_discards_branch_writes() -> None:
     assert branch.symbols is context.symbols
 
 
-def test_execution_shadow_keeps_legacy_authority_unchanged() -> None:
-    legacy = _replay("nankai", mode="legacy")
-    execution = _replay("nankai", mode="execution_shadow")
-
-    assert legacy.transactional_execution_report is None
-    assert legacy.transactional_shadow_report is None
-    legacy_payload = legacy.to_payload()
-    execution_payload = execution.to_payload()
-    for payload in (legacy_payload, execution_payload):
-        payload.pop("transactional_shadow_report", None)
-        payload.pop("transactional_execution_report", None)
-        context = payload.get("planner_state_context")
-        if isinstance(context, dict):
-            state = context.get("state")
-            if isinstance(state, dict):
-                state.pop("functional_transaction_shadow", None)
-                state.pop("functional_transaction_execution", None)
-
-    assert execution_payload == legacy_payload
-    assert "functional_transaction_execution" not in json.dumps(
-        (
-            legacy.retry_state.to_payload()
-            if legacy.retry_state is not None
-            else {}
-        )
-    )
-
-
 def test_transaction_failure_rolls_back_and_blocks_only_dependents() -> None:
     case = FUNCTIONAL_BATCH_CASES["nankai"]
     problem = load_problem_ir(case.problem_fixture_path)
@@ -1414,14 +1215,10 @@ def test_transaction_failure_rolls_back_and_blocks_only_dependents() -> None:
         problem_payload=problem_payload,
         validation_report=validation,
     )
-    normal = _replay("nankai", mode="execution_shadow")
+    normal = _replay("nankai", mode="context_authoritative")
     graph = normal.transactional_execution_report.graph
     root, descendants, independent = _failure_partition(graph)
-    projection = {
-        item.call_id: item.step_ids
-        for item in legacy.functional_reconciliation.projection_map
-    }
-    fail_step_ids = frozenset(projection[root])
+    fail_step_ids = frozenset((root,))
     leak_observed = [False]
 
     class FailingExecutor:
@@ -1462,8 +1259,6 @@ def test_transaction_failure_rolls_back_and_blocks_only_dependents() -> None:
     ).execute(
         raw_plan=plan,
         reconciliation=legacy.functional_reconciliation,
-        legacy_output=legacy.output,
-        legacy_diagnostic=legacy.diagnostic,
         runtime_context=ContextBuilder().build(problem),
         parent_context=initial_planner_state_context(
             inputs,
@@ -1484,213 +1279,6 @@ def test_transaction_failure_rolls_back_and_blocks_only_dependents() -> None:
     )
     assert any(statuses[call_id] == "verified" for call_id in independent)
     assert not leak_observed[0]
-
-
-def test_form_or_closure_gap_is_a_hard_compatibility_mismatch() -> None:
-    case = FUNCTIONAL_BATCH_CASES["hexi"]
-    problem = load_problem_ir(case.problem_fixture_path)
-    inputs = build_strategy_probe_inputs(problem)
-    problem_payload = problem_to_llm_payload(problem)
-    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
-    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
-        json.loads(case.functional_fixture_path.read_text(encoding="utf-8")),
-        handle_registry=registry,
-        question_goals=inputs.question_goals,
-    )
-    legacy = PlannerRetryReplayService().replay_functional_plan(
-        plan,
-        inputs=inputs,
-        handle_registry=registry,
-        context=ContextBuilder().build(problem),
-        attempt=1,
-        problem_payload=problem_payload,
-        validation_report=validation,
-    )
-    target = next(
-        item
-        for item in legacy.diagnostic.state_write_provenance
-        if item.free_symbol_names
-    )
-    diagnostic = replace(
-        legacy.diagnostic,
-        state_write_provenance=tuple(
-            replace(item, result_form=None, free_symbol_names=())
-            if item is target
-            else item
-            for item in legacy.diagnostic.state_write_provenance
-        ),
-    )
-
-    report = FunctionalTransactionalInterpreter().execute(
-        raw_plan=plan,
-        reconciliation=legacy.functional_reconciliation,
-        legacy_output=legacy.output,
-        legacy_diagnostic=diagnostic,
-        runtime_context=ContextBuilder().build(problem),
-        parent_context=initial_planner_state_context(
-            inputs,
-            problem_payload=problem_payload,
-            handle_registry=registry,
-            attempt=1,
-        ),
-        inputs=inputs,
-        handle_registry=registry,
-        goal_verification_report=legacy.goal_verification_report,
-    )
-
-    assert not report.ok
-    assert any(
-        item.code == "transactional_runtime_write_drift"
-        and item.call_id == target.step_id
-        for item in report.compatibility_mismatches
-    )
-    assert not report.behavior_deltas
-
-
-def test_unknown_behavior_delta_cannot_pass_the_compatibility_gate() -> None:
-    report = _replay(
-        "nankai",
-        mode="execution_shadow",
-    ).transactional_execution_report
-    assert report is not None and report.ok
-
-    report = replace(
-        report,
-        behavior_deltas=(
-            FunctionalTransactionBehaviorDelta(
-                "unexpected_state_delta",
-                "call",
-                "must not be silently accepted",
-            ),
-        ),
-    )
-
-    assert not report.ok
-
-
-def test_rejected_legacy_output_is_not_executed_by_shadow() -> None:
-    case = FUNCTIONAL_BATCH_CASES["nankai"]
-    problem = load_problem_ir(case.problem_fixture_path)
-    inputs = build_strategy_probe_inputs(problem)
-    problem_payload = problem_to_llm_payload(problem)
-    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
-    payload = json.loads(
-        case.functional_fixture_path.read_text(encoding="utf-8")
-    )
-    target = next(
-        call
-        for scope in payload["scopes"]
-        for call in scope["calls"]
-        if call["call_id"] == "ii_construct_N"
-    )
-    target["return_expectations"] = {
-        "selected_target_point": "closed_state",
-    }
-    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
-        payload,
-        handle_registry=registry,
-        question_goals=inputs.question_goals,
-    )
-
-    replay = PlannerRetryReplayService(
-        functional_transaction_mode="execution_shadow",
-    ).replay_functional_plan(
-        plan,
-        inputs=inputs,
-        handle_registry=registry,
-        context=ContextBuilder().build(problem),
-        attempt=1,
-        problem_payload=problem_payload,
-        validation_report=validation,
-    )
-
-    assert replay.output is None
-    report = replay.transactional_execution_report
-    assert report is not None and not report.ok
-    assert not report.call_results
-    assert (
-        report.compatibility_mismatches[0].code
-        == "transactional_execution_shadow_failed"
-    )
-    retry_payload = (
-        replay.retry_state.to_payload()
-        if replay.retry_state is not None
-        else {}
-    )
-    assert "transactional_execution_report" not in json.dumps(retry_payload)
-
-
-def test_execution_shadow_finalize_has_no_stale_output_fallback() -> None:
-    parameters = inspect.signature(
-        PlannerRetryReplayService._finalize_functional_replay
-    ).parameters
-
-    assert "transactional_output" not in parameters
-
-
-def test_independent_branch_write_is_not_reclassified_as_hard_mismatch() -> None:
-    replay = _replay("nankai", mode="execution_shadow")
-    report = replay.transactional_execution_report
-    assert report is not None and report.ok
-    target = next(
-        item
-        for item in reversed(report.call_results)
-        if item.status == "verified" and item.state_writes
-    )
-    projection = next(
-        item
-        for item in replay.functional_reconciliation.projection_map
-        if item.call_id == target.call_id
-    )
-    target_steps = frozenset(projection.step_ids)
-    diagnostic = replace(
-        replay.diagnostic,
-        accepted_prefix=tuple(
-            item
-            for item in replay.diagnostic.accepted_prefix
-            if item.step_id not in target_steps
-        ),
-        state_write_provenance=tuple(
-            item
-            for item in replay.diagnostic.state_write_provenance
-            if item.step_id not in target_steps
-        ),
-    )
-    case = FUNCTIONAL_BATCH_CASES["nankai"]
-    problem = load_problem_ir(case.problem_fixture_path)
-    inputs = build_strategy_probe_inputs(problem)
-    problem_payload = problem_to_llm_payload(problem)
-    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
-    working = build_working_state(
-        report.graph,
-        parent_context=initial_planner_state_context(
-            inputs,
-            problem_payload=problem_payload,
-            handle_registry=registry,
-            attempt=1,
-        ),
-        handle_registry=registry,
-    )
-    working.call_states = {
-        item.call_id: item for item in report.call_states
-    }
-
-    mismatches, deltas = _compare_with_legacy(
-        report.graph,
-        working=working,
-        reconciliation=replay.functional_reconciliation,
-        diagnostic=diagnostic,
-        call_results=report.call_results,
-    )
-
-    assert not mismatches
-    assert deltas == (
-        FunctionalTransactionBehaviorDelta(
-            "transactional_independent_branch_verified",
-            target.call_id,
-            "legacy prefix replay did not verify this call",
-        ),
-    )
 
 
 def test_context_auto_args_refresh_at_final_effective_call_position() -> None:
@@ -1731,7 +1319,7 @@ def test_context_auto_args_refresh_at_final_effective_call_position() -> None:
     assert plan is not None and validation.ok
 
     replay = PlannerRetryReplayService(
-        functional_transaction_mode="execution_shadow",
+        functional_transaction_mode="context_authoritative",
     ).replay_functional_plan(
         plan,
         inputs=inputs,
@@ -1745,7 +1333,6 @@ def test_context_auto_args_refresh_at_final_effective_call_position() -> None:
     assert replay.output is not None
     report = replay.transactional_execution_report
     assert report is not None and report.ok, report.to_payload()
-    assert not report.behavior_deltas
     reconciled = next(
         item
         for item in replay.functional_reconciliation.calls
@@ -1937,7 +1524,7 @@ def test_verified_commit_is_atomic_when_version_registration_fails(
         item
         for item in _replay(
             "nankai",
-            mode="execution_shadow",
+            mode="context_authoritative",
         ).transactional_execution_report.committed_versions
     )
     second = replace(

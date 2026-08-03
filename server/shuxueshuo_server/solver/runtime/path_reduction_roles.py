@@ -9,6 +9,9 @@ from shuxueshuo_server.solver.runtime.handle_alias_index import (
     visible_from_valid_scope,
 )
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
+from shuxueshuo_server.solver.runtime.functional_compile_contract import (
+    compile_input_handles,
+)
 from shuxueshuo_server.solver.runtime.path_term_parsing import (
     PathTermParseError,
     parse_legacy_path_expression,
@@ -251,9 +254,10 @@ def resolve_read_closed_path_reduction_inputs(
     step: StepIntent,
     index: PathReductionBindingIndex,
 ) -> PathReductionRoles:
+    input_handles = compile_input_handles(step)
     targets = tuple(
         handle
-        for handle in step.reads
+        for handle in input_handles
         if index.fact_types.get(handle) == "path_minimum_target"
     )
     if len(targets) != 1:
@@ -272,7 +276,7 @@ def resolve_read_closed_path_reduction_inputs(
     missing_conditions = [
         handle
         for handle in roles.required_condition_handles
-        if handle not in step.reads
+        if handle not in input_handles
     ]
     if missing_conditions:
         raise StrategyDraftValidationError(
@@ -280,7 +284,7 @@ def resolve_read_closed_path_reduction_inputs(
             f"{missing_conditions}"
         )
     for handle in roles.required_point_handles:
-        if handle not in step.reads:
+        if handle not in input_handles:
             raise StrategyDraftValidationError(
                 f"path_reduction_point_read_missing: {handle}"
             )

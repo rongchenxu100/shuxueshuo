@@ -678,9 +678,8 @@ def build_functional_retry_graph_checkpoint(
         call.call_id: call for call in reconciliation.calls
     }
     call_by_step = {
-        step_id: item.call_id
-        for item in reconciliation.projection_map
-        for step_id in item.step_ids
+        item.call_id: item.canonical_call_id
+        for item in reconciliation.execution_entries
     }
     placement_keys = _placement_identity_keys(reconciliation)
     placements_by_call = {

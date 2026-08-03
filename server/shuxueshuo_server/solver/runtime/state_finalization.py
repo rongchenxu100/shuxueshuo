@@ -11,6 +11,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Literal, Mapping, Sequence
 
+from shuxueshuo_server.solver.runtime.functional_debug_aliases import (
+    functional_state_slot_debug_alias,
+)
+
 from shuxueshuo_server.solver.problem_models import QuestionGoal
 from shuxueshuo_server.solver.runtime.binding_selector_semantics import (
     selector_semantics,
@@ -749,7 +753,7 @@ def _validate_answer_provenance_identity(
     )
 
 
-def project_functional_state_writes(
+def build_functional_state_write_manifest(
     plan: Any,
     reconciled_calls: Sequence[Any],
 ) -> tuple[ProjectedStateWrite, ...]:
@@ -807,26 +811,16 @@ def project_functional_state_writes(
     return tuple(result)
 
 
-def project_functional_state_dependencies(
+def build_functional_state_dependencies(
     plan: Any,
     reconciled_calls: Sequence[Any],
     *,
     catalog: Any,
-    legacy_projection_adapter: Any | None = None,
 ) -> tuple[ProjectedStateDependency, ...]:
     """Project every exact Functional StateVersion read for B3 validation."""
 
     calls_by_id = {call.call_id: call for call in plan.calls}
     result: list[ProjectedStateDependency] = []
-    from shuxueshuo_server.solver.runtime.functional_legacy_projection import (
-        FunctionalLegacyProjectionAdapter,
-    )
-
-    adapter = (
-        legacy_projection_adapter
-        if legacy_projection_adapter is not None
-        else FunctionalLegacyProjectionAdapter()
-    )
     seen: set[tuple[str, str, StateVersionId]] = set()
     return_by_version = {
         allocation.selected_version_id: (
@@ -899,7 +893,7 @@ def project_functional_state_dependencies(
                     source_allocation = (
                         producer[2] if producer is not None else None
                     )
-                    state_slot_id = adapter.state_slot_id(
+                    state_slot_id = functional_state_slot_debug_alias(
                         state_version_id.slot_id
                     )
                     key = (call.call_id, arg_name, state_version_id)
@@ -1739,6 +1733,6 @@ __all__ = [
     "StateFinalizerMode",
     "StateProjectionDestination",
     "expand_functional_dependency_graph",
-    "project_functional_state_dependencies",
-    "project_functional_state_writes",
+    "build_functional_state_dependencies",
+    "build_functional_state_write_manifest",
 ]

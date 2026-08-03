@@ -19,6 +19,7 @@ from shuxueshuo_server.solver.runtime.binding_rules import (
 )
 from shuxueshuo_server.solver.runtime.recipe_compiler import (
     DEFAULT_RECIPE_COMPILERS,
+    FunctionalCapabilityCompiler,
     RecipeCompileStrategyFn,
     RecipeExecutionSpecRegistry,
     RecipeTrialExecutor,
@@ -34,6 +35,7 @@ __all__ = [
     "DEFAULT_EXPANSION_SELECTORS",
     "DEFAULT_RECIPE_COMPILERS",
     "ExpansionSelectorFn",
+    "FunctionalCapabilityCompiler",
     "MethodBindingRuleRegistry",
     "RecipeCompileStrategyFn",
     "RecipeExecutionSpecRegistry",

@@ -11,6 +11,9 @@ import re
 from collections.abc import Callable
 
 from shuxueshuo_server.solver.runtime.binding_index import CanonicalRuntimeBindingIndex
+from shuxueshuo_server.solver.runtime.functional_compile_contract import (
+    compile_input_handles,
+)
 from shuxueshuo_server.solver.runtime.handle_registry import (
     _handle_name,
     _semantic_name,
@@ -234,7 +237,7 @@ class EntityStateResolver:
             return None
         write = index.latest_projected_state_write_in_handles(
             object_ref,
-            tuple(step.reads),
+            compile_input_handles(step),
             before_step_id=step.step_id,
         )
         if (
@@ -278,7 +281,7 @@ class EntityStateResolver:
     ) -> str | None:
         """查找唯一可见候选。"""
         matches: list[tuple[str, str]] = []
-        explicit_reads = set(step.reads)
+        explicit_reads = set(compile_input_handles(step))
         for handle, binding in sorted(index.bindings.items()):
             if not runtime_type_matches(required_type, binding.value_type):
                 continue

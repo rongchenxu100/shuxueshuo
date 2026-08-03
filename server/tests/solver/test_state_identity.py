@@ -30,8 +30,11 @@ from shuxueshuo_server.solver.runtime.functional_call_placement import (
 from shuxueshuo_server.solver.runtime.entity_state_resolver import (
     EntityStateResolver,
 )
-from shuxueshuo_server.solver.runtime.functional_legacy_projection import (
-    FunctionalLegacyProjectionAdapter,
+from shuxueshuo_server.solver.runtime.functional_debug_aliases import (
+    functional_state_slot_debug_alias,
+)
+from shuxueshuo_server.solver.runtime.legacy_context_migration import (
+    LegacyContextIdentityMigrator,
 )
 from shuxueshuo_server.solver.runtime.functional_typed_identity import (
     FunctionalTypedIdentityValidator,
@@ -74,7 +77,7 @@ from shuxueshuo_server.solver.runtime.state_identity import (
 )
 from shuxueshuo_server.solver.runtime.state_finalization import (
     StateFinalizationService,
-    project_functional_state_dependencies,
+    build_functional_state_dependencies,
 )
 from shuxueshuo_server.solver.runtime.strategy_models import (
     ProjectedStateWrite,
@@ -303,8 +306,7 @@ def test_legacy_slot_projection_does_not_drive_typed_index_lookup() -> None:
     )
     assert logical_key is not None
     slot_id = factory.slot_id(logical_key, storage_scope_id="ii")
-    adapter = FunctionalLegacyProjectionAdapter()
-    canonical = adapter.state_slot_id(slot_id)
+    canonical = functional_state_slot_debug_alias(slot_id)
     old_alias = factory.legacy_slot_alias(slot_id)
     initial = IndexedStateVersion(
         StateVersionId(slot_id, 0),
@@ -332,7 +334,7 @@ def test_context_to_inflight_binding_uses_explicit_typed_version() -> None:
     )
     assert logical_key is not None
     slot_id = factory.slot_id(logical_key, storage_scope_id="ii")
-    canonical_slot = FunctionalLegacyProjectionAdapter().state_slot_id(slot_id)
+    canonical_slot = functional_state_slot_debug_alias(slot_id)
     initial = IndexedStateVersion(
         StateVersionId(slot_id, 0),
         valid_scope_id="ii",
@@ -782,7 +784,7 @@ def test_legacy_lineage_migration_counts_complete_fallback() -> None:
         factory.slot_id(logical_key, storage_scope_id="ii"),
         0,
     )
-    adapter = FunctionalLegacyProjectionAdapter()
+    adapter = LegacyContextIdentityMigrator()
     lineage = state_semantic_lineage(
         object_roles=(
             StateObjectRoleBinding(
@@ -808,7 +810,7 @@ def test_legacy_lineage_migration_counts_complete_fallback() -> None:
 
 
 def test_legacy_lineage_migration_rejects_partial_source_mapping() -> None:
-    adapter = FunctionalLegacyProjectionAdapter()
+    adapter = LegacyContextIdentityMigrator()
     lineage = state_semantic_lineage(
         source_state_slot_ids=("legacy-slot-1", "legacy-slot-2"),
     )
@@ -845,7 +847,7 @@ def test_functional_authority_has_no_legacy_identity_lookup() -> None:
         functional_computation_key,
         functional_source_version_ids,
         _canonical_dependency_graph,
-        project_functional_state_dependencies,
+        build_functional_state_dependencies,
         _materialize_functional_return,
     )
     forbidden_calls = {

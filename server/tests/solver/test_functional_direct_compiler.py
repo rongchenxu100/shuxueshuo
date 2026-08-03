@@ -2,12 +2,11 @@ from __future__ import annotations
 
 import ast
 import inspect
+import json
+from pathlib import Path
 
 import pytest
 
-from shuxueshuo_server.solver.runtime import (
-    functional_transaction_execution as transaction_execution,
-)
 from shuxueshuo_server.solver.deepseek_functional_batch import (
     FUNCTIONAL_BATCH_CASES,
 )
@@ -24,7 +23,13 @@ from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
     _compiled_call_signature,
 )
 from shuxueshuo_server.solver.runtime.models import ContextDeclaration
-from shuxueshuo_server.solver.runtime.recipe_compiler import RecipeTrialExecutor
+from shuxueshuo_server.solver.runtime.recipe_compiler import (
+    FunctionalCapabilityCompiler,
+    RecipeTrialExecutor,
+)
+from shuxueshuo_server.solver.runtime import (
+    FunctionalCapabilityCompiler as PublicFunctionalCapabilityCompiler,
+)
 from shuxueshuo_server.solver.runtime.strategy_validator import (
     StepIntentValidator,
 )
@@ -35,14 +40,110 @@ from shuxueshuo_server.solver.runtime.strategy_payload import (
 from test_functional_transaction_execution import _replay
 
 
+_COMPILE_MANIFEST_DIR = (
+    Path(__file__).parent
+    / "fixtures"
+    / "functional_compile_manifests"
+)
+
+
+def _functional_compile_manifest(case_id: str) -> dict[str, object]:
+    replay = _replay(case_id, mode="context_authoritative")
+    report = replay.transactional_execution_report
+    attempt = replay.transactional_attempt_result
+    reconciliation = replay.functional_reconciliation
+    assert report is not None
+    assert attempt is not None
+    assert reconciliation is not None
+    capabilities = {
+        call.call_id: call.capability_id for call in reconciliation.calls
+    }
+    writes_by_call: dict[str, list[object]] = {}
+    for write in attempt.state_writes:
+        writes_by_call.setdefault(write.step_id, []).append(write)
+    calls: list[dict[str, object]] = []
+    for compiled in report.compiled_calls:
+        calls.append(
+            {
+                "call_id": compiled.call_id,
+                "capability_id": capabilities[compiled.call_id],
+                "steps": [
+                    {
+                        "step_id": plan.step_id,
+                        "scope": plan.scope,
+                        "invocations": [
+                            {
+                                "method_id": invocation.method_id,
+                                "scope": invocation.scope,
+                                "inputs": sorted(invocation.inputs),
+                                "outputs": dict(sorted(invocation.outputs.items())),
+                            }
+                            for invocation in plan.invocations
+                        ],
+                        "promotions": dict(sorted(plan.promote_outputs.items())),
+                    }
+                    for plan in compiled.plans
+                ],
+                "bindings": [
+                    {
+                        "arg": decision["arg_name"],
+                        "item": decision["item_index"],
+                        "role": decision["semantic_role"],
+                        "authority": decision["binding_authority"],
+                        "target": decision["runtime_target"],
+                        "paths": decision["actual_runtime_paths"],
+                    }
+                    for decision in compiled.binding_consumption_decisions
+                ],
+                "public_returns": [
+                    {
+                        "name": item.return_name,
+                        "runtime_type": item.allocation.runtime_type,
+                        "identity_policy": item.allocation.identity_policy,
+                        "write_mode": item.allocation.write_mode,
+                        "output_key": item.expected_write.output_key,
+                        "required": item.required,
+                    }
+                    for item in compiled.public_returns
+                ],
+                "provenance": [
+                    {
+                        "return_name": write.return_name,
+                        "runtime_type": write.runtime_type,
+                        "allocation_action": write.allocation_action,
+                        "result_form": write.result_form,
+                        "object_id": (
+                            write.math_object_id.value
+                            if write.math_object_id is not None
+                            else None
+                        ),
+                        "source_version_count": len(write.source_version_ids),
+                        "closure_signature": (
+                            repr(
+                                write.symbolic_closure_provenance.semantic_signature()
+                            )
+                            if write.symbolic_closure_provenance is not None
+                            else None
+                        ),
+                    }
+                    for write in writes_by_call.get(compiled.call_id, ())
+                ],
+            }
+        )
+    return {
+        "schema": "functional_compile_manifest/v1",
+        "case_id": case_id,
+        "calls": calls,
+    }
+
+
 @pytest.mark.parametrize("case_id", tuple(FUNCTIONAL_BATCH_CASES))
-def test_authored_fixture_direct_shadow_has_zero_compile_drift(
+def test_authored_fixture_direct_compiler_executes_without_drift(
     case_id: str,
 ) -> None:
     replay = _replay(
         case_id,
         mode="context_authoritative",
-        compile_mode="direct_shadow",
     )
 
     report = replay.transactional_execution_report
@@ -58,7 +159,6 @@ def test_authored_fixture_direct_authoritative_executes_without_projection(
     replay = _replay(
         case_id,
         mode="context_authoritative",
-        compile_mode="direct_authoritative",
     )
 
     report = replay.transactional_execution_report
@@ -66,6 +166,17 @@ def test_authored_fixture_direct_authoritative_executes_without_projection(
     assert report.functional_compile_count > 0
     assert report.functional_compile_drift_count == 0
     assert replay.output is not None, report.to_payload()
+
+
+@pytest.mark.parametrize("case_id", tuple(FUNCTIONAL_BATCH_CASES))
+def test_authored_direct_compile_manifest_is_stable(case_id: str) -> None:
+    expected = json.loads(
+        (_COMPILE_MANIFEST_DIR / f"{case_id}.json").read_text(
+            encoding="utf-8"
+        )
+    )
+
+    assert _functional_compile_manifest(case_id) == expected
 
 
 def test_direct_compiler_does_not_import_step_intent_bridge() -> None:
@@ -78,12 +189,15 @@ def test_direct_compiler_does_not_import_step_intent_bridge() -> None:
     assert "compile_exact_step" not in source
 
 
-def test_transactional_compiler_exposes_explicit_direct_modes() -> None:
+def test_functional_capability_compiler_has_public_runtime_export() -> None:
+    assert PublicFunctionalCapabilityCompiler is FunctionalCapabilityCompiler
+
+
+def test_transactional_compiler_has_one_direct_path() -> None:
     source = inspect.getsource(FunctionalCallCompilerService.compile)
 
-    assert 'compile_mode == "direct_authoritative"' in source
-    assert 'compile_mode == "projected"' in source
-    assert "planner.functional_compile_drift" in source
+    assert "compile_mode" not in source
+    assert "_compile_direct" in source
 
 
 def test_direct_authoritative_bypasses_step_intent_validation(
@@ -101,15 +215,13 @@ def test_direct_authoritative_bypasses_step_intent_validation(
     replay = _replay(
         "nankai",
         mode="context_authoritative",
-        compile_mode="direct_authoritative",
     )
 
     assert replay.output is not None
     assert replay.raw_draft is None
     assert replay.effective_draft is None
     assert replay.functional_reconciliation is not None
-    assert replay.functional_reconciliation.projected_draft is None
-    assert replay.functional_reconciliation.projection_map
+    assert replay.functional_reconciliation.execution_entries
 
 
 def test_direct_compiler_import_guard() -> None:
@@ -122,6 +234,7 @@ def test_direct_compiler_import_guard() -> None:
         "FunctionalLegacyProjectionAdapter",
         "StepIntentCandidateResolver",
         "CanonicalDraftFinalizer",
+        "RecipeTrialExecutor",
     }
     imported = {
         alias.name
@@ -141,7 +254,6 @@ def test_direct_authoritative_explanation_uses_canonical_compiled_calls() -> Non
     replay = _replay(
         "nankai",
         mode="context_authoritative",
-        compile_mode="direct_authoritative",
     )
     attempt = replay.transactional_attempt_result
     assert attempt is not None
@@ -200,7 +312,6 @@ def test_direct_functional_debug_does_not_emit_step_intent_artifact(
     replay = _replay(
         "nankai",
         mode="context_authoritative",
-        compile_mode="direct_authoritative",
     )
 
     write_strategy_debug_artifacts(
@@ -225,7 +336,7 @@ def test_direct_functional_debug_does_not_emit_step_intent_artifact(
 def test_per_call_compiler_never_receives_future_state_writes(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    original = RecipeTrialExecutor.compile_functional_call
+    original = FunctionalCapabilityCompiler.compile
     observed: list[tuple[str, tuple[str, ...]]] = []
     compiled_prefix: set[str] = set()
 
@@ -248,47 +359,15 @@ def test_per_call_compiler_never_receives_future_state_writes(
         return result
 
     monkeypatch.setattr(
-        RecipeTrialExecutor,
-        "compile_functional_call",
+        FunctionalCapabilityCompiler,
+        "compile",
         capture,
     )
 
     replay = _replay(
         "nankai",
         mode="context_authoritative",
-        compile_mode="direct_authoritative",
     )
 
     assert replay.output is not None
     assert observed
-
-
-def test_direct_shadow_compile_drift_blocks_transactional_output(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    original = transaction_execution._compiled_call_signature
-    calls = 0
-
-    def divergent_signature(compiled):
-        nonlocal calls
-        calls += 1
-        path = "projected" if calls % 2 else "direct"
-        return (*original(compiled), ("synthetic_path", path))
-
-    monkeypatch.setattr(
-        transaction_execution,
-        "_compiled_call_signature",
-        divergent_signature,
-    )
-
-    replay = _replay(
-        "nankai",
-        mode="context_authoritative",
-        compile_mode="direct_shadow",
-    )
-
-    report = replay.transactional_execution_report
-    assert report is not None
-    assert report.functional_compile_drift_count > 0
-    assert replay.output is None
-    assert replay.retry_state is not None

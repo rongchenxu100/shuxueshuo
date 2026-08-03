@@ -23,6 +23,13 @@ from shuxueshuo_server.solver.runtime.function_specs import (
     FunctionAdapterRegistry,
     identity_safe_parameter_value_expansion,
 )
+from shuxueshuo_server.solver.runtime.functional_compile_contract import (
+    compile_capability_id as _compile_capability_id,
+    compile_created_entities as _compile_created_entities,
+    compile_input_handles as _compile_input_handles,
+    compile_return_outputs as _compile_return_outputs,
+    compile_target_handle as _compile_target_handle,
+)
 from shuxueshuo_server.solver.runtime.handle_registry import (
     _handle_name,
     _handle_scope,
@@ -332,7 +339,7 @@ def _read_type_selector(value_type: str) -> BindingSelectorFn:
 
 
 def _read_type_union_selector(*value_types: str) -> BindingSelectorFn:
-    """创建可读取一组 runtime 类型的 selector，优先遵守 step.reads 顺序。"""
+    """创建可读取一组 runtime 类型的 selector，优先遵守 _compile_input_handles(step) 顺序。"""
 
     def select(
         step: StepIntent,
@@ -344,7 +351,7 @@ def _read_type_union_selector(*value_types: str) -> BindingSelectorFn:
             if local_path is not None:
                 return local_path
         value_type_set = set(value_types)
-        for handle in step.reads:
+        for handle in _compile_input_handles(step):
             binding = index.bindings.get(handle)
             if binding is not None and binding.value_type in value_type_set:
                 return binding.path
@@ -385,7 +392,7 @@ def _function_parabola_selector(
     a refinement call, so the read list is the authoritative continuation
     signal.
     """
-    for handle in step.reads:
+    for handle in _compile_input_handles(step):
         binding = index.bindings.get(handle)
         if binding is not None and binding.value_type == "Parabola":
             return binding.path
@@ -471,7 +478,7 @@ def _square_side_end_handle(
     side_start = _square_side_start_handle(step, index)
     target = _point_output_handle(step, index)
     candidates: list[str] = []
-    for handle in step.reads:
+    for handle in _compile_input_handles(step):
         point_name = _point_state_read_name(handle, index)
         if point_name is None or point_name in {_handle_name(side_start), _handle_name(target)}:
             continue
@@ -681,7 +688,7 @@ def _parameter_symbol_from_reads_or_expression_selector(
     """Bind the unique Symbol identity read by, or free in, the input expression."""
     explicit = [
         binding.path
-        for handle in step.reads
+        for handle in _compile_input_handles(step)
         if (binding := index.bindings.get(handle)) is not None
         and binding.value_type == "Symbol"
     ]
@@ -758,7 +765,7 @@ def _explicit_symbol_paths(
 ) -> list[str]:
     return _unique_ordered(
         binding.path
-        for handle in step.reads
+        for handle in _compile_input_handles(step)
         if (binding := index.bindings.get(handle)) is not None
         and binding.value_type == "Symbol"
     )
@@ -796,7 +803,7 @@ def parameter_substitution_pairs_from_reads(
     for the same Symbol are rejected before runtime execution.
     """
     candidates: list[tuple[str, str]] = []
-    for handle in step.reads:
+    for handle in _compile_input_handles(step):
         binding = index.bindings.get(handle)
         if binding is None or binding.value_type != "ParameterValue":
             continue
@@ -875,7 +882,7 @@ def _x_axis_known_point_selector(
             )
     except (KeyError, PermissionError, TypeError, ValueError):
         pass
-    for handle in step.reads:
+    for handle in _compile_input_handles(step):
         if handle.startswith("point:"):
             try:
                 binding = index.binding_for(handle)
@@ -1164,7 +1171,7 @@ def _straightening_minimum_point_selector(role: str) -> BindingSelectorFn:
             step,
             index,
             semantic_suffixes=semantic_suffixes,
-            handles=step.reads,
+            handles=_compile_input_handles(step),
         )
         if not matches:
             matches = _straightening_minimum_endpoint_handles(
@@ -1285,7 +1292,7 @@ def _free_quadratic_parameter_if_read(
     ).value
     coefficients = set(coefficient_value)
     matches: list[str] = []
-    for handle in step.reads:
+    for handle in _compile_input_handles(step):
         binding = index.bindings.get(handle)
         if binding is None or binding.value_type != "Symbol":
             continue
@@ -1540,32 +1547,32 @@ def _point_output_handle(step: StepIntent, index: CanonicalRuntimeBindingIndex) 
     if len(projected_object_refs) == 1:
         return projected_object_refs[0]
 
-    target_handle = _point_handle_from_text(step.target, index)
+    target_handle = _point_handle_from_text(_compile_target_handle(step), index)
     if target_handle is not None:
         return target_handle
-    if step.target.startswith("point:"):
-        return step.target
-    if step.target.startswith("answer:"):
-        goal = index.question_goals.get(step.target)
+    if _compile_target_handle(step).startswith("point:"):
+        return _compile_target_handle(step)
+    if _compile_target_handle(step).startswith("answer:"):
+        goal = index.question_goals.get(_compile_target_handle(step))
         if goal is not None and goal.value_type == "Point":
             parsed = ContextPath.parse(goal.target_path)
             return f"point:{parsed.scope_id}:{parsed.key}"
 
     created_points = [
-        item.handle for item in step.creates
+        item.handle for item in _compile_created_entities(step)
         if item.entity_type == "point"
     ]
     if len(created_points) == 1:
         return created_points[0]
 
-    for produced in step.produces:
+    for produced in _compile_return_outputs(step):
         if produced.handle.startswith("answer:"):
             goal = index.question_goals.get(produced.handle)
             if goal is not None and goal.value_type == "Point":
                 parsed = ContextPath.parse(goal.target_path)
                 return f"point:{parsed.scope_id}:{parsed.key}"
         if _produced_output_type(produced, index.handle_registry) == "Point":
-            if step.recipe_hint == "quadratic_y_axis_intercept_point":
+            if _compile_capability_id(step) == "quadratic_y_axis_intercept_point":
                 target = _unique_point_handle_by_definition(
                     "y_axis_intercept",
                     step,
@@ -1663,7 +1670,7 @@ def _known_coefficients_scope(
 ) -> str | None:
     """从 reads 中找已知系数 fact 所在 scope。"""
     scopes: list[str] = []
-    for handle in step.reads:
+    for handle in _compile_input_handles(step):
         if index.fact_types.get(handle) == "symbol_value":
             scopes.append(_handle_scope(handle))
     unique = _unique_ordered(scopes)
@@ -1675,7 +1682,7 @@ def _parameter_value_handle(
 ) -> str | None:
     """Resolve one read ParameterValue without crossing Symbol identities."""
     candidates: list[str] = []
-    for handle in step.reads:
+    for handle in _compile_input_handles(step):
         if index is not None:
             binding = index.bindings.get(handle)
             if (
@@ -1724,7 +1731,7 @@ def _read_point_free_symbols(
     index: CanonicalRuntimeBindingIndex,
 ) -> set[Any]:
     result: set[Any] = set()
-    for handle in step.reads:
+    for handle in _compile_input_handles(step):
         binding = index.bindings.get(handle)
         if binding is None or binding.value_type != "Point":
             continue
@@ -1779,7 +1786,7 @@ def _path_for_first_type(
     value_type: str,
 ) -> str:
     """从当前 step reads 中找第一个指定类型绑定。"""
-    for handle in step.reads:
+    for handle in _compile_input_handles(step):
         binding = index.bindings.get(handle)
         if binding is not None and binding.value_type == value_type:
             return binding.path
@@ -1804,7 +1811,7 @@ def _path_for_readable_type(
     ``parameter_from_minimum_value.minimum_expression``。它不能像普通兜底一样扫描
     全局 bindings，否则会误读 sibling 小问的输出。
     """
-    for handle in step.reads:
+    for handle in _compile_input_handles(step):
         binding = index.bindings.get(handle)
         if binding is not None and binding.value_type == value_type:
             return binding.path
@@ -1896,7 +1903,7 @@ def _midpoint_definition_read(
     """midpoint_point 必须绑定当前 step 明确读取的中点定义。"""
     midpoint_reads = [
         handle
-        for handle in step.reads
+        for handle in _compile_input_handles(step)
         if index.fact_types.get(handle) == "midpoint_definition"
         and index._handle_binding_visible(handle, step.scope_id)
     ]
@@ -1938,7 +1945,7 @@ def _length_condition_handle(
     index: CanonicalRuntimeBindingIndex,
 ) -> str:
     """返回当前 step 读取的长度条件 handle。"""
-    for handle in step.reads:
+    for handle in _compile_input_handles(step):
         if index.fact_types.get(handle) in {"length_squared", "segment_length_relation"}:
             return handle
     for fact_type in ("length_squared", "segment_length_relation"):
@@ -1984,7 +1991,7 @@ def _curve_point_handles_from_reads(
     问的 D 或第（Ⅲ）问的 M，造成 sibling/child scope 可见性错误。
     """
     point_names: list[str] = []
-    for handle in step.reads:
+    for handle in _compile_input_handles(step):
         if index.fact_types.get(handle) not in _CURVE_MEMBERSHIP_FACT_TYPES:
             continue
         point_handle = _curve_membership_point_handle(handle, step, index)
@@ -1992,13 +1999,13 @@ def _curve_point_handles_from_reads(
             point_names.append(_handle_name(point_handle))
             continue
         point_names.append(_semantic_name(handle).split("_on_", 1)[0])
-    for handle in step.reads:
+    for handle in _compile_input_handles(step):
         if not handle.startswith("point:"):
             continue
         point_name = _handle_name(handle)
         if _visible_point_on_curve_fact_for_name(point_name, step, index) is not None:
             point_names.append(point_name)
-    for handle in step.reads:
+    for handle in _compile_input_handles(step):
         if not _is_point_coordinate_fact_handle(handle, index):
             continue
         point_name = _semantic_name(handle).split("_coordinate", 1)[0]
@@ -2047,20 +2054,20 @@ def _curve_condition_target_point_name(
     curve_point_name: str,
 ) -> str:
     """由 target/answer 语义或显式 reads 确定目标点名。"""
-    if step.target.startswith("point:"):
-        return _handle_name(step.target)
-    if step.target.startswith("answer:"):
-        answer_key = _answer_key_from_handle(step.target)
+    if _compile_target_handle(step).startswith("point:"):
+        return _handle_name(_compile_target_handle(step))
+    if _compile_target_handle(step).startswith("answer:"):
+        answer_key = _answer_key_from_handle(_compile_target_handle(step))
         if answer_key:
             return answer_key
-    for produced in step.produces:
+    for produced in _compile_return_outputs(step):
         if produced.handle.startswith("answer:"):
             answer_key = _answer_key_from_handle(produced.handle)
             if answer_key:
                 return answer_key
     candidates = [
         name
-        for name in (_point_state_read_name(handle, index) for handle in step.reads)
+        for name in (_point_state_read_name(handle, index) for handle in _compile_input_handles(step))
         if name is not None and name != curve_point_name
     ]
     unique = _unique_ordered(candidates)
@@ -2082,7 +2089,7 @@ def _point_state_path_for_name(
     """从当前 step reads 中寻找指定点名的已计算 Point 状态。"""
     explicit_fact_matches: list[tuple[str, str]] = []
     entity_matches: list[tuple[str, str]] = []
-    for handle in step.reads:
+    for handle in _compile_input_handles(step):
         name = _point_state_read_name(handle, index)
         if name != point_name:
             continue
@@ -2286,7 +2293,7 @@ def _point_coordinate_fact_for_name(
     LLM 常写 ``reads=[D_on_parabola, D_coordinate]``。这时 ``point:D``
     仍可能是 PointRef，但 ``D_coordinate`` 已经是可直接作为曲线点约束的 Point。
     """
-    for handle in step.reads:
+    for handle in _compile_input_handles(step):
         if not _is_point_coordinate_fact_handle(handle, index):
             continue
         if _semantic_name(handle).split("_", 1)[0] == point_name:
@@ -2421,7 +2428,7 @@ def _auxiliary_point_handle_from_reads(
     path_roles = set(_weighted_path_roles(step, index))
     point_candidates: list[str] = []
     fact_candidates: list[str] = []
-    for handle in step.reads:
+    for handle in _compile_input_handles(step):
         binding = index.bindings.get(handle)
         if binding is None or binding.value_type != "Point":
             continue
@@ -2483,7 +2490,7 @@ def _other_endpoint(segment: str, endpoint: str) -> str:
 
 def _created_point_handle(step: StepIntent) -> CreatedEntity | None:
     """返回 creates[] 中的第一个 point entity。"""
-    for item in step.creates:
+    for item in _compile_created_entities(step):
         if item.entity_type == "point":
             return item
     return None
@@ -2508,7 +2515,7 @@ def _first_pointref_handle(
     index: CanonicalRuntimeBindingIndex,
 ) -> str:
     """从 reads 中找第一个 PointRef handle。"""
-    for handle in step.reads:
+    for handle in _compile_input_handles(step):
         binding = index.bindings.get(handle)
         if binding is not None and binding.value_type == "PointRef":
             return handle
@@ -2528,7 +2535,7 @@ def _point_value_candidates_from_reads(
     """
     candidates: list[_PointValueCandidate] = []
     seen: set[str] = set()
-    for handle in step.reads:
+    for handle in _compile_input_handles(step):
         candidate = _point_value_candidate_for_handle(handle, step, index)
         if candidate is None or candidate.handle in seen:
             continue
@@ -2628,15 +2635,15 @@ def _distance_endpoint_names_from_step(
 ) -> tuple[str, str] | None:
     """Infer intended distance endpoints from structured handles."""
     point_names = _known_point_names_for_distance(step, index, candidates)
-    for handle in step.reads:
+    for handle in _compile_input_handles(step):
         if handle.startswith("segment:"):
             match = _point_pair_from_text(_semantic_name(handle), point_names)
             if match is not None:
                 return match
-    structured_texts = [step.target]
-    structured_texts.extend(produced.handle for produced in step.produces)
+    structured_texts = [_compile_target_handle(step)]
+    structured_texts.extend(produced.handle for produced in _compile_return_outputs(step))
     structured_texts.extend(
-        produced.description for produced in step.produces
+        produced.description for produced in _compile_return_outputs(step)
         if produced.description
     )
     for text in structured_texts:
@@ -2696,7 +2703,7 @@ def _distance_point_handles(
             return endpoint_handles
 
     created_or_aux = [
-        handle for handle in step.reads
+        handle for handle in _compile_input_handles(step)
         if handle.startswith("point:")
         and _is_auxiliary_point_handle(handle, index)
     ]
@@ -2781,7 +2788,7 @@ def _angle_equality_handle(
     index: CanonicalRuntimeBindingIndex,
 ) -> str:
     """读取当前 step 明确引用的 AngleEquality fact。"""
-    for handle in step.reads:
+    for handle in _compile_input_handles(step):
         binding = index.bindings.get(handle)
         if binding is not None and binding.value_type == "AngleEquality":
             return handle
@@ -2877,7 +2884,7 @@ def _line_parabola_roles(
     """从 step reads 推断“直线两点 + 已知曲线交点 + 目标点”。"""
     target = _point_output_handle(step, index)
     line_points = [
-        handle for handle in step.reads
+        handle for handle in _compile_input_handles(step)
         if handle.startswith("point:")
         and handle != target
         and _point_read_is_usable_as_point(handle, step, index)
@@ -2914,7 +2921,7 @@ def _point_handles_from_coordinate_fact_reads(
 ) -> list[str]:
     """从 step reads 中的点坐标 fact 反推出对应 point handle。"""
     result: list[str] = []
-    for handle in step.reads:
+    for handle in _compile_input_handles(step):
         if not _is_point_coordinate_fact_handle(handle, index):
             continue
         point_name = _semantic_name(handle).split("_coordinate", 1)[0]
@@ -2930,7 +2937,7 @@ def _curve_point_handles_from_curve_fact_reads(
 ) -> list[str]:
     """读取 step 显式读入的曲线成员关系 fact 对应点 handle。"""
     handles: list[str] = []
-    for handle in step.reads:
+    for handle in _compile_input_handles(step):
         if index.fact_types.get(handle) not in _CURVE_MEMBERSHIP_FACT_TYPES:
             continue
         point_handle = _curve_membership_point_handle(handle, step, index)
@@ -3321,7 +3328,7 @@ def _line_intersection_roles(
         track = roles["second_track"]
     line1_p1, line1_p2 = track
     aux = None
-    for handle in step.reads:
+    for handle in _compile_input_handles(step):
         if _is_auxiliary_point_handle(handle, index):
             if not index._handle_binding_visible(handle, step.scope_id):
                 raise StrategyDraftValidationError(
@@ -3351,7 +3358,7 @@ def _intersection_track_from_membership_read(
     target = _point_output_handle(step, index)
     memberships = tuple(
         handle
-        for handle in step.reads
+        for handle in _compile_input_handles(step)
         if index.fact_types.get(handle) == "segment_membership"
         and index.handle_registry.fact_payloads.get(handle, {}).get("point")
         == target
@@ -3391,7 +3398,7 @@ def _straightening_candidate_intersection_roles(
 
     candidate_reads = tuple(
         handle
-        for handle in step.reads
+        for handle in _compile_input_handles(step)
         if (
             (binding := index.bindings.get(handle)) is not None
             and binding.value_type == "StraighteningCandidate"
@@ -3451,7 +3458,7 @@ def _point_read_by_name(
 ) -> str:
     matches = tuple(
         candidate.handle
-        for handle in step.reads
+        for handle in _compile_input_handles(step)
         if (
             (candidate := _point_value_candidate_for_handle(handle, step, index))
             is not None
@@ -3545,7 +3552,7 @@ def _visible_intersection_auxiliary_point(
 
 def _answer_scope_from_step(step: StepIntent) -> str:
     """从 StepIntent 的 target/produces 中提取 answer 所属 scope。"""
-    handles = [step.target, *(item.handle for item in step.produces)]
+    handles = [_compile_target_handle(step), *(item.handle for item in _compile_return_outputs(step))]
     for handle in handles:
         if handle.startswith("answer:"):
             goal_id = handle.removeprefix("answer:")

@@ -32,7 +32,6 @@ from shuxueshuo_server.solver.runtime.state_identity import (
 from shuxueshuo_server.solver.runtime.strategy_models import (
     ProjectedStateDependency,
     SemanticRef,
-    StepIntentDraft,
 )
 from shuxueshuo_server.solver.state_semantics import (
     StateSemanticLineage,
@@ -769,21 +768,19 @@ class FunctionalCallPlacement:
 
 
 @dataclass(frozen=True)
-class FunctionalProjectionEntry:
+class FunctionalCallExecutionEntry:
+    """Typed execution placement for one canonical Functional call."""
+
     call_id: str
-    step_ids: tuple[str, ...]
-    state_slot_ids: tuple[str, ...]
-    canonical_call_id: str | None = None
-    alias_call_ids: tuple[str, ...] = ()
-    declared_scope_id: str | None = None
-    execution_scope_id: str | None = None
+    canonical_call_id: str
+    alias_call_ids: tuple[str, ...]
+    declared_scope_id: str
+    execution_scope_id: str
 
     def to_payload(self) -> dict[str, Any]:
         return {
             "call_id": self.call_id,
-            "step_ids": list(self.step_ids),
-            "state_slot_ids": list(self.state_slot_ids),
-            "canonical_call_id": self.canonical_call_id or self.call_id,
+            "canonical_call_id": self.canonical_call_id,
             "alias_call_ids": list(self.alias_call_ids),
             "declared_scope_id": self.declared_scope_id,
             "execution_scope_id": self.execution_scope_id,
@@ -795,10 +792,8 @@ class FunctionalPlanReconciliationResult:
     plan: FunctionalPlan
     calls: tuple[FunctionalCallReconciliation, ...] = ()
     issues: tuple[FunctionalPlanIssue, ...] = ()
-    projection_map: tuple[FunctionalProjectionEntry, ...] = ()
+    execution_entries: tuple[FunctionalCallExecutionEntry, ...] = ()
     context_delta: dict[str, Any] = field(default_factory=dict)
-    projected_draft: StepIntentDraft | None = None
-    partial_projected_draft: StepIntentDraft | None = None
     call_reports: tuple[FunctionalCallReport, ...] = ()
     dependency_graph: dict[str, tuple[str, ...]] = field(default_factory=dict)
     dependency_kinds: dict[str, dict[str, str]] = field(
@@ -815,9 +810,8 @@ class FunctionalPlanReconciliationResult:
     state_finalization_decisions: tuple[dict[str, Any], ...] = ()
     state_finalization_mismatches: tuple[dict[str, Any], ...] = ()
     runtime_destination_decisions: tuple[dict[str, Any], ...] = ()
-    projected_state_dependencies: tuple[ProjectedStateDependency, ...] = ()
+    state_dependencies: tuple[ProjectedStateDependency, ...] = ()
     typed_identity_completeness: dict[str, Any] = field(default_factory=dict)
-    legacy_projection_count: int = 0
     legacy_identity_fallback_count: int = 0
     functional_binding_context: Any | None = None
     functional_binding_decisions: tuple[dict[str, Any], ...] = ()
@@ -826,7 +820,7 @@ class FunctionalPlanReconciliationResult:
 
     @property
     def ok(self) -> bool:
-        return not self.issues and bool(self.projection_map)
+        return not self.issues and bool(self.calls)
 
     @property
     def effective_plan(self) -> FunctionalPlan:
@@ -840,7 +834,9 @@ class FunctionalPlanReconciliationResult:
             "effective_plan": self.effective_plan.to_payload(),
             "calls": [item.to_payload() for item in self.calls],
             "issues": [item.to_payload() for item in self.issues],
-            "projection_map": [item.to_payload() for item in self.projection_map],
+            "execution_entries": [
+                item.to_payload() for item in self.execution_entries
+            ],
             "context_delta": dict(self.context_delta),
             "call_reports": [item.to_payload() for item in self.call_reports],
             "dependency_graph": {
@@ -879,14 +875,13 @@ class FunctionalPlanReconciliationResult:
             "runtime_destination_decisions": [
                 dict(item) for item in self.runtime_destination_decisions
             ],
-            "projected_state_dependencies": [
+            "state_dependencies": [
                 item.to_payload()
-                for item in self.projected_state_dependencies
+                for item in self.state_dependencies
             ],
             "typed_identity_completeness": dict(
                 self.typed_identity_completeness
             ),
-            "legacy_projection_count": self.legacy_projection_count,
             "legacy_identity_fallback_count": (
                 self.legacy_identity_fallback_count
             ),
@@ -903,16 +898,6 @@ class FunctionalPlanReconciliationResult:
             ],
             "legacy_binding_role_fallback_count": (
                 self.legacy_binding_role_fallback_count
-            ),
-            "projected_draft": (
-                self.projected_draft.to_payload()
-                if self.projected_draft is not None
-                else None
-            ),
-            "partial_projected_draft": (
-                self.partial_projected_draft.to_payload()
-                if self.partial_projected_draft is not None
-                else None
             ),
         }
 

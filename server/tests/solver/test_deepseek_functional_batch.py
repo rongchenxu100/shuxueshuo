@@ -164,7 +164,7 @@ def test_all_case_dry_run_uses_global_concurrency_and_isolated_case_dirs(
     assert not (tmp_path / "batch-all").exists()
 
 
-def test_batch_dry_run_records_transaction_shadow_mode(
+def test_batch_dry_run_records_transaction_authority_mode(
     tmp_path: Path,
     capsys,
 ) -> None:
@@ -177,13 +177,13 @@ def test_batch_dry_run_records_transaction_shadow_mode(
             "--output-root",
             str(tmp_path),
             "--functional-transaction-mode",
-            "execution_shadow",
+            "context_authoritative",
             "--dry-run",
         ]
     ) == 0
 
     payload = json.loads(capsys.readouterr().out)
-    assert payload["functional_transaction_mode"] == "execution_shadow"
+    assert payload["functional_transaction_mode"] == "context_authoritative"
 
 
 def test_batch_dry_run_records_symbolic_closure_mode(

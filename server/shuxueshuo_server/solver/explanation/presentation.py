@@ -419,6 +419,15 @@ def _presentation_scope(
             scope_order=scope_order,
         ), "answer_scope_anchor"
     if terminal_answer_scopes:
+        terminal_scope = _least_common_scope(
+            terminal_answer_scopes,
+            scope_parents,
+        )
+        if terminal_scope != "problem":
+            return terminal_scope, "shared_consumer_scope"
+        declared_scope = _least_common_scope(source_scopes, scope_parents)
+        if declared_scope != "problem":
+            return declared_scope, "declared_scope_anchor"
         return _non_global_common_scope(
             terminal_answer_scopes,
             scope_parents=scope_parents,

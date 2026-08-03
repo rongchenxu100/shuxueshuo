@@ -23,10 +23,10 @@ from shuxueshuo_server.solver.runtime.functional_plan_reconciliation import (
     FunctionalPlanReconciler,
 )
 from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
-    project_functional_arg_bindings,
+    build_functional_runtime_arg_bindings,
 )
 from shuxueshuo_server.solver.runtime.strategy_replay import (
-    _functional_projected_arg_bindings,
+    _functional_runtime_arg_bindings,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
@@ -115,7 +115,7 @@ def test_wire_resolver_and_compiler_authorities_are_orthogonal() -> None:
     assert compiler is not None and compiler.binding_authority == "compiler"
     assert compiler.source.kind == "compiler_selector"
 
-    projected = project_functional_arg_bindings(result, catalog=catalog)
+    projected = build_functional_runtime_arg_bindings(result, catalog=catalog)
     projected_keys = {(item.step_id, item.arg_name) for item in projected}
     assert ("ii_1_solve_m", "length_squared") in projected_keys
     projected_parameter = next(
@@ -144,18 +144,18 @@ def test_wire_resolver_and_compiler_authorities_are_orthogonal() -> None:
     }
 
 
-def test_legacy_and_transactional_functional_projection_share_the_ledger() -> None:
+def test_runtime_binding_manifest_is_projected_from_the_ledger() -> None:
     result, catalog = _reconcile("nankai")
 
-    transactional = project_functional_arg_bindings(result, catalog=catalog)
-    legacy = _functional_projected_arg_bindings(result, catalog=catalog)
+    transactional = build_functional_runtime_arg_bindings(result, catalog=catalog)
+    manifest = _functional_runtime_arg_bindings(result, catalog=catalog)
 
-    assert legacy == transactional
-    assert {item.binding_authority for item in legacy} == {"wire", "resolver"}
-    assert all(item.semantic_role for item in legacy)
+    assert manifest == transactional
+    assert {item.binding_authority for item in manifest} == {"wire", "resolver"}
+    assert all(item.semantic_role for item in manifest)
     empty_target_keys = {
         (item.step_id, item.arg_name, item.item_index)
-        for item in legacy
+        for item in manifest
         if not item.runtime_input_targets
     }
     assert empty_target_keys == {
@@ -174,7 +174,7 @@ def test_binding_projection_audit_reports_real_mismatch_and_fallback() -> None:
     result, catalog = _reconcile("nankai")
     context = result.functional_binding_context
     assert context is not None
-    projected = project_functional_arg_bindings(result, catalog=catalog)
+    projected = build_functional_runtime_arg_bindings(result, catalog=catalog)
     first = projected[0]
     damaged = (
         replace(
@@ -205,11 +205,12 @@ def test_post_compile_binding_audit_checks_actual_target_and_source_path() -> No
     )
     plan = SimpleNamespace(
         invocations=(
-            SimpleNamespace(
-                invocation_id="invoke",
-                method_id="method",
-                inputs={"value": "$runtime.actual"},
-            ),
+                SimpleNamespace(
+                    invocation_id="invoke",
+                    method_id="method",
+                    inputs={"value": "$runtime.actual"},
+                    outputs={},
+                ),
         ),
     )
 

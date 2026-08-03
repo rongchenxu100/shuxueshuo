@@ -20,8 +20,8 @@ from shuxueshuo_server.solver.runtime.condition_roles import (
     ConditionRoleResolver,
 )
 from shuxueshuo_server.solver.runtime.function_specs import function_spec_payloads
-from shuxueshuo_server.solver.runtime.functional_legacy_projection import (
-    FunctionalLegacyProjectionAdapter,
+from shuxueshuo_server.solver.runtime.legacy_context_migration import (
+    LegacyContextIdentityMigrator,
     legacy_state_slot_aliases,
 )
 from shuxueshuo_server.solver.runtime.macro_specs import macro_spec_payloads
@@ -601,7 +601,6 @@ class PlannerState:
     raw_functional_plan_snapshot: dict[str, Any] | None = None
     functional_plan_snapshot: dict[str, Any] | None = None
     functional_call_timeline: tuple[dict[str, Any], ...] = ()
-    functional_projection_map: tuple[dict[str, Any], ...] = ()
     student_step_placements: tuple[dict[str, Any], ...] = ()
     student_scope_references: tuple[dict[str, Any], ...] = ()
     state_identity_decisions: tuple[dict[str, Any], ...] = ()
@@ -612,7 +611,6 @@ class PlannerState:
     state_finalization_mismatches: tuple[dict[str, Any], ...] = ()
     runtime_destination_decisions: tuple[dict[str, Any], ...] = ()
     typed_identity_completeness: dict[str, Any] = field(default_factory=dict)
-    legacy_projection_count: int = 0
     legacy_identity_fallback_count: int = 0
     runtime_consumer_decisions: tuple[dict[str, Any], ...] = ()
     runtime_consumer_mismatches: tuple[dict[str, Any], ...] = ()
@@ -651,9 +649,6 @@ class PlannerState:
             "functional_call_timeline": [
                 dict(item) for item in self.functional_call_timeline
             ],
-            "functional_projection_map": [
-                dict(item) for item in self.functional_projection_map
-            ],
             "student_step_placements": [
                 dict(item) for item in self.student_step_placements
             ],
@@ -684,7 +679,6 @@ class PlannerState:
             "typed_identity_completeness": dict(
                 self.typed_identity_completeness
             ),
-            "legacy_projection_count": self.legacy_projection_count,
             "legacy_identity_fallback_count": (
                 self.legacy_identity_fallback_count
             ),
@@ -853,7 +847,6 @@ class _MutableState:
     raw_functional_plan_snapshot: dict[str, Any] | None = None
     functional_plan_snapshot: dict[str, Any] | None = None
     functional_call_timeline: list[dict[str, Any]] = field(default_factory=list)
-    functional_projection_map: list[dict[str, Any]] = field(default_factory=list)
     student_step_placements: list[dict[str, Any]] = field(default_factory=list)
     student_scope_references: list[dict[str, Any]] = field(default_factory=list)
     state_identity_decisions: list[dict[str, Any]] = field(default_factory=list)
@@ -870,7 +863,6 @@ class _MutableState:
         default_factory=list
     )
     typed_identity_completeness: dict[str, Any] = field(default_factory=dict)
-    legacy_projection_count: int = 0
     legacy_identity_fallback_count: int = 0
     runtime_consumer_decisions: list[dict[str, Any]] = field(
         default_factory=list
@@ -917,7 +909,6 @@ class _MutableState:
                 raw_functional_plan_snapshot=self.raw_functional_plan_snapshot,
                 functional_plan_snapshot=self.functional_plan_snapshot,
                 functional_call_timeline=tuple(self.functional_call_timeline),
-                functional_projection_map=tuple(self.functional_projection_map),
                 student_step_placements=tuple(self.student_step_placements),
                 student_scope_references=tuple(self.student_scope_references),
                 state_identity_decisions=tuple(self.state_identity_decisions),
@@ -938,7 +929,6 @@ class _MutableState:
                 typed_identity_completeness=dict(
                     self.typed_identity_completeness
                 ),
-                legacy_projection_count=self.legacy_projection_count,
                 legacy_identity_fallback_count=(
                     self.legacy_identity_fallback_count
                 ),
@@ -1229,10 +1219,6 @@ class PlannerStateContextBuilder:
             }
             for item in getattr(reconciliation, "calls", ())
         )
-        state.functional_projection_map.extend(
-            item.to_payload()
-            for item in getattr(reconciliation, "projection_map", ())
-        )
         state.state_identity_decisions.extend(
             dict(item)
             for item in getattr(
@@ -1276,9 +1262,6 @@ class PlannerStateContextBuilder:
                 {},
             )
         )
-        state.legacy_projection_count += int(
-            getattr(reconciliation, "legacy_projection_count", 0)
-        )
         state.legacy_identity_fallback_count += int(
             getattr(
                 reconciliation,
@@ -1307,12 +1290,6 @@ class PlannerStateContextBuilder:
             "legacy",
         )
         effective_draft = getattr(replay, "effective_draft", None)
-        if effective_draft is None and observation_authority != "transactional":
-            effective_draft = getattr(
-                reconciliation,
-                "projected_draft",
-                None,
-            )
         effective_step_payloads: tuple[dict[str, Any], ...] = ()
         if effective_draft is not None:
             effective_step_payloads = tuple(
@@ -1356,14 +1333,6 @@ class PlannerStateContextBuilder:
                 ok=not bool(getattr(reconciliation, "issues", ())),
             )
         )
-        if getattr(reconciliation, "projected_draft", None) is not None:
-            state.context_events.append(
-                _context_event(
-                    "functional_plan_projected",
-                    attempt=replay.attempt,
-                    ok=True,
-                )
-            )
 
     @staticmethod
     def _initial_mutable_state(
@@ -1707,11 +1676,10 @@ class PlannerStateContextBuilder:
             and isinstance(item.get("version_id"), dict)
         }
         call_by_step = {
-            step_id: item.call_id
+            item.call_id: item.canonical_call_id
             for item in (
-                getattr(reconciliation, "projection_map", ()) or ()
+                getattr(reconciliation, "execution_entries", ()) or ()
             )
-            for step_id in item.step_ids
         }
         allocation_by_return = {
             (call.call_id, allocation.return_name): allocation
@@ -2623,7 +2591,7 @@ def _attach_typed_initial_identity(
         for semantic_ref, object_ids in object_candidates.items()
         if len(object_ids) == 1
     }
-    legacy_projection_adapter = FunctionalLegacyProjectionAdapter()
+    legacy_identity_migrator = LegacyContextIdentityMigrator()
     for slot_id, slot in tuple(typed_slots.items()):
         lineage = merge_state_semantic_lineages(
             slot.lineage,
@@ -2632,12 +2600,12 @@ def _attach_typed_initial_identity(
         typed_slots[slot_id] = replace(
             slot,
             source_state_slot_ids=(
-                legacy_projection_adapter.normalize_source_slot_ids(
+                legacy_identity_migrator.normalize_source_slot_ids(
                     slot.source_state_slot_ids,
                     versions_by_legacy_slot=versions_by_legacy_slot,
                 )
             ),
-            lineage=legacy_projection_adapter.migrate_lineage(
+            lineage=legacy_identity_migrator.migrate_lineage(
                 lineage,
                 object_ids_by_ref=object_ids_by_ref,
                 versions_by_legacy_slot=versions_by_legacy_slot,
@@ -2646,7 +2614,7 @@ def _attach_typed_initial_identity(
     return (
         typed_objects,
         typed_slots,
-        legacy_projection_adapter.identity_fallback_count,
+        legacy_identity_migrator.identity_fallback_count,
     )
 
 

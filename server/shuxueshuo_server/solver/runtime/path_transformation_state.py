@@ -11,6 +11,9 @@ from shuxueshuo_server.solver.runtime.binding_index import (
 from shuxueshuo_server.solver.runtime.handle_alias_index import (
     visible_from_valid_scope,
 )
+from shuxueshuo_server.solver.runtime.functional_compile_contract import (
+    compile_input_handles as _compile_input_handles,
+)
 from shuxueshuo_server.solver.runtime.state_identity import (
     MathObjectId,
     MathObjectRegistry,
@@ -604,7 +607,7 @@ class PathTransformationStateResolver:
     ) -> str | None:
         candidates = tuple(
             handle
-            for handle in step.reads
+            for handle in _compile_input_handles(step)
             if (
                 (runtime_binding := self.index.bindings.get(handle)) is not None
                 and runtime_binding.value_type == "Point"

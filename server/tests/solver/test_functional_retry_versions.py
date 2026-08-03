@@ -418,10 +418,10 @@ def _checkpoint_builder_inputs(
                 resolved_args={},
             ),
         ),
-        projection_map=(
+        execution_entries=(
             SimpleNamespace(
                 call_id="make_point",
-                step_ids=("make_point_step",),
+                canonical_call_id="make_point",
             ),
         ),
         state_placement_decisions=(
@@ -460,7 +460,7 @@ def _checkpoint_builder_inputs(
     )
     provenance = (
         SimpleNamespace(
-            step_id="make_point_step",
+            step_id="make_point",
             return_name="point",
             selected_version_id=verified.version_id,
             logical_state_key=verified.logical_state_key,
@@ -933,10 +933,10 @@ def test_checkpoint_ignores_allocated_return_without_runtime_write() -> None:
                 returns=(allocation, ghost_allocation),
             ),
         ),
-        projection_map=(
+        execution_entries=(
             SimpleNamespace(
                 call_id="make_point",
-                step_ids=("make_point_step",),
+                canonical_call_id="make_point",
             ),
         ),
         state_placement_decisions=(
@@ -976,7 +976,7 @@ def test_checkpoint_ignores_allocated_return_without_runtime_write() -> None:
     )
     provenance = (
         SimpleNamespace(
-            step_id="make_point_step",
+            step_id="make_point",
             return_name="point",
             selected_version_id=verified.version_id,
             logical_state_key=verified.logical_state_key,
@@ -1090,7 +1090,7 @@ def test_checkpoint_does_not_lock_unused_optional_return() -> None:
     inputs["provenance"] = (
         *inputs["provenance"],
         SimpleNamespace(
-            step_id="make_point_step",
+            step_id="make_point",
             return_name="optional_parameter",
             selected_version_id=optional_version,
             logical_state_key=optional_key,
@@ -1186,11 +1186,11 @@ def test_unanchored_committed_dependency_fails_entire_goal_checkpoint() -> None:
         *reconciliation.calls,
         SimpleNamespace(call_id="prepare_value", returns=()),
     )
-    reconciliation.projection_map = (
-        *reconciliation.projection_map,
+    reconciliation.execution_entries = (
+        *reconciliation.execution_entries,
         SimpleNamespace(
             call_id="prepare_value",
-            step_ids=("prepare_value_step",),
+            canonical_call_id="prepare_value",
         ),
     )
     reconciliation.state_placement_decisions = (

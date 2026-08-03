@@ -1556,8 +1556,8 @@ class PlannerRetryState:
 
 
 @dataclass(frozen=True)
-class StepIntentRepairAttempt:
-    """传回下一轮 LLM 的结构化 repair context。"""
+class PlannerRepairAttempt:
+    """Prompt-safe repair context shared by planner wire formats."""
 
     attempt: int
     effective_draft: dict[str, Any] | None
@@ -1566,6 +1566,7 @@ class StepIntentRepairAttempt:
     repair_summary: dict[str, Any] | None = None
     planner_retry_state: PlannerRetryState | None = None
     errors: tuple[str, ...] = ()
+    candidate_format: PlannerOutputFormat = "step_intent"
 
     def to_payload(self) -> dict[str, Any]:
         """转成 ``PlannerInputs.previous_errors`` 可携带的安全 JSON。"""
@@ -1580,10 +1581,16 @@ class StepIntentRepairAttempt:
             ),
             "repair_instruction": self.repair_instruction,
             "errors": list(self.errors),
+            "candidate_format": self.candidate_format,
         }
         if self.diagnostic is not None:
             payload["diagnostic"] = self.diagnostic.to_payload()
         return payload
+
+
+@dataclass(frozen=True)
+class StepIntentRepairAttempt(PlannerRepairAttempt):
+    """Track D compatibility envelope for legacy StepIntent callers."""
 
 
 @dataclass(frozen=True)

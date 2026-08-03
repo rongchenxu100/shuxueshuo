@@ -8,8 +8,8 @@ request reaches this boundary.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Any, Literal
+from dataclasses import dataclass, replace
+from typing import Any
 
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapability,
@@ -20,23 +20,15 @@ from shuxueshuo_server.solver.runtime.functional_plan_models import (
 )
 from shuxueshuo_server.solver.runtime.recipe_compiler import (
     ExactCompiledStep,
-    RecipeTrialExecutor,
+    FunctionalCapabilityCompiler,
 )
 from shuxueshuo_server.solver.runtime.state_identity import IndexedStateVersion
 from shuxueshuo_server.solver.runtime.strategy_models import (
-    ProjectedFunctionArgBinding,
     ProjectedStateDependency,
     ProjectedStateWrite,
     StateWriteProvenance,
 )
 from shuxueshuo_server.solver.utils import unique_ordered
-
-
-FunctionalCompileMode = Literal[
-    "projected",
-    "direct_shadow",
-    "direct_authoritative",
-]
 
 
 @dataclass(frozen=True)
@@ -50,7 +42,6 @@ class FunctionalCompileRequest:
     state_dependencies: tuple[ProjectedStateDependency, ...]
     known_versions: tuple[IndexedStateVersion, ...]
     required_return_names: tuple[str, ...]
-    projected_arg_bindings: tuple[ProjectedFunctionArgBinding, ...] = ()
     state_writes: tuple[ProjectedStateWrite, ...] = ()
     known_state_writes: tuple[StateWriteProvenance, ...] = ()
     known_runtime_bindings: tuple[tuple[str, str, str, str], ...] = ()
@@ -58,7 +49,7 @@ class FunctionalCompileRequest:
 
 
 @dataclass(frozen=True)
-class _DirectCreatedEntity:
+class FunctionalCreatedEntity:
     handle: str
     entity_type: str
     valid_scope: str
@@ -66,7 +57,7 @@ class _DirectCreatedEntity:
 
 
 @dataclass(frozen=True)
-class _DirectProducedOutput:
+class FunctionalReturnOutput:
     handle: str
     valid_scope: str
     description: str
@@ -74,17 +65,44 @@ class _DirectProducedOutput:
 
 
 @dataclass(frozen=True)
-class _DirectCompileView:
+class FunctionalRuntimeArgBinding:
+    """One C3 binding resolved to its exact physical runtime input."""
+
+    call_id: str
+    arg_name: str
+    item_index: int
+    runtime_type: str
+    runtime_path: str | None
+    runtime_input_targets: tuple[str, ...]
+    binding_authority: str
+    semantic_role: str
+    cardinality: str
+    selection_policy: str
+    consumption_mode: str
+    state_version_id: Any | None = None
+    condition_id: str | None = None
+    math_object_id: Any | None = None
+    source_call_id: str | None = None
+    source_return_name: str | None = None
+    compiler_selector_id: str | None = None
+    source_handle: str | None = None
+    state_slot_id: str | None = None
+
+    @property
+    def step_id(self) -> str:
+        return self.call_id
+
+
+@dataclass(frozen=True)
+class FunctionalCapabilityCompileCall:
     scope_id: str
     step_id: str
-    recipe_hint: str
+    capability_id: str
     goal_type: str
-    target: str
-    reads: tuple[str, ...]
-    creates: tuple[_DirectCreatedEntity, ...]
-    produces: tuple[_DirectProducedOutput, ...]
-    strategy: str = ""
-    reason: str = ""
+    target_handle: str
+    input_handles: tuple[str, ...]
+    created_entities: tuple[FunctionalCreatedEntity, ...]
+    return_outputs: tuple[FunctionalReturnOutput, ...]
 
 
 class FunctionalDirectCompiler:
@@ -93,9 +111,11 @@ class FunctionalDirectCompiler:
     def __init__(
         self,
         *,
-        trial_executor: RecipeTrialExecutor | None = None,
+        capability_compiler: FunctionalCapabilityCompiler | None = None,
     ) -> None:
-        self._trial_executor = trial_executor or RecipeTrialExecutor()
+        self._capability_compiler = (
+            capability_compiler or FunctionalCapabilityCompiler()
+        )
 
     def compile(
         self,
@@ -105,8 +125,9 @@ class FunctionalDirectCompiler:
         inputs: Any,
         handle_registry: Any,
     ) -> ExactCompiledStep:
-        step = _compile_view(request)
-        return self._trial_executor.compile_functional_call(
+        step = _compile_call(request)
+        arg_bindings = _runtime_arg_bindings(request)
+        compiled = self._capability_compiler.compile(
             step,
             capability_id=request.capability.capability_id,
             family_spec=inputs.family_spec,
@@ -116,14 +137,61 @@ class FunctionalDirectCompiler:
             question_goals=tuple(inputs.question_goals),
             state_writes=request.state_writes,
             state_dependencies=request.state_dependencies,
-            arg_bindings=request.projected_arg_bindings,
+            arg_bindings=arg_bindings,
             known_state_versions=request.known_versions,
             known_state_writes=request.known_state_writes,
             known_runtime_bindings=request.known_runtime_bindings,
         )
+        return replace(
+            compiled,
+            plan=replace(
+                compiled.plan,
+                scope=request.execution_scope_id,
+            ),
+        )
 
 
-def _compile_view(request: FunctionalCompileRequest) -> _DirectCompileView:
+def _runtime_arg_bindings(
+    request: FunctionalCompileRequest,
+) -> tuple[FunctionalRuntimeArgBinding, ...]:
+    result: list[FunctionalRuntimeArgBinding] = []
+    for prepared in request.arg_bindings:
+        binding = prepared.logical_binding
+        result.append(
+            FunctionalRuntimeArgBinding(
+                call_id=request.prepared_call.call_id,
+                arg_name=binding.key.arg_name,
+                item_index=binding.key.item_index,
+                runtime_type=binding.runtime_type,
+                runtime_path=(
+                    prepared.runtime_path
+                    if prepared.selected_state_version_id is None
+                    else None
+                ),
+                runtime_input_targets=binding.runtime_input_targets,
+                binding_authority=binding.binding_authority,
+                semantic_role=binding.semantic_role,
+                cardinality=binding.cardinality,
+                selection_policy=binding.selection_policy,
+                consumption_mode=binding.consumption_mode,
+                state_version_id=prepared.selected_state_version_id,
+                condition_id=binding.source.condition_id,
+                math_object_id=(
+                    binding.source.math_object_id
+                    or prepared.source_math_object_id
+                ),
+                source_call_id=binding.source.source_call_id,
+                source_return_name=binding.source.source_return_name,
+                compiler_selector_id=binding.source.compiler_selector_id,
+                source_handle=prepared.source_handle,
+            )
+        )
+    return tuple(result)
+
+
+def _compile_call(
+    request: FunctionalCompileRequest,
+) -> FunctionalCapabilityCompileCall:
     reconciliation: FunctionalCallReconciliation = (
         request.prepared_call.reconciliation
     )
@@ -137,7 +205,7 @@ def _compile_view(request: FunctionalCompileRequest) -> _DirectCompileView:
         )
     )
     produces = tuple(
-        _DirectProducedOutput(
+        FunctionalReturnOutput(
             handle=handle,
             valid_scope=allocation.valid_scope,
             description=(
@@ -173,15 +241,15 @@ def _compile_view(request: FunctionalCompileRequest) -> _DirectCompileView:
         )
     if target is None and produces:
         target = produces[0].handle
-    return _DirectCompileView(
+    return FunctionalCapabilityCompileCall(
         scope_id=request.execution_scope_id,
         step_id=request.prepared_call.call_id,
-        recipe_hint=request.capability.capability_id,
+        capability_id=request.capability.capability_id,
         goal_type=request.capability.goal_type,
-        target=target or request.capability.goal_type,
-        reads=reads,
-        creates=creates,
-        produces=produces,
+        target_handle=target or request.capability.goal_type,
+        input_handles=reads,
+        created_entities=creates,
+        return_outputs=produces,
     )
 
 
@@ -210,8 +278,8 @@ def _direct_read_handles(value: Any) -> tuple[str, ...]:
 
 def _direct_creates(
     request: FunctionalCompileRequest,
-) -> tuple[_DirectCreatedEntity, ...]:
-    created: dict[str, _DirectCreatedEntity] = {}
+) -> tuple[FunctionalCreatedEntity, ...]:
+    created: dict[str, FunctionalCreatedEntity] = {}
     for values in request.prepared_call.reconciliation.resolved_args.values():
         for value in values:
             object_id = value.math_object_id
@@ -223,7 +291,7 @@ def _direct_creates(
                 continue
             created.setdefault(
                 object_id.value,
-                _DirectCreatedEntity(
+                FunctionalCreatedEntity(
                     handle=object_id.value,
                     entity_type=object_id.kind,
                     valid_scope=value.valid_scope,
@@ -241,7 +309,7 @@ def _direct_creates(
             continue
         created.setdefault(
             object_id.value,
-            _DirectCreatedEntity(
+            FunctionalCreatedEntity(
                 handle=object_id.value,
                 entity_type=object_id.kind,
                 valid_scope=allocation.valid_scope,
@@ -255,7 +323,7 @@ def _direct_creates(
 
 
 __all__ = [
-    "FunctionalCompileMode",
     "FunctionalCompileRequest",
     "FunctionalDirectCompiler",
+    "FunctionalRuntimeArgBinding",
 ]

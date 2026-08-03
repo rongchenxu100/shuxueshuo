@@ -17,13 +17,11 @@ from shuxueshuo_server.solver.runtime.functional_plan_models import (
     FunctionalPlanIssue,
     FunctionalPlanReconciliationResult,
     FunctionalPlanValidationReport,
-    FunctionalProjectionEntry,
     FunctionalReturnAllocation,
     FunctionalScope,
     ResolvedFunctionalValue,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_reconciliation import (
-    FunctionalPlanProjector,
     FunctionalPlanReconciler,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_retry import (
@@ -49,12 +47,10 @@ __all__ = [
     "FunctionalCapabilityReturn",
     "FunctionalPlan",
     "FunctionalPlanIssue",
-    "FunctionalPlanProjector",
     "FunctionalPlanReconciler",
     "FunctionalPlanReconciliationResult",
     "FunctionalPlanValidationReport",
     "FunctionalPlanValidator",
-    "FunctionalProjectionEntry",
     "FunctionalReturnAllocation",
     "FunctionalScope",
     "PlannerOutputFormat",

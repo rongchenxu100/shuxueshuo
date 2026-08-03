@@ -40,9 +40,10 @@ def test_explanation_deduplicates_goal_reachable_symbolic_closure() -> None:
             identity_role="target",
             return_name=return_name,
             result_form="open_state",
-            free_symbol_ids=(residual,),
-            symbolic_closure_provenance=provenance,
-        )
+                free_symbol_ids=(residual,),
+                symbolic_closure_provenance=provenance,
+                canonical_producer_call_id="solve_b",
+            )
 
     replay = SimpleNamespace(
         transactional_attempt_result=SimpleNamespace(
@@ -53,10 +54,10 @@ def test_explanation_deduplicates_goal_reachable_symbolic_closure() -> None:
             ),
         ),
         functional_reconciliation=SimpleNamespace(
-            projection_map=(
+            execution_entries=(
                 SimpleNamespace(
                     call_id="solve_b",
-                    step_ids=("solve_b_step",),
+                    canonical_call_id="solve_b",
                 ),
             ),
         ),
@@ -80,7 +81,7 @@ def test_explanation_excludes_provisional_or_unreachable_closure() -> None:
             goal_reachable_call_ids=frozenset(),
             state_writes=(),
         ),
-        functional_reconciliation=SimpleNamespace(projection_map=()),
+        functional_reconciliation=SimpleNamespace(execution_entries=()),
     )
 
     assert _build_symbolic_closure_teaching(replay) == ()
@@ -114,7 +115,7 @@ def test_explanation_fails_loud_when_closure_write_has_no_call_mapping() -> None
             goal_reachable_call_ids=frozenset({"solve_b"}),
             state_writes=(write,),
         ),
-        functional_reconciliation=SimpleNamespace(projection_map=()),
+        functional_reconciliation=SimpleNamespace(execution_entries=()),
     )
 
     with pytest.raises(

@@ -371,11 +371,10 @@ def _dependency_edges(
         if returned.selected_version_id is not None
     }
     step_to_call = {
-        step_id: _canonical_call_id(item.call_id, aliases)
-        for item in reconciliation.projection_map
-        for step_id in item.step_ids
+        item.call_id: _canonical_call_id(item.canonical_call_id, aliases)
+        for item in reconciliation.execution_entries
     }
-    for dependency in reconciliation.projected_state_dependencies:
+    for dependency in reconciliation.state_dependencies:
         consumer = step_to_call.get(dependency.step_id)
         producer = (
             step_to_call.get(dependency.source_step_id)

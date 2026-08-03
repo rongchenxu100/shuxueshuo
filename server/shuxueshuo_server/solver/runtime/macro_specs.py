@@ -35,6 +35,11 @@ from shuxueshuo_server.solver.family.models import (
 from shuxueshuo_server.solver.runtime.capability_contracts import (
     effective_contract_by_id,
 )
+from shuxueshuo_server.solver.runtime.functional_compile_contract import (
+    compile_input_handles as _compile_input_handles,
+    compile_return_outputs as _compile_return_outputs,
+    compile_target_handle as _compile_target_handle,
+)
 from shuxueshuo_server.solver.runtime.function_specs import FunctionSpecRegistry
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
@@ -708,7 +713,7 @@ def _arg_errors(spec: MacroSpec, step: StepIntent) -> tuple[str, ...]:
         arg for arg in spec.args
         if arg.required and arg.kind in {"slot_read", "condition_read"}
     ]
-    if required_reads and not step.reads:
+    if required_reads and not _compile_input_handles(step):
         return (
             "macro.arg_missing: "
             f"recipe={spec.recipe_id}, required_args="
@@ -738,7 +743,7 @@ def _match_macro_returns(
     bindings: list[tuple[ProducedFact, MacroReturnSpec]] = []
     matched: dict[str, int] = {}
     matched_outputs: dict[str, list[ProducedFact]] = {}
-    for produced in step.produces:
+    for produced in _compile_return_outputs(step):
         produced_type = produced.output_type or (
             handle_registry.answer_value_types.get(produced.handle)
             if handle_registry is not None and produced.handle.startswith("answer:")
@@ -832,7 +837,7 @@ def _identity_compatible_returns(
         return candidates
     result: list[MacroReturnSpec] = []
     for item in candidates:
-        if item.identity_policy == "target_object" and produced_handle == step.target:
+        if item.identity_policy == "target_object" and produced_handle == _compile_target_handle(step):
             result.append(item)
         elif item.identity_policy == "preserve_input_object" and len(candidates) == 1:
             result.append(item)

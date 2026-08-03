@@ -33,6 +33,9 @@ from shuxueshuo_server.solver.family.common_binding_rules import (
     quadratic_y_axis_intercept_point_rule,
     translated_point_rule,
 )
+from shuxueshuo_server.solver.runtime.functional_compile_contract import (
+    compile_input_handles as _compile_input_handles,
+)
 from shuxueshuo_server.solver.family.models import (
     CapabilityInputClosureRequirement,
     CapabilityDependencyPolicy,
@@ -657,7 +660,7 @@ def _path_is_declared_read(
         return True
     return any(
         getattr(index.bindings.get(handle), "path", None) == path
-        for handle in step.reads
+        for handle in _compile_input_handles(step)
     )
 
 def function_spec_from_method(
@@ -1484,7 +1487,7 @@ def _read_quadratic_coefficient_handles(
         ).value
     )
     handles: list[str] = []
-    for handle in step.reads:
+    for handle in _compile_input_handles(step):
         binding = index.bindings.get(handle)
         if binding is None or binding.value_type != "Symbol":
             continue

@@ -19,8 +19,9 @@ from shuxueshuo_server.solver.runtime.functional_plan_graph import (
     least_common_scope as _least_common_scope,
     rewrite_call_aliases as _rewrite_call_aliases,
 )
-from shuxueshuo_server.solver.runtime.functional_legacy_projection import (
-    FunctionalLegacyProjectionAdapter,
+from shuxueshuo_server.solver.runtime.functional_debug_aliases import (
+    functional_call_local_debug_alias,
+    functional_state_slot_debug_alias,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_models import (
     CallResultRef,
@@ -131,14 +132,7 @@ class FunctionalCallPlacementService:
         pinned_canonical_call_ids: Sequence[str] = (),
         pinned_execution_scopes: Mapping[str, str] | None = None,
         pinned_return_scopes: Mapping[str, Mapping[str, str]] | None = None,
-        legacy_projection_adapter: (
-            FunctionalLegacyProjectionAdapter | None
-        ) = None,
     ) -> FunctionalCallPlacementResult:
-        legacy_projection_adapter = (
-            legacy_projection_adapter
-            or FunctionalLegacyProjectionAdapter()
-        )
         source_calls = {call.call_id: call for call in source_plan.calls}
         source_scopes = {
             call.call_id: scope.scope_id
@@ -425,7 +419,6 @@ class FunctionalCallPlacementService:
             semantic_items=semantic_items,
             handle_registry=handle_registry,
             dependency_graph=canonical_dependencies,
-            legacy_projection_adapter=legacy_projection_adapter,
         )
         canonical_dependencies = _canonical_dependency_graph(
             canonical_plan,
@@ -457,7 +450,6 @@ class FunctionalCallPlacementService:
                 identity_factory=identity_factory,
                 identity_index=base_identity_index.clone(),
                 allocation_service=allocation_service,
-                legacy_projection_adapter=legacy_projection_adapter,
             )
             issues.extend(typed_finalization_issues)
         else:
@@ -465,6 +457,11 @@ class FunctionalCallPlacementService:
         scope_issues = _post_placement_scope_issues(
             final_calls,
             registry=handle_registry,
+            declared_scopes={
+                call_id: source_scopes[call_id]
+                for call_id in canonical_calls
+            },
+            dependency_graph=canonical_dependencies,
         )
         issues.extend(scope_issues)
         final_by_id = {item.call_id: item for item in final_calls}
@@ -1468,7 +1465,6 @@ def _project_placed_calls(
     semantic_items: Sequence[SemanticReadCatalogItem],
     handle_registry: CanonicalHandleRegistry,
     dependency_graph: Mapping[str, tuple[str, ...]],
-    legacy_projection_adapter: FunctionalLegacyProjectionAdapter,
 ) -> tuple[FunctionalCallReconciliation, ...]:
     """Project final scopes to legacy handles without deciding typed identity."""
 
@@ -1529,7 +1525,7 @@ def _project_placed_calls(
                 else None
             )
             if old.logical_state_key is not None:
-                state_slot_id = legacy_projection_adapter.state_slot_id(
+                state_slot_id = functional_state_slot_debug_alias(
                     StateSlotId(old.logical_state_key, valid_scope)
                 )
             elif object_ref is not None:
@@ -1541,7 +1537,7 @@ def _project_placed_calls(
                 )
             else:
                 state_slot_id = (
-                    legacy_projection_adapter.call_local_value_id(
+                    functional_call_local_debug_alias(
                         scope_id=valid_scope,
                         call_id=call.call_id,
                         return_name=old.return_name,
@@ -1612,7 +1608,6 @@ def _finalize_typed_allocations(
     identity_factory: StateIdentityFactory,
     identity_index: StateIdentityIndex,
     allocation_service: StateAllocationService,
-    legacy_projection_adapter: FunctionalLegacyProjectionAdapter,
 ) -> tuple[
     tuple[FunctionalCallReconciliation, ...],
     tuple[StateVersionPlacementRewrite, ...],
@@ -1643,7 +1638,6 @@ def _finalize_typed_allocations(
                     value,
                     produced=produced,
                     version_map=version_map,
-                    legacy_projection_adapter=legacy_projection_adapter,
                 )
                 for value in values
             )
@@ -1803,7 +1797,7 @@ def _finalize_typed_allocations(
             elif decision.action == "transition":
                 effective_write_mode = "transition"
             state_slot_id = (
-                legacy_projection_adapter.state_slot_id(
+                functional_state_slot_debug_alias(
                     decision.selected_slot_id
                 )
                 if decision.selected_slot_id is not None
@@ -2145,7 +2139,6 @@ def _rewrite_finalized_resolved_value(
     *,
     produced: Mapping[tuple[str, str], FunctionalReturnAllocation],
     version_map: Mapping[StateVersionId, StateVersionId],
-    legacy_projection_adapter: FunctionalLegacyProjectionAdapter,
 ) -> ResolvedFunctionalValue:
     """Prefer the final producer allocation over provisional version rewrites."""
 
@@ -2163,7 +2156,6 @@ def _rewrite_finalized_resolved_value(
     return _rewrite_resolved_value_versions(
         rewritten,
         version_map,
-        legacy_projection_adapter=legacy_projection_adapter,
     )
 
 
@@ -2211,8 +2203,6 @@ def _topological_calls(
 def _rewrite_resolved_value_versions(
     value: ResolvedFunctionalValue,
     rewrites: Mapping[StateVersionId, StateVersionId],
-    *,
-    legacy_projection_adapter: FunctionalLegacyProjectionAdapter,
 ) -> ResolvedFunctionalValue:
     version_id = value.state_version_id
     if version_id is None:
@@ -2224,7 +2214,7 @@ def _rewrite_resolved_value_versions(
         value,
         state_version_id=target,
         typed_slot_id=target.slot_id,
-        state_slot_id=legacy_projection_adapter.state_slot_id(target.slot_id),
+        state_slot_id=functional_state_slot_debug_alias(target.slot_id),
     )
 
 
@@ -2852,41 +2842,79 @@ def _post_placement_scope_issues(
     calls: Sequence[FunctionalCallReconciliation],
     *,
     registry: CanonicalHandleRegistry,
+    declared_scopes: Mapping[str, str] | None = None,
+    dependency_graph: Mapping[str, tuple[str, ...]] | None = None,
 ) -> tuple[FunctionalPlanIssue, ...]:
-    """Report explicit DAG edges that placement could not make visible.
+    """Report candidate dependencies that placement could not make visible.
 
     A producer may be pinned to a child scope by one of its own inputs. In that
     case a sibling consumer cannot safely reuse the result. This is a
-    repairable plan dependency error, not a projector configuration failure.
+    repairable plan dependency error, not a planner configuration failure.
+
+    Resolver-owned inputs may only become materialized after the first scope
+    fixed point. If a downstream publication hoists such a call above the
+    input's valid scope, report the same retryable issue even though the input
+    has no ``source_call_id``. The call must remain invalid; the repair is to
+    split the common ancestor computation from child-private evaluation.
     """
 
+    declared_scopes = dict(declared_scopes or {})
+    dependency_graph = dict(dependency_graph or {})
     result: list[FunctionalPlanIssue] = []
     seen: set[tuple[str, str, str | None]] = set()
     for call in calls:
         for arg_name, values in call.resolved_args.items():
             for value in values:
-                if (
-                    value.source_call_id is None
-                    or visible_from_valid_scope(
-                        value.valid_scope,
-                        scope_id=call.scope_id,
-                        registry=registry,
-                    )
+                if visible_from_valid_scope(
+                    value.valid_scope,
+                    scope_id=call.scope_id,
+                    registry=registry,
                 ):
+                    continue
+                declared_scope = declared_scopes.get(
+                    call.call_id,
+                    call.scope_id,
+                )
+                was_hoisted = declared_scope != call.scope_id
+                if value.source_call_id is None and not was_hoisted:
                     continue
                 key = (call.call_id, arg_name, value.source_call_id)
                 if key in seen:
                     continue
                 seen.add(key)
+                if value.source_call_id is not None:
+                    repair_call_ids = [
+                        value.source_call_id,
+                        call.call_id,
+                    ]
+                    message = (
+                        f"call result {value.source_call_id}."
+                        f"{value.return_name or 'result'} is not visible "
+                        f"from {call.scope_id}"
+                    )
+                    placement_reason = "cross_scope_call_result_invisible"
+                else:
+                    repair_call_ids = list(
+                        _mixed_scope_placement_repair_cone(
+                            call.call_id,
+                            calls=calls,
+                            declared_scopes=declared_scopes,
+                            dependency_graph=dependency_graph,
+                            registry=registry,
+                        )
+                    )
+                    message = (
+                        f"call {call.call_id} was moved from "
+                        f"{declared_scope} to {call.scope_id}, but argument "
+                        f"{arg_name} is only visible from "
+                        f"{value.valid_scope}"
+                    )
+                    placement_reason = "private_input_blocks_ancestor_execution"
                 result.append(
                     _issue(
                         "functional_reconciliation",
                         "functional.arg_scope_invisible",
-                        (
-                            f"call result {value.source_call_id}."
-                            f"{value.return_name or 'result'} is not visible "
-                            f"from {call.scope_id}"
-                        ),
+                        message,
                         call_id=call.call_id,
                         scope_id=call.scope_id,
                         details={
@@ -2894,15 +2922,74 @@ def _post_placement_scope_issues(
                             "source_call_id": value.source_call_id,
                             "source_return": value.return_name,
                             "producer_valid_scope": value.valid_scope,
+                            "input_valid_scope": value.valid_scope,
+                            "declared_scope_id": declared_scope,
                             "consumer_execution_scope": call.scope_id,
-                            "repair_call_ids": [
-                                value.source_call_id,
-                                call.call_id,
-                            ],
+                            "placement_reason": placement_reason,
+                            "repair_call_ids": repair_call_ids,
+                            "repair_guidance": (
+                                "Keep child-private inputs and their evaluation "
+                                "in the child scope. Produce any state needed by "
+                                "multiple sibling scopes in their common ancestor "
+                                "without child-private arguments, then evaluate it "
+                                "separately in each child scope."
+                            ),
                         },
                     )
                 )
     return tuple(result)
+
+
+def _mixed_scope_placement_repair_cone(
+    root_call_id: str,
+    *,
+    calls: Sequence[FunctionalCallReconciliation],
+    declared_scopes: Mapping[str, str],
+    dependency_graph: Mapping[str, tuple[str, ...]],
+    registry: CanonicalHandleRegistry,
+) -> tuple[str, ...]:
+    """Return the publication chain that made a private input unsafe.
+
+    Keep ordinary same-branch consumers out of the diagnostic cone. Include
+    hoisted dependents that propagated ancestor placement and the first
+    consumer in another branch; those are the calls the planner may need to
+    split or reconnect.
+    """
+
+    call_by_id = {call.call_id: call for call in calls}
+    consumers: dict[str, list[str]] = {}
+    for consumer_id, dependencies in dependency_graph.items():
+        for dependency_id in dependencies:
+            consumers.setdefault(dependency_id, []).append(consumer_id)
+
+    root_declared_scope = declared_scopes.get(
+        root_call_id,
+        call_by_id[root_call_id].scope_id,
+    )
+    result = [root_call_id]
+    pending = list(consumers.get(root_call_id, ()))
+    visited: set[str] = set()
+    while pending:
+        consumer_id = pending.pop(0)
+        if consumer_id in visited:
+            continue
+        visited.add(consumer_id)
+        consumer = call_by_id.get(consumer_id)
+        if consumer is None:
+            continue
+        consumer_declared_scope = declared_scopes.get(
+            consumer_id,
+            consumer.scope_id,
+        )
+        stays_in_root_branch = root_declared_scope in registry.ancestor_scopes(
+            consumer_declared_scope
+        )
+        was_hoisted = consumer.scope_id != consumer_declared_scope
+        if not stays_in_root_branch or was_hoisted:
+            result.append(consumer_id)
+        if was_hoisted:
+            pending.extend(consumers.get(consumer_id, ()))
+    return tuple(dict.fromkeys(result))
 
 
 def _suppress_repairable_scope_mismatches(

@@ -8,7 +8,7 @@ from typing import Mapping
 from shuxueshuo_server.solver.runtime.functional_plan_models import (
     ResolvedFunctionalValue,
 )
-from shuxueshuo_server.solver.runtime.functional_legacy_projection import (
+from shuxueshuo_server.solver.runtime.functional_debug_aliases import (
     legacy_state_slot_aliases,
 )
 from shuxueshuo_server.solver.runtime.state_identity import (

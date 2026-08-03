@@ -174,8 +174,8 @@ def build_functional_call_memory(
         for item in provenance
     }
     projected_steps_by_call = {
-        item.call_id: item.step_ids
-        for item in reconciliation.projection_map
+        item.call_id: (item.call_id,)
+        for item in reconciliation.execution_entries
     }
     capabilities = catalog.items
     entries: list[FunctionalCallMemoryEntry] = []
@@ -602,9 +602,8 @@ def _committed_goals_by_call(
     if goal_report is None:
         return {}
     step_to_call = {
-        step_id: item.call_id
-        for item in reconciliation.projection_map
-        for step_id in item.step_ids
+        item.call_id: item.canonical_call_id
+        for item in reconciliation.execution_entries
     }
     goals_by_call: dict[str, list[str]] = {}
     for goal in goal_report.goals:

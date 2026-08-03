@@ -74,9 +74,9 @@ Track A 是否完成，但主链切换前必须重新建立相应阶段自己的
 | Track A assets | `COMPLETE` | 五题 fixture、离线 replay、真实 opt-in、strict-test few-shot、共享 batch 基座 | 无 |
 | Track A Stage 1 | `COMPLETE` | 每题 3 个样本，`15/15` 在三轮内通过，configuration error 为 0 | 无 |
 | Track A parity complete | `COMPLETE` | 五题各 10 个兼容样本，`pass@3 >= 90%`；structured provenance parity、typed failure boundary、跨 batch 聚合均已建立 | 无 |
-| Track B typed identity authority | `IN PROGRESS` | B0-B4、B5a/B5b 已完成；B5c-A direct compiler 已通过离线门禁和真实 shadow/authoritative 5×3；Functional authoritative 主链不再创建 StepIntent | B5c-B 清理仅供 projected rollback 的 reconciliation 字段和 legacy projection adapter；全局 StepIntent 产品链留到 Track D |
+| Track B typed identity authority | `COMPLETE` | B0-B4、B5a/B5b/B5c 已完成；Functional StepIntent projection、legacy projection adapter 和动态 projected oracle 已物理删除，生产 Functional 固定 direct compile | 无；全局 StepIntent 产品链留到 Track D |
 | Track C transactional interpreter | `COMPLETE` | C0-C6 已完成；runtime closure provenance 已接管 Context、retry、checkpoint 与 Explanation 消费 | 无 |
-| Functional Default Ready | `BLOCKED` | Functional 主链可 opt-in 执行 | Track A parity complete；Track B B0-B4；Track C production closure；direct compiler shadow；held-out；production observability 与回滚门禁 |
+| Functional Default Ready | `IN PROGRESS` | Track A parity、Track B typed identity/direct compiler、Track C transactional execution 与 runtime closure 已完成 | held-out；production observability、canary 与回滚门禁 |
 | Track D0 product routing gate retirement | `BLOCKED` | 唯一 problem-id gate 已登记 | Track A parity complete；Functional production routing 接管该 family；legacy deterministic planner 退场 |
 | Track D default switch | `BLOCKED` | Functional direct compiler 已建立，产品默认仍为 legacy StepIntent | Functional Default Ready 后切默认协议并退役全局 StepIntent 产品链 |
 
@@ -87,11 +87,29 @@ Track A 是否完成，但主链切换前必须重新建立相应阶段自己的
 
 ### Immediate Next Gate
 
-Track A 已完成，当前主线不再围绕五题概率样本做局部补丁：
+Track A、Track B 和 Track C 已完成，当前主线进入 Functional Default Ready：
 
-1. 完成 B5c-B 中仍只服务 projected rollback 的 Functional compatibility 物理删除；
-2. 保持全局 StepIntent 产品回滚链不变；
-3. 随后进入 Functional Default Ready 门禁。
+1. 建立不参与日常修复决策的 held-out compatibility cohort；
+2. 完成 production observability、canary 和回滚门禁；
+3. 保持全局 StepIntent 产品回滚链不变，门禁通过后再进入 Track D 默认路由切换。
+
+2026-08-03 的 `b5c-b-direct-only-smoke` 为 `14/15`：`176` 次 direct compile
+与 `29` 次 symbolic closure 均为零 drift，唯一失败发生在 compile 前。B2 将一个
+同时包含公共开放 return 与子问私有求值输入的 call 提升到父 scope，随后把私有
+参数 producer 一并提升，并把不可见输入误分类为非重试的
+`planner.state_placement_drift`。该分类缺口已离线修为 retryable
+`functional.arg_scope_invisible`，repair cone 覆盖私有 producer、公共 producer、
+sibling consumer 与 answer producer；随后以修复后的 source fingerprint 重跑验收。
+
+修复后的 `b5c-b-direct-only-smoke-20260803-133615` 已作为 B5c-B acceptance：
+`14/14` 个获得可执行 FunctionalPlan 的样本全部通过 direct-only 权威链，累计
+`178` 次 direct compile、`25` 次 symbolic closure，compile/closure drift、
+configuration error、unclassified error 和 successful-sample gate failure 均为 `0`。
+batch 原始统计为 `14/15`、`stage1_gate_passed=false`；唯一未通过的西青
+`sample-02` 在 planner/compile 前连续得到 reasoning-only 空响应，记录为
+`provider.reasoning_only_empty_response`，不属于 B5c 编译或 typed authority 回归。
+该批 source fingerprint 为
+`a0f84191dfa0d65a82851703db8e769127963b32c30aff199e022b70ac42f1bd`。
 
 C0.5 的详细设计见：
 
@@ -303,8 +321,8 @@ Track B B0-B4、held-out 门禁、production observability 和默认协议切换
 
 ### Current Status
 
-`BLOCKED`。Track A parity 已完成，但 typed identity authority、transactional
-execution、held-out 证据和生产切换能力尚未达到门禁。
+`IN PROGRESS`。Track A parity、typed identity authority、transactional execution、
+direct compiler 与 runtime closure 已完成；当前剩余 held-out 证据和生产切换能力门禁。
 
 ### Criteria
 
@@ -320,7 +338,7 @@ execution、held-out 证据和生产切换能力尚未达到门禁。
 - 至少一组不参与日常修复决策的 held-out 题无显著退化；
 - 生产监控可以按 layer/code、模型、prompt/catalog hash 和 answer signature 观测失败；
 - 默认切换具备 canary、回滚和 StepIntent 迁移观察窗口；
-- Track D direct compiler shadow 达到其切换门槛。
+- B5c direct-only acceptance 已通过，Functional 生产链不再依赖 StepIntent projection。
 
 满足该门禁后，才在 Track D 中切换默认协议。StepIntent 删除仍需经过独立观察窗口，
 不会与默认切换在同一个提交中完成。
@@ -499,11 +517,10 @@ B2 完成门禁：
 - computation key、source-version closure、placement dependency graph 和 B3 exact
   dependency 只读取 typed version/condition/object/call-result identity；
 - `StateIdentityIndex` 已删除 legacy slot 索引和 in-flight legacy lookup；
-- `FunctionalLegacyProjectionAdapter` 只把已确定的 typed slot/version 投影成
-  StepIntent/compiler 兼容字符串，不获得 allocation、scope 或 predecessor 权威；
-- reconciliation/Context 记录 `typed_identity_completeness`、
-  `legacy_projection_count` 和 `legacy_identity_fallback_count`；authoritative
-  门禁要求 fallback count 为 0；
+- B5c-B 已删除 `FunctionalLegacyProjectionAdapter`；旧 Context 字符串只在
+  `legacy_context_migration` 边界一次性迁移；
+- reconciliation/Context 记录 `typed_identity_completeness` 和
+  `legacy_identity_fallback_count`；authoritative 门禁要求 fallback count 为 0；
 - 静态 guard 禁止 authoritative identity functions 重新调用 legacy slot lookup。
 
 #### B5b. Context and Runtime Consumer Migration
@@ -550,40 +567,56 @@ B2 完成门禁：
 
 #### B5c. StepIntent and String Projection Retirement
 
-- 状态：`B5c-A COMPLETE / B5c-B IN PROGRESS`。
-- 新增 `projected | direct_shadow | direct_authoritative` 编译模式；
-- `direct_shadow` 同时完成两条路径的编译并执行 projected 结果；它证明 compile
-  manifest parity，不声称在 drift 场景中也执行 direct 事务。Direct 的可执行性由
-  authored direct-authoritative 门禁和独立真实 authoritative smoke 验证；
-- `context_authoritative + direct_authoritative` 已绕过 StepIntent validation、
+- 状态：`COMPLETE`（2026-08-03）。B5c-A direct compiler cutover 与 B5c-B
+  Functional StepIntent/string projection 物理退役均已完成。
+- Functional 生产编译已固定为 direct；`projected/direct_shadow/direct_authoritative`
+  compile mode、CLI、环境变量和运行时分支均已删除；
+- `context_authoritative` 已绕过 StepIntent validation、
   normalization、candidate resolution、prefix replay 和 draft finalizer，直接消费
   C3 binding ledger、B1 allocation、B2 placement 与 B5b runtime binding；
-- 五份 authored fixture 的 direct shadow compile drift 为 0，direct authoritative
-  均能生成成功事务输出；该离线门禁还暴露并修复了 ProblemIR materialized fact
-  未注册 ordinal-0 runtime binding 的 consumer 缺陷；
-- `FunctionalCallBridgeCompiler` 已删除，旧 `compile_exact_step` 已退出生产调用图；
-- `context_authoritative + direct_authoritative` reconciliation 不再生成
-  `projected_draft`，goal verification、Context、retry 和 Explanation 均消费 canonical
-  graph 与实际 compiled calls；direct compiler 异常 fail closed，不回落 StepIntent；
-- direct-authoritative 有意跳过旧 `_verify_functional_call_graph` stable-prefix probe；
+- `FunctionalCallBridgeCompiler`、Functional `compile_exact_step`、
+  `FunctionalPlanProjector`、`projected_draft/partial_projected_draft/projection_map`、
+  projection graph recovery 和 `FunctionalLegacyProjectionAdapter` 已从生产与模型删除；
+- goal verification、Context、retry 和 Explanation 均消费 canonical graph、
+  `FunctionalCallExecutionEntry` 与实际 compiled calls；direct compiler 异常 fail closed，
+  不回落 StepIntent；
+- direct compiler 有意跳过旧 `_verify_functional_call_graph` stable-prefix probe；
   替代门禁由 C3 binding audit、逐 call typed compile、B3 finalization、B4 checkpoint
-  verification 和 C0.5 generated graph gate组成。B5c-B 后继续以定期
-  direct-shadow compile parity 作为旧投影 oracle，不恢复 StepIntent graph probe；
+  verification 和 C0.5 generated graph gate组成，不恢复 StepIntent graph probe；
 - 真实 direct-shadow 批次 `b5c-direct-shadow-smoke-v2` 共比较 `148` 个 call，
   `functional_compile_drift_count = 0`；其中两个 solver 配置失败暴露了 retryable
   Functional 参数错误被错误包装的问题，已由 direct compile error classifier 修复；
 - 真实 direct-authoritative 批次 `b5c-direct-authoritative-smoke` 为 `15/15`，
   共 direct compile `186` 次、symbolic closure `29` 次，compile/closure drift、
   configuration error、unclassified error 和 successful-sample gate failure 均为 `0`；
-- Functional transaction fixture helper 默认与生产一致使用 `direct_authoritative`；
-  只有命名为 partial legacy probe 的兼容测试显式选择 projected；
-- 最新全量 solver 回归为 `1739 passed, 17 skipped`；
-- B5c-B 继续删除 reconciler 数据模型中仅供 projected rollback 使用的
-  `projected_draft`、Functional legacy projection adapter 与相关 helper；旧产品
-  StepIntent planner、resolver、recipe compiler 和 recorded fixtures 不属于该删除范围；
-- 删除 canonical handle、legacy StateSlot、semantic-name keyword 和 runtime-path
-  identity compatibility；
-- B5c 完成后，生产 Functional 主链不再依赖任何字符串身份恢复。
+- B5c-B 删除完成后的 `b5c-b-direct-only-smoke` 为 `14/15`；14 个进入 direct
+  compiler 的样本全部通过，`functional_compile_count=176`、compile/closure drift
+  均为 `0`。唯一失败在 B2 placement preflight，未执行 direct compiler；对应
+  mixed-scope private-input 分类已修复并由真实南开 FunctionalPlan 形状锁定；
+- 修复后的 acceptance batch `b5c-b-direct-only-smoke-20260803-133615` 中，
+  `14/14` 个获得可执行计划的样本通过，累计 `functional_compile_count=178`、
+  `symbolic_closure_execution_count=25`，compile/closure drift、configuration error、
+  unclassified error 与 successful-sample gate failure 均为 `0`。原始 batch 为
+  `14/15`，唯一未通过项是 compile 前的
+  `provider.reasoning_only_empty_response`；该外部 provider failure 不阻塞 B5c-B
+  direct-only authority acceptance；
+- 五份 authored fixture 已按 case 固化 `functional_compile_manifest/v1` 测试快照，锁定
+  capability、invocation order/scope、typed input consumption、public return/promotion
+  与 runtime provenance 摘要；生产包不再保留动态 projected oracle；
+- `FunctionalCapabilityCompiler` 已从 runtime compatibility facade公开，direct compiler
+  仍直接消费其 typed capability contract；
+- B5c-B 对 reconciliation debug payload 做了有意的 breaking change：删除
+  `projection_map`、`projected_draft`、`functional_projection_map` 和
+  `legacy_projection_count`，并将 `projected_state_dependencies` 更名为
+  `state_dependencies`。`FunctionalPlan v1` wire schema不变；新 Context payload
+  不再发出已废弃的 `legacy_projection_count` 审计字段；
+- `functional_state_refinement` 已删除；旧 Context 字符串身份只允许在
+  `legacy_context_migration` 载入边界一次性迁移，in-flight typed identity 不从
+  legacy slot、handle 或 runtime path 恢复；
+- 当前全量 solver 回归为 `1698 passed, 17 skipped`；
+- 旧产品 StepIntent planner、resolver、recipe compiler 和 recorded fixtures
+  不属于 B5c-B 删除范围；
+- 生产 Functional 主链不再依赖任何字符串身份恢复。
 
 ### Stage Gates and Dependencies
 
@@ -654,8 +687,9 @@ compiler/runtime。这样先解决状态权威问题，再单独替换编译桥�
 execution-shadow compatibility gate、C2 Context/retry authority、C3 Functional arg
 role authority、C4 runtime-grounded closure authority 和 C5 parameter method migration
 以及 C6 closure provenance consumption and strict cleanup 已完成。Functional opt-in
-可使用 `context_authoritative + authoritative closure`；产品默认仍为 legacy。当前
-进入 B5c StepIntent/string projection retirement。
+可使用 `context_authoritative + authoritative closure`；B5c 已将 Functional 编译固定为
+direct 并退役 Functional StepIntent projection。产品默认仍为 legacy，当前进入
+Functional Default Ready 门禁。
 
 详细设计见：
 
@@ -711,29 +745,29 @@ B3 issue 双向比较和 parent/child 跨 scope 覆盖下限均已进入 hard ga
 
 #### C1. Transactional Call Execution
 
-状态：`EXECUTION SHADOW COMPLETE`（2026-07-31）。
-默认仍为 legacy；测试和显式 opt-in 可使用 `execution_shadow`。
+状态：`COMPLETE`（2026-07-31，历史迁移里程碑）。B5c-B 已退役
+`execution_shadow` 运行模式；C1 事务状态机现由 `context_authoritative` 直接使用。
 
 - 按 DAG ready frontier 逐 call prepare/execute；
 - 每个 call 读取调用时刻之前最新 verified StateVersion；
 - actual output 决定 free symbols、result form 和 optional returns；
 - 成功才写入 Working Context，失败 call 不产生部分 state；
 - 失败 call 的 dependents 标记 blocked，无关分支继续执行；
-- per-call bridge 先复用现有 StepIntent/StepPlan 编译产物。
+- per-call direct compiler直接生成 StepPlan/MethodInvocation。
 
 当前实现：
 
 - `RuntimeContext.fork()` 为每个 canonical public call 建立隔离 branch；
 - `FunctionalCallPreparationService` 在执行前从 Working State 选择 exact 或
   call-time latest-visible `StateVersionId`，并投影到事务私有 runtime snapshot；
-- `FunctionalCallBridgeCompiler` 从 legacy 已编译的 StepIntent/StepPlan 图中只提取
-  当前 public call 的 fragment，不重放 dependency prefix；
+- B5c-B direct compiler从 C3 binding 与 typed return allocation编译当前 public
+  call，不重放 dependency prefix；
 - Function 或 Macro 的全部 fragment 在同一 branch 中执行，runtime check、actual
   return form/free symbols 和 B3 destination finalization 全部通过后才原子提交；
 - 失败 branch 不保留 declaration、temp、promotion 或 StateVersion，其 dependents
   blocked，无关分支继续；
-- `execution_shadow` 同时保留 C0 observer 和 C1 execution report。两份报告均不进入
-  prompt、retry、B4 checkpoint、Explanation 或正式答案；
+- C0 graph observer作为纯 `shadow` 模式保留，不执行事务，也不进入 prompt、retry、
+  B4 checkpoint、Explanation 或正式答案；
 - 五份 authored Functional fixture 已实现 legacy/C1 双跑零 hard mismatch、零
   behavior delta；
 - result form、free symbols、version predecessor/source chain 任一差异均为 hard
@@ -756,11 +790,11 @@ B3 issue 双向比较和 parent/child 跨 scope 覆盖下限均已进入 hard ga
 状态：`COMPLETE`（2026-08-01）。failure-path、shadow authority parity 与真实
 `context_authoritative` acceptance 均已通过；C3 已解除前置阻塞。
 
-- 新增 `context_shadow / context_authoritative` 两种模式；前者比较 legacy 与
-  transactional authority，后者让 Functional retry、Context、goal verification
-  和成功 `PlannerOutput` 直接消费逐 call 实际结果；
+- `context_authoritative` 让 Functional retry、Context、goal verification 和成功
+  `PlannerOutput` 直接消费逐 call 实际结果；迁移期 `context_shadow` 已由 B5c-B
+  删除；
 - `FunctionalCallCompilerService` 精确编译当前已选 Function/Macro，不搜索替代
-  capability、不执行 dependency prefix；legacy bridge 继续保留为迁移 oracle；
+  capability、不执行 dependency prefix；B5c-B 已删除 legacy bridge；
 - `FunctionalTransactionalAttemptResult` 统一携带 verified/failed/blocked calls、
   actual runtime results、typed writes、goal closure 和 root issues；
 - stable graph 只冻结 passed QuestionGoal 的完整 canonical dependency closure，
@@ -774,9 +808,6 @@ B3 issue 双向比较和 parent/child 跨 scope 覆盖下限均已进入 hard ga
 - `context_authoritative` 不再使用 legacy parity 决定成功；transactional 内部
   mismatch 会进入正式 root issue，事务入口异常产生非 retryable configuration
   failure，禁止静默回落 legacy；
-- `context_shadow` 保留 legacy B4 checkpoint 预校验，并对账 goal、聚合 output、
-  typed Context version、retry locked/repair 集合与 checkpoint；shadow mismatch
-  只影响迁移门禁，不改变 legacy 正式结果；
 - 初始已给坐标但没有独立 coordinate fact 的 Point 现在建立 ordinal-0 typed
   StateVersion；结构化 Macro 隐藏角色也必须进入 exact StateVersion dependency；
 - 当前 revision 的 C2 定向门禁为 `428 passed`，全量 solver 为
@@ -1060,10 +1091,10 @@ substitution_outputs
   `refine_functional_object_states`；sibling return 的 Symbol union 只保留为
   B1/B3 transition 的 provisional allocation estimate，Context、checkpoint 和 retry
   memory 均只写 actual runtime free-symbol provenance；
-- `functional_state_refinement` 已标记为 legacy-only，仅供 B5c 前的 StepIntent
-  compatibility tests 使用，不得重新接入 Functional authoritative reconciliation；
-- `free_quadratic_parameter_if_read` 已从 Functional projected compiler selector
-  中移除，旧 StepIntent binding rule 继续作为 B5c 前兼容入口；
+- `functional_state_refinement` 已随 B5c-B 删除；Functional authoritative
+  reconciliation 不再存在静态 state refinement 回接点；
+- `free_quadratic_parameter_if_read` 已从 Functional direct compiler selector
+  中移除，旧 StepIntent binding rule只服务 Track D 前的产品 legacy 路径；
 - C0.5 `v10` 新增 32 个跨 scope ParameterValue closure checkpoint 场景，
   对 target value、branch、equation source、residual Symbol、status 和 provenance
   缺失逐项验证 `planner.retry_symbolic_closure_drift`；

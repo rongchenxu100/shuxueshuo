@@ -63,15 +63,11 @@ def run_deepseek_functional_opt_in(case: FunctionalOptInCase) -> None:
             output_format="functional_plan",
             functional_transaction_mode=os.getenv(
                 "FUNCTIONAL_TRANSACTION_MODE",
-                "legacy",
+                "context_authoritative",
             ),
             functional_symbolic_closure_mode=os.getenv(
                 "FUNCTIONAL_SYMBOLIC_CLOSURE_MODE",
                 "disabled",
-            ),
-            functional_compile_mode=os.getenv(
-                "FUNCTIONAL_COMPILE_MODE",
-                "direct_authoritative",
             ),
         ),
         max_attempts=_max_attempts(),
@@ -188,26 +184,18 @@ def run_deepseek_functional_opt_in(case: FunctionalOptInCase) -> None:
             closure_drift_count == 0,
             f"mode={expected_closure_mode}, drift={closure_drift_count}",
         )
-        expected_compile_mode = os.getenv(
-            "FUNCTIONAL_COMPILE_MODE",
-            "direct_authoritative",
-        )
         _record_gate(
             gate_checks,
             "functional_compile_drift",
             compile_drift_count == 0,
-            f"mode={expected_compile_mode}, drift={compile_drift_count}",
+            f"drift={compile_drift_count}",
         )
-        if expected_compile_mode in {
-            "direct_shadow",
-            "direct_authoritative",
-        }:
-            _record_gate(
-                gate_checks,
-                "functional_direct_compile_executed",
-                compile_count > 0,
-                f"mode={expected_compile_mode}, count={compile_count}",
-            )
+        _record_gate(
+            gate_checks,
+            "functional_direct_compile_executed",
+            compile_count > 0,
+            f"count={compile_count}",
+        )
         if (
             expected_closure_mode == "authoritative"
             and replay is not None
@@ -237,7 +225,7 @@ def run_deepseek_functional_opt_in(case: FunctionalOptInCase) -> None:
             and replay.functional_plan is not None
             and replay.functional_reconciliation is not None
             and replay.functional_reconciliation.ok
-            and bool(replay.functional_reconciliation.projection_map)
+            and bool(replay.functional_reconciliation.execution_entries)
             and replay.planner_state_context is not None,
             "missing successful Functional replay artifacts",
         )
@@ -281,11 +269,6 @@ def run_deepseek_functional_opt_in(case: FunctionalOptInCase) -> None:
             "planner-state-context.json",
             "raw-response.txt",
         ]
-        if os.getenv(
-            "FUNCTIONAL_COMPILE_MODE",
-            "direct_authoritative",
-        ) != "direct_authoritative":
-            required_debug_artifacts.append("effective-step-intents.json")
         if replay is not None and replay.retry_state is not None:
             required_debug_artifacts.append("planner-retry-state.json")
         missing_artifacts = [
@@ -631,10 +614,6 @@ def _write_sample_result(
         "functional_symbolic_closure_mode": os.getenv(
             "FUNCTIONAL_SYMBOLIC_CLOSURE_MODE",
             "disabled",
-        ),
-        "functional_compile_mode": os.getenv(
-            "FUNCTIONAL_COMPILE_MODE",
-            "direct_authoritative",
         ),
         "functional_compile_count": compile_count,
         "functional_compile_drift_count": compile_drift_count,

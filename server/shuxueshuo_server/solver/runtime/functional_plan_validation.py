@@ -272,10 +272,14 @@ FUNCTIONAL_PLAN_JSON_SCHEMA: dict[str, Any] = {
                         "minLength": 1,
                         "description": (
                             "scope_id 表示调用的数学归属，不表示物理存储位置。只服务"
-                            "一个小问的调用放在该小问；题面直接给出的公共前提可放在"
-                            "最近公共父 scope；先在一个小问中推导、后来被兄弟小问复用"
-                            "的调用仍留在原小问并通过 CallResultRef 引用。scope_id 必须"
-                            "来自 ProblemIR。"
+                            "一个小问的调用放在该小问。多个兄弟小问共用的中间量，若"
+                            "计算它的全部输入在最近公共父 scope 可见，应在该父 scope "
+                            "单独计算；依赖某个子问私有条件的结果只能留在该子问，不能"
+                            "供 sibling 读取。不要用一个 call 同时生成可共享的开放表达式"
+                            "和依赖子问私有参数的求值结果；应拆成父 scope 的公共表达式"
+                            "call 与各子 scope 的求值 call。已经在子问中安全产生、且输入"
+                            "也可在公共范围成立的结果可通过 CallResultRef 引用。scope_id "
+                            "必须来自 ProblemIR。"
                         ),
                     },
                     "label": {

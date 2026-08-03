@@ -18,8 +18,8 @@ from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
 from shuxueshuo_server.solver.runtime.functional_plan_graph import (
     rewrite_call_result_aliases as _rewrite_call_result_aliases,
 )
-from shuxueshuo_server.solver.runtime.functional_legacy_projection import (
-    FunctionalLegacyProjectionAdapter,
+from shuxueshuo_server.solver.runtime.functional_debug_aliases import (
+    functional_state_slot_debug_alias,
 )
 from shuxueshuo_server.solver.runtime.functional_plan_models import (
     CallResultRef,
@@ -1073,15 +1073,8 @@ class FunctionalSemanticIndex:
         context: PlannerStateContext,
         *,
         handle_registry: CanonicalHandleRegistry,
-        legacy_projection_adapter: (
-            FunctionalLegacyProjectionAdapter | None
-        ) = None,
     ) -> "FunctionalSemanticIndex":
         state_slots = {item.slot_id: item for item in context.state.state_slots}
-        legacy_adapter = (
-            legacy_projection_adapter
-            or FunctionalLegacyProjectionAdapter()
-        )
         conditions = {
             item.condition_id: item for item in context.state.conditions
         }
@@ -1124,7 +1117,7 @@ class FunctionalSemanticIndex:
                         free_symbol_refs=slot.free_symbol_refs,
                         source_state_slot_ids=(
                             (
-                                legacy_adapter.state_slot_id(
+                                functional_state_slot_debug_alias(
                                     slot.typed_slot_id
                                 ),
                             )
@@ -1302,7 +1295,7 @@ class FunctionalSemanticIndex:
                             free_symbol_refs=object_slot.free_symbol_refs,
                             source_state_slot_ids=(
                                 (
-                                    legacy_adapter.state_slot_id(
+                                    functional_state_slot_debug_alias(
                                         object_slot.typed_slot_id
                                     ),
                                 )

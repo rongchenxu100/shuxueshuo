@@ -135,7 +135,7 @@ def test_complete_functional_plan_fixture_replays_to_expected_answers(
     assert replay.functional_plan is not None
     assert replay.functional_reconciliation is not None
     assert replay.functional_reconciliation.ok
-    assert replay.functional_reconciliation.projection_map
+    assert replay.functional_reconciliation.execution_entries
     assert replay.planner_state_context is not None
     assert not [
         event

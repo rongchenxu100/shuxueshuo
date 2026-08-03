@@ -39,10 +39,7 @@ from shuxueshuo_server.solver.utils import unique_ordered
 
 
 FunctionalTransactionMode = Literal[
-    "legacy",
     "shadow",
-    "execution_shadow",
-    "context_shadow",
     "context_authoritative",
 ]
 FunctionalTransactionEventKind = Literal[
@@ -528,13 +525,12 @@ def _observed_call_statuses(
 ) -> dict[str, FunctionalCallLifecycleStatus]:
     result: dict[str, FunctionalCallLifecycleStatus] = {}
     projection = {
-        item.call_id: item.step_ids
-        for item in reconciliation.projection_map
+        item.call_id: (item.call_id,)
+        for item in reconciliation.execution_entries
     }
     step_to_call = {
-        step_id: item.call_id
-        for item in reconciliation.projection_map
-        for step_id in item.step_ids
+        item.call_id: item.canonical_call_id
+        for item in reconciliation.execution_entries
     }
     accepted = {
         item.step_id
@@ -597,9 +593,8 @@ def _call_issue_codes(
         if issue.call_id is not None:
             result.setdefault(issue.call_id, []).append(issue.code)
     step_to_call = {
-        step_id: item.call_id
-        for item in reconciliation.projection_map
-        for step_id in item.step_ids
+        item.call_id: item.canonical_call_id
+        for item in reconciliation.execution_entries
     }
     for blocker in diagnostic.blockers if diagnostic is not None else ():
         call_id = step_to_call.get(blocker.step_id)
@@ -619,9 +614,8 @@ def _unmapped_runtime_write_mismatches(
     if diagnostic is None:
         return ()
     known_step_ids = {
-        step_id
-        for item in reconciliation.projection_map
-        for step_id in item.step_ids
+        item.call_id
+        for item in reconciliation.execution_entries
     }
     return tuple(
         FunctionalTransactionShadowMismatch(
@@ -645,9 +639,8 @@ def _commit_observed_writes(
     if diagnostic is None:
         return ()
     step_to_call = {
-        step_id: item.call_id
-        for item in reconciliation.projection_map
-        for step_id in item.step_ids
+        item.call_id: item.canonical_call_id
+        for item in reconciliation.execution_entries
     }
     allocations = {
         (item.call_id, returned.return_name): returned
@@ -656,7 +649,10 @@ def _commit_observed_writes(
     }
     writes_by_call: dict[str, list[StateWriteProvenance]] = {}
     for write in diagnostic.state_write_provenance:
-        call_id = step_to_call.get(write.step_id)
+        call_id = (
+            write.canonical_producer_call_id
+            or step_to_call.get(write.step_id)
+        )
         if call_id is None:
             continue
         writes_by_call.setdefault(call_id, []).append(write)
@@ -882,9 +878,8 @@ def _answer_mismatches(
     if goal_verification_report is None:
         return ()
     step_to_call = {
-        step_id: item.call_id
-        for item in reconciliation.projection_map
-        for step_id in item.step_ids
+        item.call_id: item.canonical_call_id
+        for item in reconciliation.execution_entries
     }
     answer_by_handle = {
         item.answer_handle: item for item in graph.answer_bindings

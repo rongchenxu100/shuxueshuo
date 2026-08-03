@@ -151,9 +151,8 @@ def _build_symbolic_closure_teaching(
         return ()
     goal_calls = set(getattr(attempt, "goal_reachable_call_ids", ()))
     call_by_step = {
-        step_id: item.call_id
-        for item in getattr(reconciliation, "projection_map", ())
-        for step_id in item.step_ids
+        item.call_id: item.canonical_call_id
+        for item in getattr(reconciliation, "execution_entries", ())
     }
     grouped: dict[tuple[Any, ...], list[Any]] = {}
     call_by_signature: dict[tuple[Any, ...], str] = {}

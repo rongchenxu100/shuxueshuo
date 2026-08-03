@@ -11,6 +11,9 @@ from dataclasses import dataclass
 from collections.abc import Callable
 from typing import Any, Mapping, Protocol, Sequence
 
+from shuxueshuo_server.solver.runtime.functional_compile_contract import (
+    compile_input_handles,
+)
 from shuxueshuo_server.solver.runtime.strategy_models import (
     StepIntent,
     StrategyDraftValidationError,
@@ -322,7 +325,9 @@ def resolve_read_closed_right_angle_inputs(
         error_prefix="right_angle_orientation",
     )
     parameter_candidates = tuple(
-        handle for handle in step.reads if handle.startswith("symbol:")
+        handle
+        for handle in compile_input_handles(step)
+        if handle.startswith("symbol:")
     )
     if len(parameter_candidates) != 1:
         raise StrategyDraftValidationError(
@@ -356,7 +361,7 @@ def resolve_read_closed_constructed_point_roles(
 
     relation_handles = tuple(
         handle
-        for handle in step.reads
+        for handle in compile_input_handles(step)
         if index.fact_types.get(handle) == "right_angle_equal_length"
     )
     if len(relation_handles) != 1:
@@ -439,7 +444,7 @@ def _read_binding_type(
     step: StepIntent,
     index: ConditionBindingIndex,
 ) -> str | None:
-    if handle not in step.reads:
+    if handle not in compile_input_handles(step):
         return None
     try:
         return str(index.binding_for(handle).value_type)
@@ -483,7 +488,7 @@ def _read_handle_for_object(
         pass
     provenance = tuple(getattr(index, "state_write_provenance", ()))
     matches: list[str] = []
-    for handle in step.reads:
+    for handle in compile_input_handles(step):
         try:
             binding = index.binding_for(handle)
         except StrategyDraftValidationError:
@@ -520,7 +525,7 @@ def _unique_read_fact(
 ) -> str:
     matches = tuple(
         handle
-        for handle in step.reads
+        for handle in compile_input_handles(step)
         if index.fact_types.get(handle) == fact_type
         and predicate(index.fact_payload(handle))
     )

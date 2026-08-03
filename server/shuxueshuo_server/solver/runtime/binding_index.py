@@ -13,6 +13,9 @@ from typing import Any, Literal
 
 from shuxueshuo_server.solver.problem_models import QuestionGoal
 from shuxueshuo_server.solver.runtime.context import RuntimeContext
+from shuxueshuo_server.solver.runtime.functional_compile_contract import (
+    compile_input_handles,
+)
 from shuxueshuo_server.solver.runtime.models import (
     ContextDeclaration,
     ContextPath,
@@ -918,9 +921,10 @@ class CanonicalRuntimeBindingIndex:
         ]
         if step is None:
             return sorted(handles)
-        read_set = set(step.reads)
+        input_handles = compile_input_handles(step)
+        read_set = set(input_handles)
         return [
-            handle for handle in step.reads if handle in handles
+            handle for handle in input_handles if handle in handles
         ] + sorted(handle for handle in handles if handle not in read_set)
 
     def point_handle_by_name(self, name: str, *, step: StepIntent | None = None) -> str:
@@ -940,7 +944,7 @@ class CanonicalRuntimeBindingIndex:
                 if self._handle_binding_visible(handle, step.scope_id)
             ]
             read_candidates = [
-                handle for handle in step.reads
+                handle for handle in compile_input_handles(step)
                 if handle in candidates
             ]
             if read_candidates:
@@ -971,7 +975,7 @@ class CanonicalRuntimeBindingIndex:
         if predicate is not None:
             handles = [handle for handle in handles if predicate(handle)]
         if step is not None:
-            for handle in step.reads:
+            for handle in compile_input_handles(step):
                 if handle in handles and self._handle_binding_visible(handle, step.scope_id):
                     return handle
             visible_handles = [
@@ -1152,7 +1156,7 @@ class CanonicalRuntimeBindingIndex:
                 continue
             candidates.append((symbol_handle, constraint_handle))
         if step is not None:
-            for read_handle in step.reads:
+            for read_handle in compile_input_handles(step):
                 for candidate in candidates:
                     if read_handle in candidate:
                         return candidate

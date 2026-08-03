@@ -866,7 +866,7 @@ class C0LogicalGraphAdapter:
             state_placement_decisions=tuple(
                 item.to_payload() for item in placement.typed_decisions
             ),
-            projected_state_dependencies=_projected_dependencies(
+            state_dependencies=_projected_dependencies(
                 converted,
                 placement,
             ),
