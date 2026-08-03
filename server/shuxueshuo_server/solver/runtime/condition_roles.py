@@ -15,7 +15,7 @@ from shuxueshuo_server.solver.runtime.functional_compile_contract import (
     compile_input_handles,
 )
 from shuxueshuo_server.solver.runtime.strategy_models import (
-    StepIntent,
+    FunctionalCompileStepView,
     StrategyDraftValidationError,
 )
 from shuxueshuo_server.solver.state_semantics import is_object_handle
@@ -311,7 +311,7 @@ class ConditionRoleResolver:
         )
 
 def resolve_read_closed_right_angle_inputs(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: ConditionBindingIndex,
 ) -> ReadClosedRightAngleInputs:
     """Resolve recipe inputs exclusively from the current canonical reads."""
@@ -354,7 +354,7 @@ def resolve_read_closed_right_angle_inputs(
 
 
 def resolve_read_closed_constructed_point_roles(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: ConditionBindingIndex,
 ) -> tuple[str, ConstructedPointRoles]:
     """Resolve relation object roles without consulting non-read state."""
@@ -429,7 +429,7 @@ def resolve_read_closed_constructed_point_roles(
 
 
 def resolve_read_closed_right_angle_method_roles(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: ConditionBindingIndex,
 ) -> ConstructedPointRoles:
     """Resolve direct method roles from the same structured relation contract."""
@@ -441,7 +441,7 @@ def resolve_read_closed_right_angle_method_roles(
 def _read_binding_type(
     handle: str,
     *,
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: ConditionBindingIndex,
 ) -> str | None:
     if handle not in compile_input_handles(step):
@@ -453,7 +453,7 @@ def _read_binding_type(
 
 
 def _require_read_object_type(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: ConditionBindingIndex,
     object_handle: str,
     expected_type: str,
@@ -476,7 +476,7 @@ def _read_handle_for_object(
     object_handle: str,
     *,
     expected_type: str,
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: ConditionBindingIndex,
 ) -> str | None:
     """Find the read alias carrying one structured object's required state."""
@@ -516,7 +516,7 @@ def _read_handle_for_object(
 
 
 def _unique_read_fact(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: ConditionBindingIndex,
     *,
     fact_type: str,

@@ -126,17 +126,28 @@ def default_t(base_lesson_data: JsonObject) -> float:
 
 
 def parameter_name(snapshot: ExplanationSnapshot) -> str:
+    candidates: list[tuple[int, str]] = []
     for item in snapshot.fact_index.values():
-        if isinstance(item, dict) and item.get("type") == "ParameterValue":
-            name = str(item.get("name") or "")
-            if name and name != "parameter_value":
-                return name
+        if not isinstance(item, dict) or item.get("type") != "ParameterValue":
+            continue
+        name = str(item.get("name") or "")
+        if not name or name == "parameter_value":
             handle = str(item.get("handle") or "")
-            if handle:
-                tail = handle.rsplit(":", 1)[-1]
-                tail = re.sub(r"_value$", "", tail)
-                if tail and tail != "parameter_value":
-                    return tail
+            tail = handle.rsplit(":", 1)[-1] if handle else ""
+            name = re.sub(r"_value$", "", tail)
+        if not name or name == "parameter_value":
+            continue
+        score = 0
+        if item.get("value") is not None:
+            score += 4
+        if str(item.get("container") or "") == "outputs":
+            score += 2
+        if str(item.get("source") or "").startswith("parameter_from_"):
+            score += 8
+        candidates.append((score, name))
+    if candidates:
+        candidates.sort(key=lambda item: (-item[0], item[1]))
+        return candidates[0][1]
     return "t"
 
 

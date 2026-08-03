@@ -55,13 +55,10 @@ class PlannerExecutionError(ValueError):
         primary: StructuredSolveError,
         *,
         root_issues: tuple[dict[str, Any], ...] = (),
-        candidate_format: str | None = None,
     ) -> None:
         details = dict(primary.details)
         if root_issues:
             details["root_issues"] = [dict(item) for item in root_issues]
-        if candidate_format is not None:
-            details["candidate_format"] = candidate_format
         self.primary = StructuredSolveError(
             stage=primary.stage,
             code=primary.code,
@@ -75,7 +72,6 @@ class PlannerExecutionError(ValueError):
             details=details,
         )
         self.root_issues = root_issues
-        self.candidate_format = candidate_format
         super().__init__(primary.message)
 
 

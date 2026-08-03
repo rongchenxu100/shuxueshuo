@@ -508,7 +508,7 @@ def test_transactional_answer_check_revokes_commits_but_keeps_versions() -> None
     )
 
     assert payload is not None
-    assert payload["candidate_format"] == "functional_plan"
+    assert payload["planner_protocol"] == "functional_plan/v1"
     assert "FunctionalPlan" in payload["repair_instruction"]
     assert "StepIntent" not in payload["repair_instruction"]
     retry = payload["planner_retry_state"]

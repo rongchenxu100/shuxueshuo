@@ -880,7 +880,7 @@ class C0LogicalGraphAdapter:
             ContextManifest(
                 context_id=f"oracle:{converted.scenario.scenario_id}",
                 context_type="planner",
-                schema_version="planner-state-context/v1",
+                schema_version="planner-state-context/v2",
                 parent_context_id=None,
                 dependency_context_ids=(),
                 problem_id="anonymous",

@@ -1,8 +1,7 @@
-"""Direct Functional call compilation without a StepIntent projection.
+"""Direct Functional call compilation from typed prepared inputs.
 
-The runtime plan remains ``StepPlan``/``MethodInvocation``.  This module only
-removes the semantic round trip through ``StepIntent``: B1-B5b have already
-selected capability, scope, typed inputs and return destinations before a
+The runtime plan remains ``StepPlan``/``MethodInvocation``. B1-B5b have already
+selected capability, scope, typed inputs, and return destinations before a
 request reaches this boundary.
 """
 

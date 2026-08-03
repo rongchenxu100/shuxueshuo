@@ -134,7 +134,7 @@ class QuadraticFromConstraintsMethod:
     目标会直接求解/引用的那个参数；无法从上下文唯一判断时，应推迟到更多约束出现。
 
     Functional 编译可以把任意数量的 Point ContextPath 聚合为 ``curve_points``。
-    ``curve_point/p1/p2`` 仅保留给旧 StepIntent 和 binding rule 兼容路径，method
+    ``curve_point/p1/p2`` 仅保留给历史 binding rule 兼容路径，method
     内部会把两种输入统一组装成约束方程。
     ``free_parameter/free_parameters`` 表示本步骤允许保留的自由系数，例如先把
     ``a=2`` 代入，保留 ``b,c``，供后续曲线点和联立方程继续约束。后续有

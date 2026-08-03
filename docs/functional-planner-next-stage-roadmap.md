@@ -17,8 +17,8 @@
 
 四条主线不能同时无门禁地修改主链路。每一阶段都必须先形成可重放 oracle、分层指标和退出条件，再进入下一阶段。
 
-FunctionalPlan parity 完成不等于可以立即切换默认协议。默认切换由独立的
-**Functional Default Ready** 门禁控制，并在 Track D 中实施。
+系统尚未上线，因此 Track D 不设置 canary、线上 fallback 或观察窗口。默认协议切换
+与 legacy 删除分为两个连续的离线步骤，以便定位回归，但不形成长期双轨。
 
 ## Current Baseline
 
@@ -26,9 +26,9 @@ FunctionalPlan parity 完成不等于可以立即切换默认协议。默认切�
 
 - `PlannerStateContext` 作为 semantic reads、retry memory 和 graph state 的主要来源；
 - Capability Pack、CapabilityContract、FunctionSpec 和 MacroSpec；
-- FunctionalPlan strict opt-in、deterministic elaboration、reconciliation、call placement 和 graph retry；
-- FunctionalPlan 到 canonical `StepIntentDraft` 的兼容投影；
-- 现有 `RecipeTrialExecutor -> StepPlan -> MethodInvocation -> InvocationExecutor` 执行链；
+- FunctionalPlan v1 默认协议、deterministic elaboration、reconciliation、call placement 和 graph retry；
+- C3 binding ledger 驱动的 direct Function/Macro compiler；
+- `StepPlan -> MethodInvocation -> InvocationExecutor` 执行链；
 - symbolic target closure、scalar result closure、constraint analysis 等共享原语的初始实现；
 - 五题 FunctionalPlan fixture、few-shot、真实 DeepSeek opt-in 和统一并发 batch runner。
 
@@ -74,24 +74,19 @@ Track A 是否完成，但主链切换前必须重新建立相应阶段自己的
 | Track A assets | `COMPLETE` | 五题 fixture、离线 replay、真实 opt-in、strict-test few-shot、共享 batch 基座 | 无 |
 | Track A Stage 1 | `COMPLETE` | 每题 3 个样本，`15/15` 在三轮内通过，configuration error 为 0 | 无 |
 | Track A parity complete | `COMPLETE` | 五题各 10 个兼容样本，`pass@3 >= 90%`；structured provenance parity、typed failure boundary、跨 batch 聚合均已建立 | 无 |
-| Track B typed identity authority | `COMPLETE` | B0-B4、B5a/B5b/B5c 已完成；Functional StepIntent projection、legacy projection adapter 和动态 projected oracle 已物理删除，生产 Functional 固定 direct compile | 无；全局 StepIntent 产品链留到 Track D |
+| Track B typed identity authority | `COMPLETE` | B0-B4、B5a/B5b/B5c 已完成；Functional StepIntent projection、legacy projection adapter 和动态 projected oracle 已物理删除，生产 Functional 固定 direct compile | 无 |
 | Track C transactional interpreter | `COMPLETE` | C0-C6 已完成；runtime closure provenance 已接管 Context、retry、checkpoint 与 Explanation 消费 | 无 |
-| Functional Default Ready | `IN PROGRESS` | Track A parity、Track B typed identity/direct compiler、Track C transactional execution 与 runtime closure 已完成 | held-out；production observability、canary 与回滚门禁 |
-| Track D0 product routing gate retirement | `BLOCKED` | 唯一 problem-id gate 已登记 | Track A parity complete；Functional production routing 接管该 family；legacy deterministic planner 退场 |
-| Track D default switch | `BLOCKED` | Functional direct compiler 已建立，产品默认仍为 legacy StepIntent | Functional Default Ready 后切默认协议并退役全局 StepIntent 产品链 |
+| Functional Default Ready | `COMPLETE` | 并入 Track D-A；默认 Strategy provider、recorded、DeepSeek 和 batch 均固定 FunctionalPlan v1 | 无独立 canary/线上门禁 |
+| Track D-A Functional default | `COMPLETE` | `FUNCTIONAL DEFAULT COMPLETE`：默认入口固定 FunctionalPlan v1、transaction/closure/compiler 权威固定、family routing 结构化并 fail loud；默认路径真实 `5×3` 全部首轮通过 | 无 |
+| Track D-B legacy retirement | `COMPLETE` | `LEGACY STEPINTENT RETIRED`：LLM StepIntent schema/parser/prompt/retry/compiler 链及 fixtures 已物理删除；Context 升级 v2；完整 solver 回归通过 | 无 |
 
-上述状态有意将两个判断分开：
-
-1. **Track A 是否完成**：回答五题 FunctionalPlan 是否形成稳定、可量化的迁移 oracle。
-2. **是否可以切默认协议**：回答 typed identity、held-out、生产观测和回滚能力是否足以支撑产品切换。
+Track A 仍回答五题 FunctionalPlan 是否形成稳定、可量化的迁移 oracle。由于系统没有
+上线，Track D 直接执行默认切换和代码删除；离线门禁与真实 smoke 是唯一退出条件。
 
 ### Immediate Next Gate
 
-Track A、Track B 和 Track C 已完成，当前主线进入 Functional Default Ready：
-
-1. 建立不参与日常修复决策的 held-out compatibility cohort；
-2. 完成 production observability、canary 和回滚门禁；
-3. 保持全局 StepIntent 产品回滚链不变，门禁通过后再进入 Track D 默认路由切换。
+Track A-D 已完成。下一主线进入 Track E 的 candidate selection；Track F 图片提取
+Context 与 Track G 解题后 Context 可以按各自门禁并行推进。
 
 2026-08-03 的 `b5c-b-direct-only-smoke` 为 `14/15`：`176` 次 direct compile
 与 `29` 次 symbolic closure 均为零 drift，唯一失败发生在 compile 前。B2 将一个
@@ -136,8 +131,8 @@ C0.5 的详细设计见：
   `1543 passed, 17 skipped`；
 - 不执行数学 method、不调用 LLM、不改变 FunctionalPlan 或 production authority。
 
-Track E 的 held-out 基础设施和 ProblemExtractionContext schema 可以并行建设；默认协议
-切换、StepIntent 删除和 transactional interpreter 主链切换仍保持阻塞。
+Track E 的 held-out 基础设施和 ProblemExtractionContext schema 可以并行建设；它们不再
+阻塞尚未上线系统的 Functional 默认切换。
 
 截至 2026-07-28，B4 已完成实现与离线 authoritative cutover。retry checkpoint
 持久化 canonical producer、精确 StateVersion 链、scope、result form、自由符号和
@@ -301,7 +296,7 @@ Track B 关注 identity drift 和 writer authority，Track C 关注 transactiona
 - 同一 `revision + model + prompt/catalog/fixture hash` 下，每题至少十个真实样本；
 - 五题各自 `pass@3 >= 90%`，并记录 `pass@1`、平均轮次、token 和延迟；
 - `planner_configuration_error` 为零，且配置错误在发起 LLM 请求前暴露；
-- 每轮 candidate 保持 `candidate_format="functional_plan"`，不回退 StepIntent 协议；
+- 每轮 candidate 保持 `functional_plan/v1`，不回退其他 LLM 协议；
 - 五题最终 answer 与 recorded oracle 一致；
 - 建立 structured provenance parity oracle，比较关键对象身份、状态写入、answer producer
   和跨 scope 复用，而不只比较最终答案；
@@ -309,20 +304,19 @@ Track B 关注 identity drift 和 writer authority，Track C 关注 transactiona
   runtime、goal verification 或 strategy error，不再只聚合为 `planner_failed`；
 - compatibility key 不一致的样本不得混入同一 parity 统计。
 
-Track B B0-B4、held-out 门禁、production observability 和默认协议切换不属于 Track A
-完成条件；它们属于下文的 Functional Default Ready 门禁。
+Track B B0-B5、transactional execution 和默认协议切换不属于 Track A 完成条件；
+它们已在后续 Track 中独立完成或进入验收。
 
 ## Functional Default Readiness Gate
 
 ### Purpose
 
-这是跨 Track 的产品切换门禁，用来回答“是否可以把 FunctionalPlan 设为默认协议”，
-而不是再次衡量五题 parity。
+这是 Track D-A 的历史前置门禁，用来确认 FunctionalPlan 默认入口所需的 typed authority
+和 direct compiler 已齐备，而不是再次衡量五题 parity。
 
 ### Current Status
 
-`IN PROGRESS`。Track A parity、typed identity authority、transactional execution、
-direct compiler 与 runtime closure 已完成；当前剩余 held-out 证据和生产切换能力门禁。
+`COMPLETE`，并入 Track D-A。系统尚未上线，不再要求 canary、线上回滚或观察窗口。
 
 ### Criteria
 
@@ -335,13 +329,10 @@ direct compiler 与 runtime closure 已完成；当前剩余 held-out 证据和�
 - 同一 MathObject 的重复 writer 在 runtime 前被合并或拒绝，不再以正常
   `duplicate_*` retry 暴露；
 - Function/Macro/identity/provenance 主链没有 compatibility fallback；
-- 至少一组不参与日常修复决策的 held-out 题无显著退化；
-- 生产监控可以按 layer/code、模型、prompt/catalog hash 和 answer signature 观测失败；
-- 默认切换具备 canary、回滚和 StepIntent 迁移观察窗口；
 - B5c direct-only acceptance 已通过，Functional 生产链不再依赖 StepIntent projection。
 
-满足该门禁后，才在 Track D 中切换默认协议。StepIntent 删除仍需经过独立观察窗口，
-不会与默认切换在同一个提交中完成。
+满足该门禁后，Track D 直接切换默认协议并物理删除旧 LLM 协议；两步只用于离线定位，
+不保留长期双轨。
 
 ## Track B: MathObject Identity and State Version Authority
 
@@ -621,7 +612,7 @@ B2 完成门禁：
 ### Stage Gates and Dependencies
 
 - **Track A 已完成**：B0-B1 已使用五题 fixture 完成 shadow 和 allocation 门禁。
-- **Functional Default Ready 前**：必须完成 B2-B4，确保 placement、finalizer、retry 不再建立平行身份。
+- **Track D 前**：必须完成 B2-B4，确保 placement、finalizer、retry 不再建立平行身份。
 - **Track C 可并行的部分**：C0 logical graph/event shadow 可与 B0/B1 并行；
   C1 主链要求 B1-B3，C2 retry cutover 要求 B4。
 - **Track D 主链切换前**：B0-B4 与 B5a 是 hard prerequisite；B5b 在 C0 后完成，
@@ -678,8 +669,7 @@ B5a typed producer authority
   -> Track D product default switch and global StepIntent retirement
 ```
 
-迁移期 interpreter 仍可把单个 call 投影成 canonical StepIntent fragment，再复用现有
-compiler/runtime。这样先解决状态权威问题，再单独替换编译桥，避免一次修改两个轴。
+该迁移顺序先解决状态权威，再替换编译桥；B5c-B 完成后不再存在中间协议投影。
 
 ### Current Status
 
@@ -688,8 +678,8 @@ execution-shadow compatibility gate、C2 Context/retry authority、C3 Functional
 role authority、C4 runtime-grounded closure authority 和 C5 parameter method migration
 以及 C6 closure provenance consumption and strict cleanup 已完成。Functional opt-in
 可使用 `context_authoritative + authoritative closure`；B5c 已将 Functional 编译固定为
-direct 并退役 Functional StepIntent projection。产品默认仍为 legacy，当前进入
-Functional Default Ready 门禁。
+direct 并退役 Functional StepIntent projection。Track D 已把产品默认入口切到
+FunctionalPlan，并正在完成删除后的最终门禁。
 
 详细设计见：
 
@@ -1137,119 +1127,104 @@ authority 缺陷。
 - 在五题 oracle 完整前不删除兼容路径；
 - 五题 parity 后完成 transactional cutover、参数能力迁移和 C6 strict cleanup。
 
-## Track D: Retire StepIntent Compatibility
-
-### Terminology
-
-必须区分：
-
-- **StepIntentDraft**：当前 FunctionalPlan 到 runtime 之间的兼容语义桥；
-- **StepPlan**：`MethodInvocation` 执行前的内部执行计划。
-
-短中期应删除的是 LLM-facing StepIntent 入口及其兼容推断层。`StepPlan` 本身是较薄的 runtime boundary，不是当前最大技术债。
-
-### Target
-
-将：
-
-```text
-FunctionalPlan
-  -> StepIntentDraft
-  -> normalizer/resolver/recipe compiler
-  -> StepPlan
-```
-
-替换为：
-
-```text
-FunctionalPlan
-  -> CanonicalFunctionalGraph
-  -> Function/Macro graph compiler
-  -> ExecutionPlan / MethodInvocation
-```
-
-`ExecutionPlan` 可以继续复用简化后的 `StepPlan`，也可以在迁移完成后重命名。不能为了删除类名而重新制造一个语义相同的容器。
-
-Track D 的主链切换以 Track B 的 B0-B4 完成为前置。direct compiler 必须直接消费 typed MathObject/StateVersion，不得将已删除的 handle 字符串猜测复制进新编译器。B5 在本 Track 的 shadow 和删除旧桥阶段完成。
+## Track D: Functional Default And Legacy Retirement
 
 ### Current Status
 
-`BLOCKED`。当前仍由 FunctionalPlan 投影 canonical `StepIntentDraft`，direct graph compiler
-尚未成为可 shadow 对比的完整执行路径。启动默认切换前必须先满足 Functional Default
-Ready 门禁。
+`COMPLETE`（2026-08-03）。D-A 已达到 `FUNCTIONAL DEFAULT COMPLETE`，D-B 已达到
+`LEGACY STEPINTENT RETIRED`。系统尚未上线，因此未设置 canary、线上 fallback 或
+观察窗口。
 
-### Migration Steps
+### D-A Functional Default
 
-#### D0. Product Routing Gate Retirement
-
-`QuadraticPathMinimumSolver.enabled_problem_ids` 是当前唯一的产品级 problem-id
-allowlist。它保护的是 legacy deterministic planner，不影响显式 Functional opt-in。
-Track A parity complete 后启动该清理项，但只有同时满足以下条件才删除：
-
-1. 该 family 的生产请求已由 Functional routing 接管，未知同 family 题不会再进入
-   canonical 南开 deterministic planner；
-2. legacy `quadratic_path_planner` 不再是该 family 的生产 fallback；
-3. 任意 problem id、任意点名和等价 scope label 的同 family synthetic/E2E 用例通过；
-4. 相邻 family 的负向路由测试通过；
-5. 删除 `enabled_problem_ids` 配置值后，再删除 `SolverFamilySpec` 上的字段与硬门控测试，
-   避免留下失效的产品开关。
-
-不得在 Track A 数字达标后直接清空 tuple；那会扩大 legacy planner 的输入范围，而不是
-完成 Functional 迁移。
-
-#### D1. Direct Compiler and Default Cutover
-
-1. 定义 CanonicalFunctionalGraph 的稳定 schema。
-2. 让 graph compiler 直接消费 resolved calls、typed args、return allocations、placement 和 provenance。
-3. 将仍有价值的 normalizer 逻辑迁入 elaborator、reconciler、placement 或 graph finalizer。
-4. 建立双编译 shadow：
+生产 Strategy Planner 已固定为：
 
 ```text
-FunctionalPlan
-  -> old StepIntent bridge -> PlannerOutput A
-  -> direct graph compiler -> PlannerOutput B
+FunctionalPlan v1
+  -> typed reconciliation / placement
+  -> C3 binding ledger
+  -> direct Function/Macro compiler
+  -> transactional context authority
+  -> authoritative symbolic closure
+  -> StepPlan / MethodInvocation
 ```
 
-5. 对比 invocation、runtime input path、output、scope、promotion、provenance 和 answer。
-6. 新 compiler 连续稳定后切换 FunctionalPlan 主链。
-7. 经过观察窗口后删除旧 StepIntent 入口和兼容模块。
+- `SolverRuntimeConfig` 默认 `planner_mode="strategy"`、`llm_provider="recorded"`；
+- recorded provider 读取 authored FunctionalPlan fixture；
+- DeepSeek prompt只包含 FunctionalPlan schema；
+- batch runner不接受 transaction、closure 或 compile mode，summary固定记录
+  `functional_plan/v1 / context_authoritative / authoritative / direct`；
+- Functional失败 fail closed，不回落其他 LLM协议；
+- family admission只使用结构化 pattern/problem type，多匹配 fail loud；
+- deterministic debug使用精确 problem-id provider map，不扩展为 family fallback。
 
-### Cleanup Candidates
+### D-B Physical Retirement
 
-- StepIntent LLM schema、system/user prompt 和 provider parsing；
-- legacy semantic reads catalog/resolver；
-- StepIntent candidate resolver；
-- 依赖无角色 reads 猜输入的 binding selectors；
-- StepIntent draft merge、prefix repair 和 compatibility mirrors；
-- 只用于修复 LLM StepIntent 输出形态的 normalizer rules；
-- `FunctionalPlan -> StepIntentDraft` projector；
-- StepIntent-only recorded opt-in tests。
+已删除：
 
-已登记的 legacy 专项债务：
+- LLM StepIntent wire schema、parser、sanitizer、prompt与few-shot；
+- candidate resolver、normalizer、draft merge、prefix repair和projection recovery；
+- `RecipeTrialExecutor`、legacy draft finalizer入口及动态 projected oracle；
+- StepIntent recorded fixture和DeepSeek协议测试；
+- 双协议 `candidate_format/raw_draft/normalized_draft/effective_draft` 生产字段；
+- 线性 stable-prefix retry外壳和 StepIntent repair instruction；
+- `enabled_problem_ids` 产品门控。
 
-- `strategy_repair_feedback.py` 中按
-  `broken_path_straightening_minimum_expression` 字面量判断 blocker 的旧
-  StepIntent repair 分支，迁入声明式 `RepairHintSpec` 后删除；
-- `strategy_resolver.py` 中按 capability id 路由和按最小值 fact 名称推断输入的旧
-  StepIntent resolver；
-- `recipe_compiler.py` / `strategy_validator.py` 中 `m_value` 等参数名启发式，待
-  FunctionalBindingContext 与 Symbol identity 成为权威后删除；
-- `hexi_weighted_path_planner.py` 及 orchestrator 中的河西 deterministic planner
-  接线，待 Functional default 与回滚观察窗口完成后退役。
+保留 `StepPlan`、`MethodInvocation`、`PlannerOutput` 和 `InvocationExecutor` 作为内部执行
+边界。`FunctionalCapabilityCompiler` 是唯一 capability 编译入口。
 
-这些代码目前位于 legacy 旁路，不能在 Track A 尾声无门禁删除；但也不得被复制到
-Functional reconciler、direct compiler 或新的 capability spec。
+`PlannerStateContext` 已升级为 `planner-state-context/v2`。这是尚未上线系统的有意内部
+breaking change：新 Context 只保存 Functional candidate、typed checkpoint、transaction
+与 retry 产物，不提供旧 StepIntent Context 迁移。Functional reconciliation debug payload
+同样删除了旧 projection map/draft 字段。
 
-旧 fixtures 可保留为只读 migration oracle 一段时间，但不再进入生产执行链。
+### Retirement Guards
+
+静态门禁要求生产 runtime 不再定义或导入：
+
+```text
+StepIntentDraft
+prepare_step_intent_raw_response
+sanitize_step_intent_raw_payload
+StepIntentCandidateResolver
+RecipeTrialExecutor
+CanonicalDraftFinalizer
+StepIntentRepairAttempt
+```
+
+旧数学覆盖已迁移到 authored FunctionalPlan fixture、固定 direct compile manifest、C0.5
+oracle和method定向测试，删除旧协议测试不能降低这些覆盖。
 
 ### Exit Criteria
 
-- 五题 Functional graph direct compile 与旧桥生成等价 PlannerOutput；
-- Functional retry/context 不再保存或读取 StepIntent baseline；
-- Function/Macro compiler 不从 reads 顺序猜 typed role；
-- production 默认协议为 FunctionalPlan；
-- 经过观察窗口后无 StepIntent fallback 调用；
-- 删除旧桥后全量 solver 和真实 Functional opt-in 通过。
+- 默认入口五份 recorded Functional fixture通过；
+- 完整 solver回归与 `git diff --check` 通过；
+- 不传 authority mode的 DeepSeek五题各3个样本通过；
+- configuration/unclassified error和所有typed drift为0；
+- 可执行计划样本全部通过 answer/protocol/runtime/provenance/explanation gate；
+- provider reasoning-only空响应单独报告原始通过数与可执行计划通过数。
+
+全部门禁已完成：
+
+- 删除及外围清理后的完整 solver 回归为 `1226 passed, 12 skipped`；
+- `git diff --check` 与 StepIntent 退役静态门禁通过；
+- few-shot 同步工具已改为消费 authored FunctionalPlan fixture 与 mechanism
+  manifest；active architecture docs 和 `deepseek-25-onboarding` skill 已切到
+  FunctionalPlan-only 工作流；runtime 诊断类型已统一为 `Functional*`；
+- 和平一模/二模 LessonIR canonical call-id 的 VisualStepIR 编译回归为
+  `81 passed, 4 skipped`；
+- 默认路径真实 batch `d-functional-default-smoke` 不传 authority/compile mode，
+  `15/15` 全部首轮通过；
+- batch summary 固定记录 `functional_plan/v1 / context_authoritative /
+  authoritative / direct`；
+- `187` 次 direct compile、`27` 次 symbolic closure，compile/closure drift 均为 `0`；
+- configuration error、unclassified error 和 successful-sample gate failure 均为 `0`；
+- 五题 answer、protocol、runtime、provenance 与 explanation gate 全部通过。
+
+该 batch 的 solver source SHA-256 为
+`c6dabbac423b0e9d4920e767f36a24393a83581417c2e0d9838e300a71087f39`，
+evaluation source SHA-256 为
+`187851736c079cb8c29850281435b24730a2508b60e07065494ec0a635a41968`。
 
 ## Track E: Best-of-N and Candidate Selection
 
@@ -1427,21 +1402,20 @@ PlannerStateContext
 
 ### Milestone 2: MathObject and State Identity Authority
 
-**Status: `IN PROGRESS`**
+**Status: `COMPLETE`**
 
 - `COMPLETE`：B0 typed identity foundation；
 - `COMPLETE`：B1 authoritative allocation 与版本依赖 refinement；
 - `COMPLETE`：B2 typed placement authority；
 - `COMPLETE`：B3 identity-aware finalizer authority；
-- `IN PROGRESS`：B4 实现与离线 authoritative 已完成，真实 smoke 因 DeepSeek
-  余额不足待补跑；
+- `COMPLETE`：B4 checkpoint、B5 typed consumer 与 direct compiler authority；
 - allocation、placement、finalizer、Context 和 retry 共享 typed identity 及 StateVersion；
 - 同一 MathObject 的等价 producer 在 runtime 前合并，answer alias 和 downstream refs 转移到 canonical producer；
-- 与 Track A parity、held-out 和生产门禁共同组成 Functional Default Ready。
+- 为 Track C transactional execution 和 Track D default提供 typed authority。
 
 ### Milestone 3: Transactional Functional Execution
 
-**Status: `IN PROGRESS`**
+**Status: `COMPLETE`**
 
 - 完成 LogicalFunctionalGraph 与 Working Context shadow；
 - 按 ready frontier 逐 call 执行，actual output 更新 verified StateVersion；
@@ -1530,14 +1504,13 @@ PlannerStateContext
 ```text
 five-problem Functional parity complete
   + MathObject / StateSlot / StateVersion identity authority
-  + held-out and production readiness
   -> transactional Functional interpreter
   -> runtime-grounded declarative symbolic closure
   -> direct Functional graph compiler
   -> string-based identity removal
-  -> Functional Default Ready
   -> FunctionalPlan default
   -> StepIntent compatibility removal
+  -> offline regression and default-path smoke
   -> production best-of-N
   -> ProblemExtraction and downstream Context graph
 ```

@@ -174,7 +174,10 @@ def test_geometry_spec_builder_extracts_points_curves_and_domain() -> None:
         key: curves_by_root["i"][key]
         for key in ("a", "b", "c")
     } == {"a": "1", "b": "-2", "c": "-3"}
-    assert curves_by_root["ii"]["sourceHandle"] == "runtime:ii:outputs:parametric_parabola"
+    assert (
+        curves_by_root["ii"]["sourceHandle"]
+        == "runtime:ii:outputs:derive_parametric_parabola_ii_parabola"
+    )
     assert {
         key: curves_by_root["ii"][key]
         for key in ("a", "b", "c")
@@ -919,7 +922,7 @@ def test_vs1_axis_intercept_step_reuses_be_visual_handle_and_adds_f() -> None:
     }
     assert coordinate_labels["A"] == "A(-1,0)"
     assert coordinate_labels["B1"] == "B(3, 0)"
-    assert coordinate_labels["C"] == "C(0, -3)"
+    assert coordinate_labels["C"] == "C(0,-3)"
     assert coordinate_labels["F1"] == "F(0, -1)"
     assert "E1" not in coordinate_labels
     assert any(
@@ -1105,7 +1108,7 @@ def test_vs1_lesson_data_uses_student_titles_and_distributed_answer_boxes() -> N
     assert "fact:" not in serialized_boxes
     assert "y=x²-2x-3" in serialized_boxes
     assert "E(-2/3,-11/9)" in serialized_boxes
-    final_boxes = boxes_by_id["explain_solve_ii_a_from_minimum_value"]
+    final_boxes = boxes_by_id["explain_solve_parameter_from_minimum_ii"]
     assert any("a=3/4" in box for box in final_boxes)
     assert not any("parabola =" in box or ".E =" in box or ".a =" in box for box in final_boxes)
 
@@ -1291,7 +1294,7 @@ def test_vs1_llm_visual_optimizer_applies_safe_patch_and_writes_debug(tmp_path: 
 
     assert client.calls == 1
     VisualStepIRValidator().validate(optimized)
-    patched_step = next(step for step in optimized.steps if step.lesson_step_id == "explain_reduce_ii_equal_length_ray_path_minimum_by_segment")
+    patched_step = next(step for step in optimized.steps if step.lesson_step_id == "explain_reduce_equal_length_ray_path_ii_minimum_by_segment")
     assert any(item.get("label") == "OG_min" for item in patched_step.scene["add"])
     assert (tmp_path / "payload.visual.json").exists()
     assert (tmp_path / "prompt.system.txt").exists()
@@ -1741,7 +1744,7 @@ def test_vs1_llm_visual_optimizer_ignores_coordinate_label_patches(tmp_path: Pat
     assert "F(0, 1)" not in serialized
     patched_step = next(
         step for step in optimized.steps
-        if step.lesson_step_id == "explain_derive_i_2_F_coordinate"
+        if step.lesson_step_id == "explain_derive_axis_intercept_F_i"
     )
     assert patched_step.scene["focus"]["primary"] == ["point:B1", "point:F1"]
 
@@ -2092,7 +2095,7 @@ class _FakeVisualOptimizationClient:
             {
                 "visual_step_patches": [
                     {
-                        "lesson_step_id": "explain_reduce_ii_equal_length_ray_path_minimum_by_segment",
+                        "lesson_step_id": "explain_reduce_equal_length_ray_path_ii_minimum_by_segment",
                         "append_add": [
                             {
                                 "component": "DistanceMarker",
@@ -2125,7 +2128,7 @@ class _BadVisualOptimizationClient:
             {
                 "visual_step_patches": [
                     {
-                        "lesson_step_id": "explain_reduce_ii_equal_length_ray_path_minimum_by_segment",
+                        "lesson_step_id": "explain_reduce_equal_length_ray_path_ii_minimum_by_segment",
                         "append_add": [
                             {
                                 "component": "Point",
@@ -2152,7 +2155,7 @@ class _UnsafeCoordinateLabelClient:
             {
                 "visual_step_patches": [
                     {
-                        "lesson_step_id": "explain_derive_i_2_F_coordinate",
+                        "lesson_step_id": "explain_derive_axis_intercept_F_i",
                         "append_add": [
                             {
                                 "component": "CoordinateLabel",
@@ -2181,7 +2184,7 @@ class _ChineseVisualLabelClient:
             {
                 "visual_step_patches": [
                     {
-                        "lesson_step_id": "explain_reduce_ii_equal_length_ray_path_minimum_by_segment",
+                        "lesson_step_id": "explain_reduce_equal_length_ray_path_ii_minimum_by_segment",
                         "append_add": [
                             {
                                 "component": "DistanceMarker",
@@ -2238,7 +2241,7 @@ class _InteractionMutationClient:
             {
                 "visual_step_patches": [
                     {
-                        "lesson_step_id": "explain_reduce_ii_equal_length_ray_path_path_reduction",
+                        "lesson_step_id": "explain_reduce_equal_length_ray_path_ii_path_reduction",
                         "interactions": [],
                     }
                 ]
@@ -2260,7 +2263,7 @@ class _TimelineMutationClient:
             {
                 "visual_step_patches": [
                     {
-                        "lesson_step_id": "explain_reduce_ii_equal_length_ray_path_path_reduction",
+                        "lesson_step_id": "explain_reduce_equal_length_ray_path_ii_path_reduction",
                         "timeline": {"mode": "none"},
                     }
                 ]

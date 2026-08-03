@@ -39,22 +39,14 @@ class ExplanationSnapshotBuilder:
         if getattr(result, "status", None) != "ok":
             raise ExplanationSnapshotError("explanation snapshot requires ok SolverResult")
         planner_artifacts = getattr(artifacts.planner, "artifacts", None)
-        effective_draft = getattr(planner_artifacts, "effective_draft", None)
         problem_payload = RuntimeProjection(artifacts.problem).to_llm_problem_payload()
         replay = getattr(planner_artifacts, "retry_replay_result", None)
         functional_reconciliation = getattr(replay, "functional_reconciliation", None)
-        if effective_draft is not None:
-            effective_steps = tuple(
-                step.to_payload(include_scope_id=True)
-                for step in effective_draft.steps
-            )
-            effective_fact_steps: tuple[Any, ...] = effective_draft.steps
-        else:
-            effective_steps = transactional_functional_steps(
-                replay,
-                artifacts.planner_output,
-            )
-            effective_fact_steps = effective_steps
+        effective_steps = transactional_functional_steps(
+            replay,
+            artifacts.planner_output,
+        )
+        effective_fact_steps: tuple[Any, ...] = effective_steps
         if not effective_steps:
             raise ExplanationSnapshotError(
                 "strategy planner verified execution steps are required"

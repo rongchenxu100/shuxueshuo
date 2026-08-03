@@ -1,4 +1,4 @@
-"""Project PlannerStateContext retry memory into the legacy PlannerRetryState."""
+"""Project Functional PlannerStateContext retry memory into PlannerRetryState."""
 
 from __future__ import annotations
 
@@ -21,7 +21,6 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
 )
 from shuxueshuo_server.solver.runtime.strategy_retry_common import (
     repair_suffix_start_from_issues,
-    retry_instruction,
     with_preserve_policy,
 )
 
@@ -53,10 +52,6 @@ class PlannerRetryStateProjector:
         if not raw_issues:
             return None
 
-        raw_stable_prefix = tuple(
-            item.to_payload() for item in context.state.stable_prefix
-        )
-        is_functional = memory.candidate_format == "functional_plan"
         primary_blocker = _primary_blocker(memory.replay_reports)
         repair_suffix_start = (
             memory.repair_suffix_start
@@ -66,11 +61,6 @@ class PlannerRetryStateProjector:
         issues, recovered_issues = _active_and_recovered_issues(
             raw_issues,
             raw_recovered_issues,
-            # Runtime may execute a Functional call whose answer provenance is
-            # still invalid. Functional retry owns a verified call graph, so a
-            # linear StepIntent prefix must never mark another graph issue as
-            # recovered.
-            stable_prefix=(() if is_functional else raw_stable_prefix),
             repair_suffix_start=repair_suffix_start,
             primary_blocker=primary_blocker,
         )
@@ -83,30 +73,15 @@ class PlannerRetryStateProjector:
             any(issue.layer == "answer_check" for issue in issues)
             and not has_goal_verification
         )
-        # Source precedence: RetryMemory keeps the previous projection payloads
-        # and replay reports, while live context state owns runtime-verified
-        # prefix facts. Preserve policy is therefore recomputed from the active
-        # issues and current stable prefix rather than copied from memory.
-        stable_prefix = () if has_answer_check else raw_stable_prefix
-        if is_functional:
-            committed_calls = _typed_committed_candidate_calls(
-                memory.functional_retry_graph_checkpoint,
-                (
-                    memory.committed_candidate_calls
-                    or memory.stable_candidate_calls
-                ),
-            )
-            preserve_policy: PlannerRetryPreservePolicy = (
-                "preserve_graph"
-                if committed_calls and not has_answer_check
-                else "none"
-            )
-        else:
-            preserve_policy = (
-                "none" if has_answer_check else (
-                    "preserve_prefix" if stable_prefix else "none"
-                )
-            )
+        committed_calls = _typed_committed_candidate_calls(
+            memory.functional_retry_graph_checkpoint,
+            memory.committed_candidate_calls or memory.stable_candidate_calls,
+        )
+        preserve_policy: PlannerRetryPreservePolicy = (
+            "preserve_graph"
+            if committed_calls and not has_answer_check
+            else "none"
+        )
         issues = tuple(with_preserve_policy(issue, preserve_policy) for issue in issues)
         recovered_issues = tuple(
             with_preserve_policy(issue, preserve_policy)
@@ -114,57 +89,23 @@ class PlannerRetryStateProjector:
         )
         return PlannerRetryState(
             attempt=memory.attempt,
-            baseline_draft=(
-                memory.baseline_draft
-                or context.state.draft_snapshots.effective
-                or context.state.draft_snapshots.normalized
-                or context.state.draft_snapshots.validated
-            ),
-            stable_prefix=stable_prefix,
             repair_suffix_start=repair_suffix_start,
             issues=issues,
             recovered_issues=recovered_issues,
             preserve_policy=preserve_policy,
-            repair_instruction=(
-                functional_repair_instruction(
-                    stable_candidate_calls=committed_calls,
-                    repair_call_ids=memory.repair_call_ids,
-                    issue_count=len(issues),
-                )
-                if is_functional
-                else retry_instruction(
-                    issues=issues,
-                    recovered_issues=recovered_issues,
-                    preserve_policy=preserve_policy,
-                    has_stable_prefix=bool(stable_prefix),
-                )
+            repair_instruction=functional_repair_instruction(
+                stable_candidate_calls=committed_calls,
+                repair_call_ids=memory.repair_call_ids,
+                issue_count=len(issues),
             ),
             replay_depth=memory.replay_depth,
             selected_repair_layer=issues[0].layer,
             replay_timeline=memory.replay_timeline,
             replay_reports=memory.replay_reports or {},
             source_context_id=context.manifest.context_id,
-            candidate_format=(
-                "functional_plan"
-                if memory.candidate_format == "functional_plan"
-                else "step_intent"
-            ),
             baseline_candidate=memory.baseline_candidate,
-            stable_candidate_prefix=(
-                memory.stable_candidate_prefix
-                if not is_functional
-                else committed_calls
-            ),
-            stable_candidate_calls=(
-                memory.stable_candidate_calls
-                if not is_functional
-                else committed_calls
-            ),
-            committed_candidate_calls=(
-                memory.committed_candidate_calls
-                if not is_functional
-                else committed_calls
-            ),
+            stable_candidate_calls=committed_calls,
+            committed_candidate_calls=committed_calls,
             runtime_verified_calls=memory.runtime_verified_calls,
             validated_call_ids=memory.validated_call_ids,
             call_memory=memory.call_memory,
@@ -241,24 +182,12 @@ def _active_and_recovered_issues(
     issues: tuple[PlannerRetryIssue, ...],
     recovered_issues: tuple[PlannerRetryIssue, ...],
     *,
-    stable_prefix: tuple[dict[str, Any], ...],
     repair_suffix_start: dict[str, Any] | None,
     primary_blocker: dict[str, Any] | None,
 ) -> tuple[tuple[PlannerRetryIssue, ...], tuple[PlannerRetryIssue, ...]]:
-    stable_keys = _stable_step_keys(stable_prefix)
     repair_key = _step_key_from_payload(repair_suffix_start)
-    active: list[PlannerRetryIssue] = []
-    recovered: list[PlannerRetryIssue] = list(recovered_issues)
-    for issue in issues:
-        key = _step_key(issue.step_id, issue.scope_id)
-        if (
-            key is not None
-            and _key_in_stable_prefix(key, stable_keys)
-            and key != repair_key
-        ):
-            recovered.append(issue)
-            continue
-        active.append(issue)
+    active = list(issues)
+    recovered = list(recovered_issues)
     active.sort(
         key=lambda issue: _issue_sort_key(
             issue,
@@ -336,23 +265,6 @@ def _blocker_repair_suffix_start(
     if step_id or scope_id:
         return {"step_id": step_id, "scope_id": scope_id}
     return None
-
-
-def _stable_step_keys(
-    stable_prefix: tuple[dict[str, Any], ...],
-) -> set[tuple[str | None, str | None]]:
-    return {
-        key
-        for item in stable_prefix
-        if (key := _step_key_from_payload(item)) is not None
-    }
-
-
-def _key_in_stable_prefix(
-    key: tuple[str | None, str | None],
-    stable_keys: set[tuple[str | None, str | None]],
-) -> bool:
-    return key in stable_keys or (key[0], None) in stable_keys
 
 
 def _step_key_from_payload(

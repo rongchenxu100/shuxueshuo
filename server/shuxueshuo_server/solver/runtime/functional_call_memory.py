@@ -18,7 +18,7 @@ from shuxueshuo_server.solver.runtime.functional_plan_models import (
 from shuxueshuo_server.solver.runtime.strategy_models import (
     PlannerRetryIssue,
     StateWriteProvenance,
-    StepIntentRuntimeResult,
+    FunctionalRuntimeResult,
 )
 from shuxueshuo_server.solver.runtime.state_identity import StateVersionId
 from shuxueshuo_server.solver.utils import unique_ordered
@@ -130,7 +130,7 @@ def build_functional_call_memory(
     *,
     catalog: FunctionalCapabilityCatalog,
     runtime_verified_call_ids: Sequence[str],
-    runtime_results: Sequence[StepIntentRuntimeResult],
+    runtime_results: Sequence[FunctionalRuntimeResult],
     provenance: Sequence[StateWriteProvenance],
     goal_report: AnswerGoalVerificationReport | None,
     active_issues: Sequence[PlannerRetryIssue],
@@ -400,7 +400,7 @@ def _result_snapshot(
     allocation: FunctionalReturnAllocation,
     *,
     return_spec: Any | None,
-    runtime: StepIntentRuntimeResult | None,
+    runtime: FunctionalRuntimeResult | None,
     write: StateWriteProvenance | None,
     symbolic_closure: Any | None = None,
 ) -> FunctionalResultSnapshot:

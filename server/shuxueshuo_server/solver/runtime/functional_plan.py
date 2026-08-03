@@ -31,7 +31,6 @@ from shuxueshuo_server.solver.runtime.functional_plan_validation import (
     FUNCTIONAL_PLAN_JSON_SCHEMA,
     FunctionalPlanValidator,
 )
-from shuxueshuo_server.solver.runtime.strategy_models import PlannerOutputFormat
 
 
 __all__ = [
@@ -53,7 +52,6 @@ __all__ = [
     "FunctionalPlanValidator",
     "FunctionalReturnAllocation",
     "FunctionalScope",
-    "PlannerOutputFormat",
     "ResolvedFunctionalValue",
     "functional_capability_catalog_payload",
     "prepare_functional_plan_raw_response",

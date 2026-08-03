@@ -115,7 +115,6 @@ def test_complete_functional_plan_fixture_replays_to_expected_answers(
         default_planner_provider=strategy_planner_provider(
             mode="deepseek",
             client=client,
-            output_format="functional_plan",
         ),
         max_attempts=1,
     )
@@ -125,12 +124,11 @@ def test_complete_functional_plan_fixture_replays_to_expected_answers(
     assert result.status == "ok", result.errors
     assert result.answers == expected
     assert client.request is not None
-    assert client.request["planner_output_format"] == "functional_plan"
+    assert client.request["planner_protocol"] == "functional_plan/v1"
     success = orchestrator.last_success_artifacts
     assert success is not None
     artifacts = success.planner.artifacts
     replay = artifacts.retry_replay_result
-    assert artifacts.candidate_format == "functional_plan"
     assert replay is not None
     assert replay.functional_plan is not None
     assert replay.functional_reconciliation is not None
@@ -275,11 +273,11 @@ def test_explicit_functional_mode_wins_over_legacy_boolean() -> None:
 
     legacy = StrategyPayloadBuilder(
         allow_same_problem_few_shot=False,
-    ).build(inputs, output_format="functional_plan")
+    ).build(inputs)
     explicit = StrategyPayloadBuilder(
         allow_same_problem_few_shot=False,
         functional_few_shot_mode="new_problem",
-    ).build(inputs, output_format="functional_plan")
+    ).build(inputs)
 
     assert legacy["functional_few_shot_selection"]["mode"] == "strict_test"
     assert legacy["functional_few_shot_selection"]["example_id"] == (
@@ -312,7 +310,6 @@ def test_retry_restores_locked_example_without_prompting_selection_metadata() ->
 
     payload = StrategyPayloadBuilder().build(
         retry_inputs,
-        output_format="functional_plan",
     )
     prompt = StrategyPromptRenderer().render(payload).user
 
@@ -442,7 +439,6 @@ def test_same_problem_uses_neutralized_mechanism_example(
         allow_same_problem_few_shot=False
     ).build(
         build_strategy_probe_inputs(problem),
-        output_format="functional_plan",
     )
 
     assert len(payload["few_shot_examples"]) == 1
@@ -464,7 +460,6 @@ def test_nankai_core_annotation_is_rendered_before_strict_plan() -> None:
     )
     payload = StrategyPayloadBuilder().build(
         build_strategy_probe_inputs(problem),
-        output_format="functional_plan",
     )
 
     example = payload["few_shot_examples"][0]
@@ -527,7 +522,6 @@ def test_missing_functional_selection_fails_before_prompt_render(
             functional_few_shot_dir=tmp_path,
         ).build(
             build_strategy_probe_inputs(problem),
-            output_format="functional_plan",
         )
 
 
@@ -551,7 +545,6 @@ def test_explicit_functional_examples_take_precedence() -> None:
         functional_few_shot_examples=explicit,
     ).build(
         build_strategy_probe_inputs(problem),
-        output_format="functional_plan",
     )
 
     assert payload["few_shot_examples"] is explicit

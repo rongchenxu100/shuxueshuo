@@ -1,7 +1,7 @@
-"""Strategy StepIntent 编译兼容 facade。
+"""Functional capability compiler exports.
 
 实现已拆分到 ``binding_index``、``binding_rules`` 和 ``recipe_compiler``。
-本模块保留旧导入路径，避免调用方一次性迁移。
+The legacy planner-draft compiler was retired in Track D.
 """
 
 from __future__ import annotations
@@ -22,7 +22,6 @@ from shuxueshuo_server.solver.runtime.recipe_compiler import (
     FunctionalCapabilityCompiler,
     RecipeCompileStrategyFn,
     RecipeExecutionSpecRegistry,
-    RecipeTrialExecutor,
     _method_output_union,
     _output_key_from_promote_source,
     _parameter_output_key_from_symbol_path,
@@ -39,7 +38,6 @@ __all__ = [
     "MethodBindingRuleRegistry",
     "RecipeCompileStrategyFn",
     "RecipeExecutionSpecRegistry",
-    "RecipeTrialExecutor",
     "RuntimeHandleBinding",
     "_method_output_union",
     "_output_key_from_promote_source",

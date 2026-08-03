@@ -300,7 +300,7 @@ def _equal_length_ray_path_reduction_draft(
         "llm_can_complete": list(explanation.allowed_llm_completion),
         "llm_must_not_invent": generic_must_not_invent()
         + [
-            "不要把讲解用辅助点当作 StepIntent creates 或 runtime fact。",
+            "不要把讲解用辅助点当作 FunctionalPlan return 或 runtime fact。",
             "如果 proof_draft 中仍有占位符，只能用泛称解释，不能自造具体点名。",
         ],
     }
@@ -332,7 +332,7 @@ def _equal_length_ray_path_substep_drafts(
         "llm_can_complete": list(explanation.allowed_llm_completion),
         "llm_must_not_invent": generic_must_not_invent()
         + [
-            "不要把讲解用辅助点当作 StepIntent creates 或 runtime fact。",
+            "不要把讲解用辅助点当作 FunctionalPlan return 或 runtime fact。",
             "如果 proof_draft 中仍有占位符，只能用泛称解释，不能自造具体点名。",
         ],
     }
@@ -423,8 +423,9 @@ def _selected_straightening_candidate(
         if not isinstance(value, dict):
             continue
         scope_id = str(item.get("scope_id") or "")
+        source_step_id = str(item.get("source_step_id") or "")
         score = 1
-        if scope_id == group.step_id:
+        if source_step_id == group.step_id:
             score += 4
         if scope_id == group.scope_id:
             score += 3
@@ -475,8 +476,9 @@ def _minimum_expression_from_fact(
         if not value:
             continue
         scope_id = str(item.get("scope_id") or "")
+        source_step_id = str(item.get("source_step_id") or "")
         score = 1
-        if scope_id == group.step_id:
+        if source_step_id == group.step_id:
             score += 4
         if scope_id == group.scope_id:
             score += 3
@@ -691,8 +693,9 @@ def _point_pair_for_auxiliary(
         if pair is None:
             continue
         scope_id = str(item.get("scope_id") or "")
+        source_step_id = str(item.get("source_step_id") or "")
         score = 0
-        if scope_id == group.step_id:
+        if source_step_id == group.step_id:
             score = 3
         elif scope_id == group.scope_id:
             score = 2

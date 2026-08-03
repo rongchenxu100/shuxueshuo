@@ -153,8 +153,7 @@ def test_strategy_recorded_solves_heping_ermo_without_deterministic_planner() ->
     assert "square_reflection_extremal_axis_point" not in result.methods_used
 
 
-def test_strategy_recorded_accepts_point_goal_when_solver_outputs_point_list() -> None:
-    """题目解析若把多解点误标成 Point，执行层仍可用 PointList 答案满足它。"""
+def test_strategy_recorded_rejects_point_goal_for_point_list_return() -> None:
     raw = json.loads(Path(HEPING_ERMO_FIXTURE).read_text(encoding="utf-8"))["input"]
     for goal in raw["question_goals"]:
         if goal["handle"] == "answer:i_2.E":
@@ -171,5 +170,5 @@ def test_strategy_recorded_accepts_point_goal_when_solver_outputs_point_list() -
         ),
     )
 
-    assert result.status == "ok", result.errors
-    assert result.answers == load_expected_answers(HEPING_ERMO_EXPECTED)
+    assert result.status == "failed"
+    assert result.errors == ["return PointList cannot satisfy answer:i_2.E"]

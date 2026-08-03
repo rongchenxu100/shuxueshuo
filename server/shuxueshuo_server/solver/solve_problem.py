@@ -26,7 +26,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--llm-provider",
         choices=("recorded", "deepseek"),
-        help="Strategy provider. recorded skips real LLM and uses executable StepIntent fixtures.",
+        help="Strategy provider. recorded skips real LLM and uses authored FunctionalPlan fixtures.",
     )
     parser.add_argument(
         "--llm-model",

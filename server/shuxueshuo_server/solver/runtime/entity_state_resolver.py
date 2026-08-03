@@ -1,6 +1,6 @@
 """Strategy Planner 的统一 Entity State 补位层。
 
-LLM 的 StepIntent 可以只读取实体 handle，例如 ``point:problem:B`` 或
+LLM 的 FunctionalCompileStepView 可以只读取实体 handle，例如 ``point:problem:B`` 或
 ``function:problem:parabola``。当 selected method 需要更具体的 runtime 类型时，
 本模块从题设 fact、前序 produced fact 和 answer binding 中寻找唯一可见状态。
 """
@@ -21,7 +21,7 @@ from shuxueshuo_server.solver.runtime.handle_registry import (
 from shuxueshuo_server.solver.runtime.models import ContextPath, runtime_type_matches
 from shuxueshuo_server.solver.runtime.state_identity import MathObjectRegistry
 from shuxueshuo_server.solver.runtime.strategy_models import (
-    StepIntent,
+    FunctionalCompileStepView,
     StrategyDraftValidationError,
 )
 
@@ -33,7 +33,7 @@ class EntityStateResolver:
         self,
         handle: str,
         required_type: str,
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         index: CanonicalRuntimeBindingIndex,
     ) -> str | None:
         """返回补位后的 path；没有候选返回 None，多候选抛结构化错误。"""
@@ -123,7 +123,7 @@ class EntityStateResolver:
         self,
         handle: str,
         required_type: str,
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         index: CanonicalRuntimeBindingIndex,
     ) -> str | None:
         direct = index.bindings.get(handle)
@@ -228,7 +228,7 @@ class EntityStateResolver:
         self,
         object_ref: str,
         required_type: str,
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         index: CanonicalRuntimeBindingIndex,
     ) -> str | None:
         """Prefer the exact StateWriteVersion carried by current reads."""
@@ -262,7 +262,7 @@ class EntityStateResolver:
         self,
         handle: str,
         required_type: str,
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         index: CanonicalRuntimeBindingIndex,
     ) -> bool:
         """判断补位是否可用；歧义保持为错误，不静默降级。"""
@@ -272,7 +272,7 @@ class EntityStateResolver:
         self,
         source_handle: str,
         required_type: str,
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         index: CanonicalRuntimeBindingIndex,
         *,
         predicate: Callable[[str], bool],
@@ -321,7 +321,7 @@ class EntityStateResolver:
 
 def _binding_visible(
     raw_path: str,
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> bool:
     """判断 binding path 对当前 step 是否可见。"""

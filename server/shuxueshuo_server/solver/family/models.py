@@ -758,25 +758,9 @@ class SolverFamilySpec:
     # orchestration. They do not replace runtime execution in Phase 2.
     capability_contracts: tuple[CapabilityContractSpec, ...] = ()
     goal_evidence_policies: tuple[GoalEvidencePolicySpec, ...] = ()
-    enabled_problem_ids: tuple[str, ...] = field(default_factory=tuple)
-
     def supports(self, problem: ProblemIR) -> bool:
-        """判断当前 spec 是否支持某个 ProblemIR。
-
-        ``enabled_problem_ids`` 是 Phase 1 的临时兼容硬门控：当前 deterministic
-        planner 只支持 canonical 南开 25，因此即使题型 match 命中，也必须先限制
-        题号，避免 alt-label 或其他 25 题误走固定南开计划。
-
-        退出由 Functional Planner 路线图的 Track D0 控制。Track A parity 完成后，
-        还必须确认生产 family routing 已由 Functional 路径接管、legacy
-        deterministic planner 不再接收新题，并通过同 family 新题与跨 family
-        误路由测试，才能删除该字段和所有配置值。
-        """
-        if not self.match.matches(problem):
-            return False
-        if self.enabled_problem_ids and problem.problem_id not in self.enabled_problem_ids:
-            return False
-        return True
+        """判断当前 spec 是否在结构上支持某个 ProblemIR。"""
+        return self.match.matches(problem)
 
 
 def expand_family_spec(
@@ -858,7 +842,6 @@ def expand_family_spec(
         method_binding_rules=method_binding_rules,
         capability_contracts=capability_contracts,
         goal_evidence_policies=goal_evidence_policies,
-        enabled_problem_ids=family.enabled_problem_ids,
     )
 
 
@@ -955,8 +938,13 @@ class FamilyRegistry:
     families: tuple[SolverFamilySpec, ...]
 
     def match(self, problem: ProblemIR) -> SolverFamilySpec | None:
-        """返回第一个支持该题的 family；没有命中则返回 ``None``。"""
-        for family in self.families:
-            if family.supports(problem):
-                return family
-        return None
+        """返回唯一结构匹配的 family；歧义配置直接失败。"""
+        matches = tuple(
+            family for family in self.families if family.supports(problem)
+        )
+        if len(matches) > 1:
+            raise ValueError(
+                "ambiguous solver family match: "
+                + ", ".join(family.family_id for family in matches)
+            )
+        return matches[0] if matches else None

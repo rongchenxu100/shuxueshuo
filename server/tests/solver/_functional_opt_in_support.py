@@ -34,7 +34,7 @@ from shuxueshuo_server.solver.runtime.strategy_runtime_planner import (
 
 RUN_FUNCTIONAL = (
     os.getenv("RUN_LLM_INTEGRATION") == "1"
-    and os.getenv("RUN_DEEPSEEK_FUNCTIONAL_PLANNER") == "1"
+    and os.getenv("RUN_DEEPSEEK_STRATEGY_PLANNER") == "1"
 )
 
 
@@ -60,15 +60,6 @@ def run_deepseek_functional_opt_in(case: FunctionalOptInCase) -> None:
             mode="deepseek",
             client=client,
             functional_few_shot_mode="strict_test",
-            output_format="functional_plan",
-            functional_transaction_mode=os.getenv(
-                "FUNCTIONAL_TRANSACTION_MODE",
-                "context_authoritative",
-            ),
-            functional_symbolic_closure_mode=os.getenv(
-                "FUNCTIONAL_SYMBOLIC_CLOSURE_MODE",
-                "disabled",
-            ),
         ),
         max_attempts=_max_attempts(),
         debug_dir=debug_dir,
@@ -155,12 +146,8 @@ def run_deepseek_functional_opt_in(case: FunctionalOptInCase) -> None:
                 payload=artifacts.payload or {},
                 prompt=artifacts.prompt,
                 raw_response=artifacts.raw_response,
-                draft=replay.raw_draft,
                 report=replay.functional_validation_report,
-                normalization_report=replay.normalization_report,
-                resolution_report=replay.resolution_report,
                 execution_diagnostic=replay.diagnostic,
-                effective_draft=replay.effective_draft,
                 planner_retry_state=replay.retry_state,
                 planner_state_context=replay.planner_state_context,
                 functional_plan=replay.functional_plan,
@@ -171,13 +158,10 @@ def run_deepseek_functional_opt_in(case: FunctionalOptInCase) -> None:
                     "response_model": getattr(client, "last_response_model", None),
                     "usage": getattr(client, "last_usage", None),
                     "attempts": attempt_count,
-                    "candidate_format": "functional_plan",
+                    "planner_protocol": "functional_plan/v1",
                 },
             )
-        expected_closure_mode = os.getenv(
-            "FUNCTIONAL_SYMBOLIC_CLOSURE_MODE",
-            "disabled",
-        )
+        expected_closure_mode = "authoritative"
         _record_gate(
             gate_checks,
             "symbolic_closure_drift",
@@ -214,12 +198,6 @@ def run_deepseek_functional_opt_in(case: FunctionalOptInCase) -> None:
             )
         _record_gate(
             gate_checks,
-            "candidate_format",
-            artifacts.candidate_format == "functional_plan",
-            f"candidate_format={artifacts.candidate_format}",
-        )
-        _record_gate(
-            gate_checks,
             "functional_replay",
             replay is not None
             and replay.functional_plan is not None
@@ -229,13 +207,6 @@ def run_deepseek_functional_opt_in(case: FunctionalOptInCase) -> None:
             and replay.planner_state_context is not None,
             "missing successful Functional replay artifacts",
         )
-        if replay is not None and replay.retry_state is not None:
-            _record_gate(
-                gate_checks,
-                "retry_candidate_format",
-                replay.retry_state.candidate_format == "functional_plan",
-                f"candidate_format={replay.retry_state.candidate_format}",
-            )
         selection = (artifacts.payload or {}).get(
             "functional_few_shot_selection"
         )
@@ -440,15 +411,15 @@ def _assert_attempt_protocol(debug_dir: Path, *, attempt_count: int) -> None:
     for attempt in range(1, attempt_count + 1):
         prefix = debug_dir / f"attempt-{attempt}"
         metadata = _read_json(prefix.with_suffix(".llm-metadata.json"))
-        assert metadata.get("candidate_format") == "functional_plan"
+        assert metadata.get("planner_protocol") == "functional_plan/v1"
         raw_response = prefix.with_suffix(".raw-response.txt").read_text(encoding="utf-8")
         assert '"format":"step_intent"' not in "".join(raw_response.split())
         selection = _read_json(
             prefix.with_suffix(".payload.functional_few_shot_selection.json")
         )
         assert selection.get("mode") == "strict_test"
-        planner_output_format = _read_json_value(
-            prefix.with_suffix(".payload.planner_output_format.json")
+        planner_protocol = _read_json_value(
+            prefix.with_suffix(".payload.planner_protocol.json")
         )
         few_shot_examples = _read_json_value(
             prefix.with_suffix(".payload.few_shot_examples.json")
@@ -458,7 +429,7 @@ def _assert_attempt_protocol(debug_dir: Path, *, attempt_count: int) -> None:
         )
         _assert_prompt_is_functional_and_safe(
             {
-                "planner_output_format": planner_output_format,
+                "planner_protocol": planner_protocol,
                 "functional_few_shot_selection": selection,
                 "few_shot_examples": few_shot_examples,
             },
@@ -476,8 +447,8 @@ def _assert_attempt_protocol(debug_dir: Path, *, attempt_count: int) -> None:
 
 
 def _assert_prompt_is_functional_and_safe(payload: dict[str, Any], prompt: Any) -> None:
-    assert payload.get("planner_output_format") == "functional_plan", (
-        "planner_output_format is not functional_plan"
+    assert payload.get("planner_protocol") == "functional_plan/v1", (
+        "planner_protocol is not functional_plan/v1"
     )
     assert "expected_answers" not in json.dumps(payload, ensure_ascii=False), (
         "expected answers leaked into the planner payload"
@@ -611,10 +582,7 @@ def _write_sample_result(
         "gate_checks": [dict(item) for item in gate_checks],
         "gate_failures": [dict(item) for item in gate_failures],
         "gates_passed": not gate_failures,
-        "functional_symbolic_closure_mode": os.getenv(
-            "FUNCTIONAL_SYMBOLIC_CLOSURE_MODE",
-            "disabled",
-        ),
+        "symbolic_closure_authority": "authoritative",
         "functional_compile_count": compile_count,
         "functional_compile_drift_count": compile_drift_count,
         "symbolic_closure_execution_count": closure_execution_count,

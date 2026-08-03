@@ -113,7 +113,7 @@ class ExplanationSnapshot:
 class LessonCandidateGroup:
     """LessonIR LLM 可选择的讲解候选组。
 
-    它连接可执行 StepIntent、method invocation trace 和讲解层拆分后的认知子步骤。
+    它连接 canonical Functional call、method invocation trace 和讲解层拆分后的认知子步骤。
     """
 
     step: dict[str, Any]

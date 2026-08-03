@@ -1,9 +1,9 @@
 """FunctionSpec facade for generic method binding.
 
 FunctionSpec is a planner/compiler-facing facade over existing MethodSpec and
-CapabilityContract metadata.  Phase 5 keeps StepIntent as the LLM wire format
-and MethodInvocation as the runtime format; the facade only provides a typed
-adapter layer in between.
+CapabilityContract metadata. FunctionalPlan is the LLM wire format and
+MethodInvocation is the runtime format; the facade provides the typed adapter
+layer in between.
 """
 
 from __future__ import annotations
@@ -62,8 +62,8 @@ from shuxueshuo_server.solver.runtime.runtime_type_declarations import (
 )
 from shuxueshuo_server.solver.runtime.strategy_models import (
     FunctionArgBindingRepair,
-    StepIntent,
-    StepIntentFunctionBindingEvent,
+    FunctionalCompileStepView,
+    FunctionalFunctionBindingEvent,
     StrategyDraftValidationError,
 )
 from shuxueshuo_server.solver.state_semantics import (
@@ -76,8 +76,8 @@ FunctionArgKind = Literal["slot_read", "condition_read", "point_ref", "symbol", 
 FunctionSpecSource = Literal["explicit_contract", "projected_contract", "method_spec"]
 FunctionBindingStatus = Literal["success", "failure"]
 
-BindingSelectorFn = Callable[[StepIntent, Any, Mapping[str, str]], str | None]
-ExpansionSelectorFn = Callable[[StepIntent, Any, Mapping[str, str]], dict[str, str]]
+BindingSelectorFn = Callable[[FunctionalCompileStepView, Any, Mapping[str, str]], str | None]
+ExpansionSelectorFn = Callable[[FunctionalCompileStepView, Any, Mapping[str, str]], dict[str, str]]
 
 
 @dataclass(frozen=True)
@@ -438,7 +438,7 @@ class FunctionAdapterRegistry:
     def bind(
         self,
         method_id: str,
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         index: Any,
         *,
         local_outputs: Mapping[str, str] | None = None,
@@ -559,7 +559,7 @@ class FunctionAdapterRegistry:
     def _select(
         self,
         selector: str,
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         index: Any,
         local_outputs: Mapping[str, str],
     ) -> str | None:
@@ -573,7 +573,7 @@ class FunctionAdapterRegistry:
     def _expand(
         self,
         selector: str,
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         index: Any,
         local_outputs: Mapping[str, str],
     ) -> dict[str, str]:
@@ -652,7 +652,7 @@ _DECLARATIVE_EXPANSIONS = frozenset(
 def _path_is_declared_read(
     path: str,
     *,
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: Any,
     local_outputs: Mapping[str, str],
 ) -> bool:
@@ -1065,13 +1065,13 @@ def function_spec_payloads(
 
 
 def function_adapter_failure_events(
-    events: tuple[StepIntentFunctionBindingEvent, ...],
-) -> tuple[StepIntentFunctionBindingEvent, ...]:
+    events: tuple[FunctionalFunctionBindingEvent, ...],
+) -> tuple[FunctionalFunctionBindingEvent, ...]:
     return tuple(event for event in events if event.status == "failure")
 
 
 def assert_no_function_adapter_failures(
-    events: tuple[StepIntentFunctionBindingEvent, ...],
+    events: tuple[FunctionalFunctionBindingEvent, ...],
 ) -> None:
     failures = function_adapter_failure_events(events)
     if failures:
@@ -1270,7 +1270,7 @@ def _apply_constraint_analyzer(
     analyzer_id: str,
     *,
     inputs: dict[str, Any],
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: Any,
 ) -> ConstraintAnalyzerResult:
     analyzer = _CONSTRAINT_ANALYZERS.get(analyzer_id)
@@ -1288,14 +1288,14 @@ class ConstraintAnalyzerResult:
 
 
 ConstraintAnalyzer = Callable[
-    [dict[str, Any], StepIntent, Any],
+    [dict[str, Any], FunctionalCompileStepView, Any],
     ConstraintAnalyzerResult,
 ]
 
 
 def _analyze_quadratic_coefficient_inputs(
     inputs: dict[str, Any],
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: Any,
 ) -> ConstraintAnalyzerResult:
     from shuxueshuo_server.solver.runtime.methods.quadratic_from_constraints import (
@@ -1443,7 +1443,7 @@ _CONSTRAINT_ANALYZERS: dict[str, ConstraintAnalyzer] = {
 def _visible_symbol_binding(
     name: str,
     *,
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: Any,
 ) -> tuple[str, str]:
     for scope_id in reversed(index.handle_registry.ancestor_scopes(step.scope_id)):
@@ -1473,7 +1473,7 @@ def _free_parameter_basis_repairs(
 
 
 def _read_quadratic_coefficient_handles(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     *,
     index: Any,
 ) -> tuple[str, ...]:

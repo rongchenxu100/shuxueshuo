@@ -5,11 +5,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from shuxueshuo_server.solver.deepseek_functional_batch import (
-    FUNCTIONAL_BATCH_CASES,
-)
 from shuxueshuo_server.solver.functional_parity import (
-    FunctionalParityRunner,
     compare_provenance_signatures,
     provenance_parity_signature,
 )
@@ -17,7 +13,7 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     PlannerRetryIssue,
     PlannerRetryState,
     StateWriteProvenance,
-    StepIntentExecutionDiagnostic,
+    FunctionalExecutionDiagnostic,
 )
 from shuxueshuo_server.solver.runtime.session import (
     structured_error_from_exception,
@@ -30,17 +26,6 @@ from shuxueshuo_server.solver.runtime.strategy_runtime_planner import (
 )
 from shuxueshuo_server.solver.state_semantics import state_semantic_lineage
 from shuxueshuo_server.solver.state_semantics import StateObjectRoleBinding
-
-
-@pytest.mark.parametrize("case_id", tuple(FUNCTIONAL_BATCH_CASES))
-def test_recorded_and_authored_functional_fixtures_have_provenance_parity(
-    case_id: str,
-) -> None:
-    report = FunctionalParityRunner().compare_fixture(
-        FUNCTIONAL_BATCH_CASES[case_id]
-    )
-
-    assert report.ok, report.to_payload()
 
 
 def test_answer_identity_mismatch_is_reported() -> None:
@@ -287,9 +272,7 @@ def test_typed_functional_failure_preserves_root_layer_and_code() -> None:
         attempt=1,
         retry_state=PlannerRetryState(
             attempt=1,
-            baseline_draft=None,
             issues=(issue, issue),
-            candidate_format="functional_plan",
         ),
     )
 
@@ -299,7 +282,6 @@ def test_typed_functional_failure_preserves_root_layer_and_code() -> None:
     assert error.stage == "functional_reconciliation"
     assert error.code == "functional.object_identity_mismatch"
     assert error.step_id == "bad_call"
-    assert error.details["candidate_format"] == "functional_plan"
     assert error.details["root_issues"] == [issue.to_payload()]
 
 
@@ -314,9 +296,7 @@ def test_trial_blocker_is_primary_and_configuration_root_disables_retry() -> Non
         attempt=1,
         retry_state=PlannerRetryState(
             attempt=1,
-            baseline_draft=None,
             issues=(configuration,),
-            candidate_format="functional_plan",
         ),
     )
     blocker = SimpleNamespace(
@@ -349,9 +329,7 @@ def test_transactional_configuration_issue_disables_llm_retry() -> None:
         attempt=1,
         retry_state=PlannerRetryState(
             attempt=1,
-            baseline_draft=None,
             issues=(configuration,),
-            candidate_format="functional_plan",
         ),
     )
 
@@ -382,8 +360,8 @@ def _answer_write(*, step_id: str) -> StateWriteProvenance:
 
 def _diagnostic(
     *writes: StateWriteProvenance,
-) -> StepIntentExecutionDiagnostic:
-    return StepIntentExecutionDiagnostic(
+) -> FunctionalExecutionDiagnostic:
+    return FunctionalExecutionDiagnostic(
         ok=True,
         state_write_provenance=tuple(writes),
     )

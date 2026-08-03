@@ -772,8 +772,25 @@ def _deterministic_axis_parameter_square_adjacent_text(
         derive.extend(_derive_items(piece.get("derive", ())))
         boxes.extend(str(item) for item in piece.get("box", ()) if str(item))
     square_piece = _piece_for_capability(source_groups, pieces, "square_adjacent_vertex_from_side")
-    title = str(square_piece.get("title") or "由正方形边求相邻顶点")
-    nav_title = str(square_piece.get("nav_title") or _nav_title_from_title(title))
+    square_group = next(
+        (
+            group
+            for group in source_groups
+            if group.capability_id == "square_adjacent_vertex_from_side"
+        ),
+        None,
+    )
+    target_label = _target_point_label_for_group(square_group) if square_group is not None else ""
+    title = (
+        f"由正方形求相邻顶点{target_label}"
+        if target_label
+        else str(square_piece.get("title") or "由正方形边求相邻顶点")
+    )
+    nav_title = (
+        f"正方形求顶点{target_label}"
+        if target_label
+        else str(square_piece.get("nav_title") or _nav_title_from_title(title))
+    )
     return {
         "title": title,
         "nav_title": nav_title,
@@ -889,7 +906,12 @@ def _locus_point_label_for_group(group: LessonCandidateGroup) -> str:
         if not isinstance(handle, str) or not handle.startswith("fact:"):
             continue
         name = handle.rsplit(":", 1)[-1]
-        for suffix in ("_parametric_coordinate", "_parameterized_point", "_coordinate"):
+        for suffix in (
+            "_parametric_coordinate",
+            "_parameterized_point",
+            "_square_adjacent_vertex",
+            "_coordinate",
+        ):
             if name.endswith(suffix):
                 name = name[: -len(suffix)]
                 break

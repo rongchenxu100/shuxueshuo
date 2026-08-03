@@ -1,10 +1,4 @@
-"""Shadow semantic context for StepIntent planner replay.
-
-Phase 1 keeps this module read-only relative to the existing planner/runtime
-pipeline.  It snapshots semantic state from PlannerInputs, registry snapshots,
-validation/normalization reports, and replay artifacts so we can prove alias
-continuity without changing the executable StepIntent contract.
-"""
+"""Typed semantic context for FunctionalPlan replay."""
 
 from __future__ import annotations
 
@@ -55,15 +49,10 @@ from shuxueshuo_server.solver.runtime.state_identity import (
 )
 from shuxueshuo_server.solver.runtime.planner import PlannerInputs
 from shuxueshuo_server.solver.runtime.strategy_models import (
-    CreatedEntity,
     PlannerReplayDepth,
-    PlannerOutputFormat,
     PlannerRetryLayer,
     PlannerRetryPreservePolicy,
-    ProducedFact,
     SymbolicClosureProvenance,
-    StepIntent,
-    StepIntentDraft,
     StrategyDraftValidationError,
 )
 from shuxueshuo_server.solver.runtime.symbolic_closure_audit import (
@@ -364,7 +353,7 @@ class StateSlot:
 
 @dataclass(frozen=True)
 class StepState:
-    """A semantic view of one StepIntent in the timeline."""
+    """A semantic view of one compiled Functional call in the timeline."""
 
     step_id: str
     scope_id: str
@@ -395,51 +384,10 @@ class StepState:
 
 
 @dataclass(frozen=True)
-class StableStep:
-    """A runtime-verified step prefix entry."""
-
-    step_id: str
-    normalized_payload: dict[str, Any]
-    verified_slot_writes: tuple[str, ...] = ()
-    verified_condition_writes: tuple[str, ...] = ()
-
-    def to_payload(self) -> dict[str, Any]:
-        return {
-            "step_id": self.step_id,
-            "normalized_payload": dict(self.normalized_payload),
-            "verified_slot_writes": list(self.verified_slot_writes),
-            "verified_condition_writes": list(self.verified_condition_writes),
-        }
-
-
-@dataclass(frozen=True)
-class DraftSnapshots:
-    """Canonical draft snapshots observed during deterministic replay.
-
-    ``validated`` is the raw draft after validation succeeded; there is no
-    separate transformed validated draft before normalization.
-    """
-
-    raw: dict[str, Any] | None = None
-    validated: dict[str, Any] | None = None
-    normalized: dict[str, Any] | None = None
-    effective: dict[str, Any] | None = None
-
-    def to_payload(self) -> dict[str, Any]:
-        return {
-            "raw": self.raw,
-            "validated": self.validated,
-            "normalized": self.normalized,
-            "effective": self.effective,
-        }
-
-
-@dataclass(frozen=True)
 class RetryMemory:
     """Context-owned retry projection facts."""
 
     attempt: int = 0
-    baseline_draft: dict[str, Any] | None = None
     repair_suffix_start: dict[str, Any] | None = None
     preserve_policy: PlannerRetryPreservePolicy = "none"
     repair_instruction: str = ""
@@ -449,9 +397,7 @@ class RetryMemory:
     replay_reports: dict[str, Any] | None = None
     issues: tuple[dict[str, Any], ...] = ()
     recovered_issues: tuple[dict[str, Any], ...] = ()
-    candidate_format: PlannerOutputFormat = "step_intent"
     baseline_candidate: dict[str, Any] | None = None
-    stable_candidate_prefix: tuple[dict[str, Any], ...] = ()
     stable_candidate_calls: tuple[dict[str, Any], ...] = ()
     committed_candidate_calls: tuple[dict[str, Any], ...] = ()
     runtime_verified_calls: tuple[dict[str, Any], ...] = ()
@@ -463,7 +409,6 @@ class RetryMemory:
     def to_payload(self) -> dict[str, Any]:
         return {
             "attempt": self.attempt,
-            "baseline_draft": self.baseline_draft,
             "repair_suffix_start": self.repair_suffix_start,
             "preserve_policy": self.preserve_policy,
             "repair_instruction": self.repair_instruction,
@@ -473,11 +418,7 @@ class RetryMemory:
             "replay_reports": self.replay_reports or {},
             "issues": [dict(item) for item in self.issues],
             "recovered_issues": [dict(item) for item in self.recovered_issues],
-            "candidate_format": self.candidate_format,
             "baseline_candidate": self.baseline_candidate,
-            "stable_candidate_prefix": [
-                dict(item) for item in self.stable_candidate_prefix
-            ],
             "stable_candidate_calls": [
                 dict(item) for item in self.stable_candidate_calls
             ],
@@ -586,8 +527,6 @@ class PlannerState:
     state_slots: tuple[StateSlot, ...] = ()
     alias_index: AliasIndex = field(default_factory=AliasIndex)
     step_timeline: tuple[StepState, ...] = ()
-    stable_prefix: tuple[StableStep, ...] = ()
-    draft_snapshots: DraftSnapshots = field(default_factory=DraftSnapshots)
     retry_memory: RetryMemory = field(default_factory=RetryMemory)
     issues: tuple[dict[str, Any], ...] = ()
     rewrite_events: tuple[StateRewriteEvent, ...] = ()
@@ -596,7 +535,6 @@ class PlannerState:
     function_specs: tuple[dict[str, Any], ...] = ()
     macro_specs: tuple[dict[str, Any], ...] = ()
     state_write_provenance: tuple[dict[str, Any], ...] = ()
-    candidate_format: PlannerOutputFormat = "step_intent"
     # Audit input and canonical candidate are deliberately stored separately.
     raw_functional_plan_snapshot: dict[str, Any] | None = None
     functional_plan_snapshot: dict[str, Any] | None = None
@@ -631,8 +569,6 @@ class PlannerState:
             "state_slots": [item.to_payload() for item in self.state_slots],
             "alias_index": self.alias_index.to_payload(),
             "step_timeline": [item.to_payload() for item in self.step_timeline],
-            "stable_prefix": [item.to_payload() for item in self.stable_prefix],
-            "draft_snapshots": self.draft_snapshots.to_payload(),
             "retry_memory": self.retry_memory.to_payload(),
             "issues": [dict(item) for item in self.issues],
             "rewrite_events": [item.to_payload() for item in self.rewrite_events],
@@ -643,7 +579,6 @@ class PlannerState:
             "state_write_provenance": [
                 dict(item) for item in self.state_write_provenance
             ],
-            "candidate_format": self.candidate_format,
             "raw_functional_plan_snapshot": self.raw_functional_plan_snapshot,
             "functional_plan_snapshot": self.functional_plan_snapshot,
             "functional_call_timeline": [
@@ -833,8 +768,6 @@ class _MutableState:
     state_slots: dict[str, StateSlot]
     alias_index: _MutableAliasIndex
     step_timeline: list[StepState] = field(default_factory=list)
-    stable_prefix: list[StableStep] = field(default_factory=list)
-    draft_snapshots: DraftSnapshots = field(default_factory=DraftSnapshots)
     retry_memory: RetryMemory = field(default_factory=RetryMemory)
     issues: list[dict[str, Any]] = field(default_factory=list)
     rewrite_events: list[StateRewriteEvent] = field(default_factory=list)
@@ -843,7 +776,6 @@ class _MutableState:
     function_specs: list[dict[str, Any]] = field(default_factory=list)
     macro_specs: list[dict[str, Any]] = field(default_factory=list)
     state_write_provenance: list[dict[str, Any]] = field(default_factory=list)
-    candidate_format: PlannerOutputFormat = "step_intent"
     raw_functional_plan_snapshot: dict[str, Any] | None = None
     functional_plan_snapshot: dict[str, Any] | None = None
     functional_call_timeline: list[dict[str, Any]] = field(default_factory=list)
@@ -895,8 +827,6 @@ class _MutableState:
                 ),
                 alias_index=self.alias_index.freeze(),
                 step_timeline=tuple(self.step_timeline),
-                stable_prefix=tuple(self.stable_prefix),
-                draft_snapshots=self.draft_snapshots,
                 retry_memory=self.retry_memory,
                 issues=tuple(self.issues),
                 rewrite_events=tuple(self.rewrite_events),
@@ -905,7 +835,6 @@ class _MutableState:
                 function_specs=tuple(self.function_specs),
                 macro_specs=tuple(self.macro_specs),
                 state_write_provenance=tuple(self.state_write_provenance),
-                candidate_format=self.candidate_format,
                 raw_functional_plan_snapshot=self.raw_functional_plan_snapshot,
                 functional_plan_snapshot=self.functional_plan_snapshot,
                 functional_call_timeline=tuple(self.functional_call_timeline),
@@ -969,11 +898,6 @@ class PlannerRetryReplaySnapshot(Protocol):
 
     attempt: int
     errors: tuple[str, ...]
-    raw_draft: StepIntentDraft | None
-    validation_report: object | None
-    normalized_draft: StepIntentDraft | None
-    normalization_report: object | None
-    effective_draft: StepIntentDraft | None
     diagnostic: object | None
     retry_state: object | None
     functional_plan: object | None
@@ -1039,13 +963,12 @@ class PlannerStateContextBuilder:
             parent_context_id=parent_context_id,
         )
         state.issues.extend(dict(item) for item in context_warnings)
-        state.draft_snapshots = _draft_snapshots_from_replay(replay)
         observation_authority = getattr(
             replay,
             "state_observation_authority",
-            "legacy",
+            "pending",
         )
-        if observation_authority not in {"legacy", "transactional"}:
+        if observation_authority not in {"pending", "transactional"}:
             raise StrategyDraftValidationError(
                 "planner_configuration_error: invalid state observation "
                 f"authority: {observation_authority}"
@@ -1100,43 +1023,6 @@ class PlannerStateContextBuilder:
                 ok=True,
             )
         )
-        cls._observe_validation_report(
-            state,
-            replay.validation_report,
-        )
-        raw_draft = replay.raw_draft
-        normalized_draft = replay.normalized_draft
-        if raw_draft is not None:
-            cls._observe_draft(
-                state,
-                raw_draft,
-                handle_registry=handle_registry,
-                status="validated",
-                normalized_lookup=_step_payload_lookup(normalized_draft),
-            )
-        elif normalized_draft is not None:
-            cls._observe_draft(
-                state,
-                normalized_draft,
-                handle_registry=handle_registry,
-                status="normalized",
-                normalized_lookup=_step_payload_lookup(normalized_draft),
-            )
-        if normalized_draft is not None:
-            cls._observe_normalization(
-                state,
-                raw_draft=raw_draft,
-                normalized_draft=normalized_draft,
-                normalization_report=replay.normalization_report,
-                handle_registry=handle_registry,
-            )
-        cls._observe_stable_prefix(
-            state,
-            replay.diagnostic,
-            normalized_lookup=_step_payload_lookup(
-                replay.effective_draft or normalized_draft
-            ),
-        )
         cls._observe_state_write_provenance(
             state,
             replay.diagnostic,
@@ -1149,19 +1035,6 @@ class PlannerStateContextBuilder:
             replay.retry_state,
             attempt=replay.attempt,
         )
-        if (
-            state.candidate_format != "functional_plan"
-            and state.retry_memory.candidate_format == "functional_plan"
-        ):
-            state.candidate_format = "functional_plan"
-            state.functional_plan_snapshot = state.retry_memory.baseline_candidate
-            state.context_events.append(
-                _context_event(
-                    "functional_plan_received",
-                    attempt=replay.attempt,
-                    ok=False,
-                )
-            )
         if replay.retry_state is not None:
             state.context_events.append(
                 _context_event(
@@ -1183,7 +1056,6 @@ class PlannerStateContextBuilder:
         reconciliation = getattr(replay, "functional_reconciliation", None)
         if plan is None:
             return
-        state.candidate_format = "functional_plan"
         state.raw_functional_plan_snapshot = plan.to_payload()
         effective_plan = (
             getattr(reconciliation, "effective_plan", None)
@@ -1287,16 +1159,10 @@ class PlannerStateContextBuilder:
         observation_authority = getattr(
             replay,
             "state_observation_authority",
-            "legacy",
+            "transactional",
         )
-        effective_draft = getattr(replay, "effective_draft", None)
         effective_step_payloads: tuple[dict[str, Any], ...] = ()
-        if effective_draft is not None:
-            effective_step_payloads = tuple(
-                step.to_payload(include_scope_id=True)
-                for step in effective_draft.steps
-            )
-        elif observation_authority == "transactional":
+        if observation_authority == "transactional":
             from shuxueshuo_server.solver.explanation.presentation import (
                 transactional_functional_steps,
             )
@@ -1346,7 +1212,7 @@ class PlannerStateContextBuilder:
         manifest = ContextManifest(
             context_id=f"ctx_planner_{inputs.problem_id}_attempt_{attempt}",
             context_type="planner",
-            schema_version="planner-state-context/v1",
+            schema_version="planner-state-context/v2",
             parent_context_id=parent_context_id,
             dependency_context_ids=(),
             problem_id=inputs.problem_id,
@@ -1410,241 +1276,6 @@ class PlannerStateContextBuilder:
                 macro_spec_payloads(inputs.family_spec, inputs.method_specs)
             ),
         )
-
-    @staticmethod
-    def _observe_validation_report(
-        state: _MutableState,
-        validation_report: Any | None,
-    ) -> None:
-        if validation_report is None:
-            return
-        raw_output = getattr(validation_report, "raw_output_normalization", None)
-        if isinstance(raw_output, dict):
-            state.context_events.append(
-                _context_event(
-                    "raw_output_normalized",
-                    ok=bool(raw_output.get("changed")),
-                    detail_count=len(raw_output.get("warnings", ()) or ()),
-                )
-            )
-        for error in getattr(validation_report, "errors", ()) or ():
-            state.issues.append(
-                {"layer": "validation", "code": "validation_error", "message": str(error)}
-            )
-        handle_resolution = getattr(validation_report, "handle_resolution", None)
-        if handle_resolution is not None:
-            for correction in getattr(handle_resolution, "corrections", ()) or ():
-                slot_id = _state_id_for_handle(
-                    state,
-                    getattr(correction, "to_handle", ""),
-                    getattr(correction, "step_id", ""),
-                )
-                _merge_alias(state, slot_id, getattr(correction, "from_handle", ""))
-                state.rewrite_events.append(
-                    StateRewriteEvent(
-                        old_ref=getattr(correction, "from_handle", ""),
-                        new_ref=getattr(correction, "to_handle", ""),
-                        state_slot_id=slot_id,
-                        step_id=getattr(correction, "step_id", ""),
-                        source_layer="handle_resolution",
-                        reason=getattr(correction, "reason", ""),
-                    )
-                )
-        semantic_report = getattr(validation_report, "semantic_read_resolution", None)
-        if semantic_report is not None:
-            state.context_events.append(
-                _context_event(
-                    "semantic_resolved",
-                    ok=bool(getattr(semantic_report, "ok", False)),
-                    detail_count=(
-                        len(getattr(semantic_report, "resolutions", ()) or ())
-                        + len(getattr(semantic_report, "errors", ()) or ())
-                    ),
-                )
-            )
-            for error in getattr(semantic_report, "errors", ()) or ():
-                payload = error.to_payload() if hasattr(error, "to_payload") else dict(error)
-                payload.setdefault("layer", "semantic_reads")
-                state.issues.append(payload)
-        state.context_events.append(
-            _context_event(
-                "validated",
-                ok=bool(getattr(validation_report, "ok", False)),
-                detail_count=len(getattr(validation_report, "errors", ()) or ()),
-            )
-        )
-
-    @classmethod
-    def _observe_draft(
-        cls,
-        state: _MutableState,
-        draft: StepIntentDraft,
-        *,
-        handle_registry: CanonicalHandleRegistry,
-        status: StepStatus,
-        normalized_lookup: dict[str, dict[str, Any]],
-    ) -> None:
-        for step in draft.steps:
-            slot_reads, condition_reads = _classify_handles(
-                step.reads,
-                state=state,
-                handle_registry=handle_registry,
-            )
-            slot_writes, condition_writes = _classify_produces(
-                step.produces,
-                state=state,
-                handle_registry=handle_registry,
-                produced_by=step.step_id,
-                status="planned",
-            )
-            _classify_creates(
-                step.creates,
-                state=state,
-                produced_by=step.step_id,
-            )
-            state.step_timeline.append(
-                StepState(
-                    step_id=step.step_id,
-                    scope_id=step.scope_id,
-                    raw_payload=step.to_payload(),
-                    normalized_payload=normalized_lookup.get(step.step_id),
-                    slot_reads=slot_reads,
-                    condition_reads=condition_reads,
-                    slot_writes=slot_writes,
-                    condition_writes=condition_writes,
-                    capability_id=step.recipe_hint,
-                    status=status,
-                )
-            )
-
-    @classmethod
-    def _observe_normalization(
-        cls,
-        state: _MutableState,
-        *,
-        raw_draft: StepIntentDraft | None,
-        normalized_draft: StepIntentDraft,
-        normalization_report: Any | None,
-        handle_registry: CanonicalHandleRegistry,
-    ) -> None:
-        raw_by_step = {step.step_id: step for step in raw_draft.steps} if raw_draft else {}
-        for normalized_step in normalized_draft.steps:
-            raw_step = raw_by_step.get(normalized_step.step_id)
-            if raw_step is None:
-                _classify_produces(
-                    normalized_step.produces,
-                    state=state,
-                    handle_registry=handle_registry,
-                    produced_by=normalized_step.step_id,
-                    status="validated",
-                )
-                continue
-            raw_handles = {item.handle for item in raw_step.produces}
-            normalized_handles = {item.handle for item in normalized_step.produces}
-            for old_ref in sorted(raw_handles - normalized_handles):
-                new_ref = _best_rewrite_target(
-                    old_ref,
-                    normalized_step.produces,
-                    handle_registry=handle_registry,
-                )
-                if new_ref is None:
-                    continue
-                slot_id = _slot_id_for_produced_handle(
-                    new_ref,
-                    scope_id=_scope_from_handle(new_ref) or normalized_step.scope_id,
-                    runtime_type=_runtime_type_for_handle(
-                        new_ref,
-                        handle_registry=handle_registry,
-                    ),
-                )
-                _ensure_produced_slot(
-                    state,
-                    ProducedFact(
-                        handle=new_ref,
-                        valid_scope=normalized_step.scope_id,
-                        output_type=_runtime_type_for_handle(
-                            new_ref,
-                            handle_registry=handle_registry,
-                        ),
-                    ),
-                    produced_by=normalized_step.step_id,
-                    handle_registry=handle_registry,
-                    status="validated",
-                )
-                _merge_alias(state, slot_id, old_ref)
-                state.rewrite_events.append(
-                    StateRewriteEvent(
-                        old_ref=old_ref,
-                        new_ref=new_ref,
-                        state_slot_id=slot_id,
-                        step_id=normalized_step.step_id,
-                        source_layer="normalization",
-                        reason=_normalization_reason(normalization_report, normalized_step.step_id, old_ref),
-                    )
-                )
-        cls._observe_normalization_actions(state, normalization_report)
-
-    @staticmethod
-    def _observe_normalization_actions(
-        state: _MutableState,
-        normalization_report: Any | None,
-    ) -> None:
-        if normalization_report is None:
-            return
-        state.context_events.append(
-            _context_event(
-                "normalized",
-                ok=True,
-                detail_count=len(getattr(normalization_report, "actions", ()) or ()),
-            )
-        )
-        for action in getattr(normalization_report, "actions", ()) or ():
-            action_name = getattr(action, "action", "")
-            handle = getattr(action, "handle", None)
-            reason = getattr(action, "reason", "")
-            if action_name == "infer_output_type":
-                state.issues.append(
-                    {
-                        "layer": "normalization",
-                        "code": action_name,
-                        "step_id": getattr(action, "step_id", ""),
-                        "handle": handle,
-                        "message": reason,
-                    }
-                )
-
-    @staticmethod
-    def _observe_stable_prefix(
-        state: _MutableState,
-        diagnostic: Any | None,
-        *,
-        normalized_lookup: dict[str, dict[str, Any]],
-    ) -> None:
-        if diagnostic is None:
-            return
-        for accepted in getattr(diagnostic, "accepted_prefix", ()) or ():
-            step_id = getattr(accepted, "step_id", None)
-            if not step_id:
-                continue
-            step_state = next(
-                (item for item in state.step_timeline if item.step_id == step_id),
-                None,
-            )
-            payload = normalized_lookup.get(step_id) or (
-                step_state.normalized_payload if step_state is not None else {}
-            )
-            state.stable_prefix.append(
-                StableStep(
-                    step_id=step_id,
-                    normalized_payload=payload,
-                    verified_slot_writes=(
-                        step_state.slot_writes if step_state is not None else ()
-                    ),
-                    verified_condition_writes=(
-                        step_state.condition_writes if step_state is not None else ()
-                    ),
-                )
-            )
 
     @staticmethod
     def _observe_state_write_provenance(
@@ -1870,20 +1501,6 @@ class PlannerStateContextBuilder:
             )
 
 
-def _draft_snapshots_from_replay(
-    replay: PlannerRetryReplaySnapshot,
-) -> DraftSnapshots:
-    raw_payload = _draft_payload(replay.raw_draft)
-    normalized_payload = _draft_payload(replay.normalized_draft)
-    effective_payload = _draft_payload(replay.effective_draft)
-    return DraftSnapshots(
-        raw=raw_payload,
-        validated=raw_payload if replay.validation_report is not None else None,
-        normalized=normalized_payload,
-        effective=effective_payload,
-    )
-
-
 def _retry_memory_from_retry_state(
     retry_state: Any | None,
     *,
@@ -1896,7 +1513,6 @@ def _retry_memory_from_retry_state(
         return RetryMemory(attempt=attempt)
     return RetryMemory(
         attempt=_int_or_default(payload.get("attempt"), attempt),
-        baseline_draft=_dict_or_none(payload.get("baseline_draft")),
         repair_suffix_start=_dict_or_none(payload.get("repair_suffix_start")),
         preserve_policy=_planner_preserve_policy(payload.get("preserve_policy")),
         repair_instruction=str(payload.get("repair_instruction") or ""),
@@ -1924,13 +1540,7 @@ def _retry_memory_from_retry_state(
             for item in payload.get("recovered_issues", ())
             if isinstance(item, dict)
         ),
-        candidate_format=_planner_output_format(payload.get("candidate_format")),
         baseline_candidate=_dict_or_none(payload.get("baseline_candidate")),
-        stable_candidate_prefix=tuple(
-            dict(item)
-            for item in payload.get("stable_candidate_prefix", ())
-            if isinstance(item, dict)
-        ),
         stable_candidate_calls=tuple(
             dict(item)
             for item in payload.get("stable_candidate_calls", ())
@@ -1970,7 +1580,6 @@ def _retry_memory_from_retry_state(
 _PLANNER_REPLAY_DEPTHS = frozenset(get_args(PlannerReplayDepth))
 _PLANNER_RETRY_LAYERS = frozenset(get_args(PlannerRetryLayer))
 _PLANNER_PRESERVE_POLICIES = frozenset(get_args(PlannerRetryPreservePolicy))
-_PLANNER_OUTPUT_FORMATS = frozenset(get_args(PlannerOutputFormat))
 
 
 def _planner_replay_depth(value: object) -> PlannerReplayDepth | None:
@@ -1985,20 +1594,10 @@ def _planner_retry_layer(value: object) -> PlannerRetryLayer | None:
     return None
 
 
-def _planner_output_format(value: object) -> PlannerOutputFormat:
-    if isinstance(value, str) and value in _PLANNER_OUTPUT_FORMATS:
-        return cast(PlannerOutputFormat, value)
-    return "step_intent"
-
-
 def _planner_preserve_policy(value: object) -> PlannerRetryPreservePolicy:
     if isinstance(value, str) and value in _PLANNER_PRESERVE_POLICIES:
         return cast(PlannerRetryPreservePolicy, value)
     return "none"
-
-
-def _draft_payload(draft: StepIntentDraft | None) -> dict[str, Any] | None:
-    return draft.to_payload() if draft is not None else None
 
 
 def _dict_or_none(value: object) -> dict[str, Any] | None:
@@ -2334,141 +1933,6 @@ def _build_alias_index(
     )
 
 
-def _classify_handles(
-    handles: tuple[str, ...],
-    *,
-    state: _MutableState,
-    handle_registry: CanonicalHandleRegistry,
-) -> tuple[tuple[str, ...], tuple[str, ...]]:
-    slot_reads: list[str] = []
-    condition_reads: list[str] = []
-    for handle in handles:
-        state_id = state.alias_index.by_handle.get(handle)
-        if state_id is None and handle.startswith("fact:"):
-            if handle in handle_registry.fact_handles:
-                state_id = f"condition:{_semantic_ref(handle)}@{_scope_from_handle(handle) or 'problem'}"
-            else:
-                state_id = _state_id_for_handle(state, handle, "")
-        if state_id is None and handle.startswith("answer:"):
-            state_id = _state_id_for_handle(state, handle, "")
-        if state_id and state_id.startswith("condition:"):
-            condition_reads.append(state_id)
-        elif state_id:
-            slot_reads.append(state_id)
-    return tuple(_unique_ordered(slot_reads)), tuple(_unique_ordered(condition_reads))
-
-
-def _classify_creates(
-    creates: tuple[CreatedEntity, ...],
-    *,
-    state: _MutableState,
-    produced_by: str,
-) -> None:
-    for item in creates:
-        handle = item.handle
-        kind = item.entity_type or _scope_kind_from_handle(handle)
-        if not kind:
-            continue
-        scope_id = _scope_from_handle(handle) or item.valid_scope
-        name = _semantic_ref(handle)
-        object_id = f"{kind}:{name}@{scope_id}"
-        if any(existing.object_id == object_id for existing in state.math_objects):
-            continue
-        state.math_objects.append(
-            MathObject(
-                object_id=object_id,
-                kind=kind,
-                scope_id=scope_id,
-                canonical_handle=handle,
-                semantic_refs=(name,),
-                source="derived",
-                valid_scope=item.valid_scope or scope_id,
-                source_step_id=produced_by,
-            )
-        )
-        state.alias_index.by_handle[handle] = object_id
-        refs = list(state.alias_index.by_semantic_ref.get(name, ()))
-        refs.append(object_id)
-        state.alias_index.by_semantic_ref[name] = tuple(_unique_ordered(refs))
-
-
-def _classify_produces(
-    produces: tuple[ProducedFact, ...],
-    *,
-    state: _MutableState,
-    handle_registry: CanonicalHandleRegistry,
-    produced_by: str,
-    status: StateStatus,
-) -> tuple[tuple[str, ...], tuple[str, ...]]:
-    slot_writes: list[str] = []
-    condition_writes: list[str] = []
-    for item in produces:
-        runtime_type = _runtime_type_for_produced(item, handle_registry)
-        if _produced_is_condition(item, handle_registry, runtime_type):
-            condition = _ensure_produced_condition(
-                state,
-                item,
-                produced_by=produced_by,
-                handle_registry=handle_registry,
-                runtime_type=runtime_type,
-            )
-            condition_id = condition.condition_id
-            condition_writes.append(condition_id)
-            continue
-        slot = _ensure_produced_slot(
-            state,
-            item,
-            produced_by=produced_by,
-            handle_registry=handle_registry,
-            status=status,
-        )
-        slot_writes.append(slot.slot_id)
-    return tuple(_unique_ordered(slot_writes)), tuple(_unique_ordered(condition_writes))
-
-
-def _ensure_produced_condition(
-    state: _MutableState,
-    item: ProducedFact,
-    *,
-    produced_by: str,
-    handle_registry: CanonicalHandleRegistry,
-    runtime_type: str,
-) -> Condition:
-    scope_id = _scope_from_handle(item.handle) or item.valid_scope
-    ref = _semantic_ref(item.handle)
-    condition_id = f"condition:{ref}@{scope_id}"
-    existing = next(
-        (condition for condition in state.conditions if condition.condition_id == condition_id),
-        None,
-    )
-    if existing is not None:
-        state.alias_index.by_handle[item.handle] = existing.condition_id
-        return existing
-    value_type = handle_registry.fact_types.get(item.handle) or item.output_type or runtime_type
-    object_roles = _condition_object_roles(
-        value_type,
-        handle_registry.fact_payloads.get(item.handle, {}),
-        entity_payloads=handle_registry.entity_payloads,
-    )
-    condition = Condition(
-        condition_id=condition_id,
-        kind=value_type,
-        scope_id=scope_id,
-        canonical_handle=item.handle,
-        subject_ids=dict(object_roles).get("subject", ()),
-        object_roles=object_roles,
-        value_type=value_type,
-        source_step_id=produced_by,
-        valid_scope=item.valid_scope,
-    )
-    state.conditions.append(condition)
-    state.alias_index.by_handle[item.handle] = condition_id
-    refs = list(state.alias_index.by_semantic_ref.get(ref, ()))
-    refs.append(condition_id)
-    state.alias_index.by_semantic_ref[ref] = tuple(_unique_ordered(refs))
-    return condition
-
-
 def _condition_object_roles(
     condition_kind: str,
     payload: Mapping[str, Any],
@@ -2697,83 +2161,6 @@ def _source_versions_from_computation(
             if binding.version_id is not None
         )
     )
-
-
-def _ensure_produced_slot(
-    state: _MutableState,
-    item: ProducedFact,
-    *,
-    produced_by: str,
-    handle_registry: CanonicalHandleRegistry,
-    status: StateStatus,
-) -> StateSlot:
-    runtime_type = _runtime_type_for_produced(item, handle_registry)
-    scope_id = _scope_from_handle(item.handle) or item.valid_scope
-    slot_id = _slot_id_for_produced_handle(
-        item.handle,
-        scope_id=scope_id,
-        runtime_type=runtime_type,
-    )
-    existing = state.state_slots.get(slot_id)
-    aliases = tuple(
-        _unique_ordered(
-            [
-                *((existing.aliases if existing else ())),
-                item.handle,
-                *_aliases_for_handle(item.handle, handle_registry),
-            ]
-        )
-    )
-    slot = StateSlot(
-        slot_id=slot_id,
-        object_ref=_object_ref_for_handle(item.handle, runtime_type, scope_id),
-        state_kind=_state_kind_from_handle(item.handle, runtime_type),
-        scope_id=scope_id,
-        runtime_type=runtime_type,
-        canonical_handle=item.handle,
-        aliases=aliases,
-        produced_by=produced_by,
-        valid_scope=item.valid_scope,
-        status=status,
-        write_history=(existing.write_history if existing else ()),
-        dependency_object_refs=(
-            existing.dependency_object_refs if existing else ()
-        ),
-        free_symbol_refs=(existing.free_symbol_refs if existing else ()),
-        source_state_slot_ids=(
-            existing.source_state_slot_ids if existing else ()
-        ),
-        lineage=(
-            existing.lineage
-            if existing is not None
-            else state_semantic_lineage(
-                semantic_roles=(_semantic_ref(item.handle),),
-            )
-        ),
-        logical_state_key=(
-            existing.logical_state_key if existing is not None else None
-        ),
-        typed_slot_id=(
-            existing.typed_slot_id if existing is not None else None
-        ),
-        latest_version_id=(
-            existing.latest_version_id if existing is not None else None
-        ),
-        runtime_destination_key=(
-            existing.runtime_destination_key
-            if existing is not None
-            else None
-        ),
-    )
-    state.state_slots[slot_id] = slot
-    for alias in aliases:
-        state.alias_index.by_handle[alias] = slot_id
-    state.alias_index.by_handle[item.handle] = slot_id
-    ref = _semantic_ref(item.handle)
-    refs = list(state.alias_index.by_semantic_ref.get(ref, ()))
-    refs.append(slot_id)
-    state.alias_index.by_semantic_ref[ref] = tuple(_unique_ordered(refs))
-    return slot
 
 
 def _merge_alias(
@@ -3142,22 +2529,6 @@ def _apply_state_write_provenance(
     state.alias_index.by_semantic_ref[ref] = tuple(_unique_ordered(refs))
 
 
-def _produced_is_condition(
-    item: ProducedFact,
-    registry: CanonicalHandleRegistry,
-    runtime_type: str,
-) -> bool:
-    if item.handle.startswith("answer:"):
-        return False
-    if item.handle in registry.fact_types:
-        return registry.fact_types[item.handle] not in {
-            "point_coordinate",
-            "function_expression",
-            "parameter_value",
-        }
-    return runtime_type in {"Equation", "AngleEquality"}
-
-
 def _fact_type_is_state_slot(fact_type: str | None) -> bool:
     if fact_type is None:
         return False
@@ -3166,16 +2537,6 @@ def _fact_type_is_state_slot(fact_type: str | None) -> bool:
         "Parabola",
         "ParameterValue",
     }
-
-
-def _runtime_type_for_produced(
-    item: ProducedFact,
-    registry: CanonicalHandleRegistry,
-) -> str:
-    return produced_output_type(item, registry) or item.output_type or _runtime_type_for_handle(
-        item.handle,
-        handle_registry=registry,
-    )
 
 
 def _runtime_type_for_handle(
@@ -3228,55 +2589,6 @@ def _state_kind_from_handle(handle: str, runtime_type: str) -> str:
     return state_kind_for_runtime_type(runtime_type)
 
 
-def _best_rewrite_target(
-    old_ref: str,
-    candidates: tuple[ProducedFact, ...],
-    *,
-    handle_registry: CanonicalHandleRegistry,
-) -> str | None:
-    if not candidates:
-        return None
-    old_type = _runtime_type_for_handle(old_ref, handle_registry)
-    same_type = [
-        item.handle
-        for item in candidates
-        if _runtime_type_for_produced(item, handle_registry) == old_type
-    ]
-    if len(same_type) == 1:
-        return same_type[0]
-    old_name = _semantic_ref(old_ref).lower()
-    for item in candidates:
-        candidate_name = _semantic_ref(item.handle).lower()
-        if candidate_name in old_name or old_name in candidate_name:
-            return item.handle
-    if len(candidates) == 1:
-        return candidates[0].handle
-    return None
-
-
-def _normalization_reason(
-    normalization_report: Any | None,
-    step_id: str,
-    handle: str,
-) -> str:
-    if normalization_report is None:
-        return "produces handle changed during normalization"
-    for action in getattr(normalization_report, "actions", ()) or ():
-        if getattr(action, "step_id", None) != step_id:
-            continue
-        action_handle = getattr(action, "handle", None)
-        if action_handle is None or action_handle == handle:
-            reason = getattr(action, "reason", "")
-            return f"{getattr(action, 'action', 'normalization')}: {reason}".strip()
-    return "produces handle changed during normalization"
-
-
-def _step_payload_lookup(draft: StepIntentDraft | None) -> dict[str, dict[str, Any]]:
-    if draft is None:
-        return {}
-    return {step.step_id: step.to_payload() for step in draft.steps}
-
-
 def _split_entity_handle(handle: str) -> tuple[str, str, str]:
     parts = handle.split(":", 2)
     if len(parts) != 3:
@@ -3290,13 +2602,6 @@ def _scope_from_handle(handle: str) -> str | None:
         is_object_semantic_kind(parts[0]) or parts[0] == "fact"
     ):
         return parts[1]
-    return None
-
-
-def _scope_kind_from_handle(handle: str) -> str | None:
-    parts = handle.split(":", 2)
-    if len(parts) == 3:
-        return parts[0]
     return None
 
 
@@ -3461,7 +2766,6 @@ __all__ = [
     "AliasIndex",
     "Condition",
     "ContextManifest",
-    "DraftSnapshots",
     "MathObject",
     "PlannerState",
     "PlannerStateContext",
@@ -3469,7 +2773,6 @@ __all__ = [
     "RetryMemory",
     "initial_planner_state_context",
     "ScopeGraph",
-    "StableStep",
     "StateRewriteEvent",
     "StateSlot",
     "StateWriteVersion",

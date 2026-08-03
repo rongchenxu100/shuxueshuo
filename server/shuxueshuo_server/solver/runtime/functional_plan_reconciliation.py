@@ -2101,7 +2101,7 @@ def _functional_execution_entries(
     reconciled: tuple[FunctionalCallReconciliation, ...],
     placements: tuple[FunctionalCallPlacement, ...],
 ) -> tuple[FunctionalCallExecutionEntry, ...]:
-    """Build the typed call-to-execution ledger without StepIntent data."""
+    """Build the typed call-to-execution ledger from canonical calls."""
     placement_by_call = {
         item.canonical_call_id: item for item in placements
     }

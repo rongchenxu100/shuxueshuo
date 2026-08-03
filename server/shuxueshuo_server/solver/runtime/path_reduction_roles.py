@@ -18,7 +18,7 @@ from shuxueshuo_server.solver.runtime.path_term_parsing import (
     parse_path_terms,
 )
 from shuxueshuo_server.solver.runtime.strategy_models import (
-    StepIntent,
+    FunctionalCompileStepView,
     StrategyDraftValidationError,
 )
 from shuxueshuo_server.solver.utils import unique_ordered
@@ -251,7 +251,7 @@ class PathReductionRoleResolver:
 
 
 def resolve_read_closed_path_reduction_inputs(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: PathReductionBindingIndex,
 ) -> PathReductionRoles:
     input_handles = compile_input_handles(step)

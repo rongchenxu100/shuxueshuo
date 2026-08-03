@@ -25,7 +25,7 @@ from shuxueshuo_server.solver.deepseek_functional_batch import (
 
 def test_authoritative_batch_requires_active_symbolic_closure() -> None:
     summary = {
-        "functional_symbolic_closure_mode": "authoritative",
+        "symbolic_closure_authority": "authoritative",
         "symbolic_closure_execution_count": 0,
         "active_gate_passed": True,
     }
@@ -80,7 +80,7 @@ def test_symbolic_closure_counts_include_failed_attempt_artifacts(
 
 def test_prompt_metadata_guard_allows_capability_prefixed_by_example_id() -> None:
     payload = {
-        "planner_output_format": "functional_plan",
+        "planner_protocol": "functional_plan/v1",
         "functional_few_shot_selection": {
             "example_id": "broken_path_straightening",
             "source_problem_id": "synthetic-source",
@@ -164,7 +164,7 @@ def test_all_case_dry_run_uses_global_concurrency_and_isolated_case_dirs(
     assert not (tmp_path / "batch-all").exists()
 
 
-def test_batch_dry_run_records_transaction_authority_mode(
+def test_batch_dry_run_records_fixed_authorities(
     tmp_path: Path,
     capsys,
 ) -> None:
@@ -176,39 +176,15 @@ def test_batch_dry_run_records_transaction_authority_mode(
             "batch-c1",
             "--output-root",
             str(tmp_path),
-            "--functional-transaction-mode",
-            "context_authoritative",
             "--dry-run",
         ]
     ) == 0
 
     payload = json.loads(capsys.readouterr().out)
-    assert payload["functional_transaction_mode"] == "context_authoritative"
-
-
-def test_batch_dry_run_records_symbolic_closure_mode(
-    tmp_path: Path,
-    capsys,
-) -> None:
-    assert main(
-        [
-            "--samples",
-            "1",
-            "--batch-id",
-            "batch-c4",
-            "--output-root",
-            str(tmp_path),
-            "--functional-transaction-mode",
-            "context_authoritative",
-            "--functional-symbolic-closure-mode",
-            "authoritative",
-            "--dry-run",
-        ]
-    ) == 0
-
-    payload = json.loads(capsys.readouterr().out)
-    assert payload["functional_transaction_mode"] == "context_authoritative"
-    assert payload["functional_symbolic_closure_mode"] == "authoritative"
+    assert payload["planner_protocol"] == "functional_plan/v1"
+    assert payload["transaction_authority"] == "context_authoritative"
+    assert payload["symbolic_closure_authority"] == "authoritative"
+    assert payload["compiler"] == "direct"
 
 
 def test_symbolic_closure_smoke_gate_only_requires_declared_target(

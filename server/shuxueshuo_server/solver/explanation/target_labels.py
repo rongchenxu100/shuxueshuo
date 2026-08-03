@@ -16,6 +16,7 @@ TARGET_POINT_HANDLE_SUFFIXES: tuple[str, ...] = (
     "_coordinate_expr",
     "_coordinate_value",
     "_coordinate",
+    "_square_adjacent_vertex",
     "_parameterized_point",
     "_parametric_coordinate",
     "_locus_line",

@@ -34,9 +34,9 @@
       "id": "step_1",
       "scope_id": "i_1",
       "source_step_ids": [
-        "derive_C_coordinate",
-        "derive_D_coordinate",
-        "derive_i_1_parabola"
+        "derive_y_intercept_C_i",
+        "derive_translated_D_i",
+        "derive_parabola_i"
       ],
       "capability_ids": [
         "quadratic_y_axis_intercept_point",
@@ -44,9 +44,9 @@
         "quadratic_from_constraints"
       ],
       "trace_refs": [
-        "trace:derive_C_coordinate:0:quadratic_y_axis_intercept_point",
-        "trace:derive_D_coordinate:0:translated_point",
-        "trace:derive_i_1_parabola:0:quadratic_from_constraints"
+        "trace:derive_y_intercept_C_i:0:quadratic_y_axis_intercept_point",
+        "trace:derive_translated_D_i:0:translated_point",
+        "trace:derive_parabola_i:0:quadratic_from_constraints"
       ],
       "title": "第1步：求 C、D 点坐标，代入求函数解析式",
       "nav_title": "代入已知点求解析式",
@@ -101,16 +101,16 @@
       "id": "step_2",
       "scope_id": "i_2",
       "source_step_ids": [
-        "derive_i_B_coordinate",
-        "derive_i_2_equal_angle"
+        "derive_x_intercept_B_i",
+        "derive_equal_angle_i"
       ],
       "capability_ids": [
         "quadratic_x_axis_intercept_point",
         "angle_sum_equal_angle_candidates"
       ],
       "trace_refs": [
-        "trace:derive_i_B_coordinate:0:quadratic_x_axis_intercept_point",
-        "trace:derive_i_2_equal_angle:0:angle_sum_equal_angle_candidates"
+        "trace:derive_x_intercept_B_i:0:quadratic_x_axis_intercept_point",
+        "trace:derive_equal_angle_i:0:angle_sum_equal_angle_candidates"
       ],
       "title": "第2步：求 B 坐标，并利用 45° 条件推出等角关系",
       "nav_title": "求B并推出等角",
@@ -155,13 +155,13 @@
       "id": "step_3",
       "scope_id": "i_2",
       "source_step_ids": [
-        "derive_i_2_F_coordinate"
+        "derive_axis_intercept_F_i"
       ],
       "capability_ids": [
         "axis_intercept_from_equal_acute_angles"
       ],
       "trace_refs": [
-        "trace:derive_i_2_F_coordinate:0:axis_intercept_from_equal_acute_angles"
+        "trace:derive_axis_intercept_F_i:0:axis_intercept_from_equal_acute_angles"
       ],
       "title": "第3步：由等角关系确定直线 BE 与 y 轴的交点 F",
       "nav_title": "由等角求F",
@@ -202,13 +202,13 @@
       "id": "step_4",
       "scope_id": "i_2",
       "source_step_ids": [
-        "derive_i_2_E_coordinate"
+        "derive_curve_intersection_E_i"
       ],
       "capability_ids": [
         "line_parabola_second_intersection_point"
       ],
       "trace_refs": [
-        "trace:derive_i_2_E_coordinate:0:line_parabola_second_intersection_point"
+        "trace:derive_curve_intersection_E_i:0:line_parabola_second_intersection_point"
       ],
       "title": "第4步：联立直线与抛物线求点 E",
       "nav_title": "联立求E",
@@ -254,16 +254,16 @@
       "id": "step_5",
       "scope_id": "ii",
       "source_step_ids": [
-        "derive_ii_parametric_parabola",
-        "derive_ii_B_coordinate_expr"
+        "derive_parametric_parabola_ii",
+        "derive_x_intercept_B_ii"
       ],
       "capability_ids": [
         "quadratic_from_constraints",
         "quadratic_x_axis_intercept_point"
       ],
       "trace_refs": [
-        "trace:derive_ii_parametric_parabola:0:quadratic_from_constraints",
-        "trace:derive_ii_B_coordinate_expr:0:quadratic_x_axis_intercept_point"
+        "trace:derive_parametric_parabola_ii:0:quadratic_from_constraints",
+        "trace:derive_x_intercept_B_ii:0:quadratic_x_axis_intercept_point"
       ],
       "title": "第1步：用参数 a 表示第（Ⅱ）问的抛物线和点 B",
       "nav_title": "参数表示函数和B",
@@ -305,13 +305,13 @@
       "id": "step_6",
       "scope_id": "ii",
       "source_step_ids": [
-        "reduce_ii_equal_length_ray_path"
+        "reduce_equal_length_ray_path_ii"
       ],
       "capability_ids": [
         "equal_length_ray_path_reduction"
       ],
       "trace_refs": [
-        "trace:reduce_ii_equal_length_ray_path:0:equal_length_ray_point"
+        "trace:reduce_equal_length_ray_path_ii:0:equal_length_ray_point"
       ],
       "title": "第2步：构造全等三角形，把两动点问题转化为单动点问题",
       "nav_title": "两动点转化单动点",
@@ -350,13 +350,13 @@
       "id": "step_7",
       "scope_id": "ii",
       "source_step_ids": [
-        "reduce_ii_equal_length_ray_path"
+        "reduce_equal_length_ray_path_ii"
       ],
       "capability_ids": [
         "equal_length_ray_path_reduction"
       ],
       "trace_refs": [
-        "trace:reduce_ii_equal_length_ray_path:1:distance_between_points"
+        "trace:reduce_equal_length_ray_path_ii:1:distance_between_points"
       ],
       "title": "第3步：将军饮马得到最小值表达式",
       "nav_title": "将军饮马取最小值",
@@ -400,13 +400,13 @@
       "id": "step_8",
       "scope_id": "ii",
       "source_step_ids": [
-        "solve_ii_a_from_minimum_value"
+        "solve_parameter_from_minimum_ii"
       ],
       "capability_ids": [
         "parameter_from_expression_value"
       ],
       "trace_refs": [
-        "trace:solve_ii_a_from_minimum_value:0:parameter_from_expression_value"
+        "trace:solve_parameter_from_minimum_ii:0:parameter_from_expression_value"
       ],
       "title": "第4步：由最小值等于 √34，解出 a 的值",
       "nav_title": "由最小值求a",

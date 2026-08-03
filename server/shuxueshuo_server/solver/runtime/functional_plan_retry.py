@@ -15,6 +15,15 @@ from shuxueshuo_server.solver.runtime.functional_retry_versions import (
     restore_committed_calls,
 )
 
+
+def retry_state_from_attempt(item: Mapping[str, Any]) -> dict[str, Any] | None:
+    """Read the Functional retry state from an attempt payload."""
+    context_state = item.get("context_derived_retry_state")
+    if isinstance(context_state, dict):
+        return context_state
+    state = item.get("planner_retry_state")
+    return state if isinstance(state, dict) else None
+
 def prepare_functional_plan_raw_response(
     raw_response: str,
     *,
@@ -24,9 +33,7 @@ def prepare_functional_plan_raw_response(
 ) -> str:
     """Apply only formal FunctionalPlan retry memory to a new candidate.
 
-    This function deliberately does not inspect legacy StepIntent diagnostics or
-    accepted prefixes.  Once the selected protocol is FunctionalPlan, call-level
-    retry memory is the only merge authority.
+    Call-level typed retry memory is the only merge authority.
     """
     raw_response = _strip_single_json_fence(raw_response)
     try:
@@ -271,10 +278,7 @@ def latest_functional_retry_state(
             "planner_retry_state",
         ):
             state = attempt.get(key)
-            if (
-                isinstance(state, dict)
-                and state.get("candidate_format") == "functional_plan"
-            ):
+            if isinstance(state, dict):
                 return state
     return None
 
@@ -297,15 +301,6 @@ def _overlay_functional_retry_state(
             retry_state.get("committed_candidate_calls")
             or retry_state.get("stable_candidate_calls")
         )
-        return _overlay_stable_functional_calls(
-            candidate,
-            stable if isinstance(stable, list) else [],
-            baseline=baseline,
-            handle_registry=handle_registry,
-            shareable_capability_ids=shareable_capability_ids,
-        )
-    if policy == "preserve_prefix":
-        stable = retry_state.get("stable_candidate_prefix")
         return _overlay_stable_functional_calls(
             candidate,
             stable if isinstance(stable, list) else [],

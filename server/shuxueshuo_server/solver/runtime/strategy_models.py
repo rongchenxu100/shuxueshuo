@@ -1,19 +1,14 @@
-"""Strategy Planner 的数据模型与 JSON schema。
-
-本模块只保存 LLM StepIntent 草稿、校验报告和 executable candidate 报告等
-轻量数据结构，不依赖 runtime context 或 method 执行层。
-"""
+"""Functional planner wire, reconciliation, and execution diagnostics."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Literal
+from typing import Any, Literal, Protocol
 
 import sympy as sp
 from sympy.parsing.sympy_parser import parse_expr
 
 from shuxueshuo_server.solver.contracts import FunctionalResultForm
-from shuxueshuo_server.solver.runtime.handle_alias_index import SEMANTIC_READ_KIND_ORDER
 from shuxueshuo_server.solver.runtime.state_identity import (
     ComputationKey,
     LogicalStateKey,
@@ -25,22 +20,6 @@ from shuxueshuo_server.solver.runtime.state_identity import (
     StateVersionId,
 )
 from shuxueshuo_server.solver.state_semantics import StateSemanticLineage
-
-STEP_INTENT_OUTPUT_TYPES: tuple[str, ...] = (
-    "AngleEquality",
-    "Coefficients",
-    "Equation",
-    "Expression",
-    "Line",
-    "MinimumExpression",
-    "Parabola",
-    "ParameterValue",
-    "PathTransformation",
-    "Point",
-    "PointList",
-    "StraighteningCandidate",
-)
-
 
 @dataclass(frozen=True)
 class SymbolicClosureProvenance:
@@ -225,7 +204,7 @@ def _math_object_signature(value: MathObjectId) -> tuple[str, str, str]:
 
 
 def answer_output_type_compatible(expected_type: str | None, actual_type: str | None) -> bool:
-    """判断 StepIntent answer 产物类型能否满足 QuestionGoal 类型。
+    """Return whether a compiled answer can satisfy a QuestionGoal type.
 
     题目解析阶段可能只知道“求点 E”，但不知道最后会有两个候选坐标。因此
     ``PointList`` 可以满足 ``Point`` 型答案目标；其它类型继续严格匹配。
@@ -245,7 +224,7 @@ def functional_answer_output_type_compatible(
 
     Functional returns declare their exact scalar/container type. A candidate
     collection must be narrowed by another call before it can bind a singular
-    answer. The older StepIntent helper intentionally retains its compatibility.
+    answer.
     """
     return (
         expected_type is None
@@ -266,7 +245,7 @@ def answer_value_type_requires_closed_scalar(value_type: str | None) -> bool:
 
 @dataclass(frozen=True)
 class CreatedEntity:
-    """StepIntent 在推导过程中声明的新实体。
+    """A derived entity declaration used by capability compilation.
 
     这里的实体只表示“题设之外新出现的对象”，例如辅助点、辅助线。它不承载坐标、
     方程或答案值；这些数值性结论必须通过 ``ProducedFact`` 表达。
@@ -289,7 +268,7 @@ class CreatedEntity:
 
 @dataclass(frozen=True)
 class ProducedFact:
-    """StepIntent 产生的一条新事实或最终答案。
+    """A public capability return projected to a fact or answer destination.
 
     ``handle`` 只能是 ``fact:<scope>:<semantic_name>`` 或
     ``answer:<QuestionGoal.id>``。后续 step 复用时直接在 ``reads`` 中引用该 handle，
@@ -313,15 +292,58 @@ class ProducedFact:
         return payload
 
 
+class FunctionalCompileStepView(Protocol):
+    """Read-only input contract consumed by Functional capability compilation."""
+
+    scope_id: str
+    step_id: str
+    capability_id: str
+    goal_type: str
+    target_handle: str
+    input_handles: tuple[str, ...]
+    created_entities: tuple[Any, ...]
+    return_outputs: tuple[Any, ...]
+
+
+@dataclass(frozen=True)
+class FunctionalCompileStep:
+    """Test/debug compile view; never accepted as an LLM wire payload."""
+
+    scope_id: str
+    step_id: str
+    recipe_hint: str | None
+    goal_type: str
+    target: str
+    strategy: str
+    reads: tuple[str, ...] = ()
+    creates: tuple[CreatedEntity, ...] = ()
+    produces: tuple[ProducedFact, ...] = ()
+    reason: str = ""
+
+    @property
+    def capability_id(self) -> str:
+        return self.recipe_hint or ""
+
+    @property
+    def target_handle(self) -> str:
+        return self.target
+
+    @property
+    def input_handles(self) -> tuple[str, ...]:
+        return self.reads
+
+    @property
+    def created_entities(self) -> tuple[CreatedEntity, ...]:
+        return self.creates
+
+    @property
+    def return_outputs(self) -> tuple[ProducedFact, ...]:
+        return self.produces
+
+
 @dataclass(frozen=True)
 class ProjectedStateWrite:
-    """Internal state-write metadata carried beside a StepIntent projection.
-
-    Functional reconciliation knows whether a return creates a state or
-    transitions an existing StateSlot.  StepIntent intentionally does not
-    expose that compiler detail, so this immutable sidecar preserves it across
-    validation without extending the LLM-facing wire format.
-    """
+    """Typed state-write manifest entry produced by reconciliation."""
 
     step_id: str
     produced_handle: str
@@ -443,13 +465,7 @@ class ProjectedStateDependency:
 
 @dataclass(frozen=True)
 class ProjectedFunctionArgBinding:
-    """Exact FunctionalPlan argument identity carried beside StepIntent.
-
-    Functional reconciliation has already resolved named arguments to current
-    canonical state handles.  StepIntent intentionally keeps only a flat
-    ``reads`` list, so this sidecar prevents the compatibility compiler from
-    discarding those roles and inferring them again from read order.
-    """
+    """Exact FunctionalPlan argument identity consumed by direct compilation."""
 
     step_id: str
     arg_name: str
@@ -507,8 +523,8 @@ class ProjectedFunctionArgBinding:
 class SemanticRef:
     """LLM-facing semantic read reference.
 
-    ``SemanticRef`` is only accepted at the raw JSON boundary. It is resolved to
-    canonical ``StepIntent.reads`` before runtime validation and execution.
+    ``SemanticRef`` is accepted at the raw JSON boundary and resolved to typed
+    object, condition, or StateVersion identity before execution.
     """
 
     ref: str
@@ -527,79 +543,6 @@ class SemanticRef:
         if self.from_step is not None:
             payload["from_step"] = self.from_step
         return payload
-
-
-@dataclass(frozen=True)
-class StepIntent:
-    """LLM 输出的一步“解题意图”。
-
-    它不是可执行计划，也不是 method invocation。字段全部使用自然语言或语义
-    handle，后续阶段才会由代码解析为 method/recipe 候选和实际 ContextPath。
-    """
-
-    scope_id: str
-    step_id: str
-    recipe_hint: str | None
-    goal_type: str
-    target: str
-    strategy: str
-    reads: tuple[str, ...] = ()
-    creates: tuple[CreatedEntity, ...] = ()
-    produces: tuple[ProducedFact, ...] = ()
-    reason: str = ""
-
-    def to_payload(self, *, include_scope_id: bool = True) -> dict[str, Any]:
-        """转成 JSON 友好的 dict，便于 debug artifact 落盘。"""
-        payload = {
-            "step_id": self.step_id,
-            "recipe_hint": self.recipe_hint,
-            "goal_type": self.goal_type,
-            "target": self.target,
-            "strategy": self.strategy,
-            "reads": list(self.reads),
-            "creates": [item.to_payload() for item in self.creates],
-            "produces": [item.to_payload() for item in self.produces],
-            "reason": self.reason,
-        }
-        if include_scope_id:
-            payload["scope_id"] = self.scope_id
-        return payload
-
-
-@dataclass(frozen=True)
-class StepIntentScope:
-    """某个 question/subquestion scope 下的一组 StepIntent。"""
-
-    scope_id: str
-    label: str
-    steps: tuple[StepIntent, ...]
-
-    def to_payload(self) -> dict[str, Any]:
-        """转成与 LLM 输出一致的 scoped JSON。"""
-        return {
-            "scope_id": self.scope_id,
-            "label": self.label,
-            "steps": [
-                step.to_payload(include_scope_id=False)
-                for step in self.steps
-            ],
-        }
-
-
-@dataclass(frozen=True)
-class StepIntentDraft:
-    """一次 LLM 返回的 StepIntent 列表。"""
-
-    scopes: tuple[StepIntentScope, ...]
-
-    @property
-    def steps(self) -> tuple[StepIntent, ...]:
-        """按输出顺序展开所有 scope 下的 steps。"""
-        return tuple(step for scope in self.scopes for step in scope.steps)
-
-    def to_payload(self) -> dict[str, Any]:
-        """转成 JSON 友好的 dict。"""
-        return {"scopes": [scope.to_payload() for scope in self.scopes]}
 
 
 @dataclass(frozen=True)
@@ -693,28 +636,6 @@ class HandleCorrection:
             "from_handle": self.from_handle,
             "to_handle": self.to_handle,
             "reason": self.reason,
-        }
-
-
-@dataclass(frozen=True)
-class HandleResolutionReport:
-    """HandleResolver 的修正摘要。"""
-
-    corrections: tuple[HandleCorrection, ...] = ()
-
-    @property
-    def changed(self) -> bool:
-        """是否实际修正过任意 reads handle。"""
-        return bool(self.corrections)
-
-    def to_payload(self) -> dict[str, Any]:
-        """转成 JSON 友好结构。"""
-        return {
-            "changed": self.changed,
-            "corrections": [
-                correction.to_payload()
-                for correction in self.corrections
-            ],
         }
 
 
@@ -854,90 +775,8 @@ class SemanticReadResolutionReport:
 
 
 @dataclass(frozen=True)
-class StepIntentNormalizationAction:
-    """StepIntentNormalizer 对草稿做的一次确定性整理。
-
-    normalizer 只做代码可以确定的、保守的结构修正，例如把冗余 answer step 合并到
-    前序已能产生同一答案的 recipe。它不会补数学推导，也不会创造普通中间 fact。
-    """
-
-    action: str
-    step_id: str
-    target_step_id: str | None = None
-    handle: str | None = None
-    reason: str = ""
-
-    def to_payload(self) -> dict[str, str | None]:
-        """转成 debug JSON。"""
-        return {
-            "action": self.action,
-            "step_id": self.step_id,
-            "target_step_id": self.target_step_id,
-            "handle": self.handle,
-            "reason": self.reason,
-        }
-
-
-@dataclass(frozen=True)
-class StepIntentNormalizationReport:
-    """StepIntentNormalizer 的整理报告。"""
-
-    actions: tuple[StepIntentNormalizationAction, ...] = ()
-    warnings: tuple[str, ...] = ()
-
-    @property
-    def changed(self) -> bool:
-        """是否实际改写过 StepIntentDraft。"""
-        return bool(self.actions)
-
-    def to_payload(self) -> dict[str, Any]:
-        """转成 JSON 友好结构。"""
-        return {
-            "changed": self.changed,
-            "actions": [action.to_payload() for action in self.actions],
-            "warnings": list(self.warnings),
-        }
-
-
-@dataclass(frozen=True)
-class StepIntentValidationReport:
-    """StepIntent 校验结果摘要。"""
-
-    ok: bool
-    errors: tuple[str, ...] = ()
-    step_count: int = 0
-    covered_goals: tuple[str, ...] = ()
-    missing_goals: tuple[str, ...] = ()
-    recipe_alignment: RecipeAlignmentReport | None = None
-    handle_resolution: HandleResolutionReport | None = None
-    semantic_read_resolution: SemanticReadResolutionReport | None = None
-    raw_output_normalization: dict[str, Any] | None = None
-
-    def to_payload(self) -> dict[str, Any]:
-        """转成 JSON 友好结构。"""
-        payload = {
-            "ok": self.ok,
-            "errors": list(self.errors),
-            "step_count": self.step_count,
-            "covered_goals": list(self.covered_goals),
-            "missing_goals": list(self.missing_goals),
-        }
-        if self.recipe_alignment is not None:
-            payload["recipe_alignment"] = self.recipe_alignment.to_payload()
-        if self.handle_resolution is not None:
-            payload["handle_resolution"] = self.handle_resolution.to_payload()
-        if self.semantic_read_resolution is not None:
-            payload["semantic_read_resolution"] = (
-                self.semantic_read_resolution.to_payload()
-            )
-        if self.raw_output_normalization is not None:
-            payload["raw_output_normalization"] = self.raw_output_normalization
-        return payload
-
-
-@dataclass(frozen=True)
-class StepIntentAppliedFill:
-    """执行前代码自动补齐的一条语义输入。
+class FunctionalAppliedFill:
+    """A typed semantic input supplied during Functional call preparation.
 
     这类补位只记录 canonical handle 层面的事实，不暴露 RuntimeContext path。
     例如 LLM 只读取 ``point:problem:B``，而 method 需要 ``Point`` 时，代码可
@@ -964,8 +803,8 @@ class StepIntentAppliedFill:
 
 
 @dataclass(frozen=True)
-class StepIntentAcceptedStep:
-    """已通过 compile + prefix dry-run 的 StepIntent。"""
+class FunctionalAcceptedStep:
+    """A Functional call whose compiled StepPlans passed runtime checks."""
 
     step_id: str
     scope_id: str
@@ -985,7 +824,7 @@ class StepIntentAcceptedStep:
 
 
 @dataclass(frozen=True)
-class StepIntentPlannerInsight:
+class FunctionalPlannerInsight:
     """已执行前缀向下一轮 planner 暴露的语义 insight。
 
     insight 只来自 method/recipe 已执行产物，用于告诉 LLM 后续规划的关键角色。
@@ -1012,13 +851,8 @@ class StepIntentPlannerInsight:
 
 
 @dataclass(frozen=True)
-class StepIntentPreflightIssue:
-    """执行前全量扫描发现的结构性提醒。
-
-    Preflight issue 只基于 StepIntent 的 handle graph 与 capability contract，
-    不运行 method，也不暴露 RuntimePath。它用于补足 prefix dry-run 只返回首个
-    blocker 的盲区。
-    """
+class FunctionalPreflightIssue:
+    """A structural issue found before transactional call execution."""
 
     step_id: str
     scope_id: str
@@ -1058,7 +892,7 @@ class FunctionArgBindingRepair:
 
 
 @dataclass(frozen=True)
-class StepIntentFunctionBindingEvent:
+class FunctionalFunctionBindingEvent:
     """FunctionSpec adapter binding result for one method attempt.
 
     The payload is debug-safe: it exposes function ids, method ids, status, and
@@ -1093,7 +927,7 @@ class StepIntentFunctionBindingEvent:
 
 
 @dataclass(frozen=True)
-class StepIntentMacroBindingEvent:
+class FunctionalMacroBindingEvent:
     """MacroSpec adapter validation result for one recipe attempt."""
 
     step_id: str
@@ -1248,8 +1082,8 @@ class StateWriteProvenance:
 
 
 @dataclass(frozen=True)
-class StepIntentRuntimeResult:
-    """Prompt-safe value produced by one successfully executed StepIntent."""
+class FunctionalRuntimeResult:
+    """Prompt-safe value produced by one verified Functional call."""
 
     step_id: str
     scope_id: str
@@ -1277,8 +1111,8 @@ class StepIntentRuntimeResult:
 
 
 @dataclass(frozen=True)
-class StepIntentExecutionBlocker:
-    """StepIntent 执行诊断中的首个 runtime 阻塞点。"""
+class FunctionalExecutionBlocker:
+    """The root runtime blocker for a Functional call."""
 
     step_id: str
     scope_id: str
@@ -1312,8 +1146,8 @@ class StepIntentExecutionBlocker:
 
 
 @dataclass(frozen=True)
-class StepIntentSkippedStep:
-    """由于前缀执行失败而未进入 runtime trial 的后续 step。"""
+class FunctionalSkippedStep:
+    """A call not executed because a typed dependency failed."""
 
     step_id: str
     scope_id: str
@@ -1329,21 +1163,21 @@ class StepIntentSkippedStep:
 
 
 @dataclass(frozen=True)
-class StepIntentExecutionDiagnostic:
-    """StepIntent effective draft 的执行诊断。
+class FunctionalExecutionDiagnostic:
+    """Prompt-safe diagnostic for one Functional transactional attempt.
 
-    它描述“代码已经接受了哪些步骤、自动补了哪些输入、在哪个 step 阻塞”。
-    这份报告服务于 DeepSeek repair loop 和 debug，不是 PlannerOutput，也不包含
-    RuntimePath、MethodInvocation、expected answer 或 traceback。
+    The report records verified calls, typed fills, root blockers, and skipped
+    dependents. It is used by the repair loop and debug tooling; it is not a
+    PlannerOutput and does not expose RuntimePath, expected answers, or traces.
     """
 
     ok: bool
-    accepted_prefix: tuple[StepIntentAcceptedStep, ...] = ()
-    applied_fills: tuple[StepIntentAppliedFill, ...] = ()
-    planner_insights: tuple[StepIntentPlannerInsight, ...] = ()
-    preflight_issues: tuple[StepIntentPreflightIssue, ...] = ()
-    function_binding_events: tuple[StepIntentFunctionBindingEvent, ...] = ()
-    macro_binding_events: tuple[StepIntentMacroBindingEvent, ...] = ()
+    accepted_prefix: tuple[FunctionalAcceptedStep, ...] = ()
+    applied_fills: tuple[FunctionalAppliedFill, ...] = ()
+    planner_insights: tuple[FunctionalPlannerInsight, ...] = ()
+    preflight_issues: tuple[FunctionalPreflightIssue, ...] = ()
+    function_binding_events: tuple[FunctionalFunctionBindingEvent, ...] = ()
+    macro_binding_events: tuple[FunctionalMacroBindingEvent, ...] = ()
     state_write_provenance: tuple[StateWriteProvenance, ...] = ()
     state_finalization_decisions: tuple[dict[str, Any], ...] = ()
     state_finalization_mismatches: tuple[dict[str, Any], ...] = ()
@@ -1351,13 +1185,13 @@ class StepIntentExecutionDiagnostic:
     runtime_consumer_decisions: tuple[dict[str, Any], ...] = ()
     runtime_consumer_mismatches: tuple[dict[str, Any], ...] = ()
     legacy_runtime_identity_fallback_count: int = 0
-    runtime_results: tuple[StepIntentRuntimeResult, ...] = ()
-    blockers: tuple[StepIntentExecutionBlocker, ...] = ()
-    skipped_steps: tuple[StepIntentSkippedStep, ...] = ()
+    runtime_results: tuple[FunctionalRuntimeResult, ...] = ()
+    blockers: tuple[FunctionalExecutionBlocker, ...] = ()
+    skipped_steps: tuple[FunctionalSkippedStep, ...] = ()
     candidate_errors: tuple[str, ...] = ()
 
     @property
-    def first_blocker(self) -> StepIntentExecutionBlocker | None:
+    def first_blocker(self) -> FunctionalExecutionBlocker | None:
         """返回第一个 runtime blocker。"""
         return self.blockers[0] if self.blockers else None
 
@@ -1428,8 +1262,6 @@ PlannerRetryLayer = Literal[
     "answer_check",
 ]
 
-PlannerOutputFormat = Literal["step_intent", "functional_plan"]
-
 PlannerRetryPreservePolicy = Literal[
     "preserve_all",
     "preserve_graph",
@@ -1492,8 +1324,6 @@ class PlannerRetryState:
     """Planner retry 的正式稳定状态。"""
 
     attempt: int
-    baseline_draft: dict[str, Any] | None
-    stable_prefix: tuple[dict[str, Any], ...] = ()
     repair_suffix_start: dict[str, str | None] | None = None
     issues: tuple[PlannerRetryIssue, ...] = ()
     recovered_issues: tuple[PlannerRetryIssue, ...] = ()
@@ -1504,9 +1334,7 @@ class PlannerRetryState:
     replay_timeline: tuple[dict[str, Any], ...] = ()
     replay_reports: dict[str, Any] | None = None
     source_context_id: str | None = None
-    candidate_format: PlannerOutputFormat = "step_intent"
     baseline_candidate: dict[str, Any] | None = None
-    stable_candidate_prefix: tuple[dict[str, Any], ...] = ()
     stable_candidate_calls: tuple[dict[str, Any], ...] = ()
     committed_candidate_calls: tuple[dict[str, Any], ...] = ()
     runtime_verified_calls: tuple[dict[str, Any], ...] = ()
@@ -1519,8 +1347,6 @@ class PlannerRetryState:
         """转成 ``previous_attempts`` 和 prompt 可携带的安全 JSON。"""
         payload = {
             "attempt": self.attempt,
-            "baseline_draft": self.baseline_draft,
-            "stable_prefix": list(self.stable_prefix),
             "repair_suffix_start": self.repair_suffix_start,
             "issues": [issue.to_payload() for issue in self.issues],
             "recovered_issues": [
@@ -1532,9 +1358,7 @@ class PlannerRetryState:
             "selected_repair_layer": self.selected_repair_layer,
             "replay_timeline": list(self.replay_timeline),
             "replay_reports": self.replay_reports or {},
-            "candidate_format": self.candidate_format,
             "baseline_candidate": self.baseline_candidate,
-            "stable_candidate_prefix": list(self.stable_candidate_prefix),
             "stable_candidate_calls": list(self.stable_candidate_calls),
             "committed_candidate_calls": list(
                 self.committed_candidate_calls
@@ -1556,24 +1380,17 @@ class PlannerRetryState:
 
 
 @dataclass(frozen=True)
-class PlannerRepairAttempt:
-    """Prompt-safe repair context shared by planner wire formats."""
+class FunctionalRepairAttempt:
+    """Prompt-safe FunctionalPlan retry envelope."""
 
     attempt: int
-    effective_draft: dict[str, Any] | None
-    diagnostic: StepIntentExecutionDiagnostic | None
     repair_instruction: str
-    repair_summary: dict[str, Any] | None = None
     planner_retry_state: PlannerRetryState | None = None
     errors: tuple[str, ...] = ()
-    candidate_format: PlannerOutputFormat = "step_intent"
 
     def to_payload(self) -> dict[str, Any]:
-        """转成 ``PlannerInputs.previous_errors`` 可携带的安全 JSON。"""
-        payload: dict[str, Any] = {
+        return {
             "attempt": self.attempt,
-            "effective_draft": self.effective_draft,
-            "repair_summary": self.repair_summary,
             "planner_retry_state": (
                 self.planner_retry_state.to_payload()
                 if self.planner_retry_state is not None
@@ -1581,343 +1398,9 @@ class PlannerRepairAttempt:
             ),
             "repair_instruction": self.repair_instruction,
             "errors": list(self.errors),
-            "candidate_format": self.candidate_format,
-        }
-        if self.diagnostic is not None:
-            payload["diagnostic"] = self.diagnostic.to_payload()
-        return payload
-
-
-@dataclass(frozen=True)
-class StepIntentRepairAttempt(PlannerRepairAttempt):
-    """Track D compatibility envelope for legacy StepIntent callers."""
-
-
-@dataclass(frozen=True)
-class ExecutableCapabilitySpec:
-    """StepIntent 可尝试匹配的执行能力。
-
-    它把 recipe 与 method 统一成一张“可执行候选”菜单。这里仍不绑定具体
-    ContextPath，也不执行 SymPy；它只回答一个问题：某个 StepIntent 的目标和
-    produces 是否可能由某个 recipe/method 承接。
-    """
-
-    capability_id: str
-    kind: str
-    goal_type: str
-    method_ids: tuple[str, ...]
-    output_types: tuple[str, ...]
-    goal_aliases: tuple[str, ...] = ()
-    allows_creates: bool = False
-    preferred: bool = False
-    title: str = ""
-    description: str = ""
-    execution_status: str = "executable"
-    contract: dict[str, Any] | None = None
-
-    def to_payload(self) -> dict[str, Any]:
-        """转成 debug JSON。"""
-        payload = {
-            "capability_id": self.capability_id,
-            "kind": self.kind,
-            "goal_type": self.goal_type,
-            "goal_aliases": list(self.goal_aliases),
-            "method_ids": list(self.method_ids),
-            "output_types": list(self.output_types),
-            "allows_creates": self.allows_creates,
-            "preferred": self.preferred,
-            "title": self.title,
-            "description": self.description,
-            "execution_status": self.execution_status,
-        }
-        if self.contract is not None:
-            payload["contract"] = self.contract
-        return payload
-
-
-@dataclass(frozen=True)
-class StepIntentResolutionCandidate:
-    """某个 StepIntent 的一个 recipe/method 候选。"""
-
-    capability_id: str
-    kind: str
-    score: int
-    matched_by: tuple[str, ...]
-    output_types: tuple[str, ...]
-    errors: tuple[str, ...] = ()
-
-    @property
-    def ok(self) -> bool:
-        """候选是否能覆盖该 step 的 produces。"""
-        return not self.errors
-
-    def to_payload(self) -> dict[str, Any]:
-        """转成 debug JSON。"""
-        return {
-            "capability_id": self.capability_id,
-            "kind": self.kind,
-            "score": self.score,
-            "matched_by": list(self.matched_by),
-            "output_types": list(self.output_types),
-            "errors": list(self.errors),
-            "ok": self.ok,
-        }
-
-
-@dataclass(frozen=True)
-class StepIntentResolutionStepReport:
-    """单个 StepIntent 的可执行候选解析报告。"""
-
-    step_id: str
-    scope_id: str
-    recipe_hint: str | None
-    produced_types: tuple[str, ...]
-    selected_capability_id: str | None
-    candidates: tuple[StepIntentResolutionCandidate, ...]
-    errors: tuple[str, ...] = ()
-    warnings: tuple[str, ...] = ()
-
-    @property
-    def ok(self) -> bool:
-        """该 step 是否至少有一个可尝试执行的候选。"""
-        return self.selected_capability_id is not None and not self.errors
-
-    def to_payload(self) -> dict[str, Any]:
-        """转成 debug JSON。"""
-        return {
-            "step_id": self.step_id,
-            "scope_id": self.scope_id,
-            "recipe_hint": self.recipe_hint,
-            "produced_types": list(self.produced_types),
-            "selected_capability_id": self.selected_capability_id,
-            "candidates": [candidate.to_payload() for candidate in self.candidates],
-            "errors": list(self.errors),
-            "warnings": list(self.warnings),
-            "ok": self.ok,
-        }
-
-
-@dataclass(frozen=True)
-class ExecutablePlanResolutionReport:
-    """StepIntentDraft 到 executable candidates 的整体解析报告。"""
-
-    ok: bool
-    step_reports: tuple[StepIntentResolutionStepReport, ...]
-    errors: tuple[str, ...] = ()
-    capability_catalog: tuple[ExecutableCapabilitySpec, ...] = ()
-
-    def to_payload(self) -> dict[str, Any]:
-        """转成 debug JSON。"""
-        return {
-            "ok": self.ok,
-            "errors": list(self.errors),
-            "step_reports": [report.to_payload() for report in self.step_reports],
-            "capability_catalog": [
-                capability.to_payload()
-                for capability in self.capability_catalog
-            ],
+            "planner_protocol": "functional_plan/v1",
         }
 
 
 class StrategyDraftValidationError(ValueError):
-    """LLM StepIntent draft 不符合 Phase 1 协议。"""
-
-STEP_INTENT_JSON_SCHEMA: dict[str, Any] = {
-    "type": "object",
-    "additionalProperties": False,
-    "required": ["scopes"],
-    "properties": {
-        "scopes": {
-            "type": "array",
-            "minItems": 1,
-            "items": {
-                "type": "object",
-                "additionalProperties": False,
-                "required": ["scope_id", "label", "steps"],
-                "properties": {
-                    "scope_id": {
-                        "type": "string",
-                        "description": "ProblemIR question/subquestion id，例如 i, ii, ii_1, ii_2",
-                    },
-                    "label": {"type": "string"},
-                    "steps": {
-                        "type": "array",
-                        "minItems": 1,
-                        "items": {
-                            "type": "object",
-                            "additionalProperties": False,
-                            "anyOf": [
-                                {"required": ["reads"]},
-                                {"required": ["semantic_reads"]},
-                            ],
-                            "allOf": [
-                                {
-                                    "anyOf": [
-                                        {"required": ["creates"]},
-                                        {"required": ["produces"]},
-                                        {"required": ["outputs"]},
-                                    ],
-                                },
-                            ],
-                            "required": [
-                                "step_id",
-                                "goal_type",
-                                "target",
-                                "strategy",
-                                "reason",
-                            ],
-                            "properties": {
-                                "step_id": {
-                                    "type": "string",
-                                    "description": "语义化 snake_case id，例如 derive_axis_point",
-                                },
-                                "recipe_hint": {
-                                    "type": ["string", "null"],
-                                    "description": "优先从 recipe_catalog[].recipe_id 选择；其次从 method_catalog[].method_id 选择；不确定时填 null 或省略",
-                                },
-                                "goal_type": {"type": "string"},
-                                "target": {
-                                    "type": "string",
-                                    "description": "语义目标或 answer:<QuestionGoal.id>",
-                                },
-                                "strategy": {
-                                    "type": "string",
-                                    "description": "本步打算如何推进，不写具体答案",
-                                },
-                                "reads": {
-                                    "type": "array",
-                                    "description": "Legacy fallback: 本步读取的 canonical Entity/Fact/answer handle；semantic_reads 解析成功时优先，若 semantic_reads 失败且 reads 全部可见有效，系统可回退到 reads",
-                                    "items": {"type": "string"},
-                                },
-                                "semantic_reads": {
-                                    "type": "array",
-                                    "description": "推荐字段：读入引用；ref 可写 semantic_read_catalog 短 ref 或 canonical handle，系统会解析为 canonical reads",
-                                    "items": {
-                                        "type": "object",
-                                        "additionalProperties": False,
-                                        "required": ["ref", "kind"],
-                                        "properties": {
-                                            "ref": {
-                                                "type": "string",
-                                                "description": "semantic_read_catalog 中的 ref、前序产物语义名，或 ProblemIR/前序产物的 canonical handle",
-                                            },
-                                            "kind": {
-                                                "type": "string",
-                                                "enum": list(SEMANTIC_READ_KIND_ORDER),
-                                            },
-                                            "value_type": {
-                                                "type": ["string", "null"],
-                                                "description": "可选 disambiguation：fact type、answer value_type 或前序 produces.output_type",
-                                            },
-                                            "from_step": {
-                                                "type": ["string", "null"],
-                                                "description": "读取前序 step 的 creates/produces 时建议填写；若省略，系统只在唯一可见 exact match 时自动推断；读取题面初始对象时不要填",
-                                            },
-                                        },
-                                    },
-                                },
-                                "creates": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "object",
-                                        "additionalProperties": False,
-                                        "required": [
-                                            "handle",
-                                            "entity_type",
-                                            "valid_scope",
-                                            "description",
-                                        ],
-                                        "properties": {
-                                            "handle": {
-                                                "type": "string",
-                                                "description": "新实体 handle，例如 point:ii:Aux",
-                                            },
-                                            "entity_type": {
-                                                "type": "string",
-                                                "description": "实体类型，必须与 handle 前缀一致",
-                                            },
-                                            "valid_scope": {
-                                                "type": "string",
-                                                "description": "实体有效 scope，例如 problem、i、ii、ii_1",
-                                            },
-                                            "description": {
-                                                "type": "string",
-                                                "description": "这个新实体的自然语言说明",
-                                            },
-                                        },
-                                    },
-                                },
-                                "produces": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "object",
-                                        "additionalProperties": False,
-                                        "required": [
-                                            "handle",
-                                            "valid_scope",
-                                            "description",
-                                        ],
-                                        "properties": {
-                                            "handle": {
-                                                "type": "string",
-                                                "description": "新事实或最终答案 handle，例如 fact:ii:N_coordinate_expr 或 answer:i.parabola",
-                                            },
-                                            "valid_scope": {
-                                                "type": "string",
-                                                "description": "事实有效 scope，例如 problem、i、ii、ii_1",
-                                            },
-                                            "description": {
-                                                "type": "string",
-                                                "description": "这条事实或答案的自然语言说明",
-                                            },
-                                            "output_type": {
-                                                "type": ["string", "null"],
-                                                "enum": [*STEP_INTENT_OUTPUT_TYPES, None],
-                                                "description": "可选：本 produces 对应的 runtime 输出类型；能确定时请显式填写，减少系统从自然语言猜测",
-                                            },
-                                        },
-                                    },
-                                },
-                                "outputs": {
-                                    "type": "array",
-                                    "description": "兼容输入层：可用统一 outputs[] 描述 creates/produces，系统会在校验前分拣成 canonical creates/produces；StepIntent 输出仍只保留 creates/produces",
-                                    "items": {
-                                        "type": "object",
-                                        "additionalProperties": False,
-                                        "required": [
-                                            "handle",
-                                            "valid_scope",
-                                            "description",
-                                        ],
-                                        "properties": {
-                                            "handle": {
-                                                "type": "string",
-                                                "description": "entity/fact/answer handle",
-                                            },
-                                            "entity_type": {
-                                                "type": ["string", "null"],
-                                                "description": "当 handle 是新 entity 时可填；缺省时系统从 handle 前缀推导",
-                                            },
-                                            "valid_scope": {
-                                                "type": "string",
-                                            },
-                                            "description": {
-                                                "type": "string",
-                                            },
-                                            "output_type": {
-                                                "type": ["string", "null"],
-                                                "enum": [*STEP_INTENT_OUTPUT_TYPES, None],
-                                                "description": "当输出是 fact/answer 时的可选类型 hint；系统会用 contract/handle 继续校准",
-                                            },
-                                        },
-                                    },
-                                },
-                                "reason": {"type": "string"},
-                            },
-                        },
-                    },
-                },
-            },
-        }
-    },
-}
+    """LLM FunctionalPlan candidate violates the planner contract."""

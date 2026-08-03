@@ -70,7 +70,7 @@ class StudentNarrativePlacementProjector:
                         step_id=step_id,
                         execution_scope_id=str(step.get("scope_id") or "problem"),
                         presentation_scope_id=str(step.get("scope_id") or "problem"),
-                        placement_reason="legacy_step_intent",
+                        placement_reason="compiled_step_scope",
                         source_scope_ids=(str(step.get("scope_id") or "problem"),),
                     )
                     for step_id, step in step_by_id.items()
@@ -153,7 +153,7 @@ def transactional_functional_steps(
     replay: Any | None,
     planner_output: Any,
 ) -> tuple[dict[str, Any], ...]:
-    """Project verified canonical calls for teaching without StepIntent."""
+    """Project verified canonical calls into the teaching presentation."""
     reconciliation = getattr(replay, "functional_reconciliation", None)
     attempt = getattr(replay, "transactional_attempt_result", None)
     if reconciliation is None or attempt is None or planner_output is None:
@@ -283,6 +283,12 @@ def _step_dependencies(
         if target not in step_ids:
             continue
         result[target].extend(source for source in sources if source in step_ids)
+
+    if functional_reconciliation is not None:
+        return {
+            step_id: tuple(dict.fromkeys(sources))
+            for step_id, sources in result.items()
+        }
 
     producer_by_handle: dict[str, str] = {}
     for step in effective_steps:
@@ -423,9 +429,18 @@ def _presentation_scope(
             terminal_answer_scopes,
             scope_parents,
         )
+        declared_scope = _least_common_scope(source_scopes, scope_parents)
+        if (
+            declared_scope != "problem"
+            and terminal_scope != declared_scope
+            and terminal_scope in _ancestor_chain(declared_scope, scope_parents)
+        ):
+            # Hoisting a shared producer changes runtime visibility, not where
+            # students first encounter the authored reasoning. Present it in
+            # its declared question and let sibling consumers reference it.
+            return declared_scope, "declared_scope_anchor"
         if terminal_scope != "problem":
             return terminal_scope, "shared_consumer_scope"
-        declared_scope = _least_common_scope(source_scopes, scope_parents)
         if declared_scope != "problem":
             return declared_scope, "declared_scope_anchor"
         return _non_global_common_scope(

@@ -90,8 +90,8 @@ def _hexi25_planner_provider(context: RuntimeContext) -> GenericPlanner:
 
 
 DEBUG_DETERMINISTIC_PLANNER_PROVIDERS: dict[str, PlannerProvider] = {
-    QUADRATIC_PATH_MINIMUM_FAMILY.family_id: _nankai25_planner_provider,
-    QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY.family_id: _hexi25_planner_provider,
+    "tj-2026-nankai-yimo-25": _nankai25_planner_provider,
+    "tj-2026-hexi-yimo-25": _hexi25_planner_provider,
 }
 
 DEFAULT_PLANNER_PROVIDERS: dict[str, PlannerProvider] = {}
@@ -152,7 +152,8 @@ class RuntimeOrchestrator:
                 ],
             )
         provider = (
-            self.planner_providers.get(family.family_id)
+            self.planner_providers.get(problem.problem_id)
+            or self.planner_providers.get(family.family_id)
             or self.default_planner_provider
         )
         if provider is None:
@@ -429,16 +430,10 @@ def _next_previous_errors(
 
 
 def _is_rich_repair_context(payload: object) -> bool:
-    """判断 previous_attempt 是否包含 effective draft + diagnostic。"""
+    """判断 previous_attempt 是否包含 Functional retry state。"""
     if not isinstance(payload, dict):
         return False
-    return (
-        isinstance(payload.get("planner_retry_state"), dict)
-        or (
-            isinstance(payload.get("effective_draft"), dict)
-            and isinstance(payload.get("diagnostic"), dict)
-        )
-    )
+    return isinstance(payload.get("planner_retry_state"), dict)
 
 
 def _has_rich_repair_context(items: list[object]) -> bool:
@@ -550,20 +545,14 @@ def _write_debug_attempt(
             str(raw_response),
             encoding="utf-8",
         )
-        candidate_format = getattr(
-            getattr(planner, "artifacts", None),
-            "candidate_format",
-            None,
+        try:
+            functional_payload = json.loads(str(raw_response))
+        except json.JSONDecodeError:
+            functional_payload = {"raw_response": str(raw_response)}
+        _write_json(
+            debug_dir / f"{prefix}.functional-plan.json",
+            functional_payload,
         )
-        if candidate_format == "functional_plan":
-            try:
-                functional_payload = json.loads(str(raw_response))
-            except json.JSONDecodeError:
-                functional_payload = {"raw_response": str(raw_response)}
-            _write_json(
-                debug_dir / f"{prefix}.functional-plan.json",
-                functional_payload,
-            )
     client = getattr(planner, "client", None)
     if client is not None:
         _write_json(
@@ -586,30 +575,14 @@ def _write_debug_attempt(
                     "last_provider_attempts",
                     None,
                 ),
-                "candidate_format": getattr(
-                    getattr(planner, "artifacts", None),
-                    "candidate_format",
-                    None,
-                ),
+                "planner_protocol": "functional_plan/v1",
             },
         )
-    raw_draft = getattr(planner, "last_raw_draft", None)
-    if raw_draft is not None:
-        _write_json(debug_dir / f"{prefix}.raw-draft.json", _safe_json(raw_draft))
     validation_report = getattr(planner, "last_validation_report", None)
     if validation_report is not None:
         _write_json(
             debug_dir / f"{prefix}.validation-report.json",
             _safe_json(validation_report),
-        )
-    draft = getattr(planner, "last_draft", None)
-    if draft is not None:
-        _write_json(debug_dir / f"{prefix}.parsed-draft.json", _safe_json(draft))
-    effective_draft = getattr(planner, "last_effective_draft", None)
-    if effective_draft is not None:
-        _write_json(
-            debug_dir / f"{prefix}.effective-draft.json",
-            _safe_json(effective_draft),
         )
     diagnostic = getattr(planner, "last_execution_diagnostic", None)
     if diagnostic is not None:

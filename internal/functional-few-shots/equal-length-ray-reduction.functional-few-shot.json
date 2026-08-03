@@ -27,11 +27,11 @@
             }
           },
           "return_bindings": {},
+          "strategy": "用等长关系把双动点路径降维成单距离最值。",
+          "reason": "该机制产生关于主参数的最小值表达式。",
           "return_expectations": {
             "path_minimum_expression": "open_expression"
-          },
-          "strategy": "用等长关系把双动点路径降维成单距离最值。",
-          "reason": "该机制产生关于主参数的最小值表达式。"
+          }
         },
         {
           "call_id": "solve_parameter",

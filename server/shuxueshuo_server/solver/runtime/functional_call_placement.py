@@ -106,7 +106,7 @@ class FunctionalCallPlacementResult:
 
 
 class FunctionalCallPlacementService:
-    """Canonicalize equivalent calls before StepIntent projection.
+    """Canonicalize equivalent calls before direct compilation.
 
     Reconciliation may use temporary scope-local allocations while resolving a
     forward-only call graph. This pass is the sole owner of the final execution

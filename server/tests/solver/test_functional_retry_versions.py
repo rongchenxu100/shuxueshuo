@@ -662,7 +662,6 @@ def test_preserved_commit_projects_relevant_result_as_locked_context() -> None:
             {
                 "context_derived_retry_state": {
                     "attempt": 1,
-                    "candidate_format": "functional_plan",
                     "baseline_candidate": {
                         "schema_version": "functional_plan/v1",
                         "scopes": [],
@@ -717,7 +716,6 @@ def test_typed_checkpoint_backfills_locked_call_projection() -> None:
             {
                 "context_derived_retry_state": {
                     "attempt": 1,
-                    "candidate_format": "functional_plan",
                     "baseline_candidate": {
                         "schema_version": "functional_plan/v1",
                         "scopes": [],

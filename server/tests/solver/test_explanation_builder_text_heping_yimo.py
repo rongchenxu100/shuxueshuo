@@ -779,7 +779,7 @@ def test_equal_length_ray_recipe_teaching_draft_binds_heping_roles(tmp_path) -> 
     groups = [
         item
         for item in payload["candidate_groups"]
-        if item["source_step_id"] == "reduce_ii_equal_length_ray_path"
+        if item["source_step_id"] == "reduce_equal_length_ray_path_ii"
     ]
 
     assert [group["teaching_substep_id"] for group in groups] == [
@@ -792,7 +792,7 @@ def test_equal_length_ray_recipe_teaching_draft_binds_heping_roles(tmp_path) -> 
     serialized = json.dumps(draft, ensure_ascii=False)
     compact = serialized.replace(" ", "")
 
-    assert group["candidate_group_id"] == "reduce_ii_equal_length_ray_path.path_reduction"
+    assert group["candidate_group_id"] == "reduce_equal_length_ray_path_ii.path_reduction"
     assert group["recipe_explanation"]["recipe_id"] == "equal_length_ray_path_reduction"
     assert draft["confidence"] in {"complete", "partial"}
     assert draft["bound_roles"]["auxiliary_point"]["explanation_only_label"] is True
@@ -808,7 +808,7 @@ def test_equal_length_ray_recipe_teaching_draft_binds_heping_roles(tmp_path) -> 
     minimum_draft = minimum_group["teaching_expansion_draft"]
     minimum_serialized = json.dumps(minimum_draft, ensure_ascii=False)
 
-    assert minimum_group["candidate_group_id"] == "reduce_ii_equal_length_ray_path.minimum_by_segment"
+    assert minimum_group["candidate_group_id"] == "reduce_equal_length_ray_path_ii.minimum_by_segment"
     assert "两点之间线段最短" in minimum_serialized
     assert "G(3√(a²+1)/|a|,-3)" in minimum_serialized
     assert "OG=√((3√(a²+1)/|a|)²+(-3)²)=3√(2a²+1)/|a|" in minimum_serialized
@@ -822,7 +822,7 @@ def test_recorded_heping_lesson_splits_equal_length_reduction() -> None:
     reduction_steps = [
         step
         for step in lesson.steps
-        if "reduce_ii_equal_length_ray_path" in step.source_step_ids
+        if "reduce_equal_length_ray_path_ii" in step.source_step_ids
     ]
 
     assert [step.teaching_substep_ids for step in reduction_steps] == [
@@ -845,7 +845,7 @@ def test_line_parabola_method_keeps_single_step_with_intermediate_box() -> None:
     line_groups = [
         group
         for group in groups
-        if group.step_id == "derive_i_2_E_coordinate"
+        if group.step_id == "derive_curve_intersection_E_i"
     ]
 
     assert len(line_groups) == 1
@@ -862,7 +862,7 @@ def test_line_parabola_method_keeps_single_step_with_intermediate_box() -> None:
     split_steps = [
         step
         for step in lesson.steps
-        if "derive_i_2_E_coordinate" in step.source_step_ids
+        if "derive_curve_intersection_E_i" in step.source_step_ids
     ]
 
     assert len(split_steps) == 1
@@ -1211,7 +1211,7 @@ class _RepairingMergedSubstepClient:
         reduction_groups = [
             group
             for group in groups
-            if group["source_step_id"] == "reduce_ii_equal_length_ray_path"
+            if group["source_step_id"] == "reduce_equal_length_ray_path_ii"
         ]
         return json.dumps(
             {

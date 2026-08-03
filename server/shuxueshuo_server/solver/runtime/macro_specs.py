@@ -2,7 +2,7 @@
 
 MacroSpec is the recipe-level companion to FunctionSpec.  It projects existing
 StepRecipeSpec, RecipeExecutionSpec, and CapabilityContract metadata into a
-typed state-transformer view while keeping the existing RecipeTrialExecutor as
+typed state-transformer view while keeping the shared capability compiler as
 the runtime execution boundary.
 """
 
@@ -56,7 +56,7 @@ from shuxueshuo_server.solver.runtime.straightening_metadata import (
 )
 from shuxueshuo_server.solver.runtime.strategy_models import (
     ProducedFact,
-    StepIntent,
+    FunctionalCompileStepView,
     StrategyDraftValidationError,
 )
 from shuxueshuo_server.solver.state_semantics import (
@@ -350,7 +350,7 @@ class MacroSpecRegistry:
 
 
 class MacroAdapterRegistry:
-    """Validate recipe StepIntent against MacroSpec state-transformer metadata."""
+    """Validate recipe FunctionalCompileStepView against MacroSpec state-transformer metadata."""
 
     def __init__(
         self,
@@ -361,7 +361,7 @@ class MacroAdapterRegistry:
         self.specs = specs
         self.handle_registry = handle_registry
 
-    def validate(self, recipe_id: str, step: StepIntent) -> MacroSpec:
+    def validate(self, recipe_id: str, step: FunctionalCompileStepView) -> MacroSpec:
         spec = self.specs.get(recipe_id)
         if spec is None:
             raise StrategyDraftValidationError(f"macro.spec_missing: {recipe_id}")
@@ -377,7 +377,7 @@ class MacroAdapterRegistry:
     def return_bindings(
         self,
         recipe_id: str,
-        step: StepIntent,
+        step: FunctionalCompileStepView,
     ) -> tuple[tuple[ProducedFact, MacroReturnSpec], ...]:
         """Return the unique typed macro return selected for each produced state."""
         spec = self.specs.require(recipe_id)
@@ -708,7 +708,7 @@ def _contract_mismatch_notes(
     return tuple(notes)
 
 
-def _arg_errors(spec: MacroSpec, step: StepIntent) -> tuple[str, ...]:
+def _arg_errors(spec: MacroSpec, step: FunctionalCompileStepView) -> tuple[str, ...]:
     required_reads = [
         arg for arg in spec.args
         if arg.required and arg.kind in {"slot_read", "condition_read"}
@@ -724,7 +724,7 @@ def _arg_errors(spec: MacroSpec, step: StepIntent) -> tuple[str, ...]:
 
 def _return_errors(
     spec: MacroSpec,
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     handle_registry: CanonicalHandleRegistry | None = None,
 ) -> tuple[str, ...]:
     _bindings, errors = _match_macro_returns(spec, step, handle_registry)
@@ -733,7 +733,7 @@ def _return_errors(
 
 def _match_macro_returns(
     spec: MacroSpec,
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     handle_registry: CanonicalHandleRegistry | None = None,
 ) -> tuple[
     tuple[tuple[ProducedFact, MacroReturnSpec], ...],
@@ -829,7 +829,7 @@ def _identity_compatible_returns(
     candidates: list[MacroReturnSpec],
     *,
     produced_handle: str,
-    step: StepIntent,
+    step: FunctionalCompileStepView,
 ) -> list[MacroReturnSpec]:
     if not candidates:
         return []

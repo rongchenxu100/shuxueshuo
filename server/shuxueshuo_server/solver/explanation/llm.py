@@ -248,7 +248,7 @@ def build_lesson_planner_payload(
             "若 candidate_group 提供 teaching_expansion_draft，优先使用该草稿，不要根据 method_id 自己猜证明。",
             "若 candidate_group 提供 required_references，它们是代码确认的跨问复用关系；可润色但不要重新计算这些结论。",
             "可以把一个 executable recipe 拆成多个 LessonIR steps，但 source_step_ids 必须仍来自 candidate_groups。",
-            "teaching_expansion_draft 中 explanation_only_label=true 的辅助点只用于讲解，不是新的 StepIntent creates。",
+            "teaching_expansion_draft 中 explanation_only_label=true 的辅助点只用于讲解，不是新的 FunctionalPlan return。",
             "示例讲解只用于学习标题、derive 标签、步骤粒度和讲解风格；不要复制示例题的点名、数值、答案或 source_step_ids。",
             "title 尽量使用“第 N 步：动作 + 目的”的格式，不要写“第一部分/第二部分”这类系统拆分词。",
             "derive 标签优先使用证明流标签：作、∵、∴。代入、化简、解方程、筛选等动作词应写在正文里，不作为标签。",

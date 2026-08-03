@@ -1,30 +1,14 @@
-"""Offline parity checks for recorded StepIntent and authored FunctionalPlan."""
+"""Typed provenance signatures used by FunctionalPlan regression tests."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
-import json
 from typing import Any, Iterable
 
-from shuxueshuo_server.solver.deepseek_functional_batch import FunctionalBatchCase
-from shuxueshuo_server.solver.fixtures import load_problem_ir
-from shuxueshuo_server.solver.runtime.context import ContextBuilder
-from shuxueshuo_server.solver.runtime.functional_plan_validation import (
-    FunctionalPlanValidator,
-)
-from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
-from shuxueshuo_server.solver.runtime.projection import problem_to_llm_payload
 from shuxueshuo_server.solver.runtime.strategy_models import (
     StateWriteProvenance,
-    StepIntentExecutionDiagnostic,
+    FunctionalExecutionDiagnostic,
 )
-from shuxueshuo_server.solver.runtime.strategy_payload import (
-    build_strategy_probe_inputs,
-)
-from shuxueshuo_server.solver.runtime.strategy_replay import (
-    PlannerRetryReplayService,
-)
-from shuxueshuo_server.solver.runtime.strategy_runtime_planner import StrategyPlanner
 from shuxueshuo_server.solver.state_semantics import (
     StateObjectRoleBinding,
     is_object_handle,
@@ -119,97 +103,8 @@ class ProvenanceParityMismatch:
         }
 
 
-@dataclass(frozen=True)
-class ProvenanceParityReport:
-    ok: bool
-    recorded: ProvenanceParitySignature
-    functional: ProvenanceParitySignature
-    mismatches: tuple[ProvenanceParityMismatch, ...] = ()
-
-    def to_payload(self) -> dict[str, Any]:
-        return {
-            "ok": self.ok,
-            "recorded": self.recorded.to_payload(),
-            "functional": self.functional.to_payload(),
-            "mismatches": [item.to_payload() for item in self.mismatches],
-        }
-
-
-class FunctionalParityRunner:
-    """Replay both authored protocols and compare semantic provenance."""
-
-    def compare_fixture(
-        self,
-        case: FunctionalBatchCase,
-    ) -> ProvenanceParityReport:
-        problem = load_problem_ir(case.problem_fixture_path)
-        inputs = build_strategy_probe_inputs(problem)
-        problem_payload = problem_to_llm_payload(problem)
-        handle_registry = CanonicalHandleRegistry.from_problem_payload(
-            problem_payload
-        )
-
-        recorded_planner = StrategyPlanner(
-            ContextBuilder().build(problem),
-            mode="recorded",
-            recorded_fixture_dir=case.recorded_step_intent_path.parent,
-        )
-        recorded_planner.plan(inputs)
-        recorded_replay = recorded_planner.artifacts.retry_replay_result
-        if recorded_replay is None or recorded_replay.diagnostic is None:
-            raise AssertionError(
-                f"recorded fixture produced no diagnostic: {case.case_id}"
-            )
-
-        functional_payload = json.loads(
-            case.functional_fixture_path.read_text(encoding="utf-8")
-        )
-        functional_plan, validation = (
-            FunctionalPlanValidator().validate_payload_with_report(
-                functional_payload,
-                handle_registry=handle_registry,
-                question_goals=inputs.question_goals,
-            )
-        )
-        if functional_plan is None or not validation.ok:
-            raise AssertionError(
-                f"invalid FunctionalPlan fixture {case.case_id}: "
-                f"{validation.errors}"
-            )
-        functional_replay = PlannerRetryReplayService().replay_functional_plan(
-            functional_plan,
-            inputs=inputs,
-            handle_registry=handle_registry,
-            context=ContextBuilder().build(problem),
-            attempt=1,
-            problem_payload=problem_payload,
-            validation_report=validation,
-        )
-        if functional_replay.output is None or functional_replay.diagnostic is None:
-            raise AssertionError(
-                f"FunctionalPlan fixture did not replay {case.case_id}: "
-                f"{functional_replay.errors}"
-            )
-
-        recorded = provenance_parity_signature(
-            recorded_replay.diagnostic,
-            scope_parents=handle_registry.scope_parents,
-        )
-        functional = provenance_parity_signature(
-            functional_replay.diagnostic,
-            scope_parents=handle_registry.scope_parents,
-        )
-        mismatches = compare_provenance_signatures(recorded, functional)
-        return ProvenanceParityReport(
-            ok=not mismatches,
-            recorded=recorded,
-            functional=functional,
-            mismatches=mismatches,
-        )
-
-
 def provenance_parity_signature(
-    diagnostic: StepIntentExecutionDiagnostic,
+    diagnostic: FunctionalExecutionDiagnostic,
     *,
     scope_parents: dict[str, str | None] | None = None,
 ) -> ProvenanceParitySignature:
@@ -439,9 +334,9 @@ def _compare_logical_states(
     """Require every recorded answer-reachable logical state in Functional.
 
     Functional may contain additional answer-reachable object states because
-    the authored protocol can expose richer intermediate provenance than the
-    legacy recorded StepIntent. The shared states must preserve writer count,
-    transition order, and recorded visibility.
+    an authored plan can expose richer intermediate provenance than an older
+    recorded baseline. Shared states must preserve writer count, transition
+    order, and recorded visibility.
     """
     functional_scope_parents = dict(functional.scope_parents)
     recorded_states = {

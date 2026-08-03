@@ -134,14 +134,15 @@ def _goal_types_from_problem_payload(problem_payload: dict) -> list[str]:
 
 
 def _capability_ids_from_steps(problem_id: str) -> list[str]:
-    path = REPO_ROOT / "internal" / "solver-fixtures" / f"{problem_id}.executable-step-intents.json"
-    if not path.exists():
-        return []
-    data = json.loads(path.read_text(encoding="utf-8"))
+    from shuxueshuo_server.solver.runtime.functional_few_shots import (
+        load_functional_plan_fixture,
+    )
+
+    data = load_functional_plan_fixture(problem_id)
     result: list[str] = []
     for scope in data.get("scopes", []):
-        for step in scope.get("steps", []):
-            capability = step.get("recipe_hint")
+        for call in scope.get("calls", []):
+            capability = call.get("capability_id")
             if isinstance(capability, str) and capability and capability not in result:
                 result.append(capability)
     return result

@@ -10,7 +10,7 @@ from shuxueshuo_server.solver.runtime.condition_roles import (
     resolve_read_closed_right_angle_method_roles,
 )
 from shuxueshuo_server.solver.runtime.strategy_models import (
-    StepIntent,
+    FunctionalCompileStep,
     StrategyDraftValidationError,
 )
 
@@ -52,8 +52,8 @@ class _Index:
         return self.payloads[handle]
 
 
-def _step(*reads: str) -> StepIntent:
-    return StepIntent(
+def _step(*reads: str) -> FunctionalCompileStep:
+    return FunctionalCompileStep(
         scope_id="part",
         step_id="construct_target",
         goal_type="derive_constructed_point",

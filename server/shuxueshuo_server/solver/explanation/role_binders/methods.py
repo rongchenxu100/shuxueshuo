@@ -481,6 +481,10 @@ class LineLocusMinimumPointRoleBinder(RoleNameRegistryMethodRoleBinder):
         )
         detail = _line_locus_minimum_detail(group, snapshot)
         roles.update({key: value for key, value in detail.items() if value not in ("", None)})
+        target_label = _point_label_from_step_target(group.step) or _produced_point_label(group.step)
+        target_pair = _runtime_point_for_step(group.step_id, snapshot)
+        if target_label and target_pair is not None:
+            roles["target_point"] = _student_point_display(target_label, target_pair)
         return roles
 
 
@@ -598,7 +602,7 @@ def _runtime_line_for_source_step(
     for fact in snapshot.fact_index.values():
         if not isinstance(fact, dict) or fact.get("type") != "Line":
             continue
-        if str(fact.get("scope_id") or "") != source_step_id:
+        if not _fact_belongs_to_step(fact, source_step_id):
             continue
         value = fact.get("value")
         if isinstance(value, dict):
@@ -1291,7 +1295,7 @@ def _runtime_value_for_fact(
             continue
         if fact.get("type") != value_type or fact.get("value") in (None, ""):
             continue
-        if source_step_id and str(fact.get("scope_id") or "") == source_step_id:
+        if source_step_id and _fact_belongs_to_step(fact, source_step_id):
             return str(fact["value"])
         if scope_id and str(fact.get("scope_id") or "") == scope_id:
             fallback = str(fact["value"])
@@ -1490,7 +1494,7 @@ def _point_list_output_for_step(
     for item in snapshot.fact_index.values():
         if not isinstance(item, dict) or item.get("type") != "PointList":
             continue
-        if str(item.get("scope_id") or "") == step_id and item.get("value") not in (None, ""):
+        if _fact_belongs_to_step(item, step_id) and item.get("value") not in (None, ""):
             points = _sympy_point_list(item.get("value"))
             if points:
                 return points
@@ -1862,7 +1866,7 @@ def _square_path_dimension_payload(
         value = fact.get("value")
         if not isinstance(value, dict) or value.get("type") != "square_path_dimension_reduction":
             continue
-        if str(fact.get("scope_id") or "") == step_id or f":{step_id}:" in str(handle):
+        if _fact_belongs_to_step(fact, step_id) or f":{step_id}:" in str(handle):
             return value
         if str(fact.get("source") or "") == "square_path_dimension_reduction":
             fallback = value
@@ -2123,18 +2127,18 @@ def _point_label_from_handle_or_problem(handle: str, snapshot: ExplanationSnapsh
 
 
 def _square_target_label(step: dict[str, Any], labels: list[str]) -> str:
-    for handle in step.get("reads") or ():
-        if not isinstance(handle, str) or not handle.startswith("point:"):
-            continue
-        label = _semantic_point_label(handle_name(handle))
-        if label in labels and label != labels[0]:
-            return label
     for raw in (
         str(step.get("target") or ""),
         *(str(item.get("handle") or "") for item in step.get("produces") or () if isinstance(item, dict)),
     ):
         label = _semantic_point_label(handle_name(raw))
         if label in labels:
+            return label
+    for handle in step.get("reads") or ():
+        if not isinstance(handle, str) or not handle.startswith("point:"):
+            continue
+        label = _semantic_point_label(handle_name(handle))
+        if label in labels and label != labels[0]:
             return label
     return ""
 
@@ -2207,7 +2211,7 @@ def _runtime_point_for_step(
     for fact in snapshot.fact_index.values():
         if not isinstance(fact, dict) or fact.get("type") != "Point":
             continue
-        if str(fact.get("scope_id") or "") != step_id:
+        if not _fact_belongs_to_step(fact, step_id):
             continue
         pair = _sympy_point_pair(fact.get("value"))
         if pair is not None:
@@ -2294,6 +2298,15 @@ def _scope_root_for_explanation(scope_id: str) -> str:
     if not scope_id:
         return "problem"
     return str(scope_id).split("_", 1)[0] or "problem"
+
+
+def _fact_belongs_to_step(fact: dict[str, Any], step_id: str) -> bool:
+    if not step_id:
+        return False
+    source_step_id = str(fact.get("source_step_id") or "")
+    if source_step_id:
+        return source_step_id == step_id
+    return str(fact.get("scope_id") or "") == step_id
 
 
 def _point_pair_for_handle(
@@ -2465,7 +2478,7 @@ def _locus_line_display_for_step(step_id: str, snapshot: ExplanationSnapshot) ->
             continue
         if not isinstance(fact, dict) or fact.get("type") != "Line":
             continue
-        if str(fact.get("scope_id") or "") != str(step_id):
+        if not _fact_belongs_to_step(fact, str(step_id)):
             continue
         line = fact.get("value")
         if isinstance(line, dict):

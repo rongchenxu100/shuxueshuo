@@ -35,7 +35,7 @@ from shuxueshuo_server.solver.runtime.state_identity import (
     StateVersionId,
 )
 from shuxueshuo_server.solver.runtime.strategy_models import (
-    StepIntent,
+    FunctionalCompileStep,
     StrategyDraftValidationError,
 )
 
@@ -399,7 +399,7 @@ def test_entity_identity_read_ignores_stale_direct_handle_binding() -> None:
             "typed identity read must not fall back to the direct handle"
         ),
     )
-    step = StepIntent(
+    step = FunctionalCompileStep(
         step_id="consume_P",
         scope_id="ii_1",
         recipe_hint="",
@@ -456,7 +456,7 @@ def test_entity_state_resolver_uses_scope_specific_latest_version() -> None:
             kwargs["resolved_handle"]
         ),
     )
-    step = StepIntent(
+    step = FunctionalCompileStep(
         step_id="consume_P",
         scope_id="ii_1",
         recipe_hint="",
@@ -598,7 +598,7 @@ def test_midpoint_target_missing_typed_identity_fails_before_legacy_path() -> No
             "authoritative midpoint target must not use a legacy handle"
         ),
     )
-    step = StepIntent(
+    step = FunctionalCompileStep(
         step_id="derive_midpoint",
         scope_id="ii",
         recipe_hint="midpoint_point",
@@ -683,7 +683,7 @@ def test_path_role_consumer_keeps_exact_version_runtime_path() -> None:
             "role state_handle must not be rebound through path_for"
         ),
     )
-    step = StepIntent(
+    step = FunctionalCompileStep(
         step_id="consume_path",
         scope_id="ii",
         recipe_hint="",

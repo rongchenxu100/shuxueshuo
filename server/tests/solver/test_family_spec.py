@@ -56,22 +56,17 @@ def test_quadratic_path_family_supports_canonical_nankai_fixture() -> None:
     assert QUADRATIC_PATH_MINIMUM_FAMILY.family_id == "QuadraticPathMinimumSolver"
 
 
-def test_quadratic_path_family_rejects_alt_label_fixture_by_temporary_gate() -> None:
+def test_quadratic_path_family_supports_alt_label_fixture_structurally() -> None:
     problem = load_problem_ir(ALT_LABEL_FIXTURE)
 
-    # enabled_problem_ids 是 V1.5 deterministic slice 的临时硬门控，所以同构题
-    # 暂时仍不能进入 canonical 南开固定计划。
-    assert not QUADRATIC_PATH_MINIMUM_FAMILY.supports(problem)
+    assert QUADRATIC_PATH_MINIMUM_FAMILY.supports(problem)
 
 
-def test_enabled_problem_ids_is_a_hard_gate_after_family_match() -> None:
+def test_family_support_is_independent_of_problem_id() -> None:
     problem = load_problem_ir(ALT_LABEL_FIXTURE)
 
-    # 这个测试专门锁定“硬门控”语义：alt-label 题的 pattern/problem_type 已经命中
-    # family，但 problem_id 不在 enabled_problem_ids 内，所以 registry 仍必须拒绝。
     assert QUADRATIC_PATH_MINIMUM_FAMILY.match.matches(problem)
-    assert problem.problem_id not in QUADRATIC_PATH_MINIMUM_FAMILY.enabled_problem_ids
-    assert not QUADRATIC_PATH_MINIMUM_FAMILY.supports(problem)
+    assert QUADRATIC_PATH_MINIMUM_FAMILY.supports(problem)
 
 
 def test_quadratic_path_family_rejects_other_real_25_fixture() -> None:
@@ -91,7 +86,6 @@ def test_quadratic_weighted_path_family_uses_structural_match_without_problem_ga
     problem = load_problem_ir(HEXI_FIXTURE)
 
     assert QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY.match.matches(problem)
-    assert not QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY.enabled_problem_ids
     assert QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY.supports(problem)
 
 
@@ -189,11 +183,29 @@ def test_family_registry_matches_supported_problem_only() -> None:
 
     supported = load_problem_ir(NANKAI_FIXTURE)
     hexi = load_problem_ir(HEXI_FIXTURE)
-    unsupported = load_problem_ir(ALT_LABEL_FIXTURE)
+    alt_labels = load_problem_ir(ALT_LABEL_FIXTURE)
+    unsupported = replace(
+        supported,
+        problem_id="unsupported-family",
+        problem_type="unsupported_problem_type",
+    )
 
     assert registry.match(supported) is QUADRATIC_PATH_MINIMUM_FAMILY
     assert registry.match(hexi) is QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY
+    assert registry.match(alt_labels) is QUADRATIC_PATH_MINIMUM_FAMILY
     assert registry.match(unsupported) is None
+
+
+def test_family_registry_rejects_ambiguous_structural_match() -> None:
+    problem = load_problem_ir(NANKAI_FIXTURE)
+    duplicate = replace(
+        QUADRATIC_PATH_MINIMUM_FAMILY,
+        family_id="DuplicateQuadraticPathMinimumSolver",
+    )
+    registry = FamilyRegistry((QUADRATIC_PATH_MINIMUM_FAMILY, duplicate))
+
+    with pytest.raises(ValueError, match="ambiguous solver family match"):
+        registry.match(problem)
 
 
 def test_capability_pack_registry_rejects_unknown_pack() -> None:
@@ -530,28 +542,26 @@ def test_expanded_family_catalogs_keep_pack_and_local_capabilities() -> None:
         )
 
 
-def test_pack_bound_methods_with_executable_contracts_enter_prompt_method_catalog() -> None:
-    """Pack expansion can now expose methods once packs supply rules/contracts."""
+def test_pack_bound_methods_enter_functional_capability_catalog() -> None:
     problem = load_problem_ir(NANKAI_FIXTURE)
     inputs = build_strategy_probe_inputs(problem)
     payload = StrategyPayloadBuilder().build(
         inputs,
         problem_payload=problem_to_llm_payload(problem),
     )
-    prompt_method_ids = {
-        method["method_id"]
-        for method in payload["method_catalog"]["methods"]
+    capability_ids = {
+        capability["capability_id"]
+        for capability in payload["functional_capability_catalog"]["capabilities"]
     }
     rules = MethodBindingRuleRegistry.from_family_spec(QUADRATIC_PATH_MINIMUM_FAMILY)
 
     assert "quadratic_vertex_point" in QUADRATIC_PATH_MINIMUM_FAMILY.method_ids
     assert rules.rule_for("quadratic_vertex_point") is not None
-    assert "quadratic_vertex_point" in prompt_method_ids
-    assert "quadratic_from_constraints" in prompt_method_ids
+    assert "quadratic_vertex_point" in capability_ids
+    assert "quadratic_from_constraints" in capability_ids
 
 
-def test_prompt_direct_method_catalog_has_binding_rules_and_contracts_for_real_families() -> None:
-    """Every direct method shown to the LLM must have a binding rule and contract."""
+def test_functional_catalog_only_exposes_executable_contracts_for_real_families() -> None:
     for fixture in (
         NANKAI_FIXTURE,
         HEXI_FIXTURE,
@@ -564,24 +574,16 @@ def test_prompt_direct_method_catalog_has_binding_rules_and_contracts_for_real_f
             inputs,
             problem_payload=problem_to_llm_payload(problem),
         )
-        binding_rule_ids = {
-            rule.method_id
-            for rule in inputs.family_spec.method_binding_rules
-        }
-        prompt_method_ids = {
-            method["method_id"]
-            for method in payload["method_catalog"]["methods"]
+        capability_ids = {
+            capability["capability_id"]
+            for capability in payload["functional_capability_catalog"]["capabilities"]
         }
         contracts = effective_contract_by_id(inputs.family_spec, inputs.method_specs)
 
-        assert prompt_method_ids
-        assert not sorted(prompt_method_ids - binding_rule_ids), (
-            inputs.family_spec.family_id,
-            sorted(prompt_method_ids - binding_rule_ids),
-        )
+        assert capability_ids
         assert all(
-            contract_is_prompt_executable(contracts.get(method_id))
-            for method_id in prompt_method_ids
+            contract_is_prompt_executable(contracts.get(capability_id))
+            for capability_id in capability_ids
         )
 
 
@@ -609,7 +611,7 @@ def test_single_method_recipes_have_runtime_binding_rules_for_real_families() ->
         assert not missing, (inputs.family_spec.family_id, sorted(missing))
 
 
-def test_prompt_direct_method_catalog_hides_catalog_only_contracts() -> None:
+def test_functional_catalog_hides_catalog_only_contracts() -> None:
     problem = load_problem_ir(NANKAI_FIXTURE)
     inputs = build_strategy_probe_inputs(problem)
     catalog_only_override = CapabilityContractSpec(
@@ -628,9 +630,9 @@ def test_prompt_direct_method_catalog_hides_catalog_only_contracts() -> None:
         replace(inputs, family_spec=family),
         problem_payload=problem_to_llm_payload(problem),
     )
-    prompt_method_ids = {
-        method["method_id"]
-        for method in payload["method_catalog"]["methods"]
+    capability_ids = {
+        capability["capability_id"]
+        for capability in payload["functional_capability_catalog"]["capabilities"]
     }
 
-    assert "quadratic_from_constraints" not in prompt_method_ids
+    assert "quadratic_from_constraints" not in capability_ids

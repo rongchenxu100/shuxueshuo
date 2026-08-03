@@ -97,9 +97,9 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     PlannerRetryIssue,
     ProjectedFunctionArgBinding,
     StateWriteProvenance,
-    StepIntentAcceptedStep,
-    StepIntentExecutionDiagnostic,
-    StepIntentRuntimeResult,
+    FunctionalAcceptedStep,
+    FunctionalExecutionDiagnostic,
+    FunctionalRuntimeResult,
 )
 from shuxueshuo_server.solver.runtime.symbolic_closure_execution import (
     FunctionalSymbolicClosureMode,
@@ -196,7 +196,7 @@ class CompiledFunctionalCall:
 class FunctionalCallExecutionResult:
     call_id: str
     status: FunctionalCallTransactionStatus
-    runtime_results: tuple[StepIntentRuntimeResult, ...] = ()
+    runtime_results: tuple[FunctionalRuntimeResult, ...] = ()
     state_writes: tuple[StateWriteProvenance, ...] = ()
     committed_versions: tuple[IndexedStateVersion, ...] = ()
     checks: tuple[Any, ...] = ()
@@ -354,13 +354,13 @@ class FunctionalTransactionalExecutionReport:
 class FunctionalTransactionalAttemptResult:
     execution_report: FunctionalTransactionalExecutionReport
     compiled_output: PlannerOutput | None
-    diagnostic: StepIntentExecutionDiagnostic
+    diagnostic: FunctionalExecutionDiagnostic
     goal_report: AnswerGoalVerificationReport
     verified_call_ids: frozenset[str]
     failed_call_ids: frozenset[str]
     blocked_call_ids: frozenset[str]
     goal_reachable_call_ids: frozenset[str]
-    runtime_results: tuple[StepIntentRuntimeResult, ...]
+    runtime_results: tuple[FunctionalRuntimeResult, ...]
     state_writes: tuple[StateWriteProvenance, ...]
     root_issues: tuple[PlannerRetryIssue, ...]
 
@@ -918,7 +918,7 @@ def build_functional_runtime_arg_bindings(
     *,
     catalog: FunctionalCapabilityCatalog,
 ) -> tuple[ProjectedFunctionArgBinding, ...]:
-    """Project C3 wire bindings into the StepIntent compatibility sidecar."""
+    """Project C3 wire bindings into the direct-compiler input manifest."""
     del catalog
     context = reconciliation.functional_binding_context
     if not isinstance(context, FunctionalBindingContext):
@@ -1141,7 +1141,7 @@ class FunctionalRuntimeWriteCommitter:
         object_registry: MathObjectRegistry,
         runtime_symbol_bindings: Mapping[sp.Symbol, MathObjectId],
     ) -> tuple[
-        tuple[StepIntentRuntimeResult, ...],
+        tuple[FunctionalRuntimeResult, ...],
         tuple[StateWriteProvenance, ...],
         tuple[IndexedStateVersion, ...],
         dict[StateVersionId, TypedValue],
@@ -1156,7 +1156,7 @@ class FunctionalRuntimeWriteCommitter:
             if wire_call is not None
             else {}
         )
-        runtime_results: list[StepIntentRuntimeResult] = []
+        runtime_results: list[FunctionalRuntimeResult] = []
         actual_writes: list[StateWriteProvenance] = []
         versions: list[IndexedStateVersion] = []
         runtime_values: dict[StateVersionId, TypedValue] = {}
@@ -1741,8 +1741,7 @@ class FunctionalTransactionalInterpreter:
                     )
                     if item.step_id == call_id
                 )
-                # B3 service is the Functional authority; the draft finalizer
-                # is only a legacy StepIntent facade.
+                # B3 finalization is the single authority for compiled writes.
                 StateFinalizationService().finalize_compiled_graph(
                     projected_writes,
                     writes,
@@ -1927,7 +1926,6 @@ class FunctionalTransactionalInterpreter:
             ),
         )
         goal_report = AnswerGoalVerifier().verify_report(
-            None,
             problem_payload=problem_payload,
             handle_registry=handle_registry,
             diagnostic=diagnostic,
@@ -2746,13 +2744,13 @@ def _transactional_diagnostic(
     report: FunctionalTransactionalExecutionReport,
     *,
     reconciliation: FunctionalPlanReconciliationResult,
-    runtime_results: tuple[StepIntentRuntimeResult, ...],
+    runtime_results: tuple[FunctionalRuntimeResult, ...],
     state_writes: tuple[StateWriteProvenance, ...],
-) -> StepIntentExecutionDiagnostic:
+) -> FunctionalExecutionDiagnostic:
     calls = {item.call_id: item for item in reconciliation.calls}
     compiled = {item.call_id: item for item in report.compiled_calls}
     accepted = tuple(
-        StepIntentAcceptedStep(
+        FunctionalAcceptedStep(
             step_id=call_id,
             scope_id=calls[call_id].scope_id,
             capability_id=calls[call_id].capability_id,
@@ -2800,7 +2798,7 @@ def _transactional_diagnostic(
         )
         if source is not None
     )
-    return StepIntentExecutionDiagnostic(
+    return FunctionalExecutionDiagnostic(
         ok=not failed,
         accepted_prefix=accepted,
         state_write_provenance=(
@@ -3068,7 +3066,7 @@ def _functional_goal_producers(
     capability_catalog: FunctionalCapabilityCatalog,
     state_writes: Sequence[StateWriteProvenance],
 ) -> dict[str, FunctionalGoalProducer]:
-    """Project typed answer producers without constructing StepIntent."""
+    """Project typed answer producers from canonical transactional calls."""
 
     calls = {item.call_id: item for item in graph.calls}
     reconciled_calls = {
@@ -3163,11 +3161,11 @@ def _runtime_result(
     *,
     write: StateWriteProvenance,
     value: Any,
-) -> StepIntentRuntimeResult:
+) -> FunctionalRuntimeResult:
     try:
         projected = context.to_answer_value(value)
     except Exception as exc:
-        return StepIntentRuntimeResult(
+        return FunctionalRuntimeResult(
             step_id=write.step_id,
             scope_id=write.scope_id,
             capability_id=write.capability_id,
@@ -3178,7 +3176,7 @@ def _runtime_result(
                 f"unsupported_transaction_snapshot:{type(exc).__name__}"
             ),
         )
-    return StepIntentRuntimeResult(
+    return FunctionalRuntimeResult(
         step_id=write.step_id,
         scope_id=write.scope_id,
         capability_id=write.capability_id,

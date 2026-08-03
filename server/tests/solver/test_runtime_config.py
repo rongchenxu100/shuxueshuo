@@ -173,15 +173,14 @@ def test_strategy_recorded_default_provider_is_constructed() -> None:
     assert config.build_default_planner_provider() is not None
 
 
-def test_llm_family_registry_no_longer_relaxes_alt_label_gate() -> None:
-    """旧 fake LLM 删除后，alt-label 不再被临时放开。"""
+def test_family_registry_matches_alt_labels_structurally() -> None:
     alt = load_problem_ir("../internal/solver-fixtures/tj-2026-nankai-yimo-25-alt-labels.json")
 
     deterministic = SolverRuntimeConfig(planner_mode="deterministic").build_family_registry()
     strategy = SolverRuntimeConfig(planner_mode="strategy", llm_provider="recorded").build_family_registry()
 
-    assert deterministic.match(alt) is None
-    assert strategy.match(alt) is None
+    assert deterministic.match(alt) is not None
+    assert strategy.match(alt) is not None
 
 
 def test_environment_blank_key_overrides_env_file(tmp_path, monkeypatch) -> None:

@@ -7,8 +7,8 @@ from collections.abc import Iterable
 STRAIGHTENED_ENDPOINT_1 = "straightened_endpoint_1"
 STRAIGHTENED_ENDPOINT_2 = "straightened_endpoint_2"
 
-# Legacy StepIntent semantic names remain readable during the FunctionalPlan
-# migration. New capability contracts and FunctionalPlan payloads use the
+# Historical semantic names remain readable at the wire boundary. New
+# capability contracts and FunctionalPlan payloads use the
 # geometrically precise ``straightened_endpoint_*`` roles above.
 STRAIGHTENING_ENDPOINT_POINT_1 = "path_minimum_point_1"
 STRAIGHTENING_ENDPOINT_POINT_2 = "path_minimum_point_2"

@@ -37,14 +37,14 @@ from shuxueshuo_server.solver.runtime.handle_registry import (
 )
 from shuxueshuo_server.solver.runtime.strategy_models import (
     CreatedEntity,
-    StepIntentFunctionBindingEvent,
-    StepIntent,
+    FunctionalFunctionBindingEvent,
+    FunctionalCompileStepView,
     StrategyDraftValidationError,
 )
-from shuxueshuo_server.solver.runtime.strategy_resolver import (
-    _produced_output_type,
-    _unique_ordered,
+from shuxueshuo_server.solver.runtime.output_type_inference import (
+    produced_output_type as _produced_output_type,
 )
+from shuxueshuo_server.solver.utils import unique_ordered as _unique_ordered
 from shuxueshuo_server.solver.runtime.binding_index import (
     CanonicalRuntimeBindingIndex,
     _runtime_path_for_scope,
@@ -54,12 +54,12 @@ from shuxueshuo_server.solver.runtime.binding_index import (
 from shuxueshuo_server.solver.runtime.entity_state_resolver import EntityStateResolver
 
 BindingSelectorFn = Callable[
-    [StepIntent, CanonicalRuntimeBindingIndex, Mapping[str, str]],
+    [FunctionalCompileStepView, CanonicalRuntimeBindingIndex, Mapping[str, str]],
     str | None,
 ]
 
 ExpansionSelectorFn = Callable[
-    [StepIntent, CanonicalRuntimeBindingIndex, Mapping[str, str]],
+    [FunctionalCompileStepView, CanonicalRuntimeBindingIndex, Mapping[str, str]],
     dict[str, str],
 ]
 
@@ -81,7 +81,7 @@ _CURVE_MEMBERSHIP_FACT_TYPES = frozenset(
 )
 
 class MethodBindingRuleRegistry:
-    """把 StepIntent semantic handles 绑定到 method input slots。
+    """把 FunctionalCompileStepView semantic handles 绑定到 method input slots。
 
     这里不再按 method_id 写一大段专属分支。FamilySpec 提供
     ``MethodBindingRuleSpec``，runtime 只根据 selector 名调用通用解析器。这样新增
@@ -103,7 +103,7 @@ class MethodBindingRuleRegistry:
             selectors=self.selectors,
             expansion_selectors=self.expansion_selectors,
         )
-        self.function_binding_events: list[StepIntentFunctionBindingEvent] = []
+        self.function_binding_events: list[FunctionalFunctionBindingEvent] = []
         self._validate_rule_selectors()
 
     @classmethod
@@ -114,7 +114,7 @@ class MethodBindingRuleRegistry:
     def bind(
         self,
         method_id: str,
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         index: CanonicalRuntimeBindingIndex,
         *,
         local_outputs: dict[str, str] | None = None,
@@ -155,7 +155,7 @@ class MethodBindingRuleRegistry:
                     apply_constraint_analyzer=apply_constraint_analyzer,
                 )
                 self.function_binding_events.append(
-                    StepIntentFunctionBindingEvent(
+                    FunctionalFunctionBindingEvent(
                         step_id=step.step_id,
                         scope_id=step.scope_id,
                         method_id=method_id,
@@ -169,7 +169,7 @@ class MethodBindingRuleRegistry:
                 return inputs
             except StrategyDraftValidationError as exc:
                 self.function_binding_events.append(
-                    StepIntentFunctionBindingEvent(
+                    FunctionalFunctionBindingEvent(
                         step_id=step.step_id,
                         scope_id=step.scope_id,
                         method_id=method_id,
@@ -220,7 +220,7 @@ class MethodBindingRuleRegistry:
     def _select(
         self,
         selector: str,
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         index: CanonicalRuntimeBindingIndex,
         *,
         local_outputs: dict[str, str],
@@ -234,7 +234,7 @@ class MethodBindingRuleRegistry:
     def _expand(
         self,
         selector: str,
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         index: CanonicalRuntimeBindingIndex,
         *,
         local_outputs: dict[str, str],
@@ -263,7 +263,7 @@ def _fact_selector(fact_type: str, expected_type: str) -> BindingSelectorFn:
     """创建按 fact type 读取 ContextPath 的 selector。"""
 
     def select(
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         index: CanonicalRuntimeBindingIndex,
         local_outputs: Mapping[str, str],
     ) -> str:
@@ -278,7 +278,7 @@ def _optional_fact_selector(fact_type: str, expected_type: str) -> BindingSelect
     """创建可选 fact selector；找不到时返回 None。"""
 
     def select(
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         index: CanonicalRuntimeBindingIndex,
         local_outputs: Mapping[str, str],
     ) -> str | None:
@@ -296,7 +296,7 @@ def _symbol_selector(name: str) -> BindingSelectorFn:
     """创建读取 problem scope symbol 的 selector。"""
 
     def select(
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         index: CanonicalRuntimeBindingIndex,
         local_outputs: Mapping[str, str],
     ) -> str:
@@ -312,7 +312,7 @@ def _free_parameter_if_single_curve_point_selector(name: str) -> BindingSelector
     """
 
     def select(
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         index: CanonicalRuntimeBindingIndex,
         local_outputs: Mapping[str, str],
     ) -> str | None:
@@ -326,7 +326,7 @@ def _read_type_selector(value_type: str) -> BindingSelectorFn:
     """创建从当前 step reads 或可见父级中读取指定 runtime 类型的 selector。"""
 
     def select(
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         index: CanonicalRuntimeBindingIndex,
         local_outputs: Mapping[str, str],
     ) -> str:
@@ -342,7 +342,7 @@ def _read_type_union_selector(*value_types: str) -> BindingSelectorFn:
     """创建可读取一组 runtime 类型的 selector，优先遵守 _compile_input_handles(step) 顺序。"""
 
     def select(
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         index: CanonicalRuntimeBindingIndex,
         local_outputs: Mapping[str, str],
     ) -> str:
@@ -370,7 +370,7 @@ def _constant_selector(value: str) -> BindingSelectorFn:
     """创建返回固定 runtime path 的 selector。"""
 
     def select(
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         index: CanonicalRuntimeBindingIndex,
         local_outputs: Mapping[str, str],
     ) -> str:
@@ -379,7 +379,7 @@ def _constant_selector(value: str) -> BindingSelectorFn:
     return select
 
 def _function_parabola_selector(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
     local_outputs: Mapping[str, str],
 ) -> str:
@@ -400,7 +400,7 @@ def _function_parabola_selector(
 
 
 def _quadratic_template_selector(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
     local_outputs: Mapping[str, str],
 ) -> str:
@@ -412,7 +412,7 @@ def _quadratic_template_selector(
     )
 
 def _square_side_start_selector(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
     local_outputs: Mapping[str, str],
 ) -> str:
@@ -429,7 +429,7 @@ def _square_side_start_selector(
         return _point_path_from_step_reads(side_start, step, index)
 
 def _square_side_end_selector(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
     local_outputs: Mapping[str, str],
 ) -> str:
@@ -443,7 +443,7 @@ def _square_side_end_selector(
     )
 
 def _square_side_start_ref_selector(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
     local_outputs: Mapping[str, str],
 ) -> str:
@@ -451,7 +451,7 @@ def _square_side_start_ref_selector(
     return index.point_identity_path_for(_square_side_start_handle(step, index))
 
 def _square_side_end_ref_selector(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
     local_outputs: Mapping[str, str],
 ) -> str:
@@ -459,7 +459,7 @@ def _square_side_end_ref_selector(
     return index.point_identity_path_for(_square_side_end_handle(step, index))
 
 def _square_side_start_handle(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> str:
     """读取 square fact 的第一个顶点 handle。"""
@@ -471,7 +471,7 @@ def _square_side_start_handle(
     return str(vertices[0])
 
 def _square_side_end_handle(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> str:
     """根据当前 target 从 reads 中选择 square 已知边第二端点。"""
@@ -505,7 +505,7 @@ def _square_side_end_handle(
     )
 
 def _point_output_ref_selector(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
     local_outputs: Mapping[str, str],
 ) -> str:
@@ -524,7 +524,7 @@ def _point_output_ref_selector(
 
 
 def _point_transition_target_selector(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
     local_outputs: Mapping[str, str],
 ) -> str:
@@ -540,7 +540,7 @@ def _translated_point_selector(role: str) -> BindingSelectorFn:
     """创建平移点 method 的 source/target selector。"""
 
     def select(
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         index: CanonicalRuntimeBindingIndex,
         local_outputs: Mapping[str, str],
     ) -> str:
@@ -584,7 +584,7 @@ def _midpoint_selector(role: str) -> BindingSelectorFn:
     """创建中点 method 的角色 selector。"""
 
     def select(
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         index: CanonicalRuntimeBindingIndex,
         local_outputs: Mapping[str, str],
     ) -> str:
@@ -603,7 +603,7 @@ def _right_angle_selector(role: str) -> BindingSelectorFn:
     """创建直角等腰候选 method 的角色 selector。"""
 
     def select(
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         index: CanonicalRuntimeBindingIndex,
         local_outputs: Mapping[str, str],
     ) -> str:
@@ -625,7 +625,7 @@ def _length_segment_selector(role: str) -> BindingSelectorFn:
     """创建线段长度条件的端点 selector。"""
 
     def select(
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         index: CanonicalRuntimeBindingIndex,
         local_outputs: Mapping[str, str],
     ) -> str:
@@ -639,7 +639,7 @@ def _length_reference_segment_selector(role: str) -> BindingSelectorFn:
     """创建线段比例条件右侧参考线段的端点 selector。"""
 
     def select(
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         index: CanonicalRuntimeBindingIndex,
         local_outputs: Mapping[str, str],
     ) -> str | None:
@@ -652,7 +652,7 @@ def _length_reference_segment_selector(role: str) -> BindingSelectorFn:
     return select
 
 def _length_condition_selector(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
     local_outputs: Mapping[str, str],
 ) -> str:
@@ -660,7 +660,7 @@ def _length_condition_selector(
     return index.path_for(_length_condition_handle(step, index), expected_type="Condition")
 
 def _parameter_symbol_selector(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
     local_outputs: Mapping[str, str],
 ) -> str:
@@ -669,7 +669,7 @@ def _parameter_symbol_selector(
 
 
 def _parameter_symbol_from_reads_selector(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
     local_outputs: Mapping[str, str],
 ) -> str:
@@ -681,7 +681,7 @@ def _parameter_symbol_from_reads_selector(
 
 
 def _parameter_symbol_from_reads_or_expression_selector(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
     local_outputs: Mapping[str, str],
 ) -> str:
@@ -733,7 +733,7 @@ def _parameter_symbol_from_reads_or_expression_selector(
     )
 
 def _parameter_constraint_selector(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
     local_outputs: Mapping[str, str],
 ) -> str | None:
@@ -760,7 +760,7 @@ def _parameter_constraint_selector(
 
 
 def _explicit_symbol_paths(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> list[str]:
     return _unique_ordered(
@@ -772,7 +772,7 @@ def _explicit_symbol_paths(
 
 
 def _known_parameter_substitution_pair(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> tuple[str, str] | None:
     """Resolve one already-known Symbol value used by the current input state."""
@@ -793,7 +793,7 @@ def _known_parameter_substitution_pair(
 
 
 def parameter_substitution_pairs_from_reads(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> tuple[tuple[str, str], ...]:
     """Resolve every explicitly read ParameterValue to its Symbol identity.
@@ -827,7 +827,7 @@ def parameter_substitution_pairs_from_reads(
 
 
 def _known_parameter_symbol_from_reads_selector(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
     local_outputs: Mapping[str, str],
 ) -> str | None:
@@ -836,7 +836,7 @@ def _known_parameter_symbol_from_reads_selector(
 
 
 def _known_parameter_value_from_reads_selector(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
     local_outputs: Mapping[str, str],
 ) -> str | None:
@@ -844,7 +844,7 @@ def _known_parameter_value_from_reads_selector(
     return pair[1] if pair is not None else None
 
 def _dynamic_constraint_selector(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
     local_outputs: Mapping[str, str],
 ) -> str:
@@ -852,7 +852,7 @@ def _dynamic_constraint_selector(
     return index.dynamic_constraint_path(step=step)
 
 def _dynamic_symbol_selector(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
     local_outputs: Mapping[str, str],
 ) -> str:
@@ -860,7 +860,7 @@ def _dynamic_symbol_selector(
     return index.dynamic_parameter_symbol_path(step=step)
 
 def _x_axis_known_point_selector(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
     local_outputs: Mapping[str, str],
 ) -> str | None:
@@ -894,7 +894,7 @@ def _x_axis_known_point_selector(
     return None
 
 def _read_minimum_expression_selector(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
     local_outputs: Mapping[str, str],
 ) -> str:
@@ -902,7 +902,7 @@ def _read_minimum_expression_selector(
     return _path_for_readable_type(index, step, "MinimumExpression")
 
 def _weighted_path_condition_selector(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
     local_outputs: Mapping[str, str],
 ) -> str:
@@ -916,7 +916,7 @@ def _weighted_path_selector(role: str) -> BindingSelectorFn:
     """创建 weighted path method 的几何角色 selector。"""
 
     def select(
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         index: CanonicalRuntimeBindingIndex,
         local_outputs: Mapping[str, str],
     ) -> str:
@@ -935,7 +935,7 @@ def _weighted_path_identity_selector(role: str) -> BindingSelectorFn:
     """Bind an immutable canonical PointRef for transformation metadata."""
 
     def select(
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         index: CanonicalRuntimeBindingIndex,
         local_outputs: Mapping[str, str],
     ) -> str:
@@ -949,7 +949,7 @@ def _weighted_path_identity_selector(role: str) -> BindingSelectorFn:
     return select
 
 def _weighted_auxiliary_point_ref_selector(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
     local_outputs: Mapping[str, str],
 ) -> str:
@@ -966,7 +966,7 @@ def _weighted_auxiliary_point_ref_selector(
     return index.path_for(item.handle, expected_type="PointRef")
 
 def _weighted_auxiliary_point_selector(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
     local_outputs: Mapping[str, str],
 ) -> str:
@@ -981,7 +981,7 @@ def _square_path_fixed_endpoint_ref_selector(
     """Bind producer-owned square-path endpoint identity metadata."""
 
     def select(
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         index: CanonicalRuntimeBindingIndex,
         local_outputs: Mapping[str, str],
     ) -> str:
@@ -1029,7 +1029,7 @@ def _path_reduction_selector(role: str) -> BindingSelectorFn:
     """创建两动点路径转化 recipe 的角色 selector。"""
 
     def select(
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         index: CanonicalRuntimeBindingIndex,
         local_outputs: Mapping[str, str],
     ) -> str:
@@ -1047,7 +1047,7 @@ def _distance_selector(role: str) -> BindingSelectorFn:
     """创建距离 method 的端点 selector。"""
 
     def select(
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         index: CanonicalRuntimeBindingIndex,
         local_outputs: Mapping[str, str],
     ) -> str:
@@ -1061,7 +1061,7 @@ def _intersection_selector(role: str) -> BindingSelectorFn:
     """创建直线交点 method 的角色 selector。"""
 
     def select(
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         index: CanonicalRuntimeBindingIndex,
         local_outputs: Mapping[str, str],
     ) -> str:
@@ -1082,7 +1082,7 @@ def _angle_sum_selector(role: str) -> BindingSelectorFn:
     """创建角和转 y 轴截点 method 的角色 selector。"""
 
     def select(
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         index: CanonicalRuntimeBindingIndex,
         local_outputs: Mapping[str, str],
     ) -> str:
@@ -1102,7 +1102,7 @@ def _angle_equality_selector(role: str) -> BindingSelectorFn:
     """创建等角转轴截点 method 的角色 selector。"""
 
     def select(
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         index: CanonicalRuntimeBindingIndex,
         local_outputs: Mapping[str, str],
     ) -> str:
@@ -1122,7 +1122,7 @@ def _line_parabola_selector(role: str) -> BindingSelectorFn:
     """创建直线与抛物线第二交点 method 的角色 selector。"""
 
     def select(
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         index: CanonicalRuntimeBindingIndex,
         local_outputs: Mapping[str, str],
     ) -> str:
@@ -1140,7 +1140,7 @@ def _equal_length_ray_selector(role: str) -> BindingSelectorFn:
     """创建射线上等长构造点 method 的角色 selector。"""
 
     def select(
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         index: CanonicalRuntimeBindingIndex,
         local_outputs: Mapping[str, str],
     ) -> str:
@@ -1158,7 +1158,7 @@ def _straightening_minimum_point_selector(role: str) -> BindingSelectorFn:
     """读取通用将军饮马 recipe 产出的最短线段端点。"""
 
     def select(
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         index: CanonicalRuntimeBindingIndex,
         local_outputs: Mapping[str, str],
     ) -> str:
@@ -1204,7 +1204,7 @@ def _straightening_minimum_point_selector(role: str) -> BindingSelectorFn:
 
 
 def _straightening_minimum_endpoint_handles(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
     *,
     semantic_suffixes: tuple[str, ...],
@@ -1231,7 +1231,7 @@ def _curve_condition_point_selector(role: str) -> BindingSelectorFn:
     """创建“目标点 P(t)、曲线点 Q(t) 且 Q 在曲线上” method 的点 selector。"""
 
     def select(
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         index: CanonicalRuntimeBindingIndex,
         local_outputs: Mapping[str, str],
     ) -> str:
@@ -1254,7 +1254,7 @@ def _curve_condition_point_selector(role: str) -> BindingSelectorFn:
     return select
 
 def _known_coefficients_if_read(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
     local_outputs: Mapping[str, str],
 ) -> dict[str, str]:
@@ -1273,14 +1273,14 @@ def _known_coefficients_if_read(
 
 
 def _free_quadratic_parameter_if_read(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
     local_outputs: Mapping[str, str],
 ) -> dict[str, str]:
     """Restore one explicit free coefficient from FunctionalPlan Symbol reads.
 
     FunctionalPlan exposes ``free_parameters`` as item-level Symbol refs, while
-    the StepIntent compatibility bridge only carries canonical reads. Filtering
+    the FunctionalCompileStepView compatibility bridge only carries canonical reads. Filtering
     those reads through the declared quadratic coefficient list recovers an
     unambiguous coefficient preference without treating dynamic parameters as
     coefficients or guessing from symbol names.
@@ -1313,7 +1313,7 @@ def _free_quadratic_parameter_if_read(
 
 
 def _parameter_value_if_read(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
     local_outputs: Mapping[str, str],
 ) -> dict[str, str]:
@@ -1361,7 +1361,7 @@ def _parameter_symbol_path_for_value(
 
 
 def _curve_points_if_parameterized(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
     local_outputs: Mapping[str, str],
 ) -> dict[str, str]:
@@ -1377,7 +1377,7 @@ def _curve_points_if_parameterized(
     }
 
 def _curve_point_if_read(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
     local_outputs: Mapping[str, str],
 ) -> dict[str, str]:
@@ -1534,7 +1534,7 @@ DEFAULT_EXPANSION_SELECTORS: dict[str, ExpansionSelectorFn] = {
     "intersection_parameter_value_if_read": _parameter_value_if_read,
 }
 
-def _point_output_handle(step: StepIntent, index: CanonicalRuntimeBindingIndex) -> str:
+def _point_output_handle(step: FunctionalCompileStepView, index: CanonicalRuntimeBindingIndex) -> str:
     """找出当前 step 要写回的点实体 handle。"""
     projected_object_refs = _unique_ordered(
         write.object_ref
@@ -1605,7 +1605,7 @@ def _point_handle_from_text(
 
 def _unique_point_handle_by_definition(
     definition: str,
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> str | None:
     """按 Entity definition 找唯一可见点。"""
@@ -1620,7 +1620,7 @@ def _unique_point_handle_by_definition(
 
 def _point_path_from_step_reads(
     handle: str,
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> str:
     """读取点坐标路径，优先使用当前 step 显式读入的同名坐标 fact。"""
@@ -1632,7 +1632,7 @@ def _point_path_from_step_reads(
 
 def _point_read_is_usable_as_point(
     handle: str,
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> bool:
     """判断 step 中的 point handle 是否能作为 Point 输入。"""
@@ -1665,7 +1665,7 @@ def _is_point_coordinate_fact_handle(
 
 
 def _known_coefficients_scope(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> str | None:
     """从 reads 中找已知系数 fact 所在 scope。"""
@@ -1677,7 +1677,7 @@ def _known_coefficients_scope(
     return unique[0] if unique else None
 
 def _parameter_value_handle(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex | None = None,
 ) -> str | None:
     """Resolve one read ParameterValue without crossing Symbol identities."""
@@ -1727,7 +1727,7 @@ def _parameter_value_handle(
 
 
 def _read_point_free_symbols(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> set[Any]:
     result: set[Any] = set()
@@ -1782,7 +1782,7 @@ def _parameter_value_symbol(
 
 def _path_for_first_type(
     index: CanonicalRuntimeBindingIndex,
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     value_type: str,
 ) -> str:
     """从当前 step reads 中找第一个指定类型绑定。"""
@@ -1802,7 +1802,7 @@ def _path_for_first_type(
 
 def _path_for_readable_type(
     index: CanonicalRuntimeBindingIndex,
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     value_type: str,
 ) -> str:
     """从 step reads 或当前 scope 可见父级中寻找指定类型。
@@ -1841,7 +1841,7 @@ def _path_for_readable_type(
 
 def _path_for_readable_type_or_none(
     index: CanonicalRuntimeBindingIndex,
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     value_type: str,
 ) -> str | None:
     """尝试读取当前 step 可见类型；失败时返回 None 供 recipe 内部补前置步骤。"""
@@ -1868,7 +1868,7 @@ def _binding_scope(raw_path: str) -> str:
     return ContextPath.parse(raw_path).scope_id
 
 def _curve_candidate_target_handle(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> str:
     """读取候选点筛选 recipe 最终要写入的点实体。
@@ -1880,7 +1880,7 @@ def _curve_candidate_target_handle(
     return _point_output_handle(step, index)
 
 def _midpoint_roles(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> tuple[str, str, str]:
     """从 ``<target>_midpoint_of_<p1><p2>`` fact 推断 target/p1/p2。"""
@@ -1897,7 +1897,7 @@ def _midpoint_roles(
 
 
 def _midpoint_definition_read(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> str:
     """midpoint_point 必须绑定当前 step 明确读取的中点定义。"""
@@ -1917,7 +1917,7 @@ def _midpoint_definition_read(
 
 
 def _length_condition_points(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> tuple[str, str]:
     """从长度条件 fact 推断左侧线段两端点。"""
@@ -1930,7 +1930,7 @@ def _length_condition_points(
     return _segment_point_handles(segment, step, index, fact)
 
 def _length_reference_condition_points(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> tuple[str, str] | None:
     """从线段比例 fact 推断右侧参考线段两端点。"""
@@ -1941,7 +1941,7 @@ def _length_reference_condition_points(
     return _segment_point_handles(segment, step, index, fact)
 
 def _length_condition_handle(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> str:
     """返回当前 step 读取的长度条件 handle。"""
@@ -1969,7 +1969,7 @@ def _segment_name_from_length_relation(fact: str, *, side: str) -> str:
 
 def _segment_point_handles(
     segment: str,
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
     fact: str,
 ) -> tuple[str, str]:
@@ -1982,7 +1982,7 @@ def _segment_point_handles(
     )
 
 def _curve_point_handles_from_reads(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> list[str]:
     """返回当前 step 显式读取的曲线点。
@@ -2033,7 +2033,7 @@ def _curve_point_handles_from_reads(
 
 
 def _curve_condition_point_name(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> str:
     """由当前 step 读取的 point_on_curve fact 确定曲线点名。"""
@@ -2049,7 +2049,7 @@ def _curve_condition_point_name(
 
 
 def _curve_condition_target_point_name(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
     curve_point_name: str,
 ) -> str:
@@ -2081,7 +2081,7 @@ def _curve_condition_target_point_name(
 
 def _point_state_path_for_name(
     point_name: str,
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
     *,
     error_code: str,
@@ -2194,7 +2194,7 @@ def _point_name_from_state_semantic(semantic: str) -> str | None:
 
 def _point_state_read_path(
     handle: str,
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> str:
     """读取某个 point state read 的 Point path。"""
@@ -2214,7 +2214,7 @@ def _point_state_read_path(
 
 def _visible_point_state_matches_for_name(
     point_name: str,
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> list[tuple[str, str]]:
     """从可见 prefix binding 中寻找同名点的已计算状态 fact。"""
@@ -2237,7 +2237,7 @@ def _visible_point_state_matches_for_name(
 
 def _point_handle_for_state_fill(
     point_name: str,
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> str | None:
     """为 applied fill 记录补位来源实体 handle。"""
@@ -2259,7 +2259,7 @@ def _answer_key_from_handle(handle: str) -> str:
 
 def _visible_point_on_curve_fact_for_name(
     point_name: str,
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> str | None:
     """查找当前 scope 可见的曲线成员关系题设 fact。"""
@@ -2285,7 +2285,7 @@ def _handle_name(handle: str) -> str:
 
 def _point_coordinate_fact_for_name(
     point_name: str,
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> str | None:
     """从当前 step reads 中寻找同名点坐标 fact。
@@ -2301,7 +2301,7 @@ def _point_coordinate_fact_for_name(
     return None
 
 def _visible_curve_point_handles(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> list[str]:
     """返回当前 step scope 可见的曲线点。
@@ -2337,7 +2337,7 @@ def _segment_membership_segment(name: str) -> str:
     return match.group("segment")
 
 def _path_reduction_roles(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> dict[str, Any]:
     """Consume the read-closed structured path-reduction role set."""
@@ -2359,7 +2359,7 @@ def _path_reduction_roles(
     }
 
 def _moving_membership_for_straightening(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> str:
     """选择折线拉直时的动点所在条件。"""
@@ -2367,7 +2367,7 @@ def _moving_membership_for_straightening(
     return roles["second_membership"]
 
 def _straightening_point_roles(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> tuple[str, str, str, str]:
     """推断 broken_path_straightening_candidates 的四个点。"""
@@ -2384,7 +2384,7 @@ def _straightening_point_roles(
     return fixed_1, fixed_2, line_1, line_2
 
 def _weighted_path_roles(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> tuple[str, str, str]:
     """从 ``sqrt(2)*MN+AN`` 这类路径条件中推断 fixed/moving/curve 点。
@@ -2416,7 +2416,7 @@ def _weighted_path_roles(
     )
 
 def _auxiliary_point_handle_from_reads(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> str:
     """从 reads 中找加权路径辅助点。
@@ -2446,7 +2446,7 @@ def _auxiliary_point_handle_from_reads(
     return unique[0]
 
 def _weighted_auxiliary_point_handle_for_step(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> str:
     """返回加权路径转化 step 使用的辅助点 handle。"""
@@ -2488,7 +2488,7 @@ def _other_endpoint(segment: str, endpoint: str) -> str:
             return name
     raise StrategyDraftValidationError(f"segment_other_endpoint_not_found: {segment}")
 
-def _created_point_handle(step: StepIntent) -> CreatedEntity | None:
+def _created_point_handle(step: FunctionalCompileStepView) -> CreatedEntity | None:
     """返回 creates[] 中的第一个 point entity。"""
     for item in _compile_created_entities(step):
         if item.entity_type == "point":
@@ -2496,7 +2496,7 @@ def _created_point_handle(step: StepIntent) -> CreatedEntity | None:
     return None
 
 def _fresh_auxiliary_point_handle(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> str:
     """为 recipe 自动创建当前 scope 下未占用的辅助点 handle。"""
@@ -2511,7 +2511,7 @@ def _fresh_auxiliary_point_handle(
     )
 
 def _first_pointref_handle(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> str:
     """从 reads 中找第一个 PointRef handle。"""
@@ -2523,7 +2523,7 @@ def _first_pointref_handle(
 
 
 def _point_value_candidates_from_reads(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> list[_PointValueCandidate]:
     """Return readable Point values grouped by geometric point name.
@@ -2546,7 +2546,7 @@ def _point_value_candidates_from_reads(
 
 def _point_value_candidate_for_handle(
     handle: str,
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> _PointValueCandidate | None:
     """Return a Point candidate represented by ``handle`` if it is readable."""
@@ -2577,7 +2577,7 @@ def _point_value_candidate_for_handle(
 
 def _point_value_handles_for_names(
     names: tuple[str, str],
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
     candidates: list[_PointValueCandidate],
 ) -> tuple[str, str] | None:
@@ -2593,7 +2593,7 @@ def _point_value_handles_for_names(
 
 def _point_value_handle_for_name(
     point_name: str,
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
     candidates: list[_PointValueCandidate],
 ) -> str | None:
@@ -2629,7 +2629,7 @@ def _point_value_handle_for_name(
 
 
 def _distance_endpoint_names_from_step(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
     candidates: list[_PointValueCandidate],
 ) -> tuple[str, str] | None:
@@ -2654,7 +2654,7 @@ def _distance_endpoint_names_from_step(
 
 
 def _known_point_names_for_distance(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
     candidates: list[_PointValueCandidate],
 ) -> tuple[str, ...]:
@@ -2686,7 +2686,7 @@ def _point_pair_from_text(
 
 
 def _distance_point_handles(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> tuple[str, str]:
     """为 distance_between_points 选择两端点。"""
@@ -2742,7 +2742,7 @@ def _distance_point_handles(
     )
 
 def _angle_sum_y_axis_roles(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> dict[str, str]:
     """从 angle_sum fact 推断角和转截点角色。
@@ -2763,7 +2763,7 @@ def _angle_sum_y_axis_roles(
 
 
 def _angle_equality_axis_roles(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> dict[str, str]:
     """从等角 fact 推断正切比角色。
@@ -2784,7 +2784,7 @@ def _angle_equality_axis_roles(
 
 
 def _angle_equality_handle(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> str:
     """读取当前 step 明确引用的 AngleEquality fact。"""
@@ -2878,7 +2878,7 @@ def _angle_equality_terms(
 
 
 def _line_parabola_roles(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> dict[str, str]:
     """从 step reads 推断“直线两点 + 已知曲线交点 + 目标点”。"""
@@ -2916,7 +2916,7 @@ def _line_parabola_roles(
     }
 
 def _point_handles_from_coordinate_fact_reads(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> list[str]:
     """从 step reads 中的点坐标 fact 反推出对应 point handle。"""
@@ -2932,7 +2932,7 @@ def _point_handles_from_coordinate_fact_reads(
     return result
 
 def _curve_point_handles_from_curve_fact_reads(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> list[str]:
     """读取 step 显式读入的曲线成员关系 fact 对应点 handle。"""
@@ -2954,7 +2954,7 @@ def _curve_point_handles_from_curve_fact_reads(
 
 def _visible_curve_membership_line_points(
     line_points: list[str],
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> list[str]:
     """从题设可见曲线成员关系中识别直线上的已知曲线点。"""
@@ -2967,7 +2967,7 @@ def _visible_curve_membership_line_points(
 
 def _visible_curve_membership_fact_for_point(
     point_handle: str,
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> str | None:
     """查找当前 scope 可见且精确绑定到 ``point_handle`` 的曲线成员关系 fact。"""
@@ -2996,7 +2996,7 @@ def _curve_membership_fact_handles(index: CanonicalRuntimeBindingIndex) -> list[
 
 def _curve_membership_point_handle(
     fact_handle: str,
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> str | None:
     """从曲线成员关系 fact 的结构化 payload 读取 point handle。"""
@@ -3015,7 +3015,7 @@ def _curve_membership_point_handle(
 
 
 def _equal_length_ray_roles(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> dict[str, str]:
     """推断等长射线构造角色。
@@ -3030,7 +3030,7 @@ def _equal_length_ray_roles(
 
 
 def _equal_length_ray_roles_from_constructed_fact(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> dict[str, str]:
     """从 ``G_on_ray_CD_with_CG_eq_CB`` 这类旧 fact 推断角色。"""
@@ -3057,7 +3057,7 @@ def _equal_length_ray_roles_from_constructed_fact(
 
 
 def _equal_length_ray_roles_from_problem_facts(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> dict[str, str]:
     """从题面原始条件推断射线等长构造角色。
@@ -3113,7 +3113,7 @@ def _equal_length_ray_facts_have_structured_payload(
 
 
 def _equal_length_ray_roles_from_structured_problem_facts(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
     *,
     ray_fact: str,
@@ -3176,7 +3176,7 @@ def _equal_length_ray_roles_from_structured_problem_facts(
 
 
 def _equal_length_ray_roles_from_legacy_problem_fact_names(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
     *,
     ray_fact: str,
@@ -3254,7 +3254,7 @@ def _segment_endpoints_from_entity_payload(
 
 def _length_endpoint_handles(
     value: Any,
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
     *,
     context: str,
@@ -3312,7 +3312,7 @@ def _is_auxiliary_point_handle(
     return False
 
 def _line_intersection_roles(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> tuple[str, str, str, str, str]:
     """推断 line_intersection_point 的两条线和目标点。"""
@@ -3350,7 +3350,7 @@ def _line_intersection_roles(
 
 
 def _intersection_track_from_membership_read(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> tuple[str, str] | None:
     """Resolve the target point's movement track from an explicit read."""
@@ -3391,7 +3391,7 @@ def _intersection_track_from_membership_read(
 
 
 def _straightening_candidate_intersection_roles(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> tuple[str, str, str, str, str] | None:
     """Resolve the intersection lines from one read-closed candidate state."""
@@ -3453,7 +3453,7 @@ def _straightening_candidate_intersection_roles(
 def _point_read_by_name(
     point_name: str,
     *,
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> str:
     matches = tuple(
@@ -3476,7 +3476,7 @@ def _point_read_by_name(
 
 
 def _explicit_line_intersection_roles(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> tuple[str, str, str, str, str] | None:
     """Use four explicitly read Point states before structural fallback.
@@ -3501,7 +3501,7 @@ def _explicit_line_intersection_roles(
 
 
 def _visible_intersection_auxiliary_point(
-    step: StepIntent,
+    step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> str | None:
     """Select a visible auxiliary point for line intersection fallback.
@@ -3550,8 +3550,8 @@ def _visible_intersection_auxiliary_point(
     return ranked[0]
 
 
-def _answer_scope_from_step(step: StepIntent) -> str:
-    """从 StepIntent 的 target/produces 中提取 answer 所属 scope。"""
+def _answer_scope_from_step(step: FunctionalCompileStepView) -> str:
+    """从 FunctionalCompileStepView 的 target/produces 中提取 answer 所属 scope。"""
     handles = [_compile_target_handle(step), *(item.handle for item in _compile_return_outputs(step))]
     for handle in handles:
         if handle.startswith("answer:"):

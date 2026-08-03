@@ -1,4 +1,4 @@
-"""Final answer goal verification for StepIntent replay.
+"""Final answer goal verification for transactional Functional replay.
 
 This module checks proof-shape obligations that do not require knowing the
 expected answer. Runtime methods can be locally executable while the final
@@ -30,9 +30,7 @@ from shuxueshuo_server.solver.runtime.state_identity import (
 )
 from shuxueshuo_server.solver.runtime.strategy_models import (
     PlannerRetryIssue,
-    StepIntent,
-    StepIntentDraft,
-    StepIntentExecutionDiagnostic,
+    FunctionalExecutionDiagnostic,
     StrategyDraftValidationError,
 )
 from shuxueshuo_server.solver.state_semantics import is_object_handle
@@ -56,7 +54,7 @@ class FunctionalGoalArtifact:
 
 @dataclass(frozen=True)
 class FunctionalGoalProducer:
-    """Typed Functional producer view used without a StepIntent draft."""
+    """Typed Functional producer view used by goal verification."""
 
     step_id: str
     scope_id: str
@@ -124,17 +122,15 @@ class AnswerGoalVerifier:
 
     def verify(
         self,
-        draft: StepIntentDraft | None,
         *,
         problem_payload: Mapping[str, Any] | None,
         handle_registry: CanonicalHandleRegistry,
-        diagnostic: StepIntentExecutionDiagnostic | None = None,
+        diagnostic: FunctionalExecutionDiagnostic | None = None,
         family_spec: SolverFamilySpec | None = None,
         functional_context: FunctionalGoalVerificationContext | None = None,
     ) -> tuple[PlannerRetryIssue, ...]:
-        """Return goal verification issues for an otherwise executable draft."""
+        """Return goal verification issues for an executable Functional graph."""
         return self.verify_report(
-            draft,
             problem_payload=problem_payload,
             handle_registry=handle_registry,
             diagnostic=diagnostic,
@@ -144,18 +140,17 @@ class AnswerGoalVerifier:
 
     def verify_report(
         self,
-        draft: StepIntentDraft | None,
         *,
         problem_payload: Mapping[str, Any] | None,
         handle_registry: CanonicalHandleRegistry,
-        diagnostic: StepIntentExecutionDiagnostic | None = None,
+        diagnostic: FunctionalExecutionDiagnostic | None = None,
         family_spec: SolverFamilySpec | None = None,
         functional_context: FunctionalGoalVerificationContext | None = None,
     ) -> AnswerGoalVerificationReport:
         """Return per-goal status without treating unexecuted goals as passed."""
         if problem_payload is None:
             return AnswerGoalVerificationReport()
-        if draft is None and functional_context is None:
+        if functional_context is None:
             return AnswerGoalVerificationReport()
         goals = _canonical_question_goals(problem_payload)
         if not goals:
@@ -172,11 +167,7 @@ class AnswerGoalVerifier:
             goal_handle = str(goal.get("handle", "")).strip()
             if not goal_handle:
                 continue
-            step = (
-                _producing_step(draft, goal_handle)
-                if draft is not None
-                else functional_context.goal_producers.get(goal_handle)
-            )
+            step = functional_context.goal_producers.get(goal_handle)
             if step is None:
                 results.append(
                     AnswerGoalVerificationItem(goal_handle, "unbound")
@@ -198,7 +189,7 @@ class AnswerGoalVerifier:
             unresolved_symbol_issue = _unresolved_answer_symbol_issue(
                 goal,
                 step=step,
-                draft=draft,
+                draft=None,
                 problem_payload=problem_payload,
                 handle_registry=handle_registry,
                 diagnostic=diagnostic,
@@ -254,11 +245,11 @@ class AnswerGoalVerifier:
 def _unresolved_answer_symbol_issue(
     goal: Mapping[str, Any],
     *,
-    step: StepIntent | FunctionalGoalProducer,
-    draft: StepIntentDraft | None,
+    step: FunctionalGoalProducer,
+    draft: None,
     problem_payload: Mapping[str, Any],
     handle_registry: CanonicalHandleRegistry,
-    diagnostic: StepIntentExecutionDiagnostic | None,
+    diagnostic: FunctionalExecutionDiagnostic | None,
     functional_context: FunctionalGoalVerificationContext | None = None,
 ) -> PlannerRetryIssue | None:
     """Reject final answers that retain non-contractual free symbols."""
@@ -600,10 +591,10 @@ def _typed_runtime_symbol_object_ids(
 def _parameter_goal_constraint_issue(
     goal: Mapping[str, Any],
     *,
-    step: StepIntent,
+    step: FunctionalGoalProducer,
     problem_payload: Mapping[str, Any],
     handle_registry: CanonicalHandleRegistry,
-    diagnostic: StepIntentExecutionDiagnostic | None,
+    diagnostic: FunctionalExecutionDiagnostic | None,
 ) -> PlannerRetryIssue | None:
     """Reject a closed Symbol answer that violates a structured range fact."""
 
@@ -881,21 +872,12 @@ def _canonical_question_goals(
     return tuple(item for item in goals if isinstance(item, Mapping))
 
 
-def _producing_step(draft: StepIntentDraft, handle: str) -> StepIntent | None:
-    for step in draft.steps:
-        if step.target == handle:
-            return step
-        if any(item.handle == handle for item in step.produces):
-            return step
-    return None
-
-
 def _point_goal_issue(
     goal: Mapping[str, Any],
     *,
-    step: StepIntent | FunctionalGoalProducer,
+    step: FunctionalGoalProducer,
     handle_registry: CanonicalHandleRegistry,
-    diagnostic: StepIntentExecutionDiagnostic | None,
+    diagnostic: FunctionalExecutionDiagnostic | None,
     family_spec: SolverFamilySpec | None,
     functional_context: FunctionalGoalVerificationContext | None = None,
 ) -> PlannerRetryIssue | None:
@@ -1123,7 +1105,7 @@ def _point_goal_issue(
 def _point_provenance_issue(
     goal: Mapping[str, Any],
     *,
-    step: StepIntent,
+    step: FunctionalGoalProducer,
     target_handle: str,
     actual_object_ref: str | None,
     source_step_id: str | None,
@@ -1168,7 +1150,7 @@ def _point_provenance_issue(
 def _canonical_state_provenance(
     provenance: StateWriteProvenance,
     *,
-    diagnostic: StepIntentExecutionDiagnostic,
+    diagnostic: FunctionalExecutionDiagnostic,
     functional_context: FunctionalGoalVerificationContext | None = None,
 ) -> StateWriteProvenance:
     """Prefer the full state write over its answer alias projection."""
@@ -1210,7 +1192,7 @@ def _canonical_state_provenance(
 def _goal_required_evidence_tags(
     goal: Mapping[str, Any],
     *,
-    step: StepIntent,
+    step: FunctionalGoalProducer,
     family_spec: SolverFamilySpec | None,
 ) -> tuple[str, ...]:
     raw = goal.get("required_evidence_tags", ())
@@ -1268,9 +1250,9 @@ def _goal_evidence_producer_goal_types(
 def _minimum_goal_issue(
     goal: Mapping[str, Any],
     *,
-    step: StepIntent | FunctionalGoalProducer,
+    step: FunctionalGoalProducer,
     handle_registry: CanonicalHandleRegistry,
-    diagnostic: StepIntentExecutionDiagnostic | None,
+    diagnostic: FunctionalExecutionDiagnostic | None,
     family_spec: SolverFamilySpec | None,
     functional_context: FunctionalGoalVerificationContext | None = None,
 ) -> PlannerRetryIssue | None:
@@ -1417,7 +1399,7 @@ def _minimum_goal_issue(
 def _state_write_lineage(
     root: Any,
     *,
-    diagnostic: StepIntentExecutionDiagnostic,
+    diagnostic: FunctionalExecutionDiagnostic,
     functional_context: FunctionalGoalVerificationContext | None = None,
     consumer_scope_id: str | None = None,
 ) -> tuple[Any, ...]:
@@ -1505,7 +1487,7 @@ def _state_write_lineage(
 def _minimum_goal_provenance_issue(
     goal: Mapping[str, Any],
     *,
-    step: StepIntent,
+    step: FunctionalGoalProducer,
     code: str,
     message: str,
     path_targets: tuple[str, ...],
@@ -1546,7 +1528,7 @@ def _goal_evidence_roles(
 
 
 def _goal_evidence_handles(
-    diagnostic: StepIntentExecutionDiagnostic,
+    diagnostic: FunctionalExecutionDiagnostic,
     *,
     roles: frozenset[str],
     scope_id: str,
@@ -1609,7 +1591,7 @@ def _related_handles_for_point_goal(
 
 
 def _step_mentions_handle(
-    step: StepIntent | FunctionalGoalProducer,
+    step: FunctionalGoalProducer,
     handle: str,
 ) -> bool:
     return (

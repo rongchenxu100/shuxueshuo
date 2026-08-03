@@ -77,7 +77,7 @@ def test_solve_problem_cli_resolves_repo_fixture_paths() -> None:
     assert payload["status"] == "ok"
 
 
-def test_solve_problem_cli_returns_unsupported_for_non_default_labels() -> None:
+def test_solve_problem_cli_routes_same_family_alt_labels_to_functional_planner() -> None:
     completed = subprocess.run(
         [
             sys.executable,
@@ -95,7 +95,9 @@ def test_solve_problem_cli_returns_unsupported_for_non_default_labels() -> None:
     assert completed.returncode != 0
     payload = json.loads(completed.stdout)
     assert payload["problem_id"] == "tj-2026-nankai-yimo-25-alt-labels"
-    assert payload["status"] == "unsupported"
+    assert payload["status"] == "failed"
+    assert payload["solver_family"] == "QuadraticPathMinimumSolver"
+    assert any("functional-plan-fixtures" in error for error in payload["errors"])
 
 
 def test_solve_problem_cli_solves_hexi_weighted_25() -> None:

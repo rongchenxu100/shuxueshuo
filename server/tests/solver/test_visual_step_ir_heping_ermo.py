@@ -91,9 +91,9 @@ def test_vs1_heping_ermo_lesson_steps_are_grouped_by_reusable_capabilities(
 
     first_step = lesson.steps[0]
     assert first_step.source_step_ids == (
-        "determine_quadratic_i",
-        "derive_vertex_P",
-        "derive_x_intercept_A",
+        "derive_parabola_i",
+        "derive_vertex_P_i",
+        "derive_x_intercept_A_i",
     )
     assert first_step.capability_ids == (
         "quadratic_from_constraints",
@@ -106,7 +106,7 @@ def test_vs1_heping_ermo_lesson_steps_are_grouped_by_reusable_capabilities(
 
     axis_square_step = _lesson_step(
         lesson,
-        "explain_parameterize_axis_point_E_i2_derive_square_vertex_G_i2",
+        "explain_parameterize_axis_point_E_i_derive_square_vertex_G_i",
     )
     assert axis_square_step.capability_ids == (
         "quadratic_axis_parameterized_point",
@@ -117,17 +117,17 @@ def test_vs1_heping_ermo_lesson_steps_are_grouped_by_reusable_capabilities(
     assert axis_square_step.box == ("E(－1,t)", "G(t－3,－2)")
     assert any(text == "G(t－3,－2)" for _, text in axis_square_step.derive)
 
-    candidate_step = _lesson_step(lesson, "explain_solve_E_candidates_from_G_on_parabola")
+    candidate_step = _lesson_step(lesson, "explain_solve_axis_point_candidates_i")
     assert candidate_step.title == "代入抛物线求点E候选"
     assert candidate_step.nav_title == "求点E候选"
     assert candidate_step.box == ("E(－1,2＋√6) 或 E(－1,2－√6)",)
 
-    reduce_step = _lesson_step(lesson, "explain_reduce_square_path_dimension")
+    reduce_step = _lesson_step(lesson, "explain_reduce_square_path_ii")
     assert reduce_step.title == "由斜边中线和中位线转化线段"
     assert reduce_step.nav_title == "多动点转化为单动点问题"
     assert reduce_step.box == ("FM＝AE/2", "HF＝AG/2", "HF＋FM＝AG", "HF＋FM＋MG＝AG＋MG")
 
-    simplify_step = _lesson_step(lesson, "explain_simplify_quadratic_with_A_derive_axis_point_M")
+    simplify_step = _lesson_step(lesson, "explain_derive_parametric_parabola_ii_derive_axis_point_M_ii")
     assert simplify_step.capability_ids == (
         "quadratic_from_constraints",
         "quadratic_axis_x_intercept_point",
@@ -138,7 +138,7 @@ def test_vs1_heping_ermo_lesson_steps_are_grouped_by_reusable_capabilities(
 
     axis_square_ii_step = _lesson_step(
         lesson,
-        "explain_parameterize_axis_point_E_ii_derive_square_vertex_G_ii_derive_G_locus_line",
+        "explain_parameterize_axis_point_E_ii_derive_square_vertex_G_ii_derive_locus_G_ii",
     )
     assert axis_square_ii_step.capability_ids == (
         "quadratic_axis_parameterized_point",
@@ -152,7 +152,7 @@ def test_vs1_heping_ermo_lesson_steps_are_grouped_by_reusable_capabilities(
         "y＝－(c＋1)/2",
     )
 
-    minimum_step = _lesson_step(lesson, "explain_derive_path_minimum_expr")
+    minimum_step = _lesson_step(lesson, "explain_derive_path_minimum_ii")
     assert minimum_step.capability_ids == ("broken_path_straightening_minimum_expression",)
     assert minimum_step.title == "将军饮马计算最小值表达式"
     assert minimum_step.nav_title == "将军饮马算最小值"
@@ -163,7 +163,7 @@ def test_vs1_heping_ermo_lesson_steps_are_grouped_by_reusable_capabilities(
 
     parameter_step = _lesson_step(
         lesson,
-        "explain_derive_parameter_c_evaluate_A_at_c_derive_minimum_G_point",
+        "explain_solve_parameter_c_ii_evaluate_point_A_ii_derive_minimum_point_G_ii",
     )
     assert parameter_step.capability_ids == (
         "parameter_from_expression_value",
@@ -224,7 +224,7 @@ def test_vs1_heping_ermo_square_candidate_and_path_decorations_are_bound(
 
     axis_square_step = _lesson_step(
         lesson,
-        "explain_parameterize_axis_point_E_i2_derive_square_vertex_G_i2",
+        "explain_parameterize_axis_point_E_i_derive_square_vertex_G_i",
     )
     square_decorations = _step_decorations(page, axis_square_step.id)
     assert {"type": "point", "at": "E_axis_i_2", "labelText": "E", "color": "#dc2626", "dx": 14, "dy": -18} in square_decorations
@@ -241,7 +241,7 @@ def test_vs1_heping_ermo_square_candidate_and_path_decorations_are_bound(
     )
     assert any(item.get("type") == "rightAngle" for item in square_decorations)
 
-    candidate_step = _lesson_step(lesson, "explain_solve_E_candidates_from_G_on_parabola")
+    candidate_step = _lesson_step(lesson, "explain_solve_axis_point_candidates_i")
     candidate_decorations = _step_decorations(page, candidate_step.id)
     assert not any(
         item.get("type") == "outlineRegion"
@@ -266,7 +266,7 @@ def test_vs1_heping_ermo_square_candidate_and_path_decorations_are_bound(
         "dy": 34,
     } in candidate_decorations
 
-    reduce_step = _lesson_step(lesson, "explain_reduce_square_path_dimension")
+    reduce_step = _lesson_step(lesson, "explain_reduce_square_path_ii")
     reduce_decorations = _step_decorations(page, reduce_step.id)
     assert any(
         item.get("type") == "outlineRegion"
@@ -291,7 +291,7 @@ def test_vs1_heping_ermo_locus_minimum_and_parameter_interactions_are_bound(
 
     axis_square_ii_step = _lesson_step(
         lesson,
-        "explain_parameterize_axis_point_E_ii_derive_square_vertex_G_ii_derive_G_locus_line",
+        "explain_parameterize_axis_point_E_ii_derive_square_vertex_G_ii_derive_locus_G_ii",
     )
     axis_square_ii_decorations = _step_decorations(page, axis_square_ii_step.id)
     assert {
@@ -312,7 +312,7 @@ def test_vs1_heping_ermo_locus_minimum_and_parameter_interactions_are_bound(
     assert axis_square_ii_overrides["E_axis_ii"] == ["1/2-c/2", "u"]
     assert axis_square_ii_overrides["G_axis_ii"] == ["-c+u", "-c/2-1/2"]
 
-    minimum_step = _lesson_step(lesson, "explain_derive_path_minimum_expr")
+    minimum_step = _lesson_step(lesson, "explain_derive_path_minimum_ii")
     minimum_decorations = _step_decorations(page, minimum_step.id)
     assert {
         "type": "coordinateLabel",
@@ -339,7 +339,7 @@ def test_vs1_heping_ermo_locus_minimum_and_parameter_interactions_are_bound(
 
     parameter_step = _lesson_step(
         lesson,
-        "explain_derive_parameter_c_evaluate_A_at_c_derive_minimum_G_point",
+        "explain_solve_parameter_c_ii_evaluate_point_A_ii_derive_minimum_point_G_ii",
     )
     parameter_decorations = _step_decorations(page, parameter_step.id)
     assert {"type": "coordinateLabel", "at": "A", "text": "A(－5,0)", "dx": 14, "dy": -28} in parameter_decorations
@@ -421,7 +421,7 @@ def test_lesson_draft_final_step_does_not_collect_prior_answers_with_display_var
     final_step = next(
         step
         for step in result.lesson.steps
-        if "derive_extremal_E_from_square_side" in step.source_step_ids
+        if "recover_target_point_E_ii" in step.source_step_ids
     )
     final_box = json.dumps(final_step.box, ensure_ascii=False).replace(" ", "")
     assert "E(－2,3/2)" in final_box or "E(-2,3/2)" in final_box

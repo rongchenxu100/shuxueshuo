@@ -308,10 +308,6 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
             ),
         ),
     ),
-    # 临时兼容硬门控：当前 V1.5 deterministic planner 只实现 canonical 南开 25。
-    # 由 docs/functional-planner-next-stage-roadmap.md 的 Track D0 统一退场；
-    # Track A parity 完成只会启动该里程碑，不会单独触发删除。
-    enabled_problem_ids=("tj-2026-nankai-yimo-25",),
 )
 
 QUADRATIC_PATH_MINIMUM_FAMILY = expand_family_spec(

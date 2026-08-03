@@ -60,7 +60,7 @@ def test_attempt_protocol_requires_functional_format_and_locked_few_shot(
     few_shot = [{"format": "functional_plan/v1", "scopes": []}]
     for attempt in (1, 2):
         (tmp_path / f"attempt-{attempt}.llm-metadata.json").write_text(
-            json.dumps({"candidate_format": "functional_plan"}),
+            json.dumps({"planner_protocol": "functional_plan/v1"}),
             encoding="utf-8",
         )
         (tmp_path / f"attempt-{attempt}.raw-response.txt").write_text(
@@ -75,8 +75,8 @@ def test_attempt_protocol_requires_functional_format_and_locked_few_shot(
             json.dumps(few_shot),
             encoding="utf-8",
         )
-        (tmp_path / f"attempt-{attempt}.payload.planner_output_format.json").write_text(
-            json.dumps("functional_plan"),
+        (tmp_path / f"attempt-{attempt}.payload.planner_protocol.json").write_text(
+            json.dumps("functional_plan/v1"),
             encoding="utf-8",
         )
         (tmp_path / f"attempt-{attempt}.prompt.user.md").write_text(
@@ -96,7 +96,7 @@ def test_attempt_protocol_requires_functional_format_and_locked_few_shot(
 
 def test_prompt_safety_distinguishes_error_codes_from_canonical_handles() -> None:
     payload = {
-        "planner_output_format": "functional_plan",
+        "planner_protocol": "functional_plan/v1",
         "functional_few_shot_selection": {
             "mode": "strict_test",
             "example_id": "hidden_example",
@@ -121,7 +121,7 @@ def test_prompt_safety_distinguishes_error_codes_from_canonical_handles() -> Non
 
 def test_prompt_safety_allows_call_id_equal_to_hidden_example_id() -> None:
     payload = {
-        "planner_output_format": "functional_plan",
+        "planner_protocol": "functional_plan/v1",
         "functional_few_shot_selection": {
             "mode": "strict_test",
             "example_id": "broken_path_straightening",

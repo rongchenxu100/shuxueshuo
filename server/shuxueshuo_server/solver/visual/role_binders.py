@@ -531,7 +531,18 @@ class VisualRoleBinderRegistry:
             step = source_steps.get(step_id)
             if not step or step.get("recipe_hint") != "translated_point":
                 continue
-            for read_handle in step.get("reads") or ():
+            target_handles = [str(step.get("target") or "")]
+            target_handles.extend(
+                str(item.get("handle") or "")
+                for item in step.get("creates") or ()
+                if isinstance(item, dict)
+            )
+            target_handles.extend(
+                str(handle)
+                for handle in step.get("reads") or ()
+                if isinstance(handle, str)
+            )
+            for read_handle in dict.fromkeys(target_handles):
                 if not isinstance(read_handle, str):
                     continue
                 target_entity = self.index.entities_by_handle.get(read_handle)
@@ -780,7 +791,7 @@ class VisualRoleBinderRegistry:
             score += 80
         if step_scope_id and item_scope_id == step_scope_id:
             score += 60
-        if source_step_id and item_scope_id == source_step_id:
+        if source_step_id and _fact_step_id(item) == source_step_id:
             score += 50
         if source_step_id and item_handle.startswith(f"runtime:{source_step_id}:"):
             score += 50
@@ -1157,6 +1168,9 @@ class VisualRoleBinderRegistry:
             label = _label_from_semantic_name(str(item.get("name") or ""))
             if not label:
                 label = _label_from_runtime_point_handle(str(item.get("handle") or ""))
+            point_id = axis_parameter_point_id(label, lesson_step.scope_id) if label else ""
+            if point_id not in self._known_points:
+                label = _label_from_effective_step(_fact_step_id(item), snapshot)
             if not label:
                 continue
             point_id = axis_parameter_point_id(label, lesson_step.scope_id)
@@ -1354,11 +1368,18 @@ class VisualRoleBinderRegistry:
             if not step or step.get("recipe_hint") != "axis_intercept_from_equal_acute_angles":
                 continue
             axis_equality = _axis_angle_equality_from_step(step)
+            if not all(axis_equality) and display_equalities:
+                axis_equality = display_equalities[0]
+            display_line = _display_line_segment_from_lesson_step(lesson_step)
+            axis_equality = _axis_intercept_equality(
+                axis_equality,
+                display_line=display_line,
+                result_label=_coordinate_result_label(lesson_step),
+            )
             origin_label = self._origin_label_from_step(step) or _origin_label_from_angles(axis_equality)
             if not axis_equality or not origin_label:
                 continue
             equality_markers: list[dict[str, Any]] = []
-            display_line = _display_line_segment_from_lesson_step(lesson_step)
             for left, right in display_equalities or [axis_equality]:
                 marker = self._angle_equality_marker(left, right, lesson_step.scope_id, point_handles)
                 if marker:
@@ -2333,7 +2354,7 @@ def _runtime_point_value_for_step(
     for item in snapshot.fact_index.values():
         if not isinstance(item, dict) or item.get("type") != "Point":
             continue
-        if str(item.get("scope_id") or "") == step_id:
+        if _fact_step_id(item) == step_id:
             return item.get("value")
     return None
 
@@ -2624,7 +2645,7 @@ def _square_target_display_from_runtime(
     for item in snapshot.fact_index.values():
         if not isinstance(item, dict) or item.get("type") != "Point":
             continue
-        if str(item.get("scope_id") or "") != source_step_id:
+        if _fact_step_id(item) != source_step_id:
             continue
         pair = _sympy_pair(item.get("value"))
         if pair is not None:
@@ -2642,7 +2663,7 @@ def _square_target_value_from_runtime(
     for item in snapshot.fact_index.values():
         if not isinstance(item, dict) or item.get("type") != "Point":
             continue
-        if str(item.get("scope_id") or "") != source_step_id:
+        if _fact_step_id(item) != source_step_id:
             continue
         value = item.get("value")
         if isinstance(value, (list, tuple)) and len(value) == 2:
@@ -2674,7 +2695,7 @@ def _runtime_line_for_step(step: dict[str, Any], snapshot: ExplanationSnapshot) 
         value = item.get("value")
         if not isinstance(value, dict):
             continue
-        if step_id and str(item.get("scope_id") or "") == step_id:
+        if step_id and _fact_step_id(item) == step_id:
             return value
         if target_tail and (
             str(item.get("name") or "") == target_tail
@@ -2995,6 +3016,37 @@ def _display_line_segment_from_lesson_step(lesson_step: LessonStep) -> str:
     return ""
 
 
+def _coordinate_result_label(lesson_step: LessonStep) -> str:
+    for text in (*lesson_step.box, *[item for _, item in lesson_step.derive]):
+        match = re.search(r"(?<![A-Za-z])([A-Z])\s*[（(]", str(text))
+        if match:
+            return match.group(1)
+    return ""
+
+
+def _axis_intercept_equality(
+    equality: tuple[str, str],
+    *,
+    display_line: str,
+    result_label: str,
+) -> tuple[str, str]:
+    if not result_label or len(display_line) != 2:
+        return equality
+    out: list[str] = []
+    for angle in equality:
+        if len(angle) != 3 or not all(label in angle for label in display_line):
+            out.append(angle)
+            continue
+        vertex = angle[1]
+        replaced = angle
+        for endpoint in display_line:
+            if endpoint != vertex:
+                replaced = angle.replace(endpoint, result_label, 1)
+                break
+        out.append(replaced)
+    return tuple(out) if len(out) == 2 else equality
+
+
 def _dedupe_angle_equalities(items: list[tuple[str, str]]) -> list[tuple[str, str]]:
     out: list[tuple[str, str]] = []
     seen: set[tuple[str, str]] = set()
@@ -3087,3 +3139,7 @@ def _angle_equalities_from_texts(text_parts: list[str]) -> list[tuple[str, str]]
 
 def _axis_arm(vertex: str, endpoint: str, origin_labels: frozenset[str] | set[str]) -> bool:
     return bool({vertex, endpoint} & set(origin_labels))
+
+
+def _fact_step_id(item: dict[str, Any]) -> str:
+    return str(item.get("source_step_id") or item.get("scope_id") or "")

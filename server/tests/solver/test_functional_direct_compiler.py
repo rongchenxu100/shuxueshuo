@@ -23,15 +23,12 @@ from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
     _compiled_call_signature,
 )
 from shuxueshuo_server.solver.runtime.models import ContextDeclaration
+from shuxueshuo_server.solver.runtime import recipe_compiler
 from shuxueshuo_server.solver.runtime.recipe_compiler import (
     FunctionalCapabilityCompiler,
-    RecipeTrialExecutor,
 )
 from shuxueshuo_server.solver.runtime import (
     FunctionalCapabilityCompiler as PublicFunctionalCapabilityCompiler,
-)
-from shuxueshuo_server.solver.runtime.strategy_validator import (
-    StepIntentValidator,
 )
 from shuxueshuo_server.solver.runtime.strategy_payload import (
     write_strategy_debug_artifacts,
@@ -200,26 +197,15 @@ def test_transactional_compiler_has_one_direct_path() -> None:
     assert "_compile_direct" in source
 
 
-def test_direct_authoritative_bypasses_step_intent_validation(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    def fail_if_called(*args, **kwargs):
-        raise AssertionError("StepIntent validation reached direct authority")
-
-    monkeypatch.setattr(
-        StepIntentValidator,
-        "validate_json_with_report",
-        fail_if_called,
-    )
-
+def test_direct_authoritative_has_no_step_intent_validation() -> None:
     replay = _replay(
         "nankai",
         mode="context_authoritative",
     )
 
     assert replay.output is not None
-    assert replay.raw_draft is None
-    assert replay.effective_draft is None
+    assert "raw_draft" not in replay.to_payload()
+    assert "effective_draft" not in replay.to_payload()
     assert replay.functional_reconciliation is not None
     assert replay.functional_reconciliation.execution_entries
 
@@ -247,7 +233,7 @@ def test_direct_compiler_import_guard() -> None:
 
 
 def test_retired_exact_step_bridge_is_not_exposed() -> None:
-    assert not hasattr(RecipeTrialExecutor, "compile_exact_step")
+    assert not hasattr(recipe_compiler, "RecipeTrialExecutor")
 
 
 def test_direct_authoritative_explanation_uses_canonical_compiled_calls() -> None:
@@ -258,7 +244,6 @@ def test_direct_authoritative_explanation_uses_canonical_compiled_calls() -> Non
     attempt = replay.transactional_attempt_result
     assert attempt is not None
     assert replay.output is not None
-    assert replay.effective_draft is None
 
     steps = transactional_functional_steps(replay, replay.output)
     expected_ids = tuple(
@@ -317,14 +302,12 @@ def test_direct_functional_debug_does_not_emit_step_intent_artifact(
     write_strategy_debug_artifacts(
         tmp_path,
         payload={
-            "planner_output_format": "functional_plan",
+            "planner_protocol": "functional_plan/v1",
             "output_json_schema": {},
         },
         prompt=type("Prompt", (), {"system": "", "user": ""})(),
         raw_response="{}",
-        draft=replay.raw_draft,
         report=replay.functional_validation_report,
-        effective_draft=replay.effective_draft,
         functional_plan=replay.functional_plan,
         functional_reconciliation=replay.functional_reconciliation,
     )

@@ -42,8 +42,8 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     ProducedFact,
     ProjectedStateWrite,
     ProjectedStateDependency,
-    StepIntentAppliedFill,
-    StepIntent,
+    FunctionalAppliedFill,
+    FunctionalCompileStepView,
     StrategyDraftValidationError,
 )
 
@@ -60,7 +60,7 @@ class RuntimeHandleBinding:
 class CanonicalRuntimeBindingIndex:
     """把 LLM canonical handle 映射到 runtime ContextPath。
 
-    这层是泛化 RecipeTrialExecutor 的关键：binding rule 只读取 Entity/Fact/answer
+    binding rule 只读取 Entity/Fact/answer
     handle，不再记住某一道题的固定点名。若 LLM 创建辅助点或 method 产生新 fact，
     index 会把它们注册为后续 step 可读取的语义 alias。
     """
@@ -86,7 +86,7 @@ class CanonicalRuntimeBindingIndex:
             functional_consumer_identity_mode
         )
         self.declarations: dict[str, Any] = {}
-        self.applied_fills: list[StepIntentAppliedFill] = []
+        self.applied_fills: list[FunctionalAppliedFill] = []
         # Accepted Function/Macro writes. Binding selectors use this ledger to
         # preserve Symbol/Object identity instead of inferring it from names.
         self.state_write_provenance: list[Any] = []
@@ -155,7 +155,7 @@ class CanonicalRuntimeBindingIndex:
             raise StrategyDraftValidationError(
                 "planner_configuration_error: "
                 "planner.runtime_state_binding_drift: "
-                "Functional typed read index requested in StepIntent mode"
+                "Functional typed read index requested in FunctionalCompileStepView mode"
             )
         from shuxueshuo_server.solver.runtime.functional_state_reads import (
             FunctionalStateReadIndex,
@@ -607,14 +607,14 @@ class CanonicalRuntimeBindingIndex:
     def record_applied_fill(
         self,
         *,
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         input_handle: str,
         required_type: str,
         resolved_handle: str,
         reason: str,
     ) -> None:
         """记录一次 Entity/Facts 补位，供 execution diagnostic 使用。"""
-        fill = StepIntentAppliedFill(
+        fill = FunctionalAppliedFill(
             step_id=step.step_id,
             scope_id=step.scope_id,
             input_handle=input_handle,
@@ -913,7 +913,7 @@ class CanonicalRuntimeBindingIndex:
         except KeyError as exc:
             raise StrategyDraftValidationError(f"fact_payload_not_found: {handle}") from exc
 
-    def entity_handles(self, kind: str, *, step: StepIntent | None = None) -> list[str]:
+    def entity_handles(self, kind: str, *, step: FunctionalCompileStepView | None = None) -> list[str]:
         """按实体类型返回 handle；若提供 step，优先保留 step.reads 中出现的实体。"""
         handles = [
             handle for handle in self.bindings
@@ -927,7 +927,7 @@ class CanonicalRuntimeBindingIndex:
             handle for handle in input_handles if handle in handles
         ] + sorted(handle for handle in handles if handle not in read_set)
 
-    def point_handle_by_name(self, name: str, *, step: StepIntent | None = None) -> str:
+    def point_handle_by_name(self, name: str, *, step: FunctionalCompileStepView | None = None) -> str:
         """按点名查找 point handle，优先当前 step reads 和当前 scope。
 
         同一道综合题中，不同小问经常会复用同一个字母点名，例如
@@ -967,7 +967,7 @@ class CanonicalRuntimeBindingIndex:
         self,
         fact_type: str,
         *,
-        step: StepIntent | None = None,
+        step: FunctionalCompileStepView | None = None,
         predicate: Any | None = None,
     ) -> str:
         """按 fact type 查找 handle，优先 step.reads 和当前 scope。"""
@@ -1126,18 +1126,18 @@ class CanonicalRuntimeBindingIndex:
             symbol = symbol[len("parameter_") :]
         return symbol in self._structural_symbol_names()
 
-    def dynamic_parameter_symbol_path(self, *, step: StepIntent | None = None) -> str:
+    def dynamic_parameter_symbol_path(self, *, step: FunctionalCompileStepView | None = None) -> str:
         """返回动点参数符号路径。
 
         ``parameter_symbol_path`` 表示当前要求解的主参数，例如河西第（Ⅲ）问的
         ``b``。weighted path method 还需要动点自身的参数，例如 ``N(n,0)`` 中
         的 ``n``。这里从 ``symbol_constraint`` fact 中排除主参数，再按当前
-        StepIntent.reads 消歧，避免把动点参数名写死为 ``n``。
+        FunctionalCompileStepView.reads 消歧，避免把动点参数名写死为 ``n``。
         """
         symbol_handle, _constraint_handle = self._dynamic_parameter_handles(step=step)
         return self.path_for(symbol_handle, expected_type="Symbol")
 
-    def dynamic_constraint_path(self, *, step: StepIntent | None = None) -> str:
+    def dynamic_constraint_path(self, *, step: FunctionalCompileStepView | None = None) -> str:
         """返回动点参数范围约束路径。"""
         _symbol_handle, constraint_handle = self._dynamic_parameter_handles(step=step)
         return self.path_for(constraint_handle, expected_type="Constraint")
@@ -1145,7 +1145,7 @@ class CanonicalRuntimeBindingIndex:
     def _dynamic_parameter_handles(
         self,
         *,
-        step: StepIntent | None = None,
+        step: FunctionalCompileStepView | None = None,
     ) -> tuple[str, str]:
         """返回 ``(symbol_handle, constraint_handle)`` 动点参数候选。"""
         primary_symbol = ContextPath.parse(self.parameter_symbol_path()).key

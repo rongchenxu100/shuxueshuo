@@ -38,9 +38,6 @@ from shuxueshuo_server.solver.runtime.functional_retry_versions import (
     verify_restored_checkpoint,
     verify_restored_runtime_checkpoint,
 )
-from shuxueshuo_server.solver.runtime.canonical_draft_finalizer import (
-    CanonicalDraftFinalizer,
-)
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
 from shuxueshuo_server.solver.runtime.handle_alias_index import (
     visible_from_valid_scope,
@@ -62,6 +59,7 @@ from shuxueshuo_server.solver.runtime.functional_plan_elaboration import (
 from shuxueshuo_server.solver.runtime.functional_plan_retry import (
     functional_repair_instruction,
     latest_functional_retry_state,
+    retry_state_from_attempt,
 )
 from shuxueshuo_server.solver.runtime.runtime_type_compatibility import (
     runtime_type_compatible,
@@ -92,44 +90,18 @@ from shuxueshuo_server.solver.runtime.planner_state_context import (
 )
 from shuxueshuo_server.solver.runtime.planner import PlannerInputs
 from shuxueshuo_server.solver.runtime.projection import problem_to_llm_payload
-from shuxueshuo_server.solver.runtime.recipe_compiler import RecipeTrialExecutor
 from shuxueshuo_server.solver.runtime.planner_retry_projection import (
     PlannerRetryStateProjector,
 )
-from shuxueshuo_server.solver.runtime.strategy_draft_merge import (
-    merge_previous_accepted_prefix,
-    prepare_step_intent_raw_response,
-)
 from shuxueshuo_server.solver.runtime.strategy_models import (
-    ExecutablePlanResolutionReport,
-    PlannerOutputFormat,
     ProjectedFunctionArgBinding,
     ProjectedStateDependency,
     ProjectedStateWrite,
     PlannerRetryState,
     PlannerRetryIssue,
-    PlannerRepairAttempt,
-    StepIntentDraft,
-    StepIntentExecutionDiagnostic,
-    StepIntentNormalizationReport,
-    StepIntentNormalizationAction,
-    StepIntentScope,
-    StepIntentValidationReport,
+    FunctionalRepairAttempt,
+    FunctionalExecutionDiagnostic,
     StrategyDraftValidationError,
-)
-from shuxueshuo_server.solver.runtime.strategy_normalizer import StepIntentNormalizer
-from shuxueshuo_server.solver.runtime.strategy_output_types import (
-    canonicalize_produced_output_types,
-)
-from shuxueshuo_server.solver.runtime.state_dependency_graph import (
-    drop_dead_pure_function_steps,
-)
-from shuxueshuo_server.solver.runtime.strategy_repair_feedback import RepairFeedbackBuilder
-from shuxueshuo_server.solver.runtime.strategy_repair_guidance import RepairGuidanceResolver
-from shuxueshuo_server.solver.runtime.strategy_resolver import StepIntentCandidateResolver
-from shuxueshuo_server.solver.runtime.strategy_retry_state import (
-    build_planner_retry_state,
-    retry_state_from_attempt,
 )
 from shuxueshuo_server.solver.runtime.state_finalization import (
     expand_functional_dependency_graph,
@@ -147,24 +119,16 @@ from shuxueshuo_server.solver.runtime.state_identity import (
 from shuxueshuo_server.solver.runtime.straightening_metadata import (
     canonical_straightening_endpoint_name,
 )
-from shuxueshuo_server.solver.runtime.strategy_validator import StepIntentValidator
 from shuxueshuo_server.solver.utils import unique_ordered
 
 
 @dataclass(frozen=True)
 class PlannerRetryReplayResult:
-    """Artifacts from one legacy or Functional planner replay."""
+    """Artifacts from one FunctionalPlan replay."""
 
     attempt: int
     errors: tuple[str, ...] = ()
-    raw_draft: StepIntentDraft | None = None
-    validation_report: StepIntentValidationReport | None = None
-    normalized_draft: StepIntentDraft | None = None
-    normalization_report: StepIntentNormalizationReport | None = None
-    finalization_report: dict[str, Any] | None = None
-    resolution_report: ExecutablePlanResolutionReport | None = None
-    effective_draft: StepIntentDraft | None = None
-    diagnostic: StepIntentExecutionDiagnostic | None = None
+    diagnostic: FunctionalExecutionDiagnostic | None = None
     goal_verification_issues: tuple[Any, ...] = ()
     goal_verification_report: AnswerGoalVerificationReport | None = None
     retry_state: PlannerRetryState | None = None
@@ -183,42 +147,15 @@ class PlannerRetryReplayResult:
         FunctionalTransactionalAttemptResult | None
     ) = None
     state_observation_authority: Literal[
-        "legacy",
+        "pending",
         "transactional",
-    ] = "legacy"
+    ] = "pending"
 
     def to_payload(self) -> dict[str, Any]:
         """转成 debug JSON。"""
         return {
             "attempt": self.attempt,
             "errors": list(self.errors),
-            "raw_draft": self.raw_draft.to_payload() if self.raw_draft else None,
-            "validation_report": (
-                self.validation_report.to_payload()
-                if self.validation_report is not None
-                else None
-            ),
-            "normalized_draft": (
-                self.normalized_draft.to_payload()
-                if self.normalized_draft is not None
-                else None
-            ),
-            "normalization_report": (
-                self.normalization_report.to_payload()
-                if self.normalization_report is not None
-                else None
-            ),
-            "finalization_report": self.finalization_report,
-            "resolution_report": (
-                self.resolution_report.to_payload()
-                if self.resolution_report is not None
-                else None
-            ),
-            "effective_draft": (
-                self.effective_draft.to_payload()
-                if self.effective_draft is not None
-                else None
-            ),
             "diagnostic": (
                 self.diagnostic.to_payload()
                 if self.diagnostic is not None
@@ -313,7 +250,7 @@ class _FunctionalGraphVerification:
 
 
 class PlannerRetryReplayService:
-    """Replay legacy StepIntent or authoritative Functional candidates."""
+    """Replay FunctionalPlan candidates against typed transactional authority."""
 
     def __init__(
         self,
@@ -652,7 +589,6 @@ class PlannerRetryReplayService:
                     ),
                     retry_state=retry_state,
                     output=transactional_attempt.compiled_output,
-                    effective_draft=None,
                     state_observation_authority="transactional",
                 )
         return _with_planner_state_context(
@@ -661,473 +597,6 @@ class PlannerRetryReplayService:
             handle_registry=handle_registry,
             problem_payload=problem_payload,
         )
-
-    def replay_raw_json(
-        self,
-        raw_response: str,
-        *,
-        inputs: PlannerInputs,
-        handle_registry: CanonicalHandleRegistry,
-        context: Any,
-        attempt: int,
-        errors: tuple[str, ...] = (),
-        merge_previous_prefix: bool = True,
-        problem_payload: dict[str, Any] | None = None,
-    ) -> PlannerRetryReplayResult:
-        """从 LLM raw JSON 开始 replay。"""
-        raw_response = prepare_step_intent_raw_response(
-            raw_response,
-            previous_attempts=inputs.previous_errors,
-        )
-        planner_state_context = _initial_planner_state_context(
-            inputs=inputs,
-            handle_registry=handle_registry,
-            problem_payload=problem_payload,
-            attempt=attempt,
-            previous_attempts=inputs.previous_errors,
-        )
-        draft, validation_report = StepIntentValidator().validate_json_with_report(
-            raw_response,
-            question_goals=inputs.question_goals,
-            handle_registry=handle_registry,
-            family_spec=inputs.family_spec,
-            planner_state_context=planner_state_context,
-        )
-        if draft is None:
-            replay_errors = errors or tuple(validation_report.errors)
-            retry_state = build_planner_retry_state(
-                attempt=attempt,
-                errors=replay_errors,
-                validation_report=validation_report,
-                handle_registry=handle_registry,
-            )
-            replay = PlannerRetryReplayResult(
-                attempt=attempt,
-                errors=replay_errors,
-                validation_report=validation_report,
-                retry_state=retry_state,
-            )
-            return _with_planner_state_context(
-                replay,
-                inputs=inputs,
-                handle_registry=handle_registry,
-                problem_payload=problem_payload,
-            )
-        return self.replay_draft(
-            draft,
-            inputs=inputs,
-            handle_registry=handle_registry,
-            context=context,
-            attempt=attempt,
-            errors=errors,
-            validation_report=validation_report,
-            merge_previous_prefix=merge_previous_prefix,
-            problem_payload=problem_payload,
-        )
-
-    def replay_draft(
-        self,
-        draft: StepIntentDraft,
-        *,
-        inputs: PlannerInputs,
-        handle_registry: CanonicalHandleRegistry,
-        context: Any,
-        attempt: int,
-        errors: tuple[str, ...] = (),
-        validation_report: StepIntentValidationReport | None = None,
-        merge_previous_prefix: bool = True,
-        problem_payload: dict[str, Any] | None = None,
-        partial_candidate: bool = False,
-        authoritative_output_types: dict[str, str] | None = None,
-        allow_shared_derivation_scopes: bool = False,
-        candidate_format: PlannerOutputFormat = "step_intent",
-        projected_state_writes: tuple[ProjectedStateWrite, ...] = (),
-        projected_state_dependencies: tuple[ProjectedStateDependency, ...] = (),
-        projected_function_arg_bindings: tuple[
-            ProjectedFunctionArgBinding, ...
-        ] = (),
-        known_state_versions: tuple[IndexedStateVersion, ...] = (),
-        functional_plan: FunctionalPlan | None = None,
-        functional_reconciliation: (
-            FunctionalPlanReconciliationResult | None
-        ) = None,
-    ) -> PlannerRetryReplayResult:
-        """从已通过 validation 的 draft 开始 replay。"""
-        raw_draft = draft
-        replay_draft = (
-            merge_previous_accepted_prefix(
-                draft,
-                previous_attempts=inputs.previous_errors,
-                handle_registry=handle_registry,
-                inputs=inputs,
-            )
-            if merge_previous_prefix
-            else draft
-        )
-        try:
-            if candidate_format == "functional_plan":
-                # Functional reconciliation has already established a typed
-                # call graph. Legacy StepIntent folds/drops/backfills may
-                # change that topology and sever validated CallResultRef
-                # dependencies, so the compatibility projection only receives
-                # type canonicalization and final handle validation below.
-                normalized = replay_draft
-                normalization_report = StepIntentNormalizationReport(
-                    warnings=("functional_call_graph_topology_preserved",),
-                )
-            else:
-                normalized, normalization_report = StepIntentNormalizer().normalize(
-                    replay_draft,
-                    family_spec=inputs.family_spec,
-                    question_goals=inputs.question_goals,
-                    handle_registry=handle_registry,
-                )
-            normalized, output_type_actions = canonicalize_produced_output_types(
-                normalized,
-                family_spec=inputs.family_spec,
-                method_specs=inputs.method_specs,
-                handle_registry=handle_registry,
-                authoritative_types_by_handle=authoritative_output_types,
-            )
-            normalization_report = _append_normalization_actions(
-                normalization_report,
-                output_type_actions,
-            )
-            if candidate_format != "functional_plan":
-                normalized, dead_step_actions = drop_dead_pure_function_steps(
-                    normalized,
-                    family_spec=inputs.family_spec,
-                    method_specs=inputs.method_specs,
-                )
-                normalization_report = _append_normalization_actions(
-                    normalization_report,
-                    dead_step_actions,
-                )
-            normalized, finalization_report = CanonicalDraftFinalizer().finalize(
-                normalized,
-                family_spec=inputs.family_spec,
-                question_goals=inputs.question_goals,
-                handle_registry=handle_registry,
-                allow_shared_derivation_scopes=allow_shared_derivation_scopes,
-                projected_state_writes=projected_state_writes,
-                projected_state_dependencies=projected_state_dependencies,
-                known_state_versions=known_state_versions,
-            )
-        except Exception as exc:
-            if "planner_configuration_error" in str(exc):
-                raise
-            replay_errors = errors or (str(exc),)
-            retry_state = build_planner_retry_state(
-                attempt=attempt,
-                errors=replay_errors,
-                normalized_draft=replay_draft,
-                validation_report=validation_report,
-                normalization_errors=(str(exc),),
-                handle_registry=handle_registry,
-            )
-            retry_state = _retry_state_with_candidate_format(
-                retry_state,
-                candidate_format,
-            )
-            replay = PlannerRetryReplayResult(
-                attempt=attempt,
-                errors=replay_errors,
-                raw_draft=raw_draft,
-                validation_report=validation_report,
-                normalized_draft=replay_draft,
-                retry_state=retry_state,
-            )
-            return _with_planner_state_context(
-                replay,
-                inputs=inputs,
-                handle_registry=handle_registry,
-                problem_payload=problem_payload,
-            )
-
-        resolution_report = StepIntentCandidateResolver().resolve(
-            normalized,
-            family_spec=inputs.family_spec,
-            method_specs=inputs.method_specs,
-            handle_registry=handle_registry,
-        )
-        output, diagnostic, effective_draft = RecipeTrialExecutor().diagnose(
-            normalized,
-            family_spec=inputs.family_spec,
-            method_specs=inputs.method_specs,
-            handle_registry=handle_registry,
-            context=context,
-            question_goals=inputs.question_goals,
-            allow_shared_derivation_scopes=allow_shared_derivation_scopes,
-            preserve_call_graph=(candidate_format == "functional_plan"),
-            projected_state_writes=projected_state_writes,
-            projected_state_dependencies=projected_state_dependencies,
-            projected_function_arg_bindings=projected_function_arg_bindings,
-            known_state_versions=known_state_versions,
-            functional_consumer_identity_mode=(
-                "authoritative"
-                if candidate_format == "functional_plan"
-                else None
-            ),
-        )
-        blocker = diagnostic.first_blocker
-        if blocker is not None and not blocker.retryable:
-            raise StrategyDraftValidationError(
-                "planner_configuration_error: "
-                f"code={blocker.code}, step={blocker.step_id}, "
-                f"message={blocker.message}"
-            )
-        context_problem_payload, _context_warnings = _problem_payload_for_context(
-            inputs,
-            problem_payload,
-        )
-        functional_goal_context = None
-        if (
-            candidate_format == "functional_plan"
-            and not partial_candidate
-            and functional_reconciliation is not None
-        ):
-            state_read_index = FunctionalStateReadIndex.from_sources(
-                handle_registry=handle_registry,
-                mode="authoritative",
-                projected_state_writes=projected_state_writes,
-                projected_state_dependencies=(
-                    projected_state_dependencies
-                ),
-                state_write_provenance=(
-                    diagnostic.state_write_provenance
-                ),
-                known_state_versions=known_state_versions,
-            )
-            logical_graph = None
-            answer_version_ids = {
-                item.produced_handle: item.selected_version_id
-                for item in projected_state_writes
-                if item.produced_handle.startswith("answer:")
-                and item.selected_version_id is not None
-            }
-            if functional_plan is not None:
-                graph_result = LogicalFunctionalGraphBuilder().build(
-                    functional_plan,
-                    functional_reconciliation,
-                    handle_registry=handle_registry,
-                )
-                if not graph_result.issues:
-                    logical_graph = graph_result.graph
-                resolved_calls = {
-                    item.call_id: item
-                    for item in functional_reconciliation.calls
-                }
-                for answer_binding in (
-                    logical_graph.answer_bindings
-                    if logical_graph is not None
-                    else ()
-                ):
-                    resolved = resolved_calls.get(
-                        answer_binding.producer_call_id
-                    )
-                    returned = next(
-                        (
-                            item
-                            for item in (
-                                resolved.returns if resolved is not None else ()
-                            )
-                            if item.return_name
-                            == answer_binding.return_name
-                        ),
-                        None,
-                    )
-                    if (
-                        returned is not None
-                        and returned.selected_version_id is not None
-                    ):
-                        answer_version_ids[
-                            answer_binding.answer_handle
-                        ] = returned.selected_version_id
-            resolved_calls = {
-                item.call_id: item
-                for item in functional_reconciliation.calls
-            }
-            for call in functional_reconciliation.effective_plan.calls:
-                resolved = resolved_calls.get(call.call_id)
-                if resolved is None:
-                    continue
-                for return_name, semantic_ref in call.return_bindings.items():
-                    if semantic_ref.kind != "answer":
-                        continue
-                    returned = next(
-                        (
-                            item
-                            for item in resolved.returns
-                            if item.return_name == return_name
-                        ),
-                        None,
-                    )
-                    if (
-                        returned is not None
-                        and returned.selected_version_id is not None
-                    ):
-                        answer_version_ids[
-                            f"answer:{semantic_ref.ref}"
-                        ] = returned.selected_version_id
-            functional_goal_context = FunctionalGoalVerificationContext(
-                logical_graph=logical_graph,
-                state_read_index=state_read_index,
-                runtime_writes_by_version={
-                    item.selected_version_id: item
-                    for item in diagnostic.state_write_provenance
-                    if item.selected_version_id is not None
-                },
-                answer_version_ids=answer_version_ids,
-                verified_call_ids=frozenset(
-                    item.step_id for item in diagnostic.accepted_prefix
-                ),
-            )
-        goal_verification_report = AnswerGoalVerifier().verify_report(
-            effective_draft,
-            problem_payload=context_problem_payload,
-            handle_registry=handle_registry,
-            diagnostic=diagnostic,
-            family_spec=inputs.family_spec,
-            functional_context=functional_goal_context,
-        )
-        if functional_goal_context is not None:
-            diagnostic = replace(
-                diagnostic,
-                runtime_consumer_decisions=tuple(
-                    (
-                        *diagnostic.runtime_consumer_decisions,
-                        *(
-                            item.to_payload()
-                            for item in functional_goal_context
-                            .state_read_index.decisions
-                        ),
-                    )
-                ),
-                runtime_consumer_mismatches=tuple(
-                    (
-                        *diagnostic.runtime_consumer_mismatches,
-                        *functional_goal_context.state_read_index.mismatches,
-                    )
-                ),
-                legacy_runtime_identity_fallback_count=(
-                    diagnostic.legacy_runtime_identity_fallback_count
-                    + functional_goal_context
-                    .state_read_index.legacy_identity_fallback_count
-                ),
-            )
-        goal_verification_issues = (
-            ()
-            if partial_candidate
-            else goal_verification_report.issues
-        )
-        retry_state = build_planner_retry_state(
-            attempt=attempt,
-            errors=errors,
-            effective_draft=effective_draft,
-            normalized_draft=normalized,
-            validation_report=validation_report,
-            resolution_report=resolution_report,
-            diagnostic=diagnostic,
-            handle_registry=handle_registry,
-            goal_verification_issues=goal_verification_issues,
-            guidance_resolver=RepairGuidanceResolver(
-                inputs.family_spec,
-                inputs.method_specs,
-                handle_registry,
-            ),
-        )
-        retry_state = _retry_state_with_candidate_format(
-            retry_state,
-            candidate_format,
-        )
-        replay = PlannerRetryReplayResult(
-            attempt=attempt,
-            errors=errors,
-            raw_draft=raw_draft,
-            validation_report=validation_report,
-            normalized_draft=normalized,
-            normalization_report=normalization_report,
-            finalization_report=finalization_report.to_payload(),
-            resolution_report=resolution_report,
-            effective_draft=effective_draft,
-            diagnostic=diagnostic,
-            goal_verification_issues=goal_verification_issues,
-            goal_verification_report=goal_verification_report,
-            retry_state=retry_state,
-            output=None if goal_verification_issues else output,
-        )
-        return _with_planner_state_context(
-            replay,
-            inputs=inputs,
-            handle_registry=handle_registry,
-            problem_payload=problem_payload,
-        )
-
-    def replay_from_artifacts(
-        self,
-        *,
-        attempt: int,
-        errors: tuple[str, ...],
-        raw_draft: StepIntentDraft | None = None,
-        validation_report: StepIntentValidationReport | None = None,
-        normalized_draft: StepIntentDraft | None = None,
-        normalization_report: StepIntentNormalizationReport | None = None,
-        finalization_report: dict[str, Any] | None = None,
-        resolution_report: ExecutablePlanResolutionReport | None = None,
-        effective_draft: StepIntentDraft | None = None,
-        diagnostic: StepIntentExecutionDiagnostic | None = None,
-        goal_verification_issues: tuple[Any, ...] = (),
-        output: Any | None = None,
-        planner_state_context: PlannerStateContext | None = None,
-        inputs: PlannerInputs | None = None,
-        handle_registry: CanonicalHandleRegistry | None = None,
-        problem_payload: dict[str, Any] | None = None,
-    ) -> PlannerRetryReplayResult:
-        """从已存在 artifacts 生成同一形态 replay result。"""
-        retry_state = build_planner_retry_state(
-            attempt=attempt,
-            errors=errors,
-            effective_draft=effective_draft,
-            normalized_draft=normalized_draft,
-            validation_report=validation_report,
-            normalization_report=normalization_report,
-            resolution_report=resolution_report,
-            diagnostic=diagnostic,
-            goal_verification_issues=goal_verification_issues,
-        )
-        replay = PlannerRetryReplayResult(
-            attempt=attempt,
-            errors=errors,
-            raw_draft=raw_draft,
-            validation_report=validation_report,
-            normalized_draft=normalized_draft,
-            normalization_report=normalization_report,
-            finalization_report=finalization_report,
-            resolution_report=resolution_report,
-            effective_draft=effective_draft,
-            diagnostic=diagnostic,
-            goal_verification_issues=goal_verification_issues,
-            retry_state=retry_state,
-            output=output,
-            planner_state_context=planner_state_context,
-        )
-        if (
-            planner_state_context is None
-            and inputs is not None
-            and handle_registry is not None
-        ):
-            return _with_planner_state_context(
-                replay,
-                inputs=inputs,
-                handle_registry=handle_registry,
-                problem_payload=problem_payload,
-            )
-        if planner_state_context is not None:
-            projected = PlannerRetryStateProjector.from_context(planner_state_context)
-            if projected is not None:
-                return replace(replay, retry_state=projected)
-        return replay
-
 
 def _functional_state_write_manifest(
     reconciliation: FunctionalPlanReconciliationResult,
@@ -1174,7 +643,7 @@ def _functional_known_state_versions(
 def _apply_function_arg_binding_repairs(
     reconciliation: FunctionalPlanReconciliationResult,
     *,
-    diagnostic: StepIntentExecutionDiagnostic | None,
+    diagnostic: FunctionalExecutionDiagnostic | None,
 ) -> FunctionalPlanReconciliationResult:
     """Write analyzer-selected argument sources back to the canonical plan.
 
@@ -1295,48 +764,21 @@ def repair_attempt_payload_from_replay(
         and (diagnostic is None or diagnostic.ok)
     ):
         return None
-    effective = replay.effective_draft
-    repair_summary = RepairFeedbackBuilder(
-        diagnostic=diagnostic,
-        errors=replay.errors,
-        effective_draft=effective,
-    ).build()
     retry_state = replay.retry_state
-    is_functional = (
-        replay.functional_plan is not None
-        or replay.functional_reconciliation is not None
-        or (
-            retry_state is not None
-            and retry_state.candidate_format == "functional_plan"
-        )
-    )
     repair_instruction = (
         retry_state.repair_instruction
         if retry_state is not None
-        else (
-            functional_repair_instruction(
-                stable_candidate_calls=(),
-                repair_call_ids=(),
-                issue_count=max(1, len(replay.errors)),
-            )
-            if is_functional
-            else (
-                "请根据 errors 修复并重新输出完整 StepIntent JSON。"
-                "不要输出 patch。"
-            )
+        else functional_repair_instruction(
+            stable_candidate_calls=(),
+            repair_call_ids=(),
+            issue_count=max(1, len(replay.errors)),
         )
     )
-    payload = PlannerRepairAttempt(
+    payload = FunctionalRepairAttempt(
         attempt=replay.attempt,
-        effective_draft=effective.to_payload() if effective is not None else None,
-        diagnostic=diagnostic,
-        repair_summary=repair_summary,
         planner_retry_state=retry_state,
         repair_instruction=repair_instruction,
         errors=replay.errors,
-        candidate_format=(
-            "functional_plan" if is_functional else "step_intent"
-        ),
     ).to_payload()
     if replay.planner_state_context is not None:
         context = replay.planner_state_context
@@ -1461,7 +903,6 @@ def _functional_retry_state(
     )
     return PlannerRetryState(
         attempt=attempt,
-        baseline_draft=None,
         repair_suffix_start=repair_suffix_start,
         issues=retry_issues,
         preserve_policy="none",
@@ -1483,7 +924,6 @@ def _functional_retry_state(
             if replay_report is not None
             else {}
         ),
-        candidate_format="functional_plan",
         baseline_candidate=baseline_candidate,
         repair_call_ids=repair_call_ids,
     )
@@ -1538,7 +978,6 @@ def _functional_validation_retry_state(
     )
     return replace(
         retry_state,
-        stable_candidate_prefix=stable_candidate_calls,
         stable_candidate_calls=stable_candidate_calls,
         committed_candidate_calls=stable_candidate_calls,
         runtime_verified_calls=tuple(
@@ -1686,7 +1125,7 @@ def _functional_runtime_retry_state(
     runtime_retry_state: PlannerRetryState | None = None,
     plan: FunctionalPlan,
     reconciliation: FunctionalPlanReconciliationResult,
-    diagnostic: StepIntentExecutionDiagnostic | None,
+    diagnostic: FunctionalExecutionDiagnostic | None,
     verified_call_ids: set[str] | None = None,
     verified_runtime_results: tuple[Any, ...] = (),
     verified_state_write_provenance: tuple[Any, ...] = (),
@@ -1865,9 +1304,7 @@ def _functional_runtime_retry_state(
         repair_suffix_start["call_id"] = repair_suffix_start["step_id"]
     return replace(
         retry_state,
-        candidate_format="functional_plan",
         baseline_candidate=plan.to_payload(),
-        stable_candidate_prefix=committed_candidate_calls,
         stable_candidate_calls=committed_candidate_calls,
         committed_candidate_calls=committed_candidate_calls,
         runtime_verified_calls=tuple(
@@ -1911,22 +1348,24 @@ def _transactional_functional_retry_state(
     reconciliation = replay.functional_reconciliation
     if reconciliation is None:
         return None
-    base_retry = build_planner_retry_state(
+    retry_issues = attempt_result.root_issues
+    if replay.errors:
+        retry_issues = (
+            *retry_issues,
+            *(
+                PlannerRetryIssue(
+                    layer="answer_check",
+                    code="answer_mismatch",
+                    preserve_policy="none",
+                    message=error,
+                )
+                for error in replay.errors
+            ),
+        )
+    base_retry = PlannerRetryState(
         attempt=replay.attempt,
-        errors=replay.errors,
-        effective_draft=None,
-        normalized_draft=replay.normalized_draft,
-        validation_report=replay.validation_report,
-        normalization_report=replay.normalization_report,
-        resolution_report=replay.resolution_report,
-        diagnostic=attempt_result.diagnostic,
-        handle_registry=handle_registry,
-        goal_verification_issues=attempt_result.root_issues,
-        guidance_resolver=RepairGuidanceResolver(
-            inputs.family_spec,
-            inputs.method_specs,
-            handle_registry,
-        ),
+        issues=retry_issues,
+        preserve_policy="none",
     )
     if (
         attempt_result.compiled_output is not None
@@ -2031,7 +1470,7 @@ def _verify_successful_functional_retry_checkpoint(
     expected: FunctionalRetryGraphCheckpoint,
     *,
     reconciliation: FunctionalPlanReconciliationResult,
-    diagnostic: StepIntentExecutionDiagnostic | None,
+    diagnostic: FunctionalExecutionDiagnostic | None,
     goal_verification_report: AnswerGoalVerificationReport | None,
     attempt: int,
     functional_catalog: FunctionalCapabilityCatalog,
@@ -2083,7 +1522,7 @@ def _verify_successful_functional_retry_checkpoint(
 def _runtime_provenance_repair_roots(
     issues: tuple[PlannerRetryIssue, ...],
     *,
-    diagnostic: StepIntentExecutionDiagnostic | None,
+    diagnostic: FunctionalExecutionDiagnostic | None,
 ) -> tuple[str, ...]:
     """Trace unresolved output state to its earliest call-level producer.
 
@@ -2139,21 +1578,6 @@ def _runtime_provenance_repair_roots(
                 terminal.add(step_id)
         roots.extend(sorted(terminal))
     return unique_ordered(roots)
-
-
-def _retry_state_with_candidate_format(
-    retry_state: PlannerRetryState | None,
-    candidate_format: PlannerOutputFormat,
-) -> PlannerRetryState | None:
-    """Keep Context projection on the candidate IR that owns the replay.
-
-    FunctionalPlan temporarily projects through StepIntent, but its inner
-    replay must not let linear StepIntent prefix semantics recover graph-level
-    issues before the Functional stable graph is computed.
-    """
-    if retry_state is None or retry_state.candidate_format == candidate_format:
-        return retry_state
-    return replace(retry_state, candidate_format=candidate_format)
 
 
 def _enrich_functional_retry_issues(
@@ -2929,23 +2353,6 @@ def _ordered_functional_repair_cone(
     return tuple(dict.fromkeys(ordered))
 
 
-def _draft_for_step_ids(
-    draft: StepIntentDraft,
-    step_ids: set[str],
-) -> StepIntentDraft:
-    return StepIntentDraft(
-        scopes=tuple(
-            StepIntentScope(
-                scope.scope_id,
-                scope.label,
-                tuple(step for step in scope.steps if step.step_id in step_ids),
-            )
-            for scope in draft.scopes
-            if any(step.step_id in step_ids for step in scope.steps)
-        )
-    )
-
-
 __all__ = [
     "PlannerRetryReplayResult",
     "PlannerRetryReplayService",
@@ -2972,18 +2379,6 @@ def _with_planner_state_context(
         replay,
         planner_state_context=context,
         retry_state=projected_retry_state or replay.retry_state,
-    )
-
-
-def _append_normalization_actions(
-    report: StepIntentNormalizationReport,
-    actions: tuple[StepIntentNormalizationAction, ...],
-) -> StepIntentNormalizationReport:
-    if not actions:
-        return report
-    return StepIntentNormalizationReport(
-        actions=(*report.actions, *actions),
-        warnings=report.warnings,
     )
 
 
@@ -3029,49 +2424,7 @@ def _initial_planner_state_context(
     )
     checkpoint = latest_functional_retry_graph_checkpoint(previous_attempts)
     if checkpoint is None:
-        legacy_retry_state = next(
-            (
-                parsed_retry_state
-                for attempt_payload in reversed(previous_attempts)
-                if isinstance(attempt_payload, dict)
-                and (
-                    parsed_retry_state := retry_state_from_attempt(
-                        attempt_payload
-                    )
-                )
-                is not None
-            ),
-            None,
-        )
-        has_legacy_committed_calls = (
-            isinstance(legacy_retry_state, dict)
-            and legacy_retry_state.get("candidate_format")
-            == "functional_plan"
-            and bool(
-                legacy_retry_state.get("committed_candidate_calls")
-                or legacy_retry_state.get("stable_candidate_calls")
-            )
-        )
-        if not has_legacy_committed_calls:
-            return context
-        return replace(
-            context,
-            state=replace(
-                context.state,
-                context_events=(
-                    *context.state.context_events,
-                    {
-                        "event": "legacy_retry_checkpoint_missing",
-                        "ok": True,
-                        "detail_count": 1,
-                        "detail": (
-                            "legacy committed calls were downgraded "
-                            "to provisional memory"
-                        ),
-                    },
-                ),
-            ),
-        )
+        return context
     return replace(
         context,
         state=replace(

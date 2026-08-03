@@ -1,6 +1,6 @@
 """Typed argument-role authority for Functional calls.
 
-The binding context is deliberately independent from StepIntent reads and
+The binding context is deliberately independent from flat wire reads and
 runtime paths.  It records why a value occupies a public capability argument
 and how that argument is projected to Function/Macro runtime inputs.
 """
@@ -529,7 +529,7 @@ def build_functional_runtime_arg_bindings_from_context(
     calls: tuple[FunctionalCallReconciliation, ...],
     context: FunctionalBindingContext,
 ) -> tuple[ProjectedFunctionArgBinding, ...]:
-    """Project the authoritative ledger into the StepIntent bridge sidecar."""
+    """Project the authoritative ledger into direct-compiler bindings."""
 
     values_by_key = {
         (call.call_id, arg_name, item_index): value

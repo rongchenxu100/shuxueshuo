@@ -1,70 +1,20 @@
-"""Strategy Planner 兼容 facade。
-
-实际实现已按职责拆到 focused modules；本文件只 re-export 旧公开符号，
-保证现有 ``shuxueshuo_server.solver.runtime.strategy_planner`` 导入路径不变。
-"""
-
-from __future__ import annotations
+"""Functional Strategy Planner public facade."""
 
 from shuxueshuo_server.solver.runtime.handle_registry import (
     CanonicalHandleRegistry,
-    HandleCorrection,
-    HandleResolutionReport,
-    HandleResolver,
 )
 from shuxueshuo_server.solver.runtime.strategy_compiler import (
     CanonicalRuntimeBindingIndex,
     FunctionalCapabilityCompiler,
     MethodBindingRuleRegistry,
     RecipeExecutionSpecRegistry,
-    RecipeTrialExecutor,
 )
 from shuxueshuo_server.solver.runtime.strategy_models import (
-    CreatedEntity,
-    ExecutableCapabilitySpec,
-    ExecutablePlanResolutionReport,
-    ProducedFact,
+    FunctionalRepairAttempt,
     PlannerRetryIssue,
     PlannerRetryState,
-    RecipeAlignmentReport,
-    STEP_INTENT_JSON_SCHEMA,
-    SemanticReadFallback,
-    SemanticReadResolution,
-    SemanticReadResolutionError,
-    SemanticReadResolutionReport,
-    SemanticRef,
-    StepIntent,
-    StepIntentAcceptedStep,
-    StepIntentAppliedFill,
-    StepIntentDraft,
-    StepIntentExecutionBlocker,
-    StepIntentExecutionDiagnostic,
-    StepIntentFunctionBindingEvent,
-    StepIntentMacroBindingEvent,
-    StepIntentNormalizationAction,
-    StepIntentNormalizationReport,
-    StepIntentPlannerInsight,
-    StepIntentPreflightIssue,
-    PlannerRepairAttempt,
-    StepIntentRepairAttempt,
-    StepIntentResolutionCandidate,
-    StepIntentResolutionStepReport,
-    StepIntentSkippedStep,
-    StepIntentValidationReport,
     StrategyDraftValidationError,
     StrategyPrompt,
-)
-from shuxueshuo_server.solver.runtime.function_specs import (
-    FunctionAdapterRegistry,
-    FunctionAdapterSpec,
-    FunctionArgSpec,
-    FunctionInputBindingSpec,
-    FunctionReturnSpec,
-    FunctionSpec,
-    FunctionSpecRegistry,
-    GENERIC_FUNCTION_METHOD_IDS,
-    assert_no_function_adapter_failures,
-    function_catalog_payload,
 )
 from shuxueshuo_server.solver.runtime.functional_plan import (
     FUNCTIONAL_PLAN_JSON_SCHEMA,
@@ -79,9 +29,20 @@ from shuxueshuo_server.solver.runtime.functional_plan import (
     FunctionalPlanReconciliationResult,
     FunctionalPlanValidator,
     FunctionalScope,
-    PlannerOutputFormat,
     functional_capability_catalog_payload,
     prepare_functional_plan_raw_response,
+)
+from shuxueshuo_server.solver.runtime.function_specs import (
+    FunctionAdapterRegistry,
+    FunctionAdapterSpec,
+    FunctionArgSpec,
+    FunctionInputBindingSpec,
+    FunctionReturnSpec,
+    FunctionSpec,
+    FunctionSpecRegistry,
+    GENERIC_FUNCTION_METHOD_IDS,
+    assert_no_function_adapter_failures,
+    function_catalog_payload,
 )
 from shuxueshuo_server.solver.runtime.macro_specs import (
     MacroAdapterRegistry,
@@ -94,26 +55,6 @@ from shuxueshuo_server.solver.runtime.macro_specs import (
     assert_no_macro_adapter_failures,
     macro_catalog_payload,
 )
-from shuxueshuo_server.solver.runtime.semantic_reads import (
-    ContextSemanticReadResolver,
-    SemanticReadResolver,
-    build_semantic_read_catalog_payload,
-)
-from shuxueshuo_server.solver.runtime.strategy_raw_outputs import (
-    RawStepOutputNormalizationResult,
-    normalize_raw_outputs,
-)
-from shuxueshuo_server.solver.runtime.strategy_normalizer import (
-    StepIntentNormalizer,
-)
-from shuxueshuo_server.solver.runtime.strategy_preflight import (
-    StepIntentPreflightAnalyzer,
-)
-from shuxueshuo_server.solver.runtime.strategy_repair_feedback import (
-    RepairFeedbackBuilder,
-    RepairHintRegistry,
-    RepairHintSpec,
-)
 from shuxueshuo_server.solver.runtime.strategy_payload import (
     StrategyPayloadBuilder,
     StrategyPromptRenderer,
@@ -124,14 +65,12 @@ from shuxueshuo_server.solver.runtime.planner_state_context import (
     AliasIndex,
     Condition,
     ContextManifest,
-    DraftSnapshots,
     MathObject,
     PlannerState,
     PlannerStateContext,
     PlannerStateContextBuilder,
     RetryMemory,
     ScopeGraph,
-    StableStep,
     StateRewriteEvent,
     StateSlot,
     StepState,
@@ -139,22 +78,12 @@ from shuxueshuo_server.solver.runtime.planner_state_context import (
 from shuxueshuo_server.solver.runtime.planner_retry_projection import (
     PlannerRetryStateProjector,
 )
-from shuxueshuo_server.solver.runtime.strategy_resolver import (
-    StepIntentCandidateResolver,
-    build_executable_capabilities,
-)
-from shuxueshuo_server.solver.runtime.strategy_draft_merge import (
-    merge_previous_accepted_prefix,
-    prepare_step_intent_raw_response,
-    sanitize_step_intent_raw_payload,
-)
 from shuxueshuo_server.solver.runtime.strategy_replay import (
     PlannerRetryReplayResult,
     PlannerRetryReplayService,
     repair_attempt_payload_from_replay,
 )
-from shuxueshuo_server.solver.runtime.strategy_retry_state import (
-    build_planner_retry_state,
+from shuxueshuo_server.solver.runtime.functional_plan_retry import (
     retry_state_from_attempt,
 )
 from shuxueshuo_server.solver.runtime.strategy_runtime_planner import (
@@ -162,127 +91,5 @@ from shuxueshuo_server.solver.runtime.strategy_runtime_planner import (
     StrategyPlannerArtifacts,
     strategy_planner_provider,
 )
-from shuxueshuo_server.solver.runtime.strategy_validator import (
-    StepIntentValidator,
-)
 
-__all__ = [
-    "CanonicalHandleRegistry",
-    "CanonicalRuntimeBindingIndex",
-    "CreatedEntity",
-    "ExecutableCapabilitySpec",
-    "ExecutablePlanResolutionReport",
-    "HandleCorrection",
-    "HandleResolutionReport",
-    "HandleResolver",
-    "ProducedFact",
-    "PlannerRetryIssue",
-    "PlannerRetryReplayResult",
-    "PlannerRetryReplayService",
-    "PlannerRetryState",
-    "PlannerState",
-    "PlannerStateContext",
-    "PlannerStateContextBuilder",
-    "ContextManifest",
-    "DraftSnapshots",
-    "ScopeGraph",
-    "MathObject",
-    "Condition",
-    "ContextSemanticReadResolver",
-    "FunctionalCapabilityCompiler",
-    "PlannerRetryStateProjector",
-    "RetryMemory",
-    "StateSlot",
-    "StepState",
-    "StableStep",
-    "AliasIndex",
-    "StateRewriteEvent",
-    "prepare_step_intent_raw_response",
-    "RecipeExecutionSpecRegistry",
-    "RecipeAlignmentReport",
-    "RepairFeedbackBuilder",
-    "RepairHintRegistry",
-    "RepairHintSpec",
-    "RecipeTrialExecutor",
-    "STEP_INTENT_JSON_SCHEMA",
-    "SemanticReadFallback",
-    "SemanticReadResolution",
-    "SemanticReadResolutionError",
-    "SemanticReadResolutionReport",
-    "SemanticReadResolver",
-    "SemanticRef",
-    "StepIntentCandidateResolver",
-    "StepIntent",
-    "StepIntentAcceptedStep",
-    "StepIntentAppliedFill",
-    "StepIntentDraft",
-    "StepIntentExecutionBlocker",
-    "StepIntentExecutionDiagnostic",
-    "StepIntentFunctionBindingEvent",
-    "StepIntentMacroBindingEvent",
-    "FunctionAdapterRegistry",
-    "FunctionAdapterSpec",
-    "FunctionArgSpec",
-    "FunctionInputBindingSpec",
-    "FunctionReturnSpec",
-    "FunctionSpec",
-    "FunctionSpecRegistry",
-    "GENERIC_FUNCTION_METHOD_IDS",
-    "assert_no_function_adapter_failures",
-    "function_catalog_payload",
-    "FUNCTIONAL_PLAN_JSON_SCHEMA",
-    "CallResultRef",
-    "CanonicalStateHandleFactory",
-    "FunctionalCall",
-    "FunctionalCallPlacement",
-    "FunctionalCapabilityCatalog",
-    "FunctionalPlan",
-    "FunctionalPlanIssue",
-    "FunctionalPlanReconciler",
-    "FunctionalPlanReconciliationResult",
-    "FunctionalPlanValidator",
-    "FunctionalScope",
-    "PlannerOutputFormat",
-    "functional_capability_catalog_payload",
-    "prepare_functional_plan_raw_response",
-    "MacroAdapterRegistry",
-    "MacroAdapterSpec",
-    "MacroArgSpec",
-    "MacroInternalCallSpec",
-    "MacroReturnSpec",
-    "MacroSpec",
-    "MacroSpecRegistry",
-    "assert_no_macro_adapter_failures",
-    "macro_catalog_payload",
-    "StepIntentNormalizationAction",
-    "StepIntentNormalizationReport",
-    "StepIntentNormalizer",
-    "StepIntentPlannerInsight",
-    "StepIntentPreflightAnalyzer",
-    "StepIntentPreflightIssue",
-    "PlannerRepairAttempt",
-    "StepIntentRepairAttempt",
-    "StepIntentResolutionCandidate",
-    "StepIntentResolutionStepReport",
-    "StepIntentSkippedStep",
-    "StepIntentValidationReport",
-    "StepIntentValidator",
-    "StrategyDraftValidationError",
-    "StrategyPlanner",
-    "StrategyPlannerArtifacts",
-    "StrategyPayloadBuilder",
-    "StrategyPrompt",
-    "StrategyPromptRenderer",
-    "sanitize_step_intent_raw_payload",
-    "RawStepOutputNormalizationResult",
-    "MethodBindingRuleRegistry",
-    "build_semantic_read_catalog_payload",
-    "build_planner_retry_state",
-    "build_strategy_probe_inputs",
-    "merge_previous_accepted_prefix",
-    "repair_attempt_payload_from_replay",
-    "retry_state_from_attempt",
-    "normalize_raw_outputs",
-    "strategy_planner_provider",
-    "write_strategy_debug_artifacts",
-]
+__all__ = [name for name in globals() if not name.startswith("_")]

@@ -19,14 +19,14 @@ from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
 from shuxueshuo_server.solver.runtime.strategy_models import (
     PlannerRetryIssue,
     StateWriteProvenance,
-    StepIntentExecutionDiagnostic,
+    FunctionalExecutionDiagnostic,
 )
 
 
 def verify_functional_result_forms(
     plan: FunctionalPlan,
     reconciliation: FunctionalPlanReconciliationResult,
-    diagnostic: StepIntentExecutionDiagnostic | None,
+    diagnostic: FunctionalExecutionDiagnostic | None,
     *,
     catalog: FunctionalCapabilityCatalog | None = None,
 ) -> tuple[tuple[FunctionalResultFormEvent, ...], tuple[PlannerRetryIssue, ...]]:
@@ -252,7 +252,7 @@ def verify_functional_input_closures(
     reconciliation: FunctionalPlanReconciliationResult,
     *,
     catalog: FunctionalCapabilityCatalog,
-    diagnostic: StepIntentExecutionDiagnostic | None,
+    diagnostic: FunctionalExecutionDiagnostic | None,
 ) -> tuple[PlannerRetryIssue, ...]:
     """Validate declared input closure against actual producer provenance.
 

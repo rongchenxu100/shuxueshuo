@@ -60,11 +60,11 @@
             }
           },
           "return_bindings": {},
+          "strategy": "拉直联动折线得到关于主参数的最小值表达式。",
+          "reason": "最小值条件在表达式建立后用于反求参数。",
           "return_expectations": {
             "minimum_expression": "open_expression"
-          },
-          "strategy": "拉直联动折线得到关于主参数的最小值表达式。",
-          "reason": "最小值条件在表达式建立后用于反求参数。"
+          }
         },
         {
           "call_id": "solve_parameter",

@@ -1,7 +1,7 @@
 """Shared deterministic handle alias candidate index.
 
 This module owns pure alias/candidate mechanics used by both semantic reads and
-canonical handle resolution. It does not know about StepIntent fields or emit
+canonical handle resolution. It does not know about planner wire fields or emit
 corrections; callers decide whether a unique candidate should be accepted.
 """
 

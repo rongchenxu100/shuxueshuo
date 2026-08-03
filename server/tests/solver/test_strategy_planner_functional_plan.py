@@ -34,9 +34,6 @@ from shuxueshuo_server.solver.runtime import (
 )
 from shuxueshuo_server.solver.fixtures import load_problem_ir
 from shuxueshuo_server.solver.runtime.context import ContextBuilder
-from shuxueshuo_server.solver.runtime.canonical_draft_finalizer import (
-    CanonicalDraftFinalizer,
-)
 from shuxueshuo_server.solver.runtime.binding_index import (
     CanonicalRuntimeBindingIndex,
     RuntimeHandleBinding,
@@ -125,7 +122,6 @@ from shuxueshuo_server.solver.runtime.planner_state_context import (
 from shuxueshuo_server.solver.runtime.projection import problem_to_llm_payload
 from shuxueshuo_server.solver.runtime.session import PlannerExecutionError
 from shuxueshuo_server.solver.runtime.recipe_compiler import (
-    RecipeTrialExecutor,
     _RecipePlanCompiler,
     _point_value_path_for_step,
     _promote_outputs_for_step,
@@ -185,15 +181,11 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
     ProjectedStateWrite,
     SemanticRef,
     StateWriteProvenance,
-    StepIntentRuntimeResult,
-    StepIntent,
-    StepIntentDraft,
-    StepIntentExecutionDiagnostic,
-    StepIntentScope,
-    StepIntentValidationReport,
+    FunctionalRuntimeResult,
+    FunctionalCompileStep,
+    FunctionalExecutionDiagnostic,
     StrategyDraftValidationError,
 )
-from shuxueshuo_server.solver.runtime.strategy_validator import StepIntentValidator
 from shuxueshuo_server.solver.state_semantics import (
     StateObjectRoleBinding,
     derived_role_object_ref,
@@ -1789,7 +1781,7 @@ def test_point_binding_uses_latest_projected_version_by_graph_order() -> None:
         "Point",
         source="test",
     )
-    step = StepIntent(
+    step = FunctionalCompileStep(
         step_id="consume_N",
         scope_id="ii_2",
         recipe_hint="distance_between_points",
@@ -1856,7 +1848,7 @@ def test_midpoint_state_becomes_stale_when_endpoint_version_advances() -> None:
         ),
     )
     index.register_projected_state_writes(writes)
-    step = StepIntent(
+    step = FunctionalCompileStep(
         step_id="consume_F",
         scope_id="ii_2",
         recipe_hint="broken_path_straightening_minimum_expression",
@@ -3726,7 +3718,7 @@ def test_runtime_verifies_functional_scalar_result_form_from_free_symbols(
             ),
         ),
     )
-    diagnostic = StepIntentExecutionDiagnostic(
+    diagnostic = FunctionalExecutionDiagnostic(
         ok=True,
         state_write_provenance=(
             StateWriteProvenance(
@@ -3797,7 +3789,7 @@ def test_closed_internal_return_expectation_blocks_open_runtime_state() -> None:
             ),
         ),
     )
-    diagnostic = StepIntentExecutionDiagnostic(
+    diagnostic = FunctionalExecutionDiagnostic(
         ok=True,
         state_write_provenance=(
             StateWriteProvenance(
@@ -4054,7 +4046,7 @@ def test_runtime_enforces_declared_output_parameter_budget_without_expectation()
             ),
         ),
     )
-    diagnostic = StepIntentExecutionDiagnostic(
+    diagnostic = FunctionalExecutionDiagnostic(
         ok=True,
         state_write_provenance=(
             StateWriteProvenance(
@@ -4123,7 +4115,7 @@ def test_runtime_enforces_prior_call_input_closure_after_constraint_analysis() -
             ),
         ),
     )
-    diagnostic = StepIntentExecutionDiagnostic(
+    diagnostic = FunctionalExecutionDiagnostic(
         ok=True,
         state_write_provenance=(
             StateWriteProvenance(
@@ -4991,7 +4983,7 @@ def test_runtime_verifies_object_result_form_from_free_symbols(
             ),
         ),
     )
-    diagnostic = StepIntentExecutionDiagnostic(
+    diagnostic = FunctionalExecutionDiagnostic(
         ok=True,
         state_write_provenance=(
             StateWriteProvenance(
@@ -5059,7 +5051,7 @@ def test_result_form_verification_records_missing_runtime_provenance() -> None:
     events, issues = verify_functional_result_forms(
         plan,
         reconciliation,
-        StepIntentExecutionDiagnostic(ok=True),
+        FunctionalExecutionDiagnostic(ok=True),
     )
 
     assert issues == ()
@@ -5672,7 +5664,7 @@ def test_compiler_owned_primary_parameter_rejects_wire_sidecar_override() -> Non
             binding_authority="wire",
         ),
     )
-    step = StepIntent(
+    step = FunctionalCompileStep(
         scope_id="iii",
         step_id="synthetic_weighted_minimum",
         recipe_hint="linked_broken_path_minimum_expression",
@@ -5781,7 +5773,7 @@ def test_quadratic_constraint_analyzer_materializes_each_aggregate_point(
 
     result = _analyze_quadratic_coefficient_inputs(
         {"curve_points": ("$point.one", "$point.two")},
-        StepIntent(
+        FunctionalCompileStep(
             step_id="build_curve",
             scope_id="branch",
             recipe_hint="quadratic_from_constraints",
@@ -5912,7 +5904,7 @@ def test_path_transformation_consumer_uses_exact_projected_producer() -> None:
         ),
         bindings={},
     )
-    step = StepIntent(
+    step = FunctionalCompileStep(
         step_id="consume_transform",
         scope_id="branch",
         recipe_hint="broken_path_straightening_minimum_expression",
@@ -5943,7 +5935,7 @@ def test_functional_path_transformation_missing_dependency_fails_closed() -> Non
         record_legacy_runtime_identity_fallback=reject_fallback,
         bindings={},
     )
-    step = StepIntent(
+    step = FunctionalCompileStep(
         step_id="consume_transform",
         scope_id="branch",
         recipe_hint="broken_path_straightening_minimum_expression",
@@ -6003,7 +5995,7 @@ def test_path_transformation_consumer_accepts_exact_wire_sidecar() -> None:
             "exact wire sidecar must not fall back"
         ),
     )
-    step = StepIntent(
+    step = FunctionalCompileStep(
         step_id="consume_transform",
         scope_id="branch",
         recipe_hint="broken_path_straightening_minimum_expression",
@@ -7049,7 +7041,7 @@ def test_student_parameter_solver_checks_actual_runtime_expression() -> None:
             )
         ],
     )
-    step = StepIntent(
+    step = FunctionalCompileStep(
         scope_id="ii",
         step_id="solve_c",
         recipe_hint="parameter_from_expression_value",
@@ -7114,7 +7106,7 @@ def test_student_parameter_solver_aggregates_all_invocations() -> None:
             ),
         ],
     )
-    step = StepIntent(
+    step = FunctionalCompileStep(
         scope_id="ii",
         step_id="solve_c",
         recipe_hint="parameter_from_expression_value",
@@ -8081,18 +8073,15 @@ def test_hidden_condition_object_state_is_blocked_by_failed_producer() -> None:
     )
 
 
-def test_functional_payload_is_isolated_from_step_intent_payload() -> None:
+def test_functional_payload_is_the_only_strategy_payload() -> None:
     inputs = _base_inputs()
     builder = StrategyPayloadBuilder()
     functional = builder.build(
         inputs,
         problem_payload=_problem_payload(),
-        output_format="functional_plan",
     )
-    legacy = builder.build(inputs, problem_payload=_problem_payload())
-
     assert set(functional) == {
-        "planner_output_format",
+        "planner_protocol",
         "problem_id",
         "family_id",
         "problem_ir",
@@ -8120,7 +8109,7 @@ def test_functional_payload_is_isolated_from_step_intent_payload() -> None:
     assert functional["problem_ir"]["original_text"]
     assert functional["problem_ir"]["facts"]
     assert functional["problem_ir"]["question_goals"]
-    assert "planner_output_format" not in legacy
+    assert functional["planner_protocol"] == "functional_plan/v1"
     assert not CANONICAL_REF_RE.search(json.dumps(functional, ensure_ascii=False))
     prompt = StrategyPromptRenderer().render(functional)
     assert "FunctionalPlan" in prompt.system
@@ -8141,7 +8130,7 @@ def test_functional_payload_is_isolated_from_step_intent_payload() -> None:
     assert "common_goal_types" not in prompt.user
     assert '"family_id"' not in prompt.user
     for internal_term in (
-        "StepIntent",
+        "FunctionalCompileStep",
         "StateSlot",
         "canonical handle",
         "runtime path",
@@ -9656,42 +9645,6 @@ def test_path_transformation_source_roles_follow_final_placed_versions() -> None
         )
 
 
-def test_replay_draft_propagates_typed_finalizer_configuration_error(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    inputs = _base_inputs()
-
-    def reject_logical_projection(
-        *_args: object,
-        **_kwargs: object,
-    ) -> None:
-        raise StrategyDraftValidationError(
-            "planner_configuration_error: "
-            "planner.state_finalization_drift: synthetic"
-        )
-
-    monkeypatch.setattr(
-        CanonicalDraftFinalizer,
-        "finalize",
-        reject_logical_projection,
-    )
-
-    with pytest.raises(
-        StrategyDraftValidationError,
-        match="planner.state_finalization_drift",
-    ):
-        PlannerRetryReplayService().replay_draft(
-            StepIntentDraft(scopes=()),
-            inputs=inputs,
-            handle_registry=_registry(),
-            context=ContextBuilder().build(_problem()),
-            attempt=1,
-            merge_previous_prefix=False,
-            problem_payload=_problem_payload(),
-            candidate_format="functional_plan",
-        )
-
-
 def test_single_dynamic_known_coefficient_lowers_to_parameter_pair() -> None:
     """One selected coefficient value must reach the runtime method exactly."""
 
@@ -9918,7 +9871,7 @@ def test_nankai_student_narrative_uses_question_scopes_not_execution_scopes() ->
     )
 
 
-def test_student_narrative_keeps_legacy_step_intent_scope_identity() -> None:
+def test_student_narrative_keeps_compiled_step_scope_scope_identity() -> None:
     narrative = StudentNarrativePlacementProjector().project(
         effective_steps=(
             {
@@ -9935,7 +9888,7 @@ def test_student_narrative_keeps_legacy_step_intent_scope_identity() -> None:
     assert narrative.references == ()
     assert narrative.placements[0].execution_scope_id == "ii_1"
     assert narrative.placements[0].presentation_scope_id == "ii_1"
-    assert narrative.placements[0].placement_reason == "legacy_step_intent"
+    assert narrative.placements[0].placement_reason == "compiled_step_scope"
 
 
 def test_nankai_duplicate_sibling_path_reduction_is_placed_and_shared() -> None:
@@ -10047,7 +10000,6 @@ def test_nankai_duplicate_sibling_path_reduction_is_placed_and_shared() -> None:
         validation_report=validation,
     )
     assert runtime_replay.output is not None
-    assert runtime_replay.effective_draft is None
     assert runtime_replay.functional_reconciliation is not None
     effective_step_ids = [step.step_id for step in runtime_replay.output.step_plans]
     assert len(effective_step_ids) == len(set(effective_step_ids))
@@ -10575,7 +10527,7 @@ def test_point_output_selector_uses_projected_transition_target() -> None:
             ),
         )
     )
-    step = StepIntent(
+    step = FunctionalCompileStep(
         step_id="refine_A",
         scope_id="ii",
         recipe_hint="synthetic_point_refinement",
@@ -10622,7 +10574,7 @@ def test_point_output_selector_prefers_typed_object_over_legacy_fact_name() -> N
             ),
         )
     )
-    step = StepIntent(
+    step = FunctionalCompileStep(
         step_id="derive_axis_point",
         scope_id="problem",
         recipe_hint="quadratic_axis_from_relation",
@@ -10662,7 +10614,7 @@ def test_projected_point_transition_uses_writable_state_destination() -> None:
         "ii",
         output_type="Point",
     )
-    step = StepIntent(
+    step = FunctionalCompileStep(
         step_id="refine_A",
         scope_id="ii",
         recipe_hint="synthetic_point_refinement",
@@ -10707,7 +10659,7 @@ def test_typed_parameter_destinations_use_symbol_identity() -> None:
         question_goals=(),
     )
     writes: list[ProjectedStateWrite] = []
-    steps: list[tuple[StepIntent, ProducedFact, str]] = []
+    steps: list[tuple[FunctionalCompileStep, ProducedFact, str]] = []
     for symbol, suffix in (("m", "length_parameter"), ("a", "curve_parameter")):
         step_id = f"phase_{suffix}"
         produced = ProducedFact(
@@ -10743,7 +10695,7 @@ def test_typed_parameter_destinations_use_symbol_identity() -> None:
         )
         steps.append(
             (
-                StepIntent(
+                FunctionalCompileStep(
                     step_id=step_id,
                     scope_id="ii_1",
                     recipe_hint="synthetic_parameter_solver",
@@ -12718,7 +12670,7 @@ def test_entity_state_resolver_prefers_exact_projected_read_version() -> None:
             (kwargs["resolved_handle"], kwargs["reason"])
         ),
     )
-    step = StepIntent(
+    step = FunctionalCompileStep(
         step_id="consume_B",
         scope_id="i_2",
         recipe_hint="axis_intercept_from_equal_acute_angles",
@@ -12768,7 +12720,7 @@ def test_compiler_binds_resolver_arg_to_exact_state_write_version() -> None:
             f"$version[{resolved_version_id.ordinal}]"
         )
     )
-    step = StepIntent(
+    step = FunctionalCompileStep(
         step_id="derive_angle_relation",
         scope_id="i_2",
         recipe_hint="angle_sum_equal_angle_candidates",
@@ -12827,7 +12779,7 @@ def test_compiler_binds_wire_arg_to_exact_state_write_version() -> None:
             "wire state binding must not use source_handle lookup"
         ),
     )
-    step = StepIntent(
+    step = FunctionalCompileStep(
         step_id="consume_B",
         scope_id="i_2",
         recipe_hint="synthetic_consumer",
@@ -13012,7 +12964,7 @@ def test_function_return_identity_uses_projected_math_object() -> None:
             "return identity must not be recovered from a point handle"
         ),
     )
-    step = StepIntent(
+    step = FunctionalCompileStep(
         step_id="construct_K",
         scope_id="ii",
         recipe_hint="synthetic_point_construct",
@@ -13081,7 +13033,7 @@ def test_compiler_rejects_resolver_arg_state_version_drift() -> None:
             f"$exact[{value}:{expected_type}]"
         )
     )
-    step = StepIntent(
+    step = FunctionalCompileStep(
         step_id="consume_target",
         scope_id="ii",
         recipe_hint="synthetic_consumer",
@@ -13963,7 +13915,6 @@ def test_reconciler_transfers_later_answer_to_earliest_object_producer() -> None
         validation_report=report,
     )
     assert runtime_replay.output is not None
-    assert runtime_replay.effective_draft is None
     assert [step.step_id for step in runtime_replay.output.step_plans] == [
         "derive_axis_point_globally"
     ]
@@ -16517,7 +16468,6 @@ def test_legacy_functional_retry_prefix_is_provisional_without_checkpoint() -> N
     candidate = _axis_plan_payload(strategy="changed")
     stable_call = _axis_plan_payload(strategy="stable")["scopes"][0]["calls"][0]
     retry_state = {
-        "candidate_format": "functional_plan",
         "preserve_policy": "preserve_prefix",
         "baseline_candidate": _axis_plan_payload(strategy="stable"),
         "stable_candidate_prefix": [{"scope_id": "i", "call": stable_call}],
@@ -16542,169 +16492,6 @@ def test_legacy_functional_retry_prefix_is_provisional_without_checkpoint() -> N
     assert unmerged["scopes"][0]["calls"][0]["strategy"] == "changed"
 
 
-def test_projected_parabola_transition_allows_same_state_slot_update() -> None:
-    first_handle = "fact:ii_1:parabola_after_parameter"
-    second_handle = "fact:ii_1:parabola_after_constraint"
-    slot_id = "function:problem:parabola.expression@ii_1"
-    draft = StepIntentDraft(
-        scopes=(
-            StepIntentScope(
-                "ii_1",
-                "ii_1",
-                (
-                    StepIntent(
-                        scope_id="ii_1",
-                        step_id="specialize_parabola",
-                        recipe_hint="evaluate_expression_at_parameter",
-                        goal_type="evaluate_expression_at_parameter",
-                        target="function:problem:parabola",
-                        strategy="specialize the current curve",
-                        reads=("fact:problem:coefficient_relation",),
-                        creates=(),
-                        produces=(
-                            ProducedFact(
-                                first_handle,
-                                "ii_1",
-                                "parameter-specialized parabola",
-                                output_type="Parabola",
-                            ),
-                        ),
-                        reason="produce the first local curve state",
-                    ),
-                    StepIntent(
-                        scope_id="ii_1",
-                        step_id="close_parabola_parameter",
-                        recipe_hint="parameter_from_curve_point_on_quadratic",
-                        goal_type="derive_parameter",
-                        target="function:problem:parabola",
-                        strategy="close one parameter and update the curve",
-                        reads=(first_handle,),
-                        creates=(),
-                        produces=(
-                            ProducedFact(
-                                second_handle,
-                                "ii_1",
-                                "constraint-closed parabola",
-                                output_type="Parabola",
-                            ),
-                        ),
-                        reason="transition the same curve state",
-                    ),
-                ),
-            ),
-        )
-    )
-    state_writes = (
-        ProjectedStateWrite(
-            step_id="specialize_parabola",
-            produced_handle=first_handle,
-            state_slot_id=slot_id,
-            write_mode="value",
-            source_state_slot_ids=(
-                "function:problem:parabola.expression@ii",
-            ),
-        ),
-        ProjectedStateWrite(
-            step_id="close_parabola_parameter",
-            produced_handle=second_handle,
-            state_slot_id=slot_id,
-            write_mode="transition",
-            source_state_slot_ids=(slot_id,),
-        ),
-    )
-
-    validated, report = StepIntentValidator().validate_json_with_report(
-        json.dumps(draft.to_payload()),
-        handle_registry=_registry(),
-        partial_candidate=True,
-        allow_shared_derivation_scopes=True,
-        allow_internal_output_types=True,
-        projected_state_writes=state_writes,
-    )
-
-    assert validated is not None
-    assert report.ok
-
-
-def test_projected_duplicate_parabola_without_transition_is_rejected() -> None:
-    first_handle = "fact:ii_1:parabola_initial_state"
-    second_handle = "fact:ii_1:parabola_duplicate_state"
-    slot_id = "function:problem:parabola.expression@ii_1"
-    draft = StepIntentDraft(
-        scopes=(
-            StepIntentScope(
-                "ii_1",
-                "ii_1",
-                (
-                    StepIntent(
-                        "ii_1",
-                        "first_curve_write",
-                        "quadratic_from_constraints",
-                        "derive_parabola",
-                        "function:problem:parabola",
-                        "derive the curve",
-                        ("fact:problem:coefficient_relation",),
-                        (),
-                        (
-                            ProducedFact(
-                                first_handle,
-                                "ii_1",
-                                "initial parabola state",
-                                output_type="Parabola",
-                            ),
-                        ),
-                        "first writer",
-                    ),
-                    StepIntent(
-                        "ii_1",
-                        "duplicate_curve_write",
-                        "quadratic_from_constraints",
-                        "derive_parabola",
-                        "function:problem:parabola",
-                        "derive the curve again",
-                        (first_handle,),
-                        (),
-                        (
-                            ProducedFact(
-                                second_handle,
-                                "ii_1",
-                                "duplicate parabola state",
-                                output_type="Parabola",
-                            ),
-                        ),
-                        "ordinary duplicate writer",
-                    ),
-                ),
-            ),
-        )
-    )
-    state_writes = (
-        ProjectedStateWrite(
-            "first_curve_write",
-            first_handle,
-            slot_id,
-            "value",
-        ),
-        ProjectedStateWrite(
-            "duplicate_curve_write",
-            second_handle,
-            slot_id,
-            "value",
-            (slot_id,),
-        ),
-    )
-
-    validated, report = StepIntentValidator().validate_json_with_report(
-        json.dumps(draft.to_payload()),
-        handle_registry=_registry(),
-        partial_candidate=True,
-        allow_shared_derivation_scopes=True,
-        allow_internal_output_types=True,
-        projected_state_writes=state_writes,
-    )
-
-    assert validated is None
-    assert "duplicate_point_coordinate_fact" in report.errors[0]
 def test_legacy_functional_retry_does_not_restore_without_checkpoint() -> None:
     baseline = _axis_plan_payload(strategy="verified")
     stable_call = baseline["scopes"][0]["calls"][0]
@@ -16715,7 +16502,6 @@ def test_legacy_functional_retry_does_not_restore_without_checkpoint() -> None:
     attempts = [
         {
             "context_derived_retry_state": {
-                "candidate_format": "functional_plan",
                 "preserve_policy": "preserve_graph",
                 "baseline_candidate": baseline,
                 "stable_candidate_calls": [
@@ -16966,9 +16752,7 @@ def test_functional_retry_stable_graph_excludes_runtime_blocker_and_dependents()
     )
     retry_state = PlannerRetryState(
         attempt=1,
-        baseline_draft=None,
         issues=(issue,),
-        candidate_format="functional_plan",
         baseline_candidate=reconciliation.plan.to_payload(),
     )
     semantic_index = FunctionalSemanticIndex.from_context(
@@ -17036,9 +16820,7 @@ def test_functional_retry_does_not_commit_without_typed_checkpoint() -> None:
     )
     retry_state = PlannerRetryState(
         attempt=1,
-        baseline_draft=None,
         issues=(issue,),
-        candidate_format="functional_plan",
         baseline_candidate=reconciliation.plan.to_payload(),
     )
     semantic_index = FunctionalSemanticIndex.from_context(
@@ -17181,9 +16963,7 @@ def test_functional_retry_does_not_freeze_structured_upstream_repair_root() -> N
     )
     retry_state = PlannerRetryState(
         attempt=1,
-        baseline_draft=None,
         issues=(issue,),
-        candidate_format="functional_plan",
         baseline_candidate=reconciliation.plan.to_payload(),
         repair_call_ids=(upstream_root, failing_consumer),
     )
@@ -17212,7 +16992,7 @@ def test_functional_retry_does_not_freeze_structured_upstream_repair_root() -> N
         diagnostic=None,
         verified_call_ids={call.call_id for call in reconciliation.plan.calls},
         verified_runtime_results=(
-            StepIntentRuntimeResult(
+            FunctionalRuntimeResult(
                 step_id=upstream_root,
                 scope_id="ii",
                 capability_id=upstream_call.capability_id,
@@ -17281,7 +17061,7 @@ def test_functional_retry_does_not_freeze_structured_upstream_repair_root() -> N
         diagnostic=None,
         verified_call_ids={call.call_id for call in reconciliation.plan.calls},
         verified_runtime_results=(
-            StepIntentRuntimeResult(
+            FunctionalRuntimeResult(
                 step_id=upstream_root,
                 scope_id="ii",
                 capability_id=upstream_call.capability_id,
@@ -17407,7 +17187,6 @@ def test_legacy_functional_retry_does_not_rewrite_renamed_call() -> None:
     attempts = [
         {
             "context_derived_retry_state": {
-                "candidate_format": "functional_plan",
                 "preserve_policy": "preserve_graph",
                 "baseline_candidate": baseline,
                 "stable_candidate_calls": [
@@ -17502,7 +17281,6 @@ def test_legacy_functional_retry_drops_stale_untyped_graph() -> None:
     attempts = [
         {
             "context_derived_retry_state": {
-                "candidate_format": "functional_plan",
                 "preserve_policy": "preserve_graph",
                 "baseline_candidate": baseline,
                 "stable_candidate_calls": [
@@ -17682,51 +17460,6 @@ def test_functional_wire_preparation_leaves_mixed_scope_shape_for_validation() -
     assert not report.ok
 
 
-def test_functional_projection_may_use_internal_symbol_output_type() -> None:
-    payload = {
-        "scopes": [
-            {
-                "scope_id": "i",
-                "label": "i",
-                "steps": [
-                        {
-                            "step_id": "derive_internal_symbol",
-                            "recipe_hint": None,
-                            "goal_type": "derive_internal_symbol",
-                            "target": "fact:i:internal_symbol",
-                        "strategy": "project an internal symbol state",
-                        "reads": [],
-                        "creates": [],
-                        "produces": [
-                            {
-                                "handle": "fact:i:internal_symbol",
-                                "valid_scope": "i",
-                                "description": "internal companion state",
-                                "output_type": "Symbol",
-                            }
-                        ],
-                        "reason": "the functional bridge owns this state",
-                    }
-                ],
-            }
-        ]
-    }
-    validator = StepIntentValidator()
-
-    external, external_report = validator.validate_json_with_report(
-        json.dumps(payload)
-    )
-    internal, internal_report = validator.validate_json_with_report(
-        json.dumps(payload),
-        allow_internal_output_types=True,
-    )
-
-    assert external is None
-    assert "output_type unsupported: Symbol" in external_report.errors[0]
-    assert internal is not None
-    assert internal_report.ok
-
-
 def test_functional_wire_preparation_does_not_extract_json_from_prose() -> None:
     raw = 'Here is the plan: {"format": "functional_plan/v1"}'
 
@@ -17746,10 +17479,8 @@ def test_functional_validation_failure_still_creates_context_retry_memory() -> N
 
     assert replay.output is None
     assert replay.retry_state is not None
-    assert replay.retry_state.candidate_format == "functional_plan"
     assert replay.retry_state.issues[0].layer == "functional_validation"
     assert replay.planner_state_context is not None
-    assert replay.planner_state_context.state.candidate_format == "functional_plan"
 
 
 def test_functional_wire_failure_inherits_previous_verified_graph() -> None:
@@ -17761,7 +17492,6 @@ def test_functional_wire_failure_inherits_previous_verified_graph() -> None:
         previous_errors=[
             {
                 "context_derived_retry_state": {
-                    "candidate_format": "functional_plan",
                     "preserve_policy": "preserve_graph",
                     "baseline_candidate": baseline,
                     "stable_candidate_calls": [
@@ -17810,7 +17540,6 @@ def test_functional_wire_failure_inherits_previous_verified_graph() -> None:
 
     assert replay.output is None
     assert replay.retry_state is not None
-    assert replay.retry_state.candidate_format == "functional_plan"
     assert replay.retry_state.baseline_candidate == baseline
     assert replay.retry_state.preserve_policy == "none"
     assert replay.retry_state.stable_candidate_calls == ()
@@ -17869,9 +17598,8 @@ def test_functional_repair_fallback_requests_functional_plan() -> None:
     payload = repair_attempt_payload_from_replay(replay)
 
     assert payload is not None
-    assert payload["candidate_format"] == "functional_plan"
     assert "FunctionalPlan" in payload["repair_instruction"]
-    assert "StepIntent" not in payload["repair_instruction"]
+    assert "FunctionalCompileStep" not in payload["repair_instruction"]
 
 
 def test_functional_retry_keeps_the_first_attempt_few_shot_selection() -> None:
@@ -17890,13 +17618,11 @@ def test_functional_retry_keeps_the_first_attempt_few_shot_selection() -> None:
         payload_builder=StrategyPayloadBuilder(
             functional_few_shot_mode="strict_test"
         ),
-        output_format="functional_plan",
     )
     with pytest.raises(PlannerExecutionError) as raised:
         planner.plan(inputs)
     assert raised.value.primary.stage == "functional_validation"
     assert raised.value.primary.code == "functional.scopes"
-    assert raised.value.candidate_format == "functional_plan"
 
     first_payload = planner.artifacts.payload
     assert first_payload is not None
@@ -17910,7 +17636,6 @@ def test_functional_retry_keeps_the_first_attempt_few_shot_selection() -> None:
     ).build(
         replace(inputs, previous_errors=[repair]),
         problem_payload=_problem_payload(),
-        output_format="functional_plan",
     )
     assert retry_payload["functional_few_shot_selection"] == first_selection
     assert retry_payload["few_shot_examples"] == first_payload["few_shot_examples"]
@@ -17944,7 +17669,6 @@ def test_functional_configuration_failure_crosses_typed_planner_boundary(
         payload_builder=StrategyPayloadBuilder(
             functional_few_shot_mode="strict_test"
         ),
-        output_format="functional_plan",
     )
 
     with pytest.raises(PlannerExecutionError) as raised:
@@ -17953,7 +17677,6 @@ def test_functional_configuration_failure_crosses_typed_planner_boundary(
     assert raised.value.primary.stage == "planner"
     assert raised.value.primary.code == "planner_configuration_error"
     assert raised.value.primary.retryable is False
-    assert raised.value.candidate_format == "functional_plan"
 
 
 def test_functional_projection_failure_crosses_typed_planner_boundary(
@@ -17981,7 +17704,6 @@ def test_functional_projection_failure_crosses_typed_planner_boundary(
         payload_builder=StrategyPayloadBuilder(
             functional_few_shot_mode="strict_test"
         ),
-        output_format="functional_plan",
     )
 
     with pytest.raises(PlannerExecutionError) as raised:
@@ -18004,14 +17726,12 @@ def test_functional_projection_failure_crosses_typed_planner_boundary(
             "preserve_policy": "none",
         },
     )
-    assert raised.value.candidate_format == "functional_plan"
 
 
 def test_functional_prompt_retry_state_never_exposes_step_intent_baseline() -> None:
     inputs = _inputs_for_goal(0)
     stable_call = _axis_plan_payload()["scopes"][0]["calls"][0]
     retry_state = {
-        "candidate_format": "functional_plan",
         "baseline_candidate": _axis_plan_payload(),
         "baseline_draft": {"scopes": [{"steps": []}]},
         "stable_candidate_prefix": [],
@@ -18084,7 +17804,6 @@ def test_functional_prompt_retry_state_never_exposes_step_intent_baseline() -> N
     payload = StrategyPayloadBuilder().build(
         inputs,
         problem_payload=_problem_payload(),
-        output_format="functional_plan",
     )
     latest = payload["previous_attempt_state"]["latest_retry_state"]
 
@@ -18367,7 +18086,6 @@ def test_verified_closed_form_is_memory_not_hard_retry_overlay() -> None:
     )
     retry_state = PlannerRetryState(
         attempt=1,
-        baseline_draft=None,
         issues=(
             PlannerRetryIssue(
                 layer="functional_reconciliation",
@@ -18375,7 +18093,6 @@ def test_verified_closed_form_is_memory_not_hard_retry_overlay() -> None:
                 message="exercise verified result-form retry projection",
             ),
         ),
-        candidate_format="functional_plan",
         baseline_candidate=open_plan.to_payload(),
     )
     semantic_index = FunctionalSemanticIndex.from_context(
@@ -18434,7 +18151,6 @@ def test_functional_prompt_projects_retry_handles_to_semantic_refs() -> None:
         previous_errors=[
             {
                 "context_derived_retry_state": {
-                    "candidate_format": "functional_plan",
                     "preserve_policy": "none",
                     "issues": [
                         {
@@ -18487,7 +18203,6 @@ def test_functional_prompt_projects_retry_handles_to_semantic_refs() -> None:
     payload = StrategyPayloadBuilder().build(
         inputs,
         problem_payload=_problem_payload(),
-        output_format="functional_plan",
     )
     latest = payload["previous_attempt_state"]["latest_retry_state"]
     serialized = json.dumps(latest, ensure_ascii=False)
@@ -18519,7 +18234,6 @@ def test_fake_llm_functional_plan_compiles_through_existing_runtime() -> None:
         ContextBuilder().build(_problem()),
         mode="deepseek",
         client=client,
-        output_format="functional_plan",
     )
 
     output = planner.plan(inputs)
@@ -18533,7 +18247,7 @@ def test_fake_llm_functional_plan_compiles_through_existing_runtime() -> None:
         "target": "$problem.points.D",
     }
     assert client.request is not None
-    assert client.request["planner_output_format"] == "functional_plan"
+    assert client.request["planner_protocol"] == "functional_plan/v1"
     raw_candidate = planner.last_raw_response or ""
     assert not CANONICAL_REF_RE.search(raw_candidate)
     assert "creates" not in raw_candidate and "produces" not in raw_candidate
@@ -18586,8 +18300,6 @@ def test_functional_projection_output_types_remain_authoritative_in_replay() -> 
         problem_payload=_problem_payload(),
         validation_report=report,
     )
-
-    assert replay.normalized_draft is None
     assert replay.functional_reconciliation is not None
     produced_types = {
         handle: item.runtime_type
@@ -18602,28 +18314,15 @@ def test_functional_projection_output_types_remain_authoritative_in_replay() -> 
     assert produced_types["answer:i.parabola"] == "Parabola"
 
 
-def test_functional_replay_preserves_reconciled_call_graph_topology(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    """Functional projection must not re-enter StepIntent topology repair."""
+def test_functional_replay_preserves_reconciled_call_graph_topology() -> None:
+    """Functional replay has no legacy topology-repair hooks."""
     inputs = _inputs_for_goal(0)
     payload = _axis_plan_payload()
     plan, report = _validate(payload, inputs)
     assert report.ok and plan is not None
 
-    def reject_legacy_normalizer(*_args, **_kwargs):
-        raise AssertionError("legacy topology normalizer must not run")
-
-    monkeypatch.setattr(
-        strategy_replay_module.StepIntentNormalizer,
-        "normalize",
-        reject_legacy_normalizer,
-    )
-    monkeypatch.setattr(
-        strategy_replay_module,
-        "drop_dead_pure_function_steps",
-        reject_legacy_normalizer,
-    )
+    assert not hasattr(strategy_replay_module, "StepIntentNormalizer")
+    assert not hasattr(strategy_replay_module, "drop_dead_pure_function_steps")
 
     replay = PlannerRetryReplayService().replay_functional_plan(
         plan,
@@ -18634,13 +18333,10 @@ def test_functional_replay_preserves_reconciled_call_graph_topology(
         problem_payload=_problem_payload(),
         validation_report=report,
     )
-
-    assert replay.normalized_draft is None
     assert replay.output is not None
     assert [step.step_id for step in replay.output.step_plans] == [
         "derive_axis_point"
     ]
-    assert replay.normalization_report is None
 
 
 def test_functional_runtime_unavailable_point_becomes_call_level_work_order() -> None:
@@ -18968,7 +18664,6 @@ def test_functional_debug_artifacts_omit_retired_step_intents(tmp_path: Path) ->
     payload = StrategyPayloadBuilder().build(
         inputs,
         problem_payload=_problem_payload(),
-        output_format="functional_plan",
     )
     prompt = StrategyPromptRenderer().render(payload)
 
@@ -18977,12 +18672,8 @@ def test_functional_debug_artifacts_omit_retired_step_intents(tmp_path: Path) ->
         payload=payload,
         prompt=prompt,
         raw_response=json.dumps(_axis_plan_payload()),
-        draft=replay.raw_draft,
         report=replay.functional_validation_report,
-        normalization_report=replay.normalization_report,
-        resolution_report=replay.resolution_report,
         execution_diagnostic=replay.diagnostic,
-        effective_draft=replay.effective_draft,
         planner_retry_state=replay.retry_state,
         planner_state_context=replay.planner_state_context,
         functional_plan=replay.functional_plan,
@@ -19034,13 +18725,3 @@ def test_functional_debug_artifacts_omit_retired_step_intents(tmp_path: Path) ->
     assert not (tmp_path / "payload.semantic_read_catalog.json").exists()
     assert not (tmp_path / "semantic-read-catalog.json").exists()
     assert (tmp_path / "context-semantic-read-catalog.json").exists()
-
-
-def test_recorded_mode_rejects_functional_protocol() -> None:
-    planner = StrategyPlanner(
-        ContextBuilder().build(_problem()),
-        mode="recorded",
-        output_format="functional_plan",
-    )
-    with pytest.raises(Exception, match="recorded mode only supports step_intent"):
-        planner.plan(_inputs_for_goal(0))

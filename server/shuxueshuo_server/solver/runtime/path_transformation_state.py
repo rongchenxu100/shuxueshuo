@@ -22,7 +22,7 @@ from shuxueshuo_server.solver.runtime.state_identity import (
 from shuxueshuo_server.solver.runtime.strategy_models import (
     ProjectedStateDependency,
     ProjectedStateWrite,
-    StepIntent,
+    FunctionalCompileStepView,
     StrategyDraftValidationError,
 )
 from shuxueshuo_server.solver.state_semantics import StateObjectRoleBinding
@@ -104,7 +104,7 @@ class PathTransformationStateResolver:
         self,
         transformation_handle: str,
         *,
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         required_roles: Sequence[PathTransformationRole],
     ) -> ResolvedPathTransformationState:
         write = self.index.projected_state_write_for_handle(
@@ -145,7 +145,7 @@ class PathTransformationStateResolver:
         binding: StateObjectRoleBinding,
         *,
         producer: ProjectedStateWrite,
-        step: StepIntent,
+        step: FunctionalCompileStepView,
     ) -> ResolvedPathTransformationRole:
         if self.consumer_identity_mode is not None:
             return self._resolve_typed_role(
@@ -165,7 +165,7 @@ class PathTransformationStateResolver:
             step=step,
         )
         if state_handle is None:
-            # Legacy StepIntent has no Functional role sidecar, but may carry
+            # Legacy FunctionalCompileStepView has no Functional role sidecar, but may carry
             # an explicit materialized read for the exact MathObject.
             state_handle = self._legacy_explicit_state(
                 binding.object_refs[0],
@@ -191,7 +191,7 @@ class PathTransformationStateResolver:
         binding: StateObjectRoleBinding,
         *,
         producer: ProjectedStateWrite,
-        step: StepIntent,
+        step: FunctionalCompileStepView,
     ) -> ResolvedPathTransformationRole:
         if len(binding.object_ids) != 1:
             raise StrategyDraftValidationError(
@@ -261,7 +261,7 @@ class PathTransformationStateResolver:
         binding: StateObjectRoleBinding,
         *,
         producer: ProjectedStateWrite,
-        step: StepIntent,
+        step: FunctionalCompileStepView,
     ) -> str | None:
         candidates: list[str] = []
         for handle in binding.source_handles:
@@ -312,7 +312,7 @@ class PathTransformationStateResolver:
             )
         return visible[0] if visible else None
 
-    def _visible(self, handle: str, *, step: StepIntent) -> bool:
+    def _visible(self, handle: str, *, step: FunctionalCompileStepView) -> bool:
         binding = self.index.bindings.get(handle)
         if binding is None:
             return False
@@ -327,7 +327,7 @@ class PathTransformationStateResolver:
         self,
         transformation_handle: str,
         *,
-        step: StepIntent,
+        step: FunctionalCompileStepView,
     ) -> str | None:
         binding = self.index.bindings.get(transformation_handle)
         if binding is None:
@@ -349,7 +349,7 @@ class PathTransformationStateResolver:
         self,
         state: ResolvedPathTransformationState,
         *,
-        step: StepIntent,
+        step: FunctionalCompileStepView,
     ) -> None:
         binding = self.index.bindings.get(state.transformation_handle)
         if binding is None:
@@ -462,10 +462,10 @@ class PathTransformationStateResolver:
         self,
         transformation_handle: str,
         *,
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         required_roles: Sequence[PathTransformationRole],
     ) -> ResolvedPathTransformationState:
-        """Align canonical payload refs with explicit legacy StepIntent reads."""
+        """Align canonical payload refs with explicit legacy FunctionalCompileStepView reads."""
         binding = self.index.bindings.get(transformation_handle)
         if binding is None:
             raise StrategyDraftValidationError(
@@ -603,7 +603,7 @@ class PathTransformationStateResolver:
         self,
         object_ref: str,
         *,
-        step: StepIntent,
+        step: FunctionalCompileStepView,
     ) -> str | None:
         candidates = tuple(
             handle

@@ -1,6 +1,6 @@
 """Typed MathObject, state-slot, version, and allocation identity.
 
-This module is deliberately independent from FunctionalPlan and StepIntent.
+This module is deliberately independent from planner wire formats.
 Those protocols project into these types; neither wire format is an identity
 source.
 """

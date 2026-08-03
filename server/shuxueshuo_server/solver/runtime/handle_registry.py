@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field, replace
+from dataclasses import dataclass, field
 import re
 from typing import Any
 
@@ -20,13 +20,8 @@ from shuxueshuo_server.solver.runtime.handle_alias_index import (
     namespace_alias_handle,
 )
 from shuxueshuo_server.solver.runtime.strategy_models import (
-    CreatedEntity,
     HandleCorrection,
-    HandleResolutionReport,
-    ProducedFact,
-    StepIntent,
-    StepIntentDraft,
-    StepIntentScope,
+    FunctionalCompileStepView,
     StrategyDraftValidationError,
 )
 
@@ -163,7 +158,7 @@ class CanonicalHandleAliasResolver:
         handle: str,
         *,
         field: str,
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         registry: CanonicalHandleRegistry,
         available: set[str],
         handle_valid_scopes: dict[str, str] | None = None,
@@ -237,7 +232,7 @@ class CanonicalHandleAliasResolver:
         handle: str,
         *,
         field: str,
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         registry: CanonicalHandleRegistry,
     ) -> ResolvedHandle | None:
         """解析 question_goals 生成的 answer alias。"""
@@ -262,7 +257,7 @@ class CanonicalHandleAliasResolver:
         handle: str,
         *,
         field: str,
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         registry: CanonicalHandleRegistry,
         available: set[str],
     ) -> ResolvedHandle | None:
@@ -286,7 +281,7 @@ class CanonicalHandleAliasResolver:
         handle: str,
         *,
         field: str,
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         registry: CanonicalHandleRegistry,
         available: set[str],
         handle_valid_scopes: dict[str, str],
@@ -322,7 +317,7 @@ class CanonicalHandleAliasResolver:
         handle: str,
         *,
         field: str,
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         registry: CanonicalHandleRegistry,
         available: set[str],
     ) -> ResolvedHandle | None:
@@ -356,7 +351,7 @@ class CanonicalHandleAliasResolver:
         handle: str,
         *,
         field: str,
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         registry: CanonicalHandleRegistry,
         available: set[str],
     ) -> ResolvedHandle | None:
@@ -403,7 +398,7 @@ class CanonicalHandleAliasResolver:
         handle: str,
         *,
         field: str,
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         registry: CanonicalHandleRegistry,
         available: set[str],
         original_handle: str | None = None,
@@ -477,7 +472,7 @@ class CanonicalHandleAliasResolver:
         name: str,
         visible_scopes: tuple[str, ...],
         available: set[str],
-        step: StepIntent,
+        step: FunctionalCompileStepView,
         from_handle: str,
         reason_prefix: str | None,
     ) -> ResolvedHandle | None:
@@ -504,356 +499,6 @@ class CanonicalHandleAliasResolver:
             ),
         )
 
-
-class HandleResolver:
-    """对整个 StepIntentDraft 做 handle 修正与数据流维护。
-
-    单个 handle 的 alias/canonicalization 委托给
-    ``CanonicalHandleAliasResolver``；这里负责遍历 draft、维护前序
-    creates/produces 可读集合，以及收窄过宽 produced fact。
-    """
-
-    def resolve_draft(
-        self,
-        draft: StepIntentDraft,
-        registry: CanonicalHandleRegistry,
-        *,
-        authoritative_produced_handles: set[str] | frozenset[str] = frozenset(),
-    ) -> tuple[StepIntentDraft, HandleResolutionReport]:
-        """返回修正后的 draft 与修正报告。"""
-        available = set(registry.initial_handles)
-        handle_valid_scopes = dict(registry.handle_valid_scopes)
-        handle_rewrites: dict[str, str] = {}
-        corrections: list[HandleCorrection] = []
-        scopes: list[StepIntentScope] = []
-        alias_resolver = CanonicalHandleAliasResolver()
-
-        for scope in draft.scopes:
-            steps: list[StepIntent] = []
-            for step in scope.steps:
-                step = _rewrite_step_handles(step, handle_rewrites)
-                step, alias_corrections = self._resolve_handle_aliases(
-                    step,
-                    registry=registry,
-                    available=available,
-                    handle_valid_scopes=handle_valid_scopes,
-                    alias_resolver=alias_resolver,
-                )
-                corrections.extend(alias_corrections)
-                step, create_corrections = self._move_existing_entities_to_reads(
-                    step,
-                    registry=registry,
-                    available=available,
-                )
-                corrections.extend(create_corrections)
-                corrected_step = step
-                corrected_step, scope_corrections, produce_rewrites = self._narrow_overbroad_produced_facts(
-                    corrected_step,
-                    registry=registry,
-                    handle_valid_scopes=handle_valid_scopes,
-                    authoritative_produced_handles=authoritative_produced_handles,
-                )
-                corrections.extend(scope_corrections)
-                handle_rewrites.update(produce_rewrites)
-                corrected_step, duplicate_corrections = self._dedupe_step_produced_handles(
-                    corrected_step
-                )
-                corrections.extend(duplicate_corrections)
-                steps.append(corrected_step)
-
-                # 修正后续 step 时，需要知道前序 creates/produces 已经可读。
-                available.update(item.handle for item in step.creates)
-                available.update(item.handle for item in corrected_step.creates)
-                available.update(item.handle for item in corrected_step.produces)
-                handle_valid_scopes.update(
-                    {item.handle: item.valid_scope for item in corrected_step.creates}
-                )
-                handle_valid_scopes.update(
-                    {item.handle: item.valid_scope for item in corrected_step.produces}
-                )
-
-            scopes.append(
-                StepIntentScope(
-                    scope_id=scope.scope_id,
-                    label=scope.label,
-                    steps=tuple(steps),
-                )
-            )
-
-        return (
-            StepIntentDraft(scopes=tuple(scopes)),
-            HandleResolutionReport(corrections=tuple(corrections)),
-        )
-
-    def _narrow_overbroad_produced_facts(
-        self,
-        step: StepIntent,
-        *,
-        registry: CanonicalHandleRegistry,
-        handle_valid_scopes: dict[str, str],
-        authoritative_produced_handles: set[str] | frozenset[str] = frozenset(),
-    ) -> tuple[StepIntent, list[HandleCorrection], dict[str, str]]:
-        """收窄被 LLM 误写成父级公共结论的 produced fact。
-
-        若某个 step 在 ``i`` / ``ii_1`` 等局部 scope 中读取了局部条件，却把产物
-        写成过宽的公共 fact，这个 fact 不应被后续其它分问当作公共结论。这里选择
-        “所有 reads 都可见的最大安全 scope”，并同步改写 fact handle 的 scope 前缀。
-        """
-        if not step.produces:
-            return step, [], {}
-
-        new_produces: list[ProducedFact] = []
-        corrections: list[HandleCorrection] = []
-        rewrites: dict[str, str] = {}
-        for item in step.produces:
-            if not item.handle.startswith("fact:"):
-                new_produces.append(item)
-                continue
-            if item.handle in authoritative_produced_handles:
-                # Functional reconciliation already proved the StateSlot
-                # publication scope. Legacy StepIntent read-scope narrowing
-                # must not create a second, narrower handle identity.
-                new_produces.append(item)
-                continue
-            if step.scope_id == "problem":
-                new_produces.append(item)
-                continue
-            safe_scope = self._max_safe_valid_scope(
-                step,
-                requested_scope=item.valid_scope,
-                registry=registry,
-                handle_valid_scopes=handle_valid_scopes,
-            )
-            if safe_scope == item.valid_scope:
-                new_produces.append(item)
-                continue
-            _kind, _scope, name = _require_scoped_handle(item.handle)
-            new_handle = f"fact:{safe_scope}:{name}"
-            new_item = replace(item, handle=new_handle, valid_scope=safe_scope)
-            new_produces.append(new_item)
-            rewrites[item.handle] = new_handle
-            corrections.append(
-                HandleCorrection(
-                    step_id=step.step_id,
-                    scope_id=step.scope_id,
-                    from_handle=item.handle,
-                    to_handle=new_handle,
-                    reason=(
-                        "produced fact depended on narrower-scope reads; narrowed handle "
-                        f"and valid_scope from {item.valid_scope} to {safe_scope}"
-                    ),
-                )
-            )
-
-        if not corrections:
-            return step, [], {}
-
-        return (
-            replace(
-                step,
-                target=rewrites.get(step.target, step.target),
-                produces=tuple(new_produces),
-            ),
-            corrections,
-            rewrites,
-        )
-
-    def _max_safe_valid_scope(
-        self,
-        step: StepIntent,
-        *,
-        requested_scope: str,
-        registry: CanonicalHandleRegistry,
-        handle_valid_scopes: dict[str, str],
-    ) -> str:
-        """返回不超过 requested_scope 且能读取本 step 依赖的最大安全 scope。"""
-        try:
-            step_chain = registry.ancestor_scopes(step.scope_id)
-            requested_index = step_chain.index(requested_scope)
-        except StrategyDraftValidationError:
-            return requested_scope
-        except ValueError:
-            return requested_scope
-        candidates = step_chain[: requested_index + 1]
-        read_scopes = [
-            handle_valid_scopes[handle]
-            for handle in step.reads
-            if handle in handle_valid_scopes
-        ]
-        for scope_id in reversed(candidates):
-            if all(read_scope in registry.ancestor_scopes(scope_id) for read_scope in read_scopes):
-                return scope_id
-        return step.scope_id
-
-
-    def _dedupe_step_produced_handles(
-        self,
-        step: StepIntent,
-    ) -> tuple[StepIntent, list[HandleCorrection]]:
-        """Remove duplicate produced handles introduced by deterministic rewrites.
-
-        The LLM may emit both a broad public fact and a narrowed local fact in the
-        same step.  After alias/scope resolution those can become the same canonical
-        handle.  The duplicate carries no additional executable state, so keep the
-        first declaration and record the cleanup in the handle-resolution report.
-        """
-        if len(step.produces) < 2:
-            return step, []
-
-        retained: list[ProducedFact] = []
-        seen: set[str] = set()
-        corrections: list[HandleCorrection] = []
-        for item in step.produces:
-            if item.handle not in seen:
-                seen.add(item.handle)
-                retained.append(item)
-                continue
-            corrections.append(
-                HandleCorrection(
-                    step_id=step.step_id,
-                    scope_id=step.scope_id,
-                    from_handle=f"produces:{item.handle}",
-                    to_handle=item.handle,
-                    reason=(
-                        "duplicate produced handle after deterministic handle "
-                        "resolution; kept the first produced declaration"
-                    ),
-                )
-            )
-
-        if not corrections:
-            return step, []
-        return replace(step, produces=tuple(retained)), corrections
-
-    def _resolve_handle_aliases(
-        self,
-        step: StepIntent,
-        *,
-        registry: CanonicalHandleRegistry,
-        available: set[str],
-        handle_valid_scopes: dict[str, str],
-        alias_resolver: CanonicalHandleAliasResolver,
-    ) -> tuple[StepIntent, list[HandleCorrection]]:
-        """统一修正 target/reads/produces 中可确定的 handle alias。"""
-        corrections: list[HandleCorrection] = []
-
-        def resolve(handle: str, *, field: str) -> str:
-            resolved = alias_resolver.resolve(
-                handle,
-                field=field,
-                step=step,
-                registry=registry,
-                available=available,
-                handle_valid_scopes=handle_valid_scopes,
-            )
-            if resolved.correction is not None:
-                corrections.append(resolved.correction)
-            return resolved.handle
-
-        target = resolve(step.target, field="target")
-        reads = tuple(resolve(handle, field="reads") for handle in step.reads)
-        produces = tuple(
-            replace(item, handle=resolve(item.handle, field="produces"))
-            for item in step.produces
-        )
-        if not corrections:
-            return step, []
-        return (
-            StepIntent(
-                scope_id=step.scope_id,
-                step_id=step.step_id,
-                recipe_hint=step.recipe_hint,
-                goal_type=step.goal_type,
-                target=target,
-                strategy=step.strategy,
-                reads=reads,
-                creates=step.creates,
-                produces=produces,
-                reason=step.reason,
-            ),
-            corrections,
-        )
-
-    def _move_existing_entities_to_reads(
-        self,
-        step: StepIntent,
-        *,
-        registry: CanonicalHandleRegistry,
-        available: set[str],
-    ) -> tuple[StepIntent, list[HandleCorrection]]:
-        """把误放到 creates[] 的已有实体改成 reads[]。
-
-        ``creates`` 只应声明推导中新建的辅助实体。若 LLM 把题面已有的点/线放进
-        ``creates``，这不是数学步骤，而是字段放错；可以安全移动到 reads，避免
-        后续 validator 报 ``create_overwrites_given_entity``。若前序 step 已创建同一
-        auxiliary entity，后续重复 creates 也可安全移动到 reads。这里不修正
-        produces，也不把未知 entity 伪造成题设 entity。
-        """
-        if not step.creates:
-            return step, []
-
-        reads = list(step.reads)
-        creates: list[CreatedEntity] = []
-        corrections: list[HandleCorrection] = []
-        for item in step.creates:
-            if item.handle not in registry.entity_handles and item.handle not in available:
-                creates.append(item)
-                continue
-            if item.handle not in reads:
-                reads.append(item.handle)
-            reason = (
-                "duplicate_created_entity_already_available; moved to reads"
-                if item.handle in available and item.handle not in registry.entity_handles
-                else "created entity already exists in canonical ProblemIR; moved to reads"
-            )
-            corrections.append(
-                HandleCorrection(
-                    step_id=step.step_id,
-                    scope_id=step.scope_id,
-                    from_handle=f"creates:{item.handle}",
-                    to_handle=item.handle,
-                    reason=reason,
-                )
-            )
-
-        if not corrections:
-            return step, []
-
-        return (
-            StepIntent(
-                scope_id=step.scope_id,
-                step_id=step.step_id,
-                recipe_hint=step.recipe_hint,
-                goal_type=step.goal_type,
-                target=step.target,
-                strategy=step.strategy,
-                reads=tuple(reads),
-                creates=tuple(creates),
-                produces=step.produces,
-                reason=step.reason,
-            ),
-            corrections,
-        )
-
-def _rewrite_step_handles(step: StepIntent, rewrites: dict[str, str]) -> StepIntent:
-    """把前序 produced fact 改名同步到后续 step。"""
-    if not rewrites:
-        return step
-    return StepIntent(
-        scope_id=step.scope_id,
-        step_id=step.step_id,
-        recipe_hint=step.recipe_hint,
-        goal_type=step.goal_type,
-        target=rewrites.get(step.target, step.target),
-        strategy=step.strategy,
-        reads=tuple(rewrites.get(handle, handle) for handle in step.reads),
-        creates=step.creates,
-        produces=tuple(
-            replace(item, handle=rewrites.get(item.handle, item.handle))
-            for item in step.produces
-        ),
-        reason=step.reason,
-    )
 
 def _require_scoped_handle(handle: str) -> tuple[str, str, str]:
     """解析 canonical Entity/Fact handle。

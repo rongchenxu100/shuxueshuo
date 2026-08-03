@@ -32,7 +32,7 @@ from shuxueshuo_server.solver.runtime.state_identity import (
 from shuxueshuo_server.solver.runtime.strategy_models import (
     PlannerRetryState,
     StateWriteProvenance,
-    StepIntentExecutionDiagnostic,
+    FunctionalExecutionDiagnostic,
 )
 from shuxueshuo_server.solver.runtime.models import TypedValue
 from shuxueshuo_server.solver.utils import unique_ordered
@@ -283,7 +283,7 @@ class FunctionalTransactionShadowObserver:
         *,
         raw_plan: FunctionalPlan,
         reconciliation: FunctionalPlanReconciliationResult,
-        diagnostic: StepIntentExecutionDiagnostic | None,
+        diagnostic: FunctionalExecutionDiagnostic | None,
         retry_state: PlannerRetryState | None,
         goal_verification_report: Any | None,
         parent_context: PlannerStateContext,
@@ -520,7 +520,7 @@ def _observed_call_statuses(
     graph: LogicalFunctionalGraph,
     *,
     reconciliation: FunctionalPlanReconciliationResult,
-    diagnostic: StepIntentExecutionDiagnostic | None,
+    diagnostic: FunctionalExecutionDiagnostic | None,
     retry_state: PlannerRetryState | None,
 ) -> dict[str, FunctionalCallLifecycleStatus]:
     result: dict[str, FunctionalCallLifecycleStatus] = {}
@@ -586,7 +586,7 @@ def _observed_call_statuses(
 def _call_issue_codes(
     reconciliation: FunctionalPlanReconciliationResult,
     *,
-    diagnostic: StepIntentExecutionDiagnostic | None,
+    diagnostic: FunctionalExecutionDiagnostic | None,
 ) -> dict[str, tuple[str, ...]]:
     result: dict[str, list[str]] = {}
     for issue in reconciliation.issues:
@@ -609,7 +609,7 @@ def _call_issue_codes(
 def _unmapped_runtime_write_mismatches(
     reconciliation: FunctionalPlanReconciliationResult,
     *,
-    diagnostic: StepIntentExecutionDiagnostic | None,
+    diagnostic: FunctionalExecutionDiagnostic | None,
 ) -> tuple[FunctionalTransactionShadowMismatch, ...]:
     if diagnostic is None:
         return ()
@@ -633,7 +633,7 @@ def _commit_observed_writes(
     working: WorkingPlannerState,
     *,
     reconciliation: FunctionalPlanReconciliationResult,
-    diagnostic: StepIntentExecutionDiagnostic | None,
+    diagnostic: FunctionalExecutionDiagnostic | None,
     call_ids: tuple[str, ...],
 ) -> tuple[FunctionalTransactionShadowMismatch, ...]:
     if diagnostic is None:

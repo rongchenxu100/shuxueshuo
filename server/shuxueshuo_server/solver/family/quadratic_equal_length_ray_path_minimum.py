@@ -50,7 +50,7 @@ _QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = SolverFamilySpec(
         "当前可用的 angle_sum_equal_angle_candidates 只支持“角和等于 45° 且可由坐标轴参考三角形构造 45° 参考角”的子场景；不满足时应视为能力缺口或选择其它角度 method。",
         "由定义可直接求出的基础点坐标也要用独立 method step 表达，例如 y 轴交点和平移点；不要让后续函数求解 step 隐式解析这些点。",
         "本 family 的路径最值优先使用初中生能理解的几何构造法，而不是把两个动点全部参数化后做复杂解析几何最值。",
-        "等长射线路径最值的标准路线是：优先使用 equal_length_ray_path_reduction recipe，把“两动点线段距离和”转化为“单动点/单线段距离”的最小值表达式；辅助点由 recipe 内部构造，StepIntent 不需要 creates 辅助点。",
+        "等长射线路径最值的标准路线是：优先使用 equal_length_ray_path_reduction recipe，把“两动点线段距离和”转化为“单动点/单线段距离”的最小值表达式；辅助点由 recipe 内部构造，FunctionalPlan 不声明内部辅助点。",
         "不要单独 produces M_coordinate_expr、N_coordinate_expr、OM_distance_expr、BN_distance_expr 这类参数化/分段距离 utility fact；这些不是初中生优先的解题步骤，也不是本 family 的可执行标准路线。",
         "不要把含参系数缓存、纯文字全等说明或最终讲解段落作为独立 produces；这些可以放在 strategy/reason 中。",
     ),

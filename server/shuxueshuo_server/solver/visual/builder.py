@@ -517,7 +517,7 @@ def _add_defined_points_from_curves(
 ) -> None:
     """Materialize drawable points whose definitions are now determined by a curve.
 
-    Runtime only emits points that a StepIntent explicitly asks for.  The page,
+    Runtime only emits points that a Functional call explicitly asks for. The page,
     however, often needs sibling definition points for context, such as the
     other x-axis intercept of the same parabola.  This derives only from
     ProblemIR point definitions and already computed scoped curves.
@@ -908,7 +908,7 @@ def _runtime_line_for_locus_step(step: dict[str, Any], snapshot: ExplanationSnap
         value = item.get("value")
         if not isinstance(value, dict):
             continue
-        if step_id and str(item.get("scope_id") or "") == step_id:
+        if step_id and _fact_step_id(item) == step_id:
             return value
         if target_tail and (
             str(item.get("name") or "") == target_tail
@@ -1134,7 +1134,7 @@ def _candidate_point_pair_for_handle(
             continue
         item_handle = str(item.get("handle") or "")
         score = 0
-        if source_step_id and str(item.get("scope_id") or "") == source_step_id:
+        if source_step_id and _fact_step_id(item) == source_step_id:
             score = 9
         elif item_handle.endswith(f":outputs:{tail}") and (not scope or str(item.get("scope_id") or "") == scope):
             score = 8
@@ -1181,9 +1181,9 @@ def _candidate_point_list(
         if not points:
             continue
         score = 0
-        if str(item.get("scope_id") or "") == step_id:
+        if _fact_step_id(item) == step_id:
             score += 10
-        if str(item.get("source_step_id") or "") == step_id:
+        if _fact_step_id(item) == step_id:
             score += 5
         if target_tail and str(item.get("handle") or "").endswith(f":outputs:{target_tail}"):
             score += 3
@@ -2096,9 +2096,25 @@ def _dedupe_low_level_elements(elements: list[JsonObject]) -> list[JsonObject]:
 
 
 def _parameter_default_value(snapshot: ExplanationSnapshot) -> float:
+    selected_name = _parameter_name(snapshot)
+    matching: list[tuple[int, dict[str, Any]]] = []
+    fallback: list[dict[str, Any]] = []
     for item in snapshot.fact_index.values():
         if not isinstance(item, dict) or item.get("type") != "ParameterValue":
             continue
+        if item.get("value") is None:
+            continue
+        fallback.append(item)
+        name = str(item.get("name") or "")
+        if name == selected_name:
+            score = 0
+            if str(item.get("container") or "") == "outputs":
+                score += 2
+            if str(item.get("source") or "").startswith("parameter_from_"):
+                score += 8
+            matching.append((score, item))
+    matching.sort(key=lambda candidate: -candidate[0])
+    for item in (*[candidate[1] for candidate in matching], *fallback):
         try:
             import sympy as sp
 
@@ -4917,6 +4933,10 @@ def _point_value_text(value: Any) -> str:
 
 def _scope_root(scope_id: str) -> str:
     return _shared_scope_root(scope_id)
+
+
+def _fact_step_id(item: dict[str, Any]) -> str:
+    return str(item.get("source_step_id") or item.get("scope_id") or "")
 
 
 def _expression_env_handles(expression_env: Any) -> tuple[str, ...]:

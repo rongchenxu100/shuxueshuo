@@ -1,20 +1,23 @@
 #!/usr/bin/env python3
-"""同步 Strategy Planner few-shot 条目。
+"""Regenerate FunctionalPlan mechanism few-shot assets.
 
-用法：
-    python tools/sync_strategy_few_shots.py tj-2026-nankai-yimo-25
+Usage::
 
-工具从 ``internal/solver-fixtures`` 读取同名 canonical ProblemIR fixture 和
-``.executable-step-intents.json``，生成 ``internal/few-shots/<problem_id>.few-shot.json``。
+    python tools/sync_strategy_few_shots.py
+    python tools/sync_strategy_few_shots.py quadratic-constraints-vertex
+
+Each manifest selects a closed subgraph from an authored FunctionalPlan fixture.
+The tool preserves an asset's optional human-authored annotation and
+deterministically regenerates its ``functional_plan/v1`` example.
 """
 
 from __future__ import annotations
 
 import argparse
+from dataclasses import replace
 import json
 from pathlib import Path
 import sys
-from typing import Any
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -22,79 +25,97 @@ SERVER_ROOT = REPO_ROOT / "server"
 if str(SERVER_ROOT) not in sys.path:
     sys.path.insert(0, str(SERVER_ROOT))
 
-from shuxueshuo_server.solver.family import DEFAULT_FAMILY_REGISTRY  # noqa: E402
-from shuxueshuo_server.solver.fixtures import load_problem_ir  # noqa: E402
-from shuxueshuo_server.solver.runtime.strategy_few_shots import (  # noqa: E402
-    build_few_shot_entry,
-    few_shot_path_for_problem,
-    write_few_shot_entry,
-)
-from shuxueshuo_server.solver.runtime.projection import (  # noqa: E402
-    problem_to_llm_payload,
+from shuxueshuo_server.solver.runtime.functional_few_shots import (  # noqa: E402
+    FunctionalFewShotEntry,
+    load_functional_plan_fixture,
+    project_functional_few_shot_prompt_example,
+    split_functional_few_shot_asset,
+    validate_functional_few_shot_entry,
 )
 
 
 def main(argv: list[str] | None = None) -> int:
     """命令行入口。"""
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("problem_ids", nargs="+", help="要同步的 problem_id")
     parser.add_argument(
-        "--fixtures-dir",
+        "example_ids",
+        nargs="*",
+        help="example id；省略时同步全部 manifest",
+    )
+    parser.add_argument(
+        "--manifest-dir",
         type=Path,
-        default=REPO_ROOT / "internal" / "solver-fixtures",
-        help="solver fixture 目录",
+        default=REPO_ROOT / "internal" / "functional-few-shot-manifests",
+        help="functional few-shot manifest 目录",
+    )
+    parser.add_argument(
+        "--fixture-dir",
+        type=Path,
+        default=REPO_ROOT / "internal" / "functional-plan-fixtures",
+        help="authored FunctionalPlan fixture 目录",
     )
     parser.add_argument(
         "--output-dir",
         type=Path,
-        default=REPO_ROOT / "internal" / "few-shots",
-        help="few-shot 输出目录",
+        default=REPO_ROOT / "internal" / "functional-few-shots",
+        help="FunctionalPlan few-shot 输出目录",
     )
     args = parser.parse_args(argv)
 
-    for problem_id in args.problem_ids:
+    example_ids = args.example_ids or [
+        path.name.removesuffix(".manifest.json")
+        for path in sorted(args.manifest_dir.glob("*.manifest.json"))
+    ]
+    if not example_ids:
+        parser.error(f"no manifests found in {args.manifest_dir}")
+    for example_id in example_ids:
         output_path = sync_one(
-            problem_id,
-            fixtures_dir=args.fixtures_dir,
+            example_id,
+            manifest_dir=args.manifest_dir,
+            fixture_dir=args.fixture_dir,
             output_dir=args.output_dir,
         )
         print(output_path)
     return 0
 
 
-def sync_one(problem_id: str, *, fixtures_dir: Path, output_dir: Path) -> Path:
-    """同步单个 problem_id，并返回输出路径。"""
-    runtime_fixture = fixtures_dir / f"{problem_id}.json"
-    executable_fixture = fixtures_dir / f"{problem_id}.executable-step-intents.json"
-    for path in (runtime_fixture, executable_fixture):
-        if not path.exists():
-            raise FileNotFoundError(path)
+def sync_one(
+    example_id: str,
+    *,
+    manifest_dir: Path,
+    fixture_dir: Path,
+    output_dir: Path,
+) -> Path:
+    """Regenerate one annotated mechanism example."""
+    manifest_path = manifest_dir / f"{example_id}.manifest.json"
+    output_path = output_dir / f"{example_id}.functional-few-shot.json"
+    if not manifest_path.exists():
+        raise FileNotFoundError(manifest_path)
+    if not output_path.exists():
+        raise FileNotFoundError(
+            f"annotation source is missing for {example_id}: {output_path}"
+        )
 
-    problem = load_problem_ir(runtime_fixture)
-    if problem.problem_id != problem_id:
-        raise ValueError(f"runtime fixture problem_id mismatch: {problem.problem_id}")
-    family = DEFAULT_FAMILY_REGISTRY.match(problem)
-    if family is None:
-        raise ValueError(f"no family matched for {problem_id}")
-
-    problem_payload = problem_to_llm_payload(problem)
-    executable_payload = _read_json(executable_fixture)
-    entry = build_few_shot_entry(
-        problem_payload=problem_payload,
-        executable_step_intents=executable_payload,
-        family_id=family.family_id,
+    entry = FunctionalFewShotEntry.from_payload(
+        json.loads(manifest_path.read_text(encoding="utf-8"))
     )
-    output_path = few_shot_path_for_problem(problem_id, few_shot_dir=output_dir)
-    write_few_shot_entry(entry, output_path)
+    source_plan = load_functional_plan_fixture(
+        entry.source_problem_id,
+        fixture_dir=fixture_dir,
+    )
+    validate_functional_few_shot_entry(entry, source_plan=source_plan)
+    stored = json.loads(output_path.read_text(encoding="utf-8"))
+    annotation, _stored_plan = split_functional_few_shot_asset(stored)
+    payload = project_functional_few_shot_prompt_example(
+        replace(entry, annotation=annotation),
+        source_plan=source_plan,
+    )
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
     return output_path
-
-
-def _read_json(path: Path) -> dict[str, Any]:
-    """读取 JSON object。"""
-    value = json.loads(path.read_text(encoding="utf-8"))
-    if not isinstance(value, dict):
-        raise TypeError(f"expected JSON object: {path}")
-    return value
 
 
 if __name__ == "__main__":
