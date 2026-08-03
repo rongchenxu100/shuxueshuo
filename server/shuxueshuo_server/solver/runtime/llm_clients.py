@@ -99,14 +99,16 @@ class OpenAICompatiblePlannerClient:
         planner 类型。
         """
         messages = _messages_from_payload(payload, self.system_prompt)
+        request_options = self._completion_request_options(payload)
+        request_audit = _completion_request_audit(request_options)
         attempts: list[dict[str, Any]] = []
         request_messages = list(messages)
         for provider_attempt in range(1, 3):
             response = self._client.chat.completions.create(
                 model=self.model,
                 messages=request_messages,
-                temperature=self.temperature,
                 timeout=self.request_timeout,
+                **request_options,
             )
             usage = _usage_to_dict(getattr(response, "usage", None))
             response_model = getattr(response, "model", None)
@@ -125,6 +127,7 @@ class OpenAICompatiblePlannerClient:
                         None,
                     ),
                     "visible_content": bool(text.strip()),
+                    **request_audit,
                 }
             )
             self.last_provider_attempts = tuple(attempts)
@@ -156,6 +159,14 @@ class OpenAICompatiblePlannerClient:
             )
         raise AssertionError("provider retry loop exhausted")
 
+    def _completion_request_options(
+        self,
+        payload: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Return provider-specific Chat Completions request options."""
+        del payload
+        return {"temperature": self.temperature}
+
 
 class DeepSeekPlannerClient(OpenAICompatiblePlannerClient):
     """DeepSeek Planner provider。"""
@@ -177,6 +188,18 @@ class DeepSeekPlannerClient(OpenAICompatiblePlannerClient):
             client_factory=client_factory,
             request_timeout=request_timeout,
         )
+
+    def _completion_request_options(
+        self,
+        payload: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Use low-effort thinking and JSON Output for every planner pass."""
+        del payload
+        return {
+            "response_format": {"type": "json_object"},
+            "reasoning_effort": "low",
+            "extra_body": {"thinking": {"type": "enabled"}},
+        }
 
 
 class DoubaoPlannerClient(OpenAICompatiblePlannerClient):
@@ -203,6 +226,29 @@ class DoubaoPlannerClient(OpenAICompatiblePlannerClient):
             client_factory=client_factory,
             request_timeout=request_timeout,
         )
+
+
+def _completion_request_audit(options: dict[str, Any]) -> dict[str, Any]:
+    response_format = options.get("response_format")
+    extra_body = options.get("extra_body")
+    thinking = (
+        extra_body.get("thinking")
+        if isinstance(extra_body, dict)
+        else None
+    )
+    return {
+        "response_format": (
+            response_format.get("type")
+            if isinstance(response_format, dict)
+            else None
+        ),
+        "thinking_mode": (
+            thinking.get("type")
+            if isinstance(thinking, dict)
+            else None
+        ),
+        "reasoning_effort": options.get("reasoning_effort"),
+    }
 
 
 def _usage_to_dict(usage: Any) -> dict[str, Any] | None:

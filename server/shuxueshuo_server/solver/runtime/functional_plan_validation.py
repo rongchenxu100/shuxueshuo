@@ -591,7 +591,12 @@ def _parse_call(
                 }
             )
             continue
-        if not isinstance(name, str) or not name or raw_form not in allowed_forms:
+        if (
+            not isinstance(name, str)
+            or not name
+            or not isinstance(raw_form, str)
+            or raw_form not in allowed_forms
+        ):
             issues.append(
                 _issue(
                     "functional_validation",

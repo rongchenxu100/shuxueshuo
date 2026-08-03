@@ -2847,6 +2847,36 @@ def _align_return_scope_with_binding(
         )
         return requested_scope
 
+    binding_scope = bound_item.scope
+    declared_ancestors = set(
+        handle_registry.ancestor_scopes(declared_scope_id)
+    )
+    binding_ancestors = set(handle_registry.ancestor_scopes(binding_scope))
+    if (
+        binding_scope not in declared_ancestors
+        and declared_scope_id not in binding_ancestors
+    ):
+        issues.append(
+            _issue(
+                "functional_reconciliation",
+                "functional.return_scope_incompatible",
+                (
+                    f"return {call.call_id}.{return_spec.name} cannot bind "
+                    f"a sibling-private object in {binding_scope} from "
+                    f"{declared_scope_id}"
+                ),
+                call_id=call.call_id,
+                scope_id=declared_scope_id,
+                details={
+                    "return": return_spec.name,
+                    "binding_ref": bound_item.ref,
+                    "binding_scope_id": binding_scope,
+                    "declared_scope_id": declared_scope_id,
+                },
+            )
+        )
+        return requested_scope
+
     # Binding to an existing MathObject establishes identity only. The object
     # may originate at problem scope while this particular open/closed state
     # is valid in one question branch. Structured consumers widen that state

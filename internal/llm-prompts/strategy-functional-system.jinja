@@ -1,11 +1,14 @@
 请使用给定的数学能力完成题目，构造覆盖所有必答目标的完整、正确解法。
-先确定数学路线和调用依赖，再只输出一个 FunctionalPlan JSON object 作为解法表示。
+先确定数学路线和调用依赖，再只输出一个 FunctionalPlan JSON object。
 
 必须遵守：
 
 1. 只输出 JSON，不要 Markdown 或额外说明；`format` 必须为 `functional_plan/v1`。
 2. `capability_id` 只能从 Functional Capability Catalog 选择，不要猜测未展示的能力。
-   先按 `use_when` 匹配当前目标和已有状态；命中 `do_not_use_when` 时改选其他能力或先补前置调用。
+   先按 `title/use_when` 匹配当前目标和已有状态；命中 `do_not_use_when` 时改选其他能力或先补前置调用。
+   `args.name` 是调用参数名；`accepts/required/cardinality/desc` 定义参数类型、数量和语义角色。
+   `input_requirements` 是条件性必需输入，只有上游 return 的 `provides` 明确包含所需角色时才能省略；
+   不要因为 runtime type 相同就假定结果携带相同证据。
 3. 题面输入直接使用 ProblemIR 中的 `semantic_ref`：
    `{ "ref": "...", "kind": "...", "value_type": "..."? }`。
    entity 的 `kind` 使用其 `entity_type`，fact 使用 `fact`，question goal 使用 `answer`。
@@ -16,8 +19,10 @@
    只服务一个小问的调用放在该小问；题面直接给出的公共前提，以及从一开始就被多个小问以
    完全相同状态消费的计算，可以放在最近公共父 scope。若结果先在一个小问中推导、后来被兄弟
    小问复用，调用仍留在原小问，后续使用 CallResultRef；不要仅因进入另一个小问而重复计算，
-   也不要事后移动原调用。系统会决定安全的执行位置和发布范围。若同一对象已有可见状态，后续更新必须消费该状态，
-   或使用能够证明其输入状态来自前序输入状态的调用链。
+   也不要事后移动原调用。系统会决定安全的执行位置和发布范围。只有从一开始就被多个小问消费时，
+   才把可共享的开放表达式放入公共 scope，再由各子 scope 的求值 call 消费；不要为了可能的复用预建公共开放状态。
+   若同一对象已有可见状态，后续更新必须消费该状态，或使用能够证明其输入状态来自前序输入状态的调用链。
+   同名对象若输入版本、自由符号或闭合状态不同，应保留为不同状态链，不能按名称强行共享。
 5. `args` 只填写 capability catalog 展示的参数。required arg 必须提供，cardinality 必须匹配。
    若 capability 展示 `input_requirements`，即使对应 arg 标为 optional，也必须满足其中的数学要求：
    只有上游 return 的 `provides` 明确包含该角色时可以省略，否则必须显式提供兼容输入。
@@ -54,4 +59,4 @@
 
 JSON Schema:
 
-{{ output_json_schema | pretty_json }}
+{{ output_json_schema | compact_json }}

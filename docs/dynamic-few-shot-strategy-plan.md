@@ -1,127 +1,52 @@
-# FunctionalPlan Dynamic Few-shot Design
+# FunctionalPlan 动态 Few-shot
 
-## Purpose
+## 目标
 
-Strategy Planner few-shots teach a small, reusable mathematical mechanism using
-the same `functional_plan/v1` wire schema as the current problem. They are not
-recorded whole-problem answers and are not a second problem fact source.
-
-The active asset flow is:
+Few-shot 只教学可复用数学机制和 call dependency，不复制整题答案，也不是第二份题面事实源。唯一 wire schema 是 `functional_plan/v1`。
 
 ```text
 authored FunctionalPlan fixture
   + mechanism extraction manifest
   + human annotation
-  -> deterministic anonymous FunctionalPlan example
+  -> deterministic anonymous example
   -> validated selection index
-  -> Strategy prompt
+  -> planner prompt
 ```
 
-## Assets
+## 资产
 
-- Source plans: `internal/functional-plan-fixtures/*.functional-plan.json`
-- Extraction manifests:
-  `internal/functional-few-shot-manifests/*.manifest.json`
-- Prompt assets:
-  `internal/functional-few-shots/*.functional-few-shot.json`
-- Runtime implementation:
-  `solver/runtime/functional_few_shots.py`
-- Synchronizer: `tools/sync_strategy_few_shots.py`
+- Source plan：`internal/functional-plan-fixtures/*.functional-plan.json`
+- Extraction manifest：`internal/functional-few-shot-manifests/*.manifest.json`
+- Prompt asset：`internal/functional-few-shots/*.functional-few-shot.json`
+- Runtime：`server/shuxueshuo_server/solver/runtime/functional_few_shots.py`
+- Synchronizer：`tools/sync_strategy_few_shots.py`
 
-The manifest selects a closed subgraph of two to five calls and declares:
+Manifest 选择 2–5 个 call 的依赖闭包，并声明 capability、goal value type、family/pack retrieval metadata、匿名化规则和 prompt-safe condition。
 
-- source call IDs;
-- capability IDs and answer value types;
-- family and capability-pack retrieval metadata;
-- deterministic call-ID and SemanticRef neutralization;
-- prompt-safe condition descriptions.
+## 安全规则
 
-The stored asset may add a human-authored annotation:
+- 不暴露 source problem id、原对象名、答案或 canonical typed ID。
+- 匿名化后必须重新通过 FunctionalPlan parser 与 validator。
+- 示例不能新增 source plan 中不存在的 fact 或 dependency。
+- Prompt annotation 只说明用途、适用条件、关键思路和不适用情况。
+- Retry 沿用同一 example selection，不因失败随机更换机制。
 
-```json
-{
-  "format": "functional_plan/v1",
-  "annotation": {
-    "purpose": "...",
-    "use_when": "...",
-    "key_idea": "...",
-    "do_not_use_when": ["..."]
-  },
-  "scopes": []
-}
-```
+## 选择
 
-Its `scopes` are generated deterministically from the source fixture and
-manifest. The synchronizer preserves an annotation when present and rewrites
-only the plan.
+优先级依次为：
 
-## Safety Rules
+1. same family + mechanism overlap；
+2. capability/goal/fact overlap；
+3. 显式 fallback mechanism。
 
-Prompt examples must:
+选择不得读取 expected answer。没有安全匹配时允许不提供 few-shot。
 
-- remain valid `functional_plan/v1`;
-- contain a dependency-closed call subgraph;
-- use anonymous call IDs and SemanticRefs;
-- avoid canonical handles, runtime paths, expected answers, source problem IDs,
-  builder IDs, and internal typed IDs;
-- avoid concrete numeric values in explanatory text;
-- describe when the mechanism applies and when it must not be copied.
-
-The current problem and example problem are separate prompt regions. Example
-objects, conditions, answer destinations, and names must never migrate into the
-current candidate.
-
-## Selection
-
-Selection is deterministic and locked across retry:
-
-1. prefer a compatible same-family mechanism;
-2. otherwise choose a relevant cross-family mechanism;
-3. otherwise use a capability-pack fallback;
-4. select exactly one example;
-5. in strict tests, exclude the current source problem;
-6. persist `FunctionalFewShotSelectionRecord` for later attempts.
-
-Compatibility requires that the current catalog contains every capability used
-by the example. Retrieval considers family, capability packs, capability IDs,
-and answer value types. It does not compare expected values.
-
-## Maintenance
-
-Regenerate every asset:
-
-```bash
-python tools/sync_strategy_few_shots.py
-```
-
-Regenerate one mechanism:
-
-```bash
-python tools/sync_strategy_few_shots.py quadratic-constraints-vertex
-```
-
-The command fails when the source fixture, manifest coverage, dependency
-closure, neutralization map, annotation, or prompt safety contract is invalid.
-
-Add a new example only when it teaches a reusable mechanism not already covered.
-Prefer a short closed subgraph over a complete solution. First commit and test
-the authored FunctionalPlan fixture, then write the extraction manifest and
-annotation, run the synchronizer, and add selection/safety tests.
-
-## Regression Requirements
-
-- Every manifest has exactly one generated asset.
-- Every asset equals deterministic projection from its current source fixture.
-- Stored assets expose only FunctionalPlan fields plus `annotation`.
-- Selection is deterministic and stable across retry.
-- Same-problem exclusion works in strict tests.
-- Prompt rendering does not reveal annotation metadata or typed runtime data as
-  candidate wire fields.
-- Full solver regression remains green after regeneration.
-
-Focused tests:
+## 同步与测试
 
 ```bash
 cd server
+uv run python ../tools/sync_strategy_few_shots.py
 uv run pytest tests/solver/test_functional_few_shots.py -q
 ```
+
+新增资产必须可确定性再生成，且 prompt safety、依赖闭包和 strict fixture 测试通过。

@@ -827,6 +827,7 @@ class StrategyPromptRenderer:
             lstrip_blocks=True,
         )
         self.env.filters["pretty_json"] = _pretty_json
+        self.env.filters["compact_json"] = _compact_json
         self.env.filters["functional_few_shot_plan"] = (
             _functional_few_shot_plan
         )
@@ -1106,6 +1107,16 @@ def _macro_binding_report_payload(value: Any) -> list[dict[str, Any]] | None:
 def _pretty_json(value: Any) -> str:
     """Jinja 过滤器：输出可读中文 JSON。"""
     return json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True)
+
+
+def _compact_json(value: Any) -> str:
+    """Jinja 过滤器：为 LLM prompt 输出确定性的紧凑 JSON。"""
+    return json.dumps(
+        value,
+        ensure_ascii=False,
+        separators=(",", ":"),
+        sort_keys=True,
+    )
 
 
 def _write_json(path: Path, value: Any) -> None:

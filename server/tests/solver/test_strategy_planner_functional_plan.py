@@ -3073,6 +3073,21 @@ def test_functional_return_expectation_rejects_invalid_enum() -> None:
     }
 
 
+def test_functional_return_expectation_rejects_object_value() -> None:
+    inputs = _inputs_for_goal(0)
+    payload = _axis_plan_payload()
+    payload["scopes"][0]["calls"][0]["return_expectations"] = {
+        "axis_point": {}
+    }
+
+    plan, validation = _validate(payload, inputs)
+
+    assert plan is None
+    assert "functional.return_expectation_value" in {
+        item.code for item in validation.issues
+    }
+
+
 def test_consumed_open_expression_answer_binding_is_dropped_for_closed_producer() -> None:
     inputs = _base_inputs()
     payload = json.loads(NANKAI_FUNCTIONAL_PLAN.read_text(encoding="utf-8"))
@@ -8116,17 +8131,19 @@ def test_functional_payload_is_the_only_strategy_payload() -> None:
     assert "Semantic Read Catalog" not in prompt.user
     assert "ProblemIR 中的 `semantic_ref`" in prompt.system
     assert "完成题目" in prompt.system
-    assert "先按 `use_when`" in prompt.system
+    assert "先按 `title/use_when`" in prompt.system
     assert "do_not_use_when" in prompt.system
-    assert "title/use_when" in prompt.user
+    assert "title/use_when" not in prompt.user
     assert "title/description" not in prompt.user
     assert "scope 表示调用的数学归属" in prompt.system
     assert "最近公共父 scope" in prompt.system
     assert "可共享的开放表达式" in prompt.system
     assert "各子 scope 的求值 call" in prompt.system
     assert "同一对象状态" in prompt.system
-    assert "输入版本、自由符号或闭合状态不同" in prompt.user
-    assert "不要另建“读取/复制/再次求解”call" in prompt.user
+    assert "输入版本、自由符号或闭合状态不同" in prompt.system
+    assert "## Output Requirements" not in prompt.user
+    assert "scope_id` 表示数学归属" not in prompt.user
+    assert "\n  \"" not in prompt.user
     assert "common_goal_types" not in prompt.user
     assert '"family_id"' not in prompt.user
     for internal_term in (
@@ -17845,9 +17862,9 @@ def test_functional_prompt_retry_state_never_exposes_step_intent_baseline() -> N
     assert "locked_call_ids" in prompt.system
     assert '"locked_call_ids"' in prompt.user
     assert '"runtime_verified"' in prompt.user
-    assert '"free": [' in prompt.user
-    assert "可以修改、替换或删除" in prompt.user
-    assert "任何不在 `locked_call_ids` 中的调用" in prompt.user
+    assert '"free":[' in prompt.user
+    assert "可以修改、替换或删除" in prompt.system
+    assert "任何不在 `locked_call_ids` 中的调用" in prompt.system
     assert "只修复 `repair_call_ids`" not in prompt.system
     assert "StateSlot" not in json.dumps(latest, ensure_ascii=False)
     assert "runtime path" not in json.dumps(latest, ensure_ascii=False)
@@ -18248,6 +18265,7 @@ def test_fake_llm_functional_plan_compiles_through_existing_runtime() -> None:
     }
     assert client.request is not None
     assert client.request["planner_protocol"] == "functional_plan/v1"
+    assert client.request["planner_attempt"] == 1
     raw_candidate = planner.last_raw_response or ""
     assert not CANONICAL_REF_RE.search(raw_candidate)
     assert "creates" not in raw_candidate and "produces" not in raw_candidate

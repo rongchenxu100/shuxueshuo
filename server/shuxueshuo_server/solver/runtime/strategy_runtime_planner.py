@@ -337,6 +337,7 @@ class StrategyPlanner:
                     "family_id": inputs.family_spec.family_id,
                     "problem_id": inputs.problem_id,
                     "planner_protocol": "functional_plan/v1",
+                    "planner_attempt": len(inputs.previous_errors) + 1,
                     "planner_payload": payload,
                 }
             )

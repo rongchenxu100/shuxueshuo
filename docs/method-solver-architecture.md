@@ -1,206 +1,143 @@
-# Method Solver Current Architecture
+# Method Solver 当前架构
 
-## Summary
+## 1. 总览
 
-Method Solver turns canonical `ProblemIR` into a verified `SolverResult`. The
-only LLM planning protocol is `functional_plan/v1`:
-
-```text
-canonical ProblemIR
-  -> RuntimeProjection
-  -> structural FamilyRegistry match
-  -> FunctionalPlan provider (recorded or DeepSeek)
-  -> typed reconciliation and binding ledger
-  -> direct Function/Macro compiler
-  -> transactional call execution
-  -> runtime-grounded StateVersion commits
-  -> typed goal verification and retry checkpoint
-  -> goal-reachable PlannerOutput
-  -> InvocationExecutor
-  -> ResultBuilder
-  -> SolverResult
-```
-
-`StepPlan`, `MethodInvocation`, `PlannerOutput`, and `InvocationExecutor` remain
-internal execution structures. The retired StepIntent LLM protocol is not part
-of this path.
-
-## Sources Of Truth
-
-The authored problem source is:
+Method Solver 将 canonical `ProblemIR` 转换为经过验证的 `SolverResult`。唯一 LLM 规划协议是 `functional_plan/v1`：
 
 ```text
-internal/solver-fixtures/<problem_id>.json
+ProblemIR
+→ structural FamilyRegistry match
+→ FunctionalPlan provider
+→ typed reconciliation / binding
+→ direct Function/Macro compiler
+→ transactional execution
+→ StateVersion commit
+→ typed goal verification / retry
+→ goal-reachable PlannerOutput
+→ InvocationExecutor
+→ SolverResult
 ```
 
-Its `input` contains only structured problem facts: `problem_id`, `pattern`,
-`problem_type`, display metadata, original text, scopes, entities, facts, and
-question goals. It must not contain expected answers, runtime paths, solution
-facts, helper objects introduced by a solution, or a method chain.
+`StepPlan`、`MethodInvocation`、`PlannerOutput` 和 `InvocationExecutor` 是内部执行结构，不是 LLM 协议。
 
-Other artifacts have narrower roles:
+## 2. 事实源
 
-- `server/tests/solver/expected/*.expected.json`: answer oracle for tests.
-- `internal/functional-plan-fixtures/*.functional-plan.json`: authored recorded
-  planner output used by offline regression.
-- `internal/functional-few-shot-manifests/*.manifest.json`: extraction rules for
-  anonymous mechanism examples.
-- `internal/functional-few-shots/*.functional-few-shot.json`: prompt-safe
-  `functional_plan/v1` mechanism examples.
-- method Python `SPEC`: Function contract source; generated method-spec JSON is
-  derived data.
-- `FunctionSpec` and `MacroSpec`: direct compiler contracts.
+- `internal/solver-fixtures/<problem_id>.json`：结构化题意，不包含答案或固定 method 链。
+- `server/tests/solver/expected/*.expected.json`：测试答案 oracle。
+- `internal/functional-plan-fixtures/*.functional-plan.json`：recorded FunctionalPlan。
+- `internal/functional-few-shot-manifests/`：few-shot 抽取规则。
+- `internal/functional-few-shots/`：prompt-safe mechanism examples。
+- Python Method `SPEC`：method contract 事实源。
+- `FunctionSpec / MacroSpec`：direct compiler contract。
 
-## Planning And Family Routing
+生成 JSON、prompt catalog 和 batch payload 都是派生产物。
 
-`FamilyRegistry` matches production problems from structured `pattern` and
-`problem_type`. An ambiguous match fails loudly. Exact problem-id routing is
-reserved for deterministic debug providers and is not family admission.
+## 3. Family 与 Planner
 
-The default Strategy provider is FunctionalPlan:
+生产 family admission 只使用结构化 `pattern/problem_type`。多 family 匹配必须 fail loud；精确 problem-id 路由只用于 deterministic debug provider。
 
-- `recorded` loads the authored FunctionalPlan fixture and runs the complete
-  typed reconciliation, direct compile, transaction, goal, and output path.
-- `deepseek` requests `functional_plan/v1`, validates it, and runs the same
-  downstream path.
+- recorded provider 加载 authored FunctionalPlan，并走完整生产链；
+- DeepSeek provider 输出 `functional_plan/v1`，后续路径完全相同；
+- planner 失败不回落其他 LLM 协议。
 
-Planner failures do not fall back to another LLM protocol.
+## 4. Typed reconciliation
 
-## Typed Reconciliation
+每个公开参数必须解析为唯一身份类别：
 
-Reconciliation resolves every public call argument to one identity class:
+- materialized state：精确 `StateVersionId`；
+- condition：Condition identity；
+- identity-only：`MathObjectId`；
+- call-local：canonical producer + public return。
 
-- materialized state: exact `StateVersionId`;
-- condition: condition identity;
-- identity-only object: `MathObjectId`;
-- call-local value: canonical producer call and public return.
+B1 负责 allocation，B2 负责 canonicalization/placement，B3 负责 logical/runtime destination finalization，B4 负责 retry version restore，B5b 负责 typed state read，C3 binding ledger 负责参数角色与 authority。
 
-B1 allocates typed state, B2 owns canonicalization and scope placement, B3
-finalizes logical and runtime-destination writers, and B4 owns committed retry
-version restoration. Handles and runtime paths are compatibility or physical
-projection values, not semantic identity.
+handle、StateSlot 字符串和 runtime path 不参与数学身份。
 
-C3's binding ledger records why each value belongs to each method argument.
-Argument role and authority are therefore stable under wire order, aliases,
-scope placement, and retry call-id changes.
+## 5. Direct compiler
 
-## Direct Compilation
+Direct compiler 只消费 prepared typed call：
 
-The Functional direct compiler consumes prepared typed calls:
+- Function 通过 `FunctionSpec.adapter` 映射 method inputs；
+- Macro 编译声明式 invocation graph、aliases、selectors 和 public returns；
+- exact/latest state 在编译前选定；
+- return allocation 决定 output promotion；
+-不搜索替代 capability，不按 reads 顺序或名称重选输入。
 
-- Functions map public args through `FunctionSpec.adapter` to method inputs.
-- Macros compile their declared invocation graph, aliases, selectors, and
-  public-return mappings.
-- exact/latest state selection happens before compilation through the typed
-  state-read index;
-- B1 allocations and B3 destination manifests determine promotions;
-- compilation does not search alternative capabilities or reconstruct identity
-  from reads order, handle text, or runtime paths.
+输出仍是 `StepPlan / MethodInvocation`，作为稳定 runtime 边界。
 
-The compiler emits existing `StepPlan` and `MethodInvocation` objects. Those
-remain the stable executor boundary.
+## 6. Transactional execution
 
-## Transactional Execution
+canonical calls 按 typed DAG 执行。每个 call fork 当前 RuntimeContext：
 
-Canonical Functional calls execute in typed DAG order. Each call forks the
-current `RuntimeContext`; method execution, output validation, symbolic closure,
-and B3 finalization happen on that branch. The branch is committed only when the
-whole public Function or Macro succeeds.
+1. 准备 binding 和 runtime snapshot；
+2. 编译单个 Function/Macro；
+3. 在 branch 中执行；
+4. 校验 returns、closure、B1/B3 和 goal evidence；
+5. 全部通过后原子提交。
 
-Consequences:
+失败 call 不留下 declaration、promotion 或 StateVersion；dependents 被 blocked，独立分支可以继续。
 
-- a failed call leaves no declaration, promotion, or StateVersion behind;
-- dependents are blocked while independent branches may continue;
-- aliases and eliminated calls are never executed;
-- actual values determine result form, free symbols, and optional returns;
-- only verified, goal-reachable calls enter the final `PlannerOutput`.
+最终只聚合 required goal closure 中 verified calls，交给 Orchestrator 再执行得到公开 SolverResult。
 
-The Orchestrator re-executes that aggregate output for the public solver result;
-transactional runtime values are not reused as the final answer cache.
+## 7. Symbolic closure
 
-## Symbolic Closure
+参数求解 capability 使用 `SymbolicClosureSpec`。共享 runtime executor 负责 target identity、equations、branches、constraints、substitution、residual symbols 和 companion output validation。
 
-Parameter-solving capabilities declare `SymbolicClosureSpec`. The shared
-runtime closure executor owns target identity, equations, branch classification,
-constraints, substitutions, residual symbols, and companion-output validation.
-Only a validated unique result can be committed.
+只有 `unique` 且 runtime validated 的结果可提交。closure provenance 进入 Context、checkpoint、retry 和 Explanation。
 
-Closure provenance is persisted with StateVersions and consumed by Context,
-retry checkpoints, goal verification, and Explanation. Method-local first-branch
-selection or static free-symbol refinement is not authoritative.
+## 8. Context 与 retry
 
-## Context And Retry
+`planner-state-context/v2` 保存 typed runtime observations 和 committed checkpoints，不复用上一轮 RuntimeContext 数值。
 
-`planner-state-context/v2` stores typed runtime observations and committed
-Functional retry checkpoints. It does not persist runtime values for reuse.
-Every retry restores committed canonical calls, replays them, and verifies the
-same computation key, binding signature, StateVersion chain, scope, destination,
-and closure signature.
+Retry 会重放 committed calls，并验证：
 
-Retry feedback can expose prompt-safe actual results and compact closure facts,
-but never StateVersion IDs, runtime paths, expected answers, or internal builder
-identifiers.
+- computation/state-effect identity；
+- binding signature；
+- StateVersion chain 与 scope；
+- runtime destination；
+- symbolic closure signature。
 
-## Explanation And Visual Pipeline
+实际结果可作为 prompt-safe evidence，但不暴露 typed ids、runtime path 或 expected answer。
 
-Explanation consumes canonical, runtime-verified, goal-reachable calls and
-their actual writes. Presentation scope is independent from runtime execution
-scope. Symbolic closure teaching traces are deduplicated by semantic signature.
+## 9. Explanation 与页面
 
-Lesson and visual fixtures refer to canonical Functional call IDs. The page
-pipeline is:
+Explanation 只消费 canonical、runtime verified、goal reachable calls 和 writes：
 
 ```text
-solver result and transaction artifacts
-  -> ExplanationSnapshot
-  -> LessonIR
-  -> VisualStepIR
-  -> compiled lesson page
+transaction artifacts
+→ ExplanationSnapshot
+→ LessonIR
+→ VisualStepIR
+→ lesson page
 ```
 
-## Few-shot Maintenance
+presentation scope 可与 execution scope 不同；跨 scope 复用展示引用，不重复计算。
 
-Functional few-shots teach anonymous mathematical mechanisms, not whole
-problem answers. Regenerate their plan portion with:
+## 10. 新增 capability
 
-```bash
-python tools/sync_strategy_few_shots.py
-```
+1. 定义 Method 和 Python `SPEC`。
+2. 增加 FunctionSpec 或 MacroSpec。
+3. 声明 role、authority、cardinality、runtime target 和 returns。
+4. 参数求解能力声明 closure contract。
+5. 增加 method/direct compiler/transaction/retry/explanation 测试。
+6. 更新 capability pack 和必要的 mechanism few-shot。
 
-The tool reads manifests plus authored FunctionalPlan fixtures and preserves
-any human-authored annotation. Stored examples must remain strict,
-prompt-safe `functional_plan/v1` payloads.
+不得在通用 runtime 代码中按 problem id、考试名称、答案值或具体点名分支。
 
-## Adding A Capability
-
-1. Define or extend the reusable method and Python `SPEC`.
-2. Add a `FunctionSpec` or declarative `MacroSpec` compiler contract.
-3. Declare semantic roles, authority, cardinality, runtime targets, returns,
-   identity policy, and write mode.
-4. Add direct method/compiler tests, including ambiguous and unsupported cases.
-5. Add the capability to the appropriate capability pack or family.
-6. Validate transactional execution, typed provenance, retry, and explanation.
-
-Do not branch on problem id, exam title, answer value, or concrete point name in
-generic runtime code.
-
-## Verification
-
-Recorded default path:
+## 11. 验证
 
 ```bash
 cd server
 uv run pytest tests/solver/test_strategy_planner_functional_plan.py -q
+uv run pytest tests/solver -q
 ```
 
-Real Functional batch:
+真实 batch：
 
 ```bash
-cd server
 RUN_LLM_INTEGRATION=1 RUN_DEEPSEEK_STRATEGY_PLANNER=1 \
 uv run python -m shuxueshuo_server.solver.deepseek_functional_batch \
   --case all --samples-per-case 3 --concurrency 3 --max-attempts 3
 ```
 
-The batch summary must report FunctionalPlan v1, transactional Context
-authority, authoritative closure, and the direct compiler.
+summary 必须报告 FunctionalPlan v1、transactional Context authority、authoritative closure 和 direct compiler。

@@ -996,6 +996,12 @@ def _wrap_exact_compiled_call(
             )
             for item in prepared_call.arg_bindings
         },
+        arg_repairs=tuple(
+            repair
+            for event in compiled.function_binding_events
+            if event.status == "success"
+            for repair in event.arg_repairs
+        ),
     )
     if audit.mismatches:
         first = audit.mismatches[0]

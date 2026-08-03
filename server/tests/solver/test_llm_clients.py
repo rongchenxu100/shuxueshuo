@@ -65,8 +65,15 @@ def test_deepseek_client_uses_openai_compatible_arguments() -> None:
     ]
     assert fake_client.create_kwargs is not None
     assert fake_client.create_kwargs["model"] == "deepseek-v4-flash"
-    assert fake_client.create_kwargs["temperature"] == 0.0
     assert fake_client.create_kwargs["timeout"] == 120.0
+    assert fake_client.create_kwargs["response_format"] == {
+        "type": "json_object"
+    }
+    assert fake_client.create_kwargs["extra_body"] == {
+        "thinking": {"type": "enabled"}
+    }
+    assert fake_client.create_kwargs["reasoning_effort"] == "low"
+    assert "temperature" not in fake_client.create_kwargs
     assert fake_client.create_kwargs["messages"][0]["role"] == "system"
     assert "QuadraticPathMinimumSolver" in fake_client.create_kwargs["messages"][1]["content"]
     assert client.last_usage == {
@@ -75,6 +82,20 @@ def test_deepseek_client_uses_openai_compatible_arguments() -> None:
         "total_tokens": 12,
     }
     assert client.last_response_model == "provider-model-version"
+    assert client.last_provider_attempts[0] == {
+        "provider_attempt": 1,
+        "response_model": "provider-model-version",
+        "usage": {
+            "prompt_tokens": 10,
+            "completion_tokens": 2,
+            "total_tokens": 12,
+        },
+        "finish_reason": None,
+        "visible_content": True,
+        "response_format": "json_object",
+        "thinking_mode": "enabled",
+        "reasoning_effort": "low",
+    }
 
 
 def test_doubao_client_uses_single_model_configuration() -> None:
@@ -92,6 +113,39 @@ def test_doubao_client_uses_single_model_configuration() -> None:
 
     assert fake_client.create_kwargs is not None
     assert fake_client.create_kwargs["model"] == "doubao-model"
+    assert "response_format" not in fake_client.create_kwargs
+    assert "extra_body" not in fake_client.create_kwargs
+    assert "reasoning_effort" not in fake_client.create_kwargs
+
+
+@pytest.mark.parametrize("planner_attempt", [2, 3])
+def test_deepseek_repair_passes_use_low_effort_thinking(
+    planner_attempt: int,
+) -> None:
+    fake_client = _FakeOpenAIClient()
+    client = DeepSeekPlannerClient(
+        api_key="test-key",
+        base_url="https://api.deepseek.com",
+        model="deepseek-v4-flash",
+        client_factory=lambda **_: fake_client,
+    )
+
+    client.complete(
+        {
+            "planner_attempt": planner_attempt,
+            "messages": [{"role": "user", "content": "return JSON"}],
+        }
+    )
+
+    assert fake_client.create_kwargs is not None
+    assert fake_client.create_kwargs["response_format"] == {
+        "type": "json_object"
+    }
+    assert fake_client.create_kwargs["extra_body"] == {
+        "thinking": {"type": "enabled"}
+    }
+    assert fake_client.create_kwargs["reasoning_effort"] == "low"
+    assert "temperature" not in fake_client.create_kwargs
 
 
 def test_openai_compatible_client_uses_rendered_messages_when_present() -> None:
@@ -176,6 +230,18 @@ def test_reasoning_only_empty_response_retries_inside_one_provider_call() -> Non
     assert result == '{"format":"functional_plan/v1"}'
     assert len(fake_client.requests) == 2
     assert "立即输出严格 JSON" in fake_client.requests[1]["messages"][-1]["content"]
+    assert all(
+        request["extra_body"] == {"thinking": {"type": "enabled"}}
+        for request in fake_client.requests
+    )
+    assert all(
+        request["reasoning_effort"] == "low"
+        for request in fake_client.requests
+    )
+    assert all(
+        request["response_format"] == {"type": "json_object"}
+        for request in fake_client.requests
+    )
     assert client.last_usage == {
         "prompt_tokens": 20,
         "completion_tokens": 40,

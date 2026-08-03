@@ -42,6 +42,9 @@ from shuxueshuo_server.solver.runtime.state_identity import MathObjectId
 from shuxueshuo_server.solver.runtime.strategy_payload import (
     build_strategy_probe_inputs,
 )
+from shuxueshuo_server.solver.runtime.strategy_models import (
+    FunctionArgBindingRepair,
+)
 
 
 def _reconcile(case_id: str, payload: dict | None = None):
@@ -270,6 +273,106 @@ def test_post_compile_binding_audit_checks_actual_target_and_source_path() -> No
     assert required_compiler_missing.mismatches[0]["details"] == [
         "runtime_target_not_consumed"
     ]
+
+
+def test_post_compile_binding_audit_accepts_deterministic_basis_repair() -> None:
+    result, _catalog = _reconcile("nankai")
+    context = result.functional_binding_context
+    assert context is not None
+    source = context.binding_for("ii_1_solve_m", "free_parameters", 0)
+    if source is None:
+        source = next(
+            item
+            for item in context.bindings
+            if item.binding_authority == "wire"
+        )
+    binding = replace(
+        source,
+        key=replace(source.key, arg_name="free_parameters", item_index=0),
+        source=FunctionalArgSourceIdentity(
+            kind="math_object",
+            math_object_id=MathObjectId(
+                "symbol:problem:b",
+                "symbol",
+                "problem",
+            ),
+        ),
+        runtime_input_targets=("free_parameters",),
+    )
+    plan = SimpleNamespace(
+        invocations=(
+            SimpleNamespace(
+                invocation_id="quadratic",
+                method_id="quadratic_from_constraints",
+                inputs={"free_parameter": "$problem.symbols.b"},
+                outputs={},
+            ),
+        ),
+    )
+
+    audit = audit_compiled_functional_arg_consumption(
+        (binding,),
+        (plan,),
+        expected_runtime_paths={binding.key: "$problem.symbols.b"},
+        arg_repairs=(
+            FunctionArgBindingRepair(
+                arg_name="free_parameters",
+                source_handles=("symbol:problem:b",),
+                reason="normalize_constraint_free_parameter_basis",
+            ),
+        ),
+    )
+
+    assert not audit.mismatches
+    assert audit.decisions[0]["deterministic_arg_repair"] == {
+        "arg_name": "free_parameters",
+        "source_handles": ["symbol:problem:b"],
+        "reason": "normalize_constraint_free_parameter_basis",
+    }
+
+    forged = audit_compiled_functional_arg_consumption(
+        (binding,),
+        (plan,),
+        expected_runtime_paths={binding.key: "$problem.symbols.b"},
+        arg_repairs=(
+            FunctionArgBindingRepair(
+                arg_name="free_parameters",
+                source_handles=("symbol:problem:c",),
+                reason="normalize_constraint_free_parameter_basis",
+            ),
+        ),
+    )
+    assert "runtime_target_not_consumed" in forged.mismatches[0]["details"]
+
+
+def test_return_binding_rejects_sibling_private_object() -> None:
+    case = FUNCTIONAL_BATCH_CASES["heping-ermo"]
+    payload = json.loads(case.functional_fixture_path.read_text(encoding="utf-8"))
+    call = next(
+        item
+        for scope in payload["scopes"]
+        for item in scope["calls"]
+        if item["call_id"] == "derive_square_vertex_G_i"
+    )
+    call["return_bindings"]["point"] = {
+        "kind": "point",
+        "ref": "ii.G",
+    }
+
+    result, _catalog = _reconcile("heping-ermo", payload)
+
+    issue = next(
+        item
+        for item in result.issues
+        if item.call_id == "derive_square_vertex_G_i"
+        and item.code == "functional.return_scope_incompatible"
+    )
+    assert issue.details == {
+        "return": "point",
+        "binding_ref": "ii.G",
+        "binding_scope_id": "ii",
+        "declared_scope_id": "i_2",
+    }
 
 
 def test_optional_compiler_selector_requiredness_comes_from_contract() -> None:

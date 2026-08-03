@@ -473,7 +473,7 @@ def test_nankai_core_annotation_is_rendered_before_strict_plan() -> None:
     assert "变换发布的动点身份" in prompt
     assert "不能使用最终答案对象或任意可见直线" in prompt
     assert "### FunctionalPlan 示例" in prompt
-    assert '"format": "functional_plan/v1"' in prompt
+    assert '"format":"functional_plan/v1"' in prompt
     assert '"annotation"' not in prompt
     assert "selection_role" not in prompt
     assert FUNCTIONAL_PLAN_JSON_SCHEMA["additionalProperties"] is False

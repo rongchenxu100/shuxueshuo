@@ -52,7 +52,7 @@ Recorded LessonIR fixtures are regression inputs, not the source of truth. If de
 - The solver path for the problem is already passing with recorded or real DeepSeek Strategy Planner.
 - `RuntimeOrchestrator.last_success_artifacts` is available from a successful solve.
 - The canonical ProblemIR is the only authored problem fact source.
-- Recorded executable StepIntent fixtures may be used to avoid live solver LLM calls during page tests.
+- Recorded FunctionalPlan fixtures may be used to avoid live solver LLM calls during page tests.
 
 Do not start from handwritten `internal/lesson-specs/<problem-id>/geometry-spec.json`, `step-decorations.json`, or `lesson-data.json` as product inputs. Those authored specs may be used only for VS0 round-trip tests or golden comparison.
 
@@ -83,7 +83,7 @@ recorded or DeepSeek solve
 -> ExplanationSnapshotBuilder
 ```
 
-The snapshot is the first fact source for lesson/page generation. It should contain effective StepIntent, teaching trace, fact index, verified values, answers, and planner insights. Do not use `SolverResult.to_dict()` as the primary lesson/page fact source.
+The snapshot is the first fact source for lesson/page generation. It should contain canonical Functional calls, teaching traces, the fact index, verified values, answers, and planner insights. Do not use `SolverResult.to_dict()` as the primary lesson/page fact source.
 
 ### 2. Generate Or Validate LessonIR
 
@@ -220,7 +220,9 @@ LLM must not decide:
 - animation beat structure;
 - timeline scene patches.
 
-For the full boundary policy, consult `docs/llm-role-boundaries-and-expansion-strategy.md`.
+For the current boundary policy, consult
+`docs/llm-context-model-design.md` and
+`docs/llm-planner-reliability-engineering.md`.
 
 ## Failure Classification
 

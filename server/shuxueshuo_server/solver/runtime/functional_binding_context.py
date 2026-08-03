@@ -676,6 +676,7 @@ def audit_compiled_functional_arg_consumption(
     plans: tuple[Any, ...],
     *,
     expected_runtime_paths: Mapping[FunctionalArgBindingKey, str | None],
+    arg_repairs: tuple[Any, ...] = (),
 ) -> FunctionalBindingConsumptionAudit:
     """Compare ledger targets with compiler-produced invocation inputs."""
 
@@ -707,6 +708,49 @@ def audit_compiled_functional_arg_consumption(
                 ).append(item)
                 inputs_by_name.setdefault(input_name, []).append(item)
 
+    all_runtime_paths = tuple(
+        path
+        for candidates in inputs_by_name.values()
+        for _invocation_id, paths in candidates
+        for path in paths
+    )
+    bindings_by_arg: dict[str, list[FunctionalArgBinding]] = {}
+    for binding in bindings:
+        bindings_by_arg.setdefault(binding.key.arg_name, []).append(binding)
+    repairs_by_arg: dict[str, Any] = {}
+    for repair in arg_repairs:
+        arg_name = getattr(repair, "arg_name", None)
+        if not isinstance(arg_name, str):
+            continue
+        selected_handles = tuple(
+            item
+            for item in getattr(repair, "source_handles", ())
+            if isinstance(item, str)
+        )
+        declared = {
+            handle: expected_runtime_paths.get(binding.key)
+            for binding in bindings_by_arg.get(arg_name, ())
+            for handle in (_binding_source_handle(binding),)
+            if handle is not None
+        }
+        if any(handle not in declared for handle in selected_handles):
+            continue
+        if any(
+            expected_path is None
+            or not any(
+                _runtime_path_descends_from(
+                    path,
+                    expected_path,
+                    source_paths_by_output,
+                )
+                for path in all_runtime_paths
+            )
+            for handle in selected_handles
+            for expected_path in (declared[handle],)
+        ):
+            continue
+        repairs_by_arg[arg_name] = repair
+
     decisions: list[dict[str, Any]] = []
     mismatches: list[dict[str, Any]] = []
     target_counts: dict[str, int] = {}
@@ -714,6 +758,7 @@ def audit_compiled_functional_arg_consumption(
         for target in binding.runtime_input_targets:
             target_counts[target] = target_counts.get(target, 0) + 1
     for binding in bindings:
+        arg_repair = repairs_by_arg.get(binding.key.arg_name)
         if binding.consumption_mode == "resolver_evidence":
             decisions.append(
                 {
@@ -769,7 +814,11 @@ def audit_compiled_functional_arg_consumption(
         for target_index, target in enumerate(binding.runtime_input_targets):
             candidates = candidates_by_target[target]
             details: list[str] = []
-            if not candidates and binding.runtime_input_required:
+            if (
+                not candidates
+                and binding.runtime_input_required
+                and arg_repair is None
+            ):
                 details.append("runtime_target_not_consumed")
             actual_paths = tuple(
                 dict.fromkeys(
@@ -778,7 +827,11 @@ def audit_compiled_functional_arg_consumption(
                     for path in paths
                 )
             )
-            if target_index == 0 and not source_path_matched:
+            if (
+                target_index == 0
+                and not source_path_matched
+                and arg_repair is None
+            ):
                 details.append("runtime_source_path_drift")
             decision = {
                 "call_id": binding.key.call_id,
@@ -792,6 +845,11 @@ def audit_compiled_functional_arg_consumption(
                 "expected_runtime_path": expected_path,
                 "actual_runtime_paths": list(actual_paths),
                 "invocation_ids": [item[0] for item in candidates],
+                "deterministic_arg_repair": (
+                    arg_repair.to_payload()
+                    if arg_repair is not None
+                    else None
+                ),
                 "matches": not details,
                 "details": details,
             }
@@ -833,6 +891,19 @@ def _projected_source_payload(
             "math_object_id": item.math_object_id.to_payload(),
         }
     return {"kind": "unresolved"}
+
+
+def _binding_source_handle(binding: FunctionalArgBinding) -> str | None:
+    source = binding.source
+    if source.math_object_id is not None:
+        return source.math_object_id.value
+    if source.state_version_id is not None:
+        return source.state_version_id.slot_id.logical_key.object_id.value
+    if source.condition_id is not None:
+        return source.condition_id
+    if source.source_call_id is not None and source.source_return_name is not None:
+        return f"{source.source_call_id}.{source.source_return_name}"
+    return None
 
 
 def _runtime_input_paths(value: Any) -> tuple[str, ...]:

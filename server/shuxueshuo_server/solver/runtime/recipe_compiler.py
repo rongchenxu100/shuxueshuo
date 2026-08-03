@@ -94,6 +94,7 @@ from shuxueshuo_server.solver.runtime.handle_registry import (
 )
 from shuxueshuo_server.solver.runtime.strategy_models import (
     CreatedEntity,
+    FunctionalFunctionBindingEvent,
     ProjectedFunctionArgBinding,
     ProjectedStateDependency,
     ProjectedStateWrite,
@@ -170,6 +171,7 @@ class ExactCompiledStep:
     plan: StepPlan
     declarations: tuple[Any, ...] = ()
     state_write_provenance: tuple[StateWriteProvenance, ...] = ()
+    function_binding_events: tuple[FunctionalFunctionBindingEvent, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -458,6 +460,7 @@ class FunctionalCapabilityCompiler:
             recipe_compilers=self.recipe_compilers,
         )
         declaration_paths_before = set(index.declarations)
+        binding_event_start = len(binding_rules.function_binding_events)
         compiled = compiler._compile_with_capability(step, capability_id)
         declarations_by_path = {
             str(item.path): item for item in compiled.declarations
@@ -469,6 +472,9 @@ class FunctionalCapabilityCompiler:
             plan=compiled.plan,
             declarations=tuple(declarations_by_path.values()),
             state_write_provenance=compiled.state_write_provenance,
+            function_binding_events=tuple(
+                binding_rules.function_binding_events[binding_event_start:]
+            ),
         )
 
 

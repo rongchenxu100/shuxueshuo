@@ -128,6 +128,65 @@ def _replay(
     )
 
 
+def test_constraint_analyzer_basis_repair_is_not_runtime_mapping_drift() -> None:
+    case = FUNCTIONAL_BATCH_CASES["heping"]
+    problem = load_problem_ir(case.problem_fixture_path)
+    inputs = build_strategy_probe_inputs(problem)
+    problem_payload = problem_to_llm_payload(problem)
+    registry = CanonicalHandleRegistry.from_problem_payload(problem_payload)
+    payload = json.loads(case.functional_fixture_path.read_text(encoding="utf-8"))
+    call = next(
+        item
+        for scope in payload["scopes"]
+        for item in scope["calls"]
+        if item["call_id"] == "derive_parametric_parabola_ii"
+    )
+    call["args"]["free_parameters"] = [
+        {"kind": "symbol", "ref": "a"},
+        {"kind": "symbol", "ref": "b"},
+    ]
+    plan, validation = FunctionalPlanValidator().validate_payload_with_report(
+        payload,
+        handle_registry=registry,
+        question_goals=inputs.question_goals,
+    )
+    assert validation.ok and plan is not None
+
+    replay = PlannerRetryReplayService(
+        functional_transaction_mode="context_authoritative",
+        functional_symbolic_closure_mode="authoritative",
+    ).replay_functional_plan(
+        plan,
+        inputs=inputs,
+        handle_registry=registry,
+        context=ContextBuilder().build(problem),
+        attempt=1,
+        problem_payload=problem_payload,
+        validation_report=validation,
+    )
+
+    report = replay.transactional_execution_report
+    assert report is not None
+    compiled = next(
+        item
+        for item in report.compiled_calls
+        if item.call_id == "derive_parametric_parabola_ii"
+    )
+    decisions = tuple(
+        item
+        for item in compiled.binding_consumption_decisions
+        if item["arg_name"] == "free_parameters"
+    )
+    assert len(decisions) == 2
+    assert all(item["matches"] is True for item in decisions)
+    assert all(item["deterministic_arg_repair"] for item in decisions)
+    assert not [
+        issue
+        for issue in (replay.retry_state.issues if replay.retry_state else ())
+        if "functional_runtime_input_mapping_drift" in issue.message
+    ]
+
+
 def _active_symbolic_closure_plan():
     case = FUNCTIONAL_BATCH_CASES["heping-ermo"]
     problem = load_problem_ir(case.problem_fixture_path)
