@@ -1,0 +1,6 @@
+{
+  "meta":{"id":"set-relations-operations-practice-q05","outputPath":"site/problems/senior-high/sets/set-relations-and-operations/set-relations-operations-practice-q05.html","pageTitle":"实战练习 5：实数区间的补集","pageDescription":"根据端点开闭求区间在实数集中的补集。","breadcrumbTitle":"集合关系与运算实战 · 第 5 题","breadcrumbLabel":"实战练习","breadcrumbPath":"site/senior-high/index.html","breadcrumbSearch":"?chapter=sets&section=set-relations-and-operations&module=practice"},
+  "problem":{"source":"培训教材 · 实战演练","keyPoints":{"title":"解题要点","lead":"补集保留全集中不属于原集合的元素。","items":["A 不含 -2，所以补集包含 -2。","A 包含 3，所以补集不含 3。"]},"lines":[{"text":"已知全集 \\(U=\\mathbb R\\)，\\(A=\\{x\\mid-2<x\\le3\\}\\)，则 \\(C_UA=\\)（　　）"},{"text":"A. \\(\\{x\\mid x\\le-2\\}\\)　　B. \\(\\{x\\mid x\\le-2\\text{ 或 }x>3\\}\\)　　C. \\(\\{x\\mid x\\ge3\\}\\)　　D. \\(\\{x\\mid x\\le-2\\text{ 或 }x\\ge3\\}\\)"}]},
+  "steps":[{"id":"s1","section":"补集","title":"在数轴上翻转取值区域","t":0,"showDiagram":false,"visual":{"kind":"number-line-practice-complement-interval","ariaLabel":"数轴上集合 A 是负二开到三闭的区间，补集是负无穷到负二闭与三开到正无穷"},"reasoning":[{"kind":"because","text":"\\(A=(-2,3]\\)，全集为实数集"},{"kind":"therefore","text":"A 外部保留 \\((−∞,-2]\\) 与 \\((3,+∞)\\)，所以 \\(C_UA=(-∞,-2]\\cup(3,+∞)\\)，选择 B"}],"derive":[["补集","\\((-∞,-2]\\cup(3,+∞)\\)"],["结论","选择 B"]]}],
+  "policies":{"s1":{"movable":false,"range":[0,0]}},"stepLabels":{"s1":"1 数轴读取补集"}
+}

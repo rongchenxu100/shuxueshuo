@@ -251,8 +251,8 @@
 }
 
 .senior-library-heading {
-  display: grid;
-  grid-template-columns: max-content max-content;
+  display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
   gap: 12px;
   min-width: 0;
@@ -1011,6 +1011,11 @@
 .senior-learning-map-svg .map-leaf {
   font-size: 18px;
   font-weight: 650;
+}
+
+.senior-learning-map-svg .map-note {
+  font-size: 12px;
+  font-weight: 560;
 }
 
 .senior-learning-map-svg .map-branch-link:hover .map-node rect,

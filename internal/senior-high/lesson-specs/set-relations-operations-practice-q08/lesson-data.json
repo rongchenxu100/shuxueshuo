@@ -1,0 +1,6 @@
+{
+  "meta":{"id":"set-relations-operations-practice-q08","outputPath":"site/problems/senior-high/sets/set-relations-and-operations/set-relations-operations-practice-q08.html","pageTitle":"实战练习 8：由子集关系求参数","pageDescription":"先求方程根集，再由有限集合包含于开区间确定参数范围。","breadcrumbTitle":"集合关系与运算实战 · 第 8 题","breadcrumbLabel":"实战练习","breadcrumbPath":"site/senior-high/index.html","breadcrumbSearch":"?chapter=sets&section=set-relations-and-operations&module=practice"},
+  "problem":{"source":"培训教材 · 实战演练","keyPoints":{"title":"解题要点","lead":"先求出 A 的全部元素，再让它们都落入 B。","items":["开区间 \\((-∞,a)\\) 不含右端点 a。","只需控制 A 中最大的元素 1 小于 a。"]},"lines":[{"text":"已知集合 \\(A=\\{x\\mid x^2+x-2=0\\}\\)，\\(B=(-∞,a)\\)。若 \\(A\\subseteq B\\)，则实数 \\(a\\) 的取值范围是______。"}]},
+  "steps":[{"id":"s1","section":"集合关系","title":"求出 A 并比较右端点","t":0,"showDiagram":false,"visual":{"kind":"number-line-practice-finite-subset-ray","ariaLabel":"数轴上集合 A 的两个点负二和一都要落在开区间负无穷到 a 中，因此 a 必须大于一"},"reasoning":[{"kind":"because","text":"\\(x^2+x-2=(x+2)(x-1)\\)，所以 \\(A=\\{-2,1\\}\\)"},{"kind":"therefore","text":"要使 A 的两个元素都属于 \\((-∞,a)\\)，必须有 \\(1<a\\)；当 \\(a=1\\) 时右端点不属于 B，不能取等号"},{"kind":"therefore","text":"实数 a 的取值范围为 \\((1,+∞)\\)"}],"derive":[["根集","\\(A=\\{-2,1\\}\\)"],["包含条件","\\(a>1\\)"]]}],
+  "policies":{"s1":{"movable":false,"range":[0,0]}},"stepLabels":{"s1":"1 求根集并比较端点"}
+}

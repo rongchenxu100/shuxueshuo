@@ -332,9 +332,23 @@ function validateLearningAnswerSchema(schema, context) {
     });
     if (
       schema.type === "relation-sequence"
-      && schema.expected.some((value) => !new Set(["∈", "∉"]).has(value))
+      && schema.expected.some((value) => !new Set([
+        "∈", "∉", "=", "≠", "⊆", "⊄", "⊊", "⊋", "⊇",
+      ]).has(value))
     ) {
-      throw new Error(`${context}.answerSchema.expected 只能包含 ∈ 或 ∉`);
+      throw new Error(`${context}.answerSchema.expected 包含不支持的关系符号`);
+    }
+    if (schema.type === "relation-sequence" && schema.input?.relations != null) {
+      if (!Array.isArray(schema.input.relations) || schema.input.relations.length < 2) {
+        throw new Error(`${context}.answerSchema.input.relations 至少需要两个符号`);
+      }
+      const supportedRelations = new Set(["∈", "∉", "=", "≠", "⊆", "⊄", "⊊", "⊋", "⊇"]);
+      if (schema.input.relations.some((value) => !supportedRelations.has(value))) {
+        throw new Error(`${context}.answerSchema.input.relations 包含不支持的关系符号`);
+      }
+      if (schema.expected.some((value) => !schema.input.relations.includes(value))) {
+        throw new Error(`${context}.answerSchema.input.relations 未覆盖标准答案`);
+      }
     }
   } else if (schema.type === "multipart-exact") {
     if (!Array.isArray(schema.expected) || schema.expected.length < 2) {
@@ -373,7 +387,11 @@ function validateLearningAnswerSchema(schema, context) {
     if (schema.input?.mode !== "math-expression" && !(supportsTextInput && schema.input?.mode === "text")) {
       throw new Error(`${context}.answerSchema.input.mode 必须是 math-expression`);
     }
-    if (schema.input.mode === "math-expression" && (!Array.isArray(schema.input.keyboard) || schema.input.keyboard.length === 0)) {
+    if (
+      schema.input.mode === "math-expression"
+      && schema.type !== "relation-sequence"
+      && (!Array.isArray(schema.input.keyboard) || schema.input.keyboard.length === 0)
+    ) {
       throw new Error(`${context}.answerSchema.input.keyboard 必须是非空数组`);
     }
   }
@@ -428,6 +446,25 @@ export function validateLearningTopics(catalog, topicSource, root = repoRoot) {
       if (!Array.isArray(node.children) || node.children.length === 0) {
         throw new Error(`mapNode ${node.id} 缺少 children`);
       }
+      node.children.forEach((child, index) => {
+        const childContext = `mapNode ${node.id}.children[${index}]`;
+        if (typeof child === "string") {
+          requireText(child, childContext);
+          return;
+        }
+        if (!child || typeof child !== "object" || Array.isArray(child)) {
+          throw new Error(`${childContext} 必须是字符串或知识节点`);
+        }
+        requireText(child.label, `${childContext}.label`);
+        if (child.children != null) {
+          if (!Array.isArray(child.children) || child.children.length === 0) {
+            throw new Error(`${childContext}.children 必须是非空数组`);
+          }
+          child.children.forEach((leaf, leafIndex) => {
+            requireText(leaf, `${childContext}.children[${leafIndex}]`);
+          });
+        }
+      });
     }
 
     const modules = topic.modules.map((module) => {
@@ -472,8 +509,22 @@ export function validateLearningTopics(catalog, topicSource, root = repoRoot) {
           example.hints.forEach((hint, index) => {
             requireText(hint, `${context}.hints[${index}]`);
           });
+          if (example.knowledgeCategory != null && !new Set([
+            "concept",
+            "property",
+            "enumeration",
+            "description",
+            "interval",
+            "venn",
+            "intersection",
+            "union",
+            "complement",
+          ]).has(example.knowledgeCategory)) {
+            throw new Error(`${context}.knowledgeCategory 无效`);
+          }
           return {
             group: example.group,
+            knowledgeCategory: example.knowledgeCategory || "",
             title: example.title,
             numberLabel: example.numberLabel || "",
             display: "featured",
@@ -506,6 +557,9 @@ export function validateLearningTopics(catalog, topicSource, root = repoRoot) {
               "description",
               "interval",
               "venn",
+              "intersection",
+              "union",
+              "complement",
             ]).has(group.category)) {
               throw new Error(`${context}.category 无效`);
             }
@@ -523,6 +577,9 @@ export function validateLearningTopics(catalog, topicSource, root = repoRoot) {
               "description",
               "interval",
               "venn",
+              "intersection",
+              "union",
+              "complement",
             ]).has(block.category)) {
               throw new Error(`${context}.category 无效`);
             }

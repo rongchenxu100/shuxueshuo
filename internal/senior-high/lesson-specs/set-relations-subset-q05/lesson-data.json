@@ -1,0 +1,41 @@
+{
+  "meta": {
+    "id": "set-relations-subset-q05",
+    "outputPath": "site/problems/senior-high/sets/set-relations-and-operations/set-relations-subset-q05.html",
+    "pageTitle": "由描述法确定元素关系",
+    "pageDescription": "先列举整数集合，再辨析属于、不属于和子集关系。",
+    "breadcrumbTitle": "集合间的基本关系 · 练习 1-5",
+    "breadcrumbLabel": "集合间的基本关系",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=set-relations-and-operations&module=set-relations"
+  },
+  "problem": {
+    "source": "培训教材 · 集合间的基本关系",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "把描述法集合转化为列举法后，关系一目了然。",
+      "items": ["先筛出双边不等式内的整数；", "元素关系与集合关系必须使用不同符号。"]
+    },
+    "lines": [
+      {"text": "已知集合 \\(A=\\{x\\in\\mathbb Z\\mid -2<x<3\\}\\)，则下列选项正确的是（　　）"},
+      {"text": "A. \\(\\frac{1}{2}\\in A\\)　　B. \\(-1\\subseteq A\\)　　C. \\(3\\notin A\\)　　D. \\(\\{3\\}\\subseteq A\\)"}
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "子集",
+      "title": "列举集合并判断",
+      "t": 0,
+      "showDiagram": false,
+      "reasoning": [
+        {"kind": "because", "text": "\\(-2<x<3\\) 内的整数是 \\(-1,0,1,2\\)，所以 \\(A=\\{-1,0,1,2\\}\\)"},
+        {"kind": "therefore", "text": "\\(\\frac{1}{2}\\notin A\\)，\\(-1\\in A\\)，\\(3\\notin A\\)，且 \\(\\{3\\}\\nsubseteq A\\)"},
+        {"kind": "therefore", "text": "只有 C 正确"}
+      ],
+      "derive": [["集合 A", "\\(\\{-1,0,1,2\\}\\)"], ["结论", "选择 C"]]
+    }
+  ],
+  "policies": {"s1": {"movable": false, "range": [0, 0]}},
+  "stepLabels": {"s1": "1 列举并判断"}
+}

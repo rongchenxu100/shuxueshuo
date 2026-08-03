@@ -1,0 +1,49 @@
+{
+  "meta": {
+    "id": "set-relations-subset-q02",
+    "outputPath": "site/problems/senior-high/sets/set-relations-and-operations/set-relations-subset-q02.html",
+    "pageTitle": "辨析空集与单元素集合",
+    "pageDescription": "辨析空集、单元素集合以及元素和集合之间的关系。",
+    "breadcrumbTitle": "集合间的基本关系 · 练习 1-2",
+    "breadcrumbLabel": "集合间的基本关系",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=set-relations-and-operations&module=set-relations"
+  },
+  "problem": {
+    "source": "培训教材 · 集合间的基本关系",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "空集是任何集合的子集，但空集不是数字 0。",
+      "items": ["\\(\\varnothing\\) 不含任何元素；", "\\(\\{0\\}\\) 含有唯一元素 0。"]
+    },
+    "lines": [
+      {"text": "下列表述正确的是（　　）"},
+      {"text": "A. \\(0\\subseteq\\{0\\}\\)　　B. \\(\\{0\\}\\in\\{0,1\\}\\)　　C. \\(\\varnothing\\in\\{0\\}\\)　　D. \\(\\varnothing\\subseteq\\{0\\}\\)"}
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "子集",
+      "title": "逐项辨析对象类型",
+      "t": 0,
+      "showDiagram": false,
+      "table": {
+        "headers": ["选项", "判断", "结论"],
+        "rows": [
+          ["A", "0 是元素，不能直接用子集符号与集合连接", "错误"],
+          ["B", "\\(\\{0\\}\\) 本身是一个集合，不是元素；集合 \\(\\{0,1\\}\\) 的元素是 0 和 1，因此 \\(\\{0\\}\\notin\\{0,1\\}\\)", "错误"],
+          ["C", "\\(\\{0\\}\\) 的唯一元素是 0，不是 \\(\\varnothing\\)", "错误"],
+          ["D", "空集是任何集合的子集", "正确"]
+        ]
+      },
+      "reasoning": [
+        {"kind": "because", "text": "空集是任何集合的子集，所以 \\(\\varnothing\\subseteq\\{0\\}\\)"},
+        {"kind": "therefore", "text": "正确选项是 D"}
+      ],
+      "derive": [["结论", "选择 D"]]
+    }
+  ],
+  "policies": {"s1": {"movable": false, "range": [0, 0]}},
+  "stepLabels": {"s1": "1 辨析关系"}
+}

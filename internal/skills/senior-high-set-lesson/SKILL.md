@@ -23,14 +23,15 @@ Use these repository sources as the current schema examples:
 
 ## Workflow
 
-1. Transcribe printed content only. Treat handwriting as a private checking hint, never as the answer authority.
-2. Independently solve every problem and resolve incomplete or conflicting choices before publishing.
-3. Classify content into an overview, knowledge modules, and an assessment module following the shared learning-topic contract.
+1. Inspect every supplied page at readable resolution. Transcribe printed content, order, headings, options, and printed diagrams only; treat handwriting as a private checking hint, never as answer authority.
+2. Independently solve every problem and record a checked answer/type matrix before authoring pages. Resolve missing, duplicated, or mathematically incomplete choices before publishing.
+3. Classify content into an overview, knowledge modules, and an assessment module following the shared learning-topic contract. Keep the textbook hierarchy and wording; do not invent progress notices, map branches, or exercise-group headings.
 4. Write each published detail page as `internal/senior-high/lesson-specs/<lesson-id>/lesson-data.json`.
 5. Give every aggregate-page exercise a typed `answerSchema`, nonempty hints, and a canonical lesson link. A pending item must not expose an answer control or fake solution.
-6. Author explicit mathematical reasoning with `because` and `therefore`; use `derive` only as a recap.
-7. Select a table, number line, or Venn diagram only when required by the mathematics.
-8. Compile and test:
+6. Author explicit mathematical reasoning with `because` and `therefore`; use `derive` only as a recap. Make every classification exhaustive, preserve parent-child branch structure, and explicitly union the parameter sets from disjoint cases.
+7. Select a table, number line, or Venn diagram only when required by the mathematics. Make the visual mirror the proof: when one overlaid number line mixes inputs and conclusions, use separate rows for each set and a final result or parameter row.
+8. Treat browser comments as regression evidence. Edit declarative sources, add or strengthen a targeted test, rebuild generated artifacts, and recheck the commented region rather than patching compiled HTML.
+9. Compile and test:
 
 ```bash
 node tools/build-text-page.mjs internal/senior-high/lesson-specs/<lesson-id>/
@@ -38,7 +39,7 @@ node tools/build-senior-high-library.mjs
 node --test tools/tests/text-lessons.test.mjs tools/tests/senior-high-library.test.mjs
 ```
 
-9. Review the aggregate page and every detail page at desktop and phone widths. Check formula rendering, answer interaction, long options, diagrams, and links.
+10. Review the aggregate page and every detail page at desktop and phone widths. Check formula rendering, answer interaction, long options, diagrams, links, horizontal overflow, clipped SVG labels, and cache-version updates for changed shared assets.
 
 ## Source and Publishing Rules
 
@@ -47,6 +48,7 @@ node --test tools/tests/text-lessons.test.mjs tools/tests/senior-high-library.te
 - Register topic structure only in `internal/senior-high/catalog/learning-topics.json`; do not hand-edit generated catalog files.
 - Keep `chapter=sets`, the correct learning section, and stable `module` routes.
 - Rebuild both the detail page and the senior-high catalog after source changes.
+- Keep the overview map faithful to the supplied textbook map. Assessment modules may exist without adding an unsupported map branch.
 
 ## Mathematical Quality Gate
 
@@ -66,6 +68,7 @@ node --test tools/tests/text-lessons.test.mjs tools/tests/senior-high-library.te
 - Multi-part prompts provide one response field per subquestion.
 - Long choices switch to one column on narrow screens.
 - Tables enumerate finite cases; number lines prove interval conclusions; Venn diagrams explain regions, overlap, or counting. Pure algebra stays text-only.
+- Classification tables distinguish top-level cases from nested subcases; do not flatten “empty set” and the left/right branches of a nonempty interval into one apparent level.
+- Multi-row number lines label each input set and the final set or parameter range separately when those objects play different logical roles.
 - Every detail step has a valid premise-to-conclusion chain and no raw TeX command leaks into the page.
 - Aggregate and detail pages agree on stem, answer, notation, and source.
-

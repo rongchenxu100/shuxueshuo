@@ -80,6 +80,14 @@ function renderMathExpression(value) {
         continue;
       }
     }
+    if (source.startsWith("\\text", cursor)) {
+      const group = readMathAtom(source, cursor + "\\text".length);
+      if (group) {
+        markup += esc(group.content);
+        cursor = group.end;
+        continue;
+      }
+    }
     if (source.startsWith("\\nsubseteq", cursor)) {
       markup += "⊄";
       cursor += "\\nsubseteq".length;
@@ -88,6 +96,21 @@ function renderMathExpression(value) {
     if (source.startsWith("\\subseteq", cursor)) {
       markup += "⊆";
       cursor += "\\subseteq".length;
+      continue;
+    }
+    if (source.startsWith("\\subsetneq", cursor)) {
+      markup += "⊊";
+      cursor += "\\subsetneq".length;
+      continue;
+    }
+    if (source.startsWith("\\supsetneq", cursor)) {
+      markup += "⊋";
+      cursor += "\\supsetneq".length;
+      continue;
+    }
+    if (source.startsWith("\\supseteq", cursor)) {
+      markup += "⊇";
+      cursor += "\\supseteq".length;
       continue;
     }
     const symbolCommands = [
@@ -109,7 +132,11 @@ function renderMathExpression(value) {
       ["\\le", "≤"],
       ["\\ge", "≥"],
       ["\\pm", "±"],
+      ["\\infty", "∞"],
       ["\\in", "∈"],
+      ["\\cap", "∩"],
+      ["\\cup", "∪"],
+      ["\\setminus", "∖"],
       ["\\mid", "|"],
       ["\\{", "{"],
       ["\\}", "}"],
@@ -177,6 +204,19 @@ export function renderInlineMathText(value) {
 }
 
 export function renderSetFigure(figure = {}) {
+  if (figure.kind === "venn-subset") {
+    return `
+      <figure class="set-figure is-subset">
+        <svg viewBox="0 0 480 250" role="img" aria-label="${esc(figure.ariaLabel || "集合 A 包含在集合 B 中")}">
+          <ellipse class="set-figure-set" cx="240" cy="125" rx="178" ry="94"/>
+          <ellipse class="set-figure-set" cx="265" cy="125" rx="82" ry="52"/>
+          <text x="100" y="126">B</text>
+          <text x="258" y="132">A</text>
+        </svg>
+        ${figure.caption ? `<figcaption>${esc(figure.caption)}</figcaption>` : ""}
+      </figure>
+    `;
+  }
   if (figure.kind === "venn-two") {
     const shade = figure.shade === "A-only" ? "A-only" : "B-only";
     const maskId = shade === "A-only" ? "venn-a-minus-b-mask" : "venn-b-minus-a-mask";
@@ -207,6 +247,38 @@ export function renderSetFigure(figure = {}) {
         ${figure.caption ? `<figcaption>${esc(figure.caption)}</figcaption>` : ""}
       </figure>
     `;
+  }
+  if (figure.kind === "venn-operation") {
+    const shade = figure.shade || "intersection";
+    const maskId = `venn-operation-${shade}-mask`;
+    const masks = {
+      intersection: '<path d="M240 49A76 76 0 0 1 240 191A76 76 0 0 1 240 49Z" fill="white"/>',
+      union: '<circle cx="213" cy="120" r="76" fill="white"/><circle cx="267" cy="120" r="76" fill="white"/>',
+      "B-only": '<circle cx="267" cy="120" r="76" fill="white"/><circle cx="213" cy="120" r="76" fill="black"/>',
+      "outside-union": '<rect x="0" y="0" width="480" height="250" fill="white"/><circle cx="213" cy="120" r="76" fill="black"/><circle cx="267" cy="120" r="76" fill="black"/>',
+    };
+    if (shade === "complement-A") {
+      return `
+        <figure class="set-figure">
+          <svg viewBox="0 0 480 250" role="img" aria-label="${esc(figure.ariaLabel || "集合 A 在全集 U 中的补集")}">
+            <defs><mask id="${maskId}"><rect width="480" height="250" fill="white"/><circle cx="240" cy="122" r="76" fill="black"/></mask></defs>
+            <rect class="set-figure-universe" x="34" y="22" width="412" height="202" rx="4"/>
+            <rect class="set-figure-shade" x="34" y="22" width="412" height="202" mask="url(#${maskId})"/>
+            <circle class="set-figure-set" cx="240" cy="122" r="76"/>
+            <text x="234" y="128">A</text><text x="414" y="48">U</text>
+          </svg>${figure.caption ? `<figcaption>${esc(figure.caption)}</figcaption>` : ""}
+        </figure>`;
+    }
+    return `
+      <figure class="set-figure">
+        <svg viewBox="0 0 480 250" role="img" aria-label="${esc(figure.ariaLabel || "集合运算的 Venn 图")}">
+          <defs><mask id="${maskId}"><rect width="480" height="250" fill="black"/>${masks[shade] || masks.intersection}</mask></defs>
+          <rect class="set-figure-universe" x="34" y="22" width="412" height="202" rx="4"/>
+          <rect class="set-figure-shade" x="34" y="22" width="412" height="202" mask="url(#${maskId})"/>
+          <circle class="set-figure-set" cx="213" cy="120" r="76"/><circle class="set-figure-set" cx="267" cy="120" r="76"/>
+          <text x="178" y="205">A</text><text x="285" y="205">B</text><text x="414" y="48">U</text>
+        </svg>${figure.caption ? `<figcaption>${esc(figure.caption)}</figcaption>` : ""}
+      </figure>`;
   }
   if (figure.kind === "venn-classification") {
     return `

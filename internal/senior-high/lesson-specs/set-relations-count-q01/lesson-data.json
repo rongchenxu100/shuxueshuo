@@ -1,0 +1,40 @@
+{
+  "meta": {
+    "id": "set-relations-count-q01",
+    "outputPath": "site/problems/senior-high/sets/set-relations-and-operations/set-relations-count-q01.html",
+    "pageTitle": "计算五元素集合的真子集个数",
+    "pageDescription": "利用二选一计数模型计算有限集合的真子集个数。",
+    "breadcrumbTitle": "集合间的基本关系 · 练习 6-1",
+    "breadcrumbLabel": "集合间的基本关系",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=set-relations-and-operations&module=set-relations"
+  },
+  "problem": {
+    "source": "培训教材 · 集合间的基本关系",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "每个元素都有选入或不选入子集两种状态。",
+      "items": ["n 个元素产生 \\(2^n\\) 个子集；", "真子集要排除集合本身。"]
+    },
+    "lines": [
+      {"text": "若集合 \\(A=\\{2,3,4,5,6\\}\\)，则 \\(A\\) 的真子集的个数为（　　）"},
+      {"text": "A. 32　　B. 31　　C. 25　　D. 24"}
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "子集个数",
+      "title": "先数全部子集，再排除自身",
+      "t": 0,
+      "showDiagram": false,
+      "reasoning": [
+        {"kind": "because", "text": "集合 A 有 5 个元素，每个元素都有选入或不选入两种状态，所以共有 \\(2^5=32\\) 个子集"},
+        {"kind": "therefore", "text": "排除集合 A 本身后，真子集有 \\(32-1=31\\) 个，选择 B"}
+      ],
+      "derive": [["结论", "\\(2^5-1=31\\)，选择 B"]]
+    }
+  ],
+  "policies": {"s1": {"movable": false, "range": [0, 0]}},
+  "stepLabels": {"s1": "1 计算真子集"}
+}

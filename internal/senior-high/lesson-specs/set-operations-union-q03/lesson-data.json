@@ -1,0 +1,6 @@
+{
+  "meta":{"id":"set-operations-union-q03","outputPath":"site/problems/senior-high/sets/set-relations-and-operations/set-operations-union-q03.html","pageTitle":"两个开区间求并集","pageDescription":"合并有重叠的两个开区间。","breadcrumbTitle":"集合的运算 · 练习 12-2","breadcrumbLabel":"集合的运算","breadcrumbPath":"site/senior-high/index.html","breadcrumbSearch":"?chapter=sets&section=set-relations-and-operations&module=set-operations"},
+  "problem":{"source":"培训教材 · 集合的基本运算","keyPoints":{"title":"解题要点","lead":"两个区间有重叠时，并集连成一个区间。","items":["左端点取两区间中更小的 -2。","右端点取两区间中更大的 3。"]},"lines":[{"text":"已知集合 \\(A=\\{x\\mid-2<x<2\\}\\)，\\(B=\\{x\\mid1<x<3\\}\\)，则 \\(A\\cup B=\\)（　　）"},{"text":"A. \\(\\{x\\mid-2<x<3\\}\\)　　B. \\(\\{x\\mid1<x<2\\}\\)　　C. \\(\\{x\\mid x<3\\}\\)　　D. \\(\\{x\\mid x>-2\\}\\)"}]},
+  "steps":[{"id":"s1","section":"并集","title":"合并相交的两个区间","t":0,"showDiagram":false,"visual":{"kind":"number-line-union-open-intervals","ariaLabel":"数轴上开区间 A 从负二到二，开区间 B 从一到三，两个区间重叠后并成负二到三的开区间"},"reasoning":[{"kind":"because","text":"A、B 在 \\((1,2)\\) 上重叠，因此并集没有断点"},{"kind":"therefore","text":"并集从 -2 延伸到 3，且两端都不取，故 \\(A\\cup B=(-2,3)\\)，选择 A"}],"derive":[["并集","\\((-2,3)\\)"]]}],
+  "policies":{"s1":{"movable":false,"range":[0,0]}},"stepLabels":{"s1":"1 合并重叠区间"}
+}

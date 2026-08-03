@@ -1,0 +1,6 @@
+{
+  "meta":{"id":"set-operations-intersection-q09","outputPath":"site/problems/senior-high/sets/set-relations-and-operations/set-operations-intersection-q09.html","pageTitle":"读取 Venn 图阴影中的交集","pageDescription":"识别 Venn 图重叠区域并列出区间中的奇数。","breadcrumbTitle":"集合的运算 · 练习 10-2","breadcrumbLabel":"集合的运算","breadcrumbPath":"site/senior-high/index.html","breadcrumbSearch":"?chapter=sets&section=set-relations-and-operations&module=set-operations"},
+  "problem":{"source":"培训教材 · 集合的基本运算","keyPoints":{"title":"解题要点","lead":"阴影只覆盖 M、N 的重叠区域。","items":["\\(M=[-1,3]\\)。","N 是由自然数 k 生成的奇数集合。"]},"lines":[{"text":"已知全集 \\(U=\\mathbb R\\)，集合 \\(M=\\{x\\mid-1\\le x\\le3\\}\\)，\\(N=\\{x\\mid x=2k-1\\text{ 且 }k\\in\\mathbb N\\}\\)。图中阴影表示 \\(M\\cap N\\)。"},{"figure":{"kind":"venn-operation","shade":"intersection","ariaLabel":"集合 M 与 N 的重叠区域被涂色","caption":"阴影表示 M∩N"}},{"text":"则阴影部分所示集合为（　　）　A. \\(\\{x\\mid-1\\le x\\le3\\}\\)　　B. \\(\\{-3,-1,1,3,5\\}\\)　　C. \\(\\{-1,1,3\\}\\)　　D. \\(\\{-1,1,3,5\\}\\)"}]},
+  "steps":[{"id":"s1","section":"交集","title":"列出重叠区域中的奇数","t":0,"showDiagram":false,"reasoning":[{"kind":"because","text":"k 取自然数时，N 中依次有 -1、1、3、5 等奇数"},{"kind":"therefore","text":"落在 \\([-1,3]\\) 内的元素是 -1、1、3，所以选择 C"}],"derive":[["阴影集合","\\(\\{-1,1,3\\}\\)"]]}],
+  "policies":{"s1":{"movable":false,"range":[0,0]}},"stepLabels":{"s1":"1 读取交集区域"}
+}

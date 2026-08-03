@@ -1,0 +1,6 @@
+{
+  "meta":{"id":"set-relations-operations-practice-q01","outputPath":"site/problems/senior-high/sets/set-relations-and-operations/set-relations-operations-practice-q01.html","pageTitle":"实战练习 1：有限集合求交集","pageDescription":"从两个有限集合中筛选共同元素。","breadcrumbTitle":"集合关系与运算实战 · 第 1 题","breadcrumbLabel":"实战练习","breadcrumbPath":"site/senior-high/index.html","breadcrumbSearch":"?chapter=sets&section=set-relations-and-operations&module=practice"},
+  "problem":{"source":"培训教材 · 实战演练","keyPoints":{"title":"解题要点","lead":"交集只保留两个集合的共同元素。","items":["逐个检查 A 中的元素是否也属于 B。","结果集合中的元素不重复。"]},"lines":[{"text":"已知集合 \\(A=\\{0,1,2,4,5\\}\\)，\\(B=\\{1,2,3\\}\\)，则 \\(A\\cap B=\\)（　　）"},{"text":"A. \\(\\{1,2,4\\}\\)　　B. \\(\\{1,2,5\\}\\)　　C. \\(\\{1,2,4,5\\}\\)　　D. \\(\\{1,2\\}\\)"}]},
+  "steps":[{"id":"s1","section":"交集","title":"筛选共同元素","t":0,"showDiagram":false,"table":{"headers":["元素","属于 A","属于 B","保留"],"rows":[["0","是","否","否"],["1","是","是","是"],["2","是","是","是"],["3","否","是","否"],["4、5","是","否","否"]]},"reasoning":[{"kind":"because","text":"元素 1、2 同时属于 A 和 B，其他元素只属于其中一个集合"},{"kind":"therefore","text":"\\(A\\cap B=\\{1,2\\}\\)，选择 D"}],"derive":[["交集","\\(\\{1,2\\}\\)"],["结论","选择 D"]]}],
+  "policies":{"s1":{"movable":false,"range":[0,0]}},"stepLabels":{"s1":"1 筛选共同元素"}
+}

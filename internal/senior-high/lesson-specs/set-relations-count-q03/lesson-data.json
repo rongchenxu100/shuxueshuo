@@ -1,0 +1,40 @@
+{
+  "meta": {
+    "id": "set-relations-count-q03",
+    "outputPath": "site/problems/senior-high/sets/set-relations-and-operations/set-relations-count-q03.html",
+    "pageTitle": "计算二元素集合的真子集个数",
+    "pageDescription": "由自然数范围列出集合元素，再计算真子集个数。",
+    "breadcrumbTitle": "集合间的基本关系 · 练习 6-3",
+    "breadcrumbLabel": "集合间的基本关系",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=set-relations-and-operations&module=set-relations"
+  },
+  "problem": {
+    "source": "培训教材 · 集合间的基本关系",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "先从自然数中筛选满足不等式的元素。",
+      "items": ["严格小于 2 不包含 2；", "真子集个数为 \\(2^n-1\\)。"]
+    },
+    "lines": [
+      {"text": "设集合 \\(A=\\{x\\in\\mathbb N\\mid -1<x<2\\}\\)，则 \\(A\\) 的真子集的个数是（　　）"},
+      {"text": "A. 8　　B. 7　　C. 4　　D. 3"}
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "子集个数",
+      "title": "确定元素个数并计算",
+      "t": 0,
+      "showDiagram": false,
+      "reasoning": [
+        {"kind": "because", "text": "满足 \\(-1<x<2\\) 的自然数只有 0、1，所以 \\(A=\\{0,1\\}\\)"},
+        {"kind": "therefore", "text": "A 有 \\(2^2=4\\) 个子集，排除自身后有 \\(4-1=3\\) 个真子集，选择 D"}
+      ],
+      "derive": [["结论", "\\(2^2-1=3\\)，选择 D"]]
+    }
+  ],
+  "policies": {"s1": {"movable": false, "range": [0, 0]}},
+  "stepLabels": {"s1": "1 确定元素并计数"}
+}

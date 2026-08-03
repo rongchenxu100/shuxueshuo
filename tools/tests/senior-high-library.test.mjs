@@ -66,12 +66,19 @@ test("validates the real senior-high catalog and its published assets", () => {
   const sets = catalog.chapters.find((chapter) => chapter.id === "sets");
   assert.equal(sets.sections[0].presentation, "learning");
   assert.equal(sets.sections[0].topicId, "set-concepts-and-representation");
+  assert.deepEqual(
+    sets.sections.map((section) => [section.label, section.topicId]),
+    [
+      ["集合的概念和表示", "set-concepts-and-representation"],
+      ["集合的关系和运算", "set-relations-and-operations"],
+    ],
+  );
 });
 
-test("builds the set learning topic with three published knowledge modules", () => {
+test("builds the first set learning topic with three published knowledge modules", () => {
   const catalog = validateCatalog(chapterSource, problemSource, repoRoot);
   const topics = validateLearningTopics(catalog, learningTopicSource, repoRoot);
-  assert.equal(topics.length, 1);
+  assert.equal(topics.length, 2);
   const topic = topics[0];
   assert.equal(topic.title, "集合的概念和表示");
   assert.deepEqual(
@@ -186,6 +193,64 @@ test("builds the set learning topic with three published knowledge modules", () 
       "problems/senior-high/sets/set-concepts-and-representation/",
     ),
   ));
+});
+
+test("builds the second set topic with published relations and operations", () => {
+  const catalog = validateCatalog(chapterSource, problemSource, repoRoot);
+  const topic = validateLearningTopics(catalog, learningTopicSource, repoRoot)
+    .find((item) => item.id === "set-relations-and-operations");
+  assert.equal(topic.title, "集合的关系和运算");
+  assert.equal(topic.introduction.length, 1);
+  assert.deepEqual(
+    topic.mapNodes.map((node) => node.label),
+    ["集合的关系", "集合的运算"],
+  );
+  assert.deepEqual(topic.mapNodes[0].children, [
+    { label: "子集", children: ["空集是任何集合的子集"] },
+    { label: "集合相等" },
+    { label: "真子集", children: ["空集是任何非空集合的真子集"] },
+  ]);
+  assert.deepEqual(
+    topic.modules.map((module) => [module.id, module.type, module.status]),
+    [
+      ["set-relations", "knowledge", "published"],
+      ["set-operations", "knowledge", "published"],
+      ["practice", "assessment", "published"],
+    ],
+  );
+  assert.equal(topic.modules[0].examples.length, 19);
+  assert.equal(topic.modules[1].examples.length, 21);
+  assert.equal(topic.modules[2].items.length, 9);
+  assert.equal(topic.modules[2].items[8].lesson.id, "set-relations-operations-practice-q09");
+  assert.deepEqual(
+    topic.modules[1].knowledgeGroups.map((group) => group.title),
+    ["交集", "并集", "补集"],
+  );
+  const operationKnowledgeHtml = topic.modules[1].knowledgeBlocks
+    .flatMap((block) => block.bodyHtml)
+    .join("");
+  assert.match(operationKnowledgeHtml, /x∈ A 且 x∈ B/);
+  assert.match(operationKnowledgeHtml, /x∈ U 且 x.*aria-label="不属于".* A/s);
+  assert.doesNotMatch(operationKnowledgeHtml, /\\ /);
+  assert.deepEqual(
+    [...new Set(topic.modules[1].examples.map((example) => example.group))],
+    ["交集", "并集", "补集"],
+  );
+  assert.deepEqual(
+    topic.modules[0].knowledgeGroups.map((group) => group.title),
+    ["子集和集合相等", "真子集与符号辨析", "子集个数和区间包含"],
+  );
+  assert.equal(topic.modules[0].knowledgeGroups[0].visual, "venn-subset");
+  assert.deepEqual(
+    [...new Set(topic.modules[0].examples.map((example) => example.group))],
+    ["子集", "集合相等", "真子集", "子集个数"],
+  );
+  assert.deepEqual(
+    topic.modules[0].examples
+      .filter((example) => example.answerSchema.type === "relation-sequence")
+      .map((example) => example.answerSchema.expected),
+    [["=", "=", "="], ["⊊", "∉", "∉", "⊊", "⊋"], ["⊋", "⊊", "⊊"]],
+  );
 });
 
 test("rejects an unsupported learning answer schema", () => {
@@ -510,6 +575,10 @@ test("parses equivalent set conditions without relying on a fixed field count", 
     Array.from(model.parseRelationSequence("\\notin,\\in,\\notin")),
     ["∉", "∈", "∉"],
   );
+  assert.deepEqual(
+    Array.from(model.parseRelationSequence("\\subsetneq,\\notin,\\supsetneq,=")),
+    ["⊊", "∉", "⊋", "="],
+  );
   assert.equal(model.parseRelationSequence("∈，不属于"), null);
 });
 
@@ -519,8 +588,11 @@ test("relation-sequence exercises render answer slots inside the problem text", 
     "utf8",
   );
   assert.match(runtime, /data-relation-slot/);
-  assert.match(runtime, /data-relation-key="∈"/);
-  assert.match(runtime, /data-relation-key="∉"/);
+  assert.match(runtime, /data-relation-key="\$\{escapeHtml\(relation\)\}"/);
+  assert.match(runtime, /"∈": "属于"/);
+  assert.match(runtime, /"⊊": "真子集"/);
+  assert.match(runtime, /expected\.length.*个关系符号及顺序都正确/);
+  assert.doesNotMatch(runtime, /七个关系符号/);
   assert.doesNotMatch(
     runtime,
     /schema\.type === "relation-sequence"[\s\S]{0,300}<textarea/,

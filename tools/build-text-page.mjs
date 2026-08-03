@@ -83,6 +83,18 @@ function setMath(value) {
   return "\\(" + text + "\\)";
 }
 
+function relationMath(symbol) {
+  const commands = {
+    "∈": "\\in",
+    "∉": "\\notin",
+    "⊆": "\\subseteq",
+    "⊊": "\\subsetneq",
+    "⊇": "\\supseteq",
+    "⊋": "\\supsetneq",
+  };
+  return setMath(commands[symbol] ?? symbol);
+}
+
 function preferredAlias(item, preferNaturalLanguage = false) {
   const aliases = item?.aliases ?? [];
   if (preferNaturalLanguage) {
@@ -101,7 +113,7 @@ export function answerTextForSchema(schema) {
     case "finite-set-values":
       return "答案：" + setMath("{" + schema.expected.join(",") + "}");
     case "relation-sequence":
-      return "答案：" + schema.expected.join("，");
+      return "答案：" + schema.expected.map(relationMath).join("，");
     case "variable-domain": {
       const excluded = schema.expected?.excludedValues ?? [];
       return "答案：" + setMath(

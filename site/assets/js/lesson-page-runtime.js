@@ -79,6 +79,14 @@
           continue;
         }
       }
+      if (source.startsWith("\\text", cursor)) {
+        const group = readMathAtom(source, cursor + "\\text".length);
+        if (group) {
+          markup += esc(group.content);
+          cursor = group.end;
+          continue;
+        }
+      }
       if (source.startsWith("\\nsubseteq", cursor)) {
         markup += "⊄";
         cursor += "\\nsubseteq".length;
@@ -87,6 +95,21 @@
       if (source.startsWith("\\subseteq", cursor)) {
         markup += "⊆";
         cursor += "\\subseteq".length;
+        continue;
+      }
+      if (source.startsWith("\\subsetneq", cursor)) {
+        markup += "⊊";
+        cursor += "\\subsetneq".length;
+        continue;
+      }
+      if (source.startsWith("\\supsetneq", cursor)) {
+        markup += "⊋";
+        cursor += "\\supsetneq".length;
+        continue;
+      }
+      if (source.startsWith("\\supseteq", cursor)) {
+        markup += "⊇";
+        cursor += "\\supseteq".length;
         continue;
       }
       const symbolCommands = [
@@ -108,7 +131,11 @@
         ["\\le", "≤"],
         ["\\ge", "≥"],
         ["\\pm", "±"],
+        ["\\infty", "∞"],
         ["\\in", "∈"],
+        ["\\cap", "∩"],
+        ["\\cup", "∪"],
+        ["\\setminus", "∖"],
         ["\\mid", "|"],
         ["\\{", "{"],
         ["\\}", "}"],
@@ -629,6 +656,313 @@
           '<line x1="418" y1="92" x2="418" y2="116"/><text x="418" y="150">9/8</text>' +
           '<text class="lesson-number-line-set-label" x="360" y="42">{0} ∪ [9/8,+∞)</text>' +
           '</g></svg><figcaption>参数集由孤立点 0 与从 9/8 开始的闭射线组成。</figcaption></figure>'
+        );
+      }
+
+      if (visual.kind === "number-line-intersection-nonempty") {
+        return (
+          '<figure class="lesson-step-visual lesson-step-number-line">' +
+          '<svg viewBox="0 0 720 280" role="img" aria-label="' + ariaLabel + '">' +
+          '<g class="lesson-number-line-axis">' +
+          '<line x1="108" y1="76" x2="636" y2="76"/><path d="M636 76l-12-7v14z"/>' +
+          '<line x1="108" y1="164" x2="636" y2="164"/><path d="M636 164l-12-7v14z"/>' +
+          '</g>' +
+          '<g class="lesson-number-line-labels"><text x="54" y="82">A</text><text x="54" y="170">B</text></g>' +
+          '<g class="lesson-number-line-segment is-a"><line x1="350" y1="76" x2="620" y2="76"/><circle class="is-closed" cx="350" cy="76" r="9"/></g>' +
+          '<g class="lesson-number-line-segment is-b"><line x1="218" y1="164" x2="474" y2="164"/><circle class="is-closed" cx="218" cy="164" r="9"/><circle class="is-closed" cx="474" cy="164" r="9"/></g>' +
+          '<g class="lesson-number-line-segment is-result"><line x1="350" y1="208" x2="474" y2="208"/><circle class="is-closed" cx="350" cy="208" r="8"/><circle class="is-closed" cx="474" cy="208" r="8"/></g>' +
+          '<g class="lesson-number-line-ticks">' +
+          '<line x1="218" y1="154" x2="218" y2="174"/><text x="218" y="196">1/2</text>' +
+          '<line x1="350" y1="66" x2="350" y2="86"/><text x="350" y="48">1</text>' +
+          '<line x1="474" y1="154" x2="474" y2="174"/><text x="474" y="196">2a−1</text>' +
+          '<text class="lesson-number-line-set-label" x="412" y="252">公共部分存在 ⇔ 2a−1 ≥ 1</text>' +
+          '</g></svg><figcaption>B 的右端点达到或越过 A 的左端点 1 时，两集合有公共点；临界点 1 两边都取到。</figcaption></figure>'
+        );
+      }
+
+      if (visual.kind === "number-line-intersection-empty") {
+        return (
+          '<figure class="lesson-step-visual lesson-step-number-line">' +
+          '<svg viewBox="0 0 720 280" role="img" aria-label="' + ariaLabel + '">' +
+          '<g class="lesson-number-line-axis">' +
+          '<line x1="88" y1="76" x2="642" y2="76"/><path d="M642 76l-12-7v14z"/>' +
+          '<line x1="88" y1="164" x2="642" y2="164"/><path d="M642 164l-12-7v14z"/>' +
+          '</g>' +
+          '<g class="lesson-number-line-labels"><text x="42" y="82">A</text><text x="42" y="170">C</text></g>' +
+          '<line x1="350" y1="38" x2="350" y2="206" stroke="currentColor" stroke-dasharray="6 7" opacity=".35"/>' +
+          '<g class="lesson-number-line-segment is-a"><line x1="350" y1="76" x2="556" y2="76"/><circle class="is-closed" cx="350" cy="76" r="9"/><circle cx="556" cy="76" r="9"/></g>' +
+          '<g class="lesson-number-line-segment is-b"><line x1="104" y1="164" x2="350" y2="164"/><circle cx="350" cy="164" r="9"/></g>' +
+          '<g class="lesson-number-line-ticks">' +
+          '<line x1="350" y1="66" x2="350" y2="86"/><text x="350" y="48">3</text>' +
+          '<line x1="556" y1="66" x2="556" y2="86"/><text x="556" y="48">7</text>' +
+          '<text x="350" y="198">2a+1 ≤ 3</text>' +
+          '<text class="lesson-number-line-set-label" x="366" y="246">C 的开端点不越过 3，A ∩ C = ∅</text>' +
+          '</g></svg><figcaption>等号时 C 的右端点是 3，但 C 不含 3；A 从 3 开始且包含 3，因此两集合仍无交集。</figcaption></figure>'
+        );
+      }
+
+      if (visual.kind === "number-line-subset-left-branch") {
+        return (
+          '<figure class="lesson-step-visual lesson-step-number-line">' +
+          '<svg viewBox="0 0 720 286" role="img" aria-label="' + ariaLabel + '">' +
+          '<g class="lesson-number-line-axis">' +
+          '<line x1="88" y1="76" x2="642" y2="76"/><path d="M642 76l-12-7v14z"/>' +
+          '<line x1="88" y1="164" x2="642" y2="164"/><path d="M642 164l-12-7v14z"/>' +
+          '</g>' +
+          '<g class="lesson-number-line-labels"><text x="44" y="82">A</text><text x="44" y="170">B</text></g>' +
+          '<g class="lesson-number-line-segment is-a">' +
+          '<line x1="102" y1="76" x2="318" y2="76"/><path d="M96 76l14-9v18z" fill="currentColor"/><circle class="is-closed" cx="318" cy="76" r="9"/>' +
+          '<line x1="474" y1="76" x2="626" y2="76"/><circle class="is-closed" cx="474" cy="76" r="9"/>' +
+          '</g>' +
+          '<g class="lesson-number-line-segment is-b"><line x1="170" y1="164" x2="318" y2="164"/><circle class="is-closed" cx="170" cy="164" r="9"/><circle class="is-closed" cx="318" cy="164" r="9"/></g>' +
+          '<g class="lesson-number-line-ticks">' +
+          '<line x1="318" y1="66" x2="318" y2="86"/><text x="318" y="48">−1</text>' +
+          '<line x1="474" y1="66" x2="474" y2="86"/><text x="474" y="48">5</text>' +
+          '<text x="170" y="202">2a</text><text x="318" y="202">a+2 ≤ −1</text>' +
+          '<text class="lesson-number-line-set-label" x="360" y="252">B 整体落在左支 ⇒ a ≤ −3</text>' +
+          '</g></svg><figcaption>非空区间 B 要完整放入左支，只需让 B 的最右端 a+2 不超过 −1。</figcaption></figure>'
+        );
+      }
+
+      if (visual.kind === "number-line-subset-right-branch") {
+        return (
+          '<figure class="lesson-step-visual lesson-step-number-line">' +
+          '<svg viewBox="0 0 720 286" role="img" aria-label="' + ariaLabel + '">' +
+          '<g class="lesson-number-line-axis">' +
+          '<line x1="88" y1="76" x2="642" y2="76"/><path d="M642 76l-12-7v14z"/>' +
+          '<line x1="88" y1="164" x2="642" y2="164"/><path d="M642 164l-12-7v14z"/>' +
+          '</g>' +
+          '<g class="lesson-number-line-labels"><text x="44" y="82">A</text><text x="44" y="170">B</text></g>' +
+          '<g class="lesson-number-line-segment is-a">' +
+          '<line x1="102" y1="76" x2="318" y2="76"/><path d="M96 76l14-9v18z" fill="currentColor"/><circle class="is-closed" cx="318" cy="76" r="9"/>' +
+          '<line x1="474" y1="76" x2="626" y2="76"/><circle class="is-closed" cx="474" cy="76" r="9"/>' +
+          '</g>' +
+          '<g class="lesson-number-line-segment is-b"><line x1="474" y1="164" x2="574" y2="164"/><circle class="is-closed" cx="474" cy="164" r="9"/><circle class="is-closed" cx="574" cy="164" r="9"/></g>' +
+          '<g class="lesson-number-line-ticks">' +
+          '<line x1="318" y1="66" x2="318" y2="86"/><text x="318" y="48">−1</text>' +
+          '<line x1="474" y1="66" x2="474" y2="86"/><text x="474" y="48">5</text>' +
+          '<text x="474" y="202">2a ≥ 5</text><text x="574" y="202">a+2</text>' +
+          '<text class="lesson-number-line-set-label" x="360" y="252">a ≥ 5/2 与非空条件 a ≤ 2 矛盾</text>' +
+          '</g></svg><figcaption>B 若完整放入右支，左端必须不小于 5；但这与 B 非空所需的 a≤2 不能同时成立。</figcaption></figure>'
+        );
+      }
+
+      if (visual.kind === "number-line-union-open-intervals") {
+        return (
+          '<figure class="lesson-step-visual lesson-step-number-line">' +
+          '<svg viewBox="0 0 720 300" role="img" aria-label="' + ariaLabel + '">' +
+          '<g class="lesson-number-line-axis">' +
+          '<line x1="100" y1="64" x2="638" y2="64"/><path d="M638 64l-12-7v14z"/>' +
+          '<line x1="100" y1="142" x2="638" y2="142"/><path d="M638 142l-12-7v14z"/>' +
+          '<line x1="100" y1="220" x2="638" y2="220"/><path d="M638 220l-12-7v14z"/>' +
+          '</g>' +
+          '<g class="lesson-number-line-labels"><text x="50" y="70">A</text><text x="50" y="148">B</text><text x="40" y="226">A∪B</text></g>' +
+          '<g class="lesson-number-line-segment is-a"><line x1="180" y1="64" x2="470" y2="64"/><circle cx="180" cy="64" r="9"/><circle cx="470" cy="64" r="9"/></g>' +
+          '<g class="lesson-number-line-segment is-b"><line x1="398" y1="142" x2="544" y2="142"/><circle cx="398" cy="142" r="9"/><circle cx="544" cy="142" r="9"/></g>' +
+          '<g class="lesson-number-line-segment is-result"><line x1="180" y1="220" x2="544" y2="220"/><circle cx="180" cy="220" r="9"/><circle cx="544" cy="220" r="9"/></g>' +
+          '<g class="lesson-number-line-ticks">' +
+          '<text x="180" y="278">−2</text><text x="398" y="278">1</text><text x="470" y="278">2</text><text x="544" y="278">3</text>' +
+          '</g></svg><figcaption>A、B 在 (1,2) 重叠，所以并集连成一段；最外侧端点 −2、3 都不取。</figcaption></figure>'
+        );
+      }
+
+      if (visual.kind === "number-line-complement-in-universe") {
+        return (
+          '<figure class="lesson-step-visual lesson-step-number-line">' +
+          '<svg viewBox="0 0 720 340" role="img" aria-label="' + ariaLabel + '">' +
+          '<g class="lesson-number-line-axis">' +
+          '<line x1="82" y1="68" x2="642" y2="68"/><path d="M642 68l-12-7v14z"/>' +
+          '<line x1="82" y1="156" x2="642" y2="156"/><path d="M642 156l-12-7v14z"/>' +
+          '<line x1="82" y1="244" x2="642" y2="244"/><path d="M642 244l-12-7v14z"/>' +
+          '</g>' +
+          '<g class="lesson-number-line-labels"><text x="42" y="74">U</text><text x="34" y="162">A∪B</text><text x="28" y="250">补集</text></g>' +
+          '<g class="lesson-number-line-segment is-a"><line x1="96" y1="68" x2="568" y2="68"/><path d="M90 68l14-9v18z" fill="currentColor"/><circle class="is-closed" cx="568" cy="68" r="9"/></g>' +
+          '<g class="lesson-number-line-segment is-b"><line x1="246" y1="156" x2="490" y2="156"/><circle class="is-closed" cx="246" cy="156" r="9"/><circle class="is-closed" cx="490" cy="156" r="9"/></g>' +
+          '<g class="lesson-number-line-segment is-result">' +
+          '<line x1="96" y1="244" x2="246" y2="244"/><path d="M90 244l14-9v18z" fill="currentColor"/><circle cx="246" cy="244" r="9"/>' +
+          '<line x1="490" y1="244" x2="568" y2="244"/><circle cx="490" cy="244" r="9"/><circle class="is-closed" cx="568" cy="244" r="9"/>' +
+          '</g>' +
+          '<g class="lesson-number-line-ticks"><text x="246" y="306">−1</text><text x="490" y="306">4</text><text x="568" y="306">5</text></g>' +
+          '</svg><figcaption>补集只能在全集 U 内取：删去 [−1,4] 后，−1、4 改为空心端点，U 的端点 5 仍保留。</figcaption></figure>'
+        );
+      }
+
+      if (visual.kind === "number-line-complement-intersection") {
+        return (
+          '<figure class="lesson-step-visual lesson-step-number-line">' +
+          '<svg viewBox="0 0 720 340" role="img" aria-label="' + ariaLabel + '">' +
+          '<g class="lesson-number-line-axis">' +
+          '<line x1="82" y1="68" x2="642" y2="68"/><path d="M642 68l-12-7v14z"/>' +
+          '<line x1="82" y1="156" x2="642" y2="156"/><path d="M642 156l-12-7v14z"/>' +
+          '<line x1="82" y1="244" x2="642" y2="244"/><path d="M642 244l-12-7v14z"/>' +
+          '</g>' +
+          '<g class="lesson-number-line-labels"><text x="30" y="70">C<tspan baseline-shift="sub" font-size="14">ℝ</tspan>A</text><text x="42" y="162">B</text><text x="24" y="250">交集</text></g>' +
+          '<g class="lesson-number-line-segment is-a">' +
+          '<line x1="96" y1="68" x2="350" y2="68"/><path d="M90 68l14-9v18z" fill="currentColor"/><circle cx="350" cy="68" r="9"/>' +
+          '<line x1="430" y1="68" x2="626" y2="68"/><circle cx="430" cy="68" r="9"/>' +
+          '</g>' +
+          '<g class="lesson-number-line-segment is-b"><line x1="210" y1="156" x2="560" y2="156"/><circle class="is-closed" cx="210" cy="156" r="9"/><circle class="is-closed" cx="560" cy="156" r="9"/></g>' +
+          '<g class="lesson-number-line-segment is-result">' +
+          '<line x1="210" y1="244" x2="350" y2="244"/><circle class="is-closed" cx="210" cy="244" r="9"/><circle cx="350" cy="244" r="9"/>' +
+          '<line x1="430" y1="244" x2="560" y2="244"/><circle cx="430" cy="244" r="9"/><circle class="is-closed" cx="560" cy="244" r="9"/>' +
+          '</g>' +
+          '<g class="lesson-number-line-ticks"><text x="210" y="306">−1</text><text x="350" y="306">1</text><text x="430" y="306">2</text><text x="560" y="306">4</text></g>' +
+          '</svg><figcaption>先在实数集中删去 [1,2]，再限制到 B=[−1,4]；1、2 被删去，−1、4 保留。</figcaption></figure>'
+        );
+      }
+
+      if (visual.kind === "number-line-parameter-union") {
+        return (
+          '<figure class="lesson-step-visual lesson-step-number-line">' +
+          '<svg viewBox="0 0 720 300" role="img" aria-label="' + ariaLabel + '">' +
+          '<g class="lesson-number-line-axis">' +
+          '<line x1="100" y1="64" x2="638" y2="64"/><path d="M638 64l-12-7v14z"/>' +
+          '<line x1="100" y1="142" x2="638" y2="142"/><path d="M638 142l-12-7v14z"/>' +
+          '<line x1="100" y1="220" x2="638" y2="220"/><path d="M638 220l-12-7v14z"/>' +
+          '</g>' +
+          '<g class="lesson-number-line-labels"><text x="50" y="70">A</text><text x="50" y="148">B</text><text x="40" y="226">A∪B</text></g>' +
+          '<g class="lesson-number-line-segment is-a"><line x1="398" y1="64" x2="544" y2="64"/><circle cx="398" cy="64" r="9"/><circle cx="544" cy="64" r="9"/></g>' +
+          '<g class="lesson-number-line-segment is-b"><line x1="180" y1="142" x2="470" y2="142"/><circle cx="180" cy="142" r="9"/><circle cx="470" cy="142" r="9"/></g>' +
+          '<g class="lesson-number-line-segment is-result"><line x1="180" y1="220" x2="544" y2="220"/><circle cx="180" cy="220" r="9"/><circle cx="544" cy="220" r="9"/></g>' +
+          '<g class="lesson-number-line-ticks"><text x="180" y="278">−2</text><text x="398" y="278">1</text><text x="470" y="278">2</text><text x="544" y="278">3</text></g>' +
+          '</svg><figcaption>m=−1 时 B=(−2,2)，它与 A=(1,3) 重叠，因此并集从 −2 连续延伸到 3。</figcaption></figure>'
+        );
+      }
+
+      if (visual.kind === "number-line-parameter-containment") {
+        return (
+          '<figure class="lesson-step-visual lesson-step-number-line">' +
+          '<svg viewBox="0 0 720 300" role="img" aria-label="' + ariaLabel + '">' +
+          '<g class="lesson-number-line-axis">' +
+          '<line x1="92" y1="86" x2="642" y2="86"/><path d="M642 86l-12-7v14z"/>' +
+          '<line x1="92" y1="174" x2="642" y2="174"/><path d="M642 174l-12-7v14z"/>' +
+          '</g>' +
+          '<g class="lesson-number-line-labels"><text x="48" y="92">A</text><text x="48" y="180">B</text></g>' +
+          '<g class="lesson-number-line-segment is-a"><line x1="300" y1="86" x2="480" y2="86"/><circle cx="300" cy="86" r="9"/><circle cx="480" cy="86" r="9"/></g>' +
+          '<g class="lesson-number-line-segment is-b"><line x1="180" y1="174" x2="574" y2="174"/><circle cx="180" cy="174" r="9"/><circle cx="574" cy="174" r="9"/></g>' +
+          '<g class="lesson-number-line-ticks">' +
+          '<text x="180" y="214">2m ≤ 1</text><text x="300" y="54">1</text><text x="480" y="54">3</text><text x="574" y="214">1−m ≥ 3</text>' +
+          '<text class="lesson-number-line-set-label" x="377" y="266">A ⊆ B ⇒ m ≤ −2</text>' +
+          '</g></svg><figcaption>B 的左端不越过 1、右端不早于 3，才能完整包住 A；开端点相等时仍满足包含。</figcaption></figure>'
+        );
+      }
+
+      if (visual.kind === "number-line-parameter-disjoint") {
+        return (
+          '<figure class="lesson-step-visual lesson-step-number-line">' +
+          '<svg viewBox="0 0 720 340" role="img" aria-label="' + ariaLabel + '">' +
+          '<g class="lesson-number-line-axis">' +
+          '<line x1="92" y1="76" x2="642" y2="76"/><path d="M642 76l-12-7v14z"/>' +
+          '<line x1="92" y1="164" x2="642" y2="164"/><path d="M642 164l-12-7v14z"/>' +
+          '</g>' +
+          '<g class="lesson-number-line-labels"><text x="48" y="82">A</text><text x="30" y="170">B非空</text></g>' +
+          '<g class="lesson-number-line-segment is-a"><line x1="350" y1="76" x2="520" y2="76"/><circle cx="350" cy="76" r="9"/><circle cx="520" cy="76" r="9"/></g>' +
+          '<g class="lesson-number-line-segment is-b"><line x1="180" y1="164" x2="350" y2="164"/><circle cx="180" cy="164" r="9"/><circle cx="350" cy="164" r="9"/></g>' +
+          '<g class="lesson-number-line-ticks">' +
+          '<text x="180" y="206">2m</text><text x="350" y="44">1</text><text x="350" y="206">1−m ≤ 1</text><text x="520" y="44">3</text>' +
+          '<text class="lesson-number-line-set-label" x="360" y="256">非空左置：0 ≤ m &lt; 1/3</text>' +
+          '<text class="lesson-number-line-set-label" x="360" y="304">再并入 B=∅ 的 m ≥ 1/3，得到 m ≥ 0</text>' +
+          '</g></svg><figcaption>B 非空时停在 A 左侧；B 为空时也自动无交集。两类参数范围取并集。</figcaption></figure>'
+        );
+      }
+
+      if (visual.kind === "number-line-cover-fixed-interval") {
+        return (
+          '<figure class="lesson-step-visual lesson-step-number-line">' +
+          '<svg viewBox="0 0 720 300" role="img" aria-label="' + ariaLabel + '">' +
+          '<g class="lesson-number-line-axis">' +
+          '<line x1="92" y1="86" x2="642" y2="86"/><path d="M642 86l-12-7v14z"/>' +
+          '<line x1="92" y1="174" x2="642" y2="174"/><path d="M642 174l-12-7v14z"/>' +
+          '</g>' +
+          '<g class="lesson-number-line-labels"><text x="48" y="92">A</text><text x="48" y="180">B</text></g>' +
+          '<g class="lesson-number-line-segment is-a"><line x1="320" y1="86" x2="480" y2="86"/><circle class="is-closed" cx="320" cy="86" r="9"/><circle class="is-closed" cx="480" cy="86" r="9"/></g>' +
+          '<g class="lesson-number-line-segment is-b"><line x1="180" y1="174" x2="574" y2="174"/><circle class="is-closed" cx="180" cy="174" r="9"/><circle class="is-closed" cx="574" cy="174" r="9"/></g>' +
+          '<g class="lesson-number-line-ticks">' +
+          '<text x="180" y="214">a ≤ 0</text><text x="320" y="54">0</text><text x="480" y="54">2</text><text x="574" y="214">3−2a ≥ 2</text>' +
+          '<text class="lesson-number-line-set-label" x="377" y="266">A ⊆ B ⇒ a ≤ 0</text>' +
+          '</g></svg><figcaption>B 必须覆盖 A=[0,2]：左端不大于 0，右端不小于 2。</figcaption></figure>'
+        );
+      }
+
+      if (visual.kind === "number-line-not-subset-cases") {
+        return (
+          '<figure class="lesson-step-visual lesson-step-number-line">' +
+          '<svg viewBox="0 0 720 350" role="img" aria-label="' + ariaLabel + '">' +
+          '<g class="lesson-number-line-axis">' +
+          '<line x1="106" y1="64" x2="642" y2="64"/><path d="M642 64l-12-7v14z"/>' +
+          '<line x1="106" y1="150" x2="642" y2="150"/><path d="M642 150l-12-7v14z"/>' +
+          '<line x1="106" y1="236" x2="642" y2="236"/><path d="M642 236l-12-7v14z"/>' +
+          '</g>' +
+          '<g class="lesson-number-line-labels"><text x="58" y="70">A</text><text x="46" y="156">B左越界</text><text x="46" y="242">B右越界</text></g>' +
+          '<g class="lesson-number-line-segment is-a"><line x1="300" y1="64" x2="460" y2="64"/><circle class="is-closed" cx="300" cy="64" r="9"/><circle class="is-closed" cx="460" cy="64" r="9"/></g>' +
+          '<g class="lesson-number-line-segment is-b"><line x1="190" y1="150" x2="400" y2="150"/><circle class="is-closed" cx="190" cy="150" r="9"/><circle class="is-closed" cx="400" cy="150" r="9"/></g>' +
+          '<g class="lesson-number-line-segment is-result"><line x1="360" y1="236" x2="570" y2="236"/><circle class="is-closed" cx="360" cy="236" r="9"/><circle class="is-closed" cx="570" cy="236" r="9"/></g>' +
+          '<g class="lesson-number-line-ticks">' +
+          '<text x="190" y="190">a &lt; 0</text><text x="300" y="36">0</text><text x="460" y="36">2</text><text x="570" y="276">3−2a &gt; 2</text>' +
+          '<text class="lesson-number-line-set-label" x="380" y="324">两种越界条件取并集 ⇒ a &lt; 1/2</text>' +
+          '</g></svg><figcaption>先排除空集。B 非空且不是 A 的子集，等价于 B 至少从左端或右端越出 A。</figcaption></figure>'
+        );
+      }
+
+      if (visual.kind === "number-line-practice-union-overlap") {
+        return (
+          '<figure class="lesson-step-visual lesson-step-number-line">' +
+          '<svg viewBox="0 0 720 310" role="img" aria-label="' + ariaLabel + '">' +
+          '<g class="lesson-number-line-axis"><line x1="90" y1="66" x2="642" y2="66"/><path d="M642 66l-12-7v14z"/><line x1="90" y1="150" x2="642" y2="150"/><path d="M642 150l-12-7v14z"/><line x1="90" y1="234" x2="642" y2="234"/><path d="M642 234l-12-7v14z"/></g>' +
+          '<g class="lesson-number-line-labels"><text x="48" y="72">A</text><text x="48" y="156">B</text><text x="26" y="240">A∪B</text></g>' +
+          '<g class="lesson-number-line-segment is-a"><line x1="180" y1="66" x2="470" y2="66"/><circle cx="180" cy="66" r="9"/><circle cx="470" cy="66" r="9"/></g>' +
+          '<g class="lesson-number-line-segment is-b"><line x1="290" y1="150" x2="574" y2="150"/><circle class="is-closed" cx="290" cy="150" r="9"/><circle cx="574" cy="150" r="9"/></g>' +
+          '<g class="lesson-number-line-segment is-result"><line x1="180" y1="234" x2="574" y2="234"/><circle cx="180" cy="234" r="9"/><circle cx="574" cy="234" r="9"/></g>' +
+          '<g class="lesson-number-line-ticks"><text x="180" y="286">−2</text><text x="290" y="286">−1</text><text x="470" y="286">2</text><text x="574" y="286">3</text></g>' +
+          '</svg><figcaption>A 与 B 有重叠，合并后从 −2 连续延伸到 3，两个最外端点均不取。</figcaption></figure>'
+        );
+      }
+
+      if (visual.kind === "number-line-practice-complement-interval") {
+        return (
+          '<figure class="lesson-step-visual lesson-step-number-line">' +
+          '<svg viewBox="0 0 720 280" role="img" aria-label="' + ariaLabel + '">' +
+          '<g class="lesson-number-line-axis"><line x1="82" y1="82" x2="642" y2="82"/><path d="M82 82l12-7v14z"/><path d="M642 82l-12-7v14z"/><line x1="82" y1="190" x2="642" y2="190"/><path d="M82 190l12-7v14z"/><path d="M642 190l-12-7v14z"/></g>' +
+          '<g class="lesson-number-line-labels"><text x="42" y="88">A</text><text x="16" y="196">C<tspan baseline-shift="sub" font-size="14">ℝ</tspan>A</text></g>' +
+          '<g class="lesson-number-line-segment is-a"><line x1="240" y1="82" x2="500" y2="82"/><circle cx="240" cy="82" r="9"/><circle class="is-closed" cx="500" cy="82" r="9"/></g>' +
+          '<g class="lesson-number-line-segment is-result"><line x1="88" y1="190" x2="240" y2="190"/><circle class="is-closed" cx="240" cy="190" r="9"/><line x1="500" y1="190" x2="636" y2="190"/><circle cx="500" cy="190" r="9"/></g>' +
+          '<g class="lesson-number-line-ticks"><text x="240" y="238">−2</text><text x="500" y="238">3</text><text class="lesson-number-line-set-label" x="370" y="268">(−∞,−2] ∪ (3,+∞)</text></g>' +
+          '</svg><figcaption>A 不取 −2、取 3，所以补集取 −2、不取 3。</figcaption></figure>'
+        );
+      }
+
+      if (visual.kind === "number-line-practice-finite-subset-ray") {
+        return (
+          '<figure class="lesson-step-visual lesson-step-number-line">' +
+          '<svg viewBox="0 0 720 340" role="img" aria-label="' + ariaLabel + '">' +
+          '<g class="lesson-number-line-axis">' +
+          '<line x1="92" y1="66" x2="642" y2="66"/><path d="M642 66l-12-7v14z"/>' +
+          '<line x1="92" y1="158" x2="642" y2="158"/><path d="M92 158l12-7v14z"/><path d="M642 158l-12-7v14z"/>' +
+          '<line x1="92" y1="250" x2="642" y2="250"/><path d="M92 250l12-7v14z"/><path d="M642 250l-12-7v14z"/>' +
+          '</g>' +
+          '<g class="lesson-number-line-labels"><text x="48" y="72">A</text><text x="48" y="164">B</text><text x="52" y="256">a的范围</text></g>' +
+          '<g class="lesson-number-line-segment is-a"><circle class="is-closed" cx="270" cy="66" r="9"/><circle class="is-closed" cx="420" cy="66" r="9"/></g>' +
+          '<g class="lesson-number-line-segment is-b"><line x1="98" y1="158" x2="540" y2="158"/><circle cx="540" cy="158" r="9"/></g>' +
+          '<g class="lesson-number-line-segment is-result"><line x1="420" y1="250" x2="636" y2="250"/><circle cx="420" cy="250" r="9"/><path d="M636 250l-12-7v14z" fill="currentColor"/></g>' +
+          '<g class="lesson-number-line-ticks">' +
+          '<text x="270" y="108">−2</text><text x="420" y="108">1</text><text x="540" y="200">a</text><text x="420" y="294">1</text>' +
+          '<text class="lesson-number-line-set-label" x="534" y="294">a &gt; 1</text>' +
+          '</g>' +
+          '</svg><figcaption>先在 A 的数轴上标出 −2、1，再让 B=(−∞,a) 覆盖这两个点；最后在参数轴上得到 a&gt;1。</figcaption></figure>'
+        );
+      }
+
+      if (visual.kind === "number-line-practice-a-minus-b") {
+        return (
+          '<figure class="lesson-step-visual lesson-step-number-line">' +
+          '<svg viewBox="0 0 720 310" role="img" aria-label="' + ariaLabel + '">' +
+          '<g class="lesson-number-line-axis"><line x1="82" y1="66" x2="642" y2="66"/><path d="M642 66l-12-7v14z"/><line x1="82" y1="150" x2="642" y2="150"/><path d="M82 150l12-7v14z"/><path d="M642 150l-12-7v14z"/><line x1="82" y1="234" x2="642" y2="234"/><path d="M642 234l-12-7v14z"/></g>' +
+          '<g class="lesson-number-line-labels"><text x="42" y="72">A</text><text x="42" y="156">B</text><text x="24" y="240">A∖B</text></g>' +
+          '<g class="lesson-number-line-segment is-a"><line x1="210" y1="66" x2="500" y2="66"/><circle cx="210" cy="66" r="9"/><circle class="is-closed" cx="500" cy="66" r="9"/></g>' +
+          '<g class="lesson-number-line-segment is-b"><line x1="88" y1="150" x2="300" y2="150"/><circle cx="300" cy="150" r="9"/><line x1="590" y1="150" x2="636" y2="150"/><circle cx="590" cy="150" r="9"/></g>' +
+          '<g class="lesson-number-line-segment is-result"><line x1="300" y1="234" x2="500" y2="234"/><circle class="is-closed" cx="300" cy="234" r="9"/><circle class="is-closed" cx="500" cy="234" r="9"/></g>' +
+          '<g class="lesson-number-line-ticks"><text x="210" y="286">−2</text><text x="300" y="286">−1</text><text x="500" y="286">3</text><text x="590" y="286">5</text></g>' +
+          '</svg><figcaption>从 A=(−2,3] 中删去属于 B 的 (−2,−1)，保留端点 −1，得到 [−1,3]。</figcaption></figure>'
         );
       }
 
