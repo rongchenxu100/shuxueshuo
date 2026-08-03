@@ -13,6 +13,13 @@
           "order": 10,
           "presentation": "learning",
           "topicId": "set-concepts-and-representation"
+        },
+        {
+          "id": "set-relations-and-operations",
+          "label": "集合的关系和运算",
+          "order": 20,
+          "presentation": "learning",
+          "topicId": "set-relations-and-operations"
         }
       ]
     },
@@ -2102,6 +2109,7 @@
           "examples": [
             {
               "group": "确定性",
+              "knowledgeCategory": "",
               "title": "集合中元素的确定性",
               "numberLabel": "",
               "display": "featured",
@@ -2133,6 +2141,7 @@
             },
             {
               "group": "互异性",
+              "knowledgeCategory": "",
               "title": "集合中元素的互异性",
               "numberLabel": "",
               "display": "featured",
@@ -2185,6 +2194,7 @@
             },
             {
               "group": "互异性",
+              "knowledgeCategory": "",
               "title": "根集中的元素个数",
               "numberLabel": "",
               "display": "featured",
@@ -2225,6 +2235,7 @@
             },
             {
               "group": "互异性",
+              "knowledgeCategory": "",
               "title": "集合元素的化简与去重",
               "numberLabel": "",
               "display": "featured",
@@ -2368,6 +2379,7 @@
           "examples": [
             {
               "group": "属于与不属于",
+              "knowledgeCategory": "",
               "title": "用符号表示元素与集合的关系",
               "numberLabel": "",
               "display": "featured",
@@ -2416,6 +2428,7 @@
             },
             {
               "group": "关系判断",
+              "knowledgeCategory": "",
               "title": "判断关于常用数集的命题",
               "numberLabel": "",
               "display": "featured",
@@ -2547,6 +2560,7 @@
           "examples": [
             {
               "group": "列举法",
+              "knowledgeCategory": "",
               "title": "列举指定范围内的整数",
               "numberLabel": "练习 4 · 1",
               "display": "featured",
@@ -2588,6 +2602,7 @@
             },
             {
               "group": "列举法",
+              "knowledgeCategory": "",
               "title": "用解集表示方程组的解",
               "numberLabel": "练习 4 · 2",
               "display": "featured",
@@ -2618,6 +2633,7 @@
             },
             {
               "group": "列举法",
+              "knowledgeCategory": "",
               "title": "辨认方程组解集的正确写法",
               "numberLabel": "练习 4 · 3",
               "display": "featured",
@@ -2645,6 +2661,7 @@
             },
             {
               "group": "列举法",
+              "knowledgeCategory": "",
               "title": "由元素属于集合求参数",
               "numberLabel": "练习 4 · 4",
               "display": "featured",
@@ -2682,6 +2699,7 @@
             },
             {
               "group": "列举法",
+              "knowledgeCategory": "",
               "title": "检查集合中的参数候选值",
               "numberLabel": "练习 4 · 5",
               "display": "featured",
@@ -2712,6 +2730,7 @@
             },
             {
               "group": "列举法",
+              "knowledgeCategory": "",
               "title": "利用两个列举集合相等求值",
               "numberLabel": "练习 4 · 6",
               "display": "featured",
@@ -2746,6 +2765,7 @@
             },
             {
               "group": "描述法",
+              "knowledgeCategory": "",
               "title": "读懂描述法中代表元素的含义",
               "numberLabel": "练习 5 · 1",
               "display": "featured",
@@ -2845,6 +2865,7 @@
             },
             {
               "group": "描述法",
+              "knowledgeCategory": "",
               "title": "把描述法集合改写为列举法",
               "numberLabel": "练习 6 · 1",
               "display": "featured",
@@ -2887,6 +2908,7 @@
             },
             {
               "group": "描述法",
+              "knowledgeCategory": "",
               "title": "列举不等式中的整数解",
               "numberLabel": "练习 6 · 2",
               "display": "featured",
@@ -2925,6 +2947,7 @@
             },
             {
               "group": "描述法",
+              "knowledgeCategory": "",
               "title": "列举含整除条件的集合",
               "numberLabel": "练习 6 · 3（1）",
               "display": "featured",
@@ -2963,6 +2986,7 @@
             },
             {
               "group": "描述法",
+              "knowledgeCategory": "",
               "title": "列举有限范围内的有理数",
               "numberLabel": "练习 6 · 3（2）",
               "display": "featured",
@@ -3002,6 +3026,7 @@
             },
             {
               "group": "描述法",
+              "knowledgeCategory": "",
               "title": "列举满足条件的有序数对",
               "numberLabel": "练习 6 · 3（3）",
               "display": "featured",
@@ -3040,6 +3065,7 @@
             },
             {
               "group": "描述法",
+              "knowledgeCategory": "",
               "title": "辨析不同形式表示的集合",
               "numberLabel": "练习 7 · 1",
               "display": "featured",
@@ -3070,6 +3096,7 @@
             },
             {
               "group": "描述法",
+              "knowledgeCategory": "",
               "title": "由取值范围判断集合相等",
               "numberLabel": "练习 7 · 2",
               "display": "featured",
@@ -3100,6 +3127,7 @@
             },
             {
               "group": "描述法",
+              "knowledgeCategory": "",
               "title": "按乘积条件统计有序数对",
               "numberLabel": "练习 8 · 1",
               "display": "featured",
@@ -3133,6 +3161,7 @@
             },
             {
               "group": "描述法",
+              "knowledgeCategory": "",
               "title": "按新定义运算列举集合",
               "numberLabel": "练习 8 · 2",
               "display": "featured",
@@ -3171,6 +3200,7 @@
             },
             {
               "group": "描述法",
+              "knowledgeCategory": "",
               "title": "按差值条件统计有序数对",
               "numberLabel": "练习 8 · 3",
               "display": "featured",
@@ -3204,6 +3234,7 @@
             },
             {
               "group": "描述法",
+              "knowledgeCategory": "",
               "title": "求差值封闭时有序数对的最大数量",
               "numberLabel": "练习 8 · 4",
               "display": "featured",
@@ -3237,6 +3268,7 @@
             },
             {
               "group": "描述法",
+              "knowledgeCategory": "",
               "title": "计算新定义集合中元素之和",
               "numberLabel": "练习 8 · 5",
               "display": "featured",
@@ -3267,6 +3299,7 @@
             },
             {
               "group": "描述法",
+              "knowledgeCategory": "",
               "title": "研究变换封闭的有限集合",
               "numberLabel": "练习 8 · 6",
               "display": "featured",
@@ -3328,6 +3361,7 @@
             },
             {
               "group": "区间表示法",
+              "knowledgeCategory": "",
               "title": "把四个实数集合写成区间",
               "numberLabel": "练习 9 · 1",
               "display": "featured",
@@ -3406,6 +3440,7 @@
             },
             {
               "group": "Venn 图法",
+              "knowledgeCategory": "",
               "title": "由 Venn 图阴影确定区间",
               "numberLabel": "练习 10 · 1",
               "display": "featured",
@@ -3441,6 +3476,7 @@
             },
             {
               "group": "Venn 图法",
+              "knowledgeCategory": "",
               "title": "由离散全集读取 Venn 图阴影",
               "numberLabel": "练习 10 · 2",
               "display": "featured",
@@ -3475,6 +3511,7 @@
             },
             {
               "group": "Venn 图法",
+              "knowledgeCategory": "",
               "title": "统计两项比赛都参加的人数",
               "numberLabel": "练习 11 · 1",
               "display": "featured",
@@ -3509,6 +3546,7 @@
             },
             {
               "group": "Venn 图法",
+              "knowledgeCategory": "",
               "title": "求三天售出商品种类的最小值",
               "numberLabel": "练习 11 · 2",
               "display": "featured",
@@ -3771,6 +3809,2106 @@
                   ]
                 },
                 "solutionPath": "problems/senior-high/sets/set-concepts-and-representation/set-practice-q06.html"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "set-relations-and-operations",
+      "chapterId": "sets",
+      "sectionId": "set-relations-and-operations",
+      "title": "集合的关系和运算",
+      "eyebrow": "第二讲",
+      "introduction": [
+        "学习一个新的数学概念后，不仅要掌握它的定义，还要研究同类对象之间的关系以及相应的运算。"
+      ],
+      "introductionHtml": [
+        "学习一个新的数学概念后，不仅要掌握它的定义，还要研究同类对象之间的关系以及相应的运算。"
+      ],
+      "mapNodes": [
+        {
+          "id": "set-relations",
+          "label": "集合的关系",
+          "moduleId": "set-relations",
+          "children": [
+            {
+              "label": "子集",
+              "children": [
+                "空集是任何集合的子集"
+              ]
+            },
+            {
+              "label": "集合相等"
+            },
+            {
+              "label": "真子集",
+              "children": [
+                "空集是任何非空集合的真子集"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "set-operations",
+          "label": "集合的运算",
+          "moduleId": "set-operations",
+          "children": [
+            "交集",
+            "并集",
+            "补集"
+          ]
+        }
+      ],
+      "modules": [
+        {
+          "id": "set-relations",
+          "label": "集合间的基本关系",
+          "type": "knowledge",
+          "status": "published",
+          "description": "掌握子集、集合相等和真子集，辨析元素与集合、集合与集合的关系，并解决子集计数与区间包含问题。",
+          "knowledgeGroups": [
+            {
+              "category": "concept",
+              "number": "01",
+              "eyebrow": "包含与相等",
+              "title": "子集和集合相等",
+              "visual": "venn-subset"
+            },
+            {
+              "category": "property",
+              "number": "02",
+              "eyebrow": "严格包含",
+              "title": "真子集与符号辨析"
+            },
+            {
+              "category": "interval",
+              "number": "03",
+              "eyebrow": "计数与应用",
+              "title": "子集个数和区间包含"
+            }
+          ],
+          "knowledgeBlocks": [
+            {
+              "category": "concept",
+              "title": "子集",
+              "body": [
+                "对于两个集合 \\(A,B\\)，如果集合 \\(A\\) 中任意一个元素都是集合 \\(B\\) 中的元素，就称集合 \\(A\\) 为集合 \\(B\\) 的子集，记作 \\(A\\subseteq B\\)。",
+                "空集是任何集合的子集，即对任意集合 \\(A\\)，都有 \\(\\varnothing\\subseteq A\\)。"
+              ],
+              "bodyHtml": [
+                "对于两个集合 <span class=\"inline-math\">A,B</span>，如果集合 <span class=\"inline-math\">A</span> 中任意一个元素都是集合 <span class=\"inline-math\">B</span> 中的元素，就称集合 <span class=\"inline-math\">A</span> 为集合 <span class=\"inline-math\">B</span> 的子集，记作 <span class=\"inline-math\">A⊆ B</span>。",
+                "空集是任何集合的子集，即对任意集合 <span class=\"inline-math\">A</span>，都有 <span class=\"inline-math\">∅⊆ A</span>。"
+              ]
+            },
+            {
+              "category": "concept",
+              "title": "集合相等",
+              "body": [
+                "如果 \\(A\\subseteq B\\)，并且 \\(B\\subseteq A\\)，那么集合 \\(A\\) 与集合 \\(B\\) 中的元素完全相同，记作 \\(A=B\\)。",
+                "证明两个集合相等时，可以证明双向包含，也可以分别求出两个集合后比较元素。"
+              ],
+              "bodyHtml": [
+                "如果 <span class=\"inline-math\">A⊆ B</span>，并且 <span class=\"inline-math\">B⊆ A</span>，那么集合 <span class=\"inline-math\">A</span> 与集合 <span class=\"inline-math\">B</span> 中的元素完全相同，记作 <span class=\"inline-math\">A=B</span>。",
+                "证明两个集合相等时，可以证明双向包含，也可以分别求出两个集合后比较元素。"
+              ]
+            },
+            {
+              "category": "property",
+              "title": "真子集",
+              "body": [
+                "如果 \\(A\\subseteq B\\)，但存在元素属于 \\(B\\) 而不属于 \\(A\\)，就称 \\(A\\) 是 \\(B\\) 的真子集，记作 \\(A\\subsetneq B\\)。",
+                "空集是任何非空集合的真子集；集合本身是自己的子集，但不是自己的真子集。"
+              ],
+              "bodyHtml": [
+                "如果 <span class=\"inline-math\">A⊆ B</span>，但存在元素属于 <span class=\"inline-math\">B</span> 而不属于 <span class=\"inline-math\">A</span>，就称 <span class=\"inline-math\">A</span> 是 <span class=\"inline-math\">B</span> 的真子集，记作 <span class=\"inline-math\">A⊊ B</span>。",
+                "空集是任何非空集合的真子集；集合本身是自己的子集，但不是自己的真子集。"
+              ]
+            },
+            {
+              "category": "property",
+              "title": "元素关系与集合关系",
+              "body": [
+                "\\(a\\in A\\) 描述元素与集合的关系；\\(A\\subseteq B\\) 描述集合与集合的关系。判断符号前先看左侧对象是元素还是集合。",
+                "\\(0\\)、\\(\\{0\\}\\)、\\(\\varnothing\\)、\\(\\{\\varnothing\\}\\) 是四个不同对象，不能混淆。"
+              ],
+              "bodyHtml": [
+                "<span class=\"inline-math\">a∈ A</span> 描述元素与集合的关系；<span class=\"inline-math\">A⊆ B</span> 描述集合与集合的关系。判断符号前先看左侧对象是元素还是集合。",
+                "<span class=\"inline-math\">0</span>、<span class=\"inline-math\">{0}</span>、<span class=\"inline-math\">∅</span>、<span class=\"inline-math\">{∅}</span> 是四个不同对象，不能混淆。"
+              ]
+            },
+            {
+              "category": "interval",
+              "title": "有限集合的子集个数",
+              "body": [
+                "含有 \\(n\\) 个元素的有限集合共有 \\(2^n\\) 个子集，其中真子集有 \\(2^n-1\\) 个，非空真子集有 \\(2^n-2\\) 个。",
+                "若 \\(P\\subseteq M\\subseteq Q\\)，且 \\(Q\\setminus P\\) 有 \\(k\\) 个元素，则集合 \\(M\\) 有 \\(2^k\\) 种。"
+              ],
+              "bodyHtml": [
+                "含有 <span class=\"inline-math\">n</span> 个元素的有限集合共有 <span class=\"inline-math\">2<sup>n</sup></span> 个子集，其中真子集有 <span class=\"inline-math\">2<sup>n</sup>-1</span> 个，非空真子集有 <span class=\"inline-math\">2<sup>n</sup>-2</span> 个。",
+                "若 <span class=\"inline-math\">P⊆ M⊆ Q</span>，且 <span class=\"inline-math\">Q∖ P</span> 有 <span class=\"inline-math\">k</span> 个元素，则集合 <span class=\"inline-math\">M</span> 有 <span class=\"inline-math\">2<sup>k</sup></span> 种。"
+              ]
+            },
+            {
+              "category": "interval",
+              "title": "区间集合的包含",
+              "body": [
+                "处理 \\(B\\subseteq A\\) 时，先判断 \\(B\\) 是否为空集；空集自动满足包含关系。",
+                "当 \\(B\\) 非空时，再比较左右端点，同时检查端点能否取到，避免忽略开区间与闭区间的差别。"
+              ],
+              "bodyHtml": [
+                "处理 <span class=\"inline-math\">B⊆ A</span> 时，先判断 <span class=\"inline-math\">B</span> 是否为空集；空集自动满足包含关系。",
+                "当 <span class=\"inline-math\">B</span> 非空时，再比较左右端点，同时检查端点能否取到，避免忽略开区间与闭区间的差别。"
+              ]
+            }
+          ],
+          "examples": [
+            {
+              "group": "子集",
+              "knowledgeCategory": "concept",
+              "title": "写出三元素集合的全部子集",
+              "numberLabel": "练习 1 · 1",
+              "display": "featured",
+              "hints": [
+                "按子集所含元素个数从 0 到 3 分类列举。",
+                "不要漏掉空集和集合本身。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "{∅,{a},{b},{c},{a,b},{a,c},{b,c},{a,b,c}}",
+                  "∅,{a},{b},{c},{a,b},{a,c},{b,c},{a,b,c}"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "依次写出全部子集",
+                  "keyboard": [
+                    "set-braces",
+                    "comma"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "set-relations-subset-q01",
+                "title": "写出三元素集合的全部子集",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "请写出集合 \\(A=\\{a,b,c\\}\\) 的子集。",
+                      "html": "请写出集合 <span class=\"inline-math\">A={a,b,c}</span> 的子集。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-relations-subset-q01.html"
+              }
+            },
+            {
+              "group": "子集",
+              "knowledgeCategory": "concept",
+              "title": "辨析空集与单元素集合",
+              "numberLabel": "练习 1 · 2",
+              "display": "featured",
+              "hints": [
+                "空集是任何集合的子集。",
+                "注意 \\(\\varnothing\\) 与 \\(\\{0\\}\\) 不是同一个集合。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "D"
+              },
+              "lesson": {
+                "id": "set-relations-subset-q02",
+                "title": "辨析空集与单元素集合",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "下列表述正确的是（　　）",
+                      "html": "下列表述正确的是（　　）"
+                    },
+                    {
+                      "text": "A. \\(0\\subseteq\\{0\\}\\)　　B. \\(\\{0\\}\\in\\{0,1\\}\\)　　C. \\(\\varnothing\\in\\{0\\}\\)　　D. \\(\\varnothing\\subseteq\\{0\\}\\)",
+                      "html": "A. <span class=\"inline-math\">0⊆{0}</span>　　B. <span class=\"inline-math\">{0}∈{0,1}</span>　　C. <span class=\"inline-math\">∅∈{0}</span>　　D. <span class=\"inline-math\">∅⊆{0}</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-relations-subset-q02.html"
+              }
+            },
+            {
+              "group": "子集",
+              "knowledgeCategory": "concept",
+              "title": "区分属于和包含于",
+              "numberLabel": "练习 1 · 3",
+              "display": "featured",
+              "hints": [
+                "先判断左侧是元素还是集合。",
+                "花括号括起的整体是集合。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "C"
+              },
+              "lesson": {
+                "id": "set-relations-subset-q03",
+                "title": "区分属于和包含于",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "下列关系中表示错误的是（　　）",
+                      "html": "下列关系中表示错误的是（　　）"
+                    },
+                    {
+                      "text": "A. \\(\\varnothing\\subseteq\\{1,2,3\\}\\)　　B. \\(\\{3,2,1\\}\\subseteq\\{1,2,3\\}\\)　　C. \\(\\{1,2\\}\\in\\{1,2,3\\}\\)　　D. \\(\\{2,3\\}\\subseteq\\{1,2,3\\}\\)",
+                      "html": "A. <span class=\"inline-math\">∅⊆{1,2,3}</span>　　B. <span class=\"inline-math\">{3,2,1}⊆{1,2,3}</span>　　C. <span class=\"inline-math\">{1,2}∈{1,2,3}</span>　　D. <span class=\"inline-math\">{2,3}⊆{1,2,3}</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-relations-subset-q03.html"
+              }
+            },
+            {
+              "group": "子集",
+              "knowledgeCategory": "concept",
+              "title": "统计正确集合关系的个数",
+              "numberLabel": "练习 1 · 4",
+              "display": "featured",
+              "hints": [
+                "逐项区分元素与集合。",
+                "集合元素无序，空集是任何集合的子集。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "B"
+              },
+              "lesson": {
+                "id": "set-relations-subset-q04",
+                "title": "统计正确集合关系的个数",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "下列各式中：① \\(\\{0\\}\\in\\{0,1,2\\}\\)；② \\(\\{0,1,2\\}\\subseteq\\{2,1,0\\}\\)；③ \\(\\varnothing\\subseteq\\{0,1,2\\}\\)；④ \\(\\varnothing=\\{0\\}\\)；⑤ \\(\\{0,1\\}=\\{(0,1)\\}\\)；⑥ \\(0=\\{0\\}\\)。正确的个数是（　　）",
+                      "html": "下列各式中：① <span class=\"inline-math\">{0}∈{0,1,2}</span>；② <span class=\"inline-math\">{0,1,2}⊆{2,1,0}</span>；③ <span class=\"inline-math\">∅⊆{0,1,2}</span>；④ <span class=\"inline-math\">∅={0}</span>；⑤ <span class=\"inline-math\">{0,1}={(0,1)}</span>；⑥ <span class=\"inline-math\">0={0}</span>。正确的个数是（　　）"
+                    },
+                    {
+                      "text": "A. 1　　B. 2　　C. 3　　D. 4",
+                      "html": "A. 1　　B. 2　　C. 3　　D. 4"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-relations-subset-q04.html"
+              }
+            },
+            {
+              "group": "子集",
+              "knowledgeCategory": "concept",
+              "title": "由描述法确定元素关系",
+              "numberLabel": "练习 1 · 5",
+              "display": "featured",
+              "hints": [
+                "先把整数集合列举出来。",
+                "选项左侧若有花括号，就应按集合关系判断。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "C"
+              },
+              "lesson": {
+                "id": "set-relations-subset-q05",
+                "title": "由描述法确定元素关系",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知集合 \\(A=\\{x\\in\\mathbb Z\\mid -2<x<3\\}\\)，则下列选项正确的是（　　）",
+                      "html": "已知集合 <span class=\"inline-math\">A={x∈<span class=\"math-blackboard\">ℤ</span>| -2&lt;x&lt;3}</span>，则下列选项正确的是（　　）"
+                    },
+                    {
+                      "text": "A. \\(\\frac{1}{2}\\in A\\)　　B. \\(-1\\subseteq A\\)　　C. \\(3\\notin A\\)　　D. \\(\\{3\\}\\subseteq A\\)",
+                      "html": "A. <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">2</span></span>∈ A</span>　　B. <span class=\"inline-math\">-1⊆ A</span>　　C. <span class=\"inline-math\">3<span class=\"math-notin\" role=\"img\" aria-label=\"不属于\"><svg viewBox=\"0 0 18 18\" aria-hidden=\"true\" focusable=\"false\"><path d=\"M15 3H9C5.3 3 3 5.5 3 9s2.3 6 6 6h6M3.7 9h10.8M4.5 16L14 2\"/></svg></span> A</span>　　D. <span class=\"inline-math\">{3}⊆ A</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-relations-subset-q05.html"
+              }
+            },
+            {
+              "group": "子集",
+              "knowledgeCategory": "concept",
+              "title": "统计夹在两个集合之间的集合",
+              "numberLabel": "练习 1 · 6",
+              "display": "featured",
+              "hints": [
+                "集合 \\(M\\) 必须含有 1、2。",
+                "其余三个元素各自都有选或不选两种状态。"
+              ],
+              "answerSchema": {
+                "type": "integer",
+                "expected": "8",
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写集合 M 的个数",
+                  "keyboard": [
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "set-relations-subset-q06",
+                "title": "统计夹在两个集合之间的集合",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知集合 \\(M\\) 满足 \\(\\{1,2\\}\\subseteq M\\subseteq\\{1,2,3,4,5\\}\\)，这样的集合 \\(M\\) 有（　　）个。",
+                      "html": "已知集合 <span class=\"inline-math\">M</span> 满足 <span class=\"inline-math\">{1,2}⊆ M⊆{1,2,3,4,5}</span>，这样的集合 <span class=\"inline-math\">M</span> 有（　　）个。"
+                    },
+                    {
+                      "text": "A. 7　　B. 8　　C. 9　　D. 10",
+                      "html": "A. 7　　B. 8　　C. 9　　D. 10"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-relations-subset-q06.html"
+              }
+            },
+            {
+              "group": "集合相等",
+              "knowledgeCategory": "concept",
+              "title": "比较三个集合对",
+              "numberLabel": "练习 2 · 1",
+              "display": "featured",
+              "hints": [
+                "分别求出方程的解集或函数的值域。",
+                "元素完全相同的两个集合相等。"
+              ],
+              "answerSchema": {
+                "type": "relation-sequence",
+                "expected": [
+                  "=",
+                  "=",
+                  "="
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "依次填写三个关系符号",
+                  "keyboard": [
+                    "equals"
+                  ],
+                  "relations": [
+                    "=",
+                    "⊆",
+                    "⊊",
+                    "⊋"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "set-relations-equality-q01",
+                "title": "比较三个集合对",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "研究下列集合之间的关系：",
+                      "html": "研究下列集合之间的关系："
+                    },
+                    {
+                      "text": "① \\(A=\\{1,2\\}\\) ___ \\(B=\\{x\\mid x^2-3x+2=0\\}\\)；",
+                      "html": "① <span class=\"inline-math\">A={1,2}</span> ___ <span class=\"inline-math\">B={x| x<sup>2</sup>-3x+2=0}</span>；"
+                    },
+                    {
+                      "text": "② \\(A=\\varnothing\\) ___ \\(B=\\{x\\in\\mathbb R\\mid x^2+1=0\\}\\)；",
+                      "html": "② <span class=\"inline-math\">A=∅</span> ___ <span class=\"inline-math\">B={x∈<span class=\"math-blackboard\">ℝ</span>| x<sup>2</sup>+1=0}</span>；"
+                    },
+                    {
+                      "text": "③ \\(A=\\{y\\mid y=x^2+1,x\\in\\mathbb R\\}\\) ___ \\(B=\\{y\\mid y=x^2-4x+5,x\\in\\mathbb R\\}\\)。",
+                      "html": "③ <span class=\"inline-math\">A={y| y=x<sup>2</sup>+1,x∈<span class=\"math-blackboard\">ℝ</span>}</span> ___ <span class=\"inline-math\">B={y| y=x<sup>2</sup>-4x+5,x∈<span class=\"math-blackboard\">ℝ</span>}</span>。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-relations-equality-q01.html"
+              }
+            },
+            {
+              "group": "集合相等",
+              "knowledgeCategory": "concept",
+              "title": "再次辨析六个集合关系",
+              "numberLabel": "练习 2 · 2",
+              "display": "featured",
+              "hints": [
+                "相同元素的排列顺序不影响集合。",
+                "元素与集合不能用子集符号连接。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "B"
+              },
+              "lesson": {
+                "id": "set-relations-equality-q02",
+                "title": "再次辨析六个集合关系",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "下列各式中：① \\(\\{0\\}\\in\\{0,1,2\\}\\)；② \\(\\{0,1,2\\}\\subseteq\\{2,1,0\\}\\)；③ \\(\\varnothing\\subseteq\\{0,1,2\\}\\)；④ \\(\\varnothing=\\{0\\}\\)；⑤ \\(\\{0,1\\}=\\{(0,1)\\}\\)；⑥ \\(0=\\{0\\}\\)。正确的个数是（　　）",
+                      "html": "下列各式中：① <span class=\"inline-math\">{0}∈{0,1,2}</span>；② <span class=\"inline-math\">{0,1,2}⊆{2,1,0}</span>；③ <span class=\"inline-math\">∅⊆{0,1,2}</span>；④ <span class=\"inline-math\">∅={0}</span>；⑤ <span class=\"inline-math\">{0,1}={(0,1)}</span>；⑥ <span class=\"inline-math\">0={0}</span>。正确的个数是（　　）"
+                    },
+                    {
+                      "text": "A. 1　　B. 2　　C. 3　　D. 4",
+                      "html": "A. 1　　B. 2　　C. 3　　D. 4"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-relations-equality-q02.html"
+              }
+            },
+            {
+              "group": "真子集",
+              "knowledgeCategory": "property",
+              "title": "判断七个关系式",
+              "numberLabel": "练习 3 · 1",
+              "display": "featured",
+              "hints": [
+                "空集是任何非空集合的真子集。",
+                "逐项区分 0、{0}、空集和含空集的集合。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "①⑦",
+                  "1,7",
+                  "①,⑦"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "写出正确关系式的序号",
+                  "keyboard": [
+                    "digits",
+                    "comma"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "set-relations-proper-subset-q01",
+                "title": "判断七个关于真子集的关系式",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "下列说法正确的是：",
+                      "html": "下列说法正确的是："
+                    },
+                    {
+                      "text": "① \\(\\varnothing\\subsetneq\\{0\\}\\)　② \\(a\\subseteq\\{a\\}\\)　③ \\(\\varnothing\\in\\{a\\}\\)　④ \\(\\varnothing=\\{\\varnothing\\}\\)　⑤ \\(\\varnothing=\\{0\\}\\)　⑥ \\(0\\in\\varnothing\\)　⑦ \\(\\varnothing\\subseteq\\{0\\}\\)",
+                      "html": "① <span class=\"inline-math\">∅⊊{0}</span>　② <span class=\"inline-math\">a⊆{a}</span>　③ <span class=\"inline-math\">∅∈{a}</span>　④ <span class=\"inline-math\">∅={∅}</span>　⑤ <span class=\"inline-math\">∅={0}</span>　⑥ <span class=\"inline-math\">0∈∅</span>　⑦ <span class=\"inline-math\">∅⊆{0}</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-relations-proper-subset-q01.html"
+              }
+            },
+            {
+              "group": "真子集",
+              "knowledgeCategory": "property",
+              "title": "统计正确命题的个数",
+              "numberLabel": "练习 3 · 2",
+              "display": "featured",
+              "hints": [
+                "对自然数命题检查边界值 0。",
+                "先求出每个集合的元素，再数子集或元素。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "B"
+              },
+              "lesson": {
+                "id": "set-relations-proper-subset-q02",
+                "title": "统计正确命题的个数",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "有下列四个命题：① \\(\\{\\varnothing\\}\\) 没有真子集；② 若 \\(a\\in\\mathbb N\\)，则 \\(-a\\notin\\mathbb N\\)；③ 集合 \\(A=\\{x\\in\\mathbb R\\mid x^2-2x+1=0\\}\\) 有 4 个子集；④ 集合 \\(B=\\{x\\in\\mathbb N\\mid \\frac{6}{x}\\in\\mathbb N\\}\\) 中有 4 个元素。其中正确命题的个数是（　　）",
+                      "html": "有下列四个命题：① <span class=\"inline-math\">{∅}</span> 没有真子集；② 若 <span class=\"inline-math\">a∈<span class=\"math-blackboard\">ℕ</span></span>，则 <span class=\"inline-math\">-a<span class=\"math-notin\" role=\"img\" aria-label=\"不属于\"><svg viewBox=\"0 0 18 18\" aria-hidden=\"true\" focusable=\"false\"><path d=\"M15 3H9C5.3 3 3 5.5 3 9s2.3 6 6 6h6M3.7 9h10.8M4.5 16L14 2\"/></svg></span><span class=\"math-blackboard\">ℕ</span></span>；③ 集合 <span class=\"inline-math\">A={x∈<span class=\"math-blackboard\">ℝ</span>| x<sup>2</sup>-2x+1=0}</span> 有 4 个子集；④ 集合 <span class=\"inline-math\">B={x∈<span class=\"math-blackboard\">ℕ</span>| <span class=\"math-fraction\"><span class=\"math-numerator\">6</span><span class=\"math-denominator\">x</span></span>∈<span class=\"math-blackboard\">ℕ</span>}</span> 中有 4 个元素。其中正确命题的个数是（　　）"
+                    },
+                    {
+                      "text": "A. 0　　B. 1　　C. 2　　D. 3",
+                      "html": "A. 0　　B. 1　　C. 2　　D. 3"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-relations-proper-subset-q02.html"
+              }
+            },
+            {
+              "group": "真子集",
+              "knowledgeCategory": "property",
+              "title": "填写元素与集合、集合与集合的关系",
+              "numberLabel": "练习 4 · 1",
+              "display": "featured",
+              "hints": [
+                "先判断左侧对象的类型。",
+                "比较两个倍数集合时注意包含方向。"
+              ],
+              "answerSchema": {
+                "type": "relation-sequence",
+                "expected": [
+                  "⊊",
+                  "∉",
+                  "∉",
+                  "⊊",
+                  "⊋"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "依次填写五个关系符号",
+                  "keyboard": [
+                    "in",
+                    "not-in"
+                  ],
+                  "relations": [
+                    "∈",
+                    "∉",
+                    "⊊",
+                    "⊋"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "set-relations-symbols-q01",
+                "title": "填写五个集合关系符号",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "用最恰当的符号（\\(\\in,\\notin,\\subsetneq,\\supsetneq\\)）填空：",
+                      "html": "用最恰当的符号（<span class=\"inline-math\">∈,<span class=\"math-notin\" role=\"img\" aria-label=\"不属于\"><svg viewBox=\"0 0 18 18\" aria-hidden=\"true\" focusable=\"false\"><path d=\"M15 3H9C5.3 3 3 5.5 3 9s2.3 6 6 6h6M3.7 9h10.8M4.5 16L14 2\"/></svg></span>,⊊,⊋</span>）填空："
+                    },
+                    {
+                      "text": "① \\(\\varnothing\\) ___ \\(\\{0\\}\\)；② \\(2\\) ___ \\(\\{(1,2)\\}\\)；③ \\(0\\) ___ \\(\\{x\\mid x^2-2x+5=0\\}\\)；④ \\(\\{3,5\\}\\) ___ \\(\\mathbb N\\)；⑤ \\(\\{x\\mid x=2k,k\\in\\mathbb N\\}\\) ___ \\(\\{x\\mid x=6t,t\\in\\mathbb N\\}\\)。",
+                      "html": "① <span class=\"inline-math\">∅</span> ___ <span class=\"inline-math\">{0}</span>；② <span class=\"inline-math\">2</span> ___ <span class=\"inline-math\">{(1,2)}</span>；③ <span class=\"inline-math\">0</span> ___ <span class=\"inline-math\">{x| x<sup>2</sup>-2x+5=0}</span>；④ <span class=\"inline-math\">{3,5}</span> ___ <span class=\"inline-math\"><span class=\"math-blackboard\">ℕ</span></span>；⑤ <span class=\"inline-math\">{x| x=2k,k∈<span class=\"math-blackboard\">ℕ</span>}</span> ___ <span class=\"inline-math\">{x| x=6t,t∈<span class=\"math-blackboard\">ℕ</span>}</span>。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-relations-symbols-q01.html"
+              }
+            },
+            {
+              "group": "真子集",
+              "knowledgeCategory": "property",
+              "title": "比较三个函数值域",
+              "numberLabel": "练习 4 · 2",
+              "display": "featured",
+              "hints": [
+                "配方求出每个函数的值域。",
+                "值域端点越小，向正无穷延伸的集合越大。"
+              ],
+              "answerSchema": {
+                "type": "relation-sequence",
+                "expected": [
+                  "⊋",
+                  "⊊",
+                  "⊊"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "依次填写三个关系符号",
+                  "keyboard": [],
+                  "relations": [
+                    "⊊",
+                    "⊋"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "set-relations-symbols-q02",
+                "title": "比较三个函数值域",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "研究下列集合之间的关系（用 \\(\\subsetneq,\\supsetneq\\) 表示）：",
+                      "html": "研究下列集合之间的关系（用 <span class=\"inline-math\">⊊,⊋</span> 表示）："
+                    },
+                    {
+                      "text": "① \\(A=\\{x\\mid x>1\\}\\) ___ \\(B=\\{x\\mid x>2\\}\\)；",
+                      "html": "① <span class=\"inline-math\">A={x| x&gt;1}</span> ___ <span class=\"inline-math\">B={x| x&gt;2}</span>；"
+                    },
+                    {
+                      "text": "② \\(A=\\{y\\mid y=x^2\\}\\) ___ \\(B=\\{y\\mid y=x^2+x\\}\\)；",
+                      "html": "② <span class=\"inline-math\">A={y| y=x<sup>2</sup>}</span> ___ <span class=\"inline-math\">B={y| y=x<sup>2</sup>+x}</span>；"
+                    },
+                    {
+                      "text": "③ \\(A=\\{y\\mid y=-x^2\\}\\) ___ \\(B=\\{y\\mid y=-x^2+x\\}\\)。",
+                      "html": "③ <span class=\"inline-math\">A={y| y=-x<sup>2</sup>}</span> ___ <span class=\"inline-math\">B={y| y=-x<sup>2</sup>+x}</span>。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-relations-symbols-q02.html"
+              }
+            },
+            {
+              "group": "真子集",
+              "knowledgeCategory": "property",
+              "title": "判断两个偶数集合的关系",
+              "numberLabel": "练习 5 · 1",
+              "display": "featured",
+              "hints": [
+                "把 \\(2k+2\\) 改写为 \\(2(k+1)\\)。",
+                "比较两个描述式能否生成同样的所有偶数。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "C"
+              },
+              "lesson": {
+                "id": "set-relations-review-q01",
+                "title": "判断两个偶数集合的关系",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知集合 \\(A=\\{x\\mid x=2k,k\\in\\mathbb Z\\}\\)，\\(B=\\{x\\mid x=2k+2,k\\in\\mathbb Z\\}\\)，则（　　）",
+                      "html": "已知集合 <span class=\"inline-math\">A={x| x=2k,k∈<span class=\"math-blackboard\">ℤ</span>}</span>，<span class=\"inline-math\">B={x| x=2k+2,k∈<span class=\"math-blackboard\">ℤ</span>}</span>，则（　　）"
+                    },
+                    {
+                      "text": "A. \\(A\\subsetneq B\\)　　B. \\(A\\supsetneq B\\)　　C. \\(A=B\\)　　D. \\(A\\subseteq B\\)",
+                      "html": "A. <span class=\"inline-math\">A⊊ B</span>　　B. <span class=\"inline-math\">A⊋ B</span>　　C. <span class=\"inline-math\">A=B</span>　　D. <span class=\"inline-math\">A⊆ B</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-relations-review-q01.html"
+              }
+            },
+            {
+              "group": "真子集",
+              "knowledgeCategory": "property",
+              "title": "辨析空集的关系",
+              "numberLabel": "练习 5 · 2",
+              "display": "featured",
+              "hints": [
+                "空集没有元素。",
+                "空集是任何集合的子集。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "C"
+              },
+              "lesson": {
+                "id": "set-relations-review-q02",
+                "title": "辨析空集的关系",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "下列写法中正确的是（　　）",
+                      "html": "下列写法中正确的是（　　）"
+                    },
+                    {
+                      "text": "A. \\(\\{0\\}\\in\\{0,1\\}\\)　　B. \\(0\\in\\varnothing\\)　　C. \\(\\varnothing\\subseteq\\{0\\}\\)　　D. \\(\\varnothing\\in\\{0,1\\}\\)",
+                      "html": "A. <span class=\"inline-math\">{0}∈{0,1}</span>　　B. <span class=\"inline-math\">0∈∅</span>　　C. <span class=\"inline-math\">∅⊆{0}</span>　　D. <span class=\"inline-math\">∅∈{0,1}</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-relations-review-q02.html"
+              }
+            },
+            {
+              "group": "子集个数",
+              "knowledgeCategory": "interval",
+              "title": "计算五元素集合的真子集个数",
+              "numberLabel": "练习 6 · 1",
+              "display": "featured",
+              "hints": [
+                "含 \\(n\\) 个元素的集合有 \\(2^n\\) 个子集。",
+                "真子集要排除集合本身。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "B"
+              },
+              "lesson": {
+                "id": "set-relations-count-q01",
+                "title": "计算五元素集合的真子集个数",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "若集合 \\(A=\\{2,3,4,5,6\\}\\)，则 \\(A\\) 的真子集的个数为（　　）",
+                      "html": "若集合 <span class=\"inline-math\">A={2,3,4,5,6}</span>，则 <span class=\"inline-math\">A</span> 的真子集的个数为（　　）"
+                    },
+                    {
+                      "text": "A. 32　　B. 31　　C. 25　　D. 24",
+                      "html": "A. 32　　B. 31　　C. 25　　D. 24"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-relations-count-q01.html"
+              }
+            },
+            {
+              "group": "子集个数",
+              "knowledgeCategory": "interval",
+              "title": "由乘积集合计算非空真子集个数",
+              "numberLabel": "练习 6 · 2",
+              "display": "featured",
+              "hints": [
+                "先列出集合 \\(A\\)，再列出所有可能的乘积并去重。",
+                "含 \\(n\\) 个元素的集合有 \\(2^n-2\\) 个非空真子集。"
+              ],
+              "answerSchema": {
+                "type": "integer",
+                "expected": "14",
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写非空真子集个数",
+                  "keyboard": [
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "set-relations-count-q02",
+                "title": "由乘积集合计算非空真子集个数",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "若集合 \\(A=\\{x\\in\\mathbb N\\mid -1<x\\le2\\}\\)，\\(B=\\{x\\mid x=ab,a,b\\in A\\}\\)，则集合 \\(B\\) 的非空真子集的个数为 ___。",
+                      "html": "若集合 <span class=\"inline-math\">A={x∈<span class=\"math-blackboard\">ℕ</span>| -1&lt;x≤2}</span>，<span class=\"inline-math\">B={x| x=ab,a,b∈ A}</span>，则集合 <span class=\"inline-math\">B</span> 的非空真子集的个数为 ___。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-relations-count-q02.html"
+              }
+            },
+            {
+              "group": "子集个数",
+              "knowledgeCategory": "interval",
+              "title": "计算二元素集合的真子集个数",
+              "numberLabel": "练习 6 · 3",
+              "display": "featured",
+              "hints": [
+                "先由自然数范围确定集合 \\(A\\)。",
+                "真子集个数为 \\(2^n-1\\)。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "D"
+              },
+              "lesson": {
+                "id": "set-relations-count-q03",
+                "title": "计算二元素集合的真子集个数",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "设集合 \\(A=\\{x\\in\\mathbb N\\mid -1<x<2\\}\\)，则 \\(A\\) 的真子集的个数是（　　）",
+                      "html": "设集合 <span class=\"inline-math\">A={x∈<span class=\"math-blackboard\">ℕ</span>| -1&lt;x&lt;2}</span>，则 <span class=\"inline-math\">A</span> 的真子集的个数是（　　）"
+                    },
+                    {
+                      "text": "A. 8　　B. 7　　C. 4　　D. 3",
+                      "html": "A. 8　　B. 7　　C. 4　　D. 3"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-relations-count-q03.html"
+              }
+            },
+            {
+              "group": "子集个数",
+              "knowledgeCategory": "interval",
+              "title": "由集合相等求乘积集合的非空子集个数",
+              "numberLabel": "练习 6 · 4",
+              "display": "featured",
+              "hints": [
+                "集合相等要求元素完全相同，但排列顺序可以交换。",
+                "先求出 \\(ab\\) 的所有可能值，再计算所成集合的非空子集个数。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "B"
+              },
+              "lesson": {
+                "id": "set-relations-count-q04",
+                "title": "由集合相等求乘积集合的非空子集个数",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知集合 \\(A=\\{a,a^2\\}\\)，\\(B=\\{2,b\\}\\)，若 \\(A=B\\)，则集合 \\(\\{x\\mid x=ab\\}\\) 的非空子集个数为（　　）",
+                      "html": "已知集合 <span class=\"inline-math\">A={a,a<sup>2</sup>}</span>，<span class=\"inline-math\">B={2,b}</span>，若 <span class=\"inline-math\">A=B</span>，则集合 <span class=\"inline-math\">{x| x=ab}</span> 的非空子集个数为（　　）"
+                    },
+                    {
+                      "text": "A. 2　　B. 3　　C. 7　　D. 8",
+                      "html": "A. 2　　B. 3　　C. 7　　D. 8"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-relations-count-q04.html"
+              }
+            },
+            {
+              "group": "子集个数",
+              "knowledgeCategory": "interval",
+              "title": "由区间包含求参数范围",
+              "numberLabel": "练习 7 · 1",
+              "display": "featured",
+              "hints": [
+                "先讨论集合 \\(B\\) 为空集的情况。",
+                "当 \\(B\\) 非空时比较左右端点，并注意 \\(A\\) 的左端点不取。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "m≤3",
+                  "m<=3",
+                  "(-∞,3]"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写 m 的取值范围",
+                  "keyboard": [
+                    "m",
+                    "less-equal",
+                    "interval",
+                    "brackets",
+                    "negative",
+                    "digits",
+                    "infinity"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "set-relations-interval-q01",
+                "title": "由区间包含求参数范围",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "设集合 \\(A=\\{x\\mid -2<x\\le5\\}\\)，\\(B=\\{x\\mid m+1\\le x\\le2m-1\\}\\)，\\(B\\subseteq A\\)，则 \\(m\\) 的取值范围为 ___。",
+                      "html": "设集合 <span class=\"inline-math\">A={x| -2&lt;x≤5}</span>，<span class=\"inline-math\">B={x| m+1≤ x≤2m-1}</span>，<span class=\"inline-math\">B⊆ A</span>，则 <span class=\"inline-math\">m</span> 的取值范围为 ___。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-relations-interval-q01.html"
+              }
+            }
+          ],
+          "summary": "集合之间可以有子集、相等和真子集三种基本关系。判断时先分清左侧是元素还是集合；有限集合用每个元素“选或不选”计数，区间包含则必须先处理空集，再比较非空区间的端点与开闭。",
+          "summaryHtml": "集合之间可以有子集、相等和真子集三种基本关系。判断时先分清左侧是元素还是集合；有限集合用每个元素“选或不选”计数，区间包含则必须先处理空集，再比较非空区间的端点与开闭。"
+        },
+        {
+          "id": "set-operations",
+          "label": "集合的运算",
+          "type": "knowledge",
+          "status": "published",
+          "description": "学习交集、并集和补集的定义、符号与运算方法。",
+          "knowledgeGroups": [
+            {
+              "category": "intersection",
+              "number": "01",
+              "eyebrow": "共同元素",
+              "title": "交集",
+              "visual": "venn-intersection"
+            },
+            {
+              "category": "union",
+              "number": "02",
+              "eyebrow": "合并元素",
+              "title": "并集",
+              "visual": "venn-union"
+            },
+            {
+              "category": "complement",
+              "number": "03",
+              "eyebrow": "全集中的剩余部分",
+              "title": "补集",
+              "visual": "venn-complement"
+            }
+          ],
+          "knowledgeBlocks": [
+            {
+              "category": "intersection",
+              "title": "交集的概念",
+              "body": [
+                "由属于集合 \\(A\\) 且属于集合 \\(B\\) 的所有元素组成的集合，称为 \\(A\\) 与 \\(B\\) 的交集，记作 \\(A\\cap B\\)。",
+                "\\(A\\cap B=\\{x\\mid x\\in A\\text{ 且 }x\\in B\\}\\)。交集只保留两个集合的共同元素。"
+              ],
+              "bodyHtml": [
+                "由属于集合 <span class=\"inline-math\">A</span> 且属于集合 <span class=\"inline-math\">B</span> 的所有元素组成的集合，称为 <span class=\"inline-math\">A</span> 与 <span class=\"inline-math\">B</span> 的交集，记作 <span class=\"inline-math\">A∩ B</span>。",
+                "<span class=\"inline-math\">A∩ B={x| x∈ A 且 x∈ B}</span>。交集只保留两个集合的共同元素。"
+              ]
+            },
+            {
+              "category": "union",
+              "title": "并集的概念",
+              "body": [
+                "由所有属于集合 \\(A\\) 或属于集合 \\(B\\) 的元素组成的集合，称为 \\(A\\) 与 \\(B\\) 的并集，记作 \\(A\\cup B\\)。",
+                "\\(A\\cup B\\) 由满足 \\(x\\in A\\) 或 \\(x\\in B\\) 的所有元素组成。重复出现的元素在集合中只写一次。"
+              ],
+              "bodyHtml": [
+                "由所有属于集合 <span class=\"inline-math\">A</span> 或属于集合 <span class=\"inline-math\">B</span> 的元素组成的集合，称为 <span class=\"inline-math\">A</span> 与 <span class=\"inline-math\">B</span> 的并集，记作 <span class=\"inline-math\">A∪ B</span>。",
+                "<span class=\"inline-math\">A∪ B</span> 由满足 <span class=\"inline-math\">x∈ A</span> 或 <span class=\"inline-math\">x∈ B</span> 的所有元素组成。重复出现的元素在集合中只写一次。"
+              ]
+            },
+            {
+              "category": "complement",
+              "title": "全集与补集",
+              "body": [
+                "如果一个集合含有所研究问题中涉及的所有元素，就称这个集合为全集，通常记作 \\(U\\)。",
+                "全集 \\(U\\) 中不属于集合 \\(A\\) 的所有元素组成的集合，称为 \\(A\\) 相对于 \\(U\\) 的补集，记作 \\(C_UA\\)，即 \\(C_UA=\\{x\\mid x\\in U\\text{ 且 }x\\notin A\\}\\)。"
+              ],
+              "bodyHtml": [
+                "如果一个集合含有所研究问题中涉及的所有元素，就称这个集合为全集，通常记作 <span class=\"inline-math\">U</span>。",
+                "全集 <span class=\"inline-math\">U</span> 中不属于集合 <span class=\"inline-math\">A</span> 的所有元素组成的集合，称为 <span class=\"inline-math\">A</span> 相对于 <span class=\"inline-math\">U</span> 的补集，记作 <span class=\"inline-math\">C<sub>U</sub>A</span>，即 <span class=\"inline-math\">C<sub>U</sub>A={x| x∈ U 且 x<span class=\"math-notin\" role=\"img\" aria-label=\"不属于\"><svg viewBox=\"0 0 18 18\" aria-hidden=\"true\" focusable=\"false\"><path d=\"M15 3H9C5.3 3 3 5.5 3 9s2.3 6 6 6h6M3.7 9h10.8M4.5 16L14 2\"/></svg></span> A}</span>。"
+              ]
+            }
+          ],
+          "examples": [
+            {
+              "group": "交集",
+              "knowledgeCategory": "intersection",
+              "title": "由映射生成集合后求交集",
+              "numberLabel": "练习 8 · 1",
+              "display": "featured",
+              "hints": [
+                "先把集合 B 的元素逐一算出。",
+                "交集只保留 A、B 的共同元素。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "D"
+              },
+              "lesson": {
+                "id": "set-operations-intersection-q01",
+                "title": "由映射生成集合后求交集",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知集合 \\(A=\\{1,2,3,4\\}\\)，\\(B=\\{y\\mid y=3x-2\\text{ 且 }x\\in A\\}\\)，则 \\(A\\cap B=\\)（　　）",
+                      "html": "已知集合 <span class=\"inline-math\">A={1,2,3,4}</span>，<span class=\"inline-math\">B={y| y=3x-2 且 x∈ A}</span>，则 <span class=\"inline-math\">A∩ B=</span>（　　）"
+                    },
+                    {
+                      "text": "A. \\(\\{1\\}\\)　　B. \\(\\{4\\}\\)　　C. \\(\\{1,3\\}\\)　　D. \\(\\{1,4\\}\\)",
+                      "html": "A. <span class=\"inline-math\">{1}</span>　　B. <span class=\"inline-math\">{4}</span>　　C. <span class=\"inline-math\">{1,3}</span>　　D. <span class=\"inline-math\">{1,4}</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-operations-intersection-q01.html"
+              }
+            },
+            {
+              "group": "交集",
+              "knowledgeCategory": "intersection",
+              "title": "自然数集合与不等式集合求交集",
+              "numberLabel": "练习 8 · 2",
+              "display": "featured",
+              "hints": [
+                "先按自然数范围列出 A。",
+                "再保留满足 x≥-1 的元素。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "A"
+              },
+              "lesson": {
+                "id": "set-operations-intersection-q02",
+                "title": "自然数集合与不等式集合求交集",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "设集合 \\(A=\\{x\\in\\mathbb N\\mid -3<x<3\\}\\)，\\(B=\\{x\\mid x\\ge-1\\}\\)，则 \\(A\\cap B=\\)（　　）",
+                      "html": "设集合 <span class=\"inline-math\">A={x∈<span class=\"math-blackboard\">ℕ</span>| -3&lt;x&lt;3}</span>，<span class=\"inline-math\">B={x| x≥-1}</span>，则 <span class=\"inline-math\">A∩ B=</span>（　　）"
+                    },
+                    {
+                      "text": "A. \\(\\{0,1,2\\}\\)　　B. \\(\\{2\\}\\)　　C. \\(\\{0,1\\}\\)　　D. \\(\\{1,2\\}\\)",
+                      "html": "A. <span class=\"inline-math\">{0,1,2}</span>　　B. <span class=\"inline-math\">{2}</span>　　C. <span class=\"inline-math\">{0,1}</span>　　D. <span class=\"inline-math\">{1,2}</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-operations-intersection-q02.html"
+              }
+            },
+            {
+              "group": "交集",
+              "knowledgeCategory": "intersection",
+              "title": "两个函数值域求交集",
+              "numberLabel": "练习 8 · 3",
+              "display": "featured",
+              "hints": [
+                "分别配方求两个函数的值域。",
+                "交集取两个区间的公共部分。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "D"
+              },
+              "lesson": {
+                "id": "set-operations-intersection-q03",
+                "title": "两个函数值域求交集",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知集合 \\(A=\\{y\\mid y=x^2+2x-2\\}\\)，\\(B=\\{y\\mid y=-x^2+2x+6\\}\\)，则 \\(A\\cap B=\\)（　　）",
+                      "html": "已知集合 <span class=\"inline-math\">A={y| y=x<sup>2</sup>+2x-2}</span>，<span class=\"inline-math\">B={y| y=-x<sup>2</sup>+2x+6}</span>，则 <span class=\"inline-math\">A∩ B=</span>（　　）"
+                    },
+                    {
+                      "text": "A. \\(\\{2,-2\\}\\)　　B. \\(\\{(-2,-2),(2,6)\\}\\)　　C. \\(\\{-2,-6\\}\\)　　D. \\(\\{y\\mid -3\\le y\\le7\\}\\)",
+                      "html": "A. <span class=\"inline-math\">{2,-2}</span>　　B. <span class=\"inline-math\">{(-2,-2),(2,6)}</span>　　C. <span class=\"inline-math\">{-2,-6}</span>　　D. <span class=\"inline-math\">{y| -3≤ y≤7}</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-operations-intersection-q03.html"
+              }
+            },
+            {
+              "group": "交集",
+              "knowledgeCategory": "intersection",
+              "title": "连续区间与整数集合求交集",
+              "numberLabel": "练习 9 · 1",
+              "display": "featured",
+              "hints": [
+                "B 只含整数。",
+                "同时满足 -1≤x≤3 和 x≤0。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "D"
+              },
+              "lesson": {
+                "id": "set-operations-intersection-q04",
+                "title": "连续区间与整数集合求交集",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知集合 \\(A=\\{x\\mid-1\\le x\\le3\\}\\)，\\(B=\\{x\\mid x\\le0\\text{ 且 }x\\in\\mathbb Z\\}\\)，则 \\(A\\cap B=\\)（　　）",
+                      "html": "已知集合 <span class=\"inline-math\">A={x|-1≤ x≤3}</span>，<span class=\"inline-math\">B={x| x≤0 且 x∈<span class=\"math-blackboard\">ℤ</span>}</span>，则 <span class=\"inline-math\">A∩ B=</span>（　　）"
+                    },
+                    {
+                      "text": "A. \\([-1,0]\\)　　B. \\(\\{0,1,2,3\\}\\)　　C. \\([0,3]\\)　　D. \\(\\{-1,0\\}\\)",
+                      "html": "A. <span class=\"inline-math\">[-1,0]</span>　　B. <span class=\"inline-math\">{0,1,2,3}</span>　　C. <span class=\"inline-math\">[0,3]</span>　　D. <span class=\"inline-math\">{-1,0}</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-operations-intersection-q04.html"
+              }
+            },
+            {
+              "group": "交集",
+              "knowledgeCategory": "intersection",
+              "title": "由指定交集求参数",
+              "numberLabel": "练习 9 · 2",
+              "display": "featured",
+              "hints": [
+                "由 A∩B={a} 可知 a 必须属于 A。",
+                "利用集合元素的互异性排除 a=1。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "B"
+              },
+              "lesson": {
+                "id": "set-operations-intersection-q05",
+                "title": "由指定交集求参数",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知集合 \\(A=\\{3,\\sqrt a\\}\\)，集合 \\(B=\\{1,a\\}\\)。若 \\(A\\cap B=\\{a\\}\\)，则 \\(a=\\)（　　）",
+                      "html": "已知集合 <span class=\"inline-math\">A={3,<span class=\"math-radical\"><span class=\"math-radical-symbol\">√</span><span class=\"math-radicand\"> </span></span>a}</span>，集合 <span class=\"inline-math\">B={1,a}</span>。若 <span class=\"inline-math\">A∩ B={a}</span>，则 <span class=\"inline-math\">a=</span>（　　）"
+                    },
+                    {
+                      "text": "A. \\(0\\) 或 \\(\\sqrt3\\)　　B. \\(0\\) 或 \\(3\\)　　C. \\(1\\) 或 \\(\\sqrt3\\)　　D. \\(1\\) 或 \\(3\\)",
+                      "html": "A. <span class=\"inline-math\">0</span> 或 <span class=\"inline-math\"><span class=\"math-radical\"><span class=\"math-radical-symbol\">√</span><span class=\"math-radicand\">3</span></span></span>　　B. <span class=\"inline-math\">0</span> 或 <span class=\"inline-math\">3</span>　　C. <span class=\"inline-math\">1</span> 或 <span class=\"inline-math\"><span class=\"math-radical\"><span class=\"math-radical-symbol\">√</span><span class=\"math-radicand\">3</span></span></span>　　D. <span class=\"inline-math\">1</span> 或 <span class=\"inline-math\">3</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-operations-intersection-q05.html"
+              }
+            },
+            {
+              "group": "交集",
+              "knowledgeCategory": "intersection",
+              "title": "由交集非空求参数范围",
+              "numberLabel": "练习 9 · 3",
+              "display": "featured",
+              "hints": [
+                "交集非空表示两个区间至少有一个公共点。",
+                "B 的右端点必须不小于 1。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "a≥1",
+                  "[1,∞)"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写 a 的范围",
+                  "keyboard": [
+                    "a",
+                    "greater-equal",
+                    "interval",
+                    "brackets",
+                    "digits",
+                    "infinity"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "set-operations-intersection-q06",
+                "title": "由交集非空求参数范围",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知 \\(A=[1,+\\infty)\\)，\\(B=\\{x\\in\\mathbb R\\mid \\frac{1}{2}\\le x\\le2a-1\\}\\)。若 \\(A\\cap B\\ne\\varnothing\\)，求实数 \\(a\\) 的取值范围。",
+                      "html": "已知 <span class=\"inline-math\">A=[1,+∞)</span>，<span class=\"inline-math\">B={x∈<span class=\"math-blackboard\">ℝ</span>| <span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">2</span></span>≤ x≤2a-1}</span>。若 <span class=\"inline-math\">A∩ B≠∅</span>，求实数 <span class=\"inline-math\">a</span> 的取值范围。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-operations-intersection-q06.html"
+              }
+            },
+            {
+              "group": "交集",
+              "knowledgeCategory": "intersection",
+              "title": "由交集为空求参数范围",
+              "numberLabel": "练习 9 · 4",
+              "display": "featured",
+              "hints": [
+                "A 的左端点是 3，且可以取到。",
+                "C 的所有元素都要落在 3 的左侧。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "a≤1",
+                  "(-∞,1]"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写 a 的范围",
+                  "keyboard": [
+                    "a",
+                    "less-equal",
+                    "interval",
+                    "brackets",
+                    "negative",
+                    "digits",
+                    "infinity"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "set-operations-intersection-q07",
+                "title": "由交集为空求参数范围",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "设全集为 \\(\\mathbb R\\)，集合 \\(A=\\{x\\mid3\\le x<7\\}\\)，\\(B=\\{x\\mid2<x<6\\}\\)，\\(C=\\{x\\mid x<2a+1\\}\\)。若 \\(A\\cap C=\\varnothing\\)，求实数 \\(a\\) 的取值范围。",
+                      "html": "设全集为 <span class=\"inline-math\"><span class=\"math-blackboard\">ℝ</span></span>，集合 <span class=\"inline-math\">A={x|3≤ x&lt;7}</span>，<span class=\"inline-math\">B={x|2&lt;x&lt;6}</span>，<span class=\"inline-math\">C={x| x&lt;2a+1}</span>。若 <span class=\"inline-math\">A∩ C=∅</span>，求实数 <span class=\"inline-math\">a</span> 的取值范围。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-operations-intersection-q07.html"
+              }
+            },
+            {
+              "group": "交集",
+              "knowledgeCategory": "intersection",
+              "title": "由 A∩B=B 求参数范围",
+              "numberLabel": "练习 10 · 1",
+              "display": "featured",
+              "hints": [
+                "A∩B=B 等价于 B⊆A，先讨论 B 是否为空集。",
+                "B 非空时分落在 A 的左支、右支两种情形，分类结果取并集。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "a≤-3或a>2",
+                  "(-∞,-3]∪(2,∞)"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写 a 的范围",
+                  "keyboard": [
+                    "a",
+                    "less-equal",
+                    "greater",
+                    "union",
+                    "interval",
+                    "brackets",
+                    "negative",
+                    "digits",
+                    "infinity"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "set-operations-intersection-q08",
+                "title": "由 A∩B=B 求参数范围",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知集合 \\(A=\\{x\\mid x^2-4x-5\\ge0\\}\\)，\\(B=\\{x\\mid2a\\le x\\le a+2\\}\\)。若 \\(A\\cap B=B\\)，求实数 \\(a\\) 的取值范围。",
+                      "html": "已知集合 <span class=\"inline-math\">A={x| x<sup>2</sup>-4x-5≥0}</span>，<span class=\"inline-math\">B={x|2a≤ x≤ a+2}</span>。若 <span class=\"inline-math\">A∩ B=B</span>，求实数 <span class=\"inline-math\">a</span> 的取值范围。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-operations-intersection-q08.html"
+              }
+            },
+            {
+              "group": "交集",
+              "knowledgeCategory": "intersection",
+              "title": "读取 Venn 图阴影中的交集",
+              "numberLabel": "练习 10 · 2",
+              "display": "featured",
+              "hints": [
+                "阴影是 M 与 N 的重叠部分。",
+                "先列出区间 M 中的奇数。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "C"
+              },
+              "lesson": {
+                "id": "set-operations-intersection-q09",
+                "title": "读取 Venn 图阴影中的交集",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知全集 \\(U=\\mathbb R\\)，集合 \\(M=\\{x\\mid-1\\le x\\le3\\}\\)，\\(N=\\{x\\mid x=2k-1\\text{ 且 }k\\in\\mathbb N\\}\\)。图中阴影表示 \\(M\\cap N\\)。",
+                      "html": "已知全集 <span class=\"inline-math\">U=<span class=\"math-blackboard\">ℝ</span></span>，集合 <span class=\"inline-math\">M={x|-1≤ x≤3}</span>，<span class=\"inline-math\">N={x| x=2k-1 且 k∈<span class=\"math-blackboard\">ℕ</span>}</span>。图中阴影表示 <span class=\"inline-math\">M∩ N</span>。"
+                    },
+                    {
+                      "figureHtml": "\n      <figure class=\"set-figure\">\n        <svg viewBox=\"0 0 480 250\" role=\"img\" aria-label=\"集合 M 与 N 的重叠区域被涂色\">\n          <defs><mask id=\"venn-operation-intersection-mask\"><rect width=\"480\" height=\"250\" fill=\"black\"/><path d=\"M240 49A76 76 0 0 1 240 191A76 76 0 0 1 240 49Z\" fill=\"white\"/></mask></defs>\n          <rect class=\"set-figure-universe\" x=\"34\" y=\"22\" width=\"412\" height=\"202\" rx=\"4\"/>\n          <rect class=\"set-figure-shade\" x=\"34\" y=\"22\" width=\"412\" height=\"202\" mask=\"url(#venn-operation-intersection-mask)\"/>\n          <circle class=\"set-figure-set\" cx=\"213\" cy=\"120\" r=\"76\"/><circle class=\"set-figure-set\" cx=\"267\" cy=\"120\" r=\"76\"/>\n          <text x=\"178\" y=\"205\">A</text><text x=\"285\" y=\"205\">B</text><text x=\"414\" y=\"48\">U</text>\n        </svg><figcaption>阴影表示 M∩N</figcaption>\n      </figure>",
+                      "ariaLabel": "集合 M 与 N 的重叠区域被涂色"
+                    },
+                    {
+                      "text": "则阴影部分所示集合为（　　）　A. \\(\\{x\\mid-1\\le x\\le3\\}\\)　　B. \\(\\{-3,-1,1,3,5\\}\\)　　C. \\(\\{-1,1,3\\}\\)　　D. \\(\\{-1,1,3,5\\}\\)",
+                      "html": "则阴影部分所示集合为（　　）　A. <span class=\"inline-math\">{x|-1≤ x≤3}</span>　　B. <span class=\"inline-math\">{-3,-1,1,3,5}</span>　　C. <span class=\"inline-math\">{-1,1,3}</span>　　D. <span class=\"inline-math\">{-1,1,3,5}</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-operations-intersection-q09.html"
+              }
+            },
+            {
+              "group": "交集",
+              "knowledgeCategory": "intersection",
+              "title": "由子集个数判断方程根集",
+              "numberLabel": "练习 10 · 3",
+              "display": "featured",
+              "hints": [
+                "只有一个子集的集合是空集。",
+                "方程无实根时判别式小于 0。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "A"
+              },
+              "lesson": {
+                "id": "set-operations-intersection-q10",
+                "title": "由子集个数判断方程根集",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知集合 \\(A=\\{x\\in\\mathbb R\\mid x^2+ax+2=0\\}\\) 有且仅有 1 个子集，则实数 \\(a\\) 的取值集合为（　　）",
+                      "html": "已知集合 <span class=\"inline-math\">A={x∈<span class=\"math-blackboard\">ℝ</span>| x<sup>2</sup>+ax+2=0}</span> 有且仅有 1 个子集，则实数 <span class=\"inline-math\">a</span> 的取值集合为（　　）"
+                    },
+                    {
+                      "text": "A. \\(\\{a\\mid-2\\sqrt{2}<a<2\\sqrt{2}\\}\\)　　B. \\(\\{-2\\sqrt{2},2\\sqrt{2}\\}\\)　　C. \\(\\{2\\sqrt{2}\\}\\)　　D. \\(\\{a\\mid a<-2\\sqrt{2}\\text{ 或 }a>2\\sqrt{2}\\}\\)",
+                      "html": "A. <span class=\"inline-math\">{a|-2<span class=\"math-radical\"><span class=\"math-radical-symbol\">√</span><span class=\"math-radicand\">2</span></span>&lt;a&lt;2<span class=\"math-radical\"><span class=\"math-radical-symbol\">√</span><span class=\"math-radicand\">2</span></span>}</span>　　B. <span class=\"inline-math\">{-2<span class=\"math-radical\"><span class=\"math-radical-symbol\">√</span><span class=\"math-radicand\">2</span></span>,2<span class=\"math-radical\"><span class=\"math-radical-symbol\">√</span><span class=\"math-radicand\">2</span></span>}</span>　　C. <span class=\"inline-math\">{2<span class=\"math-radical\"><span class=\"math-radical-symbol\">√</span><span class=\"math-radicand\">2</span></span>}</span>　　D. <span class=\"inline-math\">{a| a&lt;-2<span class=\"math-radical\"><span class=\"math-radical-symbol\">√</span><span class=\"math-radicand\">2</span></span> 或 a&gt;2<span class=\"math-radical\"><span class=\"math-radical-symbol\">√</span><span class=\"math-radicand\">2</span></span>}</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-operations-intersection-q10.html"
+              }
+            },
+            {
+              "group": "并集",
+              "knowledgeCategory": "union",
+              "title": "有限整数集合求并集",
+              "numberLabel": "练习 11 · 1",
+              "display": "featured",
+              "hints": [
+                "先列出 B 中的整数。",
+                "合并后去掉重复元素。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "C"
+              },
+              "lesson": {
+                "id": "set-operations-union-q01",
+                "title": "有限整数集合求并集",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知集合 \\(A=\\{0,2,4\\}\\)，\\(B=\\{x\\mid-1<x<2\\text{ 且 }x\\in\\mathbb Z\\}\\)，则 \\(A\\cup B=\\)（　　）",
+                      "html": "已知集合 <span class=\"inline-math\">A={0,2,4}</span>，<span class=\"inline-math\">B={x|-1&lt;x&lt;2 且 x∈<span class=\"math-blackboard\">ℤ</span>}</span>，则 <span class=\"inline-math\">A∪ B=</span>（　　）"
+                    },
+                    {
+                      "text": "A. \\(\\{0\\}\\)　　B. \\(\\{2,4\\}\\)　　C. \\(\\{0,1,2,4\\}\\)　　D. \\(\\{-1,0,1,2,4\\}\\)",
+                      "html": "A. <span class=\"inline-math\">{0}</span>　　B. <span class=\"inline-math\">{2,4}</span>　　C. <span class=\"inline-math\">{0,1,2,4}</span>　　D. <span class=\"inline-math\">{-1,0,1,2,4}</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-operations-union-q01.html"
+              }
+            },
+            {
+              "group": "并集",
+              "knowledgeCategory": "union",
+              "title": "两个自然数集合求并集",
+              "numberLabel": "练习 12 · 1",
+              "display": "featured",
+              "hints": [
+                "自然数集合 B 为 {1,2,3}。",
+                "并集要保留两集合全部元素。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "B"
+              },
+              "lesson": {
+                "id": "set-operations-union-q02",
+                "title": "两个自然数集合求并集",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知集合 \\(A=\\{0,1,2\\}\\)，\\(B=\\{x\\in\\mathbb N\\mid0<x<4\\}\\)，则 \\(A\\cup B=\\)（　　）",
+                      "html": "已知集合 <span class=\"inline-math\">A={0,1,2}</span>，<span class=\"inline-math\">B={x∈<span class=\"math-blackboard\">ℕ</span>|0&lt;x&lt;4}</span>，则 <span class=\"inline-math\">A∪ B=</span>（　　）"
+                    },
+                    {
+                      "text": "A. \\(\\{1,2\\}\\)　　B. \\(\\{0,1,2,3\\}\\)　　C. \\(\\{0,1,2,3,4\\}\\)　　D. \\(\\{x\\mid0\\le x<4\\}\\)",
+                      "html": "A. <span class=\"inline-math\">{1,2}</span>　　B. <span class=\"inline-math\">{0,1,2,3}</span>　　C. <span class=\"inline-math\">{0,1,2,3,4}</span>　　D. <span class=\"inline-math\">{x|0≤ x&lt;4}</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-operations-union-q02.html"
+              }
+            },
+            {
+              "group": "并集",
+              "knowledgeCategory": "union",
+              "title": "两个开区间求并集",
+              "numberLabel": "练习 12 · 2",
+              "display": "featured",
+              "hints": [
+                "两个区间在 (1,2) 重叠。",
+                "并集从最左端 -2 延伸到最右端 3。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "A"
+              },
+              "lesson": {
+                "id": "set-operations-union-q03",
+                "title": "两个开区间求并集",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知集合 \\(A=\\{x\\mid-2<x<2\\}\\)，\\(B=\\{x\\mid1<x<3\\}\\)，则 \\(A\\cup B=\\)（　　）",
+                      "html": "已知集合 <span class=\"inline-math\">A={x|-2&lt;x&lt;2}</span>，<span class=\"inline-math\">B={x|1&lt;x&lt;3}</span>，则 <span class=\"inline-math\">A∪ B=</span>（　　）"
+                    },
+                    {
+                      "text": "A. \\(\\{x\\mid-2<x<3\\}\\)　　B. \\(\\{x\\mid1<x<2\\}\\)　　C. \\(\\{x\\mid x<3\\}\\)　　D. \\(\\{x\\mid x>-2\\}\\)",
+                      "html": "A. <span class=\"inline-math\">{x|-2&lt;x&lt;3}</span>　　B. <span class=\"inline-math\">{x|1&lt;x&lt;2}</span>　　C. <span class=\"inline-math\">{x| x&lt;3}</span>　　D. <span class=\"inline-math\">{x| x&gt;-2}</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-operations-union-q03.html"
+              }
+            },
+            {
+              "group": "并集",
+              "knowledgeCategory": "union",
+              "title": "由 Venn 图阴影求并集",
+              "numberLabel": "练习 12 · 3",
+              "display": "featured",
+              "hints": [
+                "阴影覆盖 A、B 的全部区域。",
+                "合并两集合元素并去重。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "{1,2,3,4,6}"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "写出阴影表示的集合",
+                  "keyboard": [
+                    "set-braces",
+                    "comma",
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "set-operations-union-q04",
+                "title": "由 Venn 图阴影求并集",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "设集合 \\(A=\\{2,4,6\\}\\)，\\(B=\\{1,3,6\\}\\)，则图中阴影部分表示的集合是 ___。",
+                      "html": "设集合 <span class=\"inline-math\">A={2,4,6}</span>，<span class=\"inline-math\">B={1,3,6}</span>，则图中阴影部分表示的集合是 ___。"
+                    },
+                    {
+                      "figureHtml": "\n      <figure class=\"set-figure\">\n        <svg viewBox=\"0 0 480 250\" role=\"img\" aria-label=\"集合 A 与 B 的两个圆全部被涂色\">\n          <defs><mask id=\"venn-operation-union-mask\"><rect width=\"480\" height=\"250\" fill=\"black\"/><circle cx=\"213\" cy=\"120\" r=\"76\" fill=\"white\"/><circle cx=\"267\" cy=\"120\" r=\"76\" fill=\"white\"/></mask></defs>\n          <rect class=\"set-figure-universe\" x=\"34\" y=\"22\" width=\"412\" height=\"202\" rx=\"4\"/>\n          <rect class=\"set-figure-shade\" x=\"34\" y=\"22\" width=\"412\" height=\"202\" mask=\"url(#venn-operation-union-mask)\"/>\n          <circle class=\"set-figure-set\" cx=\"213\" cy=\"120\" r=\"76\"/><circle class=\"set-figure-set\" cx=\"267\" cy=\"120\" r=\"76\"/>\n          <text x=\"178\" y=\"205\">A</text><text x=\"285\" y=\"205\">B</text><text x=\"414\" y=\"48\">U</text>\n        </svg><figcaption>阴影表示 A∪B</figcaption>\n      </figure>",
+                      "ariaLabel": "集合 A 与 B 的两个圆全部被涂色"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-operations-union-q04.html"
+              }
+            },
+            {
+              "group": "补集",
+              "knowledgeCategory": "complement",
+              "title": "先求补集再求并集",
+              "numberLabel": "练习 13 · 1",
+              "display": "featured",
+              "hints": [
+                "先在 U 中删去 B 的元素。",
+                "再与 A 合并并去重。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "D"
+              },
+              "lesson": {
+                "id": "set-operations-complement-q01",
+                "title": "先求补集再求并集",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "知全集 \\(U=\\{1,2,3,4,5\\}\\)，集合 \\(A=\\{1,3\\}\\)，\\(B=\\{2,3,5\\}\\)，则 \\((C_UB)\\cup A=\\)（　　）",
+                      "html": "知全集 <span class=\"inline-math\">U={1,2,3,4,5}</span>，集合 <span class=\"inline-math\">A={1,3}</span>，<span class=\"inline-math\">B={2,3,5}</span>，则 <span class=\"inline-math\">(C<sub>U</sub>B)∪ A=</span>（　　）"
+                    },
+                    {
+                      "text": "A. \\(\\{3\\}\\)　　B. \\(\\{1\\}\\)　　C. \\(\\{1,4\\}\\)　　D. \\(\\{1,3,4\\}\\)",
+                      "html": "A. <span class=\"inline-math\">{3}</span>　　B. <span class=\"inline-math\">{1}</span>　　C. <span class=\"inline-math\">{1,4}</span>　　D. <span class=\"inline-math\">{1,3,4}</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-operations-complement-q01.html"
+              }
+            },
+            {
+              "group": "补集",
+              "knowledgeCategory": "complement",
+              "title": "补集与交集的复合运算",
+              "numberLabel": "练习 13 · 2",
+              "display": "featured",
+              "hints": [
+                "先求 C_U B。",
+                "再保留其中同时属于 A 的元素。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "D"
+              },
+              "lesson": {
+                "id": "set-operations-complement-q02",
+                "title": "补集与交集的复合运算",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "设集合 \\(U=\\{1,2,3,4,5,6\\}\\)，\\(A=\\{1,3,6\\}\\)，\\(B=\\{2,3,4\\}\\)，则 \\(A\\cap(C_UB)=\\)（　　）",
+                      "html": "设集合 <span class=\"inline-math\">U={1,2,3,4,5,6}</span>，<span class=\"inline-math\">A={1,3,6}</span>，<span class=\"inline-math\">B={2,3,4}</span>，则 <span class=\"inline-math\">A∩(C<sub>U</sub>B)=</span>（　　）"
+                    },
+                    {
+                      "text": "A. \\(\\{3\\}\\)　　B. \\(\\{1,3\\}\\)　　C. \\(\\{5,6\\}\\)　　D. \\(\\{1,6\\}\\)",
+                      "html": "A. <span class=\"inline-math\">{3}</span>　　B. <span class=\"inline-math\">{1,3}</span>　　C. <span class=\"inline-math\">{5,6}</span>　　D. <span class=\"inline-math\">{1,6}</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-operations-complement-q02.html"
+              }
+            },
+            {
+              "group": "补集",
+              "knowledgeCategory": "complement",
+              "title": "区间的补集复合运算",
+              "numberLabel": "练习 13 · 3",
+              "display": "featured",
+              "hints": [
+                "两问的全集不同：第一问是 U，第二问是 R。",
+                "逐段检查端点是否保留。"
+              ],
+              "answerSchema": {
+                "type": "multipart-exact",
+                "layout": "per-part",
+                "expected": [
+                  {
+                    "label": "（1）",
+                    "prompt": "\\(C_U(A\\cup B)\\)",
+                    "aliases": [
+                      "(-∞,-1)∪(4,5]"
+                    ],
+                    "promptHtml": "<span class=\"inline-math\">C<sub>U</sub>(A∪ B)</span>"
+                  },
+                  {
+                    "label": "（2）",
+                    "prompt": "\\((C_{\\mathbb R}A)\\cap B\\)",
+                    "aliases": [
+                      "[-1,1)∪(2,4]"
+                    ],
+                    "promptHtml": "<span class=\"inline-math\">(C<sub><span class=\"math-blackboard\">ℝ</span></sub>A)∩ B</span>"
+                  }
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写结果集合",
+                  "keyboard": [
+                    "union",
+                    "interval",
+                    "brackets",
+                    "comma",
+                    "negative",
+                    "digits",
+                    "infinity"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "set-operations-complement-q03",
+                "title": "区间的补集复合运算",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "设集合 \\(U=\\{x\\mid x\\le5\\}\\)，\\(A=\\{x\\mid1\\le x\\le2\\}\\)，\\(B=\\{x\\mid-1\\le x\\le4\\}\\)。求：",
+                      "html": "设集合 <span class=\"inline-math\">U={x| x≤5}</span>，<span class=\"inline-math\">A={x|1≤ x≤2}</span>，<span class=\"inline-math\">B={x|-1≤ x≤4}</span>。求："
+                    },
+                    {
+                      "text": "（1）\\(C_U(A\\cup B)\\)；（2）\\((C_{\\mathbb R}A)\\cap B\\)。",
+                      "html": "（1）<span class=\"inline-math\">C<sub>U</sub>(A∪ B)</span>；（2）<span class=\"inline-math\">(C<sub><span class=\"math-blackboard\">ℝ</span></sub>A)∩ B</span>。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-operations-complement-q03.html"
+              }
+            },
+            {
+              "group": "补集",
+              "knowledgeCategory": "complement",
+              "title": "含参区间的并、包含与互斥",
+              "numberLabel": "练习 13 · 4",
+              "display": "featured",
+              "hints": [
+                "三问分别处理并集、包含和交集为空。",
+                "含参区间可能为空，不能遗漏。"
+              ],
+              "answerSchema": {
+                "type": "multipart-exact",
+                "layout": "per-part",
+                "expected": [
+                  {
+                    "label": "（1）",
+                    "prompt": "\\(m=-1\\) 时的 \\(A\\cup B\\)",
+                    "aliases": [
+                      "(-2,3)"
+                    ],
+                    "promptHtml": "<span class=\"inline-math\">m=-1</span> 时的 <span class=\"inline-math\">A∪ B</span>"
+                  },
+                  {
+                    "label": "（2）",
+                    "prompt": "\\(A\\subseteq B\\) 时的 \\(m\\) 范围",
+                    "aliases": [
+                      "m≤-2",
+                      "(-∞,-2]"
+                    ],
+                    "promptHtml": "<span class=\"inline-math\">A⊆ B</span> 时的 <span class=\"inline-math\">m</span> 范围"
+                  },
+                  {
+                    "label": "（3）",
+                    "prompt": "\\(A\\cap B=\\varnothing\\) 时的 \\(m\\) 范围",
+                    "aliases": [
+                      "m≥0",
+                      "[0,∞)"
+                    ],
+                    "promptHtml": "<span class=\"inline-math\">A∩ B=∅</span> 时的 <span class=\"inline-math\">m</span> 范围"
+                  }
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写对应结果",
+                  "keyboard": [
+                    "m",
+                    "union",
+                    "interval",
+                    "brackets",
+                    "comma",
+                    "less-equal",
+                    "greater-equal",
+                    "negative",
+                    "digits",
+                    "infinity"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "set-operations-complement-q04",
+                "title": "含参区间的并、包含与互斥",
+                "source": "2025 秋·南开区校级月考",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知集合 \\(A=\\{x\\mid1<x<3\\}\\)，\\(B=\\{x\\mid2m<x<1-m\\}\\)。",
+                      "html": "已知集合 <span class=\"inline-math\">A={x|1&lt;x&lt;3}</span>，<span class=\"inline-math\">B={x|2m&lt;x&lt;1-m}</span>。"
+                    },
+                    {
+                      "text": "（1）当 \\(m=-1\\) 时，求 \\(A\\cup B\\)；（2）若 \\(A\\subseteq B\\)，求实数 \\(m\\) 的取值范围；（3）若 \\(A\\cap B=\\varnothing\\)，求实数 \\(m\\) 的取值范围。",
+                      "html": "（1）当 <span class=\"inline-math\">m=-1</span> 时，求 <span class=\"inline-math\">A∪ B</span>；（2）若 <span class=\"inline-math\">A⊆ B</span>，求实数 <span class=\"inline-math\">m</span> 的取值范围；（3）若 <span class=\"inline-math\">A∩ B=∅</span>，求实数 <span class=\"inline-math\">m</span> 的取值范围。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-operations-complement-q04.html"
+              }
+            },
+            {
+              "group": "补集",
+              "knowledgeCategory": "complement",
+              "title": "由补集恒等式求参数范围",
+              "numberLabel": "练习 13 · 5",
+              "display": "featured",
+              "hints": [
+                "第一问等价于 A⊆B。",
+                "第二问等价于 B 不是 A 的子集，并先排除空集。"
+              ],
+              "answerSchema": {
+                "type": "multipart-exact",
+                "layout": "per-part",
+                "expected": [
+                  {
+                    "label": "（1）",
+                    "prompt": "\\((C_{\\mathbb R}A)\\cup B=\\mathbb R\\)",
+                    "aliases": [
+                      "a≤0",
+                      "(-∞,0]"
+                    ],
+                    "promptHtml": "<span class=\"inline-math\">(C<sub><span class=\"math-blackboard\">ℝ</span></sub>A)∪ B=<span class=\"math-blackboard\">ℝ</span></span>"
+                  },
+                  {
+                    "label": "（2）",
+                    "prompt": "\\(A\\cap B\\ne B\\)",
+                    "aliases": [
+                      "a<1/2",
+                      "(-∞,1/2)"
+                    ],
+                    "promptHtml": "<span class=\"inline-math\">A∩ B≠ B</span>"
+                  }
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写 a 的范围",
+                  "keyboard": [
+                    "a",
+                    "interval",
+                    "brackets",
+                    "comma",
+                    "less",
+                    "less-equal",
+                    "fraction",
+                    "negative",
+                    "digits",
+                    "infinity"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "set-operations-complement-q05",
+                "title": "由补集恒等式求参数范围",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知集合 \\(A=\\{x\\mid0\\le x\\le2\\}\\)，\\(B=\\{x\\mid a\\le x\\le3-2a\\}\\)。",
+                      "html": "已知集合 <span class=\"inline-math\">A={x|0≤ x≤2}</span>，<span class=\"inline-math\">B={x| a≤ x≤3-2a}</span>。"
+                    },
+                    {
+                      "text": "（1）若 \\((C_{\\mathbb R}A)\\cup B=\\mathbb R\\)，求实数 \\(a\\) 的取值范围；（2）若 \\(A\\cap B\\ne B\\)，求实数 \\(a\\) 的取值范围。",
+                      "html": "（1）若 <span class=\"inline-math\">(C<sub><span class=\"math-blackboard\">ℝ</span></sub>A)∪ B=<span class=\"math-blackboard\">ℝ</span></span>，求实数 <span class=\"inline-math\">a</span> 的取值范围；（2）若 <span class=\"inline-math\">A∩ B≠ B</span>，求实数 <span class=\"inline-math\">a</span> 的取值范围。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-operations-complement-q05.html"
+              }
+            },
+            {
+              "group": "补集",
+              "knowledgeCategory": "complement",
+              "title": "由 Venn 图阴影求集合差",
+              "numberLabel": "练习 14 · 1",
+              "display": "featured",
+              "hints": [
+                "阴影位于 B 内但不在 A 内。",
+                "从 B 中删去公共元素 7。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "A"
+              },
+              "lesson": {
+                "id": "set-operations-complement-q06",
+                "title": "由 Venn 图阴影求集合差",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "设全集 \\(U=\\{1,2,3,4,5,6,7,8\\}\\)，集合 \\(A=\\{1,3,5,7\\}\\)，\\(B=\\{6,7,8\\}\\)，则图中的阴影部分表示的集合为（　　）",
+                      "html": "设全集 <span class=\"inline-math\">U={1,2,3,4,5,6,7,8}</span>，集合 <span class=\"inline-math\">A={1,3,5,7}</span>，<span class=\"inline-math\">B={6,7,8}</span>，则图中的阴影部分表示的集合为（　　）"
+                    },
+                    {
+                      "figureHtml": "\n      <figure class=\"set-figure\">\n        <svg viewBox=\"0 0 480 250\" role=\"img\" aria-label=\"集合 B 中不属于 A 的部分被涂色\">\n          <defs><mask id=\"venn-operation-B-only-mask\"><rect width=\"480\" height=\"250\" fill=\"black\"/><circle cx=\"267\" cy=\"120\" r=\"76\" fill=\"white\"/><circle cx=\"213\" cy=\"120\" r=\"76\" fill=\"black\"/></mask></defs>\n          <rect class=\"set-figure-universe\" x=\"34\" y=\"22\" width=\"412\" height=\"202\" rx=\"4\"/>\n          <rect class=\"set-figure-shade\" x=\"34\" y=\"22\" width=\"412\" height=\"202\" mask=\"url(#venn-operation-B-only-mask)\"/>\n          <circle class=\"set-figure-set\" cx=\"213\" cy=\"120\" r=\"76\"/><circle class=\"set-figure-set\" cx=\"267\" cy=\"120\" r=\"76\"/>\n          <text x=\"178\" y=\"205\">A</text><text x=\"285\" y=\"205\">B</text><text x=\"414\" y=\"48\">U</text>\n        </svg><figcaption>阴影表示 B∖A</figcaption>\n      </figure>",
+                      "ariaLabel": "集合 B 中不属于 A 的部分被涂色"
+                    },
+                    {
+                      "text": "A. \\(\\{6,8\\}\\)　　B. \\(\\{6,7,8\\}\\)　　C. \\(\\{1,3,5\\}\\)　　D. \\(\\{1,2,3,4,5\\}\\)",
+                      "html": "A. <span class=\"inline-math\">{6,8}</span>　　B. <span class=\"inline-math\">{6,7,8}</span>　　C. <span class=\"inline-math\">{1,3,5}</span>　　D. <span class=\"inline-math\">{1,2,3,4,5}</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-operations-complement-q06.html"
+              }
+            },
+            {
+              "group": "补集",
+              "knowledgeCategory": "complement",
+              "title": "由 Venn 图阴影求并集的补集",
+              "numberLabel": "练习 14 · 2",
+              "display": "featured",
+              "hints": [
+                "阴影在 M、N 两个圆的外部。",
+                "先求 M∪N，再在 R 中取补集。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "D"
+              },
+              "lesson": {
+                "id": "set-operations-complement-q07",
+                "title": "由 Venn 图阴影求并集的补集",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知全集 \\(U=\\mathbb R\\)，集合 \\(M=\\{x\\mid x>2\\}\\)，\\(N=\\{x\\mid1<x<3\\}\\)，则图中阴影部分表示的集合为（　　）",
+                      "html": "已知全集 <span class=\"inline-math\">U=<span class=\"math-blackboard\">ℝ</span></span>，集合 <span class=\"inline-math\">M={x| x&gt;2}</span>，<span class=\"inline-math\">N={x|1&lt;x&lt;3}</span>，则图中阴影部分表示的集合为（　　）"
+                    },
+                    {
+                      "figureHtml": "\n      <figure class=\"set-figure\">\n        <svg viewBox=\"0 0 480 250\" role=\"img\" aria-label=\"全集中集合 M 与 N 两个圆外部的区域被涂色\">\n          <defs><mask id=\"venn-operation-outside-union-mask\"><rect width=\"480\" height=\"250\" fill=\"black\"/><rect x=\"0\" y=\"0\" width=\"480\" height=\"250\" fill=\"white\"/><circle cx=\"213\" cy=\"120\" r=\"76\" fill=\"black\"/><circle cx=\"267\" cy=\"120\" r=\"76\" fill=\"black\"/></mask></defs>\n          <rect class=\"set-figure-universe\" x=\"34\" y=\"22\" width=\"412\" height=\"202\" rx=\"4\"/>\n          <rect class=\"set-figure-shade\" x=\"34\" y=\"22\" width=\"412\" height=\"202\" mask=\"url(#venn-operation-outside-union-mask)\"/>\n          <circle class=\"set-figure-set\" cx=\"213\" cy=\"120\" r=\"76\"/><circle class=\"set-figure-set\" cx=\"267\" cy=\"120\" r=\"76\"/>\n          <text x=\"178\" y=\"205\">A</text><text x=\"285\" y=\"205\">B</text><text x=\"414\" y=\"48\">U</text>\n        </svg><figcaption>阴影表示 C_U(M∪N)</figcaption>\n      </figure>",
+                      "ariaLabel": "全集中集合 M 与 N 两个圆外部的区域被涂色"
+                    },
+                    {
+                      "text": "A. \\(\\{x\\mid x>2\\}\\)　　B. \\(\\{x\\mid x\\le2\\}\\)　　C. \\(\\{x\\mid x\\ge2\\}\\)　　D. \\(\\{x\\mid x\\le1\\}\\)",
+                      "html": "A. <span class=\"inline-math\">{x| x&gt;2}</span>　　B. <span class=\"inline-math\">{x| x≤2}</span>　　C. <span class=\"inline-math\">{x| x≥2}</span>　　D. <span class=\"inline-math\">{x| x≤1}</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-operations-complement-q07.html"
+              }
+            }
+          ],
+          "summary": "集合的运算有交集、并集和补集：交集保留共同元素，并集合并全部元素，补集在给定全集中取集合之外的元素。运算结果仍然是集合。",
+          "summaryHtml": "集合的运算有交集、并集和补集：交集保留共同元素，并集合并全部元素，补集在给定全集中取集合之外的元素。运算结果仍然是集合。"
+        },
+        {
+          "id": "practice",
+          "label": "实战练习",
+          "type": "assessment",
+          "status": "published",
+          "description": "综合运用交集、并集、补集、集合差与包含关系解决有限集合、区间和 Venn 图问题。",
+          "items": [
+            {
+              "number": 1,
+              "status": "published",
+              "numberLabel": "第 1 题",
+              "hints": [
+                "交集只保留同时属于两个集合的元素。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "D"
+              },
+              "lesson": {
+                "id": "set-relations-operations-practice-q01",
+                "title": "实战练习 1：有限集合求交集",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知集合 \\(A=\\{0,1,2,4,5\\}\\)，\\(B=\\{1,2,3\\}\\)，则 \\(A\\cap B=\\)（　　）",
+                      "html": "已知集合 <span class=\"inline-math\">A={0,1,2,4,5}</span>，<span class=\"inline-math\">B={1,2,3}</span>，则 <span class=\"inline-math\">A∩ B=</span>（　　）"
+                    },
+                    {
+                      "text": "A. \\(\\{1,2,4\\}\\)　　B. \\(\\{1,2,5\\}\\)　　C. \\(\\{1,2,4,5\\}\\)　　D. \\(\\{1,2\\}\\)",
+                      "html": "A. <span class=\"inline-math\">{1,2,4}</span>　　B. <span class=\"inline-math\">{1,2,5}</span>　　C. <span class=\"inline-math\">{1,2,4,5}</span>　　D. <span class=\"inline-math\">{1,2}</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-relations-operations-practice-q01.html"
+              }
+            },
+            {
+              "number": 2,
+              "status": "published",
+              "numberLabel": "第 2 题",
+              "hints": [
+                "逐个检查 B 中的元素是否满足 -1<x<3。",
+                "开区间不包含端点 -1。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "C"
+              },
+              "lesson": {
+                "id": "set-relations-operations-practice-q02",
+                "title": "实战练习 2：区间与有限集合求交集",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知集合 \\(A=\\{x\\mid-1<x<3\\}\\)，\\(B=\\{-1,0,1,2\\}\\)，则 \\(A\\cap B=\\)（　　）",
+                      "html": "已知集合 <span class=\"inline-math\">A={x|-1&lt;x&lt;3}</span>，<span class=\"inline-math\">B={-1,0,1,2}</span>，则 <span class=\"inline-math\">A∩ B=</span>（　　）"
+                    },
+                    {
+                      "text": "A. \\(\\{0,1\\}\\)　　B. \\(\\{-1,0,1\\}\\)　　C. \\(\\{0,1,2\\}\\)　　D. \\(\\{-1,0,1,2\\}\\)",
+                      "html": "A. <span class=\"inline-math\">{0,1}</span>　　B. <span class=\"inline-math\">{-1,0,1}</span>　　C. <span class=\"inline-math\">{0,1,2}</span>　　D. <span class=\"inline-math\">{-1,0,1,2}</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-relations-operations-practice-q02.html"
+              }
+            },
+            {
+              "number": 3,
+              "status": "published",
+              "numberLabel": "第 3 题",
+              "hints": [
+                "并集收集两个集合中的全部元素，并去掉重复值。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "D"
+              },
+              "lesson": {
+                "id": "set-relations-operations-practice-q03",
+                "title": "实战练习 3：有限集合求并集",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知集合 \\(A=\\{2,3,5\\}\\)，\\(B=\\{1,2,3,8\\}\\)，则 \\(A\\cup B=\\)（　　）",
+                      "html": "已知集合 <span class=\"inline-math\">A={2,3,5}</span>，<span class=\"inline-math\">B={1,2,3,8}</span>，则 <span class=\"inline-math\">A∪ B=</span>（　　）"
+                    },
+                    {
+                      "text": "A. \\(\\{1,3,5\\}\\)　　B. \\(\\{2,3\\}\\)　　C. \\(\\{2,3,5\\}\\)　　D. \\(\\{1,2,3,5,8\\}\\)",
+                      "html": "A. <span class=\"inline-math\">{1,3,5}</span>　　B. <span class=\"inline-math\">{2,3}</span>　　C. <span class=\"inline-math\">{2,3,5}</span>　　D. <span class=\"inline-math\">{1,2,3,5,8}</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-relations-operations-practice-q03.html"
+              }
+            },
+            {
+              "number": 4,
+              "status": "published",
+              "numberLabel": "第 4 题",
+              "hints": [
+                "两个区间存在重叠，并集从最左端连续延伸到最右端。",
+                "检查 -2 与 3 是否取到。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "A"
+              },
+              "lesson": {
+                "id": "set-relations-operations-practice-q04",
+                "title": "实战练习 4：相交区间求并集",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知集合 \\(A=\\{x\\mid-2<x<2\\}\\)，\\(B=\\{x\\mid-1\\le x<3\\}\\)，则 \\(A\\cup B=\\)（　　）",
+                      "html": "已知集合 <span class=\"inline-math\">A={x|-2&lt;x&lt;2}</span>，<span class=\"inline-math\">B={x|-1≤ x&lt;3}</span>，则 <span class=\"inline-math\">A∪ B=</span>（　　）"
+                    },
+                    {
+                      "text": "A. \\(\\{x\\mid-2<x<3\\}\\)　　B. \\(\\{x\\mid x>-2\\}\\)　　C. \\(\\{x\\mid-1<x<2\\}\\)　　D. \\(\\{x\\mid x<3\\}\\)",
+                      "html": "A. <span class=\"inline-math\">{x|-2&lt;x&lt;3}</span>　　B. <span class=\"inline-math\">{x| x&gt;-2}</span>　　C. <span class=\"inline-math\">{x|-1&lt;x&lt;2}</span>　　D. <span class=\"inline-math\">{x| x&lt;3}</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-relations-operations-practice-q04.html"
+              }
+            },
+            {
+              "number": 5,
+              "status": "published",
+              "numberLabel": "第 5 题",
+              "hints": [
+                "先把 A 写成区间，再在实数集中取 A 外部的部分。",
+                "原集合不取 -2、取 3，补集的开闭恰好相反。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "B"
+              },
+              "lesson": {
+                "id": "set-relations-operations-practice-q05",
+                "title": "实战练习 5：实数区间的补集",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知全集 \\(U=\\mathbb R\\)，\\(A=\\{x\\mid-2<x\\le3\\}\\)，则 \\(C_UA=\\)（　　）",
+                      "html": "已知全集 <span class=\"inline-math\">U=<span class=\"math-blackboard\">ℝ</span></span>，<span class=\"inline-math\">A={x|-2&lt;x≤3}</span>，则 <span class=\"inline-math\">C<sub>U</sub>A=</span>（　　）"
+                    },
+                    {
+                      "text": "A. \\(\\{x\\mid x\\le-2\\}\\)　　B. \\(\\{x\\mid x\\le-2\\text{ 或 }x>3\\}\\)　　C. \\(\\{x\\mid x\\ge3\\}\\)　　D. \\(\\{x\\mid x\\le-2\\text{ 或 }x\\ge3\\}\\)",
+                      "html": "A. <span class=\"inline-math\">{x| x≤-2}</span>　　B. <span class=\"inline-math\">{x| x≤-2 或 x&gt;3}</span>　　C. <span class=\"inline-math\">{x| x≥3}</span>　　D. <span class=\"inline-math\">{x| x≤-2 或 x≥3}</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-relations-operations-practice-q05.html"
+              }
+            },
+            {
+              "number": 6,
+              "status": "published",
+              "numberLabel": "第 6 题",
+              "hints": [
+                "从全集 U 中删去 A 的元素。",
+                "不要把两个元素误写成一个有序数对。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "C"
+              },
+              "lesson": {
+                "id": "set-relations-operations-practice-q06",
+                "title": "实战练习 6：有限全集中的补集",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知全集 \\(U=\\{1,3,5,7,9\\}\\)，\\(A=\\{1,5,7\\}\\)，则 \\(C_UA=\\)（　　）",
+                      "html": "已知全集 <span class=\"inline-math\">U={1,3,5,7,9}</span>，<span class=\"inline-math\">A={1,5,7}</span>，则 <span class=\"inline-math\">C<sub>U</sub>A=</span>（　　）"
+                    },
+                    {
+                      "text": "A. \\(\\{1,3\\}\\)　　B. \\(\\{(3,9)\\}\\)　　C. \\(\\{3,9\\}\\)　　D. \\(\\{5,9\\}\\)",
+                      "html": "A. <span class=\"inline-math\">{1,3}</span>　　B. <span class=\"inline-math\">{(3,9)}</span>　　C. <span class=\"inline-math\">{3,9}</span>　　D. <span class=\"inline-math\">{5,9}</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-relations-operations-practice-q06.html"
+              }
+            },
+            {
+              "number": 7,
+              "status": "published",
+              "numberLabel": "第 7 题",
+              "hints": [
+                "阴影位于 B 内、A 外，表示 B∖A。",
+                "先求阴影集合，再统计元素个数。"
+              ],
+              "answerSchema": {
+                "type": "integer",
+                "expected": "2",
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写阴影集合的元素个数",
+                  "keyboard": [
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "set-relations-operations-practice-q07",
+                "title": "实战练习 7：Venn 图阴影计数",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知全集为实数集 \\(\\mathbb R\\)，集合 \\(A=\\{1,2,3,4\\}\\)，\\(B=\\{-2,0,1,2,4\\}\\) 的关系如图所示，则阴影部分表示的集合的元素个数为______。",
+                      "html": "已知全集为实数集 <span class=\"inline-math\"><span class=\"math-blackboard\">ℝ</span></span>，集合 <span class=\"inline-math\">A={1,2,3,4}</span>，<span class=\"inline-math\">B={-2,0,1,2,4}</span> 的关系如图所示，则阴影部分表示的集合的元素个数为______。"
+                    },
+                    {
+                      "figureHtml": "\n      <figure class=\"set-figure\">\n        <svg viewBox=\"0 0 480 250\" role=\"img\" aria-label=\"Venn 图中集合 B 内但不属于集合 A 的区域被涂色\">\n          <defs><mask id=\"venn-operation-B-only-mask\"><rect width=\"480\" height=\"250\" fill=\"black\"/><circle cx=\"267\" cy=\"120\" r=\"76\" fill=\"white\"/><circle cx=\"213\" cy=\"120\" r=\"76\" fill=\"black\"/></mask></defs>\n          <rect class=\"set-figure-universe\" x=\"34\" y=\"22\" width=\"412\" height=\"202\" rx=\"4\"/>\n          <rect class=\"set-figure-shade\" x=\"34\" y=\"22\" width=\"412\" height=\"202\" mask=\"url(#venn-operation-B-only-mask)\"/>\n          <circle class=\"set-figure-set\" cx=\"213\" cy=\"120\" r=\"76\"/><circle class=\"set-figure-set\" cx=\"267\" cy=\"120\" r=\"76\"/>\n          <text x=\"178\" y=\"205\">A</text><text x=\"285\" y=\"205\">B</text><text x=\"414\" y=\"48\">U</text>\n        </svg><figcaption>阴影表示 B∖A</figcaption>\n      </figure>",
+                      "ariaLabel": "Venn 图中集合 B 内但不属于集合 A 的区域被涂色"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-relations-operations-practice-q07.html"
+              }
+            },
+            {
+              "number": 8,
+              "status": "published",
+              "numberLabel": "第 8 题",
+              "hints": [
+                "先解方程求出 A。",
+                "A 中最大的元素也必须严格小于开区间右端点 a。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "a>1",
+                  "(1,+∞)",
+                  "(1,∞)"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写 a 的取值范围",
+                  "keyboard": [
+                    "a",
+                    "greater",
+                    "interval",
+                    "brackets",
+                    "digits",
+                    "infinity"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "set-relations-operations-practice-q08",
+                "title": "实战练习 8：由子集关系求参数",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知集合 \\(A=\\{x\\mid x^2+x-2=0\\}\\)，\\(B=(-∞,a)\\)。若 \\(A\\subseteq B\\)，则实数 \\(a\\) 的取值范围是______。",
+                      "html": "已知集合 <span class=\"inline-math\">A={x| x<sup>2</sup>+x-2=0}</span>，<span class=\"inline-math\">B=(-∞,a)</span>。若 <span class=\"inline-math\">A⊆ B</span>，则实数 <span class=\"inline-math\">a</span> 的取值范围是______。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-relations-operations-practice-q08.html"
+              }
+            },
+            {
+              "number": 9,
+              "status": "published",
+              "numberLabel": "第 9 题",
+              "hints": [
+                "阴影表示 A∖B。",
+                "端点 -1 不属于 B，而端点 3 属于 A。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "[-1,3]",
+                  "{x|-1≤x≤3}",
+                  "{x|-1<=x<=3}"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写阴影表示的集合",
+                  "keyboard": [
+                    "x",
+                    "set-braces",
+                    "interval",
+                    "brackets",
+                    "less-equal",
+                    "negative",
+                    "digits"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "set-relations-operations-practice-q09",
+                "title": "实战练习 9：Venn 图阴影与区间差集",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知全集 \\(U=\\mathbb R\\)，集合 \\(A=\\{x\\mid-2<x\\le3\\}\\)，\\(B=\\{x\\mid x<-1\\text{ 或 }x>5\\}\\)，则图中阴影部分表示的集合为______。",
+                      "html": "已知全集 <span class=\"inline-math\">U=<span class=\"math-blackboard\">ℝ</span></span>，集合 <span class=\"inline-math\">A={x|-2&lt;x≤3}</span>，<span class=\"inline-math\">B={x| x&lt;-1 或 x&gt;5}</span>，则图中阴影部分表示的集合为______。"
+                    },
+                    {
+                      "figureHtml": "\n      <figure class=\"set-figure\">\n        <svg viewBox=\"0 0 480 250\" role=\"img\" aria-label=\"Venn 图中集合 A 内但不属于集合 B 的区域被涂色\">\n          <defs>\n            <mask id=\"venn-a-minus-b-mask\" maskUnits=\"userSpaceOnUse\" x=\"0\" y=\"0\" width=\"480\" height=\"250\">\n              <rect x=\"0\" y=\"0\" width=\"480\" height=\"250\" fill=\"black\"/>\n              <circle cx=\"213\" cy=\"120\" r=\"76\" fill=\"white\"/>\n              <circle cx=\"267\" cy=\"120\" r=\"76\" fill=\"black\"/>\n            </mask>\n          </defs>\n          <rect class=\"set-figure-universe\" x=\"34\" y=\"22\" width=\"412\" height=\"202\" rx=\"4\"/>\n          <rect class=\"set-figure-shade\" x=\"0\" y=\"0\" width=\"480\" height=\"250\" mask=\"url(#venn-a-minus-b-mask)\"/>\n          <circle class=\"set-figure-set\" cx=\"213\" cy=\"120\" r=\"76\"/>\n          <circle class=\"set-figure-set\" cx=\"267\" cy=\"120\" r=\"76\"/>\n          <text x=\"192\" y=\"205\">A</text>\n          <text x=\"285\" y=\"205\">B</text>\n          <text x=\"414\" y=\"48\">U</text>\n        </svg>\n        <figcaption>阴影表示 A∖B</figcaption>\n      </figure>\n    ",
+                      "ariaLabel": "Venn 图中集合 A 内但不属于集合 B 的区域被涂色"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-relations-operations-practice-q09.html"
               }
             }
           ]

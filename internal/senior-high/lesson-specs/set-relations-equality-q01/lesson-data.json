@@ -1,0 +1,50 @@
+{
+  "meta": {
+    "id": "set-relations-equality-q01",
+    "outputPath": "site/problems/senior-high/sets/set-relations-and-operations/set-relations-equality-q01.html",
+    "pageTitle": "比较三个集合对",
+    "pageDescription": "通过解方程和求值域判断三组集合是否相等。",
+    "breadcrumbTitle": "集合间的基本关系 · 练习 2-1",
+    "breadcrumbLabel": "集合间的基本关系",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=set-relations-and-operations&module=set-relations"
+  },
+  "problem": {
+    "source": "培训教材 · 集合间的基本关系",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "分别确定两个集合的全部元素，再比较是否完全相同。",
+      "items": ["方程无实数解时，解集为空集；", "函数值集合要通过配方确定值域。"]
+    },
+    "lines": [
+      {"text": "研究下列集合之间的关系："},
+      {"text": "① \\(A=\\{1,2\\}\\) ___ \\(B=\\{x\\mid x^2-3x+2=0\\}\\)；"},
+      {"text": "② \\(A=\\varnothing\\) ___ \\(B=\\{x\\in\\mathbb R\\mid x^2+1=0\\}\\)；"},
+      {"text": "③ \\(A=\\{y\\mid y=x^2+1,x\\in\\mathbb R\\}\\) ___ \\(B=\\{y\\mid y=x^2-4x+5,x\\in\\mathbb R\\}\\)。"}
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "集合相等",
+      "title": "分别确定三个集合对",
+      "t": 0,
+      "showDiagram": false,
+      "table": {
+        "headers": ["序号", "化简", "关系"],
+        "rows": [
+          ["①", "\\(x^2-3x+2=(x-1)(x-2)=0\\)，所以 \\(B=\\{1,2\\}\\)", "\\(A=B\\)"],
+          ["②", "对实数 x，\\(x^2+1>0\\)，所以 \\(B=\\varnothing\\)", "\\(A=B\\)"],
+          ["③", "\\(x^2+1\\ge1\\)，\\(x^2-4x+5=(x-2)^2+1\\ge1\\)", "\\(A=B=[1,+∞)\\)"]
+        ]
+      },
+      "reasoning": [
+        {"kind": "because", "text": "①两边都是 \\(\\{1,2\\}\\)，②两边都是空集，③两边都是不小于 1 的全体实数组成的集合"},
+        {"kind": "therefore", "text": "三个空都应填等号"}
+      ],
+      "derive": [["结论", "依次填 \\(=,=,=\\)"]]
+    }
+  ],
+  "policies": {"s1": {"movable": false, "range": [0, 0]}},
+  "stepLabels": {"s1": "1 比较集合"}
+}

@@ -1,0 +1,48 @@
+{
+  "meta": {
+    "id": "set-relations-interval-q01",
+    "outputPath": "site/problems/senior-high/sets/set-relations-and-operations/set-relations-interval-q01.html",
+    "pageTitle": "由区间包含求参数范围",
+    "pageDescription": "分类讨论区间为空和非空两种情况，求满足子集关系的参数范围。",
+    "breadcrumbTitle": "集合间的基本关系 · 练习 7-1",
+    "breadcrumbLabel": "集合间的基本关系",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=set-relations-and-operations&module=set-relations"
+  },
+  "problem": {
+    "source": "培训教材 · 集合间的基本关系",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "区间包含题必须先讨论被包含集合是否为空。",
+      "items": ["空集是任何集合的子集；", "非空时既要比较端点大小，也要检查端点开闭。"]
+    },
+    "lines": [
+      {"text": "设集合 \\(A=\\{x\\mid -2<x\\le5\\}\\)，\\(B=\\{x\\mid m+1\\le x\\le2m-1\\}\\)，\\(B\\subseteq A\\)，则 \\(m\\) 的取值范围为 ___。"}
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "区间包含",
+      "title": "分类讨论 B 是否为空",
+      "t": 0,
+      "showDiagram": false,
+      "table": {
+        "headers": ["情形", "条件", "由 \\(B\\subseteq A\\) 得", "参数范围"],
+        "rows": [
+          ["\\(B=\\varnothing\\)", "\\(m+1>2m-1\\)", "空集自动满足", "\\(m<2\\)"],
+          ["\\(B\\ne\\varnothing\\)", "\\(m+1\\le2m-1\\)", "\\(m+1>-2\\)，\\(2m-1\\le5\\)", "\\(2\\le m\\le3\\)"]
+        ]
+      },
+      "reasoning": [
+        {"kind": "because", "text": "当 \\(m<2\\) 时，左端点大于右端点，\\(B=\\varnothing\\)，所以必有 \\(B\\subseteq A\\)"},
+        {"kind": "therefore", "text": "空集情形给出 \\(m<2\\)"},
+        {"kind": "because", "text": "当 \\(m\\ge2\\) 时 B 非空；要包含在 \\((-2,5]\\) 中，需 \\(m+1>-2\\) 且 \\(2m-1\\le5\\)"},
+        {"kind": "therefore", "text": "非空情形给出 \\(2\\le m\\le3\\)，与 \\(m<2\\) 合并得 \\(m\\le3\\)"}
+      ],
+      "derive": [["结论", "\\(m\\le3\\)，即 \\((-∞,3]\\)"]]
+    }
+  ],
+  "policies": {"s1": {"movable": false, "range": [0, 0]}},
+  "stepLabels": {"s1": "1 分类讨论区间"}
+}

@@ -1,0 +1,49 @@
+{
+  "meta": {
+    "id": "set-relations-proper-subset-q02",
+    "outputPath": "site/problems/senior-high/sets/set-relations-and-operations/set-relations-proper-subset-q02.html",
+    "pageTitle": "统计正确命题的个数",
+    "pageDescription": "检查真子集、自然数边界、方程解集子集数和整除集合元素个数。",
+    "breadcrumbTitle": "集合间的基本关系 · 练习 3-2",
+    "breadcrumbLabel": "集合间的基本关系",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=set-relations-and-operations&module=set-relations"
+  },
+  "problem": {
+    "source": "培训教材 · 集合间的基本关系",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "命题判断要主动检查边界值，并把描述法集合具体化。",
+      "items": ["含 n 个元素的集合有 \\(2^n\\) 个子集；", "涉及自然数时不要漏掉 0。"]
+    },
+    "lines": [
+      {"text": "有下列四个命题：① \\(\\{\\varnothing\\}\\) 没有真子集；② 若 \\(a\\in\\mathbb N\\)，则 \\(-a\\notin\\mathbb N\\)；③ 集合 \\(A=\\{x\\in\\mathbb R\\mid x^2-2x+1=0\\}\\) 有 4 个子集；④ 集合 \\(B=\\{x\\in\\mathbb N\\mid \\frac{6}{x}\\in\\mathbb N\\}\\) 中有 4 个元素。其中正确命题的个数是（　　）"},
+      {"text": "A. 0　　B. 1　　C. 2　　D. 3"}
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "真子集",
+      "title": "逐项验证命题",
+      "t": 0,
+      "showDiagram": false,
+      "table": {
+        "headers": ["序号", "验证", "真值"],
+        "rows": [
+          ["①", "\\(\\varnothing\\subsetneq\\{\\varnothing\\}\\)", "错"],
+          ["②", "取 \\(a=0\\)，则 \\(-a=0\\in\\mathbb N\\)", "错"],
+          ["③", "\\((x-1)^2=0\\)，所以 \\(A=\\{1\\}\\)，只有 2 个子集", "错"],
+          ["④", "\\(x\\ne0\\)，且 x 为 6 的正因数，所以 \\(B=\\{1,2,3,6\\}\\)", "对"]
+        ]
+      },
+      "reasoning": [
+        {"kind": "because", "text": "前三个命题分别被空集真子集、边界值 0 和实际子集个数否定，只有④成立"},
+        {"kind": "therefore", "text": "正确命题有 1 个，选择 B"}
+      ],
+      "derive": [["正确命题", "④"], ["结论", "选择 B"]]
+    }
+  ],
+  "policies": {"s1": {"movable": false, "range": [0, 0]}},
+  "stepLabels": {"s1": "1 验证命题"}
+}

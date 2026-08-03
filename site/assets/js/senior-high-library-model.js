@@ -284,11 +284,17 @@
   function parseRelationSequence(rawValue) {
     const value = String(rawValue ?? "")
       .trim()
+      .replace(/\\nsubseteq|nsubseteq/g, "⊄")
+      .replace(/\\subsetneq|subsetneq/g, "⊊")
+      .replace(/\\supsetneq|supsetneq/g, "⊋")
+      .replace(/\\subseteq|subseteq/g, "⊆")
+      .replace(/\\supseteq|supseteq/g, "⊇")
+      .replace(/\\ne|!=/g, "≠")
       .replace(/\\notin|notin/g, "∉")
       .replace(/\\in|\bin\b/g, "∈");
-    const relations = value.match(/[∈∉]/g) || [];
+    const relations = value.match(/[∈∉=≠⊆⊄⊊⊋⊇]/g) || [];
     const remainder = value
-      .replace(/[∈∉]/g, "")
+      .replace(/[∈∉=≠⊆⊄⊊⊋⊇]/g, "")
       .replace(/[\s,，、;；]/g, "");
     return relations.length > 0 && remainder === "" ? relations : null;
   }

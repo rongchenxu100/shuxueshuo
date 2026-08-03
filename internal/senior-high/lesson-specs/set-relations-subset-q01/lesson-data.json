@@ -1,0 +1,49 @@
+{
+  "meta": {
+    "id": "set-relations-subset-q01",
+    "outputPath": "site/problems/senior-high/sets/set-relations-and-operations/set-relations-subset-q01.html",
+    "pageTitle": "写出三元素集合的全部子集",
+    "pageDescription": "按元素个数分类列举三元素集合的全部子集。",
+    "breadcrumbTitle": "集合间的基本关系 · 练习 1-1",
+    "breadcrumbLabel": "集合间的基本关系",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=set-relations-and-operations&module=set-relations"
+  },
+  "problem": {
+    "source": "培训教材 · 集合间的基本关系",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "按子集中元素的个数分类，可以保证不重不漏。",
+      "items": ["空集和集合本身也都是子集；", "三个元素中任选 k 个，可以得到含 k 个元素的子集。"]
+    },
+    "lines": [
+      {"text": "请写出集合 \\(A=\\{a,b,c\\}\\) 的子集。"}
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "子集",
+      "title": "按元素个数分类列举",
+      "t": 0,
+      "showDiagram": false,
+      "table": {
+        "caption": "集合 A 的子集",
+        "headers": ["所含元素个数", "子集"],
+        "rows": [
+          ["0", "\\(\\varnothing\\)"],
+          ["1", "\\(\\{a\\},\\{b\\},\\{c\\}\\)"],
+          ["2", "\\(\\{a,b\\},\\{a,c\\},\\{b,c\\}\\)"],
+          ["3", "\\(\\{a,b,c\\}\\)"]
+        ]
+      },
+      "reasoning": [
+        {"kind": "because", "text": "子集中的每个元素都必须来自 \\(A=\\{a,b,c\\}\\)，且每个元素只有选或不选两种状态"},
+        {"kind": "therefore", "text": "按所含元素个数从 0 到 3 列举，共得到 \\(1+3+3+1=8\\) 个子集"}
+      ],
+      "derive": [["结论", "\\(\\varnothing,\\{a\\},\\{b\\},\\{c\\},\\{a,b\\},\\{a,c\\},\\{b,c\\},\\{a,b,c\\}\\)"]]
+    }
+  ],
+  "policies": {"s1": {"movable": false, "range": [0, 0]}},
+  "stepLabels": {"s1": "1 分类列举"}
+}

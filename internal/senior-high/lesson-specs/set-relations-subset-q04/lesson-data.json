@@ -1,0 +1,51 @@
+{
+  "meta": {
+    "id": "set-relations-subset-q04",
+    "outputPath": "site/problems/senior-high/sets/set-relations-and-operations/set-relations-subset-q04.html",
+    "pageTitle": "统计正确集合关系的个数",
+    "pageDescription": "逐项辨析六个关于元素、集合、空集和有序数对的关系式。",
+    "breadcrumbTitle": "集合间的基本关系 · 练习 1-4",
+    "breadcrumbLabel": "集合间的基本关系",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=set-relations-and-operations&module=set-relations"
+  },
+  "problem": {
+    "source": "培训教材 · 集合间的基本关系",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "逐项判断，不要把元素、集合和有序数对混为一谈。",
+      "items": ["集合元素无序；", "\\((0,1)\\) 是一个有序数对。"]
+    },
+    "lines": [
+      {"text": "下列各式中：① \\(\\{0\\}\\in\\{0,1,2\\}\\)；② \\(\\{0,1,2\\}\\subseteq\\{2,1,0\\}\\)；③ \\(\\varnothing\\subseteq\\{0,1,2\\}\\)；④ \\(\\varnothing=\\{0\\}\\)；⑤ \\(\\{0,1\\}=\\{(0,1)\\}\\)；⑥ \\(0=\\{0\\}\\)。正确的个数是（　　）"},
+      {"text": "A. 1　　B. 2　　C. 3　　D. 4"}
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "子集",
+      "title": "逐项判断真值",
+      "t": 0,
+      "showDiagram": false,
+      "table": {
+        "headers": ["序号", "判断依据", "真值"],
+        "rows": [
+          ["①", "右侧集合的元素是 0、1、2，不含集合 \\(\\{0\\}\\)", "错"],
+          ["②", "两个集合元素完全相同", "对"],
+          ["③", "空集是任何集合的子集", "对"],
+          ["④", "空集不含元素，\\(\\{0\\}\\) 含元素 0", "错"],
+          ["⑤", "左侧含两个数，右侧含一个有序数对", "错"],
+          ["⑥", "数 0 不等于单元素集合 \\(\\{0\\}\\)", "错"]
+        ]
+      },
+      "reasoning": [
+        {"kind": "because", "text": "只有②利用集合的无序性成立，③利用空集的子集性质成立"},
+        {"kind": "therefore", "text": "正确的关系式共有 2 个，选择 B"}
+      ],
+      "derive": [["正确序号", "②、③"], ["结论", "选择 B"]]
+    }
+  ],
+  "policies": {"s1": {"movable": false, "range": [0, 0]}},
+  "stepLabels": {"s1": "1 逐项判断"}
+}

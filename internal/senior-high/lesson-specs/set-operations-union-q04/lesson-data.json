@@ -1,0 +1,6 @@
+{
+  "meta":{"id":"set-operations-union-q04","outputPath":"site/problems/senior-high/sets/set-relations-and-operations/set-operations-union-q04.html","pageTitle":"由 Venn 图阴影求并集","pageDescription":"识别覆盖两个集合全部区域的阴影并列举并集。","breadcrumbTitle":"集合的运算 · 练习 12-3","breadcrumbLabel":"集合的运算","breadcrumbPath":"site/senior-high/index.html","breadcrumbSearch":"?chapter=sets&section=set-relations-and-operations&module=set-operations"},
+  "problem":{"source":"培训教材 · 集合的基本运算","keyPoints":{"title":"解题要点","lead":"阴影覆盖 A、B 两个圆的全部区域。","items":["阴影表示 \\(A\\cup B\\)。","元素 6 同时出现，但只写一次。"]},"lines":[{"text":"设集合 \\(A=\\{2,4,6\\}\\)，\\(B=\\{1,3,6\\}\\)，则图中阴影部分表示的集合是 ___。"},{"figure":{"kind":"venn-operation","shade":"union","ariaLabel":"集合 A 与 B 的两个圆全部被涂色","caption":"阴影表示 A∪B"}}]},
+  "steps":[{"id":"s1","section":"并集","title":"读取阴影并合并元素","t":0,"showDiagram":false,"reasoning":[{"kind":"because","text":"阴影覆盖所有属于 A 或属于 B 的区域，所以表示 \\(A\\cup B\\)"},{"kind":"therefore","text":"合并 \\(\\{2,4,6\\}\\) 与 \\(\\{1,3,6\\}\\) 并去重，得 \\(\\{1,2,3,4,6\\}\\)"}],"derive":[["阴影集合","\\(\\{1,2,3,4,6\\}\\)"]]}],
+  "policies":{"s1":{"movable":false,"range":[0,0]}},"stepLabels":{"s1":"1 读取并集区域"}
+}

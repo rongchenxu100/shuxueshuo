@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>由乘积集合计算非空真子集个数 | 数学说</title>
+  <meta name="description" content="列举有限集合的所有乘积并去重，再计算非空真子集个数。" />
+  <meta property="og:title" content="由乘积集合计算非空真子集个数 | 数学说" />
+  <meta property="og:description" content="列举有限集合的所有乘积并去重，再计算非空真子集个数。" />
+  <meta property="og:image" content="../../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css?v=6" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../../senior-high/index.html?chapter=sets&section=set-relations-and-operations&module=set-relations">集合间的基本关系</a>
+    <span class="lesson-title">集合间的基本关系 · 练习 6-2</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          <div class="problem-full">
+            <div class="problem-line"><span>若集合 <span class="inline-math">A={x∈<span class="math-blackboard">ℕ</span>| -1&lt;x≤2}</span>，<span class="inline-math">B={x| x=ab,a,b∈ A}</span>，则集合 <span class="inline-math">B</span> 的非空真子集的个数为 ___。</span><span class="answer-chip" id="answerI">答案：14</span></div>
+          </div>
+        </section>
+
+        <aside class="lesson-key-points" aria-label="解题要点"><div class="lesson-key-points-title">解题要点</div><div class="lesson-key-points-content"><p class="lesson-key-points-lead">先确定乘积集合 B 的不同元素，再应用非空真子集公式。</p><ol><li>乘积结果重复时只保留一个；</li><li>非空真子集要同时排除空集和集合本身。</li></ol></div></aside>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../../assets/js/lesson-page-runtime.js?v=6"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"s1","section":"子集个数","title":"列举乘积集合","t":0,"showDiagram":false,"table":{"caption":"a、b 取 0、1、2 时的不同乘积","headers":["a","可得到的乘积"],"rows":[["0","0"],["1","0、1、2"],["2","0、2、4"]]},"reasoning":[{"kind":"because","text":"\\(-1<x\\le2\\) 中的自然数为 0、1、2，所以 \\(A=\\{0,1,2\\}\\)"},{"kind":"therefore","text":"全部乘积去重后，\\(B=\\{0,1,2,4\\}\\)，共有 4 个元素"},{"kind":"because","text":"4 元素集合有 \\(2^4\\) 个子集，非空真子集需排除空集和 B 本身"},{"kind":"therefore","text":"所求为 \\(2^4-2=14\\)"}],"derive":[["集合 B","\\(\\{0,1,2,4\\}\\)"],["结论","\\(14\\)"]]}];
+    var STEP_LABELS = {"s1":"1 列举并计数"};
+    var POLICIES   = {"s1":{"movable":false,"range":[0,0]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 滑块主参数与派生参数的联动文案格式化器 */
+    var __LESSON_PARAM_LABEL_FORMATTER__;
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script>
+  function diagramMarkupFor() { return ''; }
+  function diagramMarkupForFrame() { return ''; }
+  function drawMini() { return ''; }
+  function groupTitle(section) { return section; }
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      diagramMarkupForFrame: typeof diagramMarkupForFrame === "function" ? diagramMarkupForFrame : undefined,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "参数",
+      paramLabelPrefix: "",
+      paramLabelFormatter: typeof __LESSON_PARAM_LABEL_FORMATTER__ === "function" ? __LESSON_PARAM_LABEL_FORMATTER__ : undefined,
+      goToProblemMode: "doubleScroll"
+    });
+  </script>
+</body>
+</html>

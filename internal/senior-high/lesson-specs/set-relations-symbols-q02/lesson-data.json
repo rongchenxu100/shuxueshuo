@@ -1,0 +1,52 @@
+{
+  "meta": {
+    "id": "set-relations-symbols-q02",
+    "outputPath": "site/problems/senior-high/sets/set-relations-and-operations/set-relations-symbols-q02.html",
+    "pageTitle": "比较三个函数值域",
+    "pageDescription": "用配方法求二次函数值域，再判断三个集合的真包含关系。",
+    "breadcrumbTitle": "集合间的基本关系 · 练习 4-2",
+    "breadcrumbLabel": "集合间的基本关系",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=set-relations-and-operations&module=set-relations"
+  },
+  "problem": {
+    "source": "培训教材 · 集合间的基本关系",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "描述法中的代表元素是 y，因此需要比较函数值域。",
+      "items": ["开口向上的抛物线值域由最小值决定；", "开口向下的抛物线值域由最大值决定。"]
+    },
+    "lines": [
+      {"text": "研究下列集合之间的关系（用 \\(\\subsetneq,\\supsetneq\\) 表示）："},
+      {"text": "① \\(A=\\{x\\mid x>1\\}\\) ___ \\(B=\\{x\\mid x>2\\}\\)；"},
+      {"text": "② \\(A=\\{y\\mid y=x^2\\}\\) ___ \\(B=\\{y\\mid y=x^2+x\\}\\)；"},
+      {"text": "③ \\(A=\\{y\\mid y=-x^2\\}\\) ___ \\(B=\\{y\\mid y=-x^2+x\\}\\)。"}
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "符号辨析",
+      "title": "求值域后比较",
+      "t": 0,
+      "showDiagram": false,
+      "table": {
+        "headers": ["序号", "集合 A", "集合 B", "关系"],
+        "rows": [
+          ["①", "\\((1,+∞)\\)", "\\((2,+∞)\\)", "\\(A\\supsetneq B\\)"],
+          ["②", "\\([0,+∞)\\)", "\\(x^2+x=(x+\\frac{1}{2})^2-\\frac{1}{4}\\)，故为 \\([-\\frac{1}{4},+∞)\\)", "\\(A\\subsetneq B\\)"],
+          ["③", "\\((-∞,0]\\)", "\\(-x^2+x=-(x-\\frac{1}{2})^2+\\frac{1}{4}\\)，故为 \\((-∞,\\frac{1}{4}]\\)", "\\(A\\subsetneq B\\)"]
+        ]
+      },
+      "reasoning": [
+        {"kind": "because", "text": "\\(x>2\\) 一定推出 \\(x>1\\)，但反之不成立"},
+        {"kind": "therefore", "text": "第①空填 \\(\\supsetneq\\)"},
+        {"kind": "because", "text": "第②、③中集合 B 的值域分别比集合 A 多出 \\([-\\frac{1}{4},0)\\) 和 \\((0,\\frac{1}{4}]\\)"},
+        {"kind": "therefore", "text": "第②、③空都填 \\(\\subsetneq\\)"}
+      ],
+      "derive": [["结论", "依次填 \\(\\supsetneq,\\subsetneq,\\subsetneq\\)"]]
+    }
+  ],
+  "policies": {"s1": {"movable": false, "range": [0, 0]}},
+  "stepLabels": {"s1": "1 比较值域"}
+}

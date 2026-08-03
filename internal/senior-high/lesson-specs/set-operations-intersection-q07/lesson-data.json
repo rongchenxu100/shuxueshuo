@@ -1,0 +1,6 @@
+{
+  "meta":{"id":"set-operations-intersection-q07","outputPath":"site/problems/senior-high/sets/set-relations-and-operations/set-operations-intersection-q07.html","pageTitle":"由交集为空求参数范围","pageDescription":"利用两个区间没有公共点求参数范围。","breadcrumbTitle":"集合的运算 · 练习 9-4","breadcrumbLabel":"集合的运算","breadcrumbPath":"site/senior-high/index.html","breadcrumbSearch":"?chapter=sets&section=set-relations-and-operations&module=set-operations"},
+  "problem":{"source":"培训教材 · 集合的基本运算","keyPoints":{"title":"解题要点","lead":"集合 B 与结论无关；只需比较 A、C。","items":["A 的最小元素是 3。","C 不含自己的右端点。"]},"lines":[{"text":"设全集为 \\(\\mathbb R\\)，集合 \\(A=\\{x\\mid3\\le x<7\\}\\)，\\(B=\\{x\\mid2<x<6\\}\\)，\\(C=\\{x\\mid x<2a+1\\}\\)。若 \\(A\\cap C=\\varnothing\\)，求实数 \\(a\\) 的取值范围。"}]},
+  "steps":[{"id":"s1","section":"交集","title":"让 C 停在 A 的左端点之前","t":0,"showDiagram":false,"visual":{"kind":"number-line-intersection-empty","ariaLabel":"数轴上集合 A 从 3 开始到 7 之前，集合 C 位于 2a 加 1 的左侧；C 的开端点不超过 3 时两集合没有公共点"},"reasoning":[{"kind":"because","text":"A 包含 3，而 C 由所有小于 \\(2a+1\\) 的数组成；两者无交集必须有 \\(2a+1\\le3\\)"},{"kind":"therefore","text":"\\(a\\le1\\)。临界情形 \\(2a+1=3\\) 时，C 不含 3，而 A 包含 3，仍无交集"}],"derive":[["参数范围","\\((-∞,1]\\)"]]}],
+  "policies":{"s1":{"movable":false,"range":[0,0]}},"stepLabels":{"s1":"1 比较分离端点"}
+}

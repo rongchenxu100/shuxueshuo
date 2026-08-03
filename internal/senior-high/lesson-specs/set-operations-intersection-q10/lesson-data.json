@@ -1,0 +1,6 @@
+{
+  "meta":{"id":"set-operations-intersection-q10","outputPath":"site/problems/senior-high/sets/set-relations-and-operations/set-operations-intersection-q10.html","pageTitle":"由子集个数判断方程根集","pageDescription":"由集合只有一个子集判断其为空集，再用判别式求参数。","breadcrumbTitle":"集合的运算 · 练习 10-3","breadcrumbLabel":"集合的运算","breadcrumbPath":"site/senior-high/index.html","breadcrumbSearch":"?chapter=sets&section=set-relations-and-operations&module=set-operations"},
+  "problem":{"source":"培训教材 · 集合的基本运算","keyPoints":{"title":"解题要点","lead":"先把“有且仅有 1 个子集”翻译成集合元素个数。","items":["含 n 个元素的集合有 \\(2^n\\) 个子集。","一元二次方程无实根时判别式小于 0。"]},"lines":[{"text":"已知集合 \\(A=\\{x\\in\\mathbb R\\mid x^2+ax+2=0\\}\\) 有且仅有 1 个子集，则实数 \\(a\\) 的取值集合为（　　）"},{"text":"A. \\(\\{a\\mid-2\\sqrt{2}<a<2\\sqrt{2}\\}\\)　　B. \\(\\{-2\\sqrt{2},2\\sqrt{2}\\}\\)　　C. \\(\\{2\\sqrt{2}\\}\\)　　D. \\(\\{a\\mid a<-2\\sqrt{2}\\text{ 或 }a>2\\sqrt{2}\\}\\)"}]},
+  "steps":[{"id":"s1","section":"交集","title":"由子集个数确定根集为空","t":0,"showDiagram":false,"reasoning":[{"kind":"because","text":"A 只有 1 个子集，所以 \\(2^{|A|}=1\\)，从而 \\(A=\\varnothing\\)"},{"kind":"therefore","text":"方程无实根，需 \\(\\Delta=a^2-8<0\\)，解得 \\(-2\\sqrt{2}<a<2\\sqrt{2}\\)，选择 A"}],"derive":[["参数集合","\\(\\{a\\mid-2\\sqrt{2}<a<2\\sqrt{2}\\}\\)"]]}],
+  "policies":{"s1":{"movable":false,"range":[0,0]}},"stepLabels":{"s1":"1 判断空根集"}
+}

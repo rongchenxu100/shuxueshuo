@@ -1,0 +1,6 @@
+{
+  "meta":{"id":"set-operations-intersection-q03","outputPath":"site/problems/senior-high/sets/set-relations-and-operations/set-operations-intersection-q03.html","pageTitle":"两个函数值域求交集","pageDescription":"配方求两个二次函数的值域，再求区间交集。","breadcrumbTitle":"集合的运算 · 练习 8-3","breadcrumbLabel":"集合的运算","breadcrumbPath":"site/senior-high/index.html","breadcrumbSearch":"?chapter=sets&section=set-relations-and-operations&module=set-operations"},
+  "problem":{"source":"培训教材 · 集合的基本运算","keyPoints":{"title":"解题要点","lead":"描述对象是 y，因此两个集合都是函数值域。","items":["开口向上的抛物线有最小值。","开口向下的抛物线有最大值。"]},"lines":[{"text":"已知集合 \\(A=\\{y\\mid y=x^2+2x-2\\}\\)，\\(B=\\{y\\mid y=-x^2+2x+6\\}\\)，则 \\(A\\cap B=\\)（　　）"},{"text":"A. \\(\\{2,-2\\}\\)　　B. \\(\\{(-2,-2),(2,6)\\}\\)　　C. \\(\\{-2,-6\\}\\)　　D. \\(\\{y\\mid -3\\le y\\le7\\}\\)"}]},
+  "steps":[{"id":"s1","section":"交集","title":"配方确定两个值域","t":0,"showDiagram":false,"table":{"headers":["集合","配方","值域"],"rows":[["A","\\(y=(x+1)^2-3\\)","\\([-3,+\\infty)\\)"],["B","\\(y=-(x-1)^2+7\\)","\\((-∞,7]\\)"]]},"reasoning":[{"kind":"because","text":"A 中 y 的取值满足 \\(y\\ge-3\\)，B 中 y 的取值满足 \\(y\\le7\\)"},{"kind":"therefore","text":"公共范围为 \\([-3,7]\\)，即 \\(A\\cap B=\\{y\\mid-3\\le y\\le7\\}\\)，选择 D"}],"derive":[["交集","\\([-3,7]\\)"]]}],
+  "policies":{"s1":{"movable":false,"range":[0,0]}},"stepLabels":{"s1":"1 求值域交集"}
+}

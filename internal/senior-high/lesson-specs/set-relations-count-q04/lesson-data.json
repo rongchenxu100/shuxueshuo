@@ -1,0 +1,50 @@
+{
+  "meta": {
+    "id": "set-relations-count-q04",
+    "outputPath": "site/problems/senior-high/sets/set-relations-and-operations/set-relations-count-q04.html",
+    "pageTitle": "由集合相等求乘积集合的非空子集个数",
+    "pageDescription": "分类讨论集合相等时的元素对应，求出乘积的可能值并计数。",
+    "breadcrumbTitle": "集合间的基本关系 · 练习 6-4",
+    "breadcrumbLabel": "集合间的基本关系",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=set-relations-and-operations&module=set-relations"
+  },
+  "problem": {
+    "source": "培训教材 · 集合间的基本关系",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "集合相等只要求元素完全相同，不要求书写位置一一对应。",
+      "items": ["先由元素 2 必须出现在 \\(\\{a,a^2\\}\\) 中分类；", "乘积集合要对不同结果去重。"]
+    },
+    "lines": [
+      {"text": "已知集合 \\(A=\\{a,a^2\\}\\)，\\(B=\\{2,b\\}\\)，若 \\(A=B\\)，则集合 \\(\\{x\\mid x=ab\\}\\) 的非空子集个数为（　　）"},
+      {"text": "A. 2　　B. 3　　C. 7　　D. 8"}
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "集合相等",
+      "title": "由元素 2 分类讨论",
+      "t": 0,
+      "showDiagram": false,
+      "table": {
+        "headers": ["情形", "a", "b", "ab"],
+        "rows": [
+          ["\\(a=2\\)", "2", "4", "8"],
+          ["\\(a^2=2,a=\\sqrt2\\)", "\\(\\sqrt2\\)", "\\(\\sqrt2\\)", "2"],
+          ["\\(a^2=2,a=-\\sqrt2\\)", "\\(-\\sqrt2\\)", "\\(-\\sqrt2\\)", "2"]
+        ]
+      },
+      "reasoning": [
+        {"kind": "because", "text": "\\(A=B\\) 且右侧含元素 2，所以必有 \\(a=2\\) 或 \\(a^2=2\\)"},
+        {"kind": "therefore", "text": "逐种匹配另一个元素后，\\(ab\\) 的可能值为 8 或 2，故 \\(\\{x\\mid x=ab\\}=\\{2,8\\}\\)"},
+        {"kind": "because", "text": "二元素集合有 \\(2^2-1=3\\) 个非空子集"},
+        {"kind": "therefore", "text": "选择 B"}
+      ],
+      "derive": [["乘积集合", "\\(\\{2,8\\}\\)"], ["结论", "\\(3\\)，选择 B"]]
+    }
+  ],
+  "policies": {"s1": {"movable": false, "range": [0, 0]}},
+  "stepLabels": {"s1": "1 分类并计数"}
+}

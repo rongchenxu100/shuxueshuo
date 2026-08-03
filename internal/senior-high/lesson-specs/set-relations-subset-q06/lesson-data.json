@@ -1,0 +1,49 @@
+{
+  "meta": {
+    "id": "set-relations-subset-q06",
+    "outputPath": "site/problems/senior-high/sets/set-relations-and-operations/set-relations-subset-q06.html",
+    "pageTitle": "统计夹在两个集合之间的集合",
+    "pageDescription": "利用可选元素的独立选择统计满足双重包含关系的集合个数。",
+    "breadcrumbTitle": "集合间的基本关系 · 练习 1-6",
+    "breadcrumbLabel": "集合间的基本关系",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=set-relations-and-operations&module=set-relations"
+  },
+  "problem": {
+    "source": "培训教材 · 集合间的基本关系",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "固定必须出现的元素，只对剩余元素作选或不选。",
+      "items": ["1、2 必须属于 M；", "3、4、5 各自可以独立地选入或不选入 M。"]
+    },
+    "lines": [
+      {"text": "已知集合 \\(M\\) 满足 \\(\\{1,2\\}\\subseteq M\\subseteq\\{1,2,3,4,5\\}\\)，这样的集合 \\(M\\) 有（　　）个。"},
+      {"text": "A. 7　　B. 8　　C. 9　　D. 10"}
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "子集",
+      "title": "确定必选与可选元素",
+      "t": 0,
+      "showDiagram": false,
+      "table": {
+        "headers": ["元素", "在 M 中的状态", "选择数"],
+        "rows": [
+          ["1、2", "必须选入", "1"],
+          ["3", "选入或不选", "2"],
+          ["4", "选入或不选", "2"],
+          ["5", "选入或不选", "2"]
+        ]
+      },
+      "reasoning": [
+        {"kind": "because", "text": "\\(\\{1,2\\}\\subseteq M\\) 要求 1、2 必选，另外三个元素各有两种独立选择"},
+        {"kind": "therefore", "text": "集合 \\(M\\) 的个数为 \\(2^3=8\\)，选择 B"}
+      ],
+      "derive": [["结论", "\\(2^3=8\\)，选择 B"]]
+    }
+  ],
+  "policies": {"s1": {"movable": false, "range": [0, 0]}},
+  "stepLabels": {"s1": "1 统计可选元素"}
+}

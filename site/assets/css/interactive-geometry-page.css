@@ -1108,6 +1108,25 @@ svg {
   stroke: currentColor;
 }
 
+@media (max-width: 520px) {
+  .lesson-step-number-line .lesson-number-line-labels text,
+  .lesson-step-number-line .lesson-number-line-ticks text {
+    font-size: 30px;
+  }
+
+  .lesson-step-number-line .lesson-number-line-set-label {
+    font-size: 28px;
+  }
+
+  .lesson-step-number-line .lesson-number-line-segment line {
+    stroke-width: 11;
+  }
+
+  .lesson-step-number-line .lesson-number-line-segment circle {
+    stroke-width: 6;
+  }
+}
+
 .lesson-venn-universe {
   fill: rgba(255, 255, 255, 0.55);
   stroke: #173e43;

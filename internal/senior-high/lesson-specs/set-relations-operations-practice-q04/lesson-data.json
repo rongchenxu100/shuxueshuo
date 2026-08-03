@@ -1,0 +1,6 @@
+{
+  "meta":{"id":"set-relations-operations-practice-q04","outputPath":"site/problems/senior-high/sets/set-relations-and-operations/set-relations-operations-practice-q04.html","pageTitle":"实战练习 4：相交区间求并集","pageDescription":"利用数轴确定两个相交区间的并集。","breadcrumbTitle":"集合关系与运算实战 · 第 4 题","breadcrumbLabel":"实战练习","breadcrumbPath":"site/senior-high/index.html","breadcrumbSearch":"?chapter=sets&section=set-relations-and-operations&module=practice"},
+  "problem":{"source":"培训教材 · 实战演练","keyPoints":{"title":"解题要点","lead":"两个区间有重叠时，并集从最左端连续延伸到最右端。","items":["比较左右端点并检查开闭。","本题两个最外端点都不取。"]},"lines":[{"text":"已知集合 \\(A=\\{x\\mid-2<x<2\\}\\)，\\(B=\\{x\\mid-1\\le x<3\\}\\)，则 \\(A\\cup B=\\)（　　）"},{"text":"A. \\(\\{x\\mid-2<x<3\\}\\)　　B. \\(\\{x\\mid x>-2\\}\\)　　C. \\(\\{x\\mid-1<x<2\\}\\)　　D. \\(\\{x\\mid x<3\\}\\)"}]},
+  "steps":[{"id":"s1","section":"并集","title":"在数轴上合并两个区间","t":0,"showDiagram":false,"visual":{"kind":"number-line-practice-union-overlap","ariaLabel":"数轴上集合 A 是负二到二的开区间，集合 B 是负一到三的左闭右开区间，并集是负二到三的开区间"},"reasoning":[{"kind":"because","text":"A 与 B 在 \\([-1,2)\\) 上重叠，合并后没有间断"},{"kind":"therefore","text":"并集从 -2 延伸到 3，且两个最外端点都不取，所以 \\(A\\cup B=(-2,3)\\)，选择 A"}],"derive":[["并集","\\((-2,3)\\)"],["结论","选择 A"]]}],
+  "policies":{"s1":{"movable":false,"range":[0,0]}},"stepLabels":{"s1":"1 数轴合并区间"}
+}

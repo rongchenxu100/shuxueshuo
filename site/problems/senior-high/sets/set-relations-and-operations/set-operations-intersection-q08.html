@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>由 A∩B=B 求参数范围 | 数学说</title>
+  <meta name="description" content="将交集恒等式转化为包含关系，并分类讨论含参区间是否为空。" />
+  <meta property="og:title" content="由 A∩B=B 求参数范围 | 数学说" />
+  <meta property="og:description" content="将交集恒等式转化为包含关系，并分类讨论含参区间是否为空。" />
+  <meta property="og:image" content="../../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css?v=7" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../../senior-high/index.html?chapter=sets&section=set-relations-and-operations&module=set-operations">集合的运算</a>
+    <span class="lesson-title">集合的运算 · 练习 10-1</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          <div class="problem-full">
+            <div class="problem-line"><span>已知集合 <span class="inline-math">A={x| x<sup>2</sup>-4x-5≥0}</span>，<span class="inline-math">B={x|2a≤ x≤ a+2}</span>。若 <span class="inline-math">A∩ B=B</span>，求实数 <span class="inline-math">a</span> 的取值范围。</span><span class="answer-chip" id="answerI">答案：<span class="inline-math">a≤-3或a&gt;2</span></span></div>
+          </div>
+        </section>
+
+        <aside class="lesson-key-points" aria-label="解题要点"><div class="lesson-key-points-title">解题要点</div><div class="lesson-key-points-content"><p class="lesson-key-points-lead"><span class="inline-math">A∩ B=B</span> 等价于 <span class="inline-math">B⊆ A</span>。</p><ol><li>第一步单独讨论 <span class="inline-math">B</span> 是否为空集。</li><li><span class="inline-math">B</span> 非空时，连续区间必须整体落在 <span class="inline-math">A</span> 的左支或右支；分类所得参数集合最后取并集。</li></ol></div></aside>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../../assets/js/lesson-page-runtime.js?v=10"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"s1","section":"交集","title":"先讨论 B 为空集","t":0,"showDiagram":false,"reasoning":[{"kind":"because","text":"\\(A\\cap B=B\\) 等价于 \\(B\\subseteq A\\)；当 \\(B=\\varnothing\\) 时，空集自动是 \\(A\\) 的子集"},{"kind":"therefore","text":"由 \\(2a>a+2\\) 得 \\(a>2\\)，这是空集情形得到的参数集合 \\((2,+\\infty)\\)"}],"derive":[["空集情形","\\(a>2\\)"]]},{"id":"s2","section":"交集","title":"B 非空且落在 A 的左支","t":0,"showDiagram":false,"visual":{"kind":"number-line-subset-left-branch","ariaLabel":"数轴上集合 A 是负无穷到负一以及五到正无穷，非空区间 B 整体落在 A 的左支"},"reasoning":[{"kind":"because","text":"\\(B\\ne\\varnothing\\) 时有 \\(2a\\le a+2\\)，即 \\(a\\le2\\)；又 \\(A=(-∞,-1]\\cup[5,+\\infty)\\)"},{"kind":"therefore","text":"若 \\(B=[2a,a+2]\\) 整体落在左支，只需最右端满足 \\(a+2\\le-1\\)，所以 \\(a\\le-3\\)"}],"derive":[["左支情形","\\(a\\le-3\\)"]]},{"id":"s3","section":"交集","title":"B 非空且落在 A 的右支","t":0,"showDiagram":false,"visual":{"kind":"number-line-subset-right-branch","ariaLabel":"数轴上非空区间 B 若整体落在集合 A 的右支，需要左端点 2a 不小于 5，但这与 a 不大于 2 矛盾"},"reasoning":[{"kind":"because","text":"若非空区间 \\(B=[2a,a+2]\\) 整体落在右支 \\([5,+\\infty)\\)，必须有 \\(2a\\ge5\\)，即 \\(a\\ge\\frac{5}{2}\\)"},{"kind":"therefore","text":"这与非空条件 \\(a\\le2\\) 矛盾，所以右支情形无解"},{"kind":"therefore","text":"分类讨论得到的参数集合要取并集：\\((-∞,-3]\\cup(2,+\\infty)\\)"}],"derive":[["最终参数范围","\\((-∞,-3]\\cup(2,+\\infty)\\)"]]}];
+    var STEP_LABELS = {"s1":"1 讨论空集","s2":"2 非空时落在左支","s3":"3 非空时落在右支并合并"};
+    var POLICIES   = {"s1":{"movable":false,"range":[0,0]},"s2":{"movable":false,"range":[0,0]},"s3":{"movable":false,"range":[0,0]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 滑块主参数与派生参数的联动文案格式化器 */
+    var __LESSON_PARAM_LABEL_FORMATTER__;
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script>
+  function diagramMarkupFor() { return ''; }
+  function diagramMarkupForFrame() { return ''; }
+  function drawMini() { return ''; }
+  function groupTitle(section) { return section; }
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      diagramMarkupForFrame: typeof diagramMarkupForFrame === "function" ? diagramMarkupForFrame : undefined,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "参数",
+      paramLabelPrefix: "",
+      paramLabelFormatter: typeof __LESSON_PARAM_LABEL_FORMATTER__ === "function" ? __LESSON_PARAM_LABEL_FORMATTER__ : undefined,
+      goToProblemMode: "doubleScroll"
+    });
+  </script>
+</body>
+</html>

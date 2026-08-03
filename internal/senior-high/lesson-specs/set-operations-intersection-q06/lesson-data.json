@@ -1,0 +1,6 @@
+{
+  "meta":{"id":"set-operations-intersection-q06","outputPath":"site/problems/senior-high/sets/set-relations-and-operations/set-operations-intersection-q06.html","pageTitle":"由交集非空求参数范围","pageDescription":"把交集非空转化为区间存在公共点。","breadcrumbTitle":"集合的运算 · 练习 9-3","breadcrumbLabel":"集合的运算","breadcrumbPath":"site/senior-high/index.html","breadcrumbSearch":"?chapter=sets&section=set-relations-and-operations&module=set-operations"},
+  "problem":{"source":"培训教材 · 集合的基本运算","keyPoints":{"title":"解题要点","lead":"两个闭区间交集非空时可以只在端点相接。","items":["A 的最小元素是 1。","B 的右端点必须达到或超过 1。"]},"lines":[{"text":"已知 \\(A=[1,+\\infty)\\)，\\(B=\\{x\\in\\mathbb R\\mid \\frac{1}{2}\\le x\\le2a-1\\}\\)。若 \\(A\\cap B\\ne\\varnothing\\)，求实数 \\(a\\) 的取值范围。"}]},
+  "steps":[{"id":"s1","section":"交集","title":"比较能够相交的临界端点","t":0,"showDiagram":false,"visual":{"kind":"number-line-intersection-nonempty","ariaLabel":"数轴上集合 A 从 1 向右延伸，集合 B 从二分之一延伸到 2a 减 1；B 的右端点达到 1 时两集合开始相交"},"reasoning":[{"kind":"because","text":"A 从 1 开始向右延伸；要与 B 有公共点，B 的右端点必须满足 \\(2a-1\\ge1\\)"},{"kind":"therefore","text":"\\(a\\ge1\\)，临界情形 \\(2a-1=1\\) 时，公共点 1 仍属于两个集合"}],"derive":[["参数范围","\\([1,+\\infty)\\)"]]}],
+  "policies":{"s1":{"movable":false,"range":[0,0]}},"stepLabels":{"s1":"1 比较相交端点"}
+}

@@ -47,7 +47,7 @@
 
   async function loadCatalog() {
     try {
-      const response = await fetch("../data/senior-high-catalog.json?v=11");
+      const response = await fetch("../data/senior-high-catalog.json?v=14");
       if (!response.ok) {
         throw new Error("高中题库目录加载失败");
       }
@@ -600,6 +600,7 @@
       pipe: { label: "|", insert: "|" },
       equals: { label: "=", insert: "=" },
       "greater-equal": { label: "≥", insert: "≥" },
+      "less-equal": { label: "≤", insert: "≤" },
       union: { label: "∪", insert: "∪" },
       caret: { label: "x²", insert: "^2" },
     };
@@ -661,25 +662,36 @@
     }
 
     if (schema.type === "relation-sequence") {
+      const relationLabels = {
+        "∈": "属于",
+        "∉": "不属于",
+        "=": "相等",
+        "≠": "不相等",
+        "⊆": "子集",
+        "⊄": "不是子集",
+        "⊊": "真子集",
+        "⊋": "真包含",
+        "⊇": "包含",
+      };
+      const relations = schema.input?.relations || ["∈", "∉"];
       return `
         <div
           class="senior-learning-answer is-inline-relation"
           data-answer-root
           data-answer-type="relation-sequence"
           data-expected="${escapeHtml(schema.expected.join("|"))}"
+          data-relation-count="${schema.expected.length}"
         >
           <input type="hidden" data-answer-field value="">
           <div class="senior-learning-relation-toolbar" role="toolbar" aria-label="填写关系符号">
             <span data-relation-status>选择题目中的第 1 空</span>
             <div class="senior-learning-relation-options" role="group" aria-label="关系符号">
-              <button type="button" data-relation-key="∈">
-                <span class="senior-learning-relation-glyph" aria-hidden="true">∈</span>
-                <span>属于</span>
-              </button>
-              <button type="button" data-relation-key="∉">
-                <span class="math-notin senior-learning-relation-glyph" aria-hidden="true"><svg viewBox="0 0 18 18" focusable="false"><path d="M15 3H9C5.3 3 3 5.5 3 9s2.3 6 6 6h6M3.7 9h10.8M4.5 16L14 2"/></svg></span>
-                <span>不属于</span>
-              </button>
+              ${relations.map((relation) => `
+                <button type="button" data-relation-key="${escapeHtml(relation)}">
+                  <span class="senior-learning-relation-glyph" aria-hidden="true">${escapeHtml(relation)}</span>
+                  <span>${escapeHtml(relationLabels[relation] || relation)}</span>
+                </button>
+              `).join("")}
             </div>
           </div>
           <div class="senior-learning-answer-actions">
@@ -874,79 +886,85 @@
     })[group] || String(group).toLowerCase().replace(/\s+/g, "-");
   }
 
+  function learningExampleCategory(example) {
+    return example.knowledgeCategory || learningGroupSlug(example.group);
+  }
+
+  function mindMapChildLabel(child) {
+    return typeof child === "string" ? child : child.label;
+  }
+
+  function mindMapChildLeaves(child) {
+    return typeof child === "string" ? [] : (child.children || []);
+  }
+
+  function mindMapChildDescription(child) {
+    const leaves = mindMapChildLeaves(child);
+    return leaves.length > 0
+      ? `${mindMapChildLabel(child)}，${leaves.join("、")}`
+      : mindMapChildLabel(child);
+  }
+
   function renderSetMindMap(topic) {
     const href = (moduleId) => escapeHtml(topicHref(topic, moduleId));
+    const colors = ["is-coral", "is-blue", "is-gold", "is-green"];
+    const branchGap = topic.mapNodes.length > 1 ? 470 / (topic.mapNodes.length - 1) : 0;
+    const rootJoiner = topic.title.includes("和") ? "和" : topic.title.includes("与") ? "与" : "";
+    const rootBreak = rootJoiner ? topic.title.lastIndexOf(rootJoiner) : -1;
+    const rootLines = rootBreak > 0
+      ? [topic.title.slice(0, rootBreak), topic.title.slice(rootBreak)]
+      : [topic.title, ""];
+    const branchMarkup = topic.mapNodes.map((node, index) => {
+      const y = topic.mapNodes.length === 1
+        ? 320
+        : topic.mapNodes.length === 2
+          ? 180 + 280 * index
+          : 84 + branchGap * index;
+      const children = node.children.slice(0, 6);
+      const childMarkup = children.map((child, childIndex) => {
+        const column = Math.floor(childIndex / 3);
+        const row = childIndex % 3;
+        const childX = 790 + column * 150;
+        const childY = y + (row - Math.min(children.length - 1, 2) / 2) * 44;
+        const leaves = mindMapChildLeaves(child);
+        return `
+          <text class="map-label" x="${childX}" y="${childY + 6}">${escapeHtml(mindMapChildLabel(child))}</text>
+          ${leaves.length > 0 ? `
+            <text class="map-note" x="${childX + 12}" y="${childY + 26}">${escapeHtml(leaves.join("、"))}</text>
+          ` : ""}
+        `;
+      }).join("");
+      return `
+        <a href="${href(node.moduleId)}" data-learning-module="${escapeHtml(node.moduleId)}" class="map-branch-link" aria-label="进入${escapeHtml(node.label)}">
+          <g class="map-tree ${colors[index % colors.length]}">
+            <path class="map-line" d="M340 320 C420 320 414 ${y} 480 ${y}"></path>
+            <g class="map-node map-node-primary">
+              <rect x="480" y="${y - 30}" width="250" height="60" rx="13"></rect>
+              <text x="605" y="${y + 8}" text-anchor="middle">${escapeHtml(node.label)}</text>
+            </g>
+            <path class="map-twig" d="M730 ${y} H770"></path>
+            ${childMarkup}
+          </g>
+        </a>
+      `;
+    }).join("");
     return `
       <div class="senior-learning-map-shell">
-        <svg class="senior-learning-map-svg" viewBox="0 0 1120 640" role="group" aria-labelledby="set-map-title set-map-desc">
-          <title id="set-map-title">集合的概念和表示知识导图</title>
-          <desc id="set-map-desc">集合的概念分为集合、空集、元素及元素的确定性、互异性和无序性；元素与集合的关系分为属于和不属于；集合的表示包括列举法、描述法、区间表示法和 Venn 图法；另设实战练习入口。</desc>
+        <svg class="senior-learning-map-svg" viewBox="0 0 1120 640" role="group" aria-labelledby="set-map-title-${escapeHtml(topic.id)} set-map-desc-${escapeHtml(topic.id)}">
+          <title id="set-map-title-${escapeHtml(topic.id)}">${escapeHtml(topic.title)}知识导图</title>
+          <desc id="set-map-desc-${escapeHtml(topic.id)}">${escapeHtml(topic.mapNodes.map((node) => `${node.label}包括${node.children.map(mindMapChildDescription).join("、")}`).join("；"))}</desc>
           <g class="map-root">
             <rect x="42" y="270" width="298" height="100" rx="20"></rect>
-            <text x="191" y="313" text-anchor="middle">集合的概念</text>
-            <text x="191" y="348" text-anchor="middle">与表示</text>
+            <text x="191" y="313" text-anchor="middle">${escapeHtml(rootLines[0] || topic.title)}</text>
+            <text x="191" y="348" text-anchor="middle">${escapeHtml(rootLines[1])}</text>
           </g>
-          <a href="${href("set-concept")}" data-learning-module="set-concept" class="map-branch-link" aria-label="进入集合的概念">
-            <g class="map-tree is-coral">
-              <path class="map-line" d="M340 320 C430 320 406 98 500 98"></path>
-              <g class="map-node map-node-primary">
-                <rect x="500" y="68" width="178" height="60" rx="13"></rect>
-                <text x="589" y="106" text-anchor="middle">集合的概念</text>
-              </g>
-              <path class="map-twig" d="M678 98 H716 M716 98 V42 H755 M716 98 V152 H755"></path>
-              <text class="map-label" x="762" y="49">集合</text>
-              <path class="map-twig" d="M817 42 H873"></path>
-              <text class="map-label" x="882" y="49">空集</text>
-              <text class="map-label" x="762" y="159">元素</text>
-              <path class="map-twig" d="M817 152 H858"></path>
-              <text class="map-label" x="866" y="159">元素性质</text>
-              <path class="map-twig" d="M968 152 H997 M997 152 V112 H1022 M997 152 H1022 M997 152 V192 H1022"></path>
-              <text class="map-leaf" x="1030" y="119">互异性</text>
-              <text class="map-leaf" x="1030" y="159">确定性</text>
-              <text class="map-leaf" x="1030" y="199">无序性</text>
-            </g>
-          </a>
-          <a href="${href("element-set-relation")}" data-learning-module="element-set-relation" class="map-branch-link" aria-label="进入元素和集合的关系">
-            <g class="map-tree is-blue">
-              <path class="map-line" d="M340 320 C416 320 426 306 500 306"></path>
-              <g class="map-node map-node-primary">
-                <rect x="500" y="276" width="250" height="60" rx="13"></rect>
-                <text x="625" y="314" text-anchor="middle">元素和集合的关系</text>
-              </g>
-              <path class="map-twig" d="M750 306 H806 M806 306 V280 H846 M806 306 V334 H846"></path>
-              <text class="map-leaf" x="855" y="287">属于</text>
-              <text class="map-leaf" x="855" y="341">不属于</text>
-            </g>
-          </a>
-          <a href="${href("set-representation")}" data-learning-module="set-representation" class="map-branch-link" aria-label="进入集合的表示">
-            <g class="map-tree is-gold">
-              <path class="map-line" d="M340 320 C424 320 420 456 500 456"></path>
-              <g class="map-node map-node-primary">
-                <rect x="500" y="426" width="178" height="60" rx="13"></rect>
-                <text x="589" y="464" text-anchor="middle">集合的表示</text>
-              </g>
-              <path class="map-twig" d="M678 456 H726 M726 456 V398 H770 M726 456 V438 H770 M726 456 V478 H770 M726 456 V518 H770"></path>
-              <text class="map-leaf" x="779" y="405">列举法</text>
-              <text class="map-leaf" x="779" y="445">描述法</text>
-              <text class="map-leaf" x="779" y="485">区间表示法</text>
-              <text class="map-leaf" x="779" y="525">Venn 图法</text>
-            </g>
-          </a>
-          <a href="${href("practice")}" data-learning-module="practice" class="map-branch-link" aria-label="进入实战练习">
-            <g class="map-tree is-green">
-              <path class="map-line" d="M340 320 C420 320 410 584 500 584"></path>
-              <g class="map-node map-node-practice">
-                <rect x="500" y="554" width="178" height="60" rx="13"></rect>
-                <text x="589" y="592" text-anchor="middle">实战练习</text>
-              </g>
-            </g>
-          </a>
+          ${branchMarkup}
         </svg>
         <div class="senior-learning-map-mobile" aria-label="知识导图移动端导航">
           ${topic.mapNodes.map((node) => `
             <a href="${escapeHtml(topicHref(topic, node.moduleId))}" data-learning-module="${escapeHtml(node.moduleId)}">
               <strong>${escapeHtml(node.label)}</strong>
-              <span>${node.children.map(escapeHtml).join(" · ")}</span>
+              <span>${node.children.map((child) => escapeHtml(mindMapChildDescription(child))).join(" · ")}</span>
             </a>
           `).join("")}
         </div>
@@ -1023,8 +1041,46 @@
         ${block.bodyHtml.map((line) => `<p>${line}</p>`).join("")}
       </article>
     `).join("");
-    const renderKnowledgeVisual = (group) => group.visual === "venn-classification"
-      ? `
+    const renderKnowledgeVisual = (group) => {
+      if (group.visual === "venn-intersection") return `
+        <figure class="senior-learning-knowledge-visual set-figure">
+          <svg viewBox="0 0 480 250" role="img" aria-label="A 与 B 的交集是两个集合重叠的区域">
+            <path class="set-figure-shade" d="M240 49A76 76 0 0 1 240 191A76 76 0 0 1 240 49Z"></path>
+            <circle class="set-figure-set" cx="213" cy="120" r="76"></circle><circle class="set-figure-set" cx="267" cy="120" r="76"></circle>
+            <text x="178" y="205">A</text><text x="285" y="205">B</text>
+          </svg><figcaption>阴影表示 A ∩ B：同时属于 A 和 B 的元素。</figcaption>
+        </figure>`;
+      if (group.visual === "venn-union") return `
+        <figure class="senior-learning-knowledge-visual set-figure">
+          <svg viewBox="0 0 480 250" role="img" aria-label="A 与 B 的并集是两个集合覆盖的全部区域">
+            <circle class="set-figure-shade" cx="213" cy="120" r="76"></circle><circle class="set-figure-shade" cx="267" cy="120" r="76"></circle>
+            <circle class="set-figure-set" cx="213" cy="120" r="76"></circle><circle class="set-figure-set" cx="267" cy="120" r="76"></circle>
+            <text x="178" y="205">A</text><text x="285" y="205">B</text>
+          </svg><figcaption>阴影表示 A ∪ B：属于 A 或属于 B 的元素。</figcaption>
+        </figure>`;
+      if (group.visual === "venn-complement") return `
+        <figure class="senior-learning-knowledge-visual set-figure">
+          <svg viewBox="0 0 480 250" role="img" aria-label="集合 A 相对于全集 U 的补集是 A 外部的区域">
+            <defs><mask id="learning-complement-a"><rect width="480" height="250" fill="white"></rect><circle cx="240" cy="122" r="76" fill="black"></circle></mask></defs>
+            <rect class="set-figure-universe" x="34" y="22" width="412" height="202" rx="4"></rect>
+            <rect class="set-figure-shade" x="34" y="22" width="412" height="202" mask="url(#learning-complement-a)"></rect>
+            <circle class="set-figure-set" cx="240" cy="122" r="76"></circle>
+            <text x="234" y="128">A</text><text x="414" y="48">U</text>
+            <text x="82" y="76">C<tspan dy="5" font-size="13">U</tspan><tspan dy="-5" font-size="18">A</tspan></text>
+          </svg><figcaption>阴影表示 C<sub>U</sub>A：全集 U 中不属于 A 的元素。</figcaption>
+        </figure>`;
+      if (group.visual === "venn-subset") return `
+        <figure class="senior-learning-knowledge-visual set-figure is-subset">
+          <svg viewBox="0 0 480 250" role="img" aria-label="集合 A 包含在集合 B 中">
+            <ellipse class="set-figure-set" cx="240" cy="125" rx="178" ry="94"></ellipse>
+            <ellipse class="set-figure-set" cx="265" cy="125" rx="82" ry="52"></ellipse>
+            <text x="100" y="126">B</text>
+            <text x="258" y="132">A</text>
+          </svg>
+          <figcaption>若 A ⊆ B，Venn 图中集合 A 位于集合 B 的内部。</figcaption>
+        </figure>
+      `;
+      if (group.visual === "venn-classification") return `
         <figure class="senior-learning-knowledge-visual set-figure is-classification">
           <svg viewBox="0 0 600 330" role="img" aria-label="Venn 图表示四边形的简单分类">
             <rect class="set-figure-universe" x="34" y="24" width="532" height="270" rx="4"></rect>
@@ -1039,8 +1095,19 @@
           </svg>
           <figcaption>Venn 图表示四边形的简单分类</figcaption>
         </figure>
-      `
-      : "";
+      `;
+      return "";
+    };
+    const groupedExamples = groupLearningExamples(module.examples);
+    const examplesForCategory = (category) => module.examples.filter(
+      (example) => learningExampleCategory(example) === category,
+    );
+    const exerciseHrefForCategory = (category) => {
+      const firstExample = examplesForCategory(category)[0];
+      return firstExample
+        ? `#exercises-${learningGroupSlug(firstExample.group)}`
+        : "#worked-examples-heading";
+    };
     return `
       <article class="senior-learning-topic">
         <header class="senior-learning-module-hero">
@@ -1063,9 +1130,9 @@
                   <div>
                     <p>${escapeHtml(group.eyebrow)}</p>
                     <h3>${escapeHtml(group.title)}</h3>
-                    <a class="senior-learning-exercise-anchor" href="#exercises-${escapeHtml(group.category)}">
+                    <a class="senior-learning-exercise-anchor" href="${escapeHtml(exerciseHrefForCategory(group.category))}">
                       <span>对应练习</span>
-                      <strong>${module.examples.filter((example) => learningGroupSlug(example.group) === group.category).length} 题</strong>
+                      <strong>${examplesForCategory(group.category).length} 题</strong>
                       <span aria-hidden="true">↓</span>
                     </a>
                   </div>
@@ -1085,13 +1152,13 @@
             <h2 id="worked-examples-heading">例题精讲</h2>
           </div>
           <div class="senior-learning-exercise-sheet">
-            ${groupLearningExamples(module.examples).map(([group, entries]) => `
+            ${groupedExamples.map(([group, entries]) => `
               <section id="exercises-${escapeHtml(learningGroupSlug(group))}" class="senior-learning-example-group" aria-labelledby="learning-example-group-${escapeHtml(group)}">
                 <h3 id="learning-example-group-${escapeHtml(group)}">${escapeHtml(group)}</h3>
                 <div class="senior-learning-example-list">
                   ${entries.map(({ example, index }) => renderInteractiveLearningExample(example, index)).join("")}
                 </div>
-                <a class="senior-learning-return-anchor" href="#knowledge-${escapeHtml(learningGroupSlug(group))}">↑ 返回对应知识点</a>
+                <a class="senior-learning-return-anchor" href="#knowledge-${escapeHtml(learningExampleCategory(entries[0].example))}">↑ 返回对应知识点</a>
               </section>
             `).join("")}
           </div>
@@ -1381,7 +1448,7 @@
       if (!values) {
         setAnswerFeedback(
           root,
-          "暂时无法识别这些关系符号。请依次使用 ∈、∉，符号之间可用逗号分隔。",
+          "暂时无法识别这些关系符号。请使用题目提供的符号，符号之间可用逗号分隔。",
           "incorrect",
         );
         return;
@@ -1392,8 +1459,8 @@
       setAnswerFeedback(
         root,
         correct
-          ? "回答正确。七个关系符号及顺序都正确。"
-          : "暂时不对。请按题号顺序重新检查每个数所属的数集。",
+          ? `回答正确。${expected.length} 个关系符号及顺序都正确。`
+          : "暂时不对。请按题号顺序重新检查每个对象之间的关系。",
         correct ? "correct" : "incorrect",
       );
       return;
@@ -1534,12 +1601,10 @@
     const slots = relationSlotsFor(slot);
     const currentIndex = slots.indexOf(slot);
     slot.dataset.relationValue = relation;
-    slot.innerHTML = relation === "∉"
-      ? '<span class="math-notin" role="img" aria-label="不属于"><svg viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M15 3H9C5.3 3 3 5.5 3 9s2.3 6 6 6h6M3.7 9h10.8M4.5 16L14 2"/></svg></span>'
-      : '<span aria-hidden="true">∈</span>';
+    slot.innerHTML = `<span aria-hidden="true">${escapeHtml(relation)}</span>`;
     slot.setAttribute(
       "aria-label",
-      `第 ${currentIndex + 1} 空，已填${relation === "∉" ? "不属于" : "属于"}`,
+      `第 ${currentIndex + 1} 空，已填${relation}`,
     );
     syncRelationAnswer(article);
     const next = slots.slice(currentIndex + 1).find((item) => !item.dataset.relationValue)
@@ -1549,7 +1614,7 @@
     } else {
       slots.forEach((item) => item.classList.remove("is-active"));
       const status = article.querySelector("[data-relation-status]");
-      if (status) status.textContent = "七个空已填写，可逐空点击修改";
+      if (status) status.textContent = `${slots.length} 个空已填写，可逐空点击修改`;
       slot.focus();
     }
   }

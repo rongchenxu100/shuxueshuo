@@ -1,0 +1,6 @@
+{
+  "meta":{"id":"set-relations-operations-practice-q07","outputPath":"site/problems/senior-high/sets/set-relations-and-operations/set-relations-operations-practice-q07.html","pageTitle":"实战练习 7：Venn 图阴影计数","pageDescription":"读取 B 中不属于 A 的区域并统计元素个数。","breadcrumbTitle":"集合关系与运算实战 · 第 7 题","breadcrumbLabel":"实战练习","breadcrumbPath":"site/senior-high/index.html","breadcrumbSearch":"?chapter=sets&section=set-relations-and-operations&module=practice"},
+  "problem":{"source":"培训教材 · 实战演练","keyPoints":{"title":"解题要点","lead":"阴影位于 B 内并排除了交集。","items":["阴影表示 \\(B\\setminus A\\)。","先求集合差，再数元素。"]},"lines":[{"text":"已知全集为实数集 \\(\\mathbb R\\)，集合 \\(A=\\{1,2,3,4\\}\\)，\\(B=\\{-2,0,1,2,4\\}\\) 的关系如图所示，则阴影部分表示的集合的元素个数为______。"},{"figure":{"kind":"venn-operation","shade":"B-only","ariaLabel":"Venn 图中集合 B 内但不属于集合 A 的区域被涂色","caption":"阴影表示 B∖A"}}]},
+  "steps":[{"id":"s1","section":"Venn 图","title":"先求集合差再计数","t":0,"showDiagram":false,"table":{"headers":["B 中的元素","是否属于 A","是否在阴影中"],"rows":[["-2","否","是"],["0","否","是"],["1","是","否"],["2","是","否"],["4","是","否"]]},"reasoning":[{"kind":"because","text":"阴影表示 \\(B\\setminus A\\)，从 B 中删去公共元素 1、2、4，得到 \\(\\{-2,0\\}\\)"},{"kind":"therefore","text":"阴影集合含有 2 个元素"}],"derive":[["阴影集合","\\(\\{-2,0\\}\\)"],["元素个数","2"]]}],
+  "policies":{"s1":{"movable":false,"range":[0,0]}},"stepLabels":{"s1":"1 求差集并计数"}
+}

@@ -1,0 +1,6 @@
+{
+  "meta":{"id":"set-operations-intersection-q04","outputPath":"site/problems/senior-high/sets/set-relations-and-operations/set-operations-intersection-q04.html","pageTitle":"连续区间与整数集合求交集","pageDescription":"在连续区间中筛选满足条件的整数。","breadcrumbTitle":"集合的运算 · 练习 9-1","breadcrumbLabel":"集合的运算","breadcrumbPath":"site/senior-high/index.html","breadcrumbSearch":"?chapter=sets&section=set-relations-and-operations&module=set-operations"},
+  "problem":{"source":"培训教材 · 集合的基本运算","keyPoints":{"title":"解题要点","lead":"先用整数条件把连续范围离散化。","items":["B 中只允许整数。","端点 -1 和 0 都能取到。"]},"lines":[{"text":"已知集合 \\(A=\\{x\\mid-1\\le x\\le3\\}\\)，\\(B=\\{x\\mid x\\le0\\text{ 且 }x\\in\\mathbb Z\\}\\)，则 \\(A\\cap B=\\)（　　）"},{"text":"A. \\([-1,0]\\)　　B. \\(\\{0,1,2,3\\}\\)　　C. \\([0,3]\\)　　D. \\(\\{-1,0\\}\\)"}]},
+  "steps":[{"id":"s1","section":"交集","title":"筛选公共整数","t":0,"showDiagram":false,"reasoning":[{"kind":"because","text":"A 中满足 \\(x\\le0\\) 的整数只有 -1 和 0"},{"kind":"therefore","text":"\\(A\\cap B=\\{-1,0\\}\\)，选择 D"}],"derive":[["交集","\\(\\{-1,0\\}\\)"]]}],
+  "policies":{"s1":{"movable":false,"range":[0,0]}},"stepLabels":{"s1":"1 筛选公共整数"}
+}

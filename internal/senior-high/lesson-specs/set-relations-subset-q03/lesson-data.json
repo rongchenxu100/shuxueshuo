@@ -1,0 +1,49 @@
+{
+  "meta": {
+    "id": "set-relations-subset-q03",
+    "outputPath": "site/problems/senior-high/sets/set-relations-and-operations/set-relations-subset-q03.html",
+    "pageTitle": "区分属于和包含于",
+    "pageDescription": "根据左侧对象是元素还是集合，选择属于或包含于关系。",
+    "breadcrumbTitle": "集合间的基本关系 · 练习 1-3",
+    "breadcrumbLabel": "集合间的基本关系",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=set-relations-and-operations&module=set-relations"
+  },
+  "problem": {
+    "source": "培训教材 · 集合间的基本关系",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "先辨认左侧对象，再选关系符号。",
+      "items": ["元素与集合用 \\(\\in\\) 或 \\(\\notin\\)；", "集合与集合用 \\(\\subseteq\\) 等包含关系符号。"]
+    },
+    "lines": [
+      {"text": "下列关系中表示错误的是（　　）"},
+      {"text": "A. \\(\\varnothing\\subseteq\\{1,2,3\\}\\)　　B. \\(\\{3,2,1\\}\\subseteq\\{1,2,3\\}\\)　　C. \\(\\{1,2\\}\\in\\{1,2,3\\}\\)　　D. \\(\\{2,3\\}\\subseteq\\{1,2,3\\}\\)"}
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "子集",
+      "title": "检查四个关系",
+      "t": 0,
+      "showDiagram": false,
+      "table": {
+        "headers": ["选项", "依据", "判断"],
+        "rows": [
+          ["A", "空集是任何集合的子集", "正确"],
+          ["B", "两个集合元素完全相同，排列顺序不影响集合", "正确"],
+          ["C", "\\(\\{1,2\\}\\) 是子集，不是元素", "错误"],
+          ["D", "2、3 都属于右侧集合", "正确"]
+        ]
+      },
+      "reasoning": [
+        {"kind": "because", "text": "集合 \\(\\{1,2,3\\}\\) 的元素是 1、2、3，其中没有集合 \\(\\{1,2\\}\\)"},
+        {"kind": "therefore", "text": "\\(\\{1,2\\}\\in\\{1,2,3\\}\\) 错误，应写作 \\(\\{1,2\\}\\subseteq\\{1,2,3\\}\\)，选择 C"}
+      ],
+      "derive": [["结论", "选择 C"]]
+    }
+  ],
+  "policies": {"s1": {"movable": false, "range": [0, 0]}},
+  "stepLabels": {"s1": "1 检查关系"}
+}

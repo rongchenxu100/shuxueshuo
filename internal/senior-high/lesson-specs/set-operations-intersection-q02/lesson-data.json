@@ -1,0 +1,6 @@
+{
+  "meta":{"id":"set-operations-intersection-q02","outputPath":"site/problems/senior-high/sets/set-relations-and-operations/set-operations-intersection-q02.html","pageTitle":"自然数集合与不等式集合求交集","pageDescription":"列出有限自然数集合并与不等式集合求交集。","breadcrumbTitle":"集合的运算 · 练习 8-2","breadcrumbLabel":"集合的运算","breadcrumbPath":"site/senior-high/index.html","breadcrumbSearch":"?chapter=sets&section=set-relations-and-operations&module=set-operations"},
+  "problem":{"source":"培训教材 · 集合的基本运算","keyPoints":{"title":"解题要点","lead":"自然数范围先列举，再判断不等式。","items":["\\(\\mathbb N\\) 中包含 0。","交集只保留同时满足两个条件的数。"]},"lines":[{"text":"设集合 \\(A=\\{x\\in\\mathbb N\\mid -3<x<3\\}\\)，\\(B=\\{x\\mid x\\ge-1\\}\\)，则 \\(A\\cap B=\\)（　　）"},{"text":"A. \\(\\{0,1,2\\}\\)　　B. \\(\\{2\\}\\)　　C. \\(\\{0,1\\}\\)　　D. \\(\\{1,2\\}\\)"}]},
+  "steps":[{"id":"s1","section":"交集","title":"列出 A 后检验 B 的条件","t":0,"showDiagram":false,"reasoning":[{"kind":"because","text":"满足 \\(x\\in\\mathbb N\\) 且 \\(-3<x<3\\) 的数为 0、1、2，所以 \\(A=\\{0,1,2\\}\\)"},{"kind":"therefore","text":"这三个数都满足 \\(x\\ge-1\\)，故 \\(A\\cap B=\\{0,1,2\\}\\)，选择 A"}],"derive":[["交集","\\(\\{0,1,2\\}\\)"]]}],
+  "policies":{"s1":{"movable":false,"range":[0,0]}},"stepLabels":{"s1":"1 列举并检验"}
+}

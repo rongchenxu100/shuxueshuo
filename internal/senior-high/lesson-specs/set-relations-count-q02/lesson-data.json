@@ -1,0 +1,50 @@
+{
+  "meta": {
+    "id": "set-relations-count-q02",
+    "outputPath": "site/problems/senior-high/sets/set-relations-and-operations/set-relations-count-q02.html",
+    "pageTitle": "由乘积集合计算非空真子集个数",
+    "pageDescription": "列举有限集合的所有乘积并去重，再计算非空真子集个数。",
+    "breadcrumbTitle": "集合间的基本关系 · 练习 6-2",
+    "breadcrumbLabel": "集合间的基本关系",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=set-relations-and-operations&module=set-relations"
+  },
+  "problem": {
+    "source": "培训教材 · 集合间的基本关系",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "先确定乘积集合 B 的不同元素，再应用非空真子集公式。",
+      "items": ["乘积结果重复时只保留一个；", "非空真子集要同时排除空集和集合本身。"]
+    },
+    "lines": [
+      {"text": "若集合 \\(A=\\{x\\in\\mathbb N\\mid -1<x\\le2\\}\\)，\\(B=\\{x\\mid x=ab,a,b\\in A\\}\\)，则集合 \\(B\\) 的非空真子集的个数为 ___。"}
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "子集个数",
+      "title": "列举乘积集合",
+      "t": 0,
+      "showDiagram": false,
+      "table": {
+        "caption": "a、b 取 0、1、2 时的不同乘积",
+        "headers": ["a", "可得到的乘积"],
+        "rows": [
+          ["0", "0"],
+          ["1", "0、1、2"],
+          ["2", "0、2、4"]
+        ]
+      },
+      "reasoning": [
+        {"kind": "because", "text": "\\(-1<x\\le2\\) 中的自然数为 0、1、2，所以 \\(A=\\{0,1,2\\}\\)"},
+        {"kind": "therefore", "text": "全部乘积去重后，\\(B=\\{0,1,2,4\\}\\)，共有 4 个元素"},
+        {"kind": "because", "text": "4 元素集合有 \\(2^4\\) 个子集，非空真子集需排除空集和 B 本身"},
+        {"kind": "therefore", "text": "所求为 \\(2^4-2=14\\)"}
+      ],
+      "derive": [["集合 B", "\\(\\{0,1,2,4\\}\\)"], ["结论", "\\(14\\)"]]
+    }
+  ],
+  "policies": {"s1": {"movable": false, "range": [0, 0]}},
+  "stepLabels": {"s1": "1 列举并计数"}
+}

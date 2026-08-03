@@ -1,0 +1,51 @@
+{
+  "meta": {
+    "id": "set-relations-equality-q02",
+    "outputPath": "site/problems/senior-high/sets/set-relations-and-operations/set-relations-equality-q02.html",
+    "pageTitle": "再次辨析六个集合关系",
+    "pageDescription": "辨析集合相等、子集、元素与集合的关系，统计正确式子的个数。",
+    "breadcrumbTitle": "集合间的基本关系 · 练习 2-2",
+    "breadcrumbLabel": "集合间的基本关系",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=set-relations-and-operations&module=set-relations"
+  },
+  "problem": {
+    "source": "培训教材 · 集合间的基本关系",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "相等要求元素完全相同；包含关系要求左侧本身是集合。",
+      "items": ["集合元素无序；", "有序数对 \\((0,1)\\) 是一个整体。"]
+    },
+    "lines": [
+      {"text": "下列各式中：① \\(\\{0\\}\\in\\{0,1,2\\}\\)；② \\(\\{0,1,2\\}\\subseteq\\{2,1,0\\}\\)；③ \\(\\varnothing\\subseteq\\{0,1,2\\}\\)；④ \\(\\varnothing=\\{0\\}\\)；⑤ \\(\\{0,1\\}=\\{(0,1)\\}\\)；⑥ \\(0=\\{0\\}\\)。正确的个数是（　　）"},
+      {"text": "A. 1　　B. 2　　C. 3　　D. 4"}
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "集合相等",
+      "title": "逐项比较对象与元素",
+      "t": 0,
+      "showDiagram": false,
+      "table": {
+        "headers": ["序号", "关键区别", "真值"],
+        "rows": [
+          ["①", "\\(\\{0\\}\\) 是集合，不是右侧的元素", "错"],
+          ["②", "两边元素均为 0、1、2", "对"],
+          ["③", "空集是任何集合的子集", "对"],
+          ["④", "不含元素与含元素 0 不同", "错"],
+          ["⑤", "两个元素与一个有序数对不同", "错"],
+          ["⑥", "元素 0 与集合 \\(\\{0\\}\\) 不同", "错"]
+        ]
+      },
+      "reasoning": [
+        {"kind": "because", "text": "②中集合的元素只改变了排列顺序，③使用空集的子集性质"},
+        {"kind": "therefore", "text": "只有②、③正确，共 2 个，选择 B"}
+      ],
+      "derive": [["结论", "选择 B"]]
+    }
+  ],
+  "policies": {"s1": {"movable": false, "range": [0, 0]}},
+  "stepLabels": {"s1": "1 逐项判断"}
+}

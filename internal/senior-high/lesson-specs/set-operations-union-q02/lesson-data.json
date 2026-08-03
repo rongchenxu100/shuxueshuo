@@ -1,0 +1,6 @@
+{
+  "meta":{"id":"set-operations-union-q02","outputPath":"site/problems/senior-high/sets/set-relations-and-operations/set-operations-union-q02.html","pageTitle":"两个自然数集合求并集","pageDescription":"列出描述法自然数集合并求并集。","breadcrumbTitle":"集合的运算 · 练习 12-1","breadcrumbLabel":"集合的运算","breadcrumbPath":"site/senior-high/index.html","breadcrumbSearch":"?chapter=sets&section=set-relations-and-operations&module=set-operations"},
+  "problem":{"source":"培训教材 · 集合的基本运算","keyPoints":{"title":"解题要点","lead":"描述法集合先转成列举法。","items":["B 中自然数严格大于 0、小于 4。","重复元素只保留一次。"]},"lines":[{"text":"已知集合 \\(A=\\{0,1,2\\}\\)，\\(B=\\{x\\in\\mathbb N\\mid0<x<4\\}\\)，则 \\(A\\cup B=\\)（　　）"},{"text":"A. \\(\\{1,2\\}\\)　　B. \\(\\{0,1,2,3\\}\\)　　C. \\(\\{0,1,2,3,4\\}\\)　　D. \\(\\{x\\mid0\\le x<4\\}\\)"}]},
+  "steps":[{"id":"s1","section":"并集","title":"列举 B 后求并集","t":0,"showDiagram":false,"reasoning":[{"kind":"because","text":"\\(B=\\{1,2,3\\}\\)"},{"kind":"therefore","text":"\\(A\\cup B=\\{0,1,2,3\\}\\)，选择 B"}],"derive":[["并集","\\(\\{0,1,2,3\\}\\)"]]}],
+  "policies":{"s1":{"movable":false,"range":[0,0]}},"stepLabels":{"s1":"1 列举并求并集"}
+}

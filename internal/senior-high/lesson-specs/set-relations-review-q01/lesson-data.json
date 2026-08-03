@@ -1,0 +1,41 @@
+{
+  "meta": {
+    "id": "set-relations-review-q01",
+    "outputPath": "site/problems/senior-high/sets/set-relations-and-operations/set-relations-review-q01.html",
+    "pageTitle": "判断两个偶数集合的关系",
+    "pageDescription": "通过整数参数平移证明两个描述法集合相等。",
+    "breadcrumbTitle": "集合间的基本关系 · 练习 5-1",
+    "breadcrumbLabel": "集合间的基本关系",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=set-relations-and-operations&module=set-relations"
+  },
+  "problem": {
+    "source": "培训教材 · 集合间的基本关系",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "描述式形式不同，不代表集合不同，要比较它们的全部取值。",
+      "items": ["整数加 1 后仍遍历全体整数；", "集合相等可通过双向包含证明。"]
+    },
+    "lines": [
+      {"text": "已知集合 \\(A=\\{x\\mid x=2k,k\\in\\mathbb Z\\}\\)，\\(B=\\{x\\mid x=2k+2,k\\in\\mathbb Z\\}\\)，则（　　）"},
+      {"text": "A. \\(A\\subsetneq B\\)　　B. \\(A\\supsetneq B\\)　　C. \\(A=B\\)　　D. \\(A\\subseteq B\\)"}
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "关系辨析",
+      "title": "改写参数并证明双向包含",
+      "t": 0,
+      "showDiagram": false,
+      "reasoning": [
+        {"kind": "because", "text": "对任意 \\(k\\in\\mathbb Z\\)，有 \\(2k+2=2(k+1)\\)，且 \\(k+1\\in\\mathbb Z\\)，所以 \\(B\\subseteq A\\)"},
+        {"kind": "because", "text": "对任意 \\(n\\in\\mathbb Z\\)，令 \\(k=n-1\\in\\mathbb Z\\)，则 \\(2n=2k+2\\)，所以 \\(A\\subseteq B\\)"},
+        {"kind": "therefore", "text": "\\(A=B\\)，选择 C"}
+      ],
+      "derive": [["结论", "\\(A=B\\)，选择 C"]]
+    }
+  ],
+  "policies": {"s1": {"movable": false, "range": [0, 0]}},
+  "stepLabels": {"s1": "1 证明集合相等"}
+}

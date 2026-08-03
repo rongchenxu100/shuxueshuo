@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
+import vm from "node:vm";
 
 import { answerTextForSchema, validateTextLesson } from "../build-text-page.mjs";
 import { examSourceLabel, renderInlineMathText } from "../lib/lesson-html.mjs";
@@ -21,7 +22,11 @@ const lessonIds = [
   "set-practice-q05",
   "set-practice-q06",
   ...fs.readdirSync(path.join(repoRoot, "internal/senior-high/lesson-specs"))
-    .filter((id) => id.startsWith("set-representation-"))
+    .filter((id) => (
+      id.startsWith("set-representation-")
+      || id.startsWith("set-relations-")
+      || id.startsWith("set-operations-")
+    ))
     .sort(),
 ];
 function readLesson(id) {
@@ -60,6 +65,13 @@ test("set answer schemas reuse the existing answer chip convention", () => {
     }),
     /（1）.*16.*（2）.*29/,
   );
+  assert.equal(
+    answerTextForSchema({
+      type: "relation-sequence",
+      expected: ["⊊", "∉", "⊋"],
+    }),
+    "答案：\\(\\subsetneq\\)，\\(\\notin\\)，\\(\\supsetneq\\)",
+  );
 });
 
 test("natural numbers are used directly without local convention disclaimers", () => {
@@ -72,6 +84,91 @@ test("natural numbers are used directly without local convention disclaimers", (
     "utf8",
   );
   assert.doesNotMatch(learningTopics, forbiddenConvention);
+});
+
+test("set operation lessons do not use visible backslashes as condition separators", () => {
+  const operationIds = lessonIds.filter((id) => id.startsWith("set-operations-"));
+  for (const id of operationIds) {
+    assert.doesNotMatch(JSON.stringify(readLesson(id)), /\\\\ /, id);
+  }
+});
+
+test("operation exercise 9-2 excludes a=1 by element distinctness", () => {
+  const lesson = readLesson("set-operations-intersection-q05");
+  assert.match(JSON.stringify(lesson), /元素具有互异性/);
+  assert.match(JSON.stringify(lesson.steps[0].table), /元素重复.*排除/);
+  assert.match(JSON.stringify(lesson), /B（0 或 3）/);
+});
+
+test("operation exercises 9-3 and 9-4 use number lines for interval boundaries", () => {
+  assert.equal(
+    readLesson("set-operations-intersection-q06").steps[0].visual.kind,
+    "number-line-intersection-nonempty",
+  );
+  assert.equal(
+    readLesson("set-operations-intersection-q07").steps[0].visual.kind,
+    "number-line-intersection-empty",
+  );
+});
+
+test("operation exercise 10-1 separates empty and nonempty branches", () => {
+  const lesson = readLesson("set-operations-intersection-q08");
+  assert.deepEqual(lesson.steps.map((step) => step.id), ["s1", "s2", "s3"]);
+  assert.match(JSON.stringify(lesson.steps[0].reasoning), /B=\\\\varnothing.*a>2/);
+  assert.equal(lesson.steps[1].visual.kind, "number-line-subset-left-branch");
+  assert.equal(lesson.steps[2].visual.kind, "number-line-subset-right-branch");
+  assert.match(JSON.stringify(lesson.steps[2].reasoning), /参数集合要取并集/);
+});
+
+test("operation exercises 12-2 and 13-3 explain interval operations on number lines", () => {
+  assert.equal(
+    readLesson("set-operations-union-q03").steps[0].visual.kind,
+    "number-line-union-open-intervals",
+  );
+  assert.deepEqual(
+    readLesson("set-operations-complement-q03").steps.map((step) => step.visual.kind),
+    ["number-line-complement-in-universe", "number-line-complement-intersection"],
+  );
+});
+
+test("operation exercises 13-4 and 13-5 visualize every parameter interval step", () => {
+  assert.deepEqual(
+    readLesson("set-operations-complement-q04").steps.map((step) => step.visual.kind),
+    [
+      "number-line-parameter-union",
+      "number-line-parameter-containment",
+      "number-line-parameter-disjoint",
+    ],
+  );
+  assert.deepEqual(
+    readLesson("set-operations-complement-q05").steps.map((step) => step.visual.kind),
+    ["number-line-cover-fixed-interval", "number-line-not-subset-cases"],
+  );
+});
+
+test("relations and operations practice preserves all nine verified answers and visuals", () => {
+  const prefix = "set-relations-operations-practice-q0";
+  const lessons = Array.from({ length: 9 }, (_, index) => readLesson(`${prefix}${index + 1}`));
+  assert.match(JSON.stringify(lessons[0]), /选择 D/);
+  assert.match(JSON.stringify(lessons[1]), /选择 C/);
+  assert.match(JSON.stringify(lessons[2]), /选择 D/);
+  assert.match(JSON.stringify(lessons[3]), /选择 A/);
+  assert.match(JSON.stringify(lessons[4]), /选择 B/);
+  assert.match(JSON.stringify(lessons[5]), /选择 C/);
+  assert.match(JSON.stringify(lessons[6]), /含有 2 个元素/);
+  assert.match(JSON.stringify(lessons[7]), /a>1/);
+  assert.ok(JSON.stringify(lessons[8]).includes("\\\\([-1,3]\\\\)"));
+  assert.deepEqual(
+    [lessons[3], lessons[4], lessons[7], lessons[8]].map((lesson) => lesson.steps[0].visual.kind),
+    [
+      "number-line-practice-union-overlap",
+      "number-line-practice-complement-interval",
+      "number-line-practice-finite-subset-ray",
+      "number-line-practice-a-minus-b",
+    ],
+  );
+  assert.equal(lessons[6].problem.lines[1].figure.shade, "B-only");
+  assert.equal(lessons[8].problem.lines[1].figure.shade, "A-only");
 });
 
 test("only concrete exam or paper labels are displayed as problem sources", () => {
@@ -178,7 +275,10 @@ test("generic lesson math renderer supports set notation without leaking TeX com
     "\\(x\\in\\mathbb R\\)，\\(x\\notin\\varnothing\\)，"
       + "\\(\\sqrt[3]{a^3}=a\\)，\\(\\pi\\ne0\\)，"
       + "\\(|x|\\le1\\iff-1\\le x\\le1\\)，"
-      + "\\(M=\\left\\{a\\middle|a\\ge\\frac98\\right\\}\\)",
+      + "\\(M=\\left\\{a\\middle|a\\ge\\frac98\\right\\}\\)，"
+      + "\\(A\\subsetneq B\\supsetneq C\\)，"
+      + "\\(Q\\setminus P\\)，\\(A\\cap B\\cup C\\)，"
+      + "\\((-\\infty,1]\\)，\\(a<0\\text{或}a>2\\)",
   );
   assert.match(html, /x∈<span class="math-blackboard">ℝ<\/span>/);
   assert.match(html, /x<span class="math-notin"[^>]*><svg[^>]*>.*?<path[^>]*><\/svg><\/span>∅/);
@@ -186,8 +286,25 @@ test("generic lesson math renderer supports set notation without leaking TeX com
   assert.match(html, /π≠0/);
   assert.match(html, /≤1⇔-1≤/);
   assert.match(html, /a≥/);
+  assert.match(html, /A⊊\s*B⊋\s*C/);
+  assert.match(html, /Q∖\s*P/);
+  assert.match(html, /A∩\s*B∪\s*C/);
+  assert.match(html, /∞,1/);
+  assert.match(html, /a&lt;0或a&gt;2/);
   assert.match(html, /class="math-blackboard"/);
-  assert.doesNotMatch(html, /\\(?:mathbb|in|notin|varnothing|sqrt|pi|iff|left|right|middle)/);
+  assert.doesNotMatch(html, /\\(?:mathbb|in|notin|varnothing|sqrt|pi|iff|left|right|middle|setminus|cap|cup|infty|text)/);
+
+  const sandbox = { window: {} };
+  vm.runInNewContext(
+    fs.readFileSync(path.join(repoRoot, "site/assets/js/lesson-page-runtime.js"), "utf8"),
+    sandbox,
+  );
+  const runtimeHtml = sandbox.window.LessonPageRuntime.renderFormulaText(
+    "\\(A\\subsetneq B\\supsetneq C\\supseteq D\\)，\\(Q\\setminus P\\)",
+  );
+  assert.match(runtimeHtml, /A⊊ B⊋ C⊇ D/);
+  assert.match(runtimeHtml, /Q∖ P/);
+  assert.doesNotMatch(runtimeHtml, /\\(?:subsetneq|supsetneq|supseteq|setminus)/);
 });
 
 test("set representation fractions use braced arguments and compile both parts", () => {
@@ -278,6 +395,20 @@ test("exercises 9 through 11 carry the requested explanatory visuals", () => {
     "venn-day-one-two-counts",
     "venn-min-union",
     "number-line-practice-parameter",
+    "number-line-subset-left-branch",
+    "number-line-subset-right-branch",
+    "number-line-union-open-intervals",
+    "number-line-complement-in-universe",
+    "number-line-complement-intersection",
+    "number-line-parameter-union",
+    "number-line-parameter-containment",
+    "number-line-parameter-disjoint",
+    "number-line-cover-fixed-interval",
+    "number-line-not-subset-cases",
+    "number-line-practice-union-overlap",
+    "number-line-practice-complement-interval",
+    "number-line-practice-finite-subset-ray",
+    "number-line-practice-a-minus-b",
   ]) {
     assert.match(runtime, new RegExp(kind));
   }
@@ -390,4 +521,23 @@ test("authored logical chains use explicit because and therefore lines", () => {
   assert.match(runtime, /renderReasoningLine/);
   assert.match(runtime, /isBecause \? "因为" : "所以"/);
   assert.match(runtime, /isBecause \? "∵" : "∴"/);
+});
+
+test("set relation lessons preserve the verified answers and full reasoning chains", () => {
+  const relationIds = lessonIds.filter((id) => (
+    id.startsWith("set-relations-")
+    && !id.startsWith("set-relations-operations-practice-")
+  ));
+  assert.equal(relationIds.length, 19);
+  for (const id of relationIds) {
+    const lesson = readLesson(id);
+    assert.ok(lesson.steps.every((step) => (
+      Array.isArray(step.reasoning)
+      && step.reasoning.some((line) => line.kind === "because")
+      && step.reasoning.some((line) => line.kind === "therefore")
+    )), `${id} should provide a complete mathematical reasoning chain`);
+  }
+  assert.match(JSON.stringify(readLesson("set-relations-count-q02")), /2\^4-2=14/);
+  assert.ok(JSON.stringify(readLesson("set-relations-count-q04")).includes("\\\\{2,8\\\\}"));
+  assert.ok(JSON.stringify(readLesson("set-relations-interval-q01")).includes("m\\\\le3"));
 });
