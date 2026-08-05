@@ -1,0 +1,205 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "problem-extraction-gold-annotation.schema.json",
+  "title": "Problem Extraction Gold Annotation",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "problem_id",
+    "question_label",
+    "selection",
+    "excluded_subjects",
+    "excluded_regions",
+    "evidence",
+    "semantic_evidence",
+    "coverage"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "schema_version": { "const": "problem-extraction-gold/v1" },
+    "problem_id": { "type": "string", "minLength": 1 },
+    "question_label": { "type": "string", "minLength": 1 },
+    "selection": {
+      "type": "object",
+      "required": ["source", "regions"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "const": "authored_gold" },
+        "regions": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/region" }
+        }
+      }
+    },
+    "excluded_subjects": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/exclusion_subject" }
+    },
+    "excluded_regions": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/excluded_region" }
+    },
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/evidence" }
+    },
+    "semantic_evidence": {
+      "type": "object",
+      "required": [
+        "original_text_lines",
+        "scopes",
+        "entities",
+        "facts",
+        "question_goals"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "original_text_lines": { "$ref": "#/$defs/evidence_map" },
+        "scopes": { "$ref": "#/$defs/evidence_map" },
+        "entities": { "$ref": "#/$defs/evidence_map" },
+        "facts": { "$ref": "#/$defs/evidence_map" },
+        "question_goals": { "$ref": "#/$defs/evidence_map" }
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "required": [
+        "source_form",
+        "neighbor_question_count",
+        "column_layout",
+        "printed_figure_in_target",
+        "handwriting",
+        "cross_page_target",
+        "expected_route",
+        "zero_llm_expected"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "source_form": {
+          "enum": ["full_page", "composite_screenshot", "question_crop"]
+        },
+        "neighbor_question_count": { "type": "integer", "minimum": 0 },
+        "column_layout": { "enum": ["single", "double", "mixed"] },
+        "printed_figure_in_target": { "type": "boolean" },
+        "handwriting": {
+          "enum": [
+            "none",
+            "non_overlapping",
+            "overlapping_recoverable",
+            "occluding_unrecoverable"
+          ]
+        },
+        "cross_page_target": { "type": "boolean" },
+        "expected_route": {
+          "enum": [
+            "deterministic_complete",
+            "text_semantic_required",
+            "multimodal_required"
+          ]
+        },
+        "zero_llm_expected": { "type": "boolean" }
+      }
+    }
+  },
+  "$defs": {
+    "point": {
+      "type": "array",
+      "prefixItems": [
+        { "type": "number", "minimum": 0, "maximum": 1 },
+        { "type": "number", "minimum": 0, "maximum": 1 }
+      ],
+      "items": false
+    },
+    "polygon": {
+      "type": "array",
+      "minItems": 3,
+      "items": { "$ref": "#/$defs/point" }
+    },
+    "region": {
+      "type": "object",
+      "required": ["region_id", "page_id", "polygon", "reason"],
+      "additionalProperties": false,
+      "properties": {
+        "region_id": { "type": "string", "minLength": 1 },
+        "page_id": { "type": "string", "minLength": 1 },
+        "polygon": { "$ref": "#/$defs/polygon" },
+        "reason": { "type": "string" }
+      }
+    },
+    "excluded_region": {
+      "type": "object",
+      "required": ["region_id", "page_id", "polygon", "reason", "subject_ids"],
+      "additionalProperties": false,
+      "properties": {
+        "region_id": { "type": "string", "minLength": 1 },
+        "page_id": { "type": "string", "minLength": 1 },
+        "polygon": { "$ref": "#/$defs/polygon" },
+        "reason": { "type": "string" },
+        "subject_ids": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        }
+      }
+    },
+    "exclusion_subject": {
+      "type": "object",
+      "required": ["subject_id", "kind", "label"],
+      "additionalProperties": false,
+      "properties": {
+        "subject_id": { "type": "string", "minLength": 1 },
+        "kind": {
+          "enum": ["neighbor_question", "header", "footer", "watermark", "other"]
+        },
+        "label": { "type": "string", "minLength": 1 }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "required": [
+        "evidence_id",
+        "page_id",
+        "kind",
+        "origin",
+        "purpose",
+        "polygon"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "evidence_id": { "type": "string", "minLength": 1 },
+        "page_id": { "type": "string", "minLength": 1 },
+        "kind": {
+          "enum": [
+            "text",
+            "formula",
+            "text_formula",
+            "figure",
+            "handwriting",
+            "handwriting_and_auxiliary_figure",
+            "occlusion",
+            "mixed",
+            "mixed_text_formula",
+            "unknown"
+          ]
+        },
+        "origin": { "enum": ["printed", "handwritten", "mixed", "unknown"] },
+        "purpose": { "enum": ["problem_source", "student_work", "selection_context"] },
+        "polygon": { "$ref": "#/$defs/polygon" },
+        "transcript": { "type": "string" }
+      }
+    },
+    "evidence_map": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "minItems": 1,
+        "items": { "type": "string", "minLength": 1 },
+        "uniqueItems": true
+      }
+    }
+  }
+}

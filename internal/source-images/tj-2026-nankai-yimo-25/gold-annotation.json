@@ -1,0 +1,146 @@
+{
+  "$schema": "../../schemas/problem-extraction-gold-annotation.schema.json",
+  "schema_version": "problem-extraction-gold/v1",
+  "problem_id": "tj-2026-nankai-yimo-25",
+  "question_label": "25",
+  "selection": {
+    "source": "authored_gold",
+    "regions": [
+      {
+        "region_id": "question_25",
+        "page_id": "page_1",
+        "polygon": [[0.025, 0.640], [0.985, 0.640], [0.985, 0.915], [0.025, 0.915]],
+        "reason": "第25题完整印刷题面"
+      }
+    ]
+  },
+  "excluded_subjects": [
+    {
+      "subject_id": "neighbor_question_24",
+      "kind": "neighbor_question",
+      "label": "第24题"
+    }
+  ],
+  "excluded_regions": [
+    {
+      "region_id": "neighbor_question_24",
+      "page_id": "page_1",
+      "polygon": [[0.025, 0.175], [0.985, 0.175], [0.985, 0.630], [0.025, 0.630]],
+      "reason": "相邻第24题",
+      "subject_ids": ["neighbor_question_24"]
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "printed_line_0",
+      "page_id": "page_1",
+      "kind": "text_formula",
+      "origin": "printed",
+      "purpose": "problem_source",
+      "polygon": [[0.035, 0.644], [0.975, 0.644], [0.975, 0.718], [0.035, 0.718]]
+    },
+    {
+      "evidence_id": "printed_line_1",
+      "page_id": "page_1",
+      "kind": "text_formula",
+      "origin": "printed",
+      "purpose": "problem_source",
+      "polygon": [[0.035, 0.718], [0.975, 0.718], [0.975, 0.750], [0.035, 0.750]]
+    },
+    {
+      "evidence_id": "printed_line_2",
+      "page_id": "page_1",
+      "kind": "text_formula",
+      "origin": "printed",
+      "purpose": "problem_source",
+      "polygon": [[0.035, 0.750], [0.975, 0.750], [0.975, 0.818], [0.035, 0.818]]
+    },
+    {
+      "evidence_id": "printed_line_3",
+      "page_id": "page_1",
+      "kind": "text_formula",
+      "origin": "printed",
+      "purpose": "problem_source",
+      "polygon": [[0.035, 0.818], [0.975, 0.818], [0.975, 0.860], [0.035, 0.860]]
+    },
+    {
+      "evidence_id": "printed_line_4",
+      "page_id": "page_1",
+      "kind": "text_formula",
+      "origin": "printed",
+      "purpose": "problem_source",
+      "polygon": [[0.035, 0.860], [0.975, 0.860], [0.975, 0.905], [0.035, 0.905]]
+    }
+  ],
+  "semantic_evidence": {
+    "original_text_lines": {
+      "0": ["printed_line_0"],
+      "1": ["printed_line_1"],
+      "2": ["printed_line_2"],
+      "3": ["printed_line_3"],
+      "4": ["printed_line_4"]
+    },
+    "scopes": {
+      "problem": ["printed_line_0"],
+      "i": ["printed_line_1"],
+      "ii": ["printed_line_2"],
+      "ii_1": ["printed_line_3"],
+      "ii_2": ["printed_line_4"]
+    },
+    "entities": {
+      "function:problem:parabola": ["printed_line_0"],
+      "symbol:problem:x": ["printed_line_0"],
+      "symbol:problem:a": ["printed_line_0"],
+      "symbol:problem:b": ["printed_line_0"],
+      "symbol:problem:c": ["printed_line_0"],
+      "symbol:problem:m": ["printed_line_2"],
+      "point:problem:C": ["printed_line_0"],
+      "point:problem:D": ["printed_line_0"],
+      "point:ii:M": ["printed_line_2"],
+      "point:ii:N": ["printed_line_2"],
+      "point:ii:F": ["printed_line_2"],
+      "point:ii:E": ["printed_line_2"],
+      "point:ii:G": ["printed_line_2"],
+      "segment:ii:DM": ["printed_line_2"],
+      "segment:ii:MN": ["printed_line_2"],
+      "segment:ii:DN": ["printed_line_2"]
+    },
+    "facts": {
+      "fact:problem:a_gt_0": ["printed_line_0"],
+      "fact:problem:m_gt_2": ["printed_line_2"],
+      "fact:problem:coefficient_relation": ["printed_line_0"],
+      "fact:i:a_value": ["printed_line_1"],
+      "fact:i:c_value": ["printed_line_1"],
+      "fact:ii:M_coordinate_expr": ["printed_line_2"],
+      "fact:ii:M_on_parabola": ["printed_line_2"],
+      "fact:ii:N_on_parabola": ["printed_line_2"],
+      "fact:ii:N_fourth_quadrant": ["printed_line_2"],
+      "fact:ii:right_angle_equal_length_MDN": ["printed_line_2"],
+      "fact:ii:segment_E_on_DM": ["printed_line_2"],
+      "fact:ii:segment_G_on_MN": ["printed_line_2"],
+      "fact:ii:segment_DE_eq_sqrt2_NG": ["printed_line_2"],
+      "fact:ii:F_midpoint_of_DN": ["printed_line_2"],
+      "fact:ii:path_minimum_target": ["printed_line_3", "printed_line_4"],
+      "fact:ii_1:MN_length_squared_eq_10": ["printed_line_3"],
+      "fact:ii_2:path_minimum_value_given": ["printed_line_4"]
+    },
+    "question_goals": {
+      "answer:i.axis_point": ["printed_line_1"],
+      "answer:i.parabola": ["printed_line_1"],
+      "answer:ii_1.parabola": ["printed_line_3"],
+      "answer:ii_1.minimum_value": ["printed_line_3"],
+      "answer:ii_2.parabola": ["printed_line_4"],
+      "answer:ii_2.intersection": ["printed_line_4"]
+    }
+  },
+  "coverage": {
+    "source_form": "composite_screenshot",
+    "neighbor_question_count": 1,
+    "column_layout": "single",
+    "printed_figure_in_target": false,
+    "handwriting": "none",
+    "cross_page_target": false,
+    "expected_route": "text_semantic_required",
+    "zero_llm_expected": false
+  }
+}

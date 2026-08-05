@@ -1,0 +1,17 @@
+{
+  "$schema": "../../schemas/problem-extraction-source-manifest.schema.json",
+  "schema_version": "problem-extraction-source/v1",
+  "problem_id": "tj-2026-xiqing-yimo-25",
+  "problem_fixture": "internal/solver-fixtures/tj-2026-xiqing-yimo-25.json",
+  "pages": [
+    {
+      "page_id": "page_1",
+      "asset_path": "internal/source-images/tj-2026-xiqing-yimo-25/source-page-01.png",
+      "media_type": "image/png",
+      "sha256": "a576388cd6c7a304c8115a81c434c3fe12165089bc723028f35ac11d46aa0a55",
+      "width": 1604,
+      "height": 2294,
+      "orientation_degrees": 0
+    }
+  ]
+}

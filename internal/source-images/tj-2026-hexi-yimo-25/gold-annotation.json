@@ -1,0 +1,132 @@
+{
+  "$schema": "../../schemas/problem-extraction-gold-annotation.schema.json",
+  "schema_version": "problem-extraction-gold/v1",
+  "problem_id": "tj-2026-hexi-yimo-25",
+  "question_label": "25",
+  "selection": {
+    "source": "authored_gold",
+    "regions": [
+      {
+        "region_id": "question_25",
+        "page_id": "page_1",
+        "polygon": [[0.025, 0.755], [0.985, 0.755], [0.985, 0.985], [0.025, 0.985]],
+        "reason": "第25题完整印刷题面"
+      }
+    ]
+  },
+  "excluded_subjects": [
+    {
+      "subject_id": "neighbor_question_24",
+      "kind": "neighbor_question",
+      "label": "第24题"
+    }
+  ],
+  "excluded_regions": [
+    {
+      "region_id": "neighbor_question_24",
+      "page_id": "page_1",
+      "polygon": [[0.025, 0.005], [0.985, 0.005], [0.985, 0.615], [0.025, 0.615]],
+      "reason": "相邻第24题",
+      "subject_ids": ["neighbor_question_24"]
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "printed_line_0",
+      "page_id": "page_1",
+      "kind": "text_formula",
+      "origin": "printed",
+      "purpose": "problem_source",
+      "polygon": [[0.035, 0.760], [0.975, 0.760], [0.975, 0.802], [0.035, 0.802]]
+    },
+    {
+      "evidence_id": "printed_line_1",
+      "page_id": "page_1",
+      "kind": "text_formula",
+      "origin": "printed",
+      "purpose": "problem_source",
+      "polygon": [[0.035, 0.802], [0.975, 0.802], [0.975, 0.838], [0.035, 0.838]]
+    },
+    {
+      "evidence_id": "printed_line_2",
+      "page_id": "page_1",
+      "kind": "text_formula",
+      "origin": "printed",
+      "purpose": "problem_source",
+      "polygon": [[0.035, 0.838], [0.975, 0.838], [0.975, 0.891], [0.035, 0.891]]
+    },
+    {
+      "evidence_id": "printed_line_3",
+      "page_id": "page_1",
+      "kind": "text_formula",
+      "origin": "printed",
+      "purpose": "problem_source",
+      "polygon": [[0.035, 0.891], [0.975, 0.891], [0.975, 0.975], [0.035, 0.975]]
+    }
+  ],
+  "semantic_evidence": {
+    "original_text_lines": {
+      "0": ["printed_line_0"],
+      "1": ["printed_line_1"],
+      "2": ["printed_line_2"],
+      "3": ["printed_line_3"]
+    },
+    "scopes": {
+      "problem": ["printed_line_0"],
+      "i": ["printed_line_1"],
+      "ii": ["printed_line_2"],
+      "iii": ["printed_line_3"]
+    },
+    "entities": {
+      "function:problem:parabola": ["printed_line_0"],
+      "symbol:problem:x": ["printed_line_0"],
+      "symbol:problem:a": ["printed_line_0"],
+      "symbol:problem:b": ["printed_line_0"],
+      "symbol:problem:c": ["printed_line_0"],
+      "symbol:problem:n": ["printed_line_3"],
+      "point:i:P": ["printed_line_1"],
+      "point:problem:A": ["printed_line_2", "printed_line_3"],
+      "point:ii:C": ["printed_line_2"],
+      "point:ii:D": ["printed_line_2"],
+      "point:iii:M": ["printed_line_3"],
+      "point:iii:N": ["printed_line_3"],
+      "segment:ii:AC": ["printed_line_2"],
+      "segment:ii:AD": ["printed_line_2"],
+      "segment:iii:MN": ["printed_line_3"],
+      "segment:iii:AN": ["printed_line_3"]
+    },
+    "facts": {
+      "fact:problem:b_gt_0": ["printed_line_0"],
+      "fact:problem:n_gt_0": ["printed_line_3"],
+      "fact:i:a_value": ["printed_line_1"],
+      "fact:i:b_value": ["printed_line_1"],
+      "fact:i:c_value": ["printed_line_1"],
+      "fact:ii:a_value": ["printed_line_2"],
+      "fact:iii:a_value": ["printed_line_3"],
+      "fact:problem:A_coordinate_value": ["printed_line_2", "printed_line_3"],
+      "fact:iii:N_coordinate_expr": ["printed_line_3"],
+      "fact:ii:A_on_parabola": ["printed_line_2"],
+      "fact:iii:A_on_parabola": ["printed_line_3"],
+      "fact:ii:D_on_parabola": ["printed_line_2"],
+      "fact:iii:M_on_parabola": ["printed_line_3"],
+      "fact:ii:right_angle_equal_length_CAD": ["printed_line_2"],
+      "fact:iii:path_minimum_target": ["printed_line_3"],
+      "fact:iii:path_minimum_value_given": ["printed_line_3"]
+    },
+    "question_goals": {
+      "answer:i_P": ["printed_line_1"],
+      "answer:ii_D": ["printed_line_2"],
+      "answer:iii_b": ["printed_line_3"]
+    }
+  },
+  "coverage": {
+    "source_form": "full_page",
+    "neighbor_question_count": 1,
+    "column_layout": "single",
+    "printed_figure_in_target": false,
+    "handwriting": "none",
+    "cross_page_target": false,
+    "expected_route": "text_semantic_required",
+    "zero_llm_expected": false
+  }
+}

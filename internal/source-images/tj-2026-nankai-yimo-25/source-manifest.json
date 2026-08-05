@@ -1,0 +1,17 @@
+{
+  "$schema": "../../schemas/problem-extraction-source-manifest.schema.json",
+  "schema_version": "problem-extraction-source/v1",
+  "problem_id": "tj-2026-nankai-yimo-25",
+  "problem_fixture": "internal/solver-fixtures/tj-2026-nankai-yimo-25.json",
+  "pages": [
+    {
+      "page_id": "page_1",
+      "asset_path": "internal/source-images/tj-2026-nankai-yimo-25/source-page-01.jpg",
+      "media_type": "image/jpeg",
+      "sha256": "2d90f961ece1d0d784b5541c3ea14ed49960adf5695d5a8aa588d8bc14e90e6e",
+      "width": 1200,
+      "height": 2652,
+      "orientation_degrees": 0
+    }
+  ]
+}

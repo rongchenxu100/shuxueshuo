@@ -1,0 +1,134 @@
+{
+  "$schema": "../../schemas/problem-extraction-gold-annotation.schema.json",
+  "schema_version": "problem-extraction-gold/v1",
+  "problem_id": "tj-2026-heping-yimo-25",
+  "question_label": "25",
+  "selection": {
+    "source": "authored_gold",
+    "regions": [
+      {
+        "region_id": "question_25",
+        "page_id": "page_1",
+        "polygon": [[0.015, 0.005], [0.985, 0.005], [0.985, 0.995], [0.015, 0.995]],
+        "reason": "单题裁剪，包含印刷题面及题面之外的学生演算"
+      }
+    ]
+  },
+  "excluded_subjects": [],
+  "excluded_regions": [],
+  "evidence": [
+    {
+      "evidence_id": "printed_line_0",
+      "page_id": "page_1",
+      "kind": "text_formula",
+      "origin": "printed",
+      "purpose": "problem_source",
+      "polygon": [[0.025, 0.015], [0.975, 0.015], [0.975, 0.105], [0.025, 0.105]]
+    },
+    {
+      "evidence_id": "printed_line_1",
+      "page_id": "page_1",
+      "kind": "text_formula",
+      "origin": "printed",
+      "purpose": "problem_source",
+      "polygon": [[0.025, 0.105], [0.975, 0.105], [0.975, 0.145], [0.025, 0.145]]
+    },
+    {
+      "evidence_id": "printed_line_2",
+      "page_id": "page_1",
+      "kind": "text_formula",
+      "origin": "printed",
+      "purpose": "problem_source",
+      "polygon": [[0.025, 0.145], [0.975, 0.145], [0.975, 0.190], [0.025, 0.190]]
+    },
+    {
+      "evidence_id": "printed_line_3",
+      "page_id": "page_1",
+      "kind": "text_formula",
+      "origin": "printed",
+      "purpose": "problem_source",
+      "polygon": [[0.025, 0.190], [0.975, 0.190], [0.975, 0.255], [0.025, 0.255]]
+    },
+    {
+      "evidence_id": "printed_line_4",
+      "page_id": "page_1",
+      "kind": "text_formula",
+      "origin": "printed",
+      "purpose": "problem_source",
+      "polygon": [[0.025, 0.255], [0.975, 0.255], [0.975, 0.330], [0.025, 0.330]]
+    },
+    {
+      "evidence_id": "student_work_below_question",
+      "page_id": "page_1",
+      "kind": "handwriting_and_auxiliary_figure",
+      "origin": "handwritten",
+      "purpose": "student_work",
+      "polygon": [[0.025, 0.335], [0.975, 0.335], [0.975, 0.990], [0.025, 0.990]]
+    }
+  ],
+  "semantic_evidence": {
+    "original_text_lines": {
+      "0": ["printed_line_0"],
+      "1": ["printed_line_1"],
+      "2": ["printed_line_2"],
+      "3": ["printed_line_3"],
+      "4": ["printed_line_4"]
+    },
+    "scopes": {
+      "problem": ["printed_line_0"],
+      "i": ["printed_line_1"],
+      "i_1": ["printed_line_2"],
+      "i_2": ["printed_line_3"],
+      "ii": ["printed_line_4"]
+    },
+    "entities": {
+      "function:problem:parabola": ["printed_line_0"],
+      "symbol:problem:x": ["printed_line_0"],
+      "symbol:problem:a": ["printed_line_0"],
+      "symbol:problem:b": ["printed_line_0"],
+      "symbol:problem:m": ["printed_line_3"],
+      "point:problem:O": ["printed_line_3", "printed_line_4"],
+      "point:problem:A": ["printed_line_0"],
+      "point:problem:B": ["printed_line_0"],
+      "point:problem:C": ["printed_line_0"],
+      "point:problem:D": ["printed_line_0"],
+      "segment:problem:BC": ["printed_line_0"],
+      "point:i_2:E": ["printed_line_3"],
+      "point:ii:M": ["printed_line_4"],
+      "point:ii:N": ["printed_line_4"],
+      "segment:ii:BC": ["printed_line_4"],
+      "ray:ii:CD": ["printed_line_4"],
+      "segment:ii:OM": ["printed_line_4"],
+      "segment:ii:BN": ["printed_line_4"]
+    },
+    "facts": {
+      "fact:problem:a_gt_0": ["printed_line_0"],
+      "fact:problem:A_coordinate_value": ["printed_line_0"],
+      "fact:problem:A_on_parabola": ["printed_line_0"],
+      "fact:problem:B_on_parabola": ["printed_line_0"],
+      "fact:i:D_on_parabola": ["printed_line_1"],
+      "fact:i_2:E_on_parabola_with_x_m": ["printed_line_3"],
+      "fact:i_2:angle_sum_CBE_ACO_45": ["printed_line_3"],
+      "fact:ii:M_on_segment_BC": ["printed_line_4"],
+      "fact:ii:N_on_ray_CD": ["printed_line_4"],
+      "fact:ii:CN_eq_CM": ["printed_line_4"],
+      "fact:ii:path_minimum_target": ["printed_line_4"],
+      "fact:ii:path_minimum_value_given": ["printed_line_4"]
+    },
+    "question_goals": {
+      "answer:i_1_parabola": ["printed_line_2"],
+      "answer:i_2_E": ["printed_line_3"],
+      "answer:ii_a": ["printed_line_4"]
+    }
+  },
+  "coverage": {
+    "source_form": "question_crop",
+    "neighbor_question_count": 0,
+    "column_layout": "single",
+    "printed_figure_in_target": false,
+    "handwriting": "non_overlapping",
+    "cross_page_target": false,
+    "expected_route": "text_semantic_required",
+    "zero_llm_expected": false
+  }
+}

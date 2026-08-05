@@ -1,0 +1,142 @@
+{
+  "$schema": "../../schemas/problem-extraction-gold-annotation.schema.json",
+  "schema_version": "problem-extraction-gold/v1",
+  "problem_id": "tj-2026-xiqing-yimo-25",
+  "question_label": "25",
+  "selection": {
+    "source": "authored_gold",
+    "regions": [
+      {
+        "region_id": "question_25",
+        "page_id": "page_1",
+        "polygon": [[0.02, 0.555], [0.985, 0.555], [0.985, 0.995], [0.02, 0.995]],
+        "reason": "第25题印刷题面及与题面重叠的学生笔迹"
+      }
+    ]
+  },
+  "excluded_subjects": [
+    {
+      "subject_id": "neighbor_question_24",
+      "kind": "neighbor_question",
+      "label": "第24题"
+    }
+  ],
+  "excluded_regions": [
+    {
+      "region_id": "neighbor_question_24",
+      "page_id": "page_1",
+      "polygon": [[0.02, 0.005], [0.985, 0.005], [0.985, 0.535], [0.02, 0.535]],
+      "reason": "相邻第24题",
+      "subject_ids": ["neighbor_question_24"]
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "mixed_line_0",
+      "page_id": "page_1",
+      "kind": "mixed_text_formula",
+      "origin": "mixed",
+      "purpose": "problem_source",
+      "polygon": [[0.03, 0.565], [0.975, 0.565], [0.975, 0.680], [0.03, 0.680]]
+    },
+    {
+      "evidence_id": "mixed_line_1",
+      "page_id": "page_1",
+      "kind": "mixed_text_formula",
+      "origin": "mixed",
+      "purpose": "problem_source",
+      "polygon": [[0.03, 0.680], [0.975, 0.680], [0.975, 0.742], [0.03, 0.742]]
+    },
+    {
+      "evidence_id": "mixed_line_2",
+      "page_id": "page_1",
+      "kind": "mixed_text_formula",
+      "origin": "mixed",
+      "purpose": "problem_source",
+      "polygon": [[0.03, 0.742], [0.975, 0.742], [0.975, 0.805], [0.03, 0.805]]
+    },
+    {
+      "evidence_id": "mixed_line_3",
+      "page_id": "page_1",
+      "kind": "mixed_text_formula",
+      "origin": "mixed",
+      "purpose": "problem_source",
+      "polygon": [[0.03, 0.805], [0.975, 0.805], [0.975, 0.865], [0.03, 0.865]]
+    },
+    {
+      "evidence_id": "mixed_line_4",
+      "page_id": "page_1",
+      "kind": "mixed_text_formula",
+      "origin": "mixed",
+      "purpose": "problem_source",
+      "polygon": [[0.03, 0.865], [0.975, 0.865], [0.975, 0.940], [0.03, 0.940]]
+    },
+    {
+      "evidence_id": "student_work_overlay",
+      "page_id": "page_1",
+      "kind": "handwriting_and_auxiliary_figure",
+      "origin": "handwritten",
+      "purpose": "student_work",
+      "polygon": [[0.03, 0.585], [0.975, 0.585], [0.975, 0.990], [0.03, 0.990]]
+    }
+  ],
+  "semantic_evidence": {
+    "original_text_lines": {
+      "0": ["mixed_line_0"],
+      "1": ["mixed_line_1"],
+      "2": ["mixed_line_2"],
+      "3": ["mixed_line_3"],
+      "4": ["mixed_line_4"]
+    },
+    "scopes": {
+      "problem": ["mixed_line_0"],
+      "i": ["mixed_line_1"],
+      "ii": ["mixed_line_2"],
+      "ii_1": ["mixed_line_3"],
+      "ii_2": ["mixed_line_4"]
+    },
+    "entities": {
+      "function:problem:parabola": ["mixed_line_0"],
+      "symbol:problem:x": ["mixed_line_0"],
+      "symbol:problem:b": ["mixed_line_0"],
+      "symbol:problem:c": ["mixed_line_0"],
+      "symbol:problem:m": ["mixed_line_4"],
+      "point:i:P": ["mixed_line_1"],
+      "point:problem:A": ["mixed_line_0"],
+      "point:ii:B": ["mixed_line_0"],
+      "point:ii:C": ["mixed_line_0"],
+      "point:ii:D": ["mixed_line_2"],
+      "point:ii_2:M": ["mixed_line_4"],
+      "segment:ii_1:AD": ["mixed_line_3"],
+      "segment:ii_1:BC": ["mixed_line_3"],
+      "segment:ii_2:DM": ["mixed_line_4"],
+      "segment:ii_2:AM": ["mixed_line_4"]
+    },
+    "facts": {
+      "fact:problem:b_gt_0": ["mixed_line_0"],
+      "fact:problem:m_gt_0": ["mixed_line_4"],
+      "fact:i:b_value": ["mixed_line_1"],
+      "fact:problem:A_coordinate_value": ["mixed_line_0"],
+      "fact:problem:A_on_parabola": ["mixed_line_0"],
+      "fact:ii:D_on_parabola": ["mixed_line_2"],
+      "fact:ii_1:AD_eq_2BC": ["mixed_line_3"],
+      "fact:ii_2:M_coordinate_expr": ["mixed_line_4"],
+      "fact:ii_2:path_minimum_value_given": ["mixed_line_4"]
+    },
+    "question_goals": {
+      "answer:i_P": ["mixed_line_1"],
+      "answer:ii_1_b": ["mixed_line_3"],
+      "answer:ii_2_b": ["mixed_line_4"]
+    }
+  },
+  "coverage": {
+    "source_form": "full_page",
+    "neighbor_question_count": 1,
+    "column_layout": "single",
+    "printed_figure_in_target": false,
+    "handwriting": "overlapping_recoverable",
+    "cross_page_target": false,
+    "expected_route": "multimodal_required",
+    "zero_llm_expected": false
+  }
+}

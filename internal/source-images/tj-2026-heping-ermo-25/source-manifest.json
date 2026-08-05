@@ -1,0 +1,17 @@
+{
+  "$schema": "../../schemas/problem-extraction-source-manifest.schema.json",
+  "schema_version": "problem-extraction-source/v1",
+  "problem_id": "tj-2026-heping-ermo-25",
+  "problem_fixture": "internal/solver-fixtures/tj-2026-heping-ermo-25.json",
+  "pages": [
+    {
+      "page_id": "page_1",
+      "asset_path": "internal/source-images/tj-2026-heping-ermo-25/source-page-01.png",
+      "media_type": "image/png",
+      "sha256": "2fe298108f300ee09b681063cdc7c027dd9dba9f21402e88ec5fffcf2563948d",
+      "width": 1530,
+      "height": 1700,
+      "orientation_degrees": 0
+    }
+  ]
+}

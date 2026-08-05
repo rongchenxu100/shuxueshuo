@@ -1,0 +1,148 @@
+{
+  "$schema": "../../schemas/problem-extraction-gold-annotation.schema.json",
+  "schema_version": "problem-extraction-gold/v1",
+  "problem_id": "tj-2026-heping-ermo-25",
+  "question_label": "25",
+  "selection": {
+    "source": "authored_gold",
+    "regions": [
+      {
+        "region_id": "question_25",
+        "page_id": "page_1",
+        "polygon": [[0.015, 0.615], [0.805, 0.615], [0.805, 0.985], [0.015, 0.985]],
+        "reason": "第25题印刷题面，排除右侧装订信息"
+      }
+    ]
+  },
+  "excluded_subjects": [
+    {
+      "subject_id": "neighbor_question_24",
+      "kind": "neighbor_question",
+      "label": "第24题"
+    }
+  ],
+  "excluded_regions": [
+    {
+      "region_id": "neighbor_question_24",
+      "page_id": "page_1",
+      "polygon": [[0.015, 0.005], [0.805, 0.005], [0.805, 0.595], [0.015, 0.595]],
+      "reason": "相邻第24题",
+      "subject_ids": ["neighbor_question_24"]
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "printed_line_0",
+      "page_id": "page_1",
+      "kind": "text_formula",
+      "origin": "printed",
+      "purpose": "problem_source",
+      "polygon": [[0.025, 0.628], [0.795, 0.628], [0.795, 0.755], [0.025, 0.755]]
+    },
+    {
+      "evidence_id": "printed_line_1",
+      "page_id": "page_1",
+      "kind": "text_formula",
+      "origin": "printed",
+      "purpose": "problem_source",
+      "polygon": [[0.025, 0.755], [0.795, 0.755], [0.795, 0.797], [0.025, 0.797]]
+    },
+    {
+      "evidence_id": "printed_line_2",
+      "page_id": "page_1",
+      "kind": "text_formula",
+      "origin": "printed",
+      "purpose": "problem_source",
+      "polygon": [[0.025, 0.797], [0.795, 0.797], [0.795, 0.843], [0.025, 0.843]]
+    },
+    {
+      "evidence_id": "printed_line_3",
+      "page_id": "page_1",
+      "kind": "text_formula",
+      "origin": "printed",
+      "purpose": "problem_source",
+      "polygon": [[0.025, 0.843], [0.795, 0.843], [0.795, 0.895], [0.025, 0.895]]
+    },
+    {
+      "evidence_id": "printed_line_4",
+      "page_id": "page_1",
+      "kind": "text_formula",
+      "origin": "printed",
+      "purpose": "problem_source",
+      "polygon": [[0.025, 0.895], [0.795, 0.895], [0.795, 0.978], [0.025, 0.978]]
+    }
+  ],
+  "semantic_evidence": {
+    "original_text_lines": {
+      "0": ["printed_line_0"],
+      "1": ["printed_line_1"],
+      "2": ["printed_line_2"],
+      "3": ["printed_line_3"],
+      "4": ["printed_line_4"]
+    },
+    "scopes": {
+      "problem": ["printed_line_0"],
+      "i": ["printed_line_1"],
+      "i_1": ["printed_line_2"],
+      "i_2": ["printed_line_3"],
+      "ii": ["printed_line_4"]
+    },
+    "entities": {
+      "function:problem:parabola": ["printed_line_0"],
+      "symbol:problem:x": ["printed_line_0"],
+      "symbol:problem:b": ["printed_line_0"],
+      "symbol:problem:c": ["printed_line_0"],
+      "point:problem:A": ["printed_line_0"],
+      "point:problem:B": ["printed_line_0"],
+      "point:problem:C": ["printed_line_0"],
+      "point:problem:M": ["printed_line_0"],
+      "point:i_1:P": ["printed_line_2"],
+      "point:i_2:E": ["printed_line_0", "printed_line_3"],
+      "point:i_2:G": ["printed_line_0", "printed_line_3"],
+      "point:ii:E": ["printed_line_4"],
+      "point:ii:A": ["printed_line_4"],
+      "point:ii:F": ["printed_line_4"],
+      "point:ii:H": ["printed_line_4"],
+      "point:ii:G": ["printed_line_4"],
+      "point:ii:K": ["printed_line_4"],
+      "segment:ii:AE": ["printed_line_4"],
+      "segment:ii:HF": ["printed_line_4"],
+      "segment:ii:FM": ["printed_line_4"],
+      "segment:ii:MG": ["printed_line_4"]
+    },
+    "facts": {
+      "fact:problem:c_gt_1": ["printed_line_0"],
+      "fact:i:b_value": ["printed_line_1"],
+      "fact:i:c_value": ["printed_line_1"],
+      "fact:problem:A_on_parabola": ["printed_line_0"],
+      "fact:problem:B_on_parabola": ["printed_line_0"],
+      "fact:problem:C_on_parabola": ["printed_line_0"],
+      "fact:i_2:E_on_axis": ["printed_line_0"],
+      "fact:i_2:square_AEKG": ["printed_line_0"],
+      "fact:i_2:G_on_parabola": ["printed_line_3"],
+      "fact:ii:A_coordinate_value": ["printed_line_4"],
+      "fact:ii:E_on_axis": ["printed_line_0", "printed_line_4"],
+      "fact:ii:F_midpoint_of_AE": ["printed_line_4"],
+      "fact:ii:H_square_diagonal_intersection": ["printed_line_4"],
+      "fact:ii:square_AEKG": ["printed_line_0", "printed_line_4"],
+      "fact:ii:path_minimum_target": ["printed_line_4"],
+      "fact:ii:path_minimum_value_given": ["printed_line_4"]
+    },
+    "question_goals": {
+      "answer:i_1.P": ["printed_line_2"],
+      "answer:i_1.A": ["printed_line_2"],
+      "answer:i_2.E": ["printed_line_3"],
+      "answer:ii.E": ["printed_line_4"]
+    }
+  },
+  "coverage": {
+    "source_form": "full_page",
+    "neighbor_question_count": 1,
+    "column_layout": "single",
+    "printed_figure_in_target": false,
+    "handwriting": "none",
+    "cross_page_target": false,
+    "expected_route": "text_semantic_required",
+    "zero_llm_expected": false
+  }
+}

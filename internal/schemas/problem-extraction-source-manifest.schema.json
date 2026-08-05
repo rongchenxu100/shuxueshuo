@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "problem-extraction-source-manifest.schema.json",
+  "title": "Problem Extraction Source Manifest",
+  "type": "object",
+  "required": ["schema_version", "problem_id", "problem_fixture", "pages"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "schema_version": { "const": "problem-extraction-source/v1" },
+    "problem_id": { "type": "string", "minLength": 1 },
+    "problem_fixture": { "type": "string", "minLength": 1 },
+    "pages": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "page_id",
+          "asset_path",
+          "media_type",
+          "sha256",
+          "width",
+          "height",
+          "orientation_degrees"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "page_id": { "type": "string", "minLength": 1 },
+          "asset_path": { "type": "string", "minLength": 1 },
+          "media_type": { "enum": ["image/jpeg", "image/png"] },
+          "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "width": { "type": "integer", "minimum": 1 },
+          "height": { "type": "integer", "minimum": 1 },
+          "orientation_degrees": { "enum": [0, 90, 180, 270] }
+        }
+      }
+    }
+  }
+}
