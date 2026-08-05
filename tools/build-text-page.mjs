@@ -133,6 +133,12 @@ export function answerTextForSchema(schema) {
       });
       return "答案：" + parts.join("；");
     }
+    case "multipart-choice": {
+      const parts = (schema.expected ?? []).map((item, index) => (
+        (item.label ?? "（" + (index + 1) + "）") + item.expected
+      ));
+      return "答案：" + parts.join("；");
+    }
     default:
       return "";
   }
@@ -215,6 +221,45 @@ export function validateTextLesson(lesson, inputDir = "") {
       }
       if (rows.some((row) => !Array.isArray(row) || row.length !== headers.length)) {
         throw new Error(`${meta.id} 的步骤 ${step.id} 表格列数不一致`);
+      }
+    }
+    if (step.visual?.kind === "implication-condition-pairs") {
+      const cases = step.visual.cases;
+      if (!Array.isArray(cases) || cases.length === 0) {
+        throw new Error(`${meta.id} 的步骤 ${step.id}.visual.cases 必须是非空数组`);
+      }
+      for (const [index, item] of cases.entries()) {
+        if (!item?.label || !item.pText || !item.qText || !item.result) {
+          throw new Error(`${meta.id} 的步骤 ${step.id}.visual.cases[${index}] 缺少标签、p、q 或结论`);
+        }
+        if (typeof item.sufficient !== "boolean" || typeof item.necessary !== "boolean") {
+          throw new Error(`${meta.id} 的步骤 ${step.id}.visual.cases[${index}] 必须明确充分与必要是否成立`);
+        }
+        if (item.setEvidence) {
+          const evidence = item.setEvidence;
+          const requiredFields = evidence.kind === "nested-open-intervals"
+            ? ["pSet", "qSet", "sharedLeft", "qRight", "pRight", "relation"]
+            : evidence.kind === "complement-right-ray-parameter"
+              ? ["pRowLabel", "qRowLabel", "resultRowLabel", "pSet", "qSet", "pLeftEndpoint", "pRightEndpoint", "qEndpoint", "resultEndpoint", "relation", "parameterSet"]
+            : ["pSet", "qSet", "relation"];
+          if (!["nested-open-intervals", "parameter-interval-containment", "complement-right-ray-parameter"].includes(evidence.kind) || requiredFields.some((field) => typeof evidence[field] !== "string" || !evidence[field].trim())) {
+            throw new Error(`${meta.id} 的步骤 ${step.id}.visual.cases[${index}].setEvidence 无效`);
+          }
+          if (evidence.kind === "parameter-interval-containment") {
+            const layoutFields = evidence.layout === "fixed-inside-right-ray"
+              ? ["pLeft", "pRight", "qEndpoint"]
+              : evidence.layout === "nested-left-rays"
+                ? ["pEndpoint", "qEndpoint"]
+                : null;
+            if (!layoutFields || layoutFields.some((field) => typeof evidence[field] !== "string" || !evidence[field].trim())) {
+              throw new Error(`${meta.id} 的步骤 ${step.id}.visual.cases[${index}].setEvidence 参数数轴字段无效`);
+            }
+          }
+          const expectedExplanationCount = evidence.kind === "complement-right-ray-parameter" ? 3 : 2;
+          if (evidence.explanations && (!Array.isArray(evidence.explanations) || evidence.explanations.length !== expectedExplanationCount || evidence.explanations.some((line) => typeof line !== "string" || !line.trim()))) {
+            throw new Error(`${meta.id} 的步骤 ${step.id}.visual.cases[${index}].setEvidence.explanations 必须包含 ${expectedExplanationCount} 句说明`);
+          }
+        }
       }
     }
   }

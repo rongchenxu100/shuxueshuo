@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>判断三个几何命题的充分必要性 | 数学说</title>
+  <meta name="description" content="分别判断平行四边形条件的充分性与必要性。" />
+  <meta property="og:title" content="判断三个几何命题的充分必要性 | 数学说" />
+  <meta property="og:description" content="分别判断平行四边形条件的充分性与必要性。" />
+  <meta property="og:image" content="../../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css?v=10" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../../senior-high/index.html?chapter=sets&section=common-logical-language&module=sufficient-necessary-conditions">常用逻辑用语</a>
+    <span class="lesson-title">充分条件与必要条件 · 练习 2-1</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          <div class="problem-full">
+            <div class="problem-line"><span>判断下列命题的充分必要性：</span></div>
+<div class="problem-line"><span>① 若四边形的两组对边分别相等，则这个四边形是平行四边形；</span></div>
+<div class="problem-line"><span>② 若四边形的一组对边平行且相等，则这个四边形是平行四边形；</span></div>
+<div class="problem-line"><span>③ 若四边形的四个角为直角，则这个四边形是平行四边形。</span><span class="answer-chip" id="answerI">答案：①充要条件；②充要条件；③充分不必要条件</span></div>
+          </div>
+        </section>
+
+        <aside class="lesson-key-points" aria-label="解题要点"><div class="lesson-key-points-title">解题要点</div><div class="lesson-key-points-content"><p class="lesson-key-points-lead">每个条件都要分别判断“充分”和“必要”是否成立。</p><ol><li>充分和必要都成立，即为充要条件；</li><li>只有充分成立，即为充分不必要条件。</li></ol></div></aside>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../../assets/js/lesson-page-runtime.js?v=19"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"s1","section":"充分必要性的判断","title":"逐项判断充分与必要","t":0,"showDiagram":false,"visual":{"kind":"implication-condition-pairs","ariaLabel":"三个条件中充分和必要关系的判断图","cases":[{"label":"①","pText":"四边形的两组对边分别相等","qText":"这个四边形是平行四边形","sufficient":true,"necessary":true,"result":"充要条件"},{"label":"②","pText":"四边形的一组对边平行且相等","qText":"这个四边形是平行四边形","sufficient":true,"necessary":true,"result":"充要条件"},{"label":"③","pText":"四边形的四个角为直角","qText":"这个四边形是平行四边形","sufficient":true,"necessary":false,"result":"充分不必要条件","counterexample":"一般的平行四边形不一定有四个直角。"}]},"table":{"headers":["序号","充分","必要","p 是 q 的"],"rows":[["①","✓ 平行四边形判定","✓ 平行四边形性质","充要条件"],["②","✓ 平行且相等的对边判定","✓ 任一组对边均平行且相等","充要条件"],["③","✓ 四个直角构成长方形","✕ 一般平行四边形角不必为直角","充分不必要条件"]]},"reasoning":[{"kind":"because","text":"①、②的条件既是平行四边形的判定条件，也是平行四边形必有的性质；③只能由长方形推出平行四边形"},{"kind":"therefore","text":"①、②为充要条件，③为充分不必要条件"}],"derive":[["结论","①充要；②充要；③充分不必要"]]}];
+    var STEP_LABELS = {"s1":"1 检验双向蕴含"};
+    var POLICIES   = {"s1":{"movable":false,"range":[0,0]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 滑块主参数与派生参数的联动文案格式化器 */
+    var __LESSON_PARAM_LABEL_FORMATTER__;
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script>
+  function diagramMarkupFor() { return ''; }
+  function diagramMarkupForFrame() { return ''; }
+  function drawMini() { return ''; }
+  function groupTitle(section) { return section; }
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      diagramMarkupForFrame: typeof diagramMarkupForFrame === "function" ? diagramMarkupForFrame : undefined,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "参数",
+      paramLabelPrefix: "",
+      paramLabelFormatter: typeof __LESSON_PARAM_LABEL_FORMATTER__ === "function" ? __LESSON_PARAM_LABEL_FORMATTER__ : undefined,
+      goToProblemMode: "doubleScroll"
+    });
+  </script>
+</body>
+</html>

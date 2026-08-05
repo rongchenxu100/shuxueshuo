@@ -1,0 +1,6 @@
+{
+  "meta":{"id":"logic-proposition-q02","outputPath":"site/problems/senior-high/sets/common-logical-language/logic-proposition-q02.html","pageTitle":"辨析自由变量与量词","pageDescription":"判断开放语句在加入全称量词前后是否成为命题。","breadcrumbTitle":"命题的概念 · 练习 1-2","breadcrumbLabel":"常用逻辑用语","breadcrumbPath":"site/senior-high/index.html","breadcrumbSearch":"?chapter=sets&section=common-logical-language&module=propositions"},
+  "problem":{"source":"培训教材 · 常用逻辑用语","keyPoints":{"title":"解题要点","lead":"未被约束的变量会使语句真假随取值变化。","items":["开放语句不是命题；","量词约束变量后可以判断整句话的真假。"]},"lines":[{"text":"下列语句是命题吗？"},{"text":"（1）\\(x>5\\)；（2）\\(3x+2\\) 是整数；"},{"text":"（3）对所有的 \\(x\\in\\mathbb R\\)，\\(x>5\\)；（4）对任意一个 \\(x\\in\\mathbb Z\\)，\\(3x+2\\) 是整数。"}]},
+  "steps":[{"id":"s1","section":"命题的概念","title":"检查变量是否被量词约束","t":0,"showDiagram":false,"table":{"headers":["语句","变量状态","真值","结论"],"rows":[["（1）","x 自由","随 x 改变","不是命题"],["（2）","x 自由","随 x 改变","不是命题"],["（3）","全称量词约束 x","假，例如 x=0","命题"],["（4）","全称量词约束 x","真","命题"]]},"reasoning":[{"kind":"because","text":"第（1）、（2）句中的 x 没有给定取值范围或量词，不能确定整句话的真假"},{"kind":"therefore","text":"（1）、（2）不是命题；（3）、（4）是命题，其中（3）是假命题，（4）是真命题"}],"derive":[["结论","依次为：不是命题，不是命题，命题，命题"]]}],
+  "policies":{"s1":{"movable":false,"range":[0,0]}},"stepLabels":{"s1":"1 检查量词"}
+}

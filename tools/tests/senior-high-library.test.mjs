@@ -71,6 +71,7 @@ test("validates the real senior-high catalog and its published assets", () => {
     [
       ["集合的概念和表示", "set-concepts-and-representation"],
       ["集合的关系和运算", "set-relations-and-operations"],
+      ["常用逻辑用语", "common-logical-language"],
     ],
   );
 });
@@ -78,7 +79,7 @@ test("validates the real senior-high catalog and its published assets", () => {
 test("builds the first set learning topic with three published knowledge modules", () => {
   const catalog = validateCatalog(chapterSource, problemSource, repoRoot);
   const topics = validateLearningTopics(catalog, learningTopicSource, repoRoot);
-  assert.equal(topics.length, 2);
+  assert.equal(topics.length, 3);
   const topic = topics[0];
   assert.equal(topic.title, "集合的概念和表示");
   assert.deepEqual(
@@ -251,6 +252,102 @@ test("builds the second set topic with published relations and operations", () =
       .map((example) => example.answerSchema.expected),
     [["=", "=", "="], ["⊊", "∉", "∉", "⊊", "⊋"], ["⊋", "⊊", "⊊"]],
   );
+});
+
+test("builds common logical language with a textbook-faithful map and all modules published", () => {
+  const catalog = validateCatalog(chapterSource, problemSource, repoRoot);
+  const topic = validateLearningTopics(catalog, learningTopicSource, repoRoot)
+    .find((item) => item.id === "common-logical-language");
+  assert.equal(topic.title, "常用逻辑用语");
+  assert.equal(topic.mapRootLabel, "命题");
+  assert.deepEqual(topic.mapNodes.map((node) => node.label), [
+    "充分条件与必要条件",
+    "全称量词与存在量词",
+  ]);
+  assert.deepEqual(
+    topic.modules.map((module) => [module.id, module.status]),
+    [
+      ["propositions", "published"],
+      ["sufficient-necessary-conditions", "published"],
+      ["quantifiers", "published"],
+      ["quantifier-negations", "published"],
+      ["logic-practice", "published"],
+    ],
+  );
+  assert.equal(topic.modules[0].examples.length, 2);
+  assert.equal(topic.modules[1].examples.length, 10);
+  assert.equal(topic.modules[2].examples.length, 3);
+  assert.equal(topic.modules[3].examples.length, 4);
+  assert.equal(topic.modules[4].items.length, 9);
+  const negationBlocks = topic.modules[3].knowledgeBlocks;
+  const negationTable = negationBlocks.find((block) => block.title === "常见否定形式")?.table;
+  assert.deepEqual(negationTable?.rows, [
+    ["原语句", "是", "都是", "大于", "至少有一个", "至多有一个", "对任意 \\(x∈A\\)，\\(p(x)\\) 为真"],
+    ["否定", "不是", "不都是", "小于或等于", "一个也没有", "至少有两个", "存在 \\(x∈A\\)，\\(p(x)\\) 为假"],
+  ]);
+  assert.deepEqual(
+    topic.modules[1].knowledgeGroups.map((group) => group.title),
+    ["条件和结论", "充分条件与必要条件", "充分、必要与充要条件的判断"],
+  );
+  assert.deepEqual(
+    topic.modules[1].knowledgeBlocks.map((block) => block.title),
+    [
+      "条件和结论",
+      "符号 p⇒q 与 p⇏q 的含义",
+      "充分条件、必要条件与充要条件",
+      "从逻辑推理关系看",
+      "从集合与集合间的关系看",
+    ],
+  );
+  const conditionKnowledge = JSON.stringify(topic.modules[1].knowledgeBlocks);
+  assert.deepEqual(
+    topic.modules[1].knowledgeBlocks.map((block) => block.ordered),
+    [false, true, true, true, true],
+  );
+  assert.deepEqual(
+    topic.modules[1].knowledgeBlocks.map((block) => block.body.length),
+    [1, 2, 2, 4, 4],
+  );
+  assert.match(conditionKnowledge, /p⇒q/);
+  assert.match(conditionKnowledge, /p⇏q/);
+  assert.match(conditionKnowledge, /p⇔q/);
+  assert.match(conditionKnowledge, /A⊆B/);
+  assert.doesNotMatch(conditionKnowledge, /\\\\(?:Rightarrow|nRightarrow|Leftrightarrow)/);
+  const learningClient = fs.readFileSync(
+    path.join(repoRoot, "site/assets/js/senior-high-library.js"),
+    "utf8",
+  );
+  assert.match(learningClient, /class="senior-learning-knowledge-lines"/);
+  assert.match(learningClient, /\["①", "②", "③", "④"/);
+  assert.deepEqual(topic.modules[2].knowledgeGroups.map((group) => group.title), [
+    "全称量词和全称量词命题",
+    "存在量词和存在量词命题",
+  ]);
+  assert.deepEqual(topic.modules[3].knowledgeGroups.map((group) => group.title), [
+    "命题的否定",
+    "全称量词命题与存在量词命题的否定",
+  ]);
+});
+
+test("wraps long mind-map labels at a logical conjunction", () => {
+  const clientSource = fs.readFileSync(
+    path.join(repoRoot, "site/assets/js/senior-high-library.js"),
+    "utf8",
+  );
+  const helperStart = clientSource.indexOf("  function mindMapLabelLines");
+  const helperEnd = clientSource.indexOf("\n  function renderSetMindMap", helperStart);
+  assert.ok(helperStart >= 0 && helperEnd > helperStart);
+
+  const sandbox = {};
+  vm.runInNewContext(
+    `${clientSource.slice(helperStart, helperEnd)}\nresult = mindMapLabelLines("全称量词命题的否定与存在量词命题的否定");`,
+    sandbox,
+  );
+  assert.deepEqual(Array.from(sandbox.result), [
+    "全称量词命题的否定",
+    "与存在量词命题的否定",
+  ]);
+  assert.match(clientSource, /<tspan x=/);
 });
 
 test("rejects an unsupported learning answer schema", () => {
@@ -615,6 +712,18 @@ test("multipart natural-language exercises render one field per subquestion", ()
   assert.match(runtime, /partResults\.length.*个小题全部回答正确/);
 });
 
+test("multipart judgments render two quick choices for every subquestion", () => {
+  const runtime = fs.readFileSync(
+    path.join(repoRoot, "site/assets/js/senior-high-library.js"),
+    "utf8",
+  );
+  assert.match(runtime, /schema\.type === "multipart-choice"/);
+  assert.match(runtime, /data-part-choice=/);
+  assert.match(runtime, /data-answer-type="multipart-choice"/);
+  assert.match(runtime, /还有（\$\{missing\.join\("）（"\)\}）未选择/);
+  assert.match(runtime, /results\.length.*个判断全部正确/);
+});
+
 test("learning page keeps compact exercise anchors and the shared back-to-top control", () => {
   const runtime = fs.readFileSync(
     path.join(repoRoot, "site/assets/js/senior-high-library.js"),
@@ -625,6 +734,8 @@ test("learning page keeps compact exercise anchors and the shared back-to-top co
     "utf8",
   );
   assert.match(runtime, /<span>对应练习<\/span>/);
+  assert.match(runtime, /examplesForCategory\(group\.category\)\.length \? `<a class="senior-learning-exercise-anchor"/);
+  assert.match(runtime, /senior-learning-knowledge-table/);
   assert.doesNotMatch(runtime, /去做对应练习/);
   assert.match(page, /class="back-to-top"/);
   assert.match(page, /assets\/js\/home\.js/);

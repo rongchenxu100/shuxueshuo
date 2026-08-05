@@ -1,0 +1,97 @@
+{
+  "meta": {
+    "id": "logic-quantifier-q02",
+    "outputPath": "site/problems/senior-high/sets/common-logical-language/logic-quantifier-q02.html",
+    "pageTitle": "选择一个真命题",
+    "pageDescription": "选择一个真命题的逐步解析。",
+    "breadcrumbTitle": "全称量词与存在量词 · 练习 5-2",
+    "breadcrumbLabel": "常用逻辑用语",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=common-logical-language&module=quantifiers"
+  },
+  "problem": {
+    "source": "培训教材 · 常用逻辑用语",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "存在命题看方程或不等式是否有解，全称命题检查最小值与等号。",
+      "items": [
+        "严格大于 0 时，取到 0 也算反例；",
+        "存在命题无解即为假。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "下列命题中为真命题的是（　　）"
+      },
+      {
+        "text": "A. \\(∃x_0∈\\mathbb R，x_0^2+2x_0+2<0\\)　　B. \\(∃x_0∈\\mathbb R，x_0^2+x_0=-1\\)　　C. \\(∀x∈\\mathbb R，x^2-x+\\frac{1}{4}>0\\)　　D. \\(∀x∈\\mathbb R，-x^2-1<0\\)"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "命题与量词",
+      "title": "逐项检验真值",
+      "t": 0,
+      "showDiagram": false,
+      "table": {
+        "headers": [
+          "选项",
+          "化简",
+          "真值"
+        ],
+        "rows": [
+          [
+            "A",
+            "\\((x+1)^2+1<0\\) 无解",
+            "假"
+          ],
+          [
+            "B",
+            "\\(x^2+x+1=0\\)，\\(\\Delta=-3<0\\)",
+            "假"
+          ],
+          [
+            "C",
+            "\\(x=\\frac{1}{2}\\) 时等于 0",
+            "假"
+          ],
+          [
+            "D",
+            "\\(-x^2-1≤-1<0\\)",
+            "真"
+          ]
+        ]
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "A、B 的存在对象不存在；C 在 \\(x=\\frac{1}{2}\\) 处不满足严格大于 0"
+        },
+        {
+          "kind": "therefore",
+          "text": "只有 D 对任意实数成立"
+        }
+      ],
+      "derive": [
+        [
+          "答案",
+          "D"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 逐项检验真值"
+  }
+}

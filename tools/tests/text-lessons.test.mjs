@@ -55,6 +55,16 @@ test("set answer schemas reuse the existing answer chip convention", () => {
     answerTextForSchema({ type: "single-choice", expected: "C" }),
     "答案：C",
   );
+  assert.equal(
+    answerTextForSchema({
+      type: "multipart-choice",
+      expected: [
+        { label: "（1）", expected: "命题" },
+        { label: "（2）", expected: "不是命题" },
+      ],
+    }),
+    "答案：（1）命题；（2）不是命题",
+  );
   assert.match(
     answerTextForSchema({
       type: "multipart-exact",
@@ -278,6 +288,7 @@ test("generic lesson math renderer supports set notation without leaking TeX com
       + "\\(M=\\left\\{a\\middle|a\\ge\\frac98\\right\\}\\)，"
       + "\\(A\\subsetneq B\\supsetneq C\\)，"
       + "\\(Q\\setminus P\\)，\\(A\\cap B\\cup C\\)，"
+      + "\\(p\\Rightarrow q\\)，\\(p\\nRightarrow q\\)，\\(p\\Leftrightarrow q\\)，"
       + "\\((-\\infty,1]\\)，\\(a<0\\text{或}a>2\\)",
   );
   assert.match(html, /x∈<span class="math-blackboard">ℝ<\/span>/);
@@ -289,10 +300,13 @@ test("generic lesson math renderer supports set notation without leaking TeX com
   assert.match(html, /A⊊\s*B⊋\s*C/);
   assert.match(html, /Q∖\s*P/);
   assert.match(html, /A∩\s*B∪\s*C/);
+  assert.match(html, /p⇒\s*q/);
+  assert.match(html, /p⇏\s*q/);
+  assert.match(html, /p⇔\s*q/);
   assert.match(html, /∞,1/);
   assert.match(html, /a&lt;0或a&gt;2/);
   assert.match(html, /class="math-blackboard"/);
-  assert.doesNotMatch(html, /\\(?:mathbb|in|notin|varnothing|sqrt|pi|iff|left|right|middle|setminus|cap|cup|infty|text)/);
+  assert.doesNotMatch(html, /\\(?:mathbb|in|notin|varnothing|sqrt|pi|iff|left|right|middle|setminus|cap|cup|infty|text|Rightarrow|nRightarrow|Leftrightarrow)/);
 
   const sandbox = { window: {} };
   vm.runInNewContext(
@@ -300,11 +314,15 @@ test("generic lesson math renderer supports set notation without leaking TeX com
     sandbox,
   );
   const runtimeHtml = sandbox.window.LessonPageRuntime.renderFormulaText(
-    "\\(A\\subsetneq B\\supsetneq C\\supseteq D\\)，\\(Q\\setminus P\\)",
+    "\\(A\\subsetneq B\\supsetneq C\\supseteq D\\)，\\(Q\\setminus P\\)，"
+      + "\\(p\\Rightarrow q\\)，\\(p\\nRightarrow q\\)，\\(p\\Leftrightarrow q\\)",
   );
   assert.match(runtimeHtml, /A⊊ B⊋ C⊇ D/);
   assert.match(runtimeHtml, /Q∖ P/);
-  assert.doesNotMatch(runtimeHtml, /\\(?:subsetneq|supsetneq|supseteq|setminus)/);
+  assert.match(runtimeHtml, /p⇒ q/);
+  assert.match(runtimeHtml, /p⇏ q/);
+  assert.match(runtimeHtml, /p⇔ q/);
+  assert.doesNotMatch(runtimeHtml, /\\(?:subsetneq|supsetneq|supseteq|setminus|Rightarrow|nRightarrow|Leftrightarrow)/);
 });
 
 test("set representation fractions use braced arguments and compile both parts", () => {

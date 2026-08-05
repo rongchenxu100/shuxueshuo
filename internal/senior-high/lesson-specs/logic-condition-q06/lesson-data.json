@@ -1,0 +1,6 @@
+{
+  "meta":{"id":"logic-condition-q06","outputPath":"site/problems/senior-high/sets/common-logical-language/logic-condition-q06.html","pageTitle":"求倒数不等式的充分不必要条件","pageDescription":"先求不等式解集，再从选项中寻找它的真子集。","breadcrumbTitle":"充分条件与必要条件 · 练习 4-1","breadcrumbLabel":"常用逻辑用语","breadcrumbPath":"site/senior-high/index.html","breadcrumbSearch":"?chapter=sets&section=common-logical-language&module=sufficient-necessary-conditions"},
+  "problem":{"source":"培训教材 · 常用逻辑用语","keyPoints":{"title":"解题要点","lead":"充分不必要条件对应原条件解集的真子集。","items":["先处理分母 a 的符号；","不能选择与原条件完全相同的区间。"]},"lines":[{"text":"已知 \\(a\\in\\mathbb R\\)，使得不等式“\\(\\frac{1}{a}>1\\)”成立的一个充分不必要条件是（　　）"},{"text":"A. \\(a>2\\)　　B. \\(a<1\\)　　C. \\(0<a<\\frac{1}{2}\\)　　D. \\(0<a<1\\)"}]},
+  "steps":[{"id":"s1","section":"求充分必要条件","title":"求原条件并比较选项集合","t":0,"showDiagram":false,"table":{"headers":["选项","与 (0,1) 的关系","判断"],"rows":[["A：\\((2,+∞)\\)","不包含于","不能充分"],["B：\\((-∞,1)\\)","包含负数","不能充分"],["C：\\((0,\\frac{1}{2})\\)","真包含于","充分不必要"],["D：\\((0,1)\\)","相等","充要"]]},"reasoning":[{"kind":"because","text":"\\(\\frac{1}{a}>1\\iff\\frac{1-a}{a}>0\\iff0<a<1\\)"},{"kind":"therefore","text":"选项 C 的解集是真子集，故为充分不必要条件，选择 C"}],"derive":[["结论","选择 C"]]}],
+  "policies":{"s1":{"movable":false,"range":[0,0]}},"stepLabels":{"s1":"1 寻找真子集"}
+}

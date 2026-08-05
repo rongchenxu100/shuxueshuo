@@ -1,0 +1,4 @@
+interface:
+  display_name: "高中常用逻辑用语互动课"
+  short_description: "依据教材构建高中命题、充分必要条件、量词专题页面与在线练习"
+  default_prompt: "Use $senior-high-logic-language-lesson to turn these high-school logic-language materials into a structured learning topic with interactive exercises."

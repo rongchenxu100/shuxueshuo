@@ -1197,6 +1197,198 @@
           ]
         }
       ]
+    },
+    {
+      "id": "common-logical-language",
+      "chapterId": "sets",
+      "sectionId": "common-logical-language",
+      "title": "常用逻辑用语",
+      "mapRootLabel": "命题",
+      "eyebrow": "第三讲",
+      "introduction": [
+        "一句话能否成为数学命题，关键在于它是否为陈述句并且能够判断真假；进一步还要研究条件与结论之间的逻辑关系。"
+      ],
+      "mapNodes": [
+        {
+          "id": "sufficient-necessary-conditions",
+          "label": "充分条件与必要条件",
+          "moduleId": "sufficient-necessary-conditions",
+          "children": ["充分条件", "必要条件", "充要条件"]
+        },
+        {
+          "id": "quantifiers",
+          "label": "全称量词与存在量词",
+          "moduleId": "quantifiers",
+          "children": [
+            "全称量词命题与存在量词命题",
+            "全称量词命题的否定与存在量词命题的否定"
+          ]
+        }
+      ],
+      "modules": [
+        {
+          "id": "propositions",
+          "label": "命题的概念",
+          "type": "knowledge",
+          "status": "published",
+          "description": "判断语句是否为命题，并区分命题的真假与非命题。",
+          "knowledgeGroups": [
+            {"category":"concept","number":"01","eyebrow":"真假可判","title":"命题的概念"}
+          ],
+          "knowledgeBlocks": [
+            {
+              "category": "concept",
+              "title": "命题与真值",
+              "body": [
+                "一般地，用语言、符号或式子表达的，可以判断真假的陈述句叫作命题。",
+                "判断为真的语句叫真命题，判断为假的语句叫假命题。假命题仍然是命题；疑问句、感叹句以及真假不能确定的开放语句不是命题。"
+              ]
+            }
+          ],
+          "examples": [
+            {
+              "lessonId": "logic-proposition-q01",
+              "group": "命题的概念",
+              "knowledgeCategory": "concept",
+              "numberLabel": "练习 1 · 1",
+              "title": "判断六个语句是否为命题",
+              "hints": ["先看是否为陈述句。", "陈述错误不等于不是命题，关键是能否判断真假。"],
+              "answerSchema": {
+                "type": "multipart-choice",
+                "choices": ["命题", "不是命题"],
+                "expected": [
+                  {"label":"（1）","prompt":"角平分线上的点到角两边的距离相等","expected":"命题"},
+                  {"label":"（2）","prompt":"个位数是 0 的自然数能被 5 整除","expected":"命题"},
+                  {"label":"（3）","prompt":"若 m<-1，则 x²+x-m=0 有实根","expected":"命题"},
+                  {"label":"（4）","prompt":"空集是任意集合的真子集","expected":"命题"},
+                  {"label":"（5）","prompt":"数学真好玩啊！","expected":"不是命题"},
+                  {"label":"（6）","prompt":"你吃了吗？","expected":"不是命题"}
+                ]
+              }
+            },
+            {
+              "lessonId": "logic-proposition-q02",
+              "group": "命题的概念",
+              "knowledgeCategory": "concept",
+              "numberLabel": "练习 1 · 2",
+              "title": "辨析自由变量与量词",
+              "hints": ["含自由变量的开放语句不能直接判断真假。", "量词约束变量后，语句可以成为命题。"],
+              "answerSchema": {
+                "type": "multipart-choice",
+                "choices": ["命题", "不是命题"],
+                "expected": [
+                  {"label":"（1）","prompt":"x>5","expected":"不是命题"},
+                  {"label":"（2）","prompt":"3x+2 是整数","expected":"不是命题"},
+                  {"label":"（3）","prompt":"对所有的 x∈R，x>5","expected":"命题"},
+                  {"label":"（4）","prompt":"对任意一个 x∈Z，3x+2 是整数","expected":"命题"}
+                ]
+              }
+            }
+          ],
+          "summary": "判断命题分两步：先看是否为陈述句，再看真假能否确定。只有在命题的基础上，才进一步判断真命题或假命题。"
+        },
+        {
+          "id": "sufficient-necessary-conditions",
+          "label": "充分条件与必要条件",
+          "type": "knowledge",
+          "status": "published",
+          "description": "用正向与反向蕴含判断充分、必要、充要以及既不充分也不必要关系。",
+          "knowledgeGroups": [
+            {"category":"concept","number":"01","eyebrow":"命题结构","title":"条件和结论"},
+            {"category":"property","number":"02","eyebrow":"充分与必要","title":"充分条件与必要条件"},
+            {"category":"interval","number":"03","eyebrow":"两种判断视角","title":"充分、必要与充要条件的判断"}
+          ],
+          "knowledgeBlocks": [
+            {"category":"concept","title":"条件和结论","body":["中学数学中的许多命题可以写成“若 \\(p\\)，则 \\(q\\)”的形式，其中 \\(p\\) 称为命题的条件，\\(q\\) 称为命题的结论。"]},
+            {"category":"property","title":"符号 p⇒q 与 p⇏q 的含义","ordered":true,"body":["“若 \\(p\\)，则 \\(q\\)”为真命题，记作 \\(p⇒q\\)。","“若 \\(p\\)，则 \\(q\\)”为假命题，记作 \\(p⇏q\\)。"]},
+            {"category":"property","title":"充分条件、必要条件与充要条件","ordered":true,"body":["若 \\(p⇒q\\)，称 \\(p\\) 是 \\(q\\) 的充分条件，\\(q\\) 是 \\(p\\) 的必要条件。","如果既有 \\(p⇒q\\)，又有 \\(q⇒p\\)，就记作 \\(p⇔q\\)。这时 \\(p\\) 是 \\(q\\) 的充分必要条件，简称 \\(p\\) 是 \\(q\\) 的充要条件。"]},
+            {"category":"interval","title":"从逻辑推理关系看","ordered":true,"body":["若 \\(p⇒q\\)，但 \\(q⇏p\\)，则 \\(p\\) 是 \\(q\\) 的充分不必要条件，\\(q\\) 是 \\(p\\) 的必要不充分条件。","若 \\(p⇏q\\)，但 \\(q⇒p\\)，则 \\(p\\) 是 \\(q\\) 的必要不充分条件，\\(q\\) 是 \\(p\\) 的充分不必要条件。","若 \\(p⇒q\\)，且 \\(q⇒p\\)，即 \\(p⇔q\\)，则 \\(p\\)、\\(q\\) 互为充要条件。","若 \\(p⇏q\\)，且 \\(q⇏p\\)，则 \\(p\\) 是 \\(q\\) 的既不充分也不必要条件。"]},
+            {"category":"interval","title":"从集合与集合间的关系看","ordered":true,"body":["设 \\(p:x∈A\\)，\\(q:x∈B\\)。若 \\(A⊆B\\)，则 \\(p⇒q\\)，所以 \\(p\\) 是 \\(q\\) 的充分条件，\\(q\\) 是 \\(p\\) 的必要条件。","若 \\(A\\) 是 \\(B\\) 的真子集，则 \\(p\\) 是 \\(q\\) 的充分不必要条件。","若 \\(A=B\\)，则 \\(p\\)、\\(q\\) 互为充要条件。","若 \\(A\\) 不是 \\(B\\) 的子集，且 \\(B\\) 也不是 \\(A\\) 的子集，则 \\(p\\) 是 \\(q\\) 的既不充分也不必要条件。"]}
+          ],
+          "examples": [
+            {
+              "lessonId":"logic-condition-q01","group":"充分必要性的判断","knowledgeCategory":"concept","numberLabel":"练习 2 · 1","title":"判断三个几何命题的充分必要性","hints":["每一小题都分别判断充分和必要是否成立。","必要不成立时，给出一个满足 q 但不满足 p 的平行四边形作为反例。"],
+              "answerSchema":{"type":"multipart-choice","choices":["充分不必要条件","必要不充分条件","充要条件","既不充分也不必要条件"],"expected":[{"label":"①","prompt":"两组对边分别相等与平行四边形","expected":"充要条件"},{"label":"②","prompt":"一组对边平行且相等与平行四边形","expected":"充要条件"},{"label":"③","prompt":"四个角为直角与平行四边形","expected":"充分不必要条件"}]}
+            },
+            {
+              "lessonId":"logic-condition-q02","group":"充分必要性的判断","knowledgeCategory":"concept","numberLabel":"练习 2 · 2","title":"筛选 p 是 q 的充分条件","hints":["逐项判断 p 能否推出 q。","一个反例即可排除错误项。"],
+              "answerSchema":{"type":"multipart-choice","choices":["是充分条件","不是充分条件"],"expected":[{"label":"①","prompt":"两组对边分别平行 ⇒ 平行四边形","expected":"是充分条件"},{"label":"②","prompt":"三个角分别对应相等 ⇒ 两个三角形相似","expected":"是充分条件"},{"label":"③","prompt":"正方形 ⇒ 对角线相互垂直","expected":"是充分条件"},{"label":"④","prompt":"x²=4 ⇒ x=2","expected":"不是充分条件"},{"label":"⑤","prompt":"a>b>0 ⇒ 1/a<1/b","expected":"是充分条件"},{"label":"⑥","prompt":"a>b，c>0 ⇒ ac>bc","expected":"是充分条件"}]}
+            },
+            {"lessonId":"logic-condition-q03","group":"充分必要性的判断","knowledgeCategory":"property","numberLabel":"练习 3 · 1","title":"由绝对值条件判断充分必要性","hints":["先检验正向推出。","反向用一个分量为 0 的反例。"],"answerSchema":{"type":"single-choice","expected":"A"}},
+            {"lessonId":"logic-condition-q04","group":"充分必要性的判断","knowledgeCategory":"property","numberLabel":"练习 3 · 2","title":"由倒数不等式判断充分必要性","hints":["q 中两个倒数都小于 0，先判断 a、b 的符号。","分别验证 p⇒q 与 q⇒p。"],"answerSchema":{"type":"single-choice","expected":"B"}},
+            {"lessonId":"logic-condition-q05","group":"充分必要性的判断","knowledgeCategory":"interval","numberLabel":"练习 3 · 3","title":"比较两个不等式条件的解集","hints":["先解 1<2x+1<3。","用两个区间的包含关系判断。"],"answerSchema":{"type":"single-choice","expected":"B"}},
+            {"lessonId":"logic-condition-q06","group":"求充分必要条件","knowledgeCategory":"interval","numberLabel":"练习 4 · 1","title":"求倒数不等式的充分不必要条件","hints":["先求 1/a>1 的解集。","充分不必要条件对应真子集。"],"answerSchema":{"type":"single-choice","expected":"C"}},
+            {"lessonId":"logic-condition-q07","group":"求充分必要条件","knowledgeCategory":"interval","numberLabel":"练习 4 · 2","title":"求二次不等式的必要不充分条件","hints":["x²<1 等价于 -1<x<1。","必要不充分条件对应严格更大的集合。"],"answerSchema":{"type":"single-choice","expected":"A"}},
+            {"lessonId":"logic-condition-q08","group":"求充分必要条件","knowledgeCategory":"interval","numberLabel":"练习 4 · 3","title":"由区间包含填写充分或必要","hints":["比较 A、B 两个区间。","A⊆B 表示 x∈A 能推出 x∈B。"],"answerSchema":{"type":"exact-expression","expected":["充分","充分条件"],"input":{"mode":"math-expression","placeholder":"填写“充分”或“必要”","keyboard":["text"]}}},
+            {"lessonId":"logic-condition-q09","group":"已知充分必要性求参数","knowledgeCategory":"interval","numberLabel":"练习 5 · 1","title":"由必要不充分条件求射线端点","hints":["先求 |x-1|≤2 的解集。","q 为 p 的必要条件要求 p 的解集真包含于 q 的解集。"],"answerSchema":{"type":"single-choice","expected":"D"}},
+            {"lessonId":"logic-condition-q10","group":"已知充分必要性求参数","knowledgeCategory":"interval","numberLabel":"练习 5 · 2","title":"由充分不必要条件求参数","hints":["先把 p、q 都化为 x 的开射线。","充分不必要要求 p 的解集真包含于 q 的解集。"],"answerSchema":{"type":"single-choice","expected":"A"}}
+          ],
+          "summary": "判断条件关系不要凭语言感觉：始终分别检验正向和反向。对不等式条件，先化为解集，再用相等、包含或真包含完成判断。"
+        },
+        {
+          "id": "quantifiers",
+          "label": "全称量词与存在量词",
+          "type": "knowledge",
+          "status": "published",
+          "description": "认识全称量词与存在量词，把含变量的开放语句写成真假可判的命题。",
+          "knowledgeGroups": [
+            {"category":"concept","number":"01","eyebrow":"对全部对象","title":"全称量词和全称量词命题"},
+            {"category":"property","number":"02","eyebrow":"至少一个对象","title":"存在量词和存在量词命题"}
+          ],
+          "knowledgeBlocks": [
+            {"category":"concept","title":"全称量词与全称量词命题","ordered":true,"body":["短语“对所有的”“对任意一个”在逻辑中通常叫全称量词，并用符号 \\(∀\\) 表示；含有全称量词的命题叫全称量词命题。","对集合 \\(M\\) 中任意一个 \\(x\\)，都有 \\(p(x)\\) 成立，可简记为 \\(∀x∈M，p(x)\\)。","“所有”“每一个”“任何”“任意”“一切”“任给”“全部”等词语也常表示整体或全部。"]},
+            {"category":"property","title":"存在量词与存在量词命题","ordered":true,"body":["短语“存在一个”“至少有一个”在逻辑中通常叫存在量词，并用符号 \\(∃\\) 表示；含有存在量词的命题叫存在量词命题。","存在集合 \\(M\\) 中的一个 \\(x\\)，使 \\(p(x)\\) 成立，可简记为 \\(∃x∈M，p(x)\\)。","“有些”“有一个”“存在”“某个”“有的”等词语常表示个别或一部分。"]}
+          ],
+          "examples": [
+            {"lessonId":"logic-quantifier-q01","group":"命题与量词","knowledgeCategory":"concept","numberLabel":"练习 5 · 1","title":"判断三个量词命题的真假","hints":["存在量词命题找一个实例即可说明为真。","全称量词命题若为假，只需给出一个反例。"],"answerSchema":{"type":"multipart-choice","choices":["真命题","假命题"],"expected":[{"label":"（1）","prompt":"存在一对实数 a，b，使 a²+b<0 成立","expected":"真命题"},{"label":"（2）","prompt":"有理数 x 的平方仍为有理数","expected":"真命题"},{"label":"（3）","prompt":"实数的平方大于 0","expected":"假命题"}]}},
+            {"lessonId":"logic-quantifier-q02","group":"命题与量词","knowledgeCategory":"concept","numberLabel":"练习 5 · 2","title":"选择一个真命题","hints":["存在命题尝试构造对象。","全称命题检查等号或边界点。"],"answerSchema":{"type":"single-choice","expected":"D"}},
+            {"lessonId":"logic-quantifier-q03","group":"命题与量词","knowledgeCategory":"property","numberLabel":"练习 5 · 3","title":"由全称命题为真求参数","hints":["先排除一次函数与开口向下的情形。","二次函数恒正要求开口向上且判别式严格小于 0。"],"answerSchema":{"type":"single-choice","expected":"D"}}
+          ],
+          "summary":"全称量词关注“每一个”，存在量词关注“至少一个”。判断真假时，全称命题常用反例否定，存在命题常用实例验证。"
+        },
+        {
+          "id": "quantifier-negations",
+          "label": "量词命题的否定",
+          "type": "knowledge",
+          "status": "published",
+          "description": "掌握命题否定以及全称量词、存在量词在否定时的互换。",
+          "knowledgeGroups": [
+            {"category":"concept","number":"01","eyebrow":"否定真值","title":"命题的否定"},
+            {"category":"property","number":"02","eyebrow":"量词互换","title":"全称量词命题与存在量词命题的否定"}
+          ],
+          "knowledgeBlocks": [
+            {"category":"concept","title":"命题的否定","ordered":true,"body":["对一个命题进行否定，可以得到一个新命题。命题 \\(p\\) 的否定记作 \\(¬p\\)。","一个命题和它的否定必定一真一假。否定时既要改变结论，也要完整保留原命题的研究范围。"]},
+            {"category":"concept","title":"常见否定形式","body":["否定一个命题时，量词、判断词和关系符号都要准确改变。"],"table":{"rows":[["原语句","是","都是","大于","至少有一个","至多有一个","对任意 \\(x∈A\\)，\\(p(x)\\) 为真"],["否定","不是","不都是","小于或等于","一个也没有","至少有两个","存在 \\(x∈A\\)，\\(p(x)\\) 为假"]]}},
+            {"category":"property","title":"全称量词命题的否定","ordered":true,"body":["全称量词命题 \\(p:∀x∈M，p(x)\\) 的否定是 \\(¬p:∃x∈M，¬p(x)\\)。","因此，全称量词命题的否定是存在量词命题。"]},
+            {"category":"property","title":"存在量词命题的否定","ordered":true,"body":["存在量词命题 \\(p:∃x∈M，p(x)\\) 的否定是 \\(¬p:∀x∈M，¬p(x)\\)。","因此，存在量词命题的否定是全称量词命题。"]}
+          ],
+          "examples": [
+            {"lessonId":"logic-negation-q01","group":"量词命题的否定","knowledgeCategory":"property","numberLabel":"练习 6 · 1","title":"否定一个全称不等式命题","hints":["把全称量词改为存在量词。","≥ 的否定是 <。"],"answerSchema":{"type":"single-choice","expected":"A"}},
+            {"lessonId":"logic-negation-q02","group":"量词命题的否定","knowledgeCategory":"property","numberLabel":"练习 6 · 2","title":"否定一个自然数命题","hints":["变量范围仍是整数集。","属于的否定是不属于。"],"answerSchema":{"type":"single-choice","expected":"D"}},
+            {"lessonId":"logic-negation-q03","group":"量词命题的否定","knowledgeCategory":"property","numberLabel":"练习 6 · 3","title":"否定带范围的存在命题","hints":["∃ 改为 ∀，但 x≤0 的范围不变。","≤ 的否定是 >。"],"answerSchema":{"type":"single-choice","expected":"C"}},
+            {"lessonId":"logic-negation-q04","group":"量词命题的否定","knowledgeCategory":"property","numberLabel":"练习 6 · 4","title":"否定“至少一个成立”","hints":["“至少一个成立”的否定是“两个都不成立”。","全称量词要改为存在量词。"],"answerSchema":{"type":"single-choice","expected":"D"}}
+          ],
+          "summary":"否定量词命题要完成两件事：量词互换，结论取否；变量范围保持不变。尤其注意 > 与 ≤、≥ 与 < 成对互否。"
+        },
+        {
+          "id": "logic-practice",
+          "label": "实战演练",
+          "type": "assessment",
+          "status": "published",
+          "description": "综合练习充分必要条件、量词命题的否定以及参数范围。",
+          "items": [
+              {"number":1,"lessonId":"logic-practice-q01","hints":["分别检查 x=-1 能否推出 x²=1，以及反向是否成立。"],"answerSchema":{"type":"single-choice","expected":"A"}},
+              {"number":2,"lessonId":"logic-practice-q02","hints":["a>b>0 可以保证分母为正。","反向命题未必保证 a、b 都为正。"],"answerSchema":{"type":"single-choice","expected":"A"}},
+              {"number":3,"lessonId":"logic-practice-q03","hints":["把两个条件写成区间。","比较 (3,+∞) 与 (4,+∞) 的包含方向。"],"answerSchema":{"type":"single-choice","expected":"B"}},
+              {"number":4,"lessonId":"logic-practice-q04","hints":["∃ 改为 ∀。","> 的否定是 ≤。"],"answerSchema":{"type":"single-choice","expected":"D"}},
+              {"number":5,"lessonId":"logic-practice-q05","hints":["保留 x>1 的研究范围。","> 的否定是 ≤。"],"answerSchema":{"type":"single-choice","expected":"A"}},
+              {"number":6,"lessonId":"logic-practice-q06","hints":["存在命题的否定是全称命题。"],"answerSchema":{"type":"single-choice","expected":"A"}},
+              {"number":7,"lessonId":"logic-practice-q07","hints":["全称命题的否定是存在命题。"],"answerSchema":{"type":"single-choice","expected":"B"}},
+              {"number":8,"lessonId":"logic-practice-q08","hints":["先求 A=[1,3]，再求它在 R 中的补集。","必要不充分对应 q 的解集是 p 解集的真子集。"],"answerSchema":{"type":"single-choice","expected":"C"}},
+              {"number":9,"lessonId":"logic-practice-q09","hints":["只有空集才是任何集合的子集。","令二次方程无实根。"],"answerSchema":{"type":"exact-expression","expected":["a>1/4","(1/4,+∞)","(1/4,∞)"],"input":{"mode":"math-expression","placeholder":"填写 a 的取值范围","keyboard":["a","greater","fraction","interval","brackets","digits","infinity"]}}}
+          ]
+        }
+      ]
     }
   ]
 }

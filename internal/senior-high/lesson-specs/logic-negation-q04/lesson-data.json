@@ -1,0 +1,88 @@
+{
+  "meta": {
+    "id": "logic-negation-q04",
+    "outputPath": "site/problems/senior-high/sets/common-logical-language/logic-negation-q04.html",
+    "pageTitle": "否定“至少一个成立”",
+    "pageDescription": "否定“至少一个成立”的逐步解析。",
+    "breadcrumbTitle": "量词命题的否定 · 练习 6-4",
+    "breadcrumbLabel": "常用逻辑用语",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=common-logical-language&module=quantifier-negations"
+  },
+  "problem": {
+    "source": "培训教材 · 常用逻辑用语",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "“至少有一个成立”的反面不是“至少有一个不成立”，而是“全部不成立”。",
+      "items": [
+        "全称量词改为存在量词；",
+        "析取命题取否后变为两个否定同时成立。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "命题“\\(∀a,b>0\\)，\\(a+\\frac{1}{b}≥2\\) 和 \\(b+\\frac{1}{a}≥2\\) 至少有一个成立”的否定为（　　）"
+      },
+      {
+        "text": "A. \\(∀a,b>0\\)，\\(a+\\frac{1}{b}<2\\) 和 \\(b+\\frac{1}{a}<2\\) 至少有一个成立　B. \\(∀a,b>0\\)，\\(a+\\frac{1}{b}≥2\\) 和 \\(b+\\frac{1}{a}≥2\\) 都不成立　C. \\(∃a,b>0\\)，\\(a+\\frac{1}{b}<2\\) 和 \\(b+\\frac{1}{a}<2\\) 至少有一个成立　D. \\(∃a,b>0\\)，\\(a+\\frac{1}{b}≥2\\) 和 \\(b+\\frac{1}{a}≥2\\) 都不成立"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "量词命题的否定",
+      "title": "否定量词与“至少一个”",
+      "t": 0,
+      "showDiagram": false,
+      "table": {
+        "headers": [
+          "原命题结构",
+          "否定后"
+        ],
+        "rows": [
+          [
+            "对任意 \\(a,b>0\\)",
+            "存在 \\(a,b>0\\)"
+          ],
+          [
+            "两个不等式至少一个成立",
+            "两个不等式都不成立，即 \\(a+\\frac{1}{b}<2\\) 且 \\(b+\\frac{1}{a}<2\\)"
+          ]
+        ]
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "“至少有一个成立”的否定是“两个都不成立”；每个 \\(≥2\\) 分别否定为 \\(<2\\)"
+        },
+        {
+          "kind": "therefore",
+          "text": "完整否定为：存在 \\(a,b>0\\)，使 \\(a+\\frac{1}{b}<2\\) 且 \\(b+\\frac{1}{a}<2\\) 同时成立。这与选项 D 的“两个原不等式都不成立”等价"
+        }
+      ],
+      "derive": [
+        [
+          "等价否定",
+          "\\(∃a,b>0\\)，\\(a+\\frac{1}{b}<2\\) 且 \\(b+\\frac{1}{a}<2\\)"
+        ],
+        [
+          "答案",
+          "D"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 否定量词与“至少一个”"
+  }
+}

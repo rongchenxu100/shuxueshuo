@@ -702,6 +702,43 @@
       `;
     }
 
+    if (schema.type === "multipart-choice") {
+      return `
+        <div
+          class="senior-learning-answer is-expression is-multipart is-multipart-choice"
+          data-answer-root
+          data-answer-type="multipart-choice"
+          data-expected-json="${escapeHtml(JSON.stringify(schema.expected.map((part) => part.expected)))}"
+        >
+          <span class="senior-learning-answer-prefix is-multipart-prefix" aria-hidden="true">快速判断：</span>
+          <div class="senior-learning-multipart-list">
+            ${schema.expected.map((part, index) => `
+              <div class="senior-learning-multipart-row" data-answer-part="${index}">
+                <div class="senior-learning-multipart-prompt">
+                  <span>${escapeHtml(part.label || `（${index + 1}）`)}</span>
+                  <span>${part.promptHtml || escapeHtml(part.prompt || "")}</span>
+                </div>
+                <div class="senior-learning-quick-choice-options" role="group" aria-label="${escapeHtml(part.label || `第 ${index + 1} 小题`)}选择答案">
+                  ${schema.choices.map((choice) => `
+                    <button
+                      type="button"
+                      data-part-choice="${escapeHtml(choice)}"
+                      aria-pressed="false"
+                    >${escapeHtml(choice)}</button>
+                  `).join("")}
+                </div>
+                <p class="senior-learning-part-feedback" data-answer-part-feedback aria-live="polite"></p>
+              </div>
+            `).join("")}
+          </div>
+          <div class="senior-learning-answer-actions">
+            <button class="senior-learning-submit" type="button" data-answer-submit>提交全部答案</button>
+            <p class="senior-learning-answer-feedback" data-answer-feedback aria-live="polite"></p>
+          </div>
+        </div>
+      `;
+    }
+
     if (schema.type === "multipart-exact" && schema.layout === "per-part") {
       return `
         <div
@@ -905,15 +942,33 @@
       : mindMapChildLabel(child);
   }
 
+  function mindMapLabelLines(label, maxLength = 13) {
+    const text = String(label || "");
+    if (text.length <= maxLength) return [text];
+
+    const preferredBreaks = ["与", "和", "及", "、"];
+    const center = text.length / 2;
+    const breakIndex = preferredBreaks
+      .flatMap((separator) => [...text].map((character, index) => character === separator ? index : -1))
+      .filter((index) => index > 0 && index < text.length - 1)
+      .sort((left, right) => Math.abs(left - center) - Math.abs(right - center))[0];
+
+    if (Number.isInteger(breakIndex)) {
+      return [text.slice(0, breakIndex), text.slice(breakIndex)];
+    }
+    return [text.slice(0, maxLength), text.slice(maxLength)];
+  }
+
   function renderSetMindMap(topic) {
     const href = (moduleId) => escapeHtml(topicHref(topic, moduleId));
     const colors = ["is-coral", "is-blue", "is-gold", "is-green"];
     const branchGap = topic.mapNodes.length > 1 ? 470 / (topic.mapNodes.length - 1) : 0;
-    const rootJoiner = topic.title.includes("和") ? "和" : topic.title.includes("与") ? "与" : "";
-    const rootBreak = rootJoiner ? topic.title.lastIndexOf(rootJoiner) : -1;
+    const mapRootLabel = topic.mapRootLabel || topic.title;
+    const rootJoiner = mapRootLabel.includes("和") ? "和" : mapRootLabel.includes("与") ? "与" : "";
+    const rootBreak = rootJoiner ? mapRootLabel.lastIndexOf(rootJoiner) : -1;
     const rootLines = rootBreak > 0
-      ? [topic.title.slice(0, rootBreak), topic.title.slice(rootBreak)]
-      : [topic.title, ""];
+      ? [mapRootLabel.slice(0, rootBreak), mapRootLabel.slice(rootBreak)]
+      : [mapRootLabel, ""];
     const branchMarkup = topic.mapNodes.map((node, index) => {
       const y = topic.mapNodes.length === 1
         ? 320
@@ -927,8 +982,12 @@
         const childX = 790 + column * 150;
         const childY = y + (row - Math.min(children.length - 1, 2) / 2) * 44;
         const leaves = mindMapChildLeaves(child);
+        const labelLines = mindMapLabelLines(mindMapChildLabel(child));
+        const labelStartY = childY + 6 - ((labelLines.length - 1) * 10);
         return `
-          <text class="map-label" x="${childX}" y="${childY + 6}">${escapeHtml(mindMapChildLabel(child))}</text>
+          <text class="map-label" x="${childX}" y="${labelStartY}">
+            ${labelLines.map((line, lineIndex) => `<tspan x="${childX}" dy="${lineIndex === 0 ? 0 : 20}">${escapeHtml(line)}</tspan>`).join("")}
+          </text>
           ${leaves.length > 0 ? `
             <text class="map-note" x="${childX + 12}" y="${childY + 26}">${escapeHtml(leaves.join("、"))}</text>
           ` : ""}
@@ -955,7 +1014,7 @@
           <desc id="set-map-desc-${escapeHtml(topic.id)}">${escapeHtml(topic.mapNodes.map((node) => `${node.label}包括${node.children.map(mindMapChildDescription).join("、")}`).join("；"))}</desc>
           <g class="map-root">
             <rect x="42" y="270" width="298" height="100" rx="20"></rect>
-            <text x="191" y="313" text-anchor="middle">${escapeHtml(rootLines[0] || topic.title)}</text>
+            <text x="191" y="313" text-anchor="middle">${escapeHtml(rootLines[0] || mapRootLabel)}</text>
             <text x="191" y="348" text-anchor="middle">${escapeHtml(rootLines[1])}</text>
           </g>
           ${branchMarkup}
@@ -1035,10 +1094,26 @@
         </article>
       `;
     }
+    const circledKnowledgeNumber = (index) => ["①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨", "⑩"][index] || `${index + 1}.`;
+    const renderKnowledgeBody = (block) => block.ordered
+      ? `<ol class="senior-learning-knowledge-lines">${block.bodyHtml.map((line, index) => `
+          <li><span class="senior-learning-knowledge-line-number" aria-hidden="true">${circledKnowledgeNumber(index)}</span><span>${line}</span></li>
+        `).join("")}</ol>`
+      : block.bodyHtml.map((line) => `<p>${line}</p>`).join("");
+    const renderKnowledgeTable = (table) => table ? `
+      <div class="senior-learning-knowledge-table-shell">
+        <table class="senior-learning-knowledge-table">
+          <tbody>${table.rowsHtml.map((row) => `<tr>${row.map((cell, index) => (
+            index === 0 ? `<th scope="row">${cell}</th>` : `<td>${cell}</td>`
+          )).join("")}</tr>`).join("")}</tbody>
+        </table>
+      </div>
+    ` : "";
     const renderKnowledgeItems = (blocks) => blocks.map((block) => `
-      <article class="senior-learning-knowledge-item">
+      <article class="senior-learning-knowledge-item${block.table ? " has-table" : ""}">
         <h4>${escapeHtml(block.title)}</h4>
-        ${block.bodyHtml.map((line) => `<p>${line}</p>`).join("")}
+        ${renderKnowledgeBody(block)}
+        ${renderKnowledgeTable(block.table)}
       </article>
     `).join("");
     const renderKnowledgeVisual = (group) => {
@@ -1124,17 +1199,17 @@
             ${(module.knowledgeGroups || []).map((group) => `
               <article id="knowledge-${escapeHtml(group.category)}" class="senior-learning-knowledge-group is-${escapeHtml(group.category)} has-${module.knowledgeBlocks.filter(
                 (block) => block.category === group.category,
-              ).length}-items">
+              ).length}-items${module.knowledgeBlocks.some((block) => block.category === group.category && block.table) ? " has-table" : ""}">
                 <div class="senior-learning-knowledge-group-heading">
                   <span>${escapeHtml(group.number)}</span>
                   <div>
                     <p>${escapeHtml(group.eyebrow)}</p>
                     <h3>${escapeHtml(group.title)}</h3>
-                    <a class="senior-learning-exercise-anchor" href="${escapeHtml(exerciseHrefForCategory(group.category))}">
+                    ${examplesForCategory(group.category).length ? `<a class="senior-learning-exercise-anchor" href="${escapeHtml(exerciseHrefForCategory(group.category))}">
                       <span>对应练习</span>
                       <strong>${examplesForCategory(group.category).length} 题</strong>
                       <span aria-hidden="true">↓</span>
-                    </a>
+                    </a>` : ""}
                   </div>
                 </div>
                 <div class="senior-learning-knowledge-items">
@@ -1392,6 +1467,44 @@
       return;
     }
 
+    if (answerType === "multipart-choice") {
+      const rows = [...root.querySelectorAll("[data-answer-part]")];
+      const selected = rows.map((row) => row.querySelector("[data-part-choice].is-selected"));
+      const missing = selected
+        .map((choice, index) => (choice ? null : index + 1))
+        .filter(Boolean);
+      if (missing.length > 0) {
+        rows.forEach((row, index) => {
+          row.classList.toggle("is-incomplete", missing.includes(index + 1));
+          row.classList.remove("is-correct", "is-incorrect");
+          row.querySelector("[data-answer-part-feedback]").textContent = "";
+        });
+        setAnswerFeedback(root, `还有（${missing.join("）（")}）未选择。`, "incorrect");
+        return;
+      }
+      let expected = [];
+      try {
+        expected = JSON.parse(root.dataset.expectedJson || "[]");
+      } catch {
+        expected = [];
+      }
+      const results = selected.map((choice, index) => choice.dataset.partChoice === expected[index]);
+      rows.forEach((row, index) => {
+        row.classList.remove("is-incomplete");
+        row.classList.toggle("is-correct", results[index]);
+        row.classList.toggle("is-incorrect", !results[index]);
+        row.querySelector("[data-answer-part-feedback]").textContent = results[index] ? "正确" : "需要修改";
+      });
+      const correctCount = results.filter(Boolean).length;
+      const allCorrect = correctCount === results.length;
+      setAnswerFeedback(
+        root,
+        allCorrect ? `${results.length} 个判断全部正确。` : `已答对 ${correctCount} 项，请修改标记出的判断。`,
+        allCorrect ? "correct" : "incorrect",
+      );
+      return;
+    }
+
     const fields = [...root.querySelectorAll("[data-answer-field]")];
     const rawValues = fields.map((field) => field.value.trim());
     if (
@@ -1631,6 +1744,7 @@
   document.addEventListener("click", (event) => {
     const hintButton = event.target.closest("[data-hint-toggle]");
     const answerChoice = event.target.closest("[data-answer-choice]");
+    const partChoice = event.target.closest("[data-part-choice]");
     const answerSubmit = event.target.closest("[data-answer-submit]");
     const mathKey = event.target.closest("[data-math-key]");
     const symbolToggle = event.target.closest("[data-symbol-toggle]");
@@ -1655,6 +1769,20 @@
       const expanded = hintButton.getAttribute("aria-expanded") === "true";
       hintButton.setAttribute("aria-expanded", String(!expanded));
       hintButton.closest(".senior-learning-hint")?.classList.toggle("is-open", !expanded);
+      return;
+    }
+    if (partChoice) {
+      const row = partChoice.closest("[data-answer-part]");
+      const root = partChoice.closest("[data-answer-root]");
+      row.querySelectorAll("[data-part-choice]").forEach((choice) => {
+        const selected = choice === partChoice;
+        choice.classList.toggle("is-selected", selected);
+        choice.setAttribute("aria-pressed", String(selected));
+      });
+      row.classList.remove("is-incomplete", "is-correct", "is-incorrect");
+      row.querySelector("[data-answer-part-feedback]").textContent = "";
+      root.classList.remove("is-correct", "is-incorrect");
+      root.querySelector("[data-answer-feedback]").textContent = "";
       return;
     }
     if (answerChoice) {

@@ -1,0 +1,6 @@
+{
+  "meta":{"id":"logic-condition-q07","outputPath":"site/problems/senior-high/sets/common-logical-language/logic-condition-q07.html","pageTitle":"求二次不等式的必要不充分条件","pageDescription":"把二次不等式化为区间并从选项中寻找真超集。","breadcrumbTitle":"充分条件与必要条件 · 练习 4-2","breadcrumbLabel":"常用逻辑用语","breadcrumbPath":"site/senior-high/index.html","breadcrumbSearch":"?chapter=sets&section=common-logical-language&module=sufficient-necessary-conditions"},
+  "problem":{"source":"培训教材 · 常用逻辑用语","keyPoints":{"title":"解题要点","lead":"必要不充分条件对应原条件解集的真超集。","items":["x²<1 的解集为 (-1,1)；","真超集必须包含原解集的每个点。"]},"lines":[{"text":"若 \\(x\\in\\mathbb R\\)，下列选项中，使“\\(x^2<1\\)”成立的一个必要不充分条件为（　　）"},{"text":"A. \\(-2<x<1\\)　　B. \\(-1<x<1\\)　　C. \\(0<x<2\\)　　D. \\(-1<x<0\\)"}]},
+  "steps":[{"id":"s1","section":"求充分必要条件","title":"寻找原解集的真超集","t":0,"showDiagram":false,"reasoning":[{"kind":"because","text":"\\(x^2<1\\iff-1<x<1\\)，而 \\((-1,1)\\subsetneq(-2,1)\\)"},{"kind":"because","text":"条件 \\(-2<x<1\\) 不能反推 \\(x^2<1\\)，例如 \\(x=-\\frac{3}{2}\\)"},{"kind":"therefore","text":"选项 A 是必要不充分条件，选择 A"}],"derive":[["结论","选择 A"]]}],
+  "policies":{"s1":{"movable":false,"range":[0,0]}},"stepLabels":{"s1":"1 寻找真超集"}
+}

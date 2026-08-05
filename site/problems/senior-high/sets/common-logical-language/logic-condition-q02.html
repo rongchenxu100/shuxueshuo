@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>筛选 p 是 q 的充分条件 | 数学说</title>
+  <meta name="description" content="逐项检验六个若 p 则 q 命题，筛选正向蕴含成立者。" />
+  <meta property="og:title" content="筛选 p 是 q 的充分条件 | 数学说" />
+  <meta property="og:description" content="逐项检验六个若 p 则 q 命题，筛选正向蕴含成立者。" />
+  <meta property="og:image" content="../../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css?v=8" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../../senior-high/index.html?chapter=sets&section=common-logical-language&module=sufficient-necessary-conditions">常用逻辑用语</a>
+    <span class="lesson-title">充分条件与必要条件 · 练习 2-2</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          <div class="problem-full">
+            <div class="problem-line"><span>下列“若 p，则 q”形式的命题中，哪些命题中的 p 是 q 的充分条件？</span></div>
+<div class="problem-line"><span>① 若四边形的两组对边分别平行，则这个四边形是平行四边形；</span></div>
+<div class="problem-line"><span>② 若两个三角形的三个角分别对应相等，则这两个三角形相似；</span></div>
+<div class="problem-line"><span>③ 若四边形为正方形，则这个四边形的对角线相互垂直；④ 若 <span class="inline-math">x<sup>2</sup>=4</span>，则 <span class="inline-math">x=2</span>；</span></div>
+<div class="problem-line"><span>⑤ 若 <span class="inline-math">a&gt;b&gt;0</span>，则 <span class="inline-math"><span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">a</span></span>&lt;<span class="math-fraction"><span class="math-numerator">1</span><span class="math-denominator">b</span></span></span>；⑥ 若 <span class="inline-math">a&gt;b,c&gt;0</span>，则 <span class="inline-math">ac&gt;bc</span>。</span><span class="answer-chip" id="answerI">答案：①是充分条件；②是充分条件；③是充分条件；④不是充分条件；⑤是充分条件；⑥是充分条件</span></div>
+          </div>
+        </section>
+
+        <aside class="lesson-key-points" aria-label="解题要点"><div class="lesson-key-points-title">解题要点</div><div class="lesson-key-points-content"><p class="lesson-key-points-lead">p 是 q 的充分条件，只要求 p⇒q 成立。</p><ol><li>几何命题调用相应判定或性质；</li><li>代数命题检查负根和不等式方向。</li></ol></div></aside>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../../assets/js/lesson-page-runtime.js?v=17"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"s1","section":"充分必要性的判断","title":"检验每个正向蕴含","t":0,"showDiagram":false,"table":{"headers":["序号","p⇒q","依据"],"rows":[["①","成立","平行四边形定义"],["②","成立","两角对应相等即可判定相似"],["③","成立","正方形对角线互相垂直"],["④","不成立","x=-2 是反例"],["⑤","成立","正数范围内取倒数不等号反向"],["⑥","成立","同乘正数 c 不等号方向不变"]]},"reasoning":[{"kind":"because","text":"只有第④项存在满足前件但不满足后件的反例 x=-2"},{"kind":"therefore","text":"p 是 q 的充分条件的命题为①、②、③、⑤、⑥"}],"derive":[["结论","①②③⑤⑥"]]}];
+    var STEP_LABELS = {"s1":"1 检验正向蕴含"};
+    var POLICIES   = {"s1":{"movable":false,"range":[0,0]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 滑块主参数与派生参数的联动文案格式化器 */
+    var __LESSON_PARAM_LABEL_FORMATTER__;
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script>
+  function diagramMarkupFor() { return ''; }
+  function diagramMarkupForFrame() { return ''; }
+  function drawMini() { return ''; }
+  function groupTitle(section) { return section; }
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      diagramMarkupForFrame: typeof diagramMarkupForFrame === "function" ? diagramMarkupForFrame : undefined,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "参数",
+      paramLabelPrefix: "",
+      paramLabelFormatter: typeof __LESSON_PARAM_LABEL_FORMATTER__ === "function" ? __LESSON_PARAM_LABEL_FORMATTER__ : undefined,
+      goToProblemMode: "doubleScroll"
+    });
+  </script>
+</body>
+</html>

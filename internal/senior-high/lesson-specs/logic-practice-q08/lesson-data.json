@@ -1,0 +1,124 @@
+{
+  "meta": {
+    "id": "logic-practice-q08",
+    "outputPath": "site/problems/senior-high/sets/common-logical-language/logic-practice-q08.html",
+    "pageTitle": "由必要不充分条件求参数",
+    "pageDescription": "由必要不充分条件求参数的逐步解析。",
+    "breadcrumbTitle": "实战演练 · 第 8 题",
+    "breadcrumbLabel": "常用逻辑用语",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=common-logical-language&module=logic-practice"
+  },
+  "problem": {
+    "source": "培训教材 · 常用逻辑用语",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "先把条件化为集合，再按必要不充分关系确定真包含方向。",
+      "items": [
+        "\\(A=[1,3]\\)，所以 \\(C_{\\mathbb R}A=(-∞,1)∪(3,+∞)\\)；",
+        "q 的解集必须是 p 的真子集。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "集合 \\(A=\\{x\\mid x^2-4x+3≤0\\}\\)，\\(B=\\{x\\mid x>m\\}\\)。若“\\(x∈C_{\\mathbb R}A\\)”是“\\(x∈B\\)”的必要不充分条件，则实数 \\(m\\) 的取值范围是（　　）"
+      },
+      {
+        "text": "A. \\((-∞,1)\\)　B. \\([1,3]\\)　C. \\([3,+∞)\\)　D. \\([2,3]\\)"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "集合与条件关系",
+      "title": "集合化并比较包含",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "implication-condition-pairs",
+        "ariaLabel": "原题集合、条件关系与参数范围推导图",
+        "cases": [
+          {
+            "label": "先比较原题集合，再判断条件关系",
+            "pText": "\\(x∈C_{\\mathbb R}A\\)",
+            "qText": "\\(x∈B\\)",
+            "sufficient": false,
+            "necessary": true,
+            "result": "必要不充分条件",
+            "evidenceLabel": "判断依据",
+            "counterexample": "\\(C_{\\mathbb R}A\\) 还含有左侧射线 \\((-∞,1)\\)，所以 p 成立时 q 不一定成立。",
+            "setEvidence": {
+              "kind": "complement-right-ray-parameter",
+              "ariaLabel": "补集 CℝA、集合 B 与参数范围的三行数轴",
+              "pRowLabel": "CℝA",
+              "qRowLabel": "B",
+              "resultRowLabel": "m",
+              "pSet": "\\(C_{\\mathbb R}A=(-∞,1)∪(3,+∞)\\)",
+              "qSet": "\\(B=(m,+∞)\\)",
+              "pLeftEndpoint": "1",
+              "pRightEndpoint": "3",
+              "qEndpoint": "m",
+              "resultEndpoint": "3",
+              "relation": "B⊊CℝA ⇔ m≥3",
+              "parameterSet": "\\(m∈[3,+∞)\\)",
+              "explanations": [
+                "\\(B\\) 的右开射线必须避开闭区间 \\([1,3]\\)，所以左端点 \\(m≥3\\)。",
+                "\\(C_{\\mathbb R}A\\) 中的元素不一定在 \\(B\\) 中，所以 p 成立时 q 不一定成立——充分不成立。",
+                "\\(B\\) 中的每个元素都在 \\(C_{\\mathbb R}A\\) 中，所以 q 成立时 p 一定成立——必要成立。"
+              ]
+            }
+          }
+        ]
+      },
+      "table": {
+        "headers": [
+          "条件",
+          "对应集合"
+        ],
+        "rows": [
+          [
+            "p：\\(x∈C_{\\mathbb R}A\\)",
+            "\\(C_{\\mathbb R}A=(-∞,1)∪(3,+∞)\\)"
+          ],
+          [
+            "q：\\(x∈B\\)",
+            "\\(B=(m,+∞)\\)"
+          ]
+        ]
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "p 是 q 的必要条件，要求 \\(B⊆C_{\\mathbb R}A\\)。右射线 \\((m,+∞)\\) 要避开闭区间 \\([1,3]\\)，必须有 \\(m≥3\\)"
+        },
+        {
+          "kind": "because",
+          "text": "此时 \\(B\\) 始终是 \\(C_{\\mathbb R}A\\) 的真子集，所以 p 不是 q 的充分条件"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(m∈[3,+∞)\\)，选择 C"
+        }
+      ],
+      "derive": [
+        [
+          "答案",
+          "C"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 集合化并比较包含"
+  }
+}

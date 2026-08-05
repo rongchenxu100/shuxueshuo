@@ -20,6 +20,13 @@
           "order": 20,
           "presentation": "learning",
           "topicId": "set-relations-and-operations"
+        },
+        {
+          "id": "common-logical-language",
+          "label": "常用逻辑用语",
+          "order": 30,
+          "presentation": "learning",
+          "topicId": "common-logical-language"
         }
       ]
     },
@@ -1969,6 +1976,7 @@
       "chapterId": "sets",
       "sectionId": "set-concepts-and-representation",
       "title": "集合的概念和表示",
+      "mapRootLabel": "集合的概念和表示",
       "eyebrow": "第一讲",
       "introduction": [
         "数学常用简洁的符号表达一类确定的研究对象。把符合共同条件的对象归在一起，就得到集合；其中的每一个对象称为元素。",
@@ -2048,6 +2056,7 @@
             {
               "category": "concept",
               "title": "集合",
+              "ordered": false,
               "body": [
                 "把一些元素组成的总体叫作集合，简称集。"
               ],
@@ -2058,6 +2067,7 @@
             {
               "category": "concept",
               "title": "元素",
+              "ordered": false,
               "body": [
                 "一般地，把研究对象统称为元素。"
               ],
@@ -2068,6 +2078,7 @@
             {
               "category": "concept",
               "title": "空集",
+              "ordered": false,
               "body": [
                 "不含任何元素的集合叫作空集，记作 \\(\\varnothing\\)。"
               ],
@@ -2078,6 +2089,7 @@
             {
               "category": "property",
               "title": "确定性",
+              "ordered": false,
               "body": [
                 "对于给定的集合和一个确定的对象，这个对象是否属于该集合必须能够明确判断。"
               ],
@@ -2088,6 +2100,7 @@
             {
               "category": "property",
               "title": "互异性",
+              "ordered": false,
               "body": [
                 "一个集合中的元素互不相同；相同对象重复出现时只能算作一个元素。"
               ],
@@ -2098,6 +2111,7 @@
             {
               "category": "property",
               "title": "无序性",
+              "ordered": false,
               "body": [
                 "集合中的元素没有先后顺序。只要元素完全相同，排列顺序不同仍表示同一个集合。"
               ],
@@ -2298,6 +2312,7 @@
             {
               "category": "concept",
               "title": "集合与元素的字母",
+              "ordered": false,
               "body": [
                 "一般用英文大写字母 \\(A,B,C,\\ldots\\) 表示集合，用英文小写字母 \\(a,b,c,\\ldots\\) 表示元素。"
               ],
@@ -2308,6 +2323,7 @@
             {
               "category": "concept",
               "title": "属于",
+              "ordered": false,
               "body": [
                 "如果 \\(a\\) 是集合 \\(A\\) 中的元素，就说 \\(a\\) 属于 \\(A\\)，记作 \\(a\\in A\\)。"
               ],
@@ -2318,6 +2334,7 @@
             {
               "category": "concept",
               "title": "不属于",
+              "ordered": false,
               "body": [
                 "如果 \\(a\\) 不是集合 \\(A\\) 中的元素，就说 \\(a\\) 不属于 \\(A\\)，记作 \\(a\\notin A\\)。"
               ],
@@ -2328,6 +2345,7 @@
             {
               "category": "property",
               "title": "自然数集",
+              "ordered": false,
               "body": [
                 "记作 \\(\\mathbb N\\)，即 \\(\\{0,1,2,3,\\ldots\\}\\)。"
               ],
@@ -2338,6 +2356,7 @@
             {
               "category": "property",
               "title": "正整数集",
+              "ordered": false,
               "body": [
                 "记作 \\(\\mathbb N^*\\)，即 \\(\\{1,2,3,\\ldots\\}\\)。"
               ],
@@ -2348,6 +2367,7 @@
             {
               "category": "property",
               "title": "整数集",
+              "ordered": false,
               "body": [
                 "记作 \\(\\mathbb Z\\)。"
               ],
@@ -2358,6 +2378,7 @@
             {
               "category": "property",
               "title": "有理数集",
+              "ordered": false,
               "body": [
                 "记作 \\(\\mathbb Q\\)。"
               ],
@@ -2368,6 +2389,7 @@
             {
               "category": "property",
               "title": "实数集",
+              "ordered": false,
               "body": [
                 "记作 \\(\\mathbb R\\)。"
               ],
@@ -2499,6 +2521,7 @@
             {
               "category": "enumeration",
               "title": "列举法",
+              "ordered": false,
               "body": [
                 "把集合的所有元素一一列举出来，并用花括号“{ }”括起来。",
                 "列举时必须做到不遗漏、不重复；集合中的元素没有先后顺序。"
@@ -2511,6 +2534,7 @@
             {
               "category": "description",
               "title": "描述法",
+              "ordered": false,
               "body": [
                 "设 \\(A\\) 是一个集合，把集合中具有共同特征 \\(P(x)\\) 的元素写成 \\(\\{x\\in A\\mid P(x)\\}\\)。",
                 "竖线左侧是代表元素及其范围，右侧是元素必须满足的共同特征。"
@@ -2523,6 +2547,7 @@
             {
               "category": "interval",
               "title": "有限区间",
+              "ordered": false,
               "body": [
                 "\\([a,b]\\)、\\((a,b)\\)、\\([a,b)\\)、\\((a,b]\\) 分别表示闭区间、开区间、左闭右开区间和左开右闭区间。",
                 "方括号表示端点属于集合，圆括号表示端点不属于集合。"
@@ -2535,6 +2560,7 @@
             {
               "category": "interval",
               "title": "无穷区间",
+              "ordered": false,
               "body": [
                 "\\([a,+∞)\\)、\\((a,+∞)\\)、\\((-∞,a]\\)、\\((-∞,a)\\) 用于表示一端无限延伸的实数集合。",
                 "正、负无穷不是实数，因此无穷端一律使用圆括号。"
@@ -2547,6 +2573,7 @@
             {
               "category": "venn",
               "title": "Venn 图",
+              "ordered": false,
               "body": [
                 "用平面内一条封闭曲线的内部表示一个集合，曲线的位置关系直观反映集合之间的关系。",
                 "曲线嵌套表示集合间的包含关系，曲线相交表示两个集合存在公共元素。"
@@ -3820,6 +3847,7 @@
       "chapterId": "sets",
       "sectionId": "set-relations-and-operations",
       "title": "集合的关系和运算",
+      "mapRootLabel": "集合的关系和运算",
       "eyebrow": "第二讲",
       "introduction": [
         "学习一个新的数学概念后，不仅要掌握它的定义，还要研究同类对象之间的关系以及相应的运算。"
@@ -3893,6 +3921,7 @@
             {
               "category": "concept",
               "title": "子集",
+              "ordered": false,
               "body": [
                 "对于两个集合 \\(A,B\\)，如果集合 \\(A\\) 中任意一个元素都是集合 \\(B\\) 中的元素，就称集合 \\(A\\) 为集合 \\(B\\) 的子集，记作 \\(A\\subseteq B\\)。",
                 "空集是任何集合的子集，即对任意集合 \\(A\\)，都有 \\(\\varnothing\\subseteq A\\)。"
@@ -3905,6 +3934,7 @@
             {
               "category": "concept",
               "title": "集合相等",
+              "ordered": false,
               "body": [
                 "如果 \\(A\\subseteq B\\)，并且 \\(B\\subseteq A\\)，那么集合 \\(A\\) 与集合 \\(B\\) 中的元素完全相同，记作 \\(A=B\\)。",
                 "证明两个集合相等时，可以证明双向包含，也可以分别求出两个集合后比较元素。"
@@ -3917,6 +3947,7 @@
             {
               "category": "property",
               "title": "真子集",
+              "ordered": false,
               "body": [
                 "如果 \\(A\\subseteq B\\)，但存在元素属于 \\(B\\) 而不属于 \\(A\\)，就称 \\(A\\) 是 \\(B\\) 的真子集，记作 \\(A\\subsetneq B\\)。",
                 "空集是任何非空集合的真子集；集合本身是自己的子集，但不是自己的真子集。"
@@ -3929,6 +3960,7 @@
             {
               "category": "property",
               "title": "元素关系与集合关系",
+              "ordered": false,
               "body": [
                 "\\(a\\in A\\) 描述元素与集合的关系；\\(A\\subseteq B\\) 描述集合与集合的关系。判断符号前先看左侧对象是元素还是集合。",
                 "\\(0\\)、\\(\\{0\\}\\)、\\(\\varnothing\\)、\\(\\{\\varnothing\\}\\) 是四个不同对象，不能混淆。"
@@ -3941,6 +3973,7 @@
             {
               "category": "interval",
               "title": "有限集合的子集个数",
+              "ordered": false,
               "body": [
                 "含有 \\(n\\) 个元素的有限集合共有 \\(2^n\\) 个子集，其中真子集有 \\(2^n-1\\) 个，非空真子集有 \\(2^n-2\\) 个。",
                 "若 \\(P\\subseteq M\\subseteq Q\\)，且 \\(Q\\setminus P\\) 有 \\(k\\) 个元素，则集合 \\(M\\) 有 \\(2^k\\) 种。"
@@ -3953,6 +3986,7 @@
             {
               "category": "interval",
               "title": "区间集合的包含",
+              "ordered": false,
               "body": [
                 "处理 \\(B\\subseteq A\\) 时，先判断 \\(B\\) 是否为空集；空集自动满足包含关系。",
                 "当 \\(B\\) 非空时，再比较左右端点，同时检查端点能否取到，避免忽略开区间与闭区间的差别。"
@@ -4717,6 +4751,7 @@
             {
               "category": "intersection",
               "title": "交集的概念",
+              "ordered": false,
               "body": [
                 "由属于集合 \\(A\\) 且属于集合 \\(B\\) 的所有元素组成的集合，称为 \\(A\\) 与 \\(B\\) 的交集，记作 \\(A\\cap B\\)。",
                 "\\(A\\cap B=\\{x\\mid x\\in A\\text{ 且 }x\\in B\\}\\)。交集只保留两个集合的共同元素。"
@@ -4729,6 +4764,7 @@
             {
               "category": "union",
               "title": "并集的概念",
+              "ordered": false,
               "body": [
                 "由所有属于集合 \\(A\\) 或属于集合 \\(B\\) 的元素组成的集合，称为 \\(A\\) 与 \\(B\\) 的并集，记作 \\(A\\cup B\\)。",
                 "\\(A\\cup B\\) 由满足 \\(x\\in A\\) 或 \\(x\\in B\\) 的所有元素组成。重复出现的元素在集合中只写一次。"
@@ -4741,6 +4777,7 @@
             {
               "category": "complement",
               "title": "全集与补集",
+              "ordered": false,
               "body": [
                 "如果一个集合含有所研究问题中涉及的所有元素，就称这个集合为全集，通常记作 \\(U\\)。",
                 "全集 \\(U\\) 中不属于集合 \\(A\\) 的所有元素组成的集合，称为 \\(A\\) 相对于 \\(U\\) 的补集，记作 \\(C_UA\\)，即 \\(C_UA=\\{x\\mid x\\in U\\text{ 且 }x\\notin A\\}\\)。"
@@ -5909,6 +5946,1455 @@
                   ]
                 },
                 "solutionPath": "problems/senior-high/sets/set-relations-and-operations/set-relations-operations-practice-q09.html"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "common-logical-language",
+      "chapterId": "sets",
+      "sectionId": "common-logical-language",
+      "title": "常用逻辑用语",
+      "mapRootLabel": "命题",
+      "eyebrow": "第三讲",
+      "introduction": [
+        "一句话能否成为数学命题，关键在于它是否为陈述句并且能够判断真假；进一步还要研究条件与结论之间的逻辑关系。"
+      ],
+      "introductionHtml": [
+        "一句话能否成为数学命题，关键在于它是否为陈述句并且能够判断真假；进一步还要研究条件与结论之间的逻辑关系。"
+      ],
+      "mapNodes": [
+        {
+          "id": "sufficient-necessary-conditions",
+          "label": "充分条件与必要条件",
+          "moduleId": "sufficient-necessary-conditions",
+          "children": [
+            "充分条件",
+            "必要条件",
+            "充要条件"
+          ]
+        },
+        {
+          "id": "quantifiers",
+          "label": "全称量词与存在量词",
+          "moduleId": "quantifiers",
+          "children": [
+            "全称量词命题与存在量词命题",
+            "全称量词命题的否定与存在量词命题的否定"
+          ]
+        }
+      ],
+      "modules": [
+        {
+          "id": "propositions",
+          "label": "命题的概念",
+          "type": "knowledge",
+          "status": "published",
+          "description": "判断语句是否为命题，并区分命题的真假与非命题。",
+          "knowledgeGroups": [
+            {
+              "category": "concept",
+              "number": "01",
+              "eyebrow": "真假可判",
+              "title": "命题的概念"
+            }
+          ],
+          "knowledgeBlocks": [
+            {
+              "category": "concept",
+              "title": "命题与真值",
+              "ordered": false,
+              "body": [
+                "一般地，用语言、符号或式子表达的，可以判断真假的陈述句叫作命题。",
+                "判断为真的语句叫真命题，判断为假的语句叫假命题。假命题仍然是命题；疑问句、感叹句以及真假不能确定的开放语句不是命题。"
+              ],
+              "bodyHtml": [
+                "一般地，用语言、符号或式子表达的，可以判断真假的陈述句叫作命题。",
+                "判断为真的语句叫真命题，判断为假的语句叫假命题。假命题仍然是命题；疑问句、感叹句以及真假不能确定的开放语句不是命题。"
+              ]
+            }
+          ],
+          "examples": [
+            {
+              "group": "命题的概念",
+              "knowledgeCategory": "concept",
+              "title": "判断六个语句是否为命题",
+              "numberLabel": "练习 1 · 1",
+              "display": "featured",
+              "hints": [
+                "先看是否为陈述句。",
+                "陈述错误不等于不是命题，关键是能否判断真假。"
+              ],
+              "answerSchema": {
+                "type": "multipart-choice",
+                "choices": [
+                  "命题",
+                  "不是命题"
+                ],
+                "expected": [
+                  {
+                    "label": "（1）",
+                    "prompt": "角平分线上的点到角两边的距离相等",
+                    "expected": "命题",
+                    "promptHtml": "角平分线上的点到角两边的距离相等"
+                  },
+                  {
+                    "label": "（2）",
+                    "prompt": "个位数是 0 的自然数能被 5 整除",
+                    "expected": "命题",
+                    "promptHtml": "个位数是 0 的自然数能被 5 整除"
+                  },
+                  {
+                    "label": "（3）",
+                    "prompt": "若 m<-1，则 x²+x-m=0 有实根",
+                    "expected": "命题",
+                    "promptHtml": "若 m&lt;-1，则 x²+x-m=0 有实根"
+                  },
+                  {
+                    "label": "（4）",
+                    "prompt": "空集是任意集合的真子集",
+                    "expected": "命题",
+                    "promptHtml": "空集是任意集合的真子集"
+                  },
+                  {
+                    "label": "（5）",
+                    "prompt": "数学真好玩啊！",
+                    "expected": "不是命题",
+                    "promptHtml": "数学真好玩啊！"
+                  },
+                  {
+                    "label": "（6）",
+                    "prompt": "你吃了吗？",
+                    "expected": "不是命题",
+                    "promptHtml": "你吃了吗？"
+                  }
+                ]
+              },
+              "lesson": {
+                "id": "logic-proposition-q01",
+                "title": "判断六个语句是否为命题",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "观察下面的例子，判断是否为命题：",
+                      "html": "观察下面的例子，判断是否为命题："
+                    },
+                    {
+                      "text": "（1）角平分线上的点到角两边的距离相等；（2）个位数是 0 的自然数能被 5 整除；",
+                      "html": "（1）角平分线上的点到角两边的距离相等；（2）个位数是 0 的自然数能被 5 整除；"
+                    },
+                    {
+                      "text": "（3）若 \\(m<-1\\)，则 \\(x^2+x-m=0\\) 有实根；（4）\\(\\varnothing\\) 是任意集合的真子集；",
+                      "html": "（3）若 <span class=\"inline-math\">m&lt;-1</span>，则 <span class=\"inline-math\">x<sup>2</sup>+x-m=0</span> 有实根；（4）<span class=\"inline-math\">∅</span> 是任意集合的真子集；"
+                    },
+                    {
+                      "text": "（5）数学真好玩啊！　（6）你吃了吗？",
+                      "html": "（5）数学真好玩啊！　（6）你吃了吗？"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/common-logical-language/logic-proposition-q01.html"
+              }
+            },
+            {
+              "group": "命题的概念",
+              "knowledgeCategory": "concept",
+              "title": "辨析自由变量与量词",
+              "numberLabel": "练习 1 · 2",
+              "display": "featured",
+              "hints": [
+                "含自由变量的开放语句不能直接判断真假。",
+                "量词约束变量后，语句可以成为命题。"
+              ],
+              "answerSchema": {
+                "type": "multipart-choice",
+                "choices": [
+                  "命题",
+                  "不是命题"
+                ],
+                "expected": [
+                  {
+                    "label": "（1）",
+                    "prompt": "x>5",
+                    "expected": "不是命题",
+                    "promptHtml": "x&gt;5"
+                  },
+                  {
+                    "label": "（2）",
+                    "prompt": "3x+2 是整数",
+                    "expected": "不是命题",
+                    "promptHtml": "3x+2 是整数"
+                  },
+                  {
+                    "label": "（3）",
+                    "prompt": "对所有的 x∈R，x>5",
+                    "expected": "命题",
+                    "promptHtml": "对所有的 x∈R，x&gt;5"
+                  },
+                  {
+                    "label": "（4）",
+                    "prompt": "对任意一个 x∈Z，3x+2 是整数",
+                    "expected": "命题",
+                    "promptHtml": "对任意一个 x∈Z，3x+2 是整数"
+                  }
+                ]
+              },
+              "lesson": {
+                "id": "logic-proposition-q02",
+                "title": "辨析自由变量与量词",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "下列语句是命题吗？",
+                      "html": "下列语句是命题吗？"
+                    },
+                    {
+                      "text": "（1）\\(x>5\\)；（2）\\(3x+2\\) 是整数；",
+                      "html": "（1）<span class=\"inline-math\">x&gt;5</span>；（2）<span class=\"inline-math\">3x+2</span> 是整数；"
+                    },
+                    {
+                      "text": "（3）对所有的 \\(x\\in\\mathbb R\\)，\\(x>5\\)；（4）对任意一个 \\(x\\in\\mathbb Z\\)，\\(3x+2\\) 是整数。",
+                      "html": "（3）对所有的 <span class=\"inline-math\">x∈<span class=\"math-blackboard\">ℝ</span></span>，<span class=\"inline-math\">x&gt;5</span>；（4）对任意一个 <span class=\"inline-math\">x∈<span class=\"math-blackboard\">ℤ</span></span>，<span class=\"inline-math\">3x+2</span> 是整数。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/common-logical-language/logic-proposition-q02.html"
+              }
+            }
+          ],
+          "summary": "判断命题分两步：先看是否为陈述句，再看真假能否确定。只有在命题的基础上，才进一步判断真命题或假命题。",
+          "summaryHtml": "判断命题分两步：先看是否为陈述句，再看真假能否确定。只有在命题的基础上，才进一步判断真命题或假命题。"
+        },
+        {
+          "id": "sufficient-necessary-conditions",
+          "label": "充分条件与必要条件",
+          "type": "knowledge",
+          "status": "published",
+          "description": "用正向与反向蕴含判断充分、必要、充要以及既不充分也不必要关系。",
+          "knowledgeGroups": [
+            {
+              "category": "concept",
+              "number": "01",
+              "eyebrow": "命题结构",
+              "title": "条件和结论"
+            },
+            {
+              "category": "property",
+              "number": "02",
+              "eyebrow": "充分与必要",
+              "title": "充分条件与必要条件"
+            },
+            {
+              "category": "interval",
+              "number": "03",
+              "eyebrow": "两种判断视角",
+              "title": "充分、必要与充要条件的判断"
+            }
+          ],
+          "knowledgeBlocks": [
+            {
+              "category": "concept",
+              "title": "条件和结论",
+              "ordered": false,
+              "body": [
+                "中学数学中的许多命题可以写成“若 \\(p\\)，则 \\(q\\)”的形式，其中 \\(p\\) 称为命题的条件，\\(q\\) 称为命题的结论。"
+              ],
+              "bodyHtml": [
+                "中学数学中的许多命题可以写成“若 <span class=\"inline-math\">p</span>，则 <span class=\"inline-math\">q</span>”的形式，其中 <span class=\"inline-math\">p</span> 称为命题的条件，<span class=\"inline-math\">q</span> 称为命题的结论。"
+              ]
+            },
+            {
+              "category": "property",
+              "title": "符号 p⇒q 与 p⇏q 的含义",
+              "ordered": true,
+              "body": [
+                "“若 \\(p\\)，则 \\(q\\)”为真命题，记作 \\(p⇒q\\)。",
+                "“若 \\(p\\)，则 \\(q\\)”为假命题，记作 \\(p⇏q\\)。"
+              ],
+              "bodyHtml": [
+                "“若 <span class=\"inline-math\">p</span>，则 <span class=\"inline-math\">q</span>”为真命题，记作 <span class=\"inline-math\">p⇒q</span>。",
+                "“若 <span class=\"inline-math\">p</span>，则 <span class=\"inline-math\">q</span>”为假命题，记作 <span class=\"inline-math\">p⇏q</span>。"
+              ]
+            },
+            {
+              "category": "property",
+              "title": "充分条件、必要条件与充要条件",
+              "ordered": true,
+              "body": [
+                "若 \\(p⇒q\\)，称 \\(p\\) 是 \\(q\\) 的充分条件，\\(q\\) 是 \\(p\\) 的必要条件。",
+                "如果既有 \\(p⇒q\\)，又有 \\(q⇒p\\)，就记作 \\(p⇔q\\)。这时 \\(p\\) 是 \\(q\\) 的充分必要条件，简称 \\(p\\) 是 \\(q\\) 的充要条件。"
+              ],
+              "bodyHtml": [
+                "若 <span class=\"inline-math\">p⇒q</span>，称 <span class=\"inline-math\">p</span> 是 <span class=\"inline-math\">q</span> 的充分条件，<span class=\"inline-math\">q</span> 是 <span class=\"inline-math\">p</span> 的必要条件。",
+                "如果既有 <span class=\"inline-math\">p⇒q</span>，又有 <span class=\"inline-math\">q⇒p</span>，就记作 <span class=\"inline-math\">p⇔q</span>。这时 <span class=\"inline-math\">p</span> 是 <span class=\"inline-math\">q</span> 的充分必要条件，简称 <span class=\"inline-math\">p</span> 是 <span class=\"inline-math\">q</span> 的充要条件。"
+              ]
+            },
+            {
+              "category": "interval",
+              "title": "从逻辑推理关系看",
+              "ordered": true,
+              "body": [
+                "若 \\(p⇒q\\)，但 \\(q⇏p\\)，则 \\(p\\) 是 \\(q\\) 的充分不必要条件，\\(q\\) 是 \\(p\\) 的必要不充分条件。",
+                "若 \\(p⇏q\\)，但 \\(q⇒p\\)，则 \\(p\\) 是 \\(q\\) 的必要不充分条件，\\(q\\) 是 \\(p\\) 的充分不必要条件。",
+                "若 \\(p⇒q\\)，且 \\(q⇒p\\)，即 \\(p⇔q\\)，则 \\(p\\)、\\(q\\) 互为充要条件。",
+                "若 \\(p⇏q\\)，且 \\(q⇏p\\)，则 \\(p\\) 是 \\(q\\) 的既不充分也不必要条件。"
+              ],
+              "bodyHtml": [
+                "若 <span class=\"inline-math\">p⇒q</span>，但 <span class=\"inline-math\">q⇏p</span>，则 <span class=\"inline-math\">p</span> 是 <span class=\"inline-math\">q</span> 的充分不必要条件，<span class=\"inline-math\">q</span> 是 <span class=\"inline-math\">p</span> 的必要不充分条件。",
+                "若 <span class=\"inline-math\">p⇏q</span>，但 <span class=\"inline-math\">q⇒p</span>，则 <span class=\"inline-math\">p</span> 是 <span class=\"inline-math\">q</span> 的必要不充分条件，<span class=\"inline-math\">q</span> 是 <span class=\"inline-math\">p</span> 的充分不必要条件。",
+                "若 <span class=\"inline-math\">p⇒q</span>，且 <span class=\"inline-math\">q⇒p</span>，即 <span class=\"inline-math\">p⇔q</span>，则 <span class=\"inline-math\">p</span>、<span class=\"inline-math\">q</span> 互为充要条件。",
+                "若 <span class=\"inline-math\">p⇏q</span>，且 <span class=\"inline-math\">q⇏p</span>，则 <span class=\"inline-math\">p</span> 是 <span class=\"inline-math\">q</span> 的既不充分也不必要条件。"
+              ]
+            },
+            {
+              "category": "interval",
+              "title": "从集合与集合间的关系看",
+              "ordered": true,
+              "body": [
+                "设 \\(p:x∈A\\)，\\(q:x∈B\\)。若 \\(A⊆B\\)，则 \\(p⇒q\\)，所以 \\(p\\) 是 \\(q\\) 的充分条件，\\(q\\) 是 \\(p\\) 的必要条件。",
+                "若 \\(A\\) 是 \\(B\\) 的真子集，则 \\(p\\) 是 \\(q\\) 的充分不必要条件。",
+                "若 \\(A=B\\)，则 \\(p\\)、\\(q\\) 互为充要条件。",
+                "若 \\(A\\) 不是 \\(B\\) 的子集，且 \\(B\\) 也不是 \\(A\\) 的子集，则 \\(p\\) 是 \\(q\\) 的既不充分也不必要条件。"
+              ],
+              "bodyHtml": [
+                "设 <span class=\"inline-math\">p:x∈A</span>，<span class=\"inline-math\">q:x∈B</span>。若 <span class=\"inline-math\">A⊆B</span>，则 <span class=\"inline-math\">p⇒q</span>，所以 <span class=\"inline-math\">p</span> 是 <span class=\"inline-math\">q</span> 的充分条件，<span class=\"inline-math\">q</span> 是 <span class=\"inline-math\">p</span> 的必要条件。",
+                "若 <span class=\"inline-math\">A</span> 是 <span class=\"inline-math\">B</span> 的真子集，则 <span class=\"inline-math\">p</span> 是 <span class=\"inline-math\">q</span> 的充分不必要条件。",
+                "若 <span class=\"inline-math\">A=B</span>，则 <span class=\"inline-math\">p</span>、<span class=\"inline-math\">q</span> 互为充要条件。",
+                "若 <span class=\"inline-math\">A</span> 不是 <span class=\"inline-math\">B</span> 的子集，且 <span class=\"inline-math\">B</span> 也不是 <span class=\"inline-math\">A</span> 的子集，则 <span class=\"inline-math\">p</span> 是 <span class=\"inline-math\">q</span> 的既不充分也不必要条件。"
+              ]
+            }
+          ],
+          "examples": [
+            {
+              "group": "充分必要性的判断",
+              "knowledgeCategory": "concept",
+              "title": "判断三个几何命题的充分必要性",
+              "numberLabel": "练习 2 · 1",
+              "display": "featured",
+              "hints": [
+                "每一小题都分别判断充分和必要是否成立。",
+                "必要不成立时，给出一个满足 q 但不满足 p 的平行四边形作为反例。"
+              ],
+              "answerSchema": {
+                "type": "multipart-choice",
+                "choices": [
+                  "充分不必要条件",
+                  "必要不充分条件",
+                  "充要条件",
+                  "既不充分也不必要条件"
+                ],
+                "expected": [
+                  {
+                    "label": "①",
+                    "prompt": "两组对边分别相等与平行四边形",
+                    "expected": "充要条件",
+                    "promptHtml": "两组对边分别相等与平行四边形"
+                  },
+                  {
+                    "label": "②",
+                    "prompt": "一组对边平行且相等与平行四边形",
+                    "expected": "充要条件",
+                    "promptHtml": "一组对边平行且相等与平行四边形"
+                  },
+                  {
+                    "label": "③",
+                    "prompt": "四个角为直角与平行四边形",
+                    "expected": "充分不必要条件",
+                    "promptHtml": "四个角为直角与平行四边形"
+                  }
+                ]
+              },
+              "lesson": {
+                "id": "logic-condition-q01",
+                "title": "判断三个几何命题的充分必要性",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "判断下列命题的充分必要性：",
+                      "html": "判断下列命题的充分必要性："
+                    },
+                    {
+                      "text": "① 若四边形的两组对边分别相等，则这个四边形是平行四边形；",
+                      "html": "① 若四边形的两组对边分别相等，则这个四边形是平行四边形；"
+                    },
+                    {
+                      "text": "② 若四边形的一组对边平行且相等，则这个四边形是平行四边形；",
+                      "html": "② 若四边形的一组对边平行且相等，则这个四边形是平行四边形；"
+                    },
+                    {
+                      "text": "③ 若四边形的四个角为直角，则这个四边形是平行四边形。",
+                      "html": "③ 若四边形的四个角为直角，则这个四边形是平行四边形。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/common-logical-language/logic-condition-q01.html"
+              }
+            },
+            {
+              "group": "充分必要性的判断",
+              "knowledgeCategory": "concept",
+              "title": "筛选 p 是 q 的充分条件",
+              "numberLabel": "练习 2 · 2",
+              "display": "featured",
+              "hints": [
+                "逐项判断 p 能否推出 q。",
+                "一个反例即可排除错误项。"
+              ],
+              "answerSchema": {
+                "type": "multipart-choice",
+                "choices": [
+                  "是充分条件",
+                  "不是充分条件"
+                ],
+                "expected": [
+                  {
+                    "label": "①",
+                    "prompt": "两组对边分别平行 ⇒ 平行四边形",
+                    "expected": "是充分条件",
+                    "promptHtml": "两组对边分别平行 ⇒ 平行四边形"
+                  },
+                  {
+                    "label": "②",
+                    "prompt": "三个角分别对应相等 ⇒ 两个三角形相似",
+                    "expected": "是充分条件",
+                    "promptHtml": "三个角分别对应相等 ⇒ 两个三角形相似"
+                  },
+                  {
+                    "label": "③",
+                    "prompt": "正方形 ⇒ 对角线相互垂直",
+                    "expected": "是充分条件",
+                    "promptHtml": "正方形 ⇒ 对角线相互垂直"
+                  },
+                  {
+                    "label": "④",
+                    "prompt": "x²=4 ⇒ x=2",
+                    "expected": "不是充分条件",
+                    "promptHtml": "x²=4 ⇒ x=2"
+                  },
+                  {
+                    "label": "⑤",
+                    "prompt": "a>b>0 ⇒ 1/a<1/b",
+                    "expected": "是充分条件",
+                    "promptHtml": "a&gt;b&gt;0 ⇒ 1/a&lt;1/b"
+                  },
+                  {
+                    "label": "⑥",
+                    "prompt": "a>b，c>0 ⇒ ac>bc",
+                    "expected": "是充分条件",
+                    "promptHtml": "a&gt;b，c&gt;0 ⇒ ac&gt;bc"
+                  }
+                ]
+              },
+              "lesson": {
+                "id": "logic-condition-q02",
+                "title": "筛选 p 是 q 的充分条件",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "下列“若 p，则 q”形式的命题中，哪些命题中的 p 是 q 的充分条件？",
+                      "html": "下列“若 p，则 q”形式的命题中，哪些命题中的 p 是 q 的充分条件？"
+                    },
+                    {
+                      "text": "① 若四边形的两组对边分别平行，则这个四边形是平行四边形；",
+                      "html": "① 若四边形的两组对边分别平行，则这个四边形是平行四边形；"
+                    },
+                    {
+                      "text": "② 若两个三角形的三个角分别对应相等，则这两个三角形相似；",
+                      "html": "② 若两个三角形的三个角分别对应相等，则这两个三角形相似；"
+                    },
+                    {
+                      "text": "③ 若四边形为正方形，则这个四边形的对角线相互垂直；④ 若 \\(x^2=4\\)，则 \\(x=2\\)；",
+                      "html": "③ 若四边形为正方形，则这个四边形的对角线相互垂直；④ 若 <span class=\"inline-math\">x<sup>2</sup>=4</span>，则 <span class=\"inline-math\">x=2</span>；"
+                    },
+                    {
+                      "text": "⑤ 若 \\(a>b>0\\)，则 \\(\\frac{1}{a}<\\frac{1}{b}\\)；⑥ 若 \\(a>b,c>0\\)，则 \\(ac>bc\\)。",
+                      "html": "⑤ 若 <span class=\"inline-math\">a&gt;b&gt;0</span>，则 <span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">a</span></span>&lt;<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">b</span></span></span>；⑥ 若 <span class=\"inline-math\">a&gt;b,c&gt;0</span>，则 <span class=\"inline-math\">ac&gt;bc</span>。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/common-logical-language/logic-condition-q02.html"
+              }
+            },
+            {
+              "group": "充分必要性的判断",
+              "knowledgeCategory": "property",
+              "title": "由绝对值条件判断充分必要性",
+              "numberLabel": "练习 3 · 1",
+              "display": "featured",
+              "hints": [
+                "先检验正向推出。",
+                "反向用一个分量为 0 的反例。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "A"
+              },
+              "lesson": {
+                "id": "logic-condition-q03",
+                "title": "由绝对值条件判断充分必要性",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知 \\(a,b\\in\\mathbb R\\)，则“\\(|a|>1,|b|>1\\)”是“\\(a^2+b^2>2\\)”的（　　）",
+                      "html": "已知 <span class=\"inline-math\">a,b∈<span class=\"math-blackboard\">ℝ</span></span>，则“<span class=\"inline-math\">|a|&gt;1,|b|&gt;1</span>”是“<span class=\"inline-math\">a<sup>2</sup>+b<sup>2</sup>&gt;2</span>”的（　　）"
+                    },
+                    {
+                      "text": "A. 充分不必要条件　　B. 必要不充分条件　　C. 充要条件　　D. 既不充分也不必要条件",
+                      "html": "A. 充分不必要条件　　B. 必要不充分条件　　C. 充要条件　　D. 既不充分也不必要条件"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/common-logical-language/logic-condition-q03.html"
+              }
+            },
+            {
+              "group": "充分必要性的判断",
+              "knowledgeCategory": "property",
+              "title": "由倒数不等式判断充分必要性",
+              "numberLabel": "练习 3 · 2",
+              "display": "featured",
+              "hints": [
+                "q 中两个倒数都小于 0，先判断 a、b 的符号。",
+                "分别验证 p⇒q 与 q⇒p。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "B"
+              },
+              "lesson": {
+                "id": "logic-condition-q04",
+                "title": "由倒数不等式判断充分必要性",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "设 \\(a,b\\in\\mathbb R\\)，若 \\(p:a<b\\)，\\(q:\\frac{1}{b}<\\frac{1}{a}<0\\)，则 p 是 q 的（　　）",
+                      "html": "设 <span class=\"inline-math\">a,b∈<span class=\"math-blackboard\">ℝ</span></span>，若 <span class=\"inline-math\">p:a&lt;b</span>，<span class=\"inline-math\">q:<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">b</span></span>&lt;<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">a</span></span>&lt;0</span>，则 p 是 q 的（　　）"
+                    },
+                    {
+                      "text": "A. 充分不必要条件　　B. 必要不充分条件　　C. 充要条件　　D. 既不充分也不必要条件",
+                      "html": "A. 充分不必要条件　　B. 必要不充分条件　　C. 充要条件　　D. 既不充分也不必要条件"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/common-logical-language/logic-condition-q04.html"
+              }
+            },
+            {
+              "group": "充分必要性的判断",
+              "knowledgeCategory": "interval",
+              "title": "比较两个不等式条件的解集",
+              "numberLabel": "练习 3 · 3",
+              "display": "featured",
+              "hints": [
+                "先解 1<2x+1<3。",
+                "用两个区间的包含关系判断。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "B"
+              },
+              "lesson": {
+                "id": "logic-condition-q05",
+                "title": "比较两个不等式条件的解集",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "设 \\(x\\in\\mathbb R\\)，则“\\(0<x<4\\)”是“\\(1<2x+1<3\\)”的（　　）",
+                      "html": "设 <span class=\"inline-math\">x∈<span class=\"math-blackboard\">ℝ</span></span>，则“<span class=\"inline-math\">0&lt;x&lt;4</span>”是“<span class=\"inline-math\">1&lt;2x+1&lt;3</span>”的（　　）"
+                    },
+                    {
+                      "text": "A. 充分不必要条件　　B. 必要不充分条件　　C. 充分必要条件　　D. 既非充分又非必要条件",
+                      "html": "A. 充分不必要条件　　B. 必要不充分条件　　C. 充分必要条件　　D. 既非充分又非必要条件"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/common-logical-language/logic-condition-q05.html"
+              }
+            },
+            {
+              "group": "求充分必要条件",
+              "knowledgeCategory": "interval",
+              "title": "求倒数不等式的充分不必要条件",
+              "numberLabel": "练习 4 · 1",
+              "display": "featured",
+              "hints": [
+                "先求 1/a>1 的解集。",
+                "充分不必要条件对应真子集。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "C"
+              },
+              "lesson": {
+                "id": "logic-condition-q06",
+                "title": "求倒数不等式的充分不必要条件",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知 \\(a\\in\\mathbb R\\)，使得不等式“\\(\\frac{1}{a}>1\\)”成立的一个充分不必要条件是（　　）",
+                      "html": "已知 <span class=\"inline-math\">a∈<span class=\"math-blackboard\">ℝ</span></span>，使得不等式“<span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">a</span></span>&gt;1</span>”成立的一个充分不必要条件是（　　）"
+                    },
+                    {
+                      "text": "A. \\(a>2\\)　　B. \\(a<1\\)　　C. \\(0<a<\\frac{1}{2}\\)　　D. \\(0<a<1\\)",
+                      "html": "A. <span class=\"inline-math\">a&gt;2</span>　　B. <span class=\"inline-math\">a&lt;1</span>　　C. <span class=\"inline-math\">0&lt;a&lt;<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">2</span></span></span>　　D. <span class=\"inline-math\">0&lt;a&lt;1</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/common-logical-language/logic-condition-q06.html"
+              }
+            },
+            {
+              "group": "求充分必要条件",
+              "knowledgeCategory": "interval",
+              "title": "求二次不等式的必要不充分条件",
+              "numberLabel": "练习 4 · 2",
+              "display": "featured",
+              "hints": [
+                "x²<1 等价于 -1<x<1。",
+                "必要不充分条件对应严格更大的集合。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "A"
+              },
+              "lesson": {
+                "id": "logic-condition-q07",
+                "title": "求二次不等式的必要不充分条件",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "若 \\(x\\in\\mathbb R\\)，下列选项中，使“\\(x^2<1\\)”成立的一个必要不充分条件为（　　）",
+                      "html": "若 <span class=\"inline-math\">x∈<span class=\"math-blackboard\">ℝ</span></span>，下列选项中，使“<span class=\"inline-math\">x<sup>2</sup>&lt;1</span>”成立的一个必要不充分条件为（　　）"
+                    },
+                    {
+                      "text": "A. \\(-2<x<1\\)　　B. \\(-1<x<1\\)　　C. \\(0<x<2\\)　　D. \\(-1<x<0\\)",
+                      "html": "A. <span class=\"inline-math\">-2&lt;x&lt;1</span>　　B. <span class=\"inline-math\">-1&lt;x&lt;1</span>　　C. <span class=\"inline-math\">0&lt;x&lt;2</span>　　D. <span class=\"inline-math\">-1&lt;x&lt;0</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/common-logical-language/logic-condition-q07.html"
+              }
+            },
+            {
+              "group": "求充分必要条件",
+              "knowledgeCategory": "interval",
+              "title": "由区间包含填写充分或必要",
+              "numberLabel": "练习 4 · 3",
+              "display": "featured",
+              "hints": [
+                "比较 A、B 两个区间。",
+                "A⊆B 表示 x∈A 能推出 x∈B。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "充分",
+                  "充分条件"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写“充分”或“必要”",
+                  "keyboard": [
+                    "text"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "logic-condition-q08",
+                "title": "由区间包含填写充分或必要",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知集合 \\(A=\\{x\\mid-2\\le x\\le2\\}\\)，\\(B=\\{x\\mid-3\\le x\\le2\\}\\)，则“\\(x\\in A\\)”是“\\(x\\in B\\)”的 ______ 条件。（填“充分”或“必要”）",
+                      "html": "已知集合 <span class=\"inline-math\">A={x|-2≤ x≤2}</span>，<span class=\"inline-math\">B={x|-3≤ x≤2}</span>，则“<span class=\"inline-math\">x∈ A</span>”是“<span class=\"inline-math\">x∈ B</span>”的 ______ 条件。（填“充分”或“必要”）"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/common-logical-language/logic-condition-q08.html"
+              }
+            },
+            {
+              "group": "已知充分必要性求参数",
+              "knowledgeCategory": "interval",
+              "title": "由必要不充分条件求射线端点",
+              "numberLabel": "练习 5 · 1",
+              "display": "featured",
+              "hints": [
+                "先求 |x-1|≤2 的解集。",
+                "q 为 p 的必要条件要求 p 的解集真包含于 q 的解集。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "D"
+              },
+              "lesson": {
+                "id": "logic-condition-q09",
+                "title": "由必要不充分条件求射线端点",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知条件 \\(p:|x-1|\\le2\\)，条件 \\(q:x>a\\)，且满足 q 是 p 的必要不充分条件，则（　　）",
+                      "html": "已知条件 <span class=\"inline-math\">p:|x-1|≤2</span>，条件 <span class=\"inline-math\">q:x&gt;a</span>，且满足 q 是 p 的必要不充分条件，则（　　）"
+                    },
+                    {
+                      "text": "A. \\(a>3\\)　　B. \\(a\\le-1\\)　　C. \\(a>-1\\)　　D. \\(a<-1\\)",
+                      "html": "A. <span class=\"inline-math\">a&gt;3</span>　　B. <span class=\"inline-math\">a≤-1</span>　　C. <span class=\"inline-math\">a&gt;-1</span>　　D. <span class=\"inline-math\">a&lt;-1</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/common-logical-language/logic-condition-q09.html"
+              }
+            },
+            {
+              "group": "已知充分必要性求参数",
+              "knowledgeCategory": "interval",
+              "title": "由充分不必要条件求参数",
+              "numberLabel": "练习 5 · 2",
+              "display": "featured",
+              "hints": [
+                "先把 p、q 都化为 x 的开射线。",
+                "充分不必要要求 p 的解集真包含于 q 的解集。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "A"
+              },
+              "lesson": {
+                "id": "logic-condition-q10",
+                "title": "由充分不必要条件求参数",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "设 \\(p:4x-3<1\\)，\\(q:x-(2a+1)<0\\)，若 p 是 q 的充分不必要条件，则（　　）",
+                      "html": "设 <span class=\"inline-math\">p:4x-3&lt;1</span>，<span class=\"inline-math\">q:x-(2a+1)&lt;0</span>，若 p 是 q 的充分不必要条件，则（　　）"
+                    },
+                    {
+                      "text": "A. \\(a>0\\)　　B. \\(a>1\\)　　C. \\(a\\ge0\\)　　D. \\(a\\ge1\\)",
+                      "html": "A. <span class=\"inline-math\">a&gt;0</span>　　B. <span class=\"inline-math\">a&gt;1</span>　　C. <span class=\"inline-math\">a≥0</span>　　D. <span class=\"inline-math\">a≥1</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/common-logical-language/logic-condition-q10.html"
+              }
+            }
+          ],
+          "summary": "判断条件关系不要凭语言感觉：始终分别检验正向和反向。对不等式条件，先化为解集，再用相等、包含或真包含完成判断。",
+          "summaryHtml": "判断条件关系不要凭语言感觉：始终分别检验正向和反向。对不等式条件，先化为解集，再用相等、包含或真包含完成判断。"
+        },
+        {
+          "id": "quantifiers",
+          "label": "全称量词与存在量词",
+          "type": "knowledge",
+          "status": "published",
+          "description": "认识全称量词与存在量词，把含变量的开放语句写成真假可判的命题。",
+          "knowledgeGroups": [
+            {
+              "category": "concept",
+              "number": "01",
+              "eyebrow": "对全部对象",
+              "title": "全称量词和全称量词命题"
+            },
+            {
+              "category": "property",
+              "number": "02",
+              "eyebrow": "至少一个对象",
+              "title": "存在量词和存在量词命题"
+            }
+          ],
+          "knowledgeBlocks": [
+            {
+              "category": "concept",
+              "title": "全称量词与全称量词命题",
+              "ordered": true,
+              "body": [
+                "短语“对所有的”“对任意一个”在逻辑中通常叫全称量词，并用符号 \\(∀\\) 表示；含有全称量词的命题叫全称量词命题。",
+                "对集合 \\(M\\) 中任意一个 \\(x\\)，都有 \\(p(x)\\) 成立，可简记为 \\(∀x∈M，p(x)\\)。",
+                "“所有”“每一个”“任何”“任意”“一切”“任给”“全部”等词语也常表示整体或全部。"
+              ],
+              "bodyHtml": [
+                "短语“对所有的”“对任意一个”在逻辑中通常叫全称量词，并用符号 <span class=\"inline-math\">∀</span> 表示；含有全称量词的命题叫全称量词命题。",
+                "对集合 <span class=\"inline-math\">M</span> 中任意一个 <span class=\"inline-math\">x</span>，都有 <span class=\"inline-math\">p(x)</span> 成立，可简记为 <span class=\"inline-math\">∀x∈M，p(x)</span>。",
+                "“所有”“每一个”“任何”“任意”“一切”“任给”“全部”等词语也常表示整体或全部。"
+              ]
+            },
+            {
+              "category": "property",
+              "title": "存在量词与存在量词命题",
+              "ordered": true,
+              "body": [
+                "短语“存在一个”“至少有一个”在逻辑中通常叫存在量词，并用符号 \\(∃\\) 表示；含有存在量词的命题叫存在量词命题。",
+                "存在集合 \\(M\\) 中的一个 \\(x\\)，使 \\(p(x)\\) 成立，可简记为 \\(∃x∈M，p(x)\\)。",
+                "“有些”“有一个”“存在”“某个”“有的”等词语常表示个别或一部分。"
+              ],
+              "bodyHtml": [
+                "短语“存在一个”“至少有一个”在逻辑中通常叫存在量词，并用符号 <span class=\"inline-math\">∃</span> 表示；含有存在量词的命题叫存在量词命题。",
+                "存在集合 <span class=\"inline-math\">M</span> 中的一个 <span class=\"inline-math\">x</span>，使 <span class=\"inline-math\">p(x)</span> 成立，可简记为 <span class=\"inline-math\">∃x∈M，p(x)</span>。",
+                "“有些”“有一个”“存在”“某个”“有的”等词语常表示个别或一部分。"
+              ]
+            }
+          ],
+          "examples": [
+            {
+              "group": "命题与量词",
+              "knowledgeCategory": "concept",
+              "title": "判断三个量词命题的真假",
+              "numberLabel": "练习 5 · 1",
+              "display": "featured",
+              "hints": [
+                "存在量词命题找一个实例即可说明为真。",
+                "全称量词命题若为假，只需给出一个反例。"
+              ],
+              "answerSchema": {
+                "type": "multipart-choice",
+                "choices": [
+                  "真命题",
+                  "假命题"
+                ],
+                "expected": [
+                  {
+                    "label": "（1）",
+                    "prompt": "存在一对实数 a，b，使 a²+b<0 成立",
+                    "expected": "真命题",
+                    "promptHtml": "存在一对实数 a，b，使 a²+b&lt;0 成立"
+                  },
+                  {
+                    "label": "（2）",
+                    "prompt": "有理数 x 的平方仍为有理数",
+                    "expected": "真命题",
+                    "promptHtml": "有理数 x 的平方仍为有理数"
+                  },
+                  {
+                    "label": "（3）",
+                    "prompt": "实数的平方大于 0",
+                    "expected": "假命题",
+                    "promptHtml": "实数的平方大于 0"
+                  }
+                ]
+              },
+              "lesson": {
+                "id": "logic-quantifier-q01",
+                "title": "判断三个量词命题的真假",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "判断下列命题的真假：",
+                      "html": "判断下列命题的真假："
+                    },
+                    {
+                      "text": "（1）存在一对实数 \\((a,b)\\)，使 \\(a^2+b<0\\) 成立；",
+                      "html": "（1）存在一对实数 <span class=\"inline-math\">(a,b)</span>，使 <span class=\"inline-math\">a<sup>2</sup>+b&lt;0</span> 成立；"
+                    },
+                    {
+                      "text": "（2）有理数 \\(x\\) 的平方仍为有理数；（3）实数的平方大于 0。",
+                      "html": "（2）有理数 <span class=\"inline-math\">x</span> 的平方仍为有理数；（3）实数的平方大于 0。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/common-logical-language/logic-quantifier-q01.html"
+              }
+            },
+            {
+              "group": "命题与量词",
+              "knowledgeCategory": "concept",
+              "title": "选择一个真命题",
+              "numberLabel": "练习 5 · 2",
+              "display": "featured",
+              "hints": [
+                "存在命题尝试构造对象。",
+                "全称命题检查等号或边界点。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "D"
+              },
+              "lesson": {
+                "id": "logic-quantifier-q02",
+                "title": "选择一个真命题",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "下列命题中为真命题的是（　　）",
+                      "html": "下列命题中为真命题的是（　　）"
+                    },
+                    {
+                      "text": "A. \\(∃x_0∈\\mathbb R，x_0^2+2x_0+2<0\\)　　B. \\(∃x_0∈\\mathbb R，x_0^2+x_0=-1\\)　　C. \\(∀x∈\\mathbb R，x^2-x+\\frac{1}{4}>0\\)　　D. \\(∀x∈\\mathbb R，-x^2-1<0\\)",
+                      "html": "A. <span class=\"inline-math\">∃x<sub>0</sub>∈<span class=\"math-blackboard\">ℝ</span>，x<sub>0</sub><sup>2</sup>+2x<sub>0</sub>+2&lt;0</span>　　B. <span class=\"inline-math\">∃x<sub>0</sub>∈<span class=\"math-blackboard\">ℝ</span>，x<sub>0</sub><sup>2</sup>+x<sub>0</sub>=-1</span>　　C. <span class=\"inline-math\">∀x∈<span class=\"math-blackboard\">ℝ</span>，x<sup>2</sup>-x+<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">4</span></span>&gt;0</span>　　D. <span class=\"inline-math\">∀x∈<span class=\"math-blackboard\">ℝ</span>，-x<sup>2</sup>-1&lt;0</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/common-logical-language/logic-quantifier-q02.html"
+              }
+            },
+            {
+              "group": "命题与量词",
+              "knowledgeCategory": "property",
+              "title": "由全称命题为真求参数",
+              "numberLabel": "练习 5 · 3",
+              "display": "featured",
+              "hints": [
+                "先排除一次函数与开口向下的情形。",
+                "二次函数恒正要求开口向上且判别式严格小于 0。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "D"
+              },
+              "lesson": {
+                "id": "logic-quantifier-q03",
+                "title": "由全称命题为真求参数",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知命题 \\(p:∀x∈\\mathbb R，ax^2+2x+3>0\\) 为真命题，则实数 \\(a\\) 的取值范围是（　　）",
+                      "html": "已知命题 <span class=\"inline-math\">p:∀x∈<span class=\"math-blackboard\">ℝ</span>，ax<sup>2</sup>+2x+3&gt;0</span> 为真命题，则实数 <span class=\"inline-math\">a</span> 的取值范围是（　　）"
+                    },
+                    {
+                      "text": "A. \\(0<a≤\\frac{1}{2}\\)　B. \\(0<a<\\frac{1}{3}\\)　C. \\(a≥\\frac{1}{3}\\)　D. \\(a>\\frac{1}{3}\\)",
+                      "html": "A. <span class=\"inline-math\">0&lt;a≤<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">2</span></span></span>　B. <span class=\"inline-math\">0&lt;a&lt;<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">3</span></span></span>　C. <span class=\"inline-math\">a≥<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">3</span></span></span>　D. <span class=\"inline-math\">a&gt;<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">3</span></span></span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/common-logical-language/logic-quantifier-q03.html"
+              }
+            }
+          ],
+          "summary": "全称量词关注“每一个”，存在量词关注“至少一个”。判断真假时，全称命题常用反例否定，存在命题常用实例验证。",
+          "summaryHtml": "全称量词关注“每一个”，存在量词关注“至少一个”。判断真假时，全称命题常用反例否定，存在命题常用实例验证。"
+        },
+        {
+          "id": "quantifier-negations",
+          "label": "量词命题的否定",
+          "type": "knowledge",
+          "status": "published",
+          "description": "掌握命题否定以及全称量词、存在量词在否定时的互换。",
+          "knowledgeGroups": [
+            {
+              "category": "concept",
+              "number": "01",
+              "eyebrow": "否定真值",
+              "title": "命题的否定"
+            },
+            {
+              "category": "property",
+              "number": "02",
+              "eyebrow": "量词互换",
+              "title": "全称量词命题与存在量词命题的否定"
+            }
+          ],
+          "knowledgeBlocks": [
+            {
+              "category": "concept",
+              "title": "命题的否定",
+              "ordered": true,
+              "body": [
+                "对一个命题进行否定，可以得到一个新命题。命题 \\(p\\) 的否定记作 \\(¬p\\)。",
+                "一个命题和它的否定必定一真一假。否定时既要改变结论，也要完整保留原命题的研究范围。"
+              ],
+              "bodyHtml": [
+                "对一个命题进行否定，可以得到一个新命题。命题 <span class=\"inline-math\">p</span> 的否定记作 <span class=\"inline-math\">¬p</span>。",
+                "一个命题和它的否定必定一真一假。否定时既要改变结论，也要完整保留原命题的研究范围。"
+              ]
+            },
+            {
+              "category": "concept",
+              "title": "常见否定形式",
+              "ordered": false,
+              "body": [
+                "否定一个命题时，量词、判断词和关系符号都要准确改变。"
+              ],
+              "bodyHtml": [
+                "否定一个命题时，量词、判断词和关系符号都要准确改变。"
+              ],
+              "table": {
+                "rows": [
+                  [
+                    "原语句",
+                    "是",
+                    "都是",
+                    "大于",
+                    "至少有一个",
+                    "至多有一个",
+                    "对任意 \\(x∈A\\)，\\(p(x)\\) 为真"
+                  ],
+                  [
+                    "否定",
+                    "不是",
+                    "不都是",
+                    "小于或等于",
+                    "一个也没有",
+                    "至少有两个",
+                    "存在 \\(x∈A\\)，\\(p(x)\\) 为假"
+                  ]
+                ],
+                "rowsHtml": [
+                  [
+                    "原语句",
+                    "是",
+                    "都是",
+                    "大于",
+                    "至少有一个",
+                    "至多有一个",
+                    "对任意 <span class=\"inline-math\">x∈A</span>，<span class=\"inline-math\">p(x)</span> 为真"
+                  ],
+                  [
+                    "否定",
+                    "不是",
+                    "不都是",
+                    "小于或等于",
+                    "一个也没有",
+                    "至少有两个",
+                    "存在 <span class=\"inline-math\">x∈A</span>，<span class=\"inline-math\">p(x)</span> 为假"
+                  ]
+                ]
+              }
+            },
+            {
+              "category": "property",
+              "title": "全称量词命题的否定",
+              "ordered": true,
+              "body": [
+                "全称量词命题 \\(p:∀x∈M，p(x)\\) 的否定是 \\(¬p:∃x∈M，¬p(x)\\)。",
+                "因此，全称量词命题的否定是存在量词命题。"
+              ],
+              "bodyHtml": [
+                "全称量词命题 <span class=\"inline-math\">p:∀x∈M，p(x)</span> 的否定是 <span class=\"inline-math\">¬p:∃x∈M，¬p(x)</span>。",
+                "因此，全称量词命题的否定是存在量词命题。"
+              ]
+            },
+            {
+              "category": "property",
+              "title": "存在量词命题的否定",
+              "ordered": true,
+              "body": [
+                "存在量词命题 \\(p:∃x∈M，p(x)\\) 的否定是 \\(¬p:∀x∈M，¬p(x)\\)。",
+                "因此，存在量词命题的否定是全称量词命题。"
+              ],
+              "bodyHtml": [
+                "存在量词命题 <span class=\"inline-math\">p:∃x∈M，p(x)</span> 的否定是 <span class=\"inline-math\">¬p:∀x∈M，¬p(x)</span>。",
+                "因此，存在量词命题的否定是全称量词命题。"
+              ]
+            }
+          ],
+          "examples": [
+            {
+              "group": "量词命题的否定",
+              "knowledgeCategory": "property",
+              "title": "否定一个全称不等式命题",
+              "numberLabel": "练习 6 · 1",
+              "display": "featured",
+              "hints": [
+                "把全称量词改为存在量词。",
+                "≥ 的否定是 <。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "A"
+              },
+              "lesson": {
+                "id": "logic-negation-q01",
+                "title": "否定一个全称不等式命题",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "命题“\\(∀x∈\\mathbb R，4x^2+5x+2≥0\\)”的否定是（　　）",
+                      "html": "命题“<span class=\"inline-math\">∀x∈<span class=\"math-blackboard\">ℝ</span>，4x<sup>2</sup>+5x+2≥0</span>”的否定是（　　）"
+                    },
+                    {
+                      "text": "A. \\(∃x∈\\mathbb R，4x^2+5x+2<0\\)　　B. \\(∀x\\notin\\mathbb R，4x^2+5x+2≥0\\)　　C. \\(∃x\\notin\\mathbb R，4x^2+5x+2<0\\)　　D. \\(∀x∈\\mathbb R，4x^2+5x+2<0\\)",
+                      "html": "A. <span class=\"inline-math\">∃x∈<span class=\"math-blackboard\">ℝ</span>，4x<sup>2</sup>+5x+2&lt;0</span>　　B. <span class=\"inline-math\">∀x<span class=\"math-notin\" role=\"img\" aria-label=\"不属于\"><svg viewBox=\"0 0 18 18\" aria-hidden=\"true\" focusable=\"false\"><path d=\"M15 3H9C5.3 3 3 5.5 3 9s2.3 6 6 6h6M3.7 9h10.8M4.5 16L14 2\"/></svg></span><span class=\"math-blackboard\">ℝ</span>，4x<sup>2</sup>+5x+2≥0</span>　　C. <span class=\"inline-math\">∃x<span class=\"math-notin\" role=\"img\" aria-label=\"不属于\"><svg viewBox=\"0 0 18 18\" aria-hidden=\"true\" focusable=\"false\"><path d=\"M15 3H9C5.3 3 3 5.5 3 9s2.3 6 6 6h6M3.7 9h10.8M4.5 16L14 2\"/></svg></span><span class=\"math-blackboard\">ℝ</span>，4x<sup>2</sup>+5x+2&lt;0</span>　　D. <span class=\"inline-math\">∀x∈<span class=\"math-blackboard\">ℝ</span>，4x<sup>2</sup>+5x+2&lt;0</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/common-logical-language/logic-negation-q01.html"
+              }
+            },
+            {
+              "group": "量词命题的否定",
+              "knowledgeCategory": "property",
+              "title": "否定一个自然数命题",
+              "numberLabel": "练习 6 · 2",
+              "display": "featured",
+              "hints": [
+                "变量范围仍是整数集。",
+                "属于的否定是不属于。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "D"
+              },
+              "lesson": {
+                "id": "logic-negation-q02",
+                "title": "否定一个自然数命题",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "命题“\\(∀x∈\\mathbb Z，|x-1|∈\\mathbb N^*\\)”的否定为（　　）",
+                      "html": "命题“<span class=\"inline-math\">∀x∈<span class=\"math-blackboard\">ℤ</span>，|x-1|∈<span class=\"math-blackboard\">ℕ</span><sup>*</sup></span>”的否定为（　　）"
+                    },
+                    {
+                      "text": "A. \\(∀x\\notin\\mathbb Z，|x-1|∈\\mathbb N^*\\)　B. \\(∀x∈\\mathbb Z，|x-1|\\notin\\mathbb N^*\\)　C. \\(∃x\\notin\\mathbb Z，|x-1|\\notin\\mathbb N^*\\)　D. \\(∃x∈\\mathbb Z，|x-1|\\notin\\mathbb N^*\\)",
+                      "html": "A. <span class=\"inline-math\">∀x<span class=\"math-notin\" role=\"img\" aria-label=\"不属于\"><svg viewBox=\"0 0 18 18\" aria-hidden=\"true\" focusable=\"false\"><path d=\"M15 3H9C5.3 3 3 5.5 3 9s2.3 6 6 6h6M3.7 9h10.8M4.5 16L14 2\"/></svg></span><span class=\"math-blackboard\">ℤ</span>，|x-1|∈<span class=\"math-blackboard\">ℕ</span><sup>*</sup></span>　B. <span class=\"inline-math\">∀x∈<span class=\"math-blackboard\">ℤ</span>，|x-1|<span class=\"math-notin\" role=\"img\" aria-label=\"不属于\"><svg viewBox=\"0 0 18 18\" aria-hidden=\"true\" focusable=\"false\"><path d=\"M15 3H9C5.3 3 3 5.5 3 9s2.3 6 6 6h6M3.7 9h10.8M4.5 16L14 2\"/></svg></span><span class=\"math-blackboard\">ℕ</span><sup>*</sup></span>　C. <span class=\"inline-math\">∃x<span class=\"math-notin\" role=\"img\" aria-label=\"不属于\"><svg viewBox=\"0 0 18 18\" aria-hidden=\"true\" focusable=\"false\"><path d=\"M15 3H9C5.3 3 3 5.5 3 9s2.3 6 6 6h6M3.7 9h10.8M4.5 16L14 2\"/></svg></span><span class=\"math-blackboard\">ℤ</span>，|x-1|<span class=\"math-notin\" role=\"img\" aria-label=\"不属于\"><svg viewBox=\"0 0 18 18\" aria-hidden=\"true\" focusable=\"false\"><path d=\"M15 3H9C5.3 3 3 5.5 3 9s2.3 6 6 6h6M3.7 9h10.8M4.5 16L14 2\"/></svg></span><span class=\"math-blackboard\">ℕ</span><sup>*</sup></span>　D. <span class=\"inline-math\">∃x∈<span class=\"math-blackboard\">ℤ</span>，|x-1|<span class=\"math-notin\" role=\"img\" aria-label=\"不属于\"><svg viewBox=\"0 0 18 18\" aria-hidden=\"true\" focusable=\"false\"><path d=\"M15 3H9C5.3 3 3 5.5 3 9s2.3 6 6 6h6M3.7 9h10.8M4.5 16L14 2\"/></svg></span><span class=\"math-blackboard\">ℕ</span><sup>*</sup></span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/common-logical-language/logic-negation-q02.html"
+              }
+            },
+            {
+              "group": "量词命题的否定",
+              "knowledgeCategory": "property",
+              "title": "否定带范围的存在命题",
+              "numberLabel": "练习 6 · 3",
+              "display": "featured",
+              "hints": [
+                "∃ 改为 ∀，但 x≤0 的范围不变。",
+                "≤ 的否定是 >。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "C"
+              },
+              "lesson": {
+                "id": "logic-negation-q03",
+                "title": "否定带范围的存在命题",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "命题 \\(p:∃x≤0，x^2-2x+a≤0\\) 的否定是（　　）",
+                      "html": "命题 <span class=\"inline-math\">p:∃x≤0，x<sup>2</sup>-2x+a≤0</span> 的否定是（　　）"
+                    },
+                    {
+                      "text": "A. \\(∀x>0，x^2-2x+a≤0\\)　B. \\(∃x>0，x^2-2x+a≤0\\)　C. \\(∀x≤0，x^2-2x+a>0\\)　D. \\(∃x≤0，x^2-2x+a>0\\)",
+                      "html": "A. <span class=\"inline-math\">∀x&gt;0，x<sup>2</sup>-2x+a≤0</span>　B. <span class=\"inline-math\">∃x&gt;0，x<sup>2</sup>-2x+a≤0</span>　C. <span class=\"inline-math\">∀x≤0，x<sup>2</sup>-2x+a&gt;0</span>　D. <span class=\"inline-math\">∃x≤0，x<sup>2</sup>-2x+a&gt;0</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/common-logical-language/logic-negation-q03.html"
+              }
+            },
+            {
+              "group": "量词命题的否定",
+              "knowledgeCategory": "property",
+              "title": "否定“至少一个成立”",
+              "numberLabel": "练习 6 · 4",
+              "display": "featured",
+              "hints": [
+                "“至少一个成立”的否定是“两个都不成立”。",
+                "全称量词要改为存在量词。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "D"
+              },
+              "lesson": {
+                "id": "logic-negation-q04",
+                "title": "否定“至少一个成立”",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "命题“\\(∀a,b>0\\)，\\(a+\\frac{1}{b}≥2\\) 和 \\(b+\\frac{1}{a}≥2\\) 至少有一个成立”的否定为（　　）",
+                      "html": "命题“<span class=\"inline-math\">∀a,b&gt;0</span>，<span class=\"inline-math\">a+<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">b</span></span>≥2</span> 和 <span class=\"inline-math\">b+<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">a</span></span>≥2</span> 至少有一个成立”的否定为（　　）"
+                    },
+                    {
+                      "text": "A. \\(∀a,b>0\\)，\\(a+\\frac{1}{b}<2\\) 和 \\(b+\\frac{1}{a}<2\\) 至少有一个成立　B. \\(∀a,b>0\\)，\\(a+\\frac{1}{b}≥2\\) 和 \\(b+\\frac{1}{a}≥2\\) 都不成立　C. \\(∃a,b>0\\)，\\(a+\\frac{1}{b}<2\\) 和 \\(b+\\frac{1}{a}<2\\) 至少有一个成立　D. \\(∃a,b>0\\)，\\(a+\\frac{1}{b}≥2\\) 和 \\(b+\\frac{1}{a}≥2\\) 都不成立",
+                      "html": "A. <span class=\"inline-math\">∀a,b&gt;0</span>，<span class=\"inline-math\">a+<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">b</span></span>&lt;2</span> 和 <span class=\"inline-math\">b+<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">a</span></span>&lt;2</span> 至少有一个成立　B. <span class=\"inline-math\">∀a,b&gt;0</span>，<span class=\"inline-math\">a+<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">b</span></span>≥2</span> 和 <span class=\"inline-math\">b+<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">a</span></span>≥2</span> 都不成立　C. <span class=\"inline-math\">∃a,b&gt;0</span>，<span class=\"inline-math\">a+<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">b</span></span>&lt;2</span> 和 <span class=\"inline-math\">b+<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">a</span></span>&lt;2</span> 至少有一个成立　D. <span class=\"inline-math\">∃a,b&gt;0</span>，<span class=\"inline-math\">a+<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">b</span></span>≥2</span> 和 <span class=\"inline-math\">b+<span class=\"math-fraction\"><span class=\"math-numerator\">1</span><span class=\"math-denominator\">a</span></span>≥2</span> 都不成立"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/common-logical-language/logic-negation-q04.html"
+              }
+            }
+          ],
+          "summary": "否定量词命题要完成两件事：量词互换，结论取否；变量范围保持不变。尤其注意 > 与 ≤、≥ 与 < 成对互否。",
+          "summaryHtml": "否定量词命题要完成两件事：量词互换，结论取否；变量范围保持不变。尤其注意 &gt; 与 ≤、≥ 与 &lt; 成对互否。"
+        },
+        {
+          "id": "logic-practice",
+          "label": "实战演练",
+          "type": "assessment",
+          "status": "published",
+          "description": "综合练习充分必要条件、量词命题的否定以及参数范围。",
+          "items": [
+            {
+              "number": 1,
+              "status": "published",
+              "numberLabel": "第 1 题",
+              "hints": [
+                "分别检查 x=-1 能否推出 x²=1，以及反向是否成立。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "A"
+              },
+              "lesson": {
+                "id": "logic-practice-q01",
+                "title": "判断 x=-1 与 x²=1 的条件关系",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "“\\(x=-1\\)”是“\\(x^2=1\\)”成立的（　　）",
+                      "html": "“<span class=\"inline-math\">x=-1</span>”是“<span class=\"inline-math\">x<sup>2</sup>=1</span>”成立的（　　）"
+                    },
+                    {
+                      "text": "A. 充分不必要条件　　B. 必要不充分条件　　C. 充要条件　　D. 既不充分也不必要条件",
+                      "html": "A. 充分不必要条件　　B. 必要不充分条件　　C. 充要条件　　D. 既不充分也不必要条件"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/common-logical-language/logic-practice-q01.html"
+              }
+            },
+            {
+              "number": 2,
+              "status": "published",
+              "numberLabel": "第 2 题",
+              "hints": [
+                "a>b>0 可以保证分母为正。",
+                "反向命题未必保证 a、b 都为正。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "A"
+              },
+              "lesson": {
+                "id": "logic-practice-q02",
+                "title": "判断分式不等式的条件关系",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "“\\(a>b>0\\)”是“\\(\\frac{b}{a}<1\\)”的（　　）",
+                      "html": "“<span class=\"inline-math\">a&gt;b&gt;0</span>”是“<span class=\"inline-math\"><span class=\"math-fraction\"><span class=\"math-numerator\">b</span><span class=\"math-denominator\">a</span></span>&lt;1</span>”的（　　）"
+                    },
+                    {
+                      "text": "A. 充分不必要条件　　B. 必要不充分条件　　C. 充要条件　　D. 既不充分也不必要条件",
+                      "html": "A. 充分不必要条件　　B. 必要不充分条件　　C. 充要条件　　D. 既不充分也不必要条件"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/common-logical-language/logic-practice-q02.html"
+              }
+            },
+            {
+              "number": 3,
+              "status": "published",
+              "numberLabel": "第 3 题",
+              "hints": [
+                "把两个条件写成区间。",
+                "比较 (3,+∞) 与 (4,+∞) 的包含方向。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "B"
+              },
+              "lesson": {
+                "id": "logic-practice-q03",
+                "title": "判断两个射线条件的关系",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "设 \\(x∈\\mathbb R\\)，则“\\(x>3\\)”是“\\(x>4\\)”的（　　）",
+                      "html": "设 <span class=\"inline-math\">x∈<span class=\"math-blackboard\">ℝ</span></span>，则“<span class=\"inline-math\">x&gt;3</span>”是“<span class=\"inline-math\">x&gt;4</span>”的（　　）"
+                    },
+                    {
+                      "text": "A. 充分不必要条件　　B. 必要不充分条件　　C. 充要条件　　D. 既不充分也不必要条件",
+                      "html": "A. 充分不必要条件　　B. 必要不充分条件　　C. 充要条件　　D. 既不充分也不必要条件"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/common-logical-language/logic-practice-q03.html"
+              }
+            },
+            {
+              "number": 4,
+              "status": "published",
+              "numberLabel": "第 4 题",
+              "hints": [
+                "∃ 改为 ∀。",
+                "> 的否定是 ≤。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "D"
+              },
+              "lesson": {
+                "id": "logic-practice-q04",
+                "title": "否定一个关于自然数的存在命题",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "命题“\\(∃n∈\\mathbb N，n^2>2n+3\\)”的否定是（　　）",
+                      "html": "命题“<span class=\"inline-math\">∃n∈<span class=\"math-blackboard\">ℕ</span>，n<sup>2</sup>&gt;2n+3</span>”的否定是（　　）"
+                    },
+                    {
+                      "text": "A. \\(∀n\\notin\\mathbb N，n^2<2n+3\\)　B. \\(∀n∈\\mathbb N，n^2<2n+3\\)　C. \\(∀n\\notin\\mathbb N，n^2≤2n+3\\)　D. \\(∀n∈\\mathbb N，n^2≤2n+3\\)",
+                      "html": "A. <span class=\"inline-math\">∀n<span class=\"math-notin\" role=\"img\" aria-label=\"不属于\"><svg viewBox=\"0 0 18 18\" aria-hidden=\"true\" focusable=\"false\"><path d=\"M15 3H9C5.3 3 3 5.5 3 9s2.3 6 6 6h6M3.7 9h10.8M4.5 16L14 2\"/></svg></span><span class=\"math-blackboard\">ℕ</span>，n<sup>2</sup>&lt;2n+3</span>　B. <span class=\"inline-math\">∀n∈<span class=\"math-blackboard\">ℕ</span>，n<sup>2</sup>&lt;2n+3</span>　C. <span class=\"inline-math\">∀n<span class=\"math-notin\" role=\"img\" aria-label=\"不属于\"><svg viewBox=\"0 0 18 18\" aria-hidden=\"true\" focusable=\"false\"><path d=\"M15 3H9C5.3 3 3 5.5 3 9s2.3 6 6 6h6M3.7 9h10.8M4.5 16L14 2\"/></svg></span><span class=\"math-blackboard\">ℕ</span>，n<sup>2</sup>≤2n+3</span>　D. <span class=\"inline-math\">∀n∈<span class=\"math-blackboard\">ℕ</span>，n<sup>2</sup>≤2n+3</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/common-logical-language/logic-practice-q04.html"
+              }
+            },
+            {
+              "number": 5,
+              "status": "published",
+              "numberLabel": "第 5 题",
+              "hints": [
+                "保留 x>1 的研究范围。",
+                "> 的否定是 ≤。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "A"
+              },
+              "lesson": {
+                "id": "logic-practice-q05",
+                "title": "否定带限制范围的全称命题",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "命题“\\(∀x>1，x^2-m>1\\)”的否定是（　　）",
+                      "html": "命题“<span class=\"inline-math\">∀x&gt;1，x<sup>2</sup>-m&gt;1</span>”的否定是（　　）"
+                    },
+                    {
+                      "text": "A. \\(∃x>1，x^2-m≤1\\)　B. \\(∃x≤1，x^2-m≤1\\)　C. \\(∀x>1，x^2-m≤1\\)　D. \\(∀x≤1，x^2-m≤1\\)",
+                      "html": "A. <span class=\"inline-math\">∃x&gt;1，x<sup>2</sup>-m≤1</span>　B. <span class=\"inline-math\">∃x≤1，x<sup>2</sup>-m≤1</span>　C. <span class=\"inline-math\">∀x&gt;1，x<sup>2</sup>-m≤1</span>　D. <span class=\"inline-math\">∀x≤1，x<sup>2</sup>-m≤1</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/common-logical-language/logic-practice-q05.html"
+              }
+            },
+            {
+              "number": 6,
+              "status": "published",
+              "numberLabel": "第 6 题",
+              "hints": [
+                "存在命题的否定是全称命题。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "A"
+              },
+              "lesson": {
+                "id": "logic-practice-q06",
+                "title": "否定一个二次不等式存在命题",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "命题“\\(∃x∈\\mathbb R，x^2-2x-2>0\\)”的否定是（　　）",
+                      "html": "命题“<span class=\"inline-math\">∃x∈<span class=\"math-blackboard\">ℝ</span>，x<sup>2</sup>-2x-2&gt;0</span>”的否定是（　　）"
+                    },
+                    {
+                      "text": "A. \\(∀x∈\\mathbb R，x^2-2x-2≤0\\)　B. \\(∃x∈\\mathbb R，x^2-2x-2≤0\\)　C. \\(∀x∈\\mathbb R，x^2-2x-2>0\\)　D. \\(∃x∈\\mathbb R，x^2-2x-2<0\\)",
+                      "html": "A. <span class=\"inline-math\">∀x∈<span class=\"math-blackboard\">ℝ</span>，x<sup>2</sup>-2x-2≤0</span>　B. <span class=\"inline-math\">∃x∈<span class=\"math-blackboard\">ℝ</span>，x<sup>2</sup>-2x-2≤0</span>　C. <span class=\"inline-math\">∀x∈<span class=\"math-blackboard\">ℝ</span>，x<sup>2</sup>-2x-2&gt;0</span>　D. <span class=\"inline-math\">∃x∈<span class=\"math-blackboard\">ℝ</span>，x<sup>2</sup>-2x-2&lt;0</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/common-logical-language/logic-practice-q06.html"
+              }
+            },
+            {
+              "number": 7,
+              "status": "published",
+              "numberLabel": "第 7 题",
+              "hints": [
+                "全称命题的否定是存在命题。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "B"
+              },
+              "lesson": {
+                "id": "logic-practice-q07",
+                "title": "否定一个二次不等式全称命题",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "命题“\\(∀x∈\\mathbb R，x^2+x+1>0\\)”的否定是（　　）",
+                      "html": "命题“<span class=\"inline-math\">∀x∈<span class=\"math-blackboard\">ℝ</span>，x<sup>2</sup>+x+1&gt;0</span>”的否定是（　　）"
+                    },
+                    {
+                      "text": "A. \\(∀x∈\\mathbb R，x^2+x+1≤0\\)　B. \\(∃x∈\\mathbb R，x^2+x+1≤0\\)　C. \\(∃x∈\\mathbb R，x^2+x+1<0\\)　D. \\(∃x∈\\mathbb R，x^2+x+1>0\\)",
+                      "html": "A. <span class=\"inline-math\">∀x∈<span class=\"math-blackboard\">ℝ</span>，x<sup>2</sup>+x+1≤0</span>　B. <span class=\"inline-math\">∃x∈<span class=\"math-blackboard\">ℝ</span>，x<sup>2</sup>+x+1≤0</span>　C. <span class=\"inline-math\">∃x∈<span class=\"math-blackboard\">ℝ</span>，x<sup>2</sup>+x+1&lt;0</span>　D. <span class=\"inline-math\">∃x∈<span class=\"math-blackboard\">ℝ</span>，x<sup>2</sup>+x+1&gt;0</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/common-logical-language/logic-practice-q07.html"
+              }
+            },
+            {
+              "number": 8,
+              "status": "published",
+              "numberLabel": "第 8 题",
+              "hints": [
+                "先求 A=[1,3]，再求它在 R 中的补集。",
+                "必要不充分对应 q 的解集是 p 解集的真子集。"
+              ],
+              "answerSchema": {
+                "type": "single-choice",
+                "expected": "C"
+              },
+              "lesson": {
+                "id": "logic-practice-q08",
+                "title": "由必要不充分条件求参数",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "集合 \\(A=\\{x\\mid x^2-4x+3≤0\\}\\)，\\(B=\\{x\\mid x>m\\}\\)。若“\\(x∈C_{\\mathbb R}A\\)”是“\\(x∈B\\)”的必要不充分条件，则实数 \\(m\\) 的取值范围是（　　）",
+                      "html": "集合 <span class=\"inline-math\">A={x| x<sup>2</sup>-4x+3≤0}</span>，<span class=\"inline-math\">B={x| x&gt;m}</span>。若“<span class=\"inline-math\">x∈C<sub><span class=\"math-blackboard\">ℝ</span></sub>A</span>”是“<span class=\"inline-math\">x∈B</span>”的必要不充分条件，则实数 <span class=\"inline-math\">m</span> 的取值范围是（　　）"
+                    },
+                    {
+                      "text": "A. \\((-∞,1)\\)　B. \\([1,3]\\)　C. \\([3,+∞)\\)　D. \\([2,3]\\)",
+                      "html": "A. <span class=\"inline-math\">(-∞,1)</span>　B. <span class=\"inline-math\">[1,3]</span>　C. <span class=\"inline-math\">[3,+∞)</span>　D. <span class=\"inline-math\">[2,3]</span>"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/common-logical-language/logic-practice-q08.html"
+              }
+            },
+            {
+              "number": 9,
+              "status": "published",
+              "numberLabel": "第 9 题",
+              "hints": [
+                "只有空集才是任何集合的子集。",
+                "令二次方程无实根。"
+              ],
+              "answerSchema": {
+                "type": "exact-expression",
+                "expected": [
+                  "a>1/4",
+                  "(1/4,+∞)",
+                  "(1/4,∞)"
+                ],
+                "input": {
+                  "mode": "math-expression",
+                  "placeholder": "填写 a 的取值范围",
+                  "keyboard": [
+                    "a",
+                    "greater",
+                    "fraction",
+                    "interval",
+                    "brackets",
+                    "digits",
+                    "infinity"
+                  ]
+                }
+              },
+              "lesson": {
+                "id": "logic-practice-q09",
+                "title": "由任意集合的子集求参数",
+                "problem": {
+                  "lines": [
+                    {
+                      "text": "已知 \\(a\\) 是实数，若集合 \\(\\{x\\mid x^2+x+a=0\\}\\) 是任何集合的子集，则 \\(a\\) 的取值范围是______。",
+                      "html": "已知 <span class=\"inline-math\">a</span> 是实数，若集合 <span class=\"inline-math\">{x| x<sup>2</sup>+x+a=0}</span> 是任何集合的子集，则 <span class=\"inline-math\">a</span> 的取值范围是______。"
+                    }
+                  ]
+                },
+                "solutionPath": "problems/senior-high/sets/common-logical-language/logic-practice-q09.html"
               }
             }
           ]
