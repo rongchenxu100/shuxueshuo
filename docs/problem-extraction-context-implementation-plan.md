@@ -336,7 +336,42 @@ heping
 
 退出门禁：五题原始图片与结构化gold一一对应并可确定重放，任意删除或篡改gold字段都会被对应测试捕获；coverage report能直接生成下一批图片的精确需求。
 
-### F1：Source fingerprint 与 Context envelope
+### F1：Source fingerprint 与 Context envelope（COMPLETE）
+
+已于 2026-08-05 完成 `problem-extraction-context/v1`的身份与状态基础。F1 定向测试为
+48 passed，与 F0 corpus 和 fixture schema 的规定联合回归为 116 passed。实现包括：
+
+- 将 EXIF 方向归一后的 RGBA 像素、尺寸和页序固化为 `source_id`，将有序的原始页字节
+  与 `page_id` 映射固化为独立 `source_revision_hash`；
+- 将 authored/user selection 的归一化多边形和 block 集合固化为 `selection_id`，将 source、
+  selection、contract、semantic config 和 upstream Context 组合为 `dependency_hash`；
+- Context 的 state、decision/event、attempt ref、retry 和 pending projection 均递归冻结，
+  `from_payload()` 经 JSON Schema 后重算全部 hash；
+- `selection_id` 只表示 geometry/block 语义；mode、revision、parent selection 和 reason 等审计字段
+  另由 `context_id` 覆盖，修改它们不会伪造新语义 selection，但会使旧 Context 失效；
+- provider 失败只追加独立 attempt ledger，不产生语义 child Context；只有通过 base、ledger、
+  evidence 和 locked-candidate 授权校验的 patch 才会原子生成 child Context；
+- child Context 保留全部祖先 `attempt_refs`，并追加当前 base ledger 的新 attempt；
+  attempt ref 携带可重算的 record/artifact authority 摘要，`attempts_used` 与 budget 均按整条
+  Context lineage 累计校验；
+- 非 root Context 的 hydrate 和后续 patch 必须显式提供完整 root-to-parent Context 序列；每个节点的
+  `ancestor_context_ids` 必须精确等于已提供前缀，不能从缺少真实根节点的自洽中间 Context 继续生长；
+- lineage 中每个 Context 在被用作 parent、decision 或 attempt 权威前，必须独立重算其
+  source/dependency、state hash、context id、event、attempt authority 和 retry 信封；被 `replace()`
+  篡改但保留旧 hash 的 parent 不能生成或 hydrate child；
+- child 的 decision、event 和 attempt ref 必须完整保留 parent 前缀，当前 patch 只能追加；新 attempt
+  的 `base_context_id` 必须等于 immediate parent，不能借伪造祖先消耗 retry budget；
+- decision 是不可变审计记录而不是当前 state 的活约束；历史 decision 可以继续引用后续已授权删除的
+  candidate，只有当前 child 新增的 decision 需要对 parent/current candidate 集做引用校验；
+- 普通 semantic patch 不能新建 lock，也不能将 proposed candidate 提升为 locked accepted；
+  accepted/locked 必须由可信 validator 边界建立，已有 lock 的修订仍要求 blocking issue 显式授权；
+- 带 `authorized_revision_candidate_ids` 的 issue 只能在被授权 candidate 发生实际修订后关闭；
+  若确认为误报，必须提交 `dismiss_issue_false_positive` decision 并保留 candidate/evidence 引用；
+- 五题已固化 source、revision、selection、dependency 和 initial Context 指纹；F0 adapter
+  会先校验 manifest 的原始 SHA，再建立空语义状态的初始 Context。
+
+本阶段未导入或调用 PP-DocLayout、OCR、DeepSeek 或多模态 provider；SourceObservation 从 F2
+开始写入。
 
 先写失败测试：
 

@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "problem-extraction-f1-fingerprints.schema.json",
+  "title": "Problem Extraction F1 Fingerprints",
+  "type": "object",
+  "required": ["$schema", "schema_version", "cases"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "schema_version": { "const": "problem-extraction-f1-fingerprints/v1" },
+    "cases": {
+      "type": "object",
+      "minProperties": 5,
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "source_id",
+          "source_revision_hash",
+          "selection_id",
+          "dependency_hash",
+          "context_id"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "pattern": "^source:[a-f0-9]{64}$"
+          },
+          "source_revision_hash": { "$ref": "#/$defs/sha256" },
+          "selection_id": {
+            "type": "string",
+            "pattern": "^selection:[a-f0-9]{64}$"
+          },
+          "dependency_hash": { "$ref": "#/$defs/sha256" },
+          "context_id": {
+            "type": "string",
+            "pattern": "^extraction-context:[a-f0-9]{64}$"
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  }
+}

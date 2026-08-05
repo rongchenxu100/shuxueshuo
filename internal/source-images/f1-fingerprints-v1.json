@@ -1,0 +1,41 @@
+{
+  "$schema": "../schemas/problem-extraction-f1-fingerprints.schema.json",
+  "cases": {
+    "tj-2026-heping-ermo-25": {
+      "context_id": "extraction-context:82205347a0d08124a1b3802dbdb16189d98ec9be497d768fa1abd22543434e6a",
+      "dependency_hash": "95945c6c2b09517cce1e00951d60d213f4be1a6b3357f9397bb762880cf740d5",
+      "selection_id": "selection:3d0e1a84eff7f013c46626bc23f52f32ebbde2dc15db5e571dde599159fea2e2",
+      "source_id": "source:ee4d7c835a52e84a55912dbd178a4c87d06b68df380c5d4328e787308ffd5202",
+      "source_revision_hash": "4068ced7ee0849c70b4ad45d4424682813bf938f13a26eae96835281c3bbca5b"
+    },
+    "tj-2026-heping-yimo-25": {
+      "context_id": "extraction-context:936dd439b93209a27d787cbebcaa0fbd3e24a1ddbf309df0fbb82934e97668da",
+      "dependency_hash": "4c13ce6bed30b8b9ac6444124ad27c2d8ec25ba77ffe5b4f1899c2549983b768",
+      "selection_id": "selection:9fb714caf47455a8653f0e75ec733ec169854653299f751928262aa73743651d",
+      "source_id": "source:dc68c386db4ef7475ae47cfda28a5aa9ca7d60cc2e2766652c95e0348f8f8e91",
+      "source_revision_hash": "4e60983d06f661da0e7c191977d3b82135505128c559eb450f46975b85cef294"
+    },
+    "tj-2026-hexi-yimo-25": {
+      "context_id": "extraction-context:04a4ba617d3af0a794654713f1324c22f59844536fb28a1202231fbec5e03519",
+      "dependency_hash": "d629b5381de6c90935772ad6c62a2529c2a3c05dcec55f84e50105bf900bad79",
+      "selection_id": "selection:eff105b6a77d129851db63d61be2688761ebc7bce1460f35dc4307d01ea9a3f2",
+      "source_id": "source:1f568a3bacc674e6297c2fe0608f85ad0beaba40a68ddd51696d7de82866000f",
+      "source_revision_hash": "a00d9b65c0d91ce7274d29509e4488a1dcd48642e4da93014061cc80438b2a50"
+    },
+    "tj-2026-nankai-yimo-25": {
+      "context_id": "extraction-context:ae615eb41cb3422dbe965b6bd9915411f249d2e7a138d22e3eb6c2bac84efe37",
+      "dependency_hash": "4a980f591b15bb254fd5f11f63ef9df85e4ff8f2b61eca7ee300c7beb8870d58",
+      "selection_id": "selection:2e26b808408bf7bb888738b524251fb66fae2bf2fdd6b4c6577142c43b366202",
+      "source_id": "source:1f368c017e7346c04056652ce9c027b812144212a1c80c30b39c9f78fe24e666",
+      "source_revision_hash": "0bc1592464caeddf480c4c5d1982de537185430671d72b0cd7ccf4488cfa49ce"
+    },
+    "tj-2026-xiqing-yimo-25": {
+      "context_id": "extraction-context:29d9b3a1d93f51f1b6f4bc410b773acf536f817debc215e6579aca3781df2925",
+      "dependency_hash": "46654f9d9e1e1fa159a71ad75d4d710cba8c90d5abe64c925c1ab8eade6273d2",
+      "selection_id": "selection:9e55205c4001eb95eddb178125cbfd8b79dbd3e9bf043db8ce09a1850323855f",
+      "source_id": "source:c38b82f3f07b1354b7eca826e2d6902af5cb3568a07624406a0fcf1127821c45",
+      "source_revision_hash": "b8574e28fa3194e348b954188de8cd9c106ad4cc9d44df41d854b333aaeef3d3"
+    }
+  },
+  "schema_version": "problem-extraction-f1-fingerprints/v1"
+}
