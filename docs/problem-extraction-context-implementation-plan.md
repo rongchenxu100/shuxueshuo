@@ -389,6 +389,9 @@ heping
 
 ### F2：图片/PDF 到区域、笔迹分层与 SourceObservation JSON
 
+本地真实 provider 环境按 [OCR 本地环境安装](ocr-local-environment-setup.md) 准备；Paddle 依赖使用
+独立 `server/.venv-ocr`，不进入默认 solver `.venv`。离线 adapter 测试仍不得下载或调用真实模型。
+
 先写失败测试：
 
 - `test_problem_extraction_observations.py`覆盖orientation、layout block、OCR span、formula、reading order和normalized bbox；
