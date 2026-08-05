@@ -1,0 +1,88 @@
+{
+  "meta": {
+    "id": "logic-practice-q07",
+    "outputPath": "site/problems/senior-high/sets/common-logical-language/logic-practice-q07.html",
+    "pageTitle": "否定一个二次不等式全称命题",
+    "pageDescription": "否定一个二次不等式全称命题的逐步解析。",
+    "breadcrumbTitle": "实战演练 · 第 7 题",
+    "breadcrumbLabel": "常用逻辑用语",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=common-logical-language&module=logic-practice"
+  },
+  "problem": {
+    "source": "培训教材 · 常用逻辑用语",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "量词互换，谓词取否，变量范围原样保留。",
+      "items": [
+        "\\(∃\\) 与 \\(∀\\) 互换；",
+        "\\(>\\) 的否定是 \\(≤\\)。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "命题“\\(∀x∈\\mathbb R，x^2+x+1>0\\)”的否定是（　　）"
+      },
+      {
+        "text": "A. \\(∀x∈\\mathbb R，x^2+x+1≤0\\)　B. \\(∃x∈\\mathbb R，x^2+x+1≤0\\)　C. \\(∃x∈\\mathbb R，x^2+x+1<0\\)　D. \\(∃x∈\\mathbb R，x^2+x+1>0\\)"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "量词命题的否定",
+      "title": "按三部分完成否定",
+      "t": 0,
+      "showDiagram": false,
+      "table": {
+        "headers": [
+          "检查项",
+          "处理"
+        ],
+        "rows": [
+          [
+            "量词",
+            "\\(∃\\) 与 \\(∀\\) 互换"
+          ],
+          [
+            "范围",
+            "保持不变"
+          ],
+          [
+            "谓词",
+            "关系符号取否"
+          ]
+        ]
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "逐项完成结构转换，并核对量词、研究范围与关系符号"
+        },
+        {
+          "kind": "therefore",
+          "text": "完整否定为 \\(∃x∈\\mathbb R，x^2+x+1≤0\\)，选择 B"
+        }
+      ],
+      "derive": [
+        [
+          "答案",
+          "B"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 按三部分完成否定"
+  }
+}

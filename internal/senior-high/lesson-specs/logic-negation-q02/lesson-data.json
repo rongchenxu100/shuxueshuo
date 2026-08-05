@@ -1,0 +1,84 @@
+{
+  "meta": {
+    "id": "logic-negation-q02",
+    "outputPath": "site/problems/senior-high/sets/common-logical-language/logic-negation-q02.html",
+    "pageTitle": "否定一个自然数命题",
+    "pageDescription": "否定一个自然数命题的逐步解析。",
+    "breadcrumbTitle": "量词命题的否定 · 练习 6-2",
+    "breadcrumbLabel": "常用逻辑用语",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=common-logical-language&module=quantifier-negations"
+  },
+  "problem": {
+    "source": "培训教材 · 常用逻辑用语",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "否定属于关系时，变量的原定义域不能改变。",
+      "items": [
+        "\\(∀\\) 改为 \\(∃\\)；",
+        "\\(∈\\) 改为 \\(∉\\)。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "命题“\\(∀x∈\\mathbb Z，|x-1|∈\\mathbb N^*\\)”的否定为（　　）"
+      },
+      {
+        "text": "A. \\(∀x\\notin\\mathbb Z，|x-1|∈\\mathbb N^*\\)　B. \\(∀x∈\\mathbb Z，|x-1|\\notin\\mathbb N^*\\)　C. \\(∃x\\notin\\mathbb Z，|x-1|\\notin\\mathbb N^*\\)　D. \\(∃x∈\\mathbb Z，|x-1|\\notin\\mathbb N^*\\)"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "量词命题的否定",
+      "title": "保留范围并否定谓词",
+      "t": 0,
+      "showDiagram": false,
+      "table": {
+        "headers": [
+          "原命题",
+          "否定"
+        ],
+        "rows": [
+          [
+            "\\(∀x∈\\mathbb Z\\)",
+            "\\(∃x∈\\mathbb Z\\)"
+          ],
+          [
+            "\\(|x-1|∈\\mathbb N^*\\)",
+            "\\(|x-1|\\notin\\mathbb N^*\\)"
+          ]
+        ]
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "逐项完成结构转换，并核对量词、研究范围与关系符号"
+        },
+        {
+          "kind": "therefore",
+          "text": "完整否定为 \\(∃x∈\\mathbb Z，|x-1|\\notin\\mathbb N^*\\)，选择 D"
+        }
+      ],
+      "derive": [
+        [
+          "答案",
+          "D"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 保留范围并否定谓词"
+  }
+}

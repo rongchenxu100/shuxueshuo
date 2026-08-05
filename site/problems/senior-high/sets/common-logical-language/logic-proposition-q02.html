@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>辨析自由变量与量词 | 数学说</title>
+  <meta name="description" content="判断开放语句在加入全称量词前后是否成为命题。" />
+  <meta property="og:title" content="辨析自由变量与量词 | 数学说" />
+  <meta property="og:description" content="判断开放语句在加入全称量词前后是否成为命题。" />
+  <meta property="og:image" content="../../../../assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../../assets/css/interactive-geometry-page.css?v=7" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../../index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../../senior-high/index.html?chapter=sets&section=common-logical-language&module=propositions">常用逻辑用语</a>
+    <span class="lesson-title">命题的概念 · 练习 1-2</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          <div class="problem-full">
+            <div class="problem-line"><span>下列语句是命题吗？</span></div>
+<div class="problem-line"><span>（1）<span class="inline-math">x&gt;5</span>；（2）<span class="inline-math">3x+2</span> 是整数；</span></div>
+<div class="problem-line"><span>（3）对所有的 <span class="inline-math">x∈<span class="math-blackboard">ℝ</span></span>，<span class="inline-math">x&gt;5</span>；（4）对任意一个 <span class="inline-math">x∈<span class="math-blackboard">ℤ</span></span>，<span class="inline-math">3x+2</span> 是整数。</span><span class="answer-chip" id="answerI">答案：（1）不是命题；（2）不是命题；（3）命题；（4）命题</span></div>
+          </div>
+        </section>
+
+        <aside class="lesson-key-points" aria-label="解题要点"><div class="lesson-key-points-title">解题要点</div><div class="lesson-key-points-content"><p class="lesson-key-points-lead">未被约束的变量会使语句真假随取值变化。</p><ol><li>开放语句不是命题；</li><li>量词约束变量后可以判断整句话的真假。</li></ol></div></aside>
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../../assets/js/baidu-stats.js"></script>
+  <script src="../../../../assets/js/geometry-label-layout.js"></script>
+  <script src="../../../../assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../../assets/js/lesson-page-runtime.js?v=16"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"s1","section":"命题的概念","title":"检查变量是否被量词约束","t":0,"showDiagram":false,"table":{"headers":["语句","变量状态","真值","结论"],"rows":[["（1）","x 自由","随 x 改变","不是命题"],["（2）","x 自由","随 x 改变","不是命题"],["（3）","全称量词约束 x","假，例如 x=0","命题"],["（4）","全称量词约束 x","真","命题"]]},"reasoning":[{"kind":"because","text":"第（1）、（2）句中的 x 没有给定取值范围或量词，不能确定整句话的真假"},{"kind":"therefore","text":"（1）、（2）不是命题；（3）、（4）是命题，其中（3）是假命题，（4）是真命题"}],"derive":[["结论","依次为：不是命题，不是命题，命题，命题"]]}];
+    var STEP_LABELS = {"s1":"1 检查量词"};
+    var POLICIES   = {"s1":{"movable":false,"range":[0,0]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 滑块主参数与派生参数的联动文案格式化器 */
+    var __LESSON_PARAM_LABEL_FORMATTER__;
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script>
+  function diagramMarkupFor() { return ''; }
+  function diagramMarkupForFrame() { return ''; }
+  function drawMini() { return ''; }
+  function groupTitle(section) { return section; }
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      diagramMarkupForFrame: typeof diagramMarkupForFrame === "function" ? diagramMarkupForFrame : undefined,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "参数",
+      paramLabelPrefix: "",
+      paramLabelFormatter: typeof __LESSON_PARAM_LABEL_FORMATTER__ === "function" ? __LESSON_PARAM_LABEL_FORMATTER__ : undefined,
+      goToProblemMode: "doubleScroll"
+    });
+  </script>
+</body>
+</html>

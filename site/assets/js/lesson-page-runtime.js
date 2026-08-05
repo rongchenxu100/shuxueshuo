@@ -123,6 +123,9 @@
         ["\\ldots", "…"],
         ["\\pi", "π"],
         ["\\cdot", "·"],
+        ["\\nRightarrow", "⇏"],
+        ["\\Rightarrow", "⇒"],
+        ["\\Leftrightarrow", "⇔"],
         ["\\left", ""],
         ["\\right", ""],
         ["\\not=", "≠"],
@@ -223,6 +226,13 @@
     }
 
     return markup + renderExponentText(source.slice(cursor));
+  }
+
+  function renderSvgSetExpression(value) {
+    return esc(value).replaceAll(
+      "CℝA",
+      'C<tspan baseline-shift="sub" font-size="65%">ℝ</tspan>A',
+    );
   }
 
   function stepHasDiagram(step) {
@@ -617,6 +627,106 @@
       const visual = step && step.visual;
       if (!visual || !visual.kind) return "";
       const ariaLabel = esc(visual.ariaLabel || "解题示意图");
+
+      if (visual.kind === "implication-condition-pairs") {
+        const cases = Array.isArray(visual.cases) ? visual.cases : [];
+        const cards = cases.map(function (item, index) {
+          const sufficientOk = item.sufficient === true;
+          const necessaryOk = item.necessary === true;
+          const topColor = sufficientOk ? "#177c66" : "#c5534a";
+          const bottomColor = necessaryOk ? "#177c66" : "#c5534a";
+          const topMarker = "implication-top-" + index;
+          const bottomMarker = "implication-bottom-" + index;
+          const setEvidence = item.setEvidence;
+          const explanationMarkup = setEvidence && Array.isArray(setEvidence.explanations) ? (
+            '<div class="lesson-implication-set-explanations">' + setEvidence.explanations.map(function (line, lineIndex) {
+              return '<p><span class="lesson-implication-set-explanation-index">' + (lineIndex + 1) + '</span><span class="lesson-implication-set-explanation-text">' + renderFormulaText(line) + '</span></p>';
+            }).join("") + '</div>'
+          ) : "";
+          const setEvidenceMarkup = setEvidence && setEvidence.kind === "nested-open-intervals" ? (
+            '<figure class="lesson-implication-set-evidence">' +
+            '<svg viewBox="0 0 520 210" role="img" aria-label="' + esc(
+              "解集 " + setEvidence.qSet + " 真包含于 " + setEvidence.pSet,
+            ) + '">' +
+            '<g class="lesson-implication-set-axis"><line x1="92" y1="62" x2="458" y2="62"/><path d="M458 62l-11-7v14z"/><line x1="92" y1="132" x2="458" y2="132"/><path d="M458 132l-11-7v14z"/></g>' +
+            '<g class="lesson-implication-set-row-label"><text x="52" y="69">P</text><text x="52" y="139">Q</text></g>' +
+            '<g class="lesson-implication-set-segment is-p"><line x1="142" y1="62" x2="405" y2="62"/><circle cx="142" cy="62" r="8"/><circle cx="405" cy="62" r="8"/></g>' +
+            '<g class="lesson-implication-set-segment is-q"><line x1="142" y1="132" x2="230" y2="132"/><circle cx="142" cy="132" r="8"/><circle cx="230" cy="132" r="8"/></g>' +
+            '<g class="lesson-implication-set-ticks"><text x="142" y="91">' + esc(setEvidence.sharedLeft) + '</text><text x="230" y="161">' + esc(setEvidence.qRight) + '</text><text x="405" y="91">' + esc(setEvidence.pRight) + '</text></g>' +
+            '<text class="lesson-implication-set-relation" x="275" y="196">' + esc(setEvidence.relation) + '</text>' +
+            '</svg>' +
+            '<figcaption><strong>' + esc(setEvidence.pSet) + '</strong>，<strong>' + esc(setEvidence.qSet) + '</strong></figcaption>' +
+            explanationMarkup +
+            '</figure>'
+          ) : setEvidence && setEvidence.kind === "parameter-interval-containment" ? (
+            '<figure class="lesson-implication-set-evidence is-parameter">' +
+            '<svg viewBox="0 0 520 220" role="img" aria-label="' + esc(setEvidence.ariaLabel || "含参区间包含关系数轴") + '">' +
+            '<g class="lesson-implication-set-axis"><line x1="92" y1="62" x2="458" y2="62"/><path d="M458 62l-11-7v14z"/><line x1="92" y1="132" x2="458" y2="132"/><path d="M458 132l-11-7v14z"/></g>' +
+            '<g class="lesson-implication-set-row-label"><text x="52" y="69">P</text><text x="52" y="139">Q</text></g>' +
+            (setEvidence.layout === "fixed-inside-right-ray" ? (
+              '<g class="lesson-implication-set-segment is-p"><line x1="230" y1="62" x2="375" y2="62"/><circle class="is-closed" cx="230" cy="62" r="8"/><circle class="is-closed" cx="375" cy="62" r="8"/></g>' +
+              '<g class="lesson-implication-set-segment is-q"><line x1="135" y1="132" x2="450" y2="132"/><circle cx="135" cy="132" r="8"/><path d="M458 132l-14-9v18z"/></g>' +
+              '<g class="lesson-implication-set-ticks"><text x="230" y="91">' + esc(setEvidence.pLeft) + '</text><text x="375" y="91">' + esc(setEvidence.pRight) + '</text><text x="135" y="162">' + esc(setEvidence.qEndpoint) + '</text></g>'
+            ) : (
+              '<g class="lesson-implication-set-segment is-p"><line x1="100" y1="62" x2="285" y2="62"/><path d="M92 62l14-9v18z"/><circle cx="285" cy="62" r="8"/></g>' +
+              '<g class="lesson-implication-set-segment is-q"><line x1="100" y1="132" x2="405" y2="132"/><path d="M92 132l14-9v18z"/><circle cx="405" cy="132" r="8"/></g>' +
+              '<g class="lesson-implication-set-ticks"><text x="285" y="91">' + esc(setEvidence.pEndpoint) + '</text><text x="405" y="162">' + esc(setEvidence.qEndpoint) + '</text></g>'
+            )) +
+            '<text class="lesson-implication-set-relation" x="275" y="207">' + esc(setEvidence.relation) + '</text>' +
+            '</svg>' +
+            '<figcaption><strong>' + esc(setEvidence.pSet) + '</strong>，<strong>' + esc(setEvidence.qSet) + '</strong></figcaption>' +
+            explanationMarkup +
+            '</figure>'
+          ) : setEvidence && setEvidence.kind === "complement-right-ray-parameter" ? (
+            '<figure class="lesson-implication-set-evidence is-parameter is-parameter-result">' +
+            '<svg viewBox="0 0 520 292" role="img" aria-label="' + esc(setEvidence.ariaLabel || "补集与含参右开射线的包含关系") + '">' +
+            '<g class="lesson-implication-set-axis"><line x1="92" y1="55" x2="458" y2="55"/><path d="M458 55l-11-7v14z"/><line x1="92" y1="130" x2="458" y2="130"/><path d="M458 130l-11-7v14z"/><line x1="92" y1="205" x2="458" y2="205"/><path d="M458 205l-11-7v14z"/></g>' +
+            '<g class="lesson-implication-set-row-label"><text x="52" y="62">' + renderSvgSetExpression(setEvidence.pRowLabel) + '</text><text x="52" y="137">' + renderSvgSetExpression(setEvidence.qRowLabel) + '</text><text x="52" y="212">' + renderSvgSetExpression(setEvidence.resultRowLabel) + '</text></g>' +
+            '<g class="lesson-implication-set-segment is-p"><line x1="100" y1="55" x2="210" y2="55"/><path d="M92 55l14-9v18z"/><circle cx="210" cy="55" r="8"/><line x1="340" y1="55" x2="450" y2="55"/><circle cx="340" cy="55" r="8"/><path d="M458 55l-14-9v18z"/></g>' +
+            '<g class="lesson-implication-set-segment is-q"><line x1="340" y1="130" x2="450" y2="130"/><circle cx="340" cy="130" r="8"/><path d="M458 130l-14-9v18z"/></g>' +
+            '<g class="lesson-implication-set-segment is-result"><line x1="340" y1="205" x2="450" y2="205"/><circle class="is-closed" cx="340" cy="205" r="8"/><path d="M458 205l-14-9v18z"/></g>' +
+            '<g class="lesson-implication-set-ticks"><text x="210" y="86">' + esc(setEvidence.pLeftEndpoint) + '</text><text x="340" y="86">' + esc(setEvidence.pRightEndpoint) + '</text><text x="340" y="161">' + esc(setEvidence.qEndpoint) + '</text><text x="340" y="236">' + esc(setEvidence.resultEndpoint) + '</text></g>' +
+            '<text class="lesson-implication-set-relation" x="275" y="278">' + renderSvgSetExpression(setEvidence.relation) + '</text>' +
+            '</svg>' +
+            '<figcaption><strong>' + renderFormulaText(setEvidence.pSet) + '</strong>，<strong>' + renderFormulaText(setEvidence.qSet) + '</strong>；参数范围 <strong>' + renderFormulaText(setEvidence.parameterSet) + '</strong></figcaption>' +
+            explanationMarkup +
+            '</figure>'
+          ) : "";
+          return (
+            '<article class="lesson-implication-card">' +
+            '<h3>' + esc(item.label || String(index + 1)) + "　" + esc(item.result || "") + '</h3>' +
+            setEvidenceMarkup +
+            '<svg viewBox="0 0 420 210" role="img" aria-label="' + esc(
+              (item.label || String(index + 1)) + "：充分" + (sufficientOk ? "成立" : "不成立") +
+              "，必要" + (necessaryOk ? "成立" : "不成立"),
+            ) + '">' +
+            '<defs>' +
+            '<marker id="' + topMarker + '" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="' + topColor + '"/></marker>' +
+            '<marker id="' + bottomMarker + '" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="' + bottomColor + '"/></marker>' +
+            '</defs>' +
+            '<g class="lesson-implication-node"><circle cx="72" cy="105" r="34"/><text x="72" y="114">p</text></g>' +
+            '<g class="lesson-implication-node"><circle cx="348" cy="105" r="34"/><text x="348" y="114">q</text></g>' +
+            '<path class="lesson-implication-arrow ' + (sufficientOk ? "is-valid" : "is-invalid") + '" d="M104 88 C154 28 266 28 316 88" marker-end="url(#' + topMarker + ')"/>' +
+            '<text class="lesson-implication-label" x="210" y="42">充分</text>' +
+            '<circle class="lesson-implication-status-backdrop" cx="264" cy="48" r="14"/>' +
+            '<text class="lesson-implication-status ' + (sufficientOk ? "is-valid" : "is-invalid") + '" x="264" y="55">' + (sufficientOk ? "✓" : "✕") + '</text>' +
+            '<path class="lesson-implication-arrow ' + (necessaryOk ? "is-valid" : "is-invalid") + '" d="M316 122 C266 182 154 182 104 122" marker-end="url(#' + bottomMarker + ')"/>' +
+            '<text class="lesson-implication-label" x="210" y="178">必要</text>' +
+            '<circle class="lesson-implication-status-backdrop" cx="156" cy="162" r="14"/>' +
+            '<text class="lesson-implication-status ' + (necessaryOk ? "is-valid" : "is-invalid") + '" x="156" y="169">' + (necessaryOk ? "✓" : "✕") + '</text>' +
+            '</svg>' +
+            '<div class="lesson-implication-definitions"><p><strong>p：</strong>' + renderFormulaText(item.pText || "") + '</p><p><strong>q：</strong>' + renderFormulaText(item.qText || "") + '</p></div>' +
+            (item.counterexample ? '<p class="lesson-implication-counterexample"><strong>' + esc(item.evidenceLabel || "反例") + '：</strong>' + renderFormulaText(item.counterexample) + '</p>' : "") +
+            '</article>'
+          );
+        }).join("");
+        return (
+          '<figure class="lesson-step-visual lesson-step-implications">' +
+          '<div class="lesson-implication-grid is-' + cases.length + '">' + cards + '</div>' +
+          '<figcaption>箭头线上的“充分”和“必要”分别表示 p 对 q 的两种条件关系；勾表示成立，叉表示不成立。</figcaption>' +
+          '</figure>'
+        );
+      }
 
       if (visual.kind === "number-line-difference") {
         return (

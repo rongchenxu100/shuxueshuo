@@ -1,0 +1,84 @@
+{
+  "meta": {
+    "id": "logic-negation-q01",
+    "outputPath": "site/problems/senior-high/sets/common-logical-language/logic-negation-q01.html",
+    "pageTitle": "否定一个全称不等式命题",
+    "pageDescription": "否定一个全称不等式命题的逐步解析。",
+    "breadcrumbTitle": "量词命题的否定 · 练习 6-1",
+    "breadcrumbLabel": "常用逻辑用语",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=common-logical-language&module=quantifier-negations"
+  },
+  "problem": {
+    "source": "培训教材 · 常用逻辑用语",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "量词互换，谓词取否，研究范围保持不变。",
+      "items": [
+        "\\(∀\\) 的否定是 \\(∃\\)；",
+        "\\(≥\\) 的否定是 \\(<\\)。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "命题“\\(∀x∈\\mathbb R，4x^2+5x+2≥0\\)”的否定是（　　）"
+      },
+      {
+        "text": "A. \\(∃x∈\\mathbb R，4x^2+5x+2<0\\)　　B. \\(∀x\\notin\\mathbb R，4x^2+5x+2≥0\\)　　C. \\(∃x\\notin\\mathbb R，4x^2+5x+2<0\\)　　D. \\(∀x∈\\mathbb R，4x^2+5x+2<0\\)"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "量词命题的否定",
+      "title": "逐层完成否定",
+      "t": 0,
+      "showDiagram": false,
+      "table": {
+        "headers": [
+          "原结构",
+          "否定后"
+        ],
+        "rows": [
+          [
+            "对任意 \\(x∈\\mathbb R\\)",
+            "存在 \\(x∈\\mathbb R\\)"
+          ],
+          [
+            "\\(4x^2+5x+2≥0\\)",
+            "\\(4x^2+5x+2<0\\)"
+          ]
+        ]
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "变量范围 \\(x∈\\mathbb R\\) 不变，只把全称量词改为存在量词，并否定不等式"
+        },
+        {
+          "kind": "therefore",
+          "text": "选择 A"
+        }
+      ],
+      "derive": [
+        [
+          "答案",
+          "A"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 逐层完成否定"
+  }
+}

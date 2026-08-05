@@ -1049,6 +1049,272 @@ svg {
   text-align: center;
 }
 
+.lesson-implication-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.lesson-implication-grid.is-1 {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.lesson-implication-grid.is-1 .lesson-implication-card {
+  width: min(100%, 640px);
+  margin-inline: auto;
+}
+
+.lesson-implication-card {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid rgba(15, 107, 104, 0.14);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.lesson-implication-card h3 {
+  margin: 0;
+  color: #173e43;
+  font-family: "Songti SC", "Noto Serif SC", serif;
+  font-size: 0.98rem;
+  text-align: center;
+}
+
+.lesson-step-implications .lesson-implication-card svg {
+  max-height: none;
+}
+
+.lesson-implication-set-evidence {
+  margin: 10px 0 2px;
+  padding: 8px 10px 5px;
+  border-radius: 10px;
+  background: rgba(232, 243, 240, 0.7);
+}
+
+.lesson-implication-set-evidence svg {
+  width: 100%;
+  height: auto;
+}
+
+.lesson-implication-set-evidence figcaption {
+  margin-top: -2px;
+  font-size: 0.8rem;
+}
+
+.lesson-implication-set-explanations {
+  display: grid;
+  gap: 7px;
+  margin-top: 9px;
+  text-align: left;
+}
+
+.lesson-implication-set-explanations p {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 7px;
+  align-items: start;
+  margin: 0;
+  color: #355257;
+  font-size: 0.84rem;
+  line-height: 1.6;
+}
+
+.lesson-implication-set-explanation-index {
+  display: inline-grid;
+  width: 21px;
+  height: 21px;
+  place-items: center;
+  border-radius: 50%;
+  background: #e6f1ef;
+  color: #0f6b68;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.lesson-implication-set-axis line {
+  stroke: #6d8083;
+  stroke-width: 2;
+}
+
+.lesson-implication-set-axis path {
+  fill: #6d8083;
+}
+
+.lesson-implication-set-row-label text,
+.lesson-implication-set-ticks text,
+.lesson-implication-set-relation {
+  fill: #173e43;
+  font-family: Georgia, "Times New Roman", "Songti SC", serif;
+  text-anchor: middle;
+}
+
+.lesson-implication-set-row-label text {
+  font-size: 24px;
+  font-style: italic;
+}
+
+.lesson-implication-set-ticks text {
+  font-size: 18px;
+}
+
+.lesson-implication-set-relation {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.lesson-implication-set-explanation-text {
+  display: block;
+  min-width: 0;
+}
+
+.lesson-implication-set-segment line {
+  stroke-width: 7;
+  stroke-linecap: round;
+}
+
+.lesson-implication-set-segment circle {
+  fill: #fffdfa;
+  stroke-width: 4;
+}
+
+.lesson-implication-set-segment path {
+  stroke: none;
+}
+
+.lesson-implication-set-segment.is-p line,
+.lesson-implication-set-segment.is-p circle {
+  stroke: #3f7fa0;
+}
+
+.lesson-implication-set-segment.is-p path {
+  fill: #3f7fa0;
+}
+
+.lesson-implication-set-segment.is-p circle.is-closed {
+  fill: #3f7fa0;
+}
+
+.lesson-implication-set-segment.is-q line,
+.lesson-implication-set-segment.is-q circle {
+  stroke: #d08a2c;
+}
+
+.lesson-implication-set-segment.is-q path {
+  fill: #d08a2c;
+}
+
+.lesson-implication-set-segment.is-q circle.is-closed {
+  fill: #d08a2c;
+}
+
+.lesson-implication-set-segment.is-result line,
+.lesson-implication-set-segment.is-result circle {
+  stroke: #177c66;
+}
+
+.lesson-implication-set-segment.is-result path {
+  fill: #177c66;
+}
+
+.lesson-implication-set-segment.is-result circle.is-closed {
+  fill: #177c66;
+}
+
+.lesson-implication-set-evidence.is-parameter .lesson-implication-set-relation {
+  font-size: 18px;
+}
+
+.lesson-implication-node circle {
+  fill: #fffdfa;
+  stroke: #174d52;
+  stroke-width: 3;
+}
+
+.lesson-implication-node text {
+  fill: #173e43;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 28px;
+  font-style: italic;
+  text-anchor: middle;
+}
+
+.lesson-implication-arrow {
+  fill: none;
+  stroke-width: 5;
+  stroke-linecap: round;
+}
+
+.lesson-implication-arrow.is-valid {
+  stroke: #177c66;
+}
+
+.lesson-implication-arrow.is-invalid {
+  stroke: #c5534a;
+  stroke-dasharray: 8 7;
+}
+
+.lesson-implication-label {
+  fill: #173e43;
+  font-family: "Songti SC", "Noto Serif SC", serif;
+  font-size: 21px;
+  font-weight: 750;
+  text-anchor: middle;
+}
+
+.lesson-implication-status-backdrop {
+  fill: #fffdfa;
+}
+
+.lesson-implication-status {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 23px;
+  font-weight: 800;
+  text-anchor: middle;
+}
+
+.lesson-implication-status.is-valid {
+  fill: #177c66;
+}
+
+.lesson-implication-status.is-invalid {
+  fill: #c5534a;
+}
+
+.lesson-implication-definitions {
+  display: grid;
+  gap: 4px;
+  padding-top: 4px;
+  color: #40585c;
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+.lesson-implication-definitions p,
+.lesson-implication-counterexample {
+  margin: 0;
+}
+
+.lesson-implication-counterexample {
+  margin-top: 8px;
+  padding: 7px 9px;
+  border-radius: 8px;
+  background: rgba(197, 83, 74, 0.08);
+  color: #7f3934;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 860px) {
+  .lesson-implication-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .lesson-implication-card {
+    max-width: 520px;
+    margin-inline: auto;
+  }
+}
+
 .lesson-number-line-axis line,
 .lesson-number-line-ticks line {
   stroke: #62787b;

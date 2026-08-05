@@ -1,0 +1,84 @@
+{
+  "meta": {
+    "id": "logic-practice-q02",
+    "outputPath": "site/problems/senior-high/sets/common-logical-language/logic-practice-q02.html",
+    "pageTitle": "判断分式不等式的条件关系",
+    "pageDescription": "判断分式不等式的条件关系的逐步解析。",
+    "breadcrumbTitle": "实战演练 · 第 2 题",
+    "breadcrumbLabel": "常用逻辑用语",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=common-logical-language&module=logic-practice"
+  },
+  "problem": {
+    "source": "培训教材 · 常用逻辑用语",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "分别标记充分与必要是否成立。",
+      "items": [
+        "充分看前件能否保证后件；",
+        "必要看后件成立时前件是否必须成立。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "“\\(a>b>0\\)”是“\\(\\frac{b}{a}<1\\)”的（　　）"
+      },
+      {
+        "text": "A. 充分不必要条件　　B. 必要不充分条件　　C. 充要条件　　D. 既不充分也不必要条件"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "充分必要条件",
+      "title": "判断充分与必要",
+      "t": 0,
+      "showDiagram": false,
+      "visual": {
+        "kind": "implication-condition-pairs",
+        "ariaLabel": "判断分式不等式的条件关系推导图",
+        "cases": [
+          {
+            "label": "判断分式不等式的条件关系",
+            "pText": "\\(a>b>0\\)",
+            "qText": "\\(\\frac{b}{a}<1\\)",
+            "sufficient": true,
+            "necessary": false,
+            "result": "充分不必要条件",
+            "evidenceLabel": "判断依据",
+            "counterexample": "充分成立：\\(a>b>0\\) 能推出 \\(0<\\frac{b}{a}<1\\)；必要不成立：取 \\(a=-1,b=1\\) 时，\\(\\frac{b}{a}=-1<1\\)，但 \\(a>b>0\\) 不成立"
+          }
+        ]
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "充分成立：\\(a>b>0\\) 能推出 \\(0<\\frac{b}{a}<1\\)；必要不成立：取 \\(a=-1,b=1\\) 时，\\(\\frac{b}{a}=-1<1\\)，但 \\(a>b>0\\) 不成立"
+        },
+        {
+          "kind": "therefore",
+          "text": "选择 A"
+        }
+      ],
+      "derive": [
+        [
+          "答案",
+          "A"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 判断充分与必要"
+  }
+}

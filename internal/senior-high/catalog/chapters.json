@@ -20,6 +20,13 @@
           "order": 20,
           "presentation": "learning",
           "topicId": "set-relations-and-operations"
+        },
+        {
+          "id": "common-logical-language",
+          "label": "常用逻辑用语",
+          "order": 30,
+          "presentation": "learning",
+          "topicId": "common-logical-language"
         }
       ]
     },

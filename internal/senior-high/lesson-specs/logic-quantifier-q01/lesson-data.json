@@ -1,0 +1,95 @@
+{
+  "meta": {
+    "id": "logic-quantifier-q01",
+    "outputPath": "site/problems/senior-high/sets/common-logical-language/logic-quantifier-q01.html",
+    "pageTitle": "判断三个量词命题的真假",
+    "pageDescription": "判断三个量词命题的真假的逐步解析。",
+    "breadcrumbTitle": "全称量词与存在量词 · 练习 5-1",
+    "breadcrumbLabel": "常用逻辑用语",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=common-logical-language&module=quantifiers"
+  },
+  "problem": {
+    "source": "培训教材 · 常用逻辑用语",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "存在命题举例验证，全称命题寻找反例。",
+      "items": [
+        "一个实例可以说明存在命题为真；",
+        "一个反例可以说明全称命题为假。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "判断下列命题的真假："
+      },
+      {
+        "text": "（1）存在一对实数 \\((a,b)\\)，使 \\(a^2+b<0\\) 成立；"
+      },
+      {
+        "text": "（2）有理数 \\(x\\) 的平方仍为有理数；（3）实数的平方大于 0。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "命题与量词",
+      "title": "逐项选择验证方式",
+      "t": 0,
+      "showDiagram": false,
+      "table": {
+        "headers": [
+          "命题",
+          "验证",
+          "结论"
+        ],
+        "rows": [
+          [
+            "（1）",
+            "取 \\(a=0,b=-1\\)，则 \\(a^2+b=-1<0\\)",
+            "真"
+          ],
+          [
+            "（2）",
+            "若 \\(x=m/n\\)，则 \\(x^2=m^2/n^2\\) 仍是有理数",
+            "真"
+          ],
+          [
+            "（3）",
+            "反例 \\(x=0\\)，此时 \\(x^2=0\\)",
+            "假"
+          ]
+        ]
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "（1）找到了满足条件的实数对；（2）对任意有理数都成立；（3）被 \\(x=0\\) 否定"
+        },
+        {
+          "kind": "therefore",
+          "text": "依次为真命题、真命题、假命题"
+        }
+      ],
+      "derive": [
+        [
+          "答案",
+          "真，真，假"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 逐项选择验证方式"
+  }
+}

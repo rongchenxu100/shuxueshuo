@@ -1,0 +1,6 @@
+{
+  "meta":{"id":"logic-proposition-q01","outputPath":"site/problems/senior-high/sets/common-logical-language/logic-proposition-q01.html","pageTitle":"判断六个语句是否为命题","pageDescription":"从陈述句和真假可判两个标准辨析命题、假命题与非命题。","breadcrumbTitle":"命题的概念 · 练习 1-1","breadcrumbLabel":"常用逻辑用语","breadcrumbPath":"site/senior-high/index.html","breadcrumbSearch":"?chapter=sets&section=common-logical-language&module=propositions"},
+  "problem":{"source":"培训教材 · 常用逻辑用语","keyPoints":{"title":"解题要点","lead":"先判断是否为陈述句，再判断真假能否确定。","items":["错误的陈述句仍可能是假命题；","疑问句、感叹句不是命题。"]},"lines":[{"text":"观察下面的例子，判断是否为命题："},{"text":"（1）角平分线上的点到角两边的距离相等；（2）个位数是 0 的自然数能被 5 整除；"},{"text":"（3）若 \\(m<-1\\)，则 \\(x^2+x-m=0\\) 有实根；（4）\\(\\varnothing\\) 是任意集合的真子集；"},{"text":"（5）数学真好玩啊！　（6）你吃了吗？"}]},
+  "steps":[{"id":"s1","section":"命题的概念","title":"逐句检查陈述方式与真值","t":0,"showDiagram":false,"table":{"headers":["语句","是否为陈述句","真假能否确定","结论"],"rows":[["（1）","是","真","命题"],["（2）","是","真","命题"],["（3）","是","假：\\(\\Delta=1+4m<-3\\)","命题"],["（4）","是","假：当集合本身为空集时不是真子集","命题"],["（5）","否，感叹句","—","不是命题"],["（6）","否，疑问句","—","不是命题"]]},"reasoning":[{"kind":"because","text":"前四句都是陈述句，而且各自的真假可以确定；第（3）、（4）句虽然为假，仍属于假命题"},{"kind":"therefore","text":"（1）至（4）是命题，（5）、（6）不是命题"}],"derive":[["结论","（1）命题；（2）命题；（3）命题；（4）命题；（5）不是命题；（6）不是命题"]]}],
+  "policies":{"s1":{"movable":false,"range":[0,0]}},"stepLabels":{"s1":"1 判断命题"}
+}

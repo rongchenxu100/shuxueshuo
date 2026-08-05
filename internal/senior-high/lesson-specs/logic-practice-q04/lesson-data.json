@@ -1,0 +1,88 @@
+{
+  "meta": {
+    "id": "logic-practice-q04",
+    "outputPath": "site/problems/senior-high/sets/common-logical-language/logic-practice-q04.html",
+    "pageTitle": "否定一个关于自然数的存在命题",
+    "pageDescription": "否定一个关于自然数的存在命题的逐步解析。",
+    "breadcrumbTitle": "实战演练 · 第 4 题",
+    "breadcrumbLabel": "常用逻辑用语",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=common-logical-language&module=logic-practice"
+  },
+  "problem": {
+    "source": "培训教材 · 常用逻辑用语",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "量词互换，谓词取否，变量范围原样保留。",
+      "items": [
+        "\\(∃\\) 与 \\(∀\\) 互换；",
+        "\\(>\\) 的否定是 \\(≤\\)。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "命题“\\(∃n∈\\mathbb N，n^2>2n+3\\)”的否定是（　　）"
+      },
+      {
+        "text": "A. \\(∀n\\notin\\mathbb N，n^2<2n+3\\)　B. \\(∀n∈\\mathbb N，n^2<2n+3\\)　C. \\(∀n\\notin\\mathbb N，n^2≤2n+3\\)　D. \\(∀n∈\\mathbb N，n^2≤2n+3\\)"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "量词命题的否定",
+      "title": "按三部分完成否定",
+      "t": 0,
+      "showDiagram": false,
+      "table": {
+        "headers": [
+          "检查项",
+          "处理"
+        ],
+        "rows": [
+          [
+            "量词",
+            "\\(∃\\) 与 \\(∀\\) 互换"
+          ],
+          [
+            "范围",
+            "保持不变"
+          ],
+          [
+            "谓词",
+            "关系符号取否"
+          ]
+        ]
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "逐项完成结构转换，并核对量词、研究范围与关系符号"
+        },
+        {
+          "kind": "therefore",
+          "text": "完整否定为 \\(∀n∈\\mathbb N，n^2≤2n+3\\)，选择 D"
+        }
+      ],
+      "derive": [
+        [
+          "答案",
+          "D"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 按三部分完成否定"
+  }
+}

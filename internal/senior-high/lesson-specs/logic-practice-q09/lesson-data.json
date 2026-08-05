@@ -1,0 +1,85 @@
+{
+  "meta": {
+    "id": "logic-practice-q09",
+    "outputPath": "site/problems/senior-high/sets/common-logical-language/logic-practice-q09.html",
+    "pageTitle": "由任意集合的子集求参数",
+    "pageDescription": "由任意集合的子集求参数的逐步解析。",
+    "breadcrumbTitle": "实战演练 · 第 9 题",
+    "breadcrumbLabel": "常用逻辑用语",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=common-logical-language&module=logic-practice"
+  },
+  "problem": {
+    "source": "培训教材 · 常用逻辑用语",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "能成为任何集合子集的集合只能是空集。",
+      "items": [
+        "先把集合条件翻译为方程无实根；",
+        "无实根要求判别式严格小于 0。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "已知 \\(a\\) 是实数，若集合 \\(\\{x\\mid x^2+x+a=0\\}\\) 是任何集合的子集，则 \\(a\\) 的取值范围是______。"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "量词与集合",
+      "title": "转化为空集条件",
+      "t": 0,
+      "showDiagram": false,
+      "table": {
+        "headers": [
+          "要求",
+          "等价条件"
+        ],
+        "rows": [
+          [
+            "是任何集合的子集",
+            "该集合为 \\(\\varnothing\\)"
+          ],
+          [
+            "方程无实根",
+            "\\(\\Delta=1-4a<0\\)"
+          ],
+          [
+            "解不等式",
+            "\\(a>\\frac{1}{4}\\)"
+          ]
+        ]
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "空集是任何集合的子集；若解集含有元素，就不可能是某个不含该元素的集合的子集"
+        },
+        {
+          "kind": "therefore",
+          "text": "\\(a>\\frac{1}{4}\\)"
+        }
+      ],
+      "derive": [
+        [
+          "答案",
+          "\\(a>\\frac{1}{4}\\)"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 转化为空集条件"
+  }
+}

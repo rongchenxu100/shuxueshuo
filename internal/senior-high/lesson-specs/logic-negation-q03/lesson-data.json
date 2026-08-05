@@ -1,0 +1,92 @@
+{
+  "meta": {
+    "id": "logic-negation-q03",
+    "outputPath": "site/problems/senior-high/sets/common-logical-language/logic-negation-q03.html",
+    "pageTitle": "否定带范围的存在命题",
+    "pageDescription": "否定带范围的存在命题的逐步解析。",
+    "breadcrumbTitle": "量词命题的否定 · 练习 6-3",
+    "breadcrumbLabel": "常用逻辑用语",
+    "breadcrumbPath": "site/senior-high/index.html",
+    "breadcrumbSearch": "?chapter=sets&section=common-logical-language&module=quantifier-negations"
+  },
+  "problem": {
+    "source": "培训教材 · 常用逻辑用语",
+    "keyPoints": {
+      "title": "解题要点",
+      "lead": "写在量词后的限制条件是研究范围，不能随谓词一起取反。",
+      "items": [
+        "\\(∃x≤0\\) 改为 \\(∀x≤0\\)；",
+        "\\(≤0\\) 的结论改为 \\(>0\\)。"
+      ]
+    },
+    "lines": [
+      {
+        "text": "命题 \\(p:∃x≤0，x^2-2x+a≤0\\) 的否定是（　　）"
+      },
+      {
+        "text": "A. \\(∀x>0，x^2-2x+a≤0\\)　B. \\(∃x>0，x^2-2x+a≤0\\)　C. \\(∀x≤0，x^2-2x+a>0\\)　D. \\(∃x≤0，x^2-2x+a>0\\)"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "section": "量词命题的否定",
+      "title": "区分研究范围与结论",
+      "t": 0,
+      "showDiagram": false,
+      "table": {
+        "headers": [
+          "部分",
+          "原命题",
+          "否定后"
+        ],
+        "rows": [
+          [
+            "量词",
+            "存在",
+            "任意"
+          ],
+          [
+            "范围",
+            "\\(x≤0\\)",
+            "\\(x≤0\\)"
+          ],
+          [
+            "谓词",
+            "\\(x^2-2x+a≤0\\)",
+            "\\(x^2-2x+a>0\\)"
+          ]
+        ]
+      },
+      "reasoning": [
+        {
+          "kind": "because",
+          "text": "逐项完成结构转换，并核对量词、研究范围与关系符号"
+        },
+        {
+          "kind": "therefore",
+          "text": "选择 C"
+        }
+      ],
+      "derive": [
+        [
+          "答案",
+          "C"
+        ]
+      ]
+    }
+  ],
+  "policies": {
+    "s1": {
+      "movable": false,
+      "range": [
+        0,
+        0
+      ]
+    }
+  },
+  "stepLabels": {
+    "s1": "1 区分研究范围与结论"
+  }
+}

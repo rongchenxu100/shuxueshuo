@@ -306,6 +306,7 @@ function validateLearningAnswerSchema(schema, context) {
     "finite-set-values",
     "integer",
     "relation-sequence",
+    "multipart-choice",
     "exact-expression",
     "multipart-exact",
   ]);
@@ -350,6 +351,24 @@ function validateLearningAnswerSchema(schema, context) {
         throw new Error(`${context}.answerSchema.input.relations 未覆盖标准答案`);
       }
     }
+  } else if (schema.type === "multipart-choice") {
+    if (!Array.isArray(schema.choices) || schema.choices.length < 2) {
+      throw new Error(`${context}.answerSchema.choices 至少需要两个选项`);
+    }
+    schema.choices.forEach((choice, index) => {
+      requireText(choice, `${context}.answerSchema.choices[${index}]`);
+    });
+    if (!Array.isArray(schema.expected) || schema.expected.length < 2) {
+      throw new Error(`${context}.answerSchema.expected 必须包含至少两个小题答案`);
+    }
+    schema.expected.forEach((part, index) => {
+      requireText(part.label, `${context}.answerSchema.expected[${index}].label`);
+      requireText(part.prompt, `${context}.answerSchema.expected[${index}].prompt`);
+      requireText(part.expected, `${context}.answerSchema.expected[${index}].expected`);
+      if (!schema.choices.includes(part.expected)) {
+        throw new Error(`${context}.answerSchema.expected[${index}].expected 不在选项中`);
+      }
+    });
   } else if (schema.type === "multipart-exact") {
     if (!Array.isArray(schema.expected) || schema.expected.length < 2) {
       throw new Error(`${context}.answerSchema.expected 必须包含至少两个小题答案`);
@@ -382,7 +401,7 @@ function validateLearningAnswerSchema(schema, context) {
       requireText(value, `${context}.answerSchema.expected.excludedValues[${index}]`);
     });
   }
-  if (schema.type !== "single-choice") {
+  if (schema.type !== "single-choice" && schema.type !== "multipart-choice") {
     const supportsTextInput = schema.type === "multipart-exact" && schema.layout === "per-part";
     if (schema.input?.mode !== "math-expression" && !(supportsTextInput && schema.input?.mode === "text")) {
       throw new Error(`${context}.answerSchema.input.mode 必须是 math-expression`);
@@ -397,6 +416,12 @@ function validateLearningAnswerSchema(schema, context) {
   }
   const normalized = structuredClone(schema);
   if (normalized.type === "multipart-exact" && normalized.layout === "per-part") {
+    normalized.expected = normalized.expected.map((part) => ({
+      ...part,
+      promptHtml: renderInlineMathText(part.prompt),
+    }));
+  }
+  if (normalized.type === "multipart-choice") {
     normalized.expected = normalized.expected.map((part) => ({
       ...part,
       promptHtml: renderInlineMathText(part.prompt),
@@ -590,11 +615,33 @@ export function validateLearningTopics(catalog, topicSource, root = repoRoot) {
             block.body.forEach((line, lineIndex) => {
               requireText(line, `${context}.body[${lineIndex}]`);
             });
+            if (block.ordered !== undefined && typeof block.ordered !== "boolean") {
+              throw new Error(`${context}.ordered 必须是布尔值`);
+            }
+            let table;
+            if (block.table !== undefined) {
+              if (!block.table || !Array.isArray(block.table.rows) || block.table.rows.length === 0) {
+                throw new Error(`${context}.table.rows 必须是非空二维数组`);
+              }
+              const columnCount = block.table.rows[0]?.length;
+              if (!columnCount || block.table.rows.some((row) => (
+                !Array.isArray(row) || row.length !== columnCount
+                || row.some((cell) => typeof cell !== "string" || !cell.trim())
+              ))) {
+                throw new Error(`${context}.table.rows 必须是等宽的非空字符串二维数组`);
+              }
+              table = {
+                rows: block.table.rows,
+                rowsHtml: block.table.rows.map((row) => row.map((cell) => renderInlineMathText(cell))),
+              };
+            }
             return {
               category: block.category,
               title: block.title,
+              ordered: block.ordered === true,
               body: block.body,
               bodyHtml: block.body.map((line) => renderInlineMathText(line)),
+              ...(table ? { table } : {}),
             };
           }),
           examples,
@@ -640,6 +687,7 @@ export function validateLearningTopics(catalog, topicSource, root = repoRoot) {
       chapterId: topic.chapterId,
       sectionId: topic.sectionId,
       title: topic.title,
+      mapRootLabel: topic.mapRootLabel || topic.title,
       eyebrow: topic.eyebrow || "",
       introduction: topic.introduction,
       introductionHtml: topic.introduction.map((line) => renderInlineMathText(line)),
