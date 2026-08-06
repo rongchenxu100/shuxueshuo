@@ -1,0 +1,1234 @@
+{
+  "schema_version": "multimodal-evidence-pack/v1",
+  "base_context_id": "extraction-context:1f9bdb75554d111420704fe13fcaf811d86e2c512bc4cbff0f8b79f35b194183",
+  "source_id": "source:ee4d7c835a52e84a55912dbd178a4c87d06b68df380c5d4328e787308ffd5202",
+  "source_revision_hash": "4068ced7ee0849c70b4ad45d4424682813bf938f13a26eae96835281c3bbca5b",
+  "selection_id": "selection:3d0e1a84eff7f013c46626bc23f52f32ebbde2dc15db5e571dde599159fea2e2",
+  "observation_hash": "62cae560de38c79ecfae8335772b22859ef8d46d3a626c50f92ef48c1a88a2b5",
+  "images": [
+    {
+      "image_id": "primary:page_1:f62a37f171e0bee026ddc245bd142292bf35a7fa442efac20ca77e4e41568565",
+      "page_id": "page_1",
+      "role": "primary",
+      "artifact": {
+        "artifact_id": "artifact:selection_crop:f62a37f171e0bee026ddc245bd142292bf35a7fa442efac20ca77e4e41568565",
+        "kind": "selection_crop",
+        "sha256": "f62a37f171e0bee026ddc245bd142292bf35a7fa442efac20ca77e4e41568565",
+        "media_type": "image/png",
+        "byte_size": 284147
+      },
+      "width": 1210,
+      "height": 629
+    }
+  ],
+  "printed_text": [
+    {
+      "observation_id": "observation:text:0c8da73597ae74a7c7ccac06deca49b8b7efe1a919a5d0f5239c246b95243be4",
+      "page_id": "page_1",
+      "reading_order": 0,
+      "confidence": 0.883239,
+      "text": "(25) (本小题 10 分)"
+    },
+    {
+      "observation_id": "observation:text:e0f65c40e2127464f0f7734d9e4614f69df0a3147f9665c770d9e08df7de4722",
+      "page_id": "page_1",
+      "reading_order": 1,
+      "confidence": 0.97245,
+      "text": "已知抛物线y=-x2+bx+c(b,c为常数,c>1)的顶点为P,与x轴相交于A,B"
+    },
+    {
+      "observation_id": "observation:text:e8d4c8492dc06d1c49ff52caf799410a9deedc8cfbd2565899ab91e324f498d1",
+      "page_id": "page_1",
+      "reading_order": 3,
+      "confidence": 0.992269,
+      "text": "两点(点A在点B的左侧),与y轴相交于点C,对称轴与x轴相交于点M,点E在对"
+    },
+    {
+      "observation_id": "observation:text:a6824387b05b12f05f9a520f30c66e6b602470ddcceed56ebdbb65058e7ef41e",
+      "page_id": "page_1",
+      "reading_order": 4,
+      "confidence": 0.989759,
+      "text": "称轴上,以AE为边的正方形AEKG的顶点G在x轴下方."
+    },
+    {
+      "observation_id": "observation:text:48901e178803e1ff401a934e4c74319e74b578eae0addfb9969d067abfed7997",
+      "page_id": "page_1",
+      "reading_order": 5,
+      "confidence": 0.922379,
+      "text": "(I)若b=-2,c=3."
+    },
+    {
+      "observation_id": "observation:text:65ad932a15f5f99b3bec3d9a6d0d5b88cfd5c2c0727af79bd68928611dba7029",
+      "page_id": "page_1",
+      "reading_order": 6,
+      "confidence": 0.99226,
+      "text": "1求点P和点A的坐标:"
+    },
+    {
+      "observation_id": "observation:text:4119b091e50b3ea30852a3bec059081176e85cb26a7b4558be1938b69f056454",
+      "page_id": "page_1",
+      "reading_order": 7,
+      "confidence": 0.99067,
+      "text": "2当点G在抛物线上时,求点E的坐标:"
+    },
+    {
+      "observation_id": "observation:text:03f6834b3c1f1fab00f12576795e463620f17fca04ab9e377ed1a701a493c8d2",
+      "page_id": "page_1",
+      "reading_order": 8,
+      "confidence": 0.960172,
+      "text": "(II)若点A的坐标为(-c,O),点F是AE的中点,对角线AK和EG相交于点H,"
+    },
+    {
+      "observation_id": "observation:text:74a0632e2b8b4651a74ad861e9423a7ed9e959ad241880eca3049035e20f396e",
+      "page_id": "page_1",
+      "reading_order": 9,
+      "confidence": 0.992946,
+      "text": "当HF+FM+MG取得最小值为3√5时,求点E的坐标."
+    }
+  ],
+  "recognized_formulas": [
+    {
+      "observation_id": "observation:formula:1113518a27689b27fd70810e7f91de93efa177a495724dbaa59bfef6108ece27",
+      "page_id": "page_1",
+      "reading_order": 2,
+      "confidence": 0.5,
+      "latex": "b=-2,\\quad c=3."
+    },
+    {
+      "observation_id": "observation:formula:355c0d6fe8406896569239c42aa43b6058351e54bfdc183114a4740ec345df23",
+      "page_id": "page_1",
+      "reading_order": 4,
+      "confidence": 0.5,
+      "latex": "3\\sqrt{5}"
+    }
+  ],
+  "unresolved_items": [
+    {
+      "work_item_id": "unresolved:1765e84b115f6cb3cb70dcf32499e4b5fb5ad3581b6d75ea4386912588c1a6a0",
+      "code": "extraction.formula_observation_unresolved",
+      "region_refs": [
+        "observation:formula:f9df8f531abae05b889c40411b155e2d22c5e94d4fd859acdef88f1f08257af4"
+      ],
+      "hint": "c>1"
+    },
+    {
+      "work_item_id": "unresolved:26e75393c84eea0e5e5870b78ec169d6026604c2ad067e4ce205a2050667ac04",
+      "code": "extraction.formula_observation_unresolved",
+      "region_refs": [
+        "observation:text:e0f65c40e2127464f0f7734d9e4614f69df0a3147f9665c770d9e08df7de4722"
+      ],
+      "hint": null
+    },
+    {
+      "work_item_id": "unresolved:26fa386fa0b8a12979d185c30c3a7b31a02d7c91105988ed80c556095b1282b3",
+      "code": "extraction.formula_observation_unresolved",
+      "region_refs": [
+        "observation:text:74a0632e2b8b4651a74ad861e9423a7ed9e959ad241880eca3049035e20f396e"
+      ],
+      "hint": null
+    },
+    {
+      "work_item_id": "unresolved:4cfcbcb899376eb181c6566672816f0f32a19d423b3bae2826281b2ef38fbe4d",
+      "code": "extraction.observation_origin_unresolved",
+      "region_refs": [
+        "observation:text:73abfd10908d498eb843c78f30fe56b7c487dd62f2537afb9327b840ee53d2d5"
+      ],
+      "hint": "海"
+    },
+    {
+      "work_item_id": "unresolved:6a9da7d5b73fe5110b8ba15955eb685c0671e7f7597f4fbabca46d4152f85add",
+      "code": "extraction.observation_confidence_low",
+      "region_refs": [
+        "observation:layout:4dada847865d1ab817c2d29a3e8cc245e186a3ae8caef8f65ae65d844852c9be"
+      ],
+      "hint": null
+    },
+    {
+      "work_item_id": "unresolved:7b16f38daeedfa78692da62710b50793bcf56c5ae0fe847bf9f353a05fbc2ff7",
+      "code": "extraction.observation_confidence_low",
+      "region_refs": [
+        "observation:layout:40a16be4d5bbf6931df21380664a70c5d97cf7401d7c3c4b711e6856381350f7"
+      ],
+      "hint": null
+    },
+    {
+      "work_item_id": "unresolved:814ce395f947eece19ff0ae3cd7537c48d6c2044b61170f3b0b7fd9492601e1a",
+      "code": "extraction.observation_confidence_low",
+      "region_refs": [
+        "observation:layout:fa673c07107f99a30c64c446b2839a6bd6daaa8e1d6c02bc53294eed035a3d7f"
+      ],
+      "hint": null
+    },
+    {
+      "work_item_id": "unresolved:ccbe6cc702c9ec52c6b1e897440e383d6cc38eb46942de8206077c6d313e52da",
+      "code": "extraction.observation_confidence_low",
+      "region_refs": [
+        "observation:layout:1a9905d53a05eea824bb15175bbfefc177638a9e9c9342d6bdd9da92c1ab721f"
+      ],
+      "hint": null
+    },
+    {
+      "work_item_id": "unresolved:da7011fa7c600693c866c239d99246a4155a6fb8fa8ec4a65cd2730bf23e0310",
+      "code": "extraction.observation_confidence_low",
+      "region_refs": [
+        "observation:layout:031b463cc096780320abb44dee3df05139d8e89673872c9dca58385084f98921"
+      ],
+      "hint": null
+    },
+    {
+      "work_item_id": "unresolved:dc62f749be86de069e6cc1298f6f9db8a8b0e71251c609079bb740b4f463fce3",
+      "code": "extraction.formula_observation_unresolved",
+      "region_refs": [
+        "observation:formula:1b6eb863bade11ef8123f8f7154b5fd30ffa4fe84c1de6e3609f519e2520fa3a"
+      ],
+      "hint": "y=-x2+bx+c"
+    },
+    {
+      "work_item_id": "unresolved:e4721a951d6dc2de61038e0868e3581b407d9b73db5ff0a8f77c101196d04357",
+      "code": "extraction.formula_observation_unresolved",
+      "region_refs": [
+        "observation:formula:8ec5d421905f6fde2976705599d86d98e7a4ebc64d3999d17c64911d912ee194"
+      ],
+      "hint": "HF+FM+MG"
+    }
+  ],
+  "region_index": [
+    {
+      "region_id": "observation:formula:1b6eb863bade11ef8123f8f7154b5fd30ffa4fe84c1de6e3609f519e2520fa3a",
+      "evidence_id": "observation:formula:1b6eb863bade11ef8123f8f7154b5fd30ffa4fe84c1de6e3609f519e2520fa3a",
+      "page_id": "page_1",
+      "polygon": [
+        [
+          0.17158,
+          0.674871
+        ],
+        [
+          0.17158,
+          0.698071
+        ],
+        [
+          0.317406,
+          0.698071
+        ],
+        [
+          0.317406,
+          0.674871
+        ]
+      ],
+      "kind": "formula",
+      "origin": "printed",
+      "confidence": 0.5,
+      "reading_order": 0,
+      "source_artifact_id": "artifact:canonical_source_page:8222f09e60f3362bd18a2a6c95e8b050473bfe64b6b1b9b606aa52793ec80aa7"
+    },
+    {
+      "region_id": "observation:text:0c8da73597ae74a7c7ccac06deca49b8b7efe1a919a5d0f5239c246b95243be4",
+      "evidence_id": "observation:text:0c8da73597ae74a7c7ccac06deca49b8b7efe1a919a5d0f5239c246b95243be4",
+      "page_id": "page_1",
+      "polygon": [
+        [
+          0.045752,
+          0.635882
+        ],
+        [
+          0.045752,
+          0.653529
+        ],
+        [
+          0.220915,
+          0.653529
+        ],
+        [
+          0.220915,
+          0.635882
+        ]
+      ],
+      "kind": "text",
+      "origin": "printed",
+      "confidence": 0.883239,
+      "reading_order": 0,
+      "source_artifact_id": "artifact:canonical_source_page:8222f09e60f3362bd18a2a6c95e8b050473bfe64b6b1b9b606aa52793ec80aa7"
+    },
+    {
+      "region_id": "observation:formula:f9df8f531abae05b889c40411b155e2d22c5e94d4fd859acdef88f1f08257af4",
+      "evidence_id": "observation:formula:f9df8f531abae05b889c40411b155e2d22c5e94d4fd859acdef88f1f08257af4",
+      "page_id": "page_1",
+      "polygon": [
+        [
+          0.415785,
+          0.674871
+        ],
+        [
+          0.415785,
+          0.698071
+        ],
+        [
+          0.473244,
+          0.698071
+        ],
+        [
+          0.473244,
+          0.674871
+        ]
+      ],
+      "kind": "formula",
+      "origin": "printed",
+      "confidence": 0.5,
+      "reading_order": 1,
+      "source_artifact_id": "artifact:canonical_source_page:8222f09e60f3362bd18a2a6c95e8b050473bfe64b6b1b9b606aa52793ec80aa7"
+    },
+    {
+      "region_id": "observation:text:e0f65c40e2127464f0f7734d9e4614f69df0a3147f9665c770d9e08df7de4722",
+      "evidence_id": "observation:text:e0f65c40e2127464f0f7734d9e4614f69df0a3147f9665c770d9e08df7de4722",
+      "page_id": "page_1",
+      "polygon": [
+        [
+          0.072549,
+          0.676471
+        ],
+        [
+          0.072549,
+          0.696471
+        ],
+        [
+          0.737255,
+          0.696471
+        ],
+        [
+          0.737255,
+          0.676471
+        ]
+      ],
+      "kind": "text",
+      "origin": "printed",
+      "confidence": 0.97245,
+      "reading_order": 1,
+      "source_artifact_id": "artifact:canonical_source_page:8222f09e60f3362bd18a2a6c95e8b050473bfe64b6b1b9b606aa52793ec80aa7"
+    },
+    {
+      "region_id": "observation:formula:1113518a27689b27fd70810e7f91de93efa177a495724dbaa59bfef6108ece27",
+      "evidence_id": "observation:formula:1113518a27689b27fd70810e7f91de93efa177a495724dbaa59bfef6108ece27",
+      "page_id": "page_1",
+      "polygon": [
+        [
+          0.131403,
+          0.795647
+        ],
+        [
+          0.131403,
+          0.816118
+        ],
+        [
+          0.269935,
+          0.816118
+        ],
+        [
+          0.269935,
+          0.795647
+        ]
+      ],
+      "kind": "formula",
+      "origin": "printed",
+      "confidence": 0.5,
+      "reading_order": 2,
+      "source_artifact_id": "artifact:canonical_source_page:8222f09e60f3362bd18a2a6c95e8b050473bfe64b6b1b9b606aa52793ec80aa7"
+    },
+    {
+      "region_id": "observation:text:73abfd10908d498eb843c78f30fe56b7c487dd62f2537afb9327b840ee53d2d5",
+      "evidence_id": "observation:text:73abfd10908d498eb843c78f30fe56b7c487dd62f2537afb9327b840ee53d2d5",
+      "page_id": "page_1",
+      "polygon": [
+        [
+          0.783007,
+          0.672941
+        ],
+        [
+          0.783007,
+          0.695294
+        ],
+        [
+          0.805229,
+          0.695294
+        ],
+        [
+          0.805229,
+          0.672941
+        ]
+      ],
+      "kind": "text",
+      "origin": "unknown",
+      "confidence": 0.173151,
+      "reading_order": 2,
+      "source_artifact_id": "artifact:canonical_source_page:8222f09e60f3362bd18a2a6c95e8b050473bfe64b6b1b9b606aa52793ec80aa7"
+    },
+    {
+      "region_id": "observation:formula:8ec5d421905f6fde2976705599d86d98e7a4ebc64d3999d17c64911d912ee194",
+      "evidence_id": "observation:formula:8ec5d421905f6fde2976705599d86d98e7a4ebc64d3999d17c64911d912ee194",
+      "page_id": "page_1",
+      "polygon": [
+        [
+          0.045828,
+          0.945529
+        ],
+        [
+          0.045828,
+          0.976236
+        ],
+        [
+          0.165104,
+          0.976236
+        ],
+        [
+          0.165104,
+          0.945529
+        ]
+      ],
+      "kind": "formula",
+      "origin": "printed",
+      "confidence": 0.5,
+      "reading_order": 3,
+      "source_artifact_id": "artifact:canonical_source_page:8222f09e60f3362bd18a2a6c95e8b050473bfe64b6b1b9b606aa52793ec80aa7"
+    },
+    {
+      "region_id": "observation:text:e8d4c8492dc06d1c49ff52caf799410a9deedc8cfbd2565899ab91e324f498d1",
+      "evidence_id": "observation:text:e8d4c8492dc06d1c49ff52caf799410a9deedc8cfbd2565899ab91e324f498d1",
+      "page_id": "page_1",
+      "polygon": [
+        [
+          0.035294,
+          0.719412
+        ],
+        [
+          0.035294,
+          0.738824
+        ],
+        [
+          0.737908,
+          0.738235
+        ],
+        [
+          0.737255,
+          0.718824
+        ]
+      ],
+      "kind": "text",
+      "origin": "printed",
+      "confidence": 0.992269,
+      "reading_order": 3,
+      "source_artifact_id": "artifact:canonical_source_page:8222f09e60f3362bd18a2a6c95e8b050473bfe64b6b1b9b606aa52793ec80aa7"
+    },
+    {
+      "region_id": "observation:formula:355c0d6fe8406896569239c42aa43b6058351e54bfdc183114a4740ec345df23",
+      "evidence_id": "observation:formula:355c0d6fe8406896569239c42aa43b6058351e54bfdc183114a4740ec345df23",
+      "page_id": "page_1",
+      "polygon": [
+        [
+          0.274906,
+          0.945529
+        ],
+        [
+          0.274906,
+          0.976236
+        ],
+        [
+          0.340787,
+          0.976236
+        ],
+        [
+          0.340787,
+          0.945529
+        ]
+      ],
+      "kind": "formula",
+      "origin": "printed",
+      "confidence": 0.5,
+      "reading_order": 4,
+      "source_artifact_id": "artifact:canonical_source_page:8222f09e60f3362bd18a2a6c95e8b050473bfe64b6b1b9b606aa52793ec80aa7"
+    },
+    {
+      "region_id": "observation:text:a6824387b05b12f05f9a520f30c66e6b602470ddcceed56ebdbb65058e7ef41e",
+      "evidence_id": "observation:text:a6824387b05b12f05f9a520f30c66e6b602470ddcceed56ebdbb65058e7ef41e",
+      "page_id": "page_1",
+      "polygon": [
+        [
+          0.034641,
+          0.758235
+        ],
+        [
+          0.034641,
+          0.777647
+        ],
+        [
+          0.500654,
+          0.777059
+        ],
+        [
+          0.500654,
+          0.757647
+        ]
+      ],
+      "kind": "text",
+      "origin": "printed",
+      "confidence": 0.989759,
+      "reading_order": 4,
+      "source_artifact_id": "artifact:canonical_source_page:8222f09e60f3362bd18a2a6c95e8b050473bfe64b6b1b9b606aa52793ec80aa7"
+    },
+    {
+      "region_id": "observation:text:48901e178803e1ff401a934e4c74319e74b578eae0addfb9969d067abfed7997",
+      "evidence_id": "observation:text:48901e178803e1ff401a934e4c74319e74b578eae0addfb9969d067abfed7997",
+      "page_id": "page_1",
+      "polygon": [
+        [
+          0.080392,
+          0.797059
+        ],
+        [
+          0.080392,
+          0.814706
+        ],
+        [
+          0.269935,
+          0.814706
+        ],
+        [
+          0.269935,
+          0.797059
+        ]
+      ],
+      "kind": "text",
+      "origin": "printed",
+      "confidence": 0.922379,
+      "reading_order": 5,
+      "source_artifact_id": "artifact:canonical_source_page:8222f09e60f3362bd18a2a6c95e8b050473bfe64b6b1b9b606aa52793ec80aa7"
+    },
+    {
+      "region_id": "observation:text:65ad932a15f5f99b3bec3d9a6d0d5b88cfd5c2c0727af79bd68928611dba7029",
+      "evidence_id": "observation:text:65ad932a15f5f99b3bec3d9a6d0d5b88cfd5c2c0727af79bd68928611dba7029",
+      "page_id": "page_1",
+      "polygon": [
+        [
+          0.070588,
+          0.852353
+        ],
+        [
+          0.071242,
+          0.832353
+        ],
+        [
+          0.270588,
+          0.834118
+        ],
+        [
+          0.270588,
+          0.853529
+        ]
+      ],
+      "kind": "text",
+      "origin": "printed",
+      "confidence": 0.99226,
+      "reading_order": 6,
+      "source_artifact_id": "artifact:canonical_source_page:8222f09e60f3362bd18a2a6c95e8b050473bfe64b6b1b9b606aa52793ec80aa7"
+    },
+    {
+      "region_id": "observation:text:4119b091e50b3ea30852a3bec059081176e85cb26a7b4558be1938b69f056454",
+      "evidence_id": "observation:text:4119b091e50b3ea30852a3bec059081176e85cb26a7b4558be1938b69f056454",
+      "page_id": "page_1",
+      "polygon": [
+        [
+          0.072549,
+          0.871765
+        ],
+        [
+          0.072549,
+          0.89
+        ],
+        [
+          0.397386,
+          0.89
+        ],
+        [
+          0.397386,
+          0.871765
+        ]
+      ],
+      "kind": "text",
+      "origin": "printed",
+      "confidence": 0.99067,
+      "reading_order": 7,
+      "source_artifact_id": "artifact:canonical_source_page:8222f09e60f3362bd18a2a6c95e8b050473bfe64b6b1b9b606aa52793ec80aa7"
+    },
+    {
+      "region_id": "observation:layout:fa673c07107f99a30c64c446b2839a6bd6daaa8e1d6c02bc53294eed035a3d7f",
+      "evidence_id": "observation:layout:fa673c07107f99a30c64c446b2839a6bd6daaa8e1d6c02bc53294eed035a3d7f",
+      "page_id": "page_1",
+      "polygon": [
+        [
+          0.042677,
+          0.6359
+        ],
+        [
+          0.042677,
+          0.652417
+        ],
+        [
+          0.224049,
+          0.652417
+        ],
+        [
+          0.224049,
+          0.6359
+        ]
+      ],
+      "kind": "layout:text",
+      "origin": "unknown",
+      "confidence": 0.741244,
+      "reading_order": 8,
+      "source_artifact_id": "artifact:canonical_source_page:8222f09e60f3362bd18a2a6c95e8b050473bfe64b6b1b9b606aa52793ec80aa7"
+    },
+    {
+      "region_id": "observation:text:03f6834b3c1f1fab00f12576795e463620f17fca04ab9e377ed1a701a493c8d2",
+      "evidence_id": "observation:text:03f6834b3c1f1fab00f12576795e463620f17fca04ab9e377ed1a701a493c8d2",
+      "page_id": "page_1",
+      "polygon": [
+        [
+          0.080392,
+          0.905882
+        ],
+        [
+          0.080392,
+          0.925294
+        ],
+        [
+          0.735948,
+          0.925294
+        ],
+        [
+          0.735948,
+          0.905882
+        ]
+      ],
+      "kind": "text",
+      "origin": "printed",
+      "confidence": 0.960172,
+      "reading_order": 8,
+      "source_artifact_id": "artifact:canonical_source_page:8222f09e60f3362bd18a2a6c95e8b050473bfe64b6b1b9b606aa52793ec80aa7"
+    },
+    {
+      "region_id": "observation:layout:528be0793ac6592e9a1036e226d19863e13df9a38511e3117c214dc6a32fa127",
+      "evidence_id": "observation:layout:528be0793ac6592e9a1036e226d19863e13df9a38511e3117c214dc6a32fa127",
+      "page_id": "page_1",
+      "polygon": [
+        [
+          0.031105,
+          0.677175
+        ],
+        [
+          0.031105,
+          0.776206
+        ],
+        [
+          0.736382,
+          0.776206
+        ],
+        [
+          0.736382,
+          0.677175
+        ]
+      ],
+      "kind": "layout:text",
+      "origin": "printed",
+      "confidence": 0.898543,
+      "reading_order": 9,
+      "source_artifact_id": "artifact:canonical_source_page:8222f09e60f3362bd18a2a6c95e8b050473bfe64b6b1b9b606aa52793ec80aa7"
+    },
+    {
+      "region_id": "observation:text:74a0632e2b8b4651a74ad861e9423a7ed9e959ad241880eca3049035e20f396e",
+      "evidence_id": "observation:text:74a0632e2b8b4651a74ad861e9423a7ed9e959ad241880eca3049035e20f396e",
+      "page_id": "page_1",
+      "polygon": [
+        [
+          0.033987,
+          0.950588
+        ],
+        [
+          0.033987,
+          0.974118
+        ],
+        [
+          0.49085,
+          0.971176
+        ],
+        [
+          0.49085,
+          0.947647
+        ]
+      ],
+      "kind": "text",
+      "origin": "printed",
+      "confidence": 0.992946,
+      "reading_order": 9,
+      "source_artifact_id": "artifact:canonical_source_page:8222f09e60f3362bd18a2a6c95e8b050473bfe64b6b1b9b606aa52793ec80aa7"
+    },
+    {
+      "region_id": "observation:layout:031b463cc096780320abb44dee3df05139d8e89673872c9dca58385084f98921",
+      "evidence_id": "observation:layout:031b463cc096780320abb44dee3df05139d8e89673872c9dca58385084f98921",
+      "page_id": "page_1",
+      "polygon": [
+        [
+          0.074369,
+          0.796015
+        ],
+        [
+          0.074369,
+          0.813678
+        ],
+        [
+          0.269736,
+          0.813678
+        ],
+        [
+          0.269736,
+          0.796015
+        ]
+      ],
+      "kind": "layout:text",
+      "origin": "unknown",
+      "confidence": 0.627005,
+      "reading_order": 10,
+      "source_artifact_id": "artifact:canonical_source_page:8222f09e60f3362bd18a2a6c95e8b050473bfe64b6b1b9b606aa52793ec80aa7"
+    },
+    {
+      "region_id": "observation:layout:40a16be4d5bbf6931df21380664a70c5d97cf7401d7c3c4b711e6856381350f7",
+      "evidence_id": "observation:layout:40a16be4d5bbf6931df21380664a70c5d97cf7401d7c3c4b711e6856381350f7",
+      "page_id": "page_1",
+      "polygon": [
+        [
+          0.067952,
+          0.834282
+        ],
+        [
+          0.067952,
+          0.851113
+        ],
+        [
+          0.270889,
+          0.851113
+        ],
+        [
+          0.270889,
+          0.834282
+        ]
+      ],
+      "kind": "layout:text",
+      "origin": "unknown",
+      "confidence": 0.751623,
+      "reading_order": 11,
+      "source_artifact_id": "artifact:canonical_source_page:8222f09e60f3362bd18a2a6c95e8b050473bfe64b6b1b9b606aa52793ec80aa7"
+    },
+    {
+      "region_id": "observation:layout:4dada847865d1ab817c2d29a3e8cc245e186a3ae8caef8f65ae65d844852c9be",
+      "evidence_id": "observation:layout:4dada847865d1ab817c2d29a3e8cc245e186a3ae8caef8f65ae65d844852c9be",
+      "page_id": "page_1",
+      "polygon": [
+        [
+          0.067961,
+          0.871533
+        ],
+        [
+          0.067961,
+          0.889238
+        ],
+        [
+          0.398914,
+          0.889238
+        ],
+        [
+          0.398914,
+          0.871533
+        ]
+      ],
+      "kind": "layout:text",
+      "origin": "unknown",
+      "confidence": 0.739884,
+      "reading_order": 12,
+      "source_artifact_id": "artifact:canonical_source_page:8222f09e60f3362bd18a2a6c95e8b050473bfe64b6b1b9b606aa52793ec80aa7"
+    },
+    {
+      "region_id": "observation:layout:1a9905d53a05eea824bb15175bbfefc177638a9e9c9342d6bdd9da92c1ab721f",
+      "evidence_id": "observation:layout:1a9905d53a05eea824bb15175bbfefc177638a9e9c9342d6bdd9da92c1ab721f",
+      "page_id": "page_1",
+      "polygon": [
+        [
+          0.035061,
+          0.907664
+        ],
+        [
+          0.035061,
+          0.970874
+        ],
+        [
+          0.735424,
+          0.970874
+        ],
+        [
+          0.735424,
+          0.907664
+        ]
+      ],
+      "kind": "layout:text",
+      "origin": "unknown",
+      "confidence": 0.797345,
+      "reading_order": 13,
+      "source_artifact_id": "artifact:canonical_source_page:8222f09e60f3362bd18a2a6c95e8b050473bfe64b6b1b9b606aa52793ec80aa7"
+    },
+    {
+      "region_id": "visual-review:5da40b5ad3cbc1f4d5068ccb4bd85d4abc07a19e43a084544d5defe7e31261ec",
+      "evidence_id": "visual-review:5da40b5ad3cbc1f4d5068ccb4bd85d4abc07a19e43a084544d5defe7e31261ec",
+      "page_id": "page_1",
+      "polygon": [
+        [
+          0.015,
+          0.615
+        ],
+        [
+          0.2125,
+          0.615
+        ],
+        [
+          0.2125,
+          0.7075
+        ],
+        [
+          0.015,
+          0.7075
+        ]
+      ],
+      "kind": "visual_review_tile:r1c1",
+      "origin": "unknown",
+      "confidence": 0.0,
+      "reading_order": 14,
+      "source_artifact_id": "artifact:canonical_source_page:8222f09e60f3362bd18a2a6c95e8b050473bfe64b6b1b9b606aa52793ec80aa7"
+    },
+    {
+      "region_id": "visual-review:1cf53ff9e0f0443dcbd0d996d8b95e636820469dac7c60c05fe6b80a6c390ba7",
+      "evidence_id": "visual-review:1cf53ff9e0f0443dcbd0d996d8b95e636820469dac7c60c05fe6b80a6c390ba7",
+      "page_id": "page_1",
+      "polygon": [
+        [
+          0.2125,
+          0.615
+        ],
+        [
+          0.41,
+          0.615
+        ],
+        [
+          0.41,
+          0.7075
+        ],
+        [
+          0.2125,
+          0.7075
+        ]
+      ],
+      "kind": "visual_review_tile:r1c2",
+      "origin": "unknown",
+      "confidence": 0.0,
+      "reading_order": 15,
+      "source_artifact_id": "artifact:canonical_source_page:8222f09e60f3362bd18a2a6c95e8b050473bfe64b6b1b9b606aa52793ec80aa7"
+    },
+    {
+      "region_id": "visual-review:07757e8512c0c126a1120b0df42bb81217be55ddb8f9591fa54e298611c192b5",
+      "evidence_id": "visual-review:07757e8512c0c126a1120b0df42bb81217be55ddb8f9591fa54e298611c192b5",
+      "page_id": "page_1",
+      "polygon": [
+        [
+          0.41,
+          0.615
+        ],
+        [
+          0.6075,
+          0.615
+        ],
+        [
+          0.6075,
+          0.7075
+        ],
+        [
+          0.41,
+          0.7075
+        ]
+      ],
+      "kind": "visual_review_tile:r1c3",
+      "origin": "unknown",
+      "confidence": 0.0,
+      "reading_order": 16,
+      "source_artifact_id": "artifact:canonical_source_page:8222f09e60f3362bd18a2a6c95e8b050473bfe64b6b1b9b606aa52793ec80aa7"
+    },
+    {
+      "region_id": "visual-review:a4a869d7ca98ea585c7aecda73d3d7c128b32985f25f2395e9642cbbbd797ea3",
+      "evidence_id": "visual-review:a4a869d7ca98ea585c7aecda73d3d7c128b32985f25f2395e9642cbbbd797ea3",
+      "page_id": "page_1",
+      "polygon": [
+        [
+          0.6075,
+          0.615
+        ],
+        [
+          0.805,
+          0.615
+        ],
+        [
+          0.805,
+          0.7075
+        ],
+        [
+          0.6075,
+          0.7075
+        ]
+      ],
+      "kind": "visual_review_tile:r1c4",
+      "origin": "unknown",
+      "confidence": 0.0,
+      "reading_order": 17,
+      "source_artifact_id": "artifact:canonical_source_page:8222f09e60f3362bd18a2a6c95e8b050473bfe64b6b1b9b606aa52793ec80aa7"
+    },
+    {
+      "region_id": "visual-review:f58a8a985864a8cd8c1720af9179e3a2100a343cbf70c8b3d234b9e7cdb26559",
+      "evidence_id": "visual-review:f58a8a985864a8cd8c1720af9179e3a2100a343cbf70c8b3d234b9e7cdb26559",
+      "page_id": "page_1",
+      "polygon": [
+        [
+          0.015,
+          0.7075
+        ],
+        [
+          0.2125,
+          0.7075
+        ],
+        [
+          0.2125,
+          0.8
+        ],
+        [
+          0.015,
+          0.8
+        ]
+      ],
+      "kind": "visual_review_tile:r2c1",
+      "origin": "unknown",
+      "confidence": 0.0,
+      "reading_order": 18,
+      "source_artifact_id": "artifact:canonical_source_page:8222f09e60f3362bd18a2a6c95e8b050473bfe64b6b1b9b606aa52793ec80aa7"
+    },
+    {
+      "region_id": "visual-review:71fdde7a0f4ba241fe8949ab27e4e57a973559449a0625e2c2c052ec3c4af40f",
+      "evidence_id": "visual-review:71fdde7a0f4ba241fe8949ab27e4e57a973559449a0625e2c2c052ec3c4af40f",
+      "page_id": "page_1",
+      "polygon": [
+        [
+          0.2125,
+          0.7075
+        ],
+        [
+          0.41,
+          0.7075
+        ],
+        [
+          0.41,
+          0.8
+        ],
+        [
+          0.2125,
+          0.8
+        ]
+      ],
+      "kind": "visual_review_tile:r2c2",
+      "origin": "unknown",
+      "confidence": 0.0,
+      "reading_order": 19,
+      "source_artifact_id": "artifact:canonical_source_page:8222f09e60f3362bd18a2a6c95e8b050473bfe64b6b1b9b606aa52793ec80aa7"
+    },
+    {
+      "region_id": "visual-review:f8df385f5a49ae0879f337cdfd089a9aa828370c61709ec33745c13397f07139",
+      "evidence_id": "visual-review:f8df385f5a49ae0879f337cdfd089a9aa828370c61709ec33745c13397f07139",
+      "page_id": "page_1",
+      "polygon": [
+        [
+          0.41,
+          0.7075
+        ],
+        [
+          0.6075,
+          0.7075
+        ],
+        [
+          0.6075,
+          0.8
+        ],
+        [
+          0.41,
+          0.8
+        ]
+      ],
+      "kind": "visual_review_tile:r2c3",
+      "origin": "unknown",
+      "confidence": 0.0,
+      "reading_order": 20,
+      "source_artifact_id": "artifact:canonical_source_page:8222f09e60f3362bd18a2a6c95e8b050473bfe64b6b1b9b606aa52793ec80aa7"
+    },
+    {
+      "region_id": "visual-review:377c47ba43a05c00ec6d01d4b23a6d3fde5bbe88abdbbed0efadd855bae954c5",
+      "evidence_id": "visual-review:377c47ba43a05c00ec6d01d4b23a6d3fde5bbe88abdbbed0efadd855bae954c5",
+      "page_id": "page_1",
+      "polygon": [
+        [
+          0.6075,
+          0.7075
+        ],
+        [
+          0.805,
+          0.7075
+        ],
+        [
+          0.805,
+          0.8
+        ],
+        [
+          0.6075,
+          0.8
+        ]
+      ],
+      "kind": "visual_review_tile:r2c4",
+      "origin": "unknown",
+      "confidence": 0.0,
+      "reading_order": 21,
+      "source_artifact_id": "artifact:canonical_source_page:8222f09e60f3362bd18a2a6c95e8b050473bfe64b6b1b9b606aa52793ec80aa7"
+    },
+    {
+      "region_id": "visual-review:544bb9f47d8800abf3745cd60a567bab7f68f973c22ff25756389b06b3d8b63b",
+      "evidence_id": "visual-review:544bb9f47d8800abf3745cd60a567bab7f68f973c22ff25756389b06b3d8b63b",
+      "page_id": "page_1",
+      "polygon": [
+        [
+          0.015,
+          0.8
+        ],
+        [
+          0.2125,
+          0.8
+        ],
+        [
+          0.2125,
+          0.8925
+        ],
+        [
+          0.015,
+          0.8925
+        ]
+      ],
+      "kind": "visual_review_tile:r3c1",
+      "origin": "unknown",
+      "confidence": 0.0,
+      "reading_order": 22,
+      "source_artifact_id": "artifact:canonical_source_page:8222f09e60f3362bd18a2a6c95e8b050473bfe64b6b1b9b606aa52793ec80aa7"
+    },
+    {
+      "region_id": "visual-review:a08ea1e04e3f5c422b0123e47164aa5a1cf06fe0308388a52bdedff8bc3cad7a",
+      "evidence_id": "visual-review:a08ea1e04e3f5c422b0123e47164aa5a1cf06fe0308388a52bdedff8bc3cad7a",
+      "page_id": "page_1",
+      "polygon": [
+        [
+          0.2125,
+          0.8
+        ],
+        [
+          0.41,
+          0.8
+        ],
+        [
+          0.41,
+          0.8925
+        ],
+        [
+          0.2125,
+          0.8925
+        ]
+      ],
+      "kind": "visual_review_tile:r3c2",
+      "origin": "unknown",
+      "confidence": 0.0,
+      "reading_order": 23,
+      "source_artifact_id": "artifact:canonical_source_page:8222f09e60f3362bd18a2a6c95e8b050473bfe64b6b1b9b606aa52793ec80aa7"
+    },
+    {
+      "region_id": "visual-review:4126108fc29c6f664677bf8174e054a8c716c38873940bc2e21cae95a71519e8",
+      "evidence_id": "visual-review:4126108fc29c6f664677bf8174e054a8c716c38873940bc2e21cae95a71519e8",
+      "page_id": "page_1",
+      "polygon": [
+        [
+          0.41,
+          0.8
+        ],
+        [
+          0.6075,
+          0.8
+        ],
+        [
+          0.6075,
+          0.8925
+        ],
+        [
+          0.41,
+          0.8925
+        ]
+      ],
+      "kind": "visual_review_tile:r3c3",
+      "origin": "unknown",
+      "confidence": 0.0,
+      "reading_order": 24,
+      "source_artifact_id": "artifact:canonical_source_page:8222f09e60f3362bd18a2a6c95e8b050473bfe64b6b1b9b606aa52793ec80aa7"
+    },
+    {
+      "region_id": "visual-review:b6a84f9743fa1e38d21f957abc70e98df5c782ab15c47689b01359a5f550ff9e",
+      "evidence_id": "visual-review:b6a84f9743fa1e38d21f957abc70e98df5c782ab15c47689b01359a5f550ff9e",
+      "page_id": "page_1",
+      "polygon": [
+        [
+          0.6075,
+          0.8
+        ],
+        [
+          0.805,
+          0.8
+        ],
+        [
+          0.805,
+          0.8925
+        ],
+        [
+          0.6075,
+          0.8925
+        ]
+      ],
+      "kind": "visual_review_tile:r3c4",
+      "origin": "unknown",
+      "confidence": 0.0,
+      "reading_order": 25,
+      "source_artifact_id": "artifact:canonical_source_page:8222f09e60f3362bd18a2a6c95e8b050473bfe64b6b1b9b606aa52793ec80aa7"
+    },
+    {
+      "region_id": "visual-review:3319abc73a0c07de2391c00c2365b0fff98196a38533168700a96bda53845b95",
+      "evidence_id": "visual-review:3319abc73a0c07de2391c00c2365b0fff98196a38533168700a96bda53845b95",
+      "page_id": "page_1",
+      "polygon": [
+        [
+          0.015,
+          0.8925
+        ],
+        [
+          0.2125,
+          0.8925
+        ],
+        [
+          0.2125,
+          0.985
+        ],
+        [
+          0.015,
+          0.985
+        ]
+      ],
+      "kind": "visual_review_tile:r4c1",
+      "origin": "unknown",
+      "confidence": 0.0,
+      "reading_order": 26,
+      "source_artifact_id": "artifact:canonical_source_page:8222f09e60f3362bd18a2a6c95e8b050473bfe64b6b1b9b606aa52793ec80aa7"
+    },
+    {
+      "region_id": "visual-review:69452fb75535676a0bb5c89e32e8be13897e65e3f9495c6859577af8d5259060",
+      "evidence_id": "visual-review:69452fb75535676a0bb5c89e32e8be13897e65e3f9495c6859577af8d5259060",
+      "page_id": "page_1",
+      "polygon": [
+        [
+          0.2125,
+          0.8925
+        ],
+        [
+          0.41,
+          0.8925
+        ],
+        [
+          0.41,
+          0.985
+        ],
+        [
+          0.2125,
+          0.985
+        ]
+      ],
+      "kind": "visual_review_tile:r4c2",
+      "origin": "unknown",
+      "confidence": 0.0,
+      "reading_order": 27,
+      "source_artifact_id": "artifact:canonical_source_page:8222f09e60f3362bd18a2a6c95e8b050473bfe64b6b1b9b606aa52793ec80aa7"
+    },
+    {
+      "region_id": "visual-review:a2b4ae91754d24b3d0be09f3b2350d3c320395caac0e876af47f561f2c905870",
+      "evidence_id": "visual-review:a2b4ae91754d24b3d0be09f3b2350d3c320395caac0e876af47f561f2c905870",
+      "page_id": "page_1",
+      "polygon": [
+        [
+          0.41,
+          0.8925
+        ],
+        [
+          0.6075,
+          0.8925
+        ],
+        [
+          0.6075,
+          0.985
+        ],
+        [
+          0.41,
+          0.985
+        ]
+      ],
+      "kind": "visual_review_tile:r4c3",
+      "origin": "unknown",
+      "confidence": 0.0,
+      "reading_order": 28,
+      "source_artifact_id": "artifact:canonical_source_page:8222f09e60f3362bd18a2a6c95e8b050473bfe64b6b1b9b606aa52793ec80aa7"
+    },
+    {
+      "region_id": "visual-review:48a159e57ce450949191c99df0da6707ddd5a19c3d2314644603c669f7a55998",
+      "evidence_id": "visual-review:48a159e57ce450949191c99df0da6707ddd5a19c3d2314644603c669f7a55998",
+      "page_id": "page_1",
+      "polygon": [
+        [
+          0.6075,
+          0.8925
+        ],
+        [
+          0.805,
+          0.8925
+        ],
+        [
+          0.805,
+          0.985
+        ],
+        [
+          0.6075,
+          0.985
+        ]
+      ],
+      "kind": "visual_review_tile:r4c4",
+      "origin": "unknown",
+      "confidence": 0.0,
+      "reading_order": 29,
+      "source_artifact_id": "artifact:canonical_source_page:8222f09e60f3362bd18a2a6c95e8b050473bfe64b6b1b9b606aa52793ec80aa7"
+    }
+  ],
+  "evidence_pack_id": "evidence-pack:a7f8a497bbcf6f35e565bb4485fab30a725a4d34e92233eaddff921b75aad553"
+}

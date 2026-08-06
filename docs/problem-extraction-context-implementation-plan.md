@@ -488,27 +488,83 @@ F2 人工签核只确认观察层是否忠实：selection、OCR框、原始转�
 
 退出门禁：所有gold source均可稳定生成候选region和SourceObservation JSON；gold SourceSelection可确定重放；同一recorded输入重复运行得到相同observation、mask和artifact hashes；人工确认五题 review pack 后将 F2 标记 COMPLETE。
 
-### F3：Multimodal Evidence Pack 与统一语义 extractor
+### F3：Multimodal Evidence Pack 与统一语义 extractor（IMPLEMENTED / HUMAN DEBUG SIGN-OFF PENDING）
+
+F3 已完成统一多模态入口：从 F2 Context 构建完整题图 evidence pack，调用
+`doubao-seed-2-1-turbo-260628`，解析为 wire-only scope/entity/fact/goal 候选，并写入独立
+attempt ledger 与可视化 debug 目录。F3 不创建语义 child Context，也不生成 ProblemIR。
+
+实现固定使用一条 system message 与一条 multipart user message，单页首轮只发送一张完整
+selection 图；OCR、公式、reading order 与墨迹区域使用紧凑短引用作为辅助。Provider 参数固定为
+`thinking=disabled`、`temperature=0`、JSON object、非流式、无工具和无 fallback。SDK 内部 retry
+关闭，timeout、429 与 5xx 只允许应用层再试一次，并逐次保存 provider attempt。
+
+Candidate parser 对 source、selection、observation、artifact、evidence 与 region identity
+fail closed。mixed/unknown evidence 必须有覆盖同一区域的 ambiguity；候选遗漏的
+`review_region_refs` 仅在 F2 evidence 到 region 存在唯一映射时机械补齐，缺 ambiguity 仍会失败。
+handwritten-only evidence、自由图像坐标、悬空 candidate/evidence 引用、ProblemIR、答案和解法输出
+均被拒绝。真实响应采用 prompt-local `e###/r###`，持久化前恢复为完整 typed identity。
+低于 F3 printed-text 阈值的 OCR observation 即使 F2 原始 origin 为 `printed`，在 evidence pack 中也会
+降为 `unknown` 并生成 unresolved work item；模型若引用它，仍必须提供 ambiguity 与 review region。
+FormulaRecognition 使用独立的 status contract，不套用尚未校准的文字 OCR 置信度阈值。
+每张 selected page 还会按 selection bbox 确定性生成 `4×4` 的 `visual_review_tile:r1c1 … r4c4`，
+其中行从上到下、列从左到右。这些 tile 不依赖
+OCR/layout，始终为 `origin=unknown, confidence=0`，只解决“完整图中可见但 observation catalog 未圈出”
+的局部对象无法引用问题。模型可以用同一个 tile 作为 candidate evidence、review region 和 ambiguity
+来源，但不能把它当成 printed 事实，也不能提交自由坐标。Tile 只增加 compact region JSON，不增加图片
+或 provider 调用；未被 candidate 使用的 tile 不绘入 debug overlay。
+
+F3 不创建 child Context，因此 `F3ExtractionAttemptService.execute()` 强制调用方传入当前 base Context 的
+累计 `ExtractionAttemptLedger`，不再隐式创建空账本。attempt index 由 Context 已使用次数与 ledger 长度
+确定性推导；同一语义 attempt 的下一次调用必须继续传入上次返回的 ledger，预算耗尽会在 provider 调用前
+失败。F4 提交 candidate 时负责把该 ledger 持久化到下一份 Context，F3 不使用进程内计数冒充持久权威。
+
+每个 attempt 的 debug 包含实际发送图片、overlay、完整 prompt、redacted request、provider 原始响应、
+候选 patch、首个 contract error、usage/latency、sub-attempt、Context before 和 ledger；debug 文件只作
+可读镜像，不进入状态权威。Contract report 同时记录
+`extraction.multimodal_review_regions_projected` normalization；batch 分开报告
+`model_contract_clean_rate`、`normalized_sample_count` 与 `normalized_review_region_count`，因此机械补全
+不会被计作模型原生 contract 完整。
 
 先写失败测试：
 
 - `test_problem_extraction_evidence_pack.py`断言每次请求都包含完整、有序的 SourceSelection 题目图，以及对应 source、page、selection 和 transform identity；
--整页多题输入不得包含 selection 外相邻题；多 polygon/跨页题必须发送完整的有序 region 集合；
+-整页多题输入不得包含 selection 外相邻题；多 polygon/跨页题必须发送完整的有序 region 集合；当前
+  synthetic 双页门禁明确断言每个 selected page 产生一张 primary image，并按 source page order 排列；
 -单页首轮必须只有一张主图且没有 zoom；高可信 OCR/formula 摘要与 unresolved region 清单必须可追溯，明显错误的 raw FormulaNet 输出不得进入 prompt；
 - `ObservationRegionIndex` 的 evidence/region、page、polygon 和 artifact 闭包必须完整，错 page transform 或悬空引用时 fail loud；
-- `test_problem_extraction_multimodal.py`覆盖文字题、图形题、图中 label linking、坐标轴/几何关系、公式冲突和遮挡复核；
+- `test_problem_extraction_candidate_patch.py`覆盖四类 wire candidate、evidence 权限、引用闭包、公式冲突和遮挡复核；
 -首轮和 retry 都禁止 crop-only 请求；删除完整题目 artifact 后即使 zoom 齐全也必须失败；
-- `test_problem_extraction_llm_contract.py`拒绝无 evidence candidate、自由文本 relation、完整 ProblemIR 输出、capability hint、解法和 expected answer；
+- `test_problem_extraction_multimodal_contract.py`拒绝无 evidence candidate、完整 ProblemIR 输出、capability hint、解法和 expected answer，并锁定 provider 请求参数；
 -模型读出的学生答案、演算、辅助线或 selection 外内容不得形成题设 candidate；
 -模型与 OCR 不一致时必须返回带 source region 的冲突候选或 ambiguity，不能原地覆盖 observation；
 -provider timeout、限流、reasoning-only、空响应和坏 JSON 只产生 immutable attempt，不创建语义 child Context；
--相同 recorded request/response 重放得到相同 patch、artifact hash 和 attempt authority。
+-相同 recorded request/response 重放得到相同 patch、artifact hash 和 attempt authority；除五题 parser
+  replay 外，至少一份真实 provider raw response 的完整 candidate 结构必须经过
+  `execute → provider record → parser → patch` 端到端 recorded 门禁。
 
 再实现 `MultimodalEvidencePackBuilder`、统一多模态 provider contract、response parser 和 typed candidate/patch schema。模型始终看完整题目图；OCR/layout/formula/ink 用于提高可读性、提示 reading order、指出不可靠区域和提供 zoom，不作为最终文字或数学事实权威。
 
+F3 首个真实 provider 固定使用火山方舟 `doubao-seed-2-1-turbo-260628`。它直接复用 `server/.env` 中已有的 `DOUBAO_API_KEY`、`DOUBAO_BASE_URL` 和 `DOUBAO_MODEL`，不新增 extraction 专用配置，也不复用 `SOLVER_LLM_PROVIDER` 做动态选择。核心 evidence pack、candidate、validator 和 Context contract 保持 provider-neutral，但首版产品路径不实现 provider fallback。
+
 五题全部使用同一模型路径。无图、OCR 完整的简单题也不切换到文本模型；架构先以一致性和较少分支为优先，成本与缓存优化留到 E。F1 `attempt.route` 在 v1 中固定写为 `multimodal`，不得出现基于 observation 的动态路由。
 
-退出门禁：五题均能生成完整 evidence pack 并调用同一多模态 contract；recorded replay 稳定；完整题目图调用率为 100%；crop-only、无 evidence 和来源越权输出全部 fail closed。
+技术验收证据：
+
+- F0-F3 与 fixture schema 联合回归 `240 passed`；全量 solver 为 `1448 passed, 12 skipped`；
+- `f3-doubao-contract-smoke-final` 为 5/5，完整题图输入率 100%，crop-only、contract、configuration、unclassified 与 handwritten-only candidate 均为 0；
+- `f3-doubao-acceptance-final` 的 15 次 provider 调用均返回完整 JSON，其中一次南开响应漏写可唯一推导的 review region；机械规范化落地后 15 份 raw response 全部重放通过，`f3-doubao-acceptance-repair` 同题 live 补跑通过；
+- 五题真实 evidence pack 与响应已固化为 recorded fixture，重复解析的 patch、authority payload 和 gold evidence coverage 无漂移。
+- 五份 recorded evidence pack 已按新 builder 追加 visual review tiles；既有 observation aliases 保持原顺序，
+  因而无需重新调用模型，只需更新 evidence-pack identity 即可确定性重放原始豆包响应。
+
+Smoke 中的 gold coverage 明确命名为 `coarse_bbox_overlap_v1`，只表示 candidate evidence 与 authored
+region 有空间重叠，不是 semantic diff，也不能证明 candidate 数学语义正确；F4/F5 才执行规范化后的语义
+验证与 ProblemIR semantic diff。Live 豆包 smoke 需要 `RUN_LLM_INTEGRATION=1`，不会进入默认离线 CI；
+它是 scheduled/release 前检查项，离线 CI 由 recorded provider payload、真实 raw-response shape 和 237 项
+F0-F3 门禁承担。
+
+F3 标记 COMPLETE 前只剩人工打开五题 `review.html`，确认实际图片、prompt、原始响应、candidate→evidence overlay 与首个错误都可定位。技术链完成后直接进入 F4，不在 F3 接受或锁定候选。
 
 ### F4：Candidate Normalization、Validation、Context 与 retry
 
@@ -519,7 +575,9 @@ F2 人工签核只确认观察层是否忠实：selection、OCR框、原始转�
 - `test_problem_extraction_validation.py`逐个覆盖 typed issue、blocking/retryable 分类和 trusted accepted/locked transition；
 - `test_problem_extraction_retry.py`断言 retry 继续携带完整题目图，只追加相关 typed issue、冲突 evidence、必要 zoom 和 locked refs；
 - validator issue 必须通过 candidate/evidence refs 确定映射到 `retry_region_refs`；测试禁止 validator 重跑 OCR、读取图片像素或接受 LLM 自由坐标；
--有 region 的单页 retry 生成“完整图 + 定向 zoom”，无 region 时只发送完整图；同一 polygon 重复引用必须确定性去重；
+-有 region 的单页 retry 生成“完整图 + 定向 zoom”，无 region 时只发送完整图；OCR/layout 漏检但模型
+  引用了 `visual_review_tile` 时，zoom 直接由该 tile 的既有 polygon 生成，不要求 validator 看图或重跑 OCR；
+  同一 polygon 重复引用必须确定性去重；
 - retry 不能重写无关 accepted candidate，不能使用 selection 外整页、expected answer、Functional catalog 或解法提示；
 - issue 集合连续两轮无进展、evidence 缺失或预算耗尽时进入 blocked；
 -成功 patch 原子创建 child Context并保留完整 parent/attempt 审计。
@@ -651,9 +709,12 @@ test_problem_extraction_observations.py
 test_problem_region_proposals.py
 test_problem_extraction_handwriting.py
 test_problem_extraction_evidence_pack.py
+test_problem_extraction_candidate_patch.py
+test_problem_extraction_multimodal_contract.py
+test_problem_extraction_f3_attempt.py
+test_problem_extraction_llm_debug.py
+test_problem_extraction_f3_recorded.py
 test_problem_extraction_candidates.py
-test_problem_extraction_multimodal.py
-test_problem_extraction_llm_contract.py
 test_problem_extraction_normalization.py
 test_problem_extraction_validation.py
 test_problem_extraction_retry.py

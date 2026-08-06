@@ -39,7 +39,7 @@ LLMProviderName = Literal["recorded", "deepseek", "doubao"]
 DEFAULT_DEEPSEEK_BASE_URL = "https://api.deepseek.com"
 DEFAULT_DEEPSEEK_MODEL = "deepseek-v4-flash"
 DEFAULT_DOUBAO_BASE_URL = "https://ark.cn-beijing.volces.com/api/v3"
-DEFAULT_DOUBAO_MODEL = "doubao-seed-1-6"
+DEFAULT_DOUBAO_MODEL = "doubao-seed-2-1-turbo-260628"
 
 
 class SolverRuntimeConfigError(ValueError):

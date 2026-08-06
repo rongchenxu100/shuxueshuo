@@ -660,10 +660,9 @@ def _write_debug_attempt(
 
 def _write_json(path: Path, payload: Any) -> None:
     """写入稳定格式的 debug JSON。"""
-    path.write_text(
-        json.dumps(_safe_json(payload), ensure_ascii=False, indent=2, default=str),
-        encoding="utf-8",
-    )
+    from shuxueshuo_server.solver.runtime.llm_debug import write_debug_json
+
+    write_debug_json(path, _safe_json(payload))
 
 
 def _safe_json(value: Any) -> Any:

@@ -376,9 +376,7 @@
         "route": {
           "enum": [
             "pending",
-            "deterministic_complete",
-            "text_semantic_required",
-            "multimodal_required"
+            "multimodal"
           ]
         },
         "input_artifact_refs": {

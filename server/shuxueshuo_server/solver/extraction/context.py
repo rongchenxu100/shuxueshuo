@@ -34,9 +34,7 @@ AttemptResult = Literal[
 ]
 ExtractionRoute = Literal[
     "pending",
-    "deterministic_complete",
-    "text_semantic_required",
-    "multimodal_required",
+    "multimodal",
 ]
 _CANDIDATE_TYPES = frozenset({"scope", "entity", "fact", "goal"})
 _CANDIDATE_STATUSES = frozenset(
@@ -48,9 +46,7 @@ _ATTEMPT_RESULTS = frozenset(
 _ROUTES = frozenset(
     {
         "pending",
-        "deterministic_complete",
-        "text_semantic_required",
-        "multimodal_required",
+        "multimodal",
     }
 )
 

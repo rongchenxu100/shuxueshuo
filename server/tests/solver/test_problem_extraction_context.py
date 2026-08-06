@@ -131,7 +131,7 @@ def _attempt(context, *, attempt_id: str = "attempt_1", result: str = "timeout")
         attempt_id=attempt_id,
         base_context_id=context.manifest.context_id,
         provider="recorded-provider",
-        route="text_semantic_required",
+        route="multimodal",
         input_artifact_refs=(),
         output_artifact_refs=(artifact,),
         result=result,
@@ -265,6 +265,16 @@ def test_provider_failure_only_appends_attempt_ledger() -> None:
     assert updated.attempts[0].result == "timeout"
     assert context.attempt_refs == ()
     assert context.manifest.parent_context_id is None
+
+
+def test_legacy_dynamic_attempt_route_is_rejected() -> None:
+    context = _source_context()
+    attempt = replace(_attempt(context), route="text_semantic_required")
+
+    with pytest.raises(ProblemExtractionContextError) as error:
+        ExtractionAttemptLedger.for_context(context).append(context, attempt)
+
+    assert error.value.code == "extraction.attempt_ledger_mismatch"
 
 
 def test_attempt_ledger_is_idempotent_and_rejects_drift_or_wrong_base() -> None:

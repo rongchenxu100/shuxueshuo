@@ -47,7 +47,7 @@ StepIntent LLM 协议和 Functional 投影桥已经退役。`StepPlan`、`Method
 | B：Typed state authority | `COMPLETE` | MathObject、StateVersion、placement、finalizer、retry 与 typed consumer 权威 |
 | C：Transactional execution | `COMPLETE` | 逐 call 事务、binding、symbolic closure 与 provenance 消费 |
 | D：Functional default | `COMPLETE` | FunctionalPlan 成为唯一规划协议，legacy StepIntent 已删除 |
-| F：Problem extraction | `NEXT / IN PROGRESS` | 图片/PDF/网页来源转换为 validated ProblemIR |
+| F：Problem extraction | `IN PROGRESS（F0-F3 已实现）` | 图片/PDF/网页来源转换为 validated ProblemIR；下一步为 F4 验证与 retry |
 | G：Post-solver contexts | `NEXT / IN PROGRESS` | Explanation、Diagram、Animation 与课程页 Context 链 |
 | E：End-to-end optimization | `PENDING AFTER F/G` | 最终 artifact cache、增量重建与条件式 Best-of-N |
 
@@ -112,7 +112,9 @@ Planner 对 authored/extracted ProblemIR 使用相同接口；区别只记录在
 
 单页首轮默认只发送一张完整题目图，不发送 formula crop。OCR 不确定项以 evidence/region id 和 typed issue 告知模型，明显错误的 raw LaTeX 不进入 prompt。Retry 固定保留完整题目图，并由 validator issue 沿 candidate → evidence → F2 polygon 确定性生成定向 zoom；validator 不重跑 OCR，无法定位可靠 region 时不生成 zoom。
 
-当前进度：F0、F1 已完成；F2 的离线实现与真实五题 smoke 已完成，静态 review pack 等待人工签核；下一步为 F3 Multimodal Evidence Pack 与统一多模态语义 extractor，之后由 F4 负责确定性验证/重试，F5 完成 ProblemIR 投影与冷路径集成。
+F3 首个真实 provider 固定为火山方舟 `doubao-seed-2-1-turbo-260628`，直接复用 `server/.env` 的 `DOUBAO_API_KEY / DOUBAO_BASE_URL / DOUBAO_MODEL`。不新增 extraction 配置，不提供运行时 provider 分支或自动 fallback。
+
+当前进度：F0、F1 已完成；F2 的离线实现与真实五题 smoke 已完成，静态 review pack 等待人工签核。F3 已实现 Multimodal Evidence Pack、豆包完整题图调用、typed candidate patch、显式累计 attempt ledger 和 Planner 风格 debug/review 链；synthetic 跨页输入按页发送完整图，低置信 OCR 在语义 evidence view 中降为 unknown。每张 selected page 还提供确定性的 4×4 visual review tiles，使 OCR/layout 漏检的图中点名或关系仍可被模型以 unknown+ambiguity 方式引用，后续 F4 可直接生成定向 zoom，而无需开放模型自由坐标。真实 5×1 为 5/5，5×3 的 15 份 provider 响应在最终 parser 下全部可重放，补跑样本也通过；五份 recorded packs 已离线追加 tiles，既有 aliases 不漂移。机械补全的 review region 与模型原生 contract 完整率已分开计数，gold bbox coverage 仅作为粗筛。F0-F3 联合门禁为 240 passed，全量 solver 为 1448 passed、12 skipped。Live smoke 不进入默认 CI，作为 scheduled/release 前检查；F3 仅余人工 debug 签核，下一步由 F4 负责确定性 normalization、validation、Context commit、ledger 持久化与语义 retry，F5 完成 ProblemIR 投影和冷路径集成。
 
 ### 退出条件
 

@@ -101,7 +101,7 @@
       "point:problem:B": ["printed_line_0"],
       "point:problem:C": ["printed_line_0"],
       "point:problem:M": ["printed_line_0"],
-      "point:i_1:P": ["printed_line_2"],
+      "point:i_1:P": ["printed_line_0", "printed_line_2"],
       "point:i_2:E": ["printed_line_0", "printed_line_3"],
       "point:i_2:G": ["printed_line_0", "printed_line_3"],
       "point:ii:E": ["printed_line_4"],

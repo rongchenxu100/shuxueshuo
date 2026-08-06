@@ -1,0 +1,35 @@
+{
+  "schema_version": "f3-recorded-response-cases/v1",
+  "cases": [
+    {
+      "problem_id": "tj-2026-heping-ermo-25",
+      "pattern": "path-minimum",
+      "problem_type": "quadratic_square_reflection_path_minimum",
+      "transcription": "第25题：二次函数、正方形与折线路径问题。"
+    },
+    {
+      "problem_id": "tj-2026-heping-yimo-25",
+      "pattern": "path-minimum",
+      "problem_type": "quadratic_equal_length_ray_path_minimum",
+      "transcription": "第25题：抛物线、等长点与射线路径问题。"
+    },
+    {
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "pattern": "weighted-path-minimum",
+      "problem_type": "quadratic_weighted_path_minimum",
+      "transcription": "第25题：抛物线与加权线段最值问题。"
+    },
+    {
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "pattern": "path-minimum",
+      "problem_type": "quadratic_path_minimum",
+      "transcription": "第25题：抛物线、垂直关系与路径最值问题。"
+    },
+    {
+      "problem_id": "tj-2026-xiqing-yimo-25",
+      "pattern": "weighted-path-minimum",
+      "problem_type": "quadratic_weighted_path_minimum",
+      "transcription": "第25题：抛物线、旋转与加权路径问题。"
+    }
+  ]
+}

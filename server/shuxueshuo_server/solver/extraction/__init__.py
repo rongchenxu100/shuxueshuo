@@ -14,6 +14,11 @@ from shuxueshuo_server.solver.extraction.f0_adapter import (
     F0ExtractionContextSeed,
     build_f0_extraction_context_seed,
 )
+from shuxueshuo_server.solver.extraction.f3_attempt import (
+    F3ExtractionAttemptResult,
+    F3ExtractionAttemptService,
+)
+from shuxueshuo_server.solver.extraction.f3_debug import F3AttemptDebugWriter
 from shuxueshuo_server.solver.extraction.gold_corpus import (
     GoldCorpus,
     GoldCorpusAuditReport,
@@ -41,6 +46,18 @@ from shuxueshuo_server.solver.extraction.observations import (
     ProviderManifest,
     SourceObservation,
 )
+from shuxueshuo_server.solver.extraction.multimodal_candidates import (
+    F3ContractValidationReport,
+    ProblemExtractionCandidatePatch,
+    parse_candidate_patch,
+)
+from shuxueshuo_server.solver.extraction.multimodal_evidence import (
+    MultimodalEvidencePack,
+    MultimodalEvidencePackBuilder,
+)
+from shuxueshuo_server.solver.extraction.multimodal_provider import (
+    DoubaoMultimodalExtractionProvider,
+)
 from shuxueshuo_server.solver.extraction.source_identity import (
     ExtractionDependencyManifest,
     ProblemExtractionContextError,
@@ -58,22 +75,30 @@ __all__ = [
     "ExtractionStatePatch",
     "F2ObservationAssemblyResult",
     "F2ObservationPipeline",
+    "F3AttemptDebugWriter",
+    "F3ContractValidationReport",
+    "F3ExtractionAttemptResult",
+    "F3ExtractionAttemptService",
     "F0ExtractionContextSeed",
     "GoldCorpus",
     "GoldCorpusAuditReport",
     "GoldCorpusError",
     "ObservationContextTransitionService",
+    "MultimodalEvidencePack",
+    "MultimodalEvidencePackBuilder",
     "PaddleObservationAdapter",
     "PaddleProviderRecord",
     "ProblemExtractionContext",
     "ProblemExtractionContextBuilder",
     "ProblemExtractionContextError",
     "ProblemExtractionContextTransitionService",
+    "ProblemExtractionCandidatePatch",
     "ProblemRegionProposer",
     "ProblemSemanticDiffReport",
     "ProblemSourceFingerprint",
     "ProblemSourceFingerprintService",
     "ProviderManifest",
+    "DoubaoMultimodalExtractionProvider",
     "SourceObservation",
     "SourceSelection",
     "audit_gold_corpus",
@@ -81,5 +106,6 @@ __all__ = [
     "f2_semantic_config",
     "build_f0_extraction_context_seed",
     "load_gold_corpus",
+    "parse_candidate_patch",
     "render_gold_overlays",
 ]

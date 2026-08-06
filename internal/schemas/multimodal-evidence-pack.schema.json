@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "multimodal-evidence-pack.schema.json",
+  "title": "Multimodal Evidence Pack",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "evidence_pack_id",
+    "base_context_id",
+    "source_id",
+    "source_revision_hash",
+    "selection_id",
+    "observation_hash",
+    "images",
+    "printed_text",
+    "recognized_formulas",
+    "unresolved_items",
+    "region_index"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "const": "multimodal-evidence-pack/v1" },
+    "evidence_pack_id": { "type": "string", "pattern": "^evidence-pack:[a-f0-9]{64}$" },
+    "base_context_id": { "type": "string", "minLength": 1 },
+    "source_id": { "type": "string", "minLength": 1 },
+    "source_revision_hash": { "$ref": "#/$defs/sha256" },
+    "selection_id": { "type": "string", "minLength": 1 },
+    "observation_hash": { "$ref": "#/$defs/sha256" },
+    "images": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/image" }
+    },
+    "printed_text": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/text" }
+    },
+    "recognized_formulas": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/formula" }
+    },
+    "unresolved_items": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/unresolved" }
+    },
+    "region_index": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/region" }
+    }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "point": {
+      "type": "array",
+      "prefixItems": [
+        { "type": "number", "minimum": 0, "maximum": 1 },
+        { "type": "number", "minimum": 0, "maximum": 1 }
+      ],
+      "items": false
+    },
+    "polygon": {
+      "type": "array",
+      "minItems": 3,
+      "items": { "$ref": "#/$defs/point" }
+    },
+    "artifact": {
+      "type": "object",
+      "required": ["artifact_id", "kind", "sha256", "media_type", "byte_size"],
+      "additionalProperties": false,
+      "properties": {
+        "artifact_id": { "type": "string", "minLength": 1 },
+        "kind": { "const": "selection_crop" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "media_type": { "const": "image/png" },
+        "byte_size": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "image": {
+      "type": "object",
+      "required": ["image_id", "page_id", "role", "artifact", "width", "height"],
+      "additionalProperties": false,
+      "properties": {
+        "image_id": { "type": "string", "minLength": 1 },
+        "page_id": { "type": "string", "minLength": 1 },
+        "role": { "const": "primary" },
+        "artifact": { "$ref": "#/$defs/artifact" },
+        "width": { "type": "integer", "minimum": 1 },
+        "height": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "text": {
+      "type": "object",
+      "required": ["observation_id", "page_id", "reading_order", "confidence", "text"],
+      "additionalProperties": false,
+      "properties": {
+        "observation_id": { "type": "string", "minLength": 1 },
+        "page_id": { "type": "string", "minLength": 1 },
+        "reading_order": { "type": "integer", "minimum": 0 },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "text": { "type": "string", "minLength": 1 }
+      }
+    },
+    "formula": {
+      "type": "object",
+      "required": ["observation_id", "page_id", "reading_order", "confidence", "latex"],
+      "additionalProperties": false,
+      "properties": {
+        "observation_id": { "type": "string", "minLength": 1 },
+        "page_id": { "type": "string", "minLength": 1 },
+        "reading_order": { "type": "integer", "minimum": 0 },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "latex": { "type": "string", "minLength": 1 }
+      }
+    },
+    "unresolved": {
+      "type": "object",
+      "required": ["work_item_id", "code", "region_refs", "hint"],
+      "additionalProperties": false,
+      "properties": {
+        "work_item_id": { "type": "string", "minLength": 1 },
+        "code": { "type": "string", "minLength": 1 },
+        "region_refs": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "hint": { "type": ["string", "null"] }
+      }
+    },
+    "region": {
+      "type": "object",
+      "required": [
+        "region_id", "evidence_id", "page_id", "polygon", "kind", "origin",
+        "confidence", "reading_order", "source_artifact_id"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "region_id": { "type": "string", "minLength": 1 },
+        "evidence_id": { "type": "string", "minLength": 1 },
+        "page_id": { "type": "string", "minLength": 1 },
+        "polygon": { "$ref": "#/$defs/polygon" },
+        "kind": { "type": "string", "minLength": 1 },
+        "origin": { "enum": ["printed", "handwritten", "mixed", "unknown"] },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "reading_order": { "type": "integer", "minimum": 0 },
+        "source_artifact_id": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}
