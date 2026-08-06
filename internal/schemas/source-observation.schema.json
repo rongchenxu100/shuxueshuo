@@ -1,0 +1,183 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "source-observation.schema.json",
+  "title": "Canonical source observation",
+  "type": "object",
+  "required": [
+    "schema_version", "source_id", "source_revision_hash", "selection_id",
+    "dependency_hash", "providers", "pages", "layout_blocks", "text_spans",
+    "formulas", "ink_origins", "occlusions", "proposals",
+    "selected_observation_ids", "issues", "observation_hash"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "const": "source-observation/v1" },
+    "source_id": { "type": "string", "pattern": "^source:[a-f0-9]{64}$" },
+    "source_revision_hash": { "$ref": "#/$defs/sha256" },
+    "selection_id": { "type": "string", "pattern": "^selection:[a-f0-9]{64}$" },
+    "dependency_hash": { "$ref": "#/$defs/sha256" },
+    "providers": { "type": "array", "items": { "$ref": "#/$defs/provider" } },
+    "pages": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/page" } },
+    "layout_blocks": { "type": "array", "items": { "$ref": "#/$defs/layout" } },
+    "text_spans": { "type": "array", "items": { "$ref": "#/$defs/text" } },
+    "formulas": { "type": "array", "items": { "$ref": "#/$defs/formula" } },
+    "ink_origins": { "type": "array", "items": { "$ref": "#/$defs/ink" } },
+    "occlusions": { "type": "array", "items": { "$ref": "#/$defs/occlusion" } },
+    "proposals": { "type": "array", "items": { "$ref": "#/$defs/proposal" } },
+    "selected_observation_ids": { "$ref": "#/$defs/string_array" },
+    "issues": { "type": "array", "items": { "$ref": "#/$defs/issue" } },
+    "observation_hash": { "$ref": "#/$defs/sha256" }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "nullable_string": { "type": ["string", "null"] },
+    "string_array": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+    "polygon": {
+      "type": "array", "minItems": 3,
+      "items": {
+        "type": "array",
+        "prefixItems": [
+          { "type": "number", "minimum": 0, "maximum": 1 },
+          { "type": "number", "minimum": 0, "maximum": 1 }
+        ],
+        "items": false
+      }
+    },
+    "origin": { "enum": ["printed", "handwritten", "mixed", "unknown"] },
+    "provider": {
+      "type": "object",
+      "required": ["provider_id", "provider", "component", "model_name", "model_revision", "software_versions", "config"],
+      "additionalProperties": false,
+      "properties": {
+        "provider_id": { "type": "string", "pattern": "^provider:[a-f0-9]{64}$" },
+        "provider": { "type": "string", "minLength": 1 },
+        "component": { "enum": ["layout", "text_ocr", "formula_ocr", "ink_origin"] },
+        "model_name": { "type": "string", "minLength": 1 },
+        "model_revision": { "type": "string", "minLength": 1 },
+        "software_versions": { "type": "object" },
+        "config": { "type": "object" }
+      }
+    },
+    "page": {
+      "type": "object",
+      "required": ["page_id", "width", "height", "orientation_degrees", "source_artifact_id", "layout_block_ids", "reading_order"],
+      "additionalProperties": false,
+      "properties": {
+        "page_id": { "type": "string", "minLength": 1 },
+        "width": { "type": "integer", "minimum": 1 },
+        "height": { "type": "integer", "minimum": 1 },
+        "orientation_degrees": { "const": 0 },
+        "source_artifact_id": { "type": "string", "minLength": 1 },
+        "layout_block_ids": { "$ref": "#/$defs/string_array" },
+        "reading_order": { "$ref": "#/$defs/string_array" }
+      }
+    },
+    "spatial": {
+      "type": "object",
+      "required": ["observation_id", "page_id", "polygon", "confidence", "origin", "source_artifact_id", "provider_id", "reading_order"],
+      "properties": {
+        "observation_id": { "type": "string", "pattern": "^observation:[a-z_]+:[a-f0-9]{64}$" },
+        "page_id": { "type": "string", "minLength": 1 },
+        "polygon": { "$ref": "#/$defs/polygon" },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "origin": { "$ref": "#/$defs/origin" },
+        "source_artifact_id": { "type": "string", "minLength": 1 },
+        "provider_id": { "type": "string", "pattern": "^provider:[a-f0-9]{64}$" },
+        "reading_order": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "layout": {
+      "allOf": [
+        { "$ref": "#/$defs/spatial" },
+        { "type": "object", "required": ["kind", "provider_label"], "properties": { "kind": { "type": "string", "minLength": 1 }, "provider_label": { "type": "string", "minLength": 1 } } }
+      ],
+      "unevaluatedProperties": false
+    },
+    "text": {
+      "allOf": [
+        { "$ref": "#/$defs/spatial" },
+        { "type": "object", "required": ["text", "block_id"], "properties": { "text": { "type": "string" }, "block_id": { "$ref": "#/$defs/nullable_string" } } }
+      ],
+      "unevaluatedProperties": false
+    },
+    "formula": {
+      "allOf": [
+        { "$ref": "#/$defs/spatial" },
+        {
+          "type": "object",
+          "required": ["latex", "status", "source_observation_ids", "formula_request_id", "source_text_hint", "crop_artifact_id"],
+          "properties": {
+            "latex": { "$ref": "#/$defs/nullable_string" },
+            "status": { "enum": ["recognized", "unresolved"] },
+            "source_observation_ids": { "$ref": "#/$defs/string_array" },
+            "formula_request_id": { "type": "string", "pattern": "^formula-request:[a-f0-9]{64}$" },
+            "source_text_hint": { "$ref": "#/$defs/nullable_string" },
+            "crop_artifact_id": { "$ref": "#/$defs/nullable_string" }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "ink": {
+      "allOf": [
+        { "$ref": "#/$defs/spatial" },
+        {
+          "type": "object",
+          "required": ["mask_artifact_id", "overlap_observation_ids", "signals"],
+          "properties": {
+            "mask_artifact_id": { "$ref": "#/$defs/nullable_string" },
+            "overlap_observation_ids": { "$ref": "#/$defs/string_array" },
+            "signals": { "type": "object" }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "occlusion": {
+      "allOf": [
+        { "$ref": "#/$defs/spatial" },
+        {
+          "type": "object",
+          "required": ["target_observation_ids", "severity", "overlap_ratio"],
+          "properties": {
+            "target_observation_ids": { "$ref": "#/$defs/string_array" },
+            "severity": { "enum": ["recoverable", "ambiguous", "unrecoverable"] },
+            "overlap_ratio": { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "proposal": {
+      "type": "object",
+      "required": ["proposal_id", "question_label", "page_ids", "polygons", "included_block_ids", "confidence", "reason_codes", "requires_confirmation"],
+      "additionalProperties": false,
+      "properties": {
+        "proposal_id": { "type": "string", "pattern": "^problem-region:[a-f0-9]{64}$" },
+        "question_label": { "type": "string", "minLength": 1 },
+        "page_ids": { "$ref": "#/$defs/string_array" },
+        "polygons": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/polygon" } },
+        "included_block_ids": {
+          "description": "LayoutBlock ids only. OCR span coverage is represented by proposal polygons and observation geometry.",
+          "allOf": [{ "$ref": "#/$defs/string_array" }]
+        },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "reason_codes": { "$ref": "#/$defs/string_array" },
+        "requires_confirmation": { "type": "boolean" }
+      }
+    },
+    "issue": {
+      "type": "object",
+      "required": ["issue_id", "code", "blocking", "retryable", "observation_ids", "details"],
+      "additionalProperties": false,
+      "properties": {
+        "issue_id": { "type": "string", "pattern": "^observation-issue:[a-f0-9]{64}$" },
+        "code": { "type": "string", "minLength": 1 },
+        "blocking": { "type": "boolean" },
+        "retryable": { "type": "boolean" },
+        "observation_ids": { "$ref": "#/$defs/string_array" },
+        "details": { "type": "object" }
+      }
+    }
+  }
+}

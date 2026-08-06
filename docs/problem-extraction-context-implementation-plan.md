@@ -12,17 +12,15 @@
 → ProblemRegionProposal[]
 → 前端展示候选区域，用户确认或调整 SourceSelection
 → selected-region SourceObservation
-→ deterministic SourceRouter
-   ├─ deterministic_complete：deterministic candidate parser
-   ├─ text_semantic_required：低成本文本 LLM
-   └─ multimodal_required：多模态 LLM
+→ Multimodal Evidence Pack（完整题目图 + OCR/layout/formula/ink 辅助观察）
+→ 单一多模态语义 extractor
 → evidence-backed typed candidates
 → deterministic normalization + validation
 → ProblemExtractionContext
 → validated ProblemIR
 ```
 
-OCR/layout 只报告页面观察，不能输出或补全语义 ProblemIR。Candidate extractor 只报告带 source evidence 的题面候选，不选择 capability、不构造 FunctionalPlan、不推断隐藏解法，也不使用 expected answer 补事实。Validator 是 accepted candidates 投影为 ProblemIR 的唯一权威。
+完整题目图是语义提取的第一手输入。OCR/layout/formula/ink 只报告页面观察，作为多模态模型的辅助转录、阅读顺序、局部放大和冲突提示，不能输出或补全语义 ProblemIR。多模态 extractor 只报告带 source evidence 的题面候选，不选择 capability、不构造 FunctionalPlan、不推断隐藏解法，也不使用 expected answer 补事实。Validator 是 accepted candidates 投影为 ProblemIR 的唯一权威。
 
 F 初期以 authored ProblemIR 为 gold 运行 shadow。G 在此期间继续消费 authored ProblemIR；两条线最终通过 validated ProblemIR 和 immutable Context dependency 汇合。
 
@@ -36,8 +34,8 @@ F/G 阶段每次门禁都运行完整冷路径。`source fingerprint` 只承担�
 - OCR/layout 与数学语义歧义的分离；
 -整页多题的题目区域建议、用户确认和区域版本审计；
 -印刷题面、学生笔迹、混合遮挡和未知来源的 evidence 分层；
--本地轻量 layout/OCR 快路径与按需文本/多模态升级；
--可审计的 source route mode、reason code、调用次数和阶段耗时；
+-本地 layout/OCR/formula/ink 辅助观察与统一多模态语义提取；
+-可审计的 source preflight、辅助证据、模型调用次数和阶段耗时；
 - label normalization 和稳定对象 identity；
 - primitive-first relation extraction；
 - blocking issue 与 extraction retry；
@@ -67,11 +65,11 @@ F/G 阶段每次门禁都运行完整冷路径。`source fingerprint` 只承担�
 | source | asset ref、media/page/dimension、normalized source hash、canonical transform |
 | selection | region proposals、用户确认/调整的polygon/block refs、selection hash和revision |
 | observations | layout/OCR/formula/visual evidence refs、printed/handwritten origin和observation bundle hash |
-| route | route mode、extractor path、reason codes、region refs、调用次数 |
+| extraction | 固定多模态contract、preflight reason、evidence pack refs、调用次数 |
 | state | scope/entity/fact/goal candidates 的当前完整状态 |
 | decisions | accept/reject/link/merge/split/revise_scope 的确定性记录 |
 | issues | code、candidate/evidence refs、blocking、retryable、retry regions |
-| attempts | provider、route、input/output artifact refs、usage、latency、result |
+| attempts | provider、extractor contract、input/output artifact refs、usage、latency、result |
 | retry | unresolved work order、locked candidate refs、attempt budget |
 | projection | validated ProblemIR id/hash 或 blocked 状态 |
 | quality | coverage、ambiguity、precision/recall shadow 和成本指标 |
@@ -103,7 +101,7 @@ remaining_ambiguities
 
 具体dataclass与JSON字段应由同一schema事实源生成，不在文档维护第二份完整定义。
 
-## 4. Source observations、路由与 evidence
+## 4. Source observations 与 evidence
 
 Source ingestion 只生成观察，不生成数学实体、事实或目标：
 
@@ -187,6 +185,11 @@ printed | handwritten | mixed | unknown
 -学生笔迹覆盖关键文字、数字或公式且无法稳定恢复时fail closed，不通过inpainting、学生答案或常见题型猜原文；
 -去笔迹图只能是便于OCR的派生artifact，不能成为source evidence authority。
 
+F2 本地墨迹分析对彩色笔迹提供保守的 `handwritten/mixed` 判断；对黑灰中性笔画，只在笔画具有
+OCR 框外 seed 且穿入 printed span 时降级为 `mixed/unknown`。完全位于 OCR 框内、与印刷同色且被
+OCR 识别为正文的手写，以及空白区内未与 printed span 相交的纯黑演算，不能由这套确定性 CV 稳定区分，
+必须作为 unresolved observation 交给 F3 多模态 extractor 结合完整题目图判断，F2 不得猜测其来源。
+
 遮挡错误包括：
 
 ```text
@@ -196,25 +199,47 @@ extraction.printed_content_unrecoverable
 
 普通、不重叠的笔迹无需打扰用户；只有遮挡可能改变题意时，前端才提示重新拍摄、调整region或上传干净来源。未来若分析学生解题步骤，必须使用独立Context和schema，不能复用ProblemIR extraction的accepted facts。
 
-### 4.4 SourceRouter
+### 4.4 统一多模态提取边界
 
-第一层路由不调用大模型。首版使用本地 `PP-DocLayout-S`，必要时升级 `PP-DocLayout-M`，并结合 OCR 覆盖率、公式 parser 和轻量图形特征输出：
+生产路径不再判断“是否需要 LLM”，也不在确定性 parser、文本模型和多模态模型之间路由。通过 source、selection 和 artifact preflight 后，每道题统一调用一次多模态语义 extractor：
 
 ```text
-ExtractionRoute = deterministic_complete | text_semantic_required | multimodal_required
+首轮：完整 SourceSelection 题目图
+    + 高可信 OCR/layout/formula/ink 摘要
+    + unresolved region 清单
+重试：同一完整题目图
+    + 上一轮 typed issue
+    + 由 evidence polygon 确定生成的定向 zoom
+→ typed candidates / ExtractionDecisionPatch
 ```
 
-路由规则：
+固定规则：
 
-- `deterministic_complete`：selection完整，printed OCR、公式、实体、关系、scope和goal均被已注册typed grammar唯一解析，coverage validator证明没有未消费数学语义，且不存在影响题意的mixed/unknown遮挡；
-- `text_semantic_required`：无必须读取的figure，但实体、scope、fact、goal或指代需要语言理解，使用低成本文本LLM；
-- `multimodal_required`：存在figure/坐标轴/几何标签关联，或layout/OCR/公式/笔迹重叠证据需要看原图消歧，使用OCR observations、handwriting mask和相关原图crop调用多模态LLM。多模态模型仍不能从不可见像素补猜被遮挡题面。
+- 单页题首轮只发送一张完整 `SourceSelection` 题目图，包含全部题干、小问和归属该题的图形；相邻题、页眉和 selection 外学生演算不得进入；
+- 多 polygon 同页 selection 先生成一张保留阅读顺序的 canonical selection canvas；只有真实跨页题才按 page order 发送每页一张主图；
+- 首轮默认不发送 formula、diagram、遮挡 crop 或 overlay。高可信 OCR 文本、reading order、公式结果、置信度和 origin 只作为紧凑辅助摘要；
+- OCR 不确定内容仍要告知模型，但只发送 `evidence_id`、region、issue code 和必要的可见片段提示。重复、膨胀或明显错误的原始 LaTeX 不进入 prompt，避免错误锚定；
+- `extraction.formula_observation_unresolved` 等 F2 issue 不改变模型路径，而是形成明确的 work order，要求模型直接回看完整题目图对应区域；
+- 多模态模型可以提出与 OCR 不同的候选文本或公式，但必须引用原始 source region，并保留冲突供 deterministic validator 判定；不得原地改写 SourceObservation；
+- `handwritten/mixed/unknown` observation 只能用于来源判别和冲突说明，不能因为模型读出了学生答案或辅助线就升级为题设 fact；
+- 关键印刷内容不可见或不可恢复时，preflight 或 validator 必须 fail closed，要求重新拍摄，不能让模型按题型猜测。
 
-Router 只决定 extractor，不产生数学事实。每次决策必须记录 mode、reason codes、region refs、模型调用数和耗时。多模态 retry优先发送冲突 bbox，不重复发送整页。
+F1 中历史命名为 `route` 的 attempt 字段在 `problem-extraction-context/v1` 内只保存固定的 `multimodal` audit label，不再表达动态决策；后续 schema 升级时改名为 extractor contract。每次调用记录完整题目 artifact、辅助 observation bundle、zoom refs、模型版本、usage、latency 和 parsed patch。
+
+F2 建立只读 `ObservationRegionIndex`：
+
+```text
+evidence_id / region_id
+→ page_id + normalized polygon + source artifact
+```
+
+LLM 输出的每个 candidate 必须引用 catalog 中已有的 `evidence_refs`；无法完成判断时，只能通过 `review_region_refs` 指向已有 text span、formula candidate、ink/occlusion region、layout block 或 figure block，不能提交自由坐标。Validator 不重新运行 OCR，也不“看图”：它把 typed issue 关联到 candidate，再沿 candidate → evidence/review region → polygon 确定需要复核的原图区域。`RetryZoomProjector` 对这些 polygon 做确定性合并、padding 和 crop，从 canonical source artifact生成 zoom。
+
+Retry 始终保留同一完整题目图和全部有效题干上下文，再追加上一轮 typed issue。只有存在可解析的 `retry_region_refs` 时才附加定向 zoom；没有可靠 region 时只使用完整图重试，禁止猜 crop。单页首轮因此通常只有一张图片，单页 retry 通常是“完整图 + 一张定向 zoom”；多张 zoom 只允许用于互不相连且同属一个 blocking issue 的区域，并受固定数量上限约束。
 
 ### 4.5 Candidate JSON
 
-三类 extractor 使用同一个 typed candidate schema，例如：
+多模态 extractor 使用统一 typed candidate schema，例如：
 
 ```json
 {
@@ -258,7 +283,7 @@ symbol m has domain m > 0
 
 ## 7. 初始语料与扩展规则
 
-Track F 先使用现有五道题的结构化gold作为端到端锚点；对应原始图片由用户补充后进入source corpus：
+Track F 先使用现有五道题的结构化gold和已入库原图作为端到端锚点：
 
 ```text
 nankai
@@ -275,21 +300,21 @@ heping
 -是否含学生演算、圈画、辅助线，以及是否遮挡印刷内容；
 - 是否含数学图形、坐标轴、表格或仅有正文；
 - OCR、公式 OCR 和 reading order 难度；
-- 预期 route；
+- 预期 source preflight 结果与需要重点复核的视觉区域；
 - entity、relation、scope、goal 和指代类型；
-- 是否应做到零 LLM。
+- 完整题目图、跨页、图形和冲突 zoom 等 multimodal evidence pack 维度。
 
-如果五题缺少某个实现阶段的必要覆盖，例如 `deterministic_complete` 的无图、文法明确题，测试不得伪造“已覆盖”。应输出一份具体的补充输入需求，包括：
+如果五题缺少某个实现阶段的必要覆盖，例如必须消费的印刷图形、真实跨页题或不可恢复遮挡，测试不得伪造“已覆盖”。应输出一份具体的补充输入需求，包括：
 
 ```text
-缺失 route / semantic dimension
+缺失 source / semantic dimension
 建议题型与版面特征
 必须包含或避免的元素
 期望经过的F阶段
 需要提供的图片数量
 ```
 
-用户提供图片时优先使用未经裁剪、未经画框的完整原页，并指出目标题号；跨页题提供全部相关页面。原有学生笔迹无需人工擦除。新增图片进入 corpus 前，必须补齐 source manifest、gold SourceSelection、printed/handwritten annotation、authored ProblemIR、evidence annotation 和预期 route；确认后的样本永久进入离线回归。模型偶然成功的 live 样本不能直接作为 gold。
+用户提供图片时优先使用未经裁剪、未经画框的完整原页，并指出目标题号；跨页题提供全部相关页面。原有学生笔迹无需人工擦除。新增图片进入 corpus 前，必须补齐 source manifest、gold SourceSelection、printed/handwritten annotation、authored ProblemIR、evidence annotation 和预期 preflight；确认后的样本永久进入离线回归。模型偶然成功的 live 样本不能直接作为 gold。
 
 首批真实source coverage至少包括：
 
@@ -315,12 +340,12 @@ heping
 
 ### F0：五题 Gold corpus、coverage matrix 与 semantic diff（COMPLETE）
 
-已于 2026-08-05 完成五张原图的 immutable manifest、authored selection、印刷/手写证据标注、完整 semantic evidence mapping、grounded coverage report 和稳定 semantic diff。F0 专项为 41 passed，连同 fixture schema 的规定回归为 68 passed。Auditor 自身要求五个锚点齐全并拒绝空 corpus、仓库外 asset/fixture、畸形 canonical fixture、目录身份漂移、孤儿 problem-source evidence 和重复语义缺失；selection/excluded 使用真实多边形正面积相交，边界接触不算重叠。排除区域通过 typed exclusion subject 引用相邻题、页眉等语义对象；邻题 coverage 统计唯一 `neighbor_question` subject，不依赖 polygon 数量。Coverage 同时报告 authored declaration 与 evidence-grounded facts；`deterministic_complete` 只能由 F3 可执行 parser 门禁关闭。当前 corpus 明确保留 deterministic complete、题内印刷图形、跨页题和不可恢复遮挡四项缺口。
+已于 2026-08-05 完成五张原图的 immutable manifest、authored selection、印刷/手写证据标注、完整 semantic evidence mapping、grounded coverage report 和稳定 semantic diff。F0 专项为 41 passed，连同 fixture schema 的规定回归为 68 passed。Auditor 自身要求五个锚点齐全并拒绝空 corpus、仓库外 asset/fixture、畸形 canonical fixture、目录身份漂移、孤儿 problem-source evidence 和重复语义缺失；selection/excluded 使用真实多边形正面积相交，边界接触不算重叠。排除区域通过 typed exclusion subject 引用相邻题、页眉等语义对象；邻题 coverage 统计唯一 `neighbor_question` subject，不依赖 polygon 数量。Coverage 同时报告 authored declaration 与 evidence-grounded facts。旧 coverage 中的 `deterministic_complete` 维度随单一多模态路径退役，F3 开始时迁移为 multimodal evidence/preflight coverage；当前仍需补充题内印刷图形、真实跨页题和不可恢复遮挡样本。
 
 先写失败测试：
 
 - `test_problem_extraction_gold_corpus.py`断言五题source、page、gold SourceSelection、printed/handwritten annotation和authored ProblemIR一一对应；
-- coverage matrix 必须报告五题实际覆盖的 route 和 semantic dimensions，缺失项必须显式列出，不能以默认值补齐；
+- coverage matrix 必须报告五题实际覆盖的 source、multimodal evidence 和 semantic dimensions，缺失项必须显式列出，不能以默认值补齐；
 -缺source region、重复evidence id、gold fact无evidence时稳定失败；
 - semantic diff能报告首个entity/fact/goal/scope差异，而不是只返回不相等。
 
@@ -387,7 +412,58 @@ heping
 
 退出门禁：Context连续JSON round-trip语义相等；accepted candidate不会被未授权patch覆盖；坏dependency和坏hash fail loud。
 
-### F2：图片/PDF 到区域、笔迹分层与 SourceObservation JSON
+### F2：图片/PDF 到区域、笔迹分层与 SourceObservation JSON（IMPLEMENTED / HUMAN SIGN-OFF PENDING）
+
+已于 2026-08-05 完成实现和真实五题 smoke。默认 solver 环境只包含 schema、adapter、
+Context transition、artifact store、PDF rasterizer 和 review 生成器；Paddle 仅由独立
+`server/.venv-ocr` worker 延迟导入。当前实现包括：
+
+- `source-observation/v1` 与 `paddle-provider-record/v1`，统一 canonical page 坐标、reading order、
+  provider authority、typed issue 和稳定 observation hash；
+- `PP-DocLayout-S`、`PP-OCRv6_medium_det/rec`、`PP-FormulaNet_plus-M` 的独立 worker，五题 batch
+  内每类模型只初始化一次；
+- confirmed selection 快速路径采用“全页 layout + confirmed-selection crop 文字 OCR”；所有文字 observation
+  的中心必须位于 selection 内。自动 proposal 所需的全页 OCR 是后续独立入口，不能与该 smoke 路径混用；
+- 题号、双栏布局与保守跨页 continuation region proposal、彩色墨迹与跨 OCR 框中性深色笔画检测，
+  以及 printed/handwritten/mixed/unknown 保守分类；公式 crop 在墨迹分类后生成，仅 printed 候选进入
+  公式模型，handwritten/mixed/unknown 数学候选聚合保留 `extraction.formula_observation_unresolved`；
+- printed OCR 与墨迹接触只有在目标文字框内的局部覆盖比例达到 ambiguous 阈值时才降为 `mixed`；
+  recoverable 擦边继续保持 printed。遮挡 polygon 使用目标文字内真实 ink pixel 的紧致外框，不再复用
+  跨半页墨迹组件的外接矩形；review overlay 用内容寻址 mask 的精确像素着色，大型组件不再绘制误导性整页框；
+- Formula OCR 增加 source-fidelity audit：按 OCR 原文提取可见数学片段，检查 radical、数值、关系式和
+  运算片段是否完整覆盖，并拒绝中文散文输出、异常长度膨胀和重复 token 幻觉。失败结果保留原始 LaTeX
+  供人工审查，但权威状态降为 `unresolved` 并产生带 reason/expected fragments 的 typed issue；
+  `recognized` 只允许 `origin=printed`，smoke 同时拒绝没有 typed issue 的 unresolved formula；
+- 含数学内容的中文题干行不再整行送入 FormulaNet。F2 先用纯词法规则提取连续数学片段，按 OCR 行内
+  字符位置生成紧凑 crop，例如同一行分别形成 `-1<m<0` 与 `∠CBE+∠ACO=45°`；完整 OCR 题干仍保留为
+  后续多模态 extractor 的辅助转录。每个 provider result 必须携带精确 `formula_request_id`、source hint、
+  source observation 与 polygon，旧整行结果或同源错绑结果均 fail closed；片段输出除等价排版符号外不得
+  多出邻接字符，否则以 `formula_output_contains_unexpected_content` 降为 unresolved；
+- 内容寻址 artifact store、可信 observation Context attachment、recorded replay、静态 HTML review pack；
+- Context attachment 对 canonical page、公式 crop 和笔迹 mask 执行完整 artifact closure 校验，并在 evidence
+  payload 中保留派生 artifact 引用；Paddle 与 local CV 使用独立 attempt，公式 crop 必须是 provider input，
+  handwriting mask 必须是 local CV output；authoritative bundle 只允许 selection/formula crop，厂商 raw payload
+  只写入 `provider-records/*.raw.json` 调试 sidecar，不进入 Context；
+- OCR 质量使用图片的 authored physical transcript，不使用允许语义归一的 canonical ProblemIR 文案。
+
+规定的 F0-F2、provider adapter、smoke acceptance 与 fixture schema 联合回归为 185 passed；全量 solver 为
+1391 passed、12 skipped。真实五题 smoke 为 5/5，
+三类模型初始化计数均为 1，recorded replay 的 observation/artifact/Context hash 无漂移。五题归一化
+OCR CER 依次为：和平二模 0.0055、和平一模 0.0276、河西 0.0064、南开 0.0094、西青 0.1452；
+均低于 0.20，且无整行题面缺失。河西 clean baseline 无笔迹误报；西青的公式候选因 mixed/unknown
+来源不进入公式 OCR，并保留聚合 typed unresolved 与 overlap issue。基于该次真实 provider records 的
+确定性重放仍为 5/5；normalized record 与 raw vendor payload 可分别重放，旧版无 raw sidecar 的记录继续兼容。
+2026-08-06 对和平一模/二模人工复核暴露的公式与墨迹问题完成泛化修复后，真实 provider 与 recorded
+replay 仍为 5/5。和平一模被轻微墨迹擦边的 `(II)` 题干恢复为 printed，原半页遮挡框收紧为三个局部交点；
+公式题干由整行 crop 改为片段 crop，`∠CBE+∠ACO=45°` 已稳定识别为
+`\\angle CBE+\\angle ACO=45^{\\circ}`，不再产生重复 `\\angle B^2` 幻觉。`y=ax²+bx-3` 后混入 `(a`、
+`A(-1,0)` 后混入中文等邻接污染会明确 unresolved；和平二模的 `b=-2,c=3` 与 `3√5` 均可由紧凑 crop
+完整识别。所有 unresolved 仍作为后续多模态 work order；模型始终接收完整 selection 题目，局部 crop 只作 zoom。
+最新审查包位于 `internal/solver-runs/problem-extraction/f2-sixth-review-guided/review/index.html`。单题页按
+“区域与版面 → 印刷 OCR → 公式 OCR/crop → 笔迹与遮挡 → typed issues”组织，并在顶部提供人工签核清单；
+勾选只辅助本次浏览，不修改 Context。静态 review pack 已生成，F2 标记 COMPLETE 前仍保留一次人工签核。
+
+F2 人工签核只确认观察层是否忠实：selection、OCR框、原始转录、formula crop、origin、遮挡和 typed issue 是否与图片一致。它不要求每个公式都由 FormulaNet 给出最终正确 LaTeX；可靠结果可以作为辅助转录，`unresolved` 结果必须保留原始输出和复核区域并交给 F3。错误结果若被标为 `recognized` 则属于 F2 缺陷，明确降级为 `unresolved` 则属于预期工作流。
 
 本地真实 provider 环境按 [OCR 本地环境安装](ocr-local-environment-setup.md) 准备；Paddle 依赖使用
 独立 `server/.venv-ocr`，不进入默认 solver `.venv`。离线 adapter 测试仍不得下载或调用真实模型。
@@ -395,80 +471,62 @@ heping
 先写失败测试：
 
 - `test_problem_extraction_observations.py`覆盖orientation、layout block、OCR span、formula、reading order和normalized bbox；
-- `test_problem_region_proposals.py`覆盖单题、多题、双栏、题干配图分离、跨页和用户adjusted selection；
-- `test_problem_extraction_handwriting.py`覆盖无笔迹、空白处演算、下划线重叠、手写辅助线和关键公式遮挡；
+- `test_problem_region_proposals.py`覆盖相邻多题、双栏隔离、页脚排除、保守跨页 continuation、稳定顺序和
+  用户adjusted selection；跨页 proposal 只有在上一页内容延伸至页底且下一页题号前存在连续内容时生成，
+  并强制人工确认。真实跨页 gold 和必须归属题目的印刷配图仍是 corpus 缺口，不能记为已覆盖；
+- `test_problem_extraction_handwriting.py`覆盖无笔迹、彩色笔迹、重叠遮挡、黑灰笔画穿过 printed span 和
+  确定性 mask；
+- `test_problem_extraction_f2_smoke.py`离线覆盖 acceptance 通过/失败、selection-crop OCR 范围、provider
+  raw payload round-trip；`f2_provider_ids` 漂移、未入 ledger 的 artifact 和非法 artifact kind 均 fail closed；
 -删改原始图片region、交换page或破坏公式时，observation hash和对应evidence必须确定变化；
 -候选region遗漏配图、误吞相邻题、selection引用悬空block或使用错误坐标transform时必须失败；
 -学生手写答案和辅助线不得产生printed evidence或semantic candidate；
 - Observation adapter不得创建entity、fact、scope或goal；
 - recorded PP-DocLayout/OCR/formula OCR响应必须能离线重放为完全相同的JSON。
 
-再实现PP-DocLayout/OCR/formula adapter、handwriting/overlap adapter、ProblemRegionProposer、SourceSelection contract和SourceObservation schema。真实provider输出先经过adapter contract归一化，生产逻辑不读取厂商私有字段。本阶段只形成页面观察、区域建议、用户selection和evidence origin，不作source route或数学语义判断。
+再实现PP-DocLayout/OCR/formula adapter、handwriting/overlap adapter、ProblemRegionProposer、SourceSelection contract和SourceObservation schema。真实provider输出先经过adapter contract归一化，生产逻辑不读取厂商私有字段。本阶段只形成页面观察、区域建议、用户selection和evidence origin，不作数学语义判断。
 
-退出门禁：所有gold source均可稳定生成候选region和SourceObservation JSON；gold SourceSelection可确定重放；同一recorded输入重复运行得到相同observation、mask和artifact hashes。
+退出门禁：所有gold source均可稳定生成候选region和SourceObservation JSON；gold SourceSelection可确定重放；同一recorded输入重复运行得到相同observation、mask和artifact hashes；人工确认五题 review pack 后将 F2 标记 COMPLETE。
 
-### F3：SourceRouter 与 deterministic candidate parser
-
-先写失败测试：
-
-- `test_problem_extraction_routing.py`覆盖三种route及reason codes；
-- `test_problem_extraction_deterministic_parser.py`覆盖实体、坐标、公式、primitive relation和QuestionGoal grammar；
--打乱OCR span、重命名evidence id或改变无关标点不改变canonical candidate outcome；
--删除figure、降低OCR置信度、制造公式parser歧义时route必须确定变化；
-- selection不完整或mixed/unknown evidence遮挡关键内容时不得进入`deterministic_complete`；
--未消费数学clause、否定、代词或多重合法parse必须退出`deterministic_complete`；
-- Router不得创建entity/fact/goal，`deterministic_complete`路径的LLM spy调用数必须为零。
-
-再实现 SourceRouter、typed grammar coverage validator和deterministic candidate parser。Deterministic parser只覆盖简单、文法明确且公式可解析的纯文本题；正则仅用于词法识别，数学表达式、关系、scope和goal由结构化parser与typed rule registry处理。
-
-本阶段若五题没有可证明`deterministic_complete`的样本，coverage gate必须请求至少一张“无图、单页、题干与目标均可由已注册grammar完整消费”的题目图片，不能用mock source替代集成锚点。
-
-退出门禁：三种route可确定复现；至少一份真实图片走deterministic完整路径且LLM调用为零；coverage不足必定升级而不是丢弃clause。
-
-### F4：DeepSeek 文本语义 extractor
+### F3：Multimodal Evidence Pack 与统一语义 extractor
 
 先写失败测试：
 
-- `test_problem_extraction_text_llm.py`用recorded/fake DeepSeek响应覆盖entity linking、指代、scope、fact和goal分类；
-- `test_problem_extraction_llm_contract.py`拒绝无evidence candidate、自由文本relation、完整ProblemIR输出、capability hint和expected answer；
-- prompt只包含selected-region中的printed SourceObservation、candidate schema和unresolved work order，不包含学生手写答案、原图、Functional catalog或解法；
--provider超时、reasoning-only、坏JSON和语义patch无进展必须分别产生稳定attempt状态；
--相同recorded响应重复应用得到相同patch与Context state。
+- `test_problem_extraction_evidence_pack.py`断言每次请求都包含完整、有序的 SourceSelection 题目图，以及对应 source、page、selection 和 transform identity；
+-整页多题输入不得包含 selection 外相邻题；多 polygon/跨页题必须发送完整的有序 region 集合；
+-单页首轮必须只有一张主图且没有 zoom；高可信 OCR/formula 摘要与 unresolved region 清单必须可追溯，明显错误的 raw FormulaNet 输出不得进入 prompt；
+- `ObservationRegionIndex` 的 evidence/region、page、polygon 和 artifact 闭包必须完整，错 page transform 或悬空引用时 fail loud；
+- `test_problem_extraction_multimodal.py`覆盖文字题、图形题、图中 label linking、坐标轴/几何关系、公式冲突和遮挡复核；
+-首轮和 retry 都禁止 crop-only 请求；删除完整题目 artifact 后即使 zoom 齐全也必须失败；
+- `test_problem_extraction_llm_contract.py`拒绝无 evidence candidate、自由文本 relation、完整 ProblemIR 输出、capability hint、解法和 expected answer；
+-模型读出的学生答案、演算、辅助线或 selection 外内容不得形成题设 candidate；
+-模型与 OCR 不一致时必须返回带 source region 的冲突候选或 ambiguity，不能原地覆盖 observation；
+-provider timeout、限流、reasoning-only、空响应和坏 JSON 只产生 immutable attempt，不创建语义 child Context；
+-相同 recorded request/response 重放得到相同 patch、artifact hash 和 attempt authority。
 
-再实现低成本文本模型backend：输入OCR/layout/formula observations，输出`ExtractionDecisionPatch`或typed candidates。它不读取图片，不生成最终ProblemIR，也不能覆盖已locked且不在work order中的候选。
+再实现 `MultimodalEvidencePackBuilder`、统一多模态 provider contract、response parser 和 typed candidate/patch schema。模型始终看完整题目图；OCR/layout/formula/ink 用于提高可读性、提示 reading order、指出不可靠区域和提供 zoom，不作为最终文字或数学事实权威。
 
-退出门禁：所有`text_semantic_required` recorded cases可离线重放；provider失败与语义失败分类清楚；文本backend与deterministic backend产出同一candidate contract。
+五题全部使用同一模型路径。无图、OCR 完整的简单题也不切换到文本模型；架构先以一致性和较少分支为优先，成本与缓存优化留到 E。F1 `attempt.route` 在 v1 中固定写为 `multimodal`，不得出现基于 observation 的动态路由。
 
-### F5：多模态语义 extractor
+退出门禁：五题均能生成完整 evidence pack 并调用同一多模态 contract；recorded replay 稳定；完整题目图调用率为 100%；crop-only、无 evidence 和来源越权输出全部 fail closed。
 
-先写失败测试：
-
-- `test_problem_extraction_multimodal.py`覆盖图形region选择、图中label linking、坐标轴/几何关系候选和冲突crop retry；
--只发送route指定的相关crop与必要题干，禁止默认重复发送整页；
--删除关键figure region、交换图中同名label或提供冲突OCR时必须保留ambiguity，不能按视觉常识补事实；
--即使多模态模型读出了学生答案或辅助线，也必须因evidence origin不合法而拒绝写入题面candidate；
--多模态输出必须与文本backend使用同一candidate/patch schema和evidence约束；
--provider输出不含source evidence时稳定拒绝。
-
-再实现多模态backend：输入OCR observations、相关题干和diagram/冲突crop，输出带evidence的typed candidates或`ExtractionDecisionPatch`。Router在运行时只选择文本或多模态分支之一；不会先调用文本模型再无条件调用多模态模型。
-
-退出门禁：至少一份含图gold source完成multimodal离线重放；crop选择、调用次数和artifact refs可审计；文本与多模态分支可独立运行。
-
-### F6：Normalization、Validation 与 retry
+### F4：Candidate Normalization、Validation、Context 与 retry
 
 先写失败测试：
 
-- `test_problem_extraction_candidates.py`要求deterministic/text/multimodal backend输出同一candidate schema；
-- `test_problem_extraction_normalization.py`覆盖OCR规范化、value parser、scope tree、label linking和primitive fact canonicalization；
-- `test_problem_extraction_validation.py`逐个覆盖下列typed issue和blocking/retryable分类；
-- `test_problem_extraction_retry.py`断言retry只包含相关evidence、unresolved tasks和必要locked refs；
-- retry不能重写无关accepted candidate，不能重新发送整页，不能暴露expected answer或Functional catalog；
-- issue集合连续两轮无进展、evidence缺失或预算耗尽时进入blocked；
--成功patch创建child Context并保留完整parent/attempt审计。
+- `test_problem_extraction_candidates.py`覆盖 scope/entity/fact/goal typed candidate schema、全局 identity、cardinality 和 evidence refs；
+- `test_problem_extraction_normalization.py`覆盖 OCR/视觉转录规范化、value parser、scope tree、label linking和primitive fact canonicalization；
+- `test_problem_extraction_validation.py`逐个覆盖 typed issue、blocking/retryable 分类和 trusted accepted/locked transition；
+- `test_problem_extraction_retry.py`断言 retry 继续携带完整题目图，只追加相关 typed issue、冲突 evidence、必要 zoom 和 locked refs；
+- validator issue 必须通过 candidate/evidence refs 确定映射到 `retry_region_refs`；测试禁止 validator 重跑 OCR、读取图片像素或接受 LLM 自由坐标；
+-有 region 的单页 retry 生成“完整图 + 定向 zoom”，无 region 时只发送完整图；同一 polygon 重复引用必须确定性去重；
+- retry 不能重写无关 accepted candidate，不能使用 selection 外整页、expected answer、Functional catalog 或解法提示；
+- issue 集合连续两轮无进展、evidence 缺失或预算耗尽时进入 blocked；
+-成功 patch 原子创建 child Context并保留完整 parent/attempt 审计。
 
-先实现deterministic normalization：
+先实现 deterministic normalization：
 
-- OCR 空白、标点和跨 span 合并；
+- OCR/模型转录的 Unicode、空白、标点和跨 span 规范化；
 -分数、根式、坐标和方程解析；
 -题号与 scope tree；
 - evidence 唯一时的 label linking；
@@ -492,27 +550,28 @@ extraction.printed_content_unrecoverable
 extraction.problem_ir_incomplete
 ```
 
-再实现validator、ExtractionWorkOrder、ExtractionDecisionPatch merge和targeted retry。Retry只接收immutable Context、未解决候选、相关evidence和紧凑issue。Planner failure只有确定性归因为extraction gap后才能回到F。
+再实现 validator、`ExtractionWorkOrder`、`ExtractionDecisionPatch` merge 和 retry projector。Validator 对模型候选与 source evidence 做确定性校验；模型不能自行把 proposed 提升为可信 accepted/locked。不可恢复遮挡在这一层保持 blocking，不能靠 retry 猜出缺失像素。
 
-退出门禁：三条backend均进入同一normalizer和validator；所有失败均有稳定code、root evidence和retry边界；失败Context不产生ProblemIR；连续执行相同retry序列结果幂等。
+退出门禁：所有候选进入同一 normalizer/validator；所有失败有稳定 code、root evidence 和 retry 边界；失败 Context 不产生 ProblemIR；连续执行相同 retry 序列结果幂等；每轮多模态请求仍包含完整题目图。
 
-### F7：ProblemIR projection 与冷路径集成
+### F5：ProblemIR projection 与冷路径集成
 
 先写失败测试：
 
-- `test_problem_extraction_to_problem_ir.py`断言blocking issue、ambiguous candidate和缺evidence时禁止projection；
-- projection只包含accepted semantic state，不复制OCR、bbox、confidence、attempt或rejected candidate；
-- `test_problem_extraction_solver_integration.py`比较extracted/authored ProblemIR的family admission、answer signature和provenance；
--至少一题从真实source离线artifact完整进入Track G并编译HTML。
+- `test_problem_extraction_to_problem_ir.py`断言 blocking issue、ambiguous candidate 和缺 evidence 时禁止 projection；
+- projection只包含 accepted semantic state，不复制 OCR、bbox、confidence、attempt 或 rejected candidate；
+- `test_problem_extraction_solver_integration.py`比较 extracted/authored ProblemIR 的 family admission、answer signature 和 provenance；
+-五题从真实 source recorded artifact 完整进入 solver，至少一题继续进入 Track G 并编译 HTML；
+-消融测试分别移除 OCR、FormulaNet 结果或 zoom，确认它们只影响辅助质量，不改变“完整题目多模态”主契约；若 FormulaNet 对正确率、retry 或成本没有可测收益，则从生产关键路径移除。
 
-再实现唯一ProblemIR projector：
+再实现唯一 ProblemIR projector：
 
 -存在 blocking issue 时禁止 projection；
 - ProblemIR source manifest 只记录 Context id、source hash 和 schema/version；
 -不复制 OCR 内部数据；
 - extracted 与 authored ProblemIR 进入同一 family/planner/solver API。
 
-退出门禁：五题semantic diff达到要求，补充的route-specific corpus全部通过，solver/lesson-page回归通过，重复冷路径生成相同ProblemIR语义hash。
+退出门禁：五题 semantic diff 达到要求，补充的 source/semantic corpus 全部通过，solver/lesson-page 回归通过，重复冷路径生成相同 ProblemIR 语义 hash；全链只存在一个多模态语义 extractor，不存在 SourceRouter、文本 LLM 或 deterministic semantic parser 产品分支。
 
 ## 9. 与 Track G 的接口
 
@@ -543,7 +602,7 @@ F 不复制下游 artifact，也不在本阶段实现缓存。G 只依赖 F 输�
 
 ## 11. 跨阶段测试门禁
 
-每个F0-F7阶段先运行本阶段定向测试，再运行全部已完成F阶段测试；任何阶段不得以live provider偶然成功代替离线contract测试。
+每个F0-F5阶段先运行本阶段定向测试，再运行全部已完成F阶段测试；任何阶段不得以live provider偶然成功代替离线contract测试。
 
 Generated/metamorphic门禁：
 
@@ -553,8 +612,8 @@ Generated/metamorphic门禁：
 -在空白处添加学生演算不得改变ProblemIR；
 -给原图添加手写辅助线不得新增几何fact；
 -新增无关装饰图片不应自动产生数学 diagram fact；
--删除 figure region时 route和 evidence coverage必须确定变化；
--公式 parser 从成功变为歧义时必须离开 deterministic_complete快路径；
+-删除 figure region时 evidence pack、candidate coverage或blocking issue必须确定变化；
+-公式 parser 从成功变为歧义时模型路径保持不变，但 work order、辅助证据和validator结果必须确定变化；
 -新增同名 region 必须产生 ambiguity；
 -删除 evidence 后 dependent fact unresolved；
 -改变题号后 scope 确定变化。
@@ -563,8 +622,8 @@ Mutation门禁：
 
 -故意删除evidence ref、交换scope parent、接受ambiguous candidate、复用错误base_context_id或把视觉候选升级为fact，必须在首个负责阶段失败；
 -故意误吞相邻题、遗漏目标题配图、把handwritten改成printed或用inpainting结果补事实，必须有对应测试变红；
--故意让Router漏报figure、deterministic parser忽略否定、retry覆盖locked candidate或projector复制OCR字段，必须有对应单测变红；
--测试不得只断言最终`ok`，必须比较候选集合、issue code、Context parent/hash、route、projection和artifact refs。
+-故意让evidence pack遗漏完整题目图、模型引用selection外证据、validator接受学生笔迹、retry覆盖locked candidate或projector复制OCR字段，必须有对应单测变红；
+-测试不得只断言最终`ok`，必须比较evidence pack、候选集合、issue code、Context parent/hash、attempt、projection和artifact refs。
 
 Integration门禁：
 
@@ -572,14 +631,13 @@ Integration门禁：
 -整页多题region proposal与gold SourceSelection比较，并覆盖用户确认和adjusted selection；
 -学生笔迹不遮挡时ProblemIR保持不变；关键题面不可恢复时稳定blocked而不是猜测；
 - coverage matrix 对缺失类型 fail loud，并能生成给用户的补图需求；
--至少一条 deterministic-only、text-LLM 和 multimodal 路径通过端到端门禁；五题不足时使用按第7节流程补入的真实题目图片；
-- deterministic_complete路径的LLM调用数为零；
-- multimodal_required路径只向多模态模型发送相关region和必要题干；
+-五题全部通过同一多模态语义 contract；不存在 deterministic-only 或 text-only 产品分支；
+-每次首轮与retry请求都向多模态模型发送完整目标题区域和全部题干，局部region只作为补充zoom；
 - extracted ProblemIR 通过 family admission；
 - answer signature/provenance 与 authored 路径一致；
 -至少一题进入 Track G 并编译 HTML；
 - planner retry 不得用 prose 猜 extraction gap。
--每次集成门禁均记录 layout、OCR、text/multimodal extractor的冷路径耗时、token与调用次数；
+-每次集成门禁均记录 layout、OCR、formula、multimodal extractor的冷路径耗时、token与调用次数；
 - source、extraction contract或extractor配置改变时，dependency manifest确定变化；
 -仅改变下游 lesson/renderer contract时，ProblemExtractionContext内容保持稳定。
 
@@ -592,10 +650,8 @@ test_problem_extraction_context.py
 test_problem_extraction_observations.py
 test_problem_region_proposals.py
 test_problem_extraction_handwriting.py
-test_problem_extraction_routing.py
+test_problem_extraction_evidence_pack.py
 test_problem_extraction_candidates.py
-test_problem_extraction_deterministic_parser.py
-test_problem_extraction_text_llm.py
 test_problem_extraction_multimodal.py
 test_problem_extraction_llm_contract.py
 test_problem_extraction_normalization.py
@@ -615,7 +671,7 @@ uv run pytest tests/solver/test_problem_extraction_*.py -q
 git diff --check
 ```
 
-F7完成前再运行：
+F5完成前再运行：
 
 ```bash
 cd server
@@ -623,7 +679,7 @@ uv run pytest tests/solver -q
 git diff --check
 ```
 
-真实PP-DocLayout/OCR/text/multimodal smoke只在对应offline gate通过后运行，并保存provider版本、输入hash、route、latency、usage和parsed patch；smoke失败必须先匿名化为recorded fixture，再修生产代码。
+真实PP-DocLayout/OCR/formula/multimodal smoke只在对应offline gate通过后运行，并保存provider版本、输入hash、固定extractor contract、latency、usage和parsed patch；smoke失败必须先匿名化为recorded fixture，再修生产代码。
 
 ## 12. 完成条件
 
@@ -631,13 +687,13 @@ git diff --check
 -五题原始整页图、gold SourceSelection和派生crop均可追溯，自动region proposal不会混入相邻题；
 -printed/handwritten/mixed/unknown evidence分层可审计；学生答案、演算和辅助线不进入ProblemIR；
 -关键印刷条件被不可恢复地遮挡时fail closed并给出明确重拍提示；
-- coverage matrix 明确区分“五题已覆盖”和“待补图片”，不得用mock或默认值假装覆盖真实route；
+- coverage matrix 明确区分“五题已覆盖”和“待补图片”，不得用mock或默认值假装覆盖真实source维度；
 -需要新增类型时，能向用户给出可从高中题库选择的精确图片特征；确认后的新增图片进入永久gold corpus；
 - blocking ambiguity 不被静默解决；
 - extracted/authored ProblemIR 产生相同 required answer signature；
 - extraction configuration/unclassified error 为零；
-- route decision、阶段 latency 与 OCR/text/multimodal调用次数可审计；
--符合 deterministic_complete 条件的 gold source不调用任何LLM；
+- source preflight、阶段 latency 与 layout/OCR/formula/multimodal调用次数可审计；
+-所有通过preflight的gold source均调用同一多模态语义extractor，完整题目图输入率为100%；
 - diagram/ambiguous source不因追求快路径而静默丢失视觉 evidence；
 - planner payload 不包含 extraction internals；
 - Context dependency 与 stale propagation 通过测试；
@@ -652,11 +708,9 @@ git diff --check
 F0 五题gold corpus + coverage matrix
 → F1 source fingerprint + Context envelope
 → F2 image/PDF → region/handwriting layers + SourceObservation JSON
-→ F3 SourceRouter + deterministic parser
-→ F4 DeepSeek text extractor
-→ F5 multimodal extractor
-→ F6 normalization + validation + retry
-→ F7 ProblemIR projection + integration
+→ F3 Multimodal Evidence Pack + unified multimodal extractor
+→ F4 candidate normalization + validation + Context + retry
+→ F5 ProblemIR projection + integration
 → F/G image-to-lesson gate
 ```
 

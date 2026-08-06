@@ -37,7 +37,8 @@
       "kind": "mixed_text_formula",
       "origin": "mixed",
       "purpose": "problem_source",
-      "polygon": [[0.03, 0.565], [0.975, 0.565], [0.975, 0.680], [0.03, 0.680]]
+      "transcript": "（25）（本小题10分）已知抛物线 y=-x²+bx+c（b，c 为常数，b>0）经过点 A(-1,0)，与 x 轴交于点 B，与 y 轴交于点 C。",
+      "polygon": [[0.03, 0.565], [0.975, 0.565], [0.975, 0.665], [0.03, 0.665]]
     },
     {
       "evidence_id": "mixed_line_1",
@@ -45,7 +46,8 @@
       "kind": "mixed_text_formula",
       "origin": "mixed",
       "purpose": "problem_source",
-      "polygon": [[0.03, 0.680], [0.975, 0.680], [0.975, 0.742], [0.03, 0.742]]
+      "transcript": "（Ⅰ）当 b=4 时，求抛物线的顶点坐标；",
+      "polygon": [[0.03, 0.665], [0.975, 0.665], [0.975, 0.705], [0.03, 0.705]]
     },
     {
       "evidence_id": "mixed_line_2",
@@ -53,7 +55,8 @@
       "kind": "mixed_text_formula",
       "origin": "mixed",
       "purpose": "problem_source",
-      "polygon": [[0.03, 0.742], [0.975, 0.742], [0.975, 0.805], [0.03, 0.805]]
+      "transcript": "（Ⅱ）点 D(b+2,y_D) 是抛物线上任意一点。",
+      "polygon": [[0.03, 0.705], [0.975, 0.705], [0.975, 0.745], [0.03, 0.745]]
     },
     {
       "evidence_id": "mixed_line_3",
@@ -61,7 +64,8 @@
       "kind": "mixed_text_formula",
       "origin": "mixed",
       "purpose": "problem_source",
-      "polygon": [[0.03, 0.805], [0.975, 0.805], [0.975, 0.865], [0.03, 0.865]]
+      "transcript": "① 当 AD=2BC 时，求 b 的值；",
+      "polygon": [[0.03, 0.745], [0.975, 0.745], [0.975, 0.795], [0.03, 0.795]]
     },
     {
       "evidence_id": "mixed_line_4",
@@ -69,7 +73,8 @@
       "kind": "mixed_text_formula",
       "origin": "mixed",
       "purpose": "problem_source",
-      "polygon": [[0.03, 0.865], [0.975, 0.865], [0.975, 0.940], [0.03, 0.940]]
+      "transcript": "② 若点 M(m,0) 是 x 轴正半轴上的动点，当 2DM+AM 的最小值为 5+5√3 时，求 b 的值。",
+      "polygon": [[0.03, 0.795], [0.975, 0.795], [0.975, 0.840], [0.03, 0.840]]
     },
     {
       "evidence_id": "student_work_overlay",

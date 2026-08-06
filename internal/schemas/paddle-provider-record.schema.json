@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "paddle-provider-record.schema.json",
+  "title": "Paddle extraction provider record",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "component",
+    "provider",
+    "source_revision_hash",
+    "page_id",
+    "width",
+    "height",
+    "items",
+    "latency_ms",
+    "record_hash"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": { "component": { "const": "formula_ocr" } },
+        "required": ["component"]
+      },
+      "then": {
+        "properties": {
+          "items": {
+            "items": {
+              "required": [
+                "polygon", "confidence", "latex", "source_observation_ids",
+                "formula_request_id", "source_text_hint", "crop_artifact_id"
+              ]
+            }
+          }
+        }
+      }
+    }
+  ],
+  "properties": {
+    "schema_version": { "const": "paddle-provider-record/v1" },
+    "component": { "enum": ["layout", "text_ocr", "formula_ocr", "ink_origin"] },
+    "provider": { "$ref": "#/$defs/provider" },
+    "source_revision_hash": { "$ref": "#/$defs/sha256" },
+    "page_id": { "type": "string", "minLength": 1 },
+    "width": { "type": "integer", "minimum": 1 },
+    "height": { "type": "integer", "minimum": 1 },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["polygon", "confidence"],
+        "properties": {
+          "polygon": { "$ref": "#/$defs/pixel_polygon" },
+          "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+          "latex": { "type": "string" },
+          "source_observation_ids": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "type": "string", "minLength": 1 }
+          },
+          "formula_request_id": { "type": "string", "pattern": "^formula-request:[a-f0-9]{64}$" },
+          "source_text_hint": { "type": ["string", "null"] },
+          "crop_artifact_id": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "latency_ms": { "type": "integer", "minimum": 0 },
+    "record_hash": { "$ref": "#/$defs/sha256" }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "provider": {
+      "type": "object",
+      "required": ["provider_id", "provider", "component", "model_name", "model_revision", "software_versions", "config"],
+      "additionalProperties": false,
+      "properties": {
+        "provider_id": { "type": "string", "pattern": "^provider:[a-f0-9]{64}$" },
+        "provider": { "type": "string", "minLength": 1 },
+        "component": { "enum": ["layout", "text_ocr", "formula_ocr", "ink_origin"] },
+        "model_name": { "type": "string", "minLength": 1 },
+        "model_revision": { "type": "string", "minLength": 1 },
+        "software_versions": { "type": "object" },
+        "config": { "type": "object" }
+      }
+    },
+    "pixel_polygon": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "array",
+        "prefixItems": [
+          { "type": "number", "minimum": 0 },
+          { "type": "number", "minimum": 0 }
+        ],
+        "items": false
+      }
+    }
+  }
+}

@@ -37,6 +37,7 @@
       "kind": "text_formula",
       "origin": "printed",
       "purpose": "problem_source",
+      "transcript": "（25）（本题共10分）抛物线 y=ax²+bx+c（a，b，c 为常数，a>0）与 y 轴相交于点 C，且 2a+b=0，对称轴与 x 轴相交于点 D。",
       "polygon": [[0.035, 0.644], [0.975, 0.644], [0.975, 0.718], [0.035, 0.718]]
     },
     {
@@ -45,6 +46,7 @@
       "kind": "text_formula",
       "origin": "printed",
       "purpose": "problem_source",
+      "transcript": "（Ⅰ）当 a=2，c=-5 时，直接写出点 D 的坐标和抛物线的解析式；",
       "polygon": [[0.035, 0.718], [0.975, 0.718], [0.975, 0.750], [0.035, 0.750]]
     },
     {
@@ -53,6 +55,7 @@
       "kind": "text_formula",
       "origin": "printed",
       "purpose": "problem_source",
+      "transcript": "（Ⅱ）若点 M(m,1) 和点 N 均在抛物线上，其中 m>2，且点 N 在第四象限，∠MDN=90°，DM=DN。点 E 和点 G 分别是线段 DM 和线段 MN 上的动点，点 F 为线段 DN 的中点，且 DE=√2NG。",
       "polygon": [[0.035, 0.750], [0.975, 0.750], [0.975, 0.818], [0.035, 0.818]]
     },
     {
@@ -61,6 +64,7 @@
       "kind": "text_formula",
       "origin": "printed",
       "purpose": "problem_source",
+      "transcript": "① 当 MN=√10 时，求抛物线的解析式，并直接写出 EG+FG 的最小值；",
       "polygon": [[0.035, 0.818], [0.975, 0.818], [0.975, 0.860], [0.035, 0.860]]
     },
     {
@@ -69,6 +73,7 @@
       "kind": "text_formula",
       "origin": "printed",
       "purpose": "problem_source",
+      "transcript": "② 当 EG+FG 取得最小值为 5√10/2 时，直接写出此时抛物线的解析式和点 G 的坐标。",
       "polygon": [[0.035, 0.860], [0.975, 0.860], [0.975, 0.905], [0.035, 0.905]]
     }
   ],

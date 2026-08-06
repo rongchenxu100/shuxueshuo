@@ -623,6 +623,56 @@ class ProblemExtractionContextBuilder:
             quality=quality or {},
         )
 
+    @classmethod
+    def trusted_child(
+        cls,
+        context: ProblemExtractionContext,
+        *,
+        state: ExtractionState,
+        attempt_ledger: ExtractionAttemptLedger,
+        event: str,
+        event_payload: Mapping[str, Any] | None = None,
+        quality: Mapping[str, Any] | None = None,
+        ancestor_contexts: Sequence[ProblemExtractionContext] = (),
+        producer: str,
+        producer_version: str,
+    ) -> ProblemExtractionContext:
+        """Create a child at a trusted non-semantic authority boundary."""
+
+        validate_problem_extraction_context(
+            context,
+            ancestor_contexts=ancestor_contexts,
+        )
+        if attempt_ledger.base_context_id != context.manifest.context_id:
+            raise _error(
+                "extraction.attempt_ledger_mismatch",
+                "$.attempt_ledger.base_context_id",
+                "ledger does not belong to trusted child base",
+            )
+        attempt_refs = _merged_attempt_refs(context, attempt_ledger)
+        return _assemble_context(
+            source=context.source,
+            selection=context.selection,
+            dependency=context.dependency,
+            state=state,
+            parent_context=context,
+            ancestor_contexts=ancestor_contexts,
+            producer=producer,
+            producer_version=producer_version,
+            decisions=context.decisions,
+            events=context.events
+            + (
+                ExtractionEvent(
+                    sequence=len(context.events),
+                    event=event,
+                    payload=event_payload or {},
+                ),
+            ),
+            attempt_refs=attempt_refs,
+            retry=replace(context.retry, attempts_used=len(attempt_refs)),
+            quality=quality if quality is not None else context.quality,
+        )
+
 
 @dataclass(frozen=True)
 class ExtractionAttemptRecord:

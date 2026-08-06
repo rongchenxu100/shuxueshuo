@@ -37,6 +37,7 @@
       "kind": "text_formula",
       "origin": "printed",
       "purpose": "problem_source",
+      "transcript": "（25）（本小题10分）已知抛物线 y=-x²+bx+c（b，c 为常数，c>1）的顶点为 P，与 x 轴相交于 A，B 两点（点 A 在点 B 的左侧），与 y 轴相交于点 C，对称轴与 x 轴相交于点 M。点 E 在对称轴上，以 AE 为边的正方形 AEKG 的顶点 G 在 x 轴下方。",
       "polygon": [[0.025, 0.628], [0.795, 0.628], [0.795, 0.755], [0.025, 0.755]]
     },
     {
@@ -45,6 +46,7 @@
       "kind": "text_formula",
       "origin": "printed",
       "purpose": "problem_source",
+      "transcript": "（Ⅰ）若 b=-2，c=3。",
       "polygon": [[0.025, 0.755], [0.795, 0.755], [0.795, 0.797], [0.025, 0.797]]
     },
     {
@@ -53,6 +55,7 @@
       "kind": "text_formula",
       "origin": "printed",
       "purpose": "problem_source",
+      "transcript": "① 求点 P 和点 A 的坐标；",
       "polygon": [[0.025, 0.797], [0.795, 0.797], [0.795, 0.843], [0.025, 0.843]]
     },
     {
@@ -61,6 +64,7 @@
       "kind": "text_formula",
       "origin": "printed",
       "purpose": "problem_source",
+      "transcript": "② 当点 G 在抛物线上时，求点 E 的坐标；",
       "polygon": [[0.025, 0.843], [0.795, 0.843], [0.795, 0.895], [0.025, 0.895]]
     },
     {
@@ -69,6 +73,7 @@
       "kind": "text_formula",
       "origin": "printed",
       "purpose": "problem_source",
+      "transcript": "（Ⅱ）若点 A 的坐标为（-c，0），点 F 是 AE 的中点，对角线 AK 和 EG 相交于点 H，当 HF+FM+MG 取得最小值为 3√5 时，求点 E 的坐标。",
       "polygon": [[0.025, 0.895], [0.795, 0.895], [0.795, 0.978], [0.025, 0.978]]
     }
   ],

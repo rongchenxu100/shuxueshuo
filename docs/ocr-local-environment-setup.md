@@ -187,7 +187,26 @@ PADDLE_PDX_MODEL_SOURCE=bos .venv-ocr/bin/paddleocr ocr \
 这一步只确认检测和识别模型可以执行，不把终端输出直接当作 F2 的 `SourceObservation`。
 F2 adapter 必须把厂商结果归一化后再写 recorded artifact。
 
-公式识别 smoke 留到 F2 产生公式 crop 后执行。不要把整张题目页直接送入单公式识别模型来判断环境是否正常。
+公式模型由 F2 worker 对 layout/OCR 选出的公式 crop 批量调用。当前本地已缓存
+`PP-FormulaNet_plus-M`；不要把整张题目页直接送入单公式识别模型来判断环境是否正常。
+
+完整五题 smoke 会同时验证 layout、普通 OCR、公式 OCR、模型复用、recorded replay 和 review pack：
+
+```bash
+PADDLE_PDX_MODEL_SOURCE=bos \
+.venv-ocr/bin/python -m shuxueshuo_server.solver.extraction.f2_smoke \
+  --case all \
+  --output-dir ../internal/solver-runs/problem-extraction/f2-smoke
+```
+
+不加载 Paddle 的确定性重放：
+
+```bash
+uv run python -m shuxueshuo_server.solver.extraction.f2_smoke \
+  --case all \
+  --replay-provider-records ../internal/solver-runs/problem-extraction/f2-smoke \
+  --output-dir ../internal/solver-runs/problem-extraction/f2-replay
+```
 
 ## 9. 本地验收清单
 
@@ -202,6 +221,9 @@ F2 adapter 必须把厂商结果归一化后再写 recorded artifact。
 [ ] PaddleOCR、FormulaRecognition 和 paddlex.create_model 可导入
 [ ] PP-DocLayout-S 在河西图片上返回至少一个 page result
 [ ] 普通 OCR 命令成功结束
+[ ] PP-FormulaNet_plus-M 由公式 crop smoke 成功调用
+[ ] 五题 smoke 中 layout/text/formula 初始化计数均为 1
+[ ] 五题 SourceObservation、recorded replay 和 review pack 均成功
 [ ] 默认 server/.venv 的 solver 测试未因 OCR 环境改变
 ```
 
@@ -209,6 +231,12 @@ F2 adapter 必须把厂商结果归一化后再写 recorded artifact。
 
 ```bash
 uv run pytest \
+  tests/solver/test_problem_extraction_observations.py \
+  tests/solver/test_problem_region_proposals.py \
+  tests/solver/test_problem_extraction_formula.py \
+  tests/solver/test_problem_extraction_handwriting.py \
+  tests/solver/test_problem_extraction_observation_context.py \
+  tests/solver/test_problem_extraction_review_pack.py \
   tests/solver/test_problem_extraction_source_fingerprint.py \
   tests/solver/test_problem_extraction_context.py \
   tests/solver/test_problem_extraction_gold_corpus.py -q
@@ -280,7 +308,8 @@ rm -rf .venv-ocr
 4. 比较 SourceObservation semantic diff；
 5. 更新 extraction dependency/provider fingerprint。
 
-F2 实现稳定后，再决定是否把这些版本写入 `pyproject.toml` 的独立 `ocr` dependency group。
+PaddlePaddle、PaddleOCR 与 PaddleX 继续固定在独立 `.venv-ocr`，不写入默认 solver
+`pyproject.toml`。默认环境只安装 F2 的非 Paddle 边界依赖；PDF rasterizer 使用 `pypdfium2`。
 
 ## 12. CentOS CPU 服务器
 

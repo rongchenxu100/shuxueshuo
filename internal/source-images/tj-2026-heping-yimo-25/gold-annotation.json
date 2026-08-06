@@ -23,6 +23,7 @@
       "kind": "text_formula",
       "origin": "printed",
       "purpose": "problem_source",
+      "transcript": "25.（本小题10分）已知抛物线 y=ax²+bx-3（a，b 为常数，a>0）与 x 轴交于点 A(-1,0) 和点 B，与 y 轴交于点 C，将点 C 水平向右平移 2 个单位长度得到点 D，连接 BC。",
       "polygon": [[0.025, 0.015], [0.975, 0.015], [0.975, 0.105], [0.025, 0.105]]
     },
     {
@@ -31,6 +32,7 @@
       "kind": "text_formula",
       "origin": "printed",
       "purpose": "problem_source",
+      "transcript": "（Ⅰ）当点 D 落在该抛物线上时，",
       "polygon": [[0.025, 0.105], [0.975, 0.105], [0.975, 0.145], [0.025, 0.145]]
     },
     {
@@ -39,6 +41,7 @@
       "kind": "text_formula",
       "origin": "printed",
       "purpose": "problem_source",
+      "transcript": "① 求抛物线的解析式；",
       "polygon": [[0.025, 0.145], [0.975, 0.145], [0.975, 0.190], [0.025, 0.190]]
     },
     {
@@ -47,6 +50,7 @@
       "kind": "text_formula",
       "origin": "printed",
       "purpose": "problem_source",
+      "transcript": "② 抛物线上的点 E 的横坐标为 m，且 -1<m<0，若 ∠CBE+∠ACO=45°，求点 E 的坐标；",
       "polygon": [[0.025, 0.190], [0.975, 0.190], [0.975, 0.255], [0.025, 0.255]]
     },
     {
@@ -55,6 +59,7 @@
       "kind": "text_formula",
       "origin": "printed",
       "purpose": "problem_source",
+      "transcript": "（Ⅱ）点 M 是线段 BC 上的一动点，连接 OM。点 N 是射线 CD 上的一动点，且满足 CN=CM，连接 BN。当 OM+BN 的最小值为 √34 时，求 a 的值。",
       "polygon": [[0.025, 0.255], [0.975, 0.255], [0.975, 0.330], [0.025, 0.330]]
     },
     {

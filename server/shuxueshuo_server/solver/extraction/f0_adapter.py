@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any, Mapping
 
 from shuxueshuo_server.solver.extraction.context import (
+    ExtractionRetryState,
     ProblemExtractionContext,
     ProblemExtractionContextBuilder,
 )
@@ -46,6 +47,7 @@ def build_f0_extraction_context_seed(
     case: GoldCorpusCase,
     *,
     semantic_config: Mapping[str, Any] | None = None,
+    attempt_budget: int = 0,
 ) -> F0ExtractionContextSeed:
     repo_root = Path(__file__).resolve().parents[4]
     assets: list[SourceAssetInput] = []
@@ -101,6 +103,7 @@ def build_f0_extraction_context_seed(
         dependency=dependency,
         producer="f0_gold_adapter",
         producer_version="v1",
+        retry=ExtractionRetryState(attempt_budget=attempt_budget),
         quality={"problem_id": case.problem_id, "source": "authored_gold"},
     )
     return F0ExtractionContextSeed(

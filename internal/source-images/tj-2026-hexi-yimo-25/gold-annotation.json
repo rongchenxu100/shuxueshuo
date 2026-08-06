@@ -37,6 +37,7 @@
       "kind": "text_formula",
       "origin": "printed",
       "purpose": "problem_source",
+      "transcript": "25.（10分）已知抛物线 y=ax²-bx+c（a，b，c 为常数，b>0）。",
       "polygon": [[0.035, 0.760], [0.975, 0.760], [0.975, 0.802], [0.035, 0.802]]
     },
     {
@@ -45,6 +46,7 @@
       "kind": "text_formula",
       "origin": "printed",
       "purpose": "problem_source",
+      "transcript": "（Ⅰ）当 a=1，b=2，c=3 时，求该抛物线顶点 P 的坐标；",
       "polygon": [[0.035, 0.802], [0.975, 0.802], [0.975, 0.838], [0.035, 0.838]]
     },
     {
@@ -53,6 +55,7 @@
       "kind": "text_formula",
       "origin": "printed",
       "purpose": "problem_source",
+      "transcript": "（Ⅱ）当 a=2 时，点 A(-1,0) 和点 D 在该抛物线上，点 C 为抛物线与 y 轴的交点，且 ∠CAD=90°，AC=AD，求点 D 的坐标；",
       "polygon": [[0.035, 0.838], [0.975, 0.838], [0.975, 0.891], [0.035, 0.891]]
     },
     {
@@ -61,6 +64,7 @@
       "kind": "text_formula",
       "origin": "printed",
       "purpose": "problem_source",
+      "transcript": "（Ⅲ）当 a=1 时，点 A(-1,0) 在该抛物线上，且有点 M(b+1/2,y_M) 在抛物线上，点 N(n,0) 是 x 轴正半轴上的动点，当 √2MN+AN 的最小值为 21/4 时，求 b 的值。",
       "polygon": [[0.035, 0.891], [0.975, 0.891], [0.975, 0.975], [0.035, 0.975]]
     }
   ],

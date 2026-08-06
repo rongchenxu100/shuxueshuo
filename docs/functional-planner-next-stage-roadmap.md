@@ -7,6 +7,8 @@
 ```text
 图片 / PDF / 人工题目
   -> source fingerprint
+  -> layout / OCR / formula / ink observations
+  -> full-question multimodal extraction
   -> ProblemExtractionContext
   -> ProblemIR
   -> PlannerStateContext / FunctionalPlan v1
@@ -97,19 +99,29 @@ F/G 先完整打通冷路径，不实现产品缓存或 Best-of-N。每次门禁
 
 ```text
 source asset
-  -> evidence + candidates
-  -> ProblemExtractionContext
-  -> deterministic normalization + validation
+  -> source identity + F2 auxiliary observations
+  -> full-question Multimodal Evidence Pack
+  -> multimodal typed candidates
+  -> deterministic validation / retry in ProblemExtractionContext
   -> ProblemIR projection
 ```
 
 Planner 对 authored/extracted ProblemIR 使用相同接口；区别只记录在 Context manifest 中。
+
+架构决策：所有通过 source preflight 的题目都使用同一个多模态语义 extractor。完整 SourceSelection 题目图是第一手输入；OCR、layout、formula 和 ink observation 只作为辅助转录、reading order和冲突提示。生产链不再建设 deterministic semantic parser、文本模型分支或 SourceRouter。
+
+单页首轮默认只发送一张完整题目图，不发送 formula crop。OCR 不确定项以 evidence/region id 和 typed issue 告知模型，明显错误的 raw LaTeX 不进入 prompt。Retry 固定保留完整题目图，并由 validator issue 沿 candidate → evidence → F2 polygon 确定性生成定向 zoom；validator 不重跑 OCR，无法定位可靠 region 时不生成 zoom。
+
+当前进度：F0、F1 已完成；F2 的离线实现与真实五题 smoke 已完成，静态 review pack 等待人工签核；下一步为 F3 Multimodal Evidence Pack 与统一多模态语义 extractor，之后由 F4 负责确定性验证/重试，F5 完成 ProblemIR 投影与冷路径集成。
 
 ### 退出条件
 
 - 五道现有题图具有 gold extraction fixture。
 - solver 必需的 entity、fact、scope、symbol 和 QuestionGoal 完整投影。
 - 多义标签和关系保持为显式 extraction issue。
+- 首轮与 retry 的多模态请求均包含完整题目图，局部 crop 不能单独承担语义提取。
+- 单页首轮只有一张主图；retry zoom必须来自已有evidence polygon，不能使用模型自由坐标或代码猜测区域。
+- OCR 与视觉结果冲突时保留 observation 和 typed issue，不静默覆盖原图证据。
 - extracted/authored ProblemIR 产生等价 answer signature 与 provenance gate。
 - Planner prompt 不包含 OCR region、置信度内部数据或被拒候选。
 - shadow report 提供字段级 precision/recall 和 issue 分类。
@@ -166,6 +178,8 @@ LessonExplanationContext + DiagramContext + VoiceoverContext
 ```text
 题目图片
   -> source fingerprint
+  -> F2 SourceObservation
+  -> full-question multimodal extraction
   -> ProblemExtractionContext
   -> extracted ProblemIR
   -> verified FunctionalPlan + runtime provenance
