@@ -285,6 +285,14 @@
         ]
       },
       {
+        "handle": "fact:ii_2:path_minimum_target",
+        "type": "path_minimum_target",
+        "scope_id": "ii_2",
+        "valid_scope": "ii_2",
+        "description": "求 2DM+AM 的最小值",
+        "path": "2DM+AM"
+      },
+      {
         "handle": "fact:ii_2:path_minimum_value_given",
         "type": "minimum_value",
         "scope_id": "ii_2",

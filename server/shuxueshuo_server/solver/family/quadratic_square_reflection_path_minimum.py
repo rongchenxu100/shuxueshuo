@@ -13,6 +13,9 @@ from __future__ import annotations
 
 from shuxueshuo_server.solver.family.models import (
     FamilyMatchRule,
+    FamilyRuntimePreflightSpec,
+    FamilySourceGoalContractSpec,
+    FamilySourceRequirementSpec,
     MethodBindingRuleSpec,
     MethodCompanionOutputSpec,
     MethodInputBindingSpec,
@@ -38,6 +41,71 @@ _QUADRATIC_SQUARE_REFLECTION_PATH_MINIMUM_FAMILY = SolverFamilySpec(
     match=FamilyMatchRule(
         patterns=("path-minimum",),
         problem_types=("quadratic_square_reflection_path_minimum",),
+    ),
+    title="二次函数正方形反射路径最值",
+    description=(
+        "使用正方形顶点、中点、中心或对角线关系完成路径降维，再通过反射或"
+        "折线拉直求最值的二次函数题。"
+    ),
+    use_when=(
+        "题面明确给出正方形，并且正方形的顶点、边、中点、中心或对角线关系"
+        "直接参与目标路径的降维、轨迹恢复或反射。"
+    ),
+    required_source_requirements=(
+        FamilySourceRequirementSpec(
+            "entity_type",
+            ("function",),
+            "题面必须声明至少一个二次函数对象。",
+        ),
+        FamilySourceRequirementSpec(
+            "fact_type",
+            ("square",),
+            "题面必须明确给出正方形事实，不能用直角或等长关系替代。",
+            source_authority="printed_source",
+            printed_source_markers=("正方形",),
+        ),
+    ),
+    runtime_preflights=(
+        FamilyRuntimePreflightSpec(
+            method_id="square_path_dimension_reduction",
+            trigger_fact_types=("path_minimum_target",),
+            required_fact_types=(
+                "square",
+                "midpoint_definition",
+                "square_center",
+            ),
+            source_trigger_fact_types=("minimum_value_given",),
+            source_required_fact_types=(
+                "minimum_target",
+                "square",
+                "midpoint",
+                "square_center",
+            ),
+            source_input_names=(
+                "path_condition",
+                "square_condition",
+                "midpoint_condition",
+                "square_center_condition",
+            ),
+            description=(
+                "路径目标须以正方形、中点、中心事实通过三段降维；moving_point"
+                " 由事实验证。"
+            ),
+        ),
+    ),
+    source_goal_contracts=(
+        FamilySourceGoalContractSpec(
+            selector_id="square_curve_point_candidates",
+            expected_value_type="PointList",
+            description=(
+                "同一正方形另一顶点落抛物线时，目标顶点为候选集合 PointList。"
+            ),
+        ),
+    ),
+    do_not_use_when=(
+        "只出现直角、等长或一般四边形，题面没有明确正方形。",
+        "虽然存在正方形，但它不参与所求路径的降维、反射或答案点恢复。",
+        "核心机制是普通折线路径、非1权重路径或射线等长替换。",
     ),
     common_goal_types=(
         "derive_parabola",

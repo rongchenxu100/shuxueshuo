@@ -906,6 +906,24 @@ class CanonicalRuntimeBindingIndex:
         except KeyError as exc:
             raise StrategyDraftValidationError(f"entity_payload_not_found: {handle}") from exc
 
+    def entity_semantic_name(self, handle: str) -> str:
+        """Return the source-visible name without treating a local id as identity.
+
+        Direct ProblemIR authoring deliberately allows an arbitrary local id such
+        as ``A_iii`` for a point whose printed name is ``A``. RuntimeContext stores
+        source points and symbols by that printed name, while canonical handles
+        retain the local id. Keep those two responsibilities separate here.
+        """
+
+        payload = self.handle_registry.entity_payloads.get(handle)
+        if payload is None:
+            # Runtime-created/declaration points do not originate in ProblemIR
+            # and therefore have no source-visible ``name`` field. Their
+            # producer-owned handle is the canonical name by construction.
+            return _handle_name(handle)
+        name = str(payload.get("name", "")).strip()
+        return name or _handle_name(handle)
+
     def fact_payload(self, handle: str) -> dict[str, Any]:
         """读取 canonical Fact 的结构化 payload。"""
         try:
@@ -936,8 +954,16 @@ class CanonicalRuntimeBindingIndex:
         """
         candidates = [
             handle for handle in self.entity_handles("point")
-            if _handle_name(handle) == name
+            if self.entity_semantic_name(handle) == name
         ]
+        # Old canonical payloads did not always carry ``name``. This fallback is
+        # compatibility-only; a populated semantic name never gets overwritten
+        # by the canonical handle suffix.
+        if not candidates:
+            candidates = [
+                handle for handle in self.entity_handles("point")
+                if _handle_name(handle) == name
+            ]
         if step is not None:
             candidates = [
                 handle for handle in candidates
@@ -948,6 +974,12 @@ class CanonicalRuntimeBindingIndex:
                 if handle in candidates
             ]
             if read_candidates:
+                if len(read_candidates) != 1:
+                    raise StrategyDraftValidationError(
+                        "point_semantic_name_ambiguous: "
+                        f"name={name}, scope={step.scope_id}, "
+                        f"candidates={sorted(read_candidates)}"
+                    )
                 return read_candidates[0]
             candidates = sorted(
                 candidates,
@@ -961,7 +993,32 @@ class CanonicalRuntimeBindingIndex:
             )
         if not candidates:
             raise StrategyDraftValidationError(f"point_handle_not_found: {name}")
-        return candidates[0]
+        if step is None:
+            if len(candidates) != 1:
+                raise StrategyDraftValidationError(
+                    "point_semantic_name_ambiguous: "
+                    f"name={name}, candidates={sorted(candidates)}"
+                )
+            return candidates[0]
+        best_distance = self._scope_distance(
+            step.scope_id,
+            _binding_scope(self.binding_for(candidates[0]).path),
+        )
+        nearest = [
+            handle
+            for handle in candidates
+            if self._scope_distance(
+                step.scope_id,
+                _binding_scope(self.binding_for(handle).path),
+            )
+            == best_distance
+        ]
+        if len(nearest) != 1:
+            raise StrategyDraftValidationError(
+                "point_semantic_name_ambiguous: "
+                f"name={name}, scope={step.scope_id}, candidates={sorted(nearest)}"
+            )
+        return nearest[0]
 
     def fact_handle_by_type(
         self,
@@ -1076,11 +1133,25 @@ class CanonicalRuntimeBindingIndex:
     def _symbol_constraint_candidates(self) -> list[tuple[str, str]]:
         """返回所有带范围约束且存在 runtime symbol 的符号候选。"""
         candidates: list[tuple[str, str]] = []
-        for handle in self.handles_by_fact_type("symbol_constraint"):
-            symbol = _symbol_from_constraint_handle(handle)
-            symbol_handle = f"symbol:problem:{symbol}"
+        for constraint_handle in self.handles_by_fact_type("symbol_constraint"):
+            payload = self.handle_registry.fact_payloads.get(constraint_handle, {})
+            subject = payload.get("subject")
+            symbol_handle = (
+                subject
+                if isinstance(subject, str) and subject.startswith("symbol:")
+                else None
+            )
+            if symbol_handle is None:
+                # Compatibility for old facts that encoded identity only in the
+                # constraint handle. New typed ProblemIR must use ``subject``.
+                symbol = _symbol_from_constraint_handle(constraint_handle)
+                constraint_scope = self.handle_registry.handle_valid_scopes.get(
+                    constraint_handle,
+                    "problem",
+                )
+                symbol_handle = f"symbol:{constraint_scope}:{symbol}"
             if symbol_handle in self.bindings:
-                candidates.append((symbol_handle, handle))
+                candidates.append((symbol_handle, constraint_handle))
         return candidates
 
     def _symbol_has_role(self, symbol: str, role: str) -> bool:
@@ -1188,7 +1259,9 @@ class CanonicalRuntimeBindingIndex:
                 self._register_answer_point_entity(handle, goal)
 
     def _register_entity_handle(self, handle: str) -> None:
-        kind, scope_id, name = _require_scoped_handle(handle)
+        kind, scope_id, _local_id = _require_scoped_handle(handle)
+        payload = self.entity_payload(handle)
+        name = str(payload.get("name", "")).strip() or _local_id
         if kind == "point":
             path = self.context.find_visible_path("points", name, from_scope_id=scope_id)
             if path is None:
@@ -1208,7 +1281,7 @@ class CanonicalRuntimeBindingIndex:
             path = self.context.find_visible_path("symbols", name, from_scope_id=scope_id)
             if path is not None:
                 self.register(handle, path, "Symbol", source="entity")
-        elif kind == "function" and name == "parabola":
+        elif kind == "function" and str(payload.get("function_type", "")) == "quadratic":
             self.register(handle, "$problem.expressions.quadratic", "Expression", source="entity")
 
     def _register_fact_handle(self, handle: str) -> None:
@@ -1218,7 +1291,14 @@ class CanonicalRuntimeBindingIndex:
         if fact_type == "coefficient_relation":
             self.register(handle, "$problem.equations.coefficient_relation", "Equation", source="fact")
         elif fact_type == "symbol_constraint":
-            symbol = name.split("_", 1)[0]
+            payload = self.fact_payload(handle)
+            symbol_handle = str(payload.get("subject", "")).strip()
+            if not symbol_handle.startswith("symbol:") or symbol_handle not in self.bindings:
+                raise StrategyDraftValidationError(
+                    "symbol_constraint_subject_not_found: "
+                    f"fact={handle}, subject={symbol_handle!r}"
+                )
+            symbol = self.entity_semantic_name(symbol_handle)
             self.register(handle, f"$problem.constraints.{symbol}", "Constraint", source="fact")
         elif fact_type == "path_minimum_target":
             self.register(handle, "$problem.conditions.path_minimum", "Condition", source="fact")
@@ -1229,10 +1309,26 @@ class CanonicalRuntimeBindingIndex:
             left, right = _segment_relation_names(name)
             self.register(handle, f"$problem.conditions.segment_relation_{left}_{right}", "Condition", source="fact")
         elif fact_type == "orientation_constraint":
-            point = name.split("_", 1)[0]
-            point_handle = self.point_handle_by_name(point)
-            point_scope = _handle_scope(point_handle)
-            self.register(handle, _runtime_path_for_scope(self.context, point_scope, "constraints", f"{point}_quadrant"), "OrientationHint", source="fact")
+            payload = self.fact_payload(handle)
+            point_handle = str(payload.get("subject", "")).strip()
+            if not point_handle.startswith("point:") or point_handle not in self.bindings:
+                raise StrategyDraftValidationError(
+                    "orientation_subject_point_not_found: "
+                    f"fact={handle}, subject={point_handle!r}"
+                )
+            point = self.entity_semantic_name(point_handle)
+            point_scope = _binding_scope(self.binding_for(point_handle).path)
+            self.register(
+                handle,
+                _runtime_path_for_scope(
+                    self.context,
+                    point_scope,
+                    "constraints",
+                    f"{point}_quadrant",
+                ),
+                "OrientationHint",
+                source="fact",
+            )
         elif fact_type == "length_squared":
             self.register(handle, _runtime_path_for_scope(self.context, scope_id, "conditions", "length_squared"), "Condition", source="fact")
         elif fact_type == "segment_length_relation":
@@ -1253,8 +1349,13 @@ class CanonicalRuntimeBindingIndex:
         }:
             self.register(handle, _runtime_path_for_scope(self.context, scope_id, "conditions", fact_type), "Condition", source="fact")
         elif fact_type == "point_coordinate":
-            point_name = name.split("_", 1)[0]
-            point_handle = self.point_handle_by_name(point_name)
+            payload = self.fact_payload(handle)
+            point_handle = str(payload.get("subject", "")).strip()
+            if not point_handle.startswith("point:") or point_handle not in self.bindings:
+                raise StrategyDraftValidationError(
+                    "point_coordinate_subject_not_found: "
+                    f"fact={handle}, subject={point_handle!r}"
+                )
             point_binding = self.binding_for(point_handle)
             self.register(handle, point_binding.path, "Point", source="fact")
             self.register(point_handle, point_binding.path, "Point", source="fact")
@@ -1271,7 +1372,7 @@ class CanonicalRuntimeBindingIndex:
         """
         payload = self.fact_payload(handle)
         subject = str(payload.get("subject", "")).strip()
-        symbol_name = _handle_name(subject) if subject else ""
+        symbol_name = self.entity_semantic_name(subject) if subject else ""
         scope = self.context.get_scope(scope_id)
         known = scope.container("coefficients").get("known")
         value: Any | None = None

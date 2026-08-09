@@ -28,6 +28,162 @@ GoalEvidenceTag = Literal[
     "path_minimum_extremal_point",
     "curve_membership",
 ]
+FamilySourcePrimitiveKind = Literal["entity_type", "fact_type"]
+FamilySourceEvidenceAuthority = Literal["candidate_structure", "printed_source"]
+
+
+@dataclass(frozen=True)
+class FamilySourceRequirementSpec:
+    """Machine-checkable source primitive required for family admission."""
+
+    primitive_kind: FamilySourcePrimitiveKind
+    primitive_types: tuple[str, ...]
+    description: str
+    min_count: int = 1
+    source_authority: FamilySourceEvidenceAuthority = "candidate_structure"
+    printed_source_markers: tuple[str, ...] = ()
+
+    def __post_init__(self) -> None:
+        if (
+            not self.primitive_types
+            or any(not item.strip() for item in self.primitive_types)
+            or len(set(self.primitive_types)) != len(self.primitive_types)
+            or not self.description.strip()
+        ):
+            raise ValueError("family source requirement must be fully described")
+        if self.min_count <= 0:
+            raise ValueError("family source requirement min_count must be positive")
+        if self.source_authority == "printed_source":
+            if (
+                not self.printed_source_markers
+                or any(not item.strip() for item in self.printed_source_markers)
+                or len(set(self.printed_source_markers))
+                != len(self.printed_source_markers)
+            ):
+                raise ValueError(
+                    "printed-source family requirements need unique source markers"
+                )
+        elif self.printed_source_markers:
+            raise ValueError(
+                "candidate-structure family requirements cannot declare source markers"
+            )
+
+    def to_payload(self) -> dict[str, object]:
+        return {
+            "primitive_kind": self.primitive_kind,
+            "primitive_types": list(self.primitive_types),
+            "min_count": self.min_count,
+            "description": self.description,
+        }
+
+
+@dataclass(frozen=True)
+class FamilyRuntimePreflightSpec:
+    """A pure method invocation that must be runnable from source state.
+
+    Extraction uses this contract after ContextBuilder has projected the
+    authored ProblemIR. It binds through the same selectors as production and
+    executes the stateless method on a forked RuntimeContext, without planner
+    calls, state promotion, or answer construction.
+    """
+
+    method_id: str
+    trigger_fact_types: tuple[str, ...]
+    source_input_names: tuple[str, ...]
+    description: str
+    trigger_selector_id: str = "all"
+    required_fact_types: tuple[str, ...] = ()
+    source_trigger_fact_types: tuple[str, ...] = ()
+    source_required_fact_types: tuple[str, ...] = ()
+
+    def __post_init__(self) -> None:
+        for field_name, values in (
+            ("trigger_fact_types", self.trigger_fact_types),
+            ("source_input_names", self.source_input_names),
+        ):
+            if (
+                not values
+                or any(not item.strip() for item in values)
+                or len(set(values)) != len(values)
+            ):
+                raise ValueError(
+                    f"family runtime preflight {field_name} must be non-empty and unique"
+                )
+        if (
+            any(not item.strip() for item in self.required_fact_types)
+            or len(set(self.required_fact_types)) != len(self.required_fact_types)
+        ):
+            raise ValueError(
+                "family runtime preflight required_fact_types must be unique"
+            )
+        for field_name, values in (
+            ("source_trigger_fact_types", self.source_trigger_fact_types),
+            ("source_required_fact_types", self.source_required_fact_types),
+        ):
+            if (
+                any(not item.strip() for item in values)
+                or len(set(values)) != len(values)
+            ):
+                raise ValueError(
+                    f"family runtime preflight {field_name} must be unique"
+                )
+        if bool(self.source_trigger_fact_types) != bool(
+            self.source_required_fact_types
+        ):
+            raise ValueError(
+                "source-visible preflight guidance requires both trigger and required fact types"
+            )
+        if (
+            not self.method_id.strip()
+            or not self.description.strip()
+            or not self.trigger_selector_id.strip()
+        ):
+            raise ValueError("family runtime preflight must be fully described")
+
+    def to_payload(self) -> dict[str, object]:
+        return {
+            "method_id": self.method_id,
+            "trigger_fact_types": list(self.trigger_fact_types),
+            "trigger_selector_id": self.trigger_selector_id,
+            "required_fact_types": list(self.required_fact_types),
+            "source_input_names": list(self.source_input_names),
+            "description": self.description,
+        }
+
+    def source_authoring_payload(self) -> dict[str, object] | None:
+        """Return source-domain guidance without runtime method vocabulary."""
+
+        if not self.source_trigger_fact_types:
+            return None
+        return {
+            "when_fact_types": list(self.source_trigger_fact_types),
+            "require_visible_fact_types": list(self.source_required_fact_types),
+            "description": self.description,
+        }
+
+
+@dataclass(frozen=True)
+class FamilySourceGoalContractSpec:
+    """Source structure that determines a required answer value type."""
+
+    selector_id: str
+    expected_value_type: str
+    description: str
+
+    def __post_init__(self) -> None:
+        if not (
+            self.selector_id.strip()
+            and self.expected_value_type.strip()
+            and self.description.strip()
+        ):
+            raise ValueError("family source goal contract must be fully described")
+
+    def to_payload(self) -> dict[str, object]:
+        return {
+            "selector_id": self.selector_id,
+            "expected_value_type": self.expected_value_type,
+            "description": self.description,
+        }
 
 
 @dataclass(frozen=True)
@@ -740,6 +896,13 @@ class SolverFamilySpec:
 
     family_id: str
     match: FamilyMatchRule
+    title: str = ""
+    description: str = ""
+    use_when: str = ""
+    do_not_use_when: tuple[str, ...] = ()
+    required_source_requirements: tuple[FamilySourceRequirementSpec, ...] = ()
+    runtime_preflights: tuple[FamilyRuntimePreflightSpec, ...] = ()
+    source_goal_contracts: tuple[FamilySourceGoalContractSpec, ...] = ()
     common_goal_types: tuple[str, ...] = ()
     strategy_principles: tuple[str, ...] = ()
     base_packs: tuple[str, ...] = ()
@@ -758,9 +921,57 @@ class SolverFamilySpec:
     # orchestration. They do not replace runtime execution in Phase 2.
     capability_contracts: tuple[CapabilityContractSpec, ...] = ()
     goal_evidence_policies: tuple[GoalEvidencePolicySpec, ...] = ()
+
     def supports(self, problem: ProblemIR) -> bool:
         """判断当前 spec 是否在结构上支持某个 ProblemIR。"""
         return self.match.matches(problem)
+
+    def authoring_guidance_payload(self) -> dict[str, object]:
+        """Return source-visible family selection guidance for extraction."""
+        if (
+            not self.title.strip()
+            or not self.description.strip()
+            or not self.use_when.strip()
+        ):
+            raise ValueError(
+                f"family {self.family_id!r} has incomplete authoring guidance"
+            )
+        if not self.do_not_use_when:
+            raise ValueError(
+                f"family {self.family_id!r} must declare do_not_use_when"
+            )
+        if not self.required_source_requirements:
+            raise ValueError(
+                f"family {self.family_id!r} must declare source requirements"
+            )
+        unknown_preflight_methods = tuple(
+            item.method_id
+            for item in self.runtime_preflights
+            if item.method_id not in self.method_ids
+        )
+        if unknown_preflight_methods:
+            raise ValueError(
+                f"family {self.family_id!r} runtime preflight methods are not enabled: "
+                f"{unknown_preflight_methods}"
+            )
+        return {
+            "family_id": self.family_id,
+            "patterns": list(self.match.patterns),
+            "problem_types": list(self.match.problem_types),
+            "title": self.title.strip(),
+            "description": self.description.strip(),
+            "use_when": self.use_when.strip(),
+            "required_source_primitives": [
+                item.to_payload() for item in self.required_source_requirements
+            ],
+            "runtime_preflights": [
+                item.to_payload() for item in self.runtime_preflights
+            ],
+            "source_goal_contracts": [
+                item.to_payload() for item in self.source_goal_contracts
+            ],
+            "do_not_use_when": list(self.do_not_use_when),
+        }
 
 
 def expand_family_spec(
@@ -833,6 +1044,13 @@ def expand_family_spec(
     return SolverFamilySpec(
         family_id=family.family_id,
         match=family.match,
+        title=family.title,
+        description=family.description,
+        use_when=family.use_when,
+        do_not_use_when=family.do_not_use_when,
+        required_source_requirements=family.required_source_requirements,
+        runtime_preflights=family.runtime_preflights,
+        source_goal_contracts=family.source_goal_contracts,
         common_goal_types=family.common_goal_types,
         strategy_principles=strategy_principles,
         base_packs=family.base_packs,

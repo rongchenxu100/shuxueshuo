@@ -19,6 +19,10 @@ from shuxueshuo_server.solver.runtime.models import ContextPath
 from shuxueshuo_server.solver.runtime.path_reduction_roles import (
     resolve_read_closed_path_reduction_inputs,
 )
+from shuxueshuo_server.solver.runtime.path_term_parsing import (
+    PathTermParseError,
+    parse_legacy_path_expression,
+)
 from shuxueshuo_server.solver.runtime.function_specs import (
     FunctionAdapterRegistry,
     identity_safe_parameter_value_expansion,
@@ -985,45 +989,212 @@ def _square_path_fixed_endpoint_ref_selector(
         index: CanonicalRuntimeBindingIndex,
         local_outputs: Mapping[str, str],
     ) -> str:
-        square_handle = index.fact_handle_by_type("square", step=step)
-        square = index.context.read_path(
-            index.path_for(square_handle, expected_type="Condition"),
-            from_scope_id=step.scope_id,
-            expected_type="Condition",
-        ).value
-        vertices = tuple(str(item) for item in square.get("vertices", ()))
-        if len(vertices) < 4:
-            raise StrategyDraftValidationError(
-                "square_path_roles_missing: ordered square vertices"
-            )
-        if position == 1:
-            handle = vertices[0]
-        else:
-            target = index.context.read_path(
-                index.path_for(
-                    index.fact_handle_by_type(
-                        "path_minimum_target",
-                        step=step,
-                    ),
-                    expected_type="Condition",
-                ),
-                from_scope_id=step.scope_id,
-                expected_type="Condition",
-            ).value
-            segments = _segments_from_path_text(str(target.get("path", "")))
-            moving_name = _semantic_name(vertices[3])
-            incident = tuple(
-                segment for segment in segments if moving_name in segment
-            )
-            if len(incident) != 1:
-                raise StrategyDraftValidationError(
-                    "square_path_roles_missing: moving segment"
-                )
-            fixed_name = _other_endpoint(incident[0], moving_name)
-            handle = index.point_handle_by_name(fixed_name, step=step)
+        side_start, other_fixed = _square_path_fixed_endpoint_handles(
+            step,
+            index,
+        )
+        handle = side_start if position == 1 else other_fixed
         return index.point_identity_path_for(handle)
 
     return select
+
+
+def _square_path_fixed_endpoint_handles(
+    step: FunctionalCompileStepView,
+    index: CanonicalRuntimeBindingIndex,
+) -> tuple[str, str]:
+    """Resolve square-path roles from exact fact references when available."""
+
+    square_handle = index.fact_handle_by_type("square", step=step)
+    square = index.fact_payload(square_handle)
+    vertices = tuple(str(item) for item in square.get("vertices", ()))
+    if (
+        len(vertices) < 4
+        or not all(
+            handle.startswith("point:") and handle in index.bindings
+            for handle in vertices[:4]
+        )
+    ):
+        raise StrategyDraftValidationError(
+            "square_path_roles_missing: ordered square vertices"
+        )
+    side_start, side_end, _, moving_vertex = vertices[:4]
+
+    midpoint_handle = index.fact_handle_by_type(
+        "midpoint_definition",
+        step=step,
+    )
+    midpoint = index.fact_payload(midpoint_handle)
+    midpoint_point = str(midpoint.get("point", ""))
+    midpoint_of = tuple(str(item) for item in midpoint.get("of", ()))
+    if (
+        midpoint_point not in index.bindings
+        or len(midpoint_of) != 2
+        or set(midpoint_of) != {side_start, side_end}
+    ):
+        raise StrategyDraftValidationError(
+            "square_path_roles_missing: midpoint of square side"
+        )
+
+    center_handle = index.fact_handle_by_type("square_center", step=step)
+    center = index.fact_payload(center_handle)
+    center_point = str(center.get("point", ""))
+    if (
+        center_point not in index.bindings
+        or str(center.get("square", "")) not in {"", square_handle}
+    ):
+        raise StrategyDraftValidationError(
+            "square_path_roles_missing: square center"
+        )
+
+    target_handle = index.fact_handle_by_type(
+        "path_minimum_target",
+        step=step,
+    )
+    target = index.fact_payload(target_handle)
+    structured = target.get("terms")
+    if isinstance(structured, list):
+        endpoint_pairs = _typed_path_endpoint_pairs(
+            structured,
+            step=step,
+            index=index,
+            context="square_path",
+        )
+        if len(endpoint_pairs) != 3:
+            raise StrategyDraftValidationError(
+                "square_path_roles_missing: three typed path terms"
+            )
+        _validate_typed_path_display(
+            endpoint_pairs,
+            str(target.get("path", "")),
+            step=step,
+            index=index,
+            context="square_path",
+        )
+        center_midpoint = _find_endpoint_pair(
+            endpoint_pairs,
+            center_point,
+            midpoint_point,
+        )
+        remaining = [pair for pair in endpoint_pairs if pair != center_midpoint]
+        midpoint_pairs = [pair for pair in remaining if midpoint_point in pair]
+        if len(midpoint_pairs) != 1:
+            raise StrategyDraftValidationError(
+                "square_path_roles_missing: midpoint segment"
+            )
+        other_fixed = _other_endpoint_handle(
+            midpoint_pairs[0],
+            midpoint_point,
+        )
+        final_pairs = [pair for pair in remaining if pair != midpoint_pairs[0]]
+        if len(final_pairs) != 1 or set(final_pairs[0]) != {
+            other_fixed,
+            moving_vertex,
+        }:
+            raise StrategyDraftValidationError(
+                "square_path_roles_missing: moving segment"
+            )
+        return side_start, other_fixed
+
+    # Old authored fixtures predate typed path terms. Restrict compatibility
+    # to source-visible names; local handle ids still never become authority.
+    segments = _segments_from_path_text(str(target.get("path", "")))
+    moving_name = index.entity_semantic_name(moving_vertex)
+    incident = tuple(segment for segment in segments if moving_name in segment)
+    if len(incident) != 1:
+        raise StrategyDraftValidationError(
+            "square_path_roles_missing: moving segment"
+        )
+    fixed_name = _other_endpoint(incident[0], moving_name)
+    return side_start, index.point_handle_by_name(fixed_name, step=step)
+
+
+def _typed_path_endpoint_pairs(
+    raw_terms: list[Any],
+    *,
+    step: FunctionalCompileStepView,
+    index: CanonicalRuntimeBindingIndex,
+    context: str,
+) -> list[tuple[str, str]]:
+    pairs: list[tuple[str, str]] = []
+    for term_index, raw_pair in enumerate(raw_terms):
+        if (
+            not isinstance(raw_pair, list)
+            or len(raw_pair) != 2
+            or not all(
+                isinstance(handle, str)
+                and handle.startswith("point:")
+                and handle in index.bindings
+                and index._handle_binding_visible(handle, step.scope_id)
+                for handle in raw_pair
+            )
+        ):
+            raise StrategyDraftValidationError(
+                f"{context}_typed_term_invalid: "
+                f"index={term_index}, term={raw_pair!r}"
+            )
+        pairs.append((str(raw_pair[0]), str(raw_pair[1])))
+    return pairs
+
+
+def _validate_typed_path_display(
+    endpoint_pairs: list[tuple[str, str]],
+    raw_path: str,
+    *,
+    step: FunctionalCompileStepView,
+    index: CanonicalRuntimeBindingIndex,
+    context: str,
+) -> None:
+    point_names = tuple(
+        sorted(
+            {
+                index.entity_semantic_name(handle)
+                for pair in endpoint_pairs
+                for handle in pair
+            }
+        )
+    )
+    try:
+        display_terms = parse_legacy_path_expression(
+            raw_path,
+            point_names=point_names,
+            resolve_point=lambda name: name,
+        )
+    except PathTermParseError as exc:
+        raise StrategyDraftValidationError(
+            f"{context}_expression_invalid: {exc.code}: {exc}"
+        ) from exc
+    if len(display_terms) != len(endpoint_pairs):
+        raise StrategyDraftValidationError(
+            f"{context}_term_count_drift: "
+            f"display={len(display_terms)}, structured={len(endpoint_pairs)}"
+        )
+    for term_index, (pair, display_term) in enumerate(
+        zip(endpoint_pairs, display_terms)
+    ):
+        typed_names = {
+            index.entity_semantic_name(pair[0]),
+            index.entity_semantic_name(pair[1]),
+        }
+        display_names = {display_term.start, display_term.end}
+        if typed_names != display_names:
+            raise StrategyDraftValidationError(
+                f"{context}_display_term_drift: index={term_index}, "
+                f"typed={sorted(typed_names)}, display={sorted(display_names)}"
+            )
+
+
+def _find_endpoint_pair(
+    pairs: list[tuple[str, str]],
+    first: str,
+    second: str,
+) -> tuple[str, str]:
+    matches = [pair for pair in pairs if set(pair) == {first, second}]
+    if len(matches) != 1:
+        raise StrategyDraftValidationError(
+            "square_path_roles_missing: center-midpoint segment"
+        )
+    return matches[0]
 
 def _path_reduction_selector(role: str) -> BindingSelectorFn:
     """创建两动点路径转化 recipe 的角色 selector。"""
@@ -2387,10 +2558,12 @@ def _weighted_path_roles(
     step: FunctionalCompileStepView,
     index: CanonicalRuntimeBindingIndex,
 ) -> tuple[str, str, str]:
-    """从 ``sqrt(2)*MN+AN`` 这类路径条件中推断 fixed/moving/curve 点。
+    """Resolve weighted-path roles from typed endpoint terms.
 
-    返回顺序为 ``fixed_point, moving_point, curve_point``。解析只使用题面
-    Condition 的 ``path`` 字段；点名可以变化，但首版路径文本仍要求是两个线段项。
+    The display ``path`` remains useful for coefficients and term order, but it
+    is not an object-identity source. When ``path_minimum_target.terms`` exists,
+    its canonical point handles are authoritative. Legacy ProblemIR without
+    terms is accepted through the semantic-name index only.
     """
     condition_handle = index.fact_handle_by_type("minimum_value", step=step)
     condition_path = index.path_for(condition_handle, expected_type="Condition")
@@ -2400,19 +2573,148 @@ def _weighted_path_roles(
         expected_type="Condition",
     ).value
     raw_path = str(condition.get("path", ""))
-    segments = _segments_from_path_text(raw_path)
-    if len(segments) != 2:
-        raise StrategyDraftValidationError(f"weighted_path_segments_not_found: {raw_path}")
-    first, second = segments
-    moving = _common_endpoint(first, second)
+    point_names = tuple(
+        sorted(
+            {
+                index.entity_semantic_name(handle)
+                for handle in index.entity_handles("point", step=step)
+            }
+        )
+    )
+    try:
+        display_terms = parse_legacy_path_expression(
+            raw_path,
+            point_names=point_names,
+            resolve_point=lambda name: name,
+        )
+    except PathTermParseError as exc:
+        raise StrategyDraftValidationError(
+            f"weighted_path_expression_invalid: {exc.code}: {exc}"
+        ) from exc
+    if len(display_terms) != 2:
+        raise StrategyDraftValidationError(
+            f"weighted_path_requires_two_terms: path={raw_path!r}, count={len(display_terms)}"
+        )
+
+    target_handles = [
+        handle
+        for handle in index.handles_by_fact_type("path_minimum_target")
+        if index._handle_binding_visible(handle, step.scope_id)
+        and _normalized_path_text(
+            str(index.fact_payload(handle).get("path", ""))
+        )
+        == _normalized_path_text(raw_path)
+    ]
+    if len(target_handles) != 1:
+        raise StrategyDraftValidationError(
+            "weighted_path_target_not_unique: "
+            f"path={raw_path!r}, candidates={sorted(target_handles)}"
+        )
+    target = index.fact_payload(target_handles[0])
+    structured = target.get("terms")
+    if isinstance(structured, list):
+        if len(structured) != len(display_terms):
+            raise StrategyDraftValidationError(
+                "weighted_path_term_count_drift: "
+                f"display={len(display_terms)}, structured={len(structured)}"
+            )
+        endpoint_pairs: list[tuple[str, str]] = []
+        for term_index, (raw_pair, display_term) in enumerate(
+            zip(structured, display_terms)
+        ):
+            if (
+                not isinstance(raw_pair, list)
+                or len(raw_pair) != 2
+                or not all(
+                    isinstance(handle, str)
+                    and handle.startswith("point:")
+                    and handle in index.bindings
+                    for handle in raw_pair
+                )
+            ):
+                raise StrategyDraftValidationError(
+                    "weighted_path_typed_term_invalid: "
+                    f"index={term_index}, term={raw_pair!r}"
+                )
+            pair = (str(raw_pair[0]), str(raw_pair[1]))
+            typed_names = {
+                index.entity_semantic_name(pair[0]),
+                index.entity_semantic_name(pair[1]),
+            }
+            display_names = {display_term.start, display_term.end}
+            if typed_names != display_names:
+                raise StrategyDraftValidationError(
+                    "weighted_path_display_term_drift: "
+                    f"index={term_index}, typed={sorted(typed_names)}, "
+                    f"display={sorted(display_names)}"
+                )
+            endpoint_pairs.append(pair)
+    else:
+        endpoint_pairs = [
+            (
+                index.point_handle_by_name(term.start, step=step),
+                index.point_handle_by_name(term.end, step=step),
+            )
+            for term in display_terms
+        ]
+
+    non_unit = [
+        index
+        for index, term in enumerate(display_terms)
+        if not _is_unit_path_scale(term.scale)
+    ]
+    if len(non_unit) != 1:
+        raise StrategyDraftValidationError(
+            "weighted_path_weighted_term_not_unique: "
+            f"path={raw_path!r}, scales={[term.scale for term in display_terms]}"
+        )
+    weighted_index = non_unit[0]
+    unit_index = 1 - weighted_index
+    weighted_pair = endpoint_pairs[weighted_index]
+    unit_pair = endpoint_pairs[unit_index]
+    moving = _common_endpoint_handle(weighted_pair, unit_pair)
     if moving is None:
         raise StrategyDraftValidationError(f"weighted_path_common_endpoint_not_found: {raw_path}")
-    fixed = _other_endpoint(second, moving)
-    curve = _other_endpoint(first, moving)
-    return (
-        index.point_handle_by_name(fixed, step=step),
-        index.point_handle_by_name(moving, step=step),
-        index.point_handle_by_name(curve, step=step),
+    fixed = _other_endpoint_handle(unit_pair, moving)
+    curve = _other_endpoint_handle(weighted_pair, moving)
+    return fixed, moving, curve
+
+
+def _normalized_path_text(value: str) -> str:
+    return "".join(value.split())
+
+
+def _is_unit_path_scale(value: str) -> bool:
+    return _normalized_path_text(value) in {"1", "1.0", "(1)"}
+
+
+def _common_endpoint_handle(
+    first: tuple[str, str],
+    second: tuple[str, str],
+) -> str | None:
+    shared = tuple(handle for handle in first if handle in second)
+    return shared[0] if len(shared) == 1 else None
+
+
+def _segments_from_path_text(raw_path: str) -> list[str]:
+    """Compatibility parser for non-weighted legacy selectors."""
+
+    return re.findall(r"[A-Z]{2}", raw_path)
+
+
+def _common_endpoint(first: str, second: str) -> str | None:
+    for name in first:
+        if name in second:
+            return name
+    return None
+
+
+def _other_endpoint(segment: str, endpoint: str) -> str:
+    for name in segment:
+        if name != endpoint:
+            return name
+    raise StrategyDraftValidationError(
+        f"segment_other_endpoint_not_found: {segment}"
     )
 
 def _auxiliary_point_handle_from_reads(
@@ -2465,28 +2767,6 @@ def _weighted_auxiliary_point_handle_for_step(
     raise StrategyDraftValidationError(
         f"weighted_auxiliary_point_handle_not_registered: {step.step_id}"
     )
-
-def _segments_from_path_text(raw_path: str) -> list[str]:
-    """从路径文本中提取线段名。
-
-    当前 LLM/ProblemIR 的几何对象点名仍以大写字母为主；如果后续出现 P1 或
-    D_prime，多字符点名应先在 Entity/Fact 命名规范中升级后再扩展这里。
-    """
-    return re.findall(r"[A-Z]{2}", raw_path)
-
-def _common_endpoint(first: str, second: str) -> str | None:
-    """返回两个线段名的公共端点。"""
-    for name in first:
-        if name in second:
-            return name
-    return None
-
-def _other_endpoint(segment: str, endpoint: str) -> str:
-    """返回线段中非公共端点的另一个点名。"""
-    for name in segment:
-        if name != endpoint:
-            return name
-    raise StrategyDraftValidationError(f"segment_other_endpoint_not_found: {segment}")
 
 def _created_point_handle(step: FunctionalCompileStepView) -> CreatedEntity | None:
     """返回 creates[] 中的第一个 point entity。"""

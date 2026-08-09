@@ -1,259 +1,153 @@
-# Functional Planner 路线图
+# 数学说系统路线图
 
 ## 总目标
 
-建立一条从题目来源到学生课程页的可追溯主链：
+建立一条从题目图片到课程页的可追溯主链：
 
 ```text
-图片 / PDF / 人工题目
-  -> source fingerprint
-  -> layout / OCR / formula / ink observations
-  -> full-question multimodal extraction
-  -> ProblemExtractionContext
-  -> ProblemIR
-  -> PlannerStateContext / FunctionalPlan v1
-  -> typed reconciliation + transactional execution
-  -> ExplanationSnapshot
-  -> LessonExplanationContext
-  -> DiagramContext / AnimationContext
-  -> validated lesson page
+图片 / PDF
+  -> Source fingerprint
+  -> Layout / OCR / Formula / Ink observation
+  -> Problem domain extraction
+  -> VerifiedProblem + projection manifest
+       -> goal-scoped ProblemPlanningContext -> FunctionalPlan
+       -> canonical Solver ProblemIR -> ContextBuilder
+  -> Transactional Solver
+  -> Explanation / Diagram / Animation
+  -> 课程页
 ```
 
-当前优先级是先打通完整链路。Best-of-N 属于可靠性优化，在端到端质量和成本可度量后实施。
-
-## 当前生产架构
-
-Solver 只有一个 LLM 规划协议和一条权威执行路径：
-
-```text
-ProblemIR
-  -> FunctionalPlan v1
-  -> typed identity / allocation / placement / finalization
-  -> direct Function/Macro compiler
-  -> transactional execution
-  -> runtime-grounded symbolic closure
-  -> Context / retry / Explanation provenance
-  -> PlannerOutput
-```
-
-StepIntent LLM 协议和 Functional 投影桥已经退役。`StepPlan`、`MethodInvocation`、
-`RuntimeContext`、`InvocationExecutor` 仍是内部执行结构。
+完整冷路径通过后，再做最终页面缓存、并发去重和条件式 Best-of-N。
 
 ## 阶段状态
 
-| Track | 状态 | 结果 |
+| Track | 状态 | 当前结果 |
 | --- | --- | --- |
-| A：Functional parity | `COMPLETE` | authored fixture、真实样本、分层指标与 parity 门禁 |
-| B：Typed state authority | `COMPLETE` | MathObject、StateVersion、placement、finalizer、retry 与 typed consumer 权威 |
-| C：Transactional execution | `COMPLETE` | 逐 call 事务、binding、symbolic closure 与 provenance 消费 |
-| D：Functional default | `COMPLETE` | FunctionalPlan 成为唯一规划协议，legacy StepIntent 已删除 |
-| F：Problem extraction | `IN PROGRESS（F0-F3 已实现）` | 图片/PDF/网页来源转换为 validated ProblemIR；下一步为 F4 验证与 retry |
-| G：Post-solver contexts | `NEXT / IN PROGRESS` | Explanation、Diagram、Animation 与课程页 Context 链 |
-| E：End-to-end optimization | `PENDING AFTER F/G` | 最终 artifact cache、增量重建与条件式 Best-of-N |
+| A：Functional parity | `COMPLETE` | FunctionalPlan 与 authored fixture 对齐 |
+| B：Typed state authority | `COMPLETE` | typed identity、StateVersion、placement、finalization、retry |
+| C：Transactional execution | `COMPLETE` | binding ledger、逐 call 事务、symbolic closure、provenance |
+| D：Functional default | `COMPLETE` | FunctionalPlan 为唯一规划协议，StepIntent 已退役 |
+| F0：Gold corpus | `COMPLETE` | 五题原图、selection、evidence annotation、semantic diff |
+| F1：Source identity | `COMPLETE` | source/selection/dependency fingerprint 与 immutable Context |
+| F2：Source observation | `COMPLETE` | Layout、OCR、公式、笔迹、artifact ledger、review pack |
+| F3：Domain extraction | `COMPLETE` | 豆包完整题图提取、嵌套 scope、不可变 ProblemDraft |
+| F4：Validation / patch authority | `COMPLETE` | freeze、局部 patch retry、VerifiedProblem、Context v3 |
+| F5：Scoped planning / Solver lifecycle | `NEXT` | VerifiedProblem/ProblemIR双工件、manifest与goal-scoped planning view |
+| G：Post-solver Context | `AFTER F5` | Explanation、Diagram、Voiceover、Animation Context |
+| E：End-to-end optimization | `AFTER F/G` | 最终 artifact cache、最小失效、条件式 Best-of-N |
 
-已完成阶段的逐轮 findings、迁移模式、source fingerprint 和 batch 流水不再保留在主文档；需要时通过 Git 历史查询。
+已完成阶段的逐轮 finding 不再保留在路线图中；历史证据由 Git 与 batch artifact 保存。
 
-## 实施顺序
+## Track F：图片题目提取
 
-```text
-F extraction foundation -----------+
-                                    +-> 图片到课程页端到端门禁
-G post-solver Context foundation ---+
-                                    |
-                                    +-> E 端到端成本、缓存与候选优化
-```
-
-F 与 G 可以并行：
-
-- F 使用现有题图和 authored ProblemIR 建 gold corpus。
-- F 处于 shadow 时，G 继续消费 authored ProblemIR。
-- extracted ProblemIR 无需 source-specific fallback 即可进入 solver 和 G 后，两条线汇合。
-- E 根据完整链路的真实失败和成本分布设计，不提前假设问题只来自 planner。
-
-## F/G 阶段边界
-
-F/G 先完整打通冷路径，不实现产品缓存或 Best-of-N。每次门禁都从 source 开始运行到 compiled lesson page，以暴露 extraction、solver、explanation、visual 和 animation 的真实契约问题。
-
-本阶段只建立后续优化需要的基础：稳定 source fingerprint、immutable Context、dependency ID/hash、contract version，以及每阶段 latency、token、模型调用次数与失败分类。这些字段用于追溯和失效计算，但不在 F/G 中提供缓存命中短路。
-
-## 全局不变量
-
-1. Context state 是事实源；prompt 和 debug 文件只是 projection/artifact。
-2. Context version 不可变，并显式记录 parent 与 dependency Context。
-3. ProblemIR 是 extraction 与 planner 的稳定边界。
-4. Planner 不读取 OCR 过程数据，也不从描述文本补猜缺失事实。
-5. 下游 Context 不得修改上游 Context。
-6. 身份由 typed ID 决定，不由名称、handle、runtime path 或实际值决定。
-7. runtime value 与 provenance 决定 committed state 和 symbolic closure。
-8. 低置信上游事实必须保持显式或阻断流程，不能在下游静默升级为确定事实。
-9. expected answer 只用于测试，不参与生产选择。
-10. 每个 LLM 边界都必须有 parser、validator、retry state 与 fail-closed 配置边界。
-11. F/G 门禁默认运行完整冷路径，不能用旧 artifact 掩盖上游或下游缺陷。
-12. Context 和 artifact 必须携带稳定 dependency hash，为 E 的缓存与最小失效提供基础。
-
-## Track F：题目提取
-
-### 目标
-
-把图片、PDF、OCR 文本或网页转换为可追溯、可校验的 `ProblemIR`，同时避免 extractor 学习 capability-specific 解题链。
+当前权威链：
 
 ```text
-source asset
-  -> source identity + F2 auxiliary observations
-  -> full-question Multimodal Evidence Pack
-  -> multimodal typed candidates
-  -> deterministic validation / retry in ProblemExtractionContext
-  -> ProblemIR projection
+F2完整题图与SourceObservation
+  -> 豆包输出problem-domain/v1
+  -> immutable ProblemDraft
+  -> ProblemDomainValidator
+  -> 冻结已验证unit
+  -> problem-repair/v1局部patch
+  -> VerifiedProblem
+  -> ProblemDomainProjector
+  -> canonical Solver ProblemIR + projection manifest
+  -> ProblemExtractionContext v3
 ```
 
-Planner 对 authored/extracted ProblemIR 使用相同接口；区别只记录在 Context manifest 中。
+关键决策：
 
-架构决策：所有通过 source preflight 的题目都使用同一个多模态语义 extractor。完整 SourceSelection 题目图是第一手输入；OCR、layout、formula 和 ink observation 只作为辅助转录、reading order和冲突提示。生产链不再建设 deterministic semantic parser、文本模型分支或 SourceRouter。
+1. 完整题图是语义权威，OCR只作辅助转录与缺失定位。
+2. scope在领域模型中递归嵌套；实体、事实和目标归属于其最小有效scope。
+3. LLM选择`family_id`；代码只验证family contract，不自动换family。
+4. Entity只表达身份；坐标、构造、成员关系、等量和最值均由Fact表达。
+5. Segment、Ray、Angle和Length是值对象；只有题面赋予独立身份时才提升为Entity。
+6. Pass 1不输出fact/goal unit id、runtime handle、scope_id、valid_scope或value type。
+7. Draft建立后只允许局部`problem-repair/v1`，不再接受整题替换。
+8. 只有全部unit拥有有效verification stamp时才能promotion为`VerifiedProblem`。
+9. 投影器只展平scope与生成runtime identity，不得补数学事实或改变family。
+10. 提取smoke只运行领域校验、ContextBuilder和family pure runtime preflight，不调用Planner或完整Solver。
 
-单页首轮默认只发送一张完整题目图，不发送 formula crop。OCR 不确定项以 evidence/region id 和 typed issue 告知模型，明显错误的 raw LaTeX 不进入 prompt。Retry 固定保留完整题目图，并由 validator issue 沿 candidate → evidence → F2 polygon 确定性生成定向 zoom；validator 不重跑 OCR，无法定位可靠 region 时不生成 zoom。
+当前证据：
 
-F3 首个真实 provider 固定为火山方舟 `doubao-seed-2-1-turbo-260628`，直接复用 `server/.env` 的 `DOUBAO_API_KEY / DOUBAO_BASE_URL / DOUBAO_MODEL`。不新增 extraction 配置，不提供运行时 provider 分支或自动 fallback。
+- 全量Solver离线回归：`1530 passed, 12 skipped`；`git diff --check`通过。
+- 豆包请求统一流式接收，在首个完整顶层JSON结束；Pass 1和retry不再等待尾部重复输出。
+- 2026-08-10最终`5x3`得到15/15 accepted、15/15 family一致和15/15 Solver ProblemIR投影一致；最终canonicalizer对同批live artifact重放后domain semantic hash为15/15一致。
+- 南开最终补充批次3/3首轮严格通过，河西修复批次1/1首轮严格通过；完整题图输入率100%，Planner与完整Solver调用数均为0。
+- 配置错误、未分类错误、patch drift和provider长尾均为0。F3/F4据此关闭，F5解锁。
 
-当前进度：F0、F1 已完成；F2 的离线实现与真实五题 smoke 已完成，静态 review pack 等待人工签核。F3 已实现 Multimodal Evidence Pack、豆包完整题图调用、typed candidate patch、显式累计 attempt ledger 和 Planner 风格 debug/review 链；synthetic 跨页输入按页发送完整图，低置信 OCR 在语义 evidence view 中降为 unknown。每张 selected page 还提供确定性的 4×4 visual review tiles，使 OCR/layout 漏检的图中点名或关系仍可被模型以 unknown+ambiguity 方式引用，后续 F4 可直接生成定向 zoom，而无需开放模型自由坐标。真实 5×1 为 5/5，5×3 的 15 份 provider 响应在最终 parser 下全部可重放，补跑样本也通过；五份 recorded packs 已离线追加 tiles，既有 aliases 不漂移。机械补全的 review region 与模型原生 contract 完整率已分开计数，gold bbox coverage 仅作为粗筛。F0-F3 联合门禁为 240 passed，全量 solver 为 1448 passed、12 skipped。Live smoke 不进入默认 CI，作为 scheduled/release 前检查；F3 仅余人工 debug 签核，下一步由 F4 负责确定性 normalization、validation、Context commit、ledger 持久化与语义 retry，F5 完成 ProblemIR 投影和冷路径集成。
+详细设计和门禁见 [problem-extraction-context-implementation-plan.md](problem-extraction-context-implementation-plan.md)。
 
-### 退出条件
+## Track F5：Scoped Planning与Solver生命周期接线
 
-- 五道现有题图具有 gold extraction fixture。
-- solver 必需的 entity、fact、scope、symbol 和 QuestionGoal 完整投影。
-- 多义标签和关系保持为显式 extraction issue。
-- 首轮与 retry 的多模态请求均包含完整题目图，局部 crop 不能单独承担语义提取。
-- 单页首轮只有一张主图；retry zoom必须来自已有evidence polygon，不能使用模型自由坐标或代码猜测区域。
-- OCR 与视觉结果冲突时保留 observation 和 typed issue，不静默覆盖原图证据。
-- extracted/authored ProblemIR 产生等价 answer signature 与 provenance gate。
-- Planner prompt 不包含 OCR region、置信度内部数据或被拒候选。
-- shadow report 提供字段级 precision/recall 和 issue 分类。
-- source fingerprint 稳定，并可作为后续 artifact identity 输入。
+```text
+accepted ProblemExtractionContext v3
+  -> VerifiedSolverProblemBundle
+       -> VerifiedProblem -> goal-scoped ProblemPlanningContext -> FunctionalPlan
+       -> Solver ProblemIR -> ContextBuilder / runtime identity
+       -> projection manifest连接source unit与runtime handle
+  -> typed reconciliation / PlannerStateContext
+  -> transactional runtime
+  -> answer、protocol、runtime、provenance gate
+```
 
-详细计划：`docs/problem-extraction-context-implementation-plan.md`。
+F5不修改提取语义，也不改写现有扁平Solver ProblemIR。它建立三个明确边界：
 
-## Track G：解题后 Context 链
+1. `VerifiedProblem`是scope、实体、Fact和Goal的语义权威；
+2. `ProblemPlanningContext`是按Goal临时派生的Planner视图，只包含当前scope与祖先可见unit，结构上排除sibling；
+3. Solver ProblemIR是ContextBuilder与runtime的物理投影，projection manifest负责`source_unit_id -> ProblemIR handle -> runtime identity`映射。
 
-### 目标
+`FunctionalPlan`继续使用`functional_plan/v1`和现有`SemanticRef`。服务端catalog sidecar把每个ref绑定到source unit与runtime handle；LLM不能发明scope或跨sibling引用。call的声明scope由Goal视图约束，实际execution scope仍由现有B2 placement根据typed dependency和LCA计算。同一个根Entity在不同子问中的Fact投影为独立scope-local `StateVersion`，不会因handle相同而合并状态。
 
-把 verified solver artifact 转换为版本化课程页，避免使用一个跨领域的可变万能 Context。
+实现顺序：
+
+1. **F5-A Bundle authority**：加载并交叉校验VerifiedProblem、Solver ProblemIR和projection manifest；blocked、pending、stale或hash漂移全部fail loud。
+2. **F5-B Scoped planning view**：从嵌套scope树生成共享祖先摘要与逐Goal视图，不把扁平全题数组作为Planner唯一输入。
+3. **F5-C Planner binding**：将SemanticRef确定映射到source unit、MathObjectId和StateVersion；跨sibling、未知source unit或revision漂移在编译前失败。
+4. **F5-D Retry/provenance**：checkpoint、repair cone和result记录problem revision/hash及实际消费的source units；Solver retry不重新提取题目。
+5. **F5-E Cold path**：默认入口从accepted bundle运行Planner与transactional Solver，并删除Planner只读扁平ProblemIR的旧prompt路径。
+
+退出条件是五题各3份完成图片到verified Solver结果的冷路径，且answer、protocol、runtime、binding、closure和provenance gate全部通过；提取模型不被重复调用，跨scope identity drift和失败事务幽灵write均为0。
+
+## Track G：解题后 Context
 
 ```text
 PlannerStateContext
   -> LessonExplanationContext
-       -> DiagramContext
-       -> VoiceoverContext
-
-LessonExplanationContext + DiagramContext + VoiceoverContext
+  -> DiagramContext
+  -> VoiceoverContext
   -> AnimationContext
   -> compiled lesson page
 ```
 
-`DiagramContext` 可以额外依赖 `ProblemExtractionContext` 的 source visual projection，但数学事实仍来自 ProblemIR 与 verified solver provenance。G 负责使最终 lesson artifact及其 dependency manifest稳定、可验证；缓存、命中短路和增量重建留到 E。
+目标是让教学步骤、图形对象、旁白和动画均具有不可变Context、显式dependency与typed validation。F5完成默认Solver接线后，G消费同一`problem_revision_id`下的VerifiedProblem、PlannerStateContext与runtime provenance。
 
-### 工作包
+退出条件：
 
-1. 统一 Context manifest、immutable version、dependency ID、stale 与 rebase 规则。
-2. `LessonExplanationContext` 接管教学步骤与教学顺序。
-3. `DiagramContext` 接管对象、角色、标签、可见性、约束和每步视觉状态。
-4. `AnimationContext` 显式依赖 explanation、diagram 与 voiceover version。
-5. 只有相互兼容的 Context 组合才能编译最终页面。
-
-### 退出条件
-
-- 五道 authored 问题均通过 Context graph 编译。
-- 上游变化会使下游显式 stale，不会静默复用旧内容。
-- rebase 可确定执行，或产生 typed repair issue。
-- failed/provisional/alias call 不进入学生讲解。
-- Lesson、Diagram、Animation artifact 均记录 dependency Context ID。
-- F 汇合后至少一题从真实图片完整生成课程页。
--完整冷路径的各阶段 latency、token、调用次数和 artifact dependency可审计。
-
-主要设计：
-
-- `docs/llm-context-model-design.md`
-- `docs/explanation-builder-design.md`
-- `docs/visual-step-ir-design.md`
-- `internal/skills/solver-to-lesson-page-onboarding/SKILL.md`
-
-## F/G 端到端门禁
-
-```text
-题目图片
-  -> source fingerprint
-  -> F2 SourceObservation
-  -> full-question multimodal extraction
-  -> ProblemExtractionContext
-  -> extracted ProblemIR
-  -> verified FunctionalPlan + runtime provenance
-  -> LessonExplanationContext
-  -> DiagramContext
-  -> AnimationContext
-  -> validated compiled HTML
-```
-
-门禁同时检查：
-
-- extraction quality 与 unresolved ambiguity；
-- answer、runtime、identity、version 与 provenance；
-- explanation coverage 与 canonical call reachability；
-- diagram object/label consistency；
-- animation dependency 与 narration alignment；
-- 页面 schema 与 visual regression；
-- 各阶段 latency、token、retry 和 failure layer。
--完整冷路径各阶段 latency、token、retry、外部模型调用次数与 artifact 大小；
-- dependency manifest 完整性，为 E 的最小失效提供输入。
-
-任何阶段都不得通过解析展示文本或 expected answer 修复另一阶段。
+- 五题均能从verified solver artifact编译课程页；
+- failed、provisional和alias call不进入学生内容；
+- 上游Context变化会使下游显式stale；
+- 至少一题完成图片到课程页的真实冷路径；
+- latency、token、模型调用和artifact dependency可审计。
 
 ## Track E：端到端优化
 
-E 在 F/G 冷路径门禁产生有代表性的质量、延迟和成本数据后启动，按收益顺序实施：
+F/G冷路径稳定后依次实施：
 
-1. 最终 Lesson artifact cache：用 source、build options 和 pipeline fingerprint命中已验证课程页，命中后跳过全部 LLM。
-2. 并发构建去重：相同 key 只运行一个 cold build，其他请求订阅同一任务。
-3. 分层缓存与最小失效：按数据决定是否缓存 extraction、solver、lesson semantic 和 render artifact。
-4. 条件式 Best-of-N：只在 cold miss且低成本单候选未通过门禁或证据不足时创建多个候选。
-5. 使用 extraction/planner/runtime/domain/lesson validator做 hard filter，并按 canonical outcome signature分组。
-6. 依据 provenance 完整度、题面条件覆盖、verified goal closure 与候选共识排序。
-7. 只有通过完整门禁的 winner可以进入最终缓存；其他候选只保存为诊断 artifact。
-8. 无唯一可信 winner时 retry或安全失败。
+1. 最终Lesson artifact cache；
+2. 相同dependency key的并发构建去重；
+3. extraction、solver、lesson semantic和render的分层缓存；
+4. 仅在cold miss且单候选未通过门禁时启用Best-of-N；
+5. 只缓存通过完整门禁的winner。
 
-缓存与 Candidate selection都不得读取 expected answer。最终 Lesson cache命中不触发 Best-of-N；Best-of-N只提高新题首次构建的成功率。
+## 全局不变量
 
-## 当前 LLM 成本策略
-
-```text
-Pass 1/2/3：JSON Output，开启 thinking，reasoning_effort=low
-```
-
-Prompt 中的 JSON 使用 compact rendering；结构化 payload 和 debug JSON 保持可读。Catalog 裁剪和应用层响应缓存暂缓到 F/G 端到端指标建立之后。
-
-## 验证命令
-
-Solver 回归：
-
-```bash
-cd server
-uv run pytest tests/solver -q
-git diff --check
-```
-
-低成本真实 smoke：
-
-```bash
-cd server
-RUN_LLM_INTEGRATION=1 \
-RUN_DEEPSEEK_STRATEGY_PLANNER=1 \
-uv run python -m shuxueshuo_server.solver.deepseek_functional_batch \
-  --case all \
-  --samples-per-case 1 \
-  --concurrency 10 \
-  --max-attempts 3 \
-  --batch-id functional-default-smoke
-```
-
-正式 acceptance 使用 `--samples-per-case 3 --concurrency 15`，并要求 successful sample 的 answer、protocol、runtime、provenance、closure、explanation gate 全部通过，configuration/unclassified error 为零。
-
-## 当前文档
-
-文档入口见 `docs/README.md`。各 Track 的实现细节保存在对应活文档，已完成迁移历史由 Git 保存。
+1. Context state是事实源；prompt、review和debug只是projection或artifact。
+2. Context不可变，并记录parent、dependency和attempt authority。
+3. `VerifiedProblem`是图片提取的语义权威；Solver ProblemIR是确定性投影。
+4. 扁平Solver ProblemIR不是Planner的唯一语义输入；Planner视图只能从VerifiedProblem确定派生。
+5. `PlannerStateContext`只管理动态执行状态，不回写或替代VerifiedProblem的题目语义。
+6. expected answer只用于测试，不进入prompt、validator或retry。
+7. LLM边界必须有strict schema、确定性validator、budget和fail-closed行为。
+8. 下游不得从显示文案、runtime handle或path猜测缺失identity。
+9. F/G验收运行完整冷路径；缓存与Best-of-N留到Track E。

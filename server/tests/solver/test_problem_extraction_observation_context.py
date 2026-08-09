@@ -44,7 +44,7 @@ def test_successful_observation_attach_is_atomic_and_round_trips(tmp_path) -> No
     assert child.manifest.parent_context_id == fixture.context.manifest.context_id
     assert child.events[-1].event == "source_observation_attached"
     assert child.quality["source_observation_hash"] == result.observation.observation_hash
-    assert child.state.candidates == ()
+    assert set(child.state.to_payload()) == {"artifacts", "evidence", "issues"}
     restored = ProblemExtractionContext.from_payload(
         child.to_payload(),
         ancestor_contexts=(fixture.context,),
@@ -332,7 +332,7 @@ def test_missing_formula_crop_artifact_fails_closed(tmp_path) -> None:
     assert error.value.path == "$.attempt_ledger.input_artifact_refs"
 
 
-def test_observation_attachment_does_not_create_semantic_candidates(tmp_path) -> None:
+def test_observation_attachment_does_not_create_semantic_state(tmp_path) -> None:
     fixture, result, _ = assemble_fixture(tmp_path)
     child = ObservationContextTransitionService().attach(
         fixture.context,
@@ -340,7 +340,4 @@ def test_observation_attachment_does_not_create_semantic_candidates(tmp_path) ->
         artifacts=result.artifacts,
         attempt_ledger=successful_ledger(fixture.context, result.artifacts),
     )
-    assert child.state.scope_candidates == ()
-    assert child.state.entity_candidates == ()
-    assert child.state.fact_candidates == ()
-    assert child.state.goal_candidates == ()
+    assert set(child.state.to_payload()) == {"artifacts", "evidence", "issues"}

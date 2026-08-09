@@ -509,6 +509,34 @@ class ContextBuilder:
                     locked=True,
                     source="relations",
                 )
+        # Canonical ProblemIR can now carry source facts at the lexical root.
+        # Question projection already installs scoped facts through
+        # ``question.conditions``; root facts need the symmetric path so a child
+        # preflight can read an ancestor square/ray/etc. without duplicating it in
+        # every sibling question.
+        non_condition_types = {
+            "symbol_constraint",
+            "symbol_value",
+            "point_coordinate",
+        }
+        for fact in context.problem.data.get("facts", []):
+            if not isinstance(fact, Mapping):
+                continue
+            scope_id = str(fact.get("valid_scope", fact.get("scope_id", "problem")))
+            condition_type = str(fact.get("type", ""))
+            if (
+                scope_id != "problem"
+                or not condition_type
+                or condition_type in non_condition_types
+                or condition_type in root.container("conditions")
+            ):
+                continue
+            root.container("conditions")[condition_type] = TypedValue(
+                "Condition",
+                dict(fact),
+                locked=True,
+                source="canonical_facts",
+            )
 
     def _populate_function(self, context: RuntimeContext) -> None:
         """把二次函数表达式和系数关系写入 problem scope。"""

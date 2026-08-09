@@ -1,0 +1,1342 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "problem_id",
+    "family_id",
+    "source",
+    "root"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "problem-domain/v1"
+    },
+    "problem_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2048,
+      "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+    },
+    "family_id": {
+      "type": "string",
+      "enum": [
+        "QuadraticEqualLengthRayPathMinimumSolver",
+        "QuadraticPathMinimumSolver",
+        "QuadraticSquareReflectionPathMinimumSolver",
+        "QuadraticWeightedPathMinimumSolver"
+      ]
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "question_number",
+        "score"
+      ],
+      "properties": {
+        "question_number": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048,
+          "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+        },
+        "score": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 2048
+        }
+      }
+    },
+    "root": {
+      "$ref": "#/$defs/scope"
+    }
+  },
+  "$defs": {
+    "ref": {
+      "type": "string",
+      "maxLength": 96,
+      "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+    },
+    "expression": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024,
+      "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+    },
+    "segment_term": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "start",
+        "end"
+      ],
+      "properties": {
+        "start": {
+          "type": "string",
+          "maxLength": 96,
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+        },
+        "end": {
+          "type": "string",
+          "maxLength": 96,
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+        }
+      }
+    },
+    "ray_term": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "origin",
+        "through"
+      ],
+      "properties": {
+        "origin": {
+          "type": "string",
+          "maxLength": 96,
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+        },
+        "through": {
+          "type": "string",
+          "maxLength": 96,
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+        }
+      }
+    },
+    "angle_term": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "start",
+        "vertex",
+        "end"
+      ],
+      "properties": {
+        "start": {
+          "type": "string",
+          "maxLength": 96,
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+        },
+        "vertex": {
+          "type": "string",
+          "maxLength": 96,
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+        },
+        "end": {
+          "type": "string",
+          "maxLength": 96,
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+        }
+      }
+    },
+    "axis_placement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "point",
+        "relation"
+      ],
+      "properties": {
+        "point": {
+          "type": "string",
+          "maxLength": 96,
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+        },
+        "relation": {
+          "type": "string",
+          "enum": [
+            "above_x_axis",
+            "below_x_axis",
+            "left_of_y_axis",
+            "right_of_y_axis"
+          ]
+        }
+      }
+    },
+    "scaled_length_term": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scale",
+        "segment"
+      ],
+      "properties": {
+        "scale": {
+          "$ref": "#/$defs/expression"
+        },
+        "segment": {
+          "$ref": "#/$defs/segment_term"
+        }
+      }
+    },
+    "length_sum": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "terms"
+      ],
+      "properties": {
+        "terms": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/scaled_length_term"
+          },
+          "minItems": 1,
+          "maxItems": 16
+        }
+      }
+    },
+    "entity": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "kind",
+            "label",
+            "role"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            },
+            "kind": {
+              "const": "symbol"
+            },
+            "label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048,
+              "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+            },
+            "role": {
+              "type": "string",
+              "enum": [
+                "function_variable",
+                "quadratic_coefficient",
+                "primary_parameter",
+                "dynamic_parameter",
+                "parameter",
+                "constant"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "kind",
+            "label"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            },
+            "kind": {
+              "const": "point"
+            },
+            "label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048,
+              "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+            },
+            "role": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048,
+              "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "kind",
+            "label"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            },
+            "kind": {
+              "const": "quadratic_function"
+            },
+            "label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048,
+              "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "kind",
+            "label",
+            "points"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            },
+            "kind": {
+              "const": "named_line"
+            },
+            "label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048,
+              "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+            },
+            "points": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "maxLength": 96,
+                "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+              },
+              "minItems": 2,
+              "maxItems": 16,
+              "description": "Only for a source explicitly named as a line (直线), never for a length segment."
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "kind",
+            "label",
+            "origin",
+            "through"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            },
+            "kind": {
+              "const": "named_ray"
+            },
+            "label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048,
+              "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+            },
+            "origin": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+              "description": "Origin point local id of an explicitly printed ray (射线)."
+            },
+            "through": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+              "description": "Second point local id defining that explicitly printed ray."
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "kind",
+            "label",
+            "vertices"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            },
+            "kind": {
+              "const": "polygon"
+            },
+            "label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048,
+              "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+            },
+            "vertices": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "maxLength": 96,
+                "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+              },
+              "minItems": 3,
+              "maxItems": 16
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "kind",
+            "label",
+            "expression"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            },
+            "kind": {
+              "const": "scalar_expression"
+            },
+            "label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048,
+              "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+            },
+            "expression": {
+              "$ref": "#/$defs/expression"
+            }
+          }
+        }
+      ]
+    },
+    "fact": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "function",
+            "variable",
+            "expression"
+          ],
+          "properties": {
+            "kind": {
+              "const": "function_expression"
+            },
+            "function": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            },
+            "variable": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            },
+            "expression": {
+              "$ref": "#/$defs/expression"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "point",
+            "construction"
+          ],
+          "properties": {
+            "kind": {
+              "const": "point_construction"
+            },
+            "point": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            },
+            "construction": {
+              "const": "origin"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "point",
+            "construction",
+            "owner"
+          ],
+          "properties": {
+            "kind": {
+              "const": "point_construction"
+            },
+            "point": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            },
+            "construction": {
+              "const": "vertex"
+            },
+            "owner": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "point",
+            "construction",
+            "owner"
+          ],
+          "properties": {
+            "kind": {
+              "const": "point_construction"
+            },
+            "point": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            },
+            "construction": {
+              "const": "x_axis_intercept"
+            },
+            "owner": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            },
+            "exclude_point": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            },
+            "side": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048,
+              "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "point",
+            "construction",
+            "owner"
+          ],
+          "properties": {
+            "kind": {
+              "const": "point_construction"
+            },
+            "point": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            },
+            "construction": {
+              "const": "y_axis_intercept"
+            },
+            "owner": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "point",
+            "construction",
+            "owner"
+          ],
+          "properties": {
+            "kind": {
+              "const": "point_construction"
+            },
+            "point": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            },
+            "construction": {
+              "const": "axis_x_intercept"
+            },
+            "owner": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "point",
+            "construction",
+            "owner",
+            "vector"
+          ],
+          "properties": {
+            "kind": {
+              "const": "point_construction"
+            },
+            "point": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            },
+            "construction": {
+              "const": "translated_point"
+            },
+            "owner": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            },
+            "vector": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/expression"
+              },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "point",
+            "construction",
+            "owner",
+            "x_expression"
+          ],
+          "properties": {
+            "kind": {
+              "const": "point_construction"
+            },
+            "point": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            },
+            "construction": {
+              "const": "curve_at_x"
+            },
+            "owner": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            },
+            "x_expression": {
+              "$ref": "#/$defs/expression"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "expression",
+            "symbols"
+          ],
+          "properties": {
+            "kind": {
+              "const": "equation"
+            },
+            "expression": {
+              "$ref": "#/$defs/expression"
+            },
+            "symbols": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "maxLength": 96,
+                "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+              },
+              "minItems": 1,
+              "maxItems": 16
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "symbol",
+            "operator",
+            "value"
+          ],
+          "properties": {
+            "kind": {
+              "const": "symbol_constraint"
+            },
+            "symbol": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            },
+            "operator": {
+              "type": "string",
+              "enum": [
+                "=",
+                "!=",
+                ">",
+                ">=",
+                "<",
+                "<="
+              ],
+              "description": "Put the comparison token in this operator field; never use '>' or '<' as a JSON property name."
+            },
+            "value": {
+              "$ref": "#/$defs/expression"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "symbol",
+            "value"
+          ],
+          "properties": {
+            "kind": {
+              "const": "symbol_value"
+            },
+            "symbol": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            },
+            "value": {
+              "$ref": "#/$defs/expression"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "point",
+            "value"
+          ],
+          "properties": {
+            "kind": {
+              "const": "point_coordinate"
+            },
+            "point": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            },
+            "value": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/expression"
+              },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "point",
+            "curve"
+          ],
+          "properties": {
+            "kind": {
+              "const": "point_on_curve"
+            },
+            "point": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            },
+            "curve": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "point",
+            "curve",
+            "x_symbol",
+            "x_range"
+          ],
+          "properties": {
+            "kind": {
+              "const": "point_on_curve_with_x"
+            },
+            "point": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            },
+            "curve": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            },
+            "x_symbol": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            },
+            "x_range": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/expression"
+              },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "point",
+            "axis"
+          ],
+          "properties": {
+            "kind": {
+              "const": "point_on_axis"
+            },
+            "point": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            },
+            "axis": {
+              "type": "string",
+              "enum": [
+                "x",
+                "y",
+                "symmetry"
+              ]
+            },
+            "curve": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "point",
+            "segment"
+          ],
+          "properties": {
+            "kind": {
+              "const": "point_on_segment"
+            },
+            "point": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            },
+            "segment": {
+              "$ref": "#/$defs/segment_term"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "point",
+            "ray"
+          ],
+          "properties": {
+            "kind": {
+              "const": "point_on_ray"
+            },
+            "point": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            },
+            "ray": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "maxLength": 96,
+                  "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+                },
+                {
+                  "$ref": "#/$defs/ray_term"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "point",
+            "quadrant"
+          ],
+          "properties": {
+            "kind": {
+              "const": "quadrant_membership"
+            },
+            "point": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            },
+            "quadrant": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048,
+              "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "point",
+            "segment"
+          ],
+          "properties": {
+            "kind": {
+              "const": "midpoint"
+            },
+            "point": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            },
+            "segment": {
+              "$ref": "#/$defs/segment_term"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "angle"
+          ],
+          "properties": {
+            "kind": {
+              "const": "right_angle"
+            },
+            "angle": {
+              "$ref": "#/$defs/angle_term"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "angles",
+            "value"
+          ],
+          "properties": {
+            "kind": {
+              "const": "angle_sum"
+            },
+            "angles": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/angle_term"
+              },
+              "minItems": 2,
+              "maxItems": 16
+            },
+            "value": {
+              "$ref": "#/$defs/expression"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "left",
+            "right"
+          ],
+          "properties": {
+            "kind": {
+              "const": "equal_length"
+            },
+            "left": {
+              "$ref": "#/$defs/segment_term"
+            },
+            "right": {
+              "$ref": "#/$defs/segment_term"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "segment",
+            "value",
+            "power"
+          ],
+          "properties": {
+            "kind": {
+              "const": "length_value"
+            },
+            "segment": {
+              "$ref": "#/$defs/segment_term"
+            },
+            "value": {
+              "$ref": "#/$defs/expression"
+            },
+            "power": {
+              "type": "integer",
+              "enum": [
+                1,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "left",
+            "right"
+          ],
+          "properties": {
+            "kind": {
+              "const": "length_relation"
+            },
+            "left": {
+              "$ref": "#/$defs/scaled_length_term"
+            },
+            "right": {
+              "$ref": "#/$defs/scaled_length_term"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "polygon",
+            "side",
+            "orientation"
+          ],
+          "properties": {
+            "kind": {
+              "const": "square"
+            },
+            "polygon": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            },
+            "side": {
+              "$ref": "#/$defs/segment_term"
+            },
+            "orientation": {
+              "$ref": "#/$defs/axis_placement"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "point",
+            "square"
+          ],
+          "properties": {
+            "kind": {
+              "const": "square_center"
+            },
+            "point": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            },
+            "square": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "expression"
+          ],
+          "properties": {
+            "kind": {
+              "const": "minimum_target"
+            },
+            "expression": {
+              "$ref": "#/$defs/length_sum"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "expression",
+            "value"
+          ],
+          "properties": {
+            "kind": {
+              "const": "minimum_value_given"
+            },
+            "expression": {
+              "$ref": "#/$defs/length_sum"
+            },
+            "value": {
+              "$ref": "#/$defs/expression"
+            }
+          }
+        }
+      ]
+    },
+    "goal": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "answer_key",
+            "target"
+          ],
+          "properties": {
+            "kind": {
+              "const": "point_coordinate"
+            },
+            "answer_key": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            },
+            "target": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "answer_key",
+            "target"
+          ],
+          "properties": {
+            "kind": {
+              "const": "quadratic_equation"
+            },
+            "answer_key": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            },
+            "target": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "answer_key",
+            "target"
+          ],
+          "properties": {
+            "kind": {
+              "const": "parameter_value"
+            },
+            "answer_key": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            },
+            "target": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "answer_key",
+            "expression"
+          ],
+          "properties": {
+            "kind": {
+              "const": "minimum_value"
+            },
+            "answer_key": {
+              "type": "string",
+              "maxLength": 96,
+              "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+            },
+            "expression": {
+              "$ref": "#/$defs/length_sum"
+            }
+          }
+        }
+      ]
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "label",
+        "source_text",
+        "entities",
+        "facts",
+        "goals",
+        "children"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 96,
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048,
+          "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+        },
+        "source_text": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2048,
+            "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+          },
+          "minItems": 1,
+          "maxItems": 12
+        },
+        "entities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/entity"
+          },
+          "maxItems": 32
+        },
+        "facts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/fact"
+          },
+          "maxItems": 48
+        },
+        "goals": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/goal"
+          },
+          "maxItems": 12
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/scope"
+          },
+          "maxItems": 8
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,376 @@
+{
+  "schema_version": "problem-domain/v1",
+  "problem_id": "tj-2026-nankai-yimo-25",
+  "family_id": "QuadraticPathMinimumSolver",
+  "source": {
+    "question_number": "25",
+    "score": "10"
+  },
+  "root": {
+    "id": "problem",
+    "label": "整题",
+    "source_text": [
+      "抛物线 y＝ax²＋bx＋c（a，b，c 为常数，a＞0）与 y 轴相交于点 C，且 2a＋b＝0，对称轴与 x 轴相交于点 D。"
+    ],
+    "entities": [
+      {
+        "id": "parabola",
+        "kind": "quadratic_function",
+        "label": "parabola"
+      },
+      {
+        "id": "x",
+        "kind": "symbol",
+        "label": "x",
+        "role": "function_variable"
+      },
+      {
+        "id": "a",
+        "kind": "symbol",
+        "label": "a",
+        "role": "quadratic_coefficient"
+      },
+      {
+        "id": "b",
+        "kind": "symbol",
+        "label": "b",
+        "role": "quadratic_coefficient"
+      },
+      {
+        "id": "c",
+        "kind": "symbol",
+        "label": "c",
+        "role": "quadratic_coefficient"
+      },
+      {
+        "id": "C",
+        "kind": "point",
+        "label": "C"
+      },
+      {
+        "id": "D",
+        "kind": "point",
+        "label": "D"
+      }
+    ],
+    "facts": [
+      {
+        "kind": "function_expression",
+        "function": "parabola",
+        "variable": "x",
+        "expression": "a*x**2 + b*x + c"
+      },
+      {
+        "kind": "point_construction",
+        "point": "C",
+        "construction": "y_axis_intercept",
+        "owner": "parabola"
+      },
+      {
+        "kind": "point_construction",
+        "point": "D",
+        "construction": "axis_x_intercept",
+        "owner": "parabola"
+      },
+      {
+        "kind": "symbol_constraint",
+        "symbol": "a",
+        "operator": ">",
+        "value": "0"
+      },
+      {
+        "kind": "equation",
+        "expression": "2*a + b = 0",
+        "symbols": [
+          "a",
+          "b"
+        ]
+      }
+    ],
+    "goals": [],
+    "children": [
+      {
+        "id": "i",
+        "label": "第（Ⅰ）问",
+        "source_text": [
+          "（Ⅰ）当 a＝2，c＝−5 时，直接写出点 D 的坐标和抛物线的解析式；"
+        ],
+        "entities": [],
+        "facts": [
+          {
+            "kind": "symbol_value",
+            "symbol": "a",
+            "value": "2"
+          },
+          {
+            "kind": "symbol_value",
+            "symbol": "c",
+            "value": "-5"
+          }
+        ],
+        "goals": [
+          {
+            "kind": "point_coordinate",
+            "answer_key": "D",
+            "target": "D"
+          },
+          {
+            "kind": "quadratic_equation",
+            "answer_key": "parabola",
+            "target": "parabola"
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "ii",
+        "label": "第（Ⅱ）问",
+        "source_text": [
+          "（Ⅱ）若点 M(m,1) 和点 N 均在抛物线上，其中 m＞2，且点 N 在第四象限，∠MDN＝90°，DM＝DN。点 E 和点 G 分别是线段 DM 和线段 MN 上的动点，点 F 为线段 DN 的中点，且 DE＝√2 NG。"
+        ],
+        "entities": [
+          {
+            "id": "M",
+            "kind": "point",
+            "label": "M"
+          },
+          {
+            "id": "N",
+            "kind": "point",
+            "label": "N"
+          },
+          {
+            "id": "F",
+            "kind": "point",
+            "label": "F"
+          },
+          {
+            "id": "E",
+            "kind": "point",
+            "label": "E"
+          },
+          {
+            "id": "G",
+            "kind": "point",
+            "label": "G"
+          },
+          {
+            "id": "m",
+            "kind": "symbol",
+            "label": "m",
+            "role": "dynamic_parameter"
+          }
+        ],
+        "facts": [
+          {
+            "kind": "point_coordinate",
+            "point": "M",
+            "value": [
+              "m",
+              "1"
+            ]
+          },
+          {
+            "kind": "point_on_curve",
+            "point": "M",
+            "curve": "parabola"
+          },
+          {
+            "kind": "point_on_curve",
+            "point": "N",
+            "curve": "parabola"
+          },
+          {
+            "kind": "symbol_constraint",
+            "symbol": "m",
+            "operator": ">",
+            "value": "2"
+          },
+          {
+            "kind": "quadrant_membership",
+            "point": "N",
+            "quadrant": "第四象限"
+          },
+          {
+            "kind": "right_angle",
+            "angle": {
+              "start": "M",
+              "vertex": "D",
+              "end": "N"
+            }
+          },
+          {
+            "kind": "equal_length",
+            "left": {
+              "start": "D",
+              "end": "M"
+            },
+            "right": {
+              "start": "D",
+              "end": "N"
+            }
+          },
+          {
+            "kind": "point_on_segment",
+            "point": "E",
+            "segment": {
+              "start": "D",
+              "end": "M"
+            }
+          },
+          {
+            "kind": "point_on_segment",
+            "point": "G",
+            "segment": {
+              "start": "M",
+              "end": "N"
+            }
+          },
+          {
+            "kind": "length_relation",
+            "left": {
+              "scale": "1",
+              "segment": {
+                "start": "D",
+                "end": "E"
+              }
+            },
+            "right": {
+              "scale": "sqrt(2)",
+              "segment": {
+                "start": "N",
+                "end": "G"
+              }
+            }
+          },
+          {
+            "kind": "midpoint",
+            "point": "F",
+            "segment": {
+              "start": "D",
+              "end": "N"
+            }
+          }
+        ],
+        "goals": [],
+        "children": [
+          {
+            "id": "ii_1",
+            "label": "第（Ⅱ）①问",
+            "source_text": [
+              "① 当 MN＝√10 时，求抛物线的解析式，并直接写出 EG＋FG 的最小值；"
+            ],
+            "entities": [],
+            "facts": [
+              {
+                "kind": "length_value",
+                "segment": {
+                  "start": "M",
+                  "end": "N"
+                },
+                "value": "sqrt(10)",
+                "power": 1
+              },
+              {
+                "kind": "minimum_target",
+                "expression": {
+                  "terms": [
+                    {
+                      "scale": "1",
+                      "segment": {
+                        "start": "E",
+                        "end": "G"
+                      }
+                    },
+                    {
+                      "scale": "1",
+                      "segment": {
+                        "start": "F",
+                        "end": "G"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "goals": [
+              {
+                "kind": "quadratic_equation",
+                "answer_key": "parabola",
+                "target": "parabola"
+              },
+              {
+                "kind": "minimum_value",
+                "answer_key": "min_value",
+                "expression": {
+                  "terms": [
+                    {
+                      "scale": "1",
+                      "segment": {
+                        "start": "E",
+                        "end": "G"
+                      }
+                    },
+                    {
+                      "scale": "1",
+                      "segment": {
+                        "start": "F",
+                        "end": "G"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "children": []
+          },
+          {
+            "id": "ii_2",
+            "label": "第（Ⅱ）②问",
+            "source_text": [
+              "② 当 EG＋FG 取得最小值为 5√10/2 时，直接写出此时抛物线的解析式和点 G 的坐标。"
+            ],
+            "entities": [],
+            "facts": [
+              {
+                "kind": "minimum_value_given",
+                "expression": {
+                  "terms": [
+                    {
+                      "scale": "1",
+                      "segment": {
+                        "start": "E",
+                        "end": "G"
+                      }
+                    },
+                    {
+                      "scale": "1",
+                      "segment": {
+                        "start": "F",
+                        "end": "G"
+                      }
+                    }
+                  ]
+                },
+                "value": "5*sqrt(10)/2"
+              }
+            ],
+            "goals": [
+              {
+                "kind": "quadratic_equation",
+                "answer_key": "parabola",
+                "target": "parabola"
+              },
+              {
+                "kind": "point_coordinate",
+                "answer_key": "G",
+                "target": "G"
+              }
+            ],
+            "children": []
+          }
+        ]
+      }
+    ]
+  }
+}

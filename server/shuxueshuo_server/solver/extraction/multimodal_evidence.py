@@ -34,9 +34,6 @@ from shuxueshuo_server.solver.extraction.source_identity import (
 
 EVIDENCE_PACK_SCHEMA_VERSION = "multimodal-evidence-pack/v1"
 _PRINTED_TEXT_CONFIDENCE = 0.8
-_VISUAL_REVIEW_GRID_ROWS = 4
-_VISUAL_REVIEW_GRID_COLUMNS = 4
-_VISUAL_REVIEW_KIND_PREFIX = "visual_review_tile:"
 
 
 class ExtractionArtifactReader(Protocol):
@@ -182,89 +179,33 @@ class MultimodalEvidencePack:
         }
 
     def prompt_payload(self) -> dict[str, Any]:
-        """Compact provider input; image bytes are sent as separate message parts."""
-
-        evidence_aliases, region_aliases = self.prompt_reference_aliases()
-        prompt_regions = tuple(
-            item
-            for item in self.region_index
-            if item.origin != "handwritten"
-            and not (item.kind == "ink" and item.origin == "unknown")
-        )
-        prompt_region_ids = {item.region_id for item in prompt_regions}
-        prompt_unresolved = []
-        for item in self.unresolved_items:
-            visible_refs = tuple(
-                ref for ref in item.region_refs if ref in prompt_region_ids
-            )
-            if not visible_refs:
-                continue
-            prompt_unresolved.append(
-                {
-                    "work_item_id": f"u{len(prompt_unresolved) + 1:03d}",
-                    "code": item.code,
-                    "region_refs": [region_aliases[ref] for ref in visible_refs],
-                    "hint": item.hint,
-                }
-            )
+        """Return the compact model view, not the full spatial authority."""
 
         return {
-            "schema_version": self.schema_version,
-            "evidence_pack_id": self.evidence_pack_id,
-            "base_context_id": self.base_context_id,
-            "images": [
-                {
-                    "image_id": item.image_id,
-                    "page_id": item.page_id,
-                    "role": item.role,
-                    "sha256": item.artifact.sha256,
-                    "width": item.width,
-                    "height": item.height,
-                }
+            "schema_version": "multimodal-problem-ir-prompt/v1",
+            "pages": [
+                {"page_id": item.page_id}
                 for item in self.images
             ],
             "printed_text": [
                 {
-                    "evidence_id": evidence_aliases[item.observation_id],
                     "page_id": item.page_id,
                     "reading_order": item.reading_order,
-                    "confidence": item.confidence,
                     "text": item.text,
                 }
                 for item in self.printed_text
             ],
             "recognized_formulas": [
                 {
-                    "evidence_id": evidence_aliases[item.observation_id],
                     "page_id": item.page_id,
                     "reading_order": item.reading_order,
-                    "confidence": item.confidence,
                     "latex": item.latex,
                 }
                 for item in self.recognized_formulas
             ],
             "origin_summary": _origin_summary(self.region_index),
-            "unresolved_items": prompt_unresolved,
-            "region_index": [
-                {
-                    **item.to_payload(),
-                    "region_id": region_aliases[item.region_id],
-                    "evidence_id": evidence_aliases[item.evidence_id],
-                }
-                for item in prompt_regions
-            ],
+            "review_items": _prompt_review_items(self),
         }
-
-    def prompt_reference_aliases(self) -> tuple[dict[str, str], dict[str, str]]:
-        evidence_aliases = {
-            item.evidence_id: f"e{index:03d}"
-            for index, item in enumerate(self.region_index, start=1)
-        }
-        region_aliases = {
-            item.region_id: f"r{index:03d}"
-            for index, item in enumerate(self.region_index, start=1)
-        }
-        return evidence_aliases, region_aliases
 
     @classmethod
     def from_payload(cls, payload: Mapping[str, Any]) -> MultimodalEvidencePack:
@@ -388,36 +329,6 @@ class MultimodalEvidencePack:
                     f"$.region_index[{index}].polygon",
                     "region polygon must have positive area",
                 )
-            grid_position = _visual_review_grid_position(item.kind)
-            if (
-                item.kind.startswith(_VISUAL_REVIEW_KIND_PREFIX)
-                and grid_position is None
-            ):
-                raise _error(
-                    "extraction.multimodal_evidence_pack_invalid",
-                    f"$.region_index[{index}].kind",
-                    "visual review tile grid position is invalid",
-                )
-            if grid_position is not None:
-                row, column = grid_position
-                expected_id = _visual_review_tile_id(
-                    self.selection_id,
-                    item.page_id,
-                    item.polygon,
-                    row=row,
-                    column=column,
-                )
-                if (
-                    item.region_id != expected_id
-                    or item.evidence_id != expected_id
-                    or item.origin != "unknown"
-                    or item.confidence != 0.0
-                ):
-                    raise _error(
-                        "extraction.multimodal_evidence_pack_invalid",
-                        f"$.region_index[{index}]",
-                        "visual review tile identity or authority drifted",
-                    )
         _validate_prompt_evidence_records(
             self.printed_text,
             evidence_by_id,
@@ -504,14 +415,7 @@ class MultimodalEvidencePackBuilder:
                 key=lambda item: (item.page_id, item.reading_order, item.observation_id),
             )
         )
-        regions = observed_regions + _visual_review_tiles(
-            context,
-            observation,
-            reading_order_start=(
-                max((item.reading_order for item in observed_regions), default=-1)
-                + 1
-            ),
-        )
+        regions = observed_regions
         printed_text = tuple(
             PrintedTextEvidence(
                 item.observation_id,
@@ -820,6 +724,85 @@ def _origin_summary(
     ]
 
 
+def _prompt_review_items(
+    pack: MultimodalEvidencePack,
+) -> list[dict[str, Any]]:
+    """Expose only uncertainty that can affect the printed question."""
+
+    region_by_id = pack.region_by_id
+    printed = tuple(
+        item
+        for item in pack.region_index
+        if item.origin == "printed"
+        and item.kind in {"text", "formula"}
+    )
+    direct_question_codes = {
+        "extraction.observation_confidence_low",
+        "extraction.printed_content_unrecoverable",
+        "extraction.source_occluded",
+    }
+    result: list[dict[str, Any]] = []
+    for item in pack.unresolved_items:
+        regions = tuple(
+            region_by_id[ref]
+            for ref in item.region_refs
+            if ref in region_by_id
+        )
+        if not regions or all(region.origin == "handwritten" for region in regions):
+            continue
+        overlaps_printed = tuple(
+            candidate
+            for candidate in printed
+            if any(_bbox_overlap_area(candidate.polygon, region.polygon) > 0 for region in regions)
+        )
+        if item.code == "extraction.formula_observation_unresolved":
+            # FormulaNet often reports a large collection of student-work crops.
+            # Only an unresolved formula already classified as printed belongs in
+            # the compact prompt; mixed/unknown conflicts are represented by the
+            # dedicated occlusion/origin issue instead.
+            regions = tuple(region for region in regions if region.origin == "printed")
+            if not regions:
+                continue
+        high_value = (
+            item.code in direct_question_codes
+            or bool(overlaps_printed)
+        )
+        if not high_value:
+            continue
+        result.append(
+            {
+                "work_item_id": f"u{len(result) + 1:03d}",
+                "code": item.code,
+                "page_ids": sorted({region.page_id for region in regions}),
+                "overlaps_printed": bool(overlaps_printed),
+                "hint": item.hint,
+            }
+        )
+    return result
+
+
+def _bbox_overlap_area(
+    left: Sequence[tuple[float, float]],
+    right: Sequence[tuple[float, float]],
+) -> float:
+    left_box = (
+        min(x for x, _ in left),
+        min(y for _, y in left),
+        max(x for x, _ in left),
+        max(y for _, y in left),
+    )
+    right_box = (
+        min(x for x, _ in right),
+        min(y for _, y in right),
+        max(x for x, _ in right),
+        max(y for _, y in right),
+    )
+    return max(0.0, min(left_box[2], right_box[2]) - max(left_box[0], right_box[0])) * max(
+        0.0,
+        min(left_box[3], right_box[3]) - max(left_box[1], right_box[1]),
+    )
+
+
 def _validate_prompt_evidence_records(
     records: Sequence[PrintedTextEvidence | RecognizedFormulaEvidence],
     evidence_by_id: Mapping[str, ObservationRegionIndexEntry],
@@ -907,112 +890,6 @@ def _prompt_origin(item: SpatialObservation) -> str:
     ):
         return "unknown"
     return item.origin
-
-
-def _visual_review_tiles(
-    context: ProblemExtractionContext,
-    observation: SourceObservation,
-    *,
-    reading_order_start: int,
-) -> tuple[ObservationRegionIndexEntry, ...]:
-    page_artifact_ids = {
-        item.page_id: item.source_artifact_id for item in observation.pages
-    }
-    tiles: list[ObservationRegionIndexEntry] = []
-    for page in context.source.pages:
-        regions = tuple(
-            item
-            for item in context.selection.regions
-            if item.page_id == page.page_id
-        )
-        if not regions:
-            continue
-        left = min(x for item in regions for x, _ in item.polygon)
-        top = min(y for item in regions for _, y in item.polygon)
-        right = max(x for item in regions for x, _ in item.polygon)
-        bottom = max(y for item in regions for _, y in item.polygon)
-        width = (right - left) / _VISUAL_REVIEW_GRID_COLUMNS
-        height = (bottom - top) / _VISUAL_REVIEW_GRID_ROWS
-        source_artifact_id = page_artifact_ids.get(page.page_id)
-        if source_artifact_id is None:
-            raise _error(
-                "extraction.multimodal_evidence_pack_invalid",
-                "$.pages.source_artifact_id",
-                f"canonical source artifact is missing for {page.page_id}",
-            )
-        for row in range(_VISUAL_REVIEW_GRID_ROWS):
-            for column in range(_VISUAL_REVIEW_GRID_COLUMNS):
-                x0 = _coordinate(left + column * width)
-                y0 = _coordinate(top + row * height)
-                x1 = _coordinate(left + (column + 1) * width)
-                y1 = _coordinate(top + (row + 1) * height)
-                polygon = ((x0, y0), (x1, y0), (x1, y1), (x0, y1))
-                tile_id = _visual_review_tile_id(
-                    context.selection.selection_id,
-                    page.page_id,
-                    polygon,
-                    row=row,
-                    column=column,
-                )
-                tiles.append(
-                    ObservationRegionIndexEntry(
-                        region_id=tile_id,
-                        evidence_id=tile_id,
-                        page_id=page.page_id,
-                        polygon=polygon,
-                        kind=(
-                            f"{_VISUAL_REVIEW_KIND_PREFIX}"
-                            f"r{row + 1}c{column + 1}"
-                        ),
-                        origin="unknown",
-                        confidence=0.0,
-                        reading_order=reading_order_start + len(tiles),
-                        source_artifact_id=source_artifact_id,
-                    )
-                )
-    return tuple(tiles)
-
-
-def _visual_review_tile_id(
-    selection_id: str,
-    page_id: str,
-    polygon: Sequence[tuple[float, float]],
-    *,
-    row: int,
-    column: int,
-) -> str:
-    return "visual-review:" + stable_hash(
-        {
-            "selection_id": selection_id,
-            "page_id": page_id,
-            "polygon": [[x, y] for x, y in polygon],
-            "row": row,
-            "column": column,
-            "grid": [
-                _VISUAL_REVIEW_GRID_ROWS,
-                _VISUAL_REVIEW_GRID_COLUMNS,
-            ],
-        }
-    )
-
-
-def _visual_review_grid_position(kind: str) -> tuple[int, int] | None:
-    if not kind.startswith(_VISUAL_REVIEW_KIND_PREFIX):
-        return None
-    suffix = kind.removeprefix(_VISUAL_REVIEW_KIND_PREFIX)
-    if len(suffix) != 4 or suffix[0] != "r" or suffix[2] != "c":
-        return None
-    try:
-        row = int(suffix[1]) - 1
-        column = int(suffix[3]) - 1
-    except ValueError:
-        return None
-    if not (
-        0 <= row < _VISUAL_REVIEW_GRID_ROWS
-        and 0 <= column < _VISUAL_REVIEW_GRID_COLUMNS
-    ):
-        return None
-    return row, column
 
 
 def _coordinate(value: float) -> float:

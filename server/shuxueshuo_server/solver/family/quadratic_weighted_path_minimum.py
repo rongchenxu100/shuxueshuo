@@ -10,6 +10,8 @@ from shuxueshuo_server.solver.family.models import (
     CapabilityContractSpec,
     ConditionPattern,
     FamilyMatchRule,
+    FamilyRuntimePreflightSpec,
+    FamilySourceRequirementSpec,
     MethodCompanionOutputSpec,
     MethodBindingRuleSpec,
     MethodInputBindingSpec,
@@ -28,6 +30,59 @@ _QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY = SolverFamilySpec(
     match=FamilyMatchRule(
         patterns=("weighted-path-minimum",),
         problem_types=("quadratic_weighted_path_minimum",),
+    ),
+    title="二次函数加权路径最值",
+    description=(
+        "目标中存在非1距离权重，需要先用比例或辅助直角三角形把加权项转换为"
+        "可拉直路径的二次函数最值题。"
+    ),
+    use_when=(
+        "题面目标明确形如 k*PA+PB，且 k 不等于1；该权重是最值目标的一部分，"
+        "需要加权几何变换后才能使用最短路径。"
+    ),
+    required_source_requirements=(
+        FamilySourceRequirementSpec(
+            "entity_type",
+            ("function",),
+            "题面必须声明至少一个二次函数对象。",
+        ),
+        FamilySourceRequirementSpec(
+            "fact_type",
+            ("path_minimum_target",),
+            (
+                "必须用 path_minimum_target 声明完整带权路径；sibling 比例事实不可替代。"
+            ),
+        ),
+        FamilySourceRequirementSpec(
+            "fact_type",
+            ("minimum_value",),
+            "题面必须直接提出或给出路径最小值。",
+        ),
+    ),
+    runtime_preflights=(
+        FamilyRuntimePreflightSpec(
+            method_id="weighted_axis_path_triangle_transform",
+            trigger_fact_types=("minimum_value",),
+            trigger_selector_id="weighted_path_minimum",
+            required_fact_types=("path_minimum_target",),
+            source_trigger_fact_types=("minimum_value_given",),
+            source_required_fact_types=("minimum_target",),
+            source_input_names=(
+                "condition",
+                "fixed_point",
+                "moving_point",
+                "dynamic_parameter",
+            ),
+            description=(
+                "每个 minimum_value scope 须试运行加权转化；所需 Point 须有"
+                " coordinate，PointRef 或描述不能代替。"
+            ),
+        ),
+    ),
+    do_not_use_when=(
+        "系数只出现在函数、方程或普通线段比例中，而不是路径目标的权重。",
+        "目标只是两个无权距离之和，即使题面另有直角或等长关系。",
+        "核心机制是射线等长替换或正方形反射。",
     ),
     common_goal_types=(
         "derive_parabola",

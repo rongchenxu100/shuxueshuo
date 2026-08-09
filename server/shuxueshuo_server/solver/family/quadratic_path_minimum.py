@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from shuxueshuo_server.solver.family.models import (
     FamilyMatchRule,
+    FamilySourceRequirementSpec,
     MethodCompanionOutputSpec,
     MethodBindingRuleSpec,
     MethodInputBindingSpec,
@@ -35,6 +36,32 @@ _QUADRATIC_PATH_MINIMUM_FAMILY = SolverFamilySpec(
     match=FamilyMatchRule(
         patterns=("path-minimum",),
         problem_types=("quadratic_path_minimum",),
+    ),
+    title="普通二次函数路径最值",
+    description=(
+        "二次函数题中的普通点、线段或折线路径最值；核心机制是不带特殊权重、"
+        "射线等长替换或正方形反射的通用路径降维与拉直。"
+    ),
+    use_when=(
+        "题面要求普通距离和或折线路径的最小值，允许出现辅助性的直角、等长或"
+        "中点关系，但路径机制本身不依赖非1权重、射线等长构造或正方形反射。"
+    ),
+    required_source_requirements=(
+        FamilySourceRequirementSpec(
+            "entity_type",
+            ("function",),
+            "题面必须声明至少一个二次函数对象。",
+        ),
+        FamilySourceRequirementSpec(
+            "fact_type",
+            ("path_minimum_target", "minimum_value"),
+            "题面必须显式给出路径/距离最值目标或最小值条件。",
+        ),
+    ),
+    do_not_use_when=(
+        "目标路径含明确的非1权重系数，并以加权几何变换为核心。",
+        "题面明确声明射线、射线上动点和等长条件，并用它们替换路径。",
+        "题面以正方形顶点、中点、中心或对角线关系完成路径降维或反射。",
     ),
     common_goal_types=(
         "derive_parabola",

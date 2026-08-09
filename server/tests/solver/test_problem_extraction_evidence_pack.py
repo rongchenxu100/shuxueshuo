@@ -1,12 +1,16 @@
 from __future__ import annotations
 
 from dataclasses import replace
+import json
 
 import pytest
 
 from shuxueshuo_server.solver.extraction.multimodal_evidence import (
     MultimodalEvidencePack,
     MultimodalEvidencePackBuilder,
+)
+from shuxueshuo_server.solver.extraction.multimodal_provider import (
+    build_multimodal_prompt,
 )
 from shuxueshuo_server.solver.extraction.source_identity import (
     ProblemExtractionContextError,
@@ -30,15 +34,8 @@ def test_single_page_evidence_pack_has_one_complete_primary_image(tmp_path) -> N
     assert pack.observation_hash == result.observation.observation_hash
     assert pack.printed_text
     assert pack.region_index
-    visual_tiles = tuple(
-        item
-        for item in pack.region_index
-        if item.kind.startswith("visual_review_tile:")
-    )
-    assert len(visual_tiles) == 16
-    assert all(
-        item.origin == "unknown" and item.confidence == 0.0
-        for item in visual_tiles
+    assert not any(
+        item.kind.startswith("visual_review_tile:") for item in pack.region_index
     )
     assert pack.to_payload() == MultimodalEvidencePackBuilder().build(
         context,
@@ -55,13 +52,7 @@ def test_multi_page_selection_emits_one_primary_image_per_page_in_source_order(
     assert [item.page_id for item in pack.images] == ["page_1", "page_2"]
     assert all(item.role == "primary" for item in pack.images)
     assert {item.page_id for item in pack.printed_text} == {"page_1", "page_2"}
-    visual_tiles = tuple(
-        item
-        for item in pack.region_index
-        if item.kind.startswith("visual_review_tile:")
-    )
-    assert len(visual_tiles) == 32
-    assert {item.page_id for item in visual_tiles} == {"page_1", "page_2"}
+    assert {item.page_id for item in pack.region_index} == {"page_1", "page_2"}
 
 
 def test_evidence_pack_loads_source_observation_from_context_artifact(tmp_path) -> None:
@@ -76,36 +67,51 @@ def test_evidence_pack_loads_source_observation_from_context_artifact(tmp_path) 
 
 
 def test_evidence_pack_round_trip_and_prompt_compaction_are_stable(tmp_path) -> None:
-    _, _, _, _, pack = make_f3_fixture(tmp_path, colored_ink=True)
+    _, result, _, _, pack = make_f3_fixture(tmp_path, colored_ink=True)
 
     restored = MultimodalEvidencePack.from_payload(pack.to_payload())
     prompt = restored.prompt_payload()
-    prompt_region_ids = {
-        item["region_id"] for item in prompt["region_index"]
+    prompt_text = json.dumps(prompt, ensure_ascii=False)
+    handwritten_text = {
+        item.text
+        for item in result.observation.text_spans
+        if item.origin == "handwritten" and item.text
     }
 
     assert restored.to_payload() == pack.to_payload()
     assert prompt == pack.prompt_payload()
     assert prompt["origin_summary"]
+    assert "region_index" not in prompt
+    assert prompt["pages"] == [{"page_id": "page_1"}]
+    assert all(text not in prompt_text for text in handwritten_text)
+    assert all("evidence_id" not in item for item in prompt["printed_text"])
     assert all(
-        item["origin"] != "handwritten"
-        for item in prompt["region_index"]
+        "polygon" not in item and "source_artifact_id" not in item
+        for item in prompt["review_items"]
     )
-    assert len(prompt["region_index"]) < len(pack.region_index)
+
+
+def test_direct_problem_ir_prompt_is_compact_and_omits_student_work_text(tmp_path) -> None:
+    _, result, _, _, pack = make_f3_fixture(tmp_path, colored_ink=True)
+    prompt = build_multimodal_prompt(pack, expected_problem_id="synthetic-f2")
+    handwritten_text = {
+        item.text
+        for item in result.observation.text_spans
+        if item.origin == "handwritten" and item.text
+    }
+
+    assert len(prompt.user_debug.encode("utf-8")) <= 12_500
+    assert all(text not in prompt.user_debug for text in handwritten_text)
+
+
+def test_prompt_collapses_student_formula_noise(tmp_path) -> None:
+    _, _, _, _, pack = make_f3_fixture(tmp_path, colored_ink=True)
+    review_items = pack.prompt_payload()["review_items"]
+
+    assert len(review_items) <= 6
     assert all(
-        item["evidence_id"].startswith("e")
-        and item["region_id"].startswith("r")
-        and len(item["evidence_id"]) == 4
-        and len(item["region_id"]) == 4
-        for item in prompt["region_index"]
-    )
-    assert all(
-        item["evidence_id"].startswith("e")
-        for item in prompt["printed_text"]
-    )
-    assert all(
-        set(item["region_refs"]) <= prompt_region_ids
-        for item in prompt["unresolved_items"]
+        item["code"] != "extraction.formula_observation_unresolved"
+        for item in review_items
     )
 
 
@@ -221,7 +227,7 @@ def test_low_confidence_printed_ocr_is_unknown_review_evidence(tmp_path) -> None
     )
 
 
-def test_visual_review_tiles_are_stable_ocr_independent_prompt_regions(
+def test_prompt_does_not_expose_visual_grid_or_spatial_authority(
     tmp_path,
 ) -> None:
     _, result, context, store, first = make_f3_fixture(tmp_path)
@@ -230,24 +236,14 @@ def test_visual_review_tiles_are_stable_ocr_independent_prompt_regions(
         artifact_reader=store,
         observation=result.observation,
     )
-    first_tiles = tuple(
-        item
-        for item in first.region_index
-        if item.kind.startswith("visual_review_tile:")
-    )
-    second_tiles = tuple(
-        item
-        for item in second.region_index
-        if item.kind.startswith("visual_review_tile:")
-    )
-    prompt_kinds = {item["kind"] for item in first.prompt_payload()["region_index"]}
+    prompt = first.prompt_payload()
 
-    assert first_tiles == second_tiles
-    assert len(first_tiles) == 16
-    assert {"visual_review_tile:r1c1", "visual_review_tile:r4c4"} <= prompt_kinds
-    assert not {
-        item.evidence_id for item in first_tiles
-    }.intersection(item.observation_id for item in first.printed_text)
+    assert first == second
+    serialized = json.dumps(prompt)
+    assert "visual_review_tile" not in serialized
+    assert "visual_grid" not in serialized
+    assert "tile:" not in serialized
+    assert "polygon" not in serialized
 
 
 def test_observation_identity_drift_fails_before_provider(tmp_path) -> None:

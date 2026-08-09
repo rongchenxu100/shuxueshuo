@@ -113,6 +113,8 @@
       "fact:problem:B_on_parabola": ["printed_line_0"],
       "fact:i:D_on_parabola": ["printed_line_1"],
       "fact:i_2:E_on_parabola_with_x_m": ["printed_line_3"],
+      "fact:i_2:m_gt_minus_1": ["printed_line_3"],
+      "fact:i_2:m_lt_0": ["printed_line_3"],
       "fact:i_2:angle_sum_CBE_ACO_45": ["printed_line_3"],
       "fact:ii:M_on_segment_BC": ["printed_line_4"],
       "fact:ii:N_on_ray_CD": ["printed_line_4"],

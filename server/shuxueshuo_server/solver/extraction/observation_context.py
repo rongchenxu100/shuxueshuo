@@ -43,12 +43,6 @@ class ObservationContextTransitionService:
                 "$.quality.source_observation_hash",
                 "a different observation is already attached",
             )
-        if context.state.candidates:
-            raise ProblemExtractionContextError(
-                "extraction.observation_invalid",
-                "$.state.candidates",
-                "F2 observation must be attached before semantic candidates exist",
-            )
         observation.validate(
             context.source,
             context.selection,
@@ -202,10 +196,6 @@ class ObservationContextTransitionService:
         next_state = ExtractionState(
             artifacts=tuple(sorted(artifacts, key=lambda item: item.artifact_id)),
             evidence=evidence,
-            scope_candidates=(),
-            entity_candidates=(),
-            fact_candidates=(),
-            goal_candidates=(),
             issues=issues,
         )
         quality = dict(thaw_json(context.quality))

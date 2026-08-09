@@ -299,6 +299,26 @@
         ]
       },
       {
+        "handle": "fact:i_2:m_gt_minus_1",
+        "type": "symbol_constraint",
+        "scope_id": "i_2",
+        "valid_scope": "i_2",
+        "description": "m > -1",
+        "subject": "symbol:problem:m",
+        "operator": ">",
+        "value": "-1"
+      },
+      {
+        "handle": "fact:i_2:m_lt_0",
+        "type": "symbol_constraint",
+        "scope_id": "i_2",
+        "valid_scope": "i_2",
+        "description": "m < 0",
+        "subject": "symbol:problem:m",
+        "operator": "<",
+        "value": "0"
+      },
+      {
         "handle": "fact:i_2:angle_sum_CBE_ACO_45",
         "type": "angle_sum",
         "scope_id": "i_2",

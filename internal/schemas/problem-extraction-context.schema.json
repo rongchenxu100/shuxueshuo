@@ -9,7 +9,6 @@
     "selection",
     "dependency",
     "state",
-    "decisions",
     "events",
     "attempt_refs",
     "retry",
@@ -23,10 +22,6 @@
     "selection": { "$ref": "#/$defs/selection" },
     "dependency": { "$ref": "#/$defs/dependency" },
     "state": { "$ref": "#/$defs/state" },
-    "decisions": {
-      "type": "array",
-      "items": { "$ref": "#/$defs/decision" }
-    },
     "events": {
       "type": "array",
       "items": { "$ref": "#/$defs/event" }
@@ -60,7 +55,7 @@
           "type": "string",
           "pattern": "^extraction-context:[a-f0-9]{64}$"
         },
-        "schema_version": { "const": "problem-extraction-context/v1" },
+        "schema_version": { "const": "problem-extraction-context/v3" },
         "parent_context_id": { "$ref": "#/$defs/nullable_string" },
         "ancestor_context_ids": {
           "type": "array",
@@ -243,30 +238,6 @@
         "payload": { "type": "object" }
       }
     },
-    "candidate": {
-      "type": "object",
-      "required": [
-        "candidate_id",
-        "candidate_type",
-        "status",
-        "evidence_refs",
-        "locked",
-        "payload"
-      ],
-      "additionalProperties": false,
-      "properties": {
-        "candidate_id": { "type": "string", "minLength": 1 },
-        "candidate_type": { "enum": ["scope", "entity", "fact", "goal"] },
-        "status": { "enum": ["proposed", "accepted", "rejected", "ambiguous"] },
-        "evidence_refs": {
-          "type": "array",
-          "items": { "type": "string", "minLength": 1 },
-          "uniqueItems": true
-        },
-        "locked": { "type": "boolean" },
-        "payload": { "type": "object" }
-      }
-    },
     "issue": {
       "type": "object",
       "required": [
@@ -274,9 +245,7 @@
         "code",
         "blocking",
         "retryable",
-        "candidate_ids",
-        "evidence_ids",
-        "authorized_revision_candidate_ids"
+        "evidence_ids"
       ],
       "additionalProperties": false,
       "properties": {
@@ -284,9 +253,7 @@
         "code": { "type": "string", "minLength": 1 },
         "blocking": { "type": "boolean" },
         "retryable": { "type": "boolean" },
-        "candidate_ids": { "$ref": "#/$defs/string_array" },
-        "evidence_ids": { "$ref": "#/$defs/string_array" },
-        "authorized_revision_candidate_ids": { "$ref": "#/$defs/string_array" }
+        "evidence_ids": { "$ref": "#/$defs/string_array" }
       }
     },
     "state": {
@@ -294,33 +261,13 @@
       "required": [
         "artifacts",
         "evidence",
-        "scope_candidates",
-        "entity_candidates",
-        "fact_candidates",
-        "goal_candidates",
         "issues"
       ],
       "additionalProperties": false,
       "properties": {
         "artifacts": { "type": "array", "items": { "$ref": "#/$defs/artifact" } },
         "evidence": { "type": "array", "items": { "$ref": "#/$defs/evidence" } },
-        "scope_candidates": { "type": "array", "items": { "$ref": "#/$defs/candidate" } },
-        "entity_candidates": { "type": "array", "items": { "$ref": "#/$defs/candidate" } },
-        "fact_candidates": { "type": "array", "items": { "$ref": "#/$defs/candidate" } },
-        "goal_candidates": { "type": "array", "items": { "$ref": "#/$defs/candidate" } },
         "issues": { "type": "array", "items": { "$ref": "#/$defs/issue" } }
-      }
-    },
-    "decision": {
-      "type": "object",
-      "required": ["decision_id", "action", "candidate_ids", "evidence_ids", "payload"],
-      "additionalProperties": false,
-      "properties": {
-        "decision_id": { "type": "string", "minLength": 1 },
-        "action": { "type": "string", "minLength": 1 },
-        "candidate_ids": { "$ref": "#/$defs/string_array" },
-        "evidence_ids": { "$ref": "#/$defs/string_array" },
-        "payload": { "type": "object" }
       }
     },
     "event": {
@@ -376,7 +323,8 @@
         "route": {
           "enum": [
             "pending",
-            "multimodal"
+            "multimodal",
+            "text_baseline"
           ]
         },
         "input_artifact_refs": {
@@ -414,11 +362,26 @@
     },
     "projection": {
       "type": "object",
-      "required": ["status", "problem_ir_ref"],
+      "required": [
+        "status",
+        "problem_draft_artifact_id",
+        "verified_problem_artifact_id",
+        "solver_problem_ir_artifact_id",
+        "problem_revision_id",
+        "problem_semantic_hash",
+        "family_id",
+        "validation_artifact_id"
+      ],
       "additionalProperties": false,
       "properties": {
-        "status": { "const": "pending" },
-        "problem_ir_ref": { "type": "null" }
+        "status": { "enum": ["pending", "accepted", "blocked"] },
+        "problem_draft_artifact_id": { "$ref": "#/$defs/nullable_string" },
+        "verified_problem_artifact_id": { "$ref": "#/$defs/nullable_string" },
+        "solver_problem_ir_artifact_id": { "$ref": "#/$defs/nullable_string" },
+        "problem_revision_id": { "$ref": "#/$defs/nullable_string" },
+        "problem_semantic_hash": { "$ref": "#/$defs/nullable_string" },
+        "family_id": { "$ref": "#/$defs/nullable_string" },
+        "validation_artifact_id": { "$ref": "#/$defs/nullable_string" }
       }
     },
     "string_array": {

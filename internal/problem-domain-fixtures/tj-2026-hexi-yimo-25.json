@@ -1,0 +1,318 @@
+{
+  "schema_version": "problem-domain/v1",
+  "problem_id": "tj-2026-hexi-yimo-25",
+  "family_id": "QuadraticWeightedPathMinimumSolver",
+  "source": {
+    "question_number": "25",
+    "score": "10分"
+  },
+  "root": {
+    "id": "problem",
+    "label": "整题",
+    "source_text": [
+      "已知抛物线 y=ax²-bx+c，（a，b，c 为常数，b＞0）。"
+    ],
+    "entities": [
+      {
+        "id": "parabola",
+        "kind": "quadratic_function",
+        "label": "parabola"
+      },
+      {
+        "id": "x",
+        "kind": "symbol",
+        "label": "x",
+        "role": "function_variable"
+      },
+      {
+        "id": "a",
+        "kind": "symbol",
+        "label": "a",
+        "role": "quadratic_coefficient"
+      },
+      {
+        "id": "b",
+        "kind": "symbol",
+        "label": "b",
+        "role": "quadratic_coefficient"
+      },
+      {
+        "id": "c",
+        "kind": "symbol",
+        "label": "c",
+        "role": "quadratic_coefficient"
+      }
+    ],
+    "facts": [
+      {
+        "kind": "function_expression",
+        "function": "parabola",
+        "variable": "x",
+        "expression": "a*x**2 - b*x + c"
+      },
+      {
+        "kind": "symbol_constraint",
+        "symbol": "b",
+        "operator": ">",
+        "value": "0"
+      }
+    ],
+    "goals": [],
+    "children": [
+      {
+        "id": "i",
+        "label": "第（Ⅰ）问",
+        "source_text": [
+          "（Ⅰ）当 a=1，b=2，c=3 时，求该抛物线顶点 P 的坐标；"
+        ],
+        "entities": [
+          {
+            "id": "P",
+            "kind": "point",
+            "label": "P"
+          }
+        ],
+        "facts": [
+          {
+            "kind": "point_construction",
+            "point": "P",
+            "construction": "vertex",
+            "owner": "parabola"
+          },
+          {
+            "kind": "symbol_value",
+            "symbol": "a",
+            "value": "1"
+          },
+          {
+            "kind": "symbol_value",
+            "symbol": "b",
+            "value": "2"
+          },
+          {
+            "kind": "symbol_value",
+            "symbol": "c",
+            "value": "3"
+          }
+        ],
+        "goals": [
+          {
+            "kind": "point_coordinate",
+            "answer_key": "P",
+            "target": "P"
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "ii",
+        "label": "第（Ⅱ）问",
+        "source_text": [
+          "（Ⅱ）当 a=2 时，点 A(-1,0) 和点 D 在该抛物线上，点 C 为抛物线与 y 轴的交点，且 ∠CAD=90°，AC=AD，求点 D 的坐标；"
+        ],
+        "entities": [
+          {
+            "id": "A",
+            "kind": "point",
+            "label": "A"
+          },
+          {
+            "id": "C",
+            "kind": "point",
+            "label": "C"
+          },
+          {
+            "id": "D",
+            "kind": "point",
+            "label": "D"
+          }
+        ],
+        "facts": [
+          {
+            "kind": "point_coordinate",
+            "point": "A",
+            "value": [
+              "-1",
+              "0"
+            ]
+          },
+          {
+            "kind": "point_construction",
+            "point": "C",
+            "construction": "y_axis_intercept",
+            "owner": "parabola"
+          },
+          {
+            "kind": "symbol_value",
+            "symbol": "a",
+            "value": "2"
+          },
+          {
+            "kind": "point_on_curve",
+            "point": "A",
+            "curve": "parabola"
+          },
+          {
+            "kind": "point_on_curve",
+            "point": "D",
+            "curve": "parabola"
+          },
+          {
+            "kind": "right_angle",
+            "angle": {
+              "start": "C",
+              "vertex": "A",
+              "end": "D"
+            }
+          },
+          {
+            "kind": "equal_length",
+            "left": {
+              "start": "A",
+              "end": "C"
+            },
+            "right": {
+              "start": "A",
+              "end": "D"
+            }
+          }
+        ],
+        "goals": [
+          {
+            "kind": "point_coordinate",
+            "answer_key": "D",
+            "target": "D"
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "iii",
+        "label": "第（Ⅲ）问",
+        "source_text": [
+          "（Ⅲ）当 a=1 时，点 A(-1,0) 在该抛物线上，且有点 M(b+1/2,y_M) 在抛物线上，点 N(n,0) 是 x 轴正半轴上的动点，当 √2MN+AN 的最小值为 21/4 时，求 b 的值。"
+        ],
+        "entities": [
+          {
+            "id": "n",
+            "kind": "symbol",
+            "label": "n",
+            "role": "dynamic_parameter"
+          },
+          {
+            "id": "A",
+            "kind": "point",
+            "label": "A"
+          },
+          {
+            "id": "M",
+            "kind": "point",
+            "label": "M"
+          },
+          {
+            "id": "N",
+            "kind": "point",
+            "label": "N"
+          }
+        ],
+        "facts": [
+          {
+            "kind": "point_coordinate",
+            "point": "A",
+            "value": [
+              "-1",
+              "0"
+            ]
+          },
+          {
+            "kind": "point_construction",
+            "point": "M",
+            "construction": "curve_at_x",
+            "owner": "parabola",
+            "x_expression": "b + 1/2"
+          },
+          {
+            "kind": "symbol_value",
+            "symbol": "a",
+            "value": "1"
+          },
+          {
+            "kind": "point_coordinate",
+            "point": "N",
+            "value": [
+              "n",
+              "0"
+            ]
+          },
+          {
+            "kind": "point_on_axis",
+            "point": "N",
+            "axis": "x"
+          },
+          {
+            "kind": "symbol_constraint",
+            "symbol": "n",
+            "operator": ">",
+            "value": "0"
+          },
+          {
+            "kind": "point_on_curve",
+            "point": "A",
+            "curve": "parabola"
+          },
+          {
+            "kind": "minimum_target",
+            "expression": {
+              "terms": [
+                {
+                  "scale": "sqrt(2)",
+                  "segment": {
+                    "start": "M",
+                    "end": "N"
+                  }
+                },
+                {
+                  "scale": "1",
+                  "segment": {
+                    "start": "A",
+                    "end": "N"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "kind": "minimum_value_given",
+            "expression": {
+              "terms": [
+                {
+                  "scale": "sqrt(2)",
+                  "segment": {
+                    "start": "M",
+                    "end": "N"
+                  }
+                },
+                {
+                  "scale": "1",
+                  "segment": {
+                    "start": "A",
+                    "end": "N"
+                  }
+                }
+              ]
+            },
+            "value": "21/4"
+          }
+        ],
+        "goals": [
+          {
+            "kind": "parameter_value",
+            "answer_key": "b",
+            "target": "b"
+          }
+        ],
+        "children": []
+      }
+    ]
+  }
+}

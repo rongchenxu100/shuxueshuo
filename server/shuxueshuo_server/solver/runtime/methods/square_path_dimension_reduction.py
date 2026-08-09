@@ -34,23 +34,47 @@ class SquarePathDimensionReductionMethod:
             raise ValueError("square_path_dimension_reduction requires a three-segment path")
 
         vertices = _square_vertices(square_condition)
-        side_start = _handle_name(vertices[0])
-        side_end = _handle_name(vertices[1])
-        moving_vertex = _handle_name(vertices[3])
-        midpoint = _handle_name(str(midpoint_condition["point"]))
-        center = _handle_name(str(square_center_condition["point"]))
-        midpoint_of = [_handle_name(str(item)) for item in midpoint_condition.get("of", [])]
-        if {side_start, side_end} != set(midpoint_of):
-            raise ValueError("midpoint condition must refer to the square side endpoints")
+        typed_terms = _typed_path_terms(path_condition)
+        if typed_terms is not None:
+            roles = _typed_square_path_roles(
+                vertices=vertices,
+                midpoint_condition=midpoint_condition,
+                square_center_condition=square_center_condition,
+                typed_terms=typed_terms,
+                display_segments=segments,
+                fixed_endpoint_2_ref=fixed_endpoint_2_ref,
+            )
+            side_start = (
+                fixed_endpoint_1_ref.name
+                if fixed_endpoint_1_ref is not None
+                else _source_point_label(vertices[0])
+            )
+            side_end = _source_point_label(vertices[1])
+            moving_vertex = roles["moving_vertex"]
+            midpoint = roles["midpoint"]
+            center = roles["center"]
+            other_fixed = roles["other_fixed"]
+            center_midpoint = roles["center_midpoint"]
+            midpoint_other = roles["midpoint_other"]
+            other_moving = roles["other_moving"]
+        else:
+            side_start = _handle_name(vertices[0])
+            side_end = _handle_name(vertices[1])
+            moving_vertex = _handle_name(vertices[3])
+            midpoint = _handle_name(str(midpoint_condition["point"]))
+            center = _handle_name(str(square_center_condition["point"]))
+            midpoint_of = [_handle_name(str(item)) for item in midpoint_condition.get("of", [])]
+            if {side_start, side_end} != set(midpoint_of):
+                raise ValueError("midpoint condition must refer to the square side endpoints")
+            center_midpoint = _find_segment(segments, center, midpoint)
+            midpoint_other = _segment_with_endpoint(segments, midpoint, exclude=center_midpoint)
+            other_fixed = _other_segment_endpoint(midpoint_other, midpoint)
+            other_moving = _find_segment(segments, other_fixed, moving_vertex)
         if str(square_center_condition.get("square")) != str(square_condition.get("handle", square_condition.get("id", ""))):
             # Canonical fact payloads do not always carry their own handle. When absent,
             # the structural checks below still pin the same square by its vertices.
             pass
 
-        center_midpoint = _find_segment(segments, center, midpoint)
-        midpoint_other = _segment_with_endpoint(segments, midpoint, exclude=center_midpoint)
-        other_fixed = _other_segment_endpoint(midpoint_other, midpoint)
-        other_moving = _find_segment(segments, other_fixed, moving_vertex)
         square_side = f"{side_start}{side_end}"
         replacement_segment = f"{side_start}{moving_vertex}"
         transformed_path = f"{side_start}{moving_vertex}+{other_fixed}{moving_vertex}"
@@ -63,7 +87,7 @@ class SquarePathDimensionReductionMethod:
             "moving_point_ref": vertices[3],
             "fixed_point_names": (side_start, other_fixed),
             "roles": {
-                "square_vertices": (side_start, side_end, _handle_name(vertices[2]), moving_vertex),
+                "square_vertices": (side_start, side_end, _source_point_label(vertices[2]), moving_vertex),
                 "side_start": side_start,
                 "side_end": side_end,
                 "midpoint": midpoint,
@@ -137,6 +161,161 @@ def _square_vertices(condition: dict[str, Any]) -> list[str]:
 
 def _handle_name(handle: str) -> str:
     return handle.rsplit(":", 1)[-1]
+
+
+def _source_point_label(handle: str) -> str:
+    """Best-effort display label; never used as runtime object identity."""
+
+    parts = handle.split(":", 2)
+    local_id = parts[-1]
+    if len(parts) == 3:
+        suffix = f"_{parts[1]}"
+        if local_id.endswith(suffix) and len(local_id) > len(suffix):
+            return local_id[: -len(suffix)]
+    return local_id
+
+
+def _typed_path_terms(condition: dict[str, Any]) -> list[tuple[str, str]] | None:
+    raw_terms = condition.get("terms")
+    if raw_terms is None:
+        return None
+    if not isinstance(raw_terms, list):
+        raise ValueError("path_condition.terms must be a list")
+    terms: list[tuple[str, str]] = []
+    for raw in raw_terms:
+        if (
+            not isinstance(raw, (list, tuple))
+            or len(raw) != 2
+            or not all(isinstance(item, str) and item.startswith("point:") for item in raw)
+        ):
+            raise ValueError("path_condition.terms must contain point-handle pairs")
+        terms.append((str(raw[0]), str(raw[1])))
+    return terms
+
+
+def _typed_square_path_roles(
+    *,
+    vertices: list[str],
+    midpoint_condition: dict[str, Any],
+    square_center_condition: dict[str, Any],
+    typed_terms: list[tuple[str, str]],
+    display_segments: list[str],
+    fixed_endpoint_2_ref: PointRef | None,
+) -> dict[str, str]:
+    """Validate the square path by exact handles, then derive display labels."""
+
+    if len(typed_terms) != 3 or len(display_segments) != 3:
+        raise ValueError("square path requires three typed terms")
+    side_start, side_end, _, moving_handle = vertices[:4]
+    midpoint_handle = str(midpoint_condition.get("point", ""))
+    midpoint_of = tuple(str(item) for item in midpoint_condition.get("of", ()))
+    center_handle = str(square_center_condition.get("point", ""))
+    if len(midpoint_of) != 2 or set(midpoint_of) != {side_start, side_end}:
+        raise ValueError("midpoint condition must refer to the square side endpoints")
+
+    center_index = _typed_edge_index(typed_terms, center_handle, midpoint_handle)
+    midpoint_indexes = [
+        index
+        for index, pair in enumerate(typed_terms)
+        if index != center_index and midpoint_handle in pair
+    ]
+    if len(midpoint_indexes) != 1:
+        raise ValueError("path must contain one midpoint-to-fixed segment")
+    midpoint_index = midpoint_indexes[0]
+    other_fixed_handle = _typed_other_endpoint(
+        typed_terms[midpoint_index],
+        midpoint_handle,
+    )
+    moving_indexes = [
+        index
+        for index, pair in enumerate(typed_terms)
+        if index not in {center_index, midpoint_index}
+        and set(pair) == {other_fixed_handle, moving_handle}
+    ]
+    if len(moving_indexes) != 1:
+        raise ValueError("path must contain the fixed-to-moving square segment")
+    moving_index = moving_indexes[0]
+
+    labels = _typed_path_display_labels(
+        typed_terms,
+        display_segments,
+        anchors=(
+            (other_fixed_handle, fixed_endpoint_2_ref.name)
+            if fixed_endpoint_2_ref is not None
+            else None
+        ),
+    )
+    return {
+        "center": labels[center_handle],
+        "midpoint": labels[midpoint_handle],
+        "other_fixed": labels[other_fixed_handle],
+        "moving_vertex": labels[moving_handle],
+        "center_midpoint": display_segments[center_index],
+        "midpoint_other": display_segments[midpoint_index],
+        "other_moving": display_segments[moving_index],
+    }
+
+
+def _typed_edge_index(
+    terms: list[tuple[str, str]],
+    first: str,
+    second: str,
+) -> int:
+    matches = [index for index, pair in enumerate(terms) if set(pair) == {first, second}]
+    if len(matches) != 1:
+        raise ValueError("path must contain exactly one center-to-midpoint segment")
+    return matches[0]
+
+
+def _typed_other_endpoint(pair: tuple[str, str], endpoint: str) -> str:
+    if pair[0] == endpoint:
+        return pair[1]
+    if pair[1] == endpoint:
+        return pair[0]
+    raise ValueError("typed path pair does not contain expected endpoint")
+
+
+def _typed_path_display_labels(
+    terms: list[tuple[str, str]],
+    segments: list[str],
+    *,
+    anchors: tuple[str, str] | None,
+) -> dict[str, str]:
+    candidates: list[dict[str, str]] = [{}]
+    for pair, segment in zip(terms, segments):
+        display = _display_segment_endpoints(segment)
+        next_candidates: list[dict[str, str]] = []
+        for candidate in candidates:
+            for names in (display, display[::-1]):
+                proposed = dict(candidate)
+                if any(
+                    handle in proposed and proposed[handle] != name
+                    for handle, name in zip(pair, names)
+                ):
+                    continue
+                proposed[pair[0]] = names[0]
+                proposed[pair[1]] = names[1]
+                next_candidates.append(proposed)
+        candidates = next_candidates
+    if anchors is not None:
+        anchor_handle, anchor_name = anchors
+        candidates = [
+            item for item in candidates if item.get(anchor_handle) == anchor_name
+        ]
+    unique = {
+        tuple(sorted(item.items())): item
+        for item in candidates
+    }
+    if len(unique) != 1:
+        raise ValueError("typed path terms do not uniquely map to display labels")
+    return next(iter(unique.values()))
+
+
+def _display_segment_endpoints(segment: str) -> tuple[str, str]:
+    names = "".join(char for char in segment if char.isalpha() and char.isupper())
+    if len(names) != 2:
+        raise ValueError(f"cannot parse display segment endpoints from {segment!r}")
+    return names[0], names[1]
 
 
 def _canonical_point_ref(point_ref: PointRef) -> str:

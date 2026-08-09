@@ -126,6 +126,7 @@
       "fact:ii:D_on_parabola": ["mixed_line_2"],
       "fact:ii_1:AD_eq_2BC": ["mixed_line_3"],
       "fact:ii_2:M_coordinate_expr": ["mixed_line_4"],
+      "fact:ii_2:path_minimum_target": ["mixed_line_4"],
       "fact:ii_2:path_minimum_value_given": ["mixed_line_4"]
     },
     "question_goals": {

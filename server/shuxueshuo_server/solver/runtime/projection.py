@@ -106,7 +106,11 @@ def problem_from_canonical_input(raw: Mapping[str, Any]) -> ProblemIR:
     _validate_canonical_input(raw)
     canonical_payload = _canonical_payload(raw)
     symbols, symbol_roles = _symbols_from_entities(canonical_payload["entities"])
-    constraints = _constraints_from_facts(canonical_payload["facts"])
+    entity_names = _entity_names_by_handle(canonical_payload["entities"])
+    constraints = _constraints_from_facts(
+        canonical_payload["facts"],
+        entity_names=entity_names,
+    )
     runtime_data = _runtime_data_from_canonical(
         canonical_payload,
         symbols=symbols,
@@ -220,16 +224,33 @@ def _runtime_data_from_canonical(
     facts = [dict(item) for item in payload["facts"] if isinstance(item, Mapping)]
     scopes = [dict(item) for item in payload["scopes"] if isinstance(item, Mapping)]
     goals = [dict(item) for item in payload["question_goals"] if isinstance(item, Mapping)]
+    entity_names = _entity_names_by_handle(entities)
     entity_items = [_runtime_entity_item(item) for item in entities]
     data: dict[str, Any] = {
         "function": _runtime_function(entities),
         "entities": {
             "items": entity_items,
-            "points": _runtime_points(entities, facts),
+            "points": _runtime_points(
+                entities,
+                facts,
+                entity_names=entity_names,
+            ),
         },
-        "facts": [_runtime_fact(item) for item in facts],
-        "relations": _runtime_relations(entities, facts),
-        "questions": _runtime_questions(scopes, facts, goals),
+        "facts": [
+            _runtime_fact(item, entity_names=entity_names)
+            for item in facts
+        ],
+        "relations": _runtime_relations(
+            entities,
+            facts,
+            entity_names=entity_names,
+        ),
+        "questions": _runtime_questions(
+            scopes,
+            facts,
+            goals,
+            entity_names=entity_names,
+        ),
     }
     path_problem = _runtime_path_problem(payload, facts)
     if path_problem is not None:
@@ -258,7 +279,28 @@ def _symbols_from_entities(entities: list[dict[str, Any]]) -> tuple[list[str], d
     return result, roles
 
 
-def _constraints_from_facts(facts: list[dict[str, Any]]) -> dict[str, str]:
+def _entity_names_by_handle(
+    entities: list[dict[str, Any]],
+) -> dict[str, str]:
+    return {
+        str(item.get("handle", "")): str(
+            item.get("name") or _handle_name(str(item.get("handle", "")))
+        ).strip()
+        for item in entities
+        if isinstance(item, Mapping) and item.get("handle")
+    }
+
+
+def _reference_name(value: Any, entity_names: Mapping[str, str]) -> str:
+    text = str(value).strip()
+    return entity_names.get(text) or _handle_name(text)
+
+
+def _constraints_from_facts(
+    facts: list[dict[str, Any]],
+    *,
+    entity_names: Mapping[str, str],
+) -> dict[str, str]:
     """从 symbol_constraint fact 派生 ProblemIR.constraints。"""
 
     constraints: dict[str, str] = {}
@@ -266,7 +308,7 @@ def _constraints_from_facts(facts: list[dict[str, Any]]) -> dict[str, str]:
         if not isinstance(item, Mapping) or item.get("type") != "symbol_constraint":
             continue
         subject = str(item.get("subject", ""))
-        name = _handle_name(subject)
+        name = _reference_name(subject, entity_names)
         operator = str(item.get("operator", "")).strip()
         value = str(item.get("value", "")).strip()
         if name and operator and value:
@@ -282,12 +324,19 @@ def _runtime_entity_item(item: Mapping[str, Any]) -> dict[str, Any]:
     return result
 
 
-def _runtime_fact(item: Mapping[str, Any]) -> dict[str, Any]:
+def _runtime_fact(
+    item: Mapping[str, Any],
+    *,
+    entity_names: Mapping[str, str],
+) -> dict[str, Any]:
     """给 canonical fact 补 runtime/debug source。"""
 
     result = dict(item)
     if result.get("type") == "point_coordinate" and isinstance(result.get("value"), list):
-        result["value"] = [_runtime_expression_value(value) for value in result["value"]]
+        result["value"] = [
+            _runtime_expression_value(value, entity_names=entity_names)
+            for value in result["value"]
+        ]
     result.setdefault("source", "ProblemIR.facts")
     return result
 
@@ -314,6 +363,8 @@ def _runtime_function(entities: list[dict[str, Any]]) -> dict[str, Any]:
 def _runtime_points(
     entities: list[dict[str, Any]],
     facts: list[dict[str, Any]],
+    *,
+    entity_names: Mapping[str, str],
 ) -> dict[str, dict[str, Any]]:
     """从 point entity 派生 ContextBuilder 的 legacy point index。
 
@@ -334,11 +385,14 @@ def _runtime_points(
         payload = {key: deepcopy(value) for key, value in item.items()}
         if isinstance(payload.get("coordinate"), list):
             payload["coordinate"] = [
-                _runtime_expression_value(value)
+                _runtime_expression_value(value, entity_names=entity_names)
                 for value in payload["coordinate"]
             ]
         if isinstance(payload.get("x"), str):
-            payload["x"] = _runtime_expression_value(payload["x"])
+            payload["x"] = _runtime_expression_value(
+                payload["x"],
+                entity_names=entity_names,
+            )
         for key in (
             "of",
             "source",
@@ -352,7 +406,10 @@ def _runtime_points(
             "mirror_line",
         ):
             if key in payload:
-                payload[key] = _runtime_definition_value(payload[key])
+                payload[key] = _runtime_definition_value(
+                    payload[key],
+                    entity_names=entity_names,
+                )
         quadrant = quadrants.get(str(item.get("handle", "")))
         if quadrant:
             payload["quadrant"] = quadrant
@@ -384,6 +441,8 @@ def _quadrants_by_point_handle(facts: list[dict[str, Any]]) -> dict[str, str]:
 def _runtime_relations(
     entities: list[dict[str, Any]],
     facts: list[dict[str, Any]],
+    *,
+    entity_names: Mapping[str, str],
 ) -> list[dict[str, Any]]:
     """从 canonical facts/entities 派生 ContextInventory/ContextBuilder 兼容 relations。"""
 
@@ -399,6 +458,7 @@ def _runtime_relations(
         relation = _relation_from_fact(
             fact,
             entities_by_handle=entities_by_handle,
+            entity_names=entity_names,
         )
         if relation is not None:
             relations.append(relation)
@@ -410,8 +470,11 @@ def _runtime_relations(
             relations.append(
                 {
                     "type": "x_axis_intercept_point",
-                    "point": _handle_name(str(entity.get("handle", ""))),
-                    "curve": _handle_name(str(entity.get("of") or "function:problem:parabola")),
+                    "point": _reference_name(entity.get("handle", ""), entity_names),
+                    "curve": _reference_name(
+                        entity.get("of") or "function:problem:parabola",
+                        entity_names,
+                    ),
                     "scope": str(entity.get("scope_id") or "problem"),
                 }
             )
@@ -422,6 +485,7 @@ def _relation_from_fact(
     fact: Mapping[str, Any],
     *,
     entities_by_handle: Mapping[str, Mapping[str, Any]] | None = None,
+    entity_names: Mapping[str, str],
 ) -> dict[str, Any] | None:
     """把常见题设 fact 转成旧 relation 结构。"""
 
@@ -430,22 +494,22 @@ def _relation_from_fact(
     if fact_type == "point_on_curve":
         return {
             "type": "point_on_curve",
-            "point": _handle_name(str(fact.get("point", ""))),
-            "curve": _handle_name(str(fact.get("curve", ""))),
+            "point": _reference_name(fact.get("point", ""), entity_names),
+            "curve": _reference_name(fact.get("curve", ""), entity_names),
             "scope": scope,
         }
     if fact_type == "point_on_segment":
         return {
             "type": "point_on_segment",
-            "point": _handle_name(str(fact.get("point", ""))),
-            "segment": _handle_name(str(fact.get("segment", ""))),
+            "point": _reference_name(fact.get("point", ""), entity_names),
+            "segment": _reference_name(fact.get("segment", ""), entity_names),
             "scope": scope,
         }
     if fact_type == "point_on_ray":
         return {
             "type": "point_on_ray",
-            "point": _handle_name(str(fact.get("point", ""))),
-            "ray": _handle_name(str(fact.get("ray", ""))),
+            "point": _reference_name(fact.get("point", ""), entity_names),
+            "ray": _reference_name(fact.get("ray", ""), entity_names),
             "scope": scope,
         }
     if fact_type == "segment_membership":
@@ -453,8 +517,8 @@ def _relation_from_fact(
         segment_payload = (entities_by_handle or {}).get(segment_ref, {})
         return {
             "type": "segment_membership",
-            "point": _handle_name(str(fact.get("point", ""))),
-            "segment": _handle_name(segment_ref),
+            "point": _reference_name(fact.get("point", ""), entity_names),
+            "segment": _reference_name(segment_ref, entity_names),
             "condition_ref": str(fact.get("handle", "")),
             "point_ref": str(fact.get("point", "")),
             "segment_ref": segment_ref,
@@ -480,12 +544,12 @@ def _relation_from_fact(
         relation["scope"] = scope
         if isinstance(relation.get("angle"), list):
             relation["angle"] = [
-                _runtime_definition_value(value)
+                _runtime_definition_value(value, entity_names=entity_names)
                 for value in relation["angle"]
             ]
         if isinstance(relation.get("equal_segments"), list):
             relation["equal_segments"] = [
-                _runtime_definition_value(value)
+                _runtime_definition_value(value, entity_names=entity_names)
                 for value in relation["equal_segments"]
             ]
         return relation
@@ -533,6 +597,8 @@ def _runtime_questions(
     scopes: list[dict[str, Any]],
     facts: list[dict[str, Any]],
     goals: list[dict[str, Any]],
+    *,
+    entity_names: Mapping[str, str],
 ) -> list[dict[str, Any]]:
     """从 canonical scopes/question_goals/facts 派生 data.questions tree。"""
 
@@ -548,10 +614,22 @@ def _runtime_questions(
             "id": scope_id,
             "label": str(item.get("label") or scope_id),
             "asks": list(item.get("asks", [])) if isinstance(item.get("asks"), list) else [],
-            "known_coefficients": _known_coefficients_for_scope(scope_id, facts),
-            "conditions": _conditions_for_scope(scope_id, facts),
+            "known_coefficients": _known_coefficients_for_scope(
+                scope_id,
+                facts,
+                entity_names=entity_names,
+            ),
+            "conditions": _conditions_for_scope(
+                scope_id,
+                facts,
+                entity_names=entity_names,
+            ),
             "goals": [
-                _runtime_goal(goal, parents)
+                _runtime_goal(
+                    goal,
+                    parents,
+                    entity_names=entity_names,
+                )
                 for goal in goals
                 if str(goal.get("scope_id", "")) == scope_id
             ],
@@ -567,7 +645,12 @@ def _runtime_questions(
     return roots
 
 
-def _known_coefficients_for_scope(scope_id: str, facts: list[dict[str, Any]]) -> dict[str, str]:
+def _known_coefficients_for_scope(
+    scope_id: str,
+    facts: list[dict[str, Any]],
+    *,
+    entity_names: Mapping[str, str],
+) -> dict[str, str]:
     """把当前 scope 的 symbol_value facts 派生成旧 known_coefficients。"""
 
     known: dict[str, str] = {}
@@ -577,14 +660,19 @@ def _known_coefficients_for_scope(scope_id: str, facts: list[dict[str, Any]]) ->
         if str(fact.get("type", "")) != "symbol_value":
             continue
         subject = str(fact.get("subject", "")).strip()
-        name = _handle_name(subject)
+        name = _reference_name(subject, entity_names)
         value = fact.get("value")
         if name and value is not None:
             known[name] = str(value)
     return known
 
 
-def _conditions_for_scope(scope_id: str, facts: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def _conditions_for_scope(
+    scope_id: str,
+    facts: list[dict[str, Any]],
+    *,
+    entity_names: Mapping[str, str],
+) -> list[dict[str, Any]]:
     """把当前 scope 的题设 fact 暴露给旧 ContextBuilder question.conditions。"""
 
     result: list[dict[str, Any]] = []
@@ -601,13 +689,21 @@ def _conditions_for_scope(scope_id: str, facts: list[dict[str, Any]]) -> list[di
         }
         condition.setdefault("type", fact_type)
         if fact_type == "length_squared" and isinstance(condition.get("segment"), str):
-            condition["segment"] = _segment_endpoint_names_from_handle(condition["segment"])
+            condition["segment"] = _segment_endpoint_names_from_handle(
+                condition["segment"],
+                entity_names=entity_names,
+            )
         condition.setdefault("source", str(fact.get("description", "")))
         result.append(condition)
     return result
 
 
-def _runtime_goal(goal: Mapping[str, Any], parents: Mapping[str, str | None]) -> dict[str, Any]:
+def _runtime_goal(
+    goal: Mapping[str, Any],
+    parents: Mapping[str, str | None],
+    *,
+    entity_names: Mapping[str, str],
+) -> dict[str, Any]:
     """把 canonical question goal 派生为旧 QuestionGoal shape。"""
 
     handle = str(goal.get("handle", "")).strip()
@@ -618,7 +714,12 @@ def _runtime_goal(goal: Mapping[str, Any], parents: Mapping[str, str | None]) ->
     target_handle = goal.get("target_handle")
     target_scope_id = str(goal.get("valid_scope") or scope_id).strip()
     if isinstance(target_handle, str) and target_handle and value_type == "Point":
-        target_path = _runtime_path_from_handle(target_handle, parents, container="points")
+        target_path = _runtime_path_from_handle(
+            target_handle,
+            parents,
+            container="points",
+            entity_names=entity_names,
+        )
     else:
         target_path = _runtime_path_for_scope_id(target_scope_id, parents, "outputs", answer_key)
     return {
@@ -635,13 +736,15 @@ def _runtime_path_from_handle(
     parents: Mapping[str, str | None],
     *,
     container: str,
+    entity_names: Mapping[str, str],
 ) -> str:
     """把 canonical entity handle 映射成 runtime ContextPath。"""
 
     parts = handle.split(":")
     if len(parts) != 3:
         raise ValueError(f"invalid scoped handle: {handle}")
-    _kind, scope_id, name = parts
+    _kind, scope_id, _local_id = parts
+    name = _reference_name(handle, entity_names)
     return _runtime_path_for_scope_id(scope_id, parents, container, name)
 
 
@@ -1075,35 +1178,50 @@ def _handle_name(handle: str) -> str:
     return handle.rsplit(":", 1)[-1] if ":" in handle else handle
 
 
-def _runtime_expression_value(value: Any) -> Any:
+def _runtime_expression_value(
+    value: Any,
+    *,
+    entity_names: Mapping[str, str],
+) -> Any:
     """把 runtime 表达式位置中的 canonical symbol handle 压成符号名。"""
 
     if isinstance(value, str) and value.startswith("symbol:"):
-        return _handle_name(value)
+        return _reference_name(value, entity_names)
     return value
 
 
-def _runtime_definition_value(value: Any) -> Any:
+def _runtime_definition_value(
+    value: Any,
+    *,
+    entity_names: Mapping[str, str],
+) -> Any:
     """把 runtime PointRef definition 中的 canonical handles 压成旧短名。"""
 
     if isinstance(value, str):
         if is_object_handle(value):
-            return _handle_name(value)
+            return _reference_name(value, entity_names)
         return value
     if isinstance(value, list):
-        return [_runtime_definition_value(item) for item in value]
+        return [
+            _runtime_definition_value(item, entity_names=entity_names)
+            for item in value
+        ]
     if isinstance(value, dict):
         return {
-            key: _runtime_definition_value(item)
+            key: _runtime_definition_value(item, entity_names=entity_names)
             for key, item in value.items()
         }
     return value
 
 
-def _segment_endpoint_names_from_handle(value: str) -> Any:
+def _segment_endpoint_names_from_handle(
+    value: str,
+    *,
+    entity_names: Mapping[str, str],
+) -> Any:
     """把 canonical segment handle 转成旧 length_squared 条件的端点数组。"""
 
-    name = _handle_name(value)
+    name = _reference_name(value, entity_names)
     if len(name) == 2 and name.isalpha():
         return [name[0], name[1]]
     return value

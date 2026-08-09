@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from io import BytesIO
 from pathlib import Path
 
@@ -18,10 +17,6 @@ from shuxueshuo_server.solver.extraction.multimodal_evidence import (
     MultimodalEvidencePack,
     MultimodalEvidencePackBuilder,
     _selection_canvas,
-)
-from shuxueshuo_server.solver.extraction.multimodal_provider import (
-    MultimodalProviderResponse,
-    ProviderSubAttempt,
 )
 from shuxueshuo_server.solver.extraction.observation_context import (
     ObservationContextTransitionService,
@@ -48,46 +43,21 @@ from _problem_extraction_f2_support import (
 )
 
 
-class RecordedMultimodalProvider:
-    def __init__(self, text: str, *, model: str) -> None:
-        self.text = text
-        self.model = model
-        self.calls = 0
-
-    def complete(self, request):
-        self.calls += 1
-        attempt = ProviderSubAttempt(
-            provider_attempt=1,
-            status="completed",
-            response_model=self.model,
-            usage={"total_tokens": 10},
-            finish_reason="stop",
-            visible_content=True,
-            latency_ms=2,
-        )
-        return MultimodalProviderResponse(
-            text=self.text,
-            raw_payload={"model": self.model, "content": self.text},
-            request_model=self.model,
-            response_model=self.model,
-            usage={"total_tokens": 10},
-            finish_reason="stop",
-            provider_attempts=(attempt,),
-            latency_ms=2,
-        )
-
-
 def make_f3_fixture(
     tmp_path: Path,
     *,
     colored_ink: bool = False,
     printed_text_confidence: float | None = None,
+    printed_text_override: str | None = None,
 ):
     fixture = make_fixture(colored_ink=colored_ink)
     text_record = fixture.text_record
-    if printed_text_confidence is not None:
+    if printed_text_confidence is not None or printed_text_override is not None:
         items = [dict(item) for item in text_record.items]
-        items[1]["confidence"] = printed_text_confidence
+        if printed_text_confidence is not None:
+            items[1]["confidence"] = printed_text_confidence
+        if printed_text_override is not None:
+            items[1]["text"] = printed_text_override
         text_record = PaddleProviderRecord.create(
             component="text_ocr",
             provider=text_record.provider,
@@ -302,73 +272,3 @@ def _page_png(lines: tuple[str, ...], *, y: tuple[int, ...]) -> bytes:
     buffer = BytesIO()
     image.save(buffer, format="PNG")
     return buffer.getvalue()
-
-
-def valid_candidate_payload(pack: MultimodalEvidencePack) -> dict:
-    printed = next(
-        item for item in pack.region_index if item.origin == "printed"
-    )
-    return {
-        "schema_version": "problem-extraction-candidate-patch/v1",
-        "base_context_id": pack.base_context_id,
-        "evidence_pack_id": pack.evidence_pack_id,
-        "classification": {
-            "pattern": "quadratic",
-            "problem_type": "quadratic_problem",
-            "confidence": 0.8,
-            "evidence_refs": [printed.evidence_id],
-        },
-        "transcription_lines": [
-            {
-                "line_id": "line_1",
-                "text": "25. y=x^2+1",
-                "reading_order": 0,
-                "evidence_refs": [printed.evidence_id],
-                "review_region_refs": [],
-            }
-        ],
-        "candidates": [
-            {
-                "candidate_id": "scope_problem",
-                "candidate_type": "scope",
-                "confidence": 0.9,
-                "evidence_refs": [printed.evidence_id],
-                "review_region_refs": [],
-                "payload": {"label": "problem"},
-            },
-            {
-                "candidate_id": "entity_curve_f",
-                "candidate_type": "entity",
-                "confidence": 0.85,
-                "evidence_refs": [printed.evidence_id],
-                "review_region_refs": [],
-                "payload": {"kind": "quadratic_curve", "label": "f"},
-            },
-            {
-                "candidate_id": "fact_curve_equation",
-                "candidate_type": "fact",
-                "confidence": 0.82,
-                "evidence_refs": [printed.evidence_id],
-                "review_region_refs": [],
-                "payload": {
-                    "kind": "equation",
-                    "subject_candidate_id": "entity_curve_f",
-                    "value": "y=x^2+1",
-                },
-            },
-            {
-                "candidate_id": "goal_find_y",
-                "candidate_type": "goal",
-                "confidence": 0.8,
-                "evidence_refs": [printed.evidence_id],
-                "review_region_refs": [],
-                "payload": {"kind": "find_value", "target": "y"},
-            },
-        ],
-        "ambiguities": [],
-        "review_region_refs": [],
-    }
-
-
-def valid_candidate_json(pack: MultimodalEvidencePack) -> str:
-    return json.dumps(valid_candidate_payload(pack), ensure_ascii=False)

@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from shuxueshuo_server.solver.family.models import (
     FamilyMatchRule,
+    FamilySourceRequirementSpec,
     GoalEvidencePolicySpec,
     MethodBindingRuleSpec,
     MethodCompanionOutputSpec,
@@ -30,6 +31,39 @@ _QUADRATIC_EQUAL_LENGTH_RAY_PATH_MINIMUM_FAMILY = SolverFamilySpec(
     match=FamilyMatchRule(
         patterns=("path-minimum",),
         problem_types=("quadratic_equal_length_ray_path_minimum",),
+    ),
+    title="二次函数等长射线路径最值",
+    description=(
+        "通过射线上动点与等长条件构造辅助点，把双动点路径转换为单段距离的"
+        "二次函数路径最值题。"
+    ),
+    use_when=(
+        "题面同时明确给出射线、射线上的动点和与该动点相关的等长条件，且这些"
+        "结构直接承担路径和的等价替换。"
+    ),
+    required_source_requirements=(
+        FamilySourceRequirementSpec(
+            "entity_type",
+            ("ray",),
+            "题面必须明确声明一条射线，而不是普通线段或直线。",
+            source_authority="printed_source",
+            printed_source_markers=("射线",),
+        ),
+        FamilySourceRequirementSpec(
+            "fact_type",
+            ("point_on_ray",),
+            "题面必须明确声明动点位于该射线上。",
+        ),
+        FamilySourceRequirementSpec(
+            "fact_type",
+            ("equal_length_condition",),
+            "题面必须明确给出参与路径替换的等长条件。",
+        ),
+    ),
+    do_not_use_when=(
+        "只有直角、等腰或两条普通线段等长，但题面没有射线或射线上动点。",
+        "只是普通两动点距离和，可直接降维和折线拉直。",
+        "核心机制是非1权重路径或正方形反射。",
     ),
     common_goal_types=(
         "derive_parabola",

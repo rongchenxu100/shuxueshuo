@@ -1,0 +1,350 @@
+{
+  "schema_version": "problem-domain/v1",
+  "problem_id": "tj-2026-heping-ermo-25",
+  "family_id": "QuadraticSquareReflectionPathMinimumSolver",
+  "source": {
+    "question_number": "25",
+    "score": "10"
+  },
+  "root": {
+    "id": "problem",
+    "label": "整题",
+    "source_text": [
+      "已知抛物线 y=-x²+bx+c（b，c 为常数，c>1）的顶点为 P，与 x 轴相交于 A，B 两点（点 A 在点 B 的左侧），与 y 轴相交于点 C，对称轴与 x 轴相交于点 M。点 E 在对称轴上，以 AE 为边的正方形 AEKG 的顶点 G 在 x 轴下方。"
+    ],
+    "entities": [
+      {
+        "id": "parabola",
+        "kind": "quadratic_function",
+        "label": "parabola"
+      },
+      {
+        "id": "x",
+        "kind": "symbol",
+        "label": "x",
+        "role": "function_variable"
+      },
+      {
+        "id": "b",
+        "kind": "symbol",
+        "label": "b",
+        "role": "quadratic_coefficient"
+      },
+      {
+        "id": "c",
+        "kind": "symbol",
+        "label": "c",
+        "role": "primary_parameter"
+      },
+      {
+        "id": "A",
+        "kind": "point",
+        "label": "A"
+      },
+      {
+        "id": "B",
+        "kind": "point",
+        "label": "B"
+      },
+      {
+        "id": "C",
+        "kind": "point",
+        "label": "C"
+      },
+      {
+        "id": "M",
+        "kind": "point",
+        "label": "M"
+      },
+      {
+        "id": "P",
+        "kind": "point",
+        "label": "P"
+      },
+      {
+        "id": "E",
+        "kind": "point",
+        "label": "E"
+      },
+      {
+        "id": "G",
+        "kind": "point",
+        "label": "G"
+      },
+      {
+        "id": "K",
+        "kind": "point",
+        "label": "K"
+      },
+      {
+        "id": "square_AEKG",
+        "kind": "polygon",
+        "label": "AEKG",
+        "vertices": [
+          "A",
+          "E",
+          "K",
+          "G"
+        ]
+      }
+    ],
+    "facts": [
+      {
+        "kind": "function_expression",
+        "function": "parabola",
+        "variable": "x",
+        "expression": "-x**2 + b*x + c"
+      },
+      {
+        "kind": "point_construction",
+        "point": "A",
+        "construction": "x_axis_intercept",
+        "owner": "parabola",
+        "side": "left"
+      },
+      {
+        "kind": "point_construction",
+        "point": "B",
+        "construction": "x_axis_intercept",
+        "owner": "parabola",
+        "side": "right"
+      },
+      {
+        "kind": "point_construction",
+        "point": "C",
+        "construction": "y_axis_intercept",
+        "owner": "parabola"
+      },
+      {
+        "kind": "point_construction",
+        "point": "M",
+        "construction": "axis_x_intercept",
+        "owner": "parabola"
+      },
+      {
+        "kind": "point_construction",
+        "point": "P",
+        "construction": "vertex",
+        "owner": "parabola"
+      },
+      {
+        "kind": "symbol_constraint",
+        "symbol": "c",
+        "operator": ">",
+        "value": "1"
+      },
+      {
+        "kind": "point_on_axis",
+        "point": "E",
+        "axis": "symmetry",
+        "curve": "parabola"
+      },
+      {
+        "kind": "square",
+        "polygon": "square_AEKG",
+        "side": {
+          "start": "A",
+          "end": "E"
+        },
+        "orientation": {
+          "point": "G",
+          "relation": "below_x_axis"
+        }
+      }
+    ],
+    "goals": [],
+    "children": [
+      {
+        "id": "i",
+        "label": "第（Ⅰ）问",
+        "source_text": [
+          "（Ⅰ）若 b=-2，c=3。"
+        ],
+        "entities": [],
+        "facts": [
+          {
+            "kind": "symbol_value",
+            "symbol": "b",
+            "value": "-2"
+          },
+          {
+            "kind": "symbol_value",
+            "symbol": "c",
+            "value": "3"
+          }
+        ],
+        "goals": [],
+        "children": [
+          {
+            "id": "i_1",
+            "label": "第（Ⅰ）①问",
+            "source_text": [
+              "① 求点 P 和点 A 的坐标；"
+            ],
+            "entities": [],
+            "facts": [],
+            "goals": [
+              {
+                "kind": "point_coordinate",
+                "answer_key": "P",
+                "target": "P"
+              },
+              {
+                "kind": "point_coordinate",
+                "answer_key": "A",
+                "target": "A"
+              }
+            ],
+            "children": []
+          },
+          {
+            "id": "i_2",
+            "label": "第（Ⅰ）②问",
+            "source_text": [
+              "② 当点 G 在抛物线上时，求点 E 的坐标；"
+            ],
+            "entities": [],
+            "facts": [
+              {
+                "kind": "point_on_curve",
+                "point": "G",
+                "curve": "parabola"
+              }
+            ],
+            "goals": [
+              {
+                "kind": "point_coordinate",
+                "answer_key": "E",
+                "target": "E"
+              }
+            ],
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "ii",
+        "label": "第（Ⅱ）问",
+        "source_text": [
+          "（Ⅱ）若点 A 的坐标为（-c，0），点 F 是 AE 的中点，对角线 AK 和 EG 相交于点 H，当 HF+FM+MG 取得最小值为 3√5 时，求点 E 的坐标。"
+        ],
+        "entities": [
+          {
+            "id": "F",
+            "kind": "point",
+            "label": "F"
+          },
+          {
+            "id": "H",
+            "kind": "point",
+            "label": "H"
+          }
+        ],
+        "facts": [
+          {
+            "kind": "point_coordinate",
+            "point": "A",
+            "value": [
+              "-c",
+              "0"
+            ]
+          },
+          {
+            "kind": "midpoint",
+            "point": "F",
+            "segment": {
+              "start": "A",
+              "end": "E"
+            }
+          },
+          {
+            "kind": "point_on_segment",
+            "point": "H",
+            "segment": {
+              "start": "A",
+              "end": "K"
+            }
+          },
+          {
+            "kind": "point_on_segment",
+            "point": "H",
+            "segment": {
+              "start": "E",
+              "end": "G"
+            }
+          },
+          {
+            "kind": "square_center",
+            "point": "H",
+            "square": "square_AEKG"
+          },
+          {
+            "kind": "minimum_target",
+            "expression": {
+              "terms": [
+                {
+                  "scale": "1",
+                  "segment": {
+                    "start": "H",
+                    "end": "F"
+                  }
+                },
+                {
+                  "scale": "1",
+                  "segment": {
+                    "start": "F",
+                    "end": "M"
+                  }
+                },
+                {
+                  "scale": "1",
+                  "segment": {
+                    "start": "M",
+                    "end": "G"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "kind": "minimum_value_given",
+            "expression": {
+              "terms": [
+                {
+                  "scale": "1",
+                  "segment": {
+                    "start": "H",
+                    "end": "F"
+                  }
+                },
+                {
+                  "scale": "1",
+                  "segment": {
+                    "start": "F",
+                    "end": "M"
+                  }
+                },
+                {
+                  "scale": "1",
+                  "segment": {
+                    "start": "M",
+                    "end": "G"
+                  }
+                }
+              ]
+            },
+            "value": "3*sqrt(5)"
+          }
+        ],
+        "goals": [
+          {
+            "kind": "point_coordinate",
+            "answer_key": "E",
+            "target": "E"
+          }
+        ],
+        "children": []
+      }
+    ]
+  }
+}
