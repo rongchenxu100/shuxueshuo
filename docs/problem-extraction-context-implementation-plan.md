@@ -26,7 +26,8 @@ Track F把题目来源转换为可追溯、可局部修复并可确定投影到S
 | F4 Validation / patch retry authority | `COMPLETE` |
 | F5-A Bundle authority | `COMPLETE` |
 | F5-B Scope-native planning projection | `COMPLETE` |
-| F5-C–E Planner binding / Solver lifecycle | `NEXT` |
+| F5-C Goal-scoped typed binding | `COMPLETE` |
+| F5-D–E Retry provenance / Solver cold path | `NEXT` |
 
 系统尚未上线。Extraction只支持当前schema，不保留旧candidate、整份ProblemIR retry或Context迁移链。
 
@@ -394,10 +395,17 @@ problem-planning-context/v1
    - 五题GoalView数量为`6/4/3/3/3`；F5-A/B定向联合门禁`81 passed`，全量Solver回归`1587 passed, 12 skipped`。
    - 本阶段未修改`StrategyPayloadBuilder`或生产Planner输入；默认切换留到F5-E。
 
-3. **F5-C FunctionalPlan binding**
-   - reconciliation按`SemanticRef -> source_unit_id -> ProblemIR handle -> MathObjectId/StateVersion`绑定。
-   - consumer-before-producer仍由typed DAG排序；跨sibling ref、未知unit或revision漂移在direct compile前失败。
-   - 保留现有B1 allocation、B2 placement、B3 finalization、C3 binding ledger和C4/C5 symbolic closure。
+3. **F5-C FunctionalPlan binding（COMPLETE）**
+   - `ProblemPlanningBindingCatalog`只通过F5-B按Goal authority API，将`SemanticRef -> runtime node -> source unit -> canonical handle -> typed identity`确定绑定；不调用全局semantic catalog，不使用alias、label、handle尾部或模糊匹配。
+   - answer producer反向传播得到call服务的Goal集合。单Goal call使用该Goal allowlist；共享call只能读取各Goal allowlist交集。跨sibling read、answer串线、无Goal call和placement后可见性漂移均在compile前失败。
+   - source Entity、Fact与state snapshot绑定`MathObjectId`、`ConditionId`及精确`StateVersionId`；source ref不允许隐式选择latest，动态结果只能通过`CallResultRef`传递。
+   - Catalog只从未演进的typed slot派生ordinal-0 source snapshot；若PlannerStateContext中的对应slot已有write或latest不再是ordinal 0，重建Catalog直接报`planner.problem_source_binding_drift`，后续阶段必须复用原Catalog中的pin。
+   - reconciliation挂载`FunctionalProblemBindingContext`，逐arg/return记录Goal、runtime node、source unit与C3 identity；direct preparation再次对sidecar、C3 ledger、B1 answer allocation及exact version做一致性审计。
+   - semantic elaboration的per-call allowlist只含input authority；answer authority只允许出现在显式return binding，不能成为C3 implicit source。多source Goal target不再取首项，必须唯一映射或fail loud。
+   - Catalog authority与reconciliation sidecar分别由`problem-planning-binding-catalog/v1`和`functional-problem-binding-context/v1`锁定，并与checked-in JSON Schema做双源门禁。
+   - 五份scope-native recorded FunctionalPlan均通过validation、reconciliation、direct compile、authoritative symbolic closure与transaction；旧扁平fixture仍独立通过且生产代码没有alias fallback。
+   - F5-C专项`26 passed`，F5-B/C与C3/transaction/C0.5联合门禁`115 passed`，全量Solver回归`1613 passed, 12 skipped`。
+   - 保留B1 allocation、B2 placement、B3 finalization、C3 binding ledger和C4/C5 symbolic closure。F5-C当前仍由显式`problem_binding_catalog`接线启用；缺参时旧Planner路径仍存在，默认Planner prompt与强制切换到F5-E完成。
 
 4. **F5-D Retry与provenance**
    - call、checkpoint、write和result记录`problem_revision_id`、`problem_semantic_hash`和实际消费的source unit ids。
@@ -419,9 +427,12 @@ planner.problem_planning_projection_drift
 planner.problem_planning_ref_ambiguous
 planner.problem_scope_visibility_drift
 planner.problem_revision_drift
+planner.problem_source_binding_unresolved
+planner.problem_source_binding_drift
+functional.semantic_ref_not_visible_for_goal
+functional.answer_ref_goal_mismatch
+functional.call_goal_unresolved
 ```
-
-`planner.problem_source_binding_unresolved`属于F5-C binding阶段，待该阶段实现时加入正式错误码集合。
 
 ### 8.4 测试与退出门禁
 

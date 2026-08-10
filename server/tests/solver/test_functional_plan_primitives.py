@@ -89,9 +89,8 @@ def test_selector_semantics_are_one_descriptor_per_selector_grammar() -> None:
     assert midpoint.prerequisite_condition_kind == "midpoint_definition"
     assert endpoint.semantic_roles == ("straightened_endpoint_1",)
     assert endpoint.requires_materialized_state
-    assert intersection.context_prerequisites == (
-        "fact_type:segment_relation",
-    )
+    assert not intersection.mechanical
+    assert intersection.context_prerequisites == ()
     assert expansion.arg_resolvers == (
         ("parameter_value", "unique_related_state"),
     )

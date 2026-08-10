@@ -483,6 +483,18 @@ def _materialize_equivalent_primitive_facts(
             )
         )
 
+    for expression in _shared_child_minimum_target_expressions(scope):
+        append_if_missing(
+            {
+                "kind": "minimum_target",
+                "expression": deepcopy(expression),
+            },
+            action_code="materialize_shared_minimum_target",
+            source_name="descendant_minimum_requirements",
+            target_name="minimum_target",
+        )
+        minimum_targets.add(_stable_payload({"expression": expression}))
+
     for fact in facts:
         kind = fact.get("kind")
         if kind == "point_on_curve_with_x":
@@ -685,6 +697,47 @@ def _represented_minimum_targets(root: Mapping[str, Any]) -> frozenset[str]:
             ):
                 result.add(_stable_payload({"expression": goal["expression"]}))
     return frozenset(result)
+
+
+def _shared_child_minimum_target_expressions(
+    scope: Mapping[str, Any],
+) -> tuple[Mapping[str, Any], ...]:
+    """Return minimum expressions required by two immediate child branches."""
+
+    by_signature: dict[str, tuple[Mapping[str, Any], set[str]]] = {}
+    for child in scope.get("children", ()):
+        if not isinstance(child, Mapping):
+            continue
+        branch_id = str(child.get("id", ""))
+        for _, descendant in _iter_scope_payloads(child):
+            values = (
+                *(
+                    fact.get("expression")
+                    for fact in descendant.get("facts", ())
+                    if isinstance(fact, Mapping)
+                    and fact.get("kind")
+                    in {"minimum_target", "minimum_value_given"}
+                ),
+                *(
+                    goal.get("expression")
+                    for goal in descendant.get("goals", ())
+                    if isinstance(goal, Mapping)
+                    and goal.get("kind") == "minimum_value"
+                ),
+            )
+            for expression in values:
+                if not isinstance(expression, Mapping):
+                    continue
+                signature = _stable_payload({"expression": expression})
+                existing = by_signature.get(signature)
+                branches = existing[1] if existing is not None else set()
+                branches.add(branch_id)
+                by_signature[signature] = (expression, branches)
+    return tuple(
+        expression
+        for signature, (expression, branches) in sorted(by_signature.items())
+        if len(branches) >= 2
+    )
 
 
 def _stable_payload(value: Mapping[str, Any]) -> str:

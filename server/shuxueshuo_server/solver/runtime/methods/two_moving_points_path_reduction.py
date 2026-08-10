@@ -9,6 +9,7 @@ from __future__ import annotations
 from typing import Any, Mapping
 
 from ._common import *
+from ._common import _canonical_reference_name, _canonical_segment_name
 from ._spec import MethodSpecSource
 
 
@@ -45,12 +46,21 @@ class TwoMovingPointsPathReductionMethod:
         second_segment_end: Point = inputs["second_segment_end"]
         path_text = str(original_path["path"])
 
-        first_moving_name = str(first_membership["point"])
-        second_moving_name = str(second_membership["point"])
-        first_segment_names = [str(name) for name in first_membership["segment"]]
-        second_segment_names = [str(name) for name in second_membership["segment"]]
-        left_scale, left_segment = _parse_scaled_segment(str(binding_relation["left"]), kernel)
-        right_scale, right_segment = _parse_scaled_segment(str(binding_relation["right"]), kernel)
+        first_moving_name = _canonical_reference_name(
+            first_membership["point"]
+        )
+        second_moving_name = _canonical_reference_name(
+            second_membership["point"]
+        )
+        first_segment = _canonical_segment_name(first_membership["segment"])
+        second_segment = _canonical_segment_name(
+            second_membership["segment"]
+        )
+        first_segment_names = list(first_segment)
+        second_segment_names = list(second_segment)
+        (left_scale, left_segment), (right_scale, right_segment) = (
+            _binding_relation_terms(binding_relation, kernel)
+        )
         fixed_name = _other_segment_endpoint(left_segment, first_moving_name)
         second_fixed_name = _other_segment_endpoint(right_segment, second_moving_name)
         _validate_moving_point_memberships(
@@ -190,6 +200,47 @@ SPEC = MethodSpecSource(
     postconditions=('原路径中的两动点线段被替换为题面已有固定点到第二动点的等长线段',),
     trace_template=(),
 )
+
+
+def _binding_relation_terms(
+    relation: Mapping[str, Any],
+    kernel: SympyKernel,
+) -> tuple[tuple[sp.Expr, str], tuple[sp.Expr, str]]:
+    """Read both canonical structured and legacy text relation payloads."""
+
+    left_segment = relation.get("left_segment")
+    right_segment = relation.get("right_segment")
+    if left_segment is not None and right_segment is not None:
+        return (
+            (sp.Integer(1), _canonical_segment_name(left_segment)),
+            (
+                sp.simplify(kernel.expr(str(relation.get("scale", "1")))),
+                _canonical_segment_name(right_segment),
+            ),
+        )
+    structured = tuple(
+        _structured_relation_term(relation.get(key), kernel)
+        for key in ("left_term", "right_term")
+    )
+    left_segment, right_segment = structured
+    if left_segment is not None and right_segment is not None:
+        return left_segment, right_segment
+    return (
+        _parse_scaled_segment(str(relation["left"]), kernel),
+        _parse_scaled_segment(str(relation["right"]), kernel),
+    )
+
+
+def _structured_relation_term(
+    value: Any,
+    kernel: SympyKernel,
+) -> tuple[sp.Expr, str] | None:
+    if not isinstance(value, Mapping) or value.get("segment") is None:
+        return None
+    return (
+        sp.simplify(kernel.expr(str(value.get("scale", "1")))),
+        _canonical_segment_name(value["segment"]),
+    )
 
 
 def _structured_transformation_metadata(

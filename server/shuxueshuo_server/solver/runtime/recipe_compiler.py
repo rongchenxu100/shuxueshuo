@@ -386,6 +386,7 @@ class FunctionalCapabilityCompiler:
         known_runtime_bindings: tuple[
             tuple[str, str, str, str], ...
         ] = (),
+        problem_binding_authority: bool = False,
     ) -> ExactCompiledStep:
         """Compile a typed Functional request without an intermediate draft.
 
@@ -426,6 +427,7 @@ class FunctionalCapabilityCompiler:
             handle_registry=handle_registry,
             question_goals=question_goals,
             functional_consumer_identity_mode="authoritative",
+            problem_binding_authority=problem_binding_authority,
         )
         index.register_projected_state_writes(
             state_writes,
@@ -4706,6 +4708,39 @@ def _projected_state_write(
     return matches[0] if matches else None
 
 
+def _projected_answer_state_write(
+    *,
+    step_id: str,
+    answer_handle: str,
+    output_type: str,
+    writes: tuple[ProjectedStateWrite, ...],
+    handle_registry: CanonicalHandleRegistry,
+) -> ProjectedStateWrite | None:
+    """Find the typed B1 write backing an answer alias."""
+
+    target_handle = handle_registry.answer_target_handles.get(answer_handle)
+    matches = tuple(
+        item
+        for item in writes
+        if item.step_id == step_id
+        and item.runtime_type == output_type
+        and item.typed_slot_id is not None
+        and (
+            target_handle is None
+            or (
+                item.logical_state_key is not None
+                and item.logical_state_key.object_id.value == target_handle
+            )
+        )
+    )
+    if len(matches) > 1:
+        raise StrategyDraftValidationError(
+            "planner_configuration_error: ambiguous answer state write: "
+            f"step={step_id}, answer={answer_handle}, type={output_type}"
+        )
+    return matches[0] if matches else None
+
+
 def _enrich_write_provenance_runtime_symbols(
     provenance: tuple[StateWriteProvenance, ...],
     *,
@@ -5606,6 +5641,33 @@ def _target_path_for_produced(
     point_transition: bool = False,
 ) -> str:
     """把 produces handle 映射到 runtime promote target path。"""
+    if (
+        produced.handle.startswith("answer:")
+        and index.problem_binding_authority
+    ):
+        projected_write = _projected_answer_state_write(
+            step_id=step.step_id,
+            answer_handle=produced.handle,
+            output_type=output_type,
+            writes=index.projected_state_writes,
+            handle_registry=index.handle_registry,
+        )
+        if (
+            projected_write is not None
+            and projected_write.typed_slot_id is not None
+        ):
+            # B1 owns the state storage scope.  The legacy QuestionGoal path
+            # often points object-valued answers at one root output (for
+            # example every scoped parabola at $problem.outputs.parabola),
+            # which collapses distinct StateVersions at aggregate commit.
+            # Direct Functional compilation must materialize the version in
+            # its allocated scope; the answer handle remains an alias to that
+            # exact write through B3 provenance.
+            return _scoped_output_path(
+                index.context,
+                projected_write.typed_slot_id.storage_scope_id,
+                _answer_semantic_name(produced.handle),
+            )
     if produced.handle.startswith("answer:"):
         goal = index.question_goals.get(produced.handle)
         if (

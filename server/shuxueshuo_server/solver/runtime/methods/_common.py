@@ -188,6 +188,21 @@ def _other_segment_endpoint(segment: str, endpoint: str) -> str:
     return segment[1] if segment[0] == endpoint else segment[0]
 
 
+def _canonical_reference_name(value: Any) -> str:
+    """Return the local display name carried by a canonical runtime ref."""
+
+    text = str(value)
+    return text.rsplit(":", 1)[-1] if ":" in text else text
+
+
+def _canonical_segment_name(value: Any) -> str:
+    """Normalize a Segment ref or endpoint pair to its two-point name."""
+
+    if isinstance(value, (list, tuple)) and len(value) == 2:
+        return "".join(_canonical_reference_name(item) for item in value)
+    return _canonical_reference_name(value)
+
+
 def _validate_moving_point_memberships(
     first_segment: list[str],
     second_segment: list[str],

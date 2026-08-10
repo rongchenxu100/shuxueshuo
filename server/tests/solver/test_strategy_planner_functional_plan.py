@@ -7744,7 +7744,7 @@ def test_runtime_path_transformation_identity_drift_is_configuration_error() -> 
         )
 
 
-def test_selector_requires_materialized_point_state() -> None:
+def test_selector_accepts_canonical_materialized_point_state() -> None:
     problem = load_problem_ir(HEPING_ERMO_FIXTURE)
     inputs = replace(build_strategy_probe_inputs(problem), question_goals=[])
     problem_payload = problem_to_llm_payload(problem)
@@ -7763,7 +7763,7 @@ def test_selector_requires_materialized_point_state() -> None:
         handle_registry=registry,
     )
     contextual_catalog = catalog.contextualized(semantic_index)
-    assert contextual_catalog.get("line_intersection_point") is None
+    assert contextual_catalog.get("line_intersection_point") is not None
     capability = catalog.get("square_adjacent_vertex_from_side")
     assert capability is not None
     args = {item.name: item for item in capability.args}

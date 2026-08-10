@@ -5,6 +5,9 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from typing import Any, Literal, Mapping
 
+from shuxueshuo_server.solver.extraction.problem_planning_binding import (
+    ProblemPlanningBindingCatalog,
+)
 from shuxueshuo_server.solver.runtime.answer_goal_verifier import (
     AnswerGoalVerificationReport,
     AnswerGoalVerifier,
@@ -369,6 +372,7 @@ class PlannerRetryReplayService:
         planner_state_context: PlannerStateContext | None = None,
         validation_report: FunctionalPlanValidationReport | None = None,
         retry_checkpoint: FunctionalRetryGraphCheckpoint | None = None,
+        problem_binding_catalog: ProblemPlanningBindingCatalog | None = None,
     ) -> PlannerRetryReplayResult:
         """Reconcile and execute a FunctionalPlan through typed authority."""
         planner_state_context = planner_state_context or _initial_planner_state_context(
@@ -412,6 +416,7 @@ class PlannerRetryReplayService:
                 if retry_checkpoint is not None
                 else {}
             ),
+            problem_binding_catalog=problem_binding_catalog,
         )
         # A retryable reconciliation issue can leave ``calls`` as a partial
         # graph. Auditing committed versions against that partial view masks

@@ -447,7 +447,9 @@ class ContextBuilder:
         self._populate_function(context)
         self._populate_question_coefficients(context)
         self._populate_points(context)
+        self._populate_canonical_state_facts(context)
         self._populate_question_conditions(context)
+        self._populate_canonical_fact_conditions(context)
         return context
 
     def _populate_problem_scope(self, context: RuntimeContext) -> None:
@@ -643,6 +645,49 @@ class ContextBuilder:
                     source=f"point:{name}",
                 )
 
+    def _populate_canonical_state_facts(self, context: RuntimeContext) -> None:
+        """Materialize source state facts at their lexical runtime scope.
+
+        Canonical entities carry logical identity, while facts such as a point
+        coordinate carry one scope-local state of that identity.  Keeping the
+        coordinate only in the flat fact table gives PlannerStateContext a
+        typed version that RuntimeContext cannot read.  Materialize these
+        source states after entity identities so a child can read its exact
+        snapshot without replacing the ancestor object.
+        """
+
+        for fact in context.problem.data.get("facts", ()):
+            if not isinstance(fact, Mapping):
+                continue
+            fact_type = str(fact.get("type", ""))
+            scope_id = str(
+                fact.get("valid_scope", fact.get("scope_id", "problem"))
+            )
+            if scope_id not in context.scopes:
+                raise ValueError(
+                    f"canonical state fact references unknown scope: {scope_id}"
+                )
+            if fact_type == "point_coordinate":
+                subject = str(fact.get("subject", ""))
+                value = fact.get("value")
+                if not subject.startswith("point:") or not (
+                    isinstance(value, list | tuple) and len(value) == 2
+                ):
+                    raise ValueError(
+                        "canonical point_coordinate requires a Point subject "
+                        "and a two-item value"
+                    )
+                name = subject.rsplit(":", 1)[-1]
+                context.get_scope(scope_id).container("points")[name] = TypedValue(
+                    "Point",
+                    (
+                        context.kernel.expr(value[0], context.symbols),
+                        context.kernel.expr(value[1], context.symbols),
+                    ),
+                    locked=True,
+                    source="canonical_facts",
+                )
+
     def _populate_question_conditions(self, context: RuntimeContext) -> None:
         """把每个 question/subquestion 的 conditions 写入对应 scope。"""
         for scope in list(context.scopes.values()):
@@ -655,6 +700,50 @@ class ContextBuilder:
                 scope.container("conditions")[condition_type] = TypedValue(
                     "Condition", dict(condition), locked=True, source=f"question:{scope.scope_id}",
                 )
+
+    def _populate_canonical_fact_conditions(
+        self,
+        context: RuntimeContext,
+    ) -> None:
+        """Keep every canonical condition addressable by its fact identity.
+
+        Legacy question conditions use the fact type as their key.  Two facts
+        of the same type therefore share that compatibility alias.  The typed
+        Functional path must instead read the exact canonical fact selected by
+        C3, so each source fact also receives a stable handle-derived key.
+        """
+
+        excluded = {
+            "coefficient_relation",
+            "function_expression",
+            "orientation_constraint",
+            "point_coordinate",
+            "symbol_value",
+        }
+        for fact in context.problem.data.get("facts", ()):
+            if not isinstance(fact, Mapping):
+                continue
+            fact_type = str(fact.get("type", ""))
+            handle = str(fact.get("handle", ""))
+            if not fact_type or not handle or fact_type in excluded:
+                continue
+            scope_id = str(
+                fact.get("valid_scope", fact.get("scope_id", "problem"))
+            )
+            if scope_id not in context.scopes:
+                raise ValueError(
+                    f"canonical fact references unknown scope: {scope_id}"
+                )
+            key = handle.rsplit(":", 1)[-1]
+            value_type = (
+                "Constraint" if fact_type == "symbol_constraint" else "Condition"
+            )
+            context.get_scope(scope_id).container("conditions")[key] = TypedValue(
+                value_type,
+                dict(fact),
+                locked=True,
+                source="canonical_facts",
+            )
 
     def _choose_point_scope(
         self,
@@ -673,6 +762,15 @@ class ContextBuilder:
         """
         definition = raw.get("definition")
         raw_scope = str(raw.get("scope_id") or "").strip()
+        if (
+            str(raw.get("source", "")).startswith("ProblemIR.")
+            and raw_scope in context.scopes
+        ):
+            # Canonical ProblemIR already carries the lexical owner selected by
+            # the verified domain projection.  Legacy fixtures still use the
+            # heuristics below, but a canonical identity must not drift merely
+            # because one child question happens to mention the point.
+            return raw_scope
         if raw_scope == "problem" and "coordinate" in raw:
             return "problem"
         if raw_scope and raw_scope != "problem" and raw_scope in context.scopes:

@@ -38,8 +38,8 @@ EXPECTED_IDENTITIES = {
         "6bd16268033943d569e536ce4e04b1cd7a2321c528d1c475e509cbf04d80eb25",
     ),
     "tj-2026-nankai-yimo-25": (
-        "problem-revision:3af092af51385fcaaa9711dab7d9dc2f827c7d0f8b0620c73d5b4ced69453893",
-        "cea078e4e2b682b1666c592527eee8c85458963ae25df24be26988cd4e2ee5c2",
+        "problem-revision:4aad5615f12b11f6f861f7502e715b211b80ab6188efb1fbbb8f386197d8bdec",
+        "8d66378678912def5acb4dd6e4a4ecf98ab166b89ed7d39f2fda6db999f73265",
     ),
     "tj-2026-xiqing-yimo-25": (
         "problem-revision:23569dc0db8acf3ca5d8c831bf80487ab0e9262e40ec35953f1f45469ae454d6",

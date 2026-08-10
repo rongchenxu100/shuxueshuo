@@ -190,6 +190,7 @@ class FunctionalBindingContextBuilder:
         catalog: FunctionalCapabilityCatalog,
         object_registry: MathObjectRegistry | None = None,
         resolver_injected_arg_keys: frozenset[tuple[str, str]] = frozenset(),
+        force_exact_source_versions: bool = False,
     ) -> FunctionalBindingContext:
         wire_calls = {item.call_id: item for item in plan.calls}
         bindings: list[FunctionalArgBinding] = []
@@ -268,12 +269,25 @@ class FunctionalBindingContextBuilder:
                                 source=_source_identity(
                                     value,
                                     object_registry=object_registry,
+                                    prefer_call_result=(
+                                        force_exact_source_versions
+                                    ),
                                 ),
                                 selection_policy=(
-                                    "identity_only"
-                                    if value.state_version_id is None
-                                    and value.math_object_id is not None
-                                    else "latest"
+                                    "exact"
+                                    if force_exact_source_versions
+                                    and value.source_call_id is not None
+                                    and value.return_name is not None
+                                    else (
+                                        "identity_only"
+                                        if value.state_version_id is None
+                                        and value.math_object_id is not None
+                                        else (
+                                            "exact"
+                                            if force_exact_source_versions
+                                            else "latest"
+                                        )
+                                    )
                                 ),
                                 consumption_mode=(
                                     context_spec.consumption_mode
@@ -337,9 +351,15 @@ class FunctionalBindingContextBuilder:
                             source=_source_identity(
                                 value,
                                 object_registry=object_registry,
+                                prefer_call_result=(
+                                    force_exact_source_versions
+                                ),
                             ),
                             runtime_targets=runtime_targets,
                             consumption_mode=consumption_mode,
+                            force_exact_source_versions=(
+                                force_exact_source_versions
+                            ),
                         )
                     )
             for auto_arg in capability.auto_args:
@@ -391,19 +411,25 @@ class FunctionalBindingContextBuilder:
         source: FunctionalArgSourceIdentity,
         runtime_targets: tuple[str, ...],
         consumption_mode: FunctionalArgConsumptionMode,
+        force_exact_source_versions: bool = False,
     ) -> FunctionalArgBinding:
         if not runtime_targets and consumption_mode == "runtime_input":
             raise FunctionalBindingContextError(
                 "planner.functional_runtime_input_mapping_drift",
                 f"{call_id}.{arg_name} has no runtime input target",
             )
-        if spec.requires_materialized_state and source.kind != "state_version":
+        if spec.requires_materialized_state and source.kind not in {
+            "state_version",
+            "call_result",
+        }:
             raise FunctionalBindingContextError(
                 "planner.functional_arg_version_drift",
                 f"materialized arg {call_id}.{arg_name}[{item_index}] has no StateVersionId",
             )
         selection: FunctionalArgSelectionPolicy
-        if selection_policy is not None:
+        if force_exact_source_versions and source.kind == "state_version":
+            selection = "exact"
+        elif selection_policy is not None:
             selection = selection_policy
         elif source.kind == "math_object":
             selection = "identity_only"
@@ -432,7 +458,18 @@ def _source_identity(
     value: ResolvedFunctionalValue,
     *,
     object_registry: MathObjectRegistry | None,
+    prefer_call_result: bool = False,
 ) -> FunctionalArgSourceIdentity:
+    if (
+        prefer_call_result
+        and value.source_call_id is not None
+        and value.return_name is not None
+    ):
+        return FunctionalArgSourceIdentity(
+            kind="call_result",
+            source_call_id=value.source_call_id,
+            source_return_name=value.return_name,
+        )
     if value.condition_id is not None:
         return FunctionalArgSourceIdentity(kind="condition", condition_id=value.condition_id)
     if value.state_version_id is not None:

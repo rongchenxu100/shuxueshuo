@@ -38,6 +38,9 @@ from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegi
 from shuxueshuo_server.solver.runtime.planner_state_context import (
     PlannerStateContext,
 )
+from shuxueshuo_server.solver.runtime.semantic_reads import (
+    SemanticReadCatalogItem,
+)
 from shuxueshuo_server.solver.runtime.state_identity import (
     LogicalStateKey,
     MathObjectId,
@@ -196,6 +199,7 @@ class FunctionalPlanElaborator:
         *,
         catalog: FunctionalCapabilityCatalog,
         semantic_index: FunctionalSemanticIndex | None = None,
+        call_authority_signatures: Mapping[str, str] | None = None,
         pinned_canonical_call_ids: frozenset[str] = frozenset(),
     ) -> FunctionalPlanElaborationResult:
         issues: list[FunctionalPlanIssue] = []
@@ -215,6 +219,11 @@ class FunctionalPlanElaborator:
         for scope in plan.scopes:
             calls: list[FunctionalCall] = []
             for call in scope.calls:
+                call_semantic_index = (
+                    semantic_index.for_call(call.call_id)
+                    if semantic_index is not None
+                    else None
+                )
                 capability = catalog.get(call.capability_id)
                 if capability is None:
                     calls.append(call)
@@ -269,17 +278,17 @@ class FunctionalPlanElaborator:
                 normalized_args = _reclassify_unique_semantic_args(
                     normalized_args,
                     arg_specs=arg_specs,
-                    semantic_index=semantic_index,
+                    semantic_index=call_semantic_index,
                     declared_call_returns=declared_call_returns,
                     scope_id=scope.scope_id,
                     call_id=call.call_id,
                     repairs=repairs,
                 )
-                if semantic_index is not None:
+                if call_semantic_index is not None:
                     normalized_args = _drop_redundant_incompatible_optional_args(
                         normalized_args,
                         arg_specs=arg_specs,
-                        semantic_index=semantic_index,
+                        semantic_index=call_semantic_index,
                         scope_id=scope.scope_id,
                         call_id=call.call_id,
                         repairs=repairs,
@@ -325,6 +334,7 @@ class FunctionalPlanElaborator:
             repairs=repairs,
             issues=issues,
             semantic_index=semantic_index,
+            call_authority_signatures=call_authority_signatures,
             pinned_canonical_call_ids=pinned_canonical_call_ids,
         )
         final_call_ids = {call.call_id for call in elaborated_plan.calls}
@@ -422,6 +432,7 @@ def _merge_equivalent_object_calls(
     repairs: list[FunctionalDeterministicRepair],
     issues: list[FunctionalPlanIssue],
     semantic_index: FunctionalSemanticIndex | None,
+    call_authority_signatures: Mapping[str, str] | None = None,
     pinned_canonical_call_ids: frozenset[str] = frozenset(),
 ) -> tuple[FunctionalPlan, dict[str, str]]:
     call_aliases: dict[str, str] = {}
@@ -439,7 +450,14 @@ def _merge_equivalent_object_calls(
                 and _wire_inputs_are_version_stable(call, capability)
             )
             execution_fingerprint = (
-                _call_execution_fingerprint(call)
+                _call_execution_fingerprint(
+                    call,
+                    authority_signature=(
+                        (call_authority_signatures or {}).get(
+                            raw_call.call_id
+                        )
+                    ),
+                )
                 if wire_inputs_are_stable
                 else None
             )
@@ -508,7 +526,14 @@ def _merge_equivalent_object_calls(
                         continue
 
             fingerprint = (
-                _object_bound_call_fingerprint(call)
+                _object_bound_call_fingerprint(
+                    call,
+                    authority_signature=(
+                        (call_authority_signatures or {}).get(
+                            raw_call.call_id
+                        )
+                    ),
+                )
                 if wire_inputs_are_stable
                 else None
             )
@@ -612,13 +637,18 @@ def _merge_equivalent_object_calls(
     )
 
 
-def _call_execution_fingerprint(call: FunctionalCall) -> str:
+def _call_execution_fingerprint(
+    call: FunctionalCall,
+    *,
+    authority_signature: str | None = None,
+) -> str:
     payload = {
         "capability_id": call.capability_id,
         "args": {
             name: [item.to_payload() for item in values]
             for name, values in call.args.items()
         },
+        "problem_authority_signature": authority_signature,
     }
     return json.dumps(payload, ensure_ascii=True, sort_keys=True)
 
@@ -793,7 +823,11 @@ def _replace_located_call(
         prior_scope_calls[call_scope][call_index] = call
 
 
-def _object_bound_call_fingerprint(call: FunctionalCall) -> str | None:
+def _object_bound_call_fingerprint(
+    call: FunctionalCall,
+    *,
+    authority_signature: str | None = None,
+) -> str | None:
     if not call.return_bindings:
         return None
     if any(binding.kind == "answer" for binding in call.return_bindings.values()):
@@ -808,6 +842,7 @@ def _object_bound_call_fingerprint(call: FunctionalCall) -> str | None:
             name: binding.to_payload()
             for name, binding in call.return_bindings.items()
         },
+        "problem_authority_signature": authority_signature,
     }
     return json.dumps(payload, ensure_ascii=True, sort_keys=True)
 
@@ -1061,11 +1096,17 @@ class FunctionalSemanticIndex:
         handle_registry: CanonicalHandleRegistry,
         entity_payloads: Mapping[str, Mapping[str, Any]] | None = None,
         fact_payloads: Mapping[str, Mapping[str, Any]] | None = None,
+        allowed_ref_keys_by_call: Mapping[
+            str, frozenset[tuple[str, str]]
+        ] | None = None,
     ) -> None:
         self.views = tuple(views)
         self.handle_registry = handle_registry
         self.entity_payloads = dict(entity_payloads or {})
         self.fact_payloads = dict(fact_payloads or {})
+        self.allowed_ref_keys_by_call = dict(
+            allowed_ref_keys_by_call or {}
+        )
 
     @classmethod
     def from_context(
@@ -1073,6 +1114,23 @@ class FunctionalSemanticIndex:
         context: PlannerStateContext,
         *,
         handle_registry: CanonicalHandleRegistry,
+    ) -> "FunctionalSemanticIndex":
+        return cls.from_semantic_items(
+            context,
+            context.semantic_read_catalog(),
+            handle_registry=handle_registry,
+        )
+
+    @classmethod
+    def from_semantic_items(
+        cls,
+        context: PlannerStateContext,
+        semantic_items: Sequence[SemanticReadCatalogItem],
+        *,
+        handle_registry: CanonicalHandleRegistry,
+        allowed_ref_keys_by_call: Mapping[
+            str, frozenset[tuple[str, str]]
+        ] | None = None,
     ) -> "FunctionalSemanticIndex":
         state_slots = {item.slot_id: item for item in context.state.state_slots}
         conditions = {
@@ -1099,7 +1157,7 @@ class FunctionalSemanticIndex:
         )
         symbol_handles = _symbol_handles_by_name(entity_payloads)
         views: list[FunctionalSemanticView] = []
-        for item in context.semantic_read_catalog():
+        for item in semantic_items:
             if not item.prompt_visible:
                 continue
             slot = state_slots.get(item.state_slot_id or "")
@@ -1351,6 +1409,36 @@ class FunctionalSemanticIndex:
             handle_registry=handle_registry,
             entity_payloads=entity_payloads,
             fact_payloads=fact_payloads,
+            allowed_ref_keys_by_call=allowed_ref_keys_by_call,
+        )
+
+    def with_call_allowlists(
+        self,
+        allowed_ref_keys_by_call: Mapping[
+            str, frozenset[tuple[str, str]]
+        ],
+    ) -> "FunctionalSemanticIndex":
+        return FunctionalSemanticIndex(
+            self.views,
+            handle_registry=self.handle_registry,
+            entity_payloads=self.entity_payloads,
+            fact_payloads=self.fact_payloads,
+            allowed_ref_keys_by_call=allowed_ref_keys_by_call,
+        )
+
+    def for_call(self, call_id: str) -> "FunctionalSemanticIndex":
+        allowed = self.allowed_ref_keys_by_call.get(call_id)
+        if allowed is None:
+            return self
+        return FunctionalSemanticIndex(
+            tuple(
+                item
+                for item in self.views
+                if (item.ref, item.kind) in allowed
+            ),
+            handle_registry=self.handle_registry,
+            entity_payloads=self.entity_payloads,
+            fact_payloads=self.fact_payloads,
         )
 
     def materialize_function_state(

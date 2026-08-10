@@ -250,6 +250,27 @@
               "start": "D",
               "end": "N"
             }
+          },
+          {
+            "kind": "minimum_target",
+            "expression": {
+              "terms": [
+                {
+                  "scale": "1",
+                  "segment": {
+                    "start": "E",
+                    "end": "G"
+                  }
+                },
+                {
+                  "scale": "1",
+                  "segment": {
+                    "start": "F",
+                    "end": "G"
+                  }
+                }
+              ]
+            }
           }
         ],
         "goals": [],
@@ -270,27 +291,6 @@
                 },
                 "value": "sqrt(10)",
                 "power": 1
-              },
-              {
-                "kind": "minimum_target",
-                "expression": {
-                  "terms": [
-                    {
-                      "scale": "1",
-                      "segment": {
-                        "start": "E",
-                        "end": "G"
-                      }
-                    },
-                    {
-                      "scale": "1",
-                      "segment": {
-                        "start": "F",
-                        "end": "G"
-                      }
-                    }
-                  ]
-                }
               }
             ],
             "goals": [

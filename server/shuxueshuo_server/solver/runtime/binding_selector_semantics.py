@@ -170,9 +170,7 @@ _PREFIX_SELECTOR_SEMANTICS: tuple[tuple[str, SelectorSemantics], ...] = (
     ),
     (
         "intersection:",
-        SelectorSemantics(
-            context_prerequisites=("fact_type:segment_relation",),
-        ),
+        SelectorSemantics(),
     ),
     ("symbol:", SelectorSemantics(mechanical=True)),
     ("function:", SelectorSemantics(mechanical=True)),

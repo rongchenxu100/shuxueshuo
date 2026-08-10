@@ -129,7 +129,7 @@ class PathReductionRoleResolver:
             )
         memberships = _visible_facts(
             registry,
-            fact_type="segment_membership",
+            fact_types=("segment_membership", "point_on_segment"),
             scope_id=scope_id,
         )
         path_outer_points = tuple(
@@ -183,7 +183,7 @@ class PathReductionRoleResolver:
 
         relations = _visible_facts(
             registry,
-            fact_type="segment_relation",
+            fact_types=("segment_relation", "segment_length_relation"),
             scope_id=scope_id,
         )
         compatible: list[tuple[str, str, str]] = []
@@ -305,13 +305,14 @@ def resolve_read_closed_path_reduction_inputs(
 def _visible_facts(
     registry: CanonicalHandleRegistry,
     *,
-    fact_type: str,
+    fact_types: str | Sequence[str],
     scope_id: str,
 ) -> tuple[str, ...]:
     return tuple(
         handle
         for handle, current_type in registry.fact_types.items()
-        if current_type == fact_type
+        if current_type
+        in ({fact_types} if isinstance(fact_types, str) else set(fact_types))
         and visible_from_valid_scope(
             registry.handle_valid_scopes.get(handle, "problem"),
             scope_id=scope_id,
@@ -403,6 +404,22 @@ def _relation_terms(
     *,
     scope_id: str,
 ) -> tuple[ScaledPathSegmentRef, ...]:
+    left_segment = payload.get("left_segment")
+    right_segment = payload.get("right_segment")
+    if (
+        isinstance(left_segment, str)
+        and isinstance(right_segment, str)
+    ):
+        return (
+            ScaledPathSegmentRef(
+                "1",
+                _entity_segment(left_segment, registry),
+            ),
+            ScaledPathSegmentRef(
+                str(payload.get("scale", "1")),
+                _entity_segment(right_segment, registry),
+            ),
+        )
     structured = tuple(
         _structured_scaled_segment(payload.get(key))
         for key in ("left_term", "right_term")

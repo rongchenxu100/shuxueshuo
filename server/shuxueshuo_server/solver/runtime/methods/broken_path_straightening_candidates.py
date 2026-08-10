@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from ._common import *
+from ._common import _canonical_reference_name, _canonical_segment_name
 from ._spec import MethodSpecSource
 
 
@@ -201,8 +202,8 @@ def _line_from_inputs(
     return (
         inputs["line_point_1"],
         inputs["line_point_2"],
-        "".join(str(name) for name in moving_membership["segment"]),
-        str(moving_membership["point"]),
+        _canonical_segment_name(moving_membership["segment"]),
+        _canonical_reference_name(moving_membership["point"]),
     )
 
 

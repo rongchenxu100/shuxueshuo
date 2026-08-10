@@ -10,6 +10,7 @@ from typing import Any, Iterable, Mapping, Sequence
 import unicodedata
 
 from jsonschema import Draft202012Validator
+import sympy as sp
 
 from shuxueshuo_server.solver.extraction.problem_domain import (
     ProblemDomainError,
@@ -745,6 +746,7 @@ class ProblemDomainProjector:
                     "point_on_ray",
                     "point_on_axis",
                     "midpoint",
+                    "square",
                     "square_center",
                 }
             ),
@@ -938,7 +940,22 @@ class ProblemDomainProjector:
             segment_handle = segments.materialize(scope, attrs["segment"], fact.unit_id)
             if int(attrs["power"]) == 2:
                 return {**base, "type": "length_squared", "segment": segment_handle, "value": str(attrs["value"])}
-            return {**base, "type": "segment_length", "segment": segment_handle, "value": str(attrs["value"])}
+            try:
+                squared_value = sp.sstr(
+                    sp.simplify(sp.sympify(str(attrs["value"])) ** 2)
+                )
+            except (TypeError, ValueError, sp.SympifyError) as exc:
+                raise ProblemDomainError(
+                    "extraction.problem_projection_failed",
+                    f"$.root[{scope.path_id}].facts[{fact.unit_id}]",
+                    "length value cannot be projected to squared length",
+                ) from exc
+            return {
+                **base,
+                "type": "length_squared",
+                "segment": segment_handle,
+                "value": squared_value,
+            }
         if kind == "length_relation":
             left = attrs["left"]
             right = attrs["right"]
@@ -1064,7 +1081,11 @@ class ProblemDomainProjector:
                 "valid_scope": target.canonical_scope_id,
             }
         if goal.kind == "parameter_value":
-            index.resolve_kind(scope.path_id, str(attrs["target"]), ("symbol",))
+            index.resolve_kind(
+                scope.path_id,
+                str(attrs["target"]),
+                ("symbol",),
+            )
             return {**base, "value_type": "ParameterValue"}
         if goal.kind == "minimum_value":
             _length_sum_name(segments, scope, attrs["expression"])
@@ -1144,6 +1165,22 @@ def _facts_targeting_entity(
     # ancestor's canonical definition or leak into a sibling branch.
     candidate_scope = index.scope_by_path[target.scope.path_id]
     for fact in candidate_scope.facts:
+        if fact.kind == "square":
+            orientation = fact.attributes.get("orientation")
+            value = (
+                orientation.get("point")
+                if isinstance(orientation, Mapping)
+                else None
+            )
+            if isinstance(value, str):
+                try:
+                    resolved = index.resolve(candidate_scope.path_id, value)
+                except ProblemDomainError:
+                    pass
+                else:
+                    if resolved.entity.unit_id == target.entity.unit_id:
+                        result.append(fact)
+                        continue
         for key in ("point", "function", "symbol"):
             value = fact.attributes.get(key)
             if not isinstance(value, str):
@@ -1284,6 +1321,11 @@ def _apply_relation_owned_point_definition(
         )
     elif fact.kind == "square_center":
         payload["definition"] = "square_diagonal_intersection"
+    elif fact.kind == "square":
+        payload["definition"] = "square_adjacent_vertex"
+        orientation = attrs.get("orientation")
+        if isinstance(orientation, Mapping):
+            payload["orientation"] = deepcopy(dict(orientation))
 
 
 def _segment_endpoint_handles(

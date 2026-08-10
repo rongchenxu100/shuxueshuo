@@ -112,6 +112,13 @@ from shuxueshuo_server.solver.runtime.functional_plan_models import (
     ResolvedFunctionalValue,
     _issue,
 )
+from shuxueshuo_server.solver.extraction.problem_planning_binding import (
+    ProblemCallGoalBinding,
+    ProblemPlanGoalBindings,
+    ProblemPlanningBindingCatalog,
+    build_functional_problem_binding_context,
+)
+from shuxueshuo_server.solver.extraction.source_identity import stable_hash
 from shuxueshuo_server.solver.runtime.handle_alias_index import visible_from_valid_scope
 from shuxueshuo_server.solver.runtime.handle_registry import CanonicalHandleRegistry
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
@@ -201,6 +208,36 @@ class _PreparedFunctionalReconciliation:
     planned_target_objects: dict[tuple[str, str], str]
     explicitly_bound_answer_refs: frozenset[str]
     placement_service: FunctionalCallPlacementService
+    problem_binding_catalog: ProblemPlanningBindingCatalog | None = None
+    problem_goal_bindings: ProblemPlanGoalBindings | None = None
+
+
+def _stable_problem_call_authority(
+    binding: ProblemCallGoalBinding,
+    allowed_ref_keys: frozenset[tuple[str, str]],
+) -> str:
+    return stable_hash(
+        {
+            "goal_unit_ids": list(binding.effective_goal_unit_ids),
+            "allowed_ref_keys": [list(item) for item in sorted(allowed_ref_keys)],
+        }
+    )
+
+
+def _problem_goal_binding_issues(
+    bindings: ProblemPlanGoalBindings,
+) -> tuple[FunctionalPlanIssue, ...]:
+    return tuple(
+        _issue(
+            "functional_reconciliation",
+            item.code,
+            item.message,
+            call_id=item.call_id,
+            scope_id=item.scope_id,
+            details=dict(item.details or {}),
+        )
+        for item in bindings.issues
+    )
 
 
 class _NormalizeElaborateScopeStage:
@@ -215,13 +252,22 @@ class _NormalizeElaborateScopeStage:
         method_specs: MethodSpecRegistry,
         handle_registry: CanonicalHandleRegistry,
         question_goals: Sequence[QuestionGoal],
+        problem_binding_catalog: ProblemPlanningBindingCatalog | None = None,
         pinned_canonical_call_ids: frozenset[str] = frozenset(),
     ) -> _PreparedFunctionalReconciliation:
-        semantic_items = planner_state_context.semantic_read_catalog()
-        semantic_index = FunctionalSemanticIndex.from_context(
-            planner_state_context,
-            handle_registry=handle_registry,
-        )
+        if problem_binding_catalog is None:
+            semantic_items = planner_state_context.semantic_read_catalog()
+            semantic_index = FunctionalSemanticIndex.from_context(
+                planner_state_context,
+                handle_registry=handle_registry,
+            )
+        else:
+            semantic_items = problem_binding_catalog.semantic_read_items()
+            semantic_index = FunctionalSemanticIndex.from_semantic_items(
+                planner_state_context,
+                semantic_items,
+                handle_registry=handle_registry,
+            )
         catalog = FunctionalCapabilityCatalog.from_family_spec(
             family_spec,
             method_specs,
@@ -265,6 +311,34 @@ class _NormalizeElaborateScopeStage:
             handle_registry=handle_registry,
             semantic_items=semantic_items,
         )
+        problem_goal_bindings = (
+            problem_binding_catalog.bind_plan(plan)
+            if problem_binding_catalog is not None
+            else None
+        )
+        problem_binding_issues = (
+            _problem_goal_binding_issues(problem_goal_bindings)
+            if problem_goal_bindings is not None
+            else ()
+        )
+        call_authority_signatures: dict[str, str] = {}
+        if problem_goal_bindings is not None:
+            call_allowlists: dict[
+                str, frozenset[tuple[str, str]]
+            ] = {}
+            for call_id, binding in problem_goal_bindings.calls.items():
+                # Elaboration resolves call inputs only. Answer authorities are
+                # validated separately at explicit return bindings and must
+                # never become an implicit C3 source.
+                allowed = frozenset(binding.allowed_ref_keys)
+                call_allowlists[call_id] = allowed
+                call_authority_signatures[call_id] = _stable_problem_call_authority(
+                    binding,
+                    allowed,
+                )
+            semantic_index = semantic_index.with_call_allowlists(
+                call_allowlists
+            )
         plan, existing_state_repairs = _drop_redundant_existing_state_creates(
             plan,
             catalog=catalog,
@@ -292,11 +366,16 @@ class _NormalizeElaborateScopeStage:
             plan,
             catalog=catalog,
             semantic_index=semantic_index,
+            call_authority_signatures=call_authority_signatures,
             pinned_canonical_call_ids=pinned_canonical_call_ids,
         )
         elaboration = replace(
             elaboration,
-            issues=(*ordering_issues, *elaboration.issues),
+            issues=(
+                *ordering_issues,
+                *problem_binding_issues,
+                *elaboration.issues,
+            ),
             deterministic_repairs=(
                 *ordering_repairs,
                 *semantic_return_role_repairs,
@@ -379,6 +458,8 @@ class _NormalizeElaborateScopeStage:
                 if binding.kind == "answer"
             ),
             placement_service=placement_service,
+            problem_binding_catalog=problem_binding_catalog,
+            problem_goal_bindings=problem_goal_bindings,
         )
 
 
@@ -664,6 +745,7 @@ class FunctionalPlanReconciler:
         method_specs: MethodSpecRegistry,
         handle_registry: CanonicalHandleRegistry,
         question_goals: Sequence[QuestionGoal],
+        problem_binding_catalog: ProblemPlanningBindingCatalog | None = None,
         pinned_canonical_call_ids: Sequence[str] = (),
         pinned_execution_scopes: Mapping[str, str] | None = None,
         pinned_return_scopes: Mapping[str, Mapping[str, str]] | None = None,
@@ -676,6 +758,7 @@ class FunctionalPlanReconciler:
             method_specs=method_specs,
             handle_registry=handle_registry,
             question_goals=question_goals,
+            problem_binding_catalog=problem_binding_catalog,
             pinned_canonical_call_ids=frozenset(
                 pinned_canonical_call_ids
             ),
@@ -791,12 +874,13 @@ class FunctionalPlanReconciler:
                 )
                 continue
             resolution_scope_id = call_execution_scopes[call.call_id]
+            call_semantic_index = semantic_index.for_call(call.call_id)
             call, resolved_args = _resolve_explicit_call_args(
                 capability,
                 call,
                 declared_scope_id=scope.scope_id,
                 resolution_scope_id=resolution_scope_id,
-                semantic_index=semantic_index,
+                semantic_index=call_semantic_index,
                 produced=produced,
                 handle_registry=handle_registry,
                 known_call_ids=set(call_scopes),
@@ -837,7 +921,7 @@ class FunctionalPlanReconciler:
                     call_id=call.call_id,
                     scope_id=resolution_scope_id,
                     produced=produced,
-                    semantic_index=semantic_index,
+                    semantic_index=call_semantic_index,
                     handle_registry=handle_registry,
                 )
             )
@@ -860,7 +944,7 @@ class FunctionalPlanReconciler:
                 call_id=call.call_id,
                 scope_id=resolution_scope_id,
                 produced=produced,
-                semantic_index=semantic_index,
+                semantic_index=call_semantic_index,
                 handle_registry=handle_registry,
                 planned_return_expectations=planned_return_expectations,
             )
@@ -940,7 +1024,7 @@ class FunctionalPlanReconciler:
                 call_id=call.call_id,
                 scope_id=resolution_scope_id,
                 produced=produced,
-                semantic_index=semantic_index,
+                semantic_index=call_semantic_index,
                 handle_registry=handle_registry,
             )
             resolved_args.update(closure_args)
@@ -952,7 +1036,7 @@ class FunctionalPlanReconciler:
                 call_id=call.call_id,
                 scope_id=resolution_scope_id,
                 produced=produced,
-                semantic_index=semantic_index,
+                semantic_index=call_semantic_index,
                 handle_registry=handle_registry,
             )
             resolved_args.update(input_closure.additions)
@@ -968,7 +1052,7 @@ class FunctionalPlanReconciler:
                 call_id=call.call_id,
                 scope_id=resolution_scope_id,
                 produced=produced,
-                semantic_index=semantic_index,
+                semantic_index=call_semantic_index,
                 handle_registry=handle_registry,
             )
             resolved_args.update(post_closure_args)
@@ -1057,7 +1141,7 @@ class FunctionalPlanReconciler:
                 ),
                 produced=produced,
                 scope_id=resolution_scope_id,
-                semantic_index=semantic_index,
+                semantic_index=call_semantic_index,
             )
             issues.extend(symbol_issues)
             reconciliation_repairs.extend(symbol_repairs)
@@ -1105,7 +1189,7 @@ class FunctionalPlanReconciler:
                     explicitly_bound_answer_refs=explicitly_bound_answer_refs,
                     effective_calls=effective_calls,
                     semantic_items=semantic_items,
-                    semantic_index=semantic_index,
+                    semantic_index=call_semantic_index,
                     planner_state_context=planner_state_context,
                     produced=produced,
                     issues=issues,
@@ -1338,6 +1422,7 @@ class FunctionalPlanReconciler:
             allocation_service=allocation_service,
             placement_mode=self.state_placement_mode,
             state_finalizer_mode=self.state_finalizer_mode,
+            problem_binding_catalog=prepared.problem_binding_catalog,
             pinned_canonical_call_ids=tuple(pinned_canonical_call_ids),
             pinned_execution_scopes=dict(pinned_execution_scopes or {}),
             pinned_return_scopes={
@@ -1534,6 +1619,7 @@ class _PlacementLivenessProjectionStage:
         allocation_service: StateAllocationService,
         placement_mode: StatePlacementMode,
         state_finalizer_mode: StateFinalizerMode,
+        problem_binding_catalog: ProblemPlanningBindingCatalog | None,
         pinned_canonical_call_ids: tuple[str, ...],
         pinned_execution_scopes: Mapping[str, str],
         pinned_return_scopes: Mapping[str, Mapping[str, str]],
@@ -1673,6 +1759,51 @@ class _PlacementLivenessProjectionStage:
         call_reports = list(liveness.call_reports)
         dependency_graph = liveness.dependency_graph
         reconciliation_repairs.extend(liveness.repairs)
+        final_problem_goal_bindings = (
+            problem_binding_catalog.bind_plan(
+                plan,
+                require_goal_reachable=True,
+                additional_dependencies=dependency_graph,
+            )
+            if problem_binding_catalog is not None
+            else None
+        )
+        if final_problem_goal_bindings is not None:
+            issues.extend(
+                _problem_goal_binding_issues(final_problem_goal_bindings)
+            )
+            call_scopes = {
+                item.canonical_call_id: item.execution_scope_id
+                for item in placement.placements
+            }
+            for call_id, binding in final_problem_goal_bindings.calls.items():
+                execution_scope = call_scopes.get(call_id)
+                if execution_scope is None:
+                    continue
+                invisible_goals = tuple(
+                    goal_id
+                    for goal_id in binding.goal_unit_ids
+                    if execution_scope
+                    not in problem_binding_catalog.goal_visible_scope_ids[
+                        goal_id
+                    ]
+                )
+                if invisible_goals:
+                    issues.append(
+                        _issue(
+                            "functional_reconciliation",
+                            "planner.problem_scope_visibility_drift",
+                            (
+                                "call execution scope is outside its GoalView "
+                                "authority"
+                            ),
+                            call_id=call_id,
+                            scope_id=execution_scope,
+                            details={
+                                "goal_unit_ids": list(invisible_goals),
+                            },
+                        )
+                    )
         reconciled_tuple, version_rebases = rebase_live_state_versions(
             tuple(reconciled)
         )
@@ -1860,6 +1991,9 @@ class _PlacementLivenessProjectionStage:
                 ).items()
                 for arg_name in arg_names
             ),
+            force_exact_source_versions=(
+                problem_binding_catalog is not None
+            ),
         )
         functional_binding_audit = audit_functional_arg_binding_projection(
             functional_binding_context,
@@ -1867,6 +2001,17 @@ class _PlacementLivenessProjectionStage:
                 tuple(reconciled),
                 functional_binding_context,
             ),
+        )
+        functional_problem_binding_context = (
+            build_functional_problem_binding_context(
+                problem_binding_catalog,
+                plan,
+                tuple(reconciled),
+                functional_binding_context,
+                goal_bindings=final_problem_goal_bindings,
+            )
+            if problem_binding_catalog is not None and not issues
+            else None
         )
         execution_entries = _functional_execution_entries(
             plan,
@@ -1914,6 +2059,9 @@ class _PlacementLivenessProjectionStage:
                 ),
                 legacy_identity_fallback_count=0,
                 functional_binding_context=functional_binding_context,
+                functional_problem_binding_context=(
+                    functional_problem_binding_context
+                ),
                 functional_binding_decisions=(
                     functional_binding_audit.decisions
                 ),
@@ -1961,6 +2109,9 @@ class _PlacementLivenessProjectionStage:
             ),
             legacy_identity_fallback_count=0,
             functional_binding_context=functional_binding_context,
+            functional_problem_binding_context=(
+                functional_problem_binding_context
+            ),
             functional_binding_decisions=functional_binding_audit.decisions,
             functional_binding_mismatches=functional_binding_audit.mismatches,
             legacy_binding_role_fallback_count=(

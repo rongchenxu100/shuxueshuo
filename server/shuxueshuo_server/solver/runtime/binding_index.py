@@ -75,6 +75,7 @@ class CanonicalRuntimeBindingIndex:
             "authoritative",
         ]
         | None = None,
+        problem_binding_authority: bool = False,
     ) -> None:
         self.context = context
         self.handle_registry = handle_registry
@@ -85,6 +86,7 @@ class CanonicalRuntimeBindingIndex:
         self.functional_consumer_identity_mode = (
             functional_consumer_identity_mode
         )
+        self.problem_binding_authority = problem_binding_authority
         self.declarations: dict[str, Any] = {}
         self.applied_fills: list[FunctionalAppliedFill] = []
         # Accepted Function/Macro writes. Binding selectors use this ledger to
@@ -114,6 +116,7 @@ class CanonicalRuntimeBindingIndex:
             "authoritative",
         ]
         | None = None,
+        problem_binding_authority: bool = False,
     ) -> "CanonicalRuntimeBindingIndex":
         """构建 handle index。"""
         return cls(
@@ -123,6 +126,7 @@ class CanonicalRuntimeBindingIndex:
             functional_consumer_identity_mode=(
                 functional_consumer_identity_mode
             ),
+            problem_binding_authority=problem_binding_authority,
         )
 
     def register(self, handle: str, path: str, value_type: str, *, source: str) -> None:
@@ -1288,6 +1292,25 @@ class CanonicalRuntimeBindingIndex:
         fact_type = self.fact_types.get(handle)
         scope_id = _handle_scope(handle)
         name = _semantic_name(handle)
+        scope = self.context.get_scope(scope_id)
+        canonical_condition = scope.container("conditions").get(name)
+        if (
+            self.problem_binding_authority
+            and canonical_condition is not None
+            and name != fact_type
+        ):
+            self.register(
+                handle,
+                _runtime_path_for_scope(
+                    self.context,
+                    scope_id,
+                    "conditions",
+                    name,
+                ),
+                canonical_condition.type,
+                source="fact",
+            )
+            return
         if fact_type == "coefficient_relation":
             self.register(handle, "$problem.equations.coefficient_relation", "Equation", source="fact")
         elif fact_type == "symbol_constraint":
@@ -1356,9 +1379,14 @@ class CanonicalRuntimeBindingIndex:
                     "point_coordinate_subject_not_found: "
                     f"fact={handle}, subject={point_handle!r}"
                 )
-            point_binding = self.binding_for(point_handle)
-            self.register(handle, point_binding.path, "Point", source="fact")
-            self.register(point_handle, point_binding.path, "Point", source="fact")
+            point_name = self.entity_semantic_name(point_handle)
+            path = _runtime_path_for_scope(
+                self.context,
+                scope_id,
+                "points",
+                point_name,
+            )
+            self.register(handle, path, "Point", source="fact")
         elif fact_type == "symbol_value":
             self._register_symbol_value_fact(handle, scope_id=scope_id)
 

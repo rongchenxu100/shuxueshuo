@@ -1236,10 +1236,17 @@ class PlannerStateContextBuilder:
             problem_payload=problem_payload,
         )
         conditions = _conditions_from_registry(handle_registry)
-        state_slots = {
-            slot.slot_id: slot
-            for slot in _initial_state_slots_from_registry(handle_registry)
-        }
+        state_slots: dict[str, StateSlot] = {}
+        for slot in _initial_state_slots_from_registry(handle_registry):
+            existing = state_slots.get(slot.slot_id)
+            if existing is not None:
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.context_identity_migration_failed: "
+                    f"initial state slot {slot.slot_id} is produced by both "
+                    f"{existing.canonical_handle} and {slot.canonical_handle}"
+                )
+            state_slots[slot.slot_id] = slot
         state_slots = _enrich_initial_state_slots(
             state_slots,
             problem_payload=problem_payload,
@@ -1753,20 +1760,33 @@ def _initial_state_slots_from_registry(
             continue
         runtime_type = _runtime_type_for_handle(handle, registry)
         scope_id = _scope_from_handle(handle) or registry.handle_valid_scopes.get(handle, "problem")
+        object_ref = _state_object_ref_for_fact(
+            handle,
+            runtime_type=runtime_type,
+            scope_id=scope_id,
+            registry=registry,
+        )
         result.append(
             StateSlot(
-                slot_id=_slot_id_for_produced_handle(
-                    handle,
+                slot_id=_slot_id_for_object_ref(
+                    object_ref,
+                    state_kind=_state_kind_from_handle(handle, runtime_type),
                     scope_id=scope_id,
                     runtime_type=runtime_type,
                 ),
-                object_ref=_object_ref_for_handle(handle, runtime_type, scope_id),
+                object_ref=object_ref,
                 state_kind=_state_kind_from_handle(handle, runtime_type),
                 scope_id=scope_id,
                 runtime_type=runtime_type,
                 canonical_handle=handle,
                 aliases=tuple(_aliases_for_handle(handle, registry)),
                 valid_scope=registry.handle_valid_scopes.get(handle),
+                runtime_path=_initial_state_runtime_path(
+                    fact_type=fact_type,
+                    payload=registry.fact_payloads.get(handle, {}),
+                    scope_id=scope_id,
+                    registry=registry,
+                ),
                 status="given",
                 lineage=state_semantic_lineage(
                     semantic_roles=(_semantic_ref(handle),),
@@ -2564,7 +2584,65 @@ def _slot_id_for_produced_handle(
 ) -> str:
     state_kind = _state_kind_from_handle(handle, runtime_type)
     object_ref = _object_ref_for_handle(handle, runtime_type, scope_id)
+    return _slot_id_for_object_ref(
+        object_ref,
+        state_kind=state_kind,
+        scope_id=scope_id,
+        runtime_type=runtime_type,
+    )
+
+
+def _slot_id_for_object_ref(
+    object_ref: str,
+    *,
+    state_kind: str,
+    scope_id: str,
+    runtime_type: str,
+) -> str:
     return f"{object_ref}.{state_kind}@{scope_id}:{runtime_type}"
+
+
+def _state_object_ref_for_fact(
+    handle: str,
+    *,
+    runtime_type: str,
+    scope_id: str,
+    registry: CanonicalHandleRegistry,
+) -> str:
+    payload = registry.fact_payloads.get(handle, {})
+    subject = payload.get("subject")
+    if isinstance(subject, str) and subject in registry.entity_handles:
+        return subject
+    return _object_ref_for_handle(handle, runtime_type, scope_id)
+
+
+def _initial_state_runtime_path(
+    *,
+    fact_type: str,
+    payload: Mapping[str, Any],
+    scope_id: str,
+    registry: CanonicalHandleRegistry,
+) -> str | None:
+    prefix = _runtime_scope_path_prefix(scope_id, registry)
+    subject = payload.get("subject")
+    if fact_type == "point_coordinate" and isinstance(subject, str):
+        return f"{prefix}.points.{subject.rsplit(':', 1)[-1]}"
+    if fact_type == "symbol_value" and isinstance(subject, str):
+        return f"{prefix}.parameter_values.{subject.rsplit(':', 1)[-1]}"
+    if fact_type == "function_expression":
+        return f"{prefix}.expressions.quadratic"
+    return None
+
+
+def _runtime_scope_path_prefix(
+    scope_id: str,
+    registry: CanonicalHandleRegistry,
+) -> str:
+    if scope_id == "problem":
+        return "$problem"
+    parent = registry.scope_parents.get(scope_id)
+    scope_type = "question" if parent == "problem" else "subquestion"
+    return f"${scope_type}.{scope_id}"
 
 
 def _object_ref_for_handle(handle: str, runtime_type: str, scope_id: str) -> str:

@@ -438,9 +438,9 @@ def test_square_center_materializes_both_diagonal_memberships() -> None:
 def test_minimum_value_goal_materializes_its_solver_target_fact() -> None:
     gold = _gold("tj-2026-nankai-yimo-25")
     payload = json.loads(json.dumps(gold))
-    part_ii_1 = _scope(payload, "ii_1")
-    part_ii_1["facts"] = [
-        item for item in part_ii_1["facts"] if item["kind"] != "minimum_target"
+    part_ii = _scope(payload, "ii")
+    part_ii["facts"] = [
+        item for item in part_ii["facts"] if item["kind"] != "minimum_target"
     ]
     expected = ProblemDraft.create(gold)
 
@@ -448,7 +448,7 @@ def test_minimum_value_goal_materializes_its_solver_target_fact() -> None:
 
     assert result.draft.semantic_hash == expected.semantic_hash
     assert any(
-        item.code == "materialize_minimum_goal_target"
+        item.code == "materialize_shared_minimum_target"
         for item in result.actions
     )
     validation = ProblemDomainValidator().validate(result.draft)

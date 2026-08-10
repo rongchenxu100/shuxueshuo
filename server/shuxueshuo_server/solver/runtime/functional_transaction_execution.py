@@ -13,6 +13,10 @@ from typing import Any, Callable, Literal, Mapping, Sequence
 
 import sympy as sp
 
+from shuxueshuo_server.solver.extraction.problem_planning_binding import (
+    FunctionalProblemBindingContext,
+)
+
 from shuxueshuo_server.solver.runtime.answer_goal_verifier import (
     AnswerGoalVerificationReport,
     AnswerGoalVerifier,
@@ -471,12 +475,25 @@ class FunctionalCallPreparationService:
                 "planner.functional_binding_context_incomplete: "
                 f"call={call_id}"
             )
+        problem_binding_context = (
+            reconciliation.functional_problem_binding_context
+        )
+        if problem_binding_context is not None and not isinstance(
+            problem_binding_context,
+            FunctionalProblemBindingContext,
+        ):
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.problem_source_binding_drift: "
+                f"call={call_id}, invalid F5-C sidecar"
+            )
         logical_bindings = binding_context.for_call(call_id)
         runtime_bindings = CanonicalRuntimeBindingIndex.from_context(
             runtime_context,
             handle_registry=handle_registry,
             question_goals=inputs.question_goals,
             functional_consumer_identity_mode="authoritative",
+            problem_binding_authority=(problem_binding_context is not None),
         )
         state_reads: list[PreparedFunctionalStateRead] = []
         snapshot_paths: dict[StateVersionId, str] = {}
@@ -727,6 +744,14 @@ class FunctionalCallPreparationService:
                     ),
                 )
             )
+        if problem_binding_context is not None:
+            _audit_problem_binding_preparation(
+                call_id=call_id,
+                wire_call=wire_call,
+                logical_bindings=logical_bindings,
+                prepared_bindings=tuple(prepared_bindings),
+                problem_binding_context=problem_binding_context,
+            )
         return PreparedFunctionalCall(
             call_id=call_id,
             capability_id=reconciled.capability_id,
@@ -737,6 +762,98 @@ class FunctionalCallPreparationService:
             required_return_names=tuple(sorted(required_return_names)),
             state_reads=tuple(state_reads),
             arg_bindings=tuple(prepared_bindings),
+        )
+
+
+def _audit_problem_binding_preparation(
+    *,
+    call_id: str,
+    wire_call: Any | None,
+    logical_bindings: Sequence[FunctionalArgBinding],
+    prepared_bindings: Sequence[PreparedFunctionalArgBinding],
+    problem_binding_context: FunctionalProblemBindingContext,
+) -> None:
+    goal_ids = problem_binding_context.call_goal_bindings.get(call_id, ())
+    if not goal_ids:
+        raise ValueError(
+            "planner_configuration_error: "
+            "functional.call_goal_unresolved: "
+            f"call={call_id}"
+        )
+    prepared_by_key = {
+        (
+            item.logical_binding.key.arg_name,
+            item.logical_binding.key.item_index,
+        ): item
+        for item in prepared_bindings
+    }
+    for logical in logical_bindings:
+        sidecar = problem_binding_context.input_binding_for(
+            call_id,
+            logical.key.arg_name,
+            logical.key.item_index,
+        )
+        if sidecar is None or sidecar.typed_source != logical.source:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.problem_source_binding_drift: "
+                f"call={call_id}, arg={logical.key.arg_name}"
+                f"[{logical.key.item_index}]"
+            )
+        if sidecar.selection_policy != logical.selection_policy:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.problem_source_binding_drift: "
+                f"call={call_id}, selection policy drift"
+            )
+        if sidecar.source_kind == "problem_source" and (
+            not sidecar.source_unit_ids or sidecar.runtime_node_id is None
+        ):
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.problem_source_binding_unresolved: "
+                f"call={call_id}, arg={logical.key.arg_name}"
+            )
+        prepared = prepared_by_key.get(
+            (logical.key.arg_name, logical.key.item_index)
+        )
+        if prepared is None:
+            raise ValueError(
+                "planner_configuration_error: "
+                "planner.problem_source_binding_drift: "
+                f"call={call_id}, prepared binding missing"
+            )
+        if logical.source.kind == "state_version":
+            if (
+                logical.selection_policy != "exact"
+                or prepared.selected_state_version_id
+                != logical.source.state_version_id
+            ):
+                raise ValueError(
+                    "planner_configuration_error: "
+                    "planner.problem_source_binding_drift: "
+                    f"call={call_id}, source StateVersion was replaced"
+                )
+    if len(problem_binding_context.inputs_for_call(call_id)) != len(
+        logical_bindings
+    ):
+        raise ValueError(
+            "planner_configuration_error: "
+            "planner.problem_source_binding_drift: "
+            f"call={call_id}, input sidecar cardinality drift"
+        )
+    expected_returns = set(
+        wire_call.return_bindings if wire_call is not None else ()
+    )
+    sidecar_returns = {
+        item.return_name
+        for item in problem_binding_context.returns_for_call(call_id)
+    }
+    if expected_returns != sidecar_returns:
+        raise ValueError(
+            "planner_configuration_error: "
+            "planner.problem_source_binding_drift: "
+            f"call={call_id}, return sidecar drift"
         )
 
 
@@ -889,6 +1006,9 @@ class FunctionalCallCompilerService:
             ),
             known_object_refs=frozenset(
                 handle_registry.initial_handles
+            ),
+            problem_binding_authority=(
+                reconciliation.functional_problem_binding_context is not None
             ),
         )
         try:

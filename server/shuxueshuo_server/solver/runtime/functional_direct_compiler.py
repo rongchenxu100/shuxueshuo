@@ -45,6 +45,7 @@ class FunctionalCompileRequest:
     known_state_writes: tuple[StateWriteProvenance, ...] = ()
     known_runtime_bindings: tuple[tuple[str, str, str, str], ...] = ()
     known_object_refs: frozenset[str] = frozenset()
+    problem_binding_authority: bool = False
 
 
 @dataclass(frozen=True)
@@ -140,6 +141,7 @@ class FunctionalDirectCompiler:
             known_state_versions=request.known_versions,
             known_state_writes=request.known_state_writes,
             known_runtime_bindings=request.known_runtime_bindings,
+            problem_binding_authority=request.problem_binding_authority,
         )
         return replace(
             compiled,

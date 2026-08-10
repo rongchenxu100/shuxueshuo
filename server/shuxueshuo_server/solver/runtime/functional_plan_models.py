@@ -814,6 +814,7 @@ class FunctionalPlanReconciliationResult:
     typed_identity_completeness: dict[str, Any] = field(default_factory=dict)
     legacy_identity_fallback_count: int = 0
     functional_binding_context: Any | None = None
+    functional_problem_binding_context: Any | None = None
     functional_binding_decisions: tuple[dict[str, Any], ...] = ()
     functional_binding_mismatches: tuple[dict[str, Any], ...] = ()
     legacy_binding_role_fallback_count: int = 0
@@ -888,6 +889,11 @@ class FunctionalPlanReconciliationResult:
             "functional_binding_context": (
                 self.functional_binding_context.to_payload()
                 if self.functional_binding_context is not None
+                else None
+            ),
+            "functional_problem_binding_context": (
+                self.functional_problem_binding_context.to_payload()
+                if self.functional_problem_binding_context is not None
                 else None
             ),
             "functional_binding_decisions": [
