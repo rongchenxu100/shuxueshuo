@@ -9,6 +9,9 @@ from shuxueshuo_server.solver.extraction.problem_domain import (
     problem_domain_schema,
     problem_repair_schema,
 )
+from shuxueshuo_server.solver.extraction.problem_domain_projection import (
+    solver_problem_projection_schema,
+)
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -19,6 +22,7 @@ def main() -> None:
     schemas = {
         "problem-domain.schema.json": problem_domain_schema(),
         "problem-repair.schema.json": problem_repair_schema(),
+        "solver-problem-projection.schema.json": solver_problem_projection_schema(),
     }
     for name, payload in schemas.items():
         (destination / name).write_text(

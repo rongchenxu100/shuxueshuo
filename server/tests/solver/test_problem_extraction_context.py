@@ -6,6 +6,7 @@ import pytest
 
 from shuxueshuo_server.solver.extraction.context import (
     CONTEXT_SCHEMA_VERSION,
+    ExtractionArtifactRef,
     ExtractionAttemptLedger,
     ExtractionAttemptRecord,
     ProblemExtractionContext,
@@ -35,6 +36,20 @@ def test_context_hash_tampering_fails_loud() -> None:
 
     with pytest.raises(ProblemExtractionContextError) as error:
         ProblemExtractionContext.from_payload(payload)
+    assert error.value.code == "extraction.context_hash_mismatch"
+
+
+def test_content_addressed_artifact_id_drift_is_a_context_hash_error() -> None:
+    artifact = ExtractionArtifactRef(
+        artifact_id="artifact:wrong:" + "0" * 64,
+        kind="source_page",
+        sha256="0" * 64,
+        media_type="image/png",
+    )
+
+    with pytest.raises(ProblemExtractionContextError) as error:
+        artifact.validate("$.artifact")
+
     assert error.value.code == "extraction.context_hash_mismatch"
 
 

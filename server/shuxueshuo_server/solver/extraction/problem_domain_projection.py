@@ -5,8 +5,11 @@ from __future__ import annotations
 from copy import deepcopy
 from dataclasses import dataclass
 import re
+from types import MappingProxyType
 from typing import Any, Iterable, Mapping, Sequence
 import unicodedata
+
+from jsonschema import Draft202012Validator
 
 from shuxueshuo_server.solver.extraction.problem_domain import (
     ProblemDomainError,
@@ -20,7 +23,13 @@ from shuxueshuo_server.solver.extraction.problem_domain import (
 from shuxueshuo_server.solver.family import DEFAULT_FAMILY_REGISTRY
 from shuxueshuo_server.solver.problem_models import ProblemIR
 from shuxueshuo_server.solver.runtime.projection import problem_from_canonical_input
-from shuxueshuo_server.solver.extraction.source_identity import stable_hash, thaw_json
+from shuxueshuo_server.solver.extraction.source_identity import (
+    stable_hash,
+    thaw_json,
+)
+
+
+SOLVER_PROBLEM_PROJECTION_CONTRACT = "solver-problem-projection/v1"
 
 
 _ENTITY_RUNTIME_KIND = {
@@ -40,13 +49,29 @@ def _normalized_source_name(value: str) -> str:
 
 @dataclass(frozen=True)
 class RuntimeProjectionManifest:
+    problem_id: str
+    family_id: str
     problem_revision_id: str
     problem_semantic_hash: str
     runtime_node_sources: Mapping[str, tuple[str, ...]]
     value_object_sources: Mapping[str, tuple[str, ...]]
 
+    def __post_init__(self) -> None:
+        object.__setattr__(
+            self,
+            "runtime_node_sources",
+            _freeze_source_mapping(self.runtime_node_sources),
+        )
+        object.__setattr__(
+            self,
+            "value_object_sources",
+            _freeze_source_mapping(self.value_object_sources),
+        )
+
     def to_payload(self) -> dict[str, Any]:
         return {
+            "problem_id": self.problem_id,
+            "family_id": self.family_id,
             "problem_revision_id": self.problem_revision_id,
             "problem_semantic_hash": self.problem_semantic_hash,
             "runtime_node_sources": {
@@ -59,6 +84,23 @@ class RuntimeProjectionManifest:
             },
         }
 
+    @classmethod
+    def from_payload(cls, payload: Mapping[str, Any]) -> "RuntimeProjectionManifest":
+        return cls(
+            problem_id=str(payload["problem_id"]),
+            family_id=str(payload["family_id"]),
+            problem_revision_id=str(payload["problem_revision_id"]),
+            problem_semantic_hash=str(payload["problem_semantic_hash"]),
+            runtime_node_sources=_source_mapping_from_payload(
+                payload["runtime_node_sources"],
+                "$.manifest.runtime_node_sources",
+            ),
+            value_object_sources=_source_mapping_from_payload(
+                payload["value_object_sources"],
+                "$.manifest.value_object_sources",
+            ),
+        )
+
 
 @dataclass(frozen=True)
 class SolverProblemProjection:
@@ -68,9 +110,143 @@ class SolverProblemProjection:
 
     def to_payload(self) -> dict[str, Any]:
         return {
+            "schema_version": SOLVER_PROBLEM_PROJECTION_CONTRACT,
             "canonical_input": deepcopy(dict(self.canonical_input)),
             "manifest": self.manifest.to_payload(),
         }
+
+    @classmethod
+    def from_payload(cls, payload: Mapping[str, Any]) -> "SolverProblemProjection":
+        errors = sorted(
+            _solver_problem_projection_validator().iter_errors(payload),
+            key=lambda item: tuple(str(part) for part in item.absolute_path),
+        )
+        if errors:
+            first = errors[0]
+            path = "$" + "".join(
+                f"[{part}]" if isinstance(part, int) else f".{part}"
+                for part in first.absolute_path
+            )
+            raise ProblemDomainError(
+                "extraction.problem_projection_failed",
+                path,
+                first.message,
+            )
+        canonical_input = payload["canonical_input"]
+        manifest_payload = payload["manifest"]
+        assert isinstance(canonical_input, Mapping)
+        assert isinstance(manifest_payload, Mapping)
+        try:
+            problem = problem_from_canonical_input(canonical_input)
+        except Exception as exc:
+            raise ProblemDomainError(
+                "extraction.problem_projection_failed",
+                "$.canonical_input",
+                f"Solver ProblemIR projection failed: {exc}",
+            ) from exc
+        manifest = RuntimeProjectionManifest.from_payload(manifest_payload)
+        if manifest.problem_id != str(canonical_input["problem_id"]):
+            raise ProblemDomainError(
+                "extraction.problem_projection_failed",
+                "$.manifest.problem_id",
+                "projection manifest problem_id differs from canonical input",
+            )
+        return cls(
+            canonical_input=canonical_input,
+            problem=problem,
+            manifest=manifest,
+        )
+
+    @property
+    def projection_hash(self) -> str:
+        return stable_hash(self.to_payload())
+
+
+def solver_problem_projection_schema() -> dict[str, Any]:
+    source_mapping = {
+        "type": "object",
+        "minProperties": 1,
+        "additionalProperties": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": True,
+            "items": {"type": "string", "minLength": 1},
+        },
+    }
+    return {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "solver-problem-projection.schema.json",
+        "title": "Solver Problem Projection",
+        "type": "object",
+        "required": ["schema_version", "canonical_input", "manifest"],
+        "additionalProperties": False,
+        "properties": {
+            "schema_version": {"const": SOLVER_PROBLEM_PROJECTION_CONTRACT},
+            "canonical_input": {"type": "object"},
+            "manifest": {
+                "type": "object",
+                "required": [
+                    "problem_id",
+                    "family_id",
+                    "problem_revision_id",
+                    "problem_semantic_hash",
+                    "runtime_node_sources",
+                    "value_object_sources",
+                ],
+                "additionalProperties": False,
+                "properties": {
+                    "problem_id": {"type": "string", "minLength": 1},
+                    "family_id": {"type": "string", "minLength": 1},
+                    "problem_revision_id": {
+                        "type": "string",
+                        "pattern": "^(problem-revision:[a-f0-9]{64}|unverified)$",
+                    },
+                    "problem_semantic_hash": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{64}$",
+                    },
+                    "runtime_node_sources": source_mapping,
+                    "value_object_sources": {
+                        **source_mapping,
+                        "minProperties": 0,
+                    },
+                },
+            },
+        },
+    }
+
+
+def _solver_problem_projection_validator() -> Draft202012Validator:
+    schema = solver_problem_projection_schema()
+    Draft202012Validator.check_schema(schema)
+    return Draft202012Validator(schema)
+
+
+def _freeze_source_mapping(
+    value: Mapping[str, Sequence[str]],
+) -> Mapping[str, tuple[str, ...]]:
+    return MappingProxyType(
+        {
+            str(key): tuple(sorted({str(item) for item in sources}))
+            for key, sources in sorted(value.items())
+        }
+    )
+
+
+def _source_mapping_from_payload(
+    value: Any,
+    path: str,
+) -> Mapping[str, tuple[str, ...]]:
+    if not isinstance(value, Mapping):
+        raise ProblemDomainError(
+            "extraction.problem_projection_failed",
+            path,
+            "source mapping must be an object",
+        )
+    return {
+        str(key): tuple(str(item) for item in sources)
+        for key, sources in value.items()
+    }
 
 
 @dataclass(frozen=True)
@@ -314,13 +490,13 @@ class ProblemDomainProjector:
         for scope in graph.root_scope.iter_scopes():
             for entity in scope.entities:
                 resolved = index.entity_by_unit_id[entity.unit_id]
-                payload = self._project_entity(
+                payload, source_unit_ids = self._project_entity(
                     resolved,
                     facts_by_scope=facts_by_scope,
                     index=index,
                 )
                 canonical_entities.append(payload)
-                runtime_sources.setdefault(resolved.handle, set()).add(entity.unit_id)
+                runtime_sources.setdefault(resolved.handle, set()).update(source_unit_ids)
 
         canonical_facts: list[dict[str, Any]] = []
         paired_units: set[str] = set()
@@ -422,6 +598,28 @@ class ProblemDomainProjector:
             "facts": canonical_facts,
             "question_goals": canonical_goals,
         }
+        projected_source_units = {
+            source_unit_id
+            for source_unit_ids in runtime_sources.values()
+            for source_unit_id in source_unit_ids
+        }
+        required_source_units = {
+            unit_id
+            for scope in graph.root_scope.iter_scopes()
+            for unit_id in (
+                scope.unit_id,
+                *(item.unit_id for item in scope.entities),
+                *(item.unit_id for item in scope.facts),
+                *(item.unit_id for item in scope.goals),
+            )
+        }
+        missing_source_units = sorted(required_source_units - projected_source_units)
+        if missing_source_units:
+            raise ProblemDomainError(
+                "extraction.problem_projection_failed",
+                "$.manifest.runtime_node_sources",
+                "source unit has no runtime projection: " + missing_source_units[0],
+            )
         try:
             runtime_problem = problem_from_canonical_input(canonical_input)
         except Exception as exc:
@@ -434,6 +632,8 @@ class ProblemDomainProjector:
             canonical_input=canonical_input,
             problem=runtime_problem,
             manifest=RuntimeProjectionManifest(
+                problem_id=graph.problem_id,
+                family_id=graph.family_id,
                 problem_revision_id=revision_id,
                 problem_semantic_hash=semantic_hash or graph.semantic_hash,
                 runtime_node_sources={
@@ -451,9 +651,10 @@ class ProblemDomainProjector:
         *,
         facts_by_scope: Mapping[str, tuple[ProblemFact, ...]],
         index: ProblemDomainIndex,
-    ) -> dict[str, Any]:
+    ) -> tuple[dict[str, Any], tuple[str, ...]]:
         entity = resolved.entity
         scope_path = resolved.scope.path_id
+        source_unit_ids = {entity.unit_id}
         base: dict[str, Any] = {
             "handle": resolved.handle,
             "entity_type": _ENTITY_RUNTIME_KIND[entity.kind],
@@ -464,7 +665,7 @@ class ProblemDomainProjector:
         attrs = entity.attributes
         if entity.kind == "symbol":
             base["role"] = str(attrs["role"])
-            return base
+            return base, tuple(sorted(source_unit_ids))
         if entity.kind == "quadratic_function":
             expression_fact = _visible_fact_for_entity(
                 index,
@@ -479,6 +680,7 @@ class ProblemDomainProjector:
                     f"$.root[{scope_path}].entities[{entity.local_id}]",
                     "quadratic function is missing function_expression",
                 )
+            source_unit_ids.add(expression_fact.unit_id)
             base.update(
                 {
                     "function_type": "quadratic",
@@ -496,7 +698,8 @@ class ProblemDomainProjector:
             )
             if equation is not None:
                 base["coefficient_relation"] = str(equation.attributes["expression"])
-            return base
+                source_unit_ids.add(equation.unit_id)
+            return base, tuple(sorted(source_unit_ids))
         if entity.kind == "named_ray":
             base["origin"] = index.resolve_kind(
                 scope_path, str(attrs["origin"]), ("point",)
@@ -504,13 +707,13 @@ class ProblemDomainProjector:
             base["through"] = index.resolve_kind(
                 scope_path, str(attrs["through"]), ("point",)
             ).handle
-            return base
+            return base, tuple(sorted(source_unit_ids))
         if entity.kind == "named_line":
             base["points"] = [
                 index.resolve_kind(scope_path, str(item), ("point",)).handle
                 for item in attrs["points"]
             ]
-            return base
+            return base, tuple(sorted(source_unit_ids))
         if entity.kind == "polygon":
             base.update(
                 {
@@ -521,12 +724,12 @@ class ProblemDomainProjector:
                     ],
                 }
             )
-            return base
+            return base, tuple(sorted(source_unit_ids))
         if entity.kind == "scalar_expression":
             base["expression"] = str(attrs["expression"])
-            return base
+            return base, tuple(sorted(source_unit_ids))
         if entity.kind != "point":
-            return base
+            return base, tuple(sorted(source_unit_ids))
 
         relevant = _facts_targeting_entity(index, scope_path, entity.local_id)
         coordinate = next((fact for fact in relevant if fact.kind == "point_coordinate"), None)
@@ -549,11 +752,14 @@ class ProblemDomainProjector:
         )
         if coordinate is not None:
             base["coordinate"] = [str(item) for item in coordinate.attributes["value"]]
+            source_unit_ids.add(coordinate.unit_id)
         if construction is not None:
             _apply_point_construction(base, construction, scope_path, index)
+            source_unit_ids.add(construction.unit_id)
         elif relation is not None:
             _apply_relation_owned_point_definition(base, relation, scope_path, index)
-        return base
+            source_unit_ids.add(relation.unit_id)
+        return base, tuple(sorted(source_unit_ids))
 
     @staticmethod
     def _project_fact(

@@ -10,6 +10,7 @@ from shuxueshuo_server.solver.extraction.context import (
     ExtractionProjection,
     ProblemExtractionContext,
     ProblemExtractionContextBuilder,
+    SOLVER_PROBLEM_PROJECTION_ARTIFACT_KIND,
 )
 from shuxueshuo_server.solver.extraction.f0_adapter import (
     F0ExtractionContextSeed,
@@ -71,6 +72,14 @@ from shuxueshuo_server.solver.extraction.problem_domain_debug import (
 from shuxueshuo_server.solver.extraction.problem_domain_projection import (
     ProblemDomainProjector,
     SolverProblemProjection,
+    solver_problem_projection_schema,
+)
+from shuxueshuo_server.solver.extraction.problem_solver_bundle import (
+    ProblemBundleAuthorityError,
+    ProblemBundleAuthorityToken,
+    RuntimeProjectionIndex,
+    VerifiedSolverProblemBundle,
+    VerifiedSolverProblemBundleLoader,
 )
 from shuxueshuo_server.solver.extraction.problem_domain_service import (
     ProblemDomainExtractionAttemptResult,
@@ -117,12 +126,16 @@ __all__ = [
     "ProblemDomainExtractionRunResult",
     "ProblemDomainExtractionService",
     "ProblemDomainProjector",
+    "ProblemBundleAuthorityError",
+    "ProblemBundleAuthorityToken",
     "ProblemDomainValidationResult",
     "ProblemDomainValidator",
     "ProblemGraph",
     "ProblemPromotionService",
     "ProblemRepairPatch",
     "ProblemRepairService",
+    "RuntimeProjectionIndex",
+    "SOLVER_PROBLEM_PROJECTION_ARTIFACT_KIND",
     "ProblemRegionProposer",
     "ProblemSemanticDiffReport",
     "ProblemSourceFingerprint",
@@ -133,6 +146,8 @@ __all__ = [
     "SourceSelection",
     "SolverProblemProjection",
     "VerifiedProblem",
+    "VerifiedSolverProblemBundle",
+    "VerifiedSolverProblemBundleLoader",
     "audit_gold_corpus",
     "compare_problem_semantics",
     "compare_solver_projection_semantics",
@@ -144,4 +159,5 @@ __all__ = [
     "problem_domain_schema",
     "problem_repair_response_format",
     "problem_repair_schema",
+    "solver_problem_projection_schema",
 ]

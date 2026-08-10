@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor
+from copy import deepcopy
 from dataclasses import dataclass, field, replace
 from io import BytesIO
 import json
@@ -11,7 +12,10 @@ from typing import Callable
 import pytest
 from PIL import Image
 
-from shuxueshuo_server.solver.extraction.context import ExtractionAttemptLedger
+from shuxueshuo_server.solver.extraction.context import (
+    ExtractionAttemptLedger,
+    SOLVER_PROBLEM_PROJECTION_ARTIFACT_KIND,
+)
 from shuxueshuo_server.solver.extraction.multimodal_provider import (
     MultimodalProviderImage,
     MultimodalProviderError,
@@ -32,6 +36,10 @@ from shuxueshuo_server.solver.extraction.problem_domain_service import (
 )
 from shuxueshuo_server.solver.extraction.problem_domain_validation import (
     ProblemDomainValidator,
+)
+from shuxueshuo_server.solver.extraction.problem_solver_bundle import (
+    ProblemBundleAuthorityError,
+    VerifiedSolverProblemBundleLoader,
 )
 from shuxueshuo_server.solver.extraction.source_identity import (
     ProblemExtractionContextError,
@@ -156,9 +164,20 @@ def test_full_selection_transport_image_is_downsampled_without_cropping(tmp_path
     assert actual.artifact.sha256 != artifact.sha256
 
 
-def test_first_pass_accepts_one_complete_domain_and_commits_verified_problem(tmp_path) -> None:
+def test_first_pass_accepts_one_complete_domain_and_commits_verified_problem(
+    tmp_path,
+    monkeypatch,
+) -> None:
     fixture, _, context, store, _ = make_f3_fixture(tmp_path)
     provider = _SequenceProvider([json.dumps(_domain_payload(), ensure_ascii=False)])
+    audited_context_ids: list[str] = []
+    original_load = VerifiedSolverProblemBundleLoader.load
+
+    def audited_load(self, accepted, artifact_reader, **kwargs):
+        audited_context_ids.append(accepted.manifest.context_id)
+        return original_load(self, accepted, artifact_reader, **kwargs)
+
+    monkeypatch.setattr(VerifiedSolverProblemBundleLoader, "load", audited_load)
 
     result = _service(tmp_path, store, provider).run(
         context,
@@ -174,11 +193,40 @@ def test_first_pass_accepts_one_complete_domain_and_commits_verified_problem(tmp
         result.verified_problem.revision_id
     )
     assert result.final_context.retry.attempts_used == context.retry.attempts_used + 1
+    assert audited_context_ids == [result.final_context.manifest.context_id]
     request = provider.requests[0]
     assert request.contract_version == "problem-domain/v1"
     assert request.thinking_mode == "disabled"
     assert request.reasoning_effort is None
     assert [image.role for image in request.images] == ["primary"]
+
+
+def test_acceptance_bundle_audit_failure_is_not_exposed_as_success(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    fixture, _, context, store, _ = make_f3_fixture(tmp_path)
+    provider = _SequenceProvider([json.dumps(_domain_payload(), ensure_ascii=False)])
+    original_put_json = store.put_json
+
+    def corrupt_projection(*, kind, payload):
+        if kind == SOLVER_PROBLEM_PROJECTION_ARTIFACT_KIND:
+            payload = deepcopy(payload)
+            first = next(iter(payload["manifest"]["runtime_node_sources"]))
+            del payload["manifest"]["runtime_node_sources"][first]
+        return original_put_json(kind=kind, payload=payload)
+
+    monkeypatch.setattr(store, "put_json", corrupt_projection)
+
+    with pytest.raises(ProblemBundleAuthorityError) as error:
+        _service(tmp_path, store, provider).run(
+            context,
+            attempt_ledger=ExtractionAttemptLedger.for_context(context),
+            ancestor_contexts=(fixture.context,),
+        )
+
+    assert error.value.code == "planner.problem_projection_manifest_drift"
+    assert len(provider.requests) == 1
 
 
 def test_provider_call_does_not_hold_attempt_ledger_lock(tmp_path) -> None:

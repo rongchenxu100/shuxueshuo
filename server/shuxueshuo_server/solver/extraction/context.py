@@ -23,6 +23,7 @@ from shuxueshuo_server.solver.extraction.source_identity import (
 
 
 CONTEXT_SCHEMA_VERSION = "problem-extraction-context/v3"
+SOLVER_PROBLEM_PROJECTION_ARTIFACT_KIND = "solver_problem_projection"
 AttemptResult = Literal[
     "succeeded",
     "timeout",
@@ -57,6 +58,13 @@ class ExtractionArtifactRef:
                 "artifact id and kind are required",
             )
         _validate_sha(self.sha256, f"{path}.sha256")
+        expected_artifact_id = f"artifact:{self.kind}:{self.sha256}"
+        if self.artifact_id != expected_artifact_id:
+            raise _error(
+                "extraction.context_hash_mismatch",
+                f"{path}.artifact_id",
+                "artifact id does not match kind and content hash",
+            )
         if self.byte_size is not None and self.byte_size < 0:
             raise _error(
                 "extraction.attempt_ledger_mismatch",
@@ -224,6 +232,17 @@ class ExtractionProjection:
     problem_semantic_hash: str | None = None
     family_id: str | None = None
     validation_artifact_id: str | None = None
+
+    @property
+    def solver_problem_projection_artifact_id(self) -> str | None:
+        """Semantic alias for the legacy Context v3 wire field.
+
+        ``solver_problem_ir_artifact_id`` stores a
+        ``solver-problem-projection/v1`` envelope, not a bare ProblemIR payload.
+        New consumers must use this alias and the bundle loader.
+        """
+
+        return self.solver_problem_ir_artifact_id
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -869,7 +888,7 @@ def _validate_projection(projection: ExtractionProjection, state: ExtractionStat
     authority_values = (
         projection.problem_draft_artifact_id,
         projection.verified_problem_artifact_id,
-        projection.solver_problem_ir_artifact_id,
+        projection.solver_problem_projection_artifact_id,
         projection.problem_revision_id,
         projection.problem_semantic_hash,
         projection.family_id,
@@ -890,7 +909,7 @@ def _validate_projection(projection: ExtractionProjection, state: ExtractionStat
     if projection.status == "accepted":
         required = (
             projection.verified_problem_artifact_id,
-            projection.solver_problem_ir_artifact_id,
+            projection.solver_problem_projection_artifact_id,
             projection.problem_revision_id,
             projection.problem_semantic_hash,
             projection.family_id,
@@ -899,13 +918,22 @@ def _validate_projection(projection: ExtractionProjection, state: ExtractionStat
             any(value is None for value in required)
             or projection.problem_draft_artifact_id is not None
             or projection.verified_problem_artifact_id not in artifact_ids
-            or projection.solver_problem_ir_artifact_id not in artifact_ids
+            or projection.solver_problem_projection_artifact_id not in artifact_ids
         ):
             raise _error("extraction.context_hash_mismatch", "$.projection", "accepted projection authority is incomplete")
         if artifact_kind_by_id.get(projection.verified_problem_artifact_id) != "verified_problem":
             raise _error("extraction.context_hash_mismatch", "$.projection.verified_problem_artifact_id", "verified problem artifact has the wrong kind")
-        if artifact_kind_by_id.get(projection.solver_problem_ir_artifact_id) != "solver_problem_ir":
-            raise _error("extraction.context_hash_mismatch", "$.projection.solver_problem_ir_artifact_id", "Solver ProblemIR artifact has the wrong kind")
+        if (
+            artifact_kind_by_id.get(
+                projection.solver_problem_projection_artifact_id
+            )
+            != SOLVER_PROBLEM_PROJECTION_ARTIFACT_KIND
+        ):
+            raise _error(
+                "extraction.context_hash_mismatch",
+                "$.projection.solver_problem_ir_artifact_id",
+                "Solver projection envelope artifact has the wrong kind",
+            )
         _validate_sha(str(projection.problem_semantic_hash), "$.projection.problem_semantic_hash")
         return
     if (
@@ -915,7 +943,7 @@ def _validate_projection(projection: ExtractionProjection, state: ExtractionStat
             value is not None
             for value in (
                 projection.verified_problem_artifact_id,
-                projection.solver_problem_ir_artifact_id,
+                projection.solver_problem_projection_artifact_id,
                 projection.problem_semantic_hash,
                 projection.family_id,
             )

@@ -10,6 +10,7 @@ from shuxueshuo_server.solver.extraction.context import (
     CONTEXT_SCHEMA_VERSION,
     ExtractionAttemptLedger,
     ProblemExtractionContext,
+    SOLVER_PROBLEM_PROJECTION_ARTIFACT_KIND,
 )
 from shuxueshuo_server.solver.extraction.problem_domain import (
     ProblemDraft,
@@ -46,7 +47,10 @@ def test_context_v3_accepted_round_trip_has_verified_and_solver_authority(tmp_pa
     projection = validation.projection
     assert projection is not None
     verified_artifact = store.put_json(kind="verified_problem", payload=verified.to_payload())
-    solver_artifact = store.put_json(kind="solver_problem_ir", payload=projection.to_payload())
+    solver_artifact = store.put_json(
+        kind=SOLVER_PROBLEM_PROJECTION_ARTIFACT_KIND,
+        payload=projection.to_payload(),
+    )
     validation_artifact = store.put_json(
         kind="problem_validation_report", payload=validation.report.to_payload()
     )
@@ -56,7 +60,7 @@ def test_context_v3_accepted_round_trip_has_verified_and_solver_authority(tmp_pa
         verified_problem=verified,
         solver_projection=projection,
         verified_artifact=verified_artifact,
-        solver_problem_ir_artifact=solver_artifact,
+        solver_problem_projection_artifact=solver_artifact,
         validation_artifact=validation_artifact,
         attempt_ledger=ExtractionAttemptLedger.for_context(context),
         ancestor_contexts=(fixture.context,),
@@ -71,6 +75,18 @@ def test_context_v3_accepted_round_trip_has_verified_and_solver_authority(tmp_pa
     assert hydrated.manifest.schema_version == CONTEXT_SCHEMA_VERSION
     assert hydrated.projection.status == "accepted"
     assert hydrated.projection.problem_draft_artifact_id is None
+    assert hydrated.projection.solver_problem_projection_artifact_id == (
+        hydrated.projection.solver_problem_ir_artifact_id
+    )
+    assert (
+        next(
+            item.kind
+            for item in hydrated.state.artifacts
+            if item.artifact_id
+            == hydrated.projection.solver_problem_projection_artifact_id
+        )
+        == SOLVER_PROBLEM_PROJECTION_ARTIFACT_KIND
+    )
     assert hydrated.projection.problem_revision_id == verified.revision_id
     assert hydrated.projection.problem_semantic_hash == verified.semantic_hash
 
@@ -125,7 +141,10 @@ def test_context_v3_rejects_projection_authority_tampering(tmp_path, field, valu
         verified_problem=verified,
         solver_projection=projection,
         verified_artifact=store.put_json(kind="verified_problem", payload=verified.to_payload()),
-        solver_problem_ir_artifact=store.put_json(kind="solver_problem_ir", payload=projection.to_payload()),
+        solver_problem_projection_artifact=store.put_json(
+            kind=SOLVER_PROBLEM_PROJECTION_ARTIFACT_KIND,
+            payload=projection.to_payload(),
+        ),
         validation_artifact=store.put_json(kind="problem_validation_report", payload=validation.report.to_payload()),
         attempt_ledger=ExtractionAttemptLedger.for_context(context),
         ancestor_contexts=(fixture.context,),
@@ -149,4 +168,3 @@ def test_context_v2_payload_is_intentionally_rejected() -> None:
 
     with pytest.raises(ProblemExtractionContextError):
         ProblemExtractionContext.from_payload(payload)
-

@@ -18,6 +18,7 @@ from shuxueshuo_server.solver.extraction.context import (
     ExtractionAttemptLedger,
     ExtractionAttemptRecord,
     ProblemExtractionContext,
+    SOLVER_PROBLEM_PROJECTION_ARTIFACT_KIND,
 )
 from shuxueshuo_server.solver.extraction.multimodal_evidence import (
     ExtractionArtifactReader,
@@ -51,6 +52,9 @@ from shuxueshuo_server.solver.extraction.problem_domain_context import (
 )
 from shuxueshuo_server.solver.extraction.problem_domain_projection import (
     SolverProblemProjection,
+)
+from shuxueshuo_server.solver.extraction.problem_solver_bundle import (
+    VerifiedSolverProblemBundleLoader,
 )
 from shuxueshuo_server.solver.extraction.problem_domain_validation import (
     ProblemDomainValidator,
@@ -645,20 +649,27 @@ class ProblemDomainExtractionService:
         verified_artifact = self.output_artifact_store.put_json(
             kind="verified_problem", payload=verified.to_payload()
         )
-        solver_artifact = self.output_artifact_store.put_json(
-            kind="solver_problem_ir", payload=projection.to_payload()
+        solver_projection_artifact = self.output_artifact_store.put_json(
+            kind=SOLVER_PROBLEM_PROJECTION_ARTIFACT_KIND,
+            payload=projection.to_payload(),
         )
-        return self.context_transition.accepted(
+        accepted = self.context_transition.accepted(
             context,
             verified_problem=verified,
             solver_projection=projection,
             verified_artifact=verified_artifact,
-            solver_problem_ir_artifact=solver_artifact,
+            solver_problem_projection_artifact=solver_projection_artifact,
             validation_artifact=validation_artifact,
             attempt_ledger=ledger,
             artifacts=_attempt_artifacts(attempts),
             ancestor_contexts=ancestor_contexts,
         )
+        VerifiedSolverProblemBundleLoader().load(
+            accepted,
+            self.output_artifact_store,
+            ancestor_contexts=(*ancestor_contexts, context),
+        )
+        return accepted
 
     def _blocked_context(
         self,

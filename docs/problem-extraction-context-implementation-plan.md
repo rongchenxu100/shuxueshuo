@@ -24,7 +24,8 @@ Track F把题目来源转换为可追溯、可局部修复并可确定投影到S
 | F2 SourceObservation / review pack | `COMPLETE` |
 | F3 Domain extraction | `COMPLETE` |
 | F4 Validation / patch retry authority | `COMPLETE` |
-| F5 Solver lifecycle consumption | `NEXT` |
+| F5-A Bundle authority | `COMPLETE` |
+| F5-B–E Scoped planning / Solver lifecycle | `NEXT` |
 
 系统尚未上线。Extraction只支持当前schema，不保留旧candidate、整份ProblemIR retry或Context迁移链。
 
@@ -234,7 +235,7 @@ Debug按attempt保存完整题图/zoom、prompt、redacted request、raw respons
 ### 最终验收证据（2026-08-10）
 
 - F3/F4 authority联合门禁：`172 passed`。
-- 全量Solver离线回归：`1530 passed, 12 skipped`；`git diff --check`通过。
+- 全量Solver离线回归：`1557 passed, 12 skipped`；`git diff --check`通过。
 - `problem-domain-final-5x1-20260810`中四题首轮严格通过；河西暴露无穷端约束死循环，修复后`problem-domain-hexi-final-fix-20260810`首轮严格通过。
 - `problem-domain-final-acceptance-20260810`的15份真实响应全部首轮accepted，family和Solver ProblemIR投影均为15/15一致；其中两份南开使用“x轴从属+对称轴从属”表达`axis_x_intercept`，历史batch按旧Domain hash记录为13/15。
 - 最终canonicalizer对上述15份live artifact确定性重放后domain semantic hash为15/15一致；`problem-domain-nankai-final-canonicalization-20260810`再以最新prompt和代码真实补跑，3/3首轮严格通过。
@@ -302,20 +303,25 @@ F5消费一个不可变bundle：
 VerifiedSolverProblemBundle
   extraction_context_id
   verified_problem_artifact_id
-  solver_problem_ir_artifact_id
-  projection_manifest_artifact_id
+  solver_problem_projection_artifact_id
+  validation_artifact_id
   problem_revision_id
   problem_semantic_hash
   family_id
+  bundle_id
 ```
+
+Context v3的JSON wire仍使用历史字段`solver_problem_ir_artifact_id`，但代码只通过
+`solver_problem_projection_artifact_id`语义alias读取；该引用的artifact kind固定为
+`solver_problem_projection`，内容必须是`solver-problem-projection/v1` envelope，绝不是裸ProblemIR JSON。
 
 三份artifact职责不同：
 
 - `VerifiedProblem`：题面scope树、Entity、Fact和Goal的语义权威；
-- canonical Solver ProblemIR：现有ContextBuilder、family admission和runtime的扁平物理输入；
-- projection manifest：保存domain scope path、source unit、ProblemIR handle、goal answer handle和runtime identity之间的确定映射。
+- `solver-problem-projection/v1`：原子保存canonical Solver ProblemIR和projection manifest；前者供ContextBuilder、family admission和runtime使用，后者保存source unit、ProblemIR handle、goal answer handle和runtime identity之间的确定映射；
+- validation report：必须为成功且与VerifiedProblem verification proof完全一致。
 
-Solver ProblemIR schema保持不变。F5不要求把runtime wire改为嵌套结构，也不允许Planner从扁平数组、显示label或handle猜回scope。
+不建立独立manifest artifact，避免ProblemIR与manifest出现双份提交漂移。Solver ProblemIR schema保持不变。F5不要求把runtime wire改为嵌套结构，也不允许Planner从扁平数组、显示label或handle猜回scope。
 
 ### 8.2 Planner语义视图
 
@@ -344,10 +350,11 @@ ProblemPlanningGoalView
 
 ### 8.3 分步实现
 
-1. **F5-A Bundle authority**
-   - 新增accepted Context loader，校验三份artifact、revision、semantic hash、family和dependency闭包。
-   - projection manifest必须覆盖每个可规划source unit和Goal；重复、悬空或多义映射fail loud。
-   - blocked、pending、stale Context以及任一artifact漂移均不得进入Planner。
+1. **F5-A Bundle authority（COMPLETE）**
+   - accepted Context loader校验完整ancestor chain、三个authority artifact、revision、semantic hash、family和dependency闭包。
+   - projection manifest覆盖每个scope/entity/fact/goal source unit和全部runtime node；折入Entity的function/point Fact仍保留source provenance。
+   - blocked、pending和任一artifact漂移不得进入Planner。历史accepted Context是有效不可变快照；只有显式expected authority token不匹配时才判stale。
+   - 五题bundle可确定重放，F0–F5-A联合回归`318 passed`；加载阶段OCR、LLM、domain projector、Planner和完整Solver调用数均为0。
 
 2. **F5-B Scope-native planning projection**
    - 从VerifiedProblem建立scope index、共享祖先摘要和逐Goal可见unit集合。

@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "solver-problem-projection.schema.json",
+  "title": "Solver Problem Projection",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "canonical_input",
+    "manifest"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "solver-problem-projection/v1"
+    },
+    "canonical_input": {
+      "type": "object"
+    },
+    "manifest": {
+      "type": "object",
+      "required": [
+        "problem_id",
+        "family_id",
+        "problem_revision_id",
+        "problem_semantic_hash",
+        "runtime_node_sources",
+        "value_object_sources"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "problem_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "family_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "problem_revision_id": {
+          "type": "string",
+          "pattern": "^(problem-revision:[a-f0-9]{64}|unverified)$"
+        },
+        "problem_semantic_hash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "runtime_node_sources": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "value_object_sources": {
+          "type": "object",
+          "minProperties": 0,
+          "additionalProperties": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    }
+  }
+}

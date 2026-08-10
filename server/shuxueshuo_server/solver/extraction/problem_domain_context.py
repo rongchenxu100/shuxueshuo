@@ -14,6 +14,7 @@ from shuxueshuo_server.solver.extraction.context import (
     ExtractionState,
     ProblemExtractionContext,
     ProblemExtractionContextBuilder,
+    SOLVER_PROBLEM_PROJECTION_ARTIFACT_KIND,
 )
 from shuxueshuo_server.solver.extraction.problem_domain import (
     ProblemDraft,
@@ -147,14 +148,17 @@ class ProblemDomainContextTransitionService:
         verified_problem: VerifiedProblem,
         solver_projection: SolverProblemProjection,
         verified_artifact: ExtractionArtifactRef,
-        solver_problem_ir_artifact: ExtractionArtifactRef,
+        solver_problem_projection_artifact: ExtractionArtifactRef,
         validation_artifact: ExtractionArtifactRef,
         attempt_ledger: ExtractionAttemptLedger,
         artifacts: Sequence[ExtractionArtifactRef] = (),
         ancestor_contexts: Sequence[ProblemExtractionContext] = (),
     ) -> ProblemExtractionContext:
         _require_artifact(verified_artifact, "verified_problem")
-        _require_artifact(solver_problem_ir_artifact, "solver_problem_ir")
+        _require_artifact(
+            solver_problem_projection_artifact,
+            SOLVER_PROBLEM_PROJECTION_ARTIFACT_KIND,
+        )
         _require_artifact(validation_artifact, "problem_validation_report")
         if (
             solver_projection.manifest.problem_revision_id
@@ -173,7 +177,7 @@ class ProblemDomainContextTransitionService:
                 (
                     *artifacts,
                     verified_artifact,
-                    solver_problem_ir_artifact,
+                    solver_problem_projection_artifact,
                     validation_artifact,
                 ),
             ),
@@ -194,7 +198,11 @@ class ProblemDomainContextTransitionService:
             projection=ExtractionProjection(
                 status="accepted",
                 verified_problem_artifact_id=verified_artifact.artifact_id,
-                solver_problem_ir_artifact_id=solver_problem_ir_artifact.artifact_id,
+                # Context v3 retains this wire field name; its artifact is the
+                # versioned Solver projection envelope, never bare ProblemIR.
+                solver_problem_ir_artifact_id=(
+                    solver_problem_projection_artifact.artifact_id
+                ),
                 problem_revision_id=verified_problem.revision_id,
                 problem_semantic_hash=verified_problem.semantic_hash,
                 family_id=verified_problem.family_id,

@@ -377,7 +377,10 @@
         "status": { "enum": ["pending", "accepted", "blocked"] },
         "problem_draft_artifact_id": { "$ref": "#/$defs/nullable_string" },
         "verified_problem_artifact_id": { "$ref": "#/$defs/nullable_string" },
-        "solver_problem_ir_artifact_id": { "$ref": "#/$defs/nullable_string" },
+        "solver_problem_ir_artifact_id": {
+          "$ref": "#/$defs/nullable_string",
+          "description": "Legacy Context v3 wire name for a solver_problem_projection artifact containing solver-problem-projection/v1; this is not bare ProblemIR JSON."
+        },
         "problem_revision_id": { "$ref": "#/$defs/nullable_string" },
         "problem_semantic_hash": { "$ref": "#/$defs/nullable_string" },
         "family_id": { "$ref": "#/$defs/nullable_string" },
